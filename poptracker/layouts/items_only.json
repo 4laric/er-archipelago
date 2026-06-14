@@ -1,0 +1,16 @@
+{
+  "tracker_default": {
+    "type": "array",
+    "orientation": "vertical",
+    "margin": [4, 4],
+    "content": [
+      {
+        "type": "group",
+        "header": "Tracked items (locks + key items)",
+        "content": [
+          { "type": "layout", "key": "item_grid" }
+        ]
+      }
+    ]
+  }
+}

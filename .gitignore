@@ -1,0 +1,33 @@
+# ER-Archipelago superrepo .gitignore
+# The 6 4laric forks are SUBMODULES (tracked by gitlink, not by content here).
+# Everything below is deliberately NOT committed to the superrepo.
+
+# --- third-party upstream deps: re-clone manually, see SUPERREPO-SETUP.md ---
+/Paramdex/
+/yet-another-tab-control/
+
+# --- non-repo vendored / large dirs ---
+# Contains the copyrighted game exe + vanilla param dumps. NEVER commit (licensing).
+/elden_ring_artifacts/
+# AP generation test output.
+/gen-test/
+# Downloaded Nexus randomizer package.
+/Elden Ring Randomizer-428-v0-11-4-1763103112 (2)/
+
+# --- generated / build outputs ---
+eldenring.apworld          # packaged apworld (rebuilt by build.ps1)
+apconfig.json              # bake output (slot/seed/location_flags)
+preflight_*.log
+*.log
+
+# --- backups / archives ---
+*.bak
+*.tar.gz
+
+# --- python cache (poptracker generator) ---
+__pycache__/
+*.pyc
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db

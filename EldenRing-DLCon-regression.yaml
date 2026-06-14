@@ -1,0 +1,47 @@
+# ER Archipelago -- DLC-ON REGRESSION config (staged; do NOT leave in Players\ during the
+# DLC-off #7 test). After the DLC-off bake test passes, swap this into Archipelago\Players\
+# (replacing the DLC-off EldenRing.yaml) and re-run -Generate -Bake to confirm DLC-on still
+# bakes with no regression from the findLoops fix. This is a verbatim copy of the validated
+# sync config (DLC content, Elden Beast goal).
+
+name: Alaric
+description: ER AP sync config (DLC content, Elden Beast goal).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true            # validated config
+  ending_condition: elden_beast   # goal = Elden Beast (NOT Consort) even with DLC on
+  death_link: false           # explicit OFF (also stubbed client-side)
+
+  # Region gating ON (explicit; this is also the default). Per-region lock items give the
+  # seed real spheres instead of everything-in-sphere-1. The open-world sphere bloat seen in
+  # playtest 3 was the TEST yaml's world_logic: open_world, NOT this sync config.
+  # region_lock = emergent/shuffled region order; pairs with the grace-bundle (TODO #13) so a
+  # region's Sites of Grace unlock with its lock item (fast travel, no Torrent slog).
+  world_logic: region_lock
+
+  # Region-fusion grace bundle (TODO #13): how many Sites of Grace unlock per region when you
+  # get its lock item (spatially spread -- a hub + coverage). 0=all (210), 1=hub only (29),
+  # 3=hub+coverage (75). Default 3. INERT until the client consumes regionGraces (client work
+  # is the remaining half). Tune freely; no regen needed -- it's an apworld option now.
+  graces_per_region: 3
+
+  # enemy rando ON (base+DLC validated, playtest 2). swap/rune toggles OFF -- they crash vs DLC
+  # enemies (TODO #1) and the apworld force-suppresses them under DLC anyway.
+  enemy_rando: true
+  swap_multiboss: false
+  boss_runes_match: false
+  impolite_enemies: false
+
+  # precollected QoL (proven precollect path)
+  bell_physick_option: start_with   # Spirit Calling Bell + Flask of Wondrous Physick at spawn
+  crafting_kit_option: start_with   # Crafting Kit at spawn (untested, same precollect path as bell)
+
+  # dungeon sweep ON
+  dungeon_sweep: all         # full sweep; for gentler multiworld bursts switch to: minidungeons
+
+  # maps: default "give" (revealed + freebie; pillar-leak fixed 2026-06-13). Left default.
+
+# AP-core (good for a sync: everything reachable, standard balancing)
+accessibility: full
+progression_balancing: 50

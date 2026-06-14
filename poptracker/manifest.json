@@ -1,0 +1,14 @@
+{
+  "name": "Elden Ring Archipelago (M0)",
+  "game_name": "EldenRing",
+  "package_uid": "elden-ring-archipelago",
+  "package_version": "0.1.0-beta.2",
+  "platform_target": "any",
+  "author": "ER-AP",
+  "variants": {
+    "compact": {
+      "display_name": "List only (no map)",
+      "flags": ["compact"]
+    }
+  }
+}
