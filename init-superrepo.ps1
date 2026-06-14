@@ -33,7 +33,11 @@
 param(
     [string]$SuperRemote = "",
     [switch]$NoCommit,
-    [switch]$DryRun
+    [switch]$DryRun,
+    # Set submodule.recurse=true so `git checkout`/`pull` auto-sync submodule working trees to the
+    # pinned SHAs. GREAT on a consumer/sync clone; RISKY on your dev box, where it can detach a
+    # submodule you're actively committing in. Off by default; pass on machines that only consume.
+    [switch]$AutoSyncSubmodules
 )
 
 $ErrorActionPreference = "Stop"
@@ -68,6 +72,24 @@ if (-not (Test-Path ".\.git")) {
     Run "git symbolic-ref HEAD refs/heads/main"
 } else {
     Write-Host "superrepo already initialized." -ForegroundColor Green
+}
+
+# --- 1b. submodule-aware config (local to this clone; .git/config isn't committed, so this
+#         script re-applies it on every machine). All safe-always except submodule.recurse. ---
+Write-Host "`n--- configuring submodule-aware git ---" -ForegroundColor Yellow
+# Show which submodule commits moved in `git status` / `git diff` (the lockfile is the point).
+Run "git config status.submoduleSummary true"
+Run "git config diff.submodule log"
+# Fetch referenced submodule commits when pulling the superrepo.
+Run "git config fetch.recurseSubmodules on-demand"
+# On `git push`, FAIL if a pinned submodule SHA isn't on its remote (can't be cloned otherwise).
+# This reinforces push.ps1 -Superrepo (which pushes the forks first).
+Run "git config push.recurseSubmodules check"
+if ($AutoSyncSubmodules) {
+    Run "git config submodule.recurse true"
+    Write-Host "submodule.recurse=true (checkout/pull will move submodule HEADs to pinned SHAs)." -ForegroundColor Green
+} else {
+    Write-Host "submodule.recurse left OFF (dev-safe). Re-run with -AutoSyncSubmodules on consumer clones." -ForegroundColor Green
 }
 
 # --- 2. preflight: warn (don't stop) on dirty / unpushed forks ---
