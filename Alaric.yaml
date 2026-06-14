@@ -1,0 +1,29 @@
+# ER Archipelago -- SYNC config. 2026-06-13.
+# DLC ON: the validated/playtested config (base-game DLC-OFF currently can't bake -- the
+# volcano_town requirement loop, TODO #7). Goal is Elden Beast (base-game finish; DLC content
+# is in the pool but you don't have to clear the DLC to win).
+# Slot drives the bake now (build.ps1 reads name: and passes slot=). RELEASE is a HOST setting:
+# Archipelago/host.yaml release_mode is armed to "auto-enabled" (manual !release anytime).
+
+name: Alaric
+description: ER AP sync config (DLC content, Elden Beast goal).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true            # validated config
+  ending_condition: elden_beast   # goal = Elden Beast (NOT Consort) even with DLC on
+  death_link: false           # explicit OFF (also stubbed client-side)
+
+  # enemy rando ON (base+DLC validated, playtest 2). swap/rune toggles OFF -- they crash vs DLC
+  # enemies (TODO #1) and the apworld force-suppresses them under DLC anyway.
+  enemy_rando: true
+  swap_multiboss: false
+  boss_runes_match: false
+  impolite_enemies: false
+
+  # precollected QoL (proven precollect path)
+  bell_physick_option: start_with   # Spirit Calling Bell + Flask of Wondrous Physick at spawn
+  crafting_kit_option: start_with   # Crafting Kit at spawn (untested, same precollect path as bell)
+
+  # dungeon sweep ON
+  dungeon_sweep: all         # full swe
