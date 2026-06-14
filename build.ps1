@@ -32,6 +32,8 @@ param(
     [switch]$Bake,
     [switch]$Enemies,
     [switch]$Deploy,
+    [switch]$NoCrashFix,
+    [switch]$Helper,
     [switch]$Clean,
     [switch]$Preflight,
     [switch]$LoopTest,
@@ -59,6 +61,23 @@ $RandoDir = Join-Path $Repo "SoulsRandomizers"
 $RandoExe = Join-Path $RandoDir "EldenRingRandomizer\bin\Release (Archipelago)\net6.0-windows\win-x64\EldenRingRandomizer.exe"
 $ClientDir = Join-Path $Repo "Dark-Souls-III-Archipelago-client\archipelago-client"
 $ClientDll = Join-Path $ClientDir "x64\Release\archipelago.dll"
+
+# RandomizerCrashFix.dll -- fifthmatt's redistributable companion (shipped in the v0.11.4 package).
+# Guards the cross-content enemy-placement CTDs that scripted legacy-dungeon intros are prone to once
+# base + DLC enemies are shuffled together -- the prime suspect for the Raya Lucaria entry crash
+# (TODO #10). Referenced from the package, NOT rebundled into source (licensing). Glob-resolved so the
+# exact package folder suffix can vary.
+$CrashFixDll = Get-ChildItem -Path $Repo -Directory -Filter 'Elden Ring Randomizer-428*' -ErrorAction SilentlyContinue |
+    ForEach-Object { Join-Path $_.FullName 'randomizer\dll\RandomizerCrashFix.dll' } |
+    Where-Object { Test-Path $_ } | Select-Object -First 1
+
+# RandomizerHelper.dll -- fifthmatt's auto-equip/upgrade companion (same v0.11.4 package). We deploy
+# it ONLY for weapon/ash auto-UPGRADE (the client lacks that); its auto-EQUIP is disabled via the
+# project-tuned ini below to avoid colliding with the client's own AutoEquip. Opt-in via -Helper.
+$HelperDll = Get-ChildItem -Path $Repo -Directory -Filter 'Elden Ring Randomizer-428*' -ErrorAction SilentlyContinue |
+    ForEach-Object { Join-Path $_.FullName 'randomizer\dll\RandomizerHelper.dll' } |
+    Where-Object { Test-Path $_ } | Select-Object -First 1
+$HelperIni = Join-Path $Repo 'RandomizerHelper_config.ini'   # project-tuned: equip off, upgrade on
 $ApDir     = Join-Path $Repo "Archipelago"     # AP source checkout: Generate.py, MultiServer.py, Players\, output\
 
 function Step($msg) { Write-Host "`n==== $msg" -ForegroundColor Cyan }
@@ -148,11 +167,32 @@ if ($Client) {
 if ($Generate) {
     Step "Regenerating multiworld (Generate.py, players from Archipelago\Players)"
     if (-not (Test-Path (Join-Path $ApDir "Generate.py"))) { throw "AP checkout not found at $ApDir" }
+    # Pre-gen guard (pregen.py): invalidate stale eldenring .pyc so a source edit can't be masked
+    # by cached bytecode (the "same FillError 6x, edits do nothing" trap), and warn about per-game
+    # yaml options stranded at the document root (silently ignored by AP). Warn-only.
+    if (Test-Path (Join-Path $Repo "pregen.py")) {
+        python (Join-Path $Repo "pregen.py") | Write-Host
+    } else {
+        Write-Warning "pregen.py not found -- skipping stale-bytecode/yaml guard"
+    }
+    $ts = Get-Date -Format "yyyyMMdd-HHmmss"
+    $genLog  = Join-Path $Repo "generate_$ts.log"     # raw Generate.py output (stdout+stderr)
+    $genDiag = Join-Path $Repo "gendiag_$ts.txt"      # compact summary (dlcdiag.py)
     Push-Location $ApDir
     try {
-        python Generate.py
-        if ($LASTEXITCODE -ne 0) { throw "multiworld generation failed" }
+        # cmd does the redirect so PowerShell's Stop pref doesn't trip on python's native stderr
+        # warnings (pkg_resources etc.). Both streams -> raw log; $LASTEXITCODE = python's code.
+        cmd /c "python Generate.py > `"$genLog`" 2>&1"
+        $genExit = $LASTEXITCODE
     } finally { Pop-Location }
+    # Compact, timestamped diagnostic (parses the raw log; no scrolling a 10k-line FillError dump).
+    if (Test-Path (Join-Path $Repo "dlcdiag.py")) {
+        python (Join-Path $Repo "dlcdiag.py") $genLog $genDiag $genExit | Out-Null
+        if (Test-Path $genDiag) { Get-Content $genDiag | Write-Host }
+    }
+    Write-Host ("generation raw log -> {0}" -f $genLog)  -ForegroundColor Green
+    if (Test-Path $genDiag) { Write-Host ("generation diag    -> {0}" -f $genDiag) -ForegroundColor Green }
+    if ($genExit -ne 0) { throw ("multiworld generation FAILED (exit {0}) -- see diag/raw log above" -f $genExit) }
     $newest = Get-ChildItem (Join-Path $ApDir "output") -Filter "AP_*.zip" |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
     Write-Host "  -> $($newest.FullName)"
@@ -208,7 +248,10 @@ if ($Deploy) {
         Copy-Item $reg (Join-Path $AssetDir "regulation.bin") -Force
         Write-Host "  regulation.bin"
     } else { Write-Warning "no regulation.bin in $RandoDir -- did the bake run?" }
-    foreach ($dir in "event", "msg", "script", "map") {
+    # 'menu' carries the AP-icon override: the bake's InjectApItemIcon step writes
+    # menu\hi\00_solo.tpfbnd.dcx with the telescope icon swapped for the Archipelago flower
+    # (only when diste\Archipelago\ap_telescope_icon.dds exists). See SPEC-ap-icon.md.
+    foreach ($dir in "event", "msg", "script", "map", "menu") {
         $src = Join-Path $RandoDir $dir
         if (Test-Path $src) {
             # Copy CONTENTS, not the dir itself: Copy-Item dir->existing-dir nests (Game\map\map),
@@ -233,6 +276,40 @@ if ($Deploy) {
         Copy-Item $ClientDll (Join-Path $ModsDir "archipelago.dll") -Force
         Write-Host "  archipelago.dll"
     } else { Write-Warning "no client DLL at $ClientDll -- run with -Client first" }
+
+    # RandomizerCrashFix.dll: EML auto-loads mods\*.dll, so dropping it here puts it in the load
+    # order next boot. Anti-CTD guard for cross-content enemy placements (Raya Lucaria etc., TODO
+    # #10). Use -NoCrashFix to deploy WITHOUT it and A/B the crash.
+    if (-not $NoCrashFix) {
+        if ($CrashFixDll -and (Test-Path $CrashFixDll)) {
+            Copy-Item $CrashFixDll (Join-Path $ModsDir "RandomizerCrashFix.dll") -Force
+            Write-Host "  RandomizerCrashFix.dll  (anti-CTD; pass -NoCrashFix to omit)"
+        } else {
+            Write-Warning "RandomizerCrashFix.dll not found under $Repo -- enemy CTDs (RLA) may persist; see TODO #10"
+        }
+    } else {
+        # Active opt-out: remove any previously-deployed copy so the A/B is clean.
+        $cf = Join-Path $ModsDir "RandomizerCrashFix.dll"
+        if (Test-Path $cf) { Remove-Item $cf -Force; Write-Host "  (removed RandomizerCrashFix.dll: -NoCrashFix)" }
+    }
+
+    # RandomizerHelper.dll (opt-in: -Helper). Auto-upgrade only; deploys the dll + our tuned ini
+    # (equip OFF so it doesn't fight the client's AutoEquip). UNVERIFIED that its pickup-hook
+    # upgrade fires on AP's direct-grant path -- check RandomizerHelper_log.txt in-game.
+    if ($Helper) {
+        if ($HelperDll -and (Test-Path $HelperDll)) {
+            Copy-Item $HelperDll (Join-Path $ModsDir "RandomizerHelper.dll") -Force
+            Write-Host "  RandomizerHelper.dll  (-Helper; auto-upgrade)"
+            if (Test-Path $HelperIni) {
+                Copy-Item $HelperIni (Join-Path $ModsDir "RandomizerHelper_config.ini") -Force
+                Write-Host "  RandomizerHelper_config.ini  (equip off, upgrade on)"
+            } else {
+                Write-Warning "RandomizerHelper_config.ini missing at $Repo -- dll will fall back to defaults (autoEquip=true) and CONFLICT with the client"
+            }
+        } else {
+            Write-Warning "RandomizerHelper.dll not found under $Repo -- -Helper had no effect"
+        }
+    }
 
     Write-Host "`nDeployed. Launch the game via Elden Mod Loader and check:" -ForegroundColor Green
     Write-Host "  - er::Init BUILD stamp matches this build time"
@@ -308,8 +385,10 @@ if ($Preflight) {
         Check "baked slot is an intended player"   ($apr -and ($slotNames -contains $apr.slot)) ("baked='{0}' players=[{1}]" -f $(if($apr){$apr.slot}), ($slotNames -join ", "))
         Check "baked seed == newest generated seed" ($apr -and $zipSeed -and ($apr.seed -eq $zipSeed)) ("baked='{0}' newest='{1}'" -f $(if($apr){$apr.seed}), $zipSeed)
         Check "deployed apconfig matches baked"     ($apr -and $apm -and ($apr.seed -eq $apm.seed) -and ($apr.slot -eq $apm.slot)) ("deployed slot/seed={0}/{1}" -f $(if($apm){$apm.slot}), $(if($apm){$apm.seed}))
-        # Non-empty-bake floor only (base game ~3686, DLC ~4857; a broken bake is near 0).
-        Check "deployed location_flags present"     ($mFlags -gt 1000) ("count=$mFlags")
+        # Pool-agnostic: deployed flag map must be non-empty AND equal the baked repo count
+        # (lean ~494, trimmed ~2150, base ~3686, DLC ~4857). Catches broken bakes AND stale/
+        # partial deploys regardless of location_pool. (Old flat >1000 floor failed on lean.)
+        Check "deployed location_flags present"     ($mFlags -gt 0 -and $mFlags -eq $rFlags) ("deployed=$mFlags baked=$rFlags")
         Check "client dll deployed"                 (Test-Path $dll) $dll
         Check "Players\ has no stray files"          (-not $strayFiles) (($strayFiles | ForEach-Object { $_.Name }) -join ", ")
 
@@ -392,17 +471,4 @@ if ($LoopTest) {
         if (Test-Path $apRepo) { $apr = Get-Content $apRepo -Raw | ConvertFrom-Json }
         $match = ($apr -and ($apr.seed -eq $genSeed))
         $status = if ($match -and $code -eq 0) { 'OK' } elseif ($match) { 'OK*' } else { 'BAKE-FAIL' }
-        $results.Add([pscustomobject]@{ n=$n; req=$item; seed=$genSeed; exit=$code; match=$match; status=$status })
-        Write-Host ("  -> {0}  (exit={1}, apconfig.seed match={2})" -f $status, $code, $match) -ForegroundColor $(if ($status -like 'OK*') { 'Green' } else { 'Red' })
-    }
-    Stop-Server38281
-
-    Step "Seed-loop summary"
-    $results | Format-Table -Property n, req, seed, exit, match, status -AutoSize | Out-Host
-    $fails = @($results | Where-Object { $_.status -notlike 'OK*' }).Count
-    if ($fails -eq 0) {
-        Write-Host ("ALL {0} BAKES PASSED -- no seed-dependent failures." -f $results.Count) -ForegroundColor Green
-    } else {
-        Write-Warning ("{0} of {1} bakes FAILED -- inspect the table above and the ap_* diag files (ap_error)." -f $fails, $results.Count)
-    }
-}
+        $results.Add([pscustomobject]@{ n=$n; re

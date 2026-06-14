@@ -19,6 +19,7 @@ eldenring.apworld          # packaged apworld (rebuilt by build.ps1)
 apconfig.json              # bake output (slot/seed/location_flags)
 preflight_*.log
 *.log
+gendiag_*.txt              # per-gen compact diagnostic (dlcdiag.py output; raw .log already ignored)
 
 # --- backups / archives ---
 *.bak
