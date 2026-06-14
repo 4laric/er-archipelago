@@ -64,6 +64,27 @@ git clone https://github.com/thefifthmatt/yet-another-tab-control.git
 - **Pull everyone's latest pinned versions:** `git submodule update --init --recursive`.
 - **Advance a submodule to its branch tip:** `git submodule update --remote <path>` then commit.
 
+## Submodule-aware git config (set by the script)
+
+`.git/config` isn't committed, so `init-superrepo.ps1` re-applies these on every machine. They make
+git treat the superrepo like the version-lockfile it is:
+
+| config | value | why |
+|---|---|---|
+| `status.submoduleSummary` | `true` | `git status` shows *which* submodule commits moved, not just "subproject commit <sha>". |
+| `diff.submodule` | `log` | `git diff` shows the commit log of a pointer bump. |
+| `fetch.recurseSubmodules` | `on-demand` | pulling the superrepo fetches the submodule commits it references. |
+| `push.recurseSubmodules` | `check` | **safety net:** `git push` of the superrepo FAILS if a pinned fork SHA isn't on its remote — exactly the "recursive clone breaks" footgun. Pairs with `push.ps1 -Superrepo` (which pushes forks first). |
+| `submodule.recurse` | *off by default* | the one with a tradeoff — see below. |
+
+**`submodule.recurse=true` (the `--recurse-submodules` you're thinking of):** makes `git checkout`,
+`git pull`, etc. automatically move submodule working trees to the superrepo's pinned SHAs. It does
+NOT affect `git clone` (use `clone --recursive`). It's great on a **consumer/sync machine** (one
+command keeps all six forks at the locked versions), but **risky on your dev box**: a `pull`/`checkout`
+that brings a new pointer will detach a submodule you're actively committing in. So the script leaves
+it OFF by default; run `init-superrepo.ps1 -AutoSyncSubmodules` on machines that only consume the repo.
+(You can always sync manually with `git submodule update --init --recursive`.)
+
 ## Licensing (do not skip)
 
 `SoulsRandomizers` is a **private** fork (thefifthmatt's randomizer is not freely licensed). Its
