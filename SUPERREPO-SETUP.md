@@ -52,10 +52,15 @@ git clone https://github.com/thefifthmatt/yet-another-tab-control.git
 
 ## Day-to-day
 
-- **You changed code in a fork:** commit+push inside the submodule as usual, then in the superrepo
-  `git add <submodule-path> && git commit -m "bump <fork>"` to move the pinned SHA. `push.ps1`
-  already commits inside each repo; the superrepo just records which SHAs go together — a one-line
-  lockfile for "which versions of all 6 forks built together."
+- **You changed code in a fork:** use `push.ps1 -Superrepo`, which commits+pushes the scoped paths
+  in each fork **and then** bumps the superrepo's pinned SHAs + root tooling in one step:
+  ```powershell
+  .\push.ps1 -Message "what changed" -Superrepo        # forks, then superrepo pointers
+  .\push.ps1 -Status -Superrepo                          # preview pending pointer moves
+  .\push.ps1 -Message "bump" -Superrepo -Only NONE       # ONLY the superrepo (forks already pushed)
+  ```
+  The pinned SHAs are a one-line lockfile for "which versions of all 6 forks built together."
+  (Manual equivalent: `git add <submodule-path> && git commit -m "bump <fork>"` at the root.)
 - **Pull everyone's latest pinned versions:** `git submodule update --init --recursive`.
 - **Advance a submodule to its branch tip:** `git submodule update --remote <path>` then commit.
 
