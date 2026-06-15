@@ -9,6 +9,7 @@
 #   .\build.ps1 -Bake -Enemies           # ...with enemy randomization
 #   .\build.ps1 -Deploy                  # copy bake outputs + client DLL + apconfig into the game
 #   .\build.ps1 -All                     # the full pipeline (= -Randomizer -Client -Generate -Serve -Bake -Enemies -Deploy -Preflight)
+#   .\build.ps1 -All -NoClient           # ...everything in -All EXCEPT the C++ client build (reuse the already-deployed DLL)
 #   .\build.ps1 -Preflight               # timestamped preflight log + PASS/FAIL cross-checks (seed/slot/deploy freshness)
 #   .\build.ps1 -LoopTest -Seeds 1,2,3    # bake a batch of seeds unattended (seed-dependent bug hunt, e.g. #7)
 #   .\build.ps1 -LoopTest -Count 8        # ...or N fresh random seeds
@@ -27,6 +28,7 @@
 param(
     [switch]$Randomizer,
     [switch]$Client,
+    [switch]$NoClient,
     [switch]$Generate,
     [switch]$Serve,
     [switch]$Bake,
@@ -46,7 +48,7 @@ $ErrorActionPreference = "Stop"
 
 # -All = the full pipeline: build both, regenerate, serve, bake w/ enemies, deploy.
 if ($All) {
-    $Randomizer = $true; $Client = $true; $Generate = $true
+    $Randomizer = $true; $Client = (-not $NoClient); $Generate = $true
     $Serve = $true; $Bake = $true; $Enemies = $true; $Deploy = $true; $Preflight = $true
 }
 

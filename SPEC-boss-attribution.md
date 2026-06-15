@@ -233,9 +233,11 @@ the complement layer rescues almost all the sparse-region leftovers the boss lay
 Independent of sweeping: record **each check's closest Site of Grace (name + distance)** at bake
 time and ship it as hint metadata. When a player hints a location in AP, "near the *Stormhill
 Shack* Site of Grace, ~40m" is far more actionable than a raw location name. This is a pure add —
-no gameplay change — and reuses the same grace coordinate table. The dry-run already emits the
-flag+distance form (`check-nearest-grace.csv`); the real bake joins the grace **name** from the
-place-name FMG (the same `BonfireNameId` lookup `EldenCoordinator.TestBonfireCoords` already does).
+no gameplay change — and reuses the same grace coordinate table. The dry-run now emits the full
+form with **names** in `check-nearest-grace.csv` (e.g. "Gateside Chamber", "Rampart Tower"), joined
+via `diste/Names/BonfireWarpParam.txt` (the dump's grace key == BonfireWarpParam row id). 100% of
+the 3202 checks resolve a named nearest grace. The real bake gets the same names straight from the
+place-name FMG (the `BonfireNameId` lookup `EldenCoordinator.TestBonfireCoords` already does).
 
 ## Work items (when implemented)
 
