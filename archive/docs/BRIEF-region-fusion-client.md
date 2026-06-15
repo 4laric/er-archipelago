@@ -76,4 +76,4 @@ checks it at connect). Otherwise leave `>=0.1.0-beta.2 <0.1.0-beta.3` alone.
 ## Out of scope (other sessions)
 
 volcano_town loop (#7), notification UI (#11), pickup VFX (#12), DLC enemy port (#1). Region gating
-changes the logic graph, so a region_lock gen-test may surface #7 — that's separate.
+changes t
