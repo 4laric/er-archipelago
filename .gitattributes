@@ -1,0 +1,13 @@
+* text=auto
+*.dcx binary
+*.bin binary
+*.dll binary
+*.exe binary
+*.png binary
+*.dds binary
+*.ico binary
+*.zip binary
+*.7z  binary
+*.apworld binary
+*.xlsx binary
+*.pdf binary
