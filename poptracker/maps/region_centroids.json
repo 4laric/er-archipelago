@@ -1,0 +1,577 @@
+{
+  "Stormveil Throne": {
+    "gx": 6087.2,
+    "gz": 5816.4,
+    "n": 4
+  },
+  "Stormveil Castle": {
+    "gx": 6046.3,
+    "gz": 5752.8,
+    "n": 99
+  },
+  "Limgrave": {
+    "gx": 7136.0,
+    "gz": 5284.7,
+    "n": 173
+  },
+  "Raya Lucaria Academy Library": {
+    "gx": 4818.9,
+    "gz": 7582.0,
+    "n": 4
+  },
+  "Volcano Manor Drawing Room": {
+    "gx": 5147.3,
+    "gz": 9497.7,
+    "n": 19
+  },
+  "Stormhill": {
+    "gx": 6539.0,
+    "gz": 5731.7,
+    "n": 28
+  },
+  "Murkwater Cave": {
+    "gx": 6936.8,
+    "gz": 5430.0,
+    "n": 6
+  },
+  "Roundtable Hold": {
+    "gx": 5790.0,
+    "gz": 4798.0,
+    "n": 47
+  },
+  "Caelid": {
+    "gx": 8277.6,
+    "gz": 5646.8,
+    "n": 175
+  },
+  "Liurnia of The Lakes": {
+    "gx": 4984.6,
+    "gz": 7339.5,
+    "n": 309
+  },
+  "Caria Manor": {
+    "gx": 4677.1,
+    "gz": 8618.9,
+    "n": 30
+  },
+  "Altus Plateau": {
+    "gx": 5937.6,
+    "gz": 9390.5,
+    "n": 189
+  },
+  "Leyndell, Royal Capital": {
+    "gx": 7241.4,
+    "gz": 8879.5,
+    "n": 108
+  },
+  "Weeping Peninsula": {
+    "gx": 6927.1,
+    "gz": 4274.4,
+    "n": 92
+  },
+  "Raya Lucaria Academy": {
+    "gx": 4855.9,
+    "gz": 7464.9,
+    "n": 48
+  },
+  "Bellum Highway": {
+    "gx": 5560.9,
+    "gz": 8374.1,
+    "n": 22
+  },
+  "Capital Outskirts": {
+    "gx": 6897.1,
+    "gz": 9255.2,
+    "n": 49
+  },
+  "Mt. Gelmir": {
+    "gx": 5342.6,
+    "gz": 9592.0,
+    "n": 93
+  },
+  "Dragonbarrow": {
+    "gx": 8887.5,
+    "gz": 6350.3,
+    "n": 49
+  },
+  "Mountaintops of the Giants": {
+    "gx": 9007.2,
+    "gz": 10309.7,
+    "n": 103
+  },
+  "Siofra River": {
+    "gx": 8005.8,
+    "gz": 5568.4,
+    "n": 73
+  },
+  "Ainsel River": {
+    "gx": 5408.8,
+    "gz": 7747.1,
+    "n": 38
+  },
+  "Mohgwyn Palace": {
+    "gx": 8741.9,
+    "gz": 5602.4,
+    "n": 49
+  },
+  "Church of Dragon Communion": {
+    "gx": 6326.8,
+    "gz": 4769.4,
+    "n": 5
+  },
+  "Gravesite Plain": {
+    "gx": 5809.7,
+    "gz": 4838.8,
+    "n": 4
+  },
+  "Scadu Altus": {
+    "gx": 5809.7,
+    "gz": 4838.8,
+    "n": 5
+  },
+  "Raya Lucaria Academy Chest": {
+    "gx": 4790.4,
+    "gz": 7607.0,
+    "n": 1
+  },
+  "Wailing Dunes": {
+    "gx": 9058.3,
+    "gz": 5610.3,
+    "n": 5
+  },
+  "Leyndell, Royal Capital Throne": {
+    "gx": 7287.1,
+    "gz": 8709.0,
+    "n": 11
+  },
+  "Volcano Manor Upper": {
+    "gx": 5182.9,
+    "gz": 9462.3,
+    "n": 22
+  },
+  "Elphael, Brace of the Haligtree": {
+    "gx": 8645.2,
+    "gz": 11582.8,
+    "n": 64
+  },
+  "Raya Lucaria Academy Main": {
+    "gx": 4829.9,
+    "gz": 7483.7,
+    "n": 36
+  },
+  "Leyndell, Ashen Capital": {
+    "gx": 7285.0,
+    "gz": 8827.2,
+    "n": 11
+  },
+  "Deeproot Depths Boss": {
+    "gx": 7451.9,
+    "gz": 9302.9,
+    "n": 4
+  },
+  "Subterranean Shunning-Grounds": {
+    "gx": 7332.6,
+    "gz": 8919.3,
+    "n": 64
+  },
+  "Coastal Cave": {
+    "gx": 6425.5,
+    "gz": 5020.1,
+    "n": 4
+  },
+  "Stormveil Start": {
+    "gx": 6065.0,
+    "gz": 5635.7,
+    "n": 18
+  },
+  "Great-Jar": {
+    "gx": 8453.4,
+    "gz": 6168.4,
+    "n": 6
+  },
+  "Flame Peak": {
+    "gx": 9018.1,
+    "gz": 9580.3,
+    "n": 33
+  },
+  "Consecrated Snowfield": {
+    "gx": 8273.8,
+    "gz": 10235.6,
+    "n": 90
+  },
+  "Lake of Rot": {
+    "gx": 4980.4,
+    "gz": 7556.1,
+    "n": 30
+  },
+  "Deeproot Depths": {
+    "gx": 7241.8,
+    "gz": 9085.0,
+    "n": 62
+  },
+  "Nokron, Eternal City": {
+    "gx": 7871.0,
+    "gz": 5757.7,
+    "n": 54
+  },
+  "Groveside Cave": {
+    "gx": 6534.7,
+    "gz": 5403.3,
+    "n": 4
+  },
+  "Auriza Side Tomb": {
+    "gx": 7448.3,
+    "gz": 9295.0,
+    "n": 15
+  },
+  "Giants' Mountaintop Catacombs": {
+    "gx": 8637.1,
+    "gz": 9550.1,
+    "n": 13
+  },
+  "Perfumer's Grotto": {
+    "gx": 6348.2,
+    "gz": 9143.1,
+    "n": 9
+  },
+  "Tombsward Catacombs": {
+    "gx": 6891.7,
+    "gz": 4331.8,
+    "n": 5
+  },
+  "Tombsward Cave": {
+    "gx": 6386.7,
+    "gz": 4356.6,
+    "n": 7
+  },
+  "Wyndham Catacombs": {
+    "gx": 5581.3,
+    "gz": 9284.8,
+    "n": 5
+  },
+  "Frenzied Flame Proscription": {
+    "gx": 7566.2,
+    "gz": 9013.1,
+    "n": 11
+  },
+  "Volcano Manor Entrance": {
+    "gx": 5159.7,
+    "gz": 9548.8,
+    "n": 5
+  },
+  "Ainsel River Main": {
+    "gx": 5260.5,
+    "gz": 8029.9,
+    "n": 46
+  },
+  "Moonlight Altar": {
+    "gx": 4801.2,
+    "gz": 6611.0,
+    "n": 32
+  },
+  "Sellia Hideaway": {
+    "gx": 8723.8,
+    "gz": 6028.0,
+    "n": 15
+  },
+  "The Four Belfries (Chapel of Anticipation)": {
+    "gx": 5720.6,
+    "gz": 5646.3,
+    "n": 3
+  },
+  "Leyndell, Ashen Capital Throne": {
+    "gx": 7479.9,
+    "gz": 8670.3,
+    "n": 1
+  },
+  "Miquella's Haligtree": {
+    "gx": 8599.2,
+    "gz": 11266.5,
+    "n": 40
+  },
+  "Volcano Manor": {
+    "gx": 5015.8,
+    "gz": 9415.5,
+    "n": 35
+  },
+  "Erdtree": {
+    "gx": 7638.2,
+    "gz": 8469.6,
+    "n": 1
+  },
+  "Ruin-Strewn Precipice": {
+    "gx": 5466.0,
+    "gz": 8800.1,
+    "n": 23
+  },
+  "Fringefolk Hero's Grave": {
+    "gx": 6759.0,
+    "gz": 5134.8,
+    "n": 10
+  },
+  "Volcano Manor Dungeon": {
+    "gx": 5291.3,
+    "gz": 9396.8,
+    "n": 4
+  },
+  "Nokron, Eternal City Start": {
+    "gx": 7495.5,
+    "gz": 5406.9,
+    "n": 22
+  },
+  "Divine Tower of Caelid": {
+    "gx": 8525.1,
+    "gz": 6323.8,
+    "n": 5
+  },
+  "Divine Tower of East Altus": {
+    "gx": 7858.9,
+    "gz": 8886.0,
+    "n": 7
+  },
+  "Redmane Castle Post Radahn": {
+    "gx": 9057.4,
+    "gz": 5156.3,
+    "n": 1
+  },
+  "Impaler's Catacombs": {
+    "gx": 7419.3,
+    "gz": 4452.3,
+    "n": 3
+  },
+  "Stormfoot Catacombs": {
+    "gx": 6453.3,
+    "gz": 5443.7,
+    "n": 5
+  },
+  "Deathtouched Catacombs": {
+    "gx": 6701.2,
+    "gz": 5885.6,
+    "n": 4
+  },
+  "Murkwater Catacombs": {
+    "gx": 6912.2,
+    "gz": 5683.6,
+    "n": 2
+  },
+  "Black Knife Catacombs": {
+    "gx": 5693.7,
+    "gz": 8273.5,
+    "n": 6
+  },
+  "Road's End Catacombs": {
+    "gx": 4412.1,
+    "gz": 6853.9,
+    "n": 6
+  },
+  "Cliffbottom Catacombs": {
+    "gx": 5885.4,
+    "gz": 6387.2,
+    "n": 10
+  },
+  "Sainted Hero's Grave": {
+    "gx": 6322.7,
+    "gz": 9222.4,
+    "n": 10
+  },
+  "Gelmir Hero's Grave": {
+    "gx": 5346.2,
+    "gz": 9449.5,
+    "n": 11
+  },
+  "Auriza Hero's Grave": {
+    "gx": 7329.1,
+    "gz": 9153.1,
+    "n": 10
+  },
+  "Unsightly Catacombs": {
+    "gx": 5121.5,
+    "gz": 9121.5,
+    "n": 4
+  },
+  "Minor Erdtree Catacombs": {
+    "gx": 7855.6,
+    "gz": 6211.6,
+    "n": 6
+  },
+  "Caelid Catacombs": {
+    "gx": 8284.9,
+    "gz": 5322.1,
+    "n": 2
+  },
+  "War-Dead Catacombs": {
+    "gx": 9192.2,
+    "gz": 6310.4,
+    "n": 6
+  },
+  "Giant-Conquering Hero's Grave": {
+    "gx": 8546.3,
+    "gz": 9516.3,
+    "n": 6
+  },
+  "Consecrated Snowfield Catacombs": {
+    "gx": 8697.9,
+    "gz": 9782.7,
+    "n": 6
+  },
+  "Hidden Path to the Haligtree": {
+    "gx": 8360.1,
+    "gz": 9567.8,
+    "n": 10
+  },
+  "Leyndell Catacombs": {
+    "gx": 7269.9,
+    "gz": 8788.6,
+    "n": 3
+  },
+  "Earthbore Cave": {
+    "gx": 7026.3,
+    "gz": 4511.6,
+    "n": 7
+  },
+  "Highroad Cave": {
+    "gx": 6981.9,
+    "gz": 6128.9,
+    "n": 9
+  },
+  "Stillwater Cave": {
+    "gx": 5921.8,
+    "gz": 6054.6,
+    "n": 9
+  },
+  "Lakeside Crystal Cave": {
+    "gx": 5248.7,
+    "gz": 6413.7,
+    "n": 10
+  },
+  "Academy Crystal Cave": {
+    "gx": 4743.9,
+    "gz": 7526.8,
+    "n": 6
+  },
+  "Seethewater Cave": {
+    "gx": 5269.7,
+    "gz": 9673.4,
+    "n": 9
+  },
+  "Volcano Cave": {
+    "gx": 5243.0,
+    "gz": 9924.7,
+    "n": 6
+  },
+  "Sage's Cave": {
+    "gx": 5510.0,
+    "gz": 9131.4,
+    "n": 16
+  },
+  "Gaol Cave": {
+    "gx": 7836.7,
+    "gz": 5743.0,
+    "n": 18
+  },
+  "Dragonbarrow Cave": {
+    "gx": 8962.2,
+    "gz": 6187.6,
+    "n": 6
+  },
+  "Abandoned Cave": {
+    "gx": 8365.7,
+    "gz": 5958.6,
+    "n": 5
+  },
+  "Cave of the Forlorn": {
+    "gx": 8704.5,
+    "gz": 10318.0,
+    "n": 14
+  },
+  "Spiritcaller Cave": {
+    "gx": 9415.2,
+    "gz": 10220.5,
+    "n": 10
+  },
+  "Morne Tunnel": {
+    "gx": 7012.8,
+    "gz": 4223.0,
+    "n": 8
+  },
+  "Limgrave Tunnels": {
+    "gx": 6728.1,
+    "gz": 5411.8,
+    "n": 6
+  },
+  "Raya Lucaria Crystal Tunnel": {
+    "gx": 5389.1,
+    "gz": 7937.6,
+    "n": 9
+  },
+  "Old Altus Tunnel": {
+    "gx": 5629.0,
+    "gz": 9374.4,
+    "n": 7
+  },
+  "Sealed Tunnel": {
+    "gx": 6792.4,
+    "gz": 8625.0,
+    "n": 15
+  },
+  "Altus Tunnel": {
+    "gx": 6398.8,
+    "gz": 9176.0,
+    "n": 7
+  },
+  "Gale Tunnel": {
+    "gx": 7735.6,
+    "gz": 6027.2,
+    "n": 7
+  },
+  "Sellia Crystal Tunnel": {
+    "gx": 8468.8,
+    "gz": 6097.4,
+    "n": 12
+  },
+  "Yelough Anix Tunnel": {
+    "gx": 8023.9,
+    "gz": 10008.1,
+    "n": 8
+  },
+  "Forbidden Lands": {
+    "gx": 8223.4,
+    "gz": 9039.4,
+    "n": 8
+  },
+  "Leyndell, Royal Capital Unmissable": {
+    "gx": 7233.0,
+    "gz": 8849.9,
+    "n": 23
+  },
+  "Divine Bridge": {
+    "gx": 6955.4,
+    "gz": 8803.2,
+    "n": 1
+  },
+  "The Four Belfries (Nokron)": {
+    "gx": 8335.1,
+    "gz": 5378.5,
+    "n": 1
+  },
+  "Deeproot Depths Upper": {
+    "gx": 7635.3,
+    "gz": 8896.3,
+    "n": 7
+  },
+  "Divine Tower of Limgrave": {
+    "gx": 6513.7,
+    "gz": 5880.6,
+    "n": 7
+  },
+  "Carian Study Hall": {
+    "gx": 5866.9,
+    "gz": 7213.5,
+    "n": 5
+  },
+  "Carian Study Hall (Inverted)": {
+    "gx": 6069.1,
+    "gz": 7242.8,
+    "n": 9
+  }
+}

@@ -1,0 +1,12 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260614-152942.log
+gen exit: 0
+seed    : 23738589618833278286
+ER world: items=3032 locations=4906  (full table, before pool filtering)
+fill    : 1956 items placed
+options : accessibility.value=2 option_minimal=2 gate=True enable_dlc=False location_pool=1
+fun-demote: 17 item-defs progression->useful (gated on accessibility==minimal)
+precollected-to-start (0): (none)
+RESULT  : SUCCESS (no traceback)
+
+MISSING : (none found -- no accessibility FillError in log)

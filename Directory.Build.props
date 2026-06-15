@@ -1,0 +1,11 @@
+<Project>
+  <!-- Inherited by every project in the superrepo (all submodules). Quiets two cross-cutting,
+       harmless build warnings so the build output is readable. -->
+  <PropertyGroup>
+    <!-- The whole ER stack deliberately targets net6.0-windows; silence the EOL nag (NETSDK1138). -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <!-- 'Release (Archipelago)' config name -> invalid auto-define RELEASE_(ARCHIPELAGO) that the
+         compiler ignores; demote the MSB3052 chatter to a message everywhere. -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3052</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+</Project>

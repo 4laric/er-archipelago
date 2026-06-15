@@ -1,0 +1,42 @@
+# ER Archipelago -- DLC-ONLY + REGION-LOCK BOOTSTRAP gen-test (2026-06-15).
+# This now exercises the new dlc_only behaviour: __init__.py precollects ONLY "Gravesite Lock"
+# (Gravesite Plain = the free DLC hub) instead of granting EVERY region lock, so region_lock is
+# actually ACTIVE in dlc_only and the fill must bootstrap the DLC region tree from Gravesite's
+# checks (Gravesite -> Belurat/Ellac/Jagged Peak/Ensis -> Scadu Altus -> Shadow Keep ->
+# Ancient Ruins -> Enir Ilim). To restore old free-entry: set _DLC_ONLY_FREE_ALL_LOCKS=True.
+#
+# Drop into Archipelago\Players\ (solo, the ONLY EldenRing yaml there) and run:
+#     .\build.ps1 -Generate          # gen only -- fastest loop; no bake/Windows-runtime needed
+# PASS criteria:
+#   1. gen SUCCEEDS (no FillError / "no more spots" / "unreachable") -> the tree bootstraps.
+#   2. location count ~1170-1207 (DLC pool); spoiler shows no base-region CHECKS (base = transit).
+#   3. spoiler sanity: Gravesite Plain holds early locks; Enir Ilim gated by its lock + Messmer shards.
+# IF it FAILS: read the gendiag for which lock/region is unreachable -- likely a side-area
+#   (Rauh Ruins Limited / Cathedral of Manus Metyr / Belurat Swamp) gating on an absent base key;
+#   fix = precollect that one extra lock too, or relax that soft-logic rule in dlc_only.
+#   Quick fallback to confirm it's a bootstrap issue (not a pool issue): _DLC_ONLY_FREE_ALL_LOCKS=True.
+
+name: Alaric
+description: ER AP DLC-only mode (Land of Shadow only, PCR goal, Messmer-shard gate).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true            # forced on by dlc_only anyway; set explicitly for clarity
+  dlc_only: true              # <-- the mode under test: pool = DLC only, base = transit (no checks)
+  ending_condition: final_boss   # 0 = Promised Consort Radahn when DLC on (Circlet of Light completion)
+
+  # Messmer's Kindling shard gate = the progression spine for the ~1,190-check pool.
+  messmer_kindle: true
+  messmer_kindle_required: 5
+  messmer_kindle_max: 10
+
+  location_pool: all          # full DLC pool; switch to 'lean' for the pruned (~500) variant later
+  world_logic: region_lock    # per-region lock items give real spheres (also the default)
+
+  # MUST live under EldenRing: -- at document root AP ignores it (silently defaults to full).
+  # minimal = only the seed needs to be beatable, which suits region_lock (lets the fill place
+  # locks freely instead of sweeping dead-end branch locks like Rauh Base Lock to start).
+  accessibility: minimal
+  progression_balancing: 50
+
+# (root-level accessibility removed 2026-06-15 -- it was being ignored; see WARN in gen output)

@@ -1,0 +1,24 @@
+category,variant,level,checks,total_stones
+Regular,Smithing Stone [1],1,34,92
+Regular,Smithing Stone [2],2,45,110
+Regular,Smithing Stone [3],3,36,66
+Regular,Smithing Stone [4],4,38,53
+Regular,Smithing Stone [5],5,46,66
+Regular,Smithing Stone [6],6,50,86
+Regular,Smithing Stone [7],7,41,85
+Regular,Smithing Stone [8],8,39,83
+Somber,Somber Smithing Stone [1],1,12,13
+Somber,Somber Smithing Stone [2],2,36,37
+Somber,Somber Smithing Stone [3],3,17,19
+Somber,Somber Smithing Stone [4],4,24,26
+Somber,Somber Smithing Stone [5],5,20,22
+Somber,Somber Smithing Stone [6],6,29,29
+Somber,Somber Smithing Stone [7],7,41,41
+Somber,Somber Smithing Stone [8],8,24,24
+Somber,Somber Smithing Stone [9],9,21,21
+Special,Ancient Dragon Smithing Stone,,21,21
+Special,Somber Ancient Dragon Smithing Stone,,14,14
+Regular,TOTAL,,329,641
+Somber,TOTAL,,224,232
+Special,TOTAL,,35,35
+ALL,GRAND TOTAL,,588,908

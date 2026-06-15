@@ -1,0 +1,37 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260614-133428.log
+gen exit: 1
+seed    : 18361083647991211681
+ER world: items=3032 locations=4906  (full table, before pool filtering)
+fill    : 1940 items placed
+precollected-to-start (13): Erudition, Weeping Lock, Stormveil Lock, South West Underground Lock, South East Underground Lock, North Underground Lock, Caelid Lock, Redmane Lock, Mt. Gelmir Lock, Volcano Lock, Farum Azula Lock, Ashen Lock, Haligtree Lock
+RESULT  : FAILED
+exception: Fill.FillError: Not enough filler items for excluded locations. There are 61 more excluded locations than excludable items.
+
+MISSING : (none found -- no accessibility FillError in log)
+
+FILLER SHORTAGE: 61 more excluded locations than excludable (filler) items.
+  meaning: excluded locations (excluded_location_behavior=forbid_useful) can only take
+           FILLER items, and the pool is 61 filler short of covering them. Levers:
+    - excluded_location_behavior: allow_useful  (lets useful items sit in excluded spots)
+    - location_pool: keep more filler-item locations (lean/trimmed strip filler -> fewer
+                     excludable items) and/or shrink the excluded set
+    - important_locations / exclude_locations: fewer forced-priority / excluded entries
+
+  placements before the error: 2203  (real checks=2183, region/boss markers=20)
+  placement region-code histogram (desc, top 15):
+    LL                 284  [base]
+    LG                 189  [base]
+    CL                 172  [base]
+    AP                 144  [base]
+    RH                 134  [mix]
+    SV                  88  [mix]
+    MotG                87  [base]
+    MtG                 86  [base]
+    CS                  81  [base]
+    WP                  79  [base]
+    CO                  73  [base]
+    RLA                 67  [base]
+    LRC                 66  [base]
+    FA                  58  [base]
+    DB                  55  [base]
