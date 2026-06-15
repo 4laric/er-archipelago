@@ -104,7 +104,6 @@ REGION_LOCK_GATES = {
   ["siofra_river"] = {"lock_south_east_underground_lock"},
   ["stone_coffin_fissure"] = {"lock_stone_coffin_lock"},
   ["stormveil_castle"] = {"lock_stormveil_lock"},
-  ["stormveil_start"] = {"lock_stormveil_lock"},
   ["volcano_manor_dungeon"] = {"lock_volcano_lock"},
   ["volcano_manor_entrance"] = {"lock_volcano_lock"},
   ["weeping_peninsula"] = {"lock_weeping_lock"},
@@ -120,13 +119,12 @@ REGION_KEY_GATES = {
   ["lamenter_s_gaol_lower"] = {"key_gaol_lower_level_key"},
   ["lamenter_s_gaol_upper"] = {"key_gaol_upper_level_key"},
   ["liurnia_of_the_lakes"] = {"key_rusty_key"},
-  ["mohgwyn_palace"] = {"key_mohg_s_shackle", "lock_liurnia_lock"},
+  ["mohgwyn_palace"] = {"lock_liurnia_lock"},
   ["moonlight_altar"] = {"key_dark_moon_ring"},
   ["raya_lucaria_academy"] = {"key_academy_glintstone_key"},
-  ["stormveil_castle"] = {"key_margit_s_shackle", "key_rusty_key"},
 }
 
 -- Flat list of all gate codes (logic.lua uses it to cheaply detect state changes):
-REGION_GATE_CODES = {"key_academy_glintstone_key", "key_carian_inverted_statue", "key_dark_moon_ring", "key_gaol_lower_level_key", "key_gaol_upper_level_key", "key_margit_s_shackle", "key_messmer_s_kindling", "key_mohg_s_shackle", "key_rold_medallion", "key_rusty_key", "lock_abyssal_lock", "lock_altus_lock", "lock_ancient_ruins_lock", "lock_ashen_lock", "lock_belurat_lock", "lock_caelid_lock", "lock_cerulean_lock", "lock_charo_s_lock", "lock_ellac_lock", "lock_enir_ilim_lock", "lock_ensis_lock", "lock_farum_azula_lock", "lock_gravesite_lock", "lock_haligtree_lock", "lock_jagged_peak_lock", "lock_liurnia_lock", "lock_mohgwyn_lock", "lock_mt_gelmir_lock", "lock_north_underground_lock", "lock_rauh_base_lock", "lock_recluses_lock", "lock_redmane_lock", "lock_scadu_altus_lock", "lock_shadow_keep_lock", "lock_south_east_underground_lock", "lock_south_west_underground_lock", "lock_stone_coffin_lock", "lock_stormveil_lock", "lock_volcano_lock", "lock_weeping_lock"}
+REGION_GATE_CODES = {"key_academy_glintstone_key", "key_carian_inverted_statue", "key_dark_moon_ring", "key_gaol_lower_level_key", "key_gaol_upper_level_key", "key_messmer_s_kindling", "key_rold_medallion", "key_rusty_key", "lock_abyssal_lock", "lock_altus_lock", "lock_ancient_ruins_lock", "lock_ashen_lock", "lock_belurat_lock", "lock_caelid_lock", "lock_cerulean_lock", "lock_charo_s_lock", "lock_ellac_lock", "lock_enir_ilim_lock", "lock_ensis_lock", "lock_farum_azula_lock", "lock_gravesite_lock", "lock_haligtree_lock", "lock_jagged_peak_lock", "lock_liurnia_lock", "lock_mohgwyn_lock", "lock_mt_gelmir_lock", "lock_north_underground_lock", "lock_rauh_base_lock", "lock_recluses_lock", "lock_redmane_lock", "lock_scadu_altus_lock", "lock_shadow_keep_lock", "lock_south_east_underground_lock", "lock_south_west_underground_lock", "lock_stone_coffin_lock", "lock_stormveil_lock", "lock_volcano_lock", "lock_weeping_lock"}
 
 return REGION_ADJ

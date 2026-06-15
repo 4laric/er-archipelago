@@ -235,6 +235,17 @@ if ($Bake) {
         & $RandoExe @bakeArgs | Out-Default   # blocks until the randomizer window closes
     } finally { Pop-Location }
     Write-Host "  bake finished. Outputs: $RandoDir\{regulation.bin,event,msg,script,map} + $Repo\apconfig.json"
+    # Surface the region-fog-gate bake diagnostic. RegionFogGates writes ap_region_gates_<stamp>.txt
+    # to $RandoDir; the bake runs as a WinForms GUI so its Console output is otherwise not captured.
+    $rfg = Get-ChildItem -Path $RandoDir -Filter "ap_region_gates_*.txt" -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime | Select-Object -Last 1
+    if ($rfg) {
+        Step "Region fog gates (ap_region_gates)"
+        Get-Content $rfg.FullName | Write-Host
+        Write-Host ("  -> {0}" -f $rfg.FullName) -ForegroundColor Green
+    } else {
+        Write-Host "  RegionFogGates: no ap_region_gates_*.txt produced -- pass did not run (rebuild SoulsRandomizers?)" -ForegroundColor Yellow
+    }
 }
 
 # ----- deploy ---------------------------------------------------------------------------------
@@ -277,20 +288,30 @@ if ($Deploy) {
         Write-Host "  archipelago.dll"
     } else { Write-Warning "no client DLL at $ClientDll -- run with -Client first" }
 
-    # RandomizerCrashFix.dll: EML auto-loads mods\*.dll, so dropping it here puts it in the load
-    # order next boot. Anti-CTD guard for cross-content enemy placements (Raya Lucaria etc., TODO
-    # #10). Use -NoCrashFix to deploy WITHOUT it and A/B the crash.
+    # RandomizerCrashFix.dll: EML auto-loads mods\*.dll, but on a DELAYED schedule (so mods attach
+    # after the game's anti-tamper has settled). RandomizerCrashFix hooks EneDatMan and MUST load
+    # BEFORE the game constructs it -- the delayed default load is too late and the dll aborts with
+    # "initialized too late (EneDatMan already exists). Either add it to external_dlls or rename it
+    # to dinput8.dll". EML's equivalent of ModEngine2's early external_dlls is a load order of 0,
+    # which EML loads instantly, ignoring the delay (per its README). We pin that with a per-mod
+    # load.txt: mods\RandomizerCrashFix\load.txt = 0. Anti-CTD guard for cross-content enemy
+    # placements (Raya Lucaria etc., TODO #10). Use -NoCrashFix to deploy WITHOUT it and A/B.
+    $cfOrderDir = Join-Path $ModsDir "RandomizerCrashFix"   # EML load-order folder (name = dll basename)
     if (-not $NoCrashFix) {
         if ($CrashFixDll -and (Test-Path $CrashFixDll)) {
             Copy-Item $CrashFixDll (Join-Path $ModsDir "RandomizerCrashFix.dll") -Force
-            Write-Host "  RandomizerCrashFix.dll  (anti-CTD; pass -NoCrashFix to omit)"
+            # Force instant (pre-EneDatMan) load: order 0 ignores EML's load delay.
+            if (-not (Test-Path $cfOrderDir)) { New-Item -ItemType Directory -Path $cfOrderDir | Out-Null }
+            Set-Content -Path (Join-Path $cfOrderDir "load.txt") -Value "0" -NoNewline -Encoding ascii
+            Write-Host "  RandomizerCrashFix.dll  (anti-CTD, load order 0; pass -NoCrashFix to omit)"
         } else {
             Write-Warning "RandomizerCrashFix.dll not found under $Repo -- enemy CTDs (RLA) may persist; see TODO #10"
         }
     } else {
-        # Active opt-out: remove any previously-deployed copy so the A/B is clean.
+        # Active opt-out: remove any previously-deployed copy + its load-order folder so the A/B is clean.
         $cf = Join-Path $ModsDir "RandomizerCrashFix.dll"
         if (Test-Path $cf) { Remove-Item $cf -Force; Write-Host "  (removed RandomizerCrashFix.dll: -NoCrashFix)" }
+        if (Test-Path $cfOrderDir) { Remove-Item $cfOrderDir -Recurse -Force }
     }
 
     # RandomizerHelper.dll (opt-in: -Helper). Auto-upgrade only; deploys the dll + our tuned ini
@@ -471,4 +492,12 @@ if ($LoopTest) {
         if (Test-Path $apRepo) { $apr = Get-Content $apRepo -Raw | ConvertFrom-Json }
         $match = ($apr -and ($apr.seed -eq $genSeed))
         $status = if ($match -and $code -eq 0) { 'OK' } elseif ($match) { 'OK*' } else { 'BAKE-FAIL' }
-        $results.Add([pscustomobject]@{ n=$n; re
+        $results.Add([pscustomobject]@{ n=$n; req=$item; seed=$genSeed; exit=$code; match=$match; status=$status })
+    }
+
+    Step "Loop test results"
+    $results | Format-Table -AutoSize | Out-Host
+    $okCount = @($results | Where-Object { $_.status -like 'OK*' }).Count
+    $col = if ($okCount -eq $results.Count) { 'Green' } else { 'Yellow' }
+    Write-Host ("  {0}/{1} bakes matched the generated seed" -f $okCount, $results.Count) -ForegroundColor $col
+}

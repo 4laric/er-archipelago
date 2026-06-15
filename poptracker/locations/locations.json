@@ -52,6 +52,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 478,
+        "y": 1152
+      }
     ]
   },
   {
@@ -803,6 +810,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 540,
+        "y": 1128
+      }
     ]
   },
   {
@@ -957,6 +971,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 442,
+        "y": 1054
+      }
     ]
   },
   {
@@ -987,6 +1008,13 @@
             "name": "LG-(CC): Smoldering Butterfly - after boss"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 423,
+        "y": 1171
       }
     ]
   },
@@ -1028,6 +1056,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 407,
+        "y": 1213
+      }
     ]
   },
   {
@@ -1058,6 +1093,13 @@
             "name": "LG-(GC): Glowstone x3 - first room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 441,
+        "y": 1108
       }
     ]
   },
@@ -1092,6 +1134,13 @@
             "name": "LG-(SC): Prattling Pate \"Hello\" - behind first fire spitter"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 428,
+        "y": 1101
       }
     ]
   },
@@ -1129,6 +1178,13 @@
             "name": "LG-(LT): Glintstone Scrap x3 - off side of second elevator"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 473,
+        "y": 1107
       }
     ]
   },
@@ -1212,6 +1268,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 507,
+        "y": 1104
+      }
     ]
   },
   {
@@ -1236,6 +1299,13 @@
             "name": "LG-(MCC): Root Resin x5 - by lever"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 503,
+        "y": 1062
       }
     ]
   },
@@ -1283,6 +1353,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 515,
+        "y": 988
+      }
     ]
   },
   {
@@ -1313,6 +1390,13 @@
             "name": "LG-(DC): Uchigatana - down small tunnel on ledge"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 468,
+        "y": 1028
       }
     ]
   },
@@ -1386,6 +1470,13 @@
             "name": "SV-StC: Golden Rune [2] - on dropdown platform middle of big long room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 363,
+        "y": 1070
       }
     ]
   },
@@ -1757,6 +1848,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 360,
+        "y": 1050
+      }
     ]
   },
   {
@@ -1787,6 +1885,13 @@
             "name": "SV-LL: Shabriri Grape - from LL-LFC to E, inside by ghost"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 367,
+        "y": 1040
       }
     ]
   },
@@ -1827,6 +1932,13 @@
             "name": "SV-LTB: Ash-of-War Scarab - to NE past warp gate"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 437,
+        "y": 1029
       }
     ]
   },
@@ -2381,6 +2493,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 318,
+        "y": 1208
+      }
     ]
   },
   {
@@ -2760,6 +2879,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 506,
+        "y": 1295
+      }
     ]
   },
   {
@@ -2787,6 +2913,13 @@
             "name": "WP-(IC): Prattling Pate \"Please help\" - start of sewer area"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 587,
+        "y": 1265
       }
     ]
   },
@@ -2821,6 +2954,13 @@
             "name": "WP-(TCC): Prattling Pate \"Thank you\" - room past fire spitter"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 500,
+        "y": 1285
       }
     ]
   },
@@ -2861,6 +3001,13 @@
             "name": "WP-(TCV): Immunizing White Cured Meat - item 1 right of big room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 417,
+        "y": 1281
       }
     ]
   },
@@ -2905,6 +3052,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 520,
+        "y": 1303
+      }
     ]
   },
   {
@@ -2944,6 +3098,13 @@
             "name": "WP-(EC): Pickled Turtle Neck x3 - entrance chest"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 522,
+        "y": 1255
       }
     ]
   },
@@ -3200,6 +3361,13 @@
             "name": "SR-SRWD: Silver-Pickled Fowl Foot x3 - on statue in ruins"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 684,
+        "y": 1081
       }
     ]
   },
@@ -4231,6 +4399,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 185,
+        "y": 788
+      }
     ]
   },
   {
@@ -4352,6 +4527,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 280,
+        "y": 617
+      }
     ]
   },
   {
@@ -4388,6 +4570,13 @@
             "name": "LL-(REC): Watchdog's Staff - under second platform"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 90,
+        "y": 869
       }
     ]
   },
@@ -4428,6 +4617,13 @@
             "name": "LL-(BKC): Spellproof Dried Liver - in middle of cleaver room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 302,
+        "y": 634
       }
     ]
   },
@@ -4477,6 +4673,13 @@
             "name": "LL-(CC): Prattling Pate \"Wonderful\" - bottom of main room, N side"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 334,
+        "y": 946
       }
     ]
   },
@@ -4530,6 +4733,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 340,
+        "y": 1001
+      }
     ]
   },
   {
@@ -4579,6 +4789,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 229,
+        "y": 941
+      }
     ]
   },
   {
@@ -4615,6 +4832,13 @@
             "name": "LL-(ACC): Rune Arc - in chest in storage room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 145,
+        "y": 757
       }
     ]
   },
@@ -4661,6 +4885,13 @@
             "name": "LL-(RLCT): Crystal Knife - bottom of shortcut elevator, in chest side room 2"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 252,
+        "y": 689
       }
     ]
   },
@@ -4846,6 +5077,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 134,
+        "y": 577
+      }
     ]
   },
   {
@@ -4879,6 +5117,13 @@
             "name": "LL-(CSH)N: Magic Downpour - hostile npc drop"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 331,
+        "y": 809
       }
     ]
   },
@@ -4928,6 +5173,13 @@
             "name": "LL-(CSH)I: Lucidity - hostile npc drop"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 364,
+        "y": 804
       }
     ]
   },
@@ -5089,6 +5341,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 255,
+        "y": 721
+      }
     ]
   },
   {
@@ -5186,6 +5445,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 264,
+        "y": 547
+      }
     ]
   },
   {
@@ -5217,6 +5483,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 306,
+        "y": 1068
+      }
     ]
   },
   {
@@ -5238,6 +5511,13 @@
             "name": "LL-(TFB-NEC): Mottled Necklace - on NW ledge"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 738,
+        "y": 1112
       }
     ]
   },
@@ -5487,6 +5767,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 164,
+        "y": 768
+      }
     ]
   },
   {
@@ -5614,6 +5901,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 159,
+        "y": 764
+      }
     ]
   },
   {
@@ -5635,6 +5929,13 @@
             "name": "RLA-RLGL: Dark Moon Ring - in chest, requires Discarded Palace Key"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 153,
+        "y": 744
       }
     ]
   },
@@ -5666,6 +5967,13 @@
             "name": "RLA-RLGL: Glintstone Kris - given by Sellen after siding with her"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 158,
+        "y": 748
       }
     ]
   },
@@ -6304,6 +6612,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 729,
+        "y": 1068
+      }
     ]
   },
   {
@@ -6328,6 +6643,13 @@
             "name": "CL-(CCC): Miranda Sprout Ashes - illusory wall under stairs"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 730,
+        "y": 1122
       }
     ]
   },
@@ -6402,6 +6724,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 656,
+        "y": 1052
+      }
     ]
   },
   {
@@ -6469,6 +6798,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 760,
+        "y": 993
+      }
     ]
   },
   {
@@ -6502,6 +6838,13 @@
             "name": "CL-(AC): Fire Grease - in alcove after long dark room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 743,
+        "y": 1016
       }
     ]
   },
@@ -6540,6 +6883,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 659,
+        "y": 975
+      }
     ]
   },
   {
@@ -6576,6 +6926,13 @@
             "name": "CL-SE: Smithing Stone [5] x3 - breakable statue to N"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 758,
+        "y": 982
       }
     ]
   },
@@ -6620,6 +6977,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 639,
+        "y": 1005
+      }
     ]
   },
   {
@@ -6641,6 +7005,13 @@
             "name": "CL-(RC): Ruins Greatsword - boss drop"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 858,
+        "y": 1149
       }
     ]
   },
@@ -6675,6 +7046,13 @@
             "name": "CL-(WD): Remembrance of the Starscourge - mainboss drop"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 858,
+        "y": 1074
       }
     ]
   },
@@ -6715,6 +7093,13 @@
             "name": "CL-(WDC): Collapsing Stars - lower fight room W side"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 880,
+        "y": 958
       }
     ]
   },
@@ -6921,6 +7306,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 830,
+        "y": 952
+      }
     ]
   },
   {
@@ -6957,6 +7349,13 @@
             "name": "DB-(DC): Beast Blood x3 - bottom of dropdown"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 842,
+        "y": 979
       }
     ]
   },
@@ -7031,6 +7430,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 803,
+        "y": 1005
+      }
     ]
   },
   {
@@ -7073,6 +7479,13 @@
             "name": "DB-(DT): Godslayer's Greatsword - chest after boss"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 770,
+        "y": 956
       }
     ]
   },
@@ -7161,6 +7574,13 @@
             "name": "NR-LG: Ghostflame Torch - jump to highest roof"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 600,
+        "y": 1108
       }
     ]
   },
@@ -7349,6 +7769,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 662,
+        "y": 1050
+      }
     ]
   },
   {
@@ -7391,6 +7818,13 @@
             "name": "DD-RFC: Numen's Rune - enemy drop to S"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 623,
+        "y": 531
       }
     ]
   },
@@ -7621,6 +8055,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 558,
+        "y": 500
+      }
     ]
   },
   {
@@ -7654,6 +8095,13 @@
             "name": "DD-PDT: Remembrance of the Lichdragon - mainboss drop"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 592,
+        "y": 464
       }
     ]
   },
@@ -7812,6 +8260,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 230,
+        "y": 674
+      }
     ]
   },
   {
@@ -7920,6 +8375,13 @@
             "name": "LR-LRS: Alabaster Lord's Sword - enemy drop on top of the raised structure"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 184,
+        "y": 753
       }
     ]
   },
@@ -8038,6 +8500,13 @@
             "name": "MA-(CMC): Starlight Shards - outside to N"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 155,
+        "y": 909
       }
     ]
   },
@@ -8718,6 +9187,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 342,
+        "y": 450
+      }
     ]
   },
   {
@@ -8767,6 +9243,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 406,
+        "y": 477
+      }
     ]
   },
   {
@@ -8797,6 +9280,13 @@
             "name": "AP-(UC): Prattling Pate \"Apologies\" - across from the lever"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 208,
+        "y": 494
       }
     ]
   },
@@ -8843,6 +9333,13 @@
             "name": "AP-(PG): Golden Rune [5] - next to boss door, by door"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 410,
+        "y": 490
       }
     ]
   },
@@ -8911,6 +9408,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 272,
+        "y": 492
+      }
     ]
   },
   {
@@ -8951,6 +9455,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 291,
+        "y": 452
+      }
     ]
   },
   {
@@ -8990,6 +9501,13 @@
             "name": "AP-(AT): Rune Arc - in big chest side room 1 from grace"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 419,
+        "y": 485
       }
     ]
   },
@@ -9334,6 +9852,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 244,
+        "y": 416
+      }
     ]
   },
   {
@@ -9367,6 +9892,13 @@
             "name": "MtG-(WC): Lightning Scorpion Charm - behind imp statue"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 283,
+        "y": 467
       }
     ]
   },
@@ -9438,6 +9970,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 245,
+        "y": 440
+      }
     ]
   },
   {
@@ -9493,6 +10032,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 232,
+        "y": 403
+      }
     ]
   },
   {
@@ -9530,6 +10076,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 228,
+        "y": 361
+      }
     ]
   },
   {
@@ -9560,6 +10113,13 @@
             "name": "(VM)-SIC: Smithing Stone [4] - to S on the pillar"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 236,
+        "y": 448
       }
     ]
   },
@@ -9594,6 +10154,13 @@
             "name": "VM-VM: Ghiza's Wheel - invader drop up the main stairs"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 214,
+        "y": 423
       }
     ]
   },
@@ -9685,6 +10252,13 @@
             "name": "VM-VM: Bloodhound Claws - enemy drop behind the illusory wall in the right room, down the stairs"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 212,
+        "y": 432
       }
     ]
   },
@@ -9819,6 +10393,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 190,
+        "y": 445
+      }
     ]
   },
   {
@@ -9909,6 +10490,13 @@
             "name": "VM-TE: Somber Smithing Stone [7] - NW of shortcut elevator, after imp statue, lower part of big cage room outside to SW"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 218,
+        "y": 438
       }
     ]
   },
@@ -10103,6 +10691,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 501,
+        "y": 472
+      }
     ]
   },
   {
@@ -10175,6 +10770,13 @@
             "name": "CO-(AHG): Ash of War: Holy Ground - destroy chariots"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 572,
+        "y": 489
       }
     ]
   },
@@ -10252,6 +10854,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 592,
+        "y": 465
+      }
     ]
   },
   {
@@ -10315,6 +10924,13 @@
             "name": "CO-(ST): Smithing-Stone Miner's Bell Bearing [2] - in chest W side of first room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 484,
+        "y": 576
       }
     ]
   },
@@ -10695,6 +11311,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 558,
+        "y": 534
+      }
     ]
   },
   {
@@ -10783,6 +11406,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 556,
+        "y": 539
+      }
     ]
   },
   {
@@ -10838,6 +11468,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 565,
+        "y": 562
+      }
     ]
   },
   {
@@ -10859,6 +11496,13 @@
             "name": "LRC|LAC-(DB): Blessed Dew Talisman - in chest"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 510,
+        "y": 547
       }
     ]
   },
@@ -11086,6 +11730,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 573,
+        "y": 527
+      }
     ]
   },
   {
@@ -11113,6 +11764,13 @@
             "name": "SSG-(LC): Haligdrake Talisman +1 - behind 2 illusory walls up elevator before grace"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 562,
+        "y": 549
       }
     ]
   },
@@ -11175,6 +11833,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 611,
+        "y": 512
+      }
     ]
   },
   {
@@ -11214,6 +11879,13 @@
             "name": "DTEA: Blade of Calling - room mid small elevator on desk"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 660,
+        "y": 533
       }
     ]
   },
@@ -11260,6 +11932,13 @@
             "name": "FL-GLR: Golden Seed - seedtree to S"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 720,
+        "y": 508
       }
     ]
   },
@@ -11309,6 +11988,13 @@
             "name": "CS-(HPH): Deathroot - in chest after boss"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 742,
+        "y": 420
       }
     ]
   },
@@ -11713,6 +12399,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 849,
+        "y": 298
+      }
     ]
   },
   {
@@ -11834,6 +12527,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 851,
+        "y": 418
+      }
     ]
   },
   {
@@ -11882,6 +12582,13 @@
             "name": "FP-(GCHG): Golden Rune [11] - first illusory wall to right at start, in window"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 773,
+        "y": 429
       }
     ]
   },
@@ -11959,6 +12666,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 788,
+        "y": 423
+      }
     ]
   },
   {
@@ -12016,6 +12730,13 @@
             "name": "MotG-(SC): Arteria Leaf x5 - past hole in small pond"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 917,
+        "y": 312
       }
     ]
   },
@@ -12683,6 +13404,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 728,
+        "y": 310
+      }
     ]
   },
   {
@@ -12722,6 +13450,13 @@
             "name": "CS-(CSC): Imp Head (Elder) - W from big room, up to dead-end"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 798,
+        "y": 385
       }
     ]
   },
@@ -12784,6 +13519,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 799,
+        "y": 296
+      }
     ]
   },
   {
@@ -12826,6 +13568,13 @@
             "name": "CS-(YAT): Alabaster Lord's Sword - enemy drop lower ice jump room"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 687,
+        "y": 347
       }
     ]
   },
@@ -13011,6 +13760,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 806,
+        "y": 1075
+      }
     ]
   },
   {
@@ -13152,6 +13908,13 @@
             "name": "MH-HTP: Smithing Stone [8] - NE in the large rotunda by the elevator"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 782,
+        "y": 140
       }
     ]
   },
@@ -13370,6 +14133,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 790,
+        "y": 87
+      }
     ]
   },
   {
@@ -13440,6 +14210,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 565,
+        "y": 543
+      }
     ]
   },
   {
@@ -13462,6 +14239,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 597,
+        "y": 568
+      }
     ]
   },
   {
@@ -13483,6 +14267,13 @@
             "name": "ET: Elden Remembrance - mainboss drop"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 623,
+        "y": 602
       }
     ]
   },
@@ -13970,6 +14761,13 @@
             "name": "GP-CF: Greater Potentate's Cookbook [7] - to E in lower swamp area, in last poison swamp before sealed spirit spring"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 321,
+        "y": 1201
       }
     ]
   },
@@ -15403,6 +16201,13 @@
             "name": "SA-SC: Scadutree Fragment - by cross"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "lands_between",
+        "x": 321,
+        "y": 1201
       }
     ]
   },

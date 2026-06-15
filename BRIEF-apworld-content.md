@@ -71,3 +71,20 @@ in-game grace verification is the human integration gate in BRIEF-PARALLEL-INDEX
 
 **Contract:** none. Do NOT change slot_data keys or the version range — region fusion's contract is
 frozen and the client consumes it as-is.
+
+---
+
+## VERIFIED / DONE — Task A readability (#14), 2026-06-14
+
+Both readability deliverables shipped (additive, no location renames → no logic refs broke):
+- **Legend:** `worlds/eldenring/docs/check-name-legend.md` — 57 region prefixes + 264 subarea codes
+  across 443 lean checks, auto-derived from `locations.py` (prefixes pulled from the lean set, not
+  invented). Explains the `REGION/SUBAREA: Item - hint` shape (parentheses = sub-dungeon; compass dirs).
+- **`location_descriptions`:** `_er_describe_lean_checks()` (`locations.py:6304`, runs at import) decodes
+  each lean check's prefix → full region name + check-type tag + original hint, via `_LEAN_DESC_TAGS`.
+  464 entries total (10 group + 454 per-check), keyed by verbatim name with `setdefault`. Verified:
+  imports clean, 454 generated. Surfaces in trackers/hints (incl. the PopTracker pack).
+- Deferred (optional): a full readable-rename with ref updates — still risky; not needed.
+
+(Task B / #13 region_lock gen-test + soft-ordering: soft-order rule landed in `__init__.py`; the
+deadlock gen-test + bake remain the human gate per BRIEF-PARALLEL-INDEX.md.)

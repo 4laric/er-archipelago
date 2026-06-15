@@ -67,7 +67,8 @@ Conservative base-game sync is reasonable now with AP `!release` armed as the sa
   (242 params). Use for any flag/def archaeology. Grace warp table already harvested to
   `elden_ring_artifacts/grace_flags.tsv` (422 graces: flags, tiles, positions, textIds).
 
-## The beta.2 contract (slot_data; versions ">=0.1.0-beta.2 <0.1.0-beta.3")
+## The beta.3 contract (slot_data; versions ">=0.1.0-beta.3 <0.1.0-beta.4")
+# (beta.3 added `reveal_all_maps`; beta.2 base notes below still apply.)
 
 - `apIdsToItemIds` values are CATEGORY-PACKED: top nibble == game gib encoding == C#
   ItemKey.FullID (weapon=0, armor=0x1, accessory=0x2, goods=0x4, ash/gem=0x8, <<28).
@@ -78,7 +79,13 @@ Conservative base-game sync is reasonable now with AP `!release` armed as the sa
   via ReceivedItems -> GrantFullID, deduped by persisted last_received_index
   (`Game\archipelago\<seed>_<slot>.json`; delete it to force full regrant).
 - New slot_data keys: `dungeonSweeps` {trigger loc: [member locs]}, `goalLocations`
-  (ec 2/3), `no_weapon_requirements` (REAL bool — see gotcha below).
+  (ec 2/3), `no_weapon_requirements` (REAL bool — see gotcha below), `regionGraces`
+  {lock-item name: [grace warp flags]} (region gating), `reveal_all_maps` (bool; beta.3,
+  map_option=give → client sets map-reveal flags, no map items granted).
+- Version enforcement is HALF-WIRED: apworld emits `versions`; the client now does an ADVISORY
+  warn-only check (er_version_check.h); the randomizer's CheckVersionRange is dev-inert
+  (Version==null) + DS3-numbered, so it doesn't gate dev bakes. apworld's emitted range is the
+  de-facto source of truth until that's reconciled.
 - **GOTCHA: ER apworld toggles serialize as 0/1 INTS.** The randomizer's `options` dict
   filters to JSON bools only — read ints from the slotData JObject directly
   (see random_start handling). no_weapon_requirements is deliberately a real bool.
