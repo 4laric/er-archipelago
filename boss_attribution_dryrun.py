@@ -179,6 +179,15 @@ for line in open(COORDS,encoding="utf-8",errors="replace"):
 for g in graces:
     pass
 grace_xyz=[(g[3],g[4],g[5],g[0]) for g in graces]
+# grace flag/rowid -> name (BonfireWarpParam Names table; DLC graces may be absent)
+gname={}
+import os as _os
+_np=f"{BASE}/SoulsRandomizers/diste/Names/BonfireWarpParam.txt"
+if _os.path.exists(_np):
+    for _l in open(_np,encoding="utf-8",errors="replace"):
+        _l=_l.rstrip("\n")
+        if " " in _l:
+            _i,_n=_l.split(" ",1); gname[_i.strip()]=_n.strip()
 def nearest_grace(gx,gy,gz):
     best=None; bd=1e18
     for X,Y,Z,fid in grace_xyz:
@@ -248,7 +257,7 @@ print(f"  FAR field checks (>300u) also covered by a grace: {complement_farfield
 import csv as _csv
 gpath=f"{BASE}/check-nearest-grace.csv"
 with open(gpath,"w",newline="",encoding="utf-8") as f:
-    w=_csv.writer(f); w.writerow(["check_key","area","region","attributed_boss","nearest_grace_flag","grace_dist_u","within_cap"])
+    w=_csv.writer(f); w.writerow(["check_key","area","region","attributed_boss","nearest_grace_flag","nearest_grace_name","grace_dist_u","within_cap"])
     for k,(tx,tz,gx,gy,gz) in key_coord.items():
         fid,gd=nearest_grace(gx,gy,gz)
         out=check_out.get(k,("",None,None)); reg=out[1] or ""
@@ -266,6 +275,9 @@ with open(gpath,"w",newline="",encoding="utf-8") as f:
             bb=bossname.get(best["id"],"") if best else ""
         elif out[0]=="4capstone":
             bb="[capstone] "+CAPSTONE.get(reg,reg)
-        w.writerow([k,ar or "",reg,bb,fid,f"{gd:.0f}",int(gd<=GRACE_CAP)])
+        w.writerow([k,ar or "",reg,bb,fid,gname.get(str(fid),""),f"{gd:.0f}",int(gd<=GRACE_CAP)])
+print("\n==== TOP 12 GRACES BY CHECK HAUL ====")
+for fid,c in grace_haul.most_common(12):
+    print(f"  {c:4d}  [{fid}] {gname.get(str(fid),'?')}")
 print(f"\nwrote {gpath}  (per-check nearest grace; {len(key_coord)} rows)")
 # end
