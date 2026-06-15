@@ -29,12 +29,8 @@ gendiag_*.txt              # per-gen compact diagnostic (dlcdiag.py output; raw 
 __pycache__/
 *.pyc
 
-# --- OS / editor cruft ---
-.DS_Store
-Thumbs.db
-
-# session diagnostics / bake logs
-gendiag_*.txt
-generate_*.log
-preflight_*.log
-__pycache__/
+# --- OS / editor
+# --- boss-attribution dry-run analysis outputs (regenerate via boss_attribution_dryrun.py / tune_complement.py) ---
+boss-attribution-dryrun.csv
+check-nearest-grace.csv
+smithing_stone_distribution.csv
