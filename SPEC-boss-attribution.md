@@ -228,6 +228,26 @@ checks/grace** (mean 9, max 140 at a hub grace). **85%** of all checks have a gr
 crucially **91% of capstone checks and 74% of far-from-boss (>300u) checks are grace-covered** — so
 the complement layer rescues almost all the sparse-region leftovers the boss layer handles poorly.
 
+### Tuned thresholds (from `tune_complement.py`)
+
+Distance reality: nearest-grace distances are tight (P50 87u, **P90 179u**, P99 272u) while
+field-boss distances are loose (P50 218u, P75 351u, P90 493u). Graces are the dense layer, bosses
+the sparse one — which is why grace makes a good complement. Two knobs:
+
+- **`GRACE_CAP` (grace association): 180u.** This is the P90 of nearest-grace distance — "as close
+  as a grace usually is." Going to 240u erases nearly all leftovers but lets a grace sweep checks a
+  long way off (looser than feels right for a Site of Grace).
+- **`FIELD_GOOD` (boss-coverage radius): ~300u.** A Tier-2 check whose field boss is within ~300u
+  is already well served; only checks *beyond* that (or capstone-bound) are "weak" and get a grace
+  trigger added.
+
+At `FIELD_GOOD=250–400, GRACE_CAP=180` complement adds a grace trigger to ~600–950 of the 2083
+open-world checks (the genuinely far/capstone ones), rescuing ~87% of the weak set and leaving only
+~90–150 checks (~5–7%) on their original distant/great-rune trigger — and those are *not* stranded,
+they still send when the capstone falls. For contrast, **`full` mode adds ~1800 grace triggers**
+(every open check) — it works but trivialises exploration, so `complement` is the right default.
+Recommended defaults: **`complement`, `GRACE_CAP=180`, `FIELD_GOOD=300`.**
+
 ### Nearest-grace-per-check is worth emitting regardless (hint metadata)
 
 Independent of sweeping: record **each check's closest Site of Grace (name + distance)** at bake
