@@ -1,0 +1,38 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260615-144900.log
+gen exit: 1
+seed    : 23487817644722956204
+ER world: items=3033 locations=4906  (full table, before pool filtering)
+fill    : 329 items placed
+options : accessibility.value=2 option_minimal=2 gate=True enable_dlc=True location_pool=1
+precollected-to-start (33): Erudition, Weeping Lock, Stormveil Lock, Liurnia Lock, South West Underground Lock, South East Underground Lock, North Underground Lock, Altus Lock, Caelid Lock, Redmane Lock, Dragonbarrow Lock, Mt. Gelmir Lock, Volcano Lock, Sewer Lock, Mohgwyn Lock, Farum Azula Lock, Ashen Lock, Haligtree Lock, May the Best Win, Belurat Lock, Ensis Lock, Ellac Lock, Cerulean Lock, Stone Coffin Lock, Jagged Peak Lock, Charo's Lock, Scadu Altus Lock, Rauh Base Lock, Shadow Keep Lock, Recluses' Lock, Abyssal Lock, Ancient Ruins Lock, Enir Ilim Lock
+RESULT  : FAILED
+exception: Fill.FillError: Not enough filler items for excluded locations. There are 40 more excluded locations than excludable items.
+
+MISSING : (none found -- no accessibility FillError in log)
+
+FILLER SHORTAGE: 40 more excluded locations than excludable (filler) items.
+  meaning: excluded locations (excluded_location_behavior=forbid_useful) can only take
+           FILLER items, and the pool is 40 filler short of covering them. Levers:
+    - excluded_location_behavior: allow_useful  (lets useful items sit in excluded spots)
+    - location_pool: keep more filler-item locations (lean/trimmed strip filler -> fewer
+                     excludable items) and/or shrink the excluded set
+    - important_locations / exclude_locations: fewer forced-priority / excluded entries
+
+  placements before the error: 4676  (real checks=4639, region/boss markers=37)
+  placement region-code histogram (desc, top 15):
+    LL                 506  [base]
+    LG                 341  [base]
+    CL                 280  [base]
+    AP                 241  [base]
+    RH                 164  [mix]
+    SA                 163  [DLC]
+    MotG               160  [base]
+    SV                 150  [mix]
+    WP                 150  [base]
+    GP                 149  [DLC]
+    MtG                148  [base]
+    CS                 140  [base]
+    LRC                124  [base]
+    SK                 111  [DLC]
+    CO                 110  [base]

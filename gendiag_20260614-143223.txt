@@ -1,0 +1,11 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260614-143223.log
+gen exit: 1
+seed    : 25002575263739462392
+ER world: items=3032 locations=4906  (full table, before pool filtering)
+fill    : 1850 items placed
+precollected-to-start (0): (none)
+RESULT  : FAILED
+exception: Fill.FillError: No more spots to place 211 items. Remaining locations are invalid.
+
+MISSING : (none found -- no accessibility FillError in log)

@@ -1,0 +1,524 @@
+from dataclasses import dataclass
+
+from Options import Choice, DeathLink, DefaultOnToggle, ExcludeLocations, OptionList, \
+    OptionGroup, PerGameCommonOptions, Range, Toggle
+
+## Game Options
+
+class EndingCondition(Choice):
+    """Ending Condition options
+    
+    **Final Boss:** Will be Elden Beast, or Consort if DLC is enabled.
+    **Elden Beast:** Kill Elden Beast, for short runs with DLC on.
+    **All Remembrances:** All remembrance bosses, missable ones excluded.
+    **All Bosses:** All bosses, missable ones excluded.
+    **Capital:** Reach Leyndell and defeat Morgott, the Omen King -- a short run. Pairs with
+    `region_count` to seal off everything past the capital.
+    If DLC is on those bosses / remembrances are included (Capital ignores the DLC; it always
+    ends at Morgott)."""
+    display_name = "Ending Condition"  # this is the option name as it's displayed to the user on the webhost and in the spoiler log
+    option_final_boss = 0
+    option_elden_beast = 1
+    option_all_remembrances = 2
+    option_all_bosses = 3
+    option_capital = 4
+
+class WorldLogic(Choice):
+    """World Logic options
+    
+    **Region Lock:** Each region will require a 'Special item'
+    **Region Bosses:** Each region will require % of bosses in that region to be defeated
+    **Region Lock Bosses:** Each region will require % of bosses in that region to be defeated and a 'Special item'
+    **Open World:** No region locking"""
+    display_name = "World Logic"
+    option_region_lock = 0
+    option_region_bosses = 1
+    option_region_lock_bosses = 2
+    option_open_world = 3
+    default = 0
+    
+class RegionBossPercent(Range):
+    """The % of bosses in a region to unlock the next"""
+    display_name = "Region Boss Percent"
+    range_start = 1
+    range_end = 100
+    default = 50
+    
+class RegionBossType(Toggle):
+    """Remove cave and catacombs type bosses from region bosses."""
+    display_name = "Region Boss Type"
+    
+class RegionSoftLogic(DefaultOnToggle):
+    """Region Soft Logic
+    
+    You might get early caelid access but you won't be expected to go there early.
+    """
+    display_name = "Region Soft Logic"
+
+class GreatRunesRequired(Range):
+    """How many great runes are required to enter Leyndell
+    This option is ignored if Region Lock in On"""
+    display_name = "Leyndell Great Runes Required"
+    range_start = 1
+    range_end = 7
+    default = 2
+    
+class GreatRunesFinalBoss(Range):
+    """How many great runes are required to access the final boss (the Erdtree:
+    Radagon / Elden Beast). 0 means no additional great-rune requirement."""
+    display_name = "Final Boss Great Runes Required"
+    range_start = 0
+    range_end = 7
+    default = 0
+
+class GreatRunesMountaintops(Range):
+    """How many great runes are required to enter the Mountaintops of the Giants,
+    in addition to the Rold Medallion. 0 means no great-rune requirement."""
+    display_name = "Mountaintops Great Runes Required"
+    range_start = 0
+    range_end = 7
+    default = 0
+
+class DeathlessRouting(Toggle):
+    """Exclude the Volcano Manor abduction (a death-based shortcut from Raya Lucaria) from
+    logic. With this on, the Manor complex must be reached legitimately via Mt. Gelmir and
+    the Drawing-Room Key rather than by being abducted."""
+    display_name = "Deathless Routing"
+
+class GracesPerRegion(Range):
+    """Region fusion (TODO #13): how many Sites of Grace to unlock per region when you receive
+    that region's lock item (fast travel into the region, no Torrent slog). Graces are chosen by
+    spatial spread (a central hub first, then maximum coverage) so the picks are useful, not
+    clustered. 0 = unlock ALL of the region's graces (most convenient, least exploration).
+    1 = just a warp-in hub. Higher = more coverage. Only takes effect with region gating
+    (world_logic region_lock / region_bosses) and a client that consumes regionGraces."""
+    display_name = "Graces Unlocked Per Region"
+    range_start = 0
+    range_end = 12
+    default = 3
+
+class RegionAccessLogic(Choice):
+    """How region-lock logic models REACHING a region (world_logic region_lock / region_bosses).
+
+    - **Geographic:** you must physically path through connected regions, holding every lock along
+      the way (e.g. Altus needs Liurnia Lock AND Altus Lock). The original behavior.
+    - **Warp:** a region's OWN lock is sufficient -- receiving it unlocks that region's graces, so
+      you fast-travel straight in (Altus needs only Altus Lock). Matches the grace-grant bundle and
+      the physical region-lock enforcement, and allows seeds where a geographically-deep region is
+      the bootstrap. Only meaningful with region gating + the grace bundle (graces_per_region)."""
+    display_name = "Region Access Logic"
+    option_geographic = 0
+    option_warp = 1
+    default = 0
+
+class RegionCount(Range):
+    """Number of regions to include for a short 'reach the capital and kill Morgott' run.
+
+    Only takes effect with the **Capital** ending condition AND region gating (world_logic
+    region_lock / region_lock_bosses). Keeps the first N steps of a fixed spine toward Morgott:
+
+      1 Limgrave (free)  2 Weeping  3 Stormveil (Godrick)  4 Liurnia (Rennala)
+      5 Caelid (Radahn)  6 Dragonbarrow  7 Altus  8 Mt. Gelmir / Volcano Manor (Rykard)
+
+    Leyndell + Morgott are always the goal (gated by great_runes_required, not by this count).
+    Every region NOT kept is sealed: its lock item is removed from the pool (unobtainable) and its
+    checks become locked-vanilla events. The count is automatically raised to a floor that keeps
+    Morgott reachable -- Altus (7) is the only route to Leyndell, and enough great-rune bosses must
+    be in scope for great_runes_required. 0 = disabled (no sealing; the full world stays open)."""
+    display_name = "Region Count (Capital run)"
+    range_start = 0
+    range_end = 8
+    default = 0
+
+class RoyalAccess(Toggle):
+    """Keep Royal Capital graces accessable after it becomes ashen."""
+    display_name = "Royal Capital Accessable"
+
+class EnableDLC(Toggle):
+    """Enable DLC"""
+    display_name = "Enable DLC"
+
+class DLCOnly(Toggle):
+    """Restrict the check pool to the Shadow of the Erdtree DLC only (base game kept for
+    traversal, but holds no checks). Forces Enable DLC on. Inverse of enable_dlc."""
+    display_name = "DLC Only"
+    
+class MessmerKindle(Toggle): # another toggle to make them only spawn in dlc?
+    """Messmer Kindle Shards"""
+    display_name = "Messmer Kindle Shards"
+    
+class MessmerKindleRequired(Range): # i just picked these numbers idk how many would be good
+    """Messmer Kindle Shards required to access Enir Ilim."""
+    display_name = "Messmer Kindle Shards Required"
+    range_start = 2
+    range_end = 15
+    default = 5
+    
+class MessmerKindleMax(Range):
+    """How many Messmer Kindle Shards there are."""
+    display_name = "Messmer Kindle Shards Max"
+    range_start = 2
+    range_end = 15
+    default = 10
+
+class DLCTimingOption(Choice):
+    """Guarantee that you don't need to enter the DLC until later in the run.
+
+    - **Early:** 'Pureblood Knight Medal' will spawn in an early sphere.
+    - **Off:** You may have to enter the DLC with 'Pureblood Knight Medal' item.
+    - **Late:** You won't have to enter the DLC until after getting to Snowfield.
+    """
+    display_name = "DLC Timing"
+    option_early = 0
+    option_off = 1
+    option_late = 2
+    default = 1
+    
+class EnemyRando(Toggle):
+    """Randomizes the enemies."""
+    display_name = "Enemy randomizer"
+
+class MaterialRando(DefaultOnToggle):
+    """Randomizes the indefinitely spawning materials."""
+    display_name = "Material Randomizer"
+
+## Item & Location
+
+class RandomizeStartingLoadout(DefaultOnToggle):
+    """Randomizes the equipment characters begin with."""
+    display_name = "Randomize Starting Loadout"
+
+class AutoEquipOption(Toggle):
+    """Automatically equips any received armor or left/right weapons."""
+    display_name = "Auto-Equip"
+    
+class AutoUpgradeOption(Toggle):
+    """Automatically upgrades any received weapons to highest upgraded level."""
+    display_name = "Auto-Upgrade"
+    
+class CraftingKitOption(Choice):
+    """Choose how the Crafting Kit is handled.
+
+    - **Randomize:** Can be anywhere.
+    - **Early:** Make it anywhere before Altus and not in Caelid.
+    - **Do Not Randomize:** Leave it at its normal spot.
+    - **Start With:** Granted at the start of the run (a copy also stays in the pool).
+    """
+    display_name = "Crafting Kit Behavior"
+    option_randomize = 0
+    option_early = 1
+    option_do_not_randomize = 2
+    option_start_with = 3
+    default = 1
+    
+class MapOption(Choice):
+    """Choose how maps are handled.
+
+    - **Randomize:** Can be anywhere.
+    - **Give:** Add to starting inventory.
+    - **Do Not Randomize:** Leave it at its normal spot.
+    """
+    display_name = "Map Behavior"
+    option_randomize = 0
+    option_give = 1
+    option_do_not_randomize = 2
+    default = 1
+    
+class SmithingBellBearingOption(Choice):
+    """Choose how smithing stone bell bearings are handled.
+
+    - **Randomize:** Can be anywhere.
+    - **Progression Randomize:** Make them a progression item, and be required for the area after they would normally be in.
+    - **Do Not Randomize:** Leave them at their normal spots.
+    """
+    display_name = "Smithing Bell Bearing Behavior"
+    option_randomize = 0
+    option_progression_randomize = 1
+    option_do_not_randomize = 2
+    default = 1
+    
+class MerchantBellLogic(Choice):
+    """Gate merchant shop checks behind that merchant's Bell Bearing.
+
+    - **Off:** Merchant shops are in logic as normal.
+    - **Logic Only:** A merchant's shop checks require receiving that merchant's Bell
+      Bearing (promoted to an in-pool progression item), pulling those checks out of
+      sphere 1. Only merchants whose bell has a real world drop are gated. Logic-only:
+      no physical relocation of stock. See docs/er/SPEC-merchant-bells.md.
+    """
+    display_name = "Merchant Bell Bearing Logic"
+    option_off = 0
+    option_logic_only = 1
+    default = 0
+
+class SpellShopSpellsOnly(Toggle):
+    """Spell Shops only have spells."""
+    display_name = "Spell Shop Spells Only"
+    
+class EarlyLegacyDungeonsEarly(Toggle):
+    """Early Legacy Dungeons are early"""
+    display_name = "Early Legacy Dungeons Early"
+    
+class LocalItemOnly(DefaultOnToggle):
+    """Only progression or useful items will show up in other players games.
+    Used with ExcludeLocalItemOnly option."""
+    display_name = "Local Item Option"
+    
+class ExcludeLocalItemOnly(OptionList):
+    """If LocalItemOnly is true then these item categories will show up in other players games.
+    - [Items] **Item Group**
+    - [~600] **Weapon**: All Weapons and Ammo.
+    - [621] **Armor**: All Armors.
+    - [154] **Accessory**: All Talismans.
+    - [105] **AshofWar**: All Ashes of War.
+    - [~3700] **Goods**: All Goods.
+    
+    Goods should always be local only.
+    """
+    display_name = "Exclude Local Item Only"
+    default = ["Weapon", "Armor", "Accessory", "AshofWar"]
+    valid_keys_casefold = ["Weapon", "Armor", "Accessory", "AshofWar", "Goods"]
+    
+class ERImportantLocations(OptionList):
+    """Prevent these location types from having an unimportant items.
+    - [Checks] **Locations**
+    - [25] *Remembrance*: Main boss Remembrances.
+    - [33] *Seedtree*: Golden Seed trees.
+    - [13] *Basin*: Basins that contain tears.
+    - [12] *Church*: Sacred Tears.
+    - [24] *Map*: Map pillars.
+    - [52] *Fragment*: Scadu Fragments.
+    - [13] *Cross*: All cross items.
+    - [26] *Revered*: Revered Spirit Ashes.
+    - [21] *KeyItem*: Key items.
+    - [~52] *Boss*: Major boss drops (broader than Remembrance; can over-constrain).
+    
+    The *total* amount of priority checks should be below:
+    - **Vanilla**: [90] 
+    - **DLC**: [120]
+    """
+    display_name = "Important Locations"
+    default = ["Remembrance", "Seedtree", "Map"]
+    valid_keys_casefold = ["Remembrance", "Seedtree", "Basin", "Church", "Map", "Fragment", "Cross", "Revered", "KeyItem", "Boss"]
+
+class ERExcludeLocations(ExcludeLocations):
+    """Prevent these locations from having an important items.
+    - **dlc**: If you want DLC items but dont wanna do DLC.
+    - **hidden**: Hard to find items.
+    - **blizzard**: The hard to see area of snowfield."""
+    default = frozenset({}) # still errors
+    # Exception: Location 'hidden' from option 'ERExcludeLocations(hidden)' is not a valid location name from 'EldenRing'. Did you mean 'RH: Mace - Twin maiden shop' (18% sure)
+    valid_keys_casefold = ["dlc", "hidden", "blizzard"]
+
+class ExcludedLocationBehaviorOption(Choice):
+    """How to choose items for excluded locations in ER.
+
+    - **Allow Useful:** Excluded locations can't have progression items, but they can have useful items.
+    - **Forbid Useful:** Neither progression items nor useful items can be placed in excluded locations.
+    - **Do Not Randomize:** Excluded locations always contain the same item as in vanilla Elden Ring.
+
+    A "progression item" is anything that's required to unlock another location in some game.
+    A "useful item" is something each game defines individually, usually items that are quite
+    desirable but not strictly necessary.
+    """
+    display_name = "Excluded Locations Behavior"
+    option_allow_useful = 1
+    option_forbid_useful = 2
+    option_do_not_randomize = 3
+    default = 2
+
+class MissableLocationBehaviorOption(Choice):
+    """Which items can be placed in locations that can be permanently missed.
+
+    - **Allow Useful:** Missable locations can't have progression items, but they can have useful items.
+    - **Forbid Useful:** Neither progression items nor useful items can be placed in missable locations.
+    - **Do Not Randomize:** Missable locations always contain the same item as in vanilla Elden Ring.
+
+    A "progression item" is anything that's required to unlock another location in some game.
+    A "useful item" is something each game defines individually, usually items that are quite
+    desirable but not strictly necessary.
+    """
+    display_name = "Missable Locations Behavior"
+    option_allow_useful = 1
+    option_forbid_useful = 2
+    option_do_not_randomize = 3
+    default = 2
+
+class NoWeaponRequirements(Toggle):
+    """Remove all stat requirements from weapons, ammo, and spells.
+
+    Anything the multiworld hands you is immediately usable regardless of build —
+    useful when your weapon progression is at the mercy of the item pool.
+    """
+    display_name = "No Weapon Requirements"
+
+class DungeonSweep(Choice):
+    """Beating a dungeon's boss automatically sends every remaining check in that dungeon.
+
+    - **None:** Normal behavior; every check must be picked up individually.
+    - **Minidungeons:** Catacombs, caves, tunnels, heroes' graves, and gaols sweep when
+      their boss dies.
+    - **All:** Minidungeons plus legacy dungeons (Stormveil, Raya Lucaria, Volcano Manor,
+      Leyndell, Farum Azula, the Haligtree, Mohgwyn Palace, and the DLC legacy dungeons),
+      which sweep when their main (remembrance) boss dies, plus self-contained castle
+      regions (Caria Manor, Fog Rift Fort), which sweep on their boss drop.
+
+    Swept shop checks are sent without purchase, and swept quest checks skip their
+    questlines (this also rescues missable NPC checks inside dungeons). Note this can
+    send 30+ checks at once, which affects pacing for everyone else in the multiworld.
+    """
+    display_name = "Dungeon Sweep"
+    option_none = 0
+    option_minidungeons = 1
+    option_all = 2
+    default = 0
+
+class SwapMultiBoss(Toggle):
+    """Enemy randomizer: swap bosses between multi-boss fights (mini-dungeon bosses only).
+    Only has an effect when the Enemy Randomizer is enabled."""
+    display_name = "Swap Multi-Boss Fights"
+
+class BossRunesMatchOriginal(Toggle):
+    """Enemy randomizer: a relocated boss drops the runes the original occupant of that
+    spot would have dropped, instead of its own. Only applies with Enemy Randomizer on."""
+    display_name = "Boss Runes Match Original"
+
+class ImpoliteEnemies(Toggle):
+    """Enemy randomizer: make enemies less passive in groups (they aggro more readily).
+    Only has an effect when the Enemy Randomizer is enabled."""
+    display_name = "Impolite Enemies"
+
+class DisableSerpentHunterUpgrade(Toggle):
+    """Disable upgrading the Serpent-Hunter greatspear (a niche base-randomizer balance
+    tweak). Applies whether or not the Enemy Randomizer is on."""
+    display_name = "Disable Serpent-Hunter Upgrade"
+
+class BellPhysickOption(Choice):
+    """How to handle the Spirit Calling Bell and Flask of Wondrous Physick. Both are inert
+    on their own -- the bell needs Spirit Ashes, the flask needs Crystal Tears -- so a random
+    early pickup of either sits useless until its companions turn up.
+
+    - **Start With:** granted at the start of the run (a copy is also left in the pool).
+    - **Do Not Randomize:** locked at their vanilla locations (Ranni / Third Church of Marika).
+    - **Randomize:** shuffled into the pool like any other item.
+    """
+    display_name = "Bell & Physick Handling"
+    option_start_with = 0
+    option_do_not_randomize = 1
+    option_randomize = 2
+    default = 0
+
+
+class FlaskUpgradeOption(Choice):
+    """How to handle flask upgrades -- Golden Seeds (flask charges) and Sacred Tears (flask
+    potency).
+
+    - **Randomize:** shuffled into the pool; their locations are normal checks.
+    - **To Important Locations:** their locations are forced to hold progression items
+      (same effect as listing Seedtree/Church in important_locations).
+    - **Do Not Randomize:** Golden Seeds and Sacred Tears stay at their vanilla locations
+      (this overrides important_locations for those classes).
+    """
+    display_name = "Flask Upgrade Handling"
+    option_randomize = 0
+    option_to_important = 1
+    option_do_not_randomize = 2
+    default = 0
+
+class BlessingOption(Choice):
+    """How to handle Shadow Realm blessings -- Scadutree Fragments and Revered Spirit Ashes
+    (DLC only; ignored when the DLC is off).
+
+    - **Randomize:** shuffled into the pool; their locations are normal checks.
+    - **To Important Locations:** their locations are forced to hold progression items
+      (same effect as listing Fragment/Revered in important_locations).
+    - **Do Not Randomize:** blessings stay at their vanilla locations (overrides
+      important_locations for those classes).
+    """
+    display_name = "Shadow Realm Blessing Handling"
+    option_randomize = 0
+    option_to_important = 1
+    option_do_not_randomize = 2
+    default = 0
+
+
+class LocationPool(Choice):
+    """How many locations are randomized checks -- controls your footprint in a multiworld.
+
+    - **All:** every pickup (~3900). Big slice of the pool; lots of far-flung filler checks.
+    - **Trimmed:** drops low-value filler pickups (golden runes, consumables, materials,
+      cookbooks); keeps gear, upgrades, and all key/boss/important checks (~2150).
+    - **Lean:** only meaningful checks -- boss drops, key items, remembrances, flask upgrades
+      (seeds/tears), DLC blessings, plus anything holding a progression item (~500).
+      Recommended for multiworld syncs.
+    """
+    display_name = "Location Pool Size"
+    option_all = 0
+    option_trimmed = 1
+    option_lean = 2
+    default = 0
+
+
+class DLCGearCuration(Toggle):
+    """Curate the gear pool: drop bad base-game weapons/armor, and (with the DLC) bring in the best DLC gear.
+
+    When on, every base-game weapon/armor piece rated C-tier or below (mediocre /
+    weak / joke gear) is removed from the item pool -- its location stays a randomized
+    check, but the junk no longer spreads. If Enable DLC is also on, the freed slots
+    are backfilled with one extra copy each of the best (S/A-tier) DLC weapons and
+    armor, so you receive top-tier Shadow-of-the-Erdtree gear instead of vendor trash.
+    With the DLC off (or once the DLC gear is exhausted), the freed slots fall back to
+    normal filler. Tiers come from the bundled PvE tier list.
+    """
+    display_name = "DLC Gear Curation"
+
+
+@dataclass
+class EROptions(PerGameCommonOptions):
+    ending_condition: EndingCondition
+    world_logic: WorldLogic
+    region_boss_percent: RegionBossPercent
+    region_boss_type: RegionBossType
+    soft_logic: RegionSoftLogic
+    great_runes_required: GreatRunesRequired
+    great_runes_final_boss: GreatRunesFinalBoss
+    great_runes_mountaintops: GreatRunesMountaintops
+    deathless_routing: DeathlessRouting
+    graces_per_region: GracesPerRegion
+    region_access: RegionAccessLogic
+    region_count: RegionCount
+    royal_access: RoyalAccess
+    enable_dlc: EnableDLC
+    dlc_only: DLCOnly
+    messmer_kindle: MessmerKindle
+    messmer_kindle_required: MessmerKindleRequired
+    messmer_kindle_max: MessmerKindleMax
+    dlc_timing: DLCTimingOption
+    enemy_rando: EnemyRando
+    material_rando: MaterialRando
+    death_link: DeathLink
+
+    random_start: RandomizeStartingLoadout
+    auto_equip: AutoEquipOption
+    auto_upgrade: AutoUpgradeOption
+    
+    crafting_kit_option: CraftingKitOption
+    map_option: MapOption
+    smithing_bell_bearing_option: SmithingBellBearingOption
+    merchant_bell_logic: MerchantBellLogic
+    spell_shop_spells_only: SpellShopSpellsOnly
+    early_legacy_dungeons:EarlyLegacyDungeonsEarly
+    local_item_option: LocalItemOnly
+    exclude_local_item_only: ExcludeLocalItemOnly
+    important_locations: ERImportantLocations
+    exclude_locations: ERExcludeLocations
+    excluded_location_behavior: ExcludedLocationBehaviorOption
+    missable_location_behavior: MissableLocationBehaviorOption
+    dungeon_sweep: DungeonSweep
+    no_weapon_requirements: NoWeaponRequirements
+    swap_multiboss: SwapMultiBoss
+    boss_runes_match: BossRunesMatchOriginal
+    impolite_enemies: ImpoliteEnemies
+    disable_serpent_hunter_upgrade: DisableSerpentHunterUpgrade
+    bell_physick_option: BellPhysickOption
+    flask_upgrade_option:

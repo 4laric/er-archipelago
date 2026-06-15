@@ -1,0 +1,11 @@
+ER DLC-ONLY GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260614-132925.log
+gen exit: 1
+seed    : 89251427642260744810
+ER world: items=3032 locations=4906  (full table, before pool filtering)
+fill    : 1940 items placed
+precollected-to-start (13): Erudition, Stormveil Lock, South East Underground Lock, North Underground Lock, Altus Lock, Caelid Lock, Redmane Lock, Mt. Gelmir Lock, Volcano Lock, Mohgwyn Lock, Farum Azula Lock, Ashen Lock, Haligtree Lock
+RESULT  : FAILED
+exception: Fill.FillError: Not enough filler items for excluded locations. There are 61 more excluded locations than excludable items.
+
+MISSING : (none found -- no accessibility FillError in log)

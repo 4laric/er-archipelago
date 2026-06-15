@@ -1,0 +1,44 @@
+# ER Archipelago -- DLC-ONLY + TRIMMED + CURATION gen-test (2026-06-15).
+# Exercises the new trimmed-pool curation (curation.py + _in_location_pool patch):
+#   - name-cuts: 25 weapons / 29 armor / 4 runes (Shadow Realm [2]-[5])
+#   - armor set-collapse to one representative (head) piece per set
+#   - stone-cut gated on auto_upgrade (below) -- ALL smithing stones leave the pool;
+#     received weapons auto-max instead, Scadutree Fragments carry DLC power scaling
+#   - blanket progression force-keep (logic safety + cookbook-in-JUNK_GOODS fix)
+# Pairs with EldenRing-dlc-only-test.yaml (location_pool: all) for a before/after diff.
+#
+# Drop into Archipelago\Players\ (solo, the ONLY EldenRing yaml there) and run:
+#     .\build.ps1 -Generate          # gen only -- fastest loop; no bake/Windows-runtime needed
+# PASS criteria:
+#   1. gen SUCCEEDS (no FillError / "no more spots" / "unreachable") -- cuts only reduce
+#      locations + their items symmetrically, so fill must stay balanced.
+#   2. location count ~329 (curated DLC-only trimmed). Compare to ~573 uncurated trimmed
+#      and ~1190 for location_pool: all.
+#   3. spoiler sanity: ZERO "Smithing Stone" checks; no Shadow Realm Rune [2]-[5]; each armor
+#      set appears once (head piece only); Scadutree Fragments + Revered Spirit Ash all present;
+#      Velvet Sword of St. Trina present (rescued); progression items all placed.
+# IF it FAILS: read the gendiag. A pure pool-size deadlock (too few slots for locks) would point
+#   at the curation cutting too hard for region_lock bootstrap -- fall back by flipping
+#   auto_upgrade:false (restores 117 stone checks, ~446 pool) to isolate stones vs gear cuts.
+
+name: Alaric
+description: ER AP DLC-only TRIMMED+curated (Land of Shadow only, PCR goal, ~329 checks).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true            # forced on by dlc_only anyway; set explicitly for clarity
+  dlc_only: true              # pool = DLC only, base = transit (no checks)
+  ending_condition: final_boss   # 0 = Promised Consort Radahn when DLC on
+
+  # Messmer's Kindling shard gate = the progression spine.
+  messmer_kindle: true
+  messmer_kindle_required: 5
+  messmer_kindle_max: 10
+
+  location_pool: trimmed      # <-- curated trimmed pool under test
+  auto_upgrade: true          # <-- REQUIRED: triggers the stone-cut; received weapons auto-max
+  world_logic: region_lock    # per-region lock items give real spheres (also the default)
+
+  # MUST live under EldenRing: -- at document root AP ignores it (silently defaults to full).
+  accessibility: minimal
+  progression_balancing: 50

@@ -1,0 +1,25 @@
+# ER Archipelago -- DLC-ONLY regression guard (BRIEF-dlc-only.md, Test plan step 5).
+# Paired with EldenRing-dlc-only-test.yaml: IDENTICAL except dlc_only is OFF. Run both,
+# diff the spoilers -- with dlc_only:false the pool/logic must match today's enable_dlc
+# behavior exactly (the _content_in_scope helper's else-branch is the unchanged old rule).
+#     .\build.ps1 -Generate          # one-file swap from the test yaml
+# Expect: full base+DLC pool (~all checks), NOT the ~1,190 DLC-only slice.
+
+name: Alaric
+description: ER AP dlc_only regression guard (dlc_only OFF; should equal today's DLC-on behavior).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true
+  dlc_only: false             # <-- the only difference vs EldenRing-dlc-only-test.yaml
+  ending_condition: final_boss
+
+  messmer_kindle: true
+  messmer_kindle_required: 5
+  messmer_kindle_max: 10
+
+  location_pool: all
+  world_logic: region_lock
+
+accessibility: full
+progression_balancing: 50
