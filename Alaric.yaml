@@ -27,3 +27,19 @@ EldenRing:
 
   # dungeon sweep ON
   dungeon_sweep: all         # full swe
+
+  # --- TEST 2026-06-15: exercise the two new curation features in the next bake.
+  #  (1) dlc_gear_curation -- skippable worst C/D/F base gear swapped 1:1 for the best
+  #      S/A DLC weapons/armor (injects DLC gear even though this is a base-game-goal seed).
+  #  (2) location_pool: trimmed -- REQUIRED to test the new S/A-spell keep-rule (the 57
+  #      cream sorceries/incantations now stay randomized in Trimmed; under 'all' they
+  #      always were, so 'trimmed' is what proves the fix). Revert to 'all' to restore the
+  #      full-footprint config. enable_dlc stays ON (DLC-off can't bake yet, TODO #7).
+  dlc_gear_curation: true
+  location_pool: trimmed
+  # Trimmed strips filler-bearing pickups, so the default forbid_useful on missable/
+  # excluded locations runs the pool short of filler (gen FAILED 'Not enough filler
+  # items for excluded locations'). allow_useful lets those spots hold useful (never
+  # progression) items, which trimmed has plenty of. Required for any trimmed bake here.
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful

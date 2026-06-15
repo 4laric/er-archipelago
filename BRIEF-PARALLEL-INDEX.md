@@ -4,7 +4,7 @@ Alaric, 2026-06-13. Scope: **backlog minus the two big C# ports** (#1 DLC enemy 
 #2 CharacterWriter are NOT split here — they're multi-week, own future briefs). Each BRIEF below
 is self-contained (paste into a fresh Claude). Read this index first to avoid collisions.
 
-## The two collision rules (read before launching sessions)
+## The THREE collision rules (read before launching sessions)
 
 1. **Repo = the safe parallel boundary.** The 3 repos are independent git repos, so one session
    per repo runs with zero VCS conflict. Two of the briefs live in the SAME repo
@@ -15,6 +15,18 @@ is self-contained (paste into a fresh Claude). Read this index first to avoid co
    once. Only ONE contract-touching brief exists here (`BRIEF-contract-map-reveal`) and it must
    run ALONE — never concurrently with another contract change. The four coding briefs below are
    deliberately contract-FREE so they can all run at the same time.
+3. **Shared ROOT docs are NOT safe to co-edit — append to your own HANDOFF, reconcile serially.**
+   The root files every session is tempted to touch — `TODO.md`, `HANDOFF.md`, this index — live in
+   NO git repo (they're untracked until the superrepo, and even then a last-writer-wins blob). Two
+   sessions editing `TODO.md` at once = a silent lost update: it already happened (2026-06-14, the
+   #14 readability section + #13 body were clobbered by the session that added #15). Rules:
+   - **During a parallel run, do NOT edit `TODO.md`/`HANDOFF.md` in-flight.** Each session writes its
+     own `HANDOFF-<track>.md` (e.g. `HANDOFF-apworld-content.md`, which already exists) and/or appends
+     a `## VERIFIED / DONE` block to ITS OWN brief. Those are single-owner files → no collisions.
+   - **Reconcile into `TODO.md`/`HANDOFF.md` SERIALLY afterward** — one session (or you) folds the
+     per-track HANDOFFs into the shared backlog once the parallel run is done.
+   - Code lives in the per-repo working trees (rule 1), so it's never at risk from this — only the
+     shared prose docs are. If you must record something mid-run, put it in the per-track file.
 
 ## The tracks
 

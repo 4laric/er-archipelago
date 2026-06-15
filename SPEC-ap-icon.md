@@ -1,10 +1,73 @@
 # SPEC: Custom Archipelago icon for synthetic items
 
-Status: FUTURE PROJECT, not started. (Alaric, 2026-06-11)
+Status: IN PROGRESS — chosen approach = **override the telescope texture** (decided with
+Alaric, 2026-06-14). Implemented as a one-time WitchyBND edit of the icon bundle that the
+deploy step re-ships; the remaining steps need the game files and run on Windows.
+
 Current behavior: all synthetic AP items (foreign items, own-item vouchers, lock tokens)
 borrow the Telescope's icon, resolved from params at bake time (PermutationWriter
 AddSyntheticItem). Goal: replace with the actual Archipelago logo (the six-circle
 flower) so AP items are unmistakable in shops and inventory.
+
+## CHOSEN DESIGN (override the telescope texture — no randomizer code change)
+
+Instead of authoring a new icon id, override the *texture* the telescope's `iconId`
+already points to. Every synthetic item borrows that same icon id, so swapping the texture
+rebrands all AP items at once with **no change to `AddSyntheticItem`** and no new param id.
+Accepted tradeoff: the real Telescope key item shows the flower too.
+
+**Mechanism reality check (learned 2026-06-14):** the icon lives inside
+`menu/hi/00_solo.tpfbnd.dcx`, which is a **BND4 bundle** of one tiny TPF per icon
+(`MENU_Knowledge_#####.tpf`). `MiscSetup.InjectUncompressed` only handles bare
+single-`.tpf.dcx` files (it globs `*.tpf.dcx` and does `TPF.Read`), NOT tpf**bnd** bundles
+— so it cannot do this. Hence a dedicated BND-aware bake step (Alaric asked for full
+automation rather than a hand-edit, 2026-06-14).
+
+### What's already done in the repo (Cowork, 2026-06-14)
+
+1. **`MiscSetup.InjectApItemIcon(game)`** (new) — ER-only bake step, called from the AP
+   path right after `InjectUncompressed` (`ArchipelagoForm.cs`). It reads the vanilla
+   `menu/hi/00_solo.tpfbnd.dcx` from the UXM-unpacked game root, `BND4.Read`s it, finds the
+   `MENU_Knowledge_<telescope iconId>` TPF entry (telescope iconId pulled from
+   `EquipParamGoods 2040`, matched by integer so zero-padding doesn't matter), swaps that
+   TPF's texture **bytes** with the committed flower DDS (keeping the TPF format byte;
+   SoulsFormats re-derives Type/Mipmaps from the new DDS for PC), and writes the loose
+   bundle to `menu\hi\00_solo.tpfbnd.dcx` in the bake output dir. Idempotent; no-ops
+   cleanly if the game isn't UXM-unpacked or the flower file is missing.
+2. It reads the flower from **`diste\Archipelago\ap_telescope_icon.dds`**. When that file is
+   absent, it dumps the vanilla telescope DDS to `diste\Archipelago\_telescope_icon_dump.dds`
+   and logs how to match it — so producing a correctly-formatted flower needs only `texconv`
+   (no WitchyBND, no bundle unpacking).
+3. `build.ps1 -Deploy` now copies `menu/` into the game root (added to the deploy dir list,
+   alongside event/msg/script/map).
+4. Assets staged at `SoulsRandomizers/diste/Archipelago/`: `ap_flower_source_512.png`
+   (texconv input, from `Archipelago/data/icon.png`), `ap_flower_candidate_BC3_256.dds`
+   (BC3 fallback), and a `README.md` with the full step-by-step.
+
+NOT yet built/tested — the randomizer only compiles on Windows. Watch for: `BND4.Read`
+handling the `.dcx` wrapper and `bnd.Write` preserving it (confirmed in SoulsFormats:
+`BND4 : SoulsFile<BND4>`, which stores/re-applies `Compression`); the binder entry names
+(`bf.Name`) being parseable as `MENU_Knowledge_#####`; and the flower DDS format matching
+the telescope's.
+
+### Remaining one-time steps (Windows — full commands in diste/Archipelago/README.md)
+
+- Build the randomizer; `.\build.ps1 -Bake` once → grab `_telescope_icon_dump.dds`.
+- `texconv -info` it; encode the flower to the same format/size; save as
+  `ap_telescope_icon.dds` in `diste\Archipelago\`.
+- `.\build.ps1 -Bake -Deploy`; in-game check shop list, inventory grid, pickup popup,
+  low-res item-compare.
+
+### Why not a dedicated icon id
+
+The clean-separation alternative (below) keeps the real telescope unchanged but needs the
+bake step to *add* a new TPF/texture to the bundle plus a survey for a free icon id and an
+`AddSyntheticItem` edit — more moving parts. Kept as a future option; original design notes
+preserved below.
+
+---
+
+## ALTERNATIVE (future): dedicated Archipelago icon id
 
 ## How ER icons work (vs DS3's atlas pages)
 

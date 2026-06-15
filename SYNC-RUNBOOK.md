@@ -77,6 +77,8 @@ So **ask the host to enable manual release** on the room (release_mode `enabled`
       bell/physick/kit start, sweep). Slot name set.
 - [ ] `eldenring.apworld` re-packaged from the CURRENT apworld (matches your randomizer/client).
 - [ ] Did a solo local pass first (`build.ps1 -All`, preflight all-PASS, connect, eyeball spawn).
+- [ ] Bake-stability gate: `build.ps1 -Test` green, and `build.ps1 -LoopTest -Count 6` (+ a DLC-off
+      run) all `OK` — archived `looptest_<ts>.log` shows no seed-dependent failures (TODO #7).
 - [ ] Sent host: `<YourName>.yaml` + `eldenring.apworld`.
 - [ ] Got from host: server `host:port`, slot name, room password.
 

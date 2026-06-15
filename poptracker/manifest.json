@@ -1,14 +1,19 @@
 {
-  "name": "Elden Ring Archipelago (M0)",
+  "name": "Elden Ring Archipelago",
   "game_name": "EldenRing",
   "package_uid": "elden-ring-archipelago",
-  "package_version": "0.1.0-beta.2",
+  "package_version": "0.1.0-beta.3",
   "platform_target": "any",
   "author": "ER-AP",
+  "min_poptracker_version": "0.26.2",
   "variants": {
     "compact": {
       "display_name": "List only (no map)",
-      "flags": ["compact"]
+      "flags": ["ap"]
+    },
+    "map": {
+      "display_name": "Map (Lands Between)",
+      "flags": ["ap"]
     }
   }
 }

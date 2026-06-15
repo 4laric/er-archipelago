@@ -3,11 +3,13 @@
 
 Emits the location-shaped, churn-prone pack pieces:
     poptracker/items/items.json          tracked items (locks + curated key items)
-    poptracker/locations/locations.json  one node per apworld region, checks as sections
+    poptracker/locations/locations.json  one node per apworld region, checks as sections,
+                                          + map_locations pins when a map has been built
     poptracker/layouts/item_grid.json    generated item grid referenced by items_only.json
     poptracker/scripts/ap_map.lua        AP item id  -> pack item code           (for on_item)
     poptracker/scripts/loc_map.lua       AP loc  id  -> "@Region/Section" code    (for on_location)
     poptracker/scripts/region_graph.lua  region adjacency + lock/key gates        (for logic.lua)
+    poptracker/maps/*                     overworld map layer (only when a coord dump is present)
 
 MODES:
   * RUNTIME (preferred): import items.py + locations.py standalone (stub `BaseClasses`, fake the
@@ -19,7 +21,7 @@ MODES:
     modes.
 
 Usage: gen_poptracker.py [--apworld DIR] [--check]
-Pairs with TODO #15 / SPEC-poptracker-pack.md / BRIEF-poptracker-pipeline.md.
+Pairs with TODO #15 / SPEC-poptracker-pack.md / SPEC-poptracker-map.md / BRIEF-poptracker-pipeline.md.
 """
 from __future__ import annotations
 import argparse
@@ -36,6 +38,9 @@ PACK_ROOT = os.path.dirname(HERE)
 REPO_ROOT = os.path.dirname(PACK_ROOT)
 DEFAULT_APWORLD = os.path.join(REPO_ROOT, "Archipelago", "worlds", "eldenring")
 ROOT_REGION = "Limgrave"   # the "New Game" entrance target (graph root)
+
+sys.path.insert(0, HERE)
+import build_map  # map layer (M3a); returns empty targets + committed pins when no coord dump present
 
 KEY_ITEM_SUBSTRINGS = [
     "Great Rune",
@@ -315,19 +320,24 @@ def emit_items_json(items):
     return out
 
 
-def emit_locations_json(regions, section_index):
+def emit_locations_json(regions, section_index, pins=None):
+    pins = pins or {}
     out = []
     for region in regions["ordered_regions"]:
         sections = [{"name": r["name"]} for r in section_index[region]]
         is_dlc = region in regions["dlc_set"]
-        out.append({
+        node = {
             "name": region,
             "access_rules": ["$can_reach_" + _slug(region)],
             "tags": ["dlc"] if is_dlc else ["base"],
             "children": [{"name": region,
                           "access_rules": ["$can_reach_" + _slug(region)],
                           "sections": sections}],
-        })
+        }
+        p = pins.get(region)
+        if p:
+            node["map_locations"] = [{"map": p["map"], "x": p["x"], "y": p["y"]}]
+        out.append(node)
     return out
 
 
@@ -411,8 +421,12 @@ def generate(apworld_dir):
     graph = parse_region_graph(os.path.join(apworld_dir, "__init__.py"), tracked_codes)
     section_index = build_section_index(regions)
 
+    # map layer (M3a) FIRST: returns pins (fresh from dump, else committed) used for map_locations,
+    # plus maps/* targets that are only written/checked when a coord dump is present.
+    map_json, map_text, map_stats, map_pins = build_map.build(apworld_dir, PACK_ROOT, REPO_ROOT)
+
     items_json = emit_items_json(items)
-    locations_json = emit_locations_json(regions, section_index)
+    locations_json = emit_locations_json(regions, section_index, map_pins)
     item_grid_json = emit_item_grid(items_json)
     loc_map_lua, loc_n = emit_loc_map_lua(regions, section_index)
     ap_map_lua = emit_ap_map_lua(items)
@@ -423,7 +437,7 @@ def generate(apworld_dir):
              "dlc_regions": len(regions["dlc_set"]),
              "locations": sum(len(v) for v in regions["region_locations"].values()),
              "tracked_items": len(items_json), "item_ids": sum(1 for i in items if i["ap_code"]),
-             "location_ids": loc_n, **graph["stats"]}
+             "location_ids": loc_n, "map_pins": len(map_pins), **graph["stats"]}
 
     json_targets = [
         (os.path.join(PACK_ROOT, "items", "items.json"), items_json),
@@ -434,6 +448,9 @@ def generate(apworld_dir):
     if have_ids:
         text_targets += [(os.path.join(PACK_ROOT, "scripts", "ap_map.lua"), ap_map_lua),
                          (os.path.join(PACK_ROOT, "scripts", "loc_map.lua"), loc_map_lua)]
+    json_targets += map_json
+    text_targets += map_text
+    stats.update(map_stats)
     return json_targets, text_targets, stats
 
 
