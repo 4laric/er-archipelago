@@ -1,0 +1,29 @@
+# ER Archipelago -- DLC-ONLY solo gen-test config (BRIEF-dlc-only.md, Task "Independent test plan").
+# Drop into Archipelago\Players\ (solo, replacing the active EldenRing.yaml) and run:
+#     .\build.ps1 -Generate          # gen only -- fastest loop; no bake/Windows-runtime needed
+# Then check (Test plan steps 2-5):
+#   2. generated location count ~1170-1207 (impl static count = 1190: 1154 LoS + 36 Roundtable)
+#   3. gen succeeds + beatable to PCR (no "unreachable" fill failure)
+#   4. spoiler: no base-region checks in pool (base kept for transit only)
+#   5. regression guard: flip dlc_only -> false and confirm identical-to-today behavior
+
+name: Alaric
+description: ER AP DLC-only mode (Land of Shadow only, PCR goal, Messmer-shard gate).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true            # forced on by dlc_only anyway; set explicitly for clarity
+  dlc_only: true              # <-- the mode under test: pool = DLC only, base = transit (no checks)
+  ending_condition: final_boss   # 0 = Promised Consort Radahn when DLC on (Circlet of Light completion)
+
+  # Messmer's Kindling shard gate = the progression spine for the ~1,190-check pool.
+  messmer_kindle: true
+  messmer_kindle_required: 5
+  messmer_kindle_max: 10
+
+  location_pool: all          # full DLC pool; switch to 'lean' for the pruned (~500) variant later
+  world_logic: region_lock    # per-region lock items give real spheres (also the default)
+
+# AP-core: everything reachable, standard balancing
+accessibility: full
+progression_balancing: 50

@@ -32,3 +32,9 @@ __pycache__/
 # --- OS / editor cruft ---
 .DS_Store
 Thumbs.db
+
+# session diagnostics / bake logs
+gendiag_*.txt
+generate_*.log
+preflight_*.log
+__pycache__/
