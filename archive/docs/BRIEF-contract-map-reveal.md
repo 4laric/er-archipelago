@@ -94,5 +94,4 @@ Implemented solo (no other contract change in flight), contract bumped **beta.2 
   mismatch visible going forward.
 
 **Build/test (Windows):** `build.ps1 -Client` (can't compile in the Linux sandbox), bake a
-`map_option: give` seed, then run the test plan above. Watch for `reveal_all_maps: map N reveal flag
-… SET` and an empty Key Items map section.
+`map_option: give` seed, then run the test plan ab

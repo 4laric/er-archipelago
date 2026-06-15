@@ -94,5 +94,4 @@ licensing-sensitive decision flagged above, not a per-option task.
 1. `options.py`: add a `Toggle` per setting; include in the dataclass + an option group.
 2. `__init__.py` `fill_slot_data`: add to `slot_data["options"]`.
 3. `ArchipelagoForm.cs` ER case in `ConvertRandomizerOptions`: inside the
-   `randomize_enemies` block, `opt["<key>"] = archiOptions.GetValueOrDefault("<yaml>", <def>);`.
-4. Regen (slot_data change). No client work.
+   `randomize_enemies` block, `opt["<key>"] = 

@@ -110,5 +110,4 @@ No AP concept maps to these; AP's only role is shipping a bool the randomizer re
    randomizer dependency. The "Randomize X — No / important / anywhere" tri-states for flask
    upgrades and blessings are the highest-value untranslated ones (they're pure
    place_locked_item / priority_locations work).
-2. Class 2: only split if you want finer control than the current combined options give.
-3. Class 3: leave as passthrough; revisit only with the upstream-rebase decision.
+2. Class 2: only split if you want finer control than the c
