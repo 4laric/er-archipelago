@@ -2,6 +2,19 @@
 
 Actionable backlog. Living doc; see HANDOFF.md for current state and SPEC-*.md for designs.
 
+## 16. DLC-only mode (Shadow of the Erdtree) -- see BRIEF-dlc-only.md / SPEC-dlc-only.md
+
+yaml-gated `dlc_only` toggle: check pool = Land of Shadow only (~1,171-1,207 checks), base kept for
+traversal only (Option A). apworld-ONLY + independently gen-testable (forces enable_dlc; bake already
+keeps DLC). Decisions locked in SPEC (Option A, 1,207 incl. Roundtable, PCR goal, Messmer-shard
+spine, Scadu frags = normal checks). Buildable brief: BRIEF-dlc-only.md.
+- [ ] options.py: `dlc_only` Toggle (default off), in the dataclass by enable_dlc/dlc_timing.
+- [ ] __init__.py: invert the pool filters (:2480, :2525) via a `_content_in_scope` helper; force
+      enable_dlc at generate_early; default messmer_kindle on; goal defaults to PCR.
+- [ ] GEN-TEST solo (yaml in the brief): count ~1170-1207, completable to PCR, no base checks.
+- [ ] Contract bump beta.3 -> beta.4 ONLY when shipping to a sync (no runtime consumer; bookkeeping).
+- [ ] Follow-ups: Option B "DLC start" (re-root at Gravesite); ~500-check pruning (DLC-scoped lean).
+
 ## 1. DLC enemy randomization — engine port (the v0.8 → v0.11.4 enemy delta)
 
 Ref: SPEC-reverse-engineer-rando (this session's RE notes). Our fork is v0.8; DLC enemy
@@ -92,10 +105,14 @@ precollected (given + revealed). Needs a regen. (Note: this drops ~24 checks and
 
 OPTIONAL POLISH (the original "flip flags without granting items" idea -- removes the map
 FRAGMENT items from inventory clutter; needs a client change, untested-compilable here):
-- [ ] apworld: under give, also stop precollecting the map items; emit "reveal_all_maps" in
-      slot_data instead.
-- [ ] client: on connect, if reveal_all_maps, set the reveal flags directly (reuse
-      kMapUnlockFlags in GameHook.cpp) -- no item grant. Net: revealed, zero map items in bag.
+- [x] apworld DONE 2026-06-14: under give, stopped precollecting map items; fill_slot_data emits
+      "reveal_all_maps" (bool). Contract bumped beta.2 -> beta.3. py_compile clean.
+- [x] client DONE 2026-06-14 (build on Windows): parse reveal_all_maps -> revealAllMapsPending;
+      CGameHook::revealAllMaps sets kMapUnlockFlags (gates DLC, retries until holder ready) drained
+      in Core.cpp loaded block. Also wired advisory version check (er_version_check.h, WARN not
+      refuse). See BRIEF-contract-map-reveal "VERIFIED / DONE".
+      NOTE lockstep gap: randomizer CheckVersionRange is dev-inert (Version==null) + DS3-numbered;
+      not reconciled to beta.N -- separate cleanup. apworld's emitted versions is de-facto truth.
 
 ## 6. Double-grant: own-world GOODS bought from a shop
 
@@ -200,85 +217,69 @@ item golden aura VFX on randomized-check world drops.
 
 ## 13. Region fusion: region keys + bundled grace unlock -- see SPEC-region-chain.md
 
-Sphere shaping for the open world. Each region has a key that unlocks BOTH region access AND
-that region's Sites of Grace (fast travel) -- bundled, so graces can't bypass the lock. Order
-shuffles per seed; graces make non-linear travel painless. Supersedes the standalone
-"graces at start" idea and the strict 7-tier chain (kept as fallback in the SPEC).
-- [x] apworld: per-region key gating -- REUSED existing `_region_lock` (it already does per-region
-      lock items with emergent/shuffled order). No new world_logic value needed; region_lock IS the
-      logic half. Made it explicit in the sync yaml (was already the default; the playtest-3 sphere
-      bloat was the TEST yaml's open_world, not the sync).
-- [x] grace bundle DATA + contract (2026-06-13, apworld): grace->region mapping PROVEN clean
-      (413/422 graces via map-tile -> region; 9 edge tiles unmapped). Built
-      `worlds/eldenring/grace_data.py` (REGION_LOCK_ITEM + REGION_GRACE_FLAGS, 25 lock items / 210
-      graces). slot_data now ships `regionGraces` = {lock_item_name: [grace warp flags]} when
-      world_logic < 3. Compiles + JSON-serializable. Regen grace_data.py if regions/graces change.
-- [x] graces_per_region DIAL (2026-06-13): "important" is NOT in the data (placeNameTextId is an
-      unreliable proxy -- biased to overworld). Use SPATIAL SPREAD (hub + farthest-point coverage)
-      from grace coords instead. New `graces_per_region` option: 0=all(210), 1=hub(29), 3=hub+
-      coverage(75, default). grace_data.py stores [flag,x,z]; spread runs at gen time (no regen to
-      retune). Sync yaml set to 3. Full FMG-name curation possible later if a pick is bad.
-- [ ] CLIENT (next session, C++): on granting an item whose name is a key in `regionGraces`, SET
-      those grace warp-unlock flags (same flag-setting path as map-reveal). This is the remaining
-      half -- the data/contract is done and waiting.
-- [ ] light soft-ordering so difficulty doesn't swing; GEN-TEST region_lock for deadlocks
-      (undergrounds; also watch the volcano_town loop #7 -- region gating changes the logic graph).
-- [ ] (optional) sub-region graces (caves/catacombs) are NOT bundled -- only the 25 locked hub
-      regions. Player walks to sub-graces normally. Coarsen to ~7 region groups later if desired.
+Sphere shaping for the open world. Each region has a key that unlocks BOTH region access AND that
+region's Sites of Grace (fast travel), bundled so graces can't bypass the lock. Full design +
+status in SPEC-region-chain.md and memory [[er-region-fusion]].
+- [x] apworld: region gating via existing `region_lock` (per-region .lock items, shuffled order).
+- [x] grace bundle DATA + contract: grace_data.py (REGION_LOCK_ITEM + REGION_GRACE_POINTS); slot_data
+      ships `regionGraces` {lock-item: [warp flags]} when world_logic < 3; `graces_per_region` dial.
+- [x] CLIENT (2026-06-13): regionGraces parsed; FlushPendingGraceFlags sets grace warp flags on
+      lock-item receipt (Core.cpp/.h, ArchipelagoInterface.cpp, GameHook.cpp). Build on Windows.
+- [ ] INTEGRATION GATE (human): build client, bake region_lock seed (graces_per_region:1), playtest
+      -- receive lock -> "Region grace flag .. SET" -> map -> grace selectable. Then 3 and 0.
+- [ ] gen-test region_lock for deadlocks (undergrounds); watch volcano_town loop (#7).
 
-## 14. Check-name readability ("reading a barcode")
+## 14. Check-name readability ("reading a barcode") -- DONE 2026-06-14
 
-Playtest 3: lean check NAMES are cryptic abbreviations (e.g. `LL/SeI: Glass Shard - to S on
-isle`) -- players couldn't parse them on the sync. Renaming the location strings is RISKY:
-__init__.py logic references many location names verbatim (entrance/location rules, _fill_local),
-so a rename breaks those refs. Safer paths:
-- [ ] Build a region/area ABBREVIATION LEGEND (decode all ~30 region prefixes + common subarea
-      codes) as a reference doc -- lets players/Alaric parse any name. Cheapest win.
-- [ ] OR populate `location_descriptions` (already imported) with readable text per lean check
-      (additive, non-breaking; surfaced in trackers/hints depending on client).
-- [ ] Decide whether a full readable-rename (with ref updates) is worth it later.
+Lean check names were cryptic (e.g. `LL/SeI: Glass Shard - to S on isle`). Done by the apworld-content
+session (NON-breaking, additive -- no location renames, so no logic refs broke):
+- [x] Abbreviation LEGEND: `worlds/eldenring/docs/check-name-legend.md` -- 57 region prefixes + 264
+      subarea codes across 443 lean checks, auto-derived from locations.py (not invented).
+- [x] `location_descriptions` populated: `_er_describe_lean_checks()` (locations.py:6304) decodes each
+      lean check's prefix -> full region name + check-type tag + original hint; 464 entries total
+      (454 auto per-check). Keyed by verbatim name via setdefault; runs clean at import. Surfaces in
+      trackers/hints (incl. the PopTracker pack, TODO #15-poptracker).
+- [ ] (optional, deferred) full readable-RENAME with ref updates -- still risky; legend+descriptions
+      were the safe win, rename not needed.
 
-## 15. PopTracker pack (map-based auto-tracker) -- see SPEC-poptracker-pack.md
+## 15. Retarget the .NET stack net6.0-windows -> net8.0-windows (EOL)
 
-FUTURE PROJECT, not started. Map-based auto-tracking pack: connect to the AP slot, show reachable
-checks under apworld logic, pinned on Lands Between / underground / Land of Shadow maps, live as
-items arrive. Interim: Universal Tracker already works with this apworld. Guiding decision:
-GENERATE from apworld source (`tools/gen_poptracker.py`), don't hand-author -- ~3,700+ locations
-(4,300+ DLC) and churning logic would rot a hand-built pack. Pack version == apworld `versions`
-lockstep (logic must match). Decide pack home: suggest `poptracker/` in this monorepo, zipped by
-build.ps1.
-- [ ] Settle BLOCKER: map-art licensing (hand-traced/stylized vs CC renders vs screenshot stitches)
-      -- needed for the MAP-based variant (M1 pins / M3 maps). M0 sidestepped it by shipping
-      COMPACT/list-only; settle this before adding region pins.
-- [x] M0 skeleton DONE 2026-06-13 (see `poptracker/` + BRIEF-poptracker-pipeline.md): built
-      `tools/gen_poptracker.py` (import-free `ast` parse of items.py/locations.py → items.json
-      [86 tracked: 31 locks + 55 key items], locations.json [161 region nodes, 4943 checks as
-      sections], layouts/item_grid.json; `--check` mode for CI). Stable manifest (`game_name`
-      "EldenRing") + autotracking/logic/init Lua + placeholder icon. Shipped COMPACT/list-only
-      (no map) to sidestep the map-art blocker. Generates + validates; NOT yet loaded in PopTracker.
-      Also did most of M1's id work: generator runs in RUNTIME mode (imports items.py/locations.py
-      with a stubbed BaseClasses) so it emits AUTHORITATIVE id maps with no datapackage --
-      scripts/ap_map.lua (90 item ids) + scripts/loc_map.lua (4906 location ids); autotracking.lua
-      is id-keyed for on_item + on_location. ALSO DONE: per-section clearing (loc_map.lua emits
-      sanitized "@Region/Section" codes) and region-graph reachability (region_graph.lua from
-      create_connection + _add_entrance_rule; logic.lua BFS, gates split _region_lock vs set_rules;
-      sanity-checked 13 reachable@sphere1 / 160 all-locks / 27 open). Remaining M1: LOAD in PopTracker
-      + fix schema nits (no Lua interpreter in the dev sandbox), make on_clear's slot_data toggles
-      ACT (DLC show/hide), wire --check into build.ps1. M2 = apworld declarative-rules (per-location).
-- [ ] M1 full regions: all 161 region pins + generated per-region location lists; coarse
-      region-graph logic for `region_lock` mode (region pin green if region reachable). Coordinate
-      cost = 161 x/y pairs per map (use a click-to-record helper). Already a useful tracker.
-- [ ] M2 rules (PREREQ = apworld refactor): migrate `__init__.py` `_add_location_rule` lambdas to a
-      DECLARATIVE data table (`location -> requirement expr` strings) that __init__ compiles AND the
-      generator translates to PopTracker access rules. Then generate per-location rules (quest gates,
-      key items, Bell, medallions). Refactor also makes apworld logic testable. (HANDOFF roadmap
-      flags this as the M2 blocker.)
-- [ ] M3 DLC variant + polish: Land of Shadow map, Messmer kindling / Scadutree counts, item icons
-      (32x32 originals or license-checked crops -- packs repo rejects some ripped assets), settings
-      popout (hide missables / shop checks).
-- [ ] CI guard: `gen_poptracker.py --check` in build.ps1 (-Pack?) to fail loudly when locations.py
-      adds/renames regions without regenerated pack data.
-- [ ] items.json scope = logic-relevant only (~60-100): region locks (99999 sentinels under
-      region_lock), Great Runes (+count vs threshold), medallion halves, Glintstone/Rusty/Imbued/
-      Stonesword keys (counts), Bell, quest gates, DLC kindling/gaol keys. Not the whole pool.
+net6.0-windows is out of support (SDK warns NETSDK1138; currently silenced via the root
+`Directory.Build.props` `<CheckEolTargetFramework>false>` -- that's a NAG MUTE, not a fix). net8 is
+the current LTS. All C# projects share the TFM, so retarget together. Low-to-moderate risk: WinForms
++ the deps (Archipelago.MultiClient.Net, Newtonsoft, BouncyCastle.Cryptography 2.5.0, YamlDotNet,
+Tomlyn, ZstdSharp) all support net8; the bake/-LoopTest and RandomizerCommon.Tests give a quick
+regression signal.
+- [ ] Bump `<TargetFramework>`/`<TargetFrameworks>` net6.0-windows -> net8.0-windows in: SoulsFormats,
+      SoulsIds, GrayIris.Utilities, RandomizerCommon, RandomizerCommon.Tests, EldenRingRandomizer
+      (and DS3/Sekiro projects if kept). Update the `win-x64` self-contained settings if needed.
+- [ ] Update build.ps1 / dotnet invocations and any `net6.0-windows` path literals (e.g. the
+      RandoExe path in build.ps1, deploy copies).
+- [ ] Rebuild `build.ps1 -Randomizer -Client`, run `build.ps1 -Test` (xUnit) + a `-LoopTest` batch;
+      eyeball a bake. Watch for new analyzer/CA warnings under net8 (esp. CA1416 surfaces -- the
+      GrayIris NoWarn already covers it).
+- [ ] Once green, remove `<CheckEolTargetFramework>false>` from Directory.Build.props (no longer
+      needed) and re-confirm no NETSDK1138.
+- [ ] Confirm the runtime client DLL (C++, pinned eldenring.exe 2.6.2.0) is unaffected -- it's a
+      separate MSBuild/vcxproj toolchain, not .NET-TFM-bound.
 
+## Mount-truncation instrumentation (dev-infra) — 2026-06-14
+Working out of the repo keeps getting bitten by a file-view split: the Edit tool's
+writes to an EXISTING file do NOT refresh the bash sandbox mount (bash serves a stale /
+truncated view, while real disk is correct), and bash large-file READs can themselves
+truncate. Observed this session: __init__.py + trim_report.py both showed phantom
+truncation in bash while correct on disk. Characterized mount behavior:
+  - bash write -> real disk: WORKS
+  - file-tools NEW file -> bash: WORKS
+  - file-tools EDIT to existing file -> bash: STALE (does not refresh)  <-- the trap
+Action items:
+- [ ] Standardize a "verify on disk after edit" step: after any source edit, re-Read the
+      file via file-tools (real-disk truth) AND, when a compile is needed, force convergence
+      by rewriting through bash (cat > heredoc) since bash->disk syncs reliably.
+- [ ] Add a tiny `tools/verify_edit.py` (or build.ps1 hook) that compiles + checks line
+      count / brace balance on the REAL file after edits, so phantom-truncation is caught.
+- [ ] Prefer Python read-modify-write (or Write tool) over the Edit tool for CRLF apworld
+      files; the Edit tool has historically truncated CRLF tails (see memory).
+- [ ] Consider normalizing the apworld __init__.py to LF (or a .gitattributes guard) to
+      remove the CRLF edit-truncation hazard entirely.
+- [ ] Document the mount asymmetry in HANDOFF.md so future sessions don't re-derive it.
