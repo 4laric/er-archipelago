@@ -46,6 +46,28 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# ---- pwsh shim ------------------------------------------------------------------------------
+# Some MSBuild build events / tools invoke `pwsh.exe` (PowerShell 7). If PS7 is not installed
+# the step fails with "'pwsh.exe' is not recognized" (notably the C++ client build-stamp step),
+# which is noisy but non-fatal. Make pwsh.exe resolve to Windows PowerShell for THIS build
+# session (child processes inherit the PATH) so the call succeeds. Proper fix is still:
+#   winget install --id Microsoft.PowerShell --source winget
+if (-not (Get-Command pwsh.exe -ErrorAction SilentlyContinue)) {
+    $shimDir = Join-Path $env:LOCALAPPDATA "er-build-pwsh-shim"
+    $shimExe = Join-Path $shimDir "pwsh.exe"
+    if (-not (Test-Path $shimExe)) {
+        New-Item -ItemType Directory -Force -Path $shimDir | Out-Null
+        $winps = (Get-Command powershell.exe -ErrorAction SilentlyContinue).Source
+        if ($winps) { Copy-Item -LiteralPath $winps -Destination $shimExe -Force }
+    }
+    if (Test-Path $shimExe) {
+        $env:PATH = "$shimDir;$env:PATH"
+        Write-Host "  [pwsh-shim] PowerShell 7 not found -> shimming pwsh.exe to Windows PowerShell for this build (install PS7: winget install --id Microsoft.PowerShell)"
+    } else {
+        Write-Warning "pwsh.exe not found and could not shim it; PS7-dependent steps may fail. Install: winget install --id Microsoft.PowerShell"
+    }
+}
+
 # -All = the full pipeline: build both, regenerate, serve, bake w/ enemies, deploy.
 if ($All) {
     $Randomizer = $true; $Client = (-not $NoClient); $Generate = $true
