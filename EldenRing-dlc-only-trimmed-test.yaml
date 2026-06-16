@@ -1,43 +1,60 @@
-# ER Archipelago -- DLC-ONLY + TRIMMED + CURATION gen-test (2026-06-15).
-# Exercises the new trimmed-pool curation (curation.py + _in_location_pool patch):
-#   - name-cuts: 25 weapons / 29 armor / 4 runes (Shadow Realm [2]-[5])
-#   - armor set-collapse to one representative (head) piece per set
-#   - stone-cut gated on auto_upgrade (below) -- ALL smithing stones leave the pool;
-#     received weapons auto-max instead, Scadutree Fragments carry DLC power scaling
-#   - blanket progression force-keep (logic safety + cookbook-in-JUNK_GOODS fix)
-# Pairs with EldenRing-dlc-only-test.yaml (location_pool: all) for a before/after diff.
+# ER Archipelago -- DLC-ONLY RUN, GATED (no enemy rando, trimmed). 2026-06-16.
+# Land of Shadow only, ~446 checks, region_lock + Messmer gate ACTIVE. Base = transit.
+# Exploratory goal: walk the DLC regions to finish the region-id mapping
+# (see DLC-AREA-ID-CAPTURE.md -- overworld place-name ids still need in-game capture).
 #
-# Drop into Archipelago\Players\ (solo, the ONLY EldenRing yaml there) and run:
-#     .\build.ps1 -Generate          # gen only -- fastest loop; no bake/Windows-runtime needed
-# PASS criteria:
-#   1. gen SUCCEEDS (no FillError / "no more spots" / "unreachable") -- cuts only reduce
-#      locations + their items symmetrically, so fill must stay balanced.
-#   2. location count ~329 (curated DLC-only trimmed). Compare to ~573 uncurated trimmed
-#      and ~1190 for location_pool: all.
-#   3. spoiler sanity: ZERO "Smithing Stone" checks; no Shadow Realm Rune [2]-[5]; each armor
-#      set appears once (head piece only); Scadutree Fragments + Revered Spirit Ash all present;
-#      Velvet Sword of St. Trina present (rescued); progression items all placed.
-# IF it FAILS: read the gendiag. A pure pool-size deadlock (too few slots for locks) would point
-#   at the curation cutting too hard for region_lock bootstrap -- fall back by flipping
-#   auto_upgrade:false (restores 117 stone checks, ~446 pool) to isolate stones vs gear cuts.
+# WHY auto_upgrade is OFF: the earlier ~329 curated run (auto_upgrade:true) triggered the
+# stone-cut, shrinking the pool so far that all 22 region locks + 10 Messmer's Kindling
+# Shards overflowed to the starting inventory ("Couldn't add ... to the item pool. Adding
+# it to the starting inventory instead.") -- that NULLIFIED region_lock and the Enir Ilim
+# gate (everything open from minute one). Keeping stones as checks (~446 pool) leaves room
+# for those 42 progression items to place in-world, so the gating is real again.
+#
+# Pool/curation (location_pool: trimmed, auto_upgrade OFF, dlc_gear_curation ON):
+#   - drops low-value filler (golden runes, consumables, materials, cookbooks)
+#   - name-cuts 25 weapons / 29 armor / 4 runes; armor sets collapse to one head piece
+#   - smithing stones STAY as checks (~117); you find + upgrade gear normally
+#   - dlc_gear_curation still backfills best S/A-tier DLC gear into what you receive --
+#     a deliberate nudge against the "DLC assumes a leveled character" balance worry.
+#
+# RUN it (Windows -- sandbox can't generate, needs Python 3.11+):
+#     .\build.ps1 -Generate          # gen only; produces output\AP_*.zip + spoiler
+#     .\build.ps1 -Clean -All        # full bake of the generated seed
+# PASS check on the gen diag this time:
+#   - location count ~446 (not ~329).
+#   - precollected-to-start should be SMALL (base transit locks are fine; the DLC locks
+#     Belurat..Enir Ilim and the 10 Messmer shards must NOT all be there -- if they are,
+#     the pool is still too tight; next lever is dlc_gear_curation:false for more slots).
+#   - spoiler: Enir Ilim gated by its lock + 5 Messmer's Kindling shards; locks spread
+#     across DLC spheres; Scadutree Fragments + Revered Spirit Ash present.
 
 name: Alaric
-description: ER AP DLC-only TRIMMED+curated (Land of Shadow only, PCR goal, ~329 checks).
+description: ER AP DLC-only RUN, GATED -- Land of Shadow only, trimmed (~446), no enemy rando, region_lock + Messmer gate, PCR goal.
 game: EldenRing
 
 EldenRing:
   enable_dlc: true            # forced on by dlc_only anyway; set explicitly for clarity
   dlc_only: true              # pool = DLC only, base = transit (no checks)
-  ending_condition: final_boss   # 0 = Promised Consort Radahn when DLC on
+  ending_condition: final_boss   # Promised Consort Radahn (Circlet of Light) when DLC on
+
+  enemy_rando: false          # <-- explicitly OFF for this run
 
   # Messmer's Kindling shard gate = the progression spine.
   messmer_kindle: true
   messmer_kindle_required: 5
   messmer_kindle_max: 10
 
-  location_pool: trimmed      # <-- curated trimmed pool under test
-  auto_upgrade: true          # <-- REQUIRED: triggers the stone-cut; received weapons auto-max
+  location_pool: trimmed      # trimmed pool; ~446 with auto_upgrade off (stones stay as checks)
+  auto_upgrade: false         # OFF: keeps ~117 stone checks so the 22 locks + 10 shards have
+                              #   room to place in-world (region_lock + Enir Ilim gate stay REAL).
+  dlc_gear_curation: true     # backfill best S/A DLC gear into received items (balance nudge)
   world_logic: region_lock    # per-region lock items give real spheres (also the default)
+
+  # Trimmed strips filler-bearing pickups, so default forbid_useful on missable/excluded
+  # runs the pool short ('Not enough filler items'). allow_useful lets those spots hold
+  # useful (never progression) items -- trimmed has plenty. Required for any trimmed bake.
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
 
   # MUST live under EldenRing: -- at document root AP ignores it (silently defaults to full).
   accessibility: minimal

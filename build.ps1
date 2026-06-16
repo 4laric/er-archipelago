@@ -126,6 +126,7 @@ if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy
 
 # ----- clean ----------------------------------------------------------------------------------
 if ($Clean) {
+    Stop-Server38281   # -Clean also kills any stale AP server on :38281 (easy to forget; frees the port + the output-zip lock)
     Step "Cleaning build intermediates"
     $targets = @(
         (Join-Path $Repo "SoulsFormats\SoulsFormats\obj"), (Join-Path $Repo "SoulsFormats\SoulsFormats\bin"),
