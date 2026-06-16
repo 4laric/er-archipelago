@@ -208,3 +208,102 @@ Per-level cost = 1,1,1,2,2,3,3,3,4,5. Same inverse mapping as combat:
 - Do we want the inverse for the symmetric case (a BASE-game boss transplanted INTO the DLC
   via the same enemy rando)? That boss would get area-scaled as an enemy automatically and
   may need de-scaling. Out of scope here; note it exists.
+
+---
+
+# ADDENDUM: dlc_only early-game balance — "one-shot start" (2026-06-16, Alaric)
+
+Different problem from the main spec above (which is about transplanting DLC bosses INTO the
+base game). Here the player is genuinely IN the Land of Shadow (dlc_only), so the vanilla
+blessing system works normally — the leveling-gate problem above does NOT apply. The issue is
+that a dlc_only run STARTS at Scadutree Blessing 0 with a low rune level and a low weapon
+upgrade (base game skipped), against enemies the DLC has already scaled up. Result: you get
+one-shot from the first zone.
+
+## Quantified scaling (vanilla param dump, SpEffectParam.csv)
+
+The enemy "SOTE - Area Scaling" speffect (`20007000`+, applied per-zone to every DLC enemy)
+multiplies the enemy's UNSCALED base by:
+
+| Zone (speffect)                | Attack | maxHP | Defense | Poise dmg | Status |
+|--------------------------------|--------|-------|---------|-----------|--------|
+| Gravesite Plain  (20007000)    | ×3.75  | ×7.0  | ×1.22   | ×1.37     | ×2.5   |
+| Scadu Altus      (20007040)    | ×3.77  | ×10.0 | ×1.23   | ×1.39     | ×2.5   |
+| Scadutree Base   (20007070)    | ×3.80  | ×11.8 | ×1.24   | ×1.40     | ×2.5   |
+| Jagged Peak/Enir (20007110)    | ×3.83  | ×14.1 | ×1.25   | ×1.40     | ×2.5   |
+
+KEY INSIGHT: enemy ATTACK is ~×3.75 flat across the whole DLC and barely climbs — that's the
+one-shot. What scales with depth is HP (×7 → ×14), i.e. later zones are spongier, not bitier.
+Attack scaling lives in `physicsAttackPowerRate` (+ magic/fire/thunder/dark), field [20]; HP in
+`maxHpRate` [6]; defense in `physicsDiffenceRate` [28]; poise in `staminaAttackRate` [52].
+
+The intended counterweight is the player blessing speffect `20000100+N` (combat track):
+
+| Blessing N | You deal | You take            |
+|------------|----------|---------------------|
+| 0          | ×1.00    | ×1.00 (no offset)   |
+| 5          | ×1.35    | ×0.74  (−26%)       |
+| 10         | ×1.65    | ×0.61  (−39%)       |
+| 20         | ×2.05    | even less           |
+
+So at blessing 0 you eat the full ×3.75; at blessing 10 effective incoming ≈ 3.75×0.61 ≈ ×2.3
+(survivable). The fix is supplying the blessing the dlc_only start is missing, NOT necessarily
+nerfing enemies.
+
+## Two levers — pros / cons
+
+**A. Front-load blessing (recommended).** Place Scadutree Fragments early so blessing ramps
+fast (see option design below), and/or seed a baseline.
+  + Works WITH the game's curve — enemies keep designed numbers, fights feel like real SOTE.
+  + One knob; self-scales as you collect more fragments; hits both offense and defense.
+  + Leaves regulation.bin untouched → composes cleanly with enemy rando / NG+ / future bakes.
+  + Keeps the fragment checks meaningful (they ARE your power curve).
+  + Can be a per-seed slot_data option → player-tunable, reversible.
+  − Doesn't touch HP bloat (×7–14); with a low dlc_only weapon upgrade, fights can still be
+    spongy even once you stop getting one-shot.
+  − Delivery wrinkle: the game recomputes the blessing speffect from STORED level on every map
+    load, so a client force-applying `20000100+N` can get stomped on a zone transition. Seeding
+    real fragments + revering at a grace (works in dlc_only) is more robust than a SpEffect poke.
+  − A fixed starting N stacks with collected fragments → can overshoot late if not tuned.
+
+**B. Nerf the area speffect directly.** Lower `physicsAttackPowerRate` on `20007000`+ (e.g.
+3.75 → ~2.75) and/or `maxHpRate` in the regulation bake.
+  + Precise control over exactly the bite; can tune attack independently of HP/poise/status.
+  + Fixes the brutal EARLY start with no item delivery or revering — works at blessing 0.
+  − Global + permanent in the bake: every DLC enemy weaker for the whole run, so the back half
+    trivializes once your blessing naturally catches up (double-dip).
+  − Fights the game's own system → you maintain a custom curve that drifts if blessing/enemy
+    rando change later.
+  − ~12 zone rows × 4 variant families (base / Human-NPC / NG+ / DLC-completion NG+) — must edit
+    all or NG+/humanoid enemies miss the nerf.
+  − Devalues the fragment economy you just turned into checks.
+
+Recommendation: front-load blessing (A) since the symptom is one-shots and attack is flat; if
+still spongy, add a light HP-ONLY trim rather than a blanket attack nerf. Use B only if the goal
+is a flatter/easier DLC throughout.
+
+## Option design (the actual ask)
+
+Add a Scadutree Fragment DISTRIBUTION option controlling where fragments land in the fill:
+
+- **`early` / sphere-1 (DEFAULT, "loaded into sphere 1"):** force the Scadutree Fragments (and
+  likely Revered Spirit Ashes) into the earliest reachable locations so blessing ramps fast and
+  the one-shot start is gone. AP mechanism: `self.multiworld.early_items[self.player]["Scadutree
+  Fragment"] = <count>` (forces N copies into sphere 1), or priority/early-location placement.
+  Possibly pair with a small starting count / baseline blessing.
+- **`uniform` ("true sickos"):** leave fragments in the general pool, distributed normally /
+  spread across spheres — blessing arrives whenever it arrives, brutal early game intact.
+
+Open sub-questions: how many to front-load (target blessing ~5–8 early?); front-load Revered
+Spirit Ashes too or combat-only; whether to also expose a flat `starting_blessing_level`; and
+whether `early` should guarantee a fixed number in sphere 1 vs just bias toward early.
+Implementation lives in the apworld fill (early_items / placement), not the client or the bake.
+Pairs with [[er-dlc-only-spec]], [[er-trimmed-audit]] (Scadu plan).
+
+DRAFT IMPLEMENTED: `patch_scadu_frontload.py` (repo root, 2026-06-16). Adds option
+`scadu_frontload` (Range 0..50, default 8) = "front-load N TOTAL fragments into sphere 1" and
+wires `multiworld.early_items[player]["Scadutree Fragment" / "...x2"]` in create_items, gated on
+enable_dlc; 0 = sicko/normal distribution. Counts by fragment VALUE (x2 = 2 frags, one slot),
+singles first. Combat track only (Revered Ashes untouched). Gen-time fill bias, not shipped in
+slot_data. Run on Windows: `python patch_scadu_frontload.py` then `.\build.ps1 -Generate`,
+gen-test that fragments actually seat early under the region-lock graph.
