@@ -11,7 +11,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "160000,0:0000000000:100100,1038419270:",volcano,,"Rykard, Lord of Blasphemy",111000,Table of Lost Grace,24,1,1legacy,
 "160000,0:0000000000:100100,1038419271:",volcano_drawingroom,,"Rykard, Lord of Blasphemy",111000,Table of Lost Grace,24,1,1legacy,
 "160000,0:0000000000:100100:",limgrave_murkwatercave,,"Margit, the Fell Omen",111000,Table of Lost Grace,24,1,1mini,
-"604439,0:0000000000:100125:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,16,1,4capstone,8629
+"604439,0:0000000000:100125:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,16,1,4capstone,6407800
 "605038,0:0000000000:100175:",caelid,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "605038,0:0000000000:100185,1038519257:",caelid,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "100000,0:0000000000:100200:",stormveil,,Godrick the Grafted,100006,Liftside Chamber,64,1,1legacy,
@@ -23,18 +23,18 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603450,0:0000000000:100300,35009326:",liurnia_postmanor,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "603450,0:0000000000:100300:",liurnia_postmanor,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "603550,0:0000000000:100325:",liurnia_postmanor,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
-"110000,0:0000000000:100350,100425,11109874,1037469305:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,100425,11109875,1037469306:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,100425,11109876,1037469307:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,100425,11109877,1037469308:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,100425,11109878,1037469309:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,100425,11109881,1037469312:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,100425,11109883,1037469314:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,100425,11109884,1037469315:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,1040529255:",altus,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
-"110000,0:0000000000:100350,1040549205:",altus,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
+"110000,0:0000000000:100350,100425,11109874,1037469305:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,100425,11109875,1037469306:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,100425,11109876,1037469307:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,100425,11109877,1037469308:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,100425,11109878,1037469309:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,100425,11109881,1037469312:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,100425,11109883,1037469314:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,100425,11109884,1037469315:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,1040529255:",altus,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
+"110000,0:0000000000:100350,1040549205:",altus,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
 "110000,0:0000000000:100350,11009455:",leyndell,,"Morgott, the Omen King",110501,Erdtree Sanctuary,140,1,1legacy,
-"110000,0:0000000000:100350:",roundtable,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110501,Erdtree Sanctuary,140,1,4capstone,
+"110000,0:0000000000:100350:",roundtable,Divine Bridge,Tree Sentinel,110501,Erdtree Sanctuary,140,1,2field,758
 "603746,0:0000000000:100400:",liurnia,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "603746,0:0000000000:100425:",liurnia,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "604236,0:0000000000:100500,101800,11109775:",limgrave,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
@@ -58,7 +58,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "120100,0:0000000000:100950:",ainsel_start,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "120500,0:0000000000:100975:",mohgwyn,,"Mohg, Lord of Blood",111000,Table of Lost Grace,24,1,1legacy,
 "111000,0:0000000000:101800:",roundtable,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
-"111000,0:0000000000:101898:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
+"111000,0:0000000000:101898:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
 "604135,0:0000000000:101950,101975:",limgrave_dragonchurch,Siofra River,Decaying Ekzykes,64483600,Cathedral of Dragon Communion,14,1,2field,142
 "604836,0:0000000000:101950,1034450800:",caelid,Siofra River,Decaying Ekzykes,64483600,Cathedral of Dragon Communion,14,1,2field,142
 "604836,0:0000000000:101950,1035530800:",caelid,Siofra River,Decaying Ekzykes,64483600,Cathedral of Dragon Communion,14,1,2field,142
@@ -72,20 +72,20 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "614542,0:0000000000:102250:",gravesite,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "615045,0:0000000000:102300,2051459206:",scadualtus,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "615045,0:0000000000:102300:",scadualtus,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
-"111000,0:0000000000:9104,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9107,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9112,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9116,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9118,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9119,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9120,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9130,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9143,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9146,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9164,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9182,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9184,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
-"111000,0:0000000000:9190,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
+"111000,0:0000000000:9104,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9107,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9112,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9116,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9118,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9119,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9120,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9130,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9143,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9146,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9164,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9182,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9184,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
+"111000,0:0000000000:9190,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
 "615045,0:0000000000:9440,102300:",scadualtus,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "140000,0:0000000114::",academy_chest,,Rennala 2,140000,Raya Lucaria Grand Library,11,1,1legacy,
 "100000,0:0000000171::",stormveil,,Godrick the Grafted,100000,Godrick the Grafted,4,1,1legacy,
@@ -98,7 +98,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "341000,0:0000000191::",limgrave_tower_inner,Stormhill,Deathbird,341002,Divine Tower of Limgrave,27,1,2field,650
 "341300,0:0000000192::",caelid_tower_inner,Great-Jar,Bell Bearing Hunter,341302,Divine Tower of Caelid: Center,319,0,2field,423
 "341400,0:0000000193::",leyndell_tower_inner,,Fell Twin,341401,Divine Tower of East Altus,16,1,1legacy,
-"341200,0:0000000194::",altus_tower_inner,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",341200,Divine Tower of West Altus,27,1,4capstone,
+"341200,0:0000000194::",altus_tower_inner,Divine Bridge,Fallingstar Beast,341200,Divine Tower of West Altus,27,1,2field,602
 "341400,0:0000000195::",leyndell_tower_inner,,Fell Twin,341401,Divine Tower of East Altus,16,1,1legacy,
 "341500,0:0000000196::",isolated_tower_inner,Dragonbarrow,Black Blade Kindred,341500,Isolated Divine Tower,28,1,2field,704
 "140000,0:0000000197::",academy_courtyard,,Rennala 2,140000,Raya Lucaria Grand Library,10,1,1legacy,
@@ -121,11 +121,11 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "604533,0:0000060400::",peninsula,Weeping Peninsula,Night's Cavalry,61453300,Beside the Crater-Pocked Glade,127,1,2field,182
 "603443,0:0000060410::",liurnia,Moonlight Altar,Erdtree Avatar,62344300,Converted Tower,38,1,2field,165
 "603547,0:0000060420::",liurnia,Ainsel River Main,Night's Cavalry,62344701,Sorcerer's Isle,106,1,2field,423
-"603450,0:0000060430::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,152,1,2field,225
+"603450,0:0000060430::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,152,1,2field,574
 "140000,0:0000060440::",academy,,Rennala 2,140001,Debate Parlor,6,1,1legacy,
 "603753,0:0000060450::",gelmir,Mt. Gelmir,Demi-Human Queen Maggie,63375300,Primeval Sorcerer Azur,37,1,2field,0
 "605241,0:0000060460::",dragonbarrow,Dragonbarrow,Night's Cavalry,64524100,Lenne's Rise,57,1,2field,138
-"111000,0:0000060500:101800,11109777:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
+"111000,0:0000060500:101800,11109777:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763
 "100000,0:0000060510::",stormhill,Stormhill,Crucible Knight,100001,"Margit, the Fell Omen",10,1,2field,350
 "110000,0:0000060520::",leyndell,,"Morgott, the Omen King",110001,Erdtree Sanctuary,0,1,1legacy,
 "604237,0:0000062010::",limgrave,Stormhill,Crucible Knight,61423700,Gatefront,65,1,2field,158
@@ -135,7 +135,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603744,0:0000062021::",liurnia,Liurnia of The Lakes,Night's Cavalry,62374400,Academy Gate Town,9,1,2field,439
 "603448,0:0000062022::",liurnia,Ainsel River Main,Night's Cavalry,62344800,Northern Liurnia Lake Shore,48,1,2field,558
 "604052,0:0000062030::",altus,Altus Plateau,Black Knife Assassin,63395100,Altus Highway Junction,192,0,2field,186
-"604251,0:0000062031::",outskirts,Capital Outskirts,Tree Sentinel,63425100,Outer Wall Phantom Tree,24,1,2field,137
+"604251,0:0000062031::",outskirts,Divine Bridge,Tree Sentinel,63425100,Outer Wall Phantom Tree,24,1,2field,137
 "603654,0:0000062032::",gelmir,Mt. Gelmir,Full-Grown Fallingstar Beast,63365402,Road of Iniquity,52,1,2field,175
 "604937,0:0000062040::",caelid,Caelid,Night's Cavalry,64493700,Southern Aeonia Swamp Bank,132,1,2field,22
 "604940,0:0000062041::",caelid_greatjar,Great-Jar,Bell Bearing Hunter,64484001,Dragonbarrow West,122,1,2field,343
@@ -147,6 +147,11 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "120500,0:0000062062::",mohgwyn,,"Mohg, Lord of Blood",120502,Dynasty Mausoleum Entrance,41,1,1legacy,
 "120200,0:0000062063::",siofra,Siofra River,Decaying Ekzykes,120203,Siofra River Bank,92,1,2field,212
 "120300,0:0000062064::",deeproot,Deeproot Depths,[capstone] Lichdragon Fortissax,120305,Across the Roots,127,1,4capstone,
+"614741,0:0000062080::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,157,1,2field,317
+"614845,0:0000062081::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484500,Highroad Cross,217,0,2field,340
+"614837,0:0000062082::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,179,0,2field,205
+"614645,0:0000062083::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,176,0,2field,109
+"615241,0:0000062084::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,46,1,2field,361
 "604153,0:0000065000::",altus,Altus Plateau,Wormface,63405200,Forest-Spanning Greatbridge,167,0,2field,0
 "604537,0:0000065010::",limgrave,"Nokron, Eternal City Start",Tibia Mariner,120701,"Nokron, Eternal City",230,0,2field,577
 "604638,0:0000065020::",limgrave,"Nokron, Eternal City",Dragonkin Soldier,61463800,Third Church of Marika,21,1,2field,497
@@ -179,6 +184,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603848,0:0000065290::",bellum,Bellum Highway,Erdtree Avatar,62374800,Mausoleum Compound,178,0,2field,0
 "603848,0:0000065300::",bellum,Bellum Highway,Erdtree Avatar,62374800,Mausoleum Compound,178,0,2field,0
 "603848,0:0000065310::",bellum,Bellum Highway,Erdtree Avatar,62374800,Mausoleum Compound,178,0,2field,0
+"614840,0:0000065400::",ellac,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,144,1,2field,339
 "100000,0:0000065610::",stormveil,,Godrick the Grafted,100005,Rampart Tower,38,1,1legacy,
 "605136,0:0000065640::",caelid,Redmane Castle Post Radahn,[capstone] Redmane Castle Post Radahn,64513600,Redmane Castle Plaza,79,1,4capstone,
 "110000,0:0000065660::",leyndell,,"Morgott, the Omen King",110008,"Fortified Manor, First Floor",56,1,1legacy,
@@ -190,7 +196,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603944,0:0000066080::",liurnia,Ainsel River,Tibia Mariner,62394400,Jarburg,87,1,2field,150
 "603944,0:0000066090::",liurnia,Ainsel River,Tibia Mariner,62394400,Jarburg,29,1,2field,146
 "603944,0:0000066100::",liurnia,Ainsel River,Tibia Mariner,62394400,Jarburg,75,1,2field,121
-"603550,0:0000066110::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,93,1,2field,172
+"603550,0:0000066110::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,93,1,2field,371
 "140000,0:0000066120::",academy_courtyard,,Rennala 2,140001,Debate Parlor,24,1,1legacy,
 "110000,0:0000066130::",leyndell,,"Morgott, the Omen King",110004,Avenue Balcony,39,1,1legacy,
 "301300,0:0000066140::",outskirts_sidetomb,,Grave Warden Duelist,301300,Auriza Side Tomb,100,1,1mini,
@@ -215,6 +221,15 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603954,0:0000066770::",altus,Altus Plateau,Wormface,63395400,Shaded Castle Ramparts,54,1,2field,496
 "311800,0:0000066780::",altus_grotto,,Miranda the Blighted Bloom,311800,Perfumer's Grotto,125,1,1mini,
 "604838,0:0000066790::",caelid,Caelid,Commander O'Neil,64483800,Aeonia Swamp Shore,129,1,2field,198
+"410000,0:0000066900::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0000066910::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0000066920::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410100,0:0000066930::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410200,0:0000066940::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"614741,0:0000066950::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,80,1,2field,362
+"615044,0:0000066960::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,58,1,2field,203
+"615044,0:0000066970::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,122,1,2field,308
+"210200,0:0000066980::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
 "604636,0:0000067020::",limgrave,"Nokron, Eternal City Start",[capstone] Regal Ancestor Spirit,61453600,Fort Haight West,140,1,4capstone,827
 "100000,0:0000067030::",stormveil,,Godrick the Grafted,100006,Liftside Chamber,86,1,1legacy,
 "604039,0:0000067050::",stormhill,Stormhill,Bell Bearing Hunter,100007,Secluded Cell,186,0,2field,492
@@ -234,10 +249,10 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "300000,0:0000067430::",peninsula_tombswardcatacombs,,Cemetery Shade,300000,Tombsward Catacombs,56,1,1mini,
 "604956,0:0000067440::",snowfield,Consecrated Snowfield,Night's Cavalry (Glaive),311200,Cave of the Forlorn,199,0,2field,310
 "603841,0:0000067450::",liurnia,Moonlight Altar,"Adan, Thief of Fire",62384100,Laskyar Ruins,11,1,2field,228
-"603550,0:0000067460::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,87,1,2field,339
+"603550,0:0000067460::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,87,1,2field,346
 "603842,0:0000067480::",liurnia,Liurnia of The Lakes,Night's Cavalry,62384300,Gate Town Bridge,180,0,2field,123
 "120200,0:0000067630::",siofra_nokron,"Nokron, Eternal City",Dragonkin Soldier,120207,Aqueduct-Facing Cliffs,34,1,2field,48
-"604350,0:0000067640::",outskirts,Capital Outskirts,Fallingstar Beast,63435000,Minor Erdtree Church,31,1,2field,376
+"604350,0:0000067640::",outskirts,Divine Bridge,Fallingstar Beast,63435000,Minor Erdtree Church,31,1,2field,376
 "604640,0:0000067650::",limgrave,"Nokron, Eternal City",Putrid Avatar,64464000,Smoldering Church,5,1,2field,238
 "604537,0:0000067800::",limgrave,"Nokron, Eternal City Start",Tibia Mariner,61443700,Mistwood Outskirts,179,0,2field,503
 "603651,0:0000067840::",altus,Ruin-Strewn Precipice,Onyx Lord,301200,Unsightly Catacombs,25,1,2field,396
@@ -251,9 +266,46 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "130000,0:0000068020::",farumazula,,"Maliketh, the Black Blade",130005,Tempest-Facing Balcony,47,1,1legacy,
 "604836,0:0000068030::",caelid,Siofra River,Decaying Ekzykes,64483600,Cathedral of Dragon Communion,9,1,2field,145
 "604538,0:0000068200::",limgrave,"Nokron, Eternal City Start",Tibia Mariner,61443900,Summonwater Village Outskirts,162,0,2field,185
-"111000,0:0000068210:101800,11109772:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,8616
+"111000,0:0000068210:101800,11109772:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,6407786
 "603848,0:0000068400::",bellum,Bellum Highway,Erdtree Avatar,62384800,Frenzied Flame Village Outskirts,112,1,2field,116
 "350000,0:0000068410::",sewer_flame,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",350000,Cathedral of the Forsaken,51,1,4capstone,
+"615440,0:0000068570::",jaggedpeak,Mountaintops of the Giants,Ancient Dragon Senessax,68533900,Jagged Peak Mountainside,68,1,2field,328
+"615146,0:0000068580::",scadualtus_miyr,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,106,1,2field,324
+"614741,0:0000068590::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,67,1,2field,382
+"615145,0:0000068600::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,81,1,2field,437
+"614640,0:0000068610::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,158,1,2field,65
+"614742,0:0000068620::",ellac,Mountaintops of the Giants,Black Knight Edredd,61474300,Ellac River Cave,133,1,2field,556
+"614943,0:0000068630::",gravesite,Mountaintops of the Giants,Black Knight Edredd,61484300,Pillar Path Cross,173,0,2field,165
+"614446,0:0000068640::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",227,0,2field,259
+"614644,0:0000068650::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",148,1,2field,185
+"410000,0:0000068660::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"615041,0:0000068670::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68504200,Abyssal Woods,335,0,2field,181
+"614447,0:0000068680::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,338,0,2field,151
+"614745,0:0000068690::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",120,1,2field,77
+"420000,0:0000068700::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"614739,0:0000068710::",charo,Mountaintops of the Giants,Death Rite Bird,68483900,Cerulean Coast,189,0,2field,156
+"615141,0:0000068720::",jaggedpeak_foot,Mountaintops of the Giants,Jagged Peak Drake Boss,68524000,Foot of the Jagged Peak,264,0,2field,411
+"614643,0:0000068730::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",157,1,2field,281
+"400000,0:0000068740::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"614842,0:0000068750::",abyssal,Mountaintops of the Giants,Black Knight Edredd,68484300,Divided Falls,106,1,2field,285
+"614837,0:0000068760::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,184,0,2field,197
+"614944,0:0000068770::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494400,Moorth Ruins,74,1,2field,287
+"400100,0:0000068780::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"614744,0:0000068790::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,12,1,2field,112
+"210000,0:0000068800::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"614939,0:0000068810::",jaggedpeak_foot,Mountaintops of the Giants,Jagged Peak Drake Boss,68493900,Grand Altar of Dragon Communion,93,1,2field,406
+"614943,0:0000068820::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,44,1,2field,22
+"220000,0:0000068840::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"614938,0:0000068850::",charo,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,247,0,2field,230
+"614648,0:0000068860::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,230,0,2field,487
+"280000,0:0000068880::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"614846,0:0000068890::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,169,0,2field,389
+"614744,0:0000068900::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,72,1,2field,216
+"614647,0:0000068910::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454700,Ravine North,199,0,2field,188
+"614938,0:0000068920::",cerulean_rhia,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,182,0,2field,294
+"210200,0:0000068930::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"614638,0:0000068940::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68463900,Cerulean Coast West,161,0,2field,368
+"614735,0:0000068950::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68473600,The Fissure,226,0,2field,644
 "350000,0:0000069740::",sewer_flame,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",350004,Frenzied Flame Proscription,43,1,4capstone,
 "603848,0:0000069760::",liurnia,Bellum Highway,Erdtree Avatar,62384800,Frenzied Flame Village Outskirts,105,1,2field,96
 "603544,0:0000400030::",liurnia,Liurnia of The Lakes,"Bols, Carian Knight",62364301,Fallen Ruins of the Lake,209,0,2field,589
@@ -290,16 +342,16 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "140000,0:0000400106::",limgrave,Lake of Rot,Glintstone Dragon Smarag,140000,Raya Lucaria Grand Library,10,1,2field,270
 "140000,0:0000400107::",academy_library,,Rennala 2,140000,Raya Lucaria Grand Library,10,1,1legacy,
 "603542,0:0000400130::",liurnia,Moonlight Altar,Glintstone Dragon Adula,62344200,Village of the Albinaurics,107,1,2field,91
-"603450,0:0000400140::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,139,1,2field,223
-"603450,0:0000400141::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,139,1,2field,223
-"603450,0:0000400143::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,139,1,2field,223
-"603450,0:0000400145::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,139,1,2field,223
-"603450,0:0000400148::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,141,1,2field,224
-"603550,0:0000400149::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,31,1,2field,149
+"603450,0:0000400140::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,139,1,2field,573
+"603450,0:0000400141::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,139,1,2field,573
+"603450,0:0000400143::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,139,1,2field,573
+"603450,0:0000400145::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,139,1,2field,573
+"603450,0:0000400148::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,141,1,2field,574
+"603550,0:0000400149::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,31,1,2field,479
 "120200,0:0000400150::",limgrave,Siofra River,Decaying Ekzykes,120203,Siofra River Bank,241,0,2field,149
-"603450,0:0000400158::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62345001,Ranni's Chamber,51,1,2field,183
+"603450,0:0000400158::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62345001,Ranni's Chamber,51,1,2field,666
 "120100,0:0000400159::",ainsel,Ainsel River Main,Night's Cavalry,120106,Lake of Rot Shoreside,93,1,2field,343
-"603546,0:0000400161::",liurnia,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,11,1,4capstone,8633
+"603546,0:0000400161::",liurnia,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,11,1,4capstone,6407803
 "603952,0:0000400162::",altus,Altus Plateau,Black Knife Assassin,320400,Old Altus Tunnel,207,0,2field,295
 "603546,0:0000400163::",liurnia,Altus Plateau,Black Knife Assassin,320400,Old Altus Tunnel,219,0,2field,283
 "604953,0:0000400164::",mountaintops,Flame Peak,[capstone] Fire Giant,65495300,Zamor Ruins,11,1,4capstone,
@@ -313,8 +365,8 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "160000,0:0000400182::",volcano,,"Rykard, Lord of Blasphemy",160002,Volcano Manor,30,1,1legacy,
 "310000,0:0000400183::",limgrave_murkwatercave,,"Margit, the Fell Omen",310000,Murkwater Cave,52,1,1mini,
 "160000,0:0000400189::",limgrave_murkwatercave,,"Margit, the Fell Omen",310000,Murkwater Cave,52,1,1mini,
-"604138,0:0000400190::",stormhill,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,21,1,4capstone,8624
-"604138,0:0000400191::",stormhill,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,21,1,4capstone,8624
+"604138,0:0000400190::",stormhill,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,21,1,4capstone,6407794
+"604138,0:0000400191::",stormhill,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,21,1,4capstone,6407794
 "603746,0:0000400209::",liurnia,Ainsel River,Bell Bearing Hunter,62374600,Church of Vows,41,1,2field,11
 "100000,0:0000400220::",stormveil,,Godrick the Grafted,61443700,Mistwood Outskirts,128,1,1legacy,
 "100000,0:0000400221::",limgrave,Stormhill,Bell Bearing Hunter,100000,Godrick the Grafted,83,1,2field,737
@@ -331,9 +383,9 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603449,0:0000400240::",liurnia,Ainsel River Main,Night's Cavalry,62344900,Road to the Manor,20,1,2field,524
 "603449,0:0000400241::",liurnia,Ainsel River Main,Night's Cavalry,62344900,Road to the Manor,20,1,2field,524
 "110000,0:0000400271::",limgrave,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",110002,East Capital Rampart,7,1,4capstone,
-"111000,0:0000400282:101800,11109770:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,8616
-"111000,0:0000400283:101800,11109771:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,8616
-"111000,0:0000400285:101800,11109773:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,8616
+"111000,0:0000400282:101800,11109770:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,6407786
+"111000,0:0000400283:101800,11109771:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,6407786
+"111000,0:0000400285:101800,11109773:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,28,1,4capstone,6407786
 "160000,0:0000400290::",volcano_drawingroom,,"Rykard, Lord of Blasphemy",160002,Volcano Manor,40,1,1legacy,
 "130000,0:0000400291::",volcano_drawingroom,,"Rykard, Lord of Blasphemy",160002,Volcano Manor,40,1,1legacy,
 "130000,0:0000400292::",farumazula,,"Maliketh, the Black Blade",130009,Dragon Temple Rooftop,68,1,1legacy,
@@ -351,17 +403,17 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "150000,0:0000400323::",haligtree_elphael,,"Malenia, Blade of Miquella",150001,Prayer Room,73,1,1legacy,
 "150000,0:0000400324::",haligtree_elphael,,"Malenia, Blade of Miquella",150000,"Malenia, Goddess of Rot",19,1,1legacy,
 "150000,0:0000400325::",haligtree_elphael,,"Malenia, Blade of Miquella",150000,"Malenia, Goddess of Rot",19,1,1legacy,
-"120300,0:0000400331::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,8644
-"120300,0:0000400332::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,8644
-"120300,0:0000400333::",deeproot,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,8644
-"120300,0:0000400334::",deeproot_start,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,8644
+"120300,0:0000400331::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,6407811
+"120300,0:0000400332::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,6407811
+"120300,0:0000400333::",deeproot,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,6407811
+"120300,0:0000400334::",deeproot_start,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,35,1,4capstone,6407811
 "120300,0:0000400339::",deeproot_dream,Deeproot Depths Boss,Draconic Tree Sentinel,120300,Prince of Death's Throne,23,1,2field,43
 "120200,0:0000400348::",deeproot_dream,Deeproot Depths Boss,Draconic Tree Sentinel,120300,Prince of Death's Throne,21,1,2field,40
 "604439,0:0000400349::",roundtable,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,49,1,4capstone,
-"111000,0:0000400356::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,6,1,4capstone,8640
+"111000,0:0000400356::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,6,1,4capstone,6407810
 "100000,0:0000400357::",stormveil,,Godrick the Grafted,100006,Liftside Chamber,64,1,1legacy,
 "100000,0:0000400358::",roundtable,Stormhill,Crucible Knight,100006,Liftside Chamber,64,1,2field,666
-"111000,0:0000400359::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,6,1,4capstone,8640
+"111000,0:0000400359::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,6,1,4capstone,6407810
 "140000,0:0000400360::",academy,,Rennala 2,140003,Schoolhouse Classroom,14,1,1legacy,
 "140000,0:0000400361::",academy,,Rennala 2,140003,Schoolhouse Classroom,14,1,1legacy,
 "140000,0:0000400362::",academy,,Rennala 2,140003,Schoolhouse Classroom,14,1,1legacy,
@@ -370,7 +422,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "350000,0:0000400381::",sewer,Deeproot Depths,[capstone] Lichdragon Fortissax,350001,Underground Roadside,72,1,4capstone,
 "350000,0:0000400382::",sewer,Deeproot Depths,[capstone] Lichdragon Fortissax,350001,Underground Roadside,72,1,4capstone,
 "604236,0:0000400390:101800,1042369416:",limgrave,Limgrave,Tree Sentinel,61423600,Church of Elleh,9,1,2field,43
-"603450,0:0000400391::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62345001,Ranni's Chamber,4,1,2field,204
+"603450,0:0000400391::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62345001,Ranni's Chamber,4,1,2field,686
 "603542,0:0000400393::",moonlight,Moonlight Altar,Omenkiller,62354200,Cathedral of Manus Celes,65,1,2field,74
 "120100,0:0000400394::",ainsel,Bellum Highway,Erdtree Avatar,120104,Ainsel River Main,33,1,2field,106
 "140000,0:0000400400::",academy_library,,Rennala 2,140000,Raya Lucaria Grand Library,66,1,1legacy,
@@ -395,6 +447,33 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "604053,0:0000400510::",altus,Altus Plateau,Wormface,63405300,Bower of Bounty,167,0,2field,222
 "120500,0:0000400590::",scadualtus,Caelid,Commander O'Neil,120500,Cocoon of the Empyrean,6,1,2field,86
 "120500,0:0000400592::",scadualtus,Caelid,Commander O'Neil,120500,Cocoon of the Empyrean,6,1,2field,86
+"200100,0:0000400598::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0000400600::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0000400602::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0000400610::",gravesite,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0000400611::",scadualtus,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0000400612::",gravesite,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0000400614::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0000400620::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0000400624::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"614843,0:0000400630::",gravesite,Mountaintops of the Giants,Black Knight Edredd,61484300,Pillar Path Cross,11,1,2field,285
+"200100,0:0000400634::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0000400644::",enirilim,Mountaintops of the Giants,Ghostflame Dragon Boss,61454200,Main Gate Cross,6,1,2field,380
+"614541,0:0000400645::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61454200,Main Gate Cross,6,1,2field,380
+"615045,0:0000400660::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,82,1,2field,287
+"615045,0:0000400661::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,82,1,2field,287
+"615045,0:0000400662::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,82,1,2field,287
+"615045,0:0000400666::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,86,1,2field,279
+"615145,0:0000400671::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,40,1,2field,349
+"210000,0:0000400692::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"614939,0:0000400702::",jaggedpeak_foot,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,12,1,2field,455
+"614939,0:0000400704::",jaggedpeak_foot,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,12,1,2field,455
+"614842,0:0000400710::",jaggedpeak_foot,Mountaintops of the Giants,Black Knight Edredd,61484200,Pillar Path Waypoint,26,1,2field,414
+"614842,0:0000400712::",jaggedpeak,Mountaintops of the Giants,Jagged Peak Drake Boss,68524000,Foot of the Jagged Peak,240,0,2field,65
+"200000,0:0000400723::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"614944,0:0000400730::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494400,Moorth Ruins,5,1,2field,264
+"200100,0:0000400732::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0000400740::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
 "604439,0:0000400901::",limgrave,Stormhill,Deathbird,61433900,Saintsbridge,147,1,2field,341
 "604536,0:0000400902::",limgrave,"Nokron, Eternal City Start",Tibia Mariner,61453600,Fort Haight West,162,0,2field,666
 "604136,0:0000400903::",limgrave,Church of Dragon Communion,Ancient Hero of Zamor,311500,Coastal Cave,84,1,2field,560
@@ -444,7 +523,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "341300,0:0000510730::",caelid_tower,Great-Jar,Bell Bearing Hunter,341301,Divine Tower of Caelid: Basement,73,1,2field,421
 "341400,0:0000510740::",leyndell_tower,,Fell Twin,65475100,Forbidden Lands,345,0,1legacy,
 "604330,0:0000510800::",peninsula,Weeping Peninsula,Deathbird,61433000,Morne Moangrave,5,1,2field,560
-"603550,0:0000510810::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,0,1,2field,104
+"603550,0:0000510810::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,0,1,2field,419
 "603954,0:0000510820::",altus,Altus Plateau,Wormface,63395402,Castellan's Hall,7,1,2field,564
 "605136,0:0000510830::",caelid_postradahn,Redmane Castle Post Radahn,[capstone] Redmane Castle Post Radahn,64513600,Redmane Castle Plaza,27,1,4capstone,
 "605157,0:0000510840::",mountaintops,Mountaintops of the Giants,Death Rite Bird,65515703,Castle Sol Rooftop,14,1,2field,414
@@ -513,10 +592,10 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603442,0:0000530260::",moonlight,Moonlight Altar,Glintstone Dragon Adula,62354200,Cathedral of Manus Celes,114,1,2field,0
 "603342,0:0000530265::",moonlight,Moonlight Altar,"Alecto, Black Knife Ringleader",300300,Road's End Catacombs,193,0,2field,0
 "603751,0:0000530300::",altus,Ruin-Strewn Precipice,Ancient Dragon Lansseax,63385100,Erdtree-Gazing Hill,135,1,2field,0
-"604150,0:0000530310::",altus,Capital Outskirts,Fallingstar Beast,311800,Perfumer's Grotto,170,0,2field,0
+"604150,0:0000530310::",altus,Divine Bridge,Fallingstar Beast,311800,Perfumer's Grotto,170,0,2field,0
 "604552,0:0000530315::",outskirts,Deeproot Depths Boss,Draconic Tree Sentinel,301300,Auriza Side Tomb,94,1,2field,0
 "604255,0:0000530325::",altus,Capital Outskirts,Godskin Apostle,63425500,Windmill Heights,4,1,2field,0
-"604151,0:0000530335::",altus,Capital Outskirts,Tree Sentinel,311800,Perfumer's Grotto,70,1,2field,0
+"604151,0:0000530335::",altus,Divine Bridge,Tree Sentinel,311800,Perfumer's Grotto,70,1,2field,0
 "604052,0:0000530350::",altus,Altus Plateau,Black Knife Assassin,300800,Sainted Hero's Grave,5,1,2field,0
 "603654,0:0000530375::",gelmir,Mt. Gelmir,Full-Grown Fallingstar Beast,63365401,Ninth Mt. Gelmir Campsite,75,1,2field,0
 "603852,0:0000530385::",altus,Altus Plateau,Tibia Mariner,63375200,Seethewater River,171,0,2field,0
@@ -532,6 +611,20 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "605056,0:0000530550::",snowfield,Mountaintops of the Giants,Great Wyrm Theodorix,311200,Cave of the Forlorn,74,1,2field,0
 "120100,0:0000530600::",lakeofrot,Lake of Rot,Dragonkin Soldier,120106,Lake of Rot Shoreside,267,0,2field,0
 "120200,0:0000530620::",siofra,"Nokron, Eternal City",Dragonkin Soldier,120207,Aqueduct-Facing Cliffs,152,1,2field,0
+"615240,0:0000530800::",jaggedpeak_foot,Mountaintops of the Giants,Jagged Peak Drake Boss,68524000,Foot of the Jagged Peak,183,0,2field,0
+"615439,0:0000530805::",jaggedpeak,Mountaintops of the Giants,Ancient Dragon Senessax,68533900,Jagged Peak Mountainside,319,0,2field,0
+"614838,0:0000530840::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483900,Cerulean Coast,217,0,2field,0
+"614640,0:0000530845::",cerulean,Mountaintops of the Giants,Demi-Human Queen Marigga,68463900,Cerulean Coast West,341,0,2field,0
+"614941,0:0000530850::",jaggedpeak_foot,Mountaintops of the Giants,Jagged Peak Drake Boss,68493900,Grand Altar of Dragon Communion,497,0,2field,0
+"614739,0:0000530855::",charo,Mountaintops of the Giants,Death Rite Bird,68483900,Cerulean Coast,146,1,2field,0
+"614544,0:0000530860::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",154,1,2field,0
+"614447,0:0000530905::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,313,0,2field,0
+"614945,0:0000530930::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,179,0,2field,0
+"614646,0:0000530940::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",200,0,2field,0
+"614943,0:0000530945::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494300,"Moorth Highway, South",117,1,2field,0
+"614745,0:0000530955::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",100,1,2field,0
+"615248,0:0000530960::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514800,Fingerstone Hill,140,1,2field,0
+"614943,0:0000530965::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,19,1,2field,0
 "604039,0:0000540100::",stormhill,Stormhill,Bell Bearing Hunter,100007,Secluded Cell,152,1,2field,529
 "604138,0:0000540104::",stormhill,Stormhill,Bell Bearing Hunter,100002,Castleward Tunnel,132,1,2field,338
 "604337,0:0000540108::",limgrave,Limgrave,Night's Cavalry,310000,Murkwater Cave,156,1,2field,13
@@ -549,18 +642,18 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "100000,0:0000540170::",stormveil,,Godrick the Grafted,100006,Liftside Chamber,127,1,1legacy,
 "100000,0:0000540172::",stormveil,,Godrick the Grafted,100007,Secluded Cell,50,1,1legacy,
 "100000,0:0000540174::",stormveil,,Godrick the Grafted,100006,Liftside Chamber,77,1,1legacy,
-"603450,0:0000540200::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,112,1,2field,10
+"603450,0:0000540200::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,112,1,2field,530
 "603644,0:0000540202::",liurnia,Liurnia of The Lakes,"Bols, Carian Knight",62364301,Fallen Ruins of the Lake,129,1,2field,766
 "603649,0:0000540204::",liurnia,Ainsel River Main,Night's Cavalry,62364901,The Ravine,85,1,2field,289
 "603939,0:0000540206::",liurnia,Stormhill,[capstone] Godrick the Grafted,62394000,Lake-Facing Cliffs,88,1,4capstone,858
 "603542,0:0000540208::",liurnia,Moonlight Altar,Omenkiller,62354200,Cathedral of Manus Celes,200,0,2field,130
 "603547,0:0000540210::",liurnia,Lake of Rot,Dragonkin Soldier,62354700,East Gate Bridge Trestle,40,1,2field,351
 "603444,0:0000540218::",liurnia,Liurnia of The Lakes,"Bols, Carian Knight",62344400,Temple Quarter,245,0,2field,512
-"603550,0:0000540220::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,101,1,2field,251
+"603550,0:0000540220::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,101,1,2field,329
 "603751,0:0000540224::",altus,Ruin-Strewn Precipice,Ancient Dragon Lansseax,62385001,Ravine-Veiled Village,56,1,2field,160
 "603748,0:0000540236::",liurnia,Bellum Highway,Erdtree Avatar,62374900,Church of Inhibition,148,1,2field,221
 "603343,0:0000540238::",liurnia,Moonlight Altar,Erdtree Avatar,300300,Road's End Catacombs,127,1,2field,95
-"603550,0:0000540250::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62365000,Behind Caria Manor,80,1,2field,231
+"603550,0:0000540250::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62365000,Behind Caria Manor,80,1,2field,294
 "603943,0:0000540252::",liurnia,Liurnia of The Lakes,Night's Cavalry,62384300,Gate Town Bridge,157,1,2field,71
 "603748,0:0000540254::",liurnia,Ainsel River Main,Night's Cavalry,62374800,Mausoleum Compound,155,1,2field,175
 "603850,0:0000540256::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62385000,Grand Lift of Dectus,106,1,2field,295
@@ -577,7 +670,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "604153,0:0000540308::",altus,Altus Plateau,Wormface,63405200,Forest-Spanning Greatbridge,213,0,2field,48
 "604051,0:0000540310::",altus,Altus Plateau,Black Knife Assassin,300800,Sainted Hero's Grave,121,1,2field,117
 "604054,0:0000540312::",altus,Altus Plateau,Wormface,63405400,Road of Iniquity Side Path,96,1,2field,269
-"604351,0:0000540314::",outskirts,Capital Outskirts,Crucible Knight Siluria,341201,Sealed Tunnel,193,0,2field,270
+"604351,0:0000540314::",outskirts,Divine Bridge,Tree Sentinel,341201,Sealed Tunnel,193,0,2field,321
 "604352,0:0000540316::",outskirts,Capital Outskirts,Crucible Knight Siluria,63435301,Outer Wall Battleground,239,0,2field,64
 "604353,0:0000540318::",altus,Capital Outskirts,Bell Bearing Hunter,63435300,Hermit Merchant's Shack,164,0,2field,156
 "604053,0:0000540320::",altus,Altus Plateau,Black Knife Assassin,63405300,Bower of Bounty,60,1,2field,154
@@ -613,11 +706,16 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "120200,0:0000540646::",siofra_nokron,"Nokron, Eternal City",Dragonkin Soldier,120207,Aqueduct-Facing Cliffs,179,0,2field,237
 "120200,0:0000540648::",siofra_nokron,"Nokron, Eternal City",Dragonkin Soldier,120207,Aqueduct-Facing Cliffs,122,1,2field,55
 "120700,0:0000540652::",siofra,"Nokron, Eternal City Start",Tibia Mariner,120700,Siofra River Well Depths,126,1,2field,509
-"120300,0:0000540660::",deeproot,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,101,1,4capstone,
+"120300,0:0000540660::",deeproot,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120302,Great Waterfall Crest,101,1,4capstone,
 "120300,0:0000540668::",deeproot,Capital Outskirts,Crucible Knight Siluria,120304,The Nameless Eternal City,187,0,2field,95
 "120300,0:0000540670::",deeproot,Deeproot Depths,[capstone] Lichdragon Fortissax,120305,Across the Roots,114,1,4capstone,
 "120500,0:0000540686::",mohgwyn,,"Mohg, Lord of Blood",120501,Palace Approach Ledge-Road,166,0,1legacy,
 "130000,0:0000540772::",farumazula,,"Maliketh, the Black Blade",130006,Dragon Temple,45,1,1legacy,
+"615045,0:0000540900::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,161,0,2field,273
+"614844,0:0000540902::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,176,0,2field,152
+"615145,0:0000540906::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514400,Bridge Leading to the Village,126,1,2field,554
+"614844,0:0000540920::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,169,0,2field,157
+"614844,0:0000540922::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,178,0,2field,167
 "604438,0:0000580000::",limgrave,Limgrave,Night's Cavalry,61443800,Artist's Shack,5,1,2field,380
 "603845,0:0000580010::",liurnia,Ainsel River,Tibia Mariner,62384500,Artist's Shack,11,1,2field,209
 "603954,0:0000580020::",altus,Altus Plateau,Wormface,63395400,Shaded Castle Ramparts,74,1,2field,471
@@ -627,11 +725,15 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "605039,0:0000580060::",caelid,Mohgwyn Palace,Death Rite Bird,64493902,Sellia Under-Stair,61,1,2field,422
 "604336,0:0000580300::",limgrave,Limgrave,Flying Dragon Agheel,180000,Cave of Knowledge,127,1,2field,168
 "603650,0:0000580310::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,117,1,2field,181
-"604152,0:0000580320::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,68,1,2field,152
+"604152,0:0000580320::",altus,Capital Outskirts,Crucible Knight Siluria,63415201,Rampartside Path,68,1,2field,494
 "605056,0:0000580330::",mountaintops,Mountaintops of the Giants,Death Rite Bird,65515600,Ancient Snow Valley Ruins,199,0,2field,93
 "604235,0:0000580340::",limgrave,Church of Dragon Communion,Ancient Hero of Zamor,61433400,Church of Pilgrimage,63,1,2field,414
 "604254,0:0000580350::",altus,Capital Outskirts,Godskin Apostle,63425500,Windmill Heights,154,1,2field,150
 "605140,0:0000580360::",dragonbarrow,Dragonbarrow,Putrid Avatar,311000,Dragonbarrow Cave,144,1,2field,116
+"614543,0:0000580400::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",217,0,2field,103
+"614645,0:0000580410::",rauhbase_high,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",229,0,2field,184
+"615339,0:0000580420::",jaggedpeak,Mountaintops of the Giants,Ancient Dragon Senessax,68533900,Jagged Peak Mountainside,226,0,2field,186
+"200000,0:0000580600::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
 "100000,0:0010007005::",stormveil,,Godrick the Grafted,100006,Liftside Chamber,63,1,1legacy,
 "100000,0:0010007015::",stormveil,,Godrick the Grafted,100005,Rampart Tower,34,1,1legacy,
 "100000,0:0010007025::",stormveil,,Godrick the Grafted,100005,Rampart Tower,35,1,1legacy,
@@ -876,9 +978,9 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "110500,0:0011057050::",leyndell2,,"Hoarah Loux, Warrior",110005,West Capital Rampart,81,1,1legacy,
 "110500,0:0011057100::",leyndell2,,"Hoarah Loux, Warrior",110504,Queen's Bedchamber,129,1,1legacy,
 "111000,0:0011107000::",roundtable,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,38,1,4capstone,
-"111000,0:0011107700::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,38,1,4capstone,8642
-"111000,0:0011107710::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,26,1,4capstone,8639
-"111000,0:0011107900::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,17,1,4capstone,8638
+"111000,0:0011107700::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,38,1,4capstone,6407808
+"111000,0:0011107710::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,26,1,4capstone,6407807
+"111000,0:0011107900::",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,17,1,4capstone,6407810
 "120100,0:0012017030::",lakeofrot,Lake of Rot,Dragonkin Soldier,120108,Grand Cloister,325,0,2field,152
 "120100,0:0012017040::",ainsel_start,Ainsel River,Bell Bearing Hunter,120102,Ainsel River Sluice Gate,68,1,2field,192
 "120100,0:0012017050::",ainsel_start,Ainsel River,Bell Bearing Hunter,120102,Ainsel River Sluice Gate,75,1,2field,150
@@ -1077,11 +1179,11 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "120200,0:0012027990::",siofra,"Nokron, Eternal City",Dragonkin Soldier,120207,Aqueduct-Facing Cliffs,208,0,2field,87
 "120200,0:0012027995::",siofra_nokron,"Nokron, Eternal City",Dragonkin Soldier,120206,Ancestral Woods,145,1,2field,218
 "120300,0:0012037010::",deeproot,Capital Outskirts,Crucible Knight Siluria,120304,The Nameless Eternal City,137,1,2field,78
-"120300,0:0012037020::",deeproot_start,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120301,Root-Facing Cliffs,118,1,4capstone,
-"120300,0:0012037030::",deeproot_start,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,76,1,4capstone,
-"120300,0:0012037040::",deeproot_start,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,86,1,4capstone,
-"120300,0:0012037050::",deeproot_start,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,106,1,4capstone,
-"120300,0:0012037060::",deeproot,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,58,1,4capstone,
+"120300,0:0012037020::",deeproot_start,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120301,Root-Facing Cliffs,118,1,4capstone,
+"120300,0:0012037030::",deeproot_start,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120302,Great Waterfall Crest,76,1,4capstone,
+"120300,0:0012037040::",deeproot_start,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120302,Great Waterfall Crest,86,1,4capstone,
+"120300,0:0012037050::",deeproot_start,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120302,Great Waterfall Crest,106,1,4capstone,
+"120300,0:0012037060::",deeproot,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120302,Great Waterfall Crest,58,1,4capstone,
 "120300,0:0012037070::",deeproot,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,195,0,4capstone,
 "120300,0:0012037080::",deeproot,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,212,0,4capstone,
 "120300,0:0012037090::",deeproot,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",120303,Deeproot Depths,149,1,4capstone,
@@ -1107,7 +1209,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "120300,0:0012037290::",deeproot,Capital Outskirts,Crucible Knight Siluria,120304,The Nameless Eternal City,162,0,2field,78
 "120300,0:0012037300::",deeproot,Capital Outskirts,Crucible Knight Siluria,120304,The Nameless Eternal City,249,0,2field,36
 "120300,0:0012037310::",deeproot_start,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120301,Root-Facing Cliffs,25,1,4capstone,
-"120300,0:0012037320::",deeproot_start,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120301,Root-Facing Cliffs,111,1,4capstone,
+"120300,0:0012037320::",deeproot_start,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120301,Root-Facing Cliffs,111,1,4capstone,
 "120300,0:0012037330::",deeproot,Deeproot Depths,[capstone] Lichdragon Fortissax,120305,Across the Roots,111,1,4capstone,
 "120300,0:0012037340::",deeproot,Deeproot Depths,[capstone] Lichdragon Fortissax,120305,Across the Roots,110,1,4capstone,
 "120300,0:0012037350::",deeproot,Deeproot Depths,[capstone] Lichdragon Fortissax,120305,Across the Roots,116,1,4capstone,
@@ -1136,9 +1238,9 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "120300,0:0012037820::",deeproot,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,202,0,4capstone,
 "120300,0:0012037830::",deeproot,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,198,0,4capstone,
 "120300,0:0012037840::",deeproot,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,168,0,4capstone,
-"120300,0:0012037850::",deeproot_start,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120301,Root-Facing Cliffs,58,1,4capstone,
+"120300,0:0012037850::",deeproot_start,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120301,Root-Facing Cliffs,58,1,4capstone,
 "120300,0:0012037950::",deeproot,Capital Outskirts,Crucible Knight Siluria,120304,The Nameless Eternal City,214,0,2field,0
-"120300,0:0012037960::",deeproot,Frenzied Flame Proscription,"[capstone] Mohg, the Omen",120302,Great Waterfall Crest,59,1,4capstone,
+"120300,0:0012037960::",deeproot,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,120302,Great Waterfall Crest,59,1,4capstone,
 "120300,0:0012037990::",deeproot,Deeproot Depths,[capstone] Lichdragon Fortissax,120305,Across the Roots,117,1,4capstone,
 "120500,0:0012057010::",mohgwyn,,"Mohg, Lord of Blood",120501,Palace Approach Ledge-Road,101,1,1legacy,
 "120500,0:0012057020::",mohgwyn,,"Mohg, Lord of Blood",120501,Palace Approach Ledge-Road,33,1,1legacy,
@@ -1539,6 +1641,247 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "180000,0:0018007070::",limgrave,Limgrave,Flying Dragon Agheel,180000,Cave of Knowledge,67,1,2field,161
 "180000,0:0018007700::",graveyard_grave,,Ulcerated Tree Spirit,61423600,Church of Elleh,124,1,1mini,
 "180000,0:0018007900::",graveyard_grave,,Ulcerated Tree Spirit,180000,Cave of Knowledge,101,1,1mini,
+"200000,0:0020007000::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007010::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007020::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007030::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007040::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007050::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007060::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007070::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007080::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007090::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007100::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007110::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007170::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007200::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007210::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007220::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007230::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007240::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007250::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007260::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007270::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007280::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007290::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007300::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007310::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007320::",belurat_swamp,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007330::",belurat_enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007380::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007400::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007410::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007420::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007430::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007440::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007450::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007460::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007470::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007480::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007490::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007500::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007510::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007520::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007530::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007600::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007610::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007620::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007630::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007640::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007650::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007660::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007670::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007680::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007690::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007700::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007710::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007730::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007800::",belurat_stairs,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007810::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007820::",belurat_enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007830::",belurat_stairs,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200000,0:0020007900::",belurat,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017000::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017030::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017040::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017110::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017130::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017140::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017160::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017170::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017180::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017190::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017200::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017220::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017230::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017300::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017310::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017320::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017330::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017340::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017350::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017380::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017400::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017410::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017420::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017430::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017440::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017450::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017470::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017480::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017490::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017500::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017520::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017550::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017600::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017620::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017630::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017640::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017650::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017660::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"200100,0:0020017900::",enirilim,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007000::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007010::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007020::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007030::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007040::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007050::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007060::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007070::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007080::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007090::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007100::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007110::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007120::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007130::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007140::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007160::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007170::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007180::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007190::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007200::",shadowkeep,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007300::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007310::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007320::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007330::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007340::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007350::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007360::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007370::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007380::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007390::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007400::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007410::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007420::",shadowkeep_church,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007550::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007560::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007570::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007580::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007590::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007600::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007610::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007620::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007630::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007640::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007650::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007670::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007680::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007800::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210000,0:0021007810::",shadowkeep_church_lower,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017000::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017010::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017020::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017030::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017040::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017050::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017060::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017070::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017080::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017090::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017100::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017110::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017120::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017130::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017140::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017150::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017160::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017170::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017180::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017200::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017300::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017310::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017320::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017330::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017340::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017350::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017360::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017400::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017410::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017420::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017430::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017440::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017450::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017460::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017470::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017480::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017490::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017500::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017510::",storehouse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017600::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017610::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017620::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017630::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017640::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017650::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017660::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017670::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017750::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017760::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017770::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017780::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017790::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210100,0:0021017800::",storehouse_back,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027010::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027020::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027040::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027050::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027200::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027210::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027220::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027230::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027240::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027250::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027260::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027270::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"210200,0:0021027985::",westrampart,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007000::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007100::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007110::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007120::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007130::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007140::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007150::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007160::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007170::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007190::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007200::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007210::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007220::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007230::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007240::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"220000,0:0022007910::",fissure,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007000::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007010::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007020::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007030::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007040::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007050::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007070::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007080::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007090::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007100::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007110::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
+"280000,0:0028007900::",midramanse,Mountaintops of the Giants,[capstone] Fire Giant,120600,,0,1,4capstone,1414164939
 "300000,0:0030007010::",peninsula_tombswardcatacombs,,Cemetery Shade,320000,Morne Tunnel,77,1,1mini,
 "300000,0:0030007020::",peninsula_tombswardcatacombs,,Cemetery Shade,320000,Morne Tunnel,69,1,1mini,
 "300000,0:0030007040::",peninsula_tombswardcatacombs,,Cemetery Shade,320000,Morne Tunnel,47,1,1mini,
@@ -1985,6 +2328,129 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "392000,0:0039207970::",precipice,Ruin-Strewn Precipice,Onyx Lord,390002,Ruin-Strewn Precipice Overlook,42,1,2field,203
 "392000,0:0039207980::",precipice,Ruin-Strewn Precipice,Onyx Lord,390002,Ruin-Strewn Precipice Overlook,41,1,2field,199
 "392000,0:0039207990::",precipice,Ruin-Strewn Precipice,Ancient Dragon Lansseax,390002,Ruin-Strewn Precipice Overlook,127,1,2field,141
+"400000,0:0040007000::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007020::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007040::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007050::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007060::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007070::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007080::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007090::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007100::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007120::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007800::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007810::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007820::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400000,0:0040007900::",gravesite_catacombs,,Twin Axe Death Knight,120600,,0,1,1mini,
+"400100,0:0040017000::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017010::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017020::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017030::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017040::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017050::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017060::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017070::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017080::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017090::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017100::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017110::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017120::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017130::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017140::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400100,0:0040017150::",rauhbase_catacombs,,Longhaft Death Knight,120600,,0,1,1mini,
+"400200,0:0040027000::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027010::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027020::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027100::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027110::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027120::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027130::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027140::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027200::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027210::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027220::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"400200,0:0040027900::",scadualtus_catacombs,,[no boss] scadualtus_catacombs,120600,,0,1,1mini,
+"410000,0:0041007000::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007010::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007020::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007100::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007110::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007120::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007130::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007200::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007210::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007250::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007260::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007270::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007970::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007975::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410000,0:0041007985::",gravesite_gaol,,Demi-Human Swordmaster Onze,120600,,0,1,1mini,
+"410100,0:0041017010::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017020::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017030::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017100::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017110::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017120::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017130::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017200::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017210::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017220::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017230::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017240::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017300::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017310::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017980::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017990::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410100,0:0041017995::",scadualtus_gaol,,Curseblade Labirith,120600,,0,1,1mini,
+"410200,0:0041027000::",charo_gaol,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027010::",charo_gaol,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027100::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027110::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027120::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027130::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027200::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027210::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027300::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027320::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027985::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027990::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"410200,0:0041027995::",charo_gaol_lower,,Lamenter,120600,,0,1,1mini,
+"420000,0:0042007100::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420000,0:0042007110::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420000,0:0042007130::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420000,0:0042007140::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420000,0:0042007150::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420000,0:0042007160::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420000,0:0042007170::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420000,0:0042007180::",gravesite_forge,,[no boss] gravesite_forge,120600,,0,1,1mini,
+"420200,0:0042027010::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420200,0:0042027020::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420200,0:0042027030::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420200,0:0042027040::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420200,0:0042027050::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420200,0:0042027060::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420200,0:0042027070::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420200,0:0042027080::",scadualtus_forge,,[no boss] scadualtus_forge,120600,,0,1,1mini,
+"420300,0:0042037100::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037110::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037120::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037130::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037140::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037150::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037160::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037170::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"420300,0:0042037180::",rauhbase_forge,,[no boss] rauhbase_forge,120600,,0,1,1mini,
+"430000,0:0043007000::",ellac_cave,,Chief Bloodfiend Boss,120600,,0,1,1mini,
+"430000,0:0043007010::",ellac_cave,,Chief Bloodfiend Boss,120600,,0,1,1mini,
+"430000,0:0043007020::",ellac_cave,,Chief Bloodfiend Boss,120600,,0,1,1mini,
+"430000,0:0043007030::",ellac_cave,,Chief Bloodfiend Boss,120600,,0,1,1mini,
+"430000,0:0043007040::",ellac_cave,,Chief Bloodfiend Boss,120600,,0,1,1mini,
+"430000,0:0043007050::",ellac_cave,,Chief Bloodfiend Boss,120600,,0,1,1mini,
+"430100,0:0043017000::",gravesite_dragonpit,,Ancient Dragon-Man,120600,,0,1,1mini,
+"430100,0:0043017010::",gravesite_dragonpit,,Ancient Dragon-Man,120600,,0,1,1mini,
+"430100,0:0043017020::",gravesite_dragonpit,,Ancient Dragon-Man,120600,,0,1,1mini,
+"430100,0:0043017030::",gravesite_dragonpit,,Ancient Dragon-Man,120600,,0,1,1mini,
+"430100,0:0043017040::",gravesite_dragonpit,,Ancient Dragon-Man,120600,,0,1,1mini,
 "603340,0:1033407100::",moonlight,Moonlight Altar,"Alecto, Black Knife Ringleader",62334000,Altar South,60,1,2field,572
 "603341,0:1033417000::",moonlight,Moonlight Altar,"Alecto, Black Knife Ringleader",62334000,Altar South,201,0,2field,367
 "603341,0:1033417010::",moonlight,Moonlight Altar,"Alecto, Black Knife Ringleader",62334000,Altar South,190,0,2field,377
@@ -2048,16 +2514,16 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603448,0:1034487100::",liurnia,Ainsel River Main,Night's Cavalry,62344800,Northern Liurnia Lake Shore,105,1,2field,499
 "603448,0:1034487300::",liurnia,Ainsel River Main,Night's Cavalry,62344701,Sorcerer's Isle,89,1,2field,489
 "603448,0:1034487310::",liurnia,Ainsel River Main,Night's Cavalry,62344701,Sorcerer's Isle,137,1,2field,495
-"603450,0:1034507010::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62345000,Ranni's Rise,176,0,2field,253
+"603450,0:1034507010::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62345000,Ranni's Rise,176,0,2field,674
 "603450,0:1034507020::",liurnia_postmanor,Ainsel River Main,Night's Cavalry,62345000,Ranni's Rise,182,0,2field,707
 "603450,0:1034507030::",liurnia_postmanor,Ainsel River Main,Night's Cavalry,62345000,Ranni's Rise,184,0,2field,707
 "603450,0:1034507040::",liurnia_postmanor,Ainsel River Main,Night's Cavalry,62345000,Ranni's Rise,184,0,2field,700
-"603450,0:1034507050::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62345000,Ranni's Rise,182,0,2field,257
-"603450,0:1034507060::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62345000,Ranni's Rise,183,0,2field,251
+"603450,0:1034507050::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62345000,Ranni's Rise,182,0,2field,672
+"603450,0:1034507060::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62345000,Ranni's Rise,183,0,2field,663
 "603450,0:1034507070::",liurnia_postmanor,Ainsel River Main,Night's Cavalry,62345000,Ranni's Rise,189,0,2field,694
 "603450,0:1034507080::",liurnia_postmanor,Ainsel River Main,Night's Cavalry,62345000,Ranni's Rise,192,0,2field,693
-"603450,0:1034507090::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,146,1,2field,235
-"603451,0:1034517900::",liurnia_postmanor,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,164,0,2field,73
+"603450,0:1034507090::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,146,1,2field,571
+"603451,0:1034517900::",liurnia_postmanor,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,164,0,2field,568
 "603541,0:1035417000::",moonlight,Moonlight Altar,Omenkiller,62354200,Cathedral of Manus Celes,169,0,2field,163
 "603541,0:1035417010::",moonlight,Moonlight Altar,Glintstone Dragon Adula,62354200,Cathedral of Manus Celes,144,1,2field,130
 "603541,0:1035417100::",moonlight,Moonlight Altar,Omenkiller,62354200,Cathedral of Manus Celes,138,1,2field,120
@@ -2107,55 +2573,55 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "603548,0:1035487100::",liurnia,Ainsel River Main,Night's Cavalry,62344701,Sorcerer's Isle,150,1,2field,407
 "603549,0:1035497020::",liurnia,Ainsel River Main,Night's Cavalry,62364901,The Ravine,93,1,2field,272
 "603549,0:1035497990::",liurnia,Ainsel River Main,Night's Cavalry,62355003,Main Caria Manor Gate,136,1,2field,481
-"603550,0:1035507000::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,83,1,2field,267
-"603550,0:1035507010::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,93,1,2field,224
-"603550,0:1035507020::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,26,1,2field,266
-"603550,0:1035507030::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,36,1,2field,208
-"603550,0:1035507050::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,23,1,2field,289
+"603550,0:1035507000::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,83,1,2field,338
+"603550,0:1035507010::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,93,1,2field,371
+"603550,0:1035507020::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,26,1,2field,433
+"603550,0:1035507030::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,36,1,2field,458
+"603550,0:1035507050::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,23,1,2field,401
 "603550,0:1035507060::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,96,1,2field,311
-"603550,0:1035507070::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,77,1,2field,123
-"603550,0:1035507080::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62365000,Behind Caria Manor,70,1,2field,248
-"603550,0:1035507090::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,64,1,2field,166
-"603550,0:1035507100::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,95,1,2field,305
-"603550,0:1035507110::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,20,1,2field,161
-"603550,0:1035507120::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,48,1,2field,239
-"603550,0:1035507130::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,62,1,2field,251
-"603550,0:1035507140::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,27,1,2field,151
+"603550,0:1035507070::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,77,1,2field,426
+"603550,0:1035507080::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62365000,Behind Caria Manor,70,1,2field,275
+"603550,0:1035507090::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,64,1,2field,402
+"603550,0:1035507100::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,95,1,2field,306
+"603550,0:1035507110::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,20,1,2field,472
+"603550,0:1035507120::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,48,1,2field,414
+"603550,0:1035507130::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,62,1,2field,378
+"603550,0:1035507140::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,27,1,2field,475
 "603550,0:1035507150::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,109,1,2field,332
-"603550,0:1035507160::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,99,1,2field,200
-"603550,0:1035507170::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,67,1,2field,170
-"603550,0:1035507180::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,24,1,2field,171
-"603550,0:1035507190::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,59,1,2field,202
-"603550,0:1035507200::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,94,1,2field,254
-"603550,0:1035507220::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,78,1,2field,231
-"603550,0:1035507230::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,61,1,2field,162
+"603550,0:1035507160::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,99,1,2field,343
+"603550,0:1035507170::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,67,1,2field,354
+"603550,0:1035507180::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,24,1,2field,448
+"603550,0:1035507190::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,59,1,2field,405
+"603550,0:1035507200::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,94,1,2field,319
+"603550,0:1035507220::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,78,1,2field,300
+"603550,0:1035507230::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,61,1,2field,363
 "603550,0:1035507240::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62365000,Behind Caria Manor,64,1,2field,243
-"603550,0:1035507250::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,96,1,2field,314
-"603550,0:1035507260::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,45,1,2field,296
-"603550,0:1035507270::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,61,1,2field,188
-"603550,0:1035507280::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,83,1,2field,274
-"603550,0:1035507300::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,46,1,2field,244
-"603550,0:1035507610::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,105,1,2field,193
-"603550,0:1035507620::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,110,1,2field,188
-"603550,0:1035507630::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,76,1,2field,144
-"603550,0:1035507650::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,85,1,2field,219
-"603550,0:1035507660::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,56,1,2field,121
-"603550,0:1035507670::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,31,1,2field,159
-"603550,0:1035507680::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,37,1,2field,185
-"603550,0:1035507690::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,66,1,2field,200
-"603550,0:1035507700::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,56,1,2field,197
-"603550,0:1035507710::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,48,1,2field,200
-"603550,0:1035507720::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,55,1,2field,213
-"603550,0:1035507730::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355001,Manor Lower Level,25,1,2field,195
-"603550,0:1035507740::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,106,1,2field,232
-"603550,0:1035507750::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355000,Manor Upper Level,99,1,2field,272
-"603550,0:1035507760::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,70,1,2field,277
-"603550,0:1035507770::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,38,1,2field,302
-"603550,0:1035507780::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,49,1,2field,238
-"603550,0:1035507790::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,54,1,2field,264
-"603550,0:1035507800::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,53,1,2field,249
-"603550,0:1035507900::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355003,Main Caria Manor Gate,107,1,2field,241
-"603550,0:1035507990::",liurnia,Ruin-Strewn Precipice,Glintstone Dragon Adula,62355002,Royal Moongazing Grounds,105,1,2field,205
+"603550,0:1035507250::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,96,1,2field,327
+"603550,0:1035507260::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,45,1,2field,375
+"603550,0:1035507270::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,61,1,2field,401
+"603550,0:1035507280::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,83,1,2field,343
+"603550,0:1035507300::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,46,1,2field,315
+"603550,0:1035507610::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,105,1,2field,351
+"603550,0:1035507620::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,110,1,2field,353
+"603550,0:1035507630::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,76,1,2field,398
+"603550,0:1035507650::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,85,1,2field,375
+"603550,0:1035507660::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,56,1,2field,457
+"603550,0:1035507670::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,31,1,2field,439
+"603550,0:1035507680::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,37,1,2field,425
+"603550,0:1035507690::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,66,1,2field,397
+"603550,0:1035507700::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,56,1,2field,407
+"603550,0:1035507710::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,48,1,2field,418
+"603550,0:1035507720::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,55,1,2field,420
+"603550,0:1035507730::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355001,Manor Lower Level,25,1,2field,443
+"603550,0:1035507740::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,106,1,2field,334
+"603550,0:1035507750::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355000,Manor Upper Level,99,1,2field,323
+"603550,0:1035507760::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,70,1,2field,354
+"603550,0:1035507770::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,38,1,2field,385
+"603550,0:1035507780::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,49,1,2field,415
+"603550,0:1035507790::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,54,1,2field,377
+"603550,0:1035507800::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,53,1,2field,390
+"603550,0:1035507900::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355003,Main Caria Manor Gate,107,1,2field,343
+"603550,0:1035507990::",liurnia,Ruin-Strewn Precipice,Onyx Lord,62355002,Royal Moongazing Grounds,105,1,2field,320
 "603552,0:1035527010::",gelmir,Mt. Gelmir,Magma Wyrm,160004,Guest Hall,149,1,2field,167
 "603552,0:1035527020::",gelmir,Mt. Gelmir,Magma Wyrm,160004,Guest Hall,155,1,2field,163
 "603552,0:1035527030::",gelmir,Mt. Gelmir,Magma Wyrm,160004,Guest Hall,159,1,2field,164
@@ -2497,19 +2963,19 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "604138,0:1041387100::",stormhill,Stormhill,Crucible Knight,61413800,Stormhill Shack,103,1,2field,171
 "604138,0:1041387200::",stormhill,Stormhill,Crucible Knight,100002,Castleward Tunnel,136,1,2field,235
 "604139,0:1041397000::",stormhill,Stormhill,Bell Bearing Hunter,341000,Limgrave Tower Bridge,136,1,2field,355
-"604151,0:1041517000::",altus,Capital Outskirts,Tree Sentinel,311800,Perfumer's Grotto,69,1,2field,111
-"604151,0:1041517010::",altus,Capital Outskirts,Tree Sentinel,311800,Perfumer's Grotto,66,1,2field,88
-"604151,0:1041517020::",altus,Capital Outskirts,Tree Sentinel,311800,Perfumer's Grotto,64,1,2field,108
+"604151,0:1041517000::",altus,Capital Outskirts,Crucible Knight Siluria,311800,Perfumer's Grotto,69,1,2field,531
+"604151,0:1041517010::",altus,Capital Outskirts,Crucible Knight Siluria,311800,Perfumer's Grotto,66,1,2field,493
+"604151,0:1041517020::",altus,Capital Outskirts,Crucible Knight Siluria,311800,Perfumer's Grotto,64,1,2field,550
 "604151,0:1041517030::",altus,Altus Plateau,Black Knife Assassin,311800,Perfumer's Grotto,221,0,2field,377
-"604152,0:1041527000::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,95,1,2field,239
-"604152,0:1041527010::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,95,1,2field,241
-"604152,0:1041527020::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,99,1,2field,243
-"604152,0:1041527030::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,112,1,2field,258
-"604152,0:1041527040::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,88,1,2field,234
+"604152,0:1041527000::",altus,Capital Outskirts,Bell Bearing Hunter,63415201,Rampartside Path,95,1,2field,414
+"604152,0:1041527010::",altus,Capital Outskirts,Bell Bearing Hunter,63415201,Rampartside Path,95,1,2field,432
+"604152,0:1041527020::",altus,Capital Outskirts,Bell Bearing Hunter,63415201,Rampartside Path,99,1,2field,412
+"604152,0:1041527030::",altus,Capital Outskirts,Bell Bearing Hunter,63415201,Rampartside Path,112,1,2field,417
+"604152,0:1041527040::",altus,Capital Outskirts,Bell Bearing Hunter,63415201,Rampartside Path,88,1,2field,428
 "604152,0:1041527070::",altus,Altus Plateau,Black Knife Assassin,63405200,Forest-Spanning Greatbridge,61,1,2field,122
-"604152,0:1041527080::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,142,1,2field,10
+"604152,0:1041527080::",altus,Capital Outskirts,Crucible Knight Siluria,63415201,Rampartside Path,142,1,2field,410
 "604152,0:1041527090::",altus,Altus Plateau,Black Knife Assassin,320500,Altus Tunnel,165,0,2field,204
-"604153,0:1041537010::",altus,Capital Outskirts,Tree Sentinel,320500,Altus Tunnel,175,0,2field,334
+"604153,0:1041537010::",altus,Capital Outskirts,Bell Bearing Hunter,320500,Altus Tunnel,175,0,2field,462
 "604153,0:1041537020::",altus,Altus Plateau,Wormface,320500,Altus Tunnel,102,1,2field,198
 "604153,0:1041537030::",altus,Altus Plateau,Wormface,63405200,Forest-Spanning Greatbridge,221,0,2field,110
 "604153,0:1041537040::",altus,Altus Plateau,Wormface,63405200,Forest-Spanning Greatbridge,197,0,2field,36
@@ -2567,18 +3033,18 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "604239,0:1042397500::",stormhill,Stormhill,Bell Bearing Hunter,301100,Deathtouched Catacombs,242,0,2field,283
 "604239,0:1042397700::",stormhill,Stormhill,Bell Bearing Hunter,301100,Deathtouched Catacombs,237,0,2field,279
 "604239,0:1042397900::",stormhill,Stormhill,Deathbird,301100,Deathtouched Catacombs,109,1,2field,136
-"604250,0:1042507000::",outskirts,Capital Outskirts,Fallingstar Beast,63425100,Outer Wall Phantom Tree,161,0,2field,179
-"604250,0:1042507020::",outskirts,Capital Outskirts,Fallingstar Beast,63425100,Outer Wall Phantom Tree,153,1,2field,184
-"604251,0:1042517000::",outskirts,Capital Outskirts,Tree Sentinel,63425100,Outer Wall Phantom Tree,103,1,2field,212
-"604251,0:1042517400::",outskirts,Capital Outskirts,Tree Sentinel,63425100,Outer Wall Phantom Tree,4,1,2field,116
-"604251,0:1042517410::",outskirts,Capital Outskirts,Tree Sentinel,63425100,Outer Wall Phantom Tree,5,1,2field,118
-"604251,0:1042517900::",outskirts,Capital Outskirts,Tree Sentinel,63425100,Outer Wall Phantom Tree,160,1,2field,174
-"604252,0:1042527000::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,167,0,2field,181
-"604252,0:1042527010::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,126,1,2field,150
-"604252,0:1042527020::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,147,1,2field,164
-"604252,0:1042527030::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,193,0,2field,231
+"604250,0:1042507000::",outskirts,Divine Bridge,Fallingstar Beast,63425100,Outer Wall Phantom Tree,161,0,2field,179
+"604250,0:1042507020::",outskirts,Divine Bridge,Fallingstar Beast,63425100,Outer Wall Phantom Tree,153,1,2field,184
+"604251,0:1042517000::",outskirts,Divine Bridge,Tree Sentinel,63425100,Outer Wall Phantom Tree,103,1,2field,212
+"604251,0:1042517400::",outskirts,Divine Bridge,Tree Sentinel,63425100,Outer Wall Phantom Tree,4,1,2field,116
+"604251,0:1042517410::",outskirts,Divine Bridge,Tree Sentinel,63425100,Outer Wall Phantom Tree,5,1,2field,118
+"604251,0:1042517900::",outskirts,Capital Outskirts,Crucible Knight Siluria,63425100,Outer Wall Phantom Tree,160,1,2field,267
+"604252,0:1042527000::",altus,Capital Outskirts,Crucible Knight Siluria,63415201,Rampartside Path,167,0,2field,277
+"604252,0:1042527010::",altus,Capital Outskirts,Crucible Knight Siluria,63415201,Rampartside Path,126,1,2field,317
+"604252,0:1042527020::",altus,Capital Outskirts,Crucible Knight Siluria,63415201,Rampartside Path,147,1,2field,295
+"604252,0:1042527030::",altus,Capital Outskirts,Crucible Knight Siluria,63415201,Rampartside Path,193,0,2field,260
 "604252,0:1042527040::",altus,Capital Outskirts,Bell Bearing Hunter,63435301,Outer Wall Battleground,106,1,2field,181
-"604252,0:1042527990::",altus,Capital Outskirts,Tree Sentinel,63415201,Rampartside Path,190,0,2field,233
+"604252,0:1042527990::",altus,Capital Outskirts,Crucible Knight Siluria,63415201,Rampartside Path,190,0,2field,266
 "604253,0:1042537000::",altus,Capital Outskirts,Bell Bearing Hunter,63415201,Rampartside Path,196,0,2field,293
 "604253,0:1042537010::",altus,Capital Outskirts,Bell Bearing Hunter,63415201,Rampartside Path,239,0,2field,367
 "604254,0:1042547000::",altus,Capital Outskirts,Godskin Apostle,63415400,Windmill Village,174,0,2field,334
@@ -2646,8 +3112,8 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "604339,0:1043397500::",limgrave,Stormhill,Deathbird,301100,Deathtouched Catacombs,57,1,2field,190
 "604340,0:1043407000::",limgrave,Stormhill,Deathbird,301100,Deathtouched Catacombs,121,1,2field,351
 "604340,0:1043407010::",stormhill,Stormhill,Deathbird,311700,Highroad Cave,182,0,2field,463
-"604350,0:1043507000::",outskirts,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",63435000,Minor Erdtree Church,13,1,4capstone,
-"604350,0:1043507010::",outskirts,Subterranean Shunning-Grounds,"[capstone] Mohg, the Omen",341201,Sealed Tunnel,100,1,4capstone,
+"604350,0:1043507000::",outskirts,Divine Bridge,Fallingstar Beast,63435000,Minor Erdtree Church,13,1,2field,398
+"604350,0:1043507010::",outskirts,Divine Bridge,Tree Sentinel,341201,Sealed Tunnel,100,1,2field,463
 "604352,0:1043527000::",outskirts,Capital Outskirts,Crucible Knight Siluria,63435301,Outer Wall Battleground,320,0,2field,92
 "604352,0:1043527030::",outskirts,Capital Outskirts,Crucible Knight Siluria,63435301,Outer Wall Battleground,128,1,2field,106
 "604352,0:1043527400::",altus,Capital Outskirts,Crucible Knight Siluria,63435301,Outer Wall Battleground,228,0,2field,142
@@ -2823,7 +3289,7 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "604740,0:1047407910::",caelid,"Nokron, Eternal City",Dragonkin Soldier,64464001,Rotview Balcony,81,1,2field,196
 "604740,0:1047407920::",caelid,"Nokron, Eternal City",Putrid Avatar,64474000,Caelem Ruins,92,1,2field,150
 "604740,0:1047407990::",caelid,"Nokron, Eternal City",Dragonkin Soldier,64474000,Caelem Ruins,102,1,2field,65
-"604751,0:1047517000::",mountaintops_start,Forbidden Lands,Night's Cavalry,65475100,Forbidden Lands,33,1,2field,213
+"604751,0:1047517000::",mountaintops_start,Deeproot Depths Upper,[capstone] Lichdragon Fortissax,65475100,Forbidden Lands,33,1,4capstone,
 "604751,0:1047517010::",mountaintops_start,Forbidden Lands,Night's Cavalry,65475100,Forbidden Lands,100,1,2field,91
 "604751,0:1047517300::",mountaintops_start,Forbidden Lands,Night's Cavalry,65475100,Forbidden Lands,117,1,2field,66
 "604755,0:1047557000::",snowfield,Consecrated Snowfield,Night's Cavalry (Glaive),321100,Yelough Anix Tunnel,72,1,2field,259
@@ -3147,6 +3613,441 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "605455,0:1054557000::",mountaintops,Mountaintops of the Giants,Roundtable Knight Vyke,65545500,First Church of Marika,45,1,2field,325
 "605455,0:1054557310::",mountaintops,Mountaintops of the Giants,Roundtable Knight Vyke,65545500,First Church of Marika,48,1,2field,273
 "605455,0:1054557800::",mountaintops,Mountaintops of the Giants,Roundtable Knight Vyke,65545500,First Church of Marika,0,1,2field,288
+"614441,0:2044417000::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,214,0,2field,380
+"614441,0:2044417995::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,200,0,2field,386
+"614445,0:2044457000::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444500,"Ancient Ruins, Grand Stairway",69,1,2field,375
+"614445,0:2044457010::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444500,"Ancient Ruins, Grand Stairway",106,1,2field,447
+"614445,0:2044457020::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444500,"Ancient Ruins, Grand Stairway",79,1,2field,423
+"614445,0:2044457900::",rauhruins,Mountaintops of the Giants,Ghostflame Dragon Boss,69444500,"Ancient Ruins, Grand Stairway",102,1,2field,399
+"614445,0:2044457950::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444500,"Ancient Ruins, Grand Stairway",64,1,2field,351
+"614446,0:2044467000::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444500,"Ancient Ruins, Grand Stairway",140,1,2field,343
+"614446,0:2044467010::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",181,0,2field,254
+"614446,0:2044467020::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",192,0,2field,265
+"614446,0:2044467030::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444500,"Ancient Ruins, Grand Stairway",134,1,2field,335
+"614446,0:2044467040::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",63,1,2field,369
+"614446,0:2044467050::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",181,0,2field,317
+"614446,0:2044467060::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",189,0,2field,257
+"614446,0:2044467070::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",194,0,2field,262
+"614446,0:2044467080::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",88,1,2field,338
+"614446,0:2044467110::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444600,"Church of the Bud, Main Entrance",77,1,2field,427
+"614446,0:2044467950::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69444600,"Church of the Bud, Main Entrance",205,0,2field,250
+"614447,0:2044477000::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,350,0,2field,256
+"614448,0:2044477010::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,301,0,2field,50
+"614448,0:2044477020::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,309,0,2field,109
+"614448,0:2044477030::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,303,0,2field,106
+"614448,0:2044477040::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,314,0,2field,109
+"614447,0:2044477050::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,279,0,2field,204
+"614447,0:2044477900::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,284,0,2field,88
+"614541,0:2045417000::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,141,1,2field,268
+"614541,0:2045417010::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,173,0,2field,254
+"614541,0:2045417020::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,209,0,2field,274
+"614541,0:2045417030::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,169,0,2field,306
+"614541,0:2045417040::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,198,0,2field,187
+"614541,0:2045417050::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,195,0,2field,192
+"614541,0:2045417700::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,140,1,2field,284
+"614541,0:2045417710::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,184,0,2field,307
+"614541,0:2045417800::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,233,0,2field,290
+"614541,0:2045417900::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,199,0,2field,180
+"614541,0:2045417950::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61454100,Cliffroad Terminus,202,0,2field,274
+"614542,0:2045427000::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61454200,Main Gate Cross,184,0,2field,457
+"614542,0:2045427700::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61454200,Main Gate Cross,3,1,2field,375
+"614543,0:2045437000::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",253,0,2field,154
+"614543,0:2045437700::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",190,0,2field,210
+"614544,0:2045447000::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",209,0,2field,142
+"614544,0:2045447010::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",136,1,2field,19
+"614544,0:2045447020::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",318,0,2field,165
+"614545,0:2045457000::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444500,"Ancient Ruins, Grand Stairway",86,1,2field,355
+"614545,0:2045457010::",rauhbase,Mountaintops of the Giants,Ghostflame Dragon Boss,69454600,Temple Town Ruins,200,0,2field,306
+"614545,0:2045457020::",rauhruins,Mountaintops of the Giants,Ghostflame Dragon Boss,69444500,"Ancient Ruins, Grand Stairway",76,1,2field,350
+"614546,0:2045467000::",rauhruins_high,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444600,"Church of the Bud, Main Entrance",214,0,2field,329
+"614546,0:2045467020::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454501,"Rauh Ancient Ruins, West",57,1,2field,221
+"614546,0:2045467040::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69444600,"Church of the Bud, Main Entrance",253,0,2field,314
+"614546,0:2045467050::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",124,1,2field,82
+"614546,0:2045467060::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,96,1,2field,63
+"614546,0:2045467070::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454700,Ravine North,147,1,2field,252
+"614546,0:2045467080::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,106,1,2field,102
+"614546,0:2045467090::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454700,Ravine North,161,0,2field,202
+"614546,0:2045467900::",rauhruins_high,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",254,0,2field,289
+"614546,0:2045467910::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,84,1,2field,73
+"614546,0:2045467995::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",258,0,2field,298
+"614547,0:2045477010::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69464700,"Rauh Ancient Ruins, East",200,0,2field,347
+"614547,0:2045477020::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",98,1,2field,177
+"614547,0:2045477040::",rauhruins,Mountaintops of the Giants,Rugalea the Great Red Bear,69454700,Ravine North,253,0,2field,272
+"614547,0:2045477050::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",213,0,2field,409
+"614547,0:2045477060::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",49,1,2field,195
+"614547,0:2045477070::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",206,0,2field,400
+"614548,0:2045487000::",rauhbase,Mountaintops of the Giants,Rugalea the Great Red Bear,69464700,"Rauh Ancient Ruins, East",316,0,2field,390
+"614638,0:2046387000::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68463900,Cerulean Coast West,175,0,2field,325
+"614638,0:2046387010::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,141,1,2field,363
+"614638,0:2046387020::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,136,1,2field,361
+"614638,0:2046387030::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,151,1,2field,327
+"614638,0:2046387040::",cerulean,Mountaintops of the Giants,Demi-Human Queen Marigga,68463900,Cerulean Coast West,119,1,2field,439
+"614638,0:2046387050::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,175,0,2field,313
+"614638,0:2046387070::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68463900,Cerulean Coast West,188,0,2field,492
+"614639,0:2046397000::",cerulean,Mountaintops of the Giants,Demi-Human Queen Marigga,68463900,Cerulean Coast West,41,1,2field,300
+"614639,0:2046397020::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,126,1,2field,307
+"614639,0:2046397030::",charo,Mountaintops of the Giants,Demi-Human Queen Marigga,68463900,Cerulean Coast West,167,0,2field,222
+"614639,0:2046397040::",charo,Mountaintops of the Giants,Demi-Human Queen Marigga,68463900,Cerulean Coast West,219,0,2field,272
+"614639,0:2046397050::",cerulean,Mountaintops of the Giants,Demi-Human Queen Marigga,68463900,Cerulean Coast West,70,1,2field,311
+"614640,0:2046407000::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,87,1,2field,89
+"614640,0:2046407001::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,87,1,2field,89
+"614640,0:2046407002::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,87,1,2field,89
+"614640,0:2046407003::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,87,1,2field,89
+"614640,0:2046407004::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,87,1,2field,89
+"614640,0:2046407040::",cerulean,Mountaintops of the Giants,Demi-Human Queen Marigga,68463900,Cerulean Coast West,321,0,2field,24
+"614640,0:2046407050::",charo,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,258,0,2field,90
+"614640,0:2046407060::",charo,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,257,0,2field,121
+"614640,0:2046407700::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61464000,Gravesite Plain,134,1,2field,98
+"614642,0:2046427700::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464200,Three-Path Cross,5,1,2field,393
+"614643,0:2046437000::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,150,1,2field,314
+"614643,0:2046437010::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,138,1,2field,302
+"614643,0:2046437020::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,109,1,2field,279
+"614643,0:2046437700::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",157,1,2field,284
+"614643,0:2046437710::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",154,1,2field,281
+"614644,0:2046447000::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",84,1,2field,174
+"614644,0:2046447010::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",102,1,2field,219
+"614644,0:2046447020::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",128,1,2field,177
+"614644,0:2046447030::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61464400,"Greatbridge, North",159,1,2field,221
+"614644,0:2046447050::",ellac,Mountaintops of the Giants,Black Knight Garrew,61464400,"Greatbridge, North",179,0,2field,218
+"614644,0:2046447060::",ellac,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,173,0,2field,240
+"614644,0:2046447070::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",110,1,2field,231
+"614644,0:2046447700::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",137,1,2field,224
+"614644,0:2046447710::",ellac,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",240,0,2field,193
+"614644,0:2046447900::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",49,1,2field,196
+"614645,0:2046457000::",ellac,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,244,0,2field,244
+"614645,0:2046457020::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,85,1,2field,157
+"614645,0:2046457030::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,175,0,2field,242
+"614645,0:2046457040::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,145,1,2field,210
+"614645,0:2046457050::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,113,1,2field,175
+"614645,0:2046457060::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,132,1,2field,202
+"614645,0:2046457070::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,163,0,2field,209
+"614645,0:2046457720::",rauhbase,Mountaintops of the Giants,Ghostflame Dragon Boss,61464400,"Greatbridge, North",261,0,2field,233
+"614645,0:2046457910::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,48,1,2field,131
+"614645,0:2046457920::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,115,1,2field,46
+"614645,0:2046457950::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,173,0,2field,234
+"614646,0:2046467010::",rauhruins_limited,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",179,0,2field,202
+"614646,0:2046467020::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454600,Temple Town Ruins,252,0,2field,123
+"614646,0:2046467800::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474500,"Scadu Altus, West",280,0,2field,196
+"614647,0:2046477000::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",154,1,2field,328
+"614647,0:2046477010::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",119,1,2field,317
+"614647,0:2046477020::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,135,1,2field,403
+"614647,0:2046477030::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",154,1,2field,336
+"614647,0:2046477060::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",225,0,2field,416
+"614647,0:2046477070::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",141,1,2field,328
+"614647,0:2046477090::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,136,1,2field,343
+"614647,0:2046477100::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,153,1,2field,258
+"614647,0:2046477120::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,147,1,2field,407
+"614647,0:2046477130::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,135,1,2field,399
+"614647,0:2046477140::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",175,0,2field,354
+"614647,0:2046477150::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",81,1,2field,258
+"614647,0:2046477160::",rauhruins_limited,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",41,1,2field,194
+"614747,0:2046477700::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,94,1,2field,360
+"614647,0:2046477720::",rauhruins_limited,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",157,1,2field,273
+"614647,0:2046477750::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",16,1,2field,213
+"614647,0:2046477950::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",138,1,2field,325
+"614647,0:2046477955::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",213,0,2field,408
+"614647,0:2046477960::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",116,1,2field,307
+"614647,0:2046477970::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69454700,Ravine North,199,0,2field,188
+"614648,0:2046487000::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,234,0,2field,445
+"614648,0:2046487010::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,230,0,2field,487
+"614735,0:2047357000::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68473600,The Fissure,113,1,2field,693
+"614736,0:2047367000::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68473600,The Fissure,244,0,2field,512
+"614736,0:2047367010::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68473600,The Fissure,25,1,2field,666
+"614737,0:2047377000::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,260,0,2field,330
+"614738,0:2047387000::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,158,1,2field,291
+"614738,0:2047387010::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483900,Cerulean Coast,166,0,2field,113
+"614739,0:2047397000::",cerulean,Mountaintops of the Giants,Death Rite Bird,68483900,Cerulean Coast,144,1,2field,18
+"614739,0:2047397040::",charo,Mountaintops of the Giants,Death Rite Bird,68483900,Cerulean Coast,235,0,2field,116
+"614739,0:2047397050::",charo,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,225,0,2field,206
+"614739,0:2047397080::",cerulean,Mountaintops of the Giants,Death Rite Bird,68483900,Cerulean Coast,164,0,2field,182
+"614739,0:2047397090::",cerulean,Mountaintops of the Giants,Death Rite Bird,68483900,Cerulean Coast,241,0,2field,139
+"614739,0:2047397995::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,251,0,2field,155
+"614740,0:2047407000::",gravesite,Mountaintops of the Giants,Death Rite Bird,61464000,Gravesite Plain,296,0,2field,219
+"614740,0:2047407010::",gravesite,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,297,0,2field,225
+"614740,0:2047407020::",gravesite,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,291,0,2field,234
+"614740,0:2047407030::",gravesite,Mountaintops of the Giants,Death Rite Bird,61464000,Gravesite Plain,146,1,2field,203
+"614740,0:2047407100::",cerulean,Mountaintops of the Giants,Death Rite Bird,68463900,Cerulean Coast West,320,0,2field,191
+"614741,0:2047407710::",gravesite,Mountaintops of the Giants,Jagged Peak Drake Boss,61474100,Scorched Ruins,199,0,2field,534
+"614740,0:2047407900::",gravesite,Mountaintops of the Giants,Death Rite Bird,61464000,Gravesite Plain,223,0,2field,271
+"614741,0:2047417000::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,57,1,2field,377
+"614741,0:2047417010::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,90,1,2field,334
+"614741,0:2047417020::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,88,1,2field,339
+"614741,0:2047417030::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,79,1,2field,401
+"614741,0:2047417060::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,98,1,2field,490
+"614741,0:2047417100::",ellac,Mountaintops of the Giants,Demi-Human Queen Marigga,68474101,Ellac River Downstream,39,1,2field,502
+"614741,0:2047417110::",ellac,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,121,1,2field,413
+"614741,0:2047417700::",gravesite,Mountaintops of the Giants,Death Rite Bird,61474100,Scorched Ruins,223,0,2field,398
+"614741,0:2047417800::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,48,1,2field,406
+"614741,0:2047417995::",gravesite,Mountaintops of the Giants,Demi-Human Queen Marigga,61474100,Scorched Ruins,93,1,2field,492
+"614742,0:2047427000::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474300,Ellac River Cave,161,0,2field,494
+"614742,0:2047427030::",ellac,Mountaintops of the Giants,Demi-Human Queen Marigga,68474101,Ellac River Downstream,171,0,2field,587
+"614742,0:2047427040::",ellac,Mountaintops of the Giants,Black Knight Edredd,61474300,Ellac River Cave,201,0,2field,550
+"614742,0:2047427700::",gravesite,Mountaintops of the Giants,Black Knight Edredd,61474100,Scorched Ruins,201,0,2field,605
+"614742,0:2047427950::",ellac,Mountaintops of the Giants,Black Knight Edredd,61474300,Ellac River Cave,208,0,2field,549
+"614743,0:2047437000::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,179,0,2field,322
+"614743,0:2047437010::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,132,1,2field,306
+"614743,0:2047437020::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,123,1,2field,296
+"614743,0:2047437030::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,199,0,2field,328
+"614743,0:2047437040::",ellac,Mountaintops of the Giants,Black Knight Garrew,61474300,Ellac River Cave,181,0,2field,353
+"614743,0:2047437700::",ellac,Mountaintops of the Giants,Black Knight Garrew,61474300,Ellac River Cave,33,1,2field,403
+"614744,0:2047447010::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,61,1,2field,125
+"614744,0:2047447020::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,103,1,2field,79
+"614744,0:2047447030::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,83,1,2field,105
+"614744,0:2047447040::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,57,1,2field,63
+"614744,0:2047447050::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,30,1,2field,94
+"614744,0:2047447060::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,45,1,2field,105
+"614744,0:2047447070::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,92,1,2field,138
+"614744,0:2047447080::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484400,Ensis Moongazing Grounds,95,1,2field,193
+"614744,0:2047447090::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,136,1,2field,204
+"614744,0:2047447100::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,134,1,2field,223
+"614744,0:2047447110::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,146,1,2field,225
+"614744,0:2047447120::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484401,Castle-Lord's Chamber,148,1,2field,244
+"614744,0:2047447130::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,11,1,2field,104
+"614744,0:2047447140::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,52,1,2field,123
+"614744,0:2047447150::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,53,1,2field,77
+"614744,0:2047447160::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,131,1,2field,214
+"614744,0:2047447170::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484400,Ensis Moongazing Grounds,109,1,2field,209
+"614744,0:2047447190::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,104,1,2field,123
+"614744,0:2047447200::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,50,1,2field,163
+"614744,0:2047447210::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,41,1,2field,124
+"614744,0:2047447600::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,89,1,2field,121
+"614744,0:2047447610::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,92,1,2field,131
+"614744,0:2047447620::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,28,1,2field,125
+"614744,0:2047447700::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484401,Castle-Lord's Chamber,155,1,2field,233
+"614744,0:2047447710::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,16,1,2field,120
+"614744,0:2047447720::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,8,1,2field,120
+"614744,0:2047447730::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,68,1,2field,109
+"614744,0:2047447750::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,29,1,2field,205
+"614744,0:2047447800::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,97,1,2field,74
+"614744,0:2047447820::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,51,1,2field,147
+"614744,0:2047447830::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,132,1,2field,212
+"614744,0:2047447840::",gravesite,Mountaintops of the Giants,Black Knight Garrew,61474400,Castle Front,75,1,2field,253
+"614745,0:2047457000::",gravesite,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",126,1,2field,59
+"614745,0:2047457010::",gravesite,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",121,1,2field,81
+"614745,0:2047457020::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",120,1,2field,41
+"614745,0:2047457040::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",101,1,2field,34
+"614745,0:2047457070::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",94,1,2field,50
+"614745,0:2047457080::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",78,1,2field,66
+"614744,0:2047457180::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,56,1,2field,58
+"614745,0:2047457800::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",163,0,2field,241
+"614745,0:2047457900::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",74,1,2field,68
+"614745,0:2047457910::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",111,1,2field,21
+"614745,0:2047457920::",ensis_fort,Mountaintops of the Giants,Black Knight Garrew,69474500,"Scadu Altus, West",99,1,2field,2
+"614746,0:2047467000::",scadualtus,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474500,"Scadu Altus, West",240,0,2field,307
+"614746,0:2047467010::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,152,1,2field,375
+"614746,0:2047467030::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,86,1,2field,438
+"614746,0:2047467500::",scadualtus,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474500,"Scadu Altus, West",259,0,2field,303
+"614647,0:2047477000::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69464700,"Rauh Ancient Ruins, East",19,1,2field,215
+"614747,0:2047477010::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,78,1,2field,476
+"614747,0:2047477020::",rauhruins,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69474700,Viaduct Minor Tower,162,0,2field,361
+"614747,0:2047477030::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,233,0,2field,424
+"614747,0:2047477040::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,212,0,2field,558
+"614747,0:2047477050::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,226,0,2field,572
+"614747,0:2047477070::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,223,0,2field,470
+"614747,0:2047477900::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,133,1,2field,432
+"614747,0:2047477950::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,194,0,2field,545
+"614747,0:2047477995::",rauhbase,Mountaintops of the Giants,Divine Beast Dancing Lion and Basilisks,69484700,Ancient Ruins Base,235,0,2field,431
+"614837,0:2048377010::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,130,1,2field,246
+"614837,0:2048377020::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,177,0,2field,285
+"614837,0:2048377030::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,247,0,2field,139
+"614837,0:2048377050::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,11,1,2field,371
+"614838,0:2048387000::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483900,Cerulean Coast,283,0,2field,72
+"614838,0:2048387010::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483700,Cerulean Coast Cross,285,0,2field,139
+"614838,0:2048387030::",charo,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483901,Charo's Hidden Grave,210,0,2field,72
+"614839,0:2048397000::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483900,Cerulean Coast,210,0,2field,10
+"614839,0:2048397010::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483900,Cerulean Coast,213,0,2field,7
+"614839,0:2048397020::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68483900,Cerulean Coast,207,0,2field,17
+"614839,0:2048397030::",charo,Mountaintops of the Giants,Death Rite Bird,68483901,Charo's Hidden Grave,131,1,2field,211
+"614839,0:2048397040::",charo,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,213,0,2field,304
+"614839,0:2048397050::",charo,Mountaintops of the Giants,Death Rite Bird,68483901,Charo's Hidden Grave,67,1,2field,140
+"614840,0:2048407000::",ellac,Mountaintops of the Giants,Jagged Peak Drake Boss,68483901,Charo's Hidden Grave,339,0,2field,290
+"614840,0:2048407010::",charo,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,288,0,2field,199
+"614840,0:2048407020::",ellac,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,144,1,2field,339
+"614841,0:2048417000::",gravesite,Mountaintops of the Giants,Jagged Peak Drake Boss,68474101,Ellac River Downstream,274,0,2field,329
+"614841,0:2048417010::",gravesite,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,166,0,2field,452
+"614841,0:2048417030::",gravesite,Mountaintops of the Giants,Jagged Peak Drake Boss,61474100,Scorched Ruins,360,0,2field,345
+"614841,0:2048417700::",gravesite,Mountaintops of the Giants,Death Rite Bird,68474101,Ellac River Downstream,209,0,2field,390
+"614841,0:2048417800::",gravesite,Mountaintops of the Giants,Jagged Peak Drake Boss,61484200,Pillar Path Waypoint,402,0,2field,346
+"614842,0:2048427000::",gravesite,Mountaintops of the Giants,Black Knight Edredd,61484200,Pillar Path Waypoint,170,0,2field,354
+"614842,0:2048427020::",gravesite,Mountaintops of the Giants,Black Knight Edredd,61484200,Pillar Path Waypoint,87,1,2field,420
+"614842,0:2048427900::",gravesite,Mountaintops of the Giants,Jagged Peak Drake Boss,61484200,Pillar Path Waypoint,234,0,2field,354
+"614843,0:2048437000::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61474300,Ellac River Cave,164,0,2field,341
+"614843,0:2048437010::",gravesite,Mountaintops of the Giants,Black Knight Edredd,61484300,Pillar Path Cross,100,1,2field,275
+"614843,0:2048437020::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61484300,Pillar Path Cross,225,0,2field,286
+"614843,0:2048437030::",gravesite,Mountaintops of the Giants,Ghostflame Dragon Boss,61484300,Pillar Path Cross,133,1,2field,378
+"614843,0:2048437700::",gravesite,Mountaintops of the Giants,Black Knight Edredd,61484300,Pillar Path Cross,8,1,2field,288
+"614844,0:2048447000::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,70,1,2field,180
+"614844,0:2048447010::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,87,1,2field,286
+"614844,0:2048447020::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,94,1,2field,286
+"614844,0:2048447030::",ensis,Mountaintops of the Giants,Black Knight Garrew,61474401,Castle Ensis Checkpoint,64,1,2field,176
+"614844,0:2048447040::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,111,1,2field,250
+"614844,0:2048447050::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484401,Castle-Lord's Chamber,132,1,2field,292
+"614844,0:2048447060::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484401,Castle-Lord's Chamber,140,1,2field,287
+"614844,0:2048447070::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484401,Castle-Lord's Chamber,17,1,2field,293
+"614844,0:2048447080::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,61484401,Castle-Lord's Chamber,85,1,2field,291
+"614844,0:2048447500::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,69484500,Highroad Cross,7,1,2field,256
+"614844,0:2048447800::",ensis,Mountaintops of the Giants,Black Knight Garrew,61484401,Castle-Lord's Chamber,83,1,2field,281
+"614844,0:2048447810::",ensis,Mountaintops of the Giants,Ghostflame Dragon Boss,61484401,Castle-Lord's Chamber,55,1,2field,270
+"614845,0:2048457000::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484500,Highroad Cross,256,0,2field,352
+"614845,0:2048457510::",scadualtus,Mountaintops of the Giants,Black Knight Garrew,69484500,Highroad Cross,6,1,2field,264
+"614845,0:2048457520::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494400,Moorth Ruins,76,1,2field,297
+"614846,0:2048467010::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,201,0,2field,411
+"614846,0:2048467030::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,281,0,2field,228
+"614846,0:2048467040::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,199,0,2field,351
+"614846,0:2048467050::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,197,0,2field,376
+"614846,0:2048467060::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,183,0,2field,346
+"614846,0:2048467090::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,249,0,2field,300
+"614846,0:2048467500::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,183,0,2field,371
+"614846,0:2048467510::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69484700,Ancient Ruins Base,278,0,2field,339
+"614937,0:2049377000::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68503800,Finger Ruins of Rhia,310,0,2field,386
+"614938,0:2049387000::",jaggedpeak_foot,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,112,1,2field,378
+"614938,0:2049387010::",jaggedpeak_foot,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,199,0,2field,326
+"614938,0:2049387020::",jaggedpeak_foot,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,132,1,2field,470
+"614938,0:2049387030::",jaggedpeak_foot,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68493900,Grand Altar of Dragon Communion,116,1,2field,356
+"614938,0:2049387060::",cerulean,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68503800,Finger Ruins of Rhia,185,0,2field,445
+"614939,0:2049397000::",jaggedpeak_foot,Mountaintops of the Giants,Jagged Peak Drake Boss,68493900,Grand Altar of Dragon Communion,205,0,2field,296
+"614942,0:2049427000::",gravesite,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,199,0,2field,104
+"614942,0:2049427010::",abyssal,Mountaintops of the Giants,Black Knight Edredd,68484300,Divided Falls,212,0,2field,122
+"614943,0:2049437000::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494300,"Moorth Highway, South",112,1,2field,5
+"614943,0:2049437200::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494300,"Moorth Highway, South",95,1,2field,170
+"614943,0:2049437210::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,29,1,2field,78
+"614943,0:2049437220::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,34,1,2field,21
+"614943,0:2049437230::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,49,1,2field,37
+"614943,0:2049437240::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,44,1,2field,49
+"614943,0:2049437250::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,49,1,2field,54
+"614943,0:2049437260::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,45,1,2field,52
+"614943,0:2049437270::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,11,1,2field,18
+"614943,0:2049437280::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,21,1,2field,12
+"614943,0:2049437290::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,19,1,2field,37
+"614943,0:2049437300::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,27,1,2field,5
+"614943,0:2049437310::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,29,1,2field,40
+"614943,0:2049437320::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,29,1,2field,63
+"614943,0:2049437330::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,47,1,2field,55
+"614943,0:2049437340::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,35,1,2field,54
+"614943,0:2049437350::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,17,1,2field,42
+"614943,0:2049437360::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,43,1,2field,56
+"614943,0:2049437370::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,22,1,2field,55
+"614943,0:2049437380::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,31,1,2field,24
+"614943,0:2049437500::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,31,1,2field,8
+"614943,0:2049437520::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,41,1,2field,42
+"614943,0:2049437600::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,28,1,2field,2
+"614943,0:2049437620::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,28,1,2field,39
+"614943,0:2049437900::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,63,1,2field,68
+"614943,0:2049437910::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,46,1,2field,42
+"614943,0:2049437920::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,25,1,2field,53
+"614943,0:2049437930::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,36,1,2field,21
+"614943,0:2049437940::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494301,Fort of Reprimand,42,1,2field,40
+"614944,0:2049440990::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,65,1,2field,181
+"614944,0:2049447020::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,95,1,2field,198
+"614944,0:2049447030::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,100,1,2field,251
+"614944,0:2049447040::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494400,Moorth Ruins,112,1,2field,242
+"614944,0:2049447050::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,90,1,2field,249
+"614944,0:2049447060::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494401,Bonny Village,117,1,2field,261
+"614944,0:2049447070::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494300,"Moorth Highway, South",186,0,2field,107
+"614944,0:2049447090::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,89,1,2field,201
+"614944,0:2049447500::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,78,1,2field,252
+"614944,0:2049447530::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494400,Moorth Ruins,7,1,2field,263
+"614944,0:2049447900::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,72,1,2field,206
+"614945,0:2049457000::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,169,0,2field,25
+"614945,0:2049457010::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,169,0,2field,37
+"614945,0:2049457050::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494400,Moorth Ruins,149,1,2field,156
+"614945,0:2049457200::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,256,0,2field,95
+"614945,0:2049457500::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,207,0,2field,65
+"614945,0:2049457510::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,188,0,2field,82
+"614946,0:2049467010::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,152,1,2field,250
+"614946,0:2049467510::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,223,0,2field,314
+"614946,0:2049467520::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,65,1,2field,232
+"614946,0:2049467530::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,109,1,2field,188
+"614946,0:2049467540::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,99,1,2field,206
+"614946,0:2049467550::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,125,1,2field,189
+"614946,0:2049467560::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,157,1,2field,156
+"614946,0:2049467570::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,253,0,2field,325
+"614946,0:2049467580::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,235,0,2field,306
+"614946,0:2049467590::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,81,1,2field,221
+"614946,0:2049467600::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,68,1,2field,228
+"614946,0:2049467900::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,309,0,2field,204
+"614947,0:2049477000::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,246,0,2field,340
+"614947,0:2049477500::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,24,1,2field,272
+"614947,0:2049477510::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,23,1,2field,292
+"614948,0:2049487000::",scaduview,Mountaintops of the Giants,Ralva the Great Red Bear,69494801,"Shadow Keep, Back Gate",31,1,2field,586
+"614949,0:2049490900::",scaduview,Mountaintops of the Giants,[capstone] Fire Giant,69494800,Scaduview,168,0,4capstone,845
+"614949,0:2049497500::",scaduview,Mountaintops of the Giants,[capstone] Fire Giant,69494800,Scaduview,305,0,4capstone,826
+"614949,0:2049497510::",scaduview,Mountaintops of the Giants,[capstone] Fire Giant,69494800,Scaduview,170,0,4capstone,834
+"614949,0:2049497520::",scaduview,Mountaintops of the Giants,[capstone] Fire Giant,69494800,Scaduview,309,0,4capstone,824
+"614949,0:2049497530::",scaduview,Mountaintops of the Giants,[capstone] Fire Giant,69494800,Scaduview,312,0,4capstone,826
+"614949,0:2049497540::",scaduview,Mountaintops of the Giants,[capstone] Fire Giant,69494800,Scaduview,309,0,4capstone,827
+"614949,0:2049497550::",scaduview,Mountaintops of the Giants,[capstone] Fire Giant,69494800,Scaduview,305,0,4capstone,824
+"615038,0:2050387000::",cerulean_rhia,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68503800,Finger Ruins of Rhia,183,0,2field,630
+"615038,0:2050387010::",cerulean_rhia,Mountaintops of the Giants,Ghostflame Dragon and Skeletons,68503800,Finger Ruins of Rhia,69,1,2field,534
+"615041,0:2050417010::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68504200,Abyssal Woods,233,0,2field,264
+"615043,0:2050437000::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,197,0,2field,204
+"615043,0:2050437010::",abyssal,Mountaintops of the Giants,Black Knight Edredd,68504200,Abyssal Woods,177,0,2field,209
+"615043,0:2050437040::",abyssal,Mountaintops of the Giants,Black Knight Edredd,68504200,Abyssal Woods,196,0,2field,237
+"615043,0:2050437220::",scadualtus,Mountaintops of the Giants,Black Knight Edredd,69494302,Behind the Fort of Reprimand,73,1,2field,81
+"615043,0:2050437500::",scadualtus_high,Mountaintops of the Giants,Black Knight Edredd,69504300,Scaduview Cross,7,1,2field,163
+"615043,0:2050437720::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,175,0,2field,170
+"615044,0:2050447000::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,46,1,2field,374
+"615044,0:2050447010::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,115,1,2field,276
+"615044,0:2050447020::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,95,1,2field,260
+"615044,0:2050447030::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,99,1,2field,264
+"615044,0:2050447040::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,131,1,2field,264
+"615044,0:2050447050::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,66,1,2field,242
+"615044,0:2050447060::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,95,1,2field,259
+"615044,0:2050447070::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,55,1,2field,389
+"615044,0:2050447090::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,56,1,2field,201
+"615044,0:2050447100::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,57,1,2field,228
+"615044,0:2050447120::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504400,Recluses' River Downstream,87,1,2field,377
+"615044,0:2050447140::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,148,1,2field,270
+"615044,0:2050447500::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69494401,Bonny Village,90,1,2field,272
+"615044,0:2050447710::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,143,1,2field,264
+"615044,0:2050447720::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504400,Recluses' River Downstream,107,1,2field,337
+"615044,0:2050447730::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,50,1,2field,375
+"615045,0:2050457000::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,173,0,2field,242
+"615045,0:2050457020::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504400,Recluses' River Downstream,115,1,2field,353
+"615045,0:2050457060::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,159,1,2field,201
+"615045,0:2050457080::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,87,1,2field,88
+"615045,0:2050457730::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,71,1,2field,100
+"615046,0:2050467000::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,128,1,2field,304
+"615046,0:2050467020::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,155,1,2field,334
+"615046,0:2050467030::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,203,0,2field,250
+"615046,0:2050467040::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,250,0,2field,310
+"615046,0:2050467700::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69504500,Recluses' River Upstream,178,0,2field,251
+"615046,0:2050467710::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,174,0,2field,235
+"615046,0:2050467720::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,180,0,2field,211
+"615046,0:2050467730::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,137,1,2field,298
+"615046,0:2050467800::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514700,Church District Highroad,154,1,2field,390
+"615046,0:2050467910::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69494700,Castle Watering Hole,224,0,2field,306
+"615047,0:2050477010::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514700,Church District Highroad,241,0,2field,449
+"615047,0:2050477020::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514700,Church District Highroad,203,0,2field,532
+"615141,0:2051417000::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,287,0,2field,298
+"615142,0:2051427000::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68514200,Woodland Trail,149,1,2field,490
+"615144,0:2051447000::",scadualtus,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,120,1,2field,420
+"615144,0:2051447010::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,76,1,2field,430
+"615144,0:2051447020::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69514400,Bridge Leading to the Village,197,0,2field,526
+"615144,0:2051447030::",scadualtus_recluse,Mountaintops of the Giants,Ralva the Great Red Bear,69514400,Bridge Leading to the Village,92,1,2field,451
+"615144,0:2051447040::",scadualtus_recluse,Mountaintops of the Giants,Ghostflame Dragon Boss,69504400,Recluses' River Downstream,125,1,2field,451
+"615145,0:2051457000::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,78,1,2field,383
+"615145,0:2051457530::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514500,Cathedral of Manus Metyr,146,1,2field,478
+"615146,0:2051467020::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514700,Church District Highroad,110,1,2field,526
+"615146,0:2051467500::",scadualtus,Mountaintops of the Giants,Ralva the Great Red Bear,69514700,Church District Highroad,212,0,2field,493
+"615146,0:2051467900::",scadualtus,Mountaintops of the Giants,Regular Fallingstar Beast,69514700,Church District Highroad,102,1,2field,525
+"615147,0:2051477010::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514801,Hinterland Bridge,119,1,2field,381
+"615147,0:2051477020::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514801,Hinterland Bridge,115,1,2field,381
+"615147,0:2051477030::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514801,Hinterland Bridge,119,1,2field,378
+"615147,0:2051477500::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514801,Hinterland Bridge,161,0,2field,462
+"615147,0:2051477510::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514700,Church District Highroad,227,0,2field,501
+"615240,0:2052407010::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,163,0,2field,194
+"615241,0:2052417000::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,62,1,2field,323
+"615241,0:2052417010::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,253,0,2field,206
+"615439,0:2053397000::",jaggedpeak,Mountaintops of the Giants,Ancient Dragon Senessax,68543900,Jagged Peak Summit,116,1,2field,104
+"615339,0:2053397010::",jaggedpeak,Mountaintops of the Giants,Ancient Dragon Senessax,68533900,Jagged Peak Mountainside,240,0,2field,144
+"615339,0:2053397020::",jaggedpeak,Mountaintops of the Giants,Ancient Dragon Senessax,68533900,Jagged Peak Mountainside,433,0,2field,161
+"615340,0:2053407000::",jaggedpeak,Mountaintops of the Giants,Jagged Peak Drake Boss,68533900,Jagged Peak Mountainside,388,0,2field,269
+"615341,0:2053417000::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,24,1,2field,378
+"615341,0:2053417020::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,70,1,2field,401
+"615341,0:2053417500::",abyssal,Mountaintops of the Giants,Jagged Peak Drake Boss,68534100,Church Ruins,16,1,2field,361
+"615348,0:2053487000::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514800,Fingerstone Hill,330,0,2field,295
+"615348,0:2053487010::",hinterland,Mountaintops of the Giants,Regular Fallingstar Beast,69514800,Fingerstone Hill,369,0,2field,322
 "160000,3:0000000000:100100,1038419271:",volcano,,"Rykard, Lord of Blasphemy",111000,Table of Lost Grace,24,1,1legacy,
 "160000,3:0000000000:100100:",limgrave_murkwatercave,,"Margit, the Fell Omen",111000,Table of Lost Grace,24,1,1mini,
 "603643,3:0000000000:100150,1036439209:",liurnia,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
@@ -3200,4 +4101,4 @@ check_key,area,region,attributed_boss,nearest_grace_flag,nearest_grace_name,grac
 "111000,3:0000000000:101800,11109799:",roundtable,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "614542,3:0000000000:102250,102270,2045429331:",gravesite,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
 "614542,3:0000000000:102250:",gravesite,Gravesite Plain,[capstone] Messmer,111000,Table of Lost Grace,24,1,4capstone,
-"111000,3:0000000000:9130,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,8592
+"111000,3:0000000000:9130,101500:",roundtable,Roundtable Hold,[capstone] Roundtable Hold,111000,Table of Lost Grace,52,1,4capstone,6407763

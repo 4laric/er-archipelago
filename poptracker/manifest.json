@@ -2,7 +2,7 @@
   "name": "Elden Ring Archipelago",
   "game_name": "EldenRing",
   "package_uid": "elden-ring-archipelago",
-  "package_version": "0.1.0-beta.3",
+  "package_version": "0.1.0-beta.4",
   "platform_target": "any",
   "author": "ER-AP",
   "min_poptracker_version": "0.26.2",
@@ -13,6 +13,10 @@
     },
     "map": {
       "display_name": "Map (Lands Between)",
+      "flags": ["ap"]
+    },
+    "dlc_only": {
+      "display_name": "DLC only (Land of Shadow)",
       "flags": ["ap"]
     }
   }

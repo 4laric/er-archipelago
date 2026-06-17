@@ -322,9 +322,15 @@ if ($Deploy) {
     # load.txt: mods\RandomizerCrashFix\load.txt = 0. Anti-CTD guard for cross-content enemy
     # placements (Raya Lucaria etc., TODO #10). Use -NoCrashFix to deploy WITHOUT it and A/B.
     $cfOrderDir = Join-Path $ModsDir "RandomizerCrashFix"   # EML load-order folder (name = dll basename)
-    if (-not $NoCrashFix) {
+    $cfDll      = Join-Path $ModsDir "RandomizerCrashFix.dll"
+    # The crash fix ONLY guards cross-content enemy placements, so it has no business in an
+    # item-only deploy (it just hooks EneDatMan for nothing, and muddies the RLA A/B). Detect an
+    # enemy bake by its "map" output -- item-only bakes never produce one (see deploy loop above) --
+    # and fall back to the -Enemies switch for a bake+deploy in the same run.
+    $enemyBake = (Test-Path (Join-Path $RandoDir "map")) -or $Enemies
+    if ($enemyBake -and -not $NoCrashFix) {
         if ($CrashFixDll -and (Test-Path $CrashFixDll)) {
-            Copy-Item $CrashFixDll (Join-Path $ModsDir "RandomizerCrashFix.dll") -Force
+            Copy-Item $CrashFixDll $cfDll -Force
             # Force instant (pre-EneDatMan) load: order 0 ignores EML's load delay.
             if (-not (Test-Path $cfOrderDir)) { New-Item -ItemType Directory -Path $cfOrderDir | Out-Null }
             Set-Content -Path (Join-Path $cfOrderDir "load.txt") -Value "0" -NoNewline -Encoding ascii
@@ -333,9 +339,13 @@ if ($Deploy) {
             Write-Warning "RandomizerCrashFix.dll not found under $Repo -- enemy CTDs (RLA) may persist; see TODO #10"
         }
     } else {
-        # Active opt-out: remove any previously-deployed copy + its load-order folder so the A/B is clean.
-        $cf = Join-Path $ModsDir "RandomizerCrashFix.dll"
-        if (Test-Path $cf) { Remove-Item $cf -Force; Write-Host "  (removed RandomizerCrashFix.dll: -NoCrashFix)" }
+        # Not an enemy bake (item-only) or active opt-out (-NoCrashFix): purge any stale copy + its
+        # load-order folder so an item-only seed never inherits the enemy crash fix, and the A/B stays clean.
+        if (Test-Path $cfDll) {
+            Remove-Item $cfDll -Force
+            $cfWhy = if ($NoCrashFix) { "-NoCrashFix" } else { "item-only bake, not needed" }
+            Write-Host "  (removed stale RandomizerCrashFix.dll: $cfWhy)"
+        }
         if (Test-Path $cfOrderDir) { Remove-Item $cfOrderDir -Recurse -Force }
     }
 

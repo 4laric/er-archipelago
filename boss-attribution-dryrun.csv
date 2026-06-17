@@ -1,74 +1,89 @@
 tier,boss_class,boss,region,checks
+Tier4-capstone,capstone,"Fire Giant","",316
 Tier1-dungeon,Boss,"Morgott, the Omen King","",143
 Tier1-dungeon,Boss,"Godrick the Grafted","",122
-Tier4-capstone,capstone,"Mohg, the Omen","",106
 Tier1-dungeon,Boss,"Malenia, Blade of Miquella","",104
 Tier4-capstone,capstone,"Messmer","",98
 Tier1-dungeon,Boss,"Maliketh, the Black Blade","",95
+Tier2-field,Evergaol,"Onyx Lord","Ruin-Strewn Precipice",89
 Tier1-dungeon,Boss,"Rykard, Lord of Blasphemy","",88
 Tier1-dungeon,Boss,"Rennala 2","",86
+Tier4-capstone,capstone,"Mohg, the Omen","",83
 Tier2-field,Miniboss,"Dragonkin Soldier","Nokron, Eternal City",81
 Tier2-field,NightMiniboss,"Night's Cavalry","Ainsel River Main",77
-Tier2-field,DragonMiniboss,"Glintstone Dragon Adula","Ruin-Strewn Precipice",66
+Tier2-field,Miniboss,"Divine Beast Dancing Lion and Basilisks","Mountaintops of the Giants",76
+Tier2-field,Miniboss,"Black Knight Garrew","Mountaintops of the Giants",69
+Tier2-field,Miniboss,"Ralva the Great Red Bear","Mountaintops of the Giants",67
 Tier2-field,Miniboss,"Tibia Mariner","Nokron, Eternal City Start",65
 Tier2-field,Miniboss,"Wormface","Altus Plateau",65
 Tier2-field,NightMiniboss,"Bell Bearing Hunter","Ainsel River",60
 Tier2-field,DragonMiniboss,"Decaying Ekzykes","Siofra River",59
+Tier4-capstone,capstone,"Lichdragon Fortissax","",51
 Tier1-dungeon,Boss,"Mohg, Lord of Blood","",50
 Tier2-field,Evergaol,"Bols, Carian Knight","Liurnia of The Lakes",48
+Tier2-field,DragonMiniboss,"Ghostflame Dragon Boss","Mountaintops of the Giants",48
 Tier2-field,NightMiniboss,"Night's Cavalry","Limgrave",48
-Tier4-capstone,capstone,"Fire Giant","",48
+Tier2-field,Miniboss,"Black Knight Edredd","Mountaintops of the Giants",48
 Tier2-field,NightMiniboss,"Bell Bearing Hunter","Great-Jar",47
 Tier2-field,Miniboss,"Tibia Mariner","Ainsel River",43
-Tier4-capstone,capstone,"Lichdragon Fortissax","",41
+Tier2-field,Miniboss,"Demi-Human Queen Marigga","Mountaintops of the Giants",41
 Tier2-field,NightMiniboss,"Night's Cavalry (Glaive)","Consecrated Snowfield",40
 Tier2-field,DragonMiniboss,"Ancient Dragon Lansseax","Ruin-Strewn Precipice",38
 Tier2-field,DragonMiniboss,"Glintstone Dragon Smarag","Lake of Rot",37
 Tier2-field,Miniboss,"Black Knife Assassin","Altus Plateau",35
+Tier2-field,DragonMiniboss,"Ghostflame Dragon and Skeletons","Mountaintops of the Giants",35
 Tier4-capstone,capstone,"Roundtable Hold","",34
 Tier2-field,NightMiniboss,"Death Rite Bird","Mohgwyn Palace",33
 Tier2-field,Miniboss,"Ulcerated Tree Spirit","Mt. Gelmir",32
 Tier2-field,NightMiniboss,"Death Rite Bird","Consecrated Snowfield",32
+Tier2-field,Miniboss,"Crucible Knight Siluria","Capital Outskirts",31
 Tier2-field,Miniboss,"Erdtree Avatar","Mountaintops of the Giants",29
 Tier2-field,Miniboss,"Putrid Avatar","Nokron, Eternal City",29
+Tier2-field,Miniboss,"Death Rite Bird","Mountaintops of the Giants",29
 Tier2-field,NightMiniboss,"Bell Bearing Hunter","Stormhill",28
 Tier2-field,Miniboss,"Erdtree Avatar","Bellum Highway",28
 Tier2-field,NightMiniboss,"Deathbird","Weeping Peninsula",28
 Tier2-field,Miniboss,"Death Rite Bird","Mountaintops of the Giants",28
+Tier2-field,DragonMiniboss,"Ghostflame Dragon Boss","Mountaintops of the Giants",27
 Tier2-field,NightMiniboss,"Night's Cavalry","Liurnia of The Lakes",26
 Tier2-field,Evergaol,"Ancient Hero of Zamor","Church of Dragon Communion",26
 Tier2-field,Evergaol,"Crucible Knight","Stormhill",25
 Tier4-capstone,capstone,"Redmane Castle Post Radahn","",25
 Tier2-field,Miniboss,"Erdtree Avatar","Weeping Peninsula",24
-Tier2-field,Evergaol,"Onyx Lord","Ruin-Strewn Precipice",23
 Tier2-field,Miniboss,"Magma Wyrm","Mt. Gelmir",23
 Tier2-field,Miniboss,"Omenkiller","Moonlight Altar",23
 Tier2-field,Miniboss,"Commander O'Neil","Caelid",21
-Tier2-field,Miniboss,"Crucible Knight Siluria","Capital Outskirts",21
+Tier2-field,Miniboss,"Rugalea the Great Red Bear","Mountaintops of the Giants",21
+Tier2-field,NightMiniboss,"Bell Bearing Hunter","Capital Outskirts",20
 Tier2-field,NightMiniboss,"Deathbird","Stormhill",19
 Tier2-field,Miniboss,"Full-Grown Fallingstar Beast","Mt. Gelmir",19
+Tier1-dungeon,MinorBoss,"Demi-Human Swordmaster Onze","",19
+Tier2-field,Miniboss,"Tree Sentinel","Divine Bridge",18
 Tier2-field,Miniboss,"Demi-Human Queen Maggie","Mt. Gelmir",18
+Tier1-dungeon,MinorBoss,"Curseblade Labirith","",18
 Tier2-field,DragonMiniboss,"Glintstone Dragon Adula","Moonlight Altar",18
 Tier1-dungeon,MinorBoss,"Frenzied Duelist","",18
 Tier2-field,Miniboss,"Tibia Mariner","Altus Plateau",18
 Tier2-field,NightMiniboss,"Night's Cavalry","Weeping Peninsula",17
 Tier2-field,NightMiniboss,"Night's Cavalry","Caelid",17
 Tier2-field,Miniboss,"Dragonkin Soldier","Lake of Rot",17
+Tier1-dungeon,MinorBoss,"Longhaft Death Knight","",17
 Tier2-field,Evergaol,"Roundtable Knight Vyke","Mountaintops of the Giants",17
 Tier2-field,Miniboss,"Black Blade Kindred","Dragonbarrow",16
 Tier2-field,Evergaol,"Adan, Thief of Fire","Moonlight Altar",16
 Tier2-field,Miniboss,"Putrid Avatar","Consecrated Snowfield",16
 Tier1-dungeon,MinorBoss,"Black Knife Assassin","",16
 Tier1-dungeon,MinorBoss,"Grave Warden Duelist","",15
+Tier1-dungeon,MinorBoss,"Twin Axe Death Knight","",15
 Tier1-dungeon,MinorBoss,"Putrid Crystalian (Spear)","",15
 Tier1-dungeon,MinorBoss,"Onyx Lord","",15
 Tier2-field,Miniboss,"Draconic Tree Sentinel","Deeproot Depths Boss",14
 Tier2-field,Evergaol,"Bloodhound Knight Darriwil","Weeping Peninsula",14
-Tier2-field,NightMiniboss,"Bell Bearing Hunter","Capital Outskirts",14
+Tier1-dungeon,MinorBoss,"Lamenter","",14
 Tier1-dungeon,MinorBoss,"Misbegotten Crusader","",14
 Tier2-field,DragonMiniboss,"Flying Dragon Agheel","Limgrave",14
 Tier2-field,Miniboss,"Godskin Apostle","Capital Outskirts",14
-Tier2-field,Miniboss,"Tree Sentinel","Capital Outskirts",14
+Tier2-field,DragonMiniboss,"Jagged Peak Drake Boss","Mountaintops of the Giants",13
 Tier2-field,NightMiniboss,"Deathbird","Moonlight Altar",13
 Tier1-dungeon,MinorBoss,"Ulcerated Tree Spirit","",13
 Tier1-dungeon,Boss,"Hoarah Loux, Warrior","",12
@@ -77,6 +92,8 @@ Tier2-field,Miniboss,"Putrid Avatar","Dragonbarrow",12
 Tier2-field,Miniboss,"Great Wyrm Theodorix","Mountaintops of the Giants",12
 Tier1-dungeon,MinorBoss,"Fallingstar Beast","",12
 Tier4-capstone,capstone,"Godrick the Grafted","",12
+Tier4-capstone,capstone,"[no boss] scadualtus_catacombs","",12
+Tier2-field,DragonMiniboss,"Jagged Peak Drake Boss","Mountaintops of the Giants",11
 Tier1-dungeon,MinorBoss,"Red Wolf of the Champion","",11
 Tier2-field,NightMiniboss,"Night's Cavalry","Ruin-Strewn Precipice",11
 Tier1-dungeon,MinorBoss,"Erdtree Burial Watchdog","",10
@@ -85,6 +102,7 @@ Tier1-dungeon,MinorBoss,"Crucible Knight Ordovis","",10
 Tier1-dungeon,MinorBoss,"Stray Mimic Tear","",10
 Tier1-dungeon,MinorBoss,"Bloodhound Knight","",10
 Tier1-dungeon,MinorBoss,"Spiritcaller Snail","",10
+Tier2-field,Miniboss,"Regular Fallingstar Beast","Mountaintops of the Giants",10
 Tier1-dungeon,MinorBoss,"Fell Twin","",9
 Tier1-dungeon,MinorBoss,"Miranda the Blighted Bloom","",9
 Tier1-dungeon,MinorBoss,"Guardian Golem","",9
@@ -92,11 +110,13 @@ Tier1-dungeon,MinorBoss,"Cleanrot Knight","",9
 Tier1-dungeon,MinorBoss,"Kindred of Rot","",9
 Tier1-dungeon,MinorBoss,"Crystalian","",9
 Tier2-field,Evergaol,"Battlemage Hugues","Caelid",9
-Tier2-field,Miniboss,"Tree Sentinel","Capital Outskirts",8
+Tier4-capstone,capstone,"[no boss] gravesite_forge","",9
+Tier4-capstone,capstone,"[no boss] rauhbase_forge","",9
 Tier1-dungeon,MinorBoss,"Scaly Misbegotten","",8
 Tier1-dungeon,MinorBoss,"Astel, Stars of Darkness","",8
 Tier2-field,Miniboss,"Black Blade Kindred","Forbidden Lands",8
 Tier4-capstone,capstone,"Regal Ancestor Spirit","",8
+Tier4-capstone,capstone,"[no boss] scadualtus_forge","",8
 Tier1-dungeon,Boss,"Margit, the Fell Omen","",7
 Tier2-field,Miniboss,"Erdtree Avatar","Moonlight Altar",7
 Tier2-field,NightMiniboss,"Night's Cavalry","Dragonbarrow",7
@@ -106,6 +126,8 @@ Tier1-dungeon,MinorBoss,"Stonedigger Troll","",7
 Tier1-dungeon,MinorBoss,"Crystalian (Ringblade)","",7
 Tier1-dungeon,MinorBoss,"Magma Wyrm","",7
 Tier2-field,NightMiniboss,"Deathbird","Capital Outskirts",7
+Tier2-field,Miniboss,"Fallingstar Beast","Divine Bridge",6
+Tier2-field,DragonMiniboss,"Ancient Dragon Senessax","Mountaintops of the Giants",6
 Tier1-dungeon,MinorBoss,"Cemetery Shade","",6
 Tier1-dungeon,MinorBoss,"Spiritcaller Snail","",6
 Tier1-dungeon,MinorBoss,"Erdtree Burial Watchdog (Sword)","",6
@@ -117,23 +139,24 @@ Tier1-dungeon,MinorBoss,"Demi-Human Queen Margot","",6
 Tier1-dungeon,MinorBoss,"Beastman of Farum Azula (Cleaver)","",6
 Tier1-dungeon,MinorBoss,"Stonedigger Troll","",6
 Tier2-field,Evergaol,"Alecto, Black Knife Ringleader","Moonlight Altar",6
+Tier1-dungeon,MinorBoss,"Chief Bloodfiend Boss","",6
 Tier4-capstone,capstone,"Starscourge Radahn","",6
 Tier2-field,Miniboss,"Tree Sentinel","Limgrave",5
 Tier1-dungeon,MinorBoss,"Cemetery Shade","",5
 Tier1-dungeon,MinorBoss,"Erdtree Burial Watchdog","",5
 Tier1-dungeon,MinorBoss,"Erdtree Burial Watchdog","",5
 Tier1-dungeon,MinorBoss,"Cleanrot Knight (Spear)","",5
+Tier1-dungeon,MinorBoss,"Ancient Dragon-Man","",5
 Tier1-dungeon,MinorBoss,"Demi-Human Chief","",4
 Tier1-dungeon,MinorBoss,"Beastman of Farum Azula","",4
-Tier2-field,Miniboss,"Fallingstar Beast","Capital Outskirts",4
 Tier1-dungeon,MinorBoss,"Black Knife Assassin","",4
 Tier1-dungeon,MinorBoss,"Misbegotten Warrior","",4
 Tier2-field,DragonMiniboss,"Borealis the Freezing Fog","Mountaintops of the Giants",4
-Tier2-field,NightMiniboss,"Night's Cavalry","Forbidden Lands",4
 Tier1-dungeon,MinorBoss,"Erdtree Burial Watchdog","",3
 Tier1-dungeon,Boss,"Mohg, the Omen","",3
 Tier2-field,DragonMiniboss,"Flying Dragon Greyll","Dragonbarrow",3
 Tier2-field,NightMiniboss,"Death Rite Bird","Lake of Rot",3
+Tier2-field,NightMiniboss,"Night's Cavalry","Forbidden Lands",3
 Tier1-dungeon,MinorBoss,"Grave Warden Duelist","",2
 Tier1-dungeon,MinorBoss,"Cemetery Shade","",2
 Tier2-field,Evergaol,"Godefroy the Grafted","Bellum Highway",1

@@ -14765,9 +14765,9 @@
     ],
     "map_locations": [
       {
-        "map": "lands_between",
-        "x": 321,
-        "y": 1201
+        "map": "land_of_shadow",
+        "x": 311,
+        "y": 687
       }
     ]
   },
@@ -15345,6 +15345,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 372,
+        "y": 515
+      }
     ]
   },
   {
@@ -15390,6 +15397,13 @@
             "name": "CE-(FRF): Smithing Stone [7] x8 - in chest by boss"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 331,
+        "y": 471
       }
     ]
   },
@@ -15467,6 +15481,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 538,
+        "y": 940
+      }
     ]
   },
   {
@@ -15527,6 +15548,13 @@
             "name": "JP-JPM: Igon's Cookbook [2] - to NE"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 874,
+        "y": 882
       }
     ]
   },
@@ -15600,6 +15628,13 @@
             "name": "CHG-CHG: Grave Keeper's Cookbook [2] - to SE at end of river"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 373,
+        "y": 924
       }
     ]
   },
@@ -16205,9 +16240,9 @@
     ],
     "map_locations": [
       {
-        "map": "lands_between",
-        "x": 321,
-        "y": 1201
+        "map": "land_of_shadow",
+        "x": 527,
+        "y": 502
       }
     ]
   },
@@ -16380,6 +16415,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 280,
+        "y": 303
+      }
     ]
   },
   {
@@ -16404,6 +16446,13 @@
             "name": "SA-(CMM): Finger-Weaver's Cookbook [2] - left of hanging bell under CMM"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 642,
+        "y": 393
       }
     ]
   },
@@ -16617,6 +16666,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 229,
+        "y": 317
+      }
     ]
   },
   {
@@ -16818,6 +16874,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 359,
+        "y": 679
+      }
     ]
   },
   {
@@ -17015,6 +17078,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 348,
+        "y": 1011
+      }
     ]
   },
   {
@@ -17045,6 +17115,13 @@
             "name": "FRR: Crimson Seed Talisman +1 - use Hole-Laden Necklace at the hanging bell in the center"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 573,
+        "y": 1008
       }
     ]
   },
@@ -17711,6 +17788,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 518,
+        "y": 72
+      }
     ]
   },
   {
@@ -17953,6 +18037,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 208,
+        "y": 300
+      }
     ]
   },
   {
@@ -18004,6 +18095,13 @@
             "name": "HL-FH: Shadow Realm Rune [6] - to E in the massive cave, on exit ledge"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 679,
+        "y": 227
       }
     ]
   },
@@ -18199,6 +18297,13 @@
           }
         ]
       }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 579,
+        "y": 403
+      }
     ]
   },
   {
@@ -18350,6 +18455,13 @@
             "name": "AW-(AC): Scadutree Fragment x2 - by altar"
           }
         ]
+      }
+    ],
+    "map_locations": [
+      {
+        "map": "land_of_shadow",
+        "x": 716,
+        "y": 757
       }
     ]
   },

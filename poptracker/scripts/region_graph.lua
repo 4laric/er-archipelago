@@ -81,6 +81,7 @@ REGION_LOCK_GATES = {
   ["cerulean_coast"] = {"lock_cerulean_lock"},
   ["charo_s_hidden_grave"] = {"lock_charo_s_lock"},
   ["deeproot_depths"] = {"lock_north_underground_lock"},
+  ["dragonbarrow"] = {"lock_dragonbarrow_lock"},
   ["ellac_river"] = {"lock_ellac_lock"},
   ["enir_ilim"] = {"lock_enir_ilim_lock"},
   ["farum_azula"] = {"lock_farum_azula_lock"},
@@ -125,6 +126,61 @@ REGION_KEY_GATES = {
 }
 
 -- Flat list of all gate codes (logic.lua uses it to cheaply detect state changes):
-REGION_GATE_CODES = {"key_academy_glintstone_key", "key_carian_inverted_statue", "key_dark_moon_ring", "key_gaol_lower_level_key", "key_gaol_upper_level_key", "key_messmer_s_kindling", "key_rold_medallion", "key_rusty_key", "lock_abyssal_lock", "lock_altus_lock", "lock_ancient_ruins_lock", "lock_ashen_lock", "lock_belurat_lock", "lock_caelid_lock", "lock_cerulean_lock", "lock_charo_s_lock", "lock_ellac_lock", "lock_enir_ilim_lock", "lock_ensis_lock", "lock_farum_azula_lock", "lock_gravesite_lock", "lock_haligtree_lock", "lock_jagged_peak_lock", "lock_liurnia_lock", "lock_mohgwyn_lock", "lock_mt_gelmir_lock", "lock_north_underground_lock", "lock_rauh_base_lock", "lock_recluses_lock", "lock_redmane_lock", "lock_scadu_altus_lock", "lock_shadow_keep_lock", "lock_south_east_underground_lock", "lock_south_west_underground_lock", "lock_stone_coffin_lock", "lock_stormveil_lock", "lock_volcano_lock", "lock_weeping_lock"}
+REGION_GATE_CODES = {"key_academy_glintstone_key", "key_carian_inverted_statue", "key_dark_moon_ring", "key_gaol_lower_level_key", "key_gaol_upper_level_key", "key_messmer_s_kindling", "key_rold_medallion", "key_rusty_key", "lock_abyssal_lock", "lock_altus_lock", "lock_ancient_ruins_lock", "lock_ashen_lock", "lock_belurat_lock", "lock_caelid_lock", "lock_cerulean_lock", "lock_charo_s_lock", "lock_dragonbarrow_lock", "lock_ellac_lock", "lock_enir_ilim_lock", "lock_ensis_lock", "lock_farum_azula_lock", "lock_gravesite_lock", "lock_haligtree_lock", "lock_jagged_peak_lock", "lock_liurnia_lock", "lock_mohgwyn_lock", "lock_mt_gelmir_lock", "lock_north_underground_lock", "lock_rauh_base_lock", "lock_recluses_lock", "lock_redmane_lock", "lock_scadu_altus_lock", "lock_shadow_keep_lock", "lock_south_east_underground_lock", "lock_south_west_underground_lock", "lock_stone_coffin_lock", "lock_stormveil_lock", "lock_volcano_lock", "lock_weeping_lock"}
+
+-- Every region slug in the pack (logic.lua creates one can_reach_<slug> per entry):
+REGION_ALL = {"abandoned_cave", "abyssal_woods", "academy_crystal_cave", "ainsel_river", "ainsel_river_main", "altus_plateau", "altus_tunnel", "ancient_ruins_of_rauh", "auriza_hero_s_grave", "auriza_side_tomb", "bellum_highway", "belurat", "belurat_gaol", "belurat_swamp", "black_knife_catacombs", "bonny_gaol", "caelid", "caelid_catacombs", "capital_outskirts", "caria_manor", "carian_study_hall", "carian_study_hall_inverted", "castle_ensis", "cathedral_of_manus_metyr", "cave_of_the_forlorn", "cerulean_coast", "charo_s_hidden_grave", "church_of_dragon_communion", "cliffbottom_catacombs", "coastal_cave", "consecrated_snowfield", "consecrated_snowfield_catacombs", "darklight_catacombs", "deathtouched_catacombs", "deeproot_depths", "deeproot_depths_boss", "deeproot_depths_upper", "divine_bridge", "divine_tower_of_caelid", "divine_tower_of_east_altus", "divine_tower_of_limgrave", "dragon_s_pit", "dragonbarrow", "dragonbarrow_cave", "earthbore_cave", "ellac_river", "elphael_brace_of_the_haligtree", "enir_ilim", "erdtree", "farum_azula", "farum_azula_main", "finger_ruins_of_dheo", "finger_ruins_of_miyr", "finger_ruins_of_rhia", "flame_peak", "fog_rift_catacombs", "fog_rift_fort", "forbidden_lands", "frenzied_flame_proscription", "fringefolk_hero_s_grave", "gale_tunnel", "gaol_cave", "gelmir_hero_s_grave", "giant_conquering_hero_s_grave", "giants_mountaintop_catacombs", "gravesite_plain", "great_jar", "groveside_cave", "hidden_path_to_the_haligtree", "highroad_cave", "hinterland", "impaler_s_catacombs", "jagged_peak", "jagged_peak_foot", "lake_of_rot", "lakeside_crystal_cave", "lamenter_s_gaol_entrance", "lamenter_s_gaol_lower", "lamenter_s_gaol_upper", "leyndell_ashen_capital", "leyndell_ashen_capital_throne", "leyndell_catacombs", "leyndell_royal_capital", "leyndell_royal_capital_throne", "leyndell_royal_capital_unmissable", "limgrave", "limgrave_tunnels", "liurnia_of_the_lakes", "midra_s_manse", "minor_erdtree_catacombs", "miquella_s_haligtree", "mohgwyn_palace", "moonlight_altar", "morne_tunnel", "mountaintops_of_the_giants", "mt_gelmir", "murkwater_catacombs", "murkwater_cave", "nokron_eternal_city", "nokron_eternal_city_start", "old_altus_tunnel", "perfumer_s_grotto", "rauh_base", "rauh_ruins_limited", "raya_lucaria_academy", "raya_lucaria_academy_chest", "raya_lucaria_academy_library", "raya_lucaria_academy_main", "raya_lucaria_crystal_tunnel", "recluses_river", "redmane_castle_post_radahn", "rivermouth_cave", "road_s_end_catacombs", "roundtable_hold", "ruin_strewn_precipice", "ruined_forge_lava_intake", "ruined_forge_of_starfall_past", "sage_s_cave", "sainted_hero_s_grave", "scadu_altus", "scadutree_base", "scaduview", "scorpion_river_catacombs", "sealed_tunnel", "seethewater_cave", "sellia_crystal_tunnel", "sellia_hideaway", "shadow_keep", "shadow_keep_church_district", "shadow_keep_church_district_lower", "shadow_keep_storehouse", "shadow_keep_storehouse_back", "shadow_keep_west_rampart", "siofra_river", "spiritcaller_cave", "stillwater_cave", "stone_coffin_fissure", "stormfoot_catacombs", "stormhill", "stormveil_castle", "stormveil_start", "stormveil_throne", "subterranean_shunning_grounds", "taylew_s_ruined_forge", "the_four_belfries_chapel_of_anticipation", "the_four_belfries_farum_azula", "the_four_belfries_nokron", "tombsward_catacombs", "tombsward_cave", "unsightly_catacombs", "volcano_cave", "volcano_manor", "volcano_manor_drawing_room", "volcano_manor_dungeon", "volcano_manor_entrance", "volcano_manor_upper", "wailing_dunes", "war_dead_catacombs", "weeping_peninsula", "wyndham_catacombs", "yelough_anix_tunnel"}
+
+-- DLC (Land of Shadow) region slugs; 1 == DLC:
+REGION_IS_DLC = {
+  ["abyssal_woods"] = 1,
+  ["ancient_ruins_of_rauh"] = 1,
+  ["belurat"] = 1,
+  ["belurat_gaol"] = 1,
+  ["belurat_swamp"] = 1,
+  ["bonny_gaol"] = 1,
+  ["castle_ensis"] = 1,
+  ["cathedral_of_manus_metyr"] = 1,
+  ["cerulean_coast"] = 1,
+  ["charo_s_hidden_grave"] = 1,
+  ["darklight_catacombs"] = 1,
+  ["dragon_s_pit"] = 1,
+  ["ellac_river"] = 1,
+  ["enir_ilim"] = 1,
+  ["finger_ruins_of_dheo"] = 1,
+  ["finger_ruins_of_miyr"] = 1,
+  ["finger_ruins_of_rhia"] = 1,
+  ["fog_rift_catacombs"] = 1,
+  ["fog_rift_fort"] = 1,
+  ["gravesite_plain"] = 1,
+  ["hinterland"] = 1,
+  ["jagged_peak"] = 1,
+  ["jagged_peak_foot"] = 1,
+  ["lamenter_s_gaol_entrance"] = 1,
+  ["lamenter_s_gaol_lower"] = 1,
+  ["lamenter_s_gaol_upper"] = 1,
+  ["midra_s_manse"] = 1,
+  ["rauh_base"] = 1,
+  ["rauh_ruins_limited"] = 1,
+  ["recluses_river"] = 1,
+  ["rivermouth_cave"] = 1,
+  ["ruined_forge_of_starfall_past"] = 1,
+  ["scadu_altus"] = 1,
+  ["scadutree_base"] = 1,
+  ["scaduview"] = 1,
+  ["scorpion_river_catacombs"] = 1,
+  ["shadow_keep"] = 1,
+  ["shadow_keep_church_district"] = 1,
+  ["shadow_keep_church_district_lower"] = 1,
+  ["shadow_keep_storehouse"] = 1,
+  ["shadow_keep_storehouse_back"] = 1,
+  ["shadow_keep_west_rampart"] = 1,
+  ["stone_coffin_fissure"] = 1,
+  ["taylew_s_ruined_forge"] = 1,
+}
+
+-- Graph root for a dlc_only seed: you START in Gravesite Plain (base regions are
+-- locked-vanilla transit with no checks), so reachability bootstraps from here.
+REGION_DLC_ROOT = "gravesite_plain"
 
 return REGION_ADJ
