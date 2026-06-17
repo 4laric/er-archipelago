@@ -11,7 +11,7 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_ashen_lock",
-    "ap_code": 71354
+    "ap_code": 71355
   },
   {
     "name": "Caelid Lock",
@@ -21,18 +21,25 @@
     "ap_code": 71347
   },
   {
+    "name": "Dragonbarrow Lock",
+    "type": "toggle",
+    "img": "images/items/placeholder.png",
+    "codes": "lock_dragonbarrow_lock",
+    "ap_code": 71349
+  },
+  {
     "name": "Farum Azula Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_farum_azula_lock",
-    "ap_code": 71353
+    "ap_code": 71354
   },
   {
     "name": "Haligtree Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_haligtree_lock",
-    "ap_code": 71355
+    "ap_code": 71356
   },
   {
     "name": "Liurnia Lock",
@@ -46,14 +53,14 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_mohgwyn_lock",
-    "ap_code": 71352
+    "ap_code": 71353
   },
   {
     "name": "Mt. Gelmir Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_mt_gelmir_lock",
-    "ap_code": 71349
+    "ap_code": 71350
   },
   {
     "name": "North Underground Lock",
@@ -74,7 +81,7 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_sewer_lock",
-    "ap_code": 71351
+    "ap_code": 71352
   },
   {
     "name": "South East Underground Lock",
@@ -102,7 +109,7 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_volcano_lock",
-    "ap_code": 71350
+    "ap_code": 71351
   },
   {
     "name": "Weeping Lock",
@@ -116,105 +123,105 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_abyssal_lock",
-    "ap_code": 72028
+    "ap_code": 72029
   },
   {
     "name": "Ancient Ruins Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_ancient_ruins_lock",
-    "ap_code": 72029
+    "ap_code": 72030
   },
   {
     "name": "Belurat Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_belurat_lock",
-    "ap_code": 72017
+    "ap_code": 72018
   },
   {
     "name": "Cerulean Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_cerulean_lock",
-    "ap_code": 72020
+    "ap_code": 72021
   },
   {
     "name": "Charo's Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_charo_s_lock",
-    "ap_code": 72023
+    "ap_code": 72024
   },
   {
     "name": "Ellac Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_ellac_lock",
-    "ap_code": 72019
+    "ap_code": 72020
   },
   {
     "name": "Enir Ilim Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_enir_ilim_lock",
-    "ap_code": 72030
+    "ap_code": 72031
   },
   {
     "name": "Ensis Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_ensis_lock",
-    "ap_code": 72018
+    "ap_code": 72019
   },
   {
     "name": "Gravesite Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_gravesite_lock",
-    "ap_code": 72016
+    "ap_code": 72017
   },
   {
     "name": "Jagged Peak Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_jagged_peak_lock",
-    "ap_code": 72022
+    "ap_code": 72023
   },
   {
     "name": "Rauh Base Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_rauh_base_lock",
-    "ap_code": 72025
+    "ap_code": 72026
   },
   {
     "name": "Recluses' Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_recluses_lock",
-    "ap_code": 72027
+    "ap_code": 72028
   },
   {
     "name": "Scadu Altus Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_scadu_altus_lock",
-    "ap_code": 72024
+    "ap_code": 72025
   },
   {
     "name": "Shadow Keep Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_shadow_keep_lock",
-    "ap_code": 72026
+    "ap_code": 72027
   },
   {
     "name": "Stone Coffin Lock",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "lock_stone_coffin_lock",
-    "ap_code": 72021
+    "ap_code": 72022
   },
   {
     "name": "Academy Glintstone Key",
@@ -433,21 +440,21 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_drawstring_messmerfire_grease",
-    "ap_code": 71679
+    "ap_code": 71680
   },
   {
     "name": "Ember of Messmer",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_ember_of_messmer",
-    "ap_code": 71981
+    "ap_code": 71982
   },
   {
     "name": "Ember of Messmer x2",
     "type": "consumable",
     "img": "images/items/placeholder.png",
     "codes": "key_ember_of_messmer_x2",
-    "ap_code": 71982,
+    "ap_code": 71983,
     "max_quantity": 2
   },
   {
@@ -455,7 +462,7 @@
     "type": "consumable",
     "img": "images/items/placeholder.png",
     "codes": "key_ember_of_messmer_x3",
-    "ap_code": 71983,
+    "ap_code": 71984,
     "max_quantity": 3
   },
   {
@@ -463,7 +470,7 @@
     "type": "consumable",
     "img": "images/items/placeholder.png",
     "codes": "key_ember_of_messmer_x5",
-    "ap_code": 71984,
+    "ap_code": 71985,
     "max_quantity": 5
   },
   {
@@ -471,7 +478,7 @@
     "type": "consumable",
     "img": "images/items/placeholder.png",
     "codes": "key_ember_of_messmer_x6",
-    "ap_code": 71985,
+    "ap_code": 71986,
     "max_quantity": 6
   },
   {
@@ -479,161 +486,161 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_gaol_lower_level_key",
-    "ap_code": 71785
+    "ap_code": 71786
   },
   {
     "name": "Gaol Upper Level Key",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_gaol_upper_level_key",
-    "ap_code": 71784
+    "ap_code": 71785
   },
   {
     "name": "Hole-Laden Necklace",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_hole_laden_necklace",
-    "ap_code": 71787
+    "ap_code": 71788
   },
   {
     "name": "Messmer Soldier Armor",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_armor",
-    "ap_code": 71519
+    "ap_code": 71520
   },
   {
     "name": "Messmer Soldier Ashes",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_ashes",
-    "ap_code": 72003
+    "ap_code": 72004
   },
   {
     "name": "Messmer Soldier Gauntlets",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_gauntlets",
-    "ap_code": 71520
+    "ap_code": 71521
   },
   {
     "name": "Messmer Soldier Greaves",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_greaves",
-    "ap_code": 71521
+    "ap_code": 71522
   },
   {
     "name": "Messmer Soldier Helm",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_helm",
-    "ap_code": 71518
+    "ap_code": 71519
   },
   {
     "name": "Messmer Soldier Shield",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_shield",
-    "ap_code": 71420
+    "ap_code": 71421
   },
   {
     "name": "Messmer Soldier's Axe",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_s_axe",
-    "ap_code": 71393
+    "ap_code": 71394
   },
   {
     "name": "Messmer Soldier's Spear",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_soldier_s_spear",
-    "ap_code": 71402
+    "ap_code": 71403
   },
   {
     "name": "Messmer's Armor",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_s_armor",
-    "ap_code": 71552
+    "ap_code": 71553
   },
   {
     "name": "Messmer's Gauntlets",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_s_gauntlets",
-    "ap_code": 71553
+    "ap_code": 71554
   },
   {
     "name": "Messmer's Greaves",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_s_greaves",
-    "ap_code": 71554
+    "ap_code": 71555
   },
   {
     "name": "Messmer's Helm",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_s_helm",
-    "ap_code": 71551
+    "ap_code": 71552
   },
   {
     "name": "Messmer's Kindling",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_s_kindling",
-    "ap_code": 71797
+    "ap_code": 71798
   },
   {
     "name": "Messmer's Kindling Shard",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_s_kindling_shard",
-    "ap_code": 72031
+    "ap_code": 72032
   },
   {
     "name": "Messmer's Orb",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmer_s_orb",
-    "ap_code": 71780
+    "ap_code": 71781
   },
   {
     "name": "Messmerfire Grease",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_messmerfire_grease",
-    "ap_code": 71673
+    "ap_code": 71674
   },
   {
     "name": "Miquella's Great Rune",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_miquella_s_great_rune",
-    "ap_code": 71781
+    "ap_code": 71782
   },
   {
     "name": "Prayer Room Key",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_prayer_room_key",
-    "ap_code": 71807
+    "ap_code": 71808
   },
   {
     "name": "Revered Spirit Ash",
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_revered_spirit_ash",
-    "ap_code": 71879
+    "ap_code": 71880
   },
   {
     "name": "Revered Spirit Ash x2",
     "type": "consumable",
     "img": "images/items/placeholder.png",
     "codes": "key_revered_spirit_ash_x2",
-    "ap_code": 71880,
+    "ap_code": 71881,
     "max_quantity": 2
   },
   {
@@ -641,14 +648,14 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_scadutree_fragment",
-    "ap_code": 71877
+    "ap_code": 71878
   },
   {
     "name": "Scadutree Fragment x2",
     "type": "consumable",
     "img": "images/items/placeholder.png",
     "codes": "key_scadutree_fragment_x2",
-    "ap_code": 71878,
+    "ap_code": 71879,
     "max_quantity": 2
   },
   {
@@ -656,6 +663,6 @@
     "type": "toggle",
     "img": "images/items/placeholder.png",
     "codes": "key_storeroom_key",
-    "ap_code": 71790
+    "ap_code": 71791
   }
 ]

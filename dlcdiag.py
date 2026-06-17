@@ -175,5 +175,56 @@ if ns:
         out("          important_locations and keep accessibility: minimal so region-gated")
         out("          priority spots aren't force-filled.")
 
+
+# --- FULL resolved option set + verbatim player yaml(s) -------------------------------
+# Ground truth for "what settings did this bake actually use" lives in the generated
+# spoiler, NOT in any yaml on disk (a yaml can be edited after gen, and the mount may
+# serve a stale copy). We dump BOTH the resolved spoiler options and the verbatim
+# Players/*.yaml into this timestamped file so the answer is always recoverable later.
+import os, glob, zipfile
+def _emit_options():
+    repo = os.path.dirname(os.path.abspath(raw_path))
+    outdir = os.path.join(repo, "Archipelago", "output")
+    zips = sorted(glob.glob(os.path.join(outdir, "AP_*.zip")), key=os.path.getmtime)
+    out("")
+    if not zips:
+        out("OPTIONS (resolved): (no AP_*.zip in Archipelago/output)")
+    else:
+        z = zips[-1]
+        try:
+            zf = zipfile.ZipFile(z)
+            spn = [n for n in zf.namelist() if n.endswith("_Spoiler.txt")]
+            sp = zf.read(spn[0]).decode("utf-8", "replace").splitlines() if spn else []
+        except Exception as e:
+            sp = []
+            out("OPTIONS (resolved): (spoiler read failed: %s)" % e)
+        if sp:
+            out("OPTIONS (resolved, from %s -- GROUND TRUTH, not a yaml):" % os.path.basename(z))
+            blanks = 0; started = False
+            for ln in sp:
+                if not ln.strip():
+                    blanks += 1
+                    if started:
+                        break          # end of the settings block
+                    continue
+                if blanks >= 1:        # past the "Archipelago Version ... Seed:" header line
+                    started = True
+                    out("  " + ln.rstrip())
+    # verbatim player yaml(s) -- raw record of the input
+    pdir = os.path.join(repo, "Archipelago", "Players")
+    yamls = sorted(glob.glob(os.path.join(pdir, "*.yaml")))
+    out("")
+    if not yamls:
+        out("PLAYER YAML: (none in Archipelago/Players)")
+    for y in yamls:
+        try:
+            body = open(y, "r", encoding="utf-8", errors="replace").read().rstrip("\n")
+        except Exception as e:
+            body = "(read failed: %s)" % e
+        out("PLAYER YAML (verbatim): %s" % os.path.basename(y))
+        for ln in body.splitlines():
+            out("  | " + ln)
+_emit_options()
+
 open(out_path, "w", encoding="utf-8").write("\n".join(lines) + "\n")
 print("wrote " + out_path)

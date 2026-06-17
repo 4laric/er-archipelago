@@ -387,3 +387,20 @@ RuntimeParamChecker, so the blocker is the open menu/ESD cache, not the data.
 ### 19c. Other QoL candidates (parking lot)
 - [ ] Show real AP item names in shop/lineup rows (instead of vanilla placeholder) where feasible.
 - [ ] Skip/shorten the Dragon Communion commune animation on repeat use.
+
+## 20. Progressive bell ladder — extend to glovewort picker bells (TODO, not urgent)
+
+Give the progressive-stone-bell treatment (SPEC-progressive-stone-bells.md) to the spirit-ash
+upgrade bells too, for symmetry. Same exact pattern, just different items/flags:
+
+- [ ] Grave-Glovewort Picker's Bell Bearing [1]-[3] (items 8960-8962) -> Grave Glovewort tiers.
+- [ ] Ghost-Glovewort Picker's Bell Bearing [1]-[3] (items 8963-8965) -> Ghost Glovewort tiers
+      (the one Alaric named).
+- [ ] Build the per-tier {goods, flags} table the same way: pull eventFlag_forStock for the
+      glovewort rows from vanilla_er/ShopLineupParam.csv (Twin Maiden shop, IDs 1018xx), like the
+      stone table in stone_bells.py. Grave Glovewort goods = 10900-10909; Ghost Glovewort similar.
+- [ ] Add 2 progressive items + reuse the same machinery: STONE_BELL_GRANTS-style table,
+      _all_injectable_items inject, _DISCRETE drop, progressiveGrants emit. Client already handles
+      any name in progressiveGrants generically — likely NO client change needed.
+- [ ] Gate: glovewort/ash upgrades have no auto_upgrade analogue, so gate on the feature toggle
+      alone (decide: reuse progressive_stone_bells, or a sibling toggle).

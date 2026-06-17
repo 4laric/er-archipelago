@@ -1,4 +1,4 @@
-# Elden Ring PvE Tier List (weapons & armor)
+# Elden Ring PvE Tier List (weapons, armor, spells & Ashes of War)
 
 Synthesized for the apworld check-trim pass (see `SPEC-check-trim.md`). Tiers are **PvE-oriented**, assuming weapons are upgraded to a comparable level. This is a curated consensus snapshot, not gospel — armor especially is judged on defensive / poise-to-weight value, so fashion-tier light sets land low by design.
 
@@ -66,6 +66,36 @@ Aristocrat, Ascetic's, Braided, Caterpillar Mask, Chain, Champion, Cloth Garb, C
 
 Albinauric, Bloodsoaked, Festive, Fia's, Imp Head, Juvenile Scholar, Marais, Marionette Soldier, Soiled Loincloth
 
+## Ashes of War
+
+PvE-oriented, judged on the **skill's** value (damage, poise/stance damage, buff strength, utility, spammability) — affinity changes are out of scope. Only the **105 transferable** Ashes of War (the pool items) are rated; weapon-unique skills are not Ashes of War items and aren't listed. Machine names carry the `Ash of War: ` prefix in `item_tiers.tsv` (category `ASHOFWAR`); skill names shown bare here for readability. Same C-and-below = "bad" threshold applies, but note the trim is category-gated to weapons/armor, so AoW tiers feed item-pool *injection* (e.g. S-tier uplift), not the check trim.
+
+**Sources:** community PvE consensus — aoeah AoW PvE ranking + general meta (mtmmo / fextralife discussion), mid-2025 post-DLC patch ~1.16; curated snapshot, not gospel (buffs/utility like Bloodhound's Step & Golden Vow rated on universal usefulness, not raw damage).
+
+### S — best in slot (build-defining buffs / stance-break / mobility)
+
+Bloodhound's Step, Determination, Flame of the Redmanes, Golden Vow, Lion's Claw, Royal Knight's Resolve, Savage Lion's Claw, Seppuku, Waves of Darkness
+
+### A — excellent
+
+Barbaric Roar, Black Flame Tornado, Blinkbolt, Bloody Slash, Carian Grandeur, Carian Sovereignty, Cragblade, Divine Beast Frost Stomp, Earthshaker, Endure, Flaming Strike, Giant Hunt, Hoarah Loux's Earthshaker, Hoarfrost Stomp, Lightning Slash, Phantom Slash, Prelate's Charge, Quickstep, Raptor of the Mists, Square Off, Stamp (Upward Cut), Storm Blade, The Poison Flower Blooms Twice, Unsheathe, War Cry, Wing Stance
+
+### B — solid / serviceable
+
+Aspects of the Crucible: Wings, Assassin's Gambit, Beast's Roar, Blood Tax, Carian Greatsword, Carian Retaliation, Dryleaf Whirlwind, Eruption, Ghostflame Call, Golden Land, Golden Parry, Golden Slam, Gravitas, Holy Ground, Lifesteal Fist, Lightning Ram, Loretta's Slash, Poison Moth Flight, Prayerful Strike, Raging Beast, Rain of Arrows, Repeating Thrust, Rolling Sparks, Sacred Blade, Sacred Order, Sacred Ring of Light, Shield Crash, Shriek of Sorrow, Spectral Lance, Spinning Slash, Spinning Weapon, Stamp (Sweep), Storm Assault, Storm Stomp, Stormcaller, Swift Slash, Sword Dance, Through and Through, Thunderbolt, Troll's Roar, Vacuum Slice, Vow of the Indomitable, Wild Strikes
+
+### C — mediocre / situational
+
+Barrage, Barricade Shield, Blood Blade, Charge Forth, Chilling Mist, Double Slash, Enchanted Shot, Flame Skewer, Flame Spear, Glintstone Pebble, Ground Slam, Ice Spear, Impaling Thrust, Mighty Shot, Parry, Piercing Throw, Scattershot Throw, Shared Order, Shield Bash, Sky Shot, Storm Wall, Wall of Sparks, White Shadow's Lure
+
+### D — weak
+
+Kick, Poisonous Mist, Thops's Barrier
+
+### F — non-functional
+
+No Skill
+
 ---
 
 ## Notes & deliberate omissions
@@ -76,7 +106,7 @@ Albinauric, Bloodsoaked, Festive, Fia's, Imp Head, Juvenile Scholar, Marais, Mar
 
 - **Standalone head/cosmetic pieces are unrated** — single masks, sorcerer crowns, surcoats/capes, scarab helms, and oddments (Jar, Octopus Head, etc.) aren't full sets and are kept by default.
 
-- **Coverage:** weapons 411 rated (97 unrated); armor pieces 555 rated (66 unrated).
+- **Coverage:** weapons 411 rated (97 unrated); armor pieces 555 rated (66 unrated); spells 57 rated; **Ashes of War 105 rated (all transferable AoW)**.
 
 - Machine-readable companion: `item_tiers.tsv` (item_name, category, tier, source) — this is the file the trim's tier lookup consumes.
 
