@@ -404,3 +404,25 @@ upgrade bells too, for symmetry. Same exact pattern, just different items/flags:
       any name in progressiveGrants generically — likely NO client change needed.
 - [ ] Gate: glovewort/ash upgrades have no auto_upgrade analogue, so gate on the feature toggle
       alone (decide: reuse progressive_stone_bells, or a sibling toggle).
+
+### 20a. Extract + set the Roderika spirit-tuning shop flags (the data gap — PRIORITY, Alaric)
+Blocks the glovewort half of SPEC-progressive-consumables.md. The stone bells set
+eventFlag_forStock 280080-280280 (Twin Maiden shop, ShopLineupParam IDs 1018xx). The Roderika
+spirit-tuning shop has its own ShopLineupParam block with its own flags that are NOT yet extracted.
+- [ ] Pull Roderika's spirit-tuning ShopLineupParam rows + their eventFlag_forStock from
+      vanilla_er/ShopLineupParam.csv; build GLOVEWORT_BELL_GRANTS (goods+flags) mirroring
+      stone_bells.py. Grave Glovewort goods 10900-10909, Ghost 10910-10919.
+- [ ] DO NOT guess the flag ids (er-event-flag-validity, verify-files-before-naming): probe
+      set->readback in-game before shipping.
+
+### 20b. Relocate Roderika to Roundtable Hold from the start (QoL — Alaric, "stop walking to Hewg")
+Annoyance: spirit-tuning lives at Roderika and weapon smithing at Hewg; if she isn't seated at
+Roundtable you shuttle between them every upgrade. Put her (and her spirit-tuning service) at
+Roundtable Hold (m11_10) from game start so she's right by Hewg.
+- [ ] Find Roderika's Roundtable relocation/presence event flag(s) (her quest normally seats her
+      there after the Chrysalids' Memento / Sellen step) and set them at bake/start, the way other
+      start-state flags are forced — so she + the spirit-tuning menu are available immediately.
+- [ ] Confirm setting the relocation early doesn't break her questline or the Stormhill Shack ->
+      Roundtable hand-off; verify spirit-tuning menu actually opens at Roundtable on a fresh save.
+- [ ] Pairs with 20a: flags (stock) + presence (her being there) together = buy glovewort and tune
+      ashes next to Hewg, no walking.
