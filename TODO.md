@@ -2,6 +2,33 @@
 
 Actionable backlog. Living doc; see HANDOFF.md for current state and SPEC-*.md for designs.
 
+## A. Yaml option-compatibility check (centralized combo validation) — RISING PRIORITY
+
+The option surface has grown fast and not every combination is coherent; some silently produce
+degenerate/contradictory seeds instead of warning. Need ONE declared compatibility pass in
+`generate_early` that validates option combinations up front (warn for "ignored / overridden",
+hard `OptionError` for genuinely contradictory), instead of the current scattered ad-hoc forcing
+(see __init__.py ~187-240 dlc_only forcing, ~437/462/487-496 spine-goal overlap guards).
+
+Trigger that exposed this (2026-06-20): `dlc_only` + `ending_condition: capital` + `num_regions`
+ran without complaint and produced a degenerate seed — num_regions builds a BASE Capital run
+(keeps Limgrave→Leyndell base regions), dlc_only then strips all base checks (line 1296) and seals
+the DLC, leaving ~36 locations, `get_spheres()` collapsed to maxsphere=1, and completion-scaling
+sphere targets came out all 0.0. dlc_only and a Capital goal are effectively mutually exclusive
+(Capital's goal boss is base-game); dlc_only wants a DLC ending (messmer).
+
+- [ ] Define a compatibility matrix/table of option pairs (and key triples) with verdict:
+      OK / WARN-and-override / ERROR. Seed it from the known cases:
+      - dlc_only × ending_condition=capital → ERROR (or auto-switch goal to messmer + warn).
+      - dlc_only × num_regions → ERROR/WARN (num_regions is a base Capital run; meaningless under dlc_only).
+      - ending_condition messmer/godrick × world_logic (already partly guarded) — fold in here.
+      - num_regions × region_count × messmer/godrick spine overlap (already guarded ad-hoc) — fold in.
+- [ ] Single validator fn run early in generate_early; consolidate the existing inline forcing/guards
+      into it so the rules live in one readable place.
+- [ ] Emit a clear per-player message naming the offending options + the chosen resolution.
+- [ ] (stretch) surface the matrix in docs / a `--check-yaml` style dry run so users self-diagnose.
+
+
 ## 0b. Bundle-lock pickup name (option C) — FMG name for the lock sentinel
 
 Bundle locks (Liurnia Caves / Shadow Catacombs / Altus / Mountaintops / Limgrave Caves) are
