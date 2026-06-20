@@ -1,0 +1,48 @@
+# ER Archipelago -- COMEDY-JUNK RETENTION test. (Alaric, 2026-06-17)
+#
+# Exercises patch_comedy_junk.py: filler_replacement scrubs all junk -> runes, and
+# junk_retention spares a comedy-weighted fraction so a few "bad checks" survive.
+#
+# PREREQ: run patch_comedy_junk.py on Windows FIRST (wires __init__.py). curation.py +
+# options.py are already applied, but the option is INERT until __init__ is patched.
+# Until then junk_retention shows in the options dump but changes nothing.
+#
+# HOW TO RUN:
+#   1. Copy this file into Archipelago\Players\  (move EldenRing-godrick.yaml out first,
+#      or keep both for a 2-player gen -- single-slot is cleaner for reading the spoiler).
+#   2. .\build.ps1 -Generate
+#   3. Open AP_*_Spoiler.txt and grep for: Excrement, Festering Bloody Finger, Raw Meat
+#      Dumpling, Soiled Loincloth, Toxic Mushroom, "Ash of War: No Skill".
+#
+# A/B CHECK (this is the real proof):
+#   - junk_retention: 0   -> EVERY comedy item is laundered into Golden Runes (none survive).
+#   - junk_retention: 12  -> a handful of those comedy items survive as real checks.
+#   Diff the two spoilers; the difference should be only comedy items vs runes.
+
+name: Alaric_ComedyTest
+description: ER AP comedy-junk retention test -- base game, region_lock, filler scrub + junk_retention.
+game: EldenRing
+
+EldenRing:
+  enable_dlc: false            # base game = maximum naturally-occurring comedy junk
+  dlc_only: false
+  world_logic: region_lock     # standard mode (representative; not the Godrick goal restriction)
+
+  location_pool: all           # full pool -> the most junk for the scrub/retention to act on
+  early_leveling: true         # grant Level Up + skip Melina (co-grants Torrent)
+  no_weapon_requirements: true
+  auto_upgrade: false
+
+  # --- THE TEST KNOBS -------------------------------------------------------------------
+  filler_replacement: runes        # the SCRUB: turns every filler slot into a Golden Rune
+  junk_retention: 12               # ...but spare ~12% of the comedy junk as real checks
+  junk_retention_style: comedy     # comedy | comedy_and_generic | uniform
+  # --------------------------------------------------------------------------------------
+
+  # Avoid a filler shortage in any reduced sub-pool (matches the Godrick seed's settings).
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+
+  # MUST live under EldenRing: -- at document root AP silently ignores these.
+  accessibility: minimal
+  progression_balancing: 50

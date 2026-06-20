@@ -1,0 +1,82 @@
+# ER Archipelago -- GODRICK mini-campaign, POOL-BUILDER variant. 2026-06-17.
+#
+# Same goal/scope as EldenRing-godrick-RUN.yaml (keep Limgrave + Weeping Peninsula +
+# Stormveil Castle + the always-open hub; seal everything else and all DLC; goal =
+# defeat Godrick the Grafted), but the item pool is COMPOSED FROM ALL-GAME ITEMS instead
+# of inheriting whatever the three kept regions natively held.
+#
+# REQUIRES the two new (UNTESTED) apworld patches applied first, from repo root:
+#     python patch_pool_builder.py
+#     python patch_progressive_consumables.py
+#
+# What the new options do here:
+#   pool_builder: true          -> scrub native low-tier gear/junk in the kept regions
+#                                  (C/D/F base gear, armor-set collapse, trim junk) and swap
+#                                  them 1:1 for ranked whole-game juice (S-tier weapons/armor/
+#                                  spells/AoW, top spirit ashes, S talismans, remembrances,
+#                                  crystal tears, capped Memory Stones/Talisman Pouches) +
+#                                  elastic runes. Count-neutral; every location stays a check.
+#   progressive_flasks: true    -> Golden Seeds / Sacred Tears collapse into two progressive
+#                                  items (cap 30 / 12, copies past cap -> Lord's Rune).
+#   progressive_glovewort_bells: true -> the 6 glovewort bell bearings collapse into two
+#                                  ordered progressive ladders (grave x3, ghost x3).
+#   junk_retention (default 12) -> still seasons in a few deliberate comedy bad checks.
+#
+# auto_upgrade stays OFF: keeps smithing-stone pickups as real checks, so (a) the few region
+# locks have room to place in-world and (b) you upgrade found/received gear normally. If you'd
+# rather the injected S-tier gear auto-scale and skip stone hunting, set auto_upgrade: true.
+#
+# *** Check the gendiag BEFORE baking ***
+#   - ending_condition: godrick ; pool_builder: 1 (true) in the resolved options dump.
+#   - clean fill: NO "Couldn't add ... Adding it to the starting inventory instead." for the
+#     region-lock items (Limgrave / Weeping / Stormveil). Godrick seals all but 3 regions, so
+#     the reachable pool is small -- if locks spill to the start inventory, region_lock is
+#     nullified. Lever if they spill: auto_upgrade: false is already set (keeps stone checks);
+#     next, ease junk_retention to 0 or briefly disable pool_builder to confirm the cause.
+#   - spoiler: the kept-region checks now hold whole-game S/A juice (e.g. top spirit ashes,
+#     S-tier weapons) rather than only Limgrave's native gear; a couple Progressive Golden
+#     Seed / Sacred Tear / Grave-/Ghost-Glovewort Bell items present instead of the discretes.
+#
+# APWORLD-ONLY changes -- NO client rebuild needed. Gen + bake is enough:
+# Make this the ONLY EldenRing yaml in Archipelago\Players\, then a clean enemy-OFF rebuild
+# (do NOT use plain -All -- it forces -Enemies):
+#     .\build.ps1 -Randomizer -Generate -Serve -Bake -Deploy -Preflight     # NO -Enemies
+#
+# NOTE: the checked-in eldenring.apworld is STALE. Gen from this repo's Archipelago\worlds\
+# source (where the patches land); a third-party-host sync needs a fresh .apworld build.
+
+name: Alaric
+description: ER AP Godrick mini-campaign, POOL-BUILDER -- Limgrave/Weeping/Stormveil only, base game, all-game composed pool + progressive flasks/glovewort, region_lock, defeat Godrick.
+game: EldenRing
+
+EldenRing:
+  enable_dlc: false           # base-game-only short run (godrick seals DLC wholesale anyway)
+  dlc_only: false             # forced off by the godrick goal regardless; explicit for clarity
+  ending_condition: godrick   # keep front 3 steps, end at Godrick the Grafted
+
+  enemy_rando: false          # explicitly OFF (plain -All would force it on)
+
+  world_logic: region_lock    # REQUIRED by godrick -- per-region lock items seal the world
+
+  # --- the all-game pool builder (untested) ---
+  pool_builder: true          # compose the pool from a whole-game ladder, not Limgrave's natives
+  pool_builder_dlc_gear: false # set true to ALSO inject DLC S/A gear into the ladder (mirror of
+                              #   dlc_gear_curation). LEFT OFF here: granting DLC items needs the
+                              #   DLC installed, which would break this run's no-DLC-dependency
+                              #   property. Flip to true if you're fine depending on the DLC.
+                              #   (needs patch_pool_builder_dlc_gear.py applied.)
+  auto_upgrade: false         # keep stone checks as locations -> room for the locks to place
+
+  # --- progressive consumable upgrades (untested) ---
+  progressive_flasks: true            # Golden Seed + Sacred Tear -> 2 progressive items
+  progressive_glovewort_bells: true   # 6 glovewort bell bearings -> 2 progressive ladders
+
+  # Pool builder scrubs filler-bearing native pickups, so default forbid_useful on
+  # missable/excluded runs the pool short ('Not enough filler items'). allow_useful lets
+  # those spots hold useful (never progression) items. Required here.
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+
+  # MUST live under EldenRing: -- at document root AP silently ignores these.
+  accessibility: minimal
+  progression_balancing: 50

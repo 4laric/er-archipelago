@@ -1,0 +1,4 @@
+snapshot taken : 2026-06-17 17:03:47
+seed           : 06627570975489835909
+slot           : Alaric
+game dir       : C:\Program Files (x86)\Steam\steamapps\common\ELDEN RING\Game

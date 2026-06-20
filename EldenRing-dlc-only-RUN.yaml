@@ -1,0 +1,54 @@
+# ER Archipelago -- DLC-ONLY RUN, GATED (no enemy rando). 2026-06-15.
+# (Filename is stale -- this file now holds the DLC-only config; it's the SOLE Players yaml so a
+#  clean solo rebuild uses it. Rename to EldenRing-dlc-only.yaml on Windows if you like.)
+#
+# Land of Shadow only, ~466 checks, region_lock + Messmer gate ACTIVE (DLC locks + shards seat
+# in-world via the create_items inject fix). Base game = transit (no checks). enemy_rando OFF.
+# Apworld also emits startGraces under dlc_only (sets the Gravesite Plain graces 76800+ + DLC map
+# flags 62080-62084 at load) -- but the fast-travel MENU still needs the DLC "entered" state, so
+# use the client `/warp 68000` to drop into Gravesite Plain directly.
+#
+# CLEAN REBUILD (enemy-OFF -- do NOT use plain -All, which forces -Enemies):
+#   1. (one-time) restore vanilla game files to clear the last (BossSweep/enemy) bake's MSBs:
+#        $V="...\SoulsRandomizers\diste\Vanilla"; $G="...\ELDEN RING\Game"
+#        Copy-Item "$V\*.msb.dcx" "$G\map\mapstudio\" -Force ; "$V\*.emevd.dcx" -> "$G\event\" ;
+#        "$V\*.talkesdbnd.dcx" -> "$G\script\talk\" ; "$V\msg\*" -> "$G\msg\engus\" -Recurse
+#   2. python patch_client_warp.py        # if not already applied (adds /warp to the client)
+#   3. .\build.ps1 -Randomizer -Client -Generate -Serve -Bake -Deploy -Preflight   # NO -Enemies
+#   4. .\tools\deploy_hygiene.ps1 -Snapshot   # seed the manifest so future runs self-clean
+#   5. fully restart Elden Ring, connect, then in the client console:  /warp 68000
+
+name: Alaric
+description: ER AP DLC-only RUN, GATED -- Land of Shadow only, trimmed (~466), no enemy rando, region_lock + Messmer gate, PCR goal.
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true            # forced on by dlc_only anyway; set explicitly for clarity
+  dlc_only: true              # pool = DLC only, base = transit (no checks)
+  ending_condition: final_boss   # Promised Consort Radahn (Circlet of Light) when DLC on
+
+  enemy_rando: false          # <-- explicitly OFF for this run
+
+  # Messmer's Kindling shard gate = the progression spine.
+  messmer_kindle: true
+  messmer_kindle_required: 5
+  messmer_kindle_max: 10
+
+  #location_pool: trimmed      # trimmed pool; ~466 with auto_upgrade off (stones stay as checks)
+  auto_upgrade: false         # OFF: keeps ~117 stone checks so the 22 locks + 10 shards have room
+                              #   to place in-world. (With the inject fix you CAN flip this true for
+                              #   the tighter ~353 curated pool -- both gate correctly now.)
+  dlc_gear_curation: true     # backfill best S/A DLC gear into received items (balance nudge)
+  scadu_frontload: 25         # front-load ~half the Scadutree Fragments into sphere 1 so blessing
+                              #   ramps early and DLC enemies (atk x3.75 from zone 1) stop one-
+                              #   shotting the fresh start. 0 = normal spread. REQUIRES
+                              #   patch_scadu_frontload.py applied first, else AP ignores this key.
+  world_logic: region_lock    # per-region lock items give real spheres (also the default)
+
+  # Trimmed needs allow_useful on missable/excluded or the pool runs short of filler.
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+
+  # MUST live under EldenRing: -- at document root AP ignores it (silently defaults to full).
+  accessibility: minimal
+  progression_balancing: 50

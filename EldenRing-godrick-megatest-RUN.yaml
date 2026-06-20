@@ -1,0 +1,84 @@
+# ER Archipelago -- GODRICK mini-campaign, MEGATEST. 2026-06-17.
+# Consolidates your last curated-RUN config (from the 21:35 gendiag ground truth) + the new
+# features to exercise in one bake. Limgrave/Weeping/Stormveil only, base game, defeat Godrick.
+#
+# APPLY THESE PATCHES FIRST (Windows, repo root) -- in this order:
+#     python patch_pool_builder.py
+#     python patch_pool_builder_dlc_gear.py
+#     python patch_progressive_consumables.py        # <-- was missing last bake
+#     python patch_stormveil_arealock.py             # Stormveil kick (area 10000)
+#     python patch_apworld_grace_arena_exclude.py    # re-run: now cuts 76161 (Leonine arena)
+#     python patch_morne_carve.py                    # REQUIRED for extra_region_locks: castle_morne
+#     python patch_no_spirit_ashes.py                # strip spirit summons + the bell from the pool
+# Then a clean enemy-OFF rebuild (NO -Enemies):
+#     .\build.ps1 -Randomizer -Generate -Serve -Bake -Deploy -Preflight
+#
+# ============================ WHAT'S NEW IN THIS BAKE ============================
+#  dungeon_sweep: bosses        -- TOTAL boss attribution (every check -> nearest boss);
+#                                  FIRST in-game playtest of BossAttribution + sweep_flags.
+#  grace_sweep: complement      -- pairs with boss attribution: graces sweep the gaps the
+#                                  boss layer covers poorly. (No effect unless dungeon_sweep=bosses.)
+#  extra_region_locks: godrick + castle_morne -- granular inner gates (Godrick behind its OWN
+#                                  lock separate from Stormveil; Castle Morne gated separately
+#                                  from Weeping).  *** SEE CAVEAT BELOW ***
+#  no_weapon_requirements: true -- strip all weapon/ammo/spell stat reqs (your "item reqs off");
+#                                  anything the pool hands you is usable regardless of build.
+#  early_leveling: true         -- level at graces from the start, skip Melina (region-lock
+#                                  safety: her grace trigger may never fire in a 3-region run).
+#
+# *** CAVEAT on the granularity (godrick / castle_morne) ***
+# These add the LOGIC gate (fill seals Godrick behind Godrick Lock, Morne behind Morne Lock)
+# and mint the fog-open flags (76998 Godrick, 76997 Morne). BUT physical enforcement of those
+# two INNER gates is NOT authored yet: RegionFogGates.Borders only defines the Weeping bridge +
+# the Stormveil main gate -- there is NO Border for the Godrick throne or the Morne gate, and
+# the throne shares Stormveil's area id (10000) so the kick can't separate it either. So this
+# bake validates the GEN/FILL gating + the flag bake, but you won't see a physical Morne/Godrick
+# wall in-game. (Adding those Borders is a follow-up C# task -- needs the asset/position like the
+# Stormveil "render test".)
+#
+# NOTE: this stacks a LOT of untested features; if the bake or a seed breaks, peel back the
+# newest (boss attribution + granularity are the riskiest). The checked-in apworld is STALE --
+# gen from Archipelago\worlds\ source.
+
+name: Alaric
+description: ER AP Godrick MEGATEST -- pool builder + DLC gear + progressive flasks/glovewort/bells + boss-attribution sweep + grace sweep + godrick/morne granularity + no weapon reqs, region_lock, defeat Godrick.
+game: EldenRing
+
+EldenRing:
+  enable_dlc: false
+  dlc_only: false
+  ending_condition: godrick
+  enemy_rando: false
+  world_logic: region_lock
+
+  # --- pool builder (your last config) ---
+  pool_builder: true
+  pool_builder_dlc_gear: true   # inject DLC S/A gear (needs the DLC installed to grant in-game)
+  auto_upgrade: true            # received/found gear auto-scales
+
+  # --- progressive upgrades (your last config) ---
+  progressive_flasks: true
+  progressive_glovewort_bells: true
+  progressive_stone_bells: true
+  progressive_bell_count: 6
+
+  # --- NEW: sweeps ---
+  dungeon_sweep: bosses         # total boss attribution (first in-game test)
+  grace_sweep: complement       # complementary grace trigger for the sweep
+
+  # --- NEW: granular inner locks (see CAVEAT above) ---
+  extra_region_locks:
+    - godrick
+    - castle_morne
+
+  # --- NEW: usability / region-lock safety ---
+  no_weapon_requirements: true  # strip weapon/ammo/spell stat reqs
+  early_leveling: true          # level from start, skip Melina
+  no_spirit_ashes: true         # drop all spirit summons + the (buggy) Spirit Calling Bell
+
+  # Pool builder / progressive scrub filler-bearing pickups; allow_useful avoids a filler shortage.
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+
+  accessibility: minimal
+  progression_balancing: 50

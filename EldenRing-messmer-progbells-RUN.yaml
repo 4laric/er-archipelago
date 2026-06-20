@@ -1,0 +1,52 @@
+# ER Archipelago -- DLC-ONLY MESSMER RUN, progressive bells + quick_start. 2026-06-17.
+# Short DLC mini-campaign: reach Shadow Keep and defeat Messmer the Impaler. Keeps only the
+# front-half DLC (Gravesite/Belurat/Castle Ensis/Scadu Altus/Shadow Keep); the rest is sealed.
+#
+# ending_condition: messmer FORCES dlc_only on and messmer_kindle OFF (Enir Ilim is sealed),
+# so the kindle shard gate does NOT apply here -- the goal is just the Messmer DefeatFlag.
+#
+# This run exercises: progressive_stone_bells (auto_upgrade OFF) with the doubled pool count
+# (stone_bells.py PROGRESSIVE_BELL_POOL_COUNT = 20 each) -> the overflow copies past tier 4/5
+# now grant a Lord's Rune (patch_client_bell_overflow_rune.py); plus quick_start (71 Lord's
+# Runes at load-in for ~RL120).
+#
+# CLEAN REBUILD (enemy-OFF -- do NOT use plain -All, which forces -Enemies):
+#   1. (one-time, if the last bake was an enemy/BossSweep run) restore vanilla game files first
+#      (see EldenRing-dlc-only-RUN.yaml step 1 for the copy commands).
+#   2. python patch_client_warp.py            # if /warp not already in the client
+#   3. .\build.ps1 -Randomizer -Client -Generate -Serve -Bake -Deploy -Preflight   # NO -Enemies
+#   4. .\tools\deploy_hygiene.ps1 -Snapshot
+#   5. fully restart Elden Ring, connect, then in the client console:  /warp 68000
+
+name: Alaric
+description: ER AP DLC-only MESSMER run -- Land of Shadow front half, progressive bells (doubled) + quick_start, no enemy rando.
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true            # forced on by dlc_only / messmer anyway; explicit for clarity
+  dlc_only: true              # pool = DLC only, base = transit (no checks)
+  ending_condition: messmer   # reach Shadow Keep, defeat Messmer the Impaler (forces dlc_only on)
+
+  enemy_rando: false          # explicitly OFF for this run
+
+  # Messmer goal seals Enir Ilim, so the kindle gate is forced off -- set false to match.
+  messmer_kindle: false
+
+  auto_upgrade: true         # OFF: required for progressive_stone_bells to be active, and keeps
+                              #   stone checks in-world so the locks/shards have room to place.
+  progressive_stone_bells: true   # 2 progressive bells; pool 15 each (safer than 20 for the tight
+                                  #   dlc_only budget) -> overflow copies past tier grant Lord's Runes.
+  quick_start: true           # 71 Lord's Runes at load-in (~RL120); only fires under dlc_only.
+
+  dlc_gear_curation: true     # backfill best S/A DLC gear into received items (balance nudge)
+  scadu_frontload: 25         # front-load ~half the Scadutree Fragments into sphere 1 (needs
+                              #   patch_scadu_frontload.py applied, else AP ignores this key).
+  world_logic: region_lock    # per-region lock items give real spheres (also the default)
+
+  # Trimmed/dlc_only needs allow_useful on missable/excluded or the pool runs short of filler.
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+
+  # MUST live under EldenRing: -- at document root AP ignores it (silently defaults to full).
+  accessibility: minimal
+  progression_balancing: 50

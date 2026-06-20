@@ -1,0 +1,21 @@
+{
+  "tracker_default": {
+    "type": "array",
+    "orientation": "horizontal",
+    "margin": [4, 4],
+    "content": [
+      {
+        "type": "map",
+        "maps": ["land_of_shadow"],
+        "max_width": 720
+      },
+      {
+        "type": "group",
+        "header": "Tracked items (locks + key items)",
+        "content": [
+          { "type": "layout", "key": "item_grid" }
+        ]
+      }
+    ]
+  }
+}
