@@ -1,0 +1,45 @@
+# ER Archipelago -- BOSS ATTRIBUTION test, DLC ON. 2026-06-16.
+# Verifies that the boss/grace sweep attributes DLC checks too (SPEC-boss-attribution.md).
+# Same as EldenRing-bosssweep-test.yaml but enable_dlc: true so the ~1.2k DLC checks are in the
+# pool alongside the base game. Exercises the DLC LegacyPrefix additions (Belurat/Enir-Ilim,
+# Shadow Keep, Specimen Storehouse, Stone Coffin Fissure) and the already-tagged DLC minidungeons.
+#
+# HOW TO RUN: copy this over Players\EldenRing-bosssweep-test.yaml (preserve whatever's there
+# first), then:  .\build.ps1 -Clean -Randomizer -Generate -Serve -Bake
+#
+# WHAT TO CHECK in ap_sweep_diag after baking:
+#   - unattributed ~= 0 (every base+DLC open check attributed to a boss)
+#   - field/capstone/graceTriggers all > 0, regions well above the base-only 44
+#   - DLC DefeatFlags appear among the boss flags: 20000800 (Divine Beast/Belurat),
+#     20010800 (Radahn Consort/Enir-Ilim), 21000850 (Golden Hippo/Shadow Keep),
+#     21010800 (Messmer/Storehouse), 22000800 (Putrescent Knight/Stone Coffin Fissure),
+#     plus DLC minidungeon + field-boss flags (Rellana, Bayle, Metyr, Midra, Gaius...).
+
+name: BossSweepDLC
+description: ER AP boss-attribution + grace-complement test, DLC content ON (PCR goal).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: true                # DLC content/checks ON -- the point of this run
+  ending_condition: final_boss    # Promised Consort Radahn (Circlet of Light) when DLC on
+  death_link: false
+
+  # enemy rando ON (validated path). swap/rune toggles OFF (crash vs DLC enemies, TODO #1).
+  enemy_rando: true
+  swap_multiboss: false
+  boss_runes_match: false
+  impolite_enemies: false
+
+  # precollected QoL (proven precollect path)
+  bell_physick_option: start_with
+  crafting_kit_option: start_with
+
+  # --- FEATURE UNDER TEST ---
+  dungeon_sweep: bosses           # total boss attribution -- emits apconfig sweep_flags
+  grace_sweep: complement         # grace fills the sparse-field-boss gaps
+
+  # full check footprint (base + DLC) so the sweep covers everything.
+  location_pool: all
+
+  # keep DLC gear curation off here -- DLC gear is already in-pool with DLC on.
+  dlc_gear_curation: false

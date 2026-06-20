@@ -1,0 +1,53 @@
+# ER Archipelago -- BOSS ATTRIBUTION test config. 2026-06-15.
+# Exercises the new total boss-sweep + grace complement (SPEC-boss-attribution.md):
+#   dungeon_sweep: bosses   -> every overworld check attributed to its nearest field boss
+#                              (Agheel, Lansseax, Tibia Mariner, evergaols, night bosses...),
+#                              dungeons to their dungeon boss, leftovers to the region capstone.
+#                              The bake emits sweep_flags into apconfig.json.
+#   grace_sweep: complement -> sparse-region checks ALSO send when their nearest Site of Grace
+#                              is lit (first of {boss killed, grace lit} wins).
+#
+# DLC content/checks OFF (cleaner for the sweep test -- base-game-only checks, no DLC sentinel
+# coords) but dlc_gear_curation ON to pull the best DLC weapons/armor into the base pool. NOTE:
+# DLC-off baking leans on the #7 volcano_town loop fix (fixpoint findLoops); if the bake errors
+# on a requirement loop, that's #7, not the sweep -- flip enable_dlc back to true to isolate.
+# location_pool: all gives the full ~3.2k base-check footprint (matches the Python dry-run).
+#
+# WHAT TO CHECK after baking:
+#   1. bake console: "sweep_flags: <N> trigger flags over <M> checks (<P> flag-location pairs);
+#      grace mode complement"  -- M ~= ap_location_coords item count; P > M (grace dual-triggers).
+#   2. apconfig.json contains a non-empty "sweep_flags" object.
+#   3. in-game: kill a field boss (Agheel) or light a grace near 2+ unchecked locations ->
+#      they send; client log: "Boss/grace sweep: flag <X> cleared <n> check(s)".
+#   4. regen with dungeon_sweep: all (below) -> apconfig has NO sweep_flags (gating proof).
+
+name: BossSweep
+description: ER AP boss-attribution + grace-complement test (DLC content, Elden Beast goal).
+game: EldenRing
+
+EldenRing:
+  enable_dlc: false               # DLC content/checks OFF -- also exercises the #7 DLC-off bake fix
+  ending_condition: elden_beast   # base-game finish
+  death_link: false
+
+  # enemy rando ON (validated path). swap/rune toggles OFF (crash vs DLC enemies, TODO #1).
+  enemy_rando: true
+  swap_multiboss: false
+  boss_runes_match: false
+  impolite_enemies: false
+
+  # precollected QoL (proven precollect path)
+  bell_physick_option: start_with
+  crafting_kit_option: start_with
+
+  # --- FEATURE UNDER TEST ---
+  dungeon_sweep: bosses           # total boss attribution (NEW) -- emits apconfig sweep_flags
+  grace_sweep: complement         # grace fills the sparse-field-boss gaps (NEW)
+
+  # full check footprint so emitted sweep_flags counts match the dry-run (~3.2k base checks).
+  location_pool: all
+
+  # Pull DLC gear into this base-game pool: the worst skippable C/D/F base weapons/armor are
+  # swapped 1:1 for the best S/A DLC gear. Works with enable_dlc OFF (DLC items inject even
+  # though DLC checks are disabled, like the rune-skip injection). Locations stay as checks.
+  dlc_gear_curation: true
