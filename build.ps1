@@ -10,6 +10,7 @@
 #   .\build.ps1 -Deploy                  # copy bake outputs + client DLL + apconfig into the game
 #   .\build.ps1 -All                     # the full pipeline (= -Randomizer -Client -Generate -Serve -Bake -Enemies -Deploy -Preflight)
 #   .\build.ps1 -All -NoClient           # ...everything in -All EXCEPT the C++ client build (reuse the already-deployed DLL)
+#   .\build.ps1 -Apworld                 # package Archipelago\worlds\eldenring into eldenring.apworld (excludes .bak/.pyc)
 #   .\build.ps1 -Preflight               # timestamped preflight log + PASS/FAIL cross-checks (seed/slot/deploy freshness)
 #   .\build.ps1 -LoopTest -Seeds 1,2,3    # bake a batch of seeds unattended (seed-dependent bug hunt, e.g. #7)
 #   .\build.ps1 -LoopTest -Count 8        # ...or N fresh random seeds
@@ -30,10 +31,13 @@ param(
     [switch]$Client,
     [switch]$NoClient,
     [switch]$Generate,
+    [int]$GenRetries = 2,            # genretry: gen re-roll attempts on a seed-dependent FillError (0 = off)
+    [switch]$GenBumpRegions,         # genretry: also bump num_regions +1 in Players\*.yaml per retry (restored after)
     [switch]$Serve,
     [switch]$Bake,
     [switch]$Enemies,
     [switch]$Deploy,
+    [switch]$Apworld,
     [switch]$NoCrashFix,
     [switch]$Helper,
     [switch]$Clean,
@@ -71,7 +75,7 @@ if (-not (Get-Command pwsh.exe -ErrorAction SilentlyContinue)) {
 # -All = the full pipeline: build both, regenerate, serve, bake w/ enemies, deploy.
 if ($All) {
     $Randomizer = $true; $Client = (-not $NoClient); $Generate = $true
-    $Serve = $true; $Bake = $true; $Enemies = $true; $Deploy = $true; $Preflight = $true
+    $Serve = $true; $Bake = $true; $Enemies = $true; $Deploy = $true; $Preflight = $true; $Apworld = $true
 }
 
 # ----- config ---------------------------------------------------------------------------------
@@ -141,7 +145,7 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $All)) {
+if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $All)) {
     Get-Content $PSCommandPath | Select-Object -Skip 1 -First 20 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
@@ -200,28 +204,97 @@ if ($Generate) {
     } else {
         Write-Warning "pregen.py not found -- skipping stale-bytecode/yaml guard"
     }
-    $ts = Get-Date -Format "yyyyMMdd-HHmmss"
-    $genLog  = Join-Path $Repo "generate_$ts.log"     # raw Generate.py output (stdout+stderr)
-    $genDiag = Join-Path $Repo "gendiag_$ts.txt"      # compact summary (dlcdiag.py)
-    Push-Location $ApDir
-    try {
-        # cmd does the redirect so PowerShell's Stop pref doesn't trip on python's native stderr
-        # warnings (pkg_resources etc.). Both streams -> raw log; $LASTEXITCODE = python's code.
-        $env:AP_NONINTERACTIVE = "1"   # suppress Generate.py's atexit "Press enter to close." pause on error
-        cmd /c "python Generate.py > `"$genLog`" 2>&1"
-        $genExit = $LASTEXITCODE
-    } finally { Pop-Location }
-    # Compact, timestamped diagnostic (parses the raw log; no scrolling a 10k-line FillError dump).
-    if (Test-Path (Join-Path $Repo "dlcdiag.py")) {
-        python (Join-Path $Repo "dlcdiag.py") $genLog $genDiag $genExit | Out-Null
-        if (Test-Path $genDiag) { Get-Content $genDiag | Write-Host }
+    # --- genretry: each Generate.py run picks a FRESH random seed, so a seed-dependent
+    # FillError usually clears on a retry. Config/syntax errors (no 'FillError' in the log) are
+    # fatal immediately. -GenRetries sets the count; -GenBumpRegions also bumps num_regions +1.
+    $maxAttempts = 1 + [math]::Max(0, $GenRetries)
+    $genExit = 1
+    $playersDir = Join-Path $ApDir "Players"
+    $yamlBackup = @{}
+    if ($GenBumpRegions) {
+        Get-ChildItem $playersDir -Filter *.yaml -ErrorAction SilentlyContinue | ForEach-Object {
+            $yamlBackup[$_.FullName] = Get-Content -LiteralPath $_.FullName -Raw
+        }
     }
-    Write-Host ("generation raw log -> {0}" -f $genLog)  -ForegroundColor Green
-    if (Test-Path $genDiag) { Write-Host ("generation diag    -> {0}" -f $genDiag) -ForegroundColor Green }
-    if ($genExit -ne 0) { throw ("multiworld generation FAILED (exit {0}) -- see diag/raw log above" -f $genExit) }
+    try {
+        for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            if ($attempt -gt 1) {
+                Write-Warning ("gen re-roll: attempt {0} of {1} (fresh seed)" -f $attempt, $maxAttempts)
+            }
+            $ts = Get-Date -Format "yyyyMMdd-HHmmss"
+            $genLog  = Join-Path $Repo "generate_$ts.log"
+            $genDiag = Join-Path $Repo "gendiag_$ts.txt"
+            Push-Location $ApDir
+            try {
+                $env:AP_NONINTERACTIVE = "1"   # suppress Generate.py's atexit "Press enter to close." pause
+                cmd /c "python Generate.py > `"$genLog`" 2>&1"
+                $genExit = $LASTEXITCODE
+            } finally { Pop-Location }
+            if (Test-Path (Join-Path $Repo "dlcdiag.py")) {
+                python (Join-Path $Repo "dlcdiag.py") $genLog $genDiag $genExit | Out-Null
+                if (Test-Path $genDiag) { Get-Content $genDiag | Write-Host }
+            }
+            Write-Host ("generation raw log -> {0}" -f $genLog)  -ForegroundColor Green
+            if (Test-Path $genDiag) { Write-Host ("generation diag    -> {0}" -f $genDiag) -ForegroundColor Green }
+            if ($genExit -eq 0) { break }
+            $isFill = Select-String -Path $genLog -SimpleMatch -Pattern "FillError" -Quiet
+            if (-not $isFill) {
+                throw ("multiworld generation FAILED (exit {0}; not a FillError -- not retrying) -- see diag/raw log above" -f $genExit)
+            }
+            if ($attempt -lt $maxAttempts) {
+                Write-Warning "  seed-dependent FillError -- re-rolling."
+                if ($GenBumpRegions) {
+                    foreach ($yf in @($yamlBackup.Keys)) {
+                        $c = Get-Content -LiteralPath $yf -Raw
+                        $c2 = [regex]::Replace($c, '(?m)^(\s*num_regions:[ \t]*)(\d+)', { param($m) $m.Groups[1].Value + ([int]$m.Groups[2].Value + 1) })
+                        if ($c2 -ne $c) {
+                            Set-Content -LiteralPath $yf -Value $c2 -NoNewline
+                            Write-Warning ("  bumped num_regions +1 in {0}" -f (Split-Path $yf -Leaf))
+                        }
+                    }
+                }
+            }
+        }
+    } finally {
+        foreach ($yf in @($yamlBackup.Keys)) {
+            Set-Content -LiteralPath $yf -Value $yamlBackup[$yf] -NoNewline   # restore the yaml the user wrote
+        }
+    }
+    if ($genExit -ne 0) { throw ("multiworld generation FAILED after {0} attempt(s) (exit {1}) -- see diag/raw log above" -f $maxAttempts, $genExit) }
     $newest = Get-ChildItem (Join-Path $ApDir "output") -Filter "AP_*.zip" |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
     Write-Host "  -> $($newest.FullName)"
+}
+
+# ----- package apworld ------------------------------------------------------------------------
+if ($Apworld) {
+    Step "Packaging eldenring.apworld from Archipelago\worlds\eldenring"
+    $srcDir = Join-Path $ApDir "worlds\eldenring"
+    if (-not (Test-Path (Join-Path $srcDir "__init__.py"))) { throw "apworld source not found: $srcDir\__init__.py" }
+    $outFile = Join-Path $Repo "eldenring.apworld"
+    Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
+    # Exclude dev clutter: per-patch __init__ backups (*.bak*), bytecode caches, and the
+    # gen-time diag dumps the world writes into its own folder. Keep the real package + data.
+    $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo')
+    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt')
+    $srcFull = (Resolve-Path $srcDir).Path.TrimEnd('\')
+    $files = Get-ChildItem -LiteralPath $srcFull -Recurse -File | Where-Object {
+        $rel = $_.FullName.Substring($srcFull.Length).TrimStart('\','/')
+        if ($rel -match '(^|[\\/])__pycache__([\\/]|$)') { return $false }
+        if ($excludeExact -contains $_.Name) { return $false }
+        foreach ($p in $excludeName) { if ($_.Name -like $p) { return $false } }
+        return $true
+    }
+    if (Test-Path $outFile) { Remove-Item -LiteralPath $outFile -Force }
+    $zip = [System.IO.Compression.ZipFile]::Open($outFile, 'Create')
+    try {
+        foreach ($f in $files) {
+            $rel = $f.FullName.Substring($srcFull.Length).TrimStart('\','/').Replace('\','/')
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $f.FullName, "eldenring/$rel") | Out-Null
+        }
+    } finally { $zip.Dispose() }
+    $size = [math]::Round((Get-Item $outFile).Length / 1KB, 1)
+    Write-Host ("  -> {0}  ({1} files, {2} KB)" -f $outFile, $files.Count, $size) -ForegroundColor Green
 }
 
 # ----- serve ----------------------------------------------------------------------------------
