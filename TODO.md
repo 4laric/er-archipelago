@@ -2,6 +2,29 @@
 
 Actionable backlog. Living doc; see HANDOFF.md for current state and SPEC-*.md for designs.
 
+## 0b. Bundle-lock pickup name (option C) — FMG name for the lock sentinel
+
+Bundle locks (Liurnia Caves / Shadow Catacombs / Altus / Mountaintops / Limgrave Caves) are
+sentinel items (id 99999) with no FMG name, so the native ticker can't show their real name. Option B
+(`patch_apworld_bundle_lock_notify.py`) works around it by granting the area's MAP so the banner reads
+e.g. "Map: Limgrave, West" (+ a map-reveal side effect). The clean fix is to give the lock sentinel its
+own FMG name so the banner reads "Limgrave Caves Lock" directly.
+- [ ] Add an FMG entry (goods name/caption) for each bundle lock sentinel; needs the FMG RE / bake
+      step (parked — don't chase unprompted, but logged here per request).
+- [ ] Once named, drop the option-B map override (or keep as the map-reveal is a feature).
+
+## 0. Church-basement grace granted pre-drain (DLC Shadow Keep) — warp drops you onto lethal lifts
+
+The region grace bundle lights the Shadow Keep church-basement grace (Church District Lower /
+Scadutree Base) *before the water is drained*, so fast-travelling there gives access to a few
+elevators that just kill you. Same failure family as `patch_apworld_grace_arena_exclude.py` (warp
+into a bad spot). Fix: don't grant that grace until the drain state flag is set (flag-gate it), or
+exclude it from the warp bundle entirely.
+- [ ] Capture the Shadow Keep church-drain event flag (EMEVD / in-game) — also an open item in
+      `SPEC-chokepoint-locks.md` (the drain is the keep's one internal chokepoint).
+- [ ] Flag-gate or bundle-exclude the Church District Lower / Scadutree Base grace so it isn't
+      warp-enabled pre-drain.
+
 ## 16. DLC-only mode (Shadow of the Erdtree) -- see BRIEF-dlc-only.md / SPEC-dlc-only.md
 
 yaml-gated `dlc_only` toggle: check pool = Land of Shadow only (~1,171-1,207 checks), base kept for
@@ -426,3 +449,60 @@ Roundtable Hold (m11_10) from game start so she's right by Hewg.
       Roundtable hand-off; verify spirit-tuning menu actually opens at Roundtable on a fresh save.
 - [ ] Pairs with 20a: flags (stock) + presence (her being there) together = buy glovewort and tune
       ashes next to Hewg, no walking.
+
+### 21. Completion scaling: apply to UNRANDOMIZED enemies (decouple from enemy_rando)
+Today `completion_scaling` (SPEC-completion-scaling.md) only takes effect with `enemy_rando` ON, because
+the scaling pass lives entirely inside `EnemyRandomizer.Run`, which ArchipelagoForm only calls when
+`randomize_enemies` is true. The scaling-SpEffect mechanism itself works fine on un-relocated enemies
+(it's how relocated enemies get rescaled in place) -- only the invocation is gated. Alaric is fine
+turning enemy_rando ON for playtest; this is the follow-up to make it stand alone (prereq for ever
+defaulting it on meaningfully).
+- [ ] Cheap viability check FIRST: does `EnemyRandomizer.Run` still walk every enemy and apply the
+      in-place scaling SpEffect when `opt["enemy"]==false` (relocation off) but `opt["scale"]==true`?
+      If yes, just have ArchipelagoForm also call Run when `completion_scaling>0` with enemy off
+      (`opt["enemy"]=false, opt["scale"]=true`). Confirm the enemy-writing loop doesn't early-out on
+      `!opt["enemy"]`.
+- [ ] If it early-outs: build a standalone scale-only pass -- load enemy MSB defaultData, run
+      `ScalingEffects.InitializeEldenScaling`, reshape tiers (same curve/floor as the v1 reshape in
+      patch_baker_completion_scaling.py), and write each enemy's (native->reshaped) area-scaling
+      SpEffect IN PLACE, no relocation. Factor the SpEffect-assignment half of Run out so both share it.
+- [ ] Once standalone: drop the "REQUIRES enemy_rando" caveat -- update the options.py docstring +
+      the MASTER template note (rerun tools/gen_master_template.py) + SPEC-completion-scaling.md.
+
+### 22. Sphere-ordered completion scaling (start-relative; SPEC-sphere-ordered-scaling.md)
+Alaric: "I want the tiers ordered by sphere." v1 completion_scaling reshapes by NATIVE GEOGRAPHIC tier
+(start-unaware) -- a random Altus start fights softened-mid-game Altus (~tier 5), not Limgrave (~tier 1).
+v2: tier = curve(region's AP fill SPHERE / maxSphere), so the rolled start region = sphere 1 = tier 1
+and difficulty climbs with progression. Start-relative falls out of the fill for free (random start
+precollects its lock -> sphere 1). Adds a `sphere` basis to CompletionScaling (keep geographic as default).
+- [ ] apworld (post-fill): region_sphere = min sphere over each region's locations (multiworld.get_spheres);
+      emit regionSphereTargets {region: curve(depth) frac} + apLocationRegion {ap_loc_id: region} (the join key).
+- [ ] baker (the crux -- enemy->region bridge we dodged in v1): build mapRegion {MSB map: region} from
+      the location placements the baker already makes (join AP loc -> its map  x  apLocationRegion -> region);
+      reshape each enemy by regionSphereTargets[mapRegion[enemy.MainMap]]; fall back to v1 native-tier for
+      maps with no AP check. (Reuse any existing randomizer map->region table if one exists.)
+- [ ] sphere granularity: spheres are lumpy -> dense-rank regions by sphere or tiebreak with region_order
+      so same-sphere regions still spread across tiers. Tune in playtest.
+- [ ] log per-region tier + unmapped maps to ap_bake; gen+bake-test a random Altus start (mobs ~Limgrave).
+
+### 23. Control randomizer -- "the Skumnut special" (SPEC-control-randomizer.md)
+Your control scheme is the item pool: start gimped, receive capabilities. Lives in the runtime client
+(NEW input/action hook subsystem -- client has none today, only the stdin console reader). Default-off,
+local to the Skumnut slot.
+- [ ] CLIENT subsystem: per-frame input mask, gated on a gameplay-vs-menu guard (THE load-bearing
+      predicate -- masking globally bricks menu nav; nail it first). receivedItemNames -> live unlock bools.
+- [ ] Look Left / Free Camera (clamp rstick-X >= 0) = PROTOTYPE FIRST (lowest risk, proves the hook).
+- [ ] Dodge Roll = action-level (shared dodge button; suppress roll behavior, keep sprint/backstep).
+- [ ] Torrent Double Jump = suppress 2nd mounted air-jump only (ground/first-jump/spiritsprings intact).
+- [ ] apworld: items "Look Left"/"Dodge Roll"/"Torrent Double Jump"/"Jump"; toggles no_dodge_roll,
+      camera_right_only, no_torrent_double_jump, jump_randomized; make them local_items; emit active set in slot_data.
+- [ ] LOGIC: roll+camera NON-logical. Torrent Double Jump = tiny DOUBLE_JUMP_LOCATIONS exclude/gate.
+      jump_randomized (v2) = curated JUMP_REQUIRED_LOCATIONS behind Jump item; DON'T audit all locs --
+      tag known jump-only pickups + grow via playtest; CONFIRM no goal-critical location needs jump.
+- [ ] new data module control_logic.py for the two curated location lists.
+
+- [ ] QoL/BAKER: inject an in-game SIGN/message near Gurranq (Dragonbarrow Bestial Sanctum)
+      listing all 9 deathroot-ladder rewards, so the cumulative "blind grub-ladder" isn't opaque.
+      Pairs with the Gurranq de-randomization (lock ladder vanilla + inject Beastclaw Greathammer
+      [reward 7] + Ancient Dragon Smithing Stone [reward 9]). Rewards are missable=True in vanilla;
+      de-rando makes the 2 keepers reliably obtainable. Sign text = FMG/message injection in baker.
