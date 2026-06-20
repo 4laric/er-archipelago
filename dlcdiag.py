@@ -185,31 +185,47 @@ import os, glob, zipfile
 def _emit_options():
     repo = os.path.dirname(os.path.abspath(raw_path))
     outdir = os.path.join(repo, "Archipelago", "output")
-    zips = sorted(glob.glob(os.path.join(outdir, "AP_*.zip")), key=os.path.getmtime)
+    # Tie the spoiler we read to THIS gen's seed. AP names the zip with the seed
+    # NAME (AP_55769....zip) while the spoiler header carries the real Seed: <num>,
+    # so the filename can't be matched -- we must look INSIDE each zip. On a FAILED
+    # gen (no new zip) the newest zip on disk is a PRIOR run; printing it as
+    # "GROUND TRUTH" was the "two versions of ground truth" bug.
+    run_seed = first(r"Seed[: ]+(\d+)")
+    zips = sorted(glob.glob(os.path.join(outdir, "AP_*.zip")), key=os.path.getmtime, reverse=True)
     out("")
+    z = None; sp = []
+    for cand in zips:
+        try:
+            zf = zipfile.ZipFile(cand)
+            spn = [n for n in zf.namelist() if n.endswith("_Spoiler.txt")]
+            if not spn:
+                continue
+            body = zf.read(spn[0]).decode("utf-8", "replace").splitlines()
+        except Exception as e:
+            out("OPTIONS (resolved): (spoiler read failed for %s: %s)" % (os.path.basename(cand), e))
+            continue
+        m = re.search(r"Seed:\s*(\d+)", body[0] if body else "")
+        if run_seed is not None and m and m.group(1) == run_seed:
+            z = cand; sp = body; break
     if not zips:
         out("OPTIONS (resolved): (no AP_*.zip in Archipelago/output)")
-    else:
-        z = zips[-1]
-        try:
-            zf = zipfile.ZipFile(z)
-            spn = [n for n in zf.namelist() if n.endswith("_Spoiler.txt")]
-            sp = zf.read(spn[0]).decode("utf-8", "replace").splitlines() if spn else []
-        except Exception as e:
-            sp = []
-            out("OPTIONS (resolved): (spoiler read failed: %s)" % e)
-        if sp:
-            out("OPTIONS (resolved, from %s -- GROUND TRUTH, not a yaml):" % os.path.basename(z))
-            blanks = 0; started = False
-            for ln in sp:
-                if not ln.strip():
-                    blanks += 1
-                    if started:
-                        break          # end of the settings block
-                    continue
-                if blanks >= 1:        # past the "Archipelago Version ... Seed:" header line
-                    started = True
-                    out("  " + ln.rstrip())
+    elif z is None:
+        out("OPTIONS (resolved): (no spoiler matches this run's seed %s -- "
+            "gen produced no new zip; newest on disk %s is a PRIOR run)"
+            % (run_seed, os.path.basename(zips[0])))
+    if sp:
+        out("OPTIONS (resolved, from %s, seed %s -- GROUND TRUTH, not a yaml):"
+            % (os.path.basename(z), run_seed))
+        blanks = 0; started = False
+        for ln in sp:
+            if not ln.strip():
+                blanks += 1
+                if started:
+                    break          # end of the settings block
+                continue
+            if blanks >= 1:        # past the "Archipelago Version ... Seed:" header line
+                started = True
+                out("  " + ln.rstrip())
     # verbatim player yaml(s) -- raw record of the input
     pdir = os.path.join(repo, "Archipelago", "Players")
     yamls = sorted(glob.glob(os.path.join(pdir, "*.yaml")))
