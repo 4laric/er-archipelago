@@ -207,6 +207,7 @@ if ($Generate) {
     try {
         # cmd does the redirect so PowerShell's Stop pref doesn't trip on python's native stderr
         # warnings (pkg_resources etc.). Both streams -> raw log; $LASTEXITCODE = python's code.
+        $env:AP_NONINTERACTIVE = "1"   # suppress Generate.py's atexit "Press enter to close." pause on error
         cmd /c "python Generate.py > `"$genLog`" 2>&1"
         $genExit = $LASTEXITCODE
     } finally { Pop-Location }
@@ -249,7 +250,7 @@ if ($Bake) {
     if (-not (Test-Path $RandoExe)) { throw "randomizer exe not found -- run with -Randomizer first" }
     Push-Location $RandoDir   # cwd matters: outputs land here; apconfig.json lands at ..\
     try {
-        $bakeArgs = @("/gui", "autoconnect"); if ($Enemies) { $bakeArgs += "enemies" }
+        $bakeArgs = @("/gui", "autoconnect", "headless"); if ($Enemies) { $bakeArgs += "enemies" }
         # Pass the slot name from the (single) Players yaml so the bake connects as the right
         # slot instead of the hardcoded "Player1" (TODO #3). First yaml wins (dev-loop = 1 yaml).
         $playerYaml = Get-ChildItem (Join-Path $ApDir "Players") -Filter *.yaml -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -257,8 +258,10 @@ if ($Bake) {
             $nm = Select-String -Path $playerYaml.FullName -Pattern '^\s*name:\s*(.+?)\s*$' | Select-Object -First 1
             if ($nm) { $slot = $nm.Matches.Groups[1].Value.Trim(); $bakeArgs += "slot=$slot"; Write-Host "  bake slot = $slot" }
         }
-        & $RandoExe @bakeArgs | Out-Default   # blocks until the randomizer window closes
+        & $RandoExe @bakeArgs | Out-Default   # window auto-closes on completion (headless); no click needed
+        $bakeExit = $LASTEXITCODE
     } finally { Pop-Location }
+    if ($bakeExit -ne 0) { throw ("bake FAILED (exit {0}) -- see ap_bake_*.log / ap_error.txt in {1}" -f $bakeExit, $RandoDir) }
     Write-Host "  bake finished. Outputs: $RandoDir\{regulation.bin,event,msg,script,map} + $Repo\apconfig.json"
     # Surface the region-fog-gate bake diagnostic. RegionFogGates writes ap_region_gates_<stamp>.txt
     # to $RandoDir; the bake runs as a WinForms GUI so its Console output is otherwise not captured.
