@@ -506,3 +506,17 @@ local to the Skumnut slot.
       Pairs with the Gurranq de-randomization (lock ladder vanilla + inject Beastclaw Greathammer
       [reward 7] + Ancient Dragon Smithing Stone [reward 9]). Rewards are missable=True in vanilla;
       de-rando makes the 2 keepers reliably obtainable. Sign text = FMG/message injection in baker.
+
+## TODO: carve per-region cave bundles (Caelid caves + Snowfield split)  [2026-06-20]
+Chainable cave bundles (limgrave_underground / liurnia_caves / altus_caves / mountaintops_caves)
+now split out as their own selectable+chainable num_regions steps (CAVE_BUNDLE_STEPS, region_spine.py;
+patch_apworld_caves_chainable.py). FOLLOW-UP for full per-region granularity so a route like
+"Liurnia -> Caelid Caves -> Snowfield -> Altus" is fully expressible:
+  - Add a NEW extra_region_locks key `caelid_caves` (Caelid minor dungeons: Caelid Catacombs,
+    Gaol Cave, Sellia Crystal Tunnel, Abandoned Cave, Minor Erdtree Catacombs, Gale Tunnel,
+    War-Dead Catacombs) with its own torch + grace list + _BUNDLE_WARP + CAVE_BUNDLE_STEPS entry,
+    split out of the Caelid SPINE step (5).
+  - SPLIT Consecrated Snowfield dungeons out of mountaintops_caves into a standalone `snowfield_caves`
+    bundle (Consecrated Snowfield Catacombs, Cave of the Forlorn, Yelough Anix Tunnel) so Mountaintops
+    and Snowfield are independent chain links.
+  - New torches need item defs (items.py, lock=True) + BUNDLE_LOCK_GRACES + options.py valid_keys + docs.
