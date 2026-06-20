@@ -275,7 +275,7 @@ if ($Apworld) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
     # Exclude dev clutter: per-patch __init__ backups (*.bak*), bytecode caches, and the
     # gen-time diag dumps the world writes into its own folder. Keep the real package + data.
-    $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo')
+    $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo', 'ER_SPHERE_TIERS_*', 'ER_DIAG_*')
     $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt')
     $srcFull = (Resolve-Path $srcDir).Path.TrimEnd('\')
     $files = Get-ChildItem -LiteralPath $srcFull -Recurse -File | Where-Object {
@@ -295,6 +295,13 @@ if ($Apworld) {
     } finally { $zip.Dispose() }
     $size = [math]::Round((Get-Item $outFile).Length / 1KB, 1)
     Write-Host ("  -> {0}  ({1} files, {2} KB)" -f $outFile, $files.Count, $size) -ForegroundColor Green
+    # Timestamped copy: the canonical eldenring.apworld is overwritten in place each build, so its
+    # freshness is invisible through a stale mount / same-name overwrite. This stamped twin is the
+    # witness that THIS build repackaged, plus a distributable snapshot (Always-timestamp convention).
+    $apwStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    $apwCopy  = Join-Path $Repo ("eldenring_{0}.apworld" -f $apwStamp)
+    Copy-Item -LiteralPath $outFile -Destination $apwCopy -Force
+    Write-Host ("  -> {0}  (timestamped copy)" -f $apwCopy) -ForegroundColor Green
 }
 
 # ----- serve ----------------------------------------------------------------------------------
