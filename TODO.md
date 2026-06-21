@@ -23,9 +23,29 @@ sphere targets came out all 0.0. dlc_only and a Capital goal are effectively mut
       - dlc_only × num_regions → ERROR/WARN (num_regions is a base Capital run; meaningless under dlc_only).
       - ending_condition messmer/godrick × world_logic (already partly guarded) — fold in here.
       - num_regions × region_count × messmer/godrick spine overlap (already guarded ad-hoc) — fold in.
+      - FULL-base region_lock (world_logic region_lock/region_lock_bosses, NOT dlc_only, AND no
+        num_regions / region_count sealing) × accessibility=minimal → WARN likely-infeasible.
+        Surfaced 2026-06-21 by the fill-regression suite: gating the whole ~3900-check base game
+        overflows fill every seed (`FillError: No more spots to place 76–168 items`); ~150+ forced
+        progression items (region locks, keys, great runes) have no reachable+valid spot. Every
+        validated region_lock run seals via num_regions (cf. working.yaml `num_regions:3`) or is
+        dlc_only. This is "likely-to-fail", not strictly contradictory, so it WARNs (suggest
+        num_regions/region_count, dlc_only, or world_logic:open_world) rather than ERRORs — UNLESS a
+        feasibility heuristic (below) confirms the overflow, then ERROR.
+        OPEN: decide whether full-base region_lock should be made fillable instead (demotion patch,
+        cf. er-num-regions-fill-overflow) — if so this becomes OK, not WARN. See
+        gen-test/fill-regression-yamls/INVESTIGATION-fill-2026-06-21.md.
 - [ ] Single validator fn run early in generate_early; consolidate the existing inline forcing/guards
       into it so the rules live in one readable place.
-- [ ] Emit a clear per-player message naming the offending options + the chosen resolution.
+- [ ] Feasibility heuristic (beyond static option pairs) — catches BOTH ends of the fill problem:
+      * OVERFLOW: forced-placement demand (region-lock items + key items + great runes +
+        important_locations priority count, esp. Boss) > early-reachable valid slots → the
+        full-base region_lock case above.
+      * SHORTAGE: important_locations demand (count of priority location-types/instances that must
+        receive a non-junk item) > non-junk SUPPLY (progression + useful items left in the pool
+        after location_pool=lean/trimmed, filler_replacement, dlc_gear_curation, junk_retention).
+        i.e. "not enough progression/useful items to fill all important_locations." Compute both
+        sides at generate_early and WARN/ERROR when demand > supply, naming which side is short.
 - [ ] (stretch) surface the matrix in docs / a `--check-yaml` style dry run so users self-diagnose.
 
 
