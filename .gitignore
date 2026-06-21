@@ -15,7 +15,8 @@
 /Elden Ring Randomizer-428-v0-11-4-1763103112 (2)/
 
 # --- generated / build outputs ---
-eldenring.apworld          # packaged apworld (rebuilt by build.ps1)
+eldenring_*.apworld          # packaged apworld (rebuilt by build.ps1)
+gensweep*
 apconfig.json              # bake output (slot/seed/location_flags)
 preflight_*.log
 *.log
