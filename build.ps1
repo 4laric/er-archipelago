@@ -3,6 +3,9 @@
 # Usage (from the repo root, any PowerShell):
 #   .\build.ps1 -Randomizer              # build the C# static randomizer (clean, non-incremental)
 #   .\build.ps1 -Client                  # build the C++ runtime client DLL (full rebuild)
+#   .\build.ps1 -Rust                    # build + test the Rust client spike (cargo test + cdylib for x86_64-pc-windows-msvc)
+#   .\build.ps1 -RustDeploy              # swap the Rust client into mods\ (parks the C++ archipelago.dll; EML loads one client)
+#   .\build.ps1 -CppRestore              # swap back to the C++ client (parks eldenring_ap.dll)
 #   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py; REQUIRED after apworld changes)
 #   .\build.ps1 -Serve                   # launch the AP server on the newest output zip (new window)
 #   .\build.ps1 -Bake                    # launch the randomizer GUI w/ autoconnect (item rando only)
@@ -31,6 +34,9 @@ param(
     [switch]$Randomizer,
     [switch]$Client,
     [switch]$NoClient,
+    [switch]$Rust,             # build + test the Rust client spike (rust-client-spike); NOT part of -All
+    [switch]$RustDeploy,       # swap the Rust client DLL into mods\ (parks the C++ archipelago.dll)
+    [switch]$CppRestore,       # swap back to the C++ client (parks eldenring_ap.dll)
     [switch]$Generate,
     [int]$GenRetries = 2,            # genretry: gen re-roll attempts on a seed-dependent FillError (0 = off)
     [switch]$GenBumpRegions,         # genretry: also bump num_regions +1 in Players\*.yaml per retry (restored after)
@@ -93,6 +99,8 @@ $RandoDir = Join-Path $Repo "SoulsRandomizers"
 $RandoExe = Join-Path $RandoDir "EldenRingRandomizer\bin\Release (Archipelago)\net6.0-windows\win-x64\EldenRingRandomizer.exe"
 $ClientDir = Join-Path $Repo "Dark-Souls-III-Archipelago-client\archipelago-client"
 $ClientDll = Join-Path $ClientDir "x64\Release\archipelago.dll"
+$RustDir   = Join-Path $Repo "rust-client-spike"
+$RustDll   = Join-Path $RustDir "target\x86_64-pc-windows-msvc\release\eldenring_ap.dll"
 
 # RandomizerCrashFix.dll -- fifthmatt's redistributable companion (shipped in the v0.11.4 package).
 # Guards the cross-content enemy-placement CTDs that scripted legacy-dungeon intros are prone to once
@@ -149,7 +157,7 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $All)) {
+if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $All)) {
     Get-Content $PSCommandPath | Select-Object -Skip 1 -First 20 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
@@ -194,6 +202,93 @@ if ($Client) {
     } finally { Pop-Location }
     if (-not (Test-Path $ClientDll)) { throw "build reported success but DLL not found: $ClientDll" }
     Write-Host "  -> $ClientDll  (check the er::Init BUILD stamp at launch to confirm freshness)"
+}
+
+# ----- rust client spike (cargo; Phase-1 port verification) -----------------------------------
+# -Rust verifies the Rust port: cargo test (the er-codec/er-semver pure-logic contract) THEN builds
+# the injected cdylib for the MSVC target. On Windows, `cargo test` ALSO compiles the in-process
+# game module (#[cfg(windows)]), so this run is the real typecheck of the resolved eldenring 0.14
+# symbols (see rust-client-spike\VERIFY-RESOLUTION.md) -- expect to fix a // VERIFY spot or two the
+# first time. Deliberately NOT part of -All: the spike is not a shipping artifact yet. -Clean also
+# runs `cargo clean`. After a green build, load the DLL under me3 for the Phase-1 rowCount proof.
+if ($Rust) {
+    Step "Rust client spike: cargo test + cdylib build"
+    if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) { throw "rust spike not found at $RustDir" }
+    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+        throw "cargo not found on PATH. Install rustup from https://rustup.rs, then re-open the shell."
+    }
+    $RustTarget = "x86_64-pc-windows-msvc"
+    if (-not ((rustup target list --installed 2>$null) -match $RustTarget)) {
+        Write-Host "  installing rust target $RustTarget ..."
+        rustup target add $RustTarget
+        if ($LASTEXITCODE -ne 0) { throw "rustup target add $RustTarget failed" }
+    }
+    Push-Location $RustDir
+    try {
+        if ($Clean) { Step "  cargo clean"; cargo clean }
+        Step "  cargo test (pure-logic contract: er-codec golden vectors + er-semver gate)"
+        cargo test
+        if ($LASTEXITCODE -ne 0) { throw "cargo test failed -- a pure-logic test broke OR the game module did not compile (resolve against VERIFY-RESOLUTION.md). See output above." }
+        Step "  cargo build --release --target $RustTarget (injected cdylib)"
+        cargo build --release --target $RustTarget
+        if ($LASTEXITCODE -ne 0) { throw "cargo build failed -- the in-process game module likely needs a // VERIFY fix (see VERIFY-RESOLUTION.md)." }
+    } finally { Pop-Location }
+    if (-not (Test-Path $RustDll)) { throw "build reported success but DLL not found: $RustDll" }
+    Write-Host "  -> $RustDll" -ForegroundColor Green
+    Write-Host "  Phase-1 proof: load under your loader (me2/EML) and look for the log line:" -ForegroundColor Cyan
+    Write-Host "    EquipParamGoods rowCount = <~3571>, firstRowId = Some(0)"
+}
+
+# ----- rust client deploy / swap (EML loads mods\*.dll -- exactly ONE client DLL at a time) -----
+# EML auto-loads every mods\*.dll, so the C++ archipelago.dll and the Rust eldenring_ap.dll cannot
+# coexist (both hook AddItemFunc). -RustDeploy puts the Rust DLL in and parks the C++ one as
+# .disabled; -CppRestore reverses it. Pair with -Rust to build-then-swap: .\build.ps1 -Rust -RustDeploy
+if ($RustDeploy) {
+    Step "Deploying Rust client (eldenring_ap.dll) -> $ModsDir"
+    if (-not (Test-Path $RustDll)) { throw "Rust DLL not found at $RustDll -- run with -Rust first" }
+    if (-not (Test-Path $ModsDir)) { New-Item -ItemType Directory -Path $ModsDir | Out-Null }
+
+    $cppLive = Join-Path $ModsDir "archipelago.dll"
+    $cppOff  = Join-Path $ModsDir "archipelago.dll.disabled"
+    if (Test-Path $cppLive) {
+        if (Test-Path $cppOff) { Remove-Item $cppOff -Force }   # replace any stale parked copy
+        Rename-Item $cppLive $cppOff -Force
+        Write-Host "  parked C++ client -> archipelago.dll.disabled"
+    } elseif (Test-Path $cppOff) {
+        Write-Host "  C++ client already parked (archipelago.dll.disabled)"
+    } else {
+        Write-Host "  (no archipelago.dll present -- nothing to park)"
+    }
+
+    Copy-Item $RustDll (Join-Path $ModsDir "eldenring_ap.dll") -Force
+    Write-Host "  -> eldenring_ap.dll  (EML will load this)" -ForegroundColor Green
+    Write-Host "  Active client: RUST. Restore the C++ client with: .\build.ps1 -CppRestore"
+}
+
+if ($CppRestore) {
+    Step "Restoring C++ client (archipelago.dll) in $ModsDir"
+    $cppLive  = Join-Path $ModsDir "archipelago.dll"
+    $cppOff   = Join-Path $ModsDir "archipelago.dll.disabled"
+    $rustLive = Join-Path $ModsDir "eldenring_ap.dll"
+
+    # Park the Rust DLL so EML stops loading it.
+    if (Test-Path $rustLive) {
+        $rustOff = Join-Path $ModsDir "eldenring_ap.dll.disabled"
+        if (Test-Path $rustOff) { Remove-Item $rustOff -Force }
+        Rename-Item $rustLive $rustOff -Force
+        Write-Host "  parked Rust client -> eldenring_ap.dll.disabled"
+    }
+    # Bring the C++ DLL back.
+    if (Test-Path $cppOff) {
+        if (Test-Path $cppLive) { Remove-Item $cppLive -Force }
+        Rename-Item $cppOff $cppLive -Force
+        Write-Host "  restored archipelago.dll" -ForegroundColor Green
+    } elseif (Test-Path $cppLive) {
+        Write-Host "  archipelago.dll already live"
+    } else {
+        Write-Warning "no archipelago.dll(.disabled) in $ModsDir -- run -Deploy (with -Client) to place it"
+    }
+    Write-Host "  Active client: C++."
 }
 
 # ----- generate multiworld --------------------------------------------------------------------

@@ -30,6 +30,38 @@ pub fn contract_satisfies(range: &str) -> bool {
     er_semver::version_satisfies(CONTRACT_VERSION, range).unwrap_or(false)
 }
 
+/// Format a UNIX-epoch second count as `YYYYMMDD_HHMMSS` (UTC) for log file names. Pure + host-
+/// tested (Hinnant civil-from-days), so the timestamp the in-process logger stamps into the file
+/// name is verified off Windows. Saturates to "00000000_000000" only if called with secs=0.
+#[allow(dead_code)] // used by log_timestamp() (Windows) and the tests (any host)
+pub(crate) fn fmt_utc_compact(secs: u64) -> String {
+    let days = (secs / 86_400) as i64;
+    let tod = secs % 86_400;
+    let (hh, mm, ss) = (tod / 3600, (tod % 3600) / 60, tod % 60);
+    let z = days + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let y = yoe + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = if m <= 2 { y + 1 } else { y };
+    format!("{:04}{:02}{:02}_{:02}{:02}{:02}", y, m, d, hh, mm, ss)
+}
+
+/// Current UTC time as `YYYYMMDD_HHMMSS` (for the per-launch log file name).
+#[cfg(windows)]
+pub(crate) fn log_timestamp() -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let secs = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    fmt_utc_compact(secs)
+}
+
 // =================================================================================================
 // In-process layer (Windows only). Everything below requires the live game + fromsoftware-rs.
 // =================================================================================================
@@ -52,6 +84,9 @@ mod game;
 /// # Safety
 /// Exposed for the loader to call. Do not call this yourself.
 #[cfg(windows)]
+// DllMain MUST be `no_mangle` + `unsafe extern "C"` so the loader can find and call it by name —
+// expected here, not a code smell, so allow it on this one item (the rest of the shell stays strict).
+#[allow(unsafe_code)]
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
     const DLL_PROCESS_ATTACH: u32 = 1;
@@ -64,6 +99,15 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn timestamp_format_matches_reference() {
+        // Reference values cross-checked against Python datetime.utcfromtimestamp.
+        assert_eq!(fmt_utc_compact(0), "19700101_000000");
+        assert_eq!(fmt_utc_compact(1_700_000_000), "20231114_221320");
+        assert_eq!(fmt_utc_compact(1_750_700_000), "20250623_173320");
+        assert_eq!(fmt_utc_compact(253_402_300_799), "99991231_235959");
+    }
 
     #[test]
     fn contract_version_is_in_its_own_band() {

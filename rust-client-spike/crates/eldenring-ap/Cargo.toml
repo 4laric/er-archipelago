@@ -21,16 +21,28 @@ er-semver = { path = "../er-semver" }
 # Replaces er_hooks.h + er_singletons.h + the hand-rolled param walk.
 eldenring = "0.14"            # vswarte/fromsoftware-rs
 fromsoftware-shared = "0.14"  # FD4 singleton finder + shared structures
-# Inline detour for AddItemFunc (replaces MinHook).
-retour = { version = "0.3", features = ["static-detour"] }
-# Win32 surface (DllMain, threads, console, paths).
-windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Threading"] }
-# Logging (replaces spdlog).
+# Inline detour for AddItemFunc (Phase 3). OPTIONAL + behind the `detour` feature: retour's
+# `static-detour` needs NIGHTLY, but fromsoftware-rs pins stable (its rust-toolchain.toml is
+# `channel = "stable"`), so Phase 3 implements detour.rs with retour's stable `GenericDetour`.
+# Off-by-default keeps the Phase-1 spike building on stable.
+retour = { version = "0.3", optional = true }
+# Win32 surface (GetModuleHandleW for the module base). Only detour.rs uses it today, so it rides
+# the same feature. Pinned 0.61 to match eldenring 0.14 (avoids two `windows` versions in the tree).
+windows = { version = "0.61", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Threading"], optional = true }
+# Logging (replaces spdlog): tracing + a non-blocking file sink (tracing-appender).
 tracing = "0.1"
 tracing-subscriber = "0.3"
+tracing-appender = "0.2"
 # JSON config / slot_data (replaces nlohmann/json).
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+[features]
+# `detour` (the Phase-3 AddItemFunc hook) is now on retour's STABLE GenericDetour, so it builds on
+# stable and is enabled by default. Build the lean Phase-1-only cdylib (no retour/windows) with
+# `--no-default-features`.
+default = ["detour"]
+detour = ["dep:retour", "dep:windows"]
 
 [lints.rust]
 # Unlike the pure crates, this one needs `unsafe` for FFI/detours — but only inside the
