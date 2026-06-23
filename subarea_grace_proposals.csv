@@ -1,0 +1,438 @@
+region,prefix,subarea,n_checks,proposed_grace,confidence,sample_check,tiles,alternates
+Abyssal Woods,AW,AC,6,,NONE,"AW/AC: Ghost Glovewort [7] - W of AC, S of WT grace, behind giant tree by s",m61_51_41 m61_52_40 m61_52_41 m61_53_41,
+Abyssal Woods,AW,AW,6,Abyssal Woods,HIGH,"AW/AW: Clarifying Boluses x3 - to SW in low vis area, along S wall next to ",m61_50_41 m61_50_42 m61_50_43 m61_51_42,
+Abyssal Woods,AW,DF,4,,NONE,AW/DF: Mad Craftsman's Cookbook [1] - to SW up on ledge,m61_48_42 m61_49_42,
+Abyssal Woods,AW,MM,1,,NONE,"AW/MM: Mad Craftsman's Cookbook [2] - head up NE path from MM, at top go SE",m61_50_41,
+Abyssal Woods,AW,WT,3,Woodland Trail,HIGH,"AW/WT: Aged One's Exultation - enemy drop to S, E enemy in sneak bushes are",m61_51_41 m61_52_42,
+Ainsel River,AR,ARD,10,Ainsel River Downstream,HIGH,AR/ARD: Frozen Lightning Spear - boss drop,m12_01_00,Ainsel River Well Depths(53)
+Ainsel River,AR,ARSG,1,Ainsel River Sluice Gate,HIGH,AR/ARSG: Smithing Stone [3] - to N down below in corner,m12_01_00,
+Ainsel River,AR,ARWD,11,Ainsel River Well Depths,HIGH,AR/ARWD: Magic Grease x3 - to N by waterfall,m12_01_00,
+Ainsel River,AR,UPR,20,,NONE,AR/UPR: Prisoner Iron Mask - Hermit Merchant NW of UPR in temple,m12_01_00,
+Ainsel River Main,ARM,ARM,1,Ainsel River Main,HIGH,ARM/ARM: Miniature Ranni - to N after giving Ranni Fingerslayer Blade,m12_01_00,Ainsel River Downstream(53)
+Ainsel River Main,ARM,UPR,7,,NONE,"ARM/UPR: Somber Smithing Stone [6] - left path from corpse room after UPR, ",m12_01_00,
+Ainsel River Main,NS,NEC,30,"Nokstella, Eternal City",HIGH,"NS/NEC: Somber Smithing Stone [6] - scarab up stairs to W, on end stairs",m12_01_00,
+Ainsel River Main,NS,NWB,3,Nokstella Waterfall Basin,HIGH,"NS/NWB: Discarded Palace Key - invader drop to SE, need Miniature Ranni",m12_01_00,
+Altus Plateau,AP,AC,7,Abandoned Coffin,HIGH,AP/AC: Ash of War: Sacred Order - scarab to NW,m60_37_51 m60_37_52 m60_38_51,Avenue Balcony(52) | Audience Pathway(52) | Altus Highway Junction(52)
+Altus Plateau,AP,AHJ,23,Altus Highway Junction,HIGH,AP/AHJ: Great Heal - Brother Corhyn shop to N by map pillar,m11_00_00 m60_39_50 m60_39_51 m60_40_50 m60_40_51 m60_40_52 m60_41_50 m60_41_51,
+Altus Plateau,AP,AP,3,Audience Pathway,HIGH,AP/AP: String x5 - to NE down hill E of the cart,m60_38_51 m60_39_50,
+Altus Plateau,AP,BB,2,Bower of Bounty,HIGH,AP/BB: Somber Smithing Stone [5] - scarab to SW,m60_40_53,
+Altus Plateau,AP,EGH,5,Erdtree-Gazing Hill,HIGH,AP/EGH: Greatshield Talisman - in caravan chest to E,m60_38_51 m60_39_52,
+Altus Plateau,AP,EWP,5,,NONE,AP/EWP: Twinned Knight Swords - corpse,m60_41_55,
+Altus Plateau,AP,FSG,21,Forest-Spanning Greatbridge,HIGH,AP/FSG: Discus of Light - Brother Corhyn shop FSG waygate,m11_00_00 m60_40_52 m60_40_53 m60_40_54 m60_40_55 m60_41_52,First Mt. Gelmir Campsite(53)
+Altus Plateau,AP,GLE,2,,NONE,AP/GLE: Hefty Beast Bone x2 - to N in cave,m60_39_50,
+Altus Plateau,AP,HLT,2,,NONE,AP/HLT: Ash of War: Lightning Slash - scarab SE of HLT,m60_43_53,
+Altus Plateau,AP,LR,4,Lower Capital Church,LOW,AP/LR: Ash of War: Shield Crash - scarab N side of ruins,m60_38_51,
+Altus Plateau,AP,ME,3,Main Academy Gate,LOW,"AP/ME: Crimsonspill Crystal Tear - boss drop, Minor Erdtree",m60_41_53 m60_41_54,
+Altus Plateau,AP,MR,2,,NONE,AP/MR: Miquella's Lily - W of MR by grave,m60_39_53,
+Altus Plateau,AP,OAT,4,Outer Wall Battleground,LOW,AP/OAT: Golden Rune [3] - NE of OAT on a rock slab lower ravine,m60_39_53,
+Altus Plateau,AP,PR,10,Prison Town Church,LOW,AP/PR: Perfume Bottle - under table middle of ruins,m60_36_51 m60_36_52,
+Altus Plateau,AP,RISP,6,Road of Iniquity Side Path,HIGH,AP/RISP: Protection of the Erdtree - scarab to SW,m60_40_54,
+Altus Plateau,AP,RP,14,Rampartside Path,HIGH,AP/RP: Lansseax's Glaive - boss drop up hill to SW or NE of AC grace,m60_37_51 m60_41_51 m60_41_52 m60_42_53,"Rykard, Lord of Blasphemy(52) | Road of Iniquity Side Path(52)"
+Altus Plateau,AP,SCM,1,Subterranean Inquisition Chamber,LOW,AP/SCM: Magic Grease - N of SCM by lower graves,m60_39_52,Shaded Castle Ramparts(53)
+Altus Plateau,AP,SCR,2,Shaded Castle Ramparts,HIGH,"AP/SCR: Golden Rune [3] - to SW outside castle, follow outer wall into a cu",m60_39_54,Subterranean Inquisition Chamber(53) | Shaded Castle Inner Gate(53)
+Altus Plateau,AP,SH,4,Subterranean Inquisition Chamber,LOW,AP/SH: Smithing Stone [5] - W of SH,m60_38_54,Shaded Castle Ramparts(52) | Shaded Castle Inner Gate(52) | Seethewater River(52)
+Altus Plateau,AP,SHG,8,Shaded Castle Inner Gate,LOW,AP/SHG: Ash of War: Lightning Ram - scarab SE of SHG,m60_40_51 m60_40_52 m60_41_52,
+Altus Plateau,AP,STH,1,Subterranean Inquisition Chamber,LOW,AP/STH: Amber Starlight - by statue,m60_40_52,Seethewater River(53)
+Altus Plateau,AP,TSC,1,,NONE,AP/TSC: Starlight Shards - N behind TSC by statue,m60_39_54,
+Altus Plateau,AP,VW,2,,NONE,AP/VW: Four-Toed Fowl Foot x3 - to S by cart,m60_42_54,
+Altus Plateau,AP,VWP,1,,NONE,AP/VWP: Raw Meat Dumpling x10 - in stable,m60_41_55,
+Altus Plateau,AP,WV,1,Windmill Village,HIGH,AP/WV: Poison Grease - to W on left lower windmill stairs,m60_41_54,
+Altus Plateau,AP,WWP,1,,NONE,AP/WWP: Giant Rat Ashes - in stable,m60_40_55,
+Altus Plateau,AP,WbR,3,,NONE,AP/WbR: Golden Rune [4] - W of WbR on top of hill by group of enemies,m60_39_53,
+Altus Plateau,AP,WhR,10,,NONE,AP/WhR: Deathroot - boss drop,m60_38_52,
+Altus Plateau,TSC,CI,1,,NONE,TSC/CI: Dancer's Castanets - given by Patches just outside boss arena,m16_00_00,
+Altus Plateau,TSC,SCIG,13,Shaded Castle Inner Gate,HIGH,TSC/SCIG: Perfume Bottle - top of lower shortcut ladder on ledge to W,m60_39_54,
+Altus Plateau,TSC,SCR,18,Shaded Castle Ramparts,HIGH,TSC/SCR: \,m60_39_54,Subterranean Inquisition Chamber(53) | Shaded Castle Inner Gate(53)
+Ancient Ruins of Rauh,ARR,ARGS,4,"Ancient Ruins, Grand Stairway",HIGH,"ARR/ARGS: Spirit Calculus - to SE down below, use stairs to NE",m61_45_45 m61_45_46 m61_46_46,
+Ancient Ruins of Rauh,ARR,CBME,7,"Church of the Bud, Main Entrance",HIGH,ARR/CBME: Remembrance of the Saint of the Bud - mainboss drop,m61_44_45 m61_44_46 m61_45_46,
+Ancient Ruins of Rauh,ARR,CMBE,1,,NONE,"ARR/CMBE: Talisman of All Crucibles - in chest to N downstairs, outside to ",m61_44_45,
+Ancient Ruins of Rauh,ARR,RARE,10,"Rauh Ancient Ruins, East",HIGH,"ARR/RARE: Shadow Realm Rune [7] - to NW, up root on right side",m61_45_46 m61_45_47 m61_46_47,"Rauh Ancient Ruins, West(54)"
+Ancient Ruins of Rauh,ARR,RARW,18,"Rauh Ancient Ruins, West",HIGH,"ARR/RARW: Scadutree Fragment - to W up stairs, by NW monument",m61_44_45 m61_44_46 m61_44_47 m61_45_45 m61_45_46 m61_45_47,
+Ancient Ruins of Rauh,ARR,VMT,26,Viaduct Minor Tower,HIGH,"ARR/VMT: Broken Rune - down SW path, go right, left at door, below by pilla",m61_45_47 m61_45_48 m61_46_46 m61_46_47 m61_46_48 m61_47_47,
+Bellum Highway,LL,BC,16,Bellum Church,HIGH,LL/BC: Nightrider Glaive - night boss drop S of BC,m60_36_48 m60_36_49 m60_37_49,
+Bellum Highway,LL,CIn,2,Church of Inhibition,HIGH,LL/CIn: Vyke's War Spear - invader drop,m60_37_49,
+Bellum Highway,LL,EME,3,,NONE,"LL/EME: Magic-Shrouding Cracked Tear - boss drop, Minor Erdtree",m60_38_48,
+Bellum Highway,LL,FFVO,1,Frenzied Flame Village Outskirts,HIGH,"LL/FFVO: Burred Bolt x5 - to NW on rock down path, S of FFT",m60_38_49,
+Bellum Highway,LL,GLD,3,,NONE,LL/GLD: Yellow Ember - to S on path below FFT,m60_38_49,
+Belurat,BTS,BTS,14,"Belurat, Tower Settlement",HIGH,"BTS/BTS: Shadow Realm Rune [1] - to SE, behind statue",m20_00_00,
+Belurat,BTS,SF,12,Stagefront,LOW,BTS/SF: Remembrance of the Dancing Lion - mainboss drop,m20_00_00,
+Belurat,BTS,SPA,25,Small Private Altar,HIGH,BTS/SPA: Crusade Insignia - invader drop in NE courtyard,m20_00_00,
+Belurat,BTS,TDB,2,Theatre of the Divine Beast,HIGH,BTS/TDB: Revered Spirit Ash - on statue after boss,m20_00_00,
+Belurat Swamp,BTS,BTS,14,"Belurat, Tower Settlement",HIGH,BTS/BTS: Smithing Stone [2] x2 - by SW wall on building,m20_00_00,
+Caelid,CL,ACHN,3,Astray from Caelid Highway North,LOW,CL/ACHN: Preserving Boluses x3 - Nomadic Merchant to E,m60_48_38,
+Caelid,CL,ASS,1,Aeonia Swamp Shore,HIGH,CL/ASS: Ash of War: Poisonous Mist - scarab to SE,m60_48_37,
+Caelid,CL,CCC,1,,NONE,CL/CCC: Somber Smithing Stone [4] - scarab E of CCC,m60_49_36,
+Caelid,CL,CHS,9,Caelid Highway South,HIGH,CL/CHS: Golden Rune [1] 1 - graveyard to S,m60_47_37 m60_48_37,Chamber Outside the Plaza(53) | Chair-Crypt of Sellia(53)
+Caelid,CL,CP,8,Church of the Plague,HIGH,CL/CP: Golden Rune [5] - far S of CP on pillar,m60_50_38 m60_50_39,Chamber Outside the Plaza(52) | Chair-Crypt of Sellia(52)
+Caelid,CL,CR,6,Caelem Ruins,HIGH,"CL/CR: Whirl, O Flame! - scarab to NW",m60_47_40 m60_48_40,Church of the Plague(52) | Chamber Outside the Plaza(52) | Chair-Crypt of Sellia(52)
+Caelid,CL,CWR,1,,NONE,CL/CWR: Poisonbloom x4 - S of CWR,m60_47_37,
+Caelid,CL,DSW,3,Deep Siofra Well,HIGH,CL/DSW: Somber Smithing Stone [5] - to S after one way drop,m60_48_39 m60_48_40,
+Caelid,CL,DW,3,Dragonbarrow West,HIGH,CL/DW: Golden Rune [1] - graveyard to S,m60_48_40,Deep Siofra Well(52)
+Caelid,CL,FF,4,,NONE,CL/FF: Smithing Stone [7] - on skull SW of FF item 1,m60_50_39,
+Caelid,CL,FGN,4,Fort Gael North,HIGH,CL/FGN: Explosive Greatbolt x5 - to S in camp,m60_47_38 m60_47_39,
+Caelid,CL,FR,2,Fort Gael North,LOW,CL/FR: Somber Smithing Stone [4] - scarab on root arch S of FR,m60_47_39,
+Caelid,CL,IA,6,Inner Aeonia,HIGH,CL/IA: Golden Rune [3] - Millicent invasion to S,m60_48_38 m60_49_38,Impassable Greatbridge(52)
+Caelid,CL,IG,4,Impassable Greatbridge,HIGH,CL/IG: Ash of War: Cragblade - scarab to W,m60_49_36 m60_50_36,
+Caelid,CL,MEW,5,,NONE,CL/MEW: Greenburst Crystal Tear - boss drop,m60_46_40 m60_47_40,
+Caelid,CL,RB,7,Rotview Balcony,HIGH,CL/RB: Golden Rune [1] - graveyard to SW,m60_46_39 m60_46_40,
+Caelid,CL,SASB,26,Southern Aeonia Swamp Bank,HIGH,CL/SASB: Crab Eggs x4 - to W,m60_48_37 m60_49_36 m60_49_37 m60_49_38,
+Caelid,CL,SG,3,Smoldering Wall,LOW,CL/SG: Golden Rune [2] - S of SG,m60_49_37 m60_49_38,Smoldering Church(52)
+Caelid,CL,SH,1,Southern Aeonia Swamp Bank,LOW,CL/SH: Beast Blood x2 - S of SH,m60_50_39,Smoldering Church(52)
+Caelid,CL,SSR,1,Sellia Under-Stair,LOW,CL/SSR: Sacramental Bud - NW of SSR up roots,m60_48_39,Sellia Backstreets(53)
+Caelid,CL,SUS,3,Sellia Under-Stair,HIGH,CL/SUS: Poison Armament - scarab to W,m60_49_39,Southern Aeonia Swamp Bank(53)
+Caelid,CL,SW,3,Smoldering Wall,HIGH,CL/SW: Somber Smithing Stone [4] - chair half way down cliff to SW,m60_47_38 m60_47_39,Southern Aeonia Swamp Bank(52)
+Capital Outskirts,CO,AHG,4,,NONE,CO/AHG: Seedbed Curse - on Boggart's body after becoming Dung Eater's victi,m60_44_52 m60_45_52,
+Capital Outskirts,CO,HMS,9,Hermit Merchant's Shack,HIGH,CO/HMS: Golden Rune [10] - to E on high tip of cliff,m60_43_53 m60_44_52 m60_44_53,
+Capital Outskirts,CO,ME,2,Minor Erdtree Church,MED,CO/ME: Great Arrow x10 - to S on rock,m60_44_52 m60_45_52,
+Capital Outskirts,CO,MEC,1,Minor Erdtree Church,HIGH,CO/MEC: Smoldering Butterfly x3 - NE of MEC by gravestone,m60_43_50,
+Capital Outskirts,CO,OWB,11,Outer Wall Battleground,HIGH,CO/OWB: Old Fang x3 - to SW in graveyard on big gravestone,m60_42_52 m60_43_52 m60_43_53,
+Capital Outskirts,CO,OWPT,12,Outer Wall Phantom Tree,HIGH,CO/OWPT: Giant-Crusher - in caravan chest to S in camp,m60_42_50 m60_42_51 m60_43_51 m60_43_52,
+Caria Manor,LL,BCM,6,Behind Caria Manor,HIGH,LL/BCM: Juvenile Scholar Cap - \,m60_36_50,
+Caria Manor,LL,RM,8,Royal Moongazing Grounds,MED,LL/RM: Golden Rune [3] 1 - graveyard to NW,m60_34_50,Ranni's Chamber(52)
+Caria Manor,LL,RMG,1,Royal Moongazing Grounds,HIGH,LL/RMG: Ash of War: Chilling Mist - scarab to W,m60_34_50,
+Caria Manor,LL,RaR,4,Ranni's Rise,HIGH,LL/RaR: Royal Greatsword - kill angry Blaidd,m60_34_50,Royal Moongazing Grounds(53) | Ranni's Chamber(53)
+Caria Manor,LL,SR,1,,NONE,LL/SR: Black Wolf Mask - on SE wall behind SR,m60_34_50,
+Carian Study Hall (Inverted),LL,LTB,4,Liurnia Tower Bridge,HIGH,LL/LTB: Godskin Noble Hood - enemy drop to E,m34_11_00,
+Castle Ensis,CE,CEC,27,Castle Ensis Checkpoint,HIGH,CE/CEC: Loyal Knight's Cookbook - in chest below grace,m61_47_44 m61_48_44,Castle-Lord's Chamber(53)
+Castle Ensis,CE,CF,8,Castle Front,HIGH,CE/CF: Black Pyrefly x3 - to NE on left side of bridge,m61_47_44,
+Castle Ensis,CE,CLC,3,Castle-Lord's Chamber,HIGH,CE/CLC: Remembrance of the Twin Moon Knight - mainboss drop,m61_48_44,Castle Ensis Checkpoint(53)
+Cerulean Coast,CC,CC,10,Cerulean Coast,HIGH,CC/CC: Grave Glovewort [9] - to SW on giant coffin,m61_47_38 m61_47_39 m61_48_38 m61_48_39,Cerulean Coast West(97) | Cerulean Coast Cross(97)
+Cerulean Coast,CC,CCC,15,Cerulean Coast Cross,HIGH,"CC/CCC: St. Trina Disciple's Cookbook [2] - to S, on corpse on fissure clif",m61_47_35 m61_47_36 m61_47_37 m61_48_37 m61_48_38 m61_49_37 m61_49_38,
+Cerulean Coast,CC,CCW,21,Cerulean Coast West,HIGH,CC/CCW: Grave Keeper's Cookbook [1] - to E by giant tree,m61_46_38 m61_46_39 m61_46_40 m61_47_38 m61_47_39 m61_47_40,
+Charo's Hidden Grave,CHG,CHG,17,Charo's Hidden Grave,HIGH,CHG/CHG: Glovewort Crystal Tear - furnace golem to W above river,m61_46_39 m61_46_40 m61_47_39 m61_48_38 m61_48_39 m61_48_40 m61_49_38,
+Charo's Hidden Grave,CHG,LG,1,,NONE,CHG/LG: Ghost Glovewort [7] - NW of LG,m61_46_40,
+Consecrated Snowfield,CS,AD,8,Apostate Derelict,HIGH,"CS/AD: Golden Rune [1] x6 - to SW, above breakable statue on cliff",m60_46_57 m60_47_57 m60_47_58 m60_48_57 m60_48_58,
+Consecrated Snowfield,CS,AR,4,Apostate Derelict,LOW,CS/AR: Miquella's Lily x3 - SW of AR a litte left of pillar,m60_49_55 m60_49_56 m60_50_55,
+Consecrated Snowfield,CS,CF,4,Consecrated Snowfield Catacombs,LOW,CS/CF: Strip of White Flesh x2 - W of CF on ice river,m60_49_56 m60_50_56,Consecrated Snowfield(52)
+Consecrated Snowfield,CS,CS,17,Consecrated Snowfield,HIGH,CS/CS: Golden Rune [1] - graveyard to W,m60_48_54 m60_49_54 m60_49_55,Consecrated Snowfield Catacombs(97)
+Consecrated Snowfield,CS,CSC,6,Consecrated Snowfield Catacombs,HIGH,CS/CSC: Old Fang x2 - W of CSC,m60_49_55 m60_50_55,Consecrated Snowfield(53)
+Consecrated Snowfield,CS,HPH,1,,NONE,CS/HPH: Golden Rune [13] - follow right path after exiting dungeon,m60_49_54,
+Consecrated Snowfield,CS,ICS,13,Inner Consecrated Snowfield,HIGH,CS/ICS: Golden Rune [13] - to SW on right side of big tree,m60_48_55 m60_48_56 m60_49_56,
+Consecrated Snowfield,CS,ME,8,,NONE,CS/ME: Albinauric Bloodclot x2 - drop down twice NW of ME follow left cliff,m60_49_56 m60_49_57 m60_50_57,
+Consecrated Snowfield,CS,OLT,6,"Ordina, Liturgical Town",HIGH,CS/OLT: Cuckoo Glintstone x8 - on ruin to E,m60_48_57,
+Consecrated Snowfield,CS,YAR,7,,NONE,"CS/YAR: Hero's Rune [2] - NW of YAR, W of second big tree on fallen tree ov",m60_47_56,
+Consecrated Snowfield,CS,YAT,1,Yelough Anix Tunnel,HIGH,"CS/YAT: Smithing Stone [7] - E of YAT, by broken cart",m60_47_55,
+Deeproot Depths,DD,AR,5,Across the Roots,HIGH,DD/AR: Fia's Mist - boss drop,m12_03_00,
+Deeproot Depths,DD,DD,11,Deeproot Depths,HIGH,DD/DD: Map: Deeproot Depths - path to NE in gazebo,m12_03_00,
+Deeproot Depths,DD,GWC,17,Great Waterfall Crest,HIGH,DD/GWC: Ash of War: Golden Land - scarab to S,m12_03_00,
+Deeproot Depths,DD,TNEC,37,The Nameless Eternal City,LOW,DD/TNEC: Somber Smithing Stone [6] - scarab to NW on some roots,m12_03_00,
+Deeproot Depths Boss,DD,AR,5,Across the Roots,HIGH,"DD/AR: Inseparable Sword - kill D Twin at NEC if you killed D, or at end of",m12_02_00,Ancestral Woods(52)
+Deeproot Depths Boss,DD,PDT,4,Prince of Death's Throne,HIGH,DD/PDT: Mending Rune of the Death-Prince - on Fia after mainboss,m12_03_00,
+Deeproot Depths Upper,DD,RFC,8,Root-Facing Cliffs,HIGH,DD/RFC: Formic Rock - on far SE ledge,m12_03_00,
+Divine Tower of Limgrave,SV,LTB,4,Limgrave Tower Bridge,HIGH,SV/LTB: Warming Stone - to E down right side of bridge,m34_10_00,
+Dragonbarrow,DB,BS,6,Bestial Sanctum,HIGH,DB/BS: Gargoyle's Blackblade - boss drop SE of BS,m60_51_43,
+Dragonbarrow,DB,DT,4,,NONE,DB/DT: Arteria Leaf x2 - chair circle S of DT,m60_49_41,
+Dragonbarrow,DB,DW,1,Dragonbarrow Fork,LOW,DB/DW: Somber Smithing Stone [8] - scarab to NE,m60_49_41,
+Dragonbarrow,DB,FF,2,Fort Faroth,HIGH,DB/FF: Dragon Heart x5 - enemy drop W of FF,m60_50_40 m60_51_39,
+Dragonbarrow,DB,FG,3,,NONE,DB/FG: Somber Smithing Stone [9] - scarab to W,m60_51_42 m60_52_41 m60_52_43,
+Dragonbarrow,DB,IMS,1,Isolated Merchant's Shack,HIGH,DB/IMS: Ash of War: Sky Shot - scarab W of IMS,m60_48_41,
+Dragonbarrow,DB,LR,6,Lenne's Rise,HIGH,DB/LR: Bestial Constitution - scarab W of LR,m60_51_41 m60_52_41,
+Dragonbarrow,DB,MEE,4,,NONE,DB/MEE: Opaline Hardtear - boss drop,m60_51_40,
+Ellac River,ER,ERC,9,Ellac River Cave,HIGH,ER/ERC: Silver Horn Tender - to NW on corpse pile,m61_46_44 m61_47_42 m61_47_43,
+Ellac River,ER,ERD,7,Ellac River Downstream,HIGH,ER/ERD: Thin Beast Bones x6 - to NE behind rock pillar,m61_47_41 m61_48_40,
+Ellac River,ER,RC,2,,NONE,ER/RC: Mushroom-Seller's Bell Bearing [1] - hanging pot W of RC,m61_46_44 m61_46_45,
+"Elphael, Brace of the Haligtree",EBH,DC,8,Drainage Channel,HIGH,EBH/DC: Golden Rune [10] - to W up the ladder,m15_00_00,
+"Elphael, Brace of the Haligtree",EBH,EIW,24,Elphael Inner Wall,HIGH,EBH/EIW: Millicent's Prosthesis - invade Millicent or kill in altus,m15_00_00,
+"Elphael, Brace of the Haligtree",EBH,HP,1,Haligtree Promenade,HIGH,EBH/HP: Ancient Dragon Smithing Stone - in chest up stairs after ladder,m15_00_00,Haligtree Town Plaza(52) | Haligtree Canopy(52)
+"Elphael, Brace of the Haligtree",EBH,HR,7,Haligtree Roots,HIGH,EBH/HR: Malenia's Great Rune - mainboss drop,m15_00_00,Haligtree Town Plaza(52) | Haligtree Town(52) | Haligtree Promenade(52)
+"Elphael, Brace of the Haligtree",EBH,PR,25,Prayer Room,HIGH,EBH/PR: Lord's Rune - boss drop to E on outer wall,m15_00_00,
+Enir Ilim,BTS|EI,SR,2,Spiral Rise,HIGH,"BTS|EI/SR: Euporia - outside to SE downstairs, drop down from gazebo, after",m20_00_00,Stagefront(52) | Small Private Altar(52)
+Enir Ilim,EI,CCA,23,Cleansing Chamber Anteroom,HIGH,EI/CCA: Leda's Armor - on Leda's body after npc boss,m20_01_00,
+Enir Ilim,EI,DGFS,1,Divine Gate Front Staircase,HIGH,EI/DGFS: Remembrance of a God and a Lord - mainboss drop,m20_01_00,
+Enir Ilim,EI,FR,14,First Rise,HIGH,EI/FR: Messmerfire Grease - to SE on stairs,m20_01_00,
+Enir Ilim,EI,GD,6,Gate of Divinity,HIGH,EI/GD: Thiollier's Hidden Needle - on Thiollier's body to NW,m20_01_00,
+Enir Ilim,EI,OW,1,,NONE,EI/OW: Somber Smithing Stone [9] - by grace,m20_01_00,
+Enir Ilim,EI,SR,23,Spiral Rise,HIGH,"EI/SR: Inquisitor Ashes - outside to SE downstairs, down left of gazebo und",m20_01_00,Stagefront(52) | Small Private Altar(52)
+Farum Azula,FA,CBG,6,Crumbling Beast Grave,HIGH,FA/CBG: Old Fang x3 - to E on right,m13_00_00,Crumbling Beast Grave Depths(98)
+Farum Azula,FA,CBGD,5,Crumbling Beast Grave Depths,HIGH,"FA/CBGD: Great Grave Glovewort - to W out balcony, up roof, far end of room",m13_00_00,
+Farum Azula,FA,DT,11,Dragon Temple,HIGH,"FA/DT: Dragonwound Grease x2 - inside, down path left before curved stairs,",m13_00_00,Dragon Temple Transept(97) | Dragon Temple Rooftop(97) | Dragon Temple Lift(97)
+Farum Azula,FA,DTT,2,Dragon Temple Transept,HIGH,FA/DTT: Smithing-Stone Miner's Bell Bearing [4] - boss drop,m13_00_00,Dragon Temple Rooftop(53) | Dragon Temple Lift(53) | Dragon Temple Altar(53)
+Farum Azula,FA,MotG,2,,NONE,FA/MotG: Smithing Stone [8] - just after warping to FA,m13_00_00,
+Farum Azula,FA,TFB,18,Tempest-Facing Balcony,HIGH,"FA/TFB: Smithing Stone [8] - to SW down elevator, to right in miniboss aren",m13_00_00,
+Farum Azula Main,FA,BGB,12,Beside the Great Bridge,HIGH,"FA/BGB: Blasphemous Claw - kill invader Bernahl, to NE end of path",m13_00_00,
+Farum Azula Main,FA,DTA,11,Dragon Temple Altar,HIGH,FA/DTA: Golden Rune [11] - to NW by pillar jump,m13_00_00,Dragon Temple Transept(53)
+Farum Azula Main,FA,DTL,17,Dragon Temple Lift,HIGH,"FA/DTL: Ancient Dragon Apostle's Cookbook [4] - to SE up right path, W of s",m13_00_00,Dragon Temple Transept(53) | Dragon Temple Rooftop(53) | Dragon Temple Altar(53)
+Farum Azula Main,FA,DTR,18,Dragon Temple Rooftop,HIGH,FA/DTR: Somber Ancient Dragon Smithing Stone - to SE in gazebo,m13_00_00,Dragon Temple Transept(53) | Dragon Temple Altar(53)
+Finger Ruins of Rhia,CC,FRR,2,Finger Ruins of Rhia,HIGH,CC/FRR: Shadow Realm Rune [2] - to S on beach,m61_50_38,
+Flame Peak,FP,CR,5,Church of Repose,HIGH,FP/CR: Ancient Dragon Smithing Stone - SE of CR in skull,m60_51_53,
+Flame Peak,FP,FF,12,Foot of the Forge,HIGH,FP/FF: Smithing Stone [7] - close to NW,m60_51_53 m60_52_52 m60_52_53 m60_52_54,
+Flame Peak,FP,GCHG,8,Giant-Conquering Hero's Grave,HIGH,"FP/GCHG: Somber Smithing Stone [7] - E of GCHG, to S after jump",m60_50_53 m60_51_53 m60_51_54,
+Flame Peak,FP,GG,6,Giants' Gravepost,HIGH,FP/GG: Warming Stone x2 - to SW middle of path,m60_51_53 m60_51_54 m60_52_54,Giant-Conquering Hero's Grave(52)
+Forbidden Lands,FL,FL,4,Forbidden Lands,HIGH,FL/FL: Drawstring Fire Grease x2 - to W,m60_47_51 m60_48_51,
+Forbidden Lands,FL,GLR,5,,NONE,FL/GLR: Somber Smithing Stone [7] - to S in skull just past seedtree,m60_48_51 m60_49_52,
+Frenzied Flame Proscription,FFP,CF,11,Cathedral of the Forsaken,HIGH,"FFP/CF: Frenzied's Cookbook [2] - to NE, top of third plank",m35_00_00,
+Frenzied Flame Proscription,FFP,FFP,3,Frenzied Flame Proscription,HIGH,FFP/FFP: Frenzied Flame Seal - given by Hyetta at end of her quest,m35_00_00,
+Gravesite Plain,GP,AS,1,,NONE,"GP/AS: Greater Potentate's Cookbook [5] - NW of AS, on W cliffside",m61_46_40,
+Gravesite Plain,GP,BG,6,,NONE,GP/BG: Serpent Crest Shield - painting reward SE of BG,m61_45_43 m61_45_44,
+Gravesite Plain,GP,CB,5,,NONE,"GP/CB: Pata - NE of CB, overlooking drop",m61_46_40,
+Gravesite Plain,GP,CC,5,Castle Ensis Checkpoint,LOW,"GP/CC: Glass Shard - S of CC, near carts",m61_47_40 m61_48_41,
+Gravesite Plain,GP,CF,16,Castle Front,HIGH,"GP/CF: Grave Glovewort [5] - up E path, NE of left camp on ledge",m61_47_43 m61_47_44 m61_47_45 m61_48_42 m61_48_43 m61_49_43,Cliffroad Terminus(52)
+Gravesite Plain,GP,CRT,1,Cliffroad Terminus,LOW,"GP/CRT: Revered Spirit Ash - to SE, overlooking WNM",m61_45_41,Castle Front(53)
+Gravesite Plain,GP,GN,2,"Greatbridge, North",HIGH,"GP/GN: Ash of War: Savage Lion's Claw - to SW, in makeshift campsite",m61_45_43 m61_45_44,Gravesite Plain(52)
+Gravesite Plain,GP,GP,2,Gravesite Plain,HIGH,"GP/GP: Lump of Flesh x2 - to SE, behind arch overlooking cliff",m61_47_40,
+Gravesite Plain,GP,MGC,26,Main Gate Cross,HIGH,GP/MGC: Verdigris Greatshield - on Moore's body,m61_45_41 m61_45_42,
+Gravesite Plain,GP,PPC,15,Pillar Path Cross,HIGH,GP/PPC: Deadly Poison Perfume Bottle - Thiollier / Moore Shop,m61_45_42 m61_48_43,
+Gravesite Plain,GP,PPW,2,Pillar Path Waypoint,HIGH,GP/PPW: Herbalist's Bell Bearing - hanging pot down SW path on right cliff ,m61_47_41 m61_48_42,
+Gravesite Plain,GP,PT,8,Pillar Path Waypoint,LOW,"GP/PT: Ghost Glovewort [4] - W of PT, in front of gravestone",m61_44_41 m61_45_41,Pillar Path Cross(52)
+Gravesite Plain,GP,SP,1,,NONE,GP/SP: Smithing Stone [2] x3 - in camp S of SP,m61_48_41,
+Gravesite Plain,GP,SR,9,Scorched Ruins,HIGH,GP/SR: Deflecting Hardtear - furnace golem N of SR,m61_46_42 m61_47_41 m61_47_42,"Storehouse, Seventh Floor(52) | Storehouse, Loft(52) | Storehouse, Fourth Floor(52)"
+Gravesite Plain,GP,TPC,4,Three-Path Cross,HIGH,GP/TPC: Cross Map - given by Hornsent at TPC or HC,m21_01_00 m61_46_42 m61_47_42,
+Great-Jar,CL,CCO,1,,NONE,CL/CCO: Great-Jar's Arsenal - beat Great Jar's knights,m60_47_41,
+Great-Jar,CL,DW,4,,NONE,CL/DW: Map: Dragonbarrow - to E,m60_49_40,
+Great-Jar,CL,SE,1,,NONE,CL/SE: Smithing Stone [5] x3 - breakable statue to N,m60_49_40,
+Hinterland,HL,FH,3,,NONE,HL/FH: Gravitational Missile - boss drop to NE,m61_52_48 m61_53_48,
+Hinterland,HL,HB,3,,NONE,"HL/HB: Shadow Sunflower x3 - to SE, down left of wall gravestones",m61_51_47,
+Hinterland,HL,HL,2,Hinterland,LOW,HL/HL: Blessing of Marika - boss drop on hill,m61_50_47 m61_50_48,
+Jagged Peak,JP,FJP,9,,NONE,JP/FJP: Igon's Greatbow - to E on Igon's corpse after JP mainboss,m61_48_42 m61_53_39 m61_53_40,
+Jagged Peak,JP,JPM,6,Jagged Peak Mountainside,HIGH,JP/JPM: Rock Heart - \,m61_53_39 m61_54_39 m61_54_40,Jagged Peak Summit(53)
+Jagged Peak,JP,JPS,1,Jagged Peak Summit,HIGH,JP/JPS: Heart of Bayle - mainboss drop,m61_54_39,Jagged Peak Mountainside(53)
+Jagged Peak Foot,JP,DPT,2,,NONE,JP/DPT: Dragon Heart - boss drop to E,m61_49_41,
+Jagged Peak Foot,JP,FJP,4,Foot of the Jagged Peak,HIGH,JP/FJP: Igon's Furled Finger - given by Igon after defeating boss,m61_48_42 m61_51_41 m61_52_40,
+Jagged Peak Foot,JP,GADC,13,Grand Altar of Dragon Communion,HIGH,"JP/GADC: Dragon Communion Harpoon - to W on wing, right item",m61_49_38 m61_49_39,
+Lake of Rot,LR,GC,10,Grand Cloister,HIGH,LR/GC: Nomadic Warrior's Cookbook [22] - in chest SW corner of LR within st,m12_01_00,
+Lake of Rot,LR,LRS,19,Lake of Rot Shoreside,HIGH,LR/LRS: Map: Lake of Rot - to S,m12_01_00,
+"Leyndell, Ashen Capital",LAC,FL,1,Frenzied Flame Proscription,LOW,"LAC/FL: Erdtree's Favor +2 - backtrack from forbidden lands, SW corner on b",m11_05_00,
+"Leyndell, Ashen Capital",LAC,LCA,11,"Leyndell, Capital of Ash",HIGH,LAC/LCA: Scepter of the All-Knowing - boss drop,m11_05_00 m35_00_00,Leyndell Catacombs(53)
+"Leyndell, Ashen Capital",LAC,QB,1,Queen's Bedchamber,HIGH,LAC/QB: Erdtree Heal - on bed,m11_05_00,
+"Leyndell, Ashen Capital",LAC,RC,4,,NONE,LAC/RC: Mending Rune of Perfect Order - on Goldmask's body,m11_05_00,
+"Leyndell, Ashen Capital Throne",LAC,QB,1,Queen's Bedchamber,HIGH,LAC/QB: Remembrance of Hoarah Loux - mainboss drop,m11_05_00,
+"Leyndell, Royal Capital",LRC,AB,60,Avenue Balcony,HIGH,"LRC/AB: Perfume Bottle - up stairs, to NE past door, end of right side",m11_00_00,
+"Leyndell, Royal Capital",LRC,ECR,11,East Capital Rampart,HIGH,"LRC/ECR: Perfume Bottle - in chest down W path, down elevator, up ladder in",m11_00_00,Erdtree Sanctuary(53)
+"Leyndell, Royal Capital",LRC,FMFF,25,"Fortified Manor, First Floor",HIGH,LRC/FMFF: Sanctified Whetblade - second floor where blacksmith sits,m11_00_00,
+"Leyndell, Royal Capital",LRC,LCC,18,Lower Capital Church,HIGH,"LRC/LCC: Cracked Pot - down right sewer, to NE in upper room",m11_00_00,
+"Leyndell, Royal Capital",LRC,QB,1,Queen's Bedchamber,HIGH,LRC/QB: Blessing of the Erdtree - on bed,m11_00_00,
+"Leyndell, Royal Capital",LRC,WCR,1,West Capital Rampart,HIGH,LRC/WCR: Gargoyle's Halberd - enemy drop to SE by seedtree,m11_00_00,
+"Leyndell, Royal Capital",LRC|LAC,RC,3,,NONE,LRC|LAC/RC: Immutable Shield - Brother Corhyn shop after using Law of Regre,m11_00_00,
+"Leyndell, Royal Capital Throne",LRC,ES,3,Erdtree Sanctuary,HIGH,"LRC/ES: Barrier of Gold - scarab to W down elevator, down stairs",m11_00_00,East Capital Rampart(52)
+"Leyndell, Royal Capital Throne",LRC,ET,1,Elden Throne,HIGH,LRC/ET: Rold Medallion - talk to Melina after boss,m99_99_99,Erdtree Sanctuary(52) | East Capital Rampart(52)
+"Leyndell, Royal Capital Throne",LRC,QB,2,Queen's Bedchamber,HIGH,LRC/QB: Morgott's Great Rune - mainboss drop,m11_00_00,
+"Leyndell, Royal Capital Throne",LRC,WCR,1,West Capital Rampart,HIGH,LRC/WCR: Talisman Pouch - mainboss drop,m11_00_00,
+"Leyndell, Royal Capital Throne",LRC|LAC,ES,5,Erdtree Sanctuary,HIGH,LRC|LAC/ES: Erdtree Bow - in chest second floor,m11_00_00,East Capital Rampart(52)
+"Leyndell, Royal Capital Unmissable",LRC|LAC,AB,5,Avenue Balcony,HIGH,"LRC|LAC/AB: Rune Arc - down stairs to NW, up dragon wing before ladder",m11_00_00,
+"Leyndell, Royal Capital Unmissable",LRC|LAC,ECR,5,East Capital Rampart,HIGH,"LRC|LAC/ECR: Furlcalling Finger Remedy - down E path, on church altar",m11_00_00,Erdtree Sanctuary(53)
+"Leyndell, Royal Capital Unmissable",LRC|LAC,FMFF,1,"Fortified Manor, First Floor",HIGH,"LRC|LAC/FMFF: Seedbed Curse - second floor in Dung Eaters room, gets moved ",m11_00_00,
+"Leyndell, Royal Capital Unmissable",LRC|LAC,RC,4,,NONE,LRC|LAC/RC: Ritual Shield Talisman - on colo stairs,m11_00_00,
+"Leyndell, Royal Capital Unmissable",LRC|LAC,WCR,8,West Capital Rampart,HIGH,"LRC|LAC/WCR: Holy Grease x3 - to SE, down sub branch before boss arena",m11_00_00,
+Limgrave,LG,ALN,7,Agheel Lake North,HIGH,LG/ALN: Mushroom x10 - Boc to SE,m11_00_00 m60_43_37 m60_44_36,Avenue Balcony(53)
+Limgrave,LG,ALS,10,Agheel Lake South,HIGH,LG/ALS: Golden Rune [2] - to S,m60_44_35 m60_44_36,Aqueduct-Facing Cliffs(53) | Ancestral Woods(53)
+Limgrave,LG,AS,1,Artist's Shack,HIGH,LG/AS: Somber Smithing Stone [1] - scarab W of AS,m60_44_38,Aqueduct-Facing Cliffs(52) | Ancestral Woods(52) | Agheel Lake South(52)
+Limgrave,LG,CC,14,Church of the Cuckoo,HIGH,LG/CC: Broadsword - Nomadic Merchant SE of CC,m60_41_36 m60_41_37 m60_42_35,Church of Elleh(52)
+Limgrave,LG,CE,1,Church of Elleh,HIGH,LG/CE: Golden Rune [1] - E of CE,m60_42_36,Church of the Cuckoo(52) | Cave of Knowledge(52) | Castleward Tunnel(52)
+Limgrave,LG,DBR,3,Divine Bridge,LOW,LG/DBR: Smithing Stone [1] - W of DBR,m60_42_36 m60_43_36,Debate Parlor(53)
+Limgrave,LG,DC,2,,NONE,LG/DC: Golden Rune [3] - E of DC,m60_43_39 m60_43_40,
+Limgrave,LG,FHE,2,Fort Haight West,LOW,LG/FHE: Ruin Fragment x3 - SW of Evergaol,m60_44_34,
+Limgrave,LG,FHW,10,Fort Haight West,HIGH,LG/FHW: Golden Rune [1] - beach to SW,m60_45_35 m60_46_36,
+Limgrave,LG,GC,1,Gateside Chamber,HIGH,LG/GC: Kukri x4 - E of GC,m60_42_37,Godrick the Grafted(52)
+Limgrave,LG,HC,1,,NONE,LG/HC: Turtle Neck Meat - N above HC,m60_43_39,
+Limgrave,LG,MCO,3,Murkwater Coast,LOW,LG/MCO: Armorer's Cookbook [1] - SW of MCO,m60_43_38 m60_44_38,
+Limgrave,LG,MCV,1,Murkwater Cave,LOW,LG/MCV: Reduvia - invader drop E of MCV,m60_43_37,
+Limgrave,LG,ME,16,Murkwater Coast,LOW,LG/ME: Hand Axe - Nomadic Merchant S of ME,m60_45_36 m60_45_37,"Murkwater Cave(52) | Mimic Tear(52) | Margit, the Fell Omen(52)"
+Limgrave,LG,MO,7,Mistwood Outskirts,HIGH,LG/MO: Golden Seed - kill Kenneth Haight,m10_00_00 m60_45_37 m60_45_38,"Murkwater Coast(52) | Margit, the Fell Omen(52)"
+Limgrave,LG,MR,2,Murkwater Coast,LOW,LG/MR: Golden Rune [1] - N of MR,m60_44_37,Murkwater Cave(52) | Mistwood Outskirts(52) | Mimic Tear(52)
+Limgrave,LG,SB,11,Siofra River Bank,LOW,LG/SB: Smithing Stone [1] - to S,m60_43_38 m60_43_39 m60_44_38 m60_44_39,Saintsbridge(52)
+Limgrave,LG,SC,1,Stormveil Cliffside,MED,LG/SC: Starlight Shards - cliff above W of SC,m60_41_37,Secluded Cell(212) | Schoolhouse Classroom(212)
+Limgrave,LG,SG,1,Stranded Graveyard,HIGH,LG/SG: Silver-Pickled Fowl Foot x2 - hidden drop down behind SG entrance,m60_42_36,Summonwater Village Outskirts(52) | Stormveil Main Gate(52) | Saintsbridge(52)
+Limgrave,LG,SR,7,Seaside Ruins,HIGH,LG/SR: Haligdrake Talisman - cave entrance lower beach to NW,m18_00_00 m60_42_35 m60_43_35 m60_43_36,Siofra River Bank(97) | Summonwater Village Outskirts(52) | Stranded Graveyard(52)
+Limgrave,LG,SRW,3,,NONE,"LG/SRW: Map: Limgrave, East - W of SRW",m60_45_37 m60_46_37,
+Limgrave,LG,SWV,9,Summonwater Village Outskirts,LOW,LG/SWV: Golden Rune [4] - ruins NE of SMV,m60_45_39,
+Limgrave,LG,SWVO,8,Summonwater Village Outskirts,LOW,LG/SWVO: Fevor's Cookbook [1] - graveyard to S,m60_45_38,
+Limgrave,LG,TCM,2,Third Church of Marika,HIGH,LG/TCM: Neutralizing Boluses - NE of TCM,m60_46_38 m60_46_39,
+Limgrave,LG,TFS,1,The First Step,LOW,LG/TFS: Golden Halberd - first field boss,m60_42_36,
+Limgrave,LG,WR,9,Waypoint Ruins Cellar,MED,LG/WR: Smoldering Butterfly x4 - SW of WR,m60_44_36 m60_44_37,Worshippers' Woods(52) | West Capital Rampart(52) | Warmaster's Shack(52)
+Limgrave,LG,WS,14,Warmaster's Shack,HIGH,LG/WS: Beast Liver - SE of WS,m60_42_38 m60_43_39,Worshippers' Woods(52) | West Capital Rampart(52) | Waypoint Ruins Cellar(52)
+Liurnia of The Lakes,LL,AGT,23,Academy Gate Town,HIGH,LL/AGT: Golden Rune [1] 1 - W of upper AGT in graveyard,m60_35_44 m60_36_43 m60_36_44 m60_36_45 m60_37_43 m60_37_44,
+Liurnia of The Lakes,LL,ARW,1,,NONE,LL/ARW: Stonesword Key - way N of ARW in chair,m60_38_47,
+Liurnia of The Lakes,LL,AS,8,Artist's Shack,HIGH,LL/AS: Dragon Cult Prayerbook - enemy drop S of AS,m60_38_44 m60_38_45 m60_39_43 m60_39_44,Altus Plateau(52)
+Liurnia of The Lakes,LL,BC,1,Bellum Church,HIGH,LL/BC: Sanctuary Stone x3 - S of BC by ruin,m60_36_48,Boilprawn Shack(52)
+Liurnia of The Lakes,LL,BCM,1,,NONE,LL/BCM: Frozen Armament - scarab to NW,m60_35_50,
+Liurnia of The Lakes,LL,BS,4,Boilprawn Shack,HIGH,LL/BS: Dexterity-knot Crystal Tear - to SW in basin,m60_36_42 m60_36_43,Beside the Great Bridge(52)
+Liurnia of The Lakes,LL,CC,1,Church of Vows,LOW,LL/CC: Somber Smithing Stone [2] x2 - S of CC in chair,m60_39_41,Cathedral of Manus Celes(52)
+Liurnia of The Lakes,LL,CFT,1,,NONE,LL/CFT: Crystal Dart x3 - SW under CFT,m60_39_48,
+Liurnia of The Lakes,LL,CIn,8,Crystalline Woods,LOW,LL/CIn: Golden Rune [3] 1 - graveyard S of CIn,m60_37_48,Crumbling Beast Grave Depths(53) | Crumbling Beast Grave(53)
+Liurnia of The Lakes,LL,CIr,1,Crumbling Beast Grave Depths,LOW,LL/CIr: Warming Stone x3 - W of CIr in graveyard,m60_38_39,Crumbling Beast Grave(53)
+Liurnia of The Lakes,LL,CT,2,Converted Tower,HIGH,LL/CT: Golden Rune [6] - ballon to N,m60_34_43 m60_34_44,Crystalline Woods(52) | Crumbling Beast Grave Depths(52) | Crumbling Beast Grave(52)
+Liurnia of The Lakes,LL,CV,2,Church of Vows,HIGH,LL/CV: Stormhawk Feather x5 - to W behind CV on cliff facing RLA,m60_37_46 m60_37_47,Crumbling Beast Grave Depths(52) | Crumbling Beast Grave(52) | Converted Tower(52)
+Liurnia of The Lakes,LL,CW,1,Crystalline Woods,HIGH,LL/CW: Smithing Stone [3] x3 - to N in gazebo,m60_34_46,Converted Tower(52) | Church of Vows(52)
+Liurnia of The Lakes,LL,EGBT,3,East Gate Bridge Trestle,HIGH,LL/EGBT: Ash of War: Shield Bash - scarab to NE,m60_35_47 m60_36_47,
+Liurnia of The Lakes,LL,ELLS,3,Eastern Liurnia Lake Shore,HIGH,LL/ELLS: Smithing Stone [3] x3 - to W in gazebo,m60_37_45 m60_38_44,
+Liurnia of The Lakes,LL,ERLG,1,East Raya Lucaria Gate,HIGH,LL/ERLG: Slumbering Egg x2 - to NE up cliff path by tent,m60_37_48,
+Liurnia of The Lakes,LL,ET,6,Eastern Tableland,HIGH,LL/ET: Smoldering Butterfly x8 - to SW in camp item 1,m60_38_45 m60_38_46,Eastern Liurnia Lake Shore(52) | East Raya Lucaria Gate(52) | East Gate Bridge Trestle(52)
+Liurnia of The Lakes,LL,FFB,9,Foot of the Four Belfries,HIGH,LL/FFB: Golden Rune [6] - enemy drop to S middle of rocks,m60_33_45 m60_33_46 m60_33_47,
+Liurnia of The Lakes,LL,FFV,1,Frenzied Flame Village Outskirts,MED,LL/FFV: Frenzied Burst - scarab NW of FFV,m60_37_48,
+Liurnia of The Lakes,LL,FFVO,3,Frenzied Flame Village Outskirts,HIGH,LL/FFVO: Note: The Lord of Frenzied Flame - to SW behind house,m60_38_48,
+Liurnia of The Lakes,LL,FL,3,Frenzied Flame Village Outskirts,LOW,LL/FL: Ash of War: Vow of the Indomitable - scarab to S,m60_35_42 m60_35_43,Foot of the Four Belfries(52) | Folly on the Lake(52) | Fallen Ruins of the Lake(52)
+Liurnia of The Lakes,LL,FRL,5,Fallen Ruins of the Lake,HIGH,"LL/FRL: Larval Tear - enemy drop to S, NW of gazebo",m60_35_43 m60_36_43 m60_36_44,Frenzied Flame Village Outskirts(53) | Foot of the Four Belfries(53)
+Liurnia of The Lakes,LL,GLD,2,Grand Lift of Dectus,HIGH,LL/GLD: Somber Smithing Stone [3] - scarab to NW,m60_38_50,
+Liurnia of The Lakes,LL,GTB,7,Gate Town Bridge,HIGH,LL/GTB: Smithing Stone [2] x3 - to S in gazebo E of HLT,m60_38_42 m60_38_43 m60_39_43,
+Liurnia of The Lakes,LL,GTN,2,Gate Town North,HIGH,LL/GTN: Stonesword Key - to W in chair under curved RLA main stairs,m60_35_46 m60_36_45,Gate Town Bridge(53)
+Liurnia of The Lakes,LL,JB,22,Jarburg,LOW,LL/JB: Exalted Flesh x3 - given by Alexander after getting him unstuck with,m13_00_00 m16_00_00 m60_39_43 m60_39_44,
+Liurnia of The Lakes,LL,LFC,1,Lake-Facing Cliffs,HIGH,LL/LFC: Academy Scroll - to W in graveyard,m60_39_40,
+Liurnia of The Lakes,LL,LHN,6,Liurnia Highway North,HIGH,LL/LHN: Stormhawk Feather x3 - to S middle of broken ruins,m60_39_41 m60_39_42,
+Liurnia of The Lakes,LL,LHS,3,Liurnia Highway South,HIGH,LL/LHS: Golden Rune [6] - ballon drop to N,m60_39_41 m60_40_40,
+Liurnia of The Lakes,LL,LLS,15,Liurnia Lake Shore,HIGH,LL/LLS: Glintstone Craftsman's Cookbook [1] - to S in camp,m60_38_40 m60_38_41,Lake-Facing Cliffs(53)
+Liurnia of The Lakes,LL,LR,1,Laskyar Ruins,HIGH,LL/LR: Glintstone Craftsman's Cookbook [2] - to N,m60_38_41,Liurnia Lake Shore(52) | Liurnia Highway South(52) | Liurnia Highway North(52)
+Liurnia of The Lakes,LL,MC,4,Mausoleum Compound,HIGH,"LL/MC: Arteria Leaf x3 - to SW, in chair within lower forest",m60_37_47 m60_37_48,"Main Caria Manor Gate(97) | Maliketh, the Black Blade(52) | Main Academy Gate(52)"
+Liurnia of The Lakes,LL,MCMG,1,Main Caria Manor Gate,HIGH,LL/MCMG: Ash of War: Hoarfrost Stomp - scarab to SE in pond,m60_36_49,Main Academy Gate(54)
+Liurnia of The Lakes,LL,MEW,2,,NONE,LL/MEW: Cerulean Crystal Tear - boss drop,m60_33_43,
+Liurnia of The Lakes,LL,NLLS,1,Northern Liurnia Lake Shore,HIGH,"LL/NLLS: Map: Liurnia, West - to NE on map pillar",m60_34_48,
+Liurnia of The Lakes,LL,REC,1,Revenger's Shack,LOW,LL/REC: Ash of War: Sword Dance - scarab N of REC,m60_33_43,
+Liurnia of The Lakes,LL,RL,1,Ruined Labyrinth,HIGH,LL/RL: Frenzyflame Stone - to SE behind statue on cliff,m60_38_47,"Rykard, Lord of Blasphemy(97) | Raya Lucaria Crystal Tunnel(97) | Royal Moongazing Grounds(52)"
+Liurnia of The Lakes,LL,RM,6,Royal Moongazing Grounds,MED,LL/RM: Carian Filigreed Crest - Iji shop after defeating LG/FHE boss,m60_34_49 m60_35_49,"Rykard, Lord of Blasphemy(52) | Road to the Manor(52)"
+Liurnia of The Lakes,LL,RS,1,Revenger's Shack,HIGH,LL/RS: Bloodflame Blade - scarab NW of RS,m60_34_44,"Rykard, Lord of Blasphemy(52) | Royal Moongazing Grounds(52) | Raya Lucaria Crystal Tunnel(52)"
+Liurnia of The Lakes,LL,RVV,3,Ravine-Veiled Village,HIGH,LL/RVV: Golden Seed - seedtree to SW ,m60_37_50 m60_37_51 m60_38_50,
+Liurnia of The Lakes,LL,SHE,1,Subterranean Inquisition Chamber,LOW,LL/SHE: Somber Smithing Stone [3] - scarab NW of SHE,m60_39_45,South Raya Lucaria Gate(53)
+Liurnia of The Lakes,LL,SRLG,1,South Raya Lucaria Gate,HIGH,LL/SRLG: Meeting Place Map - to N,m60_35_45,
+Liurnia of The Lakes,LL,SeI,6,Sorcerer's Isle,MED,"LL/SeI: Volcano Manor Invitation - give Rya her necklace, you will need to ",m16_00_00 m60_36_41 m60_37_41 m60_37_42,Scenic Isle(153) | Subterranean Inquisition Chamber(98) | Slumbering Wolf's Shack(53)
+Liurnia of The Lakes,LL,SoI,21,Sorcerer's Isle,HIGH,LL/SoI: Somber Smithing Stone [3] - to SW up on cliff in chair,m60_33_47 m60_34_47 m60_34_48 m60_35_47 m60_35_48,Scenic Isle(100) | South Raya Lucaria Gate(53) | Subterranean Inquisition Chamber(45)
+Liurnia of The Lakes,LL,TQ,7,Temple Quarter,HIGH,LL/TQ: Somber Smithing Stone [2] - scarab to NW on island,m60_33_45 m60_34_44 m60_34_45,
+Liurnia of The Lakes,LL,TR,4,The Ravine,LOW,LL/TR: Old Fang x2 - to SW under some ruins with tons of enemies,m60_35_48 m60_35_49,The Four Belfries(52) | Temple Quarter(52)
+Liurnia of The Lakes,LL,VA,6,Village of the Albinaurics,HIGH,LL/VA: Albinauric Bloodclot - to N by tree,m60_34_42 m60_34_43 m60_35_42,Volcano Manor(52)
+Midra's Manse,MM,MH,5,Manse Hall,HIGH,"MM/MH: Swollen Grape - to N, room immediately to right when entering manse",m28_00_00,
+Midra's Manse,MM,ML,6,Midra's Library,HIGH,"MM/ML: Mad Craftsman's Cookbook [3] - to E, corpse in room only accessible ",m28_00_00,Manse Hall(52)
+Midra's Manse,MM,SFC,3,Second Floor Chamber,HIGH,MM/SFC: Remembrance of the Lord of Frenzied Flame - mainboss drop,m28_00_00,
+Miquella's Haligtree,MH,HC,18,Haligtree Canopy,HIGH,MH/HC: Stonesword Key - to S behind waygate arrival location,m15_00_00,
+Miquella's Haligtree,MH,HT,8,Haligtree Town,HIGH,MH/HT: Golden Rune [10] - to NW by the first ladder,m15_00_00,Haligtree Town Plaza(97) | Haligtree Roots(52) | Haligtree Promenade(52)
+Miquella's Haligtree,MH,HTP,15,Haligtree Town Plaza,HIGH,MH/HTP: Loretta's War Sickle - boss drop,m15_00_00,Haligtree Promenade(53) | Haligtree Canopy(53)
+Mohgwyn Palace,MP,MDE,7,,NONE,MP/MDE: Map: Mohgwyn Palace - to NW,m12_05_00,
+Mohgwyn Palace,MP,PALR,28,Palace Approach Ledge-Road,HIGH,MP/PALR: Nomadic Warrior's Cookbook [24] - on E most ledge in S blood swamp,m12_05_00,
+Mohgwyn Palace,MP,PALR|(MDM),1,,NONE,MP/PALR|(MDM): Golden Seed - seedtree in S blood swamp AND SE of boss eleva,m12_05_00,
+Moonlight Altar,MA,MA,9,Moonlight Altar,HIGH,"MA/MA: Smithing Stone [7] x3 - to SW in the 3 gazebos, left",m60_33_41 m60_34_41 m60_34_42,
+Mountaintops of the Giants,MotG,ASVR,7,Ancient Snow Valley Ruins,HIGH,"MotG/ASVR: Golden Rune [7] - to SW on right side of bridge, near end",m60_51_55 m60_51_56,
+Mountaintops of the Giants,MotG,CSMG,2,Castle Sol Main Gate,HIGH,MotG/CSMG: Death Ritual Spear - boss drop to W by statue,m60_50_57,
+Mountaintops of the Giants,MotG,FCM,5,First Church of Marika,HIGH,MotG/FCM: Somber Smithing Stone [8] - NW of FCM on ice lake,m60_53_56 m60_54_55,
+Mountaintops of the Giants,MotG,FR,5,Freezing Lake,LOW,MotG/FR: Golden Seed - seedtree to SW,m60_52_57 m60_53_57 m60_54_56,First Church of Marika(52)
+Mountaintops of the Giants,MotG,GG,3,Giant-Conquering Hero's Grave,LOW,MotG/GG: Ash of War: Prelate's Charge - scarab E of GG high on thorn,m60_52_55,
+Mountaintops of the Giants,MotG,HR,1,,NONE,MotG/HR: Golden Rune [12] - ballon drop S of HR,m60_53_56,
+Mountaintops of the Giants,MotG,LCE,2,,NONE,MotG/LCE: Golden Rune [12] - ballon drop N of LCE,m60_53_56,
+Mountaintops of the Giants,MotG,ME,1,,NONE,MotG/ME: Golden Rune [10] - S of ME,m60_51_56,
+Mountaintops of the Giants,MotG,SL,5,Spiritcaller Cave,LOW,MotG/SL: Hoslow's Petal Whip - invade Juno Hoslow,m60_50_56,Snow Valley Ruins Overlook(52)
+Mountaintops of the Giants,MotG,SR,2,Spiritcaller Cave,LOW,MotG/SR: Greathood - Painting reward NW of SR on bridge,m60_50_56 m60_51_56,Snow Valley Ruins Overlook(52)
+Mountaintops of the Giants,MotG,SVRO,7,Snow Valley Ruins Overlook,HIGH,MotG/SVRO: Golden Rune [10] - to W on right side of path,m60_51_57 m60_52_57,
+Mountaintops of the Giants,MotG,WR,1,Whiteridge Road,HIGH,MotG/WR: Explosive Greatbolt x5 - to NE by end of walls,m60_52_56,
+Mountaintops of the Giants,MotG,ZR,6,Zamor Ruins,HIGH,"MotG/ZR: Iron Kasa - kill Shabriri, or on ground later",m60_49_53 m60_50_53,
+Mt. Gelmir,MtG,BI,1,Beside the Great Bridge,LOW,MtG/BI: Arteria Leaf x2 - to NW by 3 enemies,m60_38_54,
+Mt. Gelmir,MtG,FL,11,First Mt. Gelmir Campsite,LOW,MtG/FL: Jar - talk to Alexander S of FL,m13_00_00 m60_35_53,
+Mt. Gelmir,MtG,FMGC,14,First Mt. Gelmir Campsite,HIGH,MtG/FMGC: Golden Rune [6] - to NW past tower,m60_37_54 m60_38_53 m60_38_54,
+Mt. Gelmir,MtG,GHG,1,,NONE,MtG/GHG: Mushroom x6 - N of GHG,m60_37_53,
+Mt. Gelmir,MtG,HS,6,,NONE,MtG/HS: Golden Rune [2] 1 - graveyard W of HS,m60_35_52 m60_36_52,
+Mt. Gelmir,MtG,HV,2,,NONE,MtG/HV: Sacramental Bud x2 - W of HV,m60_37_52,
+Mt. Gelmir,MtG,ME,7,"Maliketh, the Black Blade",LOW,"MtG/ME: Leaden Hardtear - boss drop, Minor Erdtree",m60_37_54,
+Mt. Gelmir,MtG,NMGC,15,Ninth Mt. Gelmir Campsite,HIGH,MtG/NMGC: Fallingstar Beast Jaw - boss drop,m60_36_54 m60_37_54,
+Mt. Gelmir,MtG,PSA,6,Primeval Sorcerer Azur,HIGH,MtG/PSA: Memory Stone - boss drop to S,m60_37_53,
+Mt. Gelmir,MtG,RI,5,Road of Iniquity,HIGH,"MtG/RI: Dragonwound Grease - to NW, NW of map pillar up on ledge",m60_35_54 m60_36_54 m60_37_54,
+Mt. Gelmir,MtG,SR,9,Seethewater River,HIGH,MtG/SR: Ash of War: Barrage - scarab to N,m60_37_52 m60_37_53 m60_37_54,Seethewater Terminus(52)
+Mt. Gelmir,MtG,ST,6,Seethewater Terminus,HIGH,MtG/ST: Mushroom x5 - to W by wood walls,m60_35_53 m60_35_54 m60_36_53 m60_36_54,Seethewater River(52)
+Mt. Gelmir,MtG,VC,1,,NONE,MtG/VC: Poison Grease x2 - SE of VC,m60_37_55,
+Mt. Gelmir,MtG,VM,8,,NONE,"MtG/VM: Golden Rune [3] - NW of VM, SW of seedtree",m60_35_54 m60_36_54,
+"Nokron, Eternal City",NR,AFC,4,Aqueduct-Facing Cliffs,HIGH,"NR/AFC: Missionary's Cookbook [5] - jump down to SE, on corpse",m12_02_00,
+"Nokron, Eternal City",NR,AW,20,Ancestral Woods,HIGH,NR/AW: Ash of War: Enchanted Shot - scarab to N by fire monument,m12_02_00,
+"Nokron, Eternal City",NR,HG,2,,NONE,NR/HG: Kukri x8 - SE of stairs SW of HG,m12_02_00,
+"Nokron, Eternal City",NR,MT,4,Mimic Tear,HIGH,NR/MT: Somber Smithing Stone [5] - scarab to NE,m12_02_00,
+"Nokron, Eternal City Start",NR,LG,9,,NONE,NR/LG: Golden Rune [5] - entrance middle platform on ledge,m12_07_00,
+"Nokron, Eternal City Start",NR,NEC,14,"Nokron, Eternal City",HIGH,NR/NEC: Silver Tear Mask - boss drop,m12_02_00 m12_07_00,
+Rauh Base,RB,ARB,9,Ancient Ruins Base,HIGH,"RB/ARB: Smithing Stone [8] x4 - to SW, up on a hill right side of ravine, N",m61_46_46 m61_47_46 m61_47_47 m61_48_47,
+Rauh Base,RB,NNM,1,,NONE,RB/NNM: Spiraltree Seal - \,m61_46_45,
+Rauh Base,RB,RN,9,Ravine North,HIGH,RB/RN: Roar of Rugalea - boss drop to NW,m61_44_47 m61_44_48 m61_45_47,"Rauh Ancient Ruins, West(52) | Rauh Ancient Ruins, East(52)"
+Rauh Base,RB,SRC,2,,NONE,RB/SRC: Greater Potentate's Cookbook [8] - N of SRC on pile of brown,m61_44_47,
+Rauh Base,RB,TRF,4,,NONE,"RB/TRF: Sanguine Amaryllis x5 - W of TRF, middle of pond",m61_47_47 m61_48_47,
+Rauh Base,RB,TTR,11,Temple Town Ruins,HIGH,RB/TTR: Grave Glovewort [5] - to S by gravestones,m61_45_45 m61_45_46 m61_46_45 m61_46_47,
+Rauh Ruins Limited,SA,ARR,3,,NONE,SA/ARR: Redflesh Mushroom - E side of imbued sword key area by pillar,m61_46_46 m61_46_47,
+Raya Lucaria Academy,RLA,CC,19,Church of the Cuckoo,HIGH,"RLA/CC: Ash of War: Spectral Lance - scarab outside, E after bridge over so",m14_00_00,
+Raya Lucaria Academy,RLA,DB,3,Debate Parlor,LOW,"RLA/DB: Glintstone Whetblade - outside, left up rubble then in room on rail",m14_00_00,
+Raya Lucaria Academy,RLA,MAG,23,Main Academy Gate,HIGH,"RLA/MAG: Magic Grease - up elevator, right of fountain",m14_00_00 m60_35_45 m60_35_46,
+Raya Lucaria Academy,RLA,RLGL,4,Raya Lucaria Grand Library,HIGH,RLA/RLGL: Eccentric's Hood - side with Sellen,m14_00_00,
+Raya Lucaria Academy,RLA,SC,21,Schoolhouse Classroom,HIGH,RLA/SC: Memory Stone - boss drop,m14_00_00,South Raya Lucaria Gate(52)
+Raya Lucaria Academy Chest,RLA,RLGL,1,Raya Lucaria Grand Library,HIGH,"RLA/RLGL: Dark Moon Ring - in chest, requires Discarded Palace Key",m14_00_00,
+Raya Lucaria Academy Library,RLA,RLGL,4,Raya Lucaria Grand Library,HIGH,"RLA/RLGL: Shard Spiral - side with Sellen, sold in shop",m14_00_00,
+Raya Lucaria Academy Main,RLA,DB,33,Debate Parlor,LOW,"RLA/DB: Cracked Pot - outside, to left up S stairs item 2",m14_00_00,
+Recluses' River,RR,CWH,11,Castle Watering Hole,HIGH,RR/CWH: Furnace Visage 1 - to S in SW furnace golem bodies,m61_49_46 m61_49_47 m61_50_46,
+Recluses' River,RR,RRD,15,Recluses' River Downstream,HIGH,RR/RRD: Glass Shard - NE after going down half of gravestones,m61_50_44 m61_50_45 m61_51_44,
+Recluses' River,RR,RRU,4,Recluses' River Upstream,HIGH,RR/RRU: Smithing Stone [3] x2 - on a ledge above RRD grace,m61_50_44 m61_50_45,
+Recluses' River,RR,RU,5,Recluses' River Upstream,LOW,RR/RU: Ember of Messmer x5 - on building S of RU,m61_50_46,Recluses' River Downstream(52)
+Ruin-Strewn Precipice,RSP,RSP,14,Ruin-Strewn Precipice,HIGH,RSP/RSP: Somber Smithing Stone [4] - scarab to S,m39_20_00,Ruin-Strewn Precipice Overlook(98)
+Ruin-Strewn Precipice,RSP,RSPO,6,Ruin-Strewn Precipice Overlook,HIGH,RSP/RSPO: Magma Wyrm's Scalesword - boss drop,m39_20_00,
+Ruin-Strewn Precipice,RSP,RVV,7,,NONE,RSP/RVV: Golden Rune [1] - up to cave before elevator behind pillar,m39_20_00,
+Scadu Altus,SA,BFR,1,Behind the Fort of Reprimand,HIGH,SA/BFR: Smithing Stone [8] x4 - in chest up ladder to N,m61_49_43,
+Scadu Altus,SA,BLV,3,Bridge Leading to the Village,LOW,SA/BLV: Cerulean-Sapping Cracked Tear - furnace golem to NE along path,m61_51_45,
+Scadu Altus,SA,BV,3,Bonny Village,HIGH,SA/BV: Hefty Cracked Pot - to SE by pot,m61_50_44 m61_50_45,Bridge Leading to the Village(52)
+Scadu Altus,SA,CC,2,Cocoon of the Empyrean,LOW,"SA/CC: Forager Brood Cookbook [4] - N of CC, given by friendly Kindred of R",m61_47_46,Castle-Lord's Chamber(52) | Castle Ensis Checkpoint(52)
+Scadu Altus,SA,CDH,6,Castle-Lord's Chamber,LOW,"SA/CDH: Ash of War: Carian Sovereignty - to SW, down right path, in cave ne",m61_50_45 m61_50_47 m61_51_46,
+Scadu Altus,SA,CMM,4,Cathedral of Manus Metyr,HIGH,SA/CMM: Cherishing Fingers - in graveyard W of CMM after Ymir dead,m61_50_45 m61_51_45,
+Scadu Altus,SA,FR,18,Fort of Reprimand,HIGH,"SA/FR: Battlefield Priest's Cookbook [2] - in chest to S inside, very top o",m61_49_43 m61_50_43,
+Scadu Altus,SA,HC,31,Highroad Cross,HIGH,SA/HC: Lacerating Crossed-Tree - given by Leda after invading Hornsent alon,m12_05_00 m21_01_00 m61_47_44 m61_47_45 m61_48_44 m61_48_45 m61_48_46 m61_49_45 m61_49_46 m61_49_47,
+Scadu Altus,SA,MHS,1,"Moorth Highway, South",HIGH,SA/MHS: Rune Arc - to SW along cliff,m61_49_43,Moorth Ruins(53)
+Scadu Altus,SA,MR,21,Moorth Ruins,HIGH,SA/MR: Shadow Realm Rune [2] - to SW in pond by tree,m61_48_44 m61_48_45 m61_48_46 m61_49_43 m61_49_44 m61_49_45 m61_49_46,"Moorth Highway, South(52) | Messmer's Dark Chamber(52)"
+Scadu Altus,SA,RFSP,7,,NONE,SA/RFSP: Forager Brood Cookbook [1] - given by friendly Kindred of Rot NW o,m61_48_44 m61_49_44,
+Scadu Altus,SA,SAW,1,"Scadu Altus, West",HIGH,"SA/SAW: Grave Glovewort [4] - to S by grave down below, cross river and hea",m61_47_44,Scaduview Cross(53)
+Scadu Altus,SA,SC,1,Scaduview Cross,HIGH,SA/SC: Scadutree Fragment - by cross,m61_50_43,"Storehouse, Back Section(52) | Scadu Altus, West(52)"
+Scadutree Base,SK,TWS,2,,NONE,SK/TWS: Remembrance of the Shadow Sunflower - mainboss drop,m61_50_48,
+Scaduview,SV,SKBG,2,"Shadow Keep, Back Gate",HIGH,SV/SKBG: Remembrance of the Wild Boar Rider - mainboss drop,m61_49_48,
+Shadow Keep,SK,MGP,21,Main Gate Plaza,HIGH,SK/MGP: Leda's Rune - on Leda's body after invading her alongside Hornsent,m21_00_00,
+Shadow Keep,SK,SKMG,2,Shadow Keep Main Gate,HIGH,SK/SKMG: Aspects of the Crucible: Thorns - boss drop,m21_00_00,
+Shadow Keep Storehouse,SK,DCE,7,Dark Chamber Entrance,HIGH,SK/DCE: Remembrance of the Impaler - mainboss drop,m21_01_00,
+Shadow Keep Storehouse,SK,SFiF,21,"Storehouse, First Floor",HIGH,SK/SFiF: Ansbach's Longbow - on Leda's body after invading her alongside An,m21_01_00,"Storehouse, Fourth Floor(100)"
+Shadow Keep Storehouse,SK,SFoF,12,"Storehouse, Fourth Floor",HIGH,SK/SFoF: Storehouse Cross Message - by cross,m21_01_00,"Storehouse, First Floor(100)"
+Shadow Keep Storehouse,SK,SSF,7,"Storehouse, Seventh Floor",HIGH,SK/SSF: Golden Lion Shield - given by Freyja after giving her Letter for Fr,m21_01_00,"Storehouse, Loft(53) | Storehouse, Fourth Floor(53) | Storehouse, First Floor(53)"
+Shadow Keep Storehouse Back,SK,SBS,6,"Storehouse, Back Section",HIGH,SK/SBS: Somber Smithing Stone [9] - to NE by elevator,m21_01_00,
+Shadow Keep Storehouse Back,SK,SL,8,"Storehouse, Loft",HIGH,SK/SL: Shadow Sunflower x6 - outside to left on lower scaffolding,m21_01_00,"Storehouse, Seventh Floor(52) | Storehouse, Fourth Floor(52) | Storehouse, First Floor(52)"
+"Shadow Keep, Church District",SK,CDE,15,Church District Entrance,HIGH,"SK/CDE: Fire Knight Queelign - on Queelign, give Iris of Grace, in room wit",m21_00_00,
+"Shadow Keep, Church District Lower",SK,SC,17,Sunken Chapel,HIGH,SK/SC: Battlefield Priest's Cookbook [1] - in right wing of church above on,m21_00_00,
+"Shadow Keep, Church District Lower",SK,TWS,2,Tree-Worship Sanctum,HIGH,SK/TWS: Iris of Grace - to S by statue,m21_00_00,Tree-Worship Passage(53)
+"Shadow Keep, West Rampart",SK,SFF,8,,NONE,"SK/SFF: Hefty Cracked Pot - to NW down elevator, on bed",m21_02_00,
+"Shadow Keep, West Rampart",SK,WR,10,West Rampart,HIGH,"SK/WR: Smithing Stone [3] - to W, on bridge",m21_02_00,
+Siofra River,SR,BW,6,Below the Well,HIGH,SR/BW: Golden Seed - to SW across rock bridge under seedtree,m12_02_00,
+Siofra River,SR,SRB,18,Siofra River Bank,HIGH,SR/SRB: Map: Siofra River - to SE by bottom of stairs,m12_02_00 m12_07_00,
+Siofra River,SR,SRWD,18,Siofra River Well Depths,HIGH,SR/SRWD: Oracle Bubbles - scarab on statue in ruins,m12_07_00,
+Siofra River,SR,WW,38,Worshippers' Woods,HIGH,SR/WW: Shotel - Abandoned Merchant to W in upper interior area,m12_02_00,
+Stone Coffin Fissure,SCF,FC,9,Fissure Cross,HIGH,SCF/FC: Scadutree Fragment - by cross,m22_00_00,
+Stone Coffin Fissure,SCF,FD,1,Fissure Depths,HIGH,SCF/FD: Remembrance of Putrescence - mainboss drop,m22_00_00,
+Stone Coffin Fissure,SCF,FW,7,Fissure Waypoint,HIGH,SCF/FW: Grave Glovewort [7] - to S on left boat,m22_00_00,
+Stone Coffin Fissure,SCF,GDP,3,Garden of Deep Purple,HIGH,SCF/GDP: St. Trina Disciple's Cookbook [3] - right of St. Trina,m22_00_00,
+Stone Coffin Fissure,SCF,SCF,2,Stone Coffin Fissure,HIGH,SCF/SCF: Congealed Putrescence x5 - to S up right path on ledge,m22_00_00,
+Stormhill,LG,DC,1,Dragonlord Placidusax,LOW,LG/DC: Lance Talisman - NE of DC,m60_43_40,
+Stormhill,LG,LC,7,,NONE,LG/LC: Scaled Helm - invade Istvan SE of colo,m60_42_39 m60_42_40,
+Stormhill,LG,SB,2,Subterranean Inquisition Chamber,LOW,LG/SB: Exalted Flesh - help Alexander to S,m13_00_00,
+Stormhill,LG,SS,4,Stormhill Shack,HIGH,LG/SS: Ash of War: Wild Strikes - scarab NW of SS,m60_41_38 m60_41_39,Subterranean Inquisition Chamber(52)
+Stormhill,LG,SV,6,,NONE,LG/SV: Smithing Stone [1] - S of first SV boss arena W side,m60_40_38 m60_40_39 m60_41_38,
+Stormhill,LG,WS,5,Warmaster's Shack,HIGH,LG/WS: Blue-Feathered Branchsword - night boss drop SE of WS,m60_42_38 m60_42_39,
+Stormveil Castle,SV,GC,7,Gateside Chamber,HIGH,SV/GC: Smithing Stone [1] - on raised platform to NW,m10_00_00,Godrick the Grafted(52)
+Stormveil Castle,SV,LC,32,Liftside Chamber,HIGH,"SV/LC: Rancorcall - shortcut door to W, scarab at bottom to S",m10_00_00,
+Stormveil Castle,SV,LTB,3,Liftside Chamber,LOW,SV/LTB: Somber Smithing Stone [1] - enemy drop to SW,m10_00_00,
+Stormveil Castle,SV,RT,37,Rampart Tower,HIGH,"SV/RT: Ash of War: Spinning Weapon - Rogier shop, in church or RH later",m10_00_00,
+Stormveil Castle,SV,SMG,17,Stormveil Main Gate,HIGH,"SV/SMG: Caestus - Gostoc shop, after main gate open",m10_00_00,
+Stormveil Castle,SV,SeC,16,Stormveil Cliffside,MED,SV/SeC: Godrick's Great Rune - mainboss drop,m10_00_00,Secluded Cell(153)
+Stormveil Castle,SV,StC,5,Stormveil Cliffside,HIGH,SV/StC: Brick Hammer - follow outside wood walkway at top of big long room,m10_00_00,Secluded Cell(100)
+Stormveil Start,SV,CT,1,Castleward Tunnel,HIGH,SV/CT: Talisman Pouch - boss drop,m10_00_00,
+Stormveil Start,SV,SMG,5,Stormveil Main Gate,HIGH,SV/SMG: Furlcalling Finger Remedy - down stairs to NE,m10_00_00,
+Stormveil Start,SV,StC,12,Stormveil Cliffside,HIGH,"SV/StC: Grace Mimic - talk to Gostoc in stalking spot, to SE and above SC g",m10_00_00,Secluded Cell(100)
+Stormveil Throne,SV,GG,3,Godrick the Grafted,HIGH,SV/GG: Ancient Dragon Smithing Stone - Gostoc shop after finishing Nepheli ,m10_00_00,
+Stormveil Throne,SV,LL,1,,NONE,"SV/LL: Shabriri Grape - from LL/LFC to E, inside by ghost",m10_00_00,
+Subterranean Shunning-Grounds,SSG,FD,6,Forsaken Depths,HIGH,SSG/FD: Ritual Pot - up elevator in corner,m35_00_00,Frenzied Flame Proscription(52)
+Subterranean Shunning-Grounds,SSG,LC,6,Leyndell Catacombs,HIGH,"SSG/LC: Mohg's Shackle - bottom of big room with pipes, SE wall item",m35_00_00,
+Subterranean Shunning-Grounds,SSG,UR,50,Underground Roadside,HIGH,SSG/UR: Mending Rune of the Fell Curse - give Dung Eater 5 seedbed curses,m35_00_00,
+Volcano Manor,VM,GH,19,Guest Hall,HIGH,VM/GH: Godskin Stitcher - boss drop,m16_00_00,
+Volcano Manor,VM,PTC,18,Prison Town Church,HIGH,VM/PTC: Somber Smithing Stone [5] - scarab on NW lower rooftop,m16_00_00,
+Volcano Manor,VM,TE,1,Temple of Eiglay,HIGH,VM/TE: Serpent's Amnion - on the altar,m16_00_00,
+Volcano Manor Drawing Room,VM,VM,22,Volcano Manor,HIGH,VM/VM: Gelmir's Fury - Bernahl reward,m13_00_00 m16_00_00,
+Volcano Manor Dungeon,(VM),RLA,1,"Rykard, Lord of Blasphemy",LOW,(VM)/RLA: Smoldering Butterfly x5 - to E after warp,m16_00_00,
+Volcano Manor Dungeon,(VM),SIC,3,Subterranean Inquisition Chamber,HIGH,"(VM)/SIC: Inquisitor's Girandole - boss drop, from RLA warp",m16_00_00,
+Volcano Manor Entrance,VM,VM,5,Volcano Manor,HIGH,VM/VM: Drawing-Room Key - join volcano manor,m16_00_00,
+Volcano Manor Upper,VM,AP,3,Audience Pathway,HIGH,VM/AP: Rykard's Great Rune - mainboss drop,m16_00_00,
+Volcano Manor Upper,VM,RLB,4,"Rykard, Lord of Blasphemy",HIGH,VM/RLB: Consort's Mask - kill Tanith,m16_00_00,
+Volcano Manor Upper,VM,TE,17,Temple of Eiglay,HIGH,"VM/TE: Missionary's Cookbook [6] - E of shortcut elevator, inside lower par",m16_00_00,
+Weeping Peninsula,WP,AV,2,Ailing Village Outskirts,MED,"WP/AV: Yellow Ember - on way to AV, W of AV",m60_43_32 m60_43_33,
+Weeping Peninsula,WP,BCPG,1,Beside the Crater-Pocked Glade,HIGH,WP/BCPG: Stonesword Key - head far N,m60_45_34,
+Weeping Peninsula,WP,BS,2,Bridge of Sacrifice,HIGH,WP/BS: Irina's Letter - talk to Irina to SE,m35_00_00 m60_43_31,Beside the Rampart Gaol(52) | Beside the Crater-Pocked Glade(52) | Behind the Castle(52)
+Weeping Peninsula,WP,CM,6,Castle Morne Rampart,MED,WP/CM: Golden Rune [1] - NW of CM,m60_43_31 m60_44_31 m60_44_32,Castle Morne Lift(97) | Church of Pilgrimage(52)
+Weeping Peninsula,WP,CMR,28,Castle Morne Rampart,HIGH,WP/CMR: Map: Weeping Peninsula - to SW,m60_44_32 m60_44_33,Castle Morne Lift(53)
+Weeping Peninsula,WP,CP,3,Church of Pilgrimage,HIGH,WP/CP: Warhawk Ashes - \,m60_42_35,Castle Morne Rampart(52)
+Weeping Peninsula,WP,DHFR,3,,NONE,WP/DHFR: Faith-knot Crystal Tear - N of DHFR,m60_43_34,
+Weeping Peninsula,WP,EC,1,,NONE,WP/EC: Rainbow Stone - SE of EC,m60_44_34,
+Weeping Peninsula,WP,FLT,2,Frenzied Flame Proscription,LOW,WP/FLT: Golden Rune [1] x3 1 - E of FLT,m60_44_34,
+Weeping Peninsula,WP,ME,6,,NONE,"WP/ME: Eclipse Crest Heater Shield - W of ME, drop off 2 ledges",m60_42_33 m60_43_32 m60_43_33,
+Weeping Peninsula,WP,MT,1,,NONE,WP/MT: Golden Rune [2] - N of MT under bridge,m60_43_33,
+Weeping Peninsula,WP,OR,1,,NONE,WP/OR: Starlight Shards - E of OR,m60_45_33,
+Weeping Peninsula,WP,SLT,1,South of the Lookout Tower,HIGH,WP/SLT: Rainbow Stone x5 - to SE,m60_44_33,
+Weeping Peninsula,WP,ToR,8,Tombsward Cave,LOW,WP/ToR: Golden Rune [1] 1 - graveyard W of ToR,m60_41_32 m60_42_32,Tombsward(53)
+Weeping Peninsula,WP,TwR,2,Tombsward Cave,LOW,"WP/TwR: Divine Fortification - scarab SW of TwR, high on ruin",m60_42_33 m60_42_34,Tombsward(53)
+Weeping Peninsula,WP,WR,2,,NONE,WP/WR: Golden Rune [1] - W of WR on beach,m60_41_33,

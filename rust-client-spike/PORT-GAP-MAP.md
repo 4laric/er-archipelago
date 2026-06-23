@@ -58,4 +58,45 @@ Their workspace = `crates/{ds3-archipelago, sdt-archipelago, shared}` + `archipe
 ## Open verifies (mine, before quoting "done")
 
 - Exact `PlayerGameData` → inventory field + itembuf struct layout in the `eldenring` crate (confirms grant is pure wiring).
-- That `archipelago_rs` 2.1.1's API matches the spike's queue shapes (location send + items_received callback).
+- That `archipelago_rs` 2.1.1's API matches the spik
+---
+
+## Phase 4 — IMPLEMENTED (2026-06-23, build pending)
+
+Open piece 2 (networking) is now wired on **`archipelago_rs` 2.1.1** (nex3 — the crate fswap uses).
+Crate model = POLL-based (`Connection::update() -> Vec<Event>`), so it runs on the worker thread
+`game::init()` already parks — **no async runtime**. New code, all behind an off-by-default `net`
+cargo feature (implies `detour`):
+
+- **`game/net.rs`** — connect (`Connection<SlotData>::new`), reconnect loop, `ConnectionOptions`
+  with `receive_items(OtherWorlds{own_world:true,starting_inventory:true})` (= C++ items_handling
+  0b111) + optional password; typed MVP `SlotData` (apIdsToItemIds / itemCounts / seed / slot /
+  versions — serde ignores the Phase-5 keys); `Event` pump; `client.received_items()` -> map AP id
+  via `apIdsToItemIds` -> `grant::enqueue`; `flags::drain_reported()` -> `client.mark_checked`;
+  GOAL plumbing (`signal_goal()` -> `set_status(ClientStatus::Goal)`); advisory `versions` check via
+  `er_semver`. Config from `apconfig.json` (CWD or `$ER_AP_CONFIG`): `{"url":"host:port","slot":..}`.
+- **`game/grant.rs`** — server-pushed item GRANT queue + `last_received_index` persistence
+  (`archipelago/<seed>_<slot>.json`, atomic write). `drain_and_grant()` runs on the FrameBegin tick
+  (only place that touches inventory), gated on in-world; sentinel er_code 99999/99998 skipped.
+- **`game/detour.rs`** — added `grant_full_id(full_id, qty)` (builds the 0x50 itembuf — port of C++
+  `GrantItem` — and re-enters the original via the trampoline) + caches the live inventory pointer
+  (`LAST_INVENTORY`) on every detour call, so server grants need NO new InventoryAccessor AOB.
+- **`game/mod.rs`** — `init()` runs `net::run()` on the worker thread (keeps `_task_handle` alive);
+  `tick()` calls `grant::drain_and_grant()`.
+
+**Verified API against docs.rs 2.1.1:** `Client::mark_checked(impl IntoIter<impl AsLocationId>)`
+(i64: AsLocationId), `set_status(ClientStatus::Goal)`, `received_items() -> &[ReceivedItem]`
+(`.index()/.item()/...`; `Item::id() -> i64`, `Item::name() -> Ustr`), `slot_data() -> &S`
+(`Connection<S: DeserializeOwned + Send>`), `Connection::new(url, name, Some("EldenRing"), opts)`.
+
+**BUILD (Windows, not compiled in-sandbox):**
+`cd rust-client-spike; cargo test --features net; cargo build --release --target x86_64-pc-windows-msvc --features net`
+(`.\build.ps1 -Rust` still builds the lean default — net is off-default until this is green; promote
+to `default` in eldenring-ap/Cargo.toml once it compiles, like `detour` was). Expect a `// VERIFY`
+nit or two on first compile, same as the Phase-3 modules.
+
+**Known MVP limits (documented, for Phase 5):** (1) server grants wait for the FIRST local pickup of
+the session (that's when `LAST_INVENTORY` is captured) — a version-robust independent inventory
+resolve via fromsoftware-rs is the follow-up; (2) GOAL detection (which boss flag / goalLocations)
+is plumbing-only — `signal_goal()` has no caller yet; (3) the rich slot_data feature surface
+(graces, natural keys, progressive, DLC auto-entry, notifications) is intentionally Phase 5.

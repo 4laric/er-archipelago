@@ -1,0 +1,419 @@
+71000	Godrick the Grafted
+71001	Margit, the Fell Omen
+71002	Castleward Tunnel
+71003	Gateside Chamber
+71004	Stormveil Cliffside
+71005	Rampart Tower
+71006	Liftside Chamber
+71007	Secluded Cell
+71008	Stormveil Main Gate
+71100	Elden Throne
+71101	Erdtree Sanctuary
+71102	East Capital Rampart
+71103	Lower Capital Church
+71104	Avenue Balcony
+71105	West Capital Rampart
+71107	Queen's Bedchamber
+71108	Fortified Manor, First Floor
+71109	Divine Bridge
+71120	Elden Throne
+71121	Erdtree Sanctuary
+71122	East Capital Rampart
+71123	Leyndell, Capital of Ash
+71124	Queen's Bedchamber
+71125	Divine Bridge
+71190	Table of Lost Grace
+71210	Dragonkin Soldier of Nokstella
+71211	Ainsel River Well Depths
+71212	Ainsel River Sluice Gate
+71213	Ainsel River Downstream
+71214	Ainsel River Main
+71215	Nokstella, Eternal City
+71216	Lake of Rot Shoreside
+71218	Grand Cloister
+71219	Nokstella Waterfall Basin
+71220	Great Waterfall Basin
+71221	Mimic Tear
+71222	Siofra River Bank
+71223	Worshippers' Woods
+71224	Ancestral Woods
+71225	Aqueduct,Facing Cliffs
+71226	Night's Sacred Ground
+71227	Below the Well
+71230	Prince of Death's Throne
+71231	Root,Facing Cliffs
+71232	Great Waterfall Crest
+71233	Deeproot Depths
+71234	The Nameless Eternal City
+71235	Across the Roots
+71240	Astel, Naturalborn of the Void
+71250	Cocoon of the Empyrean
+71251	Palace Approach Ledge,Road
+71252	Dynasty Mausoleum Entrance
+71253	Dynasty Mausoleum Midpoint
+71270	Siofra River Well Depths
+71271	Nokron, Eternal City
+71300	Maliketh, the Black Blade
+71301	Dragonlord Placidusax
+71302	Dragon Temple Altar
+71303	Crumbling Beast Grave
+71304	Crumbling Beast Grave Depths
+71305	Tempest,Facing Balcony
+71306	Dragon Temple
+71307	Dragon Temple Transept
+71308	Dragon Temple Lift
+71309	Dragon Temple Rooftop
+71310	Beside the Great Bridge
+71400	Raya Lucaria Grand Library
+71401	Debate Parlor
+71402	Church of the Cuckoo
+71403	Schoolhouse Classroom
+71500	Malenia, Goddess of Rot
+71501	Prayer Room
+71502	Elphael Inner Wall
+71503	Drainage Channel
+71504	Haligtree Roots
+71505	Haligtree Promenade
+71506	Haligtree Canopy
+71507	Haligtree Town
+71508	Haligtree Town Plaza
+71600	Rykard, Lord of Blasphemy
+71601	Temple of Eiglay
+71602	Volcano Manor
+71603	Prison Town Church
+71604	Guest Hall
+71605	Audience Pathway
+71606	Abductor Virgin
+71607	Subterranean Inquisition Chamber
+71800	Cave of Knowledge
+71801	Stranded Graveyard
+71900	Fractured Marika
+72000	Theatre of the Divine Beast
+72001	Belurat, Tower Settlement
+72002	Small Private Altar
+72003	Stagefront
+72010	Gate of Divinity
+72012	Enir-Ilim: Outer Wall
+72013	First Rise
+72014	Spiral Rise
+72015	Cleansing Chamber Anteroom
+72016	Divine Gate Front Staircase
+72101	Main Gate Plaza
+72102	Shadow Keep Main Gate
+72106	Church District Entrance
+72107	Sunken Chapel
+72108	Tree,Worship Passage
+72109	Tree,Worship Sanctum
+72110	Messmer's Dark Chamber
+72111	Storehouse, First Floor
+72112	Storehouse, Fourth Floor
+72113	Storehouse, Seventh Floor
+72114	Dark Chamber Entrance
+72116	Storehouse, Back Section
+72117	Storehouse, Loft
+72120	West Rampart
+72200	Garden of Deep Purple
+72201	Stone Coffin Fissure
+72202	Fissure Cross
+72203	Fissure Waypoint
+72204	Fissure Depths
+72500	Finger Birthing Grounds
+72800	Discussion Chamber
+72801	Manse Hall
+72802	Midra's Library
+72803	Second Floor Chamber
+73000	Tombsward Catacombs
+73001	Impaler's Catacombs
+73002	Stormfoot Catacombs
+73003	Road's End Catacombs
+73004	Murkwater Catacombs
+73005	Black Knife Catacombs
+73006	Cliffbottom Catacombs
+73007	Wyndham Catacombs
+73008	Sainted Hero's Grave
+73009	Gelmir Hero's Grave
+73010	Auriza Hero's Grave
+73011	Deathtouched Catacombs
+73012	Unsightly Catacombs
+73013	Auriza Side Tomb
+73014	Minor Erdtree Catacombs
+73015	Caelid Catacombs
+73016	War,Dead Catacombs
+73017	Giant,Conquering Hero's Grave
+73018	Giants' Mountaintop Catacombs
+73019	Consecrated Snowfield Catacombs
+73020	Hidden Path to the Haligtree
+73100	Murkwater Cave
+73101	Earthbore Cave
+73102	Tombsward Cave
+73103	Groveside Cave
+73104	Stillwater Cave
+73105	Lakeside Crystal Cave
+73106	Academy Crystal Cave
+73107	Seethewater Cave
+73109	Volcano Cave
+73110	Dragonbarrow Cave
+73111	Sellia Hideaway
+73112	Cave of the Forlorn
+73115	Coastal Cave
+73117	Highroad Cave
+73118	Perfumer's Grotto
+73119	Sage's Cave
+73120	Abandoned Cave
+73121	Gaol Cave
+73122	Spiritcaller's Cave
+73200	Morne Tunnel
+73201	Limgrave Tunnels
+73202	Raya Lucaria Crystal Tunnel
+73204	Old Altus Tunnel
+73205	Altus Tunnel
+73207	Gael Tunnel
+73208	Sellia Crystal Tunnel
+73211	Yelough Anix Tunnel
+73257	Rear Gael Tunnel Entrance
+73410	Limgrave Tower Bridge
+73412	Divine Tower of Limgrave
+73420	Study Hall Entrance
+73421	Liurnia Tower Bridge
+73422	Divine Tower of Liurnia
+73430	Divine Tower of West Altus
+73431	Sealed Tunnel
+73432	Divine Tower of West Altus: Gate
+73440	Divine Tower of Caelid: Basement
+73441	Divine Tower of Caelid: Center
+73450	Divine Tower of East Altus: Gate
+73451	Divine Tower of East Altus
+73460	Isolated Divine Tower
+73500	Cathedral of the Forsaken
+73501	Underground Roadside
+73502	Forsaken Depths
+73503	Leyndell Catacombs
+73504	Frenzied Flame Proscription
+73900	Magma Wyrm Makar
+73901	Ruin,Strewn Precipice
+73902	Ruin,Strewn Precipice Overlook
+74000	Fog Rift Catacombs
+74001	Scorpion River Catacombs
+74002	Darklight Catacombs
+74100	Belurat Gaol
+74101	Bonny Gaol
+74102	Lamenter's Gaol
+74200	Ruined Forge Lava Intake
+74202	Ruined Forge of Starfall Past
+74203	Taylew's Ruined Forge
+74300	Rivermouth Cave
+74301	Dragon's Pit
+74351	Dragon's Pit Terminus
+76100	Church of Elleh
+76101	The First Step
+76102	Stormhill Shack
+76103	Artist's Shack
+76104	Third Church of Marika
+76105	Fort Haight West
+76106	Agheel Lake South
+76108	Agheel Lake North
+76110	Church of Dragon Communion
+76111	Gatefront Ruins
+76113	Seaside Ruins
+76114	Mistwood Outskirts
+76116	Murkwater Coast
+76117	Saintsbridge
+76118	Warmaster's Shack
+76119	Summonwater Village Outskirts
+76120	Waypoint Ruins Cellar
+76150	Church of Pilgrimage
+76151	Castle Morne Rampart
+76152	Weeping Evergaol
+76153	South of the Lookout Tower
+76154	Ailing Village Outskirts
+76155	Beside the Crater,Pocked Glade
+76156	Isolated Merchant's Shack
+76157	Bridge of Sacrifice
+76158	Castle Morne Lift
+76159	Behind the Castle
+76160	Beside the Rampart Gaol
+76161	Morne Moangrave
+76162	Fourth Church of Marika
+76200	Lake,Facing Cliffs
+76201	Liurnia Lake Shore
+76202	Laskyar Ruins
+76203	Scenic Isle
+76204	Academy Gate Town
+76205	South Raya Lucaria Gate
+76206	Main Academy Gate
+76207	East Raya Lucaria Gate
+76208	Bellum Church
+76209	Grand Lift of Dectus
+76210	Foot of the Four Belfries
+76211	Sorcerer's Isle
+76212	Kingsrealm Ruins
+76213	Road to the Manor
+76214	Main Caria Manor Gate
+76215	Slumbering Wolf's Shack
+76216	Boilprawn Shack
+76217	Artist's Shack
+76218	Revenger's Shack
+76219	Folly on the Lake
+76220	Village of the Albinaurics
+76221	Liurnia Highway North
+76222	Gate Town Bridge
+76223	Eastern Liurnia Lake Shore
+76224	Church of Vows
+76225	Ruined Labyrinth
+76226	Mausoleum Compound
+76227	The Four Belfries
+76228	Ranni's Rise
+76229	Ravine,Veiled Village
+76230	Manor Upper Level
+76231	Manor Lower Level
+76232	Royal Moongazing Grounds
+76233	Gate Town North
+76234	Eastern Tableland
+76235	The Ravine
+76236	Fallen Ruins of the Lake
+76237	Converted Tower
+76238	Behind Caria Manor
+76239	Frenzied Flame Village Outskirts
+76240	Church of Inhibition
+76241	Temple Quarter
+76242	East Gate Bridge Trestle
+76243	Crystalline Woods
+76244	Liurnia Highway South
+76245	Jarburg
+76247	Ranni's Chamber
+76250	Moonlight Altar
+76251	Cathedral of Manus Celes
+76252	Altar South
+76300	Abandoned Coffin
+76301	Altus Plateau
+76302	Erdtree,Gazing Hill
+76303	Altus Highway Junction
+76304	Forest,Spanning Greatbridge
+76305	Rampartside Path
+76306	Bower of Bounty
+76307	Road of Iniquity Side Path
+76308	Windmill Village
+76309	Outer Wall Phantom Tree
+76310	Minor Erdtree Church
+76311	Hermit Merchant's Shack
+76312	Outer Wall Battleground
+76313	Windmill Heights
+76314	Capital Rampart
+76320	Shaded Castle Ramparts
+76321	Shaded castle Inner Gate
+76322	Castellan's Hall
+76350	Bridge of Iniquity
+76351	First Mt. Gelmir Campsite
+76352	Ninth Mt. Gelmir Campsite
+76353	Road of Iniquity
+76354	Seethewater River
+76355	Seethewater Terminus
+76356	Craftman's Shack
+76357	Primeval Sorcerer Azur
+76400	Smoldering Church
+76401	Rotview Balcony
+76402	Fort Gael North
+76403	Caelem Ruins
+76404	Cathedral of Dragon Communion
+76405	Caelid Highway South
+76406	Aeonia Swamp Shore
+76407	Astray from Caelid Highway North
+76409	Smoldering Wall
+76410	Deep Siofra Well
+76411	Southern Aeonia Swamp Bank
+76412	Heart of Aeonia
+76413	Inner Aeonia
+76414	Sellia Backstreets
+76415	Chair,Crypt of Sellia
+76416	Sellia Under,Stair
+76417	Impassable Greatbridge
+76418	Church of the Plague
+76419	Redmane Castle Plaza
+76420	Chamber Outside the Plaza
+76422	Starscourge Radahn
+76450	Dragonbarrow West
+76451	Isolated Merchant's Shack
+76452	Dragonbarrow Fork
+76453	Fort Faroth
+76454	Bestial Sanctum
+76455	Lenne's Rise
+76456	Farum Greatbridge
+76500	Forbidden Lands
+76501	Zamor Ruins
+76502	Grand Lift of Rold
+76503	Ancient Snow Valley Ruins
+76504	Freezing Lake
+76505	First Church of Marika
+76506	Giant's Gravepost
+76507	Church of Repose
+76508	Foot of the Forge
+76509	Fire Giant
+76510	Forge of the Giants
+76520	Whiteridge Road
+76521	Snow Valley Ruins Overlook
+76522	Castle Sol Main Gate
+76523	Church of the Eclipse
+76524	Castle Sol Rooftop
+76550	Consecrated Snowfield
+76551	Inner Consecrated Snowfield
+76652	Ordina, Liturgical Town
+76653	Apostate Derelict
+76800	Gravesite Plain
+76801	Scorched Ruins
+76802	Three,Path Cross
+76803	Main Gate Cross
+76804	Cliffroad Terminus
+76805	Greatbridge, North
+76810	Pillar Path Cross
+76811	Pillar Path Waypoint
+76812	Ellac River Cave
+76813	Castle Front
+76821	Castle Ensis Checkpoint
+76822	Castle,Lord's Chamber
+76823	Ensis Moongazing Grounds
+76830	Ellac River Downstream
+76831	Cerulean Coast
+76832	Cerulean Coast West
+76833	The Fissure
+76834	Finger Ruins of Rhia
+76835	Cerulean Coast Cross
+76840	Grand Altar of Dragon Communion
+76841	Charo's Hidden Grave
+76850	Foot of the Jagged Peak
+76851	Jagged Peak Mountainside
+76852	Jagged Peak Summit
+76853	Rest of the Dread Dragon
+76860	Abyssal Woods
+76861	Divided Falls
+76862	Forsaken Graveyard
+76863	Woodland Trail
+76864	Church Ruins
+76900	Highroad Cross
+76902	Moorth Ruins
+76903	Bonny Village
+76904	Bridge Leading to the Village
+76905	Church District Highroad
+76906	Cathedral of Manus Metyr
+76907	Scadu Altus, West
+76908	Moorth Highway, South
+76909	Fort of Reprimand
+76910	Behind the Fort of Reprimand
+76911	Scaduview Cross
+76912	Ancient Ruins Base
+76913	Temple Town Ruins
+76914	Ravine North
+76916	Castle Watering Hole
+76917	Recluses' River Upstream
+76918	Recluses' River Downstream
+76930	Scaduview
+76931	Shadow Keep, Back Gate
+76935	Hinterland
+76936	Fingerstone Hill
+76937	Hinterland Bridge
+76940	Viaduct Minor Tower
+76941	Rauh Ancient Ruins, East
+76942	Rauh Ancient Ruins, West
+76943	Church of the Bud, Main Entrance
+76944	Ancient Ruins, Grand Stairway
+76945	Church of the Bud
+76960	Scadutree Base

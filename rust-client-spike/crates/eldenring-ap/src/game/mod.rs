@@ -23,6 +23,13 @@ mod detour;
 mod flags;
 mod params;
 
+// Phase 4 (AP networking). `net` implies `detour` (grants reuse the detour trampoline), so both
+// modules are present together. Off-by-default; build with `--features net`.
+#[cfg(feature = "net")]
+mod grant;
+#[cfg(feature = "net")]
+mod net;
+
 use std::time::Duration;
 
 // RESOLVED (apply-speffect example + docs.rs 0.14): CSTaskImp/CSTaskGroupIndex in `eldenring::cs`,
@@ -106,11 +113,19 @@ pub fn init() {
     );
     breadcrumb("init: run_recurring registered; parking worker thread");
 
-    // TODO(phase 4): spawn the AP networking thread here (connect, poll, items_received ->
-    // received-items queue, LocationChecks <- the report queue). Kept off the game thread.
+    // Phase 4: run the AP networking loop on THIS worker thread (off the game thread): connect,
+    // poll archipelago_rs, drain the report queue -> LocationChecks, push received items onto the
+    // grant queue the FrameBegin tick drains. Running it here (not a fresh thread) keeps the
+    // FrameBegin registration `_task_handle` alive for free — net::run() never returns.
+    #[cfg(feature = "net")]
+    {
+        breadcrumb("init: entering AP net loop (worker thread)");
+        net::run();
+    }
 
-    // Keep this worker thread — and `_task_handle` — alive for the process lifetime. Dropping the
-    // handle stops the FrameBegin task; phase 4's network loop will live in this park.
+    // Lean detour-only / --no-default-features build: just park the worker thread so `_task_handle`
+    // (the FrameBegin task) stays alive for the process lifetime.
+    #[cfg(not(feature = "net"))]
     loop {
         std::thread::sleep(Duration::from_secs(60));
     }
@@ -142,8 +157,24 @@ fn tick() {
         }
     }
 
-    // TODO(phase 5): drain report queue -> set collected flags; drain received-items queue ->
-    // grant via params/detour; flush pending grace/open flags; evaluate natural-key triggers.
+    // Phase 4: drain the received-items queue (filled by the AP net thread) and grant each item
+    // in-game on THIS thread, where touching inventory is safe; persists last_received_index after
+    // each grant. Gated on in-world inside drain_and_grant().
+    #[cfg(feature = "net")]
+    grant::drain_and_grant();
+
+    // Phase 4: ending_condition 0/1 GOAL detection — poll the boss defeat flag HERE (event-flag
+    // reads are only safe on the game thread) and tell the net loop to send CLIENT_GOAL once.
+    #[cfg(feature = "net")]
+    {
+        let gf = net::goal_flag();
+        if gf != 0 && flags::get_event_flag(gf) {
+            net::signal_goal();
+        }
+    }
+
+    // TODO(phase 5): drain report queue -> set collected flags (detour-bypassing acquisitions);
+    // flush pending grace/open flags; evaluate natural-key triggers; goal detection -> net::signal_goal().
 }
 
 /// Set up file logging (replaces spdlog with a non-blocking tracing file sink).
