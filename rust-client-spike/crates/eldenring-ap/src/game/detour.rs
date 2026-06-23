@@ -14,6 +14,7 @@
 //! non-interrupting item-gain TICKER. Reuses the live inventory pointer the detour is handed.
 
 use std::ffi::c_void;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::OnceLock;
 
 use retour::GenericDetour;
@@ -29,6 +30,11 @@ type AddItemFn = unsafe extern "C" fn(*mut c_void, *mut c_void, *mut c_void, u64
 /// `OnceLock` is its home; we keep it for the process lifetime and call `.call(..)` on it to reach
 /// the original function from inside the hook.
 static HOOK: OnceLock<GenericDetour<AddItemFn>> = OnceLock::new();
+
+/// Live inventory instance pointer (rcx) captured from the most recent AddItemFunc detour call.
+/// Phase 4 reuses it to grant SERVER-pushed items (which never trigger a pickup) without a
+/// separate InventoryAccessor AOB scan — the detour already holds the pointer the game uses.
+static LAST_INVENTORY: AtomicUsize = AtomicUsize::new(0);
 
 // --- AddItemFunc binding (er_hooks.h, eldenring.exe 2.6.2.0) --------------------------------------
 const ADD_ITEM_FUNC_RVA: usize = 0x0056_05B0;
@@ -89,6 +95,10 @@ unsafe extern "C" fn add_item_detour(
     itembuf: *mut c_void,
     r9: u64,
 ) -> u64 {
+    // Phase 4: cache the live inventory pointer on EVERY pickup (vanilla or synthetic) so the
+    // server-pushed grant path has a valid inventory instance soon after the first pickup.
+    LAST_INVENTORY.store(inventory as usize, Ordering::Relaxed);
+
     // SAFETY: `entry` is the descriptor the game passes (rdx); id at entry+0x04.
     let raw_id = read_i32(entry, ITEMBUF_ENTRY_ID_OFF) as u32;
 
@@ -130,6 +140,27 @@ unsafe extern "C" fn add_item_detour(
             call_original(inventory, entry, itembuf, r9)
         }
     }
+}
+
+/// Phase 4: grant a SERVER-pushed item by constructing a fresh itembuf and calling the original
+/// AddItemFunc through the trampoline. Local self-found pickups are granted by the in-place
+/// descriptor rewrite in the detour; server/foreign items never pass through a pickup, so we
+/// build the 0x50-byte buffer the game expects (port of er_gamehook GrantItem) and reuse the
+/// inventory pointer captured by the detour. Returns false if the hook isn't installed or no
+/// inventory pointer has been captured yet (no pickup this session) — caller keeps the item
+/// queued. MUST run on the game thread (the FrameBegin tick).
+pub fn grant_full_id(full_id: i32, qty: i32) -> bool {
+    if HOOK.get().is_none() {
+        return false;
+    }
+    let inv = LAST_INVENTORY.load(Ordering::Relaxed);
+    if inv < 0x10000 {
+        return false; // no inventory instance captured yet; retry after the next pickup
+    }
+    // Reuse the existing constructed-descriptor grant (port of the C++ GrantItem) with the live
+    // inventory pointer the detour captured. goods->goods; full_id already carries the category nibble.
+    grant_item(inv as *mut c_void, full_id, qty);
+    true
 }
 
 /// Resolve the function address. TODO (version-robustness): replace the pinned RVA with an AOB scan

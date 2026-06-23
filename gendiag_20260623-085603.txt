@@ -1,0 +1,75 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260623-085603.log
+gen exit: 1
+seed    : None
+fill    : None items placed
+options : (sentinel ABSENT -- stale .pyc? edited source not running)
+precollected-to-start (0): (none)
+RESULT  : FAILED
+exception: KeyError: "Duplicate key grace_rando found in YAML. Already found keys: {'enemy_rando', 'ending_condition', 'region_access', 'completion_scaling', 'location_pool', 'dlc_only', 'grace_rando', 'world_lo
+
+MISSING : (none found -- no accessibility FillError in log)
+
+OPTIONS (resolved): (no spoiler matches this run's seed None -- gen produced no new zip; newest on disk AP_21658963976714028261.zip is a PRIOR run)
+
+PLAYER YAML (verbatim): EldenRing-Alaric.yaml
+  | name: Alaric
+  | description: ER num_regions(3) random-start CHAIN -- Roundtable hub, Limgrave not guaranteed; rolled 3-region capital run via pool rune-source; QoL maxed. DLC off.
+  | 
+  | game: EldenRing
+  | 
+  | EldenRing:
+  |   enable_dlc: false
+  |   dlc_only: false
+  |   enemy_rando: false
+  |   ending_condition: capital
+  |   world_logic: region_lock
+  | 
+  |   # --- random-start / Roundtable-hub setup ---
+  |   num_regions: 3
+  |   num_regions_order: rolled        # random subset (default); 'spine' = fixed first-N
+  |   num_regions_rune_source: pool    # Roundtable = hub; Limgrave is a normal rollable/sealable region
+  |   grace_rando: true                  # grace runes injected into the pool
+  |                                    #   (NOT force-kept); great runes injected into the pool
+  |   num_regions_chain: true          # breadcrumb kept regions into a 1..N chain; you SPAWN in the
+  |                                    #   chain's link-0 rolled region (not Limgrave)
+  |   region_access: warp              # forced by num_regions anyway
+  | 
+  |   # --- sphere-ordered scaling (your start region = sphere 1) ---
+  |   completion_scaling: smoothstep
+  |   completion_scaling_basis: sphere
+  | 
+  |   # --- pool ---
+  |   location_pool: all
+  |   pool_builder: true
+  |   tidy_fun_consumables: true
+  |   grace_rando: true
+  |   randomize_enia: false
+  |   soft_consumable_shop: true       # NOTE: needs the baked Twin Maiden rows (patch_baker_soft_consumable_shop)
+  |   derandomize_gurranq: true
+  |   derandomize_questlines: full
+  | 
+  |   # --- progressive upgrades (consolidated front-end) ---
+  |   progressive_items: [stone_bells, flasks, physick]
+  |   progressive_bell_count: 10
+  |   progressive_flask_count: 10
+  |   progressive_physick_count: 10
+  | 
+  |   # --- sweep ---
+  |   dungeon_sweep: bosses
+  | 
+  |   # --- QoL ---
+  |   no_weapon_requirements: true
+  |   early_leveling: true
+  |   auto_upgrade: true
+  |   no_spirit_ashes: true
+  |   torrent_start: "on"
+  |   map_option: give
+  | 
+  |   # --- fill ---
+  |   missable_location_behavior: allow_useful
+  |   excluded_location_behavior: allow_useful
+  |   important_locations: ["Remembrance", "Boss", "Cross"]
+  | 
+  |   accessibility: minimal
+  |   progression_balancing: 0

@@ -1,0 +1,202 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260622-220313.log
+gen exit: 0
+seed    : 23893874342160885556
+ER world: items=3251 locations=4906  (full table, before pool filtering)
+fill    : 1753 items placed
+options : accessibility.value=2 option_minimal=2 gate=True enable_dlc=False location_pool=0
+fun-demote: 23 item-defs progression->useful (gated on accessibility==minimal)
+precollected-to-start (0): (none)
+RESULT  : SUCCESS (no traceback)
+
+MISSING : (none found -- no accessibility FillError in log)
+
+OPTIONS (resolved, from AP_26127623779726118123.zip, seed 23893874342160885556 -- GROUND TRUTH, not a yaml):
+  Filling Algorithm:               balanced
+  Players:                         1
+  Plando Options:                  connections, texts, bosses
+  Game:                            EldenRing
+  Location Count:                  1844
+  Progression Balancing:           0
+  Accessibility:                   Minimal
+  Local Items:
+  Non-local Items:
+  Start Inventory:
+  Start Hints:
+  Start Location Hints:
+  Excluded Locations:
+  Priority Locations:
+  Item Links:
+  Plando Items:
+  Ending Condition:                Capital
+  World Logic:                     Region Lock
+  Region Boss Percent:             50
+  Region Boss Type:                No
+  Region Soft Logic:               Yes
+  Leyndell Great Runes Required:   2
+  Final Boss Great Runes Required: 0
+  Mountaintops Great Runes Required:0
+  Great Runes Present:             0
+  Deathless Routing:               No
+  Graces Unlocked Per Region:      0
+  Grace Rando:                     Yes
+  Region Access Logic:             Warp
+  Region Count (Capital run):      0
+  Num Regions (random Capital run):3
+  Num Regions Rune Source:         Regions
+  Num Regions Chain (linear sphere ramp):No
+  DLC-Only Chain (linear sphere ramp):No
+  Completion Scaling:              Smoothstep
+  Completion Scaling Floor (% of MaxTier):0
+  Completion Scaling Basis:        Sphere
+  Global Scadutree Blessing:       Off
+  Random Starting Region:          Off
+  Start Region Freebie:            To Limgrave
+  Royal Capital Accessable:        No
+  Early Leveling (skip Melina):    Yes
+  Extra Region Locks:
+  Enable DLC:                      No
+  DLC Only:                        No
+  Quick Start (RL120 runes, dlc_only):No
+  Rune Catch-up (Lord's Runes, dlc_only):No
+  Scadutree Fragment Front-load:   8
+  Messmer Kindle Shards:           No
+  Messmer Kindle Shards Required:  5
+  Messmer Kindle Shards Max:       10
+  DLC Timing:                      Off
+  Enemy randomizer:                No
+  Material Randomizer:             Yes
+  Death Link:                      No
+  Randomize Starting Loadout:      Yes
+  Auto-Equip:                      No
+  Auto-Upgrade:                    Yes
+  Progressive Items:
+  Progressive Stone Bell Bearings: Yes
+  Progressive Bell Pool Count:     25
+  Progressive Bell Early Count:    4
+  Progressive Flask of Wondrous Physick:Yes
+  Progressive Physick Pool Count (dlc_only guarantee):15
+  Crafting Kit Behavior:           Early
+  Randomize Enia (Remembrance shop):No
+  Map Behavior:                    Give
+  Smithing Bell Bearing Behavior:  Randomize
+  Merchant Bell Bearing Logic:     Off
+  Spell Shop Spells Only:          No
+  Early Legacy Dungeons Early:     No
+  Local Item Option:               Yes
+  Exclude Local Item Only:         Weapon, Armor, Accessory, AshofWar
+  Important Locations:             Remembrance, Boss, Cross
+  Excluded Locations Behavior:     Allow Useful
+  Missable Locations Behavior:     Allow Useful
+  Dungeon Sweep:                   Bosses
+  Grace Sweep:                     Off
+  No Weapon Requirements:          Yes
+  Swap Multi-Boss Fights:          No
+  Boss Runes Match Original:       No
+  Impolite Enemies:                No
+  Disable Serpent-Hunter Upgrade:  No
+  Bell & Physick Handling:         Start With
+  Torrent at Start:                On
+  Flask Upgrade Handling:          Randomize
+  Shadow Realm Blessing Handling:  To Important
+  Soft Progression (demote boring progression to useful under full):No
+  Tidy Junk Consumables (Festering/Starlight/Seedbed):Yes
+  Soft-Consumable Shop (Twin Maiden keys/hearts):Yes
+  De-randomize Gurranq Deathroot Ladder:Yes
+  De-randomize NPC Questlines:     Full
+  Location Pool Size:              All
+  DLC Gear Curation:               No
+  Junk Retention:                  12
+  Junk Retention Style:            Comedy
+  Filler Replacement:              Off
+  No Spirit Ashes:                 Yes
+  Progressive Flask Upgrades:      Yes
+  Progressive Flask Early Count:   4
+  Progressive Flask Pool Count (dlc_only guarantee):25
+  Progressive Glovewort Bell Bearings:No
+  Pool Builder (compose from all-game ladder):Yes
+  Pool Builder: include DLC S/A gear:Yes
+
+PLAYER YAML (verbatim): EldenRing-Alaric.yaml
+  | name: Alaric
+  | description: ER AP base-game num_regions(3) run -- randomized 3-region capital subset, region_lock + warp access, grace-on-receipt, QoL maxed; goal = reach the capital and beat the Elden Beast. DLC off.
+  | 
+  | game: EldenRing
+  | 
+  | EldenRing:
+  |   enable_dlc: false            # DLC off
+  |   dlc_only: false              # base game holds the checks
+  |   enemy_rando: false
+  |   ending_condition: capital    # full base run (reach + beat the Elden Beast)
+  |   #ending_condition: messmer   # (DLC-only; would force dlc_only on -- left off)
+  |   world_logic: region_lock
+  | 
+  |   # Sphere-ordered difficulty scaling. With num_regions, basis: sphere tiers enemies by
+  |   # region_order chain depth (geographic pass validated; sphere-basis bridge wired).
+  |   completion_scaling: smoothstep
+  |   completion_scaling_basis: sphere
+  | 
+  |   #random_start_region: overworld
+  |   #start_region_freebie: hub_only
+  |   soft_consumable_shop: true          # NOTE: needs the baked Twin Maiden shop rows (patch_baker_soft_consumable_shop)
+  |   derandomize_gurranq: true
+  |   derandomize_questlines: full
+  |   #soft_progression: true             # NO EFFECT under accessibility: minimal; left off
+  |   randomize_enia: false
+  |   #num_regions_rune_source: regions   # flip ON if gen strands Altus->Leyndell (pool source seals the capstone)
+  | 
+  |   dlc_only_chain: false        # DLC off -> no DLC breadcrumb chain
+  | 
+  |   # --- region-lock access model ---
+  |   region_access: warp                # lock alone = access; warp straight in
+  |   graces_per_region: 0               # 0 = ALL graces in a region unlock on its lock (max warp coverage)
+  | 
+  |   # --- opt-in bundle locks (commented out) ---
+  |   #extra_region_locks:
+  |   #  - limgrave_caves          # ALIAS of limgrave_underground
+  |   #  - liurnia_caves
+  |   #  - altus_caves
+  |   #  - mountaintops_caves
+  | 
+  |   # --- pool ---
+  |   location_pool: all                 # full pool so the locks behave correctly (trimmed risks lock-spill)
+  |   pool_builder: true
+  |   pool_builder_dlc_gear: true       # DLC off -> no DLC gear in the ladder
+  |   tidy_fun_consumables: true         # scrub junk fun-consumables from the pool
+  |   grace_rando: true
+  | 
+  |   # --- progressive upgrades ---
+  |   progressive_flasks: true
+  |   progressive_glovewort_bells: false
+  |   progressive_stone_bells: true
+  |   progressive_physick: true
+  |   progressive_bell_count: 25
+  |   progressive_flask_count: 25
+  |   progressive_physick_count: 15
+  | 
+  |   # --- num_regions: randomized region count, warp-reachable major subset ---
+  |   num_regions: 3
+  |   #num_regions_chain: true            # breadcrumb the locks into a chain (off -> all 3 free-warp from hub)
+  | 
+  |   # --- sweep ---
+  |   dungeon_sweep: bosses        # total boss attribution; dungeons sweep on their boss
+  | 
+  |   # --- QoL / usability ---
+  |   no_weapon_requirements: true       # use anything the pool hands you
+  |   early_leveling: true               # level at graces from the start, skip Melina (also force-grants Torrent)
+  |   auto_upgrade: true                 # received/found gear auto-scales
+  |   no_spirit_ashes: true              # drop spirit summons + the buggy Spirit Calling Bell
+  |   torrent_start: "on"                # CHOICE (auto/on/off) -- quote it so YAML doesn't read 'on' as a bool
+  |   map_option: give                   # reveal all maps
+  | 
+  |   # filler-bearing pickups get scrubbed by pool builder / progressive; allow_useful avoids a shortage
+  |   missable_location_behavior: allow_useful
+  |   excluded_location_behavior: allow_useful
+  | 
+  |   # Priority force-fill. Valid keys: Remembrance, Seedtree, Basin, Church, Map, Fragment, Cross,
+  |   # Revered, KeyItem, Boss, Shop. (Fragment/Revered are DLC-flavored but harmless with DLC off.)
+  |   # If gen throws "No more spots to place N items", Boss is the heaviest contributor -- drop it first.
+  |   important_locations: ["Remembrance", "Boss", "Cross"]
+  | 
+  |   accessibility: minimal             # minimal lets constrained region-locked pools spill; full force-fills junk -> FillError
+  |   progression_balancing: 0           # solo playtest -> no balance reshuffle

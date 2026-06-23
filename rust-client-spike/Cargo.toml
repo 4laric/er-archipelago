@@ -16,3 +16,18 @@ members = [
 panic = "abort"
 lto = "thin"
 codegen-units = 1
+
+# --- Phase 4 networking: archipelago_rs version patch ---------------------------------------------
+# archipelago_rs 2.1.1 hardcodes its AP Connect version at 0.6.0, but the ER apworld's
+# required_client_version is (0,6,6), so the stock crate is refused with IncompatibleVersion. Point
+# the dependency at a LOCAL copy of the crate whose Connect version is bumped to 0.6.6.
+#
+# POPULATE `third_party/archipelago_rs` first (PowerShell, from rust-client-spike\):
+#   $src = (gci "$env:USERPROFILE\.cargo\registry\src\*\archipelago_rs-2.1.1" -Directory)[0].FullName
+#   robocopy $src third_party\archipelago_rs /E /NFL /NDL /NJH /NJS | Out-Null
+#   attrib -R third_party\archipelago_rs\* /S
+#   del third_party\archipelago_rs\.cargo-checksum.json
+#   # then bump the Connect version literal in src/client.rs: NetworkVersion build: 0 -> build: 6
+# Until that dir exists, cargo will error (path source missing) — populate it, then build.
+[patch.crates-io]
+archipelago_rs = { path = "third_party/archipelago_rs" }

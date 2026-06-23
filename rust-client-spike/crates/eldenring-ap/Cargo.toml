@@ -36,13 +36,23 @@ tracing-appender = "0.2"
 # JSON config / slot_data (replaces nlohmann/json).
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# AP network protocol (Phase 4). nex3's archipelago_rs is the crate fswap's clients use. It is
+# POLL-based (Connection::update), so it runs on the worker thread with NO async runtime. Default
+# features pull rustls + native-tls (the crate tries rustls first, falls back to native-tls, then
+# plain ws). Off-by-default `net` feature.
+archipelago_rs = { version = "2.1.1", optional = true }
 
 [features]
 # `detour` (the Phase-3 AddItemFunc hook) is now on retour's STABLE GenericDetour, so it builds on
 # stable and is enabled by default. Build the lean Phase-1-only cdylib (no retour/windows) with
 # `--no-default-features`.
-default = ["detour"]
+# Phase 4 is compile-green, so `net` joins the default build (like `detour` did after Phase 3).
+default = ["detour", "net"]
 detour = ["dep:retour", "dep:windows"]
+# Phase 4 AP networking. Implies `detour` (server grants reuse the detour trampoline + the
+# inventory pointer it captures). NOT in `default` yet — enable with `--features net` until the
+# Windows build is green, then promote to default like `detour` was.
+net = ["detour", "dep:archipelago_rs"]
 
 [lints.rust]
 # Unlike the pure crates, this one needs `unsafe` for FFI/detours — but only inside the

@@ -1,0 +1,16 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  allow:
+    - dependency-type: "all"
+  schedule:
+    interval: weekly
+  groups:
+    all-deps:
+      patterns:
+        - "*"
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: weekly

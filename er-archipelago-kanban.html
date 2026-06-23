@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ER Archipelago — Project Board</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d222b; --border:#2a313d;
+    --text:#e6e9ef; --muted:#9aa4b2; --accent:#c9a227;
+    --p0:#ef4444; --p1:#f59e0b; --p2:#3b82f6; --p3:#6b7280;
+    --col-blocked:#ef4444; --col-ready:#f59e0b; --col-progress:#3b82f6;
+    --col-backlog:#8b5cf6; --col-done:#22c55e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px;line-height:1.45}
+  header{padding:18px 22px 10px;border-bottom:1px solid var(--border);
+    position:sticky;top:0;background:linear-gradient(180deg,#12151b,#0f1115);z-index:20}
+  h1{margin:0;font-size:19px;letter-spacing:.2px}
+  h1 .tag{color:var(--accent)}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+  .controls .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .controls label{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;margin-right:2px}
+  .chip{background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    padding:4px 10px;border-radius:20px;font-size:12px;cursor:pointer;user-select:none}
+  .chip.active{background:var(--accent);color:#1a1a1a;border-color:var(--accent);font-weight:600}
+  .chip.pri.active{color:#fff}
+  .spacer{flex:1}
+  .reset{background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px}
+  .reset:hover{color:var(--text);border-color:var(--muted)}
+
+  .nextup{margin:14px 22px 0;background:var(--panel);border:1px solid var(--border);
+    border-left:3px solid var(--accent);border-radius:8px;padding:12px 16px}
+  .nextup h2{margin:0 0 6px;font-size:13px;letter-spacing:.4px;text-transform:uppercase;color:var(--accent)}
+  .nextup ol{margin:6px 0 0;padding-left:20px}
+  .nextup li{margin:3px 0;color:var(--text)}
+  .nextup li span{color:var(--muted)}
+
+  .board{display:flex;gap:14px;padding:18px 22px 40px;overflow-x:auto;align-items:flex-start}
+  .col{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    min-width:288px;max-width:288px;flex:0 0 auto;display:flex;flex-direction:column}
+  .col-head{padding:11px 13px;border-bottom:1px solid var(--border);display:flex;
+    align-items:center;gap:8px;position:sticky;top:0}
+  .col-head .dot{width:9px;height:9px;border-radius:50%}
+  .col-head h3{margin:0;font-size:13px;letter-spacing:.3px;flex:1}
+  .col-head .count{background:var(--panel2);color:var(--muted);font-size:11px;
+    padding:1px 8px;border-radius:10px}
+  .col-body{padding:10px;display:flex;flex-direction:column;gap:9px;min-height:60px}
+  .col-body.drag-over{background:rgba(201,162,39,.06);outline:1px dashed var(--accent);outline-offset:-6px;border-radius:8px}
+
+  .card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;
+    padding:10px 11px;cursor:grab;transition:border-color .12s,transform .05s}
+  .card:hover{border-color:#3a4250}
+  .card.dragging{opacity:.5}
+  .card .top{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .pri-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;color:#fff;letter-spacing:.3px}
+  .pri-P0{background:var(--p0)} .pri-P1{background:var(--p1)} .pri-P2{background:var(--p2)} .pri-P3{background:var(--p3)}
+  .cat{font-size:10.5px;color:var(--muted);background:#11151c;border:1px solid var(--border);
+    padding:1px 7px;border-radius:10px}
+  .card .title{font-size:13px;font-weight:600;margin-bottom:4px}
+  .card .desc{font-size:11.5px;color:var(--muted);line-height:1.4}
+  .empty{color:#5b6472;font-size:11.5px;text-align:center;padding:14px 6px;font-style:italic}
+  .hidden{display:none!important}
+  footer{color:#5b6472;font-size:11px;padding:0 22px 26px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Elden Ring <span class="tag">Archipelago</span> — Project Board</h1>
+  <div class="sub">Built from project memory · 2026-06-23 · drag cards between columns (saved locally) · click chips to filter</div>
+  <div class="controls">
+    <div class="grp" id="catFilters"><label>Area</label></div>
+    <div class="spacer"></div>
+    <div class="grp" id="priFilters"><label>Priority</label></div>
+    <button class="reset" id="resetBtn">Reset board</button>
+  </div>
+</header>
+
+<div class="nextup">
+  <h2>Recommended next up</h2>
+  <ol>
+    <li>Bake <b>region-lock kill: keep runes</b> — region lock works in-game; only rune-loss on break remains. Patch written. <span>(baker rebuild + rebake, no client — cheapest P1)</span></li>
+    <li>Land <b>baker slot_data timeout</b> — still not done; the one remaining foundational bake fix. <span>(rebuild + rebake)</span></li>
+    <li>Finish <b>completion-scaling sphere basis</b> — resolver coverage partial, not bake-validated. <span>(complete + validate)</span></li>
+    <li>Clear <b>broken in-game</b> items: AP icon override, Spirit Calling Bell, and DLC-lock notifications. <span>(bake/client)</span></li>
+    <li>Playtest <b>DLC boss scaling</b> for feel — gen + diag already validated, just needs the eyeball pass. <span>(playtest)</span></li>
+  </ol>
+</div>
+
+<div class="board" id="board"></div>
+<footer>Statuses reflect the memory snapshot, not a live build. Moving a card only updates this local view.</footer>
+
+<script>
+const COLUMNS = [
+  {id:"blocked",  name:"Blocked / Broken", color:"var(--col-blocked)"},
+  {id:"ready",    name:"Ready to Build & Test", color:"var(--col-ready)"},
+  {id:"progress", name:"In Progress", color:"var(--col-progress)"},
+  {id:"backlog",  name:"Backlog (Spec / Idea)", color:"var(--col-backlog)"},
+  {id:"done",     name:"Done / Verified", color:"var(--col-done)"},
+];
+
+const CARDS = [
+  // ---- BLOCKED / BROKEN ----
+  {id:"b1", col:"blocked", pri:"P1", cat:"Bake/UI", title:"AP item icon broken", desc:"InjectApItemIcon telescope-texture swap fails per playtest. Needs RE of the icon override path."},
+  {id:"b2", col:"blocked", pri:"P1", cat:"Client", title:"Spirit Calling Bell unusable", desc:"Obtained flag 60110 set but bell still won't function in-game. Open chase."},
+  {id:"b4", col:"blocked", pri:"P2", cat:"UI/Notify", title:"DLC lock notifications not firing", desc:"Notifications don't fire for DLC region locks — presumably because many DLC locks share the same map piece (m61 tiles), so per-area cues collide. Needs disambiguation."},
+  {id:"k20", col:"backlog", pri:"P3", cat:"Pool", title:"Duplicate physick tears in pool", desc:"Pool can roll duplicate physick tears. You can only hold one, so each dupe fires a notification you must manually clear — messy but low severity. Dedupe tears in create_items."},
+
+  // ---- READY TO BUILD & TEST ----
+  {id:"r1", col:"done", pri:"P1", cat:"Modes", title:"num_regions mode", desc:"Randomized region count for ~3-4hr capital runs, warp-reachable subset. Tested green 2026-06-23."},
+  {id:"r2", col:"progress", pri:"P2", cat:"Scaling", title:"DLC boss scaling tiers", desc:"Model-keyed native tiers for 23 DLC bosses. Gen-tested + scaling-diag validated. Only remaining: in-game playtest for feel."},
+  {id:"r3", col:"ready", pri:"P1", cat:"Bake", title:"Baker slot_data timeout fix", desc:"Sync GetSlotData times out; fixed by requesting slot data at login. Rebuild + rebake pending."},
+  {id:"r34", col:"ready", pri:"P1", cat:"Region Locks", title:"Region-lock kill: keep runes", desc:"Breaking a lock correctly kills the player but currently drops runes. patch_baker_kick_kill_keep_runes.py flips Force Character Death 'Should Receive Runes' FALSE→TRUE (no bloodstain, no loss). Baker rebuild + rebake only, no client rebuild."},
+  {id:"k21", col:"backlog", pri:"P3", cat:"Region Locks", title:"Grace rando: empty checks jarring", desc:"Grace rando works in-game, but some check spots you travel to are now empty, which feels jarring. UX polish — signpost moved graces or backfill emptied spots."},
+  {id:"r6", col:"ready", pri:"P2", cat:"Region Locks", title:"Natural-key lock triggers ×4", desc:"Mountaintops/Snowfield/Altus blooms + Spelunker torches + Rold 400001 fix. 4 patches written 06-19; apply + build pending."},
+  {id:"r7", col:"ready", pri:"P2", cat:"Region Locks", title:"Mountaintops bloom gate (Opt B)", desc:"Keep Rold Medallion, gate bloom on Rold + Morgott dead (11000800), open-flag 76996. Decision made; ship with r6."},
+  {id:"r8", col:"ready", pri:"P2", cat:"Region Locks", title:"Snowfield lock split", desc:"Opt-in extra_region_locks:snowfield = dedicated lock, 101/130 checks. Patch written 06-20; needs run + gen-test."},
+  {id:"r9", col:"ready", pri:"P2", cat:"Region Locks", title:"Chokepoint locks v1", desc:"Gate legacy back-half on choke-boss drop + split sweep (Godskin Duo + Loretta). Needs build + gen-test."},
+  {id:"r10", col:"ready", pri:"P3", cat:"Region Locks", title:"DLC catacombs lock", desc:"Opt-in extra_region_locks:dlc_catacombs bundles Fog Rift + Belurat Gaol (41 checks). Needs gen-test."},
+  {id:"r11", col:"done", pri:"P3", cat:"Region Locks", title:"Shackle → dlc_only inject", desc:"Margit's/Mohg's Shackle added to UPLIFT_UNIQUE_CAPS (base juice into dlc_only). Playtest-validated."},
+  {id:"r12", col:"done", pri:"P2", cat:"Region Locks", title:"Bundle-lock warp graces", desc:"Bundle locks now grant a warp grace (Altus + Mountaintops/Snowfield clusters). Closed out 2026-06-23."},
+  {id:"r13", col:"done", pri:"P2", cat:"Region Locks", title:"Grace-bundle boss-arena warp fix", desc:"grace_arena_exclude (DENY-cut + rebucket). Closed out 2026-06-23. Follow-up audit → k24."},
+  {id:"r14", col:"ready", pri:"P2", cat:"DLC", title:"dlc_only_chain Phase 2", desc:"Full DLC-tree breadcrumb (Ellac graceless → off-chain). Phase 1 (messmer) generates; Phase 2 patch written."},
+  {id:"r15", col:"done", pri:"P2", cat:"DLC", title:"DLC auto-entry", desc:"Client latch sets 76999 in Chapel → baked warp to Gravesite + Roundtable grace at start. Works — the one feature that worked completely smoothly first try."},
+  {id:"r16", col:"done", pri:"P2", cat:"Modes", title:"DLC mini-campaign (ending=messmer)", desc:"24 kept / 20 sealed DLC regions. Rigorously tested & green — Alaric's main way to play the DLC."},
+  {id:"r17", col:"done", pri:"P2", cat:"Infra", title:"Options regroup (84→12 groups)", desc:"Presentation-only consolidation of options.py. Done."},
+  {id:"r18", col:"done", pri:"P2", cat:"Pool", title:"Priority-locations fill", desc:"important_locations priority-fill (Rem/Seed/Church/Boss; DLC adds Frag/Revered). Done."},
+  {id:"r19", col:"done", pri:"P2", cat:"Pool", title:"Questline de-randomization", desc:"derandomize_questlines locks optional NPC quests at vanilla to free fill. Tested green."},
+  {id:"r20", col:"ready", pri:"P2", cat:"Pool", title:"Trimmed-pool curation impl", desc:"curation.py cut-lists + _in_location_pool patch; DLC-only trimmed → 329. Needs gen-test."},
+  {id:"r21", col:"ready", pri:"P3", cat:"Pool", title:"dlc_gear_curation", desc:"Swap worst C/D/F base gear 1:1 for best S/A DLC gear, ungated from enable_dlc. Needs gen-test."},
+  {id:"r22", col:"done", pri:"P3", cat:"Pool", title:"Spell-trim keep-rule", desc:"57 S/A spell tiers + HIGH_TIER_SPELLS keep so the cream stays randomized in Trimmed. Validated."},
+  {id:"r23", col:"ready", pri:"P3", cat:"Pool", title:"Soft-consumable cleanup", desc:"soft_consumable_shop (keys/hearts → infinite Twin Maiden) + derandomize_gurranq. Patch + spec written; shop side needs baker."},
+  {id:"r24", col:"ready", pri:"P3", cat:"Progression", title:"Furnace pot injection", desc:"furnace_pot_count (def 10) seeds Hefty Furnace Pots into DLC seeds; count-neutral filler swap. Written; needs run."},
+  {id:"r25", col:"done", pri:"P2", cat:"Progression", title:"Torrent start grant", desc:"apworld emits startItems [goods 130] + flag 60100. Tested green."},
+  {id:"r26", col:"ready", pri:"P3", cat:"Progression", title:"Messmer kindling cap raise", desc:"Vanilla goods 2008021 maxNum=1 rejects 2nd shard; baker raises max to 99. Uncommitted."},
+  {id:"r27", col:"ready", pri:"P2", cat:"UI/Notify", title:"Hint full region names", desc:"extend_hint_information spells out parent_region.name in hints (gen-time). Patch written; needs run + gen-test."},
+  {id:"r28", col:"done", pri:"P2", cat:"Bake", title:"Bake polish: glow + double-grant", desc:"#12 AP-check pickup glow (rarity) + #6 shop GOODS single-grant. Fixed."},
+  {id:"r29", col:"done", pri:"P2", cat:"Bake", title:"Fix #7 volcano loop", desc:"Fixpoint hardening of findLoops. Fixed."},
+  {id:"r30", col:"done", pri:"P2", cat:"Bake", title:"KeepDlcMaps int-toggle bug", desc:"DLC items vanilla on enemy-OFF DLC seeds: read enable_dlc raw, not via BoolOptions. Fix verified."},
+  {id:"r31", col:"done", pri:"P3", cat:"Progression", title:"quick_start option", desc:"dlc_only toggle grants 71 Lord's Runes (~RL120) at start. Validated."},
+  {id:"r32", col:"done", pri:"P2", cat:"Bake", title:"?NpcName?/?Tag? deploy fix", desc:"Local build/deploy problem (not FMG structure). Fixed."},
+  {id:"r33", col:"done", pri:"P3", cat:"Progression", title:"Progressive physick", desc:"One Flask track → Restorative → Shrouding → Sapping → Knot, 18 tears. Validated. (Residual: dup tears k20.)"},
+
+  // ---- IN PROGRESS ----
+  {id:"p1", col:"progress", pri:"P1", cat:"Scaling", title:"Completion scaling — sphere basis", desc:"Geographic pass playtest-validated. Sphere-basis bridge wired but resolver coverage partial, not bake-validated."},
+  {id:"p2", col:"progress", pri:"P2", cat:"Modes", title:"Random start region — in-game latch", desc:"apworld + baker + client done & bake-confirmed (lands Caelid). In-game latch still pending."},
+  {id:"p3", col:"progress", pri:"P2", cat:"Modes", title:"Re-root hub to Roundtable", desc:"Make Limgrave a normal locked region. apworld re-root pending (graph is Limgrave-rooted)."},
+  {id:"p4", col:"progress", pri:"P2", cat:"UI/Notify", title:"Notify item source 'X from Y'", desc:"Data half done: sender + itemName threaded through queue, line built in GiveNextItem. Pending build."},
+  {id:"p5", col:"progress", pri:"P3", cat:"Client", title:"auto_equip v1", desc:"True UWYG (weapons RH1). apworld half done; gap = client equipItem stub (RE ChrAsm equip fn)."},
+  {id:"p6", col:"progress", pri:"P2", cat:"Infra", title:"YAML comprehension layer", desc:"Annotated master ref + er_yaml_lint.py built. Pregen wiring + completion_scaling-vs-enemy_rando docstring discrepancy open."},
+  {id:"p7", col:"progress", pri:"P3", cat:"UI/Notify", title:"PopTracker dlc_only", desc:"Auto-clears non-DLC checks on connect + Land of Shadow map variant built. Map needs DLC re-dump."},
+  {id:"p8", col:"progress", pri:"P3", cat:"DLC", title:"DLC overworld area_ids", desc:"4 interior DLC regions wired from msb; overworld m61 tiles shared → need in-game place-name capture."},
+  {id:"p9", col:"progress", pri:"P3", cat:"Bake", title:"Enemy-drop check tagging", desc:"Tag enemy-dropped checks via `enemy cXXXX_YYYY`; distinguish pure enemy-lot vs event-enemy under enemy rando."},
+
+  // ---- BACKLOG (spec / idea) ----
+  {id:"k1", col:"backlog", pri:"P2", cat:"Modes", title:"num_regions chain", desc:"Breadcrumb locks into 1..N chain for sphere-scaling gradient. Spec + stubs only; 3 parallel tracks."},
+  {id:"k2", col:"backlog", pri:"P3", cat:"Modes", title:"Oops All Legacy Dungeons", desc:"Chain legacy dungeons by grace-warp, delete open world. base-6=709 / +DLC=984 checks. Spec."},
+  {id:"k3", col:"backlog", pri:"P3", cat:"Scaling", title:"Global scadutree blessing", desc:"Fragments as game-wide AP power curve (off / player_only / scaled). Draft; crux = persist stored level (RE)."},
+  {id:"k4", col:"backlog", pri:"P3", cat:"Pool", title:"Pool builder", desc:"Compose pool to a target size from a ranked ladder (uniques → upgrades → runes); junk_retention knob. Spec."},
+  {id:"k5", col:"backlog", pri:"P3", cat:"Pool", title:"Check-trim by tier + distance", desc:"Drop checks both bad-tier AND remote. Moderate somber far-cut wired (38 drops); grace-proximity needs coords."},
+  {id:"k6", col:"backlog", pri:"P3", cat:"Pool", title:"Relevance-uplift (dlc_only)", desc:"Swap DLC filler for base-game juice in pool — mirror of dlc_gear_curation. Spec."},
+  {id:"k7", col:"backlog", pri:"P3", cat:"Progression", title:"Progressive consumables", desc:"Progressive Sacred Tear/Golden Seed/Scadutree/Revered Ash + glovewort bells. Spec; Roderika shop flags need extraction."},
+  {id:"k8", col:"backlog", pri:"P3", cat:"UI/Notify", title:"Map-grant region tracker", desc:"Region MAP item = unlock token + tracker; grant Limgrave, gate rest by logic. Long-term."},
+  {id:"k9", col:"backlog", pri:"P3", cat:"UI/Notify", title:"In-game check indicators", desc:"Enemy ghost-glow SpEffect (reuse Siofra chain) + scarab audio cue to spot checks. Spec."},
+  {id:"k10", col:"backlog", pri:"P3", cat:"Modes", title:"Snowfast QoL shortcuts", desc:"Port thefifthmatt Mountaintops shortcuts (spiritsprings + Castle Sol↔Fire Giant warps), default-on. Impl decision pending."},
+  {id:"k11", col:"backlog", pri:"P2", cat:"Bake", title:"DLC enemy rando", desc:"Unstrip DLC maps for enemies only. Check fork's DLC enemy config first. Next-deliverable plan."},
+  {id:"k12", col:"backlog", pri:"P2", cat:"Shops", title:"Moore shop access fix", desc:"Already randomized in gen; in-game 'not randomized' = bake/access. Bell Bearing 2008900 skip=True kills route."},
+  {id:"k13", col:"backlog", pri:"P3", cat:"Shops", title:"Merchant bell-bearing gating", desc:"Gate merchant shop checks behind their Bell Bearing; receive bell → stock appears at Roundtable. Idea."},
+  {id:"k14", col:"backlog", pri:"P3", cat:"Shops", title:"Shop refresh-on-unlock", desc:"Patches Murkwater shop needs reload (ambush→merchant entity swap, m31_00 EMEVD). General refresh-on-unlock."},
+  {id:"k15", col:"backlog", pri:"P3", cat:"Bake", title:"Revive ruins sweep", desc:"Overworld ruins aren't discrete pipeline objects (heuristic dead). Revive via hand-curated list. DLC ruins already ship."},
+  {id:"k16", col:"backlog", pri:"P3", cat:"Region Locks", title:"Natural-key locks (broad)", desc:"Use vanilla keys as region locks (Academy/Dectus/Rold/Haligtree/Irina). Spec."},
+  {id:"k17", col:"backlog", pri:"P3", cat:"Modes", title:"great_runes_present", desc:"Force extra great runes into num_regions pool beyond the Leyndell gate. Default 0 = no change."},
+  {id:"k18", col:"backlog", pri:"P3", cat:"Region Locks", title:"Rusty Key rule follow-ups", desc:"Stormveil over-gate removed; Margit Shackle + Liurnia/Caelid Rusty Key rules still pending."},
+  {id:"k19", col:"backlog", pri:"P3", cat:"Bake", title:"Bake warnings audit", desc:"Triage all warnings emitted in a full bake. Backlog."},
+  {id:"k22", col:"backlog", pri:"P2", cat:"Bake", title:"Empty boss-swept check spots", desc:"Reuse the grace-rando empty-check mechanism so checks already collected via boss sweep don't leave stale pickups in the world. Requested 2026-06-23."},
+  {id:"k23", col:"backlog", pri:"P3", cat:"Traps", title:"Trap items", desc:"Add AP trap items: summon bear(s), warp, freeze, etc. Reference the Crowd Control mod — essentially a ready-made collection of traps to draw from. Not yet started."},
+  {id:"k24", col:"backlog", pri:"P2", cat:"Bake", title:"Audit EMEVDs/MSBs for boss-kill graces + fog walls", desc:"Follow-up to the grace-bundle boss-arena fix: sweep EMEVDs/MSBs for graces that appear on boss kill and for fog walls, to catch remaining bad warps. Not started."},
+  {id:"k25", col:"backlog", pri:"P2", cat:"Pool", title:"Run a trimmed-mode seed", desc:"General todo: haven't run trimmed mode in a while. Do a regression run to confirm curation still generates clean."},
+  {id:"k26", col:"backlog", pri:"P3", cat:"Modes", title:"Control Randomizer (Skumnut special)", desc:"Start gimped, receive control capabilities as AP items: look-left/'Zoolander mode', dodge roll, Torrent double-jump (v2: on-foot jump). Client input-mask subsystem, lowest priority, spec-only."},
+
+  // ---- DONE / VERIFIED ----
+  {id:"d1", col:"done", pri:"P1", cat:"Client", title:"Runtime client port end-to-end", desc:"pickup → grant → location check confirmed 06-11."},
+  {id:"d2", col:"done", pri:"P1", cat:"Modes", title:"Godrick goal", desc:"ending_condition=godrick implemented + verified in-game 06-18."},
+  {id:"d3", col:"done", pri:"P2", cat:"Bake", title:"Boss attribution", desc:"BossAttribution.cs + sweep emit; verified in-game 06-18."},
+  {id:"d4", col:"done", pri:"P1", cat:"Client", title:"auto_upgrade", desc:"Was a dead no-op; implemented (live highest, normal/somber separate) + verified in-game."},
+  {id:"d5", col:"done", pri:"P2", cat:"Progression", title:"Progressive stone bells", desc:"Fully implemented apworld + client behind default-OFF flag."},
+  {id:"d6", col:"done", pri:"P1", cat:"Region Locks", title:"Region fusion (lock + grace bundle)", desc:"Done & playtested."},
+  {id:"d7", col:"done", pri:"P1", cat:"Infra", title:"Megatest GREEN", desc:"Full megatest green 06-18."},
+  {id:"d8", col:"done", pri:"P1", cat:"Client", title:"Save/load crash fixed", desc:"auto_upgrade race + start-item timing; fixed via SEH wrap + settle-gate."},
+  {id:"d30", col:"done", pri:"P1", cat:"Client", title:"Physick grant crash fixed", desc:"goodsList made grants throw → all item grants were dead. Fixed 2026-06-23. (Residual: duplicate tears in pool — see k20.)"},
+  {id:"d9", col:"done", pri:"P2", cat:"Client", title:"Grace-flag flush fix", desc:"Flags clobbered by new-game init; gated flush on InventoryInstance()!=0."},
+  {id:"d10", col:"done", pri:"P2", cat:"Client", title:"Start-items grant-loop fix", desc:"Torrent + flasks re-granted each reconnect; fixed via pendingStartItems queue."},
+  {id:"d11", col:"done", pri:"P2", cat:"Progression", title:"Progressive tier persist fix", desc:"Bell granted [1] twice not [1]→[2]; fixed by persisting counter + highIndex."},
+  {id:"d12", col:"done", pri:"P2", cat:"Infra", title:"Superrepo merge resolved", desc:"keep-ours + LF renorm + merge -s ours; runbook in repo."},
+  {id:"d13", col:"done", pri:"P2", cat:"DLC", title:"DLC map flag resolved", desc:"Pieces 1000-1004 openEventFlagId 62080-84 are real per-area flags."},
+  {id:"d14", col:"done", pri:"P1", cat:"Modes", title:"num_regions priority reach-prune", desc:"Stranded important_locations fixed via pre_fill max-state prune; 40/40 green."},
+  {id:"d15", col:"done", pri:"P1", cat:"Region Locks", title:"dlc_only region-lock", desc:"Gravesite freed so region_lock active in dlc_only; gen-test passed."},
+  {id:"d29", col:"done", pri:"P1", cat:"Region Locks", title:"Region lock working in-game", desc:"slot_data areaLockFlags drop fixed; region-lock enforcement confirmed working in-game (kill-on-break active). Only outstanding piece is rune retention (r34)."},
+  {id:"d31", col:"done", pri:"P2", cat:"Region Locks", title:"Grace rando working", desc:"Grace rando confirmed working in-game (false-idempotent no-op fixed). Residual UX: empty check spots (k21) + reuse the empty mechanism for boss sweep (k22)."},
+  {id:"d16", col:"done", pri:"P2", cat:"Pool", title:"important_locations scope", desc:"Priority sweep num_regions/Enia-aware + per-region headroom; gen passed 06-20."},
+  {id:"d17", col:"done", pri:"P1", cat:"Scaling", title:"Completion scaling — geographic", desc:"Built + playtest-validated 06-19."},
+  {id:"d18", col:"done", pri:"P2", cat:"Modes", title:"soft_progression × bell gate fix", desc:"Demoted bells made smithing_bell gate unbeatable; fix patch shipped."},
+  {id:"d19", col:"done", pri:"P2", cat:"Region Locks", title:"base-hub start graces", desc:"Grants Roundtable always + First Step if Limgrave free."},
+  {id:"d20", col:"done", pri:"P2", cat:"Pool", title:"num_regions fill-overflow demotions", desc:"4 demotion patches for fabricated bell gate / redundant keys / dead remembrances."},
+  {id:"d21", col:"done", pri:"P3", cat:"UI/Notify", title:"Notify outgoing 'Sent X to Y'", desc:"Console line done (PrintJSON ItemSend)."},
+  {id:"d22", col:"done", pri:"P2", cat:"UI/Notify", title:"Acquisition modal suppression", desc:"Confirmed via bake param showDialogCondType=0."},
+  {id:"d23", col:"done", pri:"P2", cat:"Progression", title:"early_leveling (skip Melina)", desc:"Flags 4680 + 951 shipped as apworld option."},
+  {id:"d24", col:"done", pri:"P3", cat:"Progression", title:"Bell overflow → Lord's Rune", desc:"Extra bell copies past max → goods 2919; count = progressive_bell_count."},
+  {id:"d25", col:"done", pri:"P3", cat:"Pool", title:"Ammo filler guard", desc:"Arrows/bolts excluded from filler→useful weapon promotion."},
+  {id:"d26", col:"done", pri:"P3", cat:"Pool", title:"Ashes of War tiers", desc:"PvE tiers for all 105 transferable AoW in item_tiers."},
+  {id:"d27", col:"done", pri:"P3", cat:"Pool", title:"filler_replacement option", desc:"Swap all filler for runes or stones+runes; count-neutral."},
+  {id:"d28", col:"done", pri:"P2", cat:"Infra", title:"Fill-regression suite", desc:"gen-test fill-regression-yamls + run_fill_regression.ps1 gate."},
+];
+
+const PRIORITIES = ["P0","P1","P2","P3"];
+const STORE_KEY = "er_kanban_v1";
+
+// load saved moves
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORE_KEY)||"{}"); } catch(e){}
+CARDS.forEach(c => { if(saved[c.id]) c.col = saved[c.id]; });
+
+const cats = [...new Set(CARDS.map(c=>c.cat))].sort();
+let activeCats = new Set(cats);
+let activePris = new Set(PRIORITIES);
+
+const board = document.getElementById("board");
+const catWrap = document.getElementById("catFilters");
+const priWrap = document.getElementById("priFilters");
+
+cats.forEach(cat=>{
+  const el=document.createElement("span");
+  el.className="chip active"; el.textContent=cat;
+  el.onclick=()=>{ toggle(activeCats,cat,el); render(); };
+  catWrap.appendChild(el);
+});
+PRIORITIES.forEach(p=>{
+  const el=document.createElement("span");
+  el.className="chip pri active pri-"+p; el.textContent=p;
+  el.style.background=getComputedStyle(document.documentElement).getPropertyValue("--"+p.toLowerCase());
+  el.onclick=()=>{ toggle(activePris,p,el); render(); };
+  priWrap.appendChild(el);
+});
+
+function toggle(set,val,el){
+  if(set.has(val)){set.delete(val);el.classList.remove("active");}
+  else{set.add(val);el.classList.add("active");}
+}
+
+function visible(c){ return activeCats.has(c.cat) && activePris.has(c.pri); }
+const priRank = p => PRIORITIES.indexOf(p);
+
+function render(){
+  board.innerHTML="";
+  COLUMNS.forEach(col=>{
+    const colCards = CARDS.filter(c=>c.col===col.id && visible(c))
+                          .sort((a,b)=>priRank(a.pri)-priRank(b.pri));
+    const totalInCol = CARDS.filter(c=>c.col===col.id).length;
+    const colEl=document.createElement("div");
+    colEl.className="col";
+    colEl.innerHTML=`<div class="col-head"><span class="dot" style="background:${col.color}"></span>
+      <h3>${col.name}</h3><span class="count">${colCards.length}/${totalInCol}</span></div>`;
+    const body=document.createElement("div");
+    body.className="col-body"; body.dataset.col=col.id;
+    body.addEventListener("dragover",e=>{e.preventDefault();body.classList.add("drag-over");});
+    body.addEventListener("dragleave",()=>body.classList.remove("drag-over"));
+    body.addEventListener("drop",e=>{
+      e.preventDefault();body.classList.remove("drag-over");
+      const id=e.dataTransfer.getData("text/plain");
+      const card=CARDS.find(c=>c.id===id);
+      if(card){ card.col=col.id; saved[id]=col.id;
+        localStorage.setItem(STORE_KEY,JSON.stringify(saved)); render(); }
+    });
+    if(colCards.length===0){
+      const e=document.createElement("div");e.className="empty";e.textContent="—";body.appendChild(e);
+    }
+    colCards.forEach(c=>body.appendChild(cardEl(c)));
+    colEl.appendChild(body);
+    board.appendChild(colEl);
+  });
+}
+
+function cardEl(c){
+  const el=document.createElement("div");
+  el.className="card"; el.draggable=true;
+  el.innerHTML=`<div class="top"><span class="pri-badge pri-${c.pri}">${c.pri}</span>
+    <span class="cat">${c.cat}</span></div>
+    <div class="title">${c.title}</div><div class="desc">${c.desc}</div>`;
+  el.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",c.id);el.classList.add("dragging");});
+  el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+  return el;
+}
+
+document.getElementById("resetBtn").onclick=()=>{
+  if(confirm("Reset all cards to their original columns?")){
+    localStorage.removeItem(STORE_KEY); saved={};
+    location.reload();
+  }
+};
+
+render();
+</script>
+</body>
+</html>

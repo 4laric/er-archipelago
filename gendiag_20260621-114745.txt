@@ -1,0 +1,128 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260621-114745.log
+gen exit: 1
+seed    : 99262297558192041186
+fill    : None items placed
+options : (sentinel ABSENT -- stale .pyc? edited source not running)
+precollected-to-start (0): (none)
+RESULT  : FAILED
+exception: ValueError: Encountered 1 error(s) in player files. See logs for full tracebacks.
+
+MISSING : (none found -- no accessibility FillError in log)
+
+OPTIONS (resolved): (no spoiler matches this run's seed 99262297558192041186 -- gen produced no new zip; newest on disk AP_22873685864980749501.zip is a PRIOR run)
+
+PLAYER YAML (verbatim): EldenRing-Alaric.yaml
+  | # ER Archipelago -- FULL BASE-GAME bundle/QoL playtest. 2026-06-18.
+  | # Goal: exercise the new minor-dungeon BUNDLE LOCKS + grace-on-receipt + warp-access + pickup
+  | # notifications across a whole base-game region_lock run (Limgrave -> ... -> Elden Beast), with QoL
+  | # maxed so it's actually pleasant to play. Base game only (enable_dlc off).
+  | #
+  | # ============================ APPLY PATCHES FIRST (Windows, repo root) ============================
+  | # Order matters. The checked-in apworld is STALE -- gen from Archipelago\worlds\eldenring source.
+  | #   --- QoL / pool (your usual) ---
+  | #     python patch_pool_builder.py
+  | #     python patch_progressive_consumables.py
+  | #     python patch_apworld_grace_arena_exclude.py
+  | #     python patch_no_spirit_ashes.py
+  | #     python patch_morne_carve.py                    # REQUIRED for extra_region_locks: castle_morne
+  | #   --- the bundle locks (THIS session's work) ---
+  | #     python patch_apworld_liurnia_caves.py          # Liurnia Caves Lock (ALWAYS-ON, no key needed)
+  | #     python patch_apworld_altus_caves_lock.py       # opt-in altus_caves
+  | #     python patch_apworld_mountaintops_caves_lock.py# opt-in mountaintops_caves
+  | #     python patch_apworld_limgrave_underground_lock.py # opt-in limgrave_underground
+  | #     python patch_apworld_bundle_lock_graces.py     # grant each bundled dungeon's entrance grace on receipt
+  | #     python patch_apworld_bundle_warp_access.py     # warp logic for the bundles (needs region_access: warp)
+  | #     python patch_apworld_bundle_lock_notify.py     # name the area's map in the pickup ticker (option B)
+  | #
+  | # *** GEN-TEST BEFORE BAKING. *** This stacks the whole bundle batch for the first time. Run a
+  | # gen-only pass and confirm the spoiler before the full bake:
+  | #     .\build.ps1 -Randomizer -Generate
+  | # Expect in the spoiler: "Liurnia Caves Lock", "Altus Caves Lock", "Mountaintops Caves Lock",
+  | # "Limgrave Underground Lock" as progression items gating their dungeons. If gen fails, peel back
+  | # the newest bundle patch first. Then the full enemy-OFF bake (NO -Enemies):
+  | #     .\build.ps1 -Randomizer -Generate -Serve -Bake -Deploy -Preflight
+  | #
+  | # IN-GAME THINGS TO CHECK:
+  | #  - Receiving a bundle lock pops "Map: <area>" in the ticker (not a bare Golden Rune [1]).
+  | #  - That lock lights the entrance graces of all its bundled dungeons (warp menu).
+  | #  - With region_access: warp you can warp straight into a bundle's dungeons on holding its lock.
+  | #  - No grace warps you into a wall / lethal lift (the grace-arena-exclude + bundle grace lists).
+  | 
+  | name: Alaric
+  | description: ER AP base-game BUNDLE playtest -- Liurnia/Altus/Mountaintops/Limgrave underground locks + grace-on-receipt + warp access + pickup notify, region_lock warp, QoL maxed, defeat the Elden Beast.
+  | game: EldenRing
+  | 
+  | EldenRing:
+  |   enable_dlc: false             # DLC content excluded; also forces dlc_only off (pool = full, no checks)
+  |   dlc_only: false
+  |   enemy_rando: false
+  |   ending_condition: capital      # full base run (reach + beat the Elden Beast)
+  |   #ending_condition: messmer   # reach Shadow Keep, defeat Messmer the Impaler (forces dlc_only on)
+  |   world_logic: region_lock
+  |   completion_scaling: gentle
+  |   completion_scaling_basis: sphere
+  |   random_start_region: overworld
+  |   start_region_freebie: hub_only
+  |   soft_consumable_shop: true
+  |   derandomize_gurranq: true
+  |   derandomize_questlines: full
+  |   soft_progression: true              # soften progression by filling in some useful items on miss/exclude instead of junk
+  |   randomize_enia: false
+  |   bypass_keys: true
+  |   num_regions_rune_source: regions
+  | 
+  |   # --- region-lock access model (the QoL that makes a full region_lock run pleasant) ---
+  |   region_access: warp                # lock alone = access; warp straight in (exercises bundle-warp patch)
+  |   graces_per_region: 0               # 0 = ALL graces in a region unlock on its lock (max warp coverage)
+  | 
+  |   # --- the bundle locks under test (Liurnia Caves is always-on; these are the opt-in ones) ---
+  |   extra_region_locks:
+  |     - limgrave_caves          # 10 regions / 75 checks
+  |     - liurnia_caves                  # 6 regions / 50 checks; ALWAYS-ON, no key needed
+  |     - altus_caves                    # 6 regions / 53 checks
+  |     - mountaintops_caves             # 6 regions / 71 checks
+  | 
+  |   # --- pool (NOTE: real key is location_pool, NOT item_pool) ---
+  |   location_pool: all                 # full pool so the locks behave correctly (trimmed risks lock-spill; see notes)
+  |   pool_builder: true
+  |   pool_builder_dlc_gear: true       # DLC off -> no DLC gear to inject
+  |   tidy_fun_consumables: true                # auto-scrub consumables from the pool (progressive + QoL)
+  | 
+  |   # --- progressive upgrades ---
+  |   progressive_flasks: true
+  |   progressive_glovewort_bells: false
+  |   progressive_stone_bells: true
+  |   progressive_physick: true
+  |   progressive_bell_count: 10
+  |   num_regions: 3
+  |   num_regions_chain: true
+  | 
+  | 
+  |   # --- sweep (lighter than "bosses" to isolate the bundle behavior; bump to bosses if you want) ---
+  |   dungeon_sweep: bosses        # bundle dungeons sweep on their boss; low blast radius
+  | 
+  |   # --- QoL / usability ---
+  |   no_weapon_requirements: true       # use anything the pool hands you
+  |   early_leveling: true               # level at graces from the start, skip Melina
+  |   auto_upgrade: true                 # received/found gear auto-scales
+  |   no_spirit_ashes: true              # drop spirit summons + the buggy Spirit Calling Bell
+  |   torrent_start: on                  # guaranteed Torrent from the start (region_lock can skip Melina)
+  |   map_option: give                   # reveal all maps (default anyway; explicit here)
+  | 
+  |   # filler-bearing pickups get scrubbed by pool builder / progressive; allow_useful avoids a shortage
+  |   missable_location_behavior: allow_useful
+  |   excluded_location_behavior: allow_useful
+  | 
+  |   # 2026-06-20: CLEARED to fix "No more spots to place 7 items" FillError.
+  |   # With num_regions:4 + chain + 4 bundle locks, reachable spots are scarce early;
+  |   # priority-marking Boss/Remembrance/Church/Seedtree ate the early-reachable slots,
+  |   # starving the chain-gating progression (Limgrave Lock, Drawing-Room Key, great
+  |   # runes, remembrances) -> nowhere valid to land. Empty list = no priority force-fill.
+  |   # If you want priority back, "Boss" is the heaviest contributor; drop it first.
+  |   important_locations: ["Remembrance", "Church", "Seedtree", "Boss"]
+  | 
+  |   accessibility: minimal             # 2026-06-18: "full" force-fills non-required junk into
+  |                                      # region-locked spots -> FillError. minimal lets it spill;
+  |                                      # this is the mode the constrained pool is built around.
+  |   progression_balancing: 0           # solo playtest -> no need to reshuffle for balance

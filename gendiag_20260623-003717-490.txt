@@ -1,0 +1,147 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260623-003717-490.log
+gen exit: 0
+seed    : 1036195379470770289
+ER world: items=3251 locations=4906  (full table, before pool filtering)
+fill    : 1859 items placed
+options : accessibility.value=2 option_minimal=2 gate=True enable_dlc=False location_pool=0
+fun-demote: 23 item-defs progression->useful (gated on accessibility==minimal)
+precollected-to-start (0): (none)
+RESULT  : SUCCESS (no traceback)
+
+MISSING : (none found -- no accessibility FillError in log)
+
+OPTIONS (resolved, from AP_29065308671286633100.zip, seed 1036195379470770289 -- GROUND TRUTH, not a yaml):
+  Filling Algorithm:               balanced
+  Players:                         1
+  Plando Options:                  connections, texts, bosses
+  Game:                            EldenRing
+  Location Count:                  1909
+  Progression Balancing:           50
+  Accessibility:                   Minimal
+  Local Items:
+  Non-local Items:
+  Start Inventory:
+  Start Hints:
+  Start Location Hints:
+  Excluded Locations:
+  Priority Locations:
+  Item Links:
+  Plando Items:
+  Ending Condition:                Capital
+  World Logic:                     Region Lock
+  Region Boss Percent:             50
+  Region Soft Logic:               Yes
+  Leyndell Great Runes Required:   2
+  Final Boss Great Runes Required: 0
+  Mountaintops Great Runes Required:0
+  Deathless Routing:               No
+  Graces Unlocked Per Region:      0
+  Grace Rando:                     Yes
+  Region Access Logic:             Warp
+  Num Regions (Capital run):       4
+  Num Regions Order:               Rolled
+  Num Regions Rune Source:         Regions
+  Num Regions Chain (linear sphere ramp):Yes
+  DLC-Only Chain (linear sphere ramp):No
+  Completion Scaling:              Off
+  Completion Scaling Floor (% of MaxTier):0
+  Completion Scaling Basis:        Geographic
+  Global Scadutree Blessing:       Off
+  Random Starting Region:          Off
+  Start Region Freebie:            To Limgrave
+  Royal Capital Accessable:        No
+  Early Leveling (skip Melina):    Yes
+  Extra Region Locks:
+  Enable DLC:                      No
+  DLC Only:                        No
+  Quick Start (RL120 runes, dlc_only):No
+  Rune Catch-up (Lord's Runes, dlc_only):No
+  Scadutree Fragment Front-load:   8
+  Messmer Kindle Shards:           No
+  Messmer Kindle Shards Required:  5
+  Messmer Kindle Shards Max:       10
+  DLC Timing:                      Off
+  Enemy randomizer:                No
+  Material Randomizer:             Yes
+  Death Link:                      No
+  Randomize Starting Loadout:      Yes
+  Auto-Equip:                      No
+  Auto-Upgrade:                    No
+  Progressive Items:
+  Progressive Stone Bell Bearings: No
+  Progressive Bell Pool Count:     15
+  Progressive Bell Early Count:    4
+  Progressive Flask of Wondrous Physick:No
+  Progressive Physick Pool Count (dlc_only guarantee):0
+  Crafting Kit Behavior:           Early
+  Randomize Enia (Remembrance shop):Yes
+  Map Behavior:                    Give
+  Smithing Bell Bearing Behavior:  Randomize
+  Merchant Bell Bearing Logic:     Off
+  Spell Shop Spells Only:          No
+  Early Legacy Dungeons Early:     No
+  Local Item Option:               Yes
+  Exclude Local Item Only:         Weapon, Armor, Accessory, AshofWar
+  Important Locations:             Remembrance, Church, Seedtree
+  Excluded Locations Behavior:     Allow Useful
+  Missable Locations Behavior:     Allow Useful
+  Dungeon Sweep:                   None
+  Grace Sweep:                     Off
+  No Weapon Requirements:          No
+  Swap Multi-Boss Fights:          No
+  Boss Runes Match Original:       No
+  Impolite Enemies:                No
+  Disable Serpent-Hunter Upgrade:  No
+  Bell & Physick Handling:         Start With
+  Torrent at Start:                On
+  Vanilla Upgrades (lock at vanilla):
+  Soft Progression (demote boring progression to useful under full):Yes
+  Tidy Junk Consumables (Festering/Starlight/Seedbed):No
+  Soft-Consumable Shop (Twin Maiden keys/hearts):No
+  De-randomize Gurranq Deathroot Ladder:No
+  De-randomize NPC Questlines:     Off
+  Location Pool Size:              All
+  DLC Gear Curation:               No
+  Junk Retention:                  12
+  Junk Retention Style:            Comedy
+  Filler Replacement:              Off
+  No Spirit Ashes:                 No
+  Progressive Flask Upgrades:      No
+  Progressive Flask Early Count:   4
+  Progressive Flask Pool Count (dlc_only guarantee):0
+  Progressive Glovewort Bell Bearings:No
+  Pool Builder (compose from all-game ladder):Yes
+
+PLAYER YAML (verbatim): ER-fill-08-softprog-bellgate.yaml
+  | # FILL REGRESSION 08 -- soft_progression must not demote a gating smithing bell to
+  | # "useful" -> "appears as unbeatable".
+  | # CHANGED 2026-06-21: was full base region_lock (overflowed every seed). Re-pinned to
+  | # the proven num_regions capital pattern; smithing bells stay a progression gate.
+  | # Guards: er-softprog-bellgate-contradiction.
+  | name: fillreg08
+  | description: soft_progression x smithing-bell gate guard (num_regions-sealed)
+  | game: EldenRing
+  | EldenRing:
+  |   enable_dlc: false
+  |   enemy_rando: false
+  |   world_logic: region_lock
+  |   ending_condition: capital
+  |   num_regions: 4
+  |   num_regions_chain: true
+  |   num_regions_rune_source: regions
+  |   region_access: warp
+  |   graces_per_region: 0
+  |   soft_progression: true
+  |   smithing_bell_bearing_option: progression_randomize
+  |   progressive_stone_bells: false
+  |   auto_upgrade: false
+  |   location_pool: all
+  |   pool_builder: true
+  |   important_locations: ["Remembrance", "Church", "Seedtree"]
+  |   missable_location_behavior: allow_useful
+  |   excluded_location_behavior: allow_useful
+  |   early_leveling: true
+  |   torrent_start: on
+  |   accessibility: minimal
+  |   progression_balancing: 50

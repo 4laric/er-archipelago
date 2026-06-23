@@ -1,0 +1,29 @@
+name: Test
+
+on:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
+  RUSTDOCFLAGS: "-Dwarnings"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+    - uses: Swatinem/rust-cache@v2
+
+    - run: cargo clippy -- -D warnings
+    - run: cargo fmt -- --check
+    - run: cargo build
+    - run: cargo build --no-default-features
+    - run: cargo build --no-default-features --features rustls
+    - run: cargo build --no-default-features --features native-tls
+    - run: cargo build --example text_client
+    - run: cargo doc --no-deps

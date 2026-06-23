@@ -1,0 +1,97 @@
+ER GEN DIAGNOSTIC
+raw log : C:\Users\alari\Documents\er-archipelago\generate_20260622-232507.log
+gen exit: 1
+seed    : 49502030669507544568
+fill    : None items placed
+options : (sentinel ABSENT -- stale .pyc? edited source not running)
+precollected-to-start (0): (none)
+RESULT  : FAILED
+exception: ValueError: Encountered 1 error(s) in player files. See logs for full tracebacks.
+
+MISSING : (none found -- no accessibility FillError in log)
+
+OPTIONS (resolved): (no spoiler matches this run's seed 49502030669507544568 -- gen produced no new zip; newest on disk AP_20240118813329305275.zip is a PRIOR run)
+
+PLAYER YAML (verbatim): EldenRing-Alaric.yaml
+  | name: Alaric
+  | description: ER AP base-game num_regions(3) run -- randomized 3-region capital subset, region_lock + warp access, grace-on-receipt, QoL maxed; goal = reach the capital and beat the Elden Beast. DLC off.
+  | 
+  | game: EldenRing
+  | 
+  | EldenRing:
+  |   enable_dlc: false            # DLC off
+  |   dlc_only: false              # base game holds the checks
+  |   enemy_rando: false
+  |   ending_condition: capital    # full base run (reach + beat the Elden Beast)
+  |   #ending_condition: messmer   # (DLC-only; would force dlc_only on -- left off)
+  |   world_logic: region_lock
+  | 
+  |   # Sphere-ordered difficulty scaling. With num_regions, basis: sphere tiers enemies by
+  |   # region_order chain depth (geographic pass validated; sphere-basis bridge wired).
+  |   completion_scaling: smoothstep
+  |   completion_scaling_basis: sphere
+  | 
+  |   random_start_region: overworld
+  |   start_region_freebie: hub_only
+  |   soft_consumable_shop: true          # NOTE: needs the baked Twin Maiden shop rows (patch_baker_soft_consumable_shop)
+  |   derandomize_gurranq: true
+  |   derandomize_questlines: full
+  |   #soft_progression: true             # NO EFFECT under accessibility: minimal; left off
+  |   randomize_enia: false
+  |   num_regions_rune_source: pool   # flip ON if gen strands Altus->Leyndell (pool source seals the capstone)
+  | 
+  |   dlc_only_chain: false        # DLC off -> no DLC breadcrumb chain
+  | 
+  |   # --- region-lock access model ---
+  |   region_access: warp                # lock alone = access; warp straight in
+  |   graces_per_region: 0               # 0 = ALL graces in a region unlock on its lock (max warp coverage)
+  | 
+  |   # --- opt-in bundle locks (commented out) ---
+  |   #extra_region_locks:
+  |   #  - limgrave_caves          # ALIAS of limgrave_underground
+  |   #  - liurnia_caves
+  |   #  - altus_caves
+  |   #  - mountaintops_caves
+  | 
+  |   # --- pool ---
+  |   location_pool: all                 # full pool so the locks behave correctly (trimmed risks lock-spill)
+  |   pool_builder: true
+  |   pool_builder_dlc_gear: true       # DLC off -> no DLC gear in the ladder
+  |   tidy_fun_consumables: true         # scrub junk fun-consumables from the pool
+  |   grace_rando: true
+  | 
+  |   # --- progressive upgrades ---
+  |   progressive_flasks: true
+  |   progressive_glovewort_bells: false
+  |   progressive_stone_bells: true
+  |   progressive_physick: true
+  |   progressive_bell_count: 25
+  |   progressive_flask_count: 25
+  |   progressive_physick_count: 15
+  | 
+  |   # --- num_regions: randomized region count, warp-reachable major subset ---
+  |   num_regions: 3
+  |   num_regions_chain: true            # breadcrumb the locks into a chain (off -> all 3 free-warp from hub)
+  | 
+  |   # --- sweep ---
+  |   dungeon_sweep: bosses        # total boss attribution; dungeons sweep on their boss
+  | 
+  |   # --- QoL / usability ---
+  |   no_weapon_requirements: true       # use anything the pool hands you
+  |   early_leveling: true               # level at graces from the start, skip Melina (also force-grants Torrent)
+  |   auto_upgrade: true                 # received/found gear auto-scales
+  |   no_spirit_ashes: true              # drop spirit summons + the buggy Spirit Calling Bell
+  |   torrent_start: "on"                # CHOICE (auto/on/off) -- quote it so YAML doesn't read 'on' as a bool
+  |   map_option: give                   # reveal all maps
+  | 
+  |   # filler-bearing pickups get scrubbed by pool builder / progressive; allow_useful avoids a shortage
+  |   missable_location_behavior: allow_useful
+  |   excluded_location_behavior: allow_useful
+  | 
+  |   # Priority force-fill. Valid keys: Remembrance, Seedtree, Basin, Church, Map, Fragment, Cross,
+  |   # Revered, KeyItem, Boss, Shop. (Fragment/Revered are DLC-flavored but harmless with DLC off.)
+  |   # If gen throws "No more spots to place N items", Boss is the heaviest contributor -- drop it first.
+  |   important_locations: ["Remembrance", "Boss", "Cross"]
+  | 
+  |   accessibility: minimal             # minimal lets constrained region-locked pools spill; full force-fills junk -> FillError
+  |   progression_balancing: 0           # solo playtest -> no balance reshuffle
