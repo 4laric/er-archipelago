@@ -82,6 +82,21 @@ def lint_player_yamls():
         print("[pregen] yaml lint: no per-game options stranded at the document root")
 
 
+def run_option_linter():
+    """Run the ER option-conflict linter (er_yaml_lint.py) over Players/*.yaml. Warn-only:
+    it prints findings but never changes pregen's exit code, so a bad combo can't block a gen."""
+    try:
+        import er_yaml_lint
+    except Exception as e:
+        print("[pregen] option linter unavailable (er_yaml_lint.py): %s" % e)
+        return
+    print("==== option-conflict linter (er_yaml_lint) ====")
+    try:
+        er_yaml_lint.main([os.path.join(AP, "Players")])
+    except Exception as e:
+        print("[pregen] option linter error (skipped): %s" % e)
+
+
 if __name__ == "__main__":
     print("==== pregen guard (stale-bytecode + yaml-root lint) ====")
     if not os.path.isdir(WORLD):
@@ -89,3 +104,4 @@ if __name__ == "__main__":
     else:
         invalidate_eldenring_bytecode()
     lint_player_yamls()
+    run_option_linter()
