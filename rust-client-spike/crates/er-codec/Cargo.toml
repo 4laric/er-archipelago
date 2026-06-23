@@ -1,0 +1,9 @@
+[package]
+name = "er-codec"
+version = "0.1.0"
+edition = "2021"
+description = "Pure, host-testable decode core for the ER Archipelago client (synthetic-placeholder detection, sign-safe location-id recombine, EquipParamGoods row read). Port of er_item_decode.h + er_goods_row.h."
+license = "MIT"
+
+[lints.rust]
+unsafe_code = "forbid"

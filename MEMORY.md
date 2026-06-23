@@ -110,6 +110,8 @@
 - [ER region-lock physical enforcement](er-region-lock-physical-enforcement.md) — fog-wall enforcement belongs in BAKER (EMEVD gated on region_open flag), not client
 - [ER boss attribution spec](er-boss-attribution-spec.md) — SPEC for the (now-shipped) boss attribution; every check→one boss DefeatFlag
 
+- [ER Rust client port](SPEC-rust-client-port.md) — converge ER onto fswap's Rust souls-AP ecosystem; spike in rust-client-spike/ (er-codec/er-semver ported+tested, eldenring-ap detour/param/flags SKETCH — // VERIFY markers); OUTREACH-GATED (contact fswap/nex3 before phase 3, see rust-client-spike/BUILD-NOTES §0); NEW 2026-06-23
+
 ## Open bug notes / gotchas (reference)
 - [num_regions chain host reach](er-numregions-chain-host-reach.md) — chain breadcrumb host parks locks in gated interiors → FillError; fix=reachability-filter cands
 - [num_regions pool strands Leyndell](er-numregions-pool-strands-leyndell.md) — rune_source=pool seals Altus→Leyndell; unblock=rune_source:regions

@@ -1,0 +1,9 @@
+[package]
+name = "er-semver"
+version = "0.1.0"
+edition = "2021"
+description = "Pre-release-aware node-semver range check for the `versions` lockstep contract. Port of er_version_check.h. Deliberately NOT the `semver` crate: that follows Cargo semantics, which differ from node-semver on the includePrerelease=false prerelease rule that gates this client."
+license = "MIT"
+
+[lints.rust]
+unsafe_code = "forbid"
