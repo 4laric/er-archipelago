@@ -1,0 +1,38 @@
+[package]
+name = "eldenring-ap"
+version = "0.1.0"
+edition = "2021"
+description = "ER Archipelago runtime client (Rust spike). The injected cdylib: DllMain entry, AddItemFunc detour, ParamBase walk via fromsoftware-rs, CSEventFlagMan reporting. Pure logic comes from er-codec + er-semver."
+license = "MIT"
+
+[lib]
+# Injected DLL. (On non-Windows hosts this still builds — the in-process modules are cfg'd out —
+# so CI can typecheck the crate alongside the pure-logic crates.)
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+er-codec = { path = "../er-codec" }
+er-semver = { path = "../er-semver" }
+
+# Windows-only, in-process dependencies. Target-gated so `cargo build`/`test` works on Linux/macOS.
+# Versions are indicative — pin against fswap's workspace + crates.io at spike time (see SPEC §8).
+[target.'cfg(windows)'.dependencies]
+# Typed game bindings: SoloParamRepository / CSEventFlagMan / CSFieldArea / inventory / params.
+# Replaces er_hooks.h + er_singletons.h + the hand-rolled param walk.
+eldenring = "0.14"            # vswarte/fromsoftware-rs
+fromsoftware-shared = "0.14"  # FD4 singleton finder + shared structures
+# Inline detour for AddItemFunc (replaces MinHook).
+retour = { version = "0.3", features = ["static-detour"] }
+# Win32 surface (DllMain, threads, console, paths).
+windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Threading"] }
+# Logging (replaces spdlog).
+tracing = "0.1"
+tracing-subscriber = "0.3"
+# JSON config / slot_data (replaces nlohmann/json).
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[lints.rust]
+# Unlike the pure crates, this one needs `unsafe` for FFI/detours — but only inside the
+# clearly-marked in-process modules.
+unsafe_code = "warn"

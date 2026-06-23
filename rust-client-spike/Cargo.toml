@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/er-codec",
+    "crates/er-semver",
+    "crates/eldenring-ap",
+]
+
+# Pure-logic crates (er-codec, er-semver) build and test on ANY host (Linux/macOS CI).
+# eldenring-ap is the in-process cdylib spike: its Windows-only deps are target-gated, so the
+# workspace still `cargo build`s and `cargo test`s on a non-Windows host — the in-process modules
+# are simply #[cfg(windows)]-compiled out there.
+
+[profile.release]
+# A game-injected DLL wants a small, panic-contained artifact.
+panic = "abort"
+lto = "thin"
+codegen-units = 1
