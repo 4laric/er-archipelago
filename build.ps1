@@ -9,7 +9,8 @@
 #   .\build.ps1 -Bake -Enemies           # ...with enemy randomization
 #   .\build.ps1 -Deploy                  # copy bake outputs + client DLL + apconfig into the game
 #   .\build.ps1 -All                     # the full pipeline (= -Randomizer -Client -Generate -Serve -Bake -Enemies -Deploy -Preflight)
-#   .\build.ps1 -All -NoClient           # ...everything in -All EXCEPT the C++ client build (reuse the already-deployed DLL)
+#   .\build.ps1 -NoClient                # the full pipeline EXCEPT the C++ client build (reuse the deployed DLL) -- common dev loop
+#   .\build.ps1 -All -NoClient           # ...same thing (explicit form): everything in -All EXCEPT the client build
 #   .\build.ps1 -Apworld                 # package Archipelago\worlds\eldenring into eldenring.apworld (excludes .bak/.pyc)
 #   .\build.ps1 -Preflight               # timestamped preflight log + PASS/FAIL cross-checks (seed/slot/deploy freshness)
 #   .\build.ps1 -LoopTest -Seeds 1,2,3    # bake a batch of seeds unattended (seed-dependent bug hunt, e.g. #7)
@@ -73,7 +74,10 @@ if (-not (Get-Command pwsh.exe -ErrorAction SilentlyContinue)) {
 }
 
 # -All = the full pipeline: build both, regenerate, serve, bake w/ enemies, deploy.
-if ($All) {
+# -NoClient on its own is shorthand for that SAME full pipeline minus the C++ client build
+# (reuse the already-deployed archipelago.dll) -- the most common dev-loop shape when only the
+# apworld/randomizer/bake changed. So `-NoClient` == `-All -NoClient`.
+if ($All -or $NoClient) {
     $Randomizer = $true; $Client = (-not $NoClient); $Generate = $true
     $Serve = $true; $Bake = $true; $Enemies = $true; $Deploy = $true; $Preflight = $true; $Apworld = $true
 }

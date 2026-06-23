@@ -22,7 +22,7 @@ EldenRing:
   # deathless_routing: false          # [false / true] Exclude the Volcano Manor abduction (a death-based shortcut from Raya Lucaria) from
   # graces_per_region: 3              # [0..12 (integer)] Region fusion (TODO #13): how many Sites of Grace to unlock per region when you receive
   # region_access: geographic         # [geographic / warp] How region-lock logic models REACHING a region (world_logic region_lock / region_bosses).
-  # region_count: 0                   # [0..8 (integer)] Number of regions to include for a short 'reach the capital and kill Morgott' run.
+  # num_regions: 0                    # [0..9] random majors for a short capital run; add num_regions_order: spine for the old fixed first-N (region_count)
   # completion_scaling: off           # [off / flat / gentle / steep] Reshape Elden Ring's difficulty curve by seed-completion order rather than leave it vanilla.
   # completion_scaling_floor: 0       # [0..50 (integer)] Minimum scaling tier as a PERCENT of the baker's MaxTier (0 = earliest tier can stay 1;
   # random_start_region: off          # [off / overworld / any_major] Roll a random overworld region to start in instead of Limgrave / The First Step. The chosen
