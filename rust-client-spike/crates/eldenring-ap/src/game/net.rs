@@ -21,7 +21,7 @@ use std::time::Duration;
 use archipelago_rs as ap;
 use serde::Deserialize;
 
-use super::{flags, grant};
+use super::{deathlink, features, flags, grant, progressive, upgrades};
 
 /// `apconfig.json` (next to the game exe, or $ER_AP_CONFIG). The console-prompt flow the C++ used is
 /// replaced by a config file for the spike (SPEC §6 lists this as an accepted option). This is OUR
@@ -34,6 +34,20 @@ struct ApConfig {
     slot: Option<String>,
     #[serde(default)]
     password: Option<String>,
+    /// AP location id (stringified) -> guarding event flag. Polled each tick to catch checks whose
+    /// acquisition bypasses the AddItemFunc detour (shop buys, NPC gifts, offline pickups). Emitted
+    /// by the ER bake INTO apconfig (NOT slot_data). (`location_flags` in CCore::LoadConfigFile.)
+    #[serde(default)]
+    location_flags: HashMap<String, u32>,
+    /// Boss/grace attribution sweep: event flag (stringified) -> AP location ids it clears.
+    /// Present only when the apworld's dungeon_sweep == bosses. (`sweep_flags`.)
+    #[serde(default)]
+    sweep_flags: HashMap<String, Vec<i64>>,
+    /// DeathLink hint: the `DeathLink` Connect tag must be advertised at CONNECT (before slot_data
+    /// arrives), so it's sourced from apconfig. slot_data `options.death_link` is the source of truth
+    /// once connected and corrects `is_enabled()`; this only makes the tag right on the first connect.
+    #[serde(default)]
+    death_link: bool,
 }
 
 static GOAL_REACHED: AtomicBool = AtomicBool::new(false);
@@ -60,6 +74,9 @@ pub fn run() {
         _ => return, // load_apconfig already logged where it looked
     };
     tracing::info!("AP: config loaded; target {}", cfg.url);
+    // DeathLink tag must be known at Connect time (before slot_data); seed it from apconfig. slot_data
+    // corrects it once connected. (See deathlink.rs / DEATHLINK-WIRING.md.)
+    deathlink::set_enabled(cfg.death_link);
 
     loop {
         connect_and_serve(&cfg);
@@ -81,6 +98,11 @@ fn connect_and_serve(cfg: &ApConfig) {
             opts = opts.password(pw.clone());
         }
     }
+    // DeathLink (Wave D): tags() REPLACES the set, and the server reads tags only at Connect — so add
+    // it here, before slot_data. `ap::tags::DEATH_LINK` = "DeathLink". (DEATHLINK-WIRING.md §2a.)
+    if deathlink::is_enabled() {
+        opts = opts.tags([ap::tags::DEATH_LINK]);
+    }
 
     // slot_data read as serde_json::Value (the default S), so no field-type assumption can fail the
     // connection. &str satisfies Into<String>/Into<Ustr> without relying on &String coercions.
@@ -88,7 +110,11 @@ fn connect_and_serve(cfg: &ApConfig) {
         ap::Connection::new(cfg.url.as_str(), slot.as_str(), Some("EldenRing"), opts);
 
     let mut configured = false;
-    let mut pushed_through: i64 = 0; // highest received index already pushed to the grant queue
+    let mut pushed_through: i64 = 0; // highest received index already pushed to the GRANT queue
+    let mut dispatched_through: i64 = 0; // highest index whose NAME-dispatch (flags/sets) has run.
+    // Starts at 0 EACH connect (not the persisted index): the name-keyed effects (grace flags,
+    // received-name set for natural keys) are idempotent and must replay the FULL items_received
+    // stream on reconnect, unlike the grant path which resumes at the persisted index.
     let mut goal_sent = false;
     let mut item_map: HashMap<i64, i64> = HashMap::new(); // AP item id -> ER FullID
     let mut item_counts: HashMap<i64, i64> = HashMap::new();
@@ -107,6 +133,11 @@ fn connect_and_serve(cfg: &ApConfig) {
                 ap::Event::Error(e) => {
                     tracing::error!("AP: connection error: {e}");
                     return;
+                }
+                ap::Event::DeathLink { source, cause, .. } => {
+                    // Wave D: latch a kill for the game tick (deathlink::tick); self-source echoes are
+                    // suppressed inside the handler. (DEATHLINK-WIRING.md §2c.)
+                    deathlink::on_death_link_event(&source, cause.as_deref(), slot.as_str());
                 }
                 _ => {}
             }
@@ -158,6 +189,54 @@ fn connect_and_serve(cfg: &ApConfig) {
                     tracing::info!("AP: goal = boss defeat flag {} (ec {}, dlc {})", flag, ec, dlc);
                 }
 
+                // Phase 5: build the feature config (region-lock ecosystem, warp latches, map
+                // reveal, sweeps) from slot_data + apconfig and install it. configure() RESETS the
+                // per-session queues, so start graces/items are enqueued AFTER it.
+                let feat = build_slot_config(sd, dlc, cfg);
+                features::configure(feat);
+
+                // Phase 5 parallel tracks, configured off the same slot_data:
+                progressive::configure(progressive::parse(sd)); // Wave C tier tables
+                deathlink::configure_from_slot_data(sd); // Wave D: corrects is_enabled() from options.death_link
+                upgrades::set_auto_upgrade(
+                    sd.pointer("/options/auto_upgrade").and_then(|v| v.as_i64()).unwrap_or(0) as i32,
+                );
+                upgrades::set_global_scadu_blessing(
+                    sd.pointer("/options/global_scadutree_blessing").and_then(|v| v.as_i64()).unwrap_or(0) as i32,
+                );
+                if let Some(arr) = sd.get("startGraces").and_then(|v| v.as_array()) {
+                    let mut n = 0;
+                    for f in arr {
+                        if let Some(fl) = f.as_u64() {
+                            features::enqueue_start_grace(fl as u32);
+                            n += 1;
+                        }
+                    }
+                    if n > 0 {
+                        tracing::info!("AP: queued {} Limgrave start grace(s)", n);
+                    }
+                }
+                if let Some(arr) = sd.get("startItems").and_then(|v| v.as_array()) {
+                    let mut n = 0;
+                    for e in arr {
+                        if let Some(pair) = e.as_array() {
+                            let id = pair.first().and_then(|x| x.as_i64()).unwrap_or(0) as i32;
+                            let ct = pair.get(1).and_then(|x| x.as_i64()).unwrap_or(1) as i32;
+                            if id != 0 {
+                                features::enqueue_start_item(id, ct);
+                                n += 1;
+                            }
+                        } else if let Some(id) = e.as_i64() {
+                            features::enqueue_start_item(id as i32, 1);
+                            n += 1;
+                        }
+                    }
+                    if n > 0 {
+                        tracing::info!("AP: queued {} once-per-save start item(s)", n);
+                    }
+                }
+                dispatched_through = 0; // replay name-dispatch from the start on this connect
+
                 tracing::info!(
                     "AP: slot_data parsed ({} item-map entries); resuming at received index {}",
                     item_map.len(),
@@ -167,31 +246,45 @@ fn connect_and_serve(cfg: &ApConfig) {
             }
         }
 
-        // 3) Push newly-received items onto the grant queue.
+        // 3) Process received items. NAME-dispatch (idempotent grace flags / region-lock effects /
+        // received-name set) runs over the FULL replay each connect (idx >= dispatched_through);
+        // the GRANT enqueue resumes at the persisted index (idx >= pushed_through) to avoid
+        // re-granting. Both watermarks advance independently. (set_items_received_handler split.)
         if configured {
             if let Some(client) = conn.client() {
                 for ri in client.received_items() {
                     let idx = ri.index() as i64;
-                    if idx < pushed_through {
-                        continue;
+                    let name = ri.item().name().to_string();
+                    let mut is_progressive = false;
+
+                    if idx >= dispatched_through {
+                        features::on_item_received(&name);
+                        // Progressive (Wave C): advances its own tier (persisted index-deduped) and
+                        // returns true for progressive items, which carry their OWN grant queue —
+                        // so the normal grant below is SKIPPED (mirrors the C++ handler's `continue`).
+                        is_progressive = progressive::on_item_received(&name, idx);
+                        dispatched_through = idx + 1;
                     }
-                    let ap_item_id = ri.item().id();
-                    match item_map.get(&ap_item_id) {
-                        Some(&full_id) => {
-                            let qty = item_counts.get(&ap_item_id).copied().unwrap_or(1).max(1);
-                            grant::enqueue(grant::GrantMsg {
-                                full_id: full_id as i32,
-                                qty: qty as i32,
-                                ap_index: idx,
-                                name: ri.item().name().to_string(),
-                            });
+
+                    if idx >= pushed_through {
+                        if !is_progressive {
+                            let ap_item_id = ri.item().id();
+                            match item_map.get(&ap_item_id) {
+                                Some(&full_id) => {
+                                    let qty = item_counts.get(&ap_item_id).copied().unwrap_or(1).max(1);
+                                    grant::enqueue(grant::GrantMsg {
+                                        full_id: full_id as i32,
+                                        qty: qty as i32,
+                                        ap_index: idx,
+                                        name,
+                                    });
+                                }
+                                None => tracing::warn!(
+                                    "AP: received item id {} not in apIdsToItemIds; skipping (check seed options)",
+                                    ap_item_id
+                                ),
+                            }
                         }
-                        None => tracing::warn!(
-                            "AP: received item id {} not in apIdsToItemIds; skipping (check seed options)",
-                            ap_item_id
-                        ),
-                    }
-                    if idx + 1 > pushed_through {
                         pushed_through = idx + 1;
                     }
                 }
@@ -235,6 +328,22 @@ fn connect_and_serve(cfg: &ApConfig) {
             }
         }
 
+        // 6) Wave D: if the local player died this session, originate a DeathLink (rising-edge latched
+        // on the game tick by deathlink::poll_outgoing_death). (DEATHLINK-WIRING.md §2d.)
+        if deathlink::take_pending_outgoing() {
+            if let Some(client) = conn.client_mut() {
+                let opts = ap::DeathLinkOptions::new()
+                    .cause("Slain in the Lands Between.".to_string())
+                    .source(slot.clone());
+                match client.death_link(opts) {
+                    Ok(()) => tracing::info!("AP: sent DeathLink"),
+                    Err(e) => tracing::warn!("AP: death_link send failed: {e}"),
+                }
+            } else {
+                tracing::debug!("AP: DeathLink to send but client not ready; dropping");
+            }
+        }
+
         if conn.is_disconnected() {
             return;
         }
@@ -251,6 +360,141 @@ fn i64_map(v: Option<&serde_json::Value>) -> HashMap<i64, i64> {
             if let (Ok(ki), Some(vi)) = (k.parse::<i64>(), val.as_i64()) {
                 m.insert(ki, vi);
             }
+        }
+    }
+    m
+}
+
+/// Build the Phase-5 feature config from slot_data (`sd`) + apconfig (`apcfg`). Every field is
+/// optional/tolerant so an older seed that omits a key leaves that feature inert. Mirrors the
+/// slot_data parse spread across `set_data_package_handler` / `set_slot_connected_handler` and the
+/// apconfig `location_flags` / `sweep_flags` load in `CCore::LoadConfigFile`.
+fn build_slot_config(sd: &serde_json::Value, dlc: bool, apcfg: &ApConfig) -> features::SlotConfig {
+    let mut c = features::SlotConfig {
+        enable_dlc: dlc,
+        ..Default::default()
+    };
+
+    c.region_graces = str_to_u32vec(sd.get("regionGraces"));
+    c.grace_items = str_to_u32(sd.get("graceItems"));
+    c.region_open_flags = str_to_u32(sd.get("regionOpenFlags"));
+    c.lock_reveal_flags = str_to_u32vec(sd.get("lockRevealFlags"));
+    c.lock_notify_items = str_to_i32(sd.get("lockNotifyItems"));
+    c.natural_key_triggers = parse_natural_keys(sd.get("naturalKeyTriggers"));
+
+    c.dlc_entry_warp_flag = sd.get("dlcEntryWarpFlag").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+    c.dlc_start_area_id = sd.get("dlcStartAreaId").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
+    c.random_start_warp_flag = sd.get("randomStartWarpFlag").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+    c.random_start_area_id = sd.get("randomStartAreaId").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
+    c.random_start_done_flag = sd.get("randomStartDoneFlag").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+
+    c.area_lock_flags = sd
+        .get("areaLockFlags")
+        .and_then(|v| v.as_array())
+        .map(|outer| {
+            outer
+                .iter()
+                .filter_map(|row| row.as_array())
+                .filter(|r| r.len() >= 3)
+                .map(|r| {
+                    [
+                        r[0].as_i64().unwrap_or(0) as i32,
+                        r[1].as_i64().unwrap_or(0) as i32,
+                        r[2].as_i64().unwrap_or(0) as i32,
+                    ]
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+
+    c.reveal_all_maps = sd.get("reveal_all_maps").and_then(|v| v.as_bool()).unwrap_or(false);
+
+    // dungeonSweeps: { "<trigger location id>": [members...] } (slot_data).
+    if let Some(serde_json::Value::Object(o)) = sd.get("dungeonSweeps") {
+        for (k, v) in o {
+            if let (Ok(ki), Some(arr)) = (k.parse::<i64>(), v.as_array()) {
+                c.dungeon_sweeps
+                    .insert(ki, arr.iter().filter_map(|x| x.as_i64()).collect());
+            }
+        }
+    }
+
+    // apconfig-side maps (keys are stringified ints in the JSON object).
+    for (k, &flag) in &apcfg.location_flags {
+        if let Ok(loc) = k.parse::<i64>() {
+            c.location_flags.insert(loc, flag);
+        }
+    }
+    for (k, locs) in &apcfg.sweep_flags {
+        if let Ok(flag) = k.parse::<u32>() {
+            c.sweep_flags.insert(flag, locs.clone());
+        }
+    }
+
+    c
+}
+
+/// `{ "name": <u32> }` slot_data object -> name->flag map. Tolerant: skips non-numeric values.
+fn str_to_u32(v: Option<&serde_json::Value>) -> HashMap<String, u32> {
+    let mut m = HashMap::new();
+    if let Some(serde_json::Value::Object(o)) = v {
+        for (k, val) in o {
+            if let Some(n) = val.as_u64() {
+                m.insert(k.clone(), n as u32);
+            }
+        }
+    }
+    m
+}
+
+/// `{ "name": <i32> }` slot_data object -> name->FullID map (signed; FullIDs carry the category nibble).
+fn str_to_i32(v: Option<&serde_json::Value>) -> HashMap<String, i32> {
+    let mut m = HashMap::new();
+    if let Some(serde_json::Value::Object(o)) = v {
+        for (k, val) in o {
+            if let Some(n) = val.as_i64() {
+                m.insert(k.clone(), n as i32);
+            }
+        }
+    }
+    m
+}
+
+/// `{ "name": [<u32>, ...] }` slot_data object -> name->flags map.
+fn str_to_u32vec(v: Option<&serde_json::Value>) -> HashMap<String, Vec<u32>> {
+    let mut m = HashMap::new();
+    if let Some(serde_json::Value::Object(o)) = v {
+        for (k, val) in o {
+            if let Some(arr) = val.as_array() {
+                m.insert(k.clone(), arr.iter().filter_map(|x| x.as_u64().map(|n| n as u32)).collect());
+            }
+        }
+    }
+    m
+}
+
+/// `{ "LockName": { "anyOf": [ {"items":[..],"flags":[..]}, ... ] } }` -> region->clause disjunction.
+fn parse_natural_keys(v: Option<&serde_json::Value>) -> HashMap<String, Vec<features::NkClause>> {
+    let mut m = HashMap::new();
+    if let Some(serde_json::Value::Object(o)) = v {
+        for (region, body) in o {
+            let mut clauses = Vec::new();
+            if let Some(any_of) = body.get("anyOf").and_then(|x| x.as_array()) {
+                for c in any_of {
+                    let items = c
+                        .get("items")
+                        .and_then(|x| x.as_array())
+                        .map(|a| a.iter().filter_map(|s| s.as_str().map(String::from)).collect())
+                        .unwrap_or_default();
+                    let flags = c
+                        .get("flags")
+                        .and_then(|x| x.as_array())
+                        .map(|a| a.iter().filter_map(|s| s.as_u64().map(|n| n as u32)).collect())
+                        .unwrap_or_default();
+                    clauses.push(features::NkClause { items, flags });
+                }
+            }
+            m.insert(region.clone(), clauses);
         }
     }
     m

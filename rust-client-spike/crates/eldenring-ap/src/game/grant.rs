@@ -14,14 +14,16 @@
 //! replays the item on reconnect (no double-grant, no loss) — the server re-sends everything under
 //! items_handling 0b111.
 
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicI64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::mpsc::{Receiver, SyncSender};
 use std::sync::{Mutex, OnceLock};
 
 use super::detour;
+use super::features;
 use super::flags;
+use super::progressive;
 
 /// One server-pushed item to grant in-game.
 pub struct GrantMsg {
@@ -58,6 +60,36 @@ static SAVE_PATH: OnceLock<PathBuf> = OnceLock::new();
 /// Highest received-item index GRANTED in-game (persisted). -1 = not configured (pre-connect).
 static PERSIST_INDEX: AtomicI64 = AtomicI64::new(-1);
 
+// --- Phase 5 persisted state (extends the save file alongside last_received_index) ---------------
+/// Start items (Torrent, flasks, quick_start runes) granted for THIS save (once-per-save gate).
+static START_ITEMS_GRANTED: AtomicBool = AtomicBool::new(false);
+/// FullIDs of unlock-notify items / great-rune restores already granted this save (once-per-save).
+fn notify_granted() -> &'static Mutex<HashSet<i32>> {
+    static S: OnceLock<Mutex<HashSet<i32>>> = OnceLock::new();
+    S.get_or_init(|| Mutex::new(HashSet::new()))
+}
+
+/// Phase 5: has the start-item bundle been granted for this save? (`startItemsGranted`.)
+pub fn start_items_granted() -> bool {
+    START_ITEMS_GRANTED.load(Ordering::Relaxed)
+}
+/// Phase 5: mark the start-item bundle granted (persisted on the next `persist()`).
+pub fn set_start_items_granted() {
+    START_ITEMS_GRANTED.store(true, Ordering::Relaxed);
+}
+/// Phase 5: was this notify FullID already granted this save? (`notifyGrantedAddrs`.)
+pub fn notify_already_granted(addr: i32) -> bool {
+    notify_granted().lock().unwrap().contains(&addr)
+}
+/// Phase 5: record a notify FullID as granted (persisted on the next `persist()`).
+pub fn note_notify_granted(addr: i32) {
+    notify_granted().lock().unwrap().insert(addr);
+}
+/// Phase 5: force a save-file write now (called by features after once-per-save grants land).
+pub fn persist() {
+    write_save();
+}
+
 /// net thread: enqueue a server-pushed item for the game thread to grant. Never blocks the net loop.
 pub fn enqueue(msg: GrantMsg) {
     if channel().tx.try_send(msg).is_err() {
@@ -65,8 +97,31 @@ pub fn enqueue(msg: GrantMsg) {
     }
 }
 
-/// net thread, at (re)connect: record the per-seed save path and the resume index loaded from it.
+/// net thread, at (re)connect: record the per-seed save path and the resume index loaded from it,
+/// and restore the Phase-5 once-per-save state (start_items_granted, notify_granted) from the file.
 pub fn configure(save_path: PathBuf, start_index: i64) {
+    if let Ok(text) = std::fs::read_to_string(&save_path) {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&text) {
+            START_ITEMS_GRANTED.store(
+                v.get("start_items_granted").and_then(|x| x.as_bool()).unwrap_or(false),
+                Ordering::Relaxed,
+            );
+            if let Some(arr) = v.get("notify_granted").and_then(|x| x.as_array()) {
+                let mut set = notify_granted().lock().unwrap();
+                for a in arr {
+                    if let Some(n) = a.as_i64() {
+                        set.insert(n as i32);
+                    }
+                }
+            }
+            // Phase 5 Wave C: restore the progressive tier counters + high-index (progressive.rs
+            // owns the live state; the save file is grant.rs's, so it round-trips them here).
+            progressive::restore(
+                v.get("progressive_counter").unwrap_or(&serde_json::Value::Null),
+                v.get("progressive_high_index").and_then(|x| x.as_i64()).unwrap_or(-1),
+            );
+        }
+    }
     let _ = SAVE_PATH.set(save_path); // first connect wins; reconnects reuse the same path
     PERSIST_INDEX.store(start_index, Ordering::Relaxed);
 }
@@ -128,6 +183,9 @@ pub fn drain_and_grant() {
             msg.full_id as u32,
             msg.qty
         );
+        // Map fragments granted through the index stream also flip their map-REVEAL flag (the goods
+        // item alone leaves the region fogged). Port of the GiveNextItem map branch; no-op otherwise.
+        features::on_index_grant(msg.full_id);
         let new_idx = msg.ap_index + 1;
         if new_idx > PERSIST_INDEX.load(Ordering::Relaxed) {
             PERSIST_INDEX.store(new_idx, Ordering::Relaxed);
@@ -150,7 +208,18 @@ fn write_save() {
         None => return,
     };
     let idx = PERSIST_INDEX.load(Ordering::Relaxed);
-    let body = format!("{{\"last_received_index\": {}}}", idx);
+    // Extends the Phase-4 single-field save with the Phase-5 once-per-save state. serde_json builds
+    // the object so the notify_granted list / bool escape correctly (mirrors CCore::WriteSaveFile).
+    let notify: Vec<i32> = notify_granted().lock().unwrap().iter().copied().collect();
+    let (prog_counter, prog_high) = progressive::snapshot();
+    let body = serde_json::json!({
+        "last_received_index": idx,
+        "start_items_granted": START_ITEMS_GRANTED.load(Ordering::Relaxed),
+        "notify_granted": notify,
+        "progressive_counter": prog_counter,
+        "progressive_high_index": prog_high,
+    })
+    .to_string();
 
     let mut swap_os = std::ffi::OsString::from(path.as_os_str());
     swap_os.push(".swap");
