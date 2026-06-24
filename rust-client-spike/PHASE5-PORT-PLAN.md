@@ -6,6 +6,34 @@ the "sophisticated" behaviours that today live ONLY in the C++ client (`Archipel
 `Core.cpp`, `GameHook.cpp`, `er_gamehook_win.cpp`). Companion to PORT-GAP-MAP.md and
 SPEC-rust-client-port.md §4 phase 5.*
 
+## STATUS — Step 0 + Wave A landed & in-game validated; Waves C/D + RE scaffolds wired (2026-06-23)
+
+Branch `port-gap-map`. Build runs on Windows (sandbox has no Rust toolchain; game modules are
+`#[cfg(windows)]`). NOTE: the Edit tool truncates this repo's CRLF files — all Rust edits this
+session were reconstructed from the git base via Python patch + `cp` + byte/brace verify.
+
+**Step 0 + Wave A (BUILT GREEN + IN-GAME VALIDATED):** a region-lock seed received the lock, set the
+grace/open flags, granted the unlock-notify item, and OPENED the region (walked into Altus, no KICK);
+reconnect re-applied flags with no re-grant. Plus the double-grant fix: the detour now suppresses +
+reports only and lets the server own-world echo be the single grant (Phase-3 local grant removed).
+`features.rs` holds the whole Wave-A surface.
+
+**Wave C / D / RE scaffolds (WIRED, built but not yet exercised in-game):**
+- `progressive.rs` — progressive bells/physick (`progressiveGrants`): tier-by-receipt-order, persisted
+  `progressive_high_index`/`progressive_counter` round-tripped through grant.rs's save. Net loop calls
+  `progressive::on_item_received` and skips the normal grant for progressive items.
+- `deathlink.rs` — DeathLink (`options.death_link`): protocol COMPLETE on archipelago_rs (tag at
+  connect, `Event::DeathLink` in, `death_link()` out). Two `// RE:` holes remain — `kill_player()` and
+  `read_local_death()` (both reach the player via the proven `WorldChrMan.main_player`; only the
+  HP/death field offset is missing). Inert until filled: receives + logs, never kills/originates yet.
+- `upgrades.rs` — `auto_upgrade` + `global_scadutree_blessing`, RE-gated and INERT (`apply_auto_upgrade`
+  returns input unchanged, `tick_global_scadu` early-returns). Hooked at the single grant choke
+  (`detour::grant_full_id`) + the tick. CE worksheet: `RE-WORKSHEET-autoupgrade-scadu.md`.
+
+Per-feature wiring notes: `PROGRESSIVE-WIRING.md`, `DEATHLINK-WIRING.md` (both already reconciled into
+the shared files). Remaining to make C/D live = the CE session for the 4 RE holes (auto_upgrade
+reinforce read, scadu stored-blessing write, DeathLink kill + death-detect).
+
 ## The shape of the work
 
 Almost every C++ feature is the SAME three-step pattern, so the port is mostly **build the shared

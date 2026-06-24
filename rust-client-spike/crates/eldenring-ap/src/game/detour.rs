@@ -119,20 +119,16 @@ unsafe extern "C" fn add_item_detour(
             // REPORT: every synthetic pickup is an AP check, local or foreign.
             flags::report_location(item.ap_location_id);
 
+            // SUPPRESS the world pickup (return 0 -> no "You got" popup) and rely on the SERVER ECHO
+            // for the grant: items_handling 0b111 (own_world=true, net.rs) re-sends every own-world
+            // item when its location is checked, and that single echoed copy is granted by
+            // `grant_full_id` off the received-item stream (deduped by last_received_index). Granting
+            // LOCALLY here as well (the Phase-3 `SuppressAndGrant`) double-granted every self-found
+            // item once the echo path went live in Phase 4/5. Echo-only is also why shop-buys work:
+            // they bypass this detour, get reported via flag-polling, and grant through the same echo.
+            // (Matches the C++ client, which suppresses + reports and never grants locally.)
             match decide_pickup(&item) {
-                PickupAction::SuppressAndGrant => {
-                    // SUPPRESS the world pickup (return 0 -> no full "You got" popup), then grant the
-                    // local item via a STANDALONE AddItemFunc call (constructed descriptor) so it uses
-                    // ER's non-interrupting item-gain ticker. Reuses the live `inventory` pointer.
-                    tracing::info!(
-                        "granting local goods {} x{} (ticker)",
-                        item.local_item_id,
-                        item.local_quantity
-                    );
-                    grant_item(inventory, item.local_item_id, item.local_quantity);
-                    0
-                }
-                PickupAction::Suppress => 0, // foreign / no-local: report only, drop placeholder
+                PickupAction::SuppressAndGrant | PickupAction::Suppress => 0,
             }
         }
         None => {
@@ -153,6 +149,13 @@ pub fn grant_full_id(full_id: i32, qty: i32) -> bool {
     if HOOK.get().is_none() {
         return false;
     }
+    // auto_upgrade (Phase 5, RE-gated): every AP-received item — local self-found (echo), foreign,
+    // notify, start — funnels through here, so this is the single choke point to raise a granted
+    // weapon to the player's current max reinforce level. INERT until the RE holes in upgrades.rs are
+    // filled (returns full_id unchanged); non-weapons pass through. `net`-only (lean detour build has
+    // no upgrades module). Mirrors the C++ GrantItem AutoUpgradeWeaponId site.
+    #[cfg(feature = "net")]
+    let full_id = super::upgrades::apply_auto_upgrade(full_id);
     let inv = LAST_INVENTORY.load(Ordering::Relaxed);
     if inv < 0x10000 {
         return false; // no inventory instance captured yet; retry after the next pickup

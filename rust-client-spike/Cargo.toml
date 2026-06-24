@@ -19,15 +19,11 @@ codegen-units = 1
 
 # --- Phase 4 networking: archipelago_rs version patch ---------------------------------------------
 # archipelago_rs 2.1.1 hardcodes its AP Connect version at 0.6.0, but the ER apworld's
-# required_client_version is (0,6,6), so the stock crate is refused with IncompatibleVersion. Point
-# the dependency at a LOCAL copy of the crate whose Connect version is bumped to 0.6.6.
-#
-# POPULATE `third_party/archipelago_rs` first (PowerShell, from rust-client-spike\):
-#   $src = (gci "$env:USERPROFILE\.cargo\registry\src\*\archipelago_rs-2.1.1" -Directory)[0].FullName
-#   robocopy $src third_party\archipelago_rs /E /NFL /NDL /NJH /NJS | Out-Null
-#   attrib -R third_party\archipelago_rs\* /S
-#   del third_party\archipelago_rs\.cargo-checksum.json
-#   # then bump the Connect version literal in src/client.rs: NetworkVersion build: 0 -> build: 6
-# Until that dir exists, cargo will error (path source missing) — populate it, then build.
+# required_client_version is (0,6,6) -> stock crate refused with IncompatibleVersion. Track the fork
+# branch (Connect VERSION const bumped to 0.6.6) so the spike builds off the same thing the PR ships.
+# IMPORTANT: cargo PINS a git commit in Cargo.lock and reuses a cached checkout, so after the fork
+# branch moves you MUST run `cargo update -p archipelago_rs` (NOT just `cargo build`) or it keeps
+# sending the stale 0.6.0. (Local fallback that needs no fetch: archipelago_rs = { path =
+# "third_party/archipelago_rs" } -- that copy still has build:6.)
 [patch.crates-io]
-archipelago_rs = { path = "third_party/archipelago_rs" }
+archipelago_rs = { git = "https://github.com/4laric/archipelago_rs", branch = "er-version-0.6.6" }

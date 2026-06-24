@@ -69,11 +69,25 @@ pub fn get_event_flag(flag_id: u32) -> bool {
 /// harmless (the C++ relied on exactly this for grace/region/map-reveal flags).
 #[allow(dead_code)]
 pub fn set_event_flag(flag_id: u32, enabled: bool) {
-    // RESOLVED: `set_flag(impl Into<EventFlag>, bool)` on the virtual_memory_flag. Idempotent +
-    // game-save-persisted, so re-running on reconnect/replay is harmless.
+    let _ = try_set_event_flag(flag_id, enabled);
+}
+
+/// Set an event flag, returning whether the flag HOLDER was ready (true = set, false = retry later).
+/// Phase 5's FlushPendingGraceFlags / revealAllMaps need this: a flag set before CSEventFlagMan is
+/// up is silently dropped by new-game init, so the queue must re-try until the holder exists
+/// (mirrors the C++ `SetEventFlag` BOOL return). Idempotent + save-persisted once it does land.
+#[allow(dead_code)]
+pub fn try_set_event_flag(flag_id: u32, enabled: bool) -> bool {
+    // RESOLVED: `set_flag(impl Into<EventFlag>, bool)` on the virtual_memory_flag.
     match unsafe { CSEventFlagMan::instance_mut() } {
-        Ok(m) => m.virtual_memory_flag.set_flag(flag_id, enabled),
-        Err(_) => tracing::debug!("set_event_flag({flag_id}, {enabled}): CSEventFlagMan not up yet"),
+        Ok(m) => {
+            m.virtual_memory_flag.set_flag(flag_id, enabled);
+            true
+        }
+        Err(_) => {
+            tracing::debug!("set_event_flag({flag_id}, {enabled}): CSEventFlagMan not up yet");
+            false
+        }
     }
 }
 

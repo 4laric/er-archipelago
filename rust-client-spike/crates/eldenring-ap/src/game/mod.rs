@@ -26,9 +26,17 @@ mod params;
 // Phase 4 (AP networking). `net` implies `detour` (grants reuse the detour trampoline), so both
 // modules are present together. Off-by-default; build with `--features net`.
 #[cfg(feature = "net")]
+mod deathlink;
+#[cfg(feature = "net")]
+mod features;
+#[cfg(feature = "net")]
 mod grant;
 #[cfg(feature = "net")]
 mod net;
+#[cfg(feature = "net")]
+mod progressive;
+#[cfg(feature = "net")]
+mod upgrades;
 
 use std::time::Duration;
 
@@ -173,8 +181,22 @@ fn tick() {
         }
     }
 
-    // TODO(phase 5): drain report queue -> set collected flags (detour-bypassing acquisitions);
-    // flush pending grace/open flags; evaluate natural-key triggers; goal detection -> net::signal_goal().
+    // Phase 5: the settled-in-world feature tick — flush pending grace/open/reveal flags, grant
+    // queued notify + start items, reveal maps, evaluate natural-key triggers, poll location flags
+    // (detour-bypassing acquisitions -> report queue), and run the warp / region-lock latches. All
+    // event-flag reads/writes + grants happen HERE (game thread); the net thread only queued them.
+    #[cfg(feature = "net")]
+    features::tick();
+
+    // Phase 5 parallel tracks: progressive bells/physick grant+flag drain (Wave C), DeathLink
+    // kill/death latches (Wave D, RE-gated), and the global Scadutree blessing writer (RE-gated).
+    // Each self-gates (off unless its slot_data flag is set / in-world), so all three are cheap no-ops.
+    #[cfg(feature = "net")]
+    progressive::tick();
+    #[cfg(feature = "net")]
+    deathlink::tick();
+    #[cfg(feature = "net")]
+    upgrades::tick_global_scadu();
 }
 
 /// Set up file logging (replaces spdlog with a non-blocking tracing file sink).
