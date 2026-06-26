@@ -26,8 +26,6 @@ dependencies = [
 [[package]]
 name = "archipelago_rs"
 version = "2.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fc307204c7c97a628a1999d8731d69b29056af4f66872122f57d7c1ceec3b99"
 dependencies = [
  "bitflags 2.13.0",
  "log",
@@ -553,6 +551,15 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "er-codec"
 version = "0.1.0"
+
+[[package]]
+name = "er-logic"
+version = "0.1.0"
+dependencies = [
+ "er-codec",
+ "er-semver",
+ "serde_json",
+]
 
 [[package]]
 name = "er-semver"
@@ -2344,8 +2351,3 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
-
-[[patch.unused]]
-name = "archipelago_rs"
-version = "3.0.0"
-source = "git+https://github.com/4laric/archipelago_rs?branch=er-version-0.6.6#4cb8291d5bf9a2745fc397b41bb48ac315c19022"
