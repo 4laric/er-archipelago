@@ -4,6 +4,7 @@ members = [
     "crates/er-codec",
     "crates/er-semver",
     "crates/eldenring-ap",
+    "crates/er-logic",
 ]
 
 # Pure-logic crates (er-codec, er-semver) build and test on ANY host (Linux/macOS CI).
@@ -18,12 +19,12 @@ lto = "thin"
 codegen-units = 1
 
 # --- Phase 4 networking: archipelago_rs version patch ---------------------------------------------
-# archipelago_rs 2.1.1 hardcodes its AP Connect version at 0.6.0, but the ER apworld's
-# required_client_version is (0,6,6) -> stock crate refused with IncompatibleVersion. Track the fork
-# branch (Connect VERSION const bumped to 0.6.6) so the spike builds off the same thing the PR ships.
-# IMPORTANT: cargo PINS a git commit in Cargo.lock and reuses a cached checkout, so after the fork
-# branch moves you MUST run `cargo update -p archipelago_rs` (NOT just `cargo build`) or it keeps
-# sending the stale 0.6.0. (Local fallback that needs no fetch: archipelago_rs = { path =
-# "third_party/archipelago_rs" } -- that copy still has build:6.)
+# Use a LOCAL copy of the crate with the Connect VERSION const bumped to 0.6.6. archipelago_rs 2.1.1
+# reports 0.6.0; the ER apworld requires (0,6,6) -> IncompatibleVersion without this.
+# WHY PATH, NOT THE GIT FORK: a `git`/same-version `[patch.crates-io]` kept resolving to the stock
+# crates.io 0.6.0 (cargo "patch not used"), so the build silently regressed. A PATH patch always
+# overrides, no version-match games, no fetch/cache. (The fork branch er-version-0.6.6 still exists
+# for the upstream PR; once that PR lands + a new crate version is published, drop this patch.)
+# After switching the patch source, `del Cargo.lock` then rebuild so the stale crates.io pin clears.
 [patch.crates-io]
-archipelago_rs = { git = "https://github.com/4laric/archipelago_rs", branch = "er-version-0.6.6" }
+archipelago_rs = { path = "third_party/archipelago_rs" }

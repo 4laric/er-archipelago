@@ -19,6 +19,8 @@
 #![allow(unsafe_code, dead_code)]
 
 #[cfg(feature = "detour")]
+mod console;
+#[cfg(feature = "detour")]
 mod detour;
 mod flags;
 mod params;
@@ -95,6 +97,11 @@ pub fn init() {
         tracing::error!("AddItemFunc detour install failed: {e}");
     }
 
+    // Debug console (ports the C++ client's /setflag, /getflag window). Reads stdin on its own thread;
+    // commands execute on the game tick (console::tick). Behind `detour` (needs the windows crate).
+    #[cfg(feature = "detour")]
+    console::init();
+
     // The settled in-world tick. Everything that must run on the game thread goes here: draining
     // the received-items / grant / grace-flag queues, polling location flags (REPORT for
     // acquisitions that bypass the detour), evaluating natural-key triggers, etc. (SPEC §4 phase 5)
@@ -168,6 +175,10 @@ fn tick() {
     // Phase 4: drain the received-items queue (filled by the AP net thread) and grant each item
     // in-game on THIS thread, where touching inventory is safe; persists last_received_index after
     // each grant. Gated on in-world inside drain_and_grant().
+    // Phase 5: execute any queued debug-console commands (/setflag, /getflag, ...) on the game thread.
+    #[cfg(feature = "detour")]
+    console::tick();
+
     #[cfg(feature = "net")]
     grant::drain_and_grant();
 

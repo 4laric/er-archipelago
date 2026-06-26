@@ -37,6 +37,7 @@ param(
     [switch]$Rust,             # build + test the Rust client spike (rust-client-spike); NOT part of -All
     [switch]$RustDeploy,       # swap the Rust client DLL into mods\ (parks the C++ archipelago.dll)
     [switch]$CppRestore,       # swap back to the C++ client (parks eldenring_ap.dll)
+    [switch]$ApEnable,         # build the randomizer out of the er-ap-enable scratch (C:\er-ap-build, fswap deps)
     [switch]$Generate,
     [int]$GenRetries = 2,            # genretry: gen re-roll attempts on a seed-dependent FillError (0 = off)
     [switch]$GenBumpRegions,         # genretry: also bump num_regions +1 in Players\*.yaml per retry (restored after)
@@ -44,6 +45,8 @@ param(
     [switch]$Bake,
     [switch]$Enemies,
     [switch]$Deploy,
+    [switch]$CleanDeploy,      # restore Game\{event,map,msg,script,menu} to vanilla (snapshot) BEFORE overlaying the bake -- stops stale-file leak (e.g. a prior enemy bake's map\ MSBs hanging the new-game load)
+    [switch]$SnapshotVanilla,  # capture a pristine vanilla snapshot of those dirs (run ONCE right after a fresh UXM unpack, before any deploy)
     [switch]$Apworld,
     [switch]$NoCrashFix,
     [switch]$Helper,
@@ -88,6 +91,9 @@ if ($All -or $NoClient) {
     $Serve = $true; $Bake = $true; $Enemies = $true; $Deploy = $true; $Preflight = $true; $Apworld = $true
 }
 
+# -CleanDeploy implies -Deploy (the vanilla-restore runs inside the deploy step below).
+if ($CleanDeploy) { $Deploy = $true }
+
 # ----- config ---------------------------------------------------------------------------------
 $Repo     = $PSScriptRoot
 $GameDir  = "C:\Program Files (x86)\Steam\steamapps\common\ELDEN RING\Game"
@@ -96,10 +102,19 @@ $ModsDir  = Join-Path $GameDir "mods"          # client DLL + apconfig.json live
 # UXM-unpacked+patched, so it reads loose files from Game\ directly. mods\ copies are ignored.
 $AssetDir = $GameDir
 $RandoDir = Join-Path $Repo "SoulsRandomizers"
+$VanillaSnap = Join-Path $Repo "vanilla-game-snapshot"   # pristine copies of the bake's overlay dirs, captured from a fresh UXM unpack via -SnapshotVanilla
+$OverlayDirs = @("event", "msg", "script", "map", "menu")  # dirs -Deploy overlays into Game\ -- MUST match the foreach in the deploy step
 $RandoExe = Join-Path $RandoDir "EldenRingRandomizer\bin\Release (Archipelago)\net6.0-windows\win-x64\EldenRingRandomizer.exe"
 $ClientDir = Join-Path $Repo "Dark-Souls-III-Archipelago-client\archipelago-client"
 $ClientDll = Join-Path $ClientDir "x64\Release\archipelago.dll"
 $RustDir   = Join-Path $Repo "rust-client-spike"
+
+if ($ApEnable) {
+    $RandoDir = "C:\er-ap-build\SoulsRandomizers"
+    # the sln build remaps EldenRingRandomizer to plain 'Release', so the exe is under bin\Release\
+    $RandoExe = Join-Path $RandoDir "EldenRingRandomizer\bin\Release\net6.0-windows\win-x64\EldenRingRandomizer.exe"
+    Write-Host "  [ApEnable] randomizer source = $RandoDir (fswap deps)"
+}
 $RustDll   = Join-Path $RustDir "target\x86_64-pc-windows-msvc\release\eldenring_ap.dll"
 
 # RandomizerCrashFix.dll -- fifthmatt's redistributable companion (shipped in the v0.11.4 package).
@@ -157,7 +172,7 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $All)) {
+if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $All -or $SnapshotVanilla -or $CleanDeploy)) {
     Get-Content $PSCommandPath | Select-Object -Skip 1 -First 20 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
@@ -184,8 +199,15 @@ if ($Randomizer) {
     Step "Building static randomizer (Release (Archipelago), non-incremental)"
     Push-Location $RandoDir
     try {
-        dotnet build -c "Release (Archipelago)" --no-incremental "EldenRingRandomizer\EldenRingRandomizer.csproj"
-        if ($LASTEXITCODE -ne 0) { throw "randomizer build failed" }
+        if ($ApEnable) {
+            # via the SLN: the bare csproj fails GrayIris OutputPath; the sln remaps it.
+            dotnet build -c "Release (Archipelago)" "SoulsRandomizers.sln" -t:EldenRingRandomizer
+            # the sln prints 3 harmless *.csproj.metaproj MSB4025 lines that flip exit code non-zero
+            # even though every project compiles -- the Test-Path on $RandoExe below is the real gate.
+        } else {
+            dotnet build -c "Release (Archipelago)" --no-incremental "EldenRingRandomizer\EldenRingRandomizer.csproj"
+            if ($LASTEXITCODE -ne 0) { throw "randomizer build failed" }
+        }
     } finally { Pop-Location }
     if (-not (Test-Path $RandoExe)) { throw "build reported success but exe not found: $RandoExe" }
     Write-Host "  -> $RandoExe"
@@ -456,9 +478,48 @@ if ($Bake) {
 }
 
 # ----- deploy ---------------------------------------------------------------------------------
+# ----- vanilla snapshot (for -CleanDeploy) ---------------------------------------------------
+# Capture pristine copies of the dirs -Deploy overlays, so -CleanDeploy can restore them before
+# each deploy. Run ONCE right after a fresh UXM unpack (game files = vanilla), before any deploy.
+if ($SnapshotVanilla) {
+    Step "Snapshotting vanilla game-override dirs -> $VanillaSnap"
+    Write-Host "  (run this ONCE right after a fresh UXM unpack, before any -Deploy, so the snapshot is pristine)"
+    foreach ($dir in $OverlayDirs) {
+        $src = Join-Path $AssetDir $dir
+        $dst = Join-Path $VanillaSnap $dir
+        if (Test-Path $src) {
+            Write-Host "  snapshotting $dir\ ..."
+            robocopy $src $dst /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
+            if ($LASTEXITCODE -ge 8) { throw "robocopy failed snapshotting $dir (exit $LASTEXITCODE)" }
+        } else { Write-Warning "  $dir\ not found under $AssetDir -- skipped" }
+    }
+    $global:LASTEXITCODE = 0
+    Write-Host "  vanilla snapshot captured ($VanillaSnap). Re-run -SnapshotVanilla after any future UXM re-unpack."
+}
+
 if ($Deploy) {
     Step "Deploying to $ModsDir"
     if (-not (Test-Path $ModsDir)) { New-Item -ItemType Directory -Path $ModsDir | Out-Null }
+
+    # -CleanDeploy: restore the overlay dirs to vanilla FIRST so stale files from a prior bake
+    # (e.g. an enemy bake's map\*.msb.dcx that an item-only bake won't overwrite) can't leak and
+    # desync the new-game load. robocopy /MIR makes each Game\<dir> exactly match the snapshot.
+    if ($CleanDeploy) {
+        if (-not (Test-Path $VanillaSnap)) {
+            throw "CleanDeploy needs a vanilla snapshot at $VanillaSnap. Run once after a fresh UXM unpack: .\build.ps1 -SnapshotVanilla"
+        }
+        Step "CleanDeploy: restoring vanilla overlay dirs from snapshot (pre-overlay)"
+        foreach ($dir in $OverlayDirs) {
+            $snap = Join-Path $VanillaSnap $dir
+            $live = Join-Path $AssetDir $dir
+            if (Test-Path $snap) {
+                robocopy $snap $live /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
+                if ($LASTEXITCODE -ge 8) { throw "robocopy failed restoring $dir (exit $LASTEXITCODE)" }
+                Write-Host "  restored $dir\ to vanilla"
+            }
+        }
+        $global:LASTEXITCODE = 0
+    }
 
     # Game-file overrides produced by the bake. 'map' only exists for enemy bakes.
     $reg = Join-Path $RandoDir "regulation.bin"
