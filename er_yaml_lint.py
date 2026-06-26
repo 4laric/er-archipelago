@@ -189,12 +189,53 @@ def lint_block(block: dict) -> list[Finding]:
     rsr = c.cval("random_start_region")
     if rsr and rsr != "off":
         if seal_goal:
-            extra = " (for a non-Limgrave num_regions start, use num_regions_rune_source: pool instead)" if nr > 0 else ""
-            warn("random_start_region", f"IGNORED while a seal goal is active (capital/num_regions/messmer/godrick){extra}")
+            # Name the specific seal goal in play so the message points at the real cause.
+            active = []
+            if goal in ("capital","messmer","godrick"): active.append(f"ending_condition: {goal}")
+            if nr > 0: active.append(f"num_regions: {nr}")
+            cause = " + ".join(active)
+            _pool = c.cval("num_regions_rune_source") == "pool"
+            _chain = c.truthy("num_regions_chain")
+            if nr > 0 and _pool and _chain:
+                # The recommended options are ALREADY set: the chain's link-0 rolls your start region.
+                # random_start_region the OPTION is inert, but functionally you DO get a random start --
+                # so this is working as intended, not a problem. Info, not a warning.
+                info("random_start_region",
+                     f"the option itself is inert under the seal goal ({cause}), but "
+                     "num_regions_rune_source: pool + num_regions_chain are set, so the chain's link-0 "
+                     "already rolls your start region -- working as intended.")
+            elif nr > 0 and _pool:
+                # pool without chain: hub moves to Roundtable but you SPAWN at Roundtable, not in a
+                # rolled region. One step away from what random_start_region wants.
+                warn("random_start_region",
+                     f"inert under the seal goal ({cause}); num_regions_rune_source: pool moves the hub "
+                     "to Roundtable but you spawn AT Roundtable, not in a rolled region. Add "
+                     "num_regions_chain: true to spawn in the rolled link-0 region.")
+            else:
+                # Why: a seal goal prunes the world to a kept set with the goal boss inside it; a free
+                # random spawn could land in a SEALED region, so the apworld resets it and you start at
+                # The First Step regardless of this value.
+                msg = (f"IGNORED -- a region-seal goal is active ({cause}). random_start_region is "
+                       "silently reset to 'off' (the world is pruned to a kept set the goal boss must "
+                       "sit inside, and a free spawn could land in a sealed region). You'll start at "
+                       "The First Step (Limgrave).")
+                if nr > 0:
+                    msg += ("\n    Fix (num_regions runs): set num_regions_rune_source: pool to move the "
+                            "hub to Roundtable Hold, AND num_regions_chain: true to SPAWN in the rolled "
+                            "link-0 region. Caveat: pool re-runs the scope with no great-rune floor and "
+                            "can seal Altus->Leyndell -- gen-test before baking.")
+                else:
+                    msg += ("\n    No random-start path exists under this goal yet (the Roundtable re-root "
+                            "rides on num_regions). Drop random_start_region, or switch to a non-seal goal "
+                            "(elden_beast / final_boss / all_remembrances / all_bosses) to use it.")
+                warn("random_start_region", msg)
         if c.truthy("dlc_only"):
-            warn("random_start_region", "INERT under dlc_only (Gravesite is the fixed hub)")
+            warn("random_start_region", "INERT under dlc_only -- Gravesite is the fixed sphere-1 hub, "
+                 "so there is no overworld region to roll a start in.")
         if not lock_based:
-            err("random_start_region", "requires lock-based world_logic (region_lock / region_lock_bosses)")
+            err("random_start_region", "requires lock-based world_logic (region_lock / region_lock_bosses) "
+                f"-- you have world_logic: {wl}. The roll pre-collects a region's LOCK as the free hub, "
+                "which only exists when regions are lock-gated.")
 
     # 3) enemy_rando gates. NOTE: completion_scaling has a scale-only bake pass now, so it
     #    does NOT require enemy_rando; only the swap/runes/impolite toggles do.
