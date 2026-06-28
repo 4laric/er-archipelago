@@ -28,7 +28,8 @@
 [CmdletBinding()]
 param(
   [switch]$Execute,
-  [int]$KeepRecentGenSets = 3
+  [int]$KeepRecentGenSets = 3,
+  [switch]$BuildArtifacts
 )
 
 $ErrorActionPreference = 'Stop'
@@ -75,6 +76,51 @@ Remove-List (Old-Sets 'gendiag_*.txt')  "gendiag dumps (keep newest $KeepRecentG
 $bak = Get-ChildItem -File -Recurse -Filter '*.bak' -ErrorAction SilentlyContinue |
   Where-Object { $_.FullName -notmatch '\\seeds-archive\\' -and $_.FullName -notmatch '\\\.git\\' }
 Remove-List $bak 'loose *.bak (excl. seeds-archive)'
+
+# =====================================================================
+# BUCKET 1b -- SUBREPO regenerable cruft (tree-wide; SAFE patterns only)
+# Catches what the root sweep misses: tagged editor backups (*.bak_<tag>), __pycache__/*.pyc, and
+# diag dumps left in subdirs (e.g. Archipelago/worlds/eldenring). Excludes .git + seeds-archive.
+# These patterns NEVER match game data (regulation/.dcx/.msb/.bin) so sweeping SoulsRandomizers is
+# safe. Some are git-TRACKED (apworld .bak_* / ER_SPHERE_TIERS_*): Remove-Item deletes the working
+# copy; afterward run `git add -u` + commit in the affected repo (NEVER `git add -A` in SoulsRandomizers).
+# =====================================================================
+$PROTECT = '\\(\.git|seeds-archive)\\'
+
+$bakTagged = Get-ChildItem -File -Recurse -ErrorAction SilentlyContinue |
+  Where-Object { $_.Name -match '\.bak_' -and $_.FullName -notmatch $PROTECT }
+Remove-List $bakTagged 'tagged editor backups (*.bak_<tag>)'
+
+$diag = Get-ChildItem -File -Recurse -Include 'ER_SPHERE_TIERS_*.txt','ER_DIAG.txt' -ErrorAction SilentlyContinue |
+  Where-Object { $_.FullName -notmatch $PROTECT }
+Remove-List $diag 'subdir diag dumps (ER_SPHERE_TIERS_*/ER_DIAG.txt)'
+
+$pyc = Get-ChildItem -File -Recurse -Filter '*.pyc' -ErrorAction SilentlyContinue |
+  Where-Object { $_.FullName -notmatch $PROTECT }
+Remove-List $pyc 'compiled python (*.pyc)'
+
+$pycache = Get-ChildItem -Directory -Recurse -Filter '__pycache__' -ErrorAction SilentlyContinue |
+  Where-Object { $_.FullName -notmatch $PROTECT }
+if ($pycache) {
+  Write-Host "[__pycache__ dirs] $($pycache.Count)" -ForegroundColor Yellow
+  $pycache | ForEach-Object { Write-Host "    $($_.FullName.Replace($root,'.'))" -ForegroundColor DarkGray }
+  if ($Execute) { $pycache | Remove-Item -Recurse -Force }
+} else { Write-Host "[__pycache__ dirs] nothing to do" -ForegroundColor DarkGray }
+
+# OPT-IN heavy build artifacts (regenerable; deleting forces a rebuild). Rust target/ + .NET bin,obj.
+# Game-data dirs in SoulsRandomizers (event/msg/script/regulation.bin) are NOT named bin/obj/target.
+if ($BuildArtifacts) {
+  $builddirs = Get-ChildItem -Directory -Recurse -ErrorAction SilentlyContinue |
+    Where-Object { ($_.Name -in @('target','bin','obj')) -and $_.FullName -notmatch $PROTECT }
+  if ($builddirs) {
+    $sz = ($builddirs | ForEach-Object { (Get-ChildItem -Recurse -File $_.FullName -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum } | Measure-Object -Sum).Sum
+    Write-Host "[build artifacts] $($builddirs.Count) dirs, $([math]::Round($sz/1MB,2)) MB (Rust target/ + .NET bin,obj)" -ForegroundColor Yellow
+    $builddirs | ForEach-Object { Write-Host "    $($_.FullName.Replace($root,'.'))" -ForegroundColor DarkGray }
+    if ($Execute) { $builddirs | Remove-Item -Recurse -Force }
+  } else { Write-Host "[build artifacts] nothing to do" -ForegroundColor DarkGray }
+} else {
+  Write-Host "[build artifacts] skipped (pass -BuildArtifacts to also purge Rust target/ + .NET bin,obj)" -ForegroundColor DarkGray
+}
 
 # =====================================================================
 # BUCKET 2 -- finished TRACKED one-offs: ARCHIVE into archive\ (git mv)
