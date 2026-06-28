@@ -22,3 +22,7 @@
 	path = nightreign-enemy-rando
 	url = git@github.com:4laric/nightreign-enemy-rando.git
 	branch = master
+[submodule "SoulsFormatsNEXT"]
+	path = SoulsFormatsNEXT
+	url = git@github.com:fswap/SoulsFormatsNEXT.git
+	branch = master
