@@ -1,6 +1,7 @@
 # ER-Archipelago superrepo
 
-Makes this root a git repo that **submodules the 6 4laric forks** and **tracks the root tooling**
+Makes this root a git repo that **submodules the project forks** (8: the 6 4laric forks plus your
+Paramdex and yet-another-tab-control forks) and **tracks the root tooling**
 (build.ps1, push.ps1, the SPEC/BRIEF/TODO/HANDOFF docs, `poptracker/`, player yamls). Run once on
 Windows; git over the sandbox mount is unreliable, so this is a script you run, not something done
 in-session.
@@ -24,9 +25,15 @@ The script: `git init` (branch `main`) → for each fork `git submodule add --fo
 
 | | |
 |---|---|
-| **Submodules (6 forks)** | Archipelago `ap-sync-2026-06-13`, SoulsRandomizers `ap-sync-2026-06-13`, Dark-Souls-III-Archipelago-client `main`, SoulsFormats `dsms`, SoulsIds `ap-fixes`, nightreign-enemy-rando `master` |
+| **Submodules (8 forks)** | Archipelago `ap-sync-2026-06-13`, SoulsRandomizers `ap-sync-2026-06-13`, Dark-Souls-III-Archipelago-client `main`, SoulsFormats `dsms`, SoulsIds `ap-fixes`, nightreign-enemy-rando `master`, Paramdex `master`, yet-another-tab-control `master` |
 | **Tracked files** | build.ps1, push.ps1, all `*.md` (SPEC/BRIEF/TODO/HANDOFF/REFERENCE/TRIAGE/SYNC/NOTES/TESTPLAN), `poptracker/`, player `*.yaml`, `.gitignore`, `.gitmodules`, this doc |
-| **.gitignored** | `Paramdex/`, `yet-another-tab-control/` (third-party upstreams), `elden_ring_artifacts/` (copyrighted game exe), `gen-test/`, the Nexus package dir, `eldenring.apworld`, `apconfig.json`, `*.log`, `*.bak`, `*.tar.gz`, `__pycache__/` |
+| **.gitignored** | `elden_ring_artifacts/` (copyrighted game exe), `gen-test/`, the Nexus package dir, `eldenring.apworld`, `apconfig.json`, `*.log`, `*.bak`, `*.tar.gz`, `__pycache__/` |
+
+> **Paramdex / yet-another-tab-control point at your forks (`4laric/…`), not the upstreams.** They were
+> standalone clones before; they're now submodules so the local build patches (yatc's net6.0 retarget)
+> ride along in the lockfile. One-time migration: commit each fork's working tree and push it to your
+> 4laric remote *before* adding the submodule (or `push.recurseSubmodules=check` will reject the
+> superrepo push for an unreachable SHA). See "First-time migration" below.
 
 ## Before you run it (pin policy = current HEADs)
 
@@ -43,9 +50,7 @@ A submodule pins a **committed SHA**, so for a clean `clone --recursive` later:
 
 ```powershell
 git clone --recursive git@github.com:4laric/er-archipelago.git
-# the 2 upstreams are NOT submodules — re-clone them into the root:
-git clone https://github.com/soulsmods/Paramdex.git
-git clone https://github.com/thefifthmatt/yet-another-tab-control.git
+# Paramdex + yet-another-tab-control are now submodules (your 4laric forks) — --recursive brings them.
 # elden_ring_artifacts/ is gitignored (game exe) — copy it in from your own machine.
 ```
 (If you cloned without `--recursive`: `git submodule update --init --recursive`.)
@@ -84,6 +89,47 @@ command keeps all six forks at the locked versions), but **risky on your dev box
 that brings a new pointer will detach a submodule you're actively committing in. So the script leaves
 it OFF by default; run `init-superrepo.ps1 -AutoSyncSubmodules` on machines that only consume the repo.
 (You can always sync manually with `git submodule update --init --recursive`.)
+
+## First-time migration: Paramdex + yatc → your forks (run once, on Windows)
+
+These two were standalone clones of the public upstreams. Convert them to submodules backed by your
+own forks so the local build patches survive a clean clone. **Do this before** running/re-running
+`init-superrepo.ps1` (or pushing the superrepo). Forks `4laric/Paramdex` and
+`4laric/yet-another-tab-control` already exist on GitHub.
+
+```powershell
+cd <repo root>
+
+# --- yet-another-tab-control: has local edits (the net6.0 csproj retarget) — commit + push ---
+cd yet-another-tab-control
+git remote rename origin upstream                         # keep the upstream link
+git remote add origin git@github.com:4laric/yet-another-tab-control.git
+git status                                                # review what you're about to commit
+git add -u                                                # stage MODIFIED tracked files only (no bin/obj)
+git commit -m "AP build: SDK-style net6.0-windows retarget (GrayIris.Utilities)"
+git push -u origin master
+cd ..
+
+# --- Paramdex: clean working tree — just publish the branch to your fork ---
+cd Paramdex
+git remote rename origin upstream
+git remote add origin git@github.com:4laric/Paramdex.git
+git push -u origin master            # if it was a shallow clone and push complains:
+                                     #   git fetch --unshallow upstream ; then re-run the push
+cd ..
+
+# --- now register them as submodules (init-superrepo.ps1 does this for you; manual equivalent): ---
+git submodule add --force git@github.com:4laric/Paramdex.git Paramdex
+git submodule add --force git@github.com:4laric/yet-another-tab-control.git yet-another-tab-control
+git config -f .gitmodules submodule.Paramdex.branch master
+git config -f .gitmodules submodule.yet-another-tab-control.branch master
+git add .gitmodules .gitignore Paramdex yet-another-tab-control
+git commit -m "Track Paramdex and yet-another-tab-control as submodules (4laric forks)"
+```
+
+`git add -u` (not `-A`) keeps build artifacts out of the yatc commit. If you'd already run an earlier
+`git submodule add` pointing at the *upstream* URLs, repoint them:
+`git config -f .gitmodules submodule.<name>.url git@github.com:4laric/<name>.git ; git submodule sync`.
 
 ## Licensing (do not skip)
 

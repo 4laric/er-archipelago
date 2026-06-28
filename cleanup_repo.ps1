@@ -33,6 +33,9 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# PS 7.3+ turns a native command's non-zero exit into a terminating error under EAP=Stop;
+# git mv legitimately exits non-zero on untracked files, so opt out and handle exit codes ourselves.
+$PSNativeCommandUseErrorActionPreference = $false
 $root = $PSScriptRoot
 Set-Location $root
 $mode = if ($Execute) { 'EXECUTE' } else { 'DRY-RUN' }
@@ -72,39 +75,49 @@ Remove-List (Get-ChildItem -File @('boss-attribution-dryrun.csv','check-nearest-
 Remove-List (Old-Sets 'generate_*.log') "generate logs (keep newest $KeepRecentGenSets)"
 Remove-List (Old-Sets 'gendiag_*.txt')  "gendiag dumps (keep newest $KeepRecentGenSets)"
 
-# loose *.bak across the tree, EXCLUDING seeds-archive (intentional save backups)
-$bak = Get-ChildItem -File -Recurse -Filter '*.bak' -ErrorAction SilentlyContinue |
-  Where-Object { $_.FullName -notmatch '\\seeds-archive\\' -and $_.FullName -notmatch '\\\.git\\' }
-Remove-List $bak 'loose *.bak (excl. seeds-archive)'
-
 # =====================================================================
-# BUCKET 1b -- SUBREPO regenerable cruft (tree-wide; SAFE patterns only)
-# Catches what the root sweep misses: tagged editor backups (*.bak_<tag>), __pycache__/*.pyc, and
-# diag dumps left in subdirs (e.g. Archipelago/worlds/eldenring). Excludes .git + seeds-archive.
-# These patterns NEVER match game data (regulation/.dcx/.msb/.bin) so sweeping SoulsRandomizers is
-# safe. Some are git-TRACKED (apworld .bak_* / ER_SPHERE_TIERS_*): Remove-Item deletes the working
-# copy; afterward run `git add -u` + commit in the affected repo (NEVER `git add -A` in SoulsRandomizers).
+# BUCKET 1b -- SUBREPO regenerable cruft, via ONE prune-aware tree walk.
+# Single pass (was ~5 separate full-tree Get-ChildItem -Recurse passes) that SKIPS the
+# giant vendored / vcs dirs entirely: vanilla-game-snapshot (~55k files), elden_ring_artifacts,
+# Paramdex, the Nexus download, seeds-archive (intentional saves), .git, gen-test. None of those
+# hold *.bak/*.pyc/__pycache__ cruft, so pruning them is safe and MUCH faster.
+# Patterns NEVER match game data (regulation/.dcx/.msb/.bin); sweeping SoulsRandomizers stays safe.
+# Some hits are git-TRACKED (.bak_* / ER_SPHERE_TIERS_*): Remove-Item deletes the working copy;
+# afterward `git add -u` + commit in the affected repo (NEVER `git add -A` in SoulsRandomizers).
 # =====================================================================
-$PROTECT = '\\(\.git|seeds-archive)\\'
+$PROTECT = '\\(\.git|seeds-archive)\\'   # retained for the BuildArtifacts block below
+$PRUNE = @('.git','seeds-archive','vanilla-game-snapshot','elden_ring_artifacts','Paramdex',
+           'gen-test','node_modules','Elden Ring Randomizer-428-v0-11-4-1763103112 (2)','yet-another-tab-control')
 
-$bakTagged = Get-ChildItem -File -Recurse -ErrorAction SilentlyContinue |
-  Where-Object { $_.Name -match '\.bak_' -and $_.FullName -notmatch $PROTECT }
-Remove-List $bakTagged 'tagged editor backups (*.bak_<tag>)'
+$walkFiles   = [System.Collections.Generic.List[object]]::new()
+$walkPycache = [System.Collections.Generic.List[object]]::new()
+$stack = [System.Collections.Generic.Stack[string]]::new()
+$stack.Push($root)
+while ($stack.Count) {
+  $dir = $stack.Pop()
+  foreach ($e in Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue) {
+    if ($e.PSIsContainer) {
+      if ($PRUNE -contains $e.Name) { continue }
+      if ($e.Name -eq '__pycache__') { $walkPycache.Add($e); continue }   # collect; don't descend
+      $stack.Push($e.FullName)
+    } else { $walkFiles.Add($e) }
+  }
+}
 
-$diag = Get-ChildItem -File -Recurse -Include 'ER_SPHERE_TIERS_*.txt','ER_DIAG.txt' -ErrorAction SilentlyContinue |
-  Where-Object { $_.FullName -notmatch $PROTECT }
-Remove-List $diag 'subdir diag dumps (ER_SPHERE_TIERS_*/ER_DIAG.txt)'
+# loose *.bak (seeds-archive already pruned out of the walk)
+Remove-List ($walkFiles | Where-Object { $_.Extension -eq '.bak' }) 'loose *.bak (excl. seeds-archive)'
+# tagged editor backups *.bak_<tag>
+Remove-List ($walkFiles | Where-Object { $_.Name -match '\.bak_' }) 'tagged editor backups (*.bak_<tag>)'
+# subdir diag dumps
+Remove-List ($walkFiles | Where-Object { $_.Name -eq 'ER_DIAG.txt' -or $_.Name -like 'ER_SPHERE_TIERS_*.txt' }) 'subdir diag dumps (ER_SPHERE_TIERS_*/ER_DIAG.txt)'
+# compiled python
+Remove-List ($walkFiles | Where-Object { $_.Extension -eq '.pyc' }) 'compiled python (*.pyc)'
 
-$pyc = Get-ChildItem -File -Recurse -Filter '*.pyc' -ErrorAction SilentlyContinue |
-  Where-Object { $_.FullName -notmatch $PROTECT }
-Remove-List $pyc 'compiled python (*.pyc)'
-
-$pycache = Get-ChildItem -Directory -Recurse -Filter '__pycache__' -ErrorAction SilentlyContinue |
-  Where-Object { $_.FullName -notmatch $PROTECT }
-if ($pycache) {
-  Write-Host "[__pycache__ dirs] $($pycache.Count)" -ForegroundColor Yellow
-  $pycache | ForEach-Object { Write-Host "    $($_.FullName.Replace($root,'.'))" -ForegroundColor DarkGray }
-  if ($Execute) { $pycache | Remove-Item -Recurse -Force }
+# __pycache__ dirs (collected during the same walk)
+if ($walkPycache.Count) {
+  Write-Host "[__pycache__ dirs] $($walkPycache.Count)" -ForegroundColor Yellow
+  $walkPycache | ForEach-Object { Write-Host "    $($_.FullName.Replace($root,'.'))" -ForegroundColor DarkGray }
+  if ($Execute) { $walkPycache | Remove-Item -Recurse -Force }
 } else { Write-Host "[__pycache__ dirs] nothing to do" -ForegroundColor DarkGray }
 
 # OPT-IN heavy build artifacts (regenerable; deleting forces a rebuild). Rust target/ + .NET bin,obj.
@@ -135,8 +148,12 @@ function Archive-List($files, $destSub, $label) {
     Write-Host "    $($f.Name)" -ForegroundColor DarkGray
     if ($Execute) {
       $old = $f.FullName; $new = Join-Path $dest $f.Name
-      git mv -- "$old" "$new" 2>$null
-      if ($LASTEXITCODE -ne 0) { Move-Item -Force -- "$old" "$new" }  # untracked -> plain move
+      $moved = $false
+      try {
+        git ls-files --error-unmatch -- "$old" 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) { git mv -f -- "$old" "$new" 2>$null; $moved = ($LASTEXITCODE -eq 0) }
+      } catch { $moved = $false }
+      if (-not $moved) { Move-Item -Force -- "$old" "$new" }  # untracked or git mv failed -> plain move
     }
   }
 }
@@ -156,13 +173,14 @@ $staleDocs = Get-ChildItem -File 'PR-*.md','PATCH-*.md','FINDING-*.md','NOTES-*.
 Archive-List $staleDocs 'docs' 'superseded working docs'
 
 # =====================================================================
-# BUCKET 3 -- root patch_*.py: REVIEW ONLY (NOT archived -- may be pending)
+# BUCKET 3 -- root patch_*.py: ARCHIVE ALL into archive\patches\ (git mv)
+# Archives EVERY root patch_*.py regardless of applied/pending state. Some may be
+# 'needs run/build' per MEMORY.md -- moving them out of root is the ACCEPTED RISK
+# (relocated, not deleted; update any refs to the new archive\patches\ path).
 # =====================================================================
-Write-Host "`n--- REVIEW: root patch_*.py (NOT touched; several are 'needs run/build' per MEMORY.md) ---" -ForegroundColor Cyan
 $rootPatches = Get-ChildItem -File 'patch_*.py' -ErrorAction SilentlyContinue
-Write-Host "$($rootPatches.Count) patches -- archive by hand once applied+committed:" -ForegroundColor Yellow
-$rootPatches | ForEach-Object { Write-Host "    $($_.Name)" -ForegroundColor DarkGray }
+Archive-List $rootPatches 'patches' 'root patch_*.py (ALL)'
 
 Write-Host "`n=== done ($mode) ===" -ForegroundColor Cyan
 if ($Execute) { Write-Host ("freed {0} MB; one-offs archived" -f [math]::Round($freed/1MB,2)) -ForegroundColor Green }
-else { Write-Host "re-run with -Execute to purge Bucket 1 + archive Bucket 2. Bucket 3 stays for manual review." -ForegroundColor Green }
+else { Write-Host "re-run with -Execute to purge Bucket 1 + archive Buckets 2 & 3 (incl. ALL root patch_*.py)." -ForegroundColor Green }

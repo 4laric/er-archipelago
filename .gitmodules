@@ -26,3 +26,9 @@
 	path = SoulsFormatsNEXT
 	url = git@github.com:fswap/SoulsFormatsNEXT.git
 	branch = master
+[submodule "Paramdex"]
+	path = Paramdex
+	url = .\\Paramdex\\
+[submodule "yet-another-tab-control"]
+	path = yet-another-tab-control
+	url = .\\yet-another-tab-control\\

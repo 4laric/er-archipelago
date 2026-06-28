@@ -1,12 +1,14 @@
 <#
 .SYNOPSIS
-  Turn the er-archipelago root into a git "superrepo" that submodules the 6 4laric forks and
+  Turn the er-archipelago root into a git "superrepo" that submodules the project forks and
   tracks the root tooling/docs (build.ps1, push.ps1, SPEC/BRIEF/TODO docs, poptracker/, player yamls).
 
 .DESCRIPTION
   - Submodules (at their CURRENT committed HEAD): Archipelago, SoulsRandomizers,
-    Dark-Souls-III-Archipelago-client, SoulsFormats, SoulsIds, nightreign-enemy-rando.
-  - The 2 third-party upstreams (Paramdex, yet-another-tab-control) are .gitignored, NOT submoduled.
+    Dark-Souls-III-Archipelago-client, SoulsFormats, SoulsIds, nightreign-enemy-rando,
+    Paramdex, yet-another-tab-control.
+  - Paramdex and yet-another-tab-control point at YOUR forks (4laric), not the upstreams, so the
+    local build patches (yatc's net6.0 retarget) travel with the lockfile. Push those forks first.
   - Generated/large/copyright files are .gitignored (see .gitignore).
   - Reuses each existing local clone (git submodule add --force) instead of re-cloning.
 
@@ -43,7 +45,7 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
-# path => @{ url; branch }   (order preserved; only the 6 4laric forks)
+# path => @{ url; branch }   (order preserved; all point at 4laric forks)
 $subs = [ordered]@{
     "Archipelago"                       = @{ url = "git@github.com:4laric/Archipelago.git";                       branch = "ap-sync-2026-06-13" }
     "SoulsRandomizers"                  = @{ url = "git@github.com:4laric/SoulsRandomizers.git";                  branch = "ap-sync-2026-06-13" }
@@ -51,6 +53,9 @@ $subs = [ordered]@{
     "SoulsFormats"                      = @{ url = "git@github.com:4laric/SoulsFormats.git";                      branch = "dsms" }
     "SoulsIds"                          = @{ url = "git@github.com:4laric/SoulsIds.git";                          branch = "ap-fixes" }
     "nightreign-enemy-rando"            = @{ url = "git@github.com:4laric/nightreign-enemy-rando.git";            branch = "master" }
+    # Forks of the third-party upstreams — keep the local build patches in the lockfile.
+    "Paramdex"                          = @{ url = "git@github.com:4laric/Paramdex.git";                          branch = "master" }
+    "yet-another-tab-control"           = @{ url = "git@github.com:4laric/yet-another-tab-control.git";           branch = "master" }
 }
 
 function Run([string]$cmd) {

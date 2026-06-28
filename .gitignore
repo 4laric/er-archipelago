@@ -1,10 +1,6 @@
 # ER-Archipelago superrepo .gitignore
-# The 6 4laric forks are SUBMODULES (tracked by gitlink, not by content here).
-# Everything below is deliberately NOT committed to the superrepo.
-
-# --- third-party upstream deps: re-clone manually, see SUPERREPO-SETUP.md ---
-/Paramdex/
-/yet-another-tab-control/
+# The forks are SUBMODULES (tracked by gitlink, not by content here): the 6 4laric forks
+# plus your Paramdex and yet-another-tab-control forks. Everything below is NOT committed.
 
 # --- non-repo vendored / large dirs ---
 # Contains the copyrighted game exe + vanilla param dumps. NEVER commit (licensing).
