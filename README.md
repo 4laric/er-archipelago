@@ -39,15 +39,13 @@ Full submodule mechanics are in **`SUPERREPO-SETUP.md`** — read it; the short 
 ```powershell
 git clone --recursive git@github.com:4laric/er-archipelago.git
 cd er-archipelago
-
-# the 2 upstreams are NOT submodules — clone them into the root:
-git clone https://github.com/soulsmods/Paramdex.git
-git clone https://github.com/thefifthmatt/yet-another-tab-control.git
 ```
 
-`elden_ring_artifacts/` (game-derived files, e.g. `oo2core_*.dll`) is gitignored — copy it in from a working machine. If you cloned without `--recursive`: `git submodule update --init --recursive`.
+All dependency forks — including Paramdex and yet-another-tab-control — are submodules, so `--recursive` brings them in (with their build patches already baked into the forks). If you cloned without `--recursive`: `git submodule update --init --recursive`.
 
-The build references the dependency forks as **siblings of `SoulsRandomizers`** (`..\SoulsFormats`, `..\SoulsIds`, `..\yet-another-tab-control`); the recursive clone places them correctly. A handful of small, environment-local dep patches may be needed on a fresh clone (SoulsFormats/SoulsIds shims) — ask me for the current set if a clean `-Randomizer` build doesn't go green.
+`elden_ring_artifacts/` (game-derived files, e.g. `oo2core_*.dll`) is gitignored — copy it in from a working machine.
+
+The build references the dependency forks as **siblings of `SoulsRandomizers`** (`..\SoulsFormats`, `..\SoulsIds`, `..\yet-another-tab-control`); the recursive clone places them correctly. If a clean `-Randomizer` build doesn't go green on a fresh clone, ask me — there may be an environment-local dep shim that isn't yet committed to a fork.
 
 ---
 

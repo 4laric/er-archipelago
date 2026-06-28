@@ -137,3 +137,6 @@ git commit -m "Track Paramdex and yet-another-tab-control as submodules (4laric 
 submodule URL appears in `.gitmodules`, so **keep the superrepo private** if you push it. The
 contents aren't in the superrepo (only a gitlink + URL), but don't make this repo public while it
 references the private fork.
+
+Your `Paramdex` and `yet-another-tab-control` forks are forks of permissively-licensed upstreams, so
+those can stay public — only `SoulsRandomizers` gates the superrepo's visibility.
