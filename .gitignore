@@ -57,3 +57,13 @@ ap_error_*.txt
 ap-client-log.txt
 _dg_tmp.py
 .write_test_xyz
+
+# --- vendored / scratch dirs that must NOT be committed to the superrepo ---
+# Vanilla game data dump (copyrighted; same rule as /elden_ring_artifacts/). NEVER commit.
+/vanilla-game-snapshot/
+# PR-prep scratch (duplicate source copies + draft bodies/plans).
+/fswap-er-client-pr/
+# Third-party Seamless Co-op mod config.
+/seamless-coop/
+# SoulsFormatsNEXT CI scratch (build.yml + PR helper).
+/soulsformatsnext-ci/
