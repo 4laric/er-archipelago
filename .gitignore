@@ -15,12 +15,16 @@
 /Elden Ring Randomizer-428-v0-11-4-1763103112 (2)/
 
 # --- generated / build outputs ---
-eldenring_*.apworld          # packaged apworld (rebuilt by build.ps1)
+# packaged apworld (rebuilt by build.ps1) -- comment on its own line; inline # breaks the pattern
+eldenring.apworld
+eldenring_*.apworld
 gensweep*
-apconfig.json              # bake output (slot/seed/location_flags)
+# bake output (slot/seed/location_flags)
+apconfig.json
 preflight_*.log
 *.log
-gendiag_*.txt              # per-gen compact diagnostic (dlcdiag.py output; raw .log already ignored)
+# per-gen compact diagnostic (dlcdiag.py output; raw .log already ignored)
+gendiag_*.txt
 
 # --- backups / archives ---
 *.bak
@@ -35,3 +39,21 @@ __pycache__/
 boss-attribution-dryrun.csv
 check-nearest-grace.csv
 smithing_stone_distribution.csv
+
+# --- tagged editor backups (the *.bak rule above misses *.bak_<tag>) ---
+*.bak_*
+
+# --- diag dumps (apworld gen / sphere-tier) ---
+ER_DIAG.txt
+ER_SPHERE_TIERS_*.txt
+
+# --- Rust build output (rust-client-spike / fswap-er-client-pr crates) ---
+target/
+
+
+# --- AP run logs / probe temp (were committed before these rules existed) ---
+ap_bake_*.log
+ap_error_*.txt
+ap-client-log.txt
+_dg_tmp.py
+.write_test_xyz
