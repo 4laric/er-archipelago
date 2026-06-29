@@ -2,10 +2,6 @@
 	path = Archipelago
 	url = git@github.com:4laric/Archipelago.git
 	branch = ap-sync-2026-06-13
-[submodule "SoulsRandomizers"]
-	path = SoulsRandomizers
-	url = git@github.com:4laric/SoulsRandomizers.git
-	branch = ap-sync-2026-06-13
 [submodule "Dark-Souls-III-Archipelago-client"]
 	path = Dark-Souls-III-Archipelago-client
 	url = git@github.com:4laric/Dark-Souls-III-Archipelago-client.git
