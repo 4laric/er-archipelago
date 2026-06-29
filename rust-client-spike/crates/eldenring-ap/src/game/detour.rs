@@ -19,7 +19,9 @@ use std::sync::OnceLock;
 
 use retour::GenericDetour;
 
-use er_codec::{decide_pickup, decode_synthetic, is_synthetic_goods, row_id_of, PickupAction};
+use er_codec::{decode_synthetic, is_synthetic_goods, row_id_of};
+use er_logic::vanilla_suppress::VanillaSuppressor;
+use er_logic::detour_decide::{decide_detour_action, DetourAction};
 
 use super::{flags, params};
 
@@ -35,6 +37,21 @@ static HOOK: OnceLock<GenericDetour<AddItemFn>> = OnceLock::new();
 /// Phase 4 reuses it to grant SERVER-pushed items (which never trigger a pickup) without a
 /// separate InventoryAccessor AOB scan — the detour already holds the pointer the game uses.
 static LAST_INVENTORY: AtomicUsize = AtomicUsize::new(0);
+
+/// Pure-runtime (no-baker) vanilla-suppression table. In vanilla placement the lot at an AP check
+/// still carries its real vanilla item; the acquisition FLAG is set by the ItemLot/EMEVD path
+/// (polled by `flags::poll_location_checks`), independently of `AddItemFunc`. So we can null the
+/// bag-add for a check item without losing detection. The *decision* lives in pure `er-logic`
+/// (`VanillaSuppressor`, host-tested); this holder is set once at connect via `configure_suppressor`.
+/// `None` until configured -> the detour behaves exactly as before (no suppression).
+static SUPPRESSOR: OnceLock<VanillaSuppressor> = OnceLock::new();
+
+/// Called from the connect path (net.rs), beside the `LocationChecks` setup: install the vanilla
+/// suppression table. Idempotent (`OnceLock::set` ignores a second call) — built once per process.
+#[allow(dead_code)]
+pub fn configure_suppressor(sup: VanillaSuppressor) {
+    let _ = SUPPRESSOR.set(sup);
+}
 
 // --- AddItemFunc binding (er_hooks.h, eldenring.exe 2.6.2.0) --------------------------------------
 const ADD_ITEM_FUNC_RVA: usize = 0x0056_05B0;
@@ -102,38 +119,23 @@ unsafe extern "C" fn add_item_detour(
     // SAFETY: `entry` is the descriptor the game passes (rdx); id at entry+0x04.
     let raw_id = read_i32(entry, ITEMBUF_ENTRY_ID_OFF) as u32;
 
-    if !is_synthetic_goods(raw_id) {
-        return call_original(inventory, entry, itembuf, r9);
-    }
-
-    match params::goods_row_fields(row_id_of(raw_id) as i32) {
-        Some(fields) => {
-            let item = decode_synthetic(&fields);
-            tracing::info!(
-                "AP check: synthetic goods {raw_id:#x} -> location {} (local item {} x{}, foreign={})",
-                item.ap_location_id,
-                item.local_item_id,
-                item.local_quantity,
-                item.foreign_remove
-            );
-            // REPORT: every synthetic pickup is an AP check, local or foreign.
-            flags::report_location(item.ap_location_id);
-
-            // SUPPRESS the world pickup (return 0 -> no "You got" popup) and rely on the SERVER ECHO
-            // for the grant: items_handling 0b111 (own_world=true, net.rs) re-sends every own-world
-            // item when its location is checked, and that single echoed copy is granted by
-            // `grant_full_id` off the received-item stream (deduped by last_received_index). Granting
-            // LOCALLY here as well (the Phase-3 `SuppressAndGrant`) double-granted every self-found
-            // item once the echo path went live in Phase 4/5. Echo-only is also why shop-buys work:
-            // they bypass this detour, get reported via flag-polling, and grant through the same echo.
-            // (Matches the C++ client, which suppresses + reports and never grants locally.)
-            match decide_pickup(&item) {
-                PickupAction::SuppressAndGrant | PickupAction::Suppress => 0,
-            }
+    // Pure-runtime decision (host-tested in er_logic::detour_decide). `resolve` wraps the synthetic
+    // check + params row read + decode, returning the AP location id or None (not-synthetic OR
+    // unresolved both pass through). Suppression short-circuits before any synthetic handling.
+    let resolve = |id: i32| -> Option<i64> {
+        if !is_synthetic_goods(id as u32) {
+            return None;
         }
-        None => {
-            tracing::warn!("synthetic id {raw_id:#x} but goods row unresolved; passing through");
-            call_original(inventory, entry, itembuf, r9)
+        let fields = params::goods_row_fields(row_id_of(id as u32) as i32)?;
+        Some(decode_synthetic(&fields).ap_location_id)
+    };
+    match decide_detour_action(raw_id as i32, SUPPRESSOR.get(), &flags::get_event_flag, &resolve) {
+        DetourAction::Suppress => 0,
+        DetourAction::PassThrough => call_original(inventory, entry, itembuf, r9),
+        DetourAction::ReportThenSuppress(loc) => {
+            tracing::info!("AP check: synthetic goods {raw_id:#x} -> location {loc}");
+            flags::report_location(loc);
+            0
         }
     }
 }

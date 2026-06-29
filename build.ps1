@@ -6,6 +6,7 @@
 #   .\build.ps1 -Rust                    # build + test the Rust client spike (cargo test + cdylib for x86_64-pc-windows-msvc)
 #   .\build.ps1 -RustDeploy              # swap the Rust client into mods\ (parks the C++ archipelago.dll; EML loads one client)
 #   .\build.ps1 -CppRestore              # swap back to the C++ client (parks eldenring_ap.dll)
+#   .\build.ps1 -PureRuntime  (-Mvp)     # SoulsRandomizers-FREE MVP: apworld patches -> Generate -> build+deploy Rust client; NO bake/regulation/overlays (game runs vanilla, client flag-polls slot_data)
 #   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py; REQUIRED after apworld changes)
 #   .\build.ps1 -Serve                   # launch the AP server on the newest output zip (new window)
 #   .\build.ps1 -Bake                    # launch the randomizer GUI w/ autoconnect (item rando only)
@@ -37,6 +38,8 @@ param(
     [switch]$Rust,             # build + test the Rust client spike (rust-client-spike); NOT part of -All
     [switch]$RustDeploy,       # swap the Rust client DLL into mods\ (parks the C++ archipelago.dll)
     [switch]$CppRestore,       # swap back to the C++ client (parks eldenring_ap.dll)
+    [Alias('Mvp')]
+    [switch]$PureRuntime,      # SoulsRandomizers-FREE MVP loop: apworld patches -> Generate -> build+deploy Rust client (NO bake/regulation/overlays). Game runs vanilla; client flag-polls slot_data.
     [switch]$ApEnable,         # build the randomizer out of the er-ap-enable scratch (C:\er-ap-build, fswap deps)
     [switch]$Generate,
     [int]$GenRetries = 2,            # genretry: gen re-roll attempts on a seed-dependent FillError (0 = off)
@@ -47,6 +50,7 @@ param(
     [switch]$Deploy,
     [switch]$CleanDeploy,      # restore Game\{event,map,msg,script,menu} to vanilla (snapshot) BEFORE overlaying the bake -- stops stale-file leak (e.g. a prior enemy bake's map\ MSBs hanging the new-game load)
     [switch]$SnapshotVanilla,  # capture a pristine vanilla snapshot of those dirs (run ONCE right after a fresh UXM unpack, before any deploy)
+    [switch]$RestoreVanilla,   # restore Game\{event,map,msg,script,menu}+regulation.bin to vanilla from the snapshot, then STOP (no overlay/bake) -- for a clean pure-runtime MVP run
     [switch]$Apworld,
     [switch]$NoCrashFix,
     [switch]$Helper,
@@ -93,6 +97,17 @@ if ($All -or $NoClient) {
 
 # -CleanDeploy implies -Deploy (the vanilla-restore runs inside the deploy step below).
 if ($CleanDeploy) { $Deploy = $true }
+
+# -PureRuntime (-Mvp): the SoulsRandomizers-FREE MVP loop. Reuses the existing -Generate / -Rust /
+# -RustDeploy steps and adds an apworld-patch step (handled in its own block below). It deliberately
+# does NOT enable -Randomizer/-Client/-Bake/-Serve/-Deploy: the game runs VANILLA (no regulation/
+# event/msg/script/map overlays, no bake). Detection is flag-poll from slot_data; grants come from
+# the AP server; the Rust client (eldenring_ap.dll) is the only deployed artifact.
+if ($PureRuntime) {
+    $Generate   = $true   # gen so slot_data carries locationFlags/checkItemIds/checkItemFlags
+    $Rust       = $true   # build the Rust client cdylib
+    $RustDeploy = $true   # swap it into mods\ (parks the C++ archipelago.dll)
+}
 
 # ----- config ---------------------------------------------------------------------------------
 $Repo     = $PSScriptRoot
@@ -172,7 +187,7 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $All -or $SnapshotVanilla -or $CleanDeploy)) {
+if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $PureRuntime -or $All -or $SnapshotVanilla -or $CleanDeploy -or $RestoreVanilla)) {
     Get-Content $PSCommandPath | Select-Object -Skip 1 -First 20 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
@@ -251,8 +266,13 @@ if ($Rust) {
         Step "  cargo test (pure-logic contract: er-codec golden vectors + er-semver gate)"
         cargo test
         if ($LASTEXITCODE -ne 0) { throw "cargo test failed -- a pure-logic test broke OR the game module did not compile (resolve against VERIFY-RESOLUTION.md). See output above." }
-        Step "  cargo build --release --target $RustTarget (injected cdylib)"
-        cargo build --release --target $RustTarget
+        # -PureRuntime narrows the cdylib build to the eldenring-ap crate with the net feature
+        # explicit (the MVP flag-poll + server-grant path). Default -Rust keeps the original
+        # whole-workspace release build (net/detour already ride the crate's default features).
+        $cargoBuildArgs = @("build", "--release", "--target", $RustTarget)
+        if ($PureRuntime) { $cargoBuildArgs += @("-p", "eldenring-ap", "--features", "net") }
+        Step ("  cargo {0} (injected cdylib)" -f ($cargoBuildArgs -join ' '))
+        cargo @cargoBuildArgs
         if ($LASTEXITCODE -ne 0) { throw "cargo build failed -- the in-process game module likely needs a // VERIFY fix (see VERIFY-RESOLUTION.md)." }
     } finally { Pop-Location }
     if (-not (Test-Path $RustDll)) { throw "build reported success but DLL not found: $RustDll" }
@@ -311,6 +331,30 @@ if ($CppRestore) {
         Write-Warning "no archipelago.dll(.disabled) in $ModsDir -- run -Deploy (with -Client) to place it"
     }
     Write-Host "  Active client: C++."
+}
+
+# ----- pure-runtime apworld patches (MVP only) ------------------------------------------------
+# The SoulsRandomizers-FREE MVP needs the apworld itself to emit the detection/suppression data
+# that the (now retired-for-MVP) baker used to bake into apconfig.json. These two idempotent,
+# CRLF-safe patches edit Archipelago\worlds\eldenring\__init__.py to add to slot_data:
+#   * locationFlags   (location_id -> vanilla acquisition flag) -- the flag-poll table
+#   * checkItemIds / checkItemFlags -- the vanilla-item suppression table
+# Both default REPO_ROOT to this repo; we pass $Repo explicitly so the path is unambiguous. They
+# back up __init__.py (.bak_p1lf / .bak_pci) and no-op on re-run, so this is safe every invocation.
+# MUST run BEFORE -Generate so the freshly-generated slot_data carries these keys.
+if ($PureRuntime) {
+    Step "PureRuntime: applying apworld slot_data patches (idempotent)"
+    if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+        throw "python not found on PATH -- the apworld patches and Generate.py both need it."
+    }
+    foreach ($p in @("patch_apworld_location_flags.py", "patch_apworld_check_items.py")) {
+        $patchPath = Join-Path $Repo $p
+        if (-not (Test-Path $patchPath)) { throw "apworld patch not found: $patchPath" }
+        Write-Host "  python $p $Repo"
+        python $patchPath $Repo
+        if ($LASTEXITCODE -ne 0) { throw "$p failed (exit $LASTEXITCODE) -- see output above." }
+    }
+    Write-Host "  apworld now emits locationFlags / checkItemIds / checkItemFlags in slot_data." -ForegroundColor Green
 }
 
 # ----- generate multiworld --------------------------------------------------------------------
@@ -493,8 +537,42 @@ if ($SnapshotVanilla) {
             if ($LASTEXITCODE -ge 8) { throw "robocopy failed snapshotting $dir (exit $LASTEXITCODE)" }
         } else { Write-Warning "  $dir\ not found under $AssetDir -- skipped" }
     }
+    $regSnapSrc = Join-Path $AssetDir "regulation.bin"
+    if (Test-Path $regSnapSrc) {
+        Copy-Item $regSnapSrc (Join-Path $VanillaSnap "regulation.bin") -Force
+        Write-Host "  snapshotting regulation.bin ..."
+    } else { Write-Warning "  regulation.bin not found under $AssetDir -- snapshot will lack it (RestoreVanilla won't restore regulation)" }
     $global:LASTEXITCODE = 0
     Write-Host "  vanilla snapshot captured ($VanillaSnap). Re-run -SnapshotVanilla after any future UXM re-unpack."
+}
+
+# ----- restore vanilla (pure-runtime MVP) -----------------------------------------------------
+# Restore the overlay dirs AND regulation.bin to vanilla from the snapshot, then STOP -- no
+# overlay, no bake. Guarantees a truly-vanilla game for a -PureRuntime run (so detection polls
+# the vanilla flags and the suppressor matches the vanilla item ids).
+if ($RestoreVanilla) {
+    if (-not (Test-Path $VanillaSnap)) {
+        throw "RestoreVanilla needs a vanilla snapshot at $VanillaSnap. Capture once on a pristine install: .\build.ps1 -SnapshotVanilla"
+    }
+    Step "RestoreVanilla: restoring overlay dirs + regulation.bin to vanilla from snapshot"
+    foreach ($dir in $OverlayDirs) {
+        $snap = Join-Path $VanillaSnap $dir
+        $live = Join-Path $AssetDir $dir
+        if (Test-Path $snap) {
+            robocopy $snap $live /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
+            if ($LASTEXITCODE -ge 8) { throw "robocopy failed restoring $dir (exit $LASTEXITCODE)" }
+            Write-Host "  restored $dir\ to vanilla"
+        } else { Write-Warning "  snapshot lacks $dir\ -- skipped" }
+    }
+    $global:LASTEXITCODE = 0
+    $regSnap = Join-Path $VanillaSnap "regulation.bin"
+    if (Test-Path $regSnap) {
+        Copy-Item $regSnap (Join-Path $AssetDir "regulation.bin") -Force
+        Write-Host "  restored regulation.bin to vanilla"
+    } else {
+        Write-Warning "  snapshot lacks regulation.bin -- re-run -SnapshotVanilla on a pristine install, or restore regulation.bin via Steam 'Verify integrity of game files'"
+    }
+    Write-Host "  vanilla restore complete -- game files pristine (no overlay/bake applied)."
 }
 
 if ($Deploy) {
@@ -778,4 +856,39 @@ if ($LoopTest) {
     $okCount = @($results | Where-Object { $_.status -like 'OK*' }).Count
     $col = if ($okCount -eq $results.Count) { 'Green' } else { 'Yellow' }
     Write-Host ("  {0}/{1} bakes matched the generated seed" -f $okCount, $results.Count) -ForegroundColor $col
+}
+
+# ----- pure-runtime: launch server + final instructions (MVP only) ----------------------------
+# Runs LAST, after the apworld patches, -Generate, -Rust and -RustDeploy have completed. There is
+# NO bake and NO Game\ overlay deploy in this path -- the game runs vanilla; the only deployed
+# artifact is mods\eldenring_ap.dll (placed by -RustDeploy above). All this step does is start the
+# AP server on the freshly-generated zip (reusing the same Start-Server38281 helper -Serve uses) and
+# print the manual run steps.
+if ($PureRuntime) {
+    Step "PureRuntime: SoulsRandomizers-free MVP ready"
+    $zip = Get-ChildItem (Join-Path $ApDir "output") -Filter "AP_*.zip" -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (-not $zip) { throw "no multiworld zip in $ApDir\output -- did -Generate run? (PureRuntime expects it)" }
+
+    $inUse = Get-NetTCPConnection -LocalPort 38281 -State Listen -ErrorAction SilentlyContinue
+    if ($inUse) {
+        Write-Warning "port 38281 already has a listener -- an OLD server is probably still running. Close it and re-launch, or the client will connect to the wrong seed."
+    } else {
+        Write-Host "  launching AP server (new window): $($zip.Name)"
+        Start-Server38281 $zip.FullName   # same helper -Serve/-LoopTest use; waits until :38281 is listening
+        Write-Host "  server is listening on 38281" -ForegroundColor Green
+    }
+
+    Write-Host "`nMVP deployed (NO bake, NO regulation/event/msg/script/map overlays):" -ForegroundColor Green
+    Write-Host "  - Rust client : $ModsDir\eldenring_ap.dll  (C++ archipelago.dll parked as .disabled)"
+    Write-Host "  - Multiworld  : $($zip.FullName)"
+    Write-Host "  - AP server   : localhost:38281"
+    Write-Host "`nTo play:" -ForegroundColor Cyan
+    Write-Host "  1. Launch ELDEN RING via Elden Mod Loader (vanilla game files -- nothing baked into Game\)."
+    Write-Host "  2. The Rust client connects to localhost:38281 and detects checks by flag-polling slot_data"
+    Write-Host "     (locationFlags), suppressing vanilla check items (checkItemIds/checkItemFlags) and"
+    Write-Host "     granting AP items from the server."
+    Write-Host "  3. If the server window above didn't open (port busy), start it yourself from $ApDir :"
+    Write-Host "       python MultiServer.py `"$($zip.FullName)`""
+    Write-Host "`nRestore the C++ client + normal baked pipeline later with:  .\build.ps1 -CppRestore" -ForegroundColor DarkGray
 }

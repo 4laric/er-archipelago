@@ -13,6 +13,9 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 er-codec = { path = "../er-codec" }
 er-semver = { path = "../er-semver" }
+# Pure, host-tested decision logic (no game/windows deps), incl. the pure-runtime location-check
+# detection (`location_check::LocationChecks`) and vanilla-suppression table (`vanilla_suppress`).
+er-logic = { path = "../er-logic" }
 
 # Windows-only, in-process dependencies. Target-gated so `cargo build`/`test` works on Linux/macOS.
 # Versions are indicative — pin against fswap's workspace + crates.io at spike time (see SPEC §8).
@@ -41,6 +44,9 @@ serde_json = "1"
 # features pull rustls + native-tls (the crate tries rustls first, falls back to native-tls, then
 # plain ws). Off-by-default `net` feature.
 archipelago_rs = { version = "2.1.1", optional = true }
+# Scout result is delivered via a oneshot channel (archipelago_rs hands back oneshot::Receiver from
+# scout_locations). Match archipelago_rs's pin (third_party/archipelago_rs Cargo.toml: 0.2.1, std).
+oneshot = { version = "0.2.1", features = ["std"], optional = true }
 
 [features]
 # `detour` (the Phase-3 AddItemFunc hook) is now on retour's STABLE GenericDetour, so it builds on
@@ -51,10 +57,5 @@ default = ["detour", "net"]
 detour = ["dep:retour", "dep:windows"]
 # Phase 4 AP networking. Implies `detour` (server grants reuse the detour trampoline + the
 # inventory pointer it captures). NOT in `default` yet — enable with `--features net` until the
-# Windows build is green, then promote to default like `detour` was.
-net = ["detour", "dep:archipelago_rs"]
-
-[lints.rust]
-# Unlike the pure crates, this one needs `unsafe` for FFI/detours — but only inside the
-# clearly-marked in-process modules.
-unsafe_code = "warn"
+# Windows build is green, then promote to default.
+net = ["dep:archipelago_rs", "dep:oneshot", "detour"]

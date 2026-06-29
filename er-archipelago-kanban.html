@@ -72,7 +72,7 @@
 <body>
 <header>
   <h1>Elden Ring <span class="tag">Archipelago</span> — Project Board</h1>
-  <div class="sub">Built from project memory · 2026-06-23 · drag cards between columns (saved locally) · click chips to filter</div>
+  <div class="sub">Built from project memory · 2026-06-29 · drag cards between columns (saved locally) · click chips to filter</div>
   <div class="controls">
     <div class="grp" id="catFilters"><label>Area</label></div>
     <div class="spacer"></div>
@@ -84,11 +84,11 @@
 <div class="nextup">
   <h2>Recommended next up</h2>
   <ol>
-    <li>Bake <b>region-lock kill: keep runes</b> — region lock works in-game; only rune-loss on break remains. Patch written. <span>(baker rebuild + rebake, no client — cheapest P1)</span></li>
-    <li>Land <b>baker slot_data timeout</b> — still not done; the one remaining foundational bake fix. <span>(rebuild + rebake)</span></li>
-    <li>Finish <b>completion-scaling sphere basis</b> — resolver coverage partial, not bake-validated. <span>(complete + validate)</span></li>
-    <li>Clear <b>broken in-game</b> items: AP icon override, Spirit Calling Bell, and DLC-lock notifications. <span>(bake/client)</span></li>
-    <li>Playtest <b>DLC boss scaling</b> for feel — gen + diag already validated, just needs the eyeball pass. <span>(playtest)</span></li>
+    <li>Drive the <b>pure-runtime model</b> forward — SoulsRandomizers-free runtime, loop closed in-game 2026-06-29 (solo / base-game / 1 pickup). Strategic centerpiece: routes around the Matt licensing question. Next: breadth, DLC, multiworld. <span>(in progress, P1)</span></li>
+    <li>Fix <b>DeathLink apconfig tag gap</b> — NEW P1 regression: DeathLink dead both ways because apconfig.json has no death_link, so the tag is never advertised at Connect. Quick-fix hand-add to the game apconfig; durable = baker writes it / client ConnectUpdate. <span>(P1)</span></li>
+    <li>Bake <b>region-lock kill: keep runes</b> — only outstanding region-lock bug; patch flips Should Receive Runes → TRUE. <span>(baker rebuild + rebake, no client — cheapest P1)</span></li>
+    <li>Land <b>baker slot_data timeout</b> — still the remaining foundational bake fix; request slot data at login. <span>(rebuild + rebake)</span></li>
+    <li>Converge the <b>Rust client onto the fswap <code>shared</code> crate</b> and land the draft PR — Phase 5 is built green + in-game tested. <span>(PR / refactor)</span></li>
   </ol>
 </div>
 
@@ -106,6 +106,7 @@ const COLUMNS = [
 
 const CARDS = [
   // ---- BLOCKED / BROKEN ----
+  {id:"b5", col:"blocked", pri:"P1", cat:"Client", title:"DeathLink dead both ways", desc:"NEW 2026-06-28. apconfig.json has no death_link → the DeathLink tag is never advertised at Connect, so neither incoming nor outgoing works. Quick-fix: hand-add to game apconfig. Durable: baker writes it OR client ConnectUpdate. Outgoing also needs read_local_death (HP +0x138) RE validation."},
   {id:"b1", col:"blocked", pri:"P1", cat:"Bake/UI", title:"AP item icon broken", desc:"InjectApItemIcon telescope-texture swap fails per playtest. Needs RE of the icon override path."},
   {id:"b2", col:"blocked", pri:"P1", cat:"Client", title:"Spirit Calling Bell unusable", desc:"Obtained flag 60110 set but bell still won't function in-game. Open chase."},
   {id:"b4", col:"blocked", pri:"P2", cat:"UI/Notify", title:"DLC lock notifications not firing", desc:"Notifications don't fire for DLC region locks — presumably because many DLC locks share the same map piece (m61 tiles), so per-area cues collide. Needs disambiguation."},
@@ -114,28 +115,29 @@ const CARDS = [
   // ---- READY TO BUILD & TEST ----
   {id:"r1", col:"done", pri:"P1", cat:"Modes", title:"num_regions mode", desc:"Randomized region count for ~3-4hr capital runs, warp-reachable subset. Tested green 2026-06-23."},
   {id:"r2", col:"progress", pri:"P2", cat:"Scaling", title:"DLC boss scaling tiers", desc:"Model-keyed native tiers for 23 DLC bosses. Gen-tested + scaling-diag validated. Only remaining: in-game playtest for feel."},
-  {id:"r3", col:"ready", pri:"P1", cat:"Bake", title:"Baker slot_data timeout fix", desc:"Sync GetSlotData times out; fixed by requesting slot data at login. Rebuild + rebake pending."},
-  {id:"r34", col:"ready", pri:"P1", cat:"Region Locks", title:"Region-lock kill: keep runes", desc:"Breaking a lock correctly kills the player but currently drops runes. patch_baker_kick_kill_keep_runes.py flips Force Character Death 'Should Receive Runes' FALSE→TRUE (no bloodstain, no loss). Baker rebuild + rebake only, no client rebuild."},
+  {id:"r3", col:"ready", pri:"P1", cat:"Bake", title:"Baker slot_data timeout fix", desc:"Sync GetSlotData times out; fixed by requesting slot data at login. Still NOT done — rebuild + rebake pending."},
+  {id:"r34", col:"ready", pri:"P1", cat:"Region Locks", title:"Region-lock kill: keep runes", desc:"Only outstanding region-lock bug. Breaking a lock correctly kills the player but currently drops runes. Patch flips Force Character Death 'Should Receive Runes' FALSE→TRUE (no bloodstain, no loss). Baker rebuild + rebake only, no client rebuild."},
   {id:"k21", col:"backlog", pri:"P3", cat:"Region Locks", title:"Grace rando: empty checks jarring", desc:"Grace rando works in-game, but some check spots you travel to are now empty, which feels jarring. UX polish — signpost moved graces or backfill emptied spots."},
-  {id:"r6", col:"ready", pri:"P2", cat:"Region Locks", title:"Natural-key lock triggers ×4", desc:"Mountaintops/Snowfield/Altus blooms + Spelunker torches + Rold 400001 fix. 4 patches written 06-19; apply + build pending."},
-  {id:"r7", col:"ready", pri:"P2", cat:"Region Locks", title:"Mountaintops bloom gate (Opt B)", desc:"Keep Rold Medallion, gate bloom on Rold + Morgott dead (11000800), open-flag 76996. Decision made; ship with r6."},
-  {id:"r8", col:"ready", pri:"P2", cat:"Region Locks", title:"Snowfield lock split", desc:"Opt-in extra_region_locks:snowfield = dedicated lock, 101/130 checks. Patch written 06-20; needs run + gen-test."},
+  {id:"r6", col:"ready", pri:"P2", cat:"Region Locks", title:"Natural-key lock triggers ×4", desc:"Mountaintops/Snowfield/Altus blooms + Spelunker torches + Rold 400001 fix. 4 patches written; apply + build pending."},
+  {id:"r7", col:"ready", pri:"P2", cat:"Region Locks", title:"Mountaintops bloom gate (Opt B)", desc:"Keep Rold Medallion, gate bloom on Rold + Morgott dead (11000800). Decision made; ship with r6 triggers."},
+  {id:"r8", col:"ready", pri:"P2", cat:"Region Locks", title:"Snowfield lock split", desc:"Opt-in extra_region_locks:snowfield = dedicated lock, 101/130 checks. Patch written; needs run + gen-test."},
   {id:"r9", col:"ready", pri:"P2", cat:"Region Locks", title:"Chokepoint locks v1", desc:"Gate legacy back-half on choke-boss drop + split sweep (Godskin Duo + Loretta). Needs build + gen-test."},
   {id:"r10", col:"ready", pri:"P3", cat:"Region Locks", title:"DLC catacombs lock", desc:"Opt-in extra_region_locks:dlc_catacombs bundles Fog Rift + Belurat Gaol (41 checks). Needs gen-test."},
   {id:"r11", col:"done", pri:"P3", cat:"Region Locks", title:"Shackle → dlc_only inject", desc:"Margit's/Mohg's Shackle added to UPLIFT_UNIQUE_CAPS (base juice into dlc_only). Playtest-validated."},
   {id:"r12", col:"done", pri:"P2", cat:"Region Locks", title:"Bundle-lock warp graces", desc:"Bundle locks now grant a warp grace (Altus + Mountaintops/Snowfield clusters). Closed out 2026-06-23."},
   {id:"r13", col:"done", pri:"P2", cat:"Region Locks", title:"Grace-bundle boss-arena warp fix", desc:"grace_arena_exclude (DENY-cut + rebucket). Closed out 2026-06-23. Follow-up audit → k24."},
-  {id:"r14", col:"ready", pri:"P2", cat:"DLC", title:"dlc_only_chain Phase 2", desc:"Full DLC-tree breadcrumb (Ellac graceless → off-chain). Phase 1 (messmer) generates; Phase 2 patch written."},
-  {id:"r15", col:"done", pri:"P2", cat:"DLC", title:"DLC auto-entry", desc:"Client latch sets 76999 in Chapel → baked warp to Gravesite + Roundtable grace at start. Works — the one feature that worked completely smoothly first try."},
+  {id:"r14", col:"ready", pri:"P2", cat:"DLC", title:"dlc_only_chain Phase 2", desc:"Full DLC-tree breadcrumb. Phase 1 (messmer) generates; Phase 2 full-tree patch written."},
+  {id:"r15", col:"done", pri:"P2", cat:"DLC", title:"DLC auto-entry", desc:"Client latch sets 76999 in Chapel → baked warp to Gravesite + Roundtable grace at start. Worked completely smoothly first try."},
   {id:"r16", col:"done", pri:"P2", cat:"Modes", title:"DLC mini-campaign (ending=messmer)", desc:"24 kept / 20 sealed DLC regions. Rigorously tested & green — Alaric's main way to play the DLC."},
   {id:"r17", col:"done", pri:"P2", cat:"Infra", title:"Options regroup (84→12 groups)", desc:"Presentation-only consolidation of options.py. Done."},
   {id:"r18", col:"done", pri:"P2", cat:"Pool", title:"Priority-locations fill", desc:"important_locations priority-fill (Rem/Seed/Church/Boss; DLC adds Frag/Revered). Done."},
   {id:"r19", col:"done", pri:"P2", cat:"Pool", title:"Questline de-randomization", desc:"derandomize_questlines locks optional NPC quests at vanilla to free fill. Tested green."},
-  {id:"r20", col:"ready", pri:"P2", cat:"Pool", title:"Trimmed-pool curation impl", desc:"curation.py cut-lists + _in_location_pool patch; DLC-only trimmed → 329. Needs gen-test."},
+  {id:"r20", col:"ready", pri:"P2", cat:"Pool", title:"Trimmed-pool curation impl", desc:"curation.py cut-lists + _in_location_pool patch. Needs gen-test."},
   {id:"r21", col:"ready", pri:"P3", cat:"Pool", title:"dlc_gear_curation", desc:"Swap worst C/D/F base gear 1:1 for best S/A DLC gear, ungated from enable_dlc. Needs gen-test."},
   {id:"r22", col:"done", pri:"P3", cat:"Pool", title:"Spell-trim keep-rule", desc:"57 S/A spell tiers + HIGH_TIER_SPELLS keep so the cream stays randomized in Trimmed. Validated."},
   {id:"r23", col:"ready", pri:"P3", cat:"Pool", title:"Soft-consumable cleanup", desc:"soft_consumable_shop (keys/hearts → infinite Twin Maiden) + derandomize_gurranq. Patch + spec written; shop side needs baker."},
-  {id:"r24", col:"ready", pri:"P3", cat:"Progression", title:"Furnace pot injection", desc:"furnace_pot_count (def 10) seeds Hefty Furnace Pots into DLC seeds; count-neutral filler swap. Written; needs run."},
+  {id:"r24", col:"ready", pri:"P3", cat:"Progression", title:"Furnace pot injection", desc:"furnace_pot_count seeds Hefty Furnace Pots into DLC seeds; count-neutral filler swap. Written; needs run."},
+  {id:"r35", col:"ready", pri:"P2", cat:"Scaling", title:"Furnace golem scaling fallback", desc:"c5170 furnace golems opt out of the tier-1 scaling fallback so they don't get trivialized. Patch needs Windows build + bake + walk-up check."},
   {id:"r25", col:"done", pri:"P2", cat:"Progression", title:"Torrent start grant", desc:"apworld emits startItems [goods 130] + flag 60100. Tested green."},
   {id:"r26", col:"ready", pri:"P3", cat:"Progression", title:"Messmer kindling cap raise", desc:"Vanilla goods 2008021 maxNum=1 rejects 2nd shard; baker raises max to 99. Uncommitted."},
   {id:"r27", col:"ready", pri:"P2", cat:"UI/Notify", title:"Hint full region names", desc:"extend_hint_information spells out parent_region.name in hints (gen-time). Patch written; needs run + gen-test."},
@@ -145,8 +147,12 @@ const CARDS = [
   {id:"r31", col:"done", pri:"P3", cat:"Progression", title:"quick_start option", desc:"dlc_only toggle grants 71 Lord's Runes (~RL120) at start. Validated."},
   {id:"r32", col:"done", pri:"P2", cat:"Bake", title:"?NpcName?/?Tag? deploy fix", desc:"Local build/deploy problem (not FMG structure). Fixed."},
   {id:"r33", col:"done", pri:"P3", cat:"Progression", title:"Progressive physick", desc:"One Flask track → Restorative → Shrouding → Sapping → Knot, 18 tears. Validated. (Residual: dup tears k20.)"},
+  {id:"r36", col:"ready", pri:"P3", cat:"Pool", title:"trimmed + forbid_useful shortage fix", desc:"trimmed + forbid_useful fails with 'not enough filler'. Fix = both modes allow_useful. Patch noted; needs run."},
+  {id:"r37", col:"ready", pri:"P3", cat:"Pool", title:"trimmed dlc_only lock-spill fix", desc:"trimmed dlc_only spills all region locks to start. Setting location_pool=all fixes it. Needs run + gen-test."},
 
   // ---- IN PROGRESS ----
+  {id:"p10", col:"progress", pri:"P1", cat:"Client", title:"⭐ Pure-runtime model", desc:"SoulsRandomizers-FREE runtime: vanilla game + apworld + MIT Rust client + static flag table (4,759 loc). Loop closed in-game 2026-06-29 (solo / base-game / 1 pickup). Routes around the Matt licensing question and makes baker upstreaming optional. Breadth / DLC / multiworld pending. Docs: PURE-RUNTIME-{NEXT,ARCHITECTURE}.md."},
+  {id:"p11", col:"progress", pri:"P2", cat:"Client", title:"Rust client test coverage + converge on fswap shared", desc:"Tests-FIRST then converge the ER Rust client onto fswap's shared crate. Mock the game INTERFACE, not the process; pure logic → new er-logic crate, game I/O → GameHook + FakeGame. PR-A first cut delivered (9 tests)."},
   {id:"p1", col:"progress", pri:"P1", cat:"Scaling", title:"Completion scaling — sphere basis", desc:"Geographic pass playtest-validated. Sphere-basis bridge wired but resolver coverage partial, not bake-validated."},
   {id:"p2", col:"progress", pri:"P2", cat:"Modes", title:"Random start region — in-game latch", desc:"apworld + baker + client done & bake-confirmed (lands Caelid). In-game latch still pending."},
   {id:"p3", col:"progress", pri:"P2", cat:"Modes", title:"Re-root hub to Roundtable", desc:"Make Limgrave a normal locked region. apworld re-root pending (graph is Limgrave-rooted)."},
@@ -158,11 +164,13 @@ const CARDS = [
   {id:"p9", col:"progress", pri:"P3", cat:"Bake", title:"Enemy-drop check tagging", desc:"Tag enemy-dropped checks via `enemy cXXXX_YYYY`; distinguish pure enemy-lot vs event-enemy under enemy rando."},
 
   // ---- BACKLOG (spec / idea) ----
-  {id:"k1", col:"backlog", pri:"P2", cat:"Modes", title:"num_regions chain", desc:"Breadcrumb locks into 1..N chain for sphere-scaling gradient. Spec + stubs only; 3 parallel tracks."},
+  {id:"k27", col:"backlog", pri:"P2", cat:"Infra", title:"nex3 archipelago_rs upstream PR", desc:"Upstream PR/issue for a configurable/echoed Connect version (+ compressed-ws), which removes the ER 4laric/archipelago_rs fork. nex3 is a contact."},
+  {id:"k30", col:"backlog", pri:"P2", cat:"Region Locks", title:"Fog-wall region-lock enforcement", desc:"Replace the play-region KICK with a baked, flag-gated fog WALL (EMEVD gated on region_open flag). Verdict 2026-06-24: KICK locked in for now — baker-placing AEG099_720 hung the load ×2 (baker writes the MSB ref, not the asset's collision bundle). Real walls need Smithbox, not the baker."},
+  {id:"k1", col:"backlog", pri:"P2", cat:"Modes", title:"num_regions chain", desc:"Breadcrumb locks into 1..N chain for sphere-scaling gradient. Spec + stubs only."},
   {id:"k2", col:"backlog", pri:"P3", cat:"Modes", title:"Oops All Legacy Dungeons", desc:"Chain legacy dungeons by grace-warp, delete open world. base-6=709 / +DLC=984 checks. Spec."},
   {id:"k3", col:"backlog", pri:"P3", cat:"Scaling", title:"Global scadutree blessing", desc:"Fragments as game-wide AP power curve (off / player_only / scaled). Draft; crux = persist stored level (RE)."},
   {id:"k4", col:"backlog", pri:"P3", cat:"Pool", title:"Pool builder", desc:"Compose pool to a target size from a ranked ladder (uniques → upgrades → runes); junk_retention knob. Spec."},
-  {id:"k5", col:"backlog", pri:"P3", cat:"Pool", title:"Check-trim by tier + distance", desc:"Drop checks both bad-tier AND remote. Moderate somber far-cut wired (38 drops); grace-proximity needs coords."},
+  {id:"k5", col:"backlog", pri:"P3", cat:"Pool", title:"Check-trim by tier + distance", desc:"Drop checks both bad-tier AND remote. Moderate somber far-cut wired; grace-proximity needs coords."},
   {id:"k6", col:"backlog", pri:"P3", cat:"Pool", title:"Relevance-uplift (dlc_only)", desc:"Swap DLC filler for base-game juice in pool — mirror of dlc_gear_curation. Spec."},
   {id:"k7", col:"backlog", pri:"P3", cat:"Progression", title:"Progressive consumables", desc:"Progressive Sacred Tear/Golden Seed/Scadutree/Revered Ash + glovewort bells. Spec; Roderika shop flags need extraction."},
   {id:"k8", col:"backlog", pri:"P3", cat:"UI/Notify", title:"Map-grant region tracker", desc:"Region MAP item = unlock token + tracker; grant Limgrave, gate rest by logic. Long-term."},
@@ -177,16 +185,21 @@ const CARDS = [
   {id:"k17", col:"backlog", pri:"P3", cat:"Modes", title:"great_runes_present", desc:"Force extra great runes into num_regions pool beyond the Leyndell gate. Default 0 = no change."},
   {id:"k18", col:"backlog", pri:"P3", cat:"Region Locks", title:"Rusty Key rule follow-ups", desc:"Stormveil over-gate removed; Margit Shackle + Liurnia/Caelid Rusty Key rules still pending."},
   {id:"k19", col:"backlog", pri:"P3", cat:"Bake", title:"Bake warnings audit", desc:"Triage all warnings emitted in a full bake. Backlog."},
-  {id:"k22", col:"backlog", pri:"P2", cat:"Bake", title:"Empty boss-swept check spots", desc:"Reuse the grace-rando empty-check mechanism so checks already collected via boss sweep don't leave stale pickups in the world. Requested 2026-06-23."},
-  {id:"k23", col:"backlog", pri:"P3", cat:"Traps", title:"Trap items", desc:"Add AP trap items: summon bear(s), warp, freeze, etc. Reference the Crowd Control mod — essentially a ready-made collection of traps to draw from. Not yet started."},
+  {id:"k22", col:"backlog", pri:"P2", cat:"Bake", title:"Empty boss-swept check spots", desc:"Reuse the grace-rando empty-check mechanism so checks already collected via boss sweep don't leave stale pickups in the world."},
+  {id:"k23", col:"backlog", pri:"P3", cat:"Traps", title:"Trap items", desc:"Add AP trap items: summon bear(s), warp, freeze, etc. Reference the Crowd Control mod — a ready-made collection of traps to draw from. Not yet started."},
   {id:"k24", col:"backlog", pri:"P2", cat:"Bake", title:"Audit EMEVDs/MSBs for boss-kill graces + fog walls", desc:"Follow-up to the grace-bundle boss-arena fix: sweep EMEVDs/MSBs for graces that appear on boss kill and for fog walls, to catch remaining bad warps. Not started."},
-  {id:"k25", col:"backlog", pri:"P2", cat:"Pool", title:"Run a trimmed-mode seed", desc:"General todo: haven't run trimmed mode in a while. Do a regression run to confirm curation still generates clean."},
-  {id:"k26", col:"backlog", pri:"P3", cat:"Modes", title:"Control Randomizer (Skumnut special)", desc:"Start gimped, receive control capabilities as AP items: look-left/'Zoolander mode', dodge roll, Torrent double-jump (v2: on-foot jump). Client input-mask subsystem, lowest priority, spec-only."},
+  {id:"k25", col:"backlog", pri:"P2", cat:"Pool", title:"Run a trimmed-mode seed", desc:"General todo: haven't run trimmed mode in a while (trimmed measured 2498, DLC 573). Do a regression run to confirm curation still generates clean."},
+  {id:"k26", col:"backlog", pri:"P3", cat:"Modes", title:"Control Randomizer (Skumnut special)", desc:"Start gimped, receive control capabilities as AP items: look-left/'Zoolander mode', dodge roll, Torrent double-jump. Client input-mask subsystem, lowest priority, spec-only."},
+  {id:"k28", col:"backlog", pri:"P3", cat:"Client", title:"Parriable deathlink", desc:"A parry input negates an incoming deathlink (riposte = reflect it back). SPEC-parriable-deathlink.md; needs the input/anim-read subsystem."},
+  {id:"k29", col:"backlog", pri:"P3", cat:"Pool", title:"Lean-check curation wishlist", desc:"Force-keep start fingers / early stones / chest weapons as lean checks. The `chest` tag is the lever."},
 
   // ---- DONE / VERIFIED ----
+  {id:"d32", col:"done", pri:"P1", cat:"Client", title:"Rust client Phase 5 complete", desc:"Full Phase 5 (region-lock, progressive, deathlink, auto_upgrade/scadu) BUILT GREEN + IN-GAME TESTED 2026-06-24. Basis for the DRAFT PR into the fswap clients repo (adds eldenring-archipelago + er-codec/er-semver). Converge onto shared crate next (p11)."},
+  {id:"d33", col:"done", pri:"P1", cat:"Client", title:"Rust client Phase 4 — AP networking", desc:"AP networking on archipelago_rs 2.1.1 (branch port-gap-map); net.rs/grant.rs + detour grant_full_id. Compiles green on Windows with --features net; subsumed by the in-game-tested Phase 5."},
+  {id:"d34", col:"done", pri:"P2", cat:"Client", title:"Client inventory removal", desc:"Toasts are native popups (paced); removeFromInventory = direct edit. Done."},
   {id:"d1", col:"done", pri:"P1", cat:"Client", title:"Runtime client port end-to-end", desc:"pickup → grant → location check confirmed 06-11."},
   {id:"d2", col:"done", pri:"P1", cat:"Modes", title:"Godrick goal", desc:"ending_condition=godrick implemented + verified in-game 06-18."},
-  {id:"d3", col:"done", pri:"P2", cat:"Bake", title:"Boss attribution", desc:"BossAttribution.cs + sweep emit; verified in-game 06-18."},
+  {id:"d3", col:"done", pri:"P2", cat:"Bake", title:"Boss attribution", desc:"BossAttribution.cs + sweep emit; every check → one boss DefeatFlag. Verified in-game 06-18."},
   {id:"d4", col:"done", pri:"P1", cat:"Client", title:"auto_upgrade", desc:"Was a dead no-op; implemented (live highest, normal/somber separate) + verified in-game."},
   {id:"d5", col:"done", pri:"P2", cat:"Progression", title:"Progressive stone bells", desc:"Fully implemented apworld + client behind default-OFF flag."},
   {id:"d6", col:"done", pri:"P1", cat:"Region Locks", title:"Region fusion (lock + grace bundle)", desc:"Done & playtested."},
@@ -206,15 +219,16 @@ const CARDS = [
   {id:"d17", col:"done", pri:"P1", cat:"Scaling", title:"Completion scaling — geographic", desc:"Built + playtest-validated 06-19."},
   {id:"d18", col:"done", pri:"P2", cat:"Modes", title:"soft_progression × bell gate fix", desc:"Demoted bells made smithing_bell gate unbeatable; fix patch shipped."},
   {id:"d19", col:"done", pri:"P2", cat:"Region Locks", title:"base-hub start graces", desc:"Grants Roundtable always + First Step if Limgrave free."},
-  {id:"d20", col:"done", pri:"P2", cat:"Pool", title:"num_regions fill-overflow demotions", desc:"4 demotion patches for fabricated bell gate / redundant keys / dead remembrances."},
-  {id:"d21", col:"done", pri:"P3", cat:"UI/Notify", title:"Notify outgoing 'Sent X to Y'", desc:"Console line done (PrintJSON ItemSend)."},
-  {id:"d22", col:"done", pri:"P2", cat:"UI/Notify", title:"Acquisition modal suppression", desc:"Confirmed via bake param showDialogCondType=0."},
+  {id:"d20", col:"done", pri:"P1", cat:"Modes", title:"num_regions fill-overflow demotions", desc:"4 demotion patches for fabricated bell gate / redundant keys / dead remembrances."},
+  {id:"d21", col:"done", pri:"P3", cat:"UI/Notify", title:"Notify outgoing 'Sent X to Y'", desc:"Console line done (PrintJSON ItemSend). On-screen banner parked."},
+  {id:"d22", col:"done", pri:"P2", cat:"UI/Notify", title:"Acquisition modal suppression", desc:"Confirmed via bake param showDialogCondType=0. Incoming native ticker kept as the UX."},
   {id:"d23", col:"done", pri:"P2", cat:"Progression", title:"early_leveling (skip Melina)", desc:"Flags 4680 + 951 shipped as apworld option."},
   {id:"d24", col:"done", pri:"P3", cat:"Progression", title:"Bell overflow → Lord's Rune", desc:"Extra bell copies past max → goods 2919; count = progressive_bell_count."},
   {id:"d25", col:"done", pri:"P3", cat:"Pool", title:"Ammo filler guard", desc:"Arrows/bolts excluded from filler→useful weapon promotion."},
   {id:"d26", col:"done", pri:"P3", cat:"Pool", title:"Ashes of War tiers", desc:"PvE tiers for all 105 transferable AoW in item_tiers."},
   {id:"d27", col:"done", pri:"P3", cat:"Pool", title:"filler_replacement option", desc:"Swap all filler for runes or stones+runes; count-neutral."},
   {id:"d28", col:"done", pri:"P2", cat:"Infra", title:"Fill-regression suite", desc:"gen-test fill-regression-yamls + run_fill_regression.ps1 gate."},
+  {id:"d35", col:"done", pri:"P2", cat:"Shops", title:"Twin Maiden shop dlc_only verified", desc:"Confirmed correctly VANILLA in dlc_only — not a bug."},
 ];
 
 const PRIORITIES = ["P0","P1","P2","P3"];

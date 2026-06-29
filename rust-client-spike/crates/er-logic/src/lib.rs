@@ -11,13 +11,18 @@
 //! See SHARED-CONVERGENCE-PLAN.md.
 
 pub mod deathlink;
+pub mod detour_decide;
 pub mod grace;
 pub mod grants;
 pub mod hook;
+pub mod location_check;
+pub mod name_override;
 pub mod options;
 pub mod progressive;
 pub mod receive;
 pub mod region_lock;
 pub mod save_state;
+pub mod slot_data;
 pub mod upgrades;
+pub mod vanilla_suppress;
 pub mod version;

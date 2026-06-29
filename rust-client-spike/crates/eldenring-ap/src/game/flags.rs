@@ -9,10 +9,12 @@
 //! ⚠️ COMPILE-TARGET SKETCH (not yet built). Symbols RESOLVED against eldenring 0.14 —
 //! see the spike root's VERIFY-RESOLUTION.md. The flag get/set + region-id accessors below are wired.
 
+use std::collections::HashSet;
 use std::sync::mpsc::{Receiver, SyncSender};
-use std::sync::OnceLock;
+use std::sync::{Mutex, OnceLock};
 
 use eldenring::cs::{CSEventFlagMan, WorldChrMan};
+use er_logic::location_check::LocationChecks;
 use fromsoftware_shared::FromStatic;
 
 /// Bounded queue of AP location ids observed on the game thread, drained by the network thread and
@@ -48,6 +50,46 @@ pub fn report_location(ap_location_id: i64) {
 pub fn drain_reported() -> Vec<i64> {
     let rx = channel().rx.lock().unwrap();
     rx.try_iter().collect()
+}
+
+// --- pure-runtime (no-baker) location-check detection (er_logic::location_check) ------------------
+//
+// The pure-runtime loop polls vanilla ACQUISITION flags emitted in slot_data (`locationFlags`)
+// rather than relying on the apconfig `location_flags` bake or the synthetic-carrier detour. The
+// pure decision table (`LocationChecks`) lives in `er-logic` (host-tested); this is just the holder
+// + the game-thread poll seam, parallel to the ReportChannel above. Built once at connect (net.rs)
+// and ticked on the game thread (mod.rs), beside the region-lock poll.
+
+/// The connect-built detection table. `None` until `configure_location_checks` runs.
+fn location_checks() -> &'static Mutex<Option<LocationChecks>> {
+    static LC: OnceLock<Mutex<Option<LocationChecks>>> = OnceLock::new();
+    LC.get_or_init(|| Mutex::new(None))
+}
+
+/// Called from the net thread at CONNECT: install the slot_data `locationFlags` detection table,
+/// optionally primed with the server's already-checked locations so a reconnect mid-run doesn't
+/// re-report. Replaces the table on every (re)connect — `LocationChecks` carries its own per-session
+/// `fired` set, so a fresh connect re-primes cleanly.
+#[allow(dead_code)]
+pub fn configure_location_checks(mut lc: LocationChecks, already_checked: &HashSet<i64>) {
+    if !already_checked.is_empty() {
+        lc.prime_checked(already_checked);
+    }
+    *location_checks().lock().unwrap() = Some(lc);
+}
+
+/// Called from the game tick (mod.rs), beside the region-lock poll: poll the pure detection table
+/// against live acquisition flags and enqueue every newly-completed AP location id onto the report
+/// channel (the net thread drains it via `drain_reported` -> `mark_checked`). No-op until configured.
+/// `in_world` is the same source the region-lock poll uses (`flags::in_world()`).
+pub fn poll_location_checks(in_world: bool) {
+    let mut guard = location_checks().lock().unwrap();
+    let Some(lc) = guard.as_mut() else { return };
+    let newly = lc.poll(in_world, &get_event_flag);
+    drop(guard); // release the lock before report_location (which takes the channel lock)
+    for loc in newly {
+        report_location(loc);
+    }
 }
 
 // --- event flags (er_hooks.h EventFlag_* / er_singletons.h CSEventFlagMan) ------------------------

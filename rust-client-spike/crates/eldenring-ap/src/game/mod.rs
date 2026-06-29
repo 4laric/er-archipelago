@@ -36,6 +36,8 @@ mod grant;
 #[cfg(feature = "net")]
 mod net;
 #[cfg(feature = "net")]
+mod scout_proof; // STEP 0 pre-scout proof (shop-preview data half); driven from net.rs
+#[cfg(feature = "net")]
 mod progressive;
 #[cfg(feature = "net")]
 mod upgrades;
@@ -198,6 +200,15 @@ fn tick() {
     // event-flag reads/writes + grants happen HERE (game thread); the net thread only queued them.
     #[cfg(feature = "net")]
     features::tick();
+
+    // Pure-runtime (no-baker) location-check poll: detect AP checks by polling the vanilla
+    // ACQUISITION flags emitted in slot_data (`locationFlags`) and report each newly-completed
+    // location id. Runs beside the region-lock poll (features::tick) on the SAME `in_world` source,
+    // and is a cheap no-op until net.rs configures the table at connect (configure_location_checks).
+    // This is the detour-bypass path for the vanilla-placement MVP; the synthetic-carrier detour and
+    // the apconfig `location_flags` poll (features::poll_location_flags) remain as parallel paths.
+    #[cfg(feature = "net")]
+    flags::poll_location_checks(flags::in_world());
 
     // Phase 5 parallel tracks: progressive bells/physick grant+flag drain (Wave C), DeathLink
     // kill/death latches (Wave D, RE-gated), and the global Scadutree blessing writer (RE-gated).

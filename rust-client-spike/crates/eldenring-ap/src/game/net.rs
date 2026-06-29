@@ -21,7 +21,7 @@ use std::time::Duration;
 use archipelago_rs as ap;
 use serde::Deserialize;
 
-use super::{deathlink, features, flags, grant, progressive, upgrades};
+use super::{deathlink, features, flags, grant, progressive, scout_proof, upgrades};
 
 /// `apconfig.json` (next to the game exe, or $ER_AP_CONFIG). The console-prompt flow the C++ used is
 /// replaced by a config file for the spike (SPEC §6 lists this as an accepted option). This is OUR
@@ -116,10 +116,14 @@ fn connect_and_serve(cfg: &ApConfig) {
     // received-name set for natural keys) are idempotent and must replay the FULL items_received
     // stream on reconnect, unlike the grant path which resumes at the persisted index.
     let mut goal_sent = false;
+    let mut deathlink_tag_synced = false; // Wave D: ConnectUpdate-correct the DeathLink tag once/connect
     let mut item_map: HashMap<i64, i64> = HashMap::new(); // AP item id -> ER FullID
     let mut item_counts: HashMap<i64, i64> = HashMap::new();
     let mut goal_locations: Vec<i64> = Vec::new();
     let mut goal_via_locations = false;
+    // STEP 0 pre-scout proof: issued once after slot_data parse, polled each tick (result arrives on a
+    // later conn.update()). Loop-scoped so it resets each connect/reconnect like the watermarks above.
+    let mut scout: Option<scout_proof::ScoutProof> = None;
 
     loop {
         // 1) Drain server events (owned Vec, so the &mut borrow on conn ends here).
@@ -195,6 +199,47 @@ fn connect_and_serve(cfg: &ApConfig) {
                 let feat = build_slot_config(sd, dlc, cfg);
                 features::configure(feat);
 
+                // Pure-runtime (no-baker) check detection + vanilla suppression. slot_data now emits
+                // `locationFlags` (location_id -> acquisition flag), `checkItemIds` (category-packed
+                // FullIDs that are the vanilla contents of a check), and `checkItemFlags` (FullID ->
+                // guarding flags). Build the host-tested decision tables (er-logic) and install them
+                // where the game tick + detour reach them. Every field is optional/tolerant, so a
+                // bake-path seed that omits them leaves both tables inert (no-op).
+                let location_flags = i64_to_u32_map(sd.get("locationFlags"));
+                // STEP 0: build (don't issue) the pre-scout proof from the seed's check locations.
+                // Construct-only here (conn.client() is borrowed immutably in this block); pump() issues
+                // and polls below where conn.client_mut() is free. See PRE-SCOUT-PROOF.md.
+                scout = Some(scout_proof::ScoutProof::new(location_flags.keys().copied().collect()));
+                if !location_flags.is_empty() {
+                    let lc = er_logic::location_check::LocationChecks::from_location_flags(&location_flags);
+                    // Prime from the server's already-checked locations so a reconnect mid-run
+                    // doesn't re-report. The only ids LocationChecks tracks are the keys of
+                    // locationFlags, so query those (is_local_location_checked is per-id; net.rs
+                    // already uses it for the ec>=2 goal path).
+                    let mut checked: std::collections::HashSet<i64> = std::collections::HashSet::new();
+                    for &loc in location_flags.keys() {
+                        if client.is_local_location_checked(loc) {
+                            checked.insert(loc);
+                        }
+                    }
+                    tracing::info!(
+                        "AP: pure-runtime location detection: {} flag(s), {} already checked",
+                        lc.flag_count(),
+                        checked.len()
+                    );
+                    flags::configure_location_checks(lc, &checked);
+                }
+
+                // Vanilla suppressor: pick the mode from slot_data (flag-gated > id-set > none) via
+                // the host-tested constructor (er_logic). Installed where add_item_detour reaches it.
+                if let Some(sup) = er_logic::vanilla_suppress::VanillaSuppressor::from_slot_data(
+                    i32_to_u32vec_map(sd.get("checkItemFlags")),
+                    i32_set(sd.get("checkItemIds")),
+                ) {
+                    tracing::info!("AP: vanilla suppressor: {} check item(s)", sup.len());
+                    super::detour::configure_suppressor(sup);
+                }
+
                 // Phase 5 parallel tracks, configured off the same slot_data:
                 progressive::configure(progressive::parse(sd)); // Wave C tier tables
                 deathlink::configure_from_slot_data(sd); // Wave D: corrects is_enabled() from options.death_link
@@ -243,6 +288,35 @@ fn connect_and_serve(cfg: &ApConfig) {
                     start_index
                 );
                 configured = true;
+            }
+        }
+
+        // 2c) Wave D: make the DeathLink Connect tag authoritative from slot_data. The server
+        // reads tags only at the Connect handshake; the tag was seeded from apconfig.death_link
+        // (which the baker doesn't write -> defaults false), so without this the server never
+        // routes DeathLinks to us. slot_data.options.death_link is the source of truth but arrives
+        // AFTER Connect. If the seed disagreed, send a ConnectUpdate to set/clear the tag. Once per
+        // connect (deathlink_tag_synced resets because connect_and_serve re-runs on reconnect).
+        if configured && !deathlink_tag_synced {
+            if cfg.death_link == deathlink::is_enabled() {
+                deathlink_tag_synced = true; // tag already correct from Connect; nothing to send
+            } else if let Some(client) = conn.client_mut() {
+                let tags: Vec<&str> = if deathlink::is_enabled() {
+                    vec![ap::tags::DEATH_LINK]
+                } else {
+                    vec![]
+                };
+                match client.update_connection(None, Some(tags)) {
+                    Ok(()) => {
+                        deathlink_tag_synced = true;
+                        tracing::info!(
+                            "AP: corrected DeathLink tag via ConnectUpdate (apconfig={}, slot_data={})",
+                            cfg.death_link,
+                            deathlink::is_enabled()
+                        );
+                    }
+                    Err(e) => tracing::warn!("AP: DeathLink tag ConnectUpdate failed: {e}"),
+                }
             }
         }
 
@@ -344,6 +418,17 @@ fn connect_and_serve(cfg: &ApConfig) {
             }
         }
 
+        // 7) STEP 0 pre-scout proof: issue the scout on its first pump, poll/log on later ticks. Runs
+        // after this tick's conn.update() drain (step 1) so a LocationInfo that just arrived is already
+        // routed into the receiver, and where a conn.client_mut() borrow is free.
+        if let Some(sp) = scout.as_mut() {
+            if !sp.is_done() {
+                if let Some(client) = conn.client_mut() {
+                    sp.pump(client);
+                }
+            }
+        }
+
         if conn.is_disconnected() {
             return;
         }
@@ -359,6 +444,48 @@ fn i64_map(v: Option<&serde_json::Value>) -> HashMap<i64, i64> {
         for (k, val) in o {
             if let (Ok(ki), Some(vi)) = (k.parse::<i64>(), val.as_i64()) {
                 m.insert(ki, vi);
+            }
+        }
+    }
+    m
+}
+
+/// `{ "<i64>": <u32> }` slot_data object -> `i64 -> u32` map (the pure-runtime `locationFlags`:
+/// AP location id -> vanilla acquisition flag). Tolerant: skips any entry that doesn't parse.
+fn i64_to_u32_map(v: Option<&serde_json::Value>) -> HashMap<i64, u32> {
+    let mut m = HashMap::new();
+    if let Some(serde_json::Value::Object(o)) = v {
+        for (k, val) in o {
+            if let (Ok(ki), Some(vi)) = (k.parse::<i64>(), val.as_u64()) {
+                m.insert(ki, vi as u32);
+            }
+        }
+    }
+    m
+}
+
+/// `[ <i32>, ... ]` slot_data array -> `HashSet<i32>` (the pure-runtime `checkItemIds`:
+/// category-packed FullIDs that are the vanilla contents of a check). Tolerant: skips non-ints.
+fn i32_set(v: Option<&serde_json::Value>) -> std::collections::HashSet<i32> {
+    let mut s = std::collections::HashSet::new();
+    if let Some(arr) = v.and_then(|x| x.as_array()) {
+        for x in arr {
+            if let Some(n) = x.as_i64() {
+                s.insert(n as i32);
+            }
+        }
+    }
+    s
+}
+
+/// `{ "<i32>": [<u32>, ...] }` slot_data object -> `i32 -> Vec<u32>` map (the pure-runtime
+/// `checkItemFlags`: check FullID -> guarding acquisition flags). Tolerant: skips non-numeric.
+fn i32_to_u32vec_map(v: Option<&serde_json::Value>) -> HashMap<i32, Vec<u32>> {
+    let mut m = HashMap::new();
+    if let Some(serde_json::Value::Object(o)) = v {
+        for (k, val) in o {
+            if let (Ok(ki), Some(arr)) = (k.parse::<i32>(), val.as_array()) {
+                m.insert(ki, arr.iter().filter_map(|x| x.as_u64().map(|n| n as u32)).collect());
             }
         }
     }

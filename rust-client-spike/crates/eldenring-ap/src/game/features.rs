@@ -598,6 +598,26 @@ fn warp_and_lock_latches() {
     if !locked {
         KICK_LATCHED.store(false, Ordering::Relaxed);
     } else if !KICK_LATCHED.load(Ordering::Relaxed) {
+        // Warp-miss fallback (durable region-lock enforcement). We only reach this branch when
+        // `locked` is true. The kick is normally guarded on a random-start seed until the start warp
+        // sets random_start_done_flag, so the player isn't ejected from the intro spawn before
+        // relocation. But if that warp never fires (Chapel not seen while connected, warp not baked
+        // for this seed, continued save, area-id mismatch, ...), the guard would stay shut forever
+        // and the region lock would be silently unenforced. Being in a locked region past the intro
+        // area means the warp has demonstrably failed -> force the guard open. The KICK reactor warps
+        // to the always-open Roundtable fallback, so this can never strand the player; and on a
+        // successful warp you'd be in your OPEN start region (never locked), so it never mis-fires.
+        // (Mirrors er_logic::region_lock::warp_miss_should_arm, which carries the unit tests.)
+        if cfg.random_start_done_flag != 0
+            && pr != cfg.random_start_area_id
+            && !flags::get_event_flag(cfg.random_start_done_flag)
+        {
+            flags::set_event_flag(cfg.random_start_done_flag, true);
+            tracing::info!(
+                "RegionLock: locked area={} with start-warp guard still closed -> arming guard (warp-miss fallback)",
+                pr
+            );
+        }
         // Start-window guard: on a random-start seed the player transiently spawns in (locked)
         // Limgrave before the baked warp pulls them out; don't arm KICK until the random-start warp
         // has fired. Non-random seeds (done flag 0) => guard always true => unchanged.
