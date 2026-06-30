@@ -42,10 +42,11 @@ pub struct ScoutedItem {
     /// True if this location's item goes to a DIFFERENT player (foreign) — i.e. checking it SENDS the
     /// item out. Computed from sender (always us, since the location is in our world) vs receiver slot.
     pub foreign: bool,
-    /// For an OWN-WORLD GOODS reward, the real ER EquipParamGoods row id — so a shop slot can borrow the
-    /// actual item's icon + description instead of the generic AP flower / routing text. `None` for
-    /// foreign items (no ER counterpart) and non-goods rewards (weapon/armor — not handled yet).
-    pub er_good_id: Option<u32>,
+    /// For an OWN-WORLD reward whose category `shop_sell` can natively sell (weapon / protector /
+    /// accessory / goods), the reward's ER FullID — so the slot's ShopLineupParam.equipId can be
+    /// rewritten to sell the real item (correct icon + name + lore, any type). `None` for foreign items
+    /// (no ER counterpart) and gem/custom rewards (left to the shop_preview/shop_icon flower override).
+    pub er_sell_id: Option<i64>,
 }
 
 /// AP location id -> scouted item. `None` until the first LocationScouts reply lands; `Some` (even if
@@ -79,21 +80,27 @@ fn store(items: &[ap::LocatedItem]) {
     let mut map = HashMap::with_capacity(items.len());
     for li in items {
         let foreign = li.sender().slot() != li.receiver().slot();
-        // OWN-WORLD goods reward -> its real ER good id (apIdsToItemIds -> FullID -> goods row), so the
-        // shop slot can use the item's actual icon + lore. Foreign / non-goods -> None (stay generic).
-        let er_good_id = if foreign {
+        // OWN-WORLD reward -> its ER FullID (apIdsToItemIds), but only for the categories shop_sell can
+        // natively sell as a shop ware (weapon/protector/accessory/goods). Foreign -> None; gem/custom ->
+        // None (those fall back to the flower display-override).
+        let er_sell_id = if foreign {
             None
         } else {
-            item_map.as_ref().and_then(|m| m.get(&li.item().id())).and_then(|&fid| {
-                let q = fid as u32;
-                if er_codec::item_category_of(q) == er_codec::CATEGORY_GOODS
-                    && !er_codec::is_synthetic_goods(q)
-                {
-                    Some(er_codec::row_id_of(q))
-                } else {
-                    None
-                }
-            })
+            item_map
+                .as_ref()
+                .and_then(|m| m.get(&li.item().id()))
+                .copied()
+                .filter(|&fid| {
+                    let q = fid as u32;
+                    !er_codec::is_synthetic_goods(q)
+                        && matches!(
+                            er_codec::item_category_of(q),
+                            er_codec::CATEGORY_WEAPON
+                                | er_codec::CATEGORY_PROTECTOR
+                                | er_codec::CATEGORY_ACCESSORY
+                                | er_codec::CATEGORY_GOODS
+                        )
+                })
         };
         map.insert(
             li.location().id(),
@@ -104,7 +111,7 @@ fn store(items: &[ap::LocatedItem]) {
                 slot: li.receiver().slot(),
                 kind: ItemKind::from_flags(li.is_progression(), li.is_useful(), li.is_trap()),
                 foreign,
-                er_good_id,
+                er_sell_id,
             },
         );
     }

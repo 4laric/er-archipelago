@@ -212,6 +212,9 @@ fn connect_and_serve(cfg: &ApConfig) {
                 // Stock parity: give shop_flags the full check-flag set so it can clamp EVERY shop
                 // check (all 484, goods + equipment) to one-time by matching eventFlag_forStock.
                 super::shop_flags::configure_check_flags(location_flags.values().copied().collect());
+                // shop_sell: the full location->flag map lets it find each check row (by
+                // eventFlag_forStock) and rewrite its equipId to the reward for native display.
+                super::shop_sell::configure(location_flags.clone());
                 // [shop-detect] shopRowFlags: ShopLineupParam row id -> AP tracking flag. The client
                 // writes each row's eventFlag_forStock so a vanilla shop purchase sets the flag the
                 // poller already watches. Only configure when the KEY IS PRESENT (the apworld patch

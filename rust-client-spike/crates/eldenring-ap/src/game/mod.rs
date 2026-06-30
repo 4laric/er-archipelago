@@ -46,6 +46,8 @@ mod fmg_inject; // FMG entry injection (staged): name synthetic AP goods by rebu
 #[cfg(feature = "net")]
 mod shop_flags; // shop-check detection (staged): write AP tracking flag onto live ShopLineupParam rows
 #[cfg(feature = "net")]
+mod shop_sell; // shop-slot native sell: rewrite own-world check rows' equipId/equipType to the reward
+#[cfg(feature = "net")]
 mod shop_preview; // shop-slot preview: overwrite the displayed good's name/caption with its AP item
 #[cfg(feature = "net")]
 mod shop_icon; // shop-slot AP icon: point the displayed good's EquipParamGoods.iconId at the telescope's (me3 flower)
@@ -214,6 +216,12 @@ fn tick() {
         static SHOP_FLAGS_DONE: AtomicBool = AtomicBool::new(false);
         if !SHOP_FLAGS_DONE.load(Ordering::Relaxed) && flags::in_world() && shop_flags::run(&[]) {
             SHOP_FLAGS_DONE.store(true, Ordering::Relaxed);
+        }
+        // Shop-sell: rewrite own-world check rows to natively SELL their reward (correct icon/name/lore
+        // for any item type). After shop_flags (stock flags final); preview/icon skip what it takes over.
+        static SHOP_SELL_DONE: AtomicBool = AtomicBool::new(false);
+        if !SHOP_SELL_DONE.load(Ordering::Relaxed) && flags::in_world() && shop_sell::run() {
+            SHOP_SELL_DONE.store(true, Ordering::Relaxed);
         }
         // Shop-slot preview: overwrite each randomized shop good's name/caption with its scouted AP
         // item (foreign slots only). Waits for slot_data + the scout cache; latches when applied.

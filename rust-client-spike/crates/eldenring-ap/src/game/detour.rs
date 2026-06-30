@@ -126,6 +126,14 @@ unsafe extern "C" fn add_item_detour(
     // SAFETY: `entry` is the descriptor the game passes (rdx); id at entry+0x04.
     let raw_id = read_i32(entry, ITEMBUF_ENTRY_ID_OFF) as u32;
 
+    // Shop-sold reward suppression (net only): a slot rewritten to SELL its real reward R adds R to the
+    // bag on purchase; suppress that like the vanilla ware so the AP grant delivers the single copy.
+    // Gated on the slot's stock flag (set on buy) — once the check fires, later copies pass through.
+    #[cfg(feature = "net")]
+    if super::shop_sell::should_suppress_sold(raw_id as i32, &flags::get_event_flag) {
+        return 0;
+    }
+
     // Pure-runtime decision (host-tested in er_logic::detour_decide). `resolve` wraps the synthetic
     // check + params row read + decode, returning the AP location id or None (not-synthetic OR
     // unresolved both pass through). Suppression short-circuits before any synthetic handling.

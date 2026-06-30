@@ -1,26 +1,13 @@
-//! shop_preview.rs — make a pure-runtime shop slot READ as the AP reward it actually gives.
+//! shop_preview.rs — name/description override for FOREIGN (and gem/custom) shop slots only.
 //!
-//! A pure-runtime shop slot sells its VANILLA ware (no bake rewrote ShopLineupParam.equipId), so the
-//! menu would show e.g. "Cracked Pot" even though buying it hands out an AP item. This rewrites that
-//! vanilla good's FMG strings to the scouted AP item:
-//!   * GoodsName    (cat 10) — the slot title (grid tile + detail pane),
-//!   * GoodsInfo    (cat 20) — the "Item Effect" line the BUY/inspect menu actually renders,
-//!   * GoodsCaption (cat 24) — the long inventory lore box (shown once the item is owned).
-//! Driven by slot_data `shopPreviewGoods` = {AP location id -> vanilla good id it displays}; the AP
-//! item text comes from the scout cache (`scout_proof::lookup`).
+//! Own-world rewards are rewritten by `shop_sell` to natively sell the real item (correct name + lore
+//! + icon), so this only handles the slots shop_sell can't: FOREIGN items (no ER counterpart) and gem/
+//! custom rewards. For those the displayed vanilla good's FMG name + info + caption are overwritten with
+//! the AP routing block ("AP: <item> / For: <owner> (<game>) / <kind>").
 //!
-//! Mechanism: EXTEND-SWAP via `fmg_inject::extend_swap_overrides`, NOT in-place. The old in-place path
-//! could only write a string that FIT the packed vanilla entry, so a longer AP name/info silently kept
-//! vanilla (e.g. "Fulgurbloom x4" can't overwrite "Cracked Pot", and 165/266 names were dropped this
-//! way). extend-swap rebuilds the category block from the LIVE pointer — preserving fmg_inject's
-//! synthetic-goods swap — with the overridden ids redirected to freshly-appended strings, so any length
-//! fits. The rebuild is validated in our own memory before the atomic swap; a mismatch aborts (game
-//! untouched). Runs AFTER fmg_inject each tick (see mod.rs), so it reads the post-swap blocks.
-//!
-//! ⚠️ The override is GLOBAL — the FMG entry is shared, so the good is renamed everywhere (inventory,
-//! other shops). Accepted tradeoff for shop-exclusive wares. We dedup by good id first: this seed has
-//! 266 slots but only ~212 distinct goods, and the shared entry can only show one reward, so duplicates
-//! collapse to last-wins (the GIVEN item is still correct — it comes from the flag/grant, not the name).
+//! Mechanism: EXTEND-SWAP via fmg_inject::extend_swap_overrides (rebuilds the category block from the
+//! LIVE pointer so any length fits; validated before the atomic swap). Runs AFTER fmg_inject. The
+//! override is GLOBAL per good id, so we dedup by good id (the shared FMG entry shows one reward).
 
 #![allow(dead_code)]
 
@@ -29,24 +16,19 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
 const GOODS_NAME_CAT: u32 = 10;
-/// GoodsInfo — the short "Item Effect" line the BUY/inspect menu actually renders (confirmed in-game).
-const GOODS_INFO_CAT: u32 = 20;
-/// GoodsCaption — the long inventory lore box (shown once the item is owned).
+const GOODS_INFO_CAT: u32 = 20; // the "Item Effect" line the buy menu renders
 const GOODS_CAPTION_CAT: u32 = 24;
 
-/// slot_data `shopPreviewGoods` -> (AP location id, vanilla good id). Set by net.rs at connect.
 static CONFIGURED: Mutex<Vec<(i64, i32)>> = Mutex::new(Vec::new());
 static CONFIGURED_SET: AtomicBool = AtomicBool::new(false);
 static DONE: AtomicBool = AtomicBool::new(false);
 
 pub fn configure(pairs: Vec<(i64, i32)>) {
-    tracing::info!("shop-preview: configured {} goods slot(s) from slot_data shopPreviewGoods", pairs.len());
+    tracing::info!("shop-preview: configured {} shop slot(s)", pairs.len());
     *CONFIGURED.lock().unwrap() = pairs;
     CONFIGURED_SET.store(true, Ordering::Relaxed);
 }
 
-/// In-world, scout-ready: rewrite each previewed shop good's name + info + caption to its AP item via
-/// extend-swap (so any length fits). Latches once applied.
 pub fn run() -> bool {
     if DONE.load(Ordering::Relaxed) {
         return true;
@@ -63,56 +45,35 @@ pub fn run() -> bool {
         return true;
     }
 
-    // Build per-category override maps (vanilla good id -> AP text) from the scout cache, deduped by
-    // good id (the FMG entry is global; duplicates would otherwise fail the rebuild's validation).
+    // FOREIGN / gem slots only — own-world slots are sold natively by shop_sell. Per-category override
+    // maps (name 10, info 20, caption 24) deduped by good id (the FMG entry is global).
     let mut nmap: HashMap<u32, Vec<u16>> = HashMap::new();
     let mut imap: HashMap<u32, Vec<u16>> = HashMap::new();
     let mut cmap: HashMap<u32, Vec<u16>> = HashMap::new();
-    let mut foreign = 0u32;
-    let mut own_world = 0u32;
+    let (mut overridden, mut native) = (0u32, 0u32);
     for (loc, good) in &pairs {
         let Some(s) = super::scout_proof::lookup(*loc) else { continue };
-        if s.foreign {
-            foreign += 1;
+        if s.er_sell_id.is_some() {
+            native += 1;
+            continue; // own-world: shop_sell sells it natively
         }
+        overridden += 1;
         let gid = *good as u32;
-        // NAME: the AP item name (slot title) — already the real name for own-world items.
         nmap.insert(gid, s.name.encode_utf16().collect());
-        // INFO (20) + CAPTION (24): an OWN-WORLD goods reward borrows the REAL item's live FMG strings,
-        // so the slot reads exactly like the actual reward (its true effect + lore). FOREIGN / non-goods
-        // rewards get the generic AP routing block. Read miss falls back to the AP block.
-        let ap_text = format!("AP: {}\nFor: {} ({})\n{}", s.name, s.owner, s.game, s.kind.label());
-        let (info_u, cap_u): (Vec<u16>, Vec<u16>) = match s.er_good_id {
-            Some(r) => {
-                own_world += 1;
-                let info = super::fmg_inject::read_goods_string(20, r).unwrap_or_else(|| ap_text.clone());
-                let cap = super::fmg_inject::read_goods_string(24, r).unwrap_or_else(|| ap_text.clone());
-                (info.encode_utf16().collect(), cap.encode_utf16().collect())
-            }
-            None => {
-                let u: Vec<u16> = ap_text.encode_utf16().collect();
-                (u.clone(), u)
-            }
-        };
-        imap.insert(gid, info_u);
-        cmap.insert(gid, cap_u);
+        let text = format!("AP: {}\nFor: {} ({})\n{}", s.name, s.owner, s.game, s.kind.label());
+        let u: Vec<u16> = text.encode_utf16().collect();
+        imap.insert(gid, u.clone());
+        cmap.insert(gid, u);
     }
     let names: Vec<(u32, Vec<u16>)> = nmap.into_iter().collect();
     let infos: Vec<(u32, Vec<u16>)> = imap.into_iter().collect();
     let caps: Vec<(u32, Vec<u16>)> = cmap.into_iter().collect();
-
     let n = super::fmg_inject::extend_swap_overrides(GOODS_NAME_CAT, &names);
     let i = super::fmg_inject::extend_swap_overrides(GOODS_INFO_CAT, &infos);
     let c = super::fmg_inject::extend_swap_overrides(GOODS_CAPTION_CAT, &caps);
     tracing::info!(
-        "shop-preview: {} slots ({} foreign, {} own-world goods w/ real lore, {} distinct) -> extend-swap names={} infos={} captions={}",
-        pairs.len(),
-        foreign,
-        own_world,
-        names.len(),
-        n,
-        i,
-        c
+        "shop-preview: {overridden} foreign/gem slot(s) ({} distinct, {native} own-world via shop_sell) -> extend-swap names={n} infos={i} captions={c}",
+        names.len()
     );
     DONE.store(true, Ordering::Relaxed);
     true
