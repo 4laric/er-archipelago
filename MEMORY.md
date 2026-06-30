@@ -68,7 +68,7 @@
 
 ## 🔴 Broken in-game (active)
 - ER deathlink apconfig tag gap — DeathLink dead BOTH ways: apconfig.json has no death_link → tag never advertised at Connect (P1, NEW 2026-06-28); quick-fix hand-add to game apconfig; durable=baker writes it OR client ConnectUpdate. Outgoing also needs read_local_death HP+0x138 RE validation
-- ER AP icon override — InjectApItemIcon telescope swap BROKEN per playtest (P1)
+- ✅ ER AP icon override — FIXED 2026-06-30: real icon source is the 01_common SPRITE SHEET (SB_Icon_00 cell @2132,1148), NOT 00_solo MENU_Knowledge. Fix = `build_ap_icon.py --icon01`. (resolved — drop from this list on next kanban rebuild)
 - ER spirit bell flag — Spirit Calling Bell still unusable in-game despite obtained flag 60110 (P1)
 - ER DLC lock notifications — notifs don't fire for DLC region locks; likely b/c many DLC locks share one map piece (m61) (P2, NEW 2026-06-23)
 

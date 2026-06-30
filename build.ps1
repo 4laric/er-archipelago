@@ -138,7 +138,8 @@ $RustDll   = Join-Path $RustDir "target\x86_64-pc-windows-msvc\release\eldenring
 $Me3Dir     = Join-Path $Repo "me3"                 # me3 profile + package live here (committed-ish dev artifact)
 $Me3Package = Join-Path $Me3Dir "ap-package"        # me3 VFS package: mirrors the game root (menu\hi, menu\low, ...)
 $Me3Profile = Join-Path $Me3Dir "ap.me3"            # the .me3 ModProfile (TOML)
-$IconMenu   = Join-Path $Repo "build\ap_icon\menu"  # output of build_ap_icon.py (the AP icon override 00_solo bundles)
+$IconMenu   = Join-Path $Repo "build\ap_icon\menu"    # build_ap_icon.py (00_solo MENU_Knowledge — hi-res variant, cosmetic)
+$IconMenu01 = Join-Path $Repo "build\ap_icon01\menu"  # build_ap_icon.py --icon01 (01_common SB_Icon sheet — the REAL shop/inventory icon)
 
 # RandomizerCrashFix.dll -- fifthmatt's redistributable companion (shipped in the v0.11.4 package).
 # Guards the cross-content enemy-placement CTDs that scripted legacy-dungeon intros are prone to once
@@ -354,18 +355,29 @@ if ($Me3Deploy) {
 
     New-Item -ItemType Directory -Force -Path (Join-Path $Me3Package "menu\hi"), (Join-Path $Me3Package "menu\low") | Out-Null
 
-    # AP icon override (built by build_ap_icon.py -> build\ap_icon\menu\{hi,low}\00_solo.*). Optional.
+    # AP icon override. 01_common.tpf.dcx (the SB_Icon sprite-sheet cell for iconId 92, from
+    # `build_ap_icon.py --icon01`) is the REAL shop/inventory icon and the one that matters. 00_solo.*
+    # (MENU_Knowledge hi-res variant, from the plain build) is harmless extra. See er-ap-icon-override.md.
     $copiedIcon = $false
     foreach ($sub in "hi", "low") {
-        $srcBhd = Join-Path $IconMenu "$sub\00_solo.tpfbhd"
-        if (Test-Path $srcBhd) {
-            Copy-Item $srcBhd (Join-Path $Me3Package "menu\$sub\") -Force
-            Copy-Item (Join-Path $IconMenu "$sub\00_solo.tpfbdt") (Join-Path $Me3Package "menu\$sub\") -Force
-            Write-Host "  icon override: menu\$sub\00_solo.*"
+        $dstSub = Join-Path $Me3Package "menu\$sub"
+        $sheet = Join-Path $IconMenu01 "$sub\01_common.tpf.dcx"
+        if (Test-Path $sheet) {
+            Copy-Item $sheet $dstSub -Force
+            Write-Host "  icon override: menu\$sub\01_common.tpf.dcx  (--icon01 sprite-sheet; the real one)"
             $copiedIcon = $true
         }
+        $solo = Join-Path $IconMenu "$sub\00_solo.tpfbhd"
+        if (Test-Path $solo) {
+            Copy-Item $solo $dstSub -Force
+            Copy-Item (Join-Path $IconMenu "$sub\00_solo.tpfbdt") $dstSub -Force
+            Write-Host "  icon override: menu\$sub\00_solo.*  (hi-res variant)"
+        }
     }
-    if (-not $copiedIcon) { Write-Warning "  no icon override at $IconMenu -- run build_ap_icon.py first (package will carry no menu override)" }
+    if (-not $copiedIcon) {
+        Write-Warning "  no 01_common.tpf.dcx at $IconMenu01 -- build it first:"
+        Write-Warning '    python build_ap_icon.py --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu "<game>\menu"'
+    }
 
     # apconfig next to the game exe (the client's #2 lookup candidate; resolves under me3)
     $apconfig = Join-Path $Repo "apconfig.json"
@@ -416,29 +428,13 @@ if ($Me3Restore) {
     } else { Write-Host "  (no eldenring_ap.dll.me3off to restore)" }
 }
 
-# ----- pure-runtime apworld patches (MVP only) ------------------------------------------------
-# The SoulsRandomizers-FREE MVP needs the apworld itself to emit the detection/suppression data
-# that the (now retired-for-MVP) baker used to bake into apconfig.json. These two idempotent,
-# CRLF-safe patches edit Archipelago\worlds\eldenring\__init__.py to add to slot_data:
-#   * locationFlags   (location_id -> vanilla acquisition flag) -- the flag-poll table
-#   * checkItemIds / checkItemFlags -- the vanilla-item suppression table
-# Both default REPO_ROOT to this repo; we pass $Repo explicitly so the path is unambiguous. They
-# back up __init__.py (.bak_p1lf / .bak_pci) and no-op on re-run, so this is safe every invocation.
-# MUST run BEFORE -Generate so the freshly-generated slot_data carries these keys.
-if ($PureRuntime) {
-    Step "PureRuntime: applying apworld slot_data patches (idempotent)"
-    if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
-        throw "python not found on PATH -- the apworld patches and Generate.py both need it."
-    }
-    foreach ($p in @("patch_apworld_location_flags.py", "patch_apworld_check_items.py")) {
-        $patchPath = Join-Path $Repo $p
-        if (-not (Test-Path $patchPath)) { throw "apworld patch not found: $patchPath" }
-        Write-Host "  python $p $Repo"
-        python $patchPath $Repo
-        if ($LASTEXITCODE -ne 0) { throw "$p failed (exit $LASTEXITCODE) -- see output above." }
-    }
-    Write-Host "  apworld now emits locationFlags / checkItemIds / checkItemFlags in slot_data." -ForegroundColor Green
-}
+# ----- pure-runtime apworld slot_data emission --------------------------------------------------
+# The SoulsRandomizers-FREE MVP needs the apworld itself to emit the detection/suppression data the
+# (retired-for-MVP) baker used to bake into apconfig.json: locationFlags (flag-poll table),
+# checkItemIds/checkItemFlags (vanilla-item suppression), and shopRowFlags (shop-check detection).
+# These now live DIRECTLY in Archipelago\worlds\eldenring\__init__.py (committed), so -Generate picks
+# them up from source with no build-time patch step. The old patch_apworld_*.py scripts are retired to
+# one-time migration tools. (Build-time re-patching caused stale/duplicate-edit confusion; cut it out.)
 
 # ----- generate multiworld --------------------------------------------------------------------
 if ($Generate) {
