@@ -37,6 +37,12 @@ fn say(s: &str) {
     tracing::info!("[console] {s}");
 }
 
+/// Public entry for other modules (e.g. the check-report path) to print a line to the console overlay
+/// + trace log. Same sink as command output, so AP notifications land in the same window.
+pub fn notify(s: &str) {
+    say(s);
+}
+
 /// Called once from `game::init` (worker thread): allocate a console + spawn the stdin reader.
 pub fn init() {
     use windows::Win32::System::Console::AllocConsole;

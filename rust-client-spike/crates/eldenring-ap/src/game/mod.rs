@@ -44,6 +44,10 @@ mod fmg_probe; // FMG-edit gate sub-step A: READ-ONLY dump of the MsgRepository 
 #[cfg(feature = "net")]
 mod fmg_inject; // FMG entry injection (staged): name synthetic AP goods by rebuilding GoodsName MsgData
 #[cfg(feature = "net")]
+mod shop_flags; // shop-check detection (staged): write AP tracking flag onto live ShopLineupParam rows
+#[cfg(feature = "net")]
+mod shop_preview; // shop-slot preview: overwrite the displayed good's name/caption with its AP item
+#[cfg(feature = "net")]
 mod progressive;
 #[cfg(feature = "net")]
 mod upgrades;
@@ -201,6 +205,19 @@ fn tick() {
         static FMG_INJECT_DONE: AtomicBool = AtomicBool::new(false);
         if !FMG_INJECT_DONE.load(Ordering::Relaxed) && flags::in_world() && fmg_inject::run() {
             FMG_INJECT_DONE.store(true, Ordering::Relaxed);
+        }
+        // Shop-check detection (staged): PROBE reads ShopLineupParam.eventFlag_forStock for known
+        // rows to confirm the +0x0C offset before any write. WRITE (later) takes the slot_data
+        // `shopRowFlags` map; passing &[] is fine while MODE=PROBE. See shop_flags.rs.
+        static SHOP_FLAGS_DONE: AtomicBool = AtomicBool::new(false);
+        if !SHOP_FLAGS_DONE.load(Ordering::Relaxed) && flags::in_world() && shop_flags::run(&[]) {
+            SHOP_FLAGS_DONE.store(true, Ordering::Relaxed);
+        }
+        // Shop-slot preview: overwrite each randomized shop good's name/caption with its scouted AP
+        // item (foreign slots only). Waits for slot_data + the scout cache; latches when applied.
+        static SHOP_PREVIEW_DONE: AtomicBool = AtomicBool::new(false);
+        if !SHOP_PREVIEW_DONE.load(Ordering::Relaxed) && flags::in_world() && shop_preview::run() {
+            SHOP_PREVIEW_DONE.store(true, Ordering::Relaxed);
         }
     }
 

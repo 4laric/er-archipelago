@@ -206,6 +206,25 @@ fn connect_and_serve(cfg: &ApConfig) {
                 // where the game tick + detour reach them. Every field is optional/tolerant, so a
                 // bake-path seed that omits them leaves both tables inert (no-op).
                 let location_flags = i64_to_u32_map(sd.get("locationFlags"));
+                // [shop-detect] shopRowFlags: ShopLineupParam row id -> AP tracking flag. The client
+                // writes each row's eventFlag_forStock so a vanilla shop purchase sets the flag the
+                // poller already watches. Only configure when the KEY IS PRESENT (the apworld patch
+                // always emits it, empty {} when shop_checks is off); a pre-patch seed omits the key
+                // entirely, so we leave shop_flags on its embedded fallback. Keyed/valued as u32.
+                if let Some(srf) = sd.get("shopRowFlags") {
+                    let shop_row_flags = i64_to_u32_map(Some(srf));
+                    super::shop_flags::configure(
+                        shop_row_flags.into_iter().map(|(r, f)| (r as u32, f)).collect(),
+                    );
+                }
+                // [shop-preview] shopPreviewGoods: AP location id -> the vanilla good id that shop slot
+                // displays. The client overwrites that good's GoodsName/Caption with the scouted AP item.
+                if let Some(spg) = sd.get("shopPreviewGoods") {
+                    let m = i64_to_u32_map(Some(spg));
+                    super::shop_preview::configure(
+                        m.into_iter().map(|(loc, g)| (loc, g as i32)).collect(),
+                    );
+                }
                 // STEP 0: build (don't issue) the pre-scout proof from the seed's check locations.
                 // Construct-only here (conn.client() is borrowed immutably in this block); pump() issues
                 // and polls below where conn.client_mut() is free. See PRE-SCOUT-PROOF.md.

@@ -34,12 +34,12 @@ const MD_GROUPS: usize = 0x28;
 // TRUNCATES vanilla GoodsCaption/Info (lore boxes run many hundreds of units); 4096 covers captions.
 const STR_CAP: usize = 4096;
 
-// sub[] category index for GoodsCaption (the big lore box). UNPINNED: only GoodsName=10 is confirmed
-// (FMG-EDIT-FINDINGS). Caption is almost certainly an adjacent slot (likely 11/12) but MUST be pinned
-// empirically before enabling — dump each non-null sub[category]'s firstId/lastId via fmg_probe and
-// match a known goods-caption id (e.g. id 150, Furlcalling Finger Remedy). Set to the real index to
-// enable; while negative, `run_descriptions` is a guaranteed no-op (cannot corrupt the store).
-const GOODS_CAPTION_CATEGORY: i32 = -1;
+// sub[] category index for GoodsCaption (the big lore box). PINNED 2026-06-30 via the fmg_probe
+// slot-map dump: for id 150, sub[10]=name "Furlcalling Finger Remedy", sub[20]=GoodsInfo short line
+// "Reveals co-op and hostile summoning signs", sub[24]=the multi-line lore caption "Item for online
+// play.\n(Can also be used...". So GoodsCaption = category 24. (GoodsInfo = 20 if we ever want the
+// short line too.) >=0 enables `run_descriptions`.
+const GOODS_CAPTION_CATEGORY: i32 = 24;
 
 const MODE_PARSE: u8 = 0;
 #[allow(dead_code)]
@@ -428,6 +428,30 @@ pub fn run_descriptions(descriptions: &[(u32, Vec<u16>)]) -> bool {
     true
 }
 
+/// Resolve each synthetic goods id to (real name, optional caption) via the scout cache, joined by the
+/// row's vagrant-encoded AP location id (`er_codec::recombine_location_id`). Cache miss => "AP#<id>"
+/// name and no caption. Returns (GoodsName injects, GoodsCaption injects).
+fn resolve_synth_injects(ids: &[u32]) -> (Vec<(u32, Vec<u16>)>, Vec<(u32, Vec<u16>)>) {
+    let mut names = Vec::with_capacity(ids.len());
+    let mut caps = Vec::new();
+    for &id in ids {
+        let mut name = format!("AP#{id}");
+        if let Some(f) = super::params::goods_row_fields(id as i32) {
+            let loc = er_codec::recombine_location_id(
+                f.vagrant_item_lot_id,
+                f.vagrant_bonus_ene_drop_item_lot_id,
+            );
+            if let Some(s) = super::scout_proof::lookup(loc) {
+                name = s.name.clone();
+                let cap = er_logic::name_override::description(&s.game, &s.owner, s.slot, s.kind);
+                caps.push((id, cap.encode_utf16().collect::<Vec<u16>>()));
+            }
+        }
+        names.push((id, name.encode_utf16().collect::<Vec<u16>>()));
+    }
+    (names, caps)
+}
+
 pub fn run() -> bool {
     if DONE.load(Ordering::Relaxed) {
         return true;
@@ -475,17 +499,24 @@ pub fn run() -> bool {
     }
 
     // MODE_IDENTITY / MODE_INJECT: build a fresh block, validate it in OUR memory, then swap.
+    // For MODE_INJECT, names + captions are resolved from the scout cache (joined to each synthetic row
+    // by its vagrant-encoded AP location id); a cache miss falls back to "AP#<id>" / no caption.
+    let mut descs: Vec<(u32, Vec<u16>)> = Vec::new();
     let injects: Vec<(u32, Vec<u16>)> = if MODE == MODE_INJECT {
         let ids = super::params::synthetic_goods_ids();
+        // Wait for the scout reply before naming so we get real names, not AP#<id>. No synthetics =>
+        // nothing to wait for; proceed and inject nothing (solo/base-game).
+        if !ids.is_empty() && !super::scout_proof::cache_ready() {
+            return false; // retry next tick once LocationScouts has populated the cache
+        }
+        let (names, caps) = resolve_synth_injects(&ids);
         tracing::info!(
-            "FMG-inject: {} synthetic goods ids (first={:?} last={:?}); naming each AP#<id>",
+            "FMG-inject: {} synthetic goods ids; {} resolved to real name+caption from scout cache (rest -> AP#<id>)",
             ids.len(),
-            ids.first(),
-            ids.last()
+            caps.len()
         );
-        ids.into_iter()
-            .map(|id| (id, format!("AP#{id}").encode_utf16().collect::<Vec<u16>>()))
-            .collect()
+        descs = caps;
+        names
     } else {
         Vec::new()
     };
@@ -536,7 +567,12 @@ pub fn run() -> bool {
             let theirs = read_string(unsafe { search(repo, 0, GOODS_CATEGORY, *id) as usize });
             tracing::info!("FMG-inject:   post-swap SYNTH id={id} game={theirs:?}");
         }
-        tracing::info!("FMG-inject: === swap done (MODE={MODE}); synthetic goods should now show AP#<id> ===");
+        tracing::info!("FMG-inject: === GoodsName swap done (MODE={MODE}); synthetic goods named ===");
+    }
+    // GoodsCaption (cat 24): write each resolved synthetic good's description (game / owner / class).
+    // Independent allocate-extend-swap; no-op if nothing resolved (e.g. solo seed) or category unpinned.
+    if MODE == MODE_INJECT && !descs.is_empty() {
+        run_descriptions(&descs);
     }
     DONE.store(true, Ordering::Relaxed);
     true

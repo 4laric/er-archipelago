@@ -88,7 +88,21 @@ pub fn poll_location_checks(in_world: bool) {
     let newly = lc.poll(in_world, &get_event_flag);
     drop(guard); // release the lock before report_location (which takes the channel lock)
     for loc in newly {
+        #[cfg(feature = "net")]
+        notify_sent(loc);
         report_location(loc);
+    }
+}
+
+/// On a newly-completed check, if the item there goes to ANOTHER player, print "Sent X -> Player" to
+/// the console overlay (the pure-runtime legibility win — flag-routed sends are otherwise invisible).
+/// Own-world pickups are skipped (you can see what you grabbed). No-op until the scout cache is filled.
+#[cfg(feature = "net")]
+fn notify_sent(loc: i64) {
+    if let Some(s) = super::scout_proof::lookup(loc) {
+        if s.foreign {
+            super::console::notify(&format!("Sent {} -> {} [{}]", s.name, s.owner, s.kind.label()));
+        }
     }
 }
 

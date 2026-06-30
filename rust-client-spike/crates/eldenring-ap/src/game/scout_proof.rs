@@ -26,6 +26,57 @@
 use archipelago_rs as ap;
 use ap::CreateAsHint; // re-exported at crate root via `pub use protocol::*`.
 use oneshot::TryRecvError;
+use std::collections::HashMap;
+use std::sync::Mutex;
+
+/// One scouted AP item, cached by AP location id, consumed by the FMG name/caption inject
+/// (`fmg_inject::resolve_synth_injects`): a synthetic goods row -> its vagrant-recombined location id
+/// -> this -> real GoodsName + GoodsCaption (game / owner / class).
+#[derive(Clone)]
+pub struct ScoutedItem {
+    pub name: String,
+    pub game: String,
+    pub owner: String,
+    pub slot: u32,
+    pub kind: er_logic::name_override::ItemKind,
+    /// True if this location's item goes to a DIFFERENT player (foreign) — i.e. checking it SENDS the
+    /// item out. Computed from sender (always us, since the location is in our world) vs receiver slot.
+    pub foreign: bool,
+}
+
+/// AP location id -> scouted item. `None` until the first LocationScouts reply lands; `Some` (even if
+/// empty) once it has, so fmg_inject can tell "not scouted yet" from "scouted, no hit".
+static CACHE: Mutex<Option<HashMap<i64, ScoutedItem>>> = Mutex::new(None);
+
+/// True once the scout reply has populated the cache. Lets fmg_inject wait for real names instead of
+/// latching AP#<id> placeholders.
+pub fn cache_ready() -> bool {
+    CACHE.lock().unwrap().is_some()
+}
+
+/// Look up a scouted item by AP location id.
+pub fn lookup(location_id: i64) -> Option<ScoutedItem> {
+    CACHE.lock().unwrap().as_ref()?.get(&location_id).cloned()
+}
+
+fn store(items: &[ap::LocatedItem]) {
+    use er_logic::name_override::ItemKind;
+    let mut map = HashMap::with_capacity(items.len());
+    for li in items {
+        map.insert(
+            li.location().id(),
+            ScoutedItem {
+                name: li.item().name().to_string(),
+                game: li.receiver().game().to_string(),
+                owner: li.receiver().alias().to_string(),
+                slot: li.receiver().slot(),
+                kind: ItemKind::from_flags(li.is_progression(), li.is_useful(), li.is_trap()),
+                foreign: li.sender().slot() != li.receiver().slot(),
+            },
+        );
+    }
+    *CACHE.lock().unwrap() = Some(map);
+}
 
 /// State for the in-flight scout. Lives across serve-loop iterations because the result arrives on a
 /// later poll, not inline. Construct after slot_data is parsed; drive `pump()` every loop tick.
@@ -83,6 +134,7 @@ impl ScoutProof {
                 self.done = true;
                 match result {
                     Ok(items) => {
+                        store(&items); // populate the cache fmg_inject reads (names + captions)
                         tracing::info!("AP scout-proof: received info for {} location(s) ===", items.len());
                         for li in &items {
                             let loc_id = li.location().id();

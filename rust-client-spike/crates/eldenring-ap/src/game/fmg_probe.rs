@@ -44,6 +44,17 @@ const SYNTH_LOG_MAX: usize = 12;
 
 const STR_MAX: usize = 64;
 
+// MsgData layout (same as fmg_inject; RE'd from the binary search @ 0x266DC90): groupCount @ +0x0C,
+// group records start @ +0x28, 16 bytes each {u32 stringIndexBase, u32 firstId, u32 lastId, u32 pad}.
+const MD_GROUPCOUNT: usize = 0x0C;
+const MD_GROUPS: usize = 0x28;
+/// repo count2 = 512 category slots (FMG-EDIT-FINDINGS); sub[0..512] each hold a MsgData* or null.
+const CATEGORY_SLOTS: u32 = 512;
+/// A known goods id present in GoodsName/Info/Caption — "Furlcalling Finger Remedy". The slot-map dump
+/// prints each non-null category's string for this id: cat 10 = the NAME, the caption category = the
+/// long lore text, the info category = the short effect line.
+const SLOTMAP_PROBE_ID: u32 = 150;
+
 /// rcx=repo, edx=group, r8d=category, r9d=id -> wchar_t* (or null).
 type SearchFn = unsafe extern "C" fn(*mut c_void, u32, u32, u32) -> *const u16;
 
@@ -59,6 +70,50 @@ fn current_module_base() -> Option<usize> {
 }
 unsafe fn read_usize(addr: usize) -> usize {
     (addr as *const usize).read_unaligned()
+}
+unsafe fn read_u32(addr: usize) -> u32 {
+    (addr as *const u32).read_unaligned()
+}
+
+/// Walk every category slot `sub[0..512]` and, for each non-null MsgData, log its group count, its
+/// `[firstId..lastId]` range, and the string it returns for `SLOTMAP_PROBE_ID` (150). This pins the
+/// GoodsCaption / GoodsInfo `sub[]` indices without guessing: GoodsName is cat 10 (shows the item
+/// NAME), the caption category shows the long lore text, the info category the short effect line.
+/// Read-only — only reads non-null MsgData and calls the self-guarding `SearchStringTable`.
+unsafe fn dump_slot_map(repo: usize, search: SearchFn) {
+    let base_arr = read_usize(repo + 0x08);
+    if !plausible(base_arr) {
+        tracing::warn!("FMG-slotmap: base_array implausible; skip");
+        return;
+    }
+    let sub = read_usize(base_arr);
+    if !plausible(sub) {
+        tracing::warn!("FMG-slotmap: sub implausible; skip");
+        return;
+    }
+    tracing::info!(
+        "FMG-slotmap: === category slot map @ id={SLOTMAP_PROBE_ID} (caption = the long lore string; name = cat 10) ==="
+    );
+    let mut shown = 0usize;
+    for cat in 0..CATEGORY_SLOTS {
+        let md = read_usize(sub + cat as usize * 8);
+        if !plausible(md) {
+            continue;
+        }
+        let count = read_u32(md + MD_GROUPCOUNT);
+        let (mut lo, mut hi) = (0u32, 0u32);
+        if count > 0 && count < 0x10000 {
+            lo = read_u32(md + MD_GROUPS + 4); // group[0].firstId
+            hi = read_u32(md + MD_GROUPS + (count as usize - 1) * 16 + 8); // group[last].lastId
+        }
+        let p = search(repo as *mut c_void, 0, cat, SLOTMAP_PROBE_ID);
+        let s = read_utf16(p).map(|(s, _)| s);
+        tracing::info!(
+            "FMG-slotmap: cat={cat} md={md:#x} groups={count} range=[{lo}..{hi}] id{SLOTMAP_PROBE_ID}={s:?}"
+        );
+        shown += 1;
+    }
+    tracing::info!("FMG-slotmap: === {shown} non-null categories ===");
 }
 
 /// (string, utf16_unit_len) read from a wchar* — None if implausible/empty.
@@ -145,6 +200,9 @@ pub fn dump_repo() -> bool {
             non_null,
             SYNTH_HI - SYNTH_LO
         );
+        // Pin the GoodsCaption / GoodsInfo category indices: dump every non-null sub[] slot's string
+        // for id 150 so the caption category (the long lore text) is identifiable from the log.
+        unsafe { dump_slot_map(repo, search) };
         DONE.store(true, Ordering::Relaxed);
         return true;
     }
