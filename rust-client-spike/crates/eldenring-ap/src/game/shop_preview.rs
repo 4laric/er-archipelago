@@ -28,6 +28,13 @@ const SEARCH_SIG: &[u8] = &[
 ];
 const GOODS_NAME_CAT: u32 = 10;
 const GOODS_CAPTION_CAT: u32 = 24;
+/// GoodsInfo (the short "Item Effect" line). PINNED 2026-06-30: this is the box the BUY/inspect menu
+/// actually renders — confirmed in-game on Kalé's good 150, whose Item Effect still read the vanilla
+/// "Reveals co-op and hostile summoning signs" (cat 20) while our cat-24 caption never showed. Writing
+/// the AP info here puts the routing text where the shop displays it. In-place, so it only lands where
+/// it fits the (short) vanilla info line; long ones stay vanilla (polish — the cat-10 name carries the
+/// reward when it fit).
+const GOODS_INFO_CAT: u32 = 20;
 
 type SearchFn = unsafe extern "C" fn(*mut c_void, u32, u32, u32) -> *const u16;
 
@@ -135,7 +142,7 @@ pub fn run() -> bool {
     }
     let repo = repo as *mut c_void;
 
-    let (mut names, mut caps, mut foreign, mut name_skips) = (0u32, 0u32, 0u32, 0u32);
+    let (mut names, mut caps, mut foreign, mut name_skips, mut infos) = (0u32, 0u32, 0u32, 0u32, 0u32);
     for (loc, good) in &pairs {
         let Some(s) = super::scout_proof::lookup(*loc) else { continue };
         // Preview EVERY randomized goods slot, not just foreign ones — in a 2-slot most shop rewards
@@ -159,10 +166,15 @@ pub fn run() -> bool {
         if unsafe { overwrite(search, repo, GOODS_CAPTION_CAT, gid, &cu) } {
             caps += 1;
         }
+        // INFO (cat 20): the "Item Effect" line the buy/inspect menu actually shows. Same AP text,
+        // in-place — only lands where it fits the short vanilla info line.
+        if unsafe { overwrite(search, repo, GOODS_INFO_CAT, gid, &cu) } {
+            infos += 1;
+        }
     }
     tracing::info!(
-        "shop-preview: {} slots ({} foreign) -> {} names + {} captions overwritten ({} names too long, kept vanilla)",
-        pairs.len(), foreign, names, caps, name_skips
+        "shop-preview: {} slots ({} foreign) -> {} names + {} infos + {} captions overwritten ({} names too long, kept vanilla)",
+        pairs.len(), foreign, names, infos, caps, name_skips
     );
     DONE.store(true, Ordering::Relaxed);
     true
