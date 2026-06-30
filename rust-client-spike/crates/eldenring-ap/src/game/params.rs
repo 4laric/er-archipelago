@@ -64,6 +64,25 @@ pub fn spike_log_goods_rowcount() -> bool {
     true
 }
 
+/// Sorted list of the SYNTHETIC goods row ids (our injected AP placeholders, id > SYNTHETIC_GOODS_MIN_ID).
+/// Used by `fmg_inject` to add a GoodsName entry per synthetic id. Empty if the repo isn't up yet.
+/// MUST be called in-world (FD4 singleton populated). Iterates the goods table once.
+#[cfg(feature = "net")]
+pub fn synthetic_goods_ids() -> Vec<u32> {
+    let repo = match unsafe { SoloParamRepository::instance() } {
+        Ok(r) => r,
+        Err(_) => return Vec::new(),
+    };
+    let mut v: Vec<u32> = Vec::new();
+    for (id, _row) in repo.rows::<EquipParamGoods>() {
+        if er_codec::is_synthetic_goods(er_codec::CATEGORY_GOODS | id) {
+            v.push(id);
+        }
+    }
+    v.sort_unstable();
+    v
+}
+
 /// Look up a goods row by its (category-stripped) row id and project the carrier fields into the
 /// pure decode struct. `None` if the param repo isn't ready or the id is absent.
 ///

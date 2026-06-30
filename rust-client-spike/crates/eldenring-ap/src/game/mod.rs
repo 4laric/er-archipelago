@@ -38,6 +38,12 @@ mod net;
 #[cfg(feature = "net")]
 mod scout_proof; // STEP 0 pre-scout proof (shop-preview data half); driven from net.rs
 #[cfg(feature = "net")]
+mod lookupentry_probe; // STEP A diagnostic: logging detour on MsgRepositoryImp::LookupEntry (inert until RVA pinned)
+#[cfg(feature = "net")]
+mod fmg_probe; // FMG-edit gate sub-step A: READ-ONLY dump of the MsgRepository structure (no writes)
+#[cfg(feature = "net")]
+mod fmg_inject; // FMG entry injection (staged): name synthetic AP goods by rebuilding GoodsName MsgData
+#[cfg(feature = "net")]
 mod progressive;
 #[cfg(feature = "net")]
 mod upgrades;
@@ -97,6 +103,15 @@ pub fn init() {
     if let Err(e) = detour::install() {
         breadcrumb("init: detour install failed (continuing without it)");
         tracing::error!("AddItemFunc detour install failed: {e}");
+    }
+
+    // STEP A diagnostic (shop previews Part 3 gate): logging-only detour on LookupEntry. INERT until
+    // LOOKUP_ENTRY_RVA/SIG are pinned (returns Ok without installing), so this is a no-op for normal
+    // builds. BEST-EFFORT, same as the detour above. See STEP-A-RUNBOOK.md / SPEC-lookupentry-spike.md.
+    #[cfg(feature = "net")]
+    if let Err(e) = lookupentry_probe::install() {
+        breadcrumb("init: LE-probe install failed (continuing without it)");
+        tracing::error!("LookupEntry probe install failed: {e}");
     }
 
     // Debug console (ports the C++ client's /setflag, /getflag window). Reads stdin on its own thread;
@@ -171,6 +186,21 @@ fn tick() {
         if params::spike_log_goods_rowcount() {
             breadcrumb("tick: spike resolved (rowCount logged)");
             SPIKE_DONE.store(true, Ordering::Relaxed);
+        }
+    }
+
+    // FMG-edit gate sub-step A: dump the MsgRepository structure ONCE, read-only (no writes), to
+    // confirm the live layout before designing the in-memory string edit. See fmg_probe.rs / spec §2.4.
+    #[cfg(feature = "net")]
+    {
+        static FMG_DUMP_DONE: AtomicBool = AtomicBool::new(false);
+        if !FMG_DUMP_DONE.load(Ordering::Relaxed) && flags::in_world() && fmg_probe::dump_repo() {
+            FMG_DUMP_DONE.store(true, Ordering::Relaxed);
+        }
+        // FMG injection (staged): Stage 1 = parse + validate GoodsName MsgData (read-only).
+        static FMG_INJECT_DONE: AtomicBool = AtomicBool::new(false);
+        if !FMG_INJECT_DONE.load(Ordering::Relaxed) && flags::in_world() && fmg_inject::run() {
+            FMG_INJECT_DONE.store(true, Ordering::Relaxed);
         }
     }
 

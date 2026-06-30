@@ -6,6 +6,8 @@
 #   .\build.ps1 -Rust                    # build + test the Rust client spike (cargo test + cdylib for x86_64-pc-windows-msvc)
 #   .\build.ps1 -RustDeploy              # swap the Rust client into mods\ (parks the C++ archipelago.dll; EML loads one client)
 #   .\build.ps1 -CppRestore              # swap back to the C++ client (parks eldenring_ap.dll)
+#   .\build.ps1 -Me3Deploy               # set up the me3 profile+package (VFS icon override + client native + apconfig); parks the EML dll. Launch: me3 launch --profile me3\ap.me3
+#   .\build.ps1 -Me3Restore              # un-park the EML client dll (revert -Me3Deploy's park)
 #   .\build.ps1 -PureRuntime  (-Mvp)     # SoulsRandomizers-FREE MVP: apworld patches -> Generate -> build+deploy Rust client; NO bake/regulation/overlays (game runs vanilla, client flag-polls slot_data)
 #   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py; REQUIRED after apworld changes)
 #   .\build.ps1 -Serve                   # launch the AP server on the newest output zip (new window)
@@ -38,6 +40,8 @@ param(
     [switch]$Rust,             # build + test the Rust client spike (rust-client-spike); NOT part of -All
     [switch]$RustDeploy,       # swap the Rust client DLL into mods\ (parks the C++ archipelago.dll)
     [switch]$CppRestore,       # swap back to the C++ client (parks eldenring_ap.dll)
+    [switch]$Me3Deploy,        # set up the me3 (ModEngine3) profile + package: VFS icon override + client native + apconfig; parks the EML dll (vanilla exe path)
+    [switch]$Me3Restore,       # un-park the EML client dll (revert -Me3Deploy)
     [Alias('Mvp')]
     [switch]$PureRuntime,      # SoulsRandomizers-FREE MVP loop: apworld patches -> Generate -> build+deploy Rust client (NO bake/regulation/overlays). Game runs vanilla; client flag-polls slot_data.
     [switch]$ApEnable,         # build the randomizer out of the er-ap-enable scratch (C:\er-ap-build, fswap deps)
@@ -131,6 +135,10 @@ if ($ApEnable) {
     Write-Host "  [ApEnable] randomizer source = $RandoDir (fswap deps)"
 }
 $RustDll   = Join-Path $RustDir "target\x86_64-pc-windows-msvc\release\eldenring_ap.dll"
+$Me3Dir     = Join-Path $Repo "me3"                 # me3 profile + package live here (committed-ish dev artifact)
+$Me3Package = Join-Path $Me3Dir "ap-package"        # me3 VFS package: mirrors the game root (menu\hi, menu\low, ...)
+$Me3Profile = Join-Path $Me3Dir "ap.me3"            # the .me3 ModProfile (TOML)
+$IconMenu   = Join-Path $Repo "build\ap_icon\menu"  # output of build_ap_icon.py (the AP icon override 00_solo bundles)
 
 # RandomizerCrashFix.dll -- fifthmatt's redistributable companion (shipped in the v0.11.4 package).
 # Guards the cross-content enemy-placement CTDs that scripted legacy-dungeon intros are prone to once
@@ -187,7 +195,7 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $PureRuntime -or $All -or $SnapshotVanilla -or $CleanDeploy -or $RestoreVanilla)) {
+if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $All -or $SnapshotVanilla -or $CleanDeploy -or $RestoreVanilla)) {
     Get-Content $PSCommandPath | Select-Object -Skip 1 -First 20 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
@@ -331,6 +339,81 @@ if ($CppRestore) {
         Write-Warning "no archipelago.dll(.disabled) in $ModsDir -- run -Deploy (with -Client) to place it"
     }
     Write-Host "  Active client: C++."
+}
+
+# ----- me3 (ModEngine3) deploy ----------------------------------------------------------------
+# me3 REPLACES UXM+EML: its VFS serves file overrides from a package folder and it loads the client
+# DLL as a native, against a VANILLA exe (UXM's patched entry point breaks me3's init deferral, so
+# this path assumes Steam-verified vanilla game files). -Me3Deploy (re)writes the profile, fills the
+# package with the AP icon override (build_ap_icon.py output) + apconfig, and parks the EML client
+# copy so it isn't double-loaded (two AddItemFunc hooks = crash). Launch:
+#   me3 launch --profile <repo>\me3\ap.me3
+if ($Me3Deploy) {
+    Step "me3 deploy (profile + package + config) -> $Me3Dir"
+    if (-not (Test-Path $RustDll)) { throw "Rust DLL not found at $RustDll -- run with -Rust first" }
+
+    New-Item -ItemType Directory -Force -Path (Join-Path $Me3Package "menu\hi"), (Join-Path $Me3Package "menu\low") | Out-Null
+
+    # AP icon override (built by build_ap_icon.py -> build\ap_icon\menu\{hi,low}\00_solo.*). Optional.
+    $copiedIcon = $false
+    foreach ($sub in "hi", "low") {
+        $srcBhd = Join-Path $IconMenu "$sub\00_solo.tpfbhd"
+        if (Test-Path $srcBhd) {
+            Copy-Item $srcBhd (Join-Path $Me3Package "menu\$sub\") -Force
+            Copy-Item (Join-Path $IconMenu "$sub\00_solo.tpfbdt") (Join-Path $Me3Package "menu\$sub\") -Force
+            Write-Host "  icon override: menu\$sub\00_solo.*"
+            $copiedIcon = $true
+        }
+    }
+    if (-not $copiedIcon) { Write-Warning "  no icon override at $IconMenu -- run build_ap_icon.py first (package will carry no menu override)" }
+
+    # apconfig next to the game exe (the client's #2 lookup candidate; resolves under me3)
+    $apconfig = Join-Path $Repo "apconfig.json"
+    if (Test-Path $apconfig) {
+        Copy-Item $apconfig (Join-Path $GameDir "apconfig.json") -Force
+        Write-Host "  apconfig.json -> Game\"
+    } else { Write-Warning "  no apconfig.json at $Repo -- the client won't connect without it" }
+
+    # park the EML client copy so me3's native is the ONLY loader of eldenring_ap.dll
+    $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
+    $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
+    if (Test-Path $emlDll) {
+        if (Test-Path $emlOff) { Remove-Item $emlOff -Force }
+        Rename-Item $emlDll $emlOff -Force
+        Write-Host "  parked EML client -> eldenring_ap.dll.me3off (restore with -Me3Restore)"
+    }
+
+    # write the ModProfile. disable_arxan=true: me3 must neuter Arxan on the vanilla exe, and our
+    # client hooks native code (AddItemFunc) which Arxan would otherwise revert.
+    $profileText = @"
+profileVersion = "v1"
+savefile = "AP_me3.sl2"
+disable_arxan = true
+
+[[supports]]
+game = "eldenring"
+
+[[packages]]
+path = '$Me3Package'
+
+[[natives]]
+path = '$RustDll'
+"@
+    Set-Content -Path $Me3Profile -Value $profileText -Encoding UTF8
+    Write-Host "  profile -> $Me3Profile" -ForegroundColor Green
+    Write-Host "`nme3 ready (requires VANILLA game files -- NOT UXM-patched). Launch:" -ForegroundColor Cyan
+    Write-Host "    me3 launch --profile `"$Me3Profile`""
+}
+
+if ($Me3Restore) {
+    Step "me3 restore (un-park the EML client dll)"
+    $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
+    $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
+    if (Test-Path $emlOff) {
+        if (Test-Path $emlDll) { Remove-Item $emlDll -Force }
+        Rename-Item $emlOff $emlDll -Force
+        Write-Host "  restored EML client -> eldenring_ap.dll" -ForegroundColor Green
+    } else { Write-Host "  (no eldenring_ap.dll.me3off to restore)" }
 }
 
 # ----- pure-runtime apworld patches (MVP only) ------------------------------------------------
