@@ -70,11 +70,23 @@ static DONE: AtomicBool = AtomicBool::new(false);
 static CONFIGURED: Mutex<Vec<(u32, u32)>> = Mutex::new(Vec::new());
 static CONFIGURED_SET: AtomicBool = AtomicBool::new(false);
 
+/// The full set of AP check flags the poller watches (slot_data `locationFlags` values). A shop-check
+/// ShopLineupParam row has its `eventFlag_forStock` set to one of these, so we can clamp EVERY shop
+/// check's stock (all 484 — goods AND equipment), not just the 45 rewrite rows, by matching on it.
+static CHECK_FLAGS: Mutex<Vec<u32>> = Mutex::new(Vec::new());
+
 /// Called by net.rs once slot_data is parsed. `rows` = (ShopLineupParam row id, AP tracking flag).
 pub fn configure(rows: Vec<(u32, u32)>) {
     tracing::info!("shop-flags: configured {} row(s) from slot_data shopRowFlags", rows.len());
     *CONFIGURED.lock().unwrap() = rows;
     CONFIGURED_SET.store(true, Ordering::Relaxed);
+}
+
+/// Called by net.rs with the poller's check-flag set (slot_data `locationFlags` values), so the stock
+/// clamp can reach every shop check by `eventFlag_forStock` match (no per-row id list needed).
+pub fn configure_check_flags(flags: Vec<u32>) {
+    tracing::info!("shop-flags: configured {} check flag(s) for stock clamp", flags.len());
+    *CHECK_FLAGS.lock().unwrap() = flags;
 }
 
 /// Resolve the live row and return the address of its `eventFlag_forStock` field, or None if the
@@ -102,6 +114,51 @@ fn write_stock_flag(row_id: u32, flag: u32) -> Option<u32> {
         unsafe { p.write_unaligned(flag) };
     }
     Some(old)
+}
+
+/// Clamp a shop row's `sellQuantity` to 1 (one-time), matching what the old baker forced. Uses the
+/// crate's mutable param API (`instance_mut` + `get_mut` + typed `set_sell_quantity`) — no raw offset,
+/// no `&T -> &mut T` cast. Returns Some(old) on success (Some(1) idempotent), None if the repo isn't
+/// up yet / the row is absent.
+fn set_sell_quantity_one(row_id: u32) -> Option<i16> {
+    // SAFETY: FD4 singleton; game thread, in-world (caller gates). instance_mut/get_mut are the crate's
+    // sanctioned mutable param access on the live RW param table.
+    let repo = unsafe { SoloParamRepository::instance_mut() }.ok()?;
+    let row: &mut SHOP_LINEUP_PARAM = repo.get_mut::<ShopLineupParam>(row_id)?;
+    let old = row.sell_quantity();
+    if old != 1 {
+        row.set_sell_quantity(1);
+    }
+    Some(old)
+}
+
+/// Full-scope stock clamp: scan ALL ShopLineupParam rows and force `sellQuantity = 1` on any whose
+/// `eventFlag_forStock` is an AP check flag. That set IS the shop checks (419 vanilla-flag + 45
+/// rewritten, goods AND equipment), so this covers slots the 45-row loop can't see (e.g. Dex-knot tear,
+/// any qty>1 weapon/armor slot). No-op if check flags weren't configured (pre-patch seed).
+fn clamp_check_row_stock() {
+    let flags: std::collections::HashSet<u32> =
+        CHECK_FLAGS.lock().unwrap().iter().copied().collect();
+    if flags.is_empty() {
+        return;
+    }
+    // SAFETY: FD4 singleton; game thread, in-world (caller gates). instance_mut + rows_mut iterate the
+    // live RW param table.
+    let repo = match unsafe { SoloParamRepository::instance_mut() } {
+        Ok(r) => r,
+        Err(_) => return,
+    };
+    let mut clamped = 0u32;
+    for (id, row) in repo.rows_mut::<ShopLineupParam>() {
+        let f = row.event_flag_for_stock();
+        if f != 0 && flags.contains(&f) && row.sell_quantity() != 1 {
+            let old = row.sell_quantity();
+            row.set_sell_quantity(1);
+            clamped += 1;
+            tracing::info!("shop-flags STOCK: row {id} (flag {f}) sellQuantity {old} -> 1");
+        }
+    }
+    tracing::info!("shop-flags STOCK: === scan clamped {clamped} check row(s) to sellQuantity=1 ===");
 }
 
 /// PROBE: read the known rows and report whether the live `eventFlag_forStock` matches the vanilla CSV.
@@ -168,6 +225,7 @@ pub fn run(row_flags: &[(u32, u32)]) -> bool {
         return true;
     }
     let mut wrote = 0;
+    let mut qty_clamped = 0;
     for &(row, flag) in row_flags {
         match write_stock_flag(row, flag) {
             Some(old) if old != flag => {
@@ -177,8 +235,22 @@ pub fn run(row_flags: &[(u32, u32)]) -> bool {
             Some(_) => { /* already correct (idempotent re-run) */ }
             None => tracing::warn!("shop-flags WRITE: row {row} absent; skipped"),
         }
+        // Stock parity with the old baker: a shop check fires its flag on the FIRST buy, but a vanilla
+        // slot with sellQuantity>1 (e.g. row 100506 = 3) lets you re-buy past the check and waste runes.
+        // Force sellQuantity=1 so the slot is consumed after one purchase. Idempotent.
+        if let Some(old_qty) = set_sell_quantity_one(row) {
+            if old_qty != 1 {
+                qty_clamped += 1;
+                tracing::info!("shop-flags WRITE: row {row} sellQuantity {old_qty} -> 1 (one-time)");
+            }
+        }
     }
-    tracing::info!("shop-flags WRITE: === injected {wrote}/{} rows ===", row_flags.len());
+    tracing::info!(
+        "shop-flags WRITE: === injected {wrote}/{} rows ({qty_clamped} sellQuantity clamped to 1) ===",
+        row_flags.len()
+    );
+    // Wider pass: clamp EVERY shop check (all 484, goods + equipment) to one-time, by check-flag match.
+    clamp_check_row_stock();
     DONE.store(true, Ordering::Relaxed);
     true
 }

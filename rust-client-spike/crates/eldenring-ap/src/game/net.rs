@@ -206,6 +206,9 @@ fn connect_and_serve(cfg: &ApConfig) {
                 // where the game tick + detour reach them. Every field is optional/tolerant, so a
                 // bake-path seed that omits them leaves both tables inert (no-op).
                 let location_flags = i64_to_u32_map(sd.get("locationFlags"));
+                // Stock parity: give shop_flags the full check-flag set so it can clamp EVERY shop
+                // check (all 484, goods + equipment) to one-time by matching eventFlag_forStock.
+                super::shop_flags::configure_check_flags(location_flags.values().copied().collect());
                 // [shop-detect] shopRowFlags: ShopLineupParam row id -> AP tracking flag. The client
                 // writes each row's eventFlag_forStock so a vanilla shop purchase sets the flag the
                 // poller already watches. Only configure when the KEY IS PRESENT (the apworld patch

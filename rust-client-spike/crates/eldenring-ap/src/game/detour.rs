@@ -60,6 +60,13 @@ const ADD_ITEM_FUNC_SIG: &[u8] = &[
     0x40, 0x55, 0x56, 0x57, 0x41, 0x54, 0x41, 0x55, 0x41, 0x56, 0x41, 0x57, 0x48, 0x8D, 0xAC, 0x24,
 ];
 
+// Pinned static slot that holds the live inventory instance pointer (eldenring.exe 2.6.2.0). Ported
+// from the C++ client's `Inventory_PtrLoc_RVA` (which it resolved from `InventoryAccessor_AOB`):
+// `*(module_base + this)` is the SAME pointer AddItemFunc receives as rcx — but readable WITHOUT
+// waiting for a pickup to capture it. Build cross-checked: the C++ `AddItemFunc_RVA` (0x005605B0)
+// equals our `ADD_ITEM_FUNC_RVA`, so the inventory slot RVA below is valid for this same build.
+const INVENTORY_PTRLOC_RVA: usize = 0x03D6_7A50;
+
 // itembuffer entry layout: rdx points at the entry (itembuf + 0x20); id at entry+0x04.
 const ITEMBUF_ENTRY_ID_OFF: usize = 0x04; // s32: itemId | (categoryNibble << 28), at entry+0x04
 const ITEMBUF_ENTRY_OFF: usize = 0x20; // a constructed itembuf's entry sits at buf+0x20 (C++ GrantItem)
@@ -158,14 +165,46 @@ pub fn grant_full_id(full_id: i32, qty: i32) -> bool {
     // no upgrades module). Mirrors the C++ GrantItem AutoUpgradeWeaponId site.
     #[cfg(feature = "net")]
     let full_id = super::upgrades::apply_auto_upgrade(full_id);
-    let inv = LAST_INVENTORY.load(Ordering::Relaxed);
+    // Prefer the pointer the detour captured (proven live for THIS session). If no pickup has
+    // happened yet this session, fall back to the pinned static inventory slot so the FIRST grant
+    // doesn't stall until a self-found pickup primes LAST_INVENTORY — this is the fix for "the client
+    // doesn't do anything until you pick up an item". Cache the resolved pointer so later grants
+    // (and any reader of LAST_INVENTORY) reuse it.
+    let mut inv = LAST_INVENTORY.load(Ordering::Relaxed);
     if inv < 0x10000 {
-        return false; // no inventory instance captured yet; retry after the next pickup
+        inv = inventory_from_static();
+        if inv >= 0x10000 {
+            LAST_INVENTORY.store(inv, Ordering::Relaxed);
+        }
+    }
+    if inv < 0x10000 {
+        return false; // not in-game yet (slot unpopulated); retry on the next tick
     }
     // Reuse the existing constructed-descriptor grant (port of the C++ GrantItem) with the live
     // inventory pointer the detour captured. goods->goods; full_id already carries the category nibble.
     grant_item(inv as *mut c_void, full_id, qty);
     true
+}
+
+/// Read the live inventory instance from the pinned static slot (`INVENTORY_PTRLOC_RVA`), the
+/// pickup-INDEPENDENT primer for `grant_full_id`. Returns 0 if the module base is unavailable or the
+/// slot isn't populated yet (not in-game). Port of the C++ `InventoryInstance()`: read one pointer,
+/// apply the game's own `>= 0x10000` validity guard.
+fn inventory_from_static() -> usize {
+    let base = match current_module_base() {
+        Some(b) => b,
+        None => return 0,
+    };
+    let ptr_loc = base + INVENTORY_PTRLOC_RVA;
+    // SAFETY: `ptr_loc` = module base + a pinned data RVA inside the loaded eldenring.exe image;
+    // reads exactly one usize (the inventory instance pointer the game stores there). A value
+    // < 0x10000 means the slot isn't populated yet (not in-world) — the same guard the C++ used.
+    let inst = unsafe { (ptr_loc as *const usize).read_unaligned() };
+    if inst >= 0x10000 {
+        inst
+    } else {
+        0
+    }
 }
 
 /// Resolve the function address. TODO (version-robustness): replace the pinned RVA with an AOB scan
