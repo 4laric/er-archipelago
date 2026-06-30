@@ -218,12 +218,14 @@ fn connect_and_serve(cfg: &ApConfig) {
                     );
                 }
                 // [shop-preview] shopPreviewGoods: AP location id -> the vanilla good id that shop slot
-                // displays. The client overwrites that good's GoodsName/Caption with the scouted AP item.
+                // displays. The client overwrites that good's GoodsName/Info/Caption with the scouted AP
+                // item (extend-swap) AND points its iconId at the telescope's (me3 flower icon).
                 if let Some(spg) = sd.get("shopPreviewGoods") {
                     let m = i64_to_u32_map(Some(spg));
-                    super::shop_preview::configure(
-                        m.into_iter().map(|(loc, g)| (loc, g as i32)).collect(),
-                    );
+                    let pairs: Vec<(i64, i32)> = m.into_iter().map(|(loc, g)| (loc, g as i32)).collect();
+                    let good_ids: Vec<u32> = pairs.iter().map(|(_, g)| *g as u32).collect();
+                    super::shop_preview::configure(pairs);
+                    super::shop_icon::configure(good_ids);
                 }
                 // STEP 0: build (don't issue) the pre-scout proof from the seed's check locations.
                 // Construct-only here (conn.client() is borrowed immutably in this block); pump() issues

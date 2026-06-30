@@ -48,6 +48,8 @@ mod shop_flags; // shop-check detection (staged): write AP tracking flag onto li
 #[cfg(feature = "net")]
 mod shop_preview; // shop-slot preview: overwrite the displayed good's name/caption with its AP item
 #[cfg(feature = "net")]
+mod shop_icon; // shop-slot AP icon: point the displayed good's EquipParamGoods.iconId at the telescope's (me3 flower)
+#[cfg(feature = "net")]
 mod progressive;
 #[cfg(feature = "net")]
 mod upgrades;
@@ -218,6 +220,12 @@ fn tick() {
         static SHOP_PREVIEW_DONE: AtomicBool = AtomicBool::new(false);
         if !SHOP_PREVIEW_DONE.load(Ordering::Relaxed) && flags::in_world() && shop_preview::run() {
             SHOP_PREVIEW_DONE.store(true, Ordering::Relaxed);
+        }
+        // Shop-slot AP icon: stamp the telescope iconId (me3's flower texture) onto each randomized
+        // shop good so the slot shows the AP flower (same branding synthetics get). See shop_icon.rs.
+        static SHOP_ICON_DONE: AtomicBool = AtomicBool::new(false);
+        if !SHOP_ICON_DONE.load(Ordering::Relaxed) && flags::in_world() && shop_icon::run() {
+            SHOP_ICON_DONE.store(true, Ordering::Relaxed);
         }
     }
 
