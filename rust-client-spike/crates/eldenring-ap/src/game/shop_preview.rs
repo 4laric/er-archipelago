@@ -1,42 +1,38 @@
-//! shop_preview.rs — show the AP reward on a randomized shop slot.
+//! shop_preview.rs — make a pure-runtime shop slot READ as the AP reward it actually gives.
 //!
 //! A pure-runtime shop slot sells its VANILLA ware (no bake rewrote ShopLineupParam.equipId), so the
-//! menu shows e.g. "Glintstone Pebble" even though buying it sends an AP item out. This overwrites that
-//! vanilla good's GoodsName (cat 10) + GoodsCaption (cat 24) in place with the scouted AP item, so the
-//! slot reads as what it really gives. Driven by slot_data `shopPreviewGoods` = {AP location id ->
-//! vanilla good id it displays}; the AP item comes from the scout cache (`scout_proof::lookup`).
+//! menu would show e.g. "Cracked Pot" even though buying it hands out an AP item. This rewrites that
+//! vanilla good's FMG strings to the scouted AP item:
+//!   * GoodsName    (cat 10) — the slot title (grid tile + detail pane),
+//!   * GoodsInfo    (cat 20) — the "Item Effect" line the BUY/inspect menu actually renders,
+//!   * GoodsCaption (cat 24) — the long inventory lore box (shown once the item is owned).
+//! Driven by slot_data `shopPreviewGoods` = {AP location id -> vanilla good id it displays}; the AP
+//! item text comes from the scout cache (`scout_proof::lookup`).
 //!
-//! ⚠️ The overwrite is GLOBAL (the FMG entry is shared) — that good is renamed everywhere (inventory,
-//! other shops). Accepted tradeoff for shop-exclusive wares; we keep it tame by (a) only touching slots
-//! whose item is FOREIGN (going to another player), and (b) only overwriting the NAME when the AP name
-//! fits the vanilla slot (entries are packed; in-place writes can't grow). The CAPTION almost always
-//! fits (vanilla lore is long), so the lore box is the reliable carrier.
+//! Mechanism: EXTEND-SWAP via `fmg_inject::extend_swap_overrides`, NOT in-place. The old in-place path
+//! could only write a string that FIT the packed vanilla entry, so a longer AP name/info silently kept
+//! vanilla (e.g. "Fulgurbloom x4" can't overwrite "Cracked Pot", and 165/266 names were dropped this
+//! way). extend-swap rebuilds the category block from the LIVE pointer — preserving fmg_inject's
+//! synthetic-goods swap — with the overridden ids redirected to freshly-appended strings, so any length
+//! fits. The rebuild is validated in our own memory before the atomic swap; a mismatch aborts (game
+//! untouched). Runs AFTER fmg_inject each tick (see mod.rs), so it reads the post-swap blocks.
 //!
-//! Mechanism = the proven in-place path (fmg_probe gate): `SearchStringTable(repo,0,cat,id)` returns the
-//! live UTF-16 buffer; overwrite under VirtualProtect RW, NUL-terminate, restore protection.
+//! ⚠️ The override is GLOBAL — the FMG entry is shared, so the good is renamed everywhere (inventory,
+//! other shops). Accepted tradeoff for shop-exclusive wares. We dedup by good id first: this seed has
+//! 266 slots but only ~212 distinct goods, and the shared entry can only show one reward, so duplicates
+//! collapse to last-wins (the GIVEN item is still correct — it comes from the flag/grant, not the name).
 
 #![allow(dead_code)]
 
-use std::ffi::c_void;
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
-const REPO_RVA: usize = 0x3D7D4F8;
-const SEARCH_RVA: usize = 0x266D3C0;
-const SEARCH_SIG: &[u8] = &[
-    0x3B, 0x51, 0x10, 0x73, 0x29, 0x44, 0x3B, 0x41, 0x14, 0x73, 0x23, 0x48, 0x8B, 0x41, 0x08,
-];
 const GOODS_NAME_CAT: u32 = 10;
-const GOODS_CAPTION_CAT: u32 = 24;
-/// GoodsInfo (the short "Item Effect" line). PINNED 2026-06-30: this is the box the BUY/inspect menu
-/// actually renders — confirmed in-game on Kalé's good 150, whose Item Effect still read the vanilla
-/// "Reveals co-op and hostile summoning signs" (cat 20) while our cat-24 caption never showed. Writing
-/// the AP info here puts the routing text where the shop displays it. In-place, so it only lands where
-/// it fits the (short) vanilla info line; long ones stay vanilla (polish — the cat-10 name carries the
-/// reward when it fit).
+/// GoodsInfo — the short "Item Effect" line the BUY/inspect menu actually renders (confirmed in-game).
 const GOODS_INFO_CAT: u32 = 20;
-
-type SearchFn = unsafe extern "C" fn(*mut c_void, u32, u32, u32) -> *const u16;
+/// GoodsCaption — the long inventory lore box (shown once the item is owned).
+const GOODS_CAPTION_CAT: u32 = 24;
 
 /// slot_data `shopPreviewGoods` -> (AP location id, vanilla good id). Set by net.rs at connect.
 static CONFIGURED: Mutex<Vec<(i64, i32)>> = Mutex::new(Vec::new());
@@ -49,67 +45,8 @@ pub fn configure(pairs: Vec<(i64, i32)>) {
     CONFIGURED_SET.store(true, Ordering::Relaxed);
 }
 
-fn plausible(p: usize) -> bool {
-    p >= 0x10000 && p < 0x7FFF_FFFF_FFFF
-}
-fn module_base() -> Option<usize> {
-    use windows::Win32::System::LibraryLoader::GetModuleHandleW;
-    Some(unsafe { GetModuleHandleW(None) }.ok()?.0 as usize)
-}
-unsafe fn read_usize(a: usize) -> usize {
-    (a as *const usize).read_unaligned()
-}
-fn sig_ok(addr: usize) -> bool {
-    let b = unsafe { std::slice::from_raw_parts(addr as *const u8, SEARCH_SIG.len()) };
-    b == SEARCH_SIG
-}
-
-/// UTF-16 length (units, excluding NUL) of the live string at `ptr`, or None if implausible/empty.
-unsafe fn str_units(ptr: *const u16) -> Option<usize> {
-    if !plausible(ptr as usize) {
-        return None;
-    }
-    let mut n = 0usize;
-    while n < 4096 {
-        if ptr.add(n).read_unaligned() == 0 {
-            break;
-        }
-        n += 1;
-    }
-    if n == 0 {
-        None
-    } else {
-        Some(n)
-    }
-}
-
-/// Overwrite the FMG entry (category, id) with `new` IN PLACE, only if it fits within the original
-/// entry (<= original units). Returns true if written. The buffer must already exist (vanilla id).
-unsafe fn overwrite(search: SearchFn, repo: *mut c_void, category: u32, id: u32, new: &[u16]) -> bool {
-    let ptr = search(repo, 0, category, id);
-    let orig = match str_units(ptr) {
-        Some(n) => n,
-        None => return false, // no existing entry to overwrite
-    };
-    if new.len() > orig {
-        return false; // would overrun the packed entry; caller falls back / skips
-    }
-    use windows::Win32::System::Memory::{VirtualProtect, PAGE_PROTECTION_FLAGS, PAGE_READWRITE};
-    let bytes = (new.len() + 1) * 2;
-    let mut old = PAGE_PROTECTION_FLAGS(0);
-    if VirtualProtect(ptr as *const c_void, bytes, PAGE_READWRITE, &mut old).is_err() {
-        return false;
-    }
-    let dst = ptr as *mut u16;
-    for (i, &u) in new.iter().enumerate() {
-        dst.add(i).write_unaligned(u);
-    }
-    dst.add(new.len()).write_unaligned(0); // NUL-terminate (fits: new.len() < orig, NUL slot exists)
-    let _ = VirtualProtect(ptr as *const c_void, bytes, old, &mut old);
-    true
-}
-
-/// In-world, scout-ready: overwrite each previewed shop good's name+caption with its AP item. Latches.
+/// In-world, scout-ready: rewrite each previewed shop good's name + info + caption to its AP item via
+/// extend-swap (so any length fits). Latches once applied.
 pub fn run() -> bool {
     if DONE.load(Ordering::Relaxed) {
         return true;
@@ -125,56 +62,43 @@ pub fn run() -> bool {
         DONE.store(true, Ordering::Relaxed);
         return true;
     }
-    let base = match module_base() {
-        Some(b) => b,
-        None => return true,
-    };
-    let search_addr = base + SEARCH_RVA;
-    if !sig_ok(search_addr) {
-        tracing::warn!("shop-preview: SearchStringTable sig mismatch; abort");
-        DONE.store(true, Ordering::Relaxed);
-        return true;
-    }
-    let search: SearchFn = unsafe { std::mem::transmute::<usize, SearchFn>(search_addr) };
-    let repo = unsafe { read_usize(base + REPO_RVA) };
-    if !plausible(repo) {
-        return false; // repo not up yet
-    }
-    let repo = repo as *mut c_void;
 
-    let (mut names, mut caps, mut foreign, mut name_skips, mut infos) = (0u32, 0u32, 0u32, 0u32, 0u32);
+    // Build per-category override maps (vanilla good id -> AP text) from the scout cache, deduped by
+    // good id (the FMG entry is global; duplicates would otherwise fail the rebuild's validation).
+    let mut nmap: HashMap<u32, Vec<u16>> = HashMap::new();
+    let mut imap: HashMap<u32, Vec<u16>> = HashMap::new();
+    let mut cmap: HashMap<u32, Vec<u16>> = HashMap::new();
+    let mut foreign = 0u32;
     for (loc, good) in &pairs {
         let Some(s) = super::scout_proof::lookup(*loc) else { continue };
-        // Preview EVERY randomized goods slot, not just foreign ones — in a 2-slot most shop rewards
-        // are your OWN game's items, and skipping them leaves the shop looking un-randomized. `foreign`
-        // is still tracked for the log + caption wording.
         if s.foreign {
             foreign += 1;
         }
         let gid = *good as u32;
-        // NAME: just the AP item name; overwrite only if it fits the vanilla slot.
-        let nm: Vec<u16> = s.name.encode_utf16().collect();
-        if unsafe { overwrite(search, repo, GOODS_NAME_CAT, gid, &nm) } {
-            names += 1;
-        } else {
-            name_skips += 1;
-        }
-        // CAPTION: full AP info (name included, so it reads even if the name didn't fit). Vanilla lore
-        // is long, so this fits in place.
-        let cap = format!("AP: {}\nFor: {} ({})\n{}", s.name, s.owner, s.game, s.kind.label());
-        let cu: Vec<u16> = cap.encode_utf16().collect();
-        if unsafe { overwrite(search, repo, GOODS_CAPTION_CAT, gid, &cu) } {
-            caps += 1;
-        }
-        // INFO (cat 20): the "Item Effect" line the buy/inspect menu actually shows. Same AP text,
-        // in-place — only lands where it fits the short vanilla info line.
-        if unsafe { overwrite(search, repo, GOODS_INFO_CAT, gid, &cu) } {
-            infos += 1;
-        }
+        // NAME: the AP item name (slot title).
+        nmap.insert(gid, s.name.encode_utf16().collect());
+        // INFO + CAPTION: the same multi-line AP routing block that renders cleanly in the Item Effect
+        // box ("AP: <item> / For: <owner> (<game>) / <kind>").
+        let text = format!("AP: {}\nFor: {} ({})\n{}", s.name, s.owner, s.game, s.kind.label());
+        let units: Vec<u16> = text.encode_utf16().collect();
+        imap.insert(gid, units.clone());
+        cmap.insert(gid, units);
     }
+    let names: Vec<(u32, Vec<u16>)> = nmap.into_iter().collect();
+    let infos: Vec<(u32, Vec<u16>)> = imap.into_iter().collect();
+    let caps: Vec<(u32, Vec<u16>)> = cmap.into_iter().collect();
+
+    let n = super::fmg_inject::extend_swap_overrides(GOODS_NAME_CAT, &names);
+    let i = super::fmg_inject::extend_swap_overrides(GOODS_INFO_CAT, &infos);
+    let c = super::fmg_inject::extend_swap_overrides(GOODS_CAPTION_CAT, &caps);
     tracing::info!(
-        "shop-preview: {} slots ({} foreign) -> {} names + {} infos + {} captions overwritten ({} names too long, kept vanilla)",
-        pairs.len(), foreign, names, infos, caps, name_skips
+        "shop-preview: {} slots ({} foreign, {} distinct) -> extend-swap names={} infos={} captions={}",
+        pairs.len(),
+        foreign,
+        names.len(),
+        n,
+        i,
+        c
     );
     DONE.store(true, Ordering::Relaxed);
     true

@@ -196,9 +196,19 @@ unsafe fn build_block(
     groups: &[Group],
     offsets: &[u64],
     injects: &[(u32, Vec<u16>)],
+    overrides: &[(u32, Vec<u16>)],
 ) -> Option<usize> {
     let num_vanilla = offsets.len();
     let num_out = num_vanilla + injects.len();
+    // Overrides REPLACE the string of an EXISTING id (no new string-index slot): resolve each id to its
+    // string index via the vanilla groups; ids not in any group are skipped. The redirect + the appended
+    // override string happen below. (si -> new units)
+    let mut ovr: Vec<(usize, &Vec<u16>)> = Vec::new();
+    for (id, s) in overrides {
+        if let Some(g) = groups.iter().find(|g| *id >= g.first_id && *id <= g.last_id) {
+            ovr.push(((*id - g.first_id + g.string_index_base) as usize, s));
+        }
+    }
     // Merge contiguous inject ids into RUNS -> one group per run (sorted; ids > all vanilla ids). This
     // keeps groups few + non-overlapping so the game's binary search is boundary-safe (4777 single-id
     // groups created an edge case on the lowest ids). String indices stay sequential per inject.
@@ -232,7 +242,8 @@ unsafe fn build_block(
     }
     let uniq_bytes: usize = uniq_units.iter().map(|s| (s.len() + 1) * 2).sum();
     let inj_bytes: usize = injects.iter().map(|(_, s)| (s.len() + 1) * 2).sum();
-    let total = strings_off + uniq_bytes + inj_bytes;
+    let ovr_bytes: usize = ovr.iter().map(|(_, s)| (s.len() + 1) * 2).sum();
+    let total = strings_off + uniq_bytes + inj_bytes + ovr_bytes;
 
     let block = valloc(total)?;
     // header (0..0x28) verbatim
@@ -276,9 +287,28 @@ unsafe fn build_block(
         inj_off.push(wpos as u64);
         wpos += (s.len() + 1) * 2;
     }
-    // offset table: vanilla indices (relocated) then injected indices
+    // override strings: appended after the injected strings; record the new offset per overridden
+    // string index so the offset table below can redirect that id to its longer string.
+    let mut ovr_off: HashMap<usize, u64> = HashMap::new();
+    for (si, s) in &ovr {
+        let dst = block + wpos;
+        for (i, &u) in s.iter().enumerate() {
+            write_u16(dst + i * 2, u);
+        }
+        write_u16(dst + s.len() * 2, 0);
+        ovr_off.insert(*si, wpos as u64);
+        wpos += (s.len() + 1) * 2;
+    }
+    // offset table: vanilla indices (relocated), redirecting any overridden index to its new string,
+    // then injected indices.
     for (s, &off) in offsets.iter().enumerate() {
-        let v = if off == 0 { 0 } else { uniq_off[map[&off]] };
+        let v = if let Some(&o) = ovr_off.get(&s) {
+            o
+        } else if off == 0 {
+            0
+        } else {
+            uniq_off[map[&off]]
+        };
         write_u64(block + offtab_off + s * 8, v);
     }
     for (i, &off) in inj_off.iter().enumerate() {
@@ -383,7 +413,7 @@ pub fn run_descriptions(descriptions: &[(u32, Vec<u16>)]) -> bool {
     let mut injects: Vec<(u32, Vec<u16>)> = descriptions.to_vec();
     injects.sort_by_key(|(id, _)| *id);
 
-    let block = match unsafe { build_block(md, &groups, &offsets, &injects) } {
+    let block = match unsafe { build_block(md, &groups, &offsets, &injects, &[]) } {
         Some(b) => b,
         None => {
             tracing::warn!("FMG-inject(caption): build_block failed (alloc?)");
@@ -450,6 +480,82 @@ fn resolve_synth_injects(ids: &[u32]) -> (Vec<(u32, Vec<u16>)>, Vec<(u32, Vec<u1
         names.push((id, name.encode_utf16().collect::<Vec<u16>>()));
     }
     (names, caps)
+}
+
+/// Extend-swap OVERRIDES: replace the strings of EXISTING ids in `base_array[0][category]` with longer
+/// AP strings, rebuilding from the LIVE block so any prior swap (e.g. this module's synthetic-goods
+/// appends) is preserved. Used by shop_preview for names/info/captions that don't fit the packed vanilla
+/// entry in place. Validated in OUR memory before the swap (a sample of non-overridden ids round-trips +
+/// every override resolves to exactly what we wrote); any mismatch aborts (game untouched). No-op on
+/// empty / category-not-up. Returns how many overrides landed.
+pub fn extend_swap_overrides(category: u32, overrides: &[(u32, Vec<u16>)]) -> usize {
+    if overrides.is_empty() {
+        return 0;
+    }
+    let base = match current_module_base() {
+        Some(b) => b,
+        None => return 0,
+    };
+    let md = match unsafe { category_msgdata(base, category) } {
+        Some(m) => m,
+        None => return 0, // repo/category not up yet — caller retries next tick
+    };
+    let (groups, offsets) = match unsafe { parse(md) } {
+        Some(p) => p,
+        None => {
+            tracing::warn!("FMG extend-swap(cat {category}): parse failed");
+            return 0;
+        }
+    };
+    // keep only ids that exist in a group (others have no slot to redirect)
+    let resolvable: Vec<(u32, Vec<u16>)> = overrides
+        .iter()
+        .filter(|(id, _)| groups.iter().any(|g| *id >= g.first_id && *id <= g.last_id))
+        .cloned()
+        .collect();
+    if resolvable.is_empty() {
+        return 0;
+    }
+    let block = match unsafe { build_block(md, &groups, &offsets, &[], &resolvable) } {
+        Some(b) => b,
+        None => {
+            tracing::warn!("FMG extend-swap(cat {category}): build_block failed (alloc?)");
+            return 0;
+        }
+    };
+    let (g2, o2) = match unsafe { parse(block) } {
+        Some(p) => p,
+        None => {
+            tracing::warn!("FMG extend-swap(cat {category}): rebuilt block failed re-parse; NOT swapping");
+            return 0;
+        }
+    };
+    let ovr_ids: std::collections::HashSet<u32> = resolvable.iter().map(|(id, _)| *id).collect();
+    let mut mismatch = 0;
+    for g in groups.iter().take(16) {
+        let id = g.first_id;
+        if ovr_ids.contains(&id) {
+            continue; // overridden on purpose; checked below
+        }
+        if my_lookup(md, &groups, &offsets, id) != my_lookup(block, &g2, &o2, id) {
+            mismatch += 1;
+        }
+    }
+    for (id, s) in &resolvable {
+        let want = String::from_utf16_lossy(s);
+        if my_lookup(block, &g2, &o2, *id).as_deref() != Some(want.as_str()) {
+            mismatch += 1;
+        }
+    }
+    if mismatch != 0 {
+        tracing::warn!(
+            "FMG extend-swap(cat {category}): rebuilt block mismatch on {mismatch} id(s); NOT swapping (safe)"
+        );
+        return 0;
+    }
+    unsafe { swap_category(base, category, block) };
+    tracing::info!("FMG extend-swap(cat {category}): swapped (+{} overrides)", resolvable.len());
+    resolvable.len()
 }
 
 pub fn run() -> bool {
@@ -521,7 +627,7 @@ pub fn run() -> bool {
         Vec::new()
     };
 
-    let block = match unsafe { build_block(md, &groups, &offsets, &injects) } {
+    let block = match unsafe { build_block(md, &groups, &offsets, &injects, &[]) } {
         Some(b) => b,
         None => {
             tracing::warn!("FMG-inject: build_block failed (alloc?)");
