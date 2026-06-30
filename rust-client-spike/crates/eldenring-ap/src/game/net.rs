@@ -153,6 +153,9 @@ fn connect_and_serve(cfg: &ApConfig) {
                 let sd = client.slot_data(); // &serde_json::Value
                 item_map = i64_map(sd.get("apIdsToItemIds"));
                 item_counts = i64_map(sd.get("itemCounts"));
+                // Give the scout cache the AP-item -> ER FullID map so it can resolve each OWN-WORLD
+                // goods reward's real good id (for the shop icon + description borrow).
+                super::scout_proof::configure_item_map(item_map.clone());
 
                 if let Some(range) = sd.get("versions").and_then(|v| v.as_str()) {
                     if !crate::contract_satisfies(range) {
@@ -226,9 +229,8 @@ fn connect_and_serve(cfg: &ApConfig) {
                 if let Some(spg) = sd.get("shopPreviewGoods") {
                     let m = i64_to_u32_map(Some(spg));
                     let pairs: Vec<(i64, i32)> = m.into_iter().map(|(loc, g)| (loc, g as i32)).collect();
-                    let good_ids: Vec<u32> = pairs.iter().map(|(_, g)| *g as u32).collect();
+                    super::shop_icon::configure(pairs.clone());
                     super::shop_preview::configure(pairs);
-                    super::shop_icon::configure(good_ids);
                 }
                 // STEP 0: build (don't issue) the pre-scout proof from the seed's check locations.
                 // Construct-only here (conn.client() is borrowed immutably in this block); pump() issues

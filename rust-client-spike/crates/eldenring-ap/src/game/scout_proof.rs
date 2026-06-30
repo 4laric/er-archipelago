@@ -42,11 +42,25 @@ pub struct ScoutedItem {
     /// True if this location's item goes to a DIFFERENT player (foreign) — i.e. checking it SENDS the
     /// item out. Computed from sender (always us, since the location is in our world) vs receiver slot.
     pub foreign: bool,
+    /// For an OWN-WORLD GOODS reward, the real ER EquipParamGoods row id — so a shop slot can borrow the
+    /// actual item's icon + description instead of the generic AP flower / routing text. `None` for
+    /// foreign items (no ER counterpart) and non-goods rewards (weapon/armor — not handled yet).
+    pub er_good_id: Option<u32>,
 }
 
 /// AP location id -> scouted item. `None` until the first LocationScouts reply lands; `Some` (even if
 /// empty) once it has, so fmg_inject can tell "not scouted yet" from "scouted, no hit".
 static CACHE: Mutex<Option<HashMap<i64, ScoutedItem>>> = Mutex::new(None);
+
+/// `apIdsToItemIds` (AP item id -> ER FullID), set by net.rs at slot_data parse. Lets `store` resolve
+/// an own-world reward's real ER good id for the shop icon/description borrow.
+static AP_ITEM_TO_FULLID: Mutex<Option<HashMap<i64, i64>>> = Mutex::new(None);
+
+/// Called by net.rs with slot_data `apIdsToItemIds` so own-world goods rewards can be resolved to their
+/// real ER good id. Safe to call before the scout reply (store reads it when the reply lands).
+pub fn configure_item_map(map: HashMap<i64, i64>) {
+    *AP_ITEM_TO_FULLID.lock().unwrap() = Some(map);
+}
 
 /// True once the scout reply has populated the cache. Lets fmg_inject wait for real names instead of
 /// latching AP#<id> placeholders.
@@ -61,8 +75,26 @@ pub fn lookup(location_id: i64) -> Option<ScoutedItem> {
 
 fn store(items: &[ap::LocatedItem]) {
     use er_logic::name_override::ItemKind;
+    let item_map = AP_ITEM_TO_FULLID.lock().unwrap();
     let mut map = HashMap::with_capacity(items.len());
     for li in items {
+        let foreign = li.sender().slot() != li.receiver().slot();
+        // OWN-WORLD goods reward -> its real ER good id (apIdsToItemIds -> FullID -> goods row), so the
+        // shop slot can use the item's actual icon + lore. Foreign / non-goods -> None (stay generic).
+        let er_good_id = if foreign {
+            None
+        } else {
+            item_map.as_ref().and_then(|m| m.get(&li.item().id())).and_then(|&fid| {
+                let q = fid as u32;
+                if er_codec::item_category_of(q) == er_codec::CATEGORY_GOODS
+                    && !er_codec::is_synthetic_goods(q)
+                {
+                    Some(er_codec::row_id_of(q))
+                } else {
+                    None
+                }
+            })
+        };
         map.insert(
             li.location().id(),
             ScoutedItem {
@@ -71,7 +103,8 @@ fn store(items: &[ap::LocatedItem]) {
                 owner: li.receiver().alias().to_string(),
                 slot: li.receiver().slot(),
                 kind: ItemKind::from_flags(li.is_progression(), li.is_useful(), li.is_trap()),
-                foreign: li.sender().slot() != li.receiver().slot(),
+                foreign,
+                er_good_id,
             },
         );
     }

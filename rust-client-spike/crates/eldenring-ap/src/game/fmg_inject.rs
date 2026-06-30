@@ -482,6 +482,24 @@ fn resolve_synth_injects(ids: &[u32]) -> (Vec<(u32, Vec<u16>)>, Vec<(u32, Vec<u1
     (names, caps)
 }
 
+/// Read the LIVE FMG string for a goods `(category, id)` via `SearchStringTable` — used by shop_preview
+/// to borrow an own-world reward's real GoodsName(10) / GoodsInfo(20) / GoodsCaption(24). Read-only.
+/// `None` if the table/signature isn't up yet or the id has no entry.
+pub fn read_goods_string(category: u32, id: u32) -> Option<String> {
+    let base = current_module_base()?;
+    let search_addr = base + SEARCH_RVA;
+    if !sig_ok(search_addr) {
+        return None;
+    }
+    let search: SearchFn = unsafe { std::mem::transmute::<usize, SearchFn>(search_addr) };
+    let repo = unsafe { read_usize(base + REPO_RVA) };
+    if !plausible(repo) {
+        return None;
+    }
+    let ptr = unsafe { search(repo as *mut c_void, 0, category, id) } as usize;
+    read_string(ptr)
+}
+
 /// Extend-swap OVERRIDES: replace the strings of EXISTING ids in `base_array[0][category]` with longer
 /// AP strings, rebuilding from the LIVE block so any prior swap (e.g. this module's synthetic-goods
 /// appends) is preserved. Used by shop_preview for names/info/captions that don't fit the packed vanilla

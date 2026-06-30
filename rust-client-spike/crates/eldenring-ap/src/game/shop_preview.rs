@@ -69,20 +69,33 @@ pub fn run() -> bool {
     let mut imap: HashMap<u32, Vec<u16>> = HashMap::new();
     let mut cmap: HashMap<u32, Vec<u16>> = HashMap::new();
     let mut foreign = 0u32;
+    let mut own_world = 0u32;
     for (loc, good) in &pairs {
         let Some(s) = super::scout_proof::lookup(*loc) else { continue };
         if s.foreign {
             foreign += 1;
         }
         let gid = *good as u32;
-        // NAME: the AP item name (slot title).
+        // NAME: the AP item name (slot title) — already the real name for own-world items.
         nmap.insert(gid, s.name.encode_utf16().collect());
-        // INFO + CAPTION: the same multi-line AP routing block that renders cleanly in the Item Effect
-        // box ("AP: <item> / For: <owner> (<game>) / <kind>").
-        let text = format!("AP: {}\nFor: {} ({})\n{}", s.name, s.owner, s.game, s.kind.label());
-        let units: Vec<u16> = text.encode_utf16().collect();
-        imap.insert(gid, units.clone());
-        cmap.insert(gid, units);
+        // INFO (20) + CAPTION (24): an OWN-WORLD goods reward borrows the REAL item's live FMG strings,
+        // so the slot reads exactly like the actual reward (its true effect + lore). FOREIGN / non-goods
+        // rewards get the generic AP routing block. Read miss falls back to the AP block.
+        let ap_text = format!("AP: {}\nFor: {} ({})\n{}", s.name, s.owner, s.game, s.kind.label());
+        let (info_u, cap_u): (Vec<u16>, Vec<u16>) = match s.er_good_id {
+            Some(r) => {
+                own_world += 1;
+                let info = super::fmg_inject::read_goods_string(20, r).unwrap_or_else(|| ap_text.clone());
+                let cap = super::fmg_inject::read_goods_string(24, r).unwrap_or_else(|| ap_text.clone());
+                (info.encode_utf16().collect(), cap.encode_utf16().collect())
+            }
+            None => {
+                let u: Vec<u16> = ap_text.encode_utf16().collect();
+                (u.clone(), u)
+            }
+        };
+        imap.insert(gid, info_u);
+        cmap.insert(gid, cap_u);
     }
     let names: Vec<(u32, Vec<u16>)> = nmap.into_iter().collect();
     let infos: Vec<(u32, Vec<u16>)> = imap.into_iter().collect();
@@ -92,9 +105,10 @@ pub fn run() -> bool {
     let i = super::fmg_inject::extend_swap_overrides(GOODS_INFO_CAT, &infos);
     let c = super::fmg_inject::extend_swap_overrides(GOODS_CAPTION_CAT, &caps);
     tracing::info!(
-        "shop-preview: {} slots ({} foreign, {} distinct) -> extend-swap names={} infos={} captions={}",
+        "shop-preview: {} slots ({} foreign, {} own-world goods w/ real lore, {} distinct) -> extend-swap names={} infos={} captions={}",
         pairs.len(),
         foreign,
+        own_world,
         names.len(),
         n,
         i,
