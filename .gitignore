@@ -54,6 +54,18 @@ ap-client-log.txt
 _dg_tmp.py
 .write_test_xyz
 
+# --- seed-parking: keep metadata (.ps1/.txt/.yaml/.md), NEVER the deployed game blobs ---
+# game-files/ = provisioned map/event/msg/script .dcx + regulation.bin (copyrighted, generated).
+# save/ = ER0000.sl2 personal saves. mods/ = compiled archipelago.dll. ap-server/ = AP_*.zip output.
+# _pre-restore-backup-*/ = full duplicate snapshot of all of the above.
+seeds-archive/*/game-files/
+seeds-archive/*/save/
+seeds-archive/*/mods/
+seeds-archive/*/ap-server/
+seeds-archive/**/_pre-restore-backup-*/
+# Save files are never source, anywhere in the tree.
+*.sl2
+
 # --- vendored / scratch dirs that must NOT be committed to the superrepo ---
 # Vanilla game data dump (copyrighted; same rule as /elden_ring_artifacts/). NEVER commit.
 /vanilla-game-snapshot/
