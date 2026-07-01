@@ -54,6 +54,32 @@ ap-client-log.txt
 _dg_tmp.py
 .write_test_xyz
 
+# --- large build / deploy outputs (regenerable) ---
+/build/                     # ap_icon build output (~3 GB)
+/me3/                       # deployed mod runtime: eldenring_archipelago.dll, apconfig.json, package
+/applied_patches/           # applied-patch output incl. regulation.bin (game data)
+
+# --- diag dumps / bake snapshots (regenerable) ---
+ap_uncovered_flags_*.txt
+apconfig_max.json
+apconfig_snapshot*.json
+lotmap.json
+runtime.me3
+# stray duplicate of the canonical table (source of truth = Archipelago/worlds/eldenring/)
+/er_static_detection_table.json
+
+# --- one-off patch scripts (transient; applied then discarded) ---
+patch_*.py
+
+# --- personal scratch yamls (shareable config = EldenRing-MASTER-template.yaml) ---
+/EldenRing-Alaric.regionlock.yaml
+/EldenRing-AlaricBase.yaml
+
+# --- internal memory mirrors: do NOT commit to the public repo ---
+/trust-alaric-cleared-layers.md
+/er-ap-icon-override.md
+/er-artifacts-tooling.md
+
 # --- seed-parking: keep metadata (.ps1/.txt/.yaml/.md), NEVER the deployed game blobs ---
 # game-files/ = provisioned map/event/msg/script .dcx + regulation.bin (copyrighted, generated).
 # save/ = ER0000.sl2 personal saves. mods/ = compiled archipelago.dll. ap-server/ = AP_*.zip output.
