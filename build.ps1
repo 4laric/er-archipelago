@@ -1,183 +1,85 @@
-# build.ps1 -- ER Archipelago build/bake/deploy driver
+# build.ps1 -- ER Archipelago (pure-runtime) build / deploy driver
+#
+# Pure-runtime only: vanilla ELDEN RING + the apworld + the Rust client under me3.
+# No SoulsRandomizers baker, no C++ client, no regulation/event/msg/script/map overlays.
+# (The baker + C++ client were retired 2026-07-01; see git history for the old build.ps1.)
 #
 # Usage (from the repo root, any PowerShell):
-#   .\build.ps1 -Randomizer              # build the C# static randomizer (clean, non-incremental)
-#   .\build.ps1 -Client                  # build the C++ runtime client DLL (full rebuild)
-#   .\build.ps1 -Rust                    # build + test the Rust client spike (cargo test + cdylib for x86_64-pc-windows-msvc)
-#   .\build.ps1 -RustDeploy              # swap the Rust client into mods\ (parks the C++ archipelago.dll; EML loads one client)
-#   .\build.ps1 -CppRestore              # swap back to the C++ client (parks eldenring_ap.dll)
-#   .\build.ps1 -Me3Deploy               # set up the me3 profile+package (VFS icon override + client native + apconfig); parks the EML dll. Launch: me3 launch --profile me3\ap.me3
+#   .\build.ps1 -Apworld                 # package Archipelago\worlds\eldenring -> eldenring.apworld
+#   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py); REQUIRED after apworld changes
+#   .\build.ps1 -Rust                    # cargo test + build the Rust client cdylib (eldenring_archipelago.dll)
+#   .\build.ps1 -Me3Deploy               # stage DLL + apconfig + AP icon into me3\, write the ap.me3 profile
 #   .\build.ps1 -Me3Restore              # un-park the EML client dll (revert -Me3Deploy's park)
-#   .\build.ps1 -PureRuntime  (-Mvp)     # SoulsRandomizers-FREE MVP: apworld patches -> Generate -> build+deploy Rust client; NO bake/regulation/overlays (game runs vanilla, client flag-polls slot_data)
-#   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py; REQUIRED after apworld changes)
+#   .\build.ps1 -RustDeploy              # (EML alt loader) drop the Rust DLL into mods\ instead of me3
 #   .\build.ps1 -Serve                   # launch the AP server on the newest output zip (new window)
-#   .\build.ps1 -Bake                    # launch the randomizer GUI w/ autoconnect (item rando only)
-#   .\build.ps1 -Bake -Enemies           # ...with enemy randomization
-#   .\build.ps1 -Deploy                  # copy bake outputs + client DLL + apconfig into the game
-#   .\build.ps1 -All                     # the full pipeline (= -Randomizer -Client -Generate -Serve -Bake -Enemies -Deploy -Preflight)
-#   .\build.ps1 -NoClient                # the full pipeline EXCEPT the C++ client build (reuse the deployed DLL) -- common dev loop
-#   .\build.ps1 -All -NoClient           # ...same thing (explicit form): everything in -All EXCEPT the client build
-#   .\build.ps1 -Apworld                 # package Archipelago\worlds\eldenring into eldenring.apworld (excludes .bak/.pyc)
-#   .\build.ps1 -Preflight               # timestamped preflight log + PASS/FAIL cross-checks (seed/slot/deploy freshness)
-#   .\build.ps1 -LoopTest -Seeds 1,2,3    # bake a batch of seeds unattended (seed-dependent bug hunt, e.g. #7)
-#   .\build.ps1 -LoopTest -Count 8        # ...or N fresh random seeds
-#   .\build.ps1 -Clean                   # nuke all build intermediates (fixes stale builds)
+#   .\build.ps1 -PureRuntime  (-Mvp)     # the whole loop: Generate + Rust + Me3Deploy + Serve
+#   .\build.ps1 -All                     # alias for -PureRuntime, plus -Apworld and -Preflight
+#   .\build.ps1 -Preflight               # timestamped PASS/FAIL cross-checks (seed / staged dll / server)
+#   .\build.ps1 -Clean                   # cargo clean + kill any stale AP server on :38281
+#
+# Launch the game after a deploy:
+#   me3 launch --profile <repo>\me3\ap.me3        (vanilla game files -- NOT UXM-patched)
 #
 # Notes:
-#  - Both toolchains are prone to SILENT STALE BUILDS; this script always builds clean
-#    (--no-incremental / /t:Rebuild). Use -Clean if a change still isn't landing.
-#  - -Bake expects the AP server to be running (localhost:38281); use -Serve or start it
-#    yourself. -Bake blocks until you close the randomizer window; Deploy runs AFTER.
+#  - cargo build is always release for x86_64-pc-windows-msvc; -Clean also runs `cargo clean`.
 #  - -Serve opens a NEW window; close any old server window first (one port, one server).
 #  - apworld changes (Archipelago\worlds\eldenring) generate straight from the source tree;
 #    -Generate picks up edits directly, no apworld reinstall step.
 
 [CmdletBinding()]
 param(
-    [switch]$Randomizer,
-    [switch]$Client,
-    [switch]$NoClient,
-    [switch]$Rust,             # build + test the Rust client spike (rust-client-spike); NOT part of -All
-    [switch]$RustDeploy,       # swap the Rust client DLL into mods\ (parks the C++ archipelago.dll)
-    [switch]$CppRestore,       # swap back to the C++ client (parks eldenring_ap.dll)
-    [switch]$Me3Deploy,        # set up the me3 (ModEngine3) profile + package: VFS icon override + client native + apconfig; parks the EML dll (vanilla exe path)
-    [switch]$Me3Restore,       # un-park the EML client dll (revert -Me3Deploy)
-    [Alias('Mvp')]
-    [switch]$PureRuntime,      # SoulsRandomizers-FREE MVP loop: apworld patches -> Generate -> build+deploy Rust client (NO bake/regulation/overlays). Game runs vanilla; client flag-polls slot_data.
-    [switch]$ApEnable,         # build the randomizer out of the er-ap-enable scratch (C:\er-ap-build, fswap deps)
-    [switch]$Generate,
-    [int]$GenRetries = 2,            # genretry: gen re-roll attempts on a seed-dependent FillError (0 = off)
-    [switch]$GenBumpRegions,         # genretry: also bump num_regions +1 in Players\*.yaml per retry (restored after)
-    [switch]$Serve,
-    [switch]$Bake,
-    [switch]$Enemies,
-    [switch]$Deploy,
-    [switch]$CleanDeploy,      # restore Game\{event,map,msg,script,menu} to vanilla (snapshot) BEFORE overlaying the bake -- stops stale-file leak (e.g. a prior enemy bake's map\ MSBs hanging the new-game load)
-    [switch]$SnapshotVanilla,  # capture a pristine vanilla snapshot of those dirs (run ONCE right after a fresh UXM unpack, before any deploy)
-    [switch]$RestoreVanilla,   # restore Game\{event,map,msg,script,menu}+regulation.bin to vanilla from the snapshot, then STOP (no overlay/bake) -- for a clean pure-runtime MVP run
     [switch]$Apworld,
-    [switch]$NoCrashFix,
-    [switch]$Helper,
-    [switch]$Clean,
+    [switch]$Generate,
+    [int]$GenRetries = 2,          # gen re-roll attempts on a seed-dependent FillError (0 = off)
+    [switch]$GenBumpRegions,       # also bump num_regions +1 in Players\*.yaml per retry (restored after)
+    [switch]$Rust,                 # cargo test + build the injected cdylib
+    [switch]$RustDeploy,           # EML alt: drop the Rust DLL into mods\ (me3 is the primary loader)
+    [switch]$Me3Deploy,            # stage DLL + apconfig + icon into me3\, write ap.me3 (primary loader)
+    [switch]$Me3Restore,           # un-park the EML client dll (revert -Me3Deploy)
+    [Alias('Mvp')]
+    [switch]$PureRuntime,          # Generate + Rust + Me3Deploy + Serve
+    [switch]$Serve,
     [switch]$Preflight,
-    [switch]$LoopTest,
-    [int[]]$Seeds,
-    [int]$Count = 5,
+    [switch]$Clean,
     [switch]$All
 )
 
 $ErrorActionPreference = "Stop"
 
-# ---- pwsh shim ------------------------------------------------------------------------------
-# Some MSBuild build events / tools invoke `pwsh.exe` (PowerShell 7). If PS7 is not installed
-# the step fails with "'pwsh.exe' is not recognized" (notably the C++ client build-stamp step),
-# which is noisy but non-fatal. Make pwsh.exe resolve to Windows PowerShell for THIS build
-# session (child processes inherit the PATH) so the call succeeds. Proper fix is still:
-#   winget install --id Microsoft.PowerShell --source winget
-if (-not (Get-Command pwsh.exe -ErrorAction SilentlyContinue)) {
-    $shimDir = Join-Path $env:LOCALAPPDATA "er-build-pwsh-shim"
-    $shimExe = Join-Path $shimDir "pwsh.exe"
-    if (-not (Test-Path $shimExe)) {
-        New-Item -ItemType Directory -Force -Path $shimDir | Out-Null
-        $winps = (Get-Command powershell.exe -ErrorAction SilentlyContinue).Source
-        if ($winps) { Copy-Item -LiteralPath $winps -Destination $shimExe -Force }
-    }
-    if (Test-Path $shimExe) {
-        $env:PATH = "$shimDir;$env:PATH"
-        Write-Host "  [pwsh-shim] PowerShell 7 not found -> shimming pwsh.exe to Windows PowerShell for this build (install PS7: winget install --id Microsoft.PowerShell)"
-    } else {
-        Write-Warning "pwsh.exe not found and could not shim it; PS7-dependent steps may fail. Install: winget install --id Microsoft.PowerShell"
-    }
-}
+# -All = the full loop plus packaging + preflight. -PureRuntime is the runtime umbrella.
+if ($All) { $PureRuntime = $true; $Apworld = $true; $Preflight = $true }
 
-# -All = the full pipeline: build both, regenerate, serve, bake w/ enemies, deploy.
-# -NoClient on its own is shorthand for that SAME full pipeline minus the C++ client build
-# (reuse the already-deployed archipelago.dll) -- the most common dev-loop shape when only the
-# apworld/randomizer/bake changed. So `-NoClient` == `-All -NoClient`.
-if ($All -or $NoClient) {
-    $Randomizer = $true; $Client = (-not $NoClient); $Generate = $true
-    $Serve = $true; $Bake = $true; $Enemies = $true; $Deploy = $true; $Preflight = $true; $Apworld = $true
-}
-
-# -CleanDeploy implies -Deploy (the vanilla-restore runs inside the deploy step below).
-if ($CleanDeploy) { $Deploy = $true }
-
-# -PureRuntime (-Mvp): the SoulsRandomizers-FREE MVP loop. Reuses the existing -Generate / -Rust /
-# -RustDeploy steps and adds an apworld-patch step (handled in its own block below). It deliberately
-# does NOT enable -Randomizer/-Client/-Bake/-Serve/-Deploy: the game runs VANILLA (no regulation/
-# event/msg/script/map overlays, no bake). Detection is flag-poll from slot_data; grants come from
-# the AP server; the Rust client (eldenring_ap.dll) is the only deployed artifact.
+# -PureRuntime: apworld source already emits slot_data (locationFlags/checkItemIds/checkItemFlags/
+# shopRowFlags) straight from __init__.py, so this is just Generate -> Rust -> Me3Deploy -> Serve.
+# The game runs VANILLA; the Rust client flag-polls slot_data and grants come from the AP server.
 if ($PureRuntime) {
-    $Generate   = $true   # gen so slot_data carries locationFlags/checkItemIds/checkItemFlags
-    $Rust       = $true   # build the Rust client cdylib
-    $RustDeploy = $true   # swap it into mods\ (parks the C++ archipelago.dll)
+    $Generate  = $true
+    $Rust      = $true
+    $Me3Deploy = $true
+    $Serve     = $true
 }
 
 # ----- config ---------------------------------------------------------------------------------
 $Repo     = $PSScriptRoot
 $GameDir  = "C:\Program Files (x86)\Steam\steamapps\common\ELDEN RING\Game"
-$ModsDir  = Join-Path $GameDir "mods"          # client DLL + apconfig.json live here (EML loads dlls from mods\)
-# Game-file overrides (regulation.bin, event\, map\, msg\, script\) go in the GAME ROOT: the exe is
-# UXM-unpacked+patched, so it reads loose files from Game\ directly. mods\ copies are ignored.
-$AssetDir = $GameDir
-$RandoDir = Join-Path $Repo "SoulsRandomizers"
-$VanillaSnap = Join-Path $Repo "vanilla-game-snapshot"   # pristine copies of the bake's overlay dirs, captured from a fresh UXM unpack via -SnapshotVanilla
-$OverlayDirs = @("event", "msg", "script", "map", "menu")  # dirs -Deploy overlays into Game\ -- MUST match the foreach in the deploy step
-$RandoExe = Join-Path $RandoDir "EldenRingRandomizer\bin\Release (Archipelago)\net6.0-windows\win-x64\EldenRingRandomizer.exe"
-$ClientDir = Join-Path $Repo "Dark-Souls-III-Archipelago-client\archipelago-client"
-$ClientDll = Join-Path $ClientDir "x64\Release\archipelago.dll"
-$RustDir   = Join-Path $Repo "rust-client-spike"
+$ModsDir  = Join-Path $GameDir "mods"          # EML alt loader path (-RustDeploy); me3 is primary
+$ApDir    = Join-Path $Repo "Archipelago"      # AP checkout: Generate.py, MultiServer.py, Players\, output\
 
-if ($ApEnable) {
-    $RandoDir = "C:\er-ap-build\SoulsRandomizers"
-    # the sln build remaps EldenRingRandomizer to plain 'Release', so the exe is under bin\Release\
-    $RandoExe = Join-Path $RandoDir "EldenRingRandomizer\bin\Release\net6.0-windows\win-x64\EldenRingRandomizer.exe"
-    Write-Host "  [ApEnable] randomizer source = $RandoDir (fswap deps)"
-}
-$RustDll   = Join-Path $RustDir "target\x86_64-pc-windows-msvc\release\eldenring_ap.dll"
-$Me3Dir     = Join-Path $Repo "me3"                 # me3 profile + package live here (committed-ish dev artifact)
-$Me3Package = Join-Path $Me3Dir "ap-package"        # me3 VFS package: mirrors the game root (menu\hi, menu\low, ...)
-$Me3Profile = Join-Path $Me3Dir "ap.me3"            # the .me3 ModProfile (TOML)
-$IconMenu   = Join-Path $Repo "build\ap_icon\menu"    # build_ap_icon.py (00_solo MENU_Knowledge — hi-res variant, cosmetic)
-$IconMenu01 = Join-Path $Repo "build\ap_icon01\menu"  # build_ap_icon.py --icon01 (01_common SB_Icon sheet — the REAL shop/inventory icon)
+# Rust client is now an in-repo submodule (was the sibling from-software-archipelago-clients).
+$RustDir     = Join-Path $Repo "from-software-archipelago-clients"
+$RustTarget  = "x86_64-pc-windows-msvc"
+$RustDll     = Join-Path $RustDir "target\$RustTarget\release\eldenring_archipelago.dll"
 
-# RandomizerCrashFix.dll -- fifthmatt's redistributable companion (shipped in the v0.11.4 package).
-# Guards the cross-content enemy-placement CTDs that scripted legacy-dungeon intros are prone to once
-# base + DLC enemies are shuffled together -- the prime suspect for the Raya Lucaria entry crash
-# (TODO #10). Referenced from the package, NOT rebundled into source (licensing). Glob-resolved so the
-# exact package folder suffix can vary.
-$CrashFixDll = Get-ChildItem -Path $Repo -Directory -Filter 'Elden Ring Randomizer-428*' -ErrorAction SilentlyContinue |
-    ForEach-Object { Join-Path $_.FullName 'randomizer\dll\RandomizerCrashFix.dll' } |
-    Where-Object { Test-Path $_ } | Select-Object -First 1
-
-# RandomizerHelper.dll -- fifthmatt's auto-equip/upgrade companion (same v0.11.4 package). We deploy
-# it ONLY for weapon/ash auto-UPGRADE (the client lacks that); its auto-EQUIP is disabled via the
-# project-tuned ini below to avoid colliding with the client's own AutoEquip. Opt-in via -Helper.
-$HelperDll = Get-ChildItem -Path $Repo -Directory -Filter 'Elden Ring Randomizer-428*' -ErrorAction SilentlyContinue |
-    ForEach-Object { Join-Path $_.FullName 'randomizer\dll\RandomizerHelper.dll' } |
-    Where-Object { Test-Path $_ } | Select-Object -First 1
-$HelperIni = Join-Path $Repo 'RandomizerHelper_config.ini'   # project-tuned: equip off, upgrade on
-$ApDir     = Join-Path $Repo "Archipelago"     # AP source checkout: Generate.py, MultiServer.py, Players\, output\
+$Me3Dir      = Join-Path $Repo "me3"                 # me3 profile + package live here
+$Me3Package  = Join-Path $Me3Dir "ap-package"        # me3 VFS package: mirrors the game root (menu\hi, menu\low)
+$Me3Profile  = Join-Path $Me3Dir "ap.me3"            # the .me3 ModProfile (TOML)
+$Me3DllDest  = Join-Path $Me3Dir "eldenring_archipelago.dll"
+$IconMenu    = Join-Path $Repo "build\ap_icon\menu"    # build_ap_icon.py (00_solo MENU_Knowledge hi-res variant, cosmetic)
+$IconMenu01  = Join-Path $Repo "build\ap_icon01\menu"  # build_ap_icon.py --icon01 (01_common SB_Icon sheet -- the REAL icon)
 
 function Step($msg) { Write-Host "`n==== $msg" -ForegroundColor Cyan }
 
-# Locate an msbuild that has the C++ toolset. The PATH/devenv msbuild can come from a VS
-# install WITHOUT the C++ workload (VCTargetsPath then points at a nonexistent .props), so
-# ask vswhere for an install that includes VC.Tools first; PATH is only a fallback.
-function Find-MSBuild {
-    $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-    if (Test-Path $vswhere) {
-        $path = & $vswhere -latest -products * `
-            -requires Microsoft.Component.MSBuild Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-            -find "MSBuild\**\Bin\MSBuild.exe" | Select-Object -First 1
-        if ($path) { return $path }
-    }
-    $cmd = Get-Command msbuild -ErrorAction SilentlyContinue
-    if ($cmd) { return $cmd.Source }
-    throw "no msbuild with the C++ toolset found. Install VS2022 BuildTools' 'Desktop development with C++' workload."
-}
-
-# ----- server helpers (shared by -LoopTest) ---------------------------------------------------
+# ----- server helpers -------------------------------------------------------------------------
 function Stop-Server38281 {
     $listen = Get-NetTCPConnection -LocalPort 38281 -State Listen -ErrorAction SilentlyContinue
     if ($listen) {
@@ -196,261 +98,73 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Randomizer -or $Client -or $Generate -or $Serve -or $Bake -or $Deploy -or $Clean -or $Preflight -or $LoopTest -or $Apworld -or $Rust -or $RustDeploy -or $CppRestore -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $All -or $SnapshotVanilla -or $CleanDeploy -or $RestoreVanilla)) {
-    Get-Content $PSCommandPath | Select-Object -Skip 1 -First 20 | ForEach-Object { $_ -replace '^#\s?', '' }
+if (-not ($Apworld -or $Generate -or $Rust -or $RustDeploy -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $Serve -or $Preflight -or $Clean)) {
+    Get-Content $PSCommandPath | Select-Object -Skip 1 -First 22 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
 
 # ----- clean ----------------------------------------------------------------------------------
 if ($Clean) {
-    Stop-Server38281   # -Clean also kills any stale AP server on :38281 (easy to forget; frees the port + the output-zip lock)
-    Step "Cleaning build intermediates"
-    $targets = @(
-        (Join-Path $Repo "SoulsFormats\SoulsFormats\obj"), (Join-Path $Repo "SoulsFormats\SoulsFormats\bin"),
-        (Join-Path $Repo "SoulsIds\SoulsIds\obj"),         (Join-Path $Repo "SoulsIds\SoulsIds\bin"),
-        (Join-Path $RandoDir "RandomizerCommon\obj"),      (Join-Path $RandoDir "RandomizerCommon\bin"),
-        (Join-Path $RandoDir "EldenRingRandomizer\obj"),   (Join-Path $RandoDir "EldenRingRandomizer\bin"),
-        (Join-Path $Repo "yet-another-tab-control\obj"),   (Join-Path $Repo "yet-another-tab-control\bin"),
-        (Join-Path $ClientDir "x64"),                      (Join-Path $ClientDir "obj")
-    )
-    foreach ($t in $targets) {
-        if (Test-Path $t) { Remove-Item -Recurse -Force $t; Write-Host "  removed $t" }
-    }
-}
-
-# ----- randomizer (C#) ------------------------------------------------------------------------
-if ($Randomizer) {
-    Step "Building static randomizer (Release (Archipelago), non-incremental)"
-    Push-Location $RandoDir
-    try {
-        if ($ApEnable) {
-            # via the SLN: the bare csproj fails GrayIris OutputPath; the sln remaps it.
-            dotnet build -c "Release (Archipelago)" "SoulsRandomizers.sln" -t:EldenRingRandomizer
-            # the sln prints 3 harmless *.csproj.metaproj MSB4025 lines that flip exit code non-zero
-            # even though every project compiles -- the Test-Path on $RandoExe below is the real gate.
-        } else {
-            dotnet build -c "Release (Archipelago)" --no-incremental "EldenRingRandomizer\EldenRingRandomizer.csproj"
-            if ($LASTEXITCODE -ne 0) { throw "randomizer build failed" }
-        }
-    } finally { Pop-Location }
-    if (-not (Test-Path $RandoExe)) { throw "build reported success but exe not found: $RandoExe" }
-    Write-Host "  -> $RandoExe"
-}
-
-# ----- client (C++) ---------------------------------------------------------------------------
-if ($Client) {
-    Step "Building runtime client DLL (full rebuild -- incremental goes stale)"
-    $msbuild = Find-MSBuild
-    Push-Location $ClientDir
-    try {
-        & $msbuild "archipelago-client.sln" /t:Rebuild /p:Configuration=Release /p:Platform=x64 /m /v:minimal
-        if ($LASTEXITCODE -ne 0) { throw "client build failed" }
-    } finally { Pop-Location }
-    if (-not (Test-Path $ClientDll)) { throw "build reported success but DLL not found: $ClientDll" }
-    Write-Host "  -> $ClientDll  (check the er::Init BUILD stamp at launch to confirm freshness)"
-}
-
-# ----- rust client spike (cargo; Phase-1 port verification) -----------------------------------
-# -Rust verifies the Rust port: cargo test (the er-codec/er-semver pure-logic contract) THEN builds
-# the injected cdylib for the MSVC target. On Windows, `cargo test` ALSO compiles the in-process
-# game module (#[cfg(windows)]), so this run is the real typecheck of the resolved eldenring 0.14
-# symbols (see rust-client-spike\VERIFY-RESOLUTION.md) -- expect to fix a // VERIFY spot or two the
-# first time. Deliberately NOT part of -All: the spike is not a shipping artifact yet. -Clean also
-# runs `cargo clean`. After a green build, load the DLL under me3 for the Phase-1 rowCount proof.
-if ($Rust) {
-    Step "Rust client spike: cargo test + cdylib build"
-    if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) { throw "rust spike not found at $RustDir" }
-    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
-        throw "cargo not found on PATH. Install rustup from https://rustup.rs, then re-open the shell."
-    }
-    $RustTarget = "x86_64-pc-windows-msvc"
-    if (-not ((rustup target list --installed 2>$null) -match $RustTarget)) {
-        Write-Host "  installing rust target $RustTarget ..."
-        rustup target add $RustTarget
-        if ($LASTEXITCODE -ne 0) { throw "rustup target add $RustTarget failed" }
-    }
-    Push-Location $RustDir
-    try {
-        if ($Clean) { Step "  cargo clean"; cargo clean }
-        Step "  cargo test (pure-logic contract: er-codec golden vectors + er-semver gate)"
-        cargo test
-        if ($LASTEXITCODE -ne 0) { throw "cargo test failed -- a pure-logic test broke OR the game module did not compile (resolve against VERIFY-RESOLUTION.md). See output above." }
-        # -PureRuntime narrows the cdylib build to the eldenring-ap crate with the net feature
-        # explicit (the MVP flag-poll + server-grant path). Default -Rust keeps the original
-        # whole-workspace release build (net/detour already ride the crate's default features).
-        $cargoBuildArgs = @("build", "--release", "--target", $RustTarget)
-        if ($PureRuntime) { $cargoBuildArgs += @("-p", "eldenring-ap", "--features", "net") }
-        Step ("  cargo {0} (injected cdylib)" -f ($cargoBuildArgs -join ' '))
-        cargo @cargoBuildArgs
-        if ($LASTEXITCODE -ne 0) { throw "cargo build failed -- the in-process game module likely needs a // VERIFY fix (see VERIFY-RESOLUTION.md)." }
-    } finally { Pop-Location }
-    if (-not (Test-Path $RustDll)) { throw "build reported success but DLL not found: $RustDll" }
-    Write-Host "  -> $RustDll" -ForegroundColor Green
-    Write-Host "  Phase-1 proof: load under your loader (me2/EML) and look for the log line:" -ForegroundColor Cyan
-    Write-Host "    EquipParamGoods rowCount = <~3571>, firstRowId = Some(0)"
-}
-
-# ----- rust client deploy / swap (EML loads mods\*.dll -- exactly ONE client DLL at a time) -----
-# EML auto-loads every mods\*.dll, so the C++ archipelago.dll and the Rust eldenring_ap.dll cannot
-# coexist (both hook AddItemFunc). -RustDeploy puts the Rust DLL in and parks the C++ one as
-# .disabled; -CppRestore reverses it. Pair with -Rust to build-then-swap: .\build.ps1 -Rust -RustDeploy
-if ($RustDeploy) {
-    Step "Deploying Rust client (eldenring_ap.dll) -> $ModsDir"
-    if (-not (Test-Path $RustDll)) { throw "Rust DLL not found at $RustDll -- run with -Rust first" }
-    if (-not (Test-Path $ModsDir)) { New-Item -ItemType Directory -Path $ModsDir | Out-Null }
-
-    $cppLive = Join-Path $ModsDir "archipelago.dll"
-    $cppOff  = Join-Path $ModsDir "archipelago.dll.disabled"
-    if (Test-Path $cppLive) {
-        if (Test-Path $cppOff) { Remove-Item $cppOff -Force }   # replace any stale parked copy
-        Rename-Item $cppLive $cppOff -Force
-        Write-Host "  parked C++ client -> archipelago.dll.disabled"
-    } elseif (Test-Path $cppOff) {
-        Write-Host "  C++ client already parked (archipelago.dll.disabled)"
+    Stop-Server38281   # free :38281 + the output-zip lock
+    Step "Cleaning build intermediates (cargo clean)"
+    if (Test-Path (Join-Path $RustDir "Cargo.toml")) {
+        Push-Location $RustDir
+        try { cargo clean } finally { Pop-Location }
+        Write-Host "  cargo clean done"
     } else {
-        Write-Host "  (no archipelago.dll present -- nothing to park)"
+        Write-Warning "  Rust submodule not found at $RustDir -- did the submodule init? (git submodule update --init)"
     }
-
-    Copy-Item $RustDll (Join-Path $ModsDir "eldenring_ap.dll") -Force
-    Write-Host "  -> eldenring_ap.dll  (EML will load this)" -ForegroundColor Green
-    Write-Host "  Active client: RUST. Restore the C++ client with: .\build.ps1 -CppRestore"
 }
 
-if ($CppRestore) {
-    Step "Restoring C++ client (archipelago.dll) in $ModsDir"
-    $cppLive  = Join-Path $ModsDir "archipelago.dll"
-    $cppOff   = Join-Path $ModsDir "archipelago.dll.disabled"
-    $rustLive = Join-Path $ModsDir "eldenring_ap.dll"
-
-    # Park the Rust DLL so EML stops loading it.
-    if (Test-Path $rustLive) {
-        $rustOff = Join-Path $ModsDir "eldenring_ap.dll.disabled"
-        if (Test-Path $rustOff) { Remove-Item $rustOff -Force }
-        Rename-Item $rustLive $rustOff -Force
-        Write-Host "  parked Rust client -> eldenring_ap.dll.disabled"
+# ----- package apworld ------------------------------------------------------------------------
+if ($Apworld) {
+    Step "Packaging eldenring.apworld from Archipelago\worlds\eldenring"
+    $srcDir = Join-Path $ApDir "worlds\eldenring"
+    if (-not (Test-Path (Join-Path $srcDir "__init__.py"))) { throw "apworld source not found: $srcDir\__init__.py" }
+    $outFile = Join-Path $Repo "eldenring.apworld"
+    Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
+    # Exclude dev clutter: per-patch __init__ backups (*.bak*), bytecode, gen-time diag dumps.
+    $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo', 'ER_SPHERE_TIERS_*', 'ER_DIAG_*')
+    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt')
+    $srcFull = (Resolve-Path $srcDir).Path.TrimEnd('\')
+    $files = Get-ChildItem -LiteralPath $srcFull -Recurse -File | Where-Object {
+        $rel = $_.FullName.Substring($srcFull.Length).TrimStart('\','/')
+        if ($rel -match '(^|[\\/])__pycache__([\\/]|$)') { return $false }
+        if ($excludeExact -contains $_.Name) { return $false }
+        foreach ($p in $excludeName) { if ($_.Name -like $p) { return $false } }
+        return $true
     }
-    # Bring the C++ DLL back.
-    if (Test-Path $cppOff) {
-        if (Test-Path $cppLive) { Remove-Item $cppLive -Force }
-        Rename-Item $cppOff $cppLive -Force
-        Write-Host "  restored archipelago.dll" -ForegroundColor Green
-    } elseif (Test-Path $cppLive) {
-        Write-Host "  archipelago.dll already live"
-    } else {
-        Write-Warning "no archipelago.dll(.disabled) in $ModsDir -- run -Deploy (with -Client) to place it"
-    }
-    Write-Host "  Active client: C++."
-}
-
-# ----- me3 (ModEngine3) deploy ----------------------------------------------------------------
-# me3 REPLACES UXM+EML: its VFS serves file overrides from a package folder and it loads the client
-# DLL as a native, against a VANILLA exe (UXM's patched entry point breaks me3's init deferral, so
-# this path assumes Steam-verified vanilla game files). -Me3Deploy (re)writes the profile, fills the
-# package with the AP icon override (build_ap_icon.py output) + apconfig, and parks the EML client
-# copy so it isn't double-loaded (two AddItemFunc hooks = crash). Launch:
-#   me3 launch --profile <repo>\me3\ap.me3
-if ($Me3Deploy) {
-    Step "me3 deploy (profile + package + config) -> $Me3Dir"
-    if (-not (Test-Path $RustDll)) { throw "Rust DLL not found at $RustDll -- run with -Rust first" }
-
-    New-Item -ItemType Directory -Force -Path (Join-Path $Me3Package "menu\hi"), (Join-Path $Me3Package "menu\low") | Out-Null
-
-    # AP icon override. 01_common.tpf.dcx (the SB_Icon sprite-sheet cell for iconId 92, from
-    # `build_ap_icon.py --icon01`) is the REAL shop/inventory icon and the one that matters. 00_solo.*
-    # (MENU_Knowledge hi-res variant, from the plain build) is harmless extra. See er-ap-icon-override.md.
-    $copiedIcon = $false
-    foreach ($sub in "hi", "low") {
-        $dstSub = Join-Path $Me3Package "menu\$sub"
-        $sheet = Join-Path $IconMenu01 "$sub\01_common.tpf.dcx"
-        if (Test-Path $sheet) {
-            Copy-Item $sheet $dstSub -Force
-            Write-Host "  icon override: menu\$sub\01_common.tpf.dcx  (--icon01 sprite-sheet; the real one)"
-            $copiedIcon = $true
+    if (Test-Path $outFile) { Remove-Item -LiteralPath $outFile -Force }
+    $zip = [System.IO.Compression.ZipFile]::Open($outFile, 'Create')
+    try {
+        foreach ($f in $files) {
+            $rel = $f.FullName.Substring($srcFull.Length).TrimStart('\','/').Replace('\','/')
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $f.FullName, "eldenring/$rel") | Out-Null
         }
-        $solo = Join-Path $IconMenu "$sub\00_solo.tpfbhd"
-        if (Test-Path $solo) {
-            Copy-Item $solo $dstSub -Force
-            Copy-Item (Join-Path $IconMenu "$sub\00_solo.tpfbdt") $dstSub -Force
-            Write-Host "  icon override: menu\$sub\00_solo.*  (hi-res variant)"
-        }
-    }
-    if (-not $copiedIcon) {
-        Write-Warning "  no 01_common.tpf.dcx at $IconMenu01 -- build it first:"
-        Write-Warning '    python build_ap_icon.py --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu "<game>\menu"'
-    }
-
-    # apconfig next to the game exe (the client's #2 lookup candidate; resolves under me3)
-    $apconfig = Join-Path $Repo "apconfig.json"
-    if (Test-Path $apconfig) {
-        Copy-Item $apconfig (Join-Path $GameDir "apconfig.json") -Force
-        Write-Host "  apconfig.json -> Game\"
-    } else { Write-Warning "  no apconfig.json at $Repo -- the client won't connect without it" }
-
-    # park the EML client copy so me3's native is the ONLY loader of eldenring_ap.dll
-    $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
-    $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
-    if (Test-Path $emlDll) {
-        if (Test-Path $emlOff) { Remove-Item $emlOff -Force }
-        Rename-Item $emlDll $emlOff -Force
-        Write-Host "  parked EML client -> eldenring_ap.dll.me3off (restore with -Me3Restore)"
-    }
-
-    # write the ModProfile. disable_arxan=true: me3 must neuter Arxan on the vanilla exe, and our
-    # client hooks native code (AddItemFunc) which Arxan would otherwise revert.
-    $profileText = @"
-profileVersion = "v1"
-savefile = "AP_me3.sl2"
-disable_arxan = true
-
-[[supports]]
-game = "eldenring"
-
-[[packages]]
-path = '$Me3Package'
-
-[[natives]]
-path = '$RustDll'
-"@
-    Set-Content -Path $Me3Profile -Value $profileText -Encoding UTF8
-    Write-Host "  profile -> $Me3Profile" -ForegroundColor Green
-    Write-Host "`nme3 ready (requires VANILLA game files -- NOT UXM-patched). Launch:" -ForegroundColor Cyan
-    Write-Host "    me3 launch --profile `"$Me3Profile`""
+    } finally { $zip.Dispose() }
+    $size = [math]::Round((Get-Item $outFile).Length / 1KB, 1)
+    Write-Host ("  -> {0}  ({1} files, {2} KB)" -f $outFile, $files.Count, $size) -ForegroundColor Green
+    # Timestamped twin: the canonical name is overwritten in place, so freshness is invisible through
+    # a same-name overwrite. This stamped copy witnesses THIS build (Always-timestamp convention).
+    $apwStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    $apwCopy  = Join-Path $Repo ("eldenring_{0}.apworld" -f $apwStamp)
+    Copy-Item -LiteralPath $outFile -Destination $apwCopy -Force
+    Write-Host ("  -> {0}  (timestamped copy)" -f $apwCopy) -ForegroundColor Green
 }
-
-if ($Me3Restore) {
-    Step "me3 restore (un-park the EML client dll)"
-    $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
-    $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
-    if (Test-Path $emlOff) {
-        if (Test-Path $emlDll) { Remove-Item $emlDll -Force }
-        Rename-Item $emlOff $emlDll -Force
-        Write-Host "  restored EML client -> eldenring_ap.dll" -ForegroundColor Green
-    } else { Write-Host "  (no eldenring_ap.dll.me3off to restore)" }
-}
-
-# ----- pure-runtime apworld slot_data emission --------------------------------------------------
-# The SoulsRandomizers-FREE MVP needs the apworld itself to emit the detection/suppression data the
-# (retired-for-MVP) baker used to bake into apconfig.json: locationFlags (flag-poll table),
-# checkItemIds/checkItemFlags (vanilla-item suppression), and shopRowFlags (shop-check detection).
-# These now live DIRECTLY in Archipelago\worlds\eldenring\__init__.py (committed), so -Generate picks
-# them up from source with no build-time patch step. The old patch_apworld_*.py scripts are retired to
-# one-time migration tools. (Build-time re-patching caused stale/duplicate-edit confusion; cut it out.)
 
 # ----- generate multiworld --------------------------------------------------------------------
 if ($Generate) {
     Step "Regenerating multiworld (Generate.py, players from Archipelago\Players)"
     if (-not (Test-Path (Join-Path $ApDir "Generate.py"))) { throw "AP checkout not found at $ApDir" }
-    # Pre-gen guard (pregen.py): invalidate stale eldenring .pyc so a source edit can't be masked
-    # by cached bytecode (the "same FillError 6x, edits do nothing" trap), and warn about per-game
-    # yaml options stranded at the document root (silently ignored by AP). Warn-only.
+    # Pre-gen guard: invalidate stale eldenring .pyc so a source edit can't be masked by cached
+    # bytecode, and warn about per-game yaml options stranded at the document root. Warn-only.
     if (Test-Path (Join-Path $Repo "pregen.py")) {
         python (Join-Path $Repo "pregen.py") | Write-Host
     } else {
         Write-Warning "pregen.py not found -- skipping stale-bytecode/yaml guard"
     }
-    # --- genretry: each Generate.py run picks a FRESH random seed, so a seed-dependent
-    # FillError usually clears on a retry. Config/syntax errors (no 'FillError' in the log) are
-    # fatal immediately. -GenRetries sets the count; -GenBumpRegions also bumps num_regions +1.
+    # genretry: each Generate.py run picks a FRESH random seed, so a seed-dependent FillError usually
+    # clears on a retry. Config/syntax errors (no 'FillError' in the log) are fatal immediately.
     $maxAttempts = 1 + [math]::Max(0, $GenRetries)
     $genExit = 1
     $playersDir = Join-Path $ApDir "Players"
@@ -510,42 +224,133 @@ if ($Generate) {
     Write-Host "  -> $($newest.FullName)"
 }
 
-# ----- package apworld ------------------------------------------------------------------------
-if ($Apworld) {
-    Step "Packaging eldenring.apworld from Archipelago\worlds\eldenring"
-    $srcDir = Join-Path $ApDir "worlds\eldenring"
-    if (-not (Test-Path (Join-Path $srcDir "__init__.py"))) { throw "apworld source not found: $srcDir\__init__.py" }
-    $outFile = Join-Path $Repo "eldenring.apworld"
-    Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
-    # Exclude dev clutter: per-patch __init__ backups (*.bak*), bytecode caches, and the
-    # gen-time diag dumps the world writes into its own folder. Keep the real package + data.
-    $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo', 'ER_SPHERE_TIERS_*', 'ER_DIAG_*')
-    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt')
-    $srcFull = (Resolve-Path $srcDir).Path.TrimEnd('\')
-    $files = Get-ChildItem -LiteralPath $srcFull -Recurse -File | Where-Object {
-        $rel = $_.FullName.Substring($srcFull.Length).TrimStart('\','/')
-        if ($rel -match '(^|[\\/])__pycache__([\\/]|$)') { return $false }
-        if ($excludeExact -contains $_.Name) { return $false }
-        foreach ($p in $excludeName) { if ($_.Name -like $p) { return $false } }
-        return $true
+# ----- rust client build ----------------------------------------------------------------------
+# cargo test (er-codec/er-semver/er-logic pure-logic contract; on Windows also typechecks the
+# in-process game module) THEN builds the injected cdylib for the MSVC target.
+if ($Rust) {
+    Step "Rust client: cargo test + cdylib build"
+    if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) { throw "Rust submodule not found at $RustDir -- run: git submodule update --init" }
+    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+        throw "cargo not found on PATH. Install rustup from https://rustup.rs, then re-open the shell."
     }
-    if (Test-Path $outFile) { Remove-Item -LiteralPath $outFile -Force }
-    $zip = [System.IO.Compression.ZipFile]::Open($outFile, 'Create')
+    if (-not ((rustup target list --installed 2>$null) -match $RustTarget)) {
+        Write-Host "  installing rust target $RustTarget ..."
+        rustup target add $RustTarget
+        if ($LASTEXITCODE -ne 0) { throw "rustup target add $RustTarget failed" }
+    }
+    Push-Location $RustDir
     try {
-        foreach ($f in $files) {
-            $rel = $f.FullName.Substring($srcFull.Length).TrimStart('\','/').Replace('\','/')
-            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $f.FullName, "eldenring/$rel") | Out-Null
+        Step "  cargo test (pure-logic contract)"
+        cargo test
+        if ($LASTEXITCODE -ne 0) { throw "cargo test failed -- a pure-logic test broke OR the game module did not compile. See output above." }
+        $cargoBuildArgs = @("build", "--release", "--target", $RustTarget, "-p", "eldenring-archipelago")
+        Step ("  cargo {0} (injected cdylib)" -f ($cargoBuildArgs -join ' '))
+        cargo @cargoBuildArgs
+        if ($LASTEXITCODE -ne 0) { throw "cargo build failed -- see output above." }
+    } finally { Pop-Location }
+    if (-not (Test-Path $RustDll)) { throw "build reported success but DLL not found: $RustDll" }
+    Write-Host "  -> $RustDll" -ForegroundColor Green
+}
+
+# ----- rust client deploy to EML (alt loader) -------------------------------------------------
+# me3 is the primary loader (-Me3Deploy). -RustDeploy is the EML fallback: drop the DLL into mods\.
+# EML auto-loads every mods\*.dll, so make sure the me3 native isn't ALSO loading it (double
+# AddItemFunc hook = crash) -- use one loader at a time.
+if ($RustDeploy) {
+    Step "Deploying Rust client (eldenring_ap.dll) -> $ModsDir  (EML)"
+    if (-not (Test-Path $RustDll)) { throw "Rust DLL not found at $RustDll -- run with -Rust first" }
+    if (-not (Test-Path $ModsDir)) { New-Item -ItemType Directory -Path $ModsDir | Out-Null }
+    Copy-Item $RustDll (Join-Path $ModsDir "eldenring_ap.dll") -Force
+    Write-Host "  -> eldenring_ap.dll  (EML will load this)" -ForegroundColor Green
+}
+
+# ----- me3 (ModEngine3) deploy ----------------------------------------------------------------
+# me3's VFS serves file overrides from a package folder and loads the client DLL as a native,
+# against a VANILLA exe. -Me3Deploy (re)writes the profile, fills the package with the AP icon
+# override + apconfig, and parks the EML client copy so it isn't double-loaded. Launch:
+#   me3 launch --profile <repo>\me3\ap.me3
+if ($Me3Deploy) {
+    Step "me3 deploy (profile + package + config) -> $Me3Dir"
+    if (-not (Test-Path $RustDll)) { throw "Rust DLL not found at $RustDll -- run with -Rust first" }
+
+    # Stage the DLL into me3\ so it + apconfig.json share one stable dir. shared::Config reads
+    # apconfig.json next to the DLL (current_module_directory), so the natives path points HERE,
+    # not target\release (which cargo clean wipes).
+    Copy-Item $RustDll $Me3DllDest -Force
+    Write-Host "  client DLL -> $Me3DllDest"
+
+    New-Item -ItemType Directory -Force -Path (Join-Path $Me3Package "menu\hi"), (Join-Path $Me3Package "menu\low") | Out-Null
+
+    # AP icon override. 01_common.tpf.dcx (SB_Icon sprite-sheet cell for iconId 92, from
+    # `build_ap_icon.py --icon01`) is the REAL shop/inventory icon. 00_solo.* is harmless extra.
+    $copiedIcon = $false
+    foreach ($sub in "hi", "low") {
+        $dstSub = Join-Path $Me3Package "menu\$sub"
+        $sheet = Join-Path $IconMenu01 "$sub\01_common.tpf.dcx"
+        if (Test-Path $sheet) {
+            Copy-Item $sheet $dstSub -Force
+            Write-Host "  icon override: menu\$sub\01_common.tpf.dcx  (--icon01 sprite-sheet; the real one)"
+            $copiedIcon = $true
         }
-    } finally { $zip.Dispose() }
-    $size = [math]::Round((Get-Item $outFile).Length / 1KB, 1)
-    Write-Host ("  -> {0}  ({1} files, {2} KB)" -f $outFile, $files.Count, $size) -ForegroundColor Green
-    # Timestamped copy: the canonical eldenring.apworld is overwritten in place each build, so its
-    # freshness is invisible through a stale mount / same-name overwrite. This stamped twin is the
-    # witness that THIS build repackaged, plus a distributable snapshot (Always-timestamp convention).
-    $apwStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $apwCopy  = Join-Path $Repo ("eldenring_{0}.apworld" -f $apwStamp)
-    Copy-Item -LiteralPath $outFile -Destination $apwCopy -Force
-    Write-Host ("  -> {0}  (timestamped copy)" -f $apwCopy) -ForegroundColor Green
+        $solo = Join-Path $IconMenu "$sub\00_solo.tpfbhd"
+        if (Test-Path $solo) {
+            Copy-Item $solo $dstSub -Force
+            Copy-Item (Join-Path $IconMenu "$sub\00_solo.tpfbdt") $dstSub -Force
+            Write-Host "  icon override: menu\$sub\00_solo.*  (hi-res variant)"
+        }
+    }
+    if (-not $copiedIcon) {
+        Write-Warning "  no 01_common.tpf.dcx at $IconMenu01 -- build it first:"
+        Write-Warning '    python build_ap_icon.py --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu "<game>\menu"'
+    }
+
+    # apconfig.json next to the staged DLL (url + slot; the flag-poll table travels in slot_data now).
+    $apconfig = Join-Path $Repo "apconfig.json"
+    if (Test-Path $apconfig) {
+        Copy-Item $apconfig (Join-Path $Me3Dir "apconfig.json") -Force
+        Write-Host "  apconfig.json -> $Me3Dir"
+    } else { Write-Warning "  no apconfig.json at $Repo -- create one with `"url`" + `"slot`" (see shared\config.rs schema)" }
+
+    # park the EML client copy so me3's native is the ONLY loader of eldenring_ap.dll
+    $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
+    $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
+    if (Test-Path $emlDll) {
+        if (Test-Path $emlOff) { Remove-Item $emlOff -Force }
+        Rename-Item $emlDll $emlOff -Force
+        Write-Host "  parked EML client -> eldenring_ap.dll.me3off (restore with -Me3Restore)"
+    }
+
+    # write the ModProfile. disable_arxan=true: me3 neuters Arxan on the vanilla exe (our client hooks
+    # native code -- AddItemFunc -- which Arxan would otherwise revert).
+    $profileText = @"
+profileVersion = "v1"
+savefile = "AP_me3.sl2"
+disable_arxan = true
+
+[[supports]]
+game = "eldenring"
+
+[[packages]]
+path = '$Me3Package'
+
+[[natives]]
+path = '$Me3DllDest'
+"@
+    Set-Content -Path $Me3Profile -Value $profileText -Encoding UTF8
+    Write-Host "  profile -> $Me3Profile" -ForegroundColor Green
+    Write-Host "`nme3 ready (requires VANILLA game files -- NOT UXM-patched). Launch:" -ForegroundColor Cyan
+    Write-Host "    me3 launch --profile `"$Me3Profile`""
+}
+
+if ($Me3Restore) {
+    Step "me3 restore (un-park the EML client dll)"
+    $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
+    $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
+    if (Test-Path $emlOff) {
+        if (Test-Path $emlDll) { Remove-Item $emlDll -Force }
+        Rename-Item $emlOff $emlDll -Force
+        Write-Host "  restored EML client -> eldenring_ap.dll" -ForegroundColor Green
+    } else { Write-Host "  (no eldenring_ap.dll.me3off to restore)" }
 }
 
 # ----- serve ----------------------------------------------------------------------------------
@@ -555,229 +360,26 @@ if ($Serve) {
     if (-not $zip) { throw "no multiworld zip in $ApDir\output -- run with -Generate first" }
     $inUse = Get-NetTCPConnection -LocalPort 38281 -State Listen -ErrorAction SilentlyContinue
     if ($inUse) {
-        Write-Warning "port 38281 already has a listener -- an OLD server is probably still running. Close it; this one won't bind."
+        Write-Host "  port 38281 busy -- stopping stale AP server before relaunch" -ForegroundColor Yellow
+        Stop-Server38281
     }
     Step "Launching AP server (new window): $($zip.Name)"
-    Start-Process python -ArgumentList "MultiServer.py", "`"$($zip.FullName)`"" -WorkingDirectory $ApDir
-    # Wait until it's actually listening before -Bake tries to autoconnect (up to 60s).
-    $deadline = (Get-Date).AddSeconds(60)
-    while (-not (Get-NetTCPConnection -LocalPort 38281 -State Listen -ErrorAction SilentlyContinue)) {
-        if ((Get-Date) -gt $deadline) { throw "AP server didn't open port 38281 within 60s -- check the server window" }
-        Start-Sleep -Seconds 2
+    Start-Server38281 $zip.FullName
+    Write-Host "  server is listening on 38281" -ForegroundColor Green
+    if ($PureRuntime) {
+        Write-Host "`nPure-runtime ready (NO bake, vanilla Game\):" -ForegroundColor Green
+        Write-Host "  - Rust client : $Me3DllDest  (loaded by me3 native)"
+        Write-Host "  - Multiworld  : $($zip.FullName)"
+        Write-Host "  - AP server   : localhost:38281"
+        Write-Host "`nTo play: me3 launch --profile `"$Me3Profile`"  (vanilla game files)." -ForegroundColor Cyan
     }
-    Write-Host "  server is listening on 38281"
-}
-
-# ----- bake -----------------------------------------------------------------------------------
-if ($Bake) {
-    Step ("Launching bake (autoconnect{0}) -- needs the AP server on localhost:38281" -f $(if ($Enemies) { " + enemies" } else { "" }))
-    if (-not (Test-Path $RandoExe)) { throw "randomizer exe not found -- run with -Randomizer first" }
-    Push-Location $RandoDir   # cwd matters: outputs land here; apconfig.json lands at ..\
-    try {
-        $bakeArgs = @("/gui", "autoconnect", "headless"); if ($Enemies) { $bakeArgs += "enemies" }
-        # Pass the slot name from the (single) Players yaml so the bake connects as the right
-        # slot instead of the hardcoded "Player1" (TODO #3). First yaml wins (dev-loop = 1 yaml).
-        $playerYaml = Get-ChildItem (Join-Path $ApDir "Players") -Filter *.yaml -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($playerYaml) {
-            $nm = Select-String -Path $playerYaml.FullName -Pattern '^\s*name:\s*(.+?)\s*$' | Select-Object -First 1
-            if ($nm) { $slot = $nm.Matches.Groups[1].Value.Trim(); $bakeArgs += "slot=$slot"; Write-Host "  bake slot = $slot" }
-        }
-        & $RandoExe @bakeArgs | Out-Default   # window auto-closes on completion (headless); no click needed
-        $bakeExit = $LASTEXITCODE
-    } finally { Pop-Location }
-    if ($bakeExit -ne 0) { throw ("bake FAILED (exit {0}) -- see ap_bake_*.log / ap_error.txt in {1}" -f $bakeExit, $RandoDir) }
-    Write-Host "  bake finished. Outputs: $RandoDir\{regulation.bin,event,msg,script,map} + $Repo\apconfig.json"
-    # Surface the region-fog-gate bake diagnostic. RegionFogGates writes ap_region_gates_<stamp>.txt
-    # to $RandoDir; the bake runs as a WinForms GUI so its Console output is otherwise not captured.
-    $rfg = Get-ChildItem -Path $RandoDir -Filter "ap_region_gates_*.txt" -ErrorAction SilentlyContinue |
-        Sort-Object LastWriteTime | Select-Object -Last 1
-    if ($rfg) {
-        Step "Region fog gates (ap_region_gates)"
-        Get-Content $rfg.FullName | Write-Host
-        Write-Host ("  -> {0}" -f $rfg.FullName) -ForegroundColor Green
-    } else {
-        Write-Host "  RegionFogGates: no ap_region_gates_*.txt produced -- pass did not run (rebuild SoulsRandomizers?)" -ForegroundColor Yellow
-    }
-}
-
-# ----- deploy ---------------------------------------------------------------------------------
-# ----- vanilla snapshot (for -CleanDeploy) ---------------------------------------------------
-# Capture pristine copies of the dirs -Deploy overlays, so -CleanDeploy can restore them before
-# each deploy. Run ONCE right after a fresh UXM unpack (game files = vanilla), before any deploy.
-if ($SnapshotVanilla) {
-    Step "Snapshotting vanilla game-override dirs -> $VanillaSnap"
-    Write-Host "  (run this ONCE right after a fresh UXM unpack, before any -Deploy, so the snapshot is pristine)"
-    foreach ($dir in $OverlayDirs) {
-        $src = Join-Path $AssetDir $dir
-        $dst = Join-Path $VanillaSnap $dir
-        if (Test-Path $src) {
-            Write-Host "  snapshotting $dir\ ..."
-            robocopy $src $dst /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
-            if ($LASTEXITCODE -ge 8) { throw "robocopy failed snapshotting $dir (exit $LASTEXITCODE)" }
-        } else { Write-Warning "  $dir\ not found under $AssetDir -- skipped" }
-    }
-    $regSnapSrc = Join-Path $AssetDir "regulation.bin"
-    if (Test-Path $regSnapSrc) {
-        Copy-Item $regSnapSrc (Join-Path $VanillaSnap "regulation.bin") -Force
-        Write-Host "  snapshotting regulation.bin ..."
-    } else { Write-Warning "  regulation.bin not found under $AssetDir -- snapshot will lack it (RestoreVanilla won't restore regulation)" }
-    $global:LASTEXITCODE = 0
-    Write-Host "  vanilla snapshot captured ($VanillaSnap). Re-run -SnapshotVanilla after any future UXM re-unpack."
-}
-
-# ----- restore vanilla (pure-runtime MVP) -----------------------------------------------------
-# Restore the overlay dirs AND regulation.bin to vanilla from the snapshot, then STOP -- no
-# overlay, no bake. Guarantees a truly-vanilla game for a -PureRuntime run (so detection polls
-# the vanilla flags and the suppressor matches the vanilla item ids).
-if ($RestoreVanilla) {
-    if (-not (Test-Path $VanillaSnap)) {
-        throw "RestoreVanilla needs a vanilla snapshot at $VanillaSnap. Capture once on a pristine install: .\build.ps1 -SnapshotVanilla"
-    }
-    Step "RestoreVanilla: restoring overlay dirs + regulation.bin to vanilla from snapshot"
-    foreach ($dir in $OverlayDirs) {
-        $snap = Join-Path $VanillaSnap $dir
-        $live = Join-Path $AssetDir $dir
-        if (Test-Path $snap) {
-            robocopy $snap $live /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
-            if ($LASTEXITCODE -ge 8) { throw "robocopy failed restoring $dir (exit $LASTEXITCODE)" }
-            Write-Host "  restored $dir\ to vanilla"
-        } else { Write-Warning "  snapshot lacks $dir\ -- skipped" }
-    }
-    $global:LASTEXITCODE = 0
-    $regSnap = Join-Path $VanillaSnap "regulation.bin"
-    if (Test-Path $regSnap) {
-        Copy-Item $regSnap (Join-Path $AssetDir "regulation.bin") -Force
-        Write-Host "  restored regulation.bin to vanilla"
-    } else {
-        Write-Warning "  snapshot lacks regulation.bin -- re-run -SnapshotVanilla on a pristine install, or restore regulation.bin via Steam 'Verify integrity of game files'"
-    }
-    Write-Host "  vanilla restore complete -- game files pristine (no overlay/bake applied)."
-}
-
-if ($Deploy) {
-    Step "Deploying to $ModsDir"
-    if (-not (Test-Path $ModsDir)) { New-Item -ItemType Directory -Path $ModsDir | Out-Null }
-
-    # -CleanDeploy: restore the overlay dirs to vanilla FIRST so stale files from a prior bake
-    # (e.g. an enemy bake's map\*.msb.dcx that an item-only bake won't overwrite) can't leak and
-    # desync the new-game load. robocopy /MIR makes each Game\<dir> exactly match the snapshot.
-    if ($CleanDeploy) {
-        if (-not (Test-Path $VanillaSnap)) {
-            throw "CleanDeploy needs a vanilla snapshot at $VanillaSnap. Run once after a fresh UXM unpack: .\build.ps1 -SnapshotVanilla"
-        }
-        Step "CleanDeploy: restoring vanilla overlay dirs from snapshot (pre-overlay)"
-        foreach ($dir in $OverlayDirs) {
-            $snap = Join-Path $VanillaSnap $dir
-            $live = Join-Path $AssetDir $dir
-            if (Test-Path $snap) {
-                robocopy $snap $live /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
-                if ($LASTEXITCODE -ge 8) { throw "robocopy failed restoring $dir (exit $LASTEXITCODE)" }
-                Write-Host "  restored $dir\ to vanilla"
-            }
-        }
-        $global:LASTEXITCODE = 0
-    }
-
-    # Game-file overrides produced by the bake. 'map' only exists for enemy bakes.
-    $reg = Join-Path $RandoDir "regulation.bin"
-    if (Test-Path $reg) {
-        Copy-Item $reg (Join-Path $AssetDir "regulation.bin") -Force
-        Write-Host "  regulation.bin"
-    } else { Write-Warning "no regulation.bin in $RandoDir -- did the bake run?" }
-    # 'menu' carries the AP-icon override: the bake's InjectApItemIcon step writes
-    # menu\hi\00_solo.tpfbnd.dcx with the telescope icon swapped for the Archipelago flower
-    # (only when diste\Archipelago\ap_telescope_icon.dds exists). See SPEC-ap-icon.md.
-    foreach ($dir in "event", "msg", "script", "map", "menu") {
-        $src = Join-Path $RandoDir $dir
-        if (Test-Path $src) {
-            # Copy CONTENTS, not the dir itself: Copy-Item dir->existing-dir nests (Game\map\map),
-            # and these dirs all exist in a UXM-unpacked game root.
-            $dst = Join-Path $AssetDir $dir
-            if (-not (Test-Path $dst)) { New-Item -ItemType Directory -Path $dst | Out-Null }
-            Copy-Item (Join-Path $src "*") $dst -Recurse -Force
-            Write-Host "  $dir\"
-        }
-    }
-
-    # apconfig.json: written by the bake to <repo>\apconfig.json; the client reads it from mods\.
-    # (The flag-polling 'location_flags' map travels in this file -- forgetting it = silent no-polling.)
-    $apconfig = Join-Path $Repo "apconfig.json"
-    if (Test-Path $apconfig) {
-        Copy-Item $apconfig (Join-Path $ModsDir "apconfig.json") -Force
-        Write-Host "  apconfig.json"
-    } else { Write-Warning "no apconfig.json at $Repo -- bake must complete (incl. server connect) to write it" }
-
-    # Client DLL.
-    if (Test-Path $ClientDll) {
-        Copy-Item $ClientDll (Join-Path $ModsDir "archipelago.dll") -Force
-        Write-Host "  archipelago.dll"
-    } else { Write-Warning "no client DLL at $ClientDll -- run with -Client first" }
-
-    # RandomizerCrashFix.dll: EML auto-loads mods\*.dll, but on a DELAYED schedule (so mods attach
-    # after the game's anti-tamper has settled). RandomizerCrashFix hooks EneDatMan and MUST load
-    # BEFORE the game constructs it -- the delayed default load is too late and the dll aborts with
-    # "initialized too late (EneDatMan already exists). Either add it to external_dlls or rename it
-    # to dinput8.dll". EML's equivalent of ModEngine2's early external_dlls is a load order of 0,
-    # which EML loads instantly, ignoring the delay (per its README). We pin that with a per-mod
-    # load.txt: mods\RandomizerCrashFix\load.txt = 0. Anti-CTD guard for cross-content enemy
-    # placements (Raya Lucaria etc., TODO #10). Use -NoCrashFix to deploy WITHOUT it and A/B.
-    $cfOrderDir = Join-Path $ModsDir "RandomizerCrashFix"   # EML load-order folder (name = dll basename)
-    $cfDll      = Join-Path $ModsDir "RandomizerCrashFix.dll"
-    # The crash fix ONLY guards cross-content enemy placements, so it has no business in an
-    # item-only deploy (it just hooks EneDatMan for nothing, and muddies the RLA A/B). Detect an
-    # enemy bake by its "map" output -- item-only bakes never produce one (see deploy loop above) --
-    # and fall back to the -Enemies switch for a bake+deploy in the same run.
-    $enemyBake = (Test-Path (Join-Path $RandoDir "map")) -or $Enemies
-    if ($enemyBake -and -not $NoCrashFix) {
-        if ($CrashFixDll -and (Test-Path $CrashFixDll)) {
-            Copy-Item $CrashFixDll $cfDll -Force
-            # Force instant (pre-EneDatMan) load: order 0 ignores EML's load delay.
-            if (-not (Test-Path $cfOrderDir)) { New-Item -ItemType Directory -Path $cfOrderDir | Out-Null }
-            Set-Content -Path (Join-Path $cfOrderDir "load.txt") -Value "0" -NoNewline -Encoding ascii
-            Write-Host "  RandomizerCrashFix.dll  (anti-CTD, load order 0; pass -NoCrashFix to omit)"
-        } else {
-            Write-Warning "RandomizerCrashFix.dll not found under $Repo -- enemy CTDs (RLA) may persist; see TODO #10"
-        }
-    } else {
-        # Not an enemy bake (item-only) or active opt-out (-NoCrashFix): purge any stale copy + its
-        # load-order folder so an item-only seed never inherits the enemy crash fix, and the A/B stays clean.
-        if (Test-Path $cfDll) {
-            Remove-Item $cfDll -Force
-            $cfWhy = if ($NoCrashFix) { "-NoCrashFix" } else { "item-only bake, not needed" }
-            Write-Host "  (removed stale RandomizerCrashFix.dll: $cfWhy)"
-        }
-        if (Test-Path $cfOrderDir) { Remove-Item $cfOrderDir -Recurse -Force }
-    }
-
-    # RandomizerHelper.dll (opt-in: -Helper). Auto-upgrade only; deploys the dll + our tuned ini
-    # (equip OFF so it doesn't fight the client's AutoEquip). UNVERIFIED that its pickup-hook
-    # upgrade fires on AP's direct-grant path -- check RandomizerHelper_log.txt in-game.
-    if ($Helper) {
-        if ($HelperDll -and (Test-Path $HelperDll)) {
-            Copy-Item $HelperDll (Join-Path $ModsDir "RandomizerHelper.dll") -Force
-            Write-Host "  RandomizerHelper.dll  (-Helper; auto-upgrade)"
-            if (Test-Path $HelperIni) {
-                Copy-Item $HelperIni (Join-Path $ModsDir "RandomizerHelper_config.ini") -Force
-                Write-Host "  RandomizerHelper_config.ini  (equip off, upgrade on)"
-            } else {
-                Write-Warning "RandomizerHelper_config.ini missing at $Repo -- dll will fall back to defaults (autoEquip=true) and CONFLICT with the client"
-            }
-        } else {
-            Write-Warning "RandomizerHelper.dll not found under $Repo -- -Helper had no effect"
-        }
-    }
-
-    Write-Host "`nDeployed. Launch the game via Elden Mod Loader and check:" -ForegroundColor Green
-    Write-Host "  - er::Init BUILD stamp matches this build time"
-    Write-Host "  - 'Loaded N location flags for check polling' appears at startup"
 }
 
 # ----- preflight validation -------------------------------------------------------------------
-# Writes a timestamped log and runs cross-checks that catch the failure modes this pipeline is
-# prone to: a STALE server (bake connects to an old multiworld), a wrong SLOT, or a deploy that
-# didn't refresh apconfig/dll. Run as the last step of -All, or standalone after a manual bake.
+# Pure-runtime cross-checks: seed of the newest gen, staged client dll + apconfig freshness, and
+# a stale-server detector on :38281. (No baked regulation/location_flags to check anymore.)
 if ($Preflight) {
-    Step "Preflight validation"
+    Step "Preflight validation (pure-runtime)"
     $ts  = Get-Date -Format "yyyyMMdd-HHmmss"
     $log = Join-Path $Repo "preflight_$ts.log"
     $lines = New-Object System.Collections.Generic.List[string]
@@ -788,7 +390,7 @@ if ($Preflight) {
         L ("[{0}] {1}{2}" -f $(if ($ok) { "PASS" } else { "FAIL" }), $name, $(if ($detail) { " -- $detail" } else { "" }))
     }
     try {
-        L "ER AP preflight  $ts"
+        L "ER AP pure-runtime preflight  $ts"
         L "repo: $Repo"
         L ""
 
@@ -800,7 +402,6 @@ if ($Preflight) {
             $slotNames += $nm
             L ("player yaml : {0}  (name={1})" -f $p.Name, $nm)
         }
-        # AP Generate reads EVERY file in Players\ (incl. .bak/.txt), not just *.yaml.
         $strayFiles = Get-ChildItem (Join-Path $ApDir "Players") -File -ErrorAction SilentlyContinue |
             Where-Object { $_.Extension -notin @(".yaml", ".yml") }
         if ($strayFiles) { L ("stray in Players\: {0}" -f (($strayFiles | ForEach-Object { $_.Name }) -join ", ")) }
@@ -811,22 +412,14 @@ if ($Preflight) {
         $zipSeed = if ($zip) { $zip.BaseName -replace '^AP_', '' } else { $null }
         L ("newest zip  : {0}  (seed={1}; written={2})" -f $(if ($zip) { $zip.Name } else { "<none>" }), $zipSeed, $(if ($zip) { $zip.LastWriteTime } else { "" }))
 
-        # baked apconfig (repo) and deployed apconfig (mods\)
-        $apr = $null; $apm = $null
-        $apRepo = Join-Path $Repo "apconfig.json"
-        $apMods = Join-Path $ModsDir "apconfig.json"
-        if (Test-Path $apRepo) { $apr = Get-Content $apRepo -Raw | ConvertFrom-Json }
-        if (Test-Path $apMods) { $apm = Get-Content $apMods -Raw | ConvertFrom-Json }
-        $rFlags = if ($apr) { @($apr.location_flags.PSObject.Properties).Count } else { 0 }
-        $mFlags = if ($apm) { @($apm.location_flags.PSObject.Properties).Count } else { 0 }
-        if ($apr) { L ("apconfig repo    : slot={0} seed={1} url={2} flags={3}" -f $apr.slot, $apr.seed, $apr.url, $rFlags) } else { L "apconfig repo    : <missing>" }
-        if ($apm) { L ("apconfig deployed: slot={0} seed={1} flags={2}" -f $apm.slot, $apm.seed, $mFlags) } else { L "apconfig deployed: <missing>" }
+        # staged apconfig (me3\) -- url + slot
+        $apm = $null
+        $apStaged = Join-Path $Me3Dir "apconfig.json"
+        if (Test-Path $apStaged) { $apm = Get-Content $apStaged -Raw | ConvertFrom-Json }
+        if ($apm) { L ("apconfig me3: slot={0} url={1}" -f $apm.slot, $apm.url) } else { L "apconfig me3: <missing>" }
 
-        # deployed artifact freshness
-        $dll = Join-Path $ModsDir "archipelago.dll"
-        $reg = Join-Path $AssetDir "regulation.bin"
-        if (Test-Path $dll) { L ("client dll  : {0}" -f (Get-Item $dll).LastWriteTime) }
-        if (Test-Path $reg) { L ("regulation  : {0}" -f (Get-Item $reg).LastWriteTime) }
+        # staged client dll freshness
+        if (Test-Path $Me3DllDest) { L ("client dll  : {0}  ({1})" -f $Me3DllDest, (Get-Item $Me3DllDest).LastWriteTime) }
 
         # server on 38281 (stale-server detector)
         $listen = Get-NetTCPConnection -LocalPort 38281 -State Listen -ErrorAction SilentlyContinue
@@ -838,21 +431,17 @@ if ($Preflight) {
 
         L ""
         L "---- verdicts ----"
-        Check "baked slot is an intended player"   ($apr -and ($slotNames -contains $apr.slot)) ("baked='{0}' players=[{1}]" -f $(if($apr){$apr.slot}), ($slotNames -join ", "))
-        Check "baked seed == newest generated seed" ($apr -and $zipSeed -and ($apr.seed -eq $zipSeed)) ("baked='{0}' newest='{1}'" -f $(if($apr){$apr.seed}), $zipSeed)
-        Check "deployed apconfig matches baked"     ($apr -and $apm -and ($apr.seed -eq $apm.seed) -and ($apr.slot -eq $apm.slot)) ("deployed slot/seed={0}/{1}" -f $(if($apm){$apm.slot}), $(if($apm){$apm.seed}))
-        # Pool-agnostic: deployed flag map must be non-empty AND equal the baked repo count
-        # (lean ~494, trimmed ~2150, base ~3686, DLC ~4857). Catches broken bakes AND stale/
-        # partial deploys regardless of location_pool. (Old flat >1000 floor failed on lean.)
-        Check "deployed location_flags present"     ($mFlags -gt 0 -and $mFlags -eq $rFlags) ("deployed=$mFlags baked=$rFlags")
-        Check "client dll deployed"                 (Test-Path $dll) $dll
-        Check "Players\ has no stray files"          (-not $strayFiles) (($strayFiles | ForEach-Object { $_.Name }) -join ", ")
+        Check "newest multiworld zip present"    ($null -ne $zip) ("newest={0}" -f $(if ($zip) { $zip.Name }))
+        Check "apconfig staged in me3\"          ($apm -and $apm.url -and $apm.slot) ("slot={0} url={1}" -f $(if($apm){$apm.slot}), $(if($apm){$apm.url}))
+        Check "staged slot is an intended player" ($apm -and ($slotNames -contains $apm.slot)) ("staged='{0}' players=[{1}]" -f $(if($apm){$apm.slot}), ($slotNames -join ", "))
+        Check "client dll staged"                (Test-Path $Me3DllDest) $Me3DllDest
+        Check "Players\ has no stray files"       (-not $strayFiles) (($strayFiles | ForEach-Object { $_.Name }) -join ", ")
 
         L ""
         if ($script:fails -eq 0) {
-            L "PREFLIGHT: PASS -- baked slot/seed match the newest gen and are deployed."
+            L "PREFLIGHT: PASS -- staged client + apconfig look consistent with the newest gen."
         } else {
-            L ("PREFLIGHT: {0} FAILURE(S) -- do NOT trust this build for a sync (likely stale server or un-refreshed deploy)." -f $script:fails)
+            L ("PREFLIGHT: {0} FAILURE(S) -- do NOT trust this build for a sync." -f $script:fails)
         }
     } catch {
         L ("preflight error: {0}" -f $_)
@@ -860,114 +449,4 @@ if ($Preflight) {
     $lines | Set-Content -Path $log -Encoding UTF8
     Write-Host ("`npreflight log -> {0}" -f $log) -ForegroundColor Green
     if ($script:fails -gt 0) { Write-Warning "Preflight found problems (see verdicts above)." }
-}
-
-# ----- seed-loop bake test --------------------------------------------------------------------
-# Bakes a batch of seeds unattended to shake out seed-dependent generation bugs (e.g. the
-# volcano_town loop, TODO #7). Per seed: Generate.py (--seed for reproducibility), start a FRESH
-# server for that exact zip (so the bake can't hit a stale server), then a HEADLESS bake (no
-# dialogs, auto-close, exit code = pass/fail). Success is confirmed when apconfig.json's seed
-# matches the freshly generated seed. Run -Randomizer first.
-if ($LoopTest) {
-    Step "Seed-loop bake test"
-    if (-not (Test-Path $RandoExe)) { throw "randomizer exe not found -- run with -Randomizer first" }
-    if (-not (Test-Path (Join-Path $ApDir "Generate.py"))) { throw "AP checkout not found at $ApDir" }
-
-    # slot name from the single Players yaml (same rule as -Bake)
-    $slot = $null
-    $playerYaml = Get-ChildItem (Join-Path $ApDir "Players") -Filter *.yaml -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($playerYaml) {
-        $nm = Select-String -Path $playerYaml.FullName -Pattern '^\s*name:\s*(.+?)\s*$' | Select-Object -First 1
-        if ($nm) { $slot = $nm.Matches.Groups[1].Value.Trim() }
-    }
-    if (-not $slot) { throw "no 'name:' found in Players yaml -- can't pick a bake slot" }
-    Write-Host "  bake slot = $slot"
-
-    $useRandom = -not $Seeds
-    $iter = if ($useRandom) { 1..$Count } else { $Seeds }
-    $results = New-Object System.Collections.Generic.List[object]
-    $n = 0
-    foreach ($item in $iter) {
-        $n++
-        $tag = if ($useRandom) { "random $n/$($iter.Count)" } else { "seed=$item ($n/$($iter.Count))" }
-
-        Step "[$n] Generate ($tag)"
-        $genOk = $false
-        Push-Location $ApDir
-        try {
-            if ($useRandom) { python Generate.py | Out-Default }
-            else            { python Generate.py --seed $item | Out-Default }
-            $genOk = ($LASTEXITCODE -eq 0)
-        } finally { Pop-Location }
-        if (-not $genOk) {
-            $results.Add([pscustomobject]@{ n=$n; req=$item; seed='(gen failed)'; exit=''; match=$false; status='GEN-FAIL' })
-            Write-Warning "  generation failed for $tag -- skipping bake"
-            continue
-        }
-        $zip = Get-ChildItem (Join-Path $ApDir "output") -Filter "AP_*.zip" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-        $genSeed = $zip.BaseName -replace '^AP_',''
-
-        # fresh server for THIS zip (kills any stale listener first -- avoids the stale-server bake)
-        Stop-Server38281
-        Start-Server38281 $zip.FullName
-
-        Step "[$n] Headless bake (seed $genSeed, slot $slot)"
-        $bakeArgs = @("/gui","autoconnect","headless","slot=$slot"); if ($Enemies) { $bakeArgs += "enemies" }
-        $proc = Start-Process -FilePath $RandoExe -ArgumentList $bakeArgs -WorkingDirectory $RandoDir -PassThru
-        if (-not $proc.WaitForExit(420000)) {   # 7-min safety net against a hung bake
-            try { $proc.Kill() } catch {}
-            $results.Add([pscustomobject]@{ n=$n; req=$item; seed=$genSeed; exit='TIMEOUT'; match=$false; status='HANG' })
-            Write-Warning "  bake timed out (>7min) on seed $genSeed -- killed"
-            continue
-        }
-        $code = try { $proc.ExitCode } catch { 'n/a' }   # GUI exit code can be flaky; apconfig match is ground truth
-
-        # success = apconfig.json now carries this seed (ground truth; exit code is a cross-check)
-        $apr = $null; $apRepo = Join-Path $Repo "apconfig.json"
-        if (Test-Path $apRepo) { $apr = Get-Content $apRepo -Raw | ConvertFrom-Json }
-        $match = ($apr -and ($apr.seed -eq $genSeed))
-        $status = if ($match -and $code -eq 0) { 'OK' } elseif ($match) { 'OK*' } else { 'BAKE-FAIL' }
-        $results.Add([pscustomobject]@{ n=$n; req=$item; seed=$genSeed; exit=$code; match=$match; status=$status })
-    }
-
-    Step "Loop test results"
-    $results | Format-Table -AutoSize | Out-Host
-    $okCount = @($results | Where-Object { $_.status -like 'OK*' }).Count
-    $col = if ($okCount -eq $results.Count) { 'Green' } else { 'Yellow' }
-    Write-Host ("  {0}/{1} bakes matched the generated seed" -f $okCount, $results.Count) -ForegroundColor $col
-}
-
-# ----- pure-runtime: launch server + final instructions (MVP only) ----------------------------
-# Runs LAST, after the apworld patches, -Generate, -Rust and -RustDeploy have completed. There is
-# NO bake and NO Game\ overlay deploy in this path -- the game runs vanilla; the only deployed
-# artifact is mods\eldenring_ap.dll (placed by -RustDeploy above). All this step does is start the
-# AP server on the freshly-generated zip (reusing the same Start-Server38281 helper -Serve uses) and
-# print the manual run steps.
-if ($PureRuntime) {
-    Step "PureRuntime: SoulsRandomizers-free MVP ready"
-    $zip = Get-ChildItem (Join-Path $ApDir "output") -Filter "AP_*.zip" -ErrorAction SilentlyContinue |
-        Sort-Object LastWriteTime -Descending | Select-Object -First 1
-    if (-not $zip) { throw "no multiworld zip in $ApDir\output -- did -Generate run? (PureRuntime expects it)" }
-
-    $inUse = Get-NetTCPConnection -LocalPort 38281 -State Listen -ErrorAction SilentlyContinue
-    if ($inUse) {
-        Write-Warning "port 38281 already has a listener -- an OLD server is probably still running. Close it and re-launch, or the client will connect to the wrong seed."
-    } else {
-        Write-Host "  launching AP server (new window): $($zip.Name)"
-        Start-Server38281 $zip.FullName   # same helper -Serve/-LoopTest use; waits until :38281 is listening
-        Write-Host "  server is listening on 38281" -ForegroundColor Green
-    }
-
-    Write-Host "`nMVP deployed (NO bake, NO regulation/event/msg/script/map overlays):" -ForegroundColor Green
-    Write-Host "  - Rust client : $ModsDir\eldenring_ap.dll  (C++ archipelago.dll parked as .disabled)"
-    Write-Host "  - Multiworld  : $($zip.FullName)"
-    Write-Host "  - AP server   : localhost:38281"
-    Write-Host "`nTo play:" -ForegroundColor Cyan
-    Write-Host "  1. Launch ELDEN RING via Elden Mod Loader (vanilla game files -- nothing baked into Game\)."
-    Write-Host "  2. The Rust client connects to localhost:38281 and detects checks by flag-polling slot_data"
-    Write-Host "     (locationFlags), suppressing vanilla check items (checkItemIds/checkItemFlags) and"
-    Write-Host "     granting AP items from the server."
-    Write-Host "  3. If the server window above didn't open (port busy), start it yourself from $ApDir :"
-    Write-Host "       python MultiServer.py `"$($zip.FullName)`""
-    Write-Host "`nRestore the C++ client + normal baked pipeline later with:  .\build.ps1 -CppRestore" -ForegroundColor DarkGray
 }
