@@ -6,14 +6,6 @@
 	path = Dark-Souls-III-Archipelago-client
 	url = git@github.com:4laric/Dark-Souls-III-Archipelago-client.git
 	branch = main
-[submodule "SoulsFormats"]
-	path = SoulsFormats
-	url = git@github.com:4laric/SoulsFormats.git
-	branch = dsms
-[submodule "SoulsIds"]
-	path = SoulsIds
-	url = git@github.com:4laric/SoulsIds.git
-	branch = ap-fixes
 [submodule "nightreign-enemy-rando"]
 	path = nightreign-enemy-rando
 	url = git@github.com:4laric/nightreign-enemy-rando.git
@@ -25,6 +17,3 @@
 [submodule "Paramdex"]
 	path = Paramdex
 	url = .\\Paramdex\\
-[submodule "yet-another-tab-control"]
-	path = yet-another-tab-control
-	url = .\\yet-another-tab-control\\
