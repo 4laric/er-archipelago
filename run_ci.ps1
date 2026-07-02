@@ -4,12 +4,14 @@
   Runs every automated gate from CONTRIBUTING.md in one command and reports a
   single PASS/FAIL:
 
-    1. UNIT   python -m pytest worlds\eldenring\tests  (option matrix, slot_data
+    1. UNIT   python -m pytest worlds\eldenring\tests + \test  (option matrix, slot_data
               contract, per-feature gen tests)
     2. FILL   run_fill_regression.ps1  (17 reproducer yamls vs baseline floors)
     3. FUZZ   gen_fuzz.ps1  (random option combinations -> clean gen or
               OptionError; the headline gate)
-    4. CARGO  (opt-in, -Cargo) cargo test in from-software-archipelago-clients
+    4. PURE   cargo test -p er-logic -p er-codec -p er-semver (Windows-free crates;
+              default-on, -SkipPure to skip; consumes the fixture UNIT regenerates)
+    5. CARGO  (opt-in, -Cargo) full cargo test in from-software-archipelago-clients
 
   Steps run in cheap-first order and ALL steps run even after a failure (you
   want the full picture from one CI pass); the final exit code is non-zero if
@@ -34,6 +36,7 @@ param(
     [switch] $SkipUnit,
     [switch] $SkipFill,
     [switch] $SkipFuzz,
+    [switch] $SkipPure,
     [switch] $Cargo                  # opt-in: Rust client tests (Windows toolchain)
 )
 
@@ -69,7 +72,13 @@ if (-not $SkipUnit) {
         Push-Location $ApDir
         try {
             $env:AP_NONINTERACTIVE = "1"
-            python -m pytest "worlds\eldenring\tests" -q --tb=short
+            # parallel across matrix classes (pip install pytest-xdist); exit 4 =
+            # unrecognized -n (xdist missing) -> serial fallback with a hint.
+            python -m pytest "worlds\eldenring\tests" "worlds\eldenring\test" -q --tb=short -n auto
+            if ($LASTEXITCODE -eq 4) {
+                Write-Host "  pytest-xdist not installed (pip install pytest-xdist) -- serial rerun" -ForegroundColor Yellow
+                python -m pytest "worlds\eldenring\tests" "worlds\eldenring\test" -q --tb=short
+            }
         } finally { Pop-Location }
     }
 }
@@ -91,7 +100,15 @@ if (-not $SkipFuzz) {
     }
 }
 
-# ----- 4) rust client tests (opt-in) ---------------------------------------------
+# ----- 4) rust pure-crate tests (host-safe, default-on) --------------------------
+if (-not $SkipPure) {
+    Invoke-CiStep "PURE (cargo test er-logic er-codec er-semver)" {
+        Push-Location $Client
+        try { cargo test -p er-logic -p er-codec -p er-semver } finally { Pop-Location }
+    }
+}
+
+# ----- 5) rust client tests (opt-in) ---------------------------------------------
 if ($Cargo) {
     Invoke-CiStep "CARGO (client tests)" {
         Push-Location $Client

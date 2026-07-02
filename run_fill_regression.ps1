@@ -36,7 +36,8 @@ param(
     [string]   $Apworld,             # gate the PACKAGED .apworld instead of the source tree
     [int]      $Margin = 0,          # percentage points of slack allowed under each floor
     [switch]   $UpdateBaseline,      # write observed rates back to baseline.json (calibration)
-    [switch]   $KeepZips
+    [switch]   $KeepZips,
+    [switch]   $Serial           # legacy single gen_sweep call (no parallel jobs)
 )
 
 $ErrorActionPreference = "Stop"
@@ -64,13 +65,46 @@ elseif ($Count -gt 0)         { $p.Count = $Count; $mode = "$Count random shared
 else                          { $p.Seeds = $FixedSeeds; $mode = "fixed reproducer seeds ($($FixedSeeds.Count))" }
 
 Write-Host "==== fill regression gate -- mode: $mode" -ForegroundColor Cyan
-& $GenSweep @p
 
-# ----- locate the CSV gen_sweep just wrote -----------------------------------
-$csv = Get-ChildItem $Repo -Filter "gensweep_${Tag}_*.csv" -ErrorAction SilentlyContinue |
-       Sort-Object LastWriteTime -Descending | Select-Object -First 1
-if (-not $csv) { throw "no gensweep_${Tag}_*.csv was produced -- did gen_sweep fail before the summary?" }
-$rows = Import-Csv -LiteralPath $csv.FullName
+# ----- run the sweep: parallel per-config jobs (default) or -Serial legacy -----
+$rows = @()
+$srcNote = ""
+if ($Serial) {
+    & $GenSweep @p
+    $csv = Get-ChildItem $Repo -Filter "gensweep_${Tag}_*.csv" -ErrorAction SilentlyContinue |
+           Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (-not $csv) { throw "no gensweep_${Tag}_*.csv was produced -- did gen_sweep fail before the summary?" }
+    $rows = Import-Csv -LiteralPath $csv.FullName
+    $srcNote = $csv.FullName
+} else {
+    $t0 = Get-Date
+    $yamls = @(Get-ChildItem $Suite -Filter *.yaml | Sort-Object Name)
+    if (-not $yamls.Count) { throw "no yamls in $Suite" }
+    $throttle = [Math]::Max(1, [Math]::Min(4, [Environment]::ProcessorCount - 1))
+    Write-Host ("  parallel: {0} configs, {1} concurrent jobs (use -Serial for the legacy path)" -f $yamls.Count, $throttle)
+    $jobs = @(); $qi = 0
+    foreach ($y in $yamls) {
+        while (@($jobs | Where-Object State -eq "Running").Count -ge $throttle) { Start-Sleep -Milliseconds 500 }
+        $qi++
+        $jp = @{} + $p
+        $jp.Yaml = $y.FullName
+        $jp.Tag  = "{0}p{1}" -f $Tag, $qi
+        $jobs += Start-Job -ScriptBlock {
+            param($gs, $ht)
+            & $gs @ht *> $null
+        } -ArgumentList $GenSweep, $jp
+    }
+    $jobs | Wait-Job | Out-Null
+    $jobs | ForEach-Object { Receive-Job $_ -ErrorAction SilentlyContinue | Out-Null; Remove-Job $_ -Force }
+    $csvs = @(Get-ChildItem $Repo -Filter "gensweep_${Tag}p*_*.csv" -ErrorAction SilentlyContinue |
+              Where-Object { $_.LastWriteTime -gt $t0 } | Sort-Object Name)
+    if (-not $csvs.Count) { throw "no per-config gensweep CSVs produced -- rerun with -Serial to see gen_sweep output" }
+    if ($csvs.Count -lt $yamls.Count) {
+        Write-Host ("  WARNING: {0}/{1} configs produced a CSV -- a job may have died; rerun with -Serial to debug" -f $csvs.Count, $yamls.Count) -ForegroundColor Yellow
+    }
+    $rows = @($csvs | ForEach-Object { Import-Csv -LiteralPath $_.FullName })
+    $srcNote = ($csvs | ForEach-Object { $_.Name }) -join ", "
+}
 
 # ----- floors ----------------------------------------------------------------
 $floors = @{}
@@ -117,7 +151,7 @@ if ($UpdateBaseline) {
 }
 
 Write-Host ""
-Write-Host ("  source CSV -> {0}" -f $csv.FullName) -ForegroundColor DarkGray
+Write-Host ("  source CSV(s) -> {0}" -f $srcNote) -ForegroundColor DarkGray
 if ($regressed.Count -gt 0) {
     Write-Host ("  GATE: FAIL -- {0} config(s) regressed." -f $regressed.Count) -ForegroundColor Red
     exit 1

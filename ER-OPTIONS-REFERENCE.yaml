@@ -25,7 +25,6 @@ EldenRing:
                                  #   godrick  = shortest base run; FORCES dlc_only OFF; needs lock-based world_logic
   world_logic: region_lock       # region_lock | region_bosses | region_lock_bosses | open_world
                                  #   NOTE: "lock-based" below = region_lock OR region_lock_bosses
-  region_boss_percent: 50        # 1..100. % of a region's bosses to open the next. REQUIRES region_bosses/region_lock_bosses
   soft_logic: true               # (DefaultOn) early access allowed but not logically expected
   region_access: geographic      # geographic | warp. warp = a region's OWN lock is enough (fast-travel in).
                                  #   REQUIRES region gating; several features auto-force this to warp (num_regions, random_start_region)
@@ -44,7 +43,6 @@ EldenRing:
   num_regions: 0                 # 0=off. keep N majors (Limgrave + Leyndell always kept + count toward N)
   num_regions_order: rolled      # rolled | spine. rolled = roll N majors (FORCES region_access: warp);
                                  #   spine = fixed first-N spine (Limgrave..Volcano), geographic (the old region_count)
-  num_regions_rune_source: regions  # regions | pool. pool = runes injected as items, Limgrave becomes a normal locked
                                  #   region, hub moves to Roundtable (you can spawn outside Limgrave). REQUIRES num_regions>0
   num_regions_chain: false       # breadcrumb the kept regions into a 1..N line (sphere ramp). REQUIRES num_regions>0 + capital
   graces_per_region: 3           # 0..12 graces lit per region-lock. 0=all. REQUIRES region gating.
@@ -81,12 +79,8 @@ EldenRing:
   junk_retention: 12             # 0..100 % of comedy junk to SPARE. INERT unless a scrub path is active (filler_replacement / dlc uplift)
   junk_retention_style: comedy   # comedy | comedy_and_generic | uniform. what counts as sparable junk
   tidy_fun_consumables: false    # pull junk fun-consumables out of the pool (start-grants the few that gate things)
-  soft_consumable_shop: false    # keys/hearts -> unlimited Twin Maiden shop. REQUIRES baked rows (patch_baker_soft_consumable_shop)!
-  derandomize_gurranq: false     # lock Gurranq ladder vanilla, re-inject the 3 keepers
-  derandomize_questlines: "off"    # off | links_only | full. free fill by locking optional NPC-quest links
   soft_progression: false        # demote gate-nothing progression to useful. ONLY helps accessibility full/items; INERT under minimal
   no_spirit_ashes: false         # remove all spirit summons + Spirit Calling Bell from the run
-  randomize_enia: true           # (DefaultOn) Roundtable/Enia remembrance turn-ins as checks. off = vanilla
 
   # --- Progressive Items ------------------------------------------------------
   #  PREFERRED front-end: progressive_items (set). The 4 legacy toggles (bottom) still work and OR-union in.
@@ -113,19 +107,13 @@ EldenRing:
 
   # --- Sweep ------------------------------------------------------------------
   dungeon_sweep: none            # none | minidungeons | all | bosses. boss death auto-sends a dungeon's remaining checks
-  grace_sweep: "off"               # off | complement | full. INERT unless dungeon_sweep: bosses
 
   # --- Enemy Randomizer -------------------------------------------------------
-  enemy_rando: false             # randomize enemies. GATES the 4 below + completion_scaling
-  swap_multiboss: false          # REQUIRES enemy_rando
-  boss_runes_match: false        # REQUIRES enemy_rando
-  impolite_enemies: false        # REQUIRES enemy_rando
   completion_scaling: "off"        # off | flat | gentle | steep | smoothstep. scales w/ OR w/o enemy_rando (scale-only bake pass)
   completion_scaling_floor: 0    # 0..50 % of MaxTier floor. REQUIRES completion_scaling on
   # completion_scaling_basis: geographic  # [Advanced] sphere needs a baker bridge that ISN'T wired -- only geographic applies
 
   # --- Equipment & QoL --------------------------------------------------------
-  auto_equip: false              # auto-equip received armor/weapons
   auto_upgrade: false            # auto-upgrade received weapons to max
   no_weapon_requirements: false  # strip stat reqs -- anything handed to you is usable
   crafting_kit_option: early     # randomize | early | do_not_randomize | start_with
@@ -133,7 +121,6 @@ EldenRing:
   smithing_bell_bearing_option: progression_randomize  # randomize | progression_randomize | do_not_randomize (default = progression_randomize)
   spell_shop_spells_only: false  # spell shops carry only spells
   early_legacy_dungeons: false   # early legacy dungeons are early
-  material_rando: true           # (DefaultOn) randomize infinitely-spawning materials
   bell_physick_option: start_with  # start_with | do_not_randomize | randomize. Spirit Calling Bell + Physick flask
   death_link: false
 
@@ -146,9 +133,7 @@ EldenRing:
   # --- Advanced & Experimental (off unless you know why) ----------------------
   global_scadutree_blessing: "off" # off | player_only | scaled. EXPERIMENTAL; 'scaled' currently behaves like player_only
   completion_scaling_basis: geographic # geographic | sphere. sphere NOT wired in baker yet
-  deathless_routing: false       # exclude the Volcano Manor abduction shortcut from logic
   royal_access: false            # keep Royal Capital graces after it goes ashen
-  disable_serpent_hunter_upgrade: false  # niche base-randomizer balance tweak
 
 # =============================================================================
 #  CONFLICT CHEAT-SHEET -- the interactions that silently waste your time
