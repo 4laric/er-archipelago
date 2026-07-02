@@ -132,6 +132,39 @@ correct — does not count.
   long time. Send *and* receive each need a live demonstration before the
   feature is called done.
 
+## Runtime visibility — a feature is armed, or it says why not
+
+The 2026-07-01 playtest lesson. Seven features were broken at once and not one
+of them crashed, warned, or logged: the defensive style everywhere in the client
+(`unwrap_or(false)`, fallback-to-empty, discarded write results, retry loops
+that absorb failures) converts every fault into *absence of behavior* — and
+absence of behavior is indistinguishable from "feature turned off" until a
+human notices gameplay feels wrong. Graceful degradation without telemetry is
+just silent failure with better manners.
+
+- **Tolerance requires telemetry.** Any code path that can degrade to a no-op
+  must announce its status once at startup/connect: "armed with N entries" or
+  "inert because X." A tolerant parse that falls back logs what it fell back
+  to. The one-time confirm-log (`inventory-ptr CONFIRM`) is the house pattern —
+  apply it to every feature, not just the dangerous ones. A feature whose
+  failure mode is a polite `false` is a fail at review time.
+- **Reconcile, don't dispatch.** The game rejects writes at menus and clobbers
+  state on save-loads. Fire-and-forget flag writes with an advancing watermark
+  lose events unrecoverably. Game-state application must latch on *observable
+  state* (read the flag back; re-apply per tick until it sticks) — never
+  advance a cursor past a write you didn't verify landed.
+- **Validation claims carry an environment manifest and a date.** "Confirmed
+  in-game" is only meaningful if it states what was on disk: vanilla snapshot
+  or baked leftovers, which mods loaded, which build. Every pre-pure-runtime
+  confirmation in this project silently depended on baked files providing half
+  of each feature — the claims were true, then the environment changed and
+  nothing forced a re-check. Ground truth expires; date it like a dump file.
+- **Emitted-but-unconsumed is a half-feature.** Every slot_data key needs a
+  live consumer in the client, or an explicit `CONTRACT: DEAD` /
+  `CONTRACT: PORT-GAP` tag saying why not. A key that is emitted and parsed by
+  nothing looks exactly like a finished feature from the gen side — the
+  contract ledger is what catches it before a player does.
+
 ## Repo hygiene
 
 - **Never commit game data or build outputs.** No provisioned game assets, no
@@ -160,5 +193,12 @@ Run through this before a change lands (PR or direct):
 - [ ] Every game ID traces to a source (cited) or a probe/readback test.
 - [ ] Client changes keep decision logic pure and out of the I/O path.
 - [ ] Live-game behavior was confirmed in-game (both directions, if bidirectional).
+- [ ] Every new degrade/no-op path logs its status once (armed with N / inert
+      because X); no silent fallbacks.
+- [ ] Game-state writes reconcile against read-back state; no watermark advances
+      past an unverified write.
+- [ ] In-game confirmations record the environment (vanilla/baked, mods, build)
+      and date.
+- [ ] New slot_data keys have a live consumer or an explicit CONTRACT tag.
 - [ ] No game data or build outputs staged; `git diff --cached --stat` reviewed.
 - [ ] Item-pool changes are count-neutral.

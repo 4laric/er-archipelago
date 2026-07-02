@@ -84,6 +84,25 @@ if tb or exc:
 else:
     out("RESULT  : SUCCESS (no traceback)")
 
+# --- warning() lines from the world / WARN-tagged lines --------------------------------
+# Every silent-noop fix (SILENT-NOOP-SWEEP-20260702) lands as a warning(); surfacing them
+# here makes each one visible in every future gendiag. Dedupe preserves first-seen order.
+out("")
+out("== WARNINGS ==")
+_warn_seen = set()
+_warn_hits = []
+for _wl in text.splitlines():
+    if re.search(r"\bwarn(ing)?\b", _wl, re.I):
+        _ws = _wl.strip()
+        if _ws and _ws not in _warn_seen:
+            _warn_seen.add(_ws)
+            _warn_hits.append(_ws)
+if _warn_hits:
+    for _ws in _warn_hits:
+        out("  " + _ws)
+else:
+    out("  (none)")
+
 # --- accessibility failure: "Missing: [...]" unreachable required locations -----------
 mm = re.search(r"Missing:\s*\[(.*?)\]\s*(?:All Placements:|\Z)", text, re.S)
 if mm:

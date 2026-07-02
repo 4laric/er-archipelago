@@ -19,6 +19,7 @@ options.py automatically teaches the linter about it. Pure stdlib + PyYAML.
 """
 from __future__ import annotations
 import os, re, sys, glob
+from difflib import get_close_matches
 
 try:
     import yaml
@@ -169,7 +170,9 @@ def lint_block(block: dict) -> list[Finding]:
                 if k in REMOVED:
                     err(k, f"REMOVED -- {REMOVED[k]}")
                 else:
-                    err(k, f"unknown option '{k}' -- typo? (silently ignored by AP)")
+                    sugg = get_close_matches(k, VALID_KEYS, n=3, cutoff=0.6)
+                    hint = f" -- did you mean {', '.join(repr(s) for s in sugg)}?" if sugg else " -- typo?"
+                    err(k, f"unknown option '{k}'{hint} (silently ignored by AP)")
 
     # 1) goal forcing
     if goal == "messmer":
@@ -274,6 +277,14 @@ def lint_block(block: dict) -> list[Finding]:
             warn("num_regions_chain", "INERT unless num_regions > 0")
         elif goal != "capital":
             warn("num_regions_chain", "only takes effect with ending_condition: capital")
+
+    # 7c) rune/region decoupling (2026-07-02): the structural floor is 3 (Limgrave+Leyndell+Altus);
+    #     great runes never raise the region count (deficit is pool-injected instead).
+    if 0 < nr < 3:
+        info("num_regions", "below the structural floor -- raised to 3 at gen (Limgrave + Leyndell + Altus)")
+    if nr > 0 and c.num("great_runes_required") > 4:
+        err("great_runes_required", "num_regions runs can satisfy at most 4 great runes "
+            "(Godrick/Rennala/Radahn/Rykard exist before the capital) -- gen rejects this (OptionError)")
 
     # 8) dlc_only_chain
     if c.truthy("dlc_only_chain") and goal != "messmer":

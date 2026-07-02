@@ -311,6 +311,25 @@ if ($Me3Deploy) {
         Write-Host "  apconfig.json -> $Me3Dir"
     } else { Write-Warning "  no apconfig.json at $Repo -- create one with `"url`" + `"slot`" (see shared\config.rs schema)" }
 
+    # Sweep-flag bridge (2026-07-01 playtest gap: table was never next to the DLL -> 0 sweep groups).
+    # flagpoll merge_table_file reads er_static_detection_table.json from the DLL's dir; it supplies
+    # the overworld/castle sweep groups the retired baker used to write into apconfig (e.g. Castle
+    # Morne 1044320800). Durable fix = emit sweepFlags in slot_data; this staging bridges until then.
+    $sweepTable = Join-Path $Repo "Archipelago\worlds\eldenring\er_static_detection_table.json"
+    if (Test-Path $sweepTable) {
+        Copy-Item $sweepTable (Join-Path $Me3Dir "er_static_detection_table.json") -Force
+        Write-Host "  er_static_detection_table.json -> $Me3Dir  (sweep-flag bridge)"
+        # 2026-07-02: the client's mod_directory() resolves to the me3 INSTALL dir (where its logs
+        # and ap_save_*.json land), NOT the profile dir where the DLL is staged -- confirmed live:
+        # "static detection table absent at ...garyttierney\me3\...". Stage the table there too so
+        # the sweep bridge actually finds it. (Durable fix stays: emit sweepFlags in slot_data.)
+        $me3Install = Join-Path $env:LOCALAPPDATA "Programs\garyttierney\me3"
+        if (Test-Path $me3Install) {
+            Copy-Item $sweepTable (Join-Path $me3Install "er_static_detection_table.json") -Force
+            Write-Host "  er_static_detection_table.json -> $me3Install  (client mod_directory)"
+        } else { Write-Warning "  me3 install dir not found at $me3Install -- sweep table staged to profile dir only" }
+    } else { Write-Warning "  no er_static_detection_table.json at Archipelago\worlds\eldenring -- sweep groups won't poll" }
+
     # park the EML client copy so me3's native is the ONLY loader of eldenring_ap.dll
     $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
     $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
@@ -322,6 +341,9 @@ if ($Me3Deploy) {
 
     # write the ModProfile. disable_arxan=true: me3 neuters Arxan on the vanilla exe (our client hooks
     # native code -- AddItemFunc -- which Arxan would otherwise revert).
+    # Paths are RELATIVE to the profile's own directory (me3 resolves them against the .me3 file;
+    # docs: "profiles can be stored anywhere, reference relative or absolute paths") -- the whole
+    # me3\ folder is portable/zippable for onboarding, no machine-specific paths baked in.
     $profileText = @"
 profileVersion = "v1"
 savefile = "AP_me3.sl2"
@@ -331,10 +353,10 @@ disable_arxan = true
 game = "eldenring"
 
 [[packages]]
-path = '$Me3Package'
+path = 'ap-package'
 
 [[natives]]
-path = '$Me3DllDest'
+path = 'eldenring_archipelago.dll'
 "@
     Set-Content -Path $Me3Profile -Value $profileText -Encoding UTF8
     Write-Host "  profile -> $Me3Profile" -ForegroundColor Green
@@ -432,7 +454,9 @@ if ($Preflight) {
         L ""
         L "---- verdicts ----"
         Check "newest multiworld zip present"    ($null -ne $zip) ("newest={0}" -f $(if ($zip) { $zip.Name }))
-        Check "apconfig staged in me3\"          ($apm -and $apm.url -and $apm.slot) ("slot={0} url={1}" -f $(if($apm){$apm.slot}), $(if($apm){$apm.url}))
+        # url is now OPTIONAL: the in-client connect overlay collects server/slot/password in-game,
+        # so a staged apconfig only needs a slot (a blank url just means "enter it in-game").
+        Check "apconfig staged (slot; url optional, entered in-game)" ($apm -and $apm.slot) ("slot={0} url={1}" -f $(if($apm){$apm.slot}), $(if($apm -and $apm.url){$apm.url}else{"<entered in-game>"}))
         Check "staged slot is an intended player" ($apm -and ($slotNames -contains $apm.slot)) ("staged='{0}' players=[{1}]" -f $(if($apm){$apm.slot}), ($slotNames -join ", "))
         Check "client dll staged"                (Test-Path $Me3DllDest) $Me3DllDest
         Check "Players\ has no stray files"       (-not $strayFiles) (($strayFiles | ForEach-Object { $_.Name }) -join ", ")

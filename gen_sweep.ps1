@@ -117,7 +117,10 @@ function Invoke-SeedRun($configName, $seed, $idx, $n) {
     Push-Location $ApDir
     try {
         $env:AP_NONINTERACTIVE = "1"   # suppress Generate.py's atexit "Press enter to close." pause
-        cmd /c "python Generate.py --seed $seed > `"$genLog`" 2>&1"
+        # < NUL: the AP_NONINTERACTIVE guard is a LOCAL Generate.py patch that an AP re-checkout
+        # drops (patch_generate_nopause_reapply.py restores it); EOF on stdin makes the atexit
+        # input() raise EOFError instead of blocking the sweep on a failed gen.
+        cmd /c "python Generate.py --seed $seed < NUL > `"$genLog`" 2>&1"
         $genExit = $LASTEXITCODE
     } finally { Pop-Location }
 
@@ -147,7 +150,9 @@ function Invoke-SeedRun($configName, $seed, $idx, $n) {
     }
     else {
         $outcome = "CONFIGERROR"
-        $ln = Select-String -Path $genLog -Pattern 'Error|Exception|Traceback' -ErrorAction SilentlyContinue | Select-Object -Last 1
+        # skip EOFError/atexit noise (unpatched Generate.py + < NUL stdin) -- report the REAL error
+        $ln = Select-String -Path $genLog -Pattern 'Error|Exception|Traceback' -ErrorAction SilentlyContinue |
+              Where-Object { $_.Line -notmatch 'EOFError|atexit|Press enter' } | Select-Object -Last 1
         $detail = if ($ln) { $ln.Line.Trim() } else { "non-zero exit $genExit, no recognizable error line" }
     }
 
@@ -347,7 +352,34 @@ if ($regionSeen -gt 0) {
         $md.Add(("| {0} | {1} | {2}% |" -f $_.Key, $_.Value, $pct))
     }
 } else {
-    Write-Host "  (region frequency unavailable -- gen logs don't name regions yet; apply patch_apworld_numregions_log_kept_regions.py, rebuild the apworld, then re-sweep)" -ForegroundColor DarkYellow
+    Write-Host "  (region frequency unavailable -- gen logs don't name regions yet; run patch_apworld_log_kept_and_chain.py, then re-sweep. Source-tree gens pick it up directly; -Apworld sweeps need build.ps1 -Apworld first.)" -ForegroundColor DarkYellow
+}
+
+# ----- chain link-0 frequency (num_regions_chain runs; same patch as above) ---
+# link-0 = the chain's free/pre-collected lock = the effective START region.
+$linkTally = @{}; $chainSeen = 0
+foreach ($r in $results) {
+    $lp = Join-Path $Repo $r.log
+    if (-not (Test-Path $lp)) { continue }
+    $cm = Select-String -Path $lp -Pattern "num_regions_chain order \[(.*?)\]" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($cm) {
+        $chainSeen++
+        $toks = [regex]::Matches($cm.Matches[0].Groups[1].Value, "'([^']*)'|""([^""]*)""")
+        if ($toks.Count -gt 0) {
+            $first = if ($toks[0].Groups[1].Success) { $toks[0].Groups[1].Value } else { $toks[0].Groups[2].Value }
+            if ($first) { $linkTally[$first] = ([int]$linkTally[$first]) + 1 }
+        }
+    }
+}
+if ($chainSeen -gt 0) {
+    Step ("CHAIN LINK-0 FREQUENCY (start region lock across {0} chain seeds)" -f $chainSeen)
+    $md.Add(""); $md.Add(("## chain link-0 / start region (frequency across {0} chain seeds)" -f $chainSeen)); $md.Add("")
+    $md.Add("| link-0 lock | rolled | % |"); $md.Add("|---|---:|---:|")
+    $linkTally.GetEnumerator() | Sort-Object Value -Descending | ForEach-Object {
+        $pct = [math]::Round(100.0 * $_.Value / $chainSeen, 0)
+        Write-Host ("  {0,-30} {1,3}  ({2,3}%)" -f $_.Key, $_.Value, $pct)
+        $md.Add(("| {0} | {1} | {2}% |" -f $_.Key, $_.Value, $pct))
+    }
 }
 
 Set-Content -LiteralPath $mdPath -Value ($md -join "`r`n") -Encoding UTF8
