@@ -54,9 +54,9 @@ $RollableMiddles = @("Limgrave", "Weeping Peninsula", "Stormveil Castle", "Liurn
                      "Mountaintops of the Giants", "Consecrated Snowfield", "Miquella's Haligtree")
 # link-0 = the chain's free/pre-collected middle lock. Steps 2-12 minus Altus (pinned last, never
 # link-0) and minus Mountaintops Lock (a valid chain lock, but it does not roll link-0 on the
-# current 16 fixed seeds -- see header). Limgrave Lock is intentionally NOT here (step 1 is spawn-
-# granted, outside the breadcrumb chain).
-$RollableLocks   = @("Weeping Lock", "Stormveil Lock", "Liurnia Lock", "Caelid Lock",
+# current 16 fixed seeds -- see header). Limgrave Lock IS here now (LIMGRAVE_ROLL 2026-07-03:
+# step 1 chains like any middle; if no fixed seed rolls it link-0, swap ONE seed and re-pin).
+$RollableLocks   = @("Weeping Lock", "Stormveil Lock", "Liurnia Lock", "Caelid Lock", "Limgrave Lock",
                      "Mt. Gelmir Lock", "Nokron Lock", "Nokstella Lock", "Snowfield Lock",
                      "Haligtree Lock")
 $Structural      = @("Altus Plateau", "Leyndell, Royal Capital", "Roundtable Hold")

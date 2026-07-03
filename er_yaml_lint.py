@@ -262,10 +262,15 @@ def lint_block(block: dict) -> list[Finding]:
         elif goal != "capital":
             warn("num_regions_chain", "only takes effect with ending_condition: capital")
 
-    # 7c) rune/region decoupling (2026-07-02): the structural floor is 3 (Limgrave+Leyndell+Altus);
-    #     great runes never raise the region count (deficit is pool-injected instead).
-    if 0 < nr < 3:
-        info("num_regions", "below the structural floor -- raised to 3 at gen (Limgrave + Leyndell + Altus)")
+    # 7c) rune/region decoupling + Roundtable-hub re-root (spine surgery 2026-07-02): num_regions
+    #     counts your ROLLED majors only -- the Roundtable hub and the (lockless) Leyndell capstone
+    #     are always kept and never counted. Altus is force-kept on top of the roll (it is the only
+    #     route into lockless Leyndell), so the effective kept count is num_regions + 1 and the
+    #     structural floor is 2 (Altus + one rolled major). Great runes never raise the count
+    #     (the deficit is pool-injected). Any num_regions >= 1 is valid; 0 disables the mode.
+    if nr == 1:
+        info("num_regions", "1 rolls a single major on top of the force-kept Altus -> effective 2 "
+             "(Altus + 1 rolled major, plus the uncounted Roundtable hub and Leyndell capstone)")
     if nr > 0 and c.num("great_runes_required") > 4:
         err("great_runes_required", "num_regions runs can satisfy at most 4 great runes "
             "(Godrick/Rennala/Radahn/Rykard exist before the capital) -- gen rejects this (OptionError)")
