@@ -110,7 +110,9 @@ if (-not $Apworld -and (Test-Path $PreGen)) { Step "pregen guard (stale .pyc / s
 # ----- one seed's gen run; returns a result row ------------------------------
 function Invoke-SeedRun($configName, $seed, $idx, $n) {
     Write-Host ("    [{0}/{1}] seed {2}" -f $idx, $n, $seed) -ForegroundColor White
-    $ts      = Get-Date -Format "yyyyMMdd-HHmmss-fff"
+    # -$PID suffix: parallel sweep jobs can start a seed in the same millisecond and
+    # collide on the log redirect (2026-07-02); the job process id disambiguates.
+    $ts      = (Get-Date -Format "yyyyMMdd-HHmmss-fff") + "-" + $PID
     $genLog  = Join-Path $Repo "generate_$ts.log"
     $genDiag = Join-Path $Repo "gendiag_$ts.txt"
 
@@ -120,7 +122,8 @@ function Invoke-SeedRun($configName, $seed, $idx, $n) {
         # < NUL: the AP_NONINTERACTIVE guard is a LOCAL Generate.py patch that an AP re-checkout
         # drops (patch_generate_nopause_reapply.py restores it); EOF on stdin makes the atexit
         # input() raise EOFError instead of blocking the sweep on a failed gen.
-        cmd /c "python Generate.py --seed $seed < NUL > `"$genLog`" 2>&1"
+        $pfp = if ($script:StageDir) { "--player_files_path `"$script:StageDir`" --outputpath `"$script:OutDir`" " } else { "" }
+        cmd /c "python Generate.py --seed $seed $pfp< NUL > `"$genLog`" 2>&1"
         $genExit = $LASTEXITCODE
     } finally { Pop-Location }
 
@@ -161,7 +164,7 @@ function Invoke-SeedRun($configName, $seed, $idx, $n) {
     if (-not $KeepZips -and $seedName) {
         foreach ($ext in '.zip','.apsave','.archipelago') {
             $f = Join-Path $OutDir ("AP_{0}{1}" -f $seedName, $ext)
-            if (Test-Path $f) { Remove-Item -LiteralPath $f -Force -ErrorAction SilentlyContinue }
+            try { if (Test-Path $f) { Remove-Item -LiteralPath $f -Force -ErrorAction SilentlyContinue } } catch {}
         }
     }
 
@@ -171,13 +174,20 @@ function Invoke-SeedRun($configName, $seed, $idx, $n) {
     }
 }
 
-# ----- back up Players\ once (only when we stage configs) --------------------
-$staging   = ($configList[0] -ne $SENTINEL)
-$yamlBackup = @{}
+# ----- isolated staging dir (parallel-safe, 2026-07-02) ----------------------
+# Configs are staged into a UNIQUE temp dir handed to Generate.py via
+# --player_files_path. The shared Players\ folder is never touched, so concurrent
+# gen_sweep instances (parallel FILL / DIVERSITY jobs) cannot wipe each other's
+# staged yaml mid-gen (file-lock crashes; silent cross-config contamination).
+$staging  = ($configList[0] -ne $SENTINEL)
+$StageDir = $null
 if ($staging) {
-    Get-ChildItem $Players -Filter *.yaml -ErrorAction SilentlyContinue | ForEach-Object {
-        $yamlBackup[$_.FullName] = Get-Content -LiteralPath $_.FullName -Raw
-    }
+    $StageDir = Join-Path $env:TEMP ("apstage_" + [System.Guid]::NewGuid().ToString("N").Substring(0, 8))
+    New-Item -ItemType Directory -Path $StageDir -Force | Out-Null
+    # isolated OUTPUT dir too: AP zip names derive from the seed, so parallel jobs on
+    # shared fixed seeds collide in the shared output\ (overwrite + cleanup TOCTOU).
+    $OutDir = Join-Path $StageDir "out"
+    New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 }
 
 # ----- optional: swap the source-tree world for the PACKAGED apworld ---------
@@ -238,8 +248,8 @@ try {
         $cfgName = if ($cfg -eq $SENTINEL) { $SENTINEL } else { Split-Path $cfg -Leaf }
         Step ("CONFIG: {0}" -f $cfgName)
         if ($staging) {
-            Get-ChildItem $Players -Filter *.yaml -ErrorAction SilentlyContinue | Remove-Item -Force
-            Copy-Item -LiteralPath $cfg -Destination (Join-Path $Players (Split-Path $cfg -Leaf)) -Force
+            Get-ChildItem $StageDir -Filter *.yaml -ErrorAction SilentlyContinue | Remove-Item -Force
+            Copy-Item -LiteralPath $cfg -Destination (Join-Path $StageDir (Split-Path $cfg -Leaf)) -Force
         }
 
         $idx = 0
@@ -256,10 +266,9 @@ try {
     }
 }
 finally {
-    if ($staging) {
-        Get-ChildItem $Players -Filter *.yaml -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-        foreach ($yf in @($yamlBackup.Keys)) { Set-Content -LiteralPath $yf -Value $yamlBackup[$yf] -NoNewline }
-        Write-Host "restored original Players\ yaml(s)." -ForegroundColor DarkGray
+    if ($staging -and $StageDir) {
+        Remove-Item -LiteralPath $StageDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "removed isolated staging dir (Players\ untouched)." -ForegroundColor DarkGray
     }
     if ($Apworld) { Restore-Apworld; Write-Host "restored source tree (worlds\eldenring); removed installed apworld." -ForegroundColor DarkGray }
 }

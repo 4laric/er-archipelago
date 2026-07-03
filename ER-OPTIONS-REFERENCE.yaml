@@ -41,10 +41,8 @@ EldenRing:
   #  num_regions is the one short-run knob; num_regions_order picks HOW the kept set is chosen.
   #  REQUIRES ending_condition: capital + lock-based world_logic.
   num_regions: 0                 # 0=off. keep N majors (Limgrave + Leyndell always kept + count toward N)
-  num_regions_order: rolled      # rolled | spine. rolled = roll N majors (FORCES region_access: warp);
                                  #   spine = fixed first-N spine (Limgrave..Volcano), geographic (the old region_count)
                                  #   region, hub moves to Roundtable (you can spawn outside Limgrave). REQUIRES num_regions>0
-  num_regions_chain: false       # breadcrumb the kept regions into a 1..N line (sphere ramp). REQUIRES num_regions>0 + capital
   graces_per_region: 3           # 0..12 graces lit per region-lock. 0=all. REQUIRES region gating.
                                  #   CONFLICTS: grace_rando (on by default) REPLACES this bundle -- set grace_rando:false to use it
   grace_rando: true              # (DefaultOn, region gating only) lock lights 1 random grace; rest drop as in-region checks

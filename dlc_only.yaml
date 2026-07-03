@@ -13,8 +13,6 @@ EldenRing:
   # Sphere-ordered difficulty scaling. CORRECT option names (the old enemy_scaling / scaling_basis
   # were NOT real options -- AP silently ignored them, so no scaling ran). Works with
   # enemy_rando: false via the scale-only bake pass; basis: sphere tiers enemies by DLC chain depth.
-  completion_scaling: smoothstep
-  completion_scaling_basis: sphere
 
   #random_start_region: overworld   # inert under dlc_only (Gravesite is the fixed hub)
   #start_region_freebie: hub_only

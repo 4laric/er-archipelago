@@ -62,7 +62,6 @@ CHOICE = {
     "ending_condition": {"final_boss":0,"elden_beast":1,"all_remembrances":2,"all_bosses":3,"capital":4,"messmer":5,"godrick":6},
     "world_logic": {"region_lock":0,"region_bosses":1,"region_lock_bosses":2,"open_world":3},
     "region_access": {"geographic":0,"warp":1},
-    "num_regions_order": {"rolled":0,"spine":1},
     "dlc_timing": {"early":0,"off":1,"late":2},
     "completion_scaling": {"off":0,"flat":1,"gentle":2,"steep":3,"smoothstep":4},
     "completion_scaling_basis": {"geographic":0,"sphere":1},

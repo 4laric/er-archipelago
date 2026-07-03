@@ -13,8 +13,6 @@ EldenRing:
 
   # Sphere-ordered difficulty scaling. With num_regions, basis: sphere tiers enemies by
   # region_order chain depth (geographic pass validated; sphere-basis bridge wired).
-  completion_scaling: smoothstep
-  completion_scaling_basis: sphere
 
   #random_start_region: overworld
   #start_region_freebie: hub_only

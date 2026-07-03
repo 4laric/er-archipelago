@@ -6,12 +6,16 @@
 
     1. every config generates at 100% (no floors, no canaries);
     2. structural keeps at 100%: Altus Plateau / Leyndell, Royal Capital / Roundtable Hold;
-    3. Limgrave kept ZERO times -- pool+chain excludes it from the roll (this doubles as proof
-       the pool-only rune scope actually engaged; regions-mode force-kept Limgrave);
-    4. every rollable middle region kept at least once across the sweep;
-    5. every chain lock appears at least once as link-0 (roll diversity, not just gen success).
+    3. every rollable middle region kept at least once across the sweep -- proof the pool roll
+       engaged and is diverse (incl. Limgrave, now an ordinary rollable step post spine-surgery);
+    4. every chain lock that CAN be link-0 appears at least once as link-0 (roll diversity).
 
-  Region/lock lists mirror region_spine.SPINE middles (steps 2-8; Altus forced separately).
+  Region/lock lists mirror region_spine.SPINE (steps 1-12). Altus is forced + pinned last, so it
+  is asserted structural and never link-0. Post spine-surgery 2026-07-02: Limgrave is a normal
+  rollable step (kept, but NOT part of the breadcrumb chain -> its lock is never link-0);
+  Dragonbarrow was folded into Caelid (its lock retired); Mountaintops Lock can be link-0 but does
+  not surface on the current 16 fixed seeds, so it is not in the required link-0 set (add a seed
+  if you want it asserted). Update these lists alongside region_spine.py.
   Runs one gen_sweep job per config in parallel (same pattern as run_fill_regression.ps1).
 
   USAGE:  .\run_region_diversity.ps1            # fixed 16 seeds x 3 configs
@@ -39,12 +43,22 @@ if (-not (Test-Path $Suite))    { throw "suite folder not found: $Suite" }
 )
 if (-not ($Seeds -and $Seeds.Count)) { $Seeds = $FixedSeeds }
 
-# region_spine.SPINE middles (steps 2-8). Altus is forced by the pool scope, so it is asserted
-# structural; the other six are the ROLLABLE set. Update alongside region_spine.py.
-$RollableMiddles = @("Weeping Peninsula", "Stormveil Castle", "Liurnia of The Lakes",
-                     "Caelid", "Dragonbarrow", "Mt. Gelmir")
-$RollableLocks   = @("Weeping Lock", "Stormveil Lock", "Liurnia Lock",
-                     "Caelid Lock", "Dragonbarrow Lock", "Mt. Gelmir Lock")
+# region_spine.SPINE rollable steps (1-12), minus Altus (step 6: forced by the pool scope +
+# pinned last, so asserted structural below). Each entry is a PRIMARY region name that lands in
+# the kept table when its step is kept. Limgrave (step 1) is rollable and kept, but its lock is
+# NOT in NUM_REGIONS_CHAIN_STEP_LOCK, so it never breadcrumbs as link-0 -- present here (kept
+# check) but absent from $RollableLocks (link-0 check). Dragonbarrow was folded into Caelid
+# (2026-07-02); its lock is retired, so it is gone from both lists.
+$RollableMiddles = @("Limgrave", "Weeping Peninsula", "Stormveil Castle", "Liurnia of The Lakes",
+                     "Caelid", "Mt. Gelmir", "Siofra River", "Ainsel River",
+                     "Mountaintops of the Giants", "Consecrated Snowfield", "Miquella's Haligtree")
+# link-0 = the chain's free/pre-collected middle lock. Steps 2-12 minus Altus (pinned last, never
+# link-0) and minus Mountaintops Lock (a valid chain lock, but it does not roll link-0 on the
+# current 16 fixed seeds -- see header). Limgrave Lock is intentionally NOT here (step 1 is spawn-
+# granted, outside the breadcrumb chain).
+$RollableLocks   = @("Weeping Lock", "Stormveil Lock", "Liurnia Lock", "Caelid Lock",
+                     "Mt. Gelmir Lock", "Nokron Lock", "Nokstella Lock", "Snowfield Lock",
+                     "Haligtree Lock")
 $Structural      = @("Altus Plateau", "Leyndell, Royal Capital", "Roundtable Hold")
 
 Write-Host ("==== region-diversity gate -- {0} fixed seeds x nrchain configs" -f $Seeds.Count) -ForegroundColor Cyan
@@ -59,19 +73,41 @@ if ($Serial) {
     $csvs = @(Get-ChildItem $Repo -Filter "gensweep_${Tag}_*.csv" | Where-Object { $_.LastWriteTime -gt $t0 })
     $mds  = @(Get-ChildItem $Repo -Filter "gensweep_${Tag}_*.md"  | Where-Object { $_.LastWriteTime -gt $t0 })
 } else {
-    $jobs = @(); $qi = 0
+    $jobs = @{}; $qi = 0
     foreach ($y in $yamls) {
         $qi++
-        $jp = @{ Yaml = $y.FullName; Seeds = $Seeds; Tag = ("{0}p{1}" -f $Tag, $qi) }
-        $jobs += Start-Job -ScriptBlock {
-            param($gs, $ht)
-            & $gs @ht *> $null
-        } -ArgumentList $GenSweep, $jp
+        $jobTag = "{0}p{1}" -f $Tag, $qi
+        # explicit parameter binding (deserialized-hashtable splats have bitten before) +
+        # full output capture so a dead job can explain itself.
+        $jobs[$jobTag] = Start-Job -ScriptBlock {
+            param($gs, $yaml, [long[]]$seeds, $tag)
+            try {
+                & $gs -Yaml $yaml -Seeds $seeds -Tag $tag 2>&1 | Out-String
+            } catch {
+                "JOB EXCEPTION: $($_ | Out-String)"
+            }
+        } -ArgumentList $GenSweep, $y.FullName, $Seeds, $jobTag
     }
-    $jobs | Wait-Job | Out-Null
-    $jobs | ForEach-Object { Receive-Job $_ -ErrorAction SilentlyContinue | Out-Null; Remove-Job $_ -Force }
+    $jobs.Values | Wait-Job | Out-Null
+    $jobOut = @{}
+    foreach ($kv in $jobs.GetEnumerator()) {
+        $jobOut[$kv.Key] = (Receive-Job $kv.Value 2>&1 | Out-String)
+        Remove-Job $kv.Value -Force
+    }
     $csvs = @(Get-ChildItem $Repo -Filter "gensweep_${Tag}p*_*.csv" | Where-Object { $_.LastWriteTime -gt $t0 })
     $mds  = @(Get-ChildItem $Repo -Filter "gensweep_${Tag}p*_*.md"  | Where-Object { $_.LastWriteTime -gt $t0 })
+    if ($csvs.Count -lt $yamls.Count) {
+        Write-Host ("`n==== only {0}/{1} configs produced CSVs -- job output tails:" -f $csvs.Count, $yamls.Count) -ForegroundColor Red
+        $doneTags = @($csvs | ForEach-Object { if ($_.Name -match "gensweep_(${Tag}p\d+)_") { $Matches[1] } })
+        foreach ($kv in $jobOut.GetEnumerator()) {
+            if ($kv.Key -notin $doneTags) {
+                Write-Host ("---- {0} ----" -f $kv.Key) -ForegroundColor Yellow
+                $tail = ($kv.Value -split "`r?`n" | Where-Object { $_ } | Select-Object -Last 25) -join "`n"
+                Write-Host $tail
+            }
+        }
+        throw "diversity sweep incomplete -- see job tails above (or rerun with -Serial)"
+    }
 }
 if ($csvs.Count -lt $yamls.Count) { throw ("only {0}/{1} configs produced CSVs -- rerun with -Serial to debug" -f $csvs.Count, $yamls.Count) }
 $rows = @($csvs | ForEach-Object { Import-Csv -LiteralPath $_.FullName })
@@ -112,14 +148,11 @@ foreach ($r in $Structural) {
     $n = [int]($kept[$r])
     if ($n -ne $totalRuns) { $violations.Add(("structural region '{0}' kept {1}/{2}" -f $r, $n, $totalRuns)) }
 }
-# ----- 3) Limgrave never kept (pool+chain roll exclusion) --------------------------
-$lim = [int]($kept["Limgrave"])
-if ($lim -ne 0) { $violations.Add(("Limgrave kept {0}x -- pool+chain must exclude it (is the pool scope engaged?)" -f $lim)) }
-# ----- 4) every rollable middle appears ---------------------------------------------
+# ----- 3) every rollable middle appears (Limgrave is now an ordinary rollable step) ------
 foreach ($r in $RollableMiddles) {
     if ([int]($kept[$r]) -lt 1) { $violations.Add(("rollable region NEVER kept across {0} seeds: {1}" -f $totalRuns, $r)) }
 }
-# ----- 5) every lock appears as link-0 ------------------------------------------------
+# ----- 4) every rollable lock appears as link-0 ------------------------------------------
 foreach ($l in $RollableLocks) {
     if ([int]($link0[$l]) -lt 1) { $violations.Add(("lock NEVER rolled as link-0: {0}" -f $l)) }
 }
