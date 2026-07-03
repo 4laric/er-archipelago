@@ -90,6 +90,8 @@ DEFAULT = {
     "pool_builder":False,"pool_builder_dlc_gear":False,"soft_progression":False,
     "dlc_only_chain":False,"messmer_kindle":False,"quick_start":False,
     "dlc_only_rune_catchup":False,"num_regions_chain":False,
+    "location_pool":"all","excluded_location_behavior":"forbid_useful",
+    "missable_location_behavior":"forbid_useful",
 }
 # options removed in a hard merge -> give a migration hint instead of a bare "unknown"
 REMOVED = {
@@ -306,6 +308,17 @@ def lint_block(block: dict) -> list[Finding]:
     for k in CHOICE:
         if k in c.b and isinstance(c.b[k], bool):
             info(k, f"YAML parsed this choice as a boolean ({str(c.b[k]).lower()}); quote it (e.g. {k}: \"off\") or it silently resolves to the wrong option")
+
+    # 15b) trimmed + forbid_useful filler shortage (observed 3/3 FillError on the
+    #      wizard short_solo sample 2026-07-02: "Not enough filler items for excluded
+    #      locations"; the trimmed pool runs out of pure filler for excluded/missables,
+    #      especially under seal goals). forbid_useful is the DEFAULT, so this fires on
+    #      absent keys too -- allow_useful is the supported pairing with trimmed.
+    if c.cval("location_pool") == "trimmed":
+        for k in ("excluded_location_behavior", "missable_location_behavior"):
+            if c.cval(k) == "forbid_useful":
+                warn(k, "trimmed pool + forbid_useful can FillError ('not enough filler "
+                        "items for excluded locations') -- set allow_useful")
 
     # 15) tight-pool accessibility heads-up
     if c.cval("accessibility") == "full" and (seal_goal or c.cval("location_pool") == "lean" or c.raw("extra_region_locks")):

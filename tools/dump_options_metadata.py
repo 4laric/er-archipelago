@@ -82,6 +82,8 @@ PRESETS = [
             "location_pool": "trimmed",
             "no_weapon_requirements": True,
             "auto_upgrade": True,
+            "excluded_location_behavior": "allow_useful",
+            "missable_location_behavior": "allow_useful",
             "early_leveling": True,
         },
     },
@@ -96,6 +98,8 @@ PRESETS = [
             "ending_condition": "capital",
             "num_regions": 4,
             "location_pool": "trimmed",
+            "excluded_location_behavior": "allow_useful",
+            "missable_location_behavior": "allow_useful",
             "early_leveling": True,
         },
     },
@@ -109,6 +113,8 @@ PRESETS = [
         "values": {
             "location_pool": "trimmed",
             "no_weapon_requirements": True,
+            "excluded_location_behavior": "allow_useful",
+            "missable_location_behavior": "allow_useful",
         },
     },
     {
