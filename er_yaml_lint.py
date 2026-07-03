@@ -100,6 +100,8 @@ REMOVED = {
     "blessing_option": "merged into important_locations (list Fragment/Revered) -- use vanilla_upgrades: [blessings] for the old do_not_randomize",
     "pool_builder_dlc_gear": "removed (Part 2) -- pool_builder injects base juice only; use dlc_gear_curation for DLC gear",
     "great_runes_present": "removed (Part 2) -- num_regions pool deficit injection now targets great_runes_required",    "region_boss_type": "removed (Part 2) -- only fed the disabled region_bosses rules block",
+    "num_regions_rune_source": "removed 2026-07-02 (one-sound-mode) -- rune deficits vs great_runes_required are pool-injected automatically in all num_regions modes; delete the key",
+    "shop_checks": "removed 2026-07-02 (one-sound-mode) -- shop-slot handling is no longer optional; delete the key",
 }
 
 class Finding:
@@ -194,23 +196,15 @@ def lint_block(block: dict) -> list[Finding]:
             if goal in ("capital","messmer","godrick"): active.append(f"ending_condition: {goal}")
             if nr > 0: active.append(f"num_regions: {nr}")
             cause = " + ".join(active)
-            _pool = c.cval("num_regions_rune_source") == "pool"
             _chain = c.truthy("num_regions_chain")
-            if nr > 0 and _pool and _chain:
-                # The recommended options are ALREADY set: the chain's link-0 rolls your start region.
-                # random_start_region the OPTION is inert, but functionally you DO get a random start --
-                # so this is working as intended, not a problem. Info, not a warning.
+            if nr > 0 and _chain:
+                # The chain's link-0 rolls your start region: random_start_region the OPTION is
+                # inert, but functionally you DO get a random start -- working as intended.
+                # (num_regions_rune_source deleted 2026-07-02; deficit injection is automatic.)
                 info("random_start_region",
                      f"the option itself is inert under the seal goal ({cause}), but "
-                     "num_regions_rune_source: pool + num_regions_chain are set, so the chain's link-0 "
-                     "already rolls your start region -- working as intended.")
-            elif nr > 0 and _pool:
-                # pool without chain: hub moves to Roundtable but you SPAWN at Roundtable, not in a
-                # rolled region. One step away from what random_start_region wants.
-                warn("random_start_region",
-                     f"inert under the seal goal ({cause}); num_regions_rune_source: pool moves the hub "
-                     "to Roundtable but you spawn AT Roundtable, not in a rolled region. Add "
-                     "num_regions_chain: true to spawn in the rolled link-0 region.")
+                     "num_regions_chain is set, so the chain's link-0 already rolls your "
+                     "start region -- working as intended.")
             else:
                 # Why: a seal goal prunes the world to a kept set with the goal boss inside it; a free
                 # random spawn could land in a SEALED region, so the apworld resets it and you start at
@@ -220,10 +214,8 @@ def lint_block(block: dict) -> list[Finding]:
                        "sit inside, and a free spawn could land in a sealed region). You'll start at "
                        "The First Step (Limgrave).")
                 if nr > 0:
-                    msg += ("\n    Fix (num_regions runs): set num_regions_rune_source: pool to move the "
-                            "hub to Roundtable Hold, AND num_regions_chain: true to SPAWN in the rolled "
-                            "link-0 region. Caveat: pool re-runs the scope with no great-rune floor and "
-                            "can seal Altus->Leyndell -- gen-test before baking.")
+                    msg += ("\n    Fix (num_regions runs): set num_regions_chain: true to SPAWN in the "
+                            "rolled link-0 region.")
                 else:
                     msg += ("\n    No random-start path exists under this goal yet (the Roundtable re-root "
                             "rides on num_regions). Drop random_start_region, or switch to a non-seal goal "
@@ -260,15 +252,11 @@ def lint_block(block: dict) -> list[Finding]:
             warn("num_regions", "only takes effect with ending_condition: capital")
         if not lock_based:
             warn("num_regions", "only takes effect with lock-based world_logic")
-        if c.cval("num_regions_order") == "spine" and c.cval("num_regions_rune_source") == "pool":
-            warn("num_regions_rune_source", "ignored under num_regions_order: spine (pool rolls a random non-contiguous set)")
     # 6) num_regions_order: spine requested but no regions to order
     if c.cval("num_regions_order") == "spine" and nr == 0:
         warn("num_regions_order", "spine ordering set but num_regions is 0 (nothing to keep)")
 
     # 7) num_regions sub-options
-    if c.cval("num_regions_rune_source") == "pool" and nr == 0:
-        warn("num_regions_rune_source", "INERT unless num_regions > 0")
     if c.truthy("num_regions_chain"):
         if nr == 0:
             warn("num_regions_chain", "INERT unless num_regions > 0")

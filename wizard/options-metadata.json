@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "EldenRing",
  "source": "Archipelago/worlds/eldenring/options.py",
- "source_sha256": "85ca8497cfb806bec6d9acabd9d2123d58e3e7d9d48fe47f6d53571de9e9baef",
+ "source_sha256": "ab17e8e53597057e2442a63e8bd6c1c66812bbc9b4b96f3a39eb1ea644f43e13",
  "field_order": [
   "ending_condition",
   "world_logic",
@@ -460,7 +460,7 @@
    "kind": "choice",
    "base": "Choice",
    "display_name": "Num Regions Order",
-   "description": "How num_regions chooses which overworld majors to keep (only matters when num_regions > 0).\n\n- **rolled** (default): roll N majors at random; reached by warp (forces region_access=warp).\n  The original num_regions behavior.\n- **spine**: keep the fixed first-N steps of the spine toward Morgott (Limgrave, Weeping,\n  Stormveil, Liurnia, Caelid, Dragonbarrow, Altus, Volcano), reached geographically. This is\n  the old region_count option, folded in here.\n\nIgnored unless num_regions > 0 (and, like num_regions, only under the Capital goal + lock\nlogic). num_regions_rune_source: pool is ignored under spine (pool rolls a random set).",
+   "description": "How num_regions chooses which overworld majors to keep (only matters when num_regions > 0).\n\n- **rolled** (default): roll N majors at random; reached by warp (forces region_access=warp).\n  The original num_regions behavior.\n- **spine**: keep the fixed first-N steps of the spine toward Morgott (Limgrave, Weeping,\n  Stormveil, Liurnia, Caelid, Dragonbarrow, Altus, Volcano), reached geographically. This is\n  the old region_count option, folded in here.\n\nIgnored unless num_regions > 0 (and, like num_regions, only under the Capital goal + lock\nlogic). Any rune deficit vs great_runes_required is pool-injected automatically.",
    "default": "rolled",
    "choices": [
     {

@@ -83,6 +83,11 @@ if (-not $SkipUnit) {
     }
 }
 
+# ----- 1b) options wizard metadata drift (ast dump vs committed JSON + wizard) -
+Invoke-CiStep "WIZARD (options metadata drift)" {
+    & (Join-Path $Repo "tools\check_options_metadata.ps1")
+}
+
 # ----- 2) fill regression (fixed reproducer seeds vs baseline floors) ----------
 if (-not $SkipFill) {
     Invoke-CiStep "FILL (run_fill_regression.ps1)" {

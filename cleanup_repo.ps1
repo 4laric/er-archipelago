@@ -43,13 +43,39 @@ Write-Host "=== er-archipelago cleanup ($mode) ===" -ForegroundColor Cyan
 Write-Host "root: $root`n"
 
 $freed = 0
+# Files another process holds open (running game/client, editor, AV scan) make
+# Remove-Item/Move-Item throw; under EAP=Stop that used to kill the WHOLE run
+# mid-cleanup. Every delete/move now goes through a per-item try/catch with one
+# short retry; failures are collected and reported at the end instead of aborting.
+$script:skipped = [System.Collections.Generic.List[string]]::new()
+
+function Remove-ItemRobust($item, [switch]$Recurse) {
+  for ($try = 1; $try -le 2; $try++) {
+    try {
+      if ($Recurse) { Remove-Item -LiteralPath $item.FullName -Recurse -Force -ErrorAction Stop }
+      else          { Remove-Item -LiteralPath $item.FullName -Force -ErrorAction Stop }
+      return $true
+    } catch {
+      if ($try -eq 1) { Start-Sleep -Milliseconds 400; continue }
+      $reason = ($_.Exception.Message -replace '\s+', ' ').Trim()
+      $script:skipped.Add("$($item.FullName.Replace($root,'.'))  [$reason]")
+      return $false
+    }
+  }
+  return $false
+}
+
 function Remove-List($files, $label) {
   $script:list = @($files | Where-Object { $_ -and (Test-Path $_.FullName) })
   if (-not $list) { Write-Host "[$label] nothing to do" -ForegroundColor DarkGray; return }
   $bytes = ($list | Measure-Object Length -Sum).Sum
   Write-Host "[$label] $($list.Count) files, $([math]::Round($bytes/1MB,2)) MB" -ForegroundColor Yellow
   foreach ($f in $list) { Write-Host "    $($f.Name)" -ForegroundColor DarkGray }
-  if ($Execute) { $list | Remove-Item -Force; $script:freed += $bytes }
+  if ($Execute) {
+    foreach ($f in $list) {
+      if (Remove-ItemRobust $f) { $script:freed += $f.Length }
+    }
+  }
 }
 
 # ---- helper: keep newest N by trailing -YYYYMMDD-HHMMSS in the name ----
@@ -117,7 +143,7 @@ Remove-List ($walkFiles | Where-Object { $_.Extension -eq '.pyc' }) 'compiled py
 if ($walkPycache.Count) {
   Write-Host "[__pycache__ dirs] $($walkPycache.Count)" -ForegroundColor Yellow
   $walkPycache | ForEach-Object { Write-Host "    $($_.FullName.Replace($root,'.'))" -ForegroundColor DarkGray }
-  if ($Execute) { $walkPycache | Remove-Item -Recurse -Force }
+  if ($Execute) { foreach ($d in $walkPycache) { [void](Remove-ItemRobust $d -Recurse) } }
 } else { Write-Host "[__pycache__ dirs] nothing to do" -ForegroundColor DarkGray }
 
 # OPT-IN heavy build artifacts (regenerable; deleting forces a rebuild). Rust target/ + .NET bin,obj.
@@ -129,7 +155,7 @@ if ($BuildArtifacts) {
     $sz = ($builddirs | ForEach-Object { (Get-ChildItem -Recurse -File $_.FullName -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum } | Measure-Object -Sum).Sum
     Write-Host "[build artifacts] $($builddirs.Count) dirs, $([math]::Round($sz/1MB,2)) MB (Rust target/ + .NET bin,obj)" -ForegroundColor Yellow
     $builddirs | ForEach-Object { Write-Host "    $($_.FullName.Replace($root,'.'))" -ForegroundColor DarkGray }
-    if ($Execute) { $builddirs | Remove-Item -Recurse -Force }
+    if ($Execute) { foreach ($d in $builddirs) { [void](Remove-ItemRobust $d -Recurse) } }
   } else { Write-Host "[build artifacts] nothing to do" -ForegroundColor DarkGray }
 } else {
   Write-Host "[build artifacts] skipped (pass -BuildArtifacts to also purge Rust target/ + .NET bin,obj)" -ForegroundColor DarkGray
@@ -153,7 +179,16 @@ function Archive-List($files, $destSub, $label) {
         git ls-files --error-unmatch -- "$old" 2>$null | Out-Null
         if ($LASTEXITCODE -eq 0) { git mv -f -- "$old" "$new" 2>$null; $moved = ($LASTEXITCODE -eq 0) }
       } catch { $moved = $false }
-      if (-not $moved) { Move-Item -Force -- "$old" "$new" }  # untracked or git mv failed -> plain move
+      if (-not $moved) {  # untracked or git mv failed -> plain move, robust to in-use files
+        for ($try = 1; $try -le 2; $try++) {
+          try { Move-Item -LiteralPath $old -Destination $new -Force -ErrorAction Stop; break }
+          catch {
+            if ($try -eq 1) { Start-Sleep -Milliseconds 400; continue }
+            $reason = ($_.Exception.Message -replace '\s+', ' ').Trim()
+            $script:skipped.Add("$($old.Replace($root,'.'))  [archive move failed: $reason]")
+          }
+        }
+      }
     }
   }
 }
@@ -184,3 +219,11 @@ Archive-List $rootPatches 'patches' 'root patch_*.py (ALL)'
 Write-Host "`n=== done ($mode) ===" -ForegroundColor Cyan
 if ($Execute) { Write-Host ("freed {0} MB; one-offs archived" -f [math]::Round($freed/1MB,2)) -ForegroundColor Green }
 else { Write-Host "re-run with -Execute to purge Bucket 1 + archive Buckets 2 & 3 (incl. ALL root patch_*.py)." -ForegroundColor Green }
+
+if ($script:skipped.Count) {
+  Write-Host "`n[skipped] $($script:skipped.Count) item(s) in use by another process (or access denied):" -ForegroundColor Red
+  $script:skipped | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
+  Write-Host "everything else was cleaned; close the holder (game/client/editor/AV scan) and re-run for these." -ForegroundColor Yellow
+  exit 2
+}
+exit 0
