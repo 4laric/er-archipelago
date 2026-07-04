@@ -20,6 +20,7 @@ first time.
 | `me3/` bundle | The runtime that talks to the live game: `ap.me3`, `eldenring_archipelago.dll` (MIT), `ap-package/`, `er_static_detection_table.json`, `apconfig.json`. |
 | `SETUP.md` | This file. |
 | `CHANGELOG.md` | What's in v0.1. |
+| `CHECKS-AND-PROGRESSION.md` | How checks, progression, and filler work (with real counts). |
 
 You also need, separately:
 
@@ -39,7 +40,9 @@ You also need, separately:
    only edit you need — the defaults are a tuned ~3-4 hour Shattering run.
 
    Want a longer shatter? Raise `num_regions` (up to 9). Own the DLC and want the
-   Messmer campaign instead? See "Variants" at the bottom.
+   Messmer campaign instead? See "Variants" at the bottom. New to Archipelago and
+   wondering what actually gets randomized? `CHECKS-AND-PROGRESSION.md` breaks down
+   checks, progression, and filler with real numbers.
 
 3. **Generate.** Run `ArchipelagoGenerate` (or **Generate** in the launcher).
    You'll get an `AP_<...>.zip` output. For a solo game you can host it locally;
@@ -99,11 +102,12 @@ names their gate item, highlights your current region, marks hinted locations, a
 flags big-ticket checks. Filters let you show only currently-reachable regions or
 only the prominent checks. No extra install — it's part of the client.
 
-**PopTracker (optional).** Prefer a separate window or a full map view? The repo
-also ships a **PopTracker pack** (`poptracker/`):
+**PopTracker (optional).** Prefer a separate window or a full map view? A
+**PopTracker pack** lives in the repo (`poptracker/`) — it's not in this download,
+grab it from the repo if you want it:
 
 1. Install the [PopTracker](https://github.com/black-sliver/PopTracker) app.
-2. Load the ER pack (`poptracker/`).
+2. Grab the ER pack (`poptracker/`) from the repo and load it.
 3. Connect it to the **same Archipelago room** for auto-tracking, including a
    DLC-only map variant for Land of Shadow runs.
 

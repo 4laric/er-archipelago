@@ -1,12 +1,12 @@
 # package_release.ps1 -- assemble the player-facing ER Archipelago release bundle.
 #
-# Pure-runtime: NO FromSoftware game data ships. This wraps the four things a
+# Pure-runtime: NO FromSoftware game data ships. This wraps the three things a
 # player needs into one zip:
 #   1. eldenring.apworld            (built by build.ps1 -Apworld)
 #   2. me3\ runtime                 (client DLL + ap-package AP-icon override +
 #                                    er_static_detection_table.json + apconfig.json)
-#   3. poptracker\ pack             (optional external tracker)
-#   4. the flagship yaml + SETUP.md + CHANGELOG.md
+#   3. the flagship yaml + SETUP.md + CHANGELOG.md
+# (The PopTracker pack stays in the repo, not bundled; the built-in F6 tracker ships.)
 #
 # The AP-icon override IS me3\ap-package (a me3 VFS texture swap: AP items show the
 # flower icon). It is bundled by copying me3\ wholesale; the script WARNS if the
@@ -107,18 +107,9 @@ $ApConfig = Join-Path $Me3Dst "apconfig.json"
 Info "+ apconfig.json (generic template: localhost / Player1)"
 
 # ---------------------------------------------------------------------------
-# 5. PopTracker pack (optional external tracker)
-# ---------------------------------------------------------------------------
-$PopSrc = Join-Path $Repo "poptracker"
-if (Test-Path (Join-Path $PopSrc "manifest.json")) {
-    Copy-Item $PopSrc (Join-Path $Stage "poptracker") -Recurse -Force
-    Info "+ poptracker\ pack"
-} else {
-    Warn "poptracker\manifest.json not found -- PopTracker pack omitted from the bundle."
-}
-
-# ---------------------------------------------------------------------------
-# 6. Flagship yaml + docs
+# 5. Flagship yaml + docs
+#    (PopTracker pack is intentionally NOT bundled -- it lives in the repo for
+#    anyone who wants it; the built-in F6 tracker is the shipped tracker.)
 # ---------------------------------------------------------------------------
 $Docs = @(
     @{ src = (Join-Path $Rel "EldenRing-Shattering.yaml"); required = $true  },

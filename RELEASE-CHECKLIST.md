@@ -58,8 +58,9 @@ static detection table. The remaining work is packaging and a git tag.
   for v0.1 — not something to fix before the tag.
 - [ ] **Assemble the release bundle** — run `.\package_release.ps1` (wraps the
       `eldenring.apworld`, the `me3/` runtime incl. the `ap-package` AP-icon
-      override, the `poptracker/` pack, the yaml, SETUP.md and CHANGELOG.md into
-      `dist\ER-Archipelago-v0.1-*.zip`; ships a generic apconfig; **warns if the
+      override, the yaml, SETUP.md and CHANGELOG.md into
+      `dist\ER-Archipelago-v0.1-*.zip`; ships a generic apconfig; PopTracker stays
+      in the repo, not bundled; **warns if the
       AP-icon textures under `me3\ap-package\menu` are missing** — confirm they're
       staged on Windows, they read empty in the sandbox).
 - [ ] **Repo hygiene before tagging** (public repo): add `genfuzz*` to
