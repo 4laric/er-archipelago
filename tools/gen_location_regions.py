@@ -1,42 +1,104 @@
 #!/usr/bin/env python3
-"""Generate the AP location-id -> region-name table for the item tracker.
+"""Generate the AP location metadata table for the tracker (SPEC-item-tracker.md).
 
-Emits `crates/er-logic/src/tracker_regions.rs` from the apworld's
-`worlds/eldenring/locations.py`. Region grouping for the tracker (SPEC-item-tracker.md,
-Option A) lives as a STATIC, testable er-logic table -- this script is its source of truth.
+Emits `crates/er-logic/src/tracker_regions.rs`. Sources (Windows AP env; the sandbox mount
+truncates the 6k-line locations.py):
+  - locations.py    : location_tables (ids + fine region), region_order headers, prominent/missable
+  - map_region_data.py : coarse region keys that carry an open flag
+  - grace_data.py   : REGION_LOCK_ITEM (coarse region -> lock item name)
 
-Run on Windows in the AP dev env (the sandbox mount truncates the 6k-line locations.py):
+Per AP location it emits: fine region (grouping), coarse region (the open-flag key that decides
+in-logic), big_ticket (prominent), missable. Plus coarse-region -> lock-item, so the client can
+resolve each coarse region to a live open-state flag via its region_open_flags table.
 
-    python tools/gen_location_regions.py            # regenerate the .rs
-    python tools/gen_location_regions.py --check     # CI drift gate: nonzero if stale
-
-It loads locations.py by path with lightweight BaseClasses/items stubs, so it does NOT
-need the full Archipelago import chain (pathspec et al.). Every non-event ERLocationData
-(ap_code assigned in __post_init__ from the 7_000_000 counter) is mapped to its
-location_tables region key.
+    python tools/gen_location_regions.py            # regenerate + wire lib.rs
+    python tools/gen_location_regions.py --check     # CI drift gate
 """
-import sys, os, types, importlib.util, argparse, hashlib
+import sys, os, types, importlib.util, argparse, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-LOCATIONS_PY = os.path.join(REPO, "Archipelago", "worlds", "eldenring", "locations.py")
+ELD = os.path.join(REPO, "Archipelago", "worlds", "eldenring")
+LOCATIONS_PY = os.path.join(ELD, "locations.py")
+MAP_REGION_PY = os.path.join(ELD, "map_region_data.py")
+GRACE_DATA_PY = os.path.join(ELD, "grace_data.py")
 OUT_RS = os.path.join(REPO, "from-software-archipelago-clients",
                       "crates", "er-logic", "src", "tracker_regions.rs")
 LIB_RS = os.path.join(REPO, "from-software-archipelago-clients",
                       "crates", "er-logic", "src", "lib.rs")
 MOD_LINE = "pub mod tracker_regions;"
 
+# Base-game section-header -> coarse region key (or "" = always open). Alaric 2026-07-04.
+HEADER_COARSE = {
+    "Limgrave": "Limgrave", "The hold": "", "Weeping": "Weeping Peninsula",
+    "Siofra": "Siofra River", "Liurnia": "Liurnia of The Lakes", "Caelid": "Caelid",
+    "Nokron": "Nokron, Eternal City Start", "Ainsel": "Ainsel River", "Altus": "Altus Plateau",
+    "Mt Gelmir": "Mt. Gelmir", "Volcano Manor": "Mt. Gelmir", "Capital Outskirts": "Altus Plateau",
+    "Leyndell": "Leyndell, Ashen Capital", "forbidden lands": "Forbidden Lands",
+    "Mountaintops": "Mountaintops of the Giants", "Farum Azula": "Farum Azula",
+    "Snowfield": "Consecrated Snowfield", "Haligtree": "Miquella's Haligtree",
+}
+# Per-fine-region overrides (win over header + self rule). Alaric 2026-07-04. The three shared
+# play_region buckets (REGION_ID_MAP.md) follow their owner's open flag.
+FINE_OVERRIDE = {
+    "Mohgwyn Palace": "Mohgwyn Palace",
+    "Moonlight Altar": "Liurnia of The Lakes",
+    "Sellia Crystal Tunnel": "Caelid",
+    "Fog Rift Fort": "Scadu Altus",
+    "Recluses' River": "Scadu Altus",
+}
 
-def load_location_tables():
-    """Load worlds/eldenring/locations.py under a synthetic `eld` package.
 
-    Only `BaseClasses` is stubbed (Item/Location/Region are unused at import; the
-    ItemClassification metaclass resolves any flag attribute to 0). The real sibling
-    modules `items` and `grace_data` load normally via the package __path__, so
-    `item_table` is populated for real -- locations.py's module-level
-    `location_groups()` pass needs it (KeyError otherwise).
-    """
-    d = os.path.dirname(LOCATIONS_PY)
+def coarse_keys():
+    t = open(MAP_REGION_PY, encoding="utf-8").read()
+    return set(re.findall(r'"([^"]+)"\s*:\s*\{\s*"area_ids"', t))
+
+
+def region_lock_items():
+    """coarse region name -> lock item name (grace_data.REGION_LOCK_ITEM). Pure data module."""
+    spec = importlib.util.spec_from_file_location("er_grace_data", GRACE_DATA_PY)
+    gd = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gd)
+    return dict(gd.REGION_LOCK_ITEM)
+
+
+def header_buckets():
+    """fine region name -> section header, from region_order + region_order_dlc."""
+    t = open(LOCATIONS_PY, encoding="utf-8").read()
+    out = {}
+    for name in ("region_order", "region_order_dlc"):
+        m = re.search(r'\n' + name + r'\s*=\s*\[(.*?)\n\]', t, re.S)
+        if not m:
+            continue
+        cur = None
+        for line in m.group(1).splitlines():
+            s = line.strip()
+            if s.startswith("#"):
+                cur = s.lstrip("#").strip()
+            else:
+                nm = re.match(r'"([^"]+)"', s)
+                if nm:
+                    out[nm.group(1)] = cur
+    return out
+
+
+def build_fine2coarse():
+    keys = coarse_keys()
+    buckets = header_buckets()
+    f2c = {}
+    for fine in set(buckets) | set(FINE_OVERRIDE):
+        if fine in FINE_OVERRIDE:
+            f2c[fine] = FINE_OVERRIDE[fine]
+        elif fine in keys:
+            f2c[fine] = fine
+        else:
+            f2c[fine] = HEADER_COARSE.get(buckets.get(fine), "")
+    return f2c
+
+
+def load_locations():
+    """[(ap_code, fine_region, prominent, missable)] via a stubbed import of locations.py."""
+    d = ELD
 
     class _Meta(type):
         def __getattr__(cls, n):
@@ -55,149 +117,157 @@ def load_location_tables():
     pkg = types.ModuleType("eld")
     pkg.__path__ = [d]
     sys.modules["eld"] = pkg
-    # NB: do NOT stub eld.items -- the real module builds item_table, which
-    # locations.py needs. Its only non-stdlib import is BaseClasses (stubbed
-    # above) and the pure-data sibling grace_data (auto-resolved via __path__).
+    # real items/grace_data load via __path__ (item_table needed at import).
 
     spec = importlib.util.spec_from_file_location("eld.locations", LOCATIONS_PY)
     mod = importlib.util.module_from_spec(spec)
     sys.modules["eld.locations"] = mod
     spec.loader.exec_module(mod)
-    return mod.location_tables
 
-
-def collect_rows(location_tables):
     rows = []
-    seen = {}
-    for region, table in location_tables.items():
+    for region, table in mod.location_tables.items():
         for loc in table:
             code = getattr(loc, "ap_code", None)
             if code is None:
                 continue
-            if code in seen and seen[code] != region:
-                raise SystemExit(
-                    f"ap_code {code} maps to two regions: {seen[code]!r} and {region!r}")
-            seen[code] = region
-            rows.append((int(code), region))
-    # dedupe (a code should appear once) and sort by ap_code
-    uniq = sorted(set(rows))
-    return uniq
+            rows.append((int(code), region,
+                         bool(getattr(loc, "prominent", False)),
+                         bool(getattr(loc, "missable", False))))
+    return sorted(set(rows))
 
 
-def esc(s: str) -> str:
+def esc(s):
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def render_rs(rows) -> str:
-    n = len(rows)
-    lines = [
-        "// @generated by tools/gen_location_regions.py -- DO NOT EDIT BY HAND.",
-        "// Source of truth: Archipelago/worlds/eldenring/locations.py (location_tables).",
-        "// Regenerate: python tools/gen_location_regions.py   (run in the Windows AP env)",
-        "//",
-        "// AP location id -> region name, for er_logic::tracker::build_tracker_model's",
-        "// `region_of` lookup. See SPEC-item-tracker.md (Option A).",
-        "",
-        "use std::collections::HashMap;",
-        "",
-        "use crate::tracker::RegionId;",
-        "",
-        f"/// Every non-event AP location id paired with its region name ({n} entries),",
-        "/// sorted by id.",
-        "pub const LOCATION_REGIONS: &[(u64, &str)] = &[",
-    ]
-    for code, region in rows:
-        lines.append(f'    ({code}, "{esc(region)}"),')
-    lines.append("];")
-    lines.append("")
-    lines.append("/// Build the owned `location_id -> region` map the tracker consumes.")
-    lines.append("pub fn location_region_table() -> HashMap<u64, RegionId> {")
-    lines.append("    LOCATION_REGIONS")
-    lines.append("        .iter()")
-    lines.append("        .map(|(id, region)| (*id, (*region).to_string()))")
-    lines.append("        .collect()")
-    lines.append("}")
-    lines.append("")
-    lines.append("#[cfg(test)]")
-    lines.append("mod generated_tests {")
-    lines.append("    use super::*;")
-    lines.append("")
-    lines.append("    #[test]")
-    lines.append("    fn table_is_nonempty_and_unique() {")
-    lines.append("        assert!(!LOCATION_REGIONS.is_empty());")
-    lines.append("        let map = location_region_table();")
-    lines.append("        assert_eq!(map.len(), LOCATION_REGIONS.len(), \"duplicate location id\");")
-    lines.append("    }")
-    lines.append("")
-    lines.append("    #[test]")
-    lines.append("    fn sorted_by_id() {")
-    lines.append("        assert!(LOCATION_REGIONS.windows(2).all(|w| w[0].0 < w[1].0));")
-    lines.append("    }")
-    lines.append("}")
-    lines.append("")
-    return "\n".join(lines)
+def render_rs(rows, f2c, lock_items):
+    lines = []
+    a = lines.append
+    a("// @generated by tools/gen_location_regions.py -- DO NOT EDIT BY HAND.")
+    a("// Sources: Archipelago/worlds/eldenring/{locations,map_region_data,grace_data}.py.")
+    a("// Regenerate: python tools/gen_location_regions.py   (Windows AP env)")
+    a("//")
+    a("// Per AP location: fine region (grouping), coarse region (open-flag key for in-logic;")
+    a('// "" = always accessible), big_ticket (prominent), missable. See SPEC-item-tracker.md.')
+    a("")
+    a("use std::collections::{HashMap, HashSet};")
+    a("")
+    a("use crate::tracker::RegionId;")
+    a("")
+    a("/// (id, fine_region, coarse_region, big_ticket, missable), sorted by id.")
+    a("pub const LOCATION_META: &[(u64, &str, &str, bool, bool)] = &[")
+    for code, region, prom, miss in rows:
+        coarse = f2c.get(region, "")
+        a(f'    ({code}, "{esc(region)}", "{esc(coarse)}", {str(prom).lower()}, {str(miss).lower()}),')
+    a("];")
+    a("")
+    a("/// Coarse region name -> its region-lock ITEM name. The client resolves each to a live")
+    a("/// open-state flag via `region_open_flags` (absent lock = region unlocked this seed).")
+    a("/// Source: grace_data.REGION_LOCK_ITEM (seed-independent).")
+    a("pub const COARSE_LOCK_ITEMS: &[(&str, &str)] = &[")
+    for r, l in sorted(lock_items.items()):
+        a(f'    ("{esc(r)}", "{esc(l)}"),')
+    a("];")
+    a("")
+    a("/// location id -> fine region name (the tracker's grouping).")
+    a("pub fn location_region_table() -> HashMap<u64, RegionId> {")
+    a("    LOCATION_META.iter().map(|(id, r, _, _, _)| (*id, (*r).to_string())).collect()")
+    a("}")
+    a("")
+    a('/// location id -> coarse region key ("" = always accessible). In-logic keys off this.')
+    a("pub fn location_coarse_table() -> HashMap<u64, RegionId> {")
+    a("    LOCATION_META.iter().map(|(id, _, c, _, _)| (*id, (*c).to_string())).collect()")
+    a("}")
+    a("")
+    a("/// Big-ticket (prominent) location ids.")
+    a("pub fn big_ticket_set() -> HashSet<u64> {")
+    a("    LOCATION_META.iter().filter(|(_, _, _, b, _)| *b).map(|(id, ..)| *id).collect()")
+    a("}")
+    a("")
+    a("/// Missable location ids.")
+    a("pub fn missable_set() -> HashSet<u64> {")
+    a("    LOCATION_META.iter().filter(|(_, _, _, _, m)| *m).map(|(id, ..)| *id).collect()")
+    a("}")
+    a("")
+    a("/// coarse region name -> lock item name.")
+    a("pub fn coarse_lock_item_table() -> HashMap<RegionId, String> {")
+    a("    COARSE_LOCK_ITEMS.iter().map(|(r, l)| ((*r).to_string(), (*l).to_string())).collect()")
+    a("}")
+    a("")
+    a("#[cfg(test)]")
+    a("mod generated_tests {")
+    a("    use super::*;")
+    a("")
+    a("    #[test]")
+    a("    fn nonempty_unique_sorted() {")
+    a("        assert!(!LOCATION_META.is_empty());")
+    a("        assert!(LOCATION_META.windows(2).all(|w| w[0].0 < w[1].0));")
+    a("        assert_eq!(location_region_table().len(), LOCATION_META.len());")
+    a("    }")
+    a("")
+    a("    #[test]")
+    a("    fn coarse_keys_have_lock_items() {")
+    a("        // every non-blank coarse key a location uses must resolve to a lock item")
+    a("        let locks = coarse_lock_item_table();")
+    a("        for (_, _, c, _, _) in LOCATION_META {")
+    a("            if !c.is_empty() {")
+    a('                assert!(locks.contains_key(*c), "coarse {c} has no lock item");')
+    a("            }")
+    a("        }")
+    a("    }")
+    a("}")
+    a("")
+    unmapped = sorted({r[1] for r in rows if r[1] not in f2c})
+    return "\n".join(lines), unmapped
 
 
-def lib_has_mod() -> bool:
+def lib_has_mod():
     try:
-        with open(LIB_RS, encoding="utf-8") as f:
-            return MOD_LINE in f.read()
+        return MOD_LINE in open(LIB_RS, encoding="utf-8").read()
     except FileNotFoundError:
         return False
 
 
 def wire_lib_rs():
-    """Insert `pub mod tracker_regions;` right after `pub mod tracker;` if absent."""
     if lib_has_mod():
         return False
-    with open(LIB_RS, encoding="utf-8") as f:
-        text = f.read()
+    text = open(LIB_RS, encoding="utf-8").read()
     nl = "\r\n" if "\r\n" in text else "\n"
     anchor = "pub mod tracker;"
-    if anchor in text:
-        new = text.replace(anchor, anchor + nl + MOD_LINE, 1)
-    else:
-        new = text.rstrip("\r\n") + nl + MOD_LINE + nl
-    with open(LIB_RS, "w", encoding="utf-8", newline="") as f:
-        f.write(new)
+    new = text.replace(anchor, anchor + nl + MOD_LINE, 1) if anchor in text \
+        else text.rstrip("\r\n") + nl + MOD_LINE + nl
+    open(LIB_RS, "w", encoding="utf-8", newline="").write(new)
     return True
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true",
-                    help="exit nonzero if the committed .rs is stale (CI drift gate)")
+    ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
-
-    rows = collect_rows(load_location_tables())
-    new = render_rs(rows)
-
+    f2c = build_fine2coarse()
+    lock_items = region_lock_items()
+    rows = load_locations()
+    new, unmapped = render_rs(rows, f2c, lock_items)
     if args.check:
         try:
-            with open(OUT_RS, encoding="utf-8") as f:
-                cur = f.read()
+            cur = open(OUT_RS, encoding="utf-8").read()
         except FileNotFoundError:
             cur = ""
-        if cur.replace("\r\n", "\n") != new:
-            h = lambda s: hashlib.sha256(s.encode()).hexdigest()[:12]
-            print(f"STALE: tracker_regions.rs out of date "
-                  f"(committed {h(cur)} vs generated {h(new)}); "
-                  f"run: python tools/gen_location_regions.py")
+        if cur.replace("\r\n", "\n") != new or not lib_has_mod():
+            print("STALE: run python tools/gen_location_regions.py")
             return 1
-        if not lib_has_mod():
-            print(f"STALE: lib.rs missing `{MOD_LINE}`; "
-                  f"run: python tools/gen_location_regions.py")
-            return 1
-        print(f"OK: tracker_regions.rs up to date ({len(rows)} locations); lib.rs wired.")
+        print(f"OK: up to date ({len(rows)} locations).")
         return 0
-
-    with open(OUT_RS, "w", encoding="utf-8", newline="\n") as f:
-        f.write(new)
+    open(OUT_RS, "w", encoding="utf-8", newline="\n").write(new)
     wired = wire_lib_rs()
-    print(f"Wrote {OUT_RS} ({len(rows)} locations, "
-          f"{len(set(r[1] for r in rows))} regions).")
-    print("Wired lib.rs (added `%s`)." % MOD_LINE if wired
-          else "lib.rs already wired.")
+    bt = sum(1 for r in rows if r[2])
+    coarse = len({f2c.get(r[1], "") for r in rows} - {""})
+    print(f"Wrote {OUT_RS}: {len(rows)} locations, {bt} big-ticket, {coarse} coarse regions, "
+          f"{len(lock_items)} lock items.")
+    print("Wired lib.rs." if wired else "lib.rs already wired.")
+    if unmapped:
+        print(f"NOTE: {len(unmapped)} fine regions default to coarse=\"\": "
+              + ", ".join(unmapped[:10]) + (" ..." if len(unmapped) > 10 else ""))
     return 0
 
 

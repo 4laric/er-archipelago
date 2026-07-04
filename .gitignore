@@ -15,6 +15,9 @@
 eldenring.apworld
 eldenring_*.apworld
 gensweep*
+genfuzz*
+genfuzz_ci_*.csv
+genfuzz_ci_*.md
 # bake output (slot/seed/location_flags)
 apconfig.json
 preflight_*.log
