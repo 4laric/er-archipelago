@@ -30,6 +30,7 @@
 param(
     [switch]$Apworld,
     [switch]$Generate,
+    [switch]$ShowGenDiag,          # echo the per-generate gendiag (resolved-yaml debug) to console
     [int]$GenRetries = 2,          # gen re-roll attempts on a seed-dependent FillError (0 = off)
     [switch]$GenBumpRegions,       # also bump num_regions +1 in Players\*.yaml per retry (restored after)
     [switch]$Rust,                 # cargo test + build the injected cdylib
@@ -190,9 +191,11 @@ if ($Generate) {
             } finally { Pop-Location }
             if (Test-Path (Join-Path $Repo "dlcdiag.py")) {
                 python (Join-Path $Repo "dlcdiag.py") $genLog $genDiag $genExit | Out-Null
-                if (Test-Path $genDiag) { Get-Content $genDiag | Write-Host }
+                if ($ShowGenDiag -and (Test-Path $genDiag)) { Get-Content $genDiag | Write-Host }
             }
             Write-Host ("generation raw log -> {0}" -f $genLog)  -ForegroundColor Green
+            $erCounts = Select-String -LiteralPath $genLog -Pattern 'ER_COUNTS' -ErrorAction SilentlyContinue
+            if ($erCounts) { foreach ($m in $erCounts) { Write-Host ("  " + $m.Line.Trim()) -ForegroundColor Green } }
             if (Test-Path $genDiag) { Write-Host ("generation diag    -> {0}" -f $genDiag) -ForegroundColor Green }
             if ($genExit -eq 0) { break }
             $isFill = Select-String -Path $genLog -SimpleMatch -Pattern "FillError" -Quiet

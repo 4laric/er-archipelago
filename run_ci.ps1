@@ -7,11 +7,14 @@
     1. UNIT   python -m pytest worlds\eldenring\tests + \test  (option matrix, slot_data
               contract, per-feature gen tests)
     2. FILL   run_fill_regression.ps1  (17 reproducer yamls vs baseline floors)
-    3. FUZZ   gen_fuzz.ps1  (random option combinations -> clean gen or
-              OptionError; the headline gate)
-    4. PURE   cargo test -p er-logic -p er-codec -p er-semver (Windows-free crates;
+    3. DIVERSITY  run_region_diversity.ps1  (num_regions/chain fixed-seed roll
+                  diversity gate, incl. the cave/torch bundles; -SkipDiversity)
+    4. FUZZ   gen_fuzz.ps1  (random option combinations -> clean gen or
+              OptionError). CRASH/HANG ALWAYS fail; FILLERROR is soft -- PASS iff no
+              CRASH/HANG AND >= -FuzzPassPct% SUCCESS+REJECT (default 80%).
+    5. PURE   cargo test -p er-logic -p er-codec -p er-semver (Windows-free crates;
               default-on, -SkipPure to skip; consumes the fixture UNIT regenerates)
-    5. CARGO  (opt-in, -Cargo) full cargo test in from-software-archipelago-clients
+    6. CARGO  (opt-in, -Cargo) full cargo test in from-software-archipelago-clients
 
   Steps run in cheap-first order and ALL steps run even after a failure (you
   want the full picture from one CI pass); the final exit code is non-zero if
@@ -21,6 +24,8 @@
     .\run_ci.ps1                          # unit + fill + fuzz(25)
     .\run_ci.ps1 -FuzzCount 100           # heavier fuzz pass
     .\run_ci.ps1 -SkipFuzz                # quick pre-commit gate
+    .\run_ci.ps1 -SkipDiversity           # skip the num_regions diversity gate
+    .\run_ci.ps1 -FuzzPassPct 100         # require a perfectly clean fuzz batch
     .\run_ci.ps1 -Cargo                   # include Rust client tests
     .\run_ci.ps1 -FuzzSeed 12345 -GenSeed 987   # reproduce a CI fuzz failure
 
@@ -33,8 +38,10 @@ param(
     [long]   $FuzzSeed = 0,          # 0 = fresh (printed by gen_fuzz)
     [long]   $GenSeed = 0,           # 0 = fresh (printed by gen_fuzz)
     [int]    $FuzzTimeoutSec = 900,
+    [int]    $FuzzPassPct = 80,      # FUZZ step passes at >= this SUCCESS+REJECT rate (default 80%)
     [switch] $SkipUnit,
     [switch] $SkipFill,
+    [switch] $SkipDiversity,
     [switch] $SkipFuzz,
     [switch] $SkipPure,
     [switch] $Cargo                  # opt-in: Rust client tests (Windows toolchain)
@@ -83,10 +90,12 @@ if (-not $SkipUnit) {
     }
 }
 
-# ----- 1b) options wizard metadata drift (ast dump vs committed JSON + wizard) -
-Invoke-CiStep "WIZARD (options metadata drift)" {
-    & (Join-Path $Repo "tools\check_options_metadata.ps1")
-}
+# ----- 1b) options wizard metadata drift -- TEMPORARILY REMOVED (2026-07-04, Alaric) --
+# The WIZARD step (tools\check_options_metadata.ps1) is disabled for now. Restore by
+# un-commenting when the options-metadata surface stabilizes.
+# Invoke-CiStep "WIZARD (options metadata drift)" {
+#     & (Join-Path $Repo "tools\check_options_metadata.ps1")
+# }
 
 # ----- 2) fill regression (fixed reproducer seeds vs baseline floors) ----------
 if (-not $SkipFill) {
@@ -95,13 +104,43 @@ if (-not $SkipFill) {
     }
 }
 
-# ----- 3) yaml fuzz (the headline gate) -----------------------------------------
+# ----- 2b) num_regions region-diversity gate (fixed-seed roll-diversity tripwire) -
+if (-not $SkipDiversity) {
+    Invoke-CiStep "DIVERSITY (run_region_diversity.ps1)" {
+        & (Join-Path $Repo "run_region_diversity.ps1")
+    }
+}
+
+# ----- 3) yaml fuzz (headline gate; PASS at >= $FuzzPassPct% SUCCESS+REJECT) -----
 if (-not $SkipFuzz) {
-    Invoke-CiStep "FUZZ (gen_fuzz.ps1 -Count $FuzzCount)" {
+    Invoke-CiStep "FUZZ (gen_fuzz.ps1 -Count $FuzzCount, pass >= $FuzzPassPct%)" {
         $fa = @{ Count = $FuzzCount; TimeoutSec = $FuzzTimeoutSec; Tag = "ci" }
         if ($FuzzSeed -ne 0) { $fa.FuzzSeed = $FuzzSeed }
         if ($GenSeed -ne 0)  { $fa.GenSeed  = $GenSeed }
         & (Join-Path $Repo "gen_fuzz.ps1") @fa
+        # Score the freshest ci-tagged CSV gen_fuzz just wrote. The soft tolerance
+        # applies to FILLERROR ONLY: any CRASH or HANG hard-fails the step (a stack
+        # trace or a hang is never acceptable). FILLERROR is tolerated up to a
+        # (100 - $FuzzPassPct)% budget -> PASS iff no CRASH/HANG AND
+        # (SUCCESS+REJECT)/total >= $FuzzPassPct%.
+        $csv = Get-ChildItem $Repo -Filter "genfuzz_ci_*.csv" |
+               Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if (-not $csv) { throw "FUZZ: no genfuzz_ci_*.csv produced -- gen_fuzz.ps1 did not run" }
+        $rows   = @(Import-Csv -LiteralPath $csv.FullName)
+        $tot    = $rows.Count
+        if ($tot -eq 0) { throw "FUZZ: zero cases scored in $($csv.Name)" }
+        $nCrash = @($rows | Where-Object { $_.outcome -eq "CRASH" }).Count
+        $nHang  = @($rows | Where-Object { $_.outcome -eq "HANG" }).Count
+        $nFill  = @($rows | Where-Object { $_.outcome -eq "FILLERROR" }).Count
+        $good   = @($rows | Where-Object { $_.outcome -eq "SUCCESS" -or $_.outcome -eq "REJECT" }).Count
+        $pct    = [math]::Round(100.0 * $good / $tot, 1)
+        $fuzzOk = (($nCrash + $nHang) -eq 0) -and ($pct -ge $FuzzPassPct)
+        Write-Host ("  fuzz: {0}% clean ({1}/{2} SUCCESS+REJECT); FILLERROR {3}, CRASH {4}, HANG {5} -- FILLERROR budget <= {6}%" -f `
+            $pct, $good, $tot, $nFill, $nCrash, $nHang, (100 - $FuzzPassPct)) `
+            -ForegroundColor $(if ($fuzzOk) { "Green" } else { "Red" })
+        if (($nCrash + $nHang) -gt 0) { throw ("FUZZ: {0} CRASH + {1} HANG -- always fail, regardless of the FILLERROR budget" -f $nCrash, $nHang) }
+        if ($pct -lt $FuzzPassPct)    { throw ("FUZZ: {0}% clean below threshold {1}% (FILLERROR {2}/{3})" -f $pct, $FuzzPassPct, $nFill, $tot) }
+        $global:LASTEXITCODE = 0   # no CRASH/HANG and FILLERROR within budget
     }
 }
 

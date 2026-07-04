@@ -10,12 +10,21 @@
        engaged and is diverse (incl. Limgrave, now an ordinary rollable step post spine-surgery);
     4. every chain lock that CAN be link-0 appears at least once as link-0 (roll diversity).
 
-  Region/lock lists mirror region_spine.SPINE (steps 1-12). Altus is forced + pinned last, so it
+  Region/lock lists mirror region_spine.NUM_REGIONS_POOL_STEPS (SPINE steps 1-12 minus the
+  underground-city steps 8/9 Nokron/Nokstella, which are dropped for v0.1 via
+  _UNDERGROUND_STEPS_DROPPED_V01 and therefore never roll). Altus is forced + pinned last, so it
   is asserted structural and never link-0. Post spine-surgery 2026-07-02: Limgrave is a normal
   rollable step (kept, but NOT part of the breadcrumb chain -> its lock is never link-0);
   Dragonbarrow was folded into Caelid (its lock retired); Mountaintops Lock can be link-0 but does
   not surface on the current 16 fixed seeds, so it is not in the required link-0 set (add a seed
-  if you want it asserted). Update these lists alongside region_spine.py.
+  if you want it asserted).
+
+  CAVE BUNDLES (ER-nrcaves.yaml): the four Spelunker's Torch minor-dungeon clusters
+  (region_spine.CAVE_BUNDLE_STEPS 13-16) are opted in there so they compete for + chain into the
+  num_regions roll. Asserted below via $CaveClusters (each cluster kept >=1 across the sweep) and
+  $CaveTorches (>=1 torch rolled link-0 across the sweep -- aggregate any-of, not per-torch, since
+  a specific torch as link-0 is too rare to pin on 16 fixed seeds). Update all these lists
+  alongside region_spine.py.
   Runs one gen_sweep job per config in parallel (same pattern as run_fill_regression.ps1).
 
   USAGE:  .\run_region_diversity.ps1            # fixed 16 seeds x 3 configs
@@ -43,23 +52,46 @@ if (-not (Test-Path $Suite))    { throw "suite folder not found: $Suite" }
 )
 if (-not ($Seeds -and $Seeds.Count)) { $Seeds = $FixedSeeds }
 
-# region_spine.SPINE rollable steps (1-12), minus Altus (step 6: forced by the pool scope +
-# pinned last, so asserted structural below). Each entry is a PRIMARY region name that lands in
-# the kept table when its step is kept. Limgrave (step 1) is rollable and kept, but its lock is
-# NOT in NUM_REGIONS_CHAIN_STEP_LOCK, so it never breadcrumbs as link-0 -- present here (kept
-# check) but absent from $RollableLocks (link-0 check). Dragonbarrow was folded into Caelid
-# (2026-07-02); its lock is retired, so it is gone from both lists.
+# region_spine rollable steps that ACTUALLY roll -- region_spine.NUM_REGIONS_POOL_STEPS, i.e.
+# SPINE steps 1-12 MINUS Altus (step 6: forced by the pool scope + pinned last, so asserted
+# structural below) and MINUS the underground-city steps 8/9 (Nokron/Nokstella), which are in
+# region_spine._UNDERGROUND_STEPS_DROPPED_V01 and excluded from NUM_REGIONS_POOL_STEPS for v0.1
+# (their map layer will not reveal on AP unlock -- STATUS-UNDERGROUND-MAP). Because they never
+# roll, their host regions (Siofra River / Ainsel River) and their locks (Nokron / Nokstella
+# Lock) must NOT be asserted here -- doing so is a guaranteed false FAIL (the bug this fixes).
+# Re-add them when _UNDERGROUND_STEPS_DROPPED_V01 is cleared. Each entry is a PRIMARY region name
+# that lands in the kept table when its step is kept. Limgrave (step 1) is rollable and kept, but
+# its lock is NOT in NUM_REGIONS_CHAIN_STEP_LOCK, so it never breadcrumbs as link-0 -- present
+# here (kept check) but absent from $RollableLocks (link-0 check). Dragonbarrow was folded into
+# Caelid (2026-07-02); its lock is retired, so it is gone from both lists.
 $RollableMiddles = @("Limgrave", "Weeping Peninsula", "Stormveil Castle", "Liurnia of The Lakes",
-                     "Caelid", "Mt. Gelmir", "Siofra River", "Ainsel River",
+                     "Caelid", "Mt. Gelmir",
                      "Mountaintops of the Giants", "Consecrated Snowfield", "Miquella's Haligtree")
-# link-0 = the chain's free/pre-collected middle lock. Steps 2-12 minus Altus (pinned last, never
-# link-0) and minus Mountaintops Lock (a valid chain lock, but it does not roll link-0 on the
-# current 16 fixed seeds -- see header). Limgrave Lock IS here now (LIMGRAVE_ROLL 2026-07-03:
-# step 1 chains like any middle; if no fixed seed rolls it link-0, swap ONE seed and re-pin).
+# link-0 = the chain's free/pre-collected middle lock. Rollable chain locks minus Altus (pinned
+# last, never link-0), minus Nokron/Nokstella Lock (steps 8/9 dropped for v0.1, see above), and
+# minus Mountaintops Lock (a valid chain lock, but it does not roll link-0 on the current 16 fixed
+# seeds -- see header). Limgrave Lock IS here now (LIMGRAVE_ROLL 2026-07-03: step 1 chains like any
+# middle; if no fixed seed rolls it link-0, swap ONE seed and re-pin).
 $RollableLocks   = @("Weeping Lock", "Stormveil Lock", "Liurnia Lock", "Caelid Lock", "Limgrave Lock",
-                     "Mt. Gelmir Lock", "Nokron Lock", "Nokstella Lock", "Snowfield Lock",
+                     "Mt. Gelmir Lock", "Snowfield Lock",
                      "Haligtree Lock")
 $Structural      = @("Altus Plateau", "Leyndell, Royal Capital", "Roundtable Hold")
+
+# Cave/torch bundles (region_spine.CAVE_BUNDLE_STEPS 13-16), exercised by ER-nrcaves.yaml. Key =
+# cluster label; value = ONE representative dungeon region -- when the cluster's step is rolled the
+# WHOLE bundle is kept, so any member proves the cluster surfaced. Kept >=1 across the sweep proves
+# caves compete for num_regions slots. Update alongside region_spine.CAVE_BUNDLE_STEPS.
+$CaveClusters = [ordered]@{
+    "Limgrave Underground" = "Stormfoot Catacombs"
+    "Liurnia Caves"        = "Black Knife Catacombs"
+    "Altus Caves"          = "Unsightly Catacombs"
+    "Mountaintops Caves"   = "Giants' Mountaintop Catacombs"
+}
+# The four bundle torch locks (region_spine.NUM_REGIONS_CHAIN_STEP_LOCK 13-16). Asserted as an
+# aggregate any-of at link-0 (see header): >=1 torch link-0 across the sweep proves a cave cluster
+# can be the free/start link of the chain (e.g. Haligtree -> Liurnia Caves -> Altus).
+$CaveTorches  = @("Spelunker's Torch", "Spelunker's Ghostflame Torch",
+                  "Spelunker's Steel-Wire Torch", "Spelunker's Beast-Repellent Torch")
 
 Write-Host ("==== region-diversity gate -- {0} fixed seeds x nrchain configs" -f $Seeds.Count) -ForegroundColor Cyan
 
@@ -156,12 +188,28 @@ foreach ($r in $RollableMiddles) {
 foreach ($l in $RollableLocks) {
     if ([int]($link0[$l]) -lt 1) { $violations.Add(("lock NEVER rolled as link-0: {0}" -f $l)) }
 }
+# ----- 5) each cave cluster kept at least once (caves COMPETE in the num_regions roll) ----
+foreach ($c in $CaveClusters.GetEnumerator()) {
+    if ([int]($kept[$c.Value]) -lt 1) {
+        $violations.Add(("cave cluster '{0}' NEVER kept across {1} seeds (rep region '{2}') -- did ER-nrcaves.yaml run + is extra_region_locks wired?" -f $c.Key, $totalRuns, $c.Value))
+    }
+}
+# ----- 6) at least one cave torch rolled link-0 (caves can CHAIN, incl. as the start link) -
+$caveLink0 = 0
+foreach ($t in $CaveTorches) { $caveLink0 += [int]($link0[$t]) }
+if ($caveLink0 -lt 1) {
+    $violations.Add(("no cave torch EVER rolled as link-0 across {0} seeds -- cave bundles are not chaining" -f $totalRuns))
+}
 
 # ----- report -------------------------------------------------------------------------
 Write-Host "`n  kept-region spread (rollable middles):" -ForegroundColor Cyan
 foreach ($r in $RollableMiddles) { Write-Host ("    {0,-22} {1,4}x" -f $r, [int]($kept[$r])) }
 Write-Host "  link-0 spread:" -ForegroundColor Cyan
 foreach ($l in $RollableLocks)   { Write-Host ("    {0,-22} {1,4}x" -f $l, [int]($link0[$l])) }
+Write-Host "  cave-bundle spread (kept):" -ForegroundColor Cyan
+foreach ($c in $CaveClusters.GetEnumerator()) { Write-Host ("    {0,-22} {1,4}x  (rep: {2})" -f $c.Key, [int]($kept[$c.Value]), $c.Value) }
+Write-Host "  cave torch link-0:" -ForegroundColor Cyan
+foreach ($t in $CaveTorches)     { Write-Host ("    {0,-32} {1,4}x" -f $t, [int]($link0[$t])) }
 
 if ($violations.Count) {
     Write-Host "`n==== DIVERSITY: FAIL" -ForegroundColor Red
