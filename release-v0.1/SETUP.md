@@ -127,8 +127,10 @@ Full detail in `CHANGELOG.md`.
 ## Variants
 
 - **Longer shatter:** raise `num_regions` toward 9 for more regions in play.
-- **DLC / Messmer campaign:** set `enable_dlc: true`, `dlc_only: true`,
+- **DLC / Messmer campaign (experimental):** set `enable_dlc: true`, `dlc_only: true`,
   `ending_condition: messmer`. Compact Shadow of the Erdtree run ending at Messmer.
+  DLC is **largely untested in v0.1** — base-game (DLC off) is the recommended,
+  supported way to play. Treat this as experimental and expect rough edges.
 - **DeathLink:** set `death_link: true` (works both directions).
 
 Questions or a broken seed? Bring the spoiler log and your yaml.

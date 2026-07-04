@@ -45,6 +45,8 @@ open map into a real Archipelago progression graph and a tight ~3-4 hour run.
   verified-green defaults.
 - **Item icons:** AP items currently show the vanilla Telescope icon. The custom
   Archipelago flower icon returns in a point release.
+- **DLC (Shadow of the Erdtree):** largely untested in v0.1. Base-game (DLC off) is
+  the recommended, supported way to play; DLC seeds are experimental.
 
 ### Licensing note
 
