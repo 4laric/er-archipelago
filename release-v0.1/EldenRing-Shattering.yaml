@@ -1,0 +1,53 @@
+# ============================================================================
+#  ELDEN RING ARCHIPELAGO  --  "THE SHATTERING"  (flagship template, v0.1)
+# ============================================================================
+#
+#  This is the headline way to play ER Archipelago. Instead of the whole open
+#  world being available at once, the Lands Between is SHATTERED into a handful
+#  of regions. You start in Limgrave with only the capital's approach sealed;
+#  each region's key arrives as an Archipelago item from the multiworld. Find a
+#  region's lock, warp in, clear its checks, send items out, repeat -- until you
+#  hold Leyndell and put down Morgott. A tight ~3-4 hour run.
+#
+#  The one option that turns ER into an Archipelago game is `num_regions`.
+#  Everything else below is a sensible, playtested default. Change `name` and
+#  you have a valid seed.
+#
+#  HOW TO USE: drop this file in your Archipelago `Players/` folder, then
+#  generate. See SETUP.md for the full walkthrough.
+# ============================================================================
+
+name: Player1
+description: ER Archipelago -- The Shattering (Capital run, region-locked, ~3-4h)
+game: EldenRing
+
+EldenRing:
+
+  # ---- THE SHATTERING (the headline) -------------------------------------
+  num_regions: 4
+  # ^ How many overworld majors stay in play; the rest are sealed. Limgrave
+  #   (start), Altus (the only road up), and Leyndell + Morgott (the goal) are
+  #   ALWAYS kept and count toward this number, so 3 is the structural minimum.
+  #   4 = those three + 1 random middle region  ->  short, punchy run.
+  #   Raise toward 9 for a longer seed with more regions in the shatter.
+
+  ending_condition: capital     # reach Leyndell, defeat Morgott the Omen King
+  world_logic: region_lock      # each region needs its own key item -> real spheres
+  region_access: warp           # a region's OWN key is enough; fast-travel straight in
+                                #   (matches the shatter -- the kept set isn't contiguous)
+
+  # ---- Quality-of-life for a short multiworld run ------------------------
+  quick_start: true             # Lord's Runes at start so you can level immediately
+  early_leveling: true          # grant Level Up at start; no dependence on meeting Melina
+  no_weapon_requirements: true  # anything the multiworld hands you is usable, any build
+  pool_builder: true            # smarter, more even spread of useful items across spheres
+
+  death_link: false             # flip to true for shared deaths (fully working both ways)
+
+  # ---- DLC ---------------------------------------------------------------
+  enable_dlc: false             # The Shattering is a base-game run. See SETUP.md for the
+                                #   Land of Shadow (Messmer) variant if you own the DLC.
+
+  # ---- Archipelago common options (MUST stay indented under EldenRing:) ---
+  accessibility: minimal        # region_lock seeds want minimal, not full
+  progression_balancing: 50
