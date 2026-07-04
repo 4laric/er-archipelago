@@ -232,6 +232,11 @@ if ($fails.Count -gt 0) {
     New-Item -ItemType Directory -Path $failDir -Force | Out-Null
     foreach ($f in $fails) {
         Copy-Item -LiteralPath (Join-Path $FuzzDir $f.yaml) -Destination (Join-Path $failDir $f.yaml) -Force
+        # co-locate the gen log with its yaml so each failure is a self-contained reproducer
+        if ($f.log) {
+            $logSrc = Join-Path $Repo $f.log
+            if (Test-Path $logSrc) { Copy-Item -LiteralPath $logSrc -Destination (Join-Path $failDir $f.log) -Force }
+        }
     }
     if (Test-Path $manPath) { Copy-Item -LiteralPath $manPath -Destination (Join-Path $failDir "manifest.csv") -Force }
     Set-Content -LiteralPath (Join-Path $failDir "REPRODUCE.txt") -Value @(
