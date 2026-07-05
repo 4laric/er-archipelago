@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.1.1 — bugfix + balance (2026-07-05)
+
+A point release fixing the biggest playtest papercuts and easing the early game.
+
+### Fixes
+
+- **Torrent on region-lock starts.** On a rolled / `num_regions` start under the
+  default bell setting, Melina's mount hand-off was being skipped — you'd get her
+  "let's talk" camera pan at a grace but no Melina, no dialogue, and no Spectral
+  Steed Whistle, leaving you on foot. You now start with Torrent so the map is
+  rideable from the first grace.
+- **Reopen the connection form any time.** The overlay menu bar now has a
+  **Connection** entry, so you can switch server / slot / password while already
+  connected — no more editing or deleting `apconfig.json` to point at a new room.
+- **Compressed-websocket warning is labelled.** The red "your client does not
+  support compressed websocket connections" line from the server now gets a
+  follow-up note saying it's harmless (it is — no effect on play).
+- **Rebalanced filler pool.** Less flooded with high-value runes and smithing
+  stones, for a less trivial early game.
+
+### Known issues (new / changed)
+
+- **Overlay typing can leak to the game.** While a text field in the overlay is
+  focused (the Connection form or the say box), keystrokes still reach the game,
+  so a key like `e` can fire an interact/confirm. Workaround: open the
+  **Connection** form from a game menu or the main menu — where world inputs don't
+  fire — rather than while moving around. A proper input block is coming.
+- **Warping into a boss arena before the boss is dead.** You can fast-travel onto
+  a boss grace whose boss you haven't beaten and land in an empty arena. Harmless
+  for now; being excluded in a future release.
+
 ## v0.1 — first public release (2026-07-04)
 
 The first playable public drop of **Elden Ring in Archipelago**: the Lands

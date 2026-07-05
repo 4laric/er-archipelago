@@ -1,4 +1,4 @@
-# Elden Ring Archipelago — Setup (v0.1)
+# Elden Ring Archipelago — Setup (v0.1.1)
 
 Get a **Shattering** seed running from scratch. Two halves: **A. Make the seed**
 (Archipelago side) and **B. Install & play** (game side). Budget ~15 minutes the
@@ -8,6 +8,11 @@ first time.
 > handful of regions and each region's key arrives as a multiworld item. The
 > included `EldenRing-Shattering.yaml` is already set up for it. Just change
 > `name:` and you have a valid seed.
+
+> ⚠️ **Running this with thefifthmatt's randomizer?** Its **enemy** randomizer
+> composes fine, but its **item** randomizer must be **OFF** — Archipelago owns
+> item placement. Item-rando left on = items look vanilla and no checks send. See
+> **`USING-WITH-MATTS-RANDOMIZER.md`** before you set up.
 
 ---
 
@@ -19,9 +24,10 @@ first time.
 | `EldenRing-Shattering.yaml` | The flagship player config (The Shattering). |
 | `me3/` bundle | The runtime that talks to the live game: `ap.me3`, `eldenring_archipelago.dll` (MIT), `ap-package/`, `er_static_detection_table.json`, `apconfig.json`. |
 | `SETUP.md` | This file. |
-| `CHANGELOG.md` | What's in v0.1. |
+| `CHANGELOG.md` | What's in v0.1.1. |
 | `HOW-THE-SHATTERING-WORKS.md` | Plain-English explainer of the flagship mode (region locks, boss locks, warping). Read this first. |
 | `CHECKS-AND-PROGRESSION.md` | How checks, progression, and filler work (with real counts). |
+| `USING-WITH-MATTS-RANDOMIZER.md` | How to run alongside thefifthmatt's randomizer (enemy rando OK, item rando off). |
 
 You also need, separately:
 
@@ -91,7 +97,10 @@ You also need, separately:
 ### Handy client console commands
 - `/warp <id>` — teleport (e.g. to drop into a freshly unlocked region if a grace
   hasn't lit yet).
-- Connect overlay — re-enter server/slot without editing `apconfig.json`.
+- **Connection** (overlay menu bar) — re-enter server / slot / password without
+  editing `apconfig.json`, even while already connected, to switch rooms. Heads up:
+  overlay typing currently leaks to the game, so open this from a game menu or the
+  main menu (not while moving) so stray keys don't fire in-world.
 
 ---
 
@@ -113,8 +122,18 @@ grab it from the repo if you want it:
 3. Connect it to the **same Archipelago room** for auto-tracking, including a
    DLC-only map variant for Land of Shadow runs.
 
-## Known issues in v0.1
+## Known issues in v0.1.1
 
+- **Overlay typing leaks to the game** — while an overlay text field (the
+  Connection form or the say box) is focused, keystrokes still reach the game, so a
+  stray `e` can interact/confirm in-world. Open the Connection form from a game menu
+  or the main menu rather than while moving. A real input block is coming.
+- **"Compressed websocket" server warning** — a red line from the server saying
+  your client doesn't support compressed connections. Purely cosmetic; ignore it
+  (the client now prints a note to that effect right under it).
+- **Warping into an undefeated boss's arena** — you can fast-travel onto a boss
+  grace before beating that boss and land in an empty arena. Harmless; being
+  excluded in a future release.
 - **Spirit Calling Bell** may be unusable in-game (summons gated). Not a blocker
   for a solo Shattering run; noted for a point release.
 - **Map fragments on connect** — you may receive a few map-piece items the moment

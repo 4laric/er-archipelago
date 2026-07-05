@@ -28,6 +28,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+# Normalize the version: accept -Version 0.1.1 OR v0.1.1; the zip name prepends its own "v".
+$Version = $Version -replace '^[vV]', ''
 $Repo  = $PSScriptRoot
 $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Name  = "ER-Archipelago-v$Version"
@@ -75,12 +77,42 @@ $Me3Dst = Join-Path $Stage "me3"
 Copy-Item $Me3Src $Me3Dst -Recurse -Force
 Info "+ me3\ (runtime bundle)"
 
+# Strip working/personal cruft the wholesale copy pulls in: save/watermark STATE
+# (harmful to ship -- a player would inherit grant watermarks), rotating logs, and
+# stray *.bak backups. Removed from the STAGED copy only; the repo me3\ is untouched.
+$Junk = Get-ChildItem -Path $Me3Dst -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
+    $_.Name -like 'ap_save_*.json' -or $_.Name -like '*.bak' -or $_.Name -like '*.bak_*' -or $_.Extension -eq '.log'
+}
+foreach ($j in $Junk) { Remove-Item $j.FullName -Force -ErrorAction SilentlyContinue }
+$StagedLogDir = Join-Path $Me3Dst "log"
+if (Test-Path $StagedLogDir) { Remove-Item $StagedLogDir -Recurse -Force -ErrorAction SilentlyContinue }
+if ($Junk.Count -gt 0) { Info "  stripped $($Junk.Count) cruft file(s) (saves / logs / .bak) from staged me3\" }
+# Hard stop: the save state must NEVER ship (it is the dangerous one).
+$LeakedSaves = @(Get-ChildItem -Path $Me3Dst -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'ap_save_*.json' })
+if ($LeakedSaves.Count -gt 0) { Die ("save-state file(s) still staged after cleanup: " + ($LeakedSaves.Name -join ", ")) }
+
 # Hard requirements: without these the game will not load the client.
 $Dll   = Join-Path $Me3Dst "eldenring_archipelago.dll"
 $Prof  = Join-Path $Me3Dst "ap.me3"
 if (-not (Test-Path $Dll))  { Die "missing client DLL: me3\eldenring_archipelago.dll" }
 if ((Get-Item $Dll).Length -lt 1024) { Die "client DLL looks empty ( < 1 KB ): $Dll" }
 if (-not (Test-Path $Prof)) { Die "missing me3 profile: me3\ap.me3" }
+
+# Freshness guard: the wholesale me3\ copy can carry a STALE client DLL if build.ps1
+# -Rust / -Me3Deploy wasn't run after code changes. Compare staged vs freshly-built.
+$BuiltDll = Join-Path $Repo "from-software-archipelago-clients\target\x86_64-pc-windows-msvc\release\eldenring_archipelago.dll"
+$StagedDllTime = (Get-Item $Dll).LastWriteTime
+if (Test-Path $BuiltDll) {
+    $BuiltDllTime = (Get-Item $BuiltDll).LastWriteTime
+    if ($BuiltDllTime -gt $StagedDllTime) {
+        Warn ("staged client DLL is OLDER than the last cargo build (staged {0:yyyy-MM-dd HH:mm} < built {1:yyyy-MM-dd HH:mm}) -- run build.ps1 -Rust -Me3Deploy before packaging or the release ships a stale client." -f $StagedDllTime, $BuiltDllTime)
+    } else {
+        Info ("client DLL is current (staged {0:yyyy-MM-dd HH:mm} >= last build {1:yyyy-MM-dd HH:mm})" -f $StagedDllTime, $BuiltDllTime)
+    }
+} else {
+    Warn "no built client DLL under from-software-archipelago-clients\target\...\release\ to compare against -- cannot confirm the staged DLL is current (did you run build.ps1 -Rust?)."
+}
+Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 
 # Detection table + config: warn (not fatal) if absent.
 if (-not (Test-Path (Join-Path $Me3Dst "er_static_detection_table.json"))) {
@@ -114,7 +146,10 @@ Info "+ apconfig.json (generic template: localhost / Player1)"
 $Docs = @(
     @{ src = (Join-Path $Rel "EldenRing-Shattering.yaml"); required = $true  },
     @{ src = (Join-Path $Rel "SETUP.md");                  required = $true  },
-    @{ src = (Join-Path $Rel "CHANGELOG.md");              required = $true  }
+    @{ src = (Join-Path $Rel "CHANGELOG.md");              required = $true  },
+    @{ src = (Join-Path $Rel "HOW-THE-SHATTERING-WORKS.md");    required = $true  },
+    @{ src = (Join-Path $Rel "CHECKS-AND-PROGRESSION.md");      required = $true  },
+    @{ src = (Join-Path $Rel "USING-WITH-MATTS-RANDOMIZER.md"); required = $true  }
 )
 foreach ($d in $Docs) {
     if (Test-Path $d.src) {

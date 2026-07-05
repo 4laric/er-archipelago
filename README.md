@@ -4,7 +4,7 @@
 
 This is the working tree for making **Elden Ring a first-class [Archipelago](https://archipelago.gg) game.** Every meaningful pickup in the Lands Between becomes a *check*; received items appear in your inventory mid-session via a custom runtime client. The full loop (pickup → check → grant) is confirmed working end-to-end.
 
-If you've been given access, this page gets you from a fresh clone to a running seed. For *what the randomizer does and why it's fun*, read **`Elden-Ring-Archipelago-Player-Guide.md`**. For every option and its gotchas, read **`ER-OPTIONS-REFERENCE.yaml`**.
+If you've been given access, this page gets you from a fresh clone to a running seed. For *what the randomizer does and why it's fun*, read **`Elden-Ring-Archipelago-Player-Guide.md`**. For every option and its gotchas, read **`ER-OPTIONS-REFERENCE.yaml`**. For running alongside thefifthmatt's randomizer (enemy shuffle OK, item rando + scaling off), read **`release-v0.1/USING-WITH-MATTS-RANDOMIZER.md`**.
 
 ---
 

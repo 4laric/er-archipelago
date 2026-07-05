@@ -45,6 +45,9 @@ static detection table. The remaining work is packaging and a git tag.
 - [x] Flagship template yaml — `release-v0.1/EldenRing-Shattering.yaml`
 - [x] Player setup guide — `release-v0.1/SETUP.md`
 - [x] v0.1 changelog / release notes — `release-v0.1/CHANGELOG.md`
+- [x] Flagship explainer — `release-v0.1/HOW-THE-SHATTERING-WORKS.md`
+- [x] Checks/progression explainer — `release-v0.1/CHECKS-AND-PROGRESSION.md`
+- [x] matt's-randomizer compatibility guide — `release-v0.1/USING-WITH-MATTS-RANDOMIZER.md`
 - [x] Version-stamp patch — `patch_apworld_version_v01.py` (run on Windows)
 - [ ] **Build a fresh `eldenring.apworld`** (`build.ps1 -Apworld`) — the checked-in
       one is stale. Windows.
