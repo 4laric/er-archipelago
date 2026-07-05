@@ -333,6 +333,19 @@ if ($Me3Deploy) {
         } else { Write-Warning "  me3 install dir not found at $me3Install -- sweep table staged to profile dir only" }
     } else { Write-Warning "  no er_static_detection_table.json at Archipelago\worlds\eldenring -- sweep groups won't poll" }
 
+    # Shop-check flags: client key_resolver reads shoplineup_flags.json from the DLL dir
+    # (mod_directory), same staging as the sweep table. Maps shop rows -> eventFlag_forStock.
+    $shopTable = Join-Path $Repo "Archipelago\worlds\eldenring\shoplineup_flags.json"
+    if (Test-Path $shopTable) {
+        Copy-Item $shopTable (Join-Path $Me3Dir "shoplineup_flags.json") -Force
+        Write-Host "  shoplineup_flags.json -> $Me3Dir  (shop check flags)"
+        $me3InstallShop = Join-Path $env:LOCALAPPDATA "Programs\garyttierney\me3"
+        if (Test-Path $me3InstallShop) {
+            Copy-Item $shopTable (Join-Path $me3InstallShop "shoplineup_flags.json") -Force
+            Write-Host "  shoplineup_flags.json -> $me3InstallShop  (client mod_directory)"
+        }
+    } else { Write-Warning "  no shoplineup_flags.json at Archipelago\worlds\eldenring -- shop checks will not resolve" }
+
     # park the EML client copy so me3's native is the ONLY loader of eldenring_ap.dll
     $emlDll = Join-Path $ModsDir "eldenring_ap.dll"
     $emlOff = Join-Path $ModsDir "eldenring_ap.dll.me3off"
