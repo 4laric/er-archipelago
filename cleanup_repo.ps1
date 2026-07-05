@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   Purges regenerable, git-IGNORED cruft from the repo root (logs, gendiag dumps,
-  preflight logs, dry-run CSVs, probe tmp files, loose *.bak). All of these are
+  preflight logs, dry-run CSVs, probe tmp files, loose *.bak/*.truncbak, timestamped apworlds, detection-table regen artifacts, slot_data baselines). All of these are
   already in .gitignore, so removing them touches nothing git tracks.
 
   Finished TRACKED one-offs (dated RUN/test yamls, superseded working docs, completed
@@ -100,6 +100,14 @@ Remove-List (Get-ChildItem -File @('boss-attribution-dryrun.csv','check-nearest-
 # generate/gendiag sets -- keep the newest N
 Remove-List (Old-Sets 'generate_*.log') "generate logs (keep newest $KeepRecentGenSets)"
 Remove-List (Old-Sets 'gendiag_*.txt')  "gendiag dumps (keep newest $KeepRecentGenSets)"
+# timestamped apworld builds + detection-table regen artifacts -- keep newest N of each
+# (git-ignored & regenerable: apworld via build.ps1 -Apworld; tables via regenerate_detection_table.py)
+Remove-List (Old-Sets 'eldenring_*.apworld') "timestamped apworld builds (keep newest $KeepRecentGenSets)"
+Remove-List (Old-Sets 'er_static_detection_table_augmented_*.json') "augmented detection tables (keep newest $KeepRecentGenSets)"
+Remove-List (Old-Sets 'detection_table_added_*.txt') "detection-table add dumps (keep newest $KeepRecentGenSets)"
+Remove-List (Old-Sets 'er_detection_table_missing_*.txt') "detection-table missing dumps (keep newest $KeepRecentGenSets)"
+# one-off slot_data verification baselines (regenerate by re-running the fixture double-run)
+Remove-List (Get-ChildItem -File 'slot_data_baseline_*.json' -ErrorAction SilentlyContinue) 'slot_data verification baselines'
 
 # =====================================================================
 # BUCKET 1b -- SUBREPO regenerable cruft, via ONE prune-aware tree walk.
@@ -134,6 +142,8 @@ while ($stack.Count) {
 Remove-List ($walkFiles | Where-Object { $_.Extension -eq '.bak' }) 'loose *.bak (excl. seeds-archive)'
 # tagged editor backups *.bak_<tag>
 Remove-List ($walkFiles | Where-Object { $_.Name -match '\.bak_' }) 'tagged editor backups (*.bak_<tag>)'
+# truncation backups left by patch scripts / mount-truncation recovery (*.truncbak)
+Remove-List ($walkFiles | Where-Object { $_.Name -like '*.truncbak' }) 'truncation backups (*.truncbak)'
 # subdir diag dumps
 Remove-List ($walkFiles | Where-Object { $_.Name -eq 'ER_DIAG.txt' -or $_.Name -like 'ER_SPHERE_TIERS_*.txt' }) 'subdir diag dumps (ER_SPHERE_TIERS_*/ER_DIAG.txt)'
 # compiled python

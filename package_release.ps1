@@ -144,12 +144,13 @@ Info "+ apconfig.json (generic template: localhost / Player1)"
 #    anyone who wants it; the built-in F6 tracker is the shipped tracker.)
 # ---------------------------------------------------------------------------
 $Docs = @(
+    @{ src = (Join-Path $Rel "LICENSE");                required = $true  },
     @{ src = (Join-Path $Rel "EldenRing-Shattering.yaml"); required = $true  },
     @{ src = (Join-Path $Rel "SETUP.md");                  required = $true  },
     @{ src = (Join-Path $Rel "CHANGELOG.md");              required = $true  },
     @{ src = (Join-Path $Rel "HOW-THE-SHATTERING-WORKS.md");    required = $true  },
     @{ src = (Join-Path $Rel "CHECKS-AND-PROGRESSION.md");      required = $true  },
-    @{ src = (Join-Path $Rel "USING-WITH-MATTS-RANDOMIZER.md"); required = $true  }
+    @{ src = (Join-Path $Rel "ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md"); required = $true  }
 )
 foreach ($d in $Docs) {
     if (Test-Path $d.src) {

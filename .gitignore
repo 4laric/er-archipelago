@@ -102,5 +102,12 @@ seeds-archive/**/_pre-restore-backup-*/
 /fswap-er-client-pr/
 # Third-party Seamless Co-op mod config.
 /seamless-coop/
-# SoulsFormatsNEXT CI scratch (build.yml + PR helper).
-/soulsformatsnext-ci/
+# SoulsFormatsNEXT CI scratch (bui
+
+# --- detection-table regen artifacts (regenerate via regenerate_detection_table.py; canonical = Archipelago/worlds/eldenring/) ---
+er_static_detection_table_augmented_*.json
+detection_table_added_*.txt
+er_detection_table_missing_*.txt
+# --- truncation backups + one-off slot_data verification baselines ---
+*.truncbak
+slot_data_baseline_*.json
