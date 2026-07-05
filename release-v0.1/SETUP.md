@@ -20,6 +20,7 @@ first time.
 | `me3/` bundle | The runtime that talks to the live game: `ap.me3`, `eldenring_archipelago.dll` (MIT), `ap-package/`, `er_static_detection_table.json`, `apconfig.json`. |
 | `SETUP.md` | This file. |
 | `CHANGELOG.md` | What's in v0.1. |
+| `HOW-THE-SHATTERING-WORKS.md` | Plain-English explainer of the flagship mode (region locks, boss locks, warping). Read this first. |
 | `CHECKS-AND-PROGRESSION.md` | How checks, progression, and filler work (with real counts). |
 
 You also need, separately:
@@ -83,8 +84,9 @@ You also need, separately:
 
 5. **Play.** Start a character on the `AP_me3.sl2` save. Received items appear in
    the game's own bottom-center event banner; every check you find is sent to the
-   multiworld. In The Shattering you begin in Limgrave — find a region's key,
-   fast-travel in, clear it, and work your way to Leyndell and Morgott.
+   multiworld. In The Shattering you begin at Roundtable Hold with one region
+   already open — find a region's key, fast-travel in, clear it, and work your way
+   to Leyndell and Morgott.
 
 ### Handy client console commands
 - `/warp <id>` — teleport (e.g. to drop into a freshly unlocked region if a grace

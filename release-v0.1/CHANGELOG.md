@@ -9,7 +9,8 @@ through a custom runtime client.
 ### Headline — The Shattering
 
 The flagship mode. The overworld is broken into a handful of regions and each
-region's key becomes a multiworld item. You start in Limgrave, and every other
+region's key becomes a multiworld item. You start at Roundtable Hold with one
+region already open, and every other
 region — up to Leyndell and Morgott — is sealed until its key arrives. Configured
 with `num_regions` (see `EldenRing-Shattering.yaml`), it turns Elden Ring's huge
 open map into a real Archipelago progression graph and a tight ~3-4 hour run.

@@ -3,10 +3,10 @@
 # ============================================================================
 #
 #  The headline way to play. Instead of the whole open world being available at
-#  once, the Lands Between is SHATTERED into a handful of regions. You start in
-#  Limgrave; every other region's key arrives as an Archipelago item. Find a
-#  region's key, warp in, clear its checks, send items out -- until you hold
-#  Leyndell and put down Morgott. A tight ~3-4 hour run.
+#  once, the Lands Between is SHATTERED into a handful of regions. You start at
+#  Roundtable Hold with one region already open; every other region's key arrives
+#  as an Archipelago item. Find a region's key, warp in, clear its checks, send
+#  items out -- until you hold Leyndell and put down Morgott. A tight ~3-4 hour run.
 #
 #  The one option that turns ER into an Archipelago game is `num_regions`.
 #  Everything else is a sensible default. Change `name` and you have a valid seed.
@@ -23,10 +23,10 @@ EldenRing:
 
   # ---- The Shattering (the headline) -------------------------------------
   num_regions: 4                # how many overworld majors stay in play; the rest
-                                #   are sealed. Limgrave (start), Altus (the road up)
-                                #   and Leyndell + Morgott (the goal) are always kept,
-                                #   so 3 is the minimum. 4 = those + 1 random region.
-                                #   Raise toward 9 for a longer shatter.
+                                #   are sealed. You spawn at Roundtable Hold (the hub)
+                                #   with one rolled region already open; Leyndell +
+                                #   Morgott (the goal, up through Altus) is always kept.
+                                #   4 keeps four majors; raise toward 9 for a longer run.
   great_runes_required: 2       # Great Runes needed to enter Leyndell; the shatter
                                 #   keeps or injects enough rune bosses to satisfy it.
   dungeon_sweep: all            # auto-collect a dungeon's leftover checks once cleared
