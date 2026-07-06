@@ -1,0 +1,16 @@
+# Matt-free backbone MVP preset (Shattering region-lock).
+# MERGE with your known-good Alaric.yaml rather than trusting this standalone — the point is:
+#   world_logic: region_lock   (region reachable iff you hold its lock; Roundtable = free hub)
+# and generate with the env var set:  $env:ER_MATTFREE_BACKBONE = "1"
+name: MattFreeMVP
+game: Elden Ring
+Elden Ring:
+  # --- the one thing that matters for the Shattering MVP ---
+  world_logic: region_lock
+
+  # --- sensible MVP defaults; reconcile against your working template ---
+  enable_dlc: true            # populate the DLC regions (Gravesite Plain etc.); set false to skip
+  ending_condition: capital   # short-ish goal (reach + beat Leyndell); pick your preferred goal
+
+  # num_regions / scaling / grace_rando etc. — inherit from your Alaric.yaml.
+  # Leave anything not listed here at its apworld default for the first gen.

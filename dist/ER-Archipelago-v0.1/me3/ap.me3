@@ -1,0 +1,12 @@
+﻿profileVersion = "v1"
+savefile = "AP_me3.sl2"
+disable_arxan = true
+
+[[supports]]
+game = "eldenring"
+
+[[packages]]
+path = 'ap-package'
+
+[[natives]]
+path = 'eldenring_archipelago.dll'
