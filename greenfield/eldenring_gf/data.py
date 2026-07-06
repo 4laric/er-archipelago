@@ -27,8 +27,6 @@ REGIONS = [
 
 LOCATIONS = {
     'Roundtable Hold': [
-        ("Roundtable Hold :: Rykard's Great Rune [f174]", 7770004, 174),
-        ("Roundtable Hold :: Mohg's Great Rune [f175]", 7770005, 175),
         ('Roundtable Hold :: Blue Cipher Ring [f60290]', 7770029, 60290),
         ('Roundtable Hold :: Map: Gravesite Plain [f62080]', 7770060, 62080),
         ('Roundtable Hold :: Cracked Pot [f66030]', 7770085, 66030),
@@ -3076,6 +3074,7 @@ LOCATIONS = {
         ("Miquella's Haligtree :: Miquella's Needle [f15007990]", 7771892, 15007990),
     ],
     'Mohgwyn Palace': [
+        ("Mohgwyn Palace :: Mohg's Great Rune [f175]", 7770005, 175),
         ("Mohgwyn Palace :: Leda's Armor [f400598]", 7770852, 400598),
         ("Mohgwyn Palace :: Freyja's Greatsword [f400602]", 7770853, 400602),
         ('Mohgwyn Palace :: Falx [f400614]', 7770854, 400614),
@@ -3338,6 +3337,7 @@ LOCATIONS = {
         ('Mountaintops of the Giants :: Sacred Tear [f1054557800]', 7773478, 1054557800),
     ],
     'Mt. Gelmir': [
+        ("Mt. Gelmir :: Rykard's Great Rune [f174]", 7770004, 174),
         ('Mt. Gelmir :: Recusant Finger [f60260]', 7770028, 60260),
         ('Mt. Gelmir :: Memory Stone [f60450]', 7770035, 60450),
         ('Mt. Gelmir :: Map: Mt. Gelmir [f62032]', 7770049, 62032),

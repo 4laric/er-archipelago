@@ -21,12 +21,41 @@ SPINE = [
     "Land of Shadow", "Belurat", "Scadu Altus", "Shadow Keep", "Jagged Peak", "Abyssal Woods",
 ]
 
+# The Shadow of the Erdtree DLC regions. These are the last 6 entries of SPINE and are the pool the
+# EnableDLC / DLCOnly toggles filter on (core.py). Kept as a frozenset for O(1) membership; the
+# base-game pool is REGIONS minus these. Pure data (no AP import) so region-scope filtering can run
+# in the data-invariant gate.
+DLC_REGIONS = frozenset({
+    "Land of Shadow", "Belurat", "Scadu Altus", "Shadow Keep", "Jagged Peak", "Abyssal Woods",
+})
 
-def compute_kept(n, order, rng):
-    """Kept-region list. n<=0 or n>=len(REGIONS) -> all regions (full Shattering).
-    order 'spine' -> first N of SPINE; anything else -> N random regions (rng.sample).
-    The goal region is always included (added if the selection missed it)."""
-    regions = list(REGIONS)
+
+def base_regions():
+    """Base-game (non-DLC) region names, in REGIONS order."""
+    return [r for r in REGIONS if r not in DLC_REGIONS]
+
+
+def dlc_regions():
+    """DLC region names, in REGIONS order."""
+    return [r for r in REGIONS if r in DLC_REGIONS]
+
+
+def compute_kept(n, order, rng, eligible=None):
+    """Kept-region list, drawn from `eligible` (defaults to all of REGIONS).
+
+    `eligible` is the already-filtered pool of regions in play this seed (e.g. base-only when
+    EnableDLC is off, or DLC-only when DLCOnly is on -- computed in core.generate_early). Passing it
+    in keeps num_regions selection honest: N is always drawn from the eligible set, never from a
+    sealed region.
+
+    n<=0 or n>=len(eligible) -> the whole eligible pool (full Shattering of what's in play).
+    order 'spine' -> the first N eligible regions in SPINE order; anything else -> N random eligible
+    regions (rng.sample). The goal region is appended only when it is itself eligible -- under
+    DLCOnly the base-game goal (Leyndell) is not eligible, and the goal collapses to "hold every kept
+    lock" over the eligible set (still winnable; see core.set_rules)."""
+    regions = list(REGIONS) if eligible is None else [r for r in REGIONS if r in set(eligible)]
+    if not regions:
+        return regions
     if n <= 0 or n >= len(regions):
         return regions
     if order == "spine":
