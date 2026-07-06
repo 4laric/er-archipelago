@@ -8,6 +8,14 @@ $WorldSrc = Join-Path $Here "eldenring_gf"
 $WorldDst = Join-Path $ApDir "worlds\eldenring_gf"
 $Players  = Join-Path $Here "players"
 
+# Regenerate the data-derived modules (item_ids.py incl. DLC_ITEM_NAMES, data.py, shop_data.py,
+# boss_sweeps.py, ...) from elden_ring_artifacts BEFORE copying the world, so the deployed apworld
+# always ships freshly-generated data. gen_data.py is matt-free and deterministic.
+$GenData = Join-Path $Here "gen_data.py"
+Write-Host "[greenfield] regenerating data ($GenData)" -ForegroundColor Cyan
+& python $GenData
+if ($LASTEXITCODE -ne 0) { throw ("[greenfield] gen_data.py FAILED (exit {0})" -f $LASTEXITCODE) }
+
 Write-Host "[greenfield] installing world -> $WorldDst" -ForegroundColor Cyan
 if (Test-Path $WorldDst) { Remove-Item -Recurse -Force $WorldDst }
 Copy-Item -Recurse -Force $WorldSrc $WorldDst

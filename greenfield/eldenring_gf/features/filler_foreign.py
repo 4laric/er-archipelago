@@ -62,8 +62,9 @@ def filler_names(world) -> List[str]:
     exist in the pool then)."""
     names = {FILLER_NAME}
     if _shuffle_on(world):
+        _excl = getattr(world, "gf_dlc_excluded", ())
         names.update(n for n, full in ITEM_CATALOG.items()
-                     if (full & 0xF0000000) == _GOODS_NIBBLE)
+                     if (full & 0xF0000000) == _GOODS_NIBBLE and n not in _excl)
     return sorted(names)
 
 

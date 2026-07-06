@@ -141,8 +141,11 @@ class PoolBuilderFeature(Feature):
         return INTENSITY_FLOOR.get(key, INTENSITY_FLOOR[DEFAULT_INTENSITY])
 
     def _juice_order(self, world) -> List[str]:
-        """Per-world juice candidate list (best-first) at this world's intensity floor."""
-        return juice_order_for_floor(self._floor(world))
+        """Per-world juice candidate list (best-first) at this world's intensity floor.
+        DLC-only catalog items are dropped when this world has DLC off (see core.gf_dlc_excluded)."""
+        _excl = getattr(world, "gf_dlc_excluded", ())
+        _order = juice_order_for_floor(self._floor(world))
+        return [n for n in _order if n not in _excl] if _excl else _order
 
     def _rune_fallback_locations(self, world) -> int:
         """Kept-region checks with no real vanilla item -> Rune under item_shuffle."""
