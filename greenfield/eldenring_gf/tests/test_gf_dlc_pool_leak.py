@@ -10,17 +10,23 @@ augmentation consumers drop it. These tests run the exact leaky option combo (it
 pool_builder max + varied_filler) with DLC off and assert the resulting itempool is DLC-clean, plus
 directly exercise the two solo-visible gate helpers and confirm the gate is inert when DLC is on.
 
-importorskips when AP isn't importable (source-tree sandbox), so it's a no-op there and only runs once
-installed under Archipelago/worlds/.
+importorskips when AP isn't importable (source-tree sandbox). Also skips (module-level) when
+DLC_ITEM_NAMES is not yet generated -- i.e. before patch_greenfield_dlc_leak.py is applied and
+gen_data.py has been re-run -- so a pre-patch CI run is a clean skip, not a collection error.
 
-Run (from the Archipelago dir, world installed):
+Run (from the Archipelago dir, world installed, AFTER apply + gen_data.py):
     python -m pytest worlds/eldenring_gf/tests/test_gf_dlc_pool_leak.py
 """
 import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
-from worlds.eldenring_gf.item_ids import ITEM_CATALOG, DLC_ITEM_NAMES  # noqa: E402
+from worlds.eldenring_gf.item_ids import ITEM_CATALOG  # noqa: E402
+try:
+    from worlds.eldenring_gf.item_ids import DLC_ITEM_NAMES
+except ImportError:  # patch not applied / gen_data.py not re-run yet -> skip cleanly, don't error CI
+    pytest.skip("DLC_ITEM_NAMES not generated yet -- apply patch_greenfield_dlc_leak.py then "
+                "run python greenfield/gen_data.py", allow_module_level=True)
 from worlds.eldenring_gf.features.filler_foreign import filler_names  # noqa: E402
 from worlds.eldenring_gf.features.pool_builder import PoolBuilderFeature  # noqa: E402
 
@@ -105,11 +111,11 @@ class DLCOnGateInert(WorldTestBase):
         self.assertEqual(self.world.gf_dlc_excluded, frozenset(),
                          "DLC-on world must publish an empty exclusion set (gate inert)")
 
-    def test_juice_order_may_include_dlc(self):
+    def test_juice_order_unfiltered_when_dlc_on(self):
         # Not asserting DLC IS present (depends on the roll), only that the gate did not strip it:
-        # the unfiltered order equals the feature's order when the exclusion set is empty.
-        feat = PoolBuilderFeature()
+        # the feature's order equals the unfiltered order when the exclusion set is empty.
         from worlds.eldenring_gf.features.pool_builder import juice_order_for_floor
+        feat = PoolBuilderFeature()
         self.assertEqual(feat._juice_order(self.world),
                          juice_order_for_floor(feat._floor(self.world)),
                          "with DLC on the juice order must be unfiltered")

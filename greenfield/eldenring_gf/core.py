@@ -32,6 +32,10 @@ try:
     from .item_ids import FILLER_POOL  # varied junk filler (generated)
 except Exception:
     FILLER_POOL = []
+try:
+    from .item_ids import DLC_ITEM_NAMES  # DLC-only catalog names (generated); excluded when DLC off
+except Exception:
+    DLC_ITEM_NAMES = set()
 
 GAME = "Elden Ring (Greenfield)"
 FILLER = "Rune"
@@ -181,6 +185,14 @@ class GreenfieldEldenRingWorld(World):
     origin_region_name = "Menu"
 
     # ---- region scope (num_regions) -------------------------------------------
+    def _dlc_on(self) -> bool:
+        """Resolved: is DLC content in play this seed? dlc_only implies on; enable_dlc defaults
+        on. Mirrors _eligible_regions so region gating and pool-augmentation gating agree."""
+        dlc_only = bool(getattr(self.options, "dlc_only", None) and self.options.dlc_only.value)
+        enable_dlc = bool(getattr(self.options, "enable_dlc", None) is None
+                          or self.options.enable_dlc.value)
+        return dlc_only or enable_dlc
+
     def _eligible_regions(self) -> List[str]:
         """The region pool num_regions draws from this seed, after the DLC toggles.
         dlc_only -> DLC regions only (implies DLC enabled). enable_dlc off -> base game only.
@@ -199,6 +211,10 @@ class GreenfieldEldenRingWorld(World):
 
     def generate_early(self) -> None:
         self.gf_eligible: List[str] = self._eligible_regions()
+        # DLC-off seeds must not receive DLC items as juice/filler. Publish the exclusion set
+        # once here so every pool-augmentation feature reads the same resolved decision.
+        self.gf_dlc_on: bool = self._dlc_on()
+        self.gf_dlc_excluded = frozenset() if self.gf_dlc_on else frozenset(DLC_ITEM_NAMES)
         self.gf_kept: List[str] = compute_kept(
             int(self.options.num_regions.value),
             self.options.num_regions_order.current_key,
@@ -267,7 +283,10 @@ class GreenfieldEldenRingWorld(World):
         filler-classified, client-grantable), so this is count-neutral and fill-safe. Deterministic."""
         vf = getattr(self.options, "varied_filler", None)
         if vf is not None and vf.value and FILLER_POOL:
-            return self.random.choice(FILLER_POOL)
+            _excl = getattr(self, "gf_dlc_excluded", ())
+            _pool = [x for x in FILLER_POOL if x not in _excl] if _excl else FILLER_POOL
+            if _pool:
+                return self.random.choice(_pool)
         return FILLER
 
     def get_filler_item_name(self) -> str:

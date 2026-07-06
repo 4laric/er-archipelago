@@ -151,6 +151,17 @@ _REPIN_N = [0]; _QUAR_N = [0]; _RECOVER_N = [0]
 # the m34 Great-Rune Divine Towers are base game, not DLC). This per-map-id table wins over the coarse
 # bucket AND the emevd/global audit. Keys are full map ids; values are greenfield region names.
 DUNGEON_REGION_OVERRIDE = {
+    "m30_20_00_00": "Consecrated Snowfield",  # Hidden Path to the Haligtree
+    "m31_01_00_00": "Weeping Peninsula",  # Earthbore Cave
+    "m31_04_00_00": "Liurnia of the Lakes",  # Stillwater Cave
+    "m31_05_00_00": "Liurnia of the Lakes",  # Lakeside Crystal Cave
+    "m31_06_00_00": "Liurnia of the Lakes",  # Academy Crystal Cave
+    "m31_07_00_00": "Mt. Gelmir",  # Seethewater Cave
+    "m31_09_00_00": "Mt. Gelmir",  # Volcano Cave
+    "m31_10_00_00": "Caelid",  # Dragonbarrow Cave (toggle: 'Dragonbarrow')
+    "m31_12_00_00": "Consecrated Snowfield",  # Cave of the Forlorn
+    "m31_18_00_00": "Altus Plateau",  # Altus Plateau: Perfumer's Grotto
+    "m31_21_00_00": "Caelid",  # Gaol Cave
     "m30_00_00_00": "Weeping Peninsula",
     "m30_03_00_00": "Liurnia of the Lakes",
     "m30_05_00_00": "Liurnia of the Lakes",
@@ -170,7 +181,7 @@ DUNGEON_REGION_OVERRIDE = {
     "m32_00_00_00": "Weeping Peninsula",
     "m32_05_00_00": "Altus Plateau",
     "m32_07_00_00": "Caelid",
-    "m34_11_00_00": "Limgrave",
+    "m34_11_00_00": "Liurnia of the Lakes",  # Liurnia Divine Tower / Study Hall (was Limgrave)
     "m34_14_00_00": "Leyndell",
     "m39_20_00_00": "Mt. Gelmir",
 }
@@ -685,6 +696,24 @@ for _i, _r in enumerate(rows):
         continue
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
     LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
+# ---- DLC provenance: catalog names that come ONLY from the DLC FMG tables. gen_data reads the
+# base tables (_MSG) and the DLC tables (_MSG_D1/_MSG_D2) into ITEM_CATALOG with no marker; core
+# excludes these from pool augmentation (juice/filler) when a seed has DLC off. Matt-free: pure
+# table membership (dlc-table names minus base-table names), no curation. Base<->DLC name
+# collisions (e.g. Golden Vow, Larval Tear) resolve to BASE and are therefore NOT excluded.
+_dlc_base_nm = set(); _dlc_dlc_nm = set()
+for _fn, _nib, _dir in _NAME_FMGS:
+    _p = os.path.join(_dir, _fn)
+    if not os.path.exists(_p):
+        continue
+    _tgt = _dlc_base_nm if _dir == _MSG else _dlc_dlc_nm
+    for _t in _ET.parse(_p).getroot().iter("text"):
+        _nm = (_t.text or "").strip()
+        if _nm and _nm not in ("[ERROR]", "%null%"):
+            _tgt.add(_nm)
+_DLC_ONLY = _dlc_dlc_nm - _dlc_base_nm
+DLC_ITEM_NAMES = {_n for _n in ITEM_CATALOG if _n in _DLC_ONLY}
+print(f"item_ids: DLC_ITEM_NAMES {len(DLC_ITEM_NAMES)} DLC-only catalog items")
 OUT_ITEMS = os.path.join(HERE, "eldenring_gf", "item_ids.py")
 with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Real-item-pool: vanilla item_name -> ER FullID, from the\n')
@@ -696,6 +725,9 @@ with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write("}\n\nLOCATION_ITEM = {\n")
     for _aid in sorted(LOCATION_ITEM):
         f.write(f"    {_aid}: {ascii(LOCATION_ITEM[_aid])},\n")
+    f.write("}\n\nDLC_ITEM_NAMES = {\n")
+    for _nm in sorted(DLC_ITEM_NAMES):
+        f.write(f"    {ascii(_nm)},\n")
     f.write("}\n")
 _cov = 100.0 * len(LOCATION_ITEM) / max(len(rows), 1)
 print(f"item_ids: {len(ITEM_CATALOG)} distinct items, {len(LOCATION_ITEM)} locations resolved ({_cov:.1f}%)")
