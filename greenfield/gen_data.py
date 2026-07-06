@@ -71,15 +71,34 @@ def region_of(r):
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
+# ---- important_locations tags (matt-free): classify each check by TYPE from item_name + method,
+# NOT names. Used by features/important_locations.py to force those checks to hold non-filler items.
+# Remembrance/Seedtree/Church/Basin exclude shop rows (buying a duplicate is not the meaningful check).
+def _loc_tags(r):
+    nm = (r['item_name'] or '').lower(); meth = r['method']; shop = meth.startswith('shop')
+    t = []
+    if meth == 'boss_arena': t.append('Boss')
+    if 'remembrance' in nm and not shop: t.append('Remembrance')
+    if 'golden seed' in nm and not shop: t.append('Seedtree')
+    if 'sacred tear' in nm and not shop: t.append('Church')
+    if 'scadutree fragment' in nm: t.append('Fragment')
+    if 'revered spirit ash' in nm: t.append('Revered')
+    if 'crystal tear' in nm and not shop: t.append('Basin')
+    if shop: t.append('Shop')
+    return t
+
 rows=[r for r in csv.DictReader(open(os.path.join(HERE,"region_map.csv")))
       if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS]
 buckets=OrderedDict()
+loc_tags={}
 apid=BASE_AP; names=set()
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
     nm=f"{reg} :: {item} [f{flag}]"
     if nm in names: nm=f"{nm}#{apid}"
     names.add(nm)
+    _t=_loc_tags(r)
+    if _t: loc_tags[apid]=_t
     buckets.setdefault(reg,[]).append((nm,apid,flag)); apid+=1
 
 spokes=sorted(k for k in buckets if k!=HUB)
@@ -95,6 +114,19 @@ with open(OUT,"w",encoding="utf-8") as f:
         f.write("    ],\n")
     f.write("}\n")
 print(f"spokes={len(spokes)} hub_locs={len(buckets.get(HUB,[]))} total={sum(len(v) for v in buckets.values())}")
+
+# ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (important_locations source, matt-free) ----
+OUT_TAGS = os.path.join(HERE, "eldenring_gf", "location_tags.py")
+import collections as _c
+_tagcount = _c.Counter(tg for tags in loc_tags.values() for tg in tags)
+with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
+    f.write('"""AUTO-GENERATED (gen_data.py). Location TYPE tags for important_locations, derived\n')
+    f.write('matt-free from item_name + method (see _loc_tags). LOCATION_TAGS = {ap_id: [type,...]}."""\n')
+    f.write('LOCATION_TAGS = {\n')
+    for _aid in sorted(loc_tags):
+        f.write(f'    {_aid}: {loc_tags[_aid]!r},\n')
+    f.write('}\n\nTAG_COUNTS = ' + repr(dict(sorted(_tagcount.items()))) + '\n')
+print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
 
 # ---- Phase 0 boot contract: one warp-grace open flag per major region (matt-free) -----------
 # Derived from the SAME grace anchors used above. On lock receipt the client sets this flag

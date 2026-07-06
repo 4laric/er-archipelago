@@ -60,6 +60,13 @@ if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
         --ignore="worlds/eldenring_gf/tests/test_gf_data.py" ); then
   record WORLD PASS; else record WORLD FAIL; fi
 
+step "GREENFIELD (e) YAML FUZZ"
+# CONTRIBUTING headline gate: any greenfield option combo -> clean gen or graceful OptionError.
+# Portable scorer; override count/pass via GF_FUZZ_COUNT / GF_FUZZ_PASS. The contract validator is
+# wired into fill_slot_data, so a contract-shape drift also fails a fuzzed seed here.
+if "$PY" "$GF/fuzz_gf.py" --count "${GF_FUZZ_COUNT:-24}" --pass-pct "${GF_FUZZ_PASS:-90}" --ap "$AP"; then
+  record FUZZ PASS; else record FUZZ FAIL; fi
+
 step "GREENFIELD VERDICT"
 for r in "${RESULTS[@]}"; do printf '  %-6s %s\n' "${r%%|*}" "${r##*|}"; done
 if [ "$fail" -eq 0 ]; then echo "  GREENFIELD: PASS"; exit 0; else echo "  GREENFIELD: FAIL"; exit 1; fi

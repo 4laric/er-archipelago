@@ -159,10 +159,21 @@ if (-not $SkipGreenfield) {
         #     contract) against the freshly-installed world.
         Push-Location $ApDir
         try {
-            python -m pytest "worlds\eldenring_gf\tests\test_gf_world.py" -q
+            python -m pytest "worlds\eldenring_gf\tests" -q --ignore="worlds\eldenring_gf\tests\test_gf_data.py"
             $gfWorldExit = $LASTEXITCODE
         } finally { Pop-Location }
         if ($gfWorldExit -ne 0) { throw "GREENFIELD: AP world unit tests failed (exit $gfWorldExit)" }
+        $global:LASTEXITCODE = 0
+    }
+}
+
+# ----- 2b) greenfield yaml fuzz (headline gate for greenfield: any option combo -> clean gen or a
+#            graceful OptionError; a FillError/crash/hang is a reproducer failure). Portable scorer
+#            greenfield\fuzz_gf.py. Skipped by -SkipGreenfield or -SkipFuzz. -----
+if ((-not $SkipGreenfield) -and ((-not $SkipFuzz) -or $OnlyGreenfield)) {
+    Invoke-CiStep "GREENFIELD-FUZZ (fuzz_gf.py -Count $FuzzCount, pass >= $FuzzPassPct%)" {
+        python (Join-Path $Repo "greenfield\fuzz_gf.py") --count $FuzzCount --pass-pct $FuzzPassPct --ap $ApDir
+        if ($LASTEXITCODE -ne 0) { throw "GREENFIELD-FUZZ: pass rate below $FuzzPassPct% -- see the printed reproducer yaml" }
         $global:LASTEXITCODE = 0
     }
 }

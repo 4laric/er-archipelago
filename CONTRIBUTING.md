@@ -91,6 +91,41 @@ crashes to tell you.
   that touches them is checked as *rendered in game*, not just as code — the
   `?EventTextForMap?` / `?Tag?` class of bug only shows up on screen.
 
+## Feature architecture — one self-registered file per feature
+
+The apworld's world logic is a **registry of features**, not a monolithic
+`__init__.py`. Each feature is a single file under `eldenring_gf/features/`: a
+`Feature` subclass decorated `@register`, auto-imported at load. It declares its
+own options (`OPTIONS`), item classes (`ITEMS`), and only the lifecycle hooks it
+needs (`generate_early` / `create_items` / `create_regions` / `set_rules` /
+`slot_data`). The registry aggregates them and **raises on collision** — a
+duplicate option field or `slot_data` key fails generation, it does not silently
+clobber.
+
+This structure came directly out of the AI workflow: parallel agents can't
+co-edit one `__init__.py` without stepping on each other, so features had to
+become non-overlapping, self-contained files. It turned out to be the better
+architecture regardless — loose coupling, each feature testable in isolation,
+and drift that fails loudly instead of merging silently. New world features
+follow it.
+
+- **One file, self-registered, no shared edits.** A new feature is a new file in
+  `features/`; it does not touch `core.py` or other features. If your change
+  needs to edit a shared module, that's a smell — push the logic into the feature
+  and expose a hook instead.
+- **A feature owns its own fill-safety.** Anything that can over-constrain the
+  fill (e.g. forcing non-filler onto tagged locations) gates itself on what the
+  pool can actually supply — it never assumes the rest of the seed.
+  `important_locations` skipping enforcement when the pool is degenerate is the
+  model; the fuzz gate is what proves it across combinations.
+- **`slot_data` keys are declared in the contract, once.** Every key a feature
+  emits is declared in `contract.py` — the single source of truth for name,
+  shape, required-ness, producer, and client consumer. `fill_slot_data`
+  validates against it and fails generation on drift; the client validates the
+  same contract on connect. The client-side mirror (`contract_gen.rs`), the docs
+  (`CONTRACT.md`), and the integration spec are **generated** from `contract.py`
+  — regenerate them, never hand-edit.
+
 ## Region locks and reachability
 
 Any new region lock, gate, or access rule ships with:
@@ -119,6 +154,12 @@ time. "It genned" does not mean "it plays."
 - Treat a sudden jump in sphere-0 check count (or spheres collapsing to 1-2) as a
   regression to explain, the same way you'd treat a `FillError`. The sweep should
   flag it, not a player discovering the game has no mid-game.
+- The greenfield gen prints a per-slot **check breakdown** to the generate log
+  (`[greenfield] <slot>: N checks | progression P | useful U | local filler LF |
+  foreign filler FF | foreign useful FU`). Read it: a healthy seed has real
+  progression and useful spread, not a wall of filler. A collapse to near-all
+  filler, or progression dropping to zero, is a regression to explain — the same
+  bar as a sphere-0 balloon.
 
 ## Verification — code-reading is not evidence
 
@@ -163,7 +204,9 @@ just silent failure with better manners.
   live consumer in the client, or an explicit `CONTRACT: DEAD` /
   `CONTRACT: PORT-GAP` tag saying why not. A key that is emitted and parsed by
   nothing looks exactly like a finished feature from the gen side — the
-  contract ledger is what catches it before a player does.
+  contract ledger is what catches it before a player does. In greenfield that
+  ledger is `contract.py`, validated on both sides (gen-time and client connect);
+  see *Feature architecture*.
 
 ## Repo hygiene
 
@@ -200,5 +243,11 @@ Run through this before a change lands (PR or direct):
 - [ ] In-game confirmations record the environment (vanilla/baked, mods, build)
       and date.
 - [ ] New slot_data keys have a live consumer or an explicit CONTRACT tag.
+- [ ] New world features are a single self-registered file in `features/`, not
+      edits to `core.py` or a shared module; anything that can over-constrain the
+      fill gates itself on the pool.
+- [ ] Every slot_data key is declared in `contract.py` and validated both sides;
+      the generated mirrors (`contract_gen.rs`, `CONTRACT.md`, handoff spec) are
+      regenerated from it, not hand-edited.
 - [ ] No game data or build outputs staged; `git diff --cached --stat` reviewed.
 - [ ] Item-pool changes are count-neutral.
