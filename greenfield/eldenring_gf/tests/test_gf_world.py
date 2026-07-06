@@ -18,6 +18,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.data import HUB, REGIONS, LOCATIONS  # noqa: E402
+from worlds.eldenring_gf import contract  # noqa: E402
 from BaseClasses import ItemClassification  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
@@ -65,14 +66,16 @@ class GreenfieldWorldTest(WorldTestBase):
     def test_slot_data_contract(self):
         sd = self.world.fill_slot_data()
         self.assertEqual(sd.get("world_logic"), "region_lock")
+        # delegate shape/required validation to the single source of truth so this can't go stale.
+        contract.validate_slot_data(sd, strict=True)
         flags = sd.get("locationFlags")
         self.assertIsInstance(flags, dict)
         total = sum(len(v) for v in LOCATIONS.values())
         self.assertEqual(len(flags), total, "locationFlags must cover every location")
+        # locationFlags is now SCALAR: {str(ap_id) -> int flag}.
         for k, v in flags.items():
             self.assertEqual(k, str(int(k)), "locationFlags keys must be stringified ap ids")
-            self.assertIsInstance(v, list)
-            self.assertTrue(all(isinstance(f, int) for f in v))
+            self.assertIsInstance(v, int)
 
     # --- determinism (greenfield analog of eldenring test_slot_data_determinism) ----
     def test_slot_data_is_seed_independent(self):

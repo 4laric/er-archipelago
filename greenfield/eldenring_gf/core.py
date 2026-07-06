@@ -351,3 +351,33 @@ class GreenfieldEldenRingWorld(World):
         sd = registry.merge_slot_data(self._base_slot_data(), _FEATURES, self)
         contract.validate_slot_data(sd, strict=True)
         return sd
+
+    def generate_output(self, output_directory: str) -> None:
+        # Post-fill CHECK BREAKDOWN, printed to the generate log so a seed can be judged on
+        # progression shape + filler locality at a glance (not just "it genned"): how each of this
+        # slot's checks was filled -- own progression / own useful / own (local) filler / another
+        # world's item (foreign), split useful vs filler. Solo seeds show foreign = 0.
+        p = self.player
+        prog = useful = local_filler = foreign_filler = foreign_useful = 0
+        for loc in self.multiworld.get_locations(p):
+            it = loc.item
+            if it is None:
+                continue
+            important = bool(it.advancement) or bool(it.classification & ItemClassification.useful)
+            if it.player == p:
+                if it.advancement:
+                    prog += 1
+                elif it.classification & ItemClassification.useful:
+                    useful += 1
+                else:
+                    local_filler += 1
+            elif important:
+                foreign_useful += 1
+            else:
+                foreign_filler += 1
+        total = prog + useful + local_filler + foreign_filler + foreign_useful
+        print(
+            f"[greenfield] {self.multiworld.get_player_name(p)}: {total} checks | "
+            f"progression {prog} | useful {useful} | local filler {local_filler} | "
+            f"foreign filler {foreign_filler} | foreign useful {foreign_useful}"
+        )
