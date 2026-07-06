@@ -156,5 +156,55 @@ class GreenfieldSpine(unittest.TestCase):
         self.assertTrue(5 <= len(k) <= 6)
 
 
+
+class GreenfieldRegistry(unittest.TestCase):
+    """Feature-registry aggregation helpers (core.py merges phases through these). Pure: registry.py
+    imports only typing, so it loads standalone with synthetic features -- no Archipelago needed."""
+    @classmethod
+    def setUpClass(cls):
+        path = os.path.join(os.path.dirname(DATA_PY), "registry.py")
+        spec = importlib.util.spec_from_file_location("gf_registry", path)
+        cls.reg = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.reg)
+
+    def _feat(self, options=None, items=None, sd=None):
+        f = self.reg.Feature()
+        f.OPTIONS = options or {}
+        f.ITEMS = items or {}
+        if sd is not None:
+            f.slot_data = lambda world, _sd=sd: _sd
+        return f
+
+    def test_option_fields_merge_in_order(self):
+        core = [("num_regions", object)]
+        feats = [self._feat(options={"floor": object}), self._feat(options={"sweep": object})]
+        names = [n for n, _ in self.reg.collect_option_fields(core, feats)]
+        self.assertEqual(names, ["num_regions", "floor", "sweep"])
+
+    def test_option_field_collision_raises(self):
+        core = [("num_regions", object)]
+        with self.assertRaises(ValueError):
+            self.reg.collect_option_fields(core, [self._feat(options={"num_regions": object})])
+
+    def test_item_ids_allocated_unique_blocks(self):
+        base = {"A Lock": 100}
+        feats = [self._feat(items={"X": "p"}), self._feat(items={"Y": "p", "Z": "f"})]
+        ids = self.reg.allocate_item_ids(base, 200, feats)
+        self.assertEqual(ids["A Lock"], 100)
+        self.assertEqual(sorted([ids["X"], ids["Y"], ids["Z"]]), [200, 201, 202])
+        self.assertEqual(len(set(ids.values())), len(ids))
+
+    def test_item_class_collision_raises(self):
+        with self.assertRaises(ValueError):
+            self.reg.collect_item_classes({"X": "p"}, [self._feat(items={"X": "f"})])
+
+    def test_slot_data_merge_and_collision(self):
+        base = {"world_logic": "region_lock"}
+        merged = self.reg.merge_slot_data(base, [self._feat(sd={"dungeonSweeps": {}})], world=None)
+        self.assertIn("dungeonSweeps", merged)
+        self.assertIn("world_logic", merged)
+        with self.assertRaises(ValueError):
+            self.reg.merge_slot_data(base, [self._feat(sd={"world_logic": "x"})], world=None)
+
+
 if __name__ == "__main__":
     unittest.main()
