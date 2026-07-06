@@ -55,7 +55,8 @@ if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
 
 step "GREENFIELD (d) WORLD UNIT"
 if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
-      "$PY" -m pytest "worlds/eldenring_gf/tests/test_gf_world.py" -q -p no:cacheprovider ); then
+      "$PY" -m pytest "worlds/eldenring_gf/tests/" -q -p no:cacheprovider \
+        --ignore="worlds/eldenring_gf/tests/test_gf_data.py" ); then
   record WORLD PASS; else record WORLD FAIL; fi
 
 step "GREENFIELD VERDICT"

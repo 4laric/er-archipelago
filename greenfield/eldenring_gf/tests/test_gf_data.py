@@ -12,6 +12,7 @@ Run:  python -m pytest greenfield/eldenring_gf/tests/test_gf_data.py
 """
 import importlib.util
 import os
+import sys
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -114,6 +115,45 @@ class GreenfieldRegionOpenFlags(unittest.TestCase):
         self.assertEqual(resolved & pending, set(), "a region is both resolved and pending")
         self.assertEqual(resolved | pending, set(self.d.REGIONS),
                          "every region must be either resolved or pending")
+
+
+
+class GreenfieldSpine(unittest.TestCase):
+    """Phase 1 num_regions spine (region_spine.py) -- pure (region_spine imports only .data)."""
+    @classmethod
+    def setUpClass(cls):
+        import types
+        cls.d = _load_data()
+        pkg = types.ModuleType("gf_stub"); pkg.__path__ = [os.path.dirname(DATA_PY)]
+        sys.modules["gf_stub"] = pkg; sys.modules["gf_stub.data"] = cls.d
+        spec = importlib.util.spec_from_file_location(
+            "gf_stub.region_spine", os.path.join(os.path.dirname(DATA_PY), "region_spine.py"))
+        cls.rs = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.rs)
+
+    def test_spine_is_permutation_of_regions(self):
+        self.assertEqual(sorted(self.rs.SPINE), sorted(self.d.REGIONS),
+                         "SPINE must be a permutation of REGIONS (no missing/extra region)")
+
+    def test_goal_region_valid(self):
+        self.assertIn(self.rs.GOAL_REGION, self.d.REGIONS)
+
+    def test_compute_kept_zero_is_all(self):
+        import random
+        self.assertEqual(len(self.rs.compute_kept(0, "spine", random.Random(1))), len(self.d.REGIONS))
+        self.assertEqual(len(self.rs.compute_kept(999, "spine", random.Random(1))), len(self.d.REGIONS))
+
+    def test_compute_kept_spine_prefix_plus_goal(self):
+        import random
+        k = self.rs.compute_kept(3, "spine", random.Random(1))
+        self.assertEqual(k[:3], self.rs.SPINE[:3])
+        self.assertIn(self.rs.GOAL_REGION, k)
+
+    def test_compute_kept_rolled_has_goal_unique(self):
+        import random
+        k = self.rs.compute_kept(5, "rolled", random.Random(7))
+        self.assertIn(self.rs.GOAL_REGION, k)
+        self.assertEqual(len(k), len(set(k)))
+        self.assertTrue(5 <= len(k) <= 6)
 
 
 if __name__ == "__main__":

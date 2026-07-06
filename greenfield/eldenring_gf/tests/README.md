@@ -31,6 +31,15 @@ FullID `0x40000B54`) and `regionOpenFlags` (scalar warp flag per region, grace-d
 `REGION_OPEN_PENDING` until the DLC region audit (SPEC-PARITY.md 14.4); the client treats an absent
 open flag as "unlocked", so this is safe.
 
+
+## Phase 1 (num_regions spine) — landed
+
+`region_spine.py` (SPINE + GOAL_REGION + pure `compute_kept`) + `NumRegions`/`NumRegionsOrder`
+options + per-seed kept-region wiring in `__init__`. Sealed regions aren't instantiated; goal =
+kept locks; slot_data emits `region_count`. Covered by:
+- `test_gf_data.py::GreenfieldSpine` — SPINE is a permutation of REGIONS; `compute_kept` prefix/goal/rolled.
+- `test_gf_num_regions.py` — WorldTestBase at num_regions 3 (spine+goal) and 1; sealing, region_count, winnability.
+
 ## Map of the eldenring test suite -> greenfield
 
 The eldenring folder has ~20 test files. Most gate features greenfield does not have yet, so
