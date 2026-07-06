@@ -1,0 +1,35 @@
+"""AUTO-GENERATED (gen_data.py). ap_ids of MISSABLE checks -- gated behind a limited
+consumable or a killable NPC (deathroot Gurranq rewards; Dragon-Heart / Dragon Communion
+purchases). features/missable_locations.py forbids required progression here. Matt-free
+(deathroot flags 400230-400239; dragon-heart = ShopLineupParam costType==1)."""
+MISSABLE_LOCATIONS = {
+    7770514: 'dragon_heart',
+    7770515: 'dragon_heart',
+    7770516: 'dragon_heart',
+    7770517: 'dragon_heart',
+    7770518: 'dragon_heart',
+    7770687: 'dragon_heart',
+    7770688: 'dragon_heart',
+    7770689: 'dragon_heart',
+    7770690: 'dragon_heart',
+    7770691: 'dragon_heart',
+    7770692: 'dragon_heart',
+    7770693: 'dragon_heart',
+    7770694: 'dragon_heart',
+    7770697: 'dragon_heart',
+    7770698: 'dragon_heart',
+    7770699: 'dragon_heart',
+    7770700: 'dragon_heart',
+    7770701: 'dragon_heart',
+    7770702: 'dragon_heart',
+    7773945: 'deathroot',
+    7773946: 'deathroot',
+    7773947: 'deathroot',
+    7773948: 'deathroot',
+    7773949: 'deathroot',
+    7773950: 'deathroot',
+    7773951: 'deathroot',
+    7773952: 'deathroot',
+    7773953: 'deathroot',
+    7773954: 'deathroot',
+}

@@ -4,8 +4,8 @@
 #  game MUST be "Elden Ring (Greenfield)". These are GREENFIELD's options -- a
 #  smaller, different set than the release EldenRing apworld. Do NOT copy release
 #  options here (quick_start / curated_fill / world_logic / region_access /
-#  no_spirit_ashes / pool_builder_intensity / *_location_behavior are NOT valid
-#  and will error). ending_condition is region_locks|great_runes (not "capital").
+#  no_spirit_ashes / *_location_behavior are NOT valid and will error).
+#  ending_condition is region_locks|great_runes (not "capital").
 #
 #  Only ONE yaml in greenfield\players\ = a solo seed. Two+ = a multiworld.
 #  Variants live in greenfield\playtest-yamls\ -- copy one over this for a targeted test.
@@ -18,13 +18,14 @@ game: "Elden Ring (Greenfield)"
 
   # ---- The Shattering (the headline) --------------------------------------
   num_regions: 4              # majors in play (+ Roundtable hub is always kept); rest sealed. 0 = all 22.
-  num_regions_order: spine    # spine = Limgrave-first fixed path; rolled = N random majors.
+  num_regions_order: rolled    # spine = Limgrave-first fixed path; rolled = N random majors.
   ending_condition: region_locks   # goal = hold every kept region's lock. (great_runes = also require N Great Runes)
 
   # ---- Real item randomizer -----------------------------------------------
   item_shuffle: true          # each check pays out its real vanilla ER item, shuffled (98.9%; the rest give Rune)
   pool_builder: true          # scrub the Rune tail, inject rare/legendary juice
-  pool_builder_juice_cap: 120 # 0..400; 0 = auto-size to the whole Rune tail
+  pool_builder_juice_cap: 0 # 0..400; 0 = auto-size to the whole Rune tail
+  pool_builder_intensity: high # normal|high(default)|max -- rarity floor legendary-only|+rare|+B-tier
 
   # ---- Dungeon sweeps (REQUIRES the patch_p3b_client.py DLL) ---------------
   dungeon_sweep: all          # kill a dungeon boss -> its other checks auto-register
@@ -34,7 +35,9 @@ game: "Elden Ring (Greenfield)"
   grace_rando: false          # bundle: a region lock lights ALL its graces. true = freebie (one grace + scatter items)
 
   # ---- QoL / difficulty ---------------------------------------------------
-  start_with_torch: true      # begin holding a Torch (dark caves navigable before your first grace)
+  start_with_torch: true
+  no_weapon_requirements: true # any received gear usable on any build
+  start_with_region_lock: true   # start at Roundtable with one random region already unlocked      # begin holding a Torch (dark caves navigable before your first grace)
   completion_scaling_floor: 0 # 0..50; raise to lift the early-region difficulty floor
   global_scadutree_blessing: off  # off | player_only | scaled (DLC blessing scope)
 

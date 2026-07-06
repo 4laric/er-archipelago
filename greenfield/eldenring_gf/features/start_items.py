@@ -18,6 +18,10 @@ from .. import contract
 _TORCH_FULL_ID = 24000000
 # Spectral Steed Whistle: GOODS id 130; FullID = id | GOODS_NIBBLE(0x40000000) = 1073741954.
 _STEED_WHISTLE_FULL_ID = 0x40000000 | 130
+# Starting flasks (prior in-game-verified goods ids): Flask of Crimson Tears = GOODS 1001, Flask of
+# Cerulean Tears = GOODS 1051; FullID = id | GOODS_NIBBLE.
+_CRIMSON_FLASK_FULL_ID = 0x40000000 | 1001
+_CERULEAN_FLASK_FULL_ID = 0x40000000 | 1051
 
 
 class StartWithTorch(DefaultOnToggle):
@@ -32,10 +36,17 @@ class StartWithSteed(DefaultOnToggle):
     display_name = "Start With Spectral Steed Whistle"
 
 
+class StartWithFlasks(DefaultOnToggle):
+    """Start with the Flask of Crimson Tears (HP) and Flask of Cerulean Tears (FP) so you can heal
+    and cast from the opening. On by default."""
+    display_name = "Start With Flasks"
+
+
 @register
 class StartItems(Feature):
     name = "start_items"
-    OPTIONS = {"start_with_torch": StartWithTorch, "start_with_steed": StartWithSteed}
+    OPTIONS = {"start_with_torch": StartWithTorch, "start_with_steed": StartWithSteed,
+               "start_with_flasks": StartWithFlasks}
 
     def slot_data(self, world):
         items = []
@@ -43,4 +54,7 @@ class StartItems(Feature):
             items.append(_TORCH_FULL_ID)
         if world.options.start_with_steed.value:
             items.append(_STEED_WHISTLE_FULL_ID)
+        if world.options.start_with_flasks.value:
+            items.append(_CRIMSON_FLASK_FULL_ID)
+            items.append(_CERULEAN_FLASK_FULL_ID)
         return {contract.START_ITEMS: items}

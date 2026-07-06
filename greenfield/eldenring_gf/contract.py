@@ -8,6 +8,21 @@ dict against these declarations so a shape/spelling/required drift fails at GEN 
 would have caught the list-vs-scalar `locationFlags` bug). `to_markdown/json/rust` emit the docs and
 the language-neutral + Rust-side mirrors so the client validates the SAME contract (two-sided).
 
+STRICT EMISSION (F2 fix, 2026-07-06): validate_slot_data now also REJECTS any emitted key that is
+not declared here (top-level and inside the `options` sub-dict). registry.merge_slot_data gates
+feature contributions through BY_NAME too, so an undeclared key fails at the merge, not in-game.
+
+NESTED KEYS / OPTIONS ECHO (F1 fix, 2026-07-06): the client's option parsers read
+`slot_data["options"][<key>]` (er-logic/src/options.rs parse_bool_option), but features used to emit
+their toggles TOP-LEVEL only -- so death_link/enable_dlc/no_weapon_requirements/scaling knobs were
+silently dark while "slot_data OK". The `options` ContractKey below declares the sub-dict; each
+sub-key is its own ContractKey carried in `subkeys=`. core._options_echo emits it centrally; the
+features' top-level emissions remain as harmless legacy duplicates (declared below as such).
+
+`required` is PROFILE-AWARE: it only applies when validating a profile the key belongs to. Keys
+tagged (BEDROCK,) are therefore never required (nor shape-checked) for a greenfield gen, and
+vice versa.
+
 To add a key: add ONE ContractKey below. To swap to Bedrock compatibility: emit the keys tagged
 `bedrock` and validate with profile="bedrock"; the two contracts are diffable in this one file.
 """
@@ -37,6 +52,16 @@ def _chk_listval_int_map(v):
     for k, val in v.items():
         if not isinstance(val, (list, tuple)) or not all(_is_int(i) for i in val):
             return f"value for {k!r} must be list[int], got {val!r}"
+    return None
+
+
+def _chk_str_map(v):
+    # {key: str}
+    if not isinstance(v, dict):
+        return "expected object {key: str}"
+    for k, val in v.items():
+        if not isinstance(val, str):
+            return f"value for {k!r} must be str, got {type(val).__name__} ({val!r})"
     return None
 
 
@@ -70,6 +95,26 @@ def _chk_bool_or_int(v):
     return None
 
 
+def _chk_int_or_bool(v):
+    # parse_bool_option-style toggles that may carry a non-0/1 payload (nonzero = on).
+    if not (isinstance(v, bool) or _is_int(v)):
+        return f"expected bool or int, got {type(v).__name__}"
+    return None
+
+
+def _chk_int(v):
+    if not _is_int(v):
+        return f"expected int, got {type(v).__name__}"
+    return None
+
+
+def _chk_number(v):
+    # client reads f64; int or float both fine (bool is NOT a number here).
+    if not (_is_int(v) or isinstance(v, float)):
+        return f"expected number, got {type(v).__name__}"
+    return None
+
+
 def _chk_str(v):
     if not isinstance(v, str):
         return f"expected str, got {type(v).__name__}"
@@ -90,6 +135,14 @@ def _chk_nested_grants(v):
     return None
 
 
+def _chk_options_dict(v):
+    # the `options` sub-dict itself; each declared sub-key is validated by validate_slot_data
+    # against its OWN shape (see ContractKey.subkeys), so this only asserts the container.
+    if not isinstance(v, dict):
+        return "expected object {option: value}"
+    return None
+
+
 def _chk_any(v):
     return None
 
@@ -98,37 +151,76 @@ def _chk_any(v):
 SHAPES = {
     "SCALAR_INT_MAP":  (_chk_scalar_int_map,  "ScalarIntMap",  "i64_to_u32_map / i64_map / str_to_u32"),
     "LISTVAL_INT_MAP": (_chk_listval_int_map, "ListvalIntMap", "str_to_u32vec"),
+    "STR_MAP":         (_chk_str_map,         "StrMap",        "{key: str} object"),
     "TRIPLE_LIST":     (_chk_triple_list,     "TripleList",    "parse_triples"),
     "INT_LIST":        (_chk_int_list,        "IntList",       "arr_i32 / arr_u32"),
     "BOOL":            (_chk_bool,            "Bool",          "as_bool"),
-    "BOOL_OR_INT":     (_chk_bool_or_int,     "BoolOrInt",     "parse_death_link / parse_dlc"),
+    "BOOL_OR_INT":     (_chk_bool_or_int,     "BoolOrInt",     "parse_death_link / parse_dlc (0/1)"),
+    "INT_OR_BOOL":     (_chk_int_or_bool,     "IntOrBool",     "parse_bool_option (nonzero = on)"),
+    "INT":             (_chk_int,             "Int",           "as_i64"),
+    "NUMBER":          (_chk_number,          "Number",        "as_f64"),
     "STR":             (_chk_str,             "Str",           "as_str"),
     "NESTED_GRANTS":   (_chk_nested_grants,   "NestedGrants",  "progressive.rs custom"),
-    "ANY":             (_chk_any,             "Any",           "(bedrock; not greenfield-validated)"),
+    "OPTIONS_DICT":    (_chk_options_dict,    "OptionsDict",   "options::parse_*_option sub-dict"),
+    "ANY":             (_chk_any,             "Any",           "(diagnostic / foreign profile; unvalidated)"),
 }
 
 GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 
 
 class ContractKey:
-    __slots__ = ("name", "shape", "required", "profiles", "producer", "consumer", "doc")
+    __slots__ = ("name", "shape", "required", "profiles", "producer", "consumer", "doc", "subkeys")
 
-    def __init__(self, name, shape, required, profiles, producer, consumer, doc):
+    def __init__(self, name, shape, required, profiles, producer, consumer, doc, subkeys=()):
         assert shape in SHAPES, f"unknown shape {shape} for {name}"
         self.name = name
         self.shape = shape
-        self.required = required          # required for the greenfield profile
+        self.required = required          # required WITHIN this key's profiles (profile-aware)
         self.profiles = profiles          # tuple of GREENFIELD/BEDROCK (or BOTH)
         self.producer = producer          # apworld module that emits it ("(bedrock apworld)" if N/A)
         self.consumer = consumer          # client file:fn that reads it
         self.doc = doc
+        self.subkeys = tuple(subkeys)     # nested ContractKeys (only the `options` sub-dict today)
 
     def in_profile(self, profile):
         return BOTH in self.profiles or profile in self.profiles
 
 
 # ---------------------------------------------------------------------------------------------------
-# THE CONTRACT. Order = logical grouping. `required` is for the greenfield profile.
+# THE `options` SUB-DICT (F1 fix). The client's runtime-option parsers all read
+# slot_data["options"][<name>] (er-logic/src/options.rs::parse_bool_option and friends). Every
+# sub-key is emitted CENTRALLY by core._options_echo -- features never write into `options`.
+# ---------------------------------------------------------------------------------------------------
+OPTIONS_SUBKEYS = (
+    ContractKey("death_link", "BOOL_OR_INT", True, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_death_link",
+                "shared deaths across the multiworld (world.options.death_link)."),
+    ContractKey("enable_dlc", "BOOL_OR_INT", True, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_dlc",
+                "RESOLVED DLC bool (dlc_only implies on); gates DLC map-reveal flags."),
+    ContractKey("no_weapon_requirements", "BOOL_OR_INT", True, (GREENFIELD,),
+                "core._options_echo", "no_weapon_reqs.rs set_enabled",
+                "zero weapon/shield/catalyst + spell stat requirements."),
+    ContractKey("completion_scaling", "INT_OR_BOOL", True, (GREENFIELD,),
+                "core._options_echo", "er-logic/scaling.rs:146 parse_bool_option",
+                "completion scaling on/off + curve id (nonzero = on; 4 = smoothstep)."),
+    ContractKey("completion_scaling_floor", "NUMBER", True, (GREENFIELD,),
+                "core._options_echo", "er-logic/scaling.rs floor (client reads f64)",
+                "minimum scaling tier as percent of max, applied from the start."),
+    ContractKey("global_scadutree_blessing", "INT", True, (GREENFIELD,),
+                "core._options_echo", "scaling.rs scadutree scope",
+                "DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled)."),
+    ContractKey("auto_upgrade", "INT", True, (GREENFIELD,),
+                "core._options_echo (constant 0)", "upgrades client path",
+                "auto weapon-upgrade ladder tier; greenfield ships constant 0 (feature off)."),
+    ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
+                "core._options_echo (constant 0)", "upgrades client path",
+                "flatten regular upgrade ladder; greenfield ships constant 0 (feature off)."),
+)
+
+
+# ---------------------------------------------------------------------------------------------------
+# THE CONTRACT. Order = logical grouping. `required` applies within the key's own profiles.
 # ---------------------------------------------------------------------------------------------------
 CONTRACT = (
     # --- received-item + location detection (core) ---
@@ -140,17 +232,36 @@ CONTRACT = (
                 "AP location id (str) -> its ER acquisition event flag; the flag-poll detection table."),
     ContractKey("regionOpenFlags", "SCALAR_INT_MAP", True, (BOTH,),
                 "core._base_slot_data", "region.rs:120 str_to_u32",
-                "'<Region> Lock' -> the region-open event flag set when that lock is received."),
-    ContractKey("regionSphereTargets", "ANY", False, (GREENFIELD,),
-                "core._base_slot_data", "(informational)",
-                "region -> sphere target [0..1] for completion scaling; not enforced by the client."),
+                "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys "
+                "MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names."),
+    # --- runtime options echo (F1 fix; the client reads options ONLY through this sub-dict) ---
+    ContractKey("options", "OPTIONS_DICT", True, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_bool_option et al.",
+                "runtime option echo sub-dict; every client-read option lives here (features' "
+                "top-level copies are legacy duplicates the client ignores).",
+                subkeys=OPTIONS_SUBKEYS),
+    # --- completion scaling (I2 emits the live values) ---
+    ContractKey("regionSphereTargets", "SCALAR_INT_MAP", False, (GREENFIELD,),
+                "features/scaling.py (I2; core emits {} transitional)", "er-logic/scaling.rs:148 i32_i32_map",
+                "{str(i32 region id): i32 target}; flat per-region scaling targets. Keys must parse "
+                "as i32 (region NAMES are silently dropped by the client -- the 2026-07 dark-scaling "
+                "bug); ranges (regionSphereTargetRanges) are the live wire."),
+    ContractKey("regionSphereTargetRanges", "TRIPLE_LIST", False, (GREENFIELD,),
+                "features/scaling.py (I2)", "er-logic/scaling.rs:150-165 range parse",
+                "[[lo,hi,target], ...] play_region/100 sub-id ranges -> scaling target; the live "
+                "completion-scaling wire (SCALING_WIRE)."),
+    ContractKey("completionScalingBasis", "INT", False, (GREENFIELD,),
+                "core._base_slot_data", "er-logic/scaling.rs basis parse",
+                "scaling basis Choice VALUE (int 1 = sphere); client also tolerates the legacy "
+                "string form ('sphere')."),
     # --- region locking / kick-watch ---
     ContractKey("areaLockFlags", "TRIPLE_LIST", True, (BOTH,),
                 "features/area_locks.py", "region.rs:103 parse_triples",
                 "[lo,hi,open_flag] play_region ranges; locked (kicked) while open_flag is unset."),
     ContractKey("lockRevealFlags", "LISTVAL_INT_MAP", False, (BOTH,),
-                "(future) per-region map reveal", "region.rs:121 str_to_u32vec",
-                "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt."),
+                "(unemitted today; client path LIVE)", "region.rs:121 str_to_u32vec",
+                "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt. The client "
+                "consumer is LIVE (region.rs:121); greenfield does not emit it yet."),
     # --- graces ---
     ContractKey("regionGraces", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/grace_rando.py", "region.rs:122 str_to_u32vec",
@@ -185,46 +296,131 @@ CONTRACT = (
     ContractKey("shopPreviewGoods", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:353 i64_map",
                 "AP location id -> preview goods id shown in the shop slot."),
+    ContractKey("stoneswordVendorRow", "INT", False, (GREENFIELD,),
+                "features/minibaker.py", "minibaker.rs configure/run",
+                "MINI-BAKER: reserved ShopLineupParam row id the client repurposes into an infinite, "
+                "always-in-stock Stonesword Key vendor (equipId 8000, sellQuantity -1) so imp-statue "
+                "checks are never missable. 0/absent = off (row left vanilla). Reserved row is excluded "
+                "from shop checks in gen_data. See memory er-minibaker-shoplineup."),
     # --- sweeps / progressive / deathlink / dlc ---
     ContractKey("dungeonSweepFlags", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/boss_sweeps (P3b client patch)", "region.rs:104 as_object",
                 "dungeon trigger flag (str) -> the member AP location ids auto-registered on clear."),
+    ContractKey("dungeonSweeps", "ANY", False, (BOTH,),
+                "features/boss_locks.py ({} today; location-keyed variant)", "region.rs",
+                "location-keyed dungeon sweep spec (needs boss-reward-location join); greenfield "
+                "emits {} until wired -- flag-keyed dungeonSweepFlags is the live path."),
+    ContractKey("sweepLockGates", "STR_MAP", False, (BOTH,),
+                "features/boss_locks.py ({} today)", "region.rs sweep gates",
+                "{str(i64 sweep trigger flag): '<Region> Lock'} -- gates a dungeon sweep behind "
+                "holding the named lock; live client consumer."),
     ContractKey("progressiveGrants", "NESTED_GRANTS", False, (BOTH,),
                 "features/progressive.py", "progressive.rs",
                 "item name -> ordered [{goods, flags}] granted on each successive receipt."),
     ContractKey("death_link", "BOOL_OR_INT", False, (BOTH,),
-                "features/deathlink.py", "options::parse_death_link",
-                "shared deaths across the multiworld."),
+                "features/deathlink.py (legacy duplicate of options.death_link)",
+                "er-logic/options.rs parse_death_link (reads options.death_link)",
+                "legacy top-level copy; the client reads options.death_link -- kept for back-compat."),
+    ContractKey("no_weapon_requirements", "BOOL_OR_INT", False, (BOTH,),
+                "features/weapon_reqs.py (legacy duplicate of options.no_weapon_requirements)",
+                "core.rs:304 no_weapon_reqs::set_enabled (reads options path)",
+                "legacy top-level copy; the client reads options.no_weapon_requirements."),
     ContractKey("enable_dlc", "BOOL_OR_INT", False, (BOTH,),
-                "core (options echo)", "options::parse_dlc",
-                "DLC / Land of Shadow regions active; gates the DLC map-reveal flags."),
+                "core._options_echo (options.enable_dlc; top-level unemitted)",
+                "er-logic/options.rs parse_dlc (reads options.enable_dlc)",
+                "DLC / Land of Shadow regions active; the LIVE copy is options.enable_dlc."),
+    ContractKey("completion_scaling", "INT_OR_BOOL", False, (GREENFIELD,),
+                "features/scaling.py (legacy duplicate of options.completion_scaling)",
+                "er-logic/scaling.rs:146 (reads options.completion_scaling)",
+                "legacy top-level copy of the scaling toggle/curve id (4 = smoothstep)."),
+    ContractKey("completion_scaling_floor", "NUMBER", False, (GREENFIELD,),
+                "features/scaling.py (legacy duplicate of options.completion_scaling_floor)",
+                "(client reads options.completion_scaling_floor)",
+                "legacy top-level copy of the scaling floor percent."),
+    ContractKey("global_scadutree_blessing", "INT", False, (GREENFIELD,),
+                "features/scaling.py (legacy duplicate of options.global_scadutree_blessing)",
+                "(client reads options.global_scadutree_blessing)",
+                "legacy top-level copy of the Scadutree blessing scope."),
+    # --- version handshake ---
+    ContractKey("versions", "STR", False, (BOTH,),
+                "(optional; unemitted today)", "core.rs version gate",
+                "apworld semver for the client version gate; emission optional."),
+    # --- greenfield diagnostics (no client read; ANY = shape-unvalidated on purpose) ---
     ContractKey("world_logic", "STR", False, (GREENFIELD,),
-                "core._base_slot_data", "(informational)",
+                "core._base_slot_data", "(diagnostic -- no client read)",
                 "logic profile tag, e.g. 'region_lock'."),
+    ContractKey("region_count", "ANY", False, (GREENFIELD,),
+                "core._base_slot_data", "(diagnostic -- no client read)",
+                "len(kept) -- how many regions are in play this seed."),
+    ContractKey("ending_condition", "ANY", False, (GREENFIELD,),
+                "core._base_slot_data", "(diagnostic -- no client read)",
+                "resolved goal tag: 'region_locks' | 'great_runes'."),
+    ContractKey("great_runes_required", "ANY", False, (GREENFIELD,),
+                "core._base_slot_data", "(diagnostic -- no client read)",
+                "EFFECTIVE (clamped) Great Rune requirement for the great_runes ending."),
+    ContractKey("great_rune_items", "ANY", False, (GREENFIELD,),
+                "core._base_slot_data", "(diagnostic -- no client read)",
+                "required Great Rune item names this seed."),
+    ContractKey("bossLocations", "ANY", False, (GREENFIELD,),
+                "features/boss_locks.py", "(diagnostic -- no client read)",
+                "{region: [boss AP location ids]} for kept regions."),
+    ContractKey("filler_foreign_localized", "ANY", False, (GREENFIELD,),
+                "features/filler_foreign.py", "(diagnostic -- no client read)",
+                "count of distinct filler names forced local this seed."),
+    ContractKey("pool_builder", "ANY", False, (GREENFIELD,),
+                "features/pool_builder.py", "(diagnostic -- no client read)",
+                "whether pool curation was enabled this seed."),
+    ContractKey("pool_builder_juice_added", "ANY", False, (GREENFIELD,),
+                "features/pool_builder.py", "(diagnostic -- no client read)",
+                "resolved juice budget added by the pool builder."),
+    ContractKey("pool_builder_intensity_floor", "ANY", False, (GREENFIELD,),
+                "features/pool_builder.py", "(diagnostic -- no client read)",
+                "resolved juice rarity floor (1..3)."),
+    ContractKey("pool_builder_juice_candidates", "ANY", False, (GREENFIELD,),
+                "features/pool_builder.py", "(diagnostic -- no client read)",
+                "size of the juice candidate set at this intensity."),
     # --- bedrock-profile keys (client reads; greenfield does NOT emit) -- the swap target ---
-    ContractKey("locationIdsToKeys", "ANY", False, (BEDROCK,),
+    # required=True here means required when validating profile="bedrock" ONLY (profile-aware).
+    ContractKey("locationIdsToKeys", "ANY", True, (BEDROCK,),
                 "(bedrock apworld)", "key_resolver.rs",
                 "matt slot key token per location; client resolves token1 -> flag (bedrock path)."),
-    ContractKey("naturalKeyTriggers", "ANY", False, (BEDROCK,),
-                "(bedrock apworld)", "key_resolver.rs / region.rs",
-                "bedrock natural key triggers."),
-    ContractKey("lockGrantItems", "ANY", False, (BEDROCK,),
-                "(bedrock apworld)", "region.rs",
-                "items granted on a region lock receipt (bedrock)."),
-    ContractKey("dungeonSweeps", "ANY", False, (BEDROCK,),
-                "(bedrock apworld)", "region.rs",
-                "bedrock dungeon sweep spec (greenfield uses dungeonSweepFlags)."),
-    ContractKey("itemCounts", "ANY", False, (BEDROCK,),
+    ContractKey("itemCounts", "ANY", True, (BEDROCK,),
                 "(bedrock apworld)", "core.rs",
                 "per-item quantity map."),
+    ContractKey("naturalKeyTriggers", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "key_resolver.rs / region.rs",
+                "bedrock natural key triggers."),
+    ContractKey("lockGrantItems", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "region.rs",
+                "items granted on a region lock receipt (bedrock)."),
+    ContractKey("randomStartDoneFlag", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "random start client path",
+                "bedrock random-start: flag set when the start warp completed."),
+    ContractKey("randomStartWarpFlag", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "random start client path",
+                "bedrock random-start: flag that triggers the start warp."),
+    ContractKey("randomStartAreaId", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "random start client path",
+                "bedrock random-start: destination area id."),
+    ContractKey("randomStartGraceId", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "random start client path",
+                "bedrock random-start: destination grace id."),
+    ContractKey("fogWalls", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "fog wall client path",
+                "bedrock fog-wall spec."),
+    ContractKey("fogWallDebug", "ANY", True, (BEDROCK,),
+                "(bedrock apworld)", "fog wall client path",
+                "bedrock fog-wall debug toggle."),
 )
 
 BY_NAME = {k.name: k for k in CONTRACT}
+OPTIONS_BY_NAME = {k.name: k for k in OPTIONS_SUBKEYS}
 
 # Module-level name constants (UPPER_SNAKE = "wireName") so emitters never hard-code a string literal.
+# OPTIONS_SUBKEYS are included (same-named top-level legacy keys resolve to the identical string).
 import re as _re
 _g = globals()
-for _k in CONTRACT:
+for _k in CONTRACT + OPTIONS_SUBKEYS:
     _const = _re.sub(r"(?<!^)(?=[A-Z])", "_", _k.name).upper().replace("__", "_")
     _g[_const] = _k.name
 # (e.g. LOCATION_FLAGS = "locationFlags", AREA_LOCK_FLAGS = "areaLockFlags", DEATH_LINK = "death_link")
@@ -236,8 +432,12 @@ class ContractError(Exception):
 
 def validate_slot_data(sd, profile=GREENFIELD, strict=True):
     """Check an assembled slot_data dict against the contract. Returns a list of problem strings.
-    With strict=True, raises ContractError if any REQUIRED key is missing or any present contract key
-    has the wrong shape. Unknown keys (option echoes AP adds automatically) are ignored, not errors."""
+    With strict=True, raises ContractError on any problem. Checks are PROFILE-AWARE: only keys
+    belonging to `profile` are required/shape-checked (bedrock keys are never required for a
+    greenfield gen). Three checks per profile key: MISSING (required only), SHAPE, and -- for keys
+    with subkeys (the `options` echo) -- the same two per declared sub-key plus UNDECLARED sub-key
+    rejection. Finally (F2 fix) any emitted TOP-LEVEL key not declared in the contract AT ALL is
+    rejected: an undeclared emission is exactly how features go silently dark, so it fails at gen."""
     problems = []
     for key in CONTRACT:
         if not key.in_profile(profile):
@@ -246,10 +446,32 @@ def validate_slot_data(sd, profile=GREENFIELD, strict=True):
             if key.required:
                 problems.append(f"MISSING required key {key.name!r} (producer {key.producer})")
             continue
-        checker = SHAPES[key.shape][0]
-        err = checker(sd[key.name])
+        val = sd[key.name]
+        err = SHAPES[key.shape][0](val)
         if err:
             problems.append(f"SHAPE {key.name!r} ({key.shape}): {err}")
+            continue
+        if key.subkeys and isinstance(val, dict):
+            declared_sub = {s.name for s in key.subkeys}
+            for sub in key.subkeys:
+                if not sub.in_profile(profile):
+                    continue
+                if sub.name not in val:
+                    if sub.required:
+                        problems.append(f"MISSING required sub-key {key.name}.{sub.name} "
+                                        f"(producer {sub.producer})")
+                    continue
+                serr = SHAPES[sub.shape][0](val[sub.name])
+                if serr:
+                    problems.append(f"SHAPE {key.name}.{sub.name} ({sub.shape}): {serr}")
+            for sname in val:
+                if sname not in declared_sub:
+                    problems.append(f"UNDECLARED sub-key {key.name}.{sname} -- declare it in "
+                                    f"contract.py (OPTIONS_SUBKEYS) before emitting")
+    for name in sd:
+        if name not in BY_NAME:
+            problems.append(f"UNDECLARED key {name!r} emitted -- declare it in contract.py "
+                            f"(name/shape/profile/producer) before emitting")
     if strict and problems:
         raise ContractError("slot_data contract violation:\n  " + "\n  ".join(problems))
     return problems
@@ -258,13 +480,20 @@ def validate_slot_data(sd, profile=GREENFIELD, strict=True):
 # ---------------------------------------------------------------------------------------------------
 # GENERATORS -- docs + language-neutral + Rust mirror (so the client validates the SAME contract).
 # ---------------------------------------------------------------------------------------------------
+def _key_json(k):
+    d = {"name": k.name, "shape": k.shape, "required": k.required,
+         "profiles": list(k.profiles), "producer": k.producer,
+         "consumer": k.consumer, "doc": k.doc}
+    if k.subkeys:
+        d["subkeys"] = [_key_json(s) for s in k.subkeys]
+    return d
+
+
 def to_json():
     import json
     return json.dumps({
         "shapes": {n: {"rust": SHAPES[n][1], "client_parser": SHAPES[n][2]} for n in SHAPES},
-        "keys": [{"name": k.name, "shape": k.shape, "required": k.required,
-                  "profiles": list(k.profiles), "producer": k.producer,
-                  "consumer": k.consumer, "doc": k.doc} for k in CONTRACT],
+        "keys": [_key_json(k) for k in CONTRACT],
     }, indent=2)
 
 
@@ -273,12 +502,22 @@ def to_markdown():
              "",
              "AUTO-GENERATED from `eldenring_gf/contract.py` (the single source of truth). Do not edit.",
              "",
+             "Sub-keys of the `options` echo are listed as `options.<name>` -- the client reads",
+             "runtime options ONLY through that sub-dict (er-logic/src/options.rs).",
+             "",
              "| key | shape | req | profile | producer | client consumer | meaning |",
              "|-----|-------|-----|---------|----------|-----------------|---------|"]
-    for k in CONTRACT:
+
+    def row(k, prefix=""):
         prof = "both" if BOTH in k.profiles else "+".join(k.profiles)
         req = "yes" if k.required else ""
-        lines.append(f"| `{k.name}` | {k.shape} | {req} | {prof} | {k.producer} | {k.consumer} | {k.doc} |")
+        lines.append(f"| `{prefix}{k.name}` | {k.shape} | {req} | {prof} | {k.producer} "
+                     f"| {k.consumer} | {k.doc} |")
+
+    for k in CONTRACT:
+        row(k)
+        for s in k.subkeys:
+            row(s, prefix=f"{k.name}.")
     lines += ["", "## Shapes", "",
               "| shape | client parser |", "|-------|---------------|"]
     for n in SHAPES:
@@ -287,9 +526,18 @@ def to_markdown():
 
 
 def to_rust():
-    """Generate contract_gen.rs: Shape enum, the CONTRACT table, and a validate(sd) fn that mirrors
-    validate_slot_data on the client side. Pure data + a small fixed validator (serde_json)."""
+    """Generate contract_gen.rs: Shape enum, the CONTRACT + OPTIONS_SUBKEYS tables, and a
+    validate(sd) fn that mirrors validate_slot_data's missing/shape checks on the client side
+    (the client does NOT reject unknown keys -- the server may add its own). Pure data + a small
+    fixed validator (serde_json)."""
     variants = sorted({SHAPES[n][1] for n in SHAPES})
+
+    def key_row(k):
+        gf = "true" if (BOTH in k.profiles or GREENFIELD in k.profiles) else "false"
+        req = "true" if k.required else "false"
+        return (f'    ContractKey {{ name: "{k.name}", shape: Shape::{SHAPES[k.shape][1]}, '
+                f"required: {req}, greenfield: {gf} }},")
+
     L = []
     L.append("// AUTO-GENERATED from eldenring_gf/contract.py -- do not edit by hand.")
     L.append("// The apworld<->client slot_data contract, mirrored so the client validates the same shapes.")
@@ -310,10 +558,13 @@ def to_rust():
     L.append("")
     L.append("pub const CONTRACT: &[ContractKey] = &[")
     for k in CONTRACT:
-        gf = "true" if (BOTH in k.profiles or GREENFIELD in k.profiles) else "false"
-        req = "true" if k.required else "false"
-        L.append(f'    ContractKey {{ name: "{k.name}", shape: Shape::{SHAPES[k.shape][1]}, '
-                 f"required: {req}, greenfield: {gf} }},")
+        L.append(key_row(k))
+    L.append("];")
+    L.append("")
+    L.append("/// Declared sub-keys of the top-level `options` echo (validated when `options` is present).")
+    L.append("pub const OPTIONS_SUBKEYS: &[ContractKey] = &[")
+    for s in OPTIONS_SUBKEYS:
+        L.append(key_row(s))
     L.append("];")
     L.append("")
     L.append(_RUST_VALIDATE)
@@ -328,12 +579,16 @@ fn shape_ok(shape: Shape, v: &Value) -> bool {
         Shape::ListvalIntMap => v.as_object().map_or(false, |o| {
             o.values().all(|x| x.as_array().map_or(false, |a| a.iter().all(is_int)))
         }),
+        Shape::StrMap => v.as_object().map_or(false, |o| o.values().all(|x| x.is_string())),
         Shape::TripleList => v.as_array().map_or(false, |a| {
             a.iter().all(|t| t.as_array().map_or(false, |t| t.len() == 3 && t.iter().all(is_int)))
         }),
         Shape::IntList => v.as_array().map_or(false, |a| a.iter().all(is_int)),
         Shape::Bool => v.is_boolean(),
         Shape::BoolOrInt => v.is_boolean() || v.as_i64().map_or(false, |n| n == 0 || n == 1),
+        Shape::IntOrBool => v.is_boolean() || is_int(v),
+        Shape::Int => is_int(v),
+        Shape::Number => v.is_number(),
         Shape::Str => v.is_string(),
         Shape::NestedGrants => v.as_object().map_or(false, |o| {
             o.values().all(|l| l.as_array().map_or(false, |l| l.iter().all(|e| {
@@ -342,12 +597,14 @@ fn shape_ok(shape: Shape, v: &Value) -> bool {
                         .map_or(false, |f| f.iter().all(is_int))
             })))
         }),
+        Shape::OptionsDict => v.is_object(),
         Shape::Any => true,
     }
 }
 
 /// Validate an assembled slot_data object against the greenfield contract. Returns the list of
-/// problems (missing-required + shape mismatches); empty == clean. Mirrors contract.py.
+/// problems (missing-required + shape mismatches, top-level and `options.*`); empty == clean.
+/// Mirrors contract.py's missing/shape checks (unknown-key rejection stays gen-side only).
 pub fn validate(sd: &Value) -> Vec<String> {
     let mut out = Vec::new();
     for k in CONTRACT {
@@ -357,6 +614,17 @@ pub fn validate(sd: &Value) -> Vec<String> {
             Some(v) => if !shape_ok(k.shape, v) {
                 out.push(format!("SHAPE '{}' expected {:?}", k.name, k.shape));
             },
+        }
+    }
+    if let Some(opts) = sd.get("options").and_then(|v| v.as_object()) {
+        for k in OPTIONS_SUBKEYS {
+            if !k.greenfield { continue; }
+            match opts.get(k.name) {
+                None => if k.required { out.push(format!("MISSING required sub-key 'options.{}'", k.name)); },
+                Some(v) => if !shape_ok(k.shape, v) {
+                    out.push(format!("SHAPE 'options.{}' expected {:?}", k.name, k.shape));
+                },
+            }
         }
     }
     out

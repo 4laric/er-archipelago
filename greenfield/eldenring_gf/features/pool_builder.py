@@ -25,10 +25,21 @@ clamps the total, so the pool stays count-exact and the seed stays winnable; the
 Juice items are `useful` (equippables, never progression) -- region Locks stay the sole progression,
 so any curated pool is still winnable. No new item names are introduced: every juice item is already
 a real-item-pool catalog item registered by core, so world.create_item(name) resolves.
+
+INTENSITY (pool_builder_intensity). The juice list is the set of catalog equippables whose param
+`rarity` is at or above a FLOOR. The floor is chosen per-world from this Choice:
+  * normal -> rarity >= 3 (legendary only)
+  * high   -> rarity >= 2 (rare + legendary)  [DEFAULT -- the historical behavior]
+  * max    -> rarity >= 1 (also common/B-tier equippables)
+The juice list is computed PER-WORLD from the floor (juice_order_for_floor), sorted best-first
+(highest rarity, then name) so it stays deterministic and count-neutral, and it is still bounded by
+the Rune tail and the juice cap. A higher intensity only widens the CANDIDATE set; the count actually
+added is unchanged (still the Rune tail, clamped by the cap) -- so it changes *which* equippables the
+Rune tail becomes, not how many.
 """
 from typing import List
 
-from Options import Toggle, Range
+from Options import Toggle, Range, Choice
 from ..registry import Feature, register
 from ..data import HUB, LOCATIONS
 
@@ -46,13 +57,27 @@ except Exception:
     REGION_GRACE_POINTS = {}
 
 # ER param `rarity`: 0 = trivial/ammo, 1 = common, 2 = rare, 3 = legendary.
-JUICE_MIN_RARITY = 2   # rare + legendary equippables are the "juice"
+# Intensity -> juice rarity FLOOR. high == the historical JUICE_MIN_RARITY of 2 (DEFAULT).
+INTENSITY_FLOOR = {"normal": 3, "high": 2, "max": 1}
+DEFAULT_INTENSITY = "high"
 
-# All juice item names, best-first (legendary before rare), stable & deterministic.
-JUICE_ORDER: List[str] = sorted(
-    (n for n, r in ITEM_TIERS.items() if r >= JUICE_MIN_RARITY and n in ITEM_CATALOG),
-    key=lambda n: (-ITEM_TIERS[n], n),
-)
+# Back-compat module-level aliases (the default 'high' intensity == the historical behavior).
+# JUICE_MIN_RARITY was the old fixed floor (2 == high); JUICE_ORDER was the default juice list.
+JUICE_MIN_RARITY = INTENSITY_FLOOR[DEFAULT_INTENSITY]
+
+
+def juice_order_for_floor(floor: int) -> List[str]:
+    """Catalog equippables with param rarity >= floor, best-first (legendary first, then name).
+    Deterministic (pure sort). A higher floor is a SUBSET of a lower floor, so max >= high >= normal
+    in length. Empty when tiers/catalog are not yet generated."""
+    return sorted(
+        (n for n, r in ITEM_TIERS.items() if r >= floor and n in ITEM_CATALOG),
+        key=lambda n: (-ITEM_TIERS[n], n),
+    )
+
+# Default-intensity juice list (floor = high) for back-compat imports / diagnostics.
+JUICE_ORDER = juice_order_for_floor(JUICE_MIN_RARITY)
+
 
 
 class PoolBuilder(Toggle):
@@ -61,6 +86,21 @@ class PoolBuilder(Toggle):
     legendary weapons, armor, and talismans), count-neutral. Has no effect unless Shuffle Vanilla
     Items is also on (there is no vanilla pool to curate otherwise)."""
     display_name = "Pool Builder"
+
+
+class PoolBuilderIntensity(Choice):
+    """How wide a net Pool Builder casts when picking juice (the equippables it turns the Rune tail
+    into). Sets the minimum param rarity a vanilla equippable needs to qualify:
+    'normal' = legendary only (rarity 3); 'high' = rare + legendary (rarity 2, the DEFAULT and
+    historical behavior); 'max' = also include common/B-tier equippables (rarity 1). Only the
+    candidate SET changes -- the count added stays the Rune tail (clamped by the juice cap), so a
+    higher intensity changes *which* equippables you get, not how many. Ignored unless Pool Builder
+    and Shuffle Vanilla Items are both on."""
+    display_name = "Pool Builder Intensity"
+    option_normal = 0
+    option_high = 1
+    option_max = 2
+    default = 1  # high -> rarity floor 2 == the original JUICE_MIN_RARITY (no change)
 
 
 class PoolBuilderJuiceCap(Range):
@@ -77,13 +117,32 @@ class PoolBuilderJuiceCap(Range):
 class PoolBuilderFeature(Feature):
     name = "pool_builder"
     ITEMS = {}   # no NEW item names: juice items are catalog items core already registered
-    OPTIONS = {"pool_builder": PoolBuilder, "pool_builder_juice_cap": PoolBuilderJuiceCap}
+    OPTIONS = {
+        "pool_builder": PoolBuilder,
+        "pool_builder_intensity": PoolBuilderIntensity,
+        "pool_builder_juice_cap": PoolBuilderJuiceCap,
+    }
 
     # ---- helpers ----------------------------------------------------------------
     def _enabled(self, world) -> bool:
         pb = getattr(world.options, "pool_builder", None)
         sh = getattr(world.options, "item_shuffle", None)
         return bool(pb and pb.value) and bool(sh and sh.value)
+
+    def _floor(self, world) -> int:
+        """Resolved juice rarity floor for this world from pool_builder_intensity (default high)."""
+        opt = getattr(world.options, "pool_builder_intensity", None)
+        key = DEFAULT_INTENSITY
+        if opt is not None:
+            try:
+                key = opt.current_key
+            except Exception:
+                key = DEFAULT_INTENSITY
+        return INTENSITY_FLOOR.get(key, INTENSITY_FLOOR[DEFAULT_INTENSITY])
+
+    def _juice_order(self, world) -> List[str]:
+        """Per-world juice candidate list (best-first) at this world's intensity floor."""
+        return juice_order_for_floor(self._floor(world))
 
     def _rune_fallback_locations(self, world) -> int:
         """Kept-region checks with no real vanilla item -> Rune under item_shuffle."""
@@ -108,11 +167,12 @@ class PoolBuilderFeature(Feature):
         return reserved
 
     def _juice_budget(self, world) -> int:
-        if not self._enabled(world) or not JUICE_ORDER:
+        order = self._juice_order(world)
+        if not self._enabled(world) or not order:
             return 0
         # true remaining Rune tail = Rune-fallback checks minus slots other contributors eat.
         rune_tail = max(0, self._rune_fallback_locations(world) - self._reserved_slots(world))
-        budget = min(rune_tail, len(JUICE_ORDER))
+        budget = min(rune_tail, len(order))
         cap_opt = getattr(world.options, "pool_builder_juice_cap", None)
         cap = int(cap_opt.value) if cap_opt is not None else 0
         if cap > 0:
@@ -124,12 +184,16 @@ class PoolBuilderFeature(Feature):
         n = self._juice_budget(world)
         if n <= 0:
             return []
+        order = self._juice_order(world)
         # best-first, deterministic; core adds these to `pool`, which trims the Rune tail 1:1.
-        return [world.create_item(name) for name in JUICE_ORDER[:n]]
+        return [world.create_item(name) for name in order[:n]]
 
     def slot_data(self, world):
-        # pure pool curation -> no client contract needed; expose the resolved knob for diagnostics.
+        # pure pool curation -> no client contract needed; expose the resolved knobs for diagnostics.
+        floor = self._floor(world)
         return {
             "pool_builder": bool(self._enabled(world)),
             "pool_builder_juice_added": self._juice_budget(world),
+            "pool_builder_intensity_floor": floor,
+            "pool_builder_juice_candidates": len(self._juice_order(world)),
         }
