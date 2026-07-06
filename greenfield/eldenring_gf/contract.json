@@ -1,0 +1,328 @@
+{
+  "shapes": {
+    "SCALAR_INT_MAP": {
+      "rust": "ScalarIntMap",
+      "client_parser": "i64_to_u32_map / i64_map / str_to_u32"
+    },
+    "LISTVAL_INT_MAP": {
+      "rust": "ListvalIntMap",
+      "client_parser": "str_to_u32vec"
+    },
+    "TRIPLE_LIST": {
+      "rust": "TripleList",
+      "client_parser": "parse_triples"
+    },
+    "INT_LIST": {
+      "rust": "IntList",
+      "client_parser": "arr_i32 / arr_u32"
+    },
+    "BOOL": {
+      "rust": "Bool",
+      "client_parser": "as_bool"
+    },
+    "BOOL_OR_INT": {
+      "rust": "BoolOrInt",
+      "client_parser": "parse_death_link / parse_dlc"
+    },
+    "STR": {
+      "rust": "Str",
+      "client_parser": "as_str"
+    },
+    "NESTED_GRANTS": {
+      "rust": "NestedGrants",
+      "client_parser": "progressive.rs custom"
+    },
+    "ANY": {
+      "rust": "Any",
+      "client_parser": "(bedrock; not greenfield-validated)"
+    }
+  },
+  "keys": [
+    {
+      "name": "apIdsToItemIds",
+      "shape": "SCALAR_INT_MAP",
+      "required": true,
+      "profiles": [
+        "both"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "core.rs:309 i64_map",
+      "doc": "AP item id (str) -> ER FullID granted on receipt."
+    },
+    {
+      "name": "locationFlags",
+      "shape": "SCALAR_INT_MAP",
+      "required": true,
+      "profiles": [
+        "both"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "core.rs:330 i64_to_u32_map",
+      "doc": "AP location id (str) -> its ER acquisition event flag; the flag-poll detection table."
+    },
+    {
+      "name": "regionOpenFlags",
+      "shape": "SCALAR_INT_MAP",
+      "required": true,
+      "profiles": [
+        "both"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "region.rs:120 str_to_u32",
+      "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received."
+    },
+    {
+      "name": "regionSphereTargets",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "(informational)",
+      "doc": "region -> sphere target [0..1] for completion scaling; not enforced by the client."
+    },
+    {
+      "name": "areaLockFlags",
+      "shape": "TRIPLE_LIST",
+      "required": true,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/area_locks.py",
+      "consumer": "region.rs:103 parse_triples",
+      "doc": "[lo,hi,open_flag] play_region ranges; locked (kicked) while open_flag is unset."
+    },
+    {
+      "name": "lockRevealFlags",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "(future) per-region map reveal",
+      "consumer": "region.rs:121 str_to_u32vec",
+      "doc": "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt."
+    },
+    {
+      "name": "regionGraces",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/grace_rando.py",
+      "consumer": "region.rs:122 str_to_u32vec",
+      "doc": "'<Region> Lock' -> grace warp flags lit on lock receipt (bundle=all, freebie=front door)."
+    },
+    {
+      "name": "graceItems",
+      "shape": "SCALAR_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/grace_rando.py",
+      "consumer": "region.rs:123 str_to_u32",
+      "doc": "scatter grace item name -> the single grace flag it lights when received."
+    },
+    {
+      "name": "startRegion",
+      "shape": "STR",
+      "required": true,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/start_grace.py",
+      "consumer": "core.rs:410 as_str",
+      "doc": "name of the always-kept start region (diagnostic + start anchor)."
+    },
+    {
+      "name": "startGraces",
+      "shape": "INT_LIST",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/start_grace.py",
+      "consumer": "startgrants.rs:58 arr_u32",
+      "doc": "grace flags lit at spawn so the first warp is possible (front-door of start region)."
+    },
+    {
+      "name": "startItems",
+      "shape": "INT_LIST",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/start_items.py",
+      "consumer": "startgrants.rs:57 arr_i32",
+      "doc": "FullIDs granted once at game start (Torch, Spectral Steed Whistle, ...)."
+    },
+    {
+      "name": "reveal_all_maps",
+      "shape": "BOOL",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/start_grace.py",
+      "consumer": "startgrants.rs as_bool",
+      "doc": "reveal the whole world map + underground view (client owns the RE'd flag set)."
+    },
+    {
+      "name": "goalLocations",
+      "shape": "INT_LIST",
+      "required": true,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/goal_locations.py",
+      "consumer": "goal.rs parse",
+      "doc": "AP location ids whose completion == victory; client sends Goal when all are done."
+    },
+    {
+      "name": "checkItemFlags",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/check_item_flags.py",
+      "consumer": "detour.rs CHECK_ITEM_FLAGS<u32,Vec<u32>>",
+      "doc": "vanilla FullID (str) -> the check flags it belongs to; suppresses the vanilla bag-add."
+    },
+    {
+      "name": "shopRowFlags",
+      "shape": "SCALAR_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/shops.py",
+      "consumer": "core.rs:359 i64_to_u32_map",
+      "doc": "ShopLineupParam row id -> eventFlag_forStock written for shop checks."
+    },
+    {
+      "name": "shopPreviewGoods",
+      "shape": "SCALAR_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/shops.py",
+      "consumer": "core.rs:353 i64_map",
+      "doc": "AP location id -> preview goods id shown in the shop slot."
+    },
+    {
+      "name": "dungeonSweepFlags",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/boss_sweeps (P3b client patch)",
+      "consumer": "region.rs:104 as_object",
+      "doc": "dungeon trigger flag (str) -> the member AP location ids auto-registered on clear."
+    },
+    {
+      "name": "progressiveGrants",
+      "shape": "NESTED_GRANTS",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/progressive.py",
+      "consumer": "progressive.rs",
+      "doc": "item name -> ordered [{goods, flags}] granted on each successive receipt."
+    },
+    {
+      "name": "death_link",
+      "shape": "BOOL_OR_INT",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/deathlink.py",
+      "consumer": "options::parse_death_link",
+      "doc": "shared deaths across the multiworld."
+    },
+    {
+      "name": "enable_dlc",
+      "shape": "BOOL_OR_INT",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "core (options echo)",
+      "consumer": "options::parse_dlc",
+      "doc": "DLC / Land of Shadow regions active; gates the DLC map-reveal flags."
+    },
+    {
+      "name": "world_logic",
+      "shape": "STR",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "(informational)",
+      "doc": "logic profile tag, e.g. 'region_lock'."
+    },
+    {
+      "name": "locationIdsToKeys",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "key_resolver.rs",
+      "doc": "matt slot key token per location; client resolves token1 -> flag (bedrock path)."
+    },
+    {
+      "name": "naturalKeyTriggers",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "key_resolver.rs / region.rs",
+      "doc": "bedrock natural key triggers."
+    },
+    {
+      "name": "lockGrantItems",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "region.rs",
+      "doc": "items granted on a region lock receipt (bedrock)."
+    },
+    {
+      "name": "dungeonSweeps",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "region.rs",
+      "doc": "bedrock dungeon sweep spec (greenfield uses dungeonSweepFlags)."
+    },
+    {
+      "name": "itemCounts",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "core.rs",
+      "doc": "per-item quantity map."
+    }
+  ]
+}

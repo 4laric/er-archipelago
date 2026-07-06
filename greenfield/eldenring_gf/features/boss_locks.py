@@ -13,6 +13,7 @@ needs a boss-reward-location join (ItemLotParam) and stays empty for now.
 """
 from Options import Choice
 from ..registry import Feature, register
+from .. import contract
 
 try:
     from ..boss_data import REGION_BOSSES
@@ -60,8 +61,8 @@ class BossLocks(Feature):
             # FLAG-KEYED sweeps (boss-defeat flag -> member ap-ids), scoped to kept regions. Derived
             # from DarkScript EMEVD (boss_sweeps.py). A small client handler that watches the
             # boss-defeat flag and grants the members activates these in-game (P3b-client).
-            sd["dungeonSweepFlags"] = {str(fl): DUNGEON_SWEEPS[fl]
+            sd[contract.DUNGEON_SWEEP_FLAGS] = {str(fl): DUNGEON_SWEEPS[fl]
                                        for fl in DUNGEON_SWEEPS if SWEEP_REGION.get(fl) in kept}
-            sd["dungeonSweeps"] = {}     # location-keyed variant (needs boss-reward-location join)
+            sd[contract.DUNGEON_SWEEPS] = {}     # location-keyed variant (needs boss-reward-location join)
             sd["sweepLockGates"] = {}
         return sd

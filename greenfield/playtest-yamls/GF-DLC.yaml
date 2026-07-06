@@ -1,0 +1,16 @@
+# DLC-only test (dlc_only true) -- ONLY the 6 DLC regions in play; base sealed. Goal
+# collapses to DLC locks; Land of Shadow carries all 6 Great Runes. EXPERIMENTAL (DLC
+# sub-areas were the low-confidence bucket). Use enable_dlc: false to seal DLC instead.
+name: GFDLC
+description: Greenfield DLC-only
+game: "Elden Ring (Greenfield)"
+"Elden Ring (Greenfield)":
+  num_regions: 3
+  num_regions_order: spine
+  item_shuffle: true
+  enable_dlc: true
+  dlc_only: true
+  dungeon_sweep: all
+  grace_rando: false
+  start_with_torch: true
+  accessibility: minimal

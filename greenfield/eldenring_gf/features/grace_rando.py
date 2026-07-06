@@ -13,6 +13,7 @@ Scatter items are filler (convenience only) -- region Locks stay the sole progre
 from BaseClasses import ItemClassification
 from Options import DefaultOnToggle
 from ..registry import Feature, register
+from .. import contract
 
 try:
     from ..region_graces import REGION_GRACE_POINTS
@@ -60,4 +61,4 @@ class GraceRandoFeature(Feature):
                     grace_items[_scatter_name(r, k)] = fs[k]
             else:
                 region_graces[f"{r} Lock"] = list(fs)
-        return {"regionGraces": region_graces, "graceItems": grace_items, "startGraces": []}
+        return {contract.REGION_GRACES: region_graces, contract.GRACE_ITEMS: grace_items}

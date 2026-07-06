@@ -11,6 +11,13 @@ AR=os.path.join(REPO,"elden_ring_artifacts")
 OUT=os.path.join(HERE,"eldenring_gf","data.py")
 HUB="Roundtable Hold"
 SKIP={"global","global_filler","shop_reference"}
+# Map-fragment pickups are granted via the RE'd map-reveal FLAG path (the client's reveal_all_maps
+# sets these exact flags), so they must NOT also be AP checks -- otherwise revealing the map trips
+# all of them at once (start-of-run map-piece flood). Exclude any location whose acquisition flag is
+# a map-reveal flag. Mirrors startgrants.rs MAP_REVEAL_FLAGS_BASE + MAP_REVEAL_FLAGS_DLC.
+MAP_REVEAL_FLAGS=frozenset({62010,62011,62012,62020,62021,62022,62030,62031,62032,62040,62041,
+                            62050,62051,62052,62060,62061,62062,62063,62064,
+                            62080,62081,62082,62083,62084})
 BASE_AP=7770000  # greenfield location id space
 
 # ---- overworld tile -> play_region via grace anchors + nearest-neighbor ----
@@ -64,7 +71,8 @@ def region_of(r):
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
-rows=[r for r in csv.DictReader(open(os.path.join(HERE,"region_map.csv"))) if r['method'] not in SKIP]
+rows=[r for r in csv.DictReader(open(os.path.join(HERE,"region_map.csv")))
+      if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS]
 buckets=OrderedDict()
 apid=BASE_AP; names=set()
 for r in rows:
@@ -75,7 +83,7 @@ for r in rows:
     buckets.setdefault(reg,[]).append((nm,apid,flag)); apid+=1
 
 spokes=sorted(k for k in buckets if k!=HUB)
-with open(OUT,"w") as f:
+with open(OUT,"w",encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED Greenfield ER data (gen_data.py). Data-derived, no external naming."""\n')
     f.write(f"HUB = {HUB!r}\n")
     f.write("REGIONS = [\n")
@@ -103,13 +111,22 @@ for _r in rows:
     if _pf and _mj: _pref2maj[_pf][_mj] += 1
 _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
 _open_cand = defaultdict(list)
+_open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
     _mj = None
     _m = re.match(r"m60_(\d\d)_(\d\d)", _tile)
     if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
-    if _mj and _mj != HUB: _open_cand[_mj].append(int(_fl))
-REGION_OPEN_FLAGS = {r: min(_open_cand[r]) for r in spokes if _open_cand.get(r)}
+    if _mj and _mj != HUB:
+        _open_cand[_mj].append(int(_fl))
+        if _tile[:3] in ("m60", "m61"): _open_cand_ow[_mj].append(int(_fl))
+# Front-door grace = an ACCESSIBLE OVERWORLD grace (m60/m61), NOT the numerically-lowest flag, which
+# is often a catacomb/cave INTERIOR grace the player can never see (e.g. Limgrave min was 73000 =
+# m30_00_00 catacomb -> "no graces in-game"). Serves as the region-open flag AND the start/front-door
+# grace. Fall back to any grace only for a pure-dungeon bucket with no overworld grace at all.
+def _front_door(r):
+    return min(_open_cand_ow[r]) if _open_cand_ow.get(r) else min(_open_cand[r])
+REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
 # DLC sub-areas whose locations are all boss-arena/PENDING never resolve to a grace above (their
 # m61 tiles collapse into Land of Shadow's coarse bucket). Hand-verified front-door warp graces
 # from grace_flags.tsv (grace_name-labeled) give them their own open flag:
@@ -121,7 +138,7 @@ for _dr, _df in _DLC_OPEN_FALLBACK.items():
         REGION_OPEN_FLAGS[_dr] = _df
 REGION_OPEN_PENDING = [r for r in spokes if r not in REGION_OPEN_FLAGS]
 OUT_OPEN = os.path.join(HERE, "eldenring_gf", "region_open_flags.py")
-with open(OUT_OPEN, "w") as _f:
+with open(OUT_OPEN, "w", encoding="utf-8") as _f:
     _f.write('"""AUTO-GENERATED (gen_data.py). Per-region warp-grace open flags for the Phase 0 boot\n')
     _f.write('contract; derived from grace anchors (matt-free). PENDING = DLC sub-area to resolve in\n')
     _f.write('the region audit (SPEC-PARITY.md 14.4); client treats an absent open flag as unlocked."""\n')
@@ -144,7 +161,7 @@ for r in rows:
         reg = region_of(r); fl = int(r["flag"])
         _region_bosses[reg].append((_flag2apid[fl], fl, r["item_name"] or "boss"))
 OUT_BOSS = os.path.join(HERE, "eldenring_gf", "boss_data.py")
-with open(OUT_BOSS, "w", newline="\n") as f:
+with open(OUT_BOSS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Region bosses (method=boss_arena) -> greenfield ap-ids,\n')
     f.write('joined by event flag. Matt-free. Dungeon-sweep triggers need EMEVD enrichment (SPEC P3)."""\n')
     f.write("REGION_BOSSES = {\n")
@@ -160,9 +177,12 @@ print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses 
 # ---- Phase 6 grace rando: ALL warp graces per major region (matt-free; reuses _open_cand from the
 # region-open-flags block above -- same grace_flags.tsv source). Bundle mode lights these on lock
 # receipt; freebie+scatter is a v2 enhancement.
-REGION_GRACE_POINTS = {r: sorted(_open_cand[r]) for r in spokes if _open_cand.get(r)}
+def _graces_frontdoor_first(r):
+    _fs = sorted(_open_cand[r]); _fd = _front_door(r)
+    return [_fd] + [f for f in _fs if f != _fd]
+REGION_GRACE_POINTS = {r: _graces_frontdoor_first(r) for r in spokes if _open_cand.get(r)}
 OUT_GRACES = os.path.join(HERE, "eldenring_gf", "region_graces.py")
-with open(OUT_GRACES, "w", newline="\n") as f:
+with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). All warp graces per major region (grace_flags.tsv). Matt-free."""\n')
     f.write("REGION_GRACE_POINTS = {\n")
     for r in spokes:
@@ -206,7 +226,7 @@ for _mp, _flags in _map_boss.items():
         DUNGEON_SWEEPS[_fl] = sorted(_members)
         SWEEP_REGION[_fl] = _mreg.get(_mp, HUB)
 OUT_SWEEP = os.path.join(HERE, "eldenring_gf", "boss_sweeps.py")
-with open(OUT_SWEEP, "w", newline="\n") as f:
+with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Dungeon sweeps: boss-defeat flag (DarkScript EMEVD) ->\n')
     f.write('member check ap-ids + region. Matt-free. Needs a client flag-watch handler to fire in-game."""\n')
     f.write("DUNGEON_SWEEPS = {\n")
@@ -230,6 +250,7 @@ _SLP_DIR = os.path.join(AR, "vanilla_er", "vanilla_er")
 _SLP = os.path.join(_SLP_DIR, "ShopLineupParam.csv")
 _REC = os.path.join(_SLP_DIR, "ShopLineupParam_Recipe.csv")
 _flag2goods = defaultdict(list)   # stock_flag -> [(equipId, equipType)]
+_flag2rows = defaultdict(list)    # stock_flag -> [ShopLineupParam row ID] (client shopRowFlags key)
 _CAT_NIB = {0:0x00000000,1:0x10000000,2:0x20000000,3:0x40000000,4:0x80000000}
 _slp_present = os.path.isfile(_SLP)
 if _slp_present:
@@ -242,11 +263,16 @@ if _slp_present:
             if _fl <= 0:
                 continue
             try:
+                _flag2rows[_fl].append(int(_sr["ID"]))
+            except (KeyError, ValueError):
+                pass
+            try:
                 _flag2goods[_fl].append((int(_sr["equipId"]), int(_sr.get("equipType", 3))))
             except (KeyError, ValueError):
                 pass
 _SHOP_METHODS = {"shop_merchant", "shop_multi"}
 SHOP_ROW_FLAGS = {}
+SHOP_ROW_IDS = {}
 SHOP_LOC_REGION = {}
 SHOP_PREVIEW_GOODS = {}
 for _i, _r in enumerate(rows):
@@ -258,19 +284,25 @@ for _i, _r in enumerate(rows):
         continue
     _aid = BASE_AP + _i
     SHOP_ROW_FLAGS[str(_aid)] = _fl
+    # ShopLineupParam row ids whose eventFlag_forStock == this flag (client writes this flag
+    # onto those rows). Usually one; a flag shared across rows lists them all (all get asserted).
+    SHOP_ROW_IDS[str(_aid)] = sorted(set(_flag2rows.get(_fl, [])))
     SHOP_LOC_REGION[_aid] = region_of(_r)
     _goods = _flag2goods.get(_fl)
     if _goods and len({_e for _e, _t in _goods}) == 1:
         _eid, _et = _goods[0]
         SHOP_PREVIEW_GOODS[str(_aid)] = _eid | _CAT_NIB.get(_et, 0x40000000)
 OUT_SHOP = os.path.join(HERE, "eldenring_gf", "shop_data.py")
-with open(OUT_SHOP, "w", newline="\n") as f:
+with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Shop-purchase checks: greenfield ap-id -> ShopLineupParam\n')
     f.write('eventFlag_forStock (region_map shop rows, flag_source=="shop"). Matt-free; preview goods are\n')
     f.write('vanilla equipIds. Empty if ShopLineupParam is absent (SPEC-PARITY.md 14.3)."""\n')
     f.write("SHOP_ROW_FLAGS = {\n")
     for _aid in sorted(SHOP_ROW_FLAGS, key=int):
         f.write(f"    {_aid!r}: {SHOP_ROW_FLAGS[_aid]},\n")
+    f.write("}\n\nSHOP_ROW_IDS = {\n")
+    for _aid in sorted(SHOP_ROW_IDS, key=int):
+        f.write(f"    {_aid!r}: {SHOP_ROW_IDS[_aid]!r},\n")
     f.write("}\n\nSHOP_LOC_REGION = {\n")
     for _aid in sorted(SHOP_LOC_REGION):
         f.write(f"    {_aid}: {SHOP_LOC_REGION[_aid]!r},\n")
@@ -376,16 +408,16 @@ for _i, _r in enumerate(rows):
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
     LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
 OUT_ITEMS = os.path.join(HERE, "eldenring_gf", "item_ids.py")
-with open(OUT_ITEMS, "w", newline="\n") as f:
+with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Real-item-pool: vanilla item_name -> ER FullID, from the\n')
     f.write('FMG name exports (base + DLC, matt-free). ITEM_CATALOG = distinct {name: FullID}; LOCATION_ITEM =\n')
     f.write('{ap_id: base name}. Unresolved locations fall back to Rune filler. core ItemShuffle consumes this."""\n')
     f.write("ITEM_CATALOG = {\n")
     for _nm in sorted(ITEM_CATALOG):
-        f.write(f"    {_nm!r}: {ITEM_CATALOG[_nm]},\n")
+        f.write(f"    {ascii(_nm)}: {ITEM_CATALOG[_nm]},\n")
     f.write("}\n\nLOCATION_ITEM = {\n")
     for _aid in sorted(LOCATION_ITEM):
-        f.write(f"    {_aid}: {LOCATION_ITEM[_aid]!r},\n")
+        f.write(f"    {_aid}: {ascii(LOCATION_ITEM[_aid])},\n")
     f.write("}\n")
 _cov = 100.0 * len(LOCATION_ITEM) / max(len(rows), 1)
 print(f"item_ids: {len(ITEM_CATALOG)} distinct items, {len(LOCATION_ITEM)} locations resolved ({_cov:.1f}%)")
@@ -416,7 +448,7 @@ for _nm, _full in ITEM_CATALOG.items():
     if _r is not None:
         ITEM_TIERS[_nm] = _r
 OUT_TIERS = os.path.join(HERE, "eldenring_gf", "item_tiers.py")
-with open(OUT_TIERS, "w", newline="\n") as f:
+with open(OUT_TIERS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Phase 5 pool-builder: vanilla item_name -> quality tier\n')
     f.write('from the ER param `rarity` column (0=trivial,1=common,2=rare,3=legendary), joined by\n')
     f.write('FullID to EquipParamWeapon/Protector/Accessory. Matt-free (param-derived, no curation).\n')
