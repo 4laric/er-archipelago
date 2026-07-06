@@ -8,6 +8,10 @@
       "rust": "ListvalIntMap",
       "client_parser": "str_to_u32vec"
     },
+    "STR_MAP": {
+      "rust": "StrMap",
+      "client_parser": "{key: str} object"
+    },
     "TRIPLE_LIST": {
       "rust": "TripleList",
       "client_parser": "parse_triples"
@@ -22,7 +26,19 @@
     },
     "BOOL_OR_INT": {
       "rust": "BoolOrInt",
-      "client_parser": "parse_death_link / parse_dlc"
+      "client_parser": "parse_death_link / parse_dlc (0/1)"
+    },
+    "INT_OR_BOOL": {
+      "rust": "IntOrBool",
+      "client_parser": "parse_bool_option (nonzero = on)"
+    },
+    "INT": {
+      "rust": "Int",
+      "client_parser": "as_i64"
+    },
+    "NUMBER": {
+      "rust": "Number",
+      "client_parser": "as_f64"
     },
     "STR": {
       "rust": "Str",
@@ -32,9 +48,13 @@
       "rust": "NestedGrants",
       "client_parser": "progressive.rs custom"
     },
+    "OPTIONS_DICT": {
+      "rust": "OptionsDict",
+      "client_parser": "options::parse_*_option sub-dict"
+    },
     "ANY": {
       "rust": "Any",
-      "client_parser": "(bedrock; not greenfield-validated)"
+      "client_parser": "(diagnostic / foreign profile; unvalidated)"
     }
   },
   "keys": [
@@ -69,18 +89,141 @@
       ],
       "producer": "core._base_slot_data",
       "consumer": "region.rs:120 str_to_u32",
-      "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received."
+      "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names."
+    },
+    {
+      "name": "options",
+      "shape": "OPTIONS_DICT",
+      "required": true,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._options_echo",
+      "consumer": "er-logic/options.rs parse_bool_option et al.",
+      "doc": "runtime option echo sub-dict; every client-read option lives here (features' top-level copies are legacy duplicates the client ignores).",
+      "subkeys": [
+        {
+          "name": "death_link",
+          "shape": "BOOL_OR_INT",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_death_link",
+          "doc": "shared deaths across the multiworld (world.options.death_link)."
+        },
+        {
+          "name": "enable_dlc",
+          "shape": "BOOL_OR_INT",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_dlc",
+          "doc": "RESOLVED DLC bool (dlc_only implies on); gates DLC map-reveal flags."
+        },
+        {
+          "name": "no_weapon_requirements",
+          "shape": "BOOL_OR_INT",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "no_weapon_reqs.rs set_enabled",
+          "doc": "zero weapon/shield/catalyst + spell stat requirements."
+        },
+        {
+          "name": "completion_scaling",
+          "shape": "INT_OR_BOOL",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/scaling.rs:146 parse_bool_option",
+          "doc": "completion scaling on/off + curve id (nonzero = on; 4 = smoothstep)."
+        },
+        {
+          "name": "completion_scaling_floor",
+          "shape": "NUMBER",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/scaling.rs floor (client reads f64)",
+          "doc": "minimum scaling tier as percent of max, applied from the start."
+        },
+        {
+          "name": "global_scadutree_blessing",
+          "shape": "INT",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "scaling.rs scadutree scope",
+          "doc": "DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled)."
+        },
+        {
+          "name": "auto_upgrade",
+          "shape": "INT",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (constant 0)",
+          "consumer": "upgrades client path",
+          "doc": "auto weapon-upgrade ladder tier; greenfield ships constant 0 (feature off)."
+        },
+        {
+          "name": "flatten_regular_upgrades",
+          "shape": "INT",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (constant 0)",
+          "consumer": "upgrades client path",
+          "doc": "flatten regular upgrade ladder; greenfield ships constant 0 (feature off)."
+        }
+      ]
     },
     {
       "name": "regionSphereTargets",
-      "shape": "ANY",
+      "shape": "SCALAR_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/scaling.py (I2; core emits {} transitional)",
+      "consumer": "er-logic/scaling.rs:148 i32_i32_map",
+      "doc": "{str(i32 region id): i32 target}; flat per-region scaling targets. Keys must parse as i32 (region NAMES are silently dropped by the client -- the 2026-07 dark-scaling bug); ranges (regionSphereTargetRanges) are the live wire."
+    },
+    {
+      "name": "regionSphereTargetRanges",
+      "shape": "TRIPLE_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/scaling.py (I2)",
+      "consumer": "er-logic/scaling.rs:150-165 range parse",
+      "doc": "[[lo,hi,target], ...] play_region/100 sub-id ranges -> scaling target; the live completion-scaling wire (SCALING_WIRE)."
+    },
+    {
+      "name": "completionScalingBasis",
+      "shape": "INT",
       "required": false,
       "profiles": [
         "greenfield"
       ],
       "producer": "core._base_slot_data",
-      "consumer": "(informational)",
-      "doc": "region -> sphere target [0..1] for completion scaling; not enforced by the client."
+      "consumer": "er-logic/scaling.rs basis parse",
+      "doc": "scaling basis Choice VALUE (int 1 = sphere); client also tolerates the legacy string form ('sphere')."
     },
     {
       "name": "areaLockFlags",
@@ -100,9 +243,9 @@
       "profiles": [
         "both"
       ],
-      "producer": "(future) per-region map reveal",
+      "producer": "(unemitted today; client path LIVE)",
       "consumer": "region.rs:121 str_to_u32vec",
-      "doc": "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt."
+      "doc": "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt. The client consumer is LIVE (region.rs:121); greenfield does not emit it yet."
     },
     {
       "name": "regionGraces",
@@ -215,6 +358,17 @@
       "doc": "AP location id -> preview goods id shown in the shop slot."
     },
     {
+      "name": "stoneswordVendorRow",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/minibaker.py",
+      "consumer": "minibaker.rs configure/run",
+      "doc": "MINI-BAKER: reserved ShopLineupParam row id the client repurposes into an infinite, always-in-stock Stonesword Key vendor (equipId 8000, sellQuantity -1) so imp-statue checks are never missable. 0/absent = off (row left vanilla). Reserved row is excluded from shop checks in gen_data. See memory er-minibaker-shoplineup."
+    },
+    {
       "name": "dungeonSweepFlags",
       "shape": "LISTVAL_INT_MAP",
       "required": false,
@@ -224,6 +378,28 @@
       "producer": "features/boss_sweeps (P3b client patch)",
       "consumer": "region.rs:104 as_object",
       "doc": "dungeon trigger flag (str) -> the member AP location ids auto-registered on clear."
+    },
+    {
+      "name": "dungeonSweeps",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/boss_locks.py ({} today; location-keyed variant)",
+      "consumer": "region.rs",
+      "doc": "location-keyed dungeon sweep spec (needs boss-reward-location join); greenfield emits {} until wired -- flag-keyed dungeonSweepFlags is the live path."
+    },
+    {
+      "name": "sweepLockGates",
+      "shape": "STR_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/boss_locks.py ({} today)",
+      "consumer": "region.rs sweep gates",
+      "doc": "{str(i64 sweep trigger flag): '<Region> Lock'} -- gates a dungeon sweep behind holding the named lock; live client consumer."
     },
     {
       "name": "progressiveGrants",
@@ -243,9 +419,20 @@
       "profiles": [
         "both"
       ],
-      "producer": "features/deathlink.py",
-      "consumer": "options::parse_death_link",
-      "doc": "shared deaths across the multiworld."
+      "producer": "features/deathlink.py (legacy duplicate of options.death_link)",
+      "consumer": "er-logic/options.rs parse_death_link (reads options.death_link)",
+      "doc": "legacy top-level copy; the client reads options.death_link -- kept for back-compat."
+    },
+    {
+      "name": "no_weapon_requirements",
+      "shape": "BOOL_OR_INT",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/weapon_reqs.py (legacy duplicate of options.no_weapon_requirements)",
+      "consumer": "core.rs:304 no_weapon_reqs::set_enabled (reads options path)",
+      "doc": "legacy top-level copy; the client reads options.no_weapon_requirements."
     },
     {
       "name": "enable_dlc",
@@ -254,9 +441,53 @@
       "profiles": [
         "both"
       ],
-      "producer": "core (options echo)",
-      "consumer": "options::parse_dlc",
-      "doc": "DLC / Land of Shadow regions active; gates the DLC map-reveal flags."
+      "producer": "core._options_echo (options.enable_dlc; top-level unemitted)",
+      "consumer": "er-logic/options.rs parse_dlc (reads options.enable_dlc)",
+      "doc": "DLC / Land of Shadow regions active; the LIVE copy is options.enable_dlc."
+    },
+    {
+      "name": "completion_scaling",
+      "shape": "INT_OR_BOOL",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/scaling.py (legacy duplicate of options.completion_scaling)",
+      "consumer": "er-logic/scaling.rs:146 (reads options.completion_scaling)",
+      "doc": "legacy top-level copy of the scaling toggle/curve id (4 = smoothstep)."
+    },
+    {
+      "name": "completion_scaling_floor",
+      "shape": "NUMBER",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/scaling.py (legacy duplicate of options.completion_scaling_floor)",
+      "consumer": "(client reads options.completion_scaling_floor)",
+      "doc": "legacy top-level copy of the scaling floor percent."
+    },
+    {
+      "name": "global_scadutree_blessing",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/scaling.py (legacy duplicate of options.global_scadutree_blessing)",
+      "consumer": "(client reads options.global_scadutree_blessing)",
+      "doc": "legacy top-level copy of the Scadutree blessing scope."
+    },
+    {
+      "name": "versions",
+      "shape": "STR",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "(optional; unemitted today)",
+      "consumer": "core.rs version gate",
+      "doc": "apworld semver for the client version gate; emission optional."
     },
     {
       "name": "world_logic",
@@ -266,13 +497,123 @@
         "greenfield"
       ],
       "producer": "core._base_slot_data",
-      "consumer": "(informational)",
+      "consumer": "(diagnostic -- no client read)",
       "doc": "logic profile tag, e.g. 'region_lock'."
+    },
+    {
+      "name": "region_count",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "len(kept) -- how many regions are in play this seed."
+    },
+    {
+      "name": "ending_condition",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "resolved goal tag: 'region_locks' | 'great_runes'."
+    },
+    {
+      "name": "great_runes_required",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "EFFECTIVE (clamped) Great Rune requirement for the great_runes ending."
+    },
+    {
+      "name": "great_rune_items",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "required Great Rune item names this seed."
+    },
+    {
+      "name": "bossLocations",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/boss_locks.py",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "{region: [boss AP location ids]} for kept regions."
+    },
+    {
+      "name": "filler_foreign_localized",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/filler_foreign.py",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "count of distinct filler names forced local this seed."
+    },
+    {
+      "name": "pool_builder",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/pool_builder.py",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "whether pool curation was enabled this seed."
+    },
+    {
+      "name": "pool_builder_juice_added",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/pool_builder.py",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "resolved juice budget added by the pool builder."
+    },
+    {
+      "name": "pool_builder_intensity_floor",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/pool_builder.py",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "resolved juice rarity floor (1..3)."
+    },
+    {
+      "name": "pool_builder_juice_candidates",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/pool_builder.py",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "size of the juice candidate set at this intensity."
     },
     {
       "name": "locationIdsToKeys",
       "shape": "ANY",
-      "required": false,
+      "required": true,
       "profiles": [
         "bedrock"
       ],
@@ -281,9 +622,20 @@
       "doc": "matt slot key token per location; client resolves token1 -> flag (bedrock path)."
     },
     {
+      "name": "itemCounts",
+      "shape": "ANY",
+      "required": true,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "core.rs",
+      "doc": "per-item quantity map."
+    },
+    {
       "name": "naturalKeyTriggers",
       "shape": "ANY",
-      "required": false,
+      "required": true,
       "profiles": [
         "bedrock"
       ],
@@ -294,7 +646,7 @@
     {
       "name": "lockGrantItems",
       "shape": "ANY",
-      "required": false,
+      "required": true,
       "profiles": [
         "bedrock"
       ],
@@ -303,26 +655,70 @@
       "doc": "items granted on a region lock receipt (bedrock)."
     },
     {
-      "name": "dungeonSweeps",
+      "name": "randomStartDoneFlag",
       "shape": "ANY",
-      "required": false,
+      "required": true,
       "profiles": [
         "bedrock"
       ],
       "producer": "(bedrock apworld)",
-      "consumer": "region.rs",
-      "doc": "bedrock dungeon sweep spec (greenfield uses dungeonSweepFlags)."
+      "consumer": "random start client path",
+      "doc": "bedrock random-start: flag set when the start warp completed."
     },
     {
-      "name": "itemCounts",
+      "name": "randomStartWarpFlag",
       "shape": "ANY",
-      "required": false,
+      "required": true,
       "profiles": [
         "bedrock"
       ],
       "producer": "(bedrock apworld)",
-      "consumer": "core.rs",
-      "doc": "per-item quantity map."
+      "consumer": "random start client path",
+      "doc": "bedrock random-start: flag that triggers the start warp."
+    },
+    {
+      "name": "randomStartAreaId",
+      "shape": "ANY",
+      "required": true,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "random start client path",
+      "doc": "bedrock random-start: destination area id."
+    },
+    {
+      "name": "randomStartGraceId",
+      "shape": "ANY",
+      "required": true,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "random start client path",
+      "doc": "bedrock random-start: destination grace id."
+    },
+    {
+      "name": "fogWalls",
+      "shape": "ANY",
+      "required": true,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "fog wall client path",
+      "doc": "bedrock fog-wall spec."
+    },
+    {
+      "name": "fogWallDebug",
+      "shape": "ANY",
+      "required": true,
+      "profiles": [
+        "bedrock"
+      ],
+      "producer": "(bedrock apworld)",
+      "consumer": "fog wall client path",
+      "doc": "bedrock fog-wall debug toggle."
     }
   ]
 }

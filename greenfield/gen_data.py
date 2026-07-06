@@ -63,7 +63,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Land of Shadow','Eternal Cities & Undergroun
  "Midra's Manse (DLC)":'Abyssal Woods','Church of the Bud (DLC)':'Scadu Altus','Castle Ensis (DLC)':'Belurat',
  'm22':'Eternal Cities','m28':'Land of Shadow'}
 
-def region_of(r):
+def _region_of_raw(r):
     reg=r['region']; meth=r['method']
     if reg.startswith('Overworld m60'):
         m=re.match(r'.*m60_(\d\d)_(\d\d)',reg)
@@ -87,8 +87,197 @@ def _loc_tags(r):
     if shop: t.append('Shop')
     return t
 
-rows=[r for r in csv.DictReader(open(os.path.join(HERE,"region_map.csv")))
-      if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS]
+# MINI-BAKER reserved shop row: the client repurposes ShopLineupParam row 101801 (Twin Maiden Husks'
+# Blue Cipher Ring slot, eventFlag_forStock 60290) into an infinite Stonesword Key vendor at runtime
+# (see features/minibaker.py + minibaker.rs). Exclude its flag so it is NOT also an AP shop check --
+# otherwise the client's repurpose would clobber a tracked check. Costs one minor vanilla slot.
+MINIBAKER_VENDOR_FLAGS=frozenset({60290})
+_ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
+rows=[r for r in _ALLROWS
+      if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
+      and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS]
+
+# ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
+# region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
+# SCANNED, not where the item's common-event actually FIRES. num_regions gates on the region, so a
+# mis-pinned check becomes a false late-region gate (playtester killed Miranda in Weeping Peninsula
+# and it registered as "Liurnia :: Viridian Amber Medallion"). We correct in code (region_map stays
+# the raw input): scan every MAP emevd (m<map>.emevd.dcx.js, NOT common/common_func -- those are the
+# common-event DEFINITIONS) for each flag on a WORD boundary; classify UNIQUE/AMBIGUOUS/NONE.
+#   UNIQUE + m60 overworld tile     -> RE-PIN to that tile's region (map-scan is ground truth).
+#   Overworld-m60 region column on a DIRECT grace-anchor tile -> trustworthy, keep.
+#   Overworld-m60 region column on a nearest-neighbor (non-anchor) tile that is NOT map-verifiable
+#     -> UNRELIABLE (the 520300 class) -> QUARANTINE to HUB (reachable-from-start, never a false gate).
+#   currently-SKIPped `global` rows  -> RECOVER as checks (unique-m60 real region, else HUB).
+#   name-column emevd (author-labeled region like "Stormveil Castle") -> keep (human region signal;
+#     the flag lives only in common so map-scan can't confirm it, but the label is trustworthy).
+# Item-lot/treasure + common-event flags live ONLY in common.emevd (parameterized $InitializeEvent),
+# so they never appear in a MAP file -> class NONE -> not re-pinnable; those are handled by the
+# anchor-vs-nearest-neighbor + quarantine rules above. Degrades to raw region_of if event/ is absent.
+_EVDIR0 = os.path.join(AR, "event")
+_FLAGS_OF_INTEREST = set()
+for _r in _ALLROWS:
+    if _r['method'] in ('emevd', 'global'):
+        try: _FLAGS_OF_INTEREST.add(int(_r['flag']))
+        except (KeyError, ValueError): pass
+_FLAG2MAPS = defaultdict(set)   # flag(int) -> set of map ids (e.g. 'm60_33_42_00','m10_00_00_00')
+if os.path.isdir(_EVDIR0) and _FLAGS_OF_INTEREST:
+    for _fn in os.listdir(_EVDIR0):
+        _mm = re.match(r"(m\d\d.*)\.emevd\.dcx\.js$", _fn)
+        if not _mm or _fn.startswith("common"):
+            continue
+        _mid = _mm.group(1)
+        _txt = open(os.path.join(_EVDIR0, _fn), encoding="utf-8", errors="replace").read()
+        _ints = set(int(_x) for _x in re.findall(r"\d+", _txt))   # maximal digit runs = word boundary
+        for _fl in (_ints & _FLAGS_OF_INTEREST):
+            _FLAG2MAPS[_fl].add(_mid)
+def _unique_m60(_fl):
+    _ms = _FLAG2MAPS.get(_fl)
+    if _ms and len(_ms) == 1:
+        _only = next(iter(_ms))
+        if _only.startswith("m60"):
+            return _only
+    return None
+def _m60_tile_region(_mid):
+    _m = re.match(r"m60_(\d\d)_(\d\d)", _mid)
+    if not _m: return None
+    return PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
+_REPIN_N = [0]; _QUAR_N = [0]; _RECOVER_N = [0]
+
+# ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
+# The coarse REGION_MAP buckets every minor dungeon into one region ("Caves"->Limgrave,
+# "Tunnels"->Caelid, catacombs->Limgrave, m34 Divine Towers->"DLC Dungeon"), which is wrong for any
+# dungeon not physically in that region (e.g. Morne Tunnel m32_00 is Weeping Peninsula, not Caelid;
+# the m34 Great-Rune Divine Towers are base game, not DLC). This per-map-id table wins over the coarse
+# bucket AND the emevd/global audit. Keys are full map ids; values are greenfield region names.
+DUNGEON_REGION_OVERRIDE = {
+    "m30_00_00_00": "Weeping Peninsula",
+    "m30_03_00_00": "Liurnia of the Lakes",
+    "m30_05_00_00": "Liurnia of the Lakes",
+    "m30_07_00_00": "Altus Plateau",
+    "m30_09_00_00": "Mt. Gelmir",
+    "m30_10_00_00": "Altus Plateau",
+    "m30_13_00_00": "Altus Plateau",
+    "m30_17_00_00": "Mohgwyn Palace",
+    "m30_19_00_00": "Limgrave",
+    "m31_02_00_00": "Weeping Peninsula",
+    "m31_03_00_00": "Limgrave",
+    "m31_11_00_00": "Caelid",
+    "m31_15_00_00": "Limgrave",
+    "m31_19_00_00": "Altus Plateau",
+    "m31_20_00_00": "Caelid",
+    "m31_22_00_00": "Mountaintops of the Giants",
+    "m32_00_00_00": "Weeping Peninsula",
+    "m32_05_00_00": "Altus Plateau",
+    "m32_07_00_00": "Caelid",
+    "m34_11_00_00": "Limgrave",
+    "m34_14_00_00": "Leyndell",
+    "m39_20_00_00": "Mt. Gelmir",
+}
+
+# ---- Curated GLOBAL recovery (matt-free): common-event drops are excluded by default (they are not
+# region-locatable and mostly generic). Only the flags listed here (physick tears etc., hand-assigned
+# to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
+# (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
+GLOBAL_RECOVER = {
+    # Physick crystal / cracked / hidden / hard tears (Alaric hand-assigned to drop region, 2026-07-06).
+    65000: "Altus Plateau",            # Crimsonspill Crystal Tear
+    65010: "Limgrave",                 # Greenspill Crystal Tear
+    65020: "Limgrave",                 # Crimson Crystal Tear (2 copies: Limgrave + Altus -> earlier)
+    65050: "Liurnia of the Lakes",     # Cerulean Crystal Tear (2: Liurnia + Mountaintops avatar -> earlier)
+    65070: "Mountaintops of the Giants",  # Crimson Bubbletear (Mountaintops Erdtree Avatar)
+    65080: "Weeping Peninsula",        # Opaline Bubbletear (Weeping Erdtree Avatar)
+    65110: "Caelid",                   # Opaline Hardtear (Caelid Erdtree Avatar)
+    65130: "Consecrated Snowfield",    # Thorny Cracked Tear (Snowfield Erdtree Avatar)
+    65140: "Limgrave",                 # Spiked Cracked Tear
+    65160: "Liurnia of the Lakes",     # Ruptured Crystal Tear (Liurnia Erdtree Avatar)
+    65170: "Consecrated Snowfield",    # Ruptured Crystal Tear (Snowfield Erdtree Avatar)
+    65210: "Limgrave",                 # Strength-knot Crystal Tear
+    65220: "Liurnia of the Lakes",     # Dexterity-knot Crystal Tear
+    65230: "Liurnia of the Lakes",     # Intelligence-knot Crystal Tear (Carian Manor)
+    65250: "Mt. Gelmir",               # Cerulean Hidden Tear (Gelmir Ulcerated Tree Spirit)
+    65260: "Caelid",                   # Stonebarb Cracked Tear (Caelid Erdtree Avatar)
+    65280: "Caelid",                   # Flame-Shrouding Cracked Tear (Caelid Erdtree Avatar)
+    65300: "Liurnia of the Lakes",     # Lightning-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
+    65310: "Liurnia of the Lakes",     # Holy-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
+    # DLC furnace-golem tears.
+    65400: "Land of Shadow",           # Viridian Hidden Tear (Gravesite Plains)
+    65410: "Scadu Altus",              # Crimsonburst Dried Tear
+    65420: "Scadu Altus",              # Crimson-Sapping Cracked Tear (Ancient Ruins of Rauh golem)
+    65430: "Scadu Altus",              # Cerulean-Sapping Cracked Tear
+    65440: "Scadu Altus",              # Oil-Soaked Tear
+    65450: "Scadu Altus",              # Bloodsucking Cracked Tear
+    65470: "Land of Shadow",           # Deflecting Hardtear (Gravesite Plains golem)
+    # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
+    510340: HUB,
+    1049557700: HUB,
+    # Deathroot rewards from Gurranq at the Bestial Sanctum (Dragonbarrow / NE Caelid). Recovered as
+    # checks AND tagged missable below (gated behind delivering N deathroots -- a limited consumable +
+    # Gurranq is killable -- so fill must not place required progression here). See DEATHROOT_FLAGS.
+    400230: "Caelid",  # Ancient Dragon Smithing Stone (9th deathroot / kill Gurranq)  [method global_filler]
+    400231: "Caelid",  # Gurranq's Beast Claw (8th)
+    400232: "Caelid",  # Beastclaw Greathammer (7th)
+    400233: "Caelid",  # Stone of Gurranq (6th)
+    400234: "Caelid",  # Beast Claw (5th)
+    400235: "Caelid",  # Ash of War: Beast's Roar (4th)
+    400236: "Caelid",  # Bestial Vitality (3rd)
+    400237: "Caelid",  # Bestial Sling (2nd)
+    400238: "Caelid",  # Clawmark Seal (1st)
+    400239: "Caelid",  # Beast Eye (1st / kill Gurranq)
+}
+# Missable location flags (matt-free): checks gated behind a LIMITED consumable or a killable NPC, so
+# fill must not place required progression there (features/missable_locations.py enforces via item_rule).
+#   Deathroot: the 10 Gurranq reward flags above (delivering deathroots; Gurranq killable).
+#   Dragon Heart: the Dragon Communion incantation purchases -- derived below from ShopLineupParam
+#     costType==1 (Dragon-Heart-cost shop rows) -> DRAGONHEART_FLAGS. Both fold into MISSABLE_FLAGS.
+# (Stonesword-key / Shabriri / Seedbed deferred -- questline-avoidance covers the latter two.)
+DEATHROOT_FLAGS = set(range(400230, 400240))
+
+
+def region_of(r):
+    """Corrected region: curated dungeon override (top priority) -> EMEVD/common-event audit for
+    emevd+global rows -> raw region_of for everything else."""
+    _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))
+    if _dov:
+        return _dov
+    _meth = r['method']
+    # GLOBAL_RECOVER is authoritative for any listed global/global_filler flag (covers deathroot
+    # rewards, which are method global_filler, not just 'global').
+    try: _grfl = int(r['flag'])
+    except (KeyError, ValueError): _grfl = None
+    if _grfl is not None and _grfl in GLOBAL_RECOVER and _meth in ('global', 'global_filler'):
+        return GLOBAL_RECOVER[_grfl]
+    if _meth not in ('emevd', 'global'):
+        return _region_of_raw(r)
+    try: _fl = int(r['flag'])
+    except (KeyError, ValueError): return _region_of_raw(r)
+    _um = _unique_m60(_fl)
+    if _um:                                            # UNIQUE map-scan hit on an overworld tile
+        _rr = _m60_tile_region(_um)
+        if _rr:
+            _cur = _region_of_raw(r)
+            if _meth == 'global': _RECOVER_N[0] += 1
+            elif _rr != _cur:     _REPIN_N[0] += 1
+            return _rr
+    if _meth == 'global':                              # only curated globals are recovered
+        _RECOVER_N[0] += 1
+        return GLOBAL_RECOVER.get(_fl, HUB)
+    _reg = r['region']
+    _m = re.match(r"Overworld m60_(\d\d)_(\d\d)", _reg)
+    if _m:
+        _xy = (int(_m.group(1)), int(_m.group(2)))
+        if _xy in ANCHOR:                              # direct grace anchor -> authoritative, keep
+            return _region_of_raw(r)
+        _QUAR_N[0] += 1                                # nearest-neighbor + unverifiable -> hub
+        return HUB
+    return _region_of_raw(r)                            # name-column emevd -> trust the human label
+
+# RECOVER: append the currently-SKIPped `global` rows (real pickups: crystal tears, memory stones,
+# effigies, etc.) as reachable checks. Appended AFTER `rows` so existing positional ap-ids are stable.
+_recovered = [r for r in _ALLROWS
+              if r['method'] in ('global', 'global_filler') and int(r['flag']) in GLOBAL_RECOVER
+              and int(r['flag']) not in MAP_REVEAL_FLAGS]
+rows = rows + _recovered
 buckets=OrderedDict()
 loc_tags={}
 apid=BASE_AP; names=set()
@@ -114,6 +303,30 @@ with open(OUT,"w",encoding="utf-8") as f:
         f.write("    ],\n")
     f.write("}\n")
 print(f"spokes={len(spokes)} hub_locs={len(buckets.get(HUB,[]))} total={sum(len(v) for v in buckets.values())}")
+# ---- EMEVD/common-event audit REPORT (deterministic; classifies each emevd/global row once) ------
+_A_UNIQUE=_A_AMBIG=_A_NONE=0; _A_REPIN=0; _A_QUAR=0; _A_RECOVER=0; _A_REPIN_NOOP=0
+for _r in rows:
+    _meth=_r['method']
+    if _meth not in ('emevd','global'): continue
+    try: _fl=int(_r['flag'])
+    except (KeyError,ValueError): continue
+    _ms=_FLAG2MAPS.get(_fl)
+    if not _ms: _A_NONE+=1
+    elif len(_ms)==1: _A_UNIQUE+=1
+    else: _A_AMBIG+=1
+    _um=_unique_m60(_fl); _rr=_m60_tile_region(_um) if _um else None
+    _cur=_region_of_raw(_r)
+    if _meth=='global':
+        _A_RECOVER+=1
+    elif _um and _rr:
+        if _rr!=_cur: _A_REPIN+=1
+        else: _A_REPIN_NOOP+=1
+    else:
+        _reg=_r['region']; _m=re.match(r"Overworld m60_(\d\d)_(\d\d)",_reg)
+        if _m and (int(_m.group(1)),int(_m.group(2))) not in ANCHOR: _A_QUAR+=1
+print(f"emevd_audit: UNIQUE={_A_UNIQUE} AMBIGUOUS={_A_AMBIG} NONE={_A_NONE} | "
+      f"re-pin(emevd unique-m60 changed)={_A_REPIN} (+{_A_REPIN_NOOP} already-correct) | "
+      f"quarantine->HUB (nearest-neighbor unverifiable)={_A_QUAR} | recovered globals->checks={_A_RECOVER}")
 
 # ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (important_locations source, matt-free) ----
 OUT_TAGS = os.path.join(HERE, "eldenring_gf", "location_tags.py")
@@ -284,6 +497,8 @@ _REC = os.path.join(_SLP_DIR, "ShopLineupParam_Recipe.csv")
 _flag2goods = defaultdict(list)   # stock_flag -> [(equipId, equipType)]
 _flag2rows = defaultdict(list)    # stock_flag -> [ShopLineupParam row ID] (client shopRowFlags key)
 _CAT_NIB = {0:0x00000000,1:0x10000000,2:0x20000000,3:0x40000000,4:0x80000000}
+DRAGONHEART_FLAGS = set()         # stock flags whose ShopLineupParam row is paid in Dragon Hearts
+                                  # (costType==1) = the Dragon Communion incantation altars -> missable.
 _slp_present = os.path.isfile(_SLP)
 if _slp_present:
     for _src in [_SLP] + ([_REC] if os.path.isfile(_REC) else []):
@@ -294,6 +509,11 @@ if _slp_present:
                 continue
             if _fl <= 0:
                 continue
+            try:
+                if int(_sr.get("costType", 0)) == 1:
+                    DRAGONHEART_FLAGS.add(_fl)
+            except (KeyError, ValueError):
+                pass
             try:
                 _flag2rows[_fl].append(int(_sr["ID"]))
             except (KeyError, ValueError):
@@ -343,6 +563,32 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
         f.write(f"    {_aid!r}: {SHOP_PREVIEW_GOODS[_aid]},\n")
     f.write("}\n")
 print(f"shop_data: {len(SHOP_ROW_FLAGS)} shop checks, {len(SHOP_PREVIEW_GOODS)} with preview goods across {len(set(SHOP_LOC_REGION.values()))} regions (param_present={_slp_present})")
+
+# ---- missable_locations.py: ap_ids of checks gated behind a limited consumable / killable NPC ------
+# (matt-free). features/missable_locations.py forbids REQUIRED progression at these so the seed stays
+# winnable if the player can't (or doesn't) reach them. Selected by flag: deathroot Gurranq rewards +
+# Dragon-Communion (Dragon-Heart) shop purchases. `rows` is positional -> ap_id == BASE_AP + index
+# (same indexing the bucket + shop loops use). Sources tagged for legibility / future stonesword add.
+_MISSABLE = {}   # ap_id -> source label ("deathroot" | "dragon_heart")
+for _i, _r in enumerate(rows):
+    try: _mf = int(_r["flag"])
+    except (KeyError, ValueError): continue
+    if _mf in DEATHROOT_FLAGS:
+        _MISSABLE[BASE_AP + _i] = "deathroot"
+    elif _mf in DRAGONHEART_FLAGS:
+        _MISSABLE[BASE_AP + _i] = "dragon_heart"
+OUT_MISS = os.path.join(HERE, "eldenring_gf", "missable_locations.py")
+with open(OUT_MISS, "w", newline="\n", encoding="utf-8") as f:
+    f.write('"""AUTO-GENERATED (gen_data.py). ap_ids of MISSABLE checks -- gated behind a limited\n')
+    f.write('consumable or a killable NPC (deathroot Gurranq rewards; Dragon-Heart / Dragon Communion\n')
+    f.write('purchases). features/missable_locations.py forbids required progression here. Matt-free\n')
+    f.write('(deathroot flags 400230-400239; dragon-heart = ShopLineupParam costType==1)."""\n')
+    f.write("MISSABLE_LOCATIONS = {\n")
+    for _aid in sorted(_MISSABLE):
+        f.write(f"    {_aid}: {_MISSABLE[_aid]!r},\n")
+    f.write("}\n")
+_mc = Counter(_MISSABLE.values())
+print(f"missable_locations: {len(_MISSABLE)} checks (deathroot={_mc.get('deathroot',0)}, dragon_heart={_mc.get('dragon_heart',0)})")
 
 
 # ---- Real-item-pool foundation: each location's vanilla item -> its ER FullID (matt-free).
@@ -453,6 +699,47 @@ with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write("}\n")
 _cov = 100.0 * len(LOCATION_ITEM) / max(len(rows), 1)
 print(f"item_ids: {len(ITEM_CATALOG)} distinct items, {len(LOCATION_ITEM)} locations resolved ({_cov:.1f}%)")
+
+
+# ---- FILLER_POOL: varied real-junk filler (matt-free). Goods-tier consumables/materials from the
+# catalog (greases, boluses, butterflies, glowstones, stones, etc.) -- the generic common-event junk.
+# core draws received filler from this instead of a monotone "Rune". Junk only (goods-tier, excludes
+# tears/great runes/key items/spells/cookbooks/whetblades/maps): mechanical EquipParamGoods filter --
+# goodsType in {0 normal, 2 crafting material, 14 reinforcement}, isConsume=1, rarity<=1 -- plus a
+# tiny name guard for quest-adjacent goods the type/rarity columns don't separate.
+# [RECONSTRUCTED 2026-07-06: the original section was lost to a mount truncation of this file; same
+#  contract (item_ids.py FILLER_POOL = [junk good names]), filter re-derived from params.]
+_GOODS_CSV = os.path.join(_SLP_DIR, "EquipParamGoods.csv")
+_FILLER_TYPES = {"0", "2", "14"}
+_FILLER_NAME_GUARD = ("Deathroot", "Dragon Heart", "Rune Arc", "Larval Tear", "Golden Seed",
+                      "Sacred Tear", "Memory Stone", "Talisman Pouch", "Great Rune", "Map:",
+                      "Smithing Stone")  # smithing/somber handled by pool_builder, not filler
+FILLER_POOL = []
+if os.path.isfile(_GOODS_CSV):
+    _junk_ok = {}
+    for _row in csv.DictReader(open(_GOODS_CSV, newline="", encoding="utf-8", errors="replace")):
+        try:
+            _junk_ok[int(_row["ID"])] = (_row.get("goodsType") in _FILLER_TYPES
+                                         and _row.get("isConsume") == "1"
+                                         and int(_row.get("rarity") or 9) <= 1)
+        except (KeyError, ValueError):
+            continue
+    for _nm in sorted(ITEM_CATALOG):
+        _full = ITEM_CATALOG[_nm]
+        if (_full & 0xF0000000) != 0x40000000:      # GOODS nibble only
+            continue
+        if not _junk_ok.get(_full & 0x0FFFFFFF, False):
+            continue
+        if any(_g in _nm for _g in _FILLER_NAME_GUARD):
+            continue
+        FILLER_POOL.append(_nm)
+with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
+    f.write("\n# Varied junk filler (goods-tier consumables/materials); features/varied_filler consumes this.\n")
+    f.write("FILLER_POOL = [\n")
+    for _nm in FILLER_POOL:
+        f.write(f"    {ascii(_nm)},\n")
+    f.write("]\n")
+print(f"filler_pool: {len(FILLER_POOL)} junk goods -> item_ids.py FILLER_POOL")
 
 
 # ---- Phase 5 pool-builder tiers: vanilla item quality from the ER param `rarity` column

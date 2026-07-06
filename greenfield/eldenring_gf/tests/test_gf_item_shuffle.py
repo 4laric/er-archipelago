@@ -23,9 +23,22 @@ class ItemShuffleOn(WorldTestBase):
 
 class ItemShuffleOff(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False, "grace_rando": False}
+    options = {"item_shuffle": False, "grace_rando": False, "varied_filler": False}
 
     def test_default_all_rune(self):
         fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
         self.assertTrue(fill and all(n == "Rune" for n in fill),
                         "shuffle off + grace off fills every non-lock slot with Rune")
+
+
+class VariedFillerOn(WorldTestBase):
+    game = GAME
+    options = {"item_shuffle": False, "grace_rando": False, "varied_filler": True}
+
+    def test_filler_is_varied_junk(self):
+        from worlds.eldenring_gf.item_ids import FILLER_POOL
+        fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
+        # every non-lock item is a FILLER_POOL junk item or the Rune fallback (still filler-classified)
+        self.assertTrue(fill and all(n in FILLER_POOL or n == "Rune" for n in fill))
+        # real variety, not the monotone-Rune wall
+        self.assertGreater(len(set(fill)), 5, "varied_filler places many distinct junk items")

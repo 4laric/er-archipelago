@@ -62,12 +62,16 @@ INFORMATIONAL_EXTRAS = {
     "sweepLockGates",             # dict ({} for now)
     "pool_builder",               # bool
     "pool_builder_juice_added",   # int
+    "pool_builder_intensity_floor",     # int : resolved juice rarity floor (1..3)
+    "pool_builder_juice_candidates",    # int : size of the juice candidate set at this intensity
+    "filler_foreign_localized",         # int : distinct filler names forced local this seed
 }
 
 # The keys the RICH seed (every optional feature on) is expected to emit: the greenfield contract keys
 # it actually emits, plus the informational extras. Built at import time so it tracks contract.py.
-# (enable_dlc / lockRevealFlags are contract-declared but not emitted by the current world.)
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "lockRevealFlags"}
+# (enable_dlc / lockRevealFlags / versions / regionSphereTargetRanges are contract-declared but not
+# emitted by the current world -- remove regionSphereTargetRanges here when I2's scaling emission lands.)
+_CONTRACT_NOT_EMITTED = {"enable_dlc", "lockRevealFlags", "versions", "regionSphereTargetRanges"}
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).

@@ -8,6 +8,19 @@ helpers are pure (take an explicit feature list) so they unit-test without Archi
 """
 from typing import Any, Dict, List, Tuple
 
+# slot_data keys are gated through the contract (F2). registry.py must ALSO load standalone (the
+# pure unit suite spec-loads it by path, no package context), and contract.py itself is stdlib-only,
+# so fall back to a by-path load when the relative import has no parent package.
+try:
+    from . import contract as _contract
+except ImportError:
+    import importlib.util as _ilu
+    import os as _os
+    _spec = _ilu.spec_from_file_location(
+        "gf_contract_standalone", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "contract.py"))
+    _contract = _ilu.module_from_spec(_spec)
+    _spec.loader.exec_module(_contract)
+
 
 class Feature:
     """Subclass + @register in a features/ module. Override only the hooks you need."""
@@ -74,5 +87,12 @@ def merge_slot_data(base: Dict[str, Any], feats, world) -> Dict[str, Any]:
         for k, v in contrib.items():
             if k in sd:
                 raise ValueError(f"slot_data key '{k}' emitted by core and feature {f.name or type(f).__name__!r}")
+            if k not in _contract.BY_NAME:
+                # F2 fix: an UNDECLARED emission is exactly how a feature goes silently dark (the
+                # client never reads a key the contract doesn't know). Fail at the merge, at gen.
+                raise ValueError(
+                    f"slot_data key '{k}' from feature {f.name or type(f).__name__!r} is not "
+                    f"declared in contract.py -- add a ContractKey (name/shape/profile/producer) "
+                    f"before emitting it")
             sd[k] = v
     return sd

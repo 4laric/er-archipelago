@@ -90,7 +90,7 @@ class PoolBuilderOff(WorldTestBase):
 
 class PoolBuilderNoOpWhenShuffleOff(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False, "pool_builder": True, "grace_rando": False}
+    options = {"item_shuffle": False, "pool_builder": True, "grace_rando": False, "varied_filler": False}
 
     def test_no_op_all_rune(self):
         fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]

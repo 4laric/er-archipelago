@@ -1,37 +1,26 @@
-"""SPEC-PARITY Track A -- starting grace / start region (matt-free).
+"""Start experience -- Roundtable Hold as the start, early leveling, map reveal (matt-free).
 
-At spawn the player must have ONE grace lit so they can warp into the world; without it the opening
-is unplayable (the connect log shows startGraces=0, startRegion=""). This feature emits:
+The run starts at Roundtable Hold (the hub). This feature emits:
+  startRegion = "Roundtable Hold" (HUB) -- the client's start anchor.
+  startGraces = [71190] + early-leveling flags. 71190 is the Roundtable Hold warp-unlock grace
+    (Table of Lost Grace, m11_10; confirmed in the prior apworld's base-hub startgraces). The run's
+    first OPEN region comes from the precollected random region lock (core.create_items) -- its bundle
+    graces light on receipt -- so this list only needs the hub grace to bootstrap the first warp.
+  reveal_all_maps (bool).
 
-  startRegion (str)  : the always-kept starting region -- the first region of the kept spine. For
-                       num_regions_order='spine' this is Limgrave (SPINE is Limgrave-first); for
-                       'rolled' it is whatever region compute_kept placed first. Either way it is
-                       world._kept()[0], which is guaranteed non-empty (compute_kept never returns an
-                       empty kept list -- core._eligible_regions is defensively never empty).
-  startGraces (list[int]) : the front-door grace flag(s) of that start region, so the player can warp
-                       there at spawn. REGION_GRACE_POINTS[start_region][0] is the front-door grace
-                       (same first-flag convention grace_rando uses for its per-region freebie). The
-                       client (startgrants.rs parse) reads startGraces as Vec<u32> via as_u64(); a
-                       plain Python int list serializes to JSON numbers it accepts, and core.rs uses
-                       start_graces.first() as the clobber read-back sentinel.
-
-Matt-free: derived only from greenfield's own generated region_graces + region_spine (via
-world._kept()); no imported/eldenring data. ASCII only.
-
-Collision note: grace_rando.py used to emit "startGraces": [] (a placeholder). This feature now OWNS
-startGraces, so that placeholder was removed from grace_rando (merge_slot_data raises on duplicate
-top-level keys). grace_rando keeps regionGraces + graceItems; the front-door freebie it lights on a
-region LOCK receipt is unchanged -- this feature additionally lights the START region's front door at
-spawn (before any lock is received) so the very first warp is possible.
+startGraces doubles as the client's "set these flags at start" list (startgrants.rs), so Early Leveling
+rides here: 4680 (Level Up enable) + 951 (Melina first-meeting done) -- the two flags her accord sets,
+confirmed in-game (set both, rest, Level Up works, no cutscene). The first entry (a real grace) is the
+client's clobber read-back sentinel. All ids are from prior in-game-verified work; none invented.
 """
-from Options import DefaultOnToggle
+from Options import DefaultOnToggle, Toggle
 from ..registry import Feature, register
 from .. import contract
+from ..data import HUB
 
-try:
-    from ..region_graces import REGION_GRACE_POINTS
-except Exception:  # not yet generated
-    REGION_GRACE_POINTS = {}
+_ROUNDTABLE_GRACE = 71190       # Roundtable Hold, Table of Lost Grace (m11_10) warp-unlock flag
+_LEVEL_UP_FLAG = 4680           # Level Up enable
+_MELINA_SUPPRESS_FLAG = 951     # Melina first-meeting done / suppress her hand-off
 
 
 class RevealAllMaps(DefaultOnToggle):
@@ -42,19 +31,35 @@ class RevealAllMaps(DefaultOnToggle):
     display_name = "Reveal All Maps"
 
 
+class EarlyLeveling(DefaultOnToggle):
+    """Level Up at any Site of Grace from the start, skipping Melina's accord and her meeting
+    cutscene (sets event flags 4680 + 951). On by default so a Roundtable-start run can level
+    immediately. The client sets these via the startGraces flag list."""
+    display_name = "Early Leveling (skip Melina)"
+
+
+class StartWithRegionLock(Toggle):
+    """Start holding ONE random region's lock, so a region is open from Roundtable at run start
+    (core.create_items precollects it; count-neutral). On by default. Off = every region starts
+    sealed and the first lock must be found."""
+    display_name = "Start With A Region Lock"
+
+
 @register
 class StartGrace(Feature):
     name = "start_grace"
-    OPTIONS = {"reveal_all_maps": RevealAllMaps}
+    OPTIONS = {
+        "reveal_all_maps": RevealAllMaps,
+        "early_leveling": EarlyLeveling,
+        "start_with_region_lock": StartWithRegionLock,
+    }
 
     def slot_data(self, world):
-        reveal = bool(world.options.reveal_all_maps.value)
-        kept = world._kept()
-        if not kept:
-            return {contract.START_REGION: "", contract.START_GRACES: [], contract.REVEAL_ALL_MAPS: reveal}
-        start_region = kept[0]
-        graces = REGION_GRACE_POINTS.get(start_region) or []
-        # front-door grace only: the first (front-door-first) warp grace of the start region.
-        start_graces = [int(graces[0])] if graces else []
-        return {contract.START_REGION: str(start_region), contract.START_GRACES: start_graces,
-                contract.REVEAL_ALL_MAPS: reveal}
+        graces = [_ROUNDTABLE_GRACE]
+        if world.options.early_leveling.value:
+            graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
+        return {
+            contract.START_REGION: HUB,
+            contract.START_GRACES: graces,
+            contract.REVEAL_ALL_MAPS: bool(world.options.reveal_all_maps.value),
+        }
