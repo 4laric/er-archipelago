@@ -6,6 +6,7 @@ Pure option -> slot_data, no data files. Matt-free.
 """
 from Options import DeathLink
 from ..registry import Feature, register
+from .. import contract
 
 
 @register
@@ -14,4 +15,4 @@ class DeathLinkFeature(Feature):
     OPTIONS = {"death_link": DeathLink}  # AP's standard toggle (default off)
 
     def slot_data(self, world):
-        return {"death_link": bool(world.options.death_link.value)}
+        return {contract.DEATH_LINK: bool(world.options.death_link.value)}

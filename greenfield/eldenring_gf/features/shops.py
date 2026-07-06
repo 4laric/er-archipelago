@@ -30,12 +30,14 @@ dicts remain a valid no-op contract if shop_data.py is absent.
 """
 from Options import Choice
 from ..registry import Feature, register
+from .. import contract
 from ..data import HUB
 
 try:
-    from ..shop_data import SHOP_ROW_FLAGS, SHOP_LOC_REGION, SHOP_PREVIEW_GOODS
+    from ..shop_data import (SHOP_ROW_FLAGS, SHOP_ROW_IDS, SHOP_LOC_REGION,
+                             SHOP_PREVIEW_GOODS)
 except Exception:  # not yet generated
-    SHOP_ROW_FLAGS, SHOP_LOC_REGION, SHOP_PREVIEW_GOODS = {}, {}, {}
+    SHOP_ROW_FLAGS, SHOP_ROW_IDS, SHOP_LOC_REGION, SHOP_PREVIEW_GOODS = {}, {}, {}, {}
 
 
 class MerchantBellLogic(Choice):
@@ -58,7 +60,18 @@ class Shops(Feature):
     def slot_data(self, world):
         # Hub is always in play; kept() is the spokes. Shop rows collapse to hub or a spoke region.
         scope = {HUB} | set(world._kept())
-        flags = {aid: fl for aid, fl in SHOP_ROW_FLAGS.items()
-                 if SHOP_LOC_REGION.get(int(aid)) in scope}
-        preview = {aid: g for aid, g in SHOP_PREVIEW_GOODS.items() if aid in flags}
-        return {"shopRowFlags": flags, "shopPreviewGoods": preview}
+        # In-scope shop checks (keyed by AP id) and their vanilla stock flag.
+        scoped = {aid: fl for aid, fl in SHOP_ROW_FLAGS.items()
+                  if SHOP_LOC_REGION.get(int(aid)) in scope}
+        # shopRowFlags is keyed by ShopLineupParam ROW id (client shop_flags.rs writes eventFlag_forStock
+        # onto that row via repo.get::<ShopLineupParam>(row_id)); the OLD AP-id key made every row read
+        # "absent; skipped". SHOP_ROW_IDS[ap_id] = the vanilla row(s) whose stock flag == this check's
+        # flag; each such row asserts the flag (idempotent -- greenfield uses the vanilla flag as the AP
+        # flag, so the write is a no-op, but the row now RESOLVES instead of erroring).
+        flags = {}
+        for aid, fl in scoped.items():
+            for row_id in SHOP_ROW_IDS.get(aid, []):
+                flags[int(row_id)] = fl
+        # shopPreviewGoods stays keyed by AP location id (client shop_preview/shop_icon take (loc, good)).
+        preview = {aid: g for aid, g in SHOP_PREVIEW_GOODS.items() if aid in scoped}
+        return {contract.SHOP_ROW_FLAGS: flags, contract.SHOP_PREVIEW_GOODS: preview}

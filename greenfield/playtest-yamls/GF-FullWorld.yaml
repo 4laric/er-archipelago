@@ -1,0 +1,17 @@
+# Full 22-region experience (num_regions 0). The long run: every region in play, real
+# items shuffled, pool builder + progressive flasks on. Good soak test for the whole pool.
+name: GFFull
+description: Greenfield full world (all regions, everything on)
+game: "Elden Ring (Greenfield)"
+"Elden Ring (Greenfield)":
+  num_regions: 0
+  item_shuffle: true
+  pool_builder: true
+  progressive_flasks: true
+  progressive_stonesword_keys: true
+  dungeon_sweep: all
+  grace_rando: true
+  start_with_torch: true
+  completion_scaling_floor: 20
+  accessibility: minimal
+  progression_balancing: 50

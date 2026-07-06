@@ -28,6 +28,7 @@ from typing import Any, Dict, List
 from BaseClasses import ItemClassification
 from Options import Toggle
 from ..registry import Feature, register
+from .. import contract
 
 _GOODS_NIBBLE = 0x40000000  # ER FullID category nibble for GOODS (mirrors core._GOODS_NIBBLE)
 
@@ -116,4 +117,4 @@ class Progressive(Feature):
         for name in self._active_items(world):
             grants[name] = [{"goods": good | _GOODS_NIBBLE, "flags": []}
                             for good in _GOODS_LADDERS[name]]
-        return {"progressiveGrants": grants}
+        return {contract.PROGRESSIVE_GRANTS: grants}

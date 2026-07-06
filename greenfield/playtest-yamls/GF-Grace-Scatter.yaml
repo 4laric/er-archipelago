@@ -1,0 +1,13 @@
+# Grace FREEBIE + SCATTER test (grace_rando true). PASS = a region lock lights ONE grace
+# (front door); receiving a "Grace: <Region> #k" item lights that specific grace.
+name: GFGrace
+description: Greenfield grace freebie + scatter
+game: "Elden Ring (Greenfield)"
+"Elden Ring (Greenfield)":
+  num_regions: 5
+  num_regions_order: spine
+  item_shuffle: true
+  grace_rando: true
+  dungeon_sweep: all
+  start_with_torch: true
+  accessibility: minimal
