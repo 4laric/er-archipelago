@@ -25,7 +25,7 @@ game: "Elden Ring (Greenfield)"
   item_shuffle: true          # each check pays out its real vanilla ER item, shuffled (98.9%; the rest give Rune)
   pool_builder: true          # scrub the Rune tail, inject rare/legendary juice
   pool_builder_juice_cap: 0 # 0..400; 0 = auto-size to the whole Rune tail
-  pool_builder_intensity: high # normal|high(default)|max -- rarity floor legendary-only|+rare|+B-tier
+  pool_builder_intensity: max # normal|high(default)|max -- rarity floor legendary-only|+rare|+B-tier
 
   # ---- Dungeon sweeps (REQUIRES the patch_p3b_client.py DLL) ---------------
   dungeon_sweep: all          # kill a dungeon boss -> its other checks auto-register
