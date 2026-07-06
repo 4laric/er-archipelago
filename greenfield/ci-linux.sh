@@ -36,9 +36,10 @@ if [ ! -f "$REPO/elden_ring_artifacts/grace_flags.tsv" ]; then
   echo "        the grace anchors live (or set GF_ARTIFACTS out-of-band)."
   record DRIFT SKIP
 else
-  b1=$(nhash "$dataPy"); b2=$(nhash "$openPy")
+  bossPy="$GF/eldenring_gf/boss_data.py"; gracePy="$GF/eldenring_gf/region_graces.py"; sweepPy="$GF/eldenring_gf/boss_sweeps.py"; shopPy="$GF/eldenring_gf/shop_data.py"; itemPy="$GF/eldenring_gf/item_ids.py"; tierPy="$GF/eldenring_gf/item_tiers.py"
+  b1=$(nhash "$dataPy"); b2=$(nhash "$openPy"); b3=$(nhash "$bossPy"); b4=$(nhash "$gracePy"); b5=$(nhash "$sweepPy"); b6=$(nhash "$shopPy"); b7=$(nhash "$itemPy"); b8=$(nhash "$tierPy")
   if ( cd "$GF" && "$PY" gen_data.py ); then
-    if [ "$b1" = "$(nhash "$dataPy")" ] && [ "$b2" = "$(nhash "$openPy")" ]; then record DRIFT PASS
+    if [ "$b1" = "$(nhash "$dataPy")" ] && [ "$b2" = "$(nhash "$openPy")" ] && [ "$b3" = "$(nhash "$bossPy")" ] && [ "$b4" = "$(nhash "$gracePy")" ] && [ "$b5" = "$(nhash "$sweepPy")" ] && [ "$b6" = "$(nhash "$shopPy")" ] && [ "$b7" = "$(nhash "$itemPy")" ] && [ "$b8" = "$(nhash "$tierPy")" ]; then record DRIFT PASS
     else echo "  STALE: gen_data.py regenerated different data -- commit it."; record DRIFT FAIL; fi
   else record DRIFT FAIL; fi
 fi

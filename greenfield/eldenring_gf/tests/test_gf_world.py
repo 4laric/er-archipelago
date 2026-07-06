@@ -41,8 +41,10 @@ class GreenfieldWorldTest(WorldTestBase):
         total = sum(len(v) for v in LOCATIONS.values())
         self.assertEqual(len(self.multiworld.itempool), total,
                          "itempool size must equal the number of locations")
-        fillers = [i for i in self.multiworld.itempool if i.name == FILLER]
-        self.assertEqual(len(fillers), total - len(REGIONS))
+        # every non-lock slot is filled (by Rune, grace-scatter, or shuffled vanilla items --
+        # composition varies by options; the count is the invariant).
+        non_locks = [i for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
+        self.assertEqual(len(non_locks), total - len(REGIONS))
 
     # --- rules / goal ---------------------------------------------------------------
     def test_goal_needs_all_locks(self):
