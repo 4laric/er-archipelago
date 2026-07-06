@@ -69,9 +69,9 @@ INFORMATIONAL_EXTRAS = {
 
 # The keys the RICH seed (every optional feature on) is expected to emit: the greenfield contract keys
 # it actually emits, plus the informational extras. Built at import time so it tracks contract.py.
-# (enable_dlc / lockRevealFlags / versions / regionSphereTargetRanges are contract-declared but not
-# emitted by the current world -- remove regionSphereTargetRanges here when I2's scaling emission lands.)
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "lockRevealFlags", "versions", "regionSphereTargetRanges"}
+# (enable_dlc / lockRevealFlags / versions are contract-declared but not emitted by the current
+# world. regionSphereTargetRanges IS emitted as of I2 -- features/scaling.py, the live scaling wire.)
+_CONTRACT_NOT_EMITTED = {"enable_dlc", "lockRevealFlags", "versions"}
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).
