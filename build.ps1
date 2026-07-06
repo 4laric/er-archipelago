@@ -29,6 +29,7 @@
 [CmdletBinding()]
 param(
     [switch]$Apworld,
+    [switch]$Greenfield,           # -Greenfield: gen the data-derived greenfield apworld in isolation
     [switch]$Generate,
     [switch]$ShowGenDiag,          # echo the per-generate gendiag (resolved-yaml debug) to console
     [int]$GenRetries = 2,          # gen re-roll attempts on a seed-dependent FillError (0 = off)
@@ -65,6 +66,9 @@ $Repo     = $PSScriptRoot
 $GameDir  = "C:\Program Files (x86)\Steam\steamapps\common\ELDEN RING\Game"
 $ModsDir  = Join-Path $GameDir "mods"          # EML alt loader path (-RustDeploy); me3 is primary
 $ApDir    = Join-Path $Repo "Archipelago"      # AP checkout: Generate.py, MultiServer.py, Players\, output\
+
+# -Greenfield: build/gen the standalone data-derived apworld, then stop.
+if ($Greenfield) { & (Join-Path $Repo "greenfield\gen-greenfield.ps1") -Repo $Repo; exit $LASTEXITCODE }
 
 # Rust client is now an in-repo submodule (was the sibling from-software-archipelago-clients).
 $RustDir     = Join-Path $Repo "from-software-archipelago-clients"

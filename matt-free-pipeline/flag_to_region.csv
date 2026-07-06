@@ -1,0 +1,2833 @@
+flag,map,region,method
+114,m14_00_00_00,Raya Lucaria Academy,treasure
+171,m10_01_00_00,Stormveil Castle,emevd
+173,m13_00_00_00,Crumbling Farum Azula,emevd
+191,m34_10_00_00,DLC Dungeon,emevd
+192,m34_13_00_00,DLC Dungeon,emevd
+193,m34_14_00_00,DLC Dungeon,emevd
+194,m34_12_00_00,DLC Dungeon,emevd
+195,m34_14_00_00,DLC Dungeon,emevd
+196,m34_15_00_00,DLC Dungeon,emevd
+197,m10_00_00_00,Stormveil Castle,emevd
+9500,m11_05_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+9502,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+9504,m35_00_00_00,Divine Tower,treasure
+9800,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+9810,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+60000,m10_00_00_00,Stormveil Castle,emevd
+60020,m60_46_38_00,Overworld m60_46_38_00,treasure
+60100,m42_01_00_00,DLC Legacy Dungeon,emevd
+60110,m60_42_36_00,Overworld m60_42_36_00,emevd
+60120,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+60130,m60_42_37_00,Overworld m60_42_37_00,treasure
+60210,m10_01_00_00,Stormveil Castle,emevd
+60240,m60_42_40_00,Overworld m60_42_40_00,treasure
+60260,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+60300,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+60400,m60_45_33_00,Overworld m60_45_33_00,treasure
+60410,m60_34_43_00,Overworld m60_34_43_00,treasure
+60420,m60_35_47_00,Overworld m60_35_47_00,treasure
+60430,m60_34_50_00,Overworld m60_34_50_00,treasure
+60450,m60_37_53_00,Overworld m60_37_53_00,emevd
+60460,m60_52_41_00,Overworld m60_52_41_00,treasure
+60470,m60_35_45_00,Overworld m60_35_45_00,emevd
+60500,m30_00_00_00,Hero's Graves (Catacombs),emevd
+60510,m10_00_00_00,Stormveil Castle,emevd
+60520,m34_13_00_00,DLC Dungeon,emevd
+62010,m60_42_37_00,Overworld m60_42_37_00,treasure
+62011,m60_44_32_00,Overworld m60_44_32_00,treasure
+62020,m60_38_41_00,Overworld m60_38_41_00,treasure
+62021,m60_37_44_00,Overworld m60_37_44_00,treasure
+62022,m60_34_48_00,Overworld m60_34_48_00,treasure
+62030,m60_40_52_00,Overworld m60_40_52_00,emevd
+62031,m60_42_51_00,Overworld m60_42_51_00,treasure
+62032,m60_36_54_00,Overworld m60_36_54_00,treasure
+62040,m60_49_37_00,Overworld m60_49_37_00,treasure
+62041,m60_49_40_00,Overworld m60_49_40_00,treasure
+62050,m60_49_53_00,Overworld m60_49_53_00,treasure
+62051,m60_52_54_00,Overworld m60_52_54_00,treasure
+62052,m60_48_56_00,Overworld m60_48_56_00,treasure
+62060,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+62061,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+62062,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+62063,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+62064,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+62081,m61_48_45_00,Overworld m61_48_45_00,treasure
+62082,m61_48_37_00,Overworld m61_48_37_00,treasure
+62083,m61_46_45_00,Overworld m61_46_45_00,treasure
+62084,m61_52_41_00,Overworld m61_52_41_00,treasure
+65030,m60_44_53_00,Overworld m60_44_53_00,treasure
+65040,m60_33_43_00,Overworld m60_33_43_00,emevd
+65060,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+65090,m60_43_33_00,Overworld m60_43_33_00,emevd
+65100,m60_47_40_00,Overworld m60_47_40_00,emevd
+65120,m60_44_53_00,Overworld m60_44_53_00,treasure
+65150,m60_49_37_00,Overworld m60_49_37_00,treasure
+65180,m60_37_54_00,Overworld m60_37_54_00,emevd
+65190,m60_44_53_00,Overworld m60_44_53_00,emevd
+65200,m60_52_54_00,Overworld m60_52_54_00,treasure
+65240,m60_43_34_00,Overworld m60_43_34_00,treasure
+65270,m60_39_52_00,Overworld m60_39_52_00,emevd
+65290,m60_38_48_00,Overworld m60_38_48_00,emevd
+65610,m10_00_00_00,Stormveil Castle,treasure
+65640,m60_51_36_00,Overworld m60_51_36_00,treasure
+65660,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+65680,m14_00_00_00,Raya Lucaria Academy,treasure
+65720,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+66010,m10_00_00_00,Stormveil Castle,treasure
+66020,m10_00_00_00,Stormveil Castle,treasure
+66080,m60_39_44_00,Overworld m60_39_44_00,treasure
+66090,m60_39_44_00,Overworld m60_39_44_00,treasure
+66100,m60_39_44_00,Overworld m60_39_44_00,treasure
+66110,m60_35_50_00,Overworld m60_35_50_00,emevd
+66120,m14_00_00_00,Raya Lucaria Academy,treasure
+66130,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+66140,m30_13_00_00,Hero's Graves (Catacombs),treasure
+66150,m30_13_00_00,Hero's Graves (Catacombs),treasure
+66160,m30_13_00_00,Hero's Graves (Catacombs),treasure
+66170,m30_13_00_00,Hero's Graves (Catacombs),treasure
+66180,m10_01_00_00,Stormveil Castle,emevd
+66410,m14_00_00_00,Raya Lucaria Academy,treasure
+66430,m60_39_44_00,Overworld m60_39_44_00,treasure
+66440,m60_39_44_00,Overworld m60_39_44_00,treasure
+66450,m60_35_50_00,Overworld m60_35_50_00,emevd
+66470,m30_13_00_00,Hero's Graves (Catacombs),treasure
+66480,m30_13_00_00,Hero's Graves (Catacombs),treasure
+66490,m35_00_00_00,Divine Tower,treasure
+66700,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+66720,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+66740,m60_36_52_00,Overworld m60_36_52_00,treasure
+66760,m60_39_51_00,Overworld m60_39_51_00,treasure
+66780,m31_18_00_00,Caves,treasure
+66790,m60_48_38_00,Overworld m60_48_38_00,treasure
+66910,m41_00_00_00,DLC Legacy Dungeon,emevd
+66930,m18_00_00_00,Stormveil (assoc.),emevd
+66960,m61_50_44_00,Overworld m61_50_44_00,treasure
+66970,m61_50_44_00,Overworld m61_50_44_00,treasure
+67010,m13_00_00_00,Crumbling Farum Azula,emevd
+67020,m60_46_36_00,Overworld m60_46_36_00,treasure
+67030,m10_00_00_00,Stormveil Castle,treasure
+67050,m60_40_39_00,Overworld m60_40_39_00,treasure
+67060,m60_35_44_00,Overworld m60_35_44_00,treasure
+67070,m19_00_00_00,Chapel of Anticipation,emevd
+67080,m19_00_00_00,Chapel of Anticipation,emevd
+67090,m60_49_54_00,Overworld m60_49_54_00,treasure
+67100,m60_35_42_00,Overworld m60_35_42_00,emevd
+67120,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+67130,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+67200,m60_43_38_00,Overworld m60_43_38_00,treasure
+67250,m60_35_54_00,Overworld m60_35_54_00,treasure
+67260,m60_51_36_00,Overworld m60_51_36_00,treasure
+67300,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+67310,m60_51_36_00,Overworld m60_51_36_00,treasure
+67410,m60_38_40_00,Overworld m60_38_40_00,treasure
+67420,m14_00_00_00,Raya Lucaria Academy,treasure
+67430,m30_00_00_00,Hero's Graves (Catacombs),treasure
+67450,m60_38_41_00,Overworld m60_38_41_00,treasure
+67470,m60_35_50_00,Overworld m60_35_50_00,emevd
+67480,m60_38_42_00,Overworld m60_38_42_00,treasure
+67630,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+67640,m60_43_50_00,Overworld m60_43_50_00,treasure
+67650,m60_46_40_00,Overworld m60_46_40_00,treasure
+67860,m30_13_00_00,Hero's Graves (Catacombs),treasure
+67870,m60_46_40_00,Overworld m60_46_40_00,treasure
+67880,m31_02_00_00,Caves,emevd
+67890,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+67910,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+68020,m13_00_00_00,Crumbling Farum Azula,treasure
+68030,m60_48_36_00,Overworld m60_48_36_00,treasure
+68210,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+68400,m60_38_48_00,Overworld m60_38_48_00,treasure
+68410,m35_00_00_00,Divine Tower,treasure
+68630,m61_49_43_00,Overworld m61_49_43_00,treasure
+68640,m61_44_46_00,Overworld m61_44_46_00,treasure
+68670,m61_50_41_00,Overworld m61_50_41_00,treasure
+68680,m61_45_48_00,Overworld m61_45_48_00,treasure
+68710,m61_47_39_00,Overworld m61_47_39_00,treasure
+68760,m61_48_37_00,Overworld m61_48_37_00,treasure
+68820,m61_49_43_00,Overworld m61_49_43_00,treasure
+68850,m61_49_38_00,Overworld m61_49_38_00,treasure
+68890,m61_48_46_00,Overworld m61_48_46_00,treasure
+68920,m61_49_38_00,Overworld m61_49_38_00,treasure
+68940,m61_46_38_00,Overworld m61_46_38_00,treasure
+68950,m61_47_35_00,Overworld m61_47_35_00,treasure
+69740,m35_00_00_00,Divine Tower,treasure
+69760,m60_38_48_00,Overworld m60_38_48_00,treasure
+69900,m60_35_50_00,Overworld m60_35_50_00,emevd
+120500,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+120790,m60_34_50_00,Overworld m60_34_50_00,emevd
+120800,m60_34_50_00,Overworld m60_34_50_00,emevd
+120810,m60_34_50_00,Overworld m60_34_50_00,emevd
+120820,m60_34_50_00,Overworld m60_34_50_00,emevd
+120830,m60_34_50_00,Overworld m60_34_50_00,emevd
+120840,m60_34_50_00,Overworld m60_34_50_00,emevd
+130000,m60_34_50_00,Overworld m60_34_50_00,emevd
+130100,m60_34_50_00,Overworld m60_34_50_00,emevd
+130290,m60_35_50_00,Overworld m60_35_50_00,emevd
+130300,m60_35_50_00,Overworld m60_35_50_00,emevd
+130340,m60_35_50_00,Overworld m60_35_50_00,emevd
+130350,m60_35_50_00,Overworld m60_35_50_00,emevd
+130360,m60_35_50_00,Overworld m60_35_50_00,emevd
+130370,m60_35_50_00,Overworld m60_35_50_00,emevd
+130380,m60_35_50_00,Overworld m60_35_50_00,emevd
+130390,m60_35_50_00,Overworld m60_35_50_00,emevd
+290100,m60_35_42_00,Overworld m60_35_42_00,emevd
+400001,m34_14_00_00,DLC Dungeon,emevd
+400031,m10_01_00_00,Stormveil Castle,emevd
+400033,m10_01_00_00,Stormveil Castle,emevd
+400036,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+400037,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+400050,m60_44_36_00,Overworld m60_44_36_00,emevd
+400061,m60_33_44_00,Overworld m60_33_44_00,emevd
+400070,m60_40_54_00,Overworld m60_40_54_00,emevd
+400071,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400072,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400073,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400074,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400075,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400076,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400077,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400078,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400089,m35_00_00_00,Divine Tower,emevd
+400091,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400106,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400107,m14_00_00_00,Raya Lucaria Academy,emevd
+400148,m60_34_50_00,Overworld m60_34_50_00,emevd
+400149,m60_35_50_00,Overworld m60_35_50_00,emevd
+400163,m60_39_52_00,Overworld m60_39_52_00,emevd
+400174,m13_00_00_00,Crumbling Farum Azula,emevd
+400175,m13_00_00_00,Crumbling Farum Azula,emevd
+400180,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400183,m31_00_00_00,Caves,emevd
+400191,m60_41_38_00,Overworld m60_41_38_00,emevd
+400210,m30_19_00_00,Hero's Graves (Catacombs),emevd
+400240,m60_34_49_00,Overworld m60_34_49_00,emevd
+400241,m60_34_49_00,Overworld m60_34_49_00,emevd
+400282,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400283,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400285,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400290,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400291,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+400292,m13_00_00_00,Crumbling Farum Azula,emevd
+400300,m30_09_00_00,Hero's Graves (Catacombs),emevd
+400308,m60_44_52_00,Overworld m60_44_52_00,emevd
+400309,m60_44_52_00,Overworld m60_44_52_00,emevd
+400321,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+400323,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+400324,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+400339,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+400348,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+400349,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400356,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400358,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400359,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400360,m14_00_00_00,Raya Lucaria Academy,emevd
+400362,m14_00_00_00,Raya Lucaria Academy,emevd
+400370,m11_05_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400381,m35_00_00_00,Divine Tower,emevd
+400382,m35_00_00_00,Divine Tower,emevd
+400390,m60_42_36_00,Overworld m60_42_36_00,emevd
+400393,m60_35_42_00,Overworld m60_35_42_00,emevd
+400394,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+400401,m14_00_00_00,Raya Lucaria Academy,emevd
+400410,m60_36_41_00,Overworld m60_36_41_00,emevd
+400411,m60_47_58_00,Overworld m60_47_58_00,emevd
+400431,m31_11_00_00,Caves,emevd
+400441,m60_37_53_00,Overworld m60_37_53_00,emevd
+400460,m60_39_44_00,Overworld m60_39_44_00,emevd
+400470,m60_47_41_00,Overworld m60_47_41_00,emevd
+400480,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+400490,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400500,m11_05_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+400510,m60_40_53_00,Overworld m60_40_53_00,emevd
+400594,m21_00_00_00,DLC Interior,emevd
+400595,m21_01_00_00,DLC Interior,emevd
+400598,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400602,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400614,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400620,m21_01_00_00,DLC Interior,emevd
+400622,m21_01_00_00,DLC Interior,emevd
+400623,m21_01_00_00,DLC Interior,emevd
+400624,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400625,m21_01_00_00,DLC Interior,emevd
+400632,m22_00_00_00,m22,emevd
+400634,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400644,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400645,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400690,m21_00_00_00,DLC Interior,emevd
+400692,m21_00_00_00,DLC Interior,emevd
+400694,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400696,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400720,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400721,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400723,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400732,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+400740,m22_00_00_00,m22,emevd
+510100,m35_00_00_00,Divine Tower,emevd
+510120,m30_17_00_00,Hero's Graves (Catacombs),emevd
+510200,m35_00_00_00,Divine Tower,emevd
+510300,m35_00_00_00,Divine Tower,emevd
+510420,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+510630,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+510740,m34_14_00_00,DLC Dungeon,emevd
+520000,m10_00_00_00,Stormveil Castle,emevd
+520010,m10_00_00_00,Stormveil Castle,emevd
+520020,m11_05_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+520030,m60_35_45_00,Overworld m60_35_45_00,emevd
+520040,m34_11_00_00,DLC Dungeon,emevd
+520200,m60_33_40_00,Overworld m60_33_40_00,emevd
+520210,m60_33_40_00,Overworld m60_33_40_00,emevd
+520300,m60_33_42_00,Overworld m60_33_42_00,emevd
+520330,m31_03_00_00,Caves,emevd
+520340,m31_15_00_00,Caves,emevd
+520700,m30_13_00_00,Hero's Graves (Catacombs),emevd
+530100,m60_35_45_00,Overworld m60_35_45_00,emevd
+530110,m60_43_36_00,Overworld m60_43_36_00,emevd
+530120,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+530130,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+530170,m60_45_39_00,Overworld m60_45_39_00,emevd
+530210,m60_34_45_00,Overworld m60_34_45_00,emevd
+530225,m60_35_42_00,Overworld m60_35_42_00,emevd
+530240,m60_39_44_00,Overworld m60_39_44_00,emevd
+530245,m60_38_41_00,Overworld m60_38_41_00,emevd
+530250,m60_33_45_00,Overworld m60_33_45_00,emevd
+530255,m60_36_50_00,Overworld m60_36_50_00,emevd
+530260,m60_34_42_00,Overworld m60_34_42_00,emevd
+530265,m60_33_42_00,Overworld m60_33_42_00,emevd
+530300,m60_37_51_00,Overworld m60_37_51_00,emevd
+530310,m60_41_50_00,Overworld m60_41_50_00,emevd
+530315,m60_45_52_00,Overworld m60_45_52_00,emevd
+530325,m60_42_55_00,Overworld m60_42_55_00,emevd
+530335,m60_41_51_00,Overworld m60_41_51_00,emevd
+530350,m60_40_52_00,Overworld m60_40_52_00,emevd
+530375,m60_36_54_00,Overworld m60_36_54_00,emevd
+530385,m60_38_52_00,Overworld m60_38_52_00,emevd
+530390,m60_35_53_00,Overworld m60_35_53_00,emevd
+530400,m60_48_37_00,Overworld m60_48_37_00,emevd
+530600,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+530620,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+540100,m60_40_39_00,Overworld m60_40_39_00,emevd
+540104,m60_41_38_00,Overworld m60_41_38_00,emevd
+540108,m60_43_37_00,Overworld m60_43_37_00,emevd
+540112,m60_44_36_00,Overworld m60_44_36_00,emevd
+540116,m60_45_37_00,Overworld m60_45_37_00,emevd
+540118,m60_46_39_00,Overworld m60_46_39_00,emevd
+540120,m60_41_37_00,Overworld m60_41_37_00,emevd
+540132,m60_42_33_00,Overworld m60_42_33_00,emevd
+540136,m60_43_33_00,Overworld m60_43_33_00,emevd
+540138,m60_44_32_00,Overworld m60_44_32_00,emevd
+540140,m60_44_33_00,Overworld m60_44_33_00,emevd
+540142,m60_44_38_00,Overworld m60_44_38_00,emevd
+540144,m60_41_35_00,Overworld m60_41_35_00,emevd
+540146,m60_42_39_00,Overworld m60_42_39_00,emevd
+540170,m10_00_00_00,Stormveil Castle,emevd
+540172,m10_00_00_00,Stormveil Castle,emevd
+540174,m10_00_00_00,Stormveil Castle,emevd
+540200,m60_34_50_00,Overworld m60_34_50_00,emevd
+540202,m60_36_44_00,Overworld m60_36_44_00,emevd
+540204,m60_36_49_00,Overworld m60_36_49_00,emevd
+540206,m60_39_39_00,Overworld m60_39_39_00,emevd
+540208,m60_35_42_00,Overworld m60_35_42_00,emevd
+540210,m60_35_47_00,Overworld m60_35_47_00,emevd
+540218,m60_34_44_00,Overworld m60_34_44_00,emevd
+540220,m60_35_50_00,Overworld m60_35_50_00,emevd
+540224,m60_37_51_00,Overworld m60_37_51_00,emevd
+540236,m60_37_48_00,Overworld m60_37_48_00,emevd
+540238,m60_33_43_00,Overworld m60_33_43_00,emevd
+540250,m60_35_50_00,Overworld m60_35_50_00,emevd
+540252,m60_39_43_00,Overworld m60_39_43_00,emevd
+540254,m60_37_48_00,Overworld m60_37_48_00,emevd
+540256,m60_38_50_00,Overworld m60_38_50_00,emevd
+540258,m60_39_45_00,Overworld m60_39_45_00,emevd
+540260,m60_34_43_00,Overworld m60_34_43_00,emevd
+540262,m60_37_44_00,Overworld m60_37_44_00,emevd
+540264,m60_33_45_00,Overworld m60_33_45_00,emevd
+540272,m14_00_00_00,Raya Lucaria Academy,emevd
+540290,m39_20_00_00,DLC Dungeon,emevd
+540300,m60_37_51_00,Overworld m60_37_51_00,emevd
+540302,m60_38_51_00,Overworld m60_38_51_00,emevd
+540304,m60_39_51_00,Overworld m60_39_51_00,emevd
+540306,m60_39_52_00,Overworld m60_39_52_00,emevd
+540308,m60_41_53_00,Overworld m60_41_53_00,emevd
+540310,m60_40_51_00,Overworld m60_40_51_00,emevd
+540312,m60_40_54_00,Overworld m60_40_54_00,emevd
+540314,m60_43_51_00,Overworld m60_43_51_00,emevd
+540316,m60_43_52_00,Overworld m60_43_52_00,emevd
+540318,m60_43_53_00,Overworld m60_43_53_00,emevd
+540320,m60_40_53_00,Overworld m60_40_53_00,emevd
+540332,m60_37_53_00,Overworld m60_37_53_00,emevd
+540334,m60_36_54_00,Overworld m60_36_54_00,emevd
+540370,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+540372,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+540400,m60_47_40_00,Overworld m60_47_40_00,emevd
+540402,m60_48_38_00,Overworld m60_48_38_00,emevd
+540406,m60_48_37_00,Overworld m60_48_37_00,emevd
+540410,m60_47_39_00,Overworld m60_47_39_00,emevd
+540412,m60_48_41_00,Overworld m60_48_41_00,emevd
+540422,m60_47_39_00,Overworld m60_47_39_00,emevd
+540590,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+540592,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+540600,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+540602,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+540610,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+540630,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+540642,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+540646,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+540648,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+540652,m12_07_00_00,Eternal Cities & Underground Rivers,emevd
+540660,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+540668,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+540670,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+540680,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+540682,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+540684,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+540686,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+540772,m13_00_00_00,Crumbling Farum Azula,emevd
+550050,m30_00_00_00,Hero's Graves (Catacombs),emevd
+580000,m60_43_38_00,Overworld m60_43_38_00,emevd
+580010,m60_38_45_00,Overworld m60_38_45_00,emevd
+580020,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+580040,m10_00_00_00,Stormveil Castle,emevd
+580050,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+580120,m21_00_00_00,DLC Interior,emevd
+580300,m60_43_36_00,Overworld m60_43_36_00,treasure
+580310,m60_36_50_00,Overworld m60_36_50_00,emevd
+580320,m60_41_52_00,Overworld m60_41_52_00,treasure
+580330,m60_50_56_00,Overworld m60_50_56_00,treasure
+580340,m60_42_35_00,Overworld m60_42_35_00,treasure
+580350,m60_42_54_00,Overworld m60_42_54_00,emevd
+580360,m60_51_40_00,Overworld m60_51_40_00,treasure
+580410,m61_46_45_00,Overworld m61_46_45_00,treasure
+580420,m61_53_39_00,Overworld m61_53_39_00,treasure
+580600,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+590000,m10_00_00_00,Stormveil Castle,emevd
+590200,m21_01_00_00,DLC Interior,emevd
+590210,m60_46_36_00,Overworld m60_46_36_00,treasure
+10007005,m10_00_00_00,Stormveil Castle,treasure
+10007015,m10_00_00_00,Stormveil Castle,treasure
+10007025,m10_00_00_00,Stormveil Castle,treasure
+10007030,m10_00_00_00,Stormveil Castle,treasure
+10007035,m10_00_00_00,Stormveil Castle,treasure
+10007040,m10_00_00_00,Stormveil Castle,treasure
+10007050,m10_00_00_00,Stormveil Castle,treasure
+10007060,m10_00_00_00,Stormveil Castle,treasure
+10007080,m10_00_00_00,Stormveil Castle,treasure
+10007085,m10_00_00_00,Stormveil Castle,emevd
+10007090,m10_00_00_00,Stormveil Castle,treasure
+10007100,m10_00_00_00,Stormveil Castle,treasure
+10007110,m10_00_00_00,Stormveil Castle,treasure
+10007120,m10_00_00_00,Stormveil Castle,treasure
+10007130,m10_00_00_00,Stormveil Castle,treasure
+10007140,m10_00_00_00,Stormveil Castle,treasure
+10007150,m10_00_00_00,Stormveil Castle,treasure
+10007160,m10_00_00_00,Stormveil Castle,treasure
+10007170,m10_00_00_00,Stormveil Castle,treasure
+10007180,m10_00_00_00,Stormveil Castle,treasure
+10007190,m10_00_00_00,Stormveil Castle,treasure
+10007195,m10_00_00_00,Stormveil Castle,emevd
+10007200,m10_00_00_00,Stormveil Castle,treasure
+10007210,m10_00_00_00,Stormveil Castle,treasure
+10007220,m10_00_00_00,Stormveil Castle,treasure
+10007230,m10_00_00_00,Stormveil Castle,treasure
+10007240,m10_00_00_00,Stormveil Castle,treasure
+10007250,m10_00_00_00,Stormveil Castle,treasure
+10007260,m10_00_00_00,Stormveil Castle,treasure
+10007270,m10_00_00_00,Stormveil Castle,treasure
+10007280,m10_00_00_00,Stormveil Castle,treasure
+10007290,m10_00_00_00,Stormveil Castle,treasure
+10007295,m10_00_00_00,Stormveil Castle,emevd
+10007300,m10_00_00_00,Stormveil Castle,treasure
+10007310,m10_00_00_00,Stormveil Castle,treasure
+10007320,m10_00_00_00,Stormveil Castle,treasure
+10007330,m10_00_00_00,Stormveil Castle,treasure
+10007340,m10_00_00_00,Stormveil Castle,treasure
+10007350,m10_00_00_00,Stormveil Castle,treasure
+10007360,m10_00_00_00,Stormveil Castle,treasure
+10007370,m10_00_00_00,Stormveil Castle,treasure
+10007380,m10_00_00_00,Stormveil Castle,treasure
+10007390,m10_00_00_00,Stormveil Castle,treasure
+10007400,m10_00_00_00,Stormveil Castle,treasure
+10007410,m10_00_00_00,Stormveil Castle,treasure
+10007430,m10_00_00_00,Stormveil Castle,treasure
+10007440,m10_00_00_00,Stormveil Castle,treasure
+10007450,m10_00_00_00,Stormveil Castle,treasure
+10007452,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+10007460,m10_00_00_00,Stormveil Castle,treasure
+10007470,m10_00_00_00,Stormveil Castle,treasure
+10007500,m10_00_00_00,Stormveil Castle,treasure
+10007510,m10_00_00_00,Stormveil Castle,treasure
+10007520,m10_00_00_00,Stormveil Castle,treasure
+10007530,m10_00_00_00,Stormveil Castle,treasure
+10007540,m10_00_00_00,Stormveil Castle,treasure
+10007550,m10_00_00_00,Stormveil Castle,treasure
+10007560,m10_00_00_00,Stormveil Castle,treasure
+10007570,m10_00_00_00,Stormveil Castle,treasure
+10007580,m10_00_00_00,Stormveil Castle,treasure
+10007590,m10_00_00_00,Stormveil Castle,treasure
+10007600,m10_00_00_00,Stormveil Castle,treasure
+10007610,m10_00_00_00,Stormveil Castle,treasure
+10007620,m10_00_00_00,Stormveil Castle,treasure
+10007630,m10_00_00_00,Stormveil Castle,treasure
+10007640,m10_00_00_00,Stormveil Castle,treasure
+10007650,m10_00_00_00,Stormveil Castle,treasure
+10007660,m10_00_00_00,Stormveil Castle,treasure
+10007670,m10_00_00_00,Stormveil Castle,treasure
+10007680,m10_00_00_00,Stormveil Castle,treasure
+10007690,m10_00_00_00,Stormveil Castle,treasure
+10007700,m10_00_00_00,Stormveil Castle,treasure
+10007710,m10_00_00_00,Stormveil Castle,treasure
+10007720,m10_00_00_00,Stormveil Castle,treasure
+10007730,m10_00_00_00,Stormveil Castle,treasure
+10007740,m10_00_00_00,Stormveil Castle,treasure
+10007750,m10_00_00_00,Stormveil Castle,treasure
+10007760,m10_00_00_00,Stormveil Castle,treasure
+10007780,m10_00_00_00,Stormveil Castle,treasure
+10007790,m10_00_00_00,Stormveil Castle,treasure
+10007800,m10_00_00_00,Stormveil Castle,treasure
+10007810,m10_00_00_00,Stormveil Castle,treasure
+10007820,m10_00_00_00,Stormveil Castle,treasure
+10007830,m10_00_00_00,Stormveil Castle,treasure
+10007840,m10_00_00_00,Stormveil Castle,treasure
+10007850,m10_00_00_00,Stormveil Castle,treasure
+10007860,m10_00_00_00,Stormveil Castle,treasure
+10007870,m10_00_00_00,Stormveil Castle,treasure
+10007880,m10_00_00_00,Stormveil Castle,treasure
+10007890,m10_00_00_00,Stormveil Castle,treasure
+10007900,m10_00_00_00,Stormveil Castle,treasure
+10007910,m10_00_00_00,Stormveil Castle,treasure
+10007920,m10_00_00_00,Stormveil Castle,treasure
+10007930,m10_00_00_00,Stormveil Castle,treasure
+10007940,m10_00_00_00,Stormveil Castle,treasure
+10007950,m10_00_00_00,Stormveil Castle,treasure
+10007960,m10_00_00_00,Stormveil Castle,treasure
+10007965,m10_00_00_00,Stormveil Castle,treasure
+10007970,m10_00_00_00,Stormveil Castle,treasure
+10007975,m10_00_00_00,Stormveil Castle,treasure
+10007980,m10_00_00_00,Stormveil Castle,treasure
+10007990,m10_00_00_00,Stormveil Castle,treasure
+10017900,m10_01_00_00,Stormveil Castle,emevd
+11007000,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007005,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007040,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007185,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007195,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007200,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007205,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007210,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007220,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007225,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007240,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007250,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007270,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007280,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007300,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007320,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007350,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007360,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007390,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007400,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007410,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007420,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007430,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007440,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007450,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007480,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007500,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007510,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007520,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007530,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007540,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007580,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007590,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007600,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007610,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007620,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007630,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007640,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007650,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007670,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007710,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007720,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007730,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007740,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007750,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007760,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007800,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007850,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007950,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007985,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007987,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007991,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007992,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007993,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11007998,m11_00_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11057000,m11_05_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11057010,m11_05_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11057020,m11_05_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11107000,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11107710,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+11107900,m11_10_00_00,Leyndell / Roundtable / Shunning-Grounds,emevd
+12017030,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017040,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017050,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017060,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017070,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017080,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017090,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017100,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017105,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+12017110,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017120,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017130,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017140,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017150,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017160,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017170,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017180,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017190,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017200,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017210,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017220,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017230,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017240,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017250,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017260,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017270,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017280,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017290,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017300,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017310,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017320,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017330,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017340,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017350,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017360,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017370,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017380,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017390,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017400,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017410,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017420,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017430,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017440,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017450,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017460,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017470,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017480,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017490,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017500,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017510,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017520,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017530,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017540,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017550,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017560,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017570,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017580,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017590,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017600,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017610,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017620,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017630,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017640,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017650,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017660,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017670,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017680,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017690,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017700,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017710,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017720,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017730,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017740,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017750,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017760,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017770,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017780,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017790,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017800,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017810,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017820,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017830,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017840,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017850,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017860,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017870,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017880,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017890,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017900,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017910,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017920,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017930,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017940,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017950,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017960,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017970,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017980,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017990,m12_01_00_00,Eternal Cities & Underground Rivers,treasure
+12017995,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+12017997,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+12017999,m12_01_00_00,Eternal Cities & Underground Rivers,emevd
+12027000,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027030,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027040,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027050,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027070,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027080,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027090,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027100,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027110,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027120,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027140,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027150,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027160,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027170,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027180,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027190,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027200,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027210,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027220,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027230,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027240,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027250,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027260,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027270,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027280,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027290,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027300,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027310,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027320,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027330,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027340,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027350,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027360,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027370,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027380,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027390,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027400,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027410,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027420,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027430,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027435,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+12027440,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027445,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+12027450,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027460,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027470,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027480,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027490,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027500,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027510,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027520,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027530,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027540,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027550,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027560,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027570,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027580,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027590,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027600,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027610,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027620,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027630,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027640,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027650,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027660,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027670,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027680,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027690,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027700,m12_02_00_00,Eternal Cities & Underground Rivers,emevd
+12027710,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027720,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027730,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027740,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027750,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027760,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027770,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027780,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027790,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027800,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027810,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027820,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027830,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027850,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027860,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027870,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027880,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027890,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027900,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027910,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027920,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027930,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027940,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027950,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027960,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027970,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027980,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12027990,m12_02_00_00,Eternal Cities & Underground Rivers,treasure
+12037010,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037020,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037030,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037040,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037050,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037060,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037070,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037080,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037090,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037100,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037110,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037120,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037130,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037140,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037150,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037160,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037170,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037180,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037190,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037200,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037210,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037220,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037230,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037240,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037250,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037260,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037270,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037280,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037290,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037300,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037310,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037320,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037330,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037340,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037350,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037360,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037370,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037380,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037390,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037400,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037410,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037420,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037430,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037440,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037450,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037460,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037470,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037480,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037490,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037500,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037510,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037520,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037530,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037540,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037550,m12_03_00_00,Eternal Cities & Underground Rivers,treasure
+12037800,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12037810,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12037820,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12037830,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12037840,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12037850,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12037950,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12037960,m12_03_00_00,Eternal Cities & Underground Rivers,emevd
+12057010,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057020,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057030,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057040,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057060,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057070,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057080,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057090,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057100,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057110,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057120,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057130,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057140,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057150,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057160,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057170,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057180,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057190,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057200,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057210,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057240,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057250,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057280,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057290,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057300,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057310,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057320,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057330,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057340,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057350,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057360,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057370,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057400,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057410,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057510,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057590,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057600,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057610,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057620,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057630,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057640,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057650,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057670,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057680,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057690,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057700,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057710,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12057900,m12_05_00_00,Eternal Cities & Underground Rivers,treasure
+12057950,m12_05_00_00,Eternal Cities & Underground Rivers,emevd
+12077000,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077010,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077020,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077030,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077040,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077050,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077060,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077070,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077080,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077090,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077100,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077110,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077120,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077130,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077140,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077150,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077160,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077170,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077180,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077250,m12_07_00_00,Eternal Cities & Underground Rivers,emevd
+12077300,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077310,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077320,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077330,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077340,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077350,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077360,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077370,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077380,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077390,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077400,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077410,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077420,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077430,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077440,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077450,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077460,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077470,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077480,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077490,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077500,m12_07_00_00,Eternal Cities & Underground Rivers,treasure
+12077510,m12_07_00_00,Eternal Cities & Underground Rivers,emevd
+13007000,m13_00_00_00,Crumbling Farum Azula,treasure
+13007005,m13_00_00_00,Crumbling Farum Azula,treasure
+13007010,m13_00_00_00,Crumbling Farum Azula,treasure
+13007015,m13_00_00_00,Crumbling Farum Azula,treasure
+13007020,m13_00_00_00,Crumbling Farum Azula,treasure
+13007025,m13_00_00_00,Crumbling Farum Azula,treasure
+13007030,m13_00_00_00,Crumbling Farum Azula,treasure
+13007035,m13_00_00_00,Crumbling Farum Azula,treasure
+13007040,m13_00_00_00,Crumbling Farum Azula,treasure
+13007050,m13_00_00_00,Crumbling Farum Azula,treasure
+13007060,m13_00_00_00,Crumbling Farum Azula,treasure
+13007070,m13_00_00_00,Crumbling Farum Azula,treasure
+13007080,m13_00_00_00,Crumbling Farum Azula,treasure
+13007090,m13_00_00_00,Crumbling Farum Azula,treasure
+13007100,m13_00_00_00,Crumbling Farum Azula,treasure
+13007110,m13_00_00_00,Crumbling Farum Azula,treasure
+13007120,m13_00_00_00,Crumbling Farum Azula,treasure
+13007130,m13_00_00_00,Crumbling Farum Azula,treasure
+13007140,m13_00_00_00,Crumbling Farum Azula,treasure
+13007150,m13_00_00_00,Crumbling Farum Azula,treasure
+13007160,m13_00_00_00,Crumbling Farum Azula,treasure
+13007170,m13_00_00_00,Crumbling Farum Azula,treasure
+13007180,m13_00_00_00,Crumbling Farum Azula,treasure
+13007190,m13_00_00_00,Crumbling Farum Azula,treasure
+13007200,m13_00_00_00,Crumbling Farum Azula,treasure
+13007210,m13_00_00_00,Crumbling Farum Azula,treasure
+13007220,m13_00_00_00,Crumbling Farum Azula,treasure
+13007230,m13_00_00_00,Crumbling Farum Azula,treasure
+13007240,m13_00_00_00,Crumbling Farum Azula,treasure
+13007250,m13_00_00_00,Crumbling Farum Azula,treasure
+13007260,m13_00_00_00,Crumbling Farum Azula,treasure
+13007270,m13_00_00_00,Crumbling Farum Azula,treasure
+13007280,m13_00_00_00,Crumbling Farum Azula,treasure
+13007290,m13_00_00_00,Crumbling Farum Azula,treasure
+13007300,m13_00_00_00,Crumbling Farum Azula,treasure
+13007310,m13_00_00_00,Crumbling Farum Azula,treasure
+13007320,m13_00_00_00,Crumbling Farum Azula,treasure
+13007330,m13_00_00_00,Crumbling Farum Azula,treasure
+13007340,m13_00_00_00,Crumbling Farum Azula,treasure
+13007350,m13_00_00_00,Crumbling Farum Azula,treasure
+13007360,m13_00_00_00,Crumbling Farum Azula,treasure
+13007370,m13_00_00_00,Crumbling Farum Azula,treasure
+13007380,m13_00_00_00,Crumbling Farum Azula,treasure
+13007390,m13_00_00_00,Crumbling Farum Azula,treasure
+13007400,m13_00_00_00,Crumbling Farum Azula,treasure
+13007410,m13_00_00_00,Crumbling Farum Azula,treasure
+13007420,m13_00_00_00,Crumbling Farum Azula,treasure
+13007430,m13_00_00_00,Crumbling Farum Azula,treasure
+13007440,m13_00_00_00,Crumbling Farum Azula,treasure
+13007450,m13_00_00_00,Crumbling Farum Azula,treasure
+13007460,m13_00_00_00,Crumbling Farum Azula,treasure
+13007470,m13_00_00_00,Crumbling Farum Azula,treasure
+13007480,m13_00_00_00,Crumbling Farum Azula,treasure
+13007490,m13_00_00_00,Crumbling Farum Azula,treasure
+13007500,m13_00_00_00,Crumbling Farum Azula,treasure
+13007510,m13_00_00_00,Crumbling Farum Azula,treasure
+13007520,m13_00_00_00,Crumbling Farum Azula,treasure
+13007530,m13_00_00_00,Crumbling Farum Azula,treasure
+13007540,m13_00_00_00,Crumbling Farum Azula,treasure
+13007550,m13_00_00_00,Crumbling Farum Azula,treasure
+13007560,m13_00_00_00,Crumbling Farum Azula,treasure
+13007570,m13_00_00_00,Crumbling Farum Azula,treasure
+13007580,m13_00_00_00,Crumbling Farum Azula,treasure
+13007590,m13_00_00_00,Crumbling Farum Azula,treasure
+13007600,m13_00_00_00,Crumbling Farum Azula,treasure
+13007610,m13_00_00_00,Crumbling Farum Azula,treasure
+13007620,m13_00_00_00,Crumbling Farum Azula,treasure
+13007630,m13_00_00_00,Crumbling Farum Azula,treasure
+13007640,m13_00_00_00,Crumbling Farum Azula,treasure
+13007660,m13_00_00_00,Crumbling Farum Azula,treasure
+13007670,m13_00_00_00,Crumbling Farum Azula,treasure
+13007680,m13_00_00_00,Crumbling Farum Azula,treasure
+13007690,m13_00_00_00,Crumbling Farum Azula,treasure
+13007700,m13_00_00_00,Crumbling Farum Azula,treasure
+13007710,m13_00_00_00,Crumbling Farum Azula,treasure
+13007720,m13_00_00_00,Crumbling Farum Azula,treasure
+13007730,m13_00_00_00,Crumbling Farum Azula,treasure
+13007740,m13_00_00_00,Crumbling Farum Azula,treasure
+13007750,m13_00_00_00,Crumbling Farum Azula,treasure
+13007760,m13_00_00_00,Crumbling Farum Azula,treasure
+13007770,m13_00_00_00,Crumbling Farum Azula,treasure
+13007780,m13_00_00_00,Crumbling Farum Azula,treasure
+13007790,m13_00_00_00,Crumbling Farum Azula,treasure
+13007800,m13_00_00_00,Crumbling Farum Azula,treasure
+13007810,m13_00_00_00,Crumbling Farum Azula,treasure
+13007820,m13_00_00_00,Crumbling Farum Azula,treasure
+13007830,m13_00_00_00,Crumbling Farum Azula,treasure
+13007850,m13_00_00_00,Crumbling Farum Azula,treasure
+13007860,m13_00_00_00,Crumbling Farum Azula,treasure
+13007870,m13_00_00_00,Crumbling Farum Azula,treasure
+13007880,m13_00_00_00,Crumbling Farum Azula,treasure
+13007890,m13_00_00_00,Crumbling Farum Azula,treasure
+13007900,m13_00_00_00,Crumbling Farum Azula,treasure
+13007910,m13_00_00_00,Crumbling Farum Azula,treasure
+13007920,m13_00_00_00,Crumbling Farum Azula,treasure
+13007930,m13_00_00_00,Crumbling Farum Azula,treasure
+13007940,m13_00_00_00,Crumbling Farum Azula,treasure
+13007950,m13_00_00_00,Crumbling Farum Azula,treasure
+13007980,m13_00_00_00,Crumbling Farum Azula,treasure
+13007990,m13_00_00_00,Crumbling Farum Azula,treasure
+13007991,m13_00_00_00,Crumbling Farum Azula,emevd
+13007993,m13_00_00_00,Crumbling Farum Azula,emevd
+13007995,m13_00_00_00,Crumbling Farum Azula,emevd
+14007000,m14_00_00_00,Raya Lucaria Academy,treasure
+14007005,m14_00_00_00,Raya Lucaria Academy,emevd
+14007015,m14_00_00_00,Raya Lucaria Academy,treasure
+14007020,m14_00_00_00,Raya Lucaria Academy,treasure
+14007025,m14_00_00_00,Raya Lucaria Academy,emevd
+14007030,m14_00_00_00,Raya Lucaria Academy,treasure
+14007035,m14_00_00_00,Raya Lucaria Academy,emevd
+14007040,m14_00_00_00,Raya Lucaria Academy,treasure
+14007070,m14_00_00_00,Raya Lucaria Academy,treasure
+14007090,m14_00_00_00,Raya Lucaria Academy,treasure
+14007120,m14_00_00_00,Raya Lucaria Academy,treasure
+14007150,m14_00_00_00,Raya Lucaria Academy,treasure
+14007160,m14_00_00_00,Raya Lucaria Academy,treasure
+14007190,m14_00_00_00,Raya Lucaria Academy,treasure
+14007200,m14_00_00_00,Raya Lucaria Academy,treasure
+14007220,m14_00_00_00,Raya Lucaria Academy,treasure
+14007250,m14_00_00_00,Raya Lucaria Academy,treasure
+14007280,m14_00_00_00,Raya Lucaria Academy,treasure
+14007290,m14_00_00_00,Raya Lucaria Academy,treasure
+14007300,m14_00_00_00,Raya Lucaria Academy,treasure
+14007320,m14_00_00_00,Raya Lucaria Academy,treasure
+14007330,m14_00_00_00,Raya Lucaria Academy,treasure
+14007350,m14_00_00_00,Raya Lucaria Academy,treasure
+14007360,m14_00_00_00,Raya Lucaria Academy,treasure
+14007370,m14_00_00_00,Raya Lucaria Academy,treasure
+14007380,m14_00_00_00,Raya Lucaria Academy,treasure
+14007390,m14_00_00_00,Raya Lucaria Academy,treasure
+14007410,m14_00_00_00,Raya Lucaria Academy,treasure
+14007420,m14_00_00_00,Raya Lucaria Academy,treasure
+14007430,m14_00_00_00,Raya Lucaria Academy,treasure
+14007440,m14_00_00_00,Raya Lucaria Academy,treasure
+14007450,m14_00_00_00,Raya Lucaria Academy,treasure
+14007460,m14_00_00_00,Raya Lucaria Academy,treasure
+14007470,m14_00_00_00,Raya Lucaria Academy,treasure
+14007480,m14_00_00_00,Raya Lucaria Academy,treasure
+14007490,m14_00_00_00,Raya Lucaria Academy,treasure
+14007510,m14_00_00_00,Raya Lucaria Academy,treasure
+14007520,m14_00_00_00,Raya Lucaria Academy,treasure
+14007530,m14_00_00_00,Raya Lucaria Academy,treasure
+14007540,m14_00_00_00,Raya Lucaria Academy,treasure
+14007560,m14_00_00_00,Raya Lucaria Academy,treasure
+14007600,m14_00_00_00,Raya Lucaria Academy,treasure
+14007620,m14_00_00_00,Raya Lucaria Academy,treasure
+14007630,m14_00_00_00,Raya Lucaria Academy,treasure
+14007660,m14_00_00_00,Raya Lucaria Academy,treasure
+14007670,m14_00_00_00,Raya Lucaria Academy,treasure
+14007710,m14_00_00_00,Raya Lucaria Academy,treasure
+14007720,m14_00_00_00,Raya Lucaria Academy,treasure
+14007740,m14_00_00_00,Raya Lucaria Academy,treasure
+14007750,m14_00_00_00,Raya Lucaria Academy,treasure
+14007760,m14_00_00_00,Raya Lucaria Academy,treasure
+14007770,m14_00_00_00,Raya Lucaria Academy,treasure
+14007840,m14_00_00_00,Raya Lucaria Academy,treasure
+14007850,m14_00_00_00,Raya Lucaria Academy,treasure
+14007860,m14_00_00_00,Raya Lucaria Academy,treasure
+14007870,m14_00_00_00,Raya Lucaria Academy,treasure
+14007880,m14_00_00_00,Raya Lucaria Academy,treasure
+14007890,m14_00_00_00,Raya Lucaria Academy,treasure
+14007910,m14_00_00_00,Raya Lucaria Academy,treasure
+14007920,m14_00_00_00,Raya Lucaria Academy,treasure
+14007930,m14_00_00_00,Raya Lucaria Academy,treasure
+14007940,m14_00_00_00,Raya Lucaria Academy,treasure
+14007970,m14_00_00_00,Raya Lucaria Academy,treasure
+14007980,m14_00_00_00,Raya Lucaria Academy,emevd
+14007990,m14_00_00_00,Raya Lucaria Academy,treasure
+14007995,m14_00_00_00,Raya Lucaria Academy,emevd
+15001200,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+15001250,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+15001260,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+15001270,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+15001280,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+15001290,m15_00_00_00,Miquella's Haligtree & Elphael,emevd
+15007000,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007010,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007020,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007030,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007040,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007050,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007060,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007070,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007080,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007090,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007100,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007110,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007120,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007130,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007140,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007150,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007160,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007170,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007180,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007190,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007200,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007210,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007220,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007230,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007240,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007250,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007260,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007270,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007280,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007290,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007300,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007310,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007320,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007330,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007340,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007350,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007360,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007370,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007380,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007390,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007400,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007410,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007420,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007430,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007440,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007450,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007460,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007470,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007480,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007490,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007500,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007510,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007520,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007530,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007540,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007550,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007560,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007570,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007580,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007590,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007600,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007610,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007620,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007630,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007640,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007650,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007660,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007670,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007680,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007690,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007700,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007710,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007720,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007730,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007740,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007750,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007760,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007770,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007780,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007790,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007800,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007810,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007820,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007830,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007840,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007850,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007860,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007870,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007880,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007890,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007900,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007910,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007920,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007930,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007940,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007950,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007960,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007970,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007980,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+15007990,m15_00_00_00,Miquella's Haligtree & Elphael,treasure
+16007000,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007010,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007020,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007030,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007040,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007050,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007060,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007070,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007080,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007100,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007120,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007130,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007140,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007150,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007160,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007170,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007190,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007200,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007210,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007220,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007230,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007240,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007250,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007270,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007280,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007290,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007310,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007320,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007330,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007350,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007360,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007380,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007390,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007400,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007410,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007420,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007430,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007440,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007480,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007490,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007500,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007510,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007520,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007530,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007540,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007550,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007560,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007610,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007620,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007690,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+16007700,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007710,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007730,m16_00_00_00,Volcano Manor / Mt. Gelmir,treasure
+16007940,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+16007950,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+16007960,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+16007970,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+16007980,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+16007999,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
+18007000,m10_01_00_00,Stormveil Castle,emevd
+18007020,m10_01_00_00,Stormveil Castle,emevd
+18007050,m18_00_00_00,Stormveil (assoc.),emevd
+18007900,m18_00_00_00,Stormveil (assoc.),emevd
+20007000,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007010,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007020,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007030,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007040,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007050,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007060,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007070,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007080,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007090,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007100,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007110,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007120,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007130,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007140,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007150,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007160,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007170,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007180,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007190,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007200,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007210,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007220,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007230,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007240,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007250,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007260,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007270,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007280,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007290,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007300,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007310,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007320,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007330,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007340,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007350,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007360,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007370,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007380,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007390,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007400,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007410,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007420,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007430,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007440,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007450,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007460,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007470,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007480,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007490,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007500,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007510,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007520,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007530,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007540,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007550,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007560,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007570,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007580,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007590,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007600,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007610,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007620,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007630,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007640,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007650,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007660,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007670,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007680,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007690,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007700,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007710,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007730,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007740,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007750,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007760,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007770,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007780,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007790,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007800,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007810,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007820,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007830,m20_00_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20007991,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+20007993,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+20017000,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017010,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017020,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017030,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017040,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017050,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017060,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017070,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017080,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017090,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017100,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017110,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017120,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017130,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017140,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017150,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017160,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017170,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017180,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017190,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017200,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017210,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017220,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017230,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017240,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017250,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017260,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017270,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017280,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017290,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017300,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017310,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017320,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017330,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017340,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017350,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017360,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017370,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017380,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017390,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017400,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017410,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017420,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017430,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017440,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017450,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017460,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017470,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017480,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017490,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017500,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017510,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017520,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017530,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017540,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017550,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017560,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017570,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017580,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017590,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017600,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017610,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017620,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017630,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017640,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017650,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017660,m20_01_00_00,Mohgwyn / Consecrated-adjacent,treasure
+20017981,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+20017991,m20_01_00_00,Mohgwyn / Consecrated-adjacent,emevd
+21007000,m21_00_00_00,DLC Interior,emevd
+21007010,m21_00_00_00,DLC Interior,emevd
+21007020,m21_00_00_00,DLC Interior,emevd
+21007050,m21_00_00_00,DLC Interior,emevd
+21007100,m21_00_00_00,DLC Interior,emevd
+21007200,m21_00_00_00,DLC Interior,emevd
+21007210,m21_00_00_00,DLC Interior,emevd
+21007240,m21_00_00_00,DLC Interior,emevd
+21007260,m21_00_00_00,DLC Interior,emevd
+21007290,m21_00_00_00,DLC Interior,emevd
+21007300,m21_00_00_00,DLC Interior,emevd
+21007340,m21_00_00_00,DLC Interior,emevd
+21007350,m21_00_00_00,DLC Interior,emevd
+21007370,m21_00_00_00,DLC Interior,emevd
+21007380,m21_00_00_00,DLC Interior,emevd
+21007450,m21_00_00_00,DLC Interior,emevd
+21007470,m21_00_00_00,DLC Interior,emevd
+21007500,m21_00_00_00,DLC Interior,emevd
+21007510,m21_00_00_00,DLC Interior,emevd
+21007520,m21_00_00_00,DLC Interior,emevd
+21007530,m21_00_00_00,DLC Interior,emevd
+21007560,m21_00_00_00,DLC Interior,emevd
+21007570,m21_00_00_00,DLC Interior,emevd
+21007580,m21_00_00_00,DLC Interior,emevd
+21007700,m21_00_00_00,DLC Interior,emevd
+21007710,m21_00_00_00,DLC Interior,emevd
+21007720,m21_00_00_00,DLC Interior,emevd
+21007730,m21_00_00_00,DLC Interior,emevd
+21007740,m21_00_00_00,DLC Interior,emevd
+21007750,m21_00_00_00,DLC Interior,emevd
+21007850,m21_00_00_00,DLC Interior,emevd
+21007991,m21_00_00_00,DLC Interior,emevd
+21007993,m21_00_00_00,DLC Interior,emevd
+21007995,m21_00_00_00,DLC Interior,emevd
+21017000,m21_01_00_00,DLC Interior,emevd
+21017010,m21_01_00_00,DLC Interior,emevd
+21017050,m21_01_00_00,DLC Interior,emevd
+21017110,m21_01_00_00,DLC Interior,emevd
+21017200,m21_01_00_00,DLC Interior,emevd
+21017210,m21_01_00_00,DLC Interior,emevd
+21017230,m21_01_00_00,DLC Interior,emevd
+21017250,m21_01_00_00,DLC Interior,emevd
+21017270,m21_01_00_00,DLC Interior,emevd
+21017280,m21_01_00_00,DLC Interior,emevd
+21017290,m21_01_00_00,DLC Interior,emevd
+21017300,m21_01_00_00,DLC Interior,emevd
+21017310,m21_01_00_00,DLC Interior,emevd
+21017360,m21_01_00_00,DLC Interior,emevd
+21017370,m21_01_00_00,DLC Interior,emevd
+21017450,m21_01_00_00,DLC Interior,emevd
+21017460,m21_01_00_00,DLC Interior,emevd
+21017500,m21_01_00_00,DLC Interior,emevd
+21017510,m21_01_00_00,DLC Interior,emevd
+21017520,m21_01_00_00,DLC Interior,emevd
+21017530,m21_01_00_00,DLC Interior,emevd
+21017570,m21_01_00_00,DLC Interior,emevd
+21017580,m21_01_00_00,DLC Interior,emevd
+21017700,m21_01_00_00,DLC Interior,emevd
+21017710,m21_01_00_00,DLC Interior,emevd
+21017720,m21_01_00_00,DLC Interior,emevd
+21017730,m21_01_00_00,DLC Interior,emevd
+21017740,m21_01_00_00,DLC Interior,emevd
+21017760,m21_01_00_00,DLC Interior,emevd
+21017770,m21_01_00_00,DLC Interior,emevd
+21017800,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+21017820,m21_01_00_00,DLC Interior,emevd
+21017950,m21_01_00_00,DLC Interior,emevd
+21017991,m21_01_00_00,DLC Interior,emevd
+21027050,m21_02_00_00,DLC Interior,emevd
+21027230,m21_02_00_00,DLC Interior,emevd
+21027250,m21_02_00_00,DLC Interior,emevd
+21027270,m21_02_00_00,DLC Interior,emevd
+21027991,m21_02_00_00,DLC Interior,emevd
+22007000,m22_00_00_00,m22,emevd
+22007100,m22_00_00_00,m22,emevd
+22007200,m22_00_00_00,m22,emevd
+22007210,m22_00_00_00,m22,emevd
+22007220,m22_00_00_00,m22,emevd
+22007240,m22_00_00_00,m22,emevd
+22007900,m22_00_00_00,m22,emevd
+28007000,m28_00_00_00,m28,treasure
+28007010,m28_00_00_00,m28,treasure
+28007020,m28_00_00_00,m28,treasure
+28007030,m28_00_00_00,m28,treasure
+28007040,m28_00_00_00,m28,treasure
+28007050,m28_00_00_00,m28,treasure
+28007100,m28_00_00_00,m28,emevd
+30007010,m30_00_00_00,Hero's Graves (Catacombs),treasure
+30007020,m30_00_00_00,Hero's Graves (Catacombs),treasure
+30007040,m30_00_00_00,Hero's Graves (Catacombs),treasure
+30037000,m30_03_00_00,Hero's Graves (Catacombs),treasure
+30037010,m30_03_00_00,Hero's Graves (Catacombs),treasure
+30037020,m30_03_00_00,Hero's Graves (Catacombs),treasure
+30037030,m30_03_00_00,Hero's Graves (Catacombs),treasure
+30037040,m30_03_00_00,Hero's Graves (Catacombs),treasure
+30057000,m30_05_00_00,Hero's Graves (Catacombs),treasure
+30057010,m30_05_00_00,Hero's Graves (Catacombs),treasure
+30057030,m30_05_00_00,Hero's Graves (Catacombs),treasure
+30057040,m30_05_00_00,Hero's Graves (Catacombs),treasure
+30077600,m30_07_00_00,Hero's Graves (Catacombs),emevd
+30097000,m30_09_00_00,Hero's Graves (Catacombs),emevd
+30097050,m30_09_00_00,Hero's Graves (Catacombs),emevd
+30107050,m30_10_00_00,Hero's Graves (Catacombs),emevd
+30107100,m30_10_00_00,Hero's Graves (Catacombs),emevd
+30117000,m30_11_00_00,Hero's Graves (Catacombs),emevd
+30137020,m30_13_00_00,Hero's Graves (Catacombs),treasure
+30137030,m30_13_00_00,Hero's Graves (Catacombs),treasure
+30137040,m30_13_00_00,Hero's Graves (Catacombs),treasure
+30177050,m30_17_00_00,Hero's Graves (Catacombs),emevd
+30187900,m30_18_00_00,Hero's Graves (Catacombs),emevd
+30207000,m30_20_00_00,Hero's Graves (Catacombs),emevd
+30207910,m30_20_00_00,Hero's Graves (Catacombs),emevd
+31007000,m31_00_00_00,Caves,treasure
+31007010,m31_00_00_00,Caves,treasure
+31007030,m31_00_00_00,Caves,treasure
+31017000,m31_01_00_00,Caves,treasure
+31017010,m31_01_00_00,Caves,treasure
+31017020,m31_01_00_00,Caves,treasure
+31017030,m31_01_00_00,Caves,treasure
+31017040,m31_01_00_00,Caves,treasure
+31017060,m31_01_00_00,Caves,treasure
+31047000,m31_04_00_00,Caves,treasure
+31047010,m31_04_00_00,Caves,treasure
+31047020,m31_04_00_00,Caves,treasure
+31047030,m31_04_00_00,Caves,treasure
+31047040,m31_04_00_00,Caves,treasure
+31047050,m31_04_00_00,Caves,treasure
+31047060,m31_04_00_00,Caves,treasure
+31047990,m31_04_00_00,Caves,emevd
+31057000,m31_05_00_00,Caves,treasure
+31057010,m31_05_00_00,Caves,treasure
+31057020,m31_05_00_00,Caves,treasure
+31057030,m31_05_00_00,Caves,treasure
+31057040,m31_05_00_00,Caves,treasure
+31057050,m31_05_00_00,Caves,treasure
+31057060,m31_05_00_00,Caves,treasure
+31057070,m31_05_00_00,Caves,treasure
+31057100,m31_05_00_00,Caves,treasure
+31067000,m31_06_00_00,Caves,emevd
+31077000,m31_07_00_00,Caves,emevd
+31097000,m31_09_00_00,Caves,emevd
+31107000,m31_10_00_00,Caves,emevd
+31117000,m31_11_00_00,Caves,emevd
+31117200,m31_11_00_00,Caves,emevd
+31117300,m31_11_00_00,Caves,emevd
+31127000,m31_12_00_00,Caves,emevd
+31157010,m31_15_00_00,Caves,treasure
+31157020,m31_15_00_00,Caves,treasure
+31177010,m31_17_00_00,Caves,treasure
+31177020,m31_17_00_00,Caves,treasure
+31177030,m31_17_00_00,Caves,treasure
+31177040,m31_17_00_00,Caves,treasure
+31177050,m31_17_00_00,Caves,treasure
+31177060,m31_17_00_00,Caves,treasure
+31177070,m31_17_00_00,Caves,treasure
+31177080,m31_17_00_00,Caves,treasure
+31187020,m31_18_00_00,Caves,treasure
+31187030,m31_18_00_00,Caves,treasure
+31187040,m31_18_00_00,Caves,treasure
+31187050,m31_18_00_00,Caves,treasure
+31187060,m31_18_00_00,Caves,treasure
+31187070,m31_18_00_00,Caves,treasure
+31187080,m31_18_00_00,Caves,treasure
+31197000,m31_19_00_00,Caves,treasure
+31197010,m31_19_00_00,Caves,treasure
+31197030,m31_19_00_00,Caves,treasure
+31197040,m31_19_00_00,Caves,treasure
+31197050,m31_19_00_00,Caves,treasure
+31197060,m31_19_00_00,Caves,treasure
+31197080,m31_19_00_00,Caves,treasure
+31197090,m31_19_00_00,Caves,treasure
+31197100,m31_19_00_00,Caves,treasure
+31197110,m31_19_00_00,Caves,treasure
+31197120,m31_19_00_00,Caves,treasure
+31197130,m31_19_00_00,Caves,treasure
+31197200,m31_19_00_00,Caves,treasure
+31197210,m31_19_00_00,Caves,treasure
+31207000,m31_20_00_00,Caves,treasure
+31207010,m31_20_00_00,Caves,treasure
+31207020,m31_20_00_00,Caves,treasure
+31207030,m31_20_00_00,Caves,treasure
+31217000,m31_21_00_00,Caves,treasure
+31217030,m31_21_00_00,Caves,treasure
+31217040,m31_21_00_00,Caves,treasure
+31217070,m31_21_00_00,Caves,treasure
+31217080,m31_21_00_00,Caves,treasure
+31217090,m31_21_00_00,Caves,treasure
+31217100,m31_21_00_00,Caves,treasure
+31217110,m31_21_00_00,Caves,treasure
+31217120,m31_21_00_00,Caves,treasure
+31217140,m31_21_00_00,Caves,treasure
+31217150,m31_21_00_00,Caves,treasure
+31217160,m31_21_00_00,Caves,treasure
+31217190,m31_21_00_00,Caves,treasure
+31217200,m31_21_00_00,Caves,treasure
+31217210,m31_21_00_00,Caves,treasure
+31217350,m31_21_00_00,Caves,treasure
+31217400,m31_21_00_00,Caves,treasure
+31227000,m31_22_00_00,Caves,treasure
+31227010,m31_22_00_00,Caves,treasure
+31227020,m31_22_00_00,Caves,treasure
+31227030,m31_22_00_00,Caves,treasure
+31227040,m31_22_00_00,Caves,treasure
+31227050,m31_22_00_00,Caves,treasure
+31227060,m31_22_00_00,Caves,treasure
+31227070,m31_22_00_00,Caves,treasure
+31227080,m31_22_00_00,Caves,treasure
+32007000,m32_00_00_00,Tunnels,treasure
+32007010,m32_00_00_00,Tunnels,treasure
+32007020,m32_00_00_00,Tunnels,treasure
+32007030,m32_00_00_00,Tunnels,treasure
+32007060,m32_00_00_00,Tunnels,treasure
+32007070,m32_00_00_00,Tunnels,treasure
+32007900,m32_00_00_00,Tunnels,treasure
+32017000,m32_01_00_00,Tunnels,treasure
+32017010,m32_01_00_00,Tunnels,treasure
+32017020,m32_01_00_00,Tunnels,treasure
+32017030,m32_01_00_00,Tunnels,treasure
+32017040,m32_01_00_00,Tunnels,treasure
+32027000,m32_02_00_00,Tunnels,treasure
+32027010,m32_02_00_00,Tunnels,treasure
+32027020,m32_02_00_00,Tunnels,treasure
+32027030,m32_02_00_00,Tunnels,treasure
+32027040,m32_02_00_00,Tunnels,treasure
+32027060,m32_02_00_00,Tunnels,treasure
+32027070,m32_02_00_00,Tunnels,treasure
+32027900,m32_02_00_00,Tunnels,treasure
+32047000,m32_04_00_00,Tunnels,treasure
+32047010,m32_04_00_00,Tunnels,treasure
+32047020,m32_04_00_00,Tunnels,treasure
+32047030,m32_04_00_00,Tunnels,treasure
+32047040,m32_04_00_00,Tunnels,treasure
+32047050,m32_04_00_00,Tunnels,treasure
+32057000,m32_05_00_00,Tunnels,treasure
+32057010,m32_05_00_00,Tunnels,treasure
+32057020,m32_05_00_00,Tunnels,treasure
+32057030,m32_05_00_00,Tunnels,treasure
+32057040,m32_05_00_00,Tunnels,treasure
+32057900,m32_05_00_00,Tunnels,treasure
+32057910,m32_05_00_00,Tunnels,treasure
+32077000,m32_07_00_00,Tunnels,treasure
+32077010,m32_07_00_00,Tunnels,treasure
+32077020,m32_07_00_00,Tunnels,treasure
+32077030,m32_07_00_00,Tunnels,treasure
+32077060,m32_07_00_00,Tunnels,treasure
+32077070,m32_07_00_00,Tunnels,treasure
+32087000,m32_08_00_00,Tunnels,treasure
+32087020,m32_08_00_00,Tunnels,treasure
+32087030,m32_08_00_00,Tunnels,treasure
+32087050,m32_08_00_00,Tunnels,treasure
+32087060,m32_08_00_00,Tunnels,treasure
+32087070,m32_08_00_00,Tunnels,treasure
+32087100,m32_08_00_00,Tunnels,treasure
+32087110,m32_08_00_00,Tunnels,treasure
+32087120,m32_08_00_00,Tunnels,treasure
+32087900,m32_08_00_00,Tunnels,treasure
+32087910,m32_08_00_00,Tunnels,treasure
+32117000,m32_11_00_00,Tunnels,treasure
+32117020,m32_11_00_00,Tunnels,treasure
+32117030,m32_11_00_00,Tunnels,treasure
+32117040,m32_11_00_00,Tunnels,treasure
+32117060,m32_11_00_00,Tunnels,treasure
+32117080,m32_11_00_00,Tunnels,treasure
+32117700,m32_11_00_00,Tunnels,emevd
+34107000,m34_10_00_00,DLC Dungeon,treasure
+34107010,m34_10_00_00,DLC Dungeon,treasure
+34107070,m34_10_00_00,DLC Dungeon,treasure
+34107080,m34_10_00_00,DLC Dungeon,treasure
+34107090,m34_10_00_00,DLC Dungeon,treasure
+34107100,m34_10_00_00,DLC Dungeon,treasure
+34107110,m34_10_00_00,DLC Dungeon,treasure
+34117010,m34_11_00_00,DLC Dungeon,treasure
+34117060,m34_11_00_00,DLC Dungeon,treasure
+34117080,m34_11_00_00,DLC Dungeon,treasure
+34117100,m34_11_00_00,DLC Dungeon,treasure
+34117110,m34_11_00_00,DLC Dungeon,treasure
+34117120,m34_11_00_00,DLC Dungeon,treasure
+34117200,m34_11_00_00,DLC Dungeon,treasure
+34117400,m34_11_00_00,DLC Dungeon,emevd
+34117401,m34_11_00_00,DLC Dungeon,emevd
+34117402,m34_11_00_00,DLC Dungeon,emevd
+34117403,m34_11_00_00,DLC Dungeon,emevd
+34117500,m34_11_00_00,DLC Dungeon,treasure
+34117700,m34_11_00_00,DLC Dungeon,emevd
+34117710,m34_11_00_00,DLC Dungeon,emevd
+34127010,m34_12_00_00,DLC Dungeon,treasure
+34127020,m34_12_00_00,DLC Dungeon,treasure
+34127030,m34_12_00_00,DLC Dungeon,treasure
+34127040,m34_12_00_00,DLC Dungeon,treasure
+34127050,m34_12_00_00,DLC Dungeon,treasure
+34127060,m34_12_00_00,DLC Dungeon,treasure
+34127070,m34_12_00_00,DLC Dungeon,treasure
+34127080,m34_12_00_00,DLC Dungeon,treasure
+34127090,m34_12_00_00,DLC Dungeon,treasure
+34127100,m34_12_00_00,DLC Dungeon,treasure
+34127110,m34_12_00_00,DLC Dungeon,treasure
+34127120,m34_12_00_00,DLC Dungeon,treasure
+34127130,m34_12_00_00,DLC Dungeon,treasure
+34127140,m34_12_00_00,DLC Dungeon,treasure
+34127150,m34_12_00_00,DLC Dungeon,treasure
+34127160,m34_12_00_00,DLC Dungeon,treasure
+34127900,m34_12_00_00,DLC Dungeon,treasure
+34137000,m34_13_00_00,DLC Dungeon,treasure
+34137010,m34_13_00_00,DLC Dungeon,treasure
+34137020,m34_13_00_00,DLC Dungeon,treasure
+34137900,m34_13_00_00,DLC Dungeon,treasure
+34147000,m34_14_00_00,DLC Dungeon,treasure
+34147010,m34_14_00_00,DLC Dungeon,treasure
+34147020,m34_14_00_00,DLC Dungeon,treasure
+34147720,m34_14_00_00,DLC Dungeon,emevd
+34147800,m34_14_00_00,DLC Dungeon,treasure
+34147810,m34_14_00_00,DLC Dungeon,treasure
+35007000,m35_00_00_00,Divine Tower,treasure
+35007010,m35_00_00_00,Divine Tower,emevd
+35007020,m35_00_00_00,Divine Tower,emevd
+35007030,m35_00_00_00,Divine Tower,treasure
+35007040,m35_00_00_00,Divine Tower,treasure
+35007050,m35_00_00_00,Divine Tower,treasure
+35007060,m35_00_00_00,Divine Tower,treasure
+35007080,m35_00_00_00,Divine Tower,treasure
+35007090,m35_00_00_00,Divine Tower,treasure
+35007100,m35_00_00_00,Divine Tower,emevd
+35007110,m35_00_00_00,Divine Tower,treasure
+35007120,m35_00_00_00,Divine Tower,treasure
+35007130,m35_00_00_00,Divine Tower,treasure
+35007150,m35_00_00_00,Divine Tower,treasure
+35007160,m35_00_00_00,Divine Tower,treasure
+35007170,m35_00_00_00,Divine Tower,treasure
+35007180,m35_00_00_00,Divine Tower,treasure
+35007190,m35_00_00_00,Divine Tower,treasure
+35007200,m35_00_00_00,Divine Tower,treasure
+35007210,m35_00_00_00,Divine Tower,treasure
+35007220,m35_00_00_00,Divine Tower,treasure
+35007240,m35_00_00_00,Divine Tower,treasure
+35007250,m35_00_00_00,Divine Tower,treasure
+35007260,m35_00_00_00,Divine Tower,treasure
+35007270,m35_00_00_00,Divine Tower,treasure
+35007280,m35_00_00_00,Divine Tower,treasure
+35007300,m35_00_00_00,Divine Tower,treasure
+35007310,m35_00_00_00,Divine Tower,treasure
+35007320,m35_00_00_00,Divine Tower,treasure
+35007330,m35_00_00_00,Divine Tower,treasure
+35007340,m35_00_00_00,Divine Tower,treasure
+35007350,m35_00_00_00,Divine Tower,treasure
+35007370,m35_00_00_00,Divine Tower,treasure
+35007380,m35_00_00_00,Divine Tower,treasure
+35007390,m35_00_00_00,Divine Tower,treasure
+35007400,m35_00_00_00,Divine Tower,treasure
+35007410,m35_00_00_00,Divine Tower,treasure
+35007420,m35_00_00_00,Divine Tower,treasure
+35007430,m35_00_00_00,Divine Tower,treasure
+35007450,m35_00_00_00,Divine Tower,treasure
+35007460,m35_00_00_00,Divine Tower,treasure
+35007470,m35_00_00_00,Divine Tower,treasure
+35007480,m35_00_00_00,Divine Tower,treasure
+35007500,m35_00_00_00,Divine Tower,treasure
+35007510,m35_00_00_00,Divine Tower,treasure
+35007530,m35_00_00_00,Divine Tower,treasure
+35007540,m35_00_00_00,Divine Tower,treasure
+35007550,m35_00_00_00,Divine Tower,treasure
+35007560,m35_00_00_00,Divine Tower,treasure
+35007570,m35_00_00_00,Divine Tower,treasure
+35007580,m35_00_00_00,Divine Tower,emevd
+35007590,m35_00_00_00,Divine Tower,treasure
+35007600,m35_00_00_00,Divine Tower,treasure
+35007630,m35_00_00_00,Divine Tower,treasure
+35007650,m35_00_00_00,Divine Tower,treasure
+35007660,m35_00_00_00,Divine Tower,treasure
+35007670,m35_00_00_00,Divine Tower,treasure
+35007680,m35_00_00_00,Divine Tower,treasure
+35007700,m35_00_00_00,Divine Tower,treasure
+35007710,m35_00_00_00,Divine Tower,treasure
+35007720,m35_00_00_00,Divine Tower,treasure
+35007730,m35_00_00_00,Divine Tower,treasure
+35007740,m35_00_00_00,Divine Tower,treasure
+35007770,m35_00_00_00,Divine Tower,treasure
+35007780,m35_00_00_00,Divine Tower,treasure
+35007900,m35_00_00_00,Divine Tower,treasure
+35007910,m35_00_00_00,Divine Tower,treasure
+35007930,m35_00_00_00,Divine Tower,treasure
+35007940,m35_00_00_00,Divine Tower,treasure
+35007950,m35_00_00_00,Divine Tower,treasure
+35007970,m35_00_00_00,Divine Tower,emevd
+35007980,m35_00_00_00,Divine Tower,emevd
+35007993,m35_00_00_00,Divine Tower,emevd
+39207000,m39_20_00_00,DLC Dungeon,emevd
+39207500,m39_20_00_00,DLC Dungeon,emevd
+40007000,m18_00_00_00,Stormveil (assoc.),emevd
+40007800,m40_00_00_00,DLC Dungeon,emevd
+40017000,m18_00_00_00,Stormveil (assoc.),emevd
+40027000,m18_00_00_00,Stormveil (assoc.),emevd
+40027200,m40_02_00_00,DLC Dungeon,emevd
+40027220,m40_02_00_00,DLC Dungeon,emevd
+41007000,m18_00_00_00,Stormveil (assoc.),emevd
+41007200,m41_00_00_00,DLC Legacy Dungeon,emevd
+41007260,m41_00_00_00,DLC Legacy Dungeon,emevd
+41017210,m41_01_00_00,DLC Legacy Dungeon,emevd
+41017220,m41_01_00_00,DLC Legacy Dungeon,emevd
+41017300,m41_01_00_00,DLC Legacy Dungeon,emevd
+41027000,m18_00_00_00,Stormveil (assoc.),emevd
+41027200,m41_02_00_00,DLC Legacy Dungeon,emevd
+41027210,m41_02_00_00,DLC Legacy Dungeon,emevd
+41027300,m41_02_00_00,DLC Legacy Dungeon,emevd
+41027320,m41_02_00_00,DLC Legacy Dungeon,emevd
+42007000,m18_00_00_00,Stormveil (assoc.),emevd
+42027000,m42_02_00_00,DLC Legacy Dungeon,emevd
+42037000,m18_00_00_00,Stormveil (assoc.),emevd
+42037100,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037110,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037120,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037130,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037140,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037150,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037160,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037170,m42_03_00_00,DLC Legacy Dungeon,treasure
+42037180,m42_03_00_00,DLC Legacy Dungeon,treasure
+43007000,m18_00_00_00,Stormveil (assoc.),emevd
+43017000,m43_01_00_00,DLC Legacy Dungeon,emevd
+43017900,m43_01_00_00,DLC Legacy Dungeon,emevd
+1033407100,m60_33_40_00,Overworld m60_33_40_00,treasure
+1033417000,m60_33_41_00,Overworld m60_33_41_00,treasure
+1033417010,m60_33_41_00,Overworld m60_33_41_00,treasure
+1033417020,m60_33_41_00,Overworld m60_33_41_00,treasure
+1033417400,m60_33_41_00,Overworld m60_33_41_00,emevd
+1033417410,m60_33_41_00,Overworld m60_33_41_00,emevd
+1033447000,m60_33_44_00,Overworld m60_33_44_00,emevd
+1033467000,m60_33_46_00,Overworld m60_33_46_00,emevd
+1033477000,m60_33_47_00,Overworld m60_33_47_00,emevd
+1033477200,m60_33_47_00,Overworld m60_33_47_00,emevd
+1034417000,m60_34_41_00,Overworld m60_34_41_00,emevd
+1034427000,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427010,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427020,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427030,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427040,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427050,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427060,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427100,m60_34_42_00,Overworld m60_34_42_00,treasure
+1034427400,m60_34_42_00,Overworld m60_34_42_00,emevd
+1034437000,m60_34_43_00,Overworld m60_34_43_00,treasure
+1034437200,m60_34_43_00,Overworld m60_34_43_00,emevd
+1034437300,m60_34_43_00,Overworld m60_34_43_00,treasure
+1034447000,m60_34_44_00,Overworld m60_34_44_00,treasure
+1034447010,m60_34_44_00,Overworld m60_34_44_00,treasure
+1034447900,m60_34_44_00,Overworld m60_34_44_00,treasure
+1034457010,m60_34_45_00,Overworld m60_34_45_00,treasure
+1034457020,m60_34_45_00,Overworld m60_34_45_00,treasure
+1034457100,m60_34_45_00,Overworld m60_34_45_00,treasure
+1034467100,m60_34_46_00,Overworld m60_34_46_00,treasure
+1034477000,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477110,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477120,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477130,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477140,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477150,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477160,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477170,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477180,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477190,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477200,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477210,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477220,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034477300,m60_34_47_00,Overworld m60_34_47_00,emevd
+1034477310,m60_34_47_00,Overworld m60_34_47_00,emevd
+1034477500,m60_34_47_00,Overworld m60_34_47_00,treasure
+1034487000,m60_34_48_00,Overworld m60_34_48_00,treasure
+1034487010,m60_34_48_00,Overworld m60_34_48_00,treasure
+1034487100,m60_34_48_00,Overworld m60_34_48_00,treasure
+1034487300,m60_34_48_00,Overworld m60_34_48_00,emevd
+1034487310,m60_34_48_00,Overworld m60_34_48_00,emevd
+1034497010,m60_34_49_00,Overworld m60_34_49_00,treasure
+1034507010,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507020,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507030,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507040,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507050,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507060,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507070,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507080,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507090,m60_34_50_00,Overworld m60_34_50_00,treasure
+1034507200,m60_34_50_00,Overworld m60_34_50_00,emevd
+1034517900,m60_34_51_00,Overworld m60_34_51_00,treasure
+1035417000,m60_35_41_00,Overworld m60_35_41_00,treasure
+1035417010,m60_35_41_00,Overworld m60_35_41_00,treasure
+1035417100,m60_35_41_00,Overworld m60_35_41_00,treasure
+1035417110,m60_35_41_00,Overworld m60_35_41_00,treasure
+1035427150,m60_35_42_00,Overworld m60_35_42_00,emevd
+1035427200,m60_35_42_00,Overworld m60_35_42_00,emevd
+1035437010,m60_35_43_00,Overworld m60_35_43_00,treasure
+1035437100,m60_35_43_00,Overworld m60_35_43_00,emevd
+1035447000,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447010,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447020,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447030,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447040,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447050,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447060,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447070,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447080,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447090,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447100,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447110,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035447120,m60_35_44_00,Overworld m60_35_44_00,treasure
+1035457000,m60_35_45_00,Overworld m60_35_45_00,emevd
+1035457100,m60_35_45_00,Overworld m60_35_45_00,emevd
+1035467700,m60_35_46_00,Overworld m60_35_46_00,emevd
+1035477000,m60_35_47_00,Overworld m60_35_47_00,emevd
+1035477010,m60_35_47_00,Overworld m60_35_47_00,treasure
+1035487010,m60_35_48_00,Overworld m60_35_48_00,treasure
+1035487020,m60_35_48_00,Overworld m60_35_48_00,treasure
+1035487030,m60_35_48_00,Overworld m60_35_48_00,treasure
+1035487100,m60_35_48_00,Overworld m60_35_48_00,emevd
+1035507000,m60_35_50_00,Overworld m60_35_50_00,emevd
+1035507200,m60_35_50_00,Overworld m60_35_50_00,emevd
+1035507220,m60_35_50_00,Overworld m60_35_50_00,emevd
+1035507230,m60_35_50_00,Overworld m60_35_50_00,emevd
+1035507240,m60_35_50_00,Overworld m60_35_50_00,emevd
+1035507280,m60_35_50_00,Overworld m60_35_50_00,emevd
+1035527010,m60_35_52_00,Overworld m60_35_52_00,treasure
+1035527020,m60_35_52_00,Overworld m60_35_52_00,treasure
+1035527030,m60_35_52_00,Overworld m60_35_52_00,treasure
+1035527040,m60_35_52_00,Overworld m60_35_52_00,treasure
+1035537000,m60_35_53_00,Overworld m60_35_53_00,treasure
+1035537010,m60_35_53_00,Overworld m60_35_53_00,treasure
+1035537030,m60_35_53_00,Overworld m60_35_53_00,treasure
+1035537040,m60_35_53_00,Overworld m60_35_53_00,treasure
+1035537050,m60_35_53_00,Overworld m60_35_53_00,treasure
+1035547000,m60_35_54_00,Overworld m60_35_54_00,treasure
+1035547010,m60_35_54_00,Overworld m60_35_54_00,treasure
+1035547020,m60_35_54_00,Overworld m60_35_54_00,treasure
+1035547050,m60_35_54_00,Overworld m60_35_54_00,treasure
+1035547060,m60_35_54_00,Overworld m60_35_54_00,treasure
+1035547070,m60_35_54_00,Overworld m60_35_54_00,treasure
+1036417000,m60_36_41_00,Overworld m60_36_41_00,treasure
+1036417010,m60_36_41_00,Overworld m60_36_41_00,treasure
+1036417020,m60_36_41_00,Overworld m60_36_41_00,treasure
+1036437000,m60_36_43_00,Overworld m60_36_43_00,emevd
+1036457400,m60_36_45_00,Overworld m60_36_45_00,emevd
+1036487000,m60_36_48_00,Overworld m60_36_48_00,treasure
+1036487400,m60_36_48_00,Overworld m60_36_48_00,emevd
+1036497000,m60_36_49_00,Overworld m60_36_49_00,emevd
+1036527000,m60_36_52_00,Overworld m60_36_52_00,treasure
+1036527010,m60_36_52_00,Overworld m60_36_52_00,treasure
+1036527020,m60_36_52_00,Overworld m60_36_52_00,treasure
+1036527030,m60_36_52_00,Overworld m60_36_52_00,treasure
+1036527040,m60_36_52_00,Overworld m60_36_52_00,treasure
+1036527050,m60_36_52_00,Overworld m60_36_52_00,treasure
+1036527060,m60_36_52_00,Overworld m60_36_52_00,treasure
+1036537000,m60_36_53_00,Overworld m60_36_53_00,treasure
+1036547000,m60_36_54_00,Overworld m60_36_54_00,treasure
+1036547010,m60_36_54_00,Overworld m60_36_54_00,treasure
+1036547020,m60_36_54_00,Overworld m60_36_54_00,treasure
+1036547030,m60_36_54_00,Overworld m60_36_54_00,treasure
+1036547040,m60_36_54_00,Overworld m60_36_54_00,treasure
+1036547050,m60_36_54_00,Overworld m60_36_54_00,treasure
+1036547100,m60_36_54_00,Overworld m60_36_54_00,emevd
+1036547400,m60_36_54_00,Overworld m60_36_54_00,treasure
+1037417010,m60_37_41_00,Overworld m60_37_41_00,treasure
+1037427000,m60_37_42_00,Overworld m60_37_42_00,emevd
+1037427400,m60_37_42_00,Overworld m60_37_42_00,emevd
+1037447000,m60_37_44_00,Overworld m60_37_44_00,treasure
+1037447010,m60_37_44_00,Overworld m60_37_44_00,treasure
+1037467000,m60_37_46_00,Overworld m60_37_46_00,treasure
+1037467010,m60_37_46_00,Overworld m60_37_46_00,treasure
+1037467400,m60_37_46_00,Overworld m60_37_46_00,emevd
+1037477000,m60_37_47_00,Overworld m60_37_47_00,treasure
+1037477010,m60_37_47_00,Overworld m60_37_47_00,treasure
+1037477020,m60_37_47_00,Overworld m60_37_47_00,treasure
+1037477030,m60_37_47_00,Overworld m60_37_47_00,treasure
+1037487000,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487010,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487020,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487030,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487040,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487050,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487060,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487070,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037487080,m60_37_48_00,Overworld m60_37_48_00,treasure
+1037497000,m60_37_49_00,Overworld m60_37_49_00,treasure
+1037497010,m60_37_49_00,Overworld m60_37_49_00,treasure
+1037497020,m60_37_49_00,Overworld m60_37_49_00,treasure
+1037497030,m60_37_49_00,Overworld m60_37_49_00,treasure
+1037497100,m60_37_49_00,Overworld m60_37_49_00,treasure
+1037497200,m60_37_49_00,Overworld m60_37_49_00,treasure
+1037497300,m60_37_49_00,Overworld m60_37_49_00,emevd
+1037507000,m60_37_50_00,Overworld m60_37_50_00,treasure
+1037507100,m60_37_50_00,Overworld m60_37_50_00,treasure
+1037517000,m60_37_51_00,Overworld m60_37_51_00,treasure
+1037517010,m60_37_51_00,Overworld m60_37_51_00,treasure
+1037517020,m60_37_51_00,Overworld m60_37_51_00,treasure
+1037527020,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527030,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527040,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527050,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527060,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527070,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527080,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527090,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037527100,m60_37_52_00,Overworld m60_37_52_00,treasure
+1037537000,m60_37_53_00,Overworld m60_37_53_00,treasure
+1037537010,m60_37_53_00,Overworld m60_37_53_00,treasure
+1037537020,m60_37_53_00,Overworld m60_37_53_00,treasure
+1037537400,m60_37_53_00,Overworld m60_37_53_00,treasure
+1037547000,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547010,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547020,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547030,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547040,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547050,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547060,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547070,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547080,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547090,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547100,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547110,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547120,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547130,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547140,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037547150,m60_37_54_00,Overworld m60_37_54_00,treasure
+1037557000,m60_37_55_00,Overworld m60_37_55_00,treasure
+1038397000,m60_38_39_00,Overworld m60_38_39_00,treasure
+1038407000,m60_38_40_00,Overworld m60_38_40_00,treasure
+1038417010,m60_38_41_00,Overworld m60_38_41_00,treasure
+1038427000,m60_38_42_00,Overworld m60_38_42_00,treasure
+1038427010,m60_38_42_00,Overworld m60_38_42_00,treasure
+1038427020,m60_38_42_00,Overworld m60_38_42_00,treasure
+1038437000,m60_38_43_00,Overworld m60_38_43_00,treasure
+1038437010,m60_38_43_00,Overworld m60_38_43_00,treasure
+1038437020,m60_38_43_00,Overworld m60_38_43_00,treasure
+1038437100,m60_38_43_00,Overworld m60_38_43_00,emevd
+1038447030,m60_38_44_00,Overworld m60_38_44_00,treasure
+1038447040,m60_38_44_00,Overworld m60_38_44_00,treasure
+1038457000,m60_38_45_00,Overworld m60_38_45_00,treasure
+1038457010,m60_38_45_00,Overworld m60_38_45_00,treasure
+1038457020,m60_38_45_00,Overworld m60_38_45_00,treasure
+1038467000,m60_38_46_00,Overworld m60_38_46_00,treasure
+1038487020,m60_38_48_00,Overworld m60_38_48_00,treasure
+1038487030,m60_38_48_00,Overworld m60_38_48_00,treasure
+1038487100,m60_38_48_00,Overworld m60_38_48_00,treasure
+1038487120,m60_38_48_00,Overworld m60_38_48_00,treasure
+1038487130,m60_38_48_00,Overworld m60_38_48_00,treasure
+1038507000,m60_38_50_00,Overworld m60_38_50_00,treasure
+1038507010,m60_38_50_00,Overworld m60_38_50_00,treasure
+1038517400,m60_38_51_00,Overworld m60_38_51_00,emevd
+1038527000,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038527010,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038527020,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038527030,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038527040,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038527050,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038527060,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038527070,m60_38_52_00,Overworld m60_38_52_00,treasure
+1038537000,m60_38_53_00,Overworld m60_38_53_00,emevd
+1038547000,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547010,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547020,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547030,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547050,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547060,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547070,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547080,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547090,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547100,m60_38_54_00,Overworld m60_38_54_00,emevd
+1038547110,m60_38_54_00,Overworld m60_38_54_00,treasure
+1038547700,m60_38_54_00,Overworld m60_38_54_00,emevd
+1039397000,m60_39_39_00,Overworld m60_39_39_00,treasure
+1039407000,m60_39_40_00,Overworld m60_39_40_00,treasure
+1039417000,m60_39_41_00,Overworld m60_39_41_00,emevd
+1039417200,m60_39_41_00,Overworld m60_39_41_00,emevd
+1039417300,m60_39_41_00,Overworld m60_39_41_00,emevd
+1039417310,m60_39_41_00,Overworld m60_39_41_00,emevd
+1039427000,m60_39_42_00,Overworld m60_39_42_00,treasure
+1039427010,m60_39_42_00,Overworld m60_39_42_00,treasure
+1039427020,m60_39_42_00,Overworld m60_39_42_00,treasure
+1039427030,m60_39_42_00,Overworld m60_39_42_00,treasure
+1039427040,m60_39_42_00,Overworld m60_39_42_00,treasure
+1039427050,m60_39_42_00,Overworld m60_39_42_00,treasure
+1039437010,m60_39_43_00,Overworld m60_39_43_00,treasure
+1039437020,m60_39_43_00,Overworld m60_39_43_00,treasure
+1039437030,m60_39_43_00,Overworld m60_39_43_00,treasure
+1039437040,m60_39_43_00,Overworld m60_39_43_00,treasure
+1039437050,m60_39_43_00,Overworld m60_39_43_00,treasure
+1039437060,m60_39_43_00,Overworld m60_39_43_00,treasure
+1039437100,m60_39_43_00,Overworld m60_39_43_00,treasure
+1039437400,m60_39_43_00,Overworld m60_39_43_00,emevd
+1039447000,m60_39_44_00,Overworld m60_39_44_00,treasure
+1039447010,m60_39_44_00,Overworld m60_39_44_00,treasure
+1039447020,m60_39_44_00,Overworld m60_39_44_00,treasure
+1039447030,m60_39_44_00,Overworld m60_39_44_00,treasure
+1039447040,m60_39_44_00,Overworld m60_39_44_00,treasure
+1039487000,m60_39_48_00,Overworld m60_39_48_00,treasure
+1039487100,m60_39_48_00,Overworld m60_39_48_00,treasure
+1039507100,m60_39_50_00,Overworld m60_39_50_00,emevd
+1039517010,m60_39_51_00,Overworld m60_39_51_00,treasure
+1039517020,m60_39_51_00,Overworld m60_39_51_00,treasure
+1039517030,m60_39_51_00,Overworld m60_39_51_00,treasure
+1039517040,m60_39_51_00,Overworld m60_39_51_00,treasure
+1039517200,m60_39_51_00,Overworld m60_39_51_00,emevd
+1039517400,m60_39_51_00,Overworld m60_39_51_00,treasure
+1039527400,m60_39_52_00,Overworld m60_39_52_00,emevd
+1039537000,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537010,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537020,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537030,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537040,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537050,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537060,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537070,m60_39_53_00,Overworld m60_39_53_00,treasure
+1039537080,m60_39_53_00,Overworld m60_39_53_00,emevd
+1039537700,m60_39_53_00,Overworld m60_39_53_00,emevd
+1039547220,m60_39_54_00,Overworld m60_39_54_00,emevd
+1039547230,m60_39_54_00,Overworld m60_39_54_00,emevd
+1039547250,m60_39_54_00,Overworld m60_39_54_00,emevd
+1039547350,m60_39_54_00,Overworld m60_39_54_00,emevd
+1039570000,m60_39_54_00,Overworld m60_39_54_00,emevd
+1040387000,m60_40_38_00,Overworld m60_40_38_00,treasure
+1040507000,m60_40_50_00,Overworld m60_40_50_00,treasure
+1040517000,m60_40_51_00,Overworld m60_40_51_00,treasure
+1040517010,m60_40_51_00,Overworld m60_40_51_00,treasure
+1040517020,m60_40_51_00,Overworld m60_40_51_00,treasure
+1040517030,m60_40_51_00,Overworld m60_40_51_00,treasure
+1040517040,m60_40_51_00,Overworld m60_40_51_00,treasure
+1040517400,m60_40_51_00,Overworld m60_40_51_00,treasure
+1040537000,m60_40_53_00,Overworld m60_40_53_00,treasure
+1040537010,m60_40_53_00,Overworld m60_40_53_00,treasure
+1040537020,m60_40_53_00,Overworld m60_40_53_00,treasure
+1040537030,m60_40_53_00,Overworld m60_40_53_00,treasure
+1040537040,m60_40_53_00,Overworld m60_40_53_00,treasure
+1040537050,m60_40_53_00,Overworld m60_40_53_00,treasure
+1040537060,m60_40_53_00,Overworld m60_40_53_00,treasure
+1040547010,m60_40_54_00,Overworld m60_40_54_00,treasure
+1040547030,m60_40_54_00,Overworld m60_40_54_00,treasure
+1040547090,m60_40_54_00,Overworld m60_40_54_00,treasure
+1040557000,m60_40_55_00,Overworld m60_40_55_00,treasure
+1041327000,m60_41_32_00,Overworld m60_41_32_00,treasure
+1041327010,m60_41_32_00,Overworld m60_41_32_00,treasure
+1041327020,m60_41_32_00,Overworld m60_41_32_00,treasure
+1041327030,m60_41_32_00,Overworld m60_41_32_00,treasure
+1041327040,m60_41_32_00,Overworld m60_41_32_00,treasure
+1041327050,m60_41_32_00,Overworld m60_41_32_00,treasure
+1041337000,m60_41_33_00,Overworld m60_41_33_00,emevd
+1041337200,m60_41_33_00,Overworld m60_41_33_00,emevd
+1041357000,m60_41_35_00,Overworld m60_41_35_00,emevd
+1041517000,m60_41_51_00,Overworld m60_41_51_00,treasure
+1041517010,m60_41_51_00,Overworld m60_41_51_00,treasure
+1041517020,m60_41_51_00,Overworld m60_41_51_00,treasure
+1041517030,m60_41_51_00,Overworld m60_41_51_00,treasure
+1041527000,m60_41_52_00,Overworld m60_41_52_00,treasure
+1041527010,m60_41_52_00,Overworld m60_41_52_00,treasure
+1041527020,m60_41_52_00,Overworld m60_41_52_00,treasure
+1041527030,m60_41_52_00,Overworld m60_41_52_00,treasure
+1041527040,m60_41_52_00,Overworld m60_41_52_00,treasure
+1041527070,m60_41_52_00,Overworld m60_41_52_00,treasure
+1041527080,m60_41_52_00,Overworld m60_41_52_00,treasure
+1041527090,m60_41_52_00,Overworld m60_41_52_00,treasure
+1042327000,m60_42_32_00,Overworld m60_42_32_00,treasure
+1042327020,m60_42_32_00,Overworld m60_42_32_00,treasure
+1042327100,m60_42_32_00,Overworld m60_42_32_00,treasure
+1042337000,m60_42_33_00,Overworld m60_42_33_00,treasure
+1042337100,m60_42_33_00,Overworld m60_42_33_00,emevd
+1042347000,m60_42_34_00,Overworld m60_42_34_00,treasure
+1042347010,m60_42_34_00,Overworld m60_42_34_00,treasure
+1042347020,m60_42_34_00,Overworld m60_42_34_00,treasure
+1042347030,m60_42_34_00,Overworld m60_42_34_00,treasure
+1042347100,m60_42_34_00,Overworld m60_42_34_00,treasure
+1042357000,m60_42_35_00,Overworld m60_42_35_00,treasure
+1042357010,m60_42_35_00,Overworld m60_42_35_00,treasure
+1042357020,m60_42_35_00,Overworld m60_42_35_00,treasure
+1042357030,m60_42_35_00,Overworld m60_42_35_00,treasure
+1042367010,m60_42_36_00,Overworld m60_42_36_00,treasure
+1042367030,m60_42_36_00,Overworld m60_42_36_00,treasure
+1042367040,m60_42_36_00,Overworld m60_42_36_00,treasure
+1042367050,m60_42_36_00,Overworld m60_42_36_00,treasure
+1042367060,m60_42_36_00,Overworld m60_42_36_00,treasure
+1042377000,m60_42_37_00,Overworld m60_42_37_00,treasure
+1042377010,m60_42_37_00,Overworld m60_42_37_00,treasure
+1042377060,m60_10_09_02,Overworld m60_10_09_02,treasure
+1042377070,m60_10_09_02,Overworld m60_10_09_02,treasure
+1042377300,m60_42_37_00,Overworld m60_42_37_00,treasure
+1042377700,m60_43_37_00,Overworld m60_43_37_00,emevd
+1042387000,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387010,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387020,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387030,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387040,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387050,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387070,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387080,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387090,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387100,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387110,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387120,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387140,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387200,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042387400,m60_42_38_00,Overworld m60_42_38_00,emevd
+1042387410,m60_42_38_00,Overworld m60_42_38_00,emevd
+1042387600,m60_42_38_00,Overworld m60_42_38_00,treasure
+1042397010,m60_10_09_02,Overworld m60_10_09_02,treasure
+1042397500,m60_42_39_00,Overworld m60_42_39_00,emevd
+1042397700,m60_42_39_00,Overworld m60_42_39_00,emevd
+1042507020,m60_42_50_00,Overworld m60_42_50_00,emevd
+1042517000,m60_42_51_00,Overworld m60_42_51_00,treasure
+1042517400,m60_42_51_00,Overworld m60_42_51_00,treasure
+1042517410,m60_42_51_00,Overworld m60_42_51_00,treasure
+1042517900,m60_42_51_00,Overworld m60_42_51_00,emevd
+1042547400,m60_42_54_00,Overworld m60_42_54_00,emevd
+1042557000,m60_42_55_00,Overworld m60_42_55_00,emevd
+1043307000,m60_43_30_00,Overworld m60_43_30_00,treasure
+1043307010,m60_43_30_00,Overworld m60_43_30_00,treasure
+1043317000,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317010,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317020,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317030,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317040,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317050,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317060,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317070,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317080,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317090,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317100,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317110,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317120,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317130,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317140,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317150,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317160,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317170,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317180,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317190,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317200,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317210,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317220,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317230,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317240,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317250,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317260,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317270,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317280,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317290,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317300,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317310,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317320,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317330,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317340,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317350,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317360,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317370,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317400,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317900,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043317910,m60_43_31_00,Overworld m60_43_31_00,treasure
+1043337000,m60_43_33_00,Overworld m60_43_33_00,emevd
+1043347000,m60_43_34_00,Overworld m60_43_34_00,treasure
+1043347040,m60_43_34_00,Overworld m60_43_34_00,treasure
+1043347050,m60_43_34_00,Overworld m60_43_34_00,treasure
+1043347100,m60_43_34_00,Overworld m60_43_34_00,treasure
+1043347400,m60_43_34_00,Overworld m60_43_34_00,emevd
+1043357000,m60_43_35_00,Overworld m60_43_35_00,treasure
+1043357010,m60_43_35_00,Overworld m60_43_35_00,treasure
+1043357030,m60_43_35_00,Overworld m60_43_35_00,treasure
+1043357100,m60_43_35_00,Overworld m60_43_35_00,treasure
+1043367010,m60_43_36_00,Overworld m60_43_36_00,treasure
+1043367020,m60_43_36_00,Overworld m60_43_36_00,treasure
+1043367040,m60_43_36_00,Overworld m60_43_36_00,treasure
+1043367070,m60_43_36_00,Overworld m60_43_36_00,treasure
+1043367110,m60_43_36_00,Overworld m60_43_36_00,treasure
+1043377000,m60_43_37_00,Overworld m60_43_37_00,emevd
+1043377400,m60_43_37_00,Overworld m60_43_37_00,emevd
+1043387010,m60_43_38_00,Overworld m60_43_38_00,treasure
+1043387020,m60_43_38_00,Overworld m60_43_38_00,treasure
+1043407000,m60_43_40_00,Overworld m60_43_40_00,treasure
+1043407010,m60_43_40_00,Overworld m60_43_40_00,treasure
+1043507000,m60_43_50_00,Overworld m60_43_50_00,treasure
+1043507010,m60_43_50_00,Overworld m60_43_50_00,treasure
+1043527000,m60_43_52_00,Overworld m60_43_52_00,treasure
+1043527030,m60_43_52_00,Overworld m60_43_52_00,treasure
+1043527400,m60_43_52_00,Overworld m60_43_52_00,treasure
+1043527410,m60_43_52_00,Overworld m60_43_52_00,treasure
+1043527500,m60_43_52_00,Overworld m60_43_52_00,emevd
+1043537100,m60_42_53_00,Overworld m60_42_53_00,emevd
+1043537400,m60_43_53_00,Overworld m60_43_53_00,emevd
+1044317010,m60_44_31_00,Overworld m60_44_31_00,treasure
+1044317020,m60_44_31_00,Overworld m60_44_31_00,treasure
+1044317030,m60_44_31_00,Overworld m60_44_31_00,treasure
+1044327010,m60_44_32_00,Overworld m60_44_32_00,treasure
+1044327020,m60_44_32_00,Overworld m60_44_32_00,treasure
+1044327030,m60_44_32_00,Overworld m60_44_32_00,treasure
+1044327040,m60_44_32_00,Overworld m60_44_32_00,treasure
+1044327400,m60_44_32_00,Overworld m60_44_32_00,emevd
+1044327410,m60_44_32_00,Overworld m60_44_32_00,emevd
+1044337000,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337020,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337030,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337040,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337050,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337060,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337070,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337080,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337100,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337200,m60_44_33_00,Overworld m60_44_33_00,treasure
+1044337210,m60_44_33_00,Overworld m60_44_33_00,emevd
+1044347000,m60_44_34_00,Overworld m60_44_34_00,emevd
+1044357000,m60_44_35_00,Overworld m60_44_35_00,emevd
+1044357100,m60_44_35_00,Overworld m60_44_35_00,emevd
+1044367000,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367010,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367020,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367030,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367040,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367100,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367300,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367310,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367320,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367330,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044367340,m60_44_36_00,Overworld m60_44_36_00,treasure
+1044377010,m60_44_37_00,Overworld m60_44_37_00,treasure
+1044377020,m60_44_37_00,Overworld m60_44_37_00,treasure
+1044377200,m60_44_37_00,Overworld m60_44_37_00,treasure
+1044387010,m60_44_38_00,Overworld m60_44_38_00,treasure
+1044387040,m60_44_38_00,Overworld m60_44_38_00,treasure
+1044387100,m60_44_38_00,Overworld m60_44_38_00,treasure
+1044397010,m60_44_39_00,Overworld m60_44_39_00,treasure
+1044527000,m60_44_52_00,Overworld m60_44_52_00,treasure
+1044527010,m60_44_52_00,Overworld m60_44_52_00,treasure
+1044527020,m60_44_52_00,Overworld m60_44_52_00,treasure
+1044537010,m60_44_53_00,Overworld m60_44_53_00,treasure
+1044537300,m60_44_53_00,Overworld m60_44_53_00,emevd
+1045337000,m60_45_33_00,Overworld m60_45_33_00,treasure
+1045527000,m60_11_13_02,Overworld m60_11_13_02,treasure
+1045527010,m60_45_52_00,Overworld m60_45_52_00,treasure
+1045527020,m60_45_52_00,Overworld m60_45_52_00,treasure
+1045527030,m60_45_52_00,Overworld m60_45_52_00,treasure
+1046367000,m60_46_36_00,Overworld m60_46_36_00,treasure
+1046367010,m60_46_36_00,Overworld m60_46_36_00,treasure
+1046367030,m60_46_36_00,Overworld m60_46_36_00,treasure
+1046367100,m60_46_36_00,Overworld m60_46_36_00,treasure
+1046367500,m60_46_36_00,Overworld m60_46_36_00,treasure
+1046367700,m60_46_36_00,Overworld m60_46_36_00,emevd
+1046377000,m60_46_37_00,Overworld m60_46_37_00,treasure
+1046387010,m60_46_38_00,Overworld m60_46_38_00,treasure
+1046387100,m60_46_38_00,Overworld m60_46_38_00,treasure
+1046397000,m60_46_39_00,Overworld m60_46_39_00,treasure
+1046397010,m60_46_39_00,Overworld m60_46_39_00,treasure
+1046397020,m60_46_39_00,Overworld m60_46_39_00,treasure
+1046407000,m60_46_40_00,Overworld m60_46_40_00,treasure
+1046407010,m60_46_40_00,Overworld m60_46_40_00,treasure
+1046407020,m60_46_40_00,Overworld m60_46_40_00,treasure
+1046407040,m60_46_40_00,Overworld m60_46_40_00,treasure
+1046407060,m60_46_40_00,Overworld m60_46_40_00,treasure
+1046407700,m60_46_40_00,Overworld m60_46_40_00,emevd
+1046577300,m60_46_57_00,Overworld m60_46_57_00,treasure
+1046577800,m60_46_57_00,Overworld m60_46_57_00,treasure
+1047377000,m60_47_37_00,Overworld m60_47_37_00,treasure
+1047377010,m60_47_37_00,Overworld m60_47_37_00,treasure
+1047377020,m60_47_37_00,Overworld m60_47_37_00,treasure
+1047377030,m60_47_37_00,Overworld m60_47_37_00,treasure
+1047377040,m60_47_37_00,Overworld m60_47_37_00,treasure
+1047377050,m60_47_37_00,Overworld m60_47_37_00,treasure
+1047377100,m60_47_37_00,Overworld m60_47_37_00,emevd
+1047387010,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387030,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387040,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387070,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387080,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387100,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387110,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387120,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387130,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387700,m60_47_38_00,Overworld m60_47_38_00,emevd
+1047387900,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387910,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047387920,m60_47_38_00,Overworld m60_47_38_00,treasure
+1047397000,m60_47_39_00,Overworld m60_47_39_00,emevd
+1047407900,m60_47_40_00,Overworld m60_47_40_00,emevd
+1047517000,m60_47_51_00,Overworld m60_47_51_00,treasure
+1047517010,m60_47_51_00,Overworld m60_47_51_00,treasure
+1047517300,m60_47_51_00,Overworld m60_47_51_00,treasure
+1047557000,m60_47_55_00,Overworld m60_47_55_00,treasure
+1047557010,m60_47_55_00,Overworld m60_47_55_00,treasure
+1047557020,m60_47_55_00,Overworld m60_47_55_00,treasure
+1047557030,m60_47_55_00,Overworld m60_47_55_00,treasure
+1047557900,m60_47_55_00,Overworld m60_47_55_00,treasure
+1047567300,m60_47_56_00,Overworld m60_47_56_00,treasure
+1047567310,m60_47_56_00,Overworld m60_47_56_00,treasure
+1047567330,m60_47_56_00,Overworld m60_47_56_00,treasure
+1047567700,m60_47_56_00,Overworld m60_47_56_00,emevd
+1047577300,m60_47_57_00,Overworld m60_47_57_00,treasure
+1047577310,m60_47_57_00,Overworld m60_47_57_00,treasure
+1047587000,m60_47_58_00,Overworld m60_47_58_00,treasure
+1047587800,m60_47_58_00,Overworld m60_47_58_00,treasure
+1048377000,m60_48_37_00,Overworld m60_48_37_00,treasure
+1048377020,m60_48_37_00,Overworld m60_48_37_00,treasure
+1048377030,m60_48_37_00,Overworld m60_48_37_00,treasure
+1048387000,m60_48_38_00,Overworld m60_48_38_00,treasure
+1048387010,m60_48_38_00,Overworld m60_48_38_00,treasure
+1048387020,m60_48_38_00,Overworld m60_48_38_00,treasure
+1048387030,m60_48_38_00,Overworld m60_48_38_00,treasure
+1048387500,m60_48_38_00,Overworld m60_48_38_00,emevd
+1048397000,m60_48_39_00,Overworld m60_48_39_00,treasure
+1048397010,m60_48_39_00,Overworld m60_48_39_00,treasure
+1048397040,m60_48_39_00,Overworld m60_48_39_00,treasure
+1048397050,m60_48_39_00,Overworld m60_48_39_00,treasure
+1048397900,m60_48_39_00,Overworld m60_48_39_00,treasure
+1048417800,m60_48_41_00,Overworld m60_48_41_00,emevd
+1048517000,m60_48_51_00,Overworld m60_48_51_00,treasure
+1048517700,m60_48_51_00,Overworld m60_48_51_00,emevd
+1048547800,m60_48_54_00,Overworld m60_48_54_00,treasure
+1048547810,m60_48_54_00,Overworld m60_48_54_00,treasure
+1048547820,m60_48_54_00,Overworld m60_48_54_00,treasure
+1048547830,m60_48_54_00,Overworld m60_48_54_00,treasure
+1048547840,m60_48_54_00,Overworld m60_48_54_00,treasure
+1048557300,m60_48_55_00,Overworld m60_48_55_00,treasure
+1048557600,m60_48_55_00,Overworld m60_48_55_00,treasure
+1048557900,m60_12_13_02,Overworld m60_12_13_02,treasure
+1048567300,m60_48_56_00,Overworld m60_48_56_00,treasure
+1048577000,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577010,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577020,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577030,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577040,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577050,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577060,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577070,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577080,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577090,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577300,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577310,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577800,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048577810,m60_48_57_00,Overworld m60_48_57_00,treasure
+1048587300,m60_48_58_00,Overworld m60_48_58_00,treasure
+1049367000,m60_49_36_00,Overworld m60_49_36_00,treasure
+1049367010,m60_49_36_00,Overworld m60_49_36_00,treasure
+1049377010,m60_49_37_00,Overworld m60_49_37_00,treasure
+1049377020,m60_49_37_00,Overworld m60_49_37_00,treasure
+1049377050,m60_49_37_00,Overworld m60_49_37_00,treasure
+1049377070,m60_49_37_00,Overworld m60_49_37_00,treasure
+1049407000,m60_49_40_00,Overworld m60_49_40_00,treasure
+1049407010,m60_49_40_00,Overworld m60_49_40_00,treasure
+1049407020,m60_49_40_00,Overworld m60_49_40_00,treasure
+1049407040,m60_49_40_00,Overworld m60_49_40_00,treasure
+1049417040,m60_49_41_00,Overworld m60_49_41_00,treasure
+1049417070,m60_49_41_00,Overworld m60_49_41_00,treasure
+1049417080,m60_49_41_00,Overworld m60_49_41_00,treasure
+1049417090,m60_49_41_00,Overworld m60_49_41_00,treasure
+1049417100,m60_49_41_00,Overworld m60_49_41_00,treasure
+1049527000,m60_49_52_00,Overworld m60_49_52_00,treasure
+1049527800,m60_49_52_00,Overworld m60_49_52_00,treasure
+1049537000,m60_49_53_00,Overworld m60_49_53_00,treasure
+1049537010,m60_49_53_00,Overworld m60_49_53_00,treasure
+1049537020,m60_49_53_00,Overworld m60_49_53_00,treasure
+1049537030,m60_49_53_00,Overworld m60_49_53_00,treasure
+1049537300,m60_49_53_00,Overworld m60_49_53_00,treasure
+1049537900,m60_49_53_00,Overworld m60_49_53_00,treasure
+1049547300,m60_49_54_00,Overworld m60_49_54_00,treasure
+1049547310,m60_49_54_00,Overworld m60_49_54_00,treasure
+1049547900,m60_12_13_02,Overworld m60_12_13_02,treasure
+1050367000,m60_50_36_00,Overworld m60_50_36_00,treasure
+1050367900,m60_50_36_00,Overworld m60_50_36_00,treasure
+1050387000,m60_50_38_00,Overworld m60_50_38_00,treasure
+1050387010,m60_50_38_00,Overworld m60_50_38_00,treasure
+1050387020,m60_50_38_00,Overworld m60_50_38_00,treasure
+1050397000,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397010,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397020,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397030,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397040,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397050,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397060,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397070,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397090,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397100,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397900,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050397910,m60_50_39_00,Overworld m60_50_39_00,treasure
+1050537000,m60_50_53_00,Overworld m60_50_53_00,treasure
+1050537300,m60_50_53_00,Overworld m60_50_53_00,treasure
+1050547000,m60_50_54_00,Overworld m60_50_54_00,treasure
+1050547800,m60_50_54_00,Overworld m60_50_54_00,treasure
+1050547810,m60_50_54_00,Overworld m60_50_54_00,treasure
+1050557300,m60_50_55_00,Overworld m60_50_55_00,treasure
+1050557310,m60_50_55_00,Overworld m60_50_55_00,treasure
+1050557320,m60_50_55_00,Overworld m60_50_55_00,treasure
+1050557800,m60_50_55_00,Overworld m60_50_55_00,treasure
+1050557900,m60_50_55_00,Overworld m60_50_55_00,treasure
+1050567300,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050567500,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050567510,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050567520,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050567600,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050567620,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050567800,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050567820,m60_50_56_00,Overworld m60_50_56_00,treasure
+1050577300,m60_50_57_00,Overworld m60_50_57_00,treasure
+1050577800,m60_50_57_00,Overworld m60_50_57_00,treasure
+1051357000,m60_51_35_00,Overworld m60_51_35_00,treasure
+1051367000,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367020,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367030,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367040,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367050,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367060,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367080,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367090,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367100,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367110,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367130,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051367910,m60_51_36_00,Overworld m60_51_36_00,treasure
+1051387000,m60_51_38_00,Overworld m60_51_38_00,treasure
+1051387010,m60_51_38_00,Overworld m60_51_38_00,treasure
+1051387020,m60_51_38_00,Overworld m60_51_38_00,treasure
+1051397040,m60_51_39_00,Overworld m60_51_39_00,treasure
+1051397050,m60_51_39_00,Overworld m60_51_39_00,treasure
+1051397060,m60_51_39_00,Overworld m60_51_39_00,treasure
+1051397900,m60_51_39_00,Overworld m60_51_39_00,treasure
+1051407040,m60_51_40_00,Overworld m60_51_40_00,treasure
+1051537000,m60_51_53_00,Overworld m60_51_53_00,treasure
+1051537010,m60_51_53_00,Overworld m60_51_53_00,treasure
+1051537300,m60_51_53_00,Overworld m60_51_53_00,treasure
+1051537600,m60_51_53_00,Overworld m60_51_53_00,treasure
+1051537800,m60_51_53_00,Overworld m60_51_53_00,treasure
+1051537810,m60_51_53_00,Overworld m60_51_53_00,treasure
+1051547000,m60_51_54_00,Overworld m60_51_54_00,treasure
+1051547800,m60_51_54_00,Overworld m60_51_54_00,treasure
+1051557300,m60_51_55_00,Overworld m60_51_55_00,treasure
+1051557310,m60_51_55_00,Overworld m60_51_55_00,treasure
+1051557320,m60_51_55_00,Overworld m60_51_55_00,treasure
+1051557330,m60_51_55_00,Overworld m60_51_55_00,treasure
+1051567020,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051567030,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051567300,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051567310,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051567320,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051567800,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051567810,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051567900,m60_51_56_00,Overworld m60_51_56_00,treasure
+1051577000,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577010,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577020,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577030,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577040,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577050,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577060,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577070,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577080,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577090,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577100,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577110,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577120,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577130,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577140,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577150,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577160,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577170,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577180,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577190,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577200,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577210,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577220,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577230,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577300,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051577600,m60_51_57_00,Overworld m60_51_57_00,treasure
+1051587800,m60_36_41_00,Overworld m60_36_41_00,emevd
+1052417000,m60_52_41_00,Overworld m60_52_41_00,treasure
+1052417010,m60_52_41_00,Overworld m60_52_41_00,treasure
+1052417020,m60_52_41_00,Overworld m60_52_41_00,treasure
+1052417030,m60_52_41_00,Overworld m60_52_41_00,treasure
+1052437000,m60_52_43_00,Overworld m60_52_43_00,treasure
+1052537000,m60_52_53_00,Overworld m60_52_53_00,treasure
+1052537800,m60_52_53_00,Overworld m60_52_53_00,treasure
+1052547000,m60_52_54_00,Overworld m60_52_54_00,treasure
+1052547010,m60_52_54_00,Overworld m60_52_54_00,treasure
+1052547020,m60_52_54_00,Overworld m60_52_54_00,treasure
+1052547800,m60_52_54_00,Overworld m60_52_54_00,treasure
+1052557000,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052557010,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052557020,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052557030,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052557300,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052557310,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052557800,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052557900,m60_52_55_00,Overworld m60_52_55_00,treasure
+1052567300,m60_52_56_00,Overworld m60_52_56_00,treasure
+1052567310,m60_52_56_00,Overworld m60_52_56_00,treasure
+1053567300,m60_53_56_00,Overworld m60_53_56_00,treasure
+1053567310,m60_53_56_00,Overworld m60_53_56_00,treasure
+1053567800,m60_53_56_00,Overworld m60_53_56_00,treasure
+1053567810,m60_53_56_00,Overworld m60_53_56_00,treasure
+1053577300,m60_53_57_00,Overworld m60_53_57_00,treasure
+1054557000,m60_54_55_00,Overworld m60_54_55_00,treasure
+1054557310,m60_54_55_00,Overworld m60_54_55_00,treasure
+1054557800,m60_54_55_00,Overworld m60_54_55_00,treasure
+2044417000,m61_44_41_00,Overworld m61_44_41_00,treasure
+2044457000,m61_44_45_00,Overworld m61_44_45_00,treasure
+2044457010,m61_44_45_00,Overworld m61_44_45_00,treasure
+2044457020,m61_44_45_00,Overworld m61_44_45_00,treasure
+2044457900,m61_44_45_00,Overworld m61_44_45_00,treasure
+2044467000,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467010,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467020,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467030,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467040,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467050,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467060,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467070,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467080,m61_44_46_00,Overworld m61_44_46_00,treasure
+2044467110,m61_44_46_00,Overworld m61_44_46_00,treasure
+2045417000,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417010,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417020,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417030,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417040,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417050,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417700,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417710,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417800,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045417900,m61_45_41_00,Overworld m61_45_41_00,treasure
+2045467000,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467020,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467040,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467050,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467060,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467070,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467080,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467090,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467900,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045467910,m61_45_46_10,Overworld m61_45_46_10,treasure
+2045477010,m61_45_47_00,Overworld m61_45_47_00,treasure
+2045477020,m61_45_47_00,Overworld m61_45_47_00,treasure
+2045477040,m61_45_47_00,Overworld m61_45_47_00,treasure
+2045477050,m61_45_47_00,Overworld m61_45_47_00,treasure
+2045477060,m61_45_47_00,Overworld m61_45_47_00,treasure
+2045477070,m61_45_47_00,Overworld m61_45_47_00,treasure
+2045477700,m40_00_00_00,DLC Dungeon,emevd
+2045477710,m40_00_00_00,DLC Dungeon,emevd
+2045477720,m40_00_00_00,DLC Dungeon,emevd
+2045477730,m40_00_00_00,DLC Dungeon,emevd
+2045477740,m40_00_00_00,DLC Dungeon,emevd
+2045477750,m40_00_00_00,DLC Dungeon,emevd
+2045477760,m40_00_00_00,DLC Dungeon,emevd
+2045477770,m40_00_00_00,DLC Dungeon,emevd
+2045477780,m40_00_00_00,DLC Dungeon,emevd
+2045477790,m40_00_00_00,DLC Dungeon,emevd
+2045477800,m40_00_00_00,DLC Dungeon,emevd
+2045477900,m40_00_00_00,DLC Dungeon,emevd
+2045487000,m61_45_48_00,Overworld m61_45_48_00,treasure
+2046387000,m61_46_38_00,Overworld m61_46_38_00,treasure
+2046387010,m61_46_38_00,Overworld m61_46_38_00,treasure
+2046387020,m61_46_38_00,Overworld m61_46_38_00,treasure
+2046387030,m61_46_38_00,Overworld m61_46_38_00,treasure
+2046387040,m61_46_38_00,Overworld m61_46_38_00,treasure
+2046387050,m61_46_38_00,Overworld m61_46_38_00,treasure
+2046387070,m61_46_38_00,Overworld m61_46_38_00,treasure
+2046457000,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457020,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457030,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457040,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457050,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457060,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457070,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457720,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457910,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046457920,m61_46_45_00,Overworld m61_46_45_00,treasure
+2046477000,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477010,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477020,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477030,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477060,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477070,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477090,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477100,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477120,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477130,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477140,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477150,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477160,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477720,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046477750,m61_46_47_00,Overworld m61_46_47_00,treasure
+2046487000,m61_46_48_00,Overworld m61_46_48_00,treasure
+2046487010,m61_46_48_00,Overworld m61_46_48_00,treasure
+2047357000,m61_47_35_00,Overworld m61_47_35_00,treasure
+2047367000,m61_47_36_00,Overworld m61_47_36_00,treasure
+2047367010,m61_47_36_00,Overworld m61_47_36_00,treasure
+2047397000,m61_47_39_00,Overworld m61_47_39_00,treasure
+2047397040,m61_47_39_00,Overworld m61_47_39_00,treasure
+2047397050,m61_47_39_00,Overworld m61_47_39_00,treasure
+2047397080,m61_47_39_00,Overworld m61_47_39_00,treasure
+2047397090,m61_47_39_00,Overworld m61_47_39_00,treasure
+2047437000,m61_47_43_00,Overworld m61_47_43_00,treasure
+2047437010,m61_47_43_00,Overworld m61_47_43_00,treasure
+2047437020,m61_47_43_00,Overworld m61_47_43_00,treasure
+2047437030,m61_47_43_00,Overworld m61_47_43_00,treasure
+2047437040,m61_47_43_00,Overworld m61_47_43_00,treasure
+2047437050,m61_47_43_00,Overworld m61_47_43_00,treasure
+2047437700,m61_47_43_00,Overworld m61_47_43_00,treasure
+2047477000,m61_46_47_00,Overworld m61_46_47_00,treasure
+2048377010,m61_48_37_00,Overworld m61_48_37_00,treasure
+2048377020,m61_48_37_00,Overworld m61_48_37_00,treasure
+2048377030,m61_48_37_00,Overworld m61_48_37_00,treasure
+2048377050,m61_48_37_00,Overworld m61_48_37_00,treasure
+2048387000,m61_48_38_00,Overworld m61_48_38_00,treasure
+2048387010,m61_48_38_00,Overworld m61_48_38_00,treasure
+2048387030,m61_48_38_00,Overworld m61_48_38_00,treasure
+2048397000,m61_48_39_00,Overworld m61_48_39_00,treasure
+2048397010,m61_48_39_00,Overworld m61_48_39_00,treasure
+2048397020,m61_48_39_00,Overworld m61_48_39_00,treasure
+2048397030,m61_48_39_00,Overworld m61_48_39_00,treasure
+2048397040,m61_48_39_00,Overworld m61_48_39_00,treasure
+2048397050,m61_48_39_00,Overworld m61_48_39_00,treasure
+2048407000,m61_48_40_00,Overworld m61_48_40_00,treasure
+2048407010,m61_48_40_00,Overworld m61_48_40_00,treasure
+2048407020,m61_48_40_00,Overworld m61_48_40_00,treasure
+2048417000,m61_48_41_00,Overworld m61_48_41_00,treasure
+2048417010,m61_48_41_00,Overworld m61_48_41_00,treasure
+2048417030,m61_48_41_00,Overworld m61_48_41_00,treasure
+2048417700,m61_48_41_00,Overworld m61_48_41_00,treasure
+2048417800,m61_48_41_00,Overworld m61_48_41_00,treasure
+2048437000,m61_48_43_00,Overworld m61_48_43_00,treasure
+2048437010,m61_48_43_00,Overworld m61_48_43_00,treasure
+2048437020,m61_48_43_00,Overworld m61_48_43_00,treasure
+2048437030,m61_48_43_00,Overworld m61_48_43_00,treasure
+2048437700,m61_48_43_00,Overworld m61_48_43_00,treasure
+2048447000,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447010,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447020,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447030,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447040,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447050,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447060,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447070,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447080,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447500,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447800,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048447810,m61_48_44_00,Overworld m61_48_44_00,treasure
+2048457000,m61_48_45_00,Overworld m61_48_45_00,treasure
+2048457510,m61_48_45_00,Overworld m61_48_45_00,treasure
+2048457520,m61_48_45_00,Overworld m61_48_45_00,treasure
+2048467010,m61_48_46_00,Overworld m61_48_46_00,treasure
+2048467030,m61_48_46_00,Overworld m61_48_46_00,treasure
+2048467040,m61_48_46_00,Overworld m61_48_46_00,treasure
+2048467050,m61_48_46_00,Overworld m61_48_46_00,treasure
+2048467060,m61_48_46_00,Overworld m61_48_46_00,treasure
+2048467090,m61_48_46_00,Overworld m61_48_46_00,treasure
+2048467500,m61_48_46_00,Overworld m61_48_46_00,treasure
+2048467510,m61_48_46_00,Overworld m61_48_46_00,treasure
+2049377000,m61_49_37_00,Overworld m61_49_37_00,treasure
+2049387000,m61_49_38_00,Overworld m61_49_38_00,treasure
+2049387010,m61_49_38_00,Overworld m61_49_38_00,treasure
+2049387020,m61_49_38_00,Overworld m61_49_38_00,treasure
+2049387030,m61_49_38_00,Overworld m61_49_38_00,treasure
+2049387060,m61_49_38_00,Overworld m61_49_38_00,treasure
+2049437000,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437200,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437210,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437220,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437230,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437240,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437250,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437260,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437270,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437280,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437290,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437300,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437310,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437320,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437330,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437340,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437350,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437360,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437370,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437380,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437500,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437520,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437600,m61_49_43_00,Overworld m61_49_43_00,treasure
+2049437620,m61_49_43_00,Overworld m61_49_43_00,treasure
+2050387000,m61_50_38_00,Overworld m61_50_38_00,treasure
+2050387010,m61_50_38_00,Overworld m61_50_38_00,treasure
+2050417010,m61_50_41_00,Overworld m61_50_41_00,treasure
+2050437000,m61_50_43_00,Overworld m61_50_43_00,treasure
+2050437010,m61_50_43_00,Overworld m61_50_43_00,treasure
+2050437040,m61_50_43_00,Overworld m61_50_43_00,treasure
+2050437220,m61_50_43_00,Overworld m61_50_43_00,treasure
+2050437500,m61_50_43_00,Overworld m61_50_43_00,treasure
+2050437720,m61_50_43_00,Overworld m61_50_43_00,treasure
+2050447000,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447010,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447020,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447030,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447040,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447050,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447060,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447070,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447090,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447100,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447120,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447140,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447500,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447710,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447720,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050447730,m61_50_44_00,Overworld m61_50_44_00,treasure
+2050467000,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467020,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467030,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467040,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467700,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467710,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467720,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467730,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467800,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467900,m61_50_46_00,Overworld m61_50_46_00,treasure
+2050467910,m61_50_46_00,Overworld m61_50_46_00,treasure
+2052407010,m61_52_40_00,Overworld m61_52_40_00,treasure
+2052417000,m61_52_41_00,Overworld m61_52_41_00,treasure
+2052417010,m61_52_41_00,Overworld m61_52_41_00,treasure
+2053397000,m61_54_39_00,Overworld m61_54_39_00,treasure
+2053397010,m61_53_39_00,Overworld m61_53_39_00,treasure
+2053397020,m61_53_39_00,Overworld m61_53_39_00,treasure
+2053407000,m61_53_40_00,Overworld m61_53_40_00,treasure
+2053417000,m61_53_41_00,Overworld m61_53_41_00,treasure
+2053417020,m61_53_41_00,Overworld m61_53_41_00,treasure
+2053417500,m61_53_41_00,Overworld m61_53_41_00,treasure
+2053487000,m61_53_48_00,Overworld m61_53_48_00,treasure
+2053487010,m61_53_48_00,Overworld m61_53_48_00,treasure

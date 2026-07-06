@@ -9,6 +9,9 @@
     2. FILL   run_fill_regression.ps1  (17 reproducer yamls vs baseline floors)
     3. DIVERSITY  run_region_diversity.ps1  (num_regions/chain fixed-seed roll
                   diversity gate, incl. the cave/torch bundles; -SkipDiversity)
+    3b. GREENFIELD  greenfield unit tests + isolated gen (data-drift check, pure data
+                  invariants, then AP WorldTestBase fill/goal/slot_data; -SkipGreenfield,
+                  or -OnlyGreenfield to run just this gate)
     4. FUZZ   gen_fuzz.ps1  (random option combinations -> clean gen or
               OptionError). CRASH/HANG ALWAYS fail; FILLERROR is soft -- PASS iff no
               CRASH/HANG AND >= -FuzzPassPct% SUCCESS+REJECT (default 80%).
@@ -25,6 +28,8 @@
     .\run_ci.ps1 -FuzzCount 100           # heavier fuzz pass
     .\run_ci.ps1 -SkipFuzz                # quick pre-commit gate
     .\run_ci.ps1 -SkipDiversity           # skip the num_regions diversity gate
+    .\run_ci.ps1 -OnlyGreenfield          # run ONLY the greenfield gate (skip everything else)
+    .\run_ci.ps1 -SkipGreenfield          # skip the greenfield world tests + gen gate
     .\run_ci.ps1 -FuzzPassPct 100         # require a perfectly clean fuzz batch
     .\run_ci.ps1 -Cargo                   # include Rust client tests
     .\run_ci.ps1 -FuzzSeed 12345 -GenSeed 987   # reproduce a CI fuzz failure
@@ -42,12 +47,20 @@ param(
     [switch] $SkipUnit,
     [switch] $SkipFill,
     [switch] $SkipDiversity,
+    [switch] $SkipGreenfield,
+    [switch] $OnlyGreenfield,      # run ONLY the greenfield gate (skip all other steps)
     [switch] $SkipFuzz,
     [switch] $SkipPure,
     [switch] $Cargo                  # opt-in: Rust client tests (Windows toolchain)
 )
 
 $ErrorActionPreference = "Stop"
+
+# -OnlyGreenfield: run just the greenfield gate; force-skip every other step.
+if ($OnlyGreenfield) {
+    $SkipUnit = $true; $SkipFill = $true; $SkipDiversity = $true
+    $SkipFuzz = $true; $SkipPure = $true; $Cargo = $false; $SkipGreenfield = $false
+}
 $Repo   = $PSScriptRoot
 $ApDir  = Join-Path $Repo "Archipelago"
 $Client = Join-Path $Repo "from-software-archipelago-clients"
@@ -108,6 +121,49 @@ if (-not $SkipFill) {
 if (-not $SkipDiversity) {
     Invoke-CiStep "DIVERSITY (run_region_diversity.ps1)" {
         & (Join-Path $Repo "run_region_diversity.ps1")
+    }
+}
+
+# ----- 2d) greenfield world (data-derived, matt-free): drift + unit tests + isolated gen -
+if (-not $SkipGreenfield) {
+    Invoke-CiStep "GREENFIELD (drift + unit tests + isolated gen)" {
+        $gfDir  = Join-Path $Repo "greenfield"
+        $dataPy = Join-Path $gfDir "eldenring_gf\data.py"
+        # (a) DATA DRIFT: regenerate from the backbone (region_map.csv + grace anchors); fail if
+        #     data.py or region_open_flags.py differ from what is committed. Compared line-ending-
+        #     NORMALIZED: gen_data writes CRLF on Windows / LF elsewhere -- only content matters.
+        $openPy = Join-Path $gfDir "eldenring_gf\region_open_flags.py"
+        $gfNorm = { param($p) if (Test-Path $p) { [IO.File]::ReadAllText($p).Replace("`r","") } else { "" } }
+        $beforeData = & $gfNorm $dataPy
+        $beforeOpen = & $gfNorm $openPy
+        python (Join-Path $gfDir "gen_data.py")
+        if ($LASTEXITCODE -ne 0) { throw "GREENFIELD: gen_data.py failed (exit $LASTEXITCODE)" }
+        if ((& $gfNorm $dataPy) -ne $beforeData) {
+            throw "GREENFIELD: eldenring_gf\data.py is stale -- gen_data.py regenerated different data; commit it."
+        }
+        if ((& $gfNorm $openPy) -ne $beforeOpen) {
+            throw "GREENFIELD: eldenring_gf\region_open_flags.py is stale -- regenerated different flags; commit it."
+        }
+        # (b) PURE UNIT: structural invariants on data.py (no AP import). Run as a DIRECT
+        #     unittest script, NOT pytest -- pytest would import the parent eldenring_gf
+        #     package, whose __init__ pulls in Archipelago BaseClasses, defeating the AP-free
+        #     design (the file ends in unittest.main(), so it exits 0/1 for CI).
+        python (Join-Path $gfDir "eldenring_gf\tests\test_gf_data.py")
+        if ($LASTEXITCODE -ne 0) { throw "GREENFIELD: data-invariant unit tests failed (exit $LASTEXITCODE)" }
+        # (c) ISOLATED GEN: install the world into Archipelago\worlds and gen against
+        #     greenfield\players in isolation (also copies tests\ into the installed world).
+        #     gen-greenfield.ps1 throws on a non-zero Generate.py exit (fill error / crash).
+        & (Join-Path $gfDir "gen-greenfield.ps1") -Repo $Repo
+        if ($LASTEXITCODE -ne 0) { throw "GREENFIELD: isolated gen failed (exit $LASTEXITCODE)" }
+        # (d) WORLD UNIT: AP WorldTestBase suite (fill/reachability/goal + slot_data
+        #     contract) against the freshly-installed world.
+        Push-Location $ApDir
+        try {
+            python -m pytest "worlds\eldenring_gf\tests\test_gf_world.py" -q
+            $gfWorldExit = $LASTEXITCODE
+        } finally { Pop-Location }
+        if ($gfWorldExit -ne 0) { throw "GREENFIELD: AP world unit tests failed (exit $gfWorldExit)" }
+        $global:LASTEXITCODE = 0
     }
 }
 
