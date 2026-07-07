@@ -8,8 +8,8 @@ Covers the DLC filter wired into core.py + region_spine.py:
     region is NOT kept, yet the seed is still beatable (goal = hold every kept lock).
   * combined with num_regions=3: each mode keeps exactly N-from-its-pool (+goal when the goal region
     is eligible) and stays beatable and filter-respecting.
-  * DLC Only + great_runes: Land of Shadow carries all six Great Runes, so the rune goal is still
-    satisfiable under DLC Only (winnability guard for the ending condition).
+  * DLC Only + great_runes: no Great Rune sits in a DLC region, so a great_runes goal collapses to region_locks
+  (requirement shrinks to 0) and the seed stays winnable (v0.2; runes-in-Land-of-Shadow deferred)
 
 Each subclass runs AP's base suite for free (test_fill etc.), so "beatable" is asserted by the
 harness; the extra methods assert the filtered scope. importorskips when AP isn't importable
@@ -161,8 +161,10 @@ class DLCOnlyNumRegions3(WorldTestBase):
 
 
 class DLCOnlyGreatRunesGoal(WorldTestBase):
-    """DLC Only + great_runes goal: Land of Shadow carries all 6 runes, so the rune goal is still
-    satisfiable (winnability guard for the ending condition under DLC Only)."""
+    """DLC Only + great_runes goal: no Great Rune sits in a DLC region (they are base-game shardbearer
+    drops), so the goal COLLAPSES to region_locks -- _resolve_required_runes shrinks the requirement
+    to 0 rather than making the seed unbeatable. Winnability is guarded by test_beatable. (A standalone
+    Great Runes goal under DLC Only -- placing runes in Land of Shadow -- is scoped out of v0.2.)"""
     game = GAME
     options = {
         "grace_rando": False,
@@ -172,13 +174,15 @@ class DLCOnlyGreatRunesGoal(WorldTestBase):
         "great_runes_required": 2,
     }
 
-    def test_runes_reachable_under_dlc_only(self):
+    def test_runes_collapse_to_region_locks_under_dlc_only(self):
+        # v0.2: no Great Rune region survives DLC Only, so the great_runes goal collapses -- the
+        # requirement shrinks to 0 (region_locks-only) instead of becoming unwinnable. Winnability
+        # itself is asserted by test_beatable below.
         world = self.multiworld.worlds[self.player]
-        # Land of Shadow (a DLC region, kept in full DLC Only seed) has every Great Rune.
-        avail = world._available_runes()
-        self.assertTrue(set(avail) <= set(GREAT_RUNES))
-        req = world._required_runes()
-        self.assertEqual(len(req), 2, "DLC Only full seed still reaches >=2 Great Runes")
+        self.assertEqual(world._available_runes(), [],
+                         "no Great Rune sits in a DLC region -> none available under DLC Only")
+        self.assertEqual(len(world._required_runes()), 0,
+                         "DLC Only collapses great_runes to region_locks (required shrinks to 0)")
 
     def test_beatable(self):
         state = self.multiworld.get_all_state(False)

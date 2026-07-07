@@ -117,8 +117,9 @@ class DLCOnly(Toggle):
     the Shadow of the Erdtree DLC regions are eligible; every base-game region is sealed. Implies
     Enable DLC (turning this on forces the DLC in even if Enable DLC is off). The goal becomes "hold
     every kept DLC lock"; the base-game goal region (Leyndell) is sealed but is not required, so the
-    seed stays winnable. Land of Shadow carries all six Great Runes, so the great_runes ending still
-    works under DLC Only."""
+    seed stays winnable. Under DLC Only no Great Rune region survives, so a great_runes ending
+    collapses to region_locks (the requirement shrinks to 0) rather than becoming unwinnable; a
+    standalone Great Runes goal under DLC Only (runes in Land of Shadow) is scoped out of v0.2."""
     display_name = "DLC Only"
 
 
