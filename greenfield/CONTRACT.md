@@ -17,7 +17,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `options.completion_scaling` | INT_OR_BOOL | yes | greenfield | core._options_echo | er-logic/scaling.rs:146 parse_bool_option | completion scaling on/off + curve id (nonzero = on; 4 = smoothstep). |
 | `options.completion_scaling_floor` | NUMBER | yes | greenfield | core._options_echo | er-logic/scaling.rs floor (client reads f64) | minimum scaling tier as percent of max, applied from the start. |
 | `options.global_scadutree_blessing` | INT | yes | greenfield | core._options_echo | scaling.rs scadutree scope | DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled). |
-| `options.auto_upgrade` | INT | yes | greenfield | core._options_echo (constant 0) | upgrades client path | auto weapon-upgrade ladder tier; greenfield ships constant 0 (feature off). |
+| `options.auto_upgrade` | INT | yes | greenfield | core._options_echo (features/upgrades.py) | upgrades.rs set_auto_upgrade / apply_auto_upgrade | auto-upgrade received weapons: 0 = off; nonzero = raise each received weapon to the player's highest held level on its smithing track (raise-only, cap +25 normal / +10 somber). |
 | `options.flatten_regular_upgrades` | INT | yes | greenfield | core._options_echo (features/upgrades.py) | upgrades client path | standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3). |
 | `regionSphereTargets` | SCALAR_INT_MAP |  | greenfield | features/scaling.py (I2; core emits {} transitional) | er-logic/scaling.rs:148 i32_i32_map | {str(i32 region id): i32 target}; flat per-region scaling targets. Keys must parse as i32 (region NAMES are silently dropped by the client -- the 2026-07 dark-scaling bug); ranges (regionSphereTargetRanges) are the live wire. |
 | `regionSphereTargetRanges` | TRIPLE_LIST |  | greenfield | features/scaling.py (I2) | er-logic/scaling.rs:150-165 range parse | [[lo,hi,target], ...] play_region/100 sub-id ranges -> scaling target; the live completion-scaling wire (SCALING_WIRE). |
@@ -52,6 +52,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `great_runes_required` | ANY |  | greenfield | core._base_slot_data | (diagnostic -- no client read) | EFFECTIVE (clamped) Great Rune requirement for the great_runes ending. |
 | `great_rune_items` | ANY |  | greenfield | core._base_slot_data | (diagnostic -- no client read) | required Great Rune item names this seed. |
 | `bossLocations` | ANY |  | greenfield | features/boss_locks.py | (diagnostic -- no client read) | {region: [boss AP location ids]} for kept regions. |
+| `bossLockItems` | ANY |  | greenfield | features/boss_locks.py | er-logic boss_felled / region.rs | {str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id}} for kept BASE-game bosses (DLC out for v0.2); client mints the 'Felled:' trophy on boss-defeat (mode A). |
 | `filler_foreign_localized` | ANY |  | greenfield | features/filler_foreign.py | (diagnostic -- no client read) | count of distinct filler names forced local this seed. |
 | `pool_builder` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | whether pool curation was enabled this seed. |
 | `pool_builder_juice_added` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | resolved juice budget added by the pool builder. |

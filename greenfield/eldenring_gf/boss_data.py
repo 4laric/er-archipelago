@@ -42,6 +42,9 @@ REGION_BOSSES = {
         (7770004, 174, "Rykard's Great Rune"),
         (7770859, 510220, 'Remembrance of the Blasphemous'),
     ],
+    'Raya Lucaria Academy': [
+        (7770014, 14000800, 'Remembrance of the Full Moon Queen'),
+    ],
     'Scadu Altus': [
         (7770869, 510550, 'Remembrance of the Mother of Fingers'),
         (7770871, 510600, 'Remembrance of the Saint of the Bud'),

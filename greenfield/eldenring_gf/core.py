@@ -491,7 +491,7 @@ class GreenfieldEldenRingWorld(World):
             contract.COMPLETION_SCALING: 4,  # smoothstep curve id (nonzero = on; matches features/scaling.py)
             contract.COMPLETION_SCALING_FLOOR: _opt("completion_scaling_floor"),
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
-            contract.AUTO_UPGRADE: 0,               # upgrade ladder not in greenfield -- constant off
+            contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
         }
 
