@@ -32,6 +32,7 @@ Reproducible via --fuzz-seed (passed straight through to the emitter).
 """
 from __future__ import annotations
 import argparse
+import datetime
 import os
 import re
 import shutil
@@ -130,6 +131,40 @@ def read_manifest_options(out_dir, fname):
     return ""
 
 
+def save_failures_to_disk(fail_dir, failures, fuzz_seed):
+    """Persist each failure's yaml + the FULL captured Generate.py output (which contains the
+    FillError / traceback) to a durable dir, so a reproducer can be recovered long after the console
+    scrollback is gone. This is what makes fuzz finds actionable after the fact. Returns the written
+    log paths. One SUMMARY.txt indexes the batch."""
+    os.makedirs(fail_dir, exist_ok=True)
+    written = []
+    summary = ["# GF-FUZZ failures  (fuzz-seed %s, %s)"
+               % (fuzz_seed, datetime.datetime.now().isoformat(timespec="seconds")), ""]
+    for label, yp, opts, text in failures:
+        base = os.path.splitext(os.path.basename(yp))[0]
+        # copy the exact input yaml so it survives temp cleanup (the yaml alone reproduces the find).
+        try:
+            shutil.copy(yp, os.path.join(fail_dir, base + ".yaml"))
+        except Exception:
+            pass
+        log_path = os.path.join(fail_dir, base + "." + label + ".log")
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write("label   : " + label + "\n")
+            f.write("yaml    : " + yp + "\n")
+            f.write("options : " + (opts or "(see yaml)") + "\n")
+            f.write("=" * 72 + "\n")
+            f.write("FULL captured Generate.py output (stdout+stderr, autoload-noise stripped):\n")
+            f.write("=" * 72 + "\n")
+            f.write(_denoise(text))
+            f.write("\n")
+        written.append(log_path)
+        summary.append("[%s] %s.yaml -> %s" % (label, base, os.path.basename(log_path)))
+        summary.append("    options: " + (opts or "(see yaml)"))
+    with open(os.path.join(fail_dir, "SUMMARY.txt"), "w", encoding="utf-8") as f:
+        f.write("\n".join(summary) + "\n")
+    return written
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="greenfield yaml-fuzz orchestrator + scorer")
     ap.add_argument("--count", type=int, required=True, help="number of fuzz yamls")
@@ -138,6 +173,12 @@ def main(argv=None):
     ap.add_argument("--fuzz-seed", type=int, default=0, help="batch seed (0 = roll + print)")
     ap.add_argument("--out", default="", help="yaml/output dir (default temp)")
     ap.add_argument("--ap", default="", help="Archipelago checkout dir (default <repo>/Archipelago)")
+    ap.add_argument("--fail-dir", default="",
+                    help="dir for persisted failure artifacts "
+                         "(default <repo>/gen-test/gf-fuzz-failures/<timestamp>)")
+    ap.add_argument("--no-save-failures", action="store_true",
+                    help="do NOT persist failing yaml + full gen output to --fail-dir "
+                         "(saving is ON by default so FillError tracebacks are always recoverable)")
     args = ap.parse_args(argv)
 
     ap_dir = args.ap or os.path.join(REPO_ROOT, "Archipelago")
@@ -185,6 +226,16 @@ def main(argv=None):
         % (pct, clean, n, counts["FILLERROR"], counts["CRASH"], counts["HANG"])
     )
     print("         SUCCESS %d  REJECT %d  (yamls in %s)" % (counts["SUCCESS"], counts["REJECT"], out_dir))
+
+    # Persist failures to a durable dir by default (recoverable long after this run). The temp trees
+    # run_one uses are deleted, and out_dir may be an OS temp dir, so without this the FillError
+    # traceback is lost when the console scrollback rolls -- the whole point of this change.
+    if failures and not args.no_save_failures:
+        ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        fail_dir = args.fail_dir or os.path.join(REPO_ROOT, "gen-test", "gf-fuzz-failures", ts)
+        written = save_failures_to_disk(fail_dir, failures, args.fuzz_seed)
+        print("\nGF-FUZZ: saved %d failure artifact(s) to %s" % (len(written), fail_dir))
+        print("         (each: <yaml> + <yaml>.<LABEL>.log with the FULL traceback; SUMMARY.txt indexes them)")
 
     for label, yp, opts, text in failures:
         print("\n---- REPRODUCER (" + label + ") ----")

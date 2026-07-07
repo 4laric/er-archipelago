@@ -277,7 +277,11 @@ def region_of(r):
     _m = re.match(r"Overworld m60_(\d\d)_(\d\d)", _reg)
     if _m:
         _xy = (int(_m.group(1)), int(_m.group(2)))
-        if _xy in ANCHOR:                              # direct grace anchor -> authoritative, keep
+        # Direct grace anchor OR a placed map_lot item (flag_source=='map_lot' => the tile is the
+        # item's real ItemLotParam_map placement, not a scanned common-event flag) -> tile is ground
+        # truth, resolve to its region. Only genuinely unverifiable nearest-neighbor common-event
+        # (emevd-scanned) flags are quarantined to HUB.
+        if _xy in ANCHOR or r.get('flag_source') == 'map_lot':
             return _region_of_raw(r)
         _QUAR_N[0] += 1                                # nearest-neighbor + unverifiable -> hub
         return HUB
@@ -334,7 +338,7 @@ for _r in rows:
         else: _A_REPIN_NOOP+=1
     else:
         _reg=_r['region']; _m=re.match(r"Overworld m60_(\d\d)_(\d\d)",_reg)
-        if _m and (int(_m.group(1)),int(_m.group(2))) not in ANCHOR: _A_QUAR+=1
+        if _m and (int(_m.group(1)),int(_m.group(2))) not in ANCHOR and _r.get('flag_source')!='map_lot': _A_QUAR+=1
 print(f"emevd_audit: UNIQUE={_A_UNIQUE} AMBIGUOUS={_A_AMBIG} NONE={_A_NONE} | "
       f"re-pin(emevd unique-m60 changed)={_A_REPIN} (+{_A_REPIN_NOOP} already-correct) | "
       f"quarantine->HUB (nearest-neighbor unverifiable)={_A_QUAR} | recovered globals->checks={_A_RECOVER}")
@@ -366,9 +370,22 @@ for _r in rows:
     _mj = region_of(_r); _pf = _map_pref(_r["map"])
     if _pf and _mj: _pref2maj[_pf][_mj] += 1
 _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
+# ---- Boss-gated / arena grace SKIP set (matt-free; EMEVD-derived) -----------------------------
+# A region's grace bundle must contain only graces that PHYSICALLY EXIST at region-open. These do
+# not, so force-lighting them (num_regions lights the whole bundle on lock receipt) warps the
+# player to a grace that isn't there yet / into a sealed boss arena -> soft-lock. Filtered from
+# _open_cand below (feeds both the region-open front-door flag AND the grant bundle).
+#   FLAG-GATED: EMEVD common event 9005810 hides the grace asset until a gate/boss-defeat flag is
+#     set. COMPLETE (exhaustive sweep of all 90058xx grace-control commons x BonfireWarpParam).
+#   ARENA: overworld remembrance arenas, MSB-placed grace behind a fog/summon trigger. No EMEVD
+#     signal -> known/playtest set, NOT provably complete; expand if a playtest finds more.
+_BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601, 71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120, 71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401})
+_ARENA_GRACE_FLAGS = frozenset({76930, 76931, 76422, 76852, 76853, 76508, 76509, 76415})
+_SKIP_GRACE_FLAGS = _BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
+    if int(_fl) in _SKIP_GRACE_FLAGS: continue          # boss-gated / arena grace: never force-light
     _mj = None
     _m = re.match(r"m60_(\d\d)_(\d\d)", _tile)
     if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
