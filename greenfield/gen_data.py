@@ -774,9 +774,16 @@ print(f"item_ids: {len(ITEM_CATALOG)} distinct items, {len(LOCATION_ITEM)} locat
 #  contract (item_ids.py FILLER_POOL = [junk good names]), filter re-derived from params.]
 _GOODS_CSV = os.path.join(_SLP_DIR, "EquipParamGoods.csv")
 _FILLER_TYPES = {"0", "2", "14"}
+# NOTE (A, 2026-07-07): Smithing/Somber smithing stones are DELIBERATELY NOT guarded here -- they are
+# rarity<=1 reinforcement goods (type 14), so they pass the filter and land in FILLER_POOL, where
+# varied_filler distributes them as fill-safe upgrade materials. pool_builder juices EQUIPPABLES only
+# (goods are omitted from ITEM_TIERS), so without this stones would be handled by nobody. The rarity<=1
+# gate keeps the end-tier Ancient Dragon (Somber) stones (rarity 3) OUT. Golden Seed / Sacred Tear /
+# Scadutree Fragment / Revered Spirit Ash are rarity>=2 -> already excluded by the rarity gate (capped
+# resources, correctly kept out). Stone density here is tuned against the per-sphere upgrade curve
+# measured by tools/analyze_upgrade_curve.py.
 _FILLER_NAME_GUARD = ("Deathroot", "Dragon Heart", "Rune Arc", "Larval Tear", "Golden Seed",
-                      "Sacred Tear", "Memory Stone", "Talisman Pouch", "Great Rune", "Map:",
-                      "Smithing Stone")  # smithing/somber handled by pool_builder, not filler
+                      "Sacred Tear", "Memory Stone", "Talisman Pouch", "Great Rune", "Map:")
 FILLER_POOL = []
 if os.path.isfile(_GOODS_CSV):
     _junk_ok = {}

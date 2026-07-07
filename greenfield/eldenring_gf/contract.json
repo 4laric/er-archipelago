@@ -186,9 +186,9 @@
           "profiles": [
             "greenfield"
           ],
-          "producer": "core._options_echo (constant 0)",
+          "producer": "core._options_echo (features/upgrades.py)",
           "consumer": "upgrades client path",
-          "doc": "flatten regular upgrade ladder; greenfield ships constant 0 (feature off)."
+          "doc": "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."
         }
       ]
     },
@@ -609,6 +609,17 @@
       "producer": "features/pool_builder.py",
       "consumer": "(diagnostic -- no client read)",
       "doc": "size of the juice candidate set at this intensity."
+    },
+    {
+      "name": "pool_builder_juice_pct",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/pool_builder.py",
+      "consumer": "(diagnostic -- no client read)",
+      "doc": "resolved share (0..100) of the Rune tail replaced with juice."
     },
     {
       "name": "locationIdsToKeys",

@@ -214,8 +214,8 @@ OPTIONS_SUBKEYS = (
                 "core._options_echo (constant 0)", "upgrades client path",
                 "auto weapon-upgrade ladder tier; greenfield ships constant 0 (feature off)."),
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
-                "core._options_echo (constant 0)", "upgrades client path",
-                "flatten regular upgrade ladder; greenfield ships constant 0 (feature off)."),
+                "core._options_echo (features/upgrades.py)", "upgrades client path",
+                "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),
 )
 
 

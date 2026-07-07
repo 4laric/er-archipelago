@@ -18,7 +18,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `options.completion_scaling_floor` | NUMBER | yes | greenfield | core._options_echo | er-logic/scaling.rs floor (client reads f64) | minimum scaling tier as percent of max, applied from the start. |
 | `options.global_scadutree_blessing` | INT | yes | greenfield | core._options_echo | scaling.rs scadutree scope | DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled). |
 | `options.auto_upgrade` | INT | yes | greenfield | core._options_echo (constant 0) | upgrades client path | auto weapon-upgrade ladder tier; greenfield ships constant 0 (feature off). |
-| `options.flatten_regular_upgrades` | INT | yes | greenfield | core._options_echo (constant 0) | upgrades client path | flatten regular upgrade ladder; greenfield ships constant 0 (feature off). |
+| `options.flatten_regular_upgrades` | INT | yes | greenfield | core._options_echo (features/upgrades.py) | upgrades client path | standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3). |
 | `regionSphereTargets` | SCALAR_INT_MAP |  | greenfield | features/scaling.py (I2; core emits {} transitional) | er-logic/scaling.rs:148 i32_i32_map | {str(i32 region id): i32 target}; flat per-region scaling targets. Keys must parse as i32 (region NAMES are silently dropped by the client -- the 2026-07 dark-scaling bug); ranges (regionSphereTargetRanges) are the live wire. |
 | `regionSphereTargetRanges` | TRIPLE_LIST |  | greenfield | features/scaling.py (I2) | er-logic/scaling.rs:150-165 range parse | [[lo,hi,target], ...] play_region/100 sub-id ranges -> scaling target; the live completion-scaling wire (SCALING_WIRE). |
 | `completionScalingBasis` | INT |  | greenfield | core._base_slot_data | er-logic/scaling.rs basis parse | scaling basis Choice VALUE (int 1 = sphere); client also tolerates the legacy string form ('sphere'). |
@@ -57,6 +57,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `pool_builder_juice_added` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | resolved juice budget added by the pool builder. |
 | `pool_builder_intensity_floor` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | resolved juice rarity floor (1..3). |
 | `pool_builder_juice_candidates` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | size of the juice candidate set at this intensity. |
+| `pool_builder_juice_pct` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | resolved share (0..100) of the Rune tail replaced with juice. |
 | `locationIdsToKeys` | ANY | yes | bedrock | (bedrock apworld) | key_resolver.rs | matt slot key token per location; client resolves token1 -> flag (bedrock path). |
 | `itemCounts` | ANY | yes | bedrock | (bedrock apworld) | core.rs | per-item quantity map. |
 | `naturalKeyTriggers` | ANY | yes | bedrock | (bedrock apworld) | key_resolver.rs / region.rs | bedrock natural key triggers. |

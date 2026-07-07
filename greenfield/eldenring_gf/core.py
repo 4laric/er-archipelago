@@ -287,6 +287,14 @@ class GreenfieldEldenRingWorld(World):
             _excl = getattr(self, "gf_dlc_excluded", ())
             _pool = [x for x in FILLER_POOL if x not in _excl] if _excl else FILLER_POOL
             if _pool:
+                # B: over-weight smithing/somber upgrade stones when filler_upgrade_weight > 1, so the
+                # measured standard-weapon starvation can be tuned away (count-neutral -- only WHICH
+                # filler item is chosen). Uniform when weight == 1 (default).
+                _w = getattr(self.options, "filler_upgrade_weight", None)
+                _wt = int(_w.value) if _w is not None else 1
+                if _wt > 1:
+                    _weights = [_wt if "Smithing Stone" in x else 1 for x in _pool]
+                    return self.random.choices(_pool, weights=_weights, k=1)[0]
                 return self.random.choice(_pool)
         return FILLER
 
@@ -331,7 +339,100 @@ class GreenfieldEldenRingWorld(World):
         for k in range(slots):
             _nm = extras[k] if k < len(extras) else FILLER
             pool.append(self.create_item(self._pick_filler() if _nm == FILLER else _nm))
+        # B (shuffle-safe stone supply): swap N filler-classified non-stone pool items for LOW smithing
+        # stones. varied_filler / filler_upgrade_weight only touch the ~1% Rune tail (inert under
+        # item_shuffle); this operates on the SHUFFLED pool, so it actually moves the standard-weapon
+        # curve. Count-neutral (filler->filler); never touches progression, useful (juice), required
+        # runes, or existing stones. Deterministic (self.random). See tools/analyze_upgrade_curve.py.
+        _si = getattr(self.options, "stone_injection", None)
+        _n_inj = int(_si.value) if _si is not None else 0
+        if _n_inj > 0:
+            _low = [n for n in ("Smithing Stone [1]", "Smithing Stone [2]", "Smithing Stone [3]")
+                    if n in item_name_to_id]
+            if _low:
+                _cand = [i for i, it in enumerate(pool)
+                         if not it.advancement
+                         and not (it.classification & ItemClassification.useful)
+                         and "Smithing Stone" not in it.name and it.name != FILLER
+                         and not it.name.startswith("Golden Rune")  # keep the rune/level curve intact
+                         and it.name not in required]
+                self.random.shuffle(_cand)
+                for j, idx in enumerate(_cand[:_n_inj]):
+                    pool[idx] = self.create_item(_low[j % len(_low)])
         self.multiworld.itempool += pool
+
+    def post_fill(self) -> None:
+        # B-ramp (AUTO-SIZED to the smoothstep target): shape the achieved standard-weapon curve so it
+        # tracks the client's smoothstep difficulty scaling (max weapon by the deepest sphere), keyed
+        # off the TRUE per-seed fill spheres (get_spheres, valid only post-fill). No count knob: per
+        # sphere we place exactly the stones needed to AFFORD the smoothstep target at that depth under
+        # the current flatten_regular_upgrades ladder, MINUS the vanilla stones already reachable there
+        # -- so it self-sizes with num_regions (= sphere count) and the flatten setting. Re-labels this
+        # world's own filler in place (count-neutral) and LOCKS it (progression balancing skips locked).
+        # Winnable (filler only) and stones stay in THIS world (pinned to own locations).
+        _o = getattr(self.options, "stone_ramp", None)
+        if not (_o is not None and _o.value):
+            return
+        import re as _re
+        from collections import defaultdict as _dd
+        _fo = getattr(self.options, "flatten_regular_upgrades", None)
+        _flat = int(_fo.value) if _fo is not None else 0     # 0 = vanilla 2/4/6; N = uniform N/level
+        _loc_sphere = {}
+        for _s, _ls in enumerate(self.multiworld.get_spheres()):
+            for _L in _ls:
+                _loc_sphere[_L] = _s
+        if not _loc_sphere:
+            return
+        _max_s = max(_loc_sphere.values()) or 1
+        _required = set(self._required_runes())
+        _bg = _dd(lambda: _dd(int))          # bg[sphere][tier] = reachable REGULAR stones already placed
+        _by_sphere = _dd(list)               # convertible filler locations per sphere
+        for _L in self.multiworld.get_locations(self.player):
+            _it = _L.item
+            if _it is None or _L.address is None or _L not in _loc_sphere or _it.player != self.player:
+                continue
+            _m = _re.match(r"Smithing Stone \[(\d+)\]$", _it.name)
+            if _m:
+                _bg[_loc_sphere[_L]][int(_m.group(1))] += 1
+                continue
+            if (not _L.locked and not _it.advancement
+                    and not (_it.classification & ItemClassification.useful)
+                    and "Smithing Stone" not in _it.name
+                    and not _it.name.startswith("Golden Rune")
+                    and _it.name != FILLER and _it.name not in _required):
+                _by_sphere[_loc_sphere[_L]].append(_L)
+
+        def _needed(_lvl_target):
+            # cumulative REGULAR stones per tier to reach +lvl_target (level 25 = Ancient Dragon, not
+            # injectable -> capped at +24). flat>0 flattens every level to flat stones of its tier.
+            _d = _dd(int)
+            for _lvl in range(1, min(_lvl_target, 24) + 1):
+                _t = (_lvl - 1) // 3 + 1
+                _van = (2, 4, 6)[(_lvl - 1) % 3]
+                _d[_t] += min(_van, _flat) if _flat > 0 else _van   # cap-at-N, matches client
+            return _d
+
+        _bg_cum = _dd(int)
+        _inj_cum = _dd(int)
+        for _s in range(_max_s + 1):
+            for _t, _c in _bg[_s].items():
+                _bg_cum[_t] += _c
+            _f = _s / _max_s
+            _target = round((_f * _f * (3 - 2 * _f)) * 25)   # smoothstep +level target at this sphere
+            _req = _needed(_target)
+            _locs = _by_sphere.get(_s, [])
+            self.random.shuffle(_locs)
+            _li = 0
+            for _t in range(1, 9):
+                _stone = f"Smithing Stone [{_t}]"
+                if _stone not in item_name_to_id:
+                    continue
+                _deficit = _req[_t] - _bg_cum[_t] - _inj_cum[_t]
+                while _deficit > 0 and _li < len(_locs):
+                    _L = _locs[_li]; _li += 1
+                    _new = self.create_item(_stone)
+                    _L.item = _new; _new.location = _L; _L.locked = True
+                    _inj_cum[_t] += 1; _deficit -= 1
 
     # ---- regions --------------------------------------------------------------
     def _add_locations(self, region: Region, region_name: str) -> None:
@@ -391,7 +492,7 @@ class GreenfieldEldenRingWorld(World):
             contract.COMPLETION_SCALING_FLOOR: _opt("completion_scaling_floor"),
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: 0,               # upgrade ladder not in greenfield -- constant off
-            contract.FLATTEN_REGULAR_UPGRADES: 0,   # upgrade flatten not in greenfield -- constant off
+            contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
         }
 
     def _base_slot_data(self) -> Dict[str, Any]:
@@ -488,3 +589,28 @@ class GreenfieldEldenRingWorld(World):
             f"progression {prog} | useful {useful} | local filler {local_filler} | "
             f"foreign filler {foreign_filler} | foreign useful {foreign_useful}"
         )
+
+        # --- per-sphere item dump (env ER_GF_DUMP_SPHERES; upgrade-curve analytics) ---------------
+        # get_spheres() is heavy, so compute it ONCE for the whole multiworld (the lowest player id)
+        # and write {player_name: [[item names in sphere 0], [sphere 1], ...]} to JSON. Inert unless
+        # the env var is set. Only reachable, item-bearing locations appear in spheres. NOTE: one AP
+        # item == one check grant, so a vanilla "x3" stack still counts as 1 here (the pool-tuning unit).
+        import os as _os, json as _json
+        if _os.environ.get("ER_GF_DUMP_SPHERES") and self.player == min(self.multiworld.player_ids):
+            try:
+                per_player = {}
+                for sidx, locset in enumerate(self.multiworld.get_spheres()):
+                    for loc in locset:
+                        it = loc.item
+                        if it is None or loc.player not in self.multiworld.player_ids:
+                            continue
+                        pl = per_player.setdefault(self.multiworld.get_player_name(loc.player), [])
+                        while len(pl) <= sidx:
+                            pl.append([])
+                        pl[sidx].append(it.name)
+                fn = _os.path.join(output_directory, f"GF_SPHERES_{self.multiworld.seed_name}.json")
+                with open(fn, "w", encoding="utf-8") as _f:
+                    _json.dump({"seed": str(self.multiworld.seed_name), "spheres": per_player}, _f)
+                print(f"[greenfield] ER_GF_DUMP_SPHERES -> {fn}")
+            except Exception as _e:
+                print(f"[greenfield] ER_GF_DUMP_SPHERES dump failed: {_e!r}")
