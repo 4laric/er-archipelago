@@ -168,6 +168,17 @@ SHAPES = {
 GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 
 
+# ---------------------------------------------------------------------------------------------------
+# SHARED DERIVED-DATA (single source of truth so the apworld and client CAN'T drift). BIG_TICKET_TYPES
+# = the LOCATION_TAGS types that count as a prominent/"big-ticket" check. ONE definition, both sides:
+# features/curated_fill.py routes region Locks onto these, and the client's F6 tracker highlights /
+# filters them -- via tools/gen_location_regions.py, which imports THIS set to bake the
+# er_logic::tracker_regions LOCATION_META big_ticket column. So "where the locks go" == "what the
+# tracker flags" by construction. Per-location membership is generated from location_tags.py (a
+# seed-invariant ~4k-row static table, not slot_data); the DEFINITION lives here in the contract.
+BIG_TICKET_TYPES = frozenset({"Boss", "Remembrance", "Legendary", "GreatRune", "KeyItem"})
+
+
 class ContractKey:
     __slots__ = ("name", "shape", "required", "profiles", "producer", "consumer", "doc", "subkeys")
 
