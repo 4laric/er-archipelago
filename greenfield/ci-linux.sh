@@ -45,7 +45,14 @@ else
 fi
 
 step "GREENFIELD (b) PURE UNIT"
-if "$PY" "$GF/eldenring_gf/tests/test_gf_data.py"; then record PURE PASS; else record PURE FAIL; fi
+# test_gf_data.py = structural invariants; test_gf_region_correctness.py = tier-A semantic-value
+# oracle (region assignment vs the region_map.csv placement, independent of region_of). Both run
+# from SOURCE where region_map.csv lives; the region gate skips itself in the installed-world copy.
+if "$PY" "$GF/eldenring_gf/tests/test_gf_data.py" \
+   && "$PY" "$GF/eldenring_gf/tests/test_gf_region_correctness.py" \
+   && "$PY" "$GF/eldenring_gf/tests/test_gf_grace_region_correctness.py" \
+   && "$PY" "$GF/eldenring_gf/tests/test_gf_region_artifact_oracle.py"; then
+  record PURE PASS; else record PURE FAIL; fi
 
 step "GREENFIELD (c) ISOLATED GEN"
 rm -rf "$AP/worlds/eldenring_gf"; cp -r "$GF/eldenring_gf" "$AP/worlds/eldenring_gf"
