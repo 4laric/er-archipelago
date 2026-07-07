@@ -29,8 +29,8 @@ LIB_RS = os.path.join(REPO, "from-software-archipelago-clients",
                       "crates", "er-logic", "src", "lib.rs")
 MOD_LINE = "pub mod tracker_regions;"
 
-# Location tag types that count as big-ticket for the tracker (location_tags.py).
-BIG_TICKET_TAGS = {"Boss", "Remembrance"}
+# Big-ticket tag types: loaded from the contract (single source of truth, shared with
+# features/curated_fill.py) inside load_rows via load_gf("contract").BIG_TICKET_TYPES.
 
 
 def load_gf(name):
@@ -47,6 +47,7 @@ def load_rows():
     plus the greenfield REGIONS list (the coarse lock-item keys)."""
     data = load_gf("data")
     tags = load_gf("location_tags").LOCATION_TAGS
+    big_ticket_tags = set(load_gf("contract").BIG_TICKET_TYPES)  # contract = single source
     missable = set(load_gf("missable_locations").MISSABLE_LOCATIONS)
     open_flags = load_gf("region_open_flags").REGION_OPEN_FLAGS
 
@@ -58,7 +59,7 @@ def load_rows():
     for region, locs in data.LOCATIONS.items():
         coarse = "" if region == data.HUB else region
         for _name, ap_id, _flag in locs:
-            big = bool(BIG_TICKET_TAGS & set(tags.get(ap_id, ())))
+            big = bool(big_ticket_tags & set(tags.get(ap_id, ())))
             rows.append((int(ap_id), region, coarse, big, ap_id in missable))
     rows = sorted(rows)
     ids = [r[0] for r in rows]

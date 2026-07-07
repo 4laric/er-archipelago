@@ -20,14 +20,13 @@ from collections import defaultdict
 
 from Options import Toggle
 from ..registry import Feature, register
+from ..contract import BIG_TICKET_TYPES  # single source of truth (shared with the F6 tracker)
 
 try:
     from ..location_tags import LOCATION_TAGS
 except Exception:  # not yet generated -> feature is a no-op
     LOCATION_TAGS = {}
 
-# The "prominent" umbrella for greenfield: a lock landing here feels like a real reward.
-BIG_TICKET_TYPES = frozenset({"Boss", "Remembrance", "Legendary", "GreatRune", "KeyItem"})
 
 
 class CuratedFill(Toggle):

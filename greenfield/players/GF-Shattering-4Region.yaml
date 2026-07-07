@@ -30,6 +30,7 @@ game: "Elden Ring (Greenfield)"
   pool_builder: true           # scrub the Rune tail, inject rare/legendary juice
   pool_builder_juice_cap: 0    # 0..400; 0 = auto-size to the whole Rune tail
   pool_builder_intensity: max  # normal | high (default) | max -- rarity floor legendary-only | +rare | +B-tier
+  curated_fill: true
 
   # ---- Boss locks / dungeon sweeps ----------------------------------------
   dungeon_sweep: all           # kill a dungeon boss -> its other checks auto-register.
