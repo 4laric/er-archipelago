@@ -49,8 +49,7 @@ REGION_PLAY_IDS = {
     "Liurnia of the Lakes": [62000, 62001, 62002],
     "Altus Plateau": [63000, 63002, 63003],
     "Mt. Gelmir": [63001, 16000, 39200],          # + Volcano Manor + Ruin-Strewn Precipice
-    "Caelid": [64000, 64002],                      # core + Swamp of Aeonia
-    "Dragonbarrow": [64001],
+    "Caelid": [64000, 64001, 64002],               # core + Dragonbarrow + Swamp of Aeonia
     "Mountaintops of the Giants": [65000, 65001],
     "Consecrated Snowfield": [65002],
     # --- legacy dungeons / capitals / underground (REGION_ID_MAP.md) ---

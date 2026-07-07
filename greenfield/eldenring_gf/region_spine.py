@@ -14,7 +14,7 @@ GOAL_REGION = "Leyndell"
 # 'rolled' keeps N random regions. Must be a permutation of REGIONS (guarded by test_gf_data).
 SPINE = [
     "Limgrave", "Weeping Peninsula", "Stormveil Castle", "Liurnia of the Lakes",
-    "Raya Lucaria Academy", "Caelid", "Dragonbarrow", "Altus Plateau", "Mt. Gelmir",
+    "Raya Lucaria Academy", "Caelid", "Altus Plateau", "Mt. Gelmir",
     "Leyndell", "Mountaintops of the Giants", "Consecrated Snowfield", "Miquella's Haligtree",
     "Farum Azula", "Mohgwyn Palace", "Eternal Cities",
     # DLC (rides as plain lock gates -- SPEC-PARITY.md P7)

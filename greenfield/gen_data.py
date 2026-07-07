@@ -40,7 +40,7 @@ def tile_pr(x,y):
     return best
 PLAY2AP={'61000':'Limgrave','61001':'Limgrave','61002':'Weeping Peninsula','62000':'Liurnia of the Lakes',
  '62001':'Liurnia of the Lakes','62002':'Liurnia of the Lakes','63000':'Altus Plateau','63001':'Mt. Gelmir',
- '63002':'Altus Plateau','63003':'Altus Plateau','64000':'Caelid','64001':'Dragonbarrow','64002':'Caelid',
+ '63002':'Altus Plateau','63003':'Altus Plateau','64000':'Caelid','64001':'Caelid','64002':'Caelid',
  '65000':'Mountaintops of the Giants','65001':'Mountaintops of the Giants','65002':'Consecrated Snowfield'}
 REGION_MAP={'Land of Shadow (DLC)':'Land of Shadow','Eternal Cities & Underground Rivers':'Eternal Cities',
  'Mohgwyn / Consecrated-adjacent':'Mohgwyn Palace','Mohgwyn Palace':'Mohgwyn Palace','Leyndell / Roundtable / Shunning-Grounds':'Leyndell',
@@ -158,7 +158,7 @@ DUNGEON_REGION_OVERRIDE = {
     "m31_06_00_00": "Liurnia of the Lakes",  # Academy Crystal Cave
     "m31_07_00_00": "Mt. Gelmir",  # Seethewater Cave
     "m31_09_00_00": "Mt. Gelmir",  # Volcano Cave
-    "m31_10_00_00": "Caelid",  # Dragonbarrow Cave (toggle: 'Dragonbarrow')
+    "m31_10_00_00": "Caelid",  # Dragonbarrow Cave (folded into Caelid)
     "m31_12_00_00": "Consecrated Snowfield",  # Cave of the Forlorn
     "m31_18_00_00": "Altus Plateau",  # Altus Plateau: Perfumer's Grotto
     "m31_21_00_00": "Caelid",  # Gaol Cave
