@@ -9,7 +9,7 @@ REGION_OPEN_FLAGS = {
     'Consecrated Snowfield': 73019,
     'Dragonbarrow': 76451,
     'Eternal Cities': 71211,
-    'Farum Azula': 71300,
+    'Farum Azula': 71303,
     'Jagged Peak': 76850,
     'Land of Shadow': 76800,
     'Leyndell': 71102,
