@@ -47,13 +47,20 @@ class ImportantLocationsFeature(Feature):
                   and selected.intersection(LOCATION_TAGS[loc.address])]
         if not tagged:
             return
-        # Fill-safety: only force non-filler where the pool can supply it. If this player's pool has
-        # fewer useful/progression items than tagged locations (e.g. item_shuffle off -> a degenerate
-        # locks+Rune pool: ~44 non-filler vs ~115 tagged), enforcing would over-constrain the fill and
-        # FillError/churn. Skip cleanly in that case -- the feature is moot without real items anyway.
-        avail = sum(1 for i in world.multiworld.itempool
-                    if i.player == world.player and _is_important(i))
-        if avail < len(tagged):
+        # Fill-safety: only force non-filler where the pool can ACTUALLY supply it. The reject-filler
+        # rule needs FREELY-PLACEABLE non-filler ("juice" = useful & not advancement) -- items fill can
+        # drop on an arbitrary tagged location. This world's advancement pool is structural region Locks
+        # (always ~21), which fill pins by reachability logic and CANNOT satisfy an arbitrary tagged loc,
+        # so they must not count toward supply. Counting advancement (the old `avail`) let item_shuffle
+        # off seeds pass the gate on locks alone (avail>=tagged) then FillError, since the juice pool is
+        # empty -- e.g. important_locations=["Fragment"] gave 21 tagged vs 21 Locks / 0 juice (FillError),
+        # and 6 tagged vs 15 Locks / 0 juice. Key the gate off juice: skip cleanly when it can't cover
+        # every tagged loc -- the feature is moot without real freely-placeable items anyway.
+        juice = sum(1 for i in world.multiworld.itempool
+                    if i.player == world.player
+                    and bool(i.classification & ItemClassification.useful)
+                    and not i.advancement)
+        if juice < len(tagged):
             return
         for loc in tagged:
             prev = loc.item_rule

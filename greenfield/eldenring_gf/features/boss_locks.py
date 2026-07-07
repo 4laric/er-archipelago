@@ -14,6 +14,7 @@ needs a boss-reward-location join (ItemLotParam) and stays empty for now.
 from Options import Choice
 from ..registry import Feature, register
 from .. import contract
+from ..region_spine import DLC_REGIONS   # canonical base/DLC partition (also used by core.py)
 
 try:
     from ..boss_data import REGION_BOSSES
@@ -23,6 +24,24 @@ try:
     from ..boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
 except Exception:
     DUNGEON_SWEEPS, SWEEP_REGION = {}, {}
+
+
+def _boss_label(reward: str) -> str:
+    """Derive a clean boss name from a REGION_BOSSES reward string (no separate boss-name table --
+    locked decision). Strips the 'Remembrance of the '/'Remembrance of ' prefix and a trailing
+    "'s Great Rune"/' Great Rune' suffix. Examples: 'Remembrance of the Dancing Lion' -> 'Dancing
+    Lion'; "Radahn's Great Rune" -> 'Radahn'. Names that fit neither shape (e.g. 'Elden
+    Remembrance') pass through unchanged."""
+    s = reward.strip()
+    for pre in ("Remembrance of the ", "Remembrance of "):
+        if s.startswith(pre):
+            s = s[len(pre):]
+            break
+    for suf in ("'s Great Rune", " Great Rune"):
+        if s.endswith(suf):
+            s = s[:-len(suf)]
+            break
+    return s.strip()
 
 
 class DungeonSweep(Choice):
@@ -57,6 +76,15 @@ class BossLocks(Feature):
         boss_locs = {r: [aid for (aid, _f, _n) in REGION_BOSSES[r]]
                      for r in REGION_BOSSES if r in kept}
         sd = {"bossLocations": boss_locs}
+        # Mode-A "Felled: <Boss>" trophy tracking (slot_data + client only; zero fill risk). Scoped
+        # to KEPT regions AND base-game only (DLC bosses are OUT for v0.2 -- reuse the canonical
+        # region_spine.DLC_REGIONS partition). The client mints a 'Felled: <Boss>' trophy when the
+        # boss_flag fires; er-logic boss_felled / region.rs read this map keyed by boss-defeat flag.
+        sd[contract.BOSS_LOCK_ITEMS] = {
+            str(fl): {"name": "Felled: " + _boss_label(reward), "region": r, "boss_ap_id": aid}
+            for r in REGION_BOSSES if r in kept and r not in DLC_REGIONS
+            for (aid, fl, reward) in REGION_BOSSES[r]
+        }
         if world.options.dungeon_sweep.value != 0:
             # FLAG-KEYED sweeps (boss-defeat flag -> member ap-ids), scoped to kept regions. Derived
             # from DarkScript EMEVD (boss_sweeps.py). A small client handler that watches the

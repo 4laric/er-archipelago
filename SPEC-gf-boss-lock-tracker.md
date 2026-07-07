@@ -3,6 +3,11 @@
 *Draft 2026-07-07. Make the boss-lock feature transparent (a visible, trackable AP item) or drop it.
 Grounded in `greenfield/eldenring_gf/features/boss_locks.py`, `boss_data.py`, `contract.py`.*
 
+> **Impl status (2026-07-07):** mode A is **built**. apworld emission + contract + test =
+> VERIFIED (provision + pytest). er-logic `boss_felled.rs` + countdown-kick = hand-verified drafts
+> (cargo unavailable in sandbox). Remaining = Windows glue in `WIRING-boss-locks-v0.2.md`
+> (`cargo test`/`build` + game-facing call sites + in-game confirm). Mode B = v0.3.
+
 ## Problem — the feature is half-built and invisible
 
 Today the boss-lock surface emits three things but produces **no player-visible item**:
