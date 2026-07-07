@@ -255,9 +255,14 @@ CONTRACT = (
                 "scaling basis Choice VALUE (int 1 = sphere); client also tolerates the legacy "
                 "string form ('sphere')."),
     # --- region locking / kick-watch ---
-    ContractKey("areaLockFlags", "TRIPLE_LIST", True, (BOTH,),
-                "features/area_locks.py", "region.rs:103 parse_triples",
-                "[lo,hi,open_flag] play_region ranges; locked (kicked) while open_flag is unset."),
+    ContractKey("areaLockFlags", "TRIPLE_LIST", False, (BOTH,),
+                "(client-derived; folded into regionOpenFlags 2026-07-06)",
+                "region.rs derive_area_lock_flags",
+                "[lo,hi,open_flag] play_region ranges; locked (kicked) while open_flag is unset. "
+                "FOLDED 2026-07-06: no longer emitted -- the client derives these from regionOpenFlags "
+                "+ its static REGION_PLAY_IDS geometry (area_locks.py holds the mirror authority + a "
+                "kept-region coverage assert; test_gf_data.py guards table drift). A legacy seed that "
+                "still sends a non-empty areaLockFlags is honored by the client as-is."),
     ContractKey("lockRevealFlags", "LISTVAL_INT_MAP", False, (BOTH,),
                 "(unemitted today; client path LIVE)", "region.rs:121 str_to_u32vec",
                 "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt. The client "
