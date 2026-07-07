@@ -432,21 +432,32 @@ class GreenfieldEldenRingWorld(World):
         return sd
 
     def write_spoiler(self, spoiler_handle) -> None:
-        # Completion-scaling gradient: the per-region target tier the client scales enemies to
-        # (mirrors the regionSphereTargetRanges wire; target / TARGET_MAX, deepest kept region = max).
-        # Emitted so a seed's scaling is judgeable from the spoiler without reading a client log.
+        # Seed provenance + config, dumped so a seed is judgeable from its spoiler alone (no client
+        # log needed): the completion-scaling gradient AND the full slot_data the client will receive.
+        import json
         from .features import scaling as _sc
+        name = self.multiworld.get_player_name(self.player)
         kept = self._kept()
         triples = _sc.sphere_target_ranges(kept)
-        if not triples:
-            return
-        pid_target = {lo: t for (lo, _hi, t) in triples}
-        name = self.multiworld.get_player_name(self.player)
-        spoiler_handle.write(f"\n\nElden Ring ({name}) completion-scaling spheres (target / {_sc.TARGET_MAX}):\n")
-        for region in [r for r in _sc.SPINE if r in set(kept)]:
-            pids = _sc.REGION_PLAY_IDS.get(region, [])
-            t = max((pid_target.get(pp, 0) for pp in pids), default=0)
-            spoiler_handle.write(f"  {region:<28} {t}\n")
+        if triples:
+            pid_target = {lo: t for (lo, _hi, t) in triples}
+            spoiler_handle.write(f"\n\nElden Ring ({name}) completion-scaling spheres (target / {_sc.TARGET_MAX}):\n")
+            for region in [r for r in _sc.SPINE if r in set(kept)]:
+                pids = _sc.REGION_PLAY_IDS.get(region, [])
+                t = max((pid_target.get(pp, 0) for pp in pids), default=0)
+                spoiler_handle.write(f"  {region:<28} {t}\n")
+        try:
+            sd = self.fill_slot_data()
+            spoiler_handle.write(f"\nElden Ring ({name}) slot_data ({len(sd)} keys) -- exactly what the client receives:\n")
+            for k in sorted(sd):
+                v = sd[k]
+                rv = repr(v)
+                if len(rv) > 220:
+                    n = len(v) if hasattr(v, "__len__") else "?"
+                    rv = rv[:220] + f"  ...(+{type(v).__name__}, {n} entries)"
+                spoiler_handle.write(f"  {k} = {rv}\n")
+        except Exception as e:
+            spoiler_handle.write(f"  (slot_data dump failed: {e!r})\n")
 
     def generate_output(self, output_directory: str) -> None:
         # Post-fill CHECK BREAKDOWN, printed to the generate log so a seed can be judged on
