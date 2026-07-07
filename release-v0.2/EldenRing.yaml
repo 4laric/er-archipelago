@@ -1,0 +1,99 @@
+# ============================================================================
+#  ELDEN RING ARCHIPELAGO  --  "THE SHATTERING"  (flagship template, v0.2)
+# ============================================================================
+#
+#  v0.2 is the provenance-clean, data-derived rebuild. The game id is now just
+#  "Elden Ring" (it supersedes the v0.1 world). These are the GREENFIELD option
+#  keys -- a different, smaller set than the old world. Do NOT copy v0.1 options
+#  here (world_logic / region_access / quick_start / curated_fill /
+#  no_spirit_ashes / *_location_behavior are NOT valid and will error).
+#
+#  The headline way to play: instead of the whole open world at once, the Lands
+#  Between is SHATTERED into regions. You start at Roundtable Hold with one region
+#  already open; every other region's key ("<Region> Lock") arrives as an
+#  Archipelago item. Find a lock, warp in, clear its checks, send items out --
+#  until you hold every kept region and reach the goal.
+#
+#  The one option that turns ER into an Archipelago game is `num_regions`.
+#  Everything else is a sensible default. Change `name` and you have a valid seed.
+#
+#  HOW TO USE: drop this file in your Archipelago `Players/` folder and generate.
+#  See SETUP.md for the full walkthrough.
+# ============================================================================
+
+name: Player1
+description: ER Archipelago -- The Shattering (item-shuffle, region-locked, ~4h)
+game: "Elden Ring"
+
+"Elden Ring":
+
+  # ---- The Shattering (the headline) --------------------------------------
+  num_regions: 4                 # how many overworld majors stay in play; the rest
+                                 #   are sealed. You spawn at Roundtable Hold (the hub);
+                                 #   the goal region (Leyndell) is always kept, so the
+                                 #   seed is always winnable. 0 = all 22 regions (full
+                                 #   Shattering); raise toward the full set for a longer run.
+  num_regions_order: rolled      # spine = keep the first N of a fixed path (Limgrave first);
+                                 #   rolled = keep N random regions. Goal region always kept.
+  ending_condition: region_locks # goal = hold every kept Region Lock (the classic Shattering
+                                 #   goal). great_runes = ALSO collect Great Runes (needs
+                                 #   item_shuffle on; otherwise falls back to region_locks).
+  great_runes_required: 2        # Great Runes the great_runes goal needs. Ignored unless
+                                 #   ending_condition is great_runes. Auto-clamped down to the
+                                 #   number of Great Runes actually reachable this seed.
+
+  # ---- Real item randomizer -----------------------------------------------
+  item_shuffle: true             # on: each check pays out its own vanilla ER item, shuffled
+                                 #   among the checks (~98.9% carry a real item; the rest give
+                                 #   a Rune). off: every check pays out a generic Rune. Region
+                                 #   Locks stay the only progression either way.
+
+  # ---- Item pool ----------------------------------------------------------
+  pool_builder: true             # scrub the Rune filler tail and inject rare/legendary items,
+                                 #   for a less run-flooded pool.
+  pool_builder_intensity: high   # normal | high | max -- rarity floor (legendary-only /
+                                 #   +rare / +B-tier) the builder pulls from.
+  pool_builder_juice_cap: 0      # 0..400; 0 = auto-size to the whole Rune tail.
+  pool_builder_juice_pct: 100    # 0..100; share of eligible filler slots the builder juices.
+  varied_filler: true            # spread the leftover filler across item types instead of
+                                 #   all Runes.
+  filler_foreign_pct: 100        # 0..100 share of your filler open to other worlds in a
+                                 #   multiworld. Inert solo. 100 = fully open (no change).
+
+  # ---- Dungeon sweeps -----------------------------------------------------
+  dungeon_sweep: all             # none | minidungeons | all | bosses -- kill a dungeon's boss
+                                 #   and its other checks auto-register (needs the sweep client).
+  boss_lock_placement: own_region  # scatter | own_region | any_boss (sweep-gate placement).
+
+  # ---- Warp-in / graces ---------------------------------------------------
+  grace_rando: false             # false (bundle): a Region Lock lights ALL that region's graces
+                                 #   at once. true (freebie): a lock lights one front-door grace
+                                 #   and the rest scatter into the pool as "Grace: <Region> #k".
+
+  # ---- Quality of life / start --------------------------------------------
+  start_with_region_lock: true   # start at Roundtable Hold with one random region already open.
+  start_with_torch: true         # begin holding a Torch (dark caves navigable pre-grace).
+  start_with_steed: true         # begin with the Spectral Steed Whistle (Torrent rideable).
+  start_with_flasks: true        # begin with your starting flask charges.
+  reveal_all_maps: true          # all map fragments revealed at start.
+  early_leveling: true           # Level Up available immediately (no need to meet Melina).
+  no_weapon_requirements: true   # any gear the multiworld hands you is usable on any build.
+  buyable_stonesword_keys: true  # Stonesword Keys purchasable (imp-statue fog gates stay openable).
+  flatten_regular_upgrades: 0    # 0 = vanilla 2/4/6 smithing-stone ladder; 1..4 = uniform N
+                                 #   stones per +level (3 tracks the tuned difficulty curve).
+
+  # ---- Difficulty scaling -------------------------------------------------
+  completion_scaling_floor: 0    # 0..50; scaling is always on (by sphere). Raise to lift the
+                                 #   early-region difficulty floor.
+  global_scadutree_blessing: off # off | player_only | scaled (Shadow of the Erdtree blessing scope).
+
+  # ---- DLC / multiplayer --------------------------------------------------
+  enable_dlc: false              # base game only (recommended for v0.2). on = DLC regions are
+                                 #   eligible for num_regions alongside base-game regions.
+  dlc_only: false                # on = ONLY the Land-of-Shadow DLC regions are in play (implies
+                                 #   enable_dlc). Experimental.
+  death_link: false              # true = shared deaths in a multiworld (works both directions).
+
+  # ---- Archipelago common (keep indented under "Elden Ring":) -------------
+  accessibility: minimal         # region_lock seeds want minimal, not full
+  progression_balancing: 50
