@@ -2,9 +2,11 @@
 #  ELDEN RING ARCHIPELAGO  --  "THE SHATTERING"  (flagship template, v0.2)
 # ============================================================================
 #
-#  v0.2 is the provenance-clean, data-derived rebuild. The game id is now just
-#  "Elden Ring" (it supersedes the v0.1 world). These are the GREENFIELD option
-#  keys -- a different, smaller set than the old world. Do NOT copy v0.1 options
+#  v0.2 is the provenance-clean, data-derived rebuild. The AP game id is
+#  UNCHANGED from v0.1 -- still `EldenRing` (greenfield is promoted to BE the
+#  published EldenRing world; only the dev-only "(Greenfield)" suffix is dropped).
+#  Your `game: EldenRing` line is the same as v0.1. These are the GREENFIELD
+#  option keys -- a different, smaller set than the old world. Do NOT copy v0.1 options
 #  here (world_logic / region_access / quick_start / curated_fill /
 #  no_spirit_ashes / *_location_behavior are NOT valid and will error).
 #
@@ -23,9 +25,9 @@
 
 name: Player1
 description: ER Archipelago -- The Shattering (item-shuffle, region-locked, ~4h)
-game: "Elden Ring"
+game: EldenRing
 
-"Elden Ring":
+EldenRing:
 
   # ---- The Shattering (the headline) --------------------------------------
   num_regions: 4                 # how many overworld majors stay in play; the rest

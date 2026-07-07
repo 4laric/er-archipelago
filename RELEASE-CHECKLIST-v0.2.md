@@ -10,19 +10,23 @@ from-scratch, **data-derived, provenance-clean** rebuild with no Bedrock/matt da
 via the keyless slot_data path (`locationFlags` + `regionOpenFlags` + `apIdsToItemIds`) — no client
 fork. The v0.1 (matt-lineage) apworld is superseded.
 
-**Decision (locked 2026-07-07):** the published game id is **`"Elden Ring"`** (drops `(Greenfield)`;
-supersedes the v0.1 game id — not cross-compatible with v0.1 seeds/rooms). The rename spans the world
-(`core.py` `GAME`), the template yaml, the greenfield tests, AND the Rust client's Connect string
-(`core.rs:213`) — all covered by `patch_gf_rename_and_version.py`.
+**Decision (locked 2026-07-07):** the published game id is **`EldenRing`** — the **exact v0.1 id,
+unchanged** (no space). v0.2 does NOT change the game id; the only rename is internal — greenfield's
+dev-only `(Greenfield)` suffix is dropped so greenfield is promoted to BE the `EldenRing` world.
+Because the old matt-lineage world ALSO claims `EldenRing`, the two cannot coexist, so the old world
+must be **retired** for v0.2 (not merely quarantined). Seeds/rooms may still differ from v0.1 (world
+internals + options changed), but that is not a game-id change. The internal rename (dropping
+`(Greenfield)`) spans the world (`core.py` `GAME`), the template yaml, the greenfield tests, AND the
+Rust client's Connect string (`core.rs:213`) — all covered by `patch_gf_rename_and_version.py`.
 
 **Prep automation written this session (all run on Windows):**
-- `patch_gf_rename_and_version.py` — game rename ("Elden Ring") across world + yaml + 22 tests +
+- `patch_gf_rename_and_version.py` — internal rename (`(Greenfield)` dropped → `EldenRing`) across world + yaml + 22 tests +
   client `core.rs`; adds `WORLD_VERSION = "0.2.0"`; quarantines the old `worlds/eldenring` during
   isolated greenfield gen to dodge the duplicate-game collision. Self-verifying, ASCII, idempotent.
 - `patch_build_greenfield_apworld.py` — adds `-GreenfieldApworld` to `build.ps1` (regen data +
   install + zip → `eldenring_gf.apworld` + timestamped twin).
 - `release-v0.2/` — SETUP, CHANGELOG, ATTRIBUTION (credits nex3 + vswarte; upstream-AP MIT license),
-  KNOWN-ISSUES, and the `EldenRing.yaml` flagship template (`game: "Elden Ring"`).
+  KNOWN-ISSUES, and the `EldenRing.yaml` flagship template (`game: EldenRing`).
 - `.gitignore` — now ignores `gendiag_*` / `generate_*.log` / `gensweep_*` / `genfuzz_*` dumps.
 
 ---
@@ -49,13 +53,13 @@ supersedes the v0.1 game id — not cross-compatible with v0.1 seeds/rooms). The
       `-GreenfieldApworld` (regen + install + zip → `eldenring_gf.apworld`). *Run on Windows.*
 - [x] **World version stamp** — `WORLD_VERSION = "0.2.0"` added by `patch_gf_rename_and_version.py`
       (module constant only; slot_data left untouched — `validate_slot_data` rejects undeclared keys).
-- [x] **Game rename to "Elden Ring"** (world + yaml + tests + client `core.rs`) — same patch.
+- [x] **Internal rename to `EldenRing`** (drop `(Greenfield)`; world + yaml + tests + client `core.rs`) — same patch. The published game id stays v0.1's `EldenRing` (unchanged).
 - [ ] **Run the patches on Windows** (`--apply`), then `build.ps1 -GreenfieldApworld`.
 - [ ] **Rebuild the client `.dll`** — `cargo build` the client on Windows AFTER the rename, so the
-      shipped binary connects as "Elden Ring" (the pre-built .dll still embeds the old string).
-- [ ] **Retire-vs-quarantine the old `worlds/eldenring`.** Quarantine protects isolated gen/CI, but a
-      real multiworld host with both worlds installed would still collide on `game = "Elden Ring"`.
-      Decide whether to fully retire the matt-lineage world for v0.2.
+      shipped binary connects as `EldenRing` (the pre-built .dll still embeds the old `Elden Ring (Greenfield)` string).
+- [ ] **Retire the old `worlds/eldenring` for v0.2.** Quarantine protects isolated gen/CI, but a
+      real multiworld host with both worlds installed would still collide on `game = "EldenRing"`
+      (both claim the same id). Fully retire the matt-lineage world — do not merely quarantine it.
 - [ ] **Gen-test the shipping yaml once on Windows** (sandbox can't run AP gen) — confirm
       `release-v0.2/EldenRing.yaml` generates clean and the spoiler looks right.
 - [ ] **Fuzz clean** — run `greenfield/fuzz_gf.py` / `gen_fuzz_gf_yamls.py`; no crashes, graceful
@@ -81,10 +85,10 @@ data-loss risk if it regressed:
 ### D. Docs + provenance (player-facing)
 v0.1 shipped a `release-v0.1/` bundle (SETUP, CHANGELOG, template yaml, explainers). Greenfield has
 only dev docs (`greenfield/README`, `HANDOFF`, `CONTRACT`, `SPEC-PARITY`). `release-v0.2/` created:
-- [x] Flagship **template yaml** — `release-v0.2/EldenRing.yaml` (`game: "Elden Ring"`; option keys
+- [x] Flagship **template yaml** — `release-v0.2/EldenRing.yaml` (`game: EldenRing`; option keys
       pulled from real greenfield source; num_regions headline).
 - [x] **SETUP.md** — install (client `.dll` + `eldenring_gf.apworld`), connect, play.
-- [x] **CHANGELOG.md** — headlines the provenance-clean rebuild + the game-id rename.
+- [x] **CHANGELOG.md** — headlines the provenance-clean rebuild + the unchanged `EldenRing` id / old-world retirement.
 - [x] **ATTRIBUTION.md** — credits **nex3** and **vswarte**; adopts upstream-Archipelago (MIT)
       license; cross-refs `PROVENANCE.md` / SPEC-PARITY P1–P5.
 - [x] **KNOWN-ISSUES.md** — Spirit Calling Bell, map-on-connect, Shadow Keep church-drain grace, +
@@ -116,14 +120,14 @@ only dev docs (`greenfield/README`, `HANDOFF`, `CONTRACT`, `SPEC-PARITY`). `rele
 ---
 
 ## Critical path to the tag
-1. ~~Decide the game name~~ → **"Elden Ring"** (locked). ~~Write rename/packaging patches + docs~~ (done).
+1. ~~Decide the game id~~ → keep v0.1's **`EldenRing`** unchanged (locked); only drop the internal `(Greenfield)` suffix. ~~Write rename/packaging patches + docs~~ (done).
 2. Windows: run `patch_gf_rename_and_version.py --apply` + `patch_build_greenfield_apworld.py --apply`;
-   then `cargo build` the client `.dll` (new "Elden Ring" Connect string).
+   then `cargo build` the client `.dll` (new `EldenRing` Connect string).
 3. Windows: `build.ps1 -GreenfieldApworld` → `eldenring_gf.apworld`.
 4. Windows: `run_ci.ps1 -OnlyGreenfield` 100% green; gen-test + fuzz `release-v0.2/EldenRing.yaml`.
 5. In-game: confirm B (front-door latch, flag-poll baseline, start-item/flask) and C (renamed client
    connects + reads greenfield slot_data) on one live seed.
-6. Decide retire-vs-quarantine for the old `worlds/eldenring`; `git rm` tracked clutter; commit only
+6. Retire the old `worlds/eldenring` for v0.2 (it collides with greenfield on `EldenRing`); `git rm` tracked clutter; commit only
    intended files (`git diff --cached`).
 7. `git tag v0.2` → GitHub Release: attach `eldenring_gf.apworld` + `release-v0.2/` docs; client
    `.dll` on Nexus.

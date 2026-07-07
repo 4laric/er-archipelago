@@ -19,11 +19,16 @@ just the MIT client, the data-derived apworld, and a static detection table. See
 `ATTRIBUTION.md` and the repo's `PROVENANCE.md` / `SPEC-PARITY.md` (constraints
 P1–P5).
 
-### Game id renamed to "Elden Ring"
+### Game id unchanged — greenfield promoted to the `EldenRing` world
 
-The published game is now just **`Elden Ring`** — it **supersedes** the v0.1
-world id. Your yaml's `game:` line must read `game: "Elden Ring"`. (Seeds and
-rooms made against the v0.1 game id are not cross-compatible.)
+The AP game id is **unchanged from v0.1** — still **`EldenRing`**. Your yaml's
+`game:` line reads `game: EldenRing`, exactly as in v0.1; there is no game-id
+rename to make. What changed is internal: the greenfield world is **promoted to
+BE** the published `EldenRing` world, and its dev-only `(Greenfield)` suffix is
+dropped. Because both the old matt-lineage world and greenfield claim the same
+`EldenRing` id, they **cannot coexist** — the old world is **retired** for v0.2.
+(Seeds and rooms may still differ from v0.1 because the world internals and
+option set changed, but that is not a game-id change.)
 
 ### What's in
 
