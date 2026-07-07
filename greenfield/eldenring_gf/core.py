@@ -311,9 +311,18 @@ class GreenfieldEldenRingWorld(World):
         required = set(self._required_runes())
         extras: List[str] = []
         if shuffle:
+            _excl = getattr(self, "gf_dlc_excluded", ())
             for rn in [HUB] + kept:
                 for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
                     nm = LOCATION_ITEM.get(ap_id)
+                    # DLC off: a kept BASE / HUB location whose vanilla item is DLC-only pays Rune
+                    # instead (the same rule the juice / varied-filler / filler-foreign paths follow).
+                    # Without this the item_shuffle PRIMARY pool leaks DLC gear anchored to base
+                    # regions (Roundtable Hold -- the HUB -- anchors Spear of the Impaler; Mohgwyn
+                    # Palace; ...) into a DLC-off seed, and AP fill scatters it onto reachable
+                    # checks/shops. FILLER routes through _pick_filler, which is already DLC-safe.
+                    if nm and _excl and nm in _excl:
+                        nm = None
                     extras.append(nm if nm and nm in item_name_to_id else FILLER)
             # keep real items first; among reals, keep required Great Runes ahead of everything so
             # the over-provision trim (below) can never drop a rune the goal needs.
