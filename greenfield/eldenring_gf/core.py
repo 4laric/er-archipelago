@@ -361,6 +361,13 @@ class GreenfieldEldenRingWorld(World):
                     pool[idx] = self.create_item(_low[j % len(_low)])
         self.multiworld.itempool += pool
 
+    def pre_fill(self) -> None:
+        # curated_fill: route the region Locks onto big-ticket checks by marking them PRIORITY, then
+        # reachability-prune. Runs before the general fill (locations exist, get_all_state valid).
+        # No-op unless the option is on. Kept in its own feature module (fill-safe clamp + prune there).
+        from .features import curated_fill as _cf
+        _cf.apply(self)
+
     def post_fill(self) -> None:
         # B-ramp (AUTO-SIZED to the smoothstep target): shape the achieved standard-weapon curve so it
         # tracks the client's smoothstep difficulty scaling (max weapon by the deepest sphere), keyed

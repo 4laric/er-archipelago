@@ -357,18 +357,7 @@ print(f"emevd_audit: UNIQUE={_A_UNIQUE} AMBIGUOUS={_A_AMBIG} NONE={_A_NONE} | "
       f"re-pin(emevd unique-m60 changed)={_A_REPIN} (+{_A_REPIN_NOOP} already-correct) | "
       f"quarantine->HUB (nearest-neighbor unverifiable)={_A_QUAR} | recovered globals->checks={_A_RECOVER}")
 
-# ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (important_locations source, matt-free) ----
-OUT_TAGS = os.path.join(HERE, "eldenring_gf", "location_tags.py")
-import collections as _c
-_tagcount = _c.Counter(tg for tags in loc_tags.values() for tg in tags)
-with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
-    f.write('"""AUTO-GENERATED (gen_data.py). Location TYPE tags for important_locations, derived\n')
-    f.write('matt-free from item_name + method (see _loc_tags). LOCATION_TAGS = {ap_id: [type,...]}."""\n')
-    f.write('LOCATION_TAGS = {\n')
-    for _aid in sorted(loc_tags):
-        f.write(f'    {_aid}: {loc_tags[_aid]!r},\n')
-    f.write('}\n\nTAG_COUNTS = ' + repr(dict(sorted(_tagcount.items()))) + '\n')
-print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
+# (location_tags.py is written LATER -- after ITEM_TIERS -- so catalog/rarity big-ticket tags can be added)
 
 # ---- Phase 0 boot contract: one warp-grace open flag per major region (matt-free) -----------
 # Derived from the SAME grace anchors used above. On lock receipt the client sets this flag
@@ -881,3 +870,40 @@ from collections import Counter as _Cnt
 _td = _Cnt(ITEM_TIERS.values())
 print(f"item_tiers: {len(ITEM_TIERS)} equippables tiered "
       f"(legendary={_td.get(3,0)}, rare={_td.get(2,0)}, common={_td.get(1,0)}, trivial={_td.get(0,0)})")
+
+
+# ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (important_locations source, matt-free) ----
+# Written HERE (after ITEM_TIERS) so big-ticket types that need the greenfield catalog / param rarity
+# can be added on top of the name/method tags _loc_tags collected inline (Boss/Remembrance/Church/
+# Seedtree/Basin/Fragment/Revered/Shop): GreatRune + KeyItem from LOCATION_ITEM (greenfield catalog
+# name), Legendary from ITEM_TIERS rarity==3. Matt-free (own catalog + param rarity, no curation).
+OUT_TAGS = os.path.join(HERE, "eldenring_gf", "location_tags.py")
+_KEYITEMS = ("Dectus Medallion", "Rold Medallion", "Haligtree Secret Medallion",
+             "Carian Inverted Statue", "Rusty Key", "Discarded Palace Key", "Imbued Sword Key",
+             "Academy Glintstone Key", "Dark Moon Ring", "Pureblood Knight's Medal",
+             "Drawing-Room Key", "Rusty Anchor")
+for _ap, _inm in LOCATION_ITEM.items():
+    _extra = []
+    if "Great Rune" in _inm and "Unborn" not in _inm:
+        _extra.append("GreatRune")
+    if any(_k in _inm for _k in _KEYITEMS):
+        _extra.append("KeyItem")
+    if ITEM_TIERS.get(_inm) == 3:
+        _extra.append("Legendary")
+    if _extra:
+        _cur = loc_tags.setdefault(_ap, [])
+        for _e in _extra:
+            if _e not in _cur:
+                _cur.append(_e)
+import collections as _c
+_tagcount = _c.Counter(tg for tags in loc_tags.values() for tg in tags)
+with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
+    f.write('"""AUTO-GENERATED (gen_data.py). Location TYPE tags for important_locations, matt-free:\n')
+    f.write('name/method tags (Boss/Remembrance/Church/Seedtree/Basin/Fragment/Revered/Shop) from\n')
+    f.write('_loc_tags; GreatRune/KeyItem from LOCATION_ITEM name; Legendary from ITEM_TIERS rarity==3.\n')
+    f.write('LOCATION_TAGS = {ap_id: [type,...]}."""\n')
+    f.write('LOCATION_TAGS = {\n')
+    for _aid in sorted(loc_tags):
+        f.write(f'    {_aid}: {loc_tags[_aid]!r},\n')
+    f.write('}\n\nTAG_COUNTS = ' + repr(dict(sorted(_tagcount.items()))) + '\n')
+print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
