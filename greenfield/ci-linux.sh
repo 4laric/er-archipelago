@@ -67,6 +67,18 @@ step "GREENFIELD (e) YAML FUZZ"
 if "$PY" "$GF/fuzz_gf.py" --count "${GF_FUZZ_COUNT:-24}" --pass-pct "${GF_FUZZ_PASS:-90}" --ap "$AP"; then
   record FUZZ PASS; else record FUZZ FAIL; fi
 
+step "RUST PURE (cargo test -p er-logic -- host-tested client logic incl. the *_replay tier)"
+# Gates the pure/seam client decisions (region_bloom_settled, start_items_settled, the grant/grace/
+# deathlink/vanilla-suppress/watermark *_replay regression tiers, etc.). Windows-free crate, so it
+# runs natively here. SKIP (not FAIL) when no Rust toolchain is present, mirroring the DRIFT skip.
+if command -v cargo >/dev/null 2>&1; then
+  if ( cd "$REPO/from-software-archipelago-clients" && cargo test -p er-logic -q ); then
+    record RUST PASS; else record RUST FAIL; fi
+else
+  echo "  SKIP: cargo not on PATH (install rustup to gate the host-tested client logic + *_replay tiers)"
+  record RUST SKIP
+fi
+
 step "GREENFIELD VERDICT"
 for r in "${RESULTS[@]}"; do printf '  %-6s %s\n' "${r%%|*}" "${r##*|}"; done
 if [ "$fail" -eq 0 ]; then echo "  GREENFIELD: PASS"; exit 0; else echo "  GREENFIELD: FAIL"; exit 1; fi
