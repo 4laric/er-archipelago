@@ -17,7 +17,8 @@ except Exception:  # not yet generated
     LOCATION_TAGS = {}
 
 _DEFAULT = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"]
-_VALID = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered", "Basin", "Shop"]
+_VALID = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered", "Basin", "Shop",
+          "Legendary", "GreatRune", "KeyItem"]
 
 
 class ImportantLocations(OptionList):
