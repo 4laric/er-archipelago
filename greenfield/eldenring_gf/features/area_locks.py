@@ -76,14 +76,20 @@ class AreaLocks(Feature):
     name = "area_locks"
 
     def slot_data(self, world):
-        """Emit [lo, hi, open_flag] ranges (lo == hi, one per play_region id) for every KEPT region
-        that has a known open flag. The open flag is set on lock receipt (regionOpenFlags path), so
-        the range is LOCKED until "<Region> Lock" is received -- arming the in-game kick-watch."""
-        triples = []
-        for region in world._kept():
-            open_flag = REGION_OPEN_FLAGS.get(region)
-            if open_flag is None:
-                continue  # no front-door grace resolved -> client treats absent flag as unlocked
-            for pid in REGION_PLAY_IDS.get(region, []):
-                triples.append([pid, pid, open_flag])
-        return {contract.AREA_LOCK_FLAGS: triples}
+        """FOLDED 2026-07-06: areaLockFlags is no longer emitted. The play_region geometry
+        (REGION_PLAY_IDS) is static/seed-invariant, and every seed-specific input (which regions
+        are kept + their open flag) already rides regionOpenFlags, so the client derives the
+        kick-watch ranges itself (region.rs derive_area_lock_flags, a mirror of REGION_PLAY_IDS
+        below; test_gf_data.py guards the two tables against drift). We keep the table here as the
+        mirror authority and still FAIL GEN on a coverage gap: any KEPT region that resolved a
+        front-door open flag but has no geometry entry would have its in-game kick-watch silently
+        off, so that is a hard error rather than a quiet degrade."""
+        missing = [
+            r for r in world._kept()
+            if REGION_OPEN_FLAGS.get(r) is not None and r not in REGION_PLAY_IDS
+        ]
+        if missing:
+            raise contract.ContractError(
+                "area_locks: kept region(s) resolved an open flag but have no REGION_PLAY_IDS "
+                "geometry (kick-watch would be silently off): " + ", ".join(sorted(missing)))
+        return {}

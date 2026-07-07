@@ -206,5 +206,38 @@ class GreenfieldRegistry(unittest.TestCase):
             self.reg.merge_slot_data(base, [self._feat(sd={"world_logic": "x"})], world=None)
 
 
+class GreenfieldAreaLockGeometry(unittest.TestCase):
+    """areaLockFlags fold parity: the generator's REGION_PLAY_IDS (features/area_locks.py) and
+    the client's static REGION_PLAY_IDS (region.rs) must describe the SAME region -> play_region
+    geometry. The client derives its kick-watch ranges from this table + regionOpenFlags, so any
+    drift silently mis-seals or unseals a region in-game with NO gen failure. Pure text parse (no
+    imports); skips cleanly if the client source is not checked out beside the apworld."""
+
+    @staticmethod
+    def _parse_block(text, start_marker, end_marker):
+        import re
+        i = text.index(start_marker)
+        j = text.index(end_marker, i)
+        out = {}
+        for name, nums in re.findall(r'"([^"]+)"[^\[]*\[([0-9,\s]*)\]', text[i:j]):
+            out[name] = tuple(sorted(int(n) for n in nums.replace(",", " ").split()))
+        return out
+
+    def test_region_play_ids_match_client(self):
+        gf = os.path.join(os.path.dirname(HERE), "features", "area_locks.py")
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+        rs = os.path.join(repo, "from-software-archipelago-clients", "crates",
+                          "eldenring-archipelago", "src", "region.rs")
+        if not (os.path.exists(gf) and os.path.exists(rs)):
+            self.skipTest("area_locks.py or client region.rs not present")
+        with open(gf, encoding="utf-8") as f:
+            py_tbl = self._parse_block(f.read(), "REGION_PLAY_IDS = {", "\n}")
+        with open(rs, encoding="utf-8") as f:
+            rs_tbl = self._parse_block(f.read(), "REGION_PLAY_IDS: &[", "\n];")
+        self.assertTrue(py_tbl, "parsed no rows from area_locks.py REGION_PLAY_IDS")
+        self.assertEqual(py_tbl, rs_tbl,
+                         "REGION_PLAY_IDS drift between area_locks.py and region.rs")
+
+
 if __name__ == "__main__":
     unittest.main()
