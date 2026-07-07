@@ -7,7 +7,6 @@ REGION_OPEN_FLAGS = {
     'Belurat': 74100,
     'Caelid': 73207,
     'Consecrated Snowfield': 73019,
-    'Dragonbarrow': 76451,
     'Eternal Cities': 71211,
     'Farum Azula': 71303,
     'Jagged Peak': 76850,

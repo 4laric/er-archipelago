@@ -63,7 +63,6 @@ REGION_CLUSTER = {
     "Altus Plateau": 63,
     "Mt. Gelmir": 63,
     "Caelid": 64,
-    "Dragonbarrow": 64,
     "Mountaintops of the Giants": 65,
     "Consecrated Snowfield": 65,
 }
