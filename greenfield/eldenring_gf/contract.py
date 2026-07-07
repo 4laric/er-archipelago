@@ -384,6 +384,9 @@ CONTRACT = (
     ContractKey("pool_builder_juice_candidates", "ANY", False, (GREENFIELD,),
                 "features/pool_builder.py", "(diagnostic -- no client read)",
                 "size of the juice candidate set at this intensity."),
+    ContractKey("pool_builder_juice_pct", "ANY", False, (GREENFIELD,),
+                "features/pool_builder.py", "(diagnostic -- no client read)",
+                "resolved share (0..100) of the Rune tail replaced with juice."),
     # --- bedrock-profile keys (client reads; greenfield does NOT emit) -- the swap target ---
     # required=True here means required when validating profile="bedrock" ONLY (profile-aware).
     ContractKey("locationIdsToKeys", "ANY", True, (BEDROCK,),
