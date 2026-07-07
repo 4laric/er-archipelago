@@ -20,6 +20,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.features.pool_builder import (  # noqa: E402
     juice_order_for_floor, INTENSITY_FLOOR, DEFAULT_INTENSITY, JUICE_ORDER, JUICE_MIN_RARITY,
+    PoolBuilderFeature, PoolBuilderJuicePct,
 )
 from worlds.eldenring_gf.features.filler_foreign import (  # noqa: E402
     FillerForeignFeature, FillerForeignPct, filler_names, FILLER_NAME, NO_CHANGE_PCT,
@@ -59,6 +60,12 @@ def test_juice_order_best_first():
     from worlds.eldenring_gf.features.pool_builder import ITEM_TIERS
     rarities = [ITEM_TIERS[n] for n in order]
     assert rarities == sorted(rarities, reverse=True), "juice ordered best-first (legendary first)"
+
+
+def test_juice_pct_default_is_whole_tail():
+    """Default pct == 100: replace the whole available Rune tail (historical behavior)."""
+    assert PoolBuilderJuicePct.default == 100
+    assert PoolBuilderJuicePct.range_start == 0 and PoolBuilderJuicePct.range_end == 100
 
 
 def test_filler_foreign_default_is_no_change():
@@ -148,3 +155,45 @@ class FillerForeignHalf(WorldTestBase):
         # (seeded) -> deterministic per seed at generate_early time.
         self.assertTrue(set(localized).issubset(set(names)))
         self.assertGreater(expected_k, 0, "half of the filler names is a non-empty partial set")
+
+
+
+# ---- pool_builder_juice_pct (portion of the Rune tail replaced) -------------------------------
+class JuicePctBudget(WorldTestBase):
+    """The pct knob scales the juice budget as a share of the true Rune tail. Juice Cap is set to 0
+    (auto-size) so the only bounds are the share and the catalog size -- letting us exercise pct
+    directly. Same world, pct varied in-process, so the underlying tail/catalog are held fixed."""
+    game = GAME
+    options = {"item_shuffle": True, "pool_builder": True, "grace_rando": False,
+               "pool_builder_juice_cap": 0}
+
+    def _expected(self, feat, pct):
+        rune_tail = max(0, feat._rune_fallback_locations(self.world)
+                        - feat._reserved_slots(self.world))
+        cap = int(self.world.options.pool_builder_juice_cap.value)
+        budget = min((rune_tail * pct) // 100, len(feat._juice_order(self.world)))
+        if cap > 0:
+            budget = min(budget, cap)
+        return max(0, budget)
+
+    def test_pct_scales_budget_and_is_wired(self):
+        feat = PoolBuilderFeature()
+        budgets = {}
+        for pct in (0, 25, 50, 75, 100):
+            self.world.options.pool_builder_juice_pct.value = pct
+            got = feat._juice_budget(self.world)
+            self.assertEqual(got, self._expected(feat, pct),
+                             f"pct {pct} budget must follow rune_tail*pct//100 (clamped)")
+            budgets[pct] = got
+        # pct 0 replaces nothing even with Pool Builder on (this is the definitive wiring guard:
+        # an ignored knob would leave the full whole-tail budget here); pct 100 replaces the tail.
+        self.assertEqual(budgets[0], 0, "pct 0 -> no juice (guards against an ignored knob)")
+        self.assertGreater(budgets[100], 0, "pct 100 -> non-empty whole-tail juice")
+        # monotonic non-decreasing in pct.
+        ordered = [budgets[p] for p in (0, 25, 50, 75, 100)]
+        self.assertEqual(ordered, sorted(ordered), f"budget must be monotonic in pct: {ordered}")
+
+    def test_slot_data_reports_resolved_pct(self):
+        self.world.options.pool_builder_juice_pct.value = 40
+        sd = self.world.fill_slot_data()
+        self.assertEqual(sd["pool_builder_juice_pct"], 40)

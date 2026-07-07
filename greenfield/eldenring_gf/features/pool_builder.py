@@ -36,6 +36,12 @@ The juice list is computed PER-WORLD from the floor (juice_order_for_floor), sor
 the Rune tail and the juice cap. A higher intensity only widens the CANDIDATE set; the count actually
 added is unchanged (still the Rune tail, clamped by the cap) -- so it changes *which* equippables the
 Rune tail becomes, not how many.
+
+PORTION (pool_builder_juice_pct). How much of the Rune tail is replaced is configurable: the budget is
+`rune_tail * pct // 100`, then still clamped by the juice cap and the catalog size. pct 100 (DEFAULT)
+replaces the whole available tail (historical behavior); pct 50 replaces about half and leaves the
+rest as Rune; pct 0 replaces none. This changes HOW MANY tail items become juice (unlike intensity,
+which changes which ones).
 """
 from typing import List
 
@@ -113,6 +119,19 @@ class PoolBuilderJuiceCap(Range):
     default = 120
 
 
+class PoolBuilderJuicePct(Range):
+    """What SHARE of the Rune fallback tail Pool Builder replaces with juice, as a percent.
+    100 (DEFAULT) = replace the whole available tail (historical behavior); 50 = replace about half
+    (leaving the rest as Rune fillers); 0 = replace none (Pool Builder becomes a no-op even when on).
+    Applied to the *true* remaining Rune tail (fallback checks minus what region Locks / grace scatter
+    already consume), then still clamped by the Juice Cap and the number of juice items in the
+    catalog. Ignored unless Pool Builder and Shuffle Vanilla Items are both on."""
+    display_name = "Pool Builder Juice Percent"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
 @register
 class PoolBuilderFeature(Feature):
     name = "pool_builder"
@@ -121,6 +140,7 @@ class PoolBuilderFeature(Feature):
         "pool_builder": PoolBuilder,
         "pool_builder_intensity": PoolBuilderIntensity,
         "pool_builder_juice_cap": PoolBuilderJuiceCap,
+        "pool_builder_juice_pct": PoolBuilderJuicePct,
     }
 
     # ---- helpers ----------------------------------------------------------------
@@ -139,6 +159,13 @@ class PoolBuilderFeature(Feature):
             except Exception:
                 key = DEFAULT_INTENSITY
         return INTENSITY_FLOOR.get(key, INTENSITY_FLOOR[DEFAULT_INTENSITY])
+
+    def _pct(self, world) -> int:
+        """Resolved share of the Rune tail to replace (0..100, default 100 = whole tail)."""
+        opt = getattr(world.options, "pool_builder_juice_pct", None)
+        if opt is None:
+            return 100
+        return max(0, min(100, int(opt.value)))
 
     def _juice_order(self, world) -> List[str]:
         """Per-world juice candidate list (best-first) at this world's intensity floor.
@@ -175,7 +202,9 @@ class PoolBuilderFeature(Feature):
             return 0
         # true remaining Rune tail = Rune-fallback checks minus slots other contributors eat.
         rune_tail = max(0, self._rune_fallback_locations(world) - self._reserved_slots(world))
-        budget = min(rune_tail, len(order))
+        # replace only the configured SHARE of that tail (pct 100 == whole tail, the default).
+        share = (rune_tail * self._pct(world)) // 100
+        budget = min(share, len(order))
         cap_opt = getattr(world.options, "pool_builder_juice_cap", None)
         cap = int(cap_opt.value) if cap_opt is not None else 0
         if cap > 0:
@@ -199,4 +228,5 @@ class PoolBuilderFeature(Feature):
             "pool_builder_juice_added": self._juice_budget(world),
             "pool_builder_intensity_floor": floor,
             "pool_builder_juice_candidates": len(self._juice_order(world)),
+            "pool_builder_juice_pct": self._pct(world),
         }
