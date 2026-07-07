@@ -431,6 +431,23 @@ class GreenfieldEldenRingWorld(World):
         contract.validate_slot_data(sd, strict=True)
         return sd
 
+    def write_spoiler(self, spoiler_handle) -> None:
+        # Completion-scaling gradient: the per-region target tier the client scales enemies to
+        # (mirrors the regionSphereTargetRanges wire; target / TARGET_MAX, deepest kept region = max).
+        # Emitted so a seed's scaling is judgeable from the spoiler without reading a client log.
+        from .features import scaling as _sc
+        kept = self._kept()
+        triples = _sc.sphere_target_ranges(kept)
+        if not triples:
+            return
+        pid_target = {lo: t for (lo, _hi, t) in triples}
+        name = self.multiworld.get_player_name(self.player)
+        spoiler_handle.write(f"\n\nElden Ring ({name}) completion-scaling spheres (target / {_sc.TARGET_MAX}):\n")
+        for region in [r for r in _sc.SPINE if r in set(kept)]:
+            pids = _sc.REGION_PLAY_IDS.get(region, [])
+            t = max((pid_target.get(pp, 0) for pp in pids), default=0)
+            spoiler_handle.write(f"  {region:<28} {t}\n")
+
     def generate_output(self, output_directory: str) -> None:
         # Post-fill CHECK BREAKDOWN, printed to the generate log so a seed can be judged on
         # progression shape + filler locality at a glance (not just "it genned"): how each of this
