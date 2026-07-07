@@ -211,8 +211,9 @@ OPTIONS_SUBKEYS = (
                 "core._options_echo", "scaling.rs scadutree scope",
                 "DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled)."),
     ContractKey("auto_upgrade", "INT", True, (GREENFIELD,),
-                "core._options_echo (constant 0)", "upgrades client path",
-                "auto weapon-upgrade ladder tier; greenfield ships constant 0 (feature off)."),
+                "core._options_echo (features/upgrades.py)", "upgrades.rs set_auto_upgrade / apply_auto_upgrade",
+                "auto-upgrade received weapons: 0 = off; nonzero = raise each received weapon to the "
+                "player's highest held level on its smithing track (raise-only, cap +25 normal / +10 somber)."),
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades client path",
                 "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),

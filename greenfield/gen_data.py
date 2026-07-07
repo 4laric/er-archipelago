@@ -190,6 +190,13 @@ DUNGEON_REGION_OVERRIDE = {
     "m34_12_00_00": "Altus Plateau",  # Divine Tower of West Altus (73430/73432, pid 63002)
     "m34_13_00_00": "Caelid",         # Divine Tower of Caelid (73440/73441, pid 64001)
     "m34_15_00_00": "Caelid",         # Divine Tower (73460, pid 64001)
+    # Subterranean Shunning-Grounds (m35_00) is play_region 35000 = Shunning-Grounds, which sits
+    # UNDER Leyndell. region_map.csv mislabels every m35 row "Divine Tower" (-> Liurnia via REGION_MAP),
+    # so without this override its checks AND its warp graces (73501 Underground Roadside, 73502
+    # Forsaken Depths, 73503 Leyndell Catacombs, 73504 Frenzied Flame Proscription) misbundle into
+    # Liurnia's lock (in-game report 2026-07-07; grace tile m35_00 inherits the m35 checks' region via
+    # _pref2maj). Correct region = Leyndell (REGION_ID_MAP.md 35000 = Subterranean Shunning-Grounds).
+    "m35_00_00_00": "Leyndell",
     "m39_20_00_00": "Mt. Gelmir",
 }
 
@@ -447,6 +454,30 @@ for r in rows:
     if r["method"] == "boss_arena":
         reg = region_of(r); fl = int(r["flag"])
         _region_bosses[reg].append((_flag2apid[fl], fl, r["item_name"] or "boss"))
+
+# ---- Non-standard region bosses missed by the method=boss_arena capture (matt-free special-case).
+# Some major bosses do NOT resolve into a standard remembrance-drop boss_arena row, so the flag-join
+# above never sees them. Captured here keyed to the ARTIFACT-VERIFIED boss-defeat flag from the map
+# EMEVD (HandleBossDefeatAndDisplayBanner(<flag>, LegendFelled)), joined to the greenfield ap-id via
+# the boss's reward-obtained flag (reward_join_flag). Tuple appended is (boss_ap_id, defeat_flag,
+# reward_name) -- same shape as the boss_arena rows -- so features/boss_locks emits a correct
+# "Felled: <boss>" trophy under the right region.
+#   Rennala / Raya Lucaria Academy: her kill triggers the rebirth mechanic (Great Rune of the Unborn
+#   + Remembrance of the Full Moon Queen), so her reward row is method=emevd (flag 197) and is even
+#   mis-pinned to Stormveil in region_map.csv -- both reasons the boss_arena join skips her. Defeat
+#   flag 14000800 verified in elden_ring_artifacts/event/m14_00_00_00.emevd.dcx.js.
+# (region, defeat_flag, reward_join_flag, reward_name)
+_BOSS_SPECIALS = [
+    ("Raya Lucaria Academy", 14000800, 197, "Remembrance of the Full Moon Queen"),
+]
+for _reg, _dfl, _jfl, _nm in _BOSS_SPECIALS:
+    _aid = _flag2apid.get(_jfl)
+    if _aid is None:
+        print(f"boss_data WARN: special boss {_nm!r} join flag {_jfl} absent from rows -- skipped")
+        continue
+    if any(t[1] == _dfl for t in _region_bosses[_reg]):
+        continue  # already captured (defeat flag present) -- keep idempotent
+    _region_bosses[_reg].append((_aid, _dfl, _nm))
 OUT_BOSS = os.path.join(HERE, "eldenring_gf", "boss_data.py")
 with open(OUT_BOSS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Region bosses (method=boss_arena) -> greenfield ap-ids,\n')

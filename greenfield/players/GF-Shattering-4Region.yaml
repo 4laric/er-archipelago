@@ -49,6 +49,7 @@ game: "Elden Ring (Greenfield)"
   start_with_region_lock: true # start at Roundtable with one random region already unlocked
   completion_scaling_floor: 0  # 0..50; raise to lift the early-region difficulty floor
   global_scadutree_blessing: off  # off | player_only | scaled (DLC blessing scope)
+  stone_ramp: true
   flatten_regular_upgrades: 3  # 0 = vanilla stone cost (2/4/6); 1..4 = graduated stones/level (3 = tuned curve).
                                # (Replaces the invalid 'flatten_smithing_stones'. 'auto_upgrade' is not a
                                #  player option -- it's a hardwired contract constant, so it was removed.)

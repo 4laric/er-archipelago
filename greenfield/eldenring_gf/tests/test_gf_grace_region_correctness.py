@@ -76,6 +76,20 @@ BOUNDARY_GRACE_ALLOW = {
            "Consecrated Snowfield (cluster 65); curated to the region it leads into.",
 }
 
+# UNDERGROUND / LEGACY play_region_ids with an UNAMBIGUOUS greenfield region (REGION_ID_MAP.md).
+# The cross-cluster oracle above only adjudicates OVERWORLD pids (61000-65999); a dungeon grace whose
+# independent pid is a non-overworld bucket falls straight through its net. That blind spot is exactly
+# where the Subterranean Shunning-Grounds misbundle lived: pid 35000 graces (Underground Roadside
+# 73501, Forsaken Depths 73502, Leyndell Catacombs 73503, Frenzied Flame Proscription 73504) inherited
+# Liurnia because region_map.csv mislabels every m35 row "Divine Tower" (-> Liurnia via REGION_MAP),
+# and the grace region is derived from the majority region of its map-prefix checks (in-game report
+# 2026-07-07). Each pid maps to a single greenfield region per REGION_ID_MAP.md; an emitted DUNGEON
+# grace carrying such a pid must land in that region (boss-gated graces like 73500 Cathedral of the
+# Forsaken are not emitted at all, so are simply absent -- not adjudicated here).
+LEGACY_PID_REGION = {
+    35000: "Leyndell",  # Subterranean Shunning-Grounds (a sub-level UNDER Leyndell; REGION_ID_MAP.md)
+}
+
 # play_region_ids that are OVERWORLD (the only ones the cluster arithmetic applies to).
 OW_PID_LO, OW_PID_HI = 61000, 65999
 
@@ -193,6 +207,46 @@ class GraceRegionCorrectness(unittest.TestCase):
             if pid // 1000 == cluster:
                 stale.append(fl)
         self.assertEqual(stale, [], f"stale BOUNDARY_GRACE_ALLOW entries (no longer misbundled): {stale}")
+
+    def test_underground_pid_graces_in_correct_region(self):
+        """gf-liurnia-shunning-grounds-misbundle guard (in-game report 2026-07-07). The cross-cluster
+        oracle skips non-overworld pids, so pid-35000 (Subterranean Shunning-Grounds) graces slipped
+        into Liurnia undetected. Independent of gen: the expected region comes from REGION_ID_MAP.md
+        keyed on the BonfireWarp-derived play_region_id, NOT from gen's map-id override path. Every
+        EMITTED grace whose independent pid has an unambiguous region must be bundled there."""
+        bad = []
+        checked = 0
+        for fl, region in sorted(self.emitted.items()):
+            expect = LEGACY_PID_REGION.get(self.pids.get(fl))
+            if expect is None:
+                continue
+            checked += 1
+            if region != expect:
+                bad.append((fl, self.pids.get(fl), region, expect, self.tiles.get(fl)))
+        self.assertGreater(checked, 0, "no underground-pid graces cross-checked -- source join broke")
+        self.assertEqual(
+            bad, [],
+            str(len(bad)) + " underground/legacy-pid grace(s) misbundled: an emitted grace whose "
+            "independent play_region_id maps unambiguously to region X (REGION_ID_MAP.md) is bundled "
+            "elsewhere. (flag, pid, emitted_region, expected_region, tile): " + repr(bad),
+        )
+
+    def test_shunning_grounds_four_graces_under_leyndell(self):
+        """Pinned regression for the four reported graces. Subterranean Shunning-Grounds (m35, pid
+        35000) sits UNDER Leyndell; these must be bundled under Leyndell, never Liurnia. Guards against
+        the fix silently dropping them (a boss-gated skip would remove them from Leyndell too)."""
+        want = {
+            73501: "Underground Roadside",
+            73502: "Forsaken Depths",
+            73503: "Leyndell Catacombs",
+            73504: "Frenzied Flame Proscription",
+        }
+        for fl, nm in want.items():
+            self.assertEqual(
+                self.emitted.get(fl), "Leyndell",
+                f"grace {fl} ({nm}, Subterranean Shunning-Grounds pid 35000) must be under Leyndell, "
+                f"got {self.emitted.get(fl)!r} (in-game misbundle into Liurnia, 2026-07-07)",
+            )
 
 
 class BossArenaGraceSkipList(unittest.TestCase):

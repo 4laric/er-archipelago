@@ -40,6 +40,22 @@ def test_boss_label_unit_cases():
     assert _boss_label("Elden Remembrance") == "Elden Remembrance"
 
 
+def test_rennala_raya_lucaria_present():
+    # Rennala / Raya Lucaria Academy is a non-standard boss (her kill resolves into the rebirth
+    # mechanic + Great Rune of the Unborn, so she has no method=boss_arena reward row). She was
+    # historically MISSING from REGION_BOSSES; gen_data.py now special-cases her keyed to the
+    # artifact-verified m14 boss-defeat flag 14000800. Guard that she stays captured on regen.
+    assert "Raya Lucaria Academy" in REGION_BOSSES, "Rennala's region absent from REGION_BOSSES"
+    lst = REGION_BOSSES["Raya Lucaria Academy"]
+    flags = {fl for _aid, fl, _rw in lst}
+    assert 14000800 in flags, f"Rennala defeat flag 14000800 missing (got {flags})"
+    entry = next(t for t in lst if t[1] == 14000800)
+    _aid, _fl, reward = entry
+    assert reward == "Remembrance of the Full Moon Queen", f"unexpected reward {reward!r}"
+    assert _boss_label(reward) == "Full Moon Queen", f"bad label {_boss_label(reward)!r}"
+    assert isinstance(_aid, int) and _aid > 0, "Rennala boss ap-id must be a real positive location id"
+
+
 def test_boss_label_over_all_rewards_clean():
     # every real reward string yields a non-empty, trimmed label with no leftover affixes.
     for lst in REGION_BOSSES.values():

@@ -175,9 +175,9 @@
           "profiles": [
             "greenfield"
           ],
-          "producer": "core._options_echo (constant 0)",
-          "consumer": "upgrades client path",
-          "doc": "auto weapon-upgrade ladder tier; greenfield ships constant 0 (feature off)."
+          "producer": "core._options_echo (features/upgrades.py)",
+          "consumer": "upgrades.rs set_auto_upgrade / apply_auto_upgrade",
+          "doc": "auto-upgrade received weapons: 0 = off; nonzero = raise each received weapon to the player's highest held level on its smithing track (raise-only, cap +25 normal / +10 somber)."
         },
         {
           "name": "flatten_regular_upgrades",
@@ -554,6 +554,17 @@
       "producer": "features/boss_locks.py",
       "consumer": "(diagnostic -- no client read)",
       "doc": "{region: [boss AP location ids]} for kept regions."
+    },
+    {
+      "name": "bossLockItems",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/boss_locks.py",
+      "consumer": "er-logic boss_felled / region.rs",
+      "doc": "{str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id}} for kept BASE-game bosses (DLC out for v0.2); client mints the 'Felled:' trophy on boss-defeat (mode A)."
     },
     {
       "name": "filler_foreign_localized",
