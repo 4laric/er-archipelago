@@ -208,6 +208,50 @@ just silent failure with better manners.
   ledger is `contract.py`, validated on both sides (gen-time and client connect);
   see *Feature architecture*.
 
+## Regression by replay — a fix is a predicate, and production must call it
+
+The 2026-07-06 greenfield-migration lesson. After the slot_data contract was
+hardened, a dozen bugs still shipped — and every one was found one-at-a-time in
+playtest. None were *absence* of behavior (the contract ledger and the arming
+logs catch those now); they were *wrong* behavior with full presence: the
+feature armed, the log green, but a grant fired a tick too early, a latch keyed
+on the wrong flag, a shared acquisition flag leaked its neighbour. Presence and
+shape checks are blind to this class — the value is well-formed and merely
+wrong. The only oracle that separates "off because the player chose off" from
+"off because the wire is broken" was a human watching the game, so the game is
+where they were found: one seed-path at a time.
+
+The fix is a test tier that hands that oracle to CI. A sequencing / timing /
+reconcile / state-application bug lives in a *timeline*, so it gets a
+host-tested **replay harness** in `er-logic`:
+
+- **Lift the decision into a pure predicate.** The fix is a `pub fn` —
+  `start_items_settled`, `region_bloom_settled`, `should_apply_incoming_deathlink`
+  — that takes state and returns a decision with no game or I/O, so it compiles
+  and `cargo test`s on any host.
+- **Model the timeline, not a single tick.** A `#[cfg(test)] mod replay` defines
+  its OWN game-state model over the `GameHook`/`NetHook` seam (never the shared
+  single-tick mock — it can't represent a later save-load or reconnect), an `Ev`
+  enum for the frames that matter (load screen, bulk-load clobber, save-load,
+  reconnect, holder-not-ready), and a `replay(events, policy)` driver. The bug is
+  reproduced as a **failing-without-the-fix / passing-with-it** pair, the policy
+  flag toggling old vs new behaviour.
+- **A green predicate with no production caller is not a fix — it is a spec.**
+  The client must *call* the pure predicate, not keep its own inline copy;
+  test/prod drift is the exact failure this tier exists to kill.
+  `region_bloom_settled` was green for days while `region.rs` still latched on
+  the open flag — the harness proved the fix and the client stayed broken.
+  Wiring the caller is part of the change, and CI runs `cargo test -p er-logic`
+  (both `run_ci.ps1` and `ci-linux.sh`).
+- **Name the test after the bug mechanism.**
+  `interior_graces_are_stranded_by_the_open_flag_latch` plus the predicate that
+  turns it green is a machine-readable fix spec: it carries the mechanism, the
+  fix shape, and the function to call. Write it to be legible to a teammate — or
+  a fresh agent — on nothing but the test output.
+
+This is the correspondence half of *Runtime visibility*: the arming logs tell
+you a feature is present; the replay tier tells you it is *correct*.
+
 ## Repo hygiene
 
 - **Never commit game data or build outputs.** No provisioned game assets, no
@@ -240,6 +284,11 @@ Run through this before a change lands (PR or direct):
       because X); no silent fallbacks.
 - [ ] Game-state writes reconcile against read-back state; no watermark advances
       past an unverified write.
+- [ ] Sequencing/timing/reconcile bugs land with a host-tested `*_replay` harness:
+      a pure decision fn plus a timeline that reproduces the bug
+      failing-without-fix / passing-with-fix, named after the bug mechanism.
+- [ ] Every fix predicate has a production caller — the client calls the pure fn,
+      no inline copy; a green replay with no caller is a spec, not a fix.
 - [ ] In-game confirmations record the environment (vanilla/baked, mods, build)
       and date.
 - [ ] New slot_data keys have a live consumer or an explicit CONTRACT tag.

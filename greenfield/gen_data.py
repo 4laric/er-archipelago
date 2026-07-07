@@ -183,6 +183,13 @@ DUNGEON_REGION_OVERRIDE = {
     "m32_07_00_00": "Caelid",
     "m34_11_00_00": "Liurnia of the Lakes",  # Liurnia Divine Tower / Study Hall (was Limgrave)
     "m34_14_00_00": "Leyndell",
+    # Divine Towers of Limgrave / West Altus / Caelid are BASE GAME, but region_map.csv marks every
+    # m34 tile "DLC Dungeon"; without an override they misbundle into Land of Shadow (found by the
+    # grace-region gate 2026-07-06; correct region = the grace independent play_region_id cluster).
+    "m34_10_00_00": "Limgrave",       # Divine Tower of Limgrave (73410/73412, pid 61001)
+    "m34_12_00_00": "Altus Plateau",  # Divine Tower of West Altus (73430/73432, pid 63002)
+    "m34_13_00_00": "Caelid",         # Divine Tower of Caelid (73440/73441, pid 64001)
+    "m34_15_00_00": "Caelid",         # Divine Tower (73460, pid 64001)
     "m39_20_00_00": "Mt. Gelmir",
 }
 
