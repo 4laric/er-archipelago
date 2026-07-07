@@ -389,7 +389,13 @@ _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
 _BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601, 71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120, 71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401})
 _ARENA_GRACE_FLAGS = frozenset({76930, 76931, 76422, 76852, 76853, 76508, 76509, 76415,
     71300})  # +71300 Maliketh the Black Blade: fog-gated arena grace (not 9005810 bonfire-hidden, so EMEVD oracle missed it); leaked into Farum Azula grants (playtest 2026-07-07)
-_SKIP_GRACE_FLAGS = _BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
+# m11_05 = Leyndell, Ashen Capital: a POST-ERDTREE-BURN map variant that region_of folds into base
+# Leyndell. Vanilla lights these on the burn; force-lighting them with the Leyndell lock warps you
+# into the ashen capital before you've burned the Erdtree (playtest 2026-07-07: 71123 "Leyndell,
+# Capital of Ash" leaked). Skip -> they light naturally on burn. (State-variant gate: distinct from
+# the boss-bonfire (9005810) and remembrance-arena classes.)
+_ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
+_SKIP_GRACE_FLAGS = _BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS | _ASHEN_LEYNDELL_GRACE_FLAGS
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top

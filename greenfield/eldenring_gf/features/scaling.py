@@ -48,6 +48,54 @@ def sphere_target_ranges(kept):
     return triples
 
 
+def _region_fill_spheres(world):
+    """kept region -> the playthrough sphere its `<R> Lock` is obtained in (0 = start/precollected).
+    TRUE FILL SPHERE: reflects where each lock actually landed this seed, so a random-start
+    num_regions seed scales from the region you can reach, not geography. {} if uncomputable."""
+    player = world.player
+    mw = world.multiworld
+    lock_to_region = {f"{r} Lock": r for r in world._kept()}
+    sphere = {}
+    for it in mw.precollected_items[player]:            # start-open region(s) -> sphere 0
+        r = lock_to_region.get(it.name)
+        if r is not None:
+            sphere[r] = 0
+    try:
+        for i, locset in enumerate(mw.get_spheres()):   # 0-indexed fill spheres; +1 keeps start below
+            for loc in locset:
+                it = getattr(loc, "item", None)
+                if it is not None and getattr(it, "player", None) == player:
+                    r = lock_to_region.get(it.name)
+                    if r is not None and r not in sphere:
+                        sphere[r] = i + 1
+    except Exception:
+        return {}
+    if sphere:                                          # any lock not located -> treat as deepest
+        deepest = max(sphere.values())
+        for r in world._kept():
+            sphere.setdefault(r, deepest + 1)
+    return sphere
+
+
+def _targets_from_spheres(region_sphere):
+    """region -> target 0..TARGET_MAX, normalized so the deepest sphere == TARGET_MAX; regions that
+    share a sphere share a target (equal access depth = equal scaling)."""
+    if not region_sphere:
+        return {}
+    max_s = max(region_sphere.values())
+    if max_s <= 0:
+        return {r: 0 for r in region_sphere}
+    return {r: round(s / max_s * TARGET_MAX) for r, s in region_sphere.items()}
+
+
+def _ranges_from_targets(region_target):
+    triples = []
+    for region, target in region_target.items():
+        for pid in REGION_PLAY_IDS.get(region, []):
+            triples.append([pid, pid, target])
+    return triples
+
+
 class CompletionScalingFloor(Range):
     """Minimum completion-scaling tier as a percent of max, applied from the start so early regions
     aren't trivially weak. 0 = the full smoothstep curve from zero."""
@@ -76,11 +124,16 @@ class Scaling(Feature):
     }
 
     def slot_data(self, world):
+        # TRUE FILL SPHERE (2026-07-07): target = the playthrough sphere each region's Lock is
+        # obtained in (start-open region -> 0 floor), so a random-start num_regions seed scales from
+        # the region you can actually reach, not geography. SPINE-order depth is the fallback when the
+        # fill sphere can't be computed (no world / degenerate).
+        region_sphere = _region_fill_spheres(world)
+        ranges = (_ranges_from_targets(_targets_from_spheres(region_sphere))
+                  if region_sphere else sphere_target_ranges(world._kept()))
         return {
-            # legacy top-level duplicates (client reads the sd["options"] copies; contract-declared)
             "completion_scaling": 4,  # smoothstep (client curve id; SPEC-PARITY P2)
             "completion_scaling_floor": int(world.options.completion_scaling_floor.value),
             "global_scadutree_blessing": int(world.options.global_scadutree_blessing.value),
-            # the live scaling wire (I2) -- see module docstring
-            contract.REGION_SPHERE_TARGET_RANGES: sphere_target_ranges(world._kept()),
+            contract.REGION_SPHERE_TARGET_RANGES: ranges,
         }
