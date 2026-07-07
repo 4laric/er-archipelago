@@ -51,7 +51,9 @@ step "GREENFIELD (b) PURE UNIT"
 if "$PY" "$GF/eldenring_gf/tests/test_gf_data.py" \
    && "$PY" "$GF/eldenring_gf/tests/test_gf_region_correctness.py" \
    && "$PY" "$GF/eldenring_gf/tests/test_gf_grace_region_correctness.py" \
-   && "$PY" "$GF/eldenring_gf/tests/test_gf_region_artifact_oracle.py"; then
+   && "$PY" "$GF/eldenring_gf/tests/test_gf_region_artifact_oracle.py" \
+   && "$PY" "$GF/eldenring_gf/tests/test_gf_grace_skip_oracle.py" \
+   && "$PY" "$GF/eldenring_gf/tests/test_gf_client_contract_paths.py"; then
   record PURE PASS; else record PURE FAIL; fi
 
 step "GREENFIELD (c) ISOLATED GEN"
