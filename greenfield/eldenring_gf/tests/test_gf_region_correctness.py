@@ -71,6 +71,17 @@ def _load_location_tags():
     return getattr(mod, "LOCATION_TAGS", {})
 
 
+def _load_module(name):
+    """Load a generated eldenring_gf/<name>.py module by path (None if absent)."""
+    path = os.path.join(GF_PKG, name + ".py")
+    if not os.path.isfile(path):
+        return None
+    spec = importlib.util.spec_from_file_location("gf_" + name + "_check", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 class RegionCorrectness(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -337,6 +348,55 @@ class RegionCorrectness(unittest.TestCase):
             "HUB has " + str(hub_locs) + " locations (budget " + str(HUB_BUDGET) + "); a quarantine "
             "regression likely re-routed placed items to the HUB. If intentional, rebaseline HUB_BUDGET.",
         )
+
+    # ---------------------------------------------------- cross-file region agreement (independent)
+    # Found in-game 2026-07-08: Rennala's Remembrance of the Full Moon Queen (ap 7770008) showed under
+    # Stormveil Castle in data.py but Liurnia of the Lakes in boss_data.py / boss_sweeps.py -- the
+    # location row (flag 197) was map_lot-scanned onto Godrick's map (m10_00) while the boss join keys
+    # off Rennala's m14 defeat flag (14000800). data.py's region and the sweep membership both read the
+    # row's `map`/`region` columns, so a mis-scan double-faults: wrong region label AND the reward gets
+    # swept by the WRONG boss. This oracle is independent of the region_of TRANSFORM -- boss_data joins
+    # by boss event flag (a different derivation), so agreement between the two emitted tables is a real
+    # cross-check, not a tautology. gen_data.ROW_MAP_REGION_FIX corrects the row; this pins it.
+    def test_boss_reward_region_agrees_with_location_region(self):
+        bd = _load_module("boss_data")
+        if bd is None or not hasattr(bd, "REGION_BOSSES"):
+            self.skipTest("boss_data.py absent")
+        loc_region = {}
+        for region, locs in self.d.LOCATIONS.items():
+            for (_name, apid, _flag) in locs:
+                loc_region[apid] = region
+        mismatch = []
+        for region, entries in bd.REGION_BOSSES.items():
+            for (apid, _flag, name) in entries:
+                lr = loc_region.get(apid)
+                if lr is not None and lr != region:
+                    mismatch.append((apid, name, "boss_data=" + region, "data.py=" + lr))
+        self.assertEqual(
+            mismatch, [],
+            str(len(mismatch)) + " boss reward(s) whose data.py location region disagrees with "
+            "boss_data.py's region -- a map-scan mis-region (2026-07-08 Full Moon Queen class). "
+            "Add a gen_data.ROW_MAP_REGION_FIX entry for the offending flag. " + repr(mismatch[:5]))
+
+    def test_boss_reward_swept_by_its_own_boss(self):
+        """A boss reward whose defeat flag is a dungeon-sweep trigger must be a MEMBER of that sweep --
+        else clearing the boss never grants it, or the WRONG boss does (Full Moon Queen was swept by
+        Godrick's 10000800, not Rennala's 14000800). Same map-column root as the region check above."""
+        bd = _load_module("boss_data")
+        sw = _load_module("boss_sweeps")
+        if bd is None or sw is None or not hasattr(sw, "DUNGEON_SWEEPS"):
+            self.skipTest("boss_data.py / boss_sweeps.py absent")
+        ds = sw.DUNGEON_SWEEPS
+        wrong = []
+        for region, entries in bd.REGION_BOSSES.items():
+            for (apid, flag, name) in entries:
+                if flag in ds and apid not in ds[flag]:
+                    wrong.append((apid, name, flag, region))
+        self.assertEqual(
+            wrong, [],
+            str(len(wrong)) + " boss reward(s) not a member of their own boss's dungeon sweep "
+            "(swept by the wrong boss -- Full Moon Queen class). (ap, name, defeat_flag, region): "
+            + repr(wrong[:5]))
 
 
 if __name__ == "__main__":

@@ -116,6 +116,25 @@ def _loc_tags(r):
 # otherwise the client's repurpose would clobber a tracked check. Costs one minor vanilla slot.
 MINIBAKER_VENDOR_FLAGS=frozenset({60290})
 _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
+
+# ---- Hand-verified row corrections (matt-free) --------------------------------------------------
+# region_map.csv's map_lot scan mis-attributed a few flags to the wrong map/region. Both num_regions
+# (region label) and the map-keyed dungeon sweep read these columns, so a wrong map double-faults:
+# wrong region AND wrong boss-sweep membership. Correct the source row here in code -- region_map.csv
+# stays the raw pipeline output (same philosophy as FLAG_REGION_OVERRIDE / DUNGEON_REGION_OVERRIDE).
+#   197 = Remembrance of the Full Moon Queen (Rennala): scanned into m10_00 Stormveil (Godrick's map)
+#         but obtained in Raya Lucaria Academy (m14_00 -> folds to Liurnia via REGION_MAP). The map
+#         error also mis-grouped it into Stormveil's sweep 10000800/10000850 not Rennala's 14000800.
+# {flag: (map, region)} -- region must be a REGION_MAP key.
+ROW_MAP_REGION_FIX = {197: ("m14_00_00_00", "Raya Lucaria Academy")}
+for _rowfix in _ALLROWS:
+    try:
+        _ff = int(_rowfix["flag"])
+    except (KeyError, ValueError):
+        continue
+    _fx = ROW_MAP_REGION_FIX.get(_ff)
+    if _fx:
+        _rowfix["map"], _rowfix["region"] = _fx
 # Redundant obtained-flag TWINS of a physically-placed pickup: dropped so the medallion isn't a
 # double check. 400280 = Haligtree Secret Medallion (Left) obtained flag, which the flag_prefix
 # heuristic buckets into Leyndell -- but the Left half is a real world pickup (Castle Sol, flag

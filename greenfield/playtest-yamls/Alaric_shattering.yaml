@@ -40,19 +40,30 @@ game: "Elden Ring (Greenfield)"
   # ---- Filler curation (replace vanilla junk consumables) -----------------
   curated_filler:                # {category: weight}; valid: throwables pots greases foods utility funny stones runes junk.
     throwables: 25               #   granted in stacks of 10
-    pots: 15                     #   granted in stacks of 4
+    pots: 15                     #   granted in stacks of 4  (need vessels -- see start_inventory below)
     greases: 10
     stones: 20                   #   low smithing stones
     runes: 20                    #   rune items (leveling)
     junk: 10                     #   keep this share as vanilla junk
   # varied_filler: true          # (default on) diversify whatever filler is left.
 
+  # POT VESSELS: throwing pots are capped by your Cracked Pot count (Ritual Pots for the ritual-type
+  # pots); with no vessels a granted pot stack overflows straight to STORAGE and can't be thrown.
+  # Grant a baseline stock so the curated_filler 'pots' are usable from the start. (Additive -- these
+  # do NOT come out of the shuffled pool.) Drop this block if you remove the 'pots' category above.
+  start_inventory:
+    Cracked Pot: 12
+    Ritual Pot: 4
+
   # ---- Boss locks / dungeon sweeps ----------------------------------------
   boss_keys: true                # mint "Boss Key: <Boss>" gating items (mode-B metadata).
   dungeon_sweep: all             # kill a dungeon boss -> its other checks auto-register. all | minidungeons | bosses | none.
                                  # REQUIRES the P3b client handler (patch_p3b_client.py) in the built DLL, else
                                  # sweeps silently never fire.
-  boss_lock_placement: own_region  # scatter | own_region | any_boss
+  boss_lock_placement: own_region  # scatter | own_region | any_boss. INERT today (mode-B sweepLockGates not shipped).
+  # NOTE: mode-A "Felled: <Boss>" trophies emit in slot_data (base bosses only) but are NOT yet shown in-game --
+  # the client glue in WIRING-boss-locks-v0.2.md must be wired + rebuilt first. Base-only (enable_dlc:false) matches
+  # mode-A's scope.
 
   # ---- Warp-in ------------------------------------------------------------
   grace_rando: false             # BUNDLE: a region lock lights ALL of that region's graces (no scatter items).
@@ -85,7 +96,7 @@ game: "Elden Ring (Greenfield)"
   # "recommended" note. To playtest the DLC instead, set enable_dlc: true (Land of Shadow, Belurat, Scadu
   # Altus, Shadow Keep, Gravesite Plain, Ancient Ruins of Rauh, Enir-Ilim, Jagged Peak, Abyssal Woods join
   # the pool) -- and bump num_regions if you want more of them kept.
-  enable_dlc: true              # base game only.
+  enable_dlc: false              # base game only.
   dlc_only: false                # true = ONLY DLC regions (requires enable_dlc: true).
   death_link: false              # true = shared deaths (2-player).
 
