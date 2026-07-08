@@ -133,7 +133,7 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # inside Stormveil's m10_01 EMEVD, so it both mis-pinned to Stormveil AND showed up as a randomizer
 # check. Per playtest (2026-07-08) it should NOT be randomized -- drop it so it stays a vanilla pickup
 # and never becomes a check (this also drops ap-id 7770020 from the m10 dungeon sweep 10010800 on regen).
-_MISC_NON_CHECK = frozenset({60210})
+_MISC_NON_CHECK = frozenset({60210, 590000})  # 590000 = empty-item Stormveil check (no reward)
 EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
@@ -208,6 +208,12 @@ FLAG_REGION_OVERRIDE = {
     1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left) is physically in
                                                #   Castle Sol (Mountaintops); the EMEVD scan mis-tiled the
                                                #   flag to Liurnia (m60_36_41). Right half stays in Liurnia.
+    520000: "Weeping Peninsula",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
+                                               #   Weeping, mis-tiled to m10/Stormveil by the EMEVD scan.
+    520010: "Weeping Peninsula",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
+    400031: "Liurnia of the Lakes",            # Lord of Blood's Favor = Varre's questline reward at the
+    400033: "Liurnia of the Lakes",            #   Rose Church (Liurnia); mis-pinned to m10. (400031/400033
+                                               #   are the given/blood-soaked states -- likely a dup, see below.)
     197: "Liurnia of the Lakes",               # Remembrance of the Full Moon Queen = RENNALA's drop.
                                                #   Her reward row is method=emevd (flag 197) mis-pinned to
                                                #   m10 (Stormveil) in region_map.csv, but flag 197 only fires
