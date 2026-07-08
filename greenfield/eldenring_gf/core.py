@@ -500,6 +500,8 @@ class GreenfieldEldenRingWorld(World):
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
+            contract.ATTUNEMENT_GATE: _opt("attunement_gate"),  # 0 off; nonzero = attunement-release boss gate (features/attunement.py)
+            contract.BOSS_KEYS: _opt("boss_keys"),  # 0 off; nonzero = Boss Keys mode B (features/boss_locks.py)
         }
 
     def _base_slot_data(self) -> Dict[str, Any]:
