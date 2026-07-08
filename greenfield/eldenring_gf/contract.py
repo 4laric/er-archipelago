@@ -228,6 +228,19 @@ OPTIONS_SUBKEYS = (
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades client path",
                 "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),
+    ContractKey("attunement_gate", "INT_OR_BOOL", False, (GREENFIELD,),
+                "core._options_echo (features/attunement.py)",
+                "er-logic attunement gate (parse_bool_option)",
+                "attunement-release boss gate: 0 = off (regions unlock normally); nonzero "
+                "= on (a lock lights only K seeded-random graces and the region boss payout "
+                "defers until the region is attuned)."),
+    ContractKey("boss_keys", "INT_OR_BOOL", False, (GREENFIELD,),
+                "core._options_echo (features/boss_locks.py)",
+                "er-logic sweep_gate / boss-payload deferral",
+                "Boss Keys (mode B): 0 = off; nonzero = on. Each kept base boss mints a "
+                "progression 'Boss Key: <Boss>' item; the boss's own AP check is logic-gated "
+                "on it (bossLockItems[..].gate) and its dungeon sweep defers (sweepLockGates) "
+                "until the key is received."),
 )
 
 
@@ -385,6 +398,13 @@ CONTRACT = (
                 "features/boss_locks.py", "er-logic boss_felled / region.rs",
                 "{str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id}} for kept BASE-game "
                 "bosses (DLC out for v0.2); client mints the 'Felled:' trophy on boss-defeat (mode A)."),
+    ContractKey("regionAttunement", "ANY", False, (GREENFIELD,),
+                "features/attunement.py", "er-logic attunement / region.rs",
+                "{region: {threshold:int, member_ap_ids:[int], bloom_flags:[int]}} for kept "
+                "regions when attunement_gate is ON (absent otherwise). threshold = in-region "
+                "checks that must be COLLECTED to attune; member_ap_ids = the checks that count "
+                "(freely-reachable, boss-arena + missable excluded); bloom_flags = the region "
+                "graces that light on attunement. Boss payout releases when boss_flag && attuned."),
     ContractKey("filler_foreign_localized", "ANY", False, (GREENFIELD,),
                 "features/filler_foreign.py", "(diagnostic -- no client read)",
                 "count of distinct filler names forced local this seed."),

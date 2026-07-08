@@ -71,7 +71,7 @@ INFORMATIONAL_EXTRAS = {
 # it actually emits, plus the informational extras. Built at import time so it tracks contract.py.
 # (enable_dlc / lockRevealFlags / versions are contract-declared but not emitted by the current
 # world. regionSphereTargetRanges IS emitted as of I2 -- features/scaling.py, the live scaling wire.)
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "lockRevealFlags", "versions", "areaLockFlags"}  # areaLockFlags FOLDED 2026-07-06 -> client-derived (region.rs), no longer gen-emitted
+_CONTRACT_NOT_EMITTED = {"enable_dlc", "lockRevealFlags", "versions", "areaLockFlags", "regionAttunement"}  # areaLockFlags FOLDED 2026-07-06 -> client-derived (region.rs); regionAttunement only emitted when attunement_gate is ON
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).

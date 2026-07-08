@@ -31,6 +31,8 @@ game: "Elden Ring (Greenfield)"
   pool_builder_juice_cap: 0    # 0..400; 0 = auto-size to the whole Rune tail
   pool_builder_intensity: max  # normal | high (default) | max -- rarity floor legendary-only | +rare | +B-tier
   curated_fill: true
+  boss_keys: true
+
 
   # ---- Boss locks / dungeon sweeps ----------------------------------------
   dungeon_sweep: all           # kill a dungeon boss -> its other checks auto-register.
@@ -43,6 +45,7 @@ game: "Elden Ring (Greenfield)"
 
   # ---- Warp-in ------------------------------------------------------------
   grace_rando: false           # bundle: a region lock lights ALL its graces. true = freebie (one grace + scatter items)
+  attunement_gate: false
 
   # ---- QoL / difficulty ---------------------------------------------------
   start_with_torch: true       # begin holding a Torch (dark caves navigable before your first grace)

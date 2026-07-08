@@ -41,6 +41,10 @@ class GraceRandoFeature(Feature):
     OPTIONS = {"grace_rando": GraceRando}
 
     def create_items(self, world):
+        # attunement gate: the scatter graces fold into the bloom (client-lit on attunement),
+        # NOT the pool -- so mint no scatter items (freed slots become filler, count-neutral).
+        if getattr(world, "gf_attunement", None) is not None:
+            return []
         if not world.options.grace_rando.value:      # bundle mode: no scatter items
             return []
         kept = set(world._kept())
@@ -50,12 +54,18 @@ class GraceRandoFeature(Feature):
 
     def slot_data(self, world):
         kept = set(world._kept())
+        att = getattr(world, "gf_attunement", None)   # attunement plan, or None when the gate is off
         freebie = bool(world.options.grace_rando.value)
         region_graces, grace_items = {}, {}
         for r, fs in REGION_GRACE_POINTS.items():
             if r not in kept or not fs:
                 continue
-            if freebie:
+            if att is not None:
+                # attunement gate: the lock lights ONLY the K seeded random-start graces; the
+                # region's remaining graces bloom on attunement (regionAttunement.bloom_flags).
+                # No scatter items -- create_items mints none under the gate.
+                region_graces[f"{r} Lock"] = list(att.get(r, {}).get("region_lit", [fs[0]]))
+            elif freebie:
                 region_graces[f"{r} Lock"] = [fs[0]]
                 for k in range(1, len(fs)):
                     grace_items[_scatter_name(r, k)] = fs[k]

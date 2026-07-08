@@ -172,3 +172,68 @@ and be in-game-confirmed in time.
 - Scope: **base-game bosses only for v0.2** — DLC bosses (incl. the Land of Shadow set) are OUT of
   v0.2; revisit for a later release. Filter `REGION_BOSSES` to base regions when minting `Felled:`
   items.
+
+---
+
+## Attunement-release design (2026-07-07) — SUPERSEDES the mode-A/B "approach-gate" phasing above
+
+**Problem.** On region unlock the grace bundle lights all graces incl. the boss arena -> warp-and-kill
+skips the region. Dark-set withholding was REJECTED (vanilla dungeons are short entrance-to-boss; it
+just relocates the warp point). And "just cut boss locks" does NOT cut the problem: `curated_fill`
+routes region Locks onto Boss/Remembrance/GreatRune checks, so bosses are often the progression spine
+-> boss-rushing becomes the meta if unaddressed.
+
+**Core reframe: don't gate the KILL, gate the RELEASE — on an IN-REGION predicate** (Mode B's flaw is
+its predicate is a foreign key, uncorrelated with the region, so it time-shifts the reward but the
+region is still never engaged).
+
+**v0.2 design — three composed pieces, all on existing client primitives:**
+
+1. **Random-start graces.** On lock receipt light `K` seeded-random graces instead of the fixed front
+   door. `K = clamp(ceil(n_graces/8), 1, 3)` (Limgrave 3, Stormveil 2, Raya Lucaria 1). Draw from the
+   region's graces minus `_BOSS_GATED_GRACE_FLAGS` (proven 37/37 by the EMEVD oracle) + the boss
+   antechamber grace (~20 new curation flags, one per boss). Different entry door per seed; ZERO new
+   client surface (the lock->light path just receives K flags instead of 1).
+
+2. **Attunement = in-region CHECKS collected** (NOT graces reached — that's the move that kills the
+   "short dungeon" objection: checks-collected forces looting and is route-agnostic). Boss payout
+   releases when `boss_flag && attuned(region)`, `attuned = |collected ∩ region_ap_ids| >= threshold`.
+   Count from the SERVER checked-locations set (authoritative -> survives save-load / reconnect /
+   re-snapshot, the exact bug class we keep hitting). `threshold = clamp(0.10 * freely_reachable
+   region checks, 5, 20)` computed at gen (exclude boss-gated + missable, per the important_loc
+   juice-guard lesson). Dungeon-sweep bursts from OTHER dungeons count toward attunement (side content
+   = fuel).
+
+3. **Attunement bloom.** Hitting the threshold lights the region's REMAINING graces (incl. the boss
+   antechamber) + banner "Attuned to <Region> — all graces revealed." Reframes the mechanic as a
+   REWARD (loot N -> get the region's full warp network + banked boss payout). Kill-before-attuned
+   banners the debt: "Godrick felled — 14 checks sealed (attune: 7/12 Stormveil)."
+
+**Boss payout scope.** The payout = the boss's own checks (loc + remembrance/great-rune) AND its
+dungeon-sweep members, all gated by attunement TOGETHER. Gating only the 2-3 boss checks while the
+sweep fires ungated would leak the whole dungeon -> the entire boss-kill burst must be attunement-gated.
+
+**OPEN QUESTION (playtest) — important_locations in the payout.** Because the payout is the whole
+dungeon sweep, important_locations checks in that dungeon ARE delivered by the boss kill once attuned
+— you don't have to manually find them. Assessment: probably FINE — important_locations only
+guarantees those checks HOLD good items (you still receive them; delivered == obtained),
+`dungeon_sweep` is opt-in, and attunement already forced N checks of engagement. DEFAULT: ship as laid
+out (important included). LEVER if it feels too skippy: exclude important_locations from the sweep
+(they stay manual pickups), or require K important checks inside the attunement count. Decide by
+playtest.
+
+**Why it's sound + cheap.** Winnable by construction — attunement is always satisfiable with just the
+region Lock (in-region checks need nothing else); NO placed item, NO fill feasibility guard, the boss
+location's rule stays `has("<Region> Lock")`. Fill-safe / count-neutral (fold the grace scatter pool
+items into the bloom). Pure-runtime on existing primitives (grace lighting + P3b flag-watch + deferred
+send/burst-release). One new contract key: `regionAttunement = {region: {threshold, member_ap_ids,
+bloom_flags}}`. One replay test: attunement count + banked-boss release survive reconnect.
+
+**Composition — this IS Mode B's deferred-release machinery, shipped a version early.** v0.3 Mode B
+(`Boss Key`) becomes an OPTIONAL STRICTER layer: `release = boss_flag && attuned && has(Boss Key)`,
+same deferral path. Re-evaluate then whether the key still earns a pool slot — attunement already
+delivers the engagement gate, so the key's residual value is multiworld texture, not pacing.
+
+**v0.2 MVP slice** (if time compresses): attunement-release alone with the fixed front door — even
+that answers warp-and-kill better than cutting boss locks does. Random-start graces + bloom are the
+polish layer on top.

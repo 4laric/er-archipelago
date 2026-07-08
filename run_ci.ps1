@@ -49,6 +49,7 @@ param(
     [switch] $SkipDiversity,
     [switch] $SkipGreenfield,
     [switch] $OnlyGreenfield,      # run ONLY the greenfield gate (skip all other steps)
+    [switch] $Full,               # opt out of the greenfield-only default: run the full legacy CI
     [switch] $SkipFuzz,
     [switch] $SkipPure,
     [switch] $Cargo                  # opt-in: Rust client tests (Windows toolchain)
@@ -56,6 +57,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Default to the greenfield-only gate: the matt-lineage world is retired for v0.2, so its
+# unit/fill/diversity/fuzz/pure steps should not gate the greenfield release. Pass -Full to run
+# the whole legacy CI (respecting any individual -Skip* flags).
+if (-not $Full) { $OnlyGreenfield = $true }
 # -OnlyGreenfield: run just the greenfield gate; force-skip every other step.
 if ($OnlyGreenfield) {
     $SkipUnit = $true; $SkipFill = $true; $SkipDiversity = $true
