@@ -28,6 +28,13 @@ try:
 except Exception as _e:
     _BOSS_DROP_FLAGS = frozenset()
     print(f"[gen_data] boss_drops.py unavailable ({_e!r}); Boss tag empty -- run tools/datamine_boss_drops.py")
+try:
+    _hbspec = _ilu.spec_from_file_location("_boss_hb", os.path.join(HERE, "eldenring_gf", "boss_healthbars.py"))
+    _hbmod = _ilu.module_from_spec(_hbspec); _hbspec.loader.exec_module(_hbmod)
+    BOSS_HEALTHBARS = dict(_hbmod.BOSS_HEALTHBARS)
+except Exception as _e:
+    BOSS_HEALTHBARS = {}
+    print(f"[gen_data] boss_healthbars.py unavailable ({_e!r}); sweeps fall back to region-wide banner scan -- run tools/datamine_boss_healthbars.py")
 HUB="Roundtable Hold"
 SKIP={"global","global_filler","shop_reference"}
 # Map-fragment pickups are granted via the RE'd map-reveal FLAG path (the client's reveal_all_maps
@@ -317,7 +324,35 @@ DUNGEON_REGION_OVERRIDE = {
     # _pref2maj). Correct region = Leyndell (REGION_ID_MAP.md 35000 = Subterranean Shunning-Grounds).
     "m35_00_00_00": "Altus Plateau",  # Shunning-Grounds under Leyndell -> Altus (Leyndell folded in)
     "m39_20_00_00": "Mt. Gelmir",
+    # Catacombs whose checks were UNPLACED (flag_prefix, map PENDING) -> never surfaced an override,
+    # so they hit the coarse "Hero's Graves (Catacombs)"->Limgrave bucket. Regions are the AUTHORITATIVE
+    # grace join (grace_flags mapTile -> grace_region_map play_region -> PLAY2AP); confirmed vs in-game.
+    # Their checks are recovered onto these maps below (map-recovery loop) so the catacomb boss sweeps them.
+    "m30_01_00_00": "Weeping Peninsula",   # Impaler's Catacombs
+    "m30_02_00_00": "Limgrave",            # Stormfoot Catacombs
+    "m30_04_00_00": "Limgrave",            # Murkwater Catacombs
+    "m30_06_00_00": "Liurnia of the Lakes",# Cliffbottom Catacombs
+    "m30_08_00_00": "Altus Plateau",       # Sainted Hero's Grave
+    "m30_12_00_00": "Altus Plateau",       # Unsightly Catacombs
+    "m30_14_00_00": "Caelid",              # Minor Erdtree Catacombs
+    "m30_15_00_00": "Caelid",              # Caelid Catacombs
+    "m30_16_00_00": "Caelid",              # War-Dead Catacombs
 }
+# Map recovery for UNPLACED dungeon checks: a catacomb/cave/tunnel pickup identified only by flag
+# prefix (method 'flag_prefix', map PENDING) still encodes its map in the flag (30.XX.. -> m30_XX), so
+# recover map = mAA_BB_00_00 -- IF that map is a known dungeon (in DUNGEON_REGION_OVERRIDE). Without
+# this the check has no map, so region_of hits the coarse Catacombs->Limgrave bucket AND the map-local
+# boss sweep for that dungeon can't grant it (9 catacombs were left with empty sweeps). region_of then
+# regions it via DUNGEON_REGION_OVERRIDE (the recovered map id), and Phase 3b sweeps it map-locally.
+for _rr in _ALLROWS:
+    if _rr.get("method") != "flag_prefix" or (_rr.get("map") or "") not in ("", "PENDING"):
+        continue
+    _fs = str(_rr.get("flag") or "")
+    if len(_fs) >= 8 and _fs[:2] in ("30", "31", "32"):
+        _rec = f"m{_fs[:2]}_{_fs[2:4]}_00_00"
+        if _rec in DUNGEON_REGION_OVERRIDE:
+            _rr["map"] = _rec
+
 
 # ---- Curated GLOBAL recovery (matt-free): common-event drops are excluded by default (they are not
 # region-locatable and mostly generic). Only the flags listed here (physick tears etc., hand-assigned
@@ -636,59 +671,6 @@ with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
 print(f"region_graces: {sum(len(v) for v in REGION_GRACE_POINTS.values())} graces across {len(REGION_GRACE_POINTS)} regions")
 
 
-# ---- Phase 3b dungeon sweeps: boss-defeat flag per dungeon (DarkScript EMEVD) -> member checks.
-# Matt-free: HandleBossDefeatAndDisplayBanner(<flag>) in the decompiled event scripts is the boss
-# trigger; members are that dungeon map's greenfield checks. FLAG-KEYED (a small client handler to
-# watch the boss-defeat flag activates these in-game -- P3b-client). Skipped if event/ is absent.
-import re as _re2
-_EVDIR = os.path.join(AR, "event")
-_map_boss = defaultdict(list)
-if os.path.isdir(_EVDIR):
-    for _fn in os.listdir(_EVDIR):
-        _mm = _re2.match(r"(m\d\d_\d\d)_\d\d_\d\d\.emevd\.dcx\.js$", _fn)
-        if not _mm:
-            continue
-        _txt = open(os.path.join(_EVDIR, _fn), encoding="utf-8", errors="replace").read()
-        for _fl in _re2.findall(r"HandleBossDefeatAndDisplayBanner\((\d+),", _txt):
-            _map_boss[_mm.group(1)].append(int(_fl))
-def _mp2(m):
-    if not m or m == "PENDING":
-        return None
-    q = m.split("_"); return "_".join(q[:2])
-# REGION-WIDE sweep (2026-07-08, Alaric): a boss-defeat flag sweeps its boss's WHOLE region (every
-# map in the region), not just the boss's own map -- so felling a region boss clears the region on a
-# dungeon_sweep:all run, and cross-map region checks (e.g. m10_01 Stormveil sub-areas) aren't left
-# dead. Members are keyed by the check's CORRECTED region (region_of, incl. FLAG_REGION_OVERRIDE), so
-# a re-regioned check follows its real region's boss, not the map it was mis-scanned into.
-_mem_region = defaultdict(list); _mreg = {}
-for _i, _r in enumerate(rows):
-    if _r["method"] in ("treasure", "emevd"):
-        _reg = region_of(_r)
-        _mem_region[_reg].append(BASE_AP + _i)
-        _mp = _mp2(_r["map"])
-        if _mp:
-            _mreg.setdefault(_mp, _reg)
-DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
-for _mp, _flags in _map_boss.items():
-    _reg = _mreg.get(_mp, HUB)
-    _members = _mem_region.get(_reg)
-    if not _members:
-        continue
-    for _fl in _flags:
-        DUNGEON_SWEEPS[_fl] = sorted(set(_members))
-        SWEEP_REGION[_fl] = _reg
-OUT_SWEEP = os.path.join(HERE, "eldenring_gf", "boss_sweeps.py")
-with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
-    f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Dungeon sweeps: boss-defeat flag (DarkScript EMEVD) ->\n')
-    f.write('member check ap-ids + region. Matt-free. Needs a client flag-watch handler to fire in-game."""\n')
-    f.write("DUNGEON_SWEEPS = {\n")
-    for _fl in sorted(DUNGEON_SWEEPS):
-        f.write(f"    {_fl}: {DUNGEON_SWEEPS[_fl]},\n")
-    f.write("}\n\nSWEEP_REGION = {\n")
-    for _fl in sorted(SWEEP_REGION):
-        f.write(f"    {_fl}: {SWEEP_REGION[_fl]!r},\n")
-    f.write("}\n")
-print(f"boss_sweeps: {len(DUNGEON_SWEEPS)} dungeon triggers, {sum(len(v) for v in DUNGEON_SWEEPS.values())} member links across {len(set(SWEEP_REGION.values()))} regions")
 
 
 # ---- Phase 4 shops: shop-purchase checks keyed by greenfield ap-id -> ShopLineupParam stock flag.
@@ -1063,3 +1045,93 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
         f.write(f'    {_aid}: {loc_tags[_aid]!r},\n')
     f.write('}\n\nTAG_COUNTS = ' + repr(dict(sorted(_tagcount.items()))) + '\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
+
+
+# ---- Phase 3b boss sweeps (2026-07-08 rework -- scope by boss CLASS). Placed AFTER location_tags so
+# the field filler-only cut sees the FULL tag set (GreatRune/KeyItem/Legendary added above). Triggers
+# come from the authoritative DisplayBossHealthBar set (tools/datamine_boss_healthbars.py ->
+# BOSS_HEALTHBARS); the trigger flag IS the boss entity id (== its defeat flag, SetEventFlagID(entity,
+# ON) on death). Member scope by class:
+#   legacy / interior (region majors)    -> REGION-WIDE  (felling clears the region; 236cd05 behaviour)
+#   catacomb / cave / tunnel (m30/31/32) -> MAP-LOCAL     (only that dungeon map's own checks)
+#   field / overworld (m60)              -> OWN-TILE + FILLER-ONLY (checks on the boss's m60_XX_YY tile
+#                                           minus any important/big-ticket-tagged check)
+# Recovered flag_prefix dungeon checks are swept map-locally, so a catacomb boss grants its whole
+# catacomb. Falls back to the pre-rework region-wide banner scan if BOSS_HEALTHBARS is unavailable.
+def _mp2(m):
+    if not m or m == "PENDING":
+        return None
+    return "_".join(m.split("_")[:2])
+def _is_dungeon(_mp):
+    return bool(_mp) and _mp[:3] in ("m30", "m31", "m32")
+# = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
+# tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
+_FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
+                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop"})
+_mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
+_mreg = {}; _ap_region = {}
+for _i, _r in enumerate(rows):
+    _swept = _r["method"] in ("treasure", "emevd") or (
+        _r["method"] == "flag_prefix" and _is_dungeon(_mp2(_r["map"])))
+    if not _swept:
+        continue
+    _ap = BASE_AP + _i; _reg = region_of(_r); _mp = _mp2(_r["map"])
+    _ap_region[_ap] = _reg
+    _mem_region[_reg].append(_ap)
+    if _mp:
+        _mem_map[_mp].append(_ap); _mreg.setdefault(_mp, _reg)
+    _mt = re.match(r"(m60_\d\d_\d\d)", _r["map"] or "")
+    if _mt:
+        _mem_tile[_mt.group(1)].append(_ap)
+def _filler_only(_aps):
+    return [_a for _a in _aps if not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(_a, ())))]
+
+DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
+if BOSS_HEALTHBARS:
+    for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
+        _bmap, _tile, _cls, _name = _info
+        if _cls == "field":
+            _members = _filler_only(_mem_tile.get(_tile, []))
+        elif _cls in ("catacomb", "cave", "tunnel"):
+            _members = _mem_map.get(_bmap, [])
+        else:  # legacy / interior region major -> region-wide
+            _members = _mem_region.get(_mreg.get(_bmap, HUB), [])
+        _members = sorted(set(_members))
+        if not _members:
+            continue  # e.g. a field boss whose tile has no (non-important) checks -> no sweep
+        DUNGEON_SWEEPS[_ent] = _members
+        # region label from a member's OWN region (own-tile/map-local members are region-consistent;
+        # avoids a coarse m60_XX bucket mislabelling a field boss whose tile straddles a region).
+        SWEEP_REGION[_ent] = _ap_region.get(_members[0], _mreg.get(_bmap, HUB))
+else:
+    # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
+    import re as _re2
+    _EVDIR = os.path.join(AR, "event"); _map_boss = defaultdict(list)
+    if os.path.isdir(_EVDIR):
+        for _fn in os.listdir(_EVDIR):
+            _mm = _re2.match(r"(m\d\d_\d\d)_\d\d_\d\d\.emevd\.dcx\.js$", _fn)
+            if not _mm:
+                continue
+            _txt = open(os.path.join(_EVDIR, _fn), encoding="utf-8", errors="replace").read()
+            for _fl in _re2.findall(r"HandleBossDefeatAndDisplayBanner\((\d+),", _txt):
+                _map_boss[_mm.group(1)].append(int(_fl))
+    for _mp, _flags in _map_boss.items():
+        _members = _mem_region.get(_mreg.get(_mp, HUB))
+        if not _members:
+            continue
+        for _fl in _flags:
+            DUNGEON_SWEEPS[_fl] = sorted(set(_members)); SWEEP_REGION[_fl] = _mreg.get(_mp, HUB)
+
+OUT_SWEEP = os.path.join(HERE, "eldenring_gf", "boss_sweeps.py")
+with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
+    f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Boss sweeps: defeat flag (boss entity id) ->\n')
+    f.write('member check ap-ids + region. Scope by class: legacy=region-wide, catacomb/cave/tunnel=map-local, field=own-tile+filler-only. Matt-free. Needs a client flag-watch handler."""\n')
+    f.write("DUNGEON_SWEEPS = {\n")
+    for _fl in sorted(DUNGEON_SWEEPS):
+        f.write(f"    {_fl}: {DUNGEON_SWEEPS[_fl]},\n")
+    f.write("}\n\nSWEEP_REGION = {\n")
+    for _fl in sorted(SWEEP_REGION):
+        f.write(f"    {_fl}: {SWEEP_REGION[_fl]!r},\n")
+    f.write("}\n")
+print(f"boss_sweeps: {len(DUNGEON_SWEEPS)} triggers, {sum(len(v) for v in DUNGEON_SWEEPS.values())} member links across {len(set(SWEEP_REGION.values()))} regions "
+      f"({'healthbar-classed' if BOSS_HEALTHBARS else 'FALLBACK region-wide banner scan'})")
