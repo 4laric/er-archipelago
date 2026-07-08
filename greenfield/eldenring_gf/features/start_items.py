@@ -22,6 +22,15 @@ _STEED_WHISTLE_FULL_ID = 0x40000000 | 130
 # Cerulean Tears = GOODS 1051; FullID = id | GOODS_NIBBLE.
 _CRIMSON_FLASK_FULL_ID = 0x40000000 | 1001
 _CERULEAN_FLASK_FULL_ID = 0x40000000 | 1051
+# Pot vessels: Cracked Pot = GOODS 9500, Ritual Pot = GOODS 9501. Held throwing-pot capacity == your
+# Cracked Pot count (Ritual Pots for ritual-type pots, e.g. Rancor Pot). Without vessels a granted pot
+# (curated_filler stack OR an item_shuffle vanilla pot) overflows straight to STORAGE and can't be
+# thrown. The client grants startItems one-per-list-entry (grant_full_id(id,1), index-tracked), so we
+# just repeat the FullID N times. Additive -- shuffled vessels stay in the pool as bonus capacity.
+_CRACKED_POT_FULL_ID = 0x40000000 | 9500
+_RITUAL_POT_FULL_ID = 0x40000000 | 9501
+_START_CRACKED_POTS = 10   # throwing-pot capacity at spawn (Alaric playtest)
+_START_RITUAL_POTS = 4     # ritual-pot capacity (Rancor Pot etc.)
 
 
 class StartWithTorch(DefaultOnToggle):
@@ -57,4 +66,8 @@ class StartItems(Feature):
         if world.options.start_with_flasks.value:
             items.append(_CRIMSON_FLASK_FULL_ID)
             items.append(_CERULEAN_FLASK_FULL_ID)
+        _shuf = getattr(world.options, "item_shuffle", None)
+        if _shuf is not None and _shuf.value:
+            items += [_CRACKED_POT_FULL_ID] * _START_CRACKED_POTS
+            items += [_RITUAL_POT_FULL_ID] * _START_RITUAL_POTS
         return {contract.START_ITEMS: items}
