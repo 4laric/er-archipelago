@@ -348,7 +348,7 @@ for _rr in _ALLROWS:
     if _rr.get("method") != "flag_prefix" or (_rr.get("map") or "") not in ("", "PENDING"):
         continue
     _fs = str(_rr.get("flag") or "")
-    if len(_fs) >= 8 and _fs[:2] in ("30", "31", "32"):
+    if len(_fs) >= 8 and _fs[:2] in ("30", "31", "32", "34", "39", "40", "41", "42", "43"):
         _rec = f"m{_fs[:2]}_{_fs[2:4]}_00_00"
         if _rec in DUNGEON_REGION_OVERRIDE:
             _rr["map"] = _rec
@@ -1063,7 +1063,7 @@ def _mp2(m):
         return None
     return "_".join(m.split("_")[:2])
 def _is_dungeon(_mp):
-    return bool(_mp) and _mp[:3] in ("m30", "m31", "m32")
+    return bool(_mp) and _mp[:3] in ("m30", "m31", "m32", "m34", "m39", "m40", "m41", "m42", "m43")
 # = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
@@ -1092,7 +1092,7 @@ if BOSS_HEALTHBARS:
         _bmap, _tile, _cls, _name = _info
         if _cls == "field":
             _members = _filler_only(_mem_tile.get(_tile, []))
-        elif _cls in ("catacomb", "cave", "tunnel"):
+        elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> region-wide
             _members = _mem_region.get(_mreg.get(_bmap, HUB), [])
