@@ -54,12 +54,14 @@ def select_priority(world):
     opt = getattr(world.options, "curated_fill", None)
     if not (opt is not None and opt.value) or not LOCATION_TAGS:
         return []
+    btl = getattr(world.options, "big_ticket_locations", None)
+    sel = set(btl.value) if btl is not None else None
     selected = []
     for loc in world.multiworld.get_locations(world.player):
         ap = getattr(loc, "address", None)
         if ap is None:
             continue
-        if is_big_ticket(LOCATION_TAGS.get(ap)):
+        if is_big_ticket(LOCATION_TAGS.get(ap), sel):
             selected.append(loc)
     return selected
 

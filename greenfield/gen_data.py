@@ -10,6 +10,18 @@ REPO=os.path.abspath(os.path.join(HERE,".."))
 AR=os.path.join(REPO,"elden_ring_artifacts")
 OUT=os.path.join(HERE,"eldenring_gf","data.py")
 HUB="Roundtable Hold"
+# Boss-drop flags: boss-healthbar enemy DROPS, datamined from EMEVD common boss-handlers (matt-free).
+# Committed generated module eldenring_gf/boss_drops.py (tools/datamine_boss_drops.py, run before this
+# in gen-greenfield.ps1). Fallback = empty so gen_data still runs standalone (Boss tag simply empty).
+import importlib.util as _ilu
+try:
+    _bspec = _ilu.spec_from_file_location("_boss_drops", os.path.join(HERE, "eldenring_gf", "boss_drops.py"))
+    _bmod = _ilu.module_from_spec(_bspec); _bspec.loader.exec_module(_bmod)
+    _BOSS_DROP_FLAGS = frozenset(_bmod.BOSS_DROP_FLAGS)
+except Exception as _e:
+    _BOSS_DROP_FLAGS = frozenset()
+    print(f"[gen_data] boss_drops.py unavailable ({_e!r}); Boss tag empty -- run tools/datamine_boss_drops.py")
+HUB="Roundtable Hold"
 SKIP={"global","global_filler","shop_reference"}
 # Map-fragment pickups are granted via the RE'd map-reveal FLAG path (the client's reveal_all_maps
 # sets these exact flags), so they must NOT also be AP checks -- otherwise revealing the map trips
@@ -42,26 +54,26 @@ PLAY2AP={'61000':'Limgrave','61001':'Limgrave','61002':'Weeping Peninsula','6200
  '62001':'Liurnia of the Lakes','62002':'Liurnia of the Lakes','63000':'Altus Plateau','63001':'Mt. Gelmir',
  '63002':'Altus Plateau','63003':'Altus Plateau','64000':'Caelid','64001':'Caelid','64002':'Caelid',
  '65000':'Mountaintops of the Giants','65001':'Mountaintops of the Giants','65002':'Consecrated Snowfield'}
-REGION_MAP={'Land of Shadow (DLC)':'Land of Shadow','Eternal Cities & Underground Rivers':'Eternal Cities',
- 'Mohgwyn / Consecrated-adjacent':'Mohgwyn Palace','Mohgwyn Palace':'Mohgwyn Palace','Leyndell / Roundtable / Shunning-Grounds':'Leyndell',
+REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Underground Rivers':'Eternal Cities',
+ 'Mohgwyn / Consecrated-adjacent':'Mohgwyn Palace','Mohgwyn Palace':'Mohgwyn Palace','Leyndell / Roundtable / Shunning-Grounds':'Altus Plateau',
  'DLC Interior':'Shadow Keep','Caves':'Limgrave',"Roundtable Hold":'Roundtable Hold','Stormveil Castle':'Stormveil Castle',
  'Stormveil (assoc.)':'Stormveil Castle',"Miquella's Haligtree & Elphael":"Miquella's Haligtree",
  "Hero's Graves (Catacombs)":'Limgrave','Crumbling Farum Azula':'Farum Azula','Divine Tower':'Liurnia of the Lakes',
- 'Raya Lucaria Academy':'Raya Lucaria Academy','Volcano Manor / Mt. Gelmir':'Mt. Gelmir','Volcano Manor (Rykard)':'Mt. Gelmir','Volcano Manor':'Mt. Gelmir',
- 'DLC Dungeon':'Land of Shadow','DLC Legacy Dungeon':'Belurat','Tunnels':'Caelid','Limgrave':'Limgrave',
+ 'Raya Lucaria Academy':'Liurnia of the Lakes','Volcano Manor / Mt. Gelmir':'Mt. Gelmir','Volcano Manor (Rykard)':'Mt. Gelmir','Volcano Manor':'Mt. Gelmir',
+ 'DLC Dungeon':'Gravesite Plain','DLC Legacy Dungeon':'Belurat','Tunnels':'Caelid','Limgrave':'Limgrave',
  'Limgrave (Church of Elleh)':'Limgrave','Limgrave (Waypoint Ruins)':'Limgrave','Liurnia of the Lakes':'Liurnia of the Lakes',
  "Liurnia of the Lakes (Seluvis's Rise)":'Liurnia of the Lakes',"Liurnia of the Lakes (Ranni's Rise)":'Liurnia of the Lakes',
  'Weeping Peninsula':'Weeping Peninsula','Siofra River / Nokron':'Eternal Cities','Caelid':'Caelid',
- 'Caelid (Redmane Castle)':'Caelid','Caelid (Cathedral of Dragon Communion)':'Caelid','Gravesite Plain (DLC)':'Land of Shadow',
+ 'Caelid (Redmane Castle)':'Caelid','Caelid (Cathedral of Dragon Communion)':'Caelid','Gravesite Plain (DLC)':'Gravesite Plain','Gravesite Plain':'Gravesite Plain',
  'Cathedral of Manus Metyr (DLC)':'Scadu Altus','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Consecrated Snowfield',
  'Shadow Keep (DLC)':'Shadow Keep','Altus Plateau':'Altus Plateau','Jagged Peak (DLC)':'Jagged Peak',
- 'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Land of Shadow',
+ 'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Gravesite Plain',
  'Abyssal Woods (DLC)':'Abyssal Woods','Mountaintops of the Giants':'Mountaintops of the Giants',
- 'Leyndell, Royal Capital':'Leyndell','Leyndell (Ashen Capital)':'Leyndell','Nokron / Siofra (Ancestor Spirit)':'Eternal Cities',
- 'Lake of Rot (Astel)':'Eternal Cities','Deeproot Depths (Lichdragon Fortissax)':'Eternal Cities','Fractured Marika (final)':'Leyndell',
- 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Land of Shadow','Stone Coffin Fissure (DLC)':'Land of Shadow',
- "Midra's Manse (DLC)":'Abyssal Woods','Church of the Bud (DLC)':'Scadu Altus','Castle Ensis (DLC)':'Belurat',
- 'm22':'Eternal Cities','m28':'Land of Shadow'}
+ 'Leyndell, Royal Capital':'Altus Plateau','Leyndell (Ashen Capital)':'Altus Plateau','Nokron / Siofra (Ancestor Spirit)':'Eternal Cities',
+ 'Lake of Rot (Astel)':'Eternal Cities','Deeproot Depths (Lichdragon Fortissax)':'Eternal Cities','Fractured Marika (final)':'Altus Plateau',
+ 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir-Ilim','Stone Coffin Fissure (DLC)':'Gravesite Plain',
+ "Midra's Manse (DLC)":'Abyssal Woods','Church of the Bud (DLC)':'Ancient Ruins of Rauh','Castle Ensis (DLC)':'Gravesite Plain',
+ 'm22':'Eternal Cities','m28':'Gravesite Plain'}
 
 def _region_of_raw(r):
     reg=r['region']; meth=r['method']
@@ -77,7 +89,11 @@ def _region_of_raw(r):
 def _loc_tags(r):
     nm = (r['item_name'] or '').lower(); meth = r['method']; shop = meth.startswith('shop')
     t = []
-    if meth == 'boss_arena': t.append('Boss')
+    # Boss = boss-healthbar enemy DROP (datamined from EMEVD common boss-handlers 90005860/861/880 ->
+    # entity+rewardLot; field/evergaol/dragon, remembrance/great-rune majors excluded). Replaces the
+    # old method=='boss_arena' tagging -- those 23 majors were a subset of Remembrance/GreatRune.
+    _fl = (r.get('flag') or '').strip()
+    if _fl.lstrip('-').isdigit() and int(_fl) in _BOSS_DROP_FLAGS: t.append('Boss')
     if 'remembrance' in nm and not shop: t.append('Remembrance')
     if 'golden seed' in nm and not shop: t.append('Seedtree')
     if 'sacred tear' in nm and not shop: t.append('Church')
@@ -220,7 +236,7 @@ DUNGEON_REGION_OVERRIDE = {
     "m32_05_00_00": "Altus Plateau",
     "m32_07_00_00": "Caelid",
     "m34_11_00_00": "Liurnia of the Lakes",  # Liurnia Divine Tower / Study Hall (was Limgrave)
-    "m34_14_00_00": "Leyndell",
+    "m34_14_00_00": "Altus Plateau",  # was Leyndell (folded into Altus, capstone re-carve)
     # Divine Towers of Limgrave / West Altus / Caelid are BASE GAME, but region_map.csv marks every
     # m34 tile "DLC Dungeon"; without an override they misbundle into Land of Shadow (found by the
     # grace-region gate 2026-07-06; correct region = the grace independent play_region_id cluster).
@@ -234,7 +250,7 @@ DUNGEON_REGION_OVERRIDE = {
     # Forsaken Depths, 73503 Leyndell Catacombs, 73504 Frenzied Flame Proscription) misbundle into
     # Liurnia's lock (in-game report 2026-07-07; grace tile m35_00 inherits the m35 checks' region via
     # _pref2maj). Correct region = Leyndell (REGION_ID_MAP.md 35000 = Subterranean Shunning-Grounds).
-    "m35_00_00_00": "Leyndell",
+    "m35_00_00_00": "Altus Plateau",  # Shunning-Grounds under Leyndell -> Altus (Leyndell folded in)
     "m39_20_00_00": "Mt. Gelmir",
 }
 
@@ -264,13 +280,13 @@ GLOBAL_RECOVER = {
     65300: "Liurnia of the Lakes",     # Lightning-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
     65310: "Liurnia of the Lakes",     # Holy-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
     # DLC furnace-golem tears.
-    65400: "Land of Shadow",           # Viridian Hidden Tear (Gravesite Plains)
+    65400: "Gravesite Plain",          # Viridian Hidden Tear (Gravesite Plains)
     65410: "Scadu Altus",              # Crimsonburst Dried Tear
     65420: "Scadu Altus",              # Crimson-Sapping Cracked Tear (Ancient Ruins of Rauh golem)
     65430: "Scadu Altus",              # Cerulean-Sapping Cracked Tear
     65440: "Scadu Altus",              # Oil-Soaked Tear
     65450: "Scadu Altus",              # Bloodsucking Cracked Tear
-    65470: "Land of Shadow",           # Deflecting Hardtear (Gravesite Plains golem)
+    65470: "Gravesite Plain",          # Deflecting Hardtear (Gravesite Plains golem)
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
     510340: HUB,
     1049557700: HUB,
@@ -509,7 +525,7 @@ for r in rows:
 #   flag 14000800 verified in elden_ring_artifacts/event/m14_00_00_00.emevd.dcx.js.
 # (region, defeat_flag, reward_join_flag, reward_name)
 _BOSS_SPECIALS = [
-    ("Raya Lucaria Academy", 14000800, 197, "Remembrance of the Full Moon Queen"),
+    ("Liurnia of the Lakes", 14000800, 197, "Remembrance of the Full Moon Queen"),  # Rennala; Raya Lucaria folded into Liurnia
 ]
 for _reg, _dfl, _jfl, _nm in _BOSS_SPECIALS:
     _aid = _flag2apid.get(_jfl)
@@ -951,6 +967,8 @@ for _ap, _inm in LOCATION_ITEM.items():
         _extra.append("KeyItem")
     if ITEM_TIERS.get(_inm) == 3:
         _extra.append("Legendary")
+        if "Shop" in loc_tags.get(_ap, ()):   # shop slot holding a legendary = Enia's remembrance store
+            _extra.append("EniaShop")
     if _extra:
         _cur = loc_tags.setdefault(_ap, [])
         for _e in _extra:

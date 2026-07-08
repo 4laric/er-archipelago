@@ -8,25 +8,30 @@ set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P
 from .data import REGIONS
 
 # Lock always required (capital ending). Always kept so the seed stays winnable at any num_regions.
-GOAL_REGION = "Leyndell"
+# Capstone re-carve: Leyndell folded into Altus Plateau, so the capital-ending checks (Morgott,
+# Ashen Capital, Fractured Marika) now live in Altus's region -> Altus Plateau is the goal region.
+GOAL_REGION = "Altus Plateau"
 
 # Fixed progression path (Limgrave-first). num_regions_order='spine' keeps the first N of this;
 # 'rolled' keeps N random regions. Must be a permutation of REGIONS (guarded by test_gf_data).
 SPINE = [
     "Limgrave", "Weeping Peninsula", "Stormveil Castle", "Liurnia of the Lakes",
-    "Raya Lucaria Academy", "Caelid", "Altus Plateau", "Mt. Gelmir",
-    "Leyndell", "Mountaintops of the Giants", "Consecrated Snowfield", "Miquella's Haligtree",
+    "Caelid", "Altus Plateau", "Mt. Gelmir",
+    "Mountaintops of the Giants", "Consecrated Snowfield", "Miquella's Haligtree",
     "Farum Azula", "Mohgwyn Palace", "Eternal Cities",
-    # DLC (rides as plain lock gates -- SPEC-PARITY.md P7)
-    "Land of Shadow", "Belurat", "Scadu Altus", "Shadow Keep", "Jagged Peak", "Abyssal Woods",
+    # DLC (rides as plain lock gates -- SPEC-PARITY.md P7). Capstone re-carve split the old
+    # 'Land of Shadow' catch-all into Gravesite Plain + Ancient Ruins of Rauh (Romina) + Enir-Ilim.
+    "Gravesite Plain", "Belurat", "Scadu Altus", "Shadow Keep",
+    "Ancient Ruins of Rauh", "Enir-Ilim", "Jagged Peak", "Abyssal Woods",
 ]
 
-# The Shadow of the Erdtree DLC regions. These are the last 6 entries of SPINE and are the pool the
+# The Shadow of the Erdtree DLC regions. These are the last 8 entries of SPINE and are the pool the
 # EnableDLC / DLCOnly toggles filter on (core.py). Kept as a frozenset for O(1) membership; the
 # base-game pool is REGIONS minus these. Pure data (no AP import) so region-scope filtering can run
 # in the data-invariant gate.
 DLC_REGIONS = frozenset({
-    "Land of Shadow", "Belurat", "Scadu Altus", "Shadow Keep", "Jagged Peak", "Abyssal Woods",
+    "Gravesite Plain", "Belurat", "Scadu Altus", "Shadow Keep",
+    "Ancient Ruins of Rauh", "Enir-Ilim", "Jagged Peak", "Abyssal Woods",
 })
 
 

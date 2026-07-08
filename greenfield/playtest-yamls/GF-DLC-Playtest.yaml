@@ -1,0 +1,71 @@
+# ============================================================================
+#  GREENFIELD ELDEN RING -- DLC playtest  (Shadow of the Erdtree included)
+# ============================================================================
+#  PURPOSE: exercise the DLC as a v0.2 headline candidate. Per the DLC-readiness
+#  audit (DLC-READINESS-AUDIT.md):
+#    * Use enable_dlc, NOT dlc_only (dlc_only has a goal-collapse edge + no
+#      auto-entry warp in greenfield).
+#    * num_regions: 0 keeps ALL 21 regions so the 6 DLC regions are guaranteed
+#      in the chain -- you reach the DLC by collecting the Land of Shadow Lock.
+#    * DLC currently plays as ~3 effective lock-regions: Scadu Altus / Jagged
+#      Peak / Abyssal Woods fold into Land of Shadow's grace bundle, so the
+#      Land of Shadow Lock opens all four at once.
+#    * DLC ENTRY test: after receiving the Land of Shadow Lock, open the map and
+#      fast-travel to a Gravesite Plain grace -- confirm m61 loads (no kick/crash).
+#      Greenfield already sets the map/view/grace flags matt's dlc_only used
+#      (82001 + 62080-84 + the DLC graces), so this should just work.
+#
+#  ISOLATION: boss_keys + attunement are OFF here on purpose -- this run tests
+#  DLC alone, so a crash points at DLC and not the new boss-lock features. Flip
+#  boss_keys: true once DLC entry + content are confirmed stable.
+#
+#  game MUST match the installed world: "Elden Ring (Greenfield)" today, or
+#  "EldenRing" after patch_gf_rename_and_version.py is applied.
+#  Run: copy over greenfield\players\Greenfield.yaml (solo) then gen.
+# ============================================================================
+name: Alaric
+description: Greenfield ER -- DLC playtest (full world, enable_dlc, boss_keys off)
+game: "Elden Ring (Greenfield)"
+
+"Elden Ring (Greenfield)":
+
+  # ---- The Shattering (full world so DLC is guaranteed in play) ------------
+  num_regions: 0               # 0 = ALL 21 regions kept (base + 6 DLC); reach DLC via its Lock.
+  num_regions_order: spine     # moot at num_regions:0 (all kept); spine = Limgrave-first when < 22.
+  ending_condition: region_locks
+
+  # ---- DLC ----------------------------------------------------------------
+  enable_dlc: true             # Shadow of the Erdtree regions in play (this is the point of the run).
+  dlc_only: false              # NOT dlc_only -- audit flagged its goal-collapse + missing auto-entry.
+  global_scadutree_blessing: player_only  # off | player_only | scaled -- exercises the DLC blessing.
+
+  # ---- Real item randomizer -----------------------------------------------
+  item_shuffle: true
+  pool_builder: true
+  pool_builder_intensity: max
+  pool_builder_juice_cap: 0
+
+  # ---- Boss features OFF (isolate DLC as the variable this run) ------------
+  boss_keys: false
+  attunement_gate: false
+  dungeon_sweep: all           # kill a dungeon boss -> auto-register its checks (needs the P3b client).
+  boss_lock_placement: own_region   # inert without boss_keys.
+
+  # ---- Warp-in / maps -----------------------------------------------------
+  grace_rando: false           # bundle: a region lock lights ALL its graces.
+  reveal_all_maps: true        # sets the base + DLC map-reveal flags so fast-travel works (incl. DLC).
+
+  # ---- QoL / difficulty ---------------------------------------------------
+  start_with_torch: true
+  no_weapon_requirements: true
+  start_with_region_lock: true # start at Roundtable with one random region already unlocked.
+  early_leveling: true
+  completion_scaling_floor: 0
+  flatten_regular_upgrades: 3
+
+  # ---- Multiplayer --------------------------------------------------------
+  death_link: false
+
+  # ---- Archipelago common -------------------------------------------------
+  accessibility: minimal
+  progression_balancing: 50

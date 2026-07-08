@@ -1,13 +1,11 @@
-"""curated_fill + big-ticket tags tests.
+"""curated_fill + configurable big-ticket tests.
 
-Pure-data: the new LOCATION_TAGS types (Legendary/GreatRune/KeyItem) are generated and selectable in
-important_locations. WorldTestBase: curated_fill marks every big-ticket check PRIORITY (advancement
-gets first crack; the excess fall through to filler), and the base test_fill on each subclass proves
-generation stays beatable (no FillError) with it on.
-
-Big-ticket is defined by contract.is_big_ticket: a BIG_TICKET_TYPES tag AND no BIG_TICKET_EXCLUDE_TAGS
-tag. Shop is excluded, so Enia's remembrance store (Shop+Legendary) never gets a region Lock nor a
-tracker star, even though those items keep their Legendary tag for important_locations / display.
+Big-ticket is defined by contract.is_big_ticket(tags, selected): a SELECTED class tag AND no
+BIG_TICKET_EXCLUDE_TAGS tag. The selection is the `big_ticket_locations` OptionList (same vocabulary
+as important_locations); default = Boss/Remembrance/Legendary/GreatRune/KeyItem. Enia's remembrance
+store carries the internal `EniaShop` tag and is a permanent hard-exclude, so selecting Shop turns on
+the OTHER shops but never Enia. features/big_ticket_locations ships the per-seed id list to the client
+as `bigTicketLocations`, and curated_fill routes region Locks onto the same set -- one source, no drift.
 """
 import pytest
 
@@ -15,71 +13,93 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.location_tags import LOCATION_TAGS, TAG_COUNTS  # noqa: E402
 from worlds.eldenring_gf.contract import (  # noqa: E402
-    BIG_TICKET_TYPES, BIG_TICKET_EXCLUDE_TAGS, is_big_ticket,
+    BIG_TICKET_TYPES, BIG_TICKET_EXCLUDE_TAGS, IMPORTANT_LOCATION_TYPES, is_big_ticket,
+    BIG_TICKET_LOCATIONS,
 )
 from worlds.eldenring_gf.features.curated_fill import select_priority  # noqa: E402
 from worlds.eldenring_gf.features.important_locations import _VALID  # noqa: E402
+from worlds.eldenring_gf.features.big_ticket_locations import BigTicketLocations  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
 
 
 # ---- pure-data guards -------------------------------------------------------------------------
 def test_new_big_ticket_tags_generated():
-    """gen_data derives Legendary (rarity==3), GreatRune, KeyItem into LOCATION_TAGS."""
     for t in ("Legendary", "GreatRune", "KeyItem"):
         assert TAG_COUNTS.get(t, 0) > 0, f"{t} should tag some locations"
     assert TAG_COUNTS["Legendary"] > TAG_COUNTS["GreatRune"], "many legendaries, few great runes"
 
 
-def test_new_tags_selectable_in_important_locations():
-    for t in ("Legendary", "GreatRune", "KeyItem"):
-        assert t in _VALID, f"{t} must be a valid important_locations type"
+def test_vocabulary_shared_with_important_locations():
+    assert list(_VALID) == list(IMPORTANT_LOCATION_TYPES)
+    assert BigTicketLocations.valid_keys == frozenset(IMPORTANT_LOCATION_TYPES)
+    assert set(BigTicketLocations.default) == set(BIG_TICKET_TYPES)
 
 
-def test_big_ticket_set():
+def test_big_ticket_default_set():
     assert BIG_TICKET_TYPES == {"Boss", "Remembrance", "Legendary", "GreatRune", "KeyItem"}
+    assert BIG_TICKET_EXCLUDE_TAGS == {"EniaShop"}
 
 
-def test_shop_excluded_from_big_ticket():
-    """Enia's remembrance store (Shop+Legendary) is buy-only -> excluded from big-ticket, but the
-    Legendary TAG itself is untouched. World-drop legendaries (no Shop) stay big-ticket."""
-    assert BIG_TICKET_EXCLUDE_TAGS == {"Shop"}
-    assert not is_big_ticket(["Shop", "Legendary"])   # Enia gear: legendary, but buy-only
-    assert is_big_ticket(["Legendary"])               # world-drop legendary
-    assert is_big_ticket(["Boss"])
+def test_is_big_ticket_semantics():
+    # default selection
+    assert is_big_ticket(["Legendary"]) and is_big_ticket(["Boss"])
     assert not is_big_ticket([]) and not is_big_ticket(None)
-    # real table: EVERY Shop+Legendary row (Enia) is excluded; there is at least one.
-    shop_leg = [i for i, t in LOCATION_TAGS.items() if "Shop" in t and "Legendary" in t]
-    assert shop_leg, "expected Enia shop-legendary rows in the table"
-    assert all(not is_big_ticket(LOCATION_TAGS[i]) for i in shop_leg), "no Enia slot may be big-ticket"
-    # world-drop legendaries remain big-ticket
-    wd = [i for i, t in LOCATION_TAGS.items() if "Legendary" in t and "Shop" not in t]
-    assert wd and all(is_big_ticket(LOCATION_TAGS[i]) for i in wd), "world-drop legendaries stay big-ticket"
-    # no Shop-tagged location is big-ticket at all
-    assert not any(is_big_ticket(t) for t in LOCATION_TAGS.values() if "Shop" in t)
+    assert not is_big_ticket(["Shop"])                    # Shop not in default
+    # Shop is selectable -> turns on
+    assert is_big_ticket(["Shop"], {"Shop"})
+    # Enia (EniaShop) is a permanent hard-exclude under ANY selection
+    enia = ["Shop", "Legendary", "EniaShop"]
+    assert not is_big_ticket(enia)
+    assert not is_big_ticket(enia, {"Shop", "Legendary", "Boss"})
+    assert not is_big_ticket(enia, set(IMPORTANT_LOCATION_TYPES))
 
 
-# ---- WorldTestBase: routing + fill-safety -----------------------------------------------------
+def test_enia_hard_excluded_in_real_table():
+    """After gen_data, Enia's remembrance store carries EniaShop; it is never big-ticket."""
+    enia = [i for i, t in LOCATION_TAGS.items() if "EniaShop" in t]
+    assert enia, "expected EniaShop-tagged rows (regenerate location_tags.py)"
+    everything = set(IMPORTANT_LOCATION_TYPES)
+    for i in enia:
+        assert not is_big_ticket(LOCATION_TAGS[i]), f"{i} big-ticket under default"
+        assert not is_big_ticket(LOCATION_TAGS[i], everything), f"{i} big-ticket under full selection"
+
+
+def test_shop_selection_turns_on_nonenia_shops():
+    base = [i for i, t in LOCATION_TAGS.items() if is_big_ticket(t)]
+    withshop = [i for i, t in LOCATION_TAGS.items() if is_big_ticket(t, set(BIG_TICKET_TYPES) | {"Shop"})]
+    assert len(withshop) > len(base), "selecting Shop should light up non-Enia shops"
+    assert not any("EniaShop" in LOCATION_TAGS[i] for i in withshop), "Enia must stay excluded"
+
+
+# ---- WorldTestBase: routing + slot_data + fill-safety -----------------------------------------
 class CuratedFillOn(WorldTestBase):
     game = GAME
-    # the inherited test_fill proves this generates + is beatable (no FillError) with curated_fill on.
     options = {"item_shuffle": True, "enable_dlc": True, "curated_fill": True, "num_regions": 8}
 
     def test_all_big_ticket_marked_priority(self):
-        # select_priority is the pure selection (no get_all_state) -> no MultiWorld leak in teardown.
         prio = select_priority(self.world)
         n_adv = sum(1 for it in self.multiworld.itempool
                     if it.player == self.world.player and it.advancement)
-        # EVERY selected slot is a big-ticket check, and NONE is a shop slot (Enia excluded).
+        sel = set(self.world.options.big_ticket_locations.value)
         for L in prio:
             tags = LOCATION_TAGS.get(L.address, [])
-            self.assertTrue(is_big_ticket(tags), f"priority slot {L.name} must be big-ticket")
-            self.assertNotIn("Shop", tags, f"shop slot {L.name} must not be priority (Enia excluded)")
-        # There are far MORE big-ticket priority slots than advancement items -- that's the point:
-        # advancement gets first crack, the leftover big-ticket fall through to useful/filler. (No
-        # cap; a tight priority==advancement set is the only thing that would FillError.)
+            self.assertTrue(is_big_ticket(tags, sel), f"priority slot {L.name} must be big-ticket")
+            self.assertNotIn("EniaShop", tags, f"Enia slot {L.name} must never be priority")
         self.assertGreater(len(prio), n_adv,
                            "curated_fill marks all big-ticket -> more priority slots than locks")
+
+    def test_bigticket_locations_emitted_and_consistent(self):
+        # the feature ships the per-seed id list; it must equal curated_fill's placement set (no drift)
+        sd = self.world.fill_slot_data()
+        self.assertIn(BIG_TICKET_LOCATIONS, sd)
+        emitted = set(sd[BIG_TICKET_LOCATIONS])
+        self.assertTrue(emitted, "bigTicketLocations should be non-empty for a normal seed")
+        for i in emitted:
+            self.assertTrue(is_big_ticket(LOCATION_TAGS.get(i), set(self.world.options.big_ticket_locations.value)))
+            self.assertNotIn("EniaShop", LOCATION_TAGS.get(i, []))
+        placed = {L.address for L in select_priority(self.world)}
+        self.assertEqual(emitted, placed, "tracker set (slot_data) must equal curated_fill placement set")
 
 
 class CuratedFillOff(WorldTestBase):
