@@ -115,7 +115,7 @@ class BossSweepScoping(unittest.TestCase):
 
     def test_dungeon_sweeps_are_map_local(self):
         bad = []
-        for cls_name in ("catacomb", "cave", "tunnel"):
+        for cls_name in ("catacomb", "cave", "tunnel", "dungeon"):
             for ent, info, members in self._members_by_class(cls_name):
                 bmap = info[0]  # mAA_BB
                 for ap in members:
