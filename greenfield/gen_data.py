@@ -208,6 +208,15 @@ FLAG_REGION_OVERRIDE = {
     1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left) is physically in
                                                #   Castle Sol (Mountaintops); the EMEVD scan mis-tiled the
                                                #   flag to Liurnia (m60_36_41). Right half stays in Liurnia.
+    197: "Liurnia of the Lakes",               # Remembrance of the Full Moon Queen = RENNALA's drop.
+                                               #   Her reward row is method=emevd (flag 197) mis-pinned to
+                                               #   m10 (Stormveil) in region_map.csv, but flag 197 only fires
+                                               #   on the Rennala kill at Raya Lucaria (folded into Liurnia),
+                                               #   and the boss lives in Liurnia (_BOSS_SPECIALS 14000800).
+                                               #   Without this the Stormveil-tagged check is UNREACHABLE
+                                               #   (its flag never fires there) -> curated_fill can strand a
+                                               #   region Lock on it (in-game soft-lock 2026-07-08). Re-region
+                                               #   to Liurnia so location, detect-flag, boss + sweep all agree.
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
