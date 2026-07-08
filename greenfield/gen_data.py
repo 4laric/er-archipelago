@@ -152,12 +152,12 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # inside Stormveil's m10_01 EMEVD, so it both mis-pinned to Stormveil AND showed up as a randomizer
 # check. Per playtest (2026-07-08) it should NOT be randomized -- drop it so it stays a vanilla pickup
 # and never becomes a check (this also drops ap-id 7770020 from the m10 dungeon sweep 10010800 on regen).
-# Unreachable ASHEN CAPITAL endgame drops (post-Erdtree-burn, never accessible in a region-lock
-# game -> dead checks folded into Altus): 510070 Remembrance of Hoarah Loux (Godfrey), 510230 Elden
-# Remembrance (Radagon/Elden Beast). Alaric playtest 2026-07-08. Morgott (510040) stays -- he IS the
-# capital ending and is reachable.
-_ASHEN_CAPITAL_DEAD = frozenset({510070, 510230, 190540, 190550})  # +Gideon (Sir Gideon the All-Knowing) drops: Scepter + All-Knowing Helm
-_MISC_NON_CHECK = frozenset({60210, 590000}) | _ASHEN_CAPITAL_DEAD  # 590000 = empty-item Stormveil check
+# ASHEN CAPITAL endgame drops (510070 Hoarah Loux/Godfrey, 510230 Elden Remembrance = Radagon/Elden
+# Beast, 190540/190550 Gideon) are KEPT (Alaric 2026-07-08: make Ashen a logical region, not a rollable
+# num_regions one). They fold into the always-kept GOAL region (Altus Plateau) via REGION_MAP -> reachable
+# in logic when Altus opens, and collectable via Morgott's region-wide sweep (Morgott = reachable capital
+# ending). NOT a separate rollable region. Morgott (510040) is the capital ending and already there.
+_MISC_NON_CHECK = frozenset({60210, 590000})  # 590000 = empty-item Stormveil check; 60210 Wizened Finger
 EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
@@ -238,6 +238,20 @@ FLAG_REGION_OVERRIDE = {
     400031: "Liurnia of the Lakes",            # Lord of Blood's Favor = Varre's questline reward at the
     400033: "Liurnia of the Lakes",            #   Rose Church (Liurnia); mis-pinned to m10. (400031/400033
                                                #   are the given/blood-soaked states -- likely a dup, see below.)
+    # DLC-dungeon dead-checks (Alaric playtest): flags encode true map mMM_SS (X0SS7000) but the
+    # matt-free-pipeline mis-resolved them to an m18 fallback -> "Stormveil (assoc.)" -> Stormveil.
+    # Re-regioned via the AUTHORITATIVE grace join (grace_flags mapTile -> grace_region_map play_region
+    # -> REGION_ID_MAP), so each sub-dungeon lands in its real overworld region (reachable + swept).
+    40007000: "Gravesite Plain",             # m40_00 Fog Rift Catacombs
+    40017000: "Ancient Ruins of Rauh",       # m40_01 Scorpion River Catacombs (Rauh Base)
+    40027000: "Scadu Altus",                 # m40_02 Darklight Catacombs
+    41007000: "Gravesite Plain",             # m41_00 Belurat Gaol
+    41027000: "Gravesite Plain",             # m41_02 Lamenter's Gaol (Charo's Hidden Grave)
+    42007000: "Gravesite Plain",             # m42_00 Ruined Forge (Lava Intake)
+    42037000: "Ancient Ruins of Rauh",       # m42_03 Taylew's Ruined Forge
+    43007000: "Gravesite Plain",             # m43_00 Rivermouth Cave
+    18007050: "Roundtable Hold",             # m18_00 (Cave of Knowledge/Stranded Graveyard = tutorial start,
+    18007900: "Roundtable Hold",             #   play_region 18000, always-open) -> HUB (spawn-reachable).
     197: "Liurnia of the Lakes",               # Remembrance of the Full Moon Queen = RENNALA's drop.
                                                #   Her reward row is method=emevd (flag 197) mis-pinned to
                                                #   m10 (Stormveil) in region_map.csv, but flag 197 only fires

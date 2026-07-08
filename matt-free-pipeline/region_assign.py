@@ -24,7 +24,11 @@ INTERIOR = {
  "m14":"Raya Lucaria Academy", "m15":"Miquella's Haligtree & Elphael",
  "m16":"Volcano Manor / Mt. Gelmir", "m19":"Chapel of Anticipation",
  "m30":"Hero's Graves (Catacombs)", "m31":"Caves", "m32":"Tunnels",
- "m41":"DLC Legacy Dungeon", "m42":"DLC Legacy Dungeon", "m43":"DLC Legacy Dungeon",
+ "m40":"DLC Legacy Dungeon", "m41":"DLC Legacy Dungeon", "m42":"DLC Legacy Dungeon",
+ "m43":"DLC Legacy Dungeon", "m18":"Stranded Graveyard / Chapel of Anticipation",  # 2026-07-08: m40/m18 were
+ # MISSING -> lots fell back to an m18 alias -> Stormveil. Note these blocks span MULTIPLE regions per
+ # sub-map (m40_00 Gravesite vs m40_01 Rauh); the precise fix is the grace-join FLAG_REGION_OVERRIDE in
+ # gen_data.py. This coarse block-level entry just stops the Stormveil fallback if the pipeline re-runs.
 }
 def friendly(mapid):
     if mapid.startswith(("m60","m61")):
