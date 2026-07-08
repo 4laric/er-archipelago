@@ -237,6 +237,11 @@ if ($Generate) {
 if ($Rust) {
     Step "Rust client: cargo test + cdylib build"
     if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) { throw "Rust submodule not found at $RustDir -- run: git submodule update --init" }
+    Step "  regenerate greenfield data (datamine boss drops + gen_data) so the tables match region_map"
+    & python (Join-Path $Repo "tools\datamine_boss_drops.py")
+    if ($LASTEXITCODE -ne 0) { throw "datamine_boss_drops.py FAILED (see output above)." }
+    & python (Join-Path $Repo "greenfield\gen_data.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_data.py FAILED (see output above)." }
     Step "  regenerate generated tables (tracker_regions.rs) from greenfield data"
     & python (Join-Path $Repo "tools\gen_location_regions.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
