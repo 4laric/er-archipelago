@@ -129,7 +129,12 @@ _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
 # cap (in-game report 2026-07-08). Drop the tower copy; keep the boss check (171-176). The tower copies
 # also carried the m34 "DLC Dungeon" misregion, so this removes 6 mis-bucketed checks too.
 _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
-EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES
+# 60210 = Tarnished's Wizened Finger: a Roundtable Hold system item (region_misc) whose flag fires
+# inside Stormveil's m10_01 EMEVD, so it both mis-pinned to Stormveil AND showed up as a randomizer
+# check. Per playtest (2026-07-08) it should NOT be randomized -- drop it so it stays a vanilla pickup
+# and never becomes a check (this also drops ap-id 7770020 from the m10 dungeon sweep 10010800 on regen).
+_MISC_NON_CHECK = frozenset({60210})
+EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
