@@ -170,6 +170,11 @@ class RegionCorrectness(unittest.TestCase):
     # one medallion (the twin phantom-bucketed to Leyndell). Great Runes / Remembrances do NOT carry
     # the KeyItem tag (they are GreatRune/Remembrance-tagged and legitimately DUAL-check: rune
     # drop+restore, boss-drop + Enia duplicate purchase), so they never trip this gate.
+# Tags whose items are 1-of-1 in vanilla, so each must be a SINGLE check. GreatRune (boss drop,
+    # tower dupe excluded) and Remembrance (boss drop, Walking-Mausoleum dupe excluded) join KeyItem
+    # here -- all three were duplicate-check classes found in-game 2026-07-08. (Remembrance/GreatRune
+    # carry no multi-copy exceptions; only the two keys below do.)
+    UNIQUE_SINGLETON_TAGS = frozenset({"KeyItem", "GreatRune", "Remembrance"})
     KEYITEM_MULTI_COPY = {
         "Academy Glintstone Key": 2,   # Meeting Place ruins corpse + Schoolhouse Classroom (Thops)
         "Imbued Sword Key": 3,         # three illusory-wall keys: Raya Lucaria, Caelid, Land of Shadow
@@ -178,15 +183,21 @@ class RegionCorrectness(unittest.TestCase):
     def test_unique_key_items_are_singletons(self):
         """A curated unique KeyItem must resolve to exactly one location (except documented multi-copy
         keys). A re-introduced obtained-flag twin of a placed medallion re-doubles its count here."""
-        counts = {}
+        # Count ALL locations per item NAME, and flag which names are unique-category (tagged on ANY
+        # location). Counting by name -- not by tagged-location -- is what gives this teeth against an
+        # UNTAGGED duplicate check (the Walking-Mausoleum remembrance copies carry no Remembrance tag;
+        # only the boss drop does, so a tag-only count would miss the dupe entirely).
+        regions_by_item, unique_named = {}, set()
         for region, locs in self.d.LOCATIONS.items():
             for (name, apid, _flag) in locs:
-                if "KeyItem" not in self.tags.get(apid, ()):
-                    continue
                 m = re.match(r".*:: (.+) \[f\d+\]$", name)
-                counts.setdefault(m.group(1) if m else name, []).append(region)
+                item = m.group(1) if m else name
+                regions_by_item.setdefault(item, []).append(region)
+                if self.UNIQUE_SINGLETON_TAGS & set(self.tags.get(apid, ())):
+                    unique_named.add(item)
         bad = []
-        for item, regs in sorted(counts.items()):
+        for item in sorted(unique_named):
+            regs = regions_by_item[item]
             if len(regs) > self.KEYITEM_MULTI_COPY.get(item, 1):
                 bad.append((item, len(regs), self.KEYITEM_MULTI_COPY.get(item, 1), sorted(regs)))
         self.assertEqual(
