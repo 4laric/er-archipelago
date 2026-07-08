@@ -16,6 +16,7 @@ from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from .. import contract
 from ..region_spine import DLC_REGIONS   # canonical base/DLC partition (also used by core.py)
+from . import legible_keys   # synthetic Boss Key -> vanilla key display-name layer (naming only)
 
 try:
     from ..boss_data import REGION_BOSSES
@@ -214,6 +215,10 @@ class BossLocks(Feature):
                 _entry = {"name": "Felled: " + _label, "region": r, "boss_ap_id": aid}
                 if _bk:
                     _entry["gate"] = "Boss Key: " + _label
+                    # Legible-lock display name (naming only; fill/gating still key the synthetic
+                    # 'Boss Key: <Boss>'). Present only when a real vanilla key exists for this lock.
+                    if legible_keys.has_vanilla_key(_label):
+                        _entry["display_key"] = legible_keys.display_key_name(_label)
                 _items[str(fl)] = _entry
         sd[contract.BOSS_LOCK_ITEMS] = _items
         if world.options.dungeon_sweep.value != 0:

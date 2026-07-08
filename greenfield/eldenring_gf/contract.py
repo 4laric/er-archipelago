@@ -413,8 +413,11 @@ CONTRACT = (
                 "{region: [boss AP location ids]} for kept regions."),
     ContractKey("bossLockItems", "ANY", False, (GREENFIELD,),
                 "features/boss_locks.py", "er-logic boss_felled / region.rs",
-                "{str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id}} for kept BASE-game "
-                "bosses (DLC out for v0.2); client mints the 'Felled:' trophy on boss-defeat (mode A)."),
+                "{str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id [, gate:'Boss Key: <Boss>'"
+                ", display_key:<vanilla key name>]}}: kept BASE-game bosses always; DLC bosses added "
+                "when boss_keys is ON. Client mints the 'Felled:' trophy on boss-defeat (mode A); the "
+                "mode-B 'gate' (defer own check until key) and 'display_key' (legible vanilla lock name) "
+                "ride the same entry when boss_keys is ON."),
     ContractKey("filler_foreign_localized", "ANY", False, (GREENFIELD,),
                 "features/filler_foreign.py", "(diagnostic -- no client read)",
                 "count of distinct filler names forced local this seed."),

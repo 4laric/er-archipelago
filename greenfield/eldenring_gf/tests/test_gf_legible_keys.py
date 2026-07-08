@@ -60,7 +60,7 @@ class TestLegibleKeys(unittest.TestCase):
         self.assertEqual(missing, [], "mapping keys that do not match any _boss_label: %r" % missing)
 
     def test_expected_capstones_present(self):
-        # The nine capstones the spec (SPEC-region-capstone-model 3/3a) gives a vanilla key.
+        # The capstones the spec (SPEC-region-capstone-model 3/3a/4) gives a vanilla key.
         expected = {
             "Full Moon Queen": "Academy Glintstone Key",
             "Omen King": "Two Great Runes",
@@ -71,6 +71,7 @@ class TestLegibleKeys(unittest.TestCase):
             "Naturalborn": "Fingerslayer Blade",
             "Black Blade": "Deathroot",
             "a God and a Lord": "Messmer's Kindling",
+            "Fire Giant": "Haligtree Secret Medallion (Right)",  # Mountaintops via Castle Sol (spec section 4)
         }
         self.assertEqual(lk.CAPSTONE_VANILLA_KEYS, expected)
 
@@ -81,7 +82,7 @@ class TestLegibleKeys(unittest.TestCase):
 
     def test_unmapped_boss_keeps_synthetic_name(self):
         # Bosses with no vanilla key must fall back to the synthetic Boss Key name.
-        for label in ("Grafted", "Fire Giant", "Dancing Lion", "Impaler"):
+        for label in ("Grafted", "Dancing Lion", "Impaler", "Twin Moon Knight"):
             self.assertFalse(lk.has_vanilla_key(label))
             self.assertEqual(lk.display_key_name(label), "Boss Key: " + label)
 
