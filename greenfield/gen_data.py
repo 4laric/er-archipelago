@@ -148,7 +148,17 @@ for _rowfix in _ALLROWS:
 # cap (in-game report 2026-07-08). Drop the tower copy; keep the boss check (171-176). The tower copies
 # also carried the m34 "DLC Dungeon" misregion, so this removes 6 mis-bucketed checks too.
 _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
-EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES
+# 60210 = Tarnished's Wizened Finger: a Roundtable Hold system item (region_misc) whose flag fires
+# inside Stormveil's m10_01 EMEVD, so it both mis-pinned to Stormveil AND showed up as a randomizer
+# check. Per playtest (2026-07-08) it should NOT be randomized -- drop it so it stays a vanilla pickup
+# and never becomes a check (this also drops ap-id 7770020 from the m10 dungeon sweep 10010800 on regen).
+# Unreachable ASHEN CAPITAL endgame drops (post-Erdtree-burn, never accessible in a region-lock
+# game -> dead checks folded into Altus): 510070 Remembrance of Hoarah Loux (Godfrey), 510230 Elden
+# Remembrance (Radagon/Elden Beast). Alaric playtest 2026-07-08. Morgott (510040) stays -- he IS the
+# capital ending and is reachable.
+_ASHEN_CAPITAL_DEAD = frozenset({510070, 510230, 190540, 190550})  # +Gideon (Sir Gideon the All-Knowing) drops: Scepter + All-Knowing Helm
+_MISC_NON_CHECK = frozenset({60210, 590000}) | _ASHEN_CAPITAL_DEAD  # 590000 = empty-item Stormveil check
+EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
@@ -222,6 +232,21 @@ FLAG_REGION_OVERRIDE = {
     1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left) is physically in
                                                #   Castle Sol (Mountaintops); the EMEVD scan mis-tiled the
                                                #   flag to Liurnia (m60_36_41). Right half stays in Liurnia.
+    520000: "Weeping Peninsula",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
+                                               #   Weeping, mis-tiled to m10/Stormveil by the EMEVD scan.
+    520010: "Weeping Peninsula",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
+    400031: "Liurnia of the Lakes",            # Lord of Blood's Favor = Varre's questline reward at the
+    400033: "Liurnia of the Lakes",            #   Rose Church (Liurnia); mis-pinned to m10. (400031/400033
+                                               #   are the given/blood-soaked states -- likely a dup, see below.)
+    197: "Liurnia of the Lakes",               # Remembrance of the Full Moon Queen = RENNALA's drop.
+                                               #   Her reward row is method=emevd (flag 197) mis-pinned to
+                                               #   m10 (Stormveil) in region_map.csv, but flag 197 only fires
+                                               #   on the Rennala kill at Raya Lucaria (folded into Liurnia),
+                                               #   and the boss lives in Liurnia (_BOSS_SPECIALS 14000800).
+                                               #   Without this the Stormveil-tagged check is UNREACHABLE
+                                               #   (its flag never fires there) -> curated_fill can strand a
+                                               #   region Lock on it (in-game soft-lock 2026-07-08). Re-region
+                                               #   to Liurnia so location, detect-flag, boss + sweep all agree.
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
@@ -616,20 +641,28 @@ def _mp2(m):
     if not m or m == "PENDING":
         return None
     q = m.split("_"); return "_".join(q[:2])
-_mem = defaultdict(list); _mreg = {}
+# REGION-WIDE sweep (2026-07-08, Alaric): a boss-defeat flag sweeps its boss's WHOLE region (every
+# map in the region), not just the boss's own map -- so felling a region boss clears the region on a
+# dungeon_sweep:all run, and cross-map region checks (e.g. m10_01 Stormveil sub-areas) aren't left
+# dead. Members are keyed by the check's CORRECTED region (region_of, incl. FLAG_REGION_OVERRIDE), so
+# a re-regioned check follows its real region's boss, not the map it was mis-scanned into.
+_mem_region = defaultdict(list); _mreg = {}
 for _i, _r in enumerate(rows):
-    _mp = _mp2(_r["map"])
-    if _mp and _r["method"] in ("treasure", "emevd"):
-        _mem[_mp].append(BASE_AP + _i)
-        _mreg.setdefault(_mp, region_of(_r))
+    if _r["method"] in ("treasure", "emevd"):
+        _reg = region_of(_r)
+        _mem_region[_reg].append(BASE_AP + _i)
+        _mp = _mp2(_r["map"])
+        if _mp:
+            _mreg.setdefault(_mp, _reg)
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 for _mp, _flags in _map_boss.items():
-    _members = _mem.get(_mp)
+    _reg = _mreg.get(_mp, HUB)
+    _members = _mem_region.get(_reg)
     if not _members:
         continue
     for _fl in _flags:
-        DUNGEON_SWEEPS[_fl] = sorted(_members)
-        SWEEP_REGION[_fl] = _mreg.get(_mp, HUB)
+        DUNGEON_SWEEPS[_fl] = sorted(set(_members))
+        SWEEP_REGION[_fl] = _reg
 OUT_SWEEP = os.path.join(HERE, "eldenring_gf", "boss_sweeps.py")
 with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Dungeon sweeps: boss-defeat flag (DarkScript EMEVD) ->\n')
