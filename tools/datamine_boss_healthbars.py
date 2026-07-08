@@ -31,8 +31,18 @@ _LIT     = re.compile(r"DisplayBossHealthBar\(\s*(?:Enabled|1)\s*,\s*(\d+)\s*,\s
 _INITC   = re.compile(r"\$InitializeCommonEvent\(\s*\d+\s*,\s*(\d+)\s*,\s*([^)]*)\)")
 
 
+# Minor dungeons that sweep MAP-LOCAL (their own map's checks), like catacombs. Beyond m30/31/32
+# these are the Divine Towers (m34), Ruin-Strewn Precipice (m39), and the DLC minor dungeons
+# (m40 catacombs / m41 gaols / m42 forges / m43 caves). The region-MAJOR legacy dungeons (m10
+# Stormveil, m11 Leyndell, m13 Farum, m14 Raya Lucaria, m15 Haligtree, m16 Volcano, m19 Fractured
+# Marika, m20 Belurat, m21 Shadow Keep, m35 Shunning-Grounds, ...) stay region-wide.
+_MINOR_DUNGEON_MAPS = {"m34", "m39", "m40", "m41", "m42", "m43"}
 def _class(map_ab):
-    return {"m30": "catacomb", "m31": "cave", "m32": "tunnel", "m60": "field"}.get(map_ab[:3], "legacy")
+    p = map_ab[:3]
+    named = {"m30": "catacomb", "m31": "cave", "m32": "tunnel", "m60": "field"}
+    if p in named:
+        return named[p]
+    return "dungeon" if p in _MINOR_DUNGEON_MAPS else "legacy"
 
 
 def hb_handlers():
