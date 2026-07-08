@@ -10,6 +10,7 @@ import pytest
 from BaseClasses import ItemClassification
 from worlds.eldenring_gf.location_tags import LOCATION_TAGS, TAG_COUNTS
 from worlds.eldenring_gf.features.important_locations import _DEFAULT, _VALID, _is_important
+from worlds.eldenring_gf.contract import BIG_TICKET_EXCLUDE_TAGS
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
@@ -31,13 +32,19 @@ class TagDataTests(unittest.TestCase):
         self.assertLessEqual(TAG_COUNTS["Remembrance"], 30)
         self.assertGreaterEqual(TAG_COUNTS["Remembrance"], 20)
 
-    def test_boss_matches_boss_arena(self):
-        self.assertEqual(TAG_COUNTS["Boss"], 25)
+    def test_boss_tag_is_boss_drop_set(self):
+        # Boss was REDEFINED (boss-drop datamine, tools/datamine_boss_drops.py -> _BOSS_DROP_FLAGS in
+        # gen_data._loc_tags): the 'Boss' tag is now every boss-healthbar DROP (~54), a superset of the
+        # old ~23-25 boss_arena majors. Guards the current committed count against drift.
+        self.assertEqual(TAG_COUNTS["Boss"], 54)
 
     def test_tags_are_valid_keys(self):
+        # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
+        # important_location TYPES; those live in contract.BIG_TICKET_EXCLUDE_TAGS. Valid == either.
+        valid = set(_VALID) | BIG_TICKET_EXCLUDE_TAGS
         for tags in LOCATION_TAGS.values():
             for t in tags:
-                self.assertIn(t, _VALID)
+                self.assertIn(t, valid)
 
 
 def _tagged_in_play(world, mw):

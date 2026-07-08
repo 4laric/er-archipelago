@@ -60,12 +60,17 @@ REGION_PLAY_IDS = {
     "Miquella's Haligtree": [15000, 15001],        # Elphael + Haligtree
     "Eternal Cities": [12010, 12011, 12012, 12020, 12030, 12070],  # Ainsel/Lake of Rot/Astel/Siofra/Deeproot
     "Mohgwyn Palace": [12050],
-    # --- DLC (REGION_ID_MAP.md DLC table) ---
-    "Land of Shadow": [6800, 6830, 6840, 20010, 22000],  # Gravesite/Cerulean/Charo/Enir-Ilim/Stone Coffin
-    "Belurat": [6820, 20000],                       # Castle Ensis + Belurat Tower Settlement
+    # --- DLC (REGION_ID_MAP.md DLC table, joined via gen_data.py REGION_MAP). The old 'Land of
+    # Shadow' catch-all was split (region_spine.py) into Gravesite Plain + Ancient Ruins of Rauh +
+    # Enir-Ilim to match gen_data.REGION_MAP; Castle Ensis (6820) folds into Gravesite Plain and
+    # Rauh (6950) splits out of Scadu Altus, exactly as the generator now tags those locations. ---
+    "Gravesite Plain": [6800, 6820, 6830, 6840, 22000],  # Gravesite/Castle Ensis/Cerulean/Charo/Stone Coffin
+    "Belurat": [20000],                             # Belurat Tower Settlement
+    "Ancient Ruins of Rauh": [6950],                # Rauh (Romina)
+    "Enir-Ilim": [20010],                           # Enir-Ilim tower
     "Jagged Peak": [6850, 6851],
     "Abyssal Woods": [6860, 28000],                 # Abyssal Woods + Midra's Manse
-    "Scadu Altus": [6900, 6920, 6940, 6950],        # Scadu Altus/Scaduview/Rauh
+    "Scadu Altus": [6900, 6920, 6940],              # Scadu Altus/Scaduview + Manus Metyr
     "Shadow Keep": [21000, 21001, 21010],
 }
 

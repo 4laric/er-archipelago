@@ -67,22 +67,35 @@ def select_priority(world):
 
 
 def apply(world) -> None:
-    """core.pre_fill hook: mark every big-ticket check PRIORITY so region Locks get first crack at
-    them, then prune any priority slot unreachable under max-item state (defensive hygiene)."""
+    """core.pre_fill hook: give this world's advancement (the region Locks) FIRST CRACK at the
+    big-ticket checks via a SOFT, reachability-respecting pre-fill.
+
+    We deliberately do NOT mark the slots LocationProgressType.PRIORITY: AP's greedy priority pass
+    can hard-FillError on the strict region-lock CHAIN (each region gated by its own Lock) -- it
+    dead-ends placing a late Lock even though there are far more big-ticket slots (~83) than Locks
+    (~8), because the reachable slots at each step are a moving subset. Instead we run
+    fill_restrictive with allow_partial=True: it chains the Locks onto reachable big-ticket slots and
+    ANY it can't place simply fall back to the normal fill pool -- concentrated where possible, never
+    a generation failure."""
     selected = select_priority(world)
     if not selected:
         return
-    from BaseClasses import LocationProgressType
-    for loc in selected:
-        loc.progress_type = LocationProgressType.PRIORITY
-
-    # Defensive reachability prune (ported from the old world's _prune_unreachable_priority): a
-    # priority slot unreachable even under max-item state can't hold advancement anyway, so demote it
-    # to keep the priority set clean. get_all_state is valid in pre_fill (post create_items).
-    try:
-        state = world.multiworld.get_all_state(False)
-    except Exception:
+    mw = world.multiworld
+    adv = [i for i in mw.itempool if i.player == world.player and i.advancement]
+    if not adv:
         return
-    for loc in selected:
-        if loc.progress_type == LocationProgressType.PRIORITY and not loc.can_reach(state):
-            loc.progress_type = LocationProgressType.DEFAULT
+    from Fill import fill_restrictive
+    from BaseClasses import CollectionState
+    fillable = [loc for loc in selected if loc.item is None]
+    world.random.shuffle(fillable)
+    to_place = list(adv)
+    for i in adv:
+        mw.itempool.remove(i)
+    try:
+        fill_restrictive(mw, CollectionState(mw), fillable, to_place,
+                         single_player_placement=True, lock=False, allow_partial=True)
+    except TypeError:  # older AP signature without allow_partial
+        fill_restrictive(mw, CollectionState(mw), fillable, to_place, single_player_placement=True)
+    # fill_restrictive mutates to_place, leaving only the UNPLACED items -> return them to the pool.
+    for i in to_place:
+        mw.itempool.append(i)
