@@ -26,6 +26,17 @@ try:
     from ..boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
 except Exception:
     DUNGEON_SWEEPS, SWEEP_REGION = {}, {}
+try:
+    from ..boss_healthbars import BOSS_HEALTHBARS
+except Exception:
+    BOSS_HEALTHBARS = {}
+
+
+def _hb_class(fl):
+    """Boss class for a sweep trigger flag (entity id) from the DisplayBossHealthBar datamine;
+    default 'legacy' (region major -> stays key-gated) when unknown, so the exemption is conservative."""
+    info = BOSS_HEALTHBARS.get(int(fl))
+    return info[2] if info else "legacy"
 
 
 def _boss_label(reward: str) -> str:
@@ -131,6 +142,12 @@ def _sweep_lock_gates(kept, region_bosses=None, dungeon_sweeps=None, sweep_regio
     for fl in dungeon_sweeps:
         reg = sweep_region.get(fl)
         if reg not in kept:
+            continue
+        # Exempt minor-dungeon + field sweeps from boss-key deferral: killing a catacomb/cave/tunnel/
+        # divine-tower/field boss releases its (map-local / own-tile) sweep IMMEDIATELY. Only region
+        # MAJORS (legacy class) defer behind a Boss Key. (2026-07-08: a Divine Tower boss -- Onyx Lord,
+        # m34 -- was stranding its sweep behind Altus's representative key: "killed onyx lord, no sweep".)
+        if _hb_class(fl) != "legacy":
             continue
         key = flag_to_key.get(fl)          # PRECISE: sweep trigger flag == a boss-defeat flag
         if key is None:
