@@ -3,26 +3,31 @@ HUB = 'Roundtable Hold'
 REGIONS = [
     'Abyssal Woods',
     'Altus Plateau',
+    'Ancient Ruins of Rauh',
     'Belurat',
     'Caelid',
     'Consecrated Snowfield',
+    'Enir-Ilim',
     'Eternal Cities',
     'Farum Azula',
+    'Gravesite Plain',
     'Jagged Peak',
-    'Land of Shadow',
-    'Leyndell',
     'Limgrave',
     'Liurnia of the Lakes',
     "Miquella's Haligtree",
     'Mohgwyn Palace',
     'Mountaintops of the Giants',
     'Mt. Gelmir',
-    'Raya Lucaria Academy',
     'Scadu Altus',
     'Shadow Keep',
     'Stormveil Castle',
     'Weeping Peninsula',
 ]
+# Region capstone re-carve (SPEC-region-capstone-model-20260708): folded 'Raya Lucaria Academy'
+# -> Liurnia and 'Leyndell' -> Altus (GOAL moved to Altus Plateau); DLC 'Land of Shadow' catch-all
+# split into 'Gravesite Plain' + 'Ancient Ruins of Rauh' (Romina) + 'Enir-Ilim' (finale).
+# Deferred base folds (in scope, next serial pass): Weeping->Limgrave, Snowfield+Haligtree merge,
+# Mt. Gelmir->Volcano Manor rename. Tile remap lives in gen_data.REGION_MAP; needs Windows regen.
 
 LOCATIONS = {
     'Roundtable Hold': [
