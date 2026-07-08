@@ -99,10 +99,26 @@ _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
 # 1051587800, FLAG_REGION_OVERRIDE'd to Mountaintops), so the obtained twin is a phantom Leyndell
 # check that fires off the same pickup. (Rold 400001 stays: it is GRANTED, never placed, so its
 # obtained flag is the only handle; Haligtree Right 400130 stays: its physical pickup isn't detected.)
-EXCLUDE_FLAGS = frozenset({400280})
+# 191-196 = the Divine Tower RESTORATION duplicates of each great rune. Vanilla awards the great rune
+# ONCE from the shardbearer (the 17x boss flag, set via failsafe event 6905 off the 510xxx boss/
+# remembrance flag); the m34 Divine Tower event (90005110) re-references the same goods -> greenfield
+# registered a SECOND check per rune, so in-game you receive two great runes and hit the max-inventory
+# cap (in-game report 2026-07-08). Drop the tower copy; keep the boss check (171-176). The tower copies
+# also carried the m34 "DLC Dungeon" misregion, so this removes 6 mis-bucketed checks too.
+_GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
+EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES
+# Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
+# Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
+# check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
+# once it is shuffled elsewhere, you may never obtain, so the check can strand. Keep the boss drop
+# (510xxx); drop the mausoleum copy. (Finger Reader Enia TRADES remembrances for their rewards; she
+# is not a duplicate seller -- the Walking Mausoleum is the only remembrance "shop".)
+def _is_mausoleum_dupe(r):
+    return r['method'] == 'shop_multi' and 'Remembrance' in (r.get('item_name') or '')
 rows=[r for r in _ALLROWS
       if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
-      and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS]
+      and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
+      and not _is_mausoleum_dupe(r)]
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was

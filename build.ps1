@@ -237,6 +237,9 @@ if ($Generate) {
 if ($Rust) {
     Step "Rust client: cargo test + cdylib build"
     if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) { throw "Rust submodule not found at $RustDir -- run: git submodule update --init" }
+    Step "  regenerate generated tables (tracker_regions.rs) from greenfield data"
+    & python (Join-Path $Repo "tools\gen_location_regions.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
     if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
         throw "cargo not found on PATH. Install rustup from https://rustup.rs, then re-open the shell."
     }
