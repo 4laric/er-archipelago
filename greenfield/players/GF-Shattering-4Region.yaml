@@ -20,6 +20,9 @@ game: "Elden Ring (Greenfield)"
 
 "Elden Ring (Greenfield)":
 
+  # NEW features test
+  enable_dlc: true
+
   # ---- The Shattering (the headline) --------------------------------------
   num_regions: 4               # majors in play (+ Roundtable hub always kept); rest sealed. 0 = all 22.
   num_regions_order: rolled    # spine = Limgrave-first fixed path; rolled = N random majors.
