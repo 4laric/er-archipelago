@@ -144,6 +144,21 @@ def _m60_tile_region(_mid):
     return PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
 _REPIN_N = [0]; _QUAR_N = [0]; _RECOVER_N = [0]
 
+# ---- Per-FLAG region override (matt-free, playtest-verified) ----------------------------------
+# A few overworld pickups resolve to the wrong region: their source event/scan tile lands on a
+# contested Liurnia/Altus boundary tile (nearest-neighbour tie) or is simply wrong in the emevd scan.
+# This per-flag table wins over EVERY other path (dungeon override, emevd/global audit, tile NN).
+# Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
+# tracker report 2026-07-08 (Godfrey Icon + Haligtree medallion mis-shown under Liurnia).
+FLAG_REGION_OVERRIDE = {
+    1039507100: "Altus Plateau",               # Godfrey Icon = Godefroy the Grafted's drop at the
+                                               #   Golden Lineage Evergaol (NW Altus). Its EMEVD tile
+                                               #   m60_39_50 NN-ties Liurnia(38,50)/Altus(39,51) -> Liurnia.
+    1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left) is physically in
+                                               #   Castle Sol (Mountaintops); the EMEVD scan mis-tiled the
+                                               #   flag to Liurnia (m60_36_41). Right half stays in Liurnia.
+}
+
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
 # The coarse REGION_MAP buckets every minor dungeon into one region ("Caves"->Limgrave,
 # "Tunnels"->Caelid, catacombs->Limgrave, m34 Divine Towers->"DLC Dungeon"), which is wrong for any
@@ -236,6 +251,10 @@ GLOBAL_RECOVER = {
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
     510340: HUB,
     1049557700: HUB,
+    # Haligtree Secret Medallion (Right): the physical Village-of-the-Albinaurics pickup wasn't
+    # detected as a map_lot, so only the obtained flag (400130, method global) exists; recover it as a
+    # Liurnia check (mirrors Rold 400001 / the Left half) so grabbing it sends a check, not vanilla.
+    400130: "Liurnia of the Lakes",
     # Deathroot rewards from Gurranq at the Bestial Sanctum (Dragonbarrow / NE Caelid). Recovered as
     # checks AND tagged missable below (gated behind delivering N deathroots -- a limited consumable +
     # Gurranq is killable -- so fill must not place required progression here). See DEATHROOT_FLAGS.
@@ -260,8 +279,12 @@ DEATHROOT_FLAGS = set(range(400230, 400240))
 
 
 def region_of(r):
-    """Corrected region: curated dungeon override (top priority) -> EMEVD/common-event audit for
-    emevd+global rows -> raw region_of for everything else."""
+    """Corrected region: per-flag override (highest priority) -> curated dungeon override -> EMEVD/
+    common-event audit for emevd+global rows -> raw region_of for everything else."""
+    try: _ovfl = int(r['flag'])
+    except (KeyError, ValueError): _ovfl = None
+    if _ovfl is not None and _ovfl in FLAG_REGION_OVERRIDE:
+        return FLAG_REGION_OVERRIDE[_ovfl]
     _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))
     if _dov:
         return _dov
@@ -398,7 +421,13 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
     if int(_fl) in _SKIP_GRACE_FLAGS: continue          # boss-gated / arena grace: never force-light
     _mj = None
     _m = re.match(r"m60_(\d\d)_(\d\d)", _tile)
-    if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
+    if _m:
+        # OVERWORLD grace: the grace's own play_region_id (grace_region_map = ground truth) beats the
+        # per-tile anchor VOTE, which mis-buckets graces on contested boundary tiles -- 76301 "Altus
+        # Plateau" (tile 38,50) and 76502 "Grand Lift of Rold" (tile 49,53) have play_region 63xxx
+        # (Altus) but their tiles vote Liurnia / Mountaintops. Fall back to the tile NN when the grace
+        # has no overworld play_region entry. Interior/dungeon graces (no m60 tile) keep the prefix path.
+        _mj = PLAY2AP.get(greg.get(_fl)) or PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
     if _mj and _mj != HUB:
         _open_cand[_mj].append(int(_fl))
@@ -747,6 +776,15 @@ for _i, _r in enumerate(rows):
         continue
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
     LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
+# Finished throwing pots: crafted (never LOOTED), so absent from the placed-item catalog above -- but
+# they are valid grantable GOODS (EquipParamGoods ids verified against GoodsName.fmg.xml). Added
+# explicitly so the curated-consumables filler (features/filler_curation.py) can hand them out; the
+# client grants them by FullID like any other good. Base game (not DLC).
+_FINISHED_POTS = {"Fire Pot": 300, "Lightning Pot": 320, "Fetid Pot": 330, "Holy Water Pot": 350,
+                  "Freezing Pot": 360, "Poison Pot": 370, "Volcano Pot": 600, "Sleep Pot": 640,
+                  "Rancor Pot": 650}
+for _pn, _pid in _FINISHED_POTS.items():
+    ITEM_CATALOG.setdefault(_pn, 0x40000000 | _pid)
 # ---- DLC provenance: catalog names that come ONLY from the DLC FMG tables. gen_data reads the
 # base tables (_MSG) and the DLC tables (_MSG_D1/_MSG_D2) into ITEM_CATALOG with no marker; core
 # excludes these from pool augmentation (juice/filler) when a seed has DLC off. Matt-free: pure

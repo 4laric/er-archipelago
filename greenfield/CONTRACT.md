@@ -60,7 +60,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `pool_builder_juice_candidates` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | size of the juice candidate set at this intensity. |
 | `pool_builder_juice_pct` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | resolved share (0..100) of the Rune tail replaced with juice. |
 | `locationIdsToKeys` | ANY | yes | bedrock | (bedrock apworld) | key_resolver.rs | matt slot key token per location; client resolves token1 -> flag (bedrock path). |
-| `itemCounts` | ANY | yes | bedrock | (bedrock apworld) | core.rs | per-item quantity map. |
+| `itemCounts` | ANY | yes | both | core._base_slot_data (greenfield) / bedrock apworld | core.rs receive.rs itemCounts | per-item quantity map {str(ap_item_id): qty}; client grants full_id x qty. Greenfield emits stack sizes for throwables (x10) and finished pots (x4) (features/filler_curation). |
 | `naturalKeyTriggers` | ANY | yes | bedrock | (bedrock apworld) | key_resolver.rs / region.rs | bedrock natural key triggers. |
 | `lockGrantItems` | ANY | yes | bedrock | (bedrock apworld) | region.rs | items granted on a region lock receipt (bedrock). |
 | `randomStartDoneFlag` | ANY | yes | bedrock | (bedrock apworld) | random start client path | bedrock random-start: flag set when the start warp completed. |

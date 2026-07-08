@@ -33,6 +33,14 @@ game: "Elden Ring (Greenfield)"
   curated_fill: true
   boss_keys: true
 
+  curated_filler:
+    throwables: 25
+    pots: 15
+    greases: 10
+    stones: 20
+    runes: 20
+    junk: 10     # keep this share as vanilla junk
+
 
   # ---- Boss locks / dungeon sweeps ----------------------------------------
   dungeon_sweep: all           # kill a dungeon boss -> its other checks auto-register.
