@@ -9,16 +9,14 @@ REGION_OPEN_FLAGS = {
     'Consecrated Snowfield': 73019,
     'Eternal Cities': 71211,
     'Farum Azula': 71303,
+    'Gravesite Plain': 76800,
     'Jagged Peak': 76850,
-    'Land of Shadow': 76800,
-    'Leyndell': 71102,
     'Limgrave': 73100,
     'Liurnia of the Lakes': 73202,
     "Miquella's Haligtree": 71501,
     'Mohgwyn Palace': 72001,
     'Mountaintops of the Giants': 73017,
     'Mt. Gelmir': 76350,
-    'Raya Lucaria Academy': 71402,
     'Scadu Altus': 76900,
     'Shadow Keep': 72102,
     'Stormveil Castle': 200,
@@ -26,4 +24,6 @@ REGION_OPEN_FLAGS = {
 }
 
 REGION_OPEN_PENDING = [
+    'Ancient Ruins of Rauh',
+    'Enir-Ilim',
 ]
