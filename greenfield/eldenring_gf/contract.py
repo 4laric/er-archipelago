@@ -177,6 +177,20 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # tracker flags" by construction. Per-location membership is generated from location_tags.py (a
 # seed-invariant ~4k-row static table, not slot_data); the DEFINITION lives here in the contract.
 BIG_TICKET_TYPES = frozenset({"Boss", "Remembrance", "Legendary", "GreatRune", "KeyItem"})
+# ...but a location tagged with any of these is EXCLUDED from big-ticket -- a shop-purchase check
+# (Enia's remembrance store) is Legendary by rarity yet buy-only, so region Locks shouldn't land on
+# it and the tracker shouldn't flag it. Shop is the only big-ticket-adjacent tag Shop rows carry, so
+# this drops exactly Enia's 58 remembrance-gear slots; world-drop Legendaries keep their tag.
+BIG_TICKET_EXCLUDE_TAGS = frozenset({"Shop"})
+
+
+def is_big_ticket(tags) -> bool:
+    """Single source for "is this a prominent/big-ticket check". True iff the location's LOCATION_TAGS
+    include a BIG_TICKET_TYPES type and NONE of BIG_TICKET_EXCLUDE_TAGS. Used by features/curated_fill
+    (lock placement) AND tools/gen_location_regions (the F6 tracker's big_ticket column) so the two
+    can't drift. The Legendary TAG itself is untouched -- important_locations / display still see it."""
+    t = set(tags or ())
+    return bool(BIG_TICKET_TYPES & t) and not (BIG_TICKET_EXCLUDE_TAGS & t)
 
 
 class ContractKey:
