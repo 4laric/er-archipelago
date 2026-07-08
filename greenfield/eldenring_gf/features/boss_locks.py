@@ -177,6 +177,18 @@ class BossLocks(Feature):
             if r in kept:
                 for (aid, _fl, reward) in REGION_BOSSES[r]:
                     gate[aid] = "Boss Key: " + _boss_label(reward)
+        # ALSO gate dungeon-SWEEP MEMBERS behind their boss key (2026-07-08). A sweep member's real
+        # in-game trigger is the boss-key-gated sweep, not its own pickup flag (which may not even fire
+        # in its tagged region -- e.g. a mis-pinned remembrance). Leaving members "manually reachable"
+        # let fill place a region Lock on one while its Boss Key sat behind that very Lock -> an
+        # unwinnable seed (in-game soft-lock: Altus Lock stranded on the Full Moon Queen sweep member,
+        # its Boss Key: Grafted in Altus). Gating members forces fill to keep the key in the boss's own
+        # sphere whenever a member holds progression, so the key is ALWAYS reachable by the time you can
+        # reach the boss. The boss's own-check gating above wins on overlap (setdefault).
+        if world.options.dungeon_sweep.value != 0:
+            for _fl_str, _key in _sweep_lock_gates(kept).items():
+                for _member in DUNGEON_SWEEPS.get(int(_fl_str), ()):
+                    gate.setdefault(_member, _key)
         if not gate:
             return
         player = world.player
