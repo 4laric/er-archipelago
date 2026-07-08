@@ -91,4 +91,20 @@ class AreaLocks(Feature):
             raise contract.ContractError(
                 "area_locks: kept region(s) resolved an open flag but have no REGION_PLAY_IDS "
                 "geometry (kick-watch would be silently off): " + ", ".join(sorted(missing)))
-        return {}
+        # UN-FOLD (2026-07-08 dead-drop fix): emit areaLockFlags for ALL regions, not just kept ones.
+        # KEPT regions use their open flag (unlocks when the "<Region> Lock" is received via the
+        # regionOpenFlags path). SEALED (non-kept) regions ALSO get a range keyed to their open flag --
+        # which is NEVER received (no Lock in the pool) and NEVER lit (the player is kicked before they
+        # can reach the grace) -> the range stays locked -> the kick-watch permanently ejects the
+        # player. Without this a sealed region has NO range and the client treats it as open, so you
+        # can walk into a sealed sub-area (e.g. Ruin-Strewn Precipice under a sealed Mt. Gelmir), where
+        # vanilla-suppress fires by item-id but there's no active check to grant -> DEAD DROPS. The
+        # client honors a non-empty areaLockFlags as-is (region.rs), so no client change is needed.
+        ranges = []
+        for _region, _ids in REGION_PLAY_IDS.items():
+            _flag = REGION_OPEN_FLAGS.get(_region)
+            if _flag is None:
+                continue  # no resolved open flag -> can't gate this region (left open, prior behavior)
+            for _pid in _ids:
+                ranges.append([_pid, _pid, _flag])
+        return {contract.AREA_LOCK_FLAGS: ranges}

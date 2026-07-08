@@ -21,10 +21,15 @@ INDEPENDENT SOURCE
 Why this is INDEPENDENT of the derivation under test: gen_data assigns a DUNGEON grace's region via
 the map-id keyed `DUNGEON_REGION_OVERRIDE` / `_pref2maj(region_of())` path -- the exact path the
 misbundle bug lived in -- and NEVER via the raw play_region_id. So cross-checking a dungeon grace's
-emitted region against its play_region_id (this oracle) never re-runs that buggy transform. (Gen DOES
-use play_region_id for OVERWORLD-m60 graces via `PLAY2AP[tile_pr(...)]`; checking those against the
-pid would be near-circular, so this oracle asserts on DUNGEON graces only -- which is also precisely
-where the "14 caves -> Limgrave" bug lived.)
+emitted region against its play_region_id (this oracle) never re-runs that buggy transform.
+
+OVERWORLD graces: gen ORIGINALLY bucketed these by `PLAY2AP[tile_pr(grace_tile)]` -- the per-tile
+anchor VOTE, which this file once believed equalled the grace's own pid (hence "near-circular, skip
+them"). That assumption was FALSE for boundary tiles: 76301 "Altus Plateau" (tile 38,50) and 76502
+"Grand Lift of Rold" (tile 49,53) sit on tiles whose vote is Liurnia/Mountaintops but whose pid is
+Altus (63xxx), so they leaked into the wrong bundle (in-game report 2026-07-08). gen now buckets
+overworld graces by the authoritative pid too, so the overworld-boundary pin below guards that path
+(a regression to tile_pr re-breaks it -- pid and tile-vote genuinely differ on boundary tiles).
 
 Overworld play_region_ids partition the Lands Between by the thousands prefix (REGION_ID_MAP.md):
 61xxx = Limgrave/Weeping landmass, 62xxx = Liurnia, 63xxx = Altus/Gelmir, 64xxx = Caelid/Dragonbarrow,
@@ -192,6 +197,42 @@ class GraceRegionCorrectness(unittest.TestCase):
             "region's cluster and is not a documented connector. "
             "(flag, pid, pid_cluster, region, region_cluster, tile): " + repr(bad[:8]),
         )
+
+    # Overworld boundary graces whose per-tile anchor VOTE disagrees with their authoritative pid
+    # (in-game report 2026-07-08). Pinned: gen must bundle these by pid, not tile_pr.
+    OVERWORLD_BOUNDARY_GRACE_PINS = {
+        76301: ("Altus Plateau", 63000),  # "Altus Plateau" grace, tile 38,50 votes Liurnia -> pid 63000
+        76502: ("Altus Plateau", 63003),  # "Grand Lift of Rold", tile 49,53 votes Mountaintops -> pid 63003
+    }
+
+    def test_overworld_boundary_graces_follow_authoritative_pid(self):
+        """Pinned regression (in-game 2026-07-08): an OVERWORLD grace on a contested boundary tile must
+        be bundled by its own play_region_id, not the per-tile anchor vote. 76301 'Altus Plateau' leaked
+        into Liurnia (its lock lit the Altus grace) and 76502 'Grand Lift of Rold' into Mountaintops;
+        both carry Altus (63xxx) pids. Also asserts the GENERAL invariant for every overworld grace with
+        an overworld pid: emitted-region cluster == pid cluster (a revert to tile_pr re-breaks it, since
+        pid and tile-vote genuinely differ on boundary tiles)."""
+        for fl, (region, pid) in self.OVERWORLD_BOUNDARY_GRACE_PINS.items():
+            self.assertEqual(self.pids.get(fl), pid, f"independent source pid for grace {fl} changed")
+            self.assertEqual(
+                self.emitted.get(fl), region,
+                f"overworld grace {fl} must be bundled under {region!r} (its play_region {pid}); got "
+                f"{self.emitted.get(fl)!r} -- regressed to the per-tile anchor vote?")
+        bad = []
+        for fl, region in self.emitted.items():
+            tile = self.tiles.get(fl)
+            if not tile or _is_dungeon(tile):
+                continue
+            pid = self.pids.get(fl)
+            cluster = REGION_CLUSTER.get(region)
+            if pid is None or not (OW_PID_LO <= pid <= OW_PID_HI) or cluster is None:
+                continue
+            if pid // 1000 != cluster:
+                bad.append((fl, pid, region, cluster, tile))
+        self.assertEqual(
+            bad, [],
+            f"{len(bad)} overworld grace(s) bundled into a region whose cluster != their play_region "
+            f"cluster (per-tile-vote regression, 2026-07-08): {bad[:8]}")
 
     def test_boundary_allow_entries_are_actually_cross_cluster(self):
         """Keep the connector allow-list honest: every entry must genuinely be a dungeon grace whose

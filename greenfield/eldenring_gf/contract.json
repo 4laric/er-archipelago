@@ -648,11 +648,11 @@
       "shape": "ANY",
       "required": true,
       "profiles": [
-        "bedrock"
+        "both"
       ],
-      "producer": "(bedrock apworld)",
-      "consumer": "core.rs",
-      "doc": "per-item quantity map."
+      "producer": "core._base_slot_data (greenfield) / bedrock apworld",
+      "consumer": "core.rs receive.rs itemCounts",
+      "doc": "per-item quantity map {str(ap_item_id): qty}; client grants full_id x qty. Greenfield emits stack sizes for throwables (x10) and finished pots (x4) (features/filler_curation)."
     },
     {
       "name": "naturalKeyTriggers",

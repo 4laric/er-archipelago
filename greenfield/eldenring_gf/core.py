@@ -359,6 +359,9 @@ class GreenfieldEldenRingWorld(World):
                 self.random.shuffle(_cand)
                 for j, idx in enumerate(_cand[:_n_inj]):
                     pool[idx] = self.create_item(_low[j % len(_low)])
+        # curated_filler: seize junk-consumable filler -> Nightreign curated roster (in-pool swap).
+        from .features import filler_curation as _fc
+        _fc.curate(self, pool)
         self.multiworld.itempool += pool
 
     def pre_fill(self) -> None:
@@ -500,9 +503,14 @@ class GreenfieldEldenRingWorld(World):
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
-            contract.ATTUNEMENT_GATE: _opt("attunement_gate"),  # 0 off; nonzero = attunement-release boss gate (features/attunement.py)
-            contract.BOSS_KEYS: _opt("boss_keys"),  # 0 off; nonzero = Boss Keys mode B (features/boss_locks.py)
         }
+
+    def _item_counts(self) -> Dict[str, int]:
+        # Per-item GRANT quantity (stacks): throwables x10, finished pots x4 -> slot_data itemCounts
+        # keyed by AP item id (the client grants full_id x qty). Sparse: only stacked items appear.
+        from .features.filler_curation import stack_qty_by_name
+        return {str(item_name_to_id[_n]): _q for _n, _q in stack_qty_by_name().items()
+                if _n in item_name_to_id}
 
     def _base_slot_data(self) -> Dict[str, Any]:
         kept = self._kept()
@@ -519,6 +527,7 @@ class GreenfieldEldenRingWorld(World):
             contract.WORLD_LOGIC: "region_lock",
             contract.LOCATION_FLAGS: loc_flags,
             contract.AP_IDS_TO_ITEM_IDS: _AP_IDS_TO_ITEM_IDS,
+            contract.ITEM_COUNTS: self._item_counts(),
             contract.REGION_OPEN_FLAGS: region_open,
             contract.OPTIONS: self._options_echo(),
             "region_count": len(kept),

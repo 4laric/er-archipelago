@@ -114,6 +114,34 @@ class RegionCorrectness(unittest.TestCase):
             "Sample: " + repr(quarantined[:5]),
         )
 
+    # ------------------------------------------------------------------ FLAG_REGION_OVERRIDE pins
+    # In-game tracker report 2026-07-08: three overworld pickups showed under Liurnia because their
+    # source tile was a contested Liurnia/Altus boundary tile (nearest-neighbour tie) or a wrong emevd
+    # scan tile. gen_data.FLAG_REGION_OVERRIDE (+ a GLOBAL_RECOVER entry for the Right medallion)
+    # correct them. Pinned so a regen can't silently regress them. Independent of the override
+    # MECHANISM: this asserts the emitted data.py region per flag against the hand-verified vanilla
+    # location, not against the override table.
+    FLAG_REGION_PINS = {
+        1039507100: "Altus Plateau",               # Godfrey Icon = Godefroy the Grafted (Golden Lineage
+                                                   #   Evergaol, NW Altus). Was Liurnia (tile 39,50 NN tie).
+        1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left), physically Castle
+                                                   #   Sol. Was Liurnia (emevd mis-tiled to m60_36_41).
+        400130:     "Liurnia of the Lakes",        # Haligtree Secret Medallion (Right), Village of the
+                                                   #   Albinaurics. Was global/unplaced (SKIPPED) -> vanilla
+                                                   #   leak; recovered as a Liurnia check.
+    }
+
+    def test_flag_region_overrides_pinned(self):
+        """Boundary/bad-tile pickups land in their hand-verified region (in-game report 2026-07-08)."""
+        for flag, want in self.FLAG_REGION_PINS.items():
+            regions = self.assigned.get(flag)
+            self.assertIsNotNone(
+                regions, f"flag {flag} not emitted as any location (expected in {want!r})")
+            self.assertIn(
+                want, regions,
+                f"flag {flag} should be assigned to {want!r} (boundary mis-region regression, "
+                f"2026-07-08); got {sorted(regions)}")
+
     def test_hub_quarantine_budget(self):
         """Tripwire for the quarantine class: the HUB bucket must not balloon. A regression that
         re-routes placed items to HUB pushes this over budget even if the per-row check is loosened."""
