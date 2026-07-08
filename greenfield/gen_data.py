@@ -483,7 +483,11 @@ REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
 # from grace_flags.tsv (grace_name-labeled) give them their own open flag:
 #   Abyssal Woods -> 76860 'Abyssal Woods' (m61_50_42); Jagged Peak -> 76850 'Foot of the Jagged
 #   Peak' (m61_52_40); Scadu Altus -> 76900 'Highroad Cross' (m61_48_45).
-_DLC_OPEN_FALLBACK = {'Abyssal Woods': 76860, 'Jagged Peak': 76850, 'Scadu Altus': 76900}
+_DLC_OPEN_FALLBACK = {'Abyssal Woods': 76860, 'Jagged Peak': 76850, 'Scadu Altus': 76900,
+                      # DLC legacy dungeons with only boss-arena locations (no grace resolves
+                      # via _open_cand) -> hand-verified front-door warp graces (grace_region_map):
+                      'Ancient Ruins of Rauh': 76941,  # 'Rauh Ancient Ruins, East' (m61_46_47)
+                      'Enir-Ilim': 72012}              # 'Enir-Ilim: Outer Wall' (m20 entrance)
 for _dr, _df in _DLC_OPEN_FALLBACK.items():
     if _dr in spokes and _dr not in REGION_OPEN_FLAGS:
         REGION_OPEN_FLAGS[_dr] = _df

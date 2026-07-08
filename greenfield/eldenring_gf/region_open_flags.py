@@ -4,9 +4,11 @@ the region audit (SPEC-PARITY.md 14.4); client treats an absent open flag as unl
 REGION_OPEN_FLAGS = {
     'Abyssal Woods': 76860,
     'Altus Plateau': 73204,
+    'Ancient Ruins of Rauh': 76941,
     'Belurat': 74100,
     'Caelid': 73207,
     'Consecrated Snowfield': 73019,
+    'Enir-Ilim': 72012,
     'Eternal Cities': 71211,
     'Farum Azula': 71303,
     'Gravesite Plain': 76800,
@@ -24,6 +26,4 @@ REGION_OPEN_FLAGS = {
 }
 
 REGION_OPEN_PENDING = [
-    'Ancient Ruins of Rauh',
-    'Enir-Ilim',
 ]
