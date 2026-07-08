@@ -372,6 +372,7 @@ ITEM_TIERS = {
     "Maliketh's Helm": 3,
     'Manor Towershield': 1,
     'Mantis Blade': 1,
+    "Marais Executioner's Sword": 3,
     "Marika's Hammer": 3,
     "Marika's Scarseal": 2,
     "Marika's Soreseal": 3,

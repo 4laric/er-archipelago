@@ -699,6 +699,7 @@ LOCATION_TAGS = {
     7773902: ['Boss'],
     7773903: ['Boss'],
     7773911: ['KeyItem'],
+    7773923: ['Legendary'],
 }
 
-TAG_COUNTS = {'Basin': 17, 'Boss': 54, 'Church': 12, 'EniaShop': 58, 'Fragment': 21, 'GreatRune': 6, 'KeyItem': 13, 'Legendary': 80, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 30, 'Shop': 479}
+TAG_COUNTS = {'Basin': 17, 'Boss': 54, 'Church': 12, 'EniaShop': 58, 'Fragment': 21, 'GreatRune': 6, 'KeyItem': 13, 'Legendary': 81, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 30, 'Shop': 479}

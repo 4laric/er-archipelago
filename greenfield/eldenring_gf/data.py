@@ -338,7 +338,7 @@ LOCATIONS = {
         ("Roundtable Hold :: Erdtree's Favor [f18007050]", 7771895, 18007050),
         ('Roundtable Hold :: Erdtree Greatbow [f18007900]', 7771896, 18007900),
         ('Roundtable Hold :: Larval Tear [f510340]', 7773922, 510340),
-        ('Roundtable Hold :: Larval Tear [f1049557700]', 7773923, 1049557700),
+        ('Roundtable Hold :: Larval Tear [f1049557700]', 7773924, 1049557700),
     ],
     'Abyssal Woods': [
         ("Abyssal Woods :: Mad Craftsman's Cookbook [1] [f68750]", 7770169, 68750),
@@ -796,6 +796,7 @@ LOCATIONS = {
         ('Altus Plateau :: Somber Smithing Stone [7] [f1048517000]', 7773234, 1048517000),
         ('Altus Plateau :: Ash of War: Phantom Slash [f1048517700]', 7773235, 1048517700),
         ('Altus Plateau :: Crimsonspill Crystal Tear [f65000]', 7773885, 65000),
+        ("Altus Plateau :: Marais Executioner's Sword [f510820]", 7773923, 510820),
     ],
     'Ancient Ruins of Rauh': [
         ('Ancient Ruins of Rauh :: Remembrance of the Saint of the Bud [f510600]', 7770838, 510600),

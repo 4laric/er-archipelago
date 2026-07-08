@@ -407,6 +407,11 @@ GLOBAL_RECOVER = {
     400237: "Caelid",  # Bestial Sling (2nd)
     400238: "Caelid",  # Clawmark Seal (1st)
     400239: "Caelid",  # Beast Eye (1st / kill Gurranq)
+    # Marais Executioner's Sword: Elemer of the Briar's drop at the Shaded Castle (NW Altus
+    # Plateau). Fired via the common boss-drop handler (EMEVD event 82: entity 1100/reward 510820),
+    # so it has no map lot and lands in the unplaced common-event bucket -- recover it as an Altus
+    # check so felling Elemer sends a check instead of paying the vanilla sword.
+    510820: "Altus Plateau",
 }
 # Missable location flags (matt-free): checks gated behind a LIMITED consumable or a killable NPC, so
 # fill must not place required progression there (features/missable_locations.py enforces via item_rule).

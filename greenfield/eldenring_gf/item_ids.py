@@ -918,6 +918,7 @@ ITEM_CATALOG = {
     'Manor Towershield': 32190000,
     'Mantis Blade': 7120000,
     'Mantle of Thorns': 1075746724,
+    "Marais Executioner's Sword": 3150000,
     "Margit's Shackle": 1073743964,
     "Marika's Hammer": 11150000,
     "Marika's Rune": 1075744784,
@@ -5411,7 +5412,8 @@ LOCATION_ITEM = {
     7773920: 'Clawmark Seal',
     7773921: 'Beast Eye',
     7773922: 'Larval Tear',
-    7773923: 'Larval Tear',
+    7773923: "Marais Executioner's Sword",
+    7773924: 'Larval Tear',
 }
 
 DLC_ITEM_NAMES = {
