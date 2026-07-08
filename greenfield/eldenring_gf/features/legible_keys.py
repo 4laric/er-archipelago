@@ -9,9 +9,10 @@ that mints ``Boss Key: <label>``), so a downstream consumer can look up by that 
 re-deriving anything. The labels below were verified against boss_data.REGION_BOSSES (see the
 unit test, which re-derives them and asserts every mapping key joins).
 
-Bosses with no real vanilla capstone key (Godrick/Grafted, Fire Giant, Dancing Lion, Romina,
-Golden Hippopotamus, Messmer/Impaler, Rellana, etc.) are simply ABSENT here -- the resolver
-falls back to the synthetic ``Boss Key: <Boss>`` name for them.
+Bosses with no real vanilla capstone key (Godrick/Grafted, Dancing Lion, Romina, Golden
+Hippopotamus, Messmer/Impaler, Rellana, etc.) are simply ABSENT here -- the resolver falls
+back to the synthetic ``Boss Key: <Boss>`` name for them. (Fire Giant IS mapped: Mountaintops'
+capstone fog is gated by the Haligtree Secret Medallion (Right) via Castle Sol, spec section 4.)
 
 Pure module: no Archipelago imports, so it runs in the data-invariant gate.
 """
@@ -28,6 +29,7 @@ CAPSTONE_VANILLA_KEYS = {
     "Naturalborn":      "Fingerslayer Blade",            # Astel, Naturalborn of the Void (Eternal Cities)
     "Black Blade":      "Deathroot",                     # Maliketh, the Black Blade (Farum Azula; Gurranq eats N deathroot)
     "a God and a Lord": "Messmer's Kindling",            # Promised Consort Radahn (DLC finale, Enir-Ilim)
+    "Fire Giant":       "Haligtree Secret Medallion (Right)",  # Fire Giant (Mountaintops; Castle Sol holds the Right half -> gates Fire Giant's fog, spec section 4)
 }
 
 
