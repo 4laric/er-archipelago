@@ -93,9 +93,16 @@ def _loc_tags(r):
 # otherwise the client's repurpose would clobber a tracked check. Costs one minor vanilla slot.
 MINIBAKER_VENDOR_FLAGS=frozenset({60290})
 _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
+# Redundant obtained-flag TWINS of a physically-placed pickup: dropped so the medallion isn't a
+# double check. 400280 = Haligtree Secret Medallion (Left) obtained flag, which the flag_prefix
+# heuristic buckets into Leyndell -- but the Left half is a real world pickup (Castle Sol, flag
+# 1051587800, FLAG_REGION_OVERRIDE'd to Mountaintops), so the obtained twin is a phantom Leyndell
+# check that fires off the same pickup. (Rold 400001 stays: it is GRANTED, never placed, so its
+# obtained flag is the only handle; Haligtree Right 400130 stays: its physical pickup isn't detected.)
+EXCLUDE_FLAGS = frozenset({400280})
 rows=[r for r in _ALLROWS
       if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
-      and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS]
+      and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS]
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
@@ -149,7 +156,7 @@ _REPIN_N = [0]; _QUAR_N = [0]; _RECOVER_N = [0]
 # contested Liurnia/Altus boundary tile (nearest-neighbour tie) or is simply wrong in the emevd scan.
 # This per-flag table wins over EVERY other path (dungeon override, emevd/global audit, tile NN).
 # Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
-# tracker report 2026-07-08 (Godfrey Icon + Haligtree medallion mis-shown under Liurnia).
+# tracker report 2026-07-08 (Godfrey Icon talisman + Haligtree medallion mis-shown under Liurnia).
 FLAG_REGION_OVERRIDE = {
     1039507100: "Altus Plateau",               # Godfrey Icon = Godefroy the Grafted's drop at the
                                                #   Golden Lineage Evergaol (NW Altus). Its EMEVD tile

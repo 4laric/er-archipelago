@@ -20,7 +20,7 @@ from collections import defaultdict
 
 from Options import Toggle
 from ..registry import Feature, register
-from ..contract import BIG_TICKET_TYPES  # single source of truth (shared with the F6 tracker)
+from ..contract import is_big_ticket  # single source of truth (shared with the F6 tracker)
 
 try:
     from ..location_tags import LOCATION_TAGS
@@ -59,8 +59,7 @@ def select_priority(world):
         ap = getattr(loc, "address", None)
         if ap is None:
             continue
-        tags = LOCATION_TAGS.get(ap)
-        if tags and BIG_TICKET_TYPES.intersection(tags):
+        if is_big_ticket(LOCATION_TAGS.get(ap)):
             selected.append(loc)
     return selected
 

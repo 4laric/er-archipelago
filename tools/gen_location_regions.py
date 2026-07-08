@@ -47,7 +47,7 @@ def load_rows():
     plus the greenfield REGIONS list (the coarse lock-item keys)."""
     data = load_gf("data")
     tags = load_gf("location_tags").LOCATION_TAGS
-    big_ticket_tags = set(load_gf("contract").BIG_TICKET_TYPES)  # contract = single source
+    is_big_ticket = load_gf("contract").is_big_ticket  # contract = single source (excludes Shop)
     missable = set(load_gf("missable_locations").MISSABLE_LOCATIONS)
     open_flags = load_gf("region_open_flags").REGION_OPEN_FLAGS
 
@@ -59,7 +59,7 @@ def load_rows():
     for region, locs in data.LOCATIONS.items():
         coarse = "" if region == data.HUB else region
         for _name, ap_id, _flag in locs:
-            big = bool(big_ticket_tags & set(tags.get(ap_id, ())))
+            big = is_big_ticket(tags.get(ap_id, ()))
             rows.append((int(ap_id), region, coarse, big, ap_id in missable))
     rows = sorted(rows)
     ids = [r[0] for r in rows]

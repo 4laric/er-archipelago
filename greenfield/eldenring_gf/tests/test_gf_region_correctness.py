@@ -29,6 +29,7 @@ Run:  python -m pytest greenfield/eldenring_gf/tests/test_gf_region_correctness.
 """
 import csv
 import importlib.util
+import re
 import os
 import unittest
 
@@ -60,6 +61,16 @@ def _load_region_map():
         return list(csv.DictReader(f))
 
 
+def _load_location_tags():
+    lt = os.path.join(GF_PKG, "location_tags.py")
+    if not os.path.isfile(lt):
+        return {}
+    spec = importlib.util.spec_from_file_location("gf_loctags_check", lt)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return getattr(mod, "LOCATION_TAGS", {})
+
+
 class RegionCorrectness(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -76,6 +87,7 @@ class RegionCorrectness(unittest.TestCase):
             for (_name, _apid, flag) in locs:
                 assigned.setdefault(int(flag), set()).add(region)
         cls.assigned = assigned
+        cls.tags = _load_location_tags()
 
     def test_region_map_parsed_nonempty(self):
         self.assertTrue(self.rows, "region_map.csv parsed to zero rows")
@@ -141,6 +153,47 @@ class RegionCorrectness(unittest.TestCase):
                 want, regions,
                 f"flag {flag} should be assigned to {want!r} (boundary mis-region regression, "
                 f"2026-07-08); got {sorted(regions)}")
+        # The Haligtree Left obtained-flag twin (f400280, flag_prefix -> phantom Leyndell) is dropped
+        # via gen_data EXCLUDE_FLAGS so the placed Left half (f1051587800, Mountaintops) is the sole
+        # check -- not a double. Rold (400001, granted) and Right (400130, physical undetected) stay.
+        self.assertIsNone(
+            self.assigned.get(400280),
+            "Haligtree Left obtained-flag twin f400280 should be EXCLUDED (redundant with the placed "
+            f"f1051587800); got region(s) {self.assigned.get(400280)}")
+
+    # ------------------------------------------------------------------- unique KeyItem singletons
+    # KeyItem = gen_data's curated set of UNIQUE progression keys (medallions, lift/glintstone keys).
+    # Each is 1-of-1 in vanilla, so it must resolve to exactly ONE check -- UNLESS it is a key with
+    # genuinely multiple vanilla copies, allowlisted here with its count (cite the copies). This guards
+    # the OBTAINED-FLAG TWIN class (in-game 2026-07-08): Haligtree Secret Medallion (Left) had both a
+    # placed Castle Sol pickup AND a 4000xx flag_prefix obtained-flag heuristic twin -> two checks for
+    # one medallion (the twin phantom-bucketed to Leyndell). Great Runes / Remembrances do NOT carry
+    # the KeyItem tag (they are GreatRune/Remembrance-tagged and legitimately DUAL-check: rune
+    # drop+restore, boss-drop + Enia duplicate purchase), so they never trip this gate.
+    KEYITEM_MULTI_COPY = {
+        "Academy Glintstone Key": 2,   # Meeting Place ruins corpse + Schoolhouse Classroom (Thops)
+        "Imbued Sword Key": 3,         # three illusory-wall keys: Raya Lucaria, Caelid, Land of Shadow
+    }
+
+    def test_unique_key_items_are_singletons(self):
+        """A curated unique KeyItem must resolve to exactly one location (except documented multi-copy
+        keys). A re-introduced obtained-flag twin of a placed medallion re-doubles its count here."""
+        counts = {}
+        for region, locs in self.d.LOCATIONS.items():
+            for (name, apid, _flag) in locs:
+                if "KeyItem" not in self.tags.get(apid, ()):
+                    continue
+                m = re.match(r".*:: (.+) \[f\d+\]$", name)
+                counts.setdefault(m.group(1) if m else name, []).append(region)
+        bad = []
+        for item, regs in sorted(counts.items()):
+            if len(regs) > self.KEYITEM_MULTI_COPY.get(item, 1):
+                bad.append((item, len(regs), self.KEYITEM_MULTI_COPY.get(item, 1), sorted(regs)))
+        self.assertEqual(
+            bad, [],
+            str(len(bad)) + " unique KeyItem(s) exceed their allowed location count -- an obtained-flag "
+            "TWIN regression (2026-07-08 Haligtree Left) or a new multi-copy key needing an allowlist "
+            "entry. (item, found, allowed, regions): " + repr(bad))
 
     def test_hub_quarantine_budget(self):
         """Tripwire for the quarantine class: the HUB bucket must not balloon. A regression that
