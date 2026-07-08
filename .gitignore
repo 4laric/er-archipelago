@@ -121,3 +121,4 @@ genfuzz_ci_*.md
 gensweep_*.csv
 gensweep_*.md
 preflight_*.log
+elden_ring_artifacts/
