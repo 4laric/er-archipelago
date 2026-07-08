@@ -28,6 +28,18 @@ step(){ printf '\n==== %s\n' "$1"; }
 record(){ RESULTS+=("$1|$2"); [ "$2" = PASS ] || [ "$2" = SKIP ] || fail=1; }
 nhash(){ [ -f "$1" ] && tr -d '\r' < "$1" | sha256sum | cut -d' ' -f1 || echo NONE; }
 
+step "INTEGRITY (mount-truncation gate)"
+# Cheapest gate, runs first: catch silent mount-write truncation, NUL injection, or
+# zero-byte files in any tracked source before the heavier gates. ERROR -> FAIL;
+# delimiter/newline WARNs are advisory and do not fail. In a normal clone (this
+# script's intended env) there is no truncating mount, so it is quiet on clean trees.
+if [ -f "$REPO/tools/check_integrity.py" ]; then
+  if ( cd "$REPO" && "$PY" tools/check_integrity.py --tracked ); then
+    record INTEGRITY PASS; else record INTEGRITY FAIL; fi
+else
+  echo "  SKIP: tools/check_integrity.py absent"; record INTEGRITY SKIP
+fi
+
 step "GREENFIELD (a) DATA DRIFT"
 dataPy="$GF/eldenring_gf/data.py"; openPy="$GF/eldenring_gf/region_open_flags.py"
 if [ ! -f "$REPO/elden_ring_artifacts/grace_flags.tsv" ]; then
