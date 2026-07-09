@@ -567,17 +567,6 @@
       "doc": "{str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id [, gate:'Boss Key: <Boss>', display_key:<vanilla key name>]}}: kept BASE-game bosses always; DLC bosses added when boss_keys is ON. Client mints the 'Felled:' trophy on boss-defeat (mode A); the mode-B 'gate' (defer own check until key) and 'display_key' (legible vanilla lock name) ride the same entry when boss_keys is ON."
     },
     {
-      "name": "regionAttunement",
-      "shape": "ANY",
-      "required": false,
-      "profiles": [
-        "greenfield"
-      ],
-      "producer": "features/attunement.py",
-      "consumer": "core.rs parse_region_attunement / self.region_attunement",
-      "doc": "{str(region): {threshold:int, member_ap_ids:[int], bloom_flags:[int]}}: per-region attunement gate. Emitted ONLY when the attunement gate is ON; absent => feature off. Client holds boss payouts until a region attunes, then blooms its graces (ATTUNEMENT-RELEASE, core.rs)."
-    },
-    {
       "name": "filler_foreign_localized",
       "shape": "ANY",
       "required": false,

@@ -68,7 +68,6 @@ game: "Elden Ring (Greenfield)"
   # ---- Warp-in ------------------------------------------------------------
   grace_rando: false             # BUNDLE: a region lock lights ALL of that region's graces (no scatter items).
                                  # true (default) = freebie+scatter: one front-door grace + the rest become item drops.
-  attunement_gate: false         # per-region attunement gate (defers boss payouts until a region attunes); off for a first pass.
 
   # ---- Upgrade curve ------------------------------------------------------
   stone_ramp: true               # AUTO-SIZE smithing stones along the fill spheres to track the smoothstep target.
