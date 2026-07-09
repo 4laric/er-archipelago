@@ -186,7 +186,15 @@ _MISC_NON_CHECK = frozenset({60210, 590000})  # 590000 = empty-item Stormveil ch
 _ASHEN_DEAD_FLAGS = frozenset({510070, 510230, 190540, 190550})
 def _is_ashen_dead(_fl):
     return _fl in _ASHEN_DEAD_FLAGS or 11050000 <= _fl <= 11059999
-EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
+# PHANTOM recovery duplicates: a common-event/unplaced `global` flag that names a UNIQUE key item
+# already fully placed elsewhere -- recovering it would inject an extra copy of a singleton key.
+#   1033477020 = a 4th "Imbued Sword Key" (decodes to m60_33_47/Liurnia) that sits in the unplaced
+#     `global` bucket (map PENDING) and is referenced in NO EMEVD, while the three real keys are
+#     placed as method='treasure' (Raya Lucaria 14007630, Caelid 1050397910, Land of Shadow
+#     2048447800). The game has exactly three -> drop this phantom so global-recovery doesn't
+#     re-double the singleton (test_unique_key_items_are_singletons).
+_RECOVER_PHANTOM_DUPES = frozenset({1033477020})
+EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK | _RECOVER_PHANTOM_DUPES
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
@@ -224,6 +232,12 @@ for _r in _ALLROWS:
         try: _FLAGS_OF_INTEREST.add(int(_r['flag']))
         except (KeyError, ValueError): pass
 _FLAG2MAPS = defaultdict(set)   # flag(int) -> set of map ids (e.g. 'm60_33_42_00','m10_00_00_00')
+# Entity-suffix index (matt-free GLOBAL RECOVERY): 6-digit common-event flags (e.g. O'Neil 530405) do
+# NOT self-encode a tile, but their DROPPING ENTITY is a 10-digit self-encoding id (1[01]XXYYLLLL)
+# whose last 6 digits equal the flag (entity 1040530405 -> flag 530405 -> decode the entity -> m60_40_53).
+# Scan the MAP emevds for such entities, decode each to its tile, index by last-6 suffix. Tiebreak a
+# shared suffix by FEWEST referencing files (the more specific placement). suffix -> {tile: set(files)}.
+_ENT_SUF_FILES = defaultdict(lambda: defaultdict(set))
 if os.path.isdir(_EVDIR0) and _FLAGS_OF_INTEREST:
     for _fn in os.listdir(_EVDIR0):
         _mm = re.match(r"(m\d\d.*)\.emevd\.dcx\.js$", _fn)
@@ -234,6 +248,13 @@ if os.path.isdir(_EVDIR0) and _FLAGS_OF_INTEREST:
         _ints = set(int(_x) for _x in re.findall(r"\d+", _txt))   # maximal digit runs = word boundary
         for _fl in (_ints & _FLAGS_OF_INTEREST):
             _FLAG2MAPS[_fl].add(_mid)
+        for _es in set(re.findall(r"\d+", _txt)):                 # 10-digit self-encoding drop entities
+            if len(_es) == 10 and _es[0] == '1' and _es[1] in '01':
+                _et = "m" + ("60" if _es[1] == '0' else "61") + "_" + _es[2:4] + "_" + _es[4:6]
+                _ENT_SUF_FILES[_es[-6:]][_et].add(_fn)
+_ENTITY_SUFFIX = {}             # 6-digit flag suffix -> decoded overworld tile of its drop entity
+for _suf, _tf in _ENT_SUF_FILES.items():
+    _ENTITY_SUFFIX[_suf] = min(_tf.items(), key=lambda _kv: (len(_kv[1]), _kv[0]))[0]
 def _unique_m60(_fl):
     _ms = _FLAG2MAPS.get(_fl)
     if _ms and len(_ms) == 1:
@@ -246,6 +267,45 @@ def _m60_tile_region(_mid):
     if not _m: return None
     return PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
 _REPIN_N = [0]; _QUAR_N = [0]; _RECOVER_N = [0]
+
+# ---- GLOBAL-recovery tile decode (matt-free FULL coverage) ------------------------------------
+# ER lot/flag ids self-encode their map tile: 10-digit 1[01]XXYYLLLL -> m60_XX_YY (prefix 10->m60,
+# 11->m61); 8-digit BBSSLLLL -> mBB_SS (interior); 6-digit common-event flags via the entity-suffix
+# index above. A decoded tile is accepted only if it is REAL: it has an EMEVD map file OR appears
+# among placed region_map maps -- matched by 3-part m60_XX_YY / 2-part mBB_SS PREFIX (EMEVD file
+# names carry a 4th _NN block, e.g. m60_40_53_00). Degrades to no recovery if event/ + maps absent.
+_VALID_TILE_PREFIXES = set()
+def _add_tile_prefix(_p):
+    _VALID_TILE_PREFIXES.add(_p)                            # 3-part (m60_XX_YY / mBB_SS_NN)
+    _VALID_TILE_PREFIXES.add("_".join(_p.split("_")[:2]))  # 2-part (mBB_SS)
+if os.path.isdir(_EVDIR0):
+    for _fn in os.listdir(_EVDIR0):
+        _pm = re.match(r"(m\d\d_\d\d_\d\d)", _fn)
+        if _pm: _add_tile_prefix(_pm.group(1))
+for _rr0 in _ALLROWS:
+    _pm = re.match(r"(m\d\d_\d\d_\d\d)", _rr0.get("map") or "")
+    if _pm: _add_tile_prefix(_pm.group(1))
+def _recover_tile(_flag):
+    """Decode a global/global_filler flag to a VALID map tile (overworld m60_XX_YY / m61_XX_YY, or
+    interior mBB_SS), else None. Honors the SAME exclusions applied to the main `rows` filter
+    (MAP_REVEAL / MINIBAKER / EXCLUDE_FLAGS / ashen-dead) plus the 9100-9125 tutorial-popup flags
+    (a real tile, but not loot). GLOBAL_RECOVER precedence is enforced by the callers, not here."""
+    try: _fl = int(_flag)
+    except (TypeError, ValueError): return None
+    if (_fl in MAP_REVEAL_FLAGS or _fl in MINIBAKER_VENDOR_FLAGS or _fl in EXCLUDE_FLAGS
+            or _is_ashen_dead(_fl) or 9100 <= _fl <= 9125):
+        return None
+    _s = str(_fl); _tile = None
+    if len(_s) == 10 and _s[0] == '1' and _s[1] in '01':
+        _tile = "m" + ("60" if _s[1] == '0' else "61") + "_" + _s[2:4] + "_" + _s[4:6]
+    elif len(_s) == 8:
+        _tile = "m" + _s[0:2] + "_" + _s[2:4]
+    elif len(_s) == 6:
+        _tile = _ENTITY_SUFFIX.get(_s)
+    if not _tile:
+        return None
+    _key = _tile if _tile[:3] in ("m60", "m61") else "_".join(_tile.split("_")[:2])
+    return _tile if _key in _VALID_TILE_PREFIXES else None
 
 # ---- Per-FLAG region override (matt-free, playtest-verified) ----------------------------------
 # A few overworld pickups resolve to the wrong region: their source event/scan tile lands on a
@@ -451,6 +511,17 @@ GLOBAL_RECOVER = {
 DEATHROOT_FLAGS = set(range(400230, 400240))
 
 
+# Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in
+# DUNGEON_REGION_OVERRIDE still has a KNOWN region if PLACED (non-global) loot sits on the same tile.
+# This map-prefix -> region table is derived from the placed `rows` below (their own region_of result,
+# the ground truth), so a recovered interior drop lands in the same region as its dungeon's placed
+# items instead of quarantining to HUB. Populated after region_of is defined (it needs region_of).
+_MAP_PREFIX_REGION = {}
+def _tile_prefix2(_m):
+    if not _m or _m == "PENDING": return None
+    _p = _m.split("_")
+    return "_".join(_p[:3]) if (_m[:3] in ("m60", "m61") and len(_p) >= 3) else "_".join(_p[:2])
+
 def region_of(r):
     """Corrected region: per-flag override (highest priority) -> curated dungeon override -> EMEVD/
     common-event audit for emevd+global rows -> raw region_of for everything else."""
@@ -468,6 +539,19 @@ def region_of(r):
     except (KeyError, ValueError): _grfl = None
     if _grfl is not None and _grfl in GLOBAL_RECOVER and _meth in ('global', 'global_filler'):
         return GLOBAL_RECOVER[_grfl]
+    # Auto-recover globals NOT hand-listed in GLOBAL_RECOVER: decode the flag's own map tile.
+    # Overworld tile -> grace-anchored region; interior tile -> set the map + interior region path.
+    # A None/HUB result is acceptable (HUB = always-reachable, never a false gate).
+    if _meth in ('global', 'global_filler'):
+        _rt = _recover_tile(r.get('flag'))
+        if _rt:
+            if _rt[:3] in ('m60', 'm61'):
+                return _m60_tile_region(_rt) or HUB
+            _im = _rt + '_00_00'                            # interior mBB_SS -> mBB_SS_00_00
+            r['map'] = _im                                 # let the existing interior path region it
+            return (DUNGEON_REGION_OVERRIDE.get(_im)        # curated dungeon region, else
+                    or _MAP_PREFIX_REGION.get(_rt)          # region of PLACED loot on this tile, else
+                    or _region_of_raw(r))                   # raw region (-> HUB if unknown)
     if _meth not in ('emevd', 'global'):
         return _region_of_raw(r)
     try: _fl = int(r['flag'])
@@ -497,11 +581,31 @@ def region_of(r):
         return HUB
     return _region_of_raw(r)                            # name-column emevd -> trust the human label
 
+# Derive the interior map-prefix -> region table from the PLACED rows (before recovery is appended),
+# so recovered interior drops inherit their dungeon's region instead of quarantining to HUB.
+_mpr_votes = defaultdict(Counter)
+for _r in rows:
+    _pf = _tile_prefix2(_r.get('map'))
+    if _pf and _pf[:3] not in ('m60', 'm61'):          # interior tiles only (overworld uses tile decode)
+        _mpr_votes[_pf][region_of(_r)] += 1
+_MAP_PREFIX_REGION.update({_p: _c.most_common(1)[0][0] for _p, _c in _mpr_votes.items()})
+
 # RECOVER: append the currently-SKIPped `global` rows (real pickups: crystal tears, memory stones,
 # effigies, etc.) as reachable checks. Appended AFTER `rows` so existing positional ap-ids are stable.
-_recovered = [r for r in _ALLROWS
-              if r['method'] in ('global', 'global_filler') and int(r['flag']) in GLOBAL_RECOVER
-              and int(r['flag']) not in MAP_REVEAL_FLAGS]
+def _recover_row_ok(r):
+    if r['method'] not in ('global', 'global_filler'):
+        return False
+    try: _fl = int(r['flag'])
+    except (KeyError, ValueError): return False
+    if _fl in MAP_REVEAL_FLAGS:
+        return False
+    if _fl in GLOBAL_RECOVER:                       # hand-verified region wins -> always recover
+        return True
+    if (_fl in MINIBAKER_VENDOR_FLAGS or _fl in EXCLUDE_FLAGS
+            or _is_mausoleum_dupe(r) or _is_ashen_dead(_fl)):
+        return False
+    return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
+_recovered = [r for r in _ALLROWS if _recover_row_ok(r)]
 rows = rows + _recovered
 buckets=OrderedDict()
 loc_tags={}
