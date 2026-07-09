@@ -76,7 +76,7 @@ def tile_pr(x,y):
 PLAY2AP={'61000':'Limgrave','61001':'Limgrave','61002':'Weeping Peninsula','62000':'Liurnia of the Lakes',
  '62001':'Liurnia of the Lakes','62002':'Liurnia of the Lakes','63000':'Altus Plateau','63001':'Mt. Gelmir',
  '63002':'Altus Plateau','63003':'Altus Plateau','64000':'Caelid','64001':'Caelid','64002':'Caelid',
- '65000':'Mountaintops of the Giants','65001':'Mountaintops of the Giants','65002':'Consecrated Snowfield'}
+ '65000':'Mountaintops of the Giants','65001':'Mountaintops of the Giants','65002':'Mountaintops of the Giants'}
 REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Underground Rivers':'Eternal Cities',
  'Mohgwyn / Consecrated-adjacent':'Mohgwyn Palace','Mohgwyn Palace':'Mohgwyn Palace','Leyndell / Roundtable / Shunning-Grounds':'Altus Plateau',
  'DLC Interior':'Shadow Keep','Caves':'Limgrave',"Roundtable Hold":'Roundtable Hold','Stormveil Castle':'Stormveil Castle',
@@ -88,7 +88,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Undergrou
  "Liurnia of the Lakes (Seluvis's Rise)":'Liurnia of the Lakes',"Liurnia of the Lakes (Ranni's Rise)":'Liurnia of the Lakes',
  'Weeping Peninsula':'Weeping Peninsula','Siofra River / Nokron':'Eternal Cities','Caelid':'Caelid',
  'Caelid (Redmane Castle)':'Caelid','Caelid (Cathedral of Dragon Communion)':'Caelid','Gravesite Plain (DLC)':'Gravesite Plain','Gravesite Plain':'Gravesite Plain',
- 'Cathedral of Manus Metyr (DLC)':'Scadu Altus','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Consecrated Snowfield',
+ 'Cathedral of Manus Metyr (DLC)':'Scadu Altus','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Mountaintops of the Giants',
  'Shadow Keep (DLC)':'Shadow Keep','Altus Plateau':'Altus Plateau','Jagged Peak (DLC)':'Jagged Peak',
  'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Gravesite Plain',
  'Abyssal Woods (DLC)':'Abyssal Woods','Mountaintops of the Giants':'Mountaintops of the Giants',
@@ -379,7 +379,7 @@ DUNGEON_REGION_OVERRIDE = {
     "m40_01_00_00": "Ancient Ruins of Rauh",  # Scorpion River Catacombs (Rauh Base)
     "m42_00_00_00": "Gravesite Plain",        # Ruined Forge (Lava Intake)
     "m43_00_00_00": "Gravesite Plain",        # Rivermouth Cave
-    "m30_20_00_00": "Consecrated Snowfield",  # Hidden Path to the Haligtree
+    "m30_20_00_00": "Mountaintops of the Giants",  # Hidden Path to the Haligtree (Snowfield folded into Mountaintops)
     "m31_01_00_00": "Weeping Peninsula",  # Earthbore Cave
     "m31_04_00_00": "Liurnia of the Lakes",  # Stillwater Cave
     "m31_05_00_00": "Liurnia of the Lakes",  # Lakeside Crystal Cave
@@ -387,7 +387,7 @@ DUNGEON_REGION_OVERRIDE = {
     "m31_07_00_00": "Mt. Gelmir",  # Seethewater Cave
     "m31_09_00_00": "Mt. Gelmir",  # Volcano Cave
     "m31_10_00_00": "Caelid",  # Dragonbarrow Cave (folded into Caelid)
-    "m31_12_00_00": "Consecrated Snowfield",  # Cave of the Forlorn
+    "m31_12_00_00": "Mountaintops of the Giants",  # Cave of the Forlorn (Snowfield folded into Mountaintops)
     "m31_18_00_00": "Altus Plateau",  # Altus Plateau: Perfumer's Grotto
     "m31_21_00_00": "Caelid",  # Gaol Cave
     "m30_00_00_00": "Weeping Peninsula",
@@ -469,10 +469,10 @@ GLOBAL_RECOVER = {
     65070: "Mountaintops of the Giants",  # Crimson Bubbletear (Mountaintops Erdtree Avatar)
     65080: "Weeping Peninsula",        # Opaline Bubbletear (Weeping Erdtree Avatar)
     65110: "Caelid",                   # Opaline Hardtear (Caelid Erdtree Avatar)
-    65130: "Consecrated Snowfield",    # Thorny Cracked Tear (Snowfield Erdtree Avatar)
+    65130: "Mountaintops of the Giants",  # Thorny Cracked Tear (Snowfield Erdtree Avatar; Snowfield folded in)
     65140: "Limgrave",                 # Spiked Cracked Tear
     65160: "Liurnia of the Lakes",     # Ruptured Crystal Tear (Liurnia Erdtree Avatar)
-    65170: "Consecrated Snowfield",    # Ruptured Crystal Tear (Snowfield Erdtree Avatar)
+    65170: "Mountaintops of the Giants",  # Ruptured Crystal Tear (Snowfield Erdtree Avatar; Snowfield folded in)
     65210: "Limgrave",                 # Strength-knot Crystal Tear
     65220: "Liurnia of the Lakes",     # Dexterity-knot Crystal Tear
     65230: "Liurnia of the Lakes",     # Intelligence-knot Crystal Tear (Carian Manor)
