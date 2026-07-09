@@ -432,7 +432,14 @@ class GreenfieldEldenRingWorld(World):
             for _t, _c in _bg[_s].items():
                 _bg_cum[_t] += _c
             _f = _s / _max_s
-            _target = round((_f * _f * (3 - 2 * _f)) * 25)   # smoothstep +level target at this sphere
+            # Smoothstep +level target, FLOORED by a front-loaded LOW-tier ramp. The smoothstep is slow
+            # at the start (barely any stones before ~40% depth), which starves early standard weapons.
+            # Bring the LOW tiers ([1]-[3] -> +9) forward: a linear ramp affordable by ~20% run depth,
+            # then held at +9 until the smoothstep overtakes it (~40-45% depth). `max()` means +10 and up
+            # are governed by the ORIGINAL smoothstep unchanged -- only the low end is front-loaded.
+            _smooth = round((_f * _f * (3 - 2 * _f)) * 25)
+            _low = int(min(9.0, _f / 0.20 * 9.0) + 0.5)
+            _target = max(_low, _smooth)
             _req = _needed(_target)
             _locs = _by_sphere.get(_s, [])
             self.random.shuffle(_locs)
