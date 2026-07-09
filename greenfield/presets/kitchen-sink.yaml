@@ -48,7 +48,6 @@ game: "Elden Ring (Greenfield)"
   boss_keys: true                 # mint "Boss Key: <Boss>" gating items (mode-B)
   dungeon_sweep: all              # kill a dungeon boss -> its checks auto-register (needs the P3b client handler)
   boss_lock_placement: own_region
-  attunement_gate: true           # EXPERIMENTAL: per-region attunement defers boss payouts until a region attunes
 
   # ---- Warp-in -------------------------------------------------------------
   grace_rando: true

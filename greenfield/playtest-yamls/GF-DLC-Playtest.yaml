@@ -47,7 +47,6 @@ game: "Elden Ring (Greenfield)"
 
   # ---- Boss features OFF (isolate DLC as the variable this run) ------------
   boss_keys: false
-  attunement_gate: false
   dungeon_sweep: all           # kill a dungeon boss -> auto-register its checks (needs the P3b client).
   boss_lock_placement: own_region   # inert without boss_keys.
 

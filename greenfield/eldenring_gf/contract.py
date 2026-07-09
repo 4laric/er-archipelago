@@ -415,12 +415,6 @@ CONTRACT = (
                 "when boss_keys is ON. Client mints the 'Felled:' trophy on boss-defeat (mode A); the "
                 "mode-B 'gate' (defer own check until key) and 'display_key' (legible vanilla lock name) "
                 "ride the same entry when boss_keys is ON."),
-    ContractKey("regionAttunement", "ANY", False, (GREENFIELD,),
-                "features/attunement.py", "core.rs parse_region_attunement / self.region_attunement",
-                "{str(region): {threshold:int, member_ap_ids:[int], bloom_flags:[int]}}: per-region "
-                "attunement gate. Emitted ONLY when the attunement gate is ON; absent => feature off. "
-                "Client holds boss payouts until a region attunes, then blooms its graces (ATTUNEMENT-"
-                "RELEASE, core.rs)."),
     ContractKey("filler_foreign_localized", "ANY", False, (GREENFIELD,),
                 "features/filler_foreign.py", "(diagnostic -- no client read)",
                 "count of distinct filler names forced local this seed."),

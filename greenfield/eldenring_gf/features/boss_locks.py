@@ -85,7 +85,7 @@ class BossKeys(Toggle):
     (so fill places the key reachably) and its dungeon sweep defers (sweepLockGates) until the key
     arrives. Never gates the FIGHT -- only the rewards -- so it cannot soft-lock. Covers base AND
     DLC bosses (keys freely placeable in any world; local BK waiting on a remote key is intended,
-    Rule B). Independent of the attunement gate."""
+    Rule B)."""
     display_name = "Boss Keys"
 
 
