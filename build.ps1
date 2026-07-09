@@ -6,6 +6,7 @@
 #
 # Usage (from the repo root, any PowerShell):
 #   .\build.ps1 -Apworld                 # package Archipelago\worlds\eldenring -> eldenring.apworld
+#   .\build.ps1 -Greenfield              # (re)gen the data-derived eldenring_gf apworld + isolated multiworld
 #   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py); REQUIRED after apworld changes
 #   .\build.ps1 -Rust                    # cargo test + build the Rust client cdylib (eldenring_archipelago.dll)
 #   .\build.ps1 -Me3Deploy               # stage DLL + apconfig + AP icon into me3\, write the ap.me3 profile
@@ -13,7 +14,8 @@
 #   .\build.ps1 -RustDeploy              # (EML alt loader) drop the Rust DLL into mods\ instead of me3
 #   .\build.ps1 -Serve                   # launch the AP server on the newest output zip (new window)
 #   .\build.ps1 -PureRuntime  (-Mvp)     # the whole loop: Generate + Rust + Me3Deploy + Serve
-#   .\build.ps1 -All                     # alias for -PureRuntime, plus -Apworld and -Preflight
+#   .\build.ps1 -All                     # greenfield loop: -Greenfield + -Rust + -Me3Deploy + -Serve
+#                                        #   (old Generate.py pipeline = -PureRuntime -Apworld -Preflight)
 #   .\build.ps1 -Preflight               # timestamped PASS/FAIL cross-checks (seed / staged dll / server)
 #   .\build.ps1 -Clean                   # cargo clean + kill any stale AP server on :38281
 #
@@ -48,8 +50,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# -All = the full loop plus packaging + preflight. -PureRuntime is the runtime umbrella.
-if ($All) { $PureRuntime = $true; $Apworld = $true; $Preflight = $true }
+# -All = the greenfield iteration loop: (re)gen the data-derived apworld + isolated multiworld,
+# rebuild the Rust client, stage it into me3, and serve the fresh zip. (This was the Generate.py
+# pipeline; that pipeline is now spelled -PureRuntime -Apworld -Preflight -- see the usage header.)
+if ($All) { $Greenfield = $true; $Rust = $true; $Me3Deploy = $true; $Serve = $true }
 
 # -PureRuntime: apworld source already emits slot_data (locationFlags/checkItemIds/checkItemFlags/
 # shopRowFlags) straight from __init__.py, so this is just Generate -> Rust -> Me3Deploy -> Serve.
@@ -67,8 +71,10 @@ $GameDir  = "C:\Program Files (x86)\Steam\steamapps\common\ELDEN RING\Game"
 $ModsDir  = Join-Path $GameDir "mods"          # EML alt loader path (-RustDeploy); me3 is primary
 $ApDir    = Join-Path $Repo "Archipelago"      # AP checkout: Generate.py, MultiServer.py, Players\, output\
 
-# -Greenfield: build/gen the standalone data-derived apworld, then stop.
-if ($Greenfield) { & (Join-Path $Repo "greenfield\gen-greenfield.ps1") -Repo $Repo; exit $LASTEXITCODE }
+# -Greenfield runs as a composable STEP below (after -Clean, before the other stages) so it can be
+# combined -- e.g. -All = -Greenfield + -Rust + -Me3Deploy + -Serve. Standalone `.\build.ps1
+# -Greenfield` still just gens the data-derived apworld + isolated multiworld and stops (no other
+# stage flag is set). (Was an exit-early short-circuit here.)
 
 # Rust client is now an in-repo submodule (was the sibling from-software-archipelago-clients).
 $RustDir     = Join-Path $Repo "from-software-archipelago-clients"
@@ -103,7 +109,7 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Apworld -or $Generate -or $Rust -or $RustDeploy -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $Serve -or $Preflight -or $Clean)) {
+if (-not ($Apworld -or $Greenfield -or $Generate -or $Rust -or $RustDeploy -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $Serve -or $Preflight -or $Clean)) {
     Get-Content $PSCommandPath | Select-Object -Skip 1 -First 22 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
@@ -119,6 +125,17 @@ if ($Clean) {
     } else {
         Write-Warning "  Rust submodule not found at $RustDir -- did the submodule init? (git submodule update --init)"
     }
+}
+
+# ----- greenfield apworld + isolated gen ------------------------------------------------------
+# (re)datamine + gen_data, install the data-derived eldenring_gf world, and generate an ISOLATED
+# multiworld (greenfield\players) -> AP_*.zip. Runs FIRST (after -Clean) so a combined -Rust builds
+# against fresh data and a combined -Serve picks up the fresh zip. Standalone -Greenfield stops here
+# (no other stage flag set); -All chains it into -Rust + -Me3Deploy + -Serve.
+if ($Greenfield) {
+    Step "Greenfield: data-derived apworld + isolated multiworld gen"
+    & (Join-Path $Repo "greenfield\gen-greenfield.ps1") -Repo $Repo
+    if ($LASTEXITCODE -ne 0) { throw "gen-greenfield.ps1 FAILED (exit $LASTEXITCODE) -- see output above." }
 }
 
 # ----- package apworld ------------------------------------------------------------------------
