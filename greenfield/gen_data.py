@@ -48,7 +48,16 @@ BASE_AP=7770000  # greenfield location id space
 
 # ---- overworld tile -> play_region via grace anchors + nearest-neighbor ----
 gf={}
-for row in csv.DictReader(open(os.path.join(AR,"grace_flags.tsv")),delimiter="\t"): gf[row["warpUnlockFlag"]]=row["mapTile"]
+# grace_flags.tsv carries the BonfireWarpParam rowId=0 default/template row (warpUnlockFlag=200,
+# mapTile=m10_00_00) -- a placeholder, NOT a real site of grace. Its flag 200 is outside the
+# 71xxx-76xxx region/grace event-flag group (all 421 REAL warp graces are 71000-76960), so it is
+# not a writable in-game flag. Left in, it became the numerically-lowest candidate for Stormveil
+# (a legacy dungeon with no overworld grace) and won _front_door -> bogus REGION_OPEN_FLAGS[
+# "Stormveil Castle"]=200 AND polluted the Stormveil grace bundle. Reject any warpUnlockFlag
+# outside the valid region/grace group at ingest so only real graces reach _open_cand.
+for row in csv.DictReader(open(os.path.join(AR,"grace_flags.tsv")),delimiter="\t"):
+    if not (71000 <= int(row["warpUnlockFlag"]) <= 76999): continue
+    gf[row["warpUnlockFlag"]]=row["mapTile"]
 greg={}
 grm=[x for x in os.listdir(AR) if x.startswith("grace_region_map")][0]
 for row in csv.DictReader(open(os.path.join(AR,grm)),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
