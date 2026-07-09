@@ -195,7 +195,14 @@ def _is_ashen_dead(_fl):
 #     2048447800). The game has exactly three -> drop this phantom so global-recovery doesn't
 #     re-double the singleton (test_unique_key_items_are_singletons).
 _RECOVER_PHANTOM_DUPES = frozenset({1033477020})
-EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK | _RECOVER_PHANTOM_DUPES
+# UNREACHABLE big-ticket checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
+# mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
+#   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
+#     illusory-wall gate reachable only from the far side of the grace anchor. Dropping it as dead
+#     renumbers downstream ap-ids (needs a full regen) and removes the Silver Scarab shuffle copy.
+_UNREACHABLE_DEAD = frozenset({30207900})
+EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
+                | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD)
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
@@ -346,8 +353,10 @@ FLAG_REGION_OVERRIDE = {
     42007000: "Gravesite Plain",             # m42_00 Ruined Forge (Lava Intake)
     42037000: "Ancient Ruins of Rauh",       # m42_03 Taylew's Ruined Forge
     43007000: "Gravesite Plain",             # m43_00 Rivermouth Cave
-    18007050: "Roundtable Hold",             # m18_00 (Cave of Knowledge/Stranded Graveyard = tutorial start,
-    18007900: "Roundtable Hold",             #   play_region 18000, always-open) -> HUB (spawn-reachable).
+    18007050: "Limgrave",                    # m18_00 Fringefolk Hero's Grave (off Stranded Graveyard): Erdtree's
+    18007900: "Limgrave",                    #   Favor / Erdtree Greatbow. The grave exits into Limgrave and is
+                                             #   gated only by 2 Stonesword Keys (gettable), so place it in
+                                             #   Limgrave rather than quarantining to HUB (Alaric 2026-07-09).
     197: "Liurnia of the Lakes",               # Remembrance of the Full Moon Queen = RENNALA's drop.
                                                #   Her reward row is method=emevd (flag 197) mis-pinned to
                                                #   m10 (Stormveil) in region_map.csv, but flag 197 only fires
@@ -492,9 +501,12 @@ GLOBAL_RECOVER = {
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
     510340: HUB,
     1049557700: HUB,
-    # Haligtree Secret Medallion (Right): the physical Village-of-the-Albinaurics pickup wasn't
-    # detected as a map_lot, so only the obtained flag (400130, method global) exists; recover it as a
-    # Liurnia check (mirrors Rold 400001 / the Left half) so grabbing it sends a check, not vanilla.
+    # Haligtree Secret Medallion (Right): physically the reward inside Albinauric Rise in the
+    # Consecrated Snowfield (folded into Mountaintops), NOT the Village-of-the-Albinaurics pickup (that
+    # is the LEFT half). Only the obtained flag (400130, method global) exists (no map_lot). It is
+    # currently recovered to Liurnia -- but Albinauric Rise is sealed by an invisible-sniper imp seal
+    # (bewitching branch / fanged imp ashes), so the check is effectively UNREACHABLE and mis-pinned;
+    # left as-is pending Alaric's call on excluding vs re-pinning to Mountaintops (flagged 2026-07-09).
     400130: "Liurnia of the Lakes",
     # Deathroot rewards from Gurranq at the Bestial Sanctum (Dragonbarrow / NE Caelid). Recovered as
     # checks AND tagged missable below (gated behind delivering N deathroots -- a limited consumable +
@@ -514,6 +526,18 @@ GLOBAL_RECOVER = {
     # so it has no map lot and lands in the unplaced common-event bucket -- recover it as an Altus
     # check so felling Elemer sends a check instead of paying the vanilla sword.
     510820: "Altus Plateau",
+    # Lord of Blood's Exultation (520220): Esgar, Priest of Blood's drop at the end of Leyndell
+    # Catacombs (under Leyndell, which greenfield folds into Altus Plateau). Fired via the common
+    # boss-drop handler with no map lot -> lands in the unplaced common-event bucket and was
+    # quarantined to HUB. Recover it to Altus so felling Esgar sends a check, not the vanilla talisman
+    # (Alaric 2026-07-09; the Catacombs are reachable by normal traversal once Leyndell/Altus opens).
+    520220: "Altus Plateau",
+    # Loretta's Mastery (510190): the sorcery dropped by Loretta, Knight of the Haligtree (m15 boss,
+    # healthbar entity 15000850). She drops a SORCERY, not a remembrance, so the boss_arena join never
+    # sees her and her drop sat in the unplaced common-event bucket. Recover it to Miquella's Haligtree
+    # so felling her sends a check; she is also registered as a region boss via _BOSS_SPECIALS below
+    # (Alaric 2026-07-09: Loretta was missing from the Haligtree boss list).
+    510190: "Miquella's Haligtree",
     # Commander's Standard (530405): shared drop flag. The entity-suffix datamine finds only the
     # generic Altus commander at Bower of Bounty; but Commander O'Neil in the Swamp of Aeonia (CAELID)
     # also drops it (Alaric, ground truth 2026-07-09) and is the earlier/intended source. Pin to
@@ -799,6 +823,11 @@ for r in rows:
 # (region, defeat_flag, reward_join_flag, reward_name)
 _BOSS_SPECIALS = [
     ("Liurnia of the Lakes", 14000800, 197, "Remembrance of the Full Moon Queen"),  # Rennala; Raya Lucaria folded into Liurnia
+    # Loretta, Knight of the Haligtree: m15 boss (healthbar entity 15000850) who drops a sorcery
+    # (Loretta's Mastery, 510190) rather than a remembrance, so the boss_arena join skips her. Her
+    # drop is GLOBAL_RECOVER'd to Miquella's Haligtree above; register her as the region boss keyed to
+    # defeat flag 15000850 (verified in BOSS_HEALTHBARS / m15_00 EMEVD), joined via 510190.
+    ("Miquella's Haligtree", 15000850, 510190, "[Sorcery] Loretta's Mastery"),
 ]
 for _reg, _dfl, _jfl, _nm in _BOSS_SPECIALS:
     _aid = _flag2apid.get(_jfl)
