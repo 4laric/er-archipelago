@@ -270,7 +270,11 @@ class GreenfieldEldenRingWorld(World):
         """Classification for an item, upgrading a required Great Rune to progression so AP fill
         guarantees it lands in a reachable location (Great Runes are GOODS -> filler by default)."""
         base = _item_class.get(name, ItemClassification.filler)
-        if name in self._required_runes():
+        # A required Great Rune (great_runes ending), a Leyndell-gate rune (features/leyndell_gate.py),
+        # or a legacy-dungeon key (features/legacy_key_gates.py, e.g. Academy Glintstone Key) must be
+        # progression so AP fill guarantees it reachable (all are GOODS -> filler by default).
+        if (name in self._required_runes() or name in getattr(self, "gf_leyndell_runes", [])
+                or name in getattr(self, "gf_legacy_keys", [])):
             return ItemClassification.progression
         return base
 

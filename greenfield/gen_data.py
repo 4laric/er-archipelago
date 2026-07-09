@@ -165,6 +165,18 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # in logic when Altus opens, and collectable via Morgott's region-wide sweep (Morgott = reachable capital
 # ending). NOT a separate rollable region. Morgott (510040) is the capital ending and already there.
 _MISC_NON_CHECK = frozenset({60210, 590000})  # 590000 = empty-item Stormveil check; 60210 Wizened Finger
+# Unreachable ASHEN CAPITAL + final-boss drops -- EXCLUDED AS DEAD (user decision 2026-07-08). Post-
+# Erdtree-burn / final content is not physically reachable in a region-lock game, and is NOT actually
+# collectable via Morgott's region-wide sweep (boss_arena rewards are never swept, and the m11_05
+# map_lot items fall outside the sweep member filter) -- so they were dead big-ticket checks. Drop
+# them. m11_05 = Leyndell Ashen Capital (whole 11050000-11059999 range); 510070 Remembrance of Hoarah
+# Loux (Godfrey, Ashen); 510230 Elden Remembrance (Radagon/Elden Beast, final); 190540/190550 = Sir
+# Gideon the All-Knowing (Ashen). Morgott (510040) STAYS -- he is the reachable capital ending. Bolt of
+# Gransax (11007xxx, Royal Capital m11_00) STAYS -- physically reachable. Excluding boss_arena 510070/
+# 510230 also drops them from REGION_BOSSES (built from `rows`), so no dangling Felled trophy / key.
+_ASHEN_DEAD_FLAGS = frozenset({510070, 510230, 190540, 190550})
+def _is_ashen_dead(_fl):
+    return _fl in _ASHEN_DEAD_FLAGS or 11050000 <= _fl <= 11059999
 EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
@@ -177,7 +189,7 @@ def _is_mausoleum_dupe(r):
 rows=[r for r in _ALLROWS
       if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
       and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
-      and not _is_mausoleum_dupe(r)]
+      and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))]
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
@@ -277,6 +289,14 @@ FLAG_REGION_OVERRIDE = {
 # the m34 Great-Rune Divine Towers are base game, not DLC). This per-map-id table wins over the coarse
 # bucket AND the emevd/global audit. Keys are full map ids; values are greenfield region names.
 DUNGEON_REGION_OVERRIDE = {
+    # Split-map corrections: a 3-char map prefix conflates sub-maps that are DIFFERENT regions.
+    # m20 = Belurat (m20_00) + Enir-Ilim (m20_01) DLC -- NOT Mohgwyn; m12_05 = Mohgwyn Palace --
+    # NOT the rest of m12 (Eternal Cities/Underground Rivers). Without these, 170 m20 DLC checks
+    # landed in BASE Mohgwyn (leaking DLC into DLC-off seeds) and Mohgwyn's real m12_05 checks went
+    # to Eternal Cities. Graces are fixed in parallel by the per-play_region grace resolution.
+    "m20_00_00_00": "Belurat",
+    "m20_01_00_00": "Enir-Ilim",
+    "m12_05_00_00": "Mohgwyn Palace",
     "m30_20_00_00": "Consecrated Snowfield",  # Hidden Path to the Haligtree
     "m31_01_00_00": "Weeping Peninsula",  # Earthbore Cave
     "m31_04_00_00": "Liurnia of the Lakes",  # Stillwater Cave
@@ -348,7 +368,7 @@ for _rr in _ALLROWS:
     if _rr.get("method") != "flag_prefix" or (_rr.get("map") or "") not in ("", "PENDING"):
         continue
     _fs = str(_rr.get("flag") or "")
-    if len(_fs) >= 8 and _fs[:2] in ("30", "31", "32"):
+    if len(_fs) >= 8 and _fs[:2] in ("30", "31", "32", "34", "39", "40", "41", "42", "43"):
         _rec = f"m{_fs[:2]}_{_fs[2:4]}_00_00"
         if _rec in DUNGEON_REGION_OVERRIDE:
             _rr["map"] = _rec
@@ -407,6 +427,11 @@ GLOBAL_RECOVER = {
     400237: "Caelid",  # Bestial Sling (2nd)
     400238: "Caelid",  # Clawmark Seal (1st)
     400239: "Caelid",  # Beast Eye (1st / kill Gurranq)
+    # Marais Executioner's Sword: Elemer of the Briar's drop at the Shaded Castle (NW Altus
+    # Plateau). Fired via the common boss-drop handler (EMEVD event 82: entity 1100/reward 510820),
+    # so it has no map lot and lands in the unplaced common-event bucket -- recover it as an Altus
+    # check so felling Elemer sends a check instead of paying the vanilla sword.
+    510820: "Altus Plateau",
 }
 # Missable location flags (matt-free): checks gated behind a LIMITED consumable or a killable NPC, so
 # fill must not place required progression there (features/missable_locations.py enforces via item_rule).
@@ -554,6 +579,11 @@ _ARENA_GRACE_FLAGS = frozenset({76930, 76931, 76422, 76852, 76853, 76508, 76509,
 # the boss-bonfire (9005810) and remembrance-arena classes.)
 _ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
 _SKIP_GRACE_FLAGS = _BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS | _ASHEN_LEYNDELL_GRACE_FLAGS
+# Per-play_region grace region for SPLIT interior maps whose 3-char prefix conflates regions
+# (m20 = Belurat 20000 + Enir-Ilim 20010; m12_05 = Mohgwyn 12050 vs the rest of m12 = Eternal
+# Cities). The grace's own play_region_id (grace_region_map = greg) is authoritative; the coarse
+# _pref2maj vote below cannot tell these apart. Mirrors the DUNGEON_REGION_OVERRIDE check fix.
+_GRACE_PR_REGION = {"20000": "Belurat", "20010": "Enir-Ilim", "12050": "Mohgwyn Palace"}
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
@@ -567,6 +597,7 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
         # (Altus) but their tiles vote Liurnia / Mountaintops. Fall back to the tile NN when the grace
         # has no overworld play_region entry. Interior/dungeon graces (no m60 tile) keep the prefix path.
         _mj = PLAY2AP.get(greg.get(_fl)) or PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
+    if not _mj: _mj = _GRACE_PR_REGION.get(greg.get(_fl))   # split-map: per-play_region (authoritative)
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
     if _mj and _mj != HUB:
         _open_cand[_mj].append(int(_fl))
@@ -1063,7 +1094,7 @@ def _mp2(m):
         return None
     return "_".join(m.split("_")[:2])
 def _is_dungeon(_mp):
-    return bool(_mp) and _mp[:3] in ("m30", "m31", "m32")
+    return bool(_mp) and _mp[:3] in ("m30", "m31", "m32", "m34", "m39", "m40", "m41", "m42", "m43")
 # = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
@@ -1092,7 +1123,7 @@ if BOSS_HEALTHBARS:
         _bmap, _tile, _cls, _name = _info
         if _cls == "field":
             _members = _filler_only(_mem_tile.get(_tile, []))
-        elif _cls in ("catacomb", "cave", "tunnel"):
+        elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> region-wide
             _members = _mem_region.get(_mreg.get(_bmap, HUB), [])
