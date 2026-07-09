@@ -32,6 +32,24 @@ python greenfield\patch_build_greenfield.py --apply     # adds -Greenfield to bu
 helper directly: `.\greenfield\gen-greenfield.ps1`. Revert the build.ps1 change with
 `python greenfield\patch_build_greenfield.py --revert`.
 
+## Curated presets (start here)
+Rather than hand-tune the ~46-option surface, copy one of the vetted presets in `presets/` into
+`players/` (rename per slot) and generate. Each one gen-tests clean and keeps the safety defaults
+(Torrent whistle + Roundtable hub start, so no mountless-open-world softlock):
+
+| Preset | Scope | For |
+|--------|-------|-----|
+| `presets/sync-friendly.yaml` | 4 spine regions, real items, meaningful checks | flagship 2-slot+ multiworld, ~4-8h evening |
+| `presets/standard.yaml` | full base-game Shattering | the balanced default |
+| `presets/kitchen-sink.yaml` | everything on, base + DLC (EXPERIMENTAL) | maxed marathon; rough pacing by design |
+
+`num_regions` is pinned explicitly in every preset (never rely on its default). Prove a preset
+generates before a session -- copy it into a temp player dir and run AP `Generate.py`:
+```
+cp presets/sync-friendly.yaml players/          # (clear players/ first for a solo seed)
+( cd $AP && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 python Generate.py     --player_files_path <repo>/greenfield/players --outputpath <out> )
+```
+
 ## Verified (structurally; not yet gen-tested)
 World stub-imports; 23 items (22 locks + filler); 24 regions; 3,944 locations == `location_name_to_id`;
 itempool count == location count; goal set. build.ps1 patch is byte-safe/self-verifying/ASCII.
