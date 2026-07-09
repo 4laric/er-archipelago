@@ -400,6 +400,7 @@ class GreenfieldEldenRingWorld(World):
         _max_s = max(_loc_sphere.values()) or 1
         _required = set(self._required_runes())
         _bg = _dd(lambda: _dd(int))          # bg[sphere][tier] = reachable REGULAR stones already placed
+        _bg_somber = _dd(lambda: _dd(int))   # bg_somber[sphere][tier] = reachable SOMBER stones already placed
         _by_sphere = _dd(list)               # convertible filler locations per sphere
         for _L in self.multiworld.get_locations(self.player):
             _it = _L.item
@@ -408,6 +409,10 @@ class GreenfieldEldenRingWorld(World):
             _m = _re.match(r"Smithing Stone \[(\d+)\]$", _it.name)
             if _m:
                 _bg[_loc_sphere[_L]][int(_m.group(1))] += 1
+                continue
+            _msb = _re.match(r"Somber Smithing Stone \[(\d+)\]$", _it.name)  # 'Somber' != 'Smithing' at pos 0
+            if _msb:
+                _bg_somber[_loc_sphere[_L]][int(_msb.group(1))] += 1
                 continue
             if (not _L.locked and not _it.advancement
                     and not (_it.classification & ItemClassification.useful)
@@ -428,9 +433,13 @@ class GreenfieldEldenRingWorld(World):
 
         _bg_cum = _dd(int)
         _inj_cum = _dd(int)
+        _bg_somber_cum = _dd(int)
+        _inj_somber_cum = _dd(int)
         for _s in range(_max_s + 1):
             for _t, _c in _bg[_s].items():
                 _bg_cum[_t] += _c
+            for _t, _c in _bg_somber[_s].items():
+                _bg_somber_cum[_t] += _c
             _f = _s / _max_s
             # Smoothstep +level target, FLOORED by a front-loaded LOW-tier ramp. The smoothstep is slow
             # at the start (barely any stones before ~40% depth), which starves early standard weapons.
@@ -454,6 +463,22 @@ class GreenfieldEldenRingWorld(World):
                     _new = self.create_item(_stone)
                     _L.item = _new; _new.location = _L; _L.locked = True
                     _inj_cum[_t] += 1; _deficit -= 1
+            # SOMBER: a GENTLE low-tier front-load, from the filler slots the regular ramp did NOT
+            # consume this sphere (regular keeps priority via the shared `_li`). Somber weapons cost ONE
+            # stone per level, so "affordable to +N" just means owning Somber Smithing Stone [1]..[N].
+            # Guarantee the LOW somber tiers ([1]-[3] -> +3) forward by ~35% depth (gentler + lower cap
+            # than the regular ramp); +4 and up stay whatever the natural vanilla pool provides.
+            _somber_target = int(min(3.0, _f / 0.35 * 3.0) + 0.5)
+            for _t in range(1, _somber_target + 1):
+                _stone = f"Somber Smithing Stone [{_t}]"
+                if _stone not in item_name_to_id:
+                    continue
+                _deficit = 1 - _bg_somber_cum[_t] - _inj_somber_cum[_t]   # need exactly one of each low tier
+                while _deficit > 0 and _li < len(_locs):
+                    _L = _locs[_li]; _li += 1
+                    _new = self.create_item(_stone)
+                    _L.item = _new; _new.location = _L; _L.locked = True
+                    _inj_somber_cum[_t] += 1; _deficit -= 1
 
     # ---- regions --------------------------------------------------------------
     def _add_locations(self, region: Region, region_name: str) -> None:
