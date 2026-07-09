@@ -255,6 +255,13 @@ if os.path.isdir(_EVDIR0) and _FLAGS_OF_INTEREST:
 _ENTITY_SUFFIX = {}             # 6-digit flag suffix -> decoded overworld tile of its drop entity
 for _suf, _tf in _ENT_SUF_FILES.items():
     _ENTITY_SUFFIX[_suf] = min(_tf.items(), key=lambda _kv: (len(_kv[1]), _kv[0]))[0]
+# A 6-digit common-event flag can be SHARED by multiple droppers in different tiles/regions (e.g.
+# Commander's Standard 530405 drops from a generic commander at Bower of Bounty/Altus AND from
+# Commander O'Neil in Caelid, whose named-boss entity is NOT in the ...530405 pattern). When the
+# entity index sees >1 candidate tile the region is genuinely ambiguous -> recover as a HUB check
+# (always-reachable, never a false gate) rather than guessing one dropper. GLOBAL_RECOVER still wins
+# for any flag hand-pinned to its true region.
+_ENTITY_SUFFIX_AMBIG = {_suf for _suf, _tf in _ENT_SUF_FILES.items() if len(_tf) > 1}
 def _unique_m60(_fl):
     _ms = _FLAG2MAPS.get(_fl)
     if _ms and len(_ms) == 1:
@@ -501,6 +508,11 @@ GLOBAL_RECOVER = {
     # so it has no map lot and lands in the unplaced common-event bucket -- recover it as an Altus
     # check so felling Elemer sends a check instead of paying the vanilla sword.
     510820: "Altus Plateau",
+    # Commander's Standard (530405): shared drop flag. The entity-suffix datamine finds only the
+    # generic Altus commander at Bower of Bounty; but Commander O'Neil in the Swamp of Aeonia (CAELID)
+    # also drops it (Alaric, ground truth 2026-07-09) and is the earlier/intended source. Pin to
+    # Caelid so it isn't a false Altus gate. (Would otherwise HUB via _ENTITY_SUFFIX_AMBIG.)
+    530405: "Caelid",
 }
 # Missable location flags (matt-free): checks gated behind a LIMITED consumable or a killable NPC, so
 # fill must not place required progression there (features/missable_locations.py enforces via item_rule).
@@ -545,6 +557,9 @@ def region_of(r):
     if _meth in ('global', 'global_filler'):
         _rt = _recover_tile(r.get('flag'))
         if _rt:
+            _fs6 = str(_ovfl if _ovfl is not None else '')
+            if len(_fs6) == 6 and _fs6 in _ENTITY_SUFFIX_AMBIG:
+                return HUB                                  # shared-flag common drop: region ambiguous
             if _rt[:3] in ('m60', 'm61'):
                 return _m60_tile_region(_rt) or HUB
             _im = _rt + '_00_00'                            # interior mBB_SS -> mBB_SS_00_00
