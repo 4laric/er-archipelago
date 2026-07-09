@@ -228,7 +228,6 @@ def main():
         "item_shuffle": not args.no_shuffle,
         "enable_dlc": not args.no_dlc,
         "num_regions": args.num_regions,
-        "grace_rando": bool(args.grace_rando),
     }
     on_opts = dict(base_opts, pool_builder=True,
                    pool_builder_intensity=intensity,

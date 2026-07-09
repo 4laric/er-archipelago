@@ -37,7 +37,7 @@ class PoolBuilderData:
 
 class PoolBuilderOn(WorldTestBase, PoolBuilderData):
     game = GAME
-    options = {"item_shuffle": True, "pool_builder": True, "grace_rando": False}
+    options = {"item_shuffle": True, "pool_builder": True}
 
     def test_tier_data(self):
         self._check_tiers()
@@ -73,14 +73,14 @@ class PoolBuilderOn(WorldTestBase, PoolBuilderData):
 class PoolBuilderOff(WorldTestBase):
     """Same shuffle knobs, builder OFF -- the ON world above must carry strictly more juice."""
     game = GAME
-    options = {"item_shuffle": True, "pool_builder": False, "grace_rando": False}
+    options = {"item_shuffle": True, "pool_builder": False}
 
     def test_off_has_less_juice_than_on(self):
         off_juice = sum(1 for i in self.multiworld.itempool if i.name in _JUICE)
 
         class _On(WorldTestBase):
             game = GAME
-            options = {"item_shuffle": True, "pool_builder": True, "grace_rando": False}
+            options = {"item_shuffle": True, "pool_builder": True}
 
         on = _On()
         on.setUp()
@@ -90,7 +90,7 @@ class PoolBuilderOff(WorldTestBase):
 
 class PoolBuilderNoOpWhenShuffleOff(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False, "pool_builder": True, "grace_rando": False, "varied_filler": False}
+    options = {"item_shuffle": False, "pool_builder": True, "varied_filler": False}
 
     def test_no_op_all_rune(self):
         fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]

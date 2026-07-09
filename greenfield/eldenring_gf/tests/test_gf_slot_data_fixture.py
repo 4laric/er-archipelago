@@ -17,7 +17,6 @@ Design (matches the other greenfield WorldTestBase suites):
   * option keys/values mirror the feature option classes in core.py + features/*.py:
       - item_shuffle (Toggle)               -> True
       - dungeon_sweep (Choice)              -> "all"   (emits dungeonSweepFlags/dungeonSweeps/sweepLockGates)
-      - grace_rando (DefaultOnToggle)       -> True    (emits regionGraces/graceItems/startGraces)
       - pool_builder (Toggle)               -> True    (needs item_shuffle on to have effect)
       - ending_condition (Choice)           -> "great_runes" + great_runes_required=2
       - progressive_flasks (Toggle)         -> True    (emits non-empty progressiveGrants)
@@ -94,7 +93,6 @@ class SlotDataFixtureRich(WorldTestBase):
     options = {
         "item_shuffle": True,
         "dungeon_sweep": "all",
-        "grace_rando": True,
         "pool_builder": True,
         "ending_condition": "great_runes",
         "great_runes_required": 2,
@@ -143,7 +141,7 @@ class SlotDataFixtureRich(WorldTestBase):
         self.assertEqual(sd["world_logic"], "region_lock")
         self.assertTrue(sd["dungeonSweepFlags"], "dungeon_sweep=all must emit sweep flags")
         self.assertTrue(sd["progressiveGrants"], "progressive_flasks=on must emit grants")
-        self.assertTrue(sd["graceItems"], "grace_rando=on must emit scatter grace items")
+        self.assertTrue(sd["regionGraces"], "region locks must light region graces (bundle)")
 
     def test_required_keys_present(self):
         # every REQUIRED greenfield contract key must be present.
@@ -163,13 +161,12 @@ class SlotDataFixtureRich(WorldTestBase):
 class SlotDataFixtureDefault(WorldTestBase):
     """DEFAULT options: the always-present keys must still be there and pass the contract.
 
-    Only grace_rando is pinned OFF here (its default is ON) to also exercise the empty-graceItems
-    path. Everything else is left at its option default. NOTE: dungeon_sweep DEFAULTS to "all", so the
+    Everything is left at its option default. NOTE: dungeon_sweep DEFAULTS to "all", so the
     three sweep keys are present by default too; the default class therefore asserts a SUPERSET of
     ALWAYS_KEYS (>=), not an exact match -- the exact-keyset contract guard lives in the rich class.
     """
     game = GAME
-    options = {"grace_rando": False}
+    options = {}
 
     def test_always_keys_present(self):
         sd = self.world.fill_slot_data()
@@ -186,11 +183,11 @@ class SlotDataFixtureDefault(WorldTestBase):
         sd = self.world.fill_slot_data()
         contract.validate_slot_data(sd, strict=True)
 
-    def test_bundle_grace_has_no_scatter(self):
-        # grace_rando off -> bundle mode -> graceItems empty, but the KEY is still present.
+    def test_bundle_graces_emitted(self):
+        # region locks always light their region's graces (bundle) -> regionGraces present + non-empty.
         sd = self.world.fill_slot_data()
-        self.assertIn("graceItems", sd)
-        self.assertEqual(sd["graceItems"], {})
+        self.assertIn("regionGraces", sd)
+        self.assertTrue(sd["regionGraces"], "region locks must light region graces")
 
     def test_determinism_same_world_twice(self):
         a = self.world.fill_slot_data()

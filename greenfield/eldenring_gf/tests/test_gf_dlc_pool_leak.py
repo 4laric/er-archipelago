@@ -40,7 +40,6 @@ _LEAKY_DLC_OFF = {
     "pool_builder": True,
     "pool_builder_intensity": "max",
     "varied_filler": True,
-    "grace_rando": False,
 }
 # Canonical DLC items observed leaking in the report -- sanity anchors for the membership set.
 _KNOWN_DLC = [
@@ -105,7 +104,7 @@ class DLCOnGateInert(WorldTestBase):
     """DLC on (default): the exclusion set is empty, so the gate is a no-op (no behavior change)."""
     game = GAME
     options = {"item_shuffle": True, "pool_builder": True,
-               "pool_builder_intensity": "max", "varied_filler": True, "grace_rando": False}
+               "pool_builder_intensity": "max", "varied_filler": True}
 
     def test_gate_empty_when_dlc_on(self):
         self.assertEqual(self.world.gf_dlc_excluded, frozenset(),

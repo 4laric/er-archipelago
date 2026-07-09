@@ -92,8 +92,7 @@ class _IntensityBase(WorldTestBase):
 
 
 class IntensityMax(_IntensityBase):
-    options = {"item_shuffle": True, "pool_builder": True, "pool_builder_intensity": "max",
-               "grace_rando": False}
+    options = {"item_shuffle": True, "pool_builder": True, "pool_builder_intensity": "max"}
 
     def test_max_widens_candidates_and_reports_floor(self):
         self.assertEqual(self.world.options.pool_builder_intensity.current_key, "max")
@@ -106,8 +105,7 @@ class IntensityMax(_IntensityBase):
 
 
 class IntensityNormal(_IntensityBase):
-    options = {"item_shuffle": True, "pool_builder": True, "pool_builder_intensity": "normal",
-               "grace_rando": False}
+    options = {"item_shuffle": True, "pool_builder": True, "pool_builder_intensity": "normal"}
 
     def test_normal_narrows_candidates(self):
         sd = self.world.fill_slot_data()
@@ -118,7 +116,7 @@ class IntensityNormal(_IntensityBase):
 
 class FillerForeignDefault(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "grace_rando": False}
+    options = {"item_shuffle": True}
 
     def test_default_localizes_nothing(self):
         feat = FillerForeignFeature()
@@ -128,7 +126,7 @@ class FillerForeignDefault(WorldTestBase):
 
 class FillerForeignAllLocal(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "grace_rando": False, "filler_foreign_pct": 0}
+    options = {"item_shuffle": True, "filler_foreign_pct": 0}
 
     def test_zero_pct_localizes_all_filler_names(self):
         feat = FillerForeignFeature()
@@ -142,7 +140,7 @@ class FillerForeignAllLocal(WorldTestBase):
 
 class FillerForeignHalf(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "grace_rando": False, "filler_foreign_pct": 50}
+    options = {"item_shuffle": True, "filler_foreign_pct": 50}
 
     def test_half_localizes_partial(self):
         feat = FillerForeignFeature()
@@ -164,7 +162,7 @@ class JuicePctBudget(WorldTestBase):
     (auto-size) so the only bounds are the share and the catalog size -- letting us exercise pct
     directly. Same world, pct varied in-process, so the underlying tail/catalog are held fixed."""
     game = GAME
-    options = {"item_shuffle": True, "pool_builder": True, "grace_rando": False,
+    options = {"item_shuffle": True, "pool_builder": True,
                "pool_builder_juice_cap": 0}
 
     def _expected(self, feat, pct):
