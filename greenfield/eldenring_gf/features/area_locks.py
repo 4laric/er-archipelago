@@ -34,6 +34,15 @@ locked until its "<Region> Lock" is received, exactly mirroring the hub->region 
 """
 from ..registry import Feature, register
 from .. import contract
+try:
+    from ..region_spine import DLC_REGIONS
+except Exception:  # pragma: no cover
+    DLC_REGIONS = frozenset()
+
+# DLC world-map reveal flags (Land of Shadow map pieces) -- mirrors the client's
+# startgrants.rs MAP_REVEAL_FLAGS_DLC. Emitted per DLC-region Lock via lockRevealFlags so the DLC
+# map is revealed when you UNLOCK a DLC region, not only at start (reveal_all_maps + enable_dlc).
+_DLC_MAP_REVEAL_FLAGS = (62080, 62081, 62082, 62083, 62084)
 
 try:
     from ..region_open_flags import REGION_OPEN_FLAGS
@@ -112,4 +121,12 @@ class AreaLocks(Feature):
                 continue  # no resolved open flag -> can't gate this region (left open, prior behavior)
             for _pid in _ids:
                 ranges.append([_pid, _pid, _flag])
-        return {contract.AREA_LOCK_FLAGS: ranges}
+        # lockRevealFlags (2026-07-08): grant the DLC world-map reveal on DLC-region unlock. The
+        # start-time path (startgrants.rs) only fires the DLC pieces at connect gated on enable_dlc;
+        # tying them to the Lock reveals the Land-of-Shadow map exactly when the region opens. Each
+        # kept DLC region reveals the whole DLC map (idempotent) so ANY DLC unlock covers it, even a
+        # rolled draw that keeps Scadu Altus but not the Gravesite Plain entry. Client consumer LIVE
+        # (region.rs lock_reveal_flags); this key was contract-declared but previously unemitted.
+        reveal = {f"{r} Lock": list(_DLC_MAP_REVEAL_FLAGS)
+                  for r in world._kept() if r in DLC_REGIONS}
+        return {contract.AREA_LOCK_FLAGS: ranges, contract.LOCK_REVEAL_FLAGS: reveal}
