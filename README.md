@@ -69,8 +69,9 @@ The baker reads loose vanilla game data, and `-Deploy` overlays its output into 
 `build.ps1` is the whole pipeline. It always builds **clean** (both toolchains silently produce stale builds otherwise); add `-Clean` if a change still isn't landing.
 
 ```powershell
-# full pipeline: build baker + client, generate, serve, bake (w/ enemies), deploy
+# greenfield loop: gen the data-derived apworld + isolated multiworld, build the client, stage to me3, serve
 .\build.ps1 -All
+# (the old Generate.py full pipeline is now:  .\build.ps1 -PureRuntime -Apworld -Preflight)
 
 # most common dev loop — everything EXCEPT the C++ client rebuild (reuse the deployed DLL)
 .\build.ps1 -NoClient
