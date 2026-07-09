@@ -519,6 +519,10 @@ GLOBAL_RECOVER = {
     # also drops it (Alaric, ground truth 2026-07-09) and is the earlier/intended source. Pin to
     # Caelid so it isn't a false Altus gate. (Would otherwise HUB via _ENTITY_SUFFIX_AMBIG.)
     530405: "Caelid",
+    # Grafted Blade Greatsword (510800): drops from the Leonine Misbegotten at Castle Morne, in the
+    # Weeping Peninsula (Alaric, ground truth 2026-07-09 -- tracker showed it quarantined to HUB).
+    # Shared/unplaced common-event flag -> pin so it sits behind the Weeping lock, not always-free.
+    510800: "Weeping Peninsula",
 }
 # Missable location flags (matt-free): checks gated behind a LIMITED consumable or a killable NPC, so
 # fill must not place required progression there (features/missable_locations.py enforces via item_rule).
