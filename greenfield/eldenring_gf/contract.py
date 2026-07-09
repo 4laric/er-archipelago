@@ -305,11 +305,8 @@ CONTRACT = (
                 "consumer is LIVE (region.rs:121); greenfield does not emit it yet."),
     # --- graces ---
     ContractKey("regionGraces", "LISTVAL_INT_MAP", False, (BOTH,),
-                "features/grace_rando.py", "region.rs:122 str_to_u32vec",
-                "'<Region> Lock' -> grace warp flags lit on lock receipt (bundle=all, freebie=front door)."),
-    ContractKey("graceItems", "SCALAR_INT_MAP", False, (GREENFIELD,),
-                "features/grace_rando.py", "region.rs:123 str_to_u32",
-                "scatter grace item name -> the single grace flag it lights when received."),
+                "features/graces.py", "region.rs:122 str_to_u32vec",
+                "'<Region> Lock' -> grace warp flags lit on lock receipt (bundle: all of the region's graces)."),
     # --- start-of-run grants ---
     ContractKey("startRegion", "STR", True, (BOTH,),
                 "features/start_grace.py", "core.rs:410 as_str",

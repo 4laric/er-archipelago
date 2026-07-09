@@ -10,7 +10,7 @@ GAME = "Elden Ring (Greenfield)"
 
 class ItemShuffleOn(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "grace_rando": False}
+    options = {"item_shuffle": True}
 
     def test_real_items_in_pool(self):
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated")
@@ -23,7 +23,7 @@ class ItemShuffleOn(WorldTestBase):
 
 class ItemShuffleOff(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False, "grace_rando": False, "varied_filler": False}
+    options = {"item_shuffle": False, "varied_filler": False}
 
     def test_default_all_rune(self):
         fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
@@ -33,7 +33,7 @@ class ItemShuffleOff(WorldTestBase):
 
 class VariedFillerOn(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False, "grace_rando": False, "varied_filler": True}
+    options = {"item_shuffle": False, "varied_filler": True}
 
     def test_filler_is_varied_junk(self):
         from worlds.eldenring_gf.item_ids import FILLER_POOL
@@ -72,7 +72,7 @@ def test_filler_pool_excludes_capped_and_endtier():
 class StoneInjection(WorldTestBase):
     """B: stone_injection swaps filler for low smithing stones on the SHUFFLED pool, count-neutral."""
     game = GAME
-    options = {"item_shuffle": True, "grace_rando": False, "stone_injection": 150}
+    options = {"item_shuffle": True, "stone_injection": 150}
 
     def test_injection_raises_low_stones_count_neutral(self):
         from collections import Counter

@@ -254,20 +254,9 @@
       "profiles": [
         "both"
       ],
-      "producer": "features/grace_rando.py",
+      "producer": "features/graces.py",
       "consumer": "region.rs:122 str_to_u32vec",
-      "doc": "'<Region> Lock' -> grace warp flags lit on lock receipt (bundle=all, freebie=front door)."
-    },
-    {
-      "name": "graceItems",
-      "shape": "SCALAR_INT_MAP",
-      "required": false,
-      "profiles": [
-        "greenfield"
-      ],
-      "producer": "features/grace_rando.py",
-      "consumer": "region.rs:123 str_to_u32",
-      "doc": "scatter grace item name -> the single grace flag it lights when received."
+      "doc": "'<Region> Lock' -> grace warp flags lit on lock receipt (bundle: all of the region's graces)."
     },
     {
       "name": "startRegion",
@@ -312,6 +301,17 @@
       "producer": "features/start_grace.py",
       "consumer": "startgrants.rs as_bool",
       "doc": "reveal the whole world map + underground view (client owns the RE'd flag set)."
+    },
+    {
+      "name": "bigTicketLocations",
+      "shape": "INT_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/big_ticket_locations.py",
+      "consumer": "core.rs self.big_ticket (fallback tracker_regions::big_ticket_set)",
+      "doc": "AP location ids that are big-ticket THIS seed = is_big_ticket(tags, big_ticket_locations); Enia (EniaShop) always excluded. Client stars/locks these; absent -> client falls back to the static default table."
     },
     {
       "name": "goalLocations",
@@ -564,7 +564,18 @@
       ],
       "producer": "features/boss_locks.py",
       "consumer": "er-logic boss_felled / region.rs",
-      "doc": "{str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id}} for kept BASE-game bosses (DLC out for v0.2); client mints the 'Felled:' trophy on boss-defeat (mode A)."
+      "doc": "{str(boss_flag): {name:'Felled: <Boss>', region, boss_ap_id [, gate:'Boss Key: <Boss>', display_key:<vanilla key name>]}}: kept BASE-game bosses always; DLC bosses added when boss_keys is ON. Client mints the 'Felled:' trophy on boss-defeat (mode A); the mode-B 'gate' (defer own check until key) and 'display_key' (legible vanilla lock name) ride the same entry when boss_keys is ON."
+    },
+    {
+      "name": "regionAttunement",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/attunement.py",
+      "consumer": "core.rs parse_region_attunement / self.region_attunement",
+      "doc": "{str(region): {threshold:int, member_ap_ids:[int], bloom_flags:[int]}}: per-region attunement gate. Emitted ONLY when the attunement gate is ON; absent => feature off. Client holds boss payouts until a region attunes, then blooms its graces (ATTUNEMENT-RELEASE, core.rs)."
     },
     {
       "name": "filler_foreign_localized",

@@ -10,9 +10,10 @@ so it is winnable by construction (attunement is always satisfiable from the reg
 need nothing but the region Lock).
 
 Gated behind `attunement_gate` (Toggle, default 0):
-  OFF -> zero change: grace_rando keeps its freebie/bundle behavior, no regionAttunement key is emitted,
-         and world.random is NOT touched (default seeds stay byte-identical).
-  ON  -> emits regionAttunement and hands grace_rando the K random-start graces via world.gf_attunement.
+  OFF -> zero change: the region-graces emitter keeps its default bundle behavior, no regionAttunement
+         key is emitted, and world.random is NOT touched (default seeds stay byte-identical).
+  ON  -> emits regionAttunement and hands the region-graces emitter the K random-start graces via
+         world.gf_attunement.
 
 Emitted (kept regions only, gate ON):
   regionAttunement = {region: {"threshold": int, "member_ap_ids": [int], "bloom_flags": [int]}}
@@ -24,7 +25,7 @@ Emitted (kept regions only, gate ON):
   member_ap_ids  = that freely-reachable ap_id set (what counts toward attunement).
   K (start doors)= clamp(ceil(n_graces / 8), 1, 3) seeded-random graces (n_graces = REGION_GRACE_POINTS
                    for the region). Deterministic per seed via world.random -> the entry door varies by
-                   seed. These K go into regionGraces (lit on lock receipt) via grace_rando.
+                   seed. These K go into regionGraces (lit on lock receipt) via features/graces.py.
   bloom_flags    = the region's remaining graces (REGION_GRACE_POINTS minus the K start doors).
 
 Boss-arena grace: REGION_GRACE_POINTS is generated (gen_data.py) with _BOSS_GATED_GRACE_FLAGS and
@@ -122,7 +123,7 @@ class AttunementFeature(Feature):
                 "threshold": _threshold(len(members)),
                 "member_ap_ids": members,
                 "bloom_flags": bloom,
-                "region_lit": lit,   # consumed by grace_rando; NOT emitted in regionAttunement
+                "region_lit": lit,   # consumed by features/graces.py; NOT emitted in regionAttunement
             }
         world.gf_attunement = plan
 

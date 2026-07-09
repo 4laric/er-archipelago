@@ -9,9 +9,9 @@ pytest.importorskip("worlds.eldenring_gf")
 
 GAME = "Elden Ring (Greenfield)"
 _OPTS = ("completion_scaling_floor", "global_scadutree_blessing", "dungeon_sweep",
-         "boss_lock_placement", "merchant_bell_logic", "grace_rando")
+         "boss_lock_placement", "merchant_bell_logic")
 _KEYS = ("completion_scaling", "dungeonSweeps", "sweepLockGates", "shopRowFlags",
-         "shopPreviewGoods", "regionGraces", "graceItems", "startGraces")
+         "shopPreviewGoods", "regionGraces", "startGraces")
 
 
 class FeaturesSmoke(WorldTestBase):

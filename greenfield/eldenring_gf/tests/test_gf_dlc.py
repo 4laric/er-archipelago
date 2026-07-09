@@ -49,7 +49,7 @@ def _lock_region_names(mw, player):
 class DLCDefaultOn(WorldTestBase):
     """Default: Enable DLC on, DLC Only off, num_regions 0 -> full Shattering, all regions kept."""
     game = GAME
-    options = {"grace_rando": False}
+    options = {}
 
     def test_all_regions_kept_including_dlc(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -65,7 +65,7 @@ class DLCDefaultOn(WorldTestBase):
 class DLCDisabled(WorldTestBase):
     """Enable DLC off -> DLC regions sealed; base-game goal still kept; beatable."""
     game = GAME
-    options = {"grace_rando": False, "enable_dlc": False}
+    options = {"enable_dlc": False}
 
     def test_no_dlc_region_kept(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -86,7 +86,7 @@ class DLCDisabled(WorldTestBase):
 class DLCOnlyMode(WorldTestBase):
     """DLC Only on -> only DLC regions eligible; base goal sealed; still beatable."""
     game = GAME
-    options = {"grace_rando": False, "dlc_only": True}
+    options = {"dlc_only": True}
 
     def test_only_dlc_regions_kept(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -112,7 +112,7 @@ class DLCOnlyMode(WorldTestBase):
 class DLCOnlyImpliesEnabled(WorldTestBase):
     """DLC Only on WITH Enable DLC off: DLC Only wins (implies enabled) -- DLC regions still kept."""
     game = GAME
-    options = {"grace_rando": False, "dlc_only": True, "enable_dlc": False}
+    options = {"dlc_only": True, "enable_dlc": False}
 
     def test_dlc_only_overrides_disable(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -127,7 +127,7 @@ class DLCOnlyImpliesEnabled(WorldTestBase):
 class DLCDisabledNumRegions3(WorldTestBase):
     """Enable DLC off + num_regions 3 spine -> 3 base-game spine regions + goal, no DLC, beatable."""
     game = GAME
-    options = {"grace_rando": False, "enable_dlc": False,
+    options = {"enable_dlc": False,
                "num_regions": 3, "num_regions_order": "spine"}
 
     def test_kept_is_base_only_and_counts(self):
@@ -146,7 +146,7 @@ class DLCDisabledNumRegions3(WorldTestBase):
 class DLCOnlyNumRegions3(WorldTestBase):
     """DLC Only + num_regions 3 spine -> exactly 3 DLC regions, no base, no goal forced, beatable."""
     game = GAME
-    options = {"grace_rando": False, "dlc_only": True,
+    options = {"dlc_only": True,
                "num_regions": 3, "num_regions_order": "spine"}
 
     def test_exactly_three_dlc_regions(self):
@@ -167,7 +167,6 @@ class DLCOnlyGreatRunesGoal(WorldTestBase):
     Great Runes goal under DLC Only -- placing runes in Land of Shadow -- is scoped out of v0.2.)"""
     game = GAME
     options = {
-        "grace_rando": False,
         "dlc_only": True,
         "item_shuffle": True,
         "ending_condition": "great_runes",
