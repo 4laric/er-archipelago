@@ -68,8 +68,7 @@ REGION_CLUSTER = {
     "Altus Plateau": 63,
     "Mt. Gelmir": 63,
     "Caelid": 64,
-    "Mountaintops of the Giants": 65,
-    "Consecrated Snowfield": 65,
+    "Mountaintops of the Giants": 65,   # Consecrated Snowfield (cluster 65) folded in
 }
 
 # Documented boundary/connector graces: a warp/lift/hidden-path grace that physically BRIDGES two
@@ -78,7 +77,8 @@ REGION_CLUSTER = {
 # connector it represents, or it is masking a real misbundle.
 BOUNDARY_GRACE_ALLOW = {
     73020: "Hidden Path to the Haligtree -- connector dungeon (pid 63003/Altus) that EXITS into "
-           "Consecrated Snowfield (cluster 65); curated to the region it leads into.",
+           "Mountaintops of the Giants (cluster 65; Consecrated Snowfield folded in); curated to the "
+           "region it leads into.",
 }
 
 # UNDERGROUND / LEGACY play_region_ids with an UNAMBIGUOUS greenfield region (REGION_ID_MAP.md).
