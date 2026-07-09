@@ -2430,7 +2430,7 @@ LOCATIONS = {
         ('Limgrave :: Golden Seed [f400191]', 7770742, 400191),
         ('Limgrave :: Whetstone Knife [f400210]', 7770743, 400210),
         ('Limgrave :: Lone Wolf Ashes [f400390]', 7770775, 400390),
-        ("Limgrave :: LG/(CE): Missionary's Cookbook [1] - Kalé Shop [f400396]", 7770778, 400396),
+        ("Limgrave :: LG/(CE): Missionary's Cookbook [1] - KalÃ© Shop [f400396]", 7770778, 400396),
         ('Limgrave :: Flamedrake Talisman [f520330]', 7770848, 520330),
         ('Limgrave :: Sewing Needle [f520340]', 7770849, 520340),
         ('Limgrave :: Dragon Heart [f530110]', 7770852, 530110),
