@@ -49,8 +49,10 @@ class StoneInjection(Range):
 class StoneRamp(Toggle):
     """B-ramp (AUTO-SIZED): when on, distribute smithing stones along the TRUE per-seed fill spheres so
     the achieved standard-weapon curve tracks the smoothstep difficulty target (max weapon by the
-    deepest sphere). No count to tune -- per sphere it places exactly the stones needed to AFFORD the
-    smoothstep target at that depth under the current flatten_regular_upgrades ladder, MINUS the vanilla
+    deepest sphere), FRONT-LOADED at the low end: the low tiers ([1]-[3] -> +9) ramp forward to be
+    affordable by ~20% run depth instead of ~40%, so early standard weapons are usable; +10 and up stay
+    on the original smoothstep. No count to tune -- per sphere it places exactly the stones needed to
+    AFFORD the target at that depth under the current flatten_regular_upgrades ladder, MINUS the vanilla
     stones already reachable there. Scales automatically with num_regions (= sphere count) and the
     flatten setting. Count-neutral (filler->stone in place), winnable, and pinned to THIS world's own
     locations (never scattered to other worlds; those checks stop hosting others' items -> a bit more
