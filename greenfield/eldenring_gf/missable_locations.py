@@ -22,7 +22,6 @@ MISSABLE_LOCATIONS = {
     7770676: 'dragon_heart',
     7770677: 'dragon_heart',
     7770678: 'dragon_heart',
-    7773902: 'deathroot',
     7773903: 'deathroot',
     7773904: 'deathroot',
     7773905: 'deathroot',
@@ -32,4 +31,5 @@ MISSABLE_LOCATIONS = {
     7773909: 'deathroot',
     7773910: 'deathroot',
     7773911: 'deathroot',
+    7773912: 'deathroot',
 }

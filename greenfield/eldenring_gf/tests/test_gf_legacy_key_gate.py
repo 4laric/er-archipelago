@@ -1,6 +1,6 @@
 """features/legacy_key_gates: the Academy Glintstone Key gates the folded Raya Lucaria (m14) checks.
 
-Verifies the gate is winnable-by-construction: the key is upgraded to PROGRESSION, all 66 m14 checks
+Verifies the gate is winnable-by-construction: the key is upgraded to PROGRESSION, all 67 m14 checks
 require it in logic (unreachable without, reachable with), fill keeps at least one key OUTSIDE the m14
 gate, and a full seed stays beatable. Off -> key stays filler and nothing is gated.
 """
@@ -29,9 +29,13 @@ class LegacyKeyGateOn(WorldTestBase):
         assert keys, "Academy Glintstone Key must be in the pool under item_shuffle + Liurnia kept"
         assert all(it.classification & IC.progression for it in keys)
 
-    def test_all_66_m14_checks_gated_by_key(self):
+    def test_all_67_m14_checks_gated_by_key(self):
+        # 67 after the matt-free GLOBAL-recovery change (gen_data _recover_tile full coverage) surfaced
+        # one more real Raya Lucaria academy drop -- Living Jar Shard, flag 14007997 (m14 -> Liurnia),
+        # previously a SKIPped `global` row -- as a check. It is inside the m14 range, so it is correctly
+        # gated by the Academy Glintstone Key (was 66 before recovery).
         gated = _gated_location_ids([KEY])
-        assert len(gated) == 66 and all(v == KEY for v in gated.values())
+        assert len(gated) == 67 and all(v == KEY for v in gated.values())
         st = CollectionState(self.multiworld)
         for it in self.multiworld.itempool:
             if it.name != KEY and (it.classification & IC.progression):
