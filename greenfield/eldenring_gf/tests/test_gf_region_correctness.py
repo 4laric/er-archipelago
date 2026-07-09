@@ -247,7 +247,9 @@ class RegionCorrectness(unittest.TestCase):
         "Raya Lucaria Academy":                     "Liurnia of the Lakes",  # Academy folded into Liurnia
         "Leyndell / Roundtable / Shunning-Grounds": "Altus Plateau",         # Leyndell folded into Altus
         "Leyndell, Royal Capital":                  "Altus Plateau",
-        "Leyndell (Ashen Capital)":                 "Altus Plateau",
+        # "Leyndell (Ashen Capital)" is NOT re-carved into Altus -- its checks are EXCLUDED as dead
+        # (post-Erdtree-burn, unreachable in a region-lock game; gen_data._is_ashen_dead). So it
+        # produces zero emitted checks by design and must not be asserted as a re-carve target.
     }
 
     # `map` prefix -> expected region, for tiles the CSV `region` string mislabels. Subterranean

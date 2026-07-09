@@ -165,6 +165,18 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # in logic when Altus opens, and collectable via Morgott's region-wide sweep (Morgott = reachable capital
 # ending). NOT a separate rollable region. Morgott (510040) is the capital ending and already there.
 _MISC_NON_CHECK = frozenset({60210, 590000})  # 590000 = empty-item Stormveil check; 60210 Wizened Finger
+# Unreachable ASHEN CAPITAL + final-boss drops -- EXCLUDED AS DEAD (user decision 2026-07-08). Post-
+# Erdtree-burn / final content is not physically reachable in a region-lock game, and is NOT actually
+# collectable via Morgott's region-wide sweep (boss_arena rewards are never swept, and the m11_05
+# map_lot items fall outside the sweep member filter) -- so they were dead big-ticket checks. Drop
+# them. m11_05 = Leyndell Ashen Capital (whole 11050000-11059999 range); 510070 Remembrance of Hoarah
+# Loux (Godfrey, Ashen); 510230 Elden Remembrance (Radagon/Elden Beast, final); 190540/190550 = Sir
+# Gideon the All-Knowing (Ashen). Morgott (510040) STAYS -- he is the reachable capital ending. Bolt of
+# Gransax (11007xxx, Royal Capital m11_00) STAYS -- physically reachable. Excluding boss_arena 510070/
+# 510230 also drops them from REGION_BOSSES (built from `rows`), so no dangling Felled trophy / key.
+_ASHEN_DEAD_FLAGS = frozenset({510070, 510230, 190540, 190550})
+def _is_ashen_dead(_fl):
+    return _fl in _ASHEN_DEAD_FLAGS or 11050000 <= _fl <= 11059999
 EXCLUDE_FLAGS = frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
@@ -177,7 +189,7 @@ def _is_mausoleum_dupe(r):
 rows=[r for r in _ALLROWS
       if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
       and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
-      and not _is_mausoleum_dupe(r)]
+      and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))]
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
