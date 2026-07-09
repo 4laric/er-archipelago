@@ -21,7 +21,7 @@ REGION_OPEN_FLAGS = {
     'Mt. Gelmir': 76350,
     'Scadu Altus': 76900,
     'Shadow Keep': 72102,
-    'Stormveil Castle': 200,
+    'Stormveil Castle': 71002,
     'Weeping Peninsula': 73102,
 }
 
