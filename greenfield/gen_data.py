@@ -289,6 +289,14 @@ FLAG_REGION_OVERRIDE = {
 # the m34 Great-Rune Divine Towers are base game, not DLC). This per-map-id table wins over the coarse
 # bucket AND the emevd/global audit. Keys are full map ids; values are greenfield region names.
 DUNGEON_REGION_OVERRIDE = {
+    # Split-map corrections: a 3-char map prefix conflates sub-maps that are DIFFERENT regions.
+    # m20 = Belurat (m20_00) + Enir-Ilim (m20_01) DLC -- NOT Mohgwyn; m12_05 = Mohgwyn Palace --
+    # NOT the rest of m12 (Eternal Cities/Underground Rivers). Without these, 170 m20 DLC checks
+    # landed in BASE Mohgwyn (leaking DLC into DLC-off seeds) and Mohgwyn's real m12_05 checks went
+    # to Eternal Cities. Graces are fixed in parallel by the per-play_region grace resolution.
+    "m20_00_00_00": "Belurat",
+    "m20_01_00_00": "Enir-Ilim",
+    "m12_05_00_00": "Mohgwyn Palace",
     "m30_20_00_00": "Consecrated Snowfield",  # Hidden Path to the Haligtree
     "m31_01_00_00": "Weeping Peninsula",  # Earthbore Cave
     "m31_04_00_00": "Liurnia of the Lakes",  # Stillwater Cave
@@ -571,6 +579,11 @@ _ARENA_GRACE_FLAGS = frozenset({76930, 76931, 76422, 76852, 76853, 76508, 76509,
 # the boss-bonfire (9005810) and remembrance-arena classes.)
 _ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
 _SKIP_GRACE_FLAGS = _BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS | _ASHEN_LEYNDELL_GRACE_FLAGS
+# Per-play_region grace region for SPLIT interior maps whose 3-char prefix conflates regions
+# (m20 = Belurat 20000 + Enir-Ilim 20010; m12_05 = Mohgwyn 12050 vs the rest of m12 = Eternal
+# Cities). The grace's own play_region_id (grace_region_map = greg) is authoritative; the coarse
+# _pref2maj vote below cannot tell these apart. Mirrors the DUNGEON_REGION_OVERRIDE check fix.
+_GRACE_PR_REGION = {"20000": "Belurat", "20010": "Enir-Ilim", "12050": "Mohgwyn Palace"}
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
@@ -584,6 +597,7 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
         # (Altus) but their tiles vote Liurnia / Mountaintops. Fall back to the tile NN when the grace
         # has no overworld play_region entry. Interior/dungeon graces (no m60 tile) keep the prefix path.
         _mj = PLAY2AP.get(greg.get(_fl)) or PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
+    if not _mj: _mj = _GRACE_PR_REGION.get(greg.get(_fl))   # split-map: per-play_region (authoritative)
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
     if _mj and _mj != HUB:
         _open_cand[_mj].append(int(_fl))
