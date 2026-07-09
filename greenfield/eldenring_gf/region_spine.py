@@ -17,7 +17,7 @@ GOAL_REGION = "Altus Plateau"
 SPINE = [
     "Limgrave", "Weeping Peninsula", "Stormveil Castle", "Liurnia of the Lakes",
     "Caelid", "Altus Plateau", "Mt. Gelmir",
-    "Mountaintops of the Giants", "Consecrated Snowfield", "Miquella's Haligtree",
+    "Mountaintops of the Giants", "Miquella's Haligtree",
     "Farum Azula", "Mohgwyn Palace", "Eternal Cities",
     # DLC (rides as plain lock gates -- SPEC-PARITY.md P7). Capstone re-carve split the old
     # 'Land of Shadow' catch-all into Gravesite Plain + Ancient Ruins of Rauh (Romina) + Enir-Ilim.

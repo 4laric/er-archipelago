@@ -59,8 +59,7 @@ REGION_PLAY_IDS = {
     "Altus Plateau": [63000, 63002, 63003],
     "Mt. Gelmir": [63001, 16000, 39200],          # + Volcano Manor + Ruin-Strewn Precipice
     "Caelid": [64000, 64001, 64002],               # core + Dragonbarrow + Swamp of Aeonia
-    "Mountaintops of the Giants": [65000, 65001],
-    "Consecrated Snowfield": [65002],
+    "Mountaintops of the Giants": [65000, 65001, 65002],   # 65002 = Consecrated Snowfield, folded in
     # --- legacy dungeons / capitals / underground (REGION_ID_MAP.md) ---
     "Stormveil Castle": [10000],
     "Leyndell": [11000, 11050, 35000, 19000],      # Royal + Ashen + Shunning-Grounds + Fractured Marika
