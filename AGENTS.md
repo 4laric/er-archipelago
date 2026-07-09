@@ -46,11 +46,19 @@ Repo is ~83M; `--no-recurse-submodules` keeps it light.
 ## 4. The Rust client is a separate repo
 
 The client lives in submodule `from-software-archipelago-clients` (crate
-`eldenring-archipelago`), branch **`eldenring-client-draft`**. Clone it over HTTPS the same
-way. Edit `.rs` files here, but **`cargo build`/`test` runs on Windows** (net/detour deps are
-Windows-only). Push your `.rs` fix to `eldenring-client-draft`; Alaric pulls + builds and bumps
-the submodule pointer. The `er-logic` crate is host-testable (`cargo test -p er-logic`) if a
-Rust toolchain is present.
+`eldenring-archipelago`), branch **`eldenring-client-draft`**; feature work forks off it (e.g.
+`agent/reconciler`). Clone it over HTTPS the same way and edit `.rs` files here.
+
+- **Build:** the `.dll` now **cross-compiles from Linux** via cargo-xwin -- run
+  `xcompile-client-linux.sh` (no Windows box needed to compile). It still *targets* Windows
+  (net/detour deps) and is injected into `eldenring.exe`, so it **runs** on Windows/Proton.
+  The `er-logic` crate is pure + host-testable: `cargo test -p er-logic`.
+- **Runtime feature flags** (e.g. the reconciler dry-run/cutover: `RECONCILE_DRYRUN`,
+  `RECONCILE_APPLY`) are read from the environment at runtime and documented in the CLIENT repo
+  -- `WINDOWS-CUTOVER-CHECKLIST.md` + `crates/eldenring-archipelago/MIGRATION.md`. Set them in
+  the **game process** env (the .dll is injected into `eldenring.exe`), NOT the build shell.
+  Add new flags to those docs rather than re-deriving a bespoke launch recipe per change.
+- Push `.rs` fixes to the client branch; Alaric bumps the submodule pointer.
 
 ## 5. You CAN regenerate + test the apworld in-sandbox
 
