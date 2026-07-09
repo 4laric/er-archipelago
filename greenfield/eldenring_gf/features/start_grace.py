@@ -40,8 +40,9 @@ class EarlyLeveling(DefaultOnToggle):
 
 class StartWithRegionLock(Toggle):
     """Start holding ONE random region's lock, so a region is open from Roundtable at run start
-    (core.create_items precollects it; count-neutral). On by default. Off = every region starts
-    sealed and the first lock must be found."""
+    (core.create_items precollects it; count-neutral). Off by default (the curated presets in
+    greenfield/presets/ turn it on). When off, every region starts sealed and the first lock must be
+    found -- still beatable because AP fill guarantees a Roundtable-reachable region Lock."""
     display_name = "Start With A Region Lock"
 
 
