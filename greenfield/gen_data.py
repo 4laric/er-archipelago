@@ -198,9 +198,12 @@ _RECOVER_PHANTOM_DUPES = frozenset({1033477020})
 # UNREACHABLE big-ticket checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
 # mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
 #   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
-#     illusory-wall gate reachable only from the far side of the grace anchor. Dropping it as dead
-#     renumbers downstream ap-ids (needs a full regen) and removes the Silver Scarab shuffle copy.
-_UNREACHABLE_DEAD = frozenset({30207900})
+#     illusory-wall gate reachable only from the far side of the grace anchor.
+#   1050567820 = Graven-Mass Talisman: the reward inside Albinauric Rise (Consecrated Snowfield,
+#     folded into Mountaintops), sealed by the invisible-sniper imp seal (bewitching branch / fanged
+#     imp ashes) -- not openable from the grace side, so the check is unreachable.
+# Dropping these renumbers downstream ap-ids (needs a full regen) and removes the vanilla shuffle copy.
+_UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD)
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
@@ -501,12 +504,12 @@ GLOBAL_RECOVER = {
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
     510340: HUB,
     1049557700: HUB,
-    # Haligtree Secret Medallion (Right): physically the reward inside Albinauric Rise in the
-    # Consecrated Snowfield (folded into Mountaintops), NOT the Village-of-the-Albinaurics pickup (that
-    # is the LEFT half). Only the obtained flag (400130, method global) exists (no map_lot). It is
-    # currently recovered to Liurnia -- but Albinauric Rise is sealed by an invisible-sniper imp seal
-    # (bewitching branch / fanged imp ashes), so the check is effectively UNREACHABLE and mis-pinned;
-    # left as-is pending Alaric's call on excluding vs re-pinning to Mountaintops (flagged 2026-07-09).
+    # Haligtree Secret Medallion (Right): physically the reward in Castle Sol (Mountaintops of the
+    # Giants), obtained by defeating Commander Niall -- NOT the Village-of-the-Albinaurics pickup (that
+    # is the LEFT half). Only the obtained flag (400130, method global) exists (no map_lot), and it is
+    # currently recovered to Liurnia, which is a mis-pin (real region Mountaintops). It IS reachable
+    # (Niall is a normal combat boss), so it is left as a Liurnia check pending a proper re-pin to
+    # Mountaintops (flagged 2026-07-09; distinct from the Albinauric Rise Graven-Mass Talisman above).
     400130: "Liurnia of the Lakes",
     # Deathroot rewards from Gurranq at the Bestial Sanctum (Dragonbarrow / NE Caelid). Recovered as
     # checks AND tagged missable below (gated behind delivering N deathroots -- a limited consumable +
