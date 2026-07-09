@@ -16,6 +16,7 @@ The beloved FUNNY_JUNK (Raw Meat Dumpling, Gold-Tinged Excrement) is never seize
 and the placed leveling/upgrade economy is never seized either -- the recipe ADDS on top via the
 seized junk slots. Count-neutral in-pool swap, fill-safe, deterministic. Off by default (empty recipe).
 Runs from core.create_items via curate(world, pool)."""
+from BaseClasses import ItemClassification
 from Options import OptionDict
 from ..registry import Feature, register
 
@@ -104,7 +105,12 @@ def curate(world, pool):
     weights = [w for _, w in cats]
     if sum(weights) <= 0:
         return
-    cand = [i for i, it in enumerate(pool) if _is_junk_consumable(it.name)]
+    # Seize ONLY pure-filler slots. Elden Ring keys (Academy Glintstone Key, ...) share the GOODS
+    # nibble with junk consumables, so _is_junk_consumable alone would evict a progression key and
+    # make the seed unwinnable -- guard on classification so progression/useful items always survive.
+    _protected = ItemClassification.progression | ItemClassification.useful
+    cand = [i for i, it in enumerate(pool)
+            if _is_junk_consumable(it.name) and not (it.classification & _protected)]
     world.random.shuffle(cand)
     for idx in cand:
         c = world.random.choices(names, weights=weights, k=1)[0]
