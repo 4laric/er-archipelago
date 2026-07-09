@@ -385,10 +385,12 @@ class RegionCorrectness(unittest.TestCase):
             "boss_data.py's region -- a map-scan mis-region (2026-07-08 Full Moon Queen class). "
             "Add a gen_data.ROW_MAP_REGION_FIX entry for the offending flag. " + repr(mismatch[:5]))
 
-    def test_boss_reward_swept_by_its_own_boss(self):
-        """A boss reward whose defeat flag is a dungeon-sweep trigger must be a MEMBER of that sweep --
-        else clearing the boss never grants it, or the WRONG boss does (Full Moon Queen was swept by
-        Godrick's 10000800, not Rennala's 14000800). Same map-column root as the region check above."""
+    def test_boss_reward_not_swept_by_wrong_boss(self):
+        """A boss reward must NEVER be a member of a DIFFERENT boss's sweep (the Full Moon Queen bug:
+        Rennala's reward was swept by Godrick's 10000800, not her own 14000800). Legacy/field sweeps
+        are filler-only so they exclude boss rewards (Boss/Remembrance-tagged) entirely; a map-local
+        dungeon sweep may still contain its own catacomb boss's reward. Either way a reward may only
+        ever appear in ITS OWN boss's sweep -- misattribution to another boss is the defect."""
         bd = _load_module("boss_data")
         sw = _load_module("boss_sweeps")
         if bd is None or sw is None or not hasattr(sw, "DUNGEON_SWEEPS"):
@@ -397,13 +399,13 @@ class RegionCorrectness(unittest.TestCase):
         wrong = []
         for region, entries in bd.REGION_BOSSES.items():
             for (apid, flag, name) in entries:
-                if flag in ds and apid not in ds[flag]:
-                    wrong.append((apid, name, flag, region))
+                for trig, members in ds.items():
+                    if trig != flag and apid in members:
+                        wrong.append((apid, name, "own_flag=" + str(flag), "swept_by=" + str(trig)))
         self.assertEqual(
             wrong, [],
-            str(len(wrong)) + " boss reward(s) not a member of their own boss's dungeon sweep "
-            "(swept by the wrong boss -- Full Moon Queen class). (ap, name, defeat_flag, region): "
-            + repr(wrong[:5]))
+            str(len(wrong)) + " boss reward(s) swept by the WRONG boss (Full Moon Queen class). "
+            "(ap, name, own_flag, swept_by): " + repr(wrong[:5]))
 
 
 if __name__ == "__main__":

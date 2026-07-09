@@ -157,6 +157,33 @@ class BossSweepScoping(unittest.TestCase):
         self.assertEqual(empty, [], "recovered catacomb boss(es) have EMPTY sweeps (flag_prefix map "
                          "recovery regressed): " + repr(empty))
 
+    def test_legacy_sweeps_are_filler_only(self):
+        """Legacy (region-major) sweeps must be FILLER-ONLY now -- felling a region boss auto-grants
+        only the region's filler, never an important/big-ticket-tagged check (same cut as field). The
+        member list is baked from location tags at gen time; boss_locks.slot_data emits it verbatim."""
+        bad = []
+        for ent, info, members in self._members_by_class("legacy"):
+            for ap in members:
+                hit = FIELD_EXCLUDE & set(self.lt.get(ap, ()))
+                if hit:
+                    bad.append((ent, info[3], ap, sorted(hit)))
+        self.assertEqual(bad, [], str(len(bad)) + " legacy sweep member(s) are important/big-ticket -- "
+                         "region-major sweeps must be filler-only. Sample: " + repr(bad[:5]))
+
+    def test_legacy_filler_only_is_nontrivial(self):
+        """Guard the cut actually bites: at least one important/big-ticket-tagged check must sit in a
+        legacy sweep's own region yet be EXCLUDED from the sweep. Fails if legacy silently reverts to
+        region-wide (or the tag data drops), which test_legacy_sweeps_are_filler_only alone would miss
+        (an empty/degenerate sweep is vacuously filler-only)."""
+        for ent, info, members in self._members_by_class("legacy"):
+            reg = self.sw.SWEEP_REGION.get(ent)
+            memset = set(members)
+            for ap, r in self.ap_region.items():
+                if r == reg and ap not in memset and (FIELD_EXCLUDE & set(self.lt.get(ap, ()))):
+                    return  # found an excluded important check in a legacy sweep's region -> cut bites
+        self.fail("no important/big-ticket check is excluded from any legacy sweep -- the filler-only "
+                  "cut looks like a no-op (region-wide regression or missing location tags)")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
