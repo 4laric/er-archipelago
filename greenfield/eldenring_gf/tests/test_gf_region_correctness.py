@@ -37,7 +37,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)                 # .../greenfield/eldenring_gf
 GREENFIELD = os.path.dirname(GF_PKG)           # .../greenfield
 DATA_PY = os.path.join(GF_PKG, "data.py")
-REGION_MAP_CSV = os.path.join(GREENFIELD, "region_map.csv")
+# region_map.csv is gen_data's INPUT; in the SOURCE tree it sits beside the package (GREENFIELD/), and
+# the world-install step copies it INTO the installed package (GF_PKG/) so this oracle RUNS in the
+# installed-world pytest too. Resolve from either -- first existing wins.
+REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
+                                   os.path.join(GREENFIELD, "region_map.csv")) if os.path.isfile(p)),
+                      os.path.join(GREENFIELD, "region_map.csv"))
 
 # Placed-item flag_sources: the item sits on a real ItemLotParam_map tile, so its declared region is
 # ground truth and region_of must preserve it (never quarantine to HUB). `shop`/`global` sources are
