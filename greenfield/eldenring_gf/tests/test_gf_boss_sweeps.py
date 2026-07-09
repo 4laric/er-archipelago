@@ -21,7 +21,12 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)
 GREENFIELD = os.path.dirname(GF_PKG)
-REGION_MAP_CSV = os.path.join(GREENFIELD, "region_map.csv")
+# region_map.csv is gen_data's INPUT; in the SOURCE tree it sits beside the package (GREENFIELD/), and
+# the world-install step copies it INTO the installed package (GF_PKG/) so the sweep-scoping oracle runs
+# in the installed-world pytest too. Resolve from either -- first existing wins.
+REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
+                                   os.path.join(GREENFIELD, "region_map.csv")) if os.path.isfile(p)),
+                      os.path.join(GF_PKG, "region_map.csv"))
 
 # = contract.IMPORTANT_LOCATION_TYPES (a superset of BIG_TICKET_TYPES). A field sweep must contain
 # none of these -- felling a field boss hands out filler only. Kept in sync with contract by
@@ -60,12 +65,20 @@ class BossSweepScoping(unittest.TestCase):
         for region, locs in cls.d.LOCATIONS.items():
             for (_name, ap, flag) in locs:
                 cls.ap_flag[ap] = int(flag); cls.ap_region[ap] = region
-        # flag -> raw map from region_map.csv (may be PENDING for unplaced dungeon checks)
+        # flag -> raw map from region_map.csv (may be PENDING for unplaced dungeon checks). Without it
+        # _eff_map would silently degrade to flag-only decode and report FALSE map-local/own-tile
+        # mismatches, so skip loudly instead of running blind. The world-install step copies region_map.csv
+        # into the package (GF_PKG) so this normally RUNS in the installed-world pytest; the skip is only a
+        # safety net for a fresh clone where the copy was missed.
+        if not os.path.isfile(REGION_MAP_CSV):
+            raise unittest.SkipTest(
+                "region_map.csv not found beside the package or installed into it -- copy "
+                "greenfield/region_map.csv into the world (the install step does this) to run the "
+                "sweep-scoping oracle")
         cls.flag_map = {}
-        if os.path.isfile(REGION_MAP_CSV):
-            for r in csv.DictReader(open(REGION_MAP_CSV, encoding="utf-8")):
-                if str(r["flag"]).lstrip("-").isdigit():
-                    cls.flag_map[int(r["flag"])] = r["map"] or ""
+        for r in csv.DictReader(open(REGION_MAP_CSV, encoding="utf-8")):
+            if str(r["flag"]).lstrip("-").isdigit():
+                cls.flag_map[int(r["flag"])] = r["map"] or ""
 
     def _eff_map(self, ap):
         """A member's effective map: region_map's map, or -- for an unplaced dungeon check whose flag

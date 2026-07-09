@@ -68,6 +68,7 @@ Test the world (provisions a Python-3.11 AP runtime under `~/.greenfield-ci`):
 bash greenfield/provision-linux-env.sh        # once per session
 AP=~/.greenfield-ci/ap; PY=~/.greenfield-ci/.venv/bin/python
 rm -rf "$AP/worlds/eldenring_gf"; cp -r greenfield/eldenring_gf "$AP/worlds/eldenring_gf"
+cp greenfield/region_map.csv "$AP/worlds/eldenring_gf/region_map.csv"   # gen INPUT the sweep-scoping oracle needs (else it skips)
 cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 "$PY" -m pytest -q -p no:cacheprovider worlds/eldenring_gf/tests/
 ```
 

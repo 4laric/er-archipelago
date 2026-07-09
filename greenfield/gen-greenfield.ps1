@@ -27,6 +27,10 @@ if ($LASTEXITCODE -ne 0) { throw ("[greenfield] gen_data.py FAILED (exit {0})" -
 Write-Host "[greenfield] installing world -> $WorldDst" -ForegroundColor Cyan
 if (Test-Path $WorldDst) { Remove-Item -Recurse -Force $WorldDst }
 Copy-Item -Recurse -Force $WorldSrc $WorldDst
+# region_map.csv is gen_data's INPUT (lives beside the package, not in it). Copy it INTO the installed
+# world so the boss-sweep scoping oracle (tests/test_gf_boss_sweeps.py) can resolve it and RUN in the
+# installed-world pytest instead of skipping. Test-only; the packaged .apworld does not include it.
+Copy-Item -Force (Join-Path $Here "region_map.csv") (Join-Path $WorldDst "region_map.csv")
 
 $ts = Get-Date -Format "yyyyMMdd-HHmmss"
 $genLog = Join-Path $Repo "generate_greenfield_$ts.log"
