@@ -7,7 +7,6 @@ REGION_OPEN_FLAGS = {
     'Ancient Ruins of Rauh': 74001,
     'Belurat': 72001,
     'Caelid': 73207,
-    'Consecrated Snowfield': 73019,
     'Enir-Ilim': 72012,
     'Eternal Cities': 71211,
     'Farum Azula': 71303,
