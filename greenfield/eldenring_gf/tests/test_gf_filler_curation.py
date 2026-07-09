@@ -23,10 +23,11 @@ def test_all_categories_resolve():
 
 def test_stack_quantities():
     q = fc.stack_qty_by_name()
-    assert q["Kukri"] == 10 and q["Throwing Dagger"] == 10, "throwables grant x10"
-    assert q["Fire Pot"] == 4 and q["Rancor Pot"] == 4, "pots grant x4"
-    # greases/foods/economy are NOT stacked here
-    assert "Fire Grease" not in q and "Golden Rune [1]" not in q
+    assert q["Kukri"] == 5 and q["Throwing Dagger"] == 5, "throwables grant x5"
+    assert q["Fire Pot"] == 2 and q["Rancor Pot"] == 2, "pots grant x2"
+    assert q["Fire Grease"] == 2 and q["Rot Grease"] == 2, "greases grant x2"
+    # foods/economy are NOT stacked here
+    assert "Golden Rune [1]" not in q and "Exalted Flesh" not in q
 
 
 def test_junk_predicate_protects_economy_and_funny():
@@ -54,8 +55,8 @@ class CuratedFillerRecipe(WorldTestBase):
         self.assertGreater(pot, gre, "pots (30) > greases (10)")
         # stacks emitted in slot_data
         ic = self.world.fill_slot_data().get("itemCounts", {})
-        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri"])), 10)
-        self.assertEqual(ic.get(str(self.world.item_name_to_id["Fire Pot"])), 4)
+        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri"])), 5)
+        self.assertEqual(ic.get(str(self.world.item_name_to_id["Fire Pot"])), 2)
         # funny junk survives
         self.assertGreater(n["Raw Meat Dumpling"] + n["Gold-Tinged Excrement"], 0)
 
@@ -70,4 +71,4 @@ class CuratedFillerOff(WorldTestBase):
         self.assertLess(n, 10, "empty recipe must not inject the roster")
         # itemCounts (stacks) are ALWAYS emitted (item property, not recipe-gated).
         ic = self.world.fill_slot_data().get("itemCounts", {})
-        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri"])), 10)
+        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri"])), 5)

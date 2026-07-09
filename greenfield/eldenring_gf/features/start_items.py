@@ -31,6 +31,13 @@ _CRACKED_POT_FULL_ID = 0x40000000 | 9500
 _RITUAL_POT_FULL_ID = 0x40000000 | 9501
 _START_CRACKED_POTS = 10   # throwing-pot capacity at spawn (Alaric playtest)
 _START_RITUAL_POTS = 4     # ritual-pot capacity (Rancor Pot etc.)
+# Perfume Bottle = GOODS 9510: the vessel that holds the DLC perfume/spraymist/aromatic consumables the
+# curated_filler 'perfumes' category hands out (same vessel role Cracked Pot plays for thrown pots).
+_PERFUME_BOTTLE_FULL_ID = 0x40000000 | 9510
+_START_PERFUME_BOTTLES = 10
+# Hefty Cracked Pot = GOODS 2009500 (DLC): the larger vessel for the DLC 'Hefty ...' throwing pots.
+_HEFTY_CRACKED_POT_FULL_ID = 0x40000000 | 2009500
+_START_HEFTY_CRACKED_POTS = 10
 
 
 class StartWithTorch(DefaultOnToggle):
@@ -70,4 +77,7 @@ class StartItems(Feature):
         if _shuf is not None and _shuf.value:
             items += [_CRACKED_POT_FULL_ID] * _START_CRACKED_POTS
             items += [_RITUAL_POT_FULL_ID] * _START_RITUAL_POTS
+            items += [_PERFUME_BOTTLE_FULL_ID] * _START_PERFUME_BOTTLES
+            if getattr(world, "gf_dlc_on", False):
+                items += [_HEFTY_CRACKED_POT_FULL_ID] * _START_HEFTY_CRACKED_POTS
         return {contract.START_ITEMS: items}

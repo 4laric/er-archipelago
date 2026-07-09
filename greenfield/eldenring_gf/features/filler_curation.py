@@ -8,9 +8,9 @@ weighted category draw. Categories are combat/util consumables (throwables, pots
 utility, funny) AND economy (stones, somber_stones, runes) so you can dial "more upgrade mats / more
 leveling / more throwables" freely. A "junk" category keeps that share as vanilla junk. Empty = off.
 
-STACKS: throwables and pots are granted in STACKS (Kukri x10, pots x4) via slot_data itemCounts -- so
-finding one throwable hands you a usable bundle, not a single dagger. This is a per-item quantity, so
-ALL throwables/pots grant their stack (curated or vanilla-placed). Emitted by core._base_slot_data.
+STACKS: throwables x5, pots x2, greases x2 are granted in STACKS via slot_data itemCounts -- so finding
+one hands you a usable bundle, not a single item. This is a per-item quantity, so ALL members of those
+categories grant their stack (curated or vanilla-placed). Emitted by core._base_slot_data.
 
 The beloved FUNNY_JUNK (Raw Meat Dumpling, Gold-Tinged Excrement) is never seized (always survives),
 and the placed leveling/upgrade economy is never seized either -- the recipe ADDS on top via the
@@ -25,16 +25,44 @@ try:
 except Exception:
     ITEM_CATALOG = {}
 
+
+def _dlc_pots():
+    """DLC 'Hefty ...' throwing pots (Hefty Fire Pot, ...) -- crafted-only, so they enter the catalog
+    only once the catalog regen mines them (like _FINISHED_POTS in gen_data.py). Auto-picked by name
+    so no ids are guessed; empty pre-regen (curate() skips names not in ITEM_CATALOG). Excludes the
+    Hefty Cracked Pot vessel (a start grant, not a thrown pot)."""
+    return sorted(n for n in ITEM_CATALOG
+                  if n.startswith("Hefty ") and n.endswith(" Pot") and n != "Hefty Cracked Pot")
+
+
+# DLC perfume consumables (spraymist / aromatic / 'X Perfume Bottle'), auto-picked from the catalog so
+# no ids are guessed. The base 'Perfume Bottle' vessel is a start grant, not a filler perfume -> excluded.
+# Pre-regen this still yields the five 'X Perfume Bottle' DLC items already in the catalog; the catalog
+# regen adds the Spraymist/Aromatic ones.
+_PERFUMES = sorted(n for n in ITEM_CATALOG
+                   if n.endswith("Spraymist") or n.endswith("Aromatic")
+                   or (n.endswith("Perfume Bottle") and n != "Perfume Bottle"))
+
 # ---- category -> member names (all resolve in ITEM_CATALOG; DLC filtered per-world at draw time) ----
 CATEGORIES = {
-    "throwables": ["Throwing Dagger", "Bone Dart", "Poisonbone Dart", "Crystal Dart", "Kukri", "Fan Daggers"],
+    "throwables": ["Throwing Dagger", "Bone Dart", "Poisonbone Dart", "Crystal Dart", "Kukri", "Fan Daggers",
+                   "Gravity Stone Chunk", "Gravity Stone Fan", "Large Glintstone Scrap"],
+    # DLC hefty throwing pots (Hefty Fire Pot, ...) are appended by _dlc_pots() below once the catalog
+    # regen mines them; absent names are silently skipped, so this is safe pre-regen.
     "pots": ["Fire Pot", "Lightning Pot", "Fetid Pot", "Holy Water Pot", "Freezing Pot", "Poison Pot",
-             "Volcano Pot", "Sleep Pot", "Rancor Pot"],
+             "Volcano Pot", "Sleep Pot", "Rancor Pot"] + _dlc_pots(),
     "greases": ["Fire Grease", "Lightning Grease", "Magic Grease", "Holy Grease", "Blood Grease",
                 "Poison Grease", "Freezing Grease", "Rot Grease", "Dragonwound Grease", "Soporific Grease"],
+    # Boiled Prawn is crafted-only (not in the catalog until the Phase-2 regen mines it) -> added then.
     "foods": ["Gold-Pickled Fowl Foot", "Silver-Pickled Fowl Foot", "Pickled Turtle Neck",
-              "Exalted Flesh", "Warming Stone", "Bewitching Branch"],
-    "utility": ["Stonesword Key", "Rune Arc", "Larval Tear"],
+              "Well-Pickled Turtle Neck", "Exalted Flesh", "Starlight Shards",
+              "Warming Stone", "Bewitching Branch"],
+    "boluses": ["Preserving Boluses", "Neutralizing Boluses", "Stanching Boluses", "Clarifying Boluses",
+                "Thawfrost Boluses", "Stimulating Boluses", "Rejuvenating Boluses"],
+    "perfumes": _PERFUMES,   # DLC spraymist/aromatic consumables; populated once the catalog regen mines them
+    "utility": ["Rune Arc", "Larval Tear"],
+    # "rare": low-probability injectables -- weight this category tiny in the recipe (e.g. rare: 1).
+    "rare": ["Dragon Heart", "Stonesword Key"],
     "funny": ["Raw Meat Dumpling", "Gold-Tinged Excrement"],
     "stones": [f"Smithing Stone [{i}]" for i in range(1, 9)],
     "somber_stones": [f"Somber Smithing Stone [{i}]" for i in range(1, 10)],
@@ -44,7 +72,7 @@ CATEGORIES = {
 _VALID_CATS = frozenset(CATEGORIES) | {"junk"}
 
 # STACK quantities (grant size) by category -> emitted as slot_data itemCounts. Others default 1.
-STACK_QTY_BY_CATEGORY = {"throwables": 10, "pots": 4}
+STACK_QTY_BY_CATEGORY = {"throwables": 5, "pots": 2, "greases": 2}
 
 # Beloved junk -- never seized, always survives.
 FUNNY_JUNK = frozenset({"Raw Meat Dumpling", "Gold-Tinged Excrement"})
@@ -65,11 +93,13 @@ def stack_qty_by_name():
 
 class CuratedFiller(OptionDict):
     """Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are
-    split across the categories by weight. Categories: throwables, pots, greases, foods, utility, funny,
-    stones, somber_stones, runes -- plus 'junk' to keep that share as vanilla junk. Empty (default) =
-    off (vanilla junk). Throwables are granted x10 and pots x4 (stacks). The placed leveling/upgrade
-    economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed. Example:
-    {throwables: 25, pots: 15, stones: 20, runes: 20, greases: 10, junk: 10}."""
+    split across the categories by weight. Categories: throwables, pots, greases, foods, boluses,
+    perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep that share as
+    vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2, greases x2.
+    'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed
+    leveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.
+    Example: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,
+    stones: 15, runes: 15}."""
     display_name = "Curated Filler recipe (category -> weight)"
     default = {}
 
