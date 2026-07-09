@@ -38,10 +38,14 @@ game: "Elden Ring (Greenfield)"
   # big_ticket_locations: [Boss, Remembrance, Legendary, GreatRune, KeyItem]  # what "big-ticket" means (default shown).
 
   # ---- Filler curation (replace vanilla junk consumables) -----------------
-  curated_filler:                # {category: weight}; valid: throwables pots greases foods utility funny stones runes junk.
-    throwables: 25               #   granted in stacks of 10
-    pots: 15                     #   granted in stacks of 4
+  curated_filler:                # {category: weight}; valid: throwables pots greases foods boluses perfumes utility rare funny stones somber_stones runes junk.
+    throwables: 25               #   granted in stacks of 5
+    pots: 15                     #   granted in stacks of 2
     greases: 10
+    foods: 12                    # turtle necks, exalted flesh, warming stone, starlight shards, ...
+    boluses: 6                   # status-cure boluses
+    perfumes: 8                  # DLC perfume consumables (needs DLC)
+    rare: 1                      # Dragon Heart / Stonesword Key -- keep tiny
     stones: 20                   #   low smithing stones
     runes: 20                    #   rune items (leveling)
     junk: 10                     #   keep this share as vanilla junk
