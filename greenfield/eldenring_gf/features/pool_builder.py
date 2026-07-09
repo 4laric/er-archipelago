@@ -1,9 +1,10 @@
 """SPEC-PARITY Phase 5 -- pool builder (item-quality juice, COMPLETE).
 
 Curates the shuffled vanilla item pool by displacing the Rune-fallback tail with high-tier "juice"
-(Rare + Legendary weapons, armor, and talismans). Matt-free: tiers come from the vanilla ER param
-`rarity` column (EquipParamWeapon/Protector/Accessory), NOT from any curated/location data. See
-gen_data.py -> item_tiers.py (ITEM_TIERS = {vanilla_item_name: rarity 0..3}).
+(A/S weapons, armor, spells/incantations, ashes of war, and talismans). Tiers come from item_tiers.tsv
+(curated PvE tiers, broad-sourced + provenance-clean, mapped S->3 A->2 B->1 C/D/F->0), with the ER
+param `rarity` filling any gap the TSV doesn't cover. See gen_data.py -> item_tiers.py
+(ITEM_TIERS = {vanilla_item_name: tier 0..3}).
 
 Only meaningful when item_shuffle is ON (there is a shuffled vanilla pool to curate). When item_shuffle
 is OFF every check pays a Rune and there is nothing to curate -> the feature is a no-op.
