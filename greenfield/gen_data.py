@@ -96,6 +96,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Undergrou
  'Lake of Rot (Astel)':'Eternal Cities','Deeproot Depths (Lichdragon Fortissax)':'Eternal Cities','Fractured Marika (final)':'Altus Plateau',
  'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir-Ilim','Stone Coffin Fissure (DLC)':'Gravesite Plain',
  "Midra's Manse (DLC)":'Abyssal Woods','Church of the Bud (DLC)':'Ancient Ruins of Rauh','Castle Ensis (DLC)':'Gravesite Plain',
+ 'Ainsel River / Lake of Rot':'Eternal Cities','Nokstella, Eternal City':'Eternal Cities','Subterranean Shunning-Grounds':'Altus Plateau',
  'm22':'Eternal Cities','m28':'Gravesite Plain'}
 
 def _region_of_raw(r):
