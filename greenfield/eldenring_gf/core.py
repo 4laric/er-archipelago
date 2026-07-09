@@ -593,14 +593,27 @@ class GreenfieldEldenRingWorld(World):
         from .features import scaling as _sc
         name = self.multiworld.get_player_name(self.player)
         kept = self._kept()
-        triples = _sc.sphere_target_ranges(kept)
-        if triples:
+        # Show what the client ACTUALLY receives: the TRUE per-seed fill-sphere targets (the same
+        # computation features/scaling.py wires into regionSphereTargetRanges), NOT the spine-order
+        # reference gradient. Only when the fill spheres can't be computed (no completed fill) do we
+        # fall back to the spine-order ramp -- labelled as such so the table can't be mistaken for the
+        # live wire. (Historically this table always printed the spine ramp, which read like a
+        # regression to spine-order scaling even though the wire was fill-sphere correct.)
+        region_sphere = _sc._region_fill_spheres(self)
+        if region_sphere:
+            region_target = _sc._targets_from_spheres(region_sphere)
+            basis = "fill-sphere"
+        else:
+            triples = _sc.sphere_target_ranges(kept)
             pid_target = {lo: t for (lo, _hi, t) in triples}
-            spoiler_handle.write(f"\n\nElden Ring ({name}) completion-scaling spheres (target / {_sc.TARGET_MAX}):\n")
-            for region in [r for r in _sc.SPINE if r in set(kept)]:
-                pids = _sc.REGION_PLAY_IDS.get(region, [])
-                t = max((pid_target.get(pp, 0) for pp in pids), default=0)
-                spoiler_handle.write(f"  {region:<28} {t}\n")
+            region_target = {r: max((pid_target.get(pp, 0) for pp in _sc.REGION_PLAY_IDS.get(r, [])), default=0)
+                             for r in kept}
+            basis = "spine-order FALLBACK (fill spheres unavailable)"
+        if region_target:
+            spoiler_handle.write(f"\n\nElden Ring ({name}) completion-scaling spheres "
+                                 f"(target / {_sc.TARGET_MAX}; basis: {basis}):\n")
+            for region in sorted(region_target, key=lambda r: (region_target[r], r)):
+                spoiler_handle.write(f"  {region:<28} {region_target[region]}\n")
         try:
             sd = self.fill_slot_data()
             spoiler_handle.write(f"\nElden Ring ({name}) slot_data ({len(sd)} keys) -- exactly what the client receives:\n")
