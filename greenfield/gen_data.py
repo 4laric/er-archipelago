@@ -174,7 +174,7 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # num_regions one). They fold into the always-kept GOAL region (Altus Plateau) via REGION_MAP -> reachable
 # in logic when Altus opens, and collectable via Morgott's region-wide sweep (Morgott = reachable capital
 # ending). NOT a separate rollable region. Morgott (510040) is the capital ending and already there.
-_MISC_NON_CHECK = frozenset({60210, 590000})  # 590000 = empty-item Stormveil check; 60210 Wizened Finger
+_MISC_NON_CHECK = frozenset({60210, 590000, 550200, 550250})  # 590000 = empty-item Stormveil check; 60210 Wizened Finger; 550200/550250 = "About ..." tutorial-message popups (not loot, same class as 9100-9125)
 # Unreachable ASHEN CAPITAL + final-boss drops -- EXCLUDED AS DEAD (user decision 2026-07-08). Post-
 # Erdtree-burn / final content is not physically reachable in a region-lock game, and is NOT actually
 # collectable via Morgott's region-wide sweep (boss_arena rewards are never swept, and the m11_05
@@ -374,6 +374,11 @@ DUNGEON_REGION_OVERRIDE = {
     "m20_00_00_00": "Belurat",
     "m20_01_00_00": "Enir-Ilim",
     "m12_05_00_00": "Mohgwyn Palace",
+    # DLC minor dungeons whose global-recovered checks otherwise fall through to HUB (map not placed
+    # in region_map.csv + absent here). Regions per DLC-AREA-ID-CAPTURE.md / GLOBAL_RECOVER comments.
+    "m40_01_00_00": "Ancient Ruins of Rauh",  # Scorpion River Catacombs (Rauh Base)
+    "m42_00_00_00": "Gravesite Plain",        # Ruined Forge (Lava Intake)
+    "m43_00_00_00": "Gravesite Plain",        # Rivermouth Cave
     "m30_20_00_00": "Consecrated Snowfield",  # Hidden Path to the Haligtree
     "m31_01_00_00": "Weeping Peninsula",  # Earthbore Cave
     "m31_04_00_00": "Liurnia of the Lakes",  # Stillwater Cave
