@@ -78,6 +78,7 @@ game: "Elden Ring (Greenfield)"
   protect_missable_locations: true  # (default) keep missable checks logically reachable.
   completion_scaling_floor: 0    # 0..50; raise to lift the early-region difficulty floor.
   global_scadutree_blessing: off # off | player_only | scaled. DLC-only power curve; inert while enable_dlc is false.
+  auto_upgrade: true          # auto-raise received weapons to your held reinforce level. Off keeps the vanilla "upgrade it yourself" feel.
 
   # ---- DLC / multiplayer --------------------------------------------------
   # CONFLICT RESOLVED: the source yaml set enable_dlc THREE times (true, then false, then false). Kept it
