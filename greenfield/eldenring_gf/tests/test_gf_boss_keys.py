@@ -85,10 +85,11 @@ class SweepLockGatesUnit(unittest.TestCase):
         self.assertEqual(gates, {"300": "Boss Key: Solo"}, "sealed-region sweeps must drop out")
 
     def test_real_rennala_precise_join(self):
-        # real data: m14 sweep flag 14000800 == Rennala's defeat flag -> her key precisely.
-        if "Raya Lucaria Academy" not in REGION_BOSSES:
-            self.skipTest("Rennala's region absent from boss_data")
-        gates = _sweep_lock_gates({"Raya Lucaria Academy"})
+        # real data: m14 sweep flag 14000800 == Rennala's defeat flag -> her key precisely. Raya Lucaria
+        # (m14) is folded into Liurnia of the Lakes, so Rennala's boss lives under that region now.
+        if "Liurnia of the Lakes" not in REGION_BOSSES:
+            self.skipTest("Liurnia region absent from boss_data")
+        gates = _sweep_lock_gates({"Liurnia of the Lakes"})
         self.assertEqual(gates.get("14000800"), "Boss Key: Full Moon Queen")
 
 
