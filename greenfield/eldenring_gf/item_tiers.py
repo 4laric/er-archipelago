@@ -713,7 +713,6 @@ ITEM_TIERS = {
     'Shotel': 1,
     "Siluria's Tree": 2,
     'Silver Mirrorshield': 2,
-    'Silver Scarab': 3,
     'Skeletal Mask': 2,
     'Smithing Talisman': 1,
     'Smithscript Axe': 1,

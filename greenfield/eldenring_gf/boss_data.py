@@ -37,6 +37,7 @@ REGION_BOSSES = {
     ],
     "Miquella's Haligtree": [
         (7770006, 176, "Malenia's Great Rune"),
+        (7773924, 15000850, "[Sorcery] Loretta's Mastery"),
     ],
     'Mohgwyn Palace': [
         (7770005, 175, "Mohg's Great Rune"),
