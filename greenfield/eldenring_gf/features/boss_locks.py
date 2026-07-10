@@ -121,10 +121,12 @@ def _sweep_lock_gates(kept, region_bosses=None, dungeon_sweeps=None, sweep_regio
 
     * REPRESENTATIVE fallback (the documented coarsening GAP) -- when the sweep trigger flag is NOT
       a known boss-defeat flag (no per-boss join derivable), route to the region's FIRST Boss Key.
-      Multi-boss regions therefore coarsen to one key. This is sound: sweepLockGates is only a
-      client-side deferral hint (sweep members are NEVER logic-gated -- see set_rules), so an
-      over-broad key just delays a client grant, it cannot soft-lock or overload fill. The precise
-      branch above drops in with zero call-site change once the flags align.
+      Multi-boss regions therefore coarsen to one key. This is sound for the CLIENT deferral hint:
+      an over-broad representative key just delays a client grant. (Note: sweep members ARE now
+      logic-gated behind their key -- key_gate_map/set_rules, 2026-07-08 -- so the representative
+      coarsening also decides WHICH key a member logic-defers on; that only ever gates on a key
+      reachable no later than the precise one, and progression_surface precollects lock-hosting keys,
+      so it cannot soft-lock or overload fill.) The precise branch drops in once the flags align.
 
     Pure over its inputs (module globals by default) so it unit-tests with synthetic data injected."""
     region_bosses = REGION_BOSSES if region_bosses is None else region_bosses
@@ -157,6 +159,30 @@ def _sweep_lock_gates(kept, region_bosses=None, dungeon_sweeps=None, sweep_regio
     return gates
 
 
+def key_gate_map(world):
+    """{ap_id: 'Boss Key: <Boss>'} for every AP check gated on a boss key this seed: each kept boss's
+    OWN check (REGION_BOSSES) plus, when dungeon_sweep is on, its gated sweep MEMBERS. Empty when
+    boss_keys is off. Pure over world options + the generated boss tables. Shared by `set_rules` (which
+    installs the has(key) logic gates) and `progression_surface.apply` (which precollects the key of any
+    boss a region Lock landed on -- the boss-key <-> region-lock cycle break, D)."""
+    if not _boss_keys_on(world):
+        return {}
+    kept = set(world._kept())
+    gate = {}
+    for r in REGION_BOSSES:
+        if r in kept:
+            for (aid, _fl, reward) in REGION_BOSSES[r]:
+                gate[aid] = "Boss Key: " + _boss_label(reward)
+    _ds = getattr(world.options, "dungeon_sweep", None)
+    if _ds is not None and _ds.value != 0:
+        # Sweep MEMBERS defer behind their boss key too (their real trigger is the key-gated sweep, not
+        # their own pickup flag). setdefault so the boss's own-check gate wins on overlap.
+        for _fl_str, _key in _sweep_lock_gates(kept).items():
+            for _member in DUNGEON_SWEEPS.get(int(_fl_str), ()):
+                gate.setdefault(_member, _key)
+    return gate
+
+
 @register
 class BossLocks(Feature):
     name = "boss_locks"
@@ -177,35 +203,17 @@ class BossLocks(Feature):
                 for (_aid, _fl, reward) in REGION_BOSSES[r]]
 
     def set_rules(self, world):
-        # Fill soundness: gate ONLY the boss's OWN AP check in LOGIC with has(key). Fill then places
-        # the key reachably and never behind the boss's own check -- without this, curated_fill
-        # (region Locks -> big-ticket/Boss checks) could load a boss check with its region Lock while
-        # the only path to that Lock ran through the boss check itself (a deadlock). Gate just the
-        # boss's own location(s) (its reward/remembrance/great-rune check == boss_ap_id), NOT the
-        # dungeon sweep -- sweep members stay manually reachable so fill is not overloaded. Forced
-        # boss-key demand == #kept bosses (base + DLC), far below the early-reachable slot count ->
-        # feasible. DLC parity: DLC keys are freely placeable in ANY world (Rule B); a Farum/DLC
-        # start that opens locally BK'ed waiting for a remote key is INTENDED, not a soft-lock.
-        if not _boss_keys_on(world):
-            return
-        kept = set(world._kept())
-        gate = {}
-        for r in REGION_BOSSES:
-            if r in kept:
-                for (aid, _fl, reward) in REGION_BOSSES[r]:
-                    gate[aid] = "Boss Key: " + _boss_label(reward)
-        # ALSO gate dungeon-SWEEP MEMBERS behind their boss key (2026-07-08). A sweep member's real
-        # in-game trigger is the boss-key-gated sweep, not its own pickup flag (which may not even fire
-        # in its tagged region -- e.g. a mis-pinned remembrance). Leaving members "manually reachable"
-        # let fill place a region Lock on one while its Boss Key sat behind that very Lock -> an
-        # unwinnable seed (in-game soft-lock: Altus Lock stranded on the Full Moon Queen sweep member,
-        # its Boss Key: Grafted in Altus). Gating members forces fill to keep the key in the boss's own
-        # sphere whenever a member holds progression, so the key is ALWAYS reachable by the time you can
-        # reach the boss. The boss's own-check gating above wins on overlap (setdefault).
-        if world.options.dungeon_sweep.value != 0:
-            for _fl_str, _key in _sweep_lock_gates(kept).items():
-                for _member in DUNGEON_SWEEPS.get(int(_fl_str), ()):
-                    gate.setdefault(_member, _key)
+        # Gate each key-gated boss check in LOGIC on has(key). The set is built by key_gate_map(): each
+        # boss's OWN reward/remembrance/great-rune check, PLUS (2026-07-08) its dungeon-SWEEP MEMBERS --
+        # a member's real trigger is the key-gated sweep, and leaving members "manually reachable" once
+        # let fill strand a region Lock on one while its Boss Key sat behind that very Lock (in-game
+        # soft-lock: Altus Lock on the Full Moon Queen sweep member, Boss Key: Grafted in Altus). So
+        # members ARE logic-gated now (an older comment claiming they never are is wrong). This alone
+        # does NOT prevent the region-Lock/boss-key cycle when a Lock lands on the key-gated check
+        # itself -- progression_surface.apply() closes that by precollecting lock-hosting keys (D).
+        # Forced key demand == #kept bosses, far below the early-reachable slot count. DLC parity: DLC
+        # keys are freely placeable in ANY world (Rule B); a DLC start BK'ed on a remote key is INTENDED.
+        gate = key_gate_map(world)
         if not gate:
             return
         player = world.player

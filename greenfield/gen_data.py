@@ -182,7 +182,14 @@ _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
 #         but obtained in Raya Lucaria Academy (m14_00 -> folds to Liurnia via REGION_MAP). The map
 #         error also mis-grouped it into Stormveil's sweep 10000800/10000850 not Rennala's 14000800.
 # {flag: (map, region)} -- region must be a REGION_MAP key.
-ROW_MAP_REGION_FIX = {197: ("m14_00_00_00", "Raya Lucaria Academy")}
+#   65060 = Speckled Hardtear (Wormface's drop): the EMEVD scan pinned it to m12_03 (Eternal Cities /
+#         underground) but it drops from the ALTUS Wormface (boss tile m60_41_53). Left in m12_03 it
+#         reads as an Eternal Cities check AND joins the wrong boss sweep -- pin it to the Wormface tile
+#         + Altus Plateau (Alaric-confirmed 2026-07-10). Same double-fault shape as Rennala (197).
+ROW_MAP_REGION_FIX = {
+    197: ("m14_00_00_00", "Raya Lucaria Academy"),
+    65060: ("m60_41_53_00", "Altus Plateau"),
+}
 for _rowfix in _ALLROWS:
     try:
         _ff = int(_rowfix["flag"])
@@ -544,6 +551,7 @@ GLOBAL_RECOVER = {
     # _BOSS_DROP_EXTRAS (Alaric 2026-07). These are the last two reddit-list bosses without a check:
     510840: "Mountaintops of the Giants",  # Veteran's Prosthesis -> Commander Niall (Castle Sol)
     530425: "Caelid",                      # Gargoyle's Blackblade -> Black Blade Kindred (Bestial Sanctum)
+    510250: "Altus Plateau",               # Bloodflame Talons -> Mohg, the Omen (Subterranean Shunning-Grounds, folds to Altus; was unplaced/global -> not randomized, in-game 2026-07-10)
     # Golden Tailoring Tools (60150): the cloak-alteration tool at the Church of Vows (Liurnia). A
     # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
     # never a check). Recover it as a Liurnia check (Alaric 2026-07-09).
