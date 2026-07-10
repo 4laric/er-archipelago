@@ -38,11 +38,13 @@ class EarlyLeveling(DefaultOnToggle):
     display_name = "Early Leveling (skip Melina)"
 
 
-class StartWithRegionLock(Toggle):
-    """Start holding ONE random region's lock, so a region is open from Roundtable at run start
-    (core.create_items precollects it; count-neutral). Off by default (the curated presets in
-    greenfield/presets/ turn it on). When off, every region starts sealed and the first lock must be
-    found -- still beatable because AP fill guarantees a Roundtable-reachable region Lock."""
+class StartWithRegionLock(DefaultOnToggle):
+    """Start holding ONE region's lock, so a region is open from Roundtable at run start
+    (core.create_items precollects it; count-neutral). ON by default (v0.2): a STRICT Progression
+    Surface needs a sphere-0 anchor, and core biases this precollected pick toward a region that HOSTS
+    a MajorBoss, so the strict lock-chain seeds without the ladder widening. Turn off to start fully
+    sealed -- still beatable (AP fill guarantees a Roundtable-reachable first lock), but a strict
+    surface then widens one rung to the Roundtable Golden Seeds to bootstrap."""
     display_name = "Start With A Region Lock"
 
 

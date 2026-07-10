@@ -308,13 +308,26 @@ class GreenfieldEldenRingWorld(World):
     def create_items(self) -> None:
         kept = self._kept()
         lock_items: List[Item] = [self.create_item(f"{r} Lock") for r in kept]
-        # Playtest default: start holding ONE random region's lock (precollected) so a region is open
-        # from Roundtable at run start. Count-neutral -- the precollected lock leaves the pool (its
-        # freed slot becomes filler), so the remaining N-1 locks stay found progression and the goal
-        # (has_all locks) still requires every one. Deterministic via self.random.
+        # Start holding ONE region's lock (precollected) so a region is open from Roundtable at run
+        # start. Count-neutral -- the precollected lock leaves the pool (its freed slot becomes filler),
+        # so the remaining N-1 locks stay found progression and the goal (has_all locks) still requires
+        # every one. Under a STRICT progression_surface, BIAS the pick toward a region that hosts a
+        # MajorBoss, so the strict lock-chain has a sphere-0 anchor on-surface and doesn't widen the
+        # ladder. Falls back to any kept region (non-strict, no majored kept region, or ungenerated
+        # tags). Deterministic via self.random.
         _slr = getattr(self.options, "start_with_region_lock", None)
         if _slr is not None and _slr.value and lock_items:
-            self.multiworld.push_precollected(lock_items.pop(self.random.randrange(len(lock_items))))
+            from .features.progression_surface import regions_with_major_boss, lock_region_name
+            _psm = getattr(self.options, "progression_surface_mode", None)
+            _pick = lock_items
+            if _psm is not None and int(_psm.value) == 2:
+                _maj = regions_with_major_boss(kept)
+                _pref = [it for it in lock_items if lock_region_name(it.name) in _maj]
+                if _pref:
+                    _pick = _pref
+            _anchor = self.random.choice(_pick)
+            lock_items.remove(_anchor)
+            self.multiworld.push_precollected(_anchor)
         pool: List[Item] = list(lock_items)
         # Run pool_builder (the juice contributor) LAST, and record how many slots the OTHER
         # contributors already consumed -- locks (minus any precollected one, already popped above),
@@ -415,11 +428,19 @@ class GreenfieldEldenRingWorld(World):
         self.multiworld.itempool += pool
 
     def pre_fill(self) -> None:
-        # curated_fill: route the region Locks onto big-ticket checks by marking them PRIORITY, then
-        # reachability-prune. Runs before the general fill (locations exist, get_all_state valid).
-        # No-op unless the option is on. Kept in its own feature module (fill-safe clamp + prune there).
-        from .features import curated_fill as _cf
-        _cf.apply(self)
+        # progression_surface (v0.2): CONFINE this world's own progression (region Locks + required/
+        # gate runes + legacy keys) to a small high-confidence surface -- default MajorBoss -- via
+        # fill_restrictive over the selected classes, with a feasibility ladder that widens (then spills
+        # to the pool) so it never FillErrors. Runs before the general fill (locations exist,
+        # get_all_state valid). Supersedes the legacy curated_fill toggle when the mode is soft/strict;
+        # when the mode is off, the old curated_fill toggle is still honored for backward compatibility.
+        _psm = getattr(self.options, "progression_surface_mode", None)
+        if _psm is not None and int(_psm.value) != 0:
+            from .features import progression_surface as _ps
+            _ps.apply(self)
+        else:
+            from .features import curated_fill as _cf
+            _cf.apply(self)
 
     def post_fill(self) -> None:
         # B-ramp (AUTO-SIZED to the smoothstep target): shape the achieved standard-weapon curve so it
@@ -660,6 +681,15 @@ class GreenfieldEldenRingWorld(World):
                                  f"(target / {_sc.TARGET_MAX}; basis: {basis}):\n")
             for region in sorted(region_target, key=lambda r: (region_target[r], r)):
                 spoiler_handle.write(f"  {region:<28} {region_target[region]}\n")
+        # progression_surface: record the resolved feasibility-ladder rung + how many locks confined
+        # vs spilled to the pool, so a seed's progression confinement is judgeable from the spoiler.
+        _psr = getattr(self, "gf_prog_surface_resolved", None)
+        if _psr is not None:
+            _pl = getattr(self, "gf_prog_surface_placed", "?")
+            _sp = getattr(self, "gf_prog_surface_spilled", "?")
+            spoiler_handle.write(
+                f"\nElden Ring ({name}) progression surface: resolved rung {_psr} "
+                f"-- {_pl} progression items confined to surface, {_sp} spilled to pool.\n")
         try:
             sd = self.fill_slot_data()
             spoiler_handle.write(f"\nElden Ring ({name}) slot_data ({len(sd)} keys) -- exactly what the client receives:\n")

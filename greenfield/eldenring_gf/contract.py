@@ -180,7 +180,14 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # The big_ticket_locations option draws from the SAME set. "EniaShop" is INTERNAL (gen_data tags the
 # remembrance store) and is never user-selectable.
 IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                            "Basin", "Shop", "Legendary", "GreatRune", "KeyItem"]
+                            "Basin", "Shop", "Legendary", "GreatRune", "KeyItem", "MajorBoss"]
+# MajorBoss = the ~24 REGION_BOSSES (method=boss_arena remembrance/great-rune arena bosses) UNION a
+# curated MAJOR_BOSS_EXTRAS set of hand-picked field/evergaol/dragon bosses that cover the otherwise
+# major-less regions (gen_data.py). These are the highest-confidence physical locations (boss-arena /
+# boss-defeat flags the client already ships as bossLocations), so the v0.2 progression_surface
+# restriction confines this world's own progression (region Locks + required/gate runes + legacy keys)
+# to them by default. MajorBoss is a SUBSET of Remembrance/GreatRune (for the boss_arena majors) plus
+# Boss/Legendary (for the extras); it is its own tag so the surface can target JUST the majors.
 # big_ticket_locations option DEFAULT = the historical hardcoded set (backward-compatible: same 73).
 BIG_TICKET_DEFAULT_LIST = ["Boss", "Remembrance", "Legendary", "GreatRune", "KeyItem"]
 BIG_TICKET_TYPES = frozenset(BIG_TICKET_DEFAULT_LIST)
