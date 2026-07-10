@@ -21,6 +21,12 @@ from ..data import HUB
 _ROUNDTABLE_GRACE = 71190       # Roundtable Hold, Table of Lost Grace (m11_10) warp-unlock flag
 _LEVEL_UP_FLAG = 4680           # Level Up enable
 _MELINA_SUPPRESS_FLAG = 951     # Melina first-meeting done / suppress her hand-off
+# Ranni's-Rise questline flag ("met Ranni"). Nokron's Fingerslayer Blade chest (check 12027080) is
+# vanilla-gated behind it via m12_02 event 12023721 -> without it the chest says "You are not destined
+# to open this yet". A warp-shuffle player never meets Ranni first, so we force-set it at spawn to keep
+# the check reachable (same matt-free NPC-prereq bypass as the Melina flag above). Verified in-game via
+# the Hexinton event-flag writer: set 1034509410 -> chest opens.
+_FINGERSLAYER_CHEST_GATE = 1034509410
 
 
 class RevealAllMaps(DefaultOnToggle):
@@ -61,6 +67,7 @@ class StartGrace(Feature):
         graces = [_ROUNDTABLE_GRACE]
         if world.options.early_leveling.value:
             graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
+        graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
         return {
             contract.START_REGION: HUB,
             contract.START_GRACES: graces,

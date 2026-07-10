@@ -27,3 +27,11 @@ class FeaturesSmoke(WorldTestBase):
         sd = self.world.fill_slot_data()   # merge_slot_data raises on any key collision
         for k in _KEYS:
             self.assertIn(k, sd, f"feature slot_data key {k!r} missing")
+
+    def test_fingerslayer_chest_gate_flag_force_set(self):
+        # The Nokron Fingerslayer Blade chest (check 12027080) is vanilla-gated behind Ranni's-Rise
+        # flag 1034509410; start_grace force-sets it on the startGraces spawn-flag list so the chest
+        # opens ("not destined" otherwise) and the check stays reachable in a warp-shuffle seed.
+        sd = self.world.fill_slot_data()
+        self.assertIn(1034509410, sd["startGraces"],
+                      "Ranni chest-gate flag 1034509410 must ride startGraces so check 12027080 opens")

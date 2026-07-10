@@ -248,12 +248,12 @@ _RECOVER_PHANTOM_DUPES = frozenset({1033477020})
 #   1050567820 = Graven-Mass Talisman: the reward inside Albinauric Rise (Consecrated Snowfield,
 #     folded into Mountaintops), sealed by the invisible-sniper imp seal (bewitching branch / fanged
 #     imp ashes) -- not openable from the grace side, so the check is unreachable.
-#   12027080 = Fingerslayer Blade: the Nokron (Eternal Cities) chest is hard-gated behind Ranni's
-#     questline flag -- without it the chest gives "You are not destined to open this yet" and cannot
-#     be opened. AP never sets that quest flag, so the check is unreachable (Alaric, in-game). The
-#     quest-give copy (flag 400395) is already dropped; this removes the treasure copy too.
+# NOTE: Fingerslayer Blade (12027080, Nokron/Eternal Cities) was briefly excluded here -- its chest is
+# vanilla-gated behind Ranni's questline flag 1034509410 ("You are not destined to open this yet").
+# Instead of dropping the check we now FORCE-SET 1034509410 at spawn (features/start_grace.py rides it
+# on the startGraces flag list), so the chest opens and the check stays live. Do NOT re-add it here.
 # Dropping these renumbers downstream ap-ids (needs a full regen) and removes the vanilla shuffle copy.
-_UNREACHABLE_DEAD = frozenset({30207900, 1050567820, 12027080})
+_UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD)
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
