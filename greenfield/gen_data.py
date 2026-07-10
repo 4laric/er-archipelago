@@ -49,6 +49,25 @@ try:
 except Exception as _e:
     BOSS_HEALTHBARS = {}
     print(f"[gen_data] boss_healthbars.py unavailable ({_e!r}); sweeps fall back to region-wide banner scan -- run tools/datamine_boss_healthbars.py")
+# Hand-added overworld field/evergaol/dragon bosses the DisplayBossHealthBar datamine missed (Alaric
+# 2026-07). Key = isDefeated event flag (== boss entity id == sweep trigger), authoritative from the
+# Grand Archives CE table's Event-Flag-Manager boss list. map/tile decoded from the flag (field-boss
+# id 10<XX><YY>0800 -> m60_<XX>_<YY>); every tile verified against the mapstudio MSB set. These make the
+# nine reddit-list base-game gaps show a felled name + get tile sweeps like the other 60 field bosses.
+_BOSS_HEALTHBAR_EXTRAS = {
+    1049380800: ('m60_49', 'm60_49_38', 'field', "Commander O'Neil"),                 # Caelid
+    1049390800: ('m60_49', 'm60_49_39', 'field', 'Nox Swordstress & Nox Priest'),     # Caelid
+    1049390850: ('m60_49', 'm60_49_39', 'field', 'Battlemage Hugues'),                # Dragonbarrow
+    1051430800: ('m60_51', 'm60_51_43', 'field', 'Black Blade Kindred'),              # Bestial Sanctum
+    1052410800: ('m60_52', 'm60_52_41', 'field', 'Flying Dragon Greyll'),             # Dragonbarrow
+    1049520800: ('m60_49', 'm60_49_52', 'field', 'Black Blade Kindred'),              # Forbidden Lands
+    1254560800: ('m60_54', 'm60_54_56', 'field', 'Borealis the Freezing Fog'),        # Mountaintops
+    1051570800: ('m60_51', 'm60_51_57', 'field', 'Commander Niall'),                  # Mountaintops
+    1050560800: ('m60_50', 'm60_50_56', 'field', 'Great Wyrm Theodorix'),             # Consecrated Snowfield
+    1053560800: ('m60_53', 'm60_53_56', 'field', 'Vyke, Knight of the Roundtable'),   # Mountaintops evergaol
+}
+for _hbk, _hbv in _BOSS_HEALTHBAR_EXTRAS.items():
+    BOSS_HEALTHBARS.setdefault(_hbk, _hbv)  # setdefault: never clobber a real datamined entry
 HUB="Roundtable Hold"
 SKIP={"global","global_filler","shop_reference"}
 # Map-fragment pickups are granted via the RE'd map-reveal FLAG path (the client's reveal_all_maps
