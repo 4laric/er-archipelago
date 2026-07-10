@@ -56,6 +56,15 @@ class GreenfieldDataInvariants(unittest.TestCase):
         empty = [r for r in self.d.REGIONS if not self.d.LOCATIONS.get(r)]
         self.assertEqual(empty, [], f"regions with no locations: {empty}")
 
+    def test_core_and_phantom_flags_are_never_checks(self):
+        """Regression (2026-07-10): the Flask of Crimson Tears (flag 60000) is the core tutorial
+        healing flask whose flag fires in Stormveil's m10_00 EMEVD -- it kept surfacing as a phantom
+        Stormveil check. It, and the other known Stormveil-EMEVD phantoms, must never be a randomized
+        location (gen_data._MISC_NON_CHECK). Guards against them 'sneaking back in' on a regen."""
+        banned = {60000, 60210, 590000}  # Flask of Crimson Tears, Wizened Finger, empty-item check
+        present = sorted({fl for (_n, _ap, fl) in self.locs if fl in banned})
+        self.assertEqual(present, [], f"phantom/core flags must not be checks: {present}")
+
     def test_tuple_shape(self):
         for name, ap_id, flag in self.locs:
             self.assertIsInstance(name, str)
