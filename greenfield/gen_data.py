@@ -436,8 +436,12 @@ DUNGEON_REGION_OVERRIDE = {
     "m31_20_00_00": "Caelid",
     "m31_22_00_00": "Mountaintops of the Giants",
     "m32_00_00_00": "Weeping Peninsula",
+    "m32_01_00_00": "Limgrave",               # Limgrave Tunnels (was Caelid via 'Tunnels' default)
+    "m32_02_00_00": "Liurnia of the Lakes",   # Raya Lucaria Crystal Tunnel (Crystalians; folded into Liurnia)
+    "m32_04_00_00": "Altus Plateau",          # Old Altus Tunnel (Troll's Hammer / Boltdrake Talisman +1)
     "m32_05_00_00": "Altus Plateau",
     "m32_07_00_00": "Caelid",
+    "m32_11_00_00": "Mountaintops of the Giants",  # Yelough Anix Tunnel (Alabaster Lord's Sword; Snowfield fold)
     "m34_11_00_00": "Liurnia of the Lakes",  # Liurnia Divine Tower / Study Hall (was Limgrave)
     "m34_14_00_00": "Altus Plateau",  # was Leyndell (folded into Altus, capstone re-carve)
     # Divine Towers of Limgrave / West Altus / Caelid are BASE GAME, but region_map.csv marks every
