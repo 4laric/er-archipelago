@@ -306,7 +306,21 @@ CONTRACT = (
     # --- graces ---
     ContractKey("regionGraces", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/graces.py", "region.rs:122 str_to_u32vec",
-                "'<Region> Lock' -> grace warp flags lit on lock receipt (bundle: all of the region's graces)."),
+                "item_name -> grace warp flags lit when that item is RECEIVED. Usually keyed by "
+                "'<Region> Lock' (bundle: all of the region's graces), but grace GATES also key a "
+                "sub-area's graces on a KEY ITEM instead of the region Lock -- e.g. Raya Lucaria's "
+                "graces key on 'Academy Glintstone Key' so they light on key receipt, not on the "
+                "Liurnia Lock. Client MUST light on receipt of ANY keyed item, not just Locks."),
+    ContractKey("runeGatedGraces", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/graces.py", "region.rs (NEW -- rune-count gate)",
+                "str(N) -> grace warp flags lit only once the player has RECEIVED at least N Great "
+                "Runes (any of greatRuneItemIds). Used for the Leyndell capital graces (folded into "
+                "Altus) which vanilla gates behind 2 Great Runes; those graces are pulled from the "
+                "Altus Lock bundle and moved here. Absent/empty when leyndell_runes_required = 0."),
+    ContractKey("greatRuneItemIds", "INT_LIST", False, (GREENFIELD,),
+                "features/graces.py", "region.rs (NEW -- rune-count gate)",
+                "FullIDs of every Great Rune item in this seed's pool -- the set the client counts "
+                "RECEIVED items against to satisfy runeGatedGraces. Emitted only with runeGatedGraces."),
     # --- start-of-run grants ---
     ContractKey("startRegion", "STR", True, (BOTH,),
                 "features/start_grace.py", "core.rs:410 as_str",
