@@ -213,6 +213,71 @@ def apply(world) -> None:
     world.gf_prog_surface_spilled = len(to_place)
     world.gf_prog_surface_placed = n0 - len(to_place)
 
+    # D (2026-07-10): break the boss-key <-> region-lock cycle. When boss_keys is on, the default
+    # surface IS key-gated boss checks, and `_place` validates against get_all_state (which counts
+    # every Boss Key as held), so a region Lock freezes onto a key-gated check while the key itself can
+    # land behind that very Lock => softlock (reproduced ~24% under accessibility:minimal). For every
+    # Lock we placed on a key-gated check, PRECOLLECT that Boss Key -- making get_all_state's assumption
+    # actually true -- and add one filler to stay count-neutral. Independent of accessibility mode /
+    # fill order / multiworld. As non-boss premium surfaces are added, fewer keys land here and boss
+    # keys regain teeth (Locks stop always landing on boss checks). See boss_locks.key_gate_map.
+    try:
+        from .boss_locks import key_gate_map
+        gate = key_gate_map(world)
+    except Exception:
+        gate = {}
+    precollected = 0
+    if gate:
+        for loc in mw.get_locations(world.player):
+            ap = getattr(loc, "address", None)
+            placed = getattr(loc, "item", None)
+            if ap not in gate or placed is None:
+                continue
+            if not is_restricted_progression(placed, world.player):
+                continue
+            kname = gate[ap]
+            kitem = next((it for it in mw.itempool
+                          if it.player == world.player and it.name == kname), None)
+            if kitem is None:
+                continue  # key already precollected (another Lock on the same boss) or not in pool
+            mw.itempool.remove(kitem)
+            mw.push_precollected(kitem)
+            mw.itempool.append(world.create_filler())
+            precollected += 1
+    world.gf_prog_surface_keys_precollected = precollected
+
+
+def audit_reachable(world) -> None:
+    """post_fill SAFETY NET (F). From a REAL CollectionState (precollected only), sweep the whole
+    multiworld to fixpoint and verify every own advancement item is actually reachable. Any own
+    advancement item at an unreachable location is a shipped softlock under accessibility:minimal (AP
+    skips its own full-accessibility check there), so raise FillError -- the seed dies at generation
+    instead of hours into a playthrough. Catches any residual boss-key/region-lock cycle or stranded
+    rune/legacy key, whatever feature minted it. FAIL-OPEN on an internal audit error (never block gen
+    on an audit bug); FAIL-CLOSED on a real stranding. Only guards the progression-surface regime."""
+    if _mode(world) == 0:
+        return
+    try:
+        from BaseClasses import CollectionState
+        mw = world.multiworld
+        player = world.player
+        state = CollectionState(mw)
+        state.sweep_for_advancements()  # all locations, to fixpoint, from precollected only
+        stranded = [loc for loc in mw.get_locations(player)
+                    if loc.item is not None and loc.item.player == player
+                    and loc.item.advancement and not loc.can_reach(state)]
+    except Exception as e:  # audit malfunction must never fail an otherwise-good gen
+        import logging
+        logging.getLogger("Greenfield").warning(
+            "progression_surface.audit_reachable skipped (internal error: %r)", e)
+        return
+    if stranded:
+        from Fill import FillError
+        detail = ", ".join(f"{loc.item.name} @ {loc.name}" for loc in stranded[:8])
+        raise FillError(
+            f"[greenfield] {len(stranded)} own progression item(s) unreachable after fill -- would "
+            f"soft-lock in-game; regenerate. First: {detail}")
+
 
 @register
 class ProgressionSurfaceFeature(Feature):

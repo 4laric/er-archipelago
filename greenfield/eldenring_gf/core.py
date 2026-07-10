@@ -443,6 +443,15 @@ class GreenfieldEldenRingWorld(World):
             _cf.apply(self)
 
     def post_fill(self) -> None:
+        # F (2026-07-10): progression-reachability safety net. Verify every own advancement item is
+        # actually reachable from a real CollectionState; raise FillError on any stranding (an in-game
+        # soft-lock under accessibility:minimal, which AP does not self-check). Runs first so a doomed
+        # seed dies before the cosmetic stone-ramp work below. Fail-open on internal audit error.
+        _psm = getattr(self.options, "progression_surface_mode", None)
+        if _psm is not None and int(_psm.value) != 0:
+            from .features import progression_surface as _ps
+            _ps.audit_reachable(self)
+
         # B-ramp (AUTO-SIZED to the smoothstep target): shape the achieved standard-weapon curve so it
         # tracks the client's smoothstep difficulty scaling (max weapon by the deepest sphere), keyed
         # off the TRUE per-seed fill spheres (get_spheres, valid only post-fill). No count knob: per
