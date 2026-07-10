@@ -63,7 +63,8 @@ class TestLegibleKeys(unittest.TestCase):
         # The capstones the spec (SPEC-region-capstone-model 3/3a/4) gives a vanilla key.
         expected = {
             "Full Moon Queen": "Academy Glintstone Key",
-            "Omen King": "Two Great Runes",
+            # "Omen King" (Morgott/Leyndell) intentionally omitted -- compound 2-Great-Rune gate has no
+            # single-item vanilla name, so it keeps the synthetic "Boss Key: Omen King".
             "Radahn": "Dectus Medallion",
             "Malenia": "Haligtree Secret Medallion",
             "Rykard": "Drawing-Room Key",
@@ -82,7 +83,7 @@ class TestLegibleKeys(unittest.TestCase):
 
     def test_unmapped_boss_keeps_synthetic_name(self):
         # Bosses with no vanilla key must fall back to the synthetic Boss Key name.
-        for label in ("Grafted", "Dancing Lion", "Impaler", "Twin Moon Knight"):
+        for label in ("Grafted", "Dancing Lion", "Impaler", "Twin Moon Knight", "Omen King"):
             self.assertFalse(lk.has_vanilla_key(label))
             self.assertEqual(lk.display_key_name(label), "Boss Key: " + label)
 
