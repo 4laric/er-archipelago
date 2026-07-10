@@ -198,9 +198,12 @@ _RECOVER_PHANTOM_DUPES = frozenset({1033477020})
 # UNREACHABLE big-ticket checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
 # mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
 #   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
-#     illusory-wall gate reachable only from the far side of the grace anchor. Dropping it as dead
-#     renumbers downstream ap-ids (needs a full regen) and removes the Silver Scarab shuffle copy.
-_UNREACHABLE_DEAD = frozenset({30207900})
+#     illusory-wall gate reachable only from the far side of the grace anchor.
+#   1050567820 = Graven-Mass Talisman: the reward inside Albinauric Rise (Consecrated Snowfield,
+#     folded into Mountaintops), sealed by the invisible-sniper imp seal (bewitching branch / fanged
+#     imp ashes) -- not openable from the grace side, so the check is unreachable.
+# Dropping these renumbers downstream ap-ids (needs a full regen) and removes the vanilla shuffle copy.
+_UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD)
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
@@ -501,12 +504,12 @@ GLOBAL_RECOVER = {
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
     510340: HUB,
     1049557700: HUB,
-    # Haligtree Secret Medallion (Right): physically the reward inside Albinauric Rise in the
-    # Consecrated Snowfield (folded into Mountaintops), NOT the Village-of-the-Albinaurics pickup (that
-    # is the LEFT half). Only the obtained flag (400130, method global) exists (no map_lot). It is
-    # currently recovered to Liurnia -- but Albinauric Rise is sealed by an invisible-sniper imp seal
-    # (bewitching branch / fanged imp ashes), so the check is effectively UNREACHABLE and mis-pinned;
-    # left as-is pending Alaric's call on excluding vs re-pinning to Mountaintops (flagged 2026-07-09).
+    # Haligtree Secret Medallion (Right): physically the reward in Castle Sol (Mountaintops of the
+    # Giants), obtained by defeating Commander Niall -- NOT the Village-of-the-Albinaurics pickup (that
+    # is the LEFT half). Only the obtained flag (400130, method global) exists (no map_lot), and it is
+    # currently recovered to Liurnia, which is a mis-pin (real region Mountaintops). It IS reachable
+    # (Niall is a normal combat boss), so it is left as a Liurnia check pending a proper re-pin to
+    # Mountaintops (flagged 2026-07-09; distinct from the Albinauric Rise Graven-Mass Talisman above).
     400130: "Liurnia of the Lakes",
     # Deathroot rewards from Gurranq at the Bestial Sanctum (Dragonbarrow / NE Caelid). Recovered as
     # checks AND tagged missable below (gated behind delivering N deathroots -- a limited consumable +
@@ -1081,6 +1084,36 @@ _FINISHED_POTS = {"Fire Pot": 300, "Lightning Pot": 320, "Fetid Pot": 330, "Holy
                   "Rancor Pot": 650}
 for _pn, _pid in _FINISHED_POTS.items():
     ITEM_CATALOG.setdefault(_pn, 0x40000000 | _pid)
+# ---- Community tier-list catalog augmentation (Alaric 2026-07-09). The broad-sourced community PvE
+# tier list (item_tiers.tsv) rates GEAR -- weapons / armor / spells+incantations / talismans / ashes
+# of war -- much of which greenfield never DETECTED as a placed vanilla item (e.g. Moonveil, Nagakiba,
+# Golden Order Greatsword, the Banished Knight / Bull-Goat / Cleanrot armor sets). Those names never
+# entered ITEM_CATALOG from `rows` above, so features/pool_builder (which only juices names present in
+# ITEM_CATALOG) could never inject them and the tier list only informed the fraction of gear greenfield
+# happened to place. Resolve every gear-category tier-list name to its real FMG FullID via the same
+# _resolve_item map used for placed items and add it to the catalog so the FULL community list informs
+# the injected gear. Only the INJECTABLE tiers (S/A/B -- pool_builder never juices C/D/F) are added, to
+# avoid catalog bloat. Count-NEUTRAL: this only widens the pool_builder juice CANDIDATE set (juice is
+# bounded by the Rune tail); the base shuffle pool is LOCATION_ITEM (placed items) and is untouched.
+# DLC-only names among them are flagged by the DLC_ITEM_NAMES pass below (so DLC-off seeds exclude them).
+_TIER_CATALOG_CATS = {"WEAPON", "ARMOR", "SPELL", "TALISMAN", "ASHOFWAR"}
+_TIER_CATALOG_KEEP = {"S", "A", "B"}
+_tier_tsv = os.path.join(REPO, "item_tiers.tsv")
+_aug_added = 0; _aug_unresolved = []
+if os.path.isfile(_tier_tsv):
+    for _row in csv.DictReader(open(_tier_tsv, encoding="utf-8"), delimiter="\t"):
+        if _row.get("category") not in _TIER_CATALOG_CATS or _row.get("tier") not in _TIER_CATALOG_KEEP:
+            continue
+        _nm = (_row.get("item_name") or "").strip()
+        if not _nm or _nm in ITEM_CATALOG:
+            continue
+        _full, _base = _resolve_item(_nm)
+        if _full is None:
+            _aug_unresolved.append(_nm); continue
+        if _base not in ITEM_CATALOG:
+            ITEM_CATALOG[_base] = _full; _aug_added += 1
+    print(f"item_ids: tier-list catalog augmentation +{_aug_added} gear items "
+          f"({len(_aug_unresolved)} unresolved names skipped)")
 # ---- DLC provenance: catalog names that come ONLY from the DLC FMG tables. gen_data reads the
 # base tables (_MSG) and the DLC tables (_MSG_D1/_MSG_D2) into ITEM_CATALOG with no marker; core
 # excludes these from pool augmentation (juice/filler) when a seed has DLC off. Matt-free: pure
@@ -1206,6 +1239,26 @@ if os.path.isfile(_TSV_PATH):
         if _t is not None and _nm in ITEM_CATALOG:
             _tsv_tier[_nm] = _t
 ITEM_TIERS = dict(_param_tier); ITEM_TIERS.update(_tsv_tier)   # TSV precedence; param fills the gaps
+# ---- Per-item CATEGORY (Alaric 2026-07-09) so features/pool_builder can allocate the juice budget
+# across gear categories with per-category percents. From item_tiers.tsv where present (WEAPON / ARMOR
+# / SPELL[+incantations] / TALISMAN / ASHOFWAR); a param-only tiered item (in _param_tier, not in the
+# TSV) is classed by its FullID category nibble -- 0x0 weapon, 0x1 armor, 0x2 talisman (the only
+# equippables param tiers). Every ITEM_TIERS entry gets a category (unknown -> "OTHER").
+_NIBBLE_CAT = {0x00000000: "WEAPON", 0x10000000: "ARMOR", 0x20000000: "TALISMAN"}
+_tsv_cat = {}
+if os.path.isfile(_TSV_PATH):
+    for _row in csv.DictReader(open(_TSV_PATH, encoding="utf-8"), delimiter="\t"):
+        _nm = (_row.get("item_name") or "").strip()
+        _c = (_row.get("category") or "").strip().upper()
+        if _c and _nm in ITEM_CATALOG:
+            _tsv_cat[_nm] = _c
+ITEM_TIER_CATEGORY = {}
+for _nm in ITEM_TIERS:
+    if _nm in _tsv_cat:
+        ITEM_TIER_CATEGORY[_nm] = _tsv_cat[_nm]
+    else:
+        _full = ITEM_CATALOG.get(_nm)
+        ITEM_TIER_CATEGORY[_nm] = _NIBBLE_CAT.get((_full or 0) & 0xF0000000, "OTHER")
 OUT_TIERS = os.path.join(HERE, "eldenring_gf", "item_tiers.py")
 with open(OUT_TIERS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Pool-builder tiers: vanilla item_name -> quality\n')
@@ -1216,6 +1269,12 @@ with open(OUT_TIERS, "w", newline="\n", encoding="utf-8") as f:
     f.write("ITEM_TIERS = {\n")
     for _nm in sorted(ITEM_TIERS):
         f.write(f"    {_nm!r}: {ITEM_TIERS[_nm]},\n")
+    f.write("}\n\n")
+    f.write("# item_name -> gear category (WEAPON/ARMOR/SPELL/TALISMAN/ASHOFWAR/OTHER) for\n")
+    f.write("# features/pool_builder.py per-category juice percents. TSV category, or FullID nibble.\n")
+    f.write("ITEM_TIER_CATEGORY = {\n")
+    for _nm in sorted(ITEM_TIER_CATEGORY):
+        f.write(f"    {_nm!r}: {ITEM_TIER_CATEGORY[_nm]!r},\n")
     f.write("}\n")
 from collections import Counter as _Cnt
 _td = _Cnt(ITEM_TIERS.values())
