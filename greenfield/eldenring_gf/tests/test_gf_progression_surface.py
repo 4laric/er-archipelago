@@ -96,7 +96,10 @@ def test_build_ladder_from_majorboss():
     rungs = ps.build_ladder(["MajorBoss"])
     assert rungs[0] == ["MajorBoss"]
     assert rungs[1] == ["MajorBoss", "Remembrance", "GreatRune"]
-    assert rungs[2] == ["MajorBoss", "Remembrance", "GreatRune", "Boss", "KeyItem", "Legendary"]
+    # KeyItem (small, hand-reviewable) is promoted AHEAD of Legendary (large, scattered); Boss between.
+    assert rungs[2] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem"]
+    assert rungs[3] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem", "Boss"]
+    assert rungs[4] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem", "Boss", "Legendary"]
     assert rungs[-1][-2:] == ["Seedtree", "Church"]
     # monotonic widening + no Shop auto-added
     for a, b in zip(rungs, rungs[1:]):
