@@ -53,6 +53,7 @@ which changes which ones).
 from typing import List
 
 from Options import Toggle, Range, Choice
+from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from ..data import HUB, LOCATIONS
 
@@ -318,7 +319,19 @@ class PoolBuilderFeature(Feature):
     # ---- hooks ------------------------------------------------------------------
     def create_items(self, world):
         # core adds these to `pool`, which trims the Rune tail 1:1 -> count-neutral displacement.
-        return [world.create_item(name) for name in self._juice_list(world)]
+        items = []
+        for name in self._juice_list(world):
+            it = world.create_item(name)
+            # Juice is intentional USEFUL gear, never junk filler. Some catalog gear -- notably
+            # spells & incantations -- carries the GOODS FullID nibble, so core._classify_full
+            # defaults it to `filler`. Left that way, features/filler_curation.curate() and core's
+            # stone_injection would SEIZE the juice slot (both protect `useful`, not `filler`) and
+            # overwrite an S-tier sorcery with a throwable / smithing stone. Force `useful` so those
+            # guards honor pool_builder's picks. (Weapons/armor/talismans/ashes are already useful;
+            # this is idempotent for them.)
+            it.classification = ItemClassification.useful
+            items.append(it)
+        return items
 
     def slot_data(self, world):
         # pure pool curation -> no client contract needed; expose the resolved knobs for diagnostics.
