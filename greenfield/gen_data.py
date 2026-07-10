@@ -40,6 +40,9 @@ _BOSS_DROP_EXTRAS = frozenset({
     1049397800,   # Nox Swordstress & Nox Priest (Caelid) -> Nox Flowing Sword
     530505,       # Black Blade Kindred (Forbidden Lands) -> Gargoyle's Black Blades
     1040517020,   # Vyke, Knight of the Roundtable (evergaol) -> Dragonbolt Blessing
+    # Recovered as checks via GLOBAL_RECOVER above (were unplaced) -> now also Boss-tagged:
+    510840,       # Commander Niall -> Veteran's Prosthesis
+    530425,       # Black Blade Kindred (Bestial Sanctum) -> Gargoyle's Blackblade
 })
 _BOSS_DROP_FLAGS = _BOSS_DROP_FLAGS | _BOSS_DROP_EXTRAS
 try:
@@ -535,6 +538,12 @@ for _rr in _ALLROWS:
 # to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
 # (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
 GLOBAL_RECOVER = {
+    # Field-boss unique drops the pipeline couldn't decode to a tile -> stranded in the unplaced
+    # common-event bucket, so their boss had no check. Hand-pinned to the boss's region so they recover
+    # as real checks (item name resolves via FMG; both verified present) -> and tagged Boss below via
+    # _BOSS_DROP_EXTRAS (Alaric 2026-07). These are the last two reddit-list bosses without a check:
+    510840: "Mountaintops of the Giants",  # Veteran's Prosthesis -> Commander Niall (Castle Sol)
+    530425: "Caelid",                      # Gargoyle's Blackblade -> Black Blade Kindred (Bestial Sanctum)
     # Golden Tailoring Tools (60150): the cloak-alteration tool at the Church of Vows (Liurnia). A
     # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
     # never a check). Recover it as a Liurnia check (Alaric 2026-07-09).

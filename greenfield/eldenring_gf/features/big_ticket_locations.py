@@ -25,7 +25,9 @@ class BigTicketLocations(OptionList):
     Shop or Legendary; selecting Shop turns on the OTHER shops. (Fill confinement is owned by
     progression_surface now; this option only drives the tracker + the legacy curated_fill alias.)"""
     display_name = "Big-Ticket Locations"
-    default = ["MajorBoss"]
+    # Mirrors the progression_surface default (MajorBoss + Remembrance + GreatRune) so the tracker's
+    # 'big-ticket only' view shows exactly the checks the surface can host.
+    default = ["MajorBoss", "Remembrance", "GreatRune"]
     valid_keys = frozenset(contract.IMPORTANT_LOCATION_TYPES)
 
 

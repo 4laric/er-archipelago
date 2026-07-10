@@ -56,7 +56,11 @@ class ProgressionSurface(OptionList):
     the hand-picked field-boss extras). Add classes to widen -- e.g. Remembrance, GreatRune, Seedtree,
     Church, or Shop. Same vocabulary as Important / Big-Ticket Locations; Enia is always excluded."""
     display_name = "Progression Surface"
-    default = ["MajorBoss"]
+    # Default = the top confidence rung: MajorBoss + Remembrance + GreatRune. The 6 Great Rune bosses
+    # all also drop Remembrances, so GreatRune adds no NEW boss coverage -- it adds 6 rock-solid extra
+    # host slots (weighting locks slightly toward the shardbearers) rather than variety. Kept in anyway
+    # for capacity/certainty (Alaric 2026-07). Widen further via the ladder or by adding classes.
+    default = ["MajorBoss", "Remembrance", "GreatRune"]
     valid_keys = frozenset(contract.IMPORTANT_LOCATION_TYPES)
 
 
