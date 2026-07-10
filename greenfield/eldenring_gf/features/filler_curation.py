@@ -120,6 +120,21 @@ def _is_junk_consumable(name):
     return name == "Rune" or (full is not None and (full & 0xF0000000) == 0x40000000)
 
 
+def displaceable_filler(world, name) -> bool:
+    """True iff a VANILLA pool item `name` may be displaced by pool_builder juice under
+    pool_builder_scope=all_filler. Economy-safe: `_is_junk_consumable` already excludes the tuned
+    economy (Golden/Lord's/Hero's/Numen's Runes, Smithing/Somber stones, Golden Seed, Sacred Tear,
+    Glovewort, Great Rune) and FUNNY_JUNK; we additionally exclude anything the world classifies as
+    PROGRESSION -- vanilla keys promoted to gates by features/legacy_key_gates (e.g. Academy Glintstone
+    Key) share the GOODS nibble and would otherwise slip through. Purely name-based (reads the world's
+    static classification, no live pool object), so features/pool_builder's budget count and core's
+    extras-sort rank use the IDENTICAL rule and can never drift (a mismatch could drop a protected
+    item). Never called on the FILLER/Rune sentinel (core ranks that separately)."""
+    if not _is_junk_consumable(name):
+        return False
+    return not (world._class_for(name) & ItemClassification.progression)
+
+
 def curate(world, pool):
     """core.create_items hook: seize junk-consumable filler and refill each slot by a weighted draw over
     the curated_filler recipe categories. 'junk' weight keeps that share vanilla. Deterministic."""
