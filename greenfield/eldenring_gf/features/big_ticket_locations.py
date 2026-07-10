@@ -17,12 +17,15 @@ except Exception:  # not yet generated -> emit nothing (client falls back to the
 
 
 class BigTicketLocations(OptionList):
-    """Location classes that count as big-ticket -- region Locks land on them (with curated_fill) and
-    the F6 tracker stars/filters them. Drawn from the same vocabulary as Important Locations. Default =
-    Boss, Remembrance, Legendary, GreatRune, KeyItem. Enia's remembrance store is ALWAYS excluded, even
-    if you select Shop or Legendary; selecting Shop turns on the OTHER shops."""
+    """Location classes the F6 tracker stars/filters as big-ticket. Drawn from the same vocabulary as
+    Important Locations. v0.2 default = MajorBoss -- MIRRORS the progression_surface so the tracker's
+    'big-ticket only' view shows exactly the checks where this world's progression can land, not the
+    fuller Boss/Remembrance/Legendary/GreatRune/KeyItem set. Widen with any class (Remembrance, Legendary,
+    Seedtree, Shop, ...) to star more. Enia's remembrance store is ALWAYS excluded, even if you select
+    Shop or Legendary; selecting Shop turns on the OTHER shops. (Fill confinement is owned by
+    progression_surface now; this option only drives the tracker + the legacy curated_fill alias.)"""
     display_name = "Big-Ticket Locations"
-    default = list(contract.BIG_TICKET_DEFAULT_LIST)
+    default = ["MajorBoss"]
     valid_keys = frozenset(contract.IMPORTANT_LOCATION_TYPES)
 
 
