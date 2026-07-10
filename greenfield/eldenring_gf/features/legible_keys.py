@@ -21,7 +21,9 @@ Pure module: no Archipelago imports, so it runs in the data-invariant gate.
 # The trailing comment on each row is the common boss name the label denotes.
 CAPSTONE_VANILLA_KEYS = {
     "Full Moon Queen":  "Academy Glintstone Key",       # Rennala (Raya Lucaria fold-in -> Liurnia)
-    "Omen King":        "Two Great Runes",               # Morgott (Leyndell fold-in; possession gate, compound)
+    # Morgott / Omen King (Leyndell fold-in) intentionally has NO vanilla alias: its vanilla gate is a
+    # COMPOUND possession check (2 Great Runes), so a single-item name ("Two Great Runes") read as a
+    # concrete item and confused players. Falls back to the synthetic "Boss Key: Omen King".
     "Radahn":           "Dectus Medallion",              # Starscourge Radahn (Caelid; halves double as festival trigger)
     "Malenia":          "Haligtree Secret Medallion",    # Malenia (Snowfield/Haligtree; both halves at Rold)
     "Rykard":           "Drawing-Room Key",              # Rykard (Mt. Gelmir / Volcano Manor)

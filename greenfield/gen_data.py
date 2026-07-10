@@ -262,6 +262,10 @@ _RECOVER_PHANTOM_DUPES = frozenset({1033477020})
 #   1050567820 = Graven-Mass Talisman: the reward inside Albinauric Rise (Consecrated Snowfield,
 #     folded into Mountaintops), sealed by the invisible-sniper imp seal (bewitching branch / fanged
 #     imp ashes) -- not openable from the grace side, so the check is unreachable.
+# NOTE: Fingerslayer Blade (12027080, Nokron/Eternal Cities) was briefly excluded here -- its chest is
+# vanilla-gated behind Ranni's questline flag 1034509410 ("You are not destined to open this yet").
+# Instead of dropping the check we now FORCE-SET 1034509410 at spawn (features/start_grace.py rides it
+# on the startGraces flag list), so the chest opens and the check stays live. Do NOT re-add it here.
 # Dropping these renumbers downstream ap-ids (needs a full regen) and removes the vanilla shuffle copy.
 _UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
