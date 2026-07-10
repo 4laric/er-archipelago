@@ -41,15 +41,28 @@ try:
 except Exception:
     ITEM_CATALOG = {}
 
-# Grace flag -> map encoding: 71<MM><nn>. Raya Lucaria = m14 (714xx); Leyndell capital = m11 (711xx).
+# Grace flag -> map encoding: 7<MM><nn>. Raya Lucaria = m14 (714xx); the Leyndell capital spans m11
+# (Royal, 711xx) AND m35 (Subterranean Shunning-Grounds, 735xx) -- both fold into Altus and both must
+# ride the Great-Rune gate, since vanilla drops into the Shunning-Grounds from the capital. (m19
+# Fractured Marika is an arena grace excluded from the bundle upstream, so it needs no entry here.)
 _RAYA_GRACE_LO, _RAYA_GRACE_HI = 71400, 71500
-_LEYNDELL_GRACE_LO, _LEYNDELL_GRACE_HI = 71100, 71200
+_LEYNDELL_GRACE_LO, _LEYNDELL_GRACE_HI = 71100, 71200          # m11 Leyndell Royal
+_SHUNNING_GRACE_LO, _SHUNNING_GRACE_HI = 73500, 73600          # m35 Subterranean Shunning-Grounds
 _ROUNDTABLE_GRACE = 71190  # HUB grace (start_grace); an m11 flag but NOT a Leyndell-capital grace.
 _ACADEMY_KEY = "Academy Glintstone Key"
 
 
 def _in(flag, lo, hi):
     return lo <= flag < hi
+
+
+def _is_capital_grace(g):
+    """A folded-capital grace the Great-Rune gate must hold: m11 Leyndell Royal (minus the 71190
+    Roundtable HUB grace) or m35 Subterranean Shunning-Grounds. Mirrors leyndell_gate's m11/m35 CHECK
+    set -- without the m35 half, Shunning-Grounds graces leaked into the Altus bundle and warped the
+    player in before earning the runes (in-game 2026-07-10)."""
+    return ((_in(g, _LEYNDELL_GRACE_LO, _LEYNDELL_GRACE_HI) and g != _ROUNDTABLE_GRACE)
+            or _in(g, _SHUNNING_GRACE_LO, _SHUNNING_GRACE_HI))
 
 
 @register
@@ -80,16 +93,16 @@ class RegionGracesFeature(Feature):
                     # add (not overwrite) -- an item could legitimately carry graces from >1 gate.
                     region_graces[_ACADEMY_KEY] = sorted(set(region_graces.get(_ACADEMY_KEY, [])) | set(raya))
 
-        # --- GATE 2: Leyndell capital (m11, folded into Altus) behind N Great Runes. ---
-        # Active iff leyndell_gate picked N runes this seed (world.gf_leyndell_runes). Pull 711xx (minus
-        # the 71190 HUB grace) out of the Altus bundle and emit them as a rune-count-gated set.
+        # --- GATE 2: Leyndell capital (m11 Royal + m35 Shunning-Grounds, folded into Altus) behind N
+        # Great Runes. Active iff leyndell_gate picked N runes this seed (world.gf_leyndell_runes). Pull
+        # the folded-capital graces (711xx minus the 71190 HUB grace, PLUS 735xx Shunning-Grounds) out
+        # of the Altus bundle and emit them as a rune-count-gated set the client lights at >= N runes.
         need = len(getattr(world, "gf_leyndell_runes", ()) or ())
         if need > 0:
             altus = "Altus Plateau Lock"
             bundle = region_graces.get(altus)
             if bundle:
-                leyn = [g for g in bundle
-                        if _in(g, _LEYNDELL_GRACE_LO, _LEYNDELL_GRACE_HI) and g != _ROUNDTABLE_GRACE]
+                leyn = [g for g in bundle if _is_capital_grace(g)]
                 if leyn:
                     region_graces[altus] = [g for g in bundle if g not in leyn]
                     out[contract.RUNE_GATED_GRACES] = {str(need): sorted(leyn)}
