@@ -9,6 +9,13 @@ param `rarity` filling any gap the TSV doesn't cover. See gen_data.py -> item_ti
 Only meaningful when item_shuffle is ON (there is a shuffled vanilla pool to curate). When item_shuffle
 is OFF every check pays a Rune and there is nothing to curate -> the feature is a no-op.
 
+SCOPE (pool_builder_scope). By default juice displaces ONLY the Rune-fallback tail. Set to 'all_filler'
+and it may ALSO displace junk-consumable vanilla filler (throwables/pots/greases/...), economy-safe:
+the tuned economy (runes, smithing/somber stones, seeds/tears/glovewort/great runes), funny junk, real
+gear, and progression (e.g. promoted key gates) are never touched. This widens the juice ceiling far
+past the small Rune tail; the drop order lives in core.create_items' extras-sort, which ranks exactly
+the same displaceable_filler set to the tail so the budget here and the drop there cannot drift.
+
 Count-neutral by construction. core.create_items builds `pool` (locks + every feature's
 create_items()), then computes `slots = total_locations - len(pool)` and fills those slots from the
 shuffled vanilla `extras` list -- which core sorts with the Rune fallbacks LAST. So every item this
@@ -150,6 +157,25 @@ class PoolBuilderJuicePct(Range):
     default = 100
 
 
+class PoolBuilderScope(Choice):
+    """What Pool Builder juice is allowed to DISPLACE.
+    'rune_tail' (DEFAULT): only the Rune fallback tail -- checks with no real vanilla item (historical
+    behavior). The juice ceiling is the size of that tail.
+    'all_filler': ALSO the junk-consumable vanilla filler in the shuffled pool -- throwables, pots,
+    greases, boluses, and the like. This is economy-SAFE: the tuned economy (Golden/Lord's/Hero's/
+    Numen's Runes, Smithing/Somber stones, Golden Seed, Sacred Tear, Glovewort, Great Rune), the funny
+    junk, all real gear, and anything the seed treats as progression (e.g. the Academy Glintstone Key
+    gate) are never displaced. Vastly raises the juice ceiling, so it is mostly meaningful with a
+    raised or 0 (auto) Juice Cap; an aggressive setting can thin the stone/rune economy that
+    stone_injection / stone_ramp draw from. Juice Percent and the per-category percents then read as a
+    share of this wider juice-eligible set. Ignored unless Pool Builder and Shuffle Vanilla Items are
+    both on."""
+    display_name = "Pool Builder Scope"
+    option_rune_tail = 0
+    option_all_filler = 1
+    default = 0
+
+
 class _PoolBuilderPctCategory(Range):
     """Base for the per-category juice percents. Each is the SHARE of the Rune fallback tail Pool
     Builder fills with THIS gear category's juice, as a percent, drawn best-first (highest tier first)
@@ -209,6 +235,7 @@ class PoolBuilderFeature(Feature):
     OPTIONS = {
         "pool_builder": PoolBuilder,
         "pool_builder_intensity": PoolBuilderIntensity,
+        "pool_builder_scope": PoolBuilderScope,
         "pool_builder_juice_cap": PoolBuilderJuiceCap,
         "pool_builder_juice_pct": PoolBuilderJuicePct,
         "pool_builder_pct_weapons": PoolBuilderPctWeapons,
@@ -268,9 +295,35 @@ class PoolBuilderFeature(Feature):
         cap_opt = getattr(world.options, "pool_builder_juice_cap", None)
         return int(cap_opt.value) if cap_opt is not None else 0
 
+    def _scope_all_filler(self, world) -> bool:
+        opt = getattr(world.options, "pool_builder_scope", None)
+        if opt is None:
+            return False
+        try:
+            return opt.current_key == "all_filler"
+        except Exception:
+            return False
+
     def _rune_tail(self, world) -> int:
-        """True remaining Rune tail = Rune-fallback checks minus slots other contributors eat."""
-        return max(0, self._rune_fallback_locations(world) - self._reserved_slots(world))
+        """Displaceable-slot budget = juice-eligible checks minus slots other contributors eat.
+
+        scope=rune_tail (default): only Rune-fallback checks (byte-identical to the historical count).
+        scope=all_filler: ALSO the junk-consumable vanilla filler (displaceable_filler -- the SAME
+        predicate core's extras-sort uses to rank those items to the drop tail, so the budget and the
+        drop order cannot drift). Conservative: DLC-excluded-but-in-catalog items are counted as
+        neither (core turns them into FILLER, so this only under-counts -> juice never over-runs into a
+        protected slot)."""
+        base = self._rune_fallback_locations(world)
+        if self._scope_all_filler(world):
+            from ..features.filler_curation import displaceable_filler
+            excl = getattr(world, "gf_dlc_excluded", ())
+            for rn in [HUB] + list(world._kept()):
+                for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
+                    nm = LOCATION_ITEM.get(ap_id)
+                    if (nm and nm in ITEM_CATALOG and not (excl and nm in excl)
+                            and displaceable_filler(world, nm)):
+                        base += 1
+        return max(0, base - self._reserved_slots(world))
 
     def _category_pcts(self, world) -> dict:
         """{gear category -> percent} for every per-category percent set >0 ({} = global mode)."""

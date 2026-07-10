@@ -338,8 +338,34 @@ class GreenfieldEldenRingWorld(World):
                         nm = None
                     extras.append(nm if nm and nm in item_name_to_id else FILLER)
             # keep real items first; among reals, keep required Great Runes ahead of everything so
-            # the over-provision trim (below) can never drop a rune the goal needs.
-            extras.sort(key=lambda x: (x == FILLER, x not in required))
+            # the over-provision trim (below) can never drop a rune the goal needs. FILLER (Rune)
+            # sorts LAST, so growing `pool` (juice/locks) drops Rune off the tail.
+            # pool_builder_scope=all_filler widens what juice can displace: junk-consumable vanilla
+            # filler also sorts to the tail (rank 2), just ahead of the Rune sentinel (rank 3) and
+            # BEHIND every protected item (required runes rank 0; useful gear + tuned economy +
+            # progression keys rank 1). So the trim drops Rune first, then junk filler, and can never
+            # reach a protected/progression item. displaceable_filler is the SAME predicate
+            # features/pool_builder uses to size its budget, so the drop order and the juice count
+            # cannot drift. Default scope=rune_tail keeps the historical 2-level sort byte-for-byte.
+            _pbs = getattr(self.options, "pool_builder_scope", None)
+            _all_filler = False
+            if _pbs is not None:
+                try:
+                    _all_filler = _pbs.current_key == "all_filler"
+                except Exception:
+                    _all_filler = False
+            if _all_filler:
+                from .features.filler_curation import displaceable_filler as _disp
+
+                def _tail_rank(x):
+                    if x == FILLER:
+                        return 3
+                    if x in required:
+                        return 0
+                    return 2 if _disp(self, x) else 1
+                extras.sort(key=_tail_rank)
+            else:
+                extras.sort(key=lambda x: (x == FILLER, x not in required))
         for k in range(slots):
             _nm = extras[k] if k < len(extras) else FILLER
             pool.append(self.create_item(self._pick_filler() if _nm == FILLER else _nm))
