@@ -207,36 +207,27 @@ class GreenfieldRegistry(unittest.TestCase):
 
 
 class GreenfieldAreaLockGeometry(unittest.TestCase):
-    """areaLockFlags fold parity: the generator's REGION_PLAY_IDS (features/area_locks.py) and
-    the client's static REGION_PLAY_IDS (region.rs) must describe the SAME region -> play_region
-    geometry. The client derives its kick-watch ranges from this table + regionOpenFlags, so any
-    drift silently mis-seals or unseals a region in-game with NO gen failure. Pure text parse (no
-    imports); skips cleanly if the client source is not checked out beside the apworld."""
+    """SINGLE SOURCE OF TRUTH guard (replaces the old two-table parity test). The region ->
+    play_region geometry (REGION_PLAY_IDS) lives ONLY in features/area_locks.py, which ships the
+    fully-resolved kick-watch ranges as slot_data `areaLockFlags`. The client consumes those ranges
+    and must NOT keep a mirror table -- a duplicated static geometry in region.rs repeatedly drifted
+    from the generator (e.g. the Consecrated Snowfield -> Mountaintops fold). This test makes the
+    drift structurally impossible: it FAILS if a REGION_PLAY_IDS mirror is reintroduced client-side.
+    Skips cleanly if the client source is not checked out beside the apworld."""
 
-    @staticmethod
-    def _parse_block(text, start_marker, end_marker):
-        import re
-        i = text.index(start_marker)
-        j = text.index(end_marker, i)
-        out = {}
-        for name, nums in re.findall(r'"([^"]+)"[^\[]*\[([0-9,\s]*)\]', text[i:j]):
-            out[name] = tuple(sorted(int(n) for n in nums.replace(",", " ").split()))
-        return out
-
-    def test_region_play_ids_match_client(self):
-        gf = os.path.join(os.path.dirname(HERE), "features", "area_locks.py")
+    def test_client_has_no_region_play_ids_mirror(self):
         repo = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
         rs = os.path.join(repo, "from-software-archipelago-clients", "crates",
                           "eldenring-archipelago", "src", "region.rs")
-        if not (os.path.exists(gf) and os.path.exists(rs)):
-            self.skipTest("area_locks.py or client region.rs not present")
-        with open(gf, encoding="utf-8") as f:
-            py_tbl = self._parse_block(f.read(), "REGION_PLAY_IDS = {", "\n}")
+        if not os.path.exists(rs):
+            self.skipTest("client region.rs not present")
         with open(rs, encoding="utf-8") as f:
-            rs_tbl = self._parse_block(f.read(), "REGION_PLAY_IDS: &[", "\n];")
-        self.assertTrue(py_tbl, "parsed no rows from area_locks.py REGION_PLAY_IDS")
-        self.assertEqual(py_tbl, rs_tbl,
-                         "REGION_PLAY_IDS drift between area_locks.py and region.rs")
+            text = f.read()
+        self.assertNotIn(
+            "REGION_PLAY_IDS", text,
+            "client region.rs must NOT mirror REGION_PLAY_IDS -- the generator (area_locks.py) is the "
+            "single source of truth and ships the resolved ranges as areaLockFlags. Consume the "
+            "shipped ranges; do not re-add a static table that silently drifts.")
 
 
 if __name__ == "__main__":
