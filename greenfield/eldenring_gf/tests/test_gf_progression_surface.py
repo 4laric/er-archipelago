@@ -153,7 +153,13 @@ def test_major_boss_extras_structure():
     extras = _major_boss_extras()
     assert isinstance(extras, dict) and extras, "MAJOR_BOSS_EXTRAS should be a non-empty dict"
     valid_conf = {"HIGH", "MEDIUM", "LOW", "TODO"}
-    apid_region = _apid_region()
+    # Cross-check by FLAG, not by the stored ap-id: dense ap-ids drift on regen (an EXCLUDE_FLAGS
+    # change shifts every later ap-id), so the hand-typed ap-id is only documentary. The flag is stable
+    # and is what region_of resolves, so region membership must be checked flag -> region.
+    flag_regions = {}
+    for reg, locs in data.LOCATIONS.items():
+        for (_nm, _aid, fl) in locs:
+            flag_regions.setdefault(fl, set()).add(reg)
     for region, lst in extras.items():
         assert region in data.LOCATIONS, f"extras region {region!r} not a real region"
         for tup in lst:
@@ -161,12 +167,13 @@ def test_major_boss_extras_structure():
             aid, flag, boss, drop, conf = tup
             assert isinstance(aid, int) and isinstance(flag, int)
             assert conf in valid_conf, f"bad confidence {conf!r} for {boss!r}"
-            # every extra ap-id must be a REAL check somewhere in the current data
-            assert aid in apid_region, f"{boss!r} ap {aid} is not a real check"
+            # every extra flag must be a REAL check somewhere in the current data
+            assert flag in flag_regions, f"{boss!r} flag {flag} is not a real check"
             if conf == "HIGH":
                 # HIGH = already filed in the stated region in current data (no regen needed)
-                assert apid_region[aid] == region, (
-                    f"HIGH extra {boss!r} ap {aid} is in {apid_region[aid]!r}, not {region!r}")
+                assert region in flag_regions[flag], (
+                    f"HIGH extra {boss!r} flag {flag} is in {sorted(flag_regions[flag])!r}, "
+                    f"not {region!r}")
             # MEDIUM/TODO may depend on a FLAG_REGION_OVERRIDE that lands only on regen (e.g. Bayle);
             # the gen_data.py invariant asserts the full in-region requirement at regen time.
 

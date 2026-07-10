@@ -1493,32 +1493,53 @@ for _ap, _inm in LOCATION_ITEM.items():
 # This is the high-confidence surface the v0.2 progression_surface restriction confines locks to.
 # Union so every kept region that HAS a major (arena or curated extra) carries a MajorBoss check.
 _MAJOR_ARENA = {aid for _lst in _region_bosses.values() for (aid, _fl, _nm) in _lst}
-_MAJOR_EXTRA = {aid for _lst in MAJOR_BOSS_EXTRAS.values() for (aid, _fl, _bn, _di, _cf) in _lst}
+# MAJOR_BOSS_EXTRAS are keyed by acquisition FLAG (stable across regens); their stored ap-id is only
+# documentary, because dense ap-ids DRIFT whenever an EXCLUDE_FLAGS change adds/removes an earlier row
+# (excluding flag 60000, ap 7770014, shifts every later ap-id down by one -- which is exactly what
+# stranded the hand-typed Agheel/Bayle ap-ids on regen). Resolve each extra's LIVE ap-id(s) from its
+# flag via the freshly-built buckets so both tagging and the invariant never trust a typed ap-id.
+_flag_locs = defaultdict(list)                       # flag -> [(live_ap_id, region)]
+for _reg, _locs in buckets.items():
+    for (_nm, _aid, _fl) in _locs:
+        _flag_locs[_fl].append((_aid, _reg))
+_MAJOR_EXTRA = {ra for _lst in MAJOR_BOSS_EXTRAS.values()
+                for (_ap, _fl, _bn, _di, _cf) in _lst
+                for (ra, _rr) in _flag_locs.get(_fl, [])}
 _MAJOR_AIDS = _MAJOR_ARENA | _MAJOR_EXTRA
 for _ap in sorted(_MAJOR_AIDS):
     _cur = loc_tags.setdefault(_ap, [])
     if "MajorBoss" not in _cur:
         _cur.append("MajorBoss")
 
-# ---- Regen-time INVARIANT: every MajorBoss ap-id must be a real check in its stated region. --------
-# buckets = {region: [(name, ap_id, flag)]} built above (the LOCATIONS source). Assert each arena
-# major AND each curated extra resolves to a location under the region it is filed under -- catches a
-# drifted flag-join, a stale ap-id, or a FLAG_REGION_OVERRIDE (e.g. Bayle 510630 -> Jagged Peak) that
-# failed to land. Loud failure on regen is the safety valve for the extras we could not run in-sandbox.
+# ---- Regen-time INVARIANT: every MajorBoss must be a real check in its stated region. --------------
+# buckets = {region: [(name, ap_id, flag)]} built above (the LOCATIONS source). ARENA majors carry
+# gen-time ap-ids (built from THIS run's rows, so consistent with buckets) -> checked by ap-id. Curated
+# EXTRAS carry hand-typed ap-ids that drift -> checked by FLAG -> region. Catches a drifted flag-join or
+# a FLAG_REGION_OVERRIDE (e.g. Bayle 510630 -> Jagged Peak) that failed to land. Loud failure on regen
+# is the safety valve for the extras we could not run in-sandbox; a merely stale documentary ap-id is a
+# soft NOTE, not a failure.
 _apid_region = {aid: reg for reg, _locs in buckets.items() for (_nm, aid, _fl) in _locs}
 _major_bad = []
 for _reg, _lst in _region_bosses.items():
     for (aid, _fl, _nm) in _lst:
         if _apid_region.get(aid) != _reg:
             _major_bad.append(("arena", _reg, aid, _apid_region.get(aid)))
+_extra_stale_ap = []
 for _reg, _lst in MAJOR_BOSS_EXTRAS.items():
     for (aid, _fl, _bn, _di, _cf) in _lst:
-        if _apid_region.get(aid) != _reg:
-            _major_bad.append(("extra:" + _bn, _reg, aid, _apid_region.get(aid)))
+        _live = _flag_locs.get(_fl, [])
+        _regs = {_rr for (_ra, _rr) in _live}
+        if _reg not in _regs:
+            _major_bad.append(("extra:" + _bn, _reg, _fl, sorted(_regs) or None))
+        elif aid not in {_ra for (_ra, _rr) in _live}:
+            _extra_stale_ap.append((_bn, _fl, aid, sorted(_ra for (_ra, _rr) in _live)))
 if _major_bad:
     raise AssertionError(
-        "MajorBoss ap-ids not filed under their stated region (fix the flag/join/override): "
-        + "; ".join(f"{k} expected={want} ap={aid} got={got}" for (k, want, aid, got) in _major_bad))
+        "MajorBoss not filed under its stated region (fix the flag/join/override): "
+        + "; ".join(f"{k} expected={want} key={key} got={got}" for (k, want, key, got) in _major_bad))
+for (_bn, _fl, _ap, _live) in _extra_stale_ap:
+    print(f"NOTE: MAJOR_BOSS_EXTRAS {_bn!r} documentary ap-id {_ap} is stale "
+          f"(flag {_fl} now at {_live}); region OK -- refresh the ap-id when convenient.")
 print(f"MajorBoss: {len(_MAJOR_AIDS)} tagged ({len(_MAJOR_ARENA)} arena + {len(_MAJOR_EXTRA)} extras) "
       f"across {len(_region_bosses) + len(MAJOR_BOSS_EXTRAS)} region-entries; invariant OK")
 
