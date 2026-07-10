@@ -1,21 +1,23 @@
-"""curated_fill -- route the region-lock progression onto BIG-TICKET checks (matt-free).
+"""curated_fill -- LEGACY soft-confinement of the region-lock progression onto BIG-TICKET checks.
+
+DEPRECATED (v0.2): superseded by features/progression_surface.py, which does HARD confinement to a
+configurable surface (default MajorBoss) with a feasibility ladder. curated_fill only runs now when
+progression_surface_mode is OFF (core.pre_fill dispatch) and this toggle is on -- the backward-
+compatible soft path. New seeds should use progression_surface (mode=soft is ~equivalent to this).
 
 By default AP's fill scatters the region Locks across any reachable check (so a lock can land on a
-forgettable pickup). curated_fill concentrates them: it marks every big-ticket location
-LocationProgressType.PRIORITY so the fill gives ADVANCEMENT (the Locks) FIRST CRACK at them -- you
-find your progression on bosses / remembrances / legendary drops / great runes / key items instead
-of on a random consumable.
+forgettable pickup). curated_fill concentrates them onto big-ticket checks -- bosses / remembrances /
+legendary drops / great runes / key items -- so you find your progression there instead of on a random
+consumable.
 
-BIG_TICKET = LOCATION_TAGS in {Boss, Remembrance, Legendary, GreatRune, KeyItem} (the "prominent"
-umbrella; ported from the old world's _curated_is_big_ticket). Shops/flasks/crystal-tears are
-deliberately NOT big-ticket here.
+BIG_TICKET = LOCATION_TAGS in the big_ticket_locations selection (default {Boss, Remembrance, Legendary,
+GreatRune, KeyItem}); Shops/flasks/crystal-tears are excluded, Enia is always hard-excluded.
 
-FILL-SAFETY: PRIORITY is a SOFT preference -- AP's priority pass places advancement into priority
-locations first, and any priority slots left over (there are far more big-ticket checks than the ~N
-region Locks) simply fall through to the later useful/filler passes. So marking ALL big-ticket is
-fine and is actually MORE robust than a tight set: it never forces an exact 1:1 lock<->slot chain
-(the one case that FillErrors). We still reachability-prune (get_all_state) as defensive hygiene.
-Off by default. Marking + prune run from core.pre_fill via apply()."""
+FILL-SAFETY: apply() below does NOT mark LocationProgressType.PRIORITY (AP's greedy priority pass can
+hard-FillError on the strict region-lock CHAIN). It runs a SOFT fill_restrictive with allow_partial=True:
+it chains the Locks onto reachable big-ticket slots and returns any it can't place to the normal fill
+pool -- concentrated where possible, never a generation failure. Off by default; runs from
+core.pre_fill via apply() only when progression_surface_mode is off."""
 from collections import defaultdict
 
 from Options import Toggle

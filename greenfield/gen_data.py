@@ -386,6 +386,14 @@ FLAG_REGION_OVERRIDE = {
                                                #   (its flag never fires there) -> curated_fill can strand a
                                                #   region Lock on it (in-game soft-lock 2026-07-08). Re-region
                                                #   to Liurnia so location, detect-flag, boss + sweep all agree.
+    510630: "Jagged Peak",                     # Heart of Bayle = BAYLE THE DREAD's drop (the dragon heart
+                                               #   for Florissax's questline). Its map-lot row scans to
+                                               #   m12_05 (Mohgwyn/Eternal-Cities cluster) in region_map.csv,
+                                               #   but Bayle is fought at the Jagged Peak Summit (DLC) and the
+                                               #   heart is obtained there. Re-region so it lands in Jagged
+                                               #   Peak -- this is the MAJOR_BOSS_EXTRAS anchor that gives the
+                                               #   otherwise major-less Jagged Peak a MajorBoss check for the
+                                               #   progression_surface restriction. (v0.2; verify in-game.)
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
@@ -901,6 +909,60 @@ with open(OUT_BOSS, "w", newline="\n", encoding="utf-8") as f:
 print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses across {len(_region_bosses)} regions -> {sorted(_region_bosses)}")
 
 
+# ---- MAJOR_BOSS_EXTRAS: hand-picked field/evergaol/dragon bosses (curated, matt-free) ----------
+# The boss_arena capture (REGION_BOSSES above) only labels remembrance/great-rune ARENA majors, so 4
+# regions end up with ZERO major: Limgrave, Weeping Peninsula, Consecrated Snowfield, Jagged Peak.
+# The v0.2 progression_surface restriction (features/progression_surface.py) wants a high-confidence
+# MajorBoss check in EVERY region so strict "locks only on major bosses" is feasible without widening.
+# This table adds ONE reliable primary per major-less region (with commented alternates the maintainer
+# can swap in). Each is a real greenfield check (ap-id + acquisition flag verified against data.py /
+# region_map.csv / location_tags.py at author time); they are field/evergaol/dragon bosses whose drop
+# is already a check. The gen-time invariant assertion below re-validates every ap-id lands in
+# LOCATIONS under its stated region on regen (loud failure if a re-region/flag drifts).
+#
+# {region: [(ap_id, flag, boss_name, drop_item, confidence)]}. confidence: HIGH = verified in-region in
+# current data; MEDIUM = depends on a FLAG_REGION_OVERRIDE re-pin landing on regen (verify in-game);
+# TODO/commented = no reliable in-region boss-drop check found -> left to the feasibility ladder.
+MAJOR_BOSS_EXTRAS = {
+    "Limgrave": [
+        (7770852, 530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
+        # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
+        # Dragon-Burnt Ruins field dragon, obtained tile m60_43_36 -> Limgrave (region_map.csv).
+        # Alternates (uncomment ONE to swap; drop Agheel above if so):
+        #   Tibia Mariner -> Deathroot (no clean single drop-check in Limgrave data; skipped).
+        #   Margit, the Fell Omen -> currently NO boss-drop row exists (only 'Margit's Shackle' shop
+        #     item, ap 7770249, in Roundtable Hold). Re-regioning "Margit" is NOT actionable in the
+        #     current data -- there is no Margit reward check to move -- so Agheel is the primary.
+    ],
+    "Weeping Peninsula": [
+        (7773928, 510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
+        # Castle Morne boss; drops the Grafted Blade Greatsword (flag 510800, rarity-3 -> already
+        # 'Legendary'-tagged, ap 7773928), pinned to Weeping Peninsula (commit 6be2f1a). In-region,
+        # verified against data.py (7773927 is Fia's Mist in Altus -- off-by-one caught by the
+        # extras-structure test).
+        # Alternates: Erdtree Avatar; Demi-Human Queen (Demi-Human Queen's Staff, ap 7773077, f1043347400).
+    ],
+    # ---- TODO (no reliable in-region major-boss DROP check in current data; ladder covers these) ----
+    "Jagged Peak": [
+        (7770836, 510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
+        # Bayle's drop (Heart of Bayle, ap 7770836, flag 510630) is mis-pinned to the m12_05
+        # Mohgwyn/Eternal-Cities cluster in region_map.csv; the FLAG_REGION_OVERRIDE[510630]="Jagged
+        # Peak" added above re-pins it. This entry RESOLVES only after regen (the assertion below will
+        # flag it loudly if the override does not land it in Jagged Peak). Verify in-game before trusting.
+        # Alternates: Senessax; Ancient Dragon (no distinct in-region drop-check found for either).
+    ],
+    # Consecrated Snowfield: NO reliable major-boss drop check exists in current data --
+    #   * Great Wyrm Theodorix drops a Dragon Heart in vanilla, but no Dragon-Heart check is captured
+    #     in the Snowfield region (flag not recovered), so there is no ap-id to tag.
+    #   * Putrid Erdtree Avatar drops a Golden Seed, but the two Snowfield Golden Seeds (ap 7773247
+    #     f1048577800, ap 7774670 f1049557800) are Seedtree-tagged and cannot be reliably distinguished
+    #     from sapling seeds -> LOW confidence, not activated.
+    #   Left intentionally EMPTY: strict MajorBoss-only for a seed that keeps Snowfield relies on the
+    #   feasibility ladder (widens to +Remembrance/+Boss/+Seedtree). TODO: add a verified check on regen.
+    # "Consecrated Snowfield": [],
+}
+
+
 # ---- Phase 6 grace rando: ALL warp graces per major region (matt-free; reuses _open_cand from the
 # region-open-flags block above -- same grace_flags.tsv source). Bundle mode lights these on lock
 # receipt; freebie+scatter is a v2 enhancement.
@@ -1356,12 +1418,47 @@ for _ap, _inm in LOCATION_ITEM.items():
         for _e in _extra:
             if _e not in _cur:
                 _cur.append(_e)
+
+# ---- MajorBoss tag: the REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked) ----
+# This is the high-confidence surface the v0.2 progression_surface restriction confines locks to.
+# Union so every kept region that HAS a major (arena or curated extra) carries a MajorBoss check.
+_MAJOR_ARENA = {aid for _lst in _region_bosses.values() for (aid, _fl, _nm) in _lst}
+_MAJOR_EXTRA = {aid for _lst in MAJOR_BOSS_EXTRAS.values() for (aid, _fl, _bn, _di, _cf) in _lst}
+_MAJOR_AIDS = _MAJOR_ARENA | _MAJOR_EXTRA
+for _ap in sorted(_MAJOR_AIDS):
+    _cur = loc_tags.setdefault(_ap, [])
+    if "MajorBoss" not in _cur:
+        _cur.append("MajorBoss")
+
+# ---- Regen-time INVARIANT: every MajorBoss ap-id must be a real check in its stated region. --------
+# buckets = {region: [(name, ap_id, flag)]} built above (the LOCATIONS source). Assert each arena
+# major AND each curated extra resolves to a location under the region it is filed under -- catches a
+# drifted flag-join, a stale ap-id, or a FLAG_REGION_OVERRIDE (e.g. Bayle 510630 -> Jagged Peak) that
+# failed to land. Loud failure on regen is the safety valve for the extras we could not run in-sandbox.
+_apid_region = {aid: reg for reg, _locs in buckets.items() for (_nm, aid, _fl) in _locs}
+_major_bad = []
+for _reg, _lst in _region_bosses.items():
+    for (aid, _fl, _nm) in _lst:
+        if _apid_region.get(aid) != _reg:
+            _major_bad.append(("arena", _reg, aid, _apid_region.get(aid)))
+for _reg, _lst in MAJOR_BOSS_EXTRAS.items():
+    for (aid, _fl, _bn, _di, _cf) in _lst:
+        if _apid_region.get(aid) != _reg:
+            _major_bad.append(("extra:" + _bn, _reg, aid, _apid_region.get(aid)))
+if _major_bad:
+    raise AssertionError(
+        "MajorBoss ap-ids not filed under their stated region (fix the flag/join/override): "
+        + "; ".join(f"{k} expected={want} ap={aid} got={got}" for (k, want, aid, got) in _major_bad))
+print(f"MajorBoss: {len(_MAJOR_AIDS)} tagged ({len(_MAJOR_ARENA)} arena + {len(_MAJOR_EXTRA)} extras) "
+      f"across {len(_region_bosses) + len(MAJOR_BOSS_EXTRAS)} region-entries; invariant OK")
+
 import collections as _c
 _tagcount = _c.Counter(tg for tags in loc_tags.values() for tg in tags)
 with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Location TYPE tags for important_locations, matt-free:\n')
     f.write('name/method tags (Boss/Remembrance/Church/Seedtree/Basin/Fragment/Revered/Shop) from\n')
-    f.write('_loc_tags; GreatRune/KeyItem from LOCATION_ITEM name; Legendary from ITEM_TIERS rarity==3.\n')
+    f.write('_loc_tags; GreatRune/KeyItem from LOCATION_ITEM name; Legendary from ITEM_TIERS rarity==3;\n')
+    f.write('MajorBoss = REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked field bosses).\n')
     f.write('LOCATION_TAGS = {ap_id: [type,...]}."""\n')
     f.write('LOCATION_TAGS = {\n')
     for _aid in sorted(loc_tags):
