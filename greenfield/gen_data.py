@@ -1084,6 +1084,36 @@ _FINISHED_POTS = {"Fire Pot": 300, "Lightning Pot": 320, "Fetid Pot": 330, "Holy
                   "Rancor Pot": 650}
 for _pn, _pid in _FINISHED_POTS.items():
     ITEM_CATALOG.setdefault(_pn, 0x40000000 | _pid)
+# ---- Community tier-list catalog augmentation (Alaric 2026-07-09). The broad-sourced community PvE
+# tier list (item_tiers.tsv) rates GEAR -- weapons / armor / spells+incantations / talismans / ashes
+# of war -- much of which greenfield never DETECTED as a placed vanilla item (e.g. Moonveil, Nagakiba,
+# Golden Order Greatsword, the Banished Knight / Bull-Goat / Cleanrot armor sets). Those names never
+# entered ITEM_CATALOG from `rows` above, so features/pool_builder (which only juices names present in
+# ITEM_CATALOG) could never inject them and the tier list only informed the fraction of gear greenfield
+# happened to place. Resolve every gear-category tier-list name to its real FMG FullID via the same
+# _resolve_item map used for placed items and add it to the catalog so the FULL community list informs
+# the injected gear. Only the INJECTABLE tiers (S/A/B -- pool_builder never juices C/D/F) are added, to
+# avoid catalog bloat. Count-NEUTRAL: this only widens the pool_builder juice CANDIDATE set (juice is
+# bounded by the Rune tail); the base shuffle pool is LOCATION_ITEM (placed items) and is untouched.
+# DLC-only names among them are flagged by the DLC_ITEM_NAMES pass below (so DLC-off seeds exclude them).
+_TIER_CATALOG_CATS = {"WEAPON", "ARMOR", "SPELL", "TALISMAN", "ASHOFWAR"}
+_TIER_CATALOG_KEEP = {"S", "A", "B"}
+_tier_tsv = os.path.join(REPO, "item_tiers.tsv")
+_aug_added = 0; _aug_unresolved = []
+if os.path.isfile(_tier_tsv):
+    for _row in csv.DictReader(open(_tier_tsv, encoding="utf-8"), delimiter="\t"):
+        if _row.get("category") not in _TIER_CATALOG_CATS or _row.get("tier") not in _TIER_CATALOG_KEEP:
+            continue
+        _nm = (_row.get("item_name") or "").strip()
+        if not _nm or _nm in ITEM_CATALOG:
+            continue
+        _full, _base = _resolve_item(_nm)
+        if _full is None:
+            _aug_unresolved.append(_nm); continue
+        if _base not in ITEM_CATALOG:
+            ITEM_CATALOG[_base] = _full; _aug_added += 1
+    print(f"item_ids: tier-list catalog augmentation +{_aug_added} gear items "
+          f"({len(_aug_unresolved)} unresolved names skipped)")
 # ---- DLC provenance: catalog names that come ONLY from the DLC FMG tables. gen_data reads the
 # base tables (_MSG) and the DLC tables (_MSG_D1/_MSG_D2) into ITEM_CATALOG with no marker; core
 # excludes these from pool augmentation (juice/filler) when a seed has DLC off. Matt-free: pure
