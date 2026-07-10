@@ -355,6 +355,12 @@ FLAG_REGION_OVERRIDE = {
     9800: "Roundtable Hold",                   # Ensha reward (m11_00; item name unresolved in region_map)
     400490: "Roundtable Hold",                 # Royal Remains Helm (Ensha drop, m11_10 Roundtable)
     11107900: "Roundtable Hold",               # Clinging Bone (Ensha drop, m11_10 Roundtable)
+    # Boss remembrances / drops mis-tiled to m35 (Divine Tower) or m11 (Roundtable) -> Altus. Re-pin to
+    # the boss's real region so the check, its detect flag and the region sweep all agree (Alaric 2026-07-09).
+    510200: "Miquella's Haligtree",            # Remembrance of the Rot Goddess = Malenia (Haligtree); mis-tiled m35
+    510300: "Caelid",                          # Remembrance of the Starscourge = Radahn (Caelid); mis-tiled m35
+    530130: "Limgrave",                        # Bloodhound's Fang = Darriwil at the Forlorn Hound Evergaol
+                                               #   (Limgrave/Stormhill); mis-tiled m11_10 -> Roundtable -> Altus.
     # DLC-dungeon dead-checks (Alaric playtest): flags encode true map mMM_SS (X0SS7000) but the
     # matt-free-pipeline mis-resolved them to an m18 fallback -> "Stormveil (assoc.)" -> Stormveil.
     # Re-regioned via the AUTHORITATIVE grace join (grace_flags mapTile -> grace_region_map play_region
