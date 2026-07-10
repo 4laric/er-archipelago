@@ -25,15 +25,21 @@ clamps the total, so the pool stays count-exact and the seed stays winnable; the
 
 Juice items are `useful` (equippables, never progression) -- region Locks stay the sole progression,
 so any curated pool is still winnable. No new item names are introduced: every juice item is already
-a real-item-pool catalog item registered by core, so world.create_item(name) resolves.
+a real-item-pool catalog item registered by core, so world.create_item(name) resolves. The catalog is
+augmented at gen time from the tier list itself (gen_data.py) so gear the tier list rates but that
+greenfield never DETECTED as a placed vanilla item -- Moonveil, Nagakiba, the Banished Knight /
+Bull-Goat / Cleanrot sets, etc. -- is still a registered catalog item and therefore injectable.
 
-INTENSITY (pool_builder_intensity). The juice list is the set of catalog equippables whose param
-`rarity` is at or above a FLOOR. The floor is chosen per-world from this Choice:
-  * normal -> rarity >= 3 (legendary only)
-  * high   -> rarity >= 2 (rare + legendary)  [DEFAULT -- the historical behavior]
-  * max    -> rarity >= 1 (also common/B-tier equippables)
+INTENSITY (pool_builder_intensity). The juice list is the set of catalog gear whose community PvE
+TIER (item_tiers.tsv -> ITEM_TIERS, letters mapped S=3 A=2 B=1 C/D/F=0; ER param `rarity` fills any
+gap the tier list doesn't cover) is at or above a FLOOR. The tier list rates all six injected gear
+categories -- weapons, armor, spells/incantations, talismans, and ashes of war. The floor is chosen
+per-world from this Choice:
+  * normal -> tier >= 3 (S only)
+  * high   -> tier >= 2 (S + A)  [DEFAULT -- the historical behavior]
+  * max    -> tier >= 1 (S + A + B)
 The juice list is computed PER-WORLD from the floor (juice_order_for_floor), sorted best-first
-(highest rarity, then name) so it stays deterministic and count-neutral, and it is still bounded by
+(highest tier, then name) so it stays deterministic and count-neutral, and it is still bounded by
 the Rune tail and the juice cap. A higher intensity only widens the CANDIDATE set; the count actually
 added is unchanged (still the Rune tail, clamped by the cap) -- so it changes *which* equippables the
 Rune tail becomes, not how many.
