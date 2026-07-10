@@ -721,15 +721,14 @@ LOCATION_TAGS = {
     7773902: ['Seedtree'],
     7773916: ['Legendary'],
     7773917: ['KeyItem'],
-    7773929: ['Legendary'],
-    7773930: ['Seedtree'],
-    7773931: ['Legendary'],
-    7773934: ['Legendary'],
-    7773950: ['Legendary'],
-    7773976: ['Seedtree'],
-    7774032: ['Legendary'],
-    7774043: ['Fragment'],
-    7774163: ['Legendary'],
+    7773930: ['Legendary'],
+    7773931: ['Seedtree'],
+    7773932: ['Legendary'],
+    7773935: ['Legendary'],
+    7773951: ['Legendary'],
+    7773977: ['Seedtree'],
+    7774033: ['Legendary'],
+    7774044: ['Fragment'],
     7774192: ['Church'],
     7774217: ['Legendary'],
     7774318: ['Seedtree'],
@@ -749,4 +748,4 @@ LOCATION_TAGS = {
     7774725: ['Seedtree'],
 }
 
-TAG_COUNTS = {'Basin': 17, 'Boss': 54, 'Church': 13, 'EniaShop': 26, 'Fragment': 22, 'GreatRune': 6, 'KeyItem': 14, 'Legendary': 85, 'Remembrance': 23, 'Revered': 23, 'Seedtree': 41, 'Shop': 479}
+TAG_COUNTS = {'Basin': 17, 'Boss': 54, 'Church': 13, 'EniaShop': 26, 'Fragment': 22, 'GreatRune': 6, 'KeyItem': 14, 'Legendary': 84, 'Remembrance': 23, 'Revered': 23, 'Seedtree': 41, 'Shop': 479}
