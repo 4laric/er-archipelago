@@ -76,9 +76,11 @@ EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTR
 # REQUIRED greenfield contract keys (must always be present, per the contract).
 REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profile("greenfield")}
 
-# The subset emitted UNCONDITIONALLY (every seed, whatever the options). The three dungeon-sweep keys
-# are the only ones that could drop (when dungeon_sweep == "none"); everything else is always there.
-ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates"}
+# The subset emitted UNCONDITIONALLY (every seed, whatever the options). The dungeon-sweep keys drop
+# when dungeon_sweep == "none"; the two rune-gate grace keys are emitted only when the Leyndell gate
+# is armed (leyndell_runes_required > 0 AND item_shuffle on AND Altus kept -- features/graces.py).
+ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
+                              "runeGatedGraces", "greatRuneItemIds"}
 
 
 class SlotDataFixtureRich(WorldTestBase):
