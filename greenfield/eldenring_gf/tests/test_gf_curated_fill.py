@@ -36,7 +36,7 @@ def test_vocabulary_shared_with_important_locations():
     # v0.2: the tracker's big-ticket default now MIRRORS the progression_surface (MajorBoss), decoupled
     # from the historical BIG_TICKET_TYPES set (which still backs is_big_ticket's default + the static
     # fallback). See features/big_ticket_locations.py.
-    assert set(BigTicketLocations.default) == {"MajorBoss"}
+    assert set(BigTicketLocations.default) == {"MajorBoss", "Remembrance", "GreatRune"}
 
 
 def test_big_ticket_default_set():
