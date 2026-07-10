@@ -288,8 +288,12 @@ class PoolBuilderFeature(Feature):
 
     def _reserved_slots(self, world) -> int:
         """Slots the OTHER pool contributors consume, which shrink the true Rune tail below the raw
-        Rune-fallback-location count: one region Lock per kept region."""
-        return len(world._kept())  # one Lock per kept region
+        Rune-fallback-location count. core.create_items runs pool_builder LAST and records the exact
+        count (locks minus any precollect, boss keys, progressive copies, ...) on the world; fall back
+        to the kept-region Lock count only if that hook is absent (older core). The old
+        len(kept)-only estimate undercounted boss_keys/progressive and over-provisioned juice."""
+        r = getattr(world, "_gf_reserved_slots", None)
+        return int(r) if r is not None else len(world._kept())
 
     def _cap(self, world) -> int:
         cap_opt = getattr(world.options, "pool_builder_juice_cap", None)

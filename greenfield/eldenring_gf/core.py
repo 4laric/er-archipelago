@@ -316,8 +316,20 @@ class GreenfieldEldenRingWorld(World):
         if _slr is not None and _slr.value and lock_items:
             self.multiworld.push_precollected(lock_items.pop(self.random.randrange(len(lock_items))))
         pool: List[Item] = list(lock_items)
+        # Run pool_builder (the juice contributor) LAST, and record how many slots the OTHER
+        # contributors already consumed -- locks (minus any precollected one, already popped above),
+        # boss keys (boss_keys mode), progressive copies, ... = len(pool) at that point. pool_builder
+        # sizes its juice against the TRUE remaining Rune tail (rune-fallback checks minus this count).
+        # Previously _reserved_slots assumed only region Locks, so boss_keys/progressive were
+        # uncounted and juice over-provisioned -- the over-provision trim then dropped real vanilla
+        # gear past the Rune tail (a precision bug; count stayed exact via range(slots)).
         for f in _FEATURES:
-            pool += f.create_items(self)
+            if f.name != "pool_builder":
+                pool += f.create_items(self)
+        self._gf_reserved_slots = len(pool)
+        for f in _FEATURES:
+            if f.name == "pool_builder":
+                pool += f.create_items(self)
         total = len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
         slots = total - len(pool)
         shuffle = self._shuffle_on()
@@ -369,6 +381,14 @@ class GreenfieldEldenRingWorld(World):
         for k in range(slots):
             _nm = extras[k] if k < len(extras) else FILLER
             pool.append(self.create_item(self._pick_filler() if _nm == FILLER else _nm))
+        # POOL COMPOSITION happens in TWO passes, and their ORDER is the arbitration policy for the
+        # shared junk-filler set (no proportional sharing -- deliberate; see the pool_builder consult):
+        #   PASS 1 (above): additive CONTRIBUTORS (locks, boss keys, progressive, pool_builder juice)
+        #     + the slots-arithmetic trim of the sorted `extras` tail. One count clamp for N features.
+        #   PASS 2 (below): in-place SWAPS over the materialized pool, gated on live classification --
+        #     stone_injection first (economy correction), then curated_filler.curate() (junk redraw).
+        #     Both skip progression/useful, so PASS-1 juice + keys survive. stone_ramp runs later still
+        #     (post_fill), auto-sized to the fill spheres, so it deliberately gets the last word.
         # B (shuffle-safe stone supply): swap N filler-classified non-stone pool items for LOW smithing
         # stones. varied_filler / filler_upgrade_weight only touch the ~1% Rune tail (inert under
         # item_shuffle); this operates on the SHUFFLED pool, so it actually moves the standard-weapon
