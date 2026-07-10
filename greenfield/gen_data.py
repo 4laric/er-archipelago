@@ -344,6 +344,14 @@ FLAG_REGION_OVERRIDE = {
     400031: "Liurnia of the Lakes",            # Lord of Blood's Favor = Varre's questline reward at the
     400033: "Liurnia of the Lakes",            #   Rose Church (Liurnia); mis-pinned to m10. (400031/400033
                                                #   are the given/blood-soaked states -- likely a dup, see below.)
+    530100: "Limgrave",                        # Golden Halberd = the Tree Sentinel's drop at the Limgrave
+                                               #   start (Church of Elleh / First Step). EMEVD tile
+                                               #   m60_35_45 mis-resolved to Liurnia (Alaric 2026-07-09).
+    # Ensha of the Royal Remains: invades AT the Roundtable Hold, so his drops belong in the HUB, not
+    # Altus (they mis-pin to m11 Leyndell -> folded into Altus). Alaric-identified 2026-07-09.
+    9800: "Roundtable Hold",                   # Ensha reward (m11_00; item name unresolved in region_map)
+    400490: "Roundtable Hold",                 # Royal Remains Helm (Ensha drop, m11_10 Roundtable)
+    11107900: "Roundtable Hold",               # Clinging Bone (Ensha drop, m11_10 Roundtable)
     # DLC-dungeon dead-checks (Alaric playtest): flags encode true map mMM_SS (X0SS7000) but the
     # matt-free-pipeline mis-resolved them to an m18 fallback -> "Stormveil (assoc.)" -> Stormveil.
     # Re-regioned via the AUTHORITATIVE grace join (grace_flags mapTile -> grace_region_map play_region
@@ -473,6 +481,10 @@ for _rr in _ALLROWS:
 # to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
 # (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
 GLOBAL_RECOVER = {
+    # Golden Tailoring Tools (60150): the cloak-alteration tool at the Church of Vows (Liurnia). A
+    # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
+    # never a check). Recover it as a Liurnia check (Alaric 2026-07-09).
+    60150: "Liurnia of the Lakes",
     # Physick crystal / cracked / hidden / hard tears (Alaric hand-assigned to drop region, 2026-07-06).
     65000: "Altus Plateau",            # Crimsonspill Crystal Tear
     65010: "Limgrave",                 # Greenspill Crystal Tear
