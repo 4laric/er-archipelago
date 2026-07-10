@@ -910,8 +910,9 @@ print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses 
 
 
 # ---- MAJOR_BOSS_EXTRAS: hand-picked field/evergaol/dragon bosses (curated, matt-free) ----------
-# The boss_arena capture (REGION_BOSSES above) only labels remembrance/great-rune ARENA majors, so 4
-# regions end up with ZERO major: Limgrave, Weeping Peninsula, Consecrated Snowfield, Jagged Peak.
+# The boss_arena capture (REGION_BOSSES above) only labels remembrance/great-rune ARENA majors, so 3
+# regions end up with ZERO major: Limgrave, Weeping Peninsula, Jagged Peak. (Consecrated Snowfield was
+# folded into Mountaintops of the Giants, whose Fire Giant is already a boss_arena major -- no extra.)
 # The v0.2 progression_surface restriction (features/progression_surface.py) wants a high-confidence
 # MajorBoss check in EVERY region so strict "locks only on major bosses" is feasible without widening.
 # This table adds ONE reliable primary per major-less region (with commented alternates the maintainer
@@ -951,15 +952,9 @@ MAJOR_BOSS_EXTRAS = {
         # flag it loudly if the override does not land it in Jagged Peak). Verify in-game before trusting.
         # Alternates: Senessax; Ancient Dragon (no distinct in-region drop-check found for either).
     ],
-    # Consecrated Snowfield: NO reliable major-boss drop check exists in current data --
-    #   * Great Wyrm Theodorix drops a Dragon Heart in vanilla, but no Dragon-Heart check is captured
-    #     in the Snowfield region (flag not recovered), so there is no ap-id to tag.
-    #   * Putrid Erdtree Avatar drops a Golden Seed, but the two Snowfield Golden Seeds (ap 7773247
-    #     f1048577800, ap 7774670 f1049557800) are Seedtree-tagged and cannot be reliably distinguished
-    #     from sapling seeds -> LOW confidence, not activated.
-    #   Left intentionally EMPTY: strict MajorBoss-only for a seed that keeps Snowfield relies on the
-    #   feasibility ladder (widens to +Remembrance/+Boss/+Seedtree). TODO: add a verified check on regen.
-    # "Consecrated Snowfield": [],
+    # Consecrated Snowfield: FOLDED into Mountaintops of the Giants (its maps re-region there via the
+    #   overrides above), whose Fire Giant is already a boss_arena major -- so it needs no extra and is
+    #   no longer a standalone zero-major region.
 }
 
 

@@ -179,17 +179,15 @@ def test_region_bosses_in_region_now():
 
 
 def test_extras_cover_the_zero_major_regions():
-    """The 4 regions with no boss_arena major should each be addressed (active extra OR a documented
-    TODO). Active-extra regions get an ap-id; TODO regions (Consecrated Snowfield) are commented out
-    in the source and rely on the ladder -- assert they are at least KNOWN to be major-less."""
+    """Every region with no boss_arena major must be covered by an active MAJOR_BOSS_EXTRAS entry.
+    (Consecrated Snowfield used to be the exception; it is now folded into Mountaintops of the Giants,
+    whose Fire Giant is a boss_arena major, so there are no uncovered zero-major regions left.)"""
     extras = _major_boss_extras()
     arena_regions = {r for r, l in boss_data.REGION_BOSSES.items() if l}
     zero = [r for r in data.LOCATIONS if r != data.HUB and r not in arena_regions]
     covered = set(extras)
-    # every zero-major region is either covered by an active extra or is the known TODO (Snowfield)
-    known_todo = {"Consecrated Snowfield"}
     for r in zero:
-        assert r in covered or r in known_todo, f"zero-major region {r!r} neither extra nor known TODO"
+        assert r in covered, f"zero-major region {r!r} is not covered by an active MAJOR_BOSS_EXTRAS entry"
 
 
 # ---- synthetic ladder-placement model (documents the confinement/spill intent; no fill_restrictive)
@@ -238,7 +236,7 @@ def test_synthetic_star_graph_confinement_model():
 
 def test_lock_region_name():
     assert ps.lock_region_name("Limgrave Lock") == "Limgrave"
-    assert ps.lock_region_name("Consecrated Snowfield Lock") == "Consecrated Snowfield"
+    assert ps.lock_region_name("Mountaintops of the Giants Lock") == "Mountaintops of the Giants"
     assert ps.lock_region_name("Rune") is None
     assert ps.lock_region_name("Golden Seed") is None
 
