@@ -43,6 +43,8 @@ _BOSS_DROP_EXTRAS = frozenset({
     # Recovered as checks via GLOBAL_RECOVER above (were unplaced) -> now also Boss-tagged:
     510840,       # Commander Niall -> Veteran's Prosthesis
     530425,       # Black Blade Kindred (Bestial Sanctum) -> Gargoyle's Blackblade
+    # Achievement major-boss drops recovered via GLOBAL_RECOVER above -> Boss-tag them too:
+    60440, 510090, 510140, 510260, 510320, 510440,
 })
 _BOSS_DROP_FLAGS = _BOSS_DROP_FLAGS | _BOSS_DROP_EXTRAS
 try:
@@ -414,6 +416,14 @@ FLAG_REGION_OVERRIDE = {
     # the boss's real region so the check, its detect flag and the region sweep all agree (Alaric 2026-07-09).
     510200: "Miquella's Haligtree",            # Remembrance of the Rot Goddess = Malenia (Haligtree); mis-tiled m35
     510300: "Caelid",                          # Remembrance of the Starscourge = Radahn (Caelid); mis-tiled m35
+    510100: "Eternal Cities",                  # Valiant Gargoyles (Nokstella) -- Gargoyle's Greatsword mis-tiled m35 (Divine Tower) -> Altus (Alaric 2026-07-10)
+    # The three Talisman Pouches (all real checks; Margit's 60510 is already correct at Stormveil):
+    60500: "Roundtable Hold",                  # Enia's Talisman Pouch (2-great-rune reward); m11_10 event
+                                               #   11100797 gates on !EventFlag(60500); region_map mis-decoded
+                                               #   it to m30 Hero's Graves -> Weeping. (Alaric 2026-07-10)
+    60520: "Altus Plateau",                    # Godfrey First Elden Lord (golden shade, Leyndell -> Altus);
+                                               #   mis-tiled to Caelid via the Divine Tower of Caelid event
+                                               #   90005110 (m34_13) re-referencing the flag. (Alaric 2026-07-10)
     530130: "Limgrave",                        # Bloodhound's Fang = Darriwil at the Forlorn Hound Evergaol
                                                #   (Limgrave/Stormhill); mis-tiled m11_10 -> Roundtable -> Altus.
     # DLC-dungeon dead-checks (Alaric playtest): flags encode true map mMM_SS (X0SS7000) but the
@@ -563,6 +573,18 @@ GLOBAL_RECOVER = {
     # _BOSS_DROP_EXTRAS (Alaric 2026-07). These are the last two reddit-list bosses without a check:
     510840: "Mountaintops of the Giants",  # Veteran's Prosthesis -> Commander Niall (Castle Sol)
     530425: "Caelid",                      # Gargoyle's Blackblade -> Black Blade Kindred (Bestial Sanctum)
+    # Achievement (non-remembrance) major-boss DROPS the pipeline left unplaced (Global/common-event),
+    # so recovery dropped them and the boss had no check. Recover to the boss region (Alaric 2026-07-10):
+    60440:  "Liurnia of the Lakes",  # Memory Stone -> Red Wolf of Radagon (Raya Lucaria, folds to Liurnia)
+    510090: "Eternal Cities",        # Frozen Lightning Spear -> Dragonkin Soldier of Nokstella
+    510140: "Farum Azula",           # Bell Bearing[4]/AoW Black Flame Tornado -> Godskin Duo (Crumbling Farum Azula)
+    510260: "Liurnia of the Lakes",  # Magma Wyrm's Scalesword -> Magma Wyrm Makar (Ruin-Strewn Precipice)
+    510320: "Eternal Cities",        # Ancestral Follower Ashes -> Ancestor Spirit (Nokron/Siofra)
+    510440: "Shadow Keep",           # Aspects of the Crucible: Thorns -> Golden Hippopotamus (DLC)
+    # Region CORRECTIONS: major-boss drops that WERE checks but auto-recovered to the wrong region
+    # (HUB / Altus). Re-pin to the boss's real region so check + detect flag + sweep agree (2026-07-10):
+    510810: "Liurnia of the Lakes",  # Royal Knight Loretta (Caria Manor) -- was HUB (Loretta's Greatbow/Slash)
+    510210: "Mt. Gelmir",            # Godskin Noble (Volcano Manor) -- was auto-recovered to Altus
     510250: "Altus Plateau",               # Bloodflame Talons -> Mohg, the Omen (Subterranean Shunning-Grounds, folds to Altus; was unplaced/global -> not randomized, in-game 2026-07-10)
     # Shared-flag Golden Seeds the flag-tile decode couldn't place, so recovery dropped them entirely.
     # Each is a real reachable pickup whose acquisition flag is shared with a co-located spirit ash that
@@ -608,7 +630,10 @@ GLOBAL_RECOVER = {
     65450: "Scadu Altus",              # Bloodsucking Cracked Tear
     65470: "Gravesite Plain",          # Deflecting Hardtear (Gravesite Plains golem)
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
-    510340: HUB,
+    # 510340 is NOT scattered: its two lots (10340 = Larval Tear x2, 10341 = Silver Tear Mask) are the
+    # SINGLE Mimic Tear boss pickup in Nokstella -> Eternal Cities (the "Larval Tear/HUB" was a mislabel;
+    # scan named the flag after the Larval Tear co-item). (Alaric 2026-07-10)
+    510340: "Eternal Cities",
     1049557700: HUB,
     # Haligtree Secret Medallion (Right): physically the reward in Castle Sol (Mountaintops of the
     # Giants), obtained by defeating Commander Niall -- NOT the Village-of-the-Albinaurics pickup (that
