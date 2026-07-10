@@ -11,7 +11,7 @@ emitted as dungeonSweepFlags {boss_flag: [member_ap_ids]}; a small client flag-w
 (P3b-client) grants the members on boss kill. The location-keyed dungeonSweeps variant additionally
 needs a boss-reward-location join (ItemLotParam) and stays empty for now.
 """
-from Options import Choice, Toggle
+from Options import Choice, Toggle, Visibility
 from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from .. import contract
@@ -87,6 +87,11 @@ class BossKeys(Toggle):
     DLC bosses (keys freely placeable in any world; local BK waiting on a remote key is intended,
     Rule B)."""
     display_name = "Boss Keys"
+    # v0.2: OFF by default and fully INERT when off (no keys minted, no gates, no slot_data) -- so it
+    # only ever raises "what's a boss key?" in the template. HIDDEN from the yaml template + web UI for
+    # v0.2 (still settable by name; the D+F cycle-break infra sits ready underneath). Un-hide when boss
+    # keys graduate to a recommended feature with its own non-boss premium surfaces. (Alaric 2026-07-10)
+    visibility = Visibility.spoiler
 
 
 def _boss_keys_on(world):
