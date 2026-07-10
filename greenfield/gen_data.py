@@ -494,6 +494,10 @@ GLOBAL_RECOVER = {
     # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
     # never a check). Recover it as a Liurnia check (Alaric 2026-07-09).
     60150: "Liurnia of the Lakes",
+    # Teardrop-scarab ash/talisman drops (global common-event -> auto-recovered to the WRONG region;
+    # Alaric-confirmed 2026-07-09, were showing under Altus).
+    520360: "Liurnia of the Lakes",        # Winged Sword Insignia (Liurnia scarab)
+    540510: "Mountaintops of the Giants",  # Ash of War: Seppuku (Mountaintops scarab)
     # Physick crystal / cracked / hidden / hard tears (Alaric hand-assigned to drop region, 2026-07-06).
     65000: "Altus Plateau",            # Crimsonspill Crystal Tear
     65010: "Limgrave",                 # Greenspill Crystal Tear
