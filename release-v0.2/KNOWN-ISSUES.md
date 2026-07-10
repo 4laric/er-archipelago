@@ -23,18 +23,6 @@ game (the recommended, supported configuration).
   that grace until you've drained the keep. Fix (flag-gate the grace on the drain
   state) is pending.
 
-- **Leyndell great-rune gate is logic-only.** With `leyndell_runes_required` set
-  (default 2), the folded-capital checks — Leyndell Royal/Ashen (m11), Subterranean
-  Shunning-Grounds (m35) and the Fractured Marika arena (m19) — require that many
-  Great Runes *in fill logic*, so those items are never expected before you have the
-  runes. But those areas fold into the Altus Plateau region, so their graces ride
-  the **Altus grace bundle** and are granted the moment the Altus Lock arrives —
-  meaning you *can* fast-travel to Leyndell / Shunning-Grounds graces (and physically
-  reach those checks) before earning the runes. It does not break winnability (fill
-  still guarantees the runes are reachable outside the capital); the gate simply
-  isn't physically enforced yet. A client hard-gate (kick out of the m11/m35/m19
-  play-regions until N runes, like the region kick-watch) is the planned follow-up.
-
 ## Wired but pending in-game confirmation
 
 These fixes are in the code but not yet confirmed across a save-load / reconnect
