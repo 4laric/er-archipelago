@@ -30,26 +30,32 @@ game: "Elden Ring (Greenfield)"
 
   # ---- Real item randomizer -----------------------------------------------
   item_shuffle: true             # each check pays its real vanilla ER item, shuffled (~98.9%; the rest give Rune).
-  pool_builder: true             # scrub the Rune tail, inject rare/legendary juice.
-  pool_builder_intensity: max    # normal | high (default) | max -- rarity floor: legendary-only | +rare | +B-tier.
-  pool_builder_juice_cap: 0      # 0..400; 0 = auto-size to the whole Rune tail (default 120).
-  # pool_builder_juice_pct: 100  # 0..100; share of the cap actually spent (default 100).
-  curated_fill: true             # concentrate the region Locks onto big-ticket checks instead of random pickups.
-  # big_ticket_locations: [Boss, Remembrance, Legendary, GreatRune, KeyItem]  # what "big-ticket" means (default shown).
 
-  # ---- Filler curation (replace vanilla junk consumables) -----------------
-  curated_filler:                # {category: weight}; valid: throwables pots greases foods boluses perfumes utility rare funny stones somber_stones runes junk.
-    throwables: 25               #   granted in stacks of 5
-    pots: 15                     #   granted in stacks of 2
-    greases: 10
-    foods: 12                    # turtle necks, exalted flesh, warming stone, starlight shards, ...
-    boluses: 6                   # status-cure boluses
-    perfumes: 8                  # DLC perfume consumables (needs DLC)
-    rare: 1                      # Dragon Heart / Stonesword Key -- keep tiny
-    stones: 20                   #   low smithing stones
-    runes: 20                    #   rune items (leveling)
-    junk: 10                     #   keep this share as vanilla junk
-  # varied_filler: true          # (default on) diversify whatever filler is left.
+
+ # --- the injection work (community tiers -> gear) ---
+  pool_builder: true
+  pool_builder_scope: all_filler
+  pool_builder_intensity: max    # S + A + B, widest candidate set
+  pool_builder_juice_cap: 0      # auto-size to the whole Rune tail
+  pool_builder_pct_weapons: 30   # per-category mix (these override the global %)
+  pool_builder_pct_armor: 25
+  pool_builder_pct_spells: 20    # sorceries + incantations
+  pool_builder_pct_talismans: 15
+  pool_builder_pct_ashes_of_war: 10
+
+  # --- curated consumable filler (stack sizes + new categories) ---
+  curated_fill: true
+  curated_filler:
+    throwables: 3                # kukri x5, etc.
+    pots: 2
+    greases: 2
+    foods: 2
+    boluses: 1
+    stones: 2
+    somber_stones: 2
+    runes: 1
+    utility: 1
+    rare: 1         
 
   # ---- Boss locks / dungeon sweeps ----------------------------------------
   boss_keys: true                # mint "Boss Key: <Boss>" gating items (mode-B metadata).
