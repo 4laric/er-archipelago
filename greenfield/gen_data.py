@@ -190,6 +190,15 @@ ROW_MAP_REGION_FIX = {
     197: ("m14_00_00_00", "Raya Lucaria Academy"),
     65060: ("m60_41_53_00", "Altus Plateau"),
 }
+# Item-NAME corrections: a getItemFlagId shared by two ItemLotParam_map lots is named after the LOWER
+# lot id by the scan, which can pick a co-located spirit ash over the Golden Seed. 520160's lots are
+# 20160 (Redmane Knight Ogha ash) + 20161 (Golden Seed); the scan named it Ogha. The Seed is the
+# meaningful pickup (War-Dead Catacombs Putrid Tree Spirit, wiki Golden Seed #17) and the ash is not a
+# check anywhere, so relabel to Golden Seed (also earns the Seedtree important-loc tag). Recovered to a
+# region via GLOBAL_RECOVER[520160] below. (Alaric 2026-07-10)
+ROW_ITEM_NAME_FIX = {
+    520160: "Golden Seed",
+}
 for _rowfix in _ALLROWS:
     try:
         _ff = int(_rowfix["flag"])
@@ -198,6 +207,9 @@ for _rowfix in _ALLROWS:
     _fx = ROW_MAP_REGION_FIX.get(_ff)
     if _fx:
         _rowfix["map"], _rowfix["region"] = _fx
+    _nmfix = ROW_ITEM_NAME_FIX.get(_ff)
+    if _nmfix:
+        _rowfix["item_name"] = _nmfix
 # Redundant obtained-flag TWINS of a physically-placed pickup: dropped so the medallion isn't a
 # double check. 400280 = Haligtree Secret Medallion (Left) obtained flag, which the flag_prefix
 # heuristic buckets into Leyndell -- but the Left half is a real world pickup (Castle Sol, flag
@@ -552,6 +564,13 @@ GLOBAL_RECOVER = {
     510840: "Mountaintops of the Giants",  # Veteran's Prosthesis -> Commander Niall (Castle Sol)
     530425: "Caelid",                      # Gargoyle's Blackblade -> Black Blade Kindred (Bestial Sanctum)
     510250: "Altus Plateau",               # Bloodflame Talons -> Mohg, the Omen (Subterranean Shunning-Grounds, folds to Altus; was unplaced/global -> not randomized, in-game 2026-07-10)
+    # Shared-flag Golden Seeds the flag-tile decode couldn't place, so recovery dropped them entirely.
+    # Each is a real reachable pickup whose acquisition flag is shared with a co-located spirit ash that
+    # is NOT a separate check anywhere, so recovering them loses nothing and completes the Golden Seed
+    # set (43/43 flag-keyed map lots; the 44th, Kenneth Haight, is an enemy drop with getItemFlagId 0).
+    # (Alaric 2026-07-10)
+    510280: "Limgrave",   # Golden Seed (Stormhill golden sapling, wiki #3); shares flag w/ Banished Knight Oleg ash (lot 10281)
+    520160: "Caelid",     # Golden Seed (War-Dead Catacombs Putrid Tree Spirit, wiki #17); shares flag w/ Redmane Knight Ogha ash (lot 20160); item_name relabeled above
     # Golden Tailoring Tools (60150): the cloak-alteration tool at the Church of Vows (Liurnia). A
     # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
     # never a check). Recover it as a Liurnia check (Alaric 2026-07-09).
