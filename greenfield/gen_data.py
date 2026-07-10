@@ -28,6 +28,20 @@ try:
 except Exception as _e:
     _BOSS_DROP_FLAGS = frozenset()
     print(f"[gen_data] boss_drops.py unavailable ({_e!r}); Boss tag empty -- run tools/datamine_boss_drops.py")
+# Hand-added boss-drop flags the EMEVD common-handler datamine missed (Alaric 2026-07). Each is a
+# field/evergaol boss whose UNIQUE drop is already a greenfield check but wasn't captured by the scan,
+# so tag that drop Boss. Verified: flag -> item is that boss's drop, drop exists in LOCATION_ITEM.
+# NOT addable here (their drop is not a randomized check -- would need a location added first):
+#   Commander Niall (Veteran's Prosthesis), Black Blade Kindred @ Bestial Sanctum (its gargoyle weapons).
+# Already Boss via the Dragon Heart special-case in _loc_tags: Flying Dragon Greyll, Borealis, Theodorix.
+_BOSS_DROP_EXTRAS = frozenset({
+    530405,       # Commander O'Neil (Caelid) -> Commander's Standard
+    1049397850,   # Battlemage Hugues (Caelid) -> Battlemage Hugues (ashes)
+    1049397800,   # Nox Swordstress & Nox Priest (Caelid) -> Nox Flowing Sword
+    530505,       # Black Blade Kindred (Forbidden Lands) -> Gargoyle's Black Blades
+    1040517020,   # Vyke, Knight of the Roundtable (evergaol) -> Dragonbolt Blessing
+})
+_BOSS_DROP_FLAGS = _BOSS_DROP_FLAGS | _BOSS_DROP_EXTRAS
 try:
     _hbspec = _ilu.spec_from_file_location("_boss_hb", os.path.join(HERE, "eldenring_gf", "boss_healthbars.py"))
     _hbmod = _ilu.module_from_spec(_hbspec); _hbspec.loader.exec_module(_hbmod)
@@ -1394,9 +1408,15 @@ print(f"item_tiers: {len(ITEM_TIERS)} equippables tiered "
 # Seedtree/Basin/Fragment/Revered/Shop): GreatRune + KeyItem from LOCATION_ITEM (greenfield catalog
 # name), Legendary from ITEM_TIERS rarity==3. Matt-free (own catalog + param rarity, no curation).
 OUT_TAGS = os.path.join(HERE, "eldenring_gf", "location_tags.py")
+# Hand-curated (Alaric, 2026-07): the KeyItem tag is for gate/travel keys that meaningfully diversify
+# the surface. CUT as of this pass -- "Carian Inverted Statue" + "Dark Moon Ring" (Ranni-questline
+# items, not gates) and "Imbued Sword Key" (Four-Belfries portal keys -- never felt like real key
+# items). Kept: the two lift medallions (Dectus L/R via the split-name match), Haligtree Secret
+# Medallion (L/R), Rusty/Drawing-Room/Discarded Palace keys, Academy Glintstone Key, Pureblood Medal.
+# NOTE: "Rold Medallion" is kept but is effectively a Morgott drop behind dialogue (low diversity).
 _KEYITEMS = ("Dectus Medallion", "Rold Medallion", "Haligtree Secret Medallion",
-             "Carian Inverted Statue", "Rusty Key", "Discarded Palace Key", "Imbued Sword Key",
-             "Academy Glintstone Key", "Dark Moon Ring", "Pureblood Knight's Medal",
+             "Rusty Key", "Discarded Palace Key",
+             "Academy Glintstone Key", "Pureblood Knight's Medal",
              "Drawing-Room Key", "Rusty Anchor")
 for _ap, _inm in LOCATION_ITEM.items():
     _extra = []

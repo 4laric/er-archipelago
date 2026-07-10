@@ -16,7 +16,8 @@ the tiny surface, and features/boss_locks already keeps them reachable in logic.
 
 FEASIBILITY LADDER (never FillError): a surface smaller than the number of locks to place -- or a seed
 with no sphere-0 anchor -- can't host every lock. So strict mode WIDENS the allowed surface one grouped
-rung at a time (MajorBoss -> +Remembrance,GreatRune -> +Boss,KeyItem,Legendary -> +Seedtree,Church) and,
+rung at a time, highest-confidence first (MajorBoss -> +Remembrance,GreatRune -> +KeyItem -> +Boss ->
++Legendary -> +Seedtree,Church) and,
 for anything still unplaced, RETURNS it to the pool for normal fill. Because the terminal action is
 "back to the pool", generation can never hard-fail from this feature: worst case it degrades to v0.1
 scatter. (The +Seedtree rung also unlocks the 2 Roundtable-Hold Golden Seeds, an always-reachable
@@ -38,10 +39,14 @@ except Exception:  # not yet generated -> feature is a no-op
     LOCATION_TAGS = {}
 
 
-# Grouped widen order for the feasibility ladder. Each group is ADDED to the user's base surface in
-# turn. Shop is intentionally NOT here: it would dump locks onto the hundreds of hub shop slots and
+# Grouped widen order for the feasibility ladder, HIGHEST-CONFIDENCE FIRST. Each group is ADDED to the
+# user's base surface in turn. The order is a confidence ranking: Remembrance/GreatRune are the same
+# named demigods' guaranteed drops (≈ MajorBoss certainty); KeyItem is a small, hand-reviewable set (~14)
+# so it comes BEFORE Legendary, which is a large scattered set (~84) nobody can vouch for from memory;
+# Boss (the fixed minor-boss arenas) sits between them; Seedtree/Church (the collectible markers) stay
+# last. Shop is intentionally NOT here: it would dump locks onto the hundreds of hub shop slots and
 # defeat the restriction -- Shop is only ever in play if the user explicitly selects it in the base.
-_WIDEN_GROUPS = [["Remembrance", "GreatRune"], ["Boss", "KeyItem", "Legendary"], ["Seedtree", "Church"]]
+_WIDEN_GROUPS = [["Remembrance", "GreatRune"], ["KeyItem"], ["Boss"], ["Legendary"], ["Seedtree", "Church"]]
 _BOSS_KEY_PREFIX = "Boss Key:"
 
 
