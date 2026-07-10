@@ -248,35 +248,82 @@ def apply(world) -> None:
 
 
 def audit_reachable(world) -> None:
-    """post_fill SAFETY NET (F). From a REAL CollectionState (precollected only), sweep the whole
-    multiworld to fixpoint and verify every own advancement item is actually reachable. Any own
-    advancement item at an unreachable location is a shipped softlock under accessibility:minimal (AP
-    skips its own full-accessibility check there), so raise FillError -- the seed dies at generation
-    instead of hours into a playthrough. Catches any residual boss-key/region-lock cycle or stranded
-    rune/legacy key, whatever feature minted it. FAIL-OPEN on an internal audit error (never block gen
-    on an audit bug); FAIL-CLOSED on a real stranding. Only guards the progression-surface regime."""
+    """post_fill SAFETY NET (F). From a REAL CollectionState (precollected only), verify every own
+    advancement item is actually reachable. Any own advancement item at an unreachable location is a
+    shipped softlock under accessibility:minimal (AP skips its own full-accessibility check there).
+
+    RESCUE-THEN-FAIL: first try to salvage the seed -- swap each stranded item into a reachable,
+    unlocked, filler-holding location of ours (the filler moves to the now-unreachable slot, which is
+    harmless). Reachability only grows as progression moves into reachable slots, so we iterate + re-
+    sweep until stable. Only raise FillError when a stranded item CANNOT be rescued (its placement is
+    locked, or no reachable filler slot remains) -- so a salvageable seed ships instead of dying, and a
+    genuinely unwinnable one fails loudly at generation instead of hours into a playthrough. Catches
+    any residual boss-key/region-lock cycle or stranded rune/legacy key, whatever minted it. FAIL-OPEN
+    on an internal audit error (never block gen on an audit bug). Only guards the surface regime."""
     if _mode(world) == 0:
         return
     try:
         from BaseClasses import CollectionState
-        mw = world.multiworld
-        player = world.player
-        state = CollectionState(mw)
-        state.sweep_for_advancements()  # all locations, to fixpoint, from precollected only
-        stranded = [loc for loc in mw.get_locations(player)
-                    if loc.item is not None and loc.item.player == player
-                    and loc.item.advancement and not loc.can_reach(state)]
+        from Fill import FillError, swap_location_item
+    except Exception as e:
+        import logging
+        logging.getLogger("Greenfield").warning("audit_reachable: imports failed (%r)", e)
+        return
+
+    mw = world.multiworld
+    player = world.player
+
+    def _detail(locs):
+        return ", ".join(f"{l.item.name} @ {l.name}" for l in locs[:8])
+
+    def _stranded(state, locs):
+        return [l for l in locs if l.item is not None and l.item.player == player
+                and l.item.advancement and not l.can_reach(state)]
+
+    try:
+        my_locs = list(mw.get_locations(player))
+        rescued = 0
+        for _ in range(len(my_locs) + 2):
+            state = CollectionState(mw)
+            state.sweep_for_advancements()
+            stranded = _stranded(state, my_locs)
+            if not stranded:
+                break
+            locked = [l for l in stranded if l.locked]
+            if locked:  # a locked placement can't be moved -> unrescuable
+                raise FillError(f"[greenfield] {len(locked)} own progression item(s) LOCKED & unreachable "
+                                f"after fill -- unrescuable soft-lock; regenerate. First: {_detail(locked)}")
+            _strand_ids = {id(l) for l in stranded}
+            targets = [l for l in my_locs
+                       if not l.locked and l.item is not None and not l.item.advancement
+                       and id(l) not in _strand_ids and l.can_reach(state)]
+            if not targets:
+                raise FillError(f"[greenfield] {len(stranded)} own progression item(s) unreachable and no "
+                                f"reachable filler slot to rescue into; regenerate. First: {_detail(stranded)}")
+            moved = 0
+            for sl in stranded:
+                if not targets:
+                    break
+                swap_location_item(sl, targets.pop())  # stranded prog -> reachable slot; filler -> sl
+                rescued += 1
+                moved += 1
+            if moved == 0:
+                raise FillError(f"[greenfield] {len(stranded)} own progression item(s) unreachable; rescue "
+                                f"made no progress; regenerate. First: {_detail(stranded)}")
+        else:  # loop exhausted without converging
+            state = CollectionState(mw)
+            state.sweep_for_advancements()
+            remaining = _stranded(state, my_locs)
+            if remaining:
+                raise FillError(f"[greenfield] {len(remaining)} own progression item(s) unrescuable after "
+                                f"max iterations; regenerate. First: {_detail(remaining)}")
+        world.gf_prog_surface_rescued = rescued
+    except FillError:
+        raise
     except Exception as e:  # audit malfunction must never fail an otherwise-good gen
         import logging
         logging.getLogger("Greenfield").warning(
             "progression_surface.audit_reachable skipped (internal error: %r)", e)
-        return
-    if stranded:
-        from Fill import FillError
-        detail = ", ".join(f"{loc.item.name} @ {loc.name}" for loc in stranded[:8])
-        raise FillError(
-            f"[greenfield] {len(stranded)} own progression item(s) unreachable after fill -- would "
-            f"soft-lock in-game; regenerate. First: {detail}")
 
 
 @register
