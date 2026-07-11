@@ -87,6 +87,48 @@ def _load_module(name):
     return mod
 
 
+# ---- Authoritative re-pins ------------------------------------------------------------------
+# These two tests assume the CSV region-string / map-prefix is authoritative for its whole group.
+# It is NOT, and that assumption WAS the bug: 'Leyndell / Roundtable / Shunning-Grounds' is ONE
+# string covering THREE regions (m11_00/05 Leyndell, m11_10 Roundtable, m11_71 Shunning), and every
+# m35 row is mislabelled 'Divine Tower'. gen_data now regions these from the MAP (DUNGEON_REGION_
+# OVERRIDE / FLAG_REGION_OVERRIDE / the MSB+EMEVD ground truth in msb_flag_region.tsv), which is
+# strictly more authoritative than the coarse string -- and the provenance oracle
+# (test_gf_region_provenance_oracle) proves it against the grace join.
+#
+# So the group expectation holds for every flag EXCEPT these, each of which is authoritatively pinned
+# elsewhere. The tests keep their real value (boundary-bleed / stale-carve on the rest) instead of
+# asserting the model we disproved.
+AUTHORITATIVE_REPIN = {
+    # m11_10 IS Roundtable Hold -- its own loot, not Leyndell/Altus.
+    9800: "Roundtable Hold",             # Ensha reward
+    60120: "Roundtable Hold",            # Crafting Kit
+    60300: "Roundtable Hold",            # Taunter's Tongue
+    68210: "Roundtable Hold",            # Fevor's Cookbook [3]
+    400282: "Roundtable Hold",           # [Incantation] Black Flame's Protection
+    400283: "Roundtable Hold",           # [Incantation] Lord's Divine Fortification
+    400285: "Roundtable Hold",           # [Incantation] Law of Causality
+    400349: "Roundtable Hold",           # D's Bell Bearing
+    400356: "Roundtable Hold",           # Rogier's Letter
+    400358: "Roundtable Hold",           # [Sorcery] Explosive Ghostflame
+    400359: "Roundtable Hold",           # Rogier's Bell Bearing
+    400490: "Roundtable Hold",           # Royal Remains Helm (Ensha)
+    10007452: "Roundtable Hold",         # Crimson Hood
+    11107000: "Roundtable Hold",         # Cipher Pata
+    11107710: "Roundtable Hold",         # Crepus's Black-Key Crossbow
+    11107900: "Roundtable Hold",         # Clinging Bone (Ensha)
+    # EMEVD ground truth: the award site is elsewhere entirely.
+    400106: "Liurnia of the Lakes",      # Sellen's Bell Bearing -- awarded in m14 (Raya Lucaria)
+    520020: "Limgrave",                  # Noble Sorcerer Ashes -- m30_02
+    530120: "Limgrave",                  # [Incantation] Aspects of the Crucible: Thorns
+    530130: "Limgrave",                  # Bloodhound's Fang -- Darriwil evergaol
+    # Boss remembrances the map scan mis-tiled onto m35 (Divine Tower): they belong to their boss.
+    510100: "Eternal Cities",            # Gargoyle's Greatsword -- Valiant Gargoyles (Nokstella)
+    510200: "Miquella's Haligtree",      # Remembrance of the Rot Goddess -- Malenia
+    510300: "Caelid",                    # Remembrance of the Starscourge -- Radahn
+}
+
+
 class RegionCorrectness(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -267,6 +309,7 @@ class RegionCorrectness(unittest.TestCase):
     # Region names deleted by the re-carve. No emitted location may resolve to any of these.
     REMOVED_REGION_NAMES = frozenset({"Land of Shadow", "Leyndell", "Raya Lucaria Academy"})
 
+
     def _placed_flags_where(self, pred):
         """map_lot flags in region_map.csv matching pred(row), as ints (skips non-numeric flags)."""
         out = []
@@ -292,8 +335,9 @@ class RegionCorrectness(unittest.TestCase):
                 empty.append(region_string)   # produced zero emitted checks -> region would be dead air
                 continue
             for f, regions in emitted:
-                if regions != {target}:
-                    bad.append((region_string, f, target, sorted(regions)))
+                want = AUTHORITATIVE_REPIN.get(f, target)
+                if regions != {want}:
+                    bad.append((region_string, f, want, sorted(regions)))
         self.assertEqual(
             empty, [],
             "re-carved CSV region-string(s) produced NO emitted checks (region would be empty): "
@@ -316,8 +360,9 @@ class RegionCorrectness(unittest.TestCase):
                 empty.append(prefix)
                 continue
             for f, regions in emitted:
-                if regions != {target}:
-                    bad.append((prefix, f, target, sorted(regions)))
+                want = AUTHORITATIVE_REPIN.get(f, target)
+                if regions != {want}:
+                    bad.append((prefix, f, want, sorted(regions)))
         self.assertEqual(empty, [], "map-prefix group(s) produced no emitted checks: " + repr(empty))
         self.assertEqual(
             bad, [],

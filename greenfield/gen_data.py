@@ -1941,7 +1941,7 @@ def _is_dungeon(_mp):
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                                  "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "MajorBoss"})
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
-_mreg = {}; _ap_region = {}
+_mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 for _i, _r in enumerate(rows):
     _swept = _r["method"] in ("treasure", "emevd") or (
         _r["method"] == "flag_prefix" and _is_dungeon(_mp2(_r["map"])))
@@ -1951,12 +1951,19 @@ for _i, _r in enumerate(rows):
     _ap_region[_ap] = _reg
     _mem_region[_reg].append(_ap)
     if _mp:
-        _mem_map[_mp].append(_ap); _mreg.setdefault(_mp, _reg)
+        _mem_map[_mp].append(_ap)
+        if _reg != HUB:                     # HUB = "region unknown": must not claim the map
+            _mreg_votes[_mp][_reg] += 1
     _mt = re.match(r"(m60_\d\d_\d\d)", _r["map"] or "")
     if _mt:
         _mem_tile[_mt.group(1)].append(_ap)
 def _filler_only(_aps):
     return [_a for _a in _aps if not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(_a, ())))]
+
+# A map's region = the majority region of the checks that RESOLVED in it. Was `setdefault` (the first
+# row wins), so one HUB-quarantined row at the head of a map handed the whole map to the HUB -- which
+# is how Leyndell's own bosses (11000800/11000850) ended up sweeping Roundtable Hold.
+_mreg = {_mp: _c.most_common(1)[0][0] for _mp, _c in _mreg_votes.items()}
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 if BOSS_HEALTHBARS:
@@ -1974,11 +1981,21 @@ if BOSS_HEALTHBARS:
         _members = sorted(set(_members))
         if not _members:
             continue  # e.g. a field boss whose tile has no (non-important) checks -> no sweep
+        # A sweep may only grant checks that live in the SWEEP'S OWN REGION. Members are collected by
+        # map/tile, and a map can still hold a check that regions elsewhere: a HUB-quarantined global
+        # (region unknown), or a DLC check sharing a base map's prefix. Granting those leaks a check
+        # from another region into this boss's sweep (the client would flip a flag the player never
+        # earned there). Compute the sweep's region from the members that RESOLVED, then keep only the
+        # members that agree with it.
+        _known = [_ap_region[_a] for _a in _members
+                  if _ap_region.get(_a) is not None and _ap_region[_a] != HUB]
+        _sreg = (Counter(_known).most_common(1)[0][0] if _known else _mreg.get(_bmap, HUB))
+        _members = [_a for _a in _members if _ap_region.get(_a) == _sreg]
+        if not _members:
+            continue
         DUNGEON_SWEEPS[_ent] = _members
+        SWEEP_REGION[_ent] = _sreg
         _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
-        # region label from a member's OWN region (own-tile/map-local members are region-consistent;
-        # avoids a coarse m60_XX bucket mislabelling a field boss whose tile straddles a region).
-        SWEEP_REGION[_ent] = _ap_region.get(_members[0], _mreg.get(_bmap, HUB))
     # Legacy DIVVY (2026-07-11): PARTITION a legacy region's filler round-robin among its legacy bosses
     # so no single boss kill dumps the whole region. Previously EVERY legacy boss swept the ENTIRE
     # region filler -- Farum's 91 checks granted in full by each of Godskin Duo / Placidusax / Maliketh

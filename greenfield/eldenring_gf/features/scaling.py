@@ -89,11 +89,18 @@ def _targets_from_spheres(region_sphere):
 
 
 def _ranges_from_targets(region_target):
+    """[[lo, hi, target], ...] sorted by play_region id.
+
+    DETERMINISM: `region_target` inherits its dict ORDER from `_region_fill_spheres`, which walks
+    `mw.get_spheres()` -- and each sphere is a SET, whose iteration order varies between runs. The
+    VALUES are stable (every lock in sphere i gets i+1), but the insertion order is not, so emitting
+    in dict order made slot_data differ for the SAME seed run twice. Sort so the wire is a pure
+    function of the fill result. (Caught by test_gf_world::test_slot_data_is_deterministic.)"""
     triples = []
     for region, target in region_target.items():
         for pid in REGION_PLAY_IDS.get(region, []):
             triples.append([pid, pid, target])
-    return triples
+    return sorted(triples)
 
 
 # ---- DLC Scadutree-blessing floors (global_scadutree_blessing == 2 "scaled") --------------------
