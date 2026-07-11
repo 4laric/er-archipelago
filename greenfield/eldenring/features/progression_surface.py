@@ -29,7 +29,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import OptionList, Choice
+from Options import OptionSet, Choice
 from ..registry import Feature, register
 from .. import contract
 
@@ -50,17 +50,31 @@ _WIDEN_GROUPS = [["Remembrance", "GreatRune"], ["KeyItem"], ["Boss"], ["Legendar
 _BOSS_KEY_PREFIX = "Boss Key:"
 
 
-class ProgressionSurface(OptionList):
-    """Location classes allowed to HOST this world's own progression (region Locks + any required/gate
-    Great Runes + legacy keys) under strict/soft mode. Default = MajorBoss (the ~24 arena majors plus
-    the hand-picked field-boss extras). Add classes to widen -- e.g. Remembrance, GreatRune, Seedtree,
-    Church, or Shop. Same vocabulary as Important / Big-Ticket Locations; Enia is always excluded."""
+class ProgressionSurface(OptionSet):
+    """WHICH LOCATIONS MAY HOLD PROGRESSION. The location classes allowed to host this world's own
+    progression (region Locks, any required/gate Great Runes, legacy keys) -- and, in a multiworld,
+    the classes where OTHER players' progression can land in your world.
+
+    Default (178 locations): the major bosses and remembrances, the great runes, the key items, and the
+    collectathon lines -- Sacred Tears (Church), Golden Seeds (Seedtree), Scadutree Fragments and
+    Revered Spirit Ashes for the DLC -- plus ShopSlot.
+
+    ShopSlot is ONE slot per merchant (11), not every shop row (479): a merchant enters the pool once,
+    so however large their stock they can hold at most one progression item and cannot dominate the
+    surface by breadth. Use `Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed --
+    be aware that is ~70% of the surface and the game becomes "farm runes, buy your progression".
+
+    Narrowing is safe: the feasibility ladder widens automatically rather than failing to generate, and
+    an EMPTY set turns the confinement off entirely (progression scatters as vanilla AP fill decides).
+    Basin = Crystal Tears; Boss = every boss-healthbar drop; Legendary = the param-rarity legendaries."""
     display_name = "Progression Surface"
-    # Default = the top confidence rung: MajorBoss + Remembrance + GreatRune. The 6 Great Rune bosses
-    # all also drop Remembrances, so GreatRune adds no NEW boss coverage -- it adds 6 rock-solid extra
-    # host slots (weighting locks slightly toward the shardbearers) rather than variety. Kept in anyway
-    # for capacity/certainty (Alaric 2026-07). Widen further via the ladder or by adding classes.
-    default = ["MajorBoss", "Remembrance", "GreatRune"]
+    # The v0.2 default. This was three classes (33 locations) for one reason: the location DATA could
+    # not be trusted, so it was held to what a human could hand-verify. The provenance work (MSB/EMEVD
+    # ground truth, the region oracle, the phantom-flag guard) removed that constraint, and the category
+    # tags are now derived from what each flag's ItemLotParam lot actually GRANTS -- audited against
+    # ground truth: Sacred Tear 13/13, Golden Seed 43/43, Scadutree Fragment 46/46, Revered 23/23.
+    default = frozenset({"KeyItem", "MajorBoss", "Remembrance", "GreatRune",
+                         "Church", "Seedtree", "Fragment", "Revered", "ShopSlot"})
     valid_keys = frozenset(contract.IMPORTANT_LOCATION_TYPES)
 
 
@@ -78,9 +92,16 @@ class ProgressionSurfaceMode(Choice):
 
 # ---- pure, host-testable helpers (no AP import; unit-tested with synthetic tags) ------------------
 def selected_surface(sel):
-    """Filter a raw selection (list of class names) to the valid vocabulary, order preserved."""
-    valid = set(contract.IMPORTANT_LOCATION_TYPES)
-    return [c for c in (sel or []) if c in valid]
+    """Filter a raw selection to the valid vocabulary, in CANONICAL (vocabulary) order.
+
+    DETERMINISM: this option is an OptionSet, and a Python set of strings does NOT have a stable
+    iteration order across processes (string hashing is randomised per run). Ordering by the selection
+    would therefore make the ladder -- and the fill that follows it -- differ between two runs of the
+    SAME seed. So the order comes from the VOCABULARY, never from the caller's container. (This is the
+    same class of bug as regionSphereTargetRanges being emitted in set-iteration order, 2026-07-11.)
+    Accepts a list or a set; the result is identical either way."""
+    chosen = set(sel or ())
+    return [c for c in contract.IMPORTANT_LOCATION_TYPES if c in chosen]
 
 
 def build_ladder(selection):

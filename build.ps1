@@ -400,7 +400,14 @@ if ($Me3Deploy) {
             Copy-Item $sweepTable (Join-Path $me3Install "er_static_detection_table.json") -Force
             Write-Host "  er_static_detection_table.json -> $me3Install  (client mod_directory)"
         } else { Write-Warning "  me3 install dir not found at $me3Install -- sweep table staged to profile dir only" }
-    } else { Write-Warning "  no er_static_detection_table.json at Archipelago\worlds\eldenring -- sweep groups won't poll" }
+    } else {
+        # NOT a warning: this table is a v0.1 BRIDGE. It fed the retired baker's extra sweep groups
+        # (overworld/castle tiers) into flagpoll. Greenfield's live path is slot_data dungeonSweepFlags
+        # (192 triggers / 2440 member links this seed) -- sweeps poll fine without it. The client says
+        # the same thing at info level ("sweep groups limited to slot_data"). Crying wolf here trained
+        # us to ignore the deploy output, which is worse than saying nothing.
+        Write-Host "  er_static_detection_table.json absent (v0.1 bridge; greenfield sweeps ride slot_data dungeonSweepFlags)"
+    }
 
     # Shop-check flags: client key_resolver reads shoplineup_flags.json from the DLL dir
     # (mod_directory), same staging as the sweep table. Maps shop rows -> eventFlag_forStock.
@@ -413,7 +420,13 @@ if ($Me3Deploy) {
             Copy-Item $shopTable (Join-Path $me3InstallShop "shoplineup_flags.json") -Force
             Write-Host "  shoplineup_flags.json -> $me3InstallShop  (client mod_directory)"
         }
-    } else { Write-Warning "  no shoplineup_flags.json at Archipelago\worlds\eldenring -- shop checks will not resolve" }
+    } else {
+        # NOT a warning, and the old text was FLATLY WRONG ("shop checks will not resolve"). This json
+        # only feeds the MATT-KEY resolver (key_resolver.rs, locationIdsToKeys). Greenfield is
+        # pure-runtime: the client reads shopRowFlags (499 rows) and locationFlags (4767, shops
+        # included) straight from slot_data. Shop checks resolve without this file.
+        Write-Host "  shoplineup_flags.json absent (matt-key path only; greenfield shops ride slot_data shopRowFlags)"
+    }
 
     # park the EML client copy so me3's native is the ONLY loader of eldenring_ap.dll
     $emlDll = Join-Path $ModsDir "eldenring_ap.dll"

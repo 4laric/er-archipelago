@@ -74,23 +74,13 @@ FROZEN_OPTIONS = {
     # player arrived with ~0 blessing and got brutalised -- the exact thing the feature prevents.
     "global_scadutree_blessing": (2, "scaled"),
     "progression_surface_mode": (2, "strict"),
+    # NB: `progression_surface` is deliberately NOT frozen -- it is the one genuinely interesting
+    # player-facing lever (WHICH locations may hold progression), it is finished, and its categories are
+    # ground-truth audited. It lives in features/progression_surface.py as an OptionSet with the v0.2
+    # default baked in, so a yaml that never mentions it generates exactly as before. Narrowing it is
+    # safe: the feasibility ladder widens rather than failing, and an empty set turns confinement off.
     "important_locations": (["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"], None),
     "big_ticket_locations": (["MajorBoss", "Remembrance", "GreatRune"], None),
-    # EXPANDED 2026-07-11. The surface was deliberately tiny (MajorBoss/Remembrance/GreatRune = 57
-    # locations) because the location DATA could not be trusted, so it was held to what could be
-    # hand-verified. The provenance work (MSB/EMEVD ground truth, the region oracle, the phantom-flag
-    # guard) removed that constraint, and the category tags are now derived from what each flag's
-    # ItemLotParam lot actually GRANTS -- audited against ground truth: Sacred Tear 13/13,
-    # Golden Seed 43/43, Scadutree Fragment 46/46, Revered Spirit Ash 23/23.
-    #
-    # SHOPS ENTER VIA ShopSlot, NOT Shop. All 479 shop rows stay randomized checks, but only ELEVEN are
-    # progression-eligible: ONE per MERCHANT (matt's model -- a merchant enters the pool once, so
-    # however large their stock they can hold at most one progression item and cannot dominate by
-    # breadth). Dedicated spell vendors (>=50% spells, measured) are excluded. The flat alternatives
-    # are both wrong: Shop (479) or ShopNonSpell (395) would make ~70% of the surface a merchant and
-    # the seed would play as "farm runes, buy the game".
-    "progression_surface": (["KeyItem", "MajorBoss", "Remembrance", "GreatRune",
-                             "Church", "Seedtree", "Fragment", "Revered", "ShopSlot"], None),
 
     # ---- half-built / superseded -> frozen OFF (finish later, then re-expose) --------------------
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)
