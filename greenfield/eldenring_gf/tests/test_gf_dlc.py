@@ -41,9 +41,13 @@ def _kept_region_names(mw, player):
 
 
 def _lock_region_names(mw, player):
-    """Regions whose Lock item is in the pool (== the kept set from the item side)."""
-    return {i.name[:-len(" Lock")] for i in mw.itempool
-            if i.player == player and i.name.endswith(" Lock")}
+    """Regions whose Lock item this world created (== the kept set from the item side). Looks across
+    itempool + precollected + placed, since progression_surface pre-places Locks during pre_fill."""
+    items = [i for i in mw.itempool if i.player == player]
+    items += list(mw.precollected_items[player])
+    items += [loc.item for loc in mw.get_locations(player)
+              if loc.item is not None and loc.item.player == player]
+    return {i.name[:-len(" Lock")] for i in items if i.name.endswith(" Lock")}
 
 
 class DLCDefaultOn(WorldTestBase):

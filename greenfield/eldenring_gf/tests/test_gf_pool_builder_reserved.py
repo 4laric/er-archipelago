@@ -16,6 +16,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 
 from worlds.eldenring_gf.data import LOCATIONS, HUB  # noqa: E402
+from ._util import world_items, world_pool_items  # noqa: E402
 from worlds.eldenring_gf.features.pool_builder import PoolBuilderFeature  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
@@ -33,7 +34,7 @@ class ReserveCountsBossKeys(WorldTestBase):
     }
 
     def _counts(self):
-        own = [it for it in self.multiworld.itempool if it.player == self.world.player]
+        own = [it for it in world_pool_items(self) if it.player == self.world.player]
         locks = sum(1 for it in own if it.name.endswith(" Lock"))
         boss_keys = sum(1 for it in own if it.name.startswith("Boss Key:"))
         return own, locks, boss_keys

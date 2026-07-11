@@ -21,6 +21,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.core import GREAT_RUNES  # noqa: E402
+from ._util import world_items  # noqa: E402
 from BaseClasses import ItemClassification  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
@@ -68,7 +69,7 @@ class GreatRunesGoalShuffleOn(WorldTestBase):
         for name in req:
             self.assertIn(name, GREAT_RUNES)
         # the required runes are placed as progression items (so fill guarantees reachability).
-        placed = [i for i in self.multiworld.itempool
+        placed = [i for i in world_items(self)
                   if i.name in set(req)]
         self.assertTrue(placed, "required Great Runes must actually be in the pool")
         for i in placed:
@@ -86,7 +87,7 @@ class GreatRunesGoalShuffleOn(WorldTestBase):
         # remove ALL copies of a required rune (Land of Shadow duplicates the runes, so state.has
         # stays true until every copy is gone) -> completion must then break.
         one = req[0]
-        for victim in [i for i in self.multiworld.itempool if i.name == one]:
+        for victim in [i for i in world_items(self) if i.name == one]:
             full.remove(victim)
         self.assertFalse(cond(full),
                          "dropping every copy of a required Great Rune must break the great_runes goal")

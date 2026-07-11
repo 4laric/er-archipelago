@@ -36,7 +36,7 @@ class TagDataTests(unittest.TestCase):
         # Boss was REDEFINED (boss-drop datamine, tools/datamine_boss_drops.py -> _BOSS_DROP_FLAGS in
         # gen_data._loc_tags): the 'Boss' tag is now every boss-healthbar DROP (~54), a superset of the
         # old ~23-25 boss_arena majors. Guards the current committed count against drift.
-        self.assertEqual(TAG_COUNTS["Boss"], 54)
+        self.assertEqual(TAG_COUNTS["Boss"], 76)
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable

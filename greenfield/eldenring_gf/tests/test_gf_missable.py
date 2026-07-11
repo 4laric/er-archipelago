@@ -7,6 +7,7 @@ still accepts filler; post-fill no own-player progression lands on one. With the
 is allowed again. A degenerate pool must still generate (fill-safety gate skips instead of FillError).
 """
 import unittest
+from ._util import world_items  # noqa: E402
 import pytest
 
 from worlds.eldenring_gf.missable_locations import MISSABLE_LOCATIONS
@@ -18,13 +19,14 @@ GAME = "Elden Ring (Greenfield)"
 
 class MissableDataTests(unittest.TestCase):
     def test_count_and_split(self):
-        self.assertEqual(len(MISSABLE_LOCATIONS), 29)
         vals = list(MISSABLE_LOCATIONS.values())
         self.assertEqual(vals.count("deathroot"), 10)
         self.assertEqual(vals.count("dragon_heart"), 19)
+        # quest_gated NPC-questline rewards are also missable (gen_data 18fb3ad).
+        self.assertEqual(len(MISSABLE_LOCATIONS), 29 + vals.count("questline"))
 
     def test_only_known_sources(self):
-        self.assertTrue(set(MISSABLE_LOCATIONS.values()) <= {"deathroot", "dragon_heart"})
+        self.assertTrue(set(MISSABLE_LOCATIONS.values()) <= {"deathroot", "dragon_heart", "questline"})
 
     def test_ap_ids_are_ints(self):
         for aid in MISSABLE_LOCATIONS:
@@ -41,7 +43,7 @@ class MissableGuardOn(WorldTestBase):
     options = {"item_shuffle": True}  # real-item pool so there is progression to reject
 
     def _an_advancement_item(self):
-        for i in self.multiworld.itempool:
+        for i in world_items(self):
             if i.player == self.world.player and i.advancement:
                 return i
         return None
@@ -73,7 +75,7 @@ class MissableGuardOff(WorldTestBase):
     def test_progression_allowed_when_off(self):
         missable = _missable_in_play(self.world, self.multiworld)
         self.assertGreater(len(missable), 0)
-        prog = next((i for i in self.multiworld.itempool
+        prog = next((i for i in world_items(self)
                      if i.player == self.world.player and i.advancement), None)
         self.assertIsNotNone(prog)
         # a deathroot reward location is never tagged important, so with the guard off nothing

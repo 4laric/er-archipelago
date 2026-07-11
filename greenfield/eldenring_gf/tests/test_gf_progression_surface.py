@@ -63,7 +63,12 @@ ps = _load("eldenring_gf.features.progression_surface", "features/progression_su
 def _major_boss_extras():
     """Extract the MAJOR_BOSS_EXTRAS literal from gen_data.py WITHOUT importing it (importing would run
     the whole data pipeline / need elden_ring_artifacts)."""
-    src = open(os.path.join(GREENFIELD, "gen_data.py"), encoding="utf-8").read()
+    _gd = os.path.join(GREENFIELD, "gen_data.py")
+    if not os.path.isfile(_gd):
+        import pytest
+        pytest.skip("gen_data.py absent in the installed-world layout -- this MAJOR_BOSS_EXTRAS oracle "
+                    "runs only from the greenfield source tree (like RegionCorrectness' CSV gate).")
+    src = open(_gd, encoding="utf-8").read()
     tree = ast.parse(src)
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
