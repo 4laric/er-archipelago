@@ -71,6 +71,23 @@ _BOSS_HEALTHBAR_EXTRAS = {
     1050560800: ('m60_50', 'm60_50_56', 'field', 'Great Wyrm Theodorix'),             # Consecrated Snowfield
     1053560800: ('m60_53', 'm60_53_56', 'field', 'Vyke, Knight of the Roundtable'),   # Mountaintops evergaol
 }
+# DLC Gravesite Plain divvy participants (Alaric 2026-07-11). The DisplayBossHealthBar datamine caught
+# DLC LEGACY-dungeon bosses (Belurat/Shadow Keep/Metyr/Midra) but NO m61 overworld field bosses, and
+# our region model collapses the entire DLC overworld (m61) into ONE "Gravesite Plain" region (235
+# checks / 39 tiles). With Midra reassigned OUT to Abyssal Woods (his real home; DUNGEON_REGION_OVERRIDE
+# "m28_00_00_00" below) Gravesite had no boss to sweep it. So we seat THREE named DLC bosses as legacy
+# region-DIVVY participants: the region filler partitions ~evenly among them (~75 each) instead of one
+# boss dumping the lot. Keyed by the boss's own drop/defeat flag (the client's sweep trigger): Ghostflame
+# Dragon by its isDefeated flag; Furnace Golem + Blackgaol Knight by their signature drop-check flags
+# (their defeat flags aren't in the CE table, but the drop flag flips on the same kill). class='legacy'
+# so they join the region partition (the tile is cosmetic for legacy -- bucketing is by _bmap's region,
+# any m61_XX resolves to Gravesite Plain today; tiles are the bosses' approximate m61 locations).
+_BOSS_HEALTHBAR_EXTRAS_DLC = {
+    2045440800: ('m61_45', 'm61_45_44', 'legacy', 'Ghostflame Dragon'),        # Gravesite lake (isDefeated)
+    65470:      ('m61_44', 'm61_44_46', 'legacy', 'Furnace Golem'),            # W Gravesite (drops Deflecting Hardtear)
+    530820:     ('m61_46', 'm61_46_45', 'legacy', 'Blackgaol Knight'),        # Belurat Gaol (drops Greatsword of Solitude)
+}
+_BOSS_HEALTHBAR_EXTRAS.update(_BOSS_HEALTHBAR_EXTRAS_DLC)
 for _hbk, _hbv in _BOSS_HEALTHBAR_EXTRAS.items():
     BOSS_HEALTHBARS.setdefault(_hbk, _hbv)  # setdefault: never clobber a real datamined entry
 HUB="Roundtable Hold"
@@ -589,6 +606,12 @@ DUNGEON_REGION_OVERRIDE = {
     "m20_00_00_00": "Belurat",
     "m20_01_00_00": "Enir-Ilim",
     "m12_05_00_00": "Mohgwyn Palace",
+    # m28 = Midra's Manse -- ABYSSAL WOODS content, not Gravesite Plain. The raw pipeline bucketed it
+    # into Gravesite Plain, making Midra (m28) the sole legacy boss for the whole DLC overworld and the
+    # sink for its entire 227-check filler pool. Reassign to Abyssal Woods (his real region) so the
+    # Gravesite overworld divvies among its own DLC field bosses (_BOSS_HEALTHBAR_EXTRAS_DLC) and Midra
+    # sweeps only his manse's filler. (Alaric 2026-07-11)
+    "m28_00_00_00": "Abyssal Woods",
     # DLC minor dungeons whose global-recovered checks otherwise fall through to HUB (map not placed
     # in region_map.csv + absent here). Regions per DLC-AREA-ID-CAPTURE.md / GLOBAL_RECOVER comments.
     "m40_01_00_00": "Ancient Ruins of Rauh",  # Scorpion River Catacombs (Rauh Base)
@@ -1788,7 +1811,7 @@ def _is_dungeon(_mp):
 # = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop"})
+                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "MajorBoss"})
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}
 for _i, _r in enumerate(rows):
@@ -1809,21 +1832,48 @@ def _filler_only(_aps):
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 if BOSS_HEALTHBARS:
+    _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
+    _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
         if _cls == "field":
             _members = _filler_only(_mem_tile.get(_tile, []))
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
-        else:  # legacy / interior region major -> region-wide + FILLER-ONLY (same cut as field)
-            _members = _filler_only(_mem_region.get(_mreg.get(_bmap, HUB), []))
+        else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
+            _legacy_by_region[_mreg.get(_bmap, HUB)].append(_ent)
+            continue
         _members = sorted(set(_members))
         if not _members:
             continue  # e.g. a field boss whose tile has no (non-important) checks -> no sweep
         DUNGEON_SWEEPS[_ent] = _members
+        _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
         # region label from a member's OWN region (own-tile/map-local members are region-consistent;
         # avoids a coarse m60_XX bucket mislabelling a field boss whose tile straddles a region).
         SWEEP_REGION[_ent] = _ap_region.get(_members[0], _mreg.get(_bmap, HUB))
+    # Legacy DIVVY (2026-07-11): PARTITION a legacy region's filler round-robin among its legacy bosses
+    # so no single boss kill dumps the whole region. Previously EVERY legacy boss swept the ENTIRE
+    # region filler -- Farum's 91 checks granted in full by each of Godskin Duo / Placidusax / Maliketh
+    # / Beast Clergyman; Liurnia's 374 by each of Rennala / Red Wolf; Eternal Cities' 323 by ~13 bosses.
+    # DEDUP (2026-07-11): the legacy pool is the region filler MINUS anything already covered by a
+    # field/dungeon sweep in that region -- so a region-major kill grants only the checks NOT tied to a
+    # more specific boss (a field boss's own tile, a catacomb's own map). This alone roughly halves the
+    # big overworld regions (Liurnia 374->~73/boss, Altus 339->~49/boss) that were double-covered.
+    # Deterministic: bosses sorted by entity id, members sorted, member j -> boss j % N (even, scattered
+    # slices). Un-killed bosses' slices stay obtainable by physical pickup (a sweep is a convenience
+    # auto-grant, not the only source), so nothing is stranded.
+    for _reg, _ents in _legacy_by_region.items():
+        _ents = sorted(_ents)
+        _pool = sorted(set(_filler_only(_mem_region.get(_reg, []))) - _covered)
+        if not _pool or not _ents:
+            continue
+        _slices = defaultdict(list)
+        for _j, _ap in enumerate(_pool):
+            _slices[_ents[_j % len(_ents)]].append(_ap)
+        for _e in _ents:
+            if _slices[_e]:
+                DUNGEON_SWEEPS[_e] = _slices[_e]
+                SWEEP_REGION[_e] = _ap_region.get(_slices[_e][0], _reg)
 else:
     # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
     import re as _re2
