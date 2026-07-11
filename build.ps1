@@ -5,7 +5,9 @@
 # (The baker + C++ client were retired 2026-07-01; see git history for the old build.ps1.)
 #
 # Usage (from the repo root, any PowerShell):
-#   .\build.ps1 -Apworld                 # package Archipelago\worlds\eldenring -> eldenring.apworld
+
+#   .\build.ps1 -Apworld                 # package greenfield\eldenring -> eldenring.apworld  (THE shipping world)
+#   .\build.ps1 -Greenfield              # (re)gen the data-derived eldenring apworld + isolated multiworld
 #   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py); REQUIRED after apworld changes
 #   .\build.ps1 -Rust                    # cargo test + build the Rust client cdylib (eldenring_archipelago.dll)
 #   .\build.ps1 -Me3Deploy               # stage DLL + apconfig + AP icon into me3\, write the ap.me3 profile
@@ -13,7 +15,8 @@
 #   .\build.ps1 -RustDeploy              # (EML alt loader) drop the Rust DLL into mods\ instead of me3
 #   .\build.ps1 -Serve                   # launch the AP server on the newest output zip (new window)
 #   .\build.ps1 -PureRuntime  (-Mvp)     # the whole loop: Generate + Rust + Me3Deploy + Serve
-#   .\build.ps1 -All                     # alias for -PureRuntime, plus -Apworld and -Preflight
+#   .\build.ps1 -All                     # greenfield loop: -Greenfield + -Rust + -Me3Deploy + -Serve
+#                                        #   (old Generate.py pipeline = -PureRuntime -Apworld -Preflight)
 #   .\build.ps1 -Preflight               # timestamped PASS/FAIL cross-checks (seed / staged dll / server)
 #   .\build.ps1 -Clean                   # cargo clean + kill any stale AP server on :38281
 #
@@ -23,12 +26,13 @@
 # Notes:
 #  - cargo build is always release for x86_64-pc-windows-msvc; -Clean also runs `cargo clean`.
 #  - -Serve opens a NEW window; close any old server window first (one port, one server).
-#  - apworld changes (Archipelago\worlds\eldenring) generate straight from the source tree;
+#  - apworld changes (greenfield\eldenring) generate straight from the source tree;
 #    -Generate picks up edits directly, no apworld reinstall step.
 
 [CmdletBinding()]
 param(
-    [switch]$Apworld,
+        [switch]$Apworld,              # package greenfield\eldenring -> eldenring.apworld (stamp-gated)
+    [switch]$Greenfield,           # -Greenfield: gen the data-derived greenfield apworld in isolation
     [switch]$Generate,
     [switch]$ShowGenDiag,          # echo the per-generate gendiag (resolved-yaml debug) to console
     [int]$GenRetries = 2,          # gen re-roll attempts on a seed-dependent FillError (0 = off)
@@ -47,8 +51,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# -All = the full loop plus packaging + preflight. -PureRuntime is the runtime umbrella.
-if ($All) { $PureRuntime = $true; $Apworld = $true; $Preflight = $true }
+# -All = the greenfield iteration loop: (re)gen the data-derived apworld + isolated multiworld,
+# rebuild the Rust client, stage it into me3, and serve the fresh zip. (This was the Generate.py
+# pipeline; that pipeline is now spelled -PureRuntime -Apworld -Preflight -- see the usage header.)
+if ($All) { $Greenfield = $true; $Rust = $true; $Me3Deploy = $true; $Serve = $true }
 
 # -PureRuntime: apworld source already emits slot_data (locationFlags/checkItemIds/checkItemFlags/
 # shopRowFlags) straight from __init__.py, so this is just Generate -> Rust -> Me3Deploy -> Serve.
@@ -66,6 +72,11 @@ $GameDir  = "C:\Program Files (x86)\Steam\steamapps\common\ELDEN RING\Game"
 $ModsDir  = Join-Path $GameDir "mods"          # EML alt loader path (-RustDeploy); me3 is primary
 $ApDir    = Join-Path $Repo "Archipelago"      # AP checkout: Generate.py, MultiServer.py, Players\, output\
 
+# -Greenfield runs as a composable STEP below (after -Clean, before the other stages) so it can be
+# combined -- e.g. -All = -Greenfield + -Rust + -Me3Deploy + -Serve. Standalone `.\build.ps1
+# -Greenfield` still just gens the data-derived apworld + isolated multiworld and stops (no other
+# stage flag is set). (Was an exit-early short-circuit here.)
+
 # Rust client is now an in-repo submodule (was the sibling from-software-archipelago-clients).
 $RustDir     = Join-Path $Repo "from-software-archipelago-clients"
 $RustTarget  = "x86_64-pc-windows-msvc"
@@ -79,6 +90,37 @@ $IconMenu    = Join-Path $Repo "build\ap_icon\menu"    # build_ap_icon.py (00_so
 $IconMenu01  = Join-Path $Repo "build\ap_icon01\menu"  # build_ap_icon.py --icon01 (01_common SB_Icon sheet -- the REAL icon)
 
 function Step($msg) { Write-Host "`n==== $msg" -ForegroundColor Cyan }
+
+# ----- gen-input stamp gate -------------------------------------------------------------------
+# Refuse to PACKAGE generated data that is stale relative to the inputs on disk. tools\gen_manifest.py
+# is the one definition of the hash (SPEC-gen-input-hash-gate-20260710.md); it re-hashes the gen inputs
+# (region_map.csv, item_tiers.tsv, the datamined artifacts, the datamine intermediates, gen_data.py
+# itself) and compares against the _GEN_STAMP the generator wrote.
+#   exit 0 = fresh; exit 3 = STALE (hard throw -- a stale world must never ship);
+#   exit 4 = cannot-verify because the licensing-restricted artifacts are absent. A packaging box may
+#            legitimately not have them, so 4 is a WARNING, not a failure.
+function Assert-GenStampFresh {
+    param([Parameter(Mandatory=$true)][string]$StampJson, [string]$What = "generated data")
+    $manifest = Join-Path $Repo "tools\gen_manifest.py"
+    if (-not (Test-Path $manifest)) {
+        Write-Warning ("  gen-stamp gate SKIPPED: {0} not found -- cannot prove {1} is fresh." -f $manifest, $What)
+        return
+    }
+    if (-not (Test-Path $StampJson)) {
+        throw ("gen-stamp gate: no _gen_stamp.json at {0} -- {1} was generated by a pre-stamp gen_data.py. Run: .\build.ps1 -Greenfield" -f $StampJson, $What)
+    }
+    Write-Host ("  verifying gen-input stamp: {0}" -f $StampJson)
+    & python $manifest --verify $StampJson
+    $stampExit = $LASTEXITCODE
+    if ($stampExit -eq 0) {
+        Write-Host "  gen-input stamp: FRESH" -ForegroundColor Green
+    } elseif ($stampExit -eq 4) {
+        Write-Warning "  gen-input stamp: CANNOT VERIFY (elden_ring_artifacts absent on this box) -- packaging the committed data as-is. Verify on a machine with the artifacts."
+    } else {
+        throw ("gen-input stamp: STALE (exit {0}) -- {1} does not match the gen inputs on disk. Regenerate before packaging: .\build.ps1 -Greenfield" -f $stampExit, $What)
+    }
+    $global:LASTEXITCODE = 0
+}
 
 # ----- server helpers -------------------------------------------------------------------------
 function Stop-Server38281 {
@@ -99,8 +141,8 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Apworld -or $Generate -or $Rust -or $RustDeploy -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $Serve -or $Preflight -or $Clean)) {
-    Get-Content $PSCommandPath | Select-Object -Skip 1 -First 22 | ForEach-Object { $_ -replace '^#\s?', '' }
+if (-not ($Apworld -or $Greenfield -or $Generate -or $Rust -or $RustDeploy -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $Serve -or $Preflight -or $Clean)) {
+    Get-Content $PSCommandPath | Select-Object -Skip 1 -First 23 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
 
@@ -117,17 +159,36 @@ if ($Clean) {
     }
 }
 
+# ----- greenfield apworld + isolated gen ------------------------------------------------------
+# (re)datamine + gen_data, install the data-derived eldenring world, and generate an ISOLATED
+# multiworld (greenfield\players) -> AP_*.zip. Runs FIRST (after -Clean) so a combined -Rust builds
+# against fresh data and a combined -Serve picks up the fresh zip. Standalone -Greenfield stops here
+# (no other stage flag set); -All chains it into -Rust + -Me3Deploy + -Serve.
+if ($Greenfield) {
+    Step "Greenfield: data-derived apworld + isolated multiworld gen"
+    & (Join-Path $Repo "greenfield\gen-greenfield.ps1") -Repo $Repo
+    if ($LASTEXITCODE -ne 0) { throw "gen-greenfield.ps1 FAILED (exit $LASTEXITCODE) -- see output above." }
+}
+
 # ----- package apworld ------------------------------------------------------------------------
+
+# ----- package GREENFIELD apworld (the v0.2 shipping artifact) --------------------------------
+# release-v0.2/SETUP.md tells the player to install eldenring.apworld -- THIS is the step that
+# builds it. Zips greenfield\eldenring (the SOURCE of truth; -Greenfield installs a copy of the
+# same tree into Archipelago\worlds\eldenring) under an eldenring/ prefix.
+# Gated: the generated modules in that tree must match a hash of the gen inputs on disk, so a stale
+# regen can never be shipped. STALE = hard stop; artifacts-absent = warning (see Assert-GenStampFresh).
 if ($Apworld) {
-    Step "Packaging eldenring.apworld from Archipelago\worlds\eldenring"
-    $srcDir = Join-Path $ApDir "worlds\eldenring"
-    if (-not (Test-Path (Join-Path $srcDir "__init__.py"))) { throw "apworld source not found: $srcDir\__init__.py" }
+    Step "Packaging eldenring.apworld from greenfield\eldenring  (v0.2 shipping world)"
+    $gfSrc = Join-Path $Repo "greenfield\eldenring"
+    if (-not (Test-Path (Join-Path $gfSrc "__init__.py"))) { throw "greenfield world source not found: $gfSrc\__init__.py" }
+    Assert-GenStampFresh -StampJson (Join-Path $gfSrc "_gen_stamp.json") -What "greenfield\eldenring"
+
     $outFile = Join-Path $Repo "eldenring.apworld"
     Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
-    # Exclude dev clutter: per-patch __init__ backups (*.bak*), bytecode, gen-time diag dumps.
     $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo', 'ER_SPHERE_TIERS_*', 'ER_DIAG_*')
-    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt')
-    $srcFull = (Resolve-Path $srcDir).Path.TrimEnd('\')
+    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt', 'region_map.csv')   # region_map.csv is a gen INPUT (test-only copy)
+    $srcFull = (Resolve-Path $gfSrc).Path.TrimEnd('\')
     $files = Get-ChildItem -LiteralPath $srcFull -Recurse -File | Where-Object {
         $rel = $_.FullName.Substring($srcFull.Length).TrimStart('\','/')
         if ($rel -match '(^|[\\/])__pycache__([\\/]|$)') { return $false }
@@ -145,12 +206,12 @@ if ($Apworld) {
     } finally { $zip.Dispose() }
     $size = [math]::Round((Get-Item $outFile).Length / 1KB, 1)
     Write-Host ("  -> {0}  ({1} files, {2} KB)" -f $outFile, $files.Count, $size) -ForegroundColor Green
-    # Timestamped twin: the canonical name is overwritten in place, so freshness is invisible through
-    # a same-name overwrite. This stamped copy witnesses THIS build (Always-timestamp convention).
-    $apwStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $apwCopy  = Join-Path $Repo ("eldenring_{0}.apworld" -f $apwStamp)
-    Copy-Item -LiteralPath $outFile -Destination $apwCopy -Force
-    Write-Host ("  -> {0}  (timestamped copy)" -f $apwCopy) -ForegroundColor Green
+    # Timestamped twin (Always-timestamp convention): the canonical name is overwritten in place, so
+    # a same-name overwrite makes freshness invisible; this copy witnesses THIS build.
+    $gfStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    $gfCopy  = Join-Path $Repo ("eldenring_{0}.apworld" -f $gfStamp)
+    Copy-Item -LiteralPath $outFile -Destination $gfCopy -Force
+    Write-Host ("  -> {0}  (timestamped copy)" -f $gfCopy) -ForegroundColor Green
 }
 
 # ----- generate multiworld --------------------------------------------------------------------
@@ -233,6 +294,14 @@ if ($Generate) {
 if ($Rust) {
     Step "Rust client: cargo test + cdylib build"
     if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) { throw "Rust submodule not found at $RustDir -- run: git submodule update --init" }
+    Step "  regenerate greenfield data (datamine boss drops + gen_data) so the tables match region_map"
+    & python (Join-Path $Repo "tools\datamine_boss_drops.py")
+    if ($LASTEXITCODE -ne 0) { throw "datamine_boss_drops.py FAILED (see output above)." }
+    & python (Join-Path $Repo "greenfield\gen_data.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_data.py FAILED (see output above)." }
+    Step "  regenerate generated tables (tracker_regions.rs) from greenfield data"
+    & python (Join-Path $Repo "tools\gen_location_regions.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
     if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
         throw "cargo not found on PATH. Install rustup from https://rustup.rs, then re-open the shell."
     }

@@ -76,7 +76,7 @@ So **ask the host to enable manual release** on the room (release_mode `enabled`
 - [ ] yaml is the intended config (DLC on, Elden Beast goal, deathlink off, enemy rando,
       bell/physick/kit start, sweep). Slot name set.
 - [ ] `eldenring.apworld` re-packaged from the CURRENT apworld (matches your randomizer/client).
-- [ ] Did a solo local pass first (`build.ps1 -All`, preflight all-PASS, connect, eyeball spawn).
+- [ ] Did a solo local pass first (`build.ps1 -PureRuntime -Apworld -Preflight`, preflight all-PASS, connect, eyeball spawn). (This is the former `-All`; `-All` now means the greenfield loop: -Greenfield + -Rust + -Me3Deploy + -Serve.)
 - [ ] Bake-stability gate: `build.ps1 -Test` green, and `build.ps1 -LoopTest -Count 6` (+ a DLC-off
       run) all `OK` — archived `looptest_<ts>.log` shows no seed-dependent failures (TODO #7).
 - [ ] Sent host: `<YourName>.yaml` + `eldenring.apworld`.

@@ -91,6 +91,41 @@ crashes to tell you.
   that touches them is checked as *rendered in game*, not just as code — the
   `?EventTextForMap?` / `?Tag?` class of bug only shows up on screen.
 
+## Feature architecture — one self-registered file per feature
+
+The apworld's world logic is a **registry of features**, not a monolithic
+`__init__.py`. Each feature is a single file under `eldenring/features/`: a
+`Feature` subclass decorated `@register`, auto-imported at load. It declares its
+own options (`OPTIONS`), item classes (`ITEMS`), and only the lifecycle hooks it
+needs (`generate_early` / `create_items` / `create_regions` / `set_rules` /
+`slot_data`). The registry aggregates them and **raises on collision** — a
+duplicate option field or `slot_data` key fails generation, it does not silently
+clobber.
+
+This structure came directly out of the AI workflow: parallel agents can't
+co-edit one `__init__.py` without stepping on each other, so features had to
+become non-overlapping, self-contained files. It turned out to be the better
+architecture regardless — loose coupling, each feature testable in isolation,
+and drift that fails loudly instead of merging silently. New world features
+follow it.
+
+- **One file, self-registered, no shared edits.** A new feature is a new file in
+  `features/`; it does not touch `core.py` or other features. If your change
+  needs to edit a shared module, that's a smell — push the logic into the feature
+  and expose a hook instead.
+- **A feature owns its own fill-safety.** Anything that can over-constrain the
+  fill (e.g. forcing non-filler onto tagged locations) gates itself on what the
+  pool can actually supply — it never assumes the rest of the seed.
+  `important_locations` skipping enforcement when the pool is degenerate is the
+  model; the fuzz gate is what proves it across combinations.
+- **`slot_data` keys are declared in the contract, once.** Every key a feature
+  emits is declared in `contract.py` — the single source of truth for name,
+  shape, required-ness, producer, and client consumer. `fill_slot_data`
+  validates against it and fails generation on drift; the client validates the
+  same contract on connect. The client-side mirror (`contract_gen.rs`), the docs
+  (`CONTRACT.md`), and the integration spec are **generated** from `contract.py`
+  — regenerate them, never hand-edit.
+
 ## Region locks and reachability
 
 Any new region lock, gate, or access rule ships with:
@@ -119,6 +154,12 @@ time. "It genned" does not mean "it plays."
 - Treat a sudden jump in sphere-0 check count (or spheres collapsing to 1-2) as a
   regression to explain, the same way you'd treat a `FillError`. The sweep should
   flag it, not a player discovering the game has no mid-game.
+- The greenfield gen prints a per-slot **check breakdown** to the generate log
+  (`[greenfield] <slot>: N checks | progression P | useful U | local filler LF |
+  foreign filler FF | foreign useful FU`). Read it: a healthy seed has real
+  progression and useful spread, not a wall of filler. A collapse to near-all
+  filler, or progression dropping to zero, is a regression to explain — the same
+  bar as a sphere-0 balloon.
 
 ## Verification — code-reading is not evidence
 
@@ -163,7 +204,53 @@ just silent failure with better manners.
   live consumer in the client, or an explicit `CONTRACT: DEAD` /
   `CONTRACT: PORT-GAP` tag saying why not. A key that is emitted and parsed by
   nothing looks exactly like a finished feature from the gen side — the
-  contract ledger is what catches it before a player does.
+  contract ledger is what catches it before a player does. In greenfield that
+  ledger is `contract.py`, validated on both sides (gen-time and client connect);
+  see *Feature architecture*.
+
+## Regression by replay — a fix is a predicate, and production must call it
+
+The 2026-07-06 greenfield-migration lesson. After the slot_data contract was
+hardened, a dozen bugs still shipped — and every one was found one-at-a-time in
+playtest. None were *absence* of behavior (the contract ledger and the arming
+logs catch those now); they were *wrong* behavior with full presence: the
+feature armed, the log green, but a grant fired a tick too early, a latch keyed
+on the wrong flag, a shared acquisition flag leaked its neighbour. Presence and
+shape checks are blind to this class — the value is well-formed and merely
+wrong. The only oracle that separates "off because the player chose off" from
+"off because the wire is broken" was a human watching the game, so the game is
+where they were found: one seed-path at a time.
+
+The fix is a test tier that hands that oracle to CI. A sequencing / timing /
+reconcile / state-application bug lives in a *timeline*, so it gets a
+host-tested **replay harness** in `er-logic`:
+
+- **Lift the decision into a pure predicate.** The fix is a `pub fn` —
+  `start_items_settled`, `region_bloom_settled`, `should_apply_incoming_deathlink`
+  — that takes state and returns a decision with no game or I/O, so it compiles
+  and `cargo test`s on any host.
+- **Model the timeline, not a single tick.** A `#[cfg(test)] mod replay` defines
+  its OWN game-state model over the `GameHook`/`NetHook` seam (never the shared
+  single-tick mock — it can't represent a later save-load or reconnect), an `Ev`
+  enum for the frames that matter (load screen, bulk-load clobber, save-load,
+  reconnect, holder-not-ready), and a `replay(events, policy)` driver. The bug is
+  reproduced as a **failing-without-the-fix / passing-with-it** pair, the policy
+  flag toggling old vs new behaviour.
+- **A green predicate with no production caller is not a fix — it is a spec.**
+  The client must *call* the pure predicate, not keep its own inline copy;
+  test/prod drift is the exact failure this tier exists to kill.
+  `region_bloom_settled` was green for days while `region.rs` still latched on
+  the open flag — the harness proved the fix and the client stayed broken.
+  Wiring the caller is part of the change, and CI runs `cargo test -p er-logic`
+  (both `run_ci.ps1` and `ci-linux.sh`).
+- **Name the test after the bug mechanism.**
+  `interior_graces_are_stranded_by_the_open_flag_latch` plus the predicate that
+  turns it green is a machine-readable fix spec: it carries the mechanism, the
+  fix shape, and the function to call. Write it to be legible to a teammate — or
+  a fresh agent — on nothing but the test output.
+
+This is the correspondence half of *Runtime visibility*: the arming logs tell
+you a feature is present; the replay tier tells you it is *correct*.
 
 ## Repo hygiene
 
@@ -197,8 +284,19 @@ Run through this before a change lands (PR or direct):
       because X); no silent fallbacks.
 - [ ] Game-state writes reconcile against read-back state; no watermark advances
       past an unverified write.
+- [ ] Sequencing/timing/reconcile bugs land with a host-tested `*_replay` harness:
+      a pure decision fn plus a timeline that reproduces the bug
+      failing-without-fix / passing-with-fix, named after the bug mechanism.
+- [ ] Every fix predicate has a production caller — the client calls the pure fn,
+      no inline copy; a green replay with no caller is a spec, not a fix.
 - [ ] In-game confirmations record the environment (vanilla/baked, mods, build)
       and date.
 - [ ] New slot_data keys have a live consumer or an explicit CONTRACT tag.
+- [ ] New world features are a single self-registered file in `features/`, not
+      edits to `core.py` or a shared module; anything that can over-constrain the
+      fill gates itself on the pool.
+- [ ] Every slot_data key is declared in `contract.py` and validated both sides;
+      the generated mirrors (`contract_gen.rs`, `CONTRACT.md`, handoff spec) are
+      regenerated from it, not hand-edited.
 - [ ] No game data or build outputs staged; `git diff --cached --stat` reviewed.
 - [ ] Item-pool changes are count-neutral.

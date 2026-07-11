@@ -1,0 +1,108 @@
+# ============================================================================
+#  GREENFIELD ELDEN RING -- "The Shattering" playtest  (matt-free apworld)
+# ============================================================================
+#  game MUST match the installed world. On CURRENT code that is
+#  "Elden Ring". After patch_gf_rename_and_version.py is applied on
+#  Windows (v0.2 rename) it becomes "EldenRing" -- update the `game:` line below
+#  AND the game-section key, then rebuild the client (cargo) so its Connect string
+#  matches, or it won't connect.
+#
+#  Every option here was validated against the installed world (2026-07-08) and this
+#  file gen-tests clean. GREENFIELD's option set is smaller/different from the release
+#  apworld -- do NOT paste release options (quick_start / world_logic / region_access /
+#  no_spirit_ashes / *_location_behavior are NOT greenfield options and will error).
+#
+#  Only ONE yaml in greenfield\players\ = a solo seed. Two+ = a multiworld.
+#  To run: copy this over greenfield\players\Greenfield.yaml (or clear players\ first).
+# ============================================================================
+name: Alaric
+description: Greenfield ER -- Shattering (item-shuffle, 4 rolled regions, region-lock goal)
+game: "Elden Ring"
+
+"Elden Ring":
+
+  # ---- The Shattering (the headline) --------------------------------------
+  num_regions: 4                 # majors in play (+ Roundtable hub, always kept); rest sealed. 0 = all 22.
+  num_regions_order: rolled      # spine = Limgrave-first fixed path; rolled = N random majors.
+  ending_condition: region_locks # win = hold every kept region's lock. great_runes = ALSO require N runes.
+  # great_runes_required: 2      # 1..7; ONLY consulted when ending_condition: great_runes.
+  start_with_region_lock: true   # spawn at Roundtable with one random kept region already unlocked.
+
+  # ---- Real item randomizer -----------------------------------------------
+  item_shuffle: true             # each check pays its real vanilla ER item, shuffled (~98.9%; the rest give Rune).
+  pool_builder: true             # scrub the Rune tail, inject rare/legendary juice.
+  pool_builder_intensity: max    # normal | high (default) | max -- rarity floor: legendary-only | +rare | +B-tier.
+  pool_builder_juice_cap: 0      # 0..400; 0 = auto-size to the whole Rune tail (default 120).
+  # pool_builder_juice_pct: 100  # 0..100; share of the cap actually spent (default 100).
+  curated_fill: true             # concentrate the region Locks onto big-ticket checks instead of random pickups.
+  # big_ticket_locations: [Boss, Remembrance, Legendary, GreatRune, KeyItem]  # what "big-ticket" means (default shown).
+
+  # ---- Filler curation (replace vanilla junk consumables) -----------------
+  curated_filler:                # {category: weight}; valid: throwables pots greases foods boluses perfumes utility rare funny stones somber_stones runes junk.
+    throwables: 25               #   granted in stacks of 5
+    pots: 15                     #   granted in stacks of 2  (need vessels -- see start_inventory below)
+    greases: 10
+    foods: 12                    # turtle necks, exalted flesh, warming stone, starlight shards, ...
+    boluses: 6                   # status-cure boluses
+    perfumes: 8                  # DLC perfume consumables (needs DLC)
+    rare: 1                      # Dragon Heart / Stonesword Key -- keep tiny
+    stones: 20                   #   low smithing stones
+    runes: 20                    #   rune items (leveling)
+    junk: 10                     #   keep this share as vanilla junk
+  # varied_filler: true          # (default on) diversify whatever filler is left.
+
+  # POT VESSELS: throwing pots are capped by your Cracked Pot count (Ritual Pots for the ritual-type
+  # pots); with no vessels a granted pot stack overflows straight to STORAGE and can't be thrown.
+  # Grant a baseline stock so the curated_filler 'pots' are usable from the start. (Additive -- these
+  # do NOT come out of the shuffled pool.) Drop this block if you remove the 'pots' category above.
+  start_inventory:
+    Cracked Pot: 12
+    Ritual Pot: 4
+
+  # ---- Boss locks / dungeon sweeps ----------------------------------------
+  boss_keys: true                # mint "Boss Key: <Boss>" gating items (mode-B metadata).
+  dungeon_sweep: all             # kill a dungeon boss -> its other checks auto-register. all | minidungeons | bosses | none.
+                                 # REQUIRES the P3b client handler (patch_p3b_client.py) in the built DLL, else
+                                 # sweeps silently never fire.
+  boss_lock_placement: own_region  # scatter | own_region | any_boss. INERT today (mode-B sweepLockGates not shipped).
+  # NOTE: mode-A "Felled: <Boss>" trophies emit in slot_data (base bosses only) but are NOT yet shown in-game --
+  # the client glue in WIRING-boss-locks-v0.2.md must be wired + rebuilt first. Base-only (enable_dlc:false) matches
+  # mode-A's scope.
+
+  # ---- Warp-in ------------------------------------------------------------
+  grace_rando: false             # BUNDLE: a region lock lights ALL of that region's graces (no scatter items).
+                                 # true (default) = freebie+scatter: one front-door grace + the rest become item drops.
+
+  # ---- Upgrade curve ------------------------------------------------------
+  stone_ramp: true               # AUTO-SIZE smithing stones along the fill spheres to track the smoothstep target.
+  flatten_regular_upgrades: 3    # 0 = vanilla 2/4/6 ladder; 1..4 uniform stones/level. 3 = tuned to pair with stone_ramp.
+  # stone_injection: 0           # ALTERNATIVE to stone_ramp: swap N filler items for low stones (fixed count). 0 = off.
+  # auto_upgrade: false          # THIS IS A REAL OPTION (the old comment was wrong): auto-raise received weapons to your
+                                 # held reinforce level. Off keeps the vanilla "upgrade it yourself" feel.
+  # filler_upgrade_weight: 1     # 1..40; weight of upgrade stones in the Rune-fallback tail (inert under item_shuffle).
+
+  # ---- QoL / difficulty ---------------------------------------------------
+  start_with_torch: true         # begin holding a Torch (dark caves navigable before your first grace).
+  start_with_flasks: true        # (default) start with the vanilla flask set.
+  start_with_steed: true         # (default) start with Torrent's whistle (Spectral Steed).
+  reveal_all_maps: true          # (default) whole overworld + underground map revealed.
+  no_weapon_requirements: true   # any received gear usable on any build.
+  early_leveling: true           # (default) early access to leveling at Roundtable.
+  buyable_stonesword_keys: true  # (default) infinite Stonesword Key vendor -> imp-statue checks are never missable.
+  protect_missable_locations: true  # (default) keep missable checks logically reachable.
+  completion_scaling_floor: 0    # 0..50; raise to lift the early-region difficulty floor.
+  global_scadutree_blessing: off # off | player_only | scaled. DLC-only power curve; inert while enable_dlc is false.
+
+  # ---- DLC / multiplayer --------------------------------------------------
+  # CONFLICT RESOLVED: the source yaml set enable_dlc THREE times (true, then false, then false). Kept it
+  # BASE-ONLY (false): it matches the base-only boss-lock (mode-A) scope, the base num_regions pool, and the
+  # "recommended" note. To playtest the DLC instead, set enable_dlc: true (Land of Shadow, Belurat, Scadu
+  # Altus, Shadow Keep, Gravesite Plain, Ancient Ruins of Rauh, Enir-Ilim, Jagged Peak, Abyssal Woods join
+  # the pool) -- and bump num_regions if you want more of them kept.
+  enable_dlc: false              # base game only.
+  dlc_only: false                # true = ONLY DLC regions (requires enable_dlc: true).
+  death_link: false              # true = shared deaths (2-player).
+
+  # ---- Archipelago common -------------------------------------------------
+  accessibility: minimal
+  progression_balancing: 50

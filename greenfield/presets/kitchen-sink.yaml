@@ -1,0 +1,82 @@
+# ============================================================================
+#  GREENFIELD ELDEN RING -- preset: KITCHEN-SINK  (EXPERIMENTAL, everything on)
+# ============================================================================
+#  *** EXPERIMENTAL ***  The maximal config: base + Shadow of the Erdtree, the
+#  great-runes goal, boss-key gating, per-region attunement, curated filler,
+#  the works. This is a long, heavy, less-tuned run that exercises every knob at
+#  once; expect a marathon and rough difficulty pacing. Individual knobs flagged
+#  EXPERIMENTAL below depend on client-side features that may be partial -- see
+#  the report / player guide. Torrent + hub start remain on (no mountless
+#  softlock even here).
+#
+#  game MUST match the installed world ("Elden Ring" on current
+#  code; "EldenRing" after the v0.2 rename). Validated + gen-tests clean, but
+#  the FEEL is unpolished by design.
+# ============================================================================
+name: Player
+description: Greenfield ER -- Kitchen-Sink (EXPERIMENTAL, everything on, base + DLC)
+game: "Elden Ring"
+
+"Elden Ring":
+
+  # ---- Scope: everything, base + DLC (PIN num_regions) --------------------
+  num_regions: 0                  # 0 = all regions incl. DLC. Pinned explicitly.
+  num_regions_order: spine
+  ending_condition: great_runes   # ALSO collect Great Runes (needs item_shuffle; auto-clamps to reachable)
+  great_runes_required: 2         # 1..7; clamped down to the runes actually reachable this seed
+  start_with_region_lock: true
+
+  # ---- Real item shuffle + maximal juice ----------------------------------
+  item_shuffle: true
+  curated_fill: true
+  big_ticket_locations: [Boss, Remembrance, Legendary, GreatRune, KeyItem]
+  important_locations: [Remembrance, Seedtree, Church, Boss, Fragment, Revered, Basin, Shop]
+  pool_builder: true
+  pool_builder_intensity: max
+  pool_builder_juice_cap: 0       # 0 = auto-size to the whole Rune tail
+
+  # ---- Filler curation (replace vanilla junk with a Nightreign-ish roster) -
+  curated_filler:
+    throwables: 25
+    pots: 15
+    greases: 10
+    foods: 12                    # turtle necks, exalted flesh, warming stone, starlight shards, ...
+    boluses: 6                   # status-cure boluses
+    perfumes: 8                  # DLC perfume consumables (needs DLC)
+    rare: 1                      # Dragon Heart / Stonesword Key -- keep tiny
+    stones: 20
+    runes: 20
+    junk: 10
+
+  # ---- Boss locks / dungeon sweeps ----------------------------------------
+  boss_keys: true                 # mint "Boss Key: <Boss>" gating items (mode-B)
+  dungeon_sweep: all              # kill a dungeon boss -> its checks auto-register (needs the P3b client handler)
+  boss_lock_placement: own_region
+
+  # ---- Warp-in -------------------------------------------------------------
+  grace_rando: true
+
+  # ---- Upgrade curve -------------------------------------------------------
+  stone_ramp: true
+  flatten_regular_upgrades: 3
+  auto_upgrade: true              # auto-raise received weapons to your held reinforce level
+  no_weapon_requirements: true    # any received gear usable on any build
+
+  # ---- Safety defaults (default-on; pinned) -------------------------------
+  start_with_steed: true          # Torrent (mount safety) -- ON even in kitchen-sink
+  start_with_torch: true
+  start_with_flasks: true
+  reveal_all_maps: true
+  early_leveling: true
+  buyable_stonesword_keys: true
+  protect_missable_locations: true
+
+  # ---- DLC -----------------------------------------------------------------
+  enable_dlc: true                # Land of Shadow, Belurat, Scadu Altus, Shadow Keep, Jagged Peak, Abyssal Woods
+  dlc_only: false
+  global_scadutree_blessing: scaled  # EXPERIMENTAL: DLC power curve applied game-wide (client persistence is WIP)
+  death_link: false
+
+  # ---- Archipelago common -------------------------------------------------
+  accessibility: minimal
+  progression_balancing: 50

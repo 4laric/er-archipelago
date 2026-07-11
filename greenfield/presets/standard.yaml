@@ -1,0 +1,54 @@
+# ============================================================================
+#  GREENFIELD ELDEN RING -- preset: STANDARD  (balanced full base game)
+# ============================================================================
+#  The everyday default: the full base-game Shattering with real items shuffled
+#  and a healthy juice pool. Longer than sync-friendly (all base regions in
+#  play). Torrent + Roundtable hub start on; DLC off (see kitchen-sink for DLC).
+#
+#  game MUST match the installed world ("Elden Ring" on current
+#  code; "EldenRing" after the v0.2 rename -- update both lines + rebuild client).
+#  Validated against the installed world; gen-tests clean.
+# ============================================================================
+name: Player
+description: Greenfield ER -- Standard (full base-game Shattering, real items)
+game: "Elden Ring"
+
+"Elden Ring":
+
+  # ---- Scope: full base game (PIN num_regions even for "all") --------------
+  num_regions: 0                  # 0 = all base regions in play (full Shattering). Pinned explicitly.
+  num_regions_order: spine        # irrelevant at 0 (all kept); pinned for determinism
+  ending_condition: region_locks  # win = hold every kept region's lock
+  start_with_region_lock: true    # one region open from the Roundtable start
+
+  # ---- Real item shuffle ---------------------------------------------------
+  item_shuffle: true
+  curated_fill: true              # progression concentrates on big-ticket checks
+  important_locations: [Remembrance, Seedtree, Church, Boss, Fragment, Revered]
+  pool_builder: true
+  pool_builder_intensity: high    # richer juice for a full-length run
+
+  # ---- Warp-in -------------------------------------------------------------
+  grace_rando: true               # default: one front-door grace + the rest scatter as item drops
+
+  # ---- Upgrade curve smoothing --------------------------------------------
+  stone_ramp: true                # auto-size smithing stones along the fill spheres
+  flatten_regular_upgrades: 3     # uniform-ish stone ladder tuned to pair with stone_ramp
+
+  # ---- Safety defaults (default-on; pinned) -------------------------------
+  start_with_steed: true          # Torrent (mount safety)
+  start_with_torch: true
+  start_with_flasks: true
+  reveal_all_maps: true
+  early_leveling: true
+  buyable_stonesword_keys: true
+  protect_missable_locations: true
+
+  # ---- Base game only ------------------------------------------------------
+  enable_dlc: false
+  dlc_only: false
+  death_link: false
+
+  # ---- Archipelago common -------------------------------------------------
+  accessibility: minimal
+  progression_balancing: 50
