@@ -180,7 +180,13 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # The big_ticket_locations option draws from the SAME set. "EniaShop" is INTERNAL (gen_data tags the
 # remembrance store) and is never user-selectable.
 IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                            "Basin", "Shop", "Legendary", "GreatRune", "KeyItem", "MajorBoss"]
+                            "Basin", "Shop", "ShopNonSpell", "Legendary", "GreatRune", "KeyItem",
+                            "MajorBoss"]
+# ShopNonSpell = every Shop check EXCEPT those sold by a dedicated spell vendor (a ShopLineupParam
+# 100-block whose stock is >=50% sorceries/incantations -- measured, not curated, so a general
+# merchant who happens to stock a spell stays in). 395 of the 479 shop checks. NOT in the default
+# progression surface: shops remain randomized checks, they are just not eligible to HOLD progression
+# (479 of them would make ~70% of the surface a merchant). See defaults.FROZEN_OPTIONS.
 # MajorBoss = the ~24 REGION_BOSSES (method=boss_arena remembrance/great-rune arena bosses) UNION a
 # curated MAJOR_BOSS_EXTRAS set of hand-picked field/evergaol/dragon bosses that cover the otherwise
 # major-less regions (gen_data.py). These are the highest-confidence physical locations (boss-arena /
