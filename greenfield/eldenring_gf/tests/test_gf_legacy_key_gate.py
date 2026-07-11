@@ -61,12 +61,3 @@ class LegacyKeyGateOn(WorldTestBase):
         assert mw.can_beat_game(), "seed with the gate active must be beatable"
 
 
-class LegacyKeyGateOff(WorldTestBase):
-    game = GAME
-    run_default_tests = False
-    options = {"item_shuffle": True, "num_regions": 0, "legacy_dungeon_keys": False,
-               "accessibility": "minimal"}
-
-    def test_key_stays_filler(self):
-        keys = [it for it in self.multiworld.itempool if it.name == KEY]
-        assert keys and all(not (it.classification & IC.progression) for it in keys)

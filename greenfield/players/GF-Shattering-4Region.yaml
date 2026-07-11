@@ -1,22 +1,28 @@
 # ============================================================================
-#  GREENFIELD ELDEN RING -- "The Shattering" playtest  (matt-free apworld)
+#  GREENFIELD ELDEN RING -- "The Shattering"  (matt-free apworld, v0.2)
 # ============================================================================
-#  game MUST match the installed world. On CURRENT code that is
-#  "Elden Ring (Greenfield)". After patch_gf_rename_and_version.py is applied on
-#  Windows (v0.2 rename) it becomes "EldenRing" -- update the `game:` line below
-#  AND the game-section key, then rebuild the client (cargo) so its Connect string
-#  matches, or it won't connect.
+#  The option matrix was SLIMMED for v0.2 (2026-07-11). Guiding principle: anything that was always
+#  left on in this yaml is now simply THE BEHAVIOUR, and half-built modes are frozen off instead of
+#  exposed. 56 options -> 19. See greenfield/eldenring_gf/defaults.py for the frozen table.
 #
-#  Every option here was validated against the installed world (2026-07-08) and this
-#  file gen-tests clean. GREENFIELD's option set is smaller/different from the release
-#  apworld -- do NOT paste release options (quick_start / world_logic / region_access /
-#  no_spirit_ashes / *_location_behavior are NOT greenfield options and will error).
+#  BAKED IN (no longer settable -- this is just how greenfield plays now):
+#    item_shuffle            every check pays its real vanilla ER item
+#    pool_builder            on, scope=all_filler, intensity=max, juice auto-sized to the whole tail
+#    curated_fill            on   |  stone_ramp on  |  flatten_regular_upgrades = 2
+#    auto_upgrade            on   |  no_weapon_requirements on
+#    start_with_torch/flasks/steed/region_lock, reveal_all_maps, early_leveling,
+#    buyable_stonesword_keys, protect_missable_locations, legacy_dungeon_keys, varied_filler
+#    dungeon_sweep = all   |  progression_surface = strict (MajorBoss/Remembrance/GreatRune)
 #
+#  FROZEN OFF (half-built -- will be re-exposed when finished):
+#    boss_keys / boss_lock_placement, progressive_*, stone_injection,
+#    completion_scaling_floor, global_scadutree_blessing
+#
+#  game MUST match the installed world. On CURRENT code that is "Elden Ring (Greenfield)".
 #  Only ONE yaml in greenfield\players\ = a solo seed. Two+ = a multiworld.
-#  To run: copy this over greenfield\players\Greenfield.yaml (or clear players\ first).
 # ============================================================================
 name: Alaric
-description: Greenfield ER -- Shattering (item-shuffle, 4 rolled regions, region-lock goal)
+description: Greenfield ER -- Shattering (4 rolled regions, region-lock goal)
 game: "Elden Ring (Greenfield)"
 
 "Elden Ring (Greenfield)":
@@ -26,25 +32,19 @@ game: "Elden Ring (Greenfield)"
   num_regions_order: rolled      # spine = Limgrave-first fixed path; rolled = N random majors.
   ending_condition: region_locks # win = hold every kept region's lock. great_runes = ALSO require N runes.
   # great_runes_required: 2      # 1..7; ONLY consulted when ending_condition: great_runes.
-  start_with_region_lock: true   # spawn at Roundtable with one random kept region already unlocked.
 
-  # ---- Real item randomizer -----------------------------------------------
-  item_shuffle: true             # each check pays its real vanilla ER item, shuffled (~98.9%; the rest give Rune).
+  # ---- Gates ---------------------------------------------------------------
+  leyndell_runes_required: 2     # Great Runes needed to enter the folded capital. 0 = no gate.
 
-
- # --- the injection work (community tiers -> gear) ---
-  pool_builder: true
-  pool_builder_scope: all_filler
-  pool_builder_intensity: max    # S + A + B, widest candidate set
-  pool_builder_juice_cap: 0      # auto-size to the whole Rune tail
-  pool_builder_pct_weapons: 30   # per-category mix (these override the global %)
+  # ---- Pool builder: the community-tier gear injection (the mix) -----------
+  pool_builder_pct_weapons: 30   # per-category share of the injected juice
   pool_builder_pct_armor: 25
   pool_builder_pct_spells: 20    # sorceries + incantations
   pool_builder_pct_talismans: 15
   pool_builder_pct_ashes_of_war: 10
+  pool_builder_juice_pct: 100    # share of the displaceable filler that becomes juice
 
-  # --- curated consumable filler (stack sizes + new categories) ---
-  curated_fill: true
+  # ---- Curated consumable filler (stack weights) ---------------------------
   curated_filler:
     throwables: 3                # kukri x5, etc.
     pots: 2
@@ -55,50 +55,19 @@ game: "Elden Ring (Greenfield)"
     somber_stones: 2
     runes: 1
     utility: 1
-    rare: 1         
+    rare: 1
 
-  # ---- Boss locks / dungeon sweeps ----------------------------------------
-  boss_keys: false                # mint "Boss Key: <Boss>" gating items (mode-B metadata).
-  dungeon_sweep: all             # kill a dungeon boss -> its other checks auto-register. all | minidungeons | bosses | none.
-                                 # REQUIRES the P3b client handler (patch_p3b_client.py) in the built DLL, else
-                                 # sweeps silently never fire.
-  #qboss_lock_placement: own_region  # scatter | own_region | any_boss
+  # ---- DLC / multiplayer ---------------------------------------------------
+  enable_dlc: true               # Land of Shadow regions join the pool.
+  dlc_only: false                # true = ONLY DLC regions (implies enable_dlc).
+  death_link: false              # true = shared deaths.
 
-  # ---- Warp-in ------------------------------------------------------------
-  grace_rando: false             # BUNDLE: a region lock lights ALL of that region's graces (no scatter items).
-                                 # true (default) = freebie+scatter: one front-door grace + the rest become item drops.
+  # ---- Multiworld item locality (defaults are fine for solo) ---------------
+  # local_item_only: false       # force this world's items to stay in this world
+  # exclude_local_item_only: []  # item names exempt from the above
+  # filler_foreign_pct: 100      # % of filler eligible to go to other worlds
+  # merchant_bell_logic: off     # off | logic_only
 
-  # ---- Upgrade curve ------------------------------------------------------
-  stone_ramp: true               # AUTO-SIZE smithing stones along the fill spheres to track the smoothstep target.
-  flatten_regular_upgrades: 3    # 0 = vanilla 2/4/6 ladder; 1..4 uniform stones/level. 3 = tuned to pair with stone_ramp.
-  # stone_injection: 0           # ALTERNATIVE to stone_ramp: swap N filler items for low stones (fixed count). 0 = off.
-  # auto_upgrade: false          # THIS IS A REAL OPTION (the old comment was wrong): auto-raise received weapons to your
-                                 # held reinforce level. Off keeps the vanilla "upgrade it yourself" feel.
-  # filler_upgrade_weight: 1     # 1..40; weight of upgrade stones in the Rune-fallback tail (inert under item_shuffle).
-
-  # ---- QoL / difficulty ---------------------------------------------------
-  start_with_torch: true         # begin holding a Torch (dark caves navigable before your first grace).
-  start_with_flasks: true        # (default) start with the vanilla flask set.
-  start_with_steed: true         # (default) start with Torrent's whistle (Spectral Steed).
-  reveal_all_maps: true          # (default) whole overworld + underground map revealed.
-  no_weapon_requirements: true   # any received gear usable on any build.
-  early_leveling: true           # (default) early access to leveling at Roundtable.
-  buyable_stonesword_keys: true  # (default) infinite Stonesword Key vendor -> imp-statue checks are never missable.
-  protect_missable_locations: true  # (default) keep missable checks logically reachable.
-  completion_scaling_floor: 0    # 0..50; raise to lift the early-region difficulty floor.
-  global_scadutree_blessing: off # off | player_only | scaled. DLC-only power curve; inert while enable_dlc is false.
-  auto_upgrade: true          # auto-raise received weapons to your held reinforce level. Off keeps the vanilla "upgrade it yourself" feel.
-
-  # ---- DLC / multiplayer --------------------------------------------------
-  # CONFLICT RESOLVED: the source yaml set enable_dlc THREE times (true, then false, then false). Kept it
-  # BASE-ONLY (false): it matches the base-only boss-lock (mode-A) scope, the base num_regions pool, and the
-  # "recommended" note. To playtest the DLC instead, set enable_dlc: true (Land of Shadow, Belurat, Scadu
-  # Altus, Shadow Keep, Gravesite Plain, Ancient Ruins of Rauh, Enir-Ilim, Jagged Peak, Abyssal Woods join
-  # the pool) -- and bump num_regions if you want more of them kept.
-  enable_dlc: true              # base game only.
-  dlc_only: false                # true = ONLY DLC regions (requires enable_dlc: true).
-  death_link: false              # true = shared deaths (2-player).
-
-  # ---- Archipelago common -------------------------------------------------
+  # ---- Archipelago common --------------------------------------------------
   accessibility: minimal
   progression_balancing: 50

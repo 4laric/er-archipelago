@@ -19,6 +19,8 @@ from collections import Counter
 
 import pytest
 
+pytestmark = pytest.mark.skip(reason="boss_keys is FROZEN OFF in v0.2 (defaults.py) -- boss locks are half-built and no longer yaml-exposed. Un-skip when the feature is finished and re-exposed.")
+
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf import contract  # noqa: E402

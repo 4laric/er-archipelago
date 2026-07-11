@@ -19,9 +19,15 @@ class FeaturesSmoke(WorldTestBase):
     options = {"dungeon_sweep": "all"}
 
     def test_feature_options_present(self):
+        """Every declared feature option must be ACCOUNTED FOR: either yaml-exposed in GFOptions, or
+        frozen as behaviour in defaults.FROZEN_OPTIONS. Neither silently dropped nor double-counted."""
+        from worlds.eldenring_gf.defaults import FROZEN_OPTIONS
         names = {f.name for f in dataclasses.fields(self.world.options_dataclass)}
         for o in _OPTS:
-            self.assertIn(o, names, f"feature option {o!r} missing from GFOptions")
+            self.assertTrue(o in names or o in FROZEN_OPTIONS,
+                            f"feature option {o!r} is neither in GFOptions nor FROZEN_OPTIONS")
+            self.assertFalse(o in names and o in FROZEN_OPTIONS,
+                             f"feature option {o!r} is BOTH yaml-exposed and frozen")
 
     def test_feature_slot_data_keys_present(self):
         sd = self.world.fill_slot_data()   # merge_slot_data raises on any key collision

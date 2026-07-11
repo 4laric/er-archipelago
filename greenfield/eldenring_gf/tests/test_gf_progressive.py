@@ -7,6 +7,8 @@ progression, so the seed stays winnable in every case.
 """
 import pytest
 
+pytestmark = pytest.mark.skip(reason="progressive_flasks / progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py) -- not yaml-exposed. Un-skip when re-exposed.")
+
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.features.progressive import (  # noqa: E402
