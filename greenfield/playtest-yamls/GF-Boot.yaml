@@ -4,8 +4,8 @@
 # Golden Rune, picking up a check sends it.
 name: GFBoot
 description: Greenfield boot isolation
-game: "Elden Ring (Greenfield)"
-"Elden Ring (Greenfield)":
+game: "Elden Ring"
+"Elden Ring":
   num_regions: 3
   num_regions_order: spine
   item_shuffle: false

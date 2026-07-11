@@ -2,7 +2,7 @@
 
 The apworld now hard-gates two folded sub-areas' **graces** so the player can't warp in before holding
 the key item. This is the client half of `legacy_key_gates` / `leyndell_gate` (previously logic-only).
-Apworld side: `greenfield/eldenring_gf/features/graces.py` + contract keys in `contract.py`. This doc is
+Apworld side: `greenfield/eldenring/features/graces.py` + contract keys in `contract.py`. This doc is
 the `eldenring-archipelago` (region.rs) work needed to consume it. Land it on `eldenring-client-draft`.
 
 ## Background

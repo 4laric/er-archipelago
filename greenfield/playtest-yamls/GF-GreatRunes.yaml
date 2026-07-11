@@ -3,8 +3,8 @@
 # cannot finish without holding 2 Great Runes.
 name: GFRunes
 description: Greenfield great-rune goal
-game: "Elden Ring (Greenfield)"
-"Elden Ring (Greenfield)":
+game: "Elden Ring"
+"Elden Ring":
   num_regions: 0
   item_shuffle: true
   ending_condition: great_runes

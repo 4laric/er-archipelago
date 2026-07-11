@@ -18,8 +18,8 @@ yaml; gen with `.\build.ps1 -Greenfield` (installs the world + gens against gree
 Base yaml shape:
 ```yaml
 name: GFTest
-game: "Elden Ring (Greenfield)"
-"Elden Ring (Greenfield)":
+game: "Elden Ring"
+"Elden Ring":
   <options>
 ```
 

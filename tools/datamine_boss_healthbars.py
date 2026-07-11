@@ -24,7 +24,7 @@ AR   = os.path.join(REPO, "elden_ring_artifacts")
 EVT  = os.path.join(AR, "event")
 MSG  = os.path.join(AR, "msg")
 GF   = os.path.join(REPO, "greenfield")
-OUT  = os.path.join(GF, "eldenring_gf", "boss_healthbars.py")
+OUT  = os.path.join(GF, "eldenring", "boss_healthbars.py")
 
 _MAPFILE = re.compile(r"(m\d\d)_(\d\d)_\d\d_\d\d\.emevd\.dcx\.js$")   # mAA_BB from a map emevd filename
 _LIT     = re.compile(r"DisplayBossHealthBar\(\s*(?:Enabled|1)\s*,\s*(\d+)\s*,\s*\d+\s*,\s*(\d+)")

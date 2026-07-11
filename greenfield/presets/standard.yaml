@@ -5,15 +5,15 @@
 #  and a healthy juice pool. Longer than sync-friendly (all base regions in
 #  play). Torrent + Roundtable hub start on; DLC off (see kitchen-sink for DLC).
 #
-#  game MUST match the installed world ("Elden Ring (Greenfield)" on current
+#  game MUST match the installed world ("Elden Ring" on current
 #  code; "EldenRing" after the v0.2 rename -- update both lines + rebuild client).
 #  Validated against the installed world; gen-tests clean.
 # ============================================================================
 name: Player
 description: Greenfield ER -- Standard (full base-game Shattering, real items)
-game: "Elden Ring (Greenfield)"
+game: "Elden Ring"
 
-"Elden Ring (Greenfield)":
+"Elden Ring":
 
   # ---- Scope: full base game (PIN num_regions even for "all") --------------
   num_regions: 0                  # 0 = all base regions in play (full Shattering). Pinned explicitly.

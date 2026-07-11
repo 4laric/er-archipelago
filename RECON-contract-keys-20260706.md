@@ -2,7 +2,7 @@
 
 Date: 2026-07-06 · READ-ONLY recon per FABLE-FIX-PARALLELIZATION-PLAN-20260706.md Wave 1 R1.
 Client paths relative to `from-software-archipelago-clients/crates/`; greenfield paths relative to
-`greenfield/eldenring_gf/`. Nesting: **TOP** = `sd["<key>"]`, **OPTIONS** = `sd["options"]["<key>"]`.
+`greenfield/eldenring/`. Nesting: **TOP** = `sd["<key>"]`, **OPTIONS** = `sd["options"]["<key>"]`.
 
 Non-slot_data reads excluded on inspection: `er-logic/src/save_state.rs` (save-file JSON),
 `eldenring-archipelago/src/flagpoll.rs:67,74` `location_flags`/`sweep_flags` (apconfig table FILE,
@@ -101,7 +101,7 @@ Note: `world_logic` is declared in contract_gen.rs:46 but NO client code reads i
 | 35 | `startItems` | features/start_items.py:60 | TOP | [int FullIDs] |
 | 36 | `no_weapon_requirements` | features/weapon_reqs.py:26 | **TOP** | bool |
 
-Greenfield emits **NO `"options"` sub-dict anywhere** (grep: zero hits across eldenring_gf).
+Greenfield emits **NO `"options"` sub-dict anywhere** (grep: zero hits across eldenring).
 Merge path: registry.merge_slot_data (registry.py:70-78, collision-checked, accepts ANY key) →
 contract.validate_slot_data strict (core.py:373-374; contract.py:246-263 ignores unknown keys).
 
@@ -138,7 +138,7 @@ contract.validate_slot_data strict (core.py:373-374; contract.py:246-263 ignores
 | `enable_dlc` OPTIONS (+TOP bool fallback) | **MISSING** (F1-adjacent) | NO greenfield emission at all (contract.py:201 claims producer "core (options echo)" — false); DLC map-reveal (startgrants.rs:66-67) dark |
 | `auto_upgrade` OPTIONS | **MISSING** | no producer; core.rs:309 → auto-upgrade always 0/off |
 | `flatten_regular_upgrades` OPTIONS | **MISSING** | no producer; core.rs:315 → always off |
-| `regionSphereTargetRanges` TOP | **MISSING** (F3) | no producer anywhere in eldenring_gf; the LIVE scaling wire (scaling.rs:150-165); undeclared in contract.py |
+| `regionSphereTargetRanges` TOP | **MISSING** (F3) | no producer anywhere in eldenring; the LIVE scaling wire (scaling.rs:150-165); undeclared in contract.py |
 | `regionSphereTargets` TOP | **WRONG-SHAPE** | core.py:363 emits {region NAME: float}; client i32_i32_map (scaling.rs:126-136) needs {str(i32): i32} → parses to EMPTY. With ranges also missing, parse_scaling_config returns None (refuse-to-arm) |
 | `versions` TOP | **MISSING** (soft) | no producer; version gate deliberately inert when absent (version.rs:13-18) — decide: emit or leave; undeclared in contract.py |
 | `itemCounts` TOP | MISSING-BY-DESIGN | bedrock profile (contract.py:220); client defaults fine |

@@ -6,7 +6,7 @@ synthetic-lock model and touches fill + the client contract. Below is the concre
 implementation plan for Alaric's sign-off.
 
 ## What already exists and is WIRED (naming only)
-- `greenfield/eldenring_gf/features/legible_keys.py` -- a pure map
+- `greenfield/eldenring/features/legible_keys.py` -- a pure map
   `CAPSTONE_VANILLA_KEYS: {boss_label -> vanilla key display name}` (Academy Glintstone Key,
   Dectus Medallion, Haligtree Secret Medallion, Pureblood Knight's Medal, Fingerslayer Blade,
   Deathroot, Messmer's Kindling, ...). Bosses with no real vanilla capstone key fall back to the

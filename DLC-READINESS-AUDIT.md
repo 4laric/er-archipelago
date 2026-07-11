@@ -13,7 +13,7 @@
 ## What was actually run
 
 1. `bash greenfield/provision-linux-env.sh` → Python 3.11.15 + stock AP clone at `~/.greenfield-ci/ap` (READY).
-2. Installed world: `git archive HEAD:greenfield/eldenring_gf | tar -x` into `.../ap/worlds/eldenring_gf`.
+2. Installed world: `git archive HEAD:greenfield/eldenring | tar -x` into `.../ap/worlds/eldenring`.
 3. Four full generations (build a solo `MultiWorld`, run `generate_early…pre_fill`, `distribute_items_restrictive`, `post_fill`, then `fill_slot_data()`), dumping location placements, item pool, and every DLC-relevant slot_data key:
    - **A. `enable_dlc:1, num_regions:0`** (all 21 regions kept) → **WINNABLE, no FillError.** 3958 locations, 21 kept.
    - **B. `dlc_only:1, num_regions:0`** (6 DLC regions kept) → **WINNABLE, no FillError.** 1097 locations, 6 kept.

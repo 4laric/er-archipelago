@@ -32,7 +32,7 @@ same filesystem, `cmp`s the staged bytes, then does an **atomic `mv`** (a rename
 makes a new inode, which defeats the shrinking null-pad, and rename is one op the
 mount allows). Finally it re-checks size + sha256 and prints a receipt.
 
-    tools/safe_publish.sh /tmp/core.py greenfield/eldenring_gf/core.py
+    tools/safe_publish.sh /tmp/core.py greenfield/eldenring/core.py
 
 Always also confirm the destination with the harness `Read` tool -- bash can serve
 a stale mount view even of a just-written file.

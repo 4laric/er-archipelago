@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate eldenring_gf/data.py (regions + flag-keyed locations) for the Greenfield ER apworld.
+"""Generate eldenring/data.py (regions + flag-keyed locations) for the Greenfield ER apworld.
 Self-contained + data-derived: reads region_map.csv (this dir) + grace/BonfireWarp anchors from
 elden_ring_artifacts. No dependency on any externally-named file. See LESSONS-LEARNED.md."""
 import csv, re, os, math
@@ -8,7 +8,7 @@ csv.field_size_limit(10**7)
 HERE=os.path.dirname(os.path.abspath(__file__))
 REPO=os.path.abspath(os.path.join(HERE,".."))
 AR=os.path.join(REPO,"elden_ring_artifacts")
-OUT=os.path.join(HERE,"eldenring_gf","data.py")
+OUT=os.path.join(HERE,"eldenring","data.py")
 HUB="Roundtable Hold"
 SKIP={"global","global_filler","shop_reference"}
 # Map-fragment pickups are granted via the RE'd map-reveal FLAG path (the client's reveal_all_maps
@@ -340,7 +340,7 @@ print(f"emevd_audit: UNIQUE={_A_UNIQUE} AMBIGUOUS={_A_AMBIG} NONE={_A_NONE} | "
       f"quarantine->HUB (nearest-neighbor unverifiable)={_A_QUAR} | recovered globals->checks={_A_RECOVER}")
 
 # ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (important_locations source, matt-free) ----
-OUT_TAGS = os.path.join(HERE, "eldenring_gf", "location_tags.py")
+OUT_TAGS = os.path.join(HERE, "eldenring", "location_tags.py")
 import collections as _c
 _tagcount = _c.Counter(tg for tags in loc_tags.values() for tg in tags)
 with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
@@ -393,7 +393,7 @@ for _dr, _df in _DLC_OPEN_FALLBACK.items():
     if _dr in spokes and _dr not in REGION_OPEN_FLAGS:
         REGION_OPEN_FLAGS[_dr] = _df
 REGION_OPEN_PENDING = [r for r in spokes if r not in REGION_OPEN_FLAGS]
-OUT_OPEN = os.path.join(HERE, "eldenring_gf", "region_open_flags.py")
+OUT_OPEN = os.path.join(HERE, "eldenring", "region_open_flags.py")
 with open(OUT_OPEN, "w", encoding="utf-8") as _f:
     _f.write('"""AUTO-GENERATED (gen_data.py). Per-region warp-grace open flags for the Phase 0 boot\n')
     _f.write('contract; derived from grace anchors (matt-free). PENDING = DLC sub-area to resolve in\n')
@@ -416,7 +416,7 @@ for r in rows:
     if r["method"] == "boss_arena":
         reg = region_of(r); fl = int(r["flag"])
         _region_bosses[reg].append((_flag2apid[fl], fl, r["item_name"] or "boss"))
-OUT_BOSS = os.path.join(HERE, "eldenring_gf", "boss_data.py")
+OUT_BOSS = os.path.join(HERE, "eldenring", "boss_data.py")
 with open(OUT_BOSS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Region bosses (method=boss_arena) -> greenfield ap-ids,\n')
     f.write('joined by event flag. Matt-free. Dungeon-sweep triggers need EMEVD enrichment (SPEC P3)."""\n')
@@ -437,7 +437,7 @@ def _graces_frontdoor_first(r):
     _fs = sorted(_open_cand[r]); _fd = _front_door(r)
     return [_fd] + [f for f in _fs if f != _fd]
 REGION_GRACE_POINTS = {r: _graces_frontdoor_first(r) for r in spokes if _open_cand.get(r)}
-OUT_GRACES = os.path.join(HERE, "eldenring_gf", "region_graces.py")
+OUT_GRACES = os.path.join(HERE, "eldenring", "region_graces.py")
 with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). All warp graces per major region (grace_flags.tsv). Matt-free."""\n')
     f.write("REGION_GRACE_POINTS = {\n")
@@ -481,7 +481,7 @@ for _mp, _flags in _map_boss.items():
     for _fl in _flags:
         DUNGEON_SWEEPS[_fl] = sorted(_members)
         SWEEP_REGION[_fl] = _mreg.get(_mp, HUB)
-OUT_SWEEP = os.path.join(HERE, "eldenring_gf", "boss_sweeps.py")
+OUT_SWEEP = os.path.join(HERE, "eldenring", "boss_sweeps.py")
 with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Dungeon sweeps: boss-defeat flag (DarkScript EMEVD) ->\n')
     f.write('member check ap-ids + region. Matt-free. Needs a client flag-watch handler to fire in-game."""\n')
@@ -555,7 +555,7 @@ for _i, _r in enumerate(rows):
     if _goods and len({_e for _e, _t in _goods}) == 1:
         _eid, _et = _goods[0]
         SHOP_PREVIEW_GOODS[str(_aid)] = _eid | _CAT_NIB.get(_et, 0x40000000)
-OUT_SHOP = os.path.join(HERE, "eldenring_gf", "shop_data.py")
+OUT_SHOP = os.path.join(HERE, "eldenring", "shop_data.py")
 with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Shop-purchase checks: greenfield ap-id -> ShopLineupParam\n')
     f.write('eventFlag_forStock (region_map shop rows, flag_source=="shop"). Matt-free; preview goods are\n')
@@ -588,7 +588,7 @@ for _i, _r in enumerate(rows):
         _MISSABLE[BASE_AP + _i] = "deathroot"
     elif _mf in DRAGONHEART_FLAGS:
         _MISSABLE[BASE_AP + _i] = "dragon_heart"
-OUT_MISS = os.path.join(HERE, "eldenring_gf", "missable_locations.py")
+OUT_MISS = os.path.join(HERE, "eldenring", "missable_locations.py")
 with open(OUT_MISS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). ap_ids of MISSABLE checks -- gated behind a limited\n')
     f.write('consumable or a killable NPC (deathroot Gurranq rewards; Dragon-Heart / Dragon Communion\n')
@@ -714,7 +714,7 @@ for _fn, _nib, _dir in _NAME_FMGS:
 _DLC_ONLY = _dlc_dlc_nm - _dlc_base_nm
 DLC_ITEM_NAMES = {_n for _n in ITEM_CATALOG if _n in _DLC_ONLY}
 print(f"item_ids: DLC_ITEM_NAMES {len(DLC_ITEM_NAMES)} DLC-only catalog items")
-OUT_ITEMS = os.path.join(HERE, "eldenring_gf", "item_ids.py")
+OUT_ITEMS = os.path.join(HERE, "eldenring", "item_ids.py")
 with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Real-item-pool: vanilla item_name -> ER FullID, from the\n')
     f.write('FMG name exports (base + DLC, matt-free). ITEM_CATALOG = distinct {name: FullID}; LOCATION_ITEM =\n')
@@ -798,7 +798,7 @@ for _nm, _full in ITEM_CATALOG.items():
     _r = _rarity_by_full.get(_full)
     if _r is not None:
         ITEM_TIERS[_nm] = _r
-OUT_TIERS = os.path.join(HERE, "eldenring_gf", "item_tiers.py")
+OUT_TIERS = os.path.join(HERE, "eldenring", "item_tiers.py")
 with open(OUT_TIERS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED (gen_data.py). Phase 5 pool-builder: vanilla item_name -> quality tier\n')
     f.write('from the ER param `rarity` column (0=trivial,1=common,2=rare,3=legendary), joined by\n')

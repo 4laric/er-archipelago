@@ -7,7 +7,7 @@ is MIT-licensed, and both shipped components follow it:
 
 - **Runtime client** (`eldenring_archipelago.dll`, the `eldenring-archipelago`
   Rust crate) — MIT, original work.
-- **apworld** (`eldenring_gf.apworld`) — MIT; a from-scratch, data-derived world
+- **apworld** (`eldenring.apworld`) — MIT; a from-scratch, data-derived world
   (see Provenance below).
 
 MIT grants the right to use, modify, and redistribute, including in derivative

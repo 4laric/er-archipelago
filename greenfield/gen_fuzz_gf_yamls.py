@@ -8,10 +8,10 @@ value samplers verbatim (gz.sample_value / gz._sample_range / gz.yaml_scalar /
 gz.parse_pins / gz.SKIP_KEYS) -- only the OPTION SOURCE and GAME NAME differ:
 
   * options come from the INSTALLED greenfield world's dataclass (GFOptions),
-    read via `worlds.eldenring_gf.GreenfieldEldenRingWorld.options_dataclass`,
+    read via `worlds.eldenring.GreenfieldEldenRingWorld.options_dataclass`,
     NOT a standalone options.py -- greenfield builds its dataclass dynamically
     from core + self-registered features, so we must read the live world.
-  * the emitted game key is `Elden Ring (Greenfield)` (QUOTED -- spaces/parens).
+  * the emitted game key is `Elden Ring` (QUOTED -- spaces/parens).
 
 Every emitted value is individually valid; what's fuzzed is the COMBINATION.
 Expected downstream outcome (fuzz_gf.py): clean generation, or a raised
@@ -45,7 +45,7 @@ REPO_ROOT = os.path.dirname(HERE)
 sys.path.insert(0, REPO_ROOT)
 import gen_fuzz_yamls as gz  # noqa: E402
 
-GAME = "Elden Ring (Greenfield)"
+GAME = "Elden Ring"
 
 
 def load_gf_options_dataclass():
@@ -56,10 +56,10 @@ def load_gf_options_dataclass():
     faithful source is the live world's options_dataclass. Requires the AP env on
     sys.path (the orchestrator sets cwd to the AP dir before invoking us)."""
     try:
-        from worlds.eldenring_gf import GreenfieldEldenRingWorld as W
+        from worlds.eldenring import GreenfieldEldenRingWorld as W
     except Exception as e:  # pragma: no cover -- surfaces a clear message to the caller
         sys.exit(
-            "gen_fuzz_gf_yamls: could not import worlds.eldenring_gf "
+            "gen_fuzz_gf_yamls: could not import worlds.eldenring "
             "(run from the AP checkout dir with the world installed): " + repr(e)
         )
     return W.options_dataclass

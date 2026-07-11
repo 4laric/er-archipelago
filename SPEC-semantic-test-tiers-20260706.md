@@ -78,7 +78,7 @@ the running game.
 
 ### Class A — data-value-wrong → gen-side invariants + independent cross-check
 
-Fix in `greenfield/eldenring_gf/tests/test_gf_data.py` (ci-linux.sh step **b**, `run_ci.ps1`
+Fix in `greenfield/eldenring/tests/test_gf_data.py` (ci-linux.sh step **b**, `run_ci.ps1`
 greenfield gate; deterministic; runs on Linux under the provisioned 3.11 venv):
 
 1. **Output-distribution invariants** (cheap, do first): assert region-membership counts stay
@@ -100,7 +100,7 @@ The weapon-shop leak is not a game-data problem; the game data is consistent. Ge
 constraint only the **client** knows (`SHOP_CTD_GUARD` skips weapon→non-weapon rows). This is
 the contract seam going one layer deeper — from validating *shape* to validating *meaning*.
 
-Add executable cross-side invariants to `greenfield/eldenring_gf/contract.py`, checked at gen
+Add executable cross-side invariants to `greenfield/eldenring/contract.py`, checked at gen
 time against the emitted slot_data + `ShopLineupParam`: e.g. "every weapon-row shop slot's
 placed item is itself a weapon." Each such invariant is a client assumption made executable on
 the gen side. Harvest them by grepping the client for every silent guard/`unwrap_or` and

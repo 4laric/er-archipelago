@@ -1,7 +1,7 @@
 # SPEC — Greenfield boss-lock tracker item
 
 *Draft 2026-07-07. Make the boss-lock feature transparent (a visible, trackable AP item) or drop it.
-Grounded in `greenfield/eldenring_gf/features/boss_locks.py`, `boss_data.py`, `contract.py`.*
+Grounded in `greenfield/eldenring/features/boss_locks.py`, `boss_data.py`, `contract.py`.*
 
 > **Impl status (2026-07-07):** mode A is **built**. apworld emission + contract + test =
 > VERIFIED (provision + pytest). er-logic `boss_felled.rs` + countdown-kick = hand-verified drafts

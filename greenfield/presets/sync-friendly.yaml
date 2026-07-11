@@ -7,7 +7,7 @@
 #  bloating the pool. Torrent + Roundtable hub start are on (no mountless
 #  softlock); DLC is off to keep the run short.
 #
-#  game MUST match the installed world ("Elden Ring (Greenfield)" on current
+#  game MUST match the installed world ("Elden Ring" on current
 #  code). After the v0.2 rename patch it becomes "EldenRing" -- update BOTH the
 #  game: line and the section key, and rebuild the client so Connect matches.
 #
@@ -17,9 +17,9 @@
 # ============================================================================
 name: Player1
 description: Greenfield ER -- Sync-Friendly (short multiworld, real items, meaningful checks)
-game: "Elden Ring (Greenfield)"
+game: "Elden Ring"
 
-"Elden Ring (Greenfield)":
+"Elden Ring":
 
   # ---- Scope: small, predictable, evening-length ---------------------------
   # PINNED explicitly (never rely on the num_regions default -- 0 means "all

@@ -2,7 +2,7 @@
 
 ## State: WORKING MVP (committed + pushed)
 The greenfield world generates a complete, winnable Shattering seed end to end. AP recognizes it as
-its own game ("Elden Ring (Greenfield)", 23 items, 3,944 locations); fill placed all 3,922 pool items,
+its own game ("Elden Ring", 23 items, 3,944 locations); fill placed all 3,922 pool items,
 playthrough calculated, `AP_*.zip` produced. Branch: `feat/matt-free-backbone-mvp`.
 
 This is a from-scratch, data-derived world with rules keyed by **region only** — no coupling to the
@@ -11,14 +11,14 @@ original apworld's location names (that coupling is what killed the earlier retr
 this way.
 
 ## Where things are
-- `greenfield/eldenring_gf/__init__.py` — the World class (items, hub-and-spoke regions, rules, goal,
+- `greenfield/eldenring/__init__.py` — the World class (items, hub-and-spoke regions, rules, goal,
   slot_data). Hand-written, static.
-- `greenfield/eldenring_gf/data.py` — GENERATED: `HUB`, `REGIONS` (22 locked spokes), `LOCATIONS`
+- `greenfield/eldenring/data.py` — GENERATED: `HUB`, `REGIONS` (22 locked spokes), `LOCATIONS`
   {region:[(name, ap_id, flag)]}.
 - `greenfield/gen_data.py` — regenerates data.py from `greenfield/region_map.csv` + grace anchors
   (`elden_ring_artifacts/`). Run after any backbone change.
 - `greenfield/region_map.csv` — the matt-free location backbone (source of truth for the data).
-- `greenfield/players/Greenfield.yaml` — isolated player file (`game: "Elden Ring (Greenfield)"`).
+- `greenfield/players/Greenfield.yaml` — isolated player file (`game: "Elden Ring"`).
 - `greenfield/gen-greenfield.ps1` — installs the world into `Archipelago\worlds\` + gens in isolation.
 - `greenfield/patch_build_greenfield.py` — adds the `-Greenfield` mode to build.ps1 (applied).
 - The backbone pipeline (how region_map.csv was derived) lives in `matt-free-pipeline/`.

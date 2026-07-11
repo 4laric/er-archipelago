@@ -32,7 +32,7 @@ all report back. Region locks are enforced by the client, not the honor system.
 
 ## Install
 
-Grab the client `.dll` and `eldenring_gf.apworld` from the assets below and follow `SETUP.md`. Short
+Grab the client `.dll` and `eldenring.apworld` from the assets below and follow `SETUP.md`. Short
 version: drop the two files in place, point the client at your room, connect. Variants and the full
 option list are in the `release-v0.2` docs.
 

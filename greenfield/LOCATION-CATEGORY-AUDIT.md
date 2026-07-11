@@ -7,7 +7,7 @@ marked 100%-confirmed. Method for every category:
 2. Extract every placement from `elden_ring_artifacts/vanilla_er/vanilla_er/ItemLotParam_map.csv`
    and `ItemLotParam_enemy.csv` (match `lotItemId0N == goods id`, `lotItemCategory0N == 1`), keyed by
    `getItemFlagId` — this is the authoritative set.
-3. Diff that against the flags the apworld actually exposes in `greenfield/eldenring_gf/data.py`.
+3. Diff that against the flags the apworld actually exposes in `greenfield/eldenring/data.py`.
 4. Fix any real gap in the **generator** (`gen_data.py`), never by hand-editing generated data.
 
 A single acquisition flag = a single AP check. Where two item-lots share one `getItemFlagId`

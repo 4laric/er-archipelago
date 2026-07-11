@@ -8,7 +8,7 @@ Run: python greenfield/gen_handoff.py   (after gen_contract.py)
 import os, sys, shutil
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-sys.path.insert(0, os.path.join(HERE, "eldenring_gf"))
+sys.path.insert(0, os.path.join(HERE, "eldenring"))
 import contract  # noqa: E402
 
 EXAMPLE = {
@@ -135,7 +135,7 @@ out_dir = os.path.join(HERE, "handoff")
 os.makedirs(out_dir, exist_ok=True)
 with open(os.path.join(out_dir, "CLIENT_SLOTDATA_CONTRACT.md"), "w", encoding="utf-8", newline="\n") as f:
     f.write(main())
-for fn, src in [("contract.json", os.path.join(HERE, "eldenring_gf", "contract.json")),
+for fn, src in [("contract.json", os.path.join(HERE, "eldenring", "contract.json")),
                 ("contract_gen.rs", os.path.join(REPO, "from-software-archipelago-clients",
                                                  "crates", "eldenring-archipelago", "src", "contract_gen.rs"))]:
     if os.path.isfile(src):

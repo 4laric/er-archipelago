@@ -8,7 +8,7 @@ File:line refs are against the repo as mounted 2026-07-06.
 ## 1. System diagram in prose
 
 **Greenfield (Python, gen-time)** builds a hub-and-spoke world: `Menu → Roundtable Hold (free) →
-22 region spokes`, each gated by `state.has("<Region> Lock")` (`eldenring_gf/core.py:322-333`).
+22 region spokes`, each gated by `state.has("<Region> Lock")` (`eldenring/core.py:322-333`).
 `num_regions` + DLC toggles shrink the spoke set via the pure `region_spine.compute_kept`
 (`region_spine.py:59-83`); sealed regions are simply never instantiated. All world data comes from
 generated tables (`data.py`, `item_ids.py`, `region_open_flags.py`, `boss_data.py`, …) which

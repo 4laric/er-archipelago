@@ -76,7 +76,7 @@ def load_rows(path):
 
 def load_item_catalog():
     spec = importlib.util.spec_from_file_location(
-        "gf_item_ids", os.path.join(GF, "eldenring_gf", "item_ids.py"))
+        "gf_item_ids", os.path.join(GF, "eldenring", "item_ids.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod.ITEM_CATALOG
@@ -205,7 +205,7 @@ def main():
 
     # ---- AP region of every already-bound flag, from the generated data.py ----
     spec = importlib.util.spec_from_file_location(
-        "gf_data", os.path.join(GF, "eldenring_gf", "data.py"))
+        "gf_data", os.path.join(GF, "eldenring", "data.py"))
     dmod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(dmod)
     ap_region_of_flag = {}

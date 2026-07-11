@@ -3,7 +3,7 @@
 # ============================================================================
 #  The option matrix was SLIMMED for v0.2 (2026-07-11). Guiding principle: anything that was always
 #  left on in this yaml is now simply THE BEHAVIOUR, and half-built modes are frozen off instead of
-#  exposed. 56 options -> 19. See greenfield/eldenring_gf/defaults.py for the frozen table.
+#  exposed. 56 options -> 19. See greenfield/eldenring/defaults.py for the frozen table.
 #
 #  BAKED IN (no longer settable -- this is just how greenfield plays now):
 #    item_shuffle            every check pays its real vanilla ER item
@@ -18,14 +18,14 @@
 #    boss_keys / boss_lock_placement, progressive_*, stone_injection,
 #    completion_scaling_floor, global_scadutree_blessing
 #
-#  game MUST match the installed world. On CURRENT code that is "Elden Ring (Greenfield)".
+#  game MUST match the installed world. On CURRENT code that is "Elden Ring".
 #  Only ONE yaml in greenfield\players\ = a solo seed. Two+ = a multiworld.
 # ============================================================================
 name: Alaric
 description: Greenfield ER -- Shattering (4 rolled regions, region-lock goal)
-game: "Elden Ring (Greenfield)"
+game: "Elden Ring"
 
-"Elden Ring (Greenfield)":
+"Elden Ring":
 
   # ---- The Shattering (the headline) --------------------------------------
   num_regions: 4                 # majors in play (+ Roundtable hub, always kept); rest sealed. 0 = all 22.

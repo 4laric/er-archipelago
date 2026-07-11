@@ -7,10 +7,10 @@ the OLD apworld (ids 7,000,000+) while greenfield emits ids 7,770,000-7,773,956.
 ## What changed
 
 1. `tools/gen_location_regions.py` -- rewritten to source GREENFIELD pure-data modules:
-   - `greenfield/eldenring_gf/data.py` (LOCATIONS: ids + region membership)
-   - `greenfield/eldenring_gf/location_tags.py` (Boss/Remembrance -> big_ticket)
-   - `greenfield/eldenring_gf/missable_locations.py` (missable ids)
-   - `greenfield/eldenring_gf/region_open_flags.py` (sanity gate: every region has a flag)
+   - `greenfield/eldenring/data.py` (LOCATIONS: ids + region membership)
+   - `greenfield/eldenring/location_tags.py` (Boss/Remembrance -> big_ticket)
+   - `greenfield/eldenring/missable_locations.py` (missable ids)
+   - `greenfield/eldenring/region_open_flags.py` (sanity gate: every region has a flag)
    AP-env-free: no Archipelago import, plain `importlib` file loads, runs on any Python 3
    (verified in the Linux sandbox). `--check` drift-gate mode kept.
 2. `from-software-archipelago-clients/crates/er-logic/src/tracker_regions.rs` -- regenerated.

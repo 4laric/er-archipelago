@@ -303,7 +303,7 @@ key K}`; the output is a boss-lock such that holding K and killing B releases th
 R[].** The entire capstone table is data over this primitive, and an internal boss lock is
 the degenerate case where R = just that boss's own checks (it resolves nothing else).
 
-**We largely have this already** — greenfield/eldenring_gf/features/boss_locks.py, mode B
+**We largely have this already** — greenfield/eldenring/features/boss_locks.py, mode B
 ("Boss Keys"). What exists today:
 
 - The **boss<->region join** is data: `REGION_BOSSES {region: [(ap_id, flag, reward)]}`

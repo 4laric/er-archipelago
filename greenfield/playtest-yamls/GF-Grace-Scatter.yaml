@@ -2,8 +2,8 @@
 # (front door); receiving a "Grace: <Region> #k" item lights that specific grace.
 name: GFGrace
 description: Greenfield grace freebie + scatter
-game: "Elden Ring (Greenfield)"
-"Elden Ring (Greenfield)":
+game: "Elden Ring"
+"Elden Ring":
   num_regions: 5
   num_regions_order: spine
   item_shuffle: true

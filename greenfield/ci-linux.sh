@@ -48,11 +48,11 @@ fi
 step "GREENFIELD (a0) GEN-INPUT STAMP FRESHNESS"
 # SPEC-gen-input-hash-gate-20260710.md: tools/gen_manifest.py is the ONE definition of the hash. It
 # re-hashes the gen inputs (region_map.csv, item_tiers.tsv, the datamined artifacts + intermediates,
-# gen_data.py itself) and compares against the _GEN_STAMP written into greenfield/eldenring_gf.
+# gen_data.py itself) and compares against the _GEN_STAMP written into greenfield/eldenring.
 #   0 = fresh -> PASS | 3 = STALE -> FAIL | 4 = required inputs absent -> SKIP (cannot recompute)
 # Deliberately BEFORE (a): DRIFT re-runs gen_data.py, which rewrites the stamp -- a stale tree would
 # silently self-heal and this gate would never see it.
-stampJson="$GF/eldenring_gf/_gen_stamp.json"; genManifest="$REPO/tools/gen_manifest.py"
+stampJson="$GF/eldenring/_gen_stamp.json"; genManifest="$REPO/tools/gen_manifest.py"
 if [ ! -f "$genManifest" ]; then
   echo "  SKIP: tools/gen_manifest.py absent"; record FRESH SKIP
 elif [ ! -f "$stampJson" ]; then
@@ -72,14 +72,14 @@ else
 fi
 
 step "GREENFIELD (a) DATA DRIFT"
-dataPy="$GF/eldenring_gf/data.py"; openPy="$GF/eldenring_gf/region_open_flags.py"
+dataPy="$GF/eldenring/data.py"; openPy="$GF/eldenring/region_open_flags.py"
 if [ ! -f "$REPO/elden_ring_artifacts/grace_flags.tsv" ]; then
   echo "  SKIP: elden_ring_artifacts/ absent (licensing-restricted, not in git). data.py +"
   echo "        region_open_flags.py are committed and validated by GEN/WORLD; run drift where"
   echo "        the grace anchors live (or set GF_ARTIFACTS out-of-band)."
   record DRIFT SKIP
 else
-  bossPy="$GF/eldenring_gf/boss_data.py"; gracePy="$GF/eldenring_gf/region_graces.py"; sweepPy="$GF/eldenring_gf/boss_sweeps.py"; shopPy="$GF/eldenring_gf/shop_data.py"; itemPy="$GF/eldenring_gf/item_ids.py"; tierPy="$GF/eldenring_gf/item_tiers.py"
+  bossPy="$GF/eldenring/boss_data.py"; gracePy="$GF/eldenring/region_graces.py"; sweepPy="$GF/eldenring/boss_sweeps.py"; shopPy="$GF/eldenring/shop_data.py"; itemPy="$GF/eldenring/item_ids.py"; tierPy="$GF/eldenring/item_tiers.py"
   b1=$(nhash "$dataPy"); b2=$(nhash "$openPy"); b3=$(nhash "$bossPy"); b4=$(nhash "$gracePy"); b5=$(nhash "$sweepPy"); b6=$(nhash "$shopPy"); b7=$(nhash "$itemPy"); b8=$(nhash "$tierPy")
   if ( cd "$GF" && "$PY" gen_data.py ); then
     if [ "$b1" = "$(nhash "$dataPy")" ] && [ "$b2" = "$(nhash "$openPy")" ] && [ "$b3" = "$(nhash "$bossPy")" ] && [ "$b4" = "$(nhash "$gracePy")" ] && [ "$b5" = "$(nhash "$sweepPy")" ] && [ "$b6" = "$(nhash "$shopPy")" ] && [ "$b7" = "$(nhash "$itemPy")" ] && [ "$b8" = "$(nhash "$tierPy")" ]; then record DRIFT PASS
@@ -91,17 +91,17 @@ step "GREENFIELD (b) PURE UNIT"
 # test_gf_data.py = structural invariants; test_gf_region_correctness.py = tier-A semantic-value
 # oracle (region assignment vs the region_map.csv placement, independent of region_of). Both run
 # from SOURCE where region_map.csv lives; the region gate skips itself in the installed-world copy.
-if "$PY" "$GF/eldenring_gf/tests/test_gf_data.py" \
-   && "$PY" "$GF/eldenring_gf/tests/test_gf_region_correctness.py" \
-   && "$PY" "$GF/eldenring_gf/tests/test_gf_grace_region_correctness.py" \
-   && "$PY" "$GF/eldenring_gf/tests/test_gf_region_artifact_oracle.py" \
-   && "$PY" "$GF/eldenring_gf/tests/test_gf_grace_skip_oracle.py" \
-   && "$PY" "$GF/eldenring_gf/tests/test_gf_grace_skip_classes.py" \
-   && "$PY" "$GF/eldenring_gf/tests/test_gf_client_contract_paths.py"; then
+if "$PY" "$GF/eldenring/tests/test_gf_data.py" \
+   && "$PY" "$GF/eldenring/tests/test_gf_region_correctness.py" \
+   && "$PY" "$GF/eldenring/tests/test_gf_grace_region_correctness.py" \
+   && "$PY" "$GF/eldenring/tests/test_gf_region_artifact_oracle.py" \
+   && "$PY" "$GF/eldenring/tests/test_gf_grace_skip_oracle.py" \
+   && "$PY" "$GF/eldenring/tests/test_gf_grace_skip_classes.py" \
+   && "$PY" "$GF/eldenring/tests/test_gf_client_contract_paths.py"; then
   record PURE PASS; else record PURE FAIL; fi
 
 step "GREENFIELD (c) ISOLATED GEN"
-rm -rf "$AP/worlds/eldenring_gf"; cp -r "$GF/eldenring_gf" "$AP/worlds/eldenring_gf"
+rm -rf "$AP/worlds/eldenring"; cp -r "$GF/eldenring" "$AP/worlds/eldenring"
 out="$CACHE/out"; rm -rf "$out"; mkdir -p "$out"
 if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
       "$PY" Generate.py --player_files_path "$GF/players" --outputpath "$out" ) \
@@ -109,8 +109,8 @@ if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
 
 step "GREENFIELD (d) WORLD UNIT"
 if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
-      "$PY" -m pytest "worlds/eldenring_gf/tests/" -q -p no:cacheprovider \
-        --ignore="worlds/eldenring_gf/tests/test_gf_data.py" ); then
+      "$PY" -m pytest "worlds/eldenring/tests/" -q -p no:cacheprovider \
+        --ignore="worlds/eldenring/tests/test_gf_data.py" ); then
   record WORLD PASS; else record WORLD FAIL; fi
 
 step "GREENFIELD (e) YAML FUZZ"

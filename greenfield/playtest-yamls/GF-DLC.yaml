@@ -3,8 +3,8 @@
 # sub-areas were the low-confidence bucket). Use enable_dlc: false to seal DLC instead.
 name: GFDLC
 description: Greenfield DLC-only
-game: "Elden Ring (Greenfield)"
-"Elden Ring (Greenfield)":
+game: "Elden Ring"
+"Elden Ring":
   num_regions: 3
   num_regions_order: spine
   item_shuffle: true

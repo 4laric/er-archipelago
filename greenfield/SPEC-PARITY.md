@@ -47,16 +47,16 @@ Section 8 is the authoritative greenfield key list.
 
 **P5 — CI gates every phase.** The `-Greenfield` / `-OnlyGreenfield` gate (data drift + pure unit +
 isolated gen + AP `WorldTestBase`) already exists. Each phase below ships with the tests that promote
-its manifest row in `eldenring_gf/tests/README.md` from "deferred" to "ported."
+its manifest row in `eldenring/tests/README.md` from "deferred" to "ported."
 
 ---
 
 ## 1. Current baseline (what ships today)
 
-- `eldenring_gf/__init__.py` — hub-and-spoke: `Menu → Roundtable Hold (free) → each of 22 regions`,
+- `eldenring/__init__.py` — hub-and-spoke: `Menu → Roundtable Hold (free) → each of 22 regions`,
   entrance gated by `state.has("<Region> Lock")`. Goal = `has_all(all locks)`. Pool = 22 progression
   locks + `Rune` filler. `fill_slot_data` emits `world_logic` + `locationFlags` only.
-- `eldenring_gf/data.py` — GENERATED (`HUB`, `REGIONS`, `LOCATIONS{region:[(name,ap_id,flag)]}`),
+- `eldenring/data.py` — GENERATED (`HUB`, `REGIONS`, `LOCATIONS{region:[(name,ap_id,flag)]}`),
   3,944 placeable checks, ap-ids contiguous from 7,770,000.
 - `gen_data.py` — regenerates `data.py` from `region_map.csv` + grace anchors; collapses the 271 fine
   regions to 22 majors via `PLAY2AP` / `REGION_MAP`.
@@ -320,7 +320,7 @@ phase).
 
 ## 13. Test + CI parity plan
 
-Each phase promotes its rows in `eldenring_gf/tests/README.md` from "deferred" to "ported." Target
+Each phase promotes its rows in `eldenring/tests/README.md` from "deferred" to "ported." Target
 end-state maps 1:1 onto the existing apworld's test battery, but every greenfield test is written
 against greenfield's own data:
 

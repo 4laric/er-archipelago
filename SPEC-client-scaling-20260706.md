@@ -4,7 +4,7 @@
 client already parses; completion scaling should arm on the next greenfield connect once Alaric
 rebuilds the client for the other Wave-2 pieces (no scaling-specific rebuild needed beyond that).
 
-## What greenfield now emits (producer: `greenfield/eldenring_gf/features/scaling.py`)
+## What greenfield now emits (producer: `greenfield/eldenring/features/scaling.py`)
 
 - `regionSphereTargetRanges = [[lo, hi, target], ...]` — TOP-LEVEL, i32 triples, **emitted every
   seed** (completion_scaling is always on in greenfield, curve id 4).
@@ -58,7 +58,7 @@ Base game is unaffected either way.
   inside fill_slot_data) accepted the shapes.
 - Seed slot_data inspected: `regionSphereTargetRanges` present, 12 triples (pasted above),
   `regionSphereTargets == {}`, options echo intact.
-- World suite: full `worlds/eldenring_gf/tests/` (minus test_gf_data.py, run separately: 21 OK)
+- World suite: full `worlds/eldenring/tests/` (minus test_gf_data.py, run separately: 21 OK)
   green — 369 tests incl. the updated `test_gf_slot_data_fixture.py` (regionSphereTargetRanges
   removed from `_CONTRACT_NOT_EMITTED`).
 - Fuzz sample: 8/8 clean (100%).

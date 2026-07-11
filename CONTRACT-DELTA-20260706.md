@@ -99,7 +99,7 @@ Validate greenfield-side with `ci-linux.sh`; confirm the key is present in a gen
 ## I3 — TRACKER (owns `tools/gen_location_regions.py` + regenerated `tracker_regions.rs`)
 Re-point `tools/gen_location_regions.py` from the OLD apworld
 (`Archipelago/worlds/eldenring/{locations,map_region_data,grace_data}.py`, ids 7,000,000+) to
-GREENFIELD data (`greenfield/eldenring_gf/data.py` LOCATIONS, ids 7,770,000–7,773,957 +
+GREENFIELD data (`greenfield/eldenring/data.py` LOCATIONS, ids 7,770,000–7,773,957 +
 `region_open_flags.py` + `region_graces.py`). Column mapping (from R2): fine=coarse=region name (23
 buckets, `""` for Roundtable Hold); coarse-lock item = `{region: f"{region} Lock"}`; missable =
 MISSABLE_LOCATIONS keys; big_ticket default = LOCATION_TAGS Boss ∪ Remembrance (~52 ids). Output
