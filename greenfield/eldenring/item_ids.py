@@ -1876,7 +1876,6 @@ ITEM_CATALOG = {
     'Sword of Night': 9500000,
     'Sword of Night and Flame': 2140000,
     'Sword of St. Trina': 2190000,
-    'Swordhand of Night Jol\xe1n': 1075960824,
     "Taker's Cameo": 536875942,
     'Talisman Pouch': 1073751864,
     'Talisman of All Crucibles': 536879152,
@@ -5877,7 +5876,6 @@ LOCATION_ITEM = {
     7773883: 'Ruins Map (3rd)',
     7773884: "Ymir's Bell Bearing",
     7773885: 'Cherishing Fingers',
-    7773886: 'Swordhand of Night Jol\xe1n',
     7773887: 'Sword of Night',
     7773888: 'Claws of Night',
     7773889: 'Ancient Dragon Florissax',
@@ -7190,7 +7188,6 @@ DLC_ITEM_NAMES = {
     'Sword of Darkness',
     'Sword of Light',
     'Sword of Night',
-    'Swordhand of Night Jol\xe1n',
     'Talisman of All Crucibles',
     "Talisman of Lord's Bestowal",
     'Talisman of the Dread',
@@ -7461,4 +7458,4 @@ FILLER_POOL = [
     'Yellow Fulgurbloom',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:5dbf3a9266689eece811c520d0a42c94d4e5ac5970d804ffa89bd41f5a18b938', 'module': 'item_ids.py', 'body_sha256': 'sha256:0e58579bc2a3b603827d45b36f62b392f5eceb8efe1f5f29e94a171eac6d3f61'}
+_GEN_STAMP = {'inputs_hash': 'sha256:5dbf3a9266689eece811c520d0a42c94d4e5ac5970d804ffa89bd41f5a18b938', 'module': 'item_ids.py', 'body_sha256': 'sha256:6eb6b79dd4d7903236148069bca668369100a0bb07c4cc90923e937cdedc47e4'}
