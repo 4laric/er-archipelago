@@ -215,6 +215,17 @@
       "doc": "[[lo,hi,target], ...] play_region/100 sub-id ranges -> scaling target; the live completion-scaling wire (SCALING_WIRE)."
     },
     {
+      "name": "dlcScadutreeFloorRanges",
+      "shape": "TRIPLE_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/scaling.py",
+      "consumer": "eldenring-archipelago/upgrades.rs floor_for_region (mode 2)",
+      "doc": "[[lo,hi,floor], ...] play_region/100 sub-id ranges -> Scadutree-blessing FLOOR level (0..20) per DLC region. Emitted ONLY when global_scadutree_blessing==2 and >=1 DLC region is kept. Client mode-2 writes max(held-fragment level, region floor) so DLC enemies' blessing assumption is met on arrival; the enemy 70xx sphere scaler is capped in these buckets to avoid double-counting."
+    },
+    {
       "name": "completionScalingBasis",
       "shape": "INT",
       "required": false,
@@ -256,7 +267,29 @@
       ],
       "producer": "features/graces.py",
       "consumer": "region.rs:122 str_to_u32vec",
-      "doc": "'<Region> Lock' -> grace warp flags lit on lock receipt (bundle: all of the region's graces)."
+      "doc": "item_name -> grace warp flags lit when that item is RECEIVED. Usually keyed by '<Region> Lock' (bundle: all of the region's graces), but grace GATES also key a sub-area's graces on a KEY ITEM instead of the region Lock -- e.g. Raya Lucaria's graces key on 'Academy Glintstone Key' so they light on key receipt, not on the Liurnia Lock. Client MUST light on receipt of ANY keyed item, not just Locks."
+    },
+    {
+      "name": "runeGatedGraces",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/graces.py",
+      "consumer": "region.rs (NEW -- rune-count gate)",
+      "doc": "str(N) -> grace warp flags lit only once the player has RECEIVED at least N Great Runes (any of greatRuneItemIds). Used for the Leyndell capital graces (folded into Altus) which vanilla gates behind 2 Great Runes; those graces are pulled from the Altus Lock bundle and moved here. Absent/empty when leyndell_runes_required = 0."
+    },
+    {
+      "name": "greatRuneItemIds",
+      "shape": "INT_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/graces.py",
+      "consumer": "region.rs (NEW -- rune-count gate)",
+      "doc": "FullIDs of every Great Rune item in this seed's pool -- the set the client counts RECEIVED items against to satisfy runeGatedGraces. Emitted only with runeGatedGraces."
     },
     {
       "name": "startRegion",
@@ -481,13 +514,13 @@
     {
       "name": "versions",
       "shape": "STR",
-      "required": false,
+      "required": true,
       "profiles": [
         "both"
       ],
-      "producer": "(optional; unemitted today)",
-      "consumer": "core.rs version gate",
-      "doc": "apworld semver for the client version gate; emission optional."
+      "producer": "core._base_slot_data",
+      "consumer": "eldenring-archipelago core.rs version gate",
+      "doc": "VERSION HANDSHAKE. 'apworld/<semver> contract/<hash8> data/<inputs_hash16>'. The client compares the contract hash to the one it was COMPILED against and shouts if they differ. Required, because the failure it catches is silent: apworld and client ship as two separate artifacts (apworld off-site, .dll on Nexus), so mixed versions are not an edge case, they are the norm -- and a stale .dll against a fresh apworld looks exactly like a bug in the game. Every report carries this string."
     },
     {
       "name": "world_logic",

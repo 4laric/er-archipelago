@@ -6,6 +6,7 @@ features/ and are aggregated here via registry.py -- adding a phase does NOT edi
 
 Data-derived + matt-free (see ../LESSONS-LEARNED.md): rules keyed by REGION only.
 """
+import os
 from typing import Any, Dict, List
 
 from dataclasses import make_dataclass
@@ -632,6 +633,19 @@ class GreenfieldEldenRingWorld(World):
         return {str(item_name_to_id[_n]): _q for _n, _q in stack_qty_by_name().items()
                 if _n in item_name_to_id}
 
+    # The generated data's own identity (gen_data.py writes _gen_stamp.json beside the modules). It
+    # rides in `versions` so a bug report says WHICH generated data the seed used -- the client and the
+    # apworld ship separately, and "it's broken" with no versions is a report we cannot chase.
+    @staticmethod
+    def _data_inputs_hash() -> str:
+        try:
+            import json as _json
+            _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_gen_stamp.json")
+            with open(_p, encoding="utf-8") as _fh:
+                return _json.load(_fh).get("inputs_hash", "")
+        except Exception:
+            return ""
+
     def _base_slot_data(self) -> Dict[str, Any]:
         kept = self._kept()
         loc_flags: Dict[str, List[int]] = {}
@@ -642,8 +656,10 @@ class GreenfieldEldenRingWorld(World):
                 # registered and goal was checked-fallback (2026-07-06). One flag per location.
                 loc_flags[str(ap_id)] = flag
         region_open = {f"{r} Lock": REGION_OPEN_FLAGS[r] for r in kept if r in REGION_OPEN_FLAGS}
+        versions = contract.version_string(self._data_inputs_hash())
         required = self._required_runes()
         return {
+            contract.VERSIONS: versions,           # apworld/contract/data identity -- the skew gate
             contract.WORLD_LOGIC: "region_lock",
             contract.LOCATION_FLAGS: loc_flags,
             contract.AP_IDS_TO_ITEM_IDS: _AP_IDS_TO_ITEM_IDS,
