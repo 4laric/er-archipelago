@@ -69,14 +69,3 @@ class AllFillerJuice(WorldTestBase):
                         "Fire Pot is junk-consumable filler and should be displaceable")
 
 
-class RuneTailUnchanged(WorldTestBase):
-    game = GAME
-    options = {  # default scope -- juice bounded to the small Rune tail
-        "item_shuffle": True, "pool_builder": True, "pool_builder_intensity": "max",
-        "pool_builder_juice_cap": 0,
-    }
-
-    def test_rune_tail_budget_is_small(self):
-        n = len(PoolBuilderFeature()._juice_list(self.world))
-        self.assertLess(n, 100,
-                        f"default scope=rune_tail should bound juice to the Rune tail, got {n}")

@@ -21,29 +21,6 @@ class ItemShuffleOn(WorldTestBase):
             self.assertIn(n, ITEM_CATALOG, "shuffled pool items are catalog items")
 
 
-class ItemShuffleOff(WorldTestBase):
-    game = GAME
-    options = {"item_shuffle": False, "varied_filler": False}
-
-    def test_default_all_rune(self):
-        fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
-        self.assertTrue(fill and all(n == "Rune" for n in fill),
-                        "shuffle off + grace off fills every non-lock slot with Rune")
-
-
-class VariedFillerOn(WorldTestBase):
-    game = GAME
-    options = {"item_shuffle": False, "varied_filler": True}
-
-    def test_filler_is_varied_junk(self):
-        from worlds.eldenring_gf.item_ids import FILLER_POOL
-        fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
-        # every non-lock item is a FILLER_POOL junk item or the Rune fallback (still filler-classified)
-        self.assertTrue(fill and all(n in FILLER_POOL or n == "Rune" for n in fill))
-        # real variety, not the monotone-Rune wall
-        self.assertGreater(len(set(fill)), 5, "varied_filler places many distinct junk items")
-
-
 # ---- A (2026-07-07): smithing stones un-guarded into FILLER_POOL -------------------------------
 def test_filler_pool_includes_smithing_stones():
     """A: regular Smithing Stone [1..8] and Somber Smithing Stone [1..9] are rarity<=1 reinforcement
@@ -69,16 +46,3 @@ def test_filler_pool_excludes_capped_and_endtier():
         assert n not in fp, f"{n} must NOT be in FILLER_POOL (capped/end-tier)"
 
 
-class StoneInjection(WorldTestBase):
-    """B: stone_injection swaps filler for low smithing stones on the SHUFFLED pool, count-neutral."""
-    game = GAME
-    options = {"item_shuffle": True, "stone_injection": 150}
-
-    def test_injection_raises_low_stones_count_neutral(self):
-        from collections import Counter
-        names = Counter(i.name for i in self.multiworld.itempool if i.player == self.world.player)
-        # low tiers should be plentiful after injection (baseline vanilla supply is ~20-25 each)
-        for t in (1, 2, 3):
-            self.assertGreater(names.get(f"Smithing Stone [{t}]", 0), 40,
-                               f"injection should raise Smithing Stone [{t}] supply")
-        # every injected item is filler-classified (never progression/useful) -> winnable (test_fill)

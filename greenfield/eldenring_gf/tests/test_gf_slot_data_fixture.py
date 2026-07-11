@@ -19,7 +19,6 @@ Design (matches the other greenfield WorldTestBase suites):
       - dungeon_sweep (Choice)              -> "all"   (emits dungeonSweepFlags/dungeonSweeps/sweepLockGates)
       - pool_builder (Toggle)               -> True    (needs item_shuffle on to have effect)
       - ending_condition (Choice)           -> "great_runes" + great_runes_required=2
-      - progressive_flasks (Toggle)         -> True    (emits non-empty progressiveGrants)
 
 Run (from the Archipelago dir, world installed):
     python -m pytest worlds/eldenring_gf/tests/test_gf_slot_data_fixture.py
@@ -70,7 +69,11 @@ INFORMATIONAL_EXTRAS = {
 # it actually emits, plus the informational extras. Built at import time so it tracks contract.py.
 # (enable_dlc / lockRevealFlags / versions are contract-declared but not emitted by the current
 # world. regionSphereTargetRanges IS emitted as of I2 -- features/scaling.py, the live scaling wire.)
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "versions"}  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
+# dlcScadutreeFloorRanges is emitted ONLY under global_scadutree_blessing == "scaled". That option is
+# FROZEN OFF in v0.2 (defaults.py) and no longer yaml-settable, so the key can never be emitted. It is
+# contract-optional (required=False), so the built client tolerates its absence -- and the playtest
+# yaml already ran scadutree off. Move it back out of here if the option is ever re-exposed.
+_CONTRACT_NOT_EMITTED = {"enable_dlc", "versions", "dlcScadutreeFloorRanges"}  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).
@@ -98,7 +101,6 @@ class SlotDataFixtureRich(WorldTestBase):
         "pool_builder": True,
         "ending_condition": "great_runes",
         "great_runes_required": 2,
-        "progressive_flasks": True,
     }
 
     def test_exact_keyset(self):
@@ -142,7 +144,8 @@ class SlotDataFixtureRich(WorldTestBase):
         # not just present-and-empty).
         self.assertEqual(sd["world_logic"], "region_lock")
         self.assertTrue(sd["dungeonSweepFlags"], "dungeon_sweep=all must emit sweep flags")
-        self.assertTrue(sd["progressiveGrants"], "progressive_flasks=on must emit grants")
+        # progressive_* is FROZEN OFF (defaults.py) -> progressiveGrants is emitted but empty.
+        self.assertIsInstance(sd["progressiveGrants"], dict)
         self.assertTrue(sd["regionGraces"], "region locks must light region graces (bundle)")
 
     def test_required_keys_present(self):
