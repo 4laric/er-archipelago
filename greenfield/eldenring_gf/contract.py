@@ -293,6 +293,13 @@ CONTRACT = (
                 "features/scaling.py (I2)", "er-logic/scaling.rs:150-165 range parse",
                 "[[lo,hi,target], ...] play_region/100 sub-id ranges -> scaling target; the live "
                 "completion-scaling wire (SCALING_WIRE)."),
+    ContractKey("dlcScadutreeFloorRanges", "TRIPLE_LIST", False, (GREENFIELD,),
+                "features/scaling.py", "eldenring-archipelago/upgrades.rs floor_for_region (mode 2)",
+                "[[lo,hi,floor], ...] play_region/100 sub-id ranges -> Scadutree-blessing FLOOR level "
+                "(0..20) per DLC region. Emitted ONLY when global_scadutree_blessing==2 and >=1 DLC "
+                "region is kept. Client mode-2 writes max(held-fragment level, region floor) so DLC "
+                "enemies' blessing assumption is met on arrival; the enemy 70xx sphere scaler is capped "
+                "in these buckets to avoid double-counting."),
     ContractKey("completionScalingBasis", "INT", False, (GREENFIELD,),
                 "core._base_slot_data", "er-logic/scaling.rs basis parse",
                 "scaling basis Choice VALUE (int 1 = sphere); client also tolerates the legacy "
