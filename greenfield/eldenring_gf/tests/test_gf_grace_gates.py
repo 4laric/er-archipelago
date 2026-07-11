@@ -38,7 +38,17 @@ class GatesArmed(WorldTestBase):
         altus = sd[contract.REGION_GRACES].get("Altus Plateau Lock", [])
         self.assertFalse([g for g in altus if g in _LEYN],
                          "Leyndell capital graces (711xx) must be pulled from the Altus Lock bundle")
-        self.assertIn(71190, altus, "the Roundtable/HUB grace 71190 must NOT be gated")
+        # 71190 (Roundtable, Table of Lost Grace) is an m11 flag but it is the HUB's grace, granted
+        # by features/start_grace.py as a START grace -- see graces.py:_ROUNDTABLE_GRACE. It used to
+        # ride in the Altus bundle only because m11_10 wrongly folded to Altus (the coarse
+        # "Leyndell / Roundtable / Shunning-Grounds" bucket). gen_data now regions m11_10 as
+        # Roundtable Hold, so 71190 correctly belongs to NO spoke bundle at all. The intent of this
+        # assertion -- "the HUB grace must never be rune-gated" -- is now satisfied more strongly:
+        # it cannot be gated because it is not in a gated bundle, and the player always starts with it.
+        self.assertNotIn(71190, altus,
+                         "71190 is the HUB start grace; it must not ride in the Altus Lock bundle")
+        self.assertIn(71190, sd.get(contract.START_GRACES, []),
+                      "the Roundtable/HUB grace 71190 must be granted as a start grace")
         rgg = sd.get(contract.RUNE_GATED_GRACES)
         self.assertTrue(rgg, "runeGatedGraces must be emitted when the Leyndell gate is armed")
         self.assertIn("2", rgg, f"expected the N=2 rune requirement key, got {list(rgg)}")

@@ -192,6 +192,35 @@ def _loc_tags(r):
 MINIBAKER_VENDOR_FLAGS=frozenset({60290})
 _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
 
+# ---- MSB/param GROUND TRUTH: flag -> the map the game actually places the item in ---------------
+# greenfield/msb_flag_region.tsv (tools/datamine_msb_item_regions.py) joins the witchy'd MSBs +
+# ItemLotParam + EMEVD award sites. It is the SAME source region_map.csv's `treasure` rows came from
+# (2135 rows: 2135 agree, 0 conflict) -- but the pipeline only used it for 41% of rows and fell back
+# to scanning EMEVD for the other rows. That scan attributes a flag to a script that MENTIONS it, not
+# the one that AWARDS it (flag 197 -> a Stormveil script references it; the AwardItemLot is in m14),
+# which is where EVERY known mis-pin came from: emevd = 309 agree / 28 CONFLICT.
+# So: where the datamine proves an UNAMBIGUOUS map, trust it over the row's scanned map. This is a
+# DERIVATION fix -- it retires per-flag hand patches instead of adding more (SPEC-provenance-oracle).
+MSB_TRUTH_MAP = {}
+_mfr = os.path.join(HERE, "msb_flag_region.tsv")
+if os.path.isfile(_mfr):
+    _t = defaultdict(set)
+    with open(_mfr, encoding="utf-8", newline="") as _fh:
+        for _ln in _fh:
+            if _ln.startswith("#"): continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) < 2 or not _p[0].isdigit(): continue
+            _t[int(_p[0])].add(_p[1])
+    MSB_TRUTH_MAP = {_f: next(iter(_m)) for _f, _m in _t.items() if len(_m) == 1}  # unambiguous only
+    print(f"msb ground truth: {len(MSB_TRUTH_MAP)} flags with an unambiguous placed map")
+else:
+    print("[gen_data] WARNING: msb_flag_region.tsv absent -- ground-truth re-derivation DISABLED")
+
+def _gt_full_map(_mid):
+    """map_id -> the full 4-part map id region_of's tables are keyed on."""
+    return _mid + ("_00" if _mid[:3] in ("m60", "m61") else "_00_00")
+
+
 # ---- Hand-verified row corrections (matt-free) --------------------------------------------------
 # region_map.csv's map_lot scan mis-attributed a few flags to the wrong map/region. Both num_regions
 # (region label) and the map-keyed dungeon sweep read these columns, so a wrong map double-faults:
@@ -657,6 +686,17 @@ FLAG_REGION_OVERRIDE = {
 # the m34 Great-Rune Divine Towers are base game, not DLC). This per-map-id table wins over the coarse
 # bucket AND the emevd/global audit. Keys are full map ids; values are greenfield region names.
 DUNGEON_REGION_OVERRIDE = {
+    # m11 conflation: region_map.csv labels ALL m11_* rows "Leyndell / Roundtable / Shunning-Grounds",
+    # one string for THREE regions -> REGION_MAP folds the lot to Altus Plateau. So every emevd-derived
+    # ROUNDTABLE item (m11_10) became Altus -- the root cause behind the Ensha per-flag patches and
+    # the Taunter's Tongue / Rogier's Bell Bearing / Explosive Ghostflame mis-pins. Fix the MAP, once,
+    # instead of the flags, N times. (m11_00/m11_05 Leyndell + m11_71 Shunning correctly fold to Altus.)
+    "m11_10_00_00": "Roundtable Hold",
+    # Maps the provenance oracle proved wrong (grace truth = play_region via grace_region_map;
+    # tools/map_region_oracle.py). Each fixes the MAP once, for every check in it.
+    "m12_03_00_00": "Eternal Cities",          # Deeproot Depths (Fia's Mist) -- was Altus
+    "m30_11_00_00": "Limgrave",                # Deathtouched Catacombs -- was Liurnia
+    "m31_17_00_00": "Limgrave",                # Highroad Cave -- was Roundtable Hold
     # Split-map corrections: a 3-char map prefix conflates sub-maps that are DIFFERENT regions.
     # m20 = Belurat (m20_00) + Enir-Ilim (m20_01) DLC -- NOT Mohgwyn; m12_05 = Mohgwyn Palace --
     # NOT the rest of m12 (Eternal Cities/Underground Rivers). Without these, 170 m20 DLC checks
@@ -682,7 +722,6 @@ DUNGEON_REGION_OVERRIDE = {
     "m21_02_00_00": "Shadow Keep",            # Storehouse rampart
     "m22_00_00_00": "Gravesite Plain",        # Stone Coffin Fissure (was leaking to BASE Eternal Cities)
     "m25_00_00_00": "Scadu Altus",            # Finger Birthing Grounds (Metyr arena; grace 72500)
-    "m28_00_00_00": "Abyssal Woods",          # Midra's Manse (was Gravesite Plain)
     "m40_00_00_00": "Gravesite Plain",        # Fog Rift Catacombs
     "m40_02_00_00": "Scadu Altus",            # Darklight Catacombs (was Belurat/Gravesite)
     "m41_00_00_00": "Gravesite Plain",        # Belurat Gaol (game groups under Gravesite Plain)
@@ -745,7 +784,10 @@ DUNGEON_REGION_OVERRIDE = {
     # Liurnia's lock (in-game report 2026-07-07; grace tile m35_00 inherits the m35 checks' region via
     # _pref2maj). Correct region = Leyndell (REGION_ID_MAP.md 35000 = Subterranean Shunning-Grounds).
     "m35_00_00_00": "Altus Plateau",  # Shunning-Grounds under Leyndell -> Altus (Leyndell folded in)
-    "m39_20_00_00": "Mt. Gelmir",
+    # m39_20 = Ruin-Strewn Precipice (Magma Wyrm Makar) -- the Limgrave->Liurnia connector, so its
+    # loot is LIURNIA, not Mt. Gelmir ("Magma Wyrm" reads as volcano, but Makar is not in Gelmir).
+    # Grace truth: play_region 39200 -> Liurnia (REGION_ID_MAP.md); provenance oracle 2026-07-11.
+    "m39_20_00_00": "Liurnia of the Lakes",
     # Catacombs whose checks were UNPLACED (flag_prefix, map PENDING) -> never surfaced an override,
     # so they hit the coarse "Hero's Graves (Catacombs)"->Limgrave bucket. Regions are the AUTHORITATIVE
     # grace join (grace_flags mapTile -> grace_region_map play_region -> PLAY2AP); confirmed vs in-game.
@@ -983,6 +1025,26 @@ def _tile_prefix2(_m):
     _p = _m.split("_")
     return "_".join(_p[:3]) if (_m[:3] in ("m60", "m61") and len(_p) >= 3) else "_".join(_p[:2])
 
+def _gt_region(_mid):
+    """Region of a datamine-proven map id, via gen_data's own tables (dungeon override -> tile decode
+    -> the region of PLACED loot on that map prefix). None => fall through to the normal path."""
+    _full = _gt_full_map(_mid)
+    _d = DUNGEON_REGION_OVERRIDE.get(_full)
+    if _d:
+        return _d
+    _m = re.match(r"m61_(\d\d)_(\d\d)", _mid)
+    if _m:
+        return _m61_tile_region(int(_m.group(1)), int(_m.group(2)))
+    _m = re.match(r"m60_(\d\d)_(\d\d)", _mid)
+    if _m:
+        return PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
+    # NO majority-vote fallback. Resolving an interior map by "the region most of its placed loot got"
+    # re-imports the very bug this is meant to kill: m18_00's loot votes Gravesite Plain and m39_20's
+    # votes Mt. Gelmir, both WRONG -- using that vote regressed 510280 and 510260 from correct to
+    # broken. Ground truth may only resolve through an EXPLICIT map->region entry or the tile decode;
+    # otherwise fall through to the existing path (return None).
+    return None
+
 def region_of(r):
     """Corrected region: per-flag override (highest priority) -> curated dungeon override -> EMEVD/
     common-event audit for emevd+global rows -> raw region_of for everything else."""
@@ -990,6 +1052,13 @@ def region_of(r):
     except (KeyError, ValueError): _ovfl = None
     if _ovfl is not None and _ovfl in FLAG_REGION_OVERRIDE:
         return FLAG_REGION_OVERRIDE[_ovfl]
+    # GROUND TRUTH (MSB/param datamine) beats the row's scanned map. Resolved through gen_data's OWN
+    # map->region tables (NOT the grace join), so the grace-join oracle stays an INDEPENDENT check.
+    _gtm = MSB_TRUTH_MAP.get(_ovfl) if _ovfl is not None else None
+    if _gtm:
+        _gtr = _gt_region(_gtm)
+        if _gtr:
+            return _gtr
     _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))
     if _dov:
         return _dov
