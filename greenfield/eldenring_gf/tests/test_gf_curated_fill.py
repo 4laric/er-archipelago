@@ -105,9 +105,3 @@ class CuratedFillOn(WorldTestBase):
         self.assertEqual(emitted, placed, "tracker set (slot_data) must equal curated_fill placement set")
 
 
-class CuratedFillOff(WorldTestBase):
-    game = GAME
-    options = {"item_shuffle": True, "curated_fill": False, "num_regions": 6}
-
-    def test_off_marks_nothing(self):
-        self.assertEqual(select_priority(self.world), [], "curated_fill off -> no priority marking")

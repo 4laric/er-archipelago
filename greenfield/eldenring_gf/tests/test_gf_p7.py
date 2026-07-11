@@ -16,6 +16,13 @@ TORCH = 24000000
 STEED = 0x40000000 | 130
 CRIMSON = 0x40000000 | 1001
 CERULEAN = 0x40000000 | 1051
+# item_shuffle is FROZEN ON, so start_items also grants the pot VESSELS. Import them rather than
+# re-hardcoding, so a new vessel can't silently drift this test.
+from worlds.eldenring_gf.features.start_items import (  # noqa: E402
+    _CRACKED_POT_FULL_ID, _RITUAL_POT_FULL_ID, _PERFUME_BOTTLE_FULL_ID, _HEFTY_CRACKED_POT_FULL_ID,
+)
+VESSELS = (_CRACKED_POT_FULL_ID, _RITUAL_POT_FULL_ID, _PERFUME_BOTTLE_FULL_ID,
+           _HEFTY_CRACKED_POT_FULL_ID)
 
 
 class Phase7Defaults(WorldTestBase):
@@ -27,39 +34,12 @@ class Phase7Defaults(WorldTestBase):
         self.assertIsInstance(sd["death_link"], bool)
 
     def test_start_items_default(self):
-        self.assertEqual(self.world.fill_slot_data()["startItems"], [TORCH, STEED, CRIMSON, CERULEAN])
-
-
-class Phase7TorchOff(WorldTestBase):
-    game = GAME
-    options = {"start_with_torch": False}
-
-    def test_no_torch_when_disabled(self):
-        self.assertEqual(self.world.fill_slot_data()["startItems"], [STEED, CRIMSON, CERULEAN])
-
-
-class Phase7SteedOff(WorldTestBase):
-    game = GAME
-    options = {"start_with_steed": False}
-
-    def test_no_steed_when_disabled(self):
-        self.assertEqual(self.world.fill_slot_data()["startItems"], [TORCH, CRIMSON, CERULEAN])
-
-
-class Phase7FlasksOff(WorldTestBase):
-    game = GAME
-    options = {"start_with_flasks": False}
-
-    def test_no_flasks_when_disabled(self):
-        self.assertEqual(self.world.fill_slot_data()["startItems"], [TORCH, STEED])
-
-
-class Phase7AllOff(WorldTestBase):
-    game = GAME
-    options = {"start_with_torch": False, "start_with_steed": False, "start_with_flasks": False}
-
-    def test_empty_start_items_when_all_disabled(self):
-        self.assertEqual(self.world.fill_slot_data()["startItems"], [])
+        si = self.world.fill_slot_data()["startItems"]
+        self.assertEqual(si[:4], [TORCH, STEED, CRIMSON, CERULEAN])
+        # item_shuffle is FROZEN ON (defaults.py), so start_items also grants pot VESSELS -- held
+        # throwing-pot capacity == vessels held, else received pots overflow to storage unusable.
+        self.assertTrue(all(x in VESSELS for x in si[4:]),
+                        f"trailing startItems must be pot vessels, got {si[4:]}")
 
 
 class Phase7DeathLinkOn(WorldTestBase):
@@ -68,15 +48,6 @@ class Phase7DeathLinkOn(WorldTestBase):
 
     def test_death_link_flag_true(self):
         self.assertIs(self.world.fill_slot_data()["death_link"], True)
-
-
-class Phase7RegionLockDefaultOff(WorldTestBase):
-    game = GAME
-    options = {"start_with_region_lock": False}   # option defaults ON (DefaultOnToggle); test the OFF path
-
-    def test_no_precollected_lock_by_default(self):
-        pre = [i.name for i in self.multiworld.precollected_items[self.player] if i.name.endswith(" Lock")]
-        self.assertEqual(pre, [], "start_with_region_lock defaults OFF")
 
 
 class Phase7RegionLockOn(WorldTestBase):

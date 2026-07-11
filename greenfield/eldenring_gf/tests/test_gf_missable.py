@@ -68,23 +68,6 @@ class MissableGuardOn(WorldTestBase):
                                  f"progression landed on missable location {l.name}")
 
 
-class MissableGuardOff(WorldTestBase):
-    game = GAME
-    options = {"item_shuffle": True, "protect_missable_locations": False}
-
-    def test_progression_allowed_when_off(self):
-        missable = _missable_in_play(self.world, self.multiworld)
-        self.assertGreater(len(missable), 0)
-        prog = next((i for i in world_items(self)
-                     if i.player == self.world.player and i.advancement), None)
-        self.assertIsNotNone(prog)
-        # a deathroot reward location is never tagged important, so with the guard off nothing
-        # forbids progression there.
-        deathroot = [l for l in missable if MISSABLE_LOCATIONS[l.address] == "deathroot"]
-        self.assertTrue(any(l.item_rule(prog) for l in deathroot),
-                        "with the guard off, a deathroot location should accept progression")
-
-
 class MissableDegenerateSafe(WorldTestBase):
     game = GAME
     options = {"item_shuffle": False}  # degenerate pool -> gate skips, gen must not FillError

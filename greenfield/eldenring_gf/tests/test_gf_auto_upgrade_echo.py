@@ -14,10 +14,3 @@ class AutoUpgradeOn(WorldTestBase):
         assert isinstance(sd["options"]["auto_upgrade"], int)
         contract.validate_slot_data(sd, strict=True)
 
-class AutoUpgradeOff(WorldTestBase):
-    game = GAME
-    options = {"auto_upgrade": False}
-    def test_echo_off_default(self):
-        sd = self.world.fill_slot_data()
-        assert sd["options"]["auto_upgrade"] == 0, sd["options"]["auto_upgrade"]
-        contract.validate_slot_data(sd, strict=True)

@@ -18,6 +18,7 @@ from .data import HUB, REGIONS, LOCATIONS
 from .region_spine import (compute_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
                            base_regions, dlc_regions)
 from . import registry
+from .defaults import FROZEN_OPTIONS, apply_frozen
 from . import contract
 from . import features as _features  # noqa: F401  -- import triggers feature self-registration
 try:
@@ -127,9 +128,14 @@ _CORE_OPTION_FIELDS = [("num_regions", NumRegions), ("num_regions_order", NumReg
                        ("item_shuffle", ItemShuffle), ("ending_condition", EndingCondition),
                        ("great_runes_required", GreatRunesRequired),
                        ("enable_dlc", EnableDLC), ("dlc_only", DLCOnly)]
+# v0.2 option-matrix slim: FROZEN_OPTIONS are no longer yaml-settable -- they are the BEHAVIOUR
+# (see defaults.py). Their classes stay declared in the features (so the slot_data / options-echo
+# keys keep being emitted and the client contract is unchanged); they are just filtered out of the
+# yaml surface here and injected back as frozen stand-ins in generate_early.
 GFOptions = make_dataclass(
     "GFOptions",
-    registry.collect_option_fields(_CORE_OPTION_FIELDS, _FEATURES),
+    [(n, o) for (n, o) in registry.collect_option_fields(_CORE_OPTION_FIELDS, _FEATURES)
+     if n not in FROZEN_OPTIONS],
     bases=(PerGameCommonOptions,),
 )
 GFOptions.__module__ = __name__
@@ -211,6 +217,8 @@ class GreenfieldEldenRingWorld(World):
         return pool if pool else list(REGIONS)  # defensive: never seal every region
 
     def generate_early(self) -> None:
+        # Frozen behaviour first: features read the removed knobs exactly as before (defaults.py).
+        apply_frozen(self.options)
         self.gf_eligible: List[str] = self._eligible_regions()
         # DLC-off seeds must not receive DLC items as juice/filler. Publish the exclusion set
         # once here so every pool-augmentation feature reads the same resolved decision.

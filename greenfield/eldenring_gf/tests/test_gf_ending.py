@@ -136,20 +136,3 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
         self.assertEqual(sd["ending_condition"], expected)
 
 
-class GreatRunesGoalShuffleOffFallsBack(WorldTestBase):
-    """great_runes goal but item_shuffle OFF: no Great Rune items exist, so the goal falls back to
-    region_locks (requirement 0). Guards against requiring items that were never created."""
-    game = GAME
-    options = {
-        "item_shuffle": False,
-        "ending_condition": "great_runes",
-        "great_runes_required": 3,
-    }
-
-    def test_no_runes_without_shuffle(self):
-        world = self.multiworld.worlds[self.player]
-        self.assertEqual(world._required_runes(), [],
-                         "great_runes goal with shuffle off must require no runes")
-        sd = world.fill_slot_data()
-        self.assertEqual(sd["ending_condition"], "region_locks")
-        self.assertEqual(sd["great_runes_required"], 0)
