@@ -20,6 +20,7 @@ pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.data import HUB, REGIONS, LOCATIONS  # noqa: E402
 from worlds.eldenring_gf import contract  # noqa: E402
 from BaseClasses import ItemClassification  # noqa: E402
+from ._util import world_items, world_pool_items  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
 FILLER = "Rune"
@@ -30,7 +31,7 @@ class GreenfieldWorldTest(WorldTestBase):
 
     # --- item pool -----------------------------------------------------------------
     def test_one_progression_lock_per_region(self):
-        locks = [i for i in self.multiworld.itempool if i.name.endswith(" Lock")]
+        locks = [i for i in world_items(self) if i.name.endswith(" Lock")]
         self.assertEqual(sorted(i.name for i in locks),
                          sorted(f"{r} Lock" for r in REGIONS),
                          "expected exactly one lock item per region")
@@ -40,12 +41,9 @@ class GreenfieldWorldTest(WorldTestBase):
 
     def test_pool_fills_all_locations(self):
         total = sum(len(v) for v in LOCATIONS.values())
-        self.assertEqual(len(self.multiworld.itempool), total,
-                         "itempool size must equal the number of locations")
-        # every non-lock slot is filled (by Rune, grace-scatter, or shuffled vanilla items --
-        # composition varies by options; the count is the invariant).
-        non_locks = [i for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
-        self.assertEqual(len(non_locks), total - len(REGIONS))
+        pool = world_pool_items(self)   # itempool + pre-placed = the location-payers
+        self.assertEqual(len(pool), total,
+                         "location-payers must equal the number of locations (count-neutral)")
 
     # --- rules / goal ---------------------------------------------------------------
     def test_goal_needs_all_locks(self):
@@ -53,7 +51,7 @@ class GreenfieldWorldTest(WorldTestBase):
         self.assertTrue(self.multiworld.completion_condition[self.player](state))
         # dropping any single lock must break completion
         any_lock = f"{REGIONS[0]} Lock"
-        state.remove(next(i for i in self.multiworld.itempool if i.name == any_lock))
+        state.remove(next(i for i in world_items(self) if i.name == any_lock))
         self.assertFalse(self.multiworld.completion_condition[self.player](state),
                          "completion should require every region lock")
 

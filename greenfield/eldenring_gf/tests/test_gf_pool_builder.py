@@ -10,6 +10,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.data import REGIONS, LOCATIONS  # noqa: E402
+from ._util import world_items, world_pool_items  # noqa: E402
 from worlds.eldenring_gf.item_ids import ITEM_CATALOG  # noqa: E402
 from BaseClasses import ItemClassification  # noqa: E402
 from worlds.eldenring_gf.features.pool_builder import (  # noqa: E402
@@ -44,10 +45,9 @@ class PoolBuilderOn(WorldTestBase, PoolBuilderData):
 
     def test_count_neutral(self):
         # curation never changes the pool size -- it swaps items, one-for-one.
-        self.assertEqual(len(self.multiworld.itempool), _TOTAL,
+        own = world_pool_items(self)   # itempool + pre-placed location-payers (progression_surface)
+        self.assertEqual(len(own), _TOTAL,
                          "pool builder is count-neutral (pool == number of locations)")
-        non_locks = [i for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
-        self.assertEqual(len(non_locks), _TOTAL - len(REGIONS))
 
     def test_adds_high_tier_juice(self):
         feat = PoolBuilderFeature()

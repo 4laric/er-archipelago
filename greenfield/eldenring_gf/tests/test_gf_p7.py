@@ -72,6 +72,7 @@ class Phase7DeathLinkOn(WorldTestBase):
 
 class Phase7RegionLockDefaultOff(WorldTestBase):
     game = GAME
+    options = {"start_with_region_lock": False}   # option defaults ON (DefaultOnToggle); test the OFF path
 
     def test_no_precollected_lock_by_default(self):
         pre = [i.name for i in self.multiworld.precollected_items[self.player] if i.name.endswith(" Lock")]
@@ -85,6 +86,8 @@ class Phase7RegionLockOn(WorldTestBase):
     def test_exactly_one_region_lock_precollected(self):
         pre = [i.name for i in self.multiworld.precollected_items[self.player] if i.name.endswith(" Lock")]
         self.assertEqual(len(pre), 1, "exactly one region lock precollected when enabled")
-        pool_locks = [i.name for i in self.multiworld.itempool if i.name.endswith(" Lock")]
+        from ._util import world_item_names
+        pool_locks = [n for n in world_item_names(self)
+                      if n.endswith(" Lock") and n not in pre]
         kept = self.world._kept()
         self.assertEqual(sorted(pool_locks + pre), sorted(f"{r} Lock" for r in kept))

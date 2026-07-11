@@ -11,7 +11,7 @@ from worlds.eldenring_gf import contract  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
 _RAYA = range(71400, 71500)
-_LEYN = [g for g in range(71100, 71200) if g != 71190]
+_LEYN = [g for g in range(71100, 71200) if g != 71190] + [73501, 73502, 73503, 73504]  # +Shunning-Grounds (m35 folds to Leyndell, rune-gated)
 
 
 class GatesArmed(WorldTestBase):
