@@ -16,6 +16,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 
 from worlds.eldenring_gf.data import LOCATIONS, HUB  # noqa: E402
+from ._util import world_items, world_pool_items  # noqa: E402
 from worlds.eldenring_gf.features.pool_builder import PoolBuilderFeature  # noqa: E402
 from worlds.eldenring_gf.features.filler_curation import displaceable_filler  # noqa: E402
 
@@ -46,14 +47,14 @@ class AllFillerJuice(WorldTestBase):
         self.assertGreater(n, 100, f"all_filler juice budget should dwarf the rune tail, got {n}")
 
     def test_count_neutral(self):
-        own = [it for it in self.multiworld.itempool if it.player == self.world.player]
+        own = [it for it in world_pool_items(self) if it.player == self.world.player]
         self.assertEqual(len(own), _total_locations(self.world),
                          "pool must stay exactly one item per location (count-neutral)")
 
     def test_progression_key_not_displaced(self):
         # Academy Glintstone Key is a promoted gate (progression) sharing the GOODS nibble; it must
         # survive the widened displacement.
-        names = {it.name for it in self.multiworld.itempool if it.player == self.world.player}
+        names = {it.name for it in world_pool_items(self) if it.player == self.world.player}
         self.assertIn("Academy Glintstone Key", names,
                       "a progression key was displaced by all_filler juice (winnability risk)")
 

@@ -5,6 +5,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.region_spine import GOAL_REGION, SPINE  # noqa: E402
+from ._util import world_item_names  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
 
@@ -14,7 +15,7 @@ class NumRegions3Spine(WorldTestBase):
     options = {"num_regions": 3, "num_regions_order": "spine"}
 
     def test_kept_is_spine_prefix_plus_goal(self):
-        locks = sorted(i.name for i in self.multiworld.itempool if i.name.endswith(" Lock"))
+        locks = sorted(n for n in world_item_names(self) if n.endswith(" Lock"))
         expected = sorted(f"{r} Lock" for r in list(SPINE[:3]) + [GOAL_REGION])
         self.assertEqual(locks, expected, "kept locks must be spine first-3 + goal region")
 
@@ -35,5 +36,5 @@ class NumRegions1Spine(WorldTestBase):
     options = {"num_regions": 1, "num_regions_order": "spine"}
 
     def test_min_scope_keeps_first_plus_goal(self):
-        locks = sorted(i.name for i in self.multiworld.itempool if i.name.endswith(" Lock"))
+        locks = sorted(n for n in world_item_names(self) if n.endswith(" Lock"))
         self.assertEqual(locks, sorted([f"{SPINE[0]} Lock", f"{GOAL_REGION} Lock"]))

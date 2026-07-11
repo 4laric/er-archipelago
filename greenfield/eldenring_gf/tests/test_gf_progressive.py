@@ -14,6 +14,7 @@ from worlds.eldenring_gf.features.progressive import (  # noqa: E402
     PROG_SMITHING_BELL, PROG_SOMBER_BELL,
     _GOODS_LADDERS, _POOL_COUNTS, _GOODS_NIBBLE, _BELL_GRANTS, _BELL_EARLY_COUNT,
 )
+from ._util import world_items, world_pool_items  # noqa: E402
 
 GAME = "Elden Ring (Greenfield)"
 
@@ -35,7 +36,7 @@ def _assert_grant_shape(testcase, tiers):
 
 
 def _pool_names(world):
-    return [it.name for it in world.multiworld.itempool if it.player == world.player]
+    return [it.name for it in world_pool_items(world) if it.player == world.player]
 
 
 class ProgressiveOff(WorldTestBase):

@@ -22,6 +22,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf import contract  # noqa: E402
+from ._util import world_items, world_pool_items  # noqa: E402
 from worlds.eldenring_gf.boss_data import REGION_BOSSES  # noqa: E402
 from worlds.eldenring_gf.region_spine import DLC_REGIONS  # noqa: E402
 from worlds.eldenring_gf.features.boss_locks import (  # noqa: E402
@@ -106,7 +107,8 @@ class BossKeysOn(WorldTestBase):
                 if r in kept for (_a, _f, rw) in lst]
 
     def _own_pool(self):
-        return [it for it in self.multiworld.itempool if it.player == self.world.player]
+        # progression (locks, boss keys) is pre-placed by progression_surface -> look across buckets
+        return [it for it in world_items(self) if it.player == self.world.player]
 
     def test_key_items_in_pool_once_each_progression(self):
         labels = self._kept_labels()
@@ -134,7 +136,7 @@ class BossKeysOn(WorldTestBase):
         # core sizes filler off len(pool): total own itempool == total own locations, keys included.
         total_locs = len([loc for loc in self.multiworld.get_locations(self.world.player)
                           if loc.address is not None])
-        self.assertEqual(len(self._own_pool()), total_locs,
+        self.assertEqual(len(world_pool_items(self)), total_locs,
                          "pool stays count-neutral (keys displace filler)")
 
     def test_bosslockitems_carry_gate(self):
