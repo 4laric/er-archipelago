@@ -424,9 +424,14 @@ CONTRACT = (
                 "(client reads options.global_scadutree_blessing)",
                 "legacy top-level copy of the Scadutree blessing scope."),
     # --- version handshake ---
-    ContractKey("versions", "STR", False, (BOTH,),
-                "(optional; unemitted today)", "core.rs version gate",
-                "apworld semver for the client version gate; emission optional."),
+    ContractKey("versions", "STR", True, (BOTH,),
+                "core._base_slot_data", "eldenring-archipelago core.rs version gate",
+                "VERSION HANDSHAKE. 'apworld/<semver> contract/<hash8> data/<inputs_hash16>'. The "
+                "client compares the contract hash to the one it was COMPILED against and shouts if "
+                "they differ. Required, because the failure it catches is silent: apworld and client "
+                "ship as two separate artifacts (apworld off-site, .dll on Nexus), so mixed versions "
+                "are not an edge case, they are the norm -- and a stale .dll against a fresh apworld "
+                "looks exactly like a bug in the game. Every report carries this string."),
     # --- greenfield diagnostics (no client read; ANY = shape-unvalidated on purpose) ---
     ContractKey("world_logic", "STR", False, (GREENFIELD,),
                 "core._base_slot_data", "(diagnostic -- no client read)",
@@ -624,6 +629,17 @@ def to_rust():
     (the client does NOT reject unknown keys -- the server may add its own). Pure data + a small
     fixed validator (serde_json)."""
     variants = sorted({SHAPES[n][1] for n in SHAPES})
+    _hdr_version = (
+        "\n// ---- VERSION HANDSHAKE ----------------------------------------------------------------\n"
+        "// The contract hash this client was COMPILED against. The apworld sends its own in slot_data\n"
+        "// `versions` (\"apworld/<semver> contract/<hash8> data/<inputs_hash16>\"). If they differ, the\n"
+        "// two artifacts were built from different contracts -- which is the NORM, not an edge case:\n"
+        "// the apworld ships off-site and the .dll ships on Nexus, so a player can mix them freely.\n"
+        "// Derived from the contract itself (gen_contract.py), so it cannot go stale like a hand-bumped\n"
+        "// version number would.\n"
+        f'pub const CONTRACT_HASH: &str = "{CONTRACT_HASH[:8]}";\n'
+        f'pub const APWORLD_VERSION_EXPECTED: &str = "{APWORLD_VERSION}";\n'
+    )
 
     def key_row(k):
         gf = "true" if (BOTH in k.profiles or GREENFIELD in k.profiles) else "false"
@@ -661,6 +677,7 @@ def to_rust():
     L.append("];")
     L.append("")
     L.append(_RUST_VALIDATE)
+    L.append(_hdr_version)
     return "\n".join(L) + "\n"
 
 
@@ -722,3 +739,28 @@ pub fn validate(sd: &Value) -> Vec<String> {
     }
     out
 }'''
+
+
+
+# ---- VERSION HANDSHAKE -----------------------------------------------------------------------------
+# CONTRACT_HASH is derived FROM the contract, not maintained beside it: any key added/removed/reshaped
+# or any required-ness flip changes it automatically. A hand-bumped version number is a thing people
+# forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
+import hashlib as _hashlib
+
+APWORLD_VERSION = "0.2.0"
+
+def _contract_hash() -> str:
+    _mat = "\n".join(
+        "%s|%s|%s|%s" % (k.name, k.shape, k.required, ",".join(sorted(k.profiles)))
+        for k in sorted(CONTRACT, key=lambda k: k.name)
+    )
+    return _hashlib.sha256(_mat.encode("utf-8")).hexdigest()
+
+CONTRACT_HASH = _contract_hash()
+
+def version_string(data_inputs_hash: str = "") -> str:
+    """The `versions` slot_data value. Carries all three identities a bug report needs:
+    which apworld, which contract shape, and which generated DATA the seed was built from."""
+    _d = (data_inputs_hash or "").replace("sha256:", "")[:16] or "unknown"
+    return "apworld/%s contract/%s data/%s" % (APWORLD_VERSION, CONTRACT_HASH[:8], _d)

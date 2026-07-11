@@ -76,7 +76,7 @@ INFORMATIONAL_EXTRAS = {
 # HALF-FEATURE (CONTRIBUTING: emitted-but-unconsumed), not a baseline to refresh. If a key ever
 # genuinely stops being emitted, the fix is to justify it here in prose or tag the client path
 # CONTRACT: DEAD -- never to silence the gate.
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "versions"}  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
+_CONTRACT_NOT_EMITTED = {"enable_dlc"}   # `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).
