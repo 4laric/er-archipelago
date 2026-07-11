@@ -800,4 +800,4 @@ LOCATION_TAGS = {
 
 TAG_COUNTS = {'Basin': 18, 'Boss': 76, 'Church': 13, 'EniaShop': 26, 'Fragment': 45, 'GreatRune': 6, 'KeyItem': 9, 'Legendary': 87, 'MajorBoss': 28, 'Remembrance': 23, 'Revered': 23, 'Seedtree': 43, 'Shop': 479}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:46cbefcfda4a1f931ddfc44e375e59a8b15e98410885070b7c8ea1553f2e7142', 'generated_utc': '2026-07-11T10:22:40Z', 'host': 'windows', 'module': 'location_tags.py', 'body_sha256': 'sha256:82f2e1fa1f12a38f9b84bc47a38011223da4db24aae89ac5162787d20bd28a97'}
+_GEN_STAMP = {'inputs_hash': 'sha256:46cbefcfda4a1f931ddfc44e375e59a8b15e98410885070b7c8ea1553f2e7142', 'generated_utc': '2026-07-11T10:23:15Z', 'host': 'windows', 'module': 'location_tags.py', 'body_sha256': 'sha256:82f2e1fa1f12a38f9b84bc47a38011223da4db24aae89ac5162787d20bd28a97'}

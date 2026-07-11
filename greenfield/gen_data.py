@@ -554,6 +554,14 @@ FLAG_REGION_OVERRIDE = {
     60520: "Altus Plateau",                    # Godfrey First Elden Lord (golden shade, Leyndell -> Altus);
                                                #   mis-tiled to Caelid via the Divine Tower of Caelid event
                                                #   90005110 (m34_13) re-referencing the flag. (Alaric 2026-07-10)
+    # Sellen's Bell Bearing: the ONLY award site in all 972 EMEVD scripts is
+    # m14_00_00_00.emevd $Event(14000731) "Academy sorceress defeated" -> AwardItemLot(101060)
+    # (lot 101060 -> getItemFlagId 400106). Sellen's questline ends in the Raya Lucaria Grand
+    # Library, so her bell bearing drops there (Raya folds to Liurnia). region_map.csv:885 mis-tiles
+    # it to m11_10 -> "Leyndell / Roundtable / Shunning-Grounds" -> Altus: the SAME m11_10 mis-tiling
+    # family already patched for 530130 and 60500. Found by the MSB/EMEVD provenance oracle
+    # (test_gf_region_provenance_oracle), 2026-07-10 -- confirm in-game.
+    400106: "Liurnia of the Lakes",
     530130: "Limgrave",                        # Bloodhound's Fang = Darriwil at the Forlorn Hound Evergaol
                                                #   (Limgrave/Stormhill); mis-tiled m11_10 -> Roundtable -> Altus.
     # DLC-dungeon dead-checks (Alaric playtest): flags encode true map mMM_SS (X0SS7000) but the
@@ -741,12 +749,24 @@ GLOBAL_RECOVER = {
     65460: 'Gravesite Plain',
     400590: 'Scadu Altus',
     400592: 'Scadu Altus',
+    400596: 'Shadow Keep',
     400600: 'Enir-Ilim',
     400611: 'Scadu Altus',
     400627: 'Enir-Ilim',
+    400630: 'Gravesite Plain',
+    400636: 'Gravesite Plain',
     400642: 'Gravesite Plain',
     400661: 'Scadu Altus',
     400662: 'Scadu Altus',
+    400664: 'Scadu Altus',
+    400666: 'Scadu Altus',
+    400670: 'Scadu Altus',
+    400671: 'Scadu Altus',
+    400672: 'Scadu Altus',
+    400702: 'Jagged Peak',
+    400704: 'Jagged Peak',
+    400711: 'Jagged Peak',
+    400712: 'Jagged Peak',
     400714: 'Jagged Peak',
     510610: 'Scadu Altus',
     520711: 'Ancient Ruins of Rauh',
@@ -768,6 +788,9 @@ GLOBAL_RECOVER = {
     540900: 'Gravesite Plain',
     580100: 'Belurat',
     400610: 'Gravesite Plain',
+    400730: 'Scadu Altus',
+    400700: 'Jagged Peak',
+    400710: 'Jagged Peak',
     520710: 'Ancient Ruins of Rauh',
     530800: 'Gravesite Plain',
     # Region CORRECTIONS: major-boss drops that WERE checks but auto-recovered to the wrong region
