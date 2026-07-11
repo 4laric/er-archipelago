@@ -295,10 +295,61 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # is not a duplicate seller -- the Walking Mausoleum is the only remembrance "shop".)
 def _is_mausoleum_dupe(r):
     return r['method'] == 'shop_multi' and 'Remembrance' in (r.get('item_name') or '')
+# ---- PHANTOM-FLAG GUARD: drop checks whose acquisition flag does not exist in the game ----------
+# region_map.csv carries `method=synthetic_areacode` rows whose flag was INVENTED by the upstream
+# pipeline. Event-flag ids are group-allocated: an unallocated id is a no-op, so the client can never
+# observe it flip -- the check can never be sent, the seed can never be 100%'d, and (worst) AP fill
+# can place a PROGRESSION item on it, which is an unrecoverable soft-lock in multiworld. 43 of the 49
+# provably duplicate a check that already exists under its REAL flag, so the fix is to DELETE them,
+# not rebind them (SPEC-provenance-oracle; tools/recover_synthetic_flags.py + synthetic_flag_recovery.tsv).
+#
+# We do NOT filter on the `synthetic` tag: 3 tagged rows (177, 320820, 1038457500) are MIS-tagged and
+# carry real flags. Instead derive the REAL-FLAG UNIVERSE from the params and drop anything outside it
+# -- self-healing, so any future invented flag is dropped automatically.
+def _real_flag_universe():
+    _u = set()
+    for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
+        _p = os.path.join(_SLP_DIR0, _fn)
+        if not os.path.isfile(_p): return None                 # params absent -> cannot guard
+        with open(_p, newline="") as _fh:
+            _rd = csv.DictReader(_fh)
+            _cols = [_c for _c in _rd.fieldnames if _c.startswith("getItemFlagId")]
+            for _r in _rd:
+                for _c in _cols:
+                    _v = _r.get(_c, "0")
+                    if _v not in ("", "0", "-1"):
+                        try: _u.add(int(_v))
+                        except ValueError: pass
+    _p = os.path.join(_SLP_DIR0, "ShopLineupParam.csv")
+    if os.path.isfile(_p):
+        for _r in csv.DictReader(open(_p, newline="")):
+            try:
+                _f = int(_r.get("eventFlag_forStock", 0))
+                if _f > 0: _u.add(_f)
+            except (TypeError, ValueError): pass
+    return _u
+_SLP_DIR0 = os.path.join(AR, "vanilla_er", "vanilla_er")
+REAL_FLAGS = _real_flag_universe()
+if REAL_FLAGS is None:
+    print("[gen_data] WARNING: ItemLotParam absent -- phantom-flag guard DISABLED (invented flags may ship)")
+
+def _flag_exists(r):
+    if REAL_FLAGS is None: return True
+    try: return int(r['flag']) in REAL_FLAGS
+    except (KeyError, ValueError): return False
+
 rows=[r for r in _ALLROWS
       if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
       and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
-      and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))]
+      and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
+      and _flag_exists(r)]
+
+_PHANTOM_DROPPED = ([r for r in _ALLROWS
+    if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
+    and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
+    and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
+    and not _flag_exists(r)] if REAL_FLAGS is not None else [])
+print(f"phantom-flag guard: dropped {len(_PHANTOM_DROPPED)} checks with non-existent (invented) flags")
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
