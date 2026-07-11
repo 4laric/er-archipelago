@@ -1608,7 +1608,7 @@ def _is_dungeon(_mp):
 # = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop"})
+                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "MajorBoss"})
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}
 for _i, _r in enumerate(rows):
@@ -1630,6 +1630,7 @@ def _filler_only(_aps):
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
+    _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
         if _cls == "field":
@@ -1643,6 +1644,7 @@ if BOSS_HEALTHBARS:
         if not _members:
             continue  # e.g. a field boss whose tile has no (non-important) checks -> no sweep
         DUNGEON_SWEEPS[_ent] = _members
+        _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
         # region label from a member's OWN region (own-tile/map-local members are region-consistent;
         # avoids a coarse m60_XX bucket mislabelling a field boss whose tile straddles a region).
         SWEEP_REGION[_ent] = _ap_region.get(_members[0], _mreg.get(_bmap, HUB))
@@ -1650,12 +1652,16 @@ if BOSS_HEALTHBARS:
     # so no single boss kill dumps the whole region. Previously EVERY legacy boss swept the ENTIRE
     # region filler -- Farum's 91 checks granted in full by each of Godskin Duo / Placidusax / Maliketh
     # / Beast Clergyman; Liurnia's 374 by each of Rennala / Red Wolf; Eternal Cities' 323 by ~13 bosses.
+    # DEDUP (2026-07-11): the legacy pool is the region filler MINUS anything already covered by a
+    # field/dungeon sweep in that region -- so a region-major kill grants only the checks NOT tied to a
+    # more specific boss (a field boss's own tile, a catacomb's own map). This alone roughly halves the
+    # big overworld regions (Liurnia 374->~73/boss, Altus 339->~49/boss) that were double-covered.
     # Deterministic: bosses sorted by entity id, members sorted, member j -> boss j % N (even, scattered
     # slices). Un-killed bosses' slices stay obtainable by physical pickup (a sweep is a convenience
     # auto-grant, not the only source), so nothing is stranded.
     for _reg, _ents in _legacy_by_region.items():
         _ents = sorted(_ents)
-        _pool = sorted(set(_filler_only(_mem_region.get(_reg, []))))
+        _pool = sorted(set(_filler_only(_mem_region.get(_reg, []))) - _covered)
         if not _pool or not _ents:
             continue
         _slices = defaultdict(list)
