@@ -2,7 +2,9 @@
 
 gen_data.py scopes each boss's dungeon-sweep by the boss's CLASS (from the authoritative
 DisplayBossHealthBar set, tools/datamine_boss_healthbars.py -> BOSS_HEALTHBARS):
-  * legacy / interior (region majors)   -> REGION-WIDE
+  * legacy / interior (region majors)   -> region filler PARTITIONED round-robin among the region's
+                                           legacy bosses (each boss gets a disjoint ~1/N slice; a
+                                           single-legacy-boss region still gets the whole pool)
   * catacomb / cave / tunnel (m30/31/32)-> MAP-LOCAL (only that dungeon map's own checks)
   * field / overworld (m60)             -> OWN-TILE + FILLER-ONLY
 
@@ -183,6 +185,24 @@ class BossSweepScoping(unittest.TestCase):
                     return  # found an excluded important check in a legacy sweep's region -> cut bites
         self.fail("no important/big-ticket check is excluded from any legacy sweep -- the filler-only "
                   "cut looks like a no-op (region-wide regression or missing location tags)")
+
+    def test_legacy_sweeps_partition_their_region(self):
+        """DIVVY (2026-07-11): a legacy region's filler is PARTITIONED among its legacy bosses -- no two
+        legacy bosses in the SAME region may share a member. Guards against a revert to region-wide,
+        where every boss dumped the whole region (Farum's 91 checks granted in full by each of Godskin
+        Duo / Placidusax / Maliketh / Beast Clergyman). Single-legacy-boss regions are trivially fine."""
+        by_region = {}
+        for ent, info, members in self._members_by_class("legacy"):
+            by_region.setdefault(self.sw.SWEEP_REGION.get(ent), []).append((ent, set(members)))
+        overlaps = []
+        for reg, lst in by_region.items():
+            for i in range(len(lst)):
+                for j in range(i + 1, len(lst)):
+                    if lst[i][1] & lst[j][1]:
+                        overlaps.append((reg, lst[i][0], lst[j][0], len(lst[i][1] & lst[j][1])))
+        self.assertEqual(overlaps, [], str(len(overlaps)) + " pair(s) of same-region legacy sweeps SHARE "
+                         "members -- must be partitioned (disjoint), not region-wide. Sample: "
+                         + repr(overlaps[:5]))
 
 
 if __name__ == "__main__":
