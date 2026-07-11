@@ -103,7 +103,14 @@ def delimiter_delta(text, language):
     return opens  # nonzero value => imbalance
 
 
+# Files that are legitimately EMPTY. An empty package marker is normal Python, not a zeroed write --
+# flagging it made `--tracked` noisy, and a noisy gate is a gate people switch off.
+EMPTY_OK = ("__init__.py", ".gitkeep", ".keep")
+
+
 def check_one(path):
+    if os.path.basename(path) in EMPTY_OK and os.path.getsize(path) == 0:
+        return [], []
     errs, warns = [], []
     if not os.path.exists(path):
         return errs, warns  # deleted/renamed staged entry -- nothing on disk
@@ -161,6 +168,68 @@ def check_one(path):
     return errs, warns
 
 
+
+def looks_binary(data):
+    """git's own heuristic: a NUL in the first 8k => binary. Cheap and matches what git does when it
+    decides to print 'Binary files differ'."""
+    return b"\x00" in data[:8000] and not data[:8000].decode("utf-8", "ignore").isprintable() \
+        or _nontext_ratio(data[:8000]) > 0.30
+
+
+def _nontext_ratio(chunk):
+    if not chunk:
+        return 0.0
+    text = bytes(range(32, 127)) + b"\n\r\t\f\b"
+    return sum(1 for b in chunk if b not in text) / len(chunk)
+
+
+def blob_bytes(path):
+    """The file's content in HEAD, or None if untracked/new."""
+    r = subprocess.run(["git", "cat-file", "-p", "HEAD:%s" % path],
+                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    return r.stdout if r.returncode == 0 else None
+
+
+def check_truncated_vs_head(path):
+    """Detect the MOUNT-TRUNCATION signature: the file on disk is a strict PREFIX of what git has,
+    and shorter. That is what a cut-off write looks like, and it is almost never what an edit looks
+    like -- a real edit changes bytes, it does not just stop early. (A file that legitimately shrank
+    -- deleted a trailing block -- would have to coincidentally be an exact prefix to false-positive,
+    which is rare enough to be worth the signal.)
+
+    This is the check that was MISSING on 2026-07-11: writes through the Windows mount silently
+    truncated gen_data.py (-553 b), package_release.ps1 (-23 b), tools/check_integrity.py (tail
+    mangled) and even .git/HEAD (NUL-padded). None of it was ever committed, so the pre-commit hook
+    never got a say -- the damage lived in the WORKING TREE, between commits, where nothing looked.
+    """
+    try:
+        disk = open(path, "rb").read()
+    except OSError:
+        return [], []
+    blob = blob_bytes(path)
+    if blob is None:
+        return [], []
+    if len(disk) < len(blob) and blob.startswith(disk):
+        return (["TRUNCATED vs HEAD: %d bytes on disk, %d in git, and the on-disk content is an "
+                 "exact PREFIX of git's -- this is a cut-off write, not an edit. "
+                 "Restore with: git checkout -- %s" % (len(disk), len(blob), path)], [])
+    # NUL bytes only mean corruption in a TEXT file. Decide binary-ness the way git does -- by looking
+    # at the bytes -- not by an extension allowlist, which I got wrong first time round (.xlsx is a zip
+    # and is legitimately full of NULs).
+    if b"\x00" in disk and not looks_binary(disk):
+        return (["NUL BYTES in a text file (%d) -- mount write-truncation signature" % disk.count(0)], [])
+    return [], []
+
+
+def self_check():
+    """The gate must not be the casualty. On 2026-07-11 check_integrity.py was ITSELF truncated --
+    it could not parse, so it could not run, so it could not report that it had been eaten. Verify
+    our own source against HEAD before trusting any result we produce."""
+    me = os.path.relpath(os.path.abspath(__file__), os.getcwd()).replace(os.sep, "/")
+    errs, _ = check_truncated_vs_head(me)
+    return errs
+
+
 def main(argv):
     args = argv[1:]
     strict = "--strict" in args
@@ -177,8 +246,17 @@ def main(argv):
         return 2
 
     n_err = n_warn = 0
+
+    # The gate checks itself FIRST -- a truncated checker cannot be trusted to report anything.
+    for m in self_check():
+        print("%sERROR%s %s: %s" % (RED, OFF, "tools/check_integrity.py (SELF)", m))
+        n_err += 1
+
     for f in files:
         errs, warns = check_one(f)
+        e2, w2 = check_truncated_vs_head(f)      # cut-off-write detector (vs HEAD)
+        errs = list(errs) + e2
+        warns = list(warns) + w2
         for m in errs:
             print("%sERROR%s %s: %s" % (RED, OFF, f, m))
             n_err += 1
