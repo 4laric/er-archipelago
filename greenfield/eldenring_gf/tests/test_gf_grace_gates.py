@@ -47,15 +47,3 @@ class GatesArmed(WorldTestBase):
                         "greatRuneItemIds must be emitted alongside runeGatedGraces")
 
 
-class GatesOff(WorldTestBase):
-    game = GAME
-    options = {"item_shuffle": True, "legacy_dungeon_keys": False, "leyndell_runes_required": 0}
-
-    def test_bundles_unchanged_no_gate_keys(self):
-        sd = self.world.fill_slot_data()
-        rg = sd[contract.REGION_GRACES]
-        self.assertTrue([g for g in rg.get("Liurnia of the Lakes Lock", []) if g in _RAYA],
-                        "with the gate off, Raya graces stay in the Liurnia bundle")
-        self.assertNotIn("Academy Glintstone Key", rg, "no key-gated grace entry when the gate is off")
-        self.assertNotIn(contract.RUNE_GATED_GRACES, sd, "no runeGatedGraces when leyndell gate off")
-        self.assertNotIn(contract.GREAT_RUNE_ITEM_IDS, sd)

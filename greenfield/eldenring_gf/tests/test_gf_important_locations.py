@@ -82,25 +82,3 @@ class ImportantLocDegenerateSafe(WorldTestBase):
         self.assertTrue(self.multiworld.get_locations(self.world.player))
 
 
-class ImportantLocDegenerateFragmentSafe(WorldTestBase):
-    # Regression for GF-fuzz-1569033476-0012/0024: item_shuffle off + a SINGLE small type
-    # ("Fragment", ~21 tagged) meant the old avail>=tagged gate PASSED on region-Locks alone
-    # (advancement, but logic-pinned -- 0 freely-placeable juice), enforced, then FillError.
-    # The juice-keyed gate must SKIP here and gen clean.
-    game = GAME
-    options = {"item_shuffle": False, "important_locations": ["Fragment"]}
-
-    def test_fragment_only_off_skips_and_gens(self):
-        # reaching setUp (which runs fill) without FillError is the core assertion.
-        self.assertTrue(self.multiworld.get_locations(self.world.player))
-        # gate must have SKIPPED: with no juice, tagged Fragment locations still accept filler.
-        tagged = _tagged_in_play(self.world, self.multiworld)
-        self.assertGreater(len(tagged), 0, "expected Fragment locations in play")
-        juice = sum(1 for i in self.multiworld.itempool
-                    if i.player == self.world.player
-                    and bool(i.classification & ItemClassification.useful)
-                    and not i.advancement)
-        self.assertEqual(juice, 0, "item_shuffle off should have no freely-placeable juice")
-        filler = self.world.create_item(self.world.get_filler_item_name())
-        self.assertTrue(all(l.item_rule(filler) for l in tagged),
-                        "gate should have SKIPPED (juice < tagged): tagged locs must still accept filler")

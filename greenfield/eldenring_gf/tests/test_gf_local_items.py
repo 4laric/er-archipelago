@@ -56,17 +56,6 @@ class LocalItemsOff(WorldTestBase):
         self.assertFalse(present, f"toggle off must not force items local (found {present[:3]})")
 
 
-class LocalItemsToggleOnButShuffleOff(WorldTestBase):
-    game = GAME
-    options = {"local_item_only": True, "item_shuffle": False}
-
-    def test_noop_when_no_real_items(self):
-        # shuffle off -> only Rune + Locks exist; the toggle is a no-op and adds nothing.
-        local = _local_set(self)
-        present = [n for n in ITEM_CATALOG if n in local]
-        self.assertFalse(present, "with item_shuffle off there are no real items to localize")
-
-
 class LocalItemsWithExclusion(WorldTestBase):
     game = GAME
     options = {

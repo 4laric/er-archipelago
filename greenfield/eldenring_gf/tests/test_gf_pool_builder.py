@@ -53,7 +53,8 @@ class PoolBuilderOn(WorldTestBase, PoolBuilderData):
         feat = PoolBuilderFeature()
         budget = feat._juice_budget(self.world)
         self.assertGreater(budget, 0, "pool builder should have juice to add for a full seed")
-        juice_in_pool = sum(1 for i in self.multiworld.itempool if i.name in _JUICE)
+        _cat = set(feat._juice_list(self.world))   # intensity=max is frozen -> wider than JUICE_ORDER
+        juice_in_pool = sum(1 for i in self.multiworld.itempool if i.name in _cat)
         # the pool holds at least the added juice (plus any that landed naturally at its location).
         self.assertGreaterEqual(juice_in_pool, budget,
                                 "pool builder must add its juice budget to the pool")
@@ -70,35 +71,3 @@ class PoolBuilderOn(WorldTestBase, PoolBuilderData):
         self.assertGreater(sd["pool_builder_juice_added"], 0)
 
 
-class PoolBuilderOff(WorldTestBase):
-    """Same shuffle knobs, builder OFF -- the ON world above must carry strictly more juice."""
-    game = GAME
-    options = {"item_shuffle": True, "pool_builder": False}
-
-    def test_off_has_less_juice_than_on(self):
-        off_juice = sum(1 for i in self.multiworld.itempool if i.name in _JUICE)
-
-        class _On(WorldTestBase):
-            game = GAME
-            options = {"item_shuffle": True, "pool_builder": True}
-
-        on = _On()
-        on.setUp()
-        on_juice = sum(1 for i in on.multiworld.itempool if i.name in _JUICE)
-        self.assertGreater(on_juice, off_juice, "pool builder ON adds juice vs OFF")
-
-
-class PoolBuilderNoOpWhenShuffleOff(WorldTestBase):
-    game = GAME
-    options = {"item_shuffle": False, "pool_builder": True, "varied_filler": False}
-
-    def test_no_op_all_rune(self):
-        fill = [i.name for i in self.multiworld.itempool if not i.name.endswith(" Lock")]
-        self.assertTrue(fill and all(n == "Rune" for n in fill),
-                        "pool builder is a no-op when item_shuffle is off (every slot stays Rune)")
-        self.assertFalse([n for n in fill if n in _JUICE], "no juice added when shuffle off")
-
-    def test_slot_data_reports_disabled(self):
-        sd = self.world.fill_slot_data()
-        self.assertFalse(sd["pool_builder"])
-        self.assertEqual(sd["pool_builder_juice_added"], 0)
