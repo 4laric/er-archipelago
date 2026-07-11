@@ -24,6 +24,15 @@ Write-Host "[greenfield] regenerating data ($GenData)" -ForegroundColor Cyan
 & python $GenData
 if ($LASTEXITCODE -ne 0) { throw ("[greenfield] gen_data.py FAILED (exit {0})" -f $LASTEXITCODE) }
 
+# Gate: the generated modules must match a hash of the inputs on disk (SPEC-gen-input-hash-gate).
+# Refuses to install/generate stale or partially-written data -- the invariant that retires the
+# "NEEDS WINDOWS REGEN" marker. tools/gen_manifest.py is the one definition of the hash.
+$GenManifest = Join-Path (Split-Path $Here -Parent) "tools\gen_manifest.py"
+$StampJson   = Join-Path $WorldSrc "_gen_stamp.json"
+Write-Host "[greenfield] verifying gen-input stamp" -ForegroundColor Cyan
+& python $GenManifest --verify $StampJson
+if ($LASTEXITCODE -ne 0) { throw ("[greenfield] gen-input stamp STALE/UNVERIFIABLE (exit {0}) -- rerun gen_data.py" -f $LASTEXITCODE) }
+
 Write-Host "[greenfield] installing world -> $WorldDst" -ForegroundColor Cyan
 if (Test-Path $WorldDst) { Remove-Item -Recurse -Force $WorldDst }
 Copy-Item -Recurse -Force $WorldSrc $WorldDst
