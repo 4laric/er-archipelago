@@ -36,6 +36,8 @@ import sys
 FILE_INPUTS = [
     "greenfield/gen_data.py",
     "greenfield/region_map.csv",
+    "greenfield/msb_flag_region.tsv",        # MSB/EMEVD ground truth (flag -> placed map)
+    "greenfield/dungeon_regions.tsv",        # derived interior map -> region (grace join + ConnectCollision)
     "item_tiers.tsv",
     "greenfield/region_overrides.tsv",                 # optional (SPEC-provenance-oracle); ABSENT-ok
     "greenfield/eldenring_gf/boss_drops.py",

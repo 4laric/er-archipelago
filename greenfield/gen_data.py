@@ -685,123 +685,63 @@ FLAG_REGION_OVERRIDE = {
 # dungeon not physically in that region (e.g. Morne Tunnel m32_00 is Weeping Peninsula, not Caelid;
 # the m34 Great-Rune Divine Towers are base game, not DLC). This per-map-id table wins over the coarse
 # bucket AND the emevd/global audit. Keys are full map ids; values are greenfield region names.
-DUNGEON_REGION_OVERRIDE = {
-    # m11 conflation: region_map.csv labels ALL m11_* rows "Leyndell / Roundtable / Shunning-Grounds",
-    # one string for THREE regions -> REGION_MAP folds the lot to Altus Plateau. So every emevd-derived
-    # ROUNDTABLE item (m11_10) became Altus -- the root cause behind the Ensha per-flag patches and
-    # the Taunter's Tongue / Rogier's Bell Bearing / Explosive Ghostflame mis-pins. Fix the MAP, once,
-    # instead of the flags, N times. (m11_00/m11_05 Leyndell + m11_71 Shunning correctly fold to Altus.)
-    "m11_10_00_00": "Roundtable Hold",
-    # Maps the provenance oracle proved wrong (grace truth = play_region via grace_region_map;
-    # tools/map_region_oracle.py). Each fixes the MAP once, for every check in it.
-    "m12_03_00_00": "Eternal Cities",          # Deeproot Depths (Fia's Mist) -- was Altus
-    "m30_11_00_00": "Limgrave",                # Deathtouched Catacombs -- was Liurnia
-    "m31_17_00_00": "Limgrave",                # Highroad Cave -- was Roundtable Hold
-    # Split-map corrections: a 3-char map prefix conflates sub-maps that are DIFFERENT regions.
-    # m20 = Belurat (m20_00) + Enir-Ilim (m20_01) DLC -- NOT Mohgwyn; m12_05 = Mohgwyn Palace --
-    # NOT the rest of m12 (Eternal Cities/Underground Rivers). Without these, 170 m20 DLC checks
-    # landed in BASE Mohgwyn (leaking DLC into DLC-off seeds) and Mohgwyn's real m12_05 checks went
-    # to Eternal Cities. Graces are fixed in parallel by the per-play_region grace resolution.
-    "m20_00_00_00": "Belurat",
-    "m20_01_00_00": "Enir-Ilim",
-    "m12_05_00_00": "Mohgwyn Palace",
-    # m28 = Midra's Manse -- ABYSSAL WOODS content, not Gravesite Plain. The raw pipeline bucketed it
-    # into Gravesite Plain, making Midra (m28) the sole legacy boss for the whole DLC overworld and the
-    # sink for its entire 227-check filler pool. Reassign to Abyssal Woods (his real region) so the
-    # Gravesite overworld divvies among its own DLC field bosses (_BOSS_HEALTHBAR_EXTRAS_DLC) and Midra
-    # sweeps only his manse's filler. (Alaric 2026-07-11)
-    "m28_00_00_00": "Abyssal Woods",
-    # DLC minor dungeons whose global-recovered checks otherwise fall through to HUB (map not placed
-    # in region_map.csv + absent here). Regions per DLC-AREA-ID-CAPTURE.md / GLOBAL_RECOVER comments.
-    "m40_01_00_00": "Ancient Ruins of Rauh",  # Scorpion River Catacombs (Rauh Base)
-    "m42_00_00_00": "Gravesite Plain",        # Ruined Forge (Lava Intake)
-    "m43_00_00_00": "Gravesite Plain",        # Rivermouth Cave
-    # --- DLC interior maps (DLC-CHECK-AUDIT.md §5b; game map-menu grouping) ---
-    "m21_00_00_00": "Shadow Keep",            # Shadow Keep
-    "m21_01_00_00": "Shadow Keep",            # Specimen Storehouse
-    "m21_02_00_00": "Shadow Keep",            # Storehouse rampart
-    "m22_00_00_00": "Gravesite Plain",        # Stone Coffin Fissure (was leaking to BASE Eternal Cities)
-    "m25_00_00_00": "Scadu Altus",            # Finger Birthing Grounds (Metyr arena; grace 72500)
-    "m40_00_00_00": "Gravesite Plain",        # Fog Rift Catacombs
-    "m40_02_00_00": "Scadu Altus",            # Darklight Catacombs (was Belurat/Gravesite)
-    "m41_00_00_00": "Gravesite Plain",        # Belurat Gaol (game groups under Gravesite Plain)
-    "m41_01_00_00": "Scadu Altus",            # Bonny Gaol
-    "m41_02_00_00": "Gravesite Plain",        # Lamenter's Gaol (Charo's Hidden Grave)
-    "m42_01_00_00": "Scadu Altus",            # Ruined Forge (m42_01)
-    "m42_02_00_00": "Scadu Altus",            # Ruined Forge of Starfall Past
-    "m42_03_00_00": "Ancient Ruins of Rauh",  # Taylew's Ruined Forge (Rauh Base)
-    "m43_01_00_00": "Gravesite Plain",        # Dragon's Pit (game groups under Gravesite Plain)
-    "m45_00_00_00": "Gravesite Plain",        # Finger Ruins of Rhia
-    "m45_01_00_00": "Scadu Altus",            # Finger Ruins of Dheo
-    "m45_02_00_00": "Scadu Altus",            # Finger Ruins (m45_02)
-    "m30_20_00_00": "Mountaintops of the Giants",  # Hidden Path to the Haligtree (Snowfield folded into Mountaintops)
-    "m31_01_00_00": "Weeping Peninsula",  # Earthbore Cave
-    "m31_04_00_00": "Liurnia of the Lakes",  # Stillwater Cave
-    "m31_05_00_00": "Liurnia of the Lakes",  # Lakeside Crystal Cave
-    "m31_06_00_00": "Liurnia of the Lakes",  # Academy Crystal Cave
-    "m31_07_00_00": "Mt. Gelmir",  # Seethewater Cave
-    "m31_09_00_00": "Mt. Gelmir",  # Volcano Cave
-    "m31_10_00_00": "Caelid",  # Dragonbarrow Cave (folded into Caelid)
-    "m31_12_00_00": "Mountaintops of the Giants",  # Cave of the Forlorn (Snowfield folded into Mountaintops)
-    "m31_18_00_00": "Altus Plateau",  # Altus Plateau: Perfumer's Grotto
-    "m31_21_00_00": "Caelid",  # Gaol Cave
-    "m30_00_00_00": "Weeping Peninsula",
-    "m30_03_00_00": "Liurnia of the Lakes",
-    "m30_05_00_00": "Liurnia of the Lakes",
-    "m30_07_00_00": "Altus Plateau",
-    "m30_09_00_00": "Mt. Gelmir",
-    "m30_10_00_00": "Altus Plateau",
-    "m30_13_00_00": "Altus Plateau",
-    "m30_17_00_00": "Mohgwyn Palace",
-    "m30_19_00_00": "Limgrave",
-    "m31_02_00_00": "Weeping Peninsula",
-    "m31_03_00_00": "Limgrave",
-    "m31_11_00_00": "Caelid",
-    "m31_15_00_00": "Limgrave",
-    "m31_19_00_00": "Altus Plateau",
-    "m31_20_00_00": "Caelid",
-    "m31_22_00_00": "Mountaintops of the Giants",
-    "m32_00_00_00": "Weeping Peninsula",
-    "m32_01_00_00": "Limgrave",               # Limgrave Tunnels (was Caelid via 'Tunnels' default)
-    "m32_02_00_00": "Liurnia of the Lakes",   # Raya Lucaria Crystal Tunnel (Crystalians; folded into Liurnia)
-    "m32_04_00_00": "Altus Plateau",          # Old Altus Tunnel (Troll's Hammer / Boltdrake Talisman +1)
-    "m32_05_00_00": "Altus Plateau",
-    "m32_07_00_00": "Caelid",
-    "m32_11_00_00": "Mountaintops of the Giants",  # Yelough Anix Tunnel (Alabaster Lord's Sword; Snowfield fold)
-    "m34_11_00_00": "Liurnia of the Lakes",  # Liurnia Divine Tower / Study Hall (was Limgrave)
-    "m34_14_00_00": "Altus Plateau",  # was Leyndell (folded into Altus, capstone re-carve)
-    # Divine Towers of Limgrave / West Altus / Caelid are BASE GAME, but region_map.csv marks every
-    # m34 tile "DLC Dungeon"; without an override they misbundle into Land of Shadow (found by the
-    # grace-region gate 2026-07-06; correct region = the grace independent play_region_id cluster).
-    "m34_10_00_00": "Limgrave",       # Divine Tower of Limgrave (73410/73412, pid 61001)
-    "m34_12_00_00": "Altus Plateau",  # Divine Tower of West Altus (73430/73432, pid 63002)
-    "m34_13_00_00": "Caelid",         # Divine Tower of Caelid (73440/73441, pid 64001)
-    "m34_15_00_00": "Caelid",         # Divine Tower (73460, pid 64001)
-    # Subterranean Shunning-Grounds (m35_00) is play_region 35000 = Shunning-Grounds, which sits
-    # UNDER Leyndell. region_map.csv mislabels every m35 row "Divine Tower" (-> Liurnia via REGION_MAP),
-    # so without this override its checks AND its warp graces (73501 Underground Roadside, 73502
-    # Forsaken Depths, 73503 Leyndell Catacombs, 73504 Frenzied Flame Proscription) misbundle into
-    # Liurnia's lock (in-game report 2026-07-07; grace tile m35_00 inherits the m35 checks' region via
-    # _pref2maj). Correct region = Leyndell (REGION_ID_MAP.md 35000 = Subterranean Shunning-Grounds).
-    "m35_00_00_00": "Altus Plateau",  # Shunning-Grounds under Leyndell -> Altus (Leyndell folded in)
-    # m39_20 = Ruin-Strewn Precipice (Magma Wyrm Makar) -- the Limgrave->Liurnia connector, so its
-    # loot is LIURNIA, not Mt. Gelmir ("Magma Wyrm" reads as volcano, but Makar is not in Gelmir).
-    # Grace truth: play_region 39200 -> Liurnia (REGION_ID_MAP.md); provenance oracle 2026-07-11.
-    "m39_20_00_00": "Liurnia of the Lakes",
-    # Catacombs whose checks were UNPLACED (flag_prefix, map PENDING) -> never surfaced an override,
-    # so they hit the coarse "Hero's Graves (Catacombs)"->Limgrave bucket. Regions are the AUTHORITATIVE
-    # grace join (grace_flags mapTile -> grace_region_map play_region -> PLAY2AP); confirmed vs in-game.
-    # Their checks are recovered onto these maps below (map-recovery loop) so the catacomb boss sweeps them.
-    "m30_01_00_00": "Weeping Peninsula",   # Impaler's Catacombs
-    "m30_02_00_00": "Limgrave",            # Stormfoot Catacombs
-    "m30_04_00_00": "Limgrave",            # Murkwater Catacombs
-    "m30_06_00_00": "Liurnia of the Lakes",# Cliffbottom Catacombs
-    "m30_08_00_00": "Altus Plateau",       # Sainted Hero's Grave
-    "m30_12_00_00": "Altus Plateau",       # Unsightly Catacombs
-    "m30_14_00_00": "Caelid",              # Minor Erdtree Catacombs
-    "m30_15_00_00": "Caelid",              # Caelid Catacombs
-    "m30_16_00_00": "Caelid",              # War-Dead Catacombs
+# ---- DUNGEON_REGION_OVERRIDE: DERIVED from data + a small curated exception layer ---------------
+# Was a 79-row hand table. 56 of those rows are reproducible from the game itself, so they are no
+# longer maintained by hand (tools/datamine_dungeon_regions.py -> greenfield/dungeon_regions.tsv):
+#   * GRACE JOIN: a dungeon's warp grace carries BonfireWarpParam.bonfireSubCategoryId = play_region
+#     -> its region (65 maps).
+#   * MSB ConnectCollision: a graceless minor dungeon records the overworld tile it connects to, as
+#     4 base64'd bytes in Part/ConnectCollision/<MapID> (m32_02 -> m60_37_47 -> Liurnia) (6 maps).
+# The derived table also covers 13 maps the hand table never had.
+#
+# CURATED below = the only rows a human still owns: maps the data cannot resolve (no grace, no
+# connect tile), plus the few where the raw datum is misleading and the curation is deliberate.
+DUNGEON_REGION_CURATED = {
+    "m25_00_00_00": "Scadu Altus",                      # no grace, no connect tile
+    "m30_01_00_00": "Weeping Peninsula",                # no grace, no connect tile
+    "m30_02_00_00": "Limgrave",                         # no grace, no connect tile
+    "m30_04_00_00": "Limgrave",                         # no grace, no connect tile
+    "m30_06_00_00": "Liurnia of the Lakes",             # no grace, no connect tile
+    "m30_07_00_00": "Altus Plateau",                    # data says 'Mt. Gelmir' -- CURATED override
+    "m30_08_00_00": "Altus Plateau",                    # no grace, no connect tile
+    "m30_12_00_00": "Altus Plateau",                    # no grace, no connect tile
+    "m30_14_00_00": "Caelid",                           # no grace, no connect tile
+    "m30_15_00_00": "Caelid",                           # no grace, no connect tile
+    "m30_16_00_00": "Caelid",                           # no grace, no connect tile
+    "m30_17_00_00": "Mohgwyn Palace",                   # no grace, no connect tile
+    "m30_19_00_00": "Limgrave",                         # no grace, no connect tile
+    "m30_20_00_00": "Mountaintops of the Giants",       # no grace, no connect tile
+    "m31_02_00_00": "Weeping Peninsula",                # no grace, no connect tile
+    "m32_04_00_00": "Altus Plateau",                    # data says 'Mt. Gelmir' -- CURATED override
+    "m40_01_00_00": "Ancient Ruins of Rauh",            # no grace, no connect tile
+    "m42_00_00_00": "Gravesite Plain",                  # no grace, no connect tile
+    "m42_01_00_00": "Scadu Altus",                      # no grace, no connect tile
+    "m43_00_00_00": "Gravesite Plain",                  # no grace, no connect tile
+    "m45_00_00_00": "Gravesite Plain",                  # no grace, no connect tile
+    "m45_01_00_00": "Scadu Altus",                      # no grace, no connect tile
+    "m45_02_00_00": "Scadu Altus",                      # no grace, no connect tile
 }
+
+def _load_derived_dungeon_regions():
+    """map_id -> region from greenfield/dungeon_regions.tsv (grace join + MSB ConnectCollision)."""
+    _p = os.path.join(HERE, "dungeon_regions.tsv")
+    _out = {}
+    if not os.path.isfile(_p):
+        print("[gen_data] WARNING: dungeon_regions.tsv absent -- only the curated rows apply")
+        return _out
+    with open(_p, encoding="utf-8", newline="") as _fh:
+        for _r in csv.DictReader(_fh, delimiter="\t"):
+            _mid = _r.get("map_id")
+            if _mid and _r.get("region"):
+                _out[_mid + "_00_00"] = _r["region"]       # full 4-part key, as region_of expects
+    return _out
+
+DUNGEON_REGION_OVERRIDE = _load_derived_dungeon_regions()
+DUNGEON_REGION_OVERRIDE.update(DUNGEON_REGION_CURATED)     # curation always wins over the derivation
+print(f"dungeon regions: {len(DUNGEON_REGION_OVERRIDE)} maps "
+      f"({len(DUNGEON_REGION_OVERRIDE) - len(DUNGEON_REGION_CURATED)} derived + "
+      f"{len(DUNGEON_REGION_CURATED)} curated)")
+
 # Map recovery for UNPLACED dungeon checks: a catacomb/cave/tunnel pickup identified only by flag
 # prefix (method 'flag_prefix', map PENDING) still encodes its map in the flag (30.XX.. -> m30_XX), so
 # recover map = mAA_BB_00_00 -- IF that map is a known dungeon (in DUNGEON_REGION_OVERRIDE). Without
