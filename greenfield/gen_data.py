@@ -1629,14 +1629,16 @@ def _filler_only(_aps):
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 if BOSS_HEALTHBARS:
+    _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
         if _cls == "field":
             _members = _filler_only(_mem_tile.get(_tile, []))
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
-        else:  # legacy / interior region major -> region-wide + FILLER-ONLY (same cut as field)
-            _members = _filler_only(_mem_region.get(_mreg.get(_bmap, HUB), []))
+        else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
+            _legacy_by_region[_mreg.get(_bmap, HUB)].append(_ent)
+            continue
         _members = sorted(set(_members))
         if not _members:
             continue  # e.g. a field boss whose tile has no (non-important) checks -> no sweep
@@ -1644,6 +1646,25 @@ if BOSS_HEALTHBARS:
         # region label from a member's OWN region (own-tile/map-local members are region-consistent;
         # avoids a coarse m60_XX bucket mislabelling a field boss whose tile straddles a region).
         SWEEP_REGION[_ent] = _ap_region.get(_members[0], _mreg.get(_bmap, HUB))
+    # Legacy DIVVY (2026-07-11): PARTITION a legacy region's filler round-robin among its legacy bosses
+    # so no single boss kill dumps the whole region. Previously EVERY legacy boss swept the ENTIRE
+    # region filler -- Farum's 91 checks granted in full by each of Godskin Duo / Placidusax / Maliketh
+    # / Beast Clergyman; Liurnia's 374 by each of Rennala / Red Wolf; Eternal Cities' 323 by ~13 bosses.
+    # Deterministic: bosses sorted by entity id, members sorted, member j -> boss j % N (even, scattered
+    # slices). Un-killed bosses' slices stay obtainable by physical pickup (a sweep is a convenience
+    # auto-grant, not the only source), so nothing is stranded.
+    for _reg, _ents in _legacy_by_region.items():
+        _ents = sorted(_ents)
+        _pool = sorted(set(_filler_only(_mem_region.get(_reg, []))))
+        if not _pool or not _ents:
+            continue
+        _slices = defaultdict(list)
+        for _j, _ap in enumerate(_pool):
+            _slices[_ents[_j % len(_ents)]].append(_ap)
+        for _e in _ents:
+            if _slices[_e]:
+                DUNGEON_SWEEPS[_e] = _slices[_e]
+                SWEEP_REGION[_e] = _ap_region.get(_slices[_e][0], _reg)
 else:
     # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
     import re as _re2
