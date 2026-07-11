@@ -35,7 +35,16 @@ except Exception:
 # that range, so it is never gated -- fill can always place a key there or anywhere else reachable.
 _LEGACY_KEYS = {
     "Academy Glintstone Key": ("Liurnia of the Lakes", (14000000, 15000000)),
+    "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),
 }
+_LEGACY_EXTRA = {"Academy Glintstone Key": frozenset({197, 60440}), "Hole-Laden Necklace": frozenset({510550})}
+
+# Gating items (region keys + Great Runes) must NEVER be placed BEHIND another gate: two gates can
+# otherwise form an unsolvable cycle (the necklace lands on a Leyndell rune-gated check while a Great
+# Rune lands on the necklace-gated Metyr check -> deadlock; FillError seen 2026-07-10). Forbid ALL of
+# them on every gated location (supersedes the old "!= own key" self-gate rule).
+_GREAT_RUNES = frozenset(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
+_GATING_ITEMS = _GREAT_RUNES | frozenset(_LEGACY_KEYS)
 
 
 def _gated_location_ids(active):
@@ -44,12 +53,13 @@ def _gated_location_ids(active):
     out = {}
     for key in active:
         parent, (lo, hi) = _LEGACY_KEYS[key]
+        extra = _LEGACY_EXTRA.get(key, frozenset())
         for (_name, ap_id, flag) in LOCATIONS.get(parent, ()):
             try:
                 fl = int(flag)
             except (TypeError, ValueError):
                 continue
-            if lo <= fl < hi:
+            if lo <= fl < hi or fl in extra:
                 out[ap_id] = key
     return out
 
@@ -99,6 +109,8 @@ class LegacyKeyGates(Feature):
                 continue
             prev = loc.access_rule
             loc.access_rule = lambda state, p=prev, k=key: p(state) and state.has(k, player)
+            prev_item = loc.item_rule
+            loc.item_rule = lambda item, pv=prev_item: pv(item) and item.name not in _GATING_ITEMS
 
     def slot_data(self, world):
         return {}  # LOGIC-only; no client contract key yet (in-game hard gate = follow-up)

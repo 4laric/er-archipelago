@@ -135,7 +135,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Undergrou
  'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir-Ilim','Stone Coffin Fissure (DLC)':'Gravesite Plain',
  "Midra's Manse (DLC)":'Abyssal Woods','Church of the Bud (DLC)':'Ancient Ruins of Rauh','Castle Ensis (DLC)':'Gravesite Plain',
  'Ainsel River / Lake of Rot':'Eternal Cities','Nokstella, Eternal City':'Eternal Cities','Subterranean Shunning-Grounds':'Altus Plateau',
- 'm22':'Eternal Cities','m28':'Gravesite Plain'}
+ 'm22':'Gravesite Plain','m28':'Abyssal Woods'}
 
 def _region_of_raw(r):
     reg=r['region']; meth=r['method']
@@ -344,10 +344,103 @@ def _unique_m60(_fl):
         if _only.startswith("m60"):
             return _only
     return None
+# ---- m61 (DLC overworld / Land of Shadow) tile -> gf region ---------------------------------
+# Grace-menu-derived (DLC-CHECK-AUDIT.md 2026-07-10 §5a): the game's own map-menu grouping of
+# each tile's graces, folded to gf regions. Scaduview (49_48/49_49/53_48) -> Shadow Keep (only
+# reachable through the Keep). Tiles absent here fall to the nearest table tile (Euclidean XX,YY).
+M61_TILE_REGION = {
+    (44,41): 'Gravesite Plain',
+    (44,45): 'Ancient Ruins of Rauh',
+    (44,46): 'Ancient Ruins of Rauh',
+    (44,47): 'Ancient Ruins of Rauh',
+    (45,41): 'Gravesite Plain',
+    (45,42): 'Gravesite Plain',
+    (45,43): 'Gravesite Plain',
+    (45,44): 'Gravesite Plain',
+    (45,45): 'Ancient Ruins of Rauh',
+    (45,46): 'Ancient Ruins of Rauh',
+    (45,47): 'Ancient Ruins of Rauh',
+    (45,48): 'Ancient Ruins of Rauh',
+    (46,38): 'Gravesite Plain',
+    (46,39): 'Gravesite Plain',
+    (46,40): 'Gravesite Plain',
+    (46,42): 'Gravesite Plain',
+    (46,43): 'Gravesite Plain',
+    (46,44): 'Gravesite Plain',
+    (46,45): 'Gravesite Plain',
+    (46,46): 'Ancient Ruins of Rauh',
+    (46,47): 'Ancient Ruins of Rauh',
+    (46,48): 'Ancient Ruins of Rauh',
+    (47,35): 'Gravesite Plain',
+    (47,36): 'Gravesite Plain',
+    (47,37): 'Gravesite Plain',
+    (47,38): 'Gravesite Plain',
+    (47,39): 'Gravesite Plain',
+    (47,40): 'Gravesite Plain',
+    (47,41): 'Gravesite Plain',
+    (47,42): 'Gravesite Plain',
+    (47,43): 'Gravesite Plain',
+    (47,44): 'Gravesite Plain',
+    (47,45): 'Scadu Altus',
+    (47,46): 'Scadu Altus',
+    (47,47): 'Ancient Ruins of Rauh',
+    (48,37): 'Gravesite Plain',
+    (48,38): 'Gravesite Plain',
+    (48,39): 'Gravesite Plain',
+    (48,40): 'Gravesite Plain',
+    (48,41): 'Gravesite Plain',
+    (48,42): 'Gravesite Plain',
+    (48,43): 'Abyssal Woods',
+    (48,44): 'Gravesite Plain',
+    (48,45): 'Scadu Altus',
+    (48,46): 'Scadu Altus',
+    (49,37): 'Gravesite Plain',
+    (49,38): 'Jagged Peak',
+    (49,39): 'Jagged Peak',
+    (49,42): 'Gravesite Plain',
+    (49,43): 'Scadu Altus',
+    (49,44): 'Scadu Altus',
+    (49,45): 'Scadu Altus',
+    (49,46): 'Scadu Altus',
+    (49,47): 'Scadu Altus',
+    (49,48): 'Shadow Keep',
+    (49,49): 'Shadow Keep',
+    (50,38): 'Gravesite Plain',
+    (50,40): 'Jagged Peak',
+    (50,41): 'Abyssal Woods',
+    (50,42): 'Abyssal Woods',
+    (50,43): 'Scadu Altus',
+    (50,44): 'Scadu Altus',
+    (50,45): 'Scadu Altus',
+    (50,46): 'Scadu Altus',
+    (50,47): 'Scadu Altus',
+    (51,41): 'Abyssal Woods',
+    (51,42): 'Abyssal Woods',
+    (51,44): 'Scadu Altus',
+    (51,45): 'Scadu Altus',
+    (51,46): 'Scadu Altus',
+    (51,47): 'Scadu Altus',
+    (52,40): 'Jagged Peak',
+    (52,41): 'Jagged Peak',
+    (52,42): 'Abyssal Woods',
+    (53,39): 'Jagged Peak',
+    (53,40): 'Jagged Peak',
+    (53,41): 'Abyssal Woods',
+    (53,46): 'Scadu Altus',
+    (53,48): 'Shadow Keep',
+}
+def _m61_tile_region(_xx, _yy):
+    _r = M61_TILE_REGION.get((_xx, _yy))
+    if _r is not None:
+        return _r
+    return min(M61_TILE_REGION.items(),
+               key=lambda _kv: (_kv[0][0]-_xx)**2 + (_kv[0][1]-_yy)**2)[1]
 def _m60_tile_region(_mid):
-    _m = re.match(r"m60_(\d\d)_(\d\d)", _mid)
+    _m = re.match(r"m6([01])_(\d\d)_(\d\d)", _mid)
     if not _m: return None
-    return PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
+    if _m.group(1) == '1':                                    # DLC overworld (m61) -> §5a table
+        return _m61_tile_region(int(_m.group(2)), int(_m.group(3)))
+    return PLAY2AP.get(tile_pr(int(_m.group(2)), int(_m.group(3))))
 _REPIN_N = [0]; _QUAR_N = [0]; _RECOVER_N = [0]
 
 # ---- GLOBAL-recovery tile decode (matt-free FULL coverage) ------------------------------------
@@ -380,13 +473,17 @@ def _recover_tile(_flag):
     _s = str(_fl); _tile = None
     if len(_s) == 10 and _s[0] == '1' and _s[1] in '01':
         _tile = "m" + ("60" if _s[1] == '0' else "61") + "_" + _s[2:4] + "_" + _s[4:6]
+    elif len(_s) == 10 and _s[:2] == '20':                    # DLC overworld flag 20AABBLLLL -> m61_AA_BB
+        _tile = "m61_" + _s[2:4] + "_" + _s[4:6]
     elif len(_s) == 8:
         _tile = "m" + _s[0:2] + "_" + _s[2:4]
     elif len(_s) == 6:
         _tile = _ENTITY_SUFFIX.get(_s)
     if not _tile:
         return None
-    _key = _tile if _tile[:3] in ("m60", "m61") else "_".join(_tile.split("_")[:2])
+    if _tile[:3] == "m61":                                    # every m61 overworld tile is regionable (§5a NN table)
+        return _tile
+    _key = _tile if _tile[:3] == "m60" else "_".join(_tile.split("_")[:2])
     return _tile if _key in _VALID_TILE_PREFIXES else None
 
 # ---- Per-FLAG region override (matt-free, playtest-verified) ----------------------------------
@@ -421,6 +518,18 @@ FLAG_REGION_OVERRIDE = {
     510200: "Miquella's Haligtree",            # Remembrance of the Rot Goddess = Malenia (Haligtree); mis-tiled m35
     510300: "Caelid",                          # Remembrance of the Starscourge = Radahn (Caelid); mis-tiled m35
     510100: "Eternal Cities",                  # Valiant Gargoyles (Nokstella) -- Gargoyle's Greatsword mis-tiled m35 (Divine Tower) -> Altus (Alaric 2026-07-10)
+    # --- DLC (SotE) region fixes (Alaric 2026-07-10; DLC-CHECK-AUDIT.md) ---
+    510620: "Shadow Keep",                     # Rem. of the Shadow Sunflower -- boss in Shadow Keep, not Scadu Altus
+    510640: "Shadow Keep",                     # Rem. of the Wild Boar Rider = Commander Gaius -- Shadow Keep, not Scadu Altus
+    173: "Altus Plateau",                      # Morgott's Great Rune -> Morgott (Leyndell, folds to Altus); scan
+                                               #   mis-tiled it to m13 Farum Azula. Sibling Rem. Omen King (510040) is Altus.
+                                               #   MIS-REGION STRANDS PROGRESSION: lock here reads Farum-reachable but is behind Altus.
+    # §5c re-pins whose method is NOT global (GLOBAL_RECOVER can't reach them) -> force here:
+    400722: "Gravesite Plain",                 # Gourmet Scorpion Stew (flag_prefix, was Mohgwyn) -- DLC quest consumable
+    520700: "Gravesite Plain",                 # Death Knight's Twin Axes (emevd m30_13 mis-map, was Altus) -> Fog Rift Catacombs
+    # m20 DLC stragglers that leaked into BASE Mohgwyn Palace (Revered Spirit Ash), map unplaced:
+    20007900: "Belurat",                       # m20_00 Belurat Revered Spirit Ash
+    20017900: "Enir-Ilim",                     # m20_01 Enir-Ilim Revered Spirit Ash
     # The three Talisman Pouches (all real checks; Margit's 60510 is already correct at Stormveil):
     60500: "Roundtable Hold",                  # Enia's Talisman Pouch (2-great-rune reward); m11_10 event
                                                #   11100797 gates on !EventFlag(60500); region_map mis-decoded
@@ -485,6 +594,25 @@ DUNGEON_REGION_OVERRIDE = {
     "m40_01_00_00": "Ancient Ruins of Rauh",  # Scorpion River Catacombs (Rauh Base)
     "m42_00_00_00": "Gravesite Plain",        # Ruined Forge (Lava Intake)
     "m43_00_00_00": "Gravesite Plain",        # Rivermouth Cave
+    # --- DLC interior maps (DLC-CHECK-AUDIT.md §5b; game map-menu grouping) ---
+    "m21_00_00_00": "Shadow Keep",            # Shadow Keep
+    "m21_01_00_00": "Shadow Keep",            # Specimen Storehouse
+    "m21_02_00_00": "Shadow Keep",            # Storehouse rampart
+    "m22_00_00_00": "Gravesite Plain",        # Stone Coffin Fissure (was leaking to BASE Eternal Cities)
+    "m25_00_00_00": "Scadu Altus",            # Finger Birthing Grounds (Metyr arena; grace 72500)
+    "m28_00_00_00": "Abyssal Woods",          # Midra's Manse (was Gravesite Plain)
+    "m40_00_00_00": "Gravesite Plain",        # Fog Rift Catacombs
+    "m40_02_00_00": "Scadu Altus",            # Darklight Catacombs (was Belurat/Gravesite)
+    "m41_00_00_00": "Gravesite Plain",        # Belurat Gaol (game groups under Gravesite Plain)
+    "m41_01_00_00": "Scadu Altus",            # Bonny Gaol
+    "m41_02_00_00": "Gravesite Plain",        # Lamenter's Gaol (Charo's Hidden Grave)
+    "m42_01_00_00": "Scadu Altus",            # Ruined Forge (m42_01)
+    "m42_02_00_00": "Scadu Altus",            # Ruined Forge of Starfall Past
+    "m42_03_00_00": "Ancient Ruins of Rauh",  # Taylew's Ruined Forge (Rauh Base)
+    "m43_01_00_00": "Gravesite Plain",        # Dragon's Pit (game groups under Gravesite Plain)
+    "m45_00_00_00": "Gravesite Plain",        # Finger Ruins of Rhia
+    "m45_01_00_00": "Scadu Altus",            # Finger Ruins of Dheo
+    "m45_02_00_00": "Scadu Altus",            # Finger Ruins (m45_02)
     "m30_20_00_00": "Mountaintops of the Giants",  # Hidden Path to the Haligtree (Snowfield folded into Mountaintops)
     "m31_01_00_00": "Weeping Peninsula",  # Earthbore Cave
     "m31_04_00_00": "Liurnia of the Lakes",  # Stillwater Cave
@@ -585,6 +713,55 @@ GLOBAL_RECOVER = {
     510260: "Liurnia of the Lakes",  # Magma Wyrm's Scalesword -> Magma Wyrm Makar (Ruin-Strewn Precipice)
     510320: "Eternal Cities",        # Ancestral Follower Ashes -> Ancestor Spirit (Nokron/Siofra)
     510440: "Shadow Keep",           # Aspects of the Crucible: Thorns -> Golden Hippopotamus (DLC)
+    # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
+    400660: 'Scadu Altus',
+    65460: 'Gravesite Plain',
+    400590: 'Scadu Altus',
+    400592: 'Scadu Altus',
+    400596: 'Shadow Keep',
+    400600: 'Enir-Ilim',
+    400611: 'Scadu Altus',
+    400627: 'Enir-Ilim',
+    400630: 'Gravesite Plain',
+    400636: 'Gravesite Plain',
+    400642: 'Gravesite Plain',
+    400661: 'Scadu Altus',
+    400662: 'Scadu Altus',
+    400664: 'Scadu Altus',
+    400666: 'Scadu Altus',
+    400670: 'Scadu Altus',
+    400671: 'Scadu Altus',
+    400672: 'Scadu Altus',
+    400702: 'Jagged Peak',
+    400704: 'Jagged Peak',
+    400711: 'Jagged Peak',
+    400712: 'Jagged Peak',
+    400714: 'Jagged Peak',
+    510610: 'Scadu Altus',
+    520711: 'Ancient Ruins of Rauh',
+    520750: 'Gravesite Plain',
+    520760: 'Scadu Altus',
+    520770: 'Gravesite Plain',
+    520810: 'Gravesite Plain',
+    530810: 'Scadu Altus',
+    530820: 'Gravesite Plain',
+    530830: 'Scadu Altus',
+    530850: 'Scadu Altus',
+    530855: 'Gravesite Plain',
+    530905: 'Ancient Ruins of Rauh',
+    530930: 'Scadu Altus',
+    530940: 'Ancient Ruins of Rauh',
+    530955: 'Shadow Keep',
+    530960: 'Ancient Ruins of Rauh',
+    530965: 'Ancient Ruins of Rauh',
+    540900: 'Gravesite Plain',
+    580100: 'Belurat',
+    400610: 'Gravesite Plain',
+    400730: 'Scadu Altus',
+    400700: 'Jagged Peak',
+    400710: 'Jagged Peak',
+    520710: 'Ancient Ruins of Rauh',
+    530800: 'Gravesite Plain',
     # Region CORRECTIONS: major-boss drops that WERE checks but auto-recovered to the wrong region
     # (HUB / Altus). Re-pin to the boss's real region so check + detect flag + sweep agree (2026-07-10):
     510810: "Liurnia of the Lakes",  # Royal Knight Loretta (Caria Manor) -- was HUB (Loretta's Greatbow/Slash)
@@ -734,6 +911,9 @@ def region_of(r):
     _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))
     if _dov:
         return _dov
+    _m61m = re.match(r"m61_(\d\d)_(\d\d)", r.get('map') or '')   # placed DLC-overworld lot -> §5a table
+    if _m61m:
+        return _m61_tile_region(int(_m61m.group(1)), int(_m61m.group(2)))
     _meth = r['method']
     # GLOBAL_RECOVER is authoritative for any listed global/global_filler flag (covers deathroot
     # rewards, which are method global_filler, not just 'global').
