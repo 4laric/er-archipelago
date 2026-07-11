@@ -1903,6 +1903,32 @@ for _ap2, _b in _ap_blk.items():
     if "ShopNonSpell" not in _tags:
         _tags.append("ShopNonSpell"); _nonspell += 1
 _SPELL_SHOP_CHECKS = sum(_blk_tot[_b] for _b in _SPELL_VENDOR_BLOCKS)
+
+# ---- ShopSlot: ONE progression slot per MERCHANT (matt's model) -----------------------------------
+# Tagging all 395 non-spell shop rows progression-eligible lets merchants DOMINATE BY BREADTH: they
+# would be ~70% of the surface and the seed plays as "farm runes, buy the game". matt's randomizer
+# solves this by entering each MERCHANT in the pool ONCE, so a shop can hold at most one progression
+# item however big its stock is. Same idea here: exactly ONE representative row per merchant carries
+# the ShopSlot tag, so the cap is structural -- there is no fill rule to get wrong.
+#
+# MERCHANT = the ShopLineupParam 100-block. A block's rows can show up under two regions (the vendor's
+# own stall AND the Roundtable, because handing their Bell Bearing to the Twin Maidens mirrors that
+# vendor's stock there) -- same merchant, so they stay one block. Dedicated spell vendors are excluded
+# (>=50% spells). Representative = the block's lowest ap-id: deterministic, so generation stays a pure
+# function of its inputs.
+_merch_rows = defaultdict(list)
+for _ap2, _b in _ap_blk.items():
+    if _b not in _SPELL_VENDOR_BLOCKS:
+        _merch_rows[_b].append(_ap2)
+_SHOP_SLOTS = {}
+for _b, _aps2 in sorted(_merch_rows.items()):
+    _rep = min(_aps2)
+    _SHOP_SLOTS[_b] = _rep
+    _tags = loc_tags.setdefault(_rep, [])
+    if "ShopSlot" not in _tags:
+        _tags.append("ShopSlot")
+print(f"ShopSlot: {len(_SHOP_SLOTS)} merchants -> 1 progression slot each "
+      f"({len(_merch_rows)} non-spell merchant block(s); {len(_SPELL_VENDOR_BLOCKS)} spell vendors excluded)")
 print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_BLOCKS)} dedicated "
       f"spell-vendor block(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchant blocks: {len(_blk_tot)}")
 
@@ -1996,7 +2022,8 @@ def _is_dungeon(_mp):
 # = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell", "MajorBoss"})
+                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",
+                                 "ShopSlot", "MajorBoss"})
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 for _i, _r in enumerate(rows):
