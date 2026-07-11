@@ -391,3 +391,5 @@ SWEEP_REGION = {
     1053560800: 'Mountaintops of the Giants',
     2045440800: 'Ancient Ruins of Rauh',
 }
+
+_GEN_STAMP = {'inputs_hash': 'sha256:46cbefcfda4a1f931ddfc44e375e59a8b15e98410885070b7c8ea1553f2e7142', 'generated_utc': '2026-07-11T10:16:57Z', 'host': 'windows', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:52125da028091ca03084abe2d02db80aeed0785a7eeb4668add2218e55cad1c3'}
