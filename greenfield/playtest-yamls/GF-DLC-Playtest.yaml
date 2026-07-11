@@ -19,15 +19,15 @@
 #  DLC alone, so a crash points at DLC and not the new boss-lock features. Flip
 #  boss_keys: true once DLC entry + content are confirmed stable.
 #
-#  game MUST match the installed world: "Elden Ring (Greenfield)" today, or
+#  game MUST match the installed world: "Elden Ring" today, or
 #  "EldenRing" after patch_gf_rename_and_version.py is applied.
 #  Run: copy over greenfield\players\Greenfield.yaml (solo) then gen.
 # ============================================================================
 name: Alaric
 description: Greenfield ER -- DLC playtest (full world, enable_dlc, boss_keys off)
-game: "Elden Ring (Greenfield)"
+game: "Elden Ring"
 
-"Elden Ring (Greenfield)":
+"Elden Ring":
 
   # ---- The Shattering (full world so DLC is guaranteed in play) ------------
   num_regions: 0               # 0 = ALL 21 regions kept (base + 6 DLC); reach DLC via its Lock.

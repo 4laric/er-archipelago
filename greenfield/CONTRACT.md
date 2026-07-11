@@ -1,6 +1,6 @@
 # Greenfield ER apworld <-> client slot_data contract
 
-AUTO-GENERATED from `eldenring_gf/contract.py` (the single source of truth). Do not edit.
+AUTO-GENERATED from `eldenring/contract.py` (the single source of truth). Do not edit.
 
 Sub-keys of the `options` echo are listed as `options.<name>` -- the client reads
 runtime options ONLY through that sub-dict (er-logic/src/options.rs).

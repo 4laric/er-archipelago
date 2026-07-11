@@ -10,7 +10,7 @@ READ-ONLY recon. All line numbers verified on disk this session.
 
 - **Old apworld** (`Archipelago/worlds/eldenring/locations.py`): tracker_regions.rs carries
   **4,906 rows, ids 7,000,000..7,004,905** (measured from the generated file).
-- **Greenfield** (`greenfield/eldenring_gf/data.py` LOCATIONS): **3,958 locations,
+- **Greenfield** (`greenfield/eldenring/data.py` LOCATIONS): **3,958 locations,
   ids 7,770,000..7,773,957**, dense/contiguous. Base is `BASE_AP=7770000`
   (greenfield/gen_data.py:21). `location_name_to_id` is built purely from LOCATIONS tuples
   (core.py:144-146: `{name: ap_id for locs in LOCATIONS.values() for (name, ap_id, _flag) in locs}`).
@@ -66,7 +66,7 @@ an open flag, i.e. the generated `coarse_keys_have_lock_items` test still passes
 
 ### Concrete change list (gen_location_regions.py)
 
-1. Repoint path consts: `ELD` → `greenfield/eldenring_gf`; sources = `data.py`,
+1. Repoint path consts: `ELD` → `greenfield/eldenring`; sources = `data.py`,
    `location_tags.py`, `missable_locations.py` (+ `region_spine.py`/nothing else).
 2. Replace `load_locations()` with a plain import/exec of the three pure-data modules; rows =
    `sorted((ap_id, region, ap_id in BIG, ap_id in MISS) for region, locs in LOCATIONS.items() for (_n, ap_id, _f) in locs)`

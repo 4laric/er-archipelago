@@ -5,9 +5,9 @@
 # (The baker + C++ client were retired 2026-07-01; see git history for the old build.ps1.)
 #
 # Usage (from the repo root, any PowerShell):
-#   .\build.ps1 -Apworld                 # package Archipelago\worlds\eldenring -> eldenring.apworld  (v0.1 LEGACY world)
-#   .\build.ps1 -GreenfieldApworld       # package greenfield\eldenring_gf -> eldenring_gf.apworld  (THE v0.2 SHIPPING world)
-#   .\build.ps1 -Greenfield              # (re)gen the data-derived eldenring_gf apworld + isolated multiworld
+
+#   .\build.ps1 -Apworld                 # package greenfield\eldenring -> eldenring.apworld  (THE shipping world)
+#   .\build.ps1 -Greenfield              # (re)gen the data-derived eldenring apworld + isolated multiworld
 #   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py); REQUIRED after apworld changes
 #   .\build.ps1 -Rust                    # cargo test + build the Rust client cdylib (eldenring_archipelago.dll)
 #   .\build.ps1 -Me3Deploy               # stage DLL + apconfig + AP icon into me3\, write the ap.me3 profile
@@ -26,13 +26,12 @@
 # Notes:
 #  - cargo build is always release for x86_64-pc-windows-msvc; -Clean also runs `cargo clean`.
 #  - -Serve opens a NEW window; close any old server window first (one port, one server).
-#  - apworld changes (Archipelago\worlds\eldenring) generate straight from the source tree;
+#  - apworld changes (greenfield\eldenring) generate straight from the source tree;
 #    -Generate picks up edits directly, no apworld reinstall step.
 
 [CmdletBinding()]
 param(
-    [switch]$Apworld,              # v0.1 LEGACY: zips Archipelago\worlds\eldenring (matt-lineage world)
-    [switch]$GreenfieldApworld,    # v0.2 SHIPPING: zips greenfield\eldenring_gf -> eldenring_gf.apworld (stamp-gated)
+        [switch]$Apworld,              # package greenfield\eldenring -> eldenring.apworld (stamp-gated)
     [switch]$Greenfield,           # -Greenfield: gen the data-derived greenfield apworld in isolation
     [switch]$Generate,
     [switch]$ShowGenDiag,          # echo the per-generate gendiag (resolved-yaml debug) to console
@@ -142,7 +141,7 @@ function Start-Server38281($zipPath) {
     }
 }
 
-if (-not ($Apworld -or $GreenfieldApworld -or $Greenfield -or $Generate -or $Rust -or $RustDeploy -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $Serve -or $Preflight -or $Clean)) {
+if (-not ($Apworld -or $Greenfield -or $Generate -or $Rust -or $RustDeploy -or $Me3Deploy -or $Me3Restore -or $PureRuntime -or $Serve -or $Preflight -or $Clean)) {
     Get-Content $PSCommandPath | Select-Object -Skip 1 -First 23 | ForEach-Object { $_ -replace '^#\s?', '' }
     return
 }
@@ -161,7 +160,7 @@ if ($Clean) {
 }
 
 # ----- greenfield apworld + isolated gen ------------------------------------------------------
-# (re)datamine + gen_data, install the data-derived eldenring_gf world, and generate an ISOLATED
+# (re)datamine + gen_data, install the data-derived eldenring world, and generate an ISOLATED
 # multiworld (greenfield\players) -> AP_*.zip. Runs FIRST (after -Clean) so a combined -Rust builds
 # against fresh data and a combined -Serve picks up the fresh zip. Standalone -Greenfield stops here
 # (no other stage flag set); -All chains it into -Rust + -Me3Deploy + -Serve.
@@ -172,22 +171,24 @@ if ($Greenfield) {
 }
 
 # ----- package apworld ------------------------------------------------------------------------
-# -Apworld packages the v0.1 matt-lineage world (Archipelago\worlds\eldenring). That world is NOT
-# data-derived -- it carries no _gen_stamp.json, so there is nothing for the gen-input stamp gate to
-# verify and none is applied (a gate there would be theatre). v0.2 ships greenfield: use
-# -GreenfieldApworld, which IS gated. (RELEASE-CHECKLIST-v0.2: the matt-lineage world is retired.)
+
+# ----- package GREENFIELD apworld (the v0.2 shipping artifact) --------------------------------
+# release-v0.2/SETUP.md tells the player to install eldenring.apworld -- THIS is the step that
+# builds it. Zips greenfield\eldenring (the SOURCE of truth; -Greenfield installs a copy of the
+# same tree into Archipelago\worlds\eldenring) under an eldenring/ prefix.
+# Gated: the generated modules in that tree must match a hash of the gen inputs on disk, so a stale
+# regen can never be shipped. STALE = hard stop; artifacts-absent = warning (see Assert-GenStampFresh).
 if ($Apworld) {
-    Step "Packaging eldenring.apworld from Archipelago\worlds\eldenring  (v0.1 LEGACY world)"
-    Write-Warning "  -Apworld packages the RETIRED matt-lineage world; it carries no gen-input stamp (nothing to gate)."
-    Write-Warning "  The v0.2 shipping world is greenfield: .\build.ps1 -GreenfieldApworld  ->  eldenring_gf.apworld"
-    $srcDir = Join-Path $ApDir "worlds\eldenring"
-    if (-not (Test-Path (Join-Path $srcDir "__init__.py"))) { throw "apworld source not found: $srcDir\__init__.py" }
+    Step "Packaging eldenring.apworld from greenfield\eldenring  (v0.2 shipping world)"
+    $gfSrc = Join-Path $Repo "greenfield\eldenring"
+    if (-not (Test-Path (Join-Path $gfSrc "__init__.py"))) { throw "greenfield world source not found: $gfSrc\__init__.py" }
+    Assert-GenStampFresh -StampJson (Join-Path $gfSrc "_gen_stamp.json") -What "greenfield\eldenring"
+
     $outFile = Join-Path $Repo "eldenring.apworld"
     Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
-    # Exclude dev clutter: per-patch __init__ backups (*.bak*), bytecode, gen-time diag dumps.
     $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo', 'ER_SPHERE_TIERS_*', 'ER_DIAG_*')
-    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt')
-    $srcFull = (Resolve-Path $srcDir).Path.TrimEnd('\')
+    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt', 'region_map.csv')   # region_map.csv is a gen INPUT (test-only copy)
+    $srcFull = (Resolve-Path $gfSrc).Path.TrimEnd('\')
     $files = Get-ChildItem -LiteralPath $srcFull -Recurse -File | Where-Object {
         $rel = $_.FullName.Substring($srcFull.Length).TrimStart('\','/')
         if ($rel -match '(^|[\\/])__pycache__([\\/]|$)') { return $false }
@@ -205,52 +206,10 @@ if ($Apworld) {
     } finally { $zip.Dispose() }
     $size = [math]::Round((Get-Item $outFile).Length / 1KB, 1)
     Write-Host ("  -> {0}  ({1} files, {2} KB)" -f $outFile, $files.Count, $size) -ForegroundColor Green
-    # Timestamped twin: the canonical name is overwritten in place, so freshness is invisible through
-    # a same-name overwrite. This stamped copy witnesses THIS build (Always-timestamp convention).
-    $apwStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $apwCopy  = Join-Path $Repo ("eldenring_{0}.apworld" -f $apwStamp)
-    Copy-Item -LiteralPath $outFile -Destination $apwCopy -Force
-    Write-Host ("  -> {0}  (timestamped copy)" -f $apwCopy) -ForegroundColor Green
-}
-
-# ----- package GREENFIELD apworld (the v0.2 shipping artifact) --------------------------------
-# release-v0.2/SETUP.md tells the player to install eldenring_gf.apworld -- THIS is the step that
-# builds it. Zips greenfield\eldenring_gf (the SOURCE of truth; -Greenfield installs a copy of the
-# same tree into Archipelago\worlds\eldenring_gf) under an eldenring_gf/ prefix.
-# Gated: the generated modules in that tree must match a hash of the gen inputs on disk, so a stale
-# regen can never be shipped. STALE = hard stop; artifacts-absent = warning (see Assert-GenStampFresh).
-if ($GreenfieldApworld) {
-    Step "Packaging eldenring_gf.apworld from greenfield\eldenring_gf  (v0.2 shipping world)"
-    $gfSrc = Join-Path $Repo "greenfield\eldenring_gf"
-    if (-not (Test-Path (Join-Path $gfSrc "__init__.py"))) { throw "greenfield world source not found: $gfSrc\__init__.py" }
-    Assert-GenStampFresh -StampJson (Join-Path $gfSrc "_gen_stamp.json") -What "greenfield\eldenring_gf"
-
-    $outFile = Join-Path $Repo "eldenring_gf.apworld"
-    Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
-    $excludeName  = @('*.bak', '*.bak_*', '*.pyc', '*.pyo', 'ER_SPHERE_TIERS_*', 'ER_DIAG_*')
-    $excludeExact = @('ER_DIAG.txt', 'ER_SPHERE_TIERS.txt', 'region_map.csv')   # region_map.csv is a gen INPUT (test-only copy)
-    $srcFull = (Resolve-Path $gfSrc).Path.TrimEnd('\')
-    $files = Get-ChildItem -LiteralPath $srcFull -Recurse -File | Where-Object {
-        $rel = $_.FullName.Substring($srcFull.Length).TrimStart('\','/')
-        if ($rel -match '(^|[\\/])__pycache__([\\/]|$)') { return $false }
-        if ($excludeExact -contains $_.Name) { return $false }
-        foreach ($p in $excludeName) { if ($_.Name -like $p) { return $false } }
-        return $true
-    }
-    if (Test-Path $outFile) { Remove-Item -LiteralPath $outFile -Force }
-    $zip = [System.IO.Compression.ZipFile]::Open($outFile, 'Create')
-    try {
-        foreach ($f in $files) {
-            $rel = $f.FullName.Substring($srcFull.Length).TrimStart('\','/').Replace('\','/')
-            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $f.FullName, "eldenring_gf/$rel") | Out-Null
-        }
-    } finally { $zip.Dispose() }
-    $size = [math]::Round((Get-Item $outFile).Length / 1KB, 1)
-    Write-Host ("  -> {0}  ({1} files, {2} KB)" -f $outFile, $files.Count, $size) -ForegroundColor Green
     # Timestamped twin (Always-timestamp convention): the canonical name is overwritten in place, so
     # a same-name overwrite makes freshness invisible; this copy witnesses THIS build.
     $gfStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $gfCopy  = Join-Path $Repo ("eldenring_gf_{0}.apworld" -f $gfStamp)
+    $gfCopy  = Join-Path $Repo ("eldenring_{0}.apworld" -f $gfStamp)
     Copy-Item -LiteralPath $outFile -Destination $gfCopy -Force
     Write-Host ("  -> {0}  (timestamped copy)" -f $gfCopy) -ForegroundColor Green
 }

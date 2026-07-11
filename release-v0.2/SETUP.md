@@ -22,7 +22,7 @@ first time.
 
 | File | What it is |
 |---|---|
-| `eldenring_gf.apworld` | The Archipelago world (data-derived, matt-free). Goes in your Archipelago install. |
+| `eldenring.apworld` | The Archipelago world (data-derived, matt-free). Goes in your Archipelago install. |
 | `EldenRing.yaml` | The flagship player config (The Shattering). |
 | `eldenring_archipelago.dll` | The runtime client (MIT) that talks to the live game. Ships on Nexus. |
 | `er_static_detection_table.json` | Static check-detection table the client reads. |
@@ -41,7 +41,7 @@ You also need, separately:
 
 ## A. Make the seed (Archipelago side)
 
-1. **Install the apworld.** Double-click `eldenring_gf.apworld` so Archipelago
+1. **Install the apworld.** Double-click `eldenring.apworld` so Archipelago
    registers it, *or* drop it into `Archipelago/custom_worlds/`.
 
 2. **Add your config.** Copy `EldenRing.yaml` into `Archipelago/Players/`. Open

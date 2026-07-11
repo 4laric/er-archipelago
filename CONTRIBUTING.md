@@ -94,7 +94,7 @@ crashes to tell you.
 ## Feature architecture — one self-registered file per feature
 
 The apworld's world logic is a **registry of features**, not a monolithic
-`__init__.py`. Each feature is a single file under `eldenring_gf/features/`: a
+`__init__.py`. Each feature is a single file under `eldenring/features/`: a
 `Feature` subclass decorated `@register`, auto-imported at load. It declares its
 own options (`OPTIONS`), item classes (`ITEMS`), and only the lifecycle hooks it
 needs (`generate_early` / `create_items` / `create_regions` / `set_rules` /

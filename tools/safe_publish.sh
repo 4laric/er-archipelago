@@ -11,7 +11,7 @@
 #   5. re-verify DST size + sha256 == SRC and print a receipt
 #
 # Usage:   tools/safe_publish.sh SRC DST
-# Example: tools/safe_publish.sh /tmp/core.py greenfield/eldenring_gf/core.py
+# Example: tools/safe_publish.sh /tmp/core.py greenfield/eldenring/core.py
 #
 # Exit 0 = published + verified; non-zero = nothing published (or publish
 # aborted before the rename). ALWAYS also confirm DST with the harness Read

@@ -18,7 +18,7 @@ the laptop too). Fable may touch generated `.rs` output but never compiles it �
 ## Why it parallelizes cleanly — file ownership is disjoint
 
 The clobber risk (see the "parallel shared-doc clobber" rule) is entirely in three **spine** files:
-`greenfield/eldenring_gf/contract.py`, `core.py` (fill_slot_data), `registry.py`. **One agent owns
+`greenfield/eldenring/contract.py`, `core.py` (fill_slot_data), `registry.py`. **One agent owns
 those exclusively.** Everyone else owns non-spine files:
 
 - Spine agent → `contract.py`, `core.py`, `registry.py` **only**
@@ -40,7 +40,7 @@ file, and shape. Output a gap table: keys the client wants but greenfield doesn'
 the wrong nesting/name). → `RECON-contract-keys-20260706.md`
 
 **R2 — Tracker + scaling deep-dive.** (a) F4: document greenfield's actual ap_id space (from
-`eldenring_gf/data.py`) vs the 7,000,000 space `tracker_regions.rs` was built on; specify exactly how
+`eldenring/data.py`) vs the 7,000,000 space `tracker_regions.rs` was built on; specify exactly how
 `tools/gen_location_regions.py` must be re-pointed to source greenfield's `data.py` +
 `region_open_flags.py` instead of `Archipelago/worlds/eldenring/`. (b) F3: quote the exact struct the
 client parses in `crates/er-logic/src/scaling.rs` (~150-165) and write the exact greenfield emission

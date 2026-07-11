@@ -2,7 +2,7 @@
 #  GREENFIELD ELDEN RING -- "The Shattering" playtest  (matt-free apworld)
 # ============================================================================
 #  game MUST match the installed world. On CURRENT code that is
-#  "Elden Ring (Greenfield)". After patch_gf_rename_and_version.py is applied on
+#  "Elden Ring". After patch_gf_rename_and_version.py is applied on
 #  Windows (v0.2 rename) it becomes "EldenRing" -- update the two game lines below
 #  AND rebuild the client (cargo) so its Connect string matches, or it won't connect.
 #
@@ -16,9 +16,9 @@
 # ============================================================================
 name: Alaric
 description: Greenfield ER -- Shattering (item-shuffle, 4 regions, region-lock goal)
-game: "Elden Ring (Greenfield)"
+game: "Elden Ring"
 
-"Elden Ring (Greenfield)":
+"Elden Ring":
 
   # ---- The Shattering (the headline) --------------------------------------
   num_regions: 4               # majors in play (+ Roundtable hub always kept); rest sealed. 0 = all 22.

@@ -7,10 +7,10 @@ so there's no location-name coupling to fight. Read `LESSONS-LEARNED.md` first (
 ## Layout
 ```
 greenfield/
-  eldenring_gf/
+  eldenring/
     __init__.py   # World class: items, hub-and-spoke regions, rules, goal, slot_data
     data.py       # GENERATED: HUB, REGIONS (22 locked spokes), LOCATIONS {region:[(name,ap_id,flag)]}
-  players/Greenfield.yaml   # isolated player file (game: "Elden Ring (Greenfield)")
+  players/Greenfield.yaml   # isolated player file (game: "Elden Ring")
   gen_data.py               # regenerate data.py (reads region_map.csv + grace anchors)
   gen-greenfield.ps1        # install world into Archipelago\worlds + generate (isolated)
   patch_build_greenfield.py # add the -Greenfield mode to build.ps1
@@ -27,7 +27,7 @@ Wire the build-script mode once, then use it:
 python greenfield\patch_build_greenfield.py --apply     # adds -Greenfield to build.ps1
 .\build.ps1 -Greenfield
 ```
-`-Greenfield` installs `eldenring_gf` into `Archipelago\worlds\`, then generates in isolation using
+`-Greenfield` installs `eldenring` into `Archipelago\worlds\`, then generates in isolation using
 `greenfield\players\` (your normal `Players\` and the existing apworld are untouched). Or run the
 helper directly: `.\greenfield\gen-greenfield.ps1`. Revert the build.ps1 change with
 `python greenfield\patch_build_greenfield.py --revert`.

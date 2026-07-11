@@ -9,15 +9,15 @@
 #  the report / player guide. Torrent + hub start remain on (no mountless
 #  softlock even here).
 #
-#  game MUST match the installed world ("Elden Ring (Greenfield)" on current
+#  game MUST match the installed world ("Elden Ring" on current
 #  code; "EldenRing" after the v0.2 rename). Validated + gen-tests clean, but
 #  the FEEL is unpolished by design.
 # ============================================================================
 name: Player
 description: Greenfield ER -- Kitchen-Sink (EXPERIMENTAL, everything on, base + DLC)
-game: "Elden Ring (Greenfield)"
+game: "Elden Ring"
 
-"Elden Ring (Greenfield)":
+"Elden Ring":
 
   # ---- Scope: everything, base + DLC (PIN num_regions) --------------------
   num_regions: 0                  # 0 = all regions incl. DLC. Pinned explicitly.

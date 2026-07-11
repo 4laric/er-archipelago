@@ -1,4 +1,4 @@
-// AUTO-GENERATED from eldenring_gf/contract.py -- do not edit by hand.
+// AUTO-GENERATED from eldenring/contract.py -- do not edit by hand.
 // The apworld<->client slot_data contract, mirrored so the client validates the same shapes.
 use serde_json::Value;
 

@@ -40,8 +40,8 @@ FILE_INPUTS = [
     "greenfield/dungeon_regions.tsv",        # derived interior map -> region (grace join + ConnectCollision)
     "item_tiers.tsv",
     "greenfield/region_overrides.tsv",                 # optional (SPEC-provenance-oracle); ABSENT-ok
-    "greenfield/eldenring_gf/boss_drops.py",
-    "greenfield/eldenring_gf/boss_healthbars.py",
+    "greenfield/eldenring/boss_drops.py",
+    "greenfield/eldenring/boss_healthbars.py",
     "elden_ring_artifacts/grace_flags.tsv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",

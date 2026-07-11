@@ -33,7 +33,7 @@ location-NAME coupling to an upstream (Bedrock/matt) foundation; greenfield exis
 
 **Orientation docs:** `greenfield/README.md`, `greenfield/HANDOFF.md`, `greenfield/CONTRACT.md`.
 
-**Core module map (`greenfield/eldenring_gf/`):**
+**Core module map (`greenfield/eldenring/`):**
 
 | File | LOC | Role |
 |---|---|---|
@@ -47,7 +47,7 @@ location-NAME coupling to an upstream (Bedrock/matt) foundation; greenfield exis
 | `shop_data.py` / `item_tiers.py` / `boss_data.py` / `boss_sweeps.py` | — | data tables |
 | `registry.py` | — | feature registry |
 
-**Feature modules (`greenfield/eldenring_gf/features/`):** `area_locks`, `boss_locks`,
+**Feature modules (`greenfield/eldenring/features/`):** `area_locks`, `boss_locks`,
 `check_item_flags`, `deathlink`, `filler_foreign`, `goal_locations`, `grace_rando`,
 `important_locations`, `local_items`, `pool_builder`, `progressive`, `scaling`, `shops`,
 `start_grace`, `start_items`, `varied_filler`, `weapon_reqs`. Each is meant to be a self-contained,
@@ -57,7 +57,7 @@ region-keyed additive feature. See `features/README.md`.
 `gen_contract.py` (emits CONTRACT.md + contract.json + `contract_gen.rs` for the client),
 `gen_handoff.py`, `fuzz_gf.py` (203), `gen_fuzz_gf_yamls.py`, `patch_build_greenfield.py`.
 
-**Tests:** `greenfield/eldenring_gf/tests/` — ~25 `test_gf_*.py` files (world, options, num_regions,
+**Tests:** `greenfield/eldenring/tests/` — ~25 `test_gf_*.py` files (world, options, num_regions,
 boss_locks, shops, pool_builder, progressive, dlc, ending, important_locations, region_diversity,
 slot_data_fixture, …).
 
@@ -101,7 +101,7 @@ LLM-generated code to.
 Greenfield (Python) and the client (Rust) meet **only** through AP slot_data. As of 2026-07-06 this
 was factored into a **two-sided single source of truth**:
 
-- Producer: `greenfield/eldenring_gf/contract.py` → `gen_contract.py` emits `CONTRACT.md`,
+- Producer: `greenfield/eldenring/contract.py` → `gen_contract.py` emits `CONTRACT.md`,
   `contract.json`, and `contract_gen.rs`.
 - Consumer: client `contract_gen.rs` (generated) + `core.rs` validates slot_data on connect.
 

@@ -145,7 +145,7 @@ Task #3 source edits landed and verified in-sandbox against the in-repo `region_
   it is harmless and will be overwritten on regen.
 - **PLAY2AP is base-overworld only** (61xxx-65xxx); needs NO change for these folds — Raya
   Lucaria, Leyndell, and all DLC areas resolve via REGION_MAP strings, not PLAY2AP.
-- **The duplicate `eldenring_gf/gen_data.py` (852 lines) has zero importers** — dead/stale;
+- **The duplicate `eldenring/gen_data.py` (852 lines) has zero importers** — dead/stale;
   the live generator is `greenfield/gen_data.py` (970 lines). Delete the duplicate in cleanup.
 
 Deferred base folds (in scope, next serial pass): Weeping->Limgrave, Consecrated Snowfield +

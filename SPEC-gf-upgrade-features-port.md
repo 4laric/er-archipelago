@@ -31,7 +31,7 @@ Greenfield's `core._options_echo()` already builds the `options` sub-dict (the F
 `options.auto_upgrade` / `options.flatten_regular_upgrades`, the shared client consumes them
 with no change. Both default OFF, so shipping is no-change for existing seeds.
 
-## Changes (all under `greenfield/eldenring_gf/`)
+## Changes (all under `greenfield/eldenring/`)
 
 ### 1. New feature module `features/upgrades.py`
 
@@ -94,7 +94,7 @@ ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
 ### 4. Regenerate contract artifacts
 
 ```
-python greenfield/gen_contract.py    # -> eldenring_gf/contract.json + client contract_gen.rs
+python greenfield/gen_contract.py    # -> eldenring/contract.json + client contract_gen.rs
 python greenfield/gen_handoff.py     # -> handoff/CLIENT_SLOTDATA_CONTRACT.md
 ```
 
@@ -114,7 +114,7 @@ validator stays behaviorally identical.
 
 ### 6. Deploy sync
 
-Propagate `greenfield/eldenring_gf/` -> `Archipelago/worlds/eldenring_gf/` via the normal
+Propagate `greenfield/eldenring/` -> `Archipelago/worlds/eldenring/` via the normal
 deploy step so both `contract.json` copies match.
 
 ## Verification checklist

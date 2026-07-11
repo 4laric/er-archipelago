@@ -4,8 +4,8 @@ param([string]$Repo = (Split-Path -Parent $PSScriptRoot))
 $ErrorActionPreference = "Stop"
 $Here    = Join-Path $Repo "greenfield"
 $ApDir   = Join-Path $Repo "Archipelago"
-$WorldSrc = Join-Path $Here "eldenring_gf"
-$WorldDst = Join-Path $ApDir "worlds\eldenring_gf"
+$WorldSrc = Join-Path $Here "eldenring"
+$WorldDst = Join-Path $ApDir "worlds\eldenring"
 $Players  = Join-Path $Here "players"
 
 # Regenerate the data-derived modules (item_ids.py incl. DLC_ITEM_NAMES, data.py, shop_data.py,
