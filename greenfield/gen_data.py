@@ -177,11 +177,10 @@ def _loc_tags(r):
     # datamined boss-healthbar set, so tag the drop itself Boss -> big-ticket.
     if 'dragon heart' in nm and not shop and 'Boss' not in t: t.append('Boss')
     if 'remembrance' in nm and not shop: t.append('Remembrance')
-    if 'golden seed' in nm and not shop: t.append('Seedtree')
-    if 'sacred tear' in nm and not shop: t.append('Church')
-    if 'scadutree fragment' in nm: t.append('Fragment')
-    if 'revered spirit ash' in nm: t.append('Revered')
-    if 'crystal tear' in nm and not shop: t.append('Basin')
+    # NOTE: the five CATEGORY tags (Seedtree / Church / Fragment / Revered / Basin) are NOT set here.
+    # They are re-derived from the flag's real ItemLotParam contents at the location_tags emit stage
+    # below (ITEM_CATALOG does not exist yet at this point). Name matching under-tagged multi-lot
+    # flags and over-tagged others -- see LOT_ITEMS.
     if shop: t.append('Shop')
     return t
 
@@ -191,6 +190,49 @@ def _loc_tags(r):
 # otherwise the client's repurpose would clobber a tracked check. Costs one minor vanilla slot.
 MINIBAKER_VENDOR_FLAGS=frozenset({60290})
 _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
+
+# ---- GROUND TRUTH: acquisition flag -> the items its ItemLotParam lot(s) actually GRANT -----------
+# The category tags (Seedtree / Church / Fragment / Revered / Basin) used to be derived from the
+# check's DISPLAY NAME. That is wrong twice over:
+#   * UNDER-tags: one flag can be fed by SEVERAL lots. The Golden Hippopotamus (Shadow Keep) fires
+#     flag 510440, which drives lot 10440 (Aspects of the Crucible: Thorns) AND lot 10441 (a Scadutree
+#     Fragment). The check is named after the first, so the Fragment tag never saw the fragment.
+#   * OVER-tags: the name matched things the lot does not actually grant (Crystal Tear: 18 tagged vs
+#     15 real).
+# So tag from what the game GRANTS, not from what we named the check. Same doctrine as the region
+# work: derive the datum, don't pattern-match the label. (CONTRIBUTING: Provenance.)
+_LOT_CAT = {"0": 4, "1": 4, "2": 0, "3": 1, "4": 2, "5": 8}   # lotItemCategory -> FullID top nibble
+def _build_lot_items():
+    _out = defaultdict(set)
+    _dir = os.path.join(AR, "vanilla_er", "vanilla_er")
+    for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
+        _p = os.path.join(_dir, _fn)
+        if not os.path.isfile(_p):
+            print("[gen_data] WARNING: %s absent -- category tags fall back to NAME matching" % _fn)
+            return {}
+        with open(_p, newline="") as _fh:
+            for _r in csv.DictReader(_fh):
+                _flags = set()
+                for _c in ("getItemFlagId",) + tuple("getItemFlagId%02d" % _i for _i in range(1, 9)):
+                    _v = _r.get(_c, "0")
+                    if _v.lstrip("-").isdigit() and int(_v) > 0:
+                        _flags.add(int(_v))
+                if not _flags:
+                    continue
+                for _i in range(1, 9):
+                    _iid = _r.get("lotItemId%02d" % _i, "0")
+                    _cat = _r.get("lotItemCategory%02d" % _i, "0")
+                    if not _iid.lstrip("-").isdigit() or int(_iid) <= 0:
+                        continue
+                    _top = _LOT_CAT.get(_cat)
+                    if _top is None:
+                        continue
+                    _full = int(_iid) | (_top << 28)
+                    for _f in _flags:
+                        _out[_f].add(_full)
+    return dict(_out)
+LOT_ITEMS = _build_lot_items()
+
 
 # ---- MSB/param GROUND TRUTH: flag -> the map the game actually places the item in ---------------
 # greenfield/msb_flag_region.tsv (tools/datamine_msb_item_regions.py) joins the witchy'd MSBs +
@@ -1790,6 +1832,80 @@ for _ap, _inm in LOCATION_ITEM.items():
             if _e not in _cur:
                 _cur.append(_e)
 
+# ---- CATEGORY tags from GROUND TRUTH (LOT_ITEMS), not from the check's display name ---------------
+# A flag can be fed by SEVERAL lots: the Golden Hippopotamus (Shadow Keep) fires flag 510440, which
+# drives lot 10440 (Aspects of the Crucible: Thorns) AND lot 10441 (a Scadutree Fragment). We name the
+# check after the first lot, so a NAME-derived Fragment tag never saw the fragment (45 tagged vs 46
+# real). Name matching also OVER-tagged (Crystal Tear: 18 vs 15). Tag from what the game GRANTS.
+_CATEGORY_TAGS = [                      # (substring of the granted item's name, tag, shop-eligible?)
+    ("golden seed",        "Seedtree", False),
+    ("sacred tear",        "Church",   False),
+    ("scadutree fragment", "Fragment", True),
+    ("revered spirit ash", "Revered",  True),
+    ("crystal tear",       "Basin",    False),
+]
+_NAME_BY_FULL = {}
+for _n, _f in ITEM_CATALOG.items():
+    _NAME_BY_FULL.setdefault(_f, _n)
+_cat_added = Counter(); _cat_removed = Counter()
+if LOT_ITEMS:
+    _ap_flag = {}
+    for _reg, _locs in buckets.items():
+        for _nm2, _aid2, _fl2 in _locs:
+            _ap_flag[_aid2] = int(_fl2)
+    for _ap2, _fl2 in _ap_flag.items():
+        _granted = LOT_ITEMS.get(_fl2)
+        if _granted is None:
+            continue
+        _tags = loc_tags.get(_ap2, [])
+        _is_shop = "Shop" in _tags
+        _names = [(_NAME_BY_FULL.get(_x) or "").lower() for _x in (_granted or ())]
+        for _sub, _tag, _shop_ok in _CATEGORY_TAGS:
+            _has = _granted is not None and any(_sub in _nn for _nn in _names)
+            _want = _has and (_shop_ok or not _is_shop)
+            if _want and _tag not in _tags:
+                _tags = loc_tags.setdefault(_ap2, _tags)
+                _tags.append(_tag); _cat_added[_tag] += 1
+            elif (not _want) and _tag in _tags:
+                _tags.remove(_tag); _cat_removed[_tag] += 1     # name said yes, the lot says no
+    print(f"category tags from lot contents: added {dict(_cat_added)} removed {dict(_cat_removed)}")
+else:
+    print("[gen_data] WARNING: ItemLotParam absent -- category tags left as NAME-derived")
+
+# ---- ShopNonSpell: shop checks NOT sold by a dedicated spell vendor -------------------------------
+# Shops are randomized checks but are NOT progression-eligible by default (Alaric 2026-07-11): a seed
+# where most progression is bought from a merchant plays as "farm runes, buy the game". The tag exists
+# so shops CAN be opted into the progression surface -- minus the dedicated spell vendors (Sellen,
+# Miriel, ...), whose stock is ~all sorceries/incantations. "Dedicated" is measured, not curated: a
+# ShopLineupParam 100-block whose stock is >=50% spells. (General merchants who happen to stock a spell
+# or two -- Kale, the Twin Maidens -- stay eligible.)
+# Detect a spell from the RAW region_map item_name, which carries the "[Sorcery]" / "[Incantation]"
+# prefix. Two things that do NOT work: LOCATION_ITEM (the canonical name -- _resolve_item strips that
+# prefix), and ITEM_TIER_CATEGORY (item_tiers.tsv only TIERS 57 spells; shops sell ~129 spell slots,
+# so most carry no tier at all). The raw name is the only complete signal.
+_SPELL_RE = re.compile(r"^\s*\[(Sorcery|Incantation)\]", re.I)
+_ap_rawitem = {BASE_AP + _i: (_r.get("item_name") or "") for _i, _r in enumerate(rows)}
+_blk_tot = Counter(); _blk_spell = Counter(); _ap_blk = {}
+for _aps, _rows2 in SHOP_ROW_IDS.items():
+    if not _rows2:
+        continue
+    _b = _rows2[0] // 100
+    _ap_blk[int(_aps)] = _b
+    _blk_tot[_b] += 1
+    if _SPELL_RE.match(_ap_rawitem.get(int(_aps), "")):
+        _blk_spell[_b] += 1
+_SPELL_VENDOR_BLOCKS = {_b for _b in _blk_tot if _blk_tot[_b] and _blk_spell[_b] / _blk_tot[_b] >= 0.5}
+_nonspell = 0
+for _ap2, _b in _ap_blk.items():
+    if _b in _SPELL_VENDOR_BLOCKS:
+        continue
+    _tags = loc_tags.setdefault(_ap2, [])
+    if "ShopNonSpell" not in _tags:
+        _tags.append("ShopNonSpell"); _nonspell += 1
+_SPELL_SHOP_CHECKS = sum(_blk_tot[_b] for _b in _SPELL_VENDOR_BLOCKS)
+print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_BLOCKS)} dedicated "
+      f"spell-vendor block(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchant blocks: {len(_blk_tot)}")
+
 # ---- MajorBoss tag: the REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked) ----
 # This is the high-confidence surface the v0.2 progression_surface restriction confines locks to.
 # Union so every kept region that HAS a major (arena or curated extra) carries a MajorBoss check.
@@ -1880,7 +1996,7 @@ def _is_dungeon(_mp):
 # = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "MajorBoss"})
+                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell", "MajorBoss"})
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 for _i, _r in enumerate(rows):

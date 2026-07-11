@@ -76,7 +76,22 @@ FROZEN_OPTIONS = {
     "progression_surface_mode": (2, "strict"),
     "important_locations": (["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"], None),
     "big_ticket_locations": (["MajorBoss", "Remembrance", "GreatRune"], None),
-    "progression_surface": (["MajorBoss", "Remembrance", "GreatRune"], None),
+    # EXPANDED 2026-07-11. The surface was deliberately tiny (MajorBoss/Remembrance/GreatRune = 57
+    # locations) because the location DATA could not be trusted, so it was held to what could be
+    # hand-verified. The provenance work (MSB/EMEVD ground truth, the region oracle, the phantom-flag
+    # guard) removed that constraint, and the category tags are now derived from what each flag's
+    # ItemLotParam lot actually GRANTS -- audited against ground truth: Sacred Tear 13/13,
+    # Golden Seed 43/43, Scadutree Fragment 46/46, Revered Spirit Ash 23/23.
+    #
+    # SHOPS ARE DELIBERATELY ABSENT. Shop rows stay randomized checks -- they are just not eligible to
+    # HOLD progression. There are 479 of them, so putting them in would make ~70% of the progression
+    # surface a merchant and the seed would play as "farm runes, buy the game". The ShopNonSpell tag
+    # (395 = every shop row outside the 5 dedicated spell-vendor blocks) exists so they CAN be opted
+    # in later. FUTURE: matt's randomizer models this better -- each MERCHANT enters the pool ONCE
+    # (~25 slots), so a shop can hold at most one progression item and cannot dominate by breadth.
+    # That is the shape to build if shops are ever turned on, not a flat 395.
+    "progression_surface": (["KeyItem", "MajorBoss", "Remembrance", "GreatRune",
+                             "Church", "Seedtree", "Fragment", "Revered"], None),
 
     # ---- half-built / superseded -> frozen OFF (finish later, then re-expose) --------------------
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)
