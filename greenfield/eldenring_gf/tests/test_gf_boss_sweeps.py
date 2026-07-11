@@ -34,7 +34,7 @@ REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
 # none of these -- felling a field boss hands out filler only. Kept in sync with contract by
 # test_field_exclude_matches_contract below (drift guard).
 FIELD_EXCLUDE = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                           "Basin", "GreatRune", "KeyItem", "Legendary", "Shop"})
+                           "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "MajorBoss"})
 
 
 def _mod(name):
