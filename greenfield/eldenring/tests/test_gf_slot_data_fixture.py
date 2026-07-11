@@ -69,11 +69,14 @@ INFORMATIONAL_EXTRAS = {
 # it actually emits, plus the informational extras. Built at import time so it tracks contract.py.
 # (enable_dlc / lockRevealFlags / versions are contract-declared but not emitted by the current
 # world. regionSphereTargetRanges IS emitted as of I2 -- features/scaling.py, the live scaling wire.)
-# dlcScadutreeFloorRanges is emitted ONLY under global_scadutree_blessing == "scaled". That option is
-# FROZEN OFF in v0.2 (defaults.py) and no longer yaml-settable, so the key can never be emitted. It is
-# contract-optional (required=False), so the built client tolerates its absence -- and the playtest
-# yaml already ran scadutree off. Move it back out of here if the option is ever re-exposed.
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "versions", "dlcScadutreeFloorRanges"}  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
+# dlcScadutreeFloorRanges IS emitted (global_scadutree_blessing is frozen at its declared default, 2 =
+# scaled; defaults.py). It was briefly listed here while the option was frozen OFF -- which is exactly
+# backwards: this guard exists to catch a contract key losing its producer, and the key losing its
+# producer is what it was reporting. A declared, client-consumed key that stops being emitted is a
+# HALF-FEATURE (CONTRIBUTING: emitted-but-unconsumed), not a baseline to refresh. If a key ever
+# genuinely stops being emitted, the fix is to justify it here in prose or tag the client path
+# CONTRACT: DEAD -- never to silence the gate.
+_CONTRACT_NOT_EMITTED = {"enable_dlc", "versions"}  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).

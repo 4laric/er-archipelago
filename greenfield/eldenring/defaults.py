@@ -20,11 +20,24 @@ class Frozen:
     `.value` (int / list / dict) and, for Choice-derived options, `.current_key` (str), which
     features compare by name (e.g. pool_builder_scope.current_key == "all_filler")."""
 
-    __slots__ = ("value", "current_key")
+    __slots__ = ("value", "current_key", "_name")
 
-    def __init__(self, value, current_key=None):
+    def __init__(self, value, current_key=None, name="<unknown>"):
         self.value = value
         self.current_key = current_key
+        self._name = name
+
+    def __getattr__(self, attr):
+        if attr in ("value", "current_key", "_name"):   # unset slot -> plain miss, never recurse
+            raise AttributeError(attr)
+        # A Frozen stand-in only carries `.value` and `.current_key`. If a feature reads anything else
+        # off a frozen option (`.range_end`, `.options`, iteration, ...) it silently would have gotten
+        # an AttributeError that reads like a typo. Fail LOUDLY and say exactly what happened -- a
+        # degraded read must announce itself, not look like absence (CONTRIBUTING: runtime visibility).
+        raise AttributeError(
+            f"frozen option {self._name!r}: a feature read attribute {attr!r}, which the Frozen "
+            f"stand-in does not carry (it has only .value and .current_key). Either the feature needs "
+            f"a real Option (un-freeze it in FROZEN_OPTIONS) or Frozen must grow that attribute.")
 
 
 # name -> (value, current_key). current_key is REQUIRED for Choice-derived options.
@@ -37,7 +50,10 @@ FROZEN_OPTIONS = {
     "pool_builder_juice_cap": (0, None),       # 0 = auto-size to the whole Rune tail
     "curated_fill": (1, None),
     "stone_ramp": (1, None),
-    "flatten_regular_upgrades": (2, None),     # Alaric 2026-07-11: 2 (playtest yaml used 3)
+    # 2, not the playtest yaml's 3: at 2 the starting upgrade level still REQUIRES stones, which keeps
+    # smithing stones meaningful as checks. It errs generous. (3 made regular weapons so cheap to bring
+    # up that the 2026-07 playtest ran almost exclusively SOMBER weapons.) -- Alaric 2026-07-11
+    "flatten_regular_upgrades": (2, None),
     "auto_upgrade": (1, None),
     "start_with_torch": (1, None),
     "start_with_flasks": (1, None),
@@ -51,6 +67,12 @@ FROZEN_OPTIONS = {
     "legacy_dungeon_keys": (1, None),
     "varied_filler": (1, None),
     "dungeon_sweep": (2, "all"),
+    # NOT half-built -- finished on BOTH sides, so it ships at its declared default (2 = scaled), not
+    # off. gen has DLC_BLESSING_FLOORS and emits dlcScadutreeFloorRanges (only when this == 2); the
+    # client consumes it (er-logic scaling.rs: DLC enemy-tier cap; hook.rs get/set_scadutree_blessing).
+    # Freezing it OFF never emitted the floor wire, so the client's floor path was dead code and a DLC
+    # player arrived with ~0 blessing and got brutalised -- the exact thing the feature prevents.
+    "global_scadutree_blessing": (2, "scaled"),
     "progression_surface_mode": (2, "strict"),
     "important_locations": (["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"], None),
     "big_ticket_locations": (["MajorBoss", "Remembrance", "GreatRune"], None),
@@ -65,7 +87,6 @@ FROZEN_OPTIONS = {
     "stone_injection": (0, None),              # superseded by the always-on stone_ramp
     "filler_upgrade_weight": (1, None),        # inert under the always-on item_shuffle
     "completion_scaling_floor": (0, None),     # scaling.py still emits the key (client contract)
-    "global_scadutree_blessing": (0, "off"),   # ditto
 }
 
 
@@ -74,4 +95,4 @@ def apply_frozen(options) -> None:
     Never overwrites a field that is still yaml-settable; idempotent."""
     for name, (value, key) in FROZEN_OPTIONS.items():
         if not hasattr(options, name):
-            setattr(options, name, Frozen(value, key))
+            setattr(options, name, Frozen(value, key, name))
