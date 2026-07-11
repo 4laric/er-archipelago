@@ -1102,6 +1102,7 @@ ITEM_TIERS = {
     "Talisman of Lord's Bestowal": 1,
     'Talisman of the Dread': 1,
     "Thiollier's Hidden Needle": 0,
+    "Thiollier's Mask": 0,
     'Tooth Whip': 0,
     'Torch': 0,
     "Traveler's Clothes": 0,
@@ -2297,6 +2298,7 @@ ITEM_TIER_CATEGORY = {
     "Talisman of Lord's Bestowal": 'TALISMAN',
     'Talisman of the Dread': 'TALISMAN',
     "Thiollier's Hidden Needle": 'WEAPON',
+    "Thiollier's Mask": 'ARMOR',
     'Tooth Whip': 'WEAPON',
     'Torch': 'WEAPON',
     "Traveler's Clothes": 'ARMOR',
@@ -2391,4 +2393,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:46cbefcfda4a1f931ddfc44e375e59a8b15e98410885070b7c8ea1553f2e7142', 'generated_utc': '2026-07-11T10:23:15Z', 'host': 'windows', 'module': 'item_tiers.py', 'body_sha256': 'sha256:960f6a5636fb23e0a506de1e047fb46fa610ec5c8ee630d55b42b7033c488c4a'}
+_GEN_STAMP = {'inputs_hash': 'sha256:95e1e755c66141b266b6c48e380c834be6be4f83f5abaaf07a12c2fd7215149d', 'generated_utc': '2026-07-11T11:36:13Z', 'host': 'windows', 'module': 'item_tiers.py', 'body_sha256': 'sha256:e9f4365dadee5f3fa51381cc647d59009505f056d28ccccd3f6e91347918288d'}
