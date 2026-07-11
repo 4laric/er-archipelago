@@ -11,7 +11,8 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring_gf")
 from worlds.eldenring_gf.features.progressive import (  # noqa: E402
     PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY,
-    _GOODS_LADDERS, _POOL_COUNTS, _GOODS_NIBBLE,
+    PROG_SMITHING_BELL, PROG_SOMBER_BELL,
+    _GOODS_LADDERS, _POOL_COUNTS, _GOODS_NIBBLE, _BELL_GRANTS, _BELL_EARLY_COUNT,
 )
 
 GAME = "Elden Ring (Greenfield)"
@@ -110,3 +111,40 @@ class ProgressiveBothOn(WorldTestBase):
         names = _pool_names(self.world)
         for nm in (PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY):
             self.assertEqual(names.count(nm), _POOL_COUNTS[nm])
+
+
+class ProgressiveStoneBellsOn(WorldTestBase):
+    game = GAME
+    options = {"progressive_stone_bells": True}
+
+    def test_bell_grant_shape_and_flags(self):
+        grants = self.world.fill_slot_data()["progressiveGrants"]
+        for nm in (PROG_SMITHING_BELL, PROG_SOMBER_BELL):
+            self.assertIn(nm, grants)
+            _assert_grant_shape(self, grants[nm])
+            # ladder length matches the declared tier grant table
+            self.assertEqual(len(grants[nm]), len(_BELL_GRANTS[nm]))
+            # unlike flasks/keys, stone bells MUST carry non-empty shop-unlock flags per rung
+            for step in grants[nm]:
+                self.assertTrue(step["flags"], f"{nm} rung missing shop-unlock flags")
+            # first Smithing rung grants the [1] bell good (8951) GOODS-packed
+            self.assertEqual(grants[PROG_SMITHING_BELL][0]["goods"], 8951 | _GOODS_NIBBLE)
+        # flasks / keys not active under this toggle
+        for nm in (PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY):
+            self.assertNotIn(nm, grants)
+
+    def test_bell_copies_in_pool(self):
+        names = _pool_names(self.world)
+        self.assertEqual(names.count(PROG_SMITHING_BELL), _POOL_COUNTS[PROG_SMITHING_BELL])
+        self.assertEqual(names.count(PROG_SOMBER_BELL), _POOL_COUNTS[PROG_SOMBER_BELL])
+
+    def test_bells_forced_early(self):
+        # generate_early must have registered the sphere-0 early_items for each active bell.
+        early = self.world.multiworld.early_items[self.world.player]
+        for nm, n in _BELL_EARLY_COUNT.items():
+            self.assertGreaterEqual(early.get(nm, 0), n, f"{nm} not forced into sphere 0")
+
+    def test_pool_count_neutral(self):
+        from worlds.eldenring_gf.data import HUB, LOCATIONS
+        total = sum(len(LOCATIONS.get(r, [])) for r in [HUB] + list(self.world._kept()))
+        self.assertEqual(len(_pool_names(self.world)), total)
