@@ -89,7 +89,11 @@ class BossSweepScoping(unittest.TestCase):
         if raw and raw != "PENDING":
             return raw
         fs = str(self.ap_flag.get(ap, ""))
-        if len(fs) >= 8 and fs[:2] in ("30", "31", "32"):
+        # The X0SS7000 convention (flag -> map mXX_SS) is not base-only: the DLC minor dungeons use it
+        # too (m40 catacombs, m41 gaols, m42 forges, m43 caves) -- e.g. 41017010 -> m41_01 (Curseblade
+        # Labirith). Decoding only 30/31/32 left every DLC dungeon check stuck at PENDING, so the
+        # map-local gate reported them as leaks when gen had recovered their map correctly.
+        if len(fs) >= 8 and fs[:2] in ("30", "31", "32", "40", "41", "42", "43"):
             return f"m{fs[:2]}_{fs[2:4]}_00_00"
         return raw
 

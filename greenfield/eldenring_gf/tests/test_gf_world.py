@@ -76,12 +76,31 @@ class GreenfieldWorldTest(WorldTestBase):
             self.assertIsInstance(v, int)
 
     # --- determinism (greenfield analog of eldenring test_slot_data_determinism) ----
-    def test_slot_data_is_seed_independent(self):
+    # regionSphereTargetRanges is the TRUE FILL SPHERE (features/scaling.py): the sphere each region's
+    # Lock actually landed in THIS seed. It is therefore seed-DEPENDENT by design (that is the whole
+    # point -- a random-start seed scales from the region you can reach, not from geography). The old
+    # assertion "slot_data must be seed-independent" predates that change and asserted the opposite.
+    # What must actually hold is DETERMINISM: the same seed must produce the same slot_data.
+    _SEED_VARYING = {"regionSphereTargetRanges"}
+
+    def test_slot_data_is_deterministic(self):
+        """Same seed -> byte-identical slot_data (no set-iteration order leaking into the wire)."""
+        self.world_setup(seed=1)
+        a = self.world.fill_slot_data()
+        self.world_setup(seed=1)
+        b = self.world.fill_slot_data()
+        self.assertEqual(a, b, "same seed must produce identical slot_data (nondeterminism in the wire)")
+
+    def test_slot_data_seed_varies_only_where_intended(self):
+        """Across seeds, ONLY the documented fill-sphere wire may differ."""
         self.world_setup(seed=1)
         a = self.world.fill_slot_data()
         self.world_setup(seed=987654321)
         b = self.world.fill_slot_data()
-        self.assertEqual(a, b, "greenfield slot_data must be deterministic / seed-independent")
+        differing = {k for k in set(a) | set(b) if a.get(k) != b.get(k)}
+        self.assertFalse(differing - self._SEED_VARYING,
+                         f"slot_data keys varied across seeds that must not: "
+                         f"{sorted(differing - self._SEED_VARYING)}")
 
     # --- Phase 0 boot contract (apIdsToItemIds + regionOpenFlags) --------------------
     def test_boot_contract_ap_ids_and_open_flags(self):
