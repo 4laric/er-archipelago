@@ -1106,7 +1106,6 @@ ITEM_TIERS = {
     'Tooth Whip': 0,
     'Torch': 0,
     "Traveler's Clothes": 0,
-    "Traveler's Hat": 0,
     'Traveling Maiden Boots': 1,
     'Traveling Maiden Gloves': 1,
     'Traveling Maiden Hood': 1,
@@ -2302,7 +2301,6 @@ ITEM_TIER_CATEGORY = {
     'Tooth Whip': 'WEAPON',
     'Torch': 'WEAPON',
     "Traveler's Clothes": 'ARMOR',
-    "Traveler's Hat": 'ARMOR',
     'Traveling Maiden Boots': 'ARMOR',
     'Traveling Maiden Gloves': 'ARMOR',
     'Traveling Maiden Hood': 'ARMOR',
@@ -2393,4 +2391,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:1b5121eac086cf9a78f2def7166f77bff5e92dd14c028d2dc480daf31f5b4f26', 'module': 'item_tiers.py', 'body_sha256': 'sha256:e9f4365dadee5f3fa51381cc647d59009505f056d28ccccd3f6e91347918288d'}
+_GEN_STAMP = {'inputs_hash': 'sha256:19c502ad89252be907c1228269a0e3a753d869d92303bf3c983d595013a34fa3', 'module': 'item_tiers.py', 'body_sha256': 'sha256:d6bb6f437c6335c49758b0bacf3af769abb842f832ec5afb15e1a6748fa4f0bb'}
