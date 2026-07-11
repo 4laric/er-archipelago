@@ -1,0 +1,60 @@
+# ============================================================================
+#  GREENFIELD ELDEN RING -- preset: SYNC-FRIENDLY  (flagship, ~4-8h)
+# ============================================================================
+#  A polite, evening-length footprint tuned for a 2-slot+ multiworld session
+#  that finishes in one sitting. Real ER items are shuffled and progression
+#  concentrates on meaningful checks, so every send/receive matters without
+#  bloating the pool. Torrent + Roundtable hub start are on (no mountless
+#  softlock); DLC is off to keep the run short.
+#
+#  game MUST match the installed world ("Elden Ring" on current
+#  code). After the v0.2 rename patch it becomes "EldenRing" -- update BOTH the
+#  game: line and the section key, and rebuild the client so Connect matches.
+#
+#  Every option below is validated against the installed world and gen-tests
+#  clean (single- and 2-slot). Copy this into greenfield/players/ (renamed per
+#  slot) to use it; two+ yamls in players/ = a multiworld.
+# ============================================================================
+name: Player1
+description: Greenfield ER -- Sync-Friendly (short multiworld, real items, meaningful checks)
+game: "Elden Ring"
+
+"Elden Ring":
+
+  # ---- Scope: small, predictable, evening-length ---------------------------
+  # PINNED explicitly (never rely on the num_regions default -- 0 means "all
+  # regions / full Shattering", which is a long run). 4 spine regions gives a
+  # Limgrave-first difficulty gradient and a ~4-8h pace.
+  num_regions: 4
+  num_regions_order: spine        # spine = fixed Limgrave-first path (predictable for co-op)
+  ending_condition: region_locks  # win = reach the goal region holding every kept region's lock
+  start_with_region_lock: true    # spawn at Roundtable with one kept region already open
+
+  # ---- Real item shuffle (what makes the multiworld matter) ---------------
+  item_shuffle: true              # each check pays its real vanilla ER item, shuffled
+  curated_fill: true              # concentrate region Locks onto big-ticket checks
+  important_locations: [Remembrance, Seedtree, Church, Boss, Fragment, Revered]
+                                  # ^ these check TYPES must hold a useful/progression item (never plain filler)
+  pool_builder: true              # scrub the Rune tail, inject rare/legendary juice
+  pool_builder_intensity: normal  # keep juice modest for a short run (normal | high | max)
+
+  # ---- Warp-in: bundle graces so a lock opens a whole region cleanly -------
+  grace_rando: false              # region lock lights ALL of that region's graces (legible, no scatter)
+
+  # ---- Safety defaults (all default-on; pinned here for clarity) ----------
+  start_with_steed: true          # Torrent's whistle -- traverse the shattered world (mount safety)
+  start_with_torch: true          # dark caves navigable before your first grace
+  start_with_flasks: true         # HP/FP flasks from the opening
+  reveal_all_maps: true           # whole overworld + underground map revealed
+  early_leveling: true            # level at Roundtable immediately (Melina hand-off bypassed)
+  buyable_stonesword_keys: true   # imp-statue checks never missable
+  protect_missable_locations: true
+
+  # ---- Base game only for a short session ---------------------------------
+  enable_dlc: false
+  dlc_only: false
+  death_link: false
+
+  # ---- Archipelago common -------------------------------------------------
+  accessibility: minimal
+  progression_balancing: 50

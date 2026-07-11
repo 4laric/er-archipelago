@@ -1,154 +1,95 @@
 #!/usr/bin/env python3
 """Generate the AP location metadata table for the tracker (SPEC-item-tracker.md).
 
-Emits `crates/er-logic/src/tracker_regions.rs`. Sources (Windows AP env; the sandbox mount
-truncates the 6k-line locations.py):
-  - locations.py    : location_tables (ids + fine region), region_order headers, prominent/missable
-  - map_region_data.py : coarse region keys that carry an open flag
-  - grace_data.py   : REGION_LOCK_ITEM (coarse region -> lock item name)
+Emits `crates/er-logic/src/tracker_regions.rs` from the GREENFIELD pure-data modules.
+AP-env-free: no Archipelago import, runs on any Python 3. Sources:
+  - greenfield/eldenring/data.py               : LOCATIONS (ap ids 7,770,000+, region membership)
+  - greenfield/eldenring/location_tags.py      : LOCATION_TAGS (Boss/Remembrance -> big_ticket)
+  - greenfield/eldenring/missable_locations.py : MISSABLE_LOCATIONS (missable ap ids)
+  - greenfield/eldenring/region_open_flags.py  : REGION_OPEN_FLAGS (sanity: every region has a flag)
 
 Per AP location it emits: fine region (grouping), coarse region (the open-flag key that decides
-in-logic), big_ticket (prominent), missable. Plus coarse-region -> lock-item, so the client can
-resolve each coarse region to a live open-state flag via its region_open_flags table.
+in-logic). Greenfield has no fine/coarse split, so both are the region name; the hub (Roundtable
+Hold) keeps its name as the fine grouping but gets coarse "" = always accessible. Plus
+coarse-region -> lock-item name ("<Region> Lock", the exact key greenfield uses for
+slot_data regionOpenFlags, core.py fill_slot_data) so the client can resolve each region to a
+live open-state flag via its region_open_flags table.
 
     python tools/gen_location_regions.py            # regenerate + wire lib.rs
     python tools/gen_location_regions.py --check     # CI drift gate
 """
-import sys, os, types, importlib.util, argparse, re
+import os, importlib.util, argparse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-ELD = os.path.join(REPO, "Archipelago", "worlds", "eldenring")
-LOCATIONS_PY = os.path.join(ELD, "locations.py")
-MAP_REGION_PY = os.path.join(ELD, "map_region_data.py")
-GRACE_DATA_PY = os.path.join(ELD, "grace_data.py")
+GF = os.path.join(REPO, "greenfield", "eldenring")
 OUT_RS = os.path.join(REPO, "from-software-archipelago-clients",
                       "crates", "er-logic", "src", "tracker_regions.rs")
 LIB_RS = os.path.join(REPO, "from-software-archipelago-clients",
                       "crates", "er-logic", "src", "lib.rs")
 MOD_LINE = "pub mod tracker_regions;"
 
-# Base-game section-header -> coarse region key (or "" = always open). Alaric 2026-07-04.
-HEADER_COARSE = {
-    "Limgrave": "Limgrave", "The hold": "", "Weeping": "Weeping Peninsula",
-    "Siofra": "Siofra River", "Liurnia": "Liurnia of The Lakes", "Caelid": "Caelid",
-    "Nokron": "Nokron, Eternal City Start", "Ainsel": "Ainsel River", "Altus": "Altus Plateau",
-    "Mt Gelmir": "Mt. Gelmir", "Volcano Manor": "Mt. Gelmir", "Capital Outskirts": "Altus Plateau",
-    "Leyndell": "Leyndell, Ashen Capital", "forbidden lands": "Forbidden Lands",
-    "Mountaintops": "Mountaintops of the Giants", "Farum Azula": "Farum Azula",
-    "Snowfield": "Consecrated Snowfield", "Haligtree": "Miquella's Haligtree",
-}
-# Per-fine-region overrides (win over header + self rule). Alaric 2026-07-04. The three shared
-# play_region buckets (REGION_ID_MAP.md) follow their owner's open flag.
-FINE_OVERRIDE = {
-    "Mohgwyn Palace": "Mohgwyn Palace",
-    "Moonlight Altar": "Liurnia of The Lakes",
-    "Sellia Crystal Tunnel": "Caelid",
-    "Fog Rift Fort": "Scadu Altus",
-    "Recluses' River": "Scadu Altus",
-}
+# Big-ticket tag types: loaded from the contract (single source of truth, shared with
+# features/curated_fill.py) inside load_rows via load_gf("contract").BIG_TICKET_TYPES.
 
 
-def coarse_keys():
-    t = open(MAP_REGION_PY, encoding="utf-8").read()
-    return set(re.findall(r'"([^"]+)"\s*:\s*\{\s*"area_ids"', t))
-
-
-def region_lock_items():
-    """coarse region name -> lock item name (grace_data.REGION_LOCK_ITEM). Pure data module."""
-    spec = importlib.util.spec_from_file_location("er_grace_data", GRACE_DATA_PY)
-    gd = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(gd)
-    return dict(gd.REGION_LOCK_ITEM)
-
-
-def header_buckets():
-    """fine region name -> section header, from region_order + region_order_dlc."""
-    t = open(LOCATIONS_PY, encoding="utf-8").read()
-    out = {}
-    for name in ("region_order", "region_order_dlc"):
-        m = re.search(r'\n' + name + r'\s*=\s*\[(.*?)\n\]', t, re.S)
-        if not m:
-            continue
-        cur = None
-        for line in m.group(1).splitlines():
-            s = line.strip()
-            if s.startswith("#"):
-                cur = s.lstrip("#").strip()
-            else:
-                nm = re.match(r'"([^"]+)"', s)
-                if nm:
-                    out[nm.group(1)] = cur
-    return out
-
-
-def build_fine2coarse():
-    keys = coarse_keys()
-    buckets = header_buckets()
-    f2c = {}
-    for fine in set(buckets) | set(FINE_OVERRIDE):
-        if fine in FINE_OVERRIDE:
-            f2c[fine] = FINE_OVERRIDE[fine]
-        elif fine in keys:
-            f2c[fine] = fine
-        else:
-            f2c[fine] = HEADER_COARSE.get(buckets.get(fine), "")
-    return f2c
-
-
-def load_locations():
-    """[(ap_code, fine_region, prominent, missable)] via a stubbed import of locations.py."""
-    d = ELD
-
-    class _Meta(type):
-        def __getattr__(cls, n):
-            return 0
-
-    class ItemClassification(metaclass=_Meta):
-        pass
-
-    bc = types.ModuleType("BaseClasses")
-    bc.Item = type("Item", (), {})
-    bc.Location = type("Location", (), {})
-    bc.Region = type("Region", (), {})
-    bc.ItemClassification = ItemClassification
-    sys.modules["BaseClasses"] = bc
-
-    pkg = types.ModuleType("eld")
-    pkg.__path__ = [d]
-    sys.modules["eld"] = pkg
-    # real items/grace_data load via __path__ (item_table needed at import).
-
-    spec = importlib.util.spec_from_file_location("eld.locations", LOCATIONS_PY)
+def load_gf(name):
+    """Import a greenfield pure-data module by path (no package / AP env needed)."""
+    spec = importlib.util.spec_from_file_location(
+        "er_gf_" + name, os.path.join(GF, name + ".py"))
     mod = importlib.util.module_from_spec(spec)
-    sys.modules["eld.locations"] = mod
     spec.loader.exec_module(mod)
+    return mod
+
+
+def load_rows():
+    """[(ap_id, fine_region, coarse_region, big_ticket, missable)] sorted by id,
+    plus the greenfield REGIONS list (the coarse lock-item keys)."""
+    data = load_gf("data")
+    tags = load_gf("location_tags").LOCATION_TAGS
+    is_big_ticket = load_gf("contract").is_big_ticket  # contract = single source (excludes Shop)
+    missable = set(load_gf("missable_locations").MISSABLE_LOCATIONS)
+    open_flags = load_gf("region_open_flags").REGION_OPEN_FLAGS
+
+    missing = [r for r in data.REGIONS if r not in open_flags]
+    if missing:
+        raise SystemExit(f"FATAL: regions without an open flag: {missing}")
 
     rows = []
-    for region, table in mod.location_tables.items():
-        for loc in table:
-            code = getattr(loc, "ap_code", None)
-            if code is None:
-                continue
-            rows.append((int(code), region,
-                         bool(getattr(loc, "prominent", False)),
-                         bool(getattr(loc, "missable", False))))
-    return sorted(set(rows))
+    for region, locs in data.LOCATIONS.items():
+        coarse = "" if region == data.HUB else region
+        for _name, ap_id, _flag in locs:
+            big = is_big_ticket(tags.get(ap_id, ()))
+            rows.append((int(ap_id), region, coarse, big, ap_id in missable))
+    rows = sorted(rows)
+    ids = [r[0] for r in rows]
+    if len(ids) != len(set(ids)):
+        raise SystemExit("FATAL: duplicate ap ids in greenfield LOCATIONS")
+    stray = missable - set(ids)
+    if stray:
+        raise SystemExit(f"FATAL: missable ids not in LOCATIONS: {sorted(stray)}")
+    return rows, list(data.REGIONS)
+
+
+def region_lock_items(regions):
+    """coarse region name -> lock item name; greenfield locks are '<Region> Lock'
+    (core.py: regionOpenFlags is keyed by exactly these names)."""
+    return {r: f"{r} Lock" for r in regions}
 
 
 def esc(s):
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def render_rs(rows, f2c, lock_items):
+def render_rs(rows, lock_items):
     lines = []
     a = lines.append
     a("// @generated by tools/gen_location_regions.py -- DO NOT EDIT BY HAND.")
-    a("// Sources: Archipelago/worlds/eldenring/{locations,map_region_data,grace_data}.py.")
-    a("// Regenerate: python tools/gen_location_regions.py   (Windows AP env)")
+    a("// Sources: greenfield/eldenring/{data,location_tags,missable_locations,region_open_flags}.py.")
+    a("// Regenerate: python tools/gen_location_regions.py   (AP-env-free, pure greenfield data)")
     a("//")
     a("// Per AP location: fine region (grouping), coarse region (open-flag key for in-logic;")
-    a('// "" = always accessible), big_ticket (prominent), missable. See SPEC-item-tracker.md.')
+    a('// "" = always accessible), big_ticket (Boss/Remembrance), missable. See SPEC-item-tracker.md.')
     a("")
     a("use std::collections::{HashMap, HashSet};")
     a("")
@@ -156,14 +97,13 @@ def render_rs(rows, f2c, lock_items):
     a("")
     a("/// (id, fine_region, coarse_region, big_ticket, missable), sorted by id.")
     a("pub const LOCATION_META: &[(u64, &str, &str, bool, bool)] = &[")
-    for code, region, prom, miss in rows:
-        coarse = f2c.get(region, "")
+    for code, region, coarse, prom, miss in rows:
         a(f'    ({code}, "{esc(region)}", "{esc(coarse)}", {str(prom).lower()}, {str(miss).lower()}),')
     a("];")
     a("")
     a("/// Coarse region name -> its region-lock ITEM name. The client resolves each to a live")
     a("/// open-state flag via `region_open_flags` (absent lock = region unlocked this seed).")
-    a("/// Source: grace_data.REGION_LOCK_ITEM (seed-independent).")
+    a('/// Source: greenfield "<Region> Lock" naming (seed-independent, = regionOpenFlags keys).')
     a("pub const COARSE_LOCK_ITEMS: &[(&str, &str)] = &[")
     for r, l in sorted(lock_items.items()):
         a(f'    ("{esc(r)}", "{esc(l)}"),')
@@ -217,8 +157,7 @@ def render_rs(rows, f2c, lock_items):
     a("    }")
     a("}")
     a("")
-    unmapped = sorted({r[1] for r in rows if r[1] not in f2c})
-    return "\n".join(lines), unmapped
+    return "\n".join(lines)
 
 
 def lib_has_mod():
@@ -244,10 +183,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
-    f2c = build_fine2coarse()
-    lock_items = region_lock_items()
-    rows = load_locations()
-    new, unmapped = render_rs(rows, f2c, lock_items)
+    rows, regions = load_rows()
+    lock_items = region_lock_items(regions)
+    new = render_rs(rows, lock_items)
     if args.check:
         try:
             cur = open(OUT_RS, encoding="utf-8").read()
@@ -260,14 +198,12 @@ def main():
         return 0
     open(OUT_RS, "w", encoding="utf-8", newline="\n").write(new)
     wired = wire_lib_rs()
-    bt = sum(1 for r in rows if r[2])
-    coarse = len({f2c.get(r[1], "") for r in rows} - {""})
-    print(f"Wrote {OUT_RS}: {len(rows)} locations, {bt} big-ticket, {coarse} coarse regions, "
-          f"{len(lock_items)} lock items.")
+    bt = sum(1 for r in rows if r[3])
+    miss = sum(1 for r in rows if r[4])
+    coarse = len({r[2] for r in rows} - {""})
+    print(f"Wrote {OUT_RS}: {len(rows)} locations, {bt} big-ticket, {miss} missable, "
+          f"{coarse} coarse regions, {len(lock_items)} lock items.")
     print("Wired lib.rs." if wired else "lib.rs already wired.")
-    if unmapped:
-        print(f"NOTE: {len(unmapped)} fine regions default to coarse=\"\": "
-              + ", ".join(unmapped[:10]) + (" ..." if len(unmapped) > 10 else ""))
     return 0
 
 

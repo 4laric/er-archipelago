@@ -1,0 +1,1148 @@
+flag,flag_source,item_name,region,method,confidence
+62012,map_lot,"Map: Limgrave, East",Limgrave,map_name,high
+62080,map_lot,Map: Gravesite Plain,Gravesite Plain,map_name,high
+65460,map_lot,Glovewort Crystal Tear,Global / Filler (scattered by design),global_filler,na
+67220,map_lot,Nomadic Warrior's Cookbook [11],Liurnia of the Lakes,cookbook,med
+67400,map_lot,Glintstone Craftsman's Cookbook [4],Liurnia of the Lakes,cookbook,med
+67440,map_lot,Glintstone Craftsman's Cookbook [8],Consecrated Snowfield,cookbook,med
+67460,map_lot,Glintstone Craftsman's Cookbook [6],Liurnia of the Lakes,cookbook,med
+67800,map_lot,Nomadic Warrior's Cookbook [4],Limgrave,cookbook,med
+67840,map_lot,Perfumer's Cookbook [1],Altus Plateau,cookbook,med
+67850,map_lot,Perfumer's Cookbook [2],Altus Plateau,cookbook,med
+68000,map_lot,Ancient Dragon Apostle's Cookbook [1],Altus Plateau,cookbook,med
+68200,map_lot,Fevor's Cookbook [1],Limgrave,cookbook,med
+68510,map_lot,Forager Brood Cookbook [6],Shadow Keep (DLC),cookbook,med
+68520,map_lot,Forager Brood Cookbook [1],Gravesite Plain (DLC),cookbook,med
+68530,map_lot,Forager Brood Cookbook [2],Land of Shadow (DLC),cookbook,med
+68540,map_lot,Forager Brood Cookbook [3],Cerulean Coast (DLC),cookbook,med
+68550,map_lot,Forager Brood Cookbook [4],Land of Shadow (DLC),cookbook,med
+68560,map_lot,Forager Brood Cookbook [5],Land of Shadow (DLC),cookbook,med
+68570,map_lot,Igon's Cookbook [2],Jagged Peak (DLC),cookbook,med
+68580,map_lot,Finger-Weaver's Cookbook [2],Land of Shadow (DLC),cookbook,med
+68590,map_lot,Greater Potentate's Cookbook [1],Land of Shadow (DLC),cookbook,med
+68600,map_lot,Greater Potentate's Cookbook [4],Land of Shadow (DLC),cookbook,med
+68610,map_lot,Greater Potentate's Cookbook [5],Land of Shadow (DLC),cookbook,med
+68620,map_lot,Greater Potentate's Cookbook [12],Land of Shadow (DLC),cookbook,med
+68650,map_lot,Greater Potentate's Cookbook [10],Land of Shadow (DLC),cookbook,med
+68660,map_lot,Greater Potentate's Cookbook [11],Land of Shadow (DLC),cookbook,med
+68690,map_lot,Greater Potentate's Cookbook [3],Scadu Altus (DLC),cookbook,med
+68700,map_lot,Greater Potentate's Cookbook [13],Land of Shadow (DLC),cookbook,med
+68720,map_lot,Greater Potentate's Cookbook [6],Jagged Peak (DLC),cookbook,med
+68730,map_lot,Greater Potentate's Cookbook [2],Land of Shadow (DLC),cookbook,med
+68740,map_lot,Ancient Dragon Knight's Cookbook [1],Scadu Altus (DLC),cookbook,med
+68750,map_lot,Mad Craftsman's Cookbook [1],Abyssal Woods (DLC),cookbook,med
+68770,map_lot,Fire Knight's Cookbook [1],Gravesite Plain (DLC),cookbook,med
+68780,map_lot,Ancient Dragon Knight's Cookbook [2],Scadu Altus (DLC),cookbook,med
+68790,map_lot,Loyal Knight's Cookbook,Land of Shadow (DLC),cookbook,med
+68800,map_lot,Battlefield Priest's Cookbook [1],Shadow Keep (DLC),cookbook,med
+68810,map_lot,Igon's Cookbook [1],Jagged Peak (DLC),cookbook,med
+68830,map_lot,Forager Brood Cookbook [7],Land of Shadow (DLC),cookbook,med
+68840,map_lot,St. Trina Disciple's Cookbook [3],Land of Shadow (DLC),cookbook,med
+68860,map_lot,Antiquity Scholar's Cookbook [2],Land of Shadow (DLC),cookbook,med
+68870,map_lot,Tibia's Cookbook,Land of Shadow (DLC),cookbook,med
+68880,map_lot,Mad Craftsman's Cookbook [3],Abyssal Woods (DLC),cookbook,med
+68900,map_lot,Fire Knight's Cookbook [2],Land of Shadow (DLC),cookbook,med
+68910,enemy_lot,Antiquity Scholar's Cookbook [1],Scadu Altus (DLC),cookbook,med
+68930,map_lot,Battlefield Priest's Cookbook [4],Shadow Keep (DLC),cookbook,med
+400150,map_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+400161,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+400220,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+400230,map_lot,Ancient Dragon Smithing Stone,Global / Filler (scattered by design),global_filler,na
+400280,map_lot,Haligtree Secret Medallion (Left),Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+400281,map_lot,,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+400284,map_lot,All-Knowing Gauntlets,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+400320,map_lot,Prosthesis-Wearer Heirloom,Miquella's Haligtree & Elphael,flag_prefix,med
+400325,map_lot,Somber Ancient Dragon Smithing Stone,Miquella's Haligtree & Elphael,flag_prefix,med
+400357,map_lot,Black Knifeprint,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+400400,map_lot,Ancient Dragon Smithing Stone,Global / Filler (scattered by design),global_filler,na
+400422,map_lot,Ancient Dragon Smithing Stone,Global / Filler (scattered by design),global_filler,na
+400722,map_lot,Gourmet Scorpion Stew,Mohgwyn / Consecrated-adjacent,flag_prefix,med
+510280,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+520120,map_lot,Glovewort Picker's Bell Bearing [1],Global / Filler (scattered by design),global_filler,na
+520180,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+520190,map_lot,Great Grave Glovewort,Global / Filler (scattered by design),global_filler,na
+520670,map_lot,Somber Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+530805,map_lot,Ancient Dragon Smithing Stone,Global / Filler (scattered by design),global_filler,na
+530861,map_lot,Somber Ancient Dragon Smithing Stone,Global / Filler (scattered by design),global_filler,na
+540424,map_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+540426,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+540428,map_lot,Somber Smithing Stone [9],Global / Filler (scattered by design),global_filler,na
+540500,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540502,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540504,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540506,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540508,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540520,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540522,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540526,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540528,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+540570,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540572,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540574,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540576,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540612,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540614,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540616,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540618,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540632,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540634,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540636,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540638,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540640,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540644,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540650,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540662,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540664,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540666,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+540912,map_lot,Somber Smithing Stone [9],Global / Filler (scattered by design),global_filler,na
+540914,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+540920,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+540922,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+10007082,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+10017010,map_lot,The Stormhawk King,Stormveil Castle,flag_prefix,med
+11007010,map_lot,Furlcalling Finger Remedy,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007015,map_lot,Erdtree Bow,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007020,map_lot,Hefty Beast Bone,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007025,map_lot,Celestial Dew,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007030,map_lot,Smithing Stone [4],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007035,map_lot,Deathbed Dress,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007045,map_lot,Lionel's Helm,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007050,map_lot,Cave Moss,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007055,map_lot,Hammer,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007060,map_lot,Preserving Boluses,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007065,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+11007070,map_lot,String,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007075,map_lot,Hero's Rune [1],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007080,map_lot,Upper-Class Robe,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007085,map_lot,Golden Rune [12],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007090,map_lot,Miranda Powder,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007095,map_lot,Guilty Hood,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007100,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+11007105,map_lot,Stormhawk Axe,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007110,map_lot,Warming Stone,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007115,map_lot,Cane Sword,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007120,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+11007125,map_lot,Black-Key Bolt,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007135,map_lot,Gravel Stone,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007140,map_lot,Fan Daggers,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007145,map_lot,Somber Smithing Stone [6],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007150,map_lot,Gold Firefly,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007155,map_lot,Hero's Rune [5],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007160,map_lot,Holy Grease,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007165,map_lot,Golden Rune [11],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007170,map_lot,Golden Rune [8],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007175,map_lot,Hero's Rune [2],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007180,map_lot,Old Fang,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007190,map_lot,Smithing Stone [4],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007215,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+11007230,map_lot,Lordsworn's Bolt,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007235,map_lot,Lightningproof Dried Liver,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007245,map_lot,Golden Rune [11],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007260,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+11007290,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+11007310,map_lot,Arteria Leaf,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007330,map_lot,Golden Rune [9],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007340,map_lot,Seedbed Curse,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007370,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+11007380,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+11007460,map_lot,Lightningproof Dried Liver,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007490,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+11007550,map_lot,Golden Rune [8],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007570,map_lot,Lost Ashes of War,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007660,map_lot,Golden Rune [9],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007680,map_lot,Dragonwound Grease,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007690,map_lot,Two Fingers' Prayerbook,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007700,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+11007770,map_lot,Old Fang,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007780,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+11007790,map_lot,Nascent Butterfly,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007810,map_lot,Fan Daggers,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007820,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+11007830,map_lot,Golden Rune [9],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007840,map_lot,Gravel Stone,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007860,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+11007870,map_lot,Furlcalling Finger Remedy,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007880,map_lot,Star Fist,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007890,map_lot,Holy Grease,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007900,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+11007910,map_lot,Golden Order Principia,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007920,map_lot,Somber Smithing Stone [5],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007930,map_lot,Holy Grease,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007940,map_lot,Holy Grease,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007960,map_lot,Erdtree Seal,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007970,map_lot,Coded Sword,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007980,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+11007983,enemy_lot,Somber Smithing Stone [4],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007989,enemy_lot,Gravel Stone Seal,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007990,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+11007994,map_lot,Blessed Dew Talisman,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007995,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+11007996,map_lot,Ritual Shield Talisman,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11007997,map_lot,Bolt of Gransax,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11057030,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+11057040,map_lot,Golden Sunflower,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11057050,map_lot,Hero's Rune [4],Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11057100,map_lot,Erdtree's Favor +2,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+11107700,map_lot,Assassin's Prayerbook,Leyndell / Roundtable / Shunning-Grounds,flag_prefix,med
+12017965,enemy_lot,Larval Tear,Eternal Cities & Underground Rivers,flag_prefix,med
+12017975,enemy_lot,Larval Tear,Eternal Cities & Underground Rivers,flag_prefix,med
+12017985,enemy_lot,Larval Tear,Eternal Cities & Underground Rivers,flag_prefix,med
+12017992,enemy_lot,Immunizing Horn Charm +1,Eternal Cities & Underground Rivers,flag_prefix,med
+12027840,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12027985,enemy_lot,Larval Tear,Eternal Cities & Underground Rivers,flag_prefix,med
+12027995,enemy_lot,Shining Horned Headband,Eternal Cities & Underground Rivers,flag_prefix,med
+12037560,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12037570,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12037580,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12037590,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12037900,map_lot,Lightning Bastard Sword,Eternal Cities & Underground Rivers,flag_prefix,med
+12037910,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12037990,enemy_lot,Prince of Death's Cyst,Eternal Cities & Underground Rivers,flag_prefix,med
+12057220,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057230,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057260,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057270,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057380,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057390,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057420,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057430,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057440,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057450,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057460,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057470,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057480,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057490,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057500,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057520,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057530,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057540,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057550,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057560,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057570,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057580,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057660,map_lot,,Eternal Cities & Underground Rivers,flag_prefix,med
+12057720,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057730,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12057740,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077190,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077200,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077210,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077220,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077230,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077240,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077260,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077270,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077280,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077290,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077520,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077530,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+12077540,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+14007997,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+15001210,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+15001300,enemy_lot,Ghost Glovewort [9],Miquella's Haligtree & Elphael,flag_prefix,med
+15001310,enemy_lot,Ghost Glovewort [9],Miquella's Haligtree & Elphael,flag_prefix,med
+15001320,enemy_lot,Ghost Glovewort [9],Miquella's Haligtree & Elphael,flag_prefix,med
+15001330,enemy_lot,Ghost Glovewort [9],Miquella's Haligtree & Elphael,flag_prefix,med
+15001340,enemy_lot,Ghost Glovewort [9],Miquella's Haligtree & Elphael,flag_prefix,med
+16007930,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+16007991,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+16007992,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+18007010,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+18007060,map_lot,Grave Glovewort [1],Global / Filler (scattered by design),global_filler,na
+20007900,enemy_lot,Revered Spirit Ash,Mohgwyn / Consecrated-adjacent,flag_prefix,med
+20017670,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+20017680,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+20017690,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+20017900,enemy_lot,Revered Spirit Ash,Mohgwyn / Consecrated-adjacent,flag_prefix,med
+21007030,map_lot,Redflesh Mushroom,DLC Interior,flag_prefix,med
+21007040,map_lot,Golden Vow,DLC Interior,flag_prefix,med
+21007060,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+21007070,map_lot,Talisman of Lord's Bestowal,DLC Interior,flag_prefix,med
+21007080,map_lot,Smithing Stone [8],DLC Interior,flag_prefix,med
+21007090,map_lot,Golden Vow,DLC Interior,flag_prefix,med
+21007110,map_lot,Holyproof Pickled Liver,DLC Interior,flag_prefix,med
+21007120,map_lot,Messmerfire Grease,DLC Interior,flag_prefix,med
+21007130,map_lot,Drawstring Golden Grease,DLC Interior,flag_prefix,med
+21007140,map_lot,Smithing Stone [8],DLC Interior,flag_prefix,med
+21007160,map_lot,Somber Smithing Stone [8],DLC Interior,flag_prefix,med
+21007170,map_lot,Bone Dart,DLC Interior,flag_prefix,med
+21007180,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+21007190,map_lot,Silver-Pickled Fowl Foot,DLC Interior,flag_prefix,med
+21007220,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007230,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007250,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007270,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007280,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007310,map_lot,Strip of White Flesh,DLC Interior,flag_prefix,med
+21007320,map_lot,Great Grave Glovewort,DLC Interior,flag_prefix,med
+21007330,map_lot,Fireproof Pickled Liver,DLC Interior,flag_prefix,med
+21007360,map_lot,Stormhawk Feather,DLC Interior,flag_prefix,med
+21007390,map_lot,Ember of Messmer,DLC Interior,flag_prefix,med
+21007400,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+21007410,map_lot,Hefty Beast Bone,DLC Interior,flag_prefix,med
+21007420,map_lot,Crab Eggs,DLC Interior,flag_prefix,med
+21007430,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007440,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007460,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007480,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007490,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007540,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007550,map_lot,Somber Smithing Stone [5],DLC Interior,flag_prefix,med
+21007590,map_lot,Somber Smithing Stone [5],DLC Interior,flag_prefix,med
+21007600,map_lot,Shadow Realm Rune [5],DLC Interior,flag_prefix,med
+21007610,map_lot,Kukri,DLC Interior,flag_prefix,med
+21007620,map_lot,Smithing Stone [4],DLC Interior,flag_prefix,med
+21007630,map_lot,Crab Eggs,DLC Interior,flag_prefix,med
+21007640,map_lot,Shadow Sunflower,DLC Interior,flag_prefix,med
+21007650,map_lot,Fire Knight's Seal,DLC Interior,flag_prefix,med
+21007670,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007680,map_lot,String,DLC Interior,flag_prefix,med
+21007690,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007760,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007770,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007780,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007790,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007800,map_lot,Iris of Grace,DLC Interior,flag_prefix,med
+21007810,map_lot,Marika's Rune,DLC Interior,flag_prefix,med
+21007820,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007830,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007840,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007860,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007870,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007880,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007890,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007900,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007910,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007920,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007930,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007940,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007950,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007960,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007970,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007980,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21007990,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017020,map_lot,Revered Spirit Ash,DLC Interior,flag_prefix,med
+21017030,map_lot,Ember of Messmer,DLC Interior,flag_prefix,med
+21017040,map_lot,Fire Coil,DLC Interior,flag_prefix,med
+21017060,map_lot,Smithing Stone [8],DLC Interior,flag_prefix,med
+21017070,map_lot,Black Pyrefly,DLC Interior,flag_prefix,med
+21017080,map_lot,Beast Horn,DLC Interior,flag_prefix,med
+21017090,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+21017100,map_lot,Boltdrake Talisman +3,DLC Interior,flag_prefix,med
+21017120,map_lot,Pearldrake Talisman +3,DLC Interior,flag_prefix,med
+21017130,map_lot,Blessed Bone Shard,DLC Interior,flag_prefix,med
+21017140,map_lot,Furlcalling Finger Remedy,DLC Interior,flag_prefix,med
+21017150,map_lot,,DLC Interior,flag_prefix,med
+21017160,map_lot,Lump of Flesh,DLC Interior,flag_prefix,med
+21017170,map_lot,Beast Horn,DLC Interior,flag_prefix,med
+21017180,map_lot,Storehouse Cross Message,DLC Interior,flag_prefix,med
+21017220,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017240,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017260,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017320,map_lot,Shadow Realm Rune [5],DLC Interior,flag_prefix,med
+21017330,map_lot,Holyproof Pickled Liver,DLC Interior,flag_prefix,med
+21017340,map_lot,Secret Rite Scroll,DLC Interior,flag_prefix,med
+21017350,map_lot,Redflesh Mushroom,DLC Interior,flag_prefix,med
+21017380,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017390,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017400,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+21017410,map_lot,Fire Coil,DLC Interior,flag_prefix,med
+21017420,map_lot,Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+21017430,map_lot,Silver-Pickled Fowl Foot,DLC Interior,flag_prefix,med
+21017440,map_lot,Spirit Calculus,DLC Interior,flag_prefix,med
+21017470,map_lot,Ember of Messmer,DLC Interior,flag_prefix,med
+21017480,map_lot,Shadow Realm Rune [5],DLC Interior,flag_prefix,med
+21017490,map_lot,Ember of Messmer,DLC Interior,flag_prefix,med
+21017540,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017550,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017560,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017590,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017600,map_lot,Somber Smithing Stone [9],DLC Interior,flag_prefix,med
+21017610,map_lot,Glintslab Firefly,DLC Interior,flag_prefix,med
+21017620,map_lot,Carian Thrusting Shield,DLC Interior,flag_prefix,med
+21017630,map_lot,Fire Coil,DLC Interior,flag_prefix,med
+21017640,map_lot,Ghost Glovewort [3],DLC Interior,flag_prefix,med
+21017650,map_lot,[Incantation] Fire Serpent,DLC Interior,flag_prefix,med
+21017660,map_lot,Shadow Sunflower,DLC Interior,flag_prefix,med
+21017670,map_lot,Blessed Bone Shard,DLC Interior,flag_prefix,med
+21017680,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017690,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017750,map_lot,Thin Beast Bones,DLC Interior,flag_prefix,med
+21017780,map_lot,[Incantation] Wrath from Afar,DLC Interior,flag_prefix,med
+21017790,map_lot,Rune of an Unsung Hero,DLC Interior,flag_prefix,med
+21017810,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017830,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017840,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017850,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017860,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017870,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017880,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017890,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017900,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017910,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017920,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017930,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017940,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017960,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017970,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017980,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21017990,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027000,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027010,map_lot,Gold-Pickled Fowl Foot,DLC Interior,flag_prefix,med
+21027020,map_lot,Ash of War: Wall of Sparks,DLC Interior,flag_prefix,med
+21027040,map_lot,Iris of Grace,DLC Interior,flag_prefix,med
+21027070,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027080,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027090,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027100,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027110,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027120,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027130,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027140,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027150,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027160,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027170,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027180,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027190,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027200,map_lot,Smithing Stone [3],DLC Interior,flag_prefix,med
+21027210,map_lot,Beast Liver,DLC Interior,flag_prefix,med
+21027220,map_lot,Beast Blood,DLC Interior,flag_prefix,med
+21027240,map_lot,Redflesh Mushroom,DLC Interior,flag_prefix,med
+21027260,map_lot,Somber Smithing Stone [2],DLC Interior,flag_prefix,med
+21027280,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027290,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027300,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027310,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027320,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027330,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027340,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027350,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027360,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027370,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027380,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027390,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027400,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+21027985,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+22007110,map_lot,St. Trina's Arrow,m22,flag_prefix,med
+22007120,map_lot,Deep-Purple Lily,m22,flag_prefix,med
+22007130,map_lot,Shadow Realm Rune [3],m22,flag_prefix,med
+22007140,map_lot,Grave Glovewort [8],m22,flag_prefix,med
+22007150,map_lot,Velvet Sword of St. Trina,m22,flag_prefix,med
+22007160,map_lot,Grave Glovewort [3],m22,flag_prefix,med
+22007170,map_lot,Grave Glovewort [2],m22,flag_prefix,med
+22007190,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+22007230,map_lot,Dewgem,m22,flag_prefix,med
+22007910,enemy_lot,Smithing Stone [8],m22,flag_prefix,med
+28007070,map_lot,Golden Horn Tender,m28,flag_prefix,med
+28007080,map_lot,Shadow Realm Rune [7],m28,flag_prefix,med
+28007090,map_lot,Swollen Grape,m28,flag_prefix,med
+28007110,map_lot,Revered Spirit Ash,m28,flag_prefix,med
+28007900,enemy_lot,Revered Spirit Ash,m28,flag_prefix,med
+30017010,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30017020,map_lot,"Prattling Pate ""Please help""",Hero's Graves (Catacombs),flag_prefix,med
+30027000,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30027010,map_lot,Smoldering Butterfly,Hero's Graves (Catacombs),flag_prefix,med
+30027020,map_lot,Wandering Noble Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30027030,map_lot,"Prattling Pate ""Hello""",Hero's Graves (Catacombs),flag_prefix,med
+30047000,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30067000,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30067010,map_lot,Nox Mirrorhelm,Hero's Graves (Catacombs),flag_prefix,med
+30067020,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+30067030,map_lot,Page Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30067040,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+30067050,map_lot,Old Fang,Hero's Graves (Catacombs),flag_prefix,med
+30067060,map_lot,Hefty Beast Bone,Hero's Graves (Catacombs),flag_prefix,med
+30067070,map_lot,Scythe,Hero's Graves (Catacombs),flag_prefix,med
+30067080,map_lot,"Prattling Pate ""Wonderful""",Hero's Graves (Catacombs),flag_prefix,med
+30077010,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+30077020,map_lot,Magic Grease,Hero's Graves (Catacombs),flag_prefix,med
+30077900,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+30087010,map_lot,Crimson Seed Talisman,Hero's Graves (Catacombs),flag_prefix,med
+30087020,map_lot,Leyndell Soldier Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30087030,map_lot,Dragoncrest Shield Talisman +1,Hero's Graves (Catacombs),flag_prefix,med
+30087040,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30087050,map_lot,"Prattling Pate ""Let's get to it""",Hero's Graves (Catacombs),flag_prefix,med
+30087060,map_lot,Human Bone Shard,Hero's Graves (Catacombs),flag_prefix,med
+30087970,enemy_lot,Ghost Glovewort [4],Hero's Graves (Catacombs),flag_prefix,med
+30087980,enemy_lot,Ghost Glovewort [4],Hero's Graves (Catacombs),flag_prefix,med
+30087990,enemy_lot,Ghost Glovewort [4],Hero's Graves (Catacombs),flag_prefix,med
+30097010,map_lot,Ringed Finger,Hero's Graves (Catacombs),flag_prefix,med
+30097020,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+30097030,map_lot,Smoldering Butterfly,Hero's Graves (Catacombs),flag_prefix,med
+30097040,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+30097060,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30097070,map_lot,Beast Blood,Hero's Graves (Catacombs),flag_prefix,med
+30097700,enemy_lot,Mantis Blade,Hero's Graves (Catacombs),flag_prefix,med
+30097800,enemy_lot,Bloodhound Knight Helm,Hero's Graves (Catacombs),flag_prefix,med
+30107010,map_lot,Holy Grease,Hero's Graves (Catacombs),flag_prefix,med
+30107020,map_lot,Fan Daggers,Hero's Graves (Catacombs),flag_prefix,med
+30107030,map_lot,Golden Rune [7],Hero's Graves (Catacombs),flag_prefix,med
+30107040,map_lot,Crucible Feather Talisman,Hero's Graves (Catacombs),flag_prefix,med
+30107060,map_lot,Great Dragonfly Head,Hero's Graves (Catacombs),flag_prefix,med
+30107070,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+30107080,map_lot,Vulgar Militia Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30117010,map_lot,Bloodrose,Hero's Graves (Catacombs),flag_prefix,med
+30117020,map_lot,Uchigatana,Hero's Graves (Catacombs),flag_prefix,med
+30127000,map_lot,Holy Grease,Hero's Graves (Catacombs),flag_prefix,med
+30127010,map_lot,Winged Misbegotten Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30127020,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+30127030,map_lot,"Prattling Pate ""Apologies""",Hero's Graves (Catacombs),flag_prefix,med
+30127900,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+30137960,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30137970,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30137980,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30137990,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30147000,map_lot,Imp Head (Wolf),Hero's Graves (Catacombs),flag_prefix,med
+30147010,map_lot,Grave Violet,Hero's Graves (Catacombs),flag_prefix,med
+30147020,map_lot,Sacramental Bud,Hero's Graves (Catacombs),flag_prefix,med
+30147030,map_lot,Aeonian Butterfly,Hero's Graves (Catacombs),flag_prefix,med
+30147040,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+30147900,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+30157000,map_lot,Miranda Sprout Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30167000,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+30167010,map_lot,Magic Grease,Hero's Graves (Catacombs),flag_prefix,med
+30167020,map_lot,Radahn Soldier Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30167030,map_lot,Silver-Pickled Fowl Foot,Hero's Graves (Catacombs),flag_prefix,med
+30167040,map_lot,[Sorcery] Collapsing Stars,Hero's Graves (Catacombs),flag_prefix,med
+30177000,map_lot,Cranial Vessel Candlestand,Hero's Graves (Catacombs),flag_prefix,med
+30177010,map_lot,"[Incantation] Flame, Protect Me",Hero's Graves (Catacombs),flag_prefix,med
+30177020,map_lot,Lightning Bastard Sword,Hero's Graves (Catacombs),flag_prefix,med
+30177030,map_lot,Giant's Seal,Hero's Graves (Catacombs),flag_prefix,med
+30177040,map_lot,Freezing Grease,Hero's Graves (Catacombs),flag_prefix,med
+30177060,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+30187000,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+30187010,map_lot,Stimulating Boluses,Hero's Graves (Catacombs),flag_prefix,med
+30187020,map_lot,Nascent Butterfly,Hero's Graves (Catacombs),flag_prefix,med
+30187030,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30187070,map_lot,Fire Monk Ashes,Hero's Graves (Catacombs),flag_prefix,med
+30187950,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30187960,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30187970,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30187980,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30187990,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+30197000,map_lot,Golden Rune [12],Hero's Graves (Catacombs),flag_prefix,med
+30197010,map_lot,Rejuvenating Boluses,Hero's Graves (Catacombs),flag_prefix,med
+30197020,map_lot,Root Resin,Hero's Graves (Catacombs),flag_prefix,med
+30197030,map_lot,Human Bone Shard,Hero's Graves (Catacombs),flag_prefix,med
+30197040,map_lot,Imp Head (Elder),Hero's Graves (Catacombs),flag_prefix,med
+30197900,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+31027000,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+31027010,map_lot,Furlcalling Finger Remedy,Caves,flag_prefix,med
+31027020,map_lot,Poisonbone Dart,Caves,flag_prefix,med
+31027030,map_lot,Arteria Leaf,Caves,flag_prefix,med
+31027050,map_lot,Immunizing White Cured Meat,Caves,flag_prefix,med
+31037000,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+31037010,map_lot,Glowstone,Caves,flag_prefix,med
+31067010,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+31067030,map_lot,Crystal Staff,Caves,flag_prefix,med
+31067100,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+31077010,map_lot,Lump of Flesh,Caves,flag_prefix,med
+31077020,map_lot,Preserving Boluses,Caves,flag_prefix,med
+31077030,map_lot,Mushroom Head,Caves,flag_prefix,med
+31077040,map_lot,Poisonbone Dart,Caves,flag_prefix,med
+31077050,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+31077060,map_lot,Golden Rune [7],Caves,flag_prefix,med
+31077070,map_lot,Immunizing Cured Meat,Caves,flag_prefix,med
+31097010,map_lot,Sliver of Meat,Caves,flag_prefix,med
+31097020,map_lot,Arteria Leaf,Caves,flag_prefix,med
+31097030,map_lot,Lump of Flesh,Caves,flag_prefix,med
+31097040,map_lot,Coil Shield,Caves,flag_prefix,med
+31107010,map_lot,Golden Rune [12],Caves,flag_prefix,med
+31107050,map_lot,Bull-Goat's Talisman,Caves,flag_prefix,med
+31107110,map_lot,Golden Rune [8],Caves,flag_prefix,med
+31107120,map_lot,Beast Blood,Caves,flag_prefix,med
+31117010,map_lot,Lost Ashes of War,Caves,flag_prefix,med
+31117020,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+31117030,map_lot,Stimulating Boluses,Caves,flag_prefix,med
+31117040,map_lot,Somber Smithing Stone [4],Caves,flag_prefix,med
+31117080,map_lot,Preserving Boluses,Caves,flag_prefix,med
+31117090,map_lot,Crystal Dart,Caves,flag_prefix,med
+31117100,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+31117110,map_lot,Glowstone,Caves,flag_prefix,med
+31117220,map_lot,Crystalian Ashes,Caves,flag_prefix,med
+31117990,enemy_lot,Ghost Glovewort [4],Caves,flag_prefix,med
+31127010,map_lot,Freezing Grease,Caves,flag_prefix,med
+31127020,map_lot,Hero's Rune [2],Caves,flag_prefix,med
+31127030,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+31127040,map_lot,Miquella's Lily,Caves,flag_prefix,med
+31127050,map_lot,Nascent Butterfly,Caves,flag_prefix,med
+31127060,map_lot,Thawfrost Boluses,Caves,flag_prefix,med
+31127070,map_lot,Crystal Dart,Caves,flag_prefix,med
+31127080,map_lot,Thawfrost Boluses,Caves,flag_prefix,med
+31127090,map_lot,Freezing Grease,Caves,flag_prefix,med
+31127100,map_lot,Freezing Grease,Caves,flag_prefix,med
+31127110,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+31127120,map_lot,Spiritflame Arrow,Caves,flag_prefix,med
+35007750,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+35007920,map_lot,Mushroom,Divine Tower,flag_prefix,med
+35007960,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+35007990,enemy_lot,Omen Bairn,Divine Tower,flag_prefix,med
+35007995,enemy_lot,Ghost Glovewort [6],Divine Tower,flag_prefix,med
+35007997,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+39207010,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+39207020,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+39207030,map_lot,Somber Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+39207050,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+39207060,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+39207070,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+39207080,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+39207100,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+39207110,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+39207130,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+39207140,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+39207150,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+39207200,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+39207970,enemy_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+39207980,enemy_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+39207990,enemy_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+40007050,map_lot,Grave Glovewort [2],Global / Filler (scattered by design),global_filler,na
+40007080,map_lot,Ghost Glovewort [4],Global / Filler (scattered by design),global_filler,na
+40007100,map_lot,Ghost Glovewort [5],Global / Filler (scattered by design),global_filler,na
+40007110,map_lot,Grave Glovewort [7],Global / Filler (scattered by design),global_filler,na
+40007120,map_lot,Rada Fruit,Global / Filler (scattered by design),global_filler,na
+40017010,map_lot,Grave Glovewort [3],Global / Filler (scattered by design),global_filler,na
+40017030,map_lot,Ghost Glovewort [5],Global / Filler (scattered by design),global_filler,na
+40017040,map_lot,Ghost Glovewort [3],Global / Filler (scattered by design),global_filler,na
+40017060,map_lot,Ghost Glovewort [6],Global / Filler (scattered by design),global_filler,na
+40017100,map_lot,Grave Glovewort [4],Global / Filler (scattered by design),global_filler,na
+40017120,map_lot,Great Ghost Glovewort,Global / Filler (scattered by design),global_filler,na
+40017130,map_lot,Ghost Glovewort [8],Global / Filler (scattered by design),global_filler,na
+40027010,map_lot,Grave Glovewort [1],Global / Filler (scattered by design),global_filler,na
+40027100,map_lot,Ghost Glovewort [2],Global / Filler (scattered by design),global_filler,na
+40027140,map_lot,Ghost Glovewort [9],Global / Filler (scattered by design),global_filler,na
+40027210,map_lot,Ghost Glovewort [4],Global / Filler (scattered by design),global_filler,na
+40027900,enemy_lot,Great Ghost Glovewort,Global / Filler (scattered by design),global_filler,na
+41007970,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41007975,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41007980,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41007985,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41007990,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41007995,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41017010,map_lot,Bolt,DLC Legacy Dungeon,flag_prefix,med
+41017020,map_lot,Stalwart Horn Charm +2,DLC Legacy Dungeon,flag_prefix,med
+41017030,map_lot,Frozen Maggot,DLC Legacy Dungeon,flag_prefix,med
+41017100,map_lot,Broken Rune,DLC Legacy Dungeon,flag_prefix,med
+41017110,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+41017120,map_lot,Invigorating Cured Meat,DLC Legacy Dungeon,flag_prefix,med
+41017130,map_lot,Broken Rune,DLC Legacy Dungeon,flag_prefix,med
+41017200,map_lot,Broken Rune,DLC Legacy Dungeon,flag_prefix,med
+41017230,map_lot,Innard Meat,DLC Legacy Dungeon,flag_prefix,med
+41017240,map_lot,Raw Meat Dumpling,Global / Filler (scattered by design),global_filler,na
+41017310,map_lot,Silver Horn Tender,DLC Legacy Dungeon,flag_prefix,med
+41017975,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41017980,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41017985,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41017990,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41017995,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41027985,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41027990,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+41027995,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+42007100,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+42007110,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+42007130,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+42007140,map_lot,Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+42007160,map_lot,Somber Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+42007170,map_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+42027020,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+42027040,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+42027070,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+42027080,map_lot,Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+43017030,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+43017040,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+99017000,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1033447010,map_lot,Raw Meat Dumpling,Global / Filler (scattered by design),global_filler,na
+1033447020,map_lot,Raw Meat Dumpling,Global / Filler (scattered by design),global_filler,na
+1033447030,map_lot,Raw Meat Dumpling,Global / Filler (scattered by design),global_filler,na
+1033447040,map_lot,Raw Meat Dumpling,Global / Filler (scattered by design),global_filler,na
+1033457990,enemy_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1033477010,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1033477030,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+1035417980,enemy_lot,Ghost Glovewort [2],Global / Filler (scattered by design),global_filler,na
+1035417990,enemy_lot,Ghost Glovewort [2],Global / Filler (scattered by design),global_filler,na
+1035427010,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035427030,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+1035467020,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1035467100,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1035497020,map_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1035497990,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507010,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1035507020,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1035507050,map_lot,Somber Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+1035507060,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1035507080,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1035507100,map_lot,Somber Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+1035507130,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507140,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1035507160,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+1035507170,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1035507300,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1035507610,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+1035507620,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+1035507630,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+1035507650,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507660,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507670,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507680,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507690,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507700,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507710,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507720,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507730,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507740,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507750,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507760,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507770,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507780,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507790,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035507800,enemy_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1035547980,enemy_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1036447040,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1036447300,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1036457110,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1036477000,map_lot,Somber Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+1036477100,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1036487100,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1036507010,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1036517000,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1036547990,enemy_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1037427010,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+1037427990,enemy_lot,Ghost Glovewort [2],Global / Filler (scattered by design),global_filler,na
+1037437000,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1037437010,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+1037457100,map_lot,Smithing Stone [3],Global / Filler (scattered by design),global_filler,na
+1037487100,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1038467400,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1038477030,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1038477100,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1038497010,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1038497040,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1038517080,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1038537010,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1038537020,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1038537030,map_lot,Golden Rune [7],Global / Filler (scattered by design),global_filler,na
+1038537040,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1038537050,map_lot,Somber Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+1039417020,map_lot,Somber Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1039447980,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+1039447990,enemy_lot,Living Jar Shard,Global / Filler (scattered by design),global_filler,na
+1039507010,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1039507020,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1039537750,enemy_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+1039547010,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1039547020,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+1039547060,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1039547070,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1039547080,map_lot,Somber Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+1039547090,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+1039547110,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1039547150,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1039547160,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1039547200,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+1039547240,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+1039547260,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1039547980,enemy_lot,Ghost Glovewort [4],Global / Filler (scattered by design),global_filler,na
+1039547990,enemy_lot,Ghost Glovewort [4],Global / Filler (scattered by design),global_filler,na
+1040527010,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1040527020,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1040527030,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1040527040,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1040527050,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1040547700,enemy_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+1041337010,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1041357010,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1041387030,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+1041387040,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1041387100,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1041547400,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1041557010,map_lot,Raw Meat Dumpling,Global / Filler (scattered by design),global_filler,na
+1042337200,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1042527010,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1042527030,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+1042527990,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1042537010,map_lot,Somber Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+1042547010,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1042547100,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+1043317500,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+1043327990,enemy_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1043337010,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+1043397020,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+1043397200,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1043527700,enemy_lot,Golden Rune [12],Global / Filler (scattered by design),global_filler,na
+1043527750,enemy_lot,Golden Rune [13],Global / Filler (scattered by design),global_filler,na
+1043527760,enemy_lot,Golden Rune [13],Global / Filler (scattered by design),global_filler,na
+1043537000,map_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1043537010,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+1043537040,map_lot,Smithing Stone [5],Global / Filler (scattered by design),global_filler,na
+1043537050,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1043537060,map_lot,Golden Rune [7],Global / Filler (scattered by design),global_filler,na
+1044347010,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+1044347060,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1044347070,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1044357020,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1044357060,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045347000,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1045357000,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045357020,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045357030,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1045357040,map_lot,Golden Rune [3],Global / Filler (scattered by design),global_filler,na
+1045357050,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+1045357060,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045357070,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+1045357080,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045357090,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045377000,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+1045377010,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1045377050,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045377090,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1045387020,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045387030,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045387040,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045387050,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+1045387060,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1045387070,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1045387080,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1045397000,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1045397040,map_lot,Smithing Stone [2],Global / Filler (scattered by design),global_filler,na
+1045397050,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045397060,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045397070,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045397080,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045397090,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1045397100,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+1045397110,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1045397140,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+1047397040,map_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1047407000,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1047407020,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1047407030,map_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1047557040,map_lot,Golden Rune [7],Global / Filler (scattered by design),global_filler,na
+1048407010,map_lot,Golden Rune [1],Global / Filler (scattered by design),global_filler,na
+1048407020,map_lot,Golden Rune [6],Global / Filler (scattered by design),global_filler,na
+1048407030,map_lot,Golden Rune [2],Global / Filler (scattered by design),global_filler,na
+1048557700,map_lot,Ancient Dragon Smithing Stone,Global / Filler (scattered by design),global_filler,na
+1048567800,map_lot,Somber Ancient Dragon Smithing Stone,Global / Filler (scattered by design),global_filler,na
+1048577900,map_lot,Ghost Glovewort [9],Global / Filler (scattered by design),global_filler,na
+1048577910,map_lot,Ghost Glovewort [9],Global / Filler (scattered by design),global_filler,na
+1048577920,map_lot,Ghost Glovewort [9],Global / Filler (scattered by design),global_filler,na
+1048577930,map_lot,Ghost Glovewort [9],Global / Filler (scattered by design),global_filler,na
+1049377700,map_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1049387010,map_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1049387030,map_lot,Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1049387070,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+1049387080,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1049387110,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1049397000,map_lot,Stonesword Key,Global / Filler (scattered by design),global_filler,na
+1049397020,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+1049547700,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+1049557300,map_lot,Somber Smithing Stone [9],Global / Filler (scattered by design),global_filler,na
+1049557800,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1049557810,map_lot,Golden Rune [11],Global / Filler (scattered by design),global_filler,na
+1049567350,map_lot,Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+1049577700,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1049577710,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+1049577720,map_lot,Somber Smithing Stone [9],Global / Filler (scattered by design),global_filler,na
+1050387950,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1050387960,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1050387970,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1050387980,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1050387990,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1050537700,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1050537980,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1050537990,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051357990,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1051367700,map_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1051367800,map_lot,Somber Smithing Stone [4],Global / Filler (scattered by design),global_filler,na
+1051397960,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1051397970,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1051397980,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1051397990,enemy_lot,Golden Rune [9],Global / Filler (scattered by design),global_filler,na
+1051437020,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1051537700,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+1051537950,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051537960,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051537970,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051537980,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051537990,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051547960,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051547970,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051547980,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051547990,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051567700,map_lot,Somber Smithing Stone [8],Global / Filler (scattered by design),global_filler,na
+1051577800,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1051577810,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1052547980,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1052547990,enemy_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1052557040,map_lot,Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1052577800,map_lot,Golden Seed,Global / Filler (scattered by design),global_filler,na
+1052577810,map_lot,Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+1052587800,map_lot,Golden Rune [4],Global / Filler (scattered by design),global_filler,na
+1052587810,map_lot,Golden Rune [5],Global / Filler (scattered by design),global_filler,na
+1052587820,map_lot,Golden Rune [10],Global / Filler (scattered by design),global_filler,na
+1053567700,map_lot,Golden Rune [12],Global / Filler (scattered by design),global_filler,na
+1053567710,map_lot,Golden Rune [12],Global / Filler (scattered by design),global_filler,na
+1053567720,map_lot,Golden Rune [12],Global / Filler (scattered by design),global_filler,na
+2044417995,enemy_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2044457950,enemy_lot,Spirit Calculus,Land of Shadow (DLC),flag_prefix,med
+2044467950,enemy_lot,Revered Spirit Ash,Land of Shadow (DLC),flag_prefix,med
+2044477000,map_lot,Ghost Glovewort [2],Land of Shadow (DLC),flag_prefix,med
+2044477010,map_lot,Leather Headband,Land of Shadow (DLC),flag_prefix,med
+2044477020,map_lot,Beast Blood,Land of Shadow (DLC),flag_prefix,med
+2044477030,map_lot,Lump of Flesh,Land of Shadow (DLC),flag_prefix,med
+2044477040,map_lot,Throwing Dagger,Land of Shadow (DLC),flag_prefix,med
+2044477050,map_lot,Somber Smithing Stone [1],Land of Shadow (DLC),flag_prefix,med
+2044477900,map_lot,Larval Tear,Land of Shadow (DLC),flag_prefix,med
+2045417950,enemy_lot,Bloodfiend's Arm,Land of Shadow (DLC),flag_prefix,low
+2045427000,map_lot,Smithing Stone [3],Land of Shadow (DLC),flag_prefix,low
+2045427700,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2045437000,map_lot,Shadow Realm Rune [1],Land of Shadow (DLC),flag_prefix,low
+2045437700,map_lot,Ash of War: Savage Lion's Claw,Land of Shadow (DLC),flag_prefix,low
+2045447000,map_lot,Whiteflesh Mushroom,Land of Shadow (DLC),flag_prefix,low
+2045447010,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045447020,map_lot,Gravebird Armor,Land of Shadow (DLC),flag_prefix,low
+2045457000,map_lot,Kukri,Land of Shadow (DLC),flag_prefix,low
+2045457010,map_lot,Grave Glovewort [5],Land of Shadow (DLC),flag_prefix,low
+2045457020,map_lot,Spirit Calculus,Land of Shadow (DLC),flag_prefix,low
+2045467500,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,low
+2045467995,enemy_lot,Sacred Bloody Flesh,Land of Shadow (DLC),flag_prefix,low
+2045477400,map_lot,Devonia's Hammer,Land of Shadow (DLC),flag_prefix,low
+2045477500,map_lot,Sword of Light,Land of Shadow (DLC),flag_prefix,low
+2045477510,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477520,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477530,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477540,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477550,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477560,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477570,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477580,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477590,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2045477600,map_lot,,Land of Shadow (DLC),flag_prefix,low
+2046397000,map_lot,Grave Glovewort [2],Land of Shadow (DLC),flag_prefix,med
+2046397020,map_lot,Great Grave Glovewort,Land of Shadow (DLC),flag_prefix,med
+2046397030,map_lot,Fireproof Pickled Liver,Land of Shadow (DLC),flag_prefix,med
+2046397040,map_lot,Gravebird Ashes,Land of Shadow (DLC),flag_prefix,med
+2046397050,map_lot,Grave Glovewort [8],Land of Shadow (DLC),flag_prefix,med
+2046397060,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2046407000,map_lot,Pata,Land of Shadow (DLC),flag_prefix,med
+2046407001,map_lot,Oathseeker Knight Helm,Land of Shadow (DLC),flag_prefix,med
+2046407002,map_lot,Oathseeker Knight Armor,Land of Shadow (DLC),flag_prefix,med
+2046407003,map_lot,Oathseeker Knight Gauntlets,Land of Shadow (DLC),flag_prefix,med
+2046407004,map_lot,Oathseeker Knight Greaves,Land of Shadow (DLC),flag_prefix,med
+2046407040,map_lot,Great Grave Glovewort,Land of Shadow (DLC),flag_prefix,med
+2046407050,map_lot,Ghost Glovewort [7],Land of Shadow (DLC),flag_prefix,med
+2046407060,map_lot,Ghost Glovewort [9],Land of Shadow (DLC),flag_prefix,med
+2046407700,map_lot,Blessed Blue Dew Talisman,Land of Shadow (DLC),flag_prefix,med
+2046427700,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2046427980,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2046437000,map_lot,Ballista Bolt,Land of Shadow (DLC),flag_prefix,med
+2046437010,map_lot,Lost Ashes of War,Land of Shadow (DLC),flag_prefix,med
+2046437020,map_lot,Shadow Realm Rune [1],Land of Shadow (DLC),flag_prefix,med
+2046437040,map_lot,Smithing Stone [6],Global / Filler (scattered by design),global_filler,na
+2046437700,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2046437710,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2046447000,map_lot,Broken Rune,Land of Shadow (DLC),flag_prefix,med
+2046447010,map_lot,Human Bone Shard,Land of Shadow (DLC),flag_prefix,med
+2046447020,map_lot,Fly Mold,Land of Shadow (DLC),flag_prefix,med
+2046447030,map_lot,Ailment Talisman,Land of Shadow (DLC),flag_prefix,med
+2046447050,map_lot,Silver Horn Tender,Land of Shadow (DLC),flag_prefix,med
+2046447060,map_lot,Fly Mold,Land of Shadow (DLC),flag_prefix,med
+2046447070,map_lot,Black Pyrefly,Land of Shadow (DLC),flag_prefix,med
+2046447700,map_lot,Revered Spirit Ash,Land of Shadow (DLC),flag_prefix,med
+2046447710,map_lot,Mushroom-Seller's Bell Bearing [1],Land of Shadow (DLC),flag_prefix,med
+2046447900,map_lot,Larval Tear,Land of Shadow (DLC),flag_prefix,med
+2046457950,enemy_lot,Rauh Burrow,Land of Shadow (DLC),flag_prefix,med
+2046467000,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2046467010,map_lot,Redflesh Mushroom,Land of Shadow (DLC),flag_prefix,med
+2046467020,map_lot,Smithing Stone [8],Land of Shadow (DLC),flag_prefix,med
+2046467800,map_lot,Larval Tear,Land of Shadow (DLC),flag_prefix,med
+2046477700,map_lot,Somber Smithing Stone [8],Land of Shadow (DLC),flag_prefix,med
+2046477950,enemy_lot,Revered Spirit Ash,Land of Shadow (DLC),flag_prefix,med
+2046477955,enemy_lot,Spirit Calculus,Land of Shadow (DLC),flag_prefix,med
+2046477960,enemy_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2046477970,enemy_lot,Fire Spritestone,Land of Shadow (DLC),flag_prefix,med
+2047377000,map_lot,Whiteflesh Mushroom,Land of Shadow (DLC),flag_prefix,med
+2047387000,map_lot,Grave Glovewort [7],Land of Shadow (DLC),flag_prefix,med
+2047387010,map_lot,Grave Glovewort [9],Land of Shadow (DLC),flag_prefix,med
+2047397070,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2047397995,enemy_lot,Starlight Shards,Land of Shadow (DLC),flag_prefix,med
+2047407000,map_lot,Glass Shard,Land of Shadow (DLC),flag_prefix,med
+2047407010,map_lot,Black Pyrefly,Land of Shadow (DLC),flag_prefix,med
+2047407020,map_lot,Arrow,Land of Shadow (DLC),flag_prefix,med
+2047407030,map_lot,Lump of Flesh,Land of Shadow (DLC),flag_prefix,med
+2047407100,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2047407710,map_lot,Herbalist's Bell Bearing,Land of Shadow (DLC),flag_prefix,med
+2047407900,map_lot,Larval Tear,Land of Shadow (DLC),flag_prefix,med
+2047407980,map_lot,,Land of Shadow (DLC),flag_prefix,med
+2047417000,map_lot,Black Pyrefly,Land of Shadow (DLC),flag_prefix,med
+2047417010,map_lot,Shadow Realm Rune [2],Land of Shadow (DLC),flag_prefix,med
+2047417020,map_lot,Furlcalling Finger Remedy,Land of Shadow (DLC),flag_prefix,med
+2047417030,map_lot,Redflesh Mushroom,Land of Shadow (DLC),flag_prefix,med
+2047417060,map_lot,Black Pyrefly,Land of Shadow (DLC),flag_prefix,med
+2047417100,map_lot,Thin Beast Bones,Land of Shadow (DLC),flag_prefix,med
+2047417110,map_lot,Mushroom-Seller's Bell Bearing [2],Land of Shadow (DLC),flag_prefix,med
+2047417700,map_lot,Revered Spirit Ash,Land of Shadow (DLC),flag_prefix,med
+2047417800,map_lot,Blade of Mercy,Land of Shadow (DLC),flag_prefix,med
+2047417995,enemy_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2047427000,map_lot,Grave Glovewort [3],Land of Shadow (DLC),flag_prefix,med
+2047427030,map_lot,Somber Smithing Stone [4],Land of Shadow (DLC),flag_prefix,med
+2047427040,map_lot,Somber Smithing Stone [6],Land of Shadow (DLC),flag_prefix,med
+2047427700,map_lot,,Land of Shadow (DLC),flag_prefix,med
+2047427950,enemy_lot,Smithing Stone [8],Land of Shadow (DLC),flag_prefix,med
+2047437980,map_lot,Horned Bairn,Land of Shadow (DLC),flag_prefix,med
+2047447010,map_lot,Black Pyrefly,Land of Shadow (DLC),flag_prefix,med
+2047447020,map_lot,Somber Smithing Stone [1],Land of Shadow (DLC),flag_prefix,med
+2047447030,map_lot,Broken Rune,Land of Shadow (DLC),flag_prefix,med
+2047447040,map_lot,Glintslab Firefly,Land of Shadow (DLC),flag_prefix,med
+2047447050,map_lot,Flight Pinion,Land of Shadow (DLC),flag_prefix,med
+2047447060,map_lot,Silver-Pickled Fowl Foot,Land of Shadow (DLC),flag_prefix,med
+2047447070,map_lot,Somber Smithing Stone [3],Land of Shadow (DLC),flag_prefix,med
+2047447080,map_lot,Somber Smithing Stone [6],Land of Shadow (DLC),flag_prefix,med
+2047447090,map_lot,[Sorcery] Glintblade Trio,Land of Shadow (DLC),flag_prefix,med
+2047447100,map_lot,Somber Smithing Stone [2],Land of Shadow (DLC),flag_prefix,med
+2047447110,map_lot,Glintslab Firefly,Land of Shadow (DLC),flag_prefix,med
+2047447120,map_lot,Dewgem,Land of Shadow (DLC),flag_prefix,med
+2047447130,map_lot,Somber Smithing Stone [1],Land of Shadow (DLC),flag_prefix,med
+2047447140,map_lot,Arrow,Land of Shadow (DLC),flag_prefix,med
+2047447150,map_lot,Bolt,Land of Shadow (DLC),flag_prefix,med
+2047447160,map_lot,Shadow Realm Rune [2],Land of Shadow (DLC),flag_prefix,med
+2047447170,map_lot,Glintslab Firefly,Land of Shadow (DLC),flag_prefix,med
+2047447190,map_lot,Spelldrake Talisman +3,Land of Shadow (DLC),flag_prefix,med
+2047447200,map_lot,Drawstring Royal Magic Grease,Land of Shadow (DLC),flag_prefix,med
+2047447210,map_lot,Knot Resin,Land of Shadow (DLC),flag_prefix,med
+2047447600,map_lot,Shadow Realm Rune [4],Land of Shadow (DLC),flag_prefix,med
+2047447610,map_lot,Starlight Shards,Land of Shadow (DLC),flag_prefix,med
+2047447620,map_lot,Shadow Realm Rune [2],Land of Shadow (DLC),flag_prefix,med
+2047447700,map_lot,Rellana's Cameo,Land of Shadow (DLC),flag_prefix,med
+2047447710,map_lot,Castle Cross Message,Land of Shadow (DLC),flag_prefix,med
+2047447720,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2047447730,map_lot,Starlight Shards,Land of Shadow (DLC),flag_prefix,med
+2047447750,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2047447800,map_lot,Milady,Land of Shadow (DLC),flag_prefix,med
+2047447820,map_lot,Carian Sorcery Sword,Land of Shadow (DLC),flag_prefix,med
+2047447830,map_lot,Wolf Crest Shield,Land of Shadow (DLC),flag_prefix,med
+2047447840,map_lot,Firespark Perfume Bottle,Land of Shadow (DLC),flag_prefix,med
+2047447900,map_lot,Somber Smithing Stone [9],Land of Shadow (DLC),flag_prefix,med
+2047447901,map_lot,Royal Magic Grease,Land of Shadow (DLC),flag_prefix,med
+2047457000,map_lot,Black Pyrefly,Land of Shadow (DLC),flag_prefix,med
+2047457010,map_lot,Smithing Stone [3],Land of Shadow (DLC),flag_prefix,med
+2047457020,map_lot,Somber Smithing Stone [2],Land of Shadow (DLC),flag_prefix,med
+2047457040,map_lot,Messmerfire Grease,Land of Shadow (DLC),flag_prefix,med
+2047457070,map_lot,Redflesh Mushroom,Land of Shadow (DLC),flag_prefix,med
+2047457080,map_lot,Fire Arrow,Land of Shadow (DLC),flag_prefix,med
+2047457180,map_lot,Grave Glovewort [4],Land of Shadow (DLC),flag_prefix,med
+2047457700,map_lot,Smithing Stone [8],Land of Shadow (DLC),flag_prefix,med
+2047457800,map_lot,Larval Tear,Land of Shadow (DLC),flag_prefix,med
+2047457900,map_lot,Serpent Flail,Land of Shadow (DLC),flag_prefix,med
+2047457910,map_lot,Arrow's Soaring Sting Talisman,Land of Shadow (DLC),flag_prefix,med
+2047457920,map_lot,Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+2047467000,map_lot,Rune Arc,Global / Filler (scattered by design),global_filler,na
+2047467010,map_lot,Rauh Burrow,Land of Shadow (DLC),flag_prefix,med
+2047467030,map_lot,Rauh Burrow,Land of Shadow (DLC),flag_prefix,med
+2047467500,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2047477010,map_lot,Golden Horn Tender,Land of Shadow (DLC),flag_prefix,med
+2047477020,map_lot,Spirit Calculus,Land of Shadow (DLC),flag_prefix,med
+2047477030,map_lot,Sacred Bloody Flesh,Land of Shadow (DLC),flag_prefix,med
+2047477040,map_lot,Sanguine Amaryllis,Land of Shadow (DLC),flag_prefix,med
+2047477050,map_lot,Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+2047477070,map_lot,Shadow Realm Rune [3],Land of Shadow (DLC),flag_prefix,med
+2047477900,map_lot,Pearl Shield Talisman,Land of Shadow (DLC),flag_prefix,med
+2047477950,enemy_lot,Bloodfiend's Sacred Spear,Land of Shadow (DLC),flag_prefix,med
+2047477995,enemy_lot,Sacred Bloody Flesh,Land of Shadow (DLC),flag_prefix,med
+2048417980,map_lot,Black Steel Greathammer,Land of Shadow (DLC),flag_prefix,med
+2048427000,map_lot,Festive Grease,Land of Shadow (DLC),flag_prefix,med
+2048427020,map_lot,Gravebird Bracelets,Land of Shadow (DLC),flag_prefix,med
+2048427900,map_lot,Larval Tear,Land of Shadow (DLC),flag_prefix,med
+2048467701,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2048467710,map_lot,Black Steel Twinblade,Land of Shadow (DLC),flag_prefix,med
+2049397000,map_lot,Red Fulgurbloom,Land of Shadow (DLC),flag_prefix,med
+2049427000,map_lot,Talisman of the Dread,Land of Shadow (DLC),flag_prefix,med
+2049427010,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+2049427700,map_lot,Swollen Grape,Land of Shadow (DLC),flag_prefix,med
+2049427720,map_lot,Swollen Grape,Land of Shadow (DLC),flag_prefix,med
+2049437610,map_lot,Fireproof Pickled Liver,Land of Shadow (DLC),flag_prefix,med
+2049437900,map_lot,Broken Rune,Land of Shadow (DLC),flag_prefix,med
+2049437901,map_lot,Shadow Realm Rune [2],Land of Shadow (DLC),flag_prefix,med
+2049437902,map_lot,Shadow Realm Rune [3],Land of Shadow (DLC),flag_prefix,med
+2049437910,map_lot,Broken Rune,Land of Shadow (DLC),flag_prefix,med
+2049437911,map_lot,Shadow Realm Rune [2],Land of Shadow (DLC),flag_prefix,med
+2049437912,map_lot,Shadow Realm Rune [3],Land of Shadow (DLC),flag_prefix,med
+2049437920,map_lot,Blessed Bone Shard,Land of Shadow (DLC),flag_prefix,med
+2049437930,map_lot,Blessed Bone Shard,Land of Shadow (DLC),flag_prefix,med
+2049437940,map_lot,Iris of Occultation,Land of Shadow (DLC),flag_prefix,med
+2049440990,enemy_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049447020,map_lot,Shadow Sunflower,Land of Shadow (DLC),flag_prefix,med
+2049447030,map_lot,String,Land of Shadow (DLC),flag_prefix,med
+2049447040,map_lot,Shadow Realm Rune [3],Land of Shadow (DLC),flag_prefix,med
+2049447050,map_lot,Golden Horn Tender,Land of Shadow (DLC),flag_prefix,med
+2049447060,map_lot,Whiteflesh Mushroom,Land of Shadow (DLC),flag_prefix,med
+2049447070,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+2049447090,map_lot,Shattered Stone Talisman,Land of Shadow (DLC),flag_prefix,med
+2049447500,map_lot,Revered Spirit Ash,Land of Shadow (DLC),flag_prefix,med
+2049447530,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049447900,map_lot,[Sorcery] Golden Arcs,Land of Shadow (DLC),flag_prefix,med
+2049457000,map_lot,Shadow Sunflower,Land of Shadow (DLC),flag_prefix,med
+2049457010,map_lot,Shadow Realm Rune [3],Land of Shadow (DLC),flag_prefix,med
+2049457050,map_lot,Four-Toed Fowl Foot,Land of Shadow (DLC),flag_prefix,med
+2049457200,map_lot,Leather Crown,Land of Shadow (DLC),flag_prefix,med
+2049457500,map_lot,[Incantation] Heal from Afar,Land of Shadow (DLC),flag_prefix,med
+2049457510,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049467010,map_lot,Gravebird Anklets,Land of Shadow (DLC),flag_prefix,med
+2049467510,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467520,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467530,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467540,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467550,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467560,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467570,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467580,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467590,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467600,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049467900,map_lot,Larval Tear,Land of Shadow (DLC),flag_prefix,med
+2049477000,map_lot,Furnace Keeper's Note,Land of Shadow (DLC),flag_prefix,med
+2049477500,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049477510,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2049487000,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049490900,enemy_lot,Gaius's Greaves,Land of Shadow (DLC),flag_prefix,med
+2049497500,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049497510,map_lot,Sharpshot Talisman,Land of Shadow (DLC),flag_prefix,med
+2049497520,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049497530,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049497540,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2049497550,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2050407000,map_lot,Crimson Seed Talisman +1,Land of Shadow (DLC),flag_prefix,med
+2050417700,map_lot,Swollen Grape,Land of Shadow (DLC),flag_prefix,med
+2050427700,map_lot,Swollen Grape,Land of Shadow (DLC),flag_prefix,med
+2050447740,map_lot,Somber Smithing Stone [8],Land of Shadow (DLC),flag_prefix,med
+2050457000,map_lot,Thin Beast Bones,Land of Shadow (DLC),flag_prefix,med
+2050457020,map_lot,Dryleaf Seal,Land of Shadow (DLC),flag_prefix,med
+2050457060,map_lot,Fly Mold,Land of Shadow (DLC),flag_prefix,med
+2050457080,map_lot,Somber Smithing Stone [7],Global / Filler (scattered by design),global_filler,na
+2050457510,map_lot,O Mother,Land of Shadow (DLC),flag_prefix,med
+2050457730,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2050467500,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2050467510,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2050477010,map_lot,Grave Glovewort [6],Land of Shadow (DLC),flag_prefix,med
+2050477020,map_lot,Blessed Bone Shard,Land of Shadow (DLC),flag_prefix,med
+2051417000,map_lot,Ghost Glovewort [7],Land of Shadow (DLC),flag_prefix,med
+2051417700,map_lot,Aged One's Exultation,Land of Shadow (DLC),flag_prefix,med
+2051417710,map_lot,Swollen Grape,Land of Shadow (DLC),flag_prefix,med
+2051427000,map_lot,Shadow Realm Rune [7],Land of Shadow (DLC),flag_prefix,med
+2051447000,map_lot,Tooth Whip,Land of Shadow (DLC),flag_prefix,med
+2051447010,map_lot,Nascent Butterfly,Land of Shadow (DLC),flag_prefix,med
+2051447020,map_lot,Smithing Stone [1],Global / Filler (scattered by design),global_filler,na
+2051447030,map_lot,Fly Mold,Land of Shadow (DLC),flag_prefix,med
+2051447040,map_lot,Scorpion Liver,Land of Shadow (DLC),flag_prefix,med
+2051447500,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2051447510,map_lot,Scadutree Fragment,Global / Filler (scattered by design),global_filler,na
+2051457000,map_lot,Glinting Nail,Land of Shadow (DLC),flag_prefix,med
+2051457530,map_lot,Starlight Shards,Land of Shadow (DLC),flag_prefix,med
+2051457700,map_lot,Furnace Visage,Land of Shadow (DLC),flag_prefix,med
+2051467020,map_lot,Spellmachinist's Bell Bearing,Land of Shadow (DLC),flag_prefix,med
+2051467500,map_lot,Greasemonger's Bell Bearing,Land of Shadow (DLC),flag_prefix,med
+2051467900,map_lot,Rabbath's Cannon,Land of Shadow (DLC),flag_prefix,med
+2051477010,map_lot,Shadow Sunflower,Land of Shadow (DLC),flag_prefix,med
+2051477020,map_lot,Pearlescent Scale,Land of Shadow (DLC),flag_prefix,med
+2051477030,map_lot,Fingerprint Nostrum,Land of Shadow (DLC),flag_prefix,med
+2051477500,map_lot,[Incantation] Minor Erdtree,Land of Shadow (DLC),flag_prefix,med
+2051477510,map_lot,Golden Braid,Land of Shadow (DLC),flag_prefix,med
+2052427500,map_lot,Madding Hand,Land of Shadow (DLC),flag_prefix,med
+2053467600,map_lot,Cerulean Seed Talisman +1,Land of Shadow (DLC),flag_prefix,med

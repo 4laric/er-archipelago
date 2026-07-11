@@ -2,7 +2,7 @@
 #
 # Pure-runtime: NO FromSoftware game data ships. This wraps the three things a
 # player needs into one zip:
-#   1. eldenring.apworld            (built by build.ps1 -Apworld)
+#   1. eldenring.apworld            (built by build.ps1 -Apworld = the greenfield world)
 #   2. me3\ runtime                 (client DLL + ap-package AP-icon override +
 #                                    er_static_detection_table.json + apconfig.json)
 #   3. the flagship yaml + SETUP.md + CHANGELOG.md
@@ -35,7 +35,7 @@ $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Name  = "ER-Archipelago-v$Version"
 $Dist  = Join-Path $Repo "dist"
 $Stage = Join-Path $Dist $Name
-$Rel   = Join-Path $Repo "release-v0.1"
+$Rel   = Join-Path $Repo "release-v0.2"
 $Warnings = New-Object System.Collections.Generic.List[string]
 
 function Info($m) { Write-Host "[pkg]  $m" }

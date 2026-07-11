@@ -1,0 +1,47 @@
+map_id,class,current_coarse_region,n,example_items,CORRECT_REGION
+m30_00_00_00,Catacomb,"Hero's Graves (Catacombs)",6,"Talisman Pouch / Nomadic Warrior's Cookbook [9] / About Stakes o", Weeping
+m30_03_00_00,Catacomb,"Hero's Graves (Catacombs)",5,"Root Resin / Raya Lucaria Soldier Ashes / Human Bone Shard / Run", Liurnia Underground
+m30_05_00_00,Catacomb,"Hero's Graves (Catacombs)",4,"Rosus' Axe / Rune Arc / Deathroot / Spellproof Dried Liver", Liurnia Underground
+m30_07_00_00,Catacomb,"Hero's Graves (Catacombs)",1,"Lightning Scorpion Charm", Altus Underground, Requires a stonesword key
+m30_09_00_00,Catacomb,"Hero's Graves (Catacombs)",3,"Rya's Necklace / Deathroot / Gelmir Knight Helm", Mt. Gelmir
+m30_10_00_00,Catacomb,"Hero's Graves (Catacombs)",2,"Golden Epitaph / Ash of War: Holy Ground", Altus
+m30_11_00_00,Catacomb,"Hero's Graves (Catacombs)",1,"Deathroot",
+m30_13_00_00,Catacomb,"Hero's Graves (Catacombs)",11,"Cracked Pot / Ritual Pot / Perfumer's Cookbook [3] / Death Knigh", Altus Underground
+m30_17_00_00,Catacomb,"Hero's Graves (Catacombs)",2,"Remembrance of the Blood Lord / Golden Rune [11]", Mohgwyn
+m30_18_00_00,Catacomb,"Hero's Graves (Catacombs)",1,"Deathroot",
+m30_19_00_00,Catacomb,"Hero's Graves (Catacombs)",1,"Whetstone Knife", Limgrave
+m30_20_00_00,Catacomb,"Hero's Graves (Catacombs)",2,"Warming Stone / Deathroot",
+m31_00_00_00,Cave,"Caves",4,"Golden Rune [1] / Mushroom / Cloth Garb / Glass Shard",
+m31_01_00_00,Cave,"Caves",6,"Golden Rune [1] / Glowstone / Kukri / Smoldering Butterfly / Tri",
+m31_02_00_00,Cave,"Caves",1,"Nomadic Warrior's Cookbook [8]", Weeping
+m31_03_00_00,Cave,"Caves",1,"Flamedrake Talisman", Limgrave Underground
+m31_04_00_00,Cave,"Caves",8,"Golden Rune [3] / Golden Rune [4] / Serpent Arrow / Golden Rune ",
+m31_05_00_00,Cave,"Caves",9,"Hefty Beast Bone / Throwing Dagger / Golden Rune [5] / Soft Cott",
+m31_06_00_00,Cave,"Caves",1,"Cuckoo Glintstone",
+m31_07_00_00,Cave,"Caves",1,"Poison Grease",
+m31_09_00_00,Cave,"Caves",1,"Golden Rune [6]",
+m31_10_00_00,Cave,"Caves",1,"Warming Stone",
+m31_11_00_00,Cave,"Caves",4,"Lusat's Glintstone Crown / Golden Rune [3] / Crystal Spear / Smi", Caelid
+m31_12_00_00,Cave,"Caves",1,"Golden Rune [7]", 
+m31_15_00_00,Cave,"Caves",3,"Sewing Needle / Land Octopus Ovary / Smoldering Butterfly", Limgrave Underground
+m31_17_00_00,Cave,"Caves",8,"Golden Rune [1] / Arteria Leaf / Smithing Stone [1] / Smithing S",
+m31_18_00_00,Cave,"Caves",8,"Perfume Bottle / Living Jar Shard / Arteria Leaf / Golden Rune [",
+m31_19_00_00,Cave,"Caves",14,"Rejuvenating Boluses / Lost Ashes of War / Candletree Wooden Shi", Altus Underground
+m31_20_00_00,Cave,"Caves",4,"Dragonwound Grease / Venomous Fang / Serpent Bow / Fire Grease", Caelid
+m31_21_00_00,Cave,"Caves",17,"Golden Rune [2] / Old Fang / Golden Rune [4] / Stonesword Key / ", 
+m31_22_00_00,Cave,"Caves",9,"White Reed Armor / Golden Rune [6] / Golden Rune [12] / Freezing", Mountaintops
+m32_00_00_00,Tunnel,"Tunnels",7,"Golden Rune [2] / Golden Rune [4] / Large Glintstone Scrap / Sta",
+m32_01_00_00,Tunnel,"Tunnels",5,"Smithing Stone [1] / Golden Rune [4] / Large Glintstone Scrap / ",
+m32_02_00_00,Tunnel,"Tunnels",8,"Somber Smithing Stone [2] / Somber Smithing Stone [3] / Golden R",
+m32_04_00_00,Tunnel,"Tunnels",6,"Golden Rune [6] / Stanching Boluses / Somber Smithing Stone [4] ",
+m32_05_00_00,Tunnel,"Tunnels",7,"Crystal Dart / Arteria Leaf / Golden Rune [7] / Arsenal Charm +1", Altus
+m32_07_00_00,Tunnel,"Tunnels",6,"Somber Smithing Stone [2] / Golden Rune [5] / Cross-Naginata / G",
+m32_08_00_00,Tunnel,"Tunnels",11,"Rot Grease / Golden Rune [5] / Glintstone Scrap / Rune Arc / Cuc",
+m32_11_00_00,Tunnel,"Tunnels",7,"Freezing Grease / Golden Rune [10] / Ancient Dragon Smithing Sto",
+m34_10_00_00,Divine Tower,"DLC Dungeon",8,"Godrick's Great Rune / Warming Stone / Soft Cotton / Stormhawk F",
+m34_11_00_00,Divine Tower,"DLC Dungeon",15,"Banished Knight Engvall / Golden Rune [3] / Golden Rune [4] / Ce",
+m34_12_00_00,Divine Tower,"DLC Dungeon",16,"Rykard's Great Rune / Golden Rune [5] / Hefty Beast Bone / Gold-",
+m34_13_00_00,Divine Tower,"DLC Dungeon",6,"Radahn's Great Rune / Talisman Pouch / Stonesword Key / Rune Arc",
+m34_14_00_00,Divine Tower,"DLC Dungeon",10,"Morgott's Great Rune / Mohg's Great Rune / Rold Medallion / Omen",
+m34_15_00_00,Divine Tower,"DLC Dungeon",1,"Malenia's Great Rune",
+m39_20_00_00,minor,"DLC Dungeon",3,"Somber Smithing Stone [4] / Golden Rune [1] / Bull-Goat Helm",

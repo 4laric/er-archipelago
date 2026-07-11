@@ -1,0 +1,73 @@
+# ============================================================================
+#  GREENFIELD ELDEN RING -- "The Shattering"  (matt-free apworld, v0.2)
+# ============================================================================
+#  The option matrix was SLIMMED for v0.2 (2026-07-11). Guiding principle: anything that was always
+#  left on in this yaml is now simply THE BEHAVIOUR, and half-built modes are frozen off instead of
+#  exposed. 56 options -> 19. See greenfield/eldenring/defaults.py for the frozen table.
+#
+#  BAKED IN (no longer settable -- this is just how greenfield plays now):
+#    item_shuffle            every check pays its real vanilla ER item
+#    pool_builder            on, scope=all_filler, intensity=max, juice auto-sized to the whole tail
+#    curated_fill            on   |  stone_ramp on  |  flatten_regular_upgrades = 2
+#    auto_upgrade            on   |  no_weapon_requirements on
+#    start_with_torch/flasks/steed/region_lock, reveal_all_maps, early_leveling,
+#    buyable_stonesword_keys, protect_missable_locations, legacy_dungeon_keys, varied_filler
+#    dungeon_sweep = all   |  progression_surface = strict (MajorBoss/Remembrance/GreatRune)
+#
+#  FROZEN OFF (half-built -- will be re-exposed when finished):
+#    boss_keys / boss_lock_placement, progressive_*, stone_injection,
+#    completion_scaling_floor, global_scadutree_blessing
+#
+#  game MUST match the installed world. On CURRENT code that is "Elden Ring".
+#  Only ONE yaml in greenfield\players\ = a solo seed. Two+ = a multiworld.
+# ============================================================================
+name: Alaric
+description: Greenfield ER -- Shattering (4 rolled regions, region-lock goal)
+game: "Elden Ring"
+
+"Elden Ring":
+
+  # ---- The Shattering (the headline) --------------------------------------
+  num_regions: 4                 # majors in play (+ Roundtable hub, always kept); rest sealed. 0 = all 22.
+  num_regions_order: rolled      # spine = Limgrave-first fixed path; rolled = N random majors.
+  ending_condition: region_locks # win = hold every kept region's lock. great_runes = ALSO require N runes.
+  # great_runes_required: 2      # 1..7; ONLY consulted when ending_condition: great_runes.
+
+  # ---- Gates ---------------------------------------------------------------
+  leyndell_runes_required: 2     # Great Runes needed to enter the folded capital. 0 = no gate.
+
+  # ---- Pool builder: the community-tier gear injection (the mix) -----------
+  pool_builder_pct_weapons: 30   # per-category share of the injected juice
+  pool_builder_pct_armor: 25
+  pool_builder_pct_spells: 20    # sorceries + incantations
+  pool_builder_pct_talismans: 15
+  pool_builder_pct_ashes_of_war: 10
+  pool_builder_juice_pct: 100    # share of the displaceable filler that becomes juice
+
+  # ---- Curated consumable filler (stack weights) ---------------------------
+  curated_filler:
+    throwables: 3                # kukri x5, etc.
+    pots: 2
+    greases: 2
+    foods: 2
+    boluses: 1
+    stones: 2
+    somber_stones: 2
+    runes: 1
+    utility: 1
+    rare: 1
+
+  # ---- DLC / multiplayer ---------------------------------------------------
+  enable_dlc: true               # Land of Shadow regions join the pool.
+  dlc_only: false                # true = ONLY DLC regions (implies enable_dlc).
+  death_link: false              # true = shared deaths.
+
+  # ---- Multiworld item locality (defaults are fine for solo) ---------------
+  # local_item_only: false       # force this world's items to stay in this world
+  # exclude_local_item_only: []  # item names exempt from the above
+  # filler_foreign_pct: 100      # % of filler eligible to go to other worlds
+  # merchant_bell_logic: off     # off | logic_only
+
+  # ---- Archipelago common --------------------------------------------------
+  accessibility: minimal
+  progression_balancing: 50

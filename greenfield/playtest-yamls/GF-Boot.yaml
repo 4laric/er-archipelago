@@ -1,0 +1,15 @@
+# Tier 0 BOOT isolation -- prove the matt-free foundation before anything else.
+# item_shuffle off (generic Rune), grace off, sweeps off: isolates apIdsToItemIds +
+# regionOpenFlags + locationFlags. PASS = lock receipt lights a grace, filler grants a
+# Golden Rune, picking up a check sends it.
+name: GFBoot
+description: Greenfield boot isolation
+game: "Elden Ring"
+"Elden Ring":
+  num_regions: 3
+  num_regions_order: spine
+  item_shuffle: false
+  grace_rando: false
+  dungeon_sweep: none
+  start_with_torch: true
+  accessibility: minimal

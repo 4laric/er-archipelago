@@ -1,0 +1,10 @@
+# Greenfield: force LF on all text files.
+#  - gen_data.py output (data.py, region_open_flags.py) must be byte-deterministic across
+#    platforms; Windows text-mode writes CRLF, so pin LF (gen_data also writes newline="\n").
+#  - the *.sh CI scripts BREAK under CRLF (bash), so LF is mandatory for them.
+# The drift gate normalizes line endings anyway, but LF in the tree keeps diffs clean and
+# matches the Linux-native CI (ci-linux.sh). This overrides the repo-root `* text=auto`.
+* text=auto eol=lf
+*.sh  text eol=lf
+*.py  text eol=lf
+*.ps1 text eol=lf

@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# pre-commit -- block a commit that carries a truncated/NUL-injected/zero-byte file.
+# Enable once (cross-platform):   git config core.hooksPath tools/hooks
+# Bypass in an emergency:         git commit --no-verify
+if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
+exec "$PY" tools/check_integrity.py --staged

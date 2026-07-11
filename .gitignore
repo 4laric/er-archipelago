@@ -111,3 +111,14 @@ er_detection_table_missing_*.txt
 # --- truncation backups + one-off slot_data verification baselines ---
 *.truncbak
 slot_data_baseline_*.json
+
+# --- gen/CI diagnostic dumps + logs (regenerate on demand; never ship) ---
+gendiag_*.txt
+generate_*.log
+generate_greenfield_*.log
+genfuzz_ci_*.csv
+genfuzz_ci_*.md
+gensweep_*.csv
+gensweep_*.md
+preflight_*.log
+elden_ring_artifacts/

@@ -14,7 +14,7 @@
 
   USAGE (wrap a deploy):
     .\tools\deploy_hygiene.ps1 -Restore      # BEFORE bake/deploy: revert last run's files to vanilla
-    .\build.ps1 -All                         # (or -Bake -Deploy) -- your normal pipeline
+    .\build.ps1 -All                         # your normal pipeline (greenfield loop: -Greenfield -Rust -Me3Deploy -Serve)
     .\tools\deploy_hygiene.ps1 -Snapshot     # AFTER deploy: record what was just deployed
 
   Or wire the two calls into build.ps1's Deploy step (Restore at the top, Snapshot at the end).
