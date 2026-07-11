@@ -83,15 +83,14 @@ FROZEN_OPTIONS = {
     # ItemLotParam lot actually GRANTS -- audited against ground truth: Sacred Tear 13/13,
     # Golden Seed 43/43, Scadutree Fragment 46/46, Revered Spirit Ash 23/23.
     #
-    # SHOPS ARE DELIBERATELY ABSENT. Shop rows stay randomized checks -- they are just not eligible to
-    # HOLD progression. There are 479 of them, so putting them in would make ~70% of the progression
-    # surface a merchant and the seed would play as "farm runes, buy the game". The ShopNonSpell tag
-    # (395 = every shop row outside the 5 dedicated spell-vendor blocks) exists so they CAN be opted
-    # in later. FUTURE: matt's randomizer models this better -- each MERCHANT enters the pool ONCE
-    # (~25 slots), so a shop can hold at most one progression item and cannot dominate by breadth.
-    # That is the shape to build if shops are ever turned on, not a flat 395.
+    # SHOPS ENTER VIA ShopSlot, NOT Shop. All 479 shop rows stay randomized checks, but only ELEVEN are
+    # progression-eligible: ONE per MERCHANT (matt's model -- a merchant enters the pool once, so
+    # however large their stock they can hold at most one progression item and cannot dominate by
+    # breadth). Dedicated spell vendors (>=50% spells, measured) are excluded. The flat alternatives
+    # are both wrong: Shop (479) or ShopNonSpell (395) would make ~70% of the surface a merchant and
+    # the seed would play as "farm runes, buy the game".
     "progression_surface": (["KeyItem", "MajorBoss", "Remembrance", "GreatRune",
-                             "Church", "Seedtree", "Fragment", "Revered"], None),
+                             "Church", "Seedtree", "Fragment", "Revered", "ShopSlot"], None),
 
     # ---- half-built / superseded -> frozen OFF (finish later, then re-expose) --------------------
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)
