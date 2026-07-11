@@ -1,0 +1,30 @@
+# =============================================================================
+#  ARCHETYPE 3 of 3 -- "Land of Shadow"   |   PINNED SEED: 33333
+# =============================================================================
+#  WHAT THIS IS: the DLC seed. Shadow of the Erdtree regions join the pool, so
+#  this is the only archetype that exercises the DLC region map AND the Scadutree
+#  blessing floor (the client raises your blessing to a per-region floor so a DLC
+#  region you unlock early does not simply delete you).
+#
+#  WHAT TO WATCH FOR: DLC enemies that feel WILDLY out of scale (that is the
+#  blessing floor failing). DLC items showing up in base-game regions or vice
+#  versa. Map fragments / the Land of Shadow map unlocking when the region does.
+#
+#  REPORT WITH: the seed above + the AP_*.zip.
+# =============================================================================
+name: Tester_A3
+description: Archetype 3 -- Land of Shadow (DLC on, mixed base+DLC regions)
+game: "Elden Ring"
+
+"Elden Ring":
+  num_regions: 6                 # mixed base + DLC majors
+  num_regions_order: rolled
+  ending_condition: region_locks
+  leyndell_runes_required: 2
+
+  enable_dlc: true
+  dlc_only: false
+  death_link: false
+
+  accessibility: minimal
+  progression_balancing: 50
