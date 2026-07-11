@@ -642,6 +642,20 @@ FLAG_REGION_OVERRIDE = {
     # family already patched for 530130 and 60500. Found by the MSB/EMEVD provenance oracle
     # (test_gf_region_provenance_oracle), 2026-07-10 -- confirm in-game.
     400106: "Liurnia of the Lakes",
+    # Whetstone Knife: region_map's scan drops it into m30_19 (Giants' Mountaintop Catacombs, whose
+    # boss is the Putrid Grave Warden Duelist), but it is the Gatefront Ruins chest in LIMGRAVE. The
+    # old hand-curation pinned the whole MAP m30_19 -> Limgrave to make this one check right, which
+    # mis-regioned the catacomb's own loot. Fix the CHECK, let the map derive (ConnectCollision ->
+    # m60_50_55 -> Mountaintops). No MSB/EMEVD placement exists for this flag, so it stays per-flag.
+    400210: "Limgrave",
+    # Spectral Steed Whistle (Torrent's bell). region_map's emevd scan pinned it to m42_01 -- a DLC
+    # Ruined Forge -- because that map's script contains ForceAnimationPlayback(10000, 60100, ...):
+    # 60100 there is an ANIMATION id, not an event flag. The scan matched a number that is not even a
+    # flag, and the map was then hand-curated to Scadu Altus to suit it, so TORRENT'S WHISTLE sat
+    # behind a deep DLC region (and vanished from DLC-off seeds). It has no world placement at all:
+    # its only ItemLotParam_map row is the scripted lot 100000, granted by MELINA at a Site of Grace
+    # in Limgrave. Region = Limgrave. (Provenance oracle, 2026-07-11 -- confirm in-game.)
+    60100: "Limgrave",
     530130: "Limgrave",                        # Bloodhound's Fang = Darriwil at the Forlorn Hound Evergaol
                                                #   (Limgrave/Stormhill); mis-tiled m11_10 -> Roundtable -> Altus.
     # DLC-dungeon dead-checks (Alaric playtest): flags encode true map mMM_SS (X0SS7000) but the
@@ -697,30 +711,11 @@ FLAG_REGION_OVERRIDE = {
 # CURATED below = the only rows a human still owns: maps the data cannot resolve (no grace, no
 # connect tile), plus the few where the raw datum is misleading and the curation is deliberate.
 DUNGEON_REGION_CURATED = {
-    "m25_00_00_00": "Scadu Altus",                      # no grace, no connect tile
-    "m30_01_00_00": "Weeping Peninsula",                # no grace, no connect tile
-    "m30_02_00_00": "Limgrave",                         # no grace, no connect tile
-    "m30_04_00_00": "Limgrave",                         # no grace, no connect tile
-    "m30_06_00_00": "Liurnia of the Lakes",             # no grace, no connect tile
-    "m30_07_00_00": "Altus Plateau",                    # data says 'Mt. Gelmir' -- CURATED override
-    "m30_08_00_00": "Altus Plateau",                    # no grace, no connect tile
-    "m30_12_00_00": "Altus Plateau",                    # no grace, no connect tile
-    "m30_14_00_00": "Caelid",                           # no grace, no connect tile
-    "m30_15_00_00": "Caelid",                           # no grace, no connect tile
-    "m30_16_00_00": "Caelid",                           # no grace, no connect tile
-    "m30_17_00_00": "Mohgwyn Palace",                   # no grace, no connect tile
-    "m30_19_00_00": "Limgrave",                         # no grace, no connect tile
-    "m30_20_00_00": "Mountaintops of the Giants",       # no grace, no connect tile
-    "m31_02_00_00": "Weeping Peninsula",                # no grace, no connect tile
-    "m32_04_00_00": "Altus Plateau",                    # data says 'Mt. Gelmir' -- CURATED override
-    "m40_01_00_00": "Ancient Ruins of Rauh",            # no grace, no connect tile
-    "m42_00_00_00": "Gravesite Plain",                  # no grace, no connect tile
-    "m42_01_00_00": "Scadu Altus",                      # no grace, no connect tile
-    "m43_00_00_00": "Gravesite Plain",                  # no grace, no connect tile
-    "m45_00_00_00": "Gravesite Plain",                  # no grace, no connect tile
-    "m45_01_00_00": "Scadu Altus",                      # no grace, no connect tile
-    "m45_02_00_00": "Scadu Altus",                      # no grace, no connect tile
+    "m30_07_00_00": "Altus Plateau",                # data says 'Mt. Gelmir' -- CURATED override
+    "m30_20_00_00": "Mountaintops of the Giants",   # grace straddles a boundary ['Altus Plateau', 'Mountaintops of the Giants'] -- curated
+    "m32_04_00_00": "Altus Plateau",                # data says 'Mt. Gelmir' -- CURATED override
 }
+
 
 def _load_derived_dungeon_regions():
     """map_id -> region from greenfield/dungeon_regions.tsv (grace join + MSB ConnectCollision)."""
