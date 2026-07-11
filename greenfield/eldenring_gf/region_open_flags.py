@@ -2,9 +2,9 @@
 contract; derived from grace anchors (matt-free). PENDING = DLC sub-area to resolve in
 the region audit (SPEC-PARITY.md 14.4); client treats an absent open flag as unlocked."""
 REGION_OPEN_FLAGS = {
-    'Abyssal Woods': 76860,
+    'Abyssal Woods': 72801,
     'Altus Plateau': 73204,
-    'Ancient Ruins of Rauh': 74001,
+    'Ancient Ruins of Rauh': 76803,
     'Belurat': 72001,
     'Caelid': 73207,
     'Enir-Ilim': 72012,
@@ -18,7 +18,7 @@ REGION_OPEN_FLAGS = {
     'Mohgwyn Palace': 71251,
     'Mountaintops of the Giants': 73017,
     'Mt. Gelmir': 76350,
-    'Scadu Altus': 76900,
+    'Scadu Altus': 76834,
     'Shadow Keep': 72102,
     'Stormveil Castle': 71002,
     'Weeping Peninsula': 73102,

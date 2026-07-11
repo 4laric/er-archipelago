@@ -41,6 +41,12 @@ GREAT_RUNES = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
 # acquisition flag encodes the map (mAA -> AA......), so an m11/m35/m19 flag in the goal region is a
 # capital check. Restricting to GOAL_REGION keeps Altus's own overworld checks (61xxx/63xxx/76xxx) out.
 _LEYNDELL_PREFIXES = ("11", "35", "19")
+_LEYNDELL_EXTRA_FLAGS = frozenset({173, 510040, 510250, 60520})  # Morgott GR+Rem, Mohg-sewer, Godfrey pouch
+# Gating items forbidden on Leyndell-gated locs = Great Runes (the gate's own prerequisite) PLUS the
+# folded-dungeon legacy keys (Academy Glintstone Key, Hole-Laden Necklace) -- keeping a key off a
+# rune-gated capital check breaks the Metyr<->Leyndell cross-gate cycle (FillError 2026-07-10).
+_LEGACY_KEY_NAMES = frozenset({"Academy Glintstone Key", "Hole-Laden Necklace"})
+_GATING_ITEMS = frozenset(GREAT_RUNES) | _LEGACY_KEY_NAMES
 
 
 def _leyndell_location_ids():
@@ -49,7 +55,7 @@ def _leyndell_location_ids():
         if reg != GOAL_REGION:
             continue
         for (_name, ap_id, flag) in locs:
-            if str(flag)[:2] in _LEYNDELL_PREFIXES:
+            if str(flag)[:2] in _LEYNDELL_PREFIXES or int(flag) in _LEYNDELL_EXTRA_FLAGS:
                 out.add(ap_id)
     return out
 
@@ -100,6 +106,9 @@ class LeyndellGate(Feature):
             prev = loc.access_rule
             loc.access_rule = (lambda state, p=prev, gr=GREAT_RUNES, k=need:
                                p(state) and sum(1 for g in gr if state.has(g, player)) >= k)
+            prev_item = loc.item_rule
+            loc.item_rule = (lambda item, pv=prev_item:
+                             pv(item) and item.name not in _GATING_ITEMS)
 
     def slot_data(self, world):
         return {}  # LOGIC-only; no client contract key yet (hard in-game gate = follow-up)

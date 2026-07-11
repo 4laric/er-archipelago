@@ -37,7 +37,7 @@ REGION_BOSSES = {
     ],
     "Miquella's Haligtree": [
         (7770006, 176, "Malenia's Great Rune"),
-        (7773926, 15000850, "[Sorcery] Loretta's Mastery"),
+        (7773949, 15000850, "[Sorcery] Loretta's Mastery"),
     ],
     'Mohgwyn Palace': [
         (7770005, 175, "Mohg's Great Rune"),
@@ -51,11 +51,11 @@ REGION_BOSSES = {
     ],
     'Scadu Altus': [
         (7770831, 510550, 'Remembrance of the Mother of Fingers'),
-        (7770834, 510620, 'Remembrance of the Shadow Sunflower'),
-        (7770836, 510640, 'Remembrance of the Wild Boar Rider'),
     ],
     'Shadow Keep': [
         (7770829, 510460, 'Remembrance of the Impaler'),
+        (7770834, 510620, 'Remembrance of the Shadow Sunflower'),
+        (7770836, 510640, 'Remembrance of the Wild Boar Rider'),
     ],
     'Stormveil Castle': [
         (7770813, 510010, 'Remembrance of the Grafted'),
