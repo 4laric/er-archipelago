@@ -280,7 +280,13 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # num_regions one). They fold into the always-kept GOAL region (Altus Plateau) via REGION_MAP -> reachable
 # in logic when Altus opens, and collectable via Morgott's region-wide sweep (Morgott = reachable capital
 # ending). NOT a separate rollable region. Morgott (510040) is the capital ending and already there.
-_MISC_NON_CHECK = frozenset({60000, 60210, 590000, 550200, 550250})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger; 550200/550250 = "About ..." tutorial-message popups (not loot, same class as 9100-9125)
+# 60100 = Spectral Steed Whistle (Torrent's bell). start_with_steed is FROZEN ON (defaults.py), so the
+# client grants the whistle at spawn -- but it grants the ITEM (FullID), not the acquisition flag, so
+# 60100 only fires on MELINA'S grant. A rolled start can bypass Melina entirely (er-torrent-regionlock-
+# mountless), leaving a check AP believes is reachable (its region is open) that can never fire -- fill
+# could strand a progression item on it. You always have Torrent now, so the check earns nothing.
+# Excluded as a start-grant non-check, same class as 60000 (Flask). (Alaric 2026-07-11.)
+_MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger; 550200/550250 = "About ..." tutorial-message popups (not loot, same class as 9100-9125)
 # Unreachable ASHEN CAPITAL + final-boss drops -- EXCLUDED AS DEAD (user decision 2026-07-08). Post-
 # Erdtree-burn / final content is not physically reachable in a region-lock game, and is NOT actually
 # collectable via Morgott's region-wide sweep (boss_arena rewards are never swept, and the m11_05
