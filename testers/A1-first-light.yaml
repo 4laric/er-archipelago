@@ -1,0 +1,30 @@
+# =============================================================================
+#  ARCHETYPE 1 of 3 -- "First Light"   |   PINNED SEED: 11111
+# =============================================================================
+#  WHAT THIS IS: the near-default base-game seed. This is what a stranger who
+#  installs the apworld and barely edits the template actually rolls, so it is
+#  the seed most first impressions are made on. Region locks are the goal, the
+#  whole base map is in play, no DLC.
+#
+#  WHAT TO WATCH FOR: does it just... work? Torrent by the first grace, flasks,
+#  torch. Checks register when you pick things up. No item you cannot obtain.
+#
+#  REPORT WITH: the seed above + the AP_*.zip. Every report must reproduce from
+#  data -- do not paraphrase, attach the seed.
+# =============================================================================
+name: Tester_A1
+description: Archetype 1 -- First Light (near-default, base game, region locks)
+game: "Elden Ring"
+
+"Elden Ring":
+  num_regions: 0                 # 0 = every base region in play (no sealing)
+  num_regions_order: spine
+  ending_condition: region_locks
+  leyndell_runes_required: 2
+
+  enable_dlc: false
+  dlc_only: false
+  death_link: false
+
+  accessibility: minimal
+  progression_balancing: 50

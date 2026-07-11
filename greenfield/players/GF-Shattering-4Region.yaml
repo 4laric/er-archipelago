@@ -16,7 +16,9 @@
 #
 #  FROZEN OFF (half-built -- will be re-exposed when finished):
 #    boss_keys / boss_lock_placement, progressive_*, stone_injection,
-#    completion_scaling_floor, global_scadutree_blessing
+#    completion_scaling_floor
+#  (global_scadutree_blessing is NOT frozen off -- it ships at its default, 2 = scaled: the client
+#   raises your Scadutree blessing to a per-DLC-region floor so an early DLC region cannot delete you.)
 #
 #  game MUST match the installed world. On CURRENT code that is "Elden Ring".
 #  Only ONE yaml in greenfield\players\ = a solo seed. Two+ = a multiworld.
