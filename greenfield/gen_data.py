@@ -1906,3 +1906,43 @@ with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
     f.write("}\n")
 print(f"boss_sweeps: {len(DUNGEON_SWEEPS)} triggers, {sum(len(v) for v in DUNGEON_SWEEPS.values())} member links across {len(set(SWEEP_REGION.values()))} regions "
       f"({'healthbar-classed' if BOSS_HEALTHBARS else 'FALLBACK region-wide banner scan'})")
+
+# ---- Section 5: gen-input STAMP (SPEC-gen-input-hash-gate-20260710.md) -------------------------
+# Bind every generated module to the content hash of the inputs it was derived from, so the build
+# gate (build.ps1 / gen-greenfield.ps1, via `python -m tools.gen_manifest --verify`) can REFUSE to
+# package data that is stale relative to the inputs on disk -- the invariant that retires the
+# "NEEDS WINDOWS REGEN" marker convention. tools/gen_manifest.py is the ONE definition of the hash;
+# test_gf_gen_stamp.py asserts all modules share one inputs_hash and that none was truncated after
+# write (body_sha256), plus semantic non-emptiness floors (counts) that catch the empty-catalog class.
+import json as _json, datetime as _dt, hashlib as _hl, platform as _plat, sys as _sys
+_sys.path.insert(0, REPO)
+try:
+    from tools.gen_manifest import compute_inputs_hash as _cih
+    _INPUTS_HASH = _cih(REPO)
+except Exception as _e:                                    # never let a missing manifest break regen
+    _INPUTS_HASH = "sha256:UNAVAILABLE"
+    print(f"[gen_data] gen_manifest unavailable ({_e!r}); stamp inputs_hash=UNAVAILABLE")
+_STAMP_MODULES = ["data.py", "region_open_flags.py", "boss_data.py", "region_graces.py",
+                  "shop_data.py", "missable_locations.py", "item_ids.py", "item_tiers.py",
+                  "location_tags.py", "boss_sweeps.py"]
+_GEN_UTC = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+_GEN_HOST = _plat.system().lower() or "unknown"
+_COUNTS = {"locations": sum(len(v) for v in buckets.values()), "regions": len(spokes),
+           "item_catalog": len(ITEM_CATALOG), "filler_pool": len(FILLER_POOL),
+           "sweeps": len(DUNGEON_SWEEPS)}
+_stamp_json = {"inputs_hash": _INPUTS_HASH, "generated_utc": _GEN_UTC, "host": _GEN_HOST,
+               "counts": _COUNTS, "modules": {}}
+for _mod in _STAMP_MODULES:
+    _mp = os.path.join(HERE, "eldenring_gf", _mod)
+    with open(_mp, "rb") as _fh:
+        _body = _fh.read()
+    _self = "sha256:" + _hl.sha256(_body.replace(b"\r\n", b"\n").replace(b"\r", b"\n")).hexdigest()
+    _stamp_json["modules"][_mod] = _self
+    _stamp = {"inputs_hash": _INPUTS_HASH, "generated_utc": _GEN_UTC, "host": _GEN_HOST,
+              "module": _mod, "body_sha256": _self}
+    with open(_mp, "a", encoding="utf-8") as _fh:
+        _fh.write("\n_GEN_STAMP = " + repr(_stamp) + "\n")
+with open(os.path.join(HERE, "eldenring_gf", "_gen_stamp.json"), "w", encoding="utf-8") as _fh:
+    _json.dump(_stamp_json, _fh, indent=2, sort_keys=True)
+    _fh.write("\n")
+print(f"gen_stamp: inputs_hash={_INPUTS_HASH[:24]}... {len(_STAMP_MODULES)} modules; counts={_COUNTS}")
