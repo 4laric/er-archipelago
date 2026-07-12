@@ -30,7 +30,17 @@ import unittest
 from ..location_tags import SHOP_RELEASE_GATED_APS
 from ..data import LOCATIONS, HUB
 
-_TSV = os.path.join(os.path.dirname(__file__), "..", "..", "shop_rows.tsv")
+# shop_rows.tsv is gen_data's INPUT: in the SOURCE tree it sits beside the package (GREENFIELD/), and
+# the world-install step copies it INTO the installed package (GF_PKG/) so this gate also runs in the
+# installed-world pytest (which is what CI runs). Resolve from either -- first existing wins. Same
+# convention as test_gf_boss_sweeps' region_map.csv; hardcoding one path makes the test pass in the dev
+# tree and silently vanish in CI, which is the worst of both.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_GF_PKG = os.path.dirname(_HERE)
+_GREENFIELD = os.path.dirname(_GF_PKG)
+_TSV = next((p for p in (os.path.join(_GF_PKG, "shop_rows.tsv"),
+                         os.path.join(_GREENFIELD, "shop_rows.tsv")) if os.path.isfile(p)),
+            os.path.join(_GF_PKG, "shop_rows.tsv"))
 
 # The Twin Maiden Husks are shop BLOCK 1018 (the block holds the White/Blue Cipher Rings, Spirit Calling
 # Bell, Flask of Wondrous Physick, Crafting Kit and Memory Stone -- their inventory exactly).
