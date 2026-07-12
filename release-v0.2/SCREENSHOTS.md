@@ -21,13 +21,18 @@ unticked tab. All eight are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZAT
 | `matt-07-blank-seed-and-launch.png` | A BLANK seed box -- matt's ticks "Reroll seed" for you and greys it out, so the player gets their own enemy layout rather than ours. This is why the shipped options string has no `seed:` token. |
 | `matt-08-enemy-tab-detail.png` | Enemy tab, fuller view (spare). |
 
+## In-game (1)
+
+| File | What it shows |
+|------|---------------|
+| `overlay-connected.png` | **"How do I know it's working?"** -- the overlay reading `[Connected]` and the log line `Tester_A2 (Team #1) playing Elden Ring has joined.` It doubles as live proof of the game id WITH THE SPACE, and the turtle-shell armour is matt's starting-loadout randomization visibly doing its job. Used in SETUP.md's connect step. |
+
 ## Still worth taking (in-game)
 
 Nobody has shot these yet. Each kills a specific question players actually ask:
 
 | Shot | The question it kills |
 |------|----------------------|
-| The overlay, connected, showing the slot name | "How do I know it's working?" The single most useful image we do not have. Belongs at the end of SETUP's connect step. |
 | A check being picked up, showing **another player's item** | "What happens when I open a chest?" The whole multiworld idea in one frame. |
 | A **Region Lock** arriving + the region-opened message | The marquee mechanic. Sells the project better than any paragraph. |
 | The kick: warped out of a locked region | Answers "is this a bug?" It is not. Goes beside the explanation in the Player Guide. |

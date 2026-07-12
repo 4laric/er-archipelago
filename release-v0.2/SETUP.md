@@ -108,6 +108,11 @@ You also need, separately:
    profile loads it. Launch Elden Ring through ModEngine3. When the client
    is loaded, its overlay **menu bar** is visible in-game.
 
+   **Also running matt's randomizer?** Then you do not launch twice. Add
+   `eldenring_archipelago.dll` to matt's **Add dll mod** list and use his
+   **Launch Elden Ring** button -- it loads our client for you. Full walkthrough,
+   with pictures, in `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
+
 3. **Connect.** Open the **Connection** entry in the overlay menu bar and
    enter your server address, slot name, and password. (Solo local game:
    the address is `localhost` plus the port your server printed.) If you kept
@@ -118,7 +123,18 @@ You also need, separately:
    ```
 
    Open the overlay from a menu, not while moving, so stray keys don't leak
-   into the game. When connected, the overlay confirms the slot.
+   into the game.
+
+   **This is what "it worked" looks like.** The overlay title reads
+   **[Connected]**, and the log line names your slot and the game:
+
+   ![The Archipelago overlay, connected](screenshots/overlay-connected.png)
+
+   `Tester_A2 (Team #1) playing Elden Ring has joined.`
+
+   Note the game name in that line: **`Elden Ring`**, with the space. If you see
+   a refused connection instead, the two usual causes are a slot name that does
+   not match the one in your yaml, and the wrong port.
 
 4. **Play.** In The Shattering you begin at Roundtable Hold with one region
    already open. Find a region's Lock, fast-travel in, clear its checks, and
