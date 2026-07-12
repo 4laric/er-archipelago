@@ -6,7 +6,7 @@ situation with a single stated principle, and defines the boss-lock capstone for
 region using legible vanilla key items.
 
 Synthesis of an Opus main-thread design pass and an independent Fable 5 consult.
-Supersedes the intent of archive/SPEC-region-boss-gating.md and folds in the
+Supersedes the intent of `git log --all -- archive/SPEC-region-boss-gating` (archive/ was removed 2026-07-12; the blobs remain in git history).md and folds in the
 legible-key-lock direction (er-legible-key-locks-spec).
 
 ---

@@ -5,7 +5,7 @@ Scope: the runtime client only (`Dark-Souls-III-Archipelago-client/archipelago-c
 injected into `eldenring.exe`). The apworld (Python), the static randomizer (C#), and the bake
 pipeline are out of scope except where the client's contract with them constrains the port.
 
-See HANDOFF.md / archive/HANDOFF.md for project state, SYNC-RUNBOOK.md for the multiworld loop,
+See HANDOFF.md / `git log --all -- archive/HANDOFF.md` (archive/ was removed 2026-07-12; the blobs remain in git history) for project state, SYNC-RUNBOOK.md for the multiworld loop,
 tools/NOTES.md (in the client repo) for the RE provenance behind every address used below.
 
 ---
