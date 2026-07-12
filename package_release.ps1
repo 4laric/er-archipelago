@@ -115,8 +115,20 @@ if (Test-Path $BuiltDll) {
 Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 
 # Detection table + config: warn (not fatal) if absent.
-if (-not (Test-Path (Join-Path $Me3Dst "er_static_detection_table.json"))) {
-    Warn "me3\er_static_detection_table.json is missing -- the client needs it at runtime."
+# er_static_detection_table.json is a LEGACY BRIDGE from the retired baker. The old warning here said
+# "the client needs it at runtime", which is FALSE: flagpoll.rs merges it IF PRESENT and otherwise logs
+# one info line and carries on. slot_data is the live path and carries both halves -- locationFlags
+# (3625 in a default seed) and dungeonSweepFlags (180).
+#
+# We do NOT ship it, deliberately: it is not in the repo, no committed script rebuilds it, and shipping
+# baker-era output in a provenance-clean release is the exact thing v0.2 exists to stop.
+#
+# So its ABSENCE is correct. Its PRESENCE is what deserves a warning.
+#
+# NOTE: the dev box HAS this file, so every playtest to date ran WITH it. Nobody has yet played a seed
+# WITHOUT it. If dungeon sweeps misbehave in the wild but not on the dev box, look here first.
+if (Test-Path (Join-Path $Me3Dst "er_static_detection_table.json")) {
+    Warn "me3\er_static_detection_table.json is PRESENT and would be shipped. It is baker-era output and does not belong in a v0.2 bundle -- delete it unless you know exactly why it is there."
 }
 
 # AP-icon override = me3\ap-package\menu textures. Warn loudly if empty so a
@@ -127,7 +139,7 @@ if (Test-Path $IconMenu) {
     $IconFiles = @(Get-ChildItem -Path $IconMenu -Recurse -File -ErrorAction SilentlyContinue)
 }
 if ($IconFiles.Count -eq 0) {
-    Warn "AP-icon override is EMPTY (me3\ap-package\menu has no texture files). The flower-icon swap will NOT be in this bundle -- stage the icon TPF/DCX into me3\ap-package\menu before shipping."
+    Info "  (no AP flower-icon texture staged -- shipping with the vanilla goods icon. This is a cosmetic nicety, not a feature: the placeholder is NAMED (Archipelago Item) and suppressed either way.)"
 } else {
     Info "+ AP-icon override ($($IconFiles.Count) texture file(s) in ap-package\menu)"
 }
