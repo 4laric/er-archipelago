@@ -408,6 +408,17 @@ CONTRACT = (
     ContractKey("shopRowFlags", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:359 i64_to_u32_map",
                 "ShopLineupParam row id -> eventFlag_forStock written for shop checks."),
+    ContractKey("checkLotBlankMap", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs (ItemLotParam_map)",
+                "ItemLotParam_MAP lot id -> the GOODS slot indices holding a check's vanilla ware."),
+    ContractKey("checkLotBlankEnemy", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs (ItemLotParam_enemy)",
+                "Same, for ItemLotParam_ENEMY (boss / enemy one-time drops). SEPARATE on purpose: the "
+                "two tables can hold the SAME row id, so a merged dict loses the table and forces the "
+                "client to GUESS. It guessed map-first, so every enemy lot colliding with a map id was "
+                "never blanked -- a boss that is 'just an enemy' handed out its vanilla drop and fired "
+                "no check (playtest 2026-07-12: Unsightly Catacombs duo, enemy lot 30120, while all "
+                "five of that map's TREASURE checks randomised correctly)."),
     ContractKey("checkLotBlank", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/check_lots.py", "check_lots.rs configure/run",
                 "ItemLotParam lot id (str) -> [goods slot indices] holding a CHECK's vanilla ware. The "
