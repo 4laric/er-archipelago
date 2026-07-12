@@ -33,10 +33,28 @@ class TagDataTests(unittest.TestCase):
         self.assertGreaterEqual(TAG_COUNTS["Remembrance"], 20)
 
     def test_boss_tag_is_boss_drop_set(self):
-        # Boss was REDEFINED (boss-drop datamine, tools/datamine_boss_drops.py -> _BOSS_DROP_FLAGS in
-        # gen_data._loc_tags): the 'Boss' tag is now every boss-healthbar DROP (~54), a superset of the
-        # old ~23-25 boss_arena majors. Guards the current committed count against drift.
-        self.assertEqual(TAG_COUNTS["Boss"], 76)
+        """'Boss' == every boss-healthbar DROP (tools/datamine_boss_drops.py -> _BOSS_DROP_FLAGS in
+        gen_data._loc_tags), a superset of the ~25 boss_arena majors. Drift guard on the committed count.
+
+        REBASELINED 76 -> 93 (2026-07-11). NOT a regression -- the DATAMINE got complete. Both EMEVD-derived
+        inputs were mined when only 380 of the 589 EMEVD were decompiled, so ~35% of the game's award sites
+        were invisible to them. Re-mined against all 589:
+
+            boss_drops.py       54 -> 88 flags      (+34)
+            boss_healthbars.py  197 -> 249 entities (+52)  -> boss_sweeps 196 -> 232 triggers
+
+        The new drops are REAL, and the tell is that they include the ones we had HAND-ADDED because the
+        scan missed them: Commander's Standard (Commander O'Neil) and Gargoyle's Blackblade (Black Blade
+        Kindred) both live in gen_data._BOSS_DROP_EXTRAS. The derivation has caught up with the hand list,
+        which is the direction we want (CONTRIBUTING: derive the datum, don't pin the symptom) -- and it
+        means _BOSS_DROP_EXTRAS is now partly redundant and should be audited against the derived set.
+
+        ⚠️ If this number moves again, FIRST check whether an EMEVD-derived input is stale rather than
+        rebaselining: `python tools/datamine_boss_drops.py` and `datamine_boss_healthbars.py` are cheap.
+        A number that grows because the ground truth got better is fine; one that grows because a
+        predicate got looser is a bug.
+        """
+        self.assertEqual(TAG_COUNTS["Boss"], 93)
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
