@@ -40,10 +40,18 @@ _DERIVED_REGRESSIONS = {
 }
 
 # The three playtest scars that motivated the derivation.
+# The playtest scars are now DERIVED (the oracle measures them), so they are no longer "hand" entries --
+# but they must still never be granted. 76414/76416 were REMOVED: they were my over-skip (46.6m / 119.8m
+# from the duo), and 76415 at 9.4m is the actual Redmane arena grace.
 _PLAYTEST_SCARS = {
-    71300: "Maliketh the Black Blade (2026-07-07)",
-    76414: "Redmane Castle duo arena (2026-07-11)",
-    76416: "Redmane Castle duo arena (2026-07-11)",
+    71300: "Maliketh the Black Blade -- now DERIVED (29.1m)",
+    76415: "Redmane Castle duo arena -- now DERIVED (9.4m); NOT 76414/76416, which are 46.6m / 119.8m",
+}
+
+# Graces I once skipped by GUESSING conservatively, now measured SAFE. They must be GRANTED.
+_OVER_SKIPPED_NOW_SAFE = {
+    76414: "46.6m from the Redmane duo",
+    76416: "119.8m from the Redmane duo",
 }
 
 
@@ -62,11 +70,20 @@ class TestArenaGraces(unittest.TestCase):
                 f"the player onto a live boss")
 
     def test_playtest_scars_stay_skipped(self):
-        """Regression guard on the three we learned the hard way."""
+        """Regression guard on the ones we learned the hard way (now all DERIVED)."""
         granted = self._all_granted()
         for flag, who in _PLAYTEST_SCARS.items():
             self.assertNotIn(flag, granted,
                              f"grace {flag} ({who}) must never be force-lit")
+
+    def test_over_skipped_graces_are_granted_again(self):
+        """A conservative GUESS is still a guess. I skipped all three Redmane-tile graces because I could
+        not tell which was in the arena -- silently costing the player two legitimate graces. The oracle
+        measured them; these two are SAFE and must be granted."""
+        granted = self._all_granted()
+        for flag, why in _OVER_SKIPPED_NOW_SAFE.items():
+            self.assertIn(flag, granted,
+                          f"grace {flag} is SAFE ({why}) -- do not skip it. Measure, don't guess.")
 
     def test_derived_table_is_present_and_used(self):
         """If arena_graces.tsv goes missing, gen_data silently degrades to the hand lists -- and the
