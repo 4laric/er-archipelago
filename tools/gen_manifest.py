@@ -42,12 +42,14 @@ FILE_INPUTS = [
     "greenfield/region_overrides.tsv",                 # optional (SPEC-provenance-oracle); ABSENT-ok
     "greenfield/eldenring/boss_drops.py",
     "greenfield/eldenring/boss_healthbars.py",
-    "elden_ring_artifacts/grace_flags.tsv",
+    "greenfield/eldenring/boss_reward_lots.py",   # gen_data IMPORTS it; omitting it means a stale
+                                                  # boss-reward table would not invalidate the stamp
+    "greenfield/grace_flags.tsv",                  # DERIVED + TRACKED (was artifacts-only; a
+    "greenfield/grace_region_map.tsv",             # git clean -xdf deleted both, no copy existed)
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",
 ]
 GLOB_INPUTS = [
-    "elden_ring_artifacts/grace_region_map_*.tsv",
     "elden_ring_artifacts/event/**/*",
     "elden_ring_artifacts/msg/item-msgbnd-dcx/*Name*.fmg.xml",
     "elden_ring_artifacts/msg/item_dlc01-msgbnd-dcx/*Name*.fmg.xml",

@@ -152,12 +152,25 @@ gf={}
 # (a legacy dungeon with no overworld grace) and won _front_door -> bogus REGION_OPEN_FLAGS[
 # "Stormveil Castle"]=200 AND polluted the Stormveil grace bundle. Reject any warpUnlockFlag
 # outside the valid region/grace group at ingest so only real graces reach _open_cand.
-for row in csv.DictReader(open(os.path.join(AR,"grace_flags.tsv"),encoding="utf-8-sig"),delimiter="\t"):
+# The grace tables are DERIVED (BonfireWarpParam -> flag/tile/play_region), not game data, so they
+# are TRACKED in greenfield/ now. They used to live only in the gitignored elden_ring_artifacts/,
+# where a `git clean -xdf` deleted them with no copy anywhere -- and gen_data cannot run without
+# them. The artifacts path stays as a fallback for older trees. Rebuild either with
+# `python tools/regen_grace_tables.py`.
+def _grace_table(prefix):
+    for _base in (HERE, AR):
+        if not os.path.isdir(_base): continue
+        _c = sorted(x for x in os.listdir(_base) if x.startswith(prefix) and x.endswith(".tsv"))
+        if _c: return os.path.join(_base, _c[-1])
+    raise SystemExit(
+        "FATAL: %s*.tsv not found in greenfield/ or elden_ring_artifacts/. It is DERIVED -- rebuild "
+        "it: python tools/regen_grace_tables.py" % prefix)
+
+for row in csv.DictReader(open(_grace_table("grace_flags"),encoding="utf-8-sig"),delimiter="\t"):
     if not (71000 <= int(row["warpUnlockFlag"]) <= 76999): continue
     gf[row["warpUnlockFlag"]]=row["mapTile"]
 greg={}
-grm=[x for x in os.listdir(AR) if x.startswith("grace_region_map")][0]
-for row in csv.DictReader(open(os.path.join(AR,grm),encoding="utf-8-sig"),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
+for row in csv.DictReader(open(_grace_table("grace_region_map"),encoding="utf-8-sig"),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
 _acc=defaultdict(Counter)
 for flag,tile in gf.items():
     pr=greg.get(flag); m=re.match(r"m60_(\d\d)_(\d\d)",tile)
@@ -532,6 +545,7 @@ def _is_mausoleum_dupe(r):
 #     cut content. If this guard ever drops hundreds of checks, THAT is the bug -- not the game.
 #   * FMG dirs absent -> guard DISABLED (params-absent runs must not silently delete the world).
 import xml.etree.ElementTree as _ET
+_SLP_DIR0 = os.path.join(AR, "vanilla_er", "vanilla_er")   # hoisted: both guards need it
 _MSG    = os.path.join(AR, "msg", "item-msgbnd-dcx")
 _MSG_D1 = os.path.join(AR, "msg", "item_dlc01-msgbnd-dcx")
 _MSG_D2 = os.path.join(AR, "msg", "item_dlc02-msgbnd-dcx")
@@ -646,7 +660,6 @@ def _real_flag_universe():
                 if _f > 0: _u.add(_f)
             except (TypeError, ValueError): pass
     return _u
-_SLP_DIR0 = os.path.join(AR, "vanilla_er", "vanilla_er")
 REAL_FLAGS = _real_flag_universe()
 if REAL_FLAGS is None:
     print("[gen_data] WARNING: ItemLotParam absent -- phantom-flag guard DISABLED (invented flags may ship)")
@@ -668,13 +681,6 @@ _PHANTOM_DROPPED = ([r for r in _ALLROWS
     and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
     and not _flag_exists(r)] if REAL_FLAGS is not None else [])
 print(f"phantom-flag guard: dropped {len(_PHANTOM_DROPPED)} checks with non-existent (invented) flags")
-_ITEMLESS_DROPPED = ([r for r in _ALLROWS
-    if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
-    and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
-    and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
-    and _flag_exists(r) and not _item_exists(r)] if NAMED_ITEM_IDS is not None else [])
-print(f"item-existence guard: dropped {len(_ITEMLESS_DROPPED)} checks whose lot item does not exist "
-      f"in the game (cut/unnamed rows): {sorted(int(_r['flag']) for _r in _ITEMLESS_DROPPED)}")
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
@@ -1388,9 +1394,42 @@ def _recover_row_ok(r):
     if (_fl in MINIBAKER_VENDOR_FLAGS or _fl in EXCLUDE_FLAGS
             or _is_mausoleum_dupe(r) or _is_ashen_dead(_fl)):
         return False
+    # The ITEM-EXISTENCE GUARD must bite here TOO. `rows` filters the placed methods; global /
+    # global_filler are in SKIP and re-enter through THIS path, so a guard applied only to `rows`
+    # lets 4 of the 13 itemless checks walk straight back in (500020, 1038417100, 1042377020,
+    # 1045377040). A guard on one of two doors is not a guard.
+    if not _item_exists(r):
+        return False
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
 _recovered = [r for r in _ALLROWS if _recover_row_ok(r)]
 rows = rows + _recovered
+
+# ITEM-EXISTENCE GUARD -- report what the guard ACTUALLY REMOVED FROM THE WORLD, which is the only
+# number worth printing. There are TWO doors: `rows` (the placed methods) and _recover_row_ok
+# (global/global_filler re-enter there). Counting at one door under-reports; counting every _ALLROWS
+# row that fails _item_exists OVER-reports, because most were already dropped by another filter.
+# So: rebuild both doors with the item guard OFF, and diff.
+def _would_be_live_without_item_guard(_r):
+    _fl = int(_r['flag'])
+    _common = (_fl not in MAP_REVEAL_FLAGS and _fl not in MINIBAKER_VENDOR_FLAGS
+               and _fl not in EXCLUDE_FLAGS and not _is_mausoleum_dupe(_r)
+               and not _is_ashen_dead(_fl) and _flag_exists(_r))
+    if not _common:
+        return False
+    if _r['method'] not in SKIP:
+        return True                                            # door 1
+    if _r['method'] in ('global', 'global_filler'):            # door 2
+        return _recover_tile(_fl) is not None
+    return False
+
+_LIVE_FLAGS = {int(_r['flag']) for _r in rows}
+_ITEMLESS_DROPPED = ([_r for _r in _ALLROWS
+    if int(_r['flag']) not in _LIVE_FLAGS
+    and _would_be_live_without_item_guard(_r) and not _item_exists(_r)]
+    if NAMED_ITEM_IDS is not None else [])
+print(f"item-existence guard: dropped {len(_ITEMLESS_DROPPED)} check(s) whose lot item does not exist "
+      f"in the game (no param row, or the FMG name is FromSoft's '[ERROR]'/'%null%' cut-content "
+      f"placeholder): {sorted(int(_r['flag']) for _r in _ITEMLESS_DROPPED)}")
 
 # ---- DERIVED SHOP ROWS (shop_rows.tsv, tools/datamine_shop_rows.py) --------------------------------
 # region_map.csv's hand-classified `method` column LOSES shop checks. For a ONE-TIME shop item the stock
