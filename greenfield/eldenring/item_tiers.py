@@ -1024,7 +1024,6 @@ ITEM_TIERS = {
     'Scaled Helm': 3,
     'Scarlet Aeonia': 2,
     "Scavenger's Curved Sword": 2,
-    'Scepter of the All-Knowing': 0,
     'Scimitar': 1,
     'Scorpion Kite Shield': 1,
     "Scorpion's Stinger": 1,
@@ -2229,7 +2228,6 @@ ITEM_TIER_CATEGORY = {
     'Scaled Helm': 'ARMOR',
     'Scarlet Aeonia': 'SPELL',
     "Scavenger's Curved Sword": 'WEAPON',
-    'Scepter of the All-Knowing': 'WEAPON',
     'Scimitar': 'WEAPON',
     'Scorpion Kite Shield': 'WEAPON',
     "Scorpion's Stinger": 'WEAPON',
@@ -2411,4 +2409,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:69fc3a79bc7fdfb827cea9f461100f70820c5bdcdca7d8c549b77bf03993885e', 'module': 'item_tiers.py', 'body_sha256': 'sha256:34a960aef9cd1760be08b8ea789568a81fd09630fe8f14ab5a0613ab66234115'}
+_GEN_STAMP = {'inputs_hash': 'sha256:b140df16e3bab36a6d257be4ac24d0ad042d1b9aa45a8cdeb9cc460a37cc5257', 'module': 'item_tiers.py', 'body_sha256': 'sha256:f47e573848c16cb427371da291f3e5d4dfaee57d001c1ac7be7744bb8cd019ce'}
