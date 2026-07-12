@@ -56,12 +56,6 @@ about it.)
   register). Boss-lock sweep-gates are inert for now. What to do: nothing;
   dungeon sweeps themselves work normally.
 
-- **Boss Keys (`boss_keys`) are off and hidden for v0.2.** The option is fully
-  inert when off (no keys minted, no gates, no slot_data), so it is hidden
-  from the template to avoid confusion. The mode itself works and its
-  fill-cycle safety net is in place, but it is held until it has its own
-  non-boss premium check surfaces -- otherwise every region Lock just lands on
-  a boss check. What to do: nothing; it will return in a later release.
 
 - **About 1% of checks give a Rune instead of a real item.** A small set of
   checks (item names not present in the game's text tables -- quest notes, a

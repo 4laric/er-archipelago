@@ -1,6 +1,6 @@
 # Elden Ring for Archipelago — collaborator setup
 
-> **Private repo. Do not redistribute.** Access is granted individually. This tree includes a fork of thefifthmatt's SoulsRandomizers, which is **source-available but not freely licensed** — *"Do not distribute the randomizer, forks of the randomizer programs, or forks of config files."* Don't re-share this repo, the baker, or its outputs without asking first. The runtime client (MIT) and SoulsIds (Apache-2.0) are freely licensed; the baker is the part that stays private.
+> **Public, MIT-licensed.** Vanilla game + an apworld + an MIT Rust client. This tree ships **no game assets and modifies no game files**, and contains **no code or data from thefifthmatt's SoulsRandomizers or any other randomizer lineage** -- v0.2 is a from-scratch, data-derived rebuild (see `PROVENANCE.md`). `elden_ring_artifacts/` (game-derived files) is gitignored and is never distributed.
 
 This is the working tree for making **Elden Ring a first-class [Archipelago](https://archipelago.gg) game.** Every meaningful pickup in the Lands Between becomes a *check*; received items appear in your inventory mid-session via a custom runtime client. The full loop (pickup → check → grant) is confirmed working end-to-end.
 
