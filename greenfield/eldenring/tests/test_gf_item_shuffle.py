@@ -13,9 +13,16 @@ class ItemShuffleOn(WorldTestBase):
     options = {"item_shuffle": True}
 
     def test_real_items_in_pool(self):
+        # Feature-registered items are NOT vanilla catalog items and legitimately ride the shuffled
+        # pool: progressive_flasks substitutes every Golden Seed / Sacred Tear check for a single
+        # "Progressive Flask Upgrade" (features/progressive.py), which is how the ladder stays
+        # count-exact. Excluded by NAME from the feature module, so this list cannot silently rot.
+        from worlds.eldenring.features.progressive import PROG_FLASK
+
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated")
+        _not_vanilla = {"Rune", PROG_FLASK}
         names = [i.name for i in self.multiworld.itempool
-                 if not i.name.endswith(" Lock") and i.name != "Rune"]
+                 if not i.name.endswith(" Lock") and i.name not in _not_vanilla]
         self.assertTrue(names, "item shuffle should place real vanilla items")
         for n in names:
             self.assertIn(n, ITEM_CATALOG, "shuffled pool items are catalog items")
