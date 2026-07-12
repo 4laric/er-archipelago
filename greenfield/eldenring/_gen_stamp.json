@@ -1,20 +1,20 @@
 {
   "counts": {
     "filler_pool": 226,
-    "item_catalog": 2026,
-    "locations": 4767,
+    "item_catalog": 2030,
+    "locations": 4772,
     "regions": 20,
     "sweeps": 196
   },
-  "inputs_hash": "sha256:8ece420b6e5bc1f7a6bd045d9b4b84fbec02ce54a29a6f0ff5b5845cf5890c7a",
+  "inputs_hash": "sha256:e963bd49eb12027733805897774bff261b1d114e51ff01d7f8d4d427a8c5c7f4",
   "modules": {
-    "boss_data.py": "sha256:73b33ce434522651e3e886617be33d72c314d8825db62e1f4e2a467a8b131c62",
+    "boss_data.py": "sha256:d5733bd289c155f13a509608b51ccfef8ab5d1050624e5051be01f34d820a381",
     "boss_sweeps.py": "sha256:2e2dd0950c49994b65164808b3c6438dfefb9478a9bf058e32a84640ab093aec",
-    "data.py": "sha256:a5e2507b23d5ed6850de0d5319608676022618288cb7b72616b360176fea0fbb",
-    "item_ids.py": "sha256:b39b396ccb474e3265c87c704f53c67827f20d2aa4824e34c34c920e97409e84",
+    "data.py": "sha256:727cc509265c2311ba3ba5f1a42e8787593f3c504db9225887856aef03bc4bcf",
+    "item_ids.py": "sha256:7eaa1b02d62d962572d3c1a34eda145a8ed67a245d0b3eca9ecde9dd1a2b0504",
     "item_tiers.py": "sha256:d6bb6f437c6335c49758b0bacf3af769abb842f832ec5afb15e1a6748fa4f0bb",
-    "location_tags.py": "sha256:787a1061e67f646128f2b5ec3a9b62dafdd9a881cc7bf657051ac8da66914721",
-    "missable_locations.py": "sha256:e5f127fdcd497f73fd1b68072a70406230768a3331945b7f2c1d87e1aea3401c",
+    "location_tags.py": "sha256:0e9b0b4fffce4edf750de3d9eb78477a827ce66b62c77942e7f36444aea9f576",
+    "missable_locations.py": "sha256:79a409cb922aa5e90ecdd382ccfe06c3ffff9a50cf551959653389bc8114eaad",
     "region_graces.py": "sha256:35876d0d40d156b2dfdc35c16e344661b20b7d1a7ea002a8cd4b6ea942418c54",
     "region_open_flags.py": "sha256:998b858750faddf03b004b8e290681b15ee782e6882f02fbdbae05f73ebec5f3",
     "shop_data.py": "sha256:a317a13d9b2cd22add7bd1e4c3ee1a448ae8d54c73720c0980de10ecad171a8d"

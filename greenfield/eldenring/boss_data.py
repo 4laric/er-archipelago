@@ -37,7 +37,7 @@ REGION_BOSSES = {
     ],
     "Miquella's Haligtree": [
         (7770006, 176, "Malenia's Great Rune"),
-        (7773899, 15000850, "[Sorcery] Loretta's Mastery"),
+        (7773901, 15000850, "[Sorcery] Loretta's Mastery"),
     ],
     'Mohgwyn Palace': [
         (7770005, 175, "Mohg's Great Rune"),
@@ -62,4 +62,4 @@ REGION_BOSSES = {
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:8ece420b6e5bc1f7a6bd045d9b4b84fbec02ce54a29a6f0ff5b5845cf5890c7a', 'module': 'boss_data.py', 'body_sha256': 'sha256:73b33ce434522651e3e886617be33d72c314d8825db62e1f4e2a467a8b131c62'}
+_GEN_STAMP = {'inputs_hash': 'sha256:e963bd49eb12027733805897774bff261b1d114e51ff01d7f8d4d427a8c5c7f4', 'module': 'boss_data.py', 'body_sha256': 'sha256:d5733bd289c155f13a509608b51ccfef8ab5d1050624e5051be01f34d820a381'}
