@@ -8,8 +8,8 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | key | shape | req | profile | producer | client consumer | meaning |
 |-----|-------|-----|---------|----------|-----------------|---------|
 | `apIdsToItemIds` | SCALAR_INT_MAP | yes | both | core._base_slot_data | core.rs:309 i64_map | AP item id (str) -> ER FullID granted on receipt. |
-| `locationFlags` | SCALAR_INT_MAP | yes | both | core._base_slot_data | core.rs:330 i64_to_u32_map | AP location id (str) -> its ER acquisition event flag; the flag-poll detection table. |
-| `regionOpenFlags` | SCALAR_INT_MAP | yes | both | core._base_slot_data | region.rs:120 str_to_u32 | '<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names. |
+| `locationFlags` | SCALAR_INT_MAP | yes | greenfield | core._base_slot_data | core.rs:517 (key_resolver first, this as fallback) | AP location id (str) -> its ER acquisition event flag; the flag-poll detection table. |
+| `regionOpenFlags` | SCALAR_INT_MAP | yes | greenfield | core._base_slot_data | region.rs:111 str_to_u32 (absent => empty => no locks) | '<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names. |
 | `options` | OPTIONS_DICT | yes | greenfield | core._options_echo | er-logic/options.rs parse_bool_option et al. | runtime option echo sub-dict; every client-read option lives here (features' top-level copies are legacy duplicates the client ignores). |
 | `options.death_link` | BOOL_OR_INT | yes | greenfield | core._options_echo | er-logic/options.rs parse_death_link | shared deaths across the multiworld (world.options.death_link). |
 | `options.enable_dlc` | BOOL_OR_INT | yes | greenfield | core._options_echo | er-logic/options.rs parse_dlc | RESOLVED DLC bool (dlc_only implies on); gates DLC map-reveal flags. |
@@ -28,7 +28,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `regionGraces` | LISTVAL_INT_MAP |  | both | features/graces.py | region.rs:122 str_to_u32vec | item_name -> grace warp flags lit when that item is RECEIVED. Usually keyed by '<Region> Lock' (bundle: all of the region's graces), but grace GATES also key a sub-area's graces on a KEY ITEM instead of the region Lock -- e.g. Raya Lucaria's graces key on 'Academy Glintstone Key' so they light on key receipt, not on the Liurnia Lock. Client MUST light on receipt of ANY keyed item, not just Locks. |
 | `runeGatedGraces` | LISTVAL_INT_MAP |  | greenfield | features/graces.py | region.rs (NEW -- rune-count gate) | str(N) -> grace warp flags lit only once the player has RECEIVED at least N Great Runes (any of greatRuneItemIds). Used for the Leyndell capital graces (folded into Altus) which vanilla gates behind 2 Great Runes; those graces are pulled from the Altus Lock bundle and moved here. Absent/empty when leyndell_runes_required = 0. |
 | `greatRuneItemIds` | INT_LIST |  | greenfield | features/graces.py | region.rs (NEW -- rune-count gate) | FullIDs of every Great Rune item in this seed's pool -- the set the client counts RECEIVED items against to satisfy runeGatedGraces. Emitted only with runeGatedGraces. |
-| `startRegion` | STR | yes | both | features/start_grace.py | core.rs:410 as_str | name of the always-kept start region (diagnostic + start anchor). |
+| `startRegion` | STR | yes | greenfield | features/start_grace.py | core.rs:410 as_str | name of the always-kept start region (diagnostic + start anchor). |
 | `startGraces` | INT_LIST |  | both | features/start_grace.py | startgrants.rs:58 arr_u32 | grace flags lit at spawn so the first warp is possible (front-door of start region). |
 | `startItems` | INT_LIST |  | both | features/start_items.py | startgrants.rs:57 arr_i32 | FullIDs granted once at game start (Torch, Spectral Steed Whistle, ...). |
 | `reveal_all_maps` | BOOL |  | both | features/start_grace.py | startgrants.rs as_bool | reveal the whole world map + underground view (client owns the RE'd flag set). |
@@ -54,7 +54,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `completion_scaling` | INT_OR_BOOL |  | greenfield | features/scaling.py (legacy duplicate of options.completion_scaling) | er-logic/scaling.rs:146 (reads options.completion_scaling) | legacy top-level copy of the scaling toggle/curve id (4 = smoothstep). |
 | `completion_scaling_floor` | NUMBER |  | greenfield | features/scaling.py (legacy duplicate of options.completion_scaling_floor) | (client reads options.completion_scaling_floor) | legacy top-level copy of the scaling floor percent. |
 | `global_scadutree_blessing` | INT |  | greenfield | features/scaling.py (legacy duplicate of options.global_scadutree_blessing) | (client reads options.global_scadutree_blessing) | legacy top-level copy of the Scadutree blessing scope. |
-| `versions` | STR | yes | both | core._base_slot_data | eldenring-archipelago core.rs version gate | VERSION HANDSHAKE. 'apworld/<semver> contract/<hash8> data/<inputs_hash16>'. The client compares the contract hash to the one it was COMPILED against and shouts if they differ. Required, because the failure it catches is silent: apworld and client ship as two separate artifacts (apworld off-site, .dll on Nexus), so mixed versions are not an edge case, they are the norm -- and a stale .dll against a fresh apworld looks exactly like a bug in the game. Every report carries this string. |
+| `versions` | STR | yes | greenfield | core._base_slot_data | eldenring-archipelago core.rs version gate | VERSION HANDSHAKE. 'apworld/<semver> contract/<hash8> data/<inputs_hash16>'. The client compares the contract hash to the one it was COMPILED against and shouts if they differ. Required, because the failure it catches is silent: apworld and client ship as two separate artifacts (apworld off-site, .dll on Nexus), so mixed versions are not an edge case, they are the norm -- and a stale .dll against a fresh apworld looks exactly like a bug in the game. Every report carries this string. |
 | `world_logic` | STR |  | greenfield | core._base_slot_data | (diagnostic -- no client read) | logic profile tag, e.g. 'region_lock'. |
 | `region_count` | ANY |  | greenfield | core._base_slot_data | (diagnostic -- no client read) | len(kept) -- how many regions are in play this seed. |
 | `ending_condition` | ANY |  | greenfield | core._base_slot_data | (diagnostic -- no client read) | resolved goal tag: 'region_locks' | 'great_runes'. |
@@ -69,15 +69,15 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `pool_builder_juice_candidates` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | size of the juice candidate set at this intensity. |
 | `pool_builder_juice_pct` | ANY |  | greenfield | features/pool_builder.py | (diagnostic -- no client read) | resolved share (0..100) of the Rune tail replaced with juice. |
 | `locationIdsToKeys` | ANY | yes | bedrock | (bedrock apworld) | key_resolver.rs | matt slot key token per location; client resolves token1 -> flag (bedrock path). |
-| `itemCounts` | ANY | yes | both | core._base_slot_data (greenfield) / bedrock apworld | core.rs receive.rs itemCounts | per-item quantity map {str(ap_item_id): qty}; client grants full_id x qty. Greenfield emits stack sizes for throwables (x10) and finished pots (x4) (features/filler_curation). |
-| `naturalKeyTriggers` | ANY | yes | bedrock | (bedrock apworld) | key_resolver.rs / region.rs | bedrock natural key triggers. |
-| `lockGrantItems` | ANY | yes | bedrock | (bedrock apworld) | region.rs | items granted on a region lock receipt (bedrock). |
-| `randomStartDoneFlag` | ANY | yes | bedrock | (bedrock apworld) | random start client path | bedrock random-start: flag set when the start warp completed. |
-| `randomStartWarpFlag` | ANY | yes | bedrock | (bedrock apworld) | random start client path | bedrock random-start: flag that triggers the start warp. |
-| `randomStartAreaId` | ANY | yes | bedrock | (bedrock apworld) | random start client path | bedrock random-start: destination area id. |
-| `randomStartGraceId` | ANY | yes | bedrock | (bedrock apworld) | random start client path | bedrock random-start: destination grace id. |
-| `fogWalls` | ANY | yes | bedrock | (bedrock apworld) | fog wall client path | bedrock fog-wall spec. |
-| `fogWallDebug` | ANY | yes | bedrock | (bedrock apworld) | fog wall client path | bedrock fog-wall debug toggle. |
+| `itemCounts` | ANY |  | both | core._base_slot_data (greenfield) / bedrock apworld | core.rs receive.rs itemCounts | per-item quantity map {str(ap_item_id): qty}; client grants full_id x qty. Greenfield emits stack sizes for throwables (x10) and finished pots (x4) (features/filler_curation). |
+| `naturalKeyTriggers` | ANY |  | bedrock | (bedrock apworld) | key_resolver.rs / region.rs | bedrock natural key triggers. |
+| `lockGrantItems` | ANY |  | bedrock | (bedrock apworld) | region.rs | items granted on a region lock receipt (bedrock). |
+| `randomStartDoneFlag` | ANY |  | bedrock | (bedrock apworld) | random start client path | bedrock random-start: flag set when the start warp completed. |
+| `randomStartWarpFlag` | ANY |  | bedrock | (bedrock apworld) | random start client path | bedrock random-start: flag that triggers the start warp. |
+| `randomStartAreaId` | ANY |  | bedrock | (bedrock apworld) | random start client path | bedrock random-start: destination area id. |
+| `randomStartGraceId` | ANY |  | bedrock | (bedrock apworld) | random start client path | bedrock random-start: destination grace id. |
+| `fogWalls` | ANY |  | bedrock | (bedrock apworld) | fog wall client path | bedrock fog-wall spec. |
+| `fogWallDebug` | ANY |  | bedrock | (bedrock apworld) | fog wall client path | bedrock fog-wall debug toggle. |
 
 ## Shapes
 
