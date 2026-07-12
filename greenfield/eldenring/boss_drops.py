@@ -6,13 +6,47 @@ BOSS_DROP_FLAGS = frozenset({
     530600,  # Dragonscale Blade
     12037950,  # Siluria's Tree
     65060,  # Speckled Hardtear
+    530965,  # Ash of War: Aspects of the Crucible: Wings
+    1052417100,  # Ash of War: Bloodhound's Step
+    530855,  # Ash of War: Ghostflame Call
+    1049377100,  # Ash of War: Poison Moth Flight
+    1049397850,  # Battlemage Hugues
+    530955,  # Black Steel Greatshield
+    65050,  # Cerulean Crystal Tear
     65250,  # Cerulean Hidden Tear
+    530405,  # Commander's Standard
+    65070,  # Crimson Bubbletear
     65000,  # Crimsonspill Crystal Tear
+    530530,  # Death Ritual Spear
+    1049377110,  # Death's Poker
+    530550,  # Dragon Heart
+    530420,  # Dragon Heart
+    530510,  # Dragon Heart
+    530860,  # Dragon Heart
+    530840,  # Dragon Heart
+    530850,  # Dragon Heart
+    530945,  # Dragon Heart
+    530800,  # Dragon Heart
     65280,  # Flame-Shrouding Cracked Tear
+    530505,  # Gargoyle's Black Blades
+    530425,  # Gargoyle's Blackblade
     65310,  # Holy-Shrouding Cracked Tear
     65300,  # Lightning-Shrouding Cracked Tear
     65080,  # Opaline Bubbletear
+    65110,  # Opaline Hardtear
+    530930,  # Pelt of Ralva
     65160,  # Ruptured Crystal Tear
+    65170,  # Ruptured Crystal Tear
+    530845,  # Star-Lined Sword
+    65260,  # Stonebarb Cracked Tear
+    65130,  # Thorny Cracked Tear
+    530940,  # [Incantation] Divine Beast Tornado
+    530905,  # [Incantation] Roar of Rugalea
+    530515,  # [Incantation] Vyke's Dragonbolt
+    1048577700,  # [Sorcery] Explosive Ghostflame
+    530960,  # [Sorcery] Gravitational Missile
+    530805,  # Ancient Dragon Smithing Stone
+    530861,  # Somber Ancient Dragon Smithing Stone
     530130,  # Bloodhound's Fang
     530120,  # [Incantation] Aspects of the Crucible: Tail
     530265,  # Black Knife Tiche
