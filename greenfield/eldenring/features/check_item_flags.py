@@ -40,6 +40,14 @@ try:
 except Exception:  # not yet generated
     ITEM_CATALOG, LOCATION_ITEM = {}, {}
 
+try:
+    from ..repeatable_goods import REPEATABLE_GOODS
+except Exception:  # not yet generated -> old (over-broad) behaviour
+    REPEATABLE_GOODS = frozenset()
+
+_GOODS_CATEGORY = 0x40000000
+_ROW_ID_MASK = 0x0FFFFFFF
+
 
 @register
 class CheckItemFlags(Feature):
@@ -58,7 +66,24 @@ class CheckItemFlags(Feature):
                 full_id = ITEM_CATALOG.get(vanilla_name)
                 if full_id is None:
                     continue  # unresolved -> nothing unambiguous to suppress
-                by_full[int(full_id)].add(int(flag))
+                full_id = int(full_id)
+                # DO NOT arm suppression for a ware you can ALSO farm / mine / buy / craft.
+                # The client suppresses by ITEM ID -- detour.rs only ever sees `raw_id` off the
+                # AddItemFunc buffer and cannot tell where the item came from. So arming a ware that
+                # has a repeatable source eats it from EVERY source: Golden Rune [1] backs 46 checks,
+                # so every Golden Rune [1] you pick up anywhere is eaten until all 46 are collected.
+                # Mine an ore node -> get a Smithing Stone -> that stone is some check's ware -> eaten.
+                # (Alaric, playtest 2026-07-11: "the stones in tunnels ... today they're just
+                # suppressed". It was also silently eating 83% of the rerolled enemy drops.)
+                #
+                # Not arming it costs a DOUBLE-DIP at that one check: you get the vanilla ware as well
+                # as the AP item -- on an item you could have farmed anyway. Strictly the lesser evil.
+                # Suppression stays fully strong for the 446 wares obtainable ONLY as a check, which is
+                # the case that actually matters (a unique ware cannot leak).
+                if (full_id & ~_ROW_ID_MASK) == _GOODS_CATEGORY \
+                        and (full_id & _ROW_ID_MASK) in REPEATABLE_GOODS:
+                    continue
+                by_full[full_id].add(int(flag))
         # str(FullID) -> sorted [flag, ...]; matches core.rs:369 (k.parse::<u32>, v.as_array of u32).
         check_item_flags = {str(full): sorted(flags) for full, flags in by_full.items()}
         return {contract.CHECK_ITEM_FLAGS: check_item_flags}
