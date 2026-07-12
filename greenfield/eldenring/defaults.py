@@ -87,7 +87,26 @@ FROZEN_OPTIONS = {
     # so they arrive rarely and never form a curve) finally move on a visible cadence. Zero client
     # churn: progressiveGrants already supports per-rung goods, and overflow copies already fall
     # through to a Lord's Rune. -- Alaric 2026-07-11
-    "progressive_flasks": (1, None),
+    # ⛔ FROZEN OFF AGAIN (2026-07-12) -- the unified flask ladder BRICKS THE GAME.
+    #
+    # er-logic reconcile.rs folds a progressive item's tier goods into `unique_goods`: a SELF-HEALING
+    # set meaning "the player should OWN this; if it is missing, grant it". That is correct for the
+    # stone BELL BEARINGS the tier system was built for -- a bell bearing is a key item you keep.
+    #
+    # It is catastrophically wrong for a CONSUMABLE. A Golden Seed / Sacred Tear is SPENT at the grace;
+    # the moment it leaves the inventory the reconciler sees it missing and re-grants it. Upgrade,
+    # re-grant, upgrade, re-grant -- unbounded flask upgrades until the potency runs past its cap and
+    # the game CTDs. (Alaric, live playtest 2026-07-12: "sat down at grace, upgraded. still had the
+    # option to upgrade so kept going. kept going until game CTD'ed".)
+    #
+    # Note reconcile.rs already has the right mechanism three lines below: OVERFLOW copies go to
+    # `d.ledgered`, keyed by the copy's stream index, so they are granted exactly ONCE. The TIER path
+    # never got it, because until now no tier ever granted a consumable.
+    #
+    # The ladder itself is sound and stays in features/progressive.py. Re-enable ONLY when the client
+    # can express "this tier's goods are CONSUMED, not owned" -- i.e. tier grants routed through the
+    # ledger. Until then a seed must not ship an item that eats the player's run.
+    "progressive_flasks": (0, None),
     "dungeon_sweep": (2, "all"),
     # NOT half-built -- finished on BOTH sides, so it ships at its declared default (2 = scaled), not
     # off. gen has DLC_BLESSING_FLOORS and emits dlcScadutreeFloorRanges (only when this == 2); the
