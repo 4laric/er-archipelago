@@ -12,8 +12,8 @@ first time.
 > **New in v0.2:** this is the **provenance-clean rebuild**. The world's location
 > data is derived directly from vanilla game files, with no third-party
 > randomizer data or code in the shipped apworld. The AP game id is **unchanged**
-> from v0.1 — still **`EldenRing`** (`game: EldenRing`); greenfield is promoted to
-> BE the published `EldenRing` world, so the old matt-lineage world is retired.
+> CHANGED from v0.1 — now **`Elden Ring`** (`game: Elden Ring`); greenfield is promoted to
+> BE the published `Elden Ring` world, so the old matt-lineage world is retired.
 > See `CHANGELOG.md` and `ATTRIBUTION.md`.
 
 ---
