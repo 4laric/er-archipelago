@@ -51,7 +51,7 @@ path-mismatch fails a test instead of a playtest.
 
 **3. Detection-table coverage gate (tier A) — the one place our own replay tier lies.**
 `vanilla_suppress_replay` proves the suppression *logic* but mocks `mapped_flags`, so it stays
-green while `er_static_detection_table.json` is missing 147 locations. Add a data invariant:
+green while the (now-deleted) static detection table was missing 147 locations. Add a data invariant:
 every advancement/checkable location has a detection-table entry. A logic replay can never see a
 data-coverage hole — this is exactly the A-vs-C distinction.
 

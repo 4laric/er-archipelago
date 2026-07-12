@@ -421,31 +421,13 @@ if ($Me3Deploy) {
         Write-Host "  apconfig.json -> $Me3Dir"
     } else { Write-Warning "  no apconfig.json at $Repo -- create one with `"url`" + `"slot`" (see shared\config.rs schema)" }
 
-    # Sweep-flag bridge (2026-07-01 playtest gap: table was never next to the DLL -> 0 sweep groups).
-    # flagpoll merge_table_file reads er_static_detection_table.json from the DLL's dir; it supplies
-    # the overworld/castle sweep groups the retired baker used to write into apconfig (e.g. Castle
-    # Morne 1044320800). Durable fix = emit sweepFlags in slot_data; this staging bridges until then.
-    $sweepTable = Join-Path $Repo "Archipelago\worlds\eldenring\er_static_detection_table.json"
-    if (Test-Path $sweepTable) {
-        Copy-Item $sweepTable (Join-Path $Me3Dir "er_static_detection_table.json") -Force
-        Write-Host "  er_static_detection_table.json -> $Me3Dir  (sweep-flag bridge)"
-        # 2026-07-02: the client's mod_directory() resolves to the me3 INSTALL dir (where its logs
-        # and ap_save_*.json land), NOT the profile dir where the DLL is staged -- confirmed live:
-        # "static detection table absent at ...garyttierney\me3\...". Stage the table there too so
-        # the sweep bridge actually finds it. (Durable fix stays: emit sweepFlags in slot_data.)
-        $me3Install = Join-Path $env:LOCALAPPDATA "Programs\garyttierney\me3"
-        if (Test-Path $me3Install) {
-            Copy-Item $sweepTable (Join-Path $me3Install "er_static_detection_table.json") -Force
-            Write-Host "  er_static_detection_table.json -> $me3Install  (client mod_directory)"
-        } else { Write-Warning "  me3 install dir not found at $me3Install -- sweep table staged to profile dir only" }
-    } else {
-        # NOT a warning: this table is a v0.1 BRIDGE. It fed the retired baker's extra sweep groups
-        # (overworld/castle tiers) into flagpoll. Greenfield's live path is slot_data dungeonSweepFlags
-        # (192 triggers / 2440 member links this seed) -- sweeps poll fine without it. The client says
-        # the same thing at info level ("sweep groups limited to slot_data"). Crying wolf here trained
-        # us to ignore the deploy output, which is worse than saying nothing.
-        Write-Host "  er_static_detection_table.json absent (v0.1 bridge; greenfield sweeps ride slot_data dungeonSweepFlags)"
-    }
+    # SWEEP-FLAG BRIDGE REMOVED (2026-07-12). er_static_detection_table.json is gone: it was a v0.1
+    # bridge for the retired baker, gen_data never emitted one, and regenerate_detection_table.py
+    # could only AUGMENT an existing table -- so it was not merely unshipped, it was UNREPRODUCIBLE.
+    # No player ever had it. Alaric's box did, so every playtest ran +4886 location flags and +76
+    # sweep groups nobody else could reproduce. Greenfield's live path is slot_data
+    # (locationFlags + dungeonSweepFlags), and this script already said so: "sweeps poll fine
+    # without it". Dev now matches prod.
 
     # Shop-check flags: client key_resolver reads shoplineup_flags.json from the DLL dir
     # (mod_directory), same staging as the sweep table. Maps shop rows -> eventFlag_forStock.
