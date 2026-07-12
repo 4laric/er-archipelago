@@ -349,13 +349,13 @@ class GreenfieldEldenRingWorld(World):
         # Previously _reserved_slots assumed only region Locks, so boss_keys/progressive were
         # uncounted and juice over-provisioned -- the over-provision trim then dropped real vanilla
         # gear past the Rune tail (a precision bug; count stayed exact via range(slots)).
+        # Contributors (locks, boss keys, progressive copies). pool_builder is NO LONGER one of them:
+        # its juice is a recipe category inside features/filler_budget, which is the single owner of
+        # the filler tail. _gf_reserved_slots is what those contributors ate -- the allocator subtracts
+        # it, exactly as pool_builder's private _rune_tail used to.
         for f in _FEATURES:
-            if f.name != "pool_builder":
-                pool += f.create_items(self)
+            pool += f.create_items(self)
         self._gf_reserved_slots = len(pool)
-        for f in _FEATURES:
-            if f.name == "pool_builder":
-                pool += f.create_items(self)
         total = len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
         slots = total - len(pool)
         shuffle = self._shuffle_on()
@@ -393,59 +393,42 @@ class GreenfieldEldenRingWorld(World):
             # reach a protected/progression item. displaceable_filler is the SAME predicate
             # features/pool_builder uses to size its budget, so the drop order and the juice count
             # cannot drift. Default scope=rune_tail keeps the historical 2-level sort byte-for-byte.
-            _pbs = getattr(self.options, "pool_builder_scope", None)
-            _all_filler = False
-            if _pbs is not None:
-                try:
-                    _all_filler = _pbs.current_key == "all_filler"
-                except Exception:
-                    _all_filler = False
-            if _all_filler:
-                from .features.filler_curation import displaceable_filler as _disp
+            # Rank every check's vanilla item so the count-trim drops the RIGHT things: the Rune
+            # sentinel first (3), then displaceable junk consumables (2), never a required rune (0) or
+            # a protected/real item (1). displaceable_filler is the same predicate features/
+            # filler_budget sizes its budget with, so the drop order and the budget cannot drift.
+            from .features.filler_curation import displaceable_filler as _disp
 
-                def _tail_rank(x):
-                    if x == FILLER:
-                        return 3
-                    if x in required:
-                        return 0
-                    return 2 if _disp(self, x) else 1
-                extras.sort(key=_tail_rank)
-            else:
-                extras.sort(key=lambda x: (x == FILLER, x not in required))
-        for k in range(slots):
-            _nm = extras[k] if k < len(extras) else FILLER
-            pool.append(self.create_item(self._pick_filler() if _nm == FILLER else _nm))
-        # POOL COMPOSITION happens in TWO passes, and their ORDER is the arbitration policy for the
-        # shared junk-filler set (no proportional sharing -- deliberate; see the pool_builder consult):
-        #   PASS 1 (above): additive CONTRIBUTORS (locks, boss keys, progressive, pool_builder juice)
-        #     + the slots-arithmetic trim of the sorted `extras` tail. One count clamp for N features.
-        #   PASS 2 (below): in-place SWAPS over the materialized pool, gated on live classification --
-        #     stone_injection first (economy correction), then curated_filler.curate() (junk redraw).
-        #     Both skip progression/useful, so PASS-1 juice + keys survive. stone_ramp runs later still
-        #     (post_fill), auto-sized to the fill spheres, so it deliberately gets the last word.
-        # B (shuffle-safe stone supply): swap N filler-classified non-stone pool items for LOW smithing
-        # stones. varied_filler / filler_upgrade_weight only touch the ~1% Rune tail (inert under
-        # item_shuffle); this operates on the SHUFFLED pool, so it actually moves the standard-weapon
-        # curve. Count-neutral (filler->filler); never touches progression, useful (juice), required
-        # runes, or existing stones. Deterministic (self.random). See tools/analyze_upgrade_curve.py.
-        _si = getattr(self.options, "stone_injection", None)
-        _n_inj = int(_si.value) if _si is not None else 0
-        if _n_inj > 0:
-            _low = [n for n in ("Smithing Stone [1]", "Smithing Stone [2]", "Smithing Stone [3]")
-                    if n in item_name_to_id]
-            if _low:
-                _cand = [i for i, it in enumerate(pool)
-                         if not it.advancement
-                         and not (it.classification & ItemClassification.useful)
-                         and "Smithing Stone" not in it.name and it.name != FILLER
-                         and not it.name.startswith("Golden Rune")  # keep the rune/level curve intact
-                         and it.name not in required]
-                self.random.shuffle(_cand)
-                for j, idx in enumerate(_cand[:_n_inj]):
-                    pool[idx] = self.create_item(_low[j % len(_low)])
-        # curated_filler: seize junk-consumable filler -> Nightreign curated roster (in-pool swap).
-        from .features import filler_curation as _fc
-        _fc.curate(self, pool)
+            def _tail_rank(x):
+                if x == FILLER:
+                    return 3
+                if x in required:
+                    return 0
+                return 2 if _disp(self, x) else 1
+            extras.sort(key=_tail_rank)
+        _names: List[str] = [extras[k] if k < len(extras) else FILLER for k in range(slots)]
+        # THE FILLER TAIL, ALLOCATED ONCE. Every slot ranked 2 or 3 above is budget; features/
+        # filler_budget decides what goes in all of them in a single pass -- economy reservation off
+        # the top, then consumables and juice from the remainder. There is no second pass to undo it,
+        # which is the entire point (see that module's docstring for the three-pass bug it replaces).
+        if shuffle:
+            from .features import filler_budget as _fb
+            _budget_ix = [k for k, nm in enumerate(_names)
+                          if nm == FILLER or (nm not in required and _disp(self, nm))]
+            _plan = _fb.plan(self, len(_budget_ix))
+            for _k, _pick in zip(_budget_ix, _plan):
+                if _pick is not None:      # None = keep what the check already paid (junk / Rune)
+                    _names[_k] = _pick
+        for _nm in _names:
+            _it = self.create_item(self._pick_filler() if _nm == FILLER else _nm)
+            if shuffle:
+                _fb.classify(self, _it)
+            pool.append(_it)
+        # ONE pass. No PASS-2. The old design ran additive contributors, then in-place SWAPS over
+        # the materialised pool (stone_injection, then curated_filler.curate()), then a THIRD relabel
+        # in post_fill (stone_ramp) -- three owners of one resource, arbitrated by nothing but the
+        # order they happened to run in. That composition silently starved the upgrade economy; see
+        # features/filler_budget.py. The swaps are gone: the allocator decided the whole tail above.
         self.multiworld.itempool += pool
 
     def pre_fill(self) -> None:
@@ -473,111 +456,17 @@ class GreenfieldEldenRingWorld(World):
             from .features import progression_surface as _ps
             _ps.audit_reachable(self)
 
-        # B-ramp (AUTO-SIZED to the smoothstep target): shape the achieved standard-weapon curve so it
-        # tracks the client's smoothstep difficulty scaling (max weapon by the deepest sphere), keyed
-        # off the TRUE per-seed fill spheres (get_spheres, valid only post-fill). No count knob: per
-        # sphere we place exactly the stones needed to AFFORD the smoothstep target at that depth under
-        # the current flatten_regular_upgrades ladder, MINUS the vanilla stones already reachable there
-        # -- so it self-sizes with num_regions (= sphere count) and the flatten setting. Re-labels this
-        # world's own filler in place (count-neutral) and LOCKS it (progression balancing skips locked).
-        # Winnable (filler only) and stones stay in THIS world (pinned to own locations).
-        _o = getattr(self.options, "stone_ramp", None)
-        if not (_o is not None and _o.value):
-            return
-        import re as _re
-        from collections import defaultdict as _dd
-        _fo = getattr(self.options, "flatten_regular_upgrades", None)
-        _flat = int(_fo.value) if _fo is not None else 0     # 0 = vanilla 2/4/6; N = uniform N/level
-        _loc_sphere = {}
-        for _s, _ls in enumerate(self.multiworld.get_spheres()):
-            for _L in _ls:
-                _loc_sphere[_L] = _s
-        if not _loc_sphere:
-            return
-        _max_s = max(_loc_sphere.values()) or 1
-        _required = set(self._required_runes())
-        _bg = _dd(lambda: _dd(int))          # bg[sphere][tier] = reachable REGULAR stones already placed
-        _bg_somber = _dd(lambda: _dd(int))   # bg_somber[sphere][tier] = reachable SOMBER stones already placed
-        _by_sphere = _dd(list)               # convertible filler locations per sphere
-        for _L in self.multiworld.get_locations(self.player):
-            _it = _L.item
-            if _it is None or _L.address is None or _L not in _loc_sphere or _it.player != self.player:
-                continue
-            _m = _re.match(r"Smithing Stone \[(\d+)\]$", _it.name)
-            if _m:
-                _bg[_loc_sphere[_L]][int(_m.group(1))] += 1
-                continue
-            _msb = _re.match(r"Somber Smithing Stone \[(\d+)\]$", _it.name)  # 'Somber' != 'Smithing' at pos 0
-            if _msb:
-                _bg_somber[_loc_sphere[_L]][int(_msb.group(1))] += 1
-                continue
-            if (not _L.locked and not _it.advancement
-                    and not (_it.classification & ItemClassification.useful)
-                    and "Smithing Stone" not in _it.name
-                    and not _it.name.startswith("Golden Rune")
-                    and _it.name != FILLER and _it.name not in _required):
-                _by_sphere[_loc_sphere[_L]].append(_L)
+        # stone_ramp DELETED. It was never a working mechanism that lost its inputs -- it never
+        # worked: 3 stones placed on the playtest seed, 0 on the pre-freeze A/B. The economy that
+        # felt good was curated_filler's, all along. Its model was unsound (it measured supply as
+        # though the player 100%s every fill sphere, so its deficit was ~never positive), its failure
+        # mode was unsound (`while _deficit > 0 and _li < len(_locs)` ran out of slots and shrugged in
+        # silence), and it was architecturally hostile (a FOURTH pass, relabelling placements after
+        # fill and locking them, bypassing progression balancing). Its one legitimate job -- low-tier
+        # stones affordable early -- is now a correctly-sized, low-tier-weighted RESERVATION in
+        # features/filler_budget, which needs no sphere coupling to do it. Coupling a player-visible
+        # economy to an invisible fill artifact is what made it both wrong and unfixable.
 
-        def _needed(_lvl_target):
-            # cumulative REGULAR stones per tier to reach +lvl_target (level 25 = Ancient Dragon, not
-            # injectable -> capped at +24). flat>0 flattens every level to flat stones of its tier.
-            _d = _dd(int)
-            for _lvl in range(1, min(_lvl_target, 24) + 1):
-                _t = (_lvl - 1) // 3 + 1
-                _van = (2, 4, 6)[(_lvl - 1) % 3]
-                _d[_t] += min(_van, _flat) if _flat > 0 else _van   # cap-at-N, matches client
-            return _d
-
-        _bg_cum = _dd(int)
-        _inj_cum = _dd(int)
-        _bg_somber_cum = _dd(int)
-        _inj_somber_cum = _dd(int)
-        for _s in range(_max_s + 1):
-            for _t, _c in _bg[_s].items():
-                _bg_cum[_t] += _c
-            for _t, _c in _bg_somber[_s].items():
-                _bg_somber_cum[_t] += _c
-            _f = _s / _max_s
-            # Smoothstep +level target, FLOORED by a front-loaded LOW-tier ramp. The smoothstep is slow
-            # at the start (barely any stones before ~40% depth), which starves early standard weapons.
-            # Bring the LOW tiers ([1]-[3] -> +9) forward: a linear ramp affordable by ~20% run depth,
-            # then held at +9 until the smoothstep overtakes it (~40-45% depth). `max()` means +10 and up
-            # are governed by the ORIGINAL smoothstep unchanged -- only the low end is front-loaded.
-            _smooth = round((_f * _f * (3 - 2 * _f)) * 25)
-            _low = int(min(9.0, _f / 0.20 * 9.0) + 0.5)
-            _target = max(_low, _smooth)
-            _req = _needed(_target)
-            _locs = _by_sphere.get(_s, [])
-            self.random.shuffle(_locs)
-            _li = 0
-            for _t in range(1, 9):
-                _stone = f"Smithing Stone [{_t}]"
-                if _stone not in item_name_to_id:
-                    continue
-                _deficit = _req[_t] - _bg_cum[_t] - _inj_cum[_t]
-                while _deficit > 0 and _li < len(_locs):
-                    _L = _locs[_li]; _li += 1
-                    _new = self.create_item(_stone)
-                    _L.item = _new; _new.location = _L; _L.locked = True
-                    _inj_cum[_t] += 1; _deficit -= 1
-            # SOMBER: a GENTLE low-tier front-load, from the filler slots the regular ramp did NOT
-            # consume this sphere (regular keeps priority via the shared `_li`). Somber weapons cost ONE
-            # stone per level, so "affordable to +N" just means owning Somber Smithing Stone [1]..[N].
-            # Guarantee the LOW somber tiers ([1]-[3] -> +3) forward by ~35% depth (gentler + lower cap
-            # than the regular ramp); +4 and up stay whatever the natural vanilla pool provides.
-            _somber_target = int(min(3.0, _f / 0.35 * 3.0) + 0.5)
-            for _t in range(1, _somber_target + 1):
-                _stone = f"Somber Smithing Stone [{_t}]"
-                if _stone not in item_name_to_id:
-                    continue
-                _deficit = 1 - _bg_somber_cum[_t] - _inj_somber_cum[_t]   # need exactly one of each low tier
-                while _deficit > 0 and _li < len(_locs):
-                    _L = _locs[_li]; _li += 1
-                    _new = self.create_item(_stone)
-                    _L.item = _new; _new.location = _L; _L.locked = True
-                    _inj_somber_cum[_t] += 1; _deficit -= 1
-
-    # ---- regions --------------------------------------------------------------
     def _add_locations(self, region: Region, region_name: str) -> None:
         # A GUESSED REGION MAY NOT CARRY PROGRESSION.
         # DEFAULTED_REGION_APS = checks whose real region is unknown, so gen_data defaulted them to the
