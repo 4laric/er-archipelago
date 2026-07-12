@@ -1,0 +1,95 @@
+name: Test
+
+# The apworld had NO CI at all. The client got a runner on 2026-07-12 and it immediately caught three
+# compile errors that had been sitting on main; this repo is the same blind spot one repo over. Today's
+# Windows build broke because `tools/gen_location_regions.py` still called the retired
+# `contract.is_big_ticket` -- a rename an AP-free tool could not follow. That is a ten-second failure on
+# a runner and it cost a build round-trip through Alaric instead.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # AP pins its own deps at import time and will try to self-update mid-test without this.
+  SKIP_REQUIREMENTS_UPDATE: "1"
+
+jobs:
+  # ---------------------------------------------------------------------------------------------
+  # 1. The apworld test suite, run inside a real Archipelago tree (the world is a package under
+  #    worlds/, so it can only be imported from there -- `from ..location_tags import ...`).
+  # ---------------------------------------------------------------------------------------------
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # PIN the Archipelago version. An unpinned clone means a green main can go red overnight on
+      # someone else's commit, which trains everyone to ignore the badge.
+      - name: Check out Archipelago 0.6.8
+        uses: actions/checkout@v4
+        with:
+          repository: ArchipelagoMW/Archipelago
+          ref: 0.6.8
+          path: Archipelago
+
+      - name: Install Archipelago's requirements
+        run: |
+          python -m pip install --upgrade pip
+          # AP 0.6.8 is not compatible with setuptools >= 80 (pkg_resources removal).
+          pip install "setuptools<80"
+          pip install -r Archipelago/requirements.txt
+          pip install pytest
+
+      # The world is INSTALLED, not symlinked: several tests resolve their ground-truth inputs relative
+      # to the package dir, and a symlink makes `..` escape into the source tree, which is exactly how a
+      # test passes locally and silently no-ops in CI.
+      - name: Install the greenfield world into Archipelago
+        run: |
+          cp -r greenfield/eldenring Archipelago/worlds/eldenring
+          # gen_data's INPUTS. They live beside the package in the source tree; the Windows install step
+          # copies them INTO the package so the derivation oracles can re-derive against ground truth.
+          # Without them the oracle suites (boss sweeps, shop release-gate) run BLIND -- they do not fail,
+          # they quietly assert nothing, which is worse than failing.
+          cp greenfield/*.csv greenfield/*.tsv Archipelago/worlds/eldenring/ 2>/dev/null || true
+          test -f Archipelago/worlds/eldenring/region_map.csv  || { echo "::error::region_map.csv missing -- boss-sweep oracle would run blind"; exit 1; }
+          test -f Archipelago/worlds/eldenring/shop_rows.tsv   || { echo "::error::shop_rows.tsv missing -- shop release-gate would run blind"; exit 1; }
+
+      - name: pytest
+        working-directory: Archipelago
+        run: python -m pytest worlds/eldenring/tests -q
+
+  # ---------------------------------------------------------------------------------------------
+  # 2. The AP-FREE generators. These need no Archipelago and no game artifacts -- only committed
+  #    greenfield data -- so CI can run them, and they are precisely what broke the Windows build.
+  #    Two failure modes, both caught here:
+  #      a) the generator CRASHES (the is_big_ticket rename)
+  #      b) the generator runs but its committed OUTPUT is STALE (someone changed the data and never
+  #         regenerated) -- caught by failing on a non-empty git diff.
+  # ---------------------------------------------------------------------------------------------
+  generators:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive   # gen_location_regions writes into the client submodule
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generators run, and their committed output is not stale
+        run: |
+          python tools/gen_location_regions.py
+          python greenfield/gen_contract.py
+          if ! git diff --quiet; then
+            echo "::error::a generator's committed output is STALE -- regenerate and commit:"
+            git --no-pager diff --stat
+            exit 1
+          fi
