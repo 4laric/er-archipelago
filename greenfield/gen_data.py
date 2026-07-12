@@ -138,12 +138,12 @@ gf={}
 # (a legacy dungeon with no overworld grace) and won _front_door -> bogus REGION_OPEN_FLAGS[
 # "Stormveil Castle"]=200 AND polluted the Stormveil grace bundle. Reject any warpUnlockFlag
 # outside the valid region/grace group at ingest so only real graces reach _open_cand.
-for row in csv.DictReader(open(os.path.join(AR,"grace_flags.tsv")),delimiter="\t"):
+for row in csv.DictReader(open(os.path.join(AR,"grace_flags.tsv"),encoding="utf-8-sig"),delimiter="\t"):
     if not (71000 <= int(row["warpUnlockFlag"]) <= 76999): continue
     gf[row["warpUnlockFlag"]]=row["mapTile"]
 greg={}
 grm=[x for x in os.listdir(AR) if x.startswith("grace_region_map")][0]
-for row in csv.DictReader(open(os.path.join(AR,grm)),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
+for row in csv.DictReader(open(os.path.join(AR,grm),encoding="utf-8-sig"),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
 _acc=defaultdict(Counter)
 for flag,tile in gf.items():
     pr=greg.get(flag); m=re.match(r"m60_(\d\d)_(\d\d)",tile)
@@ -300,7 +300,13 @@ def _loc_tags(r):
 # (see features/minibaker.py + minibaker.rs). Exclude its flag so it is NOT also an AP shop check --
 # otherwise the client's repurpose would clobber a tracked check. Costs one minor vanilla slot.
 MINIBAKER_VENDOR_FLAGS=frozenset({60290})
-_ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
+# EVERY text read below pins encoding="utf-8-sig". On Windows, open() with no encoding defaults to
+# cp1252, so the SAME gen_data.py produced DIFFERENT output on Alaric's box than in the Linux sandbox:
+#     Windows: 'Swordhand of Night JolÃ¡n'   item_catalog 2033
+#     Linux  : 'Swordhand of Night Jolan'    item_catalog 2034   (correct -- the a-acute is real)
+# That silently defeats the DATA DRIFT gate, whose whole premise is "same artifacts + same generator =>
+# byte-identical output". A generator that is not platform-deterministic cannot be gated on. (2026-07-11)
+_ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"),encoding="utf-8-sig")))
 
 # ---- GROUND TRUTH: acquisition flag -> the items its ItemLotParam lot(s) actually GRANT -----------
 # The category tags (Seedtree / Church / Fragment / Revered / Basin) used to be derived from the
@@ -321,7 +327,7 @@ def _build_lot_items():
         if not os.path.isfile(_p):
             print("[gen_data] WARNING: %s absent -- category tags fall back to NAME matching" % _fn)
             return {}
-        with open(_p, newline="") as _fh:
+        with open(_p, newline="", encoding="utf-8-sig") as _fh:
             for _r in csv.DictReader(_fh):
                 _flags = set()
                 for _c in ("getItemFlagId",) + tuple("getItemFlagId%02d" % _i for _i in range(1, 9)):
@@ -499,7 +505,7 @@ def _real_flag_universe():
     for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
         _p = os.path.join(_SLP_DIR0, _fn)
         if not os.path.isfile(_p): return None                 # params absent -> cannot guard
-        with open(_p, newline="") as _fh:
+        with open(_p, newline="", encoding="utf-8-sig") as _fh:
             _rd = csv.DictReader(_fh)
             _cols = [_c for _c in _rd.fieldnames if _c.startswith("getItemFlagId")]
             for _r in _rd:
@@ -510,7 +516,7 @@ def _real_flag_universe():
                         except ValueError: pass
     _p = os.path.join(_SLP_DIR0, "ShopLineupParam.csv")
     if os.path.isfile(_p):
-        for _r in csv.DictReader(open(_p, newline="")):
+        for _r in csv.DictReader(open(_p, newline="", encoding="utf-8-sig")):
             try:
                 _f = int(_r.get("eventFlag_forStock", 0))
                 if _f > 0: _u.add(_f)
@@ -1688,7 +1694,7 @@ DRAGONHEART_FLAGS = set()         # stock flags whose ShopLineupParam row is pai
 _slp_present = os.path.isfile(_SLP)
 if _slp_present:
     for _src in [_SLP] + ([_REC] if os.path.isfile(_REC) else []):
-        for _sr in csv.DictReader(open(_src)):
+        for _sr in csv.DictReader(open(_src, encoding="utf-8-sig")):
             try:
                 _fl = int(_sr["eventFlag_forStock"])
             except (KeyError, ValueError):
@@ -1763,7 +1769,7 @@ INFINITE_SHOP_ROWS = []
 GOODS_PRICE = {}                  # goods row id -> rune price
 if _slp_present:
     _vanilla_price = {}           # (equipType, equipId) -> cheapest vanilla shop price > 0
-    for _sr in csv.DictReader(open(_SLP)):
+    for _sr in csv.DictReader(open(_SLP, encoding="utf-8-sig")):
         try:
             _et, _ei, _v = int(_sr.get("equipType", 3)), int(_sr["equipId"]), int(_sr["value"])
             _rid, _flag = int(_sr["ID"]), int(_sr["eventFlag_forStock"])
