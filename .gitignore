@@ -4,7 +4,11 @@
 
 # --- non-repo vendored / large dirs ---
 # Contains the copyrighted game exe + vanilla param dumps. NEVER commit (licensing).
+# BOTH forms: the trailing-slash rule matches a DIRECTORY only, but the sandbox clone uses a
+# SYMLINK (AGENTS.md S5), which git then reports as an untracked FILE -- one `git add -A` from
+# being committed to a public repo. Match it either way.
 /elden_ring_artifacts/
+/elden_ring_artifacts
 # AP generation test output.
 /gen-test/
 # Downloaded Nexus randomizer package.
@@ -122,3 +126,14 @@ gensweep_*.csv
 gensweep_*.md
 preflight_*.log
 elden_ring_artifacts/
+
+# --- build outputs + local state: NEVER commit (2026-07-11 cleanup) ---
+# Release packages belong in GitHub Releases, not git. 50 files / 79 MB of RETIRED v0.1
+# artifacts were tracked here.
+/dist/
+# The client .dll is a BUILD OUTPUT (build.ps1 -Me3Deploy stages it). 7.8 MB, and a NEW blob
+# entered history on every rebuild -- that alone is most of the 174 MB .git.
+/me3/*.dll
+# Local runtime state, not source. ap_save_*.json is a PLAYER SAVE, committed to a PUBLIC repo.
+/me3/ap_save_*.json
+/me3/apconfig.json
