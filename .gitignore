@@ -137,3 +137,7 @@ elden_ring_artifacts/
 # Local runtime state, not source. ap_save_*.json is a PLAYER SAVE, committed to a PUBLIC repo.
 /me3/ap_save_*.json
 /me3/apconfig.json
+
+# Local Archipelago checkout (bootstrap-ap). NOT a submodule: it is a stock upstream clone,
+# pinned by .ap-version. Nothing of ours lives in it -- the world is INSTALLED into it.
+/Archipelago/

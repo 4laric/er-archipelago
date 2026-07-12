@@ -30,13 +30,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      # PIN the Archipelago version. An unpinned clone means a green main can go red overnight on
-      # someone else's commit, which trains everyone to ignore the badge.
-      - name: Check out Archipelago 0.6.7
+      # The AP pin lives in ONE place -- .ap-version -- read here AND by bootstrap-ap.ps1, so the version
+      # you develop against and the version CI gates on cannot drift apart. An unpinned clone would mean a
+      # green main can go red overnight on someone else's commit, which trains everyone to ignore the badge.
+      - name: Read the Archipelago pin
+        id: ap
+        run: echo "version=$(cat .ap-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Check out stock upstream Archipelago
         uses: actions/checkout@v4
         with:
-          repository: ArchipelagoMW/Archipelago
-          ref: 0.6.7
+          repository: ArchipelagoMW/Archipelago    # UPSTREAM. Never a fork -- see bootstrap-ap.ps1.
+          ref: ${{ steps.ap.outputs.version }}
           # NOT `Archipelago`: this repo already has a submodule at that exact path, and the second
           # checkout collided with it ("Entering 'Archipelago'" -> git bailed).
           path: _ap

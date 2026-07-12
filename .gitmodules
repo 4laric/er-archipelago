@@ -1,7 +1,3 @@
-[submodule "Archipelago"]
-	path = Archipelago
-	url = https://github.com/4laric/Archipelago.git
-	branch = game-derived
 [submodule "from-software-archipelago-clients"]
 	path = from-software-archipelago-clients
 	url = https://github.com/4laric/from-software-archipelago-clients.git
