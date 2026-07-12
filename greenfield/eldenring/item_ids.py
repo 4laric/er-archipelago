@@ -7579,3 +7579,5 @@ FILLER_POOL = [
     'Yellow Ember',
     'Yellow Fulgurbloom',
 ]
+
+_GEN_STAMP = {'inputs_hash': 'sha256:832252f035feaeedfe26166ef8d62ca398e1b953508448857597fcce2f681a53', 'module': 'item_ids.py', 'body_sha256': 'sha256:fa9007c60ae758795ab09672059849958ee58912171646f7ad133d4157ec1783'}

@@ -198,7 +198,7 @@ class BossKeysOn(WorldTestBase):
 
 class BossKeysCuratedFill(WorldTestBase):
     # The soundness scenario the logic gate exists for: curated_fill routes region Locks onto
-    # big-ticket (incl. Boss) checks. If setUp's full fill FillErrors, this class errors -> guard.
+    # surface (incl. Boss) checks. If setUp's full fill FillErrors, this class errors -> guard.
     game = GAME
     options = {"num_regions": 0, "boss_keys": True}
 

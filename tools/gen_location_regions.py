@@ -4,7 +4,7 @@
 Emits `crates/er-logic/src/tracker_regions.rs` from the GREENFIELD pure-data modules.
 AP-env-free: no Archipelago import, runs on any Python 3. Sources:
   - greenfield/eldenring/data.py               : LOCATIONS (ap ids 7,770,000+, region membership)
-  - greenfield/eldenring/location_tags.py      : LOCATION_TAGS (Boss/Remembrance -> big_ticket)
+  - greenfield/eldenring/location_tags.py      : LOCATION_TAGS -> the PROGRESSION SURFACE column
   - greenfield/eldenring/missable_locations.py : MISSABLE_LOCATIONS (missable ap ids)
   - greenfield/eldenring/region_open_flags.py  : REGION_OPEN_FLAGS (sanity: every region has a flag)
 
@@ -29,8 +29,11 @@ LIB_RS = os.path.join(REPO, "from-software-archipelago-clients",
                       "crates", "er-logic", "src", "lib.rs")
 MOD_LINE = "pub mod tracker_regions;"
 
-# Big-ticket tag types: loaded from the contract (single source of truth, shared with
-# features/curated_fill.py) inside load_rows via load_gf("contract").BIG_TICKET_TYPES.
+# The PROGRESSION SURFACE (where this world's own progression may go) is the single source of truth
+# for the tracker's star column: contract.has_class + contract.SURFACE_DEFAULT_CLASSES, read in
+# load_rows(). `BIG_TICKET_TYPES` / `is_big_ticket` are RETIRED and no longer exist on the contract
+# (test_gf_progression_surface_contract asserts their absence) -- do not reintroduce the NAME either:
+# it is what let a SECOND selection masquerade as a second mechanism.
 
 
 def load_gf(name):
@@ -43,7 +46,7 @@ def load_gf(name):
 
 
 def load_rows():
-    """[(ap_id, fine_region, coarse_region, big_ticket, missable)] sorted by id,
+    """[(ap_id, fine_region, coarse_region, on_surface, missable)] sorted by id,
     plus the greenfield REGIONS list (the coarse lock-item keys)."""
     data = load_gf("data")
     tags = load_gf("location_tags").LOCATION_TAGS
@@ -64,8 +67,8 @@ def load_rows():
     for region, locs in data.LOCATIONS.items():
         coarse = "" if region == data.HUB else region
         for _name, ap_id, _flag in locs:
-            big = on_surface(tags.get(ap_id, ()), surface_classes)
-            rows.append((int(ap_id), region, coarse, big, ap_id in missable))
+            surf = on_surface(tags.get(ap_id, ()), surface_classes)
+            rows.append((int(ap_id), region, coarse, surf, ap_id in missable))
     rows = sorted(rows)
     ids = [r[0] for r in rows]
     if len(ids) != len(set(ids)):
@@ -94,13 +97,13 @@ def render_rs(rows, lock_items):
     a("// Regenerate: python tools/gen_location_regions.py   (AP-env-free, pure greenfield data)")
     a("//")
     a("// Per AP location: fine region (grouping), coarse region (open-flag key for in-logic;")
-    a('// "" = always accessible), big_ticket (Boss/Remembrance), missable. See SPEC-item-tracker.md.')
+    a('// "" = always accessible), on_surface (the progression surface), missable. See SPEC-item-tracker.md.')
     a("")
     a("use std::collections::{HashMap, HashSet};")
     a("")
     a("use crate::tracker::RegionId;")
     a("")
-    a("/// (id, fine_region, coarse_region, big_ticket, missable), sorted by id.")
+    a("/// (id, fine_region, coarse_region, on_surface, missable), sorted by id.")
     a("pub const LOCATION_META: &[(u64, &str, &str, bool, bool)] = &[")
     for code, region, coarse, prom, miss in rows:
         a(f'    ({code}, "{esc(region)}", "{esc(coarse)}", {str(prom).lower()}, {str(miss).lower()}),')
@@ -124,8 +127,9 @@ def render_rs(rows, lock_items):
     a("    LOCATION_META.iter().map(|(id, _, c, _, _)| (*id, (*c).to_string())).collect()")
     a("}")
     a("")
-    a("/// Big-ticket (prominent) location ids.")
-    a("pub fn big_ticket_set() -> HashSet<u64> {")
+    a("/// The DEFAULT progression surface: location ids this world's own progression may occupy.")
+    a("/// A seed may override it via slot_data `progressionSurfaceLocations`; this is the fallback.")
+    a("pub fn progression_surface_set() -> HashSet<u64> {")
     a("    LOCATION_META.iter().filter(|(_, _, _, b, _)| *b).map(|(id, ..)| *id).collect()")
     a("}")
     a("")
@@ -213,7 +217,7 @@ def main():
     bt = sum(1 for r in rows if r[3])
     miss = sum(1 for r in rows if r[4])
     coarse = len({r[2] for r in rows} - {""})
-    print(f"Wrote {OUT_RS}: {len(rows)} locations, {bt} big-ticket, {miss} missable, "
+    print(f"Wrote {OUT_RS}: {len(rows)} locations, {bt} on the progression surface, {miss} missable, "
           f"{coarse} coarse regions, {len(lock_items)} lock items.")
     print("Wired lib.rs." if wired else "lib.rs already wired.")
     return 0
