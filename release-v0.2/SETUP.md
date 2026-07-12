@@ -55,9 +55,15 @@ rush.
 
 You also need, separately:
 
-- **Elden Ring** on PC (Steam) -- **vanilla and unmodified**. Nothing is baked
-  into the game files: no `regulation.bin` edit, no file patching. Everything
-  happens at runtime while the game runs.
+- **Elden Ring** on PC (Steam). **We** bake nothing into the game files: no
+  `regulation.bin` edit, no file patching. Everything this randomizer does
+  happens at runtime, while the game runs.
+
+  That is also why it **stacks with thefifthmatt's Elden Ring randomizer**. If
+  you want randomized enemies or a randomized starting class, run matt's for
+  those and play your Archipelago seed on top -- with **item randomization
+  turned OFF in matt's**, since that part is our job. See
+  `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
 - **Archipelago 0.6.7** -- download from [archipelago.gg](https://archipelago.gg).
   This release requires 0.6.7 specifically.
 - **ModEngine3 (me3)** -- the mod loader that loads the client into the game.
@@ -170,7 +176,9 @@ Check your Archipelago version: this release requires **0.6.7**. Also confirm
 The client isn't loaded. Make sure you launched Elden Ring through
 ModEngine3, that `eldenring_archipelago.dll` is where your me3 profile loads
 it, and that `er_static_detection_table.json` is next to the dll. And make
-sure the game itself is vanilla -- the client expects an unmodified install.
+sure the game files are in a state you expect. A vanilla install always works;
+matt's randomizer alongside it is supported (items OFF). Other mods that rewrite
+item lots or params are not.
 
 Still stuck, or a seed looks broken? Bring your yaml and the spoiler log when
 you ask for help.
