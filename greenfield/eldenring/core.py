@@ -20,6 +20,30 @@ try:
     from .location_tags import DEFAULTED_REGION_APS   # checks whose region is a GUESS -> filler only
 except ImportError:                                    # pre-regen data: fail OPEN, guard is inert
     DEFAULTED_REGION_APS = frozenset()
+
+try:
+    # m11_00 (normal Leyndell) -- DESTROYED when Maliketh dies. Same predicate, different cause.
+    from .location_tags import ERDTREE_BURN_APS
+except ImportError:
+    ERDTREE_BURN_APS = frozenset()
+
+# A check that can become PERMANENTLY UNREACHABLE may not carry PROGRESSION. Two independent causes,
+# one rule: we don't know where it is (DEFAULTED_REGION_APS), or the player can destroy it
+# (ERDTREE_BURN_APS -- kill Maliketh, the Erdtree burns, normal Leyndell ceases to exist).
+try:
+    from .location_tags import SHOP_RELEASE_GATED_APS
+except ImportError:
+    SHOP_RELEASE_GATED_APS = frozenset()
+
+# Three ways a check can be UNREACHABLE while AP believes otherwise. All three answer the same predicate:
+# a check we cannot ASSERT is reachable may not be REQUIRED.
+#   DEFAULTED_REGION_APS   -- we GUESSED the region (hub fallback); the item may sit in a sealed region.
+#   ERDTREE_BURN_APS       -- m11_00 is DESTROYED when Maliketh dies; the player can burn it early.
+#   SHOP_RELEASE_GATED_APS -- the merchant does not STOCK the row until an unlock event fires. Region
+#                             reachability is necessary but NOT sufficient: the shop can be open and the
+#                             row simply not on the shelf.
+_NO_PROGRESSION_APS = (frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
+                       | frozenset(SHOP_RELEASE_GATED_APS))
 from .region_spine import (compute_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
                            base_regions, dlc_regions)
 from . import registry
@@ -480,7 +504,7 @@ class GreenfieldEldenRingWorld(World):
         # which actually sits in Stormveil. Caelid start. Unwinnable.
         for (name, ap_id, _flag) in LOCATIONS.get(region_name, []):
             _loc = GFLocation(self.player, name, ap_id, region)
-            if ap_id in DEFAULTED_REGION_APS:
+            if ap_id in _NO_PROGRESSION_APS:
                 # Bar ADVANCEMENT only, via item_rule -- do NOT use LocationProgressType.EXCLUDED.
                 # EXCLUDED puts the location in AP's dedicated "Remaining Excluded" filler-only pass
                 # (Fill.py:625), which must fill EVERY excluded location from the plain filler pool; the
@@ -488,8 +512,13 @@ class GreenfieldEldenRingWorld(World):
                 # satisfy, and the pass FillErrors. An item_rule keeps them in the normal fill (they can
                 # still hold useful/filler, including other worlds' non-progression items) while making
                 # them ineligible for anything the seed could ever REQUIRE.
-                # Bars advancement from ANY player: a foreign world's progression stranded in a region
-                # we mis-placed is just as unwinnable, only for someone else.
+                # Bars advancement from ANY player: progression stranded somewhere unreachable is just
+                # as unwinnable for a foreign world as for ours.
+                # ERDTREE_BURN_APS rides the same rule: killing Maliketh burns the Erdtree, switches
+                # Leyndell's graces OFF and replaces m11_00 with the Ashen Capital -- 79 checks gone,
+                # permanently. num_regions can unseal Farum Azula while Leyndell is sealed, so the
+                # player is free to do that with those checks still uncollected. They stay CHECKS;
+                # they just cannot be something the seed REQUIRES. (Alaric, playtest 2026-07-11.)
                 _prev = _loc.item_rule
                 _loc.item_rule = lambda item, _p=_prev: (not item.advancement) and _p(item)
             region.locations.append(_loc)
