@@ -1266,7 +1266,42 @@ _ARENA_GRACE_FLAGS = frozenset({76930, 76931, 76422, 76852, 76853, 76508, 76509,
 # Capital of Ash" leaked). Skip -> they light naturally on burn. (State-variant gate: distinct from
 # the boss-bonfire (9005810) and remembrance-arena classes.)
 _ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
-_SKIP_GRACE_FLAGS = _BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS | _ASHEN_LEYNDELL_GRACE_FLAGS
+# DERIVED arena graces (arena_graces.tsv, tools/datamine_arena_graces.py). THE predicate we actually
+# want, replacing the playtest-scar hand list above:
+#     distance(grace spawn, nearest boss ENEMY spawn) < 40m  ->  never force-light
+# A region lock force-lights every grace in its region so the player can warp in; a grace INSIDE a boss
+# arena means warping onto a live boss. Sources are all ground truth: EMEVD DisplayBossHealthBar (the
+# authoritative boss set) + witchy'd MSB Part/Enemy <EntityID>/<Position> (boss spawns) + grace_flags.tsv
+# (BonfireWarpParam grace spawns). Both position sets are map-local, so they compare directly.
+#
+# It VALIDATES the hand lists (independently re-derives 23 of the 48 hand-skipped flags) and caught 5
+# that were still being GRANTED -- including 76419, a grace 13.3m from Starscourge Radahn himself.
+#
+# UNION, not replace: 52 of the 118 boss maps have no unpacked MSB yet, so the derived set is a LOWER
+# BOUND (Redmane's 76414/76416 are hand-held precisely because m60_49_39 is one of them). Union keeps
+# every hand entry until its map is witchy'd and the tool can adjudicate it. Tile co-location is NOT a
+# fallback proxy -- 172 granted graces share a tile with a boss (all 7 Stormveil graces sit on
+# Godrick's), so it over-matches ~5x. Absent the tsv this degrades to the hand lists alone.
+def _derived_arena_graces():
+    fp = os.path.join(HERE, "arena_graces.tsv")
+    if not os.path.exists(fp):
+        return frozenset()
+    out = set()
+    with open(fp, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("#") or line.startswith("grace_flag"):
+                continue
+            parts = line.split("\t")
+            if parts and parts[0].strip().isdigit():
+                out.add(int(parts[0]))
+    return frozenset(out)
+
+_DERIVED_ARENA_GRACE_FLAGS = _derived_arena_graces()
+_SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
+                     | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS)
+print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
+      f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
+      f"{len(_SKIP_GRACE_FLAGS)} total skipped")
 # Per-play_region grace region for SPLIT interior maps whose 3-char prefix conflates regions
 # (m20 = Belurat 20000 + Enir-Ilim 20010; m12_05 = Mohgwyn 12050 vs the rest of m12 = Eternal
 # Cities). The grace's own play_region_id (grace_region_map = greg) is authoritative; the coarse

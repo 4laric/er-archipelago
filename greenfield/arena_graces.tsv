@@ -1,0 +1,35 @@
+# DERIVED arena graces: distance(grace spawn, nearest boss enemy spawn) < 40.0m
+# A region lock force-lights every grace in its region so you can warp in. A grace INSIDE a
+# boss arena must never be force-lit -- warping there drops you on a live boss.
+# sources: EMEVD DisplayBossHealthBar (boss set) + witchy'd MSB Part/Enemy <EntityID>/<Position>
+#          + grace_flags.tsv (BonfireWarpParam grace spawns). NO hand lists. tools/datamine_arena_graces.py
+# adjudicated 131 grace(s) across 60 boss map(s) with an unpacked MSB
+grace_flag	map_tile	boss_entity	distance_m
+71000	m10_00_00	10000800	4.3
+71001	m10_00_00	10000850	10.0
+71220	m12_02_00	12020801	37.8
+71221	m12_02_00	12020850	35.1
+71230	m12_03_00	12030812	8.8
+71250	m12_05_00	12050800	5.6
+71300	m13_00_00	13000801	29.1
+71301	m13_00_00	13000830	1.1
+71302	m13_00_00	13000850	22.1
+71400	m14_00_00	14000801	9.7
+71401	m14_00_00	14000850	5.6
+71500	m15_00_00	15000800	21.8
+71505	m15_00_00	15000850	10.1
+71600	m16_00_00	16000800	0.7
+71601	m16_00_00	16000850	3.9
+71606	m16_00_00	16000861	9.5
+71900	m19_00_00	19000810	25.0
+72000	m20_00_00	20000800	16.1
+72500	m25_00_00	25000800	6.9
+72800	m28_00_00	28000800	13.9
+73119	m31_19_00	31190850	30.3
+73500	m35_00_00	35000800	0.5
+76120	m60_44_36	1044360800	2.8
+76161	m60_43_30	1043300800	5.2
+76419	m60_51_36	1051360801	13.3
+76524	m60_51_57	1051570800	13.6
+76823	m61_48_44	2048440800	7.6
+76945	m61_44_45	2044450800	1.6
