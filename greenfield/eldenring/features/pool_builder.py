@@ -375,20 +375,12 @@ class PoolBuilderFeature(Feature):
 
     # ---- hooks ------------------------------------------------------------------
     def create_items(self, world):
-        # core adds these to `pool`, which trims the Rune tail 1:1 -> count-neutral displacement.
-        items = []
-        for name in self._juice_list(world):
-            it = world.create_item(name)
-            # Juice is intentional USEFUL gear, never junk filler. Some catalog gear -- notably
-            # spells & incantations -- carries the GOODS FullID nibble, so core._classify_full
-            # defaults it to `filler`. Left that way, features/filler_curation.curate() and core's
-            # stone_injection would SEIZE the juice slot (both protect `useful`, not `filler`) and
-            # overwrite an S-tier sorcery with a throwable / smithing stone. Force `useful` so those
-            # guards honor pool_builder's picks. (Weapons/armor/talismans/ashes are already useful;
-            # this is idempotent for them.)
-            it.classification = ItemClassification.useful
-            items.append(it)
-        return items
+        # RETIRED. pool_builder no longer owns a private slice of the filler tail: `juice` is a recipe
+        # category inside features/filler_budget, which is the single owner of that budget. Owning a
+        # separate budget is exactly what let it eat curated_filler's larder and silently starve the
+        # upgrade economy. The juice LIST (juice_order_for_floor) lives on and is used by the
+        # allocator; only the private budget is gone.
+        return []
 
     def slot_data(self, world):
         # pure pool curation -> no client contract needed; expose the resolved knobs for diagnostics.
