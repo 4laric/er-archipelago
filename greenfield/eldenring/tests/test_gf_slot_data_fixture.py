@@ -85,8 +85,16 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # The subset emitted UNCONDITIONALLY (every seed, whatever the options). The dungeon-sweep keys drop
 # when dungeon_sweep == "none"; the two rune-gate grace keys are emitted only when the Leyndell gate
 # is armed (leyndell_runes_required > 0 AND item_shuffle on AND Altus kept -- features/graces.py).
+#
+# checkLotBlank* : MUTUALLY EXCLUSIVE by design, so no seed can emit all three. A regenerated
+# check_lots_data.py carries the ItemLotParam map/enemy SPLIT and the world emits checkLotBlankMap +
+# checkLotBlankEnemy; a pre-split data file emits the legacy merged checkLotBlank instead (and warns).
+# The split exists because the two param tables can hold the SAME row id -- a merged dict loses the
+# table, the client has to guess, it guessed map-first, and every enemy lot colliding with a map id was
+# therefore never blanked: the boss handed out its vanilla drop and no check fired.
 ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
-                              "runeGatedGraces", "greatRuneItemIds"}
+                              "runeGatedGraces", "greatRuneItemIds",
+                              "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy"}
 
 
 class SlotDataFixtureRich(WorldTestBase):
@@ -109,7 +117,15 @@ class SlotDataFixtureRich(WorldTestBase):
     def test_exact_keyset(self):
         sd = self.world.fill_slot_data()
         got = set(sd.keys())
-        missing = EXPECTED_KEYS - got
+        # checkLotBlank* are MUTUALLY EXCLUSIVE: a regenerated check_lots_data emits the map/enemy
+        # SPLIT (checkLotBlankMap + checkLotBlankEnemy); a pre-split one emits the legacy merged
+        # checkLotBlank and warns. Exactly one of the two shapes must be present -- never all three,
+        # never none (none = the vanilla ware is handed out at EVERY check).
+        _cl = {"checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy"}
+        self.assertTrue(got & _cl,
+                        "no check-lot blanking key at all -- the vanilla ware would be handed out at "
+                        "EVERY check")
+        missing = (EXPECTED_KEYS - _cl) - got
         extra = got - EXPECTED_KEYS
         self.assertFalse(missing,
                          f"slot_data is MISSING expected client-contract keys: {sorted(missing)}")
@@ -117,7 +133,9 @@ class SlotDataFixtureRich(WorldTestBase):
                          "slot_data has UNEXPECTED new keys not in the client contract: "
                          f"{sorted(extra)} -- add them to the contract (or INFORMATIONAL_EXTRAS) "
                          "and update the client on purpose")
-        self.assertEqual(got, EXPECTED_KEYS)
+        # Compare with the mutually-exclusive check-lot keys factored out on BOTH sides (see above):
+        # a pre-split check_lots_data emits `checkLotBlank`, a regenerated one emits the Map/Enemy pair.
+        self.assertEqual(got - _cl, EXPECTED_KEYS - _cl)
 
     def test_value_types(self):
         # Delegate all shape/required checks to the single source of truth. Raises ContractError on
