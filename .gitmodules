@@ -1,19 +1,8 @@
 [submodule "Archipelago"]
 	path = Archipelago
-	url = git@github.com:4laric/Archipelago.git
+	url = https://github.com/4laric/Archipelago.git
 	branch = game-derived
-[submodule "nightreign-enemy-rando"]
-	path = nightreign-enemy-rando
-	url = git@github.com:4laric/nightreign-enemy-rando.git
-	branch = master
-[submodule "SoulsFormatsNEXT"]
-	path = SoulsFormatsNEXT
-	url = git@github.com:fswap/SoulsFormatsNEXT.git
-	branch = master
-[submodule "Paramdex"]
-	path = Paramdex
-	url = .\\Paramdex\\
 [submodule "from-software-archipelago-clients"]
 	path = from-software-archipelago-clients
-	url = git@github.com:4laric/from-software-archipelago-clients.git
+	url = https://github.com/4laric/from-software-archipelago-clients.git
 	branch = main
