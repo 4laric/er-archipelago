@@ -16,6 +16,10 @@ from worlds.AutoWorld import World, WebWorld
 from Options import PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle
 
 from .data import HUB, REGIONS, LOCATIONS
+try:
+    from .location_tags import DEFAULTED_REGION_APS   # checks whose region is a GUESS -> filler only
+except ImportError:                                    # pre-regen data: fail OPEN, guard is inert
+    DEFAULTED_REGION_APS = frozenset()
 from .region_spine import (compute_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
                            base_regions, dlc_regions)
 from . import registry
@@ -567,8 +571,31 @@ class GreenfieldEldenRingWorld(World):
 
     # ---- regions --------------------------------------------------------------
     def _add_locations(self, region: Region, region_name: str) -> None:
+        # A GUESSED REGION MAY NOT CARRY PROGRESSION.
+        # DEFAULTED_REGION_APS = checks whose real region is unknown, so gen_data defaulted them to the
+        # HUB (see gen_data._region_is_derived). AP then believes they are reachable at spawn -- but the
+        # item still spawns wherever it PHYSICALLY lives, which may be behind a region Lock. Barring them
+        # from the progression SURFACE is not enough: when the surface ladder widens/spills, the general
+        # fill still sees a reachable hub location and will happily drop an advancement item on it.
+        # (Fuzz caught exactly that: Rykard's Great Rune landed on a guessed-region Smithing Stone.)
+        # So the bar has to live on the LOCATION: mark them EXCLUDED = filler only, whatever fill runs.
+        # Real seed this killed: AP_55352390472076588352 -- Stormveil Castle Lock on Golden Seed f400220,
+        # which actually sits in Stormveil. Caelid start. Unwinnable.
         for (name, ap_id, _flag) in LOCATIONS.get(region_name, []):
-            region.locations.append(GFLocation(self.player, name, ap_id, region))
+            _loc = GFLocation(self.player, name, ap_id, region)
+            if ap_id in DEFAULTED_REGION_APS:
+                # Bar ADVANCEMENT only, via item_rule -- do NOT use LocationProgressType.EXCLUDED.
+                # EXCLUDED puts the location in AP's dedicated "Remaining Excluded" filler-only pass
+                # (Fill.py:625), which must fill EVERY excluded location from the plain filler pool; the
+                # weapon/shop slots among these carry their own item_rules that generic filler can't
+                # satisfy, and the pass FillErrors. An item_rule keeps them in the normal fill (they can
+                # still hold useful/filler, including other worlds' non-progression items) while making
+                # them ineligible for anything the seed could ever REQUIRE.
+                # Bars advancement from ANY player: a foreign world's progression stranded in a region
+                # we mis-placed is just as unwinnable, only for someone else.
+                _prev = _loc.item_rule
+                _loc.item_rule = lambda item, _p=_prev: (not item.advancement) and _p(item)
+            region.locations.append(_loc)
 
     def create_regions(self) -> None:
         menu = Region("Menu", self.player, self.multiworld)

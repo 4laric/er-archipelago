@@ -120,10 +120,22 @@ def build_ladder(selection):
     return rungs
 
 
-def allowed_ap_ids(tags_map, classes):
-    """ap-ids whose tags make them big-ticket for `classes` (Enia hard-excluded). Pure."""
+def allowed_ap_ids(tags_map, classes, defaulted=None):
+    """ap-ids whose tags make them big-ticket for `classes` (Enia hard-excluded). Pure.
+
+    Checks in `defaulted` (DEFAULTED_REGION_APS) are BARRED regardless of tags: their region was a
+    guess that fell back to the hub, so AP believes them reachable at spawn while the item actually
+    spawns wherever it really lives. Fill put a STORMVEIL CASTLE LOCK on one such Golden Seed
+    (flag 400220, really in Stormveil) in a Caelid-start seed -- unwinnable. A guessed region may not
+    carry progression. See gen_data._region_is_derived()."""
     sel = set(classes)
-    return {ap for ap, tags in tags_map.items() if contract.is_big_ticket(tags, sel)}
+    if defaulted is None:
+        try:
+            from ..location_tags import DEFAULTED_REGION_APS as defaulted
+        except Exception:
+            defaulted = frozenset()
+    return {ap for ap, tags in tags_map.items()
+            if contract.is_big_ticket(tags, sel) and ap not in defaulted}
 
 
 def is_restricted_progression(item, player):
