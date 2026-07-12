@@ -1,0 +1,32 @@
+# =============================================================================
+#  ARCHETYPE 2 of 3 -- "The Shattering"   |   PINNED SEED: 22222
+# =============================================================================
+#  WHAT THIS IS: THE MARQUEE. num_regions is the feature that turns Elden Ring
+#  into an AP game -- only N majors are unsealed, the rest are locked, and the
+#  order is ROLLED, so you may start somewhere that is not Limgrave. Its bugs
+#  outrank every other bug in the project. Most testers should be on this.
+#
+#  WHAT TO WATCH FOR: can you actually LEAVE your starting region? Do the region
+#  locks read as the vanilla key they are named after? Does a rolled start still
+#  give you Torrent and a way to the Roundtable? Anything that reads as "I am
+#  stuck and I do not think the game intends this" is the report we want.
+#
+#  REPORT WITH: the seed above + the AP_*.zip.
+# =============================================================================
+name: Tester_A2
+description: Archetype 2 -- The Shattering (4 rolled regions, great-rune goal)
+game: "Elden Ring"
+
+"Elden Ring":
+  num_regions: 4                 # only 4 majors unsealed (+ Roundtable hub)
+  num_regions_order: rolled      # random start -- NOT guaranteed Limgrave
+  ending_condition: great_runes
+  great_runes_required: 2
+  leyndell_runes_required: 2
+
+  enable_dlc: false
+  dlc_only: false
+  death_link: false
+
+  accessibility: minimal
+  progression_balancing: 50
