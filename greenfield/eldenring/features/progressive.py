@@ -12,9 +12,14 @@ the vanilla item tables -- NOT any curated/location set). GOODS FullID = good_id
 (0x40000000), matching core's _AP_IDS_TO_ITEM_IDS convention.
 
 Ships three independent toggles (default OFF):
-  - Progressive Flasks -> "Progressive Golden Seed" (flask CHARGES; good 10010, cap 30) and
-    "Progressive Sacred Tear" (flask POTENCY; good 10020, cap 12). Both are fungible: every copy
-    grants the same good, which the player spends at a grace/church.
+  - Progressive Flasks -> ONE item, "Progressive Flask Upgrade", replacing every Golden Seed and
+    Sacred Tear check one-for-one. The Kth copy grants a seed or a tear on an interleaved schedule
+    (flask_ladder). It grants an ITEM, not an upgrade LEVEL: the player still spends it at a grace at
+    the game's own escalating price, so the "later pickups buy less" curve is inherited from vanilla
+    for free -- no re-pricing, no param edit, no client change. This fixes Sacred Tears, which are the
+    one upgrade track that does NOT work in a randomizer: 13 in the whole game, each a flat +1, so
+    they arrive rarely, silently, and never form a curve. Interleaved into the plentiful seed track,
+    the tear line moves on a visible cadence instead.
   - Progressive Stonesword Keys -> "Progressive Stonesword Key" (good 8000). Each copy grants one
     Stonesword Key; the player spends it on an Imp Statue seal.
   - Progressive Stone Bells -> "Progressive Smithing-Stone Miner's Bell Bearing" (4 tiers) and
@@ -42,8 +47,7 @@ from .. import contract
 _GOODS_NIBBLE = 0x40000000  # ER FullID category nibble for GOODS (mirrors core._GOODS_NIBBLE)
 
 # ---- progressive item names -------------------------------------------------------------------
-PROG_GOLDEN_SEED = "Progressive Golden Seed"
-PROG_SACRED_TEAR = "Progressive Sacred Tear"
+PROG_FLASK = "Progressive Flask Upgrade"
 PROG_STONESWORD_KEY = "Progressive Stonesword Key"
 PROG_SMITHING_BELL = "Progressive Smithing-Stone Miner's Bell Bearing"
 PROG_SOMBER_BELL = "Progressive Somberstone Miner's Bell Bearing"
@@ -52,10 +56,77 @@ PROG_SOMBER_BELL = "Progressive Somberstone Miner's Bell Bearing"
 # Fungible flasks repeat the same good up to the vanilla max; the stonesword key repeats good 8000.
 # Ladder length = the meaningful cap (client overflows extra copies to a Lord's Rune).
 _GOODS_LADDERS: Dict[str, List[int]] = {
-    PROG_GOLDEN_SEED: [10010] * 30,  # Golden Seed (flask charges); 30 = max charges
-    PROG_SACRED_TEAR: [10020] * 12,  # Sacred Tear (flask potency); 12 = max potency
     PROG_STONESWORD_KEY: [8000] * 10,  # Stonesword Key; 10 copies = a generous supply
 }
+
+# ---- unified flask ladder ---------------------------------------------------------------------
+# The Kth copy of PROG_FLASK grants a Golden Seed or a Sacred Tear, on an interleaved schedule. It
+# grants an ITEM, not an upgrade LEVEL -- the player still walks to a grace and pays the game's own
+# escalating price. That is the whole design: the deceleration ("later pickups buy less") is INHERITED
+# from the vanilla cost table for free, so no re-pricing, no param edit, no RE is needed, and the two
+# tracks that already work in vanilla (plentiful + escalating, cf. Golden Seeds / Scadutree Fragments)
+# are extended to the one that doesn't (Sacred Tears: 13 in the whole game, flat +1 each, so they
+# arrive rarely, silently, and never form a curve).
+#
+# MIRROR of tools/upgrade_costs.py -- tests/test_gf_progressive_flasks.py asserts they stay equal, so
+# the datum keeps ONE source of truth. (tools/ is a script package: sys.path hacks, no __init__, and
+# it is not guaranteed to ship inside the apworld zip -- importing it from a feature at runtime would
+# be a load-bearing fragility for a table that changes ~never.)
+FLASK_CHARGE_SEED_COST: List[int] = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]   # seeds per charge level -> 30
+FLASK_POTENCY_TEAR_COST: List[int] = [1] * 12                        # tears per potency level -> 12
+_GOOD_GOLDEN_SEED = 10010
+_GOOD_SACRED_TEAR = 10020
+
+
+def flask_ladder(world) -> List[int]:
+    """The per-seed interleaved schedule of GOODS the Kth PROG_FLASK copy grants: an ordered list of
+    _GOOD_GOLDEN_SEED / _GOOD_SACRED_TEAR, exactly as long as it takes to buy MAX flasks (30 seeds +
+    12 tears = 42 rungs). Copies beyond it overflow to a Lord's Rune client-side, so a full-world seed
+    (43 seeds + 13 tears = 56 checks) has a soft tail rather than dead pickups.
+
+    Tears are placed on a PROPORTIONAL cadence (their running share never drifts from 13/56 by more
+    than a rung), then jittered per-seed so the exact positions are not guessable -- you know roughly
+    when a tear is due, never precisely which pickup it is. Deterministic in world.random; cached, so
+    create_items and slot_data cannot disagree about the ladder they built."""
+    cached = getattr(world, "gf_flask_ladder", None)
+    if cached is not None:
+        return cached
+    n_seed = sum(FLASK_CHARGE_SEED_COST)
+    n_tear = sum(FLASK_POTENCY_TEAR_COST)
+    total = n_seed + n_tear
+    sched: List[int] = []
+    tears = 0
+    for k in range(1, total + 1):
+        want = k * n_tear / total          # tears "owed" by rung k on a proportional cadence
+        if tears + 0.5 < want and tears < n_tear:
+            sched.append(_GOOD_SACRED_TEAR); tears += 1
+        elif (len(sched) - tears) < n_seed:
+            sched.append(_GOOD_GOLDEN_SEED)
+        else:
+            sched.append(_GOOD_SACRED_TEAR); tears += 1
+    # Bounded jitter: swap adjacent UNLIKE rungs with p=0.5. Count-preserving by construction, and it
+    # can move any rung by at most one step, so the proportional cadence survives intact.
+    for i in range(total - 1):
+        if sched[i] != sched[i + 1] and world.random.random() < 0.5:
+            sched[i], sched[i + 1] = sched[i + 1], sched[i]
+    world.gf_flask_ladder = sched
+    return sched
+
+
+# Vanilla pool items the unified flask ladder REPLACES, one-for-one, when progressive_flasks is on.
+# core.create_items substitutes these names as it reads each check's vanilla item, so the copy count
+# is exactly the number of seed/tear checks the seed actually kept -- count-neutral, and it scales
+# with num_regions / DLC for free (a 4-region seed simply has fewer rungs available, which is the
+# honest outcome, not a bug). This is why PROG_FLASK has no _POOL_COUNTS entry.
+VANILLA_FLASK_ITEMS = ("Golden Seed", "Sacred Tear")
+
+
+def vanilla_substitutions(world) -> Dict[str, str]:
+    """{vanilla item name -> progressive item name} for core's item_shuffle pool. Empty when off."""
+    opt = getattr(world.options, "progressive_flasks", None)
+    if not (opt is not None and opt.value):
+        return {}
+    return {n: PROG_FLASK for n in VANILLA_FLASK_ITEMS}
 
 # ---- progressive stone-bell grant ladders (goods + shop-unlock flags) -------------------------
 # Each entry = {"goods": bell-bearing EquipParamGoods id, "flags": [Twin Maiden ShopLineupParam
@@ -84,8 +155,8 @@ _BELL_GRANTS: Dict[str, List[Dict[str, Any]]] = {
 # under the ladder length so copies land inside the meaningful ladder (no overflow spam), and small
 # enough to stay comfortably count-neutral against the filler tail.
 _POOL_COUNTS: Dict[str, int] = {
-    PROG_GOLDEN_SEED: 8,
-    PROG_SACRED_TEAR: 6,
+    # PROG_FLASK is deliberately absent: its copies come from substituting the seed/tear checks the
+    # seed actually kept (see vanilla_substitutions), not from a fixed count.
     PROG_STONESWORD_KEY: 6,
     PROG_SMITHING_BELL: 5,   # 4 real tiers -> the 5th copy is a silent no-op (spreads the ramp)
     PROG_SOMBER_BELL: 5,     # exactly 5 tiers
@@ -101,7 +172,7 @@ _BELL_EARLY_COUNT: Dict[str, int] = {
 }
 
 # Which toggle activates which progressive items.
-_FLASK_ITEMS = (PROG_GOLDEN_SEED, PROG_SACRED_TEAR)
+_FLASK_ITEMS = (PROG_FLASK,)
 _KEY_ITEMS = (PROG_STONESWORD_KEY,)
 _BELL_ITEMS = (PROG_SMITHING_BELL, PROG_SOMBER_BELL)
 
@@ -140,8 +211,7 @@ class Progressive(Feature):
     }
     # All progressive copies are `useful` (never progression -> Region Locks stay the sole gate).
     ITEMS = {
-        PROG_GOLDEN_SEED: ItemClassification.useful,
-        PROG_SACRED_TEAR: ItemClassification.useful,
+        PROG_FLASK: ItemClassification.useful,
         PROG_STONESWORD_KEY: ItemClassification.useful,
         PROG_SMITHING_BELL: ItemClassification.useful,
         PROG_SOMBER_BELL: ItemClassification.useful,
@@ -161,11 +231,13 @@ class Progressive(Feature):
             active += list(_BELL_ITEMS)
         return active
 
-    def _grant_ladder(self, name: str) -> List[Dict[str, Any]]:
+    def _grant_ladder(self, world, name: str) -> List[Dict[str, Any]]:
         """Client `progressiveGrants` ladder for one progressive item: an ordered list of
         {"goods": GOODS-packed FullID, "flags": [event flags]}. Fungible/keyed items (flasks,
         stonesword keys) repeat a single good with no flags; stone bells carry a per-tier good AND
         the shop-unlock flags for that rung."""
+        if name == PROG_FLASK:
+            return [{"goods": good | _GOODS_NIBBLE, "flags": []} for good in flask_ladder(world)]
         if name in _BELL_GRANTS:
             return [{"goods": e["goods"] | _GOODS_NIBBLE, "flags": list(e["flags"])}
                     for e in _BELL_GRANTS[name]]
@@ -188,6 +260,8 @@ class Progressive(Feature):
         # fill (slots = total_locations - len(pool)) trims one filler-tail item per copy added here.
         pool: List = []
         for name in self._active_items(world):
+            if name not in _POOL_COUNTS:   # PROG_FLASK: copies come from vanilla_substitutions
+                continue
             pool += [world.create_item(name) for _ in range(_POOL_COUNTS[name])]
         return pool
 
@@ -197,5 +271,5 @@ class Progressive(Feature):
         # grace goods); stone bells carry the Twin Maiden shop-unlock flags per rung (set = unlock).
         grants: Dict[str, List[Dict[str, Any]]] = {}
         for name in self._active_items(world):
-            grants[name] = self._grant_ladder(name)
+            grants[name] = self._grant_ladder(world, name)
         return {contract.PROGRESSIVE_GRANTS: grants}

@@ -7,12 +7,16 @@ progression, so the seed stays winnable in every case.
 """
 import pytest
 
-pytestmark = pytest.mark.skip(reason="progressive_flasks / progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py) -- not yaml-exposed. Un-skip when re-exposed.")
+# progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py) and are
+# not yaml-exposed, so these cases cannot be constructed. Un-skip when they are re-exposed.
+# progressive_flasks is NO LONGER here: it is finished, frozen ON, and covered live by
+# tests/test_gf_progressive_flasks.py (the unified "Progressive Flask Upgrade" ladder).
+pytestmark = pytest.mark.skip(reason="progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py) -- not yaml-exposed. Un-skip when re-exposed. Flasks: see test_gf_progressive_flasks.py.")
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.features.progressive import (  # noqa: E402
-    PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY,
+    PROG_STONESWORD_KEY,
     PROG_SMITHING_BELL, PROG_SOMBER_BELL,
     _GOODS_LADDERS, _POOL_COUNTS, _GOODS_NIBBLE, _BELL_GRANTS, _BELL_EARLY_COUNT,
 )
@@ -51,37 +55,9 @@ class ProgressiveOff(WorldTestBase):
 
     def test_no_progressive_items_in_pool_when_off(self):
         names = set(_pool_names(self.world))
-        for nm in (PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY):
+        for nm in (PROG_STONESWORD_KEY, PROG_SMITHING_BELL, PROG_SOMBER_BELL):
             self.assertNotIn(nm, names)
 
-
-class ProgressiveFlasksOn(WorldTestBase):
-    game = GAME
-    options = {"progressive_flasks": True}
-
-    def test_flask_grants_shape_and_ladder(self):
-        grants = self.world.fill_slot_data()["progressiveGrants"]
-        for nm in (PROG_GOLDEN_SEED, PROG_SACRED_TEAR):
-            self.assertIn(nm, grants)
-            _assert_grant_shape(self, grants[nm])
-            # ladder length matches the declared vanilla good ladder
-            self.assertEqual(len(grants[nm]), len(_GOODS_LADDERS[nm]))
-            expected_full = _GOODS_LADDERS[nm][0] | _GOODS_NIBBLE
-            self.assertEqual(grants[nm][0]["goods"], expected_full)
-        # stonesword key not active under this toggle
-        self.assertNotIn(PROG_STONESWORD_KEY, grants)
-
-    def test_flask_copies_in_pool(self):
-        names = _pool_names(self.world)
-        self.assertEqual(names.count(PROG_GOLDEN_SEED), _POOL_COUNTS[PROG_GOLDEN_SEED])
-        self.assertEqual(names.count(PROG_SACRED_TEAR), _POOL_COUNTS[PROG_SACRED_TEAR])
-        self.assertNotIn(PROG_STONESWORD_KEY, names)
-
-    def test_pool_count_neutral(self):
-        # count-exact: one pool item per real location (hub + kept regions).
-        from worlds.eldenring.data import HUB, LOCATIONS
-        total = sum(len(LOCATIONS.get(r, [])) for r in [HUB] + list(self.world._kept()))
-        self.assertEqual(len(_pool_names(self.world)), total)
 
 
 class ProgressiveStoneswordKeysOn(WorldTestBase):
@@ -93,27 +69,13 @@ class ProgressiveStoneswordKeysOn(WorldTestBase):
         self.assertIn(PROG_STONESWORD_KEY, grants)
         _assert_grant_shape(self, grants[PROG_STONESWORD_KEY])
         self.assertEqual(len(grants[PROG_STONESWORD_KEY]), len(_GOODS_LADDERS[PROG_STONESWORD_KEY]))
-        # flasks not active under this toggle
-        self.assertNotIn(PROG_GOLDEN_SEED, grants)
-        self.assertNotIn(PROG_SACRED_TEAR, grants)
+        # bells not active under this toggle
+        self.assertNotIn(PROG_SMITHING_BELL, grants)
 
     def test_key_copies_in_pool(self):
         names = _pool_names(self.world)
         self.assertEqual(names.count(PROG_STONESWORD_KEY), _POOL_COUNTS[PROG_STONESWORD_KEY])
 
-
-class ProgressiveBothOn(WorldTestBase):
-    game = GAME
-    options = {"progressive_flasks": True, "progressive_stonesword_keys": True}
-
-    def test_all_three_present(self):
-        grants = self.world.fill_slot_data()["progressiveGrants"]
-        for nm in (PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY):
-            self.assertIn(nm, grants)
-            _assert_grant_shape(self, grants[nm])
-        names = _pool_names(self.world)
-        for nm in (PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY):
-            self.assertEqual(names.count(nm), _POOL_COUNTS[nm])
 
 
 class ProgressiveStoneBellsOn(WorldTestBase):
@@ -132,9 +94,8 @@ class ProgressiveStoneBellsOn(WorldTestBase):
                 self.assertTrue(step["flags"], f"{nm} rung missing shop-unlock flags")
             # first Smithing rung grants the [1] bell good (8951) GOODS-packed
             self.assertEqual(grants[PROG_SMITHING_BELL][0]["goods"], 8951 | _GOODS_NIBBLE)
-        # flasks / keys not active under this toggle
-        for nm in (PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY):
-            self.assertNotIn(nm, grants)
+        # keys not active under this toggle
+        self.assertNotIn(PROG_STONESWORD_KEY, grants)
 
     def test_bell_copies_in_pool(self):
         names = _pool_names(self.world)

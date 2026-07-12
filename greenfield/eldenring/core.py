@@ -363,6 +363,12 @@ class GreenfieldEldenRingWorld(World):
         extras: List[str] = []
         if shuffle:
             _excl = getattr(self, "gf_dlc_excluded", ())
+            # progressive_flasks: every Golden Seed / Sacred Tear check pays a "Progressive Flask
+            # Upgrade" instead. Substituting here (rather than adding a fixed count of copies) keeps
+            # the pool count-exact and lets the ladder length follow the checks the seed actually
+            # kept -- num_regions and DLC scale it for free. {} when the option is off.
+            from .features.progressive import vanilla_substitutions as _flask_sub_of
+            _flask_sub = _flask_sub_of(self)
             for rn in [HUB] + kept:
                 for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
                     nm = LOCATION_ITEM.get(ap_id)
@@ -374,6 +380,8 @@ class GreenfieldEldenRingWorld(World):
                     # checks/shops. FILLER routes through _pick_filler, which is already DLC-safe.
                     if nm and _excl and nm in _excl:
                         nm = None
+                    if nm and _flask_sub:
+                        nm = _flask_sub.get(nm, nm)
                     extras.append(nm if nm and nm in item_name_to_id else FILLER)
             # keep real items first; among reals, keep required Great Runes ahead of everything so
             # the over-provision trim (below) can never drop a rune the goal needs. FILLER (Rune)

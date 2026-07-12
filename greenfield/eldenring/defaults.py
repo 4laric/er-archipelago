@@ -66,6 +66,14 @@ FROZEN_OPTIONS = {
     "protect_missable_locations": (1, None),
     "legacy_dungeon_keys": (1, None),
     "varied_filler": (1, None),
+    # NOT half-built any more. One "Progressive Flask Upgrade" item replaces every Golden Seed and
+    # Sacred Tear check one-for-one; the Kth copy grants a seed or a tear on an interleaved schedule,
+    # and the player still pays the game's OWN escalating price at the grace -- so the "later pickups
+    # buy less" curve is inherited from vanilla, and Sacred Tears (13 in the whole game, flat +1 each,
+    # so they arrive rarely and never form a curve) finally move on a visible cadence. Zero client
+    # churn: progressiveGrants already supports per-rung goods, and overflow copies already fall
+    # through to a Lord's Rune. -- Alaric 2026-07-11
+    "progressive_flasks": (1, None),
     "dungeon_sweep": (2, "all"),
     # NOT half-built -- finished on BOTH sides, so it ships at its declared default (2 = scaled), not
     # off. gen has DLC_BLESSING_FLOORS and emits dlcScadutreeFloorRanges (only when this == 2); the
@@ -85,7 +93,7 @@ FROZEN_OPTIONS = {
     # ---- half-built / superseded -> frozen OFF (finish later, then re-expose) --------------------
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)
     "boss_lock_placement": (1, "own_region"),  # inert while boss_keys is off
-    "progressive_flasks": (0, None),
+
     "progressive_stone_bells": (0, None),
     "progressive_stonesword_keys": (0, None),
     "stone_injection": (0, None),              # superseded by the always-on stone_ramp

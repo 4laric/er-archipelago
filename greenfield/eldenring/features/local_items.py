@@ -48,8 +48,10 @@ except Exception:  # not yet generated -> no real items exist -> feature is a no
 # feature module is fine (features may import other features; only ..core is forbidden). Guarded so
 # a future removal of progressive.py degrades this to catalog-only rather than breaking import.
 try:
-    from .progressive import PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY
-    _PROGRESSIVE_NAMES: List[str] = [PROG_GOLDEN_SEED, PROG_SACRED_TEAR, PROG_STONESWORD_KEY]
+    from .progressive import (PROG_FLASK, PROG_STONESWORD_KEY,
+                              PROG_SMITHING_BELL, PROG_SOMBER_BELL)
+    _PROGRESSIVE_NAMES: List[str] = [PROG_FLASK, PROG_STONESWORD_KEY,
+                                     PROG_SMITHING_BELL, PROG_SOMBER_BELL]
 except Exception:
     _PROGRESSIVE_NAMES = []
 
