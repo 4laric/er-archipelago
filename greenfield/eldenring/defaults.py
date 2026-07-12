@@ -52,6 +52,10 @@ FROZEN_OPTIONS = {
     "pool_builder_scope": (1, "all_filler"),
     "pool_builder_intensity": (2, "max"),
     "pool_builder_juice_cap": (0, None),
+    # SUPERSEDED and frozen so it cannot be set: "what share of the tail is juice?" is now simply the
+    # `juice` weight in the curated_filler recipe. Left settable, it would be a silent no-op -- and a
+    # knob that quietly does nothing is the exact failure class this whole change exists to kill.
+    "pool_builder_juice_pct": (100, None),
     "curated_fill": (1, None),
 
     # 2, not the playtest yaml's 3: at 2 the starting upgrade level still REQUIRES stones, which keeps

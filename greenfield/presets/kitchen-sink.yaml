@@ -36,17 +36,24 @@ game: "Elden Ring"
   pool_builder_juice_cap: 0       # 0 = auto-size to the whole Rune tail
 
   # ---- Filler curation (replace vanilla junk with a Nightreign-ish roster) -
+  # v0.2: this recipe owns the ENTIRE filler tail (features/filler_budget), not just the junk share.
+  # `juice` -- the rare/legendary gear injection that used to be pool_builder's private budget -- is a
+  # weight in here now, competing with stones instead of consuming the tail and starving them. No
+  # `juice` weight = no gear injection at all. stones/somber_stones/runes are a RESERVATION: paid off
+  # the top, never scaled down.
   curated_filler:
-    throwables: 25
-    pots: 15
-    greases: 10
-    foods: 12                    # turtle necks, exalted flesh, warming stone, starlight shards, ...
-    boluses: 6                   # status-cure boluses
-    perfumes: 8                  # DLC perfume consumables (needs DLC)
+    juice: 40                    # rare/legendary gear (kitchen-sink: heavy, but it no longer eats the economy)
+    throwables: 12
+    pots: 8
+    greases: 5
+    foods: 6                     # turtle necks, exalted flesh, warming stone, starlight shards, ...
+    boluses: 3                   # status-cure boluses
+    perfumes: 4                  # DLC perfume consumables (needs DLC)
     rare: 1                      # Dragon Heart / Stonesword Key -- keep tiny
-    stones: 20
-    runes: 20
-    junk: 10
+    stones: 24                   # RESERVATION
+    somber_stones: 6             # RESERVATION
+    runes: 10
+    junk: 5
 
   # ---- Boss locks / dungeon sweeps ----------------------------------------
   boss_keys: true                 # mint "Boss Key: <Boss>" gating items (mode-B)
