@@ -200,7 +200,7 @@ class BossKeysCuratedFill(WorldTestBase):
     # The soundness scenario the logic gate exists for: curated_fill routes region Locks onto
     # big-ticket (incl. Boss) checks. If setUp's full fill FillErrors, this class errors -> guard.
     game = GAME
-    options = {"num_regions": 0, "boss_keys": True, "curated_fill": True}
+    options = {"num_regions": 0, "boss_keys": True}
 
     def test_completion_reachable(self):
         state = self.multiworld.get_all_state(False)

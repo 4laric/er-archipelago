@@ -466,9 +466,10 @@ class GreenfieldEldenRingWorld(World):
         if _psm is not None and int(_psm.value) != 0:
             from .features import progression_surface as _ps
             _ps.apply(self)
-        else:
-            from .features import curated_fill as _cf
-            _cf.apply(self)
+        # The legacy curated_fill fallback is GONE: it only ran when progression_surface_mode was OFF,
+        # and that has been FROZEN to `strict` since v0.2 -- so it was dead code, and it carried the
+        # retired big-ticket concept (a SECOND list of "important checks" that disagreed with the
+        # surface). One surface, one definition.
 
     def post_fill(self) -> None:
         # F (2026-07-10): progression-reachability safety net. Verify every own advancement item is
