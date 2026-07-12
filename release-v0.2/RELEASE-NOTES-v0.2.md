@@ -1,62 +1,89 @@
-# Elden Ring x Archipelago — v0.2
+# Elden Ring for Archipelago -- v0.2
 
-*Draft release notes for GitHub / Nexus. Not for Discord. Trim the feature list to whatever's
-confirmed working at tag time.*
+## What this is
 
----
+Elden Ring as an Archipelago world. Your item pickups, bosses, shops, and
+graces become checks in a shared multiworld pool; the items they would have
+given you are shuffled out to other players' games, and theirs arrive in yours.
 
-v0.2 is a full rewrite. The world is rebuilt from the game's own data — params, map layout, event
-flags — instead of being layered on top of another randomizer. Nothing from any other Elden Ring
-rando ships here: no borrowed config, no borrowed code. If you're coming from v0.1, your yaml's
-`game: Elden Ring` line CHANGED — the AP game id CHANGED to **`Elden Ring`**; greenfield is
-promoted to BE that world, so the old matt-lineage world is retired (both can't claim `EldenRing`
-at once). The world internals and options changed, so v0.2 seeds and rooms still differ from v0.1 —
-but that's not a game-id change.
+The headline mode is the Shattering (`num_regions`). You choose how many of
+the overworld's major regions stay in play. Each of those regions is sealed
+behind a "Region Lock" item that another player -- or your own seed -- must
+send you. You start at Roundtable Hold with one region open, and the map
+unfolds as locks arrive. It turns Elden Ring's open world into an Archipelago
+progression graph.
 
-## The mode
+Everything runs at runtime. Your game files are never modified: a vanilla
+Elden Ring install, the apworld, and a client `.dll` are the whole setup.
 
-The headline is the Shattering (`num_regions`). The Lands Between starts sealed into regions, and
-each region opens when you receive its lock as an item from the multiworld. So where you can go, and
-in what order, depends on what everyone else's games send you — the whole map, gated. Checks are tied
-to the game's own event flags (a few thousand of them), so world pickups, bosses, shops and graces
-all report back. Region locks are enforced by the client, not the honor system.
+## What's new in v0.2
 
-## What's in it
+v0.2 is a from-scratch rebuild of the world. It shares no data or code with
+the earlier community randomizer lineage -- the location set, rules, and
+options were all rederived from the game's own data. That rebuild is why the
+game id and option list changed (see "Upgrading from v0.1" below).
 
-- The full pickup → check → item-grant loop, live in-game
-- Region locks (warp-enforced) with grace bundling on receipt
-- Item send/receive on the native ticker; DeathLink both directions
-- In-client tracker — region-grouped checks, filters, hint marking
-- Shattering (`num_regions`), item shuffle, pool curation, scaling, grace rando, important/missable
-  location tagging
+On top of the clean base:
 
-## Install
+- **The Shattering, rebuilt.** `num_regions` picks how many regions stay in
+  play; the goal region is always kept, so every seed is winnable.
+  `num_regions_order` keeps either a fixed spine or a random roll.
+- **Real item shuffle.** Each check pays out a shuffled vanilla item instead
+  of generic Runes. Always on in v0.2 -- it is not a toggle.
+- **Configurable goal.** `ending_condition` defaults to holding every kept
+  Region Lock; a Great Runes goal is available as an alternative.
+- **Dungeon sweeps.** Kill a dungeon's boss and its remaining checks
+  register automatically.
+- **Pool curation.** The Rune filler tail is scrubbed and rare and legendary
+  items injected, with the rest spread across item types -- always on. The
+  `curated_filler` recipe and the `pool_builder_pct_*` percentages let you
+  shape what fills that tail.
+- **Grace bundling.** A Region Lock lights all of its region's graces at
+  once, so an arriving Lock means you can warp straight in.
+- **Quality-of-life starts, built in.** You begin with a torch, Torrent,
+  flasks, revealed maps, and immediate leveling, and any gear the multiworld
+  sends is usable regardless of stats. These are how v0.2 plays, not options.
+  Completion-based difficulty scaling is likewise always on; DeathLink is
+  yours to toggle.
+- **A much smaller option surface.** The surface was cut to 19 tunable
+  options with sensible defaults; the rest of the old surface is frozen to
+  one good setting each. Change `name` in the shipped yaml and you have a
+  valid seed.
 
-Grab the client `.dll` and `eldenring.apworld` from the assets below and follow `SETUP.md`. Short
-version: drop the two files in place, point the client at your room, connect. Variants and the full
-option list are in the `release-v0.2` docs.
+DLC (Shadow of the Erdtree) is supported but off by default, and is
+experimental in v0.2. The base game is the recommended way to play.
 
-## Provenance
+## Upgrading from v0.1 -- BREAKING
 
-This is the whole point of v0.2. The world is derived entirely from vanilla game data, so it ships no
-non-free FromSoftware content and nothing from another author's randomizer. It runs on Archipelago
-(MIT) and the client is MIT. Details in `ATTRIBUTION.md`.
+**The AP game id changed from `EldenRing` to `Elden Ring` (with a space).**
+A v0.1 yaml is rejected at generation with:
 
-Thanks to nex3 and vswarte.
+> No world found to handle game EldenRing. Did you mean 'Elden Ring'?
+
+Do not just fix the `game:` line and keep the rest. The option surface was
+cut to 19 tunable options, and Archipelago **silently ignores unknown yaml
+options** -- a retrofitted v0.1 yaml can generate a seed you did not actually
+configure, with no warning. Start from the shipped `EldenRing.yaml` and
+re-apply your preferences there.
+
+The upside of the id change: v0.1 and v0.2 are different worlds as far as
+Archipelago is concerned, so they can be installed side by side. If you have
+a v0.1 seed in flight, you can finish it on v0.1 and start fresh seeds on
+v0.2 without uninstalling anything.
 
 ## Known issues
 
-Read `KNOWN-ISSUES.md` before filing anything.
+The honest list is in [KNOWN-ISSUES.md](KNOWN-ISSUES.md) -- read it before
+filing a report. The main one: a small class of checks can still hand out
+the vanilla item instead of the Archipelago one. It cannot strand a run
+(those locations never hold progression), but you may miss a filler item.
+DLC seeds have additional rough edges.
 
----
+## Requirements and install
 
-### Short version (Nexus page blurb)
+- Archipelago 0.6.7
+- A PC copy of Elden Ring (plus Shadow of the Erdtree only if you enable DLC)
+- The `eldenring.apworld` and the client `.dll` from this release's assets
 
-> Play Elden Ring as part of an Archipelago multiworld — your checks get shuffled into a shared pool
-> with everyone else's games, and their items show up in yours. The map starts locked into regions;
-> you open each one by receiving its key from the multiworld, so your route depends on what your
-> friends' games send you. Bosses, shops, graces and world pickups all count as checks.
->
-> This is a from-scratch build derived from the game's own data — it doesn't include or require any
-> other Elden Ring randomizer. Built on Archipelago (MIT). Thanks to nex3 and vswarte. Requires a PC
-> copy of Elden Ring and ModEngine; install is a two-file drop and a connect (see the SETUP guide).
+Install is a two-file drop plus the shipped `EldenRing.yaml`; the full
+walkthrough is in `SETUP.md`. No game files are modified.

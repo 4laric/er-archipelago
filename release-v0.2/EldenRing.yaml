@@ -100,8 +100,9 @@ Elden Ring:
     - Revered
     - ShopSlot
 
-  # Do bell-bearing merchants' shop checks require their bell in logic?
-  # off = every shop check is assumed reachable.
+  # RESERVED. The option exists but is INERT in v0.2 -- shop checks are assumed
+  # reachable regardless of what you set here. Left in place so seeds stay
+  # forward-compatible; see KNOWN-ISSUES.md. Leave it alone.
   merchant_bell_logic: off
 
   # ---- Runtime rerolls ------------------------------------------------------
