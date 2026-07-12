@@ -1,12 +1,23 @@
 # DERIVED arena graces: distance(grace spawn, nearest boss enemy spawn) < 40.0m
 # A region lock force-lights every grace in its region so you can warp in. A grace INSIDE a
 # boss arena must never be force-lit -- warping there drops you on a live boss.
-# sources: EMEVD DisplayBossHealthBar (boss set) + witchy'd MSB Part/Enemy <EntityID>/<Position>
-#          + grace_flags.tsv (BonfireWarpParam grace spawns). NO hand lists. tools/datamine_arena_graces.py
-# adjudicated 131 grace(s) across 60 boss map(s) with an unpacked MSB
+# sources: EMEVD DisplayBossHealthBar + witchy'd MSB Part/Enemy <EntityID>/<Position>
+#          + grace_flags.tsv. tools/datamine_arena_graces.py
+#
+# MSBs live in TWO dirs and they are NOT the same set: elden_ring_artifacts/map is COMPLETE
+# (1347 unpacked); mapstudio/ is PARTIAL (1034). The tool searches map/ first.
+#
+# ADJUDICATED: 108 of 118 boss maps. The other 7 have boss entities that are NOT MSB
+# Parts at all (script-spawned), so they can never be adjudicated by this method -- the hand
+# lists in gen_data stay LOAD-BEARING for graces on those tiles. Listed below so gen_data can
+# tell 'derivation says safe' apart from 'derivation could not look'.
+# adjudicated_tiles: m10_00_00,m10_01_00,m11_00_00,m11_05_00,m12_01_00,m12_02_00,m12_03_00,m12_04_00,m12_05_00,m12_08_00,m12_09_00,m13_00_00,m14_00_00,m15_00_00,m16_00_00,m18_00_00,m19_00_00,m20_00_00,m20_01_00,m21_00_00,m21_01_00,m22_00_00,m25_00_00,m28_00_00,m30_00_00,m30_01_00,m30_02_00,m30_03_00,m30_04_00,m30_05_00,m30_06_00,m30_07_00,m30_08_00,m30_09_00,m30_10_00,m30_11_00,m30_12_00,m30_13_00,m30_14_00,m30_15_00,m30_16_00,m30_17_00,m30_18_00,m30_19_00,m30_20_00,m31_00_00,m31_01_00,m31_02_00,m31_03_00,m31_04_00,m31_05_00,m31_06_00,m31_07_00,m31_09_00,m31_10_00,m31_11_00,m31_12_00,m31_15_00,m31_17_00,m31_18_00,m31_19_00,m31_20_00,m31_21_00,m31_22_00,m32_00_00,m32_01_00,m32_02_00,m32_04_00,m32_05_00,m32_07_00,m32_08_00,m32_11_00,m34_12_00,m34_13_00,m34_14_00,m35_00_00,m39_20_00,m40_00_00,m40_01_00,m41_00_00,m41_01_00,m41_02_00,m43_00_00,m43_01_00,m60_34_48,m60_35_50,m60_38_51,m60_39_54,m60_40_53,m60_43_30,m60_44_36,m60_48_40,m60_49_39,m60_51_36,m60_51_57,m60_52_56,m61_44_45,m61_46_38,m61_46_41,m61_46_45,m61_48_44,m61_49_44,m61_49_48,m61_50_47,m61_50_48,m61_51_44,m61_52_43,m61_54_39
 grace_flag	map_tile	boss_entity	distance_m
 71000	m10_00_00	10000800	4.3
 71001	m10_00_00	10000850	10.0
+71100	m11_00_00	11000800	7.4
+71101	m11_00_00	11000850	0.5
+71121	m11_05_00	11050850	0.5
 71220	m12_02_00	12020801	37.8
 71221	m12_02_00	12020850	35.1
 71230	m12_03_00	12030812	8.8
@@ -23,13 +34,23 @@ grace_flag	map_tile	boss_entity	distance_m
 71606	m16_00_00	16000861	9.5
 71900	m19_00_00	19000810	25.0
 72000	m20_00_00	20000800	16.1
+72101	m21_00_00	21000850	29.8
+72110	m21_01_00	21010801	6.9
+72200	m22_00_00	22000800	31.1
 72500	m25_00_00	25000800	6.9
 72800	m28_00_00	28000800	13.9
+73109	m31_09_00	31090800	25.4
 73119	m31_19_00	31190850	30.3
 73500	m35_00_00	35000800	0.5
+73900	m39_20_00	39200800	21.6
 76120	m60_44_36	1044360800	2.8
 76161	m60_43_30	1043300800	5.2
+76232	m60_35_50	1035500800	0.1
+76321	m60_39_54	1039540800	34.6
+76322	m60_39_54	1039540800	6.8
+76415	m60_49_39	1049390800	9.4
 76419	m60_51_36	1051360801	13.3
 76524	m60_51_57	1051570800	13.6
 76823	m61_48_44	2048440800	7.6
+76862	m61_52_43	2052430800	5.5
 76945	m61_44_45	2044450800	1.6

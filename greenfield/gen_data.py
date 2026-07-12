@@ -1403,10 +1403,26 @@ _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
 #   ARENA: overworld remembrance arenas, MSB-placed grace behind a fog/summon trigger. No EMEVD
 #     signal -> known/playtest set, NOT provably complete; expand if a playtest finds more.
 _BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601, 71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120, 71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401})
-_ARENA_GRACE_FLAGS = frozenset({76930, 76931, 76422, 76852, 76853, 76508, 76509, 76415,
-    71300,          # Maliketh the Black Blade: fog-gated arena grace (not 9005810 bonfire-hidden, so
-                    # the EMEVD oracle missed it); leaked into Farum Azula grants (playtest 2026-07-07)
-    76414, 76416})  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
+# HAND list -- graces the DERIVED oracle cannot reach. Kept SMALL and each entry must earn its place:
+# a redundant manual override FAILS (see the _BOSS_DROP_EXTRAS guard). 2026-07-11, once ALL the MSBs were
+# found (they live in elden_ring_artifacts/**map**, 1347 unpacked -- NOT mapstudio/, which has 1034 and is
+# where I had been looking), the oracle went 66 -> 108 of 118 boss maps and 28 -> 41 graces, and 4 of the
+# 11 entries here died:
+#   71300 Maliketh, 76415 Redmane plaza  -- now DERIVED. The crutch goes.
+#   76414, 76416                         -- MY over-skip. I could not tell which of the three Redmane-tile
+#                                           graces was the in-arena one, so I skipped ALL of them "because
+#                                           the costs are asymmetric". Measured: 76415 is 9.4m from the duo
+#                                           (the real one), 76414 is 46.6m and 76416 is 119.8m. I had been
+#                                           silently costing the player two legitimate graces. Guessing
+#                                           CONSERVATIVELY is still guessing -- go and measure.
+# The 7 that remain are on the 7 boss maps the oracle can NEVER adjudicate: their boss entity is not an
+# MSB Part at all (script-spawned), so no position exists to measure against. Those are load-bearing.
+_ARENA_GRACE_FLAGS = frozenset({
+    76422,                 # Radahn arena (m60_52_38) -- boss 1052380800 is not an MSB Part
+    76508, 76509,          # unadjudicable map
+    76852, 76853,          # unadjudicable map
+    76930, 76931,          # unadjudicable map
+})  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
                     # Warrior + Crucible Knight duo arena (bosses 1049390800/1049390801) -- granting it
                     # warps you into the middle of a live duo fight (playtest 2026-07-11, Alaric).
                     # Both tile graces skipped: without MSB enemy positions we cannot tell which of the
@@ -1462,7 +1478,7 @@ _DERIVED_ARENA_GRACE_FLAGS = _derived_arena_graces()
 # even where the derived set overlaps them (22 of 37 _BOSS_GATED + 1 of 11 _ARENA today).
 # The hazard is the reverse: re-running the tool on a box WITHOUT the MSBs silently shrinks
 # arena_graces.tsv, and the graces it used to catch quietly start being force-lit again. Fail instead.
-_ARENA_FLOOR = 28   # what the tool derives with the MSBs present (2026-07-11). Raise, never lower.
+_ARENA_FLOOR = 41   # what the tool derives with the COMPLETE MSB set (map/, 108/118 maps). Raise, never lower.
 if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR:
     raise SystemExit(
         "gen_data: arena_graces.tsv has SHRUNK to %d (floor %d). The derived arena-grace set is a lower "

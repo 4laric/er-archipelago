@@ -44,7 +44,12 @@ from collections import defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 AR = os.path.join(ROOT, "elden_ring_artifacts")
-MAPSTUDIO = os.path.join(AR, "mapstudio")
+# TWO directories hold witchy'd MSBs and they are NOT the same set (2026-07-11):
+#     elden_ring_artifacts/mapstudio  -> 1034 unpacked  (PARTIAL -- only 66 of the 118 boss maps)
+#     elden_ring_artifacts/map        -> 1347 unpacked  (COMPLETE -- 117 of 118)
+# I pointed this tool at `mapstudio`, found 52 boss maps "missing", and told Alaric to unpack them --
+# they were unpacked the whole time, one directory over. Search BOTH, prefer whichever has the map.
+MSB_DIRS = [os.path.join(AR, "map"), os.path.join(AR, "mapstudio")]
 EVENT = os.path.join(AR, "event")
 OUT = os.path.join(ROOT, "greenfield", "arena_graces.tsv")
 
@@ -72,9 +77,10 @@ def boss_ids_by_map():
 
 def enemy_positions(map_id):
     """entity id -> (x, y, z) from the witchy'd MSB Part/Enemy xml."""
-    d = os.path.join(MAPSTUDIO, f"{map_id}-msb-dcx", "Part", "Enemy")
-    if not os.path.isdir(d):
-        return None                      # MSB not unpacked -> caller reports as UNRESOLVED
+    d = next((os.path.join(m, f"{map_id}-msb-dcx", "Part", "Enemy") for m in MSB_DIRS
+              if os.path.isdir(os.path.join(m, f"{map_id}-msb-dcx", "Part", "Enemy"))), None)
+    if d is None:
+        return None                      # MSB not unpacked in EITHER dir -> caller reports UNRESOLVED
     pos = {}
     for fp in glob.glob(os.path.join(d, "*.xml")):
         try:
