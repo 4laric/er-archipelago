@@ -11,8 +11,8 @@ run on the base game, which is the recommended, supported configuration.
   channel can hand you the item the vanilla game would have given, rather than
   the multiworld item. This is contained: those locations are never allowed to
   hold progression items, so it cannot strand a run -- the worst case is that
-  you miss a filler item. What to do: nothing; keep playing. A fix is in and
-  awaiting playtest confirmation.
+  you miss a filler item. What to do: nothing; keep playing. A fix is in
+  progress for a future release.
 
 - **DLC: the Shadow Keep church-basement grace can warp you in before the
   water is drained.** With the DLC enabled, the region grace bundle can light
@@ -46,10 +46,11 @@ them apart from the real thing. No report needed for anything below. (And if
 something is *not* on this list and looks wrong, we absolutely want to hear
 about it.)
 
-- **Merchant-bell logic** (`merchant_bell_logic: logic_only`) **is a no-op.**
+- **Merchant-bell logic** (`merchant_bell_logic`) **is inert in v0.2.**
   The bell-to-shop mapping lives in engine code, not in any param or EMEVD, so
-  it cannot be derived from game data. The option ships inert. What to do:
-  leave it off; you lose nothing.
+  it cannot be derived from game data. The option is registered so configs stay
+  forward-compatible, but no value you set does anything yet. What to do: leave
+  it off; you lose nothing.
 
 - **Location-keyed sweeps and sweep-lock gates are empty on purpose.** Only
   flag-keyed dungeon sweeps fire (kill the boss and the dungeon's other checks

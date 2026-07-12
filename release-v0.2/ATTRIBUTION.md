@@ -49,11 +49,6 @@ The runtime client is original work that reads only public param data to map
 checks to event flags. Because the shipped apworld is data-derived and the client
 is original MIT code, the whole release is redistributable under MIT.
 
----
-
-*Elden Ring and Shadow of the Erdtree are trademarks of FromSoftware / Bandai
-Namco. This is an unofficial fan project and ships no game assets.*
-
 ## thefifthmatt -- Elden Ring Item and Enemy Randomizer
 
 For enemy randomization and randomized starting loadouts we point players at
@@ -68,3 +63,8 @@ want ourselves.
 The two tools compose: matt's rewrites the game's files, ours touches none of them. See
 `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` -- and note that item randomization must be OFF
 in matt's, because that part is ours.
+
+---
+
+*Elden Ring and Shadow of the Erdtree are trademarks of FromSoftware / Bandai
+Namco. This is an unofficial fan project and ships no game assets.*

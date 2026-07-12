@@ -7,7 +7,7 @@ Images live in `release-v0.2/screenshots/`.
 These document the highest-risk procedure in the whole release: running thefifthmatt's randomizer
 for enemies and starting loadouts, with **item randomization OFF**, and loading our client through
 his launcher. Prose cannot make "make sure this tab is unticked" as unambiguous as a picture of the
-unticked tab. All eight are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
+unticked tab. All nine are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
 
 | File | What it shows |
 |------|---------------|
