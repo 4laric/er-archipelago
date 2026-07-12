@@ -34,18 +34,46 @@ except Exception as _e:
 # NOT addable here (their drop is not a randomized check -- would need a location added first):
 #   Commander Niall (Veteran's Prosthesis), Black Blade Kindred @ Bestial Sanctum (its gargoyle weapons).
 # Already Boss via the Dragon Heart special-case in _loc_tags: Flying Dragon Greyll, Borealis, Theodorix.
+# HAND OVERRIDES MUST NOT BE REDUNDANT. A manual entry the derivation already covers is not "harmless
+# belt-and-braces" -- it is a lie about why the code works, and it rots: the next person cannot tell
+# which entries are load-bearing. So test_gf_boss_drops::test_no_redundant_boss_drop_extras FAILS on any
+# overlap with the derived BOSS_DROP_FLAGS, and 4 entries were deleted on 2026-07-11 when the datamine
+# (re-mined against all 589 EMEVD, 54 -> 88 flags) finally found what we had hand-added because it
+# couldn't see them: Commander O'Neil 530405, Battlemage Hugues 1049397850, and both Black Blade Kindred
+# drops 530505 / 530425. The derivation caught up; the crutch goes.
+#
+# Safe to delete here ONLY because this derivation is COMPLETE (it reads all 589 decompiled EMEVD and
+# depends on nothing else). Contrast the arena-grace hand lists, which are NOT deletable even where the
+# derived set overlaps them: that oracle needs an unpacked MSB per map and only 66 of the 118 boss maps
+# have one, so its output is a LOWER BOUND and the hand entries are a real safety net. See
+# test_gf_arena_graces::test_derived_coverage_floor.
 _BOSS_DROP_EXTRAS = frozenset({
-    530405,       # Commander O'Neil (Caelid) -> Commander's Standard
-    1049397850,   # Battlemage Hugues (Caelid) -> Battlemage Hugues (ashes)
     1049397800,   # Nox Swordstress & Nox Priest (Caelid) -> Nox Flowing Sword
-    530505,       # Black Blade Kindred (Forbidden Lands) -> Gargoyle's Black Blades
     1040517020,   # Vyke, Knight of the Roundtable (evergaol) -> Dragonbolt Blessing
     # Recovered as checks via GLOBAL_RECOVER above (were unplaced) -> now also Boss-tagged:
     510840,       # Commander Niall -> Veteran's Prosthesis
-    530425,       # Black Blade Kindred (Bestial Sanctum) -> Gargoyle's Blackblade
     # Achievement major-boss drops recovered via GLOBAL_RECOVER above -> Boss-tag them too:
     60440, 510090, 510140, 510260, 510320, 510440,
 })
+# ---- A REDUNDANT MANUAL OVERRIDE IS A FAILURE, NOT A HARMLESS BELT-AND-BRACES ----------------------
+# A hand entry the derivation already covers is a LIE about why the code works: the next reader cannot
+# tell which entries are load-bearing, so nobody dares delete any of them and the crutch calcifies. When
+# the datamine catches up, the crutch must GO -- and the only way that reliably happens is if leaving it
+# in FAILS. So: overlap between the hand list and the derived set is a hard error at generation time
+# (i.e. on every run_ci), not a lint.
+#
+# This fired for real on 2026-07-11: re-mining against all 589 EMEVD (54 -> 88 flags) made 4 of the 7
+# _BOSS_DROP_EXTRAS redundant -- Commander O'Neil, Battlemage Hugues, and both Black Blade Kindred drops
+# were exactly the ones we had hand-added BECAUSE the scan (then reading only 380 EMEVD) couldn't see
+# them. They were deleted; TAG_COUNTS["Boss"] stayed 93, which is the proof they were redundant.
+_redundant = sorted(_BOSS_DROP_EXTRAS & _BOSS_DROP_FLAGS)
+if _redundant:
+    raise SystemExit(
+        "gen_data: %d REDUNDANT entr%s in _BOSS_DROP_EXTRAS -- the derived BOSS_DROP_FLAGS "
+        "(tools/datamine_boss_drops.py) now covers %s. DELETE them from _BOSS_DROP_EXTRAS; do not keep a "
+        "hand override the derivation already makes. (If the derived set instead LOST flags, the datamine "
+        "is stale -- re-run it against the full EMEVD dump rather than re-adding the hand entries.)"
+        % (len(_redundant), "y" if len(_redundant) == 1 else "ies", _redundant))
 _BOSS_DROP_FLAGS = _BOSS_DROP_FLAGS | _BOSS_DROP_EXTRAS
 try:
     _hbspec = _ilu.spec_from_file_location("_boss_hb", os.path.join(HERE, "eldenring", "boss_healthbars.py"))
@@ -1428,6 +1456,20 @@ def _derived_arena_graces():
     return frozenset(out)
 
 _DERIVED_ARENA_GRACE_FLAGS = _derived_arena_graces()
+# COVERAGE FLOOR. Unlike the boss-drop datamine (which reads all 589 EMEVD and is COMPLETE), the
+# arena-grace oracle needs an unpacked MSB per map and only 66 of the 118 boss maps have one -- so its
+# output is a LOWER BOUND, and the hand lists above are a genuine safety net that must NOT be deleted
+# even where the derived set overlaps them (22 of 37 _BOSS_GATED + 1 of 11 _ARENA today).
+# The hazard is the reverse: re-running the tool on a box WITHOUT the MSBs silently shrinks
+# arena_graces.tsv, and the graces it used to catch quietly start being force-lit again. Fail instead.
+_ARENA_FLOOR = 28   # what the tool derives with the MSBs present (2026-07-11). Raise, never lower.
+if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR:
+    raise SystemExit(
+        "gen_data: arena_graces.tsv has SHRUNK to %d (floor %d). The derived arena-grace set is a lower "
+        "bound that depends on unpacked MSBs -- a shrunken tsv means the tool was re-run without them, "
+        "and graces it used to catch will be force-lit again (you warp onto a live boss). Re-run "
+        "tools/datamine_arena_graces.py with the MSBs present."
+        % (len(_DERIVED_ARENA_GRACE_FLAGS), _ARENA_FLOOR))
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS)
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
