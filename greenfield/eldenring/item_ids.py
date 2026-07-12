@@ -324,6 +324,8 @@ ITEM_CATALOG = {
     'Blue-Feathered Branchsword': 536874992,
     'Blue-Gold Kite Shield': 31100000,
     'Blue-White Wooden Shield': 30100000,
+    'Boiled Crab': 1073742644,
+    'Boiled Prawn': 1073742654,
     'Bolt': 52000000,
     'Bolt of Gransax': 16090000,
     'Boltdrake Talisman': 536874942,
@@ -7302,6 +7304,8 @@ FILLER_POOL = [
     'Blood Grease',
     'Blood-Tainted Excrement',
     'Bloodrose',
+    'Boiled Crab',
+    'Boiled Prawn',
     'Bone Dart',
     'Broken Rune',
     'Budding Cave Moss',
@@ -7520,4 +7524,4 @@ FILLER_POOL = [
     'Yellow Fulgurbloom',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bed0ba1abfb24cfb9dbd8148babe51de419359e7bfbd2abb0c40eae175ceca4c', 'module': 'item_ids.py', 'body_sha256': 'sha256:be72b59ff89f0b2af28381800de5d71f558b407210621630b115fa636bbe30e3'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c8e7e993fcdb2de7bbdb4c335e3693864874bd5cc192579306678f1a20963df7', 'module': 'item_ids.py', 'body_sha256': 'sha256:ace58b806b7bb7a18283d4da7574f8dcde6e5a51e2d8ccf394c0abbcd9bd0d4b'}

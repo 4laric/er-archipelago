@@ -398,4 +398,4 @@ SWEEP_REGION = {
     2045440800: 'Ancient Ruins of Rauh',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bed0ba1abfb24cfb9dbd8148babe51de419359e7bfbd2abb0c40eae175ceca4c', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:8e2046de170865d583e55f85e5d4fda0c6437435e1d82075668d61fb90d3a7d3'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c8e7e993fcdb2de7bbdb4c335e3693864874bd5cc192579306678f1a20963df7', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:8e2046de170865d583e55f85e5d4fda0c6437435e1d82075668d61fb90d3a7d3'}
