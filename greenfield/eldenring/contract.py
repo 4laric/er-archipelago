@@ -326,11 +326,19 @@ CONTRACT = (
     ContractKey("apIdsToItemIds", "SCALAR_INT_MAP", True, (BOTH,),
                 "core._base_slot_data", "core.rs:309 i64_map",
                 "AP item id (str) -> ER FullID granted on receipt."),
-    ContractKey("locationFlags", "SCALAR_INT_MAP", True, (BOTH,),
-                "core._base_slot_data", "core.rs:330 i64_to_u32_map",
+    # GREENFIELD-only and REQUIRED there. NOT required of a foreign apworld: Bedrock emits
+    # `locationIdsToKeys` (matt slot keys) instead, and key_resolver.rs derives the flag from token 1
+    # of the key. core.rs prefers the derived table and falls back to this one. Requiring BOTH of a
+    # foreign world would demand a key it does not have and cannot be asked to add.
+    ContractKey("locationFlags", "SCALAR_INT_MAP", True, (GREENFIELD,),
+                "core._base_slot_data", "core.rs:517 (key_resolver first, this as fallback)",
                 "AP location id (str) -> its ER acquisition event flag; the flag-poll detection table."),
-    ContractKey("regionOpenFlags", "SCALAR_INT_MAP", True, (BOTH,),
-                "core._base_slot_data", "region.rs:120 str_to_u32",
+    # GREENFIELD-only. A foreign apworld has NO region lock (Bedrock's is an unbuilt wishlist), and
+    # we told him in writing: "when these arguments aren't present, they fall back to vanilla
+    # behaviour". Absent => no locks, every region open. Guarded by the foreign_apworld_degrade tests
+    # in region.rs. Making this BOTH+required contradicted that promise for months.
+    ContractKey("regionOpenFlags", "SCALAR_INT_MAP", True, (GREENFIELD,),
+                "core._base_slot_data", "region.rs:111 str_to_u32 (absent => empty => no locks)",
                 "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys "
                 "MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names."),
     # --- runtime options echo (F1 fix; the client reads options ONLY through this sub-dict) ---
@@ -392,7 +400,9 @@ CONTRACT = (
                 "FullIDs of every Great Rune item in this seed's pool -- the set the client counts "
                 "RECEIVED items against to satisfy runeGatedGraces. Emitted only with runeGatedGraces."),
     # --- start-of-run grants ---
-    ContractKey("startRegion", "STR", True, (BOTH,),
+    # GREENFIELD-only: absent => vanilla start (Limgrave; Gravesite under dlc_only). core.rs:716
+    # already does `.unwrap_or("")`. Same promise as regionOpenFlags.
+    ContractKey("startRegion", "STR", True, (GREENFIELD,),
                 "features/start_grace.py", "core.rs:410 as_str",
                 "name of the always-kept start region (diagnostic + start anchor)."),
     ContractKey("startGraces", "INT_LIST", False, (BOTH,),
@@ -511,7 +521,9 @@ CONTRACT = (
                 "(client reads options.global_scadutree_blessing)",
                 "legacy top-level copy of the Scadutree blessing scope."),
     # --- version handshake ---
-    ContractKey("versions", "STR", True, (BOTH,),
+    # GREENFIELD-only: core.rs logs a warning and continues when a foreign apworld sends no
+    # `versions` ("it predates the version handshake"). Requiring it of everyone was a lie.
+    ContractKey("versions", "STR", True, (GREENFIELD,),
                 "core._base_slot_data", "eldenring-archipelago core.rs version gate",
                 "VERSION HANDSHAKE. 'apworld/<semver> contract/<hash8> data/<inputs_hash16>'. The "
                 "client compares the contract hash to the one it was COMPILED against and shouts if "
@@ -563,37 +575,44 @@ CONTRACT = (
     ContractKey("pool_builder_juice_pct", "ANY", False, (GREENFIELD,),
                 "features/pool_builder.py", "(diagnostic -- no client read)",
                 "resolved share (0..100) of the Rune tail replaced with juice."),
-    # --- bedrock-profile keys (client reads; greenfield does NOT emit) -- the swap target ---
-    # required=True here means required when validating profile="bedrock" ONLY (profile-aware).
+    # --- bedrock-profile keys (client reads; greenfield does NOT emit) ---
+    # ALL OPTIONAL (2026-07-12). These were marked required=True as the "swap target" -- a
+    # description of what a bedrock-compatible seed WOULD send. It was never observed: his real
+    # apworld (fswap/archipelago@er) emits apIdsToItemIds + locationIdsToKeys + goal, and NONE
+    # of naturalKeyTriggers / lockGrantItems / randomStart* / fogWalls -- those are OUR runtime
+    # features, not his. Nothing ever validated profile="bedrock", so the fiction survived.
+    # `required` now means what it says: THE CLIENT CANNOT FUNCTION WITHOUT IT. It functions
+    # without every one of these (each parse degrades to a vanilla default; region.rs and
+    # fogwall.rs have foreign_apworld_degrade tests proving it).
     ContractKey("locationIdsToKeys", "ANY", True, (BEDROCK,),
                 "(bedrock apworld)", "key_resolver.rs",
                 "matt slot key token per location; client resolves token1 -> flag (bedrock path)."),
-    ContractKey("itemCounts", "ANY", True, (BOTH,),
+    ContractKey("itemCounts", "ANY", False, (BOTH,),
                 "core._base_slot_data (greenfield) / bedrock apworld", "core.rs receive.rs itemCounts",
                 "per-item quantity map {str(ap_item_id): qty}; client grants full_id x qty. Greenfield "
                 "emits stack sizes for throwables (x10) and finished pots (x4) (features/filler_curation)."),
-    ContractKey("naturalKeyTriggers", "ANY", True, (BEDROCK,),
+    ContractKey("naturalKeyTriggers", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "key_resolver.rs / region.rs",
                 "bedrock natural key triggers."),
-    ContractKey("lockGrantItems", "ANY", True, (BEDROCK,),
+    ContractKey("lockGrantItems", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "region.rs",
                 "items granted on a region lock receipt (bedrock)."),
-    ContractKey("randomStartDoneFlag", "ANY", True, (BEDROCK,),
+    ContractKey("randomStartDoneFlag", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "random start client path",
                 "bedrock random-start: flag set when the start warp completed."),
-    ContractKey("randomStartWarpFlag", "ANY", True, (BEDROCK,),
+    ContractKey("randomStartWarpFlag", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "random start client path",
                 "bedrock random-start: flag that triggers the start warp."),
-    ContractKey("randomStartAreaId", "ANY", True, (BEDROCK,),
+    ContractKey("randomStartAreaId", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "random start client path",
                 "bedrock random-start: destination area id."),
-    ContractKey("randomStartGraceId", "ANY", True, (BEDROCK,),
+    ContractKey("randomStartGraceId", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "random start client path",
                 "bedrock random-start: destination grace id."),
-    ContractKey("fogWalls", "ANY", True, (BEDROCK,),
+    ContractKey("fogWalls", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "fog wall client path",
                 "bedrock fog-wall spec."),
-    ContractKey("fogWallDebug", "ANY", True, (BEDROCK,),
+    ContractKey("fogWallDebug", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "fog wall client path",
                 "bedrock fog-wall debug toggle."),
 )

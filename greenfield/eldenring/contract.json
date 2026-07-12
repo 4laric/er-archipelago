@@ -74,10 +74,10 @@
       "shape": "SCALAR_INT_MAP",
       "required": true,
       "profiles": [
-        "both"
+        "greenfield"
       ],
       "producer": "core._base_slot_data",
-      "consumer": "core.rs:330 i64_to_u32_map",
+      "consumer": "core.rs:517 (key_resolver first, this as fallback)",
       "doc": "AP location id (str) -> its ER acquisition event flag; the flag-poll detection table."
     },
     {
@@ -85,10 +85,10 @@
       "shape": "SCALAR_INT_MAP",
       "required": true,
       "profiles": [
-        "both"
+        "greenfield"
       ],
       "producer": "core._base_slot_data",
-      "consumer": "region.rs:120 str_to_u32",
+      "consumer": "region.rs:111 str_to_u32 (absent => empty => no locks)",
       "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names."
     },
     {
@@ -296,7 +296,7 @@
       "shape": "STR",
       "required": true,
       "profiles": [
-        "both"
+        "greenfield"
       ],
       "producer": "features/start_grace.py",
       "consumer": "core.rs:410 as_str",
@@ -582,7 +582,7 @@
       "shape": "STR",
       "required": true,
       "profiles": [
-        "both"
+        "greenfield"
       ],
       "producer": "core._base_slot_data",
       "consumer": "eldenring-archipelago core.rs version gate",
@@ -745,7 +745,7 @@
     {
       "name": "itemCounts",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "both"
       ],
@@ -756,7 +756,7 @@
     {
       "name": "naturalKeyTriggers",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
@@ -767,7 +767,7 @@
     {
       "name": "lockGrantItems",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
@@ -778,7 +778,7 @@
     {
       "name": "randomStartDoneFlag",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
@@ -789,7 +789,7 @@
     {
       "name": "randomStartWarpFlag",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
@@ -800,7 +800,7 @@
     {
       "name": "randomStartAreaId",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
@@ -811,7 +811,7 @@
     {
       "name": "randomStartGraceId",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
@@ -822,7 +822,7 @@
     {
       "name": "fogWalls",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
@@ -833,7 +833,7 @@
     {
       "name": "fogWallDebug",
       "shape": "ANY",
-      "required": true,
+      "required": false,
       "profiles": [
         "bedrock"
       ],
