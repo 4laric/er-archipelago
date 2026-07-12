@@ -77,10 +77,39 @@ The client lives in submodule `from-software-archipelago-clients` (crate
 `eldenring-archipelago`), branch **`main`**. Clone it over HTTPS the same way.
 
 ⚠️ This section used to say **`eldenring-client-draft`**. That branch **no longer exists on origin** —
-the client repo has only `main`. (Same correction as §2.) Edit `.rs` files here, but **`cargo build`/`test` runs on Windows** (net/detour deps are
-Windows-only). Push your `.rs` fix to `eldenring-client-draft`; Alaric pulls + builds and bumps
-the submodule pointer. The `er-logic` crate is host-testable (`cargo test -p er-logic`) if a
-Rust toolchain is present.
+the client repo has only `main`. (Same correction as §2.) ### You do NOT have to hand every Rust change to Alaric to compile
+
+This section used to say flatly "`cargo build`/`test` runs on Windows". **That is misleading**, and on
+2026-07-11 it cost **three** build round-trips on nothing but wrong symbol names. Two ways to get a
+compile check without touching the Windows box:
+
+**1. CI is the cheap one — it now gates `push` to `main`.**
+`from-software-archipelago-clients/.github/workflows/test.yaml` runs `cargo build` + clippy
+(`-Dwarnings`) on `windows-latest`. It used to trigger on `pull_request` **only**, so pushes straight to
+`main` sailed past it; fixed 2026-07-11. **After pushing a `.rs` change, check the run before telling
+Alaric to build** — anything that is a compile error will already be red.
+
+**2. Cross-compile from Linux — `xcompile-client-linux.sh` (repo root).**
+It builds the real `eldenring_archipelago.dll` for `x86_64-pc-windows-msvc` from a Linux host via
+`cargo-xwin` (auto-downloads the MSVC CRT/SDK). Needs **sudo, ~4-5 GB free disk, and crates.io reachable**.
+⚠️ The agent sandbox usually **cannot** run it — it is disk-capped (~9.6 GB, typically >95% used), so the
+SDK download fails. Use it on a real Linux box / WSL2 / a CI runner. Pure-logic crates are host-native
+and cheap either way: `cargo test -p er-codec -p er-semver -p er-logic`.
+
+**3. If you still cannot compile, ASK rather than guess.** The `eldenring` crate is **not vendored in the
+sandbox**, so its type and method names are unknowable from there. Guessing them is what burned the three
+round-trips. Ask Alaric to paste the relevant names once. Known-settled naming lives in the module doc
+comments of `check_lots.rs` / `enemy_drops.rs`:
+
+```
+eldenring::cs::ItemLotParam_map / ItemLotParam_enemy   (snake_case, not CamelCase)
+eldenring::param::ITEMLOT_PARAM_ST                     (ONE row struct shared by BOTH lot tables)
+row.set_lot_item_id01..08                              (no underscore before the digits)
+use fromsoftware_shared::FromStatic;                   (required for SoloParamRepository::instance_mut)
+```
+
+You still need **Windows to RUN** the dll (it hooks a live Elden Ring process). Push your `.rs` fix to
+`main`; Alaric pulls, builds and bumps the submodule pointer.
 
 ## 5. You CAN regenerate + test the apworld in-sandbox
 
