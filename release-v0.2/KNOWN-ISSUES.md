@@ -5,16 +5,11 @@ game (the recommended, supported configuration).
 
 ## Active issues
 
-- **Spirit Calling Bell may be unusable in-game.** Summoning can stay gated even
-  with the received item, so Spirit Ashes may not be callable. **Workaround:** buy
-  the Spirit Calling Bell from the Twin Maiden Husks at the Roundtable Hold — the
-  purchased copy works normally. Does not block a solo Shattering run; a proper fix
-  is targeted for a point release.
-
-- **Map-piece items on connect.** You may receive a few map-fragment items the
-  instant you connect. Harmless — effectively a small handful of free early
-  reveals. (Under the map-reveal path the fragments' pillar checks no longer leak
-  as multiworld checks; the reveal simply fires at spawn.)
+- **A few checks may still hand you the vanilla item.** A small class of drops that come
+  through the ordinary enemy-drop channel can pay out their vanilla item instead of the
+  Archipelago one. It is **contained**: it cannot strand a run, because these locations are
+  never allowed to hold progression. You may simply miss a filler item. A fix is in and
+  awaiting playtest confirmation.
 
 - **DLC Shadow Keep church-basement grace warps in pre-drain.** With the DLC
   enabled, the region grace bundle can light the Shadow Keep church-basement grace
@@ -66,3 +61,12 @@ DLC (Shadow of the Erdtree) is **experimental** in v0.2. `enable_dlc` makes DLC
 regions eligible for `num_regions`; `dlc_only` runs only the Land-of-Shadow
 regions. Base game (DLC off) is the recommended, supported way to play — expect
 rough edges on DLC seeds (see the church-basement grace above).
+
+## Fixed since the v0.2 draft (playtested 2026-07-12)
+
+These were on the active list and are **resolved** — reported here only so nobody chases them:
+
+- **Spirit Calling Bell unusable** — fixed; Spirit Ashes are callable from the received item.
+- **Map-piece items granted on connect** — fixed; the reveal fires without minting item grants.
+- **Flask double-grant on tutorial-death reload** — fixed.
+- **Torrent unavailable on a rolled start** — fixed; a rolled start can no longer leave you mountless.
