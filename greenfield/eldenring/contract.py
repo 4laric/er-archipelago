@@ -237,6 +237,19 @@ IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragme
 # when Shop or Legendary is selected.
 SURFACE_EXCLUDE_TAGS = frozenset({"EniaShop"})
 
+# The DEFAULT progression surface. It lives HERE, beside has_class, because it has two consumers that
+# cannot import each other:
+#   * features/progression_surface.ProgressionSurface.default -- the AP option (needs the AP env)
+#   * tools/gen_location_regions.py                           -- the tracker's static column (AP-FREE)
+# Retiring `is_big_ticket` (20bc529) renamed the predicate but left the SELECTION inlined in the option
+# class, where the AP-free generator could not reach it. So the generator kept calling the old name and
+# the Windows build died at the tracker-table step. Single-sourcing a predicate is only half the job:
+# the SELECTION it is applied to must be single-source too, or the second caller re-invents it.
+SURFACE_DEFAULT_CLASSES = frozenset({
+    "KeyItem", "MajorBoss", "Remembrance", "GreatRune",
+    "Church", "Seedtree", "Fragment", "Revered", "ShopSlot",
+})
+
 
 def has_class(tags, selected) -> bool:
     """Does this location carry one of `selected` classes (and none of SURFACE_EXCLUDE_TAGS)?

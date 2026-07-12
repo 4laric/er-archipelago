@@ -47,7 +47,12 @@ def load_rows():
     plus the greenfield REGIONS list (the coarse lock-item keys)."""
     data = load_gf("data")
     tags = load_gf("location_tags").LOCATION_TAGS
-    is_big_ticket = load_gf("contract").is_big_ticket  # contract = single source (excludes Shop)
+    # `is_big_ticket` was RETIRED (20bc529): the client now stars the PROGRESSION SURFACE. Same
+    # single source (contract), same Enia exclusion -- but the predicate takes the class SELECTION,
+    # so read the default surface from the contract rather than restating it here.
+    _contract = load_gf("contract")
+    on_surface = _contract.has_class
+    surface_classes = _contract.SURFACE_DEFAULT_CLASSES
     missable = set(load_gf("missable_locations").MISSABLE_LOCATIONS)
     open_flags = load_gf("region_open_flags").REGION_OPEN_FLAGS
 
@@ -59,7 +64,7 @@ def load_rows():
     for region, locs in data.LOCATIONS.items():
         coarse = "" if region == data.HUB else region
         for _name, ap_id, _flag in locs:
-            big = is_big_ticket(tags.get(ap_id, ()))
+            big = on_surface(tags.get(ap_id, ()), surface_classes)
             rows.append((int(ap_id), region, coarse, big, ap_id in missable))
     rows = sorted(rows)
     ids = [r[0] for r in rows]

@@ -73,8 +73,9 @@ class ProgressionSurface(OptionSet):
     # ground truth, the region oracle, the phantom-flag guard) removed that constraint, and the category
     # tags are now derived from what each flag's ItemLotParam lot actually GRANTS -- audited against
     # ground truth: Sacred Tear 13/13, Golden Seed 43/43, Scadutree Fragment 46/46, Revered 23/23.
-    default = frozenset({"KeyItem", "MajorBoss", "Remembrance", "GreatRune",
-                         "Church", "Seedtree", "Fragment", "Revered", "ShopSlot"})
+    # Single-sourced in contract.py: the AP-free tracker generator needs this same selection and
+    # cannot import an AP OptionSet. See contract.SURFACE_DEFAULT_CLASSES.
+    default = contract.SURFACE_DEFAULT_CLASSES
     valid_keys = frozenset(contract.IMPORTANT_LOCATION_TYPES)
 
 
