@@ -24,11 +24,14 @@ next seed on v0.2.
 The yaml now exposes only the options a player actually tunes. The rest are
 frozen to sensible defaults and no longer appear in the yaml at all.
 
-**Do not retrofit a v0.1 yaml.** Archipelago silently ignores yaml options it
-does not recognize -- there is no error and no warning. An old yaml full of
-renamed or removed options can generate a seed that is *not* the one you think
-you configured, and nothing will tell you. Start from the shipped
-`EldenRing.yaml` template and edit from there.
+**Do not retrofit a v0.1 yaml.** Archipelago warns about each option it does not
+recognize -- `item_shuffle is not a valid option name for Elden Ring` -- but it
+then **generates the seed anyway**, on defaults. The warnings scroll past in the
+generation output, and nothing stops you. So an old yaml full of renamed or
+removed options gives you a seed that is *not* the one you configured, and you
+will only notice in-game. Start from the shipped `EldenRing.yaml` and edit from
+there. If you do reuse an old one, **read the generation output** -- every
+dropped option is named in it.
 
 ### What's new
 
