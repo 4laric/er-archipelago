@@ -1667,7 +1667,7 @@ print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses 
 # TODO/commented = no reliable in-region boss-drop check found -> left to the feasibility ladder.
 MAJOR_BOSS_EXTRAS = {
     "Limgrave": [
-        (7770852, 530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
+        (7770804, 530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
         # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
         # Dragon-Burnt Ruins field dragon, obtained tile m60_43_36 -> Limgrave (region_map.csv).
         # Alternates (uncomment ONE to swap; drop Agheel above if so):
@@ -1677,7 +1677,7 @@ MAJOR_BOSS_EXTRAS = {
         #     current data -- there is no Margit reward check to move -- so Agheel is the primary.
     ],
     "Weeping Peninsula": [
-        (7773928, 510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
+        (7773915, 510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
         # Castle Morne boss; drops the Grafted Blade Greatsword (flag 510800, rarity-3 -> already
         # 'Legendary'-tagged, ap 7773928), pinned to Weeping Peninsula (commit 6be2f1a). In-region,
         # verified against data.py (7773927 is Fia's Mist in Altus -- off-by-one caught by the
@@ -1686,7 +1686,7 @@ MAJOR_BOSS_EXTRAS = {
     ],
     # ---- TODO (no reliable in-region major-boss DROP check in current data; ladder covers these) ----
     "Jagged Peak": [
-        (7770836, 510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
+        (7770788, 510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
         # Bayle's drop (Heart of Bayle, ap 7770836, flag 510630) is mis-pinned to the m12_05
         # Mohgwyn/Eternal-Cities cluster in region_map.csv; the FLAG_REGION_OVERRIDE[510630]="Jagged
         # Peak" added above re-pins it. This entry RESOLVES only after regen (the assertion below will
