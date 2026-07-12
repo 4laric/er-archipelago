@@ -41,3 +41,15 @@ class FeaturesSmoke(WorldTestBase):
         sd = self.world.fill_slot_data()
         self.assertIn(1034509410, sd["startGraces"],
                       "Ranni chest-gate flag 1034509410 must ride startGraces so check 12027080 opens")
+
+    def test_radahn_festival_flag_force_set(self):
+        """Starscourge Radahn (m60_51_36) only spawns once the festival flag 9410 is on -- his arena
+        script does `EndIf(!EventFlag(9410))`. common.emevd only sets 9410 after a beat OUTSIDE Caelid
+        (Blaidd/Mistwood 1044369223 in LIMGRAVE, Ranni's Rise 1034499224 in LIURNIA, or story flag 3063).
+        A rolled-start seed can seal every one of those, so the festival could never start and Radahn's
+        Great Rune (172, tagged GreatRune+MajorBoss) and Remembrance (510300) were unreachable while AP
+        believed Caelid was open -- fill could strand a region Lock on them. Force it on at spawn.
+        (Playtest 2026-07-11, seed 22222.)"""
+        sd = self.world.fill_slot_data()
+        self.assertIn(9410, sd["startGraces"],
+                      "Radahn Festival flag 9410 must ride startGraces or Radahn can be unfightable")

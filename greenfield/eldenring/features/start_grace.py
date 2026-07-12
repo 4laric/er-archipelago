@@ -27,6 +27,19 @@ _MELINA_SUPPRESS_FLAG = 951     # Melina first-meeting done / suppress her hand-
 # the check reachable (same matt-free NPC-prereq bypass as the Melina flag above). Verified in-game via
 # the Hexinton event-flag writer: set 1034509410 -> chest opens.
 _FINGERSLAYER_CHEST_GATE = 1034509410
+# RADAHN FESTIVAL. Starscourge Radahn (boss 1051360800, m60_51_36) only spawns once the festival is on:
+# his arena script does `EndIf(!EventFlag(9410)); WaitFor(EventFlag(9410))`. And common.emevd only turns
+# 9410 on after a questline beat OUTSIDE Caelid:
+#     WaitFor(EventFlag(1044369223)      -- Blaidd, Mistwood (LIMGRAVE)
+#          || EventFlag(1034499224)      -- Ranni's Rise (LIURNIA)
+#          || EventFlag(3063));          -- story flag
+#     SetNetworkconnectedEventFlagID(9410, ON);
+# In a rolled-start seed those regions can all be SEALED, so none of the three can ever be set -- the
+# festival never starts, Radahn can never be fought, and his Great Rune (flag 172, tagged GreatRune +
+# MajorBoss) and Remembrance (510300) are UNREACHABLE while AP believes Caelid is open. Fill can strand
+# a region Lock on them: a hard softlock. (Found in playtest 2026-07-11, seed 22222, Caelid rolled in.)
+# Force the festival on at spawn -- same NPC-prereq bypass as the Ranni chest gate above.
+_RADAHN_FESTIVAL = 9410
 
 
 class RevealAllMaps(DefaultOnToggle):
@@ -68,6 +81,7 @@ class StartGrace(Feature):
         if world.options.early_leveling.value:
             graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
         graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
+        graces.append(_RADAHN_FESTIVAL)           # start the Radahn Festival so Radahn is fightable
         return {
             contract.START_REGION: HUB,
             contract.START_GRACES: graces,
