@@ -106,8 +106,23 @@ jobs:
         run: |
           python tools/gen_location_regions.py
           python greenfield/gen_contract.py
-          if ! git diff --quiet; then
-            echo "::error::a generator's committed output is STALE -- regenerate and commit:"
-            git --no-pager diff --stat
-            exit 1
+
+          # Check the two things that are actually GENERATED OUTPUT, in the two places they live.
+          #
+          # Do NOT just `git diff` the superproject: we check the client out at its OWN main (above),
+          # not at the pinned gitlink, so the gitlink ALWAYS shows as modified. Failing on that would
+          # be a permanent red herring that says "stale generator" when it means "gitlink not bumped".
+          fail=0
+          if ! git diff --quiet -- . ':(exclude)from-software-archipelago-clients'; then
+            echo "::error::apworld generated output is STALE -- regenerate and commit:"
+            git --no-pager diff --stat -- . ':(exclude)from-software-archipelago-clients'
+            fail=1
           fi
+          # The CROSS-REPO artifacts (tracker_regions.rs, contract_gen.rs) are written INTO the client.
+          # This is the check that catches an apworld change that never reached the client.
+          if ! git -C from-software-archipelago-clients diff --quiet; then
+            echo "::error::client-side generated output is STALE -- regen and push the CLIENT too:"
+            git -C from-software-archipelago-clients --no-pager diff --stat
+            fail=1
+          fi
+          exit $fail
