@@ -261,6 +261,7 @@ ITEM_TIERS = {
     'Carian Glintstone Staff': 2,
     'Carian Greatsword': 2,
     'Carian Knight Armor': 1,
+    'Carian Knight Armor (Altered)': 1,
     'Carian Knight Gauntlets': 1,
     'Carian Knight Greaves': 1,
     'Carian Knight Helm': 1,
@@ -1456,6 +1457,7 @@ ITEM_TIER_CATEGORY = {
     'Carian Glintstone Staff': 'WEAPON',
     'Carian Greatsword': 'SPELL',
     'Carian Knight Armor': 'ARMOR',
+    'Carian Knight Armor (Altered)': 'ARMOR',
     'Carian Knight Gauntlets': 'ARMOR',
     'Carian Knight Greaves': 'ARMOR',
     'Carian Knight Helm': 'ARMOR',
@@ -2391,4 +2393,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:e207aea2696f7eacc85ccdd2946f218596a2aad181e42e0d0e9fa58dab4af1d6', 'module': 'item_tiers.py', 'body_sha256': 'sha256:d6bb6f437c6335c49758b0bacf3af769abb842f832ec5afb15e1a6748fa4f0bb'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bed0ba1abfb24cfb9dbd8148babe51de419359e7bfbd2abb0c40eae175ceca4c', 'module': 'item_tiers.py', 'body_sha256': 'sha256:ec758e40370156e892b7f2b4c267a15b0b4b6fbd4fd89655e895a26465be9ca7'}
