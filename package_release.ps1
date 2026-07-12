@@ -157,8 +157,17 @@ $Docs = @(
     @{ src = (Join-Path $Rel  "KNOWN-ISSUES.md");                          required = $true  },
     @{ src = (Join-Path $Rel  "ATTRIBUTION.md");                           required = $true  },
     @{ src = (Join-Path $Rel  "ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md"); required = $true  },
-    @{ src = (Join-Path $Repo "Elden-Ring-Archipelago-Player-Guide.md");   required = $true  }
+    @{ src = (Join-Path $Repo "Elden-Ring-Archipelago-Player-Guide.md");   required = $true  },
+    @{ src = (Join-Path $Rel  "SCREENSHOTS.md");                           required = $false }
 )
+
+# The docs reference screenshots/*.png with relative paths. Ship the folder or every image link
+# in the release zip is a broken image.
+$Shots = Join-Path $Rel "screenshots"
+if (Test-Path $Shots) {
+    Copy-Item $Shots (Join-Path $Stage "screenshots") -Recurse -Force
+    Info ("+ screenshots/ (" + (Get-ChildItem $Shots -Filter *.png).Count + " images)")
+}
 foreach ($d in $Docs) {
     if (Test-Path $d.src) {
         Copy-Item $d.src $Stage -Force

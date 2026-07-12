@@ -44,26 +44,59 @@ correct thing and the safer thing -- you get the current version, with his insta
 
 ## Recommended matt's randomizer settings
 
-In words, precisely:
-
-- **Enemy randomization ON.** Shuffled enemies and bosses are fine; the
-  Archipelago client detects checks by item lot, not by which enemy is
-  standing there.
-- **Starting-class randomization ON**, if you want a random start.
-- **Item randomization OFF -- mandatory, not a preference.** If matt's
-  item randomizer also shuffles the item lots, both tools are rewriting
-  the same checks: pickups will pay out the wrong things and your
-  Archipelago seed will be wrong. There is no partial setting that makes
-  this safe. Items off, always.
-
-We intend to ship a copy-pasteable options string for matt's randomizer,
-preconfigured exactly as above. It is not ready yet:
+Paste this into matt's randomizer (**Options -> Set options from string**), then **tick "Reroll
+seed"** so you get your own enemy layout instead of ours:
 
 ```
-TODO(alaric): paste the matt's-randomizer options string here (enemies ON, starting class ON, ITEM randomization OFF)
+bossbgm changestats dlc dlcblessing dlckeysilo earlylegacy earlymedal editnames enemy mats raceloc_health raceloc_scadu raceloc_shops racemode_health racemode_key racemode_scadu racemode_upgrades spellshops v15 weaponprogression bias:20 seed:1439986304
 ```
 
-Until then, set the three points above by hand in matt's UI.
+**Then tick "Reroll seed".** The string ends in `seed:1439986304`, which is the seed these
+screenshots were taken with. If you do not reroll it, you get exactly our enemy placement --
+which works, but is not much of a randomizer.
+
+![Item Randomizer OFF -- the tab is unticked and the whole panel is greyed out](screenshots/matt-01-item-randomizer-OFF.png)
+
+**Read the tabs in that picture.** `Item Randomizer` is **unticked** and its entire panel is
+greyed out. `Enemy Randomizer` and `DLC` are ticked. That is the configuration that matters, and
+it is the one thing you must not get wrong.
+
+The string contains tokens like `racemode_key` and `raceloc_shops`, which look alarming -- they
+are item-randomizer settings. They are **inert**: they are just the item tab's remembered state,
+and the item randomizer is off (there is no `item` token in the string). Do not let them tempt
+you into ticking the Item Randomizer box.
+
+![Enemy Randomizer ON](screenshots/matt-02-enemy-randomizer-ON.png)
+
+## Load the Archipelago client through matt's launcher
+
+You do not run two launchers. matt's randomizer will load our client for you as a dll mod, and
+launch the game with both active.
+
+1. Click **Add dll mod**.
+
+   ![The Dll mods dialog](screenshots/matt-03-dll-mods-dialog.png)
+
+2. **Add...** and pick `eldenring_archipelago.dll` (it lives in the `me3` folder of your
+   Archipelago client install).
+
+   ![Selecting eldenring_archipelago.dll](screenshots/matt-04-select-client-dll.png)
+
+3. It should now be listed, and the main window should read **"Using eldenring_archipelago.dll"**.
+
+   ![The client dll, added](screenshots/matt-05-client-dll-added.png)
+
+4. Click **Randomize enemies**.
+
+   ![Randomize enemies](screenshots/matt-06-randomize-enemies.png)
+
+5. Tick **Reroll seed** (see above), then **Launch Elden Ring**.
+
+   ![Reroll seed, then Launch](screenshots/matt-07-reroll-seed-and-launch.png)
+
+The game starts with matt's enemy randomization baked into the files, and our client running in
+memory on top of it. Connect to your Archipelago room as usual.
+
 
 ## Why this composes at all
 
