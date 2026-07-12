@@ -70,12 +70,12 @@ you into ticking the Item Randomizer box.
 
 ![Enemy Randomizer ON](screenshots/matt-02-enemy-randomizer-ON.png)
 
-### Then check **Misc Options** -- this is where the starting class lives
+### Misc Options -- where the starting class actually comes from
 
 Starting-class randomization is **not** part of the Item Randomizer. It sits in the **Misc
 Options** tab, which is why you still get it with items off.
 
-Open Misc Options and make sure it looks like this:
+The string sets it. Confirm it looks like this:
 
 ![Misc Options: Randomize starting class loadouts is ticked](screenshots/matt-02b-misc-options-starting-class.png)
 
@@ -83,9 +83,10 @@ The one that matters is **Randomize starting class loadouts**. The others in tha
 (starting keepsakes, NPC outfits, ambient music, gestures) are taste -- turn them off if you
 would rather they stayed vanilla.
 
-**Tick it by hand if it is not already ticked.** We are not certain the options string carries
-these Misc boxes with it, so do not assume the paste did it for you. Ten seconds of looking
-beats starting a run as a vanilla Wretch when you were promised a random class.
+**The options string above sets these for you** -- paste it and Misc Options should already
+look like the picture. Glance at it anyway: it costs ten seconds, and it is the one check that
+catches a paste that did not take. A run that starts as a vanilla Wretch when you were promised
+a random class is a bad way to find out.
 
 ## Load the Archipelago client through matt's launcher
 
