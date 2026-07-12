@@ -388,7 +388,7 @@
       ],
       "producer": "features/check_lots.py",
       "consumer": "check_lots.rs (ItemLotParam_map)",
-      "doc": "ItemLotParam_MAP lot id -> the GOODS slot indices holding a check's vanilla ware. The client repoints those slots at apPlaceholderGoods, so the vanilla ware is never handed out at a check."
+      "doc": "ItemLotParam_MAP lot id -> the GOODS slot indices holding a check's vanilla ware."
     },
     {
       "name": "checkLotBlankEnemy",
@@ -399,7 +399,106 @@
       ],
       "producer": "features/check_lots.py",
       "consumer": "check_lots.rs (ItemLotParam_enemy)",
-      "doc": "Same, for ItemLotParam_ENEMY -- boss / enemy one-time drops. SEPARATE from the map table on purpose: the two tables can hold the SAME row id, so a merged dict loses the table and forces the client to guess. It guessed map-first, and every enemy lot that collided with a map id was therefore never blanked -- a boss that is 'just an enemy' handed out its vanilla drop and fired no check (playtest 2026-07-12, the Unsightly Catacombs duo, enemy lot 30120)."
+      "doc": "Same, for ItemLotParam_ENEMY (boss / enemy one-time drops). SEPARATE on purpose: the two tables can hold the SAME row id, so a merged dict loses the table and forces the client to GUESS. It guessed map-first, so every enemy lot colliding with a map id was never blanked -- a boss that is 'just an enemy' handed out its vanilla drop and fired no check (playtest 2026-07-12: Unsightly Catacombs duo, enemy lot 30120, while all five of that map's TREASURE checks randomised correctly)."
+    },
+    {
+      "name": "checkLotBlank",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/check_lots.py",
+      "consumer": "check_lots.rs configure/run",
+      "doc": "ItemLotParam lot id (str) -> [goods slot indices] holding a CHECK's vanilla ware. The client repoints those slots at apPlaceholderGoods so the vanilla ware is never handed out at a check -- while farmed/mined/bought/crafted copies are left alone."
+    },
+    {
+      "name": "apPlaceholderGoods",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/check_lots.py",
+      "consumer": "check_lots.rs / detour.rs unconditional suppress",
+      "doc": "A spare EquipParamGoods row (8852): exists so the game can grant it, no FMG name, referenced by no lot/shop/recipe. Suppressed unconditionally -- it is never a real item, so it can never eat anything legitimate. ONE row suffices because checks are detected by the FLAG POLL, not by the item id (no synthetic id per location)."
+    },
+    {
+      "name": "enemyDropRoll",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/enemy_drops.py",
+      "consumer": "enemy_drops.rs configure/run",
+      "doc": "ItemLotParam_enemy lot id (str) -> FLAT pairs [slot, goodsId, slot, goodsId, ...]. UNFLAGGED lots only (a lot with getItemFlagId > 0 IS a check and is never sent). Only GOODS slots are rerolled; lotItemBasePoint (drop weight) is untouched, so drop RATES stay vanilla."
+    },
+    {
+      "name": "shopInfiniteStock",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/shop_stock.py",
+      "consumer": "shop_stock.rs configure/run",
+      "doc": "ShopLineupParam row id (str) -> [goodsId, equipType, price]. The 455 UNLIMITED rows carry no stock flag so they can never be checks; rerolled per seed to a consumable. The PRICE rides along because those rows inherit the old ware's cost (gem slots = 1 rune, 166 armor slots free) -- without it every seed is a free-consumable dispenser."
+    },
+    {
+      "name": "shopPreviewGoods",
+      "shape": "SCALAR_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/shops.py",
+      "consumer": "core.rs:353 i64_map",
+      "doc": "AP location id -> preview goods id shown in the shop slot."
+    },
+    {
+      "name": "stoneswordVendorRow",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/minibaker.py",
+      "consumer": "minibaker.rs configure/run",
+      "doc": "MINI-BAKER: reserved ShopLineupParam row id the client repurposes into an infinite, always-in-stock Stonesword Key vendor (equipId 8000, sellQuantity -1) so imp-statue checks are never missable. 0/absent = off (row left vanilla). Reserved row is excluded from shop checks in gen_data. See memory er-minibaker-shoplineup."
+    },
+    {
+      "name": "dungeonSweepFlags",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/boss_sweeps (P3b client patch)",
+      "consumer": "region.rs:104 as_object",
+      "doc": "dungeon trigger flag (str) -> the member AP location ids auto-registered on clear."
+    },
+    {
+      "name": "dungeonSweeps",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/boss_locks.py ({} today; location-keyed variant)",
+      "consumer": "region.rs",
+      "doc": "location-keyed dungeon sweep spec (needs boss-reward-location join); greenfield emits {} until wired -- flag-keyed dungeonSweepFlags is the live path."
+    },
+    {
+      "name": "sweepLockGates",
+      "shape": "STR_MAP",
+      "required": false,
+      "profiles": [
+        "both"
+      ],
+      "producer": "features/boss_locks.py ({} today)",
+      "consumer": "region.rs sweep gates",
+      "doc": "{str(i64 sweep trigger flag): '<Region> Lock'} -- gates a dungeon sweep behind holding the named lock; live client consumer."
     },
     {
       "name": "progressiveGrants",
