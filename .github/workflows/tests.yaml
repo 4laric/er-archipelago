@@ -37,14 +37,16 @@ jobs:
         with:
           repository: ArchipelagoMW/Archipelago
           ref: 0.6.8
-          path: Archipelago
+          # NOT `Archipelago`: this repo already has a submodule at that exact path, and the second
+          # checkout collided with it ("Entering 'Archipelago'" -> git bailed).
+          path: _ap
 
       - name: Install Archipelago's requirements
         run: |
           python -m pip install --upgrade pip
           # AP 0.6.8 is not compatible with setuptools >= 80 (pkg_resources removal).
           pip install "setuptools<80"
-          pip install -r Archipelago/requirements.txt
+          pip install -r _ap/requirements.txt
           pip install pytest
 
       # The world is INSTALLED, not symlinked: several tests resolve their ground-truth inputs relative
@@ -52,17 +54,17 @@ jobs:
       # test passes locally and silently no-ops in CI.
       - name: Install the greenfield world into Archipelago
         run: |
-          cp -r greenfield/eldenring Archipelago/worlds/eldenring
+          cp -r greenfield/eldenring _ap/worlds/eldenring
           # gen_data's INPUTS. They live beside the package in the source tree; the Windows install step
           # copies them INTO the package so the derivation oracles can re-derive against ground truth.
           # Without them the oracle suites (boss sweeps, shop release-gate) run BLIND -- they do not fail,
           # they quietly assert nothing, which is worse than failing.
-          cp greenfield/*.csv greenfield/*.tsv Archipelago/worlds/eldenring/ 2>/dev/null || true
-          test -f Archipelago/worlds/eldenring/region_map.csv  || { echo "::error::region_map.csv missing -- boss-sweep oracle would run blind"; exit 1; }
-          test -f Archipelago/worlds/eldenring/shop_rows.tsv   || { echo "::error::shop_rows.tsv missing -- shop release-gate would run blind"; exit 1; }
+          cp greenfield/*.csv greenfield/*.tsv _ap/worlds/eldenring/ 2>/dev/null || true
+          test -f _ap/worlds/eldenring/region_map.csv  || { echo "::error::region_map.csv missing -- boss-sweep oracle would run blind"; exit 1; }
+          test -f _ap/worlds/eldenring/shop_rows.tsv   || { echo "::error::shop_rows.tsv missing -- shop release-gate would run blind"; exit 1; }
 
       - name: pytest
-        working-directory: Archipelago
+        working-directory: _ap
         run: python -m pytest worlds/eldenring/tests -q
 
   # ---------------------------------------------------------------------------------------------
@@ -77,8 +79,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Do NOT init submodules. Their URLs are SSH (git@github.com), which a runner has no key for, and
+      # Paramdex's url is a literal Windows path (`.\Paramdex\`). gen_location_regions only needs the
+      # CLIENT, so check that out directly, at the submodule's path.
+      - uses: actions/checkout@v4
         with:
-          submodules: recursive   # gen_location_regions writes into the client submodule
+          repository: 4laric/from-software-archipelago-clients
+          path: from-software-archipelago-clients
 
       - uses: actions/setup-python@v5
         with:
