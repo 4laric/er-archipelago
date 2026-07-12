@@ -79,6 +79,19 @@ the vanilla item instead of the Archipelago one. It cannot strand a run
 (those locations never hold progression), but you may miss a filler item.
 DLC seeds have additional rough edges.
 
+## The apworld and the client must come from the same release tag
+
+They are a hash-matched pair: the apworld stamps a contract hash into the seed, and the client
+checks it on connect. A mismatched pair does **not** fail at the door -- it boots, connects, and
+then behaves subtly wrong.
+
+Take both from the same release. If you see `VERSION MISMATCH` in the client log, that is exactly
+what has happened. Hosts generating a multiworld need only `eldenring.apworld`, which is attached
+to the release separately for that reason -- but it must still come from the same tag as the
+players' clients.
+
+See `DISTRIBUTION.md`.
+
 ## Requirements and install
 
 - Archipelago 0.6.7
