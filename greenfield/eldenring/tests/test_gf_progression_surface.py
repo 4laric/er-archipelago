@@ -183,9 +183,12 @@ def test_major_boss_extras_structure():
     for region, lst in extras.items():
         assert region in data.LOCATIONS, f"extras region {region!r} not a real region"
         for tup in lst:
-            assert len(tup) == 5, f"expected (ap_id, flag, boss, drop, confidence), got {tup!r}"
-            aid, flag, boss, drop, conf = tup
-            assert isinstance(aid, int) and isinstance(flag, int)
+            # NO ap-id in the tuple. It used to carry a "documentary" one that went stale on every
+            # single regen (ap-ids are positional), and gen_data printed a NOTE about it forever.
+            # The flag is the durable key; the ap-id is derived. Pinning it was pinning the symptom.
+            assert len(tup) == 4, f"expected (flag, boss, drop, confidence), got {tup!r}"
+            flag, boss, drop, conf = tup
+            assert isinstance(flag, int)
             assert conf in valid_conf, f"bad confidence {conf!r} for {boss!r}"
             # every extra flag must be a REAL check somewhere in the current data
             assert flag in flag_regions, f"{boss!r} flag {flag} is not a real check"
