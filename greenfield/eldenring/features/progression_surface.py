@@ -131,9 +131,16 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
     sel = set(classes)
     if defaulted is None:
         try:
-            from ..location_tags import DEFAULTED_REGION_APS as defaulted
+            from ..location_tags import DEFAULTED_REGION_APS as _d
         except Exception:
-            defaulted = frozenset()
+            _d = frozenset()
+        try:
+            # m11_00 (normal Leyndell): destroyed when Maliketh dies (the Erdtree burns). Same rule --
+            # a check the player can put permanently out of reach may not carry progression.
+            from ..location_tags import ERDTREE_BURN_APS as _b
+        except Exception:
+            _b = frozenset()
+        defaulted = frozenset(_d) | frozenset(_b)
     return {ap for ap, tags in tags_map.items()
             if contract.is_big_ticket(tags, sel) and ap not in defaulted}
 

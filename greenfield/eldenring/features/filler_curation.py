@@ -119,7 +119,13 @@ class CuratedFiller(OptionDict):
     # to them at shallow depth must be able to afford a modest weapon level -- and this weight is the
     # smallest one that satisfies it with margin. If the bar is wrong, argue with the bar (the
     # COLLECTION_RATE and EARLY_TARGET_LEVEL constants in that file), not with this number.
-    default = {"juice": 44, "stones": 24, "somber_stones": 6, "runes": 10,
+    # stones 24 -> 27 (2026-07-11). ERDTREE_BURN_APS bars advancement from the 79 m11_00 checks (they
+    # are destroyed when Maliketh burns the Erdtree), which displaces progression into earlier slots and
+    # pushed the early stone economy BELOW the floor: test_early_weapon_upgrade_is_affordable found 21
+    # placed across spheres 0-1 where 24 are needed to afford +3 at a 25% clear rate. The floor exists to
+    # stop a player being stuck at +0 deep into a seed, so the right move is to feed the economy, not to
+    # weaken the softlock guard -- a check the player can destroy must not be REQUIRED, full stop.
+    default = {"juice": 44, "stones": 27, "somber_stones": 6, "runes": 10,
                "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1}
 
 
