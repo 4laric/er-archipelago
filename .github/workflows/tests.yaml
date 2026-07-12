@@ -32,11 +32,11 @@ jobs:
 
       # PIN the Archipelago version. An unpinned clone means a green main can go red overnight on
       # someone else's commit, which trains everyone to ignore the badge.
-      - name: Check out Archipelago 0.6.8
+      - name: Check out Archipelago 0.6.7
         uses: actions/checkout@v4
         with:
           repository: ArchipelagoMW/Archipelago
-          ref: 0.6.8
+          ref: 0.6.7
           # NOT `Archipelago`: this repo already has a submodule at that exact path, and the second
           # checkout collided with it ("Entering 'Archipelago'" -> git bailed).
           path: _ap
@@ -44,7 +44,7 @@ jobs:
       - name: Install Archipelago's requirements
         run: |
           python -m pip install --upgrade pip
-          # AP 0.6.8 is not compatible with setuptools >= 80 (pkg_resources removal).
+          # AP 0.6.x is not compatible with setuptools >= 80 (pkg_resources removal).
           pip install "setuptools<80"
           pip install -r _ap/requirements.txt
           pip install pytest
