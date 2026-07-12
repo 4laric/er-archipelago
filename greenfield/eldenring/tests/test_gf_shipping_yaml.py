@@ -21,6 +21,7 @@ This test closes that: the shipped yaml's `game:` key must equal the world's GAM
 must be keyed the same. Cheap, and it fails the moment a rename lands without the template following.
 """
 import os
+import re
 import unittest
 
 from ..core import GAME
@@ -69,6 +70,48 @@ class TestShippingYaml(unittest.TestCase):
             GAME, game[0],
             f"the shipped yaml says game: {game[0]!r} but the world is GAME = {GAME!r}. "
             f"Archipelago will reject it with 'No world found to handle game {game[0]}'.")
+
+    def test_every_option_in_the_template_actually_exists(self):
+        """THE ONE THAT MATTERS. Archipelago SILENTLY IGNORES unknown yaml options -- it does not warn,
+        it does not error, it just generates a seed on defaults. So a template key that is not a real
+        option is invisible: it reads like a knob and does nothing.
+
+        Found 2026-07-12: of the 30 keys in the shipped template, only 10 were real. 19 were FROZEN
+        (removed from the option surface by defaults.FROZEN_OPTIONS in the v0.2 slim-down) and 1
+        (`grace_rando`) did not exist at all. Worse, three of them stated the WRONG behaviour --
+        `flatten_regular_upgrades: 0` promised the vanilla 2/4/6 smithing ladder while the game
+        actually runs a uniform 2-stone ladder, and `global_scadutree_blessing: off` while it is
+        actually `scaled`. The template described a different game than the one that runs.
+
+        The template rotted because nothing pointed a test at it -- the same reason it went on
+        declaring `game: EldenRing` through the rename. This is that test.
+        """
+        real = self._world_option_names()
+        block = self._game_block_keys()
+        unknown = sorted(k for k in block if k not in real)
+        self.assertEqual(
+            [], unknown,
+            f"{len(unknown)} key(s) in the shipped template are NOT real options and will be SILENTLY "
+            f"IGNORED: {unknown}. A key that reads like a knob and does nothing is worse than no key.")
+
+    def _world_option_names(self):
+        from worlds.AutoWorld import AutoWorldRegister
+        return set(AutoWorldRegister.world_types[GAME].options_dataclass.type_hints)
+
+    def _game_block_keys(self):
+        """Keys indented exactly two spaces under the `<GAME>:` block."""
+        out, inside = [], False
+        for l in self.lines:
+            if l.startswith(f"{GAME}:"):
+                inside = True
+                continue
+            if inside:
+                if l and not l[0].isspace() and not l.startswith("#"):
+                    break                      # left the block
+                m = re.match(r"^  ([a-z_][a-z0-9_]*):", l)
+                if m:
+                    out.append(m.group(1))
+        return out
 
     def test_options_block_is_keyed_by_the_game(self):
         """The options live under a block named for the game. Rename one, rename both."""
