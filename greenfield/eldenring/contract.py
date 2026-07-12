@@ -739,6 +739,10 @@ def to_rust():
     # false, which keys off exactly this token in the first few lines. Without it `cargo fmt` reformats
     # this file, the next regen emits the unformatted form, and CI fails on a file nobody edited.
     L.append("// @generated -- AUTO-GENERATED from eldenring/contract.py. Do not edit by hand.")
+    # NOTE: rustfmt honours `@generated` (the client's rustfmt.toml sets format_generated_files=false)
+    # but CLIPPY DOES NOT -- a generated file is linted like any other. So the emitted Rust has to be
+    # lint-clean AT THE SOURCE: 12 of the client's 44 clippy errors were `map_or(false, ..)` emitted from
+    # right here, and hand-fixing contract_gen.rs would have been silently undone by the next regen.
     L.append("// The apworld<->client slot_data contract, mirrored so the client validates the same shapes.")
     L.append("use serde_json::Value;")
     L.append("")
@@ -775,26 +779,26 @@ _RUST_VALIDATE = r'''fn is_int(v: &Value) -> bool { v.is_i64() || v.is_u64() }
 
 fn shape_ok(shape: Shape, v: &Value) -> bool {
     match shape {
-        Shape::ScalarIntMap => v.as_object().map_or(false, |o| o.values().all(is_int)),
-        Shape::ListvalIntMap => v.as_object().map_or(false, |o| {
-            o.values().all(|x| x.as_array().map_or(false, |a| a.iter().all(is_int)))
+        Shape::ScalarIntMap => v.as_object().is_some_and(|o| o.values().all(is_int)),
+        Shape::ListvalIntMap => v.as_object().is_some_and(|o| {
+            o.values().all(|x| x.as_array().is_some_and(|a| a.iter().all(is_int)))
         }),
-        Shape::StrMap => v.as_object().map_or(false, |o| o.values().all(|x| x.is_string())),
-        Shape::TripleList => v.as_array().map_or(false, |a| {
-            a.iter().all(|t| t.as_array().map_or(false, |t| t.len() == 3 && t.iter().all(is_int)))
+        Shape::StrMap => v.as_object().is_some_and(|o| o.values().all(|x| x.is_string())),
+        Shape::TripleList => v.as_array().is_some_and(|a| {
+            a.iter().all(|t| t.as_array().is_some_and(|t| t.len() == 3 && t.iter().all(is_int)))
         }),
-        Shape::IntList => v.as_array().map_or(false, |a| a.iter().all(is_int)),
+        Shape::IntList => v.as_array().is_some_and(|a| a.iter().all(is_int)),
         Shape::Bool => v.is_boolean(),
-        Shape::BoolOrInt => v.is_boolean() || v.as_i64().map_or(false, |n| n == 0 || n == 1),
+        Shape::BoolOrInt => v.is_boolean() || v.as_i64().is_some_and(|n| n == 0 || n == 1),
         Shape::IntOrBool => v.is_boolean() || is_int(v),
         Shape::Int => is_int(v),
         Shape::Number => v.is_number(),
         Shape::Str => v.is_string(),
-        Shape::NestedGrants => v.as_object().map_or(false, |o| {
-            o.values().all(|l| l.as_array().map_or(false, |l| l.iter().all(|e| {
-                e.get("goods").map_or(false, is_int)
+        Shape::NestedGrants => v.as_object().is_some_and(|o| {
+            o.values().all(|l| l.as_array().is_some_and(|l| l.iter().all(|e| {
+                e.get("goods").is_some_and(is_int)
                     && e.get("flags").and_then(|f| f.as_array())
-                        .map_or(false, |f| f.iter().all(is_int))
+                        .is_some_and(|f| f.iter().all(is_int))
             })))
         }),
         Shape::OptionsDict => v.is_object(),
