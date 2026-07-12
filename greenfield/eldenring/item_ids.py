@@ -7579,4 +7579,4 @@ FILLER_POOL = [
     'Yellow Fulgurbloom',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:fcae404cb6094ed28bca8455d1d041be0932e6caf1b1f1b72294c903e80b5d8d', 'module': 'item_ids.py', 'body_sha256': 'sha256:c2d78c9fc7aeb7cbf6dce63c5a27996dcb59db92e353f51e2cf87f78fed31cd7'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c72533f5a9f18836a121f4d67cdf1d972bf126b0206185a683eda634df7c62bd', 'module': 'item_ids.py', 'body_sha256': 'sha256:c2d78c9fc7aeb7cbf6dce63c5a27996dcb59db92e353f51e2cf87f78fed31cd7'}

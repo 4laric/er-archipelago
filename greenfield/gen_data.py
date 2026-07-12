@@ -226,7 +226,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Undergrou
  'm22':'Gravesite Plain','m28':'Abyssal Woods'}
 
 def _overworld_tile_of(r):
-    """The FINE overworld tile (xx, yy) for an 'Overworld m60_..' row, or None.
+    r"""The FINE overworld tile (xx, yy) for an 'Overworld m60_..' row, or None.
 
     LOD BUG (playtest 2026-07-11, Alaric). The region column can carry a LOD-suffixed tile --
     'Overworld m60_10_09_02'. The trailing _02 is the LOD LEVEL, and at LOD 2 the overworld grid is
