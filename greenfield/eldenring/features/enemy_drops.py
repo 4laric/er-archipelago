@@ -48,6 +48,11 @@ try:
 except ImportError:
     ITEM_CATALOG = {}
 
+try:
+    from ..repeatable_goods import REPEATABLE_GOODS
+except ImportError:
+    REPEATABLE_GOODS = frozenset()
+
 _GOODS_CATEGORY = 0x40000000
 _ROW_ID_MASK = 0x0FFFFFFF
 
@@ -68,7 +73,14 @@ def pool():
             fid = ITEM_CATALOG.get(nm)
             if fid is None or (fid & ~_ROW_ID_MASK) != _GOODS_CATEGORY:
                 continue
-            out.add(fid & _ROW_ID_MASK)
+            rid = fid & _ROW_ID_MASK
+            # Draw ONLY from goods with a repeatable source. A ware obtainable ONLY as a check still
+            # arms vanilla-suppress (correctly -- a unique ware must not leak), so rolling one into a
+            # farmable drop would have the client EAT it on pickup: the drop would silently give
+            # nothing. That is the same bug in miniature, and it was still costing 8% of slots.
+            if REPEATABLE_GOODS and rid not in REPEATABLE_GOODS:
+                continue
+            out.add(rid)
     return sorted(out)
 
 

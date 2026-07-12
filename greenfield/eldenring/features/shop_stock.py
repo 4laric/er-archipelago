@@ -56,6 +56,11 @@ try:
 except ImportError:
     ITEM_CATALOG = {}
 
+try:
+    from ..repeatable_goods import REPEATABLE_GOODS
+except ImportError:
+    REPEATABLE_GOODS = frozenset()
+
 _GOODS_CATEGORY = 0x40000000
 _ROW_ID_MASK = 0x0FFFFFFF
 _EQUIP_TYPE_GOODS = 3
@@ -80,6 +85,11 @@ def pool():
             if fid is None or (fid & ~_ROW_ID_MASK) != _GOODS_CATEGORY:
                 continue                      # not in the catalog, or not a GOOD
             rid = fid & _ROW_ID_MASK
+            # Same guard as the enemy-drop pool: a ware obtainable ONLY as a check arms vanilla-suppress,
+            # so buying one from a rerolled slot would have the client EAT the bag-add -- you'd pay and
+            # get nothing. Only stock goods that have a repeatable source.
+            if REPEATABLE_GOODS and rid not in REPEATABLE_GOODS:
+                continue
             if rid in GOODS_PRICE:            # no derived price -> would inherit a free slot. Drop.
                 out[nm] = rid
     return out
