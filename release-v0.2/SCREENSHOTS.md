@@ -25,7 +25,7 @@ unticked tab. All eight are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZAT
 
 | File | What it shows |
 |------|---------------|
-| `overlay-connected.png` | **"How do I know it's working?"** -- the overlay reading `[Connected]` and the log line `Tester_A2 (Team #1) playing Elden Ring has joined.` It doubles as live proof of the game id WITH THE SPACE, and the turtle-shell armour is matt's starting-loadout randomization visibly doing its job. Used in SETUP.md's connect step. |
+| `overlay-connected.png` | **"How do I know it's working?"** -- the overlay reading `[Connected]` and the log line `Tester_A2 (Team #1) playing Elden Ring has joined.` It doubles as live proof of the game id WITH THE SPACE. (The turtle shell is an Archipelago item the client granted on a check -- I originally captioned it as matt's starting-loadout randomization, which was a guess dressed up as a fact.) Used in SETUP.md's connect step. |
 
 ## Still worth taking (in-game)
 
