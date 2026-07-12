@@ -2,7 +2,7 @@
 
 Images live in `release-v0.2/screenshots/`.
 
-## What we have (8) -- the compose-with-matt's walkthrough
+## What we have (9) -- the compose-with-matt's walkthrough
 
 These document the highest-risk procedure in the whole release: running thefifthmatt's randomizer
 for enemies and starting loadouts, with **item randomization OFF**, and loading our client through
@@ -13,6 +13,7 @@ unticked tab. All eight are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZAT
 |------|---------------|
 | `matt-01-item-randomizer-OFF.png` | **The one that matters.** Item Randomizer tab unticked, whole panel greyed out; Enemy + DLC ticked. |
 | `matt-02-enemy-randomizer-ON.png` | Enemy Randomizer tab, enemies being replaced. |
+| `matt-02b-misc-options-starting-class.png` | **Misc Options: "Randomize starting class loadouts" ticked.** Proves the starting class does NOT come from the Item Randomizer -- which is why you still get it with items off. Without this picture the doc's headline promise is unverifiable. |
 | `matt-03-dll-mods-dialog.png` | The "Add dll mod" dialog, empty. |
 | `matt-04-select-client-dll.png` | Picking `eldenring_archipelago.dll` out of the `me3` folder. |
 | `matt-05-client-dll-added.png` | The client listed; main window reads "Using eldenring_archipelago.dll". |
