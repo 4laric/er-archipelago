@@ -121,6 +121,22 @@ for flag,tile in gf.items():
     pr=greg.get(flag); m=re.match(r"m60_(\d\d)_(\d\d)",tile)
     if pr and pr!="0" and m: _acc[(int(m.group(1)),int(m.group(2)))][pr]+=1
 ANCHOR={xy:c.most_common(1)[0][0] for xy,c in _acc.items()}
+def _is_fine_tile(x, y):
+    """Is (x, y) a REAL fine overworld tile, or a coarse LOD index masquerading as one?
+
+    The overworld ships LOD variants (m60_XX_YY_01 / _02) whose XX/YY are on a 2x / 4x coarser grid.
+    Those indices are small (e.g. 10, 09) and fall far outside the real fine grid, but tile_pr()'s
+    nearest-neighbour would still hand back a confident, wrong region. Bound-check against the real
+    anchor grid so a coarse index is REJECTED rather than silently snapped to the nearest real tile."""
+    return (_TILE_X_MIN <= x <= _TILE_X_MAX) and (_TILE_Y_MIN <= y <= _TILE_Y_MAX)
+
+# Bounds of the REAL fine overworld grid, used by _is_fine_tile() to reject coarse LOD indices
+# (m60_10_09_02 -> (10, 09)) that would otherwise be nearest-neighboured to a confident wrong region.
+_TILE_X_MIN = min(x for x, _ in ANCHOR)
+_TILE_X_MAX = max(x for x, _ in ANCHOR)
+_TILE_Y_MIN = min(y for _, y in ANCHOR)
+_TILE_Y_MAX = max(y for _, y in ANCHOR)
+
 def tile_pr(x,y):
     if (x,y) in ANCHOR: return ANCHOR[(x,y)]
     best,bd=None,1e18
@@ -154,11 +170,43 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Undergrou
  'Ainsel River / Lake of Rot':'Eternal Cities','Nokstella, Eternal City':'Eternal Cities','Subterranean Shunning-Grounds':'Altus Plateau',
  'm22':'Gravesite Plain','m28':'Abyssal Woods'}
 
+def _overworld_tile_of(r):
+    """The FINE overworld tile (xx, yy) for an 'Overworld m60_..' row, or None.
+
+    LOD BUG (playtest 2026-07-11, Alaric). The region column can carry a LOD-suffixed tile --
+    'Overworld m60_10_09_02'. The trailing _02 is the LOD LEVEL, and at LOD 2 the overworld grid is
+    4x COARSER. The old parser regex `.*m60_(\d\d)_(\d\d)` grabbed (10, 09) and fed them to
+    tile_pr() as if they were FINE coords. They are not: LOD2 (10,09) is the fine block
+    (40..43, 36..39). So 6 checks got a garbage region.
+
+    Symptom: `Overworld m60_10_09_02` resolved to WEEPING PENINSULA; the Flail (f1042377060) actually
+    sits at Gatefront in LIMGRAVE. In a seed where Weeping was sealed the check was culled with its
+    region, so it never entered the client's locationFlags -- the player walked to it in Limgrave,
+    picked it up, got the VANILLA Flail, and the client logged nothing at all. Silent dead check.
+    (The mirror case is worse: mis-assign INTO an open region and AP asserts a reachability it
+    doesn't have -- see DEFAULTED_REGION_APS.)
+
+    FIX: the flag ID already encodes the fine tile -- ER's overworld convention is 10 XX YY nnnn:
+        1042377060 -> 10|42|37|7060 -> m60_42_37 (Gatefront, Limgrave)   [correct]
+    _recover_tile() already decodes exactly this. Prefer it; fall back to the region string only when
+    the flag is not decodable, and only when the string carries NO LOD suffix (an unscaled coarse tile
+    is a guess, and a guess may not carry a region -- _region_is_derived() reports it as defaulted)."""
+    tile = _recover_tile(r.get('flag'))
+    if tile and tile.startswith("m60_"):
+        _, xx, yy = tile.split("_")
+        return int(xx), int(yy)
+    m = re.match(r'.*m60_(\d\d)_(\d\d)(?:_(\d\d))?$', r['region'].strip())
+    if not m:
+        return None
+    if m.group(3) and m.group(3) != "00":     # LOD-suffixed and the flag didn't decode -> DO NOT GUESS
+        return None
+    return int(m.group(1)), int(m.group(2))
+
 def _region_of_raw(r):
     reg=r['region']; meth=r['method']
     if reg.startswith('Overworld m60'):
-        m=re.match(r'.*m60_(\d\d)_(\d\d)',reg)
-        return PLAY2AP.get(tile_pr(int(m.group(1)),int(m.group(2))),HUB) if m else HUB
+        t = _overworld_tile_of(r)
+        return PLAY2AP.get(tile_pr(*t), HUB) if t else HUB
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
@@ -192,8 +240,8 @@ def _region_is_derived(r):
     placeholder regions above are not."""
     reg=r['region']; meth=r['method']
     if reg.startswith('Overworld m60'):
-        m=re.match(r'.*m60_(\d\d)_(\d\d)',reg)
-        return bool(m) and tile_pr(int(m.group(1)),int(m.group(2))) in PLAY2AP
+        t = _overworld_tile_of(r)              # flag-decode first; LOD-suffixed guesses return None
+        return bool(t) and tile_pr(*t) in PLAY2AP
     if meth=='shop_multi': return False
     return reg in REGION_MAP
 
@@ -1050,6 +1098,18 @@ def _gt_region(_mid):
     _d = DUNGEON_REGION_OVERRIDE.get(_full)
     if _d:
         return _d
+    # LOD GUARD (playtest 2026-07-11). The MSB datamine names a map by its FILE, and the overworld has
+    # coarse LOD variants -- m60_10_09_02 is LOD level 2, a 4x-coarser grid. Its (10, 09) are NOT fine
+    # tile coords, but tile_pr() would happily nearest-neighbour them to the closest real anchor and
+    # return a confident, WRONG region: the Flail (f1042377060, actually Gatefront in LIMGRAVE) came
+    # back as WEEPING PENINSULA. In a seed with Weeping sealed the check was culled with its region, so
+    # it never reached the client's locationFlags -- the player picked it up in Limgrave, got the
+    # VANILLA weapon, and the client logged nothing. A silent dead check.
+    # A coarse tile is NOT a fine tile. Refuse to guess: return None and let the caller fall through to
+    # the flag decode (10 XX YY nnnn already encodes the true fine tile -- see _overworld_tile_of).
+    _m = re.match(r"m6[01]_(\d\d)_(\d\d)", _mid)
+    if _m and not _is_fine_tile(int(_m.group(1)), int(_m.group(2))):
+        return None
     _m = re.match(r"m61_(\d\d)_(\d\d)", _mid)
     if _m:
         return _m61_tile_region(int(_m.group(1)), int(_m.group(2)))
