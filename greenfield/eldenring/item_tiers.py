@@ -2408,5 +2408,3 @@ ITEM_TIER_CATEGORY = {
     'Zamor Curved Sword': 'WEAPON',
     'Zweihander': 'WEAPON',
 }
-
-_GEN_STAMP = {'inputs_hash': 'sha256:b140df16e3bab36a6d257be4ac24d0ad042d1b9aa45a8cdeb9cc460a37cc5257', 'module': 'item_tiers.py', 'body_sha256': 'sha256:f47e573848c16cb427371da291f3e5d4dfaee57d001c1ac7be7744bb8cd019ce'}
