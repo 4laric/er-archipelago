@@ -375,6 +375,12 @@ CONTRACT = (
     ContractKey("shopRowFlags", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:359 i64_to_u32_map",
                 "ShopLineupParam row id -> eventFlag_forStock written for shop checks."),
+    ContractKey("shopInfiniteStock", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/shop_stock.py", "shop_stock.rs configure/run",
+                "ShopLineupParam row id (str) -> [goodsId, equipType, price]. The 455 UNLIMITED rows "
+                "carry no stock flag so they can never be checks; rerolled per seed to a consumable. "
+                "The PRICE rides along because those rows inherit the old ware's cost (gem slots = 1 "
+                "rune, 166 armor slots free) -- without it every seed is a free-consumable dispenser."),
     ContractKey("shopPreviewGoods", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:353 i64_map",
                 "AP location id -> preview goods id shown in the shop slot."),
