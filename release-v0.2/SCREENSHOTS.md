@@ -17,7 +17,7 @@ unticked tab. All eight are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZAT
 | `matt-04-select-client-dll.png` | Picking `eldenring_archipelago.dll` out of the `me3` folder. |
 | `matt-05-client-dll-added.png` | The client listed; main window reads "Using eldenring_archipelago.dll". |
 | `matt-06-randomize-enemies.png` | The Randomize enemies button. |
-| `matt-07-reroll-seed-and-launch.png` | Reroll seed + Launch Elden Ring. |
+| `matt-07-blank-seed-and-launch.png` | A BLANK seed box -- matt's ticks "Reroll seed" for you and greys it out, so the player gets their own enemy layout rather than ours. This is why the shipped options string has no `seed:` token. |
 | `matt-08-enemy-tab-detail.png` | Enemy tab, fuller view (spare). |
 
 ## Still worth taking (in-game)
@@ -42,5 +42,4 @@ Nobody has shot these yet. Each kills a specific question players actually ask:
 
 - `matt-04-select-client-dll.png` shows an unrelated sidebar of local folders. Harmless, but a
   tighter crop would be better.
-- `matt-07-reroll-seed-and-launch.png` has a Snipping Tool toast in the corner.
-Neither is worth blocking a release over; both are worth fixing if anyone reshoots.
+Not worth blocking a release over; worth fixing if anyone reshoots.

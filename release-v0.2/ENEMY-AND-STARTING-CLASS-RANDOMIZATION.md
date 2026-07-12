@@ -44,16 +44,18 @@ correct thing and the safer thing -- you get the current version, with his insta
 
 ## Recommended matt's randomizer settings
 
-Paste this into matt's randomizer (**Options -> Set options from string**), then **tick "Reroll
-seed"** so you get your own enemy layout instead of ours:
+Paste this into matt's randomizer (**Options -> Set options from string**):
 
 ```
-bossbgm changestats dlc dlcblessing dlckeysilo earlylegacy earlymedal editnames enemy mats raceloc_health raceloc_scadu raceloc_shops racemode_health racemode_key racemode_scadu racemode_upgrades spellshops v15 weaponprogression bias:20 seed:1439986304
+bossbgm changestats dlc dlcblessing dlckeysilo earlylegacy earlymedal editnames enemy mats raceloc_health raceloc_scadu raceloc_shops racemode_health racemode_key racemode_scadu racemode_upgrades spellshops v15 weaponprogression bias:20
 ```
 
-**Then tick "Reroll seed".** The string ends in `seed:1439986304`, which is the seed these
-screenshots were taken with. If you do not reroll it, you get exactly our enemy placement --
-which works, but is not much of a randomizer.
+**Note there is no `seed:` on the end.** That is deliberate. A blank seed box means the
+randomizer rolls a fresh seed for you when you click **Randomize enemies** -- you get your own
+enemy layout, not ours. If your seed box is not blank, clear it.
+
+(With the box empty, matt's ticks "Reroll seed" for you and greys it out. You do not have to do
+anything.)
 
 ![Item Randomizer OFF -- the tab is unticked and the whole panel is greyed out](screenshots/matt-01-item-randomizer-OFF.png)
 
@@ -90,9 +92,9 @@ launch the game with both active.
 
    ![Randomize enemies](screenshots/matt-06-randomize-enemies.png)
 
-5. Tick **Reroll seed** (see above), then **Launch Elden Ring**.
+5. Check the **Overall seed** box is **blank**, then **Launch Elden Ring**.
 
-   ![Reroll seed, then Launch](screenshots/matt-07-reroll-seed-and-launch.png)
+   ![A blank seed box -- Reroll seed is ticked and greyed out for you](screenshots/matt-07-blank-seed-and-launch.png)
 
 The game starts with matt's enemy randomization baked into the files, and our client running in
 memory on top of it. Connect to your Archipelago room as usual.
