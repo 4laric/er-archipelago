@@ -300,3 +300,60 @@ Run through this before a change lands (PR or direct):
       regenerated from it, not hand-edited.
 - [ ] No game data or build outputs staged; `git diff --cached --stat` reviewed.
 - [ ] Item-pool changes are count-neutral.
+
+---
+
+## Provenance — derive the datum, don't pin the symptom
+
+A bug report is a *symptom*. The fix is not to add the symptom to a list; it is to find the **datum the
+game already knows** and derive the answer from it. The game ships the truth in its own params, EMEVD,
+MSBs and FMGs. If we are guessing, we have not looked hard enough.
+
+**A guess wearing the costume of a fact is the failure mode.** Two shipped bugs, same shape:
+
+* `tile_pr()` is a nearest-neighbour — it **never fails**. Hand it a coarse LOD tile index and it returns
+  a confident, *wrong* region. Six checks landed in the wrong region; one was culled with a sealed region
+  and the player picked it up in Limgrave and got the vanilla item, with the client logging nothing.
+* HUB-quarantining a check whose region we couldn't resolve was justified as *"reachable-from-start,
+  never a false gate."* It is the opposite: it asserts a reachability we do not have, and fill put a
+  region Lock on it. Unwinnable seed.
+
+**Refusing to answer beats answering confidently wrong.** If the region is unknown, say so
+(`DEFAULTED_REGION_APS`) and bar it from carrying progression.
+
+### A REDUNDANT MANUAL OVERRIDE IS A FAILURE
+
+Hand lists are allowed **only** where the derivation genuinely cannot reach. The moment the derivation
+catches up, the hand entry must be **deleted** — and the only way that reliably happens is if leaving it
+in **fails the build**.
+
+A redundant override is not harmless belt-and-braces. It is a **lie about why the code works**: the next
+reader cannot tell which entries are load-bearing, so nobody dares delete any of them, and the crutch
+calcifies into permanent scar tissue.
+
+So `gen_data` **hard-errors** on overlap between a hand list and the set that derives it. This has already
+fired for real: re-mining the boss drops against all 589 EMEVD (54 → 88 flags) made 4 of the 7
+`_BOSS_DROP_EXTRAS` redundant — and they were exactly the drops we had hand-added *because the scan, then
+reading only 380 EMEVD, couldn't see them*. Deleted. `TAG_COUNTS["Boss"]` stayed 93, which is the proof.
+
+**But only delete where the derivation is COMPLETE.** Know the difference:
+
+| derivation | complete? | hand list |
+|---|---|---|
+| boss drops (all 589 EMEVD, no other dependency) | ✅ | must be empty of redundancy — **hard error** |
+| arena graces (needs an unpacked MSB; 66 of 118 boss maps have one) | ❌ **lower bound** | a real safety net — **keep**, and guard the floor |
+
+For an incomplete derivation the hazard runs the other way: re-run the tool without its inputs and the
+derived set silently *shrinks*, taking real coverage with it. Guard that too (`_ARENA_FLOOR`) — a
+shrinking oracle must fail loudly, not quietly stop protecting you.
+
+### Stale inputs are the same bug wearing a different hat
+
+A derivation is only as good as what it read. `boss_drops` and `boss_healthbars` were mined when **380 of
+589** EMEVD were decompiled — ~35% of the game's award sites were invisible, and nobody noticed for weeks
+because the numbers *looked* plausible. When a derived count moves, the first question is **"did an input
+get better?"**, not "what should I set the constant to."
+
+A count that grows because the ground truth improved is fine. A count that grows because a predicate got
+looser is a bug. **Rebaselining without answering which one it is, is how you launder a regression into a
+test.**

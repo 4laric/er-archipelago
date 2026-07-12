@@ -44,15 +44,24 @@ class Frozen:
 FROZEN_OPTIONS = {
     # ---- always-on in the playtest yaml -> now the behaviour -------------------------------------
     "item_shuffle": (1, None),                 # every check pays its real vanilla item. THE randomizer.
+    # The pool_builder_* knobs are now CONSTANTS of features/filler_budget, which is the single owner
+    # of the filler tail. `scope` is meaningless (there is one budget: rune tail + displaceable junk),
+    # `intensity` is the allocator's JUICE_FLOOR, and `juice_cap` is gone -- juice is a recipe weight
+    # competing with stones on the same budget instead of a private allocation that ate them.
     "pool_builder": (1, None),
     "pool_builder_scope": (1, "all_filler"),
     "pool_builder_intensity": (2, "max"),
-    "pool_builder_juice_cap": (0, None),       # 0 = auto-size to the whole Rune tail
+    "pool_builder_juice_cap": (0, None),
+    # SUPERSEDED and frozen so it cannot be set: "what share of the tail is juice?" is now simply the
+    # `juice` weight in the curated_filler recipe. Left settable, it would be a silent no-op -- and a
+    # knob that quietly does nothing is the exact failure class this whole change exists to kill.
+    "pool_builder_juice_pct": (100, None),
     "curated_fill": (1, None),
-    "stone_ramp": (1, None),
+
     # 2, not the playtest yaml's 3: at 2 the starting upgrade level still REQUIRES stones, which keeps
     # smithing stones meaningful as checks. It errs generous. (3 made regular weapons so cheap to bring
     # up that the 2026-07 playtest ran almost exclusively SOMBER weapons.) -- Alaric 2026-07-11
+    "stone_ramp": (0, None),                   # mechanism DELETED (see core.post_fill); class inert
     "flatten_regular_upgrades": (2, None),
     "auto_upgrade": (1, None),
     "start_with_torch": (1, None),
@@ -66,6 +75,19 @@ FROZEN_OPTIONS = {
     "protect_missable_locations": (1, None),
     "legacy_dungeon_keys": (1, None),
     "varied_filler": (1, None),
+    # NB curated_filler is deliberately NOT frozen. It is now THE recipe for the entire filler tail
+    # (features/filler_budget) and therefore the one genuinely interesting player-facing lever left on
+    # this surface -- it decides the whole pool economy. Its v0.2 default lives on the option class
+    # (features/filler_curation.CuratedFiller.default), so a yaml that never mentions it still gets a
+    # real economy. Same treatment as progression_surface.
+    # NOT half-built any more. One "Progressive Flask Upgrade" item replaces every Golden Seed and
+    # Sacred Tear check one-for-one; the Kth copy grants a seed or a tear on an interleaved schedule,
+    # and the player still pays the game's OWN escalating price at the grace -- so the "later pickups
+    # buy less" curve is inherited from vanilla, and Sacred Tears (13 in the whole game, flat +1 each,
+    # so they arrive rarely and never form a curve) finally move on a visible cadence. Zero client
+    # churn: progressiveGrants already supports per-rung goods, and overflow copies already fall
+    # through to a Lord's Rune. -- Alaric 2026-07-11
+    "progressive_flasks": (1, None),
     "dungeon_sweep": (2, "all"),
     # NOT half-built -- finished on BOTH sides, so it ships at its declared default (2 = scaled), not
     # off. gen has DLC_BLESSING_FLOORS and emits dlcScadutreeFloorRanges (only when this == 2); the
@@ -85,10 +107,10 @@ FROZEN_OPTIONS = {
     # ---- half-built / superseded -> frozen OFF (finish later, then re-expose) --------------------
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)
     "boss_lock_placement": (1, "own_region"),  # inert while boss_keys is off
-    "progressive_flasks": (0, None),
+
     "progressive_stone_bells": (0, None),
     "progressive_stonesword_keys": (0, None),
-    "stone_injection": (0, None),              # superseded by the always-on stone_ramp
+    "stone_injection": (0, None),              # DELETED mechanism; the class is inert
     "filler_upgrade_weight": (1, None),        # inert under the always-on item_shuffle
     "completion_scaling_floor": (0, None),     # scaling.py still emits the key (client contract)
 }

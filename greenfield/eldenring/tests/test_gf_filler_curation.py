@@ -66,6 +66,10 @@ class CuratedFillerOff(WorldTestBase):
     options = {"item_shuffle": True, "num_regions": 6, "curated_filler": {}}
 
     def test_empty_recipe_no_change(self):
+        """An explicitly empty recipe leaves the tail exactly as vanilla paid it. Since v0.2 that also
+        means NO juice and NO stone economy (the recipe owns the whole tail now, not just the junk
+        share) -- features/filler_budget warns loudly rather than rejecting, because "give me vanilla"
+        is a real thing to want."""
         n = sum(1 for i in self.multiworld.itempool
                 if i.player == self.world.player and i.name in ("Fire Pot", "Kukri"))
         self.assertLess(n, 10, "empty recipe must not inject the roster")
