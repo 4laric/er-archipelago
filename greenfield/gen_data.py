@@ -469,7 +469,13 @@ _MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60
 # Gideon the All-Knowing (Ashen). Morgott (510040) STAYS -- he is the reachable capital ending. Bolt of
 # Gransax (11007xxx, Royal Capital m11_00) STAYS -- physically reachable. Excluding boss_arena 510070/
 # 510230 also drops them from REGION_BOSSES (built from `rows`), so no dangling Felled trophy / key.
-_ASHEN_DEAD_FLAGS = frozenset({510070, 510230, 190540, 190550})
+# 510060 added 2026-07-12: Sir Gideon Ofnir's drop (Scepter of the All-Knowing). It is the SAME
+# map as 510070 (m11_05 = Leyndell, Capital of Ash -- graces "Elden Throne", "Queen's Bedchamber"),
+# so it is dead by the same 2026-07-08 decision. It was not listed before only because it had NO
+# LOCATION to exclude: its reward is a common.emevd $Event(1100) boss drop and the whole family was
+# being dropped from the world. Recovering the family made it a live, progression-eligible check in
+# the unreachable Ashen Capital -- i.e. a strand. Kill it here, at the same place its twin dies.
+_ASHEN_DEAD_FLAGS = frozenset({510060, 510070, 510230, 190540, 190550})
 def _is_ashen_dead(_fl):
     return _fl in _ASHEN_DEAD_FLAGS or 11050000 <= _fl <= 11059999
 # PHANTOM recovery duplicates: a common-event/unplaced `global` flag that names a UNIQUE key item
