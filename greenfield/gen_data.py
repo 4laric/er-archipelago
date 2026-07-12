@@ -1221,6 +1221,67 @@ def _recover_row_ok(r):
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
 _recovered = [r for r in _ALLROWS if _recover_row_ok(r)]
 rows = rows + _recovered
+
+# ---- DERIVED SHOP ROWS (shop_rows.tsv, tools/datamine_shop_rows.py) --------------------------------
+# region_map.csv's hand-classified `method` column LOSES shop checks. For a ONE-TIME shop item the stock
+# flag IS the item's "obtained" common-event flag -- one number, two jobs -- so the classifier tagged the
+# White Cipher Ring's flag (60280) `global` instead of `shop_merchant`; `global` rows only survive if a
+# map tile decodes out of the flag, and a 5-digit flag decodes to nothing. Flag 60280 was a location
+# NOWHERE: the row was never rewritten, Twin Maiden sold the vanilla ring, and buying it fired nothing.
+# Its identical twin Blue Cipher Ring (60290, row 101801) survived purely on luck of the classifier.
+# (Alaric, playtest 2026-07-11.)
+#
+# So take shop checks from the PARAM, not the hand column:
+#     a shop row is a check  <=>  eventFlag_forStock > 0  AND  sellQuantity >= 1
+# it has a flag, and stock is LIMITED so the flag flips ON PURCHASE. Unlimited rows (qty -1) stay
+# excluded ON PURPOSE: their flag is a bell-bearing stock UNLOCK, not a purchase record.
+#
+# APPENDED, never inserted: ap ids are BASE_AP + index into `rows`, so appending leaves every existing id
+# stable. Only flags with NO row in region_map become new locations; a flag that already has one (its
+# world/NPC source -- Spirit Calling Bell, Flask of Wondrous Physick) keeps its single location and merely
+# gains the shop-row mapping below, so the client rewrites that merchant slot instead of leaving it
+# selling the vanilla item.
+_SHOP_ROWS_TSV = os.path.join(HERE, "shop_rows.tsv")
+DERIVED_SHOP_FLAGS = set()          # every detectable stock flag -- the SHOP_ROW_FLAGS gate
+_shop_new = []
+if os.path.isfile(_SHOP_ROWS_TSV):
+    _have = {int(r["flag"]) for r in rows if str(r.get("flag", "")).strip().isdigit()}
+    _seen = set()
+    with open(_SHOP_ROWS_TSV, encoding="utf-8") as _f:
+        for _line in _f:
+            if _line.startswith("#") or _line.startswith("row_id"):
+                continue
+            _p = _line.rstrip("\n").split("\t")
+            if len(_p) < 9:
+                continue
+            _flag = int(_p[5])
+            DERIVED_SHOP_FLAGS.add(_flag)
+            if _flag in _have or _flag in _seen:
+                continue                       # already a location (its world source) -> no duplicate
+            _seen.add(_flag)
+            _nm, _val, _reg = _p[4].strip(), int(_p[7] or 0), _p[8].strip()
+            if not _nm:
+                continue                       # unnamed -> cannot make a legible check
+            # value == 0 => a TRADE/RETURN, not a purchase: Enia's remembrance shop. 65 of those rows
+            # hand back a REMEMBRANCE you already own (a duplication mechanic, not an item source), so
+            # minting a location for one puts a SECOND copy of a unique item in the pool and breaks the
+            # singleton invariant (test_unique_key_items_are_singletons caught exactly this: Remembrance
+            # of Putrescence x3). The other 51 free rows are the trade OUTPUTS (Axe of Godrick, Hand of
+            # Malenia) -- those already have locations, so they mint nothing here and simply keep their
+            # shop-row mapping via DERIVED_SHOP_FLAGS above. Detect: yes. Mint a location: never.
+            if _val <= 0:
+                continue
+            _shop_new.append({
+                "ap_id": "", "flag": str(_flag), "flag_source": "shop", "item_name": _nm,
+                "map": "PENDING",
+                # empty region => not in REGION_MAP => _region_of_raw defaults to HUB and
+                # _region_is_derived() calls it DEFAULTED => barred from carrying progression.
+                "region": _reg if _reg else "Unknown merchant (unresolved block)",
+                "method": "shop_merchant",
+            })
+    rows = rows + _shop_new
+print(f"shop rows: +{len(_shop_new)} DERIVED shop checks region_map had lost "
+      f"({len(DERIVED_SHOP_FLAGS)} detectable stock flags)")
 buckets=OrderedDict()
 loc_tags={}
 defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
@@ -1585,7 +1646,17 @@ SHOP_ROW_IDS = {}
 SHOP_LOC_REGION = {}
 SHOP_PREVIEW_GOODS = {}
 for _i, _r in enumerate(rows):
-    if _r["method"] not in _SHOP_METHODS or _r.get("flag_source") != "shop":
+    try:
+        _rf = int(_r["flag"])
+    except (KeyError, ValueError):
+        continue
+    # DERIVED gate: any location whose flag is a DETECTABLE shop stock flag gets the shop mapping,
+    # whatever region_map called it. This recovers the 34 "class B" rows -- a flag that IS a location via
+    # its world/NPC source (Spirit Calling Bell, Flask of Wondrous Physick) but whose merchant slot was
+    # never rewritten, so the shop ALSO handed you the vanilla item.
+    _is_shop = (_rf in DERIVED_SHOP_FLAGS) if DERIVED_SHOP_FLAGS else (
+        _r["method"] in _SHOP_METHODS and _r.get("flag_source") == "shop")
+    if not _is_shop:
         continue
     try:
         _fl = int(_r["flag"])

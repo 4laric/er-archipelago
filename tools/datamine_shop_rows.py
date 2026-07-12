@@ -176,7 +176,8 @@ def main():
         else:
             region, src = "", ("block_ambiguous" if len(known) > 1 else "block_unknown")
             unregioned += 1
-        out.append((rid, block, etype, eid, nm, flag, _int(r, "sellQuantity"), region, src))
+        out.append((rid, block, etype, eid, nm, flag, _int(r, "sellQuantity"),
+                    _int(r, "value"), region, src))
 
     out.sort()
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
@@ -188,7 +189,13 @@ def main():
         f.write("#   its block's region. Empty region = unknown/ambiguous -> gen_data treats as DEFAULTED\n")
         f.write("#   (hub-quarantined, may not carry progression).\n")
         f.write("# names: FMG (WeaponName/ProtectorName/AccessoryName/GoodsName/GemName), incl. DLC.\n")
-        f.write("row_id\tshop_block\tequip_type\tequip_id\titem_name\tstock_flag\tsell_qty\tregion\tregion_source\n")
+        f.write("# value: rune price. value==0 means the row is a TRADE/RETURN, not a purchase -- Enia's\n")
+        f.write("#   remembrance shop (65 remembrance RETURNS + 51 trade OUTPUTS). The returns hand back a\n")
+        f.write("#   UNIQUE item you already own: minting a location for one puts a SECOND copy of that\n")
+        f.write("#   remembrance in the pool and breaks the singleton invariant. So gen_data keeps value==0\n")
+        f.write("#   rows in the DETECT table (the trade outputs already have locations and need their shop\n")
+        f.write("#   row rewritten) but never mints a NEW location from one.\n")
+        f.write("row_id\tshop_block\tequip_type\tequip_id\titem_name\tstock_flag\tsell_qty\tvalue\tregion\tregion_source\n")
         for o in out:
             f.write("\t".join(str(x) for x in o) + "\n")
 
@@ -196,7 +203,7 @@ def main():
     print(f"  named from FMG      : {len(out) - unnamed}/{len(out)}")
     print(f"  region resolved     : {len(out) - unregioned}/{len(out)}"
           f"   ({sum(1 for o in out if o[8]=='row')} from the row, "
-          f"{sum(1 for o in out if o[8]=='block')} inherited from the merchant block)")
+          f"{sum(1 for o in out if o[9]=='block')} inherited from the merchant block)")
     print(f"  region UNKNOWN      : {unregioned}  -> DEFAULTED (barred from progression)")
     return 0
 
