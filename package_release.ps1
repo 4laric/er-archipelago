@@ -158,7 +158,8 @@ $Docs = @(
     @{ src = (Join-Path $Rel  "ATTRIBUTION.md");                           required = $true  },
     @{ src = (Join-Path $Rel  "ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md"); required = $true  },
     @{ src = (Join-Path $Repo "Elden-Ring-Archipelago-Player-Guide.md");   required = $true  },
-    @{ src = (Join-Path $Rel  "SCREENSHOTS.md");                           required = $false }
+    @{ src = (Join-Path $Rel  "SCREENSHOTS.md");                           required = $false },
+    @{ src = (Join-Path $Rel  "DISTRIBUTION.md");                          required = $false }
 )
 
 # The docs reference screenshots/*.png with relative paths. Ship the folder or every image link
@@ -196,6 +197,20 @@ if ($DryRun) {
     if (Test-Path $Zip) { Remove-Item $Zip -Force }
     Compress-Archive -Path (Join-Path $Stage "*") -DestinationPath $Zip -Force
     Info "zip written: $Zip"
+
+    # SECOND ASSET: the bare apworld, for HOSTS.
+    #
+    # Someone generating a multiworld needs the apworld and nothing else -- they may not even be
+    # playing Elden Ring. Making them pull a 10 MB bundle containing a game-mod DLL, in order to
+    # generate somebody else's seed, is friction for nothing.
+    #
+    # It ships from the SAME TAG as the bundle on purpose. The apworld and the client .dll are a
+    # HASH-MATCHED PAIR (the client compares the apworld's contract hash on connect and errors on
+    # skew), and a mismatched pair does not fail at the door -- it boots, connects, and misbehaves
+    # quietly. Same tag, or nothing. See DISTRIBUTION.md.
+    $BareApworld = Join-Path $Dist ("{0}-{1}.apworld" -f $Name, $Stamp)
+    Copy-Item $Apworld $BareApworld -Force
+    Info "bare apworld: $BareApworld  (upload this ALONGSIDE the zip, same release tag)"
 }
 
 # ---------------------------------------------------------------------------

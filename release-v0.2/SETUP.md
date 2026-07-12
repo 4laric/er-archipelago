@@ -171,6 +171,14 @@ The defaults are the recommended run. If you want to stray:
 
 ## If something went wrong
 
+**`VERSION MISMATCH` in the client log.**
+Your apworld and your client `.dll` are from different builds. The game will
+still boot and connect, and then behave subtly wrong -- the client reads
+`slot_data` in shapes the apworld isn't sending. **Redownload both from the same
+release tag.** Do not report bugs from a mismatched pair; they won't be real.
+(In a multiworld this can also mean the *host* generated with a different apworld
+version than your client expects -- ask them which release they used.)
+
 **"No world found to handle game EldenRing. Did you mean 'Elden Ring'?"**
 You generated with a v0.1 yaml. The game id is now `Elden Ring`, with a
 space. Do not just edit the `game:` line -- start over from the shipped
