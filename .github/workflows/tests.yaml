@@ -60,8 +60,13 @@ jobs:
           # Without them the oracle suites (boss sweeps, shop release-gate) run BLIND -- they do not fail,
           # they quietly assert nothing, which is worse than failing.
           cp greenfield/*.csv greenfield/*.tsv _ap/worlds/eldenring/ 2>/dev/null || true
+          # The SHIPPED template. Copied in so test_gf_shipping_yaml runs SIGHTED here -- it shipped
+          # declaring `game: EldenRing` while the world is `Elden Ring`, so AP rejected it outright and
+          # a player's first action failed. Nothing caught it because no test pointed at the template.
+          cp release-v0.2/EldenRing.yaml _ap/worlds/eldenring/
           test -f _ap/worlds/eldenring/region_map.csv  || { echo "::error::region_map.csv missing -- boss-sweep oracle would run blind"; exit 1; }
           test -f _ap/worlds/eldenring/shop_rows.tsv   || { echo "::error::shop_rows.tsv missing -- shop release-gate would run blind"; exit 1; }
+          test -f _ap/worlds/eldenring/EldenRing.yaml  || { echo "::error::shipping template missing -- the yaml gate would run blind"; exit 1; }
 
       - name: pytest
         working-directory: _ap

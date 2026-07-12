@@ -8,7 +8,7 @@ confirmed working at tag time.*
 v0.2 is a full rewrite. The world is rebuilt from the game's own data — params, map layout, event
 flags — instead of being layered on top of another randomizer. Nothing from any other Elden Ring
 rando ships here: no borrowed config, no borrowed code. If you're coming from v0.1, your yaml's
-`game: EldenRing` line is **unchanged** — the AP game id stays **`EldenRing`**; greenfield is
+`game: Elden Ring` line CHANGED — the AP game id CHANGED to **`Elden Ring`**; greenfield is
 promoted to BE that world, so the old matt-lineage world is retired (both can't claim `EldenRing`
 at once). The world internals and options changed, so v0.2 seeds and rooms still differ from v0.1 —
 but that's not a game-id change.
