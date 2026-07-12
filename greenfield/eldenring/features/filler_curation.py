@@ -54,15 +54,21 @@ CATEGORIES = {
     "greases": ["Fire Grease", "Lightning Grease", "Magic Grease", "Holy Grease", "Blood Grease",
                 "Poison Grease", "Freezing Grease", "Rot Grease", "Dragonwound Grease", "Soporific Grease"],
     # Boiled Prawn is crafted-only (not in the catalog until the Phase-2 regen mines it) -> added then.
+    # Boiled Crab / Boiled Prawn are CRAFTED-ONLY (never looted), so they reach the catalog via the
+    # by-name FMG resolve in gen_data, not via a placed row. Absent names are skipped, so listing them
+    # is safe even pre-regen.
     "foods": ["Gold-Pickled Fowl Foot", "Silver-Pickled Fowl Foot", "Pickled Turtle Neck",
               "Well-Pickled Turtle Neck", "Exalted Flesh", "Starlight Shards",
-              "Warming Stone", "Bewitching Branch"],
+              "Warming Stone", "Bewitching Branch", "Boiled Crab", "Boiled Prawn"],
     "boluses": ["Preserving Boluses", "Neutralizing Boluses", "Stanching Boluses", "Clarifying Boluses",
                 "Thawfrost Boluses", "Stimulating Boluses", "Rejuvenating Boluses"],
     "perfumes": _PERFUMES,   # DLC spraymist/aromatic consumables; populated once the catalog regen mines them
     "utility": ["Rune Arc", "Larval Tear"],
     # "rare": low-probability injectables -- weight this category tiny in the recipe (e.g. rare: 1).
-    "rare": ["Dragon Heart", "Stonesword Key"],
+    # Imbued Sword Key is a KEY ITEM under some classifications (it opens the three Sealed Tunnels).
+    # Included deliberately (Alaric 2026-07-11, "I stand by including it"): nothing in this world's logic
+    # gates on it, and extra copies enter as FILLER, so it cannot create or satisfy a progression claim.
+    "rare": ["Dragon Heart", "Stonesword Key", "Imbued Sword Key"],
     "funny": ["Raw Meat Dumpling", "Gold-Tinged Excrement"],
     "stones": [f"Smithing Stone [{i}]" for i in range(1, 9)],
     "somber_stones": [f"Somber Smithing Stone [{i}]" for i in range(1, 10)],

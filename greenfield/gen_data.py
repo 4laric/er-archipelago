@@ -1824,6 +1824,14 @@ _FINISHED_POTS = {"Fire Pot": 300, "Lightning Pot": 320, "Fetid Pot": 330, "Holy
                   "Rancor Pot": 650}
 for _pn, _pid in _FINISHED_POTS.items():
     ITEM_CATALOG.setdefault(_pn, 0x40000000 | _pid)
+# Crafted-only FOODS (Alaric 2026-07-11): same situation as the pots -- never LOOTED, so never in the
+# placed-item catalog, but valid grantable goods. Resolved BY NAME from GoodsName.fmg.xml via the same
+# _resolve_item map the placed items use, so no ids are hand-guessed (unlike _FINISHED_POTS above, which
+# should eventually move to this path too). Absent names are skipped, so this is safe if a table moves.
+for _fn in ("Boiled Crab", "Boiled Prawn"):
+    _fid, _canon = _resolve_item(_fn)
+    if _fid:
+        ITEM_CATALOG.setdefault(_canon or _fn, _fid)
 # ---- Community tier-list catalog augmentation (Alaric 2026-07-09). The broad-sourced community PvE
 # tier list (item_tiers.tsv) rates GEAR -- weapons / armor / spells+incantations / talismans / ashes
 # of war -- much of which greenfield never DETECTED as a placed vanilla item (e.g. Moonveil, Nagakiba,
