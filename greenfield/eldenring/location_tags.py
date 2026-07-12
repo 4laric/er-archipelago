@@ -11,12 +11,12 @@ LOCATION_TAGS = {
     7770005: ['GreatRune', 'MajorBoss'],
     7770006: ['GreatRune', 'MajorBoss'],
     7770008: ['Remembrance', 'MajorBoss'],
-    7770014: ['ShopNonSpell', 'ShopSlot'],
+    7770014: ['ShopNonSpell'],
     7770015: ['ShopNonSpell'],
-    7770016: ['ShopNonSpell', 'ShopSlot'],
+    7770016: ['ShopNonSpell'],
     7770017: ['ShopNonSpell'],
     7770025: ['Boss'],
-    7770027: ['ShopNonSpell'],
+    7770027: ['ShopNonSpell', 'ShopSlot'],
     7770028: ['ShopNonSpell'],
     7770032: ['Boss', 'Basin'],
     7770033: ['Boss'],
@@ -28,7 +28,7 @@ LOCATION_TAGS = {
     7770041: ['Basin'],
     7770042: ['Basin'],
     7770043: ['Boss'],
-    7770051: ['Shop', 'ShopNonSpell'],
+    7770051: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770052: ['Shop', 'ShopNonSpell'],
     7770053: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770064: ['ShopNonSpell', 'ShopSlot'],
@@ -344,7 +344,7 @@ LOCATION_TAGS = {
     7770495: ['Shop', 'ShopNonSpell'],
     7770496: ['Shop', 'ShopNonSpell'],
     7770497: ['Shop', 'ShopNonSpell'],
-    7770498: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770498: ['Shop', 'ShopNonSpell'],
     7770499: ['Shop', 'ShopNonSpell'],
     7770500: ['Shop', 'ShopNonSpell'],
     7770501: ['Shop', 'ShopNonSpell'],
@@ -837,7 +837,7 @@ LOCATION_TAGS = {
     7774783: ['Shop', 'ShopNonSpell'],
     7774784: ['Shop', 'ShopNonSpell'],
     7774785: ['Shop', 'ShopNonSpell'],
-    7774786: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7774786: ['Shop', 'ShopNonSpell'],
     7774787: ['Shop', 'ShopNonSpell'],
     7774788: ['Shop', 'ShopNonSpell'],
     7774789: ['Shop', 'ShopNonSpell'],
@@ -854,7 +854,7 @@ LOCATION_TAGS = {
     7774800: ['Shop', 'ShopNonSpell'],
     7774801: ['Shop', 'ShopNonSpell'],
     7774802: ['Shop', 'ShopNonSpell'],
-    7774803: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7774803: ['Shop', 'ShopNonSpell'],
     7774804: ['Shop', 'ShopNonSpell'],
     7774805: ['Shop', 'ShopNonSpell'],
     7774806: ['Shop', 'ShopNonSpell'],
@@ -874,7 +874,7 @@ LOCATION_TAGS = {
     7774820: ['Shop', 'ShopNonSpell'],
 }
 
-TAG_COUNTS = {'Basin': 15, 'Boss': 93, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 9, 'Legendary': 89, 'MajorBoss': 28, 'Remembrance': 23, 'Revered': 23, 'Seedtree': 43, 'Shop': 528, 'ShopNonSpell': 458, 'ShopSlot': 13}
+TAG_COUNTS = {'Basin': 15, 'Boss': 93, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 9, 'Legendary': 89, 'MajorBoss': 28, 'Remembrance': 23, 'Revered': 23, 'Seedtree': 43, 'Shop': 528, 'ShopNonSpell': 458, 'ShopSlot': 10}
 
 # Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.
 # A guessed region may not carry progression: see gen_data._region_is_derived().
@@ -888,4 +888,13 @@ DEFAULTED_REGION_APS = frozenset([7770051, 7770052, 7770053, 7770069, 7770189, 7
 # PROGRESSION: a check the player can put permanently out of reach cannot be required.
 ERDTREE_BURN_APS = frozenset([7770012, 7770046, 7770059, 7770074, 7770879, 7770880, 7770910, 7771028, 7771029, 7771036, 7771061, 7771063, 7771064, 7771065, 7771066, 7771067, 7771068, 7771071, 7771073, 7771074, 7771075, 7771076, 7771078, 7771081, 7771082, 7771083, 7771084, 7771085, 7771086, 7771087, 7771088, 7771089, 7771091, 7771092, 7771093, 7771094, 7771095, 7771096, 7771099, 7771100, 7771101, 7771102, 7771103, 7771104, 7771105, 7771106, 7771108, 7771111, 7771112, 7771113, 7771114, 7771115, 7771116, 7771119, 7771123, 7771131, 7771135, 7771136, 7771138, 7771139, 7771140, 7771144, 7773969, 7773970, 7773971, 7773972, 7773973, 7773974, 7773975, 7773976, 7773977, 7773978, 7773979, 7773980, 7773981, 7773982, 7773983, 7773984, 7773985])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:e20cc80d386792d06679676923b90d2a2361d692d3e2a69a7744ca5ac9e776df', 'module': 'location_tags.py', 'body_sha256': 'sha256:c675aa53c50f93ba2a308d00d9018aaf7e9e629e448db474f91b8991d12230b4'}
+# Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an
+# unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a
+# shop check reachability as "is the region open?", which is necessary but NOT SUFFICIENT:
+# the region can be wide open and the row simply not on the shelf. Nothing in the logic knows
+# when it appears, so these may never carry PROGRESSION. They remain CHECKS.
+# Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose
+# release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.
+SHOP_RELEASE_GATED_APS = frozenset([7770014, 7770015, 7770016, 7770017, 7770028, 7770138, 7770219, 7770228, 7770229, 7770230, 7770231, 7770232, 7770233, 7770234, 7770244, 7770245, 7770255, 7770256, 7770257, 7770264, 7770270, 7770278, 7770279, 7770280, 7770281, 7770282, 7770283, 7770285, 7770287, 7770304, 7770305, 7770306, 7770307, 7770308, 7770309, 7770310, 7770311, 7770312, 7770313, 7770314, 7770315, 7770316, 7770317, 7770318, 7770319, 7770320, 7770321, 7770322, 7770323, 7770324, 7770327, 7770328, 7770329, 7770330, 7770331, 7770332, 7770334, 7770335, 7770336, 7770337, 7770338, 7770339, 7770340, 7770341, 7770342, 7770343, 7770344, 7770345, 7770346, 7770347, 7770348, 7770349, 7770350, 7770498, 7770499, 7770500, 7770501, 7770502, 7770503, 7770504, 7770505, 7770506, 7770507, 7770508, 7770509, 7770510, 7770511, 7770512, 7770513, 7770514, 7770515, 7770516, 7770517, 7770518, 7770519, 7770520, 7770521, 7770522, 7770523, 7770524, 7770525, 7770526, 7770527, 7770544, 7770545, 7770546, 7770547, 7770548, 7770549, 7770550, 7770551, 7770552, 7770553, 7770554, 7770555, 7770556, 7770557, 7770558, 7770559, 7770560, 7770561, 7770562, 7770563, 7770564, 7770565, 7770566, 7770622, 7770623, 7770624, 7770625, 7770631, 7770632, 7770633, 7770647, 7770648, 7770649, 7770650, 7770651, 7770652, 7770653, 7770654, 7770655, 7770656, 7770657, 7770658, 7770661, 7770662, 7770663, 7774774, 7774775, 7774786, 7774787, 7774788, 7774789, 7774790, 7774791, 7774792, 7774793, 7774794, 7774795, 7774796, 7774797, 7774798, 7774799, 7774800, 7774801, 7774802, 7774803, 7774804, 7774805, 7774806, 7774807, 7774808, 7774809, 7774810, 7774811, 7774812, 7774813, 7774814, 7774815, 7774816, 7774817, 7774818, 7774819, 7774820])
+
+_GEN_STAMP = {'inputs_hash': 'sha256:8bae3ab59f775d0422f949e18046522ac787c02f42eee98dfa618dc94c5eeb43', 'module': 'location_tags.py', 'body_sha256': 'sha256:6ea92010b4729daa3074d9aaa237ca3a3733dcb668794a3bd7f500106da16839'}

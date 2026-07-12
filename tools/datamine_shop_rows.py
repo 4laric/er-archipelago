@@ -177,7 +177,7 @@ def main():
             region, src = "", ("block_ambiguous" if len(known) > 1 else "block_unknown")
             unregioned += 1
         out.append((rid, block, etype, eid, nm, flag, _int(r, "sellQuantity"),
-                    _int(r, "value"), region, src))
+                    _int(r, "value"), region, src, _int(r, "eventFlag_forRelease")))
 
     out.sort()
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
@@ -195,7 +195,15 @@ def main():
         f.write("#   remembrance in the pool and breaks the singleton invariant. So gen_data keeps value==0\n")
         f.write("#   rows in the DETECT table (the trade outputs already have locations and need their shop\n")
         f.write("#   row rewritten) but never mints a NEW location from one.\n")
-        f.write("row_id\tshop_block\tequip_type\tequip_id\titem_name\tstock_flag\tsell_qty\tvalue\tregion\tregion_source\n")
+        f.write("# release_flag: eventFlag_forRelease -- the flag that makes the row EXIST in the menu.\n")
+        f.write("#   0 = stocked from the moment you can reach the merchant. NONZERO = the row is NOT THERE\n")
+        f.write("#   until some event fires (a bell bearing handed to the Twin Maidens, a boss killed, an\n")
+        f.write("#   NPC quest advanced). 252 of 679 shop checks (37%) are gated this way -- including ALL 49\n")
+        f.write("#   of Enia's block 1015. Reachability in AP is 'is the REGION open?', which is necessary but\n")
+        f.write("#   NOT SUFFICIENT for these: the region can be open and the row still absent. So gen_data\n")
+        f.write("#   bars them from carrying PROGRESSION (SHOP_RELEASE_GATED_APS). Same predicate as\n")
+        f.write("#   DEFAULTED_REGION_APS: a check we cannot ASSERT is reachable may not be REQUIRED.\n")
+        f.write("row_id\tshop_block\tequip_type\tequip_id\titem_name\tstock_flag\tsell_qty\tvalue\tregion\tregion_source\trelease_flag\n")
         for o in out:
             f.write("\t".join(str(x) for x in o) + "\n")
 

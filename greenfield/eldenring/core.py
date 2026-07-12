@@ -30,7 +30,20 @@ except ImportError:
 # A check that can become PERMANENTLY UNREACHABLE may not carry PROGRESSION. Two independent causes,
 # one rule: we don't know where it is (DEFAULTED_REGION_APS), or the player can destroy it
 # (ERDTREE_BURN_APS -- kill Maliketh, the Erdtree burns, normal Leyndell ceases to exist).
-_NO_PROGRESSION_APS = frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
+try:
+    from .location_tags import SHOP_RELEASE_GATED_APS
+except ImportError:
+    SHOP_RELEASE_GATED_APS = frozenset()
+
+# Three ways a check can be UNREACHABLE while AP believes otherwise. All three answer the same predicate:
+# a check we cannot ASSERT is reachable may not be REQUIRED.
+#   DEFAULTED_REGION_APS   -- we GUESSED the region (hub fallback); the item may sit in a sealed region.
+#   ERDTREE_BURN_APS       -- m11_00 is DESTROYED when Maliketh dies; the player can burn it early.
+#   SHOP_RELEASE_GATED_APS -- the merchant does not STOCK the row until an unlock event fires. Region
+#                             reachability is necessary but NOT sufficient: the shop can be open and the
+#                             row simply not on the shelf.
+_NO_PROGRESSION_APS = (frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
+                       | frozenset(SHOP_RELEASE_GATED_APS))
 from .region_spine import (compute_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
                            base_regions, dlc_regions)
 from . import registry
