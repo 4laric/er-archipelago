@@ -38,16 +38,23 @@ game: "Elden Ring"
   # big_ticket_locations: [Boss, Remembrance, Legendary, GreatRune, KeyItem]  # what "big-ticket" means (default shown).
 
   # ---- Filler curation (replace vanilla junk consumables) -----------------
-  curated_filler:                # {category: weight}; valid: throwables pots greases foods boluses perfumes utility rare funny stones somber_stones runes junk.
-    throwables: 25               #   granted in stacks of 5
-    pots: 15                     #   granted in stacks of 2  (need vessels -- see start_inventory below)
-    greases: 10
-    foods: 12                    # turtle necks, exalted flesh, warming stone, starlight shards, ...
-    boluses: 6                   # status-cure boluses
-    perfumes: 8                  # DLC perfume consumables (needs DLC)
+  # v0.2: this recipe now owns the ENTIRE filler tail (features/filler_budget) -- not just the junk
+  # share. `juice` (the old pool_builder gear injection) is a weight in here now, competing on the
+  # same budget as stones, instead of a private allocation that consumed the whole tail and starved
+  # them. A recipe with no `juice` weight gets NO gear injection; one with no `somber_stones` gets no
+  # somber economy. Both were previously free and are not any more -- hence the two new lines.
+  curated_filler:                # {category: weight}; valid: juice throwables pots greases foods boluses perfumes utility rare funny stones somber_stones runes junk.
+    juice: 45                    #   rare/legendary gear injection (was pool_builder's private budget)
+    throwables: 15               #   granted in stacks of 5
+    pots: 8                      #   granted in stacks of 2  (need vessels -- see start_inventory below)
+    greases: 5
+    foods: 6                     # turtle necks, exalted flesh, warming stone, starlight shards, ...
+    boluses: 3                   # status-cure boluses
+    perfumes: 4                  # DLC perfume consumables (needs DLC)
     rare: 1                      # Dragon Heart / Stonesword Key -- keep tiny
-    stones: 20                   #   low smithing stones
-    runes: 20                    #   rune items (leveling)
+    stones: 24                   #   low smithing stones (RESERVATION -- never scaled down)
+    somber_stones: 6             #   somber stones (RESERVATION)
+    runes: 10                    #   rune items (leveling)
     junk: 10                     #   keep this share as vanilla junk
   # varied_filler: true          # (default on) diversify whatever filler is left.
 

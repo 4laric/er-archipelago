@@ -107,7 +107,20 @@ class CuratedFiller(OptionDict):
     Example: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,
     stones: 15, runes: 15}."""
     display_name = "Curated Filler recipe (category -> weight)"
-    default = {}
+    # v0.2: this recipe owns the ENTIRE filler tail (features/filler_budget), so its default IS the
+    # pool economy -- {} would mean a seed with no upgrade materials and no gear injection at all.
+    # `juice` is the old pool_builder gear injection, now a weight competing on the same budget rather
+    # than a private allocation that consumed the whole thing and starved the stones.
+    # stones/somber_stones/runes are a RESERVATION: paid off the top, never scaled down.
+    # Weights sum to 100, so they read as plain percentages of the filler tail.
+    #
+    # The stone weight is TUNED TO A SPEC, not picked by feel: tests/test_gf_filler_economy_floor.py
+    # states the bar in player terms -- a player who has cleared a realistic fraction of what is open
+    # to them at shallow depth must be able to afford a modest weapon level -- and this weight is the
+    # smallest one that satisfies it with margin. If the bar is wrong, argue with the bar (the
+    # COLLECTION_RATE and EARLY_TARGET_LEVEL constants in that file), not with this number.
+    default = {"juice": 44, "stones": 24, "somber_stones": 6, "runes": 10,
+               "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1}
 
 
 @register
@@ -142,31 +155,15 @@ def displaceable_filler(world, name) -> bool:
 
 
 def curate(world, pool):
-    """core.create_items hook: seize junk-consumable filler and refill each slot by a weighted draw over
-    the curated_filler recipe categories. 'junk' weight keeps that share vanilla. Deterministic."""
-    opt = getattr(world.options, "curated_filler", None)
-    recipe = dict(getattr(opt, "value", None) or {})
-    cats = [(c, int(w)) for c, w in recipe.items() if c in _VALID_CATS and int(w) > 0]
-    if not cats:
-        return
-    excl = set(getattr(world, "gf_dlc_excluded", ()))
-    members = {c: [m for m in CATEGORIES[c] if m in ITEM_CATALOG and m not in excl]
-               for c, _ in cats if c in CATEGORIES}
-    names = [c for c, _ in cats]
-    weights = [w for _, w in cats]
-    if sum(weights) <= 0:
-        return
-    # Seize ONLY pure-filler slots. Elden Ring keys (Academy Glintstone Key, ...) share the GOODS
-    # nibble with junk consumables, so _is_junk_consumable alone would evict a progression key and
-    # make the seed unwinnable -- guard on classification so progression/useful items always survive.
-    _protected = ItemClassification.progression | ItemClassification.useful
-    cand = [i for i, it in enumerate(pool)
-            if _is_junk_consumable(it.name) and not (it.classification & _protected)]
-    world.random.shuffle(cand)
-    for idx in cand:
-        c = world.random.choices(names, weights=weights, k=1)[0]
-        if c == "junk":
-            continue  # keep the original vanilla junk item
-        pool_c = members.get(c)
-        if pool_c:
-            pool[idx] = world.create_item(world.random.choice(pool_c))
+    """RETIRED -- kept as a tombstone so nothing silently re-adds a second pass over the filler tail.
+
+    curate() used to seize junk-consumable filler and redraw it from the recipe. It ran AFTER
+    pool_builder, whose juice had already re-classified the entire larder `useful` -- which is the
+    predicate curate() excludes on. So it found nothing and the recipe delivered ~3 items against an
+    entitlement of ~534. The recipe now runs ONCE, inside features/filler_budget, as the single owner
+    of the tail. CATEGORIES / STACK_QTY_BY_CATEGORY / the junk predicate all still live here and are
+    read by the allocator; only the second pass is gone.
+    """
+    raise AssertionError(
+        "filler_curation.curate() is retired -- the filler tail has a single owner "
+        "(features/filler_budget). Do not add a second pass over it.")
