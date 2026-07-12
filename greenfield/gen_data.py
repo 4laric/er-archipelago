@@ -509,6 +509,110 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # is not a duplicate seller -- the Walking Mausoleum is the only remembrance "shop".)
 def _is_mausoleum_dupe(r):
     return r['method'] == 'shop_multi' and 'Remembrance' in (r.get('item_name') or '')
+# ---- ITEM-EXISTENCE GUARD: drop checks whose ITEM does not exist in the game --------------------
+# The sibling of the phantom-FLAG guard below, one column over. That one asks "does this acquisition
+# flag exist?"; this one asks "does the thing the lot hands you exist?"
+#
+# 13 checks in the shipped world point at an ItemLotParam row whose every item id resolves to NO NAME
+# ANYWHERE IN THE GAME: 8 have no EquipParamGoods row at all (310, 401, 9800, 9801, 12302, 12307,
+# 3000600, 8178), and the rest are FromSoft's own cut-content placeholders -- the FMG literally reads
+# "[ERROR]" or "%null%". item_ids already told us ("4811 of 4857 locations resolved") and we shipped
+# them anyway: they fall back to RUNE FILLER, so today they are checks holding a rune, hung on an item
+# that does not exist. The flag may never fire, and then the seed can never be 100%'d.
+#
+# CROSS-VALIDATED: Bedrock's independently-built (matt-lineage) location table contains ZERO of the 13.
+#
+# Derived, not pinned: the universe of named items comes from the FMGs, so a future cut row is dropped
+# automatically. Conservative by construction:
+#   * a check is dropped ONLY if it HAS lot items and NOT ONE of them is named (a mixed lot survives);
+#   * lotItemCategory 0 and 6 (24 rows total, ambiguous) are NEVER judged -- treated as named;
+#   * weapons fold +N -> base ((id // 100) * 100), or every upgraded weapon would read as unnamed.
+#     Getting this wrong is not theoretical: an earlier pass of this analysis missed the *_dlc01/_dlc02
+#     name tables and "found" 893 dead checks, 662 of which Bedrock also has. The whole DLC looked like
+#     cut content. If this guard ever drops hundreds of checks, THAT is the bug -- not the game.
+#   * FMG dirs absent -> guard DISABLED (params-absent runs must not silently delete the world).
+import xml.etree.ElementTree as _ET
+_MSG    = os.path.join(AR, "msg", "item-msgbnd-dcx")
+_MSG_D1 = os.path.join(AR, "msg", "item_dlc01-msgbnd-dcx")
+_MSG_D2 = os.path.join(AR, "msg", "item_dlc02-msgbnd-dcx")
+# (filename, category nibble, dir). base tables first so base ids win over DLC on any name clash.
+_NAME_FMGS = [
+    ("WeaponName.fmg.xml",    0x00000000, _MSG), ("ProtectorName.fmg.xml", 0x10000000, _MSG),
+    ("AccessoryName.fmg.xml", 0x20000000, _MSG), ("GoodsName.fmg.xml",      0x40000000, _MSG),
+    ("GemName.fmg.xml",       0x80000000, _MSG),
+    ("WeaponName_dlc01.fmg.xml",    0x00000000, _MSG_D1), ("ProtectorName_dlc01.fmg.xml", 0x10000000, _MSG_D1),
+    ("AccessoryName_dlc01.fmg.xml", 0x20000000, _MSG_D1), ("GoodsName_dlc01.fmg.xml",      0x40000000, _MSG_D1),
+    ("GemName_dlc01.fmg.xml",       0x80000000, _MSG_D1),
+    ("WeaponName_dlc02.fmg.xml",    0x00000000, _MSG_D2), ("ProtectorName_dlc02.fmg.xml", 0x10000000, _MSG_D2),
+    ("AccessoryName_dlc02.fmg.xml", 0x20000000, _MSG_D2), ("GoodsName_dlc02.fmg.xml",      0x40000000, _MSG_D2),
+    ("GemName_dlc02.fmg.xml",       0x80000000, _MSG_D2),
+]
+# lotItemCategory -> the FMG nibble that names it. Derived empirically against every lot row in the
+# game (hit rates: 1->Goods 95%, 2->Weapon 99%, 3->Protector 99%, 4->Accessory 100%, 5->Gem 98%).
+_LOTCAT_NIBBLE = {1: 0x40000000, 2: 0x00000000, 3: 0x10000000, 4: 0x20000000, 5: 0x80000000}
+_PLACEHOLDER_NAMES = ("%null%", "[ERROR]")
+
+def _named_item_ids():
+    """{category nibble: set(named item ids)} from the FMGs. None if the name tables are absent."""
+    _out, _seen_any = {}, False
+    for _fn, _nib, _dir in _NAME_FMGS:
+        _p = os.path.join(_dir, _fn)
+        if not os.path.isfile(_p):
+            continue
+        _seen_any = True
+        try: _root = _ET.parse(_p).getroot()
+        except Exception: continue
+        for _t in _root.iter("text"):
+            _i, _txt = _t.get("id"), (_t.text or "").strip()
+            if _i and _txt and _txt not in _PLACEHOLDER_NAMES:
+                _out.setdefault(_nib, set()).add(int(_i))
+    return _out if _seen_any else None
+
+NAMED_ITEM_IDS = _named_item_ids()
+if NAMED_ITEM_IDS is None:
+    print("[gen_data] WARNING: item name FMGs absent -- item-existence guard DISABLED")
+
+def _lot_items_by_flag():
+    """flag -> [(item_id, lotItemCategory)] across both ItemLotParam tables."""
+    _out = {}
+    for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
+        _p = os.path.join(_SLP_DIR0, _fn)
+        if not os.path.isfile(_p):
+            return None
+        with open(_p, newline="", encoding="utf-8-sig") as _fh:
+            for _r in csv.DictReader(_fh):
+                try: _fl = int(_r.get("getItemFlagId", 0) or 0)
+                except ValueError: continue
+                if _fl <= 0: continue
+                for _k in range(1, 9):
+                    try:
+                        _iid = int(_r.get("lotItemId%02d" % _k, 0) or 0)
+                        _cat = int(_r.get("lotItemCategory%02d" % _k, 0) or 0)
+                    except ValueError: continue
+                    if _iid > 0:
+                        _out.setdefault(_fl, []).append((_iid, _cat))
+    return _out
+
+LOT_ITEMS_BY_FLAG = _lot_items_by_flag()
+
+def _item_is_named(_iid, _cat):
+    if NAMED_ITEM_IDS is None: return True
+    _nib = _LOTCAT_NIBBLE.get(_cat)
+    if _nib is None: return True                       # cat 0/6: ambiguous -> never judge
+    _ids = NAMED_ITEM_IDS.get(_nib, set())
+    if _iid in _ids: return True
+    if _cat == 2 and (_iid // 100) * 100 in _ids: return True   # weapon +N -> base
+    return False
+
+def _item_exists(r):
+    """False iff this check's lot exists and NOT ONE of its items is a named in-game item."""
+    if NAMED_ITEM_IDS is None or LOT_ITEMS_BY_FLAG is None: return True
+    try: _fl = int(r['flag'])
+    except (KeyError, ValueError): return True
+    _items = LOT_ITEMS_BY_FLAG.get(_fl)
+    if not _items: return True                          # no lot (shop / emevd grant) -> not ours to judge
+    return any(_item_is_named(_i, _c) for _i, _c in _items)
+
 # ---- PHANTOM-FLAG GUARD: drop checks whose acquisition flag does not exist in the game ----------
 # region_map.csv carries `method=synthetic_areacode` rows whose flag was INVENTED by the upstream
 # pipeline. Event-flag ids are group-allocated: an unallocated id is a no-op, so the client can never
@@ -556,7 +660,7 @@ rows=[r for r in _ALLROWS
       if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
       and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
       and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
-      and _flag_exists(r)]
+      and _flag_exists(r) and _item_exists(r)]
 
 _PHANTOM_DROPPED = ([r for r in _ALLROWS
     if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
@@ -564,6 +668,13 @@ _PHANTOM_DROPPED = ([r for r in _ALLROWS
     and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
     and not _flag_exists(r)] if REAL_FLAGS is not None else [])
 print(f"phantom-flag guard: dropped {len(_PHANTOM_DROPPED)} checks with non-existent (invented) flags")
+_ITEMLESS_DROPPED = ([r for r in _ALLROWS
+    if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
+    and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
+    and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
+    and _flag_exists(r) and not _item_exists(r)] if NAMED_ITEM_IDS is not None else [])
+print(f"item-existence guard: dropped {len(_ITEMLESS_DROPPED)} checks whose lot item does not exist "
+      f"in the game (cut/unnamed rows): {sorted(int(_r['flag']) for _r in _ITEMLESS_DROPPED)}")
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
@@ -2208,12 +2319,9 @@ print(f"missable_locations: {len(_MISSABLE)} checks (deathroot={_mc.get('deathro
 #     (annotated location strings resolve to the base catalog name, so the same location grants base).
 # Unresolved names (empty item_name, quest "Note:" text, source typos, items in no FMG) are omitted ->
 # core falls back to Rune filler. Guard-to-empty if the FMG name dirs are absent.
-import xml.etree.ElementTree as _ET
 import unicodedata as _UD
-_MSG    = os.path.join(AR, "msg", "item-msgbnd-dcx")
-_MSG_D1 = os.path.join(AR, "msg", "item_dlc01-msgbnd-dcx")
-_MSG_D2 = os.path.join(AR, "msg", "item_dlc02-msgbnd-dcx")
-# (filename, category nibble, dir). base tables first so base ids win over DLC on any name clash.
+# _ET / _MSG* / _NAME_FMGS are hoisted ABOVE the ITEM-EXISTENCE GUARD (one list, two consumers --
+# a second copy here is exactly how the DLC name tables get forgotten by one of them).
 _NAME_FMGS = [
     ("WeaponName.fmg.xml",    0x00000000, _MSG), ("ProtectorName.fmg.xml", 0x10000000, _MSG),
     ("AccessoryName.fmg.xml", 0x20000000, _MSG), ("GoodsName.fmg.xml",      0x40000000, _MSG),
