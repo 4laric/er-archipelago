@@ -1277,6 +1277,11 @@ rows = rows + _recovered
 # selling the vanilla item.
 _SHOP_ROWS_TSV = os.path.join(HERE, "shop_rows.tsv")
 DERIVED_SHOP_FLAGS = set()          # every detectable stock flag -- the SHOP_ROW_FLAGS gate
+# Shop rows whose eventFlag_forRelease != 0: the merchant STOCKS them only after an unlock event (a bell
+# bearing handed to the Twin Maidens, a boss killed, an NPC quest advanced). 252 of 679 shop checks.
+# They stay CHECKS -- you get them once the stock appears -- but they may not carry PROGRESSION, because
+# "region is open" does not imply "the row is on the shelf". Same predicate as DEFAULTED_REGION_APS.
+SHOP_RELEASE_GATED_FLAGS = set()
 _shop_new = []
 if os.path.isfile(_SHOP_ROWS_TSV):
     _have = {int(r["flag"]) for r in rows if str(r.get("flag", "")).strip().isdigit()}
@@ -1300,6 +1305,10 @@ if os.path.isfile(_SHOP_ROWS_TSV):
                     or _flag in MAP_REVEAL_FLAGS):
                 continue
             DERIVED_SHOP_FLAGS.add(_flag)
+            # eventFlag_forRelease != 0 -> the row does not EXIST in the menu until some event fires.
+            # AP reachability answers "is the region open?" -- necessary, but not sufficient here.
+            if len(_p) >= 11 and _p[10].strip() not in ("", "0"):
+                SHOP_RELEASE_GATED_FLAGS.add(_flag)
             if _flag in _have or _flag in _seen:
                 continue                       # already a location (its world source) -> no duplicate
             _seen.add(_flag)
@@ -1330,6 +1339,7 @@ buckets=OrderedDict()
 loc_tags={}
 defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
 erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
+shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
 apid=BASE_AP; names=set()
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
@@ -1350,6 +1360,13 @@ for r in rows:
     # PROGRESSION, because the player is free to trigger the burn early under num_regions.
     if str(r.get("map", "")).startswith("m11_00"):
         erdtree_burn_aps.append(apid)
+    # A shop row that is not STOCKED yet is not a check you can take yet -- and unlike a sealed region,
+    # nothing in AP's model knows when it opens. Alaric, 2026-07-12: "more and more roundtable checks
+    # become available over progress. we just need to make sure the progression_surface row at twin
+    # maiden husks is something that's there at the start." Enforced for EVERY shop, not just the hub:
+    # all 49 of Enia's block-1015 rows are release-gated, several behind ENDGAME flags.
+    if flag in SHOP_RELEASE_GATED_FLAGS:
+        shop_gated_aps.append(apid)
     buckets.setdefault(reg,[]).append((nm,apid,flag)); apid+=1
 
 spokes=sorted(k for k in buckets if k!=HUB)
@@ -2523,15 +2540,33 @@ _merch_rows = defaultdict(list)
 for _ap2, _b in _ap_blk.items():
     if _b not in _SPELL_VENDOR_BLOCKS:
         _merch_rows[_b].append(_ap2)
+#
+# ⭐ THE REPRESENTATIVE MUST BE A ROW THAT IS ACTUALLY ON THE SHELF. `min(aps)` picks the lowest ap-id in
+# the block, which knows nothing about eventFlag_forRelease -- so a merchant's ONE progression slot could
+# land on a row the merchant does not STOCK until a bell bearing is handed in or a boss dies. Alaric,
+# 2026-07-12: "more and more roundtable checks become available over progress. we just need to make sure
+# the progression_surface row at twin maiden husks is something that's there at the start."
+# So: choose the representative from the block's UNGATED rows, lowest ap-id among those (still a pure
+# deterministic function of the inputs). A block with NO ungated row gets NO progression slot at all --
+# which is exactly right for Enia (block 1015): all 49 of her rows are release-gated, several behind the
+# ENDGAME flag 9107, so she genuinely has nothing on the shelf to put a key item on.
+_gated_ap = set(shop_gated_aps)
 _SHOP_SLOTS = {}
+_no_open_row = []
 for _b, _aps2 in sorted(_merch_rows.items()):
-    _rep = min(_aps2)
+    _open = [a for a in _aps2 if a not in _gated_ap]
+    if not _open:
+        _no_open_row.append(_b)
+        continue                      # merchant stocks NOTHING until an unlock event -> no progression
+    _rep = min(_open)
     _SHOP_SLOTS[_b] = _rep
     _tags = loc_tags.setdefault(_rep, [])
     if "ShopSlot" not in _tags:
         _tags.append("ShopSlot")
-print(f"ShopSlot: {len(_SHOP_SLOTS)} merchants -> 1 progression slot each "
-      f"({len(_merch_rows)} non-spell merchant block(s); {len(_SPELL_VENDOR_BLOCKS)} spell vendors excluded)")
+print(f"ShopSlot: {len(_SHOP_SLOTS)} merchants -> 1 progression slot each, each on a row the merchant "
+      f"STOCKS FROM THE START ({len(_merch_rows)} non-spell merchant block(s); "
+      f"{len(_SPELL_VENDOR_BLOCKS)} spell vendors excluded; "
+      f"{len(_no_open_row)} block(s) skipped -- every row release-gated: {_no_open_row})")
 print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_BLOCKS)} dedicated "
       f"spell-vendor block(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchant blocks: {len(_blk_tot)}")
 
@@ -2616,8 +2651,18 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# They stay CHECKS (collect them before you burn and you keep them) but may never carry\n')
     f.write('# PROGRESSION: a check the player can put permanently out of reach cannot be required.\n')
     f.write('ERDTREE_BURN_APS = frozenset(' + repr(_burn) + ')\n')
+    _shopgate = sorted(set(shop_gated_aps))
+    f.write('\n# Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an\n')
+    f.write('# unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a\n')
+    f.write('# shop check reachability as "is the region open?", which is necessary but NOT SUFFICIENT:\n')
+    f.write('# the region can be wide open and the row simply not on the shelf. Nothing in the logic knows\n')
+    f.write('# when it appears, so these may never carry PROGRESSION. They remain CHECKS.\n')
+    f.write('# Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose\n')
+    f.write('# release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.\n')
+    f.write('SHOP_RELEASE_GATED_APS = frozenset(' + repr(_shopgate) + ')\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
 print(f'location_tags: {len(_defaulted)} check(s) with a DEFAULTED region -> barred from progression')
+print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked at start) -> barred from progression')
 
 
 # ---- Phase 3b boss sweeps (2026-07-08 rework -- scope by boss CLASS). Placed AFTER location_tags so
