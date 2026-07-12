@@ -28,6 +28,20 @@ try:
 except Exception as _e:
     _BOSS_DROP_FLAGS = frozenset()
     print(f"[gen_data] boss_drops.py unavailable ({_e!r}); Boss tag empty -- run tools/datamine_boss_drops.py")
+# Mini-dungeon / scripted BOSS-REWARD lots (tools/datamine_boss_reward_lots.py). common.emevd awards
+# these off a reward flag the MAP emevd flips -- neither NpcParam (itemLotId_enemy is -1 on these
+# bosses) nor the map-side common-event scan can see them, so their 6-digit 5xxxxx acquisition flags
+# carry no map encoding and _recover_tile decoded them to None -> the checks were dropped from the
+# world and the boss paid its vanilla item, firing nothing (Alaric, playtest 2026-07-12: Perfumer
+# Tricia, m30_12, flag 520110). This table IS the missing map encoding.
+try:
+    _rspec = _ilu.spec_from_file_location("_boss_reward_lots", os.path.join(HERE, "eldenring", "boss_reward_lots.py"))
+    _rmod = _ilu.module_from_spec(_rspec); _rspec.loader.exec_module(_rmod)
+    _BOSS_REWARD_TILE = dict(_rmod.BOSS_REWARD_TILE)
+except Exception as _e:
+    _BOSS_REWARD_TILE = {}
+    print(f"[gen_data] boss_reward_lots.py unavailable ({_e!r}); mini-dungeon boss rewards will be "
+          f"DROPPED from the world -- run tools/datamine_boss_reward_lots.py")
 # Hand-added boss-drop flags the EMEVD common-handler datamine missed (Alaric 2026-07). Each is a
 # field/evergaol boss whose UNIQUE drop is already a greenfield check but wasn't captured by the scan,
 # so tag that drop Boss. Verified: flag -> item is that boss's drop, drop exists in LOCATION_ITEM.
@@ -732,6 +746,11 @@ def _recover_tile(_flag):
     if (_fl in MAP_REVEAL_FLAGS or _fl in MINIBAKER_VENDOR_FLAGS or _fl in EXCLUDE_FLAGS
             or _is_ashen_dead(_fl) or 9100 <= _fl <= 9125):
         return None
+    # DERIVED boss-reward family first: these flags have no self-encoded tile (see _BOSS_REWARD_TILE).
+    # Their tile is EMEVD-derived and unambiguous, so it outranks the digit-length heuristics below --
+    # but NOT the exclusion sets above, and not GLOBAL_RECOVER (enforced by the callers).
+    if _fl in _BOSS_REWARD_TILE:
+        return _BOSS_REWARD_TILE[_fl]
     _s = str(_fl); _tile = None
     if len(_s) == 10 and _s[0] == '1' and _s[1] in '01':
         _tile = "m" + ("60" if _s[1] == '0' else "61") + "_" + _s[2:4] + "_" + _s[4:6]
@@ -1648,7 +1667,7 @@ print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses 
 # TODO/commented = no reliable in-region boss-drop check found -> left to the feasibility ladder.
 MAJOR_BOSS_EXTRAS = {
     "Limgrave": [
-        (7770852, 530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
+        (7770804, 530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
         # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
         # Dragon-Burnt Ruins field dragon, obtained tile m60_43_36 -> Limgrave (region_map.csv).
         # Alternates (uncomment ONE to swap; drop Agheel above if so):
@@ -1658,7 +1677,7 @@ MAJOR_BOSS_EXTRAS = {
         #     current data -- there is no Margit reward check to move -- so Agheel is the primary.
     ],
     "Weeping Peninsula": [
-        (7773928, 510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
+        (7773915, 510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
         # Castle Morne boss; drops the Grafted Blade Greatsword (flag 510800, rarity-3 -> already
         # 'Legendary'-tagged, ap 7773928), pinned to Weeping Peninsula (commit 6be2f1a). In-region,
         # verified against data.py (7773927 is Fia's Mist in Altus -- off-by-one caught by the
@@ -1667,7 +1686,7 @@ MAJOR_BOSS_EXTRAS = {
     ],
     # ---- TODO (no reliable in-region major-boss DROP check in current data; ladder covers these) ----
     "Jagged Peak": [
-        (7770836, 510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
+        (7770788, 510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
         # Bayle's drop (Heart of Bayle, ap 7770836, flag 510630) is mis-pinned to the m12_05
         # Mohgwyn/Eternal-Cities cluster in region_map.csv; the FLAG_REGION_OVERRIDE[510630]="Jagged
         # Peak" added above re-pins it. This entry RESOLVES only after regen (the assertion below will
@@ -1967,12 +1986,19 @@ _CHECK_FLAGS_ALL = {int(r["flag"]) for r in rows if str(r.get("flag", "")).strip
 #   (b) the table identity was thrown away, forcing the client to GUESS -- it tried map first and fell
 #       back to enemy, so an enemy lot whose id also exists in map was never blanked at all.
 #
-# Consequence: a boss that is "just an enemy" (its drop is an ItemLotParam_enemy row) handed out its
-# VANILLA drop and fired no check. Alaric, playtest 2026-07-12: killed the Unsightly Catacombs duo
-# (enemy lot 30120) and got the vanilla Perfumer Tricia ash, while all five of that map's treasure
-# checks randomised correctly. The map/enemy split is the whole bug.
+# Consequence: a boss that is "just an enemy" (its drop is an ItemLotParam_enemy row) would hand out
+# its VANILLA drop and fire no check. So emit them SEPARATELY and let the client write the table it is
+# told to. No guessing -- and "no collisions" becomes a statement gen_data CHECKS (it reports zero
+# today) rather than one it assumes.
 #
-# So emit them SEPARATELY and let the client write the table it is told to. No guessing.
+# RETRACTION: this comment used to claim the split was the fix for Alaric's 2026-07-12 Unsightly
+# Catacombs report ("enemy lot 30120"). It was not, and the diagnosis was invented from lot-id shape
+# rather than measured. Ground truth: ItemLotParam_enemy has NO row in the 3012* range, and both
+# bosses (NpcParam 34600930 / 37011930) have itemLotId_enemy = -1. The reward is awarded by
+# common.emevd $Event(1200) off a reward flag m30_12's EMEVD flips, and its acquisition flag (520110,
+# 6 digits) decoded to no map tile, so the CHECK NEVER EXISTED. Fixed by
+# tools/datamine_boss_reward_lots.py + _BOSS_REWARD_TILE above. The split stays: it is cheap and it
+# makes a previously-assumed invariant checkable.
 CHECK_LOT_SLOTS_MAP = {}     # ItemLotParam_map   lot id -> [slot idx 1-8] holding a GOODS ware of a CHECK
 CHECK_LOT_SLOTS_ENEMY = {}   # ItemLotParam_enemy lot id -> same (boss / enemy one-time drops)
 _ENEMY_LOT_FLAGS = {}        # lot -> flag, for the audit below

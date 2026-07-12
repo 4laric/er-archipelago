@@ -49,12 +49,20 @@ class TagDataTests(unittest.TestCase):
         which is the direction we want (CONTRIBUTING: derive the datum, don't pin the symptom) -- and it
         means _BOSS_DROP_EXTRAS is now partly redundant and should be audited against the derived set.
 
+        REBASELINED 93 -> 94 (2026-07-12). Ground truth got better again, and the predicate did NOT move.
+        The 94th is flag 520660, "Caelid :: Dragon Heart" -- a mini-dungeon boss reward that HAD NO
+        LOCATION AT ALL until tools/datamine_boss_reward_lots.py recovered the common.emevd $Event(1200)
+        family (+37 checks). It picks up 'Boss' from the pre-existing dragon-heart rule in gen_data
+        (`'dragon heart' in nm and not shop`), not from anything this change loosened: a Dragon Heart is
+        by definition a dragon-boss drop. So this is a check that always existed in the GAME and finally
+        exists in the WORLD -- exactly the direction the warning below blesses.
+
         ⚠️ If this number moves again, FIRST check whether an EMEVD-derived input is stale rather than
         rebaselining: `python tools/datamine_boss_drops.py` and `datamine_boss_healthbars.py` are cheap.
         A number that grows because the ground truth got better is fine; one that grows because a
         predicate got looser is a bug.
         """
-        self.assertEqual(TAG_COUNTS["Boss"], 93)
+        self.assertEqual(TAG_COUNTS["Boss"], 94)
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
