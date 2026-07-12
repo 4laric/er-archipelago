@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2 -- 2026-07-07
+## v0.2 -- 2026-07-12
 
 v0.2 is a from-scratch, provenance-clean rebuild of the Elden Ring world. No
 data or code from the earlier community lineage remains. It requires
@@ -36,8 +36,8 @@ The world itself was rebuilt from the ground up against public game data
 (params, MSBs, grace anchors), with every rule keyed off region, map id, event
 flag, and item name -- never off an imported location name. It ships no
 FromSoftware content and no third-party randomizer config or code: just the
-MIT client, the data-derived apworld, and a static detection table. See
-`ATTRIBUTION.md` and the repo's `PROVENANCE.md`.
+MIT client and the data-derived apworld. See `ATTRIBUTION.md` and the repo's
+`PROVENANCE.md`.
 
 - **The Shattering, on the clean base.** `num_regions` -- the marquee mode
   that turns Elden Ring's open map into an Archipelago progression graph --
@@ -55,9 +55,8 @@ MIT client, the data-derived apworld, and a static detection table. See
 - **Pool building and varied filler.** pool builder scrubs the Rune tail
   and injects rare and legendary items; varied filler spreads the rest
   across item types.
-- **Grace bundling and grace rando.** A Region Lock lights all of its graces
-  at once (the default bundle), or one front-door grace with the rest
-  scattered into the pool as items (grace rando).
+- **Grace bundling.** A Region Lock lights all of its region's graces at
+  once, so an arriving Lock means you can warp straight in.
 - **Scaling and quality of life.** Completion scaling, Scadutree blessing
   scope, start-with torch / steed / flasks, all maps revealed, early
   leveling, no weapon requirements, buyable Stonesword Keys, a flattened
@@ -71,8 +70,9 @@ MIT client, the data-derived apworld, and a static detection table. See
 - Replay suites and region-correctness gates run in CI and catch
   wrong-behavior bugs (for example, region or grace mis-bundling), not just
   missing-feature bugs.
-- Rides the existing MIT client from v0.1 unchanged -- no client fork, no
-  client rebuild required.
+- The MIT runtime client carries over from v0.1 -- still no fork of anyone
+  else's client -- rebuilt in lockstep with the world: the shipped `.dll`
+  and the apworld are a matched pair from the same release.
 
 ### Fixed
 

@@ -63,7 +63,7 @@ anything.)
 greyed out. `Enemy Randomizer` and `DLC` are ticked. That is the configuration that matters, and
 it is the one thing you must not get wrong.
 
-The string contains tokens like `racemode_key` and `raceloc_shops`, which look alarming -- they
+The string contains tokens like `racemode_key` and `racemode_upgrades`, which look alarming -- they
 are item-randomizer settings. They are **inert**: they are just the item tab's remembered state,
 and the item randomizer is off (there is no `item` token in the string). Do not let them tempt
 you into ticking the Item Randomizer box.
@@ -97,8 +97,8 @@ launch the game with both active.
 
    ![The Dll mods dialog](screenshots/matt-03-dll-mods-dialog.png)
 
-2. **Add...** and pick `eldenring_archipelago.dll` (it lives in the `me3` folder of your
-   Archipelago client install).
+2. **Add...** and pick `eldenring_archipelago.dll` (it is in the release bundle;
+   pick it from wherever you unpacked or installed it).
 
    ![Selecting eldenring_archipelago.dll](screenshots/matt-04-select-client-dll.png)
 

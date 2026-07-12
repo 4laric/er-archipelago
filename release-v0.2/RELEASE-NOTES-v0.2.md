@@ -97,6 +97,8 @@ See `DISTRIBUTION.md`.
 - Archipelago 0.6.7
 - A PC copy of Elden Ring (plus Shadow of the Erdtree only if you enable DLC)
 - The `eldenring.apworld` and the client `.dll` from this release's assets
+- ModEngine3 (me3) -- the mod loader that loads the client `.dll` into the game
+  (matt's randomizer's launcher can do this job too; see `SETUP.md`)
 
 Install is a two-file drop plus the shipped `EldenRing.yaml`; the full
 walkthrough is in `SETUP.md`. No game files are modified.

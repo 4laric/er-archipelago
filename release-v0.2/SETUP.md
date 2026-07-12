@@ -45,12 +45,19 @@ rush.
 | File | What it is |
 |---|---|
 | `eldenring.apworld` | The Archipelago world -- the package that teaches Archipelago about Elden Ring. Goes in your Archipelago install. |
-| `EldenRing.yaml` | The player config template (The Shattering). |
-| `eldenring_archipelago.dll` | The runtime client (MIT) that talks to the live game. Ships on Nexus. |
+| `eldenring_archipelago.dll` | The runtime client (MIT) that talks to the live game. Loaded via ModEngine3, or via matt's launcher. |
+| `EldenRing.yaml` | The player config template (The Shattering). Copy it, set `name:`, generate. |
 | `SETUP.md` | This file. |
-| `CHANGELOG.md` | What's new in v0.2. |
+| `RELEASE-NOTES-v0.2.md` | What this project is and what v0.2 brings, in one read. |
+| `CHANGELOG.md` | What changed in v0.2, including both breaking changes. |
+| `KNOWN-ISSUES.md` | Current known issues and by-design non-features -- read it before filing a report. |
+| `Elden-Ring-Archipelago-Player-Guide.md` | How a run actually plays once you press New Game. |
+| `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` | Stacking matt's randomizer for enemies and starting class (with items OFF). |
 | `ATTRIBUTION.md` | Credits, licensing, and provenance. |
-| `KNOWN-ISSUES.md` | Current known issues and by-design non-features. |
+| `DISTRIBUTION.md` | How this release is packaged, and why the apworld and `.dll` must come from the same tag. |
+| `SCREENSHOTS.md` | Index of the screenshots and what each one shows. |
+| `screenshots/` | The images (10 PNGs) the docs above reference. |
+| `LICENSE` | The MIT license text. |
 
 You also need, separately:
 
