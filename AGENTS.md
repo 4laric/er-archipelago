@@ -13,17 +13,45 @@ reviewable. For the *quality bar* (what a good change looks like) read `CONTRIBU
 | **Sandbox clone** | `~/work/er-archipelago` (a fresh clone in the Linux sandbox) | **bash** (`mcp__workspace__bash`) | **all editing, regen, tests, commits, pushes** |
 
 They are different filesystems. `Edit` writes the mount; `bash` sees the sandbox clone.
-**Do all real work in the sandbox clone via bash.** If you edit the mount by accident,
-revert it so Alaric's `git pull` stays clean. This mismatch has cost round-trips.
 
-## 2. The active branch is `feat/matt-free-backbone-mvp` — NOT `main`
+> ### 🛑 NEVER Read/Edit/Write the mount. Not once, not "just to draft a file".
+>
+> **Every** file you author goes in the sandbox clone via bash, and reaches Alaric **only** by
+> `git push`. There is no exception for "I'll just drop the first draft there and fix it later" —
+> that is exactly how this goes wrong:
+>
+> 1. you Write a draft into the mount (it lands in Alaric's *working tree*, untracked/modified);
+> 2. you iterate on the same file in the sandbox and push the **fixed** version;
+> 3. his tree still holds your **stale draft**, so his next `git pull` collides with it.
+>
+> This happened on 2026-07-11 across 4 files (`shop_stock.py`, `enemy_drops.py`,
+> `datamine_shop_rows.py`, `test_gf_arena_graces.py`) and produced a merge conflict whose HEAD side
+> was a pile of bugs the sandbox had already fixed. It cost a session.
+>
+> **If you slip and touch the mount anyway: revert that file immediately**, before you do anything
+> else — `git checkout -- <path>` on the mount, or tell Alaric to `git checkout origin/main -- <path>`.
+> Do not leave it for later. Do not assume "it'll get overwritten by the pull" — it won't; it'll
+> conflict.
+>
+> Reading is also unsafe: **the mount can serve a TRUNCATED view of a file.** A size/content diff
+> against a mount path will invent corruption that isn't there (see §6). Read git blobs instead:
+> `git show origin/main:<path>`.
 
-`main` is a stale public snapshot (no `greenfield/`, ~dozens of commits behind). Cloning
-defaults to it and looks empty of all recent work — that's the trap, not a broken clone.
-Always:
+## 2. The active branch is `main` (this changed — the old advice is inverted)
+
+**`main` is now the live branch on both repos.** The greenfield work was merged into it and the
+world ships as game `"Elden Ring"`. Just clone and work on `main`; no checkout dance.
+
+⚠️ This section used to say the opposite — "the active branch is `feat/matt-free-backbone-mvp`, NOT
+`main`". That is **stale and now actively harmful**: `feat/matt-free-backbone-mvp` is **0 commits
+ahead of `main`** and `main` is **36 ahead of it**, so following the old advice checks you out onto a
+branch that is missing all recent work. `origin/HEAD` may still point at the old branch — ignore it.
+
+Verify rather than trust this file (it has been wrong before):
 
 ```bash
-git checkout -B feat/matt-free-backbone-mvp origin/feat/matt-free-backbone-mvp
+git fetch origin && git branch -r
+git rev-list --count origin/main..origin/feat/matt-free-backbone-mvp   # expect 0
 ```
 
 ## 3. Session setup (sandbox is wiped between sessions — redo each time)
@@ -46,8 +74,10 @@ Repo is ~83M; `--no-recurse-submodules` keeps it light.
 ## 4. The Rust client is a separate repo
 
 The client lives in submodule `from-software-archipelago-clients` (crate
-`eldenring-archipelago`), branch **`eldenring-client-draft`**. Clone it over HTTPS the same
-way. Edit `.rs` files here, but **`cargo build`/`test` runs on Windows** (net/detour deps are
+`eldenring-archipelago`), branch **`main`**. Clone it over HTTPS the same way.
+
+⚠️ This section used to say **`eldenring-client-draft`**. That branch **no longer exists on origin** —
+the client repo has only `main`. (Same correction as §2.) Edit `.rs` files here, but **`cargo build`/`test` runs on Windows** (net/detour deps are
 Windows-only). Push your `.rs` fix to `eldenring-client-draft`; Alaric pulls + builds and bumps
 the submodule pointer. The `er-logic` crate is host-testable (`cargo test -p er-logic`) if a
 Rust toolchain is present.
