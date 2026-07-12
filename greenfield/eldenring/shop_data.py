@@ -2257,3 +2257,5 @@ SHOP_PREVIEW_GOODS = {
     '7774855': 536873042,
     '7774856': 1073750527,
 }
+
+_GEN_STAMP = {'inputs_hash': 'sha256:832252f035feaeedfe26166ef8d62ca398e1b953508448857597fcce2f681a53', 'module': 'shop_data.py', 'body_sha256': 'sha256:5e9caed87d614af0f62801ff273881b8381e23506114c6ac533b92622d41fd56'}
