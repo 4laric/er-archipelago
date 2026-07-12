@@ -47,7 +47,7 @@ correct thing and the safer thing -- you get the current version, with his insta
 Paste this into matt's randomizer (**Options -> Set options from string**):
 
 ```
-bossbgm changestats dlc dlcblessing dlckeysilo earlylegacy earlymedal editnames enemy mats raceloc_health raceloc_scadu raceloc_shops racemode_health racemode_key racemode_scadu racemode_upgrades spellshops v15 weaponprogression bias:20
+bossbgm changestats dlc dlckeysilo earlylegacy earlymedal editnames enemy racemode_health racemode_key racemode_scadu racemode_upgrades v15 bias:0
 ```
 
 **Note there is no `seed:` on the end.** That is deliberate. A blank seed box means the
@@ -69,6 +69,23 @@ and the item randomizer is off (there is no `item` token in the string). Do not 
 you into ticking the Item Randomizer box.
 
 ![Enemy Randomizer ON](screenshots/matt-02-enemy-randomizer-ON.png)
+
+### Then check **Misc Options** -- this is where the starting class lives
+
+Starting-class randomization is **not** part of the Item Randomizer. It sits in the **Misc
+Options** tab, which is why you still get it with items off.
+
+Open Misc Options and make sure it looks like this:
+
+![Misc Options: Randomize starting class loadouts is ticked](screenshots/matt-02b-misc-options-starting-class.png)
+
+The one that matters is **Randomize starting class loadouts**. The others in that group
+(starting keepsakes, NPC outfits, ambient music, gestures) are taste -- turn them off if you
+would rather they stayed vanilla.
+
+**Tick it by hand if it is not already ticked.** We are not certain the options string carries
+these Misc boxes with it, so do not assume the paste did it for you. Ten seconds of looking
+beats starting a run as a vanilla Wretch when you were promised a random class.
 
 ## Load the Archipelago client through matt's launcher
 
