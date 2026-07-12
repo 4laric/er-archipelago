@@ -29,10 +29,12 @@ No world found to handle game EldenRing. Did you mean 'Elden Ring'?
 If you see that message, you are feeding v0.2 a v0.1 yaml.
 
 **Do not fix an old yaml by hand -- start from the shipped `EldenRing.yaml`.**
-Archipelago **silently ignores** options it does not recognize, and v0.2 cut
-the option surface down to 19 tunable options. An edited v0.1 yaml can
-generate without a single warning and still give you a seed that is *not* the
-game you configured. Copy the new file, re-apply your choices there.
+v0.2 cut the option surface down to 19 tunable options. Archipelago **warns**
+about each option it does not recognize and then **generates the seed anyway**,
+on defaults -- so an edited v0.1 yaml still gives you a game you did not
+configure; the only sign is a line in the generation output. Copy the new file
+and re-apply your choices there. (If you do reuse an old yaml, read the
+generation output: every dropped option is named.)
 
 **Mid-run on a v0.1 seed?** Because the game id changed, the v0.1 and v0.2
 worlds can be installed side by side. You can finish your v0.1 seed first, no
@@ -189,8 +191,8 @@ version than your client expects -- ask them which release they used.)
 **"No world found to handle game EldenRing. Did you mean 'Elden Ring'?"**
 You generated with a v0.1 yaml. The game id is now `Elden Ring`, with a
 space. Do not just edit the `game:` line -- start over from the shipped
-`EldenRing.yaml`, because Archipelago silently ignores old option names and
-your v0.1 settings would be quietly dropped.
+`EldenRing.yaml`. Archipelago warns about old option names but generates
+anyway, so your v0.1 settings would be dropped and the seed would still build.
 
 **The seed generated fine, but the game ignores settings I set.**
 Almost certainly a hand-edited old yaml. Unknown options are silently

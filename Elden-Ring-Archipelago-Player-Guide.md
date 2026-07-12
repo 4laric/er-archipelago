@@ -118,7 +118,8 @@ Stonesword Keys, because region-hopping out of order breaks the vanilla
 drip-feed of those things. And smithing upgrades climb a uniform 2-stone
 ladder instead of vanilla's 2/4/6, so leveling a fresh weapon stays cheap.
 The bottom of the shipped yaml lists all of these -- don't add them back as
-keys; Archipelago would silently ignore them.
+keys. Archipelago warns about an unknown key and then generates without it, so
+the option you thought you set simply would not exist.
 
 ## When something looks wrong
 

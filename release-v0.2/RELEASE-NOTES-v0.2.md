@@ -61,10 +61,11 @@ A v0.1 yaml is rejected at generation with:
 > No world found to handle game EldenRing. Did you mean 'Elden Ring'?
 
 Do not just fix the `game:` line and keep the rest. The option surface was
-cut to 19 tunable options, and Archipelago **silently ignores unknown yaml
-options** -- a retrofitted v0.1 yaml can generate a seed you did not actually
-configure, with no warning. Start from the shipped `EldenRing.yaml` and
-re-apply your preferences there.
+cut to 19 tunable options. Archipelago **warns** about each unknown option and
+then **generates anyway on defaults** -- so a retrofitted v0.1 yaml gives you a
+seed you did not actually configure, and the only sign is a line in the
+generation output you probably were not reading. Start from the shipped
+`EldenRing.yaml` and re-apply your preferences there.
 
 The upside of the id change: v0.1 and v0.2 are different worlds as far as
 Archipelago is concerned, so they can be installed side by side. If you have
