@@ -299,7 +299,7 @@ def _loc_tags(r):
     _fl = (r.get('flag') or '').strip()
     if _fl.lstrip('-').isdigit() and int(_fl) in _BOSS_DROP_FLAGS: t.append('Boss')
     # Dragon Hearts are all dragon-BOSS drops (Alaric 2026-07-09) but many dragons aren't in the
-    # datamined boss-healthbar set, so tag the drop itself Boss -> big-ticket.
+    # datamined boss-healthbar set, so tag the drop itself Boss.
     if 'dragon heart' in nm and not shop and 'Boss' not in t: t.append('Boss')
     if 'remembrance' in nm and not shop: t.append('Remembrance')
     # NOTE: the five CATEGORY tags (Seedtree / Church / Fragment / Revered / Basin) are NOT set here.
@@ -463,7 +463,7 @@ _MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60
 # Unreachable ASHEN CAPITAL + final-boss drops -- EXCLUDED AS DEAD (user decision 2026-07-08). Post-
 # Erdtree-burn / final content is not physically reachable in a region-lock game, and is NOT actually
 # collectable via Morgott's region-wide sweep (boss_arena rewards are never swept, and the m11_05
-# map_lot items fall outside the sweep member filter) -- so they were dead big-ticket checks. Drop
+# map_lot items fall outside the sweep member filter) -- so they were dead important-tagged checks. Drop
 # them. m11_05 = Leyndell Ashen Capital (whole 11050000-11059999 range); 510070 Remembrance of Hoarah
 # Loux (Godfrey, Ashen); 510230 Elden Remembrance (Radagon/Elden Beast, final); 190540/190550 = Sir
 # Gideon the All-Knowing (Ashen). Morgott (510040) STAYS -- he is the reachable capital ending. Bolt of
@@ -486,7 +486,7 @@ def _is_ashen_dead(_fl):
 #     2048447800). The game has exactly three -> drop this phantom so global-recovery doesn't
 #     re-double the singleton (test_unique_key_items_are_singletons).
 _RECOVER_PHANTOM_DUPES = frozenset({1033477020})
-# UNREACHABLE big-ticket checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
+# UNREACHABLE important checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
 # mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
 #   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
 #     illusory-wall gate reachable only from the far side of the grace anchor.
@@ -1432,7 +1432,7 @@ print(f"emevd_audit: UNIQUE={_A_UNIQUE} AMBIGUOUS={_A_AMBIG} NONE={_A_NONE} | "
       f"re-pin(emevd unique-m60 changed)={_A_REPIN} (+{_A_REPIN_NOOP} already-correct) | "
       f"quarantine->HUB (nearest-neighbor unverifiable)={_A_QUAR} | recovered globals->checks={_A_RECOVER}")
 
-# (location_tags.py is written LATER -- after ITEM_TIERS -- so catalog/rarity big-ticket tags can be added)
+# (location_tags.py is written LATER -- after ITEM_TIERS -- so catalog/rarity tags can be added)
 
 # ---- Phase 0 boot contract: one warp-grace open flag per major region (matt-free) -----------
 # Derived from the SAME grace anchors used above. On lock receipt the client sets this flag
@@ -2499,7 +2499,7 @@ print(f"item_tiers: {len(ITEM_TIERS)} equippables tiered "
 
 
 # ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (important_locations source, matt-free) ----
-# Written HERE (after ITEM_TIERS) so big-ticket types that need the greenfield catalog / param rarity
+# Written HERE (after ITEM_TIERS) so tag types that need the greenfield catalog / param rarity
 # can be added on top of the name/method tags _loc_tags collected inline (Boss/Remembrance/Church/
 # Seedtree/Basin/Fragment/Revered/Shop): GreatRune + KeyItem from LOCATION_ITEM (greenfield catalog
 # name), Legendary from ITEM_TIERS rarity==3. Matt-free (own catalog + param rarity, no curation).
@@ -2749,10 +2749,10 @@ print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked
 # BOSS_HEALTHBARS); the trigger flag IS the boss entity id (== its defeat flag, SetEventFlagID(entity,
 # ON) on death). Member scope by class:
 #   legacy / interior (region majors)    -> REGION-WIDE + FILLER-ONLY (felling grants the region's
-#                                           filler; important/big-ticket-tagged checks are excluded)
+#                                           filler; important-tagged checks are excluded)
 #   catacomb / cave / tunnel (m30/31/32) -> MAP-LOCAL     (only that dungeon map's own checks)
 #   field / overworld (m60)              -> OWN-TILE + FILLER-ONLY (checks on the boss's m60_XX_YY tile
-#                                           minus any important/big-ticket-tagged check)
+#                                           minus any important-tagged check)
 # Recovered flag_prefix dungeon checks are swept map-locally, so a catacomb boss grants its whole
 # catacomb. Falls back to the pre-rework region-wide banner scan if BOSS_HEALTHBARS is unavailable.
 def _mp2(m):
@@ -2761,7 +2761,7 @@ def _mp2(m):
     return "_".join(m.split("_")[:2])
 def _is_dungeon(_mp):
     return bool(_mp) and _mp[:3] in ("m30", "m31", "m32", "m34", "m39", "m40", "m41", "m42", "m43")
-# = contract.IMPORTANT_LOCATION_TYPES (superset of BIG_TICKET_TYPES); guarded vs drift by
+# = contract.IMPORTANT_LOCATION_TYPES; guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                                  "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",

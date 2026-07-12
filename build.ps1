@@ -168,6 +168,44 @@ if ($Greenfield) {
     Step "Greenfield: data-derived apworld + isolated multiworld gen"
     & (Join-Path $Repo "greenfield\gen-greenfield.ps1") -Repo $Repo
     if ($LASTEXITCODE -ne 0) { throw "gen-greenfield.ps1 FAILED (exit $LASTEXITCODE) -- see output above." }
+
+    # ----- CROSS-REPO GENERATED TABLES ---------------------------------------------------------
+    # tracker_regions.rs (and contract_gen.rs) are generated FROM the greenfield data but LIVE IN
+    # THE CLIENT repo. They were only regenerated under -Rust, so regenerating the world WITHOUT
+    # building the client left the client's tables silently stale -- and ap-ids are POSITIONAL, so
+    # "stale" means the tracker maps ids to the WRONG checks. Anything that adds or drops a check
+    # renumbers everything after it. Regenerate here, in the step that actually changes the data.
+    #
+    # This is the same pair the CI `generators` job runs; running it here means the local build
+    # fails at the same place CI would, instead of you finding out from a red runner.
+    if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) {
+        # Do NOT skip: a gate that quietly asserts nothing is worse than one that fails.
+        throw ("Client submodule missing at {0} -- the generated tracker/contract tables cannot be " +
+               "refreshed and would ship STALE against renumbered ap-ids. Run: git submodule update --init" -f $RustDir)
+    }
+    Step "  regenerate the client's generated tables (tracker_regions.rs, contract_gen.rs)"
+    & python (Join-Path $Repo "tools\gen_location_regions.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
+    & python (Join-Path $Repo "greenfield\gen_contract.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_contract.py FAILED -- contract_gen.rs not regenerated (see output above)." }
+
+    # A regen that lands only in your working tree is HALF a fix: the apworld's CI checks the client
+    # out at its DEFAULT BRANCH (main) and diffs, so the gate passes only when the regen is committed
+    # to client main AND the submodule pointer equals it. Say so loudly rather than let a green local
+    # build hand over a red CI.
+    Push-Location $RustDir
+    $dirty = (git status --porcelain -- crates 2>$null)
+    Pop-Location
+    if ($dirty) {
+        Write-Host ""
+        Write-Host "  !! the client's generated tables CHANGED -- they are not committed yet:" -ForegroundColor Yellow
+        Write-Host $dirty -ForegroundColor Yellow
+        Write-Host "     Commit them on the CLIENT repo's main and bump the pointer here, or CI stays red:" -ForegroundColor Yellow
+        Write-Host "       cd from-software-archipelago-clients" -ForegroundColor Yellow
+        Write-Host "       git add crates && git commit -m 'regen generated tables' && git push origin HEAD:main" -ForegroundColor Yellow
+        Write-Host "       cd .. && git add from-software-archipelago-clients && git commit -m 'bump client'" -ForegroundColor Yellow
+        Write-Host ""
+    }
 }
 
 # ----- package apworld ------------------------------------------------------------------------
