@@ -47,7 +47,6 @@ rush.
 | `eldenring.apworld` | The Archipelago world -- the package that teaches Archipelago about Elden Ring. Goes in your Archipelago install. |
 | `EldenRing.yaml` | The player config template (The Shattering). |
 | `eldenring_archipelago.dll` | The runtime client (MIT) that talks to the live game. Ships on Nexus. |
-| `er_static_detection_table.json` | Static check-detection table the client reads. |
 | `SETUP.md` | This file. |
 | `CHANGELOG.md` | What's new in v0.2. |
 | `ATTRIBUTION.md` | Credits, licensing, and provenance. |
@@ -103,10 +102,9 @@ You also need, separately:
 1. **Install ModEngine3.** Follow its own install instructions until the
    `me3` launcher works.
 
-2. **Drop in the runtime client.** Put `eldenring_archipelago.dll` -- with
-   `er_static_detection_table.json` next to it -- where your ModEngine3
-   profile loads it. Launch Elden Ring through ModEngine3. When the client
-   is loaded, its overlay **menu bar** is visible in-game.
+2. **Drop in the runtime client.** Put `eldenring_archipelago.dll` where your
+   ModEngine3 profile loads it, and launch Elden Ring through ModEngine3. When the
+   client is loaded, its overlay **menu bar** is visible in-game.
 
    **Also running matt's randomizer?** Then you do not launch twice. Add
    `eldenring_archipelago.dll` to matt's **Add dll mod** list and use his
@@ -191,7 +189,7 @@ Check your Archipelago version: this release requires **0.6.7**. Also confirm
 **The game launches but there's no overlay / nothing connects.**
 The client isn't loaded. Make sure you launched Elden Ring through
 ModEngine3, that `eldenring_archipelago.dll` is where your me3 profile loads
-it, and that `er_static_detection_table.json` is next to the dll. And make
+it. And make
 sure the game files are in a state you expect. A vanilla install always works;
 matt's randomizer alongside it is supported (items OFF). Other mods that rewrite
 item lots or params are not.

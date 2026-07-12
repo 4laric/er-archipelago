@@ -4,7 +4,7 @@
 # player needs into one zip:
 #   1. eldenring.apworld            (built by build.ps1 -Apworld = the greenfield world)
 #   2. me3\ runtime                 (client DLL + ap-package AP-icon override +
-#                                    er_static_detection_table.json + apconfig.json)
+#                                    apconfig.json)
 #   3. the flagship yaml + SETUP.md + CHANGELOG.md
 # (The PopTracker pack stays in the repo, not bundled; the built-in F6 tracker ships.)
 #
@@ -115,21 +115,9 @@ if (Test-Path $BuiltDll) {
 Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 
 # Detection table + config: warn (not fatal) if absent.
-# er_static_detection_table.json is a LEGACY BRIDGE from the retired baker. The old warning here said
-# "the client needs it at runtime", which is FALSE: flagpoll.rs merges it IF PRESENT and otherwise logs
-# one info line and carries on. slot_data is the live path and carries both halves -- locationFlags
-# (3625 in a default seed) and dungeonSweepFlags (180).
-#
-# We do NOT ship it, deliberately: it is not in the repo, no committed script rebuilds it, and shipping
-# baker-era output in a provenance-clean release is the exact thing v0.2 exists to stop.
-#
-# So its ABSENCE is correct. Its PRESENCE is what deserves a warning.
-#
-# NOTE: the dev box HAS this file, so every playtest to date ran WITH it. Nobody has yet played a seed
-# WITHOUT it. If dungeon sweeps misbehave in the wild but not on the dev box, look here first.
-if (Test-Path (Join-Path $Me3Dst "er_static_detection_table.json")) {
-    Warn "me3\er_static_detection_table.json is PRESENT and would be shipped. It is baker-era output and does not belong in a v0.2 bundle -- delete it unless you know exactly why it is there."
-}
+# er_static_detection_table.json was removed from the project entirely (2026-07-12) -- an
+# unreproducible baker-era file that only ever existed on the dev box. Nothing stages it, so
+# there is nothing to check for here.
 
 # AP-icon override = me3\ap-package\menu textures. Warn loudly if empty so a
 # bundle without the flower-icon swap never ships silently.
