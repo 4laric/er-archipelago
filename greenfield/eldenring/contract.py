@@ -375,6 +375,12 @@ CONTRACT = (
     ContractKey("shopRowFlags", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:359 i64_to_u32_map",
                 "ShopLineupParam row id -> eventFlag_forStock written for shop checks."),
+    ContractKey("enemyDropRoll", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/enemy_drops.py", "enemy_drops.rs configure/run",
+                "ItemLotParam_enemy lot id (str) -> FLAT pairs [slot, goodsId, slot, goodsId, ...]. "
+                "UNFLAGGED lots only "
+                "(a lot with getItemFlagId > 0 IS a check and is never sent). Only GOODS slots are "
+                "rerolled; lotItemBasePoint (drop weight) is untouched, so drop RATES stay vanilla."),
     ContractKey("shopInfiniteStock", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/shop_stock.py", "shop_stock.rs configure/run",
                 "ShopLineupParam row id (str) -> [goodsId, equipType, price]. The 455 UNLIMITED rows "
