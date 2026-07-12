@@ -69,12 +69,19 @@ class CheckLots(Feature):
         # tables and the same row id can exist in BOTH. gen_data used to merge them into one {lot:
         # slots} dict, throwing the table away, and the client then GUESSED -- it tried map first and
         # fell back to enemy. So an enemy lot whose id also lived in map was never blanked, and a boss
-        # that is "just an enemy" handed out its vanilla drop and fired no check. (Alaric, playtest
-        # 2026-07-12: the Unsightly Catacombs duo, enemy lot 30120, paid the vanilla Perfumer Tricia
-        # ash while all five of that map's treasure checks randomised correctly.)
+        # that is "just an enemy" would hand out its vanilla drop and fire no check.
         #
-        # Sending them separately is not a nicety -- it is the fix. The client no longer has anything
-        # to guess.
+        # Sending them separately is not a nicety: it makes "no collisions" a CHECKABLE statement
+        # rather than an assumption. (gen_data reports zero collisions today -- so this split is
+        # currently load-bearing for nothing, and that is exactly what we want to know.)
+        #
+        # NB -- this comment used to cite Alaric's 2026-07-12 Unsightly Catacombs report ("enemy lot
+        # 30120") as the bug this split fixed. That attribution was WRONG and is retracted: there is
+        # no enemy lot 30120 (ItemLotParam_enemy has zero rows in that range), both bosses have
+        # itemLotId_enemy = -1, and the real cause was that the reward's acquisition flag (520110) had
+        # no location at all -- common.emevd awards that family off a reward flag the map EMEVD flips,
+        # and its 6-digit flag decoded to no map tile, so gen_data dropped the check. See
+        # tools/datamine_boss_reward_lots.py.
         #
         # Scoping: gen_data already filtered to real check flags; we can only scope by region here, so
         # send every lot. A lot whose check is out of scope sits in a sealed region the player cannot

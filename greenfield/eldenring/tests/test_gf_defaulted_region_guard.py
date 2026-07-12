@@ -29,9 +29,26 @@ Castle') and are derived. Only a DEFAULTED region is a guess.
 """
 import unittest
 
+from ..data import LOCATIONS
 from ..location_tags import LOCATION_TAGS, DEFAULTED_REGION_APS
 from ..features.progression_surface import allowed_ap_ids
 from .. import contract
+
+
+def _ap_of(flag):
+    """Resolve a check's LIVE ap-id from its acquisition FLAG.
+
+    ap-ids are POSITIONAL (BASE_AP + index over `rows`), so they DRIFT whenever a row is added or
+    dropped earlier in the list -- and this test exists to guard a softlock, so it must not go quietly
+    stale the first time someone recovers a check. The flag is the durable key; the ap-id is derived.
+    (Same reasoning gen_data already applies to MAJOR_BOSS_EXTRAS.) Pinning the ap-id is pinning the
+    symptom.
+    """
+    for locs in LOCATIONS.values():
+        for (_name, ap, fl) in locs:
+            if fl == flag:
+                return ap
+    raise AssertionError(f"no location carries flag {flag} -- the check was DROPPED from the world")
 
 
 class TestDefaultedRegionGuard(unittest.TestCase):
@@ -43,11 +60,17 @@ class TestDefaultedRegionGuard(unittest.TestCase):
 
     def test_the_stormveil_golden_seed_is_barred(self):
         """The exact check that killed AP_55352390472076588352: Golden Seed f400220, really in
-        Stormveil, quarantined to the HUB, given the Stormveil Castle Lock."""
-        self.assertIn(7773853, DEFAULTED_REGION_APS,
-                      "ap 7773853 (Golden Seed f400220, region GUESSED) must be barred from progression")
-        self.assertIn(7773916, DEFAULTED_REGION_APS,
-                      "ap 7773916 (Golden Seed f520180, region GUESSED) must be barred from progression")
+        Stormveil, quarantined to the HUB, given the Stormveil Castle Lock.
+
+        Keyed by FLAG, not ap-id: the ap-ids these used to pin (7773853 / 7773916) drifted the moment
+        the boss-reward family was recovered (+37 rows), and 7773916 silently became a DIFFERENT,
+        legitimately-unbarred Liurnia check -- so the assertion started failing while the property it
+        guards was still perfectly true. A guard that pins a positional id is a guard with a half-life.
+        """
+        for flag, what in ((400220, "Golden Seed f400220"), (520180, "Golden Seed f520180")):
+            ap = _ap_of(flag)
+            self.assertIn(ap, DEFAULTED_REGION_APS,
+                          f"ap {ap} ({what}, region GUESSED) must be barred from progression")
 
     def test_no_defaulted_check_is_ever_progression_eligible(self):
         """THE INVARIANT. Over every progression surface the yaml can select, no check whose region was
