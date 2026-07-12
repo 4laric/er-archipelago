@@ -138,12 +138,12 @@ gf={}
 # (a legacy dungeon with no overworld grace) and won _front_door -> bogus REGION_OPEN_FLAGS[
 # "Stormveil Castle"]=200 AND polluted the Stormveil grace bundle. Reject any warpUnlockFlag
 # outside the valid region/grace group at ingest so only real graces reach _open_cand.
-for row in csv.DictReader(open(os.path.join(AR,"grace_flags.tsv")),delimiter="\t"):
+for row in csv.DictReader(open(os.path.join(AR,"grace_flags.tsv"),encoding="utf-8-sig"),delimiter="\t"):
     if not (71000 <= int(row["warpUnlockFlag"]) <= 76999): continue
     gf[row["warpUnlockFlag"]]=row["mapTile"]
 greg={}
 grm=[x for x in os.listdir(AR) if x.startswith("grace_region_map")][0]
-for row in csv.DictReader(open(os.path.join(AR,grm)),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
+for row in csv.DictReader(open(os.path.join(AR,grm),encoding="utf-8-sig"),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
 _acc=defaultdict(Counter)
 for flag,tile in gf.items():
     pr=greg.get(flag); m=re.match(r"m60_(\d\d)_(\d\d)",tile)
@@ -300,7 +300,13 @@ def _loc_tags(r):
 # (see features/minibaker.py + minibaker.rs). Exclude its flag so it is NOT also an AP shop check --
 # otherwise the client's repurpose would clobber a tracked check. Costs one minor vanilla slot.
 MINIBAKER_VENDOR_FLAGS=frozenset({60290})
-_ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"))))
+# EVERY text read below pins encoding="utf-8-sig". On Windows, open() with no encoding defaults to
+# cp1252, so the SAME gen_data.py produced DIFFERENT output on Alaric's box than in the Linux sandbox:
+#     Windows: 'Swordhand of Night JolÃ¡n'   item_catalog 2033
+#     Linux  : 'Swordhand of Night Jolan'    item_catalog 2034   (correct -- the a-acute is real)
+# That silently defeats the DATA DRIFT gate, whose whole premise is "same artifacts + same generator =>
+# byte-identical output". A generator that is not platform-deterministic cannot be gated on. (2026-07-11)
+_ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"),encoding="utf-8-sig")))
 
 # ---- GROUND TRUTH: acquisition flag -> the items its ItemLotParam lot(s) actually GRANT -----------
 # The category tags (Seedtree / Church / Fragment / Revered / Basin) used to be derived from the
@@ -321,7 +327,7 @@ def _build_lot_items():
         if not os.path.isfile(_p):
             print("[gen_data] WARNING: %s absent -- category tags fall back to NAME matching" % _fn)
             return {}
-        with open(_p, newline="") as _fh:
+        with open(_p, newline="", encoding="utf-8-sig") as _fh:
             for _r in csv.DictReader(_fh):
                 _flags = set()
                 for _c in ("getItemFlagId",) + tuple("getItemFlagId%02d" % _i for _i in range(1, 9)):
@@ -499,7 +505,7 @@ def _real_flag_universe():
     for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
         _p = os.path.join(_SLP_DIR0, _fn)
         if not os.path.isfile(_p): return None                 # params absent -> cannot guard
-        with open(_p, newline="") as _fh:
+        with open(_p, newline="", encoding="utf-8-sig") as _fh:
             _rd = csv.DictReader(_fh)
             _cols = [_c for _c in _rd.fieldnames if _c.startswith("getItemFlagId")]
             for _r in _rd:
@@ -510,7 +516,7 @@ def _real_flag_universe():
                         except ValueError: pass
     _p = os.path.join(_SLP_DIR0, "ShopLineupParam.csv")
     if os.path.isfile(_p):
-        for _r in csv.DictReader(open(_p, newline="")):
+        for _r in csv.DictReader(open(_p, newline="", encoding="utf-8-sig")):
             try:
                 _f = int(_r.get("eventFlag_forStock", 0))
                 if _f > 0: _u.add(_f)
@@ -1271,6 +1277,11 @@ rows = rows + _recovered
 # selling the vanilla item.
 _SHOP_ROWS_TSV = os.path.join(HERE, "shop_rows.tsv")
 DERIVED_SHOP_FLAGS = set()          # every detectable stock flag -- the SHOP_ROW_FLAGS gate
+# Shop rows whose eventFlag_forRelease != 0: the merchant STOCKS them only after an unlock event (a bell
+# bearing handed to the Twin Maidens, a boss killed, an NPC quest advanced). 252 of 679 shop checks.
+# They stay CHECKS -- you get them once the stock appears -- but they may not carry PROGRESSION, because
+# "region is open" does not imply "the row is on the shelf". Same predicate as DEFAULTED_REGION_APS.
+SHOP_RELEASE_GATED_FLAGS = set()
 _shop_new = []
 if os.path.isfile(_SHOP_ROWS_TSV):
     _have = {int(r["flag"]) for r in rows if str(r.get("flag", "")).strip().isdigit()}
@@ -1294,6 +1305,10 @@ if os.path.isfile(_SHOP_ROWS_TSV):
                     or _flag in MAP_REVEAL_FLAGS):
                 continue
             DERIVED_SHOP_FLAGS.add(_flag)
+            # eventFlag_forRelease != 0 -> the row does not EXIST in the menu until some event fires.
+            # AP reachability answers "is the region open?" -- necessary, but not sufficient here.
+            if len(_p) >= 11 and _p[10].strip() not in ("", "0"):
+                SHOP_RELEASE_GATED_FLAGS.add(_flag)
             if _flag in _have or _flag in _seen:
                 continue                       # already a location (its world source) -> no duplicate
             _seen.add(_flag)
@@ -1323,6 +1338,8 @@ print(f"shop rows: +{len(_shop_new)} DERIVED shop checks region_map had lost "
 buckets=OrderedDict()
 loc_tags={}
 defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
+erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
+shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
 apid=BASE_AP; names=set()
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
@@ -1337,6 +1354,19 @@ for r in rows:
     # guess, and only the latter is barred from progression. See _region_is_derived().
     if reg == HUB and not _region_is_derived(r):
         defaulted_aps.append(apid)
+    # m11_00 = normal Leyndell. The whole map variant is DESTROYED the moment Maliketh dies (the
+    # Erdtree burns and you are warped into m11_05, the Ashen Capital -- see the ERDTREE BURN note).
+    # Its checks stay collectable UNTIL then, so they remain checks -- they just may not carry
+    # PROGRESSION, because the player is free to trigger the burn early under num_regions.
+    if str(r.get("map", "")).startswith("m11_00"):
+        erdtree_burn_aps.append(apid)
+    # A shop row that is not STOCKED yet is not a check you can take yet -- and unlike a sealed region,
+    # nothing in AP's model knows when it opens. Alaric, 2026-07-12: "more and more roundtable checks
+    # become available over progress. we just need to make sure the progression_surface row at twin
+    # maiden husks is something that's there at the start." Enforced for EVERY shop, not just the hub:
+    # all 49 of Enia's block-1015 rows are release-gated, several behind ENDGAME flags.
+    if flag in SHOP_RELEASE_GATED_FLAGS:
+        shop_gated_aps.append(apid)
     buckets.setdefault(reg,[]).append((nm,apid,flag)); apid+=1
 
 spokes=sorted(k for k in buckets if k!=HUB)
@@ -1688,7 +1718,7 @@ DRAGONHEART_FLAGS = set()         # stock flags whose ShopLineupParam row is pai
 _slp_present = os.path.isfile(_SLP)
 if _slp_present:
     for _src in [_SLP] + ([_REC] if os.path.isfile(_REC) else []):
-        for _sr in csv.DictReader(open(_src)):
+        for _sr in csv.DictReader(open(_src, encoding="utf-8-sig")):
             try:
                 _fl = int(_sr["eventFlag_forStock"])
             except (KeyError, ValueError):
@@ -1763,7 +1793,7 @@ INFINITE_SHOP_ROWS = []
 GOODS_PRICE = {}                  # goods row id -> rune price
 if _slp_present:
     _vanilla_price = {}           # (equipType, equipId) -> cheapest vanilla shop price > 0
-    for _sr in csv.DictReader(open(_SLP)):
+    for _sr in csv.DictReader(open(_SLP, encoding="utf-8-sig")):
         try:
             _et, _ei, _v = int(_sr.get("equipType", 3)), int(_sr["equipId"]), int(_sr["value"])
             _rid, _flag = int(_sr["ID"]), int(_sr["eventFlag_forStock"])
@@ -1970,6 +2000,37 @@ with open(OUT_CHECKLOTS, "w", newline="\n", encoding="utf-8") as f:
 print(f"check_lots: {len(CHECK_LOT_SLOTS)} check lots to blank "
       f"({sum(len(v) for v in CHECK_LOT_SLOTS.values())} goods slots) -> placeholder {AP_PLACEHOLDER_GOODS}")
 
+# ---- ERDTREE BURN: m11_00 (normal Leyndell) IS DESTROYED WHEN MALIKETH DIES ------------------------
+# Alaric, playtest 2026-07-11: "when you kill Maliketh it sets ashen capital and warps you there".
+# common.emevd $Event(900) -- 天変地異_世界樹炎上, "World tree in flames":
+#
+#     L0: WaitFor(PlayerIsInOwnWorld() && EventFlag(9116));   // 9116 = Maliketh dead (m13_00 sets it)
+#         SetPlayerRespawnPoint(13002020);  WaitFixedTimeSeconds(5.2);
+#     L1: SetEventFlagID(300, ON);  SetEventFlagID(301, ON);  // the Erdtree BURNS
+#         SetEventFlagID(71300, ON);
+#         BatchSetEventFlags(71100, 71110, OFF);              // Leyndell's graces are turned OFF
+#         PlayCutsceneToPlayerAndWarp(..., 11052010, 11050000, ...);   // warp into m11_05 Ashen Capital
+#         SetEventFlagID(118, ON);                            // done-latch
+#
+# Leyndell is then the ASHEN capital (m11_05) forever: the m11_00 map variant is gone, its graces are
+# off, and its 62 CHECKS ARE PERMANENTLY UNREACHABLE. Vanilla hides this because you always clear
+# Leyndell before you can reach Maliketh -- but num_regions can unseal Farum Azula while Leyndell is
+# still sealed, so the player can burn the Erdtree with 62 Leyndell checks still uncollected.
+#
+# Same class as the Radahn festival: the GAME can put a check permanently out of reach while AP still
+# believes it is available. Exactly ONE of the 62 is on the progression surface today
+# (Golden Seed f11007993, Seedtree) -- so fill CAN strand a region Lock or a Great Rune behind an event
+# the player is free to trigger early. That is a softlock.
+#
+# THE PREDICATE (same one as DEFAULTED_REGION_APS): a check that can become UNREACHABLE may not carry
+# PROGRESSION. It stays a check -- collect it before you burn and you keep it -- it just cannot be
+# something the seed REQUIRES.
+#
+# NOTE this is a stopgap, not the fix. The fix is to suppress the burn until there IS Ashen Capital
+# logic -- but $Event(900) cannot be pre-empted (its WaitFor fires the same frame Maliketh's handler
+# sets 9116, then falls through unconditionally), so suppression has to be a client-side UNDO:
+# clear 300/301/118, restore 302 + graces 71100-71110, warp the player back out of m11_05.
+# Spec'd in SPEC-erdtree-burn-suppression-20260711.md.
 OUT_REPEAT = os.path.join(HERE, "eldenring", "repeatable_goods.py")
 with open(OUT_REPEAT, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT.\n')
@@ -2479,15 +2540,33 @@ _merch_rows = defaultdict(list)
 for _ap2, _b in _ap_blk.items():
     if _b not in _SPELL_VENDOR_BLOCKS:
         _merch_rows[_b].append(_ap2)
+#
+# ⭐ THE REPRESENTATIVE MUST BE A ROW THAT IS ACTUALLY ON THE SHELF. `min(aps)` picks the lowest ap-id in
+# the block, which knows nothing about eventFlag_forRelease -- so a merchant's ONE progression slot could
+# land on a row the merchant does not STOCK until a bell bearing is handed in or a boss dies. Alaric,
+# 2026-07-12: "more and more roundtable checks become available over progress. we just need to make sure
+# the progression_surface row at twin maiden husks is something that's there at the start."
+# So: choose the representative from the block's UNGATED rows, lowest ap-id among those (still a pure
+# deterministic function of the inputs). A block with NO ungated row gets NO progression slot at all --
+# which is exactly right for Enia (block 1015): all 49 of her rows are release-gated, several behind the
+# ENDGAME flag 9107, so she genuinely has nothing on the shelf to put a key item on.
+_gated_ap = set(shop_gated_aps)
 _SHOP_SLOTS = {}
+_no_open_row = []
 for _b, _aps2 in sorted(_merch_rows.items()):
-    _rep = min(_aps2)
+    _open = [a for a in _aps2 if a not in _gated_ap]
+    if not _open:
+        _no_open_row.append(_b)
+        continue                      # merchant stocks NOTHING until an unlock event -> no progression
+    _rep = min(_open)
     _SHOP_SLOTS[_b] = _rep
     _tags = loc_tags.setdefault(_rep, [])
     if "ShopSlot" not in _tags:
         _tags.append("ShopSlot")
-print(f"ShopSlot: {len(_SHOP_SLOTS)} merchants -> 1 progression slot each "
-      f"({len(_merch_rows)} non-spell merchant block(s); {len(_SPELL_VENDOR_BLOCKS)} spell vendors excluded)")
+print(f"ShopSlot: {len(_SHOP_SLOTS)} merchants -> 1 progression slot each, each on a row the merchant "
+      f"STOCKS FROM THE START ({len(_merch_rows)} non-spell merchant block(s); "
+      f"{len(_SPELL_VENDOR_BLOCKS)} spell vendors excluded; "
+      f"{len(_no_open_row)} block(s) skipped -- every row release-gated: {_no_open_row})")
 print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_BLOCKS)} dedicated "
       f"spell-vendor block(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchant blocks: {len(_blk_tot)}")
 
@@ -2564,8 +2643,26 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('\n# Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.\n')
     f.write('# A guessed region may not carry progression: see gen_data._region_is_derived().\n')
     f.write('DEFAULTED_REGION_APS = frozenset(' + repr(_defaulted) + ')\n')
+    _burn = sorted(set(erdtree_burn_aps))
+    f.write('\n# m11_00 (normal Leyndell) -- DESTROYED when Maliketh dies (common.emevd $Event(900):\n')
+    f.write('# the Erdtree burns, Leyndell\'s graces 71100-71110 are switched OFF, and you are warped\n')
+    f.write('# into m11_05, the Ashen Capital -- permanently). num_regions can unseal Farum Azula while\n')
+    f.write('# Leyndell is still sealed, so the player can burn it with these still uncollected.\n')
+    f.write('# They stay CHECKS (collect them before you burn and you keep them) but may never carry\n')
+    f.write('# PROGRESSION: a check the player can put permanently out of reach cannot be required.\n')
+    f.write('ERDTREE_BURN_APS = frozenset(' + repr(_burn) + ')\n')
+    _shopgate = sorted(set(shop_gated_aps))
+    f.write('\n# Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an\n')
+    f.write('# unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a\n')
+    f.write('# shop check reachability as "is the region open?", which is necessary but NOT SUFFICIENT:\n')
+    f.write('# the region can be wide open and the row simply not on the shelf. Nothing in the logic knows\n')
+    f.write('# when it appears, so these may never carry PROGRESSION. They remain CHECKS.\n')
+    f.write('# Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose\n')
+    f.write('# release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.\n')
+    f.write('SHOP_RELEASE_GATED_APS = frozenset(' + repr(_shopgate) + ')\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
 print(f'location_tags: {len(_defaulted)} check(s) with a DEFAULTED region -> barred from progression')
+print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked at start) -> barred from progression')
 
 
 # ---- Phase 3b boss sweeps (2026-07-08 rework -- scope by boss CLASS). Placed AFTER location_tags so
