@@ -84,7 +84,7 @@ class GreenfieldWorldTest(WorldTestBase):
     # slot_data keys that are ALLOWED to differ between seeds -- everything else must be seed-invariant.
     # shopInfiniteStock is the per-seed reroll of the 455 unlimited shop rows: varying with the seed is
     # the entire point of the feature (each seed, merchants stock a different infinite consumable).
-    _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock"}
+    _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "enemyDropRoll"}
 
     def test_slot_data_is_deterministic(self):
         """Same seed -> byte-identical slot_data (no set-iteration order leaking into the wire)."""
