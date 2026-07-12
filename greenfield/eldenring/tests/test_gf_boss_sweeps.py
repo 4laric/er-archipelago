@@ -30,7 +30,7 @@ REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
                                    os.path.join(GREENFIELD, "region_map.csv")) if os.path.isfile(p)),
                       os.path.join(GF_PKG, "region_map.csv"))
 
-# = contract.IMPORTANT_LOCATION_TYPES (a superset of BIG_TICKET_TYPES). A field sweep must contain
+# = contract.IMPORTANT_LOCATION_TYPES. A field sweep must contain
 # none of these -- felling a field boss hands out filler only. Kept in sync with contract by
 # test_field_exclude_matches_contract below (drift guard).
 FIELD_EXCLUDE = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
@@ -108,10 +108,13 @@ class BossSweepScoping(unittest.TestCase):
         ct = _mod("contract")
         if not ct:
             self.skipTest("contract.py not importable")
-        want = set(getattr(ct, "IMPORTANT_LOCATION_TYPES", [])) | set(getattr(ct, "BIG_TICKET_TYPES", []))
+        # BIG_TICKET_TYPES is RETIRED and the contract no longer carries it (a sibling test
+        # asserts its absence), so the old `| getattr(ct, "BIG_TICKET_TYPES", [])` term was a
+        # dead union with the empty set -- a phantom that made this gate LOOK wider than it is.
+        want = set(getattr(ct, "IMPORTANT_LOCATION_TYPES", []))
         self.assertEqual(
             set(FIELD_EXCLUDE), want,
-            "FIELD_EXCLUDE drifted from contract.IMPORTANT_LOCATION_TYPES u BIG_TICKET_TYPES; "
+            "FIELD_EXCLUDE drifted from contract.IMPORTANT_LOCATION_TYPES; "
             "sync the field filler-only cut. got=%s want=%s" % (sorted(FIELD_EXCLUDE), sorted(want)))
 
     def test_field_sweeps_are_filler_only(self):
@@ -120,7 +123,7 @@ class BossSweepScoping(unittest.TestCase):
             for ap in members:
                 if FIELD_EXCLUDE & set(self.lt.get(ap, ())):
                     bad.append((ent, info[3], ap, sorted(FIELD_EXCLUDE & set(self.lt.get(ap, ())))))
-        self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) are important/big-ticket "
+        self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) are important-tagged "
                          "-- field sweeps must be filler-only. Sample: " + repr(bad[:5]))
 
     def test_field_sweeps_are_own_tile(self):
@@ -166,7 +169,7 @@ class BossSweepScoping(unittest.TestCase):
 
     def test_legacy_sweeps_are_filler_only(self):
         """Legacy (region-major) sweeps must be FILLER-ONLY now -- felling a region boss auto-grants
-        only the region's filler, never an important/big-ticket-tagged check (same cut as field). The
+        only the region's filler, never an important-tagged check (same cut as field). The
         member list is baked from location tags at gen time; boss_locks.slot_data emits it verbatim."""
         bad = []
         for ent, info, members in self._members_by_class("legacy"):
@@ -174,11 +177,11 @@ class BossSweepScoping(unittest.TestCase):
                 hit = FIELD_EXCLUDE & set(self.lt.get(ap, ()))
                 if hit:
                     bad.append((ent, info[3], ap, sorted(hit)))
-        self.assertEqual(bad, [], str(len(bad)) + " legacy sweep member(s) are important/big-ticket -- "
+        self.assertEqual(bad, [], str(len(bad)) + " legacy sweep member(s) are important-tagged -- "
                          "region-major sweeps must be filler-only. Sample: " + repr(bad[:5]))
 
     def test_legacy_filler_only_is_nontrivial(self):
-        """Guard the cut actually bites: at least one important/big-ticket-tagged check must sit in a
+        """Guard the cut actually bites: at least one important-tagged check must sit in a
         legacy sweep's own region yet be EXCLUDED from the sweep. Fails if legacy silently reverts to
         region-wide (or the tag data drops), which test_legacy_sweeps_are_filler_only alone would miss
         (an empty/degenerate sweep is vacuously filler-only)."""
@@ -188,7 +191,7 @@ class BossSweepScoping(unittest.TestCase):
             for ap, r in self.ap_region.items():
                 if r == reg and ap not in memset and (FIELD_EXCLUDE & set(self.lt.get(ap, ()))):
                     return  # found an excluded important check in a legacy sweep's region -> cut bites
-        self.fail("no important/big-ticket check is excluded from any legacy sweep -- the filler-only "
+        self.fail("no important-tagged check is excluded from any legacy sweep -- the filler-only "
                   "cut looks like a no-op (region-wide regression or missing location tags)")
 
     def test_legacy_sweeps_partition_their_region(self):

@@ -17,7 +17,7 @@ except Exception:  # not yet generated
     LOCATION_TAGS = {}
 
 _DEFAULT = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"]
-from ..contract import IMPORTANT_LOCATION_TYPES as _VALID  # shared vocab (big_ticket uses the same)
+from ..contract import IMPORTANT_LOCATION_TYPES as _VALID  # shared vocab (the progression surface uses the same)
 
 
 class ImportantLocations(OptionList):

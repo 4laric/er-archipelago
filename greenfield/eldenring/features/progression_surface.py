@@ -122,7 +122,7 @@ def build_ladder(selection):
 
 
 def allowed_ap_ids(tags_map, classes, defaulted=None):
-    """ap-ids whose tags make them big-ticket for `classes` (Enia hard-excluded). Pure.
+    """ap-ids whose tags put them ON THE SURFACE for `classes` (Enia hard-excluded). Pure.
 
     Checks in `defaulted` (DEFAULTED_REGION_APS) are BARRED regardless of tags: their region was a
     guess that fell back to the hub, so AP believes them reachable at spawn while the item actually
@@ -200,7 +200,7 @@ def _restricted_items(world):
 
 
 def _open_allowed(world, classes):
-    """Unfilled locations of this player whose tags are big-ticket for `classes`."""
+    """Unfilled locations of this player whose tags put them ON THE SURFACE for `classes`."""
     ids = allowed_ap_ids(LOCATION_TAGS, classes)
     out = []
     for loc in world.multiworld.get_locations(world.player):

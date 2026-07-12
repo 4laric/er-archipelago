@@ -190,16 +190,19 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 
 
 # ---------------------------------------------------------------------------------------------------
-# SHARED DERIVED-DATA (single source of truth so the apworld and client CAN'T drift). BIG_TICKET_TYPES
-# = the LOCATION_TAGS types that count as a prominent/"big-ticket" check. ONE definition, both sides:
+# SHARED DERIVED-DATA (single source of truth so the apworld and client CAN'T drift). The PROGRESSION
+# SURFACE = the LOCATION_TAGS classes this world's own progression may occupy. ONE definition, both
+# sides. (`BIG_TICKET_TYPES` / `is_big_ticket` are RETIRED -- test_gf_progression_surface_contract
+# asserts the contract no longer carries them. The name is gone too: it is what let a SECOND selection
+# masquerade as a second mechanism.) ONE definition, both sides:
 # features/curated_fill.py routes region Locks onto these, and the client's F6 tracker highlights /
 # filters them -- via tools/gen_location_regions.py, which imports THIS set to bake the
-# er_logic::tracker_regions LOCATION_META big_ticket column. So "where the locks go" == "what the
+# er_logic::tracker_regions LOCATION_META on_surface column. So "where the locks go" == "what the
 # tracker flags" by construction. Per-location membership is generated from location_tags.py (a
 # seed-invariant ~4k-row static table, not slot_data); the DEFINITION lives here in the contract.
 # Class vocabulary shared with important_locations (features/important_locations.py imports this).
-# The big_ticket_locations option draws from the SAME set. "EniaShop" is INTERNAL (gen_data tags the
-# remembrance store) and is never user-selectable.
+# (There is no `big_ticket_locations` option; the surface is selected by ProgressionSurface.)
+# "EniaShop" is INTERNAL (gen_data tags the remembrance store) and is never user-selectable.
 IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                             "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
                             "KeyItem", "MajorBoss"]

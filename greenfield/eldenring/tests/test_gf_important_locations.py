@@ -10,7 +10,7 @@ import pytest
 from BaseClasses import ItemClassification
 from worlds.eldenring.location_tags import LOCATION_TAGS, TAG_COUNTS
 from worlds.eldenring.features.important_locations import _DEFAULT, _VALID, _is_important
-from worlds.eldenring.contract import SURFACE_EXCLUDE_TAGS as BIG_TICKET_EXCLUDE_TAGS
+from worlds.eldenring.contract import SURFACE_EXCLUDE_TAGS
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
@@ -66,8 +66,8 @@ class TagDataTests(unittest.TestCase):
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
-        # important_location TYPES; those live in contract.BIG_TICKET_EXCLUDE_TAGS. Valid == either.
-        valid = set(_VALID) | BIG_TICKET_EXCLUDE_TAGS
+        # important_location TYPES; those live in contract.SURFACE_EXCLUDE_TAGS. Valid == either.
+        valid = set(_VALID) | SURFACE_EXCLUDE_TAGS
         for tags in LOCATION_TAGS.values():
             for t in tags:
                 self.assertIn(t, valid)
