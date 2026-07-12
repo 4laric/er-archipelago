@@ -15,6 +15,15 @@ One rule before anything else, because it is the only way to get this
 wrong: **in matt's randomizer, ITEM randomization must be OFF.** Items are
 this project's job. Enemies and starting class are matt's.
 
+## Get it from the author
+
+**Elden Ring Item and Enemy Randomizer** -- thefifthmatt: <https://www.nexusmods.com/eldenring/mods/428>
+
+Download it from that page and nowhere else. We deliberately do **not** bundle it, mirror it,
+or ship any of its files: matt's terms ask that the randomizer and its config files not be
+redistributed, and that is a request worth honouring. Linking you to the source is both the
+correct thing and the safer thing -- you get the current version, with his install notes.
+
 ## The recipe: randomized enemies + starting class + Archipelago
 
 1. **Generate your Archipelago seed** as usual (see

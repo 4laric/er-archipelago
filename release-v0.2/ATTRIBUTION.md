@@ -53,3 +53,18 @@ is original MIT code, the whole release is redistributable under MIT.
 
 *Elden Ring and Shadow of the Erdtree are trademarks of FromSoftware / Bandai
 Namco. This is an unofficial fan project and ships no game assets.*
+
+## thefifthmatt -- Elden Ring Item and Enemy Randomizer
+
+For enemy randomization and randomized starting loadouts we point players at
+**thefifthmatt's Elden Ring Item and Enemy Randomizer**, which does those jobs well and has
+done for years: <https://www.nexusmods.com/eldenring/mods/428>
+
+We ship **none of it**. No code, no data, no config files -- v0.2 is a from-scratch,
+data-derived rebuild that shares nothing with it (see `PROVENANCE.md`). We link to the
+author's page rather than redistribute, which is what his terms ask for and what we would
+want ourselves.
+
+The two tools compose: matt's rewrites the game's files, ours touches none of them. See
+`ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` -- and note that item randomization must be OFF
+in matt's, because that part is ours.
