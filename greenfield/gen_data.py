@@ -162,6 +162,41 @@ def _region_of_raw(r):
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
+def _region_is_derived(r):
+    """True iff this check's region was DERIVED from data, False iff it DEFAULTED to the HUB.
+
+    THE SOFTLOCK RULE (Alaric, seed AP_5535..., 2026-07-11). `_region_of_raw` has three paths that
+    fall back to HUB when the real region is unknown:
+        * an 'Overworld m60' row whose tile won't parse / has no play_region,
+        * method == 'shop_multi'  ("Multiple merchants (various regions)"),
+        * REGION_MAP miss -- i.e. the region column is a PLACEHOLDER, not a place:
+              'Global / Filler (scattered by design)'      (global_filler, 578 rows)
+              'Global / Common-event (unplaced)'           (global, 620 rows)
+              'Non-merchant reference (...)'               (shop_reference)
+    The old comment at the quarantine site called HUB "reachable-from-start, never a false gate".
+    That is exactly backwards. It does avoid a false LATE gate -- but it MANUFACTURES A FALSE EARLY
+    CLAIM: AP is told the check sits in the always-open hub, so fill may place PROGRESSION on it.
+    The item still physically spawns wherever it really is. If that place is behind a region Lock,
+    the seed is dead.
+
+    Observed: flag 400220 (a Golden Seed, method=global_filler, region='PENDING') was quarantined to
+    the HUB and fill put the STORMVEIL CASTLE LOCK on it. Its only ground truth (msb_flag_region.tsv,
+    enemy chain) puts it in m10_00 = Stormveil / m60_46_36 = Limgrave. From a Caelid start that is a
+    hard circular softlock: the Stormveil key is inside Stormveil. Confirmed in the player's client log
+    (`AP scout-proof: location 7773853 -> Stormveil Castle Lock`, never collectable).
+
+    A DEFAULTED region is a guess. A guess may not carry progression. Quarantining to the HUB stays
+    fine for DETECTION (the flag still fires wherever the item is) -- it is simply not a licence to
+    assert reachability. Note this is NOT "PENDING map => unjustified": most PENDING rows still NAME a
+    real place ('shop_merchant -> Caelid', 'boss_arena -> Stormveil Castle') and are derived; only the
+    placeholder regions above are not."""
+    reg=r['region']; meth=r['method']
+    if reg.startswith('Overworld m60'):
+        m=re.match(r'.*m60_(\d\d)_(\d\d)',reg)
+        return bool(m) and tile_pr(int(m.group(1)),int(m.group(2))) in PLAY2AP
+    if meth=='shop_multi': return False
+    return reg in REGION_MAP
+
 # ---- important_locations tags (matt-free): classify each check by TYPE from item_name + method,
 # NOT names. Used by features/important_locations.py to force those checks to hold non-filler items.
 # Remembrance/Seedtree/Church/Basin exclude shop rows (buying a duplicate is not the meaningful check).
@@ -1128,6 +1163,7 @@ _recovered = [r for r in _ALLROWS if _recover_row_ok(r)]
 rows = rows + _recovered
 buckets=OrderedDict()
 loc_tags={}
+defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
 apid=BASE_AP; names=set()
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
@@ -1136,6 +1172,12 @@ for r in rows:
     names.add(nm)
     _t=_loc_tags(r)
     if _t: loc_tags[apid]=_t
+    # A check lands in the HUB either because it IS in the Roundtable (region column says so, or a
+    # global/filler row was RECOVERED to a real tile -> region_of returns that tile's region), or
+    # because we simply do not know where it is and _region_of_raw defaulted. Only the latter is a
+    # guess, and only the latter is barred from progression. See _region_is_derived().
+    if reg == HUB and not _region_is_derived(r):
+        defaulted_aps.append(apid)
     buckets.setdefault(reg,[]).append((nm,apid,flag)); apid+=1
 
 spokes=sorted(k for k in buckets if k!=HUB)
@@ -1998,7 +2040,15 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     for _aid in sorted(loc_tags):
         f.write(f'    {_aid}: {loc_tags[_aid]!r},\n')
     f.write('}\n\nTAG_COUNTS = ' + repr(dict(sorted(_tagcount.items()))) + '\n')
+    # DEFAULTED_REGION_APS -- checks whose region is a GUESS (defaulted to the HUB), see
+    # _region_is_derived(). These may be DETECTED anywhere, but they must never carry progression:
+    # AP would believe them reachable from spawn while the item physically sits in a sealed region.
+    _defaulted = sorted(set(defaulted_aps))
+    f.write('\n# Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.\n')
+    f.write('# A guessed region may not carry progression: see gen_data._region_is_derived().\n')
+    f.write('DEFAULTED_REGION_APS = frozenset(' + repr(_defaulted) + ')\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
+print(f'location_tags: {len(_defaulted)} check(s) with a DEFAULTED region -> barred from progression')
 
 
 # ---- Phase 3b boss sweeps (2026-07-08 rework -- scope by boss CLASS). Placed AFTER location_tags so
