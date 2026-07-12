@@ -1245,7 +1245,21 @@ _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
 #     signal -> known/playtest set, NOT provably complete; expand if a playtest finds more.
 _BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601, 71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120, 71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401})
 _ARENA_GRACE_FLAGS = frozenset({76930, 76931, 76422, 76852, 76853, 76508, 76509, 76415,
-    71300})  # +71300 Maliketh the Black Blade: fog-gated arena grace (not 9005810 bonfire-hidden, so EMEVD oracle missed it); leaked into Farum Azula grants (playtest 2026-07-07)
+    71300,          # Maliketh the Black Blade: fog-gated arena grace (not 9005810 bonfire-hidden, so
+                    # the EMEVD oracle missed it); leaked into Farum Azula grants (playtest 2026-07-07)
+    76414, 76416})  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
+                    # Warrior + Crucible Knight duo arena (bosses 1049390800/1049390801) -- granting it
+                    # warps you into the middle of a live duo fight (playtest 2026-07-11, Alaric).
+                    # Both tile graces skipped: without MSB enemy positions we cannot tell which of the
+                    # two is the in-arena one, and the costs are wildly asymmetric (skip a safe grace =
+                    # walk to it; grant an arena grace = warp into a boss fight).
+# ^^ NOTE (2026-07-11): this list is HAND-MAINTAINED and has now been patched THREE times, each time by
+# a playtester walking into the bug (Maliketh, ashen Leyndell, Redmane). That is pinning the symptom --
+# CONTRIBUTING says derive the datum. The real predicate is POSITIONAL: "a grace whose spawn point lies
+# inside a boss arena". Tile co-location is NOT a usable proxy (172 granted graces share a tile with a
+# boss -- all 7 Stormveil graces sit on Godrick's tile). Deriving it needs boss ENEMY POSITIONS, which
+# live in the MSBs; only 7 maps are currently unpacked. Once the m60/m61 MSBs are witchy'd, replace this
+# frozenset with: distance(grace.pos, nearest boss enemy spawn) < R  -> skip. See TODO in CONTRIBUTING.
 # m11_05 = Leyndell, Ashen Capital: a POST-ERDTREE-BURN map variant that region_of folds into base
 # Leyndell. Vanilla lights these on the burn; force-lighting them with the Leyndell lock warps you
 # into the ashen capital before you've burned the Erdtree (playtest 2026-07-07: 71123 "Leyndell,
