@@ -36,10 +36,26 @@ if ($LASTEXITCODE -ne 0) { throw ("[greenfield] gen-input stamp STALE/UNVERIFIAB
 Write-Host "[greenfield] installing world -> $WorldDst" -ForegroundColor Cyan
 if (Test-Path $WorldDst) { Remove-Item -Recurse -Force $WorldDst }
 Copy-Item -Recurse -Force $WorldSrc $WorldDst
-# region_map.csv is gen_data's INPUT (lives beside the package, not in it). Copy it INTO the installed
-# world so the boss-sweep scoping oracle (tests/test_gf_boss_sweeps.py) can resolve it and RUN in the
-# installed-world pytest instead of skipping. Test-only; the packaged .apworld does not include it.
-Copy-Item -Force (Join-Path $Here "region_map.csv") (Join-Path $WorldDst "region_map.csv")
+# gen_data's INPUTS live BESIDE the package, not in it. Copy them INTO the installed world so the
+# derivation oracles resolve them and RUN in the installed-world pytest instead of skipping/crashing.
+# Test-only; the packaged .apworld does not include them.
+#
+# PARITY WITH CI (.github/workflows/tests.yaml "Install the greenfield world"): this step used to copy
+# region_map.csv ONLY, so the Windows runner was MISSING shop_rows.tsv (test_gf_shop_release_gate) and
+# the shipping template (test_gf_shipping_yaml) -- and those tests do not skip when their input is
+# absent, they raise FileNotFoundError. So run_ci.ps1 reported 9 RED tests that CI reported GREEN, for
+# no reason but a missing copy. A local gate that fails differently from CI trains you to ignore both.
+Get-ChildItem -Path $Here -Filter *.csv -File | ForEach-Object {
+    Copy-Item -Force $_.FullName (Join-Path $WorldDst $_.Name)
+}
+Get-ChildItem -Path $Here -Filter *.tsv -File | ForEach-Object {
+    Copy-Item -Force $_.FullName (Join-Path $WorldDst $_.Name)
+}
+# The SHIPPED template: test_gf_shipping_yaml reads the yaml players actually get, so it must be the
+# real one from release-v0.2, not a copy that can drift.
+$ShipYaml = Join-Path $Repo "release-v0.2\EldenRing.yaml"
+if (Test-Path $ShipYaml) { Copy-Item -Force $ShipYaml (Join-Path $WorldDst "EldenRing.yaml") }
+else { Write-Host "[greenfield] WARN: release-v0.2\EldenRing.yaml absent -- the shipping-yaml gate will not run" -ForegroundColor Yellow }
 
 $ts = Get-Date -Format "yyyyMMdd-HHmmss"
 $genLog = Join-Path $Repo "generate_greenfield_$ts.log"

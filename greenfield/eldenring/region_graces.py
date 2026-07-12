@@ -22,4 +22,4 @@ REGION_GRACE_POINTS = {
     'Weeping Peninsula': [73102, 73000, 73001, 73101, 73200, 76150, 76151, 76152, 76153, 76154, 76155, 76156, 76157, 76158, 76159, 76160, 76162],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:69fc3a79bc7fdfb827cea9f461100f70820c5bdcdca7d8c549b77bf03993885e', 'module': 'region_graces.py', 'body_sha256': 'sha256:e4d7039af7df42cf5ec4ba482da984e9847c2797f4e8078daf731eb0111fef93'}
+_GEN_STAMP = {'inputs_hash': 'sha256:b140df16e3bab36a6d257be4ac24d0ad042d1b9aa45a8cdeb9cc460a37cc5257', 'module': 'region_graces.py', 'body_sha256': 'sha256:e4d7039af7df42cf5ec4ba482da984e9847c2797f4e8078daf731eb0111fef93'}
