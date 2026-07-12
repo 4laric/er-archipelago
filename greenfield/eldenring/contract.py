@@ -375,6 +375,17 @@ CONTRACT = (
     ContractKey("shopRowFlags", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:359 i64_to_u32_map",
                 "ShopLineupParam row id -> eventFlag_forStock written for shop checks."),
+    ContractKey("checkLotBlank", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs configure/run",
+                "ItemLotParam lot id (str) -> [goods slot indices] holding a CHECK's vanilla ware. The "
+                "client repoints those slots at apPlaceholderGoods so the vanilla ware is never handed "
+                "out at a check -- while farmed/mined/bought/crafted copies are left alone."),
+    ContractKey("apPlaceholderGoods", "INT", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs / detour.rs unconditional suppress",
+                "A spare EquipParamGoods row (8852): exists so the game can grant it, no FMG name, "
+                "referenced by no lot/shop/recipe. Suppressed unconditionally -- it is never a real "
+                "item, so it can never eat anything legitimate. ONE row suffices because checks are "
+                "detected by the FLAG POLL, not by the item id (no synthetic id per location)."),
     ContractKey("enemyDropRoll", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/enemy_drops.py", "enemy_drops.rs configure/run",
                 "ItemLotParam_enemy lot id (str) -> FLAT pairs [slot, goodsId, slot, goodsId, ...]. "
