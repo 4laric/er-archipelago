@@ -22,7 +22,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Version = "0.1",
+    [string]$Version = "0.2",
     [switch]$SkipApworld,
     [switch]$DryRun
 )
@@ -143,14 +143,21 @@ Info "+ apconfig.json (generic template: localhost / Player1)"
 #    (PopTracker pack is intentionally NOT bundled -- it lives in the repo for
 #    anyone who wants it; the built-in F6 tracker is the shipped tracker.)
 # ---------------------------------------------------------------------------
+# The REAL doc set. This list required five files that DO NOT EXIST -- LICENSE,
+# EldenRing-Shattering.yaml, HOW-THE-SHATTERING-WORKS.md, CHECKS-AND-PROGRESSION.md and
+# ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md -- so the packager Died on the first one and there was
+# no working way to build a release. The two that were worth keeping have been WRITTEN (LICENSE,
+# ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md); the rest were folded into the Player Guide.
 $Docs = @(
-    @{ src = (Join-Path $Rel "LICENSE");                required = $true  },
-    @{ src = (Join-Path $Rel "EldenRing-Shattering.yaml"); required = $true  },
-    @{ src = (Join-Path $Rel "SETUP.md");                  required = $true  },
-    @{ src = (Join-Path $Rel "CHANGELOG.md");              required = $true  },
-    @{ src = (Join-Path $Rel "HOW-THE-SHATTERING-WORKS.md");    required = $true  },
-    @{ src = (Join-Path $Rel "CHECKS-AND-PROGRESSION.md");      required = $true  },
-    @{ src = (Join-Path $Rel "ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md"); required = $true  }
+    @{ src = (Join-Path $Rel  "LICENSE");                                  required = $true  },
+    @{ src = (Join-Path $Rel  "EldenRing.yaml");                           required = $true  },
+    @{ src = (Join-Path $Rel  "SETUP.md");                                 required = $true  },
+    @{ src = (Join-Path $Rel  "RELEASE-NOTES-v0.2.md");                    required = $true  },
+    @{ src = (Join-Path $Rel  "CHANGELOG.md");                             required = $true  },
+    @{ src = (Join-Path $Rel  "KNOWN-ISSUES.md");                          required = $true  },
+    @{ src = (Join-Path $Rel  "ATTRIBUTION.md");                           required = $true  },
+    @{ src = (Join-Path $Rel  "ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md"); required = $true  },
+    @{ src = (Join-Path $Repo "Elden-Ring-Archipelago-Player-Guide.md");   required = $true  }
 )
 foreach ($d in $Docs) {
     if (Test-Path $d.src) {
