@@ -1,0 +1,688 @@
+# DERIVED shop checks -- ShopLineupParam ground truth, no hand classification.
+# predicate: eventFlag_forStock > 0 AND sellQuantity >= 1 (flag flips ON PURCHASE).
+#   unlimited rows (qty -1) are EXCLUDED: their flag is a bell-bearing stock UNLOCK,
+#   not a purchase record -- watching it fires on hand-in, not on buying.
+# region: row ids are shopBlock*100+slot and a BLOCK IS ONE MERCHANT, so a row inherits
+#   its block's region. Empty region = unknown/ambiguous -> gen_data treats as DEFAULTED
+#   (hub-quarantined, may not carry progression).
+# names: FMG (WeaponName/ProtectorName/AccessoryName/GoodsName/GemName), incl. DLC.
+row_id	shop_block	equip_type	equip_id	item_name	stock_flag	sell_qty	region	region_source
+100000	1000	3	111	Festering Bloody Finger	100000	2	Limgrave (Church of Elleh)	block
+100002	1000	3	1760	Ruin Fragment	100020	5	Limgrave (Church of Elleh)	block
+100004	1000	0	30000000	Buckler	100040	1	Limgrave (Church of Elleh)	block
+100009	1000	3	150	Furlcalling Finger Remedy	100090	4	Limgrave (Church of Elleh)	block
+100010	1000	3	1190	Silver-Pickled Fowl Foot	100100	3	Limgrave (Church of Elleh)	row
+100011	1000	3	15430	Stormhawk Feather	100110	5	Limgrave (Church of Elleh)	row
+100012	1000	0	21000000	Caestus	100120	1	Limgrave (Church of Elleh)	row
+100013	1000	0	51000000	Great Arrow	100130	5	Limgrave (Church of Elleh)	block
+100014	1000	0	53000000	Ballista Bolt	100140	5	Limgrave (Church of Elleh)	block
+100015	1000	1	930200	Bandit Manchettes	100150	1	Limgrave (Church of Elleh)	row
+100016	1000	1	930300	Bandit Boots	100160	1	Limgrave (Church of Elleh)	row
+100017	1000	1	931100	Bandit Garb	100170	1	Limgrave (Church of Elleh)	row
+100018	1000	3	10140	Ancient Dragon Smithing Stone	100180	1	Limgrave (Church of Elleh)	row
+100025	1000	3	10030	Memory Stone	100250	1	Limgrave (Church of Elleh)	block
+100026	1000	3	8000	Stonesword Key	100260	1	Limgrave (Church of Elleh)	block
+100050	1000	3	4000	Glintstone Pebble	100500	1	Limgrave (Church of Elleh)	block
+100051	1000	3	4460	Scholar's Armament	100510	1	Limgrave (Church of Elleh)	row
+100052	1000	3	4470	Scholar's Shield	100520	1	Limgrave (Church of Elleh)	row
+100053	1000	3	4060	Crystal Barrage	100530	1	Limgrave (Church of Elleh)	row
+100054	1000	3	4070	Glintstone Arc	100540	1	Limgrave (Church of Elleh)	block
+100055	1000	3	4040	Glintstone Stars	100550	1	Limgrave (Church of Elleh)	block
+100056	1000	3	4030	Shard Spiral	100560	1	Limgrave (Church of Elleh)	row
+100057	1000	3	4020	Glintstone Cometshard	100570	1	Limgrave (Church of Elleh)	block
+100058	1000	3	4050	Star Shower	100580	1	Limgrave (Church of Elleh)	block
+100059	1000	3	4001	Great Glintstone Shard	100590	1	Limgrave (Church of Elleh)	block
+100060	1000	3	4010	Swift Glintstone Shard	100600	1	Limgrave (Church of Elleh)	block
+100061	1000	3	4300	Glintblade Phalanx	100610	1	Limgrave (Church of Elleh)	block
+100062	1000	3	4440	Carian Slicer	100620	1	Limgrave (Church of Elleh)	block
+100075	1000	4	10100	Ash of War: Impaling Thrust	100750	1	Limgrave (Church of Elleh)	row
+100076	1000	4	10300	Ash of War: Spinning Slash	100760	1	Limgrave (Church of Elleh)	row
+100077	1000	4	80000	Ash of War: Quickstep	100770	1	Limgrave (Church of Elleh)	row
+100078	1000	4	10600	Ash of War: Stamp (Upward Cut)	100780	1	Limgrave (Church of Elleh)	row
+100079	1000	4	50300	Ash of War: Kick	100790	1	Limgrave (Church of Elleh)	row
+100080	1000	4	65100	Ash of War: War Cry	100800	1	Limgrave (Church of Elleh)	row
+100081	1000	4	70000	Ash of War: Endure	100810	1	Limgrave (Church of Elleh)	row
+100082	1000	4	30200	Ash of War: Parry	100820	1	Limgrave (Church of Elleh)	row
+100083	1000	4	21000	Ash of War: Storm Blade	100830	1	Limgrave (Church of Elleh)	row
+100084	1000	4	20700	Ash of War: Eruption	100840	1	Limgrave (Church of Elleh)	row
+100085	1000	4	60200	Ash of War: Assassin's Gambit	100850	1	Limgrave (Church of Elleh)	row
+100086	1000	4	30900	Ash of War: No Skill	100860	1	Limgrave (Church of Elleh)	row
+100100	1001	3	2140	Margit's Shackle	110000	1	Roundtable Hold	row
+100101	1001	3	9360	Missionary's Cookbook [2]	67600	1	Roundtable Hold	row
+100102	1001	3	8000	Stonesword Key	110020	1	Roundtable Hold	block
+100103	1001	3	150	Furlcalling Finger Remedy	110030	3	Roundtable Hold	block
+100105	1001	3	1200	Gold-Pickled Fowl Foot	110050	3	Roundtable Hold	row
+100108	1001	0	1020000	Parrying Dagger	110080	1	Roundtable Hold	row
+100111	1001	2	6070	Sacrificial Twig	110110	1	Roundtable Hold	block
+100112	1001	3	111	Festering Bloody Finger	110120	5	Roundtable Hold	block
+100113	1001	3	2050	Grace Mimic	110130	15	Roundtable Hold	row
+100114	1001	3	1750	Fan Daggers	110140	20	Roundtable Hold	row
+100115	1001	0	51000000	Great Arrow	110150	10	Roundtable Hold	block
+100116	1001	0	53000000	Ballista Bolt	110160	5	Roundtable Hold	block
+100117	1001	3	111	Festering Bloody Finger	110170	5	Roundtable Hold	block
+100119	1001	0	5000000	Estoc	110190	1	Roundtable Hold	block
+100120	1001	0	51000000	Great Arrow	110200	10	Roundtable Hold	block
+100121	1001	0	53000000	Ballista Bolt	110210	5	Roundtable Hold	block
+100122	1001	0	31240000	Horse Crest Wooden Shield	110220	1	Roundtable Hold	row
+100126	1001	3	6750	Litany of Proper Death	110260	1	Roundtable Hold	row
+100127	1001	3	6770	Order's Blade	110270	1	Roundtable Hold	row
+100150	1001	3	8136	Rya's Necklace	400300	1	Roundtable Hold	block
+100175	1001	3	4610	Night Shard	110750	1	Roundtable Hold	row
+100176	1001	3	6500	Night Maiden's Mist	110760	1	Roundtable Hold	row
+100177	1001	3	4040	Glintstone Stars	110770	1	Roundtable Hold	block
+100185	1001	3	7200	Pest Threads	110850	1	Roundtable Hold	row
+100200	1002	4	12000	Ash of War: Spinning Weapon	120000	1	Liurnia of the Lakes (Ranni's Rise)	row
+100201	1002	4	20300	Ash of War: Glintstone Pebble	120010	1	Liurnia of the Lakes (Ranni's Rise)	row
+100202	1002	4	21900	Ash of War: Carian Greatsword	120020	1	Liurnia of the Lakes (Ranni's Rise)	row
+100227	1002	3	10162	Somber Smithing Stone [3]	120270	3	Liurnia of the Lakes (Ranni's Rise)	block
+100228	1002	3	10163	Somber Smithing Stone [4]	120280	3	Liurnia of the Lakes (Ranni's Rise)	block
+100229	1002	2	6020	Carian Filigreed Crest	120290	1	Liurnia of the Lakes (Ranni's Rise)	row
+100250	1002	3	4000	Glintstone Pebble	120500	1	Liurnia of the Lakes (Ranni's Rise)	block
+100251	1002	3	4070	Glintstone Arc	120510	1	Liurnia of the Lakes (Ranni's Rise)	block
+100252	1002	3	4140	Starlight	120520	1	Liurnia of the Lakes (Ranni's Rise)	row
+100275	1002	3	4301	Carian Phalanx	120750	1	Liurnia of the Lakes (Ranni's Rise)	block
+100276	1002	3	4400	Glintstone Icecrag	120760	1	Liurnia of the Lakes (Ranni's Rise)	row
+100277	1002	3	4420	Freezing Mist	120770	1	Liurnia of the Lakes (Ranni's Rise)	row
+100278	1002	3	4640	Carian Retaliation	120780	1	Liurnia of the Lakes (Ranni's Rise)	block
+100279	1002	3	4020	Glintstone Cometshard	120790	1	Liurnia of the Lakes (Ranni's Rise)	block
+100280	1002	3	4050	Star Shower	120800	1	Liurnia of the Lakes (Ranni's Rise)	block
+100281	1002	3	4001	Great Glintstone Shard	120810	1	Liurnia of the Lakes (Ranni's Rise)	block
+100282	1002	3	4010	Swift Glintstone Shard	120820	1	Liurnia of the Lakes (Ranni's Rise)	block
+100283	1002	3	4300	Glintblade Phalanx	120830	1	Liurnia of the Lakes (Ranni's Rise)	block
+100284	1002	3	4440	Carian Slicer	120840	1	Liurnia of the Lakes (Ranni's Rise)	block
+100300	1003	3	261000	Finger Maiden Therolina Puppet	130000	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100301	1003	3	262000	Dolores the Sleeping Arrow Puppet	130010	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100302	1003	3	263000	Jarwight Puppet	130020	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100310	1003	3	260000	Dung Eater Puppet	130100	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100325	1003	3	9347	Glintstone Craftsman's Cookbook [7]	67470	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100326	1003	3	9501	Ritual Pot	66450	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100329	1003	3	15040	Old Fang	130290	3	Liurnia of the Lakes (Seluvis's Rise)	block
+100330	1003	3	15120	Slumbering Egg	130300	2	Liurnia of the Lakes (Seluvis's Rise)	block
+100334	1003	4	30500	Ash of War: Carian Retaliation	130340	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100335	1003	3	2130	Celestial Dew	130350	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100336	1003	3	8185	Larval Tear	130360	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100337	1003	3	15050	Budding Horn	130370	2	Liurnia of the Lakes (Seluvis's Rise)	block
+100338	1003	0	14050000	Ripple Blade	130380	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100339	1003	0	31340000	Black Leather Shield	130390	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100340	1003	3	8225	Weathered Map	69900	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100350	1003	3	6400	Rejection	130500	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100351	1003	3	6420	Urgent Heal	130510	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100352	1003	3	6421	Heal	130520	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100353	1003	3	6440	Cure Poison	130530	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100354	1003	3	6450	Flame Fortification	130540	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100355	1003	3	6460	Magic Fortification	130550	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100356	1003	3	6000	Catch Flame	130560	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100357	1003	3	6010	Flame Sling	130570	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100358	1003	3	6422	Great Heal	130580	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100359	1003	3	6470	Lightning Fortification	130590	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100360	1003	3	6700	Discus of Light	130600	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100361	1003	3	6740	Immutable Shield	130610	1	Liurnia of the Lakes (Seluvis's Rise)	row
+100362	1003	3	6001	O, Flame!	130620	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100363	1003	3	6220	Surge, O Flame!	130630	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100364	1003	3	6100	Giantsflame Take Thee	130640	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100365	1003	3	6020	Flame, Fall Upon Them	130650	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100366	1003	3	6210	Black Flame	130660	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100367	1003	3	6250	Black Flame Blade	130670	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100368	1003	3	6423	Lord's Heal	130680	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100369	1003	3	6441	Lord's Aid	130690	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100370	1003	3	6510	Assassin's Approach	130700	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100371	1003	3	6530	Darkness	130710	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100372	1003	3	6710	Radagon's Rings of Light	130720	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100373	1003	3	6730	Law of Regression	130730	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100374	1003	3	6900	Lightning Spear	130740	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100375	1003	3	6930	Honed Bolt	130750	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100376	1003	3	6960	Electrify Armament	130760	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100377	1003	3	6940	Ancient Dragons' Lightning Spear	130770	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100378	1003	3	6910	Ancient Dragons' Lightning Strike	130780	1	Liurnia of the Lakes (Seluvis's Rise)	block
+100400	1004	3	4390	Magic Glintblade	140000	1	Limgrave (Waypoint Ruins)	row
+100401	1004	3	4430	Carian Greatsword	140010	1	Limgrave (Waypoint Ruins)	row
+100402	1004	3	4020	Glintstone Cometshard	140020	1	Limgrave (Waypoint Ruins)	block
+100403	1004	3	4050	Star Shower	140030	1	Limgrave (Waypoint Ruins)	block
+100404	1004	3	4001	Great Glintstone Shard	140040	1	Limgrave (Waypoint Ruins)	block
+100405	1004	3	4010	Swift Glintstone Shard	140050	1	Limgrave (Waypoint Ruins)	block
+100406	1004	3	4300	Glintblade Phalanx	140060	1	Limgrave (Waypoint Ruins)	block
+100407	1004	3	4440	Carian Slicer	140070	1	Limgrave (Waypoint Ruins)	block
+100425	1004	3	6430	Blessing's Boon	140250	1	Limgrave (Waypoint Ruins)	row
+100426	1004	3	6001	O, Flame!	140260	1	Limgrave (Waypoint Ruins)	block
+100428	1004	3	6220	Surge, O Flame!	140280	1	Limgrave (Waypoint Ruins)	block
+100429	1004	3	6100	Giantsflame Take Thee	140290	1	Limgrave (Waypoint Ruins)	block
+100430	1004	3	6020	Flame, Fall Upon Them	140300	1	Limgrave (Waypoint Ruins)	block
+100431	1004	3	6210	Black Flame	140310	1	Limgrave (Waypoint Ruins)	block
+100432	1004	3	6250	Black Flame Blade	140320	1	Limgrave (Waypoint Ruins)	block
+100433	1004	3	6423	Lord's Heal	140330	1	Limgrave (Waypoint Ruins)	block
+100434	1004	3	6441	Lord's Aid	140340	1	Limgrave (Waypoint Ruins)	block
+100435	1004	3	6510	Assassin's Approach	140350	1	Limgrave (Waypoint Ruins)	block
+100436	1004	3	6530	Darkness	140360	1	Limgrave (Waypoint Ruins)	block
+100437	1004	3	6710	Radagon's Rings of Light	140370	1	Limgrave (Waypoint Ruins)	block
+100438	1004	3	6730	Law of Regression	140380	1	Limgrave (Waypoint Ruins)	block
+100439	1004	3	6900	Lightning Spear	140390	1	Limgrave (Waypoint Ruins)	block
+100440	1004	3	6930	Honed Bolt	140400	1	Limgrave (Waypoint Ruins)	block
+100441	1004	3	6960	Electrify Armament	140410	1	Limgrave (Waypoint Ruins)	block
+100442	1004	3	6940	Ancient Dragons' Lightning Spear	140420	1	Limgrave (Waypoint Ruins)	block
+100443	1004	3	6910	Ancient Dragons' Lightning Strike	140430	1	Limgrave (Waypoint Ruins)	block
+100500	1005	3	8702	Note: Flask of Wondrous Physick	69620	1	Limgrave	block
+100501	1005	3	8500	Crafting Kit	60120	1	Limgrave	block
+100502	1005	3	9300	Nomadic Warrior's Cookbook [1]	67000	1	Limgrave	row
+100503	1005	3	9311	Nomadic Warrior's Cookbook [2]	67110	1	Limgrave	row
+100504	1005	3	9361	Missionary's Cookbook [1]	67610	1	Limgrave	row
+100505	1005	3	150	Furlcalling Finger Remedy	150050	5	Limgrave	block
+100506	1005	3	9500	Cracked Pot	66030	3	Limgrave	block
+100510	1005	0	24000000	Torch	150100	1	Limgrave	row
+100511	1005	0	31230000	Large Leather Shield	150110	1	Limgrave	row
+100513	1005	3	2040	Telescope	150130	1	Limgrave	row
+100514	1005	3	8712	Note: Waypoint Ruins	69720	1	Limgrave	row
+100515	1005	1	1100000	Chain Coif	150150	1	Limgrave	row
+100516	1005	1	1100100	Chain Armor	150160	1	Limgrave	row
+100517	1005	1	1100200	Gauntlets	150170	1	Limgrave	row
+100518	1005	1	1100300	Chain Leggings	150180	1	Limgrave	row
+100525	1005	3	9301	Nomadic Warrior's Cookbook [3]	67010	1	Limgrave	block
+100539	1005	3	8707	Note: Flame Chariots	69670	1	Limgrave	row
+100540	1005	3	9500	Cracked Pot	66060	1	Limgrave	block
+100541	1005	3	1100	Pickled Turtle Neck	150410	3	Limgrave	row
+100542	1005	0	2010000	Short Sword	150420	1	Limgrave	row
+100543	1005	0	18000000	Halberd	150430	1	Limgrave	row
+100546	1005	1	1401000	Bandit Mask	150460	1	Limgrave	row
+100547	1005	3	10100	Smithing Stone [1]	150470	3	Limgrave	block
+100550	1005	3	9383	Nomadic Warrior's Cookbook [5]	67830	1	Limgrave	row
+100551	1005	3	9328	Armorer's Cookbook [3]	67280	1	Limgrave	row
+100552	1005	3	15000	Sliver of Meat	150520	5	Limgrave	block
+100553	1005	3	15010	Beast Liver	150530	5	Limgrave	row
+100554	1005	3	15020	Lump of Flesh	150540	3	Limgrave	block
+100561	1005	3	111	Festering Bloody Finger	150610	5	Limgrave	block
+100562	1005	3	20651	Trina's Lily	150620	3	Limgrave	block
+100563	1005	0	14020000	Hand Axe	150630	1	Limgrave	block
+100564	1005	0	30090000	Riveted Wooden Shield	150640	1	Limgrave	row
+100565	1005	0	31100000	Blue-Gold Kite Shield	150650	1	Limgrave	row
+100566	1005	0	50040000	St. Trina's Arrow	150660	10	Limgrave	block
+100567	1005	3	10100	Smithing Stone [1]	150670	3	Limgrave	block
+100575	1005	3	9321	Armorer's Cookbook [2]	67210	1	Limgrave	row
+100576	1005	3	8703	Note: Stonedigger Trolls	69630	1	Limgrave	block
+100585	1005	3	8709	Note: Land Squirts	69690	1	Limgrave	row
+100586	1005	0	11010000	Club	150860	1	Limgrave	row
+100587	1005	0	2020000	Broadsword	150870	1	Limgrave	row
+100588	1005	0	30120000	Iron Roundshield	150880	1	Limgrave	row
+100589	1005	0	40000000	Shortbow	150890	1	Limgrave	row
+100592	1005	3	900	Neutralizing Boluses	150920	5	Limgrave	block
+100593	1005	3	910	Stanching Boluses	150930	3	Limgrave	block
+100594	1005	3	930	Stimulating Boluses	150940	2	Limgrave	block
+100595	1005	3	10100	Smithing Stone [1]	150950	3	Limgrave	block
+100600	1006	3	8000	Stonesword Key	160000	1	Weeping Peninsula	block
+100602	1006	0	30070000	Red Thorn Roundshield	160130	1	Weeping Peninsula	row
+100603	1006	0	31070000	Round Shield	160140	1	Weeping Peninsula	block
+100604	1006	2	1000	Crimson Amber Medallion	160160	1	Weeping Peninsula	block
+100605	1006	3	8708	Note: Demi-human Mobs	69680	1	Weeping Peninsula	row
+100606	1006	3	9500	Cracked Pot	66070	1	Weeping Peninsula	block
+100607	1006	0	3000000	Bastard Sword	160190	1	Weeping Peninsula	row
+100608	1006	0	43020000	Light Crossbow	160200	1	Weeping Peninsula	row
+100611	1006	0	51000000	Great Arrow	160230	8	Weeping Peninsula	block
+100612	1006	0	53000000	Ballista Bolt	160240	8	Weeping Peninsula	block
+100613	1006	1	40000	Iron Helmet	180500	1	Weeping Peninsula	row
+100614	1006	1	40100	Scale Armor	180510	1	Weeping Peninsula	row
+100615	1006	1	40200	Iron Gauntlets	180520	1	Weeping Peninsula	row
+100616	1006	1	40300	Leather Trousers	180530	1	Weeping Peninsula	row
+100617	1006	3	10100	Smithing Stone [1]	180540	3	Weeping Peninsula	block
+100618	1006	3	10101	Smithing Stone [2]	180550	1	Weeping Peninsula	block
+100625	1006	3	9322	Nomadic Warrior's Cookbook [11]	67220	1	Weeping Peninsula	block
+100626	1006	0	5000000	Estoc	160330	1	Weeping Peninsula	block
+100627	1006	0	31000000	Kite Shield	160340	1	Weeping Peninsula	row
+100628	1006	1	630000	Astrologer Hood	160410	1	Weeping Peninsula	row
+100629	1006	1	630100	Astrologer Robe	160420	1	Weeping Peninsula	row
+100630	1006	1	630200	Astrologer Gloves	160430	1	Weeping Peninsula	row
+100631	1006	1	630300	Astrologer Trousers	160440	1	Weeping Peninsula	row
+100632	1006	3	2070	Lantern	160450	1	Weeping Peninsula	row
+100633	1006	0	33130000	Astrologer's Staff	160460	1	Weeping Peninsula	row
+100636	1006	3	10100	Smithing Stone [1]	160490	5	Weeping Peninsula	block
+100637	1006	3	10101	Smithing Stone [2]	200250	3	Weeping Peninsula	block
+100650	1006	3	8704	Note: Wandering Mausoleum	69640	1	Weeping Peninsula	row
+100652	1006	3	8000	Stonesword Key	160520	3	Weeping Peninsula	block
+100654	1006	3	20691	Arteria Leaf	160540	5	Weeping Peninsula	row
+100656	1006	0	53000000	Ballista Bolt	160560	15	Weeping Peninsula	block
+100657	1006	2	6070	Sacrificial Twig	160570	3	Weeping Peninsula	block
+100658	1006	3	2070	Lantern	160580	1	Weeping Peninsula	row
+100659	1006	3	10070	Lost Ashes of War	160590	1	Weeping Peninsula	block
+100660	1006	0	4040000	Zweihander	160600	1	Weeping Peninsula	row
+100663	1006	0	51000000	Great Arrow	160630	15	Weeping Peninsula	block
+100664	1006	3	111	Festering Bloody Finger	160640	5	Weeping Peninsula	block
+100665	1006	3	10101	Smithing Stone [2]	160650	3	Weeping Peninsula	block
+100675	1006	3	9422	Fevor's Cookbook [2]	68220	1	Weeping Peninsula	row
+100676	1006	3	20651	Trina's Lily	160760	3	Weeping Peninsula	block
+100678	1006	3	20740	Eye of Yelough	160780	1	Weeping Peninsula	row
+100680	1006	3	8000	Stonesword Key	160800	3	Weeping Peninsula	block
+100681	1006	3	10070	Lost Ashes of War	160810	1	Weeping Peninsula	block
+100682	1006	2	6070	Sacrificial Twig	160820	3	Weeping Peninsula	block
+100686	1006	3	8711	Note: Revenants	69710	1	Weeping Peninsula	row
+100687	1006	3	8715	Note: Frenzied Flame Village	69750	1	Weeping Peninsula	row
+100688	1006	3	203000	Fanged Imp Ashes	160880	1	Weeping Peninsula	row
+100689	1006	0	50040000	St. Trina's Arrow	160890	20	Weeping Peninsula	block
+100691	1006	1	670000	Blue Cloth Cowl	160910	1	Weeping Peninsula	block
+100692	1006	1	670100	Blue Cloth Vest	160920	1	Weeping Peninsula	block
+100693	1006	1	670200	Warrior Gauntlets	160930	1	Weeping Peninsula	block
+100694	1006	1	670300	Warrior Greaves	160940	1	Weeping Peninsula	block
+100695	1006	3	111	Festering Bloody Finger	160950	8	Weeping Peninsula	block
+100696	1006	3	8224	Note: The Preceptor's Secret	69910	1	Weeping Peninsula	row
+100700	1007	3	9308	Nomadic Warrior's Cookbook [13]	67080	1	Liurnia of the Lakes	block
+100704	1007	0	40050000	Composite Bow	170040	1	Liurnia of the Lakes	row
+100705	1007	0	30110000	Rift Shield	170050	1	Liurnia of the Lakes	row
+100706	1007	0	31300000	Blue Crest Heater Shield	170060	1	Liurnia of the Lakes	row
+100714	1007	3	190	Rune Arc	170140	3	Liurnia of the Lakes	block
+100715	1007	3	3350	Bewitching Branch	170150	5	Liurnia of the Lakes	row
+100718	1007	3	1310	Immunizing White Cured Meat	170180	3	Liurnia of the Lakes	row
+100719	1007	3	1320	Invigorating White Cured Meat	170190	3	Liurnia of the Lakes	row
+100720	1007	3	1330	Clarifying White Cured Meat	170200	3	Liurnia of the Lakes	row
+100725	1007	3	9510	Perfume Bottle	66750	1	Liurnia of the Lakes	row
+100727	1007	0	24070000	Sentry's Torch	170350	1	Liurnia of the Lakes	row
+100728	1007	3	190	Rune Arc	170360	3	Liurnia of the Lakes	block
+100729	1007	3	20683	Golden Sunflower	170370	10	Liurnia of the Lakes	row
+100730	1007	0	32020000	Distinguished Greatshield	170380	1	Liurnia of the Lakes	row
+100737	1007	1	962100	Upper-Class Robe	170450	1	Liurnia of the Lakes	row
+100738	1007	1	960300	Consort's Trousers	170460	1	Liurnia of the Lakes	row
+100739	1007	1	620000	Prophet Blindfold	170470	1	Liurnia of the Lakes	row
+100740	1007	1	620300	Prophet Trousers	170480	1	Liurnia of the Lakes	row
+100741	1007	1	622100	Prophet Robe	170490	1	Liurnia of the Lakes	row
+100743	1007	3	8717	Note: Below the Capital	69770	1	Liurnia of the Lakes	row
+100750	1007	3	9401	Ancient Dragon Apostle's Cookbook [2]	68010	1	Liurnia of the Lakes	row
+100751	1007	3	8701	Note: Imp Shades	69610	1	Liurnia of the Lakes	block
+100752	1007	3	8705	Note: Unseen Assassins	69650	1	Liurnia of the Lakes	row
+100753	1007	3	8000	Stonesword Key	170530	3	Liurnia of the Lakes	block
+100764	1007	0	31080000	Scorpion Kite Shield	170640	1	Liurnia of the Lakes	row
+100765	1007	3	20855	Gravel Stone	170650	8	Liurnia of the Lakes	block
+100766	1007	0	31290000	Red Crest Heater Shield	170660	1	Liurnia of the Lakes	row
+100767	1007	0	32200000	Crossed-Tree Towershield	170670	1	Liurnia of the Lakes	row
+100770	1007	1	1102100	Tree Surcoat	170700	1	Liurnia of the Lakes	row
+100771	1007	3	111	Festering Bloody Finger	170710	3	Liurnia of the Lakes	block
+100775	1007	3	9323	Nomadic Warrior's Cookbook [20]	67230	1	Liurnia of the Lakes	row
+100777	1007	3	8000	Stonesword Key	170770	1	Liurnia of the Lakes	block
+100794	1007	1	880000	Confessor Hood	170940	1	Liurnia of the Lakes	row
+100795	1007	1	880100	Confessor Armor	170950	1	Liurnia of the Lakes	row
+100796	1007	1	880200	Confessor Gloves	170960	1	Liurnia of the Lakes	row
+100797	1007	1	880300	Confessor Boots	170970	1	Liurnia of the Lakes	row
+100798	1007	1	160000	Guilty Hood	170980	1	Liurnia of the Lakes	row
+100813	1008	3	940	Preserving Boluses	180130	3	Caelid	row
+100814	1008	3	20801	Aeonian Butterfly	180140	5	Caelid	row
+100825	1008	3	9390	Nomadic Warrior's Cookbook [15]	67900	1	Caelid	row
+100826	1008	3	8000	Stonesword Key	180260	1	Caelid	block
+100827	1008	3	9500	Cracked Pot	66180	1	Caelid	block
+100837	1008	3	8710	Note: Gravity's Advantage	69700	1	Caelid	row
+100841	1008	1	730000	Champion Headband	180410	1	Caelid	block
+100842	1008	1	730100	Champion Pauldron	180420	1	Caelid	block
+100843	1008	1	730200	Champion Bracers	180430	1	Caelid	block
+100844	1008	1	730300	Champion Gaiters	180440	1	Caelid	block
+100845	1008	1	1101000	Greathelm	180450	1	Caelid	row
+100875	1008	3	8700	Note: Hidden Cave	69600	1	Caelid	row
+100876	1008	3	9501	Ritual Pot	66460	1	Caelid	block
+100877	1008	3	10070	Lost Ashes of War	180770	2	Caelid	block
+100878	1008	3	20855	Gravel Stone	180780	10	Caelid	block
+100880	1008	2	6070	Sacrificial Twig	180800	3	Caelid	block
+100882	1008	1	870000	Land of Reeds Helm	180820	1	Caelid	row
+100883	1008	1	870100	Land of Reeds Armor	180830	1	Caelid	row
+100884	1008	1	870200	Land of Reeds Gauntlets	180840	1	Caelid	row
+100885	1008	1	870300	Land of Reeds Greaves	180850	1	Caelid	row
+100886	1008	3	8713	Note: Gateway	69730	1	Caelid	row
+100887	1008	3	1480	Dragonwound Grease	180870	2	Caelid	row
+100888	1008	0	21010000	Spiked Caestus	180880	1	Caelid	row
+100889	1008	0	24060000	Beast-Repellent Torch	180890	1	Caelid	row
+100893	1008	3	111	Festering Bloody Finger	180930	8	Caelid	block
+100900	1009	3	9423	Missionary's Cookbook [7]	68230	1	Siofra River / Nokron	row
+100901	1009	3	8000	Stonesword Key	190010	3	Siofra River / Nokron	block
+100903	1009	3	920	Thawfrost Boluses	190030	10	Siofra River / Nokron	block
+100909	1009	3	190	Rune Arc	190090	3	Siofra River / Nokron	block
+100915	1009	1	660000	Vagabond Knight Helm	190150	1	Siofra River / Nokron	row
+100916	1009	1	660100	Vagabond Knight Armor	190160	1	Siofra River / Nokron	row
+100917	1009	1	660200	Vagabond Knight Gauntlets	190170	1	Siofra River / Nokron	row
+100918	1009	1	660300	Vagabond Knight Greaves	190180	1	Siofra River / Nokron	row
+100925	1009	3	9310	Nomadic Warrior's Cookbook [17]	67100	1	Siofra River / Nokron	block
+100926	1009	3	9327	Nomadic Warrior's Cookbook [18]	67270	1	Siofra River / Nokron	row
+100928	1009	3	8000	Stonesword Key	190280	3	Siofra River / Nokron	block
+100935	1009	0	50100000	Dwelling Arrow	190350	30	Siofra River / Nokron	row
+100936	1009	3	8185	Larval Tear	190360	1	Siofra River / Nokron	block
+100937	1009	0	7020000	Shotel	190370	1	Siofra River / Nokron	row
+100940	1009	3	2120	Soap	190400	3	Siofra River / Nokron	row
+100941	1009	3	20800	Nascent Butterfly	190410	5	Siofra River / Nokron	row
+100950	1009	3	9329	Nomadic Warrior's Cookbook [16]	67290	1	Siofra River / Nokron	row
+100951	1009	3	9392	Perfumer's Cookbook [4]	67920	1	Siofra River / Nokron	row
+100953	1009	3	10070	Lost Ashes of War	190530	1	Siofra River / Nokron	block
+100962	1009	3	2130	Celestial Dew	190620	1	Siofra River / Nokron	block
+100963	1009	3	3060	Gravity Stone Fan	190630	20	Siofra River / Nokron	block
+100964	1009	3	3070	Gravity Stone Chunk	190640	10	Siofra River / Nokron	block
+100965	1009	1	890000	Prisoner Iron Mask	190650	1	Siofra River / Nokron	row
+100966	1009	1	890100	Prisoner Clothing	190660	1	Siofra River / Nokron	row
+100967	1009	1	890300	Prisoner Trousers	190670	1	Siofra River / Nokron	row
+100976	1009	3	8000	Stonesword Key	190760	5	Siofra River / Nokron	block
+100977	1009	3	10070	Lost Ashes of War	190770	1	Siofra River / Nokron	block
+100981	1009	3	190	Rune Arc	190810	3	Siofra River / Nokron	block
+100982	1009	3	111	Festering Bloody Finger	190820	10	Siofra River / Nokron	block
+100983	1009	3	910	Stanching Boluses	190830	3	Siofra River / Nokron	block
+101503	1015	1	460000	Elden Lord Crown	250030	1	Roundtable Hold	row
+101504	1015	1	460100	Elden Lord Armor	250040	1	Roundtable Hold	row
+101505	1015	1	460200	Elden Lord Bracers	250050	1	Roundtable Hold	row
+101506	1015	1	460300	Elden Lord Greaves	250060	1	Roundtable Hold	row
+101507	1015	1	470000	Radahn's Redmane Helm	250070	1	Roundtable Hold	row
+101508	1015	1	470100	Radahn's Lion Armor	250080	1	Roundtable Hold	row
+101509	1015	1	470200	Radahn's Gauntlets	250090	1	Roundtable Hold	row
+101510	1015	1	470300	Radahn's Greaves	250100	1	Roundtable Hold	row
+101511	1015	1	480100	Lord of Blood's Robe	250110	1	Roundtable Hold	row
+101512	1015	1	510000	Queen's Crescent Crown	250120	1	Roundtable Hold	row
+101513	1015	1	510100	Queen's Robe	250130	1	Roundtable Hold	row
+101514	1015	1	510200	Queen's Bracelets	250140	1	Roundtable Hold	row
+101515	1015	1	510300	Queen's Leggings	250150	1	Roundtable Hold	row
+101516	1015	1	760000	Maliketh's Helm	250160	1	Roundtable Hold	row
+101517	1015	1	760100	Maliketh's Armor	250170	1	Roundtable Hold	row
+101518	1015	1	760200	Maliketh's Gauntlets	250180	1	Roundtable Hold	row
+101519	1015	1	760300	Maliketh's Greaves	250190	1	Roundtable Hold	row
+101520	1015	1	770000	Malenia's Winged Helm	250200	1	Roundtable Hold	row
+101521	1015	1	770100	Malenia's Armor	250210	1	Roundtable Hold	row
+101522	1015	1	770200	Malenia's Gauntlet	250220	1	Roundtable Hold	row
+101523	1015	1	770300	Malenia's Greaves	250230	1	Roundtable Hold	row
+101524	1015	1	1050100	Fell Omen Cloak	250240	1	Roundtable Hold	row
+101525	1015	1	280000	Royal Knight Helm	250250	1	Roundtable Hold	row
+101526	1015	1	280100	Royal Knight Armor	250260	1	Roundtable Hold	row
+101527	1015	1	280200	Royal Knight Gauntlets	250270	1	Roundtable Hold	row
+101528	1015	1	280300	Royal Knight Greaves	250280	1	Roundtable Hold	row
+101529	1015	1	780000	Veteran's Helm	250290	1	Roundtable Hold	row
+101530	1015	1	780100	Veteran's Armor	250300	1	Roundtable Hold	row
+101531	1015	1	780200	Veteran's Gauntlets	250310	1	Roundtable Hold	row
+101532	1015	1	780300	Veteran's Greaves	250320	1	Roundtable Hold	row
+101550	1015	1	210000	Briar Helm	250500	1	Roundtable Hold	row
+101551	1015	1	210100	Briar Armor	250510	1	Roundtable Hold	row
+101552	1015	1	210200	Briar Gauntlets	250520	1	Roundtable Hold	row
+101553	1015	1	210300	Briar Greaves	250530	1	Roundtable Hold	row
+101555	1015	1	3010000	Gaius's Helm	250550	1	Roundtable Hold	row
+101556	1015	1	3010100	Gaius's Armor	250560	1	Roundtable Hold	row
+101557	1015	1	3010200	Gaius's Gauntlets	250570	1	Roundtable Hold	row
+101558	1015	1	5220000	Messmer's Helm	250580	1	Roundtable Hold	row
+101559	1015	1	5220100	Messmer's Armor	250590	1	Roundtable Hold	row
+101560	1015	1	5220200	Messmer's Gauntlets	250600	1	Roundtable Hold	row
+101561	1015	1	5220300	Messmer's Greaves	250610	1	Roundtable Hold	row
+101562	1015	1	5260000	Rellana's Helm	250620	1	Roundtable Hold	row
+101563	1015	1	5260100	Rellana's Armor	250630	1	Roundtable Hold	row
+101564	1015	1	5260200	Rellana's Gloves	250640	1	Roundtable Hold	row
+101565	1015	1	5260300	Rellana's Greaves	250650	1	Roundtable Hold	row
+101566	1015	1	5270000	Young Lion's Helm	250660	1	Roundtable Hold	row
+101567	1015	1	5270100	Young Lion's Armor	250670	1	Roundtable Hold	row
+101568	1015	1	5270200	Young Lion's Gauntlets	250680	1	Roundtable Hold	row
+101569	1015	1	5270300	Young Lion's Greaves	250690	1	Roundtable Hold	row
+101775	1017	3	2950	Remembrance of the Grafted	270750	1		block_unknown
+101776	1017	3	2951	Remembrance of the Starscourge	270760	1		block_unknown
+101777	1017	3	2952	Remembrance of the Omen King	270770	1		block_unknown
+101778	1017	3	2953	Remembrance of the Blasphemous	270780	1		block_unknown
+101779	1017	3	2954	Remembrance of the Rot Goddess	270790	1		block_unknown
+101780	1017	3	2959	Remembrance of the Full Moon Queen	270800	1		block_unknown
+101781	1017	3	2955	Remembrance of the Blood Lord	270810	1		block_unknown
+101785	1017	3	2956	Remembrance of the Black Blade	270850	1		block_unknown
+101786	1017	3	2957	Remembrance of Hoarah Loux	270860	1		block_unknown
+101787	1017	3	2958	Remembrance of the Dragonlord	270870	1		block_unknown
+101788	1017	3	2960	Remembrance of the Lichdragon	270880	1		block_unknown
+101789	1017	3	2961	Remembrance of the Fire Giant	270890	1		block_unknown
+101790	1017	3	2962	Remembrance of the Regal Ancestor	270900	1		block_unknown
+101791	1017	3	2963	Elden Remembrance	270910	1		block_unknown
+101792	1017	3	2964	Remembrance of the Naturalborn	270920	1		block_unknown
+101800	1018	3	104	White Cipher Ring	60280	1	Roundtable Hold	block
+101801	1018	3	105	Blue Cipher Ring	60290	1	Roundtable Hold	row
+101802	1018	3	8158	Spirit Calling Bell	60110	1	Roundtable Hold	block
+101803	1018	3	232000	Lone Wolf Ashes	280030	1	Roundtable Hold	block
+101804	1018	3	6260	Black Flame's Protection	280040	1	Roundtable Hold	row
+101805	1018	3	6490	Lord's Divine Fortification	280050	1	Roundtable Hold	row
+101806	1018	3	9421	Fevor's Cookbook [3]	68210	1	Roundtable Hold	block
+101807	1018	3	6760	Law of Causality	280070	1	Roundtable Hold	row
+101859	1018	3	10030	Memory Stone	60470	1	Roundtable Hold	block
+101860	1018	3	8000	Stonesword Key	250010	3	Roundtable Hold	block
+101861	1018	3	190	Rune Arc	250020	5	Roundtable Hold	block
+101862	1018	2	6080	Furled Finger's Trick-Mirror	250330	1	Roundtable Hold	row
+101863	1018	2	6090	Host's Trick-Mirror	250340	1	Roundtable Hold	row
+101864	1018	0	1000000	Dagger	250350	1	Roundtable Hold	block
+101865	1018	0	2000000	Longsword	250360	1	Roundtable Hold	block
+101866	1018	0	7140000	Scimitar	250370	1	Roundtable Hold	row
+101867	1018	0	14000000	Battle Axe	250380	1	Roundtable Hold	row
+101868	1018	0	11000000	Mace	250390	1	Roundtable Hold	block
+101869	1018	0	16000000	Short Spear	250400	1	Roundtable Hold	block
+101870	1018	0	5020000	Rapier	250410	1	Roundtable Hold	row
+101871	1018	0	34000000	Finger Seal	250420	1	Roundtable Hold	block
+101872	1018	0	41000000	Longbow	250430	1	Roundtable Hold	block
+101873	1018	0	31330000	Heater Shield	250440	1	Roundtable Hold	row
+101874	1018	1	1500000	Knight Helm	250450	1	Roundtable Hold	row
+101875	1018	1	1500100	Knight Armor	250460	1	Roundtable Hold	row
+101876	1018	1	1500200	Knight Gauntlets	250470	1	Roundtable Hold	row
+101877	1018	1	1500300	Knight Greaves	250480	1	Roundtable Hold	row
+101878	1018	3	250	Flask of Wondrous Physick	60020	1	Roundtable Hold	block
+101879	1018	3	8500	Crafting Kit	60120	1	Roundtable Hold	block
+101880	1018	3	8590	Whetstone Knife	60130	1	Roundtable Hold	block
+101881	1018	3	10040	Talisman Pouch	60500	1	Roundtable Hold	block
+101898	1018	2	8180	Enraged Divine Beast	280980	1	Roundtable Hold	row
+101899	1018	4	416000	Ash of War: Divine Beast Frost Stomp	280990	1	Roundtable Hold	row
+101900	1019	0	15040000	Axe of Godrick	290000	1	Roundtable Hold	row
+101901	1019	0	21060000	Grafted Dragon	290010	1	Roundtable Hold	row
+101902	1019	0	4050000	Starscourge Greatsword	290020	1	Roundtable Hold	row
+101903	1019	0	42000000	Lion Greatbow	290030	1	Roundtable Hold	row
+101904	1019	0	8100000	Morgott's Cursed Sword	290040	1	Roundtable Hold	row
+101905	1019	3	3011	Regal Omen Bairn	290050	1	Roundtable Hold	row
+101906	1019	0	3140000	Blasphemous Blade	290060	1	Roundtable Hold	row
+101907	1019	3	4830	Rykard's Rancor	290070	1	Roundtable Hold	row
+101908	1019	0	9020000	Hand of Malenia	290080	1	Roundtable Hold	row
+101909	1019	3	7240	Scarlet Aeonia	290090	1	Roundtable Hold	row
+101910	1019	0	17010000	Mohgwyn's Sacred Spear	290100	1	Roundtable Hold	block
+101911	1019	3	6310	Bloodboon	290110	1	Roundtable Hold	row
+101912	1019	0	4020000	Maliketh's Black Blade	290120	1	Roundtable Hold	row
+101913	1019	3	7530	Black Blade	290130	1	Roundtable Hold	row
+101914	1019	0	23050000	Axe of Godfrey	290140	1	Roundtable Hold	row
+101915	1019	4	50900	Ash of War: Hoarah Loux's Earthshaker	290150	1	Roundtable Hold	row
+101916	1019	0	6040000	Dragon King's Cragblade	290160	1	Roundtable Hold	row
+101917	1019	3	7050	Placidusax's Ruin	290170	1	Roundtable Hold	row
+101918	1019	0	33090000	Carian Regal Scepter	290180	1	Roundtable Hold	row
+101919	1019	3	4360	Rennala's Full Moon	290190	1	Roundtable Hold	row
+101920	1019	3	6941	Fortissax's Lightning Spear	290200	1	Roundtable Hold	row
+101921	1019	3	5040	Death Lightning	290210	1	Roundtable Hold	row
+101922	1019	0	20060000	Giant's Red Braid	290220	1	Roundtable Hold	row
+101923	1019	3	6120	Burn, O Flame!	290230	1	Roundtable Hold	row
+101924	1019	0	15110000	Winged Greathorn	290240	1	Roundtable Hold	row
+101925	1019	2	6110	Ancestral Spirit's Horn	290250	1	Roundtable Hold	row
+101926	1019	0	11150000	Marika's Hammer	290260	1	Roundtable Hold	row
+101927	1019	0	3100000	Sacred Relic Sword	290270	1	Roundtable Hold	row
+101928	1019	0	13030000	Bastard's Stars	290280	1	Roundtable Hold	row
+101929	1019	4	50800	Ash of War: Waves of Darkness	290290	1	Roundtable Hold	row
+101930	1019	0	67520000	Rellana's Twin Blades	290300	1	Roundtable Hold	row
+101931	1019	3	2004320	Rellana's Twin Moons	290310	1	Roundtable Hold	row
+101932	1019	5	4400039		290320	1	Roundtable Hold	row
+101933	1019	3	2004700	Blades of Stone	290330	1	Roundtable Hold	row
+101934	1019	0	8500000	Putrescence Cleaver	290340	1	Roundtable Hold	row
+101935	1019	3	2006200	Vortex of Putrescence	290350	1	Roundtable Hold	row
+101936	1019	0	18510000	Poleblade of the Bud	290360	1	Roundtable Hold	row
+101937	1019	3	2007200	Rotten Butterflies	290370	1	Roundtable Hold	row
+101938	1019	0	3510000	Greatsword of Damnation	290380	1	Roundtable Hold	row
+101939	1019	3	2007300	Midra's Flame of Frenzy	290390	1	Roundtable Hold	row
+101940	1019	0	23510000	Shadow Sunflower Blossom	290400	1	Roundtable Hold	row
+101941	1019	3	2006680	Land of Shadow	290410	1	Roundtable Hold	row
+101942	1019	0	17500000	Spear of the Impaler	290420	1	Roundtable Hold	row
+101943	1019	3	2007820	Messmer's Orb	290430	1	Roundtable Hold	row
+101944	1019	0	33510000	Staff of the Great Beyond	290440	1	Roundtable Hold	row
+101945	1019	0	23520000	Gazing Finger	290450	1	Roundtable Hold	row
+101946	1019	0	4530000	Greatsword of Radahn (Lord)	290460	1	Roundtable Hold	row
+101947	1019	0	4550000	Greatsword of Radahn (Light)	290470	1	Roundtable Hold	row
+101948	1019	3	2006700	Light of Miquella	290480	1	Roundtable Hold	row
+101950	1019	3	7000	Dragonfire	290500	1	Roundtable Hold	block
+101951	1019	3	7020	Dragonice	290510	1	Roundtable Hold	block
+101952	1019	3	7040	Glintstone Breath	290520	1	Roundtable Hold	row
+101953	1019	3	7030	Rotten Breath	290530	1	Roundtable Hold	block
+101954	1019	3	7001	Agheel's Flame	290540	1	Roundtable Hold	block
+101955	1019	3	7021	Borealis's Mist	290550	1	Roundtable Hold	row
+101956	1019	3	7041	Smarag's Glintstone Breath	290560	1	Roundtable Hold	row
+101957	1019	3	7031	Ekzykes's Decay	290570	1	Roundtable Hold	row
+101958	1019	3	7060	Dragonclaw	290750	1	Roundtable Hold	row
+101959	1019	3	7080	Dragonmaw	290760	1	Roundtable Hold	row
+101960	1019	3	7010	Magma Breath	290770	1	Roundtable Hold	block
+101961	1019	3	7011	Theodorix's Magma	290780	1	Roundtable Hold	row
+101962	1019	3	7090	Greyoll's Roar	290790	1	Roundtable Hold	row
+101975	1019	3	7060	Dragonclaw	290750	1	Roundtable Hold	row
+101976	1019	3	7080	Dragonmaw	290760	1	Roundtable Hold	row
+101980	1019	3	7000	Dragonfire	290500	1	Roundtable Hold	block
+102250	1022	3	190	Rune Arc	320500	3	Gravesite Plain (DLC)	block
+102255	1022	3	2008031	Note: Sealed Spiritsprings	320550	1	Gravesite Plain (DLC)	row
+102256	1022	3	2020001	Rada Fruit	320560	10	Gravesite Plain (DLC)	block
+102257	1022	3	2020002	Redflesh Mushroom	320570	8	Gravesite Plain (DLC)	block
+102258	1022	3	2020003	Whiteflesh Mushroom	320580	6	Gravesite Plain (DLC)	block
+102259	1022	3	2020004	Knot Resin	320590	5	Gravesite Plain (DLC)	block
+102260	1022	3	2001120	Spellproof Pickled Liver	320600	2	Gravesite Plain (DLC)	row
+102261	1022	3	2001130	Fireproof Pickled Liver	320610	2	Gravesite Plain (DLC)	row
+102262	1022	3	2001140	Lightningproof Pickled Liver	320620	2	Gravesite Plain (DLC)	row
+102263	1022	3	2001150	Holyproof Pickled Liver	320630	2	Gravesite Plain (DLC)	row
+102264	1022	3	2001170	Well-Pickled Turtle Neck	320640	1	Gravesite Plain (DLC)	row
+102265	1022	3	2020006	Black Pyrefly	320650	8	Gravesite Plain (DLC)	row
+102266	1022	3	2020012	Sanguine Amaryllis	320660	4	Gravesite Plain (DLC)	row
+102270	1022	0	61540000	Deadly Poison Perfume Bottle	320700	1	Gravesite Plain (DLC)	row
+102271	1022	3	1460	Poison Grease	320710	5	Gravesite Plain (DLC)	row
+102272	1022	3	1560	Drawstring Poison Grease	320720	5	Gravesite Plain (DLC)	row
+102273	1022	3	1720	Poisonbone Dart	320730	20	Gravesite Plain (DLC)	block
+102274	1022	3	1840	Poisoned Stone	320740	10	Gravesite Plain (DLC)	block
+102275	1022	3	1841	Poisoned Stone Clump	320750	5	Gravesite Plain (DLC)	block
+102276	1022	3	20681	Altus Bloom	320760	20	Gravesite Plain (DLC)	row
+102277	1022	3	15150	Miranda Powder	320770	10	Gravesite Plain (DLC)	block
+102278	1022	3	20650	Poisonbloom	320780	10	Gravesite Plain (DLC)	row
+102279	1022	3	20770	Toxic Mushroom	320790	10	Gravesite Plain (DLC)	block
+102280	1022	3	2020010	Toxic Mossling	320800	5	Gravesite Plain (DLC)	row
+102281	1022	3	20651	Trina's Lily	320810	3	Gravesite Plain (DLC)	block
+102300	1023	3	2004300	Miriam's Vanishing	330000	1	Cathedral of Manus Metyr (DLC)	row
+102301	1023	3	2004500	Glintstone Nail	330010	1	Cathedral of Manus Metyr (DLC)	row
+102302	1023	3	2004510	Glintstone Nails	330020	1	Cathedral of Manus Metyr (DLC)	row
+102303	1023	3	2007410	Fleeting Microcosm	330030	1	Cathedral of Manus Metyr (DLC)	row
+102304	1023	3	4000	Glintstone Pebble	330040	1	Cathedral of Manus Metyr (DLC)	row
+102305	1023	3	4001	Great Glintstone Shard	330050	1	Cathedral of Manus Metyr (DLC)	row
+102306	1023	3	4300	Glintblade Phalanx	330060	1	Cathedral of Manus Metyr (DLC)	row
+102307	1023	3	4301	Carian Phalanx	330070	1	Cathedral of Manus Metyr (DLC)	row
+102308	1023	3	4640	Carian Retaliation	330080	1	Cathedral of Manus Metyr (DLC)	row
+102350	1023	3	2007000	Bayle's Tyranny	290650	1	Grand Altar of Dragon Communion (Jagged Peak, DLC)	row
+102351	1023	3	2007010	Bayle's Flame Lightning	290660	1	Grand Altar of Dragon Communion (Jagged Peak, DLC)	row
+102355	1023	3	2007020	Ghostflame Breath	290670	1	Grand Altar of Dragon Communion (Jagged Peak, DLC)	row
+102700	1027	3	2950	Remembrance of the Grafted	370000	1		block_unknown
+102701	1027	3	2951	Remembrance of the Starscourge	370010	1		block_unknown
+102702	1027	3	2952	Remembrance of the Omen King	370020	1		block_unknown
+102703	1027	3	2953	Remembrance of the Blasphemous	370030	1		block_unknown
+102704	1027	3	2954	Remembrance of the Rot Goddess	370040	1		block_unknown
+102705	1027	3	2959	Remembrance of the Full Moon Queen	370050	1		block_unknown
+102706	1027	3	2955	Remembrance of the Blood Lord	370060	1		block_unknown
+102707	1027	3	2002907	Remembrance of a God and a Lord	370070	1		block_unknown
+102708	1027	3	2002901	Remembrance of the Impaler	370080	1		block_unknown
+102710	1027	3	2956	Remembrance of the Black Blade	370100	1		block_unknown
+102711	1027	3	2957	Remembrance of Hoarah Loux	370110	1		block_unknown
+102712	1027	3	2958	Remembrance of the Dragonlord	370120	1		block_unknown
+102713	1027	3	2960	Remembrance of the Lichdragon	370130	1		block_unknown
+102714	1027	3	2961	Remembrance of the Fire Giant	370140	1		block_unknown
+102715	1027	3	2962	Remembrance of the Regal Ancestor	370150	1		block_unknown
+102716	1027	3	2963	Elden Remembrance	370160	1		block_unknown
+102717	1027	3	2964	Remembrance of the Naturalborn	370170	1		block_unknown
+102718	1027	3	2002900	Remembrance of the Wild Boar Rider	370180	1		block_unknown
+102720	1027	3	2002902	Remembrance of the Shadow Sunflower	370200	1		block_unknown
+102721	1027	3	2002903	Remembrance of the Twin Moon Knight	370210	1		block_unknown
+102722	1027	3	2002904	Remembrance of the Saint of the Bud	370220	1		block_unknown
+102723	1027	3	2002905	Remembrance of the Dancing Lion	370230	1		block_unknown
+102724	1027	3	2002908	Remembrance of the Lord of Frenzied Flame	370240	1		block_unknown
+102725	1027	3	2002909	Remembrance of the Mother of Fingers	370250	1		block_unknown
+102726	1027	3	2002910	Remembrance of Putrescence	370260	1		block_unknown
+102800	1028	3	2950	Remembrance of the Grafted	380000	1		block_unknown
+102801	1028	3	2951	Remembrance of the Starscourge	380010	1		block_unknown
+102802	1028	3	2952	Remembrance of the Omen King	380020	1		block_unknown
+102803	1028	3	2953	Remembrance of the Blasphemous	380030	1		block_unknown
+102804	1028	3	2954	Remembrance of the Rot Goddess	380040	1		block_unknown
+102805	1028	3	2959	Remembrance of the Full Moon Queen	380050	1		block_unknown
+102806	1028	3	2955	Remembrance of the Blood Lord	380060	1		block_unknown
+102807	1028	3	2002907	Remembrance of a God and a Lord	380070	1		block_unknown
+102808	1028	3	2002901	Remembrance of the Impaler	380080	1		block_unknown
+102810	1028	3	2956	Remembrance of the Black Blade	380100	1		block_unknown
+102811	1028	3	2957	Remembrance of Hoarah Loux	380110	1		block_unknown
+102812	1028	3	2958	Remembrance of the Dragonlord	380120	1		block_unknown
+102813	1028	3	2960	Remembrance of the Lichdragon	380130	1		block_unknown
+102814	1028	3	2961	Remembrance of the Fire Giant	380140	1		block_unknown
+102815	1028	3	2962	Remembrance of the Regal Ancestor	380150	1		block_unknown
+102816	1028	3	2963	Elden Remembrance	380160	1		block_unknown
+102817	1028	3	2964	Remembrance of the Naturalborn	380170	1		block_unknown
+102818	1028	3	2002900	Remembrance of the Wild Boar Rider	380180	1		block_unknown
+102820	1028	3	2002902	Remembrance of the Shadow Sunflower	380200	1		block_unknown
+102821	1028	3	2002903	Remembrance of the Twin Moon Knight	380210	1		block_unknown
+102822	1028	3	2002904	Remembrance of the Saint of the Bud	380220	1		block_unknown
+102823	1028	3	2002905	Remembrance of the Dancing Lion	380230	1		block_unknown
+102824	1028	3	2002908	Remembrance of the Lord of Frenzied Flame	380240	1		block_unknown
+102825	1028	3	2002909	Remembrance of the Mother of Fingers	380250	1		block_unknown
+102826	1028	3	2002910	Remembrance of Putrescence	380260	1		block_unknown
+600000	6000	0	1000000	Dagger	220500	1		block_unknown
+600001	6000	0	2000000	Longsword	220510	1		block_unknown
+600002	6000	0	16000000	Short Spear	220520	1		block_unknown
+600003	6000	0	11000000	Mace	220530	1		block_unknown
+600004	6000	0	41000000	Longbow	220540	1		block_unknown
+600005	6000	0	7000000	Falchion	220550	1		block_unknown
+600006	6000	0	14020000	Hand Axe	220560	1		block_unknown
+600007	6000	0	30000000	Buckler	220570	1		block_unknown
+600008	6000	0	31070000	Round Shield	220580	1		block_unknown
+600009	6000	1	670000	Blue Cloth Cowl	220590	1		block_unknown
+600010	6000	1	670100	Blue Cloth Vest	220600	1		block_unknown
+600011	6000	1	670200	Warrior Gauntlets	220610	1		block_unknown
+600012	6000	1	670300	Warrior Greaves	220620	1		block_unknown
+600013	6000	3	232000	Lone Wolf Ashes	220630	1		block_unknown
+600014	6000	3	9500	Cracked Pot	220640	3		block_unknown
+600015	6000	3	8550		220650	1		block_unknown
+600018	6000	3	8701	Note: Imp Shades	220680	1		block_unknown
+600019	6000	3	8702	Note: Flask of Wondrous Physick	220690	1		block_unknown
+900000	9000	3	7000	Dragonfire	190000	1		block_unknown
+900001	9000	3	7001	Agheel's Flame	190010	1		block_unknown
+900002	9000	3	7010	Magma Breath	190020	1		block_unknown
+900003	9000	3	7020	Dragonice	190030	1		block_unknown
+900004	9000	3	7030	Rotten Breath	190040	1		block_unknown
+900010	9000	3	7000	Dragonfire	190000	1		block_unknown
+900011	9000	3	7001	Agheel's Flame	190010	1		block_unknown
+900012	9000	3	7010	Magma Breath	190020	1		block_unknown
+900013	9000	3	7020	Dragonice	190030	1		block_unknown
+900014	9000	3	7030	Rotten Breath	190040	1		block_unknown
+900020	9000	3	7000	Dragonfire	190000	1		block_unknown
+900021	9000	3	7001	Agheel's Flame	190010	1		block_unknown
+900022	9000	3	7010	Magma Breath	190020	1		block_unknown
+900023	9000	3	7020	Dragonice	190030	1		block_unknown
+900024	9000	3	7030	Rotten Breath	190040	1		block_unknown
+900030	9000	3	7000	Dragonfire	190000	1		block_unknown
+900031	9000	3	7001	Agheel's Flame	190010	1		block_unknown
+900032	9000	3	7010	Magma Breath	190020	1		block_unknown
+900033	9000	3	7020	Dragonice	190030	1		block_unknown
+900034	9000	3	7030	Rotten Breath	190040	1		block_unknown
+1600101	16001	0	1000000	Dagger	220500	1		block_unknown
+1600102	16001	0	2000000	Longsword	220510	1		block_unknown
+1600103	16001	0	16000000	Short Spear	220520	1		block_unknown
+1600104	16001	0	11000000	Mace	220530	1		block_unknown
+1600105	16001	0	41000000	Longbow	220540	1		block_unknown
+1600106	16001	0	7000000	Falchion	220550	1		block_unknown
+1600107	16001	0	14020000	Hand Axe	220560	1		block_unknown
+1600108	16001	0	30000000	Buckler	220570	1		block_unknown
+1600109	16001	0	31070000	Round Shield	220580	1		block_unknown
+1600110	16001	1	670000	Blue Cloth Cowl	220590	1		block_unknown
+1600111	16001	1	670100	Blue Cloth Vest	220600	1		block_unknown
+1600112	16001	1	670200	Warrior Gauntlets	220610	1		block_unknown
+1600113	16001	1	670300	Warrior Greaves	220620	1		block_unknown
+1600114	16001	3	2529		220630	1		block_unknown
+1600115	16001	3	9500	Cracked Pot	220640	3		block_unknown
+1600116	16001	3	8550		220650	1		block_unknown
+1600119	16001	3	8701	Note: Imp Shades	220680	1		block_unknown
+1600120	16001	3	8702	Note: Flask of Wondrous Physick	220690	1		block_unknown
+1600401	16004	0	33000000	Glintstone Staff	230000	1		block_unknown
+1600402	16004	0	34000000	Finger Seal	230010	1		block_unknown
+1600403	16004	0	34040000	Clawmark Seal	230020	1		block_unknown
+1600404	16004	3	4000	Glintstone Pebble	230030	1		block_unknown
+1600405	16004	3	4220	Stars of Ruin	230040	1		block_unknown
+1600406	16004	3	5510		230050	1		block_unknown
+1600407	16004	3	6020	Flame, Fall Upon Them	230060	1		block_unknown
+1600408	16004	3	7320	Frenzied Burst	230070	1		block_unknown
+1600409	16004	1	980000	Carian Knight Helm	230080	1		block_unknown
+1600410	16004	1	981100	Carian Knight Armor (Altered)	230090	1		block_unknown
+1600411	16004	1	980200	Carian Knight Gauntlets	230100	1		block_unknown
+1600412	16004	1	980300	Carian Knight Greaves	230110	1		block_unknown
+1600413	16004	1	730000	Champion Headband	230120	1		block_unknown
+1600414	16004	1	730100	Champion Pauldron	230130	1		block_unknown
+1600415	16004	1	730200	Champion Bracers	230140	1		block_unknown
+1600416	16004	1	730300	Champion Gaiters	230150	1		block_unknown
+1600417	16004	2	1000	Crimson Amber Medallion	230160	1		block_unknown
+1600418	16004	2	2130	Axe Talisman	230170	1		block_unknown
+1600420	16004	3	8703	Note: Stonedigger Trolls	230190	1		block_unknown
+9000000	90000	0	3010000	Forked Greatsword	400000	1		block_unknown
+9000001	90000	0	3020000	Iron Greatsword	400010	1		block_unknown
+9000002	90000	0	3030000	Lordsworn's Greatsword	400020	1		block_unknown
+9000003	90000	0	3040000	Knight's Greatsword	400030	1		block_unknown
+9000004	90000	0	3060000	Ordovis's Greatsword	400040	1		block_unknown
+9001000	90010	1	970000	Omen Helm	400000	1		block_unknown
+9001001	90010	1	970100	Omen Armor	400010	1		block_unknown
+9001002	90010	1	970200	Omen Gauntlets	400020	1		block_unknown
+9001003	90010	1	970300	Omen Greaves	400030	1		block_unknown
+9001004	90010	1	970400		400040	1		block_unknown
