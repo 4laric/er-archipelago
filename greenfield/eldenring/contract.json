@@ -336,15 +336,15 @@
       "doc": "reveal the whole world map + underground view (client owns the RE'd flag set)."
     },
     {
-      "name": "bigTicketLocations",
+      "name": "progressionSurfaceLocations",
       "shape": "INT_LIST",
       "required": false,
       "profiles": [
         "greenfield"
       ],
-      "producer": "features/big_ticket_locations.py",
-      "consumer": "core.rs self.big_ticket (fallback tracker_regions::big_ticket_set)",
-      "doc": "AP location ids that are big-ticket THIS seed = is_big_ticket(tags, big_ticket_locations); Enia (EniaShop) always excluded. Client stars/locks these; absent -> client falls back to the static default table."
+      "producer": "features/progression_surface.py",
+      "consumer": "core.rs tracker star/lock set",
+      "doc": "AP location ids on THIS seed's progression surface -- the ONLY locations that may hold this world's own progression (region Locks, required/gate Great Runes, folded legacy keys). Enia (EniaShop) always excluded. The client stars exactly these, so 'where the locks can be' and 'what the tracker points at' are ONE set. REPLACES bigTicketLocations, which named a set progression could never reach (MajorBoss and GreatRune are not on the surface)."
     },
     {
       "name": "goalLocations",
@@ -378,6 +378,28 @@
       "producer": "features/shops.py",
       "consumer": "core.rs:359 i64_to_u32_map",
       "doc": "ShopLineupParam row id -> eventFlag_forStock written for shop checks."
+    },
+    {
+      "name": "checkLotBlankMap",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/check_lots.py",
+      "consumer": "check_lots.rs (ItemLotParam_map)",
+      "doc": "ItemLotParam_MAP lot id -> the GOODS slot indices holding a check's vanilla ware."
+    },
+    {
+      "name": "checkLotBlankEnemy",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/check_lots.py",
+      "consumer": "check_lots.rs (ItemLotParam_enemy)",
+      "doc": "Same, for ItemLotParam_ENEMY (boss / enemy one-time drops). SEPARATE on purpose: the two tables can hold the SAME row id, so a merged dict loses the table and forces the client to GUESS. It guessed map-first, so every enemy lot colliding with a map id was never blanked -- a boss that is 'just an enemy' handed out its vanilla drop and fired no check (playtest 2026-07-12: Unsightly Catacombs duo, enemy lot 30120, while all five of that map's TREASURE checks randomised correctly)."
     },
     {
       "name": "checkLotBlank",
@@ -487,7 +509,7 @@
       ],
       "producer": "features/progressive.py",
       "consumer": "progressive.rs",
-      "doc": "item name -> ordered [{goods, flags}] granted on each successive receipt."
+      "doc": "item name -> ordered [{goods, flags, consumed}] granted on each successive receipt. `consumed` (REQUIRED bool): true = the player SPENDS these goods, so grant them exactly once via the ledger; false = the player KEEPS them, so self-heal them (unique_goods). A consumable shipped as kept is re-granted every time it is spent -- unbounded flask upgrades, then a CTD (playtest 2026-07-12)."
     },
     {
       "name": "death_link",

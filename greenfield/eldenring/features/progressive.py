@@ -236,12 +236,26 @@ class Progressive(Feature):
         {"goods": GOODS-packed FullID, "flags": [event flags]}. Fungible/keyed items (flasks,
         stonesword keys) repeat a single good with no flags; stone bells carry a per-tier good AND
         the shop-unlock flags for that rung."""
+        # `consumed`: the rung's goods are SPENT by the player, so the client must grant them exactly
+        # ONCE (ledgered by the copy's stream index) rather than treating them as something the player
+        # should OWN. Absent/false = owned = the client's self-healing `unique_goods` path.
+        #
+        # This distinction is not a nicety. Flask rungs grant Golden Seeds / Sacred Tears, which are
+        # spent at a Site of Grace. Shipped as OWNED, the reconciler saw the spent item missing from
+        # the inventory and handed it straight back -- upgrade, re-grant, upgrade, re-grant, unbounded,
+        # until the flask ran past its cap and the game CTD'd. (Alaric, live playtest 2026-07-12.)
+        # Bell bearings are the opposite: a key item you keep forever, and self-healing is exactly what
+        # you want if one is ever lost. Same ladder machinery, opposite grant semantics -- so the
+        # semantics have to be stated, not assumed.
         if name == PROG_FLASK:
-            return [{"goods": good | _GOODS_NIBBLE, "flags": []} for good in flask_ladder(world)]
+            return [{"goods": good | _GOODS_NIBBLE, "flags": [], "consumed": True}
+                    for good in flask_ladder(world)]
         if name in _BELL_GRANTS:
-            return [{"goods": e["goods"] | _GOODS_NIBBLE, "flags": list(e["flags"])}
+            return [{"goods": e["goods"] | _GOODS_NIBBLE, "flags": list(e["flags"]), "consumed": False}
                     for e in _BELL_GRANTS[name]]
-        return [{"goods": good | _GOODS_NIBBLE, "flags": []} for good in _GOODS_LADDERS[name]]
+        # Stonesword Keys are spent on Imp Statue seals -> consumed.
+        return [{"goods": good | _GOODS_NIBBLE, "flags": [], "consumed": True}
+                for good in _GOODS_LADDERS[name]]
 
     # ---- hooks --------------------------------------------------------------------------------
     def generate_early(self, world) -> None:

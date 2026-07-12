@@ -208,3 +208,56 @@ def test_option_is_frozen_off():
         "progressive_flasks must stay OFF until reconcile.rs can grant a tier's goods as CONSUMED "
         "(ledgered once) rather than OWNED (self-healing). Turning it on re-grants spent flask "
         "upgrade items forever and CTDs the game.")
+
+
+# ---- the CTD, as a contract invariant ----------------------------------------------------------
+def test_every_rung_declares_consumed_vs_owned():
+    """The field that did not exist on 2026-07-12, and whose absence CTD'd a live playtest.
+
+    The client folds a rung's goods one of two ways. OWNED -> `unique_goods`, a SELF-HEALING set
+    ("the player should have this; if it is missing, grant it") -- right for a stone bell bearing, a
+    key item you keep forever. CONSUMED -> ledgered by the copy's stream index, granted exactly once.
+
+    A Golden Seed is SPENT at a grace. Shipped as OWNED, the reconciler saw it leave the inventory and
+    handed it back: upgrade, re-grant, upgrade, re-grant, until the flask ran past its cap and the game
+    crashed. The bug was possible because the dangerous behaviour was the SILENT DEFAULT.
+
+    So every rung must SAY. `contract._chk_nested_grants` rejects a rung without it, and this asserts
+    the two ladders declare the semantics their items actually have -- the flask spends, the bell keeps.
+    """
+    from worlds.eldenring.features import progressive as pg
+
+    class _W:
+        class options:
+            class progressive_flasks: value = 1
+            class progressive_stone_bells: value = 1
+            class progressive_stonesword_keys: value = 0
+        import random as _r
+        random = _r.Random(1)
+        player = 1
+
+    feat = pg.Progressive()
+    flask = feat._grant_ladder(_W, pg.PROG_FLASK)
+    assert flask, "flask ladder is empty"
+    assert all(r["consumed"] is True for r in flask), (
+        "flask rungs grant Golden Seeds / Sacred Tears, which the player SPENDS at a grace. Marked "
+        "owned, the client re-grants them forever and CTDs the game.")
+
+    bell = feat._grant_ladder(_W, pg.PROG_SMITHING_BELL)
+    assert bell, "bell ladder is empty"
+    assert all(r["consumed"] is False for r in bell), (
+        "a bell bearing is a KEY ITEM the player keeps -- it must stay self-healing (owned), or one "
+        "lost to a save-scum never comes back")
+
+
+def test_contract_rejects_a_rung_that_forgets_to_declare():
+    """Belt and braces: the validator must REFUSE a rung with no `consumed`, so this can never again
+    ship by omission."""
+    from worlds.eldenring import contract
+
+    bad = {"Progressive Flask Upgrade": [{"goods": 1073751844, "flags": []}]}
+    err = contract._chk_nested_grants(bad)
+    assert err and "consumed" in err, f"validator accepted a rung with no `consumed`: {err!r}"
+
+    good = {"Progressive Flask Upgrade": [{"goods": 1073751844, "flags": [], "consumed": True}]}
+    assert contract._chk_nested_grants(good) is None

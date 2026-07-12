@@ -56,7 +56,6 @@ FROZEN_OPTIONS = {
     # `juice` weight in the curated_filler recipe. Left settable, it would be a silent no-op -- and a
     # knob that quietly does nothing is the exact failure class this whole change exists to kill.
     "pool_builder_juice_pct": (100, None),
-    "curated_fill": (1, None),
 
     # 2, not the playtest yaml's 3: at 2 the starting upgrade level still REQUIRES stones, which keeps
     # smithing stones meaningful as checks. It errs generous. (3 made regular weapons so cheap to bring
@@ -121,7 +120,6 @@ FROZEN_OPTIONS = {
     # default baked in, so a yaml that never mentions it generates exactly as before. Narrowing it is
     # safe: the feasibility ladder widens rather than failing, and an empty set turns confinement off.
     "important_locations": (["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"], None),
-    "big_ticket_locations": (["MajorBoss", "Remembrance", "GreatRune"], None),
 
     # ---- half-built / superseded -> frozen OFF (finish later, then re-expose) --------------------
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)

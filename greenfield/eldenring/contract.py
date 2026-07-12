@@ -122,16 +122,37 @@ def _chk_str(v):
 
 
 def _chk_nested_grants(v):
-    # progressiveGrants : {name: [{"goods": int, "flags": [int]}, ...]}
+    """progressiveGrants : {name: [{"goods": int, "flags": [int], "consumed": bool}, ...]}
+
+    `consumed` is REQUIRED, and it is required for a reason worth a paragraph.
+
+    The client folds a rung's goods one of two ways: OWNED goods go to `unique_goods`, a SELF-HEALING
+    set meaning "the player should have this; if it is missing, grant it" (correct for a stone bell
+    bearing -- a key item you keep forever, and one lost to a save-scum should come back). CONSUMED
+    goods are ledgered by the copy's stream index and granted exactly ONCE.
+
+    Ship a consumable as OWNED and the game eats itself: a Golden Seed is SPENT at a Site of Grace, so
+    the reconciler sees it leave the inventory and hands it straight back -- upgrade, re-grant,
+    upgrade, re-grant, unbounded, until flask potency runs past its cap and the game CTDs. That is
+    exactly what shipped on 2026-07-12, and it shipped because the field did not exist and the
+    dangerous default was the silent one.
+
+    So it is not optional and it does not default. A rung must SAY which it is.
+    """
     if not isinstance(v, dict):
-        return "expected {name: [{goods:int, flags:[int]}]}"
+        return "expected {name: [{goods:int, flags:[int], consumed:bool}]}"
     for k, lst in v.items():
         if not isinstance(lst, (list, tuple)):
             return f"{k!r} must map to a list"
         for e in lst:
             if not isinstance(e, dict) or not _is_int(e.get("goods")) or \
                not (isinstance(e.get("flags"), (list, tuple)) and all(_is_int(i) for i in e["flags"])):
-                return f"{k!r} entry must be {{goods:int, flags:[int]}}, got {e!r}"
+                return f"{k!r} entry must be {{goods:int, flags:[int], consumed:bool}}, got {e!r}"
+            if not isinstance(e.get("consumed"), bool):
+                return (f"{k!r} rung is missing `consumed` (bool): {e!r}. A rung must declare whether "
+                        f"its goods are SPENT by the player (consumed=true -> granted once, ledgered) "
+                        f"or KEPT (consumed=false -> self-healing). Shipping a consumable as kept "
+                        f"re-grants it every time the player spends it, and CTDs the game.")
     return None
 
 
@@ -198,26 +219,35 @@ IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragme
 # restriction confines this world's own progression (region Locks + required/gate runes + legacy keys)
 # to them by default. MajorBoss is a SUBSET of Remembrance/GreatRune (for the boss_arena majors) plus
 # Boss/Legendary (for the extras); it is its own tag so the surface can target JUST the majors.
-# big_ticket_locations option DEFAULT = the historical hardcoded set (backward-compatible: same 73).
-BIG_TICKET_DEFAULT_LIST = ["Boss", "Remembrance", "Legendary", "GreatRune", "KeyItem"]
-BIG_TICKET_TYPES = frozenset(BIG_TICKET_DEFAULT_LIST)
-# A location carrying any EXCLUDE tag is NEVER big-ticket, whatever is selected. EniaShop = Enia's
-# remembrance store (gen_data: a shop slot holding a rarity-3 item) -- buy-only, so no region Lock and
-# no tracker star even when Shop or Legendary is selected. This is why Shop can be a normal selectable
-# class ("turn on some shops") without dragging Enia in.
-BIG_TICKET_EXCLUDE_TAGS = frozenset({"EniaShop"})
+# BIG-TICKET IS RETIRED (2026-07-12, Alaric). It was a SECOND list claiming to define "the important
+# checks", and it disagreed with the first: the progression surface (important_locations) is
+# {Remembrance, Seedtree, Church, Boss, Fragment, Revered}, while big-ticket targeted {MajorBoss,
+# Remembrance, GreatRune}. Their intersection was Remembrance ALONE -- so the client's tracker starred
+# MajorBoss/GreatRune checks that progression_surface FORBIDS progression from ever reaching. The
+# tracker pointed the player at checks the locks could not be on, by construction, and nothing noticed
+# because the two lists had no contract with each other. It surfaced only when a human read a spoiler
+# and asked why killing Malenia paid out a Smithing Stone [4].
+#
+# ONE definition now: the surface. The client is fed it directly (progressionSurfaceLocations), so
+# "where the locks may be" and "what the tracker stars" are the same expression, not two lists that
+# happen to agree. (Same disease as the three-pass filler tail -- see features/filler_budget.)
+#
+# EXCLUDE tags survive: a location carrying one is never on the surface. EniaShop = Enia's remembrance
+# store (a shop slot holding a rarity-3 item) -- buy-only, so no region Lock and no tracker star even
+# when Shop or Legendary is selected.
+SURFACE_EXCLUDE_TAGS = frozenset({"EniaShop"})
 
 
-def is_big_ticket(tags, selected=None) -> bool:
-    """Single source for "is this a prominent/big-ticket check", used by features/curated_fill (lock
-    placement), features/big_ticket_locations (the slot_data id list the F6 tracker reads) AND
-    tools/gen_location_regions (the static fallback column) so none of them can drift. True iff the
-    location's LOCATION_TAGS include a SELECTED class and NONE of BIG_TICKET_EXCLUDE_TAGS. `selected`
-    defaults to BIG_TICKET_TYPES (the option default); pass world.options.big_ticket_locations.value
-    for a seed. The underlying tags are untouched -- important_locations / display still see them."""
+def has_class(tags, selected) -> bool:
+    """Does this location carry one of `selected` classes (and none of SURFACE_EXCLUDE_TAGS)?
+
+    The single tag predicate, used by features/progression_surface (the surface = where this world's
+    own progression may go) and features/important_locations. It used to be called `is_big_ticket`,
+    which mis-sold it: it was never a concept, just "tags intersect a selection" -- and that name let a
+    SECOND selection masquerade as a second mechanism.
+    """
     t = set(tags or ())
-    sel = BIG_TICKET_TYPES if selected is None else set(selected)
-    return bool(sel & t) and not (BIG_TICKET_EXCLUDE_TAGS & t)
+    return bool(set(selected) & t) and not (SURFACE_EXCLUDE_TAGS & t)
 
 
 class ContractKey:
@@ -359,12 +389,15 @@ CONTRACT = (
                 "features/start_grace.py", "startgrants.rs as_bool",
                 "reveal the whole world map + underground view (client owns the RE'd flag set)."),
     # --- goal ---
-    ContractKey("bigTicketLocations", "INT_LIST", False, (GREENFIELD,),
-                "features/big_ticket_locations.py",
-                "core.rs self.big_ticket (fallback tracker_regions::big_ticket_set)",
-                "AP location ids that are big-ticket THIS seed = is_big_ticket(tags, "
-                "big_ticket_locations); Enia (EniaShop) always excluded. Client stars/locks these; "
-                "absent -> client falls back to the static default table."),
+    ContractKey("progressionSurfaceLocations", "INT_LIST", False, (GREENFIELD,),
+                "features/progression_surface.py",
+                "core.rs tracker star/lock set",
+                "AP location ids on THIS seed's progression surface -- the ONLY locations that may "
+                "hold this world's own progression (region Locks, required/gate Great Runes, folded "
+                "legacy keys). Enia (EniaShop) always excluded. The client stars exactly these, so "
+                "'where the locks can be' and 'what the tracker points at' are ONE set. REPLACES "
+                "bigTicketLocations, which named a set progression could never reach (MajorBoss and "
+                "GreatRune are not on the surface)."),
     ContractKey("goalLocations", "INT_LIST", True, (BOTH,),
                 "features/goal_locations.py", "goal.rs parse",
                 "AP location ids whose completion == victory; client sends Goal when all are done."),
@@ -375,6 +408,17 @@ CONTRACT = (
     ContractKey("shopRowFlags", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:359 i64_to_u32_map",
                 "ShopLineupParam row id -> eventFlag_forStock written for shop checks."),
+    ContractKey("checkLotBlankMap", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs (ItemLotParam_map)",
+                "ItemLotParam_MAP lot id -> the GOODS slot indices holding a check's vanilla ware."),
+    ContractKey("checkLotBlankEnemy", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs (ItemLotParam_enemy)",
+                "Same, for ItemLotParam_ENEMY (boss / enemy one-time drops). SEPARATE on purpose: the "
+                "two tables can hold the SAME row id, so a merged dict loses the table and forces the "
+                "client to GUESS. It guessed map-first, so every enemy lot colliding with a map id was "
+                "never blanked -- a boss that is 'just an enemy' handed out its vanilla drop and fired "
+                "no check (playtest 2026-07-12: Unsightly Catacombs duo, enemy lot 30120, while all "
+                "five of that map's TREASURE checks randomised correctly)."),
     ContractKey("checkLotBlank", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/check_lots.py", "check_lots.rs configure/run",
                 "ItemLotParam lot id (str) -> [goods slot indices] holding a CHECK's vanilla ware. The "
@@ -421,7 +465,11 @@ CONTRACT = (
                 "holding the named lock; live client consumer."),
     ContractKey("progressiveGrants", "NESTED_GRANTS", False, (BOTH,),
                 "features/progressive.py", "progressive.rs",
-                "item name -> ordered [{goods, flags}] granted on each successive receipt."),
+                "item name -> ordered [{goods, flags, consumed}] granted on each successive receipt. "
+                "`consumed` (REQUIRED bool): true = the player SPENDS these goods, so grant them "
+                "exactly once via the ledger; false = the player KEEPS them, so self-heal them "
+                "(unique_goods). A consumable shipped as kept is re-granted every time it is "
+                "spent -- unbounded flask upgrades, then a CTD (playtest 2026-07-12)."),
     ContractKey("death_link", "BOOL_OR_INT", False, (BOTH,),
                 "features/deathlink.py (legacy duplicate of options.death_link)",
                 "er-logic/options.rs parse_death_link (reads options.death_link)",
@@ -671,7 +719,10 @@ def to_rust():
                 f"required: {req}, greenfield: {gf} }},")
 
     L = []
-    L.append("// AUTO-GENERATED from eldenring/contract.py -- do not edit by hand.")
+    # The `@generated` marker is LOAD-BEARING: the client's rustfmt.toml sets format_generated_files =
+    # false, which keys off exactly this token in the first few lines. Without it `cargo fmt` reformats
+    # this file, the next regen emits the unformatted form, and CI fails on a file nobody edited.
+    L.append("// @generated -- AUTO-GENERATED from eldenring/contract.py. Do not edit by hand.")
     L.append("// The apworld<->client slot_data contract, mirrored so the client validates the same shapes.")
     L.append("use serde_json::Value;")
     L.append("")

@@ -40,14 +40,22 @@ eat a legitimate source.
 Scoped to hub + kept spokes, like check_item_flags: a check that isn't in play this seed shouldn't have
 its lot rewritten.
 """
+import logging
+
 from ..registry import Feature, register
 from .. import contract
 from ..data import HUB, LOCATIONS
 
 try:
-    from ..check_lots_data import CHECK_LOT_SLOTS, AP_PLACEHOLDER_GOODS
-except ImportError:                       # pre-regen: inert, the stopgap still holds the line
-    CHECK_LOT_SLOTS, AP_PLACEHOLDER_GOODS = {}, 0
+    from ..check_lots_data import (CHECK_LOT_SLOTS_MAP, CHECK_LOT_SLOTS_ENEMY,
+                                   AP_PLACEHOLDER_GOODS)
+    _LEGACY = {}
+except ImportError:                       # check_lots_data predates the map/enemy split
+    CHECK_LOT_SLOTS_MAP, CHECK_LOT_SLOTS_ENEMY = {}, {}
+    try:
+        from ..check_lots_data import CHECK_LOT_SLOTS as _LEGACY, AP_PLACEHOLDER_GOODS
+    except ImportError:                   # no generated data at all: inert
+        _LEGACY, AP_PLACEHOLDER_GOODS = {}, 0
 
 
 @register
@@ -55,18 +63,44 @@ class CheckLots(Feature):
     name = "check_lots"
 
     def slot_data(self, world):
-        if not CHECK_LOT_SLOTS or not AP_PLACEHOLDER_GOODS:
+        if not (CHECK_LOT_SLOTS_MAP or CHECK_LOT_SLOTS_ENEMY or _LEGACY) or not AP_PLACEHOLDER_GOODS:
             return {}
-        # gen_data keys CHECK_LOT_SLOTS by lot id, but a lot is only OURS to rewrite if its flag is a
-        # check that is actually in play this seed. gen_data already filtered to known check flags; here
-        # we can only scope by region, so send every lot -- a lot whose check is out of scope is in a
-        # sealed region the player cannot reach anyway, and rewriting it is inert.
-        # (Kept explicit so the scoping decision is visible rather than accidental.)
+        # THE TABLE TRAVELS WITH THE LOT. ItemLotParam_map and ItemLotParam_enemy are two different
+        # tables and the same row id can exist in BOTH. gen_data used to merge them into one {lot:
+        # slots} dict, throwing the table away, and the client then GUESSED -- it tried map first and
+        # fell back to enemy. So an enemy lot whose id also lived in map was never blanked, and a boss
+        # that is "just an enemy" handed out its vanilla drop and fired no check. (Alaric, playtest
+        # 2026-07-12: the Unsightly Catacombs duo, enemy lot 30120, paid the vanilla Perfumer Tricia
+        # ash while all five of that map's treasure checks randomised correctly.)
+        #
+        # Sending them separately is not a nicety -- it is the fix. The client no longer has anything
+        # to guess.
+        #
+        # Scoping: gen_data already filtered to real check flags; we can only scope by region here, so
+        # send every lot. A lot whose check is out of scope sits in a sealed region the player cannot
+        # reach, and rewriting it is inert. (Kept explicit so the decision is visible, not accidental.)
         _in_play = {HUB} | set(world._kept())
         if not _in_play:
             return {}
-        blank = {str(lot): list(slots) for lot, slots in CHECK_LOT_SLOTS.items()}
+        if _LEGACY:
+            # PRE-SPLIT DATA. Emit the legacy key so the client keeps its old (guessing) behaviour --
+            # degrading to "as broken as yesterday" beats going silently INERT, which would hand out the
+            # vanilla ware at EVERY check. But say so: until gen_data.py is re-run, every boss that is
+            # "just an enemy" whose lot id collides with a map row still pays its vanilla drop.
+            logging.getLogger("Greenfield").warning(
+                "[eldenring:%s] check_lots_data.py predates the ItemLotParam map/enemy split: falling "
+                "back to the legacy merged table, so the client must GUESS which param table each lot "
+                "lives in. It guesses map-first, so enemy (boss) drops colliding with a map row are NOT "
+                "suppressed and will hand out their vanilla item. Re-run `python greenfield/gen_data.py` "
+                "to fix.", world.player)
+            return {
+                contract.CHECK_LOT_BLANK: {str(l): list(sl) for l, sl in _LEGACY.items()},
+                contract.AP_PLACEHOLDER_GOODS: int(AP_PLACEHOLDER_GOODS),
+            }
         return {
-            contract.CHECK_LOT_BLANK: blank,
+            contract.CHECK_LOT_BLANK_MAP:
+                {str(lot): list(slots) for lot, slots in CHECK_LOT_SLOTS_MAP.items()},
+            contract.CHECK_LOT_BLANK_ENEMY:
+                {str(lot): list(slots) for lot, slots in CHECK_LOT_SLOTS_ENEMY.items()},
             contract.AP_PLACEHOLDER_GOODS: int(AP_PLACEHOLDER_GOODS),
         }

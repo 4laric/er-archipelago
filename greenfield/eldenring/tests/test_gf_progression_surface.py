@@ -89,11 +89,11 @@ def test_majorboss_in_vocabulary():
     assert "MajorBoss" in ps.ProgressionSurface.valid_keys
 
 
-def test_is_big_ticket_majorboss():
-    assert contract.is_big_ticket(["MajorBoss"], {"MajorBoss"})
-    assert not contract.is_big_ticket(["Remembrance"], {"MajorBoss"})   # not selected
+def test_has_class_majorboss():
+    assert contract.has_class(["MajorBoss"], {"MajorBoss"})
+    assert not contract.has_class(["Remembrance"], {"MajorBoss"})   # not selected
     # Enia hard-exclude still wins
-    assert not contract.is_big_ticket(["MajorBoss", "EniaShop"], {"MajorBoss"})
+    assert not contract.has_class(["MajorBoss", "EniaShop"], {"MajorBoss"})
 
 
 # ---- ladder -------------------------------------------------------------------------------------

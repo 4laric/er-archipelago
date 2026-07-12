@@ -142,7 +142,7 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
             _b = frozenset()
         defaulted = frozenset(_d) | frozenset(_b)
     return {ap for ap, tags in tags_map.items()
-            if contract.is_big_ticket(tags, sel) and ap not in defaulted}
+            if contract.has_class(tags, sel) and ap not in defaulted}
 
 
 def is_restricted_progression(item, player):
@@ -180,6 +180,14 @@ def regions_with_major_boss(region_names, tags_map=None, locations=None):
 
 
 # ---- AP glue --------------------------------------------------------------------------------------
+def _selection(world):
+    """The classes this world's surface is built from. ONE resolution, read by BOTH apply() (where the
+    locks go) and slot_data() (what the client stars). If those two ever computed the surface
+    differently we would be back to two lists disagreeing -- which is the bug big-ticket was."""
+    opt = getattr(world.options, "progression_surface", None)
+    return opt.value if opt is not None else None
+
+
 def _mode(world):
     o = getattr(world.options, "progression_surface_mode", None)
     return int(o.value) if o is not None else 0
@@ -221,8 +229,7 @@ def apply(world) -> None:
     mode = _mode(world)
     if mode == 0 or not LOCATION_TAGS:
         return
-    surface = selected_surface(getattr(world.options, "progression_surface", None)
-                              and world.options.progression_surface.value)
+    surface = selected_surface(_selection(world))
     if not surface:
         return
     mw = world.multiworld
@@ -371,5 +378,25 @@ class ProgressionSurfaceFeature(Feature):
     name = "progression_surface"
     OPTIONS = {"progression_surface": ProgressionSurface,
                "progression_surface_mode": ProgressionSurfaceMode}
-    # No items, no slot_data key in Cut 1 (client contract = Cut 2). Placement runs centrally from
-    # core.pre_fill via apply() (locations exist + get_all_state valid there).
+    # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
+
+    def slot_data(self, world):
+        """Ship the surface to the CLIENT. This is the set the tracker stars.
+
+        It REPLACES `bigTicketLocations`, which was a second list of "important checks" naming a set
+        progression could never reach: big-ticket targeted {MajorBoss, Remembrance, GreatRune} while
+        the surface is {Remembrance, Seedtree, Church, Boss, Fragment, Revered} -- intersection
+        Remembrance alone. The client was starring MajorBoss/GreatRune checks that this module FORBIDS
+        a region Lock from ever occupying. A tracker pointing at checks the locks cannot be on is worse
+        than no tracker: it teaches the player something false.
+
+        Emitting the surface itself makes that drift unrepresentable -- "where the locks may be" and
+        "what the client stars" are now one expression, evaluated once.
+        """
+        if _mode(world) == 0:
+            return {contract.PROGRESSION_SURFACE_LOCATIONS: []}
+        classes = selected_surface(_selection(world))
+        ids = allowed_ap_ids(LOCATION_TAGS, classes)
+        own = {loc.address for loc in world.multiworld.get_locations(world.player)
+               if getattr(loc, "address", None) is not None}
+        return {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}
