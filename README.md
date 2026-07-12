@@ -32,20 +32,40 @@ There is no single static "mod": each seed bakes its own files. That's why this 
 
 ---
 
-## 1. Clone the superrepo
-
-Full submodule mechanics are in **`SUPERREPO-SETUP.md`** — read it; the short version:
+## 1. Clone
 
 ```powershell
-git clone --recursive git@github.com:4laric/er-archipelago.git
+git clone --recurse-submodules https://github.com/4laric/er-archipelago.git
 cd er-archipelago
 ```
 
-All dependency forks — including Paramdex and yet-another-tab-control — are submodules, so `--recursive` brings them in (with their build patches already baked into the forks). If you cloned without `--recursive`: `git submodule update --init --recursive`.
+That is the whole thing. **One submodule** — the Rust client
+(`from-software-archipelago-clients`). HTTPS, so the clone works for anyone; it used to be SSH,
+which meant nobody but the author could actually clone this public repo.
 
-`elden_ring_artifacts/` (game-derived files, e.g. `oo2core_*.dll`) is gitignored — copy it in from a working machine.
+The repo is **the world + the tools + the client**. There is no superrepo any more: `Paramdex`,
+`SoulsFormatsNEXT`, `nightreign-enemy-rando` and an `Archipelago` submodule were all removed
+(2026-07-12) — nothing in the apworld or the client referenced them.
 
-The build references the dependency forks as **siblings of `SoulsRandomizers`** (`..\SoulsFormats`, `..\SoulsIds`, `..\yet-another-tab-control`); the recursive clone places them correctly. If a clean `-Randomizer` build doesn't go green on a fresh clone, ask me — there may be an environment-local dep shim that isn't yet committed to a fork.
+### Archipelago itself is NOT a submodule
+
+`.\Archipelago` is a **stock upstream checkout you create**, not something we version-control:
+
+```powershell
+.\bootstrap-ap.ps1        # clones ArchipelagoMW/Archipelago at the pin into .\Archipelago
+```
+
+The pin lives in **`.ap-version`** (currently `0.6.7`) and is read by `bootstrap-ap.ps1` *and* by CI,
+so the version you develop against and the version CI gates on cannot drift apart. `.\Archipelago`
+is gitignored; the world is **installed into** it by `build.ps1`. Nothing of ours lives there.
+
+> It used to be a submodule pointing at a fork of `lBedrockl/Archipelago` — 112 commits of
+> DS3/Bedrock-lineage work, in a project whose whole pitch is *provenance-clean, no Bedrock code*.
+> It was also never load-bearing: the suite (572 tests) and a real `Generate` both pass against
+> **stock upstream**. `bootstrap-ap.ps1` refuses to run against any tree whose origin is not
+> `ArchipelagoMW`, so that cannot quietly come back.
+
+`elden_ring_artifacts/` (game-derived files) is gitignored — copy it in from a working machine.
 
 ---
 
