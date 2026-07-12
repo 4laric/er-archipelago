@@ -671,7 +671,10 @@ def to_rust():
                 f"required: {req}, greenfield: {gf} }},")
 
     L = []
-    L.append("// AUTO-GENERATED from eldenring/contract.py -- do not edit by hand.")
+    # The `@generated` marker is LOAD-BEARING: the client's rustfmt.toml sets format_generated_files =
+    # false, which keys off exactly this token in the first few lines. Without it `cargo fmt` reformats
+    # this file, the next regen emits the unformatted form, and CI fails on a file nobody edited.
+    L.append("// @generated -- AUTO-GENERATED from eldenring/contract.py. Do not edit by hand.")
     L.append("// The apworld<->client slot_data contract, mirrored so the client validates the same shapes.")
     L.append("use serde_json::Value;")
     L.append("")
