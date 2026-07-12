@@ -1,22 +1,22 @@
 {
   "counts": {
     "filler_pool": 228,
-    "item_catalog": 2034,
-    "locations": 4821,
+    "item_catalog": 2057,
+    "locations": 4858,
     "regions": 20,
     "sweeps": 232
   },
-  "inputs_hash": "sha256:bde81b0255ed7099895a63f034a9e803396caaf94768452b7e2e281e7d870160",
+  "inputs_hash": "sha256:476564a65648836dbc4b511c396e94e8fad1229aafc42d626388f1aa66bbd58d",
   "modules": {
-    "boss_data.py": "sha256:d5733bd289c155f13a509608b51ccfef8ab5d1050624e5051be01f34d820a381",
+    "boss_data.py": "sha256:585a2b8844225c99ce6ed48d130c926f446b614961228abf20f8412441374ad0",
     "boss_sweeps.py": "sha256:3307e17be2482fd0f11513ae3cc5a78cd7c8dc7980f33fbfad02fa2a56b1cd97",
-    "data.py": "sha256:457c7e9ca2299fb039524983a450dd66d49352935c1bab21577918dbe6ce9728",
-    "item_ids.py": "sha256:ca93414dda6510db76c2aef038552ee52b935a09df12abfac65faad14a3054c6",
-    "item_tiers.py": "sha256:ec758e40370156e892b7f2b4c267a15b0b4b6fbd4fd89655e895a26465be9ca7",
-    "location_tags.py": "sha256:6ea92010b4729daa3074d9aaa237ca3a3733dcb668794a3bd7f500106da16839",
-    "missable_locations.py": "sha256:79a409cb922aa5e90ecdd382ccfe06c3ffff9a50cf551959653389bc8114eaad",
+    "data.py": "sha256:8a7d7dc527e3bd666fec9ae60a374ca5e085941741b5ed85f8b77286d32563e6",
+    "item_ids.py": "sha256:666328132ad696ad1c243f8de82c365d69af6925d72104a3c3ca6b09bbedb2e4",
+    "item_tiers.py": "sha256:34a960aef9cd1760be08b8ea789568a81fd09630fe8f14ab5a0613ab66234115",
+    "location_tags.py": "sha256:efd43f96cb101bc0fb1655a68943fa30d13c645b274e58e64a1f669cb6c1c3f4",
+    "missable_locations.py": "sha256:5c2b596fd925f45214efb38faffb7e2eed4f6b5605bb0064bffba8adb45e062d",
     "region_graces.py": "sha256:e4d7039af7df42cf5ec4ba482da984e9847c2797f4e8078daf731eb0111fef93",
     "region_open_flags.py": "sha256:998b858750faddf03b004b8e290681b15ee782e6882f02fbdbae05f73ebec5f3",
-    "shop_data.py": "sha256:8d6fa23d711795087229c8bf7780df594ab042bf866d2681451cb2efa1dacc5b"
+    "shop_data.py": "sha256:15935bdab2f9779e442ce918cf9cd950814ebac2c167559865e4acf088b59036"
   }
 }
