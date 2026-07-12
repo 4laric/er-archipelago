@@ -11,6 +11,15 @@
 #                    normalized). SKIPS if elden_ring_artifacts/ is absent -- those grace anchors
 #                    are licensing-restricted and NOT in git, so a fresh clone can't regenerate.
 #                    data.py/region_open_flags.py are committed and still validated by GEN/WORLD.
+#   (a1) TRACKER DRIFT  tools/gen_location_regions.py --check: the CLIENT's tracker_regions.rs is
+#                    GENERATED FROM the greenfield data (location_tags + contract.has_class), and it
+#                    lives in the client submodule -- a cross-repo generated artifact with, until now,
+#                    nothing watching it. On 2026-07-12 `contract.is_big_ticket` was renamed to
+#                    `has_class` and the generator (which calls it) was never re-run: the star column
+#                    went stale AND `build.ps1 -Rust` died on an AttributeError -- while the client's
+#                    own CI stayed green, because the client's CI does not run this generator. A green
+#                    signal that is structurally blind to the break is worse than no signal.
+#                    0 = fresh | 1 = STALE -> FAIL | 4 = submodule not checked out -> SKIP.
 #   (b) PURE UNIT    direct unittest on data.py invariants (no AP import)
 #   (c) ISOLATED GEN install the world into the AP runtime + Generate.py a greenfield seed
 #   (d) WORLD UNIT   WorldTestBase suite (fill/goal/slot_data) against the installed world
@@ -86,6 +95,20 @@ else
     else echo "  STALE: gen_data.py regenerated different data -- commit it."; record DRIFT FAIL; fi
   else record DRIFT FAIL; fi
 fi
+
+step "GREENFIELD (a1) TRACKER DRIFT (cross-repo generated artifact)"
+# tracker_regions.rs lives in the CLIENT submodule but is generated from THIS repo's data. Nothing was
+# watching it, so it could rot against its own source of truth -- and did.
+( cd "$REPO" && "$PY" tools/gen_location_regions.py --check ); trkRc=$?
+case "$trkRc" in
+  0) record TRACKER PASS ;;
+  4) echo "  SKIP: client submodule not checked out (git submodule update --init)."
+     record TRACKER SKIP ;;
+  *) echo "  STALE: the client's tracker_regions.rs no longer matches the greenfield data it is"
+     echo "         generated FROM. Regenerate and commit the submodule:"
+     echo "           python tools/gen_location_regions.py"
+     record TRACKER FAIL ;;
+esac
 
 step "GREENFIELD (b) PURE UNIT"
 # test_gf_data.py = structural invariants; test_gf_region_correctness.py = tier-A semantic-value

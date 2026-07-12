@@ -192,12 +192,19 @@ def main():
     lock_items = region_lock_items(regions)
     new = render_rs(rows, lock_items)
     if args.check:
+        # Exit codes mirror tools/gen_manifest.py so CI can tell "stale" from "cannot check here":
+        #   0 = up to date | 1 = STALE (regenerate + commit) | 4 = submodule absent -> SKIP
+        if not os.path.isdir(os.path.dirname(OUT_RS)):
+            print("SKIP: the client submodule is not checked out -- cannot compare tracker_regions.rs "
+                  "(git submodule update --init).")
+            return 4
         try:
             cur = open(OUT_RS, encoding="utf-8").read()
         except FileNotFoundError:
             cur = ""
         if cur.replace("\r\n", "\n") != new or not lib_has_mod():
-            print("STALE: run python tools/gen_location_regions.py")
+            print("STALE: tracker_regions.rs does not match the greenfield data it is generated FROM. "
+                  "Run: python tools/gen_location_regions.py  (then commit the client submodule)")
             return 1
         print(f"OK: up to date ({len(rows)} locations).")
         return 0

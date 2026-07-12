@@ -162,6 +162,32 @@ if (-not $SkipGreenfield) {
     }
 }
 
+# ----- 2c2) TRACKER DRIFT: the client's tracker_regions.rs is generated FROM this repo's data ------
+# It is a CROSS-REPO generated artifact -- rendered by tools\gen_location_regions.py from
+# greenfield/eldenring/location_tags.py + contract.has_class, and written INTO the client submodule.
+# Nothing watched it, so it could rot against its own source of truth. On 2026-07-12 it did:
+# contract.is_big_ticket was renamed to has_class, the generator (which calls it) was never re-run,
+# and the star column went stale while build.ps1 -Rust died on an AttributeError -- all while the
+# CLIENT's own CI stayed green, because the client's CI does not run this generator. A green signal
+# that is structurally blind to the break is worse than no signal at all.
+#   exit 0 = fresh | 1 = STALE (regenerate + commit the submodule) | 4 = submodule absent -> SKIP.
+if (-not $SkipGreenfield) {
+    Invoke-CiStep "TRACKER DRIFT (client tracker_regions.rs vs greenfield data)" {
+        $gen = Join-Path $Repo "tools\gen_location_regions.py"
+        if (-not (Test-Path $gen)) { throw "TRACKER: tools\gen_location_regions.py not found" }
+        python $gen --check
+        $trkExit = $LASTEXITCODE
+        if ($trkExit -eq 4) {
+            Write-Host "  SKIP: client submodule not checked out (git submodule update --init)." -ForegroundColor Yellow
+        } elseif ($trkExit -ne 0) {
+            throw ("TRACKER: the client's tracker_regions.rs no longer matches the greenfield data it is generated FROM (exit {0}). Regenerate and commit the submodule: python tools\gen_location_regions.py" -f $trkExit)
+        } else {
+            Write-Host "  tracker_regions.rs FRESH -- the client's star/region table matches the apworld." -ForegroundColor Green
+        }
+        $global:LASTEXITCODE = 0
+    }
+}
+
 # ----- 2d) greenfield world (data-derived, matt-free): drift + unit tests + isolated gen -
 if (-not $SkipGreenfield) {
     Invoke-CiStep "GREENFIELD (drift + unit tests + isolated gen)" {
