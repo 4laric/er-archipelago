@@ -1818,12 +1818,19 @@ print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses 
 # is already a check. The gen-time invariant assertion below re-validates every ap-id lands in
 # LOCATIONS under its stated region on regen (loud failure if a re-region/flag drifts).
 #
-# {region: [(ap_id, flag, boss_name, drop_item, confidence)]}. confidence: HIGH = verified in-region in
+# {region: [(flag, boss_name, drop_item, confidence)]}. confidence: HIGH = verified in-region in
 # current data; MEDIUM = depends on a FLAG_REGION_OVERRIDE re-pin landing on regen (verify in-game);
 # TODO/commented = no reliable in-region boss-drop check found -> left to the feasibility ladder.
+#
+# NO AP-ID HERE. It used to carry one, "documentary only", and gen_data printed a NOTE every regen
+# telling you it had gone stale. It went stale because ap-ids are POSITIONAL: every check added or
+# dropped renumbers everything after it, so ANY change re-staled all three. It was refreshed by hand
+# on 2026-07-12 and the very next change (the item-existence guard, -13 checks) staled it again --
+# which is the whole argument. Storing a derived, drifting value beside its own durable key is
+# pinning the symptom; the flag IS the key, and _flag_locs resolves the live ap-id at gen time.
 MAJOR_BOSS_EXTRAS = {
     "Limgrave": [
-        (7770804, 530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
+        (530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
         # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
         # Dragon-Burnt Ruins field dragon, obtained tile m60_43_36 -> Limgrave (region_map.csv).
         # Alternates (uncomment ONE to swap; drop Agheel above if so):
@@ -1833,7 +1840,7 @@ MAJOR_BOSS_EXTRAS = {
         #     current data -- there is no Margit reward check to move -- so Agheel is the primary.
     ],
     "Weeping Peninsula": [
-        (7773915, 510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
+        (510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
         # Castle Morne boss; drops the Grafted Blade Greatsword (flag 510800, rarity-3 -> already
         # 'Legendary'-tagged, ap 7773928), pinned to Weeping Peninsula (commit 6be2f1a). In-region,
         # verified against data.py (7773927 is Fia's Mist in Altus -- off-by-one caught by the
@@ -1842,7 +1849,7 @@ MAJOR_BOSS_EXTRAS = {
     ],
     # ---- TODO (no reliable in-region major-boss DROP check in current data; ladder covers these) ----
     "Jagged Peak": [
-        (7770788, 510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
+        (510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
         # Bayle's drop (Heart of Bayle, ap 7770836, flag 510630) is mis-pinned to the m12_05
         # Mohgwyn/Eternal-Cities cluster in region_map.csv; the FLAG_REGION_OVERRIDE[510630]="Jagged
         # Peak" added above re-pins it. This entry RESOLVES only after regen (the assertion below will
@@ -2799,17 +2806,16 @@ print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VEN
 # This is the high-confidence surface the v0.2 progression_surface restriction confines locks to.
 # Union so every kept region that HAS a major (arena or curated extra) carries a MajorBoss check.
 _MAJOR_ARENA = {aid for _lst in _region_bosses.values() for (aid, _fl, _nm) in _lst}
-# MAJOR_BOSS_EXTRAS are keyed by acquisition FLAG (stable across regens); their stored ap-id is only
-# documentary, because dense ap-ids DRIFT whenever an EXCLUDE_FLAGS change adds/removes an earlier row
-# (excluding flag 60000, ap 7770014, shifts every later ap-id down by one -- which is exactly what
-# stranded the hand-typed Agheel/Bayle ap-ids on regen). Resolve each extra's LIVE ap-id(s) from its
-# flag via the freshly-built buckets so both tagging and the invariant never trust a typed ap-id.
+# MAJOR_BOSS_EXTRAS are keyed by acquisition FLAG (stable across regens). There is no stored ap-id to
+# trust or distrust any more -- dense ap-ids DRIFT whenever a row is added or dropped earlier in the
+# list, so the field could only ever be wrong. Resolve each extra's LIVE ap-id(s) from its flag via
+# the freshly-built buckets.
 _flag_locs = defaultdict(list)                       # flag -> [(live_ap_id, region)]
 for _reg, _locs in buckets.items():
     for (_nm, _aid, _fl) in _locs:
         _flag_locs[_fl].append((_aid, _reg))
 _MAJOR_EXTRA = {ra for _lst in MAJOR_BOSS_EXTRAS.values()
-                for (_ap, _fl, _bn, _di, _cf) in _lst
+                for (_fl, _bn, _di, _cf) in _lst
                 for (ra, _rr) in _flag_locs.get(_fl, [])}
 _MAJOR_AIDS = _MAJOR_ARENA | _MAJOR_EXTRA
 for _ap in sorted(_MAJOR_AIDS):
@@ -2820,32 +2826,24 @@ for _ap in sorted(_MAJOR_AIDS):
 # ---- Regen-time INVARIANT: every MajorBoss must be a real check in its stated region. --------------
 # buckets = {region: [(name, ap_id, flag)]} built above (the LOCATIONS source). ARENA majors carry
 # gen-time ap-ids (built from THIS run's rows, so consistent with buckets) -> checked by ap-id. Curated
-# EXTRAS carry hand-typed ap-ids that drift -> checked by FLAG -> region. Catches a drifted flag-join or
-# a FLAG_REGION_OVERRIDE (e.g. Bayle 510630 -> Jagged Peak) that failed to land. Loud failure on regen
-# is the safety valve for the extras we could not run in-sandbox; a merely stale documentary ap-id is a
-# soft NOTE, not a failure.
+# EXTRAS are keyed by FLAG -> region. Catches a drifted flag-join or a FLAG_REGION_OVERRIDE (e.g. Bayle
+# 510630 -> Jagged Peak) that failed to land. Loud failure on regen is the safety valve for the extras
+# we could not run in-sandbox.
 _apid_region = {aid: reg for reg, _locs in buckets.items() for (_nm, aid, _fl) in _locs}
 _major_bad = []
 for _reg, _lst in _region_bosses.items():
     for (aid, _fl, _nm) in _lst:
         if _apid_region.get(aid) != _reg:
             _major_bad.append(("arena", _reg, aid, _apid_region.get(aid)))
-_extra_stale_ap = []
 for _reg, _lst in MAJOR_BOSS_EXTRAS.items():
-    for (aid, _fl, _bn, _di, _cf) in _lst:
-        _live = _flag_locs.get(_fl, [])
-        _regs = {_rr for (_ra, _rr) in _live}
+    for (_fl, _bn, _di, _cf) in _lst:
+        _regs = {_rr for (_ra, _rr) in _flag_locs.get(_fl, [])}
         if _reg not in _regs:
             _major_bad.append(("extra:" + _bn, _reg, _fl, sorted(_regs) or None))
-        elif aid not in {_ra for (_ra, _rr) in _live}:
-            _extra_stale_ap.append((_bn, _fl, aid, sorted(_ra for (_ra, _rr) in _live)))
 if _major_bad:
     raise AssertionError(
         "MajorBoss not filed under its stated region (fix the flag/join/override): "
         + "; ".join(f"{k} expected={want} key={key} got={got}" for (k, want, key, got) in _major_bad))
-for (_bn, _fl, _ap, _live) in _extra_stale_ap:
-    print(f"NOTE: MAJOR_BOSS_EXTRAS {_bn!r} documentary ap-id {_ap} is stale "
-          f"(flag {_fl} now at {_live}); region OK -- refresh the ap-id when convenient.")
 print(f"MajorBoss: {len(_MAJOR_AIDS)} tagged ({len(_MAJOR_ARENA)} arena + {len(_MAJOR_EXTRA)} extras) "
       f"across {len(_region_bosses) + len(MAJOR_BOSS_EXTRAS)} region-entries; invariant OK")
 
