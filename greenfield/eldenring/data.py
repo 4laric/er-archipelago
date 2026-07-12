@@ -4294,7 +4294,7 @@ LOCATIONS = {
         ('Scadu Altus :: Ruins Map (3rd) [f400662]', 7773884, 400662),
         ("Scadu Altus :: Ymir's Bell Bearing [f400664]", 7773885, 400664),
         ('Scadu Altus :: [Sorcery] Cherishing Fingers [f400666]', 7773886, 400666),
-        ('Scadu Altus :: Swordhand of Night JolÃ¡n [f400670]', 7773887, 400670),
+        ('Scadu Altus :: Swordhand of Night Jolán [f400670]', 7773887, 400670),
         ('Scadu Altus :: Sword of Night [f400671]', 7773888, 400671),
         ('Scadu Altus :: Claws of Night [f400672]', 7773889, 400672),
         ('Scadu Altus :: check [f400730]', 7773897, 400730),
@@ -4889,4 +4889,4 @@ LOCATIONS = {
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:65d2b07ef139f36edcdcb68fe053485c8f1b29af1cff32087ea10fe985d3cd28', 'module': 'data.py', 'body_sha256': 'sha256:18af17bdb4c5c302988eeb993f865aae8b53b94d3e5301854850729db5a4eabc'}
+_GEN_STAMP = {'inputs_hash': 'sha256:65d2b07ef139f36edcdcb68fe053485c8f1b29af1cff32087ea10fe985d3cd28', 'module': 'data.py', 'body_sha256': 'sha256:457c7e9ca2299fb039524983a450dd66d49352935c1bab21577918dbe6ce9728'}
