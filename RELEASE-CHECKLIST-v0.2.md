@@ -45,30 +45,33 @@ What remains is a short list of decisions, not unknowns.
 
 ---
 
-## 🔴 Blockers to the tag
+## 🟢 Blockers: NONE
 
-### 1. The public repo is not cloneable by anyone but Alaric
-`archipelago_rs` was a committed gitlink with no `.gitmodules` entry — **removed**, that one is done.
-Still broken:
+Every one is cleared, and each was cleared by RUNNING it, not by reading it.
 
-- [ ] **Every submodule url is SSH** (`git@github.com:…`). An anonymous `git clone --recurse-submodules`
-      of a *public* repo cannot fetch any of them. → switch to `https://`.
-- [ ] **`Paramdex`'s url is `.\Paramdex\`** — a literal Windows path, meaningless to git anywhere.
+| Was blocking | Now |
+|---|---|
+| Public repo not cloneable (SSH urls + orphan `archipelago_rs` gitlink) | **Fixed.** Anonymous `git clone --recurse-submodules` over HTTPS **verified working** — no key, no token, exit 0. |
+| Bedrock fork in the submodule list | **Gone.** `Archipelago` is no longer a submodule at all: `bootstrap-ap.ps1` clones **stock upstream**, pinned by `.ap-version`. |
+| ~45 clippy lints | **Cleared, all 44.** Clippy is a **hard gate** again (`-D warnings`). |
+| `run_ci.ps1 -OnlyGreenfield` 100% green (Windows) | **Green.** |
+| Clean `build.ps1` (Windows) | **Green.** |
+| `check_lots` never played (3744 live lot rows) | **Played 2026-07-12.** 3744 blanked, 0 missing, 173 checks fired. |
 
-This is the one thing that makes v0.2 un-shippable *as a public repo*, independent of whether the game
-works. A stranger following the README cannot get the source.
+### Clean-room verification (from an anonymous clone of `main`, on stock upstream AP 0.6.7)
 
-### 2. Decide: clippy debt
-- [ ] ~45 style lints in `eldenring-archipelago` (`map_or`, `collapsible_if`, doc lists,
-      `type_complexity`). **No correctness bugs.** Clippy is `continue-on-error: true` in client CI until
-      they're cleared. Either clear them and re-arm the gate, or consciously ship with it advisory.
+```
+git clone --recurse-submodules https://github.com/4laric/er-archipelago.git   -> exit 0
+bootstrap-ap  (.ap-version = 0.6.7, stock ArchipelagoMW)                      -> ok
+pytest worlds/eldenring/tests                                                 -> 572 passed, 0 failed
+Generate.py on release-v0.2/EldenRing.yaml, UNMODIFIED                        -> seed produced
+fuzz_gf.py --count 8 --pass-pct 100                                           -> 8/8, 0 FILLERROR/CRASH/HANG
+client CI (Windows): build, test, fmt, clippy -D warnings                     -> all green
+apworld CI: tests + generators                                                -> green
+submodule gitlink == client main                                              -> match
+```
 
-### 3. Windows-only gates (cannot be run from Linux/CI)
-- [ ] `run_ci.ps1 -OnlyGreenfield` **100% green** — `num_regions` is the marquee mode; it does not get to
-      be 99%.
-- [ ] Final `build.ps1` producing the shipped `eldenring.apworld` + the client `.dll` from a clean tree.
-
----
+**v0.2 is taggable.**
 
 ## 🟠 Known, contained, shipping anyway
 
@@ -82,5 +85,14 @@ works. A stranger following the README cannot get the source.
 
 ## The one-line answer
 
-Everything that can be verified without a human at a keyboard **is** verified. What's left is:
-fix the submodule URLs, make a call on clippy, and run the two Windows gates.
+**Ship it.** The only thing not verified by a machine is the vanilla-drop class, and that is
+contained by construction: those locations may never hold progression, so the worst case is a
+missed filler item, not a stranded run.
+
+## Tag sequence
+
+1. `git tag -a v0.2.0` on the apworld, and on the client at the pinned gitlink (they must match).
+2. Attach `eldenring.apworld` + the client `.dll` from the clean `build.ps1`.
+3. Release notes: `release-v0.2/RELEASE-NOTES-v0.2.md`. **The `game:` id CHANGED** (`EldenRing` ->
+   `Elden Ring`) — that is a migration step for anyone with a v0.1 yaml, and it is the single most
+   likely support question. It is called out in SETUP / CHANGELOG / the template header.
