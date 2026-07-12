@@ -1,22 +1,22 @@
 {
   "counts": {
     "filler_pool": 228,
-    "item_catalog": 2057,
-    "locations": 4858,
+    "item_catalog": 2056,
+    "locations": 4857,
     "regions": 20,
     "sweeps": 232
   },
-  "inputs_hash": "sha256:69fc3a79bc7fdfb827cea9f461100f70820c5bdcdca7d8c549b77bf03993885e",
+  "inputs_hash": "sha256:b140df16e3bab36a6d257be4ac24d0ad042d1b9aa45a8cdeb9cc460a37cc5257",
   "modules": {
-    "boss_data.py": "sha256:585a2b8844225c99ce6ed48d130c926f446b614961228abf20f8412441374ad0",
+    "boss_data.py": "sha256:1052a754178b77ce30c08d4c687ef00556b22f245b20d82e6e4121587adb6020",
     "boss_sweeps.py": "sha256:3307e17be2482fd0f11513ae3cc5a78cd7c8dc7980f33fbfad02fa2a56b1cd97",
-    "data.py": "sha256:8a7d7dc527e3bd666fec9ae60a374ca5e085941741b5ed85f8b77286d32563e6",
-    "item_ids.py": "sha256:666328132ad696ad1c243f8de82c365d69af6925d72104a3c3ca6b09bbedb2e4",
-    "item_tiers.py": "sha256:34a960aef9cd1760be08b8ea789568a81fd09630fe8f14ab5a0613ab66234115",
-    "location_tags.py": "sha256:efd43f96cb101bc0fb1655a68943fa30d13c645b274e58e64a1f669cb6c1c3f4",
-    "missable_locations.py": "sha256:5c2b596fd925f45214efb38faffb7e2eed4f6b5605bb0064bffba8adb45e062d",
+    "data.py": "sha256:2f87ccf780da4eaf5d3c8fd3d90dd1f92626e796d0e28587fb54926ba0845fee",
+    "item_ids.py": "sha256:fa9007c60ae758795ab09672059849958ee58912171646f7ad133d4157ec1783",
+    "item_tiers.py": "sha256:f47e573848c16cb427371da291f3e5d4dfaee57d001c1ac7be7744bb8cd019ce",
+    "location_tags.py": "sha256:6f9193d9541425a7aba107d34df3f7e2a3f4e47da2310a7e93a340f7f43de308",
+    "missable_locations.py": "sha256:0cd2fbb22e52bb6440addb1db1d60bfb2f9e37a7986b36f70e14830848ef3477",
     "region_graces.py": "sha256:e4d7039af7df42cf5ec4ba482da984e9847c2797f4e8078daf731eb0111fef93",
     "region_open_flags.py": "sha256:998b858750faddf03b004b8e290681b15ee782e6882f02fbdbae05f73ebec5f3",
-    "shop_data.py": "sha256:15935bdab2f9779e442ce918cf9cd950814ebac2c167559865e4acf088b59036"
+    "shop_data.py": "sha256:5e9caed87d614af0f62801ff273881b8381e23506114c6ac533b92622d41fd56"
   }
 }
