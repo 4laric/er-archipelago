@@ -75,9 +75,9 @@ def load_play_regions():
             except (KeyError, ValueError):
                 a = 0
             if a:
-                buckets[bucket].add("m%02d_%02d_%02d" % (a, x, z))
+                buckets[bucket].add((a, "m%02d_%02d_%02d" % (a, x, z)))
             else:
-                buckets[bucket]  # bucket exists, no tile
+                buckets[bucket]  # bucket exists, no tile (interior/arena sub-region)
     print(f"PlayRegionParam: {seen} rows -> {len(buckets)} distinct play_region buckets")
     return buckets
 
@@ -129,8 +129,15 @@ def load_tile_regions():
     if not votes:
         sys.exit("tile->region join produced NOTHING -- the key drifted again. Refusing to report an "
                  "empty diff as if it were a clean one.")
-    print(f"tile->region: {len(votes)} tiles attributed from {len(flag_region)} flagged locations")
-    return {t: c.most_common(1)[0][0] for t, c in votes.items()}
+    tiles = {t: c.most_common(1)[0][0] for t, c in votes.items()}
+    # mAA_BB keying too, for the interior decode (a dungeon's bucket names its map, not a tile).
+    mvotes = collections.defaultdict(collections.Counter)
+    for t, r in ((t, c.most_common(1)[0][0]) for t, c in votes.items()):
+        mvotes["_".join(t.split("_")[:2])][r] += 1
+    maps = {m: c.most_common(1)[0][0] for m, c in mvotes.items()}
+    print(f"tile->region: {len(tiles)} tiles / {len(maps)} maps attributed "
+          f"from {len(flag_region)} flagged locations")
+    return tiles, maps
 
 
 def current_groups():
@@ -158,17 +165,32 @@ def main() -> int:
     args = ap.parse_args()
 
     buckets = load_play_regions()
-    tiles = load_tile_regions()
+    tiles, maps = load_tile_regions()
     cur = current_groups()
 
+    # ATTRIBUTION. Two different geometries, and conflating them is what made my first pass call the
+    # tutorial chapel "Gravesite".
+    #
+    #   OVERWORLD (a row whose areaNo is 60 or 61): the row's areaNo/gridXNo/gridZNo IS the tile the
+    #     player stands on. Majority-vote the bucket's tiles.
+    #   INTERIOR (everything else): the coordinates are the dungeon's WARP/ENTRY point ON THE OVERWORLD,
+    #     so they name the neighbouring region, not this one -- that is why the naive join said Leyndell
+    #     (11000) was "Altus" and Raya Lucaria (14000) was "Liurnia". Our table was RIGHT and the tool
+    #     was wrong. The bucket ID itself carries the map (11000 -> m11_00, 30030 -> m30_03), which is
+    #     exact, so decode it and join on the map instead.
     derived = {}
     unattributed = []
-    for bucket, ts in sorted(buckets.items()):
-        regs = collections.Counter(tiles[t] for t in ts if t in tiles)
+    for bucket, rows in sorted(buckets.items()):
+        overworld = [t for (a, t) in rows if a in (60, 61)]
+        if overworld:
+            regs = collections.Counter(tiles[t] for t in overworld if t in tiles)
+        else:
+            mp = "m%02d_%02d" % (bucket // 1000, (bucket % 1000) // 10)
+            regs = collections.Counter([maps[mp]] if mp in maps else [])
         if regs:
             derived[bucket] = regs.most_common(1)[0][0]
         else:
-            unattributed.append((bucket, sorted(ts)))
+            unattributed.append((bucket, sorted(t for (_a, t) in rows)))
 
     print()
     print("== BUCKETS THE GAME HAS THAT WE DO NOT (kick never fires here) ==")
@@ -203,6 +225,14 @@ def main() -> int:
     print()
     print(f"summary: game has {len(buckets)} buckets; we list {len(cur)}; "
           f"{len(missing)} missing, {len(phantom)} phantom, {len(disagree)} mis-assigned")
+
+    print()
+    print("== PROPOSED REGION_GROUPS (measured; review before trusting) ==")
+    by_region = collections.defaultdict(list)
+    for b, r in derived.items():
+        by_region[r].append(b)
+    for r in sorted(by_region):
+        print("    %-30r %s," % (r, tuple(sorted(by_region[r]))))
 
     if args.write:
         sys.exit("--write is not implemented yet on purpose: review the diff above first. "
