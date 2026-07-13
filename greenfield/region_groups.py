@@ -11,11 +11,22 @@ The repo was repeatedly bitten by hand copies of this map drifting apart (area_l
 vs gen_data.PLAY2AP vs the oracle's PLAY_REGION_TO_GF); they now all import this table or a module
 generated from it.
 
-WHAT A BUCKET IS. `BonfireWarpParam.bonfireSubCategoryId` -- the game's own warp-menu grouping --
-equals the runtime play_region_id the client's kick-watch sees (verified against every empirically
-captured id; see elden_ring_artifacts/REGION_ID_MAP.md, the authoritative 55-bucket doc). The game
-has 54 explorable buckets (+ id 0 system warps and 10010, an empty placeholder). A region is a SET
-of buckets; the kick-watch can gate exactly at bucket granularity, no finer.
+WHAT A BUCKET IS. bucket = PlayRegionParam.ID // 100. `PlayRegionParam` row ids ARE the runtime
+play_region_id the client's kick-watch reads (WorldChrMan.main_player.play_region_id); nothing
+else is authoritative. This table was ORIGINALLY sourced from
+`BonfireWarpParam.bonfireSubCategoryId` on the claim that it equals the runtime id -- that claim
+is FALSE. It coincides for the base-game overworld primaries and nowhere else: the DLC warp ids
+are a different number entirely (Gravesite's warps say 6800; the runtime bucket is 68000-band),
+and the game defines far more buckets than the 54 the warp menu shows (every mini-dungeon and
+region sub-bucket has its own). REGION_ID_MAP.md documents the WARP grouping, not the runtime id
+space -- it is superseded for kick geometry. Entries below are therefore KNOWN-STALE until
+re-derived: some are phantoms the game never produces (their locks can never fire) and many real
+buckets have no entry (the kick silently has no opinion there). Re-derive with
+tools/datamine_play_regions.py (needs the game artifacts); its --emit writes
+greenfield/play_region_buckets.tsv, the TRACKED bucket universe that
+greenfield/eldenring/tests/test_gf_play_region_buckets.py asserts this table against. Bucket
+numbers quoted in the paragraphs below predate this correction. A region is a SET of buckets; the
+kick-watch can gate exactly at bucket granularity, no finer.
 
 NAMES (bedrock interop, 2026-07-12). The client enforces a foreign apworld's region locks by
 matching its lock ITEM NAMES against "<Region> Lock" over these region names (er-logic
@@ -116,6 +127,15 @@ PLAY2AP = {str(pid): region for region, pids in REGION_GROUPS.items() for pid in
 #            grace bundles, but a fresh character SPAWNS there -- geometry here would let a rolled
 #            start that seals Limgrave eject the player out of the tutorial.
 KICK_EXCLUDED_PLAY_IDS = frozenset({11100, 18000})
+
+# Real buckets (rows of greenfield/play_region_buckets.tsv) that DELIBERATELY map to no region:
+# ground where the kick is permissive ON PURPOSE, each with its reason. Anything in that tsv that
+# is neither in REGION_GROUPS nor here is an UNREVIEWED permissive hole, and
+# greenfield/eldenring/tests/test_gf_play_region_buckets.py fails on it. Never park a bucket here
+# to silence the test -- a reasonless entry is the same hole with a lid on it.
+UNASSIGNED_BUCKETS = {
+    # bucket: "reason",
+}
 
 
 def region_play_ids():

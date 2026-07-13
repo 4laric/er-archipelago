@@ -96,6 +96,9 @@ def install_world(ap):
     gf = REPO / "greenfield"
     for src in sorted(gf.glob("*.csv")) + sorted(gf.glob("*.tsv")):
         shutil.copy2(src, dst / src.name)
+    # THE region spine, so test_gf_play_region_buckets can assert REGION_GROUPS against the
+    # tracked bucket universe (play_region_buckets.tsv rides in via the glob above).
+    shutil.copy2(gf / "region_groups.py", dst / "region_groups.py")
     tpl = REPO / "release-v0.2" / "EldenRing.yaml"
     if tpl.is_file():
         shutil.copy2(tpl, dst / tpl.name)
