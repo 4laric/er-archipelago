@@ -113,17 +113,19 @@ _BOSS_HEALTHBAR_EXTRAS = {
     1050560800: ('m60_50', 'm60_50_56', 'field', 'Great Wyrm Theodorix'),             # Consecrated Snowfield
     1053560800: ('m60_53', 'm60_53_56', 'field', 'Vyke, Knight of the Roundtable'),   # Mountaintops evergaol
 }
-# DLC Gravesite Plain divvy participants (Alaric 2026-07-11). The DisplayBossHealthBar datamine caught
-# DLC LEGACY-dungeon bosses (Belurat/Shadow Keep/Metyr/Midra) but NO m61 overworld field bosses, and
-# our region model collapses the entire DLC overworld (m61) into ONE "Gravesite Plain" region (235
-# checks / 39 tiles). With Midra reassigned OUT to Abyssal Woods (his real home; DUNGEON_REGION_OVERRIDE
+# DLC overworld divvy participants (Alaric 2026-07-11). The DisplayBossHealthBar datamine caught
+# DLC LEGACY-dungeon bosses (Belurat/Shadow Keep/Metyr/Midra) but NO m61 overworld field bosses.
+# (When this was written the whole m61 overworld collapsed into ONE Gravesite region; the region-
+# spine v2 split means each seated boss now divvies whatever region its m61 map-prefix majority
+# resolves to -- still a convenience sweep, never load-bearing. SPEC-region-spine-v2.md flags the
+# per-fine-region sweep coverage for review.) With Midra in Abyssal (DUNGEON_REGION_OVERRIDE
 # "m28_00_00_00" below) Gravesite had no boss to sweep it. So we seat THREE named DLC bosses as legacy
 # region-DIVVY participants: the region filler partitions ~evenly among them (~75 each) instead of one
 # boss dumping the lot. Keyed by the boss's own drop/defeat flag (the client's sweep trigger): Ghostflame
 # Dragon by its isDefeated flag; Furnace Golem + Blackgaol Knight by their signature drop-check flags
 # (their defeat flags aren't in the CE table, but the drop flag flips on the same kill). class='legacy'
 # so they join the region partition (the tile is cosmetic for legacy -- bucketing is by _bmap's region,
-# any m61_XX resolves to Gravesite Plain today; tiles are the bosses' approximate m61 locations).
+# it resolves by that prefix's check-majority region; tiles are the bosses' approximate locations).
 _BOSS_HEALTHBAR_EXTRAS_DLC = {
     2045440800: ('m61_45', 'm61_45_44', 'legacy', 'Ghostflame Dragon'),        # Gravesite lake (isDefeated)
     65470:      ('m61_44', 'm61_44_46', 'legacy', 'Furnace Golem'),            # W Gravesite (drops Deflecting Hardtear)
@@ -150,7 +152,7 @@ gf={}
 # 71xxx-76xxx region/grace event-flag group (all 421 REAL warp graces are 71000-76960), so it is
 # not a writable in-game flag. Left in, it became the numerically-lowest candidate for Stormveil
 # (a legacy dungeon with no overworld grace) and won _front_door -> bogus REGION_OPEN_FLAGS[
-# "Stormveil Castle"]=200 AND polluted the Stormveil grace bundle. Reject any warpUnlockFlag
+# "Stormveil"]=200 AND polluted the Stormveil grace bundle. Reject any warpUnlockFlag
 # outside the valid region/grace group at ingest so only real graces reach _open_cand.
 # The grace tables are DERIVED (BonfireWarpParam -> flag/tile/play_region), not game data, so they
 # are TRACKED in greenfield/ now. They used to live only in the gitignored elden_ring_artifacts/,
@@ -199,31 +201,57 @@ def tile_pr(x,y):
         d=(ax-x)**2+(ay-y)**2
         if d<bd: bd,best=d,pr
     return best
-PLAY2AP={'61000':'Limgrave','61001':'Limgrave','61002':'Weeping Peninsula','62000':'Liurnia of the Lakes',
- '62001':'Liurnia of the Lakes','62002':'Liurnia of the Lakes','63000':'Altus Plateau','63001':'Mt. Gelmir',
- '63002':'Altus Plateau','63003':'Altus Plateau','64000':'Caelid','64001':'Caelid','64002':'Caelid',
- '65000':'Mountaintops of the Giants','65001':'Mountaintops of the Giants','65002':'Mountaintops of the Giants'}
-REGION_MAP={'Land of Shadow (DLC)':'Gravesite Plain','Eternal Cities & Underground Rivers':'Eternal Cities',
- 'Mohgwyn / Consecrated-adjacent':'Mohgwyn Palace','Mohgwyn Palace':'Mohgwyn Palace','Leyndell / Roundtable / Shunning-Grounds':'Altus Plateau',
- 'DLC Interior':'Shadow Keep','Caves':'Limgrave',"Roundtable Hold":'Roundtable Hold','Stormveil Castle':'Stormveil Castle',
- 'Stormveil (assoc.)':'Stormveil Castle',"Miquella's Haligtree & Elphael":"Miquella's Haligtree",
- "Hero's Graves (Catacombs)":'Limgrave','Crumbling Farum Azula':'Farum Azula','Divine Tower':'Liurnia of the Lakes',
- 'Raya Lucaria Academy':'Liurnia of the Lakes','Volcano Manor / Mt. Gelmir':'Mt. Gelmir','Volcano Manor (Rykard)':'Mt. Gelmir','Volcano Manor':'Mt. Gelmir',
- 'DLC Dungeon':'Gravesite Plain','DLC Legacy Dungeon':'Belurat','Tunnels':'Caelid','Limgrave':'Limgrave',
- 'Limgrave (Church of Elleh)':'Limgrave','Limgrave (Waypoint Ruins)':'Limgrave','Liurnia of the Lakes':'Liurnia of the Lakes',
- "Liurnia of the Lakes (Seluvis's Rise)":'Liurnia of the Lakes',"Liurnia of the Lakes (Ranni's Rise)":'Liurnia of the Lakes',
- 'Weeping Peninsula':'Weeping Peninsula','Siofra River / Nokron':'Eternal Cities','Caelid':'Caelid',
- 'Caelid (Redmane Castle)':'Caelid','Caelid (Cathedral of Dragon Communion)':'Caelid','Gravesite Plain (DLC)':'Gravesite Plain','Gravesite Plain':'Gravesite Plain',
- 'Cathedral of Manus Metyr (DLC)':'Scadu Altus','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Mountaintops of the Giants',
- 'Shadow Keep (DLC)':'Shadow Keep','Altus Plateau':'Altus Plateau','Jagged Peak (DLC)':'Jagged Peak',
- 'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Gravesite Plain',
- 'Abyssal Woods (DLC)':'Abyssal Woods','Mountaintops of the Giants':'Mountaintops of the Giants',
- 'Leyndell, Royal Capital':'Altus Plateau','Leyndell (Ashen Capital)':'Altus Plateau','Nokron / Siofra (Ancestor Spirit)':'Eternal Cities',
- 'Lake of Rot (Astel)':'Eternal Cities','Deeproot Depths (Lichdragon Fortissax)':'Eternal Cities','Fractured Marika (final)':'Altus Plateau',
- 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir-Ilim','Stone Coffin Fissure (DLC)':'Gravesite Plain',
- "Midra's Manse (DLC)":'Abyssal Woods','Church of the Bud (DLC)':'Ancient Ruins of Rauh','Castle Ensis (DLC)':'Gravesite Plain',
- 'Ainsel River / Lake of Rot':'Eternal Cities','Nokstella, Eternal City':'Eternal Cities','Subterranean Shunning-Grounds':'Altus Plateau',
- 'm22':'Gravesite Plain','m28':'Abyssal Woods'}
+# ---- play_region -> region: THE spine (region_groups.py, the single source) -----------------
+# tile_pr() above names an overworld tile's play_region; PLAY2AP names the region. It now covers
+# ALL 54 explorable buckets (overworld, legacy, underground, DLC), so a grace's own play_region id
+# (greg) resolves a region DIRECTLY -- the old 16-entry overworld-only table forced every interior
+# place through map-prefix majority votes and hand fold tables. The grouping (which buckets share
+# a region, and the bedrock-interop names) is curated in region_groups.py -- edit it THERE.
+from region_groups import (HUB as _RG_HUB, PLAY2AP, REGION_GROUPS,
+                           KICK_EXCLUDED_PLAY_IDS, region_play_ids as _region_play_ids,
+                           assert_covers as _rg_assert_covers)
+assert _RG_HUB == HUB, "region_groups.HUB must match gen_data.HUB"
+# Hard gate: the curated grouping must cover EXACTLY the bucket universe the game ships (54
+# explorable play_regions in grace_region_map.tsv). A missing bucket silently demotes its checks
+# and graces to fallback paths; an extra one is an invented id.
+_rg_assert_covers({_v for _v in greg.values() if _v != "0"})
+
+# region_map.csv's region-column LABEL -> region. Keys are the pipeline's raw labels (verbatim);
+# values are region_groups.py region names. UN-COLLAPSED 2026-07-12 (SPEC-region-spine-v2.md):
+# the fine places on the left used to fold into 20 coarse regions ('Castle Ensis (DLC)' ->
+# Gravesite Plain, 'Leyndell (Ashen Capital)' -> Altus Plateau, ...); they now map to their own
+# regions. NOTE this table is a LAST-RESORT fallback: most rows resolve earlier via per-flag
+# overrides, MSB ground truth, DUNGEON_REGION_OVERRIDE (dungeon_regions.tsv, itself regenerated
+# from the same spine) or tile decode. Two labels were DELETED rather than re-pointed --
+# 'Eternal Cities & Underground Rivers' and 'Divine Tower' -- because every row carrying them
+# resolves via the map/flag paths (measured 2026-07-12: their PENDING rows are all 8-digit
+# self-encoding flag_prefix rows, now recovered); a label that names several regions at once
+# cannot be honestly re-pointed, and a row that somehow misses every derivation should go
+# DEFAULTED (refuse to guess) rather than inherit a lie.
+REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
+ 'Mohgwyn / Consecrated-adjacent':'Mohgwyn','Mohgwyn Palace':'Mohgwyn',
+ 'Leyndell / Roundtable / Shunning-Grounds':'Leyndell',   # 6-digit-flag stragglers only; m11_10/m35 rows resolve via dungeon_regions.tsv
+ 'DLC Interior':'Shadow Keep','Caves':'Limgrave',"Roundtable Hold":'Roundtable Hold','Stormveil Castle':'Stormveil',
+ 'Stormveil (assoc.)':'Stormveil',"Miquella's Haligtree & Elphael":'Haligtree',
+ "Hero's Graves (Catacombs)":'Limgrave','Crumbling Farum Azula':'Farum Azula',
+ 'Raya Lucaria Academy':'Raya Lucaria Academy','Volcano Manor / Mt. Gelmir':'Mt. Gelmir','Volcano Manor (Rykard)':'Mt. Gelmir','Volcano Manor':'Mt. Gelmir',
+ 'DLC Dungeon':'Gravesite','DLC Legacy Dungeon':'Belurat','Tunnels':'Caelid','Limgrave':'Limgrave',
+ 'Limgrave (Church of Elleh)':'Limgrave','Limgrave (Waypoint Ruins)':'Limgrave','Liurnia of the Lakes':'Liurnia',
+ "Liurnia of the Lakes (Seluvis's Rise)":'Liurnia',"Liurnia of the Lakes (Ranni's Rise)":'Liurnia',
+ 'Weeping Peninsula':'Weeping','Siofra River / Nokron':'Siofra River','Caelid':'Caelid',
+ 'Caelid (Redmane Castle)':'Caelid','Caelid (Cathedral of Dragon Communion)':'Caelid','Gravesite Plain (DLC)':'Gravesite','Gravesite Plain':'Gravesite',
+ 'Cathedral of Manus Metyr (DLC)':'Scaduview','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Mountaintops of the Giants',
+ 'Shadow Keep (DLC)':'Shadow Keep','Altus Plateau':'Altus','Jagged Peak (DLC)':'Jagged Peak',
+ 'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Cerulean',
+ 'Abyssal Woods (DLC)':'Abyssal','Mountaintops of the Giants':'Mountaintops of the Giants',
+ 'Leyndell, Royal Capital':'Leyndell','Leyndell (Ashen Capital)':'Leyndell',   # Ashen = dead-content fold into the GOAL region (2026-07-08 decision)
+ 'Nokron / Siofra (Ancestor Spirit)':'Siofra River',
+ 'Lake of Rot (Astel)':'Ainsel River','Deeproot Depths (Lichdragon Fortissax)':'Deeproot Depths','Fractured Marika (final)':'Leyndell',
+ 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Stone Coffin',
+ "Midra's Manse (DLC)":'Abyssal','Church of the Bud (DLC)':'Ancient Ruins','Castle Ensis (DLC)':'Ensis',
+ 'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Sewer',
+ 'm22':'Stone Coffin','m28':'Abyssal'}
+
 
 def _overworld_tile_of(r):
     r"""The FINE overworld tile (xx, yy) for an 'Overworld m60_..' row, or None.
@@ -694,7 +722,7 @@ print(f"phantom-flag guard: dropped {len(_PHANTOM_DROPPED)} checks with non-exis
 #   Overworld-m60 region column on a nearest-neighbor (non-anchor) tile that is NOT map-verifiable
 #     -> UNRELIABLE (the 520300 class) -> QUARANTINE to HUB (reachable-from-start, never a false gate).
 #   currently-SKIPped `global` rows  -> RECOVER as checks (unique-m60 real region, else HUB).
-#   name-column emevd (author-labeled region like "Stormveil Castle") -> keep (human region signal;
+#   name-column emevd (author-labeled region like "Stormveil") -> keep (human region signal;
 #     the flag lives only in common so map-scan can't confirm it, but the label is trustworthy).
 # Item-lot/treasure + common-event flags live ONLY in common.emevd (parameterized $InitializeEvent),
 # so they never appear in a MAP file -> class NONE -> not re-pinnable; those are handled by the
@@ -747,93 +775,48 @@ def _unique_m60(_fl):
 # Grace-menu-derived (DLC-CHECK-AUDIT.md 2026-07-10 §5a): the game's own map-menu grouping of
 # each tile's graces, folded to gf regions. Scaduview (49_48/49_49/53_48) -> Shadow Keep (only
 # reachable through the Keep). Tiles absent here fall to the nearest table tile (Euclidean XX,YY).
-M61_TILE_REGION = {
-    (44,41): 'Gravesite Plain',
-    (44,45): 'Ancient Ruins of Rauh',
-    (44,46): 'Ancient Ruins of Rauh',
-    (44,47): 'Ancient Ruins of Rauh',
-    (45,41): 'Gravesite Plain',
-    (45,42): 'Gravesite Plain',
-    (45,43): 'Gravesite Plain',
-    (45,44): 'Gravesite Plain',
-    (45,45): 'Ancient Ruins of Rauh',
-    (45,46): 'Ancient Ruins of Rauh',
-    (45,47): 'Ancient Ruins of Rauh',
-    (45,48): 'Ancient Ruins of Rauh',
-    (46,38): 'Gravesite Plain',
-    (46,39): 'Gravesite Plain',
-    (46,40): 'Gravesite Plain',
-    (46,42): 'Gravesite Plain',
-    (46,43): 'Gravesite Plain',
-    (46,44): 'Gravesite Plain',
-    (46,45): 'Gravesite Plain',
-    (46,46): 'Ancient Ruins of Rauh',
-    (46,47): 'Ancient Ruins of Rauh',
-    (46,48): 'Ancient Ruins of Rauh',
-    (47,35): 'Gravesite Plain',
-    (47,36): 'Gravesite Plain',
-    (47,37): 'Gravesite Plain',
-    (47,38): 'Gravesite Plain',
-    (47,39): 'Gravesite Plain',
-    (47,40): 'Gravesite Plain',
-    (47,41): 'Gravesite Plain',
-    (47,42): 'Gravesite Plain',
-    (47,43): 'Gravesite Plain',
-    (47,44): 'Gravesite Plain',
-    (47,45): 'Scadu Altus',
-    (47,46): 'Scadu Altus',
-    (47,47): 'Ancient Ruins of Rauh',
-    (48,37): 'Gravesite Plain',
-    (48,38): 'Gravesite Plain',
-    (48,39): 'Gravesite Plain',
-    (48,40): 'Gravesite Plain',
-    (48,41): 'Gravesite Plain',
-    (48,42): 'Gravesite Plain',
-    (48,43): 'Abyssal Woods',
-    (48,44): 'Gravesite Plain',
-    (48,45): 'Scadu Altus',
-    (48,46): 'Scadu Altus',
-    (49,37): 'Gravesite Plain',
-    (49,38): 'Jagged Peak',
-    (49,39): 'Jagged Peak',
-    (49,42): 'Gravesite Plain',
-    (49,43): 'Scadu Altus',
-    (49,44): 'Scadu Altus',
-    (49,45): 'Scadu Altus',
-    (49,46): 'Scadu Altus',
-    (49,47): 'Scadu Altus',
-    (49,48): 'Shadow Keep',
-    (49,49): 'Shadow Keep',
-    (50,38): 'Gravesite Plain',
-    (50,40): 'Jagged Peak',
-    (50,41): 'Abyssal Woods',
-    (50,42): 'Abyssal Woods',
-    (50,43): 'Scadu Altus',
-    (50,44): 'Scadu Altus',
-    (50,45): 'Scadu Altus',
-    (50,46): 'Scadu Altus',
-    (50,47): 'Scadu Altus',
-    (51,41): 'Abyssal Woods',
-    (51,42): 'Abyssal Woods',
-    (51,44): 'Scadu Altus',
-    (51,45): 'Scadu Altus',
-    (51,46): 'Scadu Altus',
-    (51,47): 'Scadu Altus',
-    (52,40): 'Jagged Peak',
-    (52,41): 'Jagged Peak',
-    (52,42): 'Abyssal Woods',
-    (53,39): 'Jagged Peak',
-    (53,40): 'Jagged Peak',
-    (53,41): 'Abyssal Woods',
-    (53,46): 'Scadu Altus',
-    (53,48): 'Shadow Keep',
+# The m61 (DLC overworld / Land of Shadow) tile -> region map is DERIVED exactly like m60's:
+# grace anchors (each tile's graces vote with their own BonfireWarpParam play_region -> PLAY2AP)
+# + nearest-neighbour for graceless tiles. This replaces the 79-entry hand table from
+# DLC-CHECK-AUDIT.md SS5a: with PLAY2AP now covering the DLC buckets the derivation reproduces
+# 77 of its 79 rows at the (coarse) level the hand table spoke (measured 2026-07-12), and the
+# two rows it cannot reproduce are kept below as curated overrides that would FAIL if they
+# became redundant (CONTRIBUTING: a redundant manual override is a failure).
+_acc61 = defaultdict(Counter)
+for _fl61, _tile61 in gf.items():
+    _pr61 = greg.get(_fl61); _m61 = re.match(r"m61_(\d\d)_(\d\d)", _tile61)
+    if _pr61 and _pr61 != "0" and _m61:
+        _acc61[(int(_m61.group(1)), int(_m61.group(2)))][_pr61] += 1
+# majority play_region per evidenced tile; ties break to the LOWER id (deterministic).
+ANCHOR61 = {_xy: sorted(_c.items(), key=lambda _kv: (-_kv[1], int(_kv[0])))[0][0]
+            for _xy, _c in _acc61.items()}
+# Curated per-tile overrides -- ONLY where the grace evidence points across a border the checks do
+# not. Guarded: an entry whose region the derivation now agrees with must be deleted (hard error).
+M61_TILE_CURATED = {
+    # The tile's only grace is 6800 (an Ellac-river grace: the river descends here toward the
+    # Abyssal Woods entrance), but the tile's CHECKS are the woods' western edge -- the hand audit
+    # (DLC-CHECK-AUDIT.md SS5a) filed the tile under Abyssal and playtests agreed. Keep it.
+    (48, 43): 'Abyssal',
+    # Graceless land bridge toward the Jagged Peak ascent; nearest grace anchor is Cerulean's
+    # coast, which is across a cliff line. Hand audit filed it under Jagged Peak. Keep it.
+    (49, 38): 'Jagged Peak',
 }
+for _xy, _creg in M61_TILE_CURATED.items():
+    _ev = ANCHOR61.get(_xy)
+    if _ev is not None and PLAY2AP.get(_ev) == _creg:
+        raise SystemExit(f"gen_data: M61_TILE_CURATED[{_xy}] = {_creg!r} is REDUNDANT -- the grace "
+                         "evidence now derives it. Delete the override (CONTRIBUTING: a redundant "
+                         "manual override is a failure).")
 def _m61_tile_region(_xx, _yy):
-    _r = M61_TILE_REGION.get((_xx, _yy))
-    if _r is not None:
-        return _r
-    return min(M61_TILE_REGION.items(),
-               key=lambda _kv: (_kv[0][0]-_xx)**2 + (_kv[0][1]-_yy)**2)[1]
+    _cur = M61_TILE_CURATED.get((_xx, _yy))
+    if _cur is not None:
+        return _cur
+    _pr = ANCHOR61.get((_xx, _yy))
+    if _pr is None:
+        _pr = min(ANCHOR61.items(),
+                  key=lambda _kv: (_kv[0][0]-_xx)**2 + (_kv[0][1]-_yy)**2)[1]
+    return PLAY2AP[_pr]
+
 def _m60_tile_region(_mid):
     _m = re.match(r"m6([01])_(\d\d)_(\d\d)", _mid)
     if not _m: return None
@@ -897,17 +880,17 @@ def _recover_tile(_flag):
 # Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
 # tracker report 2026-07-08 (Godfrey Icon talisman + Haligtree medallion mis-shown under Liurnia).
 FLAG_REGION_OVERRIDE = {
-    1039507100: "Altus Plateau",               # Godfrey Icon = Godefroy the Grafted's drop at the
+    1039507100: "Altus",               # Godfrey Icon = Godefroy the Grafted's drop at the
                                                #   Golden Lineage Evergaol (NW Altus). Its EMEVD tile
                                                #   m60_39_50 NN-ties Liurnia(38,50)/Altus(39,51) -> Liurnia.
     1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left) is physically in
                                                #   Castle Sol (Mountaintops); the EMEVD scan mis-tiled the
                                                #   flag to Liurnia (m60_36_41). Right half stays in Liurnia.
-    520000: "Weeping Peninsula",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
+    520000: "Weeping",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
                                                #   Weeping, mis-tiled to m10/Stormveil by the EMEVD scan.
-    520010: "Weeping Peninsula",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
-    400031: "Liurnia of the Lakes",            # Lord of Blood's Favor = Varre's questline reward at the
-    400033: "Liurnia of the Lakes",            #   Rose Church (Liurnia); mis-pinned to m10. (400031/400033
+    520010: "Weeping",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
+    400031: "Liurnia",            # Lord of Blood's Favor = Varre's questline reward at the
+    400033: "Liurnia",            #   Rose Church (Liurnia); mis-pinned to m10. (400031/400033
                                                #   are the given/blood-soaked states -- likely a dup, see below.)
     530100: "Limgrave",                        # Golden Halberd = the Tree Sentinel's drop at the Limgrave
                                                #   start (Church of Elleh / First Step). EMEVD tile
@@ -919,26 +902,26 @@ FLAG_REGION_OVERRIDE = {
     11107900: "Roundtable Hold",               # Clinging Bone (Ensha drop, m11_10 Roundtable)
     # Boss remembrances / drops mis-tiled to m35 (Divine Tower) or m11 (Roundtable) -> Altus. Re-pin to
     # the boss's real region so the check, its detect flag and the region sweep all agree (Alaric 2026-07-09).
-    510200: "Miquella's Haligtree",            # Remembrance of the Rot Goddess = Malenia (Haligtree); mis-tiled m35
+    510200: "Haligtree",            # Remembrance of the Rot Goddess = Malenia (Haligtree); mis-tiled m35
     510300: "Caelid",                          # Remembrance of the Starscourge = Radahn (Caelid); mis-tiled m35
-    510100: "Eternal Cities",                  # Valiant Gargoyles (Nokstella) -- Gargoyle's Greatsword mis-tiled m35 (Divine Tower) -> Altus (Alaric 2026-07-10)
+    510100: "Siofra River",                    # Valiant Gargoyles -- Gargoyle's Greatsword mis-tiled m35 (Divine Tower) -> Altus (Alaric 2026-07-10). Was 'Eternal Cities' and the comment said Nokstella; the duo's arena is the SIOFRA AQUEDUCT (below Nokron) -- verify in-game.
     # --- DLC (SotE) region fixes (Alaric 2026-07-10; DLC-CHECK-AUDIT.md) ---
     510620: "Shadow Keep",                     # Rem. of the Shadow Sunflower -- boss in Shadow Keep, not Scadu Altus
     510640: "Shadow Keep",                     # Rem. of the Wild Boar Rider = Commander Gaius -- Shadow Keep, not Scadu Altus
-    173: "Altus Plateau",                      # Morgott's Great Rune -> Morgott (Leyndell, folds to Altus); scan
+    173: "Leyndell",                   # Morgott's Great Rune -> Morgott (Leyndell -- its own region now); scan
                                                #   mis-tiled it to m13 Farum Azula. Sibling Rem. Omen King (510040) is Altus.
                                                #   MIS-REGION STRANDS PROGRESSION: lock here reads Farum-reachable but is behind Altus.
     # §5c re-pins whose method is NOT global (GLOBAL_RECOVER can't reach them) -> force here:
-    400722: "Gravesite Plain",                 # Gourmet Scorpion Stew (flag_prefix, was Mohgwyn) -- DLC quest consumable
-    520700: "Gravesite Plain",                 # Death Knight's Twin Axes (emevd m30_13 mis-map, was Altus) -> Fog Rift Catacombs
-    # m20 DLC stragglers that leaked into BASE Mohgwyn Palace (Revered Spirit Ash), map unplaced:
-    20007900: "Belurat",                       # m20_00 Belurat Revered Spirit Ash
-    20017900: "Enir-Ilim",                     # m20_01 Enir-Ilim Revered Spirit Ash
+    400722: "Gravesite",                 # Gourmet Scorpion Stew (flag_prefix, was Mohgwyn) -- DLC quest consumable
+    520700: "Gravesite",                 # Death Knight's Twin Axes (emevd m30_13 mis-map, was Altus) -> Fog Rift Catacombs
+    # (The m20 Revered Spirit Ash stragglers 20007900 / 20017900 were hand-pinned here until the
+    # flag-prefix map recovery learned the "20" prefix; they now derive their region via the
+    # regenerated dungeon_regions.tsv -- m20_00 Belurat / m20_01 Enir Ilim.)
     # The three Talisman Pouches (all real checks; Margit's 60510 is already correct at Stormveil):
     60500: "Roundtable Hold",                  # Enia's Talisman Pouch (2-great-rune reward); m11_10 event
                                                #   11100797 gates on !EventFlag(60500); region_map mis-decoded
                                                #   it to m30 Hero's Graves -> Weeping. (Alaric 2026-07-10)
-    60520: "Altus Plateau",                    # Godfrey First Elden Lord (golden shade, Leyndell -> Altus);
+    60520: "Leyndell",                 # Godfrey First Elden Lord (golden shade, Leyndell);
                                                #   mis-tiled to Caelid via the Divine Tower of Caelid event
                                                #   90005110 (m34_13) re-referencing the flag. (Alaric 2026-07-10)
     # Sellen's Bell Bearing: the ONLY award site in all 972 EMEVD scripts is
@@ -948,7 +931,7 @@ FLAG_REGION_OVERRIDE = {
     # it to m11_10 -> "Leyndell / Roundtable / Shunning-Grounds" -> Altus: the SAME m11_10 mis-tiling
     # family already patched for 530130 and 60500. Found by the MSB/EMEVD provenance oracle
     # (test_gf_region_provenance_oracle), 2026-07-10 -- confirm in-game.
-    400106: "Liurnia of the Lakes",
+    400106: "Raya Lucaria Academy",
     # Whetstone Knife: region_map's scan drops it into m30_19 (Giants' Mountaintop Catacombs, whose
     # boss is the Putrid Grave Warden Duelist), but it is the Gatefront Ruins chest in LIMGRAVE. The
     # old hand-curation pinned the whole MAP m30_19 -> Limgrave to make this one check right, which
@@ -969,19 +952,19 @@ FLAG_REGION_OVERRIDE = {
     # matt-free-pipeline mis-resolved them to an m18 fallback -> "Stormveil (assoc.)" -> Stormveil.
     # Re-regioned via the AUTHORITATIVE grace join (grace_flags mapTile -> grace_region_map play_region
     # -> REGION_ID_MAP), so each sub-dungeon lands in its real overworld region (reachable + swept).
-    40007000: "Gravesite Plain",             # m40_00 Fog Rift Catacombs
-    40017000: "Ancient Ruins of Rauh",       # m40_01 Scorpion River Catacombs (Rauh Base)
+    40007000: "Gravesite",             # m40_00 Fog Rift Catacombs
+    40017000: "Rauh Base",           # m40_01 Scorpion River Catacombs (grace bucket 6950 = Rauh Base)
     40027000: "Scadu Altus",                 # m40_02 Darklight Catacombs
-    41007000: "Gravesite Plain",             # m41_00 Belurat Gaol
-    41027000: "Gravesite Plain",             # m41_02 Lamenter's Gaol (Charo's Hidden Grave)
-    42007000: "Gravesite Plain",             # m42_00 Ruined Forge (Lava Intake)
-    42037000: "Ancient Ruins of Rauh",       # m42_03 Taylew's Ruined Forge
-    43007000: "Gravesite Plain",             # m43_00 Rivermouth Cave
+    41007000: "Gravesite",             # m41_00 Belurat Gaol
+    41027000: "Charo's",               # m41_02 Lamenter's Gaol (grace bucket 6840 = Charo's Hidden Grave)
+    42007000: "Gravesite",             # m42_00 Ruined Forge (Lava Intake)
+    42037000: "Rauh Base",           # m42_03 Taylew's Ruined Forge (grace bucket 6950 = Rauh Base)
+    43007000: "Gravesite",             # m43_00 Rivermouth Cave
     18007050: "Limgrave",                    # m18_00 Fringefolk Hero's Grave (off Stranded Graveyard): Erdtree's
     18007900: "Limgrave",                    #   Favor / Erdtree Greatbow. The grave exits into Limgrave and is
                                              #   gated only by 2 Stonesword Keys (gettable), so place it in
                                              #   Limgrave rather than quarantining to HUB (Alaric 2026-07-09).
-    197: "Liurnia of the Lakes",               # Remembrance of the Full Moon Queen = RENNALA's drop.
+    197: "Raya Lucaria Academy",   # Remembrance of the Full Moon Queen = RENNALA's drop.
                                                #   Her reward row is method=emevd (flag 197) mis-pinned to
                                                #   m10 (Stormveil) in region_map.csv, but flag 197 only fires
                                                #   on the Rennala kill at Raya Lucaria (folded into Liurnia),
@@ -1018,9 +1001,11 @@ FLAG_REGION_OVERRIDE = {
 # CURATED below = the only rows a human still owns: maps the data cannot resolve (no grace, no
 # connect tile), plus the few where the raw datum is misleading and the curation is deliberate.
 DUNGEON_REGION_CURATED = {
-    "m30_07_00_00": "Altus Plateau",                # data says 'Mt. Gelmir' -- CURATED override
-    "m30_20_00_00": "Mountaintops of the Giants",   # grace straddles a boundary ['Altus Plateau', 'Mountaintops of the Giants'] -- curated
-    "m32_04_00_00": "Altus Plateau",                # data says 'Mt. Gelmir' -- CURATED override
+    "m30_07_00_00": "Altus",                # data says 'Mt. Gelmir' -- CURATED override
+    # (m30_20 Hidden Path to the Haligtree was curated here while the grace join returned a
+    # boundary SET; the ConnectCollision pass now derives it to Mountaintops of the Giants --
+    # the same value -- so the override was redundant and went. The guard below enforces that.)
+    "m32_04_00_00": "Altus",                # data says 'Mt. Gelmir' -- CURATED override
 }
 
 
@@ -1039,6 +1024,14 @@ def _load_derived_dungeon_regions():
     return _out
 
 DUNGEON_REGION_OVERRIDE = _load_derived_dungeon_regions()
+# A curated row the derivation now AGREES with is redundant -- and a redundant manual override is
+# a failure, not belt-and-braces (see the _BOSS_DROP_EXTRAS guard above). Hard error.
+_ddr_redundant = sorted(k for k, v in DUNGEON_REGION_CURATED.items()
+                        if DUNGEON_REGION_OVERRIDE.get(k) == v)
+if _ddr_redundant:
+    raise SystemExit("gen_data: REDUNDANT DUNGEON_REGION_CURATED entr%s %r -- dungeon_regions.tsv "
+                     "now derives the same region. Delete the override(s)."
+                     % ("y" if len(_ddr_redundant) == 1 else "ies", _ddr_redundant))
 DUNGEON_REGION_OVERRIDE.update(DUNGEON_REGION_CURATED)     # curation always wins over the derivation
 print(f"dungeon regions: {len(DUNGEON_REGION_OVERRIDE)} maps "
       f"({len(DUNGEON_REGION_OVERRIDE) - len(DUNGEON_REGION_CURATED)} derived + "
@@ -1054,7 +1047,14 @@ for _rr in _ALLROWS:
     if _rr.get("method") != "flag_prefix" or (_rr.get("map") or "") not in ("", "PENDING"):
         continue
     _fs = str(_rr.get("flag") or "")
-    if len(_fs) >= 8 and _fs[:2] in ("30", "31", "32", "34", "39", "40", "41", "42", "43"):
+    # "11"/"12"/"20"/"21"/"35" added 2026-07-12 (region-spine v2): the m11 capital / m12
+    # underground / m20 Belurat+Enir-Ilim / m21 Shadow Keep / m35 Shunning-Grounds flag_prefix rows
+    # used to ride multi-region catch-all LABELS ('Leyndell / Roundtable / Shunning-Grounds',
+    # 'Eternal Cities & Underground Rivers', 'DLC Interior', 'Divine Tower' -- whose rows are
+    # actually m35!, ...). Recovering their self-encoded map lets dungeon_regions.tsv (the grace
+    # join) file each check in its REAL region -- m11_10 rows land in the HUB, m12_05 in Mohgwyn.
+    if len(_fs) >= 8 and _fs[:2] in ("11", "12", "20", "21", "30", "31", "32", "34", "35",
+                                     "39", "40", "41", "42", "43"):
         _rec = f"m{_fs[:2]}_{_fs[2:4]}_00_00"
         if _rec in DUNGEON_REGION_OVERRIDE:
             _rr["map"] = _rec
@@ -1073,24 +1073,24 @@ GLOBAL_RECOVER = {
     530425: "Caelid",                      # Gargoyle's Blackblade -> Black Blade Kindred (Bestial Sanctum)
     # Achievement (non-remembrance) major-boss DROPS the pipeline left unplaced (Global/common-event),
     # so recovery dropped them and the boss had no check. Recover to the boss region (Alaric 2026-07-10):
-    60440:  "Liurnia of the Lakes",  # Memory Stone -> Red Wolf of Radagon (Raya Lucaria, folds to Liurnia)
-    510090: "Eternal Cities",        # Frozen Lightning Spear -> Dragonkin Soldier of Nokstella
+    60440:  "Liurnia",  # Memory Stone -> Red Wolf of Radagon (Raya Lucaria, folds to Liurnia)
+    510090: "Ainsel River",          # Frozen Lightning Spear -> Dragonkin Soldier of Nokstella (Nokstella = Ainsel bucket 12010)
     510140: "Farum Azula",           # Bell Bearing[4]/AoW Black Flame Tornado -> Godskin Duo (Crumbling Farum Azula)
-    510260: "Liurnia of the Lakes",  # Magma Wyrm's Scalesword -> Magma Wyrm Makar (Ruin-Strewn Precipice)
-    510320: "Eternal Cities",        # Ancestral Follower Ashes -> Ancestor Spirit (Nokron/Siofra)
+    510260: "Liurnia",  # Magma Wyrm's Scalesword -> Magma Wyrm Makar (Ruin-Strewn Precipice)
+    510320: "Siofra River",          # Ancestral Follower Ashes -> Ancestor Spirit (Siofra / Ancestral Woods)
     510440: "Shadow Keep",           # Aspects of the Crucible: Thorns -> Golden Hippopotamus (DLC)
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
-    65460: 'Gravesite Plain',
+    65460: 'Gravesite',
     400590: 'Scadu Altus',
     400592: 'Scadu Altus',
     400596: 'Shadow Keep',
-    400600: 'Enir-Ilim',
+    400600: 'Enir Ilim',
     400611: 'Scadu Altus',
-    400627: 'Enir-Ilim',
-    400630: 'Gravesite Plain',
-    400636: 'Gravesite Plain',
-    400642: 'Gravesite Plain',
+    400627: 'Enir Ilim',
+    400630: 'Gravesite',
+    400636: 'Gravesite',
+    400642: 'Gravesite',
     400661: 'Scadu Altus',
     400662: 'Scadu Altus',
     400664: 'Scadu Altus',
@@ -1104,35 +1104,35 @@ GLOBAL_RECOVER = {
     400712: 'Jagged Peak',
     400714: 'Jagged Peak',
     510610: 'Scadu Altus',
-    520711: 'Ancient Ruins of Rauh',
-    520750: 'Gravesite Plain',
+    520711: 'Ancient Ruins',
+    520750: 'Gravesite',
     520760: 'Scadu Altus',
-    520770: 'Gravesite Plain',
-    520810: 'Gravesite Plain',
+    520770: 'Gravesite',
+    520810: 'Gravesite',
     530810: 'Scadu Altus',
-    530820: 'Gravesite Plain',
+    530820: 'Gravesite',
     530830: 'Scadu Altus',
     530850: 'Scadu Altus',
-    530855: 'Gravesite Plain',
-    530905: 'Ancient Ruins of Rauh',
+    530855: 'Gravesite',
+    530905: 'Ancient Ruins',
     530930: 'Scadu Altus',
-    530940: 'Ancient Ruins of Rauh',
+    530940: 'Ancient Ruins',
     530955: 'Shadow Keep',
-    530960: 'Ancient Ruins of Rauh',
-    530965: 'Ancient Ruins of Rauh',
-    540900: 'Gravesite Plain',
+    530960: 'Ancient Ruins',
+    530965: 'Ancient Ruins',
+    540900: 'Gravesite',
     580100: 'Belurat',
-    400610: 'Gravesite Plain',
+    400610: 'Gravesite',
     400730: 'Scadu Altus',
     400700: 'Jagged Peak',
     400710: 'Jagged Peak',
-    520710: 'Ancient Ruins of Rauh',
-    530800: 'Gravesite Plain',
+    520710: 'Ancient Ruins',
+    530800: 'Gravesite',
     # Region CORRECTIONS: major-boss drops that WERE checks but auto-recovered to the wrong region
     # (HUB / Altus). Re-pin to the boss's real region so check + detect flag + sweep agree (2026-07-10):
-    510810: "Liurnia of the Lakes",  # Royal Knight Loretta (Caria Manor) -- was HUB (Loretta's Greatbow/Slash)
+    510810: "Liurnia",  # Royal Knight Loretta (Caria Manor) -- was HUB (Loretta's Greatbow/Slash)
     510210: "Mt. Gelmir",            # Godskin Noble (Volcano Manor) -- was auto-recovered to Altus
-    510250: "Altus Plateau",               # Bloodflame Talons -> Mohg, the Omen (Subterranean Shunning-Grounds, folds to Altus; was unplaced/global -> not randomized, in-game 2026-07-10)
+    510250: "Sewer",               # Bloodflame Talons -> Mohg, the Omen (Subterranean Shunning-Grounds = the Sewer region now; was unplaced/global -> not randomized, in-game 2026-07-10)
     # Shared-flag Golden Seeds the flag-tile decode couldn't place, so recovery dropped them entirely.
     # Each is a real reachable pickup whose acquisition flag is shared with a co-located spirit ash that
     # is NOT a separate check anywhere, so recovering them loses nothing and completes the Golden Seed
@@ -1143,44 +1143,44 @@ GLOBAL_RECOVER = {
     # Golden Tailoring Tools (60150): the cloak-alteration tool at the Church of Vows (Liurnia). A
     # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
     # never a check). Recover it as a Liurnia check (Alaric 2026-07-09).
-    60150: "Liurnia of the Lakes",
+    60150: "Liurnia",
     # Teardrop-scarab ash/talisman drops (global common-event -> auto-recovered to the WRONG region;
     # Alaric-confirmed 2026-07-09, were showing under Altus).
-    520360: "Liurnia of the Lakes",        # Winged Sword Insignia (Liurnia scarab)
+    520360: "Liurnia",        # Winged Sword Insignia (Liurnia scarab)
     540510: "Mountaintops of the Giants",  # Ash of War: Seppuku (Mountaintops scarab)
     # Physick crystal / cracked / hidden / hard tears (Alaric hand-assigned to drop region, 2026-07-06).
-    65000: "Altus Plateau",            # Crimsonspill Crystal Tear
+    65000: "Altus",            # Crimsonspill Crystal Tear
     65010: "Limgrave",                 # Greenspill Crystal Tear
     65020: "Limgrave",                 # Crimson Crystal Tear (2 copies: Limgrave + Altus -> earlier)
-    65050: "Liurnia of the Lakes",     # Cerulean Crystal Tear (2: Liurnia + Mountaintops avatar -> earlier)
+    65050: "Liurnia",     # Cerulean Crystal Tear (2: Liurnia + Mountaintops avatar -> earlier)
     65070: "Mountaintops of the Giants",  # Crimson Bubbletear (Mountaintops Erdtree Avatar)
-    65080: "Weeping Peninsula",        # Opaline Bubbletear (Weeping Erdtree Avatar)
+    65080: "Weeping",        # Opaline Bubbletear (Weeping Erdtree Avatar)
     65110: "Caelid",                   # Opaline Hardtear (Caelid Erdtree Avatar)
     65130: "Mountaintops of the Giants",  # Thorny Cracked Tear (Snowfield Erdtree Avatar; Snowfield folded in)
     65140: "Limgrave",                 # Spiked Cracked Tear
-    65160: "Liurnia of the Lakes",     # Ruptured Crystal Tear (Liurnia Erdtree Avatar)
+    65160: "Liurnia",     # Ruptured Crystal Tear (Liurnia Erdtree Avatar)
     65170: "Mountaintops of the Giants",  # Ruptured Crystal Tear (Snowfield Erdtree Avatar; Snowfield folded in)
     65210: "Limgrave",                 # Strength-knot Crystal Tear
-    65220: "Liurnia of the Lakes",     # Dexterity-knot Crystal Tear
-    65230: "Liurnia of the Lakes",     # Intelligence-knot Crystal Tear (Carian Manor)
+    65220: "Liurnia",     # Dexterity-knot Crystal Tear
+    65230: "Liurnia",     # Intelligence-knot Crystal Tear (Carian Manor)
     65250: "Mt. Gelmir",               # Cerulean Hidden Tear (Gelmir Ulcerated Tree Spirit)
     65260: "Caelid",                   # Stonebarb Cracked Tear (Caelid Erdtree Avatar)
     65280: "Caelid",                   # Flame-Shrouding Cracked Tear (Caelid Erdtree Avatar)
-    65300: "Liurnia of the Lakes",     # Lightning-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
-    65310: "Liurnia of the Lakes",     # Holy-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
+    65300: "Liurnia",     # Lightning-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
+    65310: "Liurnia",     # Holy-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
     # DLC furnace-golem tears.
-    65400: "Gravesite Plain",          # Viridian Hidden Tear (Gravesite Plains)
+    65400: "Gravesite",          # Viridian Hidden Tear (Gravesite Plains)
     65410: "Scadu Altus",              # Crimsonburst Dried Tear
     65420: "Scadu Altus",              # Crimson-Sapping Cracked Tear (Ancient Ruins of Rauh golem)
     65430: "Scadu Altus",              # Cerulean-Sapping Cracked Tear
     65440: "Scadu Altus",              # Oil-Soaked Tear
     65450: "Scadu Altus",              # Bloodsucking Cracked Tear
-    65470: "Gravesite Plain",          # Deflecting Hardtear (Gravesite Plains golem)
+    65470: "Gravesite",          # Deflecting Hardtear (Gravesite Plains golem)
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
     # 510340 is NOT scattered: its two lots (10340 = Larval Tear x2, 10341 = Silver Tear Mask) are the
     # SINGLE Mimic Tear boss pickup in Nokstella -> Eternal Cities (the "Larval Tear/HUB" was a mislabel;
     # scan named the flag after the Larval Tear co-item). (Alaric 2026-07-10)
-    510340: "Eternal Cities",
+    510340: "Siofra River",   # (the 2026-07-10 note said Nokstella; the Mimic Tear boss arena is Night's Sacred Ground, NOKRON -- a Siofra-bucket map. Verify in-game.)
     1049557700: HUB,
     # Haligtree Secret Medallion (Right): physically the reward in Castle Sol (Mountaintops of the
     # Giants), obtained by defeating Commander Niall -- NOT the Village-of-the-Albinaurics pickup (that
@@ -1188,7 +1188,7 @@ GLOBAL_RECOVER = {
     # currently recovered to Liurnia, which is a mis-pin (real region Mountaintops). It IS reachable
     # (Niall is a normal combat boss), so it is left as a Liurnia check pending a proper re-pin to
     # Mountaintops (flagged 2026-07-09; distinct from the Albinauric Rise Graven-Mass Talisman above).
-    400130: "Liurnia of the Lakes",
+    400130: "Liurnia",
     # Deathroot rewards from Gurranq at the Bestial Sanctum (Dragonbarrow / NE Caelid). Recovered as
     # checks AND tagged missable below (gated behind delivering N deathroots -- a limited consumable +
     # Gurranq is killable -- so fill must not place required progression here). See DEATHROOT_FLAGS.
@@ -1206,19 +1206,19 @@ GLOBAL_RECOVER = {
     # Plateau). Fired via the common boss-drop handler (EMEVD event 82: entity 1100/reward 510820),
     # so it has no map lot and lands in the unplaced common-event bucket -- recover it as an Altus
     # check so felling Elemer sends a check instead of paying the vanilla sword.
-    510820: "Altus Plateau",
+    510820: "Altus",
     # Lord of Blood's Exultation (520220): Esgar, Priest of Blood's drop at the end of Leyndell
     # Catacombs (under Leyndell, which greenfield folds into Altus Plateau). Fired via the common
     # boss-drop handler with no map lot -> lands in the unplaced common-event bucket and was
     # quarantined to HUB. Recover it to Altus so felling Esgar sends a check, not the vanilla talisman
     # (Alaric 2026-07-09; the Catacombs are reachable by normal traversal once Leyndell/Altus opens).
-    520220: "Altus Plateau",
+    520220: "Altus",
     # Loretta's Mastery (510190): the sorcery dropped by Loretta, Knight of the Haligtree (m15 boss,
     # healthbar entity 15000850). She drops a SORCERY, not a remembrance, so the boss_arena join never
     # sees her and her drop sat in the unplaced common-event bucket. Recover it to Miquella's Haligtree
     # so felling her sends a check; she is also registered as a region boss via _BOSS_SPECIALS below
     # (Alaric 2026-07-09: Loretta was missing from the Haligtree boss list).
-    510190: "Miquella's Haligtree",
+    510190: "Haligtree",
     # Commander's Standard (530405): shared drop flag. The entity-suffix datamine finds only the
     # generic Altus commander at Bower of Bounty; but Commander O'Neil in the Swamp of Aeonia (CAELID)
     # also drops it (Alaric, ground truth 2026-07-09) and is the earlier/intended source. Pin to
@@ -1227,7 +1227,7 @@ GLOBAL_RECOVER = {
     # Grafted Blade Greatsword (510800): drops from the Leonine Misbegotten at Castle Morne, in the
     # Weeping Peninsula (Alaric, ground truth 2026-07-09 -- tracker showed it quarantined to HUB).
     # Shared/unplaced common-event flag -> pin so it sits behind the Weeping lock, not always-free.
-    510800: "Weeping Peninsula",
+    510800: "Weeping",
 }
 # Missable location flags (matt-free): checks gated behind a LIMITED consumable or a killable NPC, so
 # fill must not place required progression there (features/missable_locations.py enforces via item_rule).
@@ -1696,25 +1696,21 @@ _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
       f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
       f"{len(_SKIP_GRACE_FLAGS)} total skipped")
-# Per-play_region grace region for SPLIT interior maps whose 3-char prefix conflates regions
-# (m20 = Belurat 20000 + Enir-Ilim 20010; m12_05 = Mohgwyn 12050 vs the rest of m12 = Eternal
-# Cities). The grace's own play_region_id (grace_region_map = greg) is authoritative; the coarse
-# _pref2maj vote below cannot tell these apart. Mirrors the DUNGEON_REGION_OVERRIDE check fix.
-_GRACE_PR_REGION = {"20000": "Belurat", "20010": "Enir-Ilim", "12050": "Mohgwyn Palace"}
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
     if int(_fl) in _SKIP_GRACE_FLAGS: continue          # boss-gated / arena grace: never force-light
-    _mj = None
-    _m = re.match(r"m60_(\d\d)_(\d\d)", _tile)
-    if _m:
-        # OVERWORLD grace: the grace's own play_region_id (grace_region_map = ground truth) beats the
-        # per-tile anchor VOTE, which mis-buckets graces on contested boundary tiles -- 76301 "Altus
-        # Plateau" (tile 38,50) and 76502 "Grand Lift of Rold" (tile 49,53) have play_region 63xxx
-        # (Altus) but their tiles vote Liurnia / Mountaintops. Fall back to the tile NN when the grace
-        # has no overworld play_region entry. Interior/dungeon graces (no m60 tile) keep the prefix path.
-        _mj = PLAY2AP.get(greg.get(_fl)) or PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
-    if not _mj: _mj = _GRACE_PR_REGION.get(greg.get(_fl))   # split-map: per-play_region (authoritative)
+    # The grace's own play_region_id (grace_region_map = ground truth) IS its region: PLAY2AP now
+    # covers all 54 buckets, so interior and DLC graces resolve directly instead of falling through
+    # the map-prefix majority vote (which is how the old split-map hand table _GRACE_PR_REGION and
+    # the _DLC_OPEN_FALLBACK earned their existence -- both are gone). The tile NN stays as a
+    # fallback for the few graces with NO play_region entry; on contested boundary tiles the id
+    # still beats the vote (76301 "Altus Plateau" @ (38,50) and 76502 "Grand Lift of Rold" @
+    # (49,53) carry 63xxx ids their tiles would mis-vote). _pref2maj is the last resort.
+    _mj = PLAY2AP.get(greg.get(_fl))
+    if not _mj:
+        _m = re.match(r"m60_(\d\d)_(\d\d)", _tile)
+        if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
     if _mj and _mj != HUB:
         _open_cand[_mj].append(int(_fl))
@@ -1726,19 +1722,10 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
 def _front_door(r):
     return min(_open_cand_ow[r]) if _open_cand_ow.get(r) else min(_open_cand[r])
 REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
-# DLC sub-areas whose locations are all boss-arena/PENDING never resolve to a grace above (their
-# m61 tiles collapse into Land of Shadow's coarse bucket). Hand-verified front-door warp graces
-# from grace_flags.tsv (grace_name-labeled) give them their own open flag:
-#   Abyssal Woods -> 76860 'Abyssal Woods' (m61_50_42); Jagged Peak -> 76850 'Foot of the Jagged
-#   Peak' (m61_52_40); Scadu Altus -> 76900 'Highroad Cross' (m61_48_45).
-_DLC_OPEN_FALLBACK = {'Abyssal Woods': 76860, 'Jagged Peak': 76850, 'Scadu Altus': 76900,
-                      # DLC legacy dungeons with only boss-arena locations (no grace resolves
-                      # via _open_cand) -> hand-verified front-door warp graces (grace_region_map):
-                      'Ancient Ruins of Rauh': 76941,  # 'Rauh Ancient Ruins, East' (m61_46_47)
-                      'Enir-Ilim': 72012}              # 'Enir-Ilim: Outer Wall' (m20 entrance)
-for _dr, _df in _DLC_OPEN_FALLBACK.items():
-    if _dr in spokes and _dr not in REGION_OPEN_FLAGS:
-        REGION_OPEN_FLAGS[_dr] = _df
+# (The _DLC_OPEN_FALLBACK hand table is GONE. Every one of the 54 buckets has >= 1 grace, so with
+# PLAY2AP covering them all, every region's graces reach _open_cand and _front_door derives every
+# open flag -- REGION_OPEN_PENDING prints [] below and gen hard-fails if it ever does not. If a
+# region seems to need a hand fallback again, the grouping in region_groups.py is wrong; fix THAT.)
 REGION_OPEN_PENDING = [r for r in spokes if r not in REGION_OPEN_FLAGS]
 OUT_OPEN = os.path.join(HERE, "eldenring", "region_open_flags.py")
 with open(OUT_OPEN, "w", encoding="utf-8") as _f:
@@ -1752,6 +1739,31 @@ with open(OUT_OPEN, "w", encoding="utf-8") as _f:
     for _r in REGION_OPEN_PENDING: _f.write(f"    {_r!r},\n")
     _f.write("]\n")
 print(f"region_open_flags: {len(REGION_OPEN_FLAGS)} resolved, {len(REGION_OPEN_PENDING)} pending -> {REGION_OPEN_PENDING}")
+if REGION_OPEN_PENDING:
+    raise SystemExit("gen_data: region(s) with NO derivable front-door open flag: %r. Every bucket "
+                     "has a grace, so this means the region_groups.py grouping is wrong (or a skip "
+                     "list swallowed a region's whole grace set) -- do NOT add a hand fallback."
+                     % (REGION_OPEN_PENDING,))
+
+# ---- region_play_ids.py: the kick-watch geometry, generated as the INVERSE of the spine --------
+# features/area_locks.py used to carry a hand-maintained REGION_PLAY_IDS copy of this map; it and
+# PLAY2AP drifted (stale 'Raya Lucaria Academy'/'Leyndell' keys that were not regions, 6940/6950
+# swapped between Scadu Altus and Rauh). One source now: region_groups.REGION_GROUPS, inverted
+# here minus the kick-excluded buckets (the HUB and the tutorial spawn -- see region_groups).
+OUT_PIDS = os.path.join(HERE, "eldenring", "region_play_ids.py")
+_RPI = _region_play_ids()
+_rpi_unknown = sorted(set(_RPI) - set(spokes))
+with open(OUT_PIDS, "w", newline="\n", encoding="utf-8") as _f:
+    _f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py).\n')
+    _f.write('Region -> play_region ids (kick-watch geometry), the inverse of region_groups.REGION_GROUPS\n')
+    _f.write('minus the kick-excluded buckets (Roundtable HUB 11100, tutorial spawn 18000). Consumed by\n')
+    _f.write('features/area_locks.py (areaLockFlags) and baked into the client (tools/gen_region_locks.py)."""\n')
+    _f.write("REGION_PLAY_IDS = {\n")
+    for _r in sorted(_RPI):
+        _f.write(f"    {_r!r}: {sorted(_RPI[_r])!r},\n")
+    _f.write("}\n")
+print(f"region_play_ids: {len(_RPI)} regions, {sum(len(v) for v in _RPI.values())} play_region ids"
+      + (f" | WARNING regions with geometry but no checks: {_rpi_unknown}" if _rpi_unknown else ""))
 
 
 # ---- Phase 3 region bosses: the 25 major bosses (method=boss_arena), joined to greenfield ap-ids
@@ -1777,12 +1789,12 @@ for r in rows:
 #   flag 14000800 verified in elden_ring_artifacts/event/m14_00_00_00.emevd.dcx.js.
 # (region, defeat_flag, reward_join_flag, reward_name)
 _BOSS_SPECIALS = [
-    ("Liurnia of the Lakes", 14000800, 197, "Remembrance of the Full Moon Queen"),  # Rennala; Raya Lucaria folded into Liurnia
+    ("Raya Lucaria Academy", 14000800, 197, "Remembrance of the Full Moon Queen"),  # Rennala (the Academy is its own region now)
     # Loretta, Knight of the Haligtree: m15 boss (healthbar entity 15000850) who drops a sorcery
     # (Loretta's Mastery, 510190) rather than a remembrance, so the boss_arena join skips her. Her
     # drop is GLOBAL_RECOVER'd to Miquella's Haligtree above; register her as the region boss keyed to
     # defeat flag 15000850 (verified in BOSS_HEALTHBARS / m15_00 EMEVD), joined via 510190.
-    ("Miquella's Haligtree", 15000850, 510190, "[Sorcery] Loretta's Mastery"),
+    ("Haligtree", 15000850, 510190, "[Sorcery] Loretta's Mastery"),
 ]
 for _reg, _dfl, _jfl, _nm in _BOSS_SPECIALS:
     _aid = _flag2apid.get(_jfl)
@@ -1839,7 +1851,7 @@ MAJOR_BOSS_EXTRAS = {
         #     item, ap 7770249, in Roundtable Hold). Re-regioning "Margit" is NOT actionable in the
         #     current data -- there is no Margit reward check to move -- so Agheel is the primary.
     ],
-    "Weeping Peninsula": [
+    "Weeping": [
         (510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
         # Castle Morne boss; drops the Grafted Blade Greatsword (flag 510800, rarity-3 -> already
         # 'Legendary'-tagged, ap 7773928), pinned to Weeping Peninsula (commit 6be2f1a). In-region,
@@ -1847,7 +1859,33 @@ MAJOR_BOSS_EXTRAS = {
         # extras-structure test).
         # Alternates: Erdtree Avatar; Demi-Human Queen (Demi-Human Queen's Staff, ap 7773077, f1043347400).
     ],
-    # ---- TODO (no reliable in-region major-boss DROP check in current data; ladder covers these) ----
+    # ---- Region-spine v2 (2026-07-12): the un-collapse moved four regions' arena majors into the
+    # sub-regions that split out of them (Rennala -> Raya Lucaria Academy, Morgott -> Leyndell,
+    # Rellana -> Ensis, Putrescent Knight -> Stone Coffin), so the PARENTS need extras again. Each
+    # entry below is an existing in-region check pinned by GLOBAL_RECOVER / FLAG_REGION_OVERRIDE;
+    # the regen invariant validates region membership. Four regions remain WITHOUT any major --
+    # Cerulean, Charo's, Rauh Base, Scaduview -- because no reliable in-region major-boss drop
+    # check exists in current data (SPEC-region-spine-v2.md; the progression_surface ladder covers
+    # them).
+    "Liurnia": [
+        (510260, "Magma Wyrm Makar", "Magma Wyrm's Scalesword", "HIGH"),
+        # Ruin-Strewn Precipice (bucket 39200, a Liurnia span); recovered via GLOBAL_RECOVER 510260
+        # and already Boss-tagged (_BOSS_DROP_EXTRAS). Rennala moved to Raya Lucaria Academy.
+    ],
+    "Altus": [
+        (1039507100, "Godefroy the Grafted", "Godfrey Icon", "HIGH"),
+        # Golden Lineage Evergaol (NW Altus); FLAG_REGION_OVERRIDE re-pin, playtest-verified
+        # 2026-07-08. Morgott moved to Leyndell with the capital split.
+    ],
+    "Sewer": [
+        (510250, "Mohg, the Omen", "Bloodflame Talons", "HIGH"),
+        # Subterranean Shunning-Grounds' own major; GLOBAL_RECOVER 510250 pins the drop here.
+    ],
+    "Gravesite": [
+        (530820, "Blackgaol Knight", "Greatsword of Solitude", "MEDIUM"),
+        # Western Nameless Mausoleum (Gravesite Plain); GLOBAL_RECOVER 530820. Rellana moved to
+        # Ensis and Putrescent Knight to Stone Coffin, leaving the DLC entry overworld major-less.
+    ],
     "Jagged Peak": [
         (510630, "Bayle the Dread", "Heart of Bayle", "MEDIUM"),
         # Bayle's drop (Heart of Bayle, ap 7770836, flag 510630) is mis-pinned to the m12_05
@@ -3038,9 +3076,9 @@ try:
 except Exception as _e:                                    # never let a missing manifest break regen
     _INPUTS_HASH = "sha256:UNAVAILABLE"
     print(f"[gen_data] gen_manifest unavailable ({_e!r}); stamp inputs_hash=UNAVAILABLE")
-_STAMP_MODULES = ["data.py", "region_open_flags.py", "boss_data.py", "region_graces.py",
-                  "shop_data.py", "missable_locations.py", "item_ids.py", "item_tiers.py",
-                  "location_tags.py", "boss_sweeps.py"]
+_STAMP_MODULES = ["data.py", "region_open_flags.py", "region_play_ids.py", "boss_data.py",
+                  "region_graces.py", "shop_data.py", "missable_locations.py", "item_ids.py",
+                  "item_tiers.py", "location_tags.py", "boss_sweeps.py"]
 _COUNTS = {"locations": sum(len(v) for v in buckets.values()), "regions": len(spokes),
            "item_catalog": len(ITEM_CATALOG), "filler_pool": len(FILLER_POOL),
            "sweeps": len(DUNGEON_SWEEPS)}

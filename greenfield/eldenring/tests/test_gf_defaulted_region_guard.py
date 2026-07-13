@@ -67,10 +67,19 @@ class TestDefaultedRegionGuard(unittest.TestCase):
         legitimately-unbarred Liurnia check -- so the assertion started failing while the property it
         guards was still perfectly true. A guard that pins a positional id is a guard with a half-life.
         """
-        for flag, what in ((400220, "Golden Seed f400220"), (520180, "Golden Seed f520180")):
+        for flag, what in ((400220, "Golden Seed f400220"),):
             ap = _ap_of(flag)
             self.assertIn(ap, DEFAULTED_REGION_APS,
                           f"ap {ap} ({what}, region GUESSED) must be barred from progression")
+        # f520180 used to sit beside f400220 here. It is NOT barred any more -- and that is the
+        # derivation catching up, not the guard regressing: its MSB truth map is m30_18 (Giants'
+        # Mountaintop Catacombs), which the ConnectCollision datamine resolved on 2026-07-12
+        # (dungeon_regions.tsv m30_18 -> Mountaintops of the Giants). Pin the derived region so a
+        # future regen can't silently drop it back into the guessed pool.
+        ap = _ap_of(520180)
+        self.assertNotIn(ap, DEFAULTED_REGION_APS,
+                         "Golden Seed f520180 regressed to a GUESSED region -- dungeon_regions.tsv "
+                         "lost m30_18 (re-run tools/datamine_dungeon_regions.py with the MSBs)")
 
     def test_no_defaulted_check_is_ever_progression_eligible(self):
         """THE INVARIANT. Over every progression surface the yaml can select, no check whose region was

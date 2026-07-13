@@ -34,21 +34,31 @@ REPO = os.path.abspath(os.path.join(HERE, ".."))
 ART = os.path.join(REPO, "elden_ring_artifacts")
 OUT = os.path.join(REPO, "greenfield", "dungeon_regions.tsv")
 
-# play_region_id -> greenfield region. Overworld buckets mirror gen_data.PLAY2AP exactly; interior
-# buckets from REGION_ID_MAP.md, with the folds gen_data's REGION_MAP already applies.
-PLAY2GF = {
-    "61000": "Limgrave", "61001": "Limgrave", "61002": "Weeping Peninsula",
-    "62000": "Liurnia of the Lakes", "62001": "Liurnia of the Lakes", "62002": "Liurnia of the Lakes",
-    "63000": "Altus Plateau", "63001": "Mt. Gelmir", "63002": "Altus Plateau", "63003": "Altus Plateau",
-    "64000": "Caelid", "64001": "Caelid", "64002": "Caelid",
-    "65000": "Mountaintops of the Giants", "65001": "Mountaintops of the Giants",
-    "65002": "Mountaintops of the Giants",
-}
+# play_region_id -> greenfield region: imported from THE spine (greenfield/region_groups.py) --
+# this tool used to carry its own overworld copy, which is exactly the drift class the single
+# source exists to kill.
+import importlib.util as _ilu
+_rg_spec = _ilu.spec_from_file_location("region_groups", os.path.join(REPO, "greenfield", "region_groups.py"))
+_rg = _ilu.module_from_spec(_rg_spec); _rg_spec.loader.exec_module(_rg)
+PLAY2GF = dict(_rg.PLAY2AP)
+
+
+def _grace_source(prefix):
+    """Latest grace table: TRACKED greenfield/ copy first (the derived tsvs moved there so a
+    `git clean` can't orphan gen_data), artifacts as the legacy fallback -- same rule as
+    gen_data._grace_table."""
+    for base in (os.path.join(REPO, "greenfield"), ART):
+        if not os.path.isdir(base):
+            continue
+        cand = sorted(x for x in os.listdir(base) if x.startswith(prefix) and x.endswith(".tsv"))
+        if cand:
+            return os.path.join(base, cand[-1])
+    raise SystemExit(f"FATAL: {prefix}*.tsv found in neither greenfield/ nor elden_ring_artifacts/")
 
 
 def _grace_tables():
     gf = {}
-    with open(os.path.join(ART, "grace_flags.tsv"), newline="") as fh:
+    with open(_grace_source("grace_flags"), newline="") as fh:
         for r in csv.DictReader(fh, delimiter="\t"):
             try:
                 f = int(r["warpUnlockFlag"])
@@ -56,9 +66,8 @@ def _grace_tables():
                 continue
             if 71000 <= f <= 76999:
                 gf[str(f)] = r["mapTile"]
-    grm = [x for x in os.listdir(ART) if x.startswith("grace_region_map")][0]
     pid = {}
-    with open(os.path.join(ART, grm), newline="") as fh:
+    with open(_grace_source("grace_region_map"), newline="") as fh:
         for r in csv.DictReader(fh, delimiter="\t"):
             pid[r["grace_flag"]] = r["play_region_id"]
     return gf, pid

@@ -13,7 +13,12 @@ listed key sits OUTSIDE its dungeon (e.g. the Academy Glintstone Key on the Liur
 flag 1034457100, which is not in the m14 range), so fill always has a reachable slot to place it.
 
 Currently gated:
-  Academy Glintstone Key  ->  Raya Lucaria Academy (m14, folded into Liurnia of the Lakes).
+  Academy Glintstone Key  ->  Raya Lucaria Academy (its own region since region-spine v2; the key
+                              is required IN ADDITION to the region's Lock, like the vanilla fog);
+  Hole-Laden Necklace     ->  Metyr's remembrance check. NB: the Cathedral surface is Scaduview
+                              (bucket 6920), but Metyr's ARENA is m25_00, whose own grace the game
+                              buckets 6900 = Scadu Altus (MSB truth, measured 2026-07-12) -- so the
+                              gated check lives in Scadu Altus.
 
 Toggle `legacy_dungeon_keys` (DefaultOnToggle). Off -> no gate; the key stays filler and default fill
 is unchanged. LOGIC-only for now (no client hard-gate / kick), same status as features/leyndell_gate.
@@ -30,12 +35,13 @@ try:
 except Exception:
     ITEM_CATALOG = {}
 
-# {key item name: (parent region name, (flag_lo, flag_hi))}. flag_hi exclusive. m14 map-lot flags are
-# 14000000..14999999 (Raya Lucaria Academy); 1034457100 (the Liurnia-overworld spare key) is OUTSIDE
-# that range, so it is never gated -- fill can always place a key there or anywhere else reachable.
+# {key item name: (region whose checks are gated, (flag_lo, flag_hi))}. flag_hi exclusive. m14
+# map-lot flags are 14000000..14999999 (Raya Lucaria Academy); the spare key on the LIURNIA
+# overworld (flag 1034457100) is outside both the range and the region, so fill can always place a
+# key there or anywhere else reachable.
 _LEGACY_KEYS = {
-    "Academy Glintstone Key": ("Liurnia of the Lakes", (14000000, 15000000)),
-    "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),
+    "Academy Glintstone Key": ("Raya Lucaria Academy", (14000000, 15000000)),
+    "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),   # Metyr arena m25_00 -> bucket 6900 (see above)
 }
 _LEGACY_EXTRA = {"Academy Glintstone Key": frozenset({197, 60440}), "Hole-Laden Necklace": frozenset({510550})}
 
@@ -65,10 +71,10 @@ def _gated_location_ids(active):
 
 
 class LegacyDungeonKeys(DefaultOnToggle):
-    """Gate folded-in legacy dungeons behind their key item in logic (e.g. Raya Lucaria Academy needs
-    the Academy Glintstone Key on top of the Liurnia Lock). Keeps fill from placing required
-    progression behind a key it hasn't proven reachable. On by default; off restores the coarse
-    region-only model."""
+    """Gate legacy dungeons behind their vanilla key item in logic (e.g. Raya Lucaria Academy needs
+    the Academy Glintstone Key on top of its region Lock). Keeps fill from placing required
+    progression behind a key it hasn't proven reachable. On by default; off restores the
+    region-Lock-only model."""
     display_name = "Legacy Dungeon Key Gates"
 
 

@@ -4,7 +4,8 @@
 Emits `crates/er-logic/src/region_locks.rs` from the apworld's OWN region-lock sources -- the
 same two tables every seed's slot_data is built from:
   - greenfield/eldenring/region_open_flags.py  : REGION_OPEN_FLAGS (region -> warp-grace open flag)
-  - greenfield/eldenring/features/area_locks.py : REGION_PLAY_IDS  (region -> play_region ids)
+  - greenfield/eldenring/region_play_ids.py    : REGION_PLAY_IDS  (region -> play_region ids,
+    generated from greenfield/region_groups.py -- THE spine)
 
 WHY A CLIENT COPY EXISTS AT ALL (and why it must be generated): both tables are STATIC GAME
 DATA -- identical for every seed and every apworld. A foreign apworld (Bedrock's) has region
@@ -16,8 +17,7 @@ A HAND-typed client copy of this geometry drifted repeatedly (see test_gf_data.p
 GreenfieldAreaLockGeometry) -- which is why this file may only ever be written by this tool,
 exactly like tools/gen_location_regions.py owns tracker_regions.rs.
 
-AP-env-free: REGION_OPEN_FLAGS imports clean; area_locks.py has package-relative imports, so
-REGION_PLAY_IDS is lifted from its AST (a literal dict) instead of importing the module.
+AP-env-free: both are generated pure-data modules and import clean.
 
     python tools/gen_region_locks.py            # regenerate + wire lib.rs
     python tools/gen_region_locks.py --check    # CI drift gate (0 ok / 1 stale / 4 no client)
@@ -48,18 +48,17 @@ def load_open_flags():
 
 
 def load_play_ids():
-    """REGION_PLAY_IDS lifted from area_locks.py's AST (the module has package-relative
-    imports, so it cannot be exec'd standalone; the table itself is a literal dict)."""
-    tree = ast.parse(open(AREA_LOCKS_PY, encoding="utf-8").read(), AREA_LOCKS_PY)
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Assign):
-            for tgt in node.targets:
-                if isinstance(tgt, ast.Name) and tgt.id == "REGION_PLAY_IDS":
-                    table = ast.literal_eval(node.value)
-                    if not (isinstance(table, dict) and table):
-                        raise SystemExit("FATAL: REGION_PLAY_IDS is not a non-empty dict literal")
-                    return {str(k): [int(x) for x in v] for k, v in table.items()}
-    raise SystemExit(f"FATAL: no REGION_PLAY_IDS assignment found in {AREA_LOCKS_PY}")
+    """REGION_PLAY_IDS from the GENERATED pure-data module (region_play_ids.py, emitted by
+    gen_data.py as the inverse of greenfield/region_groups.py). It used to be AST-lifted from a
+    hand table in features/area_locks.py; that table is gone -- one source now."""
+    spec = importlib.util.spec_from_file_location(
+        "er_gf_region_play_ids", os.path.join(GF, "region_play_ids.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    table = dict(mod.REGION_PLAY_IDS)
+    if not table:
+        raise SystemExit("FATAL: region_play_ids.py has an empty REGION_PLAY_IDS")
+    return {str(k): [int(x) for x in v] for k, v in table.items()}
 
 
 def load_rows():

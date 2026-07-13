@@ -1,6 +1,6 @@
 """Greenfield num_regions spine (matt-free) -- SPEC-PARITY Phase 1.
 
-Progression order over the 22 greenfield regions + the always-kept goal region. `num_regions`
+Progression order over the 31 greenfield regions + the always-kept goal region (region-spine v2). `num_regions`
 seals the world down to N regions; `compute_kept` decides which N. Pure (no AP import) so it runs
 in the data-invariant gate. Keyed by REGION name only (greenfield's own names), never an imported
 set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P1).
@@ -8,30 +8,32 @@ set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P
 from .data import REGIONS
 
 # Lock always required (capital ending). Always kept so the seed stays winnable at any num_regions.
-# Capstone re-carve: Leyndell folded into Altus Plateau, so the capital-ending checks (Morgott,
-# Ashen Capital, Fractured Marika) now live in Altus's region -> Altus Plateau is the goal region.
-GOAL_REGION = "Altus Plateau"
+# Region-spine v2: Leyndell is a first-class region again (buckets 11000 Royal + 11050 Ashen fold +
+# 19000 Fractured Marika), so the capital-ending checks live in Leyndell -> it is the goal region.
+GOAL_REGION = "Leyndell"
 
 # Fixed progression path (Limgrave-first). num_regions_order='spine' keeps the first N of this;
 # 'rolled' keeps N random regions. Must be a permutation of REGIONS (guarded by test_gf_data).
 SPINE = [
-    "Limgrave", "Weeping Peninsula", "Stormveil Castle", "Liurnia of the Lakes",
-    "Caelid", "Altus Plateau", "Mt. Gelmir",
-    "Mountaintops of the Giants", "Miquella's Haligtree",
-    "Farum Azula", "Mohgwyn Palace", "Eternal Cities",
-    # DLC (rides as plain lock gates -- SPEC-PARITY.md P7). Capstone re-carve split the old
-    # 'Land of Shadow' catch-all into Gravesite Plain + Ancient Ruins of Rauh (Romina) + Enir-Ilim.
-    "Gravesite Plain", "Belurat", "Scadu Altus", "Shadow Keep",
-    "Ancient Ruins of Rauh", "Enir-Ilim", "Jagged Peak", "Abyssal Woods",
+    # base game, rough vanilla progression order
+    "Limgrave", "Weeping", "Stormveil", "Liurnia", "Raya Lucaria Academy",
+    "Caelid", "Siofra River", "Altus", "Mt. Gelmir",
+    "Leyndell", "Sewer", "Ainsel River", "Deeproot Depths", "Mohgwyn",
+    "Mountaintops of the Giants", "Haligtree", "Farum Azula",
+    # DLC (rides as plain lock gates -- SPEC-PARITY.md P7), entry-first
+    "Gravesite", "Ensis", "Cerulean", "Charo's", "Belurat",
+    "Scadu Altus", "Shadow Keep", "Scaduview", "Stone Coffin",
+    "Ancient Ruins", "Rauh Base", "Jagged Peak", "Abyssal", "Enir Ilim",
 ]
 
-# The Shadow of the Erdtree DLC regions. These are the last 8 entries of SPINE and are the pool the
+# The Shadow of the Erdtree DLC regions. These are the last 14 entries of SPINE and are the pool the
 # EnableDLC / DLCOnly toggles filter on (core.py). Kept as a frozenset for O(1) membership; the
 # base-game pool is REGIONS minus these. Pure data (no AP import) so region-scope filtering can run
 # in the data-invariant gate.
 DLC_REGIONS = frozenset({
-    "Gravesite Plain", "Belurat", "Scadu Altus", "Shadow Keep",
-    "Ancient Ruins of Rauh", "Enir-Ilim", "Jagged Peak", "Abyssal Woods",
+    "Gravesite", "Ensis", "Cerulean", "Charo's", "Belurat",
+    "Scadu Altus", "Shadow Keep", "Scaduview", "Stone Coffin",
+    "Ancient Ruins", "Rauh Base", "Jagged Peak", "Abyssal", "Enir Ilim",
 })
 
 

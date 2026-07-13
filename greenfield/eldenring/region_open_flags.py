@@ -2,29 +2,40 @@
 contract; derived from grace anchors (matt-free). PENDING = DLC sub-area to resolve in
 the region audit (SPEC-PARITY.md 14.4); client treats an absent open flag as unlocked."""
 REGION_OPEN_FLAGS = {
-    'Abyssal Woods': 72801,
-    'Altus Plateau': 73204,
-    'Ancient Ruins of Rauh': 76803,
+    'Abyssal': 76860,
+    'Ainsel River': 71211,
+    'Altus': 73204,
+    'Ancient Ruins': 76940,
     'Belurat': 72001,
     'Caelid': 73207,
-    'Enir-Ilim': 72012,
-    'Eternal Cities': 71211,
+    'Cerulean': 76831,
+    "Charo's": 76841,
+    'Deeproot Depths': 71231,
+    'Enir Ilim': 72012,
+    'Ensis': 76821,
     'Farum Azula': 71303,
-    'Gravesite Plain': 76800,
-    'Jagged Peak': 76850,
+    'Gravesite': 76800,
+    'Haligtree': 71501,
+    'Jagged Peak': 76840,
+    'Leyndell': 71102,
     'Limgrave': 73100,
-    'Liurnia of the Lakes': 73202,
-    "Miquella's Haligtree": 71501,
-    'Mohgwyn Palace': 71251,
+    'Liurnia': 73202,
+    'Mohgwyn': 71251,
     'Mountaintops of the Giants': 73017,
     'Mt. Gelmir': 76350,
-    'Scadu Altus': 76834,
+    'Rauh Base': 76912,
+    'Raya Lucaria Academy': 71402,
+    'Scadu Altus': 76900,
+    'Scaduview': 76935,
+    'Sewer': 73501,
     'Shadow Keep': 72102,
-    'Stormveil Castle': 71002,
-    'Weeping Peninsula': 73102,
+    'Siofra River': 71222,
+    'Stone Coffin': 72201,
+    'Stormveil': 71003,
+    'Weeping': 73102,
 }
 
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:abc6c094027f8d5daadc5113da204af5ed46c23ebdde992a9325e359be9631db', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:998b858750faddf03b004b8e290681b15ee782e6882f02fbdbae05f73ebec5f3'}
+_GEN_STAMP = {'inputs_hash': 'sha256:409ade9c822227cd49ac40f09793e9ece1ed974b1026829138ce40e999221a08', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:b622d059856edcf4d6f833e1d60b73f74dc4a11fdb82665df19bbc3ac6b2fa43'}
