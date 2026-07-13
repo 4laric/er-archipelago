@@ -92,12 +92,31 @@ COLLECTION_RATE = 0.25          # a thorough player has cleared about a quarter 
 EARLY_TARGET_LEVEL = 3          # ...and should be able to afford +3. Meek on purpose.
 
 
+# Fill SCATTER headroom. `early_stone_floor` is what must be reachable EARLY; the pool floor is what
+# the seed must HOLD to deliver that. Those are not the same number, because fill scatters some of the
+# supply past sphere 1 -- and sizing the supply to exactly the early requirement means every last stone
+# has to land early or the promise breaks. It did: on a 4-region seed the pool held 24 and only 21
+# reached spheres 0-1 (CI cleared it by a hair; Alaric's box did not, 2026-07-13).
+#
+# So the supply carries headroom. This is a judgment constant like the taper -- deliberately ONE named
+# number with a stated reason, not a sphere-coupled placement pass. It does NOT need to be exact: over-
+# supplying early stones is cheap (they are filler competing with junk consumables), whereas
+# under-supplying is the +0-weapon seed this module exists to prevent. Asymmetric cost, so round up.
+EARLY_SUPPLY_HEADROOM = 1.5
+
+
 def early_stone_floor(world) -> int:
-    """How many Smithing Stone [1] the seed must hold for a COLLECTION_RATE player to afford
+    """How many Smithing Stone [1] must be REACHABLE EARLY for a COLLECTION_RATE player to afford
     +EARLY_TARGET_LEVEL. Derived from the game's own ladder under the live flatten setting -- no magic
-    number. This is the predicate the recipe's stone weight is tuned to satisfy."""
+    number. This is the requirement; `early_stone_supply` is what it costs to meet it."""
     need = _regular_stone_need(_flatten(world))
     return int(need[1] / COLLECTION_RATE + 0.5)
+
+
+def early_stone_supply(world) -> int:
+    """How many Smithing Stone [1] the POOL must hold so that `early_stone_floor` of them actually
+    land early, given that fill scatters some of the supply deeper. See EARLY_SUPPLY_HEADROOM."""
+    return int(early_stone_floor(world) * EARLY_SUPPLY_HEADROOM + 0.5)
 
 
 # ---- the EARLY GUARANTEE (AP local_early_items) --------------------------------------------------
@@ -319,7 +338,7 @@ def allocate(world, total: int) -> Dict[str, int]:
     if stones > 0:
         weights = _regular_stone_weights(_flatten(world))
         tier1 = stones * weights[1] / sum(weights.values())
-        floor = early_stone_floor(world)
+        floor = early_stone_supply(world)
         if tier1 < floor:
             logging.getLogger("Greenfield").warning(
                 "[eldenring:%s] filler_budget: the stone reservation buys ~%.0f Smithing Stone [1] but "
@@ -368,7 +387,7 @@ def _draw_stones(world, n: int, somber: bool) -> List[str]:
     # This does NOT couple the economy to fill spheres (the mistake that made stone_ramp unfixable). It
     # is a statement about the POOL: the seed HOLDS enough tier-1 stones. Where fill puts them is fill's
     # business.
-    floor = min(early_stone_floor(world), n)
+    floor = min(early_stone_supply(world), n)
     t1 = f"{label} [1]"
     have = sum(1 for s in out if s == t1)
     if have >= floor:
