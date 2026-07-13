@@ -1,147 +1,174 @@
-# Elden Ring for Archipelago — collaborator setup
+# Elden Ring for Archipelago
 
-> **Public, MIT-licensed.** Vanilla game + an apworld + an MIT Rust client. This tree ships **no game assets and modifies no game files**, and contains **no code or data from thefifthmatt's SoulsRandomizers or any other randomizer lineage** -- v0.2 is a from-scratch, data-derived rebuild (see `PROVENANCE.md`). `elden_ring_artifacts/` (game-derived files) is gitignored and is never distributed.
+**Vanilla game + an apworld + an MIT-licensed Rust runtime client.** This project
+makes Elden Ring a first-class [Archipelago](https://archipelago.gg) multiworld
+game: every meaningful item pickup in the Lands Between is a *check*, the items
+you find go out to the multiworld, and your own items arrive in your inventory
+mid-session. It works solo too.
 
-This is the working tree for making **Elden Ring a first-class [Archipelago](https://archipelago.gg) game.** Every meaningful pickup in the Lands Between becomes a *check*; received items appear in your inventory mid-session via a custom runtime client. The full loop (pickup → check → grant) is confirmed working end-to-end.
-
-If you've been given access, this page gets you from a fresh clone to a running seed. For *what the randomizer does and why it's fun*, read **`Elden-Ring-Archipelago-Player-Guide.md`**. For every option and its gotchas, read **`ER-OPTIONS-REFERENCE.yaml`**. For running alongside thefifthmatt's randomizer (enemy shuffle OK, item rando + scaling off), read **`release-v0.1/USING-WITH-MATTS-RANDOMIZER.md`**.
-
----
-
-## What you're building
-
-A playable seed is assembled from a few separately-built pieces, all driven by `build.ps1`:
-
-- **The baker** — the forked C# static randomizer (`SoulsRandomizers/EldenRingRandomizer`) that generates the seed-specific game files (`regulation.bin`, `event/`, `msg/`, `map/`).
-- **The apworld** — `Archipelago/worlds/eldenring`, the Archipelago world definition (logic, options, item/location tables). Packaged to `eldenring.apworld`.
-- **The runtime client** — a DLL (C++ today, Rust port in progress) that connects to the AP server, grants received items, and reports your checks.
-
-There is no single static "mod": each seed bakes its own files. That's why this is a build pipeline, not a download.
+It is **pure runtime**: the game stays completely vanilla on disk. No game files
+are patched, no `regulation.bin` is modified, nothing is baked per seed. The
+runtime client is a Rust DLL loaded by the ModEngine3 (me3) mod loader; it reads
+the seed's layout from the Archipelago server at connect time and does everything
+live -- detecting checks, granting items, lighting graces, and enforcing region
+locks. This tree ships **no game assets** and contains **no code or data from any
+other randomizer project**: the world is derived from scratch against vanilla
+game data (see `release-v0.2/ATTRIBUTION.md` for provenance and credits).
 
 ---
 
-## Prerequisites (Windows)
+## How progression works (the part everyone gets wrong)
 
-- **Elden Ring on Steam, version-pinned.** Baked files are valid only for the game version they were baked against; pin in Steam / don't auto-update mid-seed. (DLC only needed for DLC goals.)
-- **UXM** to unpack the game's data archives (one-time — see below).
-- **.NET SDK** (10.x builds the net6.0-windows target) for the baker.
-- **Python 3.11+** (3.13 fine) for Archipelago generation. *Note: the AP toolchain refuses <3.11.*
-- **For the C++ client:** Visual Studio 2022 (C++ workload) + vcpkg. *(Or the Rust toolchain for the Rust client spike — `build.ps1 -Rust`.)*
-- **PowerShell** (Windows PowerShell is fine; `build.ps1` shims `pwsh` if PS7 is absent, but installing PS7 is cleaner: `winget install --id Microsoft.PowerShell`).
-- **Git.**
+The world is **Shattered**: carved into major regions -- **17 in the base game,
+31 with the DLC** -- and each region is sealed behind an Archipelago item called
+a **Region Lock** ("Limgrave Lock", "Caelid Lock", ...). You start at Roundtable
+Hold with one region already open. When a region's Lock arrives from the
+multiworld, that region opens: **all of its graces light up on your map, and you
+warp in.** Walk into a region whose Lock you do not hold and the client warps
+you back to Roundtable Hold.
+
+**The Lock is the only way into a region.** Vanilla routes and vanilla key items
+gate *nothing* in Archipelago logic. You never need the Rold Medallion to reach
+the Mountaintops of the Giants; you never fight Mohg to enter the Land of
+Shadow. The Lock arrives, the graces light, you warp in.
+
+There are two vanilla-flavored exceptions, and they are layered **on top of** a
+region's own Lock, never in place of it:
+
+- **Raya Lucaria Academy** additionally needs the **Academy Glintstone Key**
+  (shuffled into the pool like any other item);
+- **Leyndell** additionally needs **Great Runes** (default 2, echoing the
+  vanilla capital gate; auto-clamped to what is reachable this seed).
+
+The headline dials, all documented inline in the shipped
+`release-v0.2/EldenRing.yaml`:
+
+- **`num_regions`** -- how many regions are in play. `0` = the full Shattering;
+  `N > 0` seals the rest for a shorter run. This is the marquee mode: it turns
+  the open world into an Archipelago progression graph.
+- **`ending_condition`** -- `region_locks` (hold every Lock in play; the goal
+  region, Leyndell, is always kept) or `great_runes` (also collect
+  `great_runes_required` Great Runes).
+- **`enable_dlc` / `dlc_only`** -- bring the 14 Shadow of the Erdtree regions
+  into the pool, or play only them.
 
 ---
 
-## 1. Clone
+## Playing it
+
+Start with **`release-v0.2/SETUP.md`** -- nothing to a running seed in about 15
+minutes (Archipelago 0.6.7 + the apworld + the client DLL + ModEngine3). Then
+read **`Elden-Ring-Archipelago-Player-Guide.md`** for how a run actually plays.
+Every real option is explained in a comment next to it in
+`release-v0.2/EldenRing.yaml`; rough edges live in `release-v0.2/KNOWN-ISSUES.md`.
+
+You need Elden Ring on PC (Steam). The DLC is only needed if you enable the DLC
+regions.
+
+One rule worth repeating from the setup guide: the apworld and the client DLL
+are a **hash-matched pair** -- the client checks a contract hash on connect and
+loudly reports a mismatched apworld in its log. Always install both halves from
+the same release (`release-v0.2/DISTRIBUTION.md` explains why).
+
+---
+
+## What is in this repo
+
+- **`greenfield/eldenring/`** -- the apworld source: world logic, options,
+  item/location data (generated from vanilla game data), features, tests.
+  Packaged to `eldenring.apworld` by `build.ps1 -Apworld`.
+- **`from-software-archipelago-clients/`** -- the runtime client (Rust), the
+  repo's one git submodule. Builds `eldenring_archipelago.dll`.
+- **`tools/`** -- datamining and generation tools, plus `gf_test.py` (the test
+  harness).
+- **`release-v0.2/`** -- everything player-facing: setup guide, shipped yaml,
+  known issues, attribution, changelog.
+- **`me3/`** -- the local ModEngine3 staging dir `build.ps1 -Me3Deploy` writes.
+- **`greenfield/`** (above `eldenring/`) -- generation inputs, region curation
+  tables, and `gen_data.py`, which derives the world's data.
+
+---
+
+## Contributor setup (Windows)
+
+Prerequisites: **Git**, **Python 3.12** (what CI runs), the **Rust toolchain**
+(the client is a cdylib), **PowerShell**. No .NET, no Visual Studio, no game
+unpacking -- the pure-runtime model removed all of that.
+
+### 1. Clone
 
 ```powershell
 git clone --recurse-submodules https://github.com/4laric/er-archipelago.git
 cd er-archipelago
 ```
 
-That is the whole thing. **One submodule** — the Rust client
-(`from-software-archipelago-clients`). HTTPS, so the clone works for anyone; it used to be SSH,
-which meant nobody but the author could actually clone this public repo.
+One submodule: the Rust client. Everything else is this repo.
 
-The repo is **the world + the tools + the client**. There is no superrepo any more: `Paramdex`,
-`SoulsFormatsNEXT`, `nightreign-enemy-rando` and an `Archipelago` submodule were all removed
-(2026-07-12) — nothing in the apworld or the client referenced them.
+### 2. Bootstrap Archipelago
 
-### Archipelago itself is NOT a submodule
-
-`.\Archipelago` is a **stock upstream checkout you create**, not something we version-control:
+`.\Archipelago` is a **stock upstream checkout you create**, not something we
+version-control:
 
 ```powershell
-.\bootstrap-ap.ps1        # clones ArchipelagoMW/Archipelago at the pin into .\Archipelago
+.\bootstrap-ap.ps1    # clones ArchipelagoMW/Archipelago into .\Archipelago
 ```
 
-The pin lives in **`.ap-version`** (currently `0.6.7`) and is read by `bootstrap-ap.ps1` *and* by CI,
-so the version you develop against and the version CI gates on cannot drift apart. `.\Archipelago`
-is gitignored; the world is **installed into** it by `build.ps1`. Nothing of ours lives there.
+The version pin lives in **`.ap-version`** (currently `0.6.7`) and is read by
+`bootstrap-ap.ps1`, by CI, and by the test harness, so the version you develop
+against and the version CI gates on cannot drift. The bootstrap refuses to run
+against any tree whose origin is not `ArchipelagoMW`. `.\Archipelago` is
+gitignored; the world is installed into it by `build.ps1`.
 
-> It used to be a submodule pointing at a fork of `lBedrockl/Archipelago` — 112 commits of
-> DS3/Bedrock-lineage work, in a project whose whole pitch is *provenance-clean, no Bedrock code*.
-> It was also never load-bearing: the suite (572 tests) and a real `Generate` both pass against
-> **stock upstream**. `bootstrap-ap.ps1` refuses to run against any tree whose origin is not
-> `ArchipelagoMW`, so that cannot quietly come back.
+`elden_ring_artifacts/` (game-derived data the generators read) is gitignored
+and never distributed. You do not need it to build or test: the committed
+generated data carries a freshness stamp (`tools/gen_manifest.py`) that CI and
+`build.ps1 -Apworld` verify.
 
-`elden_ring_artifacts/` (game-derived files) is gitignored — copy it in from a working machine.
+### 3. Build and run seeds
 
----
-
-## 2. One-time game-data staging (UXM)
-
-The baker reads loose vanilla game data, and `-Deploy` overlays its output into your unpacked game:
-
-1. **UXM-unpack** your Elden Ring install so the exe reads loose files from `Game\`.
-2. Stage the vanilla data the baker needs under `diste\Vanilla` (regulation, `msg\engus`, map MSBs, event emevd, talk ESDs). Put the Oodle DLL (`oo2core_*.dll`) next to the randomizer exe.
-3. Capture a pristine snapshot once, right after unpacking, so clean redeploys can restore vanilla:
-   ```powershell
-   .\build.ps1 -SnapshotVanilla
-   ```
-
-`build.ps1`'s config block (`$GameDir`, near the top) assumes the default Steam path — edit it if yours differs.
-
----
-
-## 3. Build, generate, bake, deploy
-
-`build.ps1` is the whole pipeline. It always builds **clean** (both toolchains silently produce stale builds otherwise); add `-Clean` if a change still isn't landing.
+`build.ps1` is the whole pipeline:
 
 ```powershell
-# greenfield loop: gen the data-derived apworld + isolated multiworld, build the client, stage to me3, serve
-.\build.ps1 -All
-# (the old Generate.py full pipeline is now:  .\build.ps1 -PureRuntime -Apworld -Preflight)
-
-# most common dev loop — everything EXCEPT the C++ client rebuild (reuse the deployed DLL)
-.\build.ps1 -NoClient
+.\build.ps1 -All          # the dev loop: -Greenfield + -Rust + -Me3Deploy + -Serve
+.\build.ps1 -PureRuntime  # -Generate + -Rust + -Me3Deploy + -Serve (alias: -Mvp)
 
 # individual stages
-.\build.ps1 -Randomizer      # build the C# baker
-.\build.ps1 -Client          # build the C++ runtime client DLL
-.\build.ps1 -Apworld         # package Archipelago\worlds\eldenring -> eldenring.apworld
-.\build.ps1 -Generate        # regenerate the multiworld (required after apworld changes)
-.\build.ps1 -Serve           # launch the AP server on the newest output zip (new window)
-.\build.ps1 -Bake            # run the randomizer to bake the seed (needs the server up)
-.\build.ps1 -Deploy          # copy bake outputs + client DLL + apconfig into the game
-.\build.ps1 -CleanDeploy     # restore Game\ to the vanilla snapshot, THEN overlay (stops stale-file leak)
+.\build.ps1 -Greenfield   # regenerate the data-derived apworld (needs elden_ring_artifacts\)
+.\build.ps1 -Apworld      # package greenfield\eldenring -> eldenring.apworld (stamp-gated)
+.\build.ps1 -Generate     # regenerate the multiworld from Archipelago\Players\*.yaml
+.\build.ps1 -Rust         # cargo test + build the client DLL
+.\build.ps1 -Me3Deploy    # stage DLL + apconfig + profile into me3\ (the primary loader)
+.\build.ps1 -Serve        # launch the AP server on the newest output zip
+.\build.ps1 -Preflight    # sanity-check a generated seed
 ```
 
-Generation reads player configs from `Archipelago\Players\*.yaml`. Start from `EldenRing-MASTER-template.yaml`, trim to a known-good slot (the Godrick mini-campaign is the cleanest first seed), and drop it in `Players/`. `-Bake` blocks until you close the randomizer window; deploy runs after. Use one server per port — close any old server window before `-Serve`.
+Player yamls for local generation go in `Archipelago\Players\`; start from
+`release-v0.2/EldenRing.yaml`.
+
+### 4. Test
+
+```powershell
+python tools/gf_test.py             # the apworld suite
+python tools/gf_test.py -k shops    # extra args pass through to pytest
+```
+
+`gf_test.py` bootstraps its own pinned **upstream** Archipelago checkout into
+`.ap-test/` (your working `.\Archipelago` is never touched or consulted),
+installs the world into it, and runs the suite. It refuses to run against a
+fork of Archipelago -- testing against the wrong tree produces answers to a
+different question.
+
+`run_ci.ps1` runs every automated gate from `CONTRIBUTING.md` in one command
+(unit suite, fill regression, region diversity, generated-data freshness, gen
+fuzz, the pure Rust crates). CI runs on every push and PR: the suite via
+`gf_test.py`, plus a job proving the committed generated data is not stale.
+
+Read **`CONTRIBUTING.md`** before opening a PR -- it is the quality bar, and it
+does not accept "it looks right" as a pass.
 
 ---
 
-## 4. Run a seed
-
-1. Make sure the AP server is up (`-Serve`, or host your own / an [archipelago.gg](https://archipelago.gg) room).
-2. Confirm `mods\apconfig.json` in your game folder points at the right room (`url`, `slot`, `seed`).
-3. Launch Elden Ring (modded — via your usual EML/mod-loader setup so the client DLL loads from `mods\`).
-4. Connect. Pick something up → it registers as a check; received items land in your inventory, with notifications in Elden Ring's own bottom-center event banner.
-
----
-
-## Picking a goal & tuning options
-
-Full annotated list in `ER-OPTIONS-REFERENCE.yaml`; the headline dials:
-
-- **`ending_condition`** — scope. `godrick` (shortest base run, great first seed), `messmer` (DLC mini-campaign), or the long goals: `final_boss`, `elden_beast`, `all_remembrances`, `all_bosses`, `capital`.
-- **`world_logic: region_lock`** — turns the open world into an item-gated graph; the map opens region by region as you receive keys (warp-enforced). Reuses the game's own keys where it fits (Academy Key, Dectus/Rold/Haligtree Medallions).
-- **DLC-only mode** — restrict the entire pool to the Land of Shadow.
-- **Footprint** (`all` / `trimmed` / `lean`) — how big a slice of the multiworld your ER world takes.
-- **QoL** — auto-upgrade, auto-equip, progressive consumables/bell bearings, quick-start, randomized loadout, DeathLink.
-
----
-
-## Status & gotchas
-
-Actively developed; a large verified-working core (full loop, region locks, DLC-only, auto-upgrade, quick-start, pool builder, gear curation, progressive bell bearings, `trimmed` pool). In flight: progressive consumables, `lean` pool, the Godrick/Messmer goal confirmations, a summoning-bell fix. See `RELEASE-CHECKLIST.md` for the live cut.
-
-Build gotchas worth knowing up front:
-- **Stale builds** — `build.ps1` builds clean by design; reach for `-Clean` if a change won't land.
-- **Version skew** — a baked `regulation.bin` matches one game version; an Elden Ring update breaks it.
-- **Stale-file leak** — a prior bake's `map\` MSBs can hang a fresh new-game load; use `-CleanDeploy` to restore vanilla before overlaying.
-- **Sandbox can't run AP** — generation needs Python 3.11+ on a real machine; CI/sandbox setups below 3.11 won't generate.
-
----
-
-*Elden Ring and Shadow of the Erdtree are property of FromSoftware / Bandai Namco; this is a fan project, not affiliated with or endorsed by them. Runtime client: MIT. SoulsIds: Apache-2.0. The SoulsRandomizers baker fork is source-available and not freely licensed — keep it private.*
+*Elden Ring and Shadow of the Erdtree are property of FromSoftware / Bandai
+Namco; this is a fan project, not affiliated with or endorsed by them. Code in
+this repository and the runtime client are MIT-licensed. This project ships no
+game assets and modifies no game files.*
