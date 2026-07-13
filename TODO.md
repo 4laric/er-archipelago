@@ -68,11 +68,11 @@ elevators that just kill you. Same failure family as `patch_apworld_grace_arena_
 into a bad spot). Fix: don't grant that grace until the drain state flag is set (flag-gate it), or
 exclude it from the warp bundle entirely.
 - [ ] Capture the Shadow Keep church-drain event flag (EMEVD / in-game) — also an open item in
-      `SPEC-chokepoint-locks.md` (the drain is the keep's one internal chokepoint).
+      `docs/specs/SPEC-chokepoint-locks.md` (the drain is the keep's one internal chokepoint).
 - [ ] Flag-gate or bundle-exclude the Church District Lower / Scadutree Base grace so it isn't
       warp-enabled pre-drain.
 
-## 16. DLC-only mode (Shadow of the Erdtree) -- see BRIEF-dlc-only.md / SPEC-dlc-only.md
+## 16. DLC-only mode (Shadow of the Erdtree) -- see BRIEF-dlc-only.md / docs/specs/SPEC-dlc-only.md
 
 yaml-gated `dlc_only` toggle: check pool = Land of Shadow only (~1,171-1,207 checks), base kept for
 traversal only (Option A). apworld-ONLY + independently gen-testable (forces enable_dlc; bake already
@@ -277,7 +277,7 @@ Sync uses `lean`. Needs a regen.
 From start you can reach almost everywhere (Altus included) except Leyndell, so logic floods
 sphere 1 -> hints point at far places you've never been. Real fix is region gating.
 - [ ] Enable/finish region gating: world_logic `region_lock` works (each region needs a Special
-      item); `region_bosses` is the nicer version but dead code (SPEC-region-boss-gating.md).
+      item); `region_bosses` is the nicer version but dead code (docs/specs/SPEC-region-boss-gating.md).
       Pairs with the great-rune thresholds already added.
 
 ## 10. Crash entering Raya Lucaria -> won't reload -> softlock
@@ -304,11 +304,11 @@ item golden aura VFX on randomized-check world drops.
       it shows on shop/gift/enemy-drop checks too, not just world treasure.
 - [ ] Pairs great with `location_pool: lean` -- the glow becomes "this is a check."
 
-## 13. Region fusion: region keys + bundled grace unlock -- see SPEC-region-chain.md
+## 13. Region fusion: region keys + bundled grace unlock -- see docs/specs/SPEC-region-chain.md
 
 Sphere shaping for the open world. Each region has a key that unlocks BOTH region access AND that
 region's Sites of Grace (fast travel), bundled so graces can't bypass the lock. Full design +
-status in SPEC-region-chain.md and memory [[er-region-fusion]].
+status in docs/specs/SPEC-region-chain.md and memory [[er-region-fusion]].
 - [x] apworld: region gating via existing `region_lock` (per-region .lock items, shuffled order).
 - [x] grace bundle DATA + contract: grace_data.py (REGION_LOCK_ITEM + REGION_GRACE_POINTS); slot_data
       ships `regionGraces` {lock-item: [warp flags]} when world_logic < 3; `graces_per_region` dial.
@@ -334,7 +334,6 @@ session (NON-breaking, additive -- no location renames, so no logic refs broke):
 ## 15. Retarget the .NET stack net6.0-windows -> net8.0-windows (EOL)
 
 net6.0-windows is out of support (SDK warns NETSDK1138; currently silenced via the root
-`Directory.Build.props` `<CheckEolTargetFramework>false>` -- that's a NAG MUTE, not a fix). net8 is
 the current LTS. All C# projects share the TFM, so retarget together. Low-to-moderate risk: WinForms
 + the deps (Archipelago.MultiClient.Net, Newtonsoft, BouncyCastle.Cryptography 2.5.0, YamlDotNet,
 Tomlyn, ZstdSharp) all support net8; the bake/-LoopTest and RandomizerCommon.Tests give a quick
@@ -347,7 +346,6 @@ regression signal.
 - [ ] Rebuild `build.ps1 -Randomizer -Client`, run `build.ps1 -Test` (xUnit) + a `-LoopTest` batch;
       eyeball a bake. Watch for new analyzer/CA warnings under net8 (esp. CA1416 surfaces -- the
       GrayIris NoWarn already covers it).
-- [ ] Once green, remove `<CheckEolTargetFramework>false>` from Directory.Build.props (no longer
       needed) and re-confirm no NETSDK1138.
 - [ ] Confirm the runtime client DLL (C++, pinned eldenring.exe 2.6.2.0) is unaffected -- it's a
       separate MSBuild/vcxproj toolchain, not .NET-TFM-bound.
@@ -375,7 +373,7 @@ Action items:
 
 ## 17. Curation pass: keep "free" filler checks (on main road / near important checks) — 2026-06-15
 
-In-game discoverability companion: SPEC-ingame-check-indicators.md (enemy ghost-glow marker + scarab audio cue).
+In-game discoverability companion: docs/specs/SPEC-ingame-check-indicators.md (enemy ghost-glow marker + scarab audio cue).
 
 Alaric: do a sweep for checks whose vanilla item is filler/junk material BUT that sit on the
 starter/main road or right next to an already-kept important check — those are "pretty free to
@@ -460,7 +458,7 @@ RuntimeParamChecker, so the blocker is the open menu/ESD cache, not the data.
 
 ## 20. Progressive bell ladder — extend to glovewort picker bells (TODO, not urgent)
 
-Give the progressive-stone-bell treatment (SPEC-progressive-stone-bells.md) to the spirit-ash
+Give the progressive-stone-bell treatment (docs/specs/SPEC-progressive-stone-bells.md) to the spirit-ash
 upgrade bells too, for symmetry. Same exact pattern, just different items/flags:
 
 - [ ] Grave-Glovewort Picker's Bell Bearing [1]-[3] (items 8960-8962) -> Grave Glovewort tiers.
@@ -476,7 +474,7 @@ upgrade bells too, for symmetry. Same exact pattern, just different items/flags:
       alone (decide: reuse progressive_stone_bells, or a sibling toggle).
 
 ### 20a. Extract + set the Roderika spirit-tuning shop flags (the data gap — PRIORITY, Alaric)
-Blocks the glovewort half of SPEC-progressive-consumables.md. The stone bells set
+Blocks the glovewort half of docs/specs/SPEC-progressive-consumables.md. The stone bells set
 eventFlag_forStock 280080-280280 (Twin Maiden shop, ShopLineupParam IDs 1018xx). The Roderika
 spirit-tuning shop has its own ShopLineupParam block with its own flags that are NOT yet extracted.
 - [ ] Pull Roderika's spirit-tuning ShopLineupParam rows + their eventFlag_forStock from
@@ -498,7 +496,7 @@ Roundtable Hold (m11_10) from game start so she's right by Hewg.
       ashes next to Hewg, no walking.
 
 ### 21. Completion scaling: apply to UNRANDOMIZED enemies (decouple from enemy_rando)
-Today `completion_scaling` (SPEC-completion-scaling.md) only takes effect with `enemy_rando` ON, because
+Today `completion_scaling` (docs/specs/SPEC-completion-scaling.md) only takes effect with `enemy_rando` ON, because
 the scaling pass lives entirely inside `EnemyRandomizer.Run`, which ArchipelagoForm only calls when
 `randomize_enemies` is true. The scaling-SpEffect mechanism itself works fine on un-relocated enemies
 (it's how relocated enemies get rescaled in place) -- only the invocation is gated. Alaric is fine
@@ -514,9 +512,9 @@ defaulting it on meaningfully).
       patch_baker_completion_scaling.py), and write each enemy's (native->reshaped) area-scaling
       SpEffect IN PLACE, no relocation. Factor the SpEffect-assignment half of Run out so both share it.
 - [ ] Once standalone: drop the "REQUIRES enemy_rando" caveat -- update the options.py docstring +
-      the MASTER template note (rerun tools/gen_master_template.py) + SPEC-completion-scaling.md.
+      the MASTER template note (rerun tools/gen_master_template.py) + docs/specs/SPEC-completion-scaling.md.
 
-### 22. Sphere-ordered completion scaling (start-relative; SPEC-sphere-ordered-scaling.md)
+### 22. Sphere-ordered completion scaling (start-relative; docs/specs/SPEC-sphere-ordered-scaling.md)
 Alaric: "I want the tiers ordered by sphere." v1 completion_scaling reshapes by NATIVE GEOGRAPHIC tier
 (start-unaware) -- a random Altus start fights softened-mid-game Altus (~tier 5), not Limgrave (~tier 1).
 v2: tier = curve(region's AP fill SPHERE / maxSphere), so the rolled start region = sphere 1 = tier 1
@@ -532,7 +530,7 @@ precollects its lock -> sphere 1). Adds a `sphere` basis to CompletionScaling (k
       so same-sphere regions still spread across tiers. Tune in playtest.
 - [ ] log per-region tier + unmapped maps to ap_bake; gen+bake-test a random Altus start (mobs ~Limgrave).
 
-### 23. Control randomizer -- "the Skumnut special" (SPEC-control-randomizer.md)
+### 23. Control randomizer -- "the Skumnut special" (docs/specs/SPEC-control-randomizer.md)
 Your control scheme is the item pool: start gimped, receive capabilities. Lives in the runtime client
 (NEW input/action hook subsystem -- client has none today, only the stdin console reader). Default-off,
 local to the Skumnut slot.
