@@ -47,6 +47,16 @@ def load_open_flags():
     return dict(mod.REGION_OPEN_FLAGS)
 
 
+def load_pending():
+    """REGIONS_PENDING_BUCKET from the generated region_play_ids.py -- the regions whose play_region
+    buckets are not measured yet. Empty for an apworld generated before that existed."""
+    spec = importlib.util.spec_from_file_location(
+        "er_gf_region_play_ids_p", os.path.join(GF, "region_play_ids.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return frozenset(getattr(mod, "REGIONS_PENDING_BUCKET", ()))
+
+
 def load_play_ids():
     """REGION_PLAY_IDS from the GENERATED pure-data module (region_play_ids.py, emitted by
     gen_data.py as the inverse of greenfield/region_groups.py). It used to be AST-lifted from a
@@ -74,10 +84,28 @@ def load_rows():
     """
     open_flags = load_open_flags()
     play_ids = load_play_ids()
+
+    # PENDING regions: an open flag but no MEASURED kick geometry. This used to be FATAL, and the
+    # instinct was right -- baking a region the client cannot enforce is how the Weeping and DLC locks
+    # came to do nothing. But core._eligible_regions now DROPS these regions from the seed's pool
+    # entirely (loudly), so no seed can contain one and the client will never be asked about it. A hard
+    # stop here would block the bake for a region that cannot appear.
+    #
+    # So: SKIP them, and say so. They are excluded from the baked table exactly as they are excluded
+    # from seeds -- the client reports an unmatched foreign lock as un-gateable rather than pretending
+    # to enforce it. Anything flagged-without-geometry that is NOT on the declared pending list is still
+    # FATAL: that is the real drift this guard exists to catch.
+    pending = sorted(load_pending())
     flagged_without_geometry = sorted(set(open_flags) - set(play_ids))
+    undeclared = [r for r in flagged_without_geometry if r not in pending]
+    if undeclared:
+        raise SystemExit("FATAL: region(s) with an open flag but no REGION_PLAY_IDS geometry, and NOT "
+                         "declared in REGIONS_PENDING_BUCKET: " + ", ".join(undeclared))
     if flagged_without_geometry:
-        raise SystemExit("FATAL: region(s) with an open flag but no REGION_PLAY_IDS geometry: "
-                         + ", ".join(flagged_without_geometry))
+        print("WARNING: region(s) NOT baked -- their play_region buckets are unmeasured, so their locks "
+              "cannot be enforced and core excludes them from seeds: "
+              + ", ".join(flagged_without_geometry))
+        open_flags = {r: f for r, f in open_flags.items() if r not in flagged_without_geometry}
     seen = {}
     for region, ids in play_ids.items():
         for pid in ids:
