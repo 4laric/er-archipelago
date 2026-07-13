@@ -20,15 +20,15 @@ Pure module: no Archipelago imports, so it runs in the data-invariant gate.
 # boss_label (as boss_locks._boss_label emits) -> vanilla capstone key display name.
 # The trailing comment on each row is the common boss name the label denotes.
 CAPSTONE_VANILLA_KEYS = {
-    "Full Moon Queen":  "Academy Glintstone Key",       # Rennala (Raya Lucaria fold-in -> Liurnia)
-    # Morgott / Omen King (Leyndell fold-in) intentionally has NO vanilla alias: its vanilla gate is a
+    "Full Moon Queen":  "Academy Glintstone Key",       # Rennala (Raya Lucaria Academy)
+    # Morgott / Omen King (Leyndell) intentionally has NO vanilla alias: its vanilla gate is a
     # COMPOUND possession check (2 Great Runes), so a single-item name ("Two Great Runes") read as a
     # concrete item and confused players. Falls back to the synthetic "Boss Key: Omen King".
     "Radahn":           "Dectus Medallion",              # Starscourge Radahn (Caelid; halves double as festival trigger)
     "Malenia":          "Haligtree Secret Medallion",    # Malenia (Snowfield/Haligtree; both halves at Rold)
     "Rykard":           "Drawing-Room Key",              # Rykard (Mt. Gelmir / Volcano Manor)
     "Mohg":             "Pureblood Knight's Medal",      # Mohg (Mohgwyn Palace)
-    "Naturalborn":      "Fingerslayer Blade",            # Astel, Naturalborn of the Void (Eternal Cities)
+    "Naturalborn":      "Fingerslayer Blade",            # Astel, Naturalborn of the Void (Ainsel River)
     "Black Blade":      "Deathroot",                     # Maliketh, the Black Blade (Farum Azula; Gurranq eats N deathroot)
     "a God and a Lord": "Messmer's Kindling",            # Promised Consort Radahn (DLC finale, Enir-Ilim)
     "Fire Giant":       "Haligtree Secret Medallion (Right)",  # Fire Giant (Mountaintops; Castle Sol holds the Right half -> gates Fire Giant's fog, spec section 4)

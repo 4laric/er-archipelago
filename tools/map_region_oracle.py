@@ -39,73 +39,17 @@ import re
 from collections import defaultdict
 
 # ---- play_region_id -> greenfield region (data.py LOCATIONS key) ------------------------------
-# None = non-explorable / not a gf region (system warps). Absent id => join fails loudly in meta.
-PLAY_REGION_TO_GF = {
-    # -- system / placeholder (REGION_ID_MAP.md "System / non-explorable") --
-    0: None,          # 3 system warps (flag 200 @ m10, 71260/71261 @ m12), not real graces
-    10010: None,      # defined bucket with no bonfire (placeholder)
-    # -- overworld buckets (REGION_ID_MAP.md overworld table; fold = gen_data PLAY2AP verbatim) --
-    61000: "Limgrave",
-    61001: "Limgrave",                    # Stormhill / N. Limgrave (PLAY2AP: 61001 -> Limgrave)
-    61002: "Weeping Peninsula",
-    62000: "Liurnia of the Lakes",
-    62001: "Liurnia of the Lakes",        # Eastern Liurnia / Bellum Highway
-    62002: "Liurnia of the Lakes",        # Moonlight Altar
-    63000: "Altus Plateau",
-    63001: "Mt. Gelmir",                  # its OWN gf region (er-gelmir-lock-rebucket)
-    63002: "Altus Plateau",               # W. Altus / Capital Outskirts
-    63003: "Altus Plateau",               # E. Altus / Forbidden Lands / Rold (PLAY2AP)
-    64000: "Caelid",
-    64001: "Caelid",                      # Dragonbarrow
-    64002: "Caelid",                      # Swamp of Aeonia
-    65000: "Mountaintops of the Giants",
-    65001: "Mountaintops of the Giants",  # Forge of the Giants
-    65002: "Mountaintops of the Giants",  # Consecrated Snowfield (REGION_MAP: 'Consecrated Snowfield' -> Mountaintops)
-    # -- legacy dungeons / capitals (REGION_ID_MAP.md legacy table) --
-    10000: "Stormveil Castle",
-    11000: "Altus Plateau",               # FOLD: Leyndell, Royal Capital (REGION_MAP 'Leyndell, Royal Capital' -> Altus)
-    11050: "Altus Plateau",               # FOLD: Leyndell, Ashen Capital (REGION_MAP 'Leyndell (Ashen Capital)' -> Altus)
-    11100: "Roundtable Hold",
-    13000: "Farum Azula",                 # REGION_MAP 'Crumbling Farum Azula' -> Farum Azula
-    14000: "Liurnia of the Lakes",        # FOLD: Raya Lucaria Academy (REGION_MAP 'Raya Lucaria Academy' -> Liurnia)
-    15000: "Miquella's Haligtree",        # Elphael (REGION_MAP "Miquella's Haligtree & Elphael")
-    15001: "Miquella's Haligtree",
-    16000: "Mt. Gelmir",                  # FOLD: Volcano Manor interior (REGION_MAP 'Volcano Manor (Rykard)' -> Mt. Gelmir)
-    18000: "Limgrave",                    # FOLD: Stranded Graveyard / Chapel (gen_data pins m18 Fringefolk lots -> Limgrave)
-    19000: "Altus Plateau",               # FOLD: Fractured Marika arena (REGION_MAP 'Fractured Marika (final)' -> Altus)
-    35000: "Altus Plateau",               # FOLD: Subterranean Shunning-Grounds (REGION_MAP -> Altus; sits UNDER Leyndell)
-    39200: "Liurnia of the Lakes",        # FOLD: Ruin-Strewn Precipice (house convention: gen_data FLAG_REGION_OVERRIDE
-                                          #       row 510260 'Magma Wyrm Makar (Ruin-Strewn Precipice)' -> Liurnia)
-    # -- underground (REGION_ID_MAP.md underground table; REGION_MAP folds every Siofra/Ainsel/
-    #    Nokstella/Lake-of-Rot/Deeproot alias -> 'Eternal Cities'; Mohgwyn is its own gf region) --
-    12010: "Eternal Cities",              # Ainsel River / Nokstella
-    12011: "Eternal Cities",              # Lake of Rot
-    12012: "Eternal Cities",              # Ainsel River Depths / Astel
-    12020: "Eternal Cities",              # Siofra River
-    12030: "Eternal Cities",              # Deeproot Depths
-    12050: "Mohgwyn Palace",
-    12070: "Eternal Cities",              # Siofra River Bank / Worshippers' Woods
-    # -- DLC (REGION_ID_MAP.md DLC table; folds per REGION_MAP + gen_data DUNGEON_REGION_OVERRIDE §5b) --
-    6800: "Gravesite Plain",
-    6820: "Gravesite Plain",              # FOLD: Castle Ensis (REGION_MAP 'Castle Ensis (DLC)' -> Gravesite Plain)
-    6830: "Gravesite Plain",              # FOLD: Cerulean Coast (REGION_MAP 'Cerulean Coast (DLC)' -> Gravesite Plain)
-    6840: "Gravesite Plain",              # FOLD: Charo's Hidden Grave / Lamenter's Gaol (gen_data m41_02 -> Gravesite Plain)
-    6850: "Jagged Peak",
-    6851: "Jagged Peak",                  # Foot of the Jagged Peak / Dragon Communion Altar
-    6860: "Abyssal Woods",
-    6900: "Scadu Altus",                  # shared bucket (also Fog Rift Fort / Recluses' River per REGION_ID_MAP)
-    6920: "Shadow Keep",                  # FOLD: Scaduview/Hinterland (gen_data §5a: Scaduview -> Shadow Keep,
-                                          #       only reachable through the Keep)
-    6940: "Ancient Ruins of Rauh",
-    6950: "Ancient Ruins of Rauh",        # FOLD: Rauh Base (gen_data pins m40_01/m42_03 'Rauh Base' dungeons -> Rauh)
-    20000: "Belurat",
-    20010: "Enir-Ilim",
-    21000: "Shadow Keep",
-    21001: "Shadow Keep",                 # Church District
-    21010: "Shadow Keep",                 # Storehouse
-    22000: "Gravesite Plain",             # FOLD: Stone Coffin Fissure (REGION_MAP 'm22' -> Gravesite Plain)
-    28000: "Abyssal Woods",               # FOLD: Midra's Manse (REGION_MAP 'm28' -> Abyssal Woods)
-}
+# The fold layer is region_groups.py -- THE spine, the same table gen_data derives from. This
+# oracle used to restate it by hand "independently"; that made it a second copy of a curated
+# CONVENTION, so every deliberate re-carve broke the oracle spuriously while real bugs hid behind
+# the churn. What stays independent here is the JOIN (grace_flags x grace_region_map), which is
+# what actually arbitrates data.py's per-row derivation paths. None = non-explorable system ids.
+import importlib.util as _ilu
+_rg_spec = _ilu.spec_from_file_location(
+    "region_groups", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "greenfield", "region_groups.py"))
+_rg = _ilu.module_from_spec(_rg_spec); _rg_spec.loader.exec_module(_rg)
+PLAY_REGION_TO_GF = {0: None, 10010: None}
+PLAY_REGION_TO_GF.update({int(_p): _r for _p, _r in _rg.PLAY2AP.items()})
 
 # ---- per-map truth WIDENING for curated boundary connectors ------------------------------------
 # A connector dungeon whose warp-menu bucket sits on one side of a boundary but which the repo
@@ -148,13 +92,22 @@ def load_map_truth(artifacts_dir=None):
     by MEMBERSHIP -- still sound (any cross-boundary region is a violation), just less sharp there.
     meta: counts + the unmapped-pid list so a REGION_ID_MAP drift fails loudly, never silently.
     """
-    artifacts_dir = artifacts_dir or _find_artifacts(os.path.dirname(os.path.abspath(__file__)))
-    if not artifacts_dir:
-        return None, "elden_ring_artifacts/ not found"
-    gf_path = os.path.join(artifacts_dir, "grace_flags.tsv")
-    grm = sorted(glob.glob(os.path.join(artifacts_dir, "grace_region_map_*.tsv")))
-    if not os.path.isfile(gf_path) or not grm:
-        return None, "grace_flags.tsv / grace_region_map_*.tsv absent"
+    # The grace tsvs are DERIVED + TRACKED in greenfield/ now (a `git clean -xdf` once deleted the
+    # artifacts-only copies); artifacts_dir stays as the legacy fallback for older trees.
+    _here = os.path.dirname(os.path.abspath(__file__))
+    _gfdir = os.path.abspath(os.path.join(_here, "..", "greenfield"))
+    artifacts_dir = artifacts_dir or _find_artifacts(_here)
+    gf_path, grm = None, []
+    for _base in (_gfdir, artifacts_dir):
+        if not _base or not os.path.isdir(_base):
+            continue
+        _gfp = sorted(glob.glob(os.path.join(_base, "grace_flags*.tsv")))
+        _grm = sorted(glob.glob(os.path.join(_base, "grace_region_map*.tsv")))
+        if _gfp and _grm:
+            gf_path, grm = _gfp[-1], _grm
+            break
+    if not gf_path or not grm:
+        return None, "grace_flags.tsv / grace_region_map*.tsv absent (greenfield/ and artifacts)"
     with open(grm[-1], encoding="utf-8", newline="") as fh:
         flag2pid = {int(r["grace_flag"]): int(r["play_region_id"])
                     for r in csv.DictReader(fh, delimiter="\t")}

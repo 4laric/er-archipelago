@@ -8,18 +8,19 @@ always a real, physically-present warp point (never a sealed boss arena). Region
 progression, so any seed is winnable by construction.
 
 GRACE GATES (opt-in-by-default; the client half of the legacy_key_gates / leyndell_gate features).
-Some regions were folded from separate maps that vanilla gates behind a KEY: Raya Lucaria Academy
-(m14, folded into Liurnia) needs the Academy Glintstone Key; the Leyndell capital (m11, folded into
-Altus) needs Great Runes. The coarse region-lock model opens the whole folded region on one Lock, so
-without a gate those sub-area graces light on the region Lock and the player can WARP straight in,
-bypassing the key. These gates PULL the sub-area's graces out of the region-Lock bundle and re-key
-them on the gating condition:
-  * Raya Lucaria graces (m14 == flags 714xx) -> keyed on the "Academy Glintstone Key" ITEM in
-    regionGraces, so they light when the key is received (active iff legacy_dungeon_keys armed the
-    Academy Glintstone Key this seed -- world.gf_legacy_keys).
+Region-spine v2 made Raya Lucaria Academy and Leyndell first-class regions, so the gates no longer
+pull graces out of a PARENT's bundle -- they re-key the gated region's OWN bundle, mirroring the
+vanilla "you cannot walk in without the key" on top of the region Lock:
+  * Raya Lucaria Academy graces (m14 == flags 714xx) -> keyed on the "Academy Glintstone Key" ITEM
+    in regionGraces INSTEAD of the region's Lock, so warping in needs the key exactly like walking
+    in does (active iff legacy_dungeon_keys armed the key this seed -- world.gf_legacy_keys; the
+    AP-side rule in legacy_key_gates keeps fill honest about it).
   * Leyndell capital graces (m11 == flags 711xx, minus the 71190 Roundtable/HUB grace) -> moved to
     runeGatedGraces {str(N): [graces]} + greatRuneItemIds, so the client lights them once >= N Great
     Runes are received (N = leyndell_runes_required, clamped -- world.gf_leyndell_runes).
+    The m35 Shunning-Grounds graces used to ride this gate (they leaked into the ALTUS bundle,
+    in-game 2026-07-10); m35 is the SEWER region now, with its own Lock-keyed bundle, so the rune
+    gate holds the capital only.
 Both degrade safely: with the gate off (or the region not kept) the graces stay in the region bundle
 exactly as before; region Locks remain the only progression, so winnability is unaffected either way.
 
@@ -41,13 +42,12 @@ try:
 except Exception:
     ITEM_CATALOG = {}
 
-# Grace flag -> map encoding: 7<MM><nn>. Raya Lucaria = m14 (714xx); the Leyndell capital spans m11
-# (Royal, 711xx) AND m35 (Subterranean Shunning-Grounds, 735xx) -- both fold into Altus and both must
-# ride the Great-Rune gate, since vanilla drops into the Shunning-Grounds from the capital. (m19
-# Fractured Marika is an arena grace excluded from the bundle upstream, so it needs no entry here.)
+# Grace flag -> map encoding: 7<MM><nn>. Raya Lucaria = m14 (714xx); the Leyndell capital = m11
+# (Royal, 711xx). m35 (Shunning-Grounds, 735xx) rode the rune gate while it was folded into Altus;
+# it is the Sewer region now and its bundle is Lock-keyed like any other region's. (m19 Fractured
+# Marika is an arena grace excluded from the bundle upstream, so it needs no entry here.)
 _RAYA_GRACE_LO, _RAYA_GRACE_HI = 71400, 71500
 _LEYNDELL_GRACE_LO, _LEYNDELL_GRACE_HI = 71100, 71200          # m11 Leyndell Royal
-_SHUNNING_GRACE_LO, _SHUNNING_GRACE_HI = 73500, 73600          # m35 Subterranean Shunning-Grounds
 _ROUNDTABLE_GRACE = 71190  # HUB grace (start_grace); an m11 flag but NOT a Leyndell-capital grace.
 _ACADEMY_KEY = "Academy Glintstone Key"
 
@@ -57,12 +57,10 @@ def _in(flag, lo, hi):
 
 
 def _is_capital_grace(g):
-    """A folded-capital grace the Great-Rune gate must hold: m11 Leyndell Royal (minus the 71190
-    Roundtable HUB grace) or m35 Subterranean Shunning-Grounds. Mirrors leyndell_gate's m11/m35 CHECK
-    set -- without the m35 half, Shunning-Grounds graces leaked into the Altus bundle and warped the
-    player in before earning the runes (in-game 2026-07-10)."""
-    return ((_in(g, _LEYNDELL_GRACE_LO, _LEYNDELL_GRACE_HI) and g != _ROUNDTABLE_GRACE)
-            or _in(g, _SHUNNING_GRACE_LO, _SHUNNING_GRACE_HI))
+    """A capital grace the Great-Rune gate must hold: m11 Leyndell Royal, minus the 71190
+    Roundtable HUB grace. Mirrors leyndell_gate's CHECK set (m11/m19 prefixes over the goal
+    region)."""
+    return _in(g, _LEYNDELL_GRACE_LO, _LEYNDELL_GRACE_HI) and g != _ROUNDTABLE_GRACE
 
 
 @register
@@ -80,31 +78,30 @@ class RegionGracesFeature(Feature):
 
         out = {}
 
-        # --- GATE 1: Raya Lucaria (m14, folded into Liurnia) behind the Academy Glintstone Key. ---
-        # Active iff legacy_dungeon_keys armed the key this seed (world.gf_legacy_keys, set in
-        # legacy_key_gates.generate_early). Pull 714xx out of the Liurnia bundle, re-key on the item.
+        # --- GATE 1: Raya Lucaria Academy behind the Academy Glintstone Key. Active iff
+        # legacy_dungeon_keys armed the key this seed (world.gf_legacy_keys, set in
+        # legacy_key_gates.generate_early). Re-key the region's 714xx graces on the item.
         if _ACADEMY_KEY in getattr(world, "gf_legacy_keys", ()) and _ACADEMY_KEY in ITEM_CATALOG:
-            liurnia = "Liurnia of the Lakes Lock"
-            bundle = region_graces.get(liurnia)
+            academy = "Raya Lucaria Academy Lock"   # its OWN region since region-spine v2
+            bundle = region_graces.get(academy)
             if bundle:
                 raya = [g for g in bundle if _in(g, _RAYA_GRACE_LO, _RAYA_GRACE_HI)]
                 if raya:
-                    region_graces[liurnia] = [g for g in bundle if g not in raya]
+                    region_graces[academy] = [g for g in bundle if g not in raya]
                     # add (not overwrite) -- an item could legitimately carry graces from >1 gate.
                     region_graces[_ACADEMY_KEY] = sorted(set(region_graces.get(_ACADEMY_KEY, [])) | set(raya))
 
-        # --- GATE 2: Leyndell capital (m11 Royal + m35 Shunning-Grounds, folded into Altus) behind N
-        # Great Runes. Active iff leyndell_gate picked N runes this seed (world.gf_leyndell_runes). Pull
-        # the folded-capital graces (711xx minus the 71190 HUB grace, PLUS 735xx Shunning-Grounds) out
-        # of the Altus bundle and emit them as a rune-count-gated set the client lights at >= N runes.
+        # --- GATE 2: the Leyndell capital behind N Great Runes. Active iff leyndell_gate picked N
+        # runes this seed (world.gf_leyndell_runes). Pull the capital graces (711xx minus the 71190
+        # HUB grace) out of Leyndell's own bundle; the client lights them at >= N runes.
         need = len(getattr(world, "gf_leyndell_runes", ()) or ())
         if need > 0:
-            altus = "Altus Plateau Lock"
-            bundle = region_graces.get(altus)
+            leyndell = "Leyndell Lock"              # its OWN region since region-spine v2
+            bundle = region_graces.get(leyndell)
             if bundle:
                 leyn = [g for g in bundle if _is_capital_grace(g)]
                 if leyn:
-                    region_graces[altus] = [g for g in bundle if g not in leyn]
+                    region_graces[leyndell] = [g for g in bundle if g not in leyn]
                     out[contract.RUNE_GATED_GRACES] = {str(need): sorted(leyn)}
                     rune_ids = sorted(ITEM_CATALOG[n] for n in ITEM_CATALOG if n.endswith("Great Rune"))
                     out[contract.GREAT_RUNE_ITEM_IDS] = rune_ids

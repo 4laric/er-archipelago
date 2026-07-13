@@ -38,7 +38,7 @@ _LOD_CHECKS = {
     1042377060: ("Limgrave", "Flail -- Gatefront Ruins; was Weeping Peninsula"),
     1042377070: ("Limgrave", "Lordsworn's Greatsword -- Gatefront; was Weeping Peninsula"),
     1042397010: ("Limgrave", "Lance; was Weeping Peninsula"),
-    1045527000: ("Altus Plateau", "Gravity Stone Fan"),
+    1045527000: ("Altus", "Gravity Stone Fan"),
     1048557900: ("Mountaintops of the Giants", "Flowing Curved Sword"),
     1049547900: ("Mountaintops of the Giants", "St. Trina's Torch"),
 }
@@ -68,7 +68,7 @@ class TestLodTileRegions(unittest.TestCase):
     def test_no_check_lands_in_weeping_via_a_lod_tile(self):
         """Direct regression on the reported bug: the Gatefront trio must not be in Weeping."""
         for flag in (1042377060, 1042377070, 1042397010):
-            self.assertNotEqual("Weeping Peninsula", self._region_of_flag(flag),
+            self.assertNotEqual("Weeping", self._region_of_flag(flag),
                                 f"flag {flag} is back in Weeping Peninsula -- the LOD guard regressed")
 
 

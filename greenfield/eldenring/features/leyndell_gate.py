@@ -1,10 +1,10 @@
 """Leyndell great-rune gate (opt-in-by-default) -- the capital sits behind >=N Great Runes.
 
-Leyndell was folded into the Altus Plateau goal region (capstone re-carve), so "Leyndell" is a SUBSET
-of Altus's checks -- the capital proper (m11 Royal + Ashen), Subterranean Shunning-Grounds (m35, entered
-from the capital) and the Fractured Marika / final arena (m19). This gate adds a LOGIC access rule to
-exactly those checks: you need >=N Great Runes (any of the game's Great Runes) IN ADDITION to the Altus
-Lock, mirroring the vanilla "two great runes to enter the capital" feel.
+Region-spine v2: Leyndell is a first-class GOAL region again (m11 Royal + Ashen fold + m19 Fractured
+Marika). This gate adds a LOGIC access rule to its checks: >=N Great Runes (any of the game's Great
+Runes) IN ADDITION to the Leyndell Lock, mirroring the vanilla "two great runes to enter the
+capital". The m35 Shunning-Grounds rode this gate while it was folded into Altus; it is the SEWER
+region now, gated by its own Lock and not by runes.
 
 Winnability by construction: the N runes that satisfy the gate are marked PROGRESSION (core._class_for
 reads world.gf_leyndell_runes), so AP fill guarantees N Great Runes are reachable and -- because the
@@ -36,12 +36,13 @@ except Exception:
 
 # Great Rune item names (matt-free: read from the greenfield catalog, same rule as core.GREAT_RUNES).
 GREAT_RUNES = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
-# Folded-Leyndell map prefixes: m11 = Leyndell Royal + Ashen Capital, m35 = Subterranean
-# Shunning-Grounds (dropped into from the capital), m19 = Fractured Marika / final arena. The
-# acquisition flag encodes the map (mAA -> AA......), so an m11/m35/m19 flag in the goal region is a
-# capital check. Restricting to GOAL_REGION keeps Altus's own overworld checks (61xxx/63xxx/76xxx) out.
-_LEYNDELL_PREFIXES = ("11", "35", "19")
-_LEYNDELL_EXTRA_FLAGS = frozenset({173, 510040, 510250, 60520})  # Morgott GR+Rem, Mohg-sewer, Godfrey pouch
+# Capital map prefixes: m11 = Leyndell Royal + Ashen Capital, m19 = Fractured Marika / final
+# arena. The acquisition flag encodes the map (mAA -> AA......), so an m11/m19 flag in the goal
+# region is a capital check. Restricting to GOAL_REGION keeps HUB-overridden m11_10 Roundtable
+# checks out (they region to the hub). m35 left this list with the Sewer split (v2); 510250
+# (Mohg the Omen) left with it.
+_LEYNDELL_PREFIXES = ("11", "19")
+_LEYNDELL_EXTRA_FLAGS = frozenset({173, 510040, 60520})  # Morgott GR + Rem. Omen King, Godfrey pouch
 # Gating items forbidden on Leyndell-gated locs = Great Runes (the gate's own prerequisite) PLUS the
 # folded-dungeon legacy keys (Academy Glintstone Key, Hole-Laden Necklace) -- keeping a key off a
 # rune-gated capital check breaks the Metyr<->Leyndell cross-gate cycle (FillError 2026-07-10).
@@ -61,9 +62,9 @@ def _leyndell_location_ids():
 
 
 class LeyndellRunesRequired(Range):
-    """Great Runes needed to access Leyndell (the folded capital: m11 Royal/Ashen + Shunning-Grounds
-    + Fractured Marika), on top of the Altus Plateau Lock. 0 disables the gate. Clamped down to the
-    Great Runes actually in the pool, so it can never make a seed unbeatable."""
+    """Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the
+    Leyndell Lock. 0 disables the gate. Clamped down to the Great Runes actually in the pool, so it
+    can never make a seed unbeatable."""
     display_name = "Leyndell Great Runes Required"
     range_start = 0
     range_end = 6

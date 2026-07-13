@@ -112,20 +112,32 @@ def _ranges_from_targets(region_target):
 # seed put Jagged Peak). Floors sit ~3-4 levels UNDER vanilla expectation so collected fragments still
 # buy visible power; the client's raise-only writer takes max(held-fragment level, floor). (fable
 # consult 2026-07-11.)
+# Region-spine v2: the DLC split means every floor is per-REGION now; values carried over where the
+# region existed before, and the regions split OUT of a coarse one start from vanilla-expectation
+# feel (~3-4 under, same rule): Ensis/Cerulean/Charo's were inside Gravesite's floor-1 blanket and
+# are tuned a little above it; Stone Coffin keeps the 10 it had as a per-bucket override of
+# Gravesite; Scaduview (Metyr, Keep environs) and Rauh Base ride their neighbours. Playtest-feel
+# values -- flagged for review in SPEC-region-spine-v2.md, like the boss scaling tiers.
 DLC_BLESSING_FLOORS = {
-    "Gravesite Plain": 1,
+    "Gravesite": 1,
+    "Ensis": 2,
+    "Cerulean": 2,
+    "Charo's": 2,
     "Belurat": 3,
     "Scadu Altus": 7,
     "Shadow Keep": 10,
-    "Ancient Ruins of Rauh": 12,
+    "Scaduview": 10,
+    "Stone Coffin": 10,
+    "Rauh Base": 10,
+    "Ancient Ruins": 12,
     "Jagged Peak": 12,
-    "Abyssal Woods": 12,
-    "Enir-Ilim": 15,
+    "Abyssal": 12,
+    "Enir Ilim": 15,
 }
-# Per-play_region-bucket overrides for sub-areas whose native tuning diverges from their region floor.
-# Stone Coffin Fissure (22000, a Gravesite Plain bucket) hosts the Putrescent Knight and is tuned far
-# above the Gravesite overworld.
-_DLC_BLESSING_BUCKET_OVERRIDE = {22000: 10}
+# Per-play_region-bucket overrides for sub-areas whose native tuning diverges from their region
+# floor. EMPTY since the v2 split -- Stone Coffin (22000), the only entry, is its own region now.
+# Kept as a mechanism: a future shared-bucket sub-area (an Ellac-class fold) may need one.
+_DLC_BLESSING_BUCKET_OVERRIDE = {}
 
 
 def blessing_floor_ranges(kept):

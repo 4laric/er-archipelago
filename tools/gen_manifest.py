@@ -35,6 +35,7 @@ import sys
 # Repo-root-relative input declaration. Concrete files + globs. Order here is irrelevant (sorted).
 FILE_INPUTS = [
     "greenfield/gen_data.py",
+    "greenfield/region_groups.py",           # THE region spine (play_region grouping + names)
     "greenfield/region_map.csv",
     "greenfield/msb_flag_region.tsv",        # MSB/EMEVD ground truth (flag -> placed map)
     "greenfield/dungeon_regions.tsv",        # derived interior map -> region (grace join + ConnectCollision)

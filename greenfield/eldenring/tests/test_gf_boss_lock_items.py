@@ -40,14 +40,14 @@ def test_boss_label_unit_cases():
     assert _boss_label("Elden Remembrance") == "Elden Remembrance"
 
 
-def test_rennala_present_under_liurnia():
+def test_rennala_present_under_raya_lucaria():
     # Rennala is a non-standard boss (her kill resolves into the rebirth mechanic + Great Rune of the
     # Unborn, so she has no method=boss_arena reward row) and was historically MISSING from
     # REGION_BOSSES. gen_data.py special-cases her via the artifact-verified m14 defeat flag 14000800,
     # keyed to "Liurnia of the Lakes" -- the capstone re-carve folded Raya Lucaria Academy into
     # Liurnia (it is not a standalone greenfield region). Guard that she stays captured on regen.
-    assert "Liurnia of the Lakes" in REGION_BOSSES, "Rennala's region absent from REGION_BOSSES"
-    lst = REGION_BOSSES["Liurnia of the Lakes"]
+    assert "Raya Lucaria Academy" in REGION_BOSSES, "Rennala's region absent from REGION_BOSSES"
+    lst = REGION_BOSSES["Raya Lucaria Academy"]
     flags = {fl for _aid, fl, _rw in lst}
     assert 14000800 in flags, f"Rennala defeat flag 14000800 missing (got {flags})"
     entry = next(t for t in lst if t[1] == 14000800)

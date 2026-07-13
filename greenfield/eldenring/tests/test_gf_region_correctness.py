@@ -117,14 +117,17 @@ AUTHORITATIVE_REPIN = {
     11107000: "Roundtable Hold",         # Cipher Pata
     11107710: "Roundtable Hold",         # Crepus's Black-Key Crossbow
     11107900: "Roundtable Hold",         # Clinging Bone (Ensha)
+    11107700: "Roundtable Hold",         # Assassin's Prayerbook -- an m11_10 flag_prefix row; the
+                                         #   "11" map recovery (region-spine v2) now derives it to
+                                         #   the hub with the rest of the m11_10 loot.
     # EMEVD ground truth: the award site is elsewhere entirely.
-    400106: "Liurnia of the Lakes",      # Sellen's Bell Bearing -- awarded in m14 (Raya Lucaria)
+    400106: "Raya Lucaria Academy",      # Sellen's Bell Bearing -- awarded in m14 (its own region now)
     520020: "Limgrave",                  # Noble Sorcerer Ashes -- m30_02
     530120: "Limgrave",                  # [Incantation] Aspects of the Crucible: Thorns
     530130: "Limgrave",                  # Bloodhound's Fang -- Darriwil evergaol
     # Boss remembrances the map scan mis-tiled onto m35 (Divine Tower): they belong to their boss.
-    510100: "Eternal Cities",            # Gargoyle's Greatsword -- Valiant Gargoyles (Nokstella)
-    510200: "Miquella's Haligtree",      # Remembrance of the Rot Goddess -- Malenia
+    510100: "Siofra River",              # Gargoyle's Greatsword -- Valiant Gargoyles (Siofra Aqueduct)
+    510200: "Haligtree",                 # Remembrance of the Rot Goddess -- Malenia
     510300: "Caelid",                    # Remembrance of the Starscourge -- Radahn
 }
 
@@ -192,11 +195,11 @@ class RegionCorrectness(unittest.TestCase):
     # MECHANISM: this asserts the emitted data.py region per flag against the hand-verified vanilla
     # location, not against the override table.
     FLAG_REGION_PINS = {
-        1039507100: "Altus Plateau",               # Godfrey Icon = Godefroy the Grafted (Golden Lineage
+        1039507100: "Altus",                       # Godfrey Icon = Godefroy the Grafted (Golden Lineage
                                                    #   Evergaol, NW Altus). Was Liurnia (tile 39,50 NN tie).
         1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left), physically Castle
                                                    #   Sol. Was Liurnia (emevd mis-tiled to m60_36_41).
-        400130:     "Liurnia of the Lakes",        # Haligtree Secret Medallion (Right), Village of the
+        400130:     "Liurnia",                     # Haligtree Secret Medallion (Right), Village of the
                                                    #   Albinaurics. Was global/unplaced (SKIPPED) -> vanilla
                                                    #   leak; recovered as a Liurnia check.
     }
@@ -282,32 +285,41 @@ class RegionCorrectness(unittest.TestCase):
     # by CSV region-string / map-prefix (never hardcoded flag ids), and checked against the emitted
     # data.py assignment -- so this never re-runs gen_data's region_of / REGION_MAP transform.
 
-    # CSV `region` string -> expected emitted region after the re-carve.
+    # CSV `region` string -> expected emitted region after the re-carve (region-spine v2: the
+    # fine places are their OWN regions now -- SPEC-region-spine-v2.md).
     RECARVE_REGION_STRING_EXPECT = {
-        # DLC: old 'Land of Shadow' catch-all split; Romina's slice + Enir-Ilim finale pulled out.
-        "Church of the Bud (DLC)":     "Ancient Ruins of Rauh",   # Romina slice (was Scadu Altus)
-        "Enir-Ilim (DLC)":             "Enir-Ilim",               # Kindling-gated finale (was Land of Shadow)
-        "Castle Ensis (DLC)":          "Gravesite Plain",         # (was Belurat)
-        "Cerulean Coast (DLC)":        "Gravesite Plain",         # (was Land of Shadow)
-        "Stone Coffin Fissure (DLC)":  "Gravesite Plain",         # (was Land of Shadow)
-        # Base-game folds.
-        "Raya Lucaria Academy":                     "Liurnia of the Lakes",  # Academy folded into Liurnia
-        "Leyndell / Roundtable / Shunning-Grounds": "Altus Plateau",         # Leyndell folded into Altus
-        "Leyndell, Royal Capital":                  "Altus Plateau",
-        # "Leyndell (Ashen Capital)" is NOT re-carved into Altus -- its checks are EXCLUDED as dead
-        # (post-Erdtree-burn, unreachable in a region-lock game; gen_data._is_ashen_dead). So it
-        # produces zero emitted checks by design and must not be asserted as a re-carve target.
+        # DLC fine splits.
+        "Church of the Bud (DLC)":     "Ancient Ruins",   # Romina slice
+        "Enir-Ilim (DLC)":             "Enir Ilim",       # Kindling-gated finale (bedrock spelling)
+        "Castle Ensis (DLC)":          "Ensis",
+        "Cerulean Coast (DLC)":        "Cerulean",
+        "Stone Coffin Fissure (DLC)":  "Stone Coffin",
+        # Base-game first-class regions.
+        "Raya Lucaria Academy":                     "Raya Lucaria Academy",
+        "Leyndell / Roundtable / Shunning-Grounds": "Leyndell",   # (m11_10 rows are Roundtable -- AUTHORITATIVE_REPIN)
+        "Leyndell, Royal Capital":                  "Leyndell",
+        # "Leyndell (Ashen Capital)" checks stay EXCLUDED as dead (post-Erdtree-burn;
+        # gen_data._is_ashen_dead) -- zero emitted checks by design, never a re-carve target.
     }
 
     # `map` prefix -> expected region, for tiles the CSV `region` string mislabels. Subterranean
-    # Shunning-Grounds (m35_00) is labelled 'Divine Tower' in region_map.csv (would route to Liurnia);
-    # gen_data's per-map-id override folds it under Leyndell -> now Altus Plateau (Leyndell folded in).
+    # Shunning-Grounds (m35_00) is labelled 'Divine Tower' in region_map.csv (would route to
+    # Liurnia); it is the SEWER region since region-spine v2 (bucket 35000).
     RECARVE_MAP_PREFIX_EXPECT = {
-        "m35_00": "Altus Plateau",
+        "m35_00": "Sewer",
     }
 
-    # Region names deleted by the re-carve. No emitted location may resolve to any of these.
-    REMOVED_REGION_NAMES = frozenset({"Land of Shadow", "Leyndell", "Raya Lucaria Academy"})
+    # Region names deleted by the re-carve(s). No emitted location may resolve to any of these --
+    # v2 renamed/split the coarse names on the right of every old fold.
+    REMOVED_REGION_NAMES = frozenset({
+        "Land of Shadow",
+        # v2 renames (bedrock interop) -- the long forms are gone:
+        "Weeping Peninsula", "Stormveil Castle", "Liurnia of the Lakes", "Altus Plateau",
+        "Miquella's Haligtree", "Mohgwyn Palace", "Gravesite Plain", "Abyssal Woods",
+        "Ancient Ruins of Rauh", "Enir-Ilim",
+        # v2 splits -- the coarse bucket is gone entirely:
+        "Eternal Cities",
+    })
 
 
     def _placed_flags_where(self, pred):
@@ -349,9 +361,10 @@ class RegionCorrectness(unittest.TestCase):
             "Windows regen of data.py has not run yet). (csv_region, flag, expected, got): "
             + repr(bad[:8]))
 
-    def test_shunning_grounds_folds_into_altus(self):
-        """Subterranean Shunning-Grounds (m35_00) folds under Leyndell -> Altus Plateau. Keyed on the
-        `map` tile prefix because region_map.csv mislabels every m35 row 'Divine Tower'."""
+    def test_shunning_grounds_is_the_sewer(self):
+        """Subterranean Shunning-Grounds (m35_00) is the SEWER region (bucket 35000; region-spine
+        v2). Keyed on the `map` tile prefix because region_map.csv mislabels every m35 row
+        'Divine Tower'."""
         bad, empty = [], []
         for prefix, target in sorted(self.RECARVE_MAP_PREFIX_EXPECT.items()):
             flags = self._placed_flags_where(lambda r, p=prefix: (r.get("map") or "").startswith(p))
@@ -366,14 +379,15 @@ class RegionCorrectness(unittest.TestCase):
         self.assertEqual(empty, [], "map-prefix group(s) produced no emitted checks: " + repr(empty))
         self.assertEqual(
             bad, [],
-            str(len(bad)) + " Shunning-Grounds (m35_00) pickup(s) not in Altus Plateau "
-            "(Leyndell-fold regression, or pre-regen stale data). (map_prefix, flag, expected, got): "
+            str(len(bad)) + " Shunning-Grounds (m35_00) pickup(s) not in the Sewer "
+            "(region-spine v2 regression, or pre-regen stale data). (map_prefix, flag, expected, got): "
             + repr(bad[:8]))
 
     def test_no_location_resolves_to_removed_region(self):
-        """No emitted location -- and no region table entry -- may name a region the re-carve deleted
-        ('Land of Shadow', 'Leyndell', 'Raya Lucaria Academy'). Guards against a half-applied regen
-        that keeps LOCATIONS keyed by an old carve while REGIONS moves on."""
+        """No emitted location -- and no region table entry -- may name a region a re-carve deleted
+        (the old coarse/long names: 'Liurnia of the Lakes', 'Eternal Cities', 'Gravesite Plain', ...).
+        Guards against a half-applied regen that keeps LOCATIONS keyed by an old carve while REGIONS
+        moves on."""
         leaked_regions = sorted(self.REMOVED_REGION_NAMES & set(self.d.REGIONS))
         self.assertEqual(
             leaked_regions, [],

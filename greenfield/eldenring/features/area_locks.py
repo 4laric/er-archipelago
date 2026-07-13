@@ -15,18 +15,12 @@ CLIENT CONTRACT (read-only shape, crates/eldenring-archipelago/src/region.rs):
   (stops kicking) exactly when its "<Region> Lock" is received. We emit ONE triple per play_region
   id belonging to a kept region (lo == hi), keyed to that region's REGION_OPEN_FLAGS value.
 
-DERIVATION (matt-free): REGION_PLAY_IDS below is the region -> {play_region ids} map, derived
-entirely from greenfield's own artifacts:
-  * overworld tiles      -- gen_data.py's PLAY2AP grace-anchor table (61xxx/62xxx/63xxx/64xxx/65xxx);
-  * legacy/underground   -- elden_ring_artifacts/REGION_ID_MAP.md (authoritative
-                            BonfireWarpParam.bonfireSubCategoryId == runtime play_region_id), joined
-                            to greenfield region names via gen_data.py's REGION_MAP semantics;
-  * DLC sub-areas        -- REGION_ID_MAP.md DLC table, same join.
-Every one of the 54 non-system play_region ids in grace_region_map is covered (52 map to the 22
-greenfield regions; 11100 Roundtable Hold hub and 18000 tutorial-start are the always-open pair and
-are deliberately excluded). No matt/Bedrock apworld data is read. When the region audit resolves a
-sub-area's play_region id, add it here (a missing id merely means that sub-area is never kick-gated;
-an id can never point at the WRONG region because the map is 1:1 against REGION_ID_MAP.md).
+DERIVATION (matt-free): REGION_PLAY_IDS is GENERATED into eldenring/region_play_ids.py by
+gen_data.py as the inverse of greenfield/region_groups.py (THE bucket->region spine, curated
+against elden_ring_artifacts/REGION_ID_MAP.md -- BonfireWarpParam.bonfireSubCategoryId == the
+runtime play_region_id). All 54 non-system buckets are covered; 11100 (Roundtable HUB) and 18000
+(tutorial spawn) are excluded from geometry on purpose (region_groups.KICK_EXCLUDED_PLAY_IDS) --
+gating either would eject the player from home/spawn. No matt/Bedrock apworld data is read.
 
 Only KEPT regions get ranges: a sealed (non-kept) region is never created and has no Lock item, so
 it never appears here -- consistent with core.py's regionOpenFlags (kept-only). A kept region is
@@ -49,38 +43,15 @@ try:
 except Exception:  # not yet generated -> no open flags -> no ranges (regions stay unlocked)
     REGION_OPEN_FLAGS = {}
 
-# Region -> physical play_region (5-digit subregion) ids. Matt-free; see module docstring for the
-# per-id provenance. Ids are the runtime play_region_id numbering (REGION_ID_MAP.md == PLAY2AP).
-REGION_PLAY_IDS = {
-    # --- overworld (gen_data.py PLAY2AP grace anchors) ---
-    "Limgrave": [61000, 61001],
-    "Weeping Peninsula": [61002],
-    "Liurnia of the Lakes": [62000, 62001, 62002],
-    "Altus Plateau": [63000, 63002, 63003],
-    "Mt. Gelmir": [63001, 16000, 39200],          # + Volcano Manor + Ruin-Strewn Precipice
-    "Caelid": [64000, 64001, 64002],               # core + Dragonbarrow + Swamp of Aeonia
-    "Mountaintops of the Giants": [65000, 65001, 65002],   # 65002 = Consecrated Snowfield, folded in
-    # --- legacy dungeons / capitals / underground (REGION_ID_MAP.md) ---
-    "Stormveil Castle": [10000],
-    "Leyndell": [11000, 11050, 35000, 19000],      # Royal + Ashen + Shunning-Grounds + Fractured Marika
-    "Farum Azula": [13000],
-    "Raya Lucaria Academy": [14000],
-    "Miquella's Haligtree": [15000, 15001],        # Elphael + Haligtree
-    "Eternal Cities": [12010, 12011, 12012, 12020, 12030, 12070],  # Ainsel/Lake of Rot/Astel/Siofra/Deeproot
-    "Mohgwyn Palace": [12050],
-    # --- DLC (REGION_ID_MAP.md DLC table, joined via gen_data.py REGION_MAP). The old 'Land of
-    # Shadow' catch-all was split (region_spine.py) into Gravesite Plain + Ancient Ruins of Rauh +
-    # Enir-Ilim to match gen_data.REGION_MAP; Castle Ensis (6820) folds into Gravesite Plain and
-    # Rauh (6950) splits out of Scadu Altus, exactly as the generator now tags those locations. ---
-    "Gravesite Plain": [6800, 6820, 6830, 6840, 22000],  # Gravesite/Castle Ensis/Cerulean/Charo/Stone Coffin
-    "Belurat": [20000],                             # Belurat Tower Settlement
-    "Ancient Ruins of Rauh": [6950],                # Rauh (Romina)
-    "Enir-Ilim": [20010],                           # Enir-Ilim tower
-    "Jagged Peak": [6850, 6851],
-    "Abyssal Woods": [6860, 28000],                 # Abyssal Woods + Midra's Manse
-    "Scadu Altus": [6900, 6920, 6940],              # Scadu Altus/Scaduview + Manus Metyr
-    "Shadow Keep": [21000, 21001, 21010],
-}
+# Region -> physical play_region ids. GENERATED (eldenring/region_play_ids.py, emitted by
+# gen_data.py as the inverse of greenfield/region_groups.py -- THE spine). The hand table that
+# lived here drifted from PLAY2AP exactly as hand copies always do (it still carried
+# 'Raya Lucaria Academy'/'Leyndell' keys from before those were regions, and had 6940/6950
+# bucketed backwards); one source now.
+try:
+    from ..region_play_ids import REGION_PLAY_IDS
+except Exception:  # not yet generated -> no geometry -> no ranges (regions stay unlocked)
+    REGION_PLAY_IDS = {}
 
 
 @register
