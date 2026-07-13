@@ -16,9 +16,11 @@ REGION_PLAY_IDS = {
     "Charo's": [41020],
     'Deeproot Depths': [12030],
     'Enir Ilim': [20010],
+    'Ensis': [68200],
     'Farum Azula': [13000],
-    'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100, 68200, 69010],
+    'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100, 69010],
     'Haligtree': [15000],
+    'Jagged Peak': [68500],
     'Leyndell': [11000, 11050, 19000],
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
@@ -28,6 +30,7 @@ REGION_PLAY_IDS = {
     'Rauh Base': [40010, 42030],
     'Raya Lucaria Academy': [14000],
     'Scadu Altus': [40020, 41010, 42020, 69000, 69020, 69030],
+    'Scaduview': [69300],
     'Sewer': [35000],
     'Shadow Keep': [21000, 21010, 21020],
     'Siofra River': [12020, 12070],
@@ -39,6 +42,6 @@ REGION_PLAY_IDS = {
 # Regions whose play_region buckets are NOT measured yet, so their locks CANNOT be
 # enforced. core._eligible_regions drops them from the seed's region pool (and says so):
 # shipping a lock that does nothing is the bug the measured table exists to end.
-REGIONS_PENDING_BUCKET = frozenset(['Ensis', 'Jagged Peak', 'Scaduview'])
+REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:dc207b3ad112aa6677d0926a01661451323ccf5f276be5872f1b6ea407265f1c', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:99f79700486c52c2b92ac6bc2c0709d5c46f9f10136960ba051712ed24887284'}
+_GEN_STAMP = {'inputs_hash': 'sha256:882c04e6511633faaab603146166e8cb9cc88ef4a656c17c7a3a5596023fb586', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:6365c330c6f2153cda9d7f3864313803d6cf56654025d58ffbc2fd3e16188897'}

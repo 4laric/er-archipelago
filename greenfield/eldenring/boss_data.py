@@ -70,4 +70,4 @@ REGION_BOSSES = {
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:dc207b3ad112aa6677d0926a01661451323ccf5f276be5872f1b6ea407265f1c', 'module': 'boss_data.py', 'body_sha256': 'sha256:0abe9c2f90f28bcb6afe70edb545915d8bd9982b9fefb8504bfa4512e87e9ba7'}
+_GEN_STAMP = {'inputs_hash': 'sha256:882c04e6511633faaab603146166e8cb9cc88ef4a656c17c7a3a5596023fb586', 'module': 'boss_data.py', 'body_sha256': 'sha256:0abe9c2f90f28bcb6afe70edb545915d8bd9982b9fefb8504bfa4512e87e9ba7'}

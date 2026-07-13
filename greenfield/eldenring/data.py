@@ -4945,4 +4945,4 @@ LOCATIONS = {
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:dc207b3ad112aa6677d0926a01661451323ccf5f276be5872f1b6ea407265f1c', 'module': 'data.py', 'body_sha256': 'sha256:c9458024fb71393cf5e7ef03269f3235afd4be6147eb08e65cdb92b44e06b8a6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:882c04e6511633faaab603146166e8cb9cc88ef4a656c17c7a3a5596023fb586', 'module': 'data.py', 'body_sha256': 'sha256:c9458024fb71393cf5e7ef03269f3235afd4be6147eb08e65cdb92b44e06b8a6'}
