@@ -100,6 +100,100 @@ def early_stone_floor(world) -> int:
     return int(need[1] / COLLECTION_RATE + 0.5)
 
 
+# ---- the EARLY GUARANTEE (AP local_early_items) --------------------------------------------------
+# `early_stone_floor` above is a claim about SUPPLY: the seed HOLDS enough stones. It only lands them
+# early by accident -- on a small seed spheres 0-1 are most of the world, so nearly everything is
+# early; at a large num_regions they are a thin slice and the same reservation delivers ~nothing up
+# front, silently. (That accident is exactly what the 4-region test was quietly relying on.)
+#
+# So we also DECLARE the early stones to AP: `multiworld.local_early_items`, which Fill honours by
+# placing them in locations reachable from the START state. That is a statement of INTENT -- we never
+# look at a sphere, and fill still chooses the location. (Reading spheres and second-guessing fill is
+# what made the deleted stone_ramp both wrong and unfixable.) It degrades rather than explodes: Fill
+# uses `allow_partial=True` and warns if it cannot place them all.
+#
+# THE MARGIN (Alaric, 2026-07-13): guarantee TWICE the ladder cost, not the COLLECTION_RATE-inflated
+# floor. The floor's 4x inflation exists because a stone lying somewhere in the seed might never be
+# found; a guaranteed-early stone only has to be found in the START REGION, so a 2x margin -- "you
+# need to pick up half of them" -- is the honest number. 12 regular stones, not 24.
+EARLY_GUARANTEE_MARGIN = 2
+
+
+def _somber_stone_need(level: int) -> Dict[int, int]:
+    """{tier: stones} to take a SOMBER weapon to +level. Somber weapons cost ONE stone per level and
+    the tier IS the level (+3 needs Somber [1], [2], [3] -- one each). `flatten_regular_upgrades` is
+    regular-only, hence no flatten term.
+
+    NB the ladders are not commensurate: somber caps at +10 where regular caps at +25, so somber +3 is
+    roughly regular +7.5 in effective terms. Targeting the same EARLY_TARGET_LEVEL for both is
+    therefore GENEROUS to somber -- deliberately, because it is cheap (6 stones total at the 2x margin)
+    and a somber weapon is a unique one the player actually wants to invest in early."""
+    return {t: 1 for t in range(1, min(level, SOMBER_TIERS) + 1)}
+
+
+def early_guarantee(world) -> Dict[str, int]:
+    """{item name: count} to hand AP as `local_early_items` -- the stones that must be reachable from
+    the start. Derived from both ladders; no magic numbers, one named margin."""
+    out: Dict[str, int] = {}
+    reg = _regular_stone_need(_flatten(world))
+    out[f"Smithing Stone [1]"] = reg[1] * EARLY_GUARANTEE_MARGIN
+    for tier, n in _somber_stone_need(EARLY_TARGET_LEVEL).items():
+        out[f"Somber Smithing Stone [{tier}]"] = n * EARLY_GUARANTEE_MARGIN
+    return out
+
+
+def declare_early_items(world, pool_names: List[str]) -> Dict[str, int]:
+    """Register the early guarantee with AP. Called from core.create_items with the pool it just built.
+
+    CLAMPED TO THE POOL, and it says so when it clamps. `local_early_items` can only place items that
+    are actually IN the itempool -- AP scans the pool for matching names and silently places nothing if
+    there are none. So a recipe with no `somber_stones` weight would get a somber guarantee that reads
+    fine in the code and delivers nothing in the seed. That is the exact failure mode this module
+    exists to make impossible, so: clamp to what the pool holds, and WARN by name on any shortfall.
+
+    Only ever ADDS to local_early_items, so it composes with anything else wanting an early item.
+    Returns what it actually declared (diagnostics / tests)."""
+    want = early_guarantee(world)
+    excl = set(getattr(world, "gf_dlc_excluded", ()))
+    want = {nm: n for nm, n in want.items() if nm in ITEM_CATALOG and nm not in excl and n > 0}
+    if not want:
+        return {}
+
+    have = defaultdict(int)
+    for nm in pool_names:
+        if nm in want:
+            have[nm] += 1
+
+    declared: Dict[str, int] = {}
+    short: List[str] = []
+    for nm, n in sorted(want.items()):
+        n_ok = min(n, have[nm])
+        if n_ok < n:
+            short.append(f"{nm}: wanted {n} early, pool holds {have[nm]}")
+        if n_ok > 0:
+            declared[nm] = n_ok
+
+    if short:
+        logging.getLogger("Greenfield").warning(
+            "[eldenring:%s] filler_budget: the early guarantee cannot be paid in full -- %s. The pool "
+            "simply does not contain these stones (a curated_filler recipe with no `stones` / "
+            "`somber_stones` weight has no upgrade economy to make early). Add the weight, or accept "
+            "that this seed's early upgrade curve is whatever vanilla happened to leave lying around.",
+            world.player, "; ".join(short))
+
+    if not declared:
+        return {}
+    early = world.multiworld.local_early_items[world.player]
+    for nm, n in declared.items():
+        early[nm] = max(early.get(nm, 0), n)
+    logging.getLogger("Greenfield").info(
+        "[eldenring:%s] filler_budget: early guarantee -> %s (reachable from the start; %dx the ladder "
+        "cost to +%d)",
+        world.player, ", ".join(f"{n}x {nm}" for nm, n in sorted(declared.items())),
+        EARLY_GUARANTEE_MARGIN, EARLY_TARGET_LEVEL)
+    return declared
+
+
 def _regular_stone_need(flatten: int) -> Dict[int, int]:
     """{tier: stones} to reach +24. The game's ladder: 2/4/6 per level within a tier, each level capped
     at `flatten` when flatten > 0 (mirrors the client)."""

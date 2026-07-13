@@ -453,6 +453,14 @@ class GreenfieldEldenRingWorld(World):
         # in post_fill (stone_ramp) -- three owners of one resource, arbitrated by nothing but the
         # order they happened to run in. That composition silently starved the upgrade economy; see
         # features/filler_budget.py. The swaps are gone: the allocator decided the whole tail above.
+        #
+        # THE EARLY GUARANTEE. The stone reservation is a claim about SUPPLY -- the seed HOLDS enough
+        # stones -- and on a small seed that happens to land them early because spheres 0-1 ARE most of
+        # the seed. At a large num_regions it does not, and the upgrade curve goes sparse in silence.
+        # So declare the early stones to AP (`local_early_items`) and let FILL place them: intent, not
+        # sphere coupling. Clamped to what this pool actually holds, and it warns if it cannot pay.
+        if shuffle:
+            _fb.declare_early_items(self, [_it.name for _it in pool])
         self.multiworld.itempool += pool
 
     def pre_fill(self) -> None:

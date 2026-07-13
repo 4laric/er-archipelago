@@ -361,3 +361,54 @@ def test_recipe_rejects_unknown_category():
     with pytest.raises(OptionError) as e:
         fb.recipe_of(_Fake())
     assert "unknown category" in str(e.value)
+
+
+class EarlyGuarantee(WorldTestBase):
+    """THE SIZE-INDEPENDENCE GATE.
+
+    `early_stone_floor` is a claim about SUPPLY -- the seed HOLDS enough Smithing Stone [1]. On the
+    4-region seed above that also lands them EARLY, but only by accident: spheres 0-1 are ~80% of a
+    small seed, so almost everything is early. Scale the seed up and the same reservation delivers
+    almost nothing up front, in silence -- the FillerEconomyFloor test would still pass while a player
+    on a big seed stood at +0. That accident is what this class exists to stop relying on.
+
+    So filler_budget DECLARES the early stones to AP (`local_early_items`) and Fill places them in
+    locations reachable from the START state. This test runs at a LARGE num_regions -- where the pool
+    floor guarantees nothing early -- and asserts the guarantee survives anyway.
+    """
+
+    game = GAME
+    # Somber weight added on purpose: the shipped playtest recipe has none, so a somber guarantee would
+    # be unpayable and filler_budget would (correctly) warn and clamp. Here we want both ladders live.
+    options = {"num_regions": 12, "num_regions_order": "rolled", "enable_dlc": True,
+               "curated_filler": {**PLAYTEST_RECIPE, "somber_stones": 12}}
+
+    def test_early_stones_are_reachable_from_the_start(self):
+        from Fill import distribute_items_restrictive
+
+        self.world_setup(seed=0xE1DE7)
+        distribute_items_restrictive(self.multiworld)
+        world = self.world
+        player = world.player
+
+        want = fb.early_guarantee(world)
+        self.assertTrue(want, "the guarantee is empty -- the oracle is broken, not the code")
+
+        spheres = list(self.multiworld.get_spheres())
+        self.assertTrue(spheres, "no fill spheres -- cannot evaluate reachability")
+        start_reachable = spheres[0]          # reachable with NO items == Fill's `base_state`
+
+        got = defaultdict(int)
+        for loc in start_reachable:
+            if loc.item is not None and loc.item.player == player:
+                got[loc.item.name] += 1
+
+        shortfalls = [f"{nm}: guaranteed {n} reachable from the start, found {got[nm]}"
+                      for nm, n in sorted(want.items()) if got[nm] < n]
+        self.assertFalse(
+            shortfalls,
+            "the early upgrade guarantee did not survive a large seed -- this is the bug the 4-region "
+            "test cannot see:\n  %s\n(%d own checks are reachable from the start, of %d total.)"
+            % ("\n  ".join(shortfalls), len(start_reachable),
+               len([l for l in self.multiworld.get_locations(player) if l.item is not None])))
+
