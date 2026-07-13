@@ -90,28 +90,46 @@ def load_tile_regions():
     still reads 'Land of Shadow (DLC)' for every m61 tile -- a placeholder, not a place -- which is
     exactly the mis-regioning already fixed downstream. Majority vote per tile.
     """
-    sys.path.insert(0, os.path.join(REPO, "greenfield"))
-    from eldenring.data import LOCATIONS  # noqa: E402
+    # Load data.py BY PATH, not as `eldenring.data`. Importing the package runs eldenring/__init__.py
+    # -> core.py -> `from BaseClasses import ...`, i.e. it needs an Archipelago checkout on sys.path --
+    # which a datamine tool has no business requiring. data.py is generated and imports nothing, so a
+    # direct file load is both sufficient and honest about the dependency.
+    import importlib.util
 
-    ap_region = {}
+    dp = os.path.join(REPO, "greenfield", "eldenring", "data.py")
+    spec = importlib.util.spec_from_file_location("_gf_data", dp)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    LOCATIONS = mod.LOCATIONS
+
+    # JOIN ON THE FLAG, not the ap_id. ap-ids are POSITIONAL and have been renumbered: data.py is in the
+    # 777xxxx space while region_map.csv still carries 700xxxx, and the two sets do not intersect at all
+    # (a zero-overlap join that reports "0 buckets attributed" and looks like a clean run). The
+    # acquisition flag is the durable key -- 4813 of 4844 locations carry one and it survives renumbering.
+    flag_region = {}
     for region, locs in LOCATIONS.items():
         for entry in locs:
-            ap_region[entry[1]] = region
+            flag = entry[2]
+            if flag:
+                flag_region[int(flag)] = region
 
     votes = collections.defaultdict(collections.Counter)
     with open(os.path.join(REPO, "greenfield", "region_map.csv"), encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
-            try:
-                ap = int(row["ap_id"])
-            except (KeyError, ValueError):
+            f = (row.get("flag") or "").strip()
+            if not f.isdigit():
                 continue
-            reg = ap_region.get(ap)
+            reg = flag_region.get(int(f))
             m = row.get("map") or ""
             if not reg or not m.startswith("m"):
                 continue
             tile = "_".join(m.split("_")[:3])
             votes[tile][reg] += 1
 
+    if not votes:
+        sys.exit("tile->region join produced NOTHING -- the key drifted again. Refusing to report an "
+                 "empty diff as if it were a clean one.")
+    print(f"tile->region: {len(votes)} tiles attributed from {len(flag_region)} flagged locations")
     return {t: c.most_common(1)[0][0] for t, c in votes.items()}
 
 
