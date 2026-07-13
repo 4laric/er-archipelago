@@ -429,6 +429,22 @@ if ($Me3Deploy) {
     # (locationFlags + dungeonSweepFlags), and this script already said so: "sweeps poll fine
     # without it". Dev now matches prod.
 
+    # Vanilla-suppression table: the client reads check_lots_table.json from the DLL dir when the
+    # apworld emits no checkLotBlank*/checkItemFlags (i.e. ANY foreign apworld). It is derived from
+    # ItemLotParam -- game data, not seed data -- so one static file suppresses the vanilla ware for
+    # every apworld. Measured: 99.9% of a Bedrock seed's check flags. Without it, every check on a
+    # foreign seed hands out the VANILLA item as well as the AP item.
+    $lotTable = Join-Path $Repo "greenfield\eldenring\check_lots_table.json"
+    if (Test-Path $lotTable) {
+        Copy-Item $lotTable (Join-Path $Me3Dir "check_lots_table.json") -Force
+        Write-Host "  check_lots_table.json -> $Me3Dir  (vanilla suppression, any apworld)"
+        if ($me3InstallShop) {
+            Copy-Item $lotTable (Join-Path $me3InstallShop "check_lots_table.json") -Force
+        }
+    } else {
+        Write-Host "  check_lots_table.json ABSENT -- foreign seeds will DOUBLE-DIP (vanilla + AP item). Run: python tools\gen_check_lots_table.py" -ForegroundColor Yellow
+    }
+
     # Shop-check flags: client key_resolver reads shoplineup_flags.json from the DLL dir
     # (mod_directory), same staging as the sweep table. Maps shop rows -> eventFlag_forStock.
     $shopTable = Join-Path $Repo "Archipelago\worlds\eldenring\shoplineup_flags.json"
