@@ -6,6 +6,7 @@ features/ and are aggregated here via registry.py -- adding a phase does NOT edi
 
 Data-derived + matt-free (see ../LESSONS-LEARNED.md): rules keyed by REGION only.
 """
+import logging
 import os
 from typing import Any, Dict, List
 
@@ -243,6 +244,35 @@ class GreenfieldEldenRingWorld(World):
             pool = list(REGIONS)          # base + DLC (default)
         else:
             pool = base_regions()         # base only
+
+        # REGIONS WITH NO MEASURED KICK GEOMETRY ARE NOT ELIGIBLE (2026-07-13).
+        #
+        # A region whose play_region buckets we have not measured CANNOT have its lock enforced: the
+        # client's kick is permissive on ground it has no entry for, so you would simply walk into the
+        # sealed region and loot it. features/area_locks raises a ContractError rather than emit such a
+        # seed -- correctly -- so the choice is not "ship it broken or not", it is "exclude it or fail
+        # to generate at all".
+        #
+        # Excluding costs those regions' content this seed. Keeping them would ship a lock that does
+        # nothing, which is precisely the bug (Weeping, and the whole DLC) that region_groups.py's
+        # measured table exists to end. So: exclude, and SAY SO -- a shrinking region pool that nobody
+        # announced is how you end up debugging the fill instead of the cause.
+        # Generated into eldenring/region_play_ids.py by gen_data (from region_groups). Imported
+        # lazily + tolerantly: an apworld generated before this existed simply has no pending set.
+        try:
+            from .region_play_ids import REGIONS_PENDING_BUCKET as _pending_set
+        except ImportError:
+            _pending_set = frozenset()
+        pending = [r for r in pool if r in _pending_set]
+        if pending:
+            logging.getLogger("Greenfield").warning(
+                "[eldenring:%s] region(s) EXCLUDED from this seed -- their play_region buckets are not "
+                "measured yet, so their locks could not be enforced: %s. Measure the bucket (warp to one "
+                "of the region's graces and read the client's kick-watch line), move it into "
+                "region_groups.PLAY_REGION_GROUPS, and drop it from REGIONS_PENDING_BUCKET.",
+                self.player, ", ".join(sorted(pending)))
+            pool = [r for r in pool if r not in _pending_set]
+
         return pool if pool else list(REGIONS)  # defensive: never seal every region
 
     def generate_early(self) -> None:
