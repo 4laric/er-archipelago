@@ -105,6 +105,7 @@ jobs:
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_location_regions.py
+          python tools/gen_region_locks.py
           python greenfield/gen_contract.py
 
           # Check the two things that are actually GENERATED OUTPUT, in the two places they live.

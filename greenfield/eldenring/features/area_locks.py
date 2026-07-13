@@ -88,14 +88,25 @@ class AreaLocks(Feature):
     name = "area_locks"
 
     def slot_data(self, world):
-        """FOLDED 2026-07-06: areaLockFlags is no longer emitted. The play_region geometry
-        (REGION_PLAY_IDS) is static/seed-invariant, and every seed-specific input (which regions
-        are kept + their open flag) already rides regionOpenFlags, so the client derives the
-        kick-watch ranges itself (region.rs derive_area_lock_flags, a mirror of REGION_PLAY_IDS
-        below; test_gf_data.py guards the two tables against drift). We keep the table here as the
-        mirror authority and still FAIL GEN on a coverage gap: any KEPT region that resolved a
-        front-door open flag but has no geometry entry would have its in-game kick-watch silently
-        off, so that is a hard error rather than a quiet degrade."""
+        """areaLockFlags IS emitted, and slot_data is what the client enforces from. (This
+        docstring once claimed the opposite -- a FOLDED 2026-07-06 note said the client derives
+        the ranges itself via a region.rs mirror. That described a client that never shipped:
+        region.rs parses `areaLockFlags` as-is and derives nothing when slot_data speaks. The
+        fold was reverted 2026-07-08 -- see UN-FOLD below -- but the paragraph survived, lying.)
+
+        Division of labor as of 2026-07-12 (bedrock interop):
+          * OUR seeds: this method ships the fully-resolved ranges; the client consumes them
+            verbatim. slot_data always WINS.
+          * FOREIGN apworlds that emit neither areaLockFlags nor regionOpenFlags: the client
+            falls back to a GENERATED copy of REGION_PLAY_IDS + REGION_OPEN_FLAGS baked into
+            er-logic (region_locks.rs, emitted by tools/gen_region_locks.py from these same
+            tables, drift-gated in CI) keyed by which "<Region> Lock" item names the seed
+            carries -- so region lock works with zero slot_data support. Hand-written client
+            mirrors stay forbidden (test_gf_data.py); the generated one cannot drift.
+
+        Either way this feature still FAILS GEN on a coverage gap: any KEPT region that resolved
+        a front-door open flag but has no geometry entry would have its in-game kick-watch
+        silently off, so that is a hard error rather than a quiet degrade."""
         missing = [
             r for r in world._kept()
             if REGION_OPEN_FLAGS.get(r) is not None and r not in REGION_PLAY_IDS
