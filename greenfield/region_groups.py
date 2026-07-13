@@ -78,44 +78,77 @@ folding it in would have made a back-exit grace the Keep's numerically-first ove
 HUB = "Roundtable Hold"
 
 REGION_GROUPS = {
-    # --- base game overworld ---
-    "Limgrave": (61000, 61001, 18000),
-    "Weeping": (61002,),
-    "Liurnia": (62000, 62001, 62002, 39200),
-    "Altus": (63000, 63002, 63003),
-    "Mt. Gelmir": (63001, 16000),
-    "Caelid": (64000, 64001, 64002),
-    "Mountaintops of the Giants": (65000, 65001, 65002),
-    # --- base game legacy / interiors ---
-    "Stormveil": (10000,),
-    "Raya Lucaria Academy": (14000,),
+    # === MEASURED from PlayRegionParam (tools/datamine_play_regions.py --emit, 2026-07-13). ===
+    # The previous table was sourced from BonfireWarpParam.bonfireSubCategoryId, on the claim that it
+    # "equals the runtime play_region_id". It does not: it coincides for the base OVERWORLD and is a
+    # different number everywhere else. 27 of its 53 buckets did not exist and 89 real ones were absent,
+    # so the KICK -- which is PERMISSIVE on an unknown bucket -- simply never fired on most of the map.
+    # Weeping's only bucket (61002) was fictional: that lock had never enforced anything. The whole DLC
+    # overworld was fictional. Vote counts below are checks-per-bucket from the derivation.
+
+    # --- base overworld ---
+    "Limgrave": (61000, 61010, 18000, 30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100),
+    "Weeping": (61020, 30000, 30010, 31010, 31020, 32000),
+    "Liurnia": (62000, 62010, 62020, 39200, 30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110),
+    "Altus": (63000, 63010, 30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 34140),
+    "Mt. Gelmir": (63020, 16000, 30090, 31070, 31090),
+    "Caelid": (64000, 64010, 64020, 30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130),
+    # 65000: the derivation votes 'Altus' 2/2 -- OVERRIDDEN. It is the Mountaintops PRIMARY bucket and
+    # its three siblings (65010/65020/65030) carry 45 votes of Mountaintops between them. Two border
+    # checks (the Grand Lift of Rold sits on the seam) do not outweigh that. Same artefact class as the
+    # Altus/Gelmir grace-join fold we already declined to "correct".
+    "Mountaintops of the Giants": (65000, 65010, 65020, 65030, 30170, 30180, 30190, 30200, 31120, 31220, 32110),
+
+    # --- base interiors / legacy ---
+    "Stormveil": (10000, 10010),
     "Leyndell": (11000, 11050, 19000),
-    "Sewer": (35000,),
-    "Haligtree": (15000, 15001),
+    "Raya Lucaria Academy": (14000,),
+    "Haligtree": (15000,),
     "Farum Azula": (13000,),
-    # --- base game underground ---
-    "Ainsel River": (12010, 12011, 12012),
+    "Sewer": (35000,),
+    "Ainsel River": (12010,),
     "Siofra River": (12020, 12070),
     "Deeproot Depths": (12030,),
     "Mohgwyn": (12050,),
-    # --- DLC (Shadow of the Erdtree) ---
-    "Gravesite": (6800,),          # + Ellac River (shares 6800; un-gateable fold, see docstring)
-    "Ensis": (6820,),
-    "Cerulean": (6830,),
-    "Charo's": (6840,),
-    "Jagged Peak": (6850, 6851),
-    "Abyssal": (6860, 28000),
-    "Scadu Altus": (6900,),        # + Fog Rift Fort + Recluses' River (share 6900; un-gateable)
-    "Scaduview": (6920,),
-    "Shadow Keep": (21000, 21001, 21010),
-    "Ancient Ruins": (6940,),
-    "Rauh Base": (6950,),
+
+    # --- DLC overworld (every bucket here is NEW; the old ones were fiction) ---
+    "Gravesite": (68000, 68100, 68200, 69010, 40000, 41000, 42000, 43000, 43010),
+    "Cerulean": (68300, 68400),
+    "Abyssal": (68600,),          # 28000 (Midra's Manse) is NOT a bucket -- it lives inside 68600
+    "Scadu Altus": (69000, 69020, 69030, 40020, 41010, 42020),
+    "Ancient Ruins": (69400, 69410),
+    "Rauh Base": (40010, 42030),
+    "Charo's": (41020,),
+
+    # --- DLC interiors ---
     "Belurat": (20000,),
     "Enir Ilim": (20010,),
+    "Shadow Keep": (21000, 21010, 21020),
     "Stone Coffin": (22000,),
+
     # --- the hub ---
     HUB: (11100,),
 }
+
+# REGIONS WHOSE BUCKET IS NOT YET KNOWN. Their locks DO NOT ENFORCE: the kick is permissive on ground it
+# has no entry for, so these three can be walked into while sealed. This is a NAMED hole, not a silent
+# one -- which is the whole difference from the table this replaces.
+#
+# Why they are not guessed: a bucket's PlayRegionParam coordinate is ONE sample row, not its extent, so
+# adjacency proves nothing. The obvious pattern (bonfire subcategory x10) was tried and was WRONG -- the
+# real set has 68410/69010/69030 and no 68510/69500. Resolve by warping to a grace in each and reading
+# the client's kick-watch line, which prints the live bucket:
+#     kick-watch: play_region <old> -> <new> (sub <bucket>)
+#
+#   Ensis       tiles m61_47_44, m61_48_44. Its checks vote inside 68100/68200, both of which are
+#               majority-Gravesite (68200 = Gravesite 25 / Ensis 21). Castle Ensis may simply SHARE
+#               Gravesite's bucket, in which case it is un-gateable at bucket granularity -- the same
+#               class as Fog Rift Fort / Recluses' River sharing 69000 with Scadu Altus.
+#   Jagged Peak tiles m61_49_38/39, m61_50_40, m61_52_40/41, m61_53_39/40 + interior m12_05. Candidate
+#               unassigned buckets: 68410 (sample coord m61_49_40), 68500 (m61_54_39).
+#   Scaduview   tiles m61_49_48, m61_49_49, m61_53_48. Candidates: 69200 (no coord rows), 69300
+#               (m61_52_48).
+REGIONS_PENDING_BUCKET = frozenset({"Ensis", "Jagged Peak", "Scaduview"})
 
 # str(play_region_id) -> region name. Keys are STRINGS because the grace tables (grace_region_map
 # .tsv) carry ids as text and gen_data joins on them verbatim.
@@ -134,7 +167,28 @@ KICK_EXCLUDED_PLAY_IDS = frozenset({11100, 18000})
 # greenfield/eldenring/tests/test_gf_play_region_buckets.py fails on it. Never park a bucket here
 # to silence the test -- a reasonless entry is the same hole with a lid on it.
 UNASSIGNED_BUCKETS = {
-    # bucket: "reason",
+    0: "system / no-region sentinel (the client sees it pre-spawn and between loads)",
+    9810: "unreachable dev/system map (m09_81) -- no checks, no graces",
+    9820: "unreachable dev/system map (m09_82) -- no checks, no graces",
+    9999: "unreachable dev/system map (m09_99) -- no checks, no graces",
+    12040: "underground bucket with no checks and no graces -- nothing to gate",
+    12080: "underground bucket with no checks and no graces -- nothing to gate",
+    12090: "underground bucket with no checks and no graces -- nothing to gate",
+    25000: "Cathedral of Manus Metyr (m25_00): no checks of its own; its grace resolves to Scadu Altus",
+    34150: "divine-tower-class interior with no checks -- nothing to gate",
+    42010: "DLC dungeon (m42_01) with no checks -- nothing to gate",
+    45000: "DLC gaol-class interior with no checks -- nothing to gate",
+    45010: "DLC gaol-class interior with no checks -- nothing to gate",
+    45020: "DLC gaol-class interior with no checks -- nothing to gate",
+    60000: "base overworld with NO coordinate rows and no checks; the real Limgrave..Mountaintops "
+           "geometry is 61000-65030. Kept permissive rather than guessed onto a region",
+    # THESE FOUR ARE THE PENDING REGIONS' LIKELY BUCKETS -- parked here ONLY because they are not yet
+    # measured. They are NOT 'deliberately permissive': they are the open question. See
+    # REGIONS_PENDING_BUCKET above; a grace warp + kick-watch line settles each.
+    68410: "PENDING: candidate for Jagged Peak (sample coord m61_49_40) -- measure, do not guess",
+    68500: "PENDING: candidate for Jagged Peak (sample coord m61_54_39) -- measure, do not guess",
+    69200: "PENDING: candidate for Scaduview (no coordinate rows) -- measure, do not guess",
+    69300: "PENDING: candidate for Scaduview (sample coord m61_52_48) -- measure, do not guess",
 }
 
 
