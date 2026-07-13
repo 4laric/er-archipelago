@@ -173,6 +173,16 @@ if (-not $SkipGreenfield) {
 #   exit 0 = fresh | 1 = STALE (regenerate + commit the submodule) | 4 = submodule absent -> SKIP.
 if (-not $SkipGreenfield) {
     Invoke-CiStep "TRACKER DRIFT (client tracker_regions.rs vs greenfield data)" {
+        # check_lots_table.json -- the STATIC vanilla-suppression table. Derived from ItemLotParam,
+        # so it needs elden_ring_artifacts and CANNOT be gated on the GitHub runner (no artifacts
+        # there). This is the sighted gate, and it is the only one that can see it go stale.
+        $lotGen = Join-Path $Repo "tools\gen_check_lots_table.py"
+        if (Test-Path $lotGen) {
+            & python $lotGen --check
+            if ($LASTEXITCODE -ne 0) {
+                throw "CHECK-LOTS TABLE: check_lots_table.json is STALE vs the params. Regenerate and commit: python tools\gen_check_lots_table.py"
+            }
+        }
         $gen = Join-Path $Repo "tools\gen_location_regions.py"
         if (-not (Test-Path $gen)) { throw "TRACKER: tools\gen_location_regions.py not found" }
         python $gen --check
