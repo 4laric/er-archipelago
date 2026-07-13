@@ -148,6 +148,14 @@ You also need, separately:
    work toward the goal region. Received items appear in the game's own
    bottom-center event banner; every check you find is sent to the server.
 
+   One thing to internalize before you start: **Region Locks are the only way
+   into a region.** When a Lock arrives, that region's graces light up and
+   you warp in. Vanilla key items and routes gate nothing -- no Rold
+   Medallion for the Mountaintops, no Mohg fight for the DLC -- and entering
+   a region whose Lock you don't hold gets you warped back out. The Player
+   Guide covers this model (and its two vanilla-flavored exceptions) in
+   detail.
+
 ### Handy in-game tools
 
 - **Tracker** -- press **F6** or use the **Tracker** entry in the overlay menu
@@ -164,8 +172,9 @@ You also need, separately:
 
 The defaults are the recommended run. If you want to stray:
 
-- **Shorter runs:** the shipped `num_regions: 0` keeps all 22 regions in play
-  (the full Shattering); set a small number like `4` for a tight evening run.
+- **Shorter runs:** the shipped `num_regions: 0` keeps every eligible region
+  in play (the full Shattering: 17 base-game regions as shipped, 31 with the
+  DLC on); set a small number like `4` for a tight evening run.
 - **Fixed vs random path:** `num_regions_order: spine` (default) keeps a fixed
   early path (Limgrave first); `rolled` keeps random regions.
 - **Great-Rune goal:** `ending_condition: great_runes` +
@@ -173,8 +182,10 @@ The defaults are the recommended run. If you want to stray:
 - **DeathLink:** `death_link: true` -- shared deaths in a multiworld, both
   directions.
 - **DLC (experimental):** `enable_dlc: true` (DLC regions become eligible) or
-  `dlc_only: true` (only the Land of Shadow). Base game is the recommended,
-  supported way to play v0.2 -- see `KNOWN-ISSUES.md` for DLC caveats.
+  `dlc_only: true` (only the Land of Shadow). DLC regions unlock exactly like
+  base ones -- their Lock arrives and you warp in; you never fight Mohg
+  first. Base game is the recommended, supported way to play v0.2 -- see
+  `KNOWN-ISSUES.md` for DLC caveats.
 
 ---
 

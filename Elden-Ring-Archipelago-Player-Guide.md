@@ -22,10 +22,35 @@ arrives, that region opens and its graces light up on your map, so you can warp
 straight in. Explore it, clear its checks, and more Locks come back out of the
 multiworld -- opening more regions, until you can reach the goal.
 
+Read that second idea again with vanilla habits switched off, because it is
+the part everyone gets wrong at first: **the Lock is the only gate.** Vanilla
+routes and key items do not control access to regions here. You do not need
+the Rold Medallion to reach the Mountaintops of the Giants -- you never ride
+the Grand Lift of Rold; the region's Lock arrives, its graces light, you warp
+in. With the DLC enabled, you never fight Mohg or touch Miquella's cocoon --
+the Land of Shadow regions unlock exactly like every other region: Lock
+arrives, graces light, warp in. And it cuts both ways: get into a region
+whose Lock you don't hold, by any route, and the client warps you back out.
+
+Two exceptions echo vanilla, both on by default, and both are IN ADDITION to
+the region's own Lock -- never instead of it:
+
+- **Raya Lucaria Academy** also needs the **Academy Glintstone Key**. The key
+  is shuffled into the item pool like everything else, and the Academy's
+  graces light when the key arrives.
+- **Leyndell** also needs **Great Runes** -- two by default
+  (`leyndell_runes_required`). The capital's graces light once enough Great
+  Runes have arrived.
+
+Neither exception can make a seed unbeatable: the key is always placed
+somewhere you can reach, and the rune requirement shrinks automatically if
+your seed holds fewer Great Runes.
+
 That second idea is the whole trick: Elden Ring's famously go-anywhere map
 becomes a progression puzzle, one region at a time. The `num_regions` option
 controls how many regions are kept -- 4 is a tight ~4-hour run, higher is
-longer, and 0 (the shipped default) keeps all 22 for the full Shattering.
+longer, and 0 (the shipped default) keeps everything in play for the full
+Shattering -- 17 regions in the shipped base-game config, 31 with the DLC on.
 
 None of this touches your game files. It's the vanilla game plus a runtime
 client; remove the client and Elden Ring is exactly as you left it.
@@ -104,8 +129,11 @@ run rather than tune it.
 - **`filler_foreign_pct` / `local_item_only`** -- multiworld manners: how much
   of your filler other worlds may draw from, and whether your real vanilla
   items always stay in your own world.
-- **`enable_dlc`** -- Shadow of the Erdtree regions join the pool. Off by
-  default and experimental in v0.2; base game is the supported way to play.
+- **`enable_dlc`** -- the Shadow of the Erdtree regions join the region pool
+  and behave like any other region: their Lock arrives, their graces light,
+  you warp in. You never fight Mohg to get there. Off in the shipped yaml and
+  experimental in v0.2; base game is the supported way to play.
+  (`dlc_only: true` goes further and seals the whole base game instead.)
 - **`death_link`** -- your deaths are shared with the multiworld, and theirs
   with you. You know whether you want this.
 
@@ -116,7 +144,10 @@ back through a catacomb for two chests you missed. You start with a Torch,
 Torrent, flasks, all map fragments, immediate leveling, and buyable
 Stonesword Keys, because region-hopping out of order breaks the vanilla
 drip-feed of those things. And smithing upgrades climb a uniform 2-stone
-ladder instead of vanilla's 2/4/6, so leveling a fresh weapon stays cheap.
+ladder instead of vanilla's 2/4/6, so leveling a fresh weapon stays cheap;
+on top of that, every seed reserves upgrade stones in its item pool and
+guarantees a batch of low-tier smithing stones (regular and somber) placed
+within reach of your starting area -- enough to take an early weapon to +3.
 The bottom of the shipped yaml lists all of these -- don't add them back as
 keys. Archipelago warns about an unknown key and then generates without it, so
 the option you thought you set simply would not exist.

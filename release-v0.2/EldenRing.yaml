@@ -14,6 +14,22 @@
 #  file, it will be ignored without warning -- that is Archipelago behaviour,
 #  not a bug in this world.
 # ============================================================================
+#
+#  HOW PROGRESSION WORKS (one paragraph, and the options below make sense):
+#
+#  The world is split into regions, each sealed behind a "<Region> Lock" item
+#  in the multiworld pool. Receiving a Lock lights ALL of that region's
+#  graces, and you warp in. That is the ONLY way in: vanilla key items and
+#  routes gate NOTHING here -- no Rold Medallion for the Mountaintops, no
+#  Mohg fight for the DLC. Enter a region whose Lock you do not hold and the
+#  client warps you back out. You start at Roundtable Hold with one region
+#  already open; the default goal is to hold every Lock in play.
+#
+#  Two vanilla-flavored exceptions, both ON TOP of the region's own Lock:
+#  Raya Lucaria Academy also needs the Academy Glintstone Key (shuffled into
+#  the pool; the Academy's graces light when the key arrives), and Leyndell
+#  also needs Great Runes (see leyndell_runes_required below).
+# ============================================================================
 
 name: Player1
 game: Elden Ring
@@ -23,15 +39,19 @@ Elden Ring:
 
   # ---- The shape of the run -------------------------------------------------
 
-  # How many regions are in play. 0 = all of them (the full Shattering).
-  # N > 0 seals the rest: each kept region is locked behind a Region Lock item
-  # you must RECEIVE. This is the marquee mode -- it turns the open world into
-  # an Archipelago progression graph.
+  # How many regions are in play. 0 = all of them (the full Shattering:
+  # 17 base-game regions, or 31 with the DLC enabled). N > 0 seals the rest:
+  # a sealed region has no checks, no Lock, and no way in. Each KEPT region
+  # opens when its Region Lock item arrives -- its graces light and you warp
+  # in. This is the marquee mode: it turns the open world into an Archipelago
+  # progression graph. Try 4 for a tight evening run.
   num_regions: 0
 
   # How the kept regions are chosen when num_regions > 0.
   #   spine  -- the first N of a fixed path (Limgrave first). Predictable.
   #   rolled -- a random N. Wilder.
+  # Either way the goal region (Leyndell) is always kept, so the seed is
+  # always winnable.
   num_regions_order: spine
 
   # What the goal requires.
@@ -39,18 +59,29 @@ Elden Ring:
   #   great_runes   -- collect great_runes_required Great Runes.
   ending_condition: region_locks
 
-  # Only used when ending_condition is great_runes.
+  # Only used when ending_condition is great_runes. Clamped down to the
+  # Great Runes actually reachable this seed, so it can never make a seed
+  # unbeatable.
   great_runes_required: 2
 
-  # Great Runes needed to get into Leyndell.
+  # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
+  # echoing the vanilla "two Great Runes to enter the capital". The capital's
+  # graces light once this many Great Runes have arrived. 0 disables the
+  # gate. Clamped down to the runes actually in the pool, so it can never
+  # make a seed unbeatable.
   leyndell_runes_required: 2
 
   # ---- DLC ------------------------------------------------------------------
 
-  # Shadow of the Erdtree regions. Base game only is the recommended v0.2 setup.
+  # Shadow of the Erdtree. When on, the 14 DLC regions join the pool and
+  # behave EXACTLY like base regions: receive the Lock, graces light, warp
+  # in. You never fight Mohg or touch the cocoon to get there. Off here
+  # because base game only is the recommended v0.2 setup (DLC is
+  # experimental).
   enable_dlc: false
 
-  # ONLY the DLC regions are in play. Implies enable_dlc.
+  # ONLY the DLC regions are in play. Implies enable_dlc. The whole base
+  # game is sealed, and the goal becomes holding every kept DLC Lock.
   dlc_only: false
 
   # ---- Item pool ------------------------------------------------------------
@@ -58,6 +89,13 @@ Elden Ring:
   # Recipe for the junk-consumable filler tail: {category: weight}.
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.
+  # The stones / somber_stones / runes weights are an upgrade-economy
+  # RESERVATION: they are paid in full before anything else, and a seed that
+  # cannot afford them fails at generation instead of shipping a broken
+  # upgrade curve. Every seed also guarantees a batch of low-tier smithing
+  # stones (regular and somber, enough for an early +3) placed within reach
+  # of your starting area. Zero these weights out and that economy is gone --
+  # the generator will warn you.
   curated_filler:
     juice: 44
     stones: 27
@@ -112,7 +150,9 @@ Elden Ring:
   reroll_enemy_drops: true
 
   # Reroll every unlimited-stock merchant slot to a random high-impact
-  # consumable, priced to match. Merchants stop being a wall of Arrows.
+  # consumable, priced at what the item is worth. Merchants stop being a wall
+  # of Arrows. (Unlimited slots can never be checks -- there is no way to
+  # observe a purchase on them -- so nothing is lost by rerolling.)
   reroll_infinite_shop_stock: true
 
   # ---- Standard Archipelago options -----------------------------------------

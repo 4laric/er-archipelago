@@ -27,7 +27,9 @@ On top of the clean base:
 
 - **The Shattering, rebuilt.** `num_regions` picks how many regions stay in
   play; the goal region is always kept, so every seed is winnable.
-  `num_regions_order` keeps either a fixed spine or a random roll.
+  `num_regions_order` keeps either a fixed spine or a random roll. Region
+  Locks are the only gate: vanilla key items and routes never control access
+  -- a Lock arrives, the region's graces light, and you warp in.
 - **Real item shuffle.** Each check pays out a shuffled vanilla item instead
   of generic Runes. Always on in v0.2 -- it is not a toggle.
 - **Configurable goal.** `ending_condition` defaults to holding every kept
@@ -51,7 +53,9 @@ On top of the clean base:
   valid seed.
 
 DLC (Shadow of the Erdtree) is supported but off by default, and is
-experimental in v0.2. The base game is the recommended way to play.
+experimental in v0.2. When enabled, DLC regions unlock exactly like base
+ones -- their Lock arrives and you warp in; no Mohg fight required. The base
+game is the recommended way to play.
 
 ## Upgrading from v0.1 -- BREAKING
 
