@@ -1,7 +1,7 @@
-"""REGION_GROUPS vs the game's REAL play_region bucket universe. Kills two silent failure modes.
+"""PLAY_REGION_GROUPS vs the game's REAL play_region bucket universe. Kills two silent failure modes.
 
 The client enforces region locks by comparing the player's runtime play_region_id // 100 (a BUCKET)
-against region_groups.REGION_GROUPS. Both ways that table can rot are invisible in-game, because
+against region_groups.PLAY_REGION_GROUPS. Both ways that table can rot are invisible in-game, because
 the failure IS "nothing happens":
 
   * a PHANTOM bucket -- listed here, never produced by the game -- means that lock can never fire
@@ -77,7 +77,7 @@ class TestPlayRegionBuckets(unittest.TestCase):
 
         cls.rg = _load(SPINE, "gf_region_groups_under_test")
         cls.data = _load(DATA, "gf_data_under_test")
-        cls.claimed = {int(b) for pids in cls.rg.REGION_GROUPS.values() for b in pids}
+        cls.claimed = {int(b) for pids in cls.rg.PLAY_REGION_GROUPS.values() for b in pids}
 
     def test_no_phantom_buckets(self):
         """Every bucket REGION_GROUPS claims must exist in the game (kills 6800/61002/63001-class
@@ -85,15 +85,18 @@ class TestPlayRegionBuckets(unittest.TestCase):
         phantoms = sorted(self.claimed - set(self.universe))
         self.assertFalse(
             phantoms,
-            "REGION_GROUPS lists buckets the game never produces -- these locks can NEVER fire: "
+            "PLAY_REGION_GROUPS lists buckets the game never produces -- these locks can NEVER fire: "
             "%r. Re-run tools/datamine_play_regions.py and reassign them." % (phantoms,))
 
     def test_every_region_has_enforceable_geometry(self):
         """Every apworld region must own at least one REAL bucket of kick geometry (kills the
         Weeping failure mode: a region whose every bucket is phantom is silently unenforceable)."""
         geo = self.rg.region_play_ids()
+        pending = set(getattr(self.rg, "REGIONS_PENDING_BUCKET", ()))
         bad = []
         for region in self.data.REGIONS:
+            if region == self.rg.HUB or region in pending:
+                continue    # HUB is never kicked; PENDING is a NAMED, reasoned hole (see below)
             real = [b for b in geo.get(region, ()) if int(b) in self.universe]
             if not real:
                 bad.append((region, tuple(geo.get(region, ()))))
@@ -102,8 +105,29 @@ class TestPlayRegionBuckets(unittest.TestCase):
             "Regions with NO real kick geometry -- their locks are silently unenforceable "
             "(region, buckets claimed): %r" % (bad,))
 
+    def test_pending_regions_are_declared_not_discovered(self):
+        """REGIONS_PENDING_BUCKET is the ONLY sanctioned way to have a region without kick geometry,
+        and it is a debt marker, not a parking space.
+
+        A region listed here genuinely does NOT enforce its lock -- you can walk into it while it is
+        sealed. That is the same defect as the Weeping bug; the difference, and the only one that
+        matters, is that it is NAMED. So: every entry must be a real region, and must actually lack
+        geometry. Once you measure its bucket, move it into PLAY_REGION_GROUPS and delete it here.
+        Do not add a region to this set to silence a failure -- that is the old bug with a lid on it.
+        """
+        pending = set(getattr(self.rg, "REGIONS_PENDING_BUCKET", ()))
+        unknown = sorted(pending - set(self.data.REGIONS))
+        self.assertFalse(unknown, "REGIONS_PENDING_BUCKET names things that are not regions: %r" % unknown)
+
+        geo = self.rg.region_play_ids()
+        stale = sorted(r for r in pending if [b for b in geo.get(r, ()) if int(b) in self.universe])
+        self.assertFalse(
+            stale,
+            "these regions DO have real kick geometry now -- remove them from REGIONS_PENDING_BUCKET "
+            "(a stale debt marker suppresses the very check that would catch a regression): %r" % stale)
+
     def test_hub_bucket_is_real(self):
-        hub_pids = self.rg.REGION_GROUPS.get(self.rg.HUB, ())
+        hub_pids = self.rg.PLAY_REGION_GROUPS.get(self.rg.HUB, ())
         self.assertTrue([b for b in hub_pids if int(b) in self.universe],
                         "the HUB (%r) has no real bucket: %r" % (self.rg.HUB, hub_pids))
 
@@ -118,7 +142,7 @@ class TestPlayRegionBuckets(unittest.TestCase):
         self.assertFalse(
             holes,
             "Real buckets with no region and no reasoned exclusion -- the kick is silently "
-            "PERMISSIVE on this ground: %s. Assign each in REGION_GROUPS or add it to "
+            "PERMISSIVE on this ground: %s. Assign each in PLAY_REGION_GROUPS or add it to "
             "UNASSIGNED_BUCKETS with a reason." % ", ".join(detail))
 
     def test_unassigned_list_is_honest(self):
@@ -130,7 +154,7 @@ class TestPlayRegionBuckets(unittest.TestCase):
         reasonless = sorted(b for b, why in unassigned.items()
                             if not (isinstance(why, str) and why.strip()))
         self.assertFalse(stale, "UNASSIGNED_BUCKETS entries the game does not define: %r" % stale)
-        self.assertFalse(double, "buckets both assigned in REGION_GROUPS and excluded in "
+        self.assertFalse(double, "buckets both assigned in PLAY_REGION_GROUPS and excluded in "
                                  "UNASSIGNED_BUCKETS: %r" % double)
         self.assertFalse(reasonless, "UNASSIGNED_BUCKETS entries without a reason: %r" % reasonless)
 
