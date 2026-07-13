@@ -142,3 +142,4 @@ elden_ring_artifacts/
 # pinned by .ap-version. Nothing of ours lives in it -- the world is INSTALLED into it.
 /Archipelago/
 .ap-test/
+dist/
