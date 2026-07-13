@@ -9,7 +9,7 @@ so there's no location-name coupling to fight. Read `LESSONS-LEARNED.md` first (
 greenfield/
   eldenring/
     __init__.py   # World class: items, hub-and-spoke regions, rules, goal, slot_data
-    data.py       # GENERATED: HUB, REGIONS (22 locked spokes), LOCATIONS {region:[(name,ap_id,flag)]}
+    data.py       # GENERATED: HUB, REGIONS (31: 17 base + 14 DLC), LOCATIONS {region:[(name,ap_id,flag)]}
   players/Greenfield.yaml   # isolated player file (game: "Elden Ring")
   gen_data.py               # regenerate data.py (reads region_map.csv + grace anchors)
   gen-greenfield.ps1        # install world into Archipelago\worlds + generate (isolated)
