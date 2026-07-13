@@ -210,7 +210,13 @@ PLAY_REGION_GROUPS = {
     "Mohgwyn": (12050,),
 
     # --- DLC overworld (every bucket here is NEW; the old ones were fiction) ---
-    "Gravesite": (68000, 68100, 68200, 69010, 40000, 41000, 42000, 43000, 43010),
+    # 68200 moved to Ensis (2026-07-13): PlayRegionParam has a row in bucket 68200 on m61_48_44, which
+    # is Ensis's OWN grace tile. 68100 and 68200 both have rows on the seam tile m61_47_44, which is
+    # why the check-vote split 25/21 between Gravesite and Ensis -- that was not noise, it was the seam.
+    "Gravesite": (68000, 68100, 69010, 40000, 41000, 42000, 43000, 43010),
+    "Ensis": (68200,),                      # m61_48_44 -> row 6820010 (its exclusive grace tile)
+    "Jagged Peak": (68500,),                # m61_54_39 -> row 6850001 (its grace tile)
+    "Scaduview": (69300,),                  # see below -- band evidence, not a tile hit
     "Cerulean": (68300, 68400),
     "Abyssal": (68600,),          # 28000 (Midra's Manse) is NOT a bucket -- it lives inside 68600
     "Scadu Altus": (69000, 69020, 69030, 40020, 41010, 42020),
@@ -228,25 +234,21 @@ PLAY_REGION_GROUPS = {
     HUB: (11100,),
 }
 
-# REGIONS WHOSE BUCKET IS NOT YET KNOWN. Their locks DO NOT ENFORCE: the kick is permissive on ground it
-# has no entry for, so these three can be walked into while sealed. This is a NAMED hole, not a silent
-# one -- which is the whole difference from the table this replaces.
+# No region is bucketless any more. All three were resolved from the game's data, not from adjacency:
 #
-# Why they are not guessed: a bucket's PlayRegionParam coordinate is ONE sample row, not its extent, so
-# adjacency proves nothing. The obvious pattern (bonfire subcategory x10) was tried and was WRONG -- the
-# real set has 68410/69010/69030 and no 68510/69500. Resolve by warping to a grace in each and reading
-# the client's kick-watch line, which prints the live bucket:
-#     kick-watch: play_region <old> -> <new> (sub <bucket>)
+#   Ensis       68200 -- PlayRegionParam has a row in that bucket on m61_48_44, Ensis's OWN grace tile.
+#                        (68100/68200 both have rows on the SEAM tile m61_47_44, which is exactly why the
+#                        check vote split 25/21 with Gravesite. The seam was the signal, not noise.)
+#   Jagged Peak 68500 -- row 6850001 sits on m61_54_39, a Jagged Peak grace tile.
+#   Scaduview   69300 -- WEAKER, and flagged as such: no PlayRegionParam row lands on a Scaduview grace
+#                        tile. 69300's ONLY coordinate row is m61_52_48, in Scaduview's tile row and one
+#                        east of its grace tile m61_51_48. Band evidence, not a tile hit. One warp to a
+#                        Scaduview grace confirms it from the client's kick-watch line; until then this is
+#                        the least-supported entry in the table and the first place to look if a kick
+#                        misfires in the Hinterland.
 #
-#   Ensis       tiles m61_47_44, m61_48_44. Its checks vote inside 68100/68200, both of which are
-#               majority-Gravesite (68200 = Gravesite 25 / Ensis 21). Castle Ensis may simply SHARE
-#               Gravesite's bucket, in which case it is un-gateable at bucket granularity -- the same
-#               class as Fog Rift Fort / Recluses' River sharing 69000 with Scadu Altus.
-#   Jagged Peak tiles m61_49_38/39, m61_50_40, m61_52_40/41, m61_53_39/40 + interior m12_05. Candidate
-#               unassigned buckets: 68410 (sample coord m61_49_40), 68500 (m61_54_39).
-#   Scaduview   tiles m61_49_48, m61_49_49, m61_53_48. Candidates: 69200 (no coord rows), 69300
-#               (m61_52_48).
-REGIONS_PENDING_BUCKET = frozenset({"Ensis", "Jagged Peak", "Scaduview"})
+# Kept as a set so the machinery survives (a future region added before its bucket is measured).
+REGIONS_PENDING_BUCKET = frozenset()
 
 UNASSIGNED_BUCKETS = {
     0: "system / no-region sentinel (the client sees it pre-spawn and between loads)",
@@ -267,9 +269,10 @@ UNASSIGNED_BUCKETS = {
     # THESE FOUR ARE THE PENDING REGIONS' LIKELY BUCKETS -- parked here ONLY because they are not yet
     # measured. They are NOT 'deliberately permissive': they are the open question. See
     # REGIONS_PENDING_BUCKET above; a grace warp + kick-watch line settles each.
-    68410: "PENDING: candidate for Jagged Peak (sample coord m61_49_40) -- measure, do not guess",
-    68500: "PENDING: candidate for Jagged Peak (sample coord m61_54_39) -- measure, do not guess",
-    69200: "PENDING: candidate for Scaduview (no coordinate rows) -- measure, do not guess",
-    69300: "PENDING: candidate for Scaduview (sample coord m61_52_48) -- measure, do not guess",
+    68410: "sole coord m61_49_40, adjacent to Jagged Peak's grace tile m61_49_39 -- ADJACENCY ONLY, "
+           "and adjacency has been wrong twice today. Left permissive rather than guessed onto a region",
+    69200: "no coordinate rows at all. REGION_ID_MAP's 6920 x10 would make it Scaduview, but that doc's "
+           "DLC rows are the warp space with a digit dropped and it disagrees with the derivation "
+           "elsewhere (6840). No geometry evidence -> permissive, not guessed",
 }
 
