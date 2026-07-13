@@ -36,4 +36,4 @@ REGION_PLAY_IDS = {
     'Weeping': [61002],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:409ade9c822227cd49ac40f09793e9ece1ed974b1026829138ce40e999221a08', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:ad6c7cbec2ff828f0fa64dcf2329c70b4bd42e617648c3d53b386449ad26921a'}
+_GEN_STAMP = {'inputs_hash': 'sha256:7303f9d54c1eb66bb626b92449fa37d7c0ee84122e334fd6ff4cfd9c0ff63b60', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:ad6c7cbec2ff828f0fa64dcf2329c70b4bd42e617648c3d53b386449ad26921a'}
