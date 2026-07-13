@@ -1,32 +1,138 @@
-# =============================================================================
-#  ARCHETYPE 2 of 3 -- "The Shattering"   |   PINNED SEED: 22222
-# =============================================================================
-#  WHAT THIS IS: THE MARQUEE. num_regions is the feature that turns Elden Ring
-#  into an AP game -- only N majors are unsealed, the rest are locked, and the
-#  order is ROLLED, so you may start somewhere that is not Limgrave. Its bugs
-#  outrank every other bug in the project. Most testers should be on this.
+# ============================================================================
+#  ELDEN RING -- region-spine v2 playtest  (2026-07-13)
 #
-#  WHAT TO WATCH FOR: can you actually LEAVE your starting region? Do the region
-#  locks read as the vanilla key they are named after? Does a rolled start still
-#  give you Torrent and a way to the Roundtable? Anything that reads as "I am
-#  stuck and I do not think the game intends this" is the report we want.
+#  Drop in Archipelago\Players\ and generate.
 #
-#  REPORT WITH: the seed above + the AP_*.zip.
-# =============================================================================
-name: Tester_A2
-description: Archetype 2 -- The Shattering (4 rolled regions, great-rune goal)
-game: "Elden Ring"
+#  HOW ACCESS ACTUALLY WORKS (the thing to keep in your head while testing):
+#  a region opens when its "<Region> Lock" arrives as an AP item. That lights
+#  ALL of that region's graces and you WARP in. Vanilla routes and vanilla key
+#  items gate nothing. Walk into a region whose Lock you do not hold and the
+#  client warps you back to Roundtable.
+#
+#  So the surface under test is GRACES + KICK -- not traversal. v2 re-bucketed
+#  every region (21 -> 31), which means it re-bucketed every region's GRACE SET.
+#  A mis-assigned grace = you cannot warp into a region you own, or you CAN warp
+#  into one you do not. CI cannot see either.
+# ============================================================================
 
-"Elden Ring":
-  num_regions: 4                 # only 4 majors unsealed (+ Roundtable hub)
-  num_regions_order: rolled      # random start -- NOT guaranteed Limgrave
-  ending_condition: great_runes
+name: Alaric
+game: Elden Ring
+description: region-spine v2 -- 8 rolled regions, DLC on
+
+Elden Ring:
+
+  # ---- The shape of the run -------------------------------------------------
+
+  # 8 of 31 regions kept; the rest sealed behind Region Lock items you must
+  # RECEIVE. Small enough to finish, big enough that the locks really gate you.
+  num_regions: 8
+
+  # ROLLED, not spine. `spine` always starts in Limgrave and walks a fixed path,
+  # so it would never show you the new folds. Rolled will.
+  # >> NOTE YOUR START REGION. A cave/tunnel/catacomb start is a KNOWN HOLE
+  #    (cave-start graces; the patch is unwritten). A strand there is expected,
+  #    not news.
+  num_regions_order: rolled
+
+  ending_condition: region_locks
   great_runes_required: 2
   leyndell_runes_required: 2
 
-  enable_dlc: false
-  dlc_only: false
-  death_link: false
+  # ---- DLC ------------------------------------------------------------------
 
+  # ON, and this is the point. Because you WARP into a region on its Lock, DLC
+  # regions are testable immediately -- no Mohg, no cocoon, no six-hour approach.
+  # That makes this the cheapest possible test of v2's LARGEST data churn, which
+  # has never been in front of a player:
+  #   * "Land of Shadow (DLC)" was a placeholder, not a place -- 118 checks moved
+  #     out of it into their real regions
+  #   * ~413 DLC mis-regions corrected
+  #   * Metyr / Scaduview / Rauh Base / Fire Knight Hilde corrections landed TODAY
+  #
+  # >> THE TEST: warp into Scadu Altus / Scaduview / Rauh Base and read the place
+  #    names and the checks around you. Do they belong to the region you were told
+  #    you unlocked?
+  enable_dlc: true
+  dlc_only: false
+
+  # ---- Item pool ------------------------------------------------------------
+
+  # THE SHIPPED DEFAULT, untouched on purpose -- the point is to feel what a real
+  # player gets. somber_stones is weighted here, so the somber early guarantee is
+  # payable (a recipe with no somber weight gets a warning at gen and no somber
+  # economy at all).
+  #
+  # NEW AND UNJUDGED: you are now guaranteed 12 Smithing Stone [1] and 2 each of
+  # Somber [1]/[2]/[3] reachable from your START region, with 36 tier-1 stones in
+  # the pool overall. Nobody has felt this. Does the start region read as a stone
+  # dump, or does it finally let you fight?
+  curated_filler:
+    juice: 44
+    stones: 27
+    somber_stones: 6
+    runes: 10
+    throwables: 6
+    pots: 4
+    greases: 3
+    foods: 2
+    boluses: 1
+
+  pool_builder_pct_weapons: 0
+  pool_builder_pct_armor: 0
+  pool_builder_pct_talismans: 0
+  pool_builder_pct_spells: 0
+  pool_builder_pct_ashes_of_war: 0
+
+  filler_foreign_pct: 100
+  local_item_only: false
+
+  # ---- Where progression may hide -------------------------------------------
+
+  progression_surface:
+    - MajorBoss
+    - Remembrance
+    - GreatRune
+    - KeyItem
+    - Church
+    - Seedtree
+    - Fragment
+    - Revered
+    - ShopSlot
+
+  merchant_bell_logic: off
+
+  # ---- Runtime rerolls ------------------------------------------------------
+
+  reroll_enemy_drops: true
+
+  # Shops natively sell their AP reward. This worked on a foreign seed (420 slots
+  # rewritten) but WEAPON_SHOP_SLOT_GUARD is still unported here -- so buy from a
+  # WEAPON merchant and see whether it hands you the vanilla ware instead of your
+  # actual reward.
+  reroll_infinite_shop_stock: true
+
+  # ---- Standard Archipelago options -----------------------------------------
+
+  # region-lock seeds need `minimal`. `full` will FillError.
   accessibility: minimal
   progression_balancing: 50
+
+  # OFF, not negotiable for this run: flag 76996 (Stormveil Lock open-flag)
+  # COLLIDES with DEATHLINK_KILL_FLAG. Leaving it on contaminates the signal with
+  # a bug we already know about.
+  death_link: false
+
+
+# ============================================================================
+#  WHAT TO ACTUALLY DO, in order of value
+#
+#  1. Every Lock you receive -> WARP IN. Do ALL of that region's graces light
+#     (it is a bundle)? Can you get there at all?
+#  2. Enter a SEALED region. You should be warped back to Roundtable. If you can
+#     stand there and loot it, that is the big one.
+#  3. Walk the new folds: Raya Lucaria (its own region now) and Gelmir (its own
+#     play region, no longer folded into Altus). Plus the DLC trio above.
+#  4. Save, quit, RELOAD once. Do your regions stay open? (front-door latch --
+#     wired, never confirmed across a save-load.)
+#  5. Buy something from a weapon merchant.
+# ============================================================================
