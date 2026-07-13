@@ -1053,11 +1053,24 @@ for _rr in _ALLROWS:
     # 'Eternal Cities & Underground Rivers', 'DLC Interior', 'Divine Tower' -- whose rows are
     # actually m35!, ...). Recovering their self-encoded map lets dungeon_regions.tsv (the grace
     # join) file each check in its REAL region -- m11_10 rows land in the HUB, m12_05 in Mohgwyn.
-    if len(_fs) >= 8 and _fs[:2] in ("11", "12", "20", "21", "30", "31", "32", "34", "35",
+    # ORDER MATTERS. The DLC-overworld form is 10 digits and ALSO starts "20", so it matched the
+    # interior branch first (decoding 2049490900 -> "m20_49_00_00", not a dungeon, silently nothing)
+    # and the elif below never ran. Interior flags are 8 digits; DLC-overworld are 10. Split on that.
+    if len(_fs) == 8 and _fs[:2] in ("11", "12", "20", "21", "30", "31", "32", "34", "35",
                                      "39", "40", "41", "42", "43"):
         _rec = f"m{_fs[:2]}_{_fs[2:4]}_00_00"
         if _rec in DUNGEON_REGION_OVERRIDE:
             _rr["map"] = _rec
+    # DLC OVERWORLD flag_prefix rows (2026-07-13). A 10-digit `20AABBLLLL` flag self-encodes the m61
+    # tile, exactly like the interior prefixes above -- but nothing decoded it, so all 234 of these fell
+    # through to the region COLUMN, which for every one of them reads 'Land of Shadow (DLC)'. That is
+    # not a place, it is a placeholder (same class as 'Global / Filler'), and REGION_MAP dumped 212 of
+    # them into Gravesite -- including Commander Gaius's drop (2049490900 -> m61_49_49), while the
+    # Scadutree Fragments on the SAME TILE resolved correctly to Scaduview via the global-recovery tile
+    # path. Same tile, two answers: the tell that a placeholder was being mapped instead of decoded.
+    # Decode the tile and let the m61 grace-anchor NN region it, like every other overworld row.
+    elif len(_fs) == 10 and _fs[:2] == "20":
+        _rr["map"] = f"m61_{_fs[2:4]}_{_fs[4:6]}_00"
 
 
 # ---- Curated GLOBAL recovery (matt-free): common-event drops are excluded by default (they are not
@@ -1841,6 +1854,32 @@ print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses 
 # which is the whole argument. Storing a derived, drifting value beside its own durable key is
 # pinning the symptom; the flag IS the key, and _flag_locs resolves the live ap-id at gen time.
 MAJOR_BOSS_EXTRAS = {
+    # --- region-spine v2: majors for the newly split-out regions (Alaric, 2026-07-13) ---
+    # Each is a real check ALREADY FILED IN its region -- the gen-time invariant below hard-fails
+    # otherwise, which is exactly what caught the first draft of this list.
+    "Charo's": [
+        (520770, "Lamenter", "Lamenter's Mask", "HIGH"),
+        # m41_02. Charo's Hidden Grave had ZERO tagged checks of any kind before this.
+    ],
+    "Rauh Base": [
+        (530905, "Rugalea the Great Red Bear", "[Incantation] Roar of Rugalea", "HIGH"),
+        # m61_44. Already 'Boss'-tagged; promoted so Rauh Base has a progression surface.
+    ],
+    "Cerulean": [
+        (530810, "Dancer of Ranah", "Dancing Blade of Ranah", "HIGH"),
+        # Alaric's call. NOT Putrescent Knight: that is m22_00 = STONE COFFIN FISSURE, whose
+        # Remembrance of Putrescence (510480) is ALREADY Remembrance+MajorBoss. Stone Coffin needs
+        # nothing; proposing Putrescent for Cerulean would have hard-failed the in-region invariant.
+    ],
+    "Scaduview": [
+        (2049490900, "Commander Gaius", "Gaius's Greaves", "HIGH"),
+        # Gaius's drop used to file under GRAVESITE -- not because Gaius is there, but because its row
+        # is method=flag_prefix with region column 'Land of Shadow (DLC)', a PLACEHOLDER that REGION_MAP
+        # was MAPPING instead of DECODING. Its flag (2049490900) self-encodes m61_49_49, and the
+        # Scadutree Fragments on that same tile resolved correctly to Scaduview via the tile path.
+        # Same tile, two answers -- the tell. Fixed at the class (see the DLC-overworld flag_prefix
+        # decode above): 118 DLC checks left Gravesite for their real regions, Gaius among them.
+    ],
     "Limgrave": [
         (530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
         # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
