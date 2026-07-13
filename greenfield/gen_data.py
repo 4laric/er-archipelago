@@ -113,25 +113,14 @@ _BOSS_HEALTHBAR_EXTRAS = {
     1050560800: ('m60_50', 'm60_50_56', 'field', 'Great Wyrm Theodorix'),             # Consecrated Snowfield
     1053560800: ('m60_53', 'm60_53_56', 'field', 'Vyke, Knight of the Roundtable'),   # Mountaintops evergaol
 }
-# DLC overworld divvy participants (Alaric 2026-07-11). The DisplayBossHealthBar datamine caught
-# DLC LEGACY-dungeon bosses (Belurat/Shadow Keep/Metyr/Midra) but NO m61 overworld field bosses.
-# (When this was written the whole m61 overworld collapsed into ONE Gravesite region; the region-
-# spine v2 split means each seated boss now divvies whatever region its m61 map-prefix majority
-# resolves to -- still a convenience sweep, never load-bearing. SPEC-region-spine-v2.md flags the
-# per-fine-region sweep coverage for review.) With Midra in Abyssal (DUNGEON_REGION_OVERRIDE
-# "m28_00_00_00" below) Gravesite had no boss to sweep it. So we seat THREE named DLC bosses as legacy
-# region-DIVVY participants: the region filler partitions ~evenly among them (~75 each) instead of one
-# boss dumping the lot. Keyed by the boss's own drop/defeat flag (the client's sweep trigger): Ghostflame
-# Dragon by its isDefeated flag; Furnace Golem + Blackgaol Knight by their signature drop-check flags
-# (their defeat flags aren't in the CE table, but the drop flag flips on the same kill). class='legacy'
-# so they join the region partition (the tile is cosmetic for legacy -- bucketing is by _bmap's region,
-# it resolves by that prefix's check-majority region; tiles are the bosses' approximate locations).
-_BOSS_HEALTHBAR_EXTRAS_DLC = {
-    2045440800: ('m61_45', 'm61_45_44', 'legacy', 'Ghostflame Dragon'),        # Gravesite lake (isDefeated)
-    65470:      ('m61_44', 'm61_44_46', 'legacy', 'Furnace Golem'),            # W Gravesite (drops Deflecting Hardtear)
-    530820:     ('m61_46', 'm61_46_45', 'legacy', 'Blackgaol Knight'),        # Belurat Gaol (drops Greatsword of Solitude)
-}
-_BOSS_HEALTHBAR_EXTRAS.update(_BOSS_HEALTHBAR_EXTRAS_DLC)
+# NOTE (Alaric 2026-07-13): the three hand-seated m61 overworld "divvy participants" (Ghostflame Dragon
+# 2045440800, Furnace Golem 65470, Blackgaol Knight 530820) were REMOVED. They existed only to give the
+# then-collapsed single-Gravesite overworld a divvy boss; region-spine-v2 split the overworld into its
+# real fine-regions, at which point their coarse m61_XX prefix bucketed them into the WRONG region
+# (Furnace->Ancient Ruins, Ghostflame->Rauh Base) -- an obsolete workaround actively mis-granting. The
+# correct source is the real DLC-overworld boss datamine, blocked on decompiling the m61 EMEVDs (no
+# m61_*.js in artifacts yet); until then the m61 overworld has no convenience sweep, which is fine (a
+# sweep is never the only path to a check). See the DLC-readiness audit.
 for _hbk, _hbv in _BOSS_HEALTHBAR_EXTRAS.items():
     BOSS_HEALTHBARS.setdefault(_hbk, _hbv)  # setdefault: never clobber a real datamined entry
 HUB="Roundtable Hold"
@@ -2988,6 +2977,35 @@ def _is_dungeon(_mp):
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                                  "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",
                                  "ShopSlot", "MajorBoss"})
+# ItemLotParam_map flags self-encode their map: XXYY7NNN -> mXX_YY (AGENTS.md datamine join). When a
+# swept row's map COLUMN was mis-scanned, that stale column makes the wrong map vote for a region. The
+# worst case: 8 DLC minor-dungeon lots (40007000/41027000/42007000/... = m40/m41/m42/m43) were tagged
+# m18_00 (the base-game Stranded Graveyard), so m18_00 voted majority-DLC-Gravesite and the m18 tutorial
+# bosses (18000800/18000850) divvied DLC Gravesite -- granting DLC checks five minutes into any run.
+# Trust the flag's self-encoded map over the column when the flag is lot-format AND the decoded map
+# actually exists in the dataset (guard vs a coincidental non-lot flag decoding to a phantom map). 12
+# rows corrected repo-wide -- also un-leaks Fire Knight Hilde (21017800: m20_00 col -> m21_01 Shadow Keep).
+_LOT_MAP_RE = re.compile(r"^(\d\d)(\d\d)7\d{3}$")
+_REAL_MAP_PREFIXES = {_p for _p in (_mp2(_r.get("map")) for _r in rows) if _p}
+def _swept_map_prefix(_row):
+    _m = _LOT_MAP_RE.match(str(_row.get("flag") or ""))
+    if _m:
+        _enc = f"m{_m.group(1)}_{_m.group(2)}"
+        if _enc in _REAL_MAP_PREFIXES:
+            return _enc          # flag's own lot-map wins over a mis-scanned column
+    return _mp2(_row["map"])
+# A DLC-overworld boss's entity id self-encodes its exact tile: 20 XX YY <suffix> -> m61_XX_YY (same
+# scheme as base-game field bosses 10XXYY0800 -> m60_XX_YY). The DisplayBossHealthBar datamine only
+# carries the COARSE m61_XX prefix, so a legacy m61 boss otherwise divvies whatever region its prefix's
+# check-majority resolves to -- and a single m61_XX band spans several fine-regions (region-spine-v2),
+# so e.g. Ghostflame Dragon (Gravesite) mis-divvied Rauh Base, Rellana (Ensis) mis-divvied Cerulean,
+# Rakshasa (Scadu Altus) fell to Roundtable Hold. Recover the true tile from the entity id and resolve
+# it through the SAME per-tile region map the checks use (_m61_tile_region), so each overworld boss
+# divvies its own fine-region. (Alaric 2026-07-13)
+_M61_BOSS_RE = re.compile(r"^20(\d\d)(\d\d)\d{4}$")
+def _m61_boss_region(_ent):
+    _m = _M61_BOSS_RE.match(str(_ent))
+    return _m61_tile_region(int(_m.group(1)), int(_m.group(2))) if _m else None
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 for _i, _r in enumerate(rows):
@@ -2995,7 +3013,7 @@ for _i, _r in enumerate(rows):
         _r["method"] == "flag_prefix" and _is_dungeon(_mp2(_r["map"])))
     if not _swept:
         continue
-    _ap = BASE_AP + _i; _reg = region_of(_r); _mp = _mp2(_r["map"])
+    _ap = BASE_AP + _i; _reg = region_of(_r); _mp = _swept_map_prefix(_r)
     _ap_region[_ap] = _reg
     _mem_region[_reg].append(_ap)
     if _mp:
@@ -3024,7 +3042,8 @@ if BOSS_HEALTHBARS:
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
-            _legacy_by_region[_mreg.get(_bmap, HUB)].append(_ent)
+            _lreg = _m61_boss_region(_ent) or _mreg.get(_bmap, HUB)  # m61 overworld boss -> its own tile-region
+            _legacy_by_region[_lreg].append(_ent)
             continue
         _members = sorted(set(_members))
         if not _members:
