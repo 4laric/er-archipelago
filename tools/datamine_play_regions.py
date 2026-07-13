@@ -141,7 +141,9 @@ def current_groups():
     # REGION_GROUPS is {region: (bucket, ...)} -- invert it to {bucket: region}. (Parsed with a regex
     # rather than ast.literal_eval because the literal contains named constants.)
     out = {}
-    for name, tup in re.findall(r"[\"']([^\"']+)[\"']\s*:\s*\(([^)]*)\)", m.group(1)):
+    # NB the quote class must BACK-REFERENCE, not alternate: "Charo's" contains an apostrophe, and a
+    # naive ["']([^"']+)["'] truncates it to 's'. (It did. Caught in a dry run.)
+    for _q, name, tup in re.findall(r"([\"'])(.+?)\1\s*:\s*\(([^)]*)\)", m.group(1)):
         for b in re.findall(r"\d+", tup):
             out[int(b)] = name
     if not out:
