@@ -104,7 +104,6 @@ ITEM_CATALOG = {
     'Ash of War: Enchanted Shot': 2147524048,
     'Ash of War: Endure': 2147553648,
     'Ash of War: Eruption': 2147504348,
-    'Ash of War: Flame Skewer': 2147897648,
     'Ash of War: Flame of the Redmanes': 2147534148,
     'Ash of War: Flaming Strike': 2147505048,
     'Ash of War: Ghostflame Call': 2147905648,
@@ -1516,6 +1515,7 @@ ITEM_CATALOG = {
     'Prattling Pate "Thank you"': 1073744025,
     'Prattling Pate "Wonderful"': 1073744027,
     'Prattling Pate "You\'re beautiful"': 1073744031,
+    'Prayer Room Key': 1075749860,
     "Preceptor's Big Hat": 269345456,
     "Preceptor's Gloves": 269345656,
     "Preceptor's Long Gown": 269345556,
@@ -2812,7 +2812,7 @@ LOCATION_ITEM = {
     7770754: 'Fire Knight Queelign',
     7770755: "Queelign's Greatsword",
     7770756: 'Crusade Insignia',
-    7770757: 'Ash of War: Flame Skewer',
+    7770757: 'Prayer Room Key',
     7770758: 'Scorpion Stew',
     7770759: 'Watchful Spirit',
     7770760: 'Gourmet Scorpion Stew',
@@ -6894,7 +6894,6 @@ DLC_ITEM_NAMES = {
     'Ash of War: Carian Sovereignty',
     'Ash of War: Divine Beast Frost Stomp',
     'Ash of War: Dryleaf Whirlwind',
-    'Ash of War: Flame Skewer',
     'Ash of War: Ghostflame Call',
     'Ash of War: Raging Beast',
     'Ash of War: Rolling Sparks',
@@ -7203,6 +7202,7 @@ DLC_ITEM_NAMES = {
     'Poisoned Hand',
     'Poleblade of the Bud',
     'Prattling Pate "Lamentation"',
+    'Prayer Room Key',
     'Priestess Heart',
     'Putrescence Cleaver',
     "Queelign's Greatsword",
@@ -7579,4 +7579,4 @@ FILLER_POOL = [
     'Yellow Fulgurbloom',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7303f9d54c1eb66bb626b92449fa37d7c0ee84122e334fd6ff4cfd9c0ff63b60', 'module': 'item_ids.py', 'body_sha256': 'sha256:c2d78c9fc7aeb7cbf6dce63c5a27996dcb59db92e353f51e2cf87f78fed31cd7'}
+_GEN_STAMP = {'inputs_hash': 'sha256:8c3480ff97025d0719554804e034bdb2fb24bd0ff63a2bd2562f4d52c9d47705', 'module': 'item_ids.py', 'body_sha256': 'sha256:26e219720f4abd761fe8055ead9f2358986821c928c7dff6493b130c3f3059be'}

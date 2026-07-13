@@ -1635,15 +1635,15 @@ SHOP_LOC_REGION = {
     7770654: 'Roundtable Hold',
     7770655: 'Gravesite',
     7770656: 'Roundtable Hold',
-    7770658: 'Scaduview',
-    7770659: 'Scaduview',
-    7770660: 'Scaduview',
-    7770661: 'Scaduview',
-    7770662: 'Scaduview',
-    7770663: 'Scaduview',
-    7770664: 'Scaduview',
-    7770665: 'Scaduview',
-    7770666: 'Scaduview',
+    7770658: 'Scadu Altus',
+    7770659: 'Scadu Altus',
+    7770660: 'Scadu Altus',
+    7770661: 'Scadu Altus',
+    7770662: 'Scadu Altus',
+    7770663: 'Scadu Altus',
+    7770664: 'Scadu Altus',
+    7770665: 'Scadu Altus',
+    7770666: 'Scadu Altus',
     7770706: 'Altus',
     7774795: 'Roundtable Hold',
     7774796: 'Roundtable Hold',
@@ -2258,4 +2258,4 @@ SHOP_PREVIEW_GOODS = {
     '7774843': 1073750527,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7303f9d54c1eb66bb626b92449fa37d7c0ee84122e334fd6ff4cfd9c0ff63b60', 'module': 'shop_data.py', 'body_sha256': 'sha256:65cf198b6ed5ee44a1e7cff2bec48f374ca6388c87a62c3ad4b73ebdfd9bf1b8'}
+_GEN_STAMP = {'inputs_hash': 'sha256:8c3480ff97025d0719554804e034bdb2fb24bd0ff63a2bd2562f4d52c9d47705', 'module': 'shop_data.py', 'body_sha256': 'sha256:e883e85f29fea2b9ddbb75eaead5fd4e96113a766a0123b783fbbfbc8e39c9dd'}

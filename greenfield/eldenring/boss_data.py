@@ -52,10 +52,12 @@ REGION_BOSSES = {
     'Scadu Altus': [
         (7770782, 510550, 'Remembrance of the Mother of Fingers'),
     ],
-    'Shadow Keep': [
-        (7770780, 510460, 'Remembrance of the Impaler'),
+    'Scaduview': [
         (7770785, 510620, 'Remembrance of the Shadow Sunflower'),
         (7770787, 510640, 'Remembrance of the Wild Boar Rider'),
+    ],
+    'Shadow Keep': [
+        (7770780, 510460, 'Remembrance of the Impaler'),
     ],
     'Siofra River': [
         (7770776, 510330, 'Remembrance of the Regal Ancestor'),
@@ -68,4 +70,4 @@ REGION_BOSSES = {
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7303f9d54c1eb66bb626b92449fa37d7c0ee84122e334fd6ff4cfd9c0ff63b60', 'module': 'boss_data.py', 'body_sha256': 'sha256:58e14c4b7b17af3f75aaa02f5e31108e8d82f636f3c8cca0952f0f18186fefec'}
+_GEN_STAMP = {'inputs_hash': 'sha256:8c3480ff97025d0719554804e034bdb2fb24bd0ff63a2bd2562f4d52c9d47705', 'module': 'boss_data.py', 'body_sha256': 'sha256:0abe9c2f90f28bcb6afe70edb545915d8bd9982b9fefb8504bfa4512e87e9ba7'}
