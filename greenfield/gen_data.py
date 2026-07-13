@@ -229,7 +229,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  "Liurnia of the Lakes (Seluvis's Rise)":'Liurnia',"Liurnia of the Lakes (Ranni's Rise)":'Liurnia',
  'Weeping Peninsula':'Weeping','Siofra River / Nokron':'Siofra River','Caelid':'Caelid',
  'Caelid (Redmane Castle)':'Caelid','Caelid (Cathedral of Dragon Communion)':'Caelid','Gravesite Plain (DLC)':'Gravesite','Gravesite Plain':'Gravesite',
- 'Cathedral of Manus Metyr (DLC)':'Scaduview','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Mountaintops of the Giants',
+ 'Cathedral of Manus Metyr (DLC)':'Scadu Altus','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Mountaintops of the Giants',
  'Shadow Keep (DLC)':'Shadow Keep','Altus Plateau':'Altus','Jagged Peak (DLC)':'Jagged Peak',
  'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Cerulean',
  'Abyssal Woods (DLC)':'Abyssal','Mountaintops of the Giants':'Mountaintops of the Giants',
@@ -900,8 +900,9 @@ FLAG_REGION_OVERRIDE = {
     510300: "Caelid",                          # Remembrance of the Starscourge = Radahn (Caelid); mis-tiled m35
     510100: "Siofra River",                    # Valiant Gargoyles -- Gargoyle's Greatsword mis-tiled m35 (Divine Tower) -> Altus (Alaric 2026-07-10). Was 'Eternal Cities' and the comment said Nokstella; the duo's arena is the SIOFRA AQUEDUCT (below Nokron) -- verify in-game.
     # --- DLC (SotE) region fixes (Alaric 2026-07-10; DLC-CHECK-AUDIT.md) ---
-    510620: "Shadow Keep",                     # Rem. of the Shadow Sunflower -- boss in Shadow Keep, not Scadu Altus
-    510640: "Shadow Keep",                     # Rem. of the Wild Boar Rider = Commander Gaius -- Shadow Keep, not Scadu Altus
+    510620: "Scaduview",                       # Rem. of the Shadow Sunflower (Scadutree Avatar) -- arena tile 50,48 grace 76960 -> play_region 6920 = Scaduview
+    510640: "Scaduview",                       # Rem. of the Wild Boar Rider = Commander Gaius -- arena tile 49,48 graces 76930/76931 -> play_region 6920 = Scaduview
+    21017800: "Shadow Keep",                   # Fire Knight Hilde drop: flag self-encodes m21_01 (Shadow Keep Church District) but the row's map column is the m20_00 emevd-scan mis-map; the emevd region_of path never applies the 8-digit lot self-encode. (matt-diff 2026-07-13)
     173: "Leyndell",                   # Morgott's Great Rune -> Morgott (Leyndell -- its own region now); scan
                                                #   mis-tiled it to m13 Farum Azula. Sibling Rem. Omen King (510040) is Altus.
                                                #   MIS-REGION STRANDS PROGRESSION: lock here reads Farum-reachable but is behind Altus.
@@ -3020,9 +3021,10 @@ def _m61_boss_region(_ent):
     _m = _M61_BOSS_RE.match(str(_ent))
     return _m61_tile_region(int(_m.group(1)), int(_m.group(2))) if _m else None
 # Curated region for a legacy boss whose map hosts NO filler-swept checks (all shop/boss_arena), so it
-# gets no _mreg vote and would divvy HUB. m25 = Cathedral of Manus Metyr -> Scaduview (region_map label
-# 'Cathedral of Manus Metyr (DLC)' folds there); Metyr then divvies Scaduview filler instead of HUB.
-_LEGACY_BMAP_REGION = {"m25_00": "Scaduview"}
+# gets no _mreg vote and would divvy HUB. m25 = Cathedral of Manus Metyr -> Scadu Altus: m25_00's own
+# grace 72500 -> play_region 6900 = Scadu Altus (NOT Scaduview 6920), which also matches Metyr's
+# remembrance 510550. Corrected 2026-07-13 from the earlier Scaduview pin (matt-diff, grace-verified).
+_LEGACY_BMAP_REGION = {"m25_00": "Scadu Altus"}
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 for _i, _r in enumerate(rows):
