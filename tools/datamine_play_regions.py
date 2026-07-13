@@ -138,10 +138,15 @@ def current_groups():
     m = re.search(r"REGION_GROUPS\s*=\s*(\{.*?\n\})", src, re.S)
     if not m:
         sys.exit("could not find REGION_GROUPS in greenfield/region_groups.py")
-    # tolerate names/expressions in the literal by grabbing the int keys only
+    # REGION_GROUPS is {region: (bucket, ...)} -- invert it to {bucket: region}. (Parsed with a regex
+    # rather than ast.literal_eval because the literal contains named constants.)
     out = {}
-    for km, vm in re.findall(r"(\d+)\s*:\s*['\"]([^'\"]+)['\"]", m.group(1)):
-        out[int(km)] = vm
+    for name, tup in re.findall(r"[\"']([^\"']+)[\"']\s*:\s*\(([^)]*)\)", m.group(1)):
+        for b in re.findall(r"\d+", tup):
+            out[int(b)] = name
+    if not out:
+        sys.exit("parsed ZERO buckets out of REGION_GROUPS -- the shape changed. Refusing to report "
+                 "every bucket as 'missing' off a broken parse.")
     return out
 
 
