@@ -170,18 +170,7 @@ class FillerEconomyFloor(WorldTestBase):
     """The seed that broke, reproduced under the shipped frozen defaults."""
 
     game = GAME
-    # num_regions 4 -> 6 (REGION-SPINE v2, 2026-07-13). NOT a goalpost move: this fixture's job is
-    # "a SMALL seed must still afford +3 early", and 4 was chosen as small when the spine had 20
-    # regions. v2 has 31, so 4 regions is now 13% of the world where it used to be 20% -- a materially
-    # smaller seed, with proportionally fewer sphere-0/1 checks to carry the upgrade economy. 6/31 is
-    # the same world fraction 4/20 was. The ORACLES are still derived per seed (see the header); only
-    # the definition of "small" moved, because the spine moved under it.
-    #
-    # This does leave a real, documented hole: a player CAN still pick num_regions 1-5 and get an
-    # upgrade economy too sparse for +3. See NumRegions in core.py. Fixing that properly means making
-    # the economy reservation scale with the size of the filler tail rather than assume a 20-region
-    # world -- deliberately NOT done here, and NOT hidden behind a skip.
-    options = {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": True,
+    options = {"num_regions": 4, "num_regions_order": "rolled", "enable_dlc": True,
                "curated_filler": PLAYTEST_RECIPE}
 
     # ---- entitlement: the recipe must actually receive its share of the larder ------------------
@@ -277,7 +266,7 @@ class DefaultRecipeEconomyFloor(WorldTestBase):
     """
 
     game = GAME
-    options = {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": True}  # 4 -> 6: see above
+    options = {"num_regions": 4, "num_regions_order": "rolled", "enable_dlc": True}
 
     def test_default_recipe_reserves_the_economy(self):
         from worlds.eldenring.features.filler_curation import CuratedFiller
