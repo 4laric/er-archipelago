@@ -903,6 +903,19 @@ FLAG_REGION_OVERRIDE = {
     510620: "Scaduview",                       # Rem. of the Shadow Sunflower (Scadutree Avatar) -- arena tile 50,48 grace 76960 -> play_region 6920 = Scaduview
     510640: "Scaduview",                       # Rem. of the Wild Boar Rider = Commander Gaius -- arena tile 49,48 graces 76930/76931 -> play_region 6920 = Scaduview
     21017800: "Shadow Keep",                   # Fire Knight Hilde drop: flag self-encodes m21_01 (Shadow Keep Church District) but the row's map column is the m20_00 emevd-scan mis-map; the emevd region_of path never applies the 8-digit lot self-encode. (matt-diff 2026-07-13)
+    # --- Two-grace m61 tile splits (matt-diff 2026-07-13, GRACE-CORROBORATED) ---
+    # These tiles carry graces for TWO play-regions, so the ANCHOR61 tile-majority vote erases one side.
+    # Per-check pins for the checks that belong to the OTHER region, applied ONLY where that region has a
+    # grace on the check's own tile (value traces to grace data; matt only identified which checks).
+    # Tile 47,44 = Castle Ensis interior (graces 6800 Gravesite + 6820 Ensis) -> castle checks are Ensis
+    # (the vote otherwise dumps the whole gateable castle into the start region Gravesite).
+    2047447010: "Ensis", 2047447020: "Ensis", 2047447030: "Ensis", 2047447040: "Ensis",
+    2047447050: "Ensis", 2047447060: "Ensis", 2047447070: "Ensis", 2047447080: "Ensis",
+    2047447090: "Ensis",
+    # Tile 48,43 (graces 6800 Gravesite + 6860 Abyssal): M61_TILE_CURATED pins the whole tile Abyssal,
+    # but these lots are the Gravesite (Pillar Path Cross) side.
+    2048437000: "Gravesite", 2048437010: "Gravesite", 2048437020: "Gravesite",
+    2048437030: "Gravesite", 2048437700: "Gravesite",
     173: "Leyndell",                   # Morgott's Great Rune -> Morgott (Leyndell -- its own region now); scan
                                                #   mis-tiled it to m13 Farum Azula. Sibling Rem. Omen King (510040) is Altus.
                                                #   MIS-REGION STRANDS PROGRESSION: lock here reads Farum-reachable but is behind Altus.

@@ -55,7 +55,8 @@ DELIBERATE SPANS (one region, several buckets -- each earns its line):
   * Jagged Peak = 6850 + 6851 (Foot of the Jagged Peak / Dragon Communion Altar);
   * Abyssal = 6860 + 28000 (Midra's Manse, the woods' interior);
   * Shadow Keep = 21000 + 21001 (Church District) + 21010 (Storehouse).
-Scaduview (6920, incl. Cathedral of Manus Metyr / Hinterland) is deliberately its OWN region now:
+Scaduview (6920, the Hinterland) is deliberately its OWN region now (the Cathedral of Manus Metyr is
+NOT part of it -- m25's grace 72500 -> 6900 = Scadu Altus; corrected 2026-07-13 matt-diff):
 the old "fold into Shadow Keep, only reachable through the Keep" reasoning predates region locks
 lighting a region's whole grace bundle -- with its own lock its graces make it warp-reachable, and
 folding it in would have made a back-exit grace the Keep's numerically-first overworld front door.
