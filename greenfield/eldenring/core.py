@@ -263,7 +263,13 @@ class GreenfieldEldenRingWorld(World):
             from .region_play_ids import REGIONS_PENDING_BUCKET as _pending_set
         except ImportError:
             _pending_set = frozenset()
-        pending = [r for r in pool if r in _pending_set]
+        # ONLY when region LOCKING is on. num_regions 0 = every region in play and NOTHING is locked,
+        # so there is no kick to enforce and no reason to drop anything -- excluding regions there would
+        # just delete 67 checks and make a "full" seed not full (which is exactly what the count-neutral
+        # and DLC tests caught). The geometry only has to exist for a region whose lock must FIRE.
+        n_regions = getattr(self.options, "num_regions", None)
+        locking = bool(n_regions is not None and int(n_regions.value) > 0)
+        pending = [r for r in pool if r in _pending_set] if locking else []
         if pending:
             logging.getLogger("Greenfield").warning(
                 "[eldenring:%s] region(s) EXCLUDED from this seed -- their play_region buckets are not "
