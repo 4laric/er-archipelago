@@ -449,6 +449,11 @@ ROW_MAP_REGION_FIX = {
 # region via GLOBAL_RECOVER[520160] below. (Alaric 2026-07-10)
 ROW_ITEM_NAME_FIX = {
     520160: "Golden Seed",
+    # 400696's getItemFlagId is shared by two ItemLotParam lots; the scan named it after the LOWER lot
+    # (an "Ash of War: Flame Skewer") over lot 106931 (goods 2008036 = Prayer Room Key, the meaningful
+    # DLC gate pickup). Relabel so it reads as the key and earns the KeyItem tag (same class of shared-
+    # flag mis-name as 520160). Its region column is stale (m20_00) -- verify the true location. (2026-07-13)
+    400696: "Prayer Room Key",
 }
 for _rowfix in _ALLROWS:
     try:
@@ -2730,10 +2735,18 @@ OUT_TAGS = os.path.join(HERE, "eldenring", "location_tags.py")
 # items). Kept: the two lift medallions (Dectus L/R via the split-name match), Haligtree Secret
 # Medallion (L/R), Rusty/Drawing-Room/Discarded Palace keys, Academy Glintstone Key, Pureblood Medal.
 # NOTE: "Rold Medallion" is kept but is effectively a Morgott drop behind dialogue (low diversity).
+# DLC gate keys added 2026-07-13 (same "gate/travel key, not quest item" bar): the Belurat pair
+# (Storeroom/Well Depths), the Belurat Gaol pair (Gaol Upper/Lower Level), the Shadow Keep Secret Rite
+# Scroll, and the Prayer Room Key (relabelled in ROW_ITEM_NAME_FIX). DELIBERATELY EXCLUDED: Hole-Laden
+# Necklace (Ymir/St. Trina quest item, not a gate -- like the cut Carian Inverted Statue) and "O Mother"
+# (a gesture, not a key -- debatable since it opens the Shadow Keep back door; left for review).
 _KEYITEMS = ("Dectus Medallion", "Rold Medallion", "Haligtree Secret Medallion",
              "Rusty Key", "Discarded Palace Key",
              "Academy Glintstone Key", "Pureblood Knight's Medal",
-             "Drawing-Room Key", "Rusty Anchor")
+             "Drawing-Room Key", "Rusty Anchor",
+             "Storeroom Key", "Well Depths Key",
+             "Gaol Upper Level Key", "Gaol Lower Level Key",
+             "Secret Rite Scroll", "Prayer Room Key")
 for _ap, _inm in LOCATION_ITEM.items():
     _extra = []
     if "Great Rune" in _inm and "Unborn" not in _inm:
@@ -3006,6 +3019,10 @@ _M61_BOSS_RE = re.compile(r"^20(\d\d)(\d\d)\d{4}$")
 def _m61_boss_region(_ent):
     _m = _M61_BOSS_RE.match(str(_ent))
     return _m61_tile_region(int(_m.group(1)), int(_m.group(2))) if _m else None
+# Curated region for a legacy boss whose map hosts NO filler-swept checks (all shop/boss_arena), so it
+# gets no _mreg vote and would divvy HUB. m25 = Cathedral of Manus Metyr -> Scaduview (region_map label
+# 'Cathedral of Manus Metyr (DLC)' folds there); Metyr then divvies Scaduview filler instead of HUB.
+_LEGACY_BMAP_REGION = {"m25_00": "Scaduview"}
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 for _i, _r in enumerate(rows):
@@ -3042,7 +3059,10 @@ if BOSS_HEALTHBARS:
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
-            _lreg = _m61_boss_region(_ent) or _mreg.get(_bmap, HUB)  # m61 overworld boss -> its own tile-region
+            # m61 overworld boss -> its own tile-region; else the map's check-majority region; else a
+            # curated pin for a legacy map that hosts NO filler-swept checks so it gets no _mreg vote
+            # (m25 Cathedral of Manus Metyr = shop + remembrance only, so Metyr fell to HUB -> Scaduview).
+            _lreg = _m61_boss_region(_ent) or _mreg.get(_bmap) or _LEGACY_BMAP_REGION.get(_bmap) or HUB
             _legacy_by_region[_lreg].append(_ent)
             continue
         _members = sorted(set(_members))
