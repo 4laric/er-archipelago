@@ -181,7 +181,14 @@ def main() -> int:
     derived = {}
     unattributed = []
     for bucket, rows in sorted(buckets.items()):
-        overworld = [t for (a, t) in rows if a in (60, 61)]
+        # OVERWORLD vs INTERIOR is decided by the BUCKET, not by the row's areaNo. An interior's row
+        # carries areaNo 60/61 because its warp/ENTRY coordinate sits out on the overworld -- so keying
+        # off areaNo made Raya Lucaria (14000) look like overworld and land in "Liurnia", exactly the
+        # class of error this discriminator exists to stop. Overworld buckets are the 6xxxx band
+        # (60000-65999 base m60, 68000-69999 DLC m61); everything below 60000 is an interior whose map
+        # the bucket id names exactly.
+        is_overworld = 60000 <= bucket < 70000
+        overworld = [t for (a, t) in rows if a in (60, 61)] if is_overworld else []
         if overworld:
             regs = collections.Counter(tiles[t] for t in overworld if t in tiles)
         else:
@@ -218,9 +225,14 @@ def main() -> int:
 
     if unattributed:
         print()
-        print("== BUCKETS WITH NO ATTRIBUTABLE TILE (left alone, NOT guessed) ==")
+        print("== BUCKETS WITH NO ATTRIBUTABLE TILE -- NEEDS A HUMAN ==")
+        print("   (real buckets the game HAS. Omitting them from REGION_GROUPS means the KICK has no")
+        print("    opinion there, i.e. that area is silently PERMISSIVE. Assign each one by hand.)")
         for b, ts in unattributed:
-            print(f"   {b:>7}  tiles={ts or '(none -- interior/arena sub-region)'}")
+            mp = "m%02d_%02d" % (b // 1000, (b % 1000) // 10)
+            was = cur.get(b)
+            print(f"   {b:>7}  map~{mp}  tiles={ts or '(none)'}"
+                  f"{'   we currently say ' + repr(was) if was else ''}")
 
     print()
     print(f"summary: game has {len(buckets)} buckets; we list {len(cur)}; "
