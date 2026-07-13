@@ -216,27 +216,51 @@ class GreenfieldRegistry(unittest.TestCase):
 
 
 class GreenfieldAreaLockGeometry(unittest.TestCase):
-    """SINGLE SOURCE OF TRUTH guard (replaces the old two-table parity test). The region ->
-    play_region geometry (REGION_PLAY_IDS) lives ONLY in features/area_locks.py, which ships the
-    fully-resolved kick-watch ranges as slot_data `areaLockFlags`. The client consumes those ranges
-    and must NOT keep a mirror table -- a duplicated static geometry in region.rs repeatedly drifted
-    from the generator (e.g. the Consecrated Snowfield -> Mountaintops fold). This test makes the
-    drift structurally impossible: it FAILS if a REGION_PLAY_IDS mirror is reintroduced client-side.
-    Skips cleanly if the client source is not checked out beside the apworld."""
+    """SINGLE SOURCE OF TRUTH guard. The EDITABLE region -> play_region geometry
+    (REGION_PLAY_IDS) lives ONLY in features/area_locks.py, which ships the fully-resolved
+    kick-watch ranges as slot_data `areaLockFlags`. The client holds exactly one copy: the
+    GENERATED er-logic `region_locks.rs` (tools/gen_region_locks.py, the foreign-apworld
+    fallback), which CI regenerates and diffs so it cannot drift. What stays forbidden is a
+    HAND-typed mirror in region.rs -- that is the thing that repeatedly drifted (e.g. the
+    Consecrated Snowfield -> Mountaintops fold). Skips cleanly if the client source is not
+    checked out beside the apworld."""
 
-    def test_client_has_no_region_play_ids_mirror(self):
+    def _client_path(self, *parts):
         repo = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-        rs = os.path.join(repo, "from-software-archipelago-clients", "crates",
-                          "eldenring-archipelago", "src", "region.rs")
+        return os.path.join(repo, "from-software-archipelago-clients", *parts)
+
+    def test_client_has_no_hand_written_region_play_ids_mirror(self):
+        rs = self._client_path("crates", "eldenring-archipelago", "src", "region.rs")
         if not os.path.exists(rs):
             self.skipTest("client region.rs not present")
         with open(rs, encoding="utf-8") as f:
             text = f.read()
         self.assertNotIn(
             "REGION_PLAY_IDS", text,
-            "client region.rs must NOT mirror REGION_PLAY_IDS -- the generator (area_locks.py) is the "
-            "single source of truth and ships the resolved ranges as areaLockFlags. Consume the "
-            "shipped ranges; do not re-add a static table that silently drifts.")
+            "client region.rs must NOT hand-mirror REGION_PLAY_IDS -- the generator "
+            "(area_locks.py) is the single source of truth; the only client copy allowed is the "
+            "GENERATED er-logic region_locks.rs (tools/gen_region_locks.py). Consume slot_data "
+            "or the generated table; do not re-add a static table that silently drifts.")
+
+    def test_generated_client_table_matches_the_source_tables(self):
+        """Same comparison the CI drift gate runs (gen_region_locks --check), as a local test:
+        the baked client table must be byte-identical to what these sources generate."""
+        out_rs = self._client_path("crates", "er-logic", "src", "region_locks.rs")
+        if not os.path.exists(out_rs):
+            self.skipTest("client region_locks.rs not present")
+        import importlib.util
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+        tool = os.path.join(repo, "tools", "gen_region_locks.py")
+        spec = importlib.util.spec_from_file_location("gen_region_locks", tool)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        expected = mod.render_rs(mod.load_rows())
+        with open(out_rs, encoding="utf-8") as f:
+            current = f.read().replace("\r\n", "\n")
+        self.assertEqual(
+            current, expected,
+            "region_locks.rs is STALE against region_open_flags.py/area_locks.py -- "
+            "run: python tools/gen_region_locks.py (then commit the client)")
 
 
 if __name__ == "__main__":
