@@ -434,12 +434,20 @@ if ($Me3Deploy) {
     # ItemLotParam -- game data, not seed data -- so one static file suppresses the vanilla ware for
     # every apworld. Measured: 99.9% of a Bedrock seed's check flags. Without it, every check on a
     # foreign seed hands out the VANILLA item as well as the AP item.
+    # $me3InstallShop MUST be resolved BEFORE the first block that uses it. It used to be assigned
+    # halfway down the shoplineup block, i.e. AFTER the check_lots block tested it -- so it was $null
+    # there and check_lots_table.json was NEVER copied to the me3 install dir. Silent: the Me3Dir copy
+    # succeeded, so the log looked right.
+    $me3InstallShop = Join-Path $env:LOCALAPPDATA "Programs\garyttierney\me3"
+    if (-not (Test-Path $me3InstallShop)) { $me3InstallShop = $null }
+
     $lotTable = Join-Path $Repo "greenfield\eldenring\check_lots_table.json"
     if (Test-Path $lotTable) {
         Copy-Item $lotTable (Join-Path $Me3Dir "check_lots_table.json") -Force
         Write-Host "  check_lots_table.json -> $Me3Dir  (vanilla suppression, any apworld)"
         if ($me3InstallShop) {
             Copy-Item $lotTable (Join-Path $me3InstallShop "check_lots_table.json") -Force
+            Write-Host "  check_lots_table.json -> $me3InstallShop  (client mod_directory)"
         }
     } else {
         Write-Host "  check_lots_table.json ABSENT -- foreign seeds will DOUBLE-DIP (vanilla + AP item). Run: python tools\gen_check_lots_table.py" -ForegroundColor Yellow
@@ -447,21 +455,26 @@ if ($Me3Deploy) {
 
     # Shop-check flags: client key_resolver reads shoplineup_flags.json from the DLL dir
     # (mod_directory), same staging as the sweep table. Maps shop rows -> eventFlag_forStock.
-    $shopTable = Join-Path $Repo "Archipelago\worlds\eldenring\shoplineup_flags.json"
+    # SOURCED FROM greenfield\eldenring (2026-07-13). It used to be read from
+    # Archipelago\worlds\eldenring -- the INSTALLED world dir. That is fine when the installed world is
+    # ours, and useless the moment it is not: on the Bedrock playtest that directory is HIS world, the
+    # file was absent, and the "absent" branch below printed a reassuring message that is true for a
+    # greenfield seed and FLATLY WRONG for a foreign one. So the table went unstaged, key_resolver went
+    # INERT, and every shop check on his seed died silently -- until it was hand-copied. The file is
+    # DERIVED game data and is TRACKED in the repo, so read it from the repo, where it always exists.
+    $shopTable = Join-Path $Repo "greenfield\eldenring\shoplineup_flags.json"
     if (Test-Path $shopTable) {
         Copy-Item $shopTable (Join-Path $Me3Dir "shoplineup_flags.json") -Force
         Write-Host "  shoplineup_flags.json -> $Me3Dir  (shop check flags)"
-        $me3InstallShop = Join-Path $env:LOCALAPPDATA "Programs\garyttierney\me3"
-        if (Test-Path $me3InstallShop) {
+        if ($me3InstallShop) {
             Copy-Item $shopTable (Join-Path $me3InstallShop "shoplineup_flags.json") -Force
             Write-Host "  shoplineup_flags.json -> $me3InstallShop  (client mod_directory)"
         }
     } else {
-        # NOT a warning, and the old text was FLATLY WRONG ("shop checks will not resolve"). This json
-        # only feeds the MATT-KEY resolver (key_resolver.rs, locationIdsToKeys). Greenfield is
-        # pure-runtime: the client reads shopRowFlags (499 rows) and locationFlags (4767, shops
-        # included) straight from slot_data. Shop checks resolve without this file.
-        Write-Host "  shoplineup_flags.json absent (matt-key path only; greenfield shops ride slot_data shopRowFlags)"
+        # This json feeds the MATT-KEY resolver (key_resolver.rs, locationIdsToKeys) -- i.e. FOREIGN
+        # apworlds. A greenfield seed does not need it (the client reads shopRowFlags + locationFlags
+        # straight from slot_data), but a Bedrock seed's shop checks CANNOT fire without it.
+        Write-Host "  shoplineup_flags.json ABSENT -- foreign (Bedrock) shop checks will NEVER FIRE. Run: python tools\gen_shoplineup_flags.py" -ForegroundColor Yellow
     }
 
     # park the EML client copy so me3's native is the ONLY loader of eldenring_ap.dll
