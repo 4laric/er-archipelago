@@ -86,16 +86,19 @@ class BossSweepScoping(unittest.TestCase):
     def _eff_map(self, ap):
         """A member's effective map: region_map's map, or -- for an unplaced dungeon check whose flag
         encodes the map (30.XX.. -> m30_XX) -- the flag-recovered map. Re-derived independently."""
-        raw = self.flag_map.get(self.ap_flag.get(ap, -1), "")
-        if raw and raw != "PENDING":
-            return raw
         fs = str(self.ap_flag.get(ap, ""))
         # The X0SS7000 convention (flag -> map mXX_SS) is not base-only: the DLC minor dungeons use it
         # too (m40 catacombs, m41 gaols, m42 forges, m43 caves) -- e.g. 41017010 -> m41_01 (Curseblade
-        # Labirith). Decoding only 30/31/32 left every DLC dungeon check stuck at PENDING, so the
-        # map-local gate reported them as leaks when gen had recovered their map correctly.
-        if len(fs) >= 8 and fs[:2] in ("30", "31", "32", "40", "41", "42", "43"):
+        # Labirith). An ItemLotParam_map flag's self-encoded map is AUTHORITATIVE over the `map` column:
+        # 8 DLC dungeon lots (40007000/41027000/42007000/...) were column-tagged m18_00 (base-game
+        # Stranded Graveyard), a mis-scan gen_data._swept_map_prefix now corrects by trusting the flag.
+        # Mirror that here (flag wins for dungeon-lot flags) so this independent oracle re-derives the
+        # SAME true map instead of trusting the stale column -- exactly what the docstring promises.
+        if len(fs) >= 8 and fs[4] == "7" and fs[:2] in ("30", "31", "32", "40", "41", "42", "43"):
             return f"m{fs[:2]}_{fs[2:4]}_00_00"
+        raw = self.flag_map.get(self.ap_flag.get(ap, -1), "")
+        if raw and raw != "PENDING":
+            return raw
         return raw
 
     def _members_by_class(self, cls_name):
