@@ -82,9 +82,25 @@ STACK_QTY_BY_CATEGORY = {"throwables": 5, "pots": 2, "greases": 2}
 
 # Beloved junk -- never seized, always survives.
 FUNNY_JUNK = frozenset({"Raw Meat Dumpling", "Gold-Tinged Excrement"})
+# THE COLLECTATHON LINES. Finite, tuned, permanent character-power tracks -- the game's own progression
+# curve, not filler. progression_surface.py names all four and pins their counts as ground truth:
+# "Sacred Tear 13/13, Golden Seed 43/43, Scadutree Fragment 46/46, Revered 23/23".
+#
+# The DLC two were NOT protected until 2026-07-13, and they are GOODS, so `_is_junk_consumable` called
+# them junk and the filler tail displaced every one of them. A DLC seed therefore contained ZERO
+# Scadutree Fragments: the Scadutree blessing -- the DLC's entire damage/defence curve -- could never
+# rise above 0 from fragments. (It could not rise from the region FLOOR either: that lookup was broken
+# by a separate bug in the play_region bucket table. Two independent bugs, one pinned outcome.)
+#
+# Note the shape of the omission: the BASE-game lines were guarded and their DLC counterparts were not.
+# That is the same blind spot as the bucket table -- the DLC was never played, so nothing that was only
+# wrong in the DLC ever surfaced. Guarded as a NAMED SET, and tests/test_gf_collectathon_protected.py
+# derives its assertion from this constant, so a fifth line cannot be added without being protected.
+COLLECTATHON_ITEMS = ("Golden Seed", "Sacred Tear", "Scadutree Fragment", "Revered Spirit Ash")
+
 # Placed leveling/upgrade economy -- never seized (the recipe ADDS on top, doesn't strip it).
 _ECONOMY_SUBSTR = ("Golden Rune", "Shadow Realm Rune", "Lord's Rune", "Hero's Rune", "Numen's Rune",
-                   "Smithing Stone", "Golden Seed", "Sacred Tear", "Glovewort", "Great Rune")
+                   "Smithing Stone", "Glovewort", "Great Rune") + COLLECTATHON_ITEMS
 
 
 def stack_qty_by_name():
