@@ -328,14 +328,19 @@ class ProvenanceOracle(unittest.TestCase):
                          "the game awards Rennala's remembrance from m14_00 (Raya Lucaria) alone")
         self.assertIn("event", {s for m in maps_197 for s in self.flag_src[(197, m)]},
                       "197 is a boss drop -- it must come from the EMEVD `event` chain, not Treasure")
+        # REGION-SPINE v2 (2026-07-13): m14_00 no longer FOLDS into Liurnia -- Raya Lucaria Academy
+        # (play_region 14000) is its own region now, so the grace join arbitrates it to itself. That
+        # is strictly better for this very bug: Rennala's remembrance sits in the region the game
+        # actually puts her in, instead of a bucket she was welded into.
         m14_truth = self.map_truth.get("m14_00")
-        self.assertEqual(m14_truth, frozenset({"Liurnia of the Lakes"}),
-                         "grace join must arbitrate m14_00 (Raya Lucaria) to its fold region, Liurnia")
+        self.assertEqual(m14_truth, frozenset({"Raya Lucaria Academy"}),
+                         "grace join must arbitrate m14_00 to Raya Lucaria Academy (its own region "
+                         "since region-spine v2; it used to fold into Liurnia)")
         self.assertTrue(self.f2r.get(197) & m14_truth,
                         "data.py must pin 197 to m14_00's grace-truth region (today's live value)")
 
         historical = dict(self.f2r)
-        historical[197] = {"Stormveil Castle"}                  # the 2026-07-08 mis-pin
+        historical[197] = {"Stormveil"}                         # the 2026-07-08 mis-pin
         violations, _n, excluded, _g = find_violations(
             self.map_flags, historical, self.map_truth, self.ov, self.flag_src)
         self.assertNotIn(197, excluded, "197 is placed in exactly one map -- it must not be excluded")
