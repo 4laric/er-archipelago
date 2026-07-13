@@ -54,28 +54,15 @@ jobs:
           pip install -r _ap/requirements.txt
           pip install pytest
 
-      # The world is INSTALLED, not symlinked: several tests resolve their ground-truth inputs relative
-      # to the package dir, and a symlink makes `..` escape into the source tree, which is exactly how a
-      # test passes locally and silently no-ops in CI.
-      - name: Install the greenfield world into Archipelago
-        run: |
-          cp -r greenfield/eldenring _ap/worlds/eldenring
-          # gen_data's INPUTS. They live beside the package in the source tree; the Windows install step
-          # copies them INTO the package so the derivation oracles can re-derive against ground truth.
-          # Without them the oracle suites (boss sweeps, shop release-gate) run BLIND -- they do not fail,
-          # they quietly assert nothing, which is worse than failing.
-          cp greenfield/*.csv greenfield/*.tsv _ap/worlds/eldenring/ 2>/dev/null || true
-          # The SHIPPED template. Copied in so test_gf_shipping_yaml runs SIGHTED here -- it shipped
-          # declaring `game: EldenRing` while the world is `Elden Ring`, so AP rejected it outright and
-          # a player's first action failed. Nothing caught it because no test pointed at the template.
-          cp release-v0.2/EldenRing.yaml _ap/worlds/eldenring/
-          test -f _ap/worlds/eldenring/region_map.csv  || { echo "::error::region_map.csv missing -- boss-sweep oracle would run blind"; exit 1; }
-          test -f _ap/worlds/eldenring/shop_rows.tsv   || { echo "::error::shop_rows.tsv missing -- shop release-gate would run blind"; exit 1; }
-          test -f _ap/worlds/eldenring/EldenRing.yaml  || { echo "::error::shipping template missing -- the yaml gate would run blind"; exit 1; }
-
-      - name: pytest
-        working-directory: _ap
-        run: python -m pytest worlds/eldenring/tests -q
+      # ONE HARNESS, used here and by run_ci.ps1 on the dev box. It used to be two: CI installed the
+      # world into a freshly-checked-out upstream AP, while run_ci.ps1 installed it into <repo>\Archipelago
+      # -- whatever that happened to be. On 2026-07-13 that directory was a clone of fswap/Archipelago
+      # (Bedrock's fork, kept for playtesting his seeds), so the dev box was gating the apworld against a
+      # different Archipelago than CI: 661 tests collected vs 686, a different Fill.py, different spheres,
+      # and a test that is green here failed there. tools/gf_test.py is now the only definition of the
+      # harness -- it pins .ap-version, REFUSES to run against a fork, and installs (never symlinks).
+      - name: pytest (tools/gf_test.py -- pinned upstream AP)
+        run: python tools/gf_test.py --ap-dir _ap
 
   # ---------------------------------------------------------------------------------------------
   # 2. The AP-FREE generators. These need no Archipelago and no game artifacts -- only committed

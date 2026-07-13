@@ -141,3 +141,4 @@ elden_ring_artifacts/
 # Local Archipelago checkout (bootstrap-ap). NOT a submodule: it is a stock upstream clone,
 # pinned by .ap-version. Nothing of ours lives in it -- the world is INSTALLED into it.
 /Archipelago/
+.ap-test/

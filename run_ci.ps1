@@ -96,19 +96,20 @@ function Invoke-CiStep([string]$name, [scriptblock]$body) {
 }
 
 # ----- 1) apworld unit tests (cheapest, most specific) -------------------------
+# THE HARNESS IS tools\gf_test.py, and it is the SAME one CI runs. This step used to Push-Location into
+# $ApDir -- i.e. <repo>\Archipelago, whatever that happened to be -- and pytest there. On 2026-07-13 that
+# directory was a clone of fswap/Archipelago (Bedrock's fork, kept to play his seeds), so this gate was
+# testing the apworld against a DIFFERENT Archipelago than CI: 661 tests collected vs CI's 686, a
+# different Fill.py, different fill spheres, and a test that was green on CI failed here. The result was
+# not wrong, it was an answer to a different question -- which is worse, because it looks like an answer.
+#
+# gf_test.py pins .ap-version, installs into its OWN .ap-test\ checkout (your Archipelago\ is never
+# touched or consulted -- keep whatever fork you like there), and REFUSES to run against a non-upstream
+# remote rather than hand back a number that means nothing.
 if (-not $SkipUnit) {
-    Invoke-CiStep "UNIT (pytest worlds\eldenring\tests)" {
-        Push-Location $ApDir
-        try {
-            $env:AP_NONINTERACTIVE = "1"
-            # parallel across matrix classes (pip install pytest-xdist); exit 4 =
-            # unrecognized -n (xdist missing) -> serial fallback with a hint.
-            python -m pytest "worlds\eldenring\tests" "worlds\eldenring\test" -q --tb=short -n auto
-            if ($LASTEXITCODE -eq 4) {
-                Write-Host "  pytest-xdist not installed (pip install pytest-xdist) -- serial rerun" -ForegroundColor Yellow
-                python -m pytest "worlds\eldenring\tests" "worlds\eldenring\test" -q --tb=short
-            }
-        } finally { Pop-Location }
+    Invoke-CiStep "UNIT (tools\gf_test.py -- pinned upstream AP)" {
+        python (Join-Path $Repo "tools\gf_test.py") --tb=short
+        if ($LASTEXITCODE -ne 0) { throw "GREENFIELD: AP world unit tests failed (exit $LASTEXITCODE)" }
     }
 }
 
