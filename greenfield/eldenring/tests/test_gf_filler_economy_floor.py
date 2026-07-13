@@ -145,6 +145,18 @@ def _assert_early_upgrade_affordable(test):
         if m:
             by_tier[int(m.group(1))] += 1
 
+    # The POOL vs the EARLY slice. filler_budget guarantees the floor in the POOL (it refuses to couple
+    # the economy to fill spheres). This test asserts the player-visible property, which is DENSITY in
+    # spheres 0-1. Those two only coincide if most own-world checks are early -- so report the split,
+    # or a failure here is unreadable and the next person re-derives it from scratch.
+    own = [loc for loc in test.multiworld.get_locations(player)
+           if loc.item is not None and loc.item.player == player]
+    pool_by_tier = defaultdict(int)
+    for loc in own:
+        m = _STONE_RE.match(loc.item.name)
+        if m:
+            pool_by_tier[int(m.group(1))] += 1
+
     flatten = int(getattr(world.options, "flatten_regular_upgrades").value)
     need = _stones_needed(EARLY_TARGET_LEVEL, flatten)
 
@@ -161,8 +173,11 @@ def _assert_early_upgrade_affordable(test):
     test.assertFalse(
         shortfalls,
         "early upgrade economy is too sparse to afford +%d -- a player deep into the seed is still "
-        "at +0:\n  %s\n(%d of this world's own checks live in spheres 0-1.)"
-        % (EARLY_TARGET_LEVEL, "\n  ".join(shortfalls), len(early)))
+        "at +0:\n  %s\n(%d of this world's %d own checks live in spheres 0-1 = %.0f%%. "
+        "Smithing Stone [1] in the POOL: %d -- filler_budget floors the POOL, so if the pool clears "
+        "the floor and this does not, the gap is the early-sphere FRACTION, not the reservation.)"
+        % (EARLY_TARGET_LEVEL, "\n  ".join(shortfalls), len(early), len(own),
+           100.0 * len(early) / max(1, len(own)), pool_by_tier[1]))
 
 
 
