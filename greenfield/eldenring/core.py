@@ -85,17 +85,7 @@ GREAT_RUNES: List[str] = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great 
 # ---- core options ----------------------------------------------------------------------------
 class NumRegions(Range):
     """How many regions are in play this seed. 0 = all regions (full Shattering). N > 0 seals the
-    rest: only kept regions get locks, checks, and goal requirement, for a shorter run.
-
-    ⚠️ KNOWN LIMIT (region-spine v2): the upgrade economy floor -- enough Smithing Stone [1] in
-    spheres 0-1 to reach +3 -- is only GUARANTEED at N == 0 or N >= 6. The v2 spine has 31 regions
-    where v1 had 20, so a low N now keeps a materially smaller slice of the world, and the filler
-    tail shrinks with it. tests/test_gf_filler_economy_floor.py gates N=6; N in 1..5 generates fine
-    and is playable, but you may spend a long time at +0.
-
-    The real fix is to make the economy reservation scale with the size of the filler tail instead of
-    assuming a 20-region world. It is not done, it is not hidden, and this is where it is written
-    down. A Range cannot express "0 or >= 6", so this is a documented limit, not a constraint."""
+    rest: only kept regions get locks, checks, and goal requirement, for a shorter run."""
     display_name = "Number of Regions"
     range_start = 0
     range_end = len(REGIONS)
