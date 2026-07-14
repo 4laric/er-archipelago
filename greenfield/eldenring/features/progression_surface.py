@@ -199,9 +199,28 @@ def _restricted_items(world):
             if is_restricted_progression(it, world.player)]
 
 
+def _world_barred_aps(world):
+    """The per-world no-progression set for surface math: DEFAULTED_REGION_APS always; the
+    ERDTREE_BURN_APS burn-strand bar only while the capital reconciler is NOT armed (armed = the
+    client restores m11_00, so the strand those APs were barred for cannot happen -- SPEC-capital-
+    reconciler.md). Mirrors core._add_locations' item_rule carve-out; the two must agree or the
+    surface would star checks the item_rule forbids (or vice versa)."""
+    try:
+        from ..location_tags import DEFAULTED_REGION_APS as _d
+    except Exception:
+        _d = frozenset()
+    if getattr(world, "gf_capital_reconciler", False):
+        return frozenset(_d)
+    try:
+        from ..location_tags import ERDTREE_BURN_APS as _b
+    except Exception:
+        _b = frozenset()
+    return frozenset(_d) | frozenset(_b)
+
+
 def _open_allowed(world, classes):
     """Unfilled locations of this player whose tags put them ON THE SURFACE for `classes`."""
-    ids = allowed_ap_ids(LOCATION_TAGS, classes)
+    ids = allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
     out = []
     for loc in world.multiworld.get_locations(world.player):
         ap = getattr(loc, "address", None)
@@ -397,7 +416,7 @@ class ProgressionSurfaceFeature(Feature):
         if _mode(world) == 0:
             return {contract.PROGRESSION_SURFACE_LOCATIONS: []}
         classes = selected_surface(_selection(world))
-        ids = allowed_ap_ids(LOCATION_TAGS, classes)
+        ids = allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
         own = {loc.address for loc in world.multiworld.get_locations(world.player)
                if getattr(loc, "address", None) is not None}
         return {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}

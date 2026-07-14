@@ -391,6 +391,31 @@ CONTRACT = (
                 "(unemitted today; client path LIVE)", "region.rs:121 str_to_u32vec",
                 "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt. The client "
                 "consumer is LIVE (region.rs:121); greenfield does not emit it yet."),
+    # --- capital-version reconciler (SPEC-capital-reconciler.md; features/capital.py) ---
+    # All five travel together, emitted only while `capital_reconciler` is ON -- absent keys are
+    # the off-wire (the client logs "capital reconciler INERT" and never touches 9116).
+    ContractKey("capitalBurnFlag", "INT", False, (GREENFIELD,),
+                "features/capital.py", "region.rs configure_capital / tick_capital",
+                "the Leyndell map-version selector, 9116 (OFF = Royal m11_00, ON = Ashen m11_05 "
+                "+ Elden Throne m19). The client reconciles it to the player's current/target "
+                "capital so the burn never permanently strands the Royal checks."),
+    ContractKey("capitalBurnDoneFlag", "INT", False, (GREENFIELD,),
+                "features/capital.py", "region.rs configure_capital / tick_capital",
+                "the burn-complete latch, 118 (common.emevd $Event(900)'s last step; monotonic). "
+                "ARMING GATE: the client never writes 9116 while this reads unset -- the first "
+                "burn is 100% the game's own sequence."),
+    ContractKey("capitalAshenPlayRegions", "INT_LIST", False, (GREENFIELD,),
+                "features/capital.py", "er-logic capital.rs via region.rs tick_capital",
+                "measured play_region buckets where 9116 must be held ON (11050 Ashen Capital, "
+                "19000 Elden Throne). KICK id space, same /100 reduction as kick_decision."),
+    ContractKey("capitalRoyalPlayRegions", "INT_LIST", False, (GREENFIELD,),
+                "features/capital.py", "er-logic capital.rs via region.rs tick_capital",
+                "measured play_region buckets where 9116 must be held OFF (11000 Royal Capital)."),
+    ContractKey("capitalReleaseRows", "TRIPLE_LIST", False, (GREENFIELD,),
+                "features/capital.py", "shop_flags.rs run_capital_release",
+                "[ShopLineupParam row, expected release flag, replacement] -- shop-check rows "
+                "whose eventFlag_forRelease is 9116 itself (Enia's Maliketh armor set) re-key to "
+                "the monotonic 118 so the reconciler's OFF-default cannot de-stock them."),
     # --- graces ---
     ContractKey("regionGraces", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/graces.py", "region.rs:122 str_to_u32vec",

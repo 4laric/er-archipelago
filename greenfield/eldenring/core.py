@@ -596,9 +596,17 @@ class GreenfieldEldenRingWorld(World):
         # So the bar has to live on the LOCATION: mark them EXCLUDED = filler only, whatever fill runs.
         # Real seed this killed: AP_55352390472076588352 -- Stormveil Castle Lock on Golden Seed f400220,
         # which actually sits in Stormveil. Caelid start. Unwinnable.
+        # Capital reconciler (SPEC-capital-reconciler.md): while armed, the client keeps burn
+        # flag 9116 matched to the player's capital, so m11_00 is NEVER permanently lost -- the
+        # ERDTREE_BURN_APS "may not carry progression" bar is lifted (that bar exists ONLY for
+        # the strand the reconciler ends). Off/foreign -> the bar snaps back: the one-flag
+        # disable also restores the fill-side mitigation. The other two causes always apply.
+        _barred = _NO_PROGRESSION_APS
+        if getattr(self, "gf_capital_reconciler", False):
+            _barred = _barred - frozenset(ERDTREE_BURN_APS)
         for (name, ap_id, _flag) in LOCATIONS.get(region_name, []):
             _loc = GFLocation(self.player, name, ap_id, region)
-            if ap_id in _NO_PROGRESSION_APS:
+            if ap_id in _barred:
                 # Bar ADVANCEMENT only, via item_rule -- do NOT use LocationProgressType.EXCLUDED.
                 # EXCLUDED puts the location in AP's dedicated "Remaining Excluded" filler-only pass
                 # (Fill.py:625), which must fill EVERY excluded location from the plain filler pool; the

@@ -263,6 +263,61 @@
       "doc": "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt. The client consumer is LIVE (region.rs:121); greenfield does not emit it yet."
     },
     {
+      "name": "capitalBurnFlag",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/capital.py",
+      "consumer": "region.rs configure_capital / tick_capital",
+      "doc": "the Leyndell map-version selector, 9116 (OFF = Royal m11_00, ON = Ashen m11_05 + Elden Throne m19). The client reconciles it to the player's current/target capital so the burn never permanently strands the Royal checks."
+    },
+    {
+      "name": "capitalBurnDoneFlag",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/capital.py",
+      "consumer": "region.rs configure_capital / tick_capital",
+      "doc": "the burn-complete latch, 118 (common.emevd $Event(900)'s last step; monotonic). ARMING GATE: the client never writes 9116 while this reads unset -- the first burn is 100% the game's own sequence."
+    },
+    {
+      "name": "capitalAshenPlayRegions",
+      "shape": "INT_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/capital.py",
+      "consumer": "er-logic capital.rs via region.rs tick_capital",
+      "doc": "measured play_region buckets where 9116 must be held ON (11050 Ashen Capital, 19000 Elden Throne). KICK id space, same /100 reduction as kick_decision."
+    },
+    {
+      "name": "capitalRoyalPlayRegions",
+      "shape": "INT_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/capital.py",
+      "consumer": "er-logic capital.rs via region.rs tick_capital",
+      "doc": "measured play_region buckets where 9116 must be held OFF (11000 Royal Capital)."
+    },
+    {
+      "name": "capitalReleaseRows",
+      "shape": "TRIPLE_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/capital.py",
+      "consumer": "shop_flags.rs run_capital_release",
+      "doc": "[ShopLineupParam row, expected release flag, replacement] -- shop-check rows whose eventFlag_forRelease is 9116 itself (Enia's Maliketh armor set) re-key to the monotonic 118 so the reconciler's OFF-default cannot de-stock them."
+    },
+    {
       "name": "regionGraces",
       "shape": "LISTVAL_INT_MAP",
       "required": false,

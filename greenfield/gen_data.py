@@ -657,6 +657,60 @@ GESTURE_REGION = {}
 print(f"finale: {len(FINALE_FLAGS)} conditional Ashen-Capital/Elden-Throne checks derived "
       f"(burn flag {_BURN_FLAG} <- {_BURN_SETTER_MAP}; warp -> {_BURN_MAP}; "
       f"boss rewards {sorted(_FINALE_BOSS_REWARDS.values())})")
+
+# ---- CAPITAL-VERSION RECONCILER data (SPEC-capital-reconciler.md; features/capital.py) ----------
+# The client keeps _BURN_FLAG (9116) matched to the capital version the player is in, so the burn
+# never permanently strands m11_00. Two more data points ride the same $Event(900) ground truth:
+#   * the burn-DONE latch: the one flag $Event(900) both checks at entry (GotoIf(!EventFlag(x)))
+#     and sets inside its body, x != the burn flag itself. 118 as of 2026-07-14. Monotonic (no
+#     EMEVD clears it) -- the client's arming gate AND the shop re-key target.
+#   * the release-row re-keys: shop_rows.tsv rows whose eventFlag_forRelease is _BURN_FLAG ITSELF
+#     and that are purchase CHECKS (value > 0; the value-0 remembrance-dupe trades stay vanilla).
+#     With the reconciler holding 9116 OFF at Roundtable, those rows would never stock -- the
+#     client re-keys their release to the done latch (same vanilla timing, immune to toggling).
+def _capital_derive():
+    _pc = os.path.join(_EV_DIR_F, "common.emevd.dcx.js")
+    _txt = open(_pc, encoding="utf-8", errors="replace").read()
+    _mb = re.search(r"^\$Event\(900, .*?^\}\);", _txt, re.S | re.M)
+    if not _mb:
+        raise SystemExit("FATAL: capital: $Event(900) not found in common.emevd.dcx.js")
+    _body = _mb.group(0)
+    _entry = {int(x) for x in re.findall(r"GotoIf\(L\d+, !EventFlag\((\d+)\)\)", _body)}
+    _set = {int(x) for x in re.findall(r"SetEventFlagID\((\d+), ON\)", _body)}
+    _done = sorted((_entry & _set) - {_BURN_FLAG})
+    if len(_done) != 1:
+        raise SystemExit(f"FATAL: capital: burn-done latch candidates {_done!r} != exactly one "
+                         f"(entry-checked AND body-set, minus the burn flag)")
+    _done = _done[0]
+    _rows = []
+    _tsv = os.path.join(HERE, "shop_rows.tsv")
+    if not os.path.isfile(_tsv):
+        raise SystemExit("FATAL: capital: shop_rows.tsv missing -- refusing to emit an empty "
+                         "release-row table (an empty result is a FAILURE)")
+    with open(_tsv, encoding="utf-8") as _f:
+        for _line in _f:
+            if _line.startswith("#") or _line.startswith("row_id"):
+                continue
+            _p = _line.rstrip("\n").split("\t")
+            if len(_p) < 11 or _p[10].strip() != str(_BURN_FLAG):
+                continue
+            if int(_p[7] or 0) <= 0:
+                continue  # value-0 trade (remembrance duplication) -- not a check, stays vanilla
+            _rows.append((int(_p[0]), _BURN_FLAG, _done))
+    _rows.sort()
+    # COUNT PIN (2026-07-14 artifacts): 4 purchase checks release on the burn flag -- Enia's
+    # Maliketh armor set, rows 101516-101519 (stock 250160/250170/250180/250190, checks
+    # 7770500-7770503). A different number = the inputs or the predicate changed; answer WHICH
+    # before re-pinning (CONTRIBUTING: rebaselining unexplained launders a regression).
+    if len(_rows) != 4:
+        raise SystemExit(f"FATAL: capital release-row drift: {len(_rows)} rows "
+                         f"({[r[0] for r in _rows]}) != the 4 pinned Enia armor rows")
+    return _done, tuple(_rows)
+
+(_CAPITAL_BURN_DONE, _CAPITAL_RELEASE_ROWS) = _capital_derive()
+print(f"capital: burn flag {_BURN_FLAG}, done latch {_CAPITAL_BURN_DONE}; "
+      f"{len(_CAPITAL_RELEASE_ROWS)} release row(s) re-keyed "
+      f"({[r[0] for r in _CAPITAL_RELEASE_ROWS]})")
 # PHANTOM recovery duplicates: a common-event/unplaced `global` flag that names a UNIQUE key item
 # already fully placed elsewhere -- recovering it would inject an extra copy of a singleton key.
 #   1033477020 = a 4th "Imbued Sword Key" (decodes to m60_33_47/Liurnia) that sits in the unplaced
@@ -2177,6 +2231,14 @@ with open(OUT,"w",encoding="utf-8") as f:
     f.write(f"FINALE_REGION = {_FINALE_REGION!r}\n")
     f.write(f"FINALE_REQUIRES = {FINALE_REQUIRES!r}\n")
     f.write(f"FINALE_HOST_REGION = {FINALE_HOST_REGION!r}\n")
+    f.write("\n# CAPITAL-VERSION RECONCILER (SPEC-capital-reconciler.md; gen_data._capital_derive):\n")
+    f.write("# burn flag = the m11_00<->m11_05 map-version selector $Event(900) waits on; done = its\n")
+    f.write("# monotonic completion latch (client arming gate); release rows = [row, from, to]\n")
+    f.write("# ShopLineupParam re-keys for the purchase checks whose release flag is the burn flag\n")
+    f.write("# itself. Consumed by features/capital.py (slot_data) -> the client reconciler.\n")
+    f.write(f"CAPITAL_BURN_FLAG = {_BURN_FLAG}\n")
+    f.write(f"CAPITAL_BURN_DONE_FLAG = {_CAPITAL_BURN_DONE}\n")
+    f.write(f"CAPITAL_RELEASE_ROWS = {_CAPITAL_RELEASE_ROWS!r}\n")
     f.write("\n# GESTURE PICKUPS (detect-only; see gen_data._gesture_derive): acquisition flag ->\n")
     f.write("# (GestureParam id, goods FullID, FMG name). The award is EMEVD (AwardGesture +\n")
     f.write("# SetEventFlagID), NOT an ItemLotParam row: the client detects via the flag poll but can\n")

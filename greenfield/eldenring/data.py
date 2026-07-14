@@ -5110,6 +5110,15 @@ FINALE_REGION = 'Ashen Capital'
 FINALE_REQUIRES = ('Farum Azula', 'Leyndell')
 FINALE_HOST_REGION = 'Leyndell'
 
+# CAPITAL-VERSION RECONCILER (SPEC-capital-reconciler.md; gen_data._capital_derive):
+# burn flag = the m11_00<->m11_05 map-version selector $Event(900) waits on; done = its
+# monotonic completion latch (client arming gate); release rows = [row, from, to]
+# ShopLineupParam re-keys for the purchase checks whose release flag is the burn flag
+# itself. Consumed by features/capital.py (slot_data) -> the client reconciler.
+CAPITAL_BURN_FLAG = 9116
+CAPITAL_BURN_DONE_FLAG = 118
+CAPITAL_RELEASE_ROWS = ((101516, 9116, 118), (101517, 9116, 118), (101518, 9116, 118), (101519, 9116, 118))
+
 # GESTURE PICKUPS (detect-only; see gen_data._gesture_derive): acquisition flag ->
 # (GestureParam id, goods FullID, FMG name). The award is EMEVD (AwardGesture +
 # SetEventFlagID), NOT an ItemLotParam row: the client detects via the flag poll but can
@@ -5125,4 +5134,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:894e8a74102e62300e00375a7be4348a33b52388d990899b51fbbbb8304e5f7d', 'module': 'data.py', 'body_sha256': 'sha256:f1a22f84b2ec476707d4a833224e0fe5ead9367ad446a381499867cbb85120c3'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c85b39f11b96a61eb5284cc1236b3a43fd670779159f64ae47937a275b8032b3', 'module': 'data.py', 'body_sha256': 'sha256:a818aed53b0cc3d695005439315302fc5ca59b7bb05fd4dacb8d6d339bfc33cd'}

@@ -164,6 +164,14 @@ your shuffled ER items stay in YOUR world; other players' pools only see your Re
 
 ## Known non-working / by-design (do NOT chase these)
 
+- **Capital reconciler (9116 toggle) — ASSUMED side-effect-free, CE probe PENDING** (2026-07-14).
+  The client holds the burn flag 9116 matched to the player's capital (SPEC-capital-reconciler.md)
+  so the Erdtree burn never strands the Royal Capital; the toggle's NPC/quest side effects and the
+  post-finale unset are UNVERIFIED in-game. Probe checklist in the SPEC (§ CE probe). If it
+  misbehaves: `capital_reconciler: false` (restores vanilla one-way burn + the Royal
+  no-progression bar). Known derived warts (not bugs): burn-cutscene replay on re-entering Ashen
+  after a session that loaded with 9116 off; Royal grace warp points re-earned by walking in.
+
 - **Merchant-bell gating** (`merchant_bell_logic: logic_only`): no-op. Bell→shop mapping is engine C++,
   not in any param/EMEVD; needs a live flag-probe or a design call. Option ships inert.
 - **Location-keyed sweeps** (`dungeonSweeps`) + **sweep lock gates** (`sweepLockGates`): empty by
