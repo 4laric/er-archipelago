@@ -1067,6 +1067,7 @@ FLAG_REGION_OVERRIDE = {
     510620: "Scaduview",                       # Rem. of the Shadow Sunflower (Scadutree Avatar) -- arena tile 50,48 grace 76960 -> play_region 6920 = Scaduview
     510640: "Scaduview",                       # Rem. of the Wild Boar Rider = Commander Gaius -- arena tile 49,48 graces 76930/76931 -> play_region 6920 = Scaduview
     21017800: "Shadow Keep",                   # Fire Knight Hilde drop: flag self-encodes m21_01 (Shadow Keep Church District) but the row's map column is the m20_00 emevd-scan mis-map; the emevd region_of path never applies the 8-digit lot self-encode. (matt-diff 2026-07-13)
+    400696: "Scadu Altus",                     # Prayer Room Key: NPC-invader drop from Fire Knight Queelign at the Church of the Crusade (Scadu Altus, east of Fog Rift Catacombs). Scan pinned it to the LOWER m20_00 lot -> Belurat; the real placement is the overworld invader, no map/grace self-encode. matt agrees Scadu Altus. (Alaric-confirmed 2026-07-14)
     # --- Two-grace m61 tile splits (matt-diff 2026-07-13, GRACE-CORROBORATED) ---
     # These tiles carry graces for TWO play-regions, so the ANCHOR61 tile-majority vote erases one side.
     # Per-check pins for the checks that belong to the OTHER region, applied ONLY where that region has a
