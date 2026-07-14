@@ -402,6 +402,35 @@ def _build_lot_items():
 LOT_ITEMS = _build_lot_items()
 
 
+# flag -> ItemLotParam_MAP lot id(s). A MAP lot's ID self-encodes the map it is PLACED in, so a 5-digit
+# acquisition flag that doesn't self-encode a tile (cookbooks, some globals) can still be regioned from
+# its lot: 10-digit 20XXYY.... -> m61_XX_YY (DLC overworld tile); 8-digit AABBxxxx -> mAA_BB (dungeon).
+# Primary data -- the lot id IS the game's own placement, not a name/matt guess. (2026-07-14)
+def _build_lot_of_flag():
+    _out = defaultdict(set)
+    _p = os.path.join(AR, "vanilla_er", "vanilla_er", "ItemLotParam_map.csv")
+    if not os.path.isfile(_p):
+        return {}
+    with open(_p, newline="", encoding="utf-8-sig") as _fh:
+        for _r in csv.DictReader(_fh):
+            _lot = _r.get("ID", "0")
+            if not _lot.lstrip("-").isdigit():
+                continue
+            for _c in ("getItemFlagId",) + tuple("getItemFlagId%02d" % _i for _i in range(1, 9)):
+                _v = _r.get(_c, "0")
+                if _v.lstrip("-").isdigit() and int(_v) > 0:
+                    _out[int(_v)].add(int(_lot))
+    return dict(_out)
+_LOT_OF_FLAG = _build_lot_of_flag()
+def _maplot_map(_lot):
+    _s = str(_lot)
+    if len(_s) == 10 and _s[:2] == "20":
+        return "m61_%s_%s" % (_s[2:4], _s[4:6])          # DLC overworld tile 20XXYY.... -> m61_XX_YY
+    if len(_s) == 8:
+        return "m%s_%s" % (_s[:2], _s[2:4])               # dungeon lot AABBxxxx -> mAA_BB
+    return None
+
+
 # ---- MSB/param GROUND TRUTH: flag -> the map the game actually places the item in ---------------
 # greenfield/msb_flag_region.tsv (tools/datamine_msb_item_regions.py) joins the witchy'd MSBs +
 # ItemLotParam + EMEVD award sites. It is the SAME source region_map.csv's `treasure` rows came from
@@ -1335,6 +1364,26 @@ def _gt_region(_mid):
     # otherwise fall through to the existing path (return None).
     return None
 
+def _cookbook_region(_flag):
+    """Region for a map_lot pickup (cookbook) whose 5-digit flag doesn't self-encode a tile, via its
+    ItemLotParam_map lot id -- which DOES encode the map (20XXYY->m61_XX_YY overworld tile;
+    AABBxxxx->mAA_BB dungeon). Primary data: the lot id is the game's own placement. None if the lot
+    is a short/common id that carries no map (those fall through to the raw guess)."""
+    if _flag is None:
+        return None
+    for _lot in sorted(_LOT_OF_FLAG.get(_flag, ())):
+        _mp = _maplot_map(_lot)
+        if not _mp:
+            continue
+        _m = re.match(r"m61_(\d\d)_(\d\d)", _mp)
+        if _m:
+            _rr = _m61_tile_region(int(_m.group(1)), int(_m.group(2)))
+        else:
+            _rr = DUNGEON_REGION_OVERRIDE.get(_mp + "_00_00") or _MAP_PREFIX_REGION.get(_mp)
+        if _rr:
+            return _rr
+    return None
+
 def region_of(r):
     """Corrected region: per-flag override (highest priority) -> curated dungeon override -> EMEVD/
     common-event audit for emevd+global rows -> raw region_of for everything else."""
@@ -1378,6 +1427,10 @@ def region_of(r):
             return (DUNGEON_REGION_OVERRIDE.get(_im)        # curated dungeon region, else
                     or _MAP_PREFIX_REGION.get(_rt)          # region of PLACED loot on this tile, else
                     or _region_of_raw(r))                   # raw region (-> HUB if unknown)
+    if _meth == 'cookbook':                               # map_lot pickup: region from its lot id's map
+        _cr = _cookbook_region(_ovfl)
+        if _cr:
+            return _cr
     if _meth not in ('emevd', 'global'):
         return _region_of_raw(r)
     try: _fl = int(r['flag'])
