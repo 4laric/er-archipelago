@@ -570,8 +570,16 @@ _RECOVER_PHANTOM_DUPES = frozenset({1033477020})
 # on the startGraces flag list), so the chest opens and the check stays live. Do NOT re-add it here.
 # Dropping these renumbers downstream ap-ids (needs a full regen) and removes the vanilla shuffle copy.
 _UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
+# UNPLACEABLE DLC cookbooks (2026-07-14): 8 DLC crafting cookbooks whose ItemLotParam_map lot is a
+# short/common id that does NOT encode a map (unlike the 25 DLC cookbooks we region from their lot's
+# 20XXYY/AABBxxxx map id). They are not MSB treasures, merchant sales, enemy drops, or EMEVD awards --
+# a full DLC datamine scan (msb_flag_region.tsv) never places them; they are ESD/scripted gifts we
+# can't region from primary data. Rather than strand them at a wrong Gravesite guess (which would leak
+# into Gravesite's locks/sweeps) or lie to the logic via HUB, DON'T randomize them -- they stay vanilla
+# pickups. All filler (recipe unlocks), so nothing progression-relevant is lost. (matt-diff category C.)
+_UNPLACEABLE_DLC_COOKBOOKS = frozenset({68510, 68520, 68530, 68540, 68550, 68560, 68830, 68910})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
-                | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD)
+                | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS)
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
