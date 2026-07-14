@@ -143,3 +143,8 @@ elden_ring_artifacts/
 /Archipelago/
 .ap-test/
 dist/
+
+# Dev-only region-correctness oracle (tools/dev/check_vs_matt.py) + its private thefifthmatt
+# snapshot. NEVER committed: it references his copyrighted list as a differential oracle. Keeping
+# it out of the tree keeps this repo clean-room. See tools/dev/README.md.
+tools/dev/
