@@ -35,8 +35,8 @@ Elden Ring:
   num_regions_order: rolled
 
   ending_condition: region_locks
-  #great_runes_required: 2
-  #leyndell_runes_required: 2
+  great_runes_required: 2
+  leyndell_runes_required: 2
 
   # ---- DLC ------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ Elden Ring:
   #    names and the checks around you. Do they belong to the region you were told
   #    you unlocked?
   enable_dlc: true
-  dlc_only: true
+  dlc_only: false
 
   # ---- Item pool ------------------------------------------------------------
 
