@@ -66,6 +66,24 @@ GOODS = 1
 # 0 and 6 are rare/ambiguous (24 rows) and are NEVER judged -- see the item-existence guard.
 NON_GOODS = (2, 3, 4, 5)
 
+# THE CATEGORY NIBBLE. `lotItemId` in ItemLotParam is the RAW id; the client's detour reads the
+# AddItemFunc-space **FullID** (`category nibble | raw`), which is also the id space ITEM_CATALOG uses.
+# This table used to emit the RAW id. Weapons have nibble 0x0, so raw == FullID and they suppressed
+# fine -- which is exactly why the bug hid: suppression *worked*, on a quarter of the items. Protectors,
+# talismans and GEMS (Ashes of War) never matched, so every one of them handed out the vanilla item
+# alongside the AP item. Alaric caught it on an Ash of War.
+#
+# Nibbles measured against ITEM_CATALOG, not assumed -- note GEM is 0x8, NOT 0x5 as the lotItemCategory
+# number would suggest:
+#   0x00000000 Weapon (344)   0x10000000 Protector (344)   0x20000000 Accessory (115)
+#   0x40000000 Goods  (697)   0x80000000 Gem/AoW    (88)
+CATEGORY_NIBBLE = {
+    2: 0x00000000,   # Weapon
+    3: 0x10000000,   # Protector
+    4: 0x20000000,   # Accessory
+    5: 0x80000000,   # Gem -- Ash of War
+}
+
 
 def build():
     out = {"placeholder_goods": AP_PLACEHOLDER_GOODS, "map": {}, "enemy": {}, "items": {}}
@@ -96,8 +114,9 @@ def build():
                     if cat == GOODS:
                         slots.append(i)
                     elif cat in NON_GOODS:
-                        # weapon/armor/talisman/AoW -> id-keyed suppression (checkItemFlags)
-                        ids.append(iid)
+                        # weapon/armor/talisman/AoW -> id-keyed suppression (checkItemFlags), keyed by
+                        # the FullID the detour actually sees. See CATEGORY_NIBBLE.
+                        ids.append(CATEGORY_NIBBLE[cat] | iid)
                 if slots:
                     out[key][str(flag)] = {"lot": lot, "slots": slots}
                 if ids:
@@ -105,7 +124,42 @@ def build():
                     for i in ids:
                         if i not in out["items"][str(flag)]:
                             out["items"][str(flag)].append(i)
+    _assert_ids_are_real_items(out)
     return out
+
+
+def _assert_ids_are_real_items(out):
+    """Every id-keyed suppression entry must be an item the game actually HAS.
+
+    This is the guard that would have caught the raw-vs-FullID bug the day it shipped. The client
+    suppresses a pickup by matching the detour's FullID against these keys; an id in the wrong encoding
+    simply never matches, and a suppressor that never fires looks EXACTLY like a suppressor with nothing
+    to do. It logged "ARMED for 865 check item ids" while quietly leaking every Ash of War.
+
+    ITEM_CATALOG is generated, tracked, and in the FullID space -- so it is the oracle. If most of what
+    we emit is not in it, we are emitting nonsense; fail rather than ship a table that silently no-ops.
+    """
+    import re
+
+    src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
+    text = open(src, encoding="utf-8").read()
+    known = {int(m.group(1)) for m in re.finditer(r"'[^']+'\s*:\s*(\d+),", text)}
+    if not known:
+        raise SystemExit("FATAL: could not read ITEM_CATALOG from %s -- cannot validate the encoding" % src)
+
+    emitted = {i for ids in out["items"].values() for i in ids}
+    if not emitted:
+        return
+    hits = len(emitted & known)
+    frac = hits / len(emitted)
+    print("id-encoding check: %d/%d (%.1f%%) of the id-keyed suppressions are real ITEM_CATALOG items"
+          % (hits, len(emitted), 100.0 * frac))
+    if frac < 0.80:
+        raise SystemExit(
+            "FATAL: only %.1f%% of the emitted suppression ids exist in ITEM_CATALOG. They are almost\n"
+            "certainly in the wrong id space -- lotItemId is RAW, the client's detour reads the FullID\n"
+            "(category nibble | raw). A table in the wrong space does not error, it just never matches,\n"
+            "and every vanilla item leaks alongside the AP one. See CATEGORY_NIBBLE." % (100.0 * frac))
 
 
 def main():
