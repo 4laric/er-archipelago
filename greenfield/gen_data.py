@@ -363,7 +363,13 @@ _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"),encoding="
 #     15 real).
 # So tag from what the game GRANTS, not from what we named the check. Same doctrine as the region
 # work: derive the datum, don't pattern-match the label. (CONTRIBUTING: Provenance.)
-_LOT_CAT = {"0": 4, "1": 4, "2": 0, "3": 1, "4": 2, "5": 8}   # lotItemCategory -> FullID top nibble
+# lotItemCategory -> FullID top nibble. Category 6 (SPELLS: "[Sorcery] Rancorcall", "[Incantation]
+# Golden Vow") was MISSING here, and 0/6 were documented as "ambiguous, NEVER judged". They are not
+# ambiguous -- they were never derived. tools/gen_check_lots_table.py now votes this mapping out of
+# ItemLotParam x ITEM_CATALOG and reports 6 -> 0x40000000 (goods; spells carry the goods nibble),
+# 0 -> 0x40000000 (Gravel Stone / Golden Rune / Glintstone Scrap). Recorded here as the derived fact.
+_LOT_CAT = {"0": 4, "1": 4, "2": 0, "3": 1, "4": 2, "5": 8, "6": 4}   # lotItemCategory -> FullID top nibble
+_LOT_CAT_GOODS = frozenset(k for k, v in _LOT_CAT.items() if v == 4)  # the categories that blank AT THE LOT
 def _build_lot_items():
     _out = defaultdict(set)
     _dir = os.path.join(AR, "vanilla_er", "vanilla_er")
@@ -561,7 +567,8 @@ def _is_mausoleum_dupe(r):
 # Derived, not pinned: the universe of named items comes from the FMGs, so a future cut row is dropped
 # automatically. Conservative by construction:
 #   * a check is dropped ONLY if it HAS lot items and NOT ONE of them is named (a mixed lot survives);
-#   * lotItemCategory 0 and 6 (24 rows total, ambiguous) are NEVER judged -- treated as named;
+#   * lotItemCategory 0 and 6 are GOODS (derived 2026-07-14; they were previously documented as
+#     "ambiguous, NEVER judged", which silently leaked every check behind them -- see _LOT_CAT);
 #   * weapons fold +N -> base ((id // 100) * 100), or every upgraded weapon would read as unnamed.
 #     Getting this wrong is not theoretical: an earlier pass of this analysis missed the *_dlc01/_dlc02
 #     name tables and "found" 893 dead checks, 662 of which Bedrock also has. The whole DLC looked like
@@ -2284,7 +2291,20 @@ for _fn, _dst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP),
                 # GOODS slots only. Weapon/armor check wares are left to the id-keyed suppressor, which
                 # is already SOUND for them (a weapon is essentially never farmable, so it lives in the
                 # check-only set and cannot eat a legitimate source).
-                if _iid > 0 and _cat == 1 and _iid != AP_PLACEHOLDER_GOODS:
+                # GOODS BY NIBBLE, not by a magic `== 1`. This read `_cat == 1`, so lotItemCategory
+                # 0 and 6 -- both GOODS -- were skipped, and the checks behind them handed out their
+                # vanilla ware forever. It cannot be fixed by the id-keyed suppressor either: those
+                # wares are FARMABLE goods (Golden Rune, Gravel Stone, Glintstone Scrap, spells), and
+                # check_item_flags correctly refuses to id-suppress a farmable id (it would eat every
+                # legitimate copy). The lot blank is the ONLY mechanism that can work for them, and this
+                # line was the door it was locked behind. 13 checks; found 2026-07-14.
+                if _iid > 0 and _iid != AP_PLACEHOLDER_GOODS and str(_cat) not in _LOT_CAT:
+                    raise SystemExit(
+                        "FATAL: lotItemCategory %d is not in _LOT_CAT (lot %d, slot %d, item %d). An "
+                        "unknown category used to be SKIPPED, which silently leaks every check behind "
+                        "it. Derive its nibble (tools/gen_check_lots_table.py votes it) and add it."
+                        % (_cat, _lot, _i, _iid))
+                if _iid > 0 and str(_cat) in _LOT_CAT_GOODS and _iid != AP_PLACEHOLDER_GOODS:
                     _sl.append(_i)
             if _sl:
                 _dst[_lot] = _sl
