@@ -13,8 +13,9 @@ Two halves:
 Baseline THIS tree (main 5547b33, measured 2026-07-14 -- encode it so a regression that ADDS an
 uncovered location fails here):
   * detection / region / quarantine violations: **0** in every scope.
-  * suppression violations: exactly BASELINE_SUPPRESSION_APS (6 REAL holes the re-derived gate
-    found on day one) -- ware-bearing checks whose flags appear in NO ItemLotParam row of
+  * suppression violations: NONE. BASELINE_SUPPRESSION_APS is empty and must stay empty --
+    its 6 debut holes were FIXED on 2026-07-14 (lotItemCategory 0/6 are GOODS; the lot blank was the
+    only mechanism that could suppress a farmable ware, and an abstention had closed it).
     check_lots_table.json (EMEVD-award or unjudged lotItemCategory-0/6 rows), whose wares are
     farmable REPEATABLE_GOODS, so features/check_item_flags.py correctly declines id-keyed
     suppression: the vanilla ware double-dips at these checks. They are deliberately NOT in
@@ -38,16 +39,22 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # --- the encoded baseline (this tree) ---------------------------------------------------------
 BASELINE_TOTAL_LOCATIONS = 4844
 BASELINE_SHOP_CHECKS = 562
-# The 6 known suppression holes (see module docstring). ap_id -> region (so scoped runs can
-# subset). All FILLER-class farmable goods; leak = a vanilla double-dip, not a softlock.
-BASELINE_SUPPRESSION_APS = {
-    7772417: "Altus",         # Glintstone Scrap [f32057900]
-    7771533: "Farum Azula",   # Gravel Stone [f13007280]
-    7771661: "Haligtree",     # Golden Rune [1] [f15001250]
-    7771662: "Haligtree",     # Golden Rune [1] [f15001260]
-    7771665: "Haligtree",     # Golden Rune [1] [f15001290]
-    7774057: "Haligtree",     # Golden Rune [1] [f15001210]
-}
+# EMPTY, and it must stay that way. ap_id -> region (so scoped runs can subset).
+#
+# This held the 6 suppression holes the gate found on debut -- Glintstone Scrap, Gravel Stone, and four
+# Golden Runes. They are FIXED (2026-07-14), not accepted:
+#
+#   Their wares are FARMABLE goods, so check_item_flags correctly refuses to suppress them by id (it
+#   would eat every legitimate copy the player ever picks up). The LOT BLANK was the only mechanism that
+#   could ever work for them -- and it was locked behind `_cat == 1` in gen_data plus a "lotItemCategory
+#   0 and 6 are ambiguous, NEVER judged" comment. They were never ambiguous; they were never DERIVED.
+#   Both categories are GOODS (voted out of ItemLotParam x ITEM_CATALOG). Three suppression mechanisms,
+#   and the abstention closed the only door that applied.
+#
+# So this is now the assertion that the fix STAYS fixed. A new entry here is not bookkeeping -- it is a
+# check that hands the player its vanilla ware alongside the Archipelago item, in every seed, silently.
+# Fix the mechanism. Do not pin the symptom.
+BASELINE_SUPPRESSION_APS = {}
 
 
 def _path_load(modname):
