@@ -130,6 +130,14 @@ AUTHORITATIVE_REPIN = {
     510200: "Haligtree",                 # Remembrance of the Rot Goddess -- Malenia
     510300: "Caelid",                    # Remembrance of the Starscourge -- Radahn
 }
+# THE FINALE: the m11_05 lots + the Ashen boss rewards belong to the conditional finale region
+# (gen_data.region_of routes them there before any label/map path). DERIVED from data.py itself --
+# never a second hand list -- so the oracle and the emission cannot drift; test_gf_finale.py pins
+# the membership to the ground-truth flag set.
+_d_fin = _load_data()
+AUTHORITATIVE_REPIN.update({int(_f): _d_fin.FINALE_REGION
+                            for (_n, _a, _f) in _d_fin.LOCATIONS.get(_d_fin.FINALE_REGION, ())})
+del _d_fin
 
 
 class RegionCorrectness(unittest.TestCase):

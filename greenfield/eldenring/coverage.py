@@ -140,8 +140,16 @@ REGION_FLAG_LO, REGION_FLAG_HI = 71000, 76999
 _GOODS_CATEGORY = 0x40000000
 _ROW_ID_MASK = 0x0FFFFFFF
 
+# "event_award_unsuppressable" is the DETECT-ONLY class (data.GESTURE_AWARD_FLAGS): the ware is
+# awarded by an EMEVD instruction (AwardGesture), not an ItemLotParam row, so the pure-runtime
+# client can neither blank a lot nor intercept the grant (the AddItemFunc detour is its only item
+# hook and AwardGesture bypasses it -- verified by code absence in the ER client, 2026-07-14). The
+# player keeps learning the vanilla gesture; the check itself fires via the flag poll. It is a
+# SANCTIONED kind so the gate stays green, and an EXPLICIT one so the class stays visible in the
+# mechanism mix -- never silently folded into "no ware".
 SUPPRESS_KINDS = ("lot_blank_map", "lot_blank_enemy", "static_item_ids",
-                  "client_intercept", "shop_stock", "vanilla_identical")
+                  "client_intercept", "shop_stock", "vanilla_identical",
+                  "event_award_unsuppressable")
 
 
 def region_open_flag_valid(flag) -> bool:
@@ -278,6 +286,18 @@ def build_coverage(world=None, kept=None, _static_table=None):
         scope_kept = list(kept) if kept is not None else list(data.REGIONS)
         placements = {}
     scope = [HUB] + [r for r in scope_kept if r != HUB]
+    # THE FINALE (data.FINALE_REGION): a conditional, never-rollable region features/finale.py
+    # creates iff every FINALE_REQUIRES member is kept. Same predicate here (mirrors
+    # features.finale.finale_active; test_gf_finale pins the two together) so the gate sees the
+    # finale checks exactly when the seed emits them -- a region the gate cannot see is a region
+    # the gate cannot protect.
+    FINALE_REGION = getattr(data, "FINALE_REGION", None)
+    FINALE_REQUIRES = tuple(getattr(data, "FINALE_REQUIRES", ()))
+    finale_on = bool(FINALE_REGION and LOCATIONS.get(FINALE_REGION)
+                     and set(FINALE_REQUIRES) <= set(scope_kept))
+    if finale_on:
+        scope.append(FINALE_REGION)
+    GESTURE_AWARD_FLAGS = dict(getattr(data, "GESTURE_AWARD_FLAGS", {}))
 
     # ---- the client tables the gen EMITS (live) or their derivation (static) -------------------
     K_LOC = getattr(contract, "LOCATION_FLAGS", "locationFlags") if contract else "locationFlags"
@@ -379,6 +399,13 @@ def build_coverage(world=None, kept=None, _static_table=None):
             rec.vanilla_full = int(ITEM_CATALOG[vn]) if vn is not None and vn in ITEM_CATALOG else None
             if rec.vanilla_full is not None:
                 rec.provenance["vanilla_item"] = "item_ids.py"
+            if flag in GESTURE_AWARD_FLAGS:
+                # detect-only gesture pickup: the ware (the gesture's linked goods) is deliberately
+                # NOT in ITEM_CATALOG/LOCATION_ITEM (no verified client grant path), but the gate
+                # must still SEE it -- "no ware" would be the silent fold this class forbids.
+                _gid, _gfull, _gname = GESTURE_AWARD_FLAGS[flag]
+                rec.vanilla_item, rec.vanilla_full = _gname, int(_gfull)
+                rec.provenance["vanilla_item"] = "data.GESTURE_AWARD_FLAGS"
             pf = placements.get(ap_id)
             if pf is not None:
                 rec.placed_item, rec.placed_full = pf
@@ -388,7 +415,8 @@ def build_coverage(world=None, kept=None, _static_table=None):
             rec.suppress_kind = _classify_suppression(
                 rec, flag, static_map, static_enemy, static_items,
                 emitted_blank_lots_map, emitted_blank_lots_enemy,
-                emitted_check_item_flags, SHOP_ROW_FLAGS, SHOP_ROW_IDS, cif_src)
+                emitted_check_item_flags, SHOP_ROW_FLAGS, SHOP_ROW_IDS, cif_src,
+                gesture_flags=frozenset(GESTURE_AWARD_FLAGS))
             rec.static_suppress = (flag in static_map or flag in static_enemy
                                    or flag in static_items or ap_id in SHOP_ROW_FLAGS)
 
@@ -409,6 +437,9 @@ def build_coverage(world=None, kept=None, _static_table=None):
 
     ctx = {
         "scope": scope, "kept": scope_kept, "hub": HUB,
+        "GESTURE_AWARD_FLAGS": GESTURE_AWARD_FLAGS,
+        "FINALE_REGION": FINALE_REGION if finale_on else None,
+        "FINALE_REQUIRES": FINALE_REQUIRES,
         "REGION_OPEN_FLAGS": REGION_OPEN_FLAGS,
         "REGION_PLAY_IDS": REGION_PLAY_IDS,
         "DUNGEON_SWEEPS": DUNGEON_SWEEPS, "SWEEP_REGION": SWEEP_REGION,
@@ -457,7 +488,7 @@ def _is_filler_location(rec, contract):
 
 def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
                           blank_lots_map, blank_lots_enemy, check_item_flags,
-                          shop_flag_by_ap, shop_rows_by_ap, cif_src):
+                          shop_flag_by_ap, shop_rows_by_ap, cif_src, gesture_flags=frozenset()):
     """Resolve suppress_kind, in mechanism order:
       shop purchase -> lot blank (static flag->lot row AND the lot actually emitted in
       checkLotBlankMap/Enemy) -> static id-keyed (weapon/armor) -> per-seed checkItemFlags
@@ -465,6 +496,11 @@ def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
     if rec.ap_id in shop_flag_by_ap and shop_rows_by_ap.get(rec.ap_id):
         rec.provenance["suppress"] = "shop_data.py (purchase IS the vanilla delivery)"
         return "shop_stock"
+    if flag in gesture_flags:
+        rec.provenance["suppress"] = ("data.GESTURE_AWARD_FLAGS (EMEVD AwardGesture -- no lot to "
+                                      "blank, no grant the detour sees; the vanilla gesture is "
+                                      "unsuppressable BY DESIGN and this class says so out loud)")
+        return "event_award_unsuppressable"
     ent = static_map.get(flag)
     if ent is not None and int(ent.get("lot", -1)) in blank_lots_map:
         rec.provenance["suppress"] = "check_lots_table.json[map] + checkLotBlankMap"
@@ -544,10 +580,18 @@ def check_award_source(records, ctx):
     out = []
     sm, se, si = ctx["static_map"], ctx["static_enemy"], ctx["static_items"]
     shop_flag_by_ap = ctx["shop_flag_by_ap"]
+    gestures = ctx.get("GESTURE_AWARD_FLAGS", {})
     for rec in records.values():
         if rec.detect_kind == "shop_stock_flag" or rec.ap_id in shop_flag_by_ap:
             continue
         f = rec.detect_flag
+        if f in gestures:
+            # EMEVD-awarded: common_func $Event(90005570) does AwardGesture(gestureParamId) then
+            # SetEventFlagID(eventFlagId, ON) -- the game DOES set this flag, just not through an
+            # ItemLotParam row (gen_data._gesture_derive asserts the flag is OUTSIDE the lot/shop
+            # award universe, which is precisely why it is absent from check_lots_table.json).
+            rec.provenance["award"] = "data.GESTURE_AWARD_FLAGS (EMEVD SetEventFlagID)"
+            continue
         if f in sm or f in se or f in si:
             continue
         out.append(Violation(rec.ap_id, rec.name, "award",
@@ -603,11 +647,31 @@ def check_region_consistency(records, ctx):
                                  "region claims disagree across source files: "
                                  + repr(rec.region_claims), rec.provenance))
 
-    # (2) every region with >=1 emitted location has a valid open flag AND measured kick geometry
+    # (2) every region with >=1 emitted location has a valid open flag AND measured kick geometry.
+    #     THE FINALE region has NEITHER of its own, BY DESIGN: it is never rollable, has no Lock
+    #     item, and its maps' kick buckets (11050 + 19000) are measured into Leyndell's
+    #     REGION_PLAY_IDS (region_groups.py). So its enforcement is DELEGATED: assert every
+    #     FINALE_REQUIRES member passes this same check instead -- a delegation to a region that
+    #     itself has no lock/geometry would be the Weeping bug wearing a new name.
     emitted_regions = {rec.region for rec in records.values()}
     hub = ctx["hub"]
+    finale_region = ctx.get("FINALE_REGION")
     for region in sorted(emitted_regions):
         if region == hub:
+            continue
+        if finale_region is not None and region == finale_region:
+            prov = {"delegation": "data.FINALE_REQUIRES", "geometry": "region_groups.py (11050+19000 in Leyndell)"}
+            for req in ctx.get("FINALE_REQUIRES", ()):
+                of = ROF.get(req)
+                if of is None or not region_open_flag_valid(of):
+                    out.append(Violation(None, f"<region {region}>", "region",
+                                         f"finale region {region!r} delegates its lock to {req!r}, "
+                                         f"whose open flag {of!r} is missing/invalid -- the finale "
+                                         f"would be unenforceable", prov))
+                if not RPI.get(req):
+                    out.append(Violation(None, f"<region {region}>", "region",
+                                         f"finale region {region!r} delegates its kick geometry to "
+                                         f"{req!r}, which has NO measured REGION_PLAY_IDS", prov))
             continue
         of = ROF.get(region)
         prov = {"region_open_flag": "region_open_flags.py", "geometry": "region_play_ids.py"}

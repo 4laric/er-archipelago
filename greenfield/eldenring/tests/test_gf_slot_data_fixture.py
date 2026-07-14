@@ -154,9 +154,10 @@ class SlotDataFixtureRich(WorldTestBase):
             self.assertIsInstance(v, int)
         # locationFlags: stringified-int keys -> SCALAR int values now; cover every hub+kept location.
         kept = list(self.world._kept())
-        expected_locs = sum(len(LOCATIONS.get(r, [])) for r in [HUB] + kept)
+        expected_locs = (sum(len(LOCATIONS.get(r, [])) for r in [HUB] + kept)
+                         + len(getattr(self.world, "gf_extra_locations", ())))  # feature-owned (finale)
         self.assertEqual(len(sd["locationFlags"]), expected_locs,
-                         "locationFlags must cover every hub+kept location")
+                         "locationFlags must cover every hub+kept location (+ feature-owned)")
         for k, v in sd["locationFlags"].items():
             self.assertEqual(k, str(int(k)))
             self.assertIsInstance(v, int)

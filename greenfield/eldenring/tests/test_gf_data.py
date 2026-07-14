@@ -49,8 +49,11 @@ class GreenfieldDataInvariants(unittest.TestCase):
         self.assertTrue(all(isinstance(x, str) and x for x in r))
 
     def test_location_keys_match_hub_plus_regions(self):
-        self.assertEqual(set(self.d.LOCATIONS), set([self.d.HUB]) | set(self.d.REGIONS),
-                         "LOCATIONS keys must be exactly HUB + every region")
+        # + FINALE_REGION: the conditional Ashen Capital bucket (never rollable, so never in
+        # REGIONS; created per-seed by features/finale.py -- see test_gf_finale.py).
+        self.assertEqual(set(self.d.LOCATIONS),
+                         set([self.d.HUB]) | set(self.d.REGIONS) | {self.d.FINALE_REGION},
+                         "LOCATIONS keys must be exactly HUB + every region + the finale bucket")
 
     def test_every_region_has_at_least_one_location(self):
         empty = [r for r in self.d.REGIONS if not self.d.LOCATIONS.get(r)]

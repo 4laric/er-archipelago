@@ -434,6 +434,11 @@ class GreenfieldEldenRingWorld(World):
             pool += f.create_items(self)
         self._gf_reserved_slots = len(pool)
         total = len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
+        # FEATURE-OWNED LOCATIONS (documented seam): a feature that creates locations beyond
+        # LOCATIONS[HUB + kept] declares them in world.gf_extra_locations (generate_early) and
+        # contributes exactly one pool item per entry from its create_items -- features/finale.py
+        # is the model. Counting them here is what keeps items == locations when they exist.
+        total += len(getattr(self, "gf_extra_locations", ()))
         slots = total - len(pool)
         shuffle = self._shuffle_on()
         required = set(self._required_runes())
@@ -711,6 +716,11 @@ class GreenfieldEldenRingWorld(World):
                 # NOT a list; a [flag] value parsed to EMPTY -> no detection table -> checks never
                 # registered and goal was checked-fallback (2026-07-06). One flag per location.
                 loc_flags[str(ap_id)] = flag
+        # FEATURE-OWNED LOCATIONS (documented seam, pairs with create_items above): without this
+        # merge a feature-created location is undetectable -- the flag poll never registers it and
+        # the coverage gate's detection check fires (which is exactly how a missed merge is caught).
+        for ap_id, flag in getattr(self, "gf_extra_location_flags", {}).items():
+            loc_flags[str(ap_id)] = int(flag)
         region_open = {f"{r} Lock": REGION_OPEN_FLAGS[r] for r in kept if r in REGION_OPEN_FLAGS}
         versions = contract.version_string(self._data_inputs_hash())
         required = self._required_runes()

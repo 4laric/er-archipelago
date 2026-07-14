@@ -225,7 +225,8 @@ class AnchorRolledSweep(WorldTestBase):
             self.assertGreaterEqual(COUNTS[region], floor, f"seed {seed}: anchor below base floor")
             # count-neutral: location-payers == locations (the precollected lock left the pool and
             # its freed slot became filler).
-            total = len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
+            total = (len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
+                     + len(getattr(self.world, "gf_extra_locations", ())))  # feature-owned (finale)
             self.assertEqual(len(world_pool_items(self)), total,
                              f"seed {seed}: pool not count-neutral after the anchor precollect")
 

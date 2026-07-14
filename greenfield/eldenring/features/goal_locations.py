@@ -7,18 +7,25 @@ that also appears in `locationFlags` is detected LOCAL-FIRST by its guarding van
 detection table falls back to the server-truth checked set. An EMPTY `goalLocations` can never be
 met, which is the bug in the connect log ("goalLocations empty -- this slot can NEVER send Goal").
 
-THE GOAL IS THE TERMINAL REGION OF THE CHAIN -- the DEEPEST KEPT region by spine rank -- never a
-hardcoded region. (Ruling 2026-07-14: "victory should be clear the terminal region of the chain, if
-there's always a terminal region and major boss. if not it can be kill all the major bosses of the
-terminal regions.") The predecessor of this file preferred GOAL_REGION whenever it was kept, and
-GOAL_REGION (Leyndell) is ALWAYS kept on a base seed, so every base seed's goal collapsed to the one
-Leyndell arena entry -- Morgott -- and the client sent Goal (and released every check) the moment he
-died, however deep the rest of the chain ran. That is the 2026-07-14 playtest bug. (The docstring
-here also used to promise Hoarah Loux and the Elden Beast as goal locations; neither exists as a
-location in data.py/boss_data.py -- Leyndell's REGION_BOSSES entry is exactly one Remembrance of the
-Omen King check. test_gf_goal_terminal holds this file's claims to account now.)
+THE GOAL IS THE GAME'S REAL TERMINUS WHEN IT EXISTS, ELSE THE TERMINAL REGION OF THE CHAIN --
+never a hardcoded region.
+
+Tier 0, THE FINALE (ruling 2026-07-14): when the conditional finale region exists this seed --
+data.FINALE_REGION ('Ashen Capital'), created by features/finale.py iff every FINALE_REQUIRES
+region (Farum Azula + Leyndell) is kept -- its major bosses ARE the goal: Godfrey/Hoarah Loux
+(f510070) and the Elden Beast (f510230), the game's actual final bosses, now real locations in
+data.py/boss_data.py (REGION_BOSSES['Ashen Capital']). The Ashen Capital is the game's real
+terminus even though Farum Azula outranks Leyndell in SPINE, so tier 0 outranks the spine walk.
+When the finale is not active, the ladder below decides, exactly as before.
+
+(History, both bugs guarded by test_gf_goal_terminal: the predecessor preferred GOAL_REGION
+whenever kept, and GOAL_REGION (Leyndell) is ALWAYS kept on a base seed, so every base seed's goal
+collapsed to Morgott and the client sent Goal the moment he died -- the 2026-07-14 playtest bug.
+An older docstring promised Hoarah Loux and the Elden Beast as goal locations while neither was a
+location at all; as of the finale revival that promise is finally TRUE, and conditional.)
 
 Resolution ladder (each tier total, deterministic, and derived -- no hand list):
+  0. THE FINALE's major bosses, iff features/finale.py created the finale region this seed.
   1. MAJOR BOSSES OF THE DEEPEST KEPT REGION THAT HAS ANY, walking down from the deepest kept
      region by SPINE rank. MajorBoss membership is LOCATION_TAGS (= REGION_BOSSES arena majors
      UNION the curated MAJOR_BOSS_EXTRAS field majors -- so a Sewer-terminal seed ends on Mohg the
@@ -36,15 +43,19 @@ great_runes ending: the rune requirement rides `great_rune_items` (core._base_sl
 client's goal.rs reads; this feature emits ONLY goalLocations (merge_slot_data raises on duplicate
 top-level keys).
 
-Invariants promised here and enforced by tests/test_gf_goal_terminal.py:
+Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_gf_finale.py:
   * goalLocations is never empty;
-  * every goalLocations id lives in the DEEPEST kept region carrying them (never Leyndell-by-
-    preference: a seed keeping a region deeper than Leyndell must not goal on Morgott);
-  * every id belongs to a kept region's location set.
+  * when the finale is active, goalLocations is exactly the finale's MajorBoss set;
+  * otherwise every goalLocations id lives in the DEEPEST kept region carrying them (never
+    Leyndell-by-preference: a seed keeping a region deeper than Leyndell must not goal on Morgott);
+  * every id belongs to a location set that exists this seed (a kept region's, or the active
+    finale region's).
 """
 from ..registry import Feature, register
 from .. import contract
 from ..region_spine import SPINE
+from ..data import FINALE_REGION
+from .finale import finale_active
 
 try:
     from ..boss_data import REGION_BOSSES
@@ -85,9 +96,14 @@ def _by_depth(kept):
 
 
 def terminal_goal_ids(kept):
-    """(region, ids) for the goal: tier 1 = majors of the deepest kept region that has any; tier 2 =
-    the deepest kept region's non-missable checks. ids may be empty only if tier 2 is too (caller
+    """(region, ids) for the goal: tier 0 = the finale's majors iff the finale exists for `kept`
+    (see module docstring); tier 1 = majors of the deepest kept region that has any; tier 2 = the
+    deepest kept region's non-missable checks. ids may be empty only if tier 2 is too (caller
     raises)."""
+    if finale_active(kept):
+        ids = _major_boss_ids(FINALE_REGION)
+        if ids:                       # defensive: a finale with no majors falls to the spine walk
+            return FINALE_REGION, ids
     ordered = _by_depth(kept)
     for region in ordered:
         ids = _major_boss_ids(region)

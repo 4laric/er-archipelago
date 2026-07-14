@@ -86,6 +86,11 @@ class NoPhantomFlags(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("_gfdata", os.path.join(GF_PKG, "data.py"))
         data = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(data)
+        # DERIVED gesture pickups (data.GESTURE_AWARD_FLAGS) are EMEVD-allocated: their existence
+        # proof is the common-event call site (common_func $Event(90005570); gen_data's
+        # _gesture_derive re-scans it and hard-fails on drift), NOT a param row -- the param
+        # universe above is by construction blind to them.
+        universe |= set(getattr(data, "GESTURE_AWARD_FLAGS", ()))
 
         phantoms = []
         total = 0

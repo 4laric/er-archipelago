@@ -19,6 +19,10 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from worlds.eldenring.region_spine import SPINE, GOAL_REGION, compute_kept, base_regions, dlc_regions  # noqa: E402
 from worlds.eldenring.features.goal_locations import terminal_goal_ids, _major_boss_ids, _by_depth  # noqa: E402
+from worlds.eldenring.features.finale import finale_active  # noqa: E402
+from worlds.eldenring.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
+
+FINALE_IDS = set(_major_boss_ids(FINALE_REGION))
 
 GAME = "Elden Ring"
 MORGOTT_IDS = set(_major_boss_ids(GOAL_REGION))
@@ -26,14 +30,21 @@ MORGOTT_IDS = set(_major_boss_ids(GOAL_REGION))
 
 class TestTerminalGoalPure:
     def test_deeper_kept_region_beats_leyndell(self):
-        # every base spine suffix deeper than Leyndell must out-rank the capital as the terminal.
+        # every base spine suffix deeper than Leyndell must out-rank the capital as the terminal --
+        # EXCEPT when the kept set completes the finale prerequisites (Farum Azula + Leyndell),
+        # where tier 0 takes over and the goal is the game's real terminus (the Ashen Capital).
         leyndell_rank = SPINE.index(GOAL_REGION)
         deeper = [r for r in base_regions() if SPINE.index(r) > leyndell_rank and _major_boss_ids(r)]
         assert deeper, "spine data lost its deeper-than-Leyndell majors; test basis broken"
         for r in deeper:
-            region, ids = terminal_goal_ids({GOAL_REGION, "Altus", r})
-            assert region == r, f"terminal must be {r}, got {region}"
-            assert set(ids) == set(_major_boss_ids(r))
+            kept = {GOAL_REGION, "Altus", r}
+            region, ids = terminal_goal_ids(kept)
+            if finale_active(kept):
+                assert r == "Farum Azula", f"finale unexpectedly active for kept {sorted(kept)}"
+                assert region == FINALE_REGION and set(ids) == FINALE_IDS
+            else:
+                assert region == r, f"terminal must be {r}, got {region}"
+                assert set(ids) == set(_major_boss_ids(r))
             assert set(ids) != MORGOTT_IDS
 
     def test_leyndell_terminal_only_when_deepest(self):
@@ -50,9 +61,13 @@ class TestTerminalGoalPure:
             kept = compute_kept(n, "rolled", rng, pool)
             region, ids = terminal_goal_ids(set(kept))
             assert ids, f"empty goal for kept {sorted(kept)}"
-            assert region in kept
-            kept_ap_ids = {aid for r in kept for (_n, aid, _f) in LOCATIONS.get(r, ())}
-            assert set(ids) <= kept_ap_ids, "goal ids must live in kept regions"
+            if finale_active(kept):
+                # tier 0: the finale region exists this seed (features/finale.py) and IS the goal.
+                assert region == FINALE_REGION and set(ids) == FINALE_IDS
+            else:
+                assert region in kept
+                kept_ap_ids = {aid for r in kept for (_n, aid, _f) in LOCATIONS.get(r, ())}
+                assert set(ids) <= kept_ap_ids, "goal ids must live in kept regions"
 
     def test_every_region_currently_carries_a_major(self):
         # As of the 2026-07 "4 new region majors" regen every region has a MajorBoss-tagged check,
@@ -78,18 +93,19 @@ class TestTerminalGoalPure:
 
 
 class GoalDeepSpineSeed(WorldTestBase):
-    """Full base spine kept (num_regions 0, DLC off): the terminal region is Farum Azula (deepest
-    base region), so the emitted goal must be its majors -- NOT Morgott."""
+    """Full pool kept (num_regions 0): Farum Azula AND Leyndell are both kept, so THE FINALE exists
+    and IS the goal -- Godfrey/Hoarah Loux + the Elden Beast, the game's real terminus. NOT Morgott,
+    and NOT Farum Azula's majors (the ruling 2026-07-14: the Ashen Capital outranks the spine)."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0}
 
-    def test_goal_is_terminal_not_morgott(self):
+    def test_goal_is_the_finale_not_morgott(self):
         sd = self.world.fill_slot_data()
         got = set(sd["goalLocations"])
         kept = set(self.world._kept())
-        deepest_with_major = next(r for r in _by_depth(kept) if _major_boss_ids(r))
-        assert got == set(_major_boss_ids(deepest_with_major))
+        assert finale_active(kept), "num_regions 0 must keep every finale prerequisite"
+        assert got == FINALE_IDS, "with the finale active the goal must be its major bosses"
         assert got != MORGOTT_IDS, \
             "goal collapsed to Morgott on a seed keeping regions deeper than Leyndell"
         assert got, "goalLocations may never be empty"

@@ -436,6 +436,7 @@ ITEM_TIERS = {
     'Erdtree Seal': 3,
     "Erdtree's Favor": 3,
     "Erdtree's Favor +1": 3,
+    "Erdtree's Favor +2": 3,
     'Errant Sorcerer Boots': 1,
     'Errant Sorcerer Manchettes': 1,
     'Errant Sorcerer Robe (Altered)': 1,
@@ -1023,6 +1024,7 @@ ITEM_TIERS = {
     'Scaled Helm': 3,
     'Scarlet Aeonia': 2,
     "Scavenger's Curved Sword": 2,
+    'Scepter of the All-Knowing': 0,
     'Scimitar': 1,
     'Scorpion Kite Shield': 1,
     "Scorpion's Stinger": 1,
@@ -1639,6 +1641,7 @@ ITEM_TIER_CATEGORY = {
     'Erdtree Seal': 'WEAPON',
     "Erdtree's Favor": 'TALISMAN',
     "Erdtree's Favor +1": 'TALISMAN',
+    "Erdtree's Favor +2": 'TALISMAN',
     'Errant Sorcerer Boots': 'ARMOR',
     'Errant Sorcerer Manchettes': 'ARMOR',
     'Errant Sorcerer Robe (Altered)': 'ARMOR',
@@ -2226,6 +2229,7 @@ ITEM_TIER_CATEGORY = {
     'Scaled Helm': 'ARMOR',
     'Scarlet Aeonia': 'SPELL',
     "Scavenger's Curved Sword": 'WEAPON',
+    'Scepter of the All-Knowing': 'WEAPON',
     'Scimitar': 'WEAPON',
     'Scorpion Kite Shield': 'WEAPON',
     "Scorpion's Stinger": 'WEAPON',
@@ -2407,4 +2411,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:3ede554b65a6daf76d89e62f5800430b84fff3c744912f47f601441e4c81a4a1', 'module': 'item_tiers.py', 'body_sha256': 'sha256:6886910f8516649bdb906118a089d6fed37ed1b3504a80852e3227590b1130cb'}
+_GEN_STAMP = {'inputs_hash': 'sha256:894e8a74102e62300e00375a7be4348a33b52388d990899b51fbbbb8304e5f7d', 'module': 'item_tiers.py', 'body_sha256': 'sha256:3e309defa08a1cf0eeb3cd92ef94884eb8676bc3aa87ab20c117752af6e53ea2'}
