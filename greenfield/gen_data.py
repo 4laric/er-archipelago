@@ -694,6 +694,64 @@ def _item_exists(r):
     if not _items: return True                          # no lot (shop / emevd grant) -> not ours to judge
     return any(_item_is_named(_i, _c) for _i, _c in _items)
 
+import unicodedata as _UD
+# _ET / _MSG* / _NAME_FMGS / _NAME_FMGS-derived maps: ONE copy, reused by the item_ids emission and
+# the tier-list augmentation far below (a second copy is exactly how the DLC name tables get
+# forgotten by one of the consumers). Uses the _NAME_FMGS list hoisted above the ITEM-EXISTENCE
+# GUARD.
+def _norm(_s):                                   # collapse internal whitespace
+    return re.sub(r"\s+", " ", _s).strip()
+def _fold(_s):                                   # accent-insensitive, case-insensitive key
+    _s = _UD.normalize("NFKD", _norm(_s))
+    return "".join(_c for _c in _s if not _UD.combining(_c)).casefold()
+_name2full = {}        # exact display name -> FullID (first/higher-priority category wins)
+_norm2full = {}; _norm2name = {}    # normalized name -> FullID / canonical display name
+_fold2full = {}; _fold2name = {}    # folded name     -> FullID / canonical display name
+for _fn, _nib, _dir in _NAME_FMGS:
+    _p = os.path.join(_dir, _fn)
+    if not os.path.exists(_p):
+        continue
+    for _t in _ET.parse(_p).getroot().iter("text"):
+        _nm = (_t.text or "").strip(); _iid = _t.get("id")
+        if not _nm or _nm in ("[ERROR]", "%null%") or not _iid:
+            continue
+        _full = int(_iid) | _nib
+        if _nm not in _name2full:
+            _name2full[_nm] = _full
+        _nn = _norm(_nm)
+        if _nn not in _norm2full:
+            _norm2full[_nn] = _full; _norm2name[_nn] = _nm
+        _ff = _fold(_nm)
+        if _ff not in _fold2full:
+            _fold2full[_ff] = _full; _fold2name[_ff] = _nm
+# annotation strippers (region_map decorates vanilla names with location bread-crumbs)
+_LEAD_RE   = re.compile(r"^[A-Z][A-Za-z0-9/()]*\s*:\s*")           # "LG/(CE): " / "RH: " / "MA/(LER): "
+_ANNOT_RE  = re.compile(r"\s+-\s+.*$")                              # " - to SW up right stairs outside"
+_COUNT_RE  = re.compile(r"\s*[x×]\s*\d+\s*$", re.I)        # trailing " x3" / " ×3"
+_PREFIX_RE = re.compile(r"^\[(?:Sorcery|Incantation|Ash of War|Skill)\]\s*", re.I)
+def _resolve_item(_raw):
+    """(FullID, canonical_base_name) or (None, None). Matt-free mechanical strips + accent fold only."""
+    _raw = (_raw or "").strip()
+    if not _raw:
+        return (None, None)
+    _tries = []
+    def _add(_s):
+        _s = _norm(_s)
+        if _s and _s not in _tries:
+            _tries.append(_s)
+    _add(_raw)
+    _lead = _LEAD_RE.sub("", _raw); _add(_lead); _add(_ANNOT_RE.sub("", _lead))
+    _core = _COUNT_RE.sub("", _ANNOT_RE.sub("", _lead)); _add(_core); _add(_PREFIX_RE.sub("", _core))
+    for _t in _tries:                            # exact normalized hit -> canonical display name
+        if _t in _norm2full:
+            return (_norm2full[_t], _norm2name[_t])
+    for _t in _tries:                            # accent/case-folded fallback -> canonical name
+        _ff = _fold(_t)
+        if _ff in _fold2full:
+            return (_fold2full[_ff], _fold2name[_ff])
+    return (None, None)
+
+
 # ---- PHANTOM-FLAG GUARD: drop checks whose acquisition flag does not exist in the game ----------
 # region_map.csv carries `method=synthetic_areacode` rows whose flag was INVENTED by the upstream
 # pipeline. Event-flag ids are group-allocated: an unallocated id is a no-op, so the client can never
@@ -702,9 +760,14 @@ def _item_exists(r):
 # provably duplicate a check that already exists under its REAL flag, so the fix is to DELETE them,
 # not rebind them (SPEC-provenance-oracle; tools/recover_synthetic_flags.py + synthetic_flag_recovery.tsv).
 #
-# We do NOT filter on the `synthetic` tag: 3 tagged rows (177, 320820, 1038457500) are MIS-tagged and
-# carry real flags. Instead derive the REAL-FLAG UNIVERSE from the params and drop anything outside it
-# -- self-healing, so any future invented flag is dropped automatically.
+# TWO layers, because "the flag exists" and "the flag can fire FOR THIS ROW" are different claims:
+#   1. _flag_exists  -- derive the REAL-FLAG UNIVERSE from the params and drop anything outside it
+#      (self-healing: any future invented flag is dropped automatically). 51 of the 54 synthetic
+#      rows die here.
+#   2. _synthetic_award_ok (below) -- the 3 survivors' invented ids COLLIDED with real flags, which
+#      an areacode-built id does BY CONSTRUCTION (real getItemFlagIds encode the same tile digits).
+#      Existence proved nothing: all 3 were wrong (see the guard). A synthetic row must prove its
+#      flag AWARDS the item it claims, or it is not a check.
 def _real_flag_universe():
     _u = set()
     for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
@@ -736,18 +799,74 @@ def _flag_exists(r):
     try: return int(r['flag']) in REAL_FLAGS
     except (KeyError, ValueError): return False
 
-rows=[r for r in _ALLROWS
-      if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
-      and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
-      and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
-      and _flag_exists(r) and _item_exists(r)]
+# ---- SYNTHETIC-ROW AWARD GUARD: an invented flag must PROVE it awards the row's own item --------
+# The `synthetic` rows' flags were INVENTED upstream (method=synthetic_areacode builds them from the
+# area code), so colliding with SOME real flag is luck, not provenance. All 3 collision survivors
+# were wrong (2026-07-14, params ground truth):
+#   *        177 -> its only lot (ItemLotParam_map 10182) awards NOTHING (every slot 0). The claimed
+#              Golden Rune [12] pickup is one of NINE m13 map lots (13000110..13000800), every one
+#              already a live check under its real 13007xxx flag -> a redundant phantom that could
+#              never fire ("FA/TFB: Golden Rune [12] - to SW up right stairs outside").
+#   *     320820 -> NO lot at all; it is the eventFlag_forStock of ShopLineupParam 102282 (sells
+#              goods 2002140, sellQuantity -1 -- a row the shop pipeline itself excludes). The
+#              claimed Forager Brood Cookbook [2] gift is really lot 107530 / flag 68530, which is
+#              deliberately vanilla (_UNPLACEABLE_DLC_COOKBOOKS) -> a phantom duplicating a check we
+#              refuse to randomize.
+#   * 1038457500 -> a REAL enemy-lot flag (438100012, guaranteed slot), but it awards goods 4900,
+#              not the claimed Smithing Stone [2] (goods 10101); NO lot in tile m60_38_45 awards
+#              that stone. The tile matched because the collision is tile-keyed on both sides.
+# So the bar for a synthetic row is award-of-the-claimed-item, derived from the params (never from
+# the tag being "probably fine"): the flag must sit on a lot that hands out the item the row names
+# (LOT_ITEMS: both tables, all flag columns, categories via _LOT_CAT; weapons folded +N -> base,
+# same rule as _item_is_named). Unprovable claim -> DROPPED, loudly, each one printed. Rows whose
+# flag was READ from the params (map_lot / enemy_lot / shop) are correct by construction and are
+# not judged here. FMGs or params absent -> guard DISABLED with a warning (a degraded run must not
+# silently delete the world -- same posture as the two sibling guards).
+_SYN_GUARD_ON = bool(LOT_ITEMS) and bool(_norm2full or _fold2full)
+if not _SYN_GUARD_ON:
+    print("[gen_data] WARNING: params or item-name FMGs absent -- synthetic award guard DISABLED "
+          "(an invented flag that collides with a real one may ship)")
 
-_PHANTOM_DROPPED = ([r for r in _ALLROWS
-    if r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
-    and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
-    and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag']))
-    and not _flag_exists(r)] if REAL_FLAGS is not None else [])
+def _synthetic_award_ok(r):
+    if r.get('flag_source') != 'synthetic' and r.get('method') != 'synthetic_areacode':
+        return True                                  # flag read from the params -> not ours to judge
+    if not _SYN_GUARD_ON:
+        return True
+    try: _fl = int(r['flag'])
+    except (KeyError, ValueError): return False
+    _full, _base = _resolve_item(r.get('item_name'))
+    if _full is None:
+        return False                                 # synthetic + unprovable claim = not a check
+    _awards = LOT_ITEMS.get(_fl, ())
+    if _full in _awards:
+        return True
+    if (_full >> 28) == 0:                           # weapon: fold +N upgrades to base on both sides
+        _b = (_full // 100) * 100
+        if any((_a >> 28) == 0 and (_a // 100) * 100 == _b for _a in _awards):
+            return True
+    return False
+
+def _row_base_ok(r):
+    """Every filter EXCEPT the two phantom guards -- shared so the drop reports below cannot drift
+    from the real filter (they used to be a hand-copied condition)."""
+    return (r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
+            and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
+            and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag'])))
+
+rows=[r for r in _ALLROWS
+      if _row_base_ok(r) and _flag_exists(r) and _item_exists(r) and _synthetic_award_ok(r)]
+
+_PHANTOM_DROPPED = ([r for r in _ALLROWS if _row_base_ok(r) and not _flag_exists(r)]
+                    if REAL_FLAGS is not None else [])
 print(f"phantom-flag guard: dropped {len(_PHANTOM_DROPPED)} checks with non-existent (invented) flags")
+_SYN_DROPPED = [r for r in _ALLROWS
+                if _row_base_ok(r) and _flag_exists(r) and _item_exists(r)
+                and not _synthetic_award_ok(r)]
+for _r in _SYN_DROPPED:
+    print(f"synthetic award guard: DROPPED flag={_r['flag']} {_r['item_name']!r} -- invented flag "
+          f"collides with a real id but does not award the claimed item")
+print(f"synthetic award guard: dropped {len(_SYN_DROPPED)} collision survivors "
+      f"(expected 3 on the 2026-07-14 region_map: 177, 320820, 1038457500)")
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
@@ -2546,71 +2665,10 @@ print(f"missable_locations: {len(_MISSABLE)} checks (deathroot={_mc.get('deathro
 #     (annotated location strings resolve to the base catalog name, so the same location grants base).
 # Unresolved names (empty item_name, quest "Note:" text, source typos, items in no FMG) are omitted ->
 # core falls back to Rune filler. Guard-to-empty if the FMG name dirs are absent.
-import unicodedata as _UD
-# _ET / _MSG* / _NAME_FMGS are hoisted ABOVE the ITEM-EXISTENCE GUARD (one list, two consumers --
-# a second copy here is exactly how the DLC name tables get forgotten by one of them).
-_NAME_FMGS = [
-    ("WeaponName.fmg.xml",    0x00000000, _MSG), ("ProtectorName.fmg.xml", 0x10000000, _MSG),
-    ("AccessoryName.fmg.xml", 0x20000000, _MSG), ("GoodsName.fmg.xml",      0x40000000, _MSG),
-    ("GemName.fmg.xml",       0x80000000, _MSG),
-    ("WeaponName_dlc01.fmg.xml",    0x00000000, _MSG_D1), ("ProtectorName_dlc01.fmg.xml", 0x10000000, _MSG_D1),
-    ("AccessoryName_dlc01.fmg.xml", 0x20000000, _MSG_D1), ("GoodsName_dlc01.fmg.xml",      0x40000000, _MSG_D1),
-    ("GemName_dlc01.fmg.xml",       0x80000000, _MSG_D1),
-    ("WeaponName_dlc02.fmg.xml",    0x00000000, _MSG_D2), ("ProtectorName_dlc02.fmg.xml", 0x10000000, _MSG_D2),
-    ("AccessoryName_dlc02.fmg.xml", 0x20000000, _MSG_D2), ("GoodsName_dlc02.fmg.xml",      0x40000000, _MSG_D2),
-    ("GemName_dlc02.fmg.xml",       0x80000000, _MSG_D2),
-]
-def _norm(_s):                                   # collapse internal whitespace
-    return re.sub(r"\s+", " ", _s).strip()
-def _fold(_s):                                   # accent-insensitive, case-insensitive key
-    _s = _UD.normalize("NFKD", _norm(_s))
-    return "".join(_c for _c in _s if not _UD.combining(_c)).casefold()
-_name2full = {}        # exact display name -> FullID (first/higher-priority category wins)
-_norm2full = {}; _norm2name = {}    # normalized name -> FullID / canonical display name
-_fold2full = {}; _fold2name = {}    # folded name     -> FullID / canonical display name
-for _fn, _nib, _dir in _NAME_FMGS:
-    _p = os.path.join(_dir, _fn)
-    if not os.path.exists(_p):
-        continue
-    for _t in _ET.parse(_p).getroot().iter("text"):
-        _nm = (_t.text or "").strip(); _iid = _t.get("id")
-        if not _nm or _nm in ("[ERROR]", "%null%") or not _iid:
-            continue
-        _full = int(_iid) | _nib
-        if _nm not in _name2full:
-            _name2full[_nm] = _full
-        _nn = _norm(_nm)
-        if _nn not in _norm2full:
-            _norm2full[_nn] = _full; _norm2name[_nn] = _nm
-        _ff = _fold(_nm)
-        if _ff not in _fold2full:
-            _fold2full[_ff] = _full; _fold2name[_ff] = _nm
-# annotation strippers (region_map decorates vanilla names with location bread-crumbs)
-_LEAD_RE   = re.compile(r"^[A-Z][A-Za-z0-9/()]*\s*:\s*")           # "LG/(CE): " / "RH: " / "MA/(LER): "
-_ANNOT_RE  = re.compile(r"\s+-\s+.*$")                              # " - to SW up right stairs outside"
-_COUNT_RE  = re.compile(r"\s*[x×]\s*\d+\s*$", re.I)        # trailing " x3" / " ×3"
-_PREFIX_RE = re.compile(r"^\[(?:Sorcery|Incantation|Ash of War|Skill)\]\s*", re.I)
-def _resolve_item(_raw):
-    """(FullID, canonical_base_name) or (None, None). Matt-free mechanical strips + accent fold only."""
-    _raw = (_raw or "").strip()
-    if not _raw:
-        return (None, None)
-    _tries = []
-    def _add(_s):
-        _s = _norm(_s)
-        if _s and _s not in _tries:
-            _tries.append(_s)
-    _add(_raw)
-    _lead = _LEAD_RE.sub("", _raw); _add(_lead); _add(_ANNOT_RE.sub("", _lead))
-    _core = _COUNT_RE.sub("", _ANNOT_RE.sub("", _lead)); _add(_core); _add(_PREFIX_RE.sub("", _core))
-    for _t in _tries:                            # exact normalized hit -> canonical display name
-        if _t in _norm2full:
-            return (_norm2full[_t], _norm2name[_t])
-    for _t in _tries:                            # accent/case-folded fallback -> canonical name
-        _ff = _fold(_t)
-        if _ff in _fold2full:
-            return (_fold2full[_ff], _fold2name[_ff])
-    return (None, None)
+# The FMG name maps + _resolve_item are HOISTED above the phantom-flag guard (one copy, THREE
+# consumers now: the synthetic-row award guard, this item_ids emission, and the tier-list catalog
+# augmentation below -- a second copy here is exactly how the DLC name tables get forgotten by one
+# of them).
 ITEM_CATALOG = {}; LOCATION_ITEM = {}
 for _i, _r in enumerate(rows):
     _full, _base = _resolve_item(_r.get("item_name"))

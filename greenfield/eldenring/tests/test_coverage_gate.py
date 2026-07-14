@@ -10,9 +10,13 @@ Two halves:
     real worlds over an option matrix (num_regions PINNED in every config -- the unpinned default
     breaks tests, memory er-test-defaults-numregions) and joins the ACTUALLY EMITTED slot_data.
 
-Baseline THIS tree (main 5547b33, measured 2026-07-14 -- encode it so a regression that ADDS an
-uncovered location fails here):
-  * detection / region / quarantine violations: **0** in every scope.
+Baseline THIS tree (post the 2026-07-14 synthetic-award-guard regen -- encode it so a regression
+that ADDS an uncovered location fails here). NOTE 2026-07-14: these constants encode the tree AFTER
+`build.ps1 -Greenfield` re-runs gen_data with the synthetic award guard (drops the 3 phantom
+synthetic rows: flags 177, 320820, 1038457500 -- 4836 -> 4833). Until that regen lands, this file
+and the award check are RED on exactly those locations. That red is the gate telling the truth: two
+of the three are checks a player can hunt and NEVER obtain. Do not paper over it -- regen.
+  * detection / award / region / quarantine violations: **0** in every scope.
   * suppression violations: NONE. BASELINE_SUPPRESSION_APS is empty and must stay empty --
     its 6 debut holes were FIXED on 2026-07-14 (lotItemCategory 0/6 are GOODS; the lot blank was the
     only mechanism that could suppress a farmable ware, and an abstention had closed it).
@@ -21,7 +25,7 @@ uncovered location fails here):
     suppression: the vanilla ware double-dips at these checks. They are deliberately NOT in
     coverage_quarantine.ACCEPTED_LEAKS -- they stay visible here until someone decides to either
     fix them (blank via an EMEVD/lot enrichment) or formally accept them.
-  * static full pool: 4844 emitted locations (562 shop checks).
+  * static full pool: 4833 emitted locations (562 shop checks).
 
 Run (static half): python -m pytest greenfield/eldenring/tests/test_coverage_gate.py
 Run (both halves): python tools/gf_test.py -- -k coverage_gate
@@ -37,7 +41,8 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4844
+BASELINE_TOTAL_LOCATIONS = 4833   # post synthetic-award-guard regen (was 4844 pre-cookbook-regen,
+                                  # 4836 on the 2026-07-14 morning regen that this file lagged)
 BASELINE_SHOP_CHECKS = 562
 # EMPTY, and it must stay that way. ap_id -> region (so scoped runs can subset).
 #
@@ -85,6 +90,13 @@ class _BaselineAssertions:
         self.assertGreater(len(records), 0, f"{label}: no emitted locations")
         self.assertEqual([v.detail for v in byname["detection"]], [],
                          f"{label}: detection must be clean (a new undetectable location leaked in)")
+        self.assertEqual([(v.ap_id, v.detail) for v in byname["award"]], [],
+                         f"{label}: award must be clean -- a location is keyed on a flag NO "
+                         f"ItemLotParam row awards (the phantom 177/320820 class): the game can "
+                         f"never set it, the check can never fire, a progression item placed on it "
+                         f"is a multiworld soft-lock. If this fires right after a gen_data change, "
+                         f"regenerate (build.ps1 -Greenfield) -- the synthetic award guard drops "
+                         f"these rows at the source.")
         self.assertEqual([v.detail for v in byname["region"]], [],
                          f"{label}: region consistency must be clean")
         self.assertEqual([v.detail for v in byname["quarantine"]], [],
@@ -148,6 +160,25 @@ class CoverageGateStatic(unittest.TestCase, _BaselineAssertions):
         _, _, tripped = self.cov.report_coverage(printer=None, _static_table=(broken, se, si))
         self.assertGreater(len(tripped["suppression"]), len(clean["suppression"]),
                            "gate did NOT trip on a corrupted suppression table")
+
+    def test_tripwire_flag_with_no_awarding_lot_is_caught(self):
+        """A check keyed on a flag NO ItemLotParam row awards (the phantom synthetic class: flag
+        177's only lot awards nothing; flag 320820 has no lot at all) must be an award violation.
+        Proves check_award_source is a real join against check_lots_table.json, not a tautology."""
+        records, ctx = self.cov.build_coverage()
+        victim = next(r for r in records.values() if r.detect_kind == "event_flag"
+                      and r.ap_id not in ctx["shop_flag_by_ap"])
+        bogus = 979797  # provably outside the award join THIS run:
+        self.assertNotIn(bogus, ctx["static_map"])
+        self.assertNotIn(bogus, ctx["static_enemy"])
+        self.assertNotIn(bogus, ctx["static_items"])
+        clean = self.cov.check_award_source(records, ctx)
+        victim.detect_flag = bogus
+        tripped = self.cov.check_award_source(records, ctx)
+        self.assertEqual(len(tripped), len(clean) + 1,
+                         "gate did NOT trip on a flag with no awarding lot")
+        hit = next(v for v in tripped if v.ap_id == victim.ap_id)
+        self.assertIn("NO awarding ItemLotParam row", hit.detail)
 
     def test_tripwire_system_flag_collision_is_caught(self):
         """A check keyed on the deathlink-kill flag (the old 76996 collision class) must be a

@@ -27,7 +27,14 @@ this seed EMITS (post option-filtering), that the location is
                       shop_data.SHOP_LOC_REGION), the location's region has a valid
                       REGION_OPEN_FLAGS entry AND measured REGION_PLAY_IDS kick geometry, and
                       every boss-sweep gate sweeps only members whose canonical region matches
-                      (the Full Moon Queen class).
+                      (the Full Moon Queen class);
+  (d) AWARDED     -- the game can actually SET the flag: a non-shop check's flag must be carried
+                      by an ItemLotParam row that hands something out (check_lots_table.json
+                      map/enemy/items -- derived from the params, tools/gen_check_lots_table.py).
+                      A flag with no awarding lot is unobtainable BY CONSTRUCTION: the flag-poll
+                      can never observe it, the seed can never be 100%'d, and a progression item
+                      placed there is a multiworld soft-lock (the phantom/synthetic-flag class:
+                      177 and 320820, promoted from the monitored FOREIGN-gap 2026-07-14).
 
 DESIGN (mirrors contract.py's single-source style; re-derivation of the orphaned
 agent/coverage-gate branch, 12c1727, against the 2026-07-14 tree):
@@ -41,10 +48,10 @@ agent/coverage-gate branch, 12c1727, against the 2026-07-14 tree):
   * ``check_detection`` / ``check_suppression`` / ``check_region_consistency`` -- collect-ALL
     checks (every violation with provenance, never one-per-gen).
   * ``report_coverage(world=None, kept=None)`` -- runs all checks, returns the violation table
-    WITHOUT raising (REPORT MODE -- the only mode anything is wired to today).
-  * ``assert_coverage(world)`` -- the RAISING variant (CoverageError). Deliberately NOT wired into
-    the gen/CI path: this gate must not be able to break a release on its debut. Wire it only
-    after the report baseline has been green for a while.
+    WITHOUT raising (REPORT MODE -- tools/gen_coverage_report.py and the test tiers).
+  * ``assert_coverage(world)`` -- the RAISING variant (CoverageError), WIRED into core.post_fill
+    since 2026-07-14 (it debuted in report mode, soaked to a zero baseline, then flipped -- see
+    core.py). A violation kills the seed before anything is spent on it.
   * structured degradation lives in ``coverage_quarantine.py`` (QUARANTINE / ACCEPTED_LEAKS),
     self-cleaning via ``_quarantine_violations``.
 
@@ -522,6 +529,36 @@ def check_detection(records, ctx):
     return out
 
 
+def check_award_source(records, ctx):
+    """(d) AWARDED -- collect every non-shop location whose detect flag has NO awarding
+    ItemLotParam row (absent from check_lots_table.json map/enemy/items).
+
+    The game sets a lot's getItemFlagId when it awards that lot; that is the ONLY way the client's
+    flag-poll ever sees a non-shop check fire. So a flag outside the static award join is a check
+    the player can hunt forever and never send -- worse than a double-dip. Both shipped instances
+    were region_map `synthetic` rows whose invented flag collided with a real id: 177 (its only
+    lot, map 10182, awards NOTHING) and 320820 (no lot at all -- the eventFlag_forStock of
+    ShopLineupParam 102282, a row the shop pipeline itself excludes). Shop checks are exempt: the
+    purchase is the award, and check_detection already validates their stock rows. Deliberately
+    NOT subtractable via ACCEPTED_LEAKS -- a leak pays too much; this can never pay at all."""
+    out = []
+    sm, se, si = ctx["static_map"], ctx["static_enemy"], ctx["static_items"]
+    shop_flag_by_ap = ctx["shop_flag_by_ap"]
+    for rec in records.values():
+        if rec.detect_kind == "shop_stock_flag" or rec.ap_id in shop_flag_by_ap:
+            continue
+        f = rec.detect_flag
+        if f in sm or f in se or f in si:
+            continue
+        out.append(Violation(rec.ap_id, rec.name, "award",
+                             f"flag {f} has NO awarding ItemLotParam row (absent from "
+                             f"check_lots_table.json map/enemy/items) -- the game never sets it "
+                             f"when handing out an item, so the flag-poll can never observe this "
+                             f"check: unobtainable by construction (phantom/synthetic-flag class)",
+                             rec.provenance))
+    return out
+
+
 def check_suppression(records, ctx):
     out = []
     for rec in records.values():
@@ -618,13 +655,14 @@ def _quarantine_violations(records, ctx):
     LEAKS = getattr(q, "ACCEPTED_LEAKS", {})
     if QUAR or LEAKS:
         det = {v.ap_id for v in check_detection(records, ctx)}
+        awd = {v.ap_id for v in check_award_source(records, ctx)}
         sup = {v.ap_id for v in check_suppression(records, ctx)}
         reg = {v.ap_id for v in check_region_consistency(records, ctx)}
     for ap_id, meta in QUAR.items():
         rec = records.get(ap_id)
         if rec is None:
             continue
-        if ap_id not in det and ap_id not in sup and ap_id not in reg:
+        if ap_id not in det and ap_id not in awd and ap_id not in sup and ap_id not in reg:
             out.append(Violation(ap_id, rec.name, "quarantine",
                                  "QUARANTINE entry is emitted and now passes every check -- remove it "
                                  f"from coverage_quarantine.QUARANTINE (was: {meta.get('reason')})",
@@ -655,6 +693,7 @@ def all_checks(records, ctx):
     supp = [v for v in check_suppression(records, ctx) if v.ap_id not in accepted]
     return {
         "detection": check_detection(records, ctx),
+        "award": check_award_source(records, ctx),
         "suppression": supp,
         "region": check_region_consistency(records, ctx),
         "quarantine": _quarantine_violations(records, ctx),
@@ -688,7 +727,8 @@ def report_coverage(world=None, kept=None, printer=print, _static_table=None):
 
 def assert_coverage(world):
     """RAISING variant: raise CoverageError listing ap_id, name, failing check + provenance for each
-    violation. Deliberately NOT wired into the gen/CI path (fail-open first; see module docstring)."""
+    violation. Wired into core.post_fill (2026-07-14); test_assert_coverage_is_wired_into_the_gen_path
+    keeps it that way."""
     records, ctx = build_coverage(world)
     byname = all_checks(records, ctx)
     violations = _flatten(byname)
@@ -728,6 +768,7 @@ def render_markdown(records, ctx, byname):
     L.append("")
 
     det, reg, sup = byname["detection"], byname["region"], byname["suppression"]
+    awd = byname.get("award", [])
     stormveil = [v for v in reg if "open flag" in v.detail]
     fmq = [v for v in reg if "Full Moon Queen" in v.detail]
     shopgap = [v for v in det if "stock row" in v.detail]
@@ -750,6 +791,9 @@ def render_markdown(records, ctx, byname):
     L.append(f"5. **Unsuppressed vanilla wares (double-dip).** Ware-bearing locations with NO "
              f"suppression mechanism: **{len(sup)}**. These pay the vanilla ware alongside the AP "
              f"item in-game.")
+    L.append(f"6. **Unawardable flags (phantom checks).** Non-shop locations whose flag has NO "
+             f"awarding ItemLotParam row: **{len(awd)}** (the synthetic 177/320820 class -- the "
+             f"check can NEVER fire; promoted from monitored to raising 2026-07-14).")
     L.append("")
 
     # monitored categories -- not violations, but the numbers to watch
@@ -768,7 +812,8 @@ def render_markdown(records, ctx, byname):
              + ", ".join(f"{k} **{v}**" for k, v in sorted(kinds.items())) + ".")
     L.append(f"- FOREIGN-apworld static gap: **{len(foreign_gap)}** ware-bearing locations invisible "
              f"to `check_lots_table.json` alone (er-logic static_lots.rs path -- a foreign seed "
-             f"double-dips there even where OUR per-seed checkItemFlags covers it).")
+             f"double-dips there even where OUR per-seed checkItemFlags covers it). The no-award "
+             f"subset of this gap is now ENFORCED by the raising `award` check above.")
     L.append(f"- boss-drop-flag locations emitted: **{len(bd_locs)}**; of those lacking any "
              f"suppression: **{len(bd_unsup)}** (vanilla-suppress-leak class).")
     L.append(f"- locations with no resolvable vanilla ware (Rune filler / name gaps -- nothing to "
