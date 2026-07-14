@@ -174,7 +174,7 @@ class DLCOnlyGreatRunesGoal(WorldTestBase):
         "dlc_only": True,
         "item_shuffle": True,
         "ending_condition": "great_runes",
-        "great_runes_required": 2,
+        "goal_great_runes": 2,
     }
 
     def test_runes_collapse_to_region_locks_under_dlc_only(self):

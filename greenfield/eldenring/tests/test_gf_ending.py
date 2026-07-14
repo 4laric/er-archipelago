@@ -58,7 +58,7 @@ class GreatRunesGoalShuffleOn(WorldTestBase):
     options = {
         "item_shuffle": True,
         "ending_condition": "great_runes",
-        "great_runes_required": 2,
+        "goal_great_runes": 2,
     }
 
     def test_required_runes_resolved_and_progression(self):
@@ -108,7 +108,7 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
         "num_regions": 1,
         "num_regions_order": "spine",
         "ending_condition": "great_runes",
-        "great_runes_required": 7,
+        "goal_great_runes": 7,
     }
 
     def test_requirement_auto_drops(self):

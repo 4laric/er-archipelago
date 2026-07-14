@@ -111,7 +111,7 @@ class SlotDataFixtureRich(WorldTestBase):
         "dungeon_sweep": "all",
         "pool_builder": True,
         "ending_condition": "great_runes",
-        "great_runes_required": 2,
+        "goal_great_runes": 2,
     }
 
     def test_exact_keyset(self):
