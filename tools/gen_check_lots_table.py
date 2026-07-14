@@ -61,10 +61,15 @@ OUT = os.path.join(REPO, "greenfield", "eldenring", "check_lots_table.json")
 # no GoodsName entry, and is referenced by no lot / shop / recipe -- so it can never eat a real item.
 # Must match gen_data.AP_PLACEHOLDER_GOODS.
 AP_PLACEHOLDER_GOODS = 8852
-GOODS = 1
-# lotItemCategory, derived empirically over every lot row: 2=Weapon 3=Protector 4=Accessory 5=Gem.
-# 0 and 6 are rare/ambiguous (24 rows) and are NEVER judged -- see the item-existence guard.
-NON_GOODS = (2, 3, 4, 5)
+# lotItemCategory -> FullID nibble is DERIVED (derive_category_nibble). It used to be hardcoded:
+#     GOODS = 1 ; NON_GOODS = (2, 3, 4, 5)
+# with a comment saying "0 and 6 are rare/ambiguous (24 rows) and are NEVER judged". They are not
+# ambiguous -- they were never DERIVED. Both are GOODS:
+#     cat 0: Gravel Stone (20855), Golden Rune [1] (2900), Glintstone Scrap (3050)
+#     cat 6: [Sorcery] Rancorcall (5000) -- spells carry the GOODS nibble
+# "Never judged" is a decision that silently leaks every check behind it: 13 checks handed out their
+# vanilla item alongside the AP item, for as long as this table has existed. Fable found them.
+GOODS_NIBBLE = 0x4000_0000
 
 # THE CATEGORY NIBBLE -- DERIVED, not declared. See derive_category_nibble().
 #
@@ -79,8 +84,6 @@ NON_GOODS = (2, 3, 4, 5)
 # and being wrong in a constant is precisely the class of bug this file keeps producing. So: derive it
 # from the two tables we already have, and refuse to run if the mapping is not clean.
 
-
-GOODS_NIBBLE = 0x4000_0000
 
 
 def derive_category_nibble(rows_by_cat, known):
@@ -101,13 +104,6 @@ def derive_category_nibble(rows_by_cat, known):
             if not nibs or len(nibs) != 1:
                 continue  # unknown, or a cross-category raw collision -- it votes for nothing
             n = next(iter(nibs))
-            # A GOODS-ONLY witness is NOT evidence. These lot slots are NON_GOODS by construction
-            # (lotItemCategory != GOODS), so a raw the catalog knows only as a goods item is simply a
-            # different item that happens to share the number -- raw ids are unique only WITHIN a
-            # category. Counting it as a vote is what dragged Accessory down to 86.8% and failed a
-            # correct mapping: the noise was Goods 8200 vs Accessory 8200, both real, neither wrong.
-            if n == GOODS_NIBBLE:
-                continue
             v[n] = v.get(n, 0) + 1
         votes[cat] = v
 
@@ -118,15 +114,23 @@ def derive_category_nibble(rows_by_cat, known):
             raise SystemExit(
                 "FATAL: lotItemCategory %d has no unambiguous ITEM_CATALOG evidence -- cannot derive "
                 "its nibble, and guessing it is how this bug shipped." % cat)
-        nib, hits = max(v.items(), key=lambda kv: kv[1])
+        ranked = sorted(v.items(), key=lambda kv: -kv[1])
+        nib, hits = ranked[0]
+        runner = ranked[1][1] if len(ranked) > 1 else 0
         total = sum(v.values())
         purity = hits / total
-        print("  lotItemCategory %d -> nibble 0x%08X  (%d/%d = %.1f%% of unambiguous votes)"
-              % (cat, nib, hits, total, 100.0 * purity))
-        if purity < 0.95:
+        print("  lotItemCategory %d -> nibble 0x%08X  (%d/%d = %.1f%%, runner-up %d)"
+              % (cat, nib, hits, total, 100.0 * purity, runner))
+        # MARGIN, not purity. The residue is raw-id COLLISION noise -- raw ids are unique only WITHIN a
+        # category, so e.g. Accessory 8200 and Goods 8200 are different real items and the catalog's
+        # goods entry votes against a correct accessory. A 95% purity bar failed a CORRECT mapping at
+        # 86.8%. What actually proves the answer is that the winner dominates: >=70% and >=2x the
+        # runner-up. Ambiguity is a FATAL; noise is not.
+        if purity < 0.70 or hits < 2 * max(runner, 1):
             raise SystemExit(
-                "FATAL: lotItemCategory %d votes are not clean (%.1f%% for 0x%08X). The category->nibble "
-                "mapping is not a fact here; do not ship a table built on it." % (cat, 100.0 * purity, nib))
+                "FATAL: lotItemCategory %d does not have a dominant nibble (winner 0x%08X %d, runner-up "
+                "%d). The mapping is not a fact here; do not ship a table built on it."
+                % (cat, nib, hits, runner))
         out[cat] = nib
     return out
 
@@ -149,7 +153,7 @@ def build():
     known = _catalog_raw_to_nibbles()
     # PASS 1: collect every (category, raw) the lots reference, so the nibble map can be derived from
     # them rather than declared.
-    rows_by_cat = {c: set() for c in NON_GOODS}
+    rows_by_cat = {}
     pending = []
     for fn, key in (("ItemLotParam_map.csv", "map"), ("ItemLotParam_enemy.csv", "enemy")):
         p = os.path.join(VV, fn)
@@ -166,7 +170,7 @@ def build():
                 # blanking it would eat a legitimate drop source.
                 if lot <= 0 or flag <= 0:
                     continue
-                slots, ids = [], []
+                entries = []
                 for i in range(1, 9):
                     try:
                         iid = int(r.get("lotItemId%02d" % i, 0) or 0)
@@ -175,37 +179,33 @@ def build():
                         continue
                     if iid <= 0 or iid == AP_PLACEHOLDER_GOODS:
                         continue
-                    if cat == GOODS:
-                        slots.append(i)
-                    elif cat in NON_GOODS:
-                        # weapon/armor/talisman/AoW -> id-keyed suppression (checkItemFlags). Carry the
-                        # CATEGORY with the raw id; the FullID is assembled in pass 2, once the nibble
-                        # map has been DERIVED from the data rather than assumed.
-                        ids.append((cat, iid))
-                if slots:
-                    out[key][str(flag)] = {"lot": lot, "slots": slots}
-                if ids:
-                    pending.append((flag, ids))
-                    for cat, raw in ids:
-                        rows_by_cat[cat].add(raw)
+                    # EVERY category is carried. There is no "never judged" bucket any more -- an
+                    # abstention here is a check that hands out its vanilla item forever.
+                    entries.append((i, cat, iid))
+                    rows_by_cat.setdefault(cat, set()).add(iid)
+                if entries:
+                    pending.append((key, flag, lot, entries))
 
     # DERIVE the nibble map from what we just read, then assemble the FullIDs.
     print("deriving lotItemCategory -> FullID nibble from ItemLotParam x ITEM_CATALOG:")
     nibble = derive_category_nibble(rows_by_cat, known)
 
-    missing = [c for c in NON_GOODS if c not in nibble]
-    if missing:
-        raise SystemExit(
-            "FATAL: no nibble derived for lotItemCategory %s -- those items would be emitted with the "
-            "wrong id or not at all. A category with no evidence is a hole, not a default." % missing)
-
-    for flag, ids in pending:
+    # PASS 2: route each slot by its DERIVED nibble. GOODS -> blank the lot slot (the client repoints it
+    # at the placeholder). Everything else -> id-keyed suppression against the detour's FullID.
+    for key, flag, lot, entries in pending:
         k = str(flag)
-        out["items"].setdefault(k, [])
-        for cat, raw in ids:
-            full = nibble[cat] | raw
+        slots = [i for (i, cat, _iid) in entries if nibble[cat] == GOODS_NIBBLE]
+        if slots:
+            out[key][k] = {"lot": lot, "slots": slots}
+        for (_i, cat, iid) in entries:
+            if nibble[cat] == GOODS_NIBBLE:
+                continue
+            full = nibble[cat] | iid
+            out["items"].setdefault(k, [])
             if full not in out["items"][k]:
                 out["items"][k].append(full)
+
+    _assert_covers_every_lot_check(out)
 
     # The output shape is a CONTRACT: the client reads { str(flag): [int, ...] } and matches those ints
     # against the detour's FullID. A previous edit half-applied and shipped [[cat, raw]] pairs -- valid
@@ -217,6 +217,44 @@ def build():
                 "The client matches these against the detour's FullID; any other shape silently never "
                 "matches, and every vanilla item leaks alongside the AP one." % (k, v))
     return out
+
+
+def _assert_covers_every_lot_check(out):
+    """COVERAGE. Every check whose flag comes from a LOT must be suppressed by this table.
+
+    This gate did not exist, and its absence is why 13 checks handed out their vanilla item alongside
+    the AP item for as long as the table has existed. The generator reported "3682 map + 151 enemy" and
+    nobody ever asked OF HOW MANY. A count with no denominator is not a measurement.
+
+    greenfield/region_map.csv is the denominator: it is tracked, it carries every check's `flag` and
+    `flag_source`, and the two lot-backed sources (map_lot, enemy_lot) are exactly the checks this table
+    is responsible for. `shop` checks are handled by shop_sell (native sale, not blanking) and
+    `synthetic` flags are recovered ones with no lot to blank -- both are out of scope, by name.
+    """
+    src = os.path.join(REPO, "greenfield", "region_map.csv")
+    if not os.path.isfile(src):
+        print("WARNING: %s absent -- coverage NOT verified" % src)
+        return
+    covered = set(out["map"]) | set(out["enemy"]) | set(out["items"])
+    owed, missing = 0, []
+    with open(src, newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            if r.get("flag_source") not in ("map_lot", "enemy_lot"):
+                continue
+            f = (r.get("flag") or "").strip()
+            if not f.isdigit():
+                continue
+            owed += 1
+            if f not in covered:
+                missing.append((f, r.get("item_name", ""), r.get("map", "")))
+    print("coverage: %d/%d lot-backed checks suppressed" % (owed - len(missing), owed))
+    if missing:
+        detail = "\n".join("    flag %-11s %-24s %s" % m for m in missing[:15])
+        raise SystemExit(
+            "FATAL: %d lot-backed check(s) have NO suppression. Each one hands the player its vanilla\n"
+            "item ALONGSIDE the Archipelago item, and nothing errors or logs -- that is the whole reason\n"
+            "this gate exists.\n%s%s"
+            % (len(missing), detail, "\n    ..." if len(missing) > 15 else ""))
 
 
 def main():
