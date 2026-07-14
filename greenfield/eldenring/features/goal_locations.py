@@ -92,8 +92,8 @@ class GoalLocations(Feature):
         #
         # A kill is not a collection. _required_runes() is already clamped to the runes reachable this
         # seed, so an item named here can always be obtained.
-        out = {contract.GOAL_LOCATIONS: sorted(ids)}
-        required = sorted(world._required_runes())
-        if required:
-            out[contract.GOAL_ITEMS] = required
-        return out
+        # NOTE: the required rune NAMES are NOT emitted here. core._base_slot_data already ships them
+        # as `great_rune_items`, and the client now READS that key (it was a no-read diagnostic, which
+        # is how this bug survived). One key, one producer -- a second key carrying identical data is
+        # the redundancy CONTRIBUTING calls a lie about why the code works.
+        return {contract.GOAL_LOCATIONS: sorted(ids)}

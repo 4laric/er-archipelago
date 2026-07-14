@@ -54,7 +54,6 @@ INFORMATIONAL_EXTRAS = {
     "global_scadutree_blessing",  # int
     "ending_condition",           # str  : "region_locks" | "great_runes"
     "great_runes_required",       # int  : effective (clamped) rune requirement
-    "great_rune_items",           # list[str] : required Great Rune item names
     "bossLocations",              # dict[str region] -> list[int]
     "dungeonSweeps",              # dict (location-keyed variant; {} for now)
     "sweepLockGates",             # dict ({} for now)

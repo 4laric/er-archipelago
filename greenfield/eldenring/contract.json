@@ -362,17 +362,6 @@
       "doc": "AP location ids whose completion == victory; client sends Goal when all are done."
     },
     {
-      "name": "goalItems",
-      "shape": "STR_LIST",
-      "required": false,
-      "profiles": [
-        "greenfield"
-      ],
-      "producer": "features/goal_locations.py",
-      "consumer": "goal.rs parse",
-      "doc": "Item NAMES the player must HOLD before Goal can fire. The great_runes ending used to express 'collect Godrick's Great Rune' as the LOCATION of Godrick's boss drop -- but item_shuffle is frozen ON, so the rune is not at the boss. Killing is not collecting. Absent/empty adds no requirement, so every other ending and every foreign apworld is unaffected."
-    },
-    {
       "name": "checkItemFlags",
       "shape": "LISTVAL_INT_MAP",
       "required": false,
@@ -649,14 +638,14 @@
     },
     {
       "name": "great_rune_items",
-      "shape": "ANY",
+      "shape": "STR_LIST",
       "required": false,
       "profiles": [
         "greenfield"
       ],
       "producer": "core._base_slot_data",
-      "consumer": "(diagnostic -- no client read)",
-      "doc": "required Great Rune item names this seed."
+      "consumer": "goal.rs parse",
+      "doc": "Item NAMES the player must HOLD before Goal can fire (the great_runes ending). WAS a diagnostic with no client read, which is exactly how the bug survived: the client's goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the boss: you could kill every rune boss, hold no rune, and the run would end. A kill is not a collection. The client now READS this key. Absent/empty adds no requirement."
     },
     {
       "name": "bossLocations",

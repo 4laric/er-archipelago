@@ -437,13 +437,7 @@ CONTRACT = (
     ContractKey("goalLocations", "INT_LIST", True, (BOTH,),
                 "features/goal_locations.py", "goal.rs parse",
                 "AP location ids whose completion == victory; client sends Goal when all are done."),
-    ContractKey("goalItems", "STR_LIST", False, (GREENFIELD,),
-                "features/goal_locations.py", "goal.rs parse",
-                "Item NAMES the player must HOLD before Goal can fire. The great_runes ending used to "
-                "express 'collect Godrick's Great Rune' as the LOCATION of Godrick's boss drop -- but "
-                "item_shuffle is frozen ON, so the rune is not at the boss. Killing is not collecting. "
-                "Absent/empty adds no requirement, so every other ending and every foreign apworld is "
-                "unaffected."),
+
     # --- vanilla suppression + shops ---
     ContractKey("checkItemFlags", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/check_item_flags.py", "detour.rs CHECK_ITEM_FLAGS<u32,Vec<u32>>",
@@ -561,9 +555,14 @@ CONTRACT = (
     ContractKey("great_runes_required", "ANY", False, (GREENFIELD,),
                 "core._base_slot_data", "(diagnostic -- no client read)",
                 "EFFECTIVE (clamped) Great Rune requirement for the great_runes ending."),
-    ContractKey("great_rune_items", "ANY", False, (GREENFIELD,),
-                "core._base_slot_data", "(diagnostic -- no client read)",
-                "required Great Rune item names this seed."),
+    ContractKey("great_rune_items", "STR_LIST", False, (GREENFIELD,),
+                "core._base_slot_data", "goal.rs parse",
+                "Item NAMES the player must HOLD before Goal can fire (the great_runes ending). WAS a "
+                "diagnostic with no client read, which is exactly how the bug survived: the client's "
+                "goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's "
+                "victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the "
+                "boss: you could kill every rune boss, hold no rune, and the run would end. A kill is "
+                "not a collection. The client now READS this key. Absent/empty adds no requirement."),
     ContractKey("bossLocations", "ANY", False, (GREENFIELD,),
                 "features/boss_locks.py", "(diagnostic -- no client read)",
                 "{region: [boss AP location ids]} for kept regions."),
