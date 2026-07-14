@@ -64,7 +64,7 @@ printf 'https://x-access-token:%s@github.com\n' "$PAT" > /tmp/.gitcred; chmod 60
 git config --global credential.helper 'store --file=/tmp/.gitcred'
 git config --global user.email 'alaric.mckenzie.boone@gmail.com'; git config --global user.name 'Alaric'
 git clone --no-recurse-submodules https://github.com/4laric/er-archipelago.git ~/work/er-archipelago
-cd ~/work/er-archipelago && git checkout -B feat/matt-free-backbone-mvp origin/feat/matt-free-backbone-mvp
+cd ~/work/er-archipelago && git checkout main    # main IS the live branch (see §2); no checkout dance
 git remote set-url origin https://github.com/4laric/er-archipelago.git   # keep the token out of .git/config
 git config core.hooksPath tools/hooks                                    # enable the truncation gate
 ```
@@ -159,7 +159,10 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
 - Stage explicitly — **never `git add -A`** (the repo is public and game-data-purged; don't
   leak the artifacts symlink). `git diff --cached --stat` before committing.
 - The pre-commit hook runs `check_integrity --staged` automatically.
-- `git fetch` + `git rebase origin/feat/matt-free-backbone-mvp` before pushing (Alaric pushes
-  concurrently); resolve/regen if the rebase touched generated files, then
-  `git push origin HEAD:feat/matt-free-backbone-mvp`.
+- `git fetch` + `git rebase origin/main` before pushing (Alaric pushes concurrently, often
+  mid-session — re-fetch late, not once at the start); resolve/regen if the rebase touched
+  generated files, then `git push origin HEAD:main`.
+  ⚠️ This bullet used to name `feat/matt-free-backbone-mvp` as the rebase/push target. That was
+  **stale and contradicted §2** — rebasing onto it would drop every recent commit. `main` is the
+  target on both repos. (Corrected 2026-07-14.)
 - Relay commit SHAs + "needs a Windows cargo build / submodule bump" to Alaric explicitly.
