@@ -824,6 +824,7 @@ fn shape_ok(shape: Shape, v: &Value) -> bool {
             a.iter().all(|t| t.as_array().is_some_and(|t| t.len() == 3 && t.iter().all(is_int)))
         }),
         Shape::IntList => v.as_array().is_some_and(|a| a.iter().all(is_int)),
+        Shape::StrList => v.as_array().is_some_and(|a| a.iter().all(|x| x.is_string())),
         Shape::Bool => v.is_boolean(),
         Shape::BoolOrInt => v.is_boolean() || v.as_i64().is_some_and(|n| n == 0 || n == 1),
         Shape::IntOrBool => v.is_boolean() || is_int(v),
