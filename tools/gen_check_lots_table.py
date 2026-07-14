@@ -111,9 +111,19 @@ def name_witnesses():
         for r in csv.DictReader(fh):
             f = (r.get("flag") or "").strip()
             nm = (r.get("item_name") or "").strip()
-            if not f.isdigit() or nm not in by_name:
+            if not f.isdigit():
                 continue
-            full = by_name[nm]
+            # NAME NORMALISATION. region_map.csv tags spells -- "[Sorcery] Rancorcall",
+            # "[Incantation] Golden Vow" (111 + 149 of them) -- while ITEM_CATALOG stores the bare name.
+            # So EVERY spell name witness missed, which is exactly why lotItemCategory 6 (sorceries) had
+            # no evidence and the derivation kept refusing to guess. It was right to refuse; the witness
+            # was simply broken. Stripping the tag resolves 159 more names.
+            full = by_name.get(nm)
+            if full is None:
+                bare = re.sub(r"^\[[^\]]+\]\s*", "", nm)
+                full = by_name.get(bare)
+            if full is None:
+                continue
             out[int(f)] = (full & 0x0FFF_FFFF, full & 0xF000_0000)
     return out
 
