@@ -129,39 +129,56 @@ def build():
 
 
 def _assert_ids_are_real_items(out):
-    """Every id-keyed suppression entry must be an item the game actually HAS.
+    """Validate the ENCODING, not the coverage.
 
-    This is the guard that would have caught the raw-vs-FullID bug the day it shipped. The client
-    suppresses a pickup by matching the detour's FullID against these keys; an id in the wrong encoding
-    simply never matches, and a suppressor that never fires looks EXACTLY like a suppressor with nothing
-    to do. It logged "ARMED for 865 check item ids" while quietly leaking every Ash of War.
+    The first version of this guard asserted that most emitted ids exist in ITEM_CATALOG. That is the
+    wrong oracle: ITEM_CATALOG holds only what the apworld can GRANT (~1588 items), while ItemLotParam
+    references plenty the randomizer never touches. It measured coverage and blocked a correct table
+    at 65.9%.
 
-    ITEM_CATALOG is generated, tracked, and in the FullID space -- so it is the oracle. If most of what
-    we emit is not in it, we are emitting nonsense; fail rather than ship a table that silently no-ops.
+    What we actually need to test is whether the CATEGORY NIBBLE is right. So: for every emitted id
+    whose RAW part the catalog knows, the nibble we assigned must be one the catalog uses for that raw
+    id. That is a real correctness check (it catches the raw-vs-FullID bug outright: raw ids carry
+    nibble 0x0, so every non-weapon would mismatch), and it demands no coverage we cannot have.
     """
     import re
 
     src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
     text = open(src, encoding="utf-8").read()
-    known = {int(m.group(1)) for m in re.finditer(r"'[^']+'\s*:\s*(\d+),", text)}
+    known = {}
+    for m in re.finditer(r"'[^']+'\s*:\s*(\d+),", text):
+        v = int(m.group(1))
+        known.setdefault(v & 0x0FFF_FFFF, set()).add(v & 0xF000_0000)
     if not known:
         raise SystemExit("FATAL: could not read ITEM_CATALOG from %s -- cannot validate the encoding" % src)
 
     emitted = {i for ids in out["items"].values() for i in ids}
     if not emitted:
         return
-    hits = len(emitted & known)
-    frac = hits / len(emitted)
-    print("id-encoding check: %d/%d (%.1f%%) of the id-keyed suppressions are real ITEM_CATALOG items"
-          % (hits, len(emitted), 100.0 * frac))
-    if frac < 0.80:
+
+    checkable, agree, bad = 0, 0, []
+    for full in emitted:
+        raw, nib = full & 0x0FFF_FFFF, full & 0xF000_0000
+        if raw not in known:
+            continue  # an item the apworld does not grant -- nothing to check it against
+        checkable += 1
+        if nib in known[raw]:
+            agree += 1
+        elif len(bad) < 6:
+            bad.append((full, raw, nib, sorted(known[raw])))
+
+    frac = agree / checkable if checkable else 1.0
+    print("id-encoding check: %d/%d (%.1f%%) of the CHECKABLE ids carry the nibble ITEM_CATALOG uses "
+          "(%d of %d emitted ids are items the apworld can grant)"
+          % (agree, checkable, 100.0 * frac, checkable, len(emitted)))
+    if frac < 0.98:
+        detail = "\n".join("    id %d: raw %d has nibble 0x%08X, catalog says %s"
+                            % (f, r, n, [hex(x) for x in k]) for f, r, n, k in bad)
         raise SystemExit(
-            "FATAL: only %.1f%% of the emitted suppression ids exist in ITEM_CATALOG. They are almost\n"
-            "certainly in the wrong id space -- lotItemId is RAW, the client's detour reads the FullID\n"
-            "(category nibble | raw). A table in the wrong space does not error, it just never matches,\n"
-            "and every vanilla item leaks alongside the AP one. See CATEGORY_NIBBLE." % (100.0 * frac))
-
-
+            "FATAL: %.1f%% of the checkable suppression ids carry the WRONG category nibble.\n"
+            "lotItemId is RAW; the client's detour reads the FullID (category nibble | raw). A table in\n"
+            "the wrong space does not error, it just never matches -- every vanilla item leaks alongside\n"
+            "the AP one. See CATEGORY_NIBBLE.\n%s" % (100.0 * frac, detail))
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true", help="CI drift gate: fail if committed output is stale")
