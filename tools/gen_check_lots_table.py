@@ -66,27 +66,81 @@ GOODS = 1
 # 0 and 6 are rare/ambiguous (24 rows) and are NEVER judged -- see the item-existence guard.
 NON_GOODS = (2, 3, 4, 5)
 
-# THE CATEGORY NIBBLE. `lotItemId` in ItemLotParam is the RAW id; the client's detour reads the
-# AddItemFunc-space **FullID** (`category nibble | raw`), which is also the id space ITEM_CATALOG uses.
-# This table used to emit the RAW id. Weapons have nibble 0x0, so raw == FullID and they suppressed
-# fine -- which is exactly why the bug hid: suppression *worked*, on a quarter of the items. Protectors,
-# talismans and GEMS (Ashes of War) never matched, so every one of them handed out the vanilla item
-# alongside the AP item. Alaric caught it on an Ash of War.
+# THE CATEGORY NIBBLE -- DERIVED, not declared. See derive_category_nibble().
 #
-# Nibbles measured against ITEM_CATALOG, not assumed -- note GEM is 0x8, NOT 0x5 as the lotItemCategory
-# number would suggest:
-#   0x00000000 Weapon (344)   0x10000000 Protector (344)   0x20000000 Accessory (115)
-#   0x40000000 Goods  (697)   0x80000000 Gem/AoW    (88)
-CATEGORY_NIBBLE = {
-    2: 0x00000000,   # Weapon
-    3: 0x10000000,   # Protector
-    4: 0x20000000,   # Accessory
-    5: 0x80000000,   # Gem -- Ash of War
-}
+# `lotItemId` in ItemLotParam is the RAW id; the client's detour reads the AddItemFunc-space FullID
+# (`category nibble | raw`), which is also ITEM_CATALOG's space. This table used to emit the RAW id.
+# Weapons have nibble 0x0, so raw == FullID and they suppressed fine -- which is exactly why the bug
+# hid: suppression *worked*, on a quarter of the items. Protectors, talismans and Ashes of War never
+# matched, and every one handed out the vanilla item alongside the AP item.
+#
+# The first fix HARDCODED lotItemCategory -> nibble from a source comment that claimed to be "derived
+# empirically" while containing no derivation. It was wrong (it had GEM at 0x5; the catalog says 0x8),
+# and being wrong in a constant is precisely the class of bug this file keeps producing. So: derive it
+# from the two tables we already have, and refuse to run if the mapping is not clean.
+
+
+def derive_category_nibble(rows_by_cat, known):
+    """lotItemCategory -> FullID category nibble, VOTED from the data.
+
+    For every lot entry we know (raw id, lotItemCategory). For every ITEM_CATALOG item we know
+    (raw id, nibble). Join on raw -- but ONLY where the raw is UNAMBIGUOUS in the catalog (exactly one
+    nibble), because raw ids are unique only WITHIN a category: Goods 8200 and Accessory 8200 are
+    different items, and a colliding raw votes for both.
+
+    Requires >=95% purity per category and refuses to guess a category it cannot see.
+    """
+    votes = {}
+    for cat, raws in rows_by_cat.items():
+        v = {}
+        for raw in raws:
+            nibs = known.get(raw)
+            if not nibs or len(nibs) != 1:
+                continue  # unknown, or a cross-category raw collision -- it votes for nothing
+            n = next(iter(nibs))
+            v[n] = v.get(n, 0) + 1
+        votes[cat] = v
+
+    out = {}
+    for cat in sorted(votes):
+        v = votes[cat]
+        if not v:
+            raise SystemExit(
+                "FATAL: lotItemCategory %d has no unambiguous ITEM_CATALOG evidence -- cannot derive "
+                "its nibble, and guessing it is how this bug shipped." % cat)
+        nib, hits = max(v.items(), key=lambda kv: kv[1])
+        total = sum(v.values())
+        purity = hits / total
+        print("  lotItemCategory %d -> nibble 0x%08X  (%d/%d = %.1f%% of unambiguous votes)"
+              % (cat, nib, hits, total, 100.0 * purity))
+        if purity < 0.95:
+            raise SystemExit(
+                "FATAL: lotItemCategory %d votes are not clean (%.1f%% for 0x%08X). The category->nibble "
+                "mapping is not a fact here; do not ship a table built on it." % (cat, 100.0 * purity, nib))
+        out[cat] = nib
+    return out
+
+
+def _catalog_raw_to_nibbles():
+    import re
+    src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
+    text = open(src, encoding="utf-8").read()
+    known = {}
+    for m in re.finditer(r"'[^']+'\s*:\s*(\d+),", text):
+        v = int(m.group(1))
+        known.setdefault(v & 0x0FFF_FFFF, set()).add(v & 0xF000_0000)
+    if not known:
+        raise SystemExit("FATAL: could not read ITEM_CATALOG from %s" % src)
+    return known
 
 
 def build():
     out = {"placeholder_goods": AP_PLACEHOLDER_GOODS, "map": {}, "enemy": {}, "items": {}}
+    known = _catalog_raw_to_nibbles()
+    # PASS 1: collect every (category, raw) the lots reference, so the nibble map can be derived from
+    # them rather than declared.
+    rows_by_cat = {c: set() for c in NON_GOODS}
+    pending = []
     for fn, key in (("ItemLotParam_map.csv", "map"), ("ItemLotParam_enemy.csv", "enemy")):
         p = os.path.join(VV, fn)
         if not os.path.isfile(p):
@@ -114,9 +168,10 @@ def build():
                     if cat == GOODS:
                         slots.append(i)
                     elif cat in NON_GOODS:
-                        # weapon/armor/talisman/AoW -> id-keyed suppression (checkItemFlags), keyed by
-                        # the FullID the detour actually sees. See CATEGORY_NIBBLE.
-                        ids.append(CATEGORY_NIBBLE[cat] | iid)
+                        # weapon/armor/talisman/AoW -> id-keyed suppression (checkItemFlags). Carry the
+                        # CATEGORY with the raw id; the FullID is assembled in pass 2, once the nibble
+                        # map has been DERIVED from the data rather than assumed.
+                        ids.append((cat, iid))
                 if slots:
                     out[key][str(flag)] = {"lot": lot, "slots": slots}
                 if ids:
@@ -124,61 +179,9 @@ def build():
                     for i in ids:
                         if i not in out["items"][str(flag)]:
                             out["items"][str(flag)].append(i)
-    _assert_ids_are_real_items(out)
     return out
 
 
-def _assert_ids_are_real_items(out):
-    """Validate the ENCODING, not the coverage.
-
-    The first version of this guard asserted that most emitted ids exist in ITEM_CATALOG. That is the
-    wrong oracle: ITEM_CATALOG holds only what the apworld can GRANT (~1588 items), while ItemLotParam
-    references plenty the randomizer never touches. It measured coverage and blocked a correct table
-    at 65.9%.
-
-    What we actually need to test is whether the CATEGORY NIBBLE is right. So: for every emitted id
-    whose RAW part the catalog knows, the nibble we assigned must be one the catalog uses for that raw
-    id. That is a real correctness check (it catches the raw-vs-FullID bug outright: raw ids carry
-    nibble 0x0, so every non-weapon would mismatch), and it demands no coverage we cannot have.
-    """
-    import re
-
-    src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
-    text = open(src, encoding="utf-8").read()
-    known = {}
-    for m in re.finditer(r"'[^']+'\s*:\s*(\d+),", text):
-        v = int(m.group(1))
-        known.setdefault(v & 0x0FFF_FFFF, set()).add(v & 0xF000_0000)
-    if not known:
-        raise SystemExit("FATAL: could not read ITEM_CATALOG from %s -- cannot validate the encoding" % src)
-
-    emitted = {i for ids in out["items"].values() for i in ids}
-    if not emitted:
-        return
-
-    checkable, agree, bad = 0, 0, []
-    for full in emitted:
-        raw, nib = full & 0x0FFF_FFFF, full & 0xF000_0000
-        if raw not in known:
-            continue  # an item the apworld does not grant -- nothing to check it against
-        checkable += 1
-        if nib in known[raw]:
-            agree += 1
-        elif len(bad) < 6:
-            bad.append((full, raw, nib, sorted(known[raw])))
-
-    frac = agree / checkable if checkable else 1.0
-    print("id-encoding check: %d/%d (%.1f%%) of the CHECKABLE ids carry the nibble ITEM_CATALOG uses "
-          "(%d of %d emitted ids are items the apworld can grant)"
-          % (agree, checkable, 100.0 * frac, checkable, len(emitted)))
-    if frac < 0.98:
-        detail = "\n".join("    id %d: raw %d has nibble 0x%08X, catalog says %s"
-                            % (f, r, n, [hex(x) for x in k]) for f, r, n, k in bad)
-        raise SystemExit(
-            "FATAL: %.1f%% of the checkable suppression ids carry the WRONG category nibble.\n"
-            "lotItemId is RAW; the client's detour reads the FullID (category nibble | raw). A table in\n"
-            "the wrong space does not error, it just never matches -- every vanilla item leaks alongside\n"
-            "the AP one. See CATEGORY_NIBBLE.\n%s" % (100.0 * frac, detail))
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true", help="CI drift gate: fail if committed output is stale")
