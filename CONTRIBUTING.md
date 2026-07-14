@@ -303,6 +303,98 @@ Run through this before a change lands (PR or direct):
 
 ---
 
+## The silent wrong answer
+
+Read the bug list in this file. Almost none of them are crashes. **Every one is a derivation that
+returned a confident, complete, WRONG answer instead of failing.** That is the disease. Everything below
+is one prescription: *make not-knowing louder than knowing.*
+
+A crash costs you an hour. A confident wrong answer costs you three months and a playtest.
+
+### The canonical shape
+
+> The play_region bucket table was keyed on `BonfireWarpParam.bonfireSubCategoryId`, on this comment:
+> *"equals the runtime play_region_id — verified against every empirically captured id."*
+>
+> True, and **vacuous**: no DLC id had ever been captured, because nobody had played the DLC. The kick
+> compares `play_region_id / 100`, so 27 of 53 buckets could never match. The kick is **permissive on an
+> unknown bucket** — a miss is not a crash, it is a shrug. So the DLC region locks never fired, and
+> **Weeping's lock had never enforced anything, in any seed, ever.** Same table fed the Scadutree floor
+> and DLC enemy scaling: both silently inert.
+>
+> Nothing errored. Nothing logged. For months.
+
+Note the two halves, because they always travel together: **a false claim in a comment**, and **a
+consumer that treats "no answer" as "no problem."**
+
+### Rules
+
+**1. A derivation that cannot answer must FAIL, not answer.**
+Never return a plausible value on missing input. `tile_pr()` is a nearest-neighbour: it *never fails*, so
+a coarse LOD tile got a confident wrong region. If the answer is unknown, say `DEFAULTED` and bar it from
+carrying progression.
+
+**2. An empty result is a FAILURE, not a clean run.**
+A join that matches nothing reports "0 rows" and looks like success. Zero, empty, and "nothing to do" are
+the three most dangerous outputs in this repo — every one of them must be an explicit, loud decision.
+*(A tool joined on renumbered ap-ids — 777xxxx vs 700xxxx, zero overlap — and reported "0 buckets" as a
+finding.)*
+
+**3. A wrong id space does not error. It just never matches.**
+`check_lots_table` keyed suppression by the RAW `lotItemId` while the client's detour reads the **FullID**
+(`category nibble | raw`). Weapons have nibble `0x0`, so **they worked** — and that is precisely why it
+hid. Armour, talismans and every Ash of War leaked their vanilla copy for months while the log cheerfully
+said `vanilla suppressor ARMED for 865 check item ids`.
+**Whenever two components exchange ids, name the SPACE in the type, the key, or the comment — and assert it.**
+
+**4. Silent input loss is the same bug upstream.**
+`if not m.startswith("m"): continue` quietly discarded **40% of the input rows** and the tool ran green.
+If you skip rows, COUNT them and print the count. A filter with no tally is a lie.
+
+**5. RUN the tool. Do not read it.**
+One derivation tool in this repo produced **eight** separate confident-wrong outputs — imported the wrong
+package, joined on a drifted key, parsed a table inside-out, mangled `Charo's` into `'s`, used the wrong
+discriminator, dropped 40% of rows, mis-decoded interiors, truncated LOD tiles. **None of them threw.**
+Every one was caught by running it and looking at the output. None would have been caught by reading it,
+and several were written *while* reading it.
+
+**6. Check the output for what is MISSING.**
+A diff shows you what changed; it cannot show you what was never there. The bug nothing automated caught
+was a human noticing *"I don't see Raya Lucaria in here"* — a whole region silently absent from a
+derivation's output. **Absence is invisible. Go looking for it.**
+
+**7. Verify the fix by breaking it.**
+A passing test proves nothing until you have seen it fail. Disable your fix, confirm the gate goes red,
+re-enable. If you cannot make it fail, you have not tested anything. *(The `EarlyGuarantee` gate was only
+trustworthy once the guarantee was switched off and it reported `guaranteed 12, found 7`.)*
+
+**8. Guard the right thing.**
+A guard is a derivation too, and it will lie to you just as happily. One written here asserted "the ids
+should exist in `ITEM_CATALOG`" — but the catalog only holds what the world can *grant*, so it measured
+**coverage** and blocked a **correct** table. Ask: *what would make this guard pass while the bug is
+present, and what would make it fail while the code is right?*
+
+**9. Never half-apply an edit.**
+A scripted edit whose pattern does not match must **raise**, not skip. One that silently no-op'd shipped a
+table of `[[cat, raw]]` pairs instead of ints — valid JSON, wrong shape, suppressing **nothing**. Assert
+the edit landed, and assert the OUTPUT SHAPE before writing a file another component parses.
+
+**10. A comment that asserts a fact is a claim, and claims rot.**
+*"Verified against every empirically captured id"* was the sentence that cost the most this year. If a
+comment states an invariant, **there must be a test that fails when it stops being true** — otherwise it
+is folklore with syntax highlighting.
+
+### The tell
+
+When a number looks wrong, **do not reason about it. Instrument it.**
+
+Shops resolved 78 distinct flags where 410 were expected. Three rounds of plausible theories produced
+three wrong answers. One log line — a tally of *why* each row was skipped — produced the truth in a single
+run. `resolved.len()` had been counting **locations**, not flags, and had been read as flags for three
+messages straight.
+
+**Log DISTINCT counts, not totals. Log why things were skipped, not just that they were.**
+
 ## Provenance — derive the datum, don't pin the symptom
 
 A bug report is a *symptom*. The fix is not to add the symptom to a list; it is to find the **datum the

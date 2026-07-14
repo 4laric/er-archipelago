@@ -80,6 +80,9 @@ NON_GOODS = (2, 3, 4, 5)
 # from the two tables we already have, and refuse to run if the mapping is not clean.
 
 
+GOODS_NIBBLE = 0x4000_0000
+
+
 def derive_category_nibble(rows_by_cat, known):
     """lotItemCategory -> FullID category nibble, VOTED from the data.
 
@@ -98,6 +101,13 @@ def derive_category_nibble(rows_by_cat, known):
             if not nibs or len(nibs) != 1:
                 continue  # unknown, or a cross-category raw collision -- it votes for nothing
             n = next(iter(nibs))
+            # A GOODS-ONLY witness is NOT evidence. These lot slots are NON_GOODS by construction
+            # (lotItemCategory != GOODS), so a raw the catalog knows only as a goods item is simply a
+            # different item that happens to share the number -- raw ids are unique only WITHIN a
+            # category. Counting it as a vote is what dragged Accessory down to 86.8% and failed a
+            # correct mapping: the noise was Goods 8200 vs Accessory 8200, both real, neither wrong.
+            if n == GOODS_NIBBLE:
+                continue
             v[n] = v.get(n, 0) + 1
         votes[cat] = v
 
@@ -182,6 +192,12 @@ def build():
     # DERIVE the nibble map from what we just read, then assemble the FullIDs.
     print("deriving lotItemCategory -> FullID nibble from ItemLotParam x ITEM_CATALOG:")
     nibble = derive_category_nibble(rows_by_cat, known)
+
+    missing = [c for c in NON_GOODS if c not in nibble]
+    if missing:
+        raise SystemExit(
+            "FATAL: no nibble derived for lotItemCategory %s -- those items would be emitted with the "
+            "wrong id or not at all. A category with no evidence is a hole, not a default." % missing)
 
     for flag, ids in pending:
         k = str(flag)
