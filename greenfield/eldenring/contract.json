@@ -20,6 +20,10 @@
       "rust": "IntList",
       "client_parser": "arr_i32 / arr_u32"
     },
+    "STR_LIST": {
+      "rust": "StrList",
+      "client_parser": "arr_str (item names)"
+    },
     "BOOL": {
       "rust": "Bool",
       "client_parser": "as_bool"
@@ -356,6 +360,17 @@
       "producer": "features/goal_locations.py",
       "consumer": "goal.rs parse",
       "doc": "AP location ids whose completion == victory; client sends Goal when all are done."
+    },
+    {
+      "name": "goalItems",
+      "shape": "STR_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/goal_locations.py",
+      "consumer": "goal.rs parse",
+      "doc": "Item NAMES the player must HOLD before Goal can fire. The great_runes ending used to express 'collect Godrick's Great Rune' as the LOCATION of Godrick's boss drop -- but item_shuffle is frozen ON, so the rune is not at the boss. Killing is not collecting. Absent/empty adds no requirement, so every other ending and every foreign apworld is unaffected."
     },
     {
       "name": "checkItemFlags",

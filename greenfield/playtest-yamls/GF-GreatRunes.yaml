@@ -1,5 +1,5 @@
 # Great-Rune GOAL test. num_regions 0 = all 22 regions so all 6 Great Runes are available
-# and great_runes_required: 2 is meaningful (they're placed as progression). PASS = you
+# and goal_great_runes: 2 is meaningful (they're placed as progression). PASS = you
 # cannot finish without holding 2 Great Runes.
 name: GFRunes
 description: Greenfield great-rune goal
@@ -8,7 +8,7 @@ game: "Elden Ring"
   num_regions: 0
   item_shuffle: true
   ending_condition: great_runes
-  great_runes_required: 2
+  goal_great_runes: 2
   pool_builder: true
   dungeon_sweep: all
   grace_rando: false

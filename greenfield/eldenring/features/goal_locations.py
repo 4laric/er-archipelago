@@ -72,19 +72,28 @@ class GoalLocations(Feature):
         term = _terminal_region(set(kept))
         if term is not None:
             ids.update(_region_boss_ids(term))
-        # great_runes ending: also require the boss dropping each REQUIRED Great Rune (name-matched,
-        # kept-scoped). _required_runes() is empty for the region_locks ending and is already clamped
-        # to the runes reachable this seed, so every id added here is in a kept region.
-        required = set(world._required_runes())
-        if required:
-            for region in kept:
-                for (aid, _flag, name) in REGION_BOSSES.get(region, []):
-                    if name in required:
-                        ids.add(aid)
         # Defensive last resort: never emit an empty set for a normal seed (would make Goal
         # unsendable). Leyndell is always kept for a base seed, so this only guards the degenerate
         # dlc_only+rolled draw that keeps exclusively a boss-less region.
         if not ids:
             for region in kept:
                 ids.update(_region_boss_ids(region))
-        return {contract.GOAL_LOCATIONS: sorted(ids)}
+
+        # great_runes ending: require the RUNES THEMSELVES, not the bosses that vanilla-drop them.
+        #
+        # THE BUG (fixed 2026-07-14). This used to add the boss LOCATION of each required Great Rune to
+        # goalLocations -- i.e. the client fired Goal when you KILLED Godrick. But item_shuffle is ON
+        # (frozen), so Godrick's Great Rune is NOT at Godrick; it is anywhere in the multiworld. You
+        # could kill every rune boss, hold not a single rune, and the run would end.
+        #
+        # Meanwhile AP's own victory rule (core.set_rules) is `state.has(rune)` -- the ITEM. So the two
+        # halves of the goal disagreed, and the half that actually ends your run was the wrong one. The
+        # option's docstring says "ALSO collect Great Runes"; now it does.
+        #
+        # A kill is not a collection. _required_runes() is already clamped to the runes reachable this
+        # seed, so an item named here can always be obtained.
+        out = {contract.GOAL_LOCATIONS: sorted(ids)}
+        required = sorted(world._required_runes())
+        if required:
+            out[contract.GOAL_ITEMS] = required
+        return out

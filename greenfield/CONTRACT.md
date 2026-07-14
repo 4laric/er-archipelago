@@ -34,6 +34,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `reveal_all_maps` | BOOL |  | both | features/start_grace.py | startgrants.rs as_bool | reveal the whole world map + underground view (client owns the RE'd flag set). |
 | `progressionSurfaceLocations` | INT_LIST |  | greenfield | features/progression_surface.py | core.rs tracker star/lock set | AP location ids on THIS seed's progression surface -- the ONLY locations that may hold this world's own progression (region Locks, required/gate Great Runes, folded legacy keys). Enia (EniaShop) always excluded. The client stars exactly these, so 'where the locks can be' and 'what the tracker points at' are ONE set. REPLACES bigTicketLocations, which named a set progression could never reach (MajorBoss and GreatRune are not on the surface). |
 | `goalLocations` | INT_LIST | yes | both | features/goal_locations.py | goal.rs parse | AP location ids whose completion == victory; client sends Goal when all are done. |
+| `goalItems` | STR_LIST |  | greenfield | features/goal_locations.py | goal.rs parse | Item NAMES the player must HOLD before Goal can fire. The great_runes ending used to express 'collect Godrick's Great Rune' as the LOCATION of Godrick's boss drop -- but item_shuffle is frozen ON, so the rune is not at the boss. Killing is not collecting. Absent/empty adds no requirement, so every other ending and every foreign apworld is unaffected. |
 | `checkItemFlags` | LISTVAL_INT_MAP |  | both | features/check_item_flags.py | detour.rs CHECK_ITEM_FLAGS<u32,Vec<u32>> | vanilla FullID (str) -> the check flags it belongs to; suppresses the vanilla bag-add. |
 | `shopRowFlags` | SCALAR_INT_MAP |  | both | features/shops.py | core.rs:359 i64_to_u32_map | ShopLineupParam row id -> eventFlag_forStock written for shop checks. |
 | `checkLotBlankMap` | LISTVAL_INT_MAP |  | greenfield | features/check_lots.py | check_lots.rs (ItemLotParam_map) | ItemLotParam_MAP lot id -> the GOODS slot indices holding a check's vanilla ware. |
@@ -88,6 +89,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | STR_MAP | `{key: str} object` |
 | TRIPLE_LIST | `parse_triples` |
 | INT_LIST | `arr_i32 / arr_u32` |
+| STR_LIST | `arr_str (item names)` |
 | BOOL | `as_bool` |
 | BOOL_OR_INT | `parse_death_link / parse_dlc (0/1)` |
 | INT_OR_BOOL | `parse_bool_option (nonzero = on)` |

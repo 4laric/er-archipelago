@@ -25,7 +25,7 @@ game: "Elden Ring"
   num_regions: 4                 # majors in play (+ Roundtable hub, always kept); rest sealed. 0 = all 22.
   num_regions_order: rolled      # spine = Limgrave-first fixed path; rolled = N random majors.
   ending_condition: region_locks # win = hold every kept region's lock. great_runes = ALSO require N runes.
-  # great_runes_required: 2      # 1..7; ONLY consulted when ending_condition: great_runes.
+  # goal_great_runes: 2      # 1..7; ONLY consulted when ending_condition: great_runes.
   start_with_region_lock: true   # spawn at Roundtable with one random kept region already unlocked.
 
   # ---- Real item randomizer -----------------------------------------------

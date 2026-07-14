@@ -124,10 +124,16 @@ class EndingCondition(Choice):
 
 
 class GreatRunesRequired(Range):
-    """How many Great Runes the 'great_runes' ending needs. Ignored unless Ending Condition is
-    great_runes (and Shuffle Vanilla Items is on). The effective requirement is clamped down to the
-    count of Great Runes reachable in the kept regions, so sealing away Great-Rune regions
-    (num_regions) lowers -- never breaks -- the goal."""
+    """How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is
+    great_runes -- core._resolve_required_runes returns before this value is ever read.
+
+    RENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,
+    which is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every
+    seed), and the pair read as two settings for one mechanic. One was a no-op in the default config
+    and nothing said so.
+
+    The effective requirement is clamped down to the Great Runes reachable in the kept regions, so
+    sealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.""" 
     display_name = "Great Runes Required"
     range_start = 1
     range_end = 7
@@ -156,7 +162,7 @@ class DLCOnly(Toggle):
 
 _CORE_OPTION_FIELDS = [("num_regions", NumRegions), ("num_regions_order", NumRegionsOrder),
                        ("item_shuffle", ItemShuffle), ("ending_condition", EndingCondition),
-                       ("great_runes_required", GreatRunesRequired),
+                       ("goal_great_runes", GreatRunesRequired),
                        ("enable_dlc", EnableDLC), ("dlc_only", DLCOnly)]
 # v0.2 option-matrix slim: FROZEN_OPTIONS are no longer yaml-settable -- they are the BEHAVIOUR
 # (see defaults.py). Their classes stay declared in the features (so the slot_data / options-echo
@@ -329,7 +335,7 @@ class GreenfieldEldenRingWorld(World):
         ec = getattr(self.options, "ending_condition", None)
         if ec is None or ec.current_key != "great_runes":
             return []
-        want = int(getattr(self.options, "great_runes_required").value)
+        want = int(getattr(self.options, "goal_great_runes").value)
         avail = self._available_runes()
         want = min(max(want, 0), len(avail))
         # Deterministic pick of `want` reachable runes (sorted for reproducibility).

@@ -35,7 +35,7 @@ Elden Ring:
   num_regions_order: rolled
 
   ending_condition: region_locks
-  great_runes_required: 2
+  goal_great_runes: 2
   leyndell_runes_required: 2
 
   # ---- DLC ------------------------------------------------------------------

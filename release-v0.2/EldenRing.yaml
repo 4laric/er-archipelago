@@ -56,13 +56,15 @@ Elden Ring:
 
   # What the goal requires.
   #   region_locks  -- hold every Region Lock that is in play (default).
-  #   great_runes   -- collect great_runes_required Great Runes.
+  #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the
+  #                    runes; killing the boss that vanilla-drops one is NOT enough
+  #                    (they are shuffled -- the rune is not at its boss).
   ending_condition: region_locks
 
   # Only used when ending_condition is great_runes. Clamped down to the
   # Great Runes actually reachable this seed, so it can never make a seed
   # unbeatable.
-  great_runes_required: 2
+  goal_great_runes: 2
 
   # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
   # echoing the vanilla "two Great Runes to enter the capital". The capital's

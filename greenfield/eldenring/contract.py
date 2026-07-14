@@ -82,6 +82,15 @@ def _chk_int_list(v):
     return None
 
 
+def _chk_str_list(v):
+    # arr_str : [str, ...] -- item NAMES (goalItems). Names, not ids, because the client already
+    # matches received items BY NAME everywhere else (region locks, boss keys), and a name survives an
+    # ap-id renumber where a positional id does not.
+    if not isinstance(v, (list, tuple)) or not all(isinstance(i, str) for i in v):
+        return "expected [str, ...]"
+    return None
+
+
 def _chk_bool(v):
     if not isinstance(v, bool):
         return f"expected bool, got {type(v).__name__}"
@@ -175,6 +184,7 @@ SHAPES = {
     "STR_MAP":         (_chk_str_map,         "StrMap",        "{key: str} object"),
     "TRIPLE_LIST":     (_chk_triple_list,     "TripleList",    "parse_triples"),
     "INT_LIST":        (_chk_int_list,        "IntList",       "arr_i32 / arr_u32"),
+    "STR_LIST":        (_chk_str_list,        "StrList",       "arr_str (item names)"),
     "BOOL":            (_chk_bool,            "Bool",          "as_bool"),
     "BOOL_OR_INT":     (_chk_bool_or_int,     "BoolOrInt",     "parse_death_link / parse_dlc (0/1)"),
     "INT_OR_BOOL":     (_chk_int_or_bool,     "IntOrBool",     "parse_bool_option (nonzero = on)"),
@@ -427,6 +437,13 @@ CONTRACT = (
     ContractKey("goalLocations", "INT_LIST", True, (BOTH,),
                 "features/goal_locations.py", "goal.rs parse",
                 "AP location ids whose completion == victory; client sends Goal when all are done."),
+    ContractKey("goalItems", "STR_LIST", False, (GREENFIELD,),
+                "features/goal_locations.py", "goal.rs parse",
+                "Item NAMES the player must HOLD before Goal can fire. The great_runes ending used to "
+                "express 'collect Godrick's Great Rune' as the LOCATION of Godrick's boss drop -- but "
+                "item_shuffle is frozen ON, so the rune is not at the boss. Killing is not collecting. "
+                "Absent/empty adds no requirement, so every other ending and every foreign apworld is "
+                "unaffected."),
     # --- vanilla suppression + shops ---
     ContractKey("checkItemFlags", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/check_item_flags.py", "detour.rs CHECK_ITEM_FLAGS<u32,Vec<u32>>",
