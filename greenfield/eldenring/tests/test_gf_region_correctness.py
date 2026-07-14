@@ -292,6 +292,10 @@ class RegionCorrectness(unittest.TestCase):
         "Church of the Bud (DLC)":     "Ancient Ruins",   # Romina slice
         "Enir-Ilim (DLC)":             "Enir Ilim",       # Kindling-gated finale (bedrock spelling)
         "Castle Ensis (DLC)":          "Ensis",
+        # Cerulean's single CSV row (flag 68540, Forager Brood Cookbook [3]) is deliberately vanilla
+        # (gen_data._UNPLACEABLE_DLC_COOKBOOKS, 236bf3d) -> the string may legitimately emit ZERO
+        # checks, PROVIDED the flag is ledgered in data.NOT_RANDOMIZED. Keep the expectation: if the
+        # exclusion is ever lifted, the region target is still pinned.
         "Cerulean Coast (DLC)":        "Cerulean",
         "Stone Coffin Fissure (DLC)":  "Stone Coffin",
         # Base-game first-class regions.
@@ -336,30 +340,74 @@ class RegionCorrectness(unittest.TestCase):
                 continue
         return out
 
+    # The regen command for the generated-data-can-lag gotcha: keep every failure message actionable.
+    REGEN_CMD = ("python greenfield/gen_data.py  (Windows box with elden_ring_artifacts/ present; "
+                 "then commit the regenerated greenfield/eldenring/*.py + _gen_stamp.json)")
+
+    def _not_randomized(self):
+        """data.NOT_RANDOMIZED (flag -> reason ledger of deliberate exclusions), or a LOUD failure
+        when the generated data lags gen_data.py. Never a skip: without the ledger this gate cannot
+        tell a deliberate exclusion from silent data loss -- the exact blind spot it exists to
+        close (Cerulean Coast dead-air false alarm, 2026-07-14)."""
+        nr = getattr(self.d, "NOT_RANDOMIZED", None)
+        if nr is None:
+            self.fail("data.py has no NOT_RANDOMIZED ledger -- the generated data LAGS gen_data.py. "
+                      "REGENERATE, do not skip: " + self.REGEN_CMD)
+        return nr
+
     def test_recarved_regions_by_csv_region_string(self):
         """Every placed pickup whose CSV region-string was re-carved must resolve SOLELY to its new
-        region -- catches boundary bleed (a re-carved tile leaking into a neighbour) and stale carve."""
-        bad, empty = [], []
+        region -- catches boundary bleed (a re-carved tile leaking into a neighbour) and stale carve.
+
+        A region-string may produce ZERO emitted checks ONLY when every flag it carries is in
+        data.NOT_RANDOMIZED (deliberately excluded, rule recorded) -- e.g. 'Cerulean Coast (DLC)',
+        whose single row 68540 is an unplaceable DLC cookbook. A flag absent from BOTH the emitted
+        LOCATIONS and NOT_RANDOMIZED is REAL data loss and fails, empty group or not."""
+        nr = self._not_randomized()
+        bad, lost, no_rows = [], [], []
         for region_string, target in sorted(self.RECARVE_REGION_STRING_EXPECT.items()):
             flags = self._placed_flags_where(lambda r, rs=region_string: (r.get("region") or "") == rs)
             emitted = [(f, self.assigned[f]) for f in flags if f in self.assigned]
+            lost.extend((region_string, f) for f in flags
+                        if f not in self.assigned and f not in nr)
+            if not flags:
+                no_rows.append(region_string)  # the CSV carries no row with this string at all
+                continue
             if not emitted:
-                empty.append(region_string)   # produced zero emitted checks -> region would be dead air
+                # Every flag this string carries is deliberately excluded (ledgered above, or it
+                # would be in `lost`) -> the string is LEGITIMATELY empty. PASS for that reason.
                 continue
             for f, regions in emitted:
                 want = AUTHORITATIVE_REPIN.get(f, target)
                 if regions != {want}:
                     bad.append((region_string, f, want, sorted(regions)))
         self.assertEqual(
-            empty, [],
-            "re-carved CSV region-string(s) produced NO emitted checks (region would be empty): "
-            + repr(empty))
+            lost, [],
+            str(len(lost)) + " placed flag(s) absent from BOTH data.LOCATIONS and "
+            "data.NOT_RANDOMIZED -- REAL data loss, not a deliberate exclusion (an exclusion would "
+            "be ledgered with its rule; if gen_data.py changed, regen: " + self.REGEN_CMD + "). "
+            "(csv_region, flag): " + repr(lost))
+        self.assertEqual(
+            no_rows, [],
+            "re-carved CSV region-string(s) with NO region_map.csv rows at all (stale expectation "
+            "or CSV regression): " + repr(no_rows))
         self.assertEqual(
             bad, [],
             str(len(bad)) + " placed pickup(s) did not resolve solely to their re-carved region "
             "(SPEC-region-capstone-model-20260708 sec 3/3a; boundary mis-bucketing regression, or the "
             "Windows regen of data.py has not run yet). (csv_region, flag, expected, got): "
             + repr(bad[:8]))
+
+    def test_not_randomized_ledger_disjoint_from_emitted(self):
+        """A flag cannot be BOTH an emitted location and ledgered NOT_RANDOMIZED -- a ledger entry
+        for a live check lies about why the world works (the redundant-manual-override failure
+        mode: nobody can tell which entries are load-bearing)."""
+        nr = self._not_randomized()
+        overlap = sorted(set(nr) & set(self.assigned))
+        self.assertEqual(
+            overlap, [],
+            str(len(overlap)) + " flag(s) present in BOTH data.LOCATIONS and data.NOT_RANDOMIZED "
+            "(ledger lies about a live check; regen: " + self.REGEN_CMD + "): " + repr(overlap[:10]))
 
     def test_shunning_grounds_is_the_sewer(self):
         """Subterranean Shunning-Grounds (m35_00) is the SEWER region (bucket 35000; region-spine

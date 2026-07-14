@@ -1761,6 +1761,93 @@ for r in rows:
         shop_gated_aps.append(apid)
     buckets.setdefault(reg,[]).append((nm,apid,flag)); apid+=1
 
+
+# ---- NOT_RANDOMIZED ledger: deliberate absence, made visible -------------------------------------
+# A deliberately excluded row and a silently LOST row look identical from inside the generated
+# package: both are just "not in LOCATIONS". That blind spot is CONTRIBUTING rule 6 ("Absence is
+# invisible -- go looking for it") and it fired for real on 2026-07-14: the re-carve gate called
+# 'Cerulean Coast (DLC)' dead air when its single row (flag 68540, Forager Brood Cookbook [3]) had
+# been deliberately parked vanilla by _UNPLACEABLE_DLC_COOKBOOKS (236bf3d). So emit the ledger:
+# every region_map.csv flag gen_data deliberately declined to emit as a check, mapped to the RULE
+# that dropped it. Membership is DERIVED from the live exclusion sets / predicates / guard drop
+# lists above -- never a second hand list (a redundant manual override is a failure). Consumer:
+# test_gf_region_correctness -- a re-carved region-string may be empty ONLY if every flag it
+# carries is ledgered; a flag absent from both LOCATIONS and this ledger is REAL data loss.
+_NR_PHANTOM_FLAGS = {int(_r3['flag']) for _r3 in _PHANTOM_DROPPED}
+_NR_ITEMLESS_FLAGS = {int(_r3['flag']) for _r3 in _ITEMLESS_DROPPED}
+_NR_SYN_FLAGS = {int(_r3['flag']) for _r3 in _SYN_DROPPED}
+_NR_RULES = (
+    (lambda _fl, _r: _fl in MAP_REVEAL_FLAGS,
+     "map_reveal: map-fragment stele lot; the client's map-reveal flag path sets these exact flags "
+     "(startgrants MAP_REVEAL_FLAGS), so a check here would be tripped en masse at reveal"),
+    (lambda _fl, _r: _fl in MINIBAKER_VENDOR_FLAGS,
+     "minibaker_vendor_row: ShopLineupParam row 101801 is repurposed at runtime as the infinite "
+     "Stonesword Key vendor (features/minibaker.py); a check here would be clobbered"),
+    (lambda _fl, _r: _fl == 400280,
+     "obtained_flag_twin: Haligtree Secret Medallion (Left) obtained-flag twin of the placed "
+     "Castle Sol pickup f1051587800; keeping both double-checks one medallion"),
+    (lambda _fl, _r: _fl in _GREAT_RUNE_TOWER_DUPES,
+     "great_rune_tower_dupe: Divine Tower restoration re-award of a great rune that is already a "
+     "check on its shardbearer boss (in-game double-grant 2026-07-08)"),
+    (lambda _fl, _r: _fl in _MISC_NON_CHECK,
+     "misc_non_check: tutorial/system grant or empty lot (Flask, Torrent's whistle, Wizened "
+     "Finger, 'About...' popups) -- not loot, never a check"),
+    (lambda _fl, _r: _fl in _RECOVER_PHANTOM_DUPES,
+     "recover_phantom_dupe: unplaced global flag naming a unique key item already fully placed "
+     "elsewhere; recovering it would duplicate a singleton key"),
+    (lambda _fl, _r: _fl in _UNREACHABLE_DEAD,
+     "unreachable_dead: physically gated behind mechanics a warp-grace region-lock shuffle cannot "
+     "guarantee (Alaric 2026-07-09); a placed item would strand"),
+    (lambda _fl, _r: _fl in _UNPLACEABLE_DLC_COOKBOOKS,
+     "unplaceable_dlc_cookbook: DLC cookbook whose lot id encodes no map and which no datamine "
+     "places (ESD/scripted gift, matt-diff C 2026-07-14); stays a vanilla pickup rather than lie "
+     "about its region"),
+    (lambda _fl, _r: _is_ashen_dead(_fl),
+     "ashen_capital_dead: post-Erdtree-burn / final-boss content, unreachable in a region-lock "
+     "game (user decision 2026-07-08)"),
+    (lambda _fl, _r: _is_mausoleum_dupe(_r),
+     "mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss "
+     "drop is the real check; the copy can strand once the drop is shuffled"),
+    (lambda _fl, _r: _fl in _NR_PHANTOM_FLAGS,
+     "phantom_flag: acquisition flag exists in NO game data (invented upstream); it can never "
+     "fire, so it must not be a check (phantom-flag guard)"),
+    (lambda _fl, _r: _fl in _NR_ITEMLESS_FLAGS,
+     "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or "
+     "FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)"),
+    (lambda _fl, _r: _fl in _NR_SYN_FLAGS,
+     "synthetic_unproven_award: synthetic_areacode row whose invented flag collides with a real "
+     "id but does not award the claimed item (params ground truth 2026-07-14; synthetic award "
+     "guard)"),
+)
+# Completeness: every EXCLUDE_FLAGS member must be explained by a rule above. A new exclusion set
+# folded into EXCLUDE_FLAGS without a ledger rule would silently revive the blind spot -- fail the
+# regen instead of shipping an incomplete ledger.
+_nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | frozenset({400280})
+                                   | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
+                                   | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
+                                   | _UNPLACEABLE_DLC_COOKBOOKS)
+if _nr_unexplained:
+    raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
+                     "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "
+                     "distinguishable from data loss" % sorted(_nr_unexplained))
+_EMITTED_FLAGS = {_fl3 for _b3 in buckets.values() for (_nm3, _aid3, _fl3) in _b3}
+NOT_RANDOMIZED = {}
+_nr_tally = Counter()
+for _r3 in _ALLROWS:
+    try:
+        _fl3 = int(_r3['flag'])
+    except (KeyError, ValueError):
+        continue
+    if _fl3 in _EMITTED_FLAGS or _fl3 in NOT_RANDOMIZED:
+        continue
+    for _nr_pred, _nr_why in _NR_RULES:
+        if _nr_pred(_fl3, _r3):
+            NOT_RANDOMIZED[_fl3] = _nr_why
+            _nr_tally[_nr_why.split(':', 1)[0]] += 1
+            break
+print("not_randomized: %d deliberately-excluded region_map flags ledgered (%s)" % (
+    len(NOT_RANDOMIZED), ", ".join("%s=%d" % _kv for _kv in sorted(_nr_tally.items()))))
+
 spokes=sorted(k for k in buckets if k!=HUB)
 with open(OUT,"w",encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Greenfield ER data; data-derived, no external naming."""\n')
@@ -1772,6 +1859,13 @@ with open(OUT,"w",encoding="utf-8") as f:
         f.write(f"    {r!r}: [\n")
         for nm,aid,flag in buckets.get(r,[]): f.write(f"        ({nm!r}, {aid}, {flag}),\n")
         f.write("    ],\n")
+    f.write("}\n")
+    f.write("\n# Deliberately NOT randomized: region_map.csv flag -> the gen_data rule that dropped it.\n")
+    f.write("# An empty re-carved region-string is legitimate ONLY if every flag it carries is here;\n")
+    f.write("# a flag absent from both LOCATIONS and this dict is REAL data loss (see gen_data.py).\n")
+    f.write("NOT_RANDOMIZED = {\n")
+    for _fl3 in sorted(NOT_RANDOMIZED):
+        f.write(f"    {_fl3}: {ascii(NOT_RANDOMIZED[_fl3])},\n")
     f.write("}\n")
 print(f"spokes={len(spokes)} hub_locs={len(buckets.get(HUB,[]))} total={sum(len(v) for v in buckets.values())}")
 # ---- EMEVD/common-event audit REPORT (deterministic; classifies each emevd/global row once) ------
