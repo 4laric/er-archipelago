@@ -175,10 +175,31 @@ def build():
                 if slots:
                     out[key][str(flag)] = {"lot": lot, "slots": slots}
                 if ids:
-                    out["items"].setdefault(str(flag), [])
-                    for i in ids:
-                        if i not in out["items"][str(flag)]:
-                            out["items"][str(flag)].append(i)
+                    pending.append((flag, ids))
+                    for cat, raw in ids:
+                        rows_by_cat[cat].add(raw)
+
+    # DERIVE the nibble map from what we just read, then assemble the FullIDs.
+    print("deriving lotItemCategory -> FullID nibble from ItemLotParam x ITEM_CATALOG:")
+    nibble = derive_category_nibble(rows_by_cat, known)
+
+    for flag, ids in pending:
+        k = str(flag)
+        out["items"].setdefault(k, [])
+        for cat, raw in ids:
+            full = nibble[cat] | raw
+            if full not in out["items"][k]:
+                out["items"][k].append(full)
+
+    # The output shape is a CONTRACT: the client reads { str(flag): [int, ...] } and matches those ints
+    # against the detour's FullID. A previous edit half-applied and shipped [[cat, raw]] pairs -- valid
+    # JSON, wrong shape, and the client would simply never match. Assert the shape before writing.
+    for k, v in out["items"].items():
+        if not all(isinstance(i, int) for i in v):
+            raise SystemExit(
+                "FATAL: check_lots items[%s] is not a flat list of FullID ints: %r\n"
+                "The client matches these against the detour's FullID; any other shape silently never "
+                "matches, and every vanilla item leaks alongside the AP one." % (k, v))
     return out
 
 
