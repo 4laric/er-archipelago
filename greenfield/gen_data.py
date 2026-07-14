@@ -921,7 +921,12 @@ FLAG_REGION_OVERRIDE = {
     2047447050: "Ensis", 2047447060: "Ensis", 2047447070: "Ensis", 2047447080: "Ensis",
     2047447090: "Ensis", 2047447100: "Ensis", 2047447110: "Ensis", 2047447120: "Ensis",
     2047447130: "Ensis", 2047447140: "Ensis", 2047447150: "Ensis", 2047447160: "Ensis",
-    2047447170: "Ensis", 2047447200: "Ensis",   # rest of the same 47,44 castle tile (6820 grace)
+    2047447170: "Ensis", 2047447200: "Ensis", 2047447210: "Ensis", 2047447600: "Ensis",
+    2047447610: "Ensis", 2047447700: "Ensis", 2047447710: "Ensis", 2047447720: "Ensis",
+    2047447800: "Ensis", 2047447830: "Ensis", 2047447900: "Ensis", 2047447901: "Ensis",
+    # ^ the complete 47,44 castle tile (6820 Ensis grace) -- the full set from tools/dev/check_vs_matt.py
+    # Tile 48,39 (graces 6830 Cerulean + 6840 Charo's): these 3 lots are the Charo's Hidden Grave side.
+    2048397030: "Charo's", 2048397040: "Charo's", 2048397050: "Charo's",
     # Tile 48,43 (graces 6800 Gravesite + 6860 Abyssal): M61_TILE_CURATED pins the whole tile Abyssal,
     # but these lots are the Gravesite (Pillar Path Cross) side.
     2048437000: "Gravesite", 2048437010: "Gravesite", 2048437020: "Gravesite",
