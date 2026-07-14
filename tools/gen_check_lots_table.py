@@ -86,7 +86,39 @@ GOODS_NIBBLE = 0x4000_0000
 
 
 
-def derive_category_nibble(rows_by_cat, known):
+def name_witnesses():
+    """flag -> (raw, nibble), resolved by ITEM NAME.
+
+    The raw-id witness is weak: raw ids are unique only WITHIN a category, so any raw the catalog knows
+    in two categories votes for nothing. For lotItemCategory 6 (sorceries) EVERY raw collides, so it had
+    no evidence at all and the derivation correctly refused to guess.
+
+    A NAME cannot collide. region_map.csv pairs each check flag with the vanilla item's NAME, and
+    ITEM_CATALOG maps that name to exactly one FullID. So (flag, name) -> nibble is unambiguous by
+    construction -- a strictly stronger witness, and it is the one that settles category 6.
+    """
+    import re
+
+    cat_src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
+    text = open(cat_src, encoding="utf-8").read()
+    by_name = {m.group(1): int(m.group(2)) for m in re.finditer(r"'([^']+)'\s*:\s*(\d+),", text)}
+
+    rm = os.path.join(REPO, "greenfield", "region_map.csv")
+    if not os.path.isfile(rm):
+        return {}
+    out = {}
+    with open(rm, newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            f = (r.get("flag") or "").strip()
+            nm = (r.get("item_name") or "").strip()
+            if not f.isdigit() or nm not in by_name:
+                continue
+            full = by_name[nm]
+            out[int(f)] = (full & 0x0FFF_FFFF, full & 0xF000_0000)
+    return out
+
+
+def derive_category_nibble(rows_by_cat, known, named=None):
     """lotItemCategory -> FullID category nibble, VOTED from the data.
 
     For every lot entry we know (raw id, lotItemCategory). For every ITEM_CATALOG item we know
@@ -106,6 +138,13 @@ def derive_category_nibble(rows_by_cat, known):
             n = next(iter(nibs))
             v[n] = v.get(n, 0) + 1
         votes[cat] = v
+
+    # NAME witnesses -- stronger, and they cannot collide. Counted x3 so a category whose raw ids ALL
+    # collide (category 6, sorceries) still derives, without letting weak raw votes outweigh them.
+    for cat, nib in (named or {}).items():
+        for n, k in nib.items():
+            votes.setdefault(cat, {})
+            votes[cat][n] = votes[cat].get(n, 0) + 3 * k
 
     out = {}
     for cat in sorted(votes):
@@ -187,8 +226,22 @@ def build():
                     pending.append((key, flag, lot, entries))
 
     # DERIVE the nibble map from what we just read, then assemble the FullIDs.
+    # Name-resolved evidence: for a lot whose flag names a known item, the slot carrying that item's
+    # RAW id tells us that (category -> nibble) directly, with no collision risk.
+    wit = name_witnesses()
+    named = {}
+    for key, flag, lot, entries in pending:
+        w = wit.get(flag)
+        if not w:
+            continue
+        raw, nib = w
+        for (_i, cat, iid) in entries:
+            if iid == raw:
+                named.setdefault(cat, {})
+                named[cat][nib] = named[cat].get(nib, 0) + 1
+
     print("deriving lotItemCategory -> FullID nibble from ItemLotParam x ITEM_CATALOG:")
-    nibble = derive_category_nibble(rows_by_cat, known)
+    nibble = derive_category_nibble(rows_by_cat, known, named)
 
     # PASS 2: route each slot by its DERIVED nibble. GOODS -> blank the lot slot (the client repoints it
     # at the placeholder). Everything else -> id-keyed suppression against the detour's FullID.
