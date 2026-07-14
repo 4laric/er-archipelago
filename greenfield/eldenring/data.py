@@ -1590,6 +1590,15 @@ LOCATIONS = {
         ('Ensis :: Somber Smithing Stone [3] [f2047447070]', 7773556, 2047447070),
         ('Ensis :: Somber Smithing Stone [6] [f2047447080]', 7773557, 2047447080),
         ('Ensis :: [Sorcery] Glintblade Trio [f2047447090]', 7773558, 2047447090),
+        ('Ensis :: Somber Smithing Stone [2] [f2047447100]', 7773559, 2047447100),
+        ('Ensis :: Glintslab Firefly [f2047447110]', 7773560, 2047447110),
+        ('Ensis :: Dewgem [f2047447120]', 7773561, 2047447120),
+        ('Ensis :: Somber Smithing Stone [1] [f2047447130]', 7773562, 2047447130),
+        ('Ensis :: Arrow [f2047447140]', 7773563, 2047447140),
+        ('Ensis :: Bolt [f2047447150]', 7773564, 2047447150),
+        ('Ensis :: Shadow Realm Rune [2] [f2047447160]', 7773565, 2047447160),
+        ('Ensis :: Glintslab Firefly [f2047447170]', 7773566, 2047447170),
+        ('Ensis :: Drawstring Royal Magic Grease [f2047447200]', 7773568, 2047447200),
         ('Ensis :: Knot Resin [f2048447000]', 7773634, 2048447000),
         ('Ensis :: Shadow Realm Rune [2] [f2048447010]', 7773635, 2048447010),
         ('Ensis :: Hefty Beast Bone [f2048447020]', 7773636, 2048447020),
@@ -1847,16 +1856,7 @@ LOCATIONS = {
         ('Gravesite :: Somber Smithing Stone [4] [f2047437050]', 7773547, 2047437050),
         ('Gravesite :: Revered Spirit Ash [f2047437700]', 7773548, 2047437700),
         ('Gravesite :: Horned Bairn [f2047437980]', 7773549, 2047437980),
-        ('Gravesite :: Somber Smithing Stone [2] [f2047447100]', 7773559, 2047447100),
-        ('Gravesite :: Glintslab Firefly [f2047447110]', 7773560, 2047447110),
-        ('Gravesite :: Dewgem [f2047447120]', 7773561, 2047447120),
-        ('Gravesite :: Somber Smithing Stone [1] [f2047447130]', 7773562, 2047447130),
-        ('Gravesite :: Arrow [f2047447140]', 7773563, 2047447140),
-        ('Gravesite :: Bolt [f2047447150]', 7773564, 2047447150),
-        ('Gravesite :: Shadow Realm Rune [2] [f2047447160]', 7773565, 2047447160),
-        ('Gravesite :: Glintslab Firefly [f2047447170]', 7773566, 2047447170),
         ('Gravesite :: Spelldrake Talisman +3 [f2047447190]', 7773567, 2047447190),
-        ('Gravesite :: Drawstring Royal Magic Grease [f2047447200]', 7773568, 2047447200),
         ('Gravesite :: Knot Resin [f2047447210]', 7773569, 2047447210),
         ('Gravesite :: Shadow Realm Rune [4] [f2047447600]', 7773570, 2047447600),
         ('Gravesite :: Starlight Shards [f2047447610]', 7773571, 2047447610),
@@ -4945,4 +4945,4 @@ LOCATIONS = {
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:882c04e6511633faaab603146166e8cb9cc88ef4a656c17c7a3a5596023fb586', 'module': 'data.py', 'body_sha256': 'sha256:c9458024fb71393cf5e7ef03269f3235afd4be6147eb08e65cdb92b44e06b8a6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:385e6f9e2cad37c1e90fb454ebd766946101204ebbfa622e681f69cc339407de', 'module': 'data.py', 'body_sha256': 'sha256:9466ee7206058a52bf08717ca692daa2be0cf6158baa510509eec0b0ca46a4aa'}
