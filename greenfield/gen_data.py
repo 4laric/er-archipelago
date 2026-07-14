@@ -912,7 +912,9 @@ FLAG_REGION_OVERRIDE = {
     # (the vote otherwise dumps the whole gateable castle into the start region Gravesite).
     2047447010: "Ensis", 2047447020: "Ensis", 2047447030: "Ensis", 2047447040: "Ensis",
     2047447050: "Ensis", 2047447060: "Ensis", 2047447070: "Ensis", 2047447080: "Ensis",
-    2047447090: "Ensis",
+    2047447090: "Ensis", 2047447100: "Ensis", 2047447110: "Ensis", 2047447120: "Ensis",
+    2047447130: "Ensis", 2047447140: "Ensis", 2047447150: "Ensis", 2047447160: "Ensis",
+    2047447170: "Ensis", 2047447200: "Ensis",   # rest of the same 47,44 castle tile (6820 grace)
     # Tile 48,43 (graces 6800 Gravesite + 6860 Abyssal): M61_TILE_CURATED pins the whole tile Abyssal,
     # but these lots are the Gravesite (Pillar Path Cross) side.
     2048437000: "Gravesite", 2048437010: "Gravesite", 2048437020: "Gravesite",
