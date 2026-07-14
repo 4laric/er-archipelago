@@ -218,17 +218,24 @@ class CoverageGateStatic(unittest.TestCase, _BaselineAssertions):
             q.QUARANTINE.update(saved)
 
     # ------------------------------------------------------------------ report mode is fail-open
-    def test_assert_coverage_exists_but_is_not_wired(self):
-        """assert_coverage must EXIST (the future raising gate) but must NOT be referenced from the
-        gen path (core.py / registry.py / gen_data.py) -- fail-open on debut, per the release rule."""
+    def test_assert_coverage_is_wired_into_the_gen_path(self):
+        """assert_coverage must be WIRED and RAISING (2026-07-14).
+
+        It debuted in report mode -- fail-open, per the release rule -- and the baseline soaked to
+        ZERO violations. It now raises from core.post_fill.
+
+        This assertion is the inverse of the one it replaces, and the inversion is the point: a gate
+        that exists but is not called is a gate that catches nothing. Every significant bug of
+        2026-07-13/14 was inside its scope (region geometry in the wrong id space, suppression keyed
+        by the wrong id space, whole lotItemCategories silently never judged) and NOT ONE of them
+        errored, logged, or failed a test. If someone un-wires this to make a seed generate, they are
+        re-creating that world, and this test is what stops them.
+        """
         self.assertTrue(callable(getattr(self.cov, "assert_coverage", None)))
-        for fname in ("core.py", "registry.py"):
-            path = os.path.join(GF_PKG, fname)
-            if os.path.isfile(path):
-                src = open(path, encoding="utf-8").read()
-                self.assertNotIn("assert_coverage", src,
-                                 f"{fname} wires the RAISING coverage gate -- report mode only "
-                                 f"until the baseline has soaked")
+        src = open(os.path.join(GF_PKG, "core.py"), encoding="utf-8").read()
+        self.assertIn("assert_coverage", src,
+                      "core.py no longer calls assert_coverage -- the coverage gate is DEAD. It is "
+                      "not a report; it is the thing that makes a silent wrong answer loud.")
 
 
 # ===================================================================================================

@@ -516,6 +516,33 @@ class GreenfieldEldenRingWorld(World):
         # surface). One surface, one definition.
 
     def post_fill(self) -> None:
+        # ---- COVERAGE GATE (RAISING as of 2026-07-14) ------------------------------------------
+        # Every EMITTED location must be DETECTABLE (a real acquisition flag the client polls, not
+        # aliased, not colliding with a system flag), SUPPRESSED (if it vanilla-holds a ware, some
+        # mechanism stops the game handing that ware over ALONGSIDE the AP item), and
+        # REGION-CONSISTENT (every source that claims a region agrees, and the region has real kick
+        # geometry).
+        #
+        # It shipped in report mode -- fail-open on debut, per the release rule -- and the baseline
+        # has now soaked to ZERO violations, so it raises. That matters more than it sounds: EVERY
+        # significant bug of 2026-07-13/14 was inside its scope and none of them errored.
+        #   * play_region buckets in the wrong id space -> Weeping's lock and the ENTIRE DLC's locks
+        #     had never enforced anything, in any seed (region);
+        #   * check_lots keyed by raw id instead of FullID -> armour, talismans and every Ash of War
+        #     double-paid (suppression);
+        #   * lotItemCategory 0 and 6 "never judged" -> 13 checks handed out their vanilla ware
+        #     forever, and the lot blank was the ONLY mechanism that could ever suppress them
+        #     (suppression).
+        # Not one of those crashed, logged, or failed a test. They were silent wrong answers, which
+        # is what this gate exists to convert into loud ones.
+        #
+        # Runs FIRST: a seed that cannot pay its own contract should die before we spend anything
+        # else on it. If it fires, DO NOT quarantine to make it green -- coverage_quarantine is for
+        # locations genuinely excluded from the pool, and ACCEPTED_LEAKS is FILLER-only and needs a
+        # reason and a date. Silencing this gate re-creates the exact bug it just caught.
+        from . import coverage as _cov
+        _cov.assert_coverage(self)
+
         # F (2026-07-10): progression-reachability safety net. Verify every own advancement item is
         # actually reachable from a real CollectionState; raise FillError on any stranding (an in-game
         # soft-lock under accessibility:minimal, which AP does not self-check). Runs first so a doomed
