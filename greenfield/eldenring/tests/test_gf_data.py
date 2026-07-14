@@ -162,7 +162,13 @@ class GreenfieldSpine(unittest.TestCase):
         k = self.rs.compute_kept(5, "rolled", random.Random(7))
         self.assertIn(self.rs.GOAL_REGION, k)
         self.assertEqual(len(k), len(set(k)))
-        self.assertTrue(5 <= len(k) <= 6)
+        # N or N+goal, plus REGION_PARENT closure (a kept gated child pulls its ancestors in;
+        # bound derived from parent_chain, never re-pinned).
+        extra = sum(len(self.rs.parent_chain(r)) for r in k)
+        self.assertTrue(5 <= len(k) <= 6 + extra)
+        for r in k:
+            for anc in self.rs.parent_chain(r):
+                self.assertIn(anc, k, f"kept child {r} without ancestor {anc}")
 
 
 

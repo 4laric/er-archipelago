@@ -37,7 +37,8 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import HUB, REGIONS, LOCATIONS                       # noqa: E402
-from worlds.eldenring.region_spine import DLC_REGIONS, base_regions, dlc_regions  # noqa: E402
+from worlds.eldenring.region_spine import (  # noqa: E402
+    DLC_REGIONS, REGION_PARENT, base_regions, dlc_regions)
 from worlds.eldenring.features.start_grace import pick_anchor_region            # noqa: E402
 from worlds.eldenring.features.progression_surface import (                     # noqa: E402
     lock_region_name, regions_with_major_boss)
@@ -147,6 +148,23 @@ class PickAnchorPure(unittest.TestCase):
         with self.assertRaises(ValueError):
             pick_anchor_region(["Limgrave"], random.Random(1), {"Limgrave": 0}, DLC_REGIONS)
 
+    def test_gated_children_never_anchor(self):
+        """gated-children fix (2026-07-14): a REGION_PARENT child may never open the run -- its
+        opening grant is exactly the grace bundle features/graces.py withholds (East Capital
+        Rampart, playtest). The exclusion applies BEFORE weighting and before the major bias."""
+        rng = random.Random(714)
+        for _ in range(2000):
+            region, _rule, _n = pick_anchor_region(REGIONS, rng, COUNTS, DLC_REGIONS,
+                                                   gated=frozenset(REGION_PARENT))
+            self.assertNotIn(region, REGION_PARENT, f"anchor {region} is a gated child")
+
+    def test_all_gated_kept_set_is_a_loud_failure(self):
+        """A kept set that is ONLY gated children cannot exist post-closure (a child always pulls a
+        non-child ancestor in); handed one anyway, refuse loudly rather than anchor past a wall."""
+        with self.assertRaises(ValueError):
+            pick_anchor_region(list(REGION_PARENT), random.Random(1), COUNTS, DLC_REGIONS,
+                               gated=frozenset(REGION_PARENT))
+
     def test_major_boss_intersects_eligibility_not_replaces_it(self):
         """strict mode: a major set spanning base+DLC must narrow to its BASE members only -- the old
         code replaced the pool with the major set, which could re-admit a DLC anchor."""
@@ -199,7 +217,11 @@ class AnchorRolledSweep(WorldTestBase):
             self.assertIn(region, kept, f"seed {seed}: anchor {region} not a kept region")
             self.assertNotIn(region, DLC_REGIONS,
                              f"seed {seed}: anchor {region} is DLC while base {base_kept} are kept")
-            floor = min(COUNTS[r] for r in base_kept)
+            self.assertNotIn(region, REGION_PARENT,
+                             f"seed {seed}: anchor {region} is a gated child -- its bundle is "
+                             f"withheld, so it can never be the opening region (wiring lost?)")
+            eligible = [r for r in base_kept if r not in REGION_PARENT]
+            floor = min(COUNTS[r] for r in eligible)
             self.assertGreaterEqual(COUNTS[region], floor, f"seed {seed}: anchor below base floor")
             # count-neutral: location-payers == locations (the precollected lock left the pool and
             # its freed slot became filler).
@@ -282,7 +304,9 @@ class AnchorStrictSurfaceIntersect(WorldTestBase):
             base_kept = {r for r in kept if r not in DLC_REGIONS}
             region = _anchor_lock(self)
             self.assertIn(region, base_kept, f"seed {seed}: strict anchor {region} not base")
-            inter = majors & base_kept
+            # gated children (REGION_PARENT) leave eligibility BEFORE the major bias -- Leyndell
+            # hosts Morgott (a major) but may never anchor, so intersect on the reduced pool.
+            inter = (majors & base_kept) - set(REGION_PARENT)
             if inter:
                 self.assertIn(region, inter,
                               f"seed {seed}: anchor {region} outside majors-cap-base {sorted(inter)}")

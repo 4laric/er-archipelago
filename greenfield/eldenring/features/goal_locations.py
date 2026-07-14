@@ -7,58 +7,98 @@ that also appears in `locationFlags` is detected LOCAL-FIRST by its guarding van
 detection table falls back to the server-truth checked set. An EMPTY `goalLocations` can never be
 met, which is the bug in the connect log ("goalLocations empty -- this slot can NEVER send Goal").
 
-matt-free derivation (greenfield's own boss_data.py + region_spine.py, keyed by REGION/flag only):
+THE GOAL IS THE TERMINAL REGION OF THE CHAIN -- the DEEPEST KEPT region by spine rank -- never a
+hardcoded region. (Ruling 2026-07-14: "victory should be clear the terminal region of the chain, if
+there's always a terminal region and major boss. if not it can be kill all the major bosses of the
+terminal regions.") The predecessor of this file preferred GOAL_REGION whenever it was kept, and
+GOAL_REGION (Leyndell) is ALWAYS kept on a base seed, so every base seed's goal collapsed to the one
+Leyndell arena entry -- Morgott -- and the client sent Goal (and released every check) the moment he
+died, however deep the rest of the chain ran. That is the 2026-07-14 playtest bug. (The docstring
+here also used to promise Hoarah Loux and the Elden Beast as goal locations; neither exists as a
+location in data.py/boss_data.py -- Leyndell's REGION_BOSSES entry is exactly one Remembrance of the
+Omen King check. test_gf_goal_terminal holds this file's claims to account now.)
 
-  goal region (region_locks ending): the seed's win is reaching the goal region and clearing it.
-  The goal region (Leyndell) is always kept whenever it is eligible (region_spine.compute_kept), so
-  its boss locations are always in play. We emit Leyndell's boss-arena AP-ids -- the Omen King
-  (Morgott), Hoarah Loux (Godfrey) and the Elden Remembrance (Elden Beast) -- i.e. beating the run.
-  All three carry a vanilla DefeatFlag present in `locationFlags`, so they are flag-detected: Goal
-  fires exactly when the final bosses are down in-game, never prematurely and never on a stray
-  `!collect`.
+Resolution ladder (each tier total, deterministic, and derived -- no hand list):
+  1. MAJOR BOSSES OF THE DEEPEST KEPT REGION THAT HAS ANY, walking down from the deepest kept
+     region by SPINE rank. MajorBoss membership is LOCATION_TAGS (= REGION_BOSSES arena majors
+     UNION the curated MAJOR_BOSS_EXTRAS field majors -- so a Sewer-terminal seed ends on Mohg the
+     Omen, not on a shallower region's arena). The spine is a total order, so "the terminal
+     regions" collapse to the single deepest region that has majors; ALL of its majors are the
+     goal ("clear the terminal region").
+  2. Degenerate (NO kept region has any major -- only reachable under dlc_only+rolled draws over
+     the majorless DLC regions): every check of the deepest kept region EXCEPT missable-tagged
+     ones -- literally "clear the terminal region", and achievable by construction because
+     missables are the only checks a player can permanently lose.
+  3. Still empty -> ContractError. A seed whose goal cannot name one achievable location is
+     unwinnable and must die at generation, not at the connect log.
 
-  DLC-only (goal region sealed): under dlc_only Leyndell is not kept, so there is no capital to
-  reach. We fall back to the boss locations of the DEEPEST kept region in the fixed spine order (the
-  terminal region of the run). This is always a kept region, so the goal can never require a sealed
-  location -> the seed stays winnable.
+great_runes ending: the rune requirement rides `great_rune_items` (core._base_slot_data), which the
+client's goal.rs reads; this feature emits ONLY goalLocations (merge_slot_data raises on duplicate
+top-level keys).
 
-  great_runes ending: the AP victory rule additionally needs N Great Runes (core.set_rules). To keep
-  the client Goal-send faithful to that rule -- not fire before the run is truly beaten -- we ALSO
-  add the boss location that drops each REQUIRED Great Rune (matched by item name against the
-  boss tuple in boss_data.py, scoped to kept regions). world._required_runes() is already clamped to
-  the runes reachable this seed, so every added location is in a kept region and reachable.
-
-Emits ONLY the `goalLocations` key (no other source emits it; merge_slot_data raises on a duplicate
-top-level key). Never empty for a normal seed: there is always at least one kept region with a boss.
+Invariants promised here and enforced by tests/test_gf_goal_terminal.py:
+  * goalLocations is never empty;
+  * every goalLocations id lives in the DEEPEST kept region carrying them (never Leyndell-by-
+    preference: a seed keeping a region deeper than Leyndell must not goal on Morgott);
+  * every id belongs to a kept region's location set.
 """
 from ..registry import Feature, register
 from .. import contract
-from ..region_spine import GOAL_REGION, SPINE
+from ..region_spine import SPINE
 
 try:
     from ..boss_data import REGION_BOSSES
 except Exception:  # not yet generated
     REGION_BOSSES = {}
+try:
+    from ..data import LOCATIONS
+except Exception:
+    LOCATIONS = {}
+try:
+    from ..location_tags import LOCATION_TAGS
+except Exception:
+    LOCATION_TAGS = {}
+try:
+    from ..missable_locations import MISSABLE_LOCATIONS
+except Exception:
+    MISSABLE_LOCATIONS = {}
 
 # Spine rank for ordering kept regions; regions off the spine sort last (defensive, never expected).
 _SPINE_RANK = {r: i for i, r in enumerate(SPINE)}
 
 
-def _region_boss_ids(region):
-    """AP location ids of the boss-arena checks in `region` (empty if the region has no boss)."""
-    return [aid for (aid, _flag, _name) in REGION_BOSSES.get(region, [])]
+def _major_boss_ids(region):
+    """AP location ids of the MajorBoss-tagged checks in `region` (LOCATION_TAGS = REGION_BOSSES
+    arena majors UNION MAJOR_BOSS_EXTRAS curated field majors). Falls back to the raw REGION_BOSSES
+    arena entries if the tag table is unavailable (partial regen), so the goal never silently
+    narrows to nothing on a data lag."""
+    ids = [aid for (_name, aid, _flag) in LOCATIONS.get(region, ())
+           if "MajorBoss" in LOCATION_TAGS.get(aid, ())]
+    if ids:
+        return sorted(ids)
+    return sorted(aid for (aid, _flag, _name) in REGION_BOSSES.get(region, ()))
 
 
-def _terminal_region(kept):
-    """The endpoint region of the run: the goal region when it is kept, else the deepest kept region
-    (max spine rank) that actually has a boss. Always returns a KEPT region so the goal is never
-    sealed out. None only if no kept region has any boss (degenerate; caller falls back)."""
-    if GOAL_REGION in kept and _region_boss_ids(GOAL_REGION):
-        return GOAL_REGION
-    with_boss = [r for r in kept if _region_boss_ids(r)]
-    if not with_boss:
-        return None
-    return max(with_boss, key=lambda r: _SPINE_RANK.get(r, len(SPINE)))
+def _by_depth(kept):
+    """Kept regions, deepest spine rank first (stable for equal/off-spine ranks by name)."""
+    return sorted(kept, key=lambda r: (-_SPINE_RANK.get(r, len(SPINE)), r))
+
+
+def terminal_goal_ids(kept):
+    """(region, ids) for the goal: tier 1 = majors of the deepest kept region that has any; tier 2 =
+    the deepest kept region's non-missable checks. ids may be empty only if tier 2 is too (caller
+    raises)."""
+    ordered = _by_depth(kept)
+    for region in ordered:
+        ids = _major_boss_ids(region)
+        if ids:
+            return region, ids
+    terminal = ordered[0] if ordered else None
+    if terminal is None:
+        return None, []
+    ids = sorted(aid for (_name, aid, _flag) in LOCATIONS.get(terminal, ())
+                 if aid not in MISSABLE_LOCATIONS)
+    return terminal, ids
 
 
 @register
@@ -67,33 +107,9 @@ class GoalLocations(Feature):
 
     def slot_data(self, world):
         kept = list(world._kept())
-        ids = set()
-        # Endpoint: clear the goal region (or the deepest kept region under dlc_only).
-        term = _terminal_region(set(kept))
-        if term is not None:
-            ids.update(_region_boss_ids(term))
-        # Defensive last resort: never emit an empty set for a normal seed (would make Goal
-        # unsendable). Leyndell is always kept for a base seed, so this only guards the degenerate
-        # dlc_only+rolled draw that keeps exclusively a boss-less region.
+        region, ids = terminal_goal_ids(kept)
         if not ids:
-            for region in kept:
-                ids.update(_region_boss_ids(region))
-
-        # great_runes ending: require the RUNES THEMSELVES, not the bosses that vanilla-drop them.
-        #
-        # THE BUG (fixed 2026-07-14). This used to add the boss LOCATION of each required Great Rune to
-        # goalLocations -- i.e. the client fired Goal when you KILLED Godrick. But item_shuffle is ON
-        # (frozen), so Godrick's Great Rune is NOT at Godrick; it is anywhere in the multiworld. You
-        # could kill every rune boss, hold not a single rune, and the run would end.
-        #
-        # Meanwhile AP's own victory rule (core.set_rules) is `state.has(rune)` -- the ITEM. So the two
-        # halves of the goal disagreed, and the half that actually ends your run was the wrong one. The
-        # option's docstring says "ALSO collect Great Runes"; now it does.
-        #
-        # A kill is not a collection. _required_runes() is already clamped to the runes reachable this
-        # seed, so an item named here can always be obtained.
-        # NOTE: the required rune NAMES are NOT emitted here. core._base_slot_data already ships them
-        # as `great_rune_items`, and the client now READS that key (it was a no-read diagnostic, which
-        # is how this bug survived). One key, one producer -- a second key carrying identical data is
-        # the redundancy CONTRIBUTING calls a lie about why the code works.
+            raise contract.ContractError(
+                "goal_locations: no achievable goal location exists in the kept set %r -- the seed "
+                "would be unwinnable (goalLocations may never be empty)" % (sorted(kept),))
         return {contract.GOAL_LOCATIONS: sorted(ids)}

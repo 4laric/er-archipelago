@@ -20,16 +20,22 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.region_spine import GOAL_REGION, SPINE  # noqa: E402
+from worlds.eldenring.region_spine import GOAL_REGION, SPINE, parent_chain  # noqa: E402
 
 GAME = "Elden Ring"
 
 
 def _expected_spine(n):
-    """Deterministic spine kept set for num_regions=n: first-N of SPINE + goal (dedup, order-free)."""
+    """Deterministic spine kept set for num_regions=n: first-N of SPINE + goal + REGION_PARENT
+    closure (a gated child pulls its ancestors in -- the always-kept capital pulls Altus; derived
+    from parent_chain, never re-pinned)."""
     base = list(SPINE[:n])
     if GOAL_REGION not in base:
         base.append(GOAL_REGION)
+    for r in list(base):
+        for anc in parent_chain(r):
+            if anc not in base:
+                base.append(anc)
     return set(base)
 
 
@@ -39,9 +45,8 @@ def _assert_spine_scope(tc, n):
     tc.assertEqual(kept, _expected_spine(n),
                    f"spine num_regions={n} must keep first-{n} of SPINE + goal")
     tc.assertIn(GOAL_REGION, kept, "goal region must always be kept")
-    expected_len = n + (0 if GOAL_REGION in SPINE[:n] else 1)
-    tc.assertEqual(len(kept), expected_len,
-                   "kept count must be N (+1 iff goal not already in the first-N prefix)")
+    tc.assertEqual(len(kept), len(_expected_spine(n)),
+                   "kept count must be N + goal + parent-closure additions (all derived)")
     sd = tc.world.fill_slot_data()
     tc.assertEqual(sd["region_count"], len(kept),
                    "slot_data.region_count must equal the kept count")
@@ -86,9 +91,18 @@ class RolledDiversity(WorldTestBase):
             kept = frozenset(self.world._kept())
             self.assertIn(GOAL_REGION, kept,
                           f"rolled seed {seed}: goal region must always be kept (winnability)")
-            # rolled keeps N random regions; goal is appended if the sample missed it -> N or N+1.
-            self.assertIn(len(kept), (n, n + 1),
-                          f"rolled seed {seed}: kept count {len(kept)} not in (N, N+1)")
+            # rolled keeps N random regions; the goal is appended if the sample missed it, and
+            # the REGION_PARENT closure can add up to len(parent_chain(GOAL_REGION)) + the other
+            # children's ancestors -- so the count is a bounded range now, and every kept child
+            # must have its ancestors kept (the invariant that replaces the exact count).
+            self.assertGreaterEqual(len(kept), n,
+                                    f"rolled seed {seed}: kept fewer than N regions")
+            self.assertLessEqual(len(kept), n + 1 + sum(len(parent_chain(r)) for r in kept),
+                                 f"rolled seed {seed}: kept count {len(kept)} exceeds closure bound")
+            for r in kept:
+                for anc in parent_chain(r):
+                    self.assertIn(anc, kept,
+                                  f"rolled seed {seed}: kept child {r} without ancestor {anc}")
             kept_sets.append(kept)
         distinct = set(kept_sets)
         self.assertGreater(len(distinct), 1,

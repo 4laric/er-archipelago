@@ -71,7 +71,7 @@ class StartWithRegionLock(DefaultOnToggle):
     display_name = "Start With A Region Lock"
 
 
-def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None):
+def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=frozenset()):
     """The run's opening region: which kept region's Lock core.create_items precollects.
 
     Size-weighted draw -- weight = the region's emitted check count, from `check_counts`, which the
@@ -91,6 +91,10 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None):
         regions) -> it INTERSECTS the eligible set ("major-boss^..."). An empty intersection
         DEGRADES to the plain size-weighted draw (the returned rule says so) -- never raises.
 
+    `gated` (region_spine.REGION_PARENT keys) is excluded from eligibility outright -- a gated
+    child's opening grant is exactly the grace bundle features/graces.py withholds, so it can
+    never be the run's opening region.
+
     Pure + deterministic (rng = world.random; two runs of the same seed agree). Returns
     (region, rule, eligible_count); the rule string is the gen-log telemetry ("which rule fired").
     Raises ValueError on an empty kept set or an all-zero weight sum: an empty eligible pool is a
@@ -99,6 +103,17 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None):
     kept = list(kept)
     if not kept:
         raise ValueError("start anchor: the kept region set is EMPTY -- nothing to anchor the run on")
+    # A GATED CHILD (region_spine.REGION_PARENT) may never anchor: anchoring precollects its Lock,
+    # and (pre-fix) granted its grace bundle -- a warp target past the vanilla wall its parent
+    # guards, exactly the 2026-07-14 East-Capital-Rampart playtest bug. Post-fix a child's bundle
+    # is withheld, so a child anchor would open the run on a region the player cannot even warp
+    # into. compute_kept closes the kept set over REGION_PARENT, so every kept child implies a
+    # kept non-child ancestor -- the exclusion can never empty a non-empty eligible pool.
+    kept = [r for r in kept if r not in gated]
+    if not kept:
+        raise ValueError(
+            "start anchor: every kept region is a gated child -- REGION_PARENT closure is broken "
+            "(a child must always pull a non-child ancestor into the kept set)")
     base = [r for r in kept if r not in dlc_regions]
     if base:
         eligible, rule = base, "base-weighted"

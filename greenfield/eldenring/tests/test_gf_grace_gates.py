@@ -1,6 +1,10 @@
-"""Grace gates -- Raya Lucaria graces gate on the Academy Glintstone Key, Leyndell graces on N Great
-Runes. features/graces.py pulls the gated sub-area graces out of the region-Lock bundle so they don't
-light on region unlock, and re-keys them on the gating condition (regionGraces item key / runeGatedGraces).
+"""Grace gates -- gated children (region_spine.REGION_PARENT) never get their bundle granted while
+their wall is armed. features/graces.py emits the child's bundle EMPTY; the player enters past the
+game's own wall (Academy key / Great Runes / the capital well) and touches the graces themselves.
+Replaces the old re-key model (Academy graces on the key item, capital graces on runeGatedGraces):
+the runeGatedGraces client half never existed, so it could not gate anything -- see
+tests/test_gf_gated_children.py for the full fix surface. This file keeps the HUB-grace assertions
+(71190 must never ride a bundle) and the retired-key guard close to the feature they watch.
 """
 import pytest
 
@@ -8,52 +12,55 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
+from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.region_spine import REGION_PARENT  # noqa: E402
 
 GAME = "Elden Ring"
 _RAYA = range(71400, 71500)
-_LEYN = [g for g in range(71100, 71200) if g != 71190] + [73501, 73502, 73503, 73504]  # +Shunning-Grounds (m35 folds to Leyndell, rune-gated)
+_LEYN = range(71100, 71200)
+_ROUNDTABLE = 71190
 
 
 class GatesArmed(WorldTestBase):
     game = GAME
-    options = {  # defaults arm both gates: item_shuffle on, legacy_dungeon_keys on, leyndell_runes=2
-        "item_shuffle": True, "legacy_dungeon_keys": True, "leyndell_runes_required": 2,
+    run_default_tests = False
+    options = {  # defaults arm both walls: item_shuffle/legacy keys frozen on, leyndell runes = 2
+        "num_regions": 0, "leyndell_runes_required": 2,
     }
 
-    def _sd(self):
-        return self.world.fill_slot_data()
+    def _rg(self):
+        return self.world.fill_slot_data()[contract.REGION_GRACES]
 
-    def test_raya_graces_gated_on_academy_key(self):
-        sd = self._sd()
-        rg = sd[contract.REGION_GRACES]
-        liurnia = rg.get("Liurnia of the Lakes Lock", [])
-        self.assertFalse([g for g in liurnia if g in _RAYA],
-                         "Raya Lucaria graces (714xx) must be pulled from the Liurnia Lock bundle")
-        key = rg.get("Academy Glintstone Key", [])
-        self.assertTrue(key and all(g in _RAYA for g in key),
-                        f"Academy Glintstone Key must carry the Raya graces, got {key}")
+    def test_gated_child_bundles_are_withheld(self):
+        rg = self._rg()
+        for child in REGION_PARENT:
+            self.assertEqual(rg.get(f"{child} Lock"), [],
+                             f"{child}'s bundle must be withheld while its wall is armed")
 
-    def test_leyndell_graces_rune_gated(self):
-        sd = self._sd()
-        altus = sd[contract.REGION_GRACES].get("Altus Plateau Lock", [])
-        self.assertFalse([g for g in altus if g in _LEYN],
-                         "Leyndell capital graces (711xx) must be pulled from the Altus Lock bundle")
-        # 71190 (Roundtable, Table of Lost Grace) is an m11 flag but it is the HUB's grace, granted
-        # by features/start_grace.py as a START grace -- see graces.py:_ROUNDTABLE_GRACE. It used to
-        # ride in the Altus bundle only because m11_10 wrongly folded to Altus (the coarse
-        # "Leyndell / Roundtable / Shunning-Grounds" bucket). gen_data now regions m11_10 as
-        # Roundtable Hold, so 71190 correctly belongs to NO spoke bundle at all. The intent of this
-        # assertion -- "the HUB grace must never be rune-gated" -- is now satisfied more strongly:
-        # it cannot be gated because it is not in a gated bundle, and the player always starts with it.
-        self.assertNotIn(71190, altus,
-                         "71190 is the HUB start grace; it must not ride in the Altus Lock bundle")
-        self.assertIn(71190, sd.get(contract.START_GRACES, []),
+    def test_no_bundle_carries_a_walled_grace(self):
+        # no OTHER key may smuggle a capital/Academy grace either (the pre-v2 fold bug shape).
+        rg = self._rg()
+        for key, fs in rg.items():
+            leaked = [g for g in fs if g in _RAYA or (g in _LEYN and g != _ROUNDTABLE)]
+            self.assertFalse(leaked, f"{key} carries walled graces {leaked}")
+
+    def test_hub_grace_is_a_start_grace_not_a_bundle_rider(self):
+        sd = self.world.fill_slot_data()
+        for key, fs in sd[contract.REGION_GRACES].items():
+            self.assertNotIn(_ROUNDTABLE, fs, f"71190 (HUB) must not ride bundle {key}")
+        self.assertIn(_ROUNDTABLE, sd.get(contract.START_GRACES, []),
                       "the Roundtable/HUB grace 71190 must be granted as a start grace")
-        rgg = sd.get(contract.RUNE_GATED_GRACES)
-        self.assertTrue(rgg, "runeGatedGraces must be emitted when the Leyndell gate is armed")
-        self.assertIn("2", rgg, f"expected the N=2 rune requirement key, got {list(rgg)}")
-        self.assertTrue(all(g in _LEYN for g in rgg["2"]))
-        self.assertTrue(sd.get(contract.GREAT_RUNE_ITEM_IDS),
-                        "greatRuneItemIds must be emitted alongside runeGatedGraces")
 
+    def test_rune_gate_keys_retired(self):
+        sd = self.world.fill_slot_data()
+        self.assertNotIn("runeGatedGraces", sd,
+                         "runeGatedGraces is retired -- its client half never existed")
+        self.assertNotIn("greatRuneItemIds", sd)
 
+    def test_ungated_bundles_are_untouched(self):
+        rg = self._rg()
+        kept = set(self.world._kept())
+        for r, fs in REGION_GRACE_POINTS.items():
+            if r in kept and fs and r not in REGION_PARENT:
+                self.assertEqual(rg.get(f"{r} Lock"), list(fs),
+                                 f"{r}'s bundle must be granted in full")

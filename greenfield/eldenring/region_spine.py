@@ -12,6 +12,43 @@ from .data import REGIONS
 # 19000 Fractured Marika), so the capital-ending checks live in Leyndell -> it is the goal region.
 GOAL_REGION = "Leyndell"
 
+# VANILLA HARD WALLS -- gated child -> the parent region it is physically entered from.
+#
+# These three regions sit behind a wall the GAME already enforces: Raya Lucaria's seal wants the
+# Academy Glintstone Key, the capital's main gate wants Great Runes (leyndell_runes_required), and
+# the m35 Shunning-Grounds are entered down a well INSIDE the capital (no independent entrance), so
+# the Sewer inherits Leyndell's wall transitively. The 2026-07-14 playtest bug was the apworld
+# GRANTING a child's grace bundle on region-open -- a warp target on the far side of the wall
+# (East Capital Rampart 71102, BonfireWarpParam 110002, straight past the 2-rune gate). The fix is
+# to let the game keep enforcing its own walls and encode the containment ONCE, here:
+#   * features/graces.py withholds a child's grace bundle (walk in, touch the graces yourself);
+#   * core.create_regions parents the child's AP region under this entry, so reachability logic
+#     requires the whole ancestor Lock chain (fill can never strand progression in a sealed child);
+#   * compute_kept (below) closes the kept set over this map -- a child is never kept parentless;
+#   * features/start_grace.pick_anchor_region refuses a child as the run's opening region (the
+#     anchor grant is exactly the bundle being withheld).
+# tests/test_gf_gated_children.py asserts every region-entry gate feature (legacy_key_gates map
+# ranges, leyndell_gate's GOAL_REGION) has an entry here, so a future gate cannot land without one.
+REGION_PARENT = {
+    "Raya Lucaria Academy": "Liurnia",   # Academy Glintstone Key seal (features/legacy_key_gates)
+    "Leyndell": "Altus",                 # capital main gate, N Great Runes (features/leyndell_gate)
+    "Sewer": "Leyndell",                 # m35 well is inside the capital walls (SPEC-region-spine-v2)
+}
+
+
+def parent_chain(region):
+    """Ancestor list for `region`, nearest first (empty for an ungated region). Raises on a cycle
+    rather than looping -- a cyclic REGION_PARENT is corrupt data, not a soft case."""
+    chain, seen = [], {region}
+    r = REGION_PARENT.get(region)
+    while r is not None:
+        if r in seen:
+            raise ValueError(f"REGION_PARENT cycle at {r!r} (from {region!r})")
+        chain.append(r)
+        seen.add(r)
+        r = REGION_PARENT.get(r)
+    return chain
+
 # Fixed progression path (Limgrave-first). num_regions_order='spine' keeps the first N of this;
 # 'rolled' keeps N random regions. Must be a permutation of REGIONS (guarded by test_gf_data).
 SPINE = [
@@ -64,7 +101,7 @@ def compute_kept(n, order, rng, eligible=None):
     if not regions:
         return regions
     if n <= 0 or n >= len(regions):
-        return regions
+        return _close_over_parents(regions, regions)
     if order == "spine":
         base = [r for r in SPINE if r in regions][:n]
     else:  # rolled
@@ -72,4 +109,26 @@ def compute_kept(n, order, rng, eligible=None):
     kept = list(dict.fromkeys(base))
     if GOAL_REGION in regions and GOAL_REGION not in kept:
         kept.append(GOAL_REGION)
+    return _close_over_parents(kept, regions)
+
+
+def _close_over_parents(kept, pool):
+    """Close `kept` over REGION_PARENT: a kept gated child PULLS ITS ANCESTORS IN (never the other
+    way -- dropping the child instead is impossible for the always-kept goal region, whose parent
+    chain is exactly why Altus rides along on every base seed: the capital has no other way in).
+    The closure keeps the seed winnable by construction; a kept-but-unreachable child is a
+    dead-drop generator. An ancestor missing from the eligible pool is a hard error, not a shrug:
+    it means a gated child was declared eligible while its only entrance was not (a scope-filter
+    bug) -- and it applies on EVERY path, including the n<=0 / n>=len full-pool returns."""
+    kept = list(kept)
+    in_pool = set(pool)
+    for r in list(kept):
+        for anc in parent_chain(r):
+            if anc in kept:
+                continue
+            if anc not in in_pool:
+                raise ValueError(
+                    f"compute_kept: kept region {r!r} needs ancestor {anc!r}, which is not in the "
+                    f"eligible pool -- a gated child must never be eligible without its parent")
+            kept.append(anc)
     return kept

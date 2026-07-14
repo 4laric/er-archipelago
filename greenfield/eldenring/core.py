@@ -46,7 +46,7 @@ except ImportError:
 _NO_PROGRESSION_APS = (frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
                        | frozenset(SHOP_RELEASE_GATED_APS))
 from .region_spine import (compute_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
-                           base_regions, dlc_regions)
+                           base_regions, dlc_regions, REGION_PARENT)
 from . import registry
 from .defaults import FROZEN_OPTIONS, apply_frozen
 from . import contract
@@ -407,7 +407,8 @@ class GreenfieldEldenRingWorld(World):
             _counts = {r: len(LOCATIONS.get(r, [])) for r in kept}
             _region, _rule, _pool_n = pick_anchor_region(
                 kept, self.random, _counts, DLC_REGIONS,
-                major=regions_with_major_boss(kept) if _strict else None)
+                major=regions_with_major_boss(kept) if _strict else None,
+                gated=frozenset(REGION_PARENT))
             _by_region = {lock_region_name(it.name): it for it in lock_items}
             _anchor = _by_region[_region]
             lock_items.remove(_anchor)
@@ -617,12 +618,26 @@ class GreenfieldEldenRingWorld(World):
         self.multiworld.regions += [menu, hub]
         menu.connect(hub)  # Roundtable Hold is free
         self._add_locations(hub, HUB)
+        created: Dict[str, Region] = {}
         for r in self._kept():  # sealed regions are simply not created
             reg = Region(r, self.player, self.multiworld)
             self.multiworld.regions.append(reg)
             self._add_locations(reg, r)
+            created[r] = reg
+        # A gated child (REGION_PARENT) hangs off its PARENT region, not the hub: its entrance is
+        # only traversable once the whole ancestor Lock chain is held, which is the walk-in truth
+        # (its grace bundle is withheld -- features/graces.py -- so the hub warp does not exist).
+        # This is what lets fill never strand progression in a child whose parent is sealed/unfound.
+        # compute_kept guarantees a kept child's parent is kept; a miss here is corrupt state.
+        for r, reg in created.items():
+            parent = REGION_PARENT.get(r)
+            if parent is not None and parent not in created:
+                raise RuntimeError(
+                    f"create_regions: gated child {r!r} kept without its parent {parent!r} -- "
+                    f"compute_kept must close over REGION_PARENT")
+            src = created[parent] if parent is not None else hub
             lock = f"{r} Lock"
-            hub.connect(reg, f"To {r}", rule=lambda state, l=lock: state.has(l, self.player))
+            src.connect(reg, f"To {r}", rule=lambda state, l=lock: state.has(l, self.player))
         for f in _FEATURES:
             f.create_regions(self)
 

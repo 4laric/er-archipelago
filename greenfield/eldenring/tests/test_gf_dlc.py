@@ -23,7 +23,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import (  # noqa: E402
-    GOAL_REGION, DLC_REGIONS, base_regions, dlc_regions,
+    GOAL_REGION, DLC_REGIONS, SPINE, base_regions, dlc_regions,
 )
 from worlds.eldenring.core import GREAT_RUNES  # noqa: E402
 
@@ -138,8 +138,13 @@ class DLCDisabledNumRegions3(WorldTestBase):
         kept = _lock_region_names(self.multiworld, self.player)
         self.assertEqual(kept & DLC, set(), "no DLC region under Enable DLC off")
         self.assertIn(GOAL_REGION, kept, "goal region always kept")
-        # first 3 base spine regions are Limgrave/Weeping Peninsula/Stormveil (all base), + Leyndell
-        self.assertLessEqual(len(kept), 4)
+        # first 3 base spine regions are Limgrave/Weeping/Stormveil (all base), + Leyndell + the
+        # REGION_PARENT closure (the capital pulls Altus in -- it has no other way in).
+        from worlds.eldenring.region_spine import parent_chain
+        expected = {r for r in list(SPINE[:3]) + [GOAL_REGION]}
+        for r in list(expected):
+            expected.update(parent_chain(r))
+        self.assertEqual(kept, expected)
         self.assertTrue(kept <= set(base_regions()))
 
     def test_beatable(self):

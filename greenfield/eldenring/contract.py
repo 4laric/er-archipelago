@@ -394,21 +394,26 @@ CONTRACT = (
     # --- graces ---
     ContractKey("regionGraces", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/graces.py", "region.rs:122 str_to_u32vec",
-                "item_name -> grace warp flags lit when that item is RECEIVED. Usually keyed by "
-                "'<Region> Lock' (bundle: all of the region's graces), but grace GATES also key a "
-                "sub-area's graces on a KEY ITEM instead of the region Lock -- e.g. Raya Lucaria's "
-                "graces key on 'Academy Glintstone Key' so they light on key receipt, not on the "
-                "Liurnia Lock. Client MUST light on receipt of ANY keyed item, not just Locks."),
+                "item_name -> grace warp flags lit when that item is RECEIVED. Keyed by "
+                "'<Region> Lock' (bundle: all of the region's graces). A GATED CHILD region "
+                "(region_spine.REGION_PARENT -- Raya Lucaria Academy, Leyndell, Sewer) maps to [] "
+                "while its vanilla wall is armed in logic: its graces are deliberately NOT granted "
+                "(the player walks in past the game's own wall and touches them; gated-children "
+                "fix 2026-07-14). Client MUST light on receipt of ANY keyed item, not just Locks, "
+                "and MUST treat an empty bundle as intent, not drift."),
     ContractKey("runeGatedGraces", "LISTVAL_INT_MAP", False, (GREENFIELD,),
-                "features/graces.py", "region.rs (NEW -- rune-count gate)",
-                "str(N) -> grace warp flags lit only once the player has RECEIVED at least N Great "
-                "Runes (any of greatRuneItemIds). Used for the Leyndell capital graces (folded into "
-                "Altus) which vanilla gates behind 2 Great Runes; those graces are pulled from the "
-                "Altus Lock bundle and moved here. Absent/empty when leyndell_runes_required = 0."),
+                "CONTRACT: DEAD (unemitted since 2026-07-14)", "CONTRACT: DEAD (never built)",
+                "RETIRED 2026-07-14 (gated-children fix). Was: str(N) -> capital grace flags lit at "
+                ">= N received Great Runes. The client half was NEVER built (the key appears in "
+                "contract_gen.rs and in no consumer over the client repo's full history), so armed "
+                "it could light nothing and disarmed the capital bundle rode the Leyndell Lock past "
+                "the 2-rune wall (playtest 2026-07-14, East Capital Rampart 71102). Superseded by "
+                "withholding a gated child's bundle outright -- the GAME's own wall is the gate "
+                "(features/graces.py). Key kept declared so an old client's parse stays defined."),
     ContractKey("greatRuneItemIds", "INT_LIST", False, (GREENFIELD,),
-                "features/graces.py", "region.rs (NEW -- rune-count gate)",
-                "FullIDs of every Great Rune item in this seed's pool -- the set the client counts "
-                "RECEIVED items against to satisfy runeGatedGraces. Emitted only with runeGatedGraces."),
+                "CONTRACT: DEAD (unemitted since 2026-07-14)", "CONTRACT: DEAD (never built)",
+                "RETIRED 2026-07-14 with runeGatedGraces (its only reason to exist). The client "
+                "counts received runes for the GOAL via great_rune_items instead."),
     # --- start-of-run grants ---
     # GREENFIELD-only: absent => vanilla start (Limgrave; Gravesite under dlc_only). core.rs:716
     # already does `.unwrap_or("")`. Same promise as regionOpenFlags.

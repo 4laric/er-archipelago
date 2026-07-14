@@ -109,6 +109,22 @@ class LegacyKeyGates(Feature):
         if not gate:
             return
         player = world.player
+        # ENTRANCE rule (2026-07-14, gated-children fix): a key that gates a whole MAP RANGE gates
+        # region ENTRY, and core.create_regions parents such regions under region_spine.REGION_PARENT
+        # (test_gf_gated_children enforces the pairing). Requiring the key on the "To <region>" edge
+        # itself makes the wall transitive to any future child hung under it, exactly like the
+        # physical seal. Check-level keys (empty range, e.g. the Hole-Laden Necklace) gate no entry.
+        for key in active:
+            region, (lo, hi) = _LEGACY_KEYS[key]
+            if hi <= lo:
+                continue
+            try:
+                entrance = world.multiworld.get_entrance(f"To {region}", player)
+            except KeyError:
+                continue  # region sealed this seed -- nothing to gate
+            prev_ent = entrance.access_rule
+            entrance.access_rule = (lambda state, p=prev_ent, k=key:
+                                    p(state) and state.has(k, player))
         for loc in world.multiworld.get_locations(player):
             key = gate.get(getattr(loc, "address", None))
             if key is None:

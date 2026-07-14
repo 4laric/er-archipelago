@@ -75,15 +75,19 @@ INFORMATIONAL_EXTRAS = {
 # HALF-FEATURE (CONTRIBUTING: emitted-but-unconsumed), not a baseline to refresh. If a key ever
 # genuinely stops being emitted, the fix is to justify it here in prose or tag the client path
 # CONTRACT: DEAD -- never to silence the gate.
-_CONTRACT_NOT_EMITTED = {"enable_dlc"}   # `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
+# runeGatedGraces / greatRuneItemIds: RETIRED 2026-07-14 (gated-children fix). Their client half
+# was NEVER built -- the keys appear in contract_gen.rs and in no consumer over the client repo's
+# full history -- so the pair was emitted-and-parsed-by-nothing, the exact half-feature this guard
+# exists to name. A gated child's grace bundle is now withheld outright (features/graces.py) and
+# both keys are tagged CONTRACT: DEAD in contract.py.
+_CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds"}   # `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).
 REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profile("greenfield")}
 
 # The subset emitted UNCONDITIONALLY (every seed, whatever the options). The dungeon-sweep keys drop
-# when dungeon_sweep == "none"; the two rune-gate grace keys are emitted only when the Leyndell gate
-# is armed (leyndell_runes_required > 0 AND item_shuffle on AND Altus kept -- features/graces.py).
+# when dungeon_sweep == "none".
 #
 # checkLotBlank* : MUTUALLY EXCLUSIVE by design, so no seed can emit all three. A regenerated
 # check_lots_data.py carries the ItemLotParam map/enemy SPLIT and the world emits checkLotBlankMap +
@@ -92,7 +96,6 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # table, the client has to guess, it guessed map-first, and every enemy lot colliding with a map id was
 # therefore never blanked: the boss handed out its vanilla drop and no check fired.
 ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
-                              "runeGatedGraces", "greatRuneItemIds",
                               "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy"}
 
 

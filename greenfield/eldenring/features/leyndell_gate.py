@@ -14,9 +14,12 @@ DLC Only simply lowers the requirement (to 0 = no gate) rather than making a see
 
 Option `leyndell_runes_required` (Range 0..6, default 2). 0 -> no gate (and world.gf_leyndell_runes is
 empty, so nothing is marked progression and default fill is unchanged). Base-game only: under DLC Only
-the goal region (Leyndell) is sealed, so the gate auto-skips. LOGIC-only for now; a client hard-gate
-(kick out of the m11/m35/m19 play_regions until N runes) is a follow-up (needs a slot_data + client
-flag-watch pass, like the region kick-watch).
+the goal region (Leyndell) is sealed, so the gate auto-skips. In-game the wall needs no client half at
+all (gated-children fix, 2026-07-14): the capital's grace bundle is WITHHELD (features/graces.py), so
+the only way in is the game's own main gate, which opens when the player holds N Great Runes -- the
+runes arrive as AP items and the client's key-item grant makes the game count them. This gate's job
+is the LOGIC mirror: mark N runes progression and require them on Leyndell's entrance + checks so
+fill never strands progression past a wall it can't prove open.
 """
 from Options import Range
 from ..registry import Feature, register
@@ -97,10 +100,24 @@ class LeyndellGate(Feature):
         if not runes:
             return
         need = len(runes)
+        player = world.player
+        # ENTRANCE rule (2026-07-14, gated-children fix): the rune requirement also guards the
+        # "To Leyndell" edge itself. core.create_regions parents gated children (REGION_PARENT), so
+        # Leyndell hangs off Altus and the SEWER hangs off Leyndell -- gating the entrance makes the
+        # rune wall transitive exactly like the physical one (the m35 well is inside the capital;
+        # you cannot reach it runeless). The per-location rules below stay: they carry the
+        # item_rule cycle-breaker and cover the capital checks directly.
+        try:
+            entrance = world.multiworld.get_entrance(f"To {GOAL_REGION}", player)
+        except KeyError:
+            entrance = None  # goal region sealed (dlc_only) -- generate_early already bailed then
+        if entrance is not None:
+            prev_ent = entrance.access_rule
+            entrance.access_rule = (lambda state, p=prev_ent, gr=GREAT_RUNES, k=need:
+                                    p(state) and sum(1 for g in gr if state.has(g, player)) >= k)
         leyndell = _leyndell_location_ids()
         if not leyndell:
             return
-        player = world.player
         for loc in world.multiworld.get_locations(player):
             if getattr(loc, "address", None) not in leyndell:
                 continue
