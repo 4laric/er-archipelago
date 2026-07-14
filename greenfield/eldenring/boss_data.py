@@ -2,72 +2,72 @@
 joined by event flag. Matt-free. Dungeon-sweep triggers need EMEVD enrichment (SPEC P3)."""
 REGION_BOSSES = {
     'Abyssal': [
-        (7770783, 510560, 'Remembrance of the Lord of Frenzied Flame'),
+        (7770775, 510560, 'Remembrance of the Lord of Frenzied Flame'),
     ],
     'Ainsel River': [
-        (7770766, 510080, 'Remembrance of the Naturalborn'),
+        (7770758, 510080, 'Remembrance of the Naturalborn'),
     ],
     'Ancient Ruins': [
-        (7770784, 510600, 'Remembrance of the Saint of the Bud'),
+        (7770776, 510600, 'Remembrance of the Saint of the Bud'),
     ],
     'Belurat': [
-        (7770777, 510400, 'Remembrance of the Dancing Lion'),
+        (7770769, 510400, 'Remembrance of the Dancing Lion'),
     ],
     'Caelid': [
         (7770002, 172, "Radahn's Great Rune"),
     ],
     'Deeproot Depths': [
-        (7770768, 510110, 'Remembrance of the Lichdragon'),
+        (7770760, 510110, 'Remembrance of the Lichdragon'),
     ],
     'Enir Ilim': [
-        (7770779, 510430, 'Remembrance of a God and a Lord'),
+        (7770771, 510430, 'Remembrance of a God and a Lord'),
     ],
     'Ensis': [
-        (7770789, 510900, 'Remembrance of the Twin Moon Knight'),
+        (7770781, 510900, 'Remembrance of the Twin Moon Knight'),
     ],
     'Farum Azula': [
-        (7770770, 510150, 'Remembrance of the Dragonlord'),
-        (7770771, 510160, 'Remembrance of the Black Blade'),
+        (7770762, 510150, 'Remembrance of the Dragonlord'),
+        (7770763, 510160, 'Remembrance of the Black Blade'),
     ],
     'Haligtree': [
         (7770006, 176, "Malenia's Great Rune"),
-        (7773892, 15000850, "[Sorcery] Loretta's Mastery"),
+        (7773884, 15000850, "[Sorcery] Loretta's Mastery"),
     ],
     'Leyndell': [
-        (7770765, 510040, 'Remembrance of the Omen King'),
+        (7770757, 510040, 'Remembrance of the Omen King'),
     ],
     'Mohgwyn': [
         (7770005, 175, "Mohg's Great Rune"),
     ],
     'Mountaintops of the Giants': [
-        (7770775, 510310, 'Remembrance of the Fire Giant'),
+        (7770767, 510310, 'Remembrance of the Fire Giant'),
     ],
     'Mt. Gelmir': [
         (7770004, 174, "Rykard's Great Rune"),
-        (7770773, 510220, 'Remembrance of the Blasphemous'),
+        (7770765, 510220, 'Remembrance of the Blasphemous'),
     ],
     'Raya Lucaria Academy': [
         (7770008, 14000800, 'Remembrance of the Full Moon Queen'),
     ],
     'Scadu Altus': [
-        (7770782, 510550, 'Remembrance of the Mother of Fingers'),
+        (7770774, 510550, 'Remembrance of the Mother of Fingers'),
     ],
     'Scaduview': [
-        (7770785, 510620, 'Remembrance of the Shadow Sunflower'),
-        (7770787, 510640, 'Remembrance of the Wild Boar Rider'),
+        (7770777, 510620, 'Remembrance of the Shadow Sunflower'),
+        (7770779, 510640, 'Remembrance of the Wild Boar Rider'),
     ],
     'Shadow Keep': [
-        (7770780, 510460, 'Remembrance of the Impaler'),
+        (7770772, 510460, 'Remembrance of the Impaler'),
     ],
     'Siofra River': [
-        (7770776, 510330, 'Remembrance of the Regal Ancestor'),
+        (7770768, 510330, 'Remembrance of the Regal Ancestor'),
     ],
     'Stone Coffin': [
-        (7770781, 510480, 'Remembrance of Putrescence'),
+        (7770773, 510480, 'Remembrance of Putrescence'),
     ],
     'Stormveil': [
-        (7770764, 510010, 'Remembrance of the Grafted'),
+        (7770756, 510010, 'Remembrance of the Grafted'),
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:6b7cbfd69f4da477c00bb51a0cbf3a34782381f8326d281175c1bc79bf89b621', 'module': 'boss_data.py', 'body_sha256': 'sha256:0abe9c2f90f28bcb6afe70edb545915d8bd9982b9fefb8504bfa4512e87e9ba7'}
+_GEN_STAMP = {'inputs_hash': 'sha256:753d2614199567f9290b3df2e14c09035b1da2c7318dc82b848f82ce7520f561', 'module': 'boss_data.py', 'body_sha256': 'sha256:9af090d00e32c90f43d1ab4cc1cc81582cc47fce7322fb065abd1f204b6c91e4'}
