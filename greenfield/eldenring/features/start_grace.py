@@ -4,7 +4,8 @@ The run starts at Roundtable Hold (the hub). This feature emits:
   startRegion = "Roundtable Hold" (HUB) -- the client's start anchor.
   startGraces = [71190] + early-leveling flags. 71190 is the Roundtable Hold warp-unlock grace
     (Table of Lost Grace, m11_10; confirmed in the prior apworld's base-hub startgraces). The run's
-    first OPEN region comes from the precollected random region lock (core.create_items) -- its bundle
+    first OPEN region comes from the precollected region lock (core.create_items; WHICH one is
+    pick_anchor_region below -- size-weighted over the kept base-game regions) -- its bundle
     graces light on receipt -- so this list only needs the hub grace to bootstrap the first warp.
   reveal_all_maps (bool).
 
@@ -59,12 +60,62 @@ class EarlyLeveling(DefaultOnToggle):
 
 class StartWithRegionLock(DefaultOnToggle):
     """Start holding ONE region's lock, so a region is open from Roundtable at run start
-    (core.create_items precollects it; count-neutral). ON by default (v0.2): a STRICT Progression
-    Surface needs a sphere-0 anchor, and core biases this precollected pick toward a region that HOSTS
-    a MajorBoss, so the strict lock-chain seeds without the ladder widening. Turn off to start fully
-    sealed -- still beatable (AP fill guarantees a Roundtable-reachable first lock), but a strict
-    surface then widens one rung to the Roundtable Golden Seeds to bootstrap."""
+    (core.create_items precollects it; count-neutral). WHICH lock is pick_anchor_region below:
+    size-weighted by each region's check count over the kept BASE-game regions, so the run opens
+    somewhere with room to play -- DLC region locks stay in the pool as normal finds and only anchor
+    under dlc_only. ON by default (v0.2): a STRICT Progression Surface needs a sphere-0 anchor, and
+    the pick then also intersects the regions that HOST a MajorBoss, so the strict lock-chain seeds
+    without the ladder widening. Turn off to start fully sealed -- still beatable (AP fill guarantees
+    a Roundtable-reachable first lock), but a strict surface then widens one rung to the Roundtable
+    Golden Seeds to bootstrap."""
     display_name = "Start With A Region Lock"
+
+
+def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None):
+    """The run's opening region: which kept region's Lock core.create_items precollects.
+
+    Size-weighted draw -- weight = the region's emitted check count, from `check_counts`, which the
+    caller derives from the world's own LOCATIONS at gen time (never a frozen table: a re-tag that
+    moves checks between regions moves these weights with it) -- over the kept BASE-game regions.
+    The anchor IS the opening region, so its size is playability: a uniform pick over all kept locks
+    opened ~1 run in 3 on a region under 80 checks (playtest 2026-07-14: Castle Ensis, 31 checks --
+    the seed becomes a corridor and fill has almost nowhere to host the next Lock), and every such
+    region is DLC, where a fresh character also has zero scadutree blessing. So:
+
+      * base regions kept  -> size-weighted draw over them ("base-weighted"). DLC locks stay in the
+        pool as normal finds; they are just never the anchor here.
+      * no base region kept (dlc_only) -> size-weighted draw over the kept DLC regions
+        ("dlc-fallback-weighted"): a small start is then unavoidable, but Scaduview (13 checks)
+        should be rare, not 1-in-14.
+      * `major` is not None (STRICT progression_surface_mode == 2: the MajorBoss-hosting kept
+        regions) -> it INTERSECTS the eligible set ("major-boss^..."). An empty intersection
+        DEGRADES to the plain size-weighted draw (the returned rule says so) -- never raises.
+
+    Pure + deterministic (rng = world.random; two runs of the same seed agree). Returns
+    (region, rule, eligible_count); the rule string is the gen-log telemetry ("which rule fired").
+    Raises ValueError on an empty kept set or an all-zero weight sum: an empty eligible pool is a
+    LOUD failure, not a silent shrug (CONTRIBUTING: an empty result is a failure, not a clean run).
+    """
+    kept = list(kept)
+    if not kept:
+        raise ValueError("start anchor: the kept region set is EMPTY -- nothing to anchor the run on")
+    base = [r for r in kept if r not in dlc_regions]
+    if base:
+        eligible, rule = base, "base-weighted"
+    else:
+        eligible, rule = kept, "dlc-fallback-weighted"
+    if major is not None:
+        inter = [r for r in eligible if r in major]
+        if inter:
+            eligible, rule = inter, "major-boss^" + rule
+        else:
+            rule += " (major-boss intersection EMPTY -> degraded to plain size-weighted)"
+    weights = [int(check_counts.get(r, 0)) for r in eligible]
+    if sum(weights) <= 0:
+        raise ValueError(
+            "start anchor: eligible regions %s carry ZERO emitted checks -- location data is "
+            "missing or ungenerated; refusing to answer" % (sorted(eligible),))
+    return rng.choices(eligible, weights=weights, k=1)[0], rule, len(eligible)
 
 
 @register

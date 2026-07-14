@@ -384,23 +384,33 @@ class GreenfieldEldenRingWorld(World):
         # Start holding ONE region's lock (precollected) so a region is open from Roundtable at run
         # start. Count-neutral -- the precollected lock leaves the pool (its freed slot becomes filler),
         # so the remaining N-1 locks stay found progression and the goal (has_all locks) still requires
-        # every one. Under a STRICT progression_surface, BIAS the pick toward a region that hosts a
-        # MajorBoss, so the strict lock-chain has a sphere-0 anchor on-surface and doesn't widen the
-        # ladder. Falls back to any kept region (non-strict, no majored kept region, or ungenerated
-        # tags). Deterministic via self.random.
+        # every one. WHICH lock is features/start_grace.pick_anchor_region: size-weighted by each
+        # region's emitted check count (derived from LOCATIONS right here, never a frozen table) over
+        # the kept BASE regions -- the anchor IS the run's opening region, and a uniform pick over all
+        # kept locks opened ~1 run in 3 on a sub-80-check corridor, every one of them DLC (no
+        # scadutree blessing on a fresh character on top). DLC locks stay in the pool as normal finds
+        # and only anchor when no base region is kept (dlc_only). Under a STRICT progression_surface
+        # (mode 2) the MajorBoss bias INTERSECTS that eligibility (degrading, logged, never raising).
+        # Deterministic via self.random.
         _slr = getattr(self.options, "start_with_region_lock", None)
         if _slr is not None and _slr.value and lock_items:
             from .features.progression_surface import regions_with_major_boss, lock_region_name
+            from .features.start_grace import pick_anchor_region
             _psm = getattr(self.options, "progression_surface_mode", None)
-            _pick = lock_items
-            if _psm is not None and int(_psm.value) == 2:
-                _maj = regions_with_major_boss(kept)
-                _pref = [it for it in lock_items if lock_region_name(it.name) in _maj]
-                if _pref:
-                    _pick = _pref
-            _anchor = self.random.choice(_pick)
+            _strict = _psm is not None and int(_psm.value) == 2
+            _counts = {r: len(LOCATIONS.get(r, [])) for r in kept}
+            _region, _rule, _pool_n = pick_anchor_region(
+                kept, self.random, _counts, DLC_REGIONS,
+                major=regions_with_major_boss(kept) if _strict else None)
+            _by_region = {lock_region_name(it.name): it for it in lock_items}
+            _anchor = _by_region[_region]
             lock_items.remove(_anchor)
             self.multiworld.push_precollected(_anchor)
+            # Telemetry (CONTRIBUTING: a feature is armed, or it says why not). The anchor decides the
+            # whole run's opening -- a silent pick is a fail at review.
+            logging.getLogger("Greenfield").info(
+                "[eldenring:%s] start anchor: %s (%d checks) via %s -- eligible %d of %d kept",
+                self.player, _region, _counts[_region], _rule, _pool_n, len(kept))
         pool: List[Item] = list(lock_items)
         # Run pool_builder (the juice contributor) LAST, and record how many slots the OTHER
         # contributors already consumed -- locks (minus any precollected one, already popped above),
