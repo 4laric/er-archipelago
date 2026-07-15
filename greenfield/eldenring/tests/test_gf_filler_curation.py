@@ -3,7 +3,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.item_ids import AMMO_ITEM_NAMES, ITEM_CATALOG  # noqa: E402
 from worlds.eldenring.features import filler_curation as fc  # noqa: E402
 
 GAME = "Elden Ring"
@@ -26,8 +26,30 @@ def test_stack_quantities():
     assert q["Kukri"] == 5 and q["Throwing Dagger"] == 5, "throwables grant x5"
     assert q["Fire Pot"] == 2 and q["Rancor Pot"] == 2, "pots grant x2"
     assert q["Fire Grease"] == 2 and q["Rot Grease"] == 2, "greases grant x2"
+    assert q["Arrow"] == 20 and q["Bolt"] == 20 and q["Ballista Bolt"] == 20, "ammunition grants x20"
     # foods/economy are NOT stacked here
     assert "Golden Rune [1]" not in q and "Exalted Flesh" not in q
+
+
+def test_ammunition_is_param_derived_not_name_derived():
+    """The ammo set comes from EquipParamWeapon.wepType (81/83/85/86), NOT a name predicate. A
+    name-suffix derivation would sweep in the "...Bolt"/"...Strike" INCANTATIONS and hand a caster
+    x20 of a spell; the wepType join structurally cannot. Witnesses pin both directions: real ammo
+    (base + DLC, all four wepTypes) must be present, known bolt-named incantations and the adjacent
+    wepType bands (87 torches, 88 hand-to-hand arts) must be absent. Floor 20: gen_data hard-errors
+    below it, this asserts the shipped module actually cleared it (23 measured 2026-07-14)."""
+    ammo = set(AMMO_ITEM_NAMES)
+    assert len(ammo) >= 20, f"ammo set collapsed: {len(ammo)}"
+    for w in ("Arrow", "Great Arrow", "Bolt", "Ballista Bolt", "St. Trina's Arrow",
+              "Shattershard Arrow (Fletched)", "Black-Key Bolt"):
+        assert w in ammo, f"real ammo missing: {w}"
+    for spell in ("Honed Bolt", "Lightning Strike", "Ancient Dragons' Lightning Strike",
+                  "Vyke's Dragonbolt", "Lansseax's Glaive", "Fortissax's Lightning Spear"):
+        assert spell not in ammo, f"incantation leaked into the ammo set: {spell}"
+    for not_ammo in ("Torch", "Beast-Repellent Torch", "Dryleaf Arts"):   # wepType 87 / 88
+        assert not_ammo not in ammo, f"non-ammo weapon leaked into the ammo set: {not_ammo}"
+    assert set(fc.CATEGORIES["ammunition"]) == ammo, "category must mirror the generated list"
+    assert all(n in ITEM_CATALOG for n in ammo), "ammo names must resolve in the catalog"
 
 
 def test_junk_predicate_protects_economy_and_funny():

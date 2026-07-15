@@ -683,7 +683,8 @@ class GreenfieldEldenRingWorld(World):
         }
 
     def _item_counts(self) -> Dict[str, int]:
-        # Per-item GRANT quantity (stacks): throwables x10, finished pots x4 -> slot_data itemCounts
+        # Per-item GRANT quantity (stacks): filler_curation.STACK_QTY_BY_CATEGORY (throwables x5,
+        # pots x2, greases x2, ammunition x20) -> slot_data itemCounts
         # keyed by AP item id (the client grants full_id x qty). Sparse: only stacked items appear.
         from .features.filler_curation import stack_qty_by_name
         return {str(item_name_to_id[_n]): _q for _n, _q in stack_qty_by_name().items()

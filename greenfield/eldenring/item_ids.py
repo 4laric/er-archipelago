@@ -7552,4 +7552,34 @@ FILLER_POOL = [
     'Yellow Fulgurbloom',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:3ede554b65a6daf76d89e62f5800430b84fff3c744912f47f601441e4c81a4a1', 'module': 'item_ids.py', 'body_sha256': 'sha256:80d0ea4c397c11dd22306d1469e4069be0722257952135a6d0791b0317013bce'}
+# Ammunition (arrows/bolts): EquipParamWeapon.wepType in {81 arrow, 83 greatarrow, 85 bolt,
+# 86 ballista bolt} joined to the catalog (witness rows cited in gen_data.py). features/
+# filler_curation grants these as x20 stacks (STACK_QTY_BY_CATEGORY -> slot_data itemCounts).
+# PARAM-derived, never name-derived: 'Honed Bolt' et al. are incantations and must never appear.
+AMMO_ITEM_NAMES = [
+    'Arrow',
+    'Ballista Bolt',
+    'Black-Key Bolt',
+    'Bolt',
+    'Burred Bolt',
+    'Dwelling Arrow',
+    'Explosive Bolt',
+    'Explosive Greatbolt',
+    'Fire Arrow',
+    'Flaming Bolt',
+    'Golden Arrow',
+    'Golden Bolt',
+    'Golden Great Arrow',
+    'Great Arrow',
+    'Lightning Greatbolt',
+    "Lordsworn's Bolt",
+    'Meteor Bolt',
+    "Radahn's Spear",
+    'Rainbow Stone Arrow (Fletched)',
+    'Serpent Arrow',
+    'Shattershard Arrow (Fletched)',
+    'Spiritflame Arrow',
+    "St. Trina's Arrow",
+]
+
+_GEN_STAMP = {'inputs_hash': 'sha256:9864a16c6707cb4a5c1a706adfdfdaec037b7aacbbe789cdcb1735fc51da5245', 'module': 'item_ids.py', 'body_sha256': 'sha256:87c599cdcdf4d3fa55011602130146868bd1946543c5d874efe1b0632b36bcca'}

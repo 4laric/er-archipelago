@@ -2903,6 +2903,54 @@ with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
 print(f"filler_pool: {len(FILLER_POOL)} junk goods -> item_ids.py FILLER_POOL")
 
 
+# ---- AMMO_ITEM_NAMES: arrows & bolts (matt-free, param-derived). features/filler_curation grants
+# ammunition in x20 STACKS (STACK_QTY_BY_CATEGORY["ammunition"] -> slot_data itemCounts), and that
+# needs the AMMO SET -- which a NAME predicate cannot produce: "Honed Bolt", "Vyke's Dragonbolt" and
+# the Lightning-Strike family are INCANTATIONS (GoodsName rows) and several end in "Bolt". Ammo is a
+# weapon-param fact: EquipParamWeapon.wepType in the ammo band. Witnesses (EquipParamWeapon.csv on
+# disk, 2026-07-14):  Arrow (row 50000000) -> 81;  Great Arrow (51000000) -> 83;
+# Bolt (52000000) -> 85;  Ballista Bolt (53000000) -> 86.  Adjacent bands are NOT ammo and prove the
+# fence: 87 = torches (Torch, Beast-Repellent Torch), 88 = DLC hand-to-hand arts (Dryleaf Arts).
+# Join: catalog FullID (weapon nibble 0x0, so FullID == raw row id) -> wepType; keep the ammo band.
+# Intersecting with ITEM_CATALOG keeps this a GRANT-QUANTITY property of items the world already
+# handles -- crafted-only bone ammo (never looted, absent from the catalog) is not injected here.
+_AMMO_WEPTYPES = {81, 83, 85, 86}   # arrow / greatarrow / bolt / ballista bolt (witnesses above)
+_WEP_CSV = os.path.join(_SLP_DIR, "EquipParamWeapon.csv")
+AMMO_ITEM_NAMES = []
+if os.path.isfile(_WEP_CSV):
+    _weptype = {}
+    for _row in csv.DictReader(open(_WEP_CSV, newline="", encoding="utf-8", errors="replace")):
+        try:
+            _weptype[int(_row["ID"])] = int(_row["wepType"])
+        except (KeyError, ValueError):
+            continue
+    AMMO_ITEM_NAMES = sorted(
+        _nm for _nm, _full in ITEM_CATALOG.items()
+        if (_full & 0xF0000000) == 0x00000000 and _weptype.get(_full) in _AMMO_WEPTYPES)
+    # An empty or shrunken join is a FAILURE, not a clean run (CONTRIBUTING, silent-wrong-answer #2).
+    # The catalog resolves 20+ distinct looted ammo types (23 measured 2026-07-14); a result under
+    # the floor with the param PRESENT means the join key or the band broke (renamed column, wrong
+    # id space), not that ammo left the game.
+    if len(AMMO_ITEM_NAMES) < 20:
+        raise SystemExit(
+            "[gen_data] AMMO_ITEM_NAMES derivation collapsed: %d names (floor 20). "
+            "EquipParamWeapon.csv is present, so the wepType join is broken -- refusing to emit a "
+            "quietly-empty ammo set (the x20 stack would silently arm on nothing)."
+            % len(AMMO_ITEM_NAMES))
+else:
+    print("[gen_data] WARNING: EquipParamWeapon.csv absent -- AMMO_ITEM_NAMES empty (ammo x20 stacks inert)")
+with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
+    f.write("\n# Ammunition (arrows/bolts): EquipParamWeapon.wepType in {81 arrow, 83 greatarrow, 85 bolt,\n")
+    f.write("# 86 ballista bolt} joined to the catalog (witness rows cited in gen_data.py). features/\n")
+    f.write("# filler_curation grants these as x20 stacks (STACK_QTY_BY_CATEGORY -> slot_data itemCounts).\n")
+    f.write("# PARAM-derived, never name-derived: 'Honed Bolt' et al. are incantations and must never appear.\n")
+    f.write("AMMO_ITEM_NAMES = [\n")
+    for _nm in AMMO_ITEM_NAMES:
+        f.write(f"    {ascii(_nm)},\n")
+    f.write("]\n")
+print(f"ammo_items: {len(AMMO_ITEM_NAMES)} arrow/bolt catalog items -> item_ids.py AMMO_ITEM_NAMES (x20 stack)")
+
+
 # ---- Phase 5 pool-builder tiers: vanilla item quality from the ER param `rarity` column
 # (matt-free -- param-derived, no curation). Joins each ITEM_CATALOG FullID back to its EquipParam
 # row (weapon/protector/accessory) and reads `rarity` (0=trivial/ammo, 1=common, 2=rare,

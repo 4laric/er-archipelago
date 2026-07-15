@@ -8,8 +8,8 @@ weighted category draw. Categories are combat/util consumables (throwables, pots
 utility, funny) AND economy (stones, somber_stones, runes) so you can dial "more upgrade mats / more
 leveling / more throwables" freely. A "junk" category keeps that share as vanilla junk. Empty = off.
 
-STACKS: throwables x5, pots x2, greases x2 are granted in STACKS via slot_data itemCounts -- so finding
-one hands you a usable bundle, not a single item. This is a per-item quantity, so ALL members of those
+STACKS: throwables x5, pots x2, greases x2, ammunition x20 are granted in STACKS via slot_data
+itemCounts -- so finding one hands you a usable bundle (an arrow drop is a quiver), not a single item. This is a per-item quantity, so ALL members of those
 categories grant their stack (curated or vanilla-placed). Emitted by core._base_slot_data.
 
 The beloved FUNNY_JUNK (Raw Meat Dumpling, Gold-Tinged Excrement) is never seized (always survives),
@@ -24,6 +24,10 @@ try:
     from ..item_ids import ITEM_CATALOG
 except Exception:
     ITEM_CATALOG = {}
+try:
+    from ..item_ids import AMMO_ITEM_NAMES   # param-derived (EquipParamWeapon.wepType); see gen_data.py
+except Exception:                            # pre-regen item_ids.py lacks it -> category empty, stacks inert
+    AMMO_ITEM_NAMES = []
 
 
 def _dlc_pots():
@@ -53,6 +57,13 @@ CATEGORIES = {
              "Volcano Pot", "Sleep Pot", "Rancor Pot"] + _dlc_pots(),
     "greases": ["Fire Grease", "Lightning Grease", "Magic Grease", "Holy Grease", "Blood Grease",
                 "Poison Grease", "Freezing Grease", "Rot Grease", "Dragonwound Grease", "Soporific Grease"],
+    # Ammunition (arrows & bolts, base + DLC), PARAM-derived in gen_data.py: EquipParamWeapon rows with
+    # wepType in {81 arrow, 83 greatarrow, 85 bolt, 86 ballista bolt} joined to the catalog. NEVER
+    # name-derived -- "Honed Bolt" / "Vyke's Dragonbolt" / the Lightning-Strike family are INCANTATIONS
+    # and several end in "Bolt". Members grant x20 (STACK_QTY_BY_CATEGORY) so a found arrow is a usable
+    # quiver; the stack rides slot_data itemCounts whether the ammo was curated or vanilla-placed.
+    # Empty pre-regen (absent names are skipped, same as _dlc_pots).
+    "ammunition": list(AMMO_ITEM_NAMES),
     # Boiled Prawn is crafted-only (not in the catalog until the Phase-2 regen mines it) -> added then.
     # Boiled Crab / Boiled Prawn are CRAFTED-ONLY (never looted), so they reach the catalog via the
     # by-name FMG resolve in gen_data, not via a placed row. Absent names are skipped, so listing them
@@ -78,7 +89,9 @@ CATEGORIES = {
 _VALID_CATS = frozenset(CATEGORIES) | {"junk"}
 
 # STACK quantities (grant size) by category -> emitted as slot_data itemCounts. Others default 1.
-STACK_QTY_BY_CATEGORY = {"throwables": 5, "pots": 2, "greases": 2}
+# ammunition x20: a quiver per drop (Alaric 2026-07-14, "x20 all the ammunition drops"). Far under the
+# game's held caps (999 for basic ammo, 99 for special), so a stack can never overflow a grant.
+STACK_QTY_BY_CATEGORY = {"throwables": 5, "pots": 2, "greases": 2, "ammunition": 20}
 
 # Beloved junk -- never seized, always survives.
 FUNNY_JUNK = frozenset({"Raw Meat Dumpling", "Gold-Tinged Excrement"})
@@ -104,7 +117,8 @@ _ECONOMY_SUBSTR = ("Golden Rune", "Shadow Realm Rune", "Lord's Rune", "Hero's Ru
 
 
 def stack_qty_by_name():
-    """{item_name: qty} for items granted as stacks (throwables x10, pots x4). core emits itemCounts."""
+    """{item_name: qty} for items granted as stacks (STACK_QTY_BY_CATEGORY, e.g. throwables x5,
+    ammunition x20). core._item_counts emits these as slot_data itemCounts."""
     out = {}
     for cat, qty in STACK_QTY_BY_CATEGORY.items():
         for n in CATEGORIES.get(cat, ()):
@@ -115,9 +129,10 @@ def stack_qty_by_name():
 
 class CuratedFiller(OptionDict):
     """Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are
-    split across the categories by weight. Categories: throwables, pots, greases, foods, boluses,
-    perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep that share as
-    vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2, greases x2.
+    split across the categories by weight. Categories: throwables, pots, greases, ammunition, foods,
+    boluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep that
+    share as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,
+    greases x2, ammunition x20.
     'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed
     leveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.
     Example: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,

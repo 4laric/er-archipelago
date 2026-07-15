@@ -5091,4 +5091,4 @@ NOT_RANDOMIZED = {
     1050567820: 'unreachable_dead: physically gated behind mechanics a warp-grace region-lock shuffle cannot guarantee (Alaric 2026-07-09); a placed item would strand',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:3ede554b65a6daf76d89e62f5800430b84fff3c744912f47f601441e4c81a4a1', 'module': 'data.py', 'body_sha256': 'sha256:0f830bad06b67f113091f23203eed029651f0f08062d3b96ae6a631cc0a5a1c7'}
+_GEN_STAMP = {'inputs_hash': 'sha256:9864a16c6707cb4a5c1a706adfdfdaec037b7aacbbe789cdcb1735fc51da5245', 'module': 'data.py', 'body_sha256': 'sha256:0f830bad06b67f113091f23203eed029651f0f08062d3b96ae6a631cc0a5a1c7'}
