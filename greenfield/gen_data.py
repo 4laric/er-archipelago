@@ -97,10 +97,15 @@ except Exception as _e:
     BOSS_HEALTHBARS = {}
     print(f"[gen_data] boss_healthbars.py unavailable ({_e!r}); sweeps fall back to region-wide banner scan -- run tools/datamine_boss_healthbars.py")
 # Hand-added overworld field/evergaol/dragon bosses the DisplayBossHealthBar datamine missed (Alaric
-# 2026-07). Key = isDefeated event flag (== boss entity id == sweep trigger), authoritative from the
-# Grand Archives CE table's Event-Flag-Manager boss list. map/tile decoded from the flag (field-boss
-# id 10<XX><YY>0800 -> m60_<XX>_<YY>); every tile verified against the mapstudio MSB set. These make the
-# nine reddit-list base-game gaps show a felled name + get tile sweeps like the other 60 field bosses.
+# 2026-07). Key = isDefeated event flag (== sweep trigger), authoritative from the Grand Archives CE
+# table's Event-Flag-Manager boss list and RE-VERIFIED against EMEVD 2026-07-15 (each key is the flag
+# the boss's death event actually sets: 90005860/61 eventFlagId, 90005880 evergaol, or a literal
+# SetEventFlagID after the felled banner). For 9 of the 10 the flag == the entity id; Borealis
+# 1254560800 is the defeat flag of ENTITY 1054560800 (12-prefix, like Radahn 1052380800->1252380800)
+# -- do NOT treat these keys as entity ids. map/tile decoded from the ENTITY (field-boss entity
+# 10<XX><YY>0800 -> m60_<XX>_<YY>); every tile verified against the mapstudio MSB set. These make the
+# nine reddit-list base-game gaps show a felled name + get neighborhood sweeps like the other field
+# bosses. (Borealis is now ALSO datamined under the same key, so its setdefault is a no-op.)
 _BOSS_HEALTHBAR_EXTRAS = {
     1049380800: ('m60_49', 'm60_49_38', 'field', "Commander O'Neil"),                 # Caelid
     1049390800: ('m60_49', 'm60_49_39', 'field', 'Nox Swordstress & Nox Priest'),     # Caelid
@@ -3622,13 +3627,22 @@ print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked
 # ---- Phase 3b boss sweeps (2026-07-08 rework -- scope by boss CLASS). Placed AFTER location_tags so
 # the field filler-only cut sees the FULL tag set (GreatRune/KeyItem/Legendary added above). Triggers
 # come from the authoritative DisplayBossHealthBar set (tools/datamine_boss_healthbars.py ->
-# BOSS_HEALTHBARS); the trigger flag IS the boss entity id (== its defeat flag, SetEventFlagID(entity,
-# ON) on death). Member scope by class:
+# BOSS_HEALTHBARS). TRIGGER = the key = the boss's DEFEAT EVENT FLAG. 2026-07-15: "defeat flag ==
+# entity id" was an ASSUMPTION and is FALSE for 14 of 84 field bosses (night-class 03xx entities,
+# duo partners, Radahn/Fire Giant/Borealis 10->12-prefix flags) -- their sweeps could NEVER fire.
+# The datamine now derives field-boss keys from the EMEVD death events themselves. Member scope:
 #   legacy / interior (region majors)    -> REGION-WIDE + FILLER-ONLY (felling grants the region's
 #                                           filler; important-tagged checks are excluded)
 #   catacomb / cave / tunnel (m30/31/32) -> MAP-LOCAL     (only that dungeon map's own checks)
-#   field / overworld (m60)              -> OWN-TILE + FILLER-ONLY (checks on the boss's m60_XX_YY tile
-#                                           minus any important-tagged check)
+#   field / overworld (m60)              -> NEIGHBORHOOD + FILLER-ONLY (2026-07-15 widening): every
+#                                           overworld filler check within Chebyshev distance 2 of a
+#                                           field boss's tile goes to the NEAREST same-region field
+#                                           boss (tie -> lowest trigger). Own-tile-only left 18 of 85
+#                                           field bosses with EMPTY sweeps and a median of 4 members
+#                                           ("killed Ekzykes, nothing happened"); nearest-boss
+#                                           assignment keeps groups DISJOINT and region-consistent
+#                                           (distance ties split round-robin so same-tile pairs both
+#                                           get a share).
 # Recovered flag_prefix dungeon checks are swept map-locally, so a catacomb boss grants its whole
 # catacomb. Falls back to the pre-rework region-wide banner scan if BOSS_HEALTHBARS is unavailable.
 def _mp2(m):
@@ -3705,10 +3719,17 @@ DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
+    _field_bosses = []                      # (trigger flag, (xx, yy)) -- field pass below
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
         if _cls == "field":
-            _members = _filler_only(_mem_tile.get(_tile, []))
+            # Field sweeps are assigned in the NEIGHBORHOOD pass after this loop (nearest-boss,
+            # disjoint). A field entry without a decodable m60_XX_YY tile (the two 12-prefix
+            # Night's Cavalry entities datamined out of m60_48_55) gets no sweep -- same as before.
+            _ftm = re.match(r"^m60_(\d\d)_(\d\d)$", _tile or "")
+            if _ftm:
+                _field_bosses.append((_ent, (int(_ftm.group(1)), int(_ftm.group(2)))))
+            continue
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
@@ -3736,6 +3757,61 @@ if BOSS_HEALTHBARS:
         DUNGEON_SWEEPS[_ent] = _members
         SWEEP_REGION[_ent] = _sreg
         _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
+    # FIELD NEIGHBORHOOD pass (2026-07-15): a field boss used to sweep ONLY its own m60 tile's
+    # filler -- 18/85 field bosses got EMPTY sweeps (their tile has no non-important check) and the
+    # median sweep was 4 members, so in-game a field-boss kill felt like nothing. Now every
+    # overworld filler check is assigned to the NEAREST field boss (Chebyshev distance on the
+    # m60_XX_YY tile grid, cap 2 ~= a 5x5 tile neighborhood, tie -> lowest trigger flag), which
+    # keeps the old invariants by construction: groups are DISJOINT (each check assigned once;
+    # test_field_sweeps_are_disjoint), FILLER-ONLY (_filler_only cut unchanged), REGION-CONSISTENT
+    # (a check may only go to a boss whose sweep region matches the check's own region -- no wall
+    # leak; test_all_members_in_sweep_region), and members stay within distance 2 of the boss's
+    # tile (test_field_sweeps_are_local). A boss's sweep REGION = the majority region of the filler
+    # in the nearest non-empty ring around its tile (r=0, then 1, then 2) -- its own ground truth,
+    # so a boss on a region border sweeps only the side it actually stands in.
+    _tile_xy = {}
+    for _t in _mem_tile:
+        _txm = re.match(r"^m60_(\d\d)_(\d\d)$", _t)
+        if _txm:
+            _tile_xy[_t] = (int(_txm.group(1)), int(_txm.group(2)))
+    _freg = {}
+    for _trig, (_bx, _by) in _field_bosses:
+        for _ring in (0, 1, 2):
+            _votes = Counter()
+            for _t, (_x, _y) in _tile_xy.items():
+                if max(abs(_x - _bx), abs(_y - _by)) == _ring:
+                    for _a in _filler_only(_mem_tile[_t]):
+                        _r2 = _ap_region.get(_a)
+                        if _r2 and _r2 != HUB:
+                            _votes[_r2] += 1
+            if _votes:
+                _freg[_trig] = _votes.most_common(1)[0][0]
+                break
+    _fassign = defaultdict(list)
+    for _t in sorted(_tile_xy):
+        _x, _y = _tile_xy[_t]
+        for _a in _filler_only(_mem_tile[_t]):
+            if _a in _covered:
+                continue
+            _r2 = _ap_region.get(_a)
+            if not _r2 or _r2 == HUB:
+                continue
+            _cand = sorted((max(abs(_bx - _x), abs(_by - _y)), _trig)
+                           for _trig, (_bx, _by) in _field_bosses
+                           if _freg.get(_trig) == _r2
+                           and max(abs(_bx - _x), abs(_by - _y)) <= 2)
+            if not _cand:
+                continue
+            # All bosses TIED at the minimal distance split the tile round-robin (ap % n). Without
+            # this, two bosses sharing one tile (Deathbird + Night's Cavalry m60_44_32; Nox pair +
+            # Hugues m60_49_39) always resolved to the lower trigger and the other stayed EMPTY.
+            _tied = [_trig for _d, _trig in _cand if _d == _cand[0][0]]
+            _fassign[_tied[_a % len(_tied)]].append(_a)
+    for _trig in sorted(_fassign):
+        _mem = sorted(set(_fassign[_trig]))
+        DUNGEON_SWEEPS[_trig] = _mem
+        SWEEP_REGION[_trig] = _freg[_trig]
+        _covered.update(_mem)
     # Legacy DIVVY (2026-07-11): PARTITION a legacy region's filler round-robin among its legacy bosses
     # so no single boss kill dumps the whole region. Previously EVERY legacy boss swept the ENTIRE
     # region filler -- Farum's 91 checks granted in full by each of Godskin Duo / Placidusax / Maliketh
@@ -3780,8 +3856,8 @@ else:
 
 OUT_SWEEP = os.path.join(HERE, "eldenring", "boss_sweeps.py")
 with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
-    f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Boss sweeps: defeat flag (boss entity id) ->\n')
-    f.write('member check ap-ids + region. Scope by class: legacy=region-wide+filler-only, catacomb/cave/tunnel=map-local, field=own-tile+filler-only. Matt-free. Needs a client flag-watch handler."""\n')
+    f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Boss sweeps: defeat event flag (EMEVD-derived; NOT always the entity id) ->\n')
+    f.write('member check ap-ids + region. Scope by class: legacy=region-divvy+filler-only, catacomb/cave/tunnel=map-local, field=nearest-boss neighborhood (Chebyshev<=2)+filler-only. Matt-free. Needs a client flag-watch handler."""\n')
     f.write("DUNGEON_SWEEPS = {\n")
     for _fl in sorted(DUNGEON_SWEEPS):
         f.write(f"    {_fl}: {DUNGEON_SWEEPS[_fl]},\n")

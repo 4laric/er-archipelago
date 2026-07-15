@@ -6,7 +6,10 @@ DisplayBossHealthBar set, tools/datamine_boss_healthbars.py -> BOSS_HEALTHBARS):
                                            legacy bosses (each boss gets a disjoint ~1/N slice; a
                                            single-legacy-boss region still gets the whole pool)
   * catacomb / cave / tunnel (m30/31/32)-> MAP-LOCAL (only that dungeon map's own checks)
-  * field / overworld (m60)             -> OWN-TILE + FILLER-ONLY
+  * field / overworld (m60)             -> NEIGHBORHOOD + FILLER-ONLY (2026-07-15): each overworld
+                                           filler check goes to the NEAREST same-region field boss
+                                           within Chebyshev tile distance 2, ties split round-robin;
+                                           groups are pairwise DISJOINT
 
 These are the invariants a regen (or a member-loop / classifier change) must not break. Independent
 of gen_data's derivation: we read the emitted modules + region_map.csv and re-derive each member's
@@ -129,15 +132,37 @@ class BossSweepScoping(unittest.TestCase):
         self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) are important-tagged "
                          "-- field sweeps must be filler-only. Sample: " + repr(bad[:5]))
 
-    def test_field_sweeps_are_own_tile(self):
+    _TILE_RE = re.compile(r"m60_(\d\d)_(\d\d)")
+
+    def test_field_sweeps_are_local(self):
+        """NEIGHBORHOOD scope (2026-07-15, was own-tile): every member must sit within Chebyshev
+        distance 2 of the boss's own m60_XX_YY tile -- the nearest-boss assignment's cap. Farther
+        means the assignment leaked (or a member's map decode regressed)."""
         bad = []
         for ent, info, members in self._members_by_class("field"):
-            tile = info[1]  # m60_XX_YY
+            bt = self._TILE_RE.match(info[1] or "")
+            if not bt:
+                continue   # undecodable boss tile (the m60_48_55 DLC pair) -> gets no sweep anyway
+            bx, by = int(bt.group(1)), int(bt.group(2))
             for ap in members:
-                if not (self._eff_map(ap) or "").startswith(tile):
-                    bad.append((ent, info[3], tile, ap, self._eff_map(ap)))
-        self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) are NOT on the boss's own "
-                         "m60 tile. Sample: " + repr(bad[:5]))
+                mt = self._TILE_RE.match(self._eff_map(ap) or "")
+                if not mt or max(abs(int(mt.group(1)) - bx), abs(int(mt.group(2)) - by)) > 2:
+                    bad.append((ent, info[3], info[1], ap, self._eff_map(ap)))
+        self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) beyond Chebyshev "
+                         "distance 2 of the boss's tile (or not on an m60 tile at all). Sample: "
+                         + repr(bad[:5]))
+
+    def test_field_sweeps_are_disjoint(self):
+        """Nearest-boss assignment gives each overworld check to exactly ONE field boss -- no two
+        field sweeps may share a member (own-tile pairs used to double-sweep their shared tile)."""
+        owner, overlaps = {}, []
+        for ent, _info, members in self._members_by_class("field"):
+            for ap in members:
+                if ap in owner:
+                    overlaps.append((ap, owner[ap], ent))
+                owner.setdefault(ap, ent)
+        self.assertEqual(overlaps, [], str(len(overlaps)) + " overworld check(s) swept by TWO field "
+                         "bosses. Sample: " + repr(overlaps[:5]))
 
     def test_dungeon_sweeps_are_map_local(self):
         bad = []
