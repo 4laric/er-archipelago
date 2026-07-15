@@ -25,7 +25,7 @@ Elden Ring:
 
   # 8 of 31 regions kept; the rest sealed behind Region Lock items you must
   # RECEIVE. Small enough to finish, big enough that the locks really gate you.
-  num_regions: 8
+  num_regions: 0
 
   # ROLLED, not spine. `spine` always starts in Limgrave and walks a fixed path,
   # so it would never show you the new folds. Rolled will.
