@@ -52,15 +52,22 @@ class GatesArmed(WorldTestBase):
                       "the Roundtable/HUB grace 71190 must be granted as a start grace")
 
     def test_torrent_enable_flag_rides_the_whistle_grant(self):
-        # start_with_steed (frozen ON) grants the whistle GOODS; the game gates Torrent summoning on
-        # obtained-flag 60100, which vanilla only sets via Melina's (here-bypassed) hand-off. Without
-        # 60100 the player carries the whistle but stays mountless (er-torrent-regionlock-mountless).
+        # start_with_steed (frozen ON) grants the whistle GOODS via the UNIQUE path: the pair
+        # [whistle, 60100] in uniqueStartGrants makes the client set the Torrent enable flag AS
+        # PART OF the grant (er-torrent-regionlock-mountless: without 60100 the whistle is inert).
+        # 60100 must NOT ride startGraces any more -- the unconditional 7165bf8 shape would pre-set
+        # the idempotency latch, and the flag-gated unique grant would then SKIP the whistle goods:
+        # flag up, no whistle, still mountless.
         sd = self.world.fill_slot_data()
         steed = getattr(self.world.options, "start_with_steed", None)
         if steed is not None and steed.value:
-            self.assertIn(60100, sd.get(contract.START_GRACES, []),
-                          "start_with_steed on -> Torrent enable flag 60100 must be in startGraces, "
+            self.assertIn([0x40000000 | 130, 60100], sd.get(contract.UNIQUE_START_GRANTS, []),
+                          "start_with_steed on -> [whistle, 60100] must be a unique start grant, "
                           "else the whistle is inert and the player is mountless")
+        self.assertNotIn(60100, sd.get(contract.START_GRACES, []),
+                         "60100 is the whistle grant's idempotency latch -- setting it "
+                         "unconditionally in startGraces would make the unique grant skip the "
+                         "whistle goods on a fresh save")
 
     def test_rune_gate_keys_retired(self):
         sd = self.world.fill_slot_data()

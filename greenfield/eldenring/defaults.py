@@ -66,6 +66,8 @@ FROZEN_OPTIONS = {
     "start_with_torch": (1, None),
     "start_with_flasks": (1, None),
     "start_with_steed": (1, None),
+    "start_with_bell": (1, None),      # unique-grant path: flag 60110 latch, skip-if-owned
+    "start_with_physick": (1, None),   # unique-grant path: flag 60020 latch, skip-if-owned
     "start_with_region_lock": (1, None),
     "reveal_all_maps": (1, None),
     "no_weapon_requirements": (1, None),

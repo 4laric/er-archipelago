@@ -41,12 +41,9 @@ _FINGERSLAYER_CHEST_GATE = 1034509410
 # a region Lock on them: a hard softlock. (Found in playtest 2026-07-11, seed 22222, Caelid rolled in.)
 # Force the festival on at spawn -- same NPC-prereq bypass as the Ranni chest gate above.
 _RADAHN_FESTIVAL = 9410
-# 60100 = the Spectral Steed Whistle OBTAINED-flag. In vanilla, MELINA's mount hand-off sets it, and
-# the game gates Torrent summoning on it -- the whistle GOODS (start_items._STEED_WHISTLE_FULL_ID) is
-# INERT without it. A rolled/region-lock start bypasses Melina (er-torrent-regionlock-mountless), so
-# unless we set 60100 too the player carries the whistle but stays mountless. Set it whenever the
-# whistle is granted (start_with_steed, frozen ON). Same class as the key-item obtained-flag gap.
-_STEED_WHISTLE_FLAG = 60100
+# (60100, the Spectral Steed Whistle obtained-flag, used to be appended here unconditionally with
+# start_with_steed. It moved to features/start_items.py uniqueStartGrants: the flag is now set AS
+# PART OF the whistle grant and doubles as its idempotency latch -- see start_items module doc.)
 
 
 class RevealAllMaps(DefaultOnToggle):
@@ -154,9 +151,6 @@ class StartGrace(Feature):
             graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
         graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
         graces.append(_RADAHN_FESTIVAL)           # start the Radahn Festival so Radahn is fightable
-        _steed = getattr(world.options, "start_with_steed", None)
-        if _steed is not None and _steed.value:
-            graces.append(_STEED_WHISTLE_FLAG)    # 60100: enable Torrent (Melina is bypassed here)
         return {
             contract.START_REGION: HUB,
             contract.START_GRACES: graces,

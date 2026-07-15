@@ -75,6 +75,16 @@ def _chk_triple_list(v):
     return None
 
 
+def _chk_pair_list(v):
+    # parse pairs : [[a, b], ...] -- e.g. uniqueStartGrants [[fullId, obtainedFlag], ...]
+    if not isinstance(v, (list, tuple)):
+        return "expected [[int,int], ...]"
+    for t in v:
+        if not isinstance(t, (list, tuple)) or len(t) != 2 or not all(_is_int(i) for i in t):
+            return f"each entry must be [int,int], got {t!r}"
+    return None
+
+
 def _chk_int_list(v):
     # arr_i32 / arr_u32 : [int, ...]
     if not isinstance(v, (list, tuple)) or not all(_is_int(i) for i in v):
@@ -183,6 +193,7 @@ SHAPES = {
     "LISTVAL_INT_MAP": (_chk_listval_int_map, "ListvalIntMap", "str_to_u32vec"),
     "STR_MAP":         (_chk_str_map,         "StrMap",        "{key: str} object"),
     "TRIPLE_LIST":     (_chk_triple_list,     "TripleList",    "parse_triples"),
+    "PAIR_LIST":       (_chk_pair_list,       "PairList",      "startgrants.rs pair parse [[a,b]]"),
     "INT_LIST":        (_chk_int_list,        "IntList",       "arr_i32 / arr_u32"),
     "STR_LIST":        (_chk_str_list,        "StrList",       "arr_str (item names)"),
     "BOOL":            (_chk_bool,            "Bool",          "as_bool"),
@@ -450,7 +461,15 @@ CONTRACT = (
                 "grace flags lit at spawn so the first warp is possible (front-door of start region)."),
     ContractKey("startItems", "INT_LIST", False, (BOTH,),
                 "features/start_items.py", "startgrants.rs:57 arr_i32",
-                "FullIDs granted once at game start (Torch, Spectral Steed Whistle, ...)."),
+                "FullIDs granted once at game start, REPEATED path -- a duplicate is harmless "
+                "(Torch, pot vessels). Unique key items ride uniqueStartGrants instead."),
+    ContractKey("uniqueStartGrants", "PAIR_LIST", False, (GREENFIELD,),
+                "features/start_items.py", "core.rs unique-grant path (startgrants.rs parse)",
+                "[FullID, obtainedFlag] pairs for flag-idempotent UNIQUE start grants (whistle "
+                "60100, bell 60110, physick 60020). The client grants the goods ONLY if the flag "
+                "is unset, then sets the flag with the grant (er_logic::unique_grants) -- the flag "
+                "is the single source of truth for 'has it', so reload/reconnect/pool-pickup can "
+                "never double-grant."),
     ContractKey("reveal_all_maps", "BOOL", False, (BOTH,),
                 "features/start_grace.py", "startgrants.rs as_bool",
                 "reveal the whole world map + underground view (client owns the RE'd flag set)."),
@@ -851,6 +870,9 @@ fn shape_ok(shape: Shape, v: &Value) -> bool {
         Shape::StrMap => v.as_object().is_some_and(|o| o.values().all(|x| x.is_string())),
         Shape::TripleList => v.as_array().is_some_and(|a| {
             a.iter().all(|t| t.as_array().is_some_and(|t| t.len() == 3 && t.iter().all(is_int)))
+        }),
+        Shape::PairList => v.as_array().is_some_and(|a| {
+            a.iter().all(|t| t.as_array().is_some_and(|t| t.len() == 2 && t.iter().all(is_int)))
         }),
         Shape::IntList => v.as_array().is_some_and(|a| a.iter().all(is_int)),
         Shape::StrList => v.as_array().is_some_and(|a| a.iter().all(|x| x.is_string())),

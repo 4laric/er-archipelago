@@ -35,7 +35,8 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `greatRuneItemIds` | INT_LIST |  | greenfield | CONTRACT: DEAD (unemitted since 2026-07-14) | CONTRACT: DEAD (never built) | RETIRED 2026-07-14 with runeGatedGraces (its only reason to exist). The client counts received runes for the GOAL via great_rune_items instead. |
 | `startRegion` | STR | yes | greenfield | features/start_grace.py | core.rs:410 as_str | name of the always-kept start region (diagnostic + start anchor). |
 | `startGraces` | INT_LIST |  | both | features/start_grace.py | startgrants.rs:58 arr_u32 | grace flags lit at spawn so the first warp is possible (front-door of start region). |
-| `startItems` | INT_LIST |  | both | features/start_items.py | startgrants.rs:57 arr_i32 | FullIDs granted once at game start (Torch, Spectral Steed Whistle, ...). |
+| `startItems` | INT_LIST |  | both | features/start_items.py | startgrants.rs:57 arr_i32 | FullIDs granted once at game start, REPEATED path -- a duplicate is harmless (Torch, pot vessels). Unique key items ride uniqueStartGrants instead. |
+| `uniqueStartGrants` | PAIR_LIST |  | greenfield | features/start_items.py | core.rs unique-grant path (startgrants.rs parse) | [FullID, obtainedFlag] pairs for flag-idempotent UNIQUE start grants (whistle 60100, bell 60110, physick 60020). The client grants the goods ONLY if the flag is unset, then sets the flag with the grant (er_logic::unique_grants) -- the flag is the single source of truth for 'has it', so reload/reconnect/pool-pickup can never double-grant. |
 | `reveal_all_maps` | BOOL |  | both | features/start_grace.py | startgrants.rs as_bool | reveal the whole world map + underground view (client owns the RE'd flag set). |
 | `progressionSurfaceLocations` | INT_LIST |  | greenfield | features/progression_surface.py | core.rs tracker star/lock set | AP location ids on THIS seed's progression surface -- the ONLY locations that may hold this world's own progression (region Locks, required/gate Great Runes, folded legacy keys). Enia (EniaShop) always excluded. The client stars exactly these, so 'where the locks can be' and 'what the tracker points at' are ONE set. REPLACES bigTicketLocations, which named a set progression could never reach (MajorBoss and GreatRune are not on the surface). |
 | `goalLocations` | INT_LIST | yes | both | features/goal_locations.py | goal.rs parse | AP location ids whose completion == victory; client sends Goal when all are done. |
@@ -92,6 +93,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | LISTVAL_INT_MAP | `str_to_u32vec` |
 | STR_MAP | `{key: str} object` |
 | TRIPLE_LIST | `parse_triples` |
+| PAIR_LIST | `startgrants.rs pair parse [[a,b]]` |
 | INT_LIST | `arr_i32 / arr_u32` |
 | STR_LIST | `arr_str (item names)` |
 | BOOL | `as_bool` |

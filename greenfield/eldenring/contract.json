@@ -16,6 +16,10 @@
       "rust": "TripleList",
       "client_parser": "parse_triples"
     },
+    "PAIR_LIST": {
+      "rust": "PairList",
+      "client_parser": "startgrants.rs pair parse [[a,b]]"
+    },
     "INT_LIST": {
       "rust": "IntList",
       "client_parser": "arr_i32 / arr_u32"
@@ -381,7 +385,18 @@
       ],
       "producer": "features/start_items.py",
       "consumer": "startgrants.rs:57 arr_i32",
-      "doc": "FullIDs granted once at game start (Torch, Spectral Steed Whistle, ...)."
+      "doc": "FullIDs granted once at game start, REPEATED path -- a duplicate is harmless (Torch, pot vessels). Unique key items ride uniqueStartGrants instead."
+    },
+    {
+      "name": "uniqueStartGrants",
+      "shape": "PAIR_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/start_items.py",
+      "consumer": "core.rs unique-grant path (startgrants.rs parse)",
+      "doc": "[FullID, obtainedFlag] pairs for flag-idempotent UNIQUE start grants (whistle 60100, bell 60110, physick 60020). The client grants the goods ONLY if the flag is unset, then sets the flag with the grant (er_logic::unique_grants) -- the flag is the single source of truth for 'has it', so reload/reconnect/pool-pickup can never double-grant."
     },
     {
       "name": "reveal_all_maps",
