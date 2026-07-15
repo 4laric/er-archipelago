@@ -25,8 +25,9 @@ names are terse ("Weeping", "Ensis", "Ancient Ruins") and why "Enir Ilim" drops 
 hyphen -- his lock item is literally "Enir Ilim Lock". NOT adopted (documented in
 SPEC-region-spine-v2.md): "Redmane" (Redmane Castle has no bucket of its own -- it is m60 tiles
 inside 64000), "Volcano" (bucket 16000 exists but the Manor sits ON Mt. Gelmir; one region),
-"Ashen" (post-burn Leyndell, 11050: its checks are excluded as dead content -- the 2026-07-08
-decision -- so it folds into Leyndell), and his three "* Underground Lock"s (their grouping does
+"Ashen" (post-burn Leyndell, 11050: never rollable, but since 2026-07-14 its checks are the
+CONDITIONAL finale region -- data.FINALE_REGION, created per-seed by features/finale.py -- whose
+kick geometry stays measured under Leyndell here), and his three "* Underground Lock"s (their grouping does
 not map onto the game's seven underground buckets; we keep bucket-true regions instead).
 
 UN-GATEABLE FOLDS (measured 2026-07-12; the kick-watch works on play_region, so a place that
@@ -44,8 +45,8 @@ DELIBERATE SPANS (one region, several buckets -- each earns its line):
     Liurnia before this table existed);
   * Altus = 63000/63002/63003 (core / W. Altus-Outskirts / E. Altus-Forbidden Lands);
   * Mt. Gelmir = 63001 + 16000 (Volcano Manor interior -- the Manor sits on Gelmir);
-  * Leyndell = 11000 + 11050 (Ashen Capital: dead-content fold, see above) + 19000 (Fractured
-    Marika, the capital-ending arena) -- the GOAL region;
+  * Leyndell = 11000 + 11050 (Ashen Capital: kick bucket of the conditional finale region, see
+    above) + 19000 (Fractured Marika, the capital-ending arena) -- the GOAL region;
   * Caelid = 64000 + 64001 (Dragonbarrow) + 64002 (Swamp of Aeonia);
   * Mountaintops of the Giants = 65000 + 65001 + 65002 (Consecrated Snowfield fold: keeps Fire
     Giant as the region's major; a split Snowfield would have no MajorBoss check);

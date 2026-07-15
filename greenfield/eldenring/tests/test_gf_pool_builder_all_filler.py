@@ -24,7 +24,8 @@ GAME = "Elden Ring"
 
 
 def _total_locations(world):
-    return len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in world._kept())
+    return (len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in world._kept())\
+        + len(getattr(world, "gf_extra_locations", ())))   # feature-owned locations (finale)
 
 
 class AllFillerJuice(WorldTestBase):

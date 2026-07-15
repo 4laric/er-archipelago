@@ -234,7 +234,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  'Shadow Keep (DLC)':'Shadow Keep','Altus Plateau':'Altus','Jagged Peak (DLC)':'Jagged Peak',
  'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Cerulean',
  'Abyssal Woods (DLC)':'Abyssal','Mountaintops of the Giants':'Mountaintops of the Giants',
- 'Leyndell, Royal Capital':'Leyndell','Leyndell (Ashen Capital)':'Leyndell',   # Ashen = dead-content fold into the GOAL region (2026-07-08 decision)
+ 'Leyndell, Royal Capital':'Leyndell','Leyndell (Ashen Capital)':'Leyndell',   # Ashen rows are routed to FINALE_REGION by region_of before this table is consulted; the label stays only as a last-resort fallback
  'Nokron / Siofra (Ancestor Spirit)':'Siofra River',
  'Lake of Rot (Astel)':'Ainsel River','Deeproot Depths (Lichdragon Fortissax)':'Deeproot Depths','Fractured Marika (final)':'Leyndell',
  'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Stone Coffin',
@@ -519,11 +519,10 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # inside Stormveil's m10_01 EMEVD, so it both mis-pinned to Stormveil AND showed up as a randomizer
 # check. Per playtest (2026-07-08) it should NOT be randomized -- drop it so it stays a vanilla pickup
 # and never becomes a check (this also drops ap-id 7770020 from the m10 dungeon sweep 10010800 on regen).
-# ASHEN CAPITAL endgame drops (510070 Hoarah Loux/Godfrey, 510230 Elden Remembrance = Radagon/Elden
-# Beast, 190540/190550 Gideon) are KEPT (Alaric 2026-07-08: make Ashen a logical region, not a rollable
-# num_regions one). They fold into the always-kept GOAL region (Altus Plateau) via REGION_MAP -> reachable
-# in logic when Altus opens, and collectable via Morgott's region-wide sweep (Morgott = reachable capital
-# ending). NOT a separate rollable region. Morgott (510040) is the capital ending and already there.
+# ASHEN CAPITAL endgame drops (510070 Hoarah Loux/Godfrey, 510230 Elden Remembrance, 510060 Gideon)
+# are the CONDITIONAL FINALE now -- a logical, never-rollable region created per-seed when its
+# prerequisites are kept (Alaric 2026-07-14 ruling; see the FINALE block below and features/
+# finale.py). 190540/190550 were INVENTED synthetic twins of Gideon's real 510060 -> phantom guard.
 # 60100 = Spectral Steed Whistle (Torrent's bell). start_with_steed is FROZEN ON (defaults.py), so the
 # client grants the whistle at spawn -- but it grants the ITEM (FullID), not the acquisition flag, so
 # 60100 only fires on MELINA'S grant. A rolled start can bypass Melina entirely (er-torrent-regionlock-
@@ -531,24 +530,187 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # could strand a progression item on it. You always have Torrent now, so the check earns nothing.
 # Excluded as a start-grant non-check, same class as 60000 (Flask). (Alaric 2026-07-11.)
 _MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger; 550200/550250 = "About ..." tutorial-message popups (not loot, same class as 9100-9125)
-# Unreachable ASHEN CAPITAL + final-boss drops -- EXCLUDED AS DEAD (user decision 2026-07-08). Post-
-# Erdtree-burn / final content is not physically reachable in a region-lock game, and is NOT actually
-# collectable via Morgott's region-wide sweep (boss_arena rewards are never swept, and the m11_05
-# map_lot items fall outside the sweep member filter) -- so they were dead important-tagged checks. Drop
-# them. m11_05 = Leyndell Ashen Capital (whole 11050000-11059999 range); 510070 Remembrance of Hoarah
-# Loux (Godfrey, Ashen); 510230 Elden Remembrance (Radagon/Elden Beast, final); 190540/190550 = Sir
-# Gideon the All-Knowing (Ashen). Morgott (510040) STAYS -- he is the reachable capital ending. Bolt of
-# Gransax (11007xxx, Royal Capital m11_00) STAYS -- physically reachable. Excluding boss_arena 510070/
-# 510230 also drops them from REGION_BOSSES (built from `rows`), so no dangling Felled trophy / key.
-# 510060 added 2026-07-12: Sir Gideon Ofnir's drop (Scepter of the All-Knowing). It is the SAME
-# map as 510070 (m11_05 = Leyndell, Capital of Ash -- graces "Elden Throne", "Queen's Bedchamber"),
-# so it is dead by the same 2026-07-08 decision. It was not listed before only because it had NO
-# LOCATION to exclude: its reward is a common.emevd $Event(1100) boss drop and the whole family was
-# being dropped from the world. Recovering the family made it a live, progression-eligible check in
-# the unreachable Ashen Capital -- i.e. a strand. Kill it here, at the same place its twin dies.
-_ASHEN_DEAD_FLAGS = frozenset({510060, 510070, 510230, 190540, 190550})
-def _is_ashen_dead(_fl):
-    return _fl in _ASHEN_DEAD_FLAGS or 11050000 <= _fl <= 11059999
+# ---- THE FINALE (2026-07-14; supersedes the 2026-07-08 "ashen dead" blanket) ---------------------
+# The old _ASHEN_DEAD_FLAGS blanket called the post-Erdtree-burn content "unreachable in a
+# region-lock game". That was a CONDITIONAL truth wearing a blanket exclusion: the Ashen Capital is
+# reachable exactly when the player can trigger the burn, and the burn trigger is pure game data:
+#
+#     common.emevd $Event(900) ("World tree in flames") waits on EXACTLY ONE flag -- 9116, the
+#     Maliketh boss-dead flag, whose ONLY setter is m13_00 (Crumbling Farum Azula) -- then warps
+#     the player into m11_05 (Leyndell, Ashen Capital). m19_00 (Elden Throne, the Elden Beast
+#     arena) is entered exclusively through the burnt-Erdtree entrance INSIDE m11_05: the tie is a
+#     map-streaming link with no EMEVD flag, so it is CURATED below (asserted, cited), not scanned.
+#
+# So the finale checks exist exactly when their prerequisite REGIONS are kept: the region that can
+# fire the burn trigger (Farum Azula) and the region owning the finale maps' measured kick buckets
+# (Leyndell: play_regions 11050 + 19000, region_groups.py; graces 71120-71125 -> 11050, 71900 ->
+# 19000 in grace_region_map.tsv). features/finale.py creates the locations per-seed under that
+# rule; data.py carries FINALE_REGION / FINALE_REQUIRES / LOCATIONS[FINALE_REGION]. Everything
+# below is re-derived from the artifacts on every regen and HARD-FAILS on drift -- a scan that
+# suddenly returns a different number must die loudly, never re-baseline itself.
+#
+# 190540/190550 ("LAC/LCA: Scepter of the All-Knowing / All-Knowing Helm - boss drop") leave the
+# set entirely: both are method=synthetic_areacode INVENTED flags with ZERO occurrences in the
+# params or any EMEVD (verified 2026-07-14); the REAL Gideon drop is flag 510060 (lots 10060-10064).
+# They now fall through to the phantom-flag guard and are ledgered NOT_RANDOMIZED as phantom_flag.
+_FINALE_REGION = "Ashen Capital"
+_EV_DIR_F = os.path.join(AR, "event")
+
+def _finale_derive():
+    """(finale_flags, burn_flag, burn_map, burn_setter_map, finale_maps, reward_of_boss).
+    finale_flags = the acquisition flags of every Ashen-Capital / Elden-Throne check:
+      * the $Event(1100) boss rewards whose boss-dead flag is set in a finale map
+        (9106 Gideon + 9107 Godfrey/Hoarah Loux in m11_05; 9123 Elden Beast in m19_00), resolved
+        boss flag -> reward lot (common.emevd) -> the lot's own getItemFlagId (ItemLotParam_map);
+      * every ItemLotParam_map flag whose 8-digit id self-encodes the burn-warp map (1105xxxx =
+        m11_05: 7 lots incl. [Incantation] Erdtree Heal 11057000 and Erdtree's Favor +2 11057100 --
+        derived 2026-07-14: 5 of the 7 award items NO m11_00 lot carries, so they are REAL content,
+        not ashen duplicates of live checks)."""
+    _pc = os.path.join(_EV_DIR_F, "common.emevd.dcx.js")
+    if not (os.path.isfile(_pc) and _LOT_OF_FLAG):
+        raise SystemExit("FATAL: finale derivation needs event/common.emevd.dcx.js + "
+                         "ItemLotParam_map.csv -- refusing to regen without them (an empty finale "
+                         "would silently drop 10 checks; an empty result is a FAILURE)")
+    _txt = open(_pc, encoding="utf-8", errors="replace").read()
+    # (1) the burn event: $Event(900) -- one wait flag, one warp target.
+    _mb = re.search(r"^\$Event\(900, .*?^\}\);", _txt, re.S | re.M)
+    if not _mb:
+        raise SystemExit("FATAL: finale: $Event(900) not found in common.emevd.dcx.js")
+    _body = _mb.group(0)
+    _waits = re.findall(r"WaitFor\(PlayerIsInOwnWorld\(\) && EventFlag\((\d+)\)\)", _body)
+    if len(set(_waits)) != 1:
+        raise SystemExit(f"FATAL: finale: $Event(900) burn-wait flags {_waits!r} != exactly one")
+    _burn = int(_waits[0])
+    _mw = re.search(r"PlayCutsceneToPlayerAndWarp\(\d+, [^,]+, \d+, (\d+),", _body)
+    if not _mw:
+        raise SystemExit("FATAL: finale: $Event(900) warp target not found")
+    _bs = _mw.group(1)                                     # block id, e.g. 11050000
+    if len(_bs) != 8:
+        raise SystemExit(f"FATAL: finale: warp block id {_bs!r} is not an 8-digit map block")
+    _burn_map = f"m{_bs[0:2]}_{_bs[2:4]}_{_bs[4:6]}_{_bs[6:8]}"
+    # (2) finale maps: the burn-warp map + the Elden Throne. m19_00 is CURATED (see header): its
+    # only entrance is the burnt Erdtree inside m11_05 (map-streaming, no EMEVD tie); its only
+    # grace (71900) exists post-final-boss (event 19002502 waits EventFlag(9123)) and its measured
+    # play_region (19000) shares Leyndell's kick bucket with m11_05's 11050 (region_groups.py).
+    _fin_maps = (_burn_map, "m19_00_00_00")
+    # (3) the $Event(1100) boss-reward family: bossFlag -> (rewardLot, doneFlag).
+    _fam = {int(b): (int(l), int(d))
+            for (b, l, _l2, d) in re.findall(
+                r"\$InitializeEvent\(\d+, 1100, (\d+), (\d+), (\d+), (\d+)\)", _txt)}
+    if not _fam:
+        raise SystemExit("FATAL: finale: no $InitializeEvent(_, 1100, ...) family in common.emevd")
+    # (4) boss-dead flags SET in a finale map; the burn flag's setter map (for FINALE_REQUIRES).
+    _lot2flag = defaultdict(set)
+    for _fl9, _lots9 in _LOT_OF_FLAG.items():
+        for _l9 in _lots9:
+            _lot2flag[_l9].add(_fl9)
+    _burn_setters = set()
+    _fin_bosses = {}
+    for _mid9 in _fin_maps:
+        _pf9 = os.path.join(_EV_DIR_F, _mid9 + ".emevd.dcx.js")
+        if not os.path.isfile(_pf9):
+            raise SystemExit(f"FATAL: finale: {_mid9}.emevd.dcx.js missing from event/")
+        _t9 = open(_pf9, encoding="utf-8", errors="replace").read()
+        for _bf9 in _fam:
+            if f"SetEventFlagID({_bf9}, ON)" in _t9:
+                _fin_bosses[_bf9] = _mid9
+    for _fn9 in os.listdir(_EV_DIR_F):
+        _mm9 = re.match(r"(m\d\d_\d\d_\d\d_\d\d)\.emevd\.dcx\.js$", _fn9)
+        if _mm9 and f"SetEventFlagID({_burn}, ON)" in open(
+                os.path.join(_EV_DIR_F, _fn9), encoding="utf-8", errors="replace").read():
+            _burn_setters.add(_mm9.group(1))
+    if len(_burn_setters) != 1:
+        raise SystemExit(f"FATAL: finale: burn flag {_burn} setter maps {_burn_setters!r} != one")
+    # (5) boss-dead flag -> the reward lot's OWN getItemFlagId; cross-check the doneFlag arg.
+    _rewards = {}
+    for _bf9, _mid9 in sorted(_fin_bosses.items()):
+        _lot9, _done9 = _fam[_bf9]
+        _rf9 = _lot2flag.get(_lot9, set())
+        if len(_rf9) != 1:
+            raise SystemExit(f"FATAL: finale: reward lot {_lot9} (boss {_bf9}) has getItemFlagId "
+                             f"set {_rf9!r} != exactly one")
+        _rf9 = next(iter(_rf9))
+        if _rf9 != _done9:
+            raise SystemExit(f"FATAL: finale: lot {_lot9} getItemFlagId {_rf9} != $Event(1100) "
+                             f"done-flag {_done9} -- EMEVD and params disagree")
+        _rewards[_bf9] = _rf9
+    # (6) map lots self-encoded into the burn-warp map (1105xxxx -> m11_05).
+    _pref9 = _burn_map.split("_")[0][1:] + _burn_map.split("_")[1]   # 'm11_05_00_00' -> '1105'
+    _maplots = {_fl9 for _fl9 in _LOT_OF_FLAG
+                if len(str(_fl9)) == 8 and str(_fl9)[:4] == _pref9}
+    # (7) the count PIN (2026-07-14 artifacts): 3 boss rewards (510060 Gideon, 510070 Godfrey,
+    # 510230 Elden Beast) + 7 m11_05 map lots. A different number means the inputs or the scan
+    # changed -- investigate which (CONTRIBUTING: rebaselining without answering that question is
+    # how a regression gets laundered into a test).
+    if len(_rewards) != 3 or len(_maplots) != 7:
+        raise SystemExit(f"FATAL: finale scan drift: {len(_rewards)} boss rewards (expected 3: "
+                         f"{sorted(_rewards.values())}) + {len(_maplots)} m11_05 map lots "
+                         f"(expected 7: {sorted(_maplots)})")
+    return (frozenset(_rewards.values()) | frozenset(_maplots), _burn, _burn_map,
+            next(iter(_burn_setters)), _fin_maps, _rewards)
+
+(FINALE_FLAGS, _BURN_FLAG, _BURN_MAP, _BURN_SETTER_MAP, _FINALE_MAPS,
+ _FINALE_BOSS_REWARDS) = _finale_derive()
+# flag -> region for the DERIVED gesture-pickup checks (populated by the gesture scan below,
+# declared here because region_of() references it and is first CALLED before the scan runs).
+GESTURE_REGION = {}
+print(f"finale: {len(FINALE_FLAGS)} conditional Ashen-Capital/Elden-Throne checks derived "
+      f"(burn flag {_BURN_FLAG} <- {_BURN_SETTER_MAP}; warp -> {_BURN_MAP}; "
+      f"boss rewards {sorted(_FINALE_BOSS_REWARDS.values())})")
+
+# ---- CAPITAL-VERSION RECONCILER data (SPEC-capital-reconciler.md; features/capital.py) ----------
+# The client keeps _BURN_FLAG (9116) matched to the capital version the player is in, so the burn
+# never permanently strands m11_00. Two more data points ride the same $Event(900) ground truth:
+#   * the burn-DONE latch: the one flag $Event(900) both checks at entry (GotoIf(!EventFlag(x)))
+#     and sets inside its body, x != the burn flag itself. 118 as of 2026-07-14. Monotonic (no
+#     EMEVD clears it) -- the client's arming gate AND the shop re-key target.
+#   * the release-row re-keys: shop_rows.tsv rows whose eventFlag_forRelease is _BURN_FLAG ITSELF
+#     and that are purchase CHECKS (value > 0; the value-0 remembrance-dupe trades stay vanilla).
+#     With the reconciler holding 9116 OFF at Roundtable, those rows would never stock -- the
+#     client re-keys their release to the done latch (same vanilla timing, immune to toggling).
+def _capital_derive():
+    _pc = os.path.join(_EV_DIR_F, "common.emevd.dcx.js")
+    _txt = open(_pc, encoding="utf-8", errors="replace").read()
+    _mb = re.search(r"^\$Event\(900, .*?^\}\);", _txt, re.S | re.M)
+    if not _mb:
+        raise SystemExit("FATAL: capital: $Event(900) not found in common.emevd.dcx.js")
+    _body = _mb.group(0)
+    _entry = {int(x) for x in re.findall(r"GotoIf\(L\d+, !EventFlag\((\d+)\)\)", _body)}
+    _set = {int(x) for x in re.findall(r"SetEventFlagID\((\d+), ON\)", _body)}
+    _done = sorted((_entry & _set) - {_BURN_FLAG})
+    if len(_done) != 1:
+        raise SystemExit(f"FATAL: capital: burn-done latch candidates {_done!r} != exactly one "
+                         f"(entry-checked AND body-set, minus the burn flag)")
+    _done = _done[0]
+    _rows = []
+    _tsv = os.path.join(HERE, "shop_rows.tsv")
+    if not os.path.isfile(_tsv):
+        raise SystemExit("FATAL: capital: shop_rows.tsv missing -- refusing to emit an empty "
+                         "release-row table (an empty result is a FAILURE)")
+    with open(_tsv, encoding="utf-8") as _f:
+        for _line in _f:
+            if _line.startswith("#") or _line.startswith("row_id"):
+                continue
+            _p = _line.rstrip("\n").split("\t")
+            if len(_p) < 11 or _p[10].strip() != str(_BURN_FLAG):
+                continue
+            if int(_p[7] or 0) <= 0:
+                continue  # value-0 trade (remembrance duplication) -- not a check, stays vanilla
+            _rows.append((int(_p[0]), _BURN_FLAG, _done))
+    _rows.sort()
+    # COUNT PIN (2026-07-14 artifacts): 4 purchase checks release on the burn flag -- Enia's
+    # Maliketh armor set, rows 101516-101519 (stock 250160/250170/250180/250190, checks
+    # 7770500-7770503). A different number = the inputs or the predicate changed; answer WHICH
+    # before re-pinning (CONTRIBUTING: rebaselining unexplained launders a regression).
+    if len(_rows) != 4:
+        raise SystemExit(f"FATAL: capital release-row drift: {len(_rows)} rows "
+                         f"({[r[0] for r in _rows]}) != the 4 pinned Enia armor rows")
+    return _done, tuple(_rows)
+
+(_CAPITAL_BURN_DONE, _CAPITAL_RELEASE_ROWS) = _capital_derive()
+print(f"capital: burn flag {_BURN_FLAG}, done latch {_CAPITAL_BURN_DONE}; "
+      f"{len(_CAPITAL_RELEASE_ROWS)} release row(s) re-keyed "
+      f"({[r[0] for r in _CAPITAL_RELEASE_ROWS]})")
 # PHANTOM recovery duplicates: a common-event/unplaced `global` flag that names a UNIQUE key item
 # already fully placed elsewhere -- recovering it would inject an extra copy of a singleton key.
 #   1033477020 = a 4th "Imbued Sword Key" (decodes to m60_33_47/Liurnia) that sits in the unplaced
@@ -851,7 +1013,7 @@ def _row_base_ok(r):
     from the real filter (they used to be a hand-copied condition)."""
     return (r['method'] not in SKIP and int(r['flag']) not in MAP_REVEAL_FLAGS
             and int(r['flag']) not in MINIBAKER_VENDOR_FLAGS and int(r['flag']) not in EXCLUDE_FLAGS
-            and not _is_mausoleum_dupe(r) and not _is_ashen_dead(int(r['flag'])))
+            and not _is_mausoleum_dupe(r))
 
 rows=[r for r in _ALLROWS
       if _row_base_ok(r) and _flag_exists(r) and _item_exists(r) and _synthetic_award_ok(r)]
@@ -1003,12 +1165,12 @@ for _rr0 in _ALLROWS:
 def _recover_tile(_flag):
     """Decode a global/global_filler flag to a VALID map tile (overworld m60_XX_YY / m61_XX_YY, or
     interior mBB_SS), else None. Honors the SAME exclusions applied to the main `rows` filter
-    (MAP_REVEAL / MINIBAKER / EXCLUDE_FLAGS / ashen-dead) plus the 9100-9125 tutorial-popup flags
+    (MAP_REVEAL / MINIBAKER / EXCLUDE_FLAGS) plus the 9100-9125 tutorial-popup flags
     (a real tile, but not loot). GLOBAL_RECOVER precedence is enforced by the callers, not here."""
     try: _fl = int(_flag)
     except (TypeError, ValueError): return None
     if (_fl in MAP_REVEAL_FLAGS or _fl in MINIBAKER_VENDOR_FLAGS or _fl in EXCLUDE_FLAGS
-            or _is_ashen_dead(_fl) or 9100 <= _fl <= 9125):
+            or 9100 <= _fl <= 9125):
         return None
     # DERIVED boss-reward family first: these flags have no self-encoded tile (see _BOSS_REWARD_TILE).
     # Their tile is EMEVD-derived and unambiguous, so it outranks the digit-length heuristics below --
@@ -1517,6 +1679,14 @@ def region_of(r):
     common-event audit for emevd+global rows -> raw region_of for everything else."""
     try: _ovfl = int(r['flag'])
     except (KeyError, ValueError): _ovfl = None
+    # THE FINALE: Ashen-Capital / Elden-Throne checks live in the conditional FINALE_REGION bucket
+    # (see _finale_derive) -- created per-seed by features/finale.py, never rollable, never HUB.
+    if _ovfl is not None and _ovfl in FINALE_FLAGS:
+        return _FINALE_REGION
+    # GESTURE PICKUPS: region precomputed by the gesture derivation (EMEVD map file -> tile/dungeon
+    # machinery); HUB only when the two call sites of a shared flag disagree (refuse to guess).
+    if _ovfl is not None and _ovfl in GESTURE_REGION:
+        return GESTURE_REGION[_ovfl]
     if _ovfl is not None and _ovfl in FLAG_REGION_OVERRIDE:
         return FLAG_REGION_OVERRIDE[_ovfl]
     # GROUND TRUTH (MSB/param datamine) beats the row's scanned map. Resolved through gen_data's OWN
@@ -1608,8 +1778,10 @@ def _recover_row_ok(r):
         return False
     if _fl in GLOBAL_RECOVER:                       # hand-verified region wins -> always recover
         return True
+    if _fl in FINALE_FLAGS:                         # derived conditional check (region_of routes it
+        return True                                 # to FINALE_REGION); 510060 has no decodable tile
     if (_fl in MINIBAKER_VENDOR_FLAGS or _fl in EXCLUDE_FLAGS
-            or _is_mausoleum_dupe(r) or _is_ashen_dead(_fl)):
+            or _is_mausoleum_dupe(r)):
         return False
     # The ITEM-EXISTENCE GUARD must bite here TOO. `rows` filters the placed methods; global /
     # global_filler are in SKIP and re-enter through THIS path, so a guard applied only to `rows`
@@ -1630,13 +1802,13 @@ def _would_be_live_without_item_guard(_r):
     _fl = int(_r['flag'])
     _common = (_fl not in MAP_REVEAL_FLAGS and _fl not in MINIBAKER_VENDOR_FLAGS
                and _fl not in EXCLUDE_FLAGS and not _is_mausoleum_dupe(_r)
-               and not _is_ashen_dead(_fl) and _flag_exists(_r))
+               and _flag_exists(_r))
     if not _common:
         return False
     if _r['method'] not in SKIP:
         return True                                            # door 1
     if _r['method'] in ('global', 'global_filler'):            # door 2
-        return _recover_tile(_fl) is not None
+        return _fl in FINALE_FLAGS or _recover_tile(_fl) is not None
     return False
 
 _LIVE_FLAGS = {int(_r['flag']) for _r in rows}
@@ -1727,6 +1899,182 @@ if os.path.isfile(_SHOP_ROWS_TSV):
     rows = rows + _shop_new
 print(f"shop rows: +{len(_shop_new)} DERIVED shop checks region_map had lost "
       f"({len(DERIVED_SHOP_FLAGS)} detectable stock flags)")
+
+# ---- FINALE_REQUIRES: the prerequisite REGIONS of the conditional finale checks -----------------
+# Derived, not asserted: (a) the region that can fire the burn trigger = the region of the burn
+# flag's unique setter map (m13_00 -> Farum Azula); (b) the region owning the finale maps' kick
+# geometry = the region their maps resolve to through the SAME dungeon/tile machinery every other
+# check uses (dungeon_regions.tsv: m11_05 -> Leyndell, m19_00 -> Leyndell; measured kick buckets
+# 11050 + 19000 live in region_groups PLAY_REGION_GROUPS['Leyndell']). features/finale.py creates
+# the finale region per-seed iff every member is kept, entered through the kick-owner region with
+# an access rule requiring every member's Lock.
+_fin_burn_region = _gt_region(_tile_prefix2(_BURN_SETTER_MAP))
+_fin_host_regions = {_gt_region(_tile_prefix2(_m)) for _m in _FINALE_MAPS}
+if _fin_burn_region is None or None in _fin_host_regions:
+    raise SystemExit(f"FATAL: finale: could not region the finale maps "
+                     f"(burn setter {_BURN_SETTER_MAP} -> {_fin_burn_region!r}; "
+                     f"maps {_FINALE_MAPS} -> {_fin_host_regions!r}) -- refusing to guess")
+if len(_fin_host_regions) != 1:
+    raise SystemExit(f"FATAL: finale: the finale maps span {sorted(_fin_host_regions)} -- the "
+                     f"one-kick-owner model (features/finale.py) no longer holds; redesign, do "
+                     f"not pick one")
+FINALE_HOST_REGION = next(iter(_fin_host_regions))     # owns the kick geometry; the AP entrance parent
+FINALE_REQUIRES = tuple(sorted({_fin_burn_region, FINALE_HOST_REGION}))
+print(f"finale: requires {FINALE_REQUIRES} (burn trigger in {_fin_burn_region!r}; kick owner "
+      f"{FINALE_HOST_REGION!r})")
+
+# ---- GESTURE PICKUPS (matt-free): the checks that never existed --------------------------------
+# The location universe used to be ItemLotParam + shops -- and NO gesture is awarded by any
+# ItemLotParam row (asserted below), so the 9 world gesture pickups were invisible: "By My Sword"
+# paid vanilla in Leyndell (Alaric, in-game 2026-07-14). They are awarded by EMEVD through the same
+# hiding place as the boss-reward lots -- PARAMETERIZED COMMON EVENTS:
+#     common_func $Event(90005570)  ("gesture acquisition":       asset + ActionButtonInArea ->
+#                                     AwardGesture(gestureParamId); SetEventFlagID(eventFlagId, ON))
+#     common_func $Event(900005571) ("gesture acquisition with treasure": rides a treasure flag)
+# Map EMEVDs call them via $InitializeCommonEvent(0, <event>, <eventFlagId>, <gestureParamId>, ...).
+# GestureParam.ID -> itemId names the goods; the GoodsName FMGs name the check.
+#
+# SCOPE: exactly these two common events. Every OTHER AwardGesture site in the game is an NPC /
+# quest / scripted award (talk outcomes, multiplayer rewards $Event(9930), map-local quest events
+# like m31_00 31003704, and m16_00's local clone 16003762 whose pickup only SPAWNS behind quest
+# flag 9122) -- not a world pickup; they stay vanilla. The counts pinned below are the proof: a
+# scan that returns different numbers must die loudly, never re-baseline itself.
+#
+# DETECT-ONLY: the award is an EMEVD instruction, not an ItemLotParam row, so the pure-runtime
+# client can neither blank a lot nor intercept the grant -- the AddItemFunc detour (detour.rs) is
+# the client's ONLY item hook and AwardGesture does not pass through it (verified by code absence,
+# 2026-07-14: no gesture path exists anywhere in the ER client). The player still learns the
+# vanilla gesture; the check fires via the flag poll. coverage.py classifies this as the explicit
+# suppression kind 'event_award_unsuppressable' (never silently folded into "no ware"), and the
+# gesture goods are kept OUT of ITEM_CATALOG/LOCATION_ITEM: granting a gesture-linked goods id has
+# no verified client grant path, so the pool must not carry it (the locations pay Rune/filler).
+_GESTURE_EVENTS = ("90005570", "900005571")
+def _gesture_derive():
+    _gp = os.path.join(AR, "vanilla_er", "vanilla_er", "GestureParam.csv")
+    if not (os.path.isdir(_EV_DIR_F) and os.path.isfile(_gp)):
+        raise SystemExit("FATAL: gesture derivation needs event/ + GestureParam.csv -- refusing "
+                         "to regen without them (an empty result is a FAILURE)")
+    _g2i = {}
+    for _r8 in csv.DictReader(open(_gp, newline="", encoding="utf-8-sig")):
+        if str(_r8.get("ID", "")).lstrip("-").isdigit():
+            _g2i[int(_r8["ID"])] = int(_r8.get("itemId") or 0)
+    # goods id -> FMG name (base + DLC GoodsName tables; same files _NAME_FMGS reads).
+    _id2name = {}
+    for _fn8, _nib8, _dir8 in _NAME_FMGS:
+        if _nib8 != 0x40000000:
+            continue
+        _p8 = os.path.join(_dir8, _fn8)
+        if not os.path.isfile(_p8):
+            continue
+        for _t8 in _ET.parse(_p8).getroot().iter("text"):
+            _i8, _tx8 = _t8.get("id"), (_t8.text or "").strip()
+            if _i8 and _tx8 and _tx8 not in _PLACEHOLDER_NAMES:
+                _id2name.setdefault(int(_i8), _tx8)
+    _rx = re.compile(r"\$InitializeCommonEvent\(\d+, (" + "|".join(_GESTURE_EVENTS)
+                     + r"), (\d+), (\d+), (\d+)")
+    _sites = []            # (event_id, flag, gesture_id, arg3, map_id)
+    _other_awards = 0      # literal AwardGesture(...) in map emevds = the out-of-scope NPC/quest class
+    for _fn8 in sorted(os.listdir(_EV_DIR_F)):
+        _mm8 = re.match(r"(m\d\d_\d\d_\d\d_\d\d)\.emevd\.dcx\.js$", _fn8)
+        if not _mm8:
+            continue
+        _t8 = open(os.path.join(_EV_DIR_F, _fn8), encoding="utf-8", errors="replace").read()
+        for _ev8, _fl8, _gid8, _a38 in _rx.findall(_t8):
+            _sites.append((_ev8, int(_fl8), int(_gid8), int(_a38), _mm8.group(1)))
+        _other_awards += _t8.count("AwardGesture(")
+    # 900005571 ("gesture acquisition with treasure") does not stand alone: its 3rd arg is the
+    # eventFlagId2 of an EXISTING TREASURE -- the gesture unlock RIDES that treasure's own flag
+    # (m61_48_45: gesture 111 rides Monk's Missive f2048457510, a live check in data.py). Minting
+    # the rider flag would put TWO locations on ONE physical interaction. So riders are skipped --
+    # and the ride target is ASSERTED to be a live check, so the pickup is still a check and the
+    # skip can never silently orphan a real pickup.
+    _riders = [(_fl8, _gid8, _a38, _mid8) for (_ev8, _fl8, _gid8, _a38, _mid8) in _sites
+               if _ev8 == "900005571"]
+    _live_now = {int(_r8["flag"]) for _r8 in rows if str(_r8.get("flag", "")).strip().isdigit()}
+    for (_fl8, _gid8, _a38, _mid8) in _riders:
+        if _a38 not in _live_now:
+            raise SystemExit(f"FATAL: gesture flag {_fl8} rides treasure flag {_a38} ({_mid8}) "
+                             f"which is NOT a live check -- the rider skip would orphan a real "
+                             f"pickup; mint it (or fix the treasure) instead")
+    _by_flag = defaultdict(list)
+    for (_ev8, _fl8, _gid8, _a38, _mid8) in _sites:
+        if _ev8 == "900005571":
+            continue
+        _by_flag[_fl8].append((_gid8, _mid8))
+    # ---- the count PIN (2026-07-14 artifacts): 9 call sites total = 8x 90005570 (7 distinct
+    # flags; 60824 "Fire Spur Me" has TWO physical pickups sharing one flag = ONE check) + 1x
+    # 900005571 rider (60860, skipped above). A different shape means the inputs or the regex
+    # changed -- find out WHICH before touching these numbers (rebaselining without answering
+    # that question is how a regression gets laundered into a test).
+    _dups = sorted(_fl8 for _fl8, _v8 in _by_flag.items() if len(_v8) > 1)
+    if len(_sites) != 9 or len(_by_flag) != 7 or len(_dups) != 1 or len(_riders) != 1:
+        raise SystemExit(f"FATAL: gesture scan drift: {len(_sites)} sites / {len(_by_flag)} "
+                         f"standalone flags / dups {_dups} / riders {len(_riders)} "
+                         f"(expected 9 / 7 / exactly one / 1)")
+    # a shared flag must award ONE gesture (else it is not one check).
+    for _fl8, _v8 in _by_flag.items():
+        if len({_g8 for (_g8, _m8) in _v8}) != 1:
+            raise SystemExit(f"FATAL: gesture flag {_fl8} awards different gestures per site: {_v8}")
+    # ---- THE detect-only premise, asserted on the FLAG (the id space that matters): no gesture
+    # check flag is awarded by any ItemLotParam row or shop row (REAL_FLAGS = exactly that
+    # universe). NOTE the premise is NOT "no gesture-linked goods is ever lot-awarded" -- the DLC
+    # missive goods are (2009004 'O Mother' is a normal treasure, its own check f2050457510); the
+    # first run of this derivation asserted the goods form and died on exactly that, correctly.
+    _in_award_universe = sorted(set(_by_flag) & (REAL_FLAGS or set()))
+    if _in_award_universe:
+        raise SystemExit(f"FATAL: gesture flags {_in_award_universe} ARE in the ItemLotParam/shop "
+                         f"award universe -- the detect-only premise is dead for them; redesign, "
+                         f"do not suppress this error")
+    # ---- region + rows -------------------------------------------------------------------------
+    _region = {}
+    _rows8 = []
+    _table = {}
+    for _fl8 in sorted(_by_flag):
+        _v8 = _by_flag[_fl8]
+        _gid8 = _v8[0][0]
+        if _gid8 not in _g2i or not _g2i[_gid8]:
+            raise SystemExit(f"FATAL: gesture id {_gid8} (flag {_fl8}) has no GestureParam.itemId")
+        _good8 = _g2i[_gid8]
+        _nm8 = _id2name.get(_good8)
+        if not _nm8:
+            raise SystemExit(f"FATAL: gesture goods {_good8} (flag {_fl8}) has no FMG name")
+        # dungeon table / tile decode first; else the region of PLACED loot on the same interior
+        # prefix (_MAP_PREFIX_REGION -- the same fallback the global-recovery path uses; m10_00 has
+        # no dungeon_regions.tsv row because legacy Stormveil rows region via their label).
+        _regs8 = {(_gt_region(_tile_prefix2(_m8)) or _MAP_PREFIX_REGION.get(_tile_prefix2(_m8)))
+                  for (_g8, _m8) in _v8}
+        if len(_regs8) == 1 and None not in _regs8:
+            _region[_fl8] = next(iter(_regs8))
+        else:
+            # two sites, two regions (or an unresolvable map): refuse to guess. HUB = detectable
+            # from anywhere, and the buckets loop bars a non-derived HUB check from progression.
+            _region[_fl8] = HUB
+            print(f"gesture: flag {_fl8} ({_nm8!r}) sites {sorted(_m8 for _g8, _m8 in _v8)} span "
+                  f"regions {sorted(str(_r8) for _r8 in _regs8)} -> HUB (refuse to guess; "
+                  f"filler-only)")
+        _maps8 = sorted({_m8 for (_g8, _m8) in _v8})
+        _rows8.append({"ap_id": "", "flag": str(_fl8), "flag_source": "gesture_award",
+                       "item_name": _nm8, "map": _maps8[0] if len(_maps8) == 1 else ";".join(_maps8),
+                       "region": _region[_fl8], "method": "gesture"})
+        _table[_fl8] = (_gid8, 0x40000000 | _good8, _nm8)
+    return _rows8, _region, _table, len(_sites), _other_awards
+
+_gesture_rows, _gesture_region, GESTURE_AWARD_FLAGS, _gesture_sites, _gesture_other = _gesture_derive()
+GESTURE_REGION.update(_gesture_region)
+rows = rows + _gesture_rows
+print(f"gesture: +{len(_gesture_rows)} DERIVED gesture-pickup checks ({_gesture_sites} common-event "
+      f"call sites; {_gesture_other} other AwardGesture site(s) in map EMEVDs are NPC/quest awards, "
+      f"out of scope) -> regions "
+      + ", ".join(f"{_fl}={_gesture_region[_fl]!r}" for _fl in sorted(_gesture_region)))
+# region_map.csv must NOT also carry these flags -- if the upstream pipeline ever grows a row for
+# one, two sources would mint two locations for one flag. Reconcile by hand if this ever fires.
+_gest_clash = sorted(set(GESTURE_AWARD_FLAGS)
+                     & {int(_r9["flag"]) for _r9 in _ALLROWS
+                        if str(_r9.get("flag", "")).strip().isdigit()})
+if _gest_clash:
+    raise SystemExit(f"FATAL: gesture flags {_gest_clash} now ALSO appear in region_map.csv -- "
+                     f"two sources for one check; reconcile (keep exactly one)")
+
 buckets=OrderedDict()
 loc_tags={}
 defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
@@ -1802,9 +2150,6 @@ _NR_RULES = (
      "unplaceable_dlc_cookbook: DLC cookbook whose lot id encodes no map and which no datamine "
      "places (ESD/scripted gift, matt-diff C 2026-07-14); stays a vanilla pickup rather than lie "
      "about its region"),
-    (lambda _fl, _r: _is_ashen_dead(_fl),
-     "ashen_capital_dead: post-Erdtree-burn / final-boss content, unreachable in a region-lock "
-     "game (user decision 2026-07-08)"),
     (lambda _fl, _r: _is_mausoleum_dupe(_r),
      "mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss "
      "drop is the real check; the copy can strand once the drop is shuffled"),
@@ -1848,14 +2193,24 @@ for _r3 in _ALLROWS:
 print("not_randomized: %d deliberately-excluded region_map flags ledgered (%s)" % (
     len(NOT_RANDOMIZED), ", ".join("%s=%d" % _kv for _kv in sorted(_nr_tally.items()))))
 
-spokes=sorted(k for k in buckets if k!=HUB)
+spokes=sorted(k for k in buckets if k not in (HUB, _FINALE_REGION))
+# The finale bucket must exist and hold EXACTLY the derived flags -- a silent shortfall here is a
+# check lost between derivation and emission (the disease this repo documents; count the join).
+_fin_locs = buckets.get(_FINALE_REGION, [])
+if {int(_f3) for (_n3, _a3, _f3) in _fin_locs} != set(FINALE_FLAGS):
+    raise SystemExit(f"FATAL: finale bucket holds {sorted(_f3 for (_n3, _a3, _f3) in _fin_locs)} "
+                     f"but the derivation says {sorted(FINALE_FLAGS)} -- a row was lost/added "
+                     f"between _finale_derive and the buckets loop")
+if not set(FINALE_REQUIRES) <= set(spokes):
+    raise SystemExit(f"FATAL: FINALE_REQUIRES {FINALE_REQUIRES} not all rollable regions "
+                     f"({sorted(set(FINALE_REQUIRES) - set(spokes))} missing from spokes)")
 with open(OUT,"w",encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Greenfield ER data; data-derived, no external naming."""\n')
     f.write(f"HUB = {HUB!r}\n")
     f.write("REGIONS = [\n")
     for r in spokes: f.write(f"    {r!r},\n")
     f.write("]\n\nLOCATIONS = {\n")
-    for r in [HUB]+spokes:
+    for r in [HUB]+spokes+[_FINALE_REGION]:
         f.write(f"    {r!r}: [\n")
         for nm,aid,flag in buckets.get(r,[]): f.write(f"        ({nm!r}, {aid}, {flag}),\n")
         f.write("    ],\n")
@@ -1866,6 +2221,33 @@ with open(OUT,"w",encoding="utf-8") as f:
     f.write("NOT_RANDOMIZED = {\n")
     for _fl3 in sorted(NOT_RANDOMIZED):
         f.write(f"    {_fl3}: {ascii(NOT_RANDOMIZED[_fl3])},\n")
+    f.write("}\n")
+    f.write("\n# THE FINALE (conditional; see gen_data._finale_derive). LOCATIONS[FINALE_REGION] is NOT\n")
+    f.write("# in REGIONS (never rollable, no Lock item): features/finale.py creates the region per-seed\n")
+    f.write("# iff every FINALE_REQUIRES member is kept, hangs it off FINALE_HOST_REGION (which owns the\n")
+    f.write("# measured kick geometry: play_regions 11050+19000 in region_groups PLAY_REGION_GROUPS), and\n")
+    f.write("# gates the entrance on every member's Lock. When it exists it IS the goal\n")
+    f.write("# (features/goal_locations.py).\n")
+    f.write(f"FINALE_REGION = {_FINALE_REGION!r}\n")
+    f.write(f"FINALE_REQUIRES = {FINALE_REQUIRES!r}\n")
+    f.write(f"FINALE_HOST_REGION = {FINALE_HOST_REGION!r}\n")
+    f.write("\n# CAPITAL-VERSION RECONCILER (SPEC-capital-reconciler.md; gen_data._capital_derive):\n")
+    f.write("# burn flag = the m11_00<->m11_05 map-version selector $Event(900) waits on; done = its\n")
+    f.write("# monotonic completion latch (client arming gate); release rows = [row, from, to]\n")
+    f.write("# ShopLineupParam re-keys for the purchase checks whose release flag is the burn flag\n")
+    f.write("# itself. Consumed by features/capital.py (slot_data) -> the client reconciler.\n")
+    f.write(f"CAPITAL_BURN_FLAG = {_BURN_FLAG}\n")
+    f.write(f"CAPITAL_BURN_DONE_FLAG = {_CAPITAL_BURN_DONE}\n")
+    f.write(f"CAPITAL_RELEASE_ROWS = {_CAPITAL_RELEASE_ROWS!r}\n")
+    f.write("\n# GESTURE PICKUPS (detect-only; see gen_data._gesture_derive): acquisition flag ->\n")
+    f.write("# (GestureParam id, goods FullID, FMG name). The award is EMEVD (AwardGesture +\n")
+    f.write("# SetEventFlagID), NOT an ItemLotParam row: the client detects via the flag poll but can\n")
+    f.write("# suppress nothing -- coverage.py classifies these 'event_award_unsuppressable', and\n")
+    f.write("# features/check_item_flags.py must never arm their wares.\n")
+    f.write("GESTURE_AWARD_FLAGS = {\n")
+    for _fl3 in sorted(GESTURE_AWARD_FLAGS):
+        _g3, _fu3, _n3 = GESTURE_AWARD_FLAGS[_fl3]
+        f.write(f"    {_fl3}: ({_g3}, {_fu3}, {ascii(_n3)}),\n")
     f.write("}\n")
 print(f"spokes={len(spokes)} hub_locs={len(buckets.get(HUB,[]))} total={sum(len(v) for v in buckets.values())}")
 # ---- EMEVD/common-event audit REPORT (deterministic; classifies each emevd/global row once) ------
@@ -2766,6 +3148,13 @@ print(f"missable_locations: {len(_MISSABLE)} checks (deathroot={_mc.get('deathro
 # of them).
 ITEM_CATALOG = {}; LOCATION_ITEM = {}
 for _i, _r in enumerate(rows):
+    if _r.get("method") == "gesture":
+        # DETECT-ONLY class: the ware is the GESTURE, which only EMEVD's AwardGesture grants; the
+        # client has no verified grant path for the gesture-linked goods id, so it must not enter
+        # the shuffled pool (the location pays Rune/filler) nor LOCATION_ITEM (checkItemFlags must
+        # not arm an id the detour will never legitimately see). data.GESTURE_AWARD_FLAGS carries
+        # the ware for coverage/report honesty instead.
+        continue
     _full, _base = _resolve_item(_r.get("item_name"))
     if _full is None:
         continue

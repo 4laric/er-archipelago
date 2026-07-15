@@ -63,9 +63,36 @@ def load_rows():
     if missing:
         raise SystemExit(f"FATAL: regions without an open flag: {missing}")
 
+    # Lockless conditional regions: a region with locations but NO "<Region> Lock" item (it is not
+    # rollable). Today only the finale (Ashen Capital) -- it is not in data.REGIONS, so it has no
+    # lock, but its physical space (m11_05/m19 play buckets) is owned by FINALE_HOST_REGION
+    # (Leyndell), whose lock + kick geometry gate it; the extra Farum requirement lives in set_rules.
+    # So its COARSE in-logic key (the open-flag key the client keys reachability off) is the HOST,
+    # not itself -- while the FINE region stays its own name for tracker grouping/display.
+    lockless_host = {}
+    _finale = getattr(data, "FINALE_REGION", None)
+    if _finale is not None:
+        lockless_host[_finale] = data.FINALE_HOST_REGION
+    _lockset = set(data.REGIONS)
+    for region in data.LOCATIONS:
+        if region == data.HUB or region in _lockset:
+            continue
+        if region not in lockless_host:
+            raise SystemExit(
+                f"FATAL: region {region!r} has locations but no lock item and no lockless-host "
+                f"mapping -- the client's coarse_keys_have_lock_items test would fail. Add it to "
+                f"lockless_host (map it to the region whose lock/geometry gates it) or give it a lock.")
+        if lockless_host[region] not in _lockset:
+            raise SystemExit(
+                f"FATAL: lockless region {region!r} maps to host {lockless_host[region]!r}, "
+                f"which itself has no lock.")
+
     rows = []
     for region, locs in data.LOCATIONS.items():
-        coarse = "" if region == data.HUB else region
+        if region == data.HUB:
+            coarse = ""
+        else:
+            coarse = lockless_host.get(region, region)
         for _name, ap_id, _flag in locs:
             surf = on_surface(tags.get(ap_id, ()), surface_classes)
             rows.append((int(ap_id), region, coarse, surf, ap_id in missable))

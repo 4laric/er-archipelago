@@ -53,6 +53,28 @@ _LEGACY_KEY_NAMES = frozenset({"Academy Glintstone Key", "Hole-Laden Necklace"})
 _GATING_ITEMS = frozenset(GREAT_RUNES) | _LEGACY_KEY_NAMES
 
 
+def _gated_region_names(world):
+    """Every region physically behind the 'To <GOAL_REGION>' edge, DERIVED from the live region
+    graph: the goal region plus everything reachable through its exits -- the Sewer (gated child,
+    region_spine.REGION_PARENT) and the finale's Ashen Capital (features/finale.py hangs it off the
+    capital), plus any future child, without this list needing to know their names. A location in
+    this subtree sits behind the rune wall, so a gating item placed there can deadlock the very
+    gate it opens. Empty when the goal region is sealed this seed (dlc_only)."""
+    try:
+        start = world.multiworld.get_region(GOAL_REGION, world.player)
+    except KeyError:
+        return frozenset()
+    seen = {GOAL_REGION}
+    stack = [start]
+    while stack:
+        for exit_ in stack.pop().exits:
+            dst = getattr(exit_, "connected_region", None)
+            if dst is not None and dst.name not in seen:
+                seen.add(dst.name)
+                stack.append(dst)
+    return frozenset(seen)
+
+
 def _leyndell_location_ids():
     out = set()
     for reg, locs in LOCATIONS.items():
@@ -115,15 +137,29 @@ class LeyndellGate(Feature):
             prev_ent = entrance.access_rule
             entrance.access_rule = (lambda state, p=prev_ent, gr=GREAT_RUNES, k=need:
                                     p(state) and sum(1 for g in gr if state.has(g, player)) >= k)
+        # ITEM rule (2026-07-15, sewer-rune FillError): the _GATING_ITEMS bar must cover the WHOLE
+        # walled subtree, not just the capital's own m11/m19 checks. Under accessibility:minimal,
+        # AP's fill_restrictive SKIPS the reachability check whenever the exploration state can
+        # already beat the game (Fill.py perform_access_check) -- and with the region_locks ending
+        # the completion condition never mentions the gate runes, so a rune's OWN placement is
+        # exactly when the check is skipped (a Lock's never is: completion needs every Lock, so
+        # "beaten" is false while that Lock is in hand). The strict progression_surface pre-fill
+        # then LOCKS the rune wherever item_rule allows: seed 36 locked Godrick's Great Rune onto
+        # Mohg the Omen (Sewer :: [Incantation] Bloodflame Talons, f510250) -- behind the very
+        # wall it opens -- and post_fill's audit_reachable correctly FillErrored. item_rule is the
+        # one rule can_fill honors UNCONDITIONALLY, so it, not the (transitive) entrance rule, is
+        # the load-bearing guard; it must span every region the wall spans. The Sewer had this bar
+        # while m35 rode the prefix list; the v2 region split silently dropped it.
+        gated_regions = _gated_region_names(world)
         leyndell = _leyndell_location_ids()
-        if not leyndell:
-            return
         for loc in world.multiworld.get_locations(player):
-            if getattr(loc, "address", None) not in leyndell:
+            region = getattr(getattr(loc, "parent_region", None), "name", None)
+            if region not in gated_regions:
                 continue
-            prev = loc.access_rule
-            loc.access_rule = (lambda state, p=prev, gr=GREAT_RUNES, k=need:
-                               p(state) and sum(1 for g in gr if state.has(g, player)) >= k)
+            if getattr(loc, "address", None) in leyndell:
+                prev = loc.access_rule
+                loc.access_rule = (lambda state, p=prev, gr=GREAT_RUNES, k=need:
+                                   p(state) and sum(1 for g in gr if state.has(g, player)) >= k)
             prev_item = loc.item_rule
             loc.item_rule = (lambda item, pv=prev_item:
                              pv(item) and item.name not in _GATING_ITEMS)

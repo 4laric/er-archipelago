@@ -36,6 +36,11 @@ from .. import contract
 from ..data import HUB, LOCATIONS
 
 try:
+    from ..data import GESTURE_AWARD_FLAGS   # detect-only gesture pickups (EMEVD AwardGesture)
+except ImportError:                           # pre-regen data
+    GESTURE_AWARD_FLAGS = {}
+
+try:
     from ..item_ids import ITEM_CATALOG, LOCATION_ITEM
 except Exception:  # not yet generated
     ITEM_CATALOG, LOCATION_ITEM = {}, {}
@@ -60,6 +65,13 @@ class CheckItemFlags(Feature):
         by_full = defaultdict(set)
         for region in scope:
             for (_name, ap_id, flag) in LOCATIONS.get(region, []):
+                # DETECT-ONLY gesture pickups: their ware is awarded by EMEVD AwardGesture, which
+                # the AddItemFunc detour never sees, so arming an id here could only ever eat a
+                # LEGITIMATE grant, never the vanilla award. gen_data already keeps their wares out
+                # of LOCATION_ITEM (so vanilla_name is None today); this guard is the EXPLICIT
+                # statement of that rule, so a future catalog change cannot silently re-arm them.
+                if int(flag) in GESTURE_AWARD_FLAGS:
+                    continue
                 vanilla_name = LOCATION_ITEM.get(ap_id)
                 if vanilla_name is None:
                     continue

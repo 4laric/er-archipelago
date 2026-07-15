@@ -97,7 +97,12 @@ class SurfaceContract(WorldTestBase):
 
         world = self.world
         classes = ps.selected_surface(ps._selection(world))
-        placement_surface = ps.allowed_ap_ids(LOCATION_TAGS, classes)
+        # _world_barred_aps is the SAME per-world no-progression set both apply() and slot_data()
+        # read (capital reconciler ON lifts the ERDTREE_BURN bar -- SPEC-capital-reconciler.md);
+        # recomputing the surface here must go through it too, or this test would re-create the
+        # very second-list drift it exists to forbid.
+        placement_surface = ps.allowed_ap_ids(LOCATION_TAGS, classes,
+                                              defaulted=ps._world_barred_aps(world))
         own = {loc.address for loc in self.multiworld.get_locations(world.player)
                if loc.address is not None}
         expected = {i for i in placement_surface if i in own}

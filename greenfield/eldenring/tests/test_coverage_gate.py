@@ -41,8 +41,9 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4833   # post synthetic-award-guard regen (was 4844 pre-cookbook-regen,
-                                  # 4836 on the 2026-07-14 morning regen that this file lagged)
+BASELINE_TOTAL_LOCATIONS = 4850   # 4833 (post synthetic-award-guard regen) + 10 finale (the
+                                  # conditional Ashen Capital, 2026-07-14) + 7 gesture pickups --
+                                  # every new location covered; the gate stayed at ZERO violations
 BASELINE_SHOP_CHECKS = 562
 # EMPTY, and it must stay that way. ap_id -> region (so scoped runs can subset).
 #

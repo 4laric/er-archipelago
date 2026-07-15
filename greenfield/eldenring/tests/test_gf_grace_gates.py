@@ -51,6 +51,17 @@ class GatesArmed(WorldTestBase):
         self.assertIn(_ROUNDTABLE, sd.get(contract.START_GRACES, []),
                       "the Roundtable/HUB grace 71190 must be granted as a start grace")
 
+    def test_torrent_enable_flag_rides_the_whistle_grant(self):
+        # start_with_steed (frozen ON) grants the whistle GOODS; the game gates Torrent summoning on
+        # obtained-flag 60100, which vanilla only sets via Melina's (here-bypassed) hand-off. Without
+        # 60100 the player carries the whistle but stays mountless (er-torrent-regionlock-mountless).
+        sd = self.world.fill_slot_data()
+        steed = getattr(self.world.options, "start_with_steed", None)
+        if steed is not None and steed.value:
+            self.assertIn(60100, sd.get(contract.START_GRACES, []),
+                          "start_with_steed on -> Torrent enable flag 60100 must be in startGraces, "
+                          "else the whistle is inert and the player is mountless")
+
     def test_rune_gate_keys_retired(self):
         sd = self.world.fill_slot_data()
         self.assertNotIn("runeGatedGraces", sd,
