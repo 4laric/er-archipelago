@@ -236,3 +236,73 @@ class LeyndellWallDisarmed(WorldTestBase):
             "disarmed rune gate must grant the capital bundle or the capital is unwinnable")
         assert rg.get("Sewer Lock") == []
         assert rg.get("Raya Lucaria Academy Lock") == []
+
+
+class SewerRuneRegressionSeed(WorldTestBase):
+    """Alaric's in-game generation combo, 2026-07-15 ('a great rune was in the sewer on mohg's
+    drop'): num_regions 0 + DLC + region_locks ending + leyndell_runes_required 2 + accessibility
+    MINIMAL. Under minimal, AP's fill_restrictive SKIPS the location reachability check whenever
+    the exploration state can already beat the game (Fill.py perform_access_check) -- and because
+    the region_locks completion never mentions the gate runes, a rune's own placement is exactly
+    when the check is skipped. The strict progression-surface pre-fill (which runs in this
+    fixture: WorldTestBase's gen steps end at pre_fill) then LOCKS the rune wherever item_rule
+    allows. Seed 36 locked Godrick's Great Rune onto Mohg the Omen (Sewer :: [Incantation]
+    Bloodflame Talons, f510250) -- behind the very wall it opens -- an unrescuable strand that
+    post_fill's audit rightly FillErrors. item_rule is the ONE rule can_fill honors even with the
+    access check skipped, so the deterministic guard here is: every location in the walled
+    subtree -- the capital AND everything hanging off it (Sewer, Ashen Capital finale) -- must
+    REJECT every gating item outright."""
+    game = GAME
+    run_default_tests = False
+    options = {"num_regions": 0, "enable_dlc": True, "ending_condition": "region_locks",
+               "leyndell_runes_required": 2, "accessibility": "minimal"}
+
+    def test_gating_items_barred_from_the_whole_walled_subtree(self):
+        from worlds.eldenring.data import FINALE_REGION
+        from worlds.eldenring.features.leyndell_gate import (
+            _GATING_ITEMS, _gated_region_names)
+        gated = _gated_region_names(self.world)
+        # the derivation must span the KNOWN children -- a rename/reparent that drops one of
+        # these must fail here, not resurface as a 1-in-N FillError in someone's overnight gen.
+        assert {"Leyndell", "Sewer", FINALE_REGION} <= set(gated), gated
+        gating = [self.world.create_item(nm) for nm in sorted(_GATING_ITEMS)
+                  if nm in self.world.item_name_to_id]
+        assert gating, "no gating items resolvable from the catalog"
+        checked = 0
+        for loc in self.multiworld.get_locations(self.player):
+            if loc.parent_region is None or loc.parent_region.name not in gated:
+                continue
+            for it in gating:
+                assert not loc.item_rule(it), (
+                    f"{loc.name} ({loc.parent_region.name}) accepts gating item {it.name} -- "
+                    f"inside the rune wall this can deadlock the gate (seed-36 class)")
+            checked += 1
+        assert checked >= 50, f"suspiciously few gated-subtree locations audited ({checked})"
+
+    def test_no_gating_item_pre_filled_into_the_walled_subtree(self):
+        # the strict surface pre-fill already ran (gen steps end at pre_fill): whatever it
+        # placed-and-LOCKED must respect the wall.
+        from worlds.eldenring.features.leyndell_gate import (
+            _GATING_ITEMS, _gated_region_names)
+        gated = _gated_region_names(self.world)
+        for loc in self.multiworld.get_locations(self.player):
+            if loc.item is None or loc.parent_region is None:
+                continue
+            if loc.parent_region.name in gated:
+                assert loc.item.name not in _GATING_ITEMS, (
+                    f"pre-fill placed {loc.item.name} at {loc.name} inside the rune wall")
+
+    def test_full_fill_leaves_no_stranded_progression(self):
+        # end-to-end: full fill + the post_fill audit must not FillError, and an empty-state
+        # sweep must reach every own progression item (the audit's own bar).
+        mw = self.multiworld
+        distribute_items_restrictive(mw)
+        from worlds.eldenring.features import progression_surface as _ps
+        _ps.audit_reachable(self.world)  # raises FillError on a locked strand
+        assert mw.can_beat_game()
+        state = CollectionState(mw)
+        state.sweep_for_advancements()
+        for l in mw.get_locations(self.player):
+            if l.item is not None and l.item.advancement:
+                assert state.can_reach(l), (
+                    f"progression {l.item.name} stranded on unreachable {l.name}")
