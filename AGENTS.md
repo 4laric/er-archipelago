@@ -133,8 +133,8 @@ cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 "$PY" -m pytest -q -p
 
 Generated files (`eldenring/data.py`, `boss_data.py`, `boss_sweeps.py`, `region_open_flags.py`,
 `item_ids.py`, `location_tags.py`, …) are **regenerated, never hand-edited** — change `gen_data.py`
-(or the upstream `matt-free-pipeline/`) and regen. Committing the regenerated data is fine (same
-artifacts + generator ⇒ byte-matches a Windows regen; the DATA DRIFT gate reconciles if not).
+and regen. Committing the regenerated data is fine (same artifacts + generator ⇒ byte-matches a
+Windows regen; the DATA DRIFT gate reconciles if not).
 
 ### Datamine joins that work in the sandbox
 - **Item-lot flag → map:** the flag encodes it — `X0SS7000` = map `mX_SS` (e.g. `40017000` = `m40_01`).

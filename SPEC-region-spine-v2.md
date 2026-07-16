@@ -1,7 +1,8 @@
 # SPEC-region-spine-v2 — the 54-bucket region spine (bedrock-compat)
 
-**Status: LANDED on `feat/bedrock-compat` (2026-07-12). This document is the review table for the
-re-carve; the machine-readable source is `greenfield/region_groups.py`.**
+**Status: LANDED on `main` (merged 2026-07-12; originally developed on `feat/bedrock-compat`). This
+document is the review table for the re-carve; the machine-readable source is
+`greenfield/region_groups.py`.**
 
 ## What changed and why
 

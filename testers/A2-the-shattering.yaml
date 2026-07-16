@@ -21,7 +21,7 @@ game: "Elden Ring"
   num_regions: 4                 # only 4 majors unsealed (+ Roundtable hub)
   num_regions_order: rolled      # random start -- NOT guaranteed Limgrave
   ending_condition: great_runes
-  great_runes_required: 2
+  goal_great_runes: 2
   leyndell_runes_required: 2
 
   enable_dlc: false

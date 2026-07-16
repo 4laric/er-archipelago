@@ -40,10 +40,8 @@ game data**, and ships **none** of the following:
   params (`ItemLotParam`, `ShopLineupParam`), MSB, and EMEVD.
 
 This is a hard architectural constraint, not a claim after the fact. It is spelled
-out in the repo as `SPEC-PARITY.md` non-negotiables **P1-P5** (P1: no third-party
-data/code copied; P2: every feature re-derived from the world's own substrate;
-P3: original feature logic re-keyed to region/map ids; P4: stable client contract;
-P5: CI gates every phase) and cross-referenced in `PROVENANCE.md`.
+out in full — the five non-negotiables and how CI enforces them — in
+`PROVENANCE.md`.
 
 The runtime client is original work that reads only public param data to map
 checks to event flags. Because the shipped apworld is data-derived and the client

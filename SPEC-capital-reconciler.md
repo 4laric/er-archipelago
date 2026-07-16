@@ -1,8 +1,8 @@
 # SPEC-capital-reconciler — keep flag 9116 matched to the capital the player is actually in
 
-**Status: BUILT on `agent/capital-reconciler` (2026-07-14), ships as a unit with
-`agent/gestures-and-finale` (the finale is what makes every goal seed burn). Client half on the
-matching client branch. ⚠ Gated on ONE unverified assumption (§ The assumption) — default ON,
+**Status: LANDED on `main` (merged 2026-07-14; developed on `agent/capital-reconciler` with
+`agent/gestures-and-finale` — the finale is what makes every goal seed burn). Client half is on the
+client repo's `main`. ⚠ Gated on ONE unverified assumption (§ The assumption) — default ON,
 one-flag disable `capital_reconciler: false`.**
 
 ## Ground truth (Alaric, in-game 2026-07-14 + EMEVD — do not re-derive)

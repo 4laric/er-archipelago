@@ -178,7 +178,7 @@ The defaults are the recommended run. If you want to stray:
 - **Fixed vs random path:** `num_regions_order: spine` (default) keeps a fixed
   early path (Limgrave first); `rolled` keeps random regions.
 - **Great-Rune goal:** `ending_condition: great_runes` +
-  `great_runes_required: N`.
+  `goal_great_runes: N`.
 - **DeathLink:** `death_link: true` -- shared deaths in a multiworld, both
   directions.
 - **DLC (experimental):** `enable_dlc: true` (DLC regions become eligible) or

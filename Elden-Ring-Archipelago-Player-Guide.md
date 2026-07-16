@@ -114,7 +114,7 @@ run rather than tune it.
   Elden Ring into an Archipelago game. 4 for an evening, 0 (the shipped
   default) for everything.
 - **`ending_condition`** -- hold every kept Region Lock (default), or chase
-  `great_runes_required` Great Runes instead.
+  `goal_great_runes` Great Runes instead.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Shrink the list for a tighter, more predictable
   hunt; widen it to scatter key items further afield.
