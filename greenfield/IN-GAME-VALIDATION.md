@@ -1,17 +1,16 @@
 # Greenfield ER — in-game validation checklist
 
-Everything below is gen-tested green (276 world tests). This is the in-game proof pass. Work the
+Everything below is gen-tested green (the full `tools/gf_test.py` suite). This is the in-game proof pass. Work the
 tiers in order — Tier 0 must pass before the rest means anything. Each seed is a one-region-per-line
 yaml; gen with `.\build.ps1 -Greenfield` (installs the world + gens against greenfield\players).
 
 ## 0. Prerequisites (once)
 
 1. **Regenerate data on Windows** so the generated files match the committed gen_data:
-   `python greenfield\gen_data.py`  (writes data.py, region_open_flags.py [22/22], boss_data.py,
-   region_graces.py, boss_sweeps.py, shop_data.py, item_ids.py [98.9%], item_tiers.py).
-2. **Apply the client sweep patch + rebuild the DLL** (needed for Tier 2 sweeps):
-   `python patch_p3b_client.py --apply`
-   `cargo test -p eldenring-archipelago`  → then build the runtime `.dll` as usual.
+   `python greenfield\gen_data.py`  (writes data.py, region_open_flags.py [31/31], boss_data.py,
+   region_graces.py, boss_sweeps.py, shop_data.py, item_ids.py, item_tiers.py, ...).
+2. **Build the client DLL** (the `from-software-archipelago-clients` submodule):
+   `.\build.ps1 -Rust`  (cargo test + build; sweeps and everything else are built in — no patch step).
 3. **Confirm green**: `.\run_ci.ps1 -OnlyGreenfield` (or `bash greenfield/ci-linux.sh` in WSL).
 4. Put each test yaml below in `greenfield\players\` (one at a time, or a few), gen, connect the DLL.
 
@@ -69,7 +68,7 @@ item_shuffle OFF and dungeon_sweep none to isolate boot):
 
 ## Tier 2 — DUNGEON SWEEPS (validates the client patch)
 
-**T2.1 — Sweep on boss kill.** REQUIRES the `patch_p3b_client.py` DLL from Prereq 2.
+**T2.1 — Sweep on boss kill.** REQUIRES a current client DLL (Prereq 2 — the sweep watcher is built into the submodule client).
 ```yaml
   item_shuffle: true
   dungeon_sweep: all
@@ -77,8 +76,8 @@ item_shuffle OFF and dungeon_sweep none to isolate boot):
 - Enter a catacomb/cave, kill its boss. **PASS:** the dungeon's OTHER checks all register at once
   (the client watches the boss-defeat flag via `dungeonSweepFlags` → grants the members). Client log:
   a burst of "flag-poll: N new check(s)" right after the boss dies.
-- **FAIL sign:** boss dies but the dungeon's other checks don't auto-send → the client patch isn't in
-  the running DLL (rebuild), or the boss-defeat flag differs (note the dungeon + report back).
+- **FAIL sign:** boss dies but the dungeon's other checks don't auto-send → the running DLL is stale
+  (rebuild: `.\build.ps1 -Rust`), or the boss-defeat flag differs (note the dungeon + report back).
 - **Not expected to work:** location-keyed sweeps (`dungeonSweeps`) and boss-lock gating
   (`sweepLockGates`) are empty by design — only flag-keyed sweeps fire. That's correct.
 
@@ -116,7 +115,7 @@ item_shuffle OFF and dungeon_sweep none to isolate boot):
 ```yaml
   item_shuffle: true
   ending_condition: great_runes
-  great_runes_required: 2
+  goal_great_runes: 2
 ```
 - **PASS:** the seed's goal requires collecting 2 Great Runes (they're placed as progression, so
   reachable); you cannot "finish" until you have 2. (num_regions that seals all rune regions auto-drops
@@ -156,9 +155,9 @@ your shuffled ER items stay in YOUR world; other players' pools only see your Re
 
 **T4.3 — DLC enable/only.**
 - `enable_dlc: false` → no DLC region in play, base-game winnable.
-- `dlc_only: true` → only Land of Shadow / Belurat / Scadu Altus / Shadow Keep / Jagged Peak /
-  Abyssal Woods; goal collapses to DLC locks; still winnable (Land of Shadow carries all 6 Great Runes
-  if you also set the great-runes goal).
+- `dlc_only: true` → only the 14 Shadow of the Erdtree regions are in play; goal collapses to the
+  kept DLC locks; still winnable (no Great Rune region survives under dlc_only, so a great_runes
+  ending collapses to region_locks — intended, not a bug).
 
 ---
 
@@ -184,5 +183,5 @@ your shuffled ER items stay in YOUR world; other players' pools only see your Re
 
 Grab the client log (the "flag-poll" lines + any warn/error), note the exact seed yaml + the in-game
 action, and report. The gen side is proven green, so an in-game miss is almost always: the DLL doesn't
-have the patch (rebuild), a flag mismatch (name the region/dungeon/shop), or a multiplayer-only feature
-tested solo.
+match the apworld (rebuild: `.\build.ps1 -Rust`), a flag mismatch (name the region/dungeon/shop), or a
+multiplayer-only feature tested solo.

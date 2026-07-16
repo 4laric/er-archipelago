@@ -1,61 +1,66 @@
 # Greenfield Elden Ring apworld
 
-A fresh Archipelago world whose location data is **derived from vanilla game files** (params + MSB +
-grace/BonfireWarp anchors) — independent of the existing apworld, with rules keyed by **region only**
-so there's no location-name coupling to fight. Read `LESSONS-LEARNED.md` first (design contract).
+The apworld source for this project's Elden Ring Archipelago world. Location and
+item data is **derived from vanilla game files** (params + MSB + grace/BonfireWarp
+anchors) — no code or data from any other randomizer — and rules are keyed by
+**region only**, so there is no location-name coupling to fight.
+
+The model in one line: the world is Shattered into **31 regions (17 base game +
+14 Shadow of the Erdtree)**, each sealed behind a **"\<Region\> Lock"** AP item;
+you start at Roundtable Hold, and Leyndell is the goal region.
+
+**The data modules are GENERATED — never hand-edit them.** `eldenring/data.py`
+and its siblings (`region_open_flags.py`, `boss_data.py`, `region_graces.py`,
+`shop_data.py`, `item_ids.py`, `item_tiers.py`, ...) are written by
+`gen_data.py`. Regenerate with `python greenfield/gen_data.py` (or
+`.\build.ps1 -Greenfield`, which regenerates, installs, and gens); a gen-input
+stamp (`tools/gen_manifest.py`) gates stale data out of packaging and CI.
 
 ## Layout
 ```
 greenfield/
-  eldenring/
-    __init__.py   # World class: items, hub-and-spoke regions, rules, goal, slot_data
-    data.py       # GENERATED: HUB, REGIONS (31: 17 base + 14 DLC), LOCATIONS {region:[(name,ap_id,flag)]}
-  players/Greenfield.yaml   # isolated player file (game: "Elden Ring")
-  gen_data.py               # regenerate data.py (reads region_map.csv + grace anchors)
-  gen-greenfield.ps1        # install world into Archipelago\worlds + generate (isolated)
-  patch_build_greenfield.py # add the -Greenfield mode to build.ps1
-  region_map.csv            # the data-derived backbone (source for gen_data.py)
+  eldenring/              # the world package (ships as eldenring.apworld via build.ps1 -Apworld)
+    core.py               # options, regions, rules, goal, slot_data
+    data.py               # GENERATED: HUB, REGIONS (31: 17 base + 14 DLC), LOCATIONS {region: [(name, ap_id, flag)]}
+    region_spine.py       # SPINE progression order, GOAL_REGION (Leyndell), DLC_REGIONS
+    features/             # feature modules (graces, boss locks, pool builder, scaling, upgrades, ...)
+    tests/                # the test suite (see tests/README.md)
+  gen_data.py             # regenerates the data modules from vanilla game data — the only way to change them
+  gen_contract.py         # regenerates CONTRACT.md + the client's generated contract tables
+  gen-greenfield.ps1      # regen + install into Archipelago\worlds + isolated gen (what build.ps1 -Greenfield runs)
+  CONTRACT.md             # GENERATED apworld <-> client slot_data contract (from eldenring/contract.py)
+  IN-GAME-VALIDATION.md   # the in-game proof checklist (tiers, pass/fail)
+  presets/                # vetted player yamls (see below)
+  playtest-yamls/         # targeted validation yamls (see its README)
+  players/                # the isolated player dir build.ps1 -Greenfield gens from
+  region_map.csv, *.tsv   # curated gen inputs read by gen_data.py
 ```
 
-## Model (Shattering, MVP)
-Menu -> Roundtable Hold (free) -> each region, entrance rule `state.has("<Region> Lock")`.
-Pool = 22 region locks (progression) + filler; goal = collect all locks. 3,944 flag-keyed checks.
+## Entry points
 
-## Run it (Windows; AP gen needs Python 3.11)
-Wire the build-script mode once, then use it:
-```
-python greenfield\patch_build_greenfield.py --apply     # adds -Greenfield to build.ps1
-.\build.ps1 -Greenfield
-```
-`-Greenfield` installs `eldenring` into `Archipelago\worlds\`, then generates in isolation using
-`greenfield\players\` (your normal `Players\` and the existing apworld are untouched). Or run the
-helper directly: `.\greenfield\gen-greenfield.ps1`. Revert the build.ps1 change with
-`python greenfield\patch_build_greenfield.py --revert`.
+- **Big picture** (pure-runtime model, Region Locks, player setup): the root
+  `README.md`.
+- **The client contract** (`regionOpenFlags`, `apIdsToItemIds`, `locationFlags`,
+  the options echo, ...): `CONTRACT.md`, generated from `eldenring/contract.py`
+  — the single source of truth the Rust client
+  (`from-software-archipelago-clients`, crates `eldenring-archipelago` +
+  `er-logic`) is held to.
+- **Test**: `python tools/gf_test.py` — bootstraps a pinned **upstream**
+  Archipelago into `.ap-test/`, installs the world, runs the suite; refuses to
+  run against a fork. `run_ci.ps1` runs every automated gate.
+- **Run a seed**: copy a preset from `presets/` into `players/` and
+  `.\build.ps1 -Greenfield`; players start from `release-v0.2/EldenRing.yaml`
+  instead (see the root README).
 
-## Curated presets (start here)
-Rather than hand-tune the ~46-option surface, copy one of the vetted presets in `presets/` into
-`players/` (rename per slot) and generate. Each one gen-tests clean and keeps the safety defaults
-(Torrent whistle + Roundtable hub start, so no mountless-open-world softlock):
+## Curated presets
 
 | Preset | Scope | For |
 |--------|-------|-----|
-| `presets/sync-friendly.yaml` | 4 spine regions, real items, meaningful checks | flagship 2-slot+ multiworld, ~4-8h evening |
-| `presets/standard.yaml` | full base-game Shattering | the balanced default |
-| `presets/kitchen-sink.yaml` | everything on, base + DLC (EXPERIMENTAL) | maxed marathon; rough pacing by design |
+| `presets/first-run.yaml` | base game, forgiving, smaller check pool | your first seed |
+| `presets/short-solo.yaml` | four regions, then Morgott (`num_regions: 4`) | a ~3–4h solo Capital run |
+| `presets/multiworld-sync.yaml` | a polite footprint for a shared game | 2-slot+ multiworld |
+| `presets/full-dlc-journey.yaml` | everything: base + Shadow of the Erdtree (EXPERIMENTAL) | a maxed marathon |
 
-`num_regions` is pinned explicitly in every preset (never rely on its default). Prove a preset
-generates before a session -- copy it into a temp player dir and run AP `Generate.py`:
-```
-cp presets/sync-friendly.yaml players/          # (clear players/ first for a solo seed)
-( cd $AP && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 python Generate.py     --player_files_path <repo>/greenfield/players --outputpath <out> )
-```
-
-## Verified (structurally; not yet gen-tested)
-World stub-imports; 23 items (22 locks + filler); 24 regions; 3,944 locations == `location_name_to_id`;
-itempool count == location count; goal set. build.ps1 patch is byte-safe/self-verifying/ASCII.
-
-## TODO
-1. In-game client contract: `regionOpenFlags` (open a region on lock receipt) + `apIdsToItemIds`
-   (received-item grants). `locationFlags` (checks) is already emitted.
-2. Regenerate data after backbone changes: `python greenfield\gen_data.py`.
-3. Port feature modules (num_regions, scaling, boss locks) onto this clean base after MVP boots.
+`num_regions` is pinned explicitly in every preset (never rely on its default).
+Prove a preset generates before a session: copy it into `players/` (clear
+`players/` first for a solo seed) and run `.\build.ps1 -Greenfield`.

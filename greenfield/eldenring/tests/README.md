@@ -1,65 +1,84 @@
 # Greenfield ER tests
 
-Two suites, mirroring the existing `worlds/eldenring/tests` split of "pure structural" +
-"AP-framework" tests. Everything here is derived from the greenfield world's own `data.py`
-and AP's (MIT) `WorldTestBase` harness -- no test or data is copied from any other apworld.
+The apworld's test suite. Everything here is derived from the greenfield world's
+own generated data and AP's (MIT) `WorldTestBase` harness — no test or data is
+copied from any other apworld. A handful of pure-data tests run without
+Archipelago, but the suite as a whole needs an installed world inside an AP
+checkout, so:
 
-| file | needs AP? | what it guards |
-|------|-----------|----------------|
-| `test_gf_data.py`  | no (runs anywhere, ms) | data.py structural invariants: HUB/region split, unique + contiguous ap-ids from 7770000, unique location names, positive flags, LOCATIONS keys == HUB+regions, every region non-empty |
-| `test_gf_world.py` | yes (Windows/Py3.11, installed) | `WorldTestBase` base suite (fill, beatable, reachability) + one-lock-per-region pool, goal-needs-all-locks, hub-free, slot_data contract (`world_logic`/`locationFlags`), seed-independent slot_data |
-
-Run:
+**The canonical way to run it is the harness:**
 
 ```
-python greenfield/eldenring/tests/test_gf_data.py                  # source tree, no AP (direct unittest; NOT pytest)
-python -m pytest worlds/eldenring/tests/test_gf_world.py           # after install (build.ps1 -Greenfield)
-.\run_ci.ps1 -OnlyGreenfield                                          # both, via CI, nothing else
+python tools/gf_test.py             # bootstrap .ap-test/, install the world, run everything
+python tools/gf_test.py -k shops    # extra args pass through to pytest
 ```
 
+`gf_test.py` bootstraps its own **pinned upstream** Archipelago checkout (version
+from `.ap-version`) into `.ap-test/`, installs (copies) the world into it, and
+runs pytest there. It refuses to run against a fork of Archipelago and never
+touches your working `.\Archipelago` — see the docstring for why.
+`run_ci.ps1` runs this suite plus every other automated gate.
 
-## Phase 0 (boot contract) — landed
+## Map of the suite
 
-`patch_phase0_boot_contract.py` added `apIdsToItemIds` (filler → Golden Rune [1], GOODS-packed
-FullID `0x40000B54`) and `regionOpenFlags` (scalar warp flag per region, grace-derived) to
-`fill_slot_data`. Covered by:
-- `test_gf_data.py::GreenfieldRegionOpenFlags` — `region_open_flags.py` shape (19 resolved + 3 DLC
-  pending partition the region set; unique positive flags). Skips if not yet generated.
-- `test_gf_world.py::test_boot_contract_ap_ids_and_open_flags` — filler FullID + open-flag scalars.
+Helpers (not tests): `_util.py` (progression-surface-aware fill helpers),
+`pool_builder_sweep.py` (a standalone scaling harness for the pool builder).
 
-3 DLC sub-areas (Abyssal Woods, Jagged Peak, Scadu Altus) are all boss-arena (`map=PENDING`) and stay
-`REGION_OPEN_PENDING` until the DLC region audit (SPEC-PARITY.md 14.4); the client treats an absent
-open flag as "unlocked", so this is safe.
+**Data invariants & generated-data gates** (the committed data must be
+well-formed, fresh, and true to the game):
+`test_gf_data.py` (structural invariants for the data tables, no AP needed),
+`test_gf_gen_stamp.py` (gen-input hash gate), `test_coverage_gate.py`
+(coverage baseline over an option matrix), `test_gf_no_phantom_flags.py`
+(every check's acquisition flag exists in the game), `test_gf_item_exists.py`
+(every check's item exists), `test_gf_defaulted_region_guard.py` (a guessed
+region may not carry progression), `test_gf_lod_tile_regions.py` (coarse LOD
+tiles are not fine tiles), `test_gf_play_region_buckets.py` (lock-enforcement
+buckets vs the game's real play_region universe), `test_gf_missable.py` and
+`test_gf_important_locations.py` (location tagging), `test_gf_gestures.py`
+(gesture-pickup derivation).
 
+**Region & grace oracles** (independent, artifact-derived ground truth for the
+region assignment and grace model):
+`test_gf_region_correctness.py`, `test_gf_region_artifact_oracle.py`,
+`test_gf_region_provenance_oracle.py`, `test_gf_grace_region_correctness.py`,
+`test_gf_grace_ground.py`, `test_gf_grace_skip_oracle.py`,
+`test_gf_grace_skip_classes.py`, `test_gf_arena_graces.py`,
+`test_gf_grace_gates.py`, `test_gf_gated_children.py`.
 
-## Phase 1 (num_regions spine) — landed
+**Fill, region scope & reachability** (WorldTestBase — real generated
+multiworlds):
+`test_gf_world.py` (the base suite: fill, beatable, reachability, slot_data),
+`test_gf_num_regions.py` (the marquee sealing mode), `test_gf_region_diversity.py`,
+`test_gf_dlc.py` and `test_gf_dlc_pool_leak.py` (EnableDLC / DLCOnly scope),
+`test_gf_start_anchor.py` (the precollected opening Region Lock),
+`test_gf_scaling_sphere.py` (completion-scaling over true fill spheres),
+`test_gf_progression_surface.py` and `test_gf_progression_surface_option.py`
+(which locations may hold progression), `test_gf_foreign_apworld_degrade.py`
+(a foreign apworld degrades to a playable vanilla seed).
 
-`region_spine.py` (SPINE + GOAL_REGION + pure `compute_kept`) + `NumRegions`/`NumRegionsOrder`
-options + per-seed kept-region wiring in `__init__`. Sealed regions aren't instantiated; goal =
-kept locks; slot_data emits `region_count`. Covered by:
-- `test_gf_data.py::GreenfieldSpine` — SPINE is a permutation of REGIONS; `compute_kept` prefix/goal/rolled.
-- `test_gf_num_regions.py` — WorldTestBase at num_regions 3 (spine+goal) and 1; sealing, region_count, winnability.
+**Features:**
+- bosses: `test_gf_boss_locks.py`, `test_gf_boss_lock_items.py`,
+  `test_gf_boss_keys.py`, `test_gf_boss_sweeps.py`
+- shops: `test_gf_shops.py`, `test_gf_shop_release_gate.py`,
+  `test_gf_shop_slot_pins.py`, `test_gf_weapon_shop_slots.py`
+- pool builder & filler economy: `test_gf_pool_builder.py`,
+  `test_gf_pool_builder_all_filler.py`, `test_gf_pool_builder_categories.py`,
+  `test_gf_pool_builder_intensity.py`, `test_gf_pool_builder_juice_protected.py`,
+  `test_gf_pool_builder_reserved.py`, `test_gf_filler_curation.py`,
+  `test_gf_filler_economy_floor.py`, `test_gf_collectathon_protected.py`
+- goal & finale: `test_gf_ending.py`, `test_gf_goal_terminal.py`,
+  `test_gf_finale.py`, `test_gf_capital_reconciler.py`
+- items & progression: `test_gf_item_shuffle.py`, `test_gf_progressive.py`,
+  `test_gf_progressive_flasks.py`, `test_gf_local_items.py`,
+  `test_gf_legacy_key_gate.py`, `test_gf_legible_keys.py`,
+  `test_gf_area_locks.py`, `test_gf_auto_upgrade_echo.py`, `test_gf_p7.py`
+  (deathlink + start items), `test_gf_features_smoke.py` (feature registry),
+  `test_gf_options.py` (every option carries a real description)
 
-## Map of the eldenring test suite -> greenfield
-
-The eldenring folder has ~20 test files. Most gate features greenfield does not have yet, so
-they are NOT copied verbatim (they would import missing modules and fail). They come online as
-their feature is ported onto this clean base (see HANDOFF.md "Next work").
-
-**Ported (greenfield analog exists now):**
-- `test_data_tables.py`         -> `test_gf_data.py`
-- `TestER.py` (locations unique / default items) -> `test_gf_world.py`
-- `test_slot_data_determinism.py` -> `test_gf_world.py::test_slot_data_is_seed_independent`
-
-**Deferred until the feature is ported (no greenfield surface yet):**
-- `test_multiworld_gen.py`      -- two-player greenfield gen (portable now; add when useful)
-- `test_slot_data_fixture.py`   -- Rust-side slot_data fixture (add with the client contract)
-- `test_options_descriptions.py`, `TestEROptionMatrix.py` -- greenfield has no options yet
-- `test_boss_locks.py`          -- boss locks
-- `test_curated_fill.py`, `test_pool_builder_filler.py`, `test_capped_uniques_pool.py` -- pool builder / curated fill
-- `test_grace_pool_leak.py`     -- grace_rando
-- `test_key_gates_gen.py`       -- KeyGatesMissable
-- `test_local_items_gen.py`     -- local_item_option
-- `test_merchant_bells.py`, `test_shop_checks_gen.py`, `test_shop_lock_legibility.py`, `test_shop_slot_map_gen.py` -- shops
-- `test_check_item_suppression.py` -- runtime grant/suppress
-- `test/test_predicate_equivalence.py` -- predicate-contract migration
+**Contract & packaging** (the apworld <-> client seam):
+`test_gf_client_contract_paths.py` (every slot_data path the client reads has a
+gen-side producer), `test_gf_slot_data_fixture.py` (contract-drift snapshot),
+`test_gf_progression_surface_contract.py`, `test_gf_version_handshake.py`
+(apworld/DLL hash-matched pair), `test_gf_apworld_manifest.py`
+(`archipelago.json` names the game the world registers),
+`test_gf_shipping_yaml.py` (the shipped yaml names the game we ship).
