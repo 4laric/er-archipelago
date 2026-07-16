@@ -59,7 +59,7 @@ We are closer to that than it looks:
 
 * the game id is already conventional -- **`Elden Ring`**, with the space (39 of 62 upstream worlds
   have one; it is `Dark Souls III`, not `DarkSouls3`),
-* the world runs green on **stock upstream 0.6.7** -- 572 tests and a real generation, no fork,
+* the world runs green on **stock upstream 0.6.7** -- the full test suite green and a real generation, no fork,
 * there is **no proprietary data in the tree** (`PROVENANCE.md`), which is the thing that usually
   blocks a FromSoft world,
 * the client is MIT and lives in its own repo, so it does not have to move upstream at all.

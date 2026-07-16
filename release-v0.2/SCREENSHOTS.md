@@ -2,7 +2,7 @@
 
 Images live in `release-v0.2/screenshots/`.
 
-## What we have (9) -- the compose-with-matt's walkthrough
+## The compose-with-matt's walkthrough (9)
 
 These document the highest-risk procedure in the whole release: running thefifthmatt's randomizer
 for enemies and starting loadouts, with **item randomization OFF**, and loading our client through
@@ -13,7 +13,7 @@ unticked tab. All nine are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZATI
 |------|---------------|
 | `matt-01-item-randomizer-OFF.png` | **The one that matters.** Item Randomizer tab unticked, whole panel greyed out; Enemy + DLC ticked. |
 | `matt-02-enemy-randomizer-ON.png` | Enemy Randomizer tab, enemies being replaced. |
-| `matt-02b-misc-options-starting-class.png` | **Misc Options: "Randomize starting class loadouts" ticked.** Proves the starting class does NOT come from the Item Randomizer -- which is why you still get it with items off. Without this picture the doc's headline promise is unverifiable. |
+| `matt-02b-misc-options-starting-class.png` | **Misc Options: "Randomize starting class loadouts" ticked.** Proves the starting class does NOT come from the Item Randomizer -- which is why you still get it with items off. |
 | `matt-03-dll-mods-dialog.png` | The "Add dll mod" dialog, empty. |
 | `matt-04-select-client-dll.png` | Picking `eldenring_archipelago.dll` out of the `me3` folder. |
 | `matt-05-client-dll-added.png` | The client listed; main window reads "Using eldenring_archipelago.dll". |
@@ -25,27 +25,10 @@ unticked tab. All nine are referenced from `ENEMY-AND-STARTING-CLASS-RANDOMIZATI
 
 | File | What it shows |
 |------|---------------|
-| `overlay-connected.png` | **"How do I know it's working?"** -- the overlay reading `[Connected]` and the log line `Tester_A2 (Team #1) playing Elden Ring has joined.` It doubles as live proof of the game id WITH THE SPACE. (The turtle shell is an Archipelago item the client granted on a check -- I originally captioned it as matt's starting-loadout randomization, which was a guess dressed up as a fact.) Used in SETUP.md's connect step. |
-
-## Still worth taking (in-game)
-
-Nobody has shot these yet. Each kills a specific question players actually ask:
-
-| Shot | The question it kills |
-|------|----------------------|
-| A check being picked up, showing **another player's item** | "What happens when I open a chest?" The whole multiworld idea in one frame. |
-| A **Region Lock** arriving + the region-opened message | The marquee mechanic. Sells the project better than any paragraph. |
-| The kick: warped out of a locked region | Answers "is this a bug?" It is not. Goes beside the explanation in the Player Guide. |
-| The F6 tracker, mid-run | "How do I know what is left?" |
+| `overlay-connected.png` | **"How do I know it's working?"** -- the overlay reading `[Connected]` and the log line `Tester_A2 (Team #1) playing Elden Ring has joined.` It doubles as live proof of the game id WITH THE SPACE. (The turtle shell is an Archipelago item the client granted on a check.) Used in SETUP.md's connect step. |
 
 ## Conventions
 
 - **PNG**, cropped to the thing being shown. A full-monitor 4K shot teaches nothing.
 - Named for what they show, not when they were taken.
 - No personal information: crop out real slot names, passwords, room URLs, and unrelated folders.
-
-## Known nits in the current set
-
-- `matt-04-select-client-dll.png` shows an unrelated sidebar of local folders. Harmless, but a
-  tighter crop would be better.
-Not worth blocking a release over; worth fixing if anyone reshoots.

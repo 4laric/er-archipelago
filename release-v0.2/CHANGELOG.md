@@ -1,106 +1,57 @@
 # Changelog
 
-## v0.2 -- 2026-07-12
+The narrative — what this project is and what v0.2 brings — lives in
+`RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-v0.2 is a from-scratch, provenance-clean rebuild of the Elden Ring world. No
-data or code from the earlier community lineage remains. It requires
-**Archipelago 0.6.7**, and it never modifies your game files: you run vanilla
-Elden Ring, the apworld generates the seed, and the client .dll does everything
-at runtime.
+## v0.2 — 2026-07-12
 
-### Breaking: the game id is now `Elden Ring` (with a space)
+Requires **Archipelago 0.6.7**. A from-scratch, provenance-clean rebuild of the
+Elden Ring world (`PROVENANCE.md`); pure-runtime (vanilla game on disk, the
+client does everything live).
 
-v0.1 called the game `EldenRing`. v0.2 calls it `Elden Ring`. A v0.1 yaml is
-rejected at generation with:
+### Breaking
 
-    No world found to handle game EldenRing. Did you mean 'Elden Ring'?
+- **Game id is now `Elden Ring`** (was `EldenRing`). A v0.1 yaml is rejected at
+  generation (`No world found to handle game EldenRing`). Upside: v0.1 and v0.2
+  install side by side.
+- **Option surface shrank to 19 tunable options**; the rest are frozen to
+  defaults and no longer appear in the yaml. **Do not retrofit a v0.1 yaml** —
+  Archipelago warns on each unknown option but then generates on defaults
+  anyway, so you get a seed you did not configure. Start from the shipped
+  `EldenRing.yaml`.
 
-The upside of the new id: v0.1 and v0.2 install side by side without conflict.
-If you have a v0.1 seed in flight, you can finish it on v0.1 and start your
-next seed on v0.2.
+### Added
 
-### Breaking: the option surface shrank to 19 tunable options
+- **The Shattering (`num_regions`)** on the clean base: spawn at Roundtable Hold,
+  each region's Lock is a multiworld item, the goal region is always kept.
+  `num_regions_order` = `spine` (fixed) or `rolled` (random).
+- **Real item shuffle** — each check pays out its own vanilla ER item, shuffled.
+- **Great-Rune goal** (`ending_condition: great_runes`), auto-clamped to what is
+  reachable.
+- **Dungeon sweeps**, **pool building + varied filler**, **grace bundling** (a
+  Lock lights all of its region's graces at once).
+- **Scaling & QoL** — completion scaling, Scadutree blessing scope, start
+  torch/steed/flasks, all maps revealed, early leveling, no weapon requirements,
+  buyable Stonesword Keys, flattened smithing ladder, DeathLink.
 
-The yaml now exposes only the options a player actually tunes. The rest are
-frozen to sensible defaults and no longer appear in the yaml at all.
+### Fixed (playtested 2026-07-12)
 
-**Do not retrofit a v0.1 yaml.** Archipelago warns about each option it does not
-recognize -- `item_shuffle is not a valid option name for Elden Ring` -- but it
-then **generates the seed anyway**, on defaults. The warnings scroll past in the
-generation output, and nothing stops you. So an old yaml full of renamed or
-removed options gives you a seed that is *not* the one you configured, and you
-will only notice in-game. Start from the shipped `EldenRing.yaml` and edit from
-there. If you do reuse an old one, **read the generation output** -- every
-dropped option is named in it.
-
-### What's new
-
-The world itself was rebuilt from the ground up against public game data
-(params, MSBs, grace anchors), with every rule keyed off region, map id, event
-flag, and item name -- never off an imported location name. It ships no
-FromSoftware content and no third-party randomizer config or code: just the
-MIT client and the data-derived apworld. See `ATTRIBUTION.md` and the repo's
-`PROVENANCE.md`.
-
-- **The Shattering, on the clean base.** `num_regions` -- the marquee mode
-  that turns Elden Ring's open map into an Archipelago progression graph --
-  is rebuilt on the data-derived world. You spawn at Roundtable Hold with one
-  region open; every other region's Lock is a multiworld item; the goal
-  region is always kept, so the seed is always winnable. `num_regions_order`
-  picks a fixed (`spine`) or random (`rolled`) set of kept regions.
-- **Real item shuffle.** item shuffle pays out each check's own vanilla ER
-  item, shuffled across the checks (~98.9% carry a real item; the rest give a
-  Rune).
-- **Great-Rune goal.** `ending_condition: great_runes` requires collecting
-  Great Runes, auto-clamped to what is reachable this seed.
-- **Dungeon sweeps.** Kill a dungeon's boss and its other checks
-  auto-register (dungeon sweep).
-- **Pool building and varied filler.** pool builder scrubs the Rune tail
-  and injects rare and legendary items; varied filler spreads the rest
-  across item types.
-- **Grace bundling.** A Region Lock lights all of its region's graces at
-  once, so an arriving Lock means you can warp straight in.
-- **Scaling and quality of life.** Completion scaling, Scadutree blessing
-  scope, start-with torch / steed / flasks, all maps revealed, early
-  leveling, no weapon requirements, buyable Stonesword Keys, a flattened
-  smithing-stone ladder, and DeathLink.
-
-### Under the hood
-
-- A single contract file defines every slot_data key's shape, producer, and
-  consumer, validated at generation time -- the world and client stay in
-  lockstep with no client fork.
-- Replay suites and region-correctness gates run in CI and catch
-  wrong-behavior bugs (for example, region or grace mis-bundling), not just
-  missing-feature bugs.
-- The MIT runtime client carries over from v0.1 -- still no fork of anyone
-  else's client -- rebuilt in lockstep with the world: the shipped `.dll`
-  and the apworld are a matched pair from the same release.
-
-### Fixed
-
-Confirmed fixed in playtesting on 2026-07-12:
-
-- Spirit Calling Bell was unusable; Spirit Ashes are now callable from the
-  received item.
-- Map-piece items were granted on connect; the map reveal now fires without
-  minting item grants.
-- Flasks were double-granted after a tutorial-death reload.
-- A rolled start could leave you without Torrent; it no longer can.
+- Spirit Calling Bell now usable from the received item.
+- Map-piece items no longer minted on connect; the reveal fires without grants.
+- Flasks no longer double-granted after a tutorial-death reload.
+- A rolled start can no longer leave you without Torrent.
 
 ### Known issues
 
-Current issues are tracked in `KNOWN-ISSUES.md`. The headline: a few checks
-can still pay out the vanilla item instead of the Archipelago one (contained
--- it cannot strand a run; worst case you miss a filler item), and DLC seeds
-are experimental. Base game is the recommended, supported way to play.
+See `KNOWN-ISSUES.md`. Headline: a few checks can still pay the vanilla item
+(contained — cannot strand a run); DLC seeds are experimental; base game is the
+supported config.
 
 ### Licensing
 
-The project adopts the upstream Archipelago license (MIT). The runtime client
-is MIT; the data-derived apworld ships no non-free FromSoftware content and no
-third-party randomizer config or code. You bring your own copy of Elden Ring.
-See `ATTRIBUTION.md`.
+Upstream Archipelago license (MIT); the runtime client is MIT and the
+data-derived apworld ships no FromSoftware content or third-party randomizer
+code. See `ATTRIBUTION.md`.
 
 ---
 
