@@ -214,16 +214,31 @@ PLAY_REGION_GROUPS = {
     # 68200 moved to Ensis (2026-07-13): PlayRegionParam has a row in bucket 68200 on m61_48_44, which
     # is Ensis's OWN grace tile. 68100 and 68200 both have rows on the seam tile m61_47_44, which is
     # why the check-vote split 25/21 between Gravesite and Ensis -- that was not noise, it was the seam.
-    "Gravesite": (68000, 68100, 69010, 40000, 41000, 42000, 43000, 43010),
+    "Gravesite": (68000, 68100, 40000, 41000, 42000, 43000, 43010),
     "Ensis": (68200,),                      # m61_48_44 -> row 6820010 (its exclusive grace tile)
-    "Jagged Peak": (68500,),                # m61_54_39 -> row 6850001 (its grace tile)
+    # 68410 assigned 2026-07-15: its MSB PlayArea volumes are named "dragon-mountain FOOT" (the
+    # game's name for the Foot of the Jagged Peak, whose warp group 6851 is already Jagged Peak's)
+    # and sit at the Foot grace's own elevation; a Jagged Peak check (2049387010, Dragon Communion
+    # Harpoon) stands inside one. Named geometry, no longer the refused "adjacency only" guess.
+    "Jagged Peak": (68410, 68500,),         # m61_54_39 -> row 6850001 (its grace tile)
     "Scaduview": (69300,),                  # see below -- band evidence, not a tile hit
-    "Cerulean": (68300, 68400),
+    # 68400 moved to Charo's (2026-07-15, in-game kick + MSB geometry): warping to Charo's own
+    # front-door grace 76841 measured play_region 6840000 (client kick-watch log), and the MSB
+    # PlayArea volumes carrying 6840000 (dev name "dragon-mountain west") contain that grace and
+    # the grave's own checks. The old "Cerulean 8/8" check-vote was CIRCULAR: the votes were the
+    # tile-join's own guesses on the two-region tiles 47/39+48/39 the grave shares with the coast.
+    # Ground truth lives in grace_ground.tsv (tools/datamine_grace_ground.py); gen_data gates on it.
+    "Cerulean": (68300,),
     "Abyssal": (68600,),          # 28000 (Midra's Manse) is NOT a bucket -- it lives inside 68600
     "Scadu Altus": (69000, 69020, 69030, 40020, 41010, 42020),
     "Ancient Ruins": (69400, 69410),
-    "Rauh Base": (40010, 42030),
-    "Charo's": (41020,),
+    # 69010 moved to Rauh Base (2026-07-15, MSB geometry): Rauh Base's bundle grace 76914 stands
+    # INSIDE a 6901000 PlayArea volume, and every 6901000 volume is Rauh Base terrain by the
+    # game's own names (runebear forest, "directly under Mohenjo-daro" = the Rauh ruins plateau,
+    # the trap cellar, around ruined forge 1-4). The old Gravesite 12/12 vote was the same
+    # circular tile-join artifact as 68400's. Cookbook check 68680 (Rauh Base) stands on it too.
+    "Rauh Base": (69010, 40010, 42030),
+    "Charo's": (68400, 41020),
 
     # --- DLC interiors ---
     "Belurat": (20000,),
@@ -270,10 +285,9 @@ UNASSIGNED_BUCKETS = {
     # THESE FOUR ARE THE PENDING REGIONS' LIKELY BUCKETS -- parked here ONLY because they are not yet
     # measured. They are NOT 'deliberately permissive': they are the open question. See
     # REGIONS_PENDING_BUCKET above; a grace warp + kick-watch line settles each.
-    68410: "sole coord m61_49_40, adjacent to Jagged Peak's grace tile m61_49_39 -- ADJACENCY ONLY, "
-           "and adjacency has been wrong twice today. Left permissive rather than guessed onto a region",
-    69200: "no coordinate rows at all. REGION_ID_MAP's 6920 x10 would make it Scaduview, but that doc's "
-           "DLC rows are the warp space with a digit dropped and it disagrees with the derivation "
-           "elsewhere (6840). No geometry evidence -> permissive, not guessed",
+    69200: "no coordinate rows AND no MSB PlayArea volume anywhere carries a 692xxxxx id, so there "
+           "is literally no geometry to stand on. (68410, which used to sit here on the same "
+           "grounds, got real geometry evidence 2026-07-15 -- named 'dragon-mountain foot' volumes "
+           "-- and moved to Jagged Peak.) Still permissive, not guessed",
 }
 

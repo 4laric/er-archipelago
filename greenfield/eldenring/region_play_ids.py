@@ -12,22 +12,22 @@ REGION_PLAY_IDS = {
     'Ancient Ruins': [69400, 69410],
     'Belurat': [20000],
     'Caelid': [30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130, 64000, 64010, 64020],
-    'Cerulean': [68300, 68400],
-    "Charo's": [41020],
+    'Cerulean': [68300],
+    "Charo's": [41020, 68400],
     'Deeproot Depths': [12030],
     'Enir Ilim': [20010],
     'Ensis': [68200],
     'Farum Azula': [13000],
-    'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100, 69010],
+    'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100],
     'Haligtree': [15000],
-    'Jagged Peak': [68500],
+    'Jagged Peak': [68410, 68500],
     'Leyndell': [11000, 11050, 19000],
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
     'Mountaintops of the Giants': [30170, 30180, 30190, 30200, 31120, 31220, 32110, 65000, 65010, 65020, 65030],
     'Mt. Gelmir': [16000, 30090, 31070, 31090, 63020],
-    'Rauh Base': [40010, 42030],
+    'Rauh Base': [40010, 42030, 69010],
     'Raya Lucaria Academy': [14000],
     'Scadu Altus': [40020, 41010, 42020, 69000, 69020, 69030],
     'Scaduview': [69300],
@@ -44,4 +44,4 @@ REGION_PLAY_IDS = {
 # shipping a lock that does nothing is the bug the measured table exists to end.
 REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:61b7a535892c39ab1cc641e33699b337f0b1b9e519876c8f633e02b9c965218f', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:6365c330c6f2153cda9d7f3864313803d6cf56654025d58ffbc2fd3e16188897'}
+_GEN_STAMP = {'inputs_hash': 'sha256:759008e843aa8ab07cb7b2565ea48e37d191b335a200162a9ce13ebf28f0b8d1', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:052aa981ef9a556396b44f9cedaf6a41caf0aa74c09acdfdb5ac6927c5d2b2ac'}

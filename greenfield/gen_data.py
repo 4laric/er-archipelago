@@ -201,7 +201,7 @@ def tile_pr(x,y):
 # (greg) resolves a region DIRECTLY -- the old 16-entry overworld-only table forced every interior
 # place through map-prefix majority votes and hand fold tables. The grouping (which buckets share
 # a region, and the bedrock-interop names) is curated in region_groups.py -- edit it THERE.
-from region_groups import (HUB as _RG_HUB, PLAY2AP, REGION_GROUPS,
+from region_groups import (HUB as _RG_HUB, PLAY2AP, REGION_GROUPS, PLAY_REGION_GROUPS,
                            KICK_EXCLUDED_PLAY_IDS, region_play_ids as _region_play_ids,
                            assert_covers as _rg_assert_covers,
                            REGIONS_PENDING_BUCKET as _RG_PENDING)
@@ -1251,6 +1251,17 @@ FLAG_REGION_OVERRIDE = {
     # ^ the complete 47,44 castle tile (6820 Ensis grace) -- the full set from tools/dev/check_vs_matt.py
     # Tile 48,39 (graces 6830 Cerulean + 6840 Charo's): these 3 lots are the Charo's Hidden Grave side.
     2048397030: "Charo's", 2048397040: "Charo's", 2048397050: "Charo's",
+    # GROUND-TRUTH tile splits, 2026-07-15: treasure MSB positions tested against the play-region
+    # volumes (tools/datamine_grace_ground.py machinery). These three stand INSIDE 6840000 volumes
+    # ("dragon-mountain west" = Charo's Hidden Grave ground; bucket 68400 -> Charo's, the same
+    # geometry the in-game Charo's kick measured), so a Cerulean-only player cannot stand on them:
+    68710: "Charo's",                  # Greater Potentate's Cookbook [14] (lot 2047390030, tile 47,39)
+    2047397040: "Charo's",             # Grave Glovewort [9] (lot 2047390040, tile 47,39)
+    2048407010: "Charo's",             # Spirit Glaive (lot 2048400010, tile 48,40 -- the volume reaches in)
+    # ...and these two stand INSIDE 6830000 (Cerulean Coast) although their tile 49,38 files them
+    # under Jagged Peak -- the reverse direction of the same class:
+    68920: "Cerulean",                 # Finger-Weaver's Cookbook [1] (lot 2049380050, tile 49,38)
+    2049387060: "Cerulean",            # Smithing Stone [2] (lot 2049380060, tile 49,38)
     # Tile 48,43 (graces 6800 Gravesite + 6860 Abyssal): M61_TILE_CURATED pins the whole tile Abyssal,
     # but these lots are the Gravesite (Pillar Path Cross) side.
     2048437000: "Gravesite", 2048437010: "Gravesite", 2048437020: "Gravesite",
@@ -2394,6 +2405,59 @@ _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
       f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
       f"{len(_SKIP_GRACE_FLAGS)} total skipped")
+# ---- GRACE-GROUND GATE (the Charo's kick class, 2026-07-15) -----------------------------------
+# A region lock force-lights its bundle; the kick-watch then judges the GROUND each grace stands
+# on. grace_ground.tsv (tools/datamine_grace_ground.py; MSB PlayArea volumes + PlayRegionParam
+# tile defaults, calibrated against the in-game Charo's measurement 76841 -> 6840000) says which
+# play-region bucket that ground is. A bundle grace standing on a bucket owned by a FOREIGN region
+# (not this region, not an ancestor in region_spine.REGION_PARENT) is a warp-into-a-kick: Charo's
+# lock lit 76841, the ground read 68400 = Cerulean, and the player bounced to the Roundtable.
+#   * such a grace is NOT force-lit (walk in and touch it -- reaching it on foot already required
+#     the owning region to be open, and region-open flags never re-seal);
+#   * a region whose ENTIRE overworld face is foreign ground DIES here: its front door would
+#     silently demote to a dungeon-interior grace, which is exactly how the Charo's mis-bucket
+#     would have hidden. Fix region_groups.PLAY_REGION_GROUPS (the bucket owner), not this gate.
+_GG_PATH = os.path.join(HERE, "grace_ground.tsv")
+if not os.path.isfile(_GG_PATH):
+    raise SystemExit("gen_data: greenfield/grace_ground.tsv is MISSING (it is tracked -- truncated "
+                     "checkout?). Regenerate: python tools/datamine_grace_ground.py --emit")
+_GRACE_GROUND = {}
+with open(_GG_PATH, encoding="utf-8") as _ggf:
+    for _ln in _ggf:
+        if _ln.startswith("#") or _ln.startswith("grace_flag"): continue
+        _c = _ln.rstrip("\n").split("\t")
+        if len(_c) >= 2 and _c[1] != "-":
+            _GRACE_GROUND[int(_c[0])] = tuple(int(_b) for _b in _c[1].split(";"))
+_GG_FLOOR = 200   # emit-time derived count is 285; a shrunken table silently blinds this gate
+if len(_GRACE_GROUND) < _GG_FLOOR:
+    raise SystemExit("gen_data: grace_ground.tsv derives ground for only %d graces (floor %d) -- "
+                     "it was regenerated without the MSBs. Re-run tools/datamine_grace_ground.py "
+                     "on a box with elden_ring_artifacts/map unpacked." % (len(_GRACE_GROUND), _GG_FLOOR))
+_BUCKET_OWNER = {_pid: _reg for _reg, _pids in PLAY_REGION_GROUPS.items() for _pid in _pids}
+# REGION_PARENT lives in the shipped package (eldenring/region_spine.py, which imports .data) --
+# load it as a real submodule so the gated-children ancestry can whitelist e.g. a Sewer grace
+# standing on Leyndell ground. Hand-copying the map here is how tables drift; import it.
+import sys as _rs_sys, types as _rs_types
+if "eldenring" not in _rs_sys.modules:
+    _rs_pkg = _rs_types.ModuleType("eldenring")
+    _rs_pkg.__path__ = [os.path.join(HERE, "eldenring")]
+    _rs_sys.modules["eldenring"] = _rs_pkg
+import importlib as _rs_importlib
+_REGION_PARENT = _rs_importlib.import_module("eldenring.region_spine").REGION_PARENT
+def _gg_allowed(_r):
+    _out = {_r}
+    while _r in _REGION_PARENT:
+        _r = _REGION_PARENT[_r]; _out.add(_r)
+    return _out
+def _gg_foreign(_fl, _reg):
+    """True iff EVERY derived ground bucket of grace _fl is owned by a region outside _reg's
+    ancestry. Underivable ground or an unassigned (permissive) bucket -> not provably foreign."""
+    _bks = _GRACE_GROUND.get(_fl)
+    if not _bks: return False
+    _owners = {_BUCKET_OWNER.get(_b) for _b in _bks}
+    if None in _owners: return False
+    return not (_owners & _gg_allowed(_reg))
+_foreign_ground_skipped = []
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
@@ -2411,8 +2475,31 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
         if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
     if _mj and _mj != HUB:
+        if _gg_foreign(int(_fl), _mj):
+            _foreign_ground_skipped.append((int(_fl), _mj,
+                sorted({_BUCKET_OWNER[_b] for _b in _GRACE_GROUND[int(_fl)]})))
+            continue
         _open_cand[_mj].append(int(_fl))
         if _tile[:3] in ("m60", "m61"): _open_cand_ow[_mj].append(int(_fl))
+for _fl, _reg, _owners in sorted(_foreign_ground_skipped):
+    print(f"grace-ground gate: NOT force-lighting {_fl} ({_reg} bundle) -- it stands on ground "
+          f"owned by {_owners} (walk in; warping there with only the {_reg} lock is a kick)")
+# A region whose whole OVERWORLD face was eaten by the gate = its bucket ownership is wrong in
+# region_groups.PLAY_REGION_GROUPS (the Charo's shape: front door on a sibling's bucket). Dying
+# beats silently demoting the front door to a dungeon-interior grace.
+_gg_regions_hit = {_reg for _fl, _reg, _own in _foreign_ground_skipped}
+for _reg in sorted(_gg_regions_hit):
+    _had_ow = any(_tile[:3] in ("m60", "m61") for _fl, _tile in gf.items()
+                  if int(_fl) not in _SKIP_GRACE_FLAGS
+                  and PLAY2AP.get(greg.get(_fl)) == _reg)
+    if _had_ow and not _open_cand_ow.get(_reg):
+        raise SystemExit(
+            f"gen_data: GRACE-GROUND GATE -- every overworld grace of {_reg!r} stands on ground "
+            f"owned by a DIFFERENT region ({sorted(o for f, r, ow in _foreign_ground_skipped if r == _reg for o in ow)}). "
+            f"Its lock would warp players straight into a kick (this is the Charo's 68400 bug). "
+            f"The bucket OWNERSHIP is wrong: fix region_groups.PLAY_REGION_GROUPS, then re-run "
+            f"tools/datamine_grace_ground.py --emit and regen.")
+
 # Front-door grace = an ACCESSIBLE OVERWORLD grace (m60/m61), NOT the numerically-lowest flag, which
 # is often a catacomb/cave INTERIOR grace the player can never see (e.g. Limgrave min was 73000 =
 # m30_00_00 catacomb -> "no graces in-game"). Serves as the region-open flag AND the start/front-door
@@ -2420,6 +2507,10 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
 def _front_door(r):
     return min(_open_cand_ow[r]) if _open_cand_ow.get(r) else min(_open_cand[r])
 REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
+for _r, _fd in REGION_OPEN_FLAGS.items():
+    if _gg_foreign(_fd, _r):
+        raise SystemExit(f"gen_data: GRACE-GROUND GATE -- {_r!r}'s front-door grace {_fd} stands on "
+                         f"foreign ground {_GRACE_GROUND.get(_fd)}. Fix region_groups.PLAY_REGION_GROUPS.")
 # (The _DLC_OPEN_FALLBACK hand table is GONE. Every one of the 54 buckets has >= 1 grace, so with
 # PLAY2AP covering them all, every region's graces reach _open_cand and _front_door derives every
 # open flag -- REGION_OPEN_PENDING prints [] below and gen hard-fails if it ever does not. If a
