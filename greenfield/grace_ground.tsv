@@ -417,7 +417,7 @@ grace_flag	ground_buckets	source	tile
 76918	-	none	m61_50_44
 76930	21010	volume:プレイ領域 2101010-1	m61_49_48
 76931	21010	volume:プレイ領域 2101010-3	m61_49_48
-76935	-	none	m61_50_48
+76935	21000	measured:2100010 client kick line 2026-07-15	m61_50_48
 76936	-	none	m61_51_48
 76937	-	none	m61_51_48
 76940	-	none	m61_47_47

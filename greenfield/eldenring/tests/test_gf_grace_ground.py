@@ -123,6 +123,24 @@ class TestGraceGround(unittest.TestCase):
                 bad.append((region, fd, sorted(owners)))
         self.assertFalse(bad, "front-door grace(s) on foreign ground: %r" % bad)
 
+    def test_scaduview_regression(self):
+        """The 2026-07-15 Scaduview kick, pinned: its front-door grace 76935 ("Hinterland") stands
+        on m21_00's DEFAULT ground -- in-game measured play_region 2100010, bucket 21000 -- which
+        is Shadow Keep's PRIMARY bucket (shared with the whole Keep interior), so it can never be
+        rebucketed to Scaduview. The honest encoding is containment: REGION_PARENT must gate
+        Scaduview behind Shadow Keep, keeping 76935 ancestor-owned rather than foreign."""
+        self.assertEqual(self.ground.get(76935), (21000,),
+                         "grace_ground.tsv lost the MEASURED 76935 -> 21000 row (client kick line "
+                         "2026-07-15); re-run tools/datamine_grace_ground.py --emit")
+        self.assertIn(21000, self.play_ids.get("Shadow Keep", ()),
+                      "bucket 21000 is the Keep interior's own bucket; moving it strands the Keep")
+        self.assertEqual(self.parent.get("Scaduview"), "Shadow Keep",
+                         "Scaduview's front door stands on Shadow Keep ground: without the "
+                         "containment parent its lock warps the player straight into a kick")
+        self.assertEqual(self.open_flags.get("Scaduview"), 76935,
+                         "Scaduview's front door must stay 76935 (ancestor-owned), not silently "
+                         "demote to an underivable grace")
+
     def test_charos_regression(self):
         """The literal 2026-07-15 in-game failure, pinned: Charo's front door 76841 stands on
         bucket 68400 (measured play_region 6840000), so 68400 must be owned by Charo's -- the

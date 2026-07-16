@@ -25,6 +25,15 @@ DERIVATION
     Fallback where no volume contains the grace: the PlayRegionParam coordinate row(s) of the
     grace's own tile (the tile DEFAULT). If neither exists the ground is UNDERIVABLE ('-'):
     engine-side tile defaults are not all expressed in params, and we refuse to guess.
+  * MEASURED grounds (the Scaduview kick, 2026-07-15): an in-game kick-watch line is the ENGINE
+    itself reporting the play_region at a grace -- stronger than any of the above. MEASURED_GROUND
+    records such data points; they fill rows the derivation cannot reach and must AGREE with the
+    derivation where both exist (a disagreement means the transform broke -- fatal, not a shrug).
+    We do NOT generalize them into a legacy-map-overlay rule: WorldMapLegacyConvParam maps every
+    legacy/interior map onto overworld tiles, but for teleport-linked maps (Farum Azula, Haligtree,
+    the underground) and under-surface dungeons those dst tiles are WORLD-MAP DISPLAY anchoring,
+    not physical ground -- a blanket rule mis-files Bestial Sanctum on Farum Azula's 13000 and the
+    Altus Plateau grace on the Precipice's 39200 (tried and reverted, 2026-07-15).
   * INTERIOR graces: the bucket(s) whose PlayRegionParam id encodes the grace's own map
     (m41_02 -> 41020). Coarse but sound: an interior map's buckets all belong to one region.
 
@@ -58,6 +67,18 @@ OUT = os.path.join(REPO, "greenfield", "grace_ground.tsv")
 # derivation depends on the unpacked MSBs being PRESENT -- rerunning without them must fail, not
 # quietly write an all-underivable table that turns the gen gate off.
 MIN_DERIVED = 200   # measured 2026-07-15: 293/421 graces derive a ground. Raise, never lower.
+
+# In-game ENGINE measurements: grace flag -> (ground buckets, provenance). Each entry is a client
+# kick-watch/log line read at that grace -- the same instrument the enforcement itself uses. They
+# override 'none' rows and are ASSERTED against the derivation where both exist.
+#   76935 "Hinterland" (front door of region Scaduview, m61_50_48): warping there read raw
+#   play_region 2100010 -> bucket 21000 = Shadow Keep (client log 2026-07-15, the Scaduview kick).
+#   Corroboration: m21_00 overlays that tile (WorldMapLegacyConvParam row 1105), its MSB defines
+#   override volumes for subs 2100001/11/12/13/15 and NONE for 2100010 -- 2100010 is m21_00's
+#   default ground, which is what the plateau outside Scaduview's own 6930000 volumes reads.
+MEASURED_GROUND = {
+    76935: ((21000,), "measured:2100010 client kick line 2026-07-15"),
+}
 
 
 class Vol:
@@ -208,6 +229,15 @@ def main():
             tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
             bks = sorted(interior.get(tile, set()))
             src = "interior-map" if bks else "none"
+        if f in MEASURED_GROUND:
+            mbks, msrc = MEASURED_GROUND[f]
+            if bks and tuple(bks) != tuple(mbks):
+                raise SystemExit(
+                    "FATAL: derived ground %r for grace %d disagrees with the in-game measurement "
+                    "%r (%s) -- the volume transform or the params changed; re-derive, do not "
+                    "paper over." % (bks, f, list(mbks), msrc))
+            if not bks:
+                bks, src = list(mbks), msrc
         rows.append((f, ";".join(map(str, bks)) or "-", src, tile))
 
     rows.sort()

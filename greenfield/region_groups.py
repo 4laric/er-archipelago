@@ -256,12 +256,17 @@ PLAY_REGION_GROUPS = {
 #                        (68100/68200 both have rows on the SEAM tile m61_47_44, which is exactly why the
 #                        check vote split 25/21 with Gravesite. The seam was the signal, not noise.)
 #   Jagged Peak 68500 -- row 6850001 sits on m61_54_39, a Jagged Peak grace tile.
-#   Scaduview   69300 -- WEAKER, and flagged as such: no PlayRegionParam row lands on a Scaduview grace
-#                        tile. 69300's ONLY coordinate row is m61_52_48, in Scaduview's tile row and one
-#                        east of its grace tile m61_51_48. Band evidence, not a tile hit. One warp to a
-#                        Scaduview grace confirms it from the client's kick-watch line; until then this is
-#                        the least-supported entry in the table and the first place to look if a kick
-#                        misfires in the Hinterland.
+#   Scaduview   69300 -- CONFIRMED as Scaduview's bucket, with a twist (the predicted Hinterland kick
+#                        happened, 2026-07-15): warping to its front-door grace 76935 measured
+#                        play_region 2100010 -- NOT 693xxxxx -- because the grace stands on m21_00's
+#                        DEFAULT ground (bucket 21000 = Shadow Keep; the m21_00 MSB carves override
+#                        volumes for subs 2100001/11/12/13/15 and none for 2100010). 69300 itself is
+#                        still Scaduview's: its 6930000 MSB boundary volumes (m61_49_48/m61_50_48) and
+#                        the PlayRegionParam row anchored at m61_52_48 (mapMenuUnlockEventId = 76935!)
+#                        are real Scaduview geometry. Bucket 21000 is shared with the whole Keep
+#                        interior, so the fix is NOT a rebucket: region_spine.REGION_PARENT gates
+#                        Scaduview behind Shadow Keep (containment, the Sewer pattern), and
+#                        grace_ground.tsv carries the measured 76935 -> 21000 row.
 #
 # Kept as a set so the machinery survives (a future region added before its bucket is measured).
 REGIONS_PENDING_BUCKET = frozenset()

@@ -2460,6 +2460,7 @@ def _gg_foreign(_fl, _reg):
 _foreign_ground_skipped = []
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
+_all_cand_ow = defaultdict(list)    # PRE-gate overworld candidates: the region's NATURAL front door
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
     if int(_fl) in _SKIP_GRACE_FLAGS: continue          # boss-gated / arena grace: never force-light
     # The grace's own play_region_id (grace_region_map = ground truth) IS its region: PLAY2AP now
@@ -2475,6 +2476,7 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
         if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
     if _mj and _mj != HUB:
+        if _tile[:3] in ("m60", "m61"): _all_cand_ow[_mj].append(int(_fl))
         if _gg_foreign(int(_fl), _mj):
             _foreign_ground_skipped.append((int(_fl), _mj,
                 sorted({_BUCKET_OWNER[_b] for _b in _GRACE_GROUND[int(_fl)]})))
@@ -2484,6 +2486,23 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
 for _fl, _reg, _owners in sorted(_foreign_ground_skipped):
     print(f"grace-ground gate: NOT force-lighting {_fl} ({_reg} bundle) -- it stands on ground "
           f"owned by {_owners} (walk in; warping there with only the {_reg} lock is a kick)")
+# A region whose NATURAL front door (its numerically-first overworld grace, the one _front_door
+# would pick) stands on provably-foreign ground DIES here. Skipping it and letting the front door
+# slide to the next grace is how the Scaduview kick would RE-hide (2026-07-15): 76935 measured
+# foreign (Shadow Keep's 21000), and the next-lowest grace 76936 is UNDERIVABLE -- a permissive
+# unknown silently promoted to the region's front door. Foreign entrance ground has exactly two
+# honest fixes, both human decisions: the bucket OWNERSHIP is wrong (rebucket, the Charo's 68400
+# shape) or the region is entered THROUGH the owner (region_spine.REGION_PARENT containment, the
+# Scaduview shape).
+for _reg, _fls in sorted(_all_cand_ow.items()):
+    _nat = min(_fls)
+    if _gg_foreign(_nat, _reg):
+        raise SystemExit(
+            f"gen_data: GRACE-GROUND GATE -- {_reg!r}'s natural front-door grace {_nat} stands on "
+            f"ground owned by {sorted({_BUCKET_OWNER[_b] for _b in _GRACE_GROUND[_nat]})} "
+            f"(grace_ground.tsv). Refusing to demote the front door to the next grace. Fix the "
+            f"bucket owner in region_groups.PLAY_REGION_GROUPS (Charo's shape) or declare "
+            f"containment in region_spine.REGION_PARENT (Scaduview shape).")
 # A region whose whole OVERWORLD face was eaten by the gate = its bucket ownership is wrong in
 # region_groups.PLAY_REGION_GROUPS (the Charo's shape: front door on a sibling's bucket). Dying
 # beats silently demoting the front door to a dungeon-interior grace.
@@ -2511,6 +2530,15 @@ for _r, _fd in REGION_OPEN_FLAGS.items():
     if _gg_foreign(_fd, _r):
         raise SystemExit(f"gen_data: GRACE-GROUND GATE -- {_r!r}'s front-door grace {_fd} stands on "
                          f"foreign ground {_GRACE_GROUND.get(_fd)}. Fix region_groups.PLAY_REGION_GROUPS.")
+# An UNDERIVABLE front door is how the Scaduview kick (2026-07-15) hid from this gate: 76935 had no
+# volume and no tile row, the gate read 'not provably foreign' and force-lit it, and the ground
+# turned out to be Shadow Keep's 21000. Every such region is a named WATCH item in the gen log --
+# the first in-game kick line at that grace belongs in datamine_grace_ground.MEASURED_GROUND.
+_gg_watch = sorted(_r for _r, _fd in REGION_OPEN_FLAGS.items() if _fd not in _GRACE_GROUND)
+if _gg_watch:
+    print("grace-ground gate: WATCH -- front-door ground UNDERIVABLE (permissive, the Scaduview "
+          "class) for: " + ", ".join(f"{_r} ({REGION_OPEN_FLAGS[_r]})" for _r in _gg_watch)
+          + " -- an in-game kick at one of these graces means a MEASURED_GROUND row, not a mystery")
 # (The _DLC_OPEN_FALLBACK hand table is GONE. Every one of the 54 buckets has >= 1 grace, so with
 # PLAY2AP covering them all, every region's graces reach _open_cand and _front_door derives every
 # open flag -- REGION_OPEN_PENDING prints [] below and gen hard-fails if it ever does not. If a

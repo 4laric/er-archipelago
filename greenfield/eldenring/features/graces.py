@@ -65,6 +65,11 @@ WALL_ARMED = {
         lambda world: bool(getattr(world, "gf_leyndell_runes", ())),
     "Sewer":
         lambda world: True,
+    # Scaduview: containment wall, same shape as the Sewer -- the game's own geometry (the
+    # Hinterland is walled off Keep-side; its door ground IS the Keep's bucket 21000) enforces
+    # entry through the Shadow Keep, so withholding is always sound.
+    "Scaduview":
+        lambda world: True,
 }
 
 
