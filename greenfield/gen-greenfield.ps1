@@ -51,6 +51,12 @@ Get-ChildItem -Path $Here -Filter *.csv -File | ForEach-Object {
 Get-ChildItem -Path $Here -Filter *.tsv -File | ForEach-Object {
     Copy-Item -Force $_.FullName (Join-Path $WorldDst $_.Name)
 }
+# THE region spine: test_gf_play_region_buckets path-loads region_groups.py from beside the package to
+# assert PLAY_REGION_GROUPS against the tracked bucket universe (play_region_buckets.tsv rides in via
+# the glob above). It is a .py at greenfield\ root, so NEITHER glob catches it -- and like the tsv
+# tests, this suite ERRORS rather than skipping when its input is absent (6 RED on run_ci.ps1, GREEN on
+# CI). Copy it explicitly, exactly as the canonical harness tools/gf_test.py does.
+Copy-Item -Force (Join-Path $Here "region_groups.py") (Join-Path $WorldDst "region_groups.py")
 # The SHIPPED template: test_gf_shipping_yaml reads the yaml players actually get, so it must be the
 # real one from release-v0.2, not a copy that can drift.
 $ShipYaml = Join-Path $Repo "release-v0.2\EldenRing.yaml"
