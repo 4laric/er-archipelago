@@ -27,7 +27,7 @@ sailed right past.
 Concretely, a change that touches options, item pool, region locks, or fill
 logic must:
 
-- Extend `Archipelago/worlds/eldenring/tests/TestEROptionMatrix.py` so the new
+- Extend `greenfield/eldenring/tests/test_gf_options.py` so the new
   option (and its meaningful combinations with existing ones) is exercised.
 - Pass a **seed sweep**, not a single gen — run `gen_sweep.ps1` and, for
   anything touching fill/reachability, `run_fill_regression.ps1`. One green run
@@ -53,8 +53,8 @@ with a message that names both options and says why — don't let it reach fill.
   that doesn't mention your option must generate identically to before.
 - **Docstrings match behavior.** Every option's docstring describes what it
   actually does. A docstring that lies is a bug, and it feeds the yaml
-  comprehension/reference layer (`ER-OPTIONS-REFERENCE.yaml`,
-  `EldenRing-MASTER-template.yaml`) — keep those in sync.
+  comprehension/reference layer (`wizard/options-metadata.json`,
+  `release-v0.2/EldenRing.yaml`) — keep those in sync.
 - **Item-pool edits stay count-neutral.** The items-equals-locations invariant
   must hold. If you add items, remove or convert an equal number; if you
   replace, replace 1:1. `filler_replacement`-style changes are the model:
@@ -130,7 +130,7 @@ follow it.
 
 Any new region lock, gate, or access rule ships with:
 
-- Explicit reachability rules in `rules_mixin.py` (a `can_reach` / rule
+- Explicit reachability rules in `greenfield/eldenring/core.py` (a `can_reach` / rule
   function), so the fill algorithm understands the gate — not just a placement.
 - A guaranteed sphere-0 home for anything that must be reachable from the start.
   A lock with no early home is how you get the intermittent `FillError`.
@@ -271,7 +271,7 @@ Run through this before a change lands (PR or direct):
 
 - [ ] New/changed options live in `options.py`, default to no-change, and have
       accurate docstrings.
-- [ ] The option matrix (`TestEROptionMatrix.py`) covers the new option and its
+- [ ] The option matrix (`test_gf_options.py`) covers the new option and its
       combinations.
 - [ ] `gen_sweep.ps1` passes; `run_fill_regression.ps1` passes for
       fill/reachability changes.

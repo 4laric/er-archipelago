@@ -47,7 +47,7 @@ rush.
 | File | What it is |
 |---|---|
 | `eldenring.apworld` | The Archipelago world -- the package that teaches Archipelago about Elden Ring. Goes in your Archipelago install. |
-| `eldenring_archipelago.dll` | The runtime client (MIT) that talks to the live game. Loaded via ModEngine3, or via matt's launcher. |
+| `me3/` | The runtime client folder. Holds `eldenring_archipelago.dll` (the MIT client), the `ap.me3` me3 profile, `apconfig.json`, an `ap-package/` icon override, and two **required** data tables (`check_lots_table.json`, `shoplineup_flags.json`). Keep these together -- they load as a set. |
 | `EldenRing.yaml` | The player config template (The Shattering). Copy it, set `name:`, generate. |
 | `SETUP.md` | This file. |
 | `RELEASE-NOTES-v0.2.md` | What this project is and what v0.2 brings, in one read. |
@@ -56,6 +56,7 @@ rush.
 | `Elden-Ring-Archipelago-Player-Guide.md` | How a run actually plays once you press New Game. |
 | `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` | Stacking matt's randomizer for enemies and starting class (with items OFF). |
 | `ATTRIBUTION.md` | Credits, licensing, and provenance. |
+| `PROVENANCE.md` | Why this is a clean rebuild -- the five provenance non-negotiables and how CI enforces them. |
 | `DISTRIBUTION.md` | How this release is packaged, and why the apworld and `.dll` must come from the same tag. |
 | `SCREENSHOTS.md` | Index of the screenshots and what each one shows. |
 | `screenshots/` | The images (10 PNGs) the docs above reference. |
@@ -111,9 +112,15 @@ You also need, separately:
 1. **Install ModEngine3.** Follow its own install instructions until the
    `me3` launcher works.
 
-2. **Drop in the runtime client.** Put `eldenring_archipelago.dll` where your
-   ModEngine3 profile loads it, and launch Elden Ring through ModEngine3. When the
-   client is loaded, its overlay **menu bar** is visible in-game.
+2. **Drop in the runtime client.** The release ships a ready-to-run `me3/`
+   folder -- launch Elden Ring with its profile:
+   `me3 launch --profile "<path to me3>\ap.me3"`. Keep the folder intact: the two
+   data tables (`check_lots_table.json`, `shoplineup_flags.json`) must sit next to
+   the DLL, or checks double-pay the vanilla item and shop checks never fire. When
+   the client is loaded, its overlay **menu bar** is visible in-game.
+
+   **Start a new character.** The client uses its own save (`AP_me3.sl2`); your
+   normal saves are untouched.
 
    **Also running matt's randomizer?** Then you do not launch twice. Add
    `eldenring_archipelago.dll` to matt's **Add dll mod** list and use his

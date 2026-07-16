@@ -119,8 +119,6 @@ declares lock items but never grants them is not affected.
 - **Shop previews for other players' items.** A shop slot holding a foreign or gem/ash reward still
   displays the vanilla ware's name and icon. You receive the correct item on purchase; only the shelf
   lies. Slots holding your own weapons/armour/talismans/goods display correctly.
-- **DeathLink and event flag 76996.** The client's DeathLink kill flag currently collides with an
-  in-game flag. Leave DeathLink off for now.
 - The client is Windows-only (it hooks the retail x64 exe).
 
 ## Reporting a problem

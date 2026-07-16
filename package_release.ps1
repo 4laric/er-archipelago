@@ -156,6 +156,7 @@ $Docs = @(
     @{ src = (Join-Path $Rel  "CHANGELOG.md");                             required = $true  },
     @{ src = (Join-Path $Rel  "KNOWN-ISSUES.md");                          required = $true  },
     @{ src = (Join-Path $Rel  "ATTRIBUTION.md");                           required = $true  },
+    @{ src = (Join-Path $Rel  "PROVENANCE.md");                            required = $true  },
     @{ src = (Join-Path $Rel  "ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md"); required = $true  },
     @{ src = (Join-Path $Repo "Elden-Ring-Archipelago-Player-Guide.md");   required = $true  },
     @{ src = (Join-Path $Rel  "SCREENSHOTS.md");                           required = $false },
