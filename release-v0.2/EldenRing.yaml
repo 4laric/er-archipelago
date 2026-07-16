@@ -118,6 +118,14 @@ Elden Ring:
   pool_builder_pct_spells: 0
   pool_builder_pct_ashes_of_war: 0
 
+  # Every Golden Seed and Sacred Tear check pays out a single "Progressive
+  # Flask Upgrade" item instead, one-for-one. Each copy you receive grants a
+  # seed or a tear on an interleaved schedule -- you still spend it at a grace
+  # at the game's own escalating price, but upgrades (Sacred Tears included)
+  # arrive on a steady cadence instead of 13 silent flat pickups. Off: seeds
+  # and tears stay discrete pickups at their shuffled locations.
+  progressive_flasks: true
+
   # Share of YOUR filler that other players' worlds may draw from, in a
   # multiworld. 100 = fully shared. 0 = keep your filler to yourself.
   filler_foreign_pct: 100

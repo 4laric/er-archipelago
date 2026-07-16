@@ -33,6 +33,16 @@ REGION_PARENT = {
     "Raya Lucaria Academy": "Liurnia",   # Academy Glintstone Key seal (features/legacy_key_gates)
     "Leyndell": "Altus",                 # capital main gate, N Great Runes (features/leyndell_gate)
     "Sewer": "Leyndell",                 # m35 well is inside the capital walls (SPEC-region-spine-v2)
+    # Scaduview (the Hinterland plateau) is entered only THROUGH the Shadow Keep -- and, unlike the
+    # three above, its ground is not even its own at the door: warping to its front-door grace 76935
+    # ("Hinterland") measured play_region 2100010 in-game (2026-07-15), i.e. bucket 21000 = the
+    # Keep's PRIMARY bucket, shared with the whole m21_00 interior (subs 2100000/01/11..15 anchor
+    # keep graces 72101..72109). The kick keys on the bucket (id//100), so "rebucket 21000 ->
+    # Scaduview" is not expressible without mis-owning the Keep itself; containment is the honest
+    # encoding, exactly like the Sewer. Scaduview keeps its own Lock + its own 69300 geometry
+    # (real MSB volumes: the 6930000 boundary boxes); this entry makes AP logic require the Shadow
+    # Keep Lock first, so a player standing on the Keep-owned plateau always has the Keep flag.
+    "Scaduview": "Shadow Keep",          # Hinterland ground = m21_00 default 2100010 (grace_ground)
 }
 
 

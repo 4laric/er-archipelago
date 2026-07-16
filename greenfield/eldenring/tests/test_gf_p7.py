@@ -1,8 +1,12 @@
 """Phase 7 tests -- deathlink + start_items + start-region-lock surfaces (WorldTestBase).
 
-Defaults: startItems == [Torch, Spectral Steed Whistle, Flask of Crimson Tears, Flask of Cerulean
-Tears] -- start_with_torch / start_with_steed / start_with_flasks all default ON. Each toggle drops
-its item(s); all three off -> empty startItems. death_link=true -> death_link True.
+Defaults: startItems == [Torch, Flask of Crimson Tears, Flask of Cerulean Tears] + pot vessels --
+the REPEATED (duplicate-harmless) path. The UNIQUE key items (Spectral Steed Whistle, Spirit
+Calling Bell, Flask of Wondrous Physick) ride uniqueStartGrants as [FullID, obtainedFlag] pairs
+instead: the client grants them only if the obtained-flag (60100/60110/60020) is unset, then sets
+the flag with the grant -- so a reload/reconnect/pool-pickup can never double-grant. A unique
+FullID appearing in BOTH lists would double-grant by construction; asserted disjoint here.
+death_link=true -> death_link True.
 start_with_region_lock (default OFF; the flagship yaml turns it on) precollects ONE random region
 lock so a region is open from the start -- count-neutral (the pool then holds N-1 locks + 1 precollected).
 """
@@ -13,9 +17,12 @@ pytest.importorskip("worlds.eldenring")
 
 GAME = "Elden Ring"
 TORCH = 24000000
-STEED = 0x40000000 | 130
+STEED = 0x40000000 | 130       # goods 130,  obtained-flag 60100 (Torrent enable)
+BELL = 0x40000000 | 8158       # goods 8158, obtained-flag 60110 (spirit summoning enable)
+PHYSICK = 0x40000000 | 250     # goods 250,  acquisition flag 60020
 CRIMSON = 0x40000000 | 1001
 CERULEAN = 0x40000000 | 1051
+UNIQUES = {STEED: 60100, BELL: 60110, PHYSICK: 60020}
 # item_shuffle is FROZEN ON, so start_items also grants the pot VESSELS. Import them rather than
 # re-hardcoding, so a new vessel can't silently drift this test.
 from worlds.eldenring.features.start_items import (  # noqa: E402
@@ -35,11 +42,37 @@ class Phase7Defaults(WorldTestBase):
 
     def test_start_items_default(self):
         si = self.world.fill_slot_data()["startItems"]
-        self.assertEqual(si[:4], [TORCH, STEED, CRIMSON, CERULEAN])
+        # The whistle moved OFF this list (uniqueStartGrants below); torch + flasks stay repeated.
+        self.assertEqual(si[:3], [TORCH, CRIMSON, CERULEAN])
         # item_shuffle is FROZEN ON (defaults.py), so start_items also grants pot VESSELS -- held
         # throwing-pot capacity == vessels held, else received pots overflow to storage unusable.
-        self.assertTrue(all(x in VESSELS for x in si[4:]),
-                        f"trailing startItems must be pot vessels, got {si[4:]}")
+        self.assertTrue(all(x in VESSELS for x in si[3:]),
+                        f"trailing startItems must be pot vessels, got {si[3:]}")
+
+    def test_unique_start_grants_default(self):
+        # start_with_steed / start_with_bell / start_with_physick (all frozen ON) emit the
+        # [FullID, obtainedFlag] pairs the client's flag-idempotent unique-grant path consumes.
+        sd = self.world.fill_slot_data()
+        self.assertEqual(sd["uniqueStartGrants"],
+                         [[STEED, 60100], [BELL, 60110], [PHYSICK, 60020]])
+
+    def test_unique_fullids_never_ride_the_repeated_path(self):
+        # A unique FullID in plain startItems would be granted UNCONDITIONALLY next to the
+        # flag-gated unique grant -- a guaranteed double. The two lists must stay disjoint.
+        sd = self.world.fill_slot_data()
+        si = set(sd["startItems"])
+        for full_id in UNIQUES:
+            self.assertNotIn(full_id, si,
+                             f"unique FullID {full_id} must not also be in plain startItems")
+
+    def test_unique_obtained_flags_not_in_start_graces(self):
+        # The obtained-flags are the idempotency LATCH: set as part of the grant, never
+        # unconditionally. 60100 riding startGraces (the 7165bf8 shape) would pre-set the latch
+        # and make the whistle grant skip itself on a fresh save.
+        graces = set(self.world.fill_slot_data().get("startGraces", []))
+        for flag in UNIQUES.values():
+            self.assertNotIn(flag, graces,
+                             f"obtained-flag {flag} must not be set unconditionally in startGraces")
 
 
 class Phase7DeathLinkOn(WorldTestBase):

@@ -97,10 +97,15 @@ except Exception as _e:
     BOSS_HEALTHBARS = {}
     print(f"[gen_data] boss_healthbars.py unavailable ({_e!r}); sweeps fall back to region-wide banner scan -- run tools/datamine_boss_healthbars.py")
 # Hand-added overworld field/evergaol/dragon bosses the DisplayBossHealthBar datamine missed (Alaric
-# 2026-07). Key = isDefeated event flag (== boss entity id == sweep trigger), authoritative from the
-# Grand Archives CE table's Event-Flag-Manager boss list. map/tile decoded from the flag (field-boss
-# id 10<XX><YY>0800 -> m60_<XX>_<YY>); every tile verified against the mapstudio MSB set. These make the
-# nine reddit-list base-game gaps show a felled name + get tile sweeps like the other 60 field bosses.
+# 2026-07). Key = isDefeated event flag (== sweep trigger), authoritative from the Grand Archives CE
+# table's Event-Flag-Manager boss list and RE-VERIFIED against EMEVD 2026-07-15 (each key is the flag
+# the boss's death event actually sets: 90005860/61 eventFlagId, 90005880 evergaol, or a literal
+# SetEventFlagID after the felled banner). For 9 of the 10 the flag == the entity id; Borealis
+# 1254560800 is the defeat flag of ENTITY 1054560800 (12-prefix, like Radahn 1052380800->1252380800)
+# -- do NOT treat these keys as entity ids. map/tile decoded from the ENTITY (field-boss entity
+# 10<XX><YY>0800 -> m60_<XX>_<YY>); every tile verified against the mapstudio MSB set. These make the
+# nine reddit-list base-game gaps show a felled name + get neighborhood sweeps like the other field
+# bosses. (Borealis is now ALSO datamined under the same key, so its setdefault is a no-op.)
 _BOSS_HEALTHBAR_EXTRAS = {
     1049380800: ('m60_49', 'm60_49_38', 'field', "Commander O'Neil"),                 # Caelid
     1049390800: ('m60_49', 'm60_49_39', 'field', 'Nox Swordstress & Nox Priest'),     # Caelid
@@ -196,7 +201,7 @@ def tile_pr(x,y):
 # (greg) resolves a region DIRECTLY -- the old 16-entry overworld-only table forced every interior
 # place through map-prefix majority votes and hand fold tables. The grouping (which buckets share
 # a region, and the bedrock-interop names) is curated in region_groups.py -- edit it THERE.
-from region_groups import (HUB as _RG_HUB, PLAY2AP, REGION_GROUPS,
+from region_groups import (HUB as _RG_HUB, PLAY2AP, REGION_GROUPS, PLAY_REGION_GROUPS,
                            KICK_EXCLUDED_PLAY_IDS, region_play_ids as _region_play_ids,
                            assert_covers as _rg_assert_covers,
                            REGIONS_PENDING_BUCKET as _RG_PENDING)
@@ -241,6 +246,43 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  "Midra's Manse (DLC)":'Abyssal','Church of the Bud (DLC)':'Ancient Ruins','Castle Ensis (DLC)':'Ensis',
  'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Sewer',
  'm22':'Stone Coffin','m28':'Abyssal'}
+
+# ---- SHOP-ROW REGION GROUND TRUTH (shop_rows.tsv col 9, tools/datamine_shop_rows.py) --------------
+# The merchant-block region of every derivable shop stock flag, normalized through REGION_MAP -- the
+# SAME normalization every other region label goes through. Built HERE (before region_of's first
+# call site, the interior map-prefix vote loop) because region_of consults it: for a check whose
+# ONLY source is a merchant (flag_source == 'shop'), the merchant block's region IS the check's
+# region. Before this table those checks took their region from an emevd nearest-neighbour TILE
+# SCAN (Cookbook [17]'s flag 67100 scanned to a Liurnia tile; its merchant sits in Siofra River) or
+# defaulted to the HUB (method shop_multi, 'Multiple merchants (various regions)': 130+ checks
+# parked at Roundtable). A flag sold in SEVERAL regions keeps the lexicographically FIRST: every
+# listed region genuinely stocks the row, so any single claim is sound (region open => purchasable
+# there); first = deterministic. GUARD (fail-loud): a non-empty region label that REGION_MAP does
+# not know is a SystemExit, never a silent HUB default -- a new/renamed label in shop_rows.tsv must
+# be taught to the alias table, not fall through to a guess.
+SHOP_ROW_REGION = {}
+_srr_path = os.path.join(HERE, "shop_rows.tsv")
+if os.path.isfile(_srr_path):
+    _srr_multi = {}
+    with open(_srr_path, encoding="utf-8") as _srf:
+        for _srl in _srf:
+            if _srl.startswith("#") or _srl.startswith("row_id"):
+                continue
+            _srp = _srl.rstrip("\n").split("\t")
+            if len(_srp) < 9:
+                continue
+            _srlabel = _srp[8].strip()
+            if not _srlabel:
+                continue
+            if _srlabel not in REGION_MAP:
+                raise SystemExit(
+                    f"FATAL: shop_rows.tsv row {_srp[0]}: region label {_srlabel!r} is not in "
+                    f"REGION_MAP -- teach the alias table the new label; refusing to guess")
+            _srr_multi.setdefault(int(_srp[5]), set()).add(REGION_MAP[_srlabel])
+    SHOP_ROW_REGION = {_f: sorted(_rs)[0] for _f, _rs in sorted(_srr_multi.items())}
+    _srr_n_multi = sum(1 for _rs in _srr_multi.values() if len(_rs) > 1)
+    print(f"shop-row regions: {len(SHOP_ROW_REGION)} stock flags carry a merchant-block region "
+          f"({_srr_n_multi} multi-region flag(s) kept their lexicographic-first region)")
 
 
 def _overworld_tile_of(r):
@@ -312,6 +354,10 @@ def _region_is_derived(r):
     real place ('shop_merchant -> Caelid', 'boss_arena -> Stormveil Castle') and are derived; only the
     placeholder regions above are not."""
     reg=r['region']; meth=r['method']
+    try: _srfl = int(r.get('flag'))
+    except (TypeError, ValueError): _srfl = None
+    if _srfl is not None and r.get('flag_source') == 'shop' and _srfl in SHOP_ROW_REGION:
+        return True                            # merchant-block region (SHOP_ROW_REGION) = DERIVED
     if reg.startswith('Overworld m60'):
         t = _overworld_tile_of(r)              # flag-decode first; LOD-suffixed guesses return None
         return bool(t) and tile_pr(*t) in PLAY2AP
@@ -1246,6 +1292,17 @@ FLAG_REGION_OVERRIDE = {
     # ^ the complete 47,44 castle tile (6820 Ensis grace) -- the full set from tools/dev/check_vs_matt.py
     # Tile 48,39 (graces 6830 Cerulean + 6840 Charo's): these 3 lots are the Charo's Hidden Grave side.
     2048397030: "Charo's", 2048397040: "Charo's", 2048397050: "Charo's",
+    # GROUND-TRUTH tile splits, 2026-07-15: treasure MSB positions tested against the play-region
+    # volumes (tools/datamine_grace_ground.py machinery). These three stand INSIDE 6840000 volumes
+    # ("dragon-mountain west" = Charo's Hidden Grave ground; bucket 68400 -> Charo's, the same
+    # geometry the in-game Charo's kick measured), so a Cerulean-only player cannot stand on them:
+    68710: "Charo's",                  # Greater Potentate's Cookbook [14] (lot 2047390030, tile 47,39)
+    2047397040: "Charo's",             # Grave Glovewort [9] (lot 2047390040, tile 47,39)
+    2048407010: "Charo's",             # Spirit Glaive (lot 2048400010, tile 48,40 -- the volume reaches in)
+    # ...and these two stand INSIDE 6830000 (Cerulean Coast) although their tile 49,38 files them
+    # under Jagged Peak -- the reverse direction of the same class:
+    68920: "Cerulean",                 # Finger-Weaver's Cookbook [1] (lot 2049380050, tile 49,38)
+    2049387060: "Cerulean",            # Smithing Stone [2] (lot 2049380060, tile 49,38)
     # Tile 48,43 (graces 6800 Gravesite + 6860 Abyssal): M61_TILE_CURATED pins the whole tile Abyssal,
     # but these lots are the Gravesite (Pillar Path Cross) side.
     2048437000: "Gravesite", 2048437010: "Gravesite", 2048437020: "Gravesite",
@@ -1689,6 +1746,14 @@ def region_of(r):
         return GESTURE_REGION[_ovfl]
     if _ovfl is not None and _ovfl in FLAG_REGION_OVERRIDE:
         return FLAG_REGION_OVERRIDE[_ovfl]
+    # SHOP-ROW GROUND TRUTH: a check whose ONLY source is a merchant (flag_source == 'shop') takes
+    # the merchant block's region (SHOP_ROW_REGION, from shop_rows.tsv through REGION_MAP). Beats
+    # every scan path below: the emevd nearest-neighbour tile and the shop_multi HUB default were
+    # both guesses about where a MERCHANT stands, and the block datamine answers that directly.
+    # map_lot rows keep their world-source region (the lot placement is the primary site; the
+    # merchant slot is still rewritten via DERIVED_SHOP_FLAGS / SHOP_ROW_IDS regardless).
+    if _ovfl is not None and r.get('flag_source') == 'shop' and _ovfl in SHOP_ROW_REGION:
+        return SHOP_ROW_REGION[_ovfl]
     # GROUND TRUTH (MSB/param datamine) beats the row's scanned map. Resolved through gen_data's OWN
     # map->region tables (NOT the grace join), so the grace-join oracle stays an INDEPENDENT check.
     _gtm = MSB_TRUTH_MAP.get(_ovfl) if _ovfl is not None else None
@@ -1841,6 +1906,13 @@ print(f"item-existence guard: dropped {len(_ITEMLESS_DROPPED)} check(s) whose lo
 # selling the vanilla item.
 _SHOP_ROWS_TSV = os.path.join(HERE, "shop_rows.tsv")
 DERIVED_SHOP_FLAGS = set()          # every detectable stock flag -- the SHOP_ROW_FLAGS gate
+# Merchant-unique WARE ledger (feeds the ShopSlot pin, far below). A ware's identity across the whole
+# ShopLineupParam is its (equipType, equipId) pair. Counted over EVERY tsv row -- release-gated,
+# value==0 trade, spell-vendor, even minibaker/excluded rows -- because ambiguity is measured against
+# everywhere the player can BUY the item, not just where we mint checks. A ware sold under exactly
+# ONE stock flag is location-unambiguous: wherever you buy it, the same check fires.
+SHOP_FLAG_ITEMS = {}                # stock flag -> {(equip_type, equip_id) sold under it}
+SHOP_ITEM_FLAGS = {}                # (equip_type, equip_id) -> {stock flags selling it, game-wide}
 # Shop rows whose eventFlag_forRelease != 0: the merchant STOCKS them only after an unlock event (a bell
 # bearing handed to the Twin Maidens, a boss killed, an NPC quest advanced). 252 of 679 shop checks.
 # They stay CHECKS -- you get them once the stock appears -- but they may not carry PROGRESSION, because
@@ -1858,6 +1930,9 @@ if os.path.isfile(_SHOP_ROWS_TSV):
             if len(_p) < 9:
                 continue
             _flag = int(_p[5])
+            _wkey = (int(_p[2]), int(_p[3]))            # the ware ledger counts EVERY row (above)
+            SHOP_FLAG_ITEMS.setdefault(_flag, set()).add(_wkey)
+            SHOP_ITEM_FLAGS.setdefault(_wkey, set()).add(_flag)
             # RESERVED / EXCLUDED flags are excluded from `rows` on purpose, so they look "missing" to
             # the appender below and it would happily MINT them back -- which is worse than the bug it
             # fixes. In particular flag 60290 (ShopLineupParam row 101801, the Twin Maidens' Blue Cipher
@@ -2194,6 +2269,13 @@ print("not_randomized: %d deliberately-excluded region_map flags ledgered (%s)" 
     len(NOT_RANDOMIZED), ", ".join("%s=%d" % _kv for _kv in sorted(_nr_tally.items()))))
 
 spokes=sorted(k for k in buckets if k not in (HUB, _FINALE_REGION))
+# Every shop-row region must resolve to a region data.py actually EMITS (spokes + HUB): a future
+# label re-point that lands on a dissolved/renamed region must fail generation, not mint a phantom
+# region bucket or silently strand shop checks.
+_srr_bad = set(SHOP_ROW_REGION.values()) - set(spokes) - {HUB}
+if _srr_bad:
+    raise SystemExit(f"FATAL: shop-row region(s) {sorted(_srr_bad)} resolve to no emitted region "
+                     f"(REGIONS/spokes) -- fix REGION_MAP or shop_rows.tsv; refusing to guess")
 # The finale bucket must exist and hold EXACTLY the derived flags -- a silent shortfall here is a
 # check lost between derivation and emission (the disease this repo documents; count the join).
 _fin_locs = buckets.get(_FINALE_REGION, [])
@@ -2389,8 +2471,62 @@ _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
       f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
       f"{len(_SKIP_GRACE_FLAGS)} total skipped")
+# ---- GRACE-GROUND GATE (the Charo's kick class, 2026-07-15) -----------------------------------
+# A region lock force-lights its bundle; the kick-watch then judges the GROUND each grace stands
+# on. grace_ground.tsv (tools/datamine_grace_ground.py; MSB PlayArea volumes + PlayRegionParam
+# tile defaults, calibrated against the in-game Charo's measurement 76841 -> 6840000) says which
+# play-region bucket that ground is. A bundle grace standing on a bucket owned by a FOREIGN region
+# (not this region, not an ancestor in region_spine.REGION_PARENT) is a warp-into-a-kick: Charo's
+# lock lit 76841, the ground read 68400 = Cerulean, and the player bounced to the Roundtable.
+#   * such a grace is NOT force-lit (walk in and touch it -- reaching it on foot already required
+#     the owning region to be open, and region-open flags never re-seal);
+#   * a region whose ENTIRE overworld face is foreign ground DIES here: its front door would
+#     silently demote to a dungeon-interior grace, which is exactly how the Charo's mis-bucket
+#     would have hidden. Fix region_groups.PLAY_REGION_GROUPS (the bucket owner), not this gate.
+_GG_PATH = os.path.join(HERE, "grace_ground.tsv")
+if not os.path.isfile(_GG_PATH):
+    raise SystemExit("gen_data: greenfield/grace_ground.tsv is MISSING (it is tracked -- truncated "
+                     "checkout?). Regenerate: python tools/datamine_grace_ground.py --emit")
+_GRACE_GROUND = {}
+with open(_GG_PATH, encoding="utf-8") as _ggf:
+    for _ln in _ggf:
+        if _ln.startswith("#") or _ln.startswith("grace_flag"): continue
+        _c = _ln.rstrip("\n").split("\t")
+        if len(_c) >= 2 and _c[1] != "-":
+            _GRACE_GROUND[int(_c[0])] = tuple(int(_b) for _b in _c[1].split(";"))
+_GG_FLOOR = 200   # emit-time derived count is 285; a shrunken table silently blinds this gate
+if len(_GRACE_GROUND) < _GG_FLOOR:
+    raise SystemExit("gen_data: grace_ground.tsv derives ground for only %d graces (floor %d) -- "
+                     "it was regenerated without the MSBs. Re-run tools/datamine_grace_ground.py "
+                     "on a box with elden_ring_artifacts/map unpacked." % (len(_GRACE_GROUND), _GG_FLOOR))
+_BUCKET_OWNER = {_pid: _reg for _reg, _pids in PLAY_REGION_GROUPS.items() for _pid in _pids}
+# REGION_PARENT lives in the shipped package (eldenring/region_spine.py, which imports .data) --
+# load it as a real submodule so the gated-children ancestry can whitelist e.g. a Sewer grace
+# standing on Leyndell ground. Hand-copying the map here is how tables drift; import it.
+import sys as _rs_sys, types as _rs_types
+if "eldenring" not in _rs_sys.modules:
+    _rs_pkg = _rs_types.ModuleType("eldenring")
+    _rs_pkg.__path__ = [os.path.join(HERE, "eldenring")]
+    _rs_sys.modules["eldenring"] = _rs_pkg
+import importlib as _rs_importlib
+_REGION_PARENT = _rs_importlib.import_module("eldenring.region_spine").REGION_PARENT
+def _gg_allowed(_r):
+    _out = {_r}
+    while _r in _REGION_PARENT:
+        _r = _REGION_PARENT[_r]; _out.add(_r)
+    return _out
+def _gg_foreign(_fl, _reg):
+    """True iff EVERY derived ground bucket of grace _fl is owned by a region outside _reg's
+    ancestry. Underivable ground or an unassigned (permissive) bucket -> not provably foreign."""
+    _bks = _GRACE_GROUND.get(_fl)
+    if not _bks: return False
+    _owners = {_BUCKET_OWNER.get(_b) for _b in _bks}
+    if None in _owners: return False
+    return not (_owners & _gg_allowed(_reg))
+_foreign_ground_skipped = []
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
+_all_cand_ow = defaultdict(list)    # PRE-gate overworld candidates: the region's NATURAL front door
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
     if int(_fl) in _SKIP_GRACE_FLAGS: continue          # boss-gated / arena grace: never force-light
     # The grace's own play_region_id (grace_region_map = ground truth) IS its region: PLAY2AP now
@@ -2406,8 +2542,49 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
         if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
     if not _mj: _mj = _pref2maj.get(_map_pref(_tile))
     if _mj and _mj != HUB:
+        if _tile[:3] in ("m60", "m61"): _all_cand_ow[_mj].append(int(_fl))
+        if _gg_foreign(int(_fl), _mj):
+            _foreign_ground_skipped.append((int(_fl), _mj,
+                sorted({_BUCKET_OWNER[_b] for _b in _GRACE_GROUND[int(_fl)]})))
+            continue
         _open_cand[_mj].append(int(_fl))
         if _tile[:3] in ("m60", "m61"): _open_cand_ow[_mj].append(int(_fl))
+for _fl, _reg, _owners in sorted(_foreign_ground_skipped):
+    print(f"grace-ground gate: NOT force-lighting {_fl} ({_reg} bundle) -- it stands on ground "
+          f"owned by {_owners} (walk in; warping there with only the {_reg} lock is a kick)")
+# A region whose NATURAL front door (its numerically-first overworld grace, the one _front_door
+# would pick) stands on provably-foreign ground DIES here. Skipping it and letting the front door
+# slide to the next grace is how the Scaduview kick would RE-hide (2026-07-15): 76935 measured
+# foreign (Shadow Keep's 21000), and the next-lowest grace 76936 is UNDERIVABLE -- a permissive
+# unknown silently promoted to the region's front door. Foreign entrance ground has exactly two
+# honest fixes, both human decisions: the bucket OWNERSHIP is wrong (rebucket, the Charo's 68400
+# shape) or the region is entered THROUGH the owner (region_spine.REGION_PARENT containment, the
+# Scaduview shape).
+for _reg, _fls in sorted(_all_cand_ow.items()):
+    _nat = min(_fls)
+    if _gg_foreign(_nat, _reg):
+        raise SystemExit(
+            f"gen_data: GRACE-GROUND GATE -- {_reg!r}'s natural front-door grace {_nat} stands on "
+            f"ground owned by {sorted({_BUCKET_OWNER[_b] for _b in _GRACE_GROUND[_nat]})} "
+            f"(grace_ground.tsv). Refusing to demote the front door to the next grace. Fix the "
+            f"bucket owner in region_groups.PLAY_REGION_GROUPS (Charo's shape) or declare "
+            f"containment in region_spine.REGION_PARENT (Scaduview shape).")
+# A region whose whole OVERWORLD face was eaten by the gate = its bucket ownership is wrong in
+# region_groups.PLAY_REGION_GROUPS (the Charo's shape: front door on a sibling's bucket). Dying
+# beats silently demoting the front door to a dungeon-interior grace.
+_gg_regions_hit = {_reg for _fl, _reg, _own in _foreign_ground_skipped}
+for _reg in sorted(_gg_regions_hit):
+    _had_ow = any(_tile[:3] in ("m60", "m61") for _fl, _tile in gf.items()
+                  if int(_fl) not in _SKIP_GRACE_FLAGS
+                  and PLAY2AP.get(greg.get(_fl)) == _reg)
+    if _had_ow and not _open_cand_ow.get(_reg):
+        raise SystemExit(
+            f"gen_data: GRACE-GROUND GATE -- every overworld grace of {_reg!r} stands on ground "
+            f"owned by a DIFFERENT region ({sorted(o for f, r, ow in _foreign_ground_skipped if r == _reg for o in ow)}). "
+            f"Its lock would warp players straight into a kick (this is the Charo's 68400 bug). "
+            f"The bucket OWNERSHIP is wrong: fix region_groups.PLAY_REGION_GROUPS, then re-run "
+            f"tools/datamine_grace_ground.py --emit and regen.")
+
 # Front-door grace = an ACCESSIBLE OVERWORLD grace (m60/m61), NOT the numerically-lowest flag, which
 # is often a catacomb/cave INTERIOR grace the player can never see (e.g. Limgrave min was 73000 =
 # m30_00_00 catacomb -> "no graces in-game"). Serves as the region-open flag AND the start/front-door
@@ -2415,6 +2592,19 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
 def _front_door(r):
     return min(_open_cand_ow[r]) if _open_cand_ow.get(r) else min(_open_cand[r])
 REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
+for _r, _fd in REGION_OPEN_FLAGS.items():
+    if _gg_foreign(_fd, _r):
+        raise SystemExit(f"gen_data: GRACE-GROUND GATE -- {_r!r}'s front-door grace {_fd} stands on "
+                         f"foreign ground {_GRACE_GROUND.get(_fd)}. Fix region_groups.PLAY_REGION_GROUPS.")
+# An UNDERIVABLE front door is how the Scaduview kick (2026-07-15) hid from this gate: 76935 had no
+# volume and no tile row, the gate read 'not provably foreign' and force-lit it, and the ground
+# turned out to be Shadow Keep's 21000. Every such region is a named WATCH item in the gen log --
+# the first in-game kick line at that grace belongs in datamine_grace_ground.MEASURED_GROUND.
+_gg_watch = sorted(_r for _r, _fd in REGION_OPEN_FLAGS.items() if _fd not in _GRACE_GROUND)
+if _gg_watch:
+    print("grace-ground gate: WATCH -- front-door ground UNDERIVABLE (permissive, the Scaduview "
+          "class) for: " + ", ".join(f"{_r} ({REGION_OPEN_FLAGS[_r]})" for _r in _gg_watch)
+          + " -- an in-game kick at one of these graces means a MEASURED_GROUND row, not a mystery")
 # (The _DLC_OPEN_FALLBACK hand table is GONE. Every one of the 54 buckets has >= 1 grace, so with
 # PLAY2AP covering them all, every region's graces reach _open_cand and _front_door derives every
 # open flag -- REGION_OPEN_PENDING prints [] below and gen hard-fails if it ever does not. If a
@@ -3535,51 +3725,93 @@ for _ap2, _b in _ap_blk.items():
         _tags.append("ShopNonSpell"); _nonspell += 1
 _SPELL_SHOP_CHECKS = sum(_blk_tot[_b] for _b in _SPELL_VENDOR_BLOCKS)
 
-# ---- ShopSlot: ONE progression slot per MERCHANT (matt's model) -----------------------------------
-# Tagging all 395 non-spell shop rows progression-eligible lets merchants DOMINATE BY BREADTH: they
-# would be ~70% of the surface and the seed plays as "farm runes, buy the game". matt's randomizer
-# solves this by entering each MERCHANT in the pool ONCE, so a shop can hold at most one progression
-# item however big its stock is. Same idea here: exactly ONE representative row per merchant carries
-# the ShopSlot tag, so the cap is structural -- there is no fill rule to get wrong.
+# ---- ShopSlot: at most ONE progression slot per MERCHANT, pinned to a MERCHANT-UNIQUE ware --------
+# Tagging all non-spell shop rows progression-eligible lets merchants DOMINATE BY BREADTH (~70% of the
+# surface; the seed plays as "farm runes, buy the game"). matt's randomizer enters each MERCHANT in
+# the pool ONCE; same cap here, structurally: at most ONE row per merchant carries the ShopSlot tag,
+# so there is no fill rule to get wrong.
 #
-# MERCHANT = the ShopLineupParam 100-block. A block's rows can show up under two regions (the vendor's
-# own stall AND the Roundtable, because handing their Bell Bearing to the Twin Maidens mirrors that
-# vendor's stock there) -- same merchant, so they stay one block. Dedicated spell vendors are excluded
-# (>=50% spells). Representative = the block's lowest ap-id: deterministic, so generation stays a pure
-# function of its inputs.
-_merch_rows = defaultdict(list)
+# MERCHANT = the ShopLineupParam 100-block (shop_rows.tsv col 2; a check's block is its first shop
+# row's block, so a bell-bearing MIRROR row -- the same stock flag surfacing under a second block --
+# stays one merchant, one check). Dedicated spell vendors are excluded upstream (>=50% spells).
+#
+# WHICH row gets the pin (Alaric 2026-07-15): the merchant's one progression slot must be a ware the
+# player can hunt down WITHOUT ambiguity, so the pinned row must clear ALL THREE of:
+#   1. STOCKED FROM THE START -- eventFlag_forRelease == 0 (Alaric 2026-07-12: "we just need to make
+#      sure the progression_surface row at twin maiden husks is something that's there at the start").
+#      A release-gated row may never carry progression (SHOP_RELEASE_GATED_APS), so pinning one would
+#      be a dead pin: tagged eligible, barred in fill.
+#   2. MERCHANT-UNIQUE -- the ware ((equipType, equipId)) is sold under exactly ONE stock flag in the
+#      whole game (SHOP_ITEM_FLAGS, counted over every ShopLineupParam row -- gated, trade, spell,
+#      excluded rows included). "Buy the Nomadic Warrior's Cookbook [13]" names ONE merchant; "buy a
+#      Ruin Fragment" could name three. A ware sold by 2+ merchants is location-ambiguous, not a pin.
+#   3. REGION-CONFIDENT -- the check is not region-DEFAULTED (defaulted_aps: the merchant block's
+#      region label resolved through REGION_MAP; no HUB guess) and not erdtree-burn doomed. A
+#      DEFAULTED pin is barred from progression anyway (DEFAULTED_REGION_APS), so it too would be a
+#      dead pin. NB this predicate asserts RESOLUTION, not label TRUTH: a tsv label can still be
+#      humanly wrong (the Perfume Bottle merchant sits in Altus; the tsv says Liurnia) -- a wrong-but-
+#      resolving label still yields one consistent region for fill; fixing labels is the datamine's
+#      job (tools/datamine_shop_rows.py), not this pin's.
+# Representative = the LOWEST ap-id among the rows that clear all three (pure, deterministic -- a pure
+# function of the tsv + region inputs). A merchant with NO clearing row is SKIPPED -- LOUDLY, with the
+# reason, both here and in the generated SHOP_SLOT_SKIPS. Skipping is INTENDED (Enia stocks nothing at
+# start; some blocks sell nothing unique), so it is a WARNING, never an error -- but ZERO pins overall
+# would mean the inputs collapsed, and that IS an error (rule 2: empty result = failure).
+_merch_rows = defaultdict(list)               # non-spell merchant block -> its check ap-ids
 for _ap2, _b in _ap_blk.items():
     if _b not in _SPELL_VENDOR_BLOCKS:
         _merch_rows[_b].append(_ap2)
-#
-# ⭐ THE REPRESENTATIVE MUST BE A ROW THAT IS ACTUALLY ON THE SHELF. `min(aps)` picks the lowest ap-id in
-# the block, which knows nothing about eventFlag_forRelease -- so a merchant's ONE progression slot could
-# land on a row the merchant does not STOCK until a bell bearing is handed in or a boss dies. Alaric,
-# 2026-07-12: "more and more roundtable checks become available over progress. we just need to make sure
-# the progression_surface row at twin maiden husks is something that's there at the start."
-# So: choose the representative from the block's UNGATED rows, lowest ap-id among those (still a pure
-# deterministic function of the inputs). A block with NO ungated row gets NO progression slot at all --
-# which is exactly right for Enia (block 1015): all 49 of her rows are release-gated, several behind the
-# ENDGAME flag 9107, so she genuinely has nothing on the shelf to put a key item on.
 _gated_ap = set(shop_gated_aps)
+_def_ap = set(defaulted_aps)
+_burn_ap = set(erdtree_burn_aps)
+_ap2flag = {aid: fl for _reg, _locs in buckets.items() for (_nm, aid, fl) in _locs}
+
+
+def _ware_unique(_fl):
+    """This stock flag sells exactly one ware, and that ware is sold under no other flag game-wide."""
+    _items = SHOP_FLAG_ITEMS.get(_fl, set())
+    return len(_items) == 1 and SHOP_ITEM_FLAGS.get(next(iter(_items)), set()) == {_fl}
+
+
 _SHOP_SLOTS = {}
-_no_open_row = []
+_SHOP_SLOT_SKIPS = {}
 for _b, _aps2 in sorted(_merch_rows.items()):
     _open = [a for a in _aps2 if a not in _gated_ap]
     if not _open:
-        _no_open_row.append(_b)
-        continue                      # merchant stocks NOTHING until an unlock event -> no progression
-    _rep = min(_open)
+        _SHOP_SLOT_SKIPS[_b] = ("no start-stocked row: all %d of its rows are release-gated"
+                                % len(_aps2))
+        continue
+    _uniq = [a for a in _open if _ware_unique(_ap2flag[a])]
+    if not _uniq:
+        _SHOP_SLOT_SKIPS[_b] = ("no merchant-unique ware: every one of its %d start-stocked rows "
+                                "sells something also sold elsewhere" % len(_open))
+        continue
+    _conf = [a for a in _uniq if a not in _def_ap and a not in _burn_ap]
+    if not _conf:
+        _SHOP_SLOT_SKIPS[_b] = ("region unresolved: all %d of its unique-ware rows are region-"
+                                "DEFAULTED (or erdtree-burn doomed) -> barred from progression anyway"
+                                % len(_uniq))
+        continue
+    _rep = min(_conf)
     _SHOP_SLOTS[_b] = _rep
     _tags = loc_tags.setdefault(_rep, [])
     if "ShopSlot" not in _tags:
         _tags.append("ShopSlot")
-print(f"ShopSlot: {len(_SHOP_SLOTS)} merchants -> 1 progression slot each, each on a row the merchant "
-      f"STOCKS FROM THE START ({len(_merch_rows)} non-spell merchant block(s); "
-      f"{len(_SPELL_VENDOR_BLOCKS)} spell vendors excluded; "
-      f"{len(_no_open_row)} block(s) skipped -- every row release-gated: {_no_open_row})")
+print(f"ShopSlot: {len(_SHOP_SLOTS)} of {len(_merch_rows)} non-spell merchant block(s) pinned -- ONE "
+      f"merchant-unique, start-stocked, region-confident progression slot each; "
+      f"{len(_SHOP_SLOT_SKIPS)} block(s) SKIPPED; "
+      f"{len(_SPELL_VENDOR_BLOCKS)} spell vendor(s) excluded upstream")
+for _b in sorted(_SHOP_SLOTS):
+    print(f"  ShopSlot pinned block {_b}: ap {_SHOP_SLOTS[_b]} = {_ap_rawitem.get(_SHOP_SLOTS[_b], '?')!r}")
+for _b in sorted(_SHOP_SLOT_SKIPS):
+    print(f"[gen_data] WARNING: ShopSlot SKIPPED merchant block {_b} -- {_SHOP_SLOT_SKIPS[_b]}")
+if not _SHOP_SLOTS:
+    raise SystemExit("FATAL: ShopSlot pinned ZERO merchants -- the whole shop class fell off the "
+                     "progression surface; the uniqueness/region inputs must have collapsed "
+                     "(rule 2: an empty result is a FAILURE, not a clean run)")
 print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_BLOCKS)} dedicated "
       f"spell-vendor block(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchant blocks: {len(_blk_tot)}")
+
 
 # ---- MajorBoss tag: the REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked) ----
 # This is the high-confidence surface the v0.2 progression_surface restriction confines locks to.
@@ -3662,6 +3894,14 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose\n')
     f.write('# release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.\n')
     f.write('SHOP_RELEASE_GATED_APS = frozenset(' + repr(_shopgate) + ')\n')
+    f.write('\n# ShopSlot pins: merchant block (ShopLineupParam row id // 100) -> the ONE ap id that\n')
+    f.write('# carries the ShopSlot tag: the lowest ap among the block\'s start-stocked (release_flag\n')
+    f.write('# == 0), MERCHANT-UNIQUE-ware (sold under exactly one stock flag game-wide, so the\n')
+    f.write('# location is unambiguous), region-confident (not DEFAULTED) rows. Blocks with no such\n')
+    f.write('# row are in SHOP_SLOT_SKIPS with the reason -- skipping is INTENDED (the gen log carries\n')
+    f.write('# the same list as WARNINGs); an empty PINS dict is a gen_data FATAL.\n')
+    f.write('SHOP_SLOT_PINS = ' + repr(dict(sorted(_SHOP_SLOTS.items()))) + '\n')
+    f.write('SHOP_SLOT_SKIPS = ' + repr(dict(sorted(_SHOP_SLOT_SKIPS.items()))) + '\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
 print(f'location_tags: {len(_defaulted)} check(s) with a DEFAULTED region -> barred from progression')
 print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked at start) -> barred from progression')
@@ -3670,13 +3910,22 @@ print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked
 # ---- Phase 3b boss sweeps (2026-07-08 rework -- scope by boss CLASS). Placed AFTER location_tags so
 # the field filler-only cut sees the FULL tag set (GreatRune/KeyItem/Legendary added above). Triggers
 # come from the authoritative DisplayBossHealthBar set (tools/datamine_boss_healthbars.py ->
-# BOSS_HEALTHBARS); the trigger flag IS the boss entity id (== its defeat flag, SetEventFlagID(entity,
-# ON) on death). Member scope by class:
+# BOSS_HEALTHBARS). TRIGGER = the key = the boss's DEFEAT EVENT FLAG. 2026-07-15: "defeat flag ==
+# entity id" was an ASSUMPTION and is FALSE for 14 of 84 field bosses (night-class 03xx entities,
+# duo partners, Radahn/Fire Giant/Borealis 10->12-prefix flags) -- their sweeps could NEVER fire.
+# The datamine now derives field-boss keys from the EMEVD death events themselves. Member scope:
 #   legacy / interior (region majors)    -> REGION-WIDE + FILLER-ONLY (felling grants the region's
 #                                           filler; important-tagged checks are excluded)
 #   catacomb / cave / tunnel (m30/31/32) -> MAP-LOCAL     (only that dungeon map's own checks)
-#   field / overworld (m60)              -> OWN-TILE + FILLER-ONLY (checks on the boss's m60_XX_YY tile
-#                                           minus any important-tagged check)
+#   field / overworld (m60)              -> NEIGHBORHOOD + FILLER-ONLY (2026-07-15 widening): every
+#                                           overworld filler check within Chebyshev distance 2 of a
+#                                           field boss's tile goes to the NEAREST same-region field
+#                                           boss (tie -> lowest trigger). Own-tile-only left 18 of 85
+#                                           field bosses with EMPTY sweeps and a median of 4 members
+#                                           ("killed Ekzykes, nothing happened"); nearest-boss
+#                                           assignment keeps groups DISJOINT and region-consistent
+#                                           (distance ties split round-robin so same-tile pairs both
+#                                           get a share).
 # Recovered flag_prefix dungeon checks are swept map-locally, so a catacomb boss grants its whole
 # catacomb. Falls back to the pre-rework region-wide banner scan if BOSS_HEALTHBARS is unavailable.
 def _mp2(m):
@@ -3753,10 +4002,17 @@ DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
+    _field_bosses = []                      # (trigger flag, (xx, yy)) -- field pass below
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
         if _cls == "field":
-            _members = _filler_only(_mem_tile.get(_tile, []))
+            # Field sweeps are assigned in the NEIGHBORHOOD pass after this loop (nearest-boss,
+            # disjoint). A field entry without a decodable m60_XX_YY tile (the two 12-prefix
+            # Night's Cavalry entities datamined out of m60_48_55) gets no sweep -- same as before.
+            _ftm = re.match(r"^m60_(\d\d)_(\d\d)$", _tile or "")
+            if _ftm:
+                _field_bosses.append((_ent, (int(_ftm.group(1)), int(_ftm.group(2)))))
+            continue
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
@@ -3784,6 +4040,61 @@ if BOSS_HEALTHBARS:
         DUNGEON_SWEEPS[_ent] = _members
         SWEEP_REGION[_ent] = _sreg
         _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
+    # FIELD NEIGHBORHOOD pass (2026-07-15): a field boss used to sweep ONLY its own m60 tile's
+    # filler -- 18/85 field bosses got EMPTY sweeps (their tile has no non-important check) and the
+    # median sweep was 4 members, so in-game a field-boss kill felt like nothing. Now every
+    # overworld filler check is assigned to the NEAREST field boss (Chebyshev distance on the
+    # m60_XX_YY tile grid, cap 2 ~= a 5x5 tile neighborhood, tie -> lowest trigger flag), which
+    # keeps the old invariants by construction: groups are DISJOINT (each check assigned once;
+    # test_field_sweeps_are_disjoint), FILLER-ONLY (_filler_only cut unchanged), REGION-CONSISTENT
+    # (a check may only go to a boss whose sweep region matches the check's own region -- no wall
+    # leak; test_all_members_in_sweep_region), and members stay within distance 2 of the boss's
+    # tile (test_field_sweeps_are_local). A boss's sweep REGION = the majority region of the filler
+    # in the nearest non-empty ring around its tile (r=0, then 1, then 2) -- its own ground truth,
+    # so a boss on a region border sweeps only the side it actually stands in.
+    _tile_xy = {}
+    for _t in _mem_tile:
+        _txm = re.match(r"^m60_(\d\d)_(\d\d)$", _t)
+        if _txm:
+            _tile_xy[_t] = (int(_txm.group(1)), int(_txm.group(2)))
+    _freg = {}
+    for _trig, (_bx, _by) in _field_bosses:
+        for _ring in (0, 1, 2):
+            _votes = Counter()
+            for _t, (_x, _y) in _tile_xy.items():
+                if max(abs(_x - _bx), abs(_y - _by)) == _ring:
+                    for _a in _filler_only(_mem_tile[_t]):
+                        _r2 = _ap_region.get(_a)
+                        if _r2 and _r2 != HUB:
+                            _votes[_r2] += 1
+            if _votes:
+                _freg[_trig] = _votes.most_common(1)[0][0]
+                break
+    _fassign = defaultdict(list)
+    for _t in sorted(_tile_xy):
+        _x, _y = _tile_xy[_t]
+        for _a in _filler_only(_mem_tile[_t]):
+            if _a in _covered:
+                continue
+            _r2 = _ap_region.get(_a)
+            if not _r2 or _r2 == HUB:
+                continue
+            _cand = sorted((max(abs(_bx - _x), abs(_by - _y)), _trig)
+                           for _trig, (_bx, _by) in _field_bosses
+                           if _freg.get(_trig) == _r2
+                           and max(abs(_bx - _x), abs(_by - _y)) <= 2)
+            if not _cand:
+                continue
+            # All bosses TIED at the minimal distance split the tile round-robin (ap % n). Without
+            # this, two bosses sharing one tile (Deathbird + Night's Cavalry m60_44_32; Nox pair +
+            # Hugues m60_49_39) always resolved to the lower trigger and the other stayed EMPTY.
+            _tied = [_trig for _d, _trig in _cand if _d == _cand[0][0]]
+            _fassign[_tied[_a % len(_tied)]].append(_a)
+    for _trig in sorted(_fassign):
+        _mem = sorted(set(_fassign[_trig]))
+        DUNGEON_SWEEPS[_trig] = _mem
+        SWEEP_REGION[_trig] = _freg[_trig]
+        _covered.update(_mem)
     # Legacy DIVVY (2026-07-11): PARTITION a legacy region's filler round-robin among its legacy bosses
     # so no single boss kill dumps the whole region. Previously EVERY legacy boss swept the ENTIRE
     # region filler -- Farum's 91 checks granted in full by each of Godskin Duo / Placidusax / Maliketh
@@ -3828,8 +4139,8 @@ else:
 
 OUT_SWEEP = os.path.join(HERE, "eldenring", "boss_sweeps.py")
 with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
-    f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Boss sweeps: defeat flag (boss entity id) ->\n')
-    f.write('member check ap-ids + region. Scope by class: legacy=region-wide+filler-only, catacomb/cave/tunnel=map-local, field=own-tile+filler-only. Matt-free. Needs a client flag-watch handler."""\n')
+    f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Boss sweeps: defeat event flag (EMEVD-derived; NOT always the entity id) ->\n')
+    f.write('member check ap-ids + region. Scope by class: legacy=region-divvy+filler-only, catacomb/cave/tunnel=map-local, field=nearest-boss neighborhood (Chebyshev<=2)+filler-only. Matt-free. Needs a client flag-watch handler."""\n')
     f.write("DUNGEON_SWEEPS = {\n")
     for _fl in sorted(DUNGEON_SWEEPS):
         f.write(f"    {_fl}: {DUNGEON_SWEEPS[_fl]},\n")

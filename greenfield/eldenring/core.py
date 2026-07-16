@@ -776,8 +776,11 @@ class GreenfieldEldenRingWorld(World):
         # regression to spine-order scaling even though the wire was fill-sphere correct.)
         region_sphere = _sc._region_fill_spheres(self)
         if region_sphere:
-            region_target = _sc._targets_from_spheres(region_sphere)
-            basis = "fill-sphere"
+            # the same computation the wire uses: fill spheres -> total topological order with
+            # seed-deterministic tie-breaks -> position ramp (features/scaling.py, ORDER RAMP).
+            order = _sc._order_from_spheres(region_sphere, _sc._order_rng(self))
+            region_target = _sc._targets_from_order(order)
+            basis = "fill-sphere order ramp"
         else:
             triples = _sc.sphere_target_ranges(kept)
             pid_target = {lo: t for (lo, _hi, t) in triples}

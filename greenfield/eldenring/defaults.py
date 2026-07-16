@@ -66,6 +66,8 @@ FROZEN_OPTIONS = {
     "start_with_torch": (1, None),
     "start_with_flasks": (1, None),
     "start_with_steed": (1, None),
+    "start_with_bell": (1, None),      # unique-grant path: flag 60110 latch, skip-if-owned
+    "start_with_physick": (1, None),   # unique-grant path: flag 60020 latch, skip-if-owned
     "start_with_region_lock": (1, None),
     "reveal_all_maps": (1, None),
     "no_weapon_requirements": (1, None),
@@ -79,33 +81,21 @@ FROZEN_OPTIONS = {
     # this surface -- it decides the whole pool economy. Its v0.2 default lives on the option class
     # (features/filler_curation.CuratedFiller.default), so a yaml that never mentions it still gets a
     # real economy. Same treatment as progression_surface.
-    # NOT half-built any more. One "Progressive Flask Upgrade" item replaces every Golden Seed and
-    # Sacred Tear check one-for-one; the Kth copy grants a seed or a tear on an interleaved schedule,
-    # and the player still pays the game's OWN escalating price at the grace -- so the "later pickups
-    # buy less" curve is inherited from vanilla, and Sacred Tears (13 in the whole game, flat +1 each,
-    # so they arrive rarely and never form a curve) finally move on a visible cadence. Zero client
-    # churn: progressiveGrants already supports per-rung goods, and overflow copies already fall
-    # through to a Lord's Rune. -- Alaric 2026-07-11
-    # ⛔ FROZEN OFF AGAIN (2026-07-12) -- the unified flask ladder BRICKS THE GAME.
+    # progressive_flasks is deliberately NOT frozen any more (un-frozen 2026-07-15). It was frozen
+    # OFF on 2026-07-12 because the unified flask ladder BRICKED THE GAME: er-logic reconcile.rs
+    # folded a progressive item's tier goods into `unique_goods` -- a SELF-HEALING "the player should
+    # OWN this" set, correct for the stone bell bearings the tier system was built for, catastrophic
+    # for a CONSUMABLE. A Golden Seed / Sacred Tear is SPENT at the grace, so the reconciler saw it
+    # missing and handed it back: upgrade, re-grant, upgrade, re-grant -- unbounded, until flask
+    # potency ran past its cap and the game CTD'd (Alaric, live playtest 2026-07-12).
     #
-    # er-logic reconcile.rs folds a progressive item's tier goods into `unique_goods`: a SELF-HEALING
-    # set meaning "the player should OWN this; if it is missing, grant it". That is correct for the
-    # stone BELL BEARINGS the tier system was built for -- a bell bearing is a key item you keep.
-    #
-    # It is catastrophically wrong for a CONSUMABLE. A Golden Seed / Sacred Tear is SPENT at the grace;
-    # the moment it leaves the inventory the reconciler sees it missing and re-grants it. Upgrade,
-    # re-grant, upgrade, re-grant -- unbounded flask upgrades until the potency runs past its cap and
-    # the game CTDs. (Alaric, live playtest 2026-07-12: "sat down at grace, upgraded. still had the
-    # option to upgrade so kept going. kept going until game CTD'ed".)
-    #
-    # Note reconcile.rs already has the right mechanism three lines below: OVERFLOW copies go to
-    # `d.ledgered`, keyed by the copy's stream index, so they are granted exactly ONCE. The TIER path
-    # never got it, because until now no tier ever granted a consumable.
-    #
-    # The ladder itself is sound and stays in features/progressive.py. Re-enable ONLY when the client
-    # can express "this tier's goods are CONSUMED, not owned" -- i.e. tier grants routed through the
-    # ledger. Until then a seed must not ship an item that eats the player's run.
-    "progressive_flasks": (0, None),
+    # FIXED client-side (from-software-archipelago-clients bb418fd, merged 85d500f): every rung now
+    # declares `consumed` (contract.py NESTED_GRANTS -- REQUIRED bool), and reconcile.rs routes a
+    # consumed rung's goods through `d.ledgered` keyed by the copy's stream index -- granted exactly
+    # ONCE, exactly like overflow -- while owned rungs (bell bearings) keep the unique_goods
+    # self-heal. Proven by the er-logic reconcile suite (consumed_tier_grants_once_and_stays_spent_
+    # after_consumption and friends). The option is now a REAL yaml toggle, default ON, declared on
+    # features/progressive.ProgressiveFlasks -- the intended flask economy for v0.2.
     "dungeon_sweep": (2, "all"),
     # NOT half-built -- finished on BOTH sides, so it ships at its declared default (2 = scaled), not
     # off. gen has DLC_BLESSING_FLOORS and emits dlcScadutreeFloorRanges (only when this == 2); the

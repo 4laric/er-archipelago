@@ -71,14 +71,11 @@ def test_cost_tables_match_tools():
 
 
 # ---- the ladder itself -------------------------------------------------------------------------
-# ⛔ The feature is FROZEN OFF (defaults.py) because it BRICKS THE GAME -- see test_option_is_frozen_off
-# below for the mechanism. The world-level cases cannot be constructed while it is off (the option is
-# filtered out of GFOptions), so they are skipped rather than deleted: the ladder is sound and this
-# suite is what proves it, the moment the client can grant a tier's goods as CONSUMED rather than OWNED.
-@pytest.mark.skip(reason="progressive_flasks is FROZEN OFF: reconcile.rs re-grants tier goods (they go "
-                         "to unique_goods, a self-healing OWN set), so a spent Golden Seed / Sacred Tear "
-                         "is handed back -> unbounded flask upgrades -> CTD. Un-skip when tier grants are "
-                         "ledgered.")
+# RE-ENABLED 2026-07-15. This suite sat @skip while the feature was FROZEN OFF (2026-07-12 -> 15):
+# reconcile.rs folded tier goods into unique_goods (self-healing OWN set), so a spent Golden Seed /
+# Sacred Tear was handed straight back -> unbounded flask upgrades -> CTD. The client now routes a
+# `consumed` rung through the grant-once ledger (bb418fd; er-logic reconcile suite:
+# consumed_tier_grants_once_and_stays_spent_after_consumption), so the ladder ships -- default ON.
 class ProgressiveFlaskLadder(WorldTestBase):
     game = GAME
     options = {"progressive_flasks": True, "enable_dlc": True, "num_regions": 0}
@@ -183,31 +180,47 @@ class ProgressiveFlaskLadder(WorldTestBase):
                            f"({len(ladder)}) -- the surplus rides the client's Lord's Rune overflow")
 
 
-def test_option_is_frozen_off():
-    """It BRICKS THE GAME. This test is the tripwire on turning it back on.
+def test_option_is_a_real_toggle_default_on():
+    """The tripwire, inverted (2026-07-15). Its previous body pinned progressive_flasks FROZEN OFF,
+    because shipping the ladder bricked the game: reconcile.rs folded tier goods into `unique_goods`
+    (a SELF-HEALING own-set -- right for bell bearings, catastrophic for a spendable Golden Seed /
+    Sacred Tear), so every spend was healed back -> unbounded flask upgrades -> CTD (Alaric, live
+    playtest 2026-07-12).
 
-    er-logic reconcile.rs folds a progressive item's TIER goods into `unique_goods` -- a SELF-HEALING
-    set meaning "the player should OWN this; if it is missing, grant it". Correct for the stone BELL
-    BEARINGS the tier system was built for (a bell bearing is a key item you keep forever). Wrong, and
-    dangerous, for a CONSUMABLE: a Golden Seed / Sacred Tear is SPENT at the grace, so the instant it
-    leaves the inventory the reconciler hands it back. Upgrade -> re-grant -> upgrade -> re-grant, until
-    the flask runs past its cap and the game crashes.
-
-    Alaric, live playtest 2026-07-12: "sat down at grace, upgraded. still had the option to upgrade so
-    kept going. kept going until game CTD'ed."
-
-    reconcile.rs already HAS the right mechanism a few lines below -- overflow copies go to `d.ledgered`
-    keyed by the copy's stream index, so they land exactly once. The tier path never got it, because no
-    tier had ever granted a consumable before this one.
-
-    So: do not flip this tuple to (1, None) until a tier can say "my goods are CONSUMED, not owned".
-    The ladder itself (flask_ladder) is sound and stays -- the tests above prove it and un-skip with it.
+    The client fix landed (bb418fd): a rung declaring `consumed: true` is granted exactly ONCE via
+    the ledger, keyed by the copy's stream index; owned rungs keep self-healing. With the mechanism
+    proven host-side (er-logic reconcile suite), the option is a REAL yaml toggle again and the
+    ladder is the default flask economy. This test now guards THAT: un-freezing must not regress to
+    frozen, and the default must stay ON -- flipping either silently reverts the intended economy.
     """
     from worlds.eldenring import defaults
-    assert defaults.FROZEN_OPTIONS["progressive_flasks"] == (0, None), (
-        "progressive_flasks must stay OFF until reconcile.rs can grant a tier's goods as CONSUMED "
-        "(ledgered once) rather than OWNED (self-healing). Turning it on re-grants spent flask "
-        "upgrade items forever and CTDs the game.")
+    from worlds.eldenring.features.progressive import ProgressiveFlasks
+    assert "progressive_flasks" not in defaults.FROZEN_OPTIONS, (
+        "progressive_flasks went back into FROZEN_OPTIONS -- it is supposed to be a real yaml "
+        "toggle now that consumed tier grants are ledgered client-side (bb418fd)")
+    assert ProgressiveFlasks.default == 1, (
+        "progressive_flasks must default ON: the unified ladder is the intended v0.2 flask economy")
+
+
+class ProgressiveFlasksOff(WorldTestBase):
+    """The toggle's OFF half: seeds and tears stay discrete vanilla pickups, no progressive copies.
+    Guards that default-ON did not quietly delete the off-path (CONTRIBUTING: a toggle is only a
+    toggle if both positions are exercised)."""
+    game = GAME
+    options = {"progressive_flasks": False, "enable_dlc": True, "num_regions": 0}
+
+    def test_vanilla_seeds_and_tears_stay_discrete(self):
+        names = world_item_names(self)
+        self.assertEqual(names.count(pg.PROG_FLASK), 0,
+                         "progressive copies in the pool with the toggle OFF")
+        for vanilla in pg.VANILLA_FLASK_ITEMS:
+            self.assertGreater(names.count(vanilla), 0,
+                               f"{vanilla} missing from the pool with progressive_flasks off")
+
+    def test_slot_data_emits_no_flask_ladder(self):
+        sd = self.world.fill_slot_data()
+        self.assertNotIn(pg.PROG_FLASK, sd[contract.PROGRESSIVE_GRANTS],
+                         "no flask ladder may be emitted when the toggle is off")
 
 
 # ---- the CTD, as a contract invariant ----------------------------------------------------------

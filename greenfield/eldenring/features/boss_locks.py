@@ -33,7 +33,8 @@ except Exception:
 
 
 def _hb_class(fl):
-    """Boss class for a sweep trigger flag (entity id) from the DisplayBossHealthBar datamine;
+    """Boss class for a sweep trigger flag (the boss's defeat event flag; for interior classes this
+    is the entity id, for field bosses the EMEVD-derived flag) from the DisplayBossHealthBar datamine;
     default 'legacy' (region major -> stays key-gated) when unknown, so the exemption is conservative."""
     info = BOSS_HEALTHBARS.get(int(fl))
     return info[2] if info else "legacy"
