@@ -247,6 +247,43 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Sewer',
  'm22':'Stone Coffin','m28':'Abyssal'}
 
+# ---- SHOP-ROW REGION GROUND TRUTH (shop_rows.tsv col 9, tools/datamine_shop_rows.py) --------------
+# The merchant-block region of every derivable shop stock flag, normalized through REGION_MAP -- the
+# SAME normalization every other region label goes through. Built HERE (before region_of's first
+# call site, the interior map-prefix vote loop) because region_of consults it: for a check whose
+# ONLY source is a merchant (flag_source == 'shop'), the merchant block's region IS the check's
+# region. Before this table those checks took their region from an emevd nearest-neighbour TILE
+# SCAN (Cookbook [17]'s flag 67100 scanned to a Liurnia tile; its merchant sits in Siofra River) or
+# defaulted to the HUB (method shop_multi, 'Multiple merchants (various regions)': 130+ checks
+# parked at Roundtable). A flag sold in SEVERAL regions keeps the lexicographically FIRST: every
+# listed region genuinely stocks the row, so any single claim is sound (region open => purchasable
+# there); first = deterministic. GUARD (fail-loud): a non-empty region label that REGION_MAP does
+# not know is a SystemExit, never a silent HUB default -- a new/renamed label in shop_rows.tsv must
+# be taught to the alias table, not fall through to a guess.
+SHOP_ROW_REGION = {}
+_srr_path = os.path.join(HERE, "shop_rows.tsv")
+if os.path.isfile(_srr_path):
+    _srr_multi = {}
+    with open(_srr_path, encoding="utf-8") as _srf:
+        for _srl in _srf:
+            if _srl.startswith("#") or _srl.startswith("row_id"):
+                continue
+            _srp = _srl.rstrip("\n").split("\t")
+            if len(_srp) < 9:
+                continue
+            _srlabel = _srp[8].strip()
+            if not _srlabel:
+                continue
+            if _srlabel not in REGION_MAP:
+                raise SystemExit(
+                    f"FATAL: shop_rows.tsv row {_srp[0]}: region label {_srlabel!r} is not in "
+                    f"REGION_MAP -- teach the alias table the new label; refusing to guess")
+            _srr_multi.setdefault(int(_srp[5]), set()).add(REGION_MAP[_srlabel])
+    SHOP_ROW_REGION = {_f: sorted(_rs)[0] for _f, _rs in sorted(_srr_multi.items())}
+    _srr_n_multi = sum(1 for _rs in _srr_multi.values() if len(_rs) > 1)
+    print(f"shop-row regions: {len(SHOP_ROW_REGION)} stock flags carry a merchant-block region "
+          f"({_srr_n_multi} multi-region flag(s) kept their lexicographic-first region)")
+
 
 def _overworld_tile_of(r):
     r"""The FINE overworld tile (xx, yy) for an 'Overworld m60_..' row, or None.
@@ -317,6 +354,10 @@ def _region_is_derived(r):
     real place ('shop_merchant -> Caelid', 'boss_arena -> Stormveil Castle') and are derived; only the
     placeholder regions above are not."""
     reg=r['region']; meth=r['method']
+    try: _srfl = int(r.get('flag'))
+    except (TypeError, ValueError): _srfl = None
+    if _srfl is not None and r.get('flag_source') == 'shop' and _srfl in SHOP_ROW_REGION:
+        return True                            # merchant-block region (SHOP_ROW_REGION) = DERIVED
     if reg.startswith('Overworld m60'):
         t = _overworld_tile_of(r)              # flag-decode first; LOD-suffixed guesses return None
         return bool(t) and tile_pr(*t) in PLAY2AP
@@ -1705,6 +1746,14 @@ def region_of(r):
         return GESTURE_REGION[_ovfl]
     if _ovfl is not None and _ovfl in FLAG_REGION_OVERRIDE:
         return FLAG_REGION_OVERRIDE[_ovfl]
+    # SHOP-ROW GROUND TRUTH: a check whose ONLY source is a merchant (flag_source == 'shop') takes
+    # the merchant block's region (SHOP_ROW_REGION, from shop_rows.tsv through REGION_MAP). Beats
+    # every scan path below: the emevd nearest-neighbour tile and the shop_multi HUB default were
+    # both guesses about where a MERCHANT stands, and the block datamine answers that directly.
+    # map_lot rows keep their world-source region (the lot placement is the primary site; the
+    # merchant slot is still rewritten via DERIVED_SHOP_FLAGS / SHOP_ROW_IDS regardless).
+    if _ovfl is not None and r.get('flag_source') == 'shop' and _ovfl in SHOP_ROW_REGION:
+        return SHOP_ROW_REGION[_ovfl]
     # GROUND TRUTH (MSB/param datamine) beats the row's scanned map. Resolved through gen_data's OWN
     # map->region tables (NOT the grace join), so the grace-join oracle stays an INDEPENDENT check.
     _gtm = MSB_TRUTH_MAP.get(_ovfl) if _ovfl is not None else None
@@ -2210,6 +2259,13 @@ print("not_randomized: %d deliberately-excluded region_map flags ledgered (%s)" 
     len(NOT_RANDOMIZED), ", ".join("%s=%d" % _kv for _kv in sorted(_nr_tally.items()))))
 
 spokes=sorted(k for k in buckets if k not in (HUB, _FINALE_REGION))
+# Every shop-row region must resolve to a region data.py actually EMITS (spokes + HUB): a future
+# label re-point that lands on a dissolved/renamed region must fail generation, not mint a phantom
+# region bucket or silently strand shop checks.
+_srr_bad = set(SHOP_ROW_REGION.values()) - set(spokes) - {HUB}
+if _srr_bad:
+    raise SystemExit(f"FATAL: shop-row region(s) {sorted(_srr_bad)} resolve to no emitted region "
+                     f"(REGIONS/spokes) -- fix REGION_MAP or shop_rows.tsv; refusing to guess")
 # The finale bucket must exist and hold EXACTLY the derived flags -- a silent shortfall here is a
 # check lost between derivation and emission (the disease this repo documents; count the join).
 _fin_locs = buckets.get(_FINALE_REGION, [])
