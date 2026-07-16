@@ -148,6 +148,13 @@ Elden Ring:
     - Revered
     - ShopSlot
 
+  # In a MULTIWORLD, confine OTHER players' progression to your progression_surface
+  # too -- so a foreign key item lands on one of your major-boss / key-item / etc.
+  # checks, never on a random filler pickup. On by default. Off = foreign
+  # progression scatters across any reachable check of yours (standard AP). No
+  # effect in a solo seed. Never blocks generation.
+  confine_foreign_progression: true
+
   # RESERVED. The option exists but is INERT in v0.2 -- shop checks are assumed
   # reachable regardless of what you set here. Left in place so seeds stay
   # forward-compatible; see KNOWN-ISSUES.md. Leave it alone.

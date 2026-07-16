@@ -159,6 +159,21 @@ def test_restricted_progression_predicate():
     assert not ps.is_restricted_progression(_FakeItem("Limgrave Lock", P + 1, True), P)
 
 
+def test_foreign_advancement_barred_predicate():
+    """confine_foreign_progression bars OTHER players' advancement from our non-surface checks; our own
+    items (any) and any non-advancement item pass. This is the predicate core._add_locations uses as
+    `not foreign_advancement_barred(item, self.player)`."""
+    P = 3
+    # a foreign world's advancement item -> barred from our filler checks
+    assert ps.foreign_advancement_barred(_FakeItem("Mothwing_Cloak", P + 1, True), P)
+    # our OWN advancement is NOT barred here -- apply()'s spill/ladder valve must stay open
+    assert not ps.foreign_advancement_barred(_FakeItem("Limgrave Lock", P, True), P)
+    # foreign FILLER/useful is fine on our filler checks (only progression is confined)
+    assert not ps.foreign_advancement_barred(_FakeItem("Geo", P + 1, False), P)
+    # our own filler, trivially fine
+    assert not ps.foreign_advancement_barred(_FakeItem("Rune", P, False), P)
+
+
 # ---- allowed-surface computation over synthetic tags --------------------------------------------
 def test_allowed_ap_ids_synthetic():
     tags = {1: ["MajorBoss", "Remembrance"], 2: ["Remembrance"], 3: ["Shop"],

@@ -604,6 +604,10 @@ class GreenfieldEldenRingWorld(World):
         _barred = _NO_PROGRESSION_APS
         if getattr(self, "gf_capital_reconciler", False):
             _barred = _barred - frozenset(ERDTREE_BURN_APS)
+        # confine_foreign_progression (progression_surface): the surface ap-ids that MAY host another
+        # player's advancement. None => feature off. Non-surface locations get a foreign-advancement bar
+        # below. Computed once in create_regions (self._foreign_confine_surface).
+        _fsurf = getattr(self, "_foreign_confine_surface", None)
         for (name, ap_id, _flag) in LOCATIONS.get(region_name, []):
             _loc = GFLocation(self.player, name, ap_id, region)
             if ap_id in _barred:
@@ -623,9 +627,31 @@ class GreenfieldEldenRingWorld(World):
                 # they just cannot be something the seed REQUIRES. (Alaric, playtest 2026-07-11.)
                 _prev = _loc.item_rule
                 _loc.item_rule = lambda item, _p=_prev: (not item.advancement) and _p(item)
+            elif _fsurf is not None and ap_id not in _fsurf:
+                # confine_foreign_progression ON: this is one of our FILLER (non-surface) checks, so bar
+                # OTHER players' advancement from it -- foreign progression is thereby confined to our
+                # surface (the same checks our own region Locks use). Our OWN advancement may still land
+                # here: apply() already confined it, and its ladder/spill safety valve must stay open, so
+                # a spilled own Lock is never stranded. Only foreign advancement is refused; foreign
+                # useful/filler and everything of ours still fits.
+                _prev = _loc.item_rule
+                _fb = self._foreign_barred_fn
+                _loc.item_rule = lambda item, _p=_prev, _pl=self.player, _fbf=_fb: (
+                    not _fbf(item, _pl)) and _p(item)
             region.locations.append(_loc)
 
     def create_regions(self) -> None:
+        # confine_foreign_progression: resolve the surface ap-id set ONCE (None => feature off) so every
+        # _add_locations call bars foreign advancement on the same non-surface checks. Must precede the
+        # location loop below.
+        try:
+            from .features.progression_surface import (confined_surface_ids as _confined_surface_ids,
+                                                       foreign_advancement_barred as _foreign_barred_fn)
+            self._foreign_confine_surface = _confined_surface_ids(self)
+            self._foreign_barred_fn = _foreign_barred_fn
+        except Exception:
+            self._foreign_confine_surface = None
+            self._foreign_barred_fn = None
         menu = Region("Menu", self.player, self.multiworld)
         hub = Region(HUB, self.player, self.multiworld)
         self.multiworld.regions += [menu, hub]

@@ -29,7 +29,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import OptionSet, Choice
+from Options import OptionSet, Choice, DefaultOnToggle
 from ..registry import Feature, register
 from .. import contract
 
@@ -92,6 +92,22 @@ class ProgressionSurfaceMode(Choice):
     option_soft = 1
     option_strict = 2
     default = 2
+
+
+class ConfineForeignProgression(DefaultOnToggle):
+    """Confine OTHER players' progression to your Progression Surface too, not just your own.
+
+    ON (default): in a multiworld, another world's advancement items may only be placed on your
+    surface locations -- the same high-confidence checks your own region Locks use -- never on your
+    filler checks. So a foreign key spell lands on a major-boss/remembrance/key-item check of yours,
+    not on a random Smithing Stone pickup. OFF: foreign progression scatters across any reachable
+    location of yours, which is standard Archipelago behaviour.
+
+    No effect in a solo seed, or when Progression Surface Mode is off. It never blocks generation:
+    your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign progression
+    that will not fit your surface simply lands in its own world instead (only YOUR filler checks are
+    barred to it -- other worlds are untouched)."""
+    display_name = "Confine Foreign Progression"
 
 
 # ---- pure, host-testable helpers (no AP import; unit-tested with synthetic tags) ------------------
@@ -157,6 +173,14 @@ def is_restricted_progression(item, player):
     return not str(getattr(item, "name", "")).startswith(_BOSS_KEY_PREFIX)
 
 
+def foreign_advancement_barred(item, player):
+    """True iff `item` is ANOTHER player's advancement item -- the thing confine_foreign_progression
+    keeps off this world's non-surface (filler) checks. Our OWN items (any classification) and any
+    non-advancement item pass. Pure over an item-like with .player/.advancement. The core item_rule on
+    a non-surface location is `not foreign_advancement_barred(item, self.player)`."""
+    return bool(getattr(item, "advancement", False)) and getattr(item, "player", None) != player
+
+
 def lock_region_name(item_name):
     """'Limgrave Lock' -> 'Limgrave'; None for a non-lock name. Pure."""
     s = str(item_name)
@@ -195,6 +219,22 @@ def _selection(world):
 def _mode(world):
     o = getattr(world.options, "progression_surface_mode", None)
     return int(o.value) if o is not None else 0
+
+
+def confined_surface_ids(world):
+    """The ap-ids of THIS world that MAY host foreign progression, when confine_foreign_progression is
+    on -- i.e. the selected surface. Core bars other players' advancement on every own location whose
+    ap-id is NOT in this set, confining foreign progression to the same checks the own region Locks use.
+    Returns None when the feature is inactive (option off, surface mode off, empty surface, or tags not
+    generated), meaning 'apply no foreign bar'. Uses the SAME surface resolution as apply()/slot_data(),
+    so where foreign progression may land and where own progression is placed can never disagree."""
+    o = getattr(world.options, "confine_foreign_progression", None)
+    if o is None or not int(getattr(o, "value", 0)) or _mode(world) == 0 or not LOCATION_TAGS:
+        return None
+    classes = selected_surface(_selection(world))
+    if not classes:
+        return None
+    return allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
 
 
 def _restricted_items(world):
@@ -400,8 +440,10 @@ def audit_reachable(world) -> None:
 class ProgressionSurfaceFeature(Feature):
     name = "progression_surface"
     OPTIONS = {"progression_surface": ProgressionSurface,
-               "progression_surface_mode": ProgressionSurfaceMode}
+               "progression_surface_mode": ProgressionSurfaceMode,
+               "confine_foreign_progression": ConfineForeignProgression}
     # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
+    # The foreign-progression bar is set in core._add_locations (item_rule), using confined_surface_ids.
 
     def slot_data(self, world):
         """Ship the surface to the CLIENT. This is the set the tracker stars.
