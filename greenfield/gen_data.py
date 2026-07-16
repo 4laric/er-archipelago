@@ -1906,6 +1906,13 @@ print(f"item-existence guard: dropped {len(_ITEMLESS_DROPPED)} check(s) whose lo
 # selling the vanilla item.
 _SHOP_ROWS_TSV = os.path.join(HERE, "shop_rows.tsv")
 DERIVED_SHOP_FLAGS = set()          # every detectable stock flag -- the SHOP_ROW_FLAGS gate
+# Merchant-unique WARE ledger (feeds the ShopSlot pin, far below). A ware's identity across the whole
+# ShopLineupParam is its (equipType, equipId) pair. Counted over EVERY tsv row -- release-gated,
+# value==0 trade, spell-vendor, even minibaker/excluded rows -- because ambiguity is measured against
+# everywhere the player can BUY the item, not just where we mint checks. A ware sold under exactly
+# ONE stock flag is location-unambiguous: wherever you buy it, the same check fires.
+SHOP_FLAG_ITEMS = {}                # stock flag -> {(equip_type, equip_id) sold under it}
+SHOP_ITEM_FLAGS = {}                # (equip_type, equip_id) -> {stock flags selling it, game-wide}
 # Shop rows whose eventFlag_forRelease != 0: the merchant STOCKS them only after an unlock event (a bell
 # bearing handed to the Twin Maidens, a boss killed, an NPC quest advanced). 252 of 679 shop checks.
 # They stay CHECKS -- you get them once the stock appears -- but they may not carry PROGRESSION, because
@@ -1923,6 +1930,9 @@ if os.path.isfile(_SHOP_ROWS_TSV):
             if len(_p) < 9:
                 continue
             _flag = int(_p[5])
+            _wkey = (int(_p[2]), int(_p[3]))            # the ware ledger counts EVERY row (above)
+            SHOP_FLAG_ITEMS.setdefault(_flag, set()).add(_wkey)
+            SHOP_ITEM_FLAGS.setdefault(_wkey, set()).add(_flag)
             # RESERVED / EXCLUDED flags are excluded from `rows` on purpose, so they look "missing" to
             # the appender below and it would happily MINT them back -- which is worse than the bug it
             # fixes. In particular flag 60290 (ShopLineupParam row 101801, the Twin Maidens' Blue Cipher
@@ -3667,51 +3677,93 @@ for _ap2, _b in _ap_blk.items():
         _tags.append("ShopNonSpell"); _nonspell += 1
 _SPELL_SHOP_CHECKS = sum(_blk_tot[_b] for _b in _SPELL_VENDOR_BLOCKS)
 
-# ---- ShopSlot: ONE progression slot per MERCHANT (matt's model) -----------------------------------
-# Tagging all 395 non-spell shop rows progression-eligible lets merchants DOMINATE BY BREADTH: they
-# would be ~70% of the surface and the seed plays as "farm runes, buy the game". matt's randomizer
-# solves this by entering each MERCHANT in the pool ONCE, so a shop can hold at most one progression
-# item however big its stock is. Same idea here: exactly ONE representative row per merchant carries
-# the ShopSlot tag, so the cap is structural -- there is no fill rule to get wrong.
+# ---- ShopSlot: at most ONE progression slot per MERCHANT, pinned to a MERCHANT-UNIQUE ware --------
+# Tagging all non-spell shop rows progression-eligible lets merchants DOMINATE BY BREADTH (~70% of the
+# surface; the seed plays as "farm runes, buy the game"). matt's randomizer enters each MERCHANT in
+# the pool ONCE; same cap here, structurally: at most ONE row per merchant carries the ShopSlot tag,
+# so there is no fill rule to get wrong.
 #
-# MERCHANT = the ShopLineupParam 100-block. A block's rows can show up under two regions (the vendor's
-# own stall AND the Roundtable, because handing their Bell Bearing to the Twin Maidens mirrors that
-# vendor's stock there) -- same merchant, so they stay one block. Dedicated spell vendors are excluded
-# (>=50% spells). Representative = the block's lowest ap-id: deterministic, so generation stays a pure
-# function of its inputs.
-_merch_rows = defaultdict(list)
+# MERCHANT = the ShopLineupParam 100-block (shop_rows.tsv col 2; a check's block is its first shop
+# row's block, so a bell-bearing MIRROR row -- the same stock flag surfacing under a second block --
+# stays one merchant, one check). Dedicated spell vendors are excluded upstream (>=50% spells).
+#
+# WHICH row gets the pin (Alaric 2026-07-15): the merchant's one progression slot must be a ware the
+# player can hunt down WITHOUT ambiguity, so the pinned row must clear ALL THREE of:
+#   1. STOCKED FROM THE START -- eventFlag_forRelease == 0 (Alaric 2026-07-12: "we just need to make
+#      sure the progression_surface row at twin maiden husks is something that's there at the start").
+#      A release-gated row may never carry progression (SHOP_RELEASE_GATED_APS), so pinning one would
+#      be a dead pin: tagged eligible, barred in fill.
+#   2. MERCHANT-UNIQUE -- the ware ((equipType, equipId)) is sold under exactly ONE stock flag in the
+#      whole game (SHOP_ITEM_FLAGS, counted over every ShopLineupParam row -- gated, trade, spell,
+#      excluded rows included). "Buy the Nomadic Warrior's Cookbook [13]" names ONE merchant; "buy a
+#      Ruin Fragment" could name three. A ware sold by 2+ merchants is location-ambiguous, not a pin.
+#   3. REGION-CONFIDENT -- the check is not region-DEFAULTED (defaulted_aps: the merchant block's
+#      region label resolved through REGION_MAP; no HUB guess) and not erdtree-burn doomed. A
+#      DEFAULTED pin is barred from progression anyway (DEFAULTED_REGION_APS), so it too would be a
+#      dead pin. NB this predicate asserts RESOLUTION, not label TRUTH: a tsv label can still be
+#      humanly wrong (the Perfume Bottle merchant sits in Altus; the tsv says Liurnia) -- a wrong-but-
+#      resolving label still yields one consistent region for fill; fixing labels is the datamine's
+#      job (tools/datamine_shop_rows.py), not this pin's.
+# Representative = the LOWEST ap-id among the rows that clear all three (pure, deterministic -- a pure
+# function of the tsv + region inputs). A merchant with NO clearing row is SKIPPED -- LOUDLY, with the
+# reason, both here and in the generated SHOP_SLOT_SKIPS. Skipping is INTENDED (Enia stocks nothing at
+# start; some blocks sell nothing unique), so it is a WARNING, never an error -- but ZERO pins overall
+# would mean the inputs collapsed, and that IS an error (rule 2: empty result = failure).
+_merch_rows = defaultdict(list)               # non-spell merchant block -> its check ap-ids
 for _ap2, _b in _ap_blk.items():
     if _b not in _SPELL_VENDOR_BLOCKS:
         _merch_rows[_b].append(_ap2)
-#
-# ⭐ THE REPRESENTATIVE MUST BE A ROW THAT IS ACTUALLY ON THE SHELF. `min(aps)` picks the lowest ap-id in
-# the block, which knows nothing about eventFlag_forRelease -- so a merchant's ONE progression slot could
-# land on a row the merchant does not STOCK until a bell bearing is handed in or a boss dies. Alaric,
-# 2026-07-12: "more and more roundtable checks become available over progress. we just need to make sure
-# the progression_surface row at twin maiden husks is something that's there at the start."
-# So: choose the representative from the block's UNGATED rows, lowest ap-id among those (still a pure
-# deterministic function of the inputs). A block with NO ungated row gets NO progression slot at all --
-# which is exactly right for Enia (block 1015): all 49 of her rows are release-gated, several behind the
-# ENDGAME flag 9107, so she genuinely has nothing on the shelf to put a key item on.
 _gated_ap = set(shop_gated_aps)
+_def_ap = set(defaulted_aps)
+_burn_ap = set(erdtree_burn_aps)
+_ap2flag = {aid: fl for _reg, _locs in buckets.items() for (_nm, aid, fl) in _locs}
+
+
+def _ware_unique(_fl):
+    """This stock flag sells exactly one ware, and that ware is sold under no other flag game-wide."""
+    _items = SHOP_FLAG_ITEMS.get(_fl, set())
+    return len(_items) == 1 and SHOP_ITEM_FLAGS.get(next(iter(_items)), set()) == {_fl}
+
+
 _SHOP_SLOTS = {}
-_no_open_row = []
+_SHOP_SLOT_SKIPS = {}
 for _b, _aps2 in sorted(_merch_rows.items()):
     _open = [a for a in _aps2 if a not in _gated_ap]
     if not _open:
-        _no_open_row.append(_b)
-        continue                      # merchant stocks NOTHING until an unlock event -> no progression
-    _rep = min(_open)
+        _SHOP_SLOT_SKIPS[_b] = ("no start-stocked row: all %d of its rows are release-gated"
+                                % len(_aps2))
+        continue
+    _uniq = [a for a in _open if _ware_unique(_ap2flag[a])]
+    if not _uniq:
+        _SHOP_SLOT_SKIPS[_b] = ("no merchant-unique ware: every one of its %d start-stocked rows "
+                                "sells something also sold elsewhere" % len(_open))
+        continue
+    _conf = [a for a in _uniq if a not in _def_ap and a not in _burn_ap]
+    if not _conf:
+        _SHOP_SLOT_SKIPS[_b] = ("region unresolved: all %d of its unique-ware rows are region-"
+                                "DEFAULTED (or erdtree-burn doomed) -> barred from progression anyway"
+                                % len(_uniq))
+        continue
+    _rep = min(_conf)
     _SHOP_SLOTS[_b] = _rep
     _tags = loc_tags.setdefault(_rep, [])
     if "ShopSlot" not in _tags:
         _tags.append("ShopSlot")
-print(f"ShopSlot: {len(_SHOP_SLOTS)} merchants -> 1 progression slot each, each on a row the merchant "
-      f"STOCKS FROM THE START ({len(_merch_rows)} non-spell merchant block(s); "
-      f"{len(_SPELL_VENDOR_BLOCKS)} spell vendors excluded; "
-      f"{len(_no_open_row)} block(s) skipped -- every row release-gated: {_no_open_row})")
+print(f"ShopSlot: {len(_SHOP_SLOTS)} of {len(_merch_rows)} non-spell merchant block(s) pinned -- ONE "
+      f"merchant-unique, start-stocked, region-confident progression slot each; "
+      f"{len(_SHOP_SLOT_SKIPS)} block(s) SKIPPED; "
+      f"{len(_SPELL_VENDOR_BLOCKS)} spell vendor(s) excluded upstream")
+for _b in sorted(_SHOP_SLOTS):
+    print(f"  ShopSlot pinned block {_b}: ap {_SHOP_SLOTS[_b]} = {_ap_rawitem.get(_SHOP_SLOTS[_b], '?')!r}")
+for _b in sorted(_SHOP_SLOT_SKIPS):
+    print(f"[gen_data] WARNING: ShopSlot SKIPPED merchant block {_b} -- {_SHOP_SLOT_SKIPS[_b]}")
+if not _SHOP_SLOTS:
+    raise SystemExit("FATAL: ShopSlot pinned ZERO merchants -- the whole shop class fell off the "
+                     "progression surface; the uniqueness/region inputs must have collapsed "
+                     "(rule 2: an empty result is a FAILURE, not a clean run)")
 print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_BLOCKS)} dedicated "
       f"spell-vendor block(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchant blocks: {len(_blk_tot)}")
+
 
 # ---- MajorBoss tag: the REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked) ----
 # This is the high-confidence surface the v0.2 progression_surface restriction confines locks to.
@@ -3794,6 +3846,14 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose\n')
     f.write('# release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.\n')
     f.write('SHOP_RELEASE_GATED_APS = frozenset(' + repr(_shopgate) + ')\n')
+    f.write('\n# ShopSlot pins: merchant block (ShopLineupParam row id // 100) -> the ONE ap id that\n')
+    f.write('# carries the ShopSlot tag: the lowest ap among the block\'s start-stocked (release_flag\n')
+    f.write('# == 0), MERCHANT-UNIQUE-ware (sold under exactly one stock flag game-wide, so the\n')
+    f.write('# location is unambiguous), region-confident (not DEFAULTED) rows. Blocks with no such\n')
+    f.write('# row are in SHOP_SLOT_SKIPS with the reason -- skipping is INTENDED (the gen log carries\n')
+    f.write('# the same list as WARNINGs); an empty PINS dict is a gen_data FATAL.\n')
+    f.write('SHOP_SLOT_PINS = ' + repr(dict(sorted(_SHOP_SLOTS.items()))) + '\n')
+    f.write('SHOP_SLOT_SKIPS = ' + repr(dict(sorted(_SHOP_SLOT_SKIPS.items()))) + '\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
 print(f'location_tags: {len(_defaulted)} check(s) with a DEFAULTED region -> barred from progression')
 print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked at start) -> barred from progression')

@@ -55,14 +55,17 @@ class ProgressionSurface(OptionSet):
     progression (region Locks, any required/gate Great Runes, legacy keys) -- and, in a multiworld,
     the classes where OTHER players' progression can land in your world.
 
-    Default (178 locations): the major bosses and remembrances, the great runes, the key items, and the
+    Default (193 locations): the major bosses and remembrances, the great runes, the key items, and the
     collectathon lines -- Sacred Tears (Church), Golden Seeds (Seedtree), Scadutree Fragments and
     Revered Spirit Ashes for the DLC -- plus ShopSlot.
 
-    ShopSlot is ONE slot per merchant (11), not every shop row (479): a merchant enters the pool once,
+    ShopSlot is AT MOST one slot per merchant, never every shop row: a merchant enters the pool once,
     so however large their stock they can hold at most one progression item and cannot dominate the
-    surface by breadth. Use `Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed --
-    be aware that is ~70% of the surface and the game becomes "farm runes, buy your progression".
+    surface by breadth. The pinned slot is a ware that merchant ALONE sells (one stock flag game-wide,
+    so the location is unambiguous), stocked from the start and with a resolved region; merchants with
+    no such ware are skipped at regen (location_tags.SHOP_SLOT_SKIPS lists them with reasons). Use
+    `Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed -- be aware that is ~70%
+    of the surface and the game becomes "farm runes, buy your progression".
 
     Narrowing is safe: the feasibility ladder widens automatically rather than failing to generate, and
     an EMPTY set turns the confinement off entirely (progression scatters as vanilla AP fill decides).

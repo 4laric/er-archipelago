@@ -8,16 +8,29 @@ surface, the legacy top-level echoes, and -- as of I2 (2026-07-06) -- the LIVE s
 
 with lo == hi == a region's 5-digit play_region bucket (runtime play_region_id / 100 -- the SAME
 bucket space areaLockFlags speaks; geometry reused from features/area_locks.REGION_PLAY_IDS, itself
-REGION_ID_MAP.md-derived, matt-free). target = the region's progression depth, normalized to
-0..TARGET_MAX with the DEEPEST kept region == TARGET_MAX (the client re-normalizes by the max
-emitted target, tier_for_target). Depth = the region's position along region_spine.SPINE *within
-the kept set*: pure + deterministic (independent of num_regions_order roll order), first kept
-region -> 0 (floor tier), deepest -> TARGET_MAX (top tier), even ramp between. A bucket absent from
-the wire (hub, tutorial, unmapped sub-areas) falls back to the client's floor tier -- unknown =
-don't scale up. The flat map (regionSphereTargets) is emitted transitionally as {} by core.py;
+REGION_ID_MAP.md-derived, matt-free). target = the region's position in a TOTAL topological order
+of the seed's lock chain, normalized to 0..TARGET_MAX (the client re-normalizes by the max emitted
+target, tier_for_target).
+
+THE ORDER RAMP (2026-07-15, Alaric playtest: "felt easy... spent most time in sphere 1-2"). Scaling
+used to be keyed on the raw FILL SPHERE, so every same-sphere region got the SAME target -- and the
+lock DAG is wide early, so most of the map sat at the sphere-1/2 tier. Now the spheres (the DAG's
+level structure, from mw.get_spheres()) are LINEARIZED into a total order: sphere ascending, with a
+seed-deterministic RANDOM tie-break among same-sphere regions (_order_from_spheres). Scaling ramps
+evenly over ORDER POSITION 0..N-1 -> target 0..TARGET_MAX (_targets_from_order), so two same-sphere
+regions land on different tiers, the mid/high tiers are actually populated, and the curve still
+never puts a region above its reachability: sphere-primary sort means a region's target is always
+strictly below every strictly-later-sphere region's target (asserted at gen). Same seed -> same
+order -> same scaling (the tie-break RNG is keyed on (multiworld.seed, player), NOT the shared
+world.random stream -- see _order_rng). FALLBACK when the fill spheres are uncomputable: SPINE-order
+depth (sphere_target_ranges) -- pure + deterministic, independent of num_regions_order roll order,
+and already a total order. A bucket absent from the wire (hub, tutorial, unmapped sub-areas) falls
+back to the client's floor tier -- unknown = don't scale up. The flat map (regionSphereTargets) is emitted transitionally as {} by core.py;
 ranges are the live wire, so this feature deliberately does NOT emit the flat key (merge_slot_data
 raises on duplicate keys).
 """
+import random
+
 from Options import Range, Choice
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
@@ -77,15 +90,43 @@ def _region_fill_spheres(world):
     return sphere
 
 
-def _targets_from_spheres(region_sphere):
-    """region -> target 0..TARGET_MAX, normalized so the deepest sphere == TARGET_MAX; regions that
-    share a sphere share a target (equal access depth = equal scaling)."""
-    if not region_sphere:
-        return {}
-    max_s = max(region_sphere.values())
-    if max_s <= 0:
-        return {r: 0 for r in region_sphere}
-    return {r: round(s / max_s * TARGET_MAX) for r, s in region_sphere.items()}
+def _order_from_spheres(region_sphere, rng):
+    """A TOTAL topological order (linearization of the lock-chain DAG) over the regions of
+    `region_sphere`. Primary key = the region's fill sphere (the DAG's level structure -- a sphere-i
+    lock can only require locks from spheres < i, so sphere-ascending IS a valid topological sort);
+    tie-break among same-sphere regions = random jitter from `rng` (seed-deterministic, see
+    _order_rng). The base iteration order is sorted() so the jitter is the ONLY tie-breaker -- dict
+    insertion order (which leaks set iteration order from mw.get_spheres()) never reaches the wire.
+    The topological property is ASSERTED, not trusted: if the order ever puts a region before a
+    strictly-earlier-sphere region, generation dies loudly rather than shipping an inverted curve."""
+    regions = sorted(region_sphere)
+    jitter = {r: rng.random() for r in regions}
+    order = sorted(regions, key=lambda r: (region_sphere[r], jitter[r]))
+    for a, b in zip(order, order[1:]):
+        if region_sphere[a] > region_sphere[b]:
+            raise AssertionError(
+                f"scaling order is not a topological sort of the lock chain: {a!r} (sphere "
+                f"{region_sphere[a]}) precedes {b!r} (sphere {region_sphere[b]})")
+    return order
+
+
+def _targets_from_order(order):
+    """region -> target 0..TARGET_MAX: an even, strictly MONOTONIC ramp over the total order
+    (position 0 -> 0, last -> TARGET_MAX; a single region -> 0, no depth to scale over). Same-sphere
+    regions occupy different positions, so they get DIFFERENT targets -- that is the point of the
+    order ramp. Monotone along reachability by construction: the order is sphere-primary, so no
+    region's target ever exceeds a region it cannot precede."""
+    span = max(len(order) - 1, 1)
+    return {r: round(i * TARGET_MAX / span) for i, r in enumerate(order)}
+
+
+def _order_rng(world):
+    """Seed-deterministic RNG for the same-sphere tie-breaks. Deliberately NOT world.random: slot_data
+    is built more than once for one seed (fill_slot_data re-entry; test_slot_data_is_deterministic),
+    and drawing from the shared stream would reshuffle the order on every call. Keyed on
+    (multiworld.seed, player) so it is stable per seed and per player, and independent of every other
+    roll in the generation -- the guarantee the old SPINE-depth comment promised, kept true."""
+    return random.Random(f"{world.multiworld.seed}:{world.player}:er-scaling-order")
 
 
 def _ranges_from_targets(region_target):
@@ -189,13 +230,18 @@ class Scaling(Feature):
     }
 
     def slot_data(self, world):
-        # TRUE FILL SPHERE (2026-07-07): target = the playthrough sphere each region's Lock is
-        # obtained in (start-open region -> 0 floor), so a random-start num_regions seed scales from
-        # the region you can actually reach, not geography. SPINE-order depth is the fallback when the
-        # fill sphere can't be computed (no world / degenerate).
+        # ORDER RAMP (2026-07-15): the fill spheres (TRUE per-seed reachability, 2026-07-07) are
+        # linearized into a total topological order with seed-deterministic tie-breaks, and the
+        # target ramps over ORDER POSITION -- so same-sphere regions scale differently and the
+        # mid/high tiers are populated even though the lock DAG is wide early ("felt easy").
+        # SPINE-order depth is the fallback when the fill sphere can't be computed (no world /
+        # degenerate); it is already a total order.
         region_sphere = _region_fill_spheres(world)
-        ranges = (_ranges_from_targets(_targets_from_spheres(region_sphere))
-                  if region_sphere else sphere_target_ranges(world._kept()))
+        if region_sphere:
+            order = _order_from_spheres(region_sphere, _order_rng(world))
+            ranges = _ranges_from_targets(_targets_from_order(order))
+        else:
+            ranges = sphere_target_ranges(world._kept())
         blessing = int(world.options.global_scadutree_blessing.value)
         out = {
             "completion_scaling": 4,  # smoothstep (client curve id; SPEC-PARITY P2)

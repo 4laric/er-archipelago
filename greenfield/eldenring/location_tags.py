@@ -16,7 +16,7 @@ LOCATION_TAGS = {
     7770013: ['ShopNonSpell'],
     7770014: ['ShopNonSpell'],
     7770022: ['Boss'],
-    7770024: ['ShopNonSpell', 'ShopSlot'],
+    7770024: ['ShopNonSpell'],
     7770025: ['ShopNonSpell'],
     7770029: ['Boss', 'Basin'],
     7770030: ['Boss'],
@@ -28,19 +28,19 @@ LOCATION_TAGS = {
     7770038: ['Basin'],
     7770039: ['Basin'],
     7770040: ['Boss'],
-    7770048: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770048: ['Shop', 'ShopNonSpell'],
     7770049: ['Shop', 'ShopNonSpell'],
-    7770050: ['Shop', 'ShopNonSpell', 'ShopSlot'],
-    7770061: ['ShopNonSpell', 'ShopSlot'],
+    7770050: ['Shop', 'ShopNonSpell'],
+    7770061: ['ShopNonSpell'],
     7770066: ['Shop', 'ShopNonSpell'],
     7770073: ['Shop', 'ShopNonSpell', 'ShopSlot'],
-    7770081: ['Shop', 'ShopNonSpell'],
+    7770081: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770082: ['ShopNonSpell'],
     7770088: ['ShopNonSpell'],
     7770090: ['ShopNonSpell', 'ShopSlot'],
     7770091: ['Shop', 'ShopNonSpell'],
     7770095: ['Shop', 'ShopNonSpell'],
-    7770096: ['ShopNonSpell'],
+    7770096: ['ShopNonSpell', 'ShopSlot'],
     7770097: ['Shop', 'ShopNonSpell'],
     7770100: ['Shop', 'ShopNonSpell'],
     7770101: ['Shop', 'ShopNonSpell'],
@@ -48,7 +48,7 @@ LOCATION_TAGS = {
     7770114: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770115: ['Shop', 'ShopNonSpell'],
     7770120: ['Shop', 'ShopNonSpell'],
-    7770127: ['Shop', 'ShopNonSpell'],
+    7770127: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770129: ['Shop', 'ShopNonSpell'],
     7770131: ['Shop', 'ShopNonSpell'],
     7770135: ['ShopNonSpell'],
@@ -70,8 +70,8 @@ LOCATION_TAGS = {
     7770191: ['Shop', 'ShopNonSpell'],
     7770193: ['Shop', 'ShopNonSpell'],
     7770195: ['Shop', 'ShopNonSpell'],
-    7770196: ['Shop', 'ShopNonSpell', 'ShopSlot'],
-    7770197: ['Shop', 'ShopNonSpell'],
+    7770196: ['Shop', 'ShopNonSpell'],
+    7770197: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770198: ['Shop', 'ShopNonSpell'],
     7770199: ['Shop', 'ShopNonSpell'],
     7770200: ['Shop', 'ShopNonSpell'],
@@ -374,7 +374,7 @@ LOCATION_TAGS = {
     7770514: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7770515: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7770516: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
-    7770517: ['Shop', 'ShopNonSpell'],
+    7770517: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770518: ['Shop', 'ShopNonSpell'],
     7770519: ['Shop', 'ShopNonSpell'],
     7770520: ['Shop', 'ShopNonSpell'],
@@ -480,8 +480,8 @@ LOCATION_TAGS = {
     7770620: ['Shop', 'ShopNonSpell'],
     7770621: ['Shop', 'ShopNonSpell'],
     7770622: ['Shop', 'ShopNonSpell'],
-    7770623: ['Shop', 'ShopNonSpell', 'ShopSlot'],
-    7770624: ['Shop', 'ShopNonSpell'],
+    7770623: ['Shop', 'ShopNonSpell'],
+    7770624: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770625: ['Shop', 'ShopNonSpell'],
     7770626: ['Shop', 'ShopNonSpell'],
     7770627: ['Shop', 'ShopNonSpell'],
@@ -912,4 +912,13 @@ ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770869, 7770870, 77709
 # release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.
 SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025, 7770135, 7770208, 7770217, 7770218, 7770219, 7770220, 7770221, 7770222, 7770223, 7770233, 7770234, 7770244, 7770245, 7770246, 7770253, 7770259, 7770267, 7770268, 7770269, 7770270, 7770271, 7770272, 7770274, 7770276, 7770293, 7770294, 7770295, 7770296, 7770297, 7770298, 7770299, 7770300, 7770301, 7770302, 7770303, 7770304, 7770305, 7770306, 7770307, 7770308, 7770309, 7770310, 7770311, 7770312, 7770313, 7770316, 7770317, 7770318, 7770319, 7770320, 7770321, 7770323, 7770324, 7770325, 7770326, 7770327, 7770328, 7770329, 7770330, 7770331, 7770332, 7770333, 7770334, 7770335, 7770336, 7770337, 7770338, 7770339, 7770487, 7770488, 7770489, 7770490, 7770491, 7770492, 7770493, 7770494, 7770495, 7770496, 7770497, 7770498, 7770499, 7770500, 7770501, 7770502, 7770503, 7770504, 7770505, 7770506, 7770507, 7770508, 7770509, 7770510, 7770511, 7770512, 7770513, 7770514, 7770515, 7770516, 7770533, 7770534, 7770535, 7770536, 7770537, 7770538, 7770539, 7770540, 7770541, 7770542, 7770543, 7770544, 7770545, 7770546, 7770547, 7770548, 7770549, 7770550, 7770551, 7770552, 7770553, 7770554, 7770555, 7770611, 7770612, 7770613, 7770614, 7770620, 7770621, 7770622, 7770636, 7770637, 7770638, 7770639, 7770640, 7770641, 7770642, 7770643, 7770644, 7770645, 7770646, 7770647, 7770649, 7770650, 7770651, 7774796, 7774797, 7774808, 7774809, 7774810, 7774811, 7774812, 7774813, 7774814, 7774815, 7774816, 7774817, 7774818, 7774819, 7774820, 7774821, 7774822, 7774823, 7774824, 7774825, 7774826, 7774827, 7774828, 7774829, 7774830, 7774831, 7774832, 7774833, 7774834, 7774835, 7774836, 7774837, 7774838, 7774839, 7774840, 7774841, 7774842])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:430a91f5952e202845223467d85695437991ee4f2f18e256e00ad038e1344a5f', 'module': 'location_tags.py', 'body_sha256': 'sha256:ff76bc546ae56920d4a7681c3ab3791325d7001a759ec76de884fd7ce808c057'}
+# ShopSlot pins: merchant block (ShopLineupParam row id // 100) -> the ONE ap id that
+# carries the ShopSlot tag: the lowest ap among the block's start-stocked (release_flag
+# == 0), MERCHANT-UNIQUE-ware (sold under exactly one stock flag game-wide, so the
+# location is unambiguous), region-confident (not DEFAULTED) rows. Blocks with no such
+# row are in SHOP_SLOT_SKIPS with the reason -- skipping is INTENDED (the gen log carries
+# the same list as WARNINGs); an empty PINS dict is a gen_data FATAL.
+SHOP_SLOT_PINS = {1000: 7770197, 1001: 7770114, 1005: 7770081, 1006: 7770096, 1007: 7770073, 1008: 7770127, 1009: 7770090, 1018: 7770517, 1019: 7770558, 1022: 7770624}
+SHOP_SLOT_SKIPS = {1015: 'no start-stocked row: all 49 of its rows are release-gated', 6000: 'no start-stocked row: all 17 of its rows are release-gated', 16004: 'no start-stocked row: all 18 of its rows are release-gated'}
+
+_GEN_STAMP = {'inputs_hash': 'sha256:ddee4366871eed011f17d2716cfc241d9c6a713637fdf4b5aa5da2ec1a8c932c', 'module': 'location_tags.py', 'body_sha256': 'sha256:0a004f15fa8b4e58d7ef971f4e00ec50fa291ba99a8ece2ccd8f788ab3b7eb6c'}

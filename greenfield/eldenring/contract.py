@@ -232,10 +232,14 @@ IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragme
 # merchant who happens to stock a spell stays in). 395 of the 479 shop checks. NOT in the default
 # progression surface: shops remain randomized checks, they are just not eligible to HOLD progression
 # (479 of them would make ~70% of the surface a merchant). See defaults.FROZEN_OPTIONS.
-# ShopSlot = ONE representative row per MERCHANT (the ShopLineupParam 100-block), spell vendors
-# excluded -- 11 locations. This is matt's model: a merchant enters the pool ONCE, so however big
-# their stock, they can hold at most ONE progression item and cannot dominate by breadth. Prefer this
-# over ShopNonSpell if shops are ever put in the progression surface.
+# ShopSlot = at most ONE row per MERCHANT (the ShopLineupParam 100-block), spell vendors excluded.
+# matt's model: a merchant enters the pool ONCE, so however big their stock, they can hold at most ONE
+# progression item and cannot dominate by breadth. The pinned row is a MERCHANT-UNIQUE ware -- sold
+# under exactly one stock flag game-wide, so "go buy X" names exactly one merchant -- that is also
+# start-stocked (release_flag == 0) and region-confident (not DEFAULTED). Merchants with no such row
+# are SKIPPED, loudly, at regen (location_tags.SHOP_SLOT_PINS / SHOP_SLOT_SKIPS carry the pins and the
+# per-block skip reasons). Prefer this over ShopNonSpell if shops are ever put in the progression
+# surface.
 # MajorBoss = the ~24 REGION_BOSSES (method=boss_arena remembrance/great-rune arena bosses) UNION a
 # curated MAJOR_BOSS_EXTRAS set of hand-picked field/evergaol/dragon bosses that cover the otherwise
 # major-less regions (gen_data.py). These are the highest-confidence physical locations (boss-arena /

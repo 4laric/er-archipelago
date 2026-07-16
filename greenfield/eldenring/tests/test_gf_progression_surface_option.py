@@ -45,7 +45,7 @@ class ProgressionSurfaceOption(unittest.TestCase):
     def test_default_is_the_audited_v0_2_surface(self):
         self.assertEqual(set(ProgressionSurface.default), V0_2_DEFAULT)
         hosts = {ap for ap, tags in LOCATION_TAGS.items() if V0_2_DEFAULT & set(tags)}
-        self.assertGreater(len(hosts), 150, "the default surface should host ~178 locations")
+        self.assertGreater(len(hosts), 150, "the default surface should host ~193 locations")
 
     def test_every_default_class_is_in_the_shared_vocabulary(self):
         for c in ProgressionSurface.default:
