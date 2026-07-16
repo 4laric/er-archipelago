@@ -11,7 +11,7 @@ Matt-free: every good id below is a *vanilla* EquipParamGoods id (game data, re-
 the vanilla item tables -- NOT any curated/location set). GOODS FullID = good_id | _GOODS_NIBBLE
 (0x40000000), matching core's _AP_IDS_TO_ITEM_IDS convention.
 
-Ships three independent toggles (default OFF):
+Ships three independent toggles (progressive_flasks default ON; the others default OFF):
   - Progressive Flasks -> ONE item, "Progressive Flask Upgrade", replacing every Golden Seed and
     Sacred Tear check one-for-one. The Kth copy grants a seed or a tear on an interleaved schedule
     (flask_ladder). It grants an ITEM, not an upgrade LEVEL: the player still spends it at a grace at
@@ -178,11 +178,14 @@ _BELL_ITEMS = (PROG_SMITHING_BELL, PROG_SOMBER_BELL)
 
 
 class ProgressiveFlasks(Toggle):
-    """Off (default): Golden Seeds / Sacred Tears (if in the pool) are discrete pickups. On: add
-    Progressive Golden Seed and Progressive Sacred Tear items -- each copy you receive upgrades your
-    flask charges / potency by one, spent at a grace or church. Flasks never gate logic, so this is
-    always winnable."""
+    """On (default): every Golden Seed and Sacred Tear check pays out a single "Progressive Flask
+    Upgrade" item instead, one-for-one. The Kth copy you receive grants a Golden Seed or a Sacred
+    Tear on an interleaved schedule, and you still spend it at a grace at the game's own escalating
+    price -- so upgrades arrive on a steady cadence (Sacred Tears included) instead of 13 silent
+    flat pickups. Off: seeds and tears stay discrete pickups at their shuffled locations. Flasks
+    never gate logic, so either way the seed is always winnable."""
     display_name = "Progressive Flasks"
+    default = 1
 
 
 class ProgressiveStoneswordKeys(Toggle):
