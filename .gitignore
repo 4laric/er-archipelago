@@ -86,6 +86,10 @@ patch_*.py
 /trust-alaric-cleared-layers.md
 /er-ap-icon-override.md
 /er-artifacts-tooling.md
+/MEMORY.md
+
+# --- retired baker-era deploy artifact: pure-runtime touches no game files ---
+/deploy_manifest.txt
 
 # --- seed-parking: keep metadata (.ps1/.txt/.yaml/.md), NEVER the deployed game blobs ---
 # game-files/ = provisioned map/event/msg/script .dcx + regulation.bin (copyrighted, generated).

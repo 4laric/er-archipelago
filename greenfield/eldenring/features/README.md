@@ -1,7 +1,7 @@
 # Greenfield features
 
-Each SPEC-PARITY phase (scaling, boss locks, shops, grace rando, ...) is **one file in this
-directory**. Dropping a file here is the whole integration -- no other file changes, so phases can
+Each feature (scaling, boss locks, shops, capital reconciler, ...) is **one file in this
+directory**. Dropping a file here is the whole integration -- no other file changes, so features can
 be built in parallel without colliding.
 
 A feature self-registers and overrides only the hooks it needs (see `../registry.py`):
