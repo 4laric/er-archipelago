@@ -117,9 +117,20 @@ def main():
     p = argparse.ArgumentParser(add_help=True)
     p.add_argument("--ap-dir", default=str(REPO / ".ap-test"),
                    help="Archipelago checkout to test in (default: .ap-test/, bootstrapped on demand)")
+    p.add_argument("--install-only", action="store_true",
+                   help="Install the world into --ap-dir and exit -- no bootstrap, no fork check, no "
+                        "pytest. This makes install_world() the ONE definition of 'the installed "
+                        "world', reused by gen-greenfield.ps1, ci-linux.sh and run_ci.ps1 so the "
+                        "beside-package inputs (region_map.csv, *.tsv, region_groups.py, the shipping "
+                        "yaml) can never drift between harnesses again. The caller owns the AP checkout.")
     args, pytest_args = p.parse_known_args()
 
     ap = Path(args.ap_dir).resolve()
+    if args.install_only:
+        # Caller-owned AP dir: just copy the world + its beside-package inputs in. No clone/pin/fork
+        # check -- that is the standalone-harness concern (below), not the shared install step.
+        install_world(ap)
+        return 0
     pin = ap_pin()
     ensure_ap(ap, pin)
     install_world(ap)

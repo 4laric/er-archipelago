@@ -33,35 +33,16 @@ Write-Host "[greenfield] verifying gen-input stamp" -ForegroundColor Cyan
 & python $GenManifest --verify $StampJson
 if ($LASTEXITCODE -ne 0) { throw ("[greenfield] gen-input stamp STALE/UNVERIFIABLE (exit {0}) -- rerun gen_data.py" -f $LASTEXITCODE) }
 
-Write-Host "[greenfield] installing world -> $WorldDst" -ForegroundColor Cyan
-if (Test-Path $WorldDst) { Remove-Item -Recurse -Force $WorldDst }
-Copy-Item -Recurse -Force $WorldSrc $WorldDst
-# gen_data's INPUTS live BESIDE the package, not in it. Copy them INTO the installed world so the
-# derivation oracles resolve them and RUN in the installed-world pytest instead of skipping/crashing.
-# Test-only; the packaged .apworld does not include them.
-#
-# PARITY WITH CI (.github/workflows/tests.yaml "Install the greenfield world"): this step used to copy
-# region_map.csv ONLY, so the Windows runner was MISSING shop_rows.tsv (test_gf_shop_release_gate) and
-# the shipping template (test_gf_shipping_yaml) -- and those tests do not skip when their input is
-# absent, they raise FileNotFoundError. So run_ci.ps1 reported 9 RED tests that CI reported GREEN, for
-# no reason but a missing copy. A local gate that fails differently from CI trains you to ignore both.
-Get-ChildItem -Path $Here -Filter *.csv -File | ForEach-Object {
-    Copy-Item -Force $_.FullName (Join-Path $WorldDst $_.Name)
-}
-Get-ChildItem -Path $Here -Filter *.tsv -File | ForEach-Object {
-    Copy-Item -Force $_.FullName (Join-Path $WorldDst $_.Name)
-}
-# THE region spine: test_gf_play_region_buckets path-loads region_groups.py from beside the package to
-# assert PLAY_REGION_GROUPS against the tracked bucket universe (play_region_buckets.tsv rides in via
-# the glob above). It is a .py at greenfield\ root, so NEITHER glob catches it -- and like the tsv
-# tests, this suite ERRORS rather than skipping when its input is absent (6 RED on run_ci.ps1, GREEN on
-# CI). Copy it explicitly, exactly as the canonical harness tools/gf_test.py does.
-Copy-Item -Force (Join-Path $Here "region_groups.py") (Join-Path $WorldDst "region_groups.py")
-# The SHIPPED template: test_gf_shipping_yaml reads the yaml players actually get, so it must be the
-# real one from release-v0.2, not a copy that can drift.
-$ShipYaml = Join-Path $Repo "release-v0.2\EldenRing.yaml"
-if (Test-Path $ShipYaml) { Copy-Item -Force $ShipYaml (Join-Path $WorldDst "EldenRing.yaml") }
-else { Write-Host "[greenfield] WARN: release-v0.2\EldenRing.yaml absent -- the shipping-yaml gate will not run" -ForegroundColor Yellow }
+# Install the world into $ApDir\worlds\eldenring via the ONE definition of "the installed world":
+# tools/gf_test.py --install-only. It copies the package PLUS every beside-package input the oracle
+# suites need (region_map.csv, *.tsv incl. play_region_buckets.tsv, region_groups.py, the shipping
+# EldenRing.yaml) and fails loudly if a REQUIRED_INPUT is missing. This used to be a hand-maintained
+# copy block here, and it drifted from gf_test.py twice (shop_rows.tsv, then region_groups.py) --
+# each time a test went RED locally and GREEN in CI for no reason but a missing copy. One definition,
+# no drift. (--install-only does not touch the AP checkout itself; $ApDir stays whatever it is.)
+Write-Host "[greenfield] installing world -> $WorldDst (tools/gf_test.py --install-only)" -ForegroundColor Cyan
+& python (Join-Path $Repo "tools\gf_test.py") --install-only --ap-dir $ApDir
+if ($LASTEXITCODE -ne 0) { throw ("[greenfield] world install FAILED (exit {0})" -f $LASTEXITCODE) }
 
 $ts = Get-Date -Format "yyyyMMdd-HHmmss"
 $genLog = Join-Path $Repo "generate_greenfield_$ts.log"

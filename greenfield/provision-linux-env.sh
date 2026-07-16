@@ -29,7 +29,12 @@ uv pip install --python "$VENV" -q \
   || { echo "dep install failed"; exit 2; }
 
 if [ ! -d "$AP" ]; then
-  echo "[provision] cloning Archipelago (shallow) ..."
-  git clone --depth 1 --single-branch "$AP_REPO" "$AP" || { echo "AP clone failed"; exit 2; }
+  # Pin to .ap-version -- the SAME pin bootstrap-ap.ps1, CI and tools/gf_test.py use. Cloning the
+  # default branch (unpinned) was a fifth way the dev env could gate against a different Archipelago
+  # than CI; read the one pin instead.
+  HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; REPO="$(cd "$HERE/.." && pwd)"
+  PIN="$(tr -d '[:space:]' < "$REPO/.ap-version")"
+  echo "[provision] cloning Archipelago $PIN (shallow, pinned) ..."
+  git clone --depth 1 --branch "$PIN" --single-branch "$AP_REPO" "$AP" || { echo "AP clone failed"; exit 2; }
 fi
 echo "[provision] READY: $("$VENV/bin/python" --version) | AP=$AP | cache=$CACHE"

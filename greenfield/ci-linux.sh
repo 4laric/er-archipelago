@@ -124,7 +124,12 @@ if "$PY" "$GF/eldenring/tests/test_gf_data.py" \
   record PURE PASS; else record PURE FAIL; fi
 
 step "GREENFIELD (c) ISOLATED GEN"
-rm -rf "$AP/worlds/eldenring"; cp -r "$GF/eldenring" "$AP/worlds/eldenring"
+# Install via the ONE definition of "the installed world" (tools/gf_test.py --install-only) instead
+# of a bare `cp -r` of the package. The cp copied ONLY the package, so the beside-package inputs
+# (region_map.csv, *.tsv, region_groups.py, the shipping yaml) were absent and the oracle suites --
+# play_region_buckets, shop release-gate, boss sweeps -- SKIPPED here while running on Windows/CI. A
+# suite that skips on one gate and runs on another is the drift this collapse removes.
+"$PY" "$REPO/tools/gf_test.py" --install-only --ap-dir "$AP"
 out="$CACHE/out"; rm -rf "$out"; mkdir -p "$out"
 if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
       "$PY" Generate.py --player_files_path "$GF/players" --outputpath "$out" ) \
