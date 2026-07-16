@@ -56,11 +56,13 @@ greenfield/
 
 | Preset | Scope | For |
 |--------|-------|-----|
-| `presets/first-run.yaml` | base game, forgiving, smaller check pool | your first seed |
-| `presets/short-solo.yaml` | four regions, then Morgott (`num_regions: 4`) | a ~3–4h solo Capital run |
-| `presets/multiworld-sync.yaml` | a polite footprint for a shared game | 2-slot+ multiworld |
-| `presets/full-dlc-journey.yaml` | everything: base + Shadow of the Erdtree (EXPERIMENTAL) | a maxed marathon |
+| `presets/first-run.yaml` | base game, 8 regions | a bounded first seed |
+| `presets/short-solo.yaml` | base game, 4 regions | a tight ~evening solo run |
+| `presets/multiworld-sync.yaml` | base game, 6 regions | a polite footprint for a shared game |
+| `presets/base-shattering.yaml` | the whole base game (all 17 regions) | the balanced default marathon |
+| `presets/dlc-only.yaml` | only the Shadow of the Erdtree regions (EXPERIMENTAL) | a DLC-only run |
 
-`num_regions` is pinned explicitly in every preset (never rely on its default).
-Prove a preset generates before a session: copy it into `players/` (clear
-`players/` first for a solo seed) and run `.\build.ps1 -Greenfield`.
+The presets are **generated** by `tools/dump_options_metadata.py` from the live option
+surface (the same run that feeds the wizard) — do not hand-edit them; re-run the dump.
+Prove a preset generates before a session: copy it into `players/` (clear `players/`
+first for a solo seed) and run `.\build.ps1 -Greenfield`.

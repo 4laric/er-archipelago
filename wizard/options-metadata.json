@@ -1,337 +1,133 @@
 {
  "schema": 1,
- "game": "EldenRing",
- "source": "Archipelago/worlds/eldenring/options.py",
- "source_sha256": "ab17e8e53597057e2442a63e8bd6c1c66812bbc9b4b96f3a39eb1ea644f43e13",
+ "game": "Elden Ring",
+ "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
+ "source_sha256": "82832c9427da5e28785db6a1337682d1eb61672181c005cfe18fcbb5ce67a624",
  "field_order": [
-  "ending_condition",
-  "world_logic",
-  "soft_logic",
-  "great_runes_required",
-  "great_runes_final_boss",
-  "great_runes_mountaintops",
-  "graces_per_region",
-  "grace_rando",
-  "region_access",
   "num_regions",
   "num_regions_order",
-  "num_regions_chain",
-  "dlc_only_chain",
-  "completion_scaling",
-  "completion_scaling_floor",
-  "completion_scaling_basis",
-  "global_scadutree_blessing",
-  "random_start_region",
-  "start_region_freebie",
-  "royal_access",
-  "early_leveling",
-  "extra_region_locks",
+  "ending_condition",
+  "goal_great_runes",
   "enable_dlc",
   "dlc_only",
-  "quick_start",
-  "dlc_only_rune_catchup",
-  "scadu_frontload",
-  "messmer_kindle",
-  "messmer_kindle_required",
-  "messmer_kindle_max",
-  "dlc_timing",
+  "capital_reconciler",
   "death_link",
-  "random_start",
-  "auto_upgrade",
-  "progressive_items",
-  "progressive_stone_bells",
-  "progressive_bell_count",
-  "progressive_bell_early_count",
-  "progressive_physick",
-  "progressive_physick_count",
-  "crafting_kit_option",
-  "map_option",
-  "smithing_bell_bearing_option",
-  "merchant_bell_logic",
-  "spell_shop_spells_only",
-  "early_legacy_dungeons",
-  "local_item_option",
-  "exclude_local_item_only",
-  "important_locations",
-  "exclude_locations",
-  "excluded_location_behavior",
-  "missable_location_behavior",
-  "dungeon_sweep",
-  "no_weapon_requirements",
-  "bell_physick_option",
-  "torrent_start",
-  "vanilla_upgrades",
-  "soft_progression",
-  "tidy_fun_consumables",
-  "location_pool",
-  "dlc_gear_curation",
-  "junk_retention",
-  "junk_retention_style",
-  "filler_replacement",
-  "no_spirit_ashes",
+  "reroll_enemy_drops",
+  "curated_filler",
+  "pool_builder_pct_weapons",
+  "pool_builder_pct_armor",
+  "pool_builder_pct_spells",
+  "pool_builder_pct_talismans",
+  "pool_builder_pct_ashes_of_war",
+  "filler_foreign_pct",
+  "leyndell_runes_required",
   "progressive_flasks",
-  "progressive_flask_early_count",
-  "progressive_flask_count",
-  "progressive_glovewort_bells",
-  "pool_builder"
+  "local_item_only",
+  "exclude_local_item_only",
+  "progression_surface",
+  "reroll_infinite_shop_stock",
+  "merchant_bell_logic"
  ],
- "groups": [
-  {
-   "name": "Goal & World Logic",
-   "collapsed": false,
-   "options": [
-    "ending_condition",
-    "world_logic",
-    "soft_logic",
-    "region_access",
-    "extra_region_locks"
-   ]
-  },
-  {
-   "name": "Great Runes",
-   "collapsed": false,
-   "options": [
-    "great_runes_required",
-    "great_runes_final_boss",
-    "great_runes_mountaintops"
-   ]
-  },
-  {
-   "name": "Short Runs (Capital)",
-   "collapsed": false,
-   "options": [
-    "graces_per_region",
-    "num_regions",
-    "num_regions_order",
-    "num_regions_chain"
-   ]
-  },
-  {
-   "name": "Start",
-   "collapsed": false,
-   "options": [
-    "random_start_region",
-    "start_region_freebie",
-    "early_leveling",
-    "random_start",
-    "torrent_start"
-   ]
-  },
-  {
-   "name": "DLC",
-   "collapsed": false,
-   "options": [
-    "enable_dlc",
-    "dlc_only",
-    "scadu_frontload",
-    "messmer_kindle",
-    "messmer_kindle_required",
-    "messmer_kindle_max",
-    "dlc_timing"
-   ]
-  },
-  {
-   "name": "DLC-Only Catch-up",
-   "collapsed": false,
-   "options": [
-    "quick_start",
-    "dlc_only_rune_catchup"
-   ]
-  },
-  {
-   "name": "Pool & Curation",
-   "collapsed": false,
-   "options": [
-    "soft_progression",
-    "tidy_fun_consumables",
-    "location_pool",
-    "dlc_gear_curation",
-    "junk_retention",
-    "junk_retention_style",
-    "filler_replacement",
-    "no_spirit_ashes",
-    "pool_builder"
-   ]
-  },
-  {
-   "name": "Progressive Items",
-   "collapsed": false,
-   "options": [
-    "progressive_items",
-    "progressive_bell_count",
-    "progressive_bell_early_count",
-    "progressive_physick_count",
-    "progressive_flask_early_count",
-    "progressive_flask_count"
-   ]
-  },
-  {
-   "name": "Fill Priority",
-   "collapsed": false,
-   "options": [
-    "merchant_bell_logic",
-    "local_item_option",
-    "exclude_local_item_only",
-    "important_locations",
-    "exclude_locations",
-    "excluded_location_behavior",
-    "missable_location_behavior",
-    "vanilla_upgrades"
-   ]
-  },
-  {
-   "name": "Sweep",
-   "collapsed": false,
-   "options": [
-    "dungeon_sweep"
-   ]
-  },
-  {
-   "name": "Enemy Randomizer",
-   "collapsed": false,
-   "options": [
-    "completion_scaling",
-    "completion_scaling_floor"
-   ]
-  },
-  {
-   "name": "Equipment & QoL",
-   "collapsed": false,
-   "options": [
-    "death_link",
-    "auto_upgrade",
-    "crafting_kit_option",
-    "map_option",
-    "smithing_bell_bearing_option",
-    "spell_shop_spells_only",
-    "early_legacy_dungeons",
-    "no_weapon_requirements",
-    "bell_physick_option"
-   ]
-  },
-  {
-   "name": "Superseded (use progressive_items)",
-   "collapsed": true,
-   "options": [
-    "progressive_stone_bells",
-    "progressive_physick",
-    "progressive_flasks",
-    "progressive_glovewort_bells"
-   ]
-  },
-  {
-   "name": "Advanced & Experimental",
-   "collapsed": true,
-   "options": [
-    "completion_scaling_basis",
-    "global_scadutree_blessing",
-    "royal_access"
-   ]
-  }
- ],
+ "groups": [],
  "ungrouped": [
-  "grace_rando",
-  "dlc_only_chain"
+  "num_regions",
+  "num_regions_order",
+  "ending_condition",
+  "goal_great_runes",
+  "enable_dlc",
+  "dlc_only",
+  "capital_reconciler",
+  "death_link",
+  "reroll_enemy_drops",
+  "curated_filler",
+  "pool_builder_pct_weapons",
+  "pool_builder_pct_armor",
+  "pool_builder_pct_spells",
+  "pool_builder_pct_talismans",
+  "pool_builder_pct_ashes_of_war",
+  "filler_foreign_pct",
+  "leyndell_runes_required",
+  "progressive_flasks",
+  "local_item_only",
+  "exclude_local_item_only",
+  "progression_surface",
+  "reroll_infinite_shop_stock",
+  "merchant_bell_logic"
  ],
  "options": [
   {
-   "key": "ending_condition",
-   "class": "EndingCondition",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Ending Condition",
-   "description": "Ending Condition options\n\n**Final Boss:** Will be Elden Beast, or Consort if DLC is enabled.\n**Elden Beast:** Kill Elden Beast, for short runs with DLC on.\n**All Remembrances:** All remembrance bosses, missable ones excluded.\n**All Bosses:** All bosses, missable ones excluded.\n**Capital:** Reach Leyndell and defeat Morgott, the Omen King -- a short run. Pairs with\n`region_count` to seal off everything past the capital.\n**Messmer:** DLC mini-campaign -- reach Shadow Keep and defeat Messmer the Impaler. Keeps\nonly the front-half DLC (Gravesite/Belurat/Castle Ensis/Scadu Altus/Shadow Keep) and seals\nthe rest. Forces dlc_only on; messmer_kindle is forced off (Enir Ilim is sealed).\n**Godrick:** Shortest base-game run -- keep only Limgrave, Weeping Peninsula and\nStormveil Castle, then defeat Godrick the Grafted; everything else (and all DLC) is\nsealed. Needs a lock-based world logic (region_lock / region_lock_bosses); forces\ndlc_only off.\nIf DLC is on those bosses / remembrances are included (Capital ignores the DLC; it always\nends at Morgott).",
-   "default": "final_boss",
-   "choices": [
-    {
-     "name": "final_boss",
-     "value": 0
-    },
-    {
-     "name": "elden_beast",
-     "value": 1
-    },
-    {
-     "name": "all_remembrances",
-     "value": 2
-    },
-    {
-     "name": "all_bosses",
-     "value": 3
-    },
-    {
-     "name": "capital",
-     "value": 4
-    },
-    {
-     "name": "messmer",
-     "value": 5
-    },
-    {
-     "name": "godrick",
-     "value": 6
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Goal & World Logic",
-   "group_collapsed": false
-  },
-  {
-   "key": "world_logic",
-   "class": "WorldLogic",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "World Logic",
-   "description": "World Logic options\n\n**Region Lock:** Each region will require a 'Special item'\n**Region Bosses:** Each region will require % of bosses in that region to be defeated\n**Region Lock Bosses:** Each region will require % of bosses in that region to be defeated and a 'Special item'\n**Open World:** No region locking",
-   "default": "region_lock",
-   "choices": [
-    {
-     "name": "region_lock",
-     "value": 0
-    },
-    {
-     "name": "region_bosses",
-     "value": 1
-    },
-    {
-     "name": "region_lock_bosses",
-     "value": 2
-    },
-    {
-     "name": "open_world",
-     "value": 3
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Goal & World Logic",
-   "group_collapsed": false
-  },
-  {
-   "key": "soft_logic",
-   "class": "RegionSoftLogic",
-   "kind": "toggle",
-   "base": "DefaultOnToggle",
-   "display_name": "Region Soft Logic",
-   "description": "Region Soft Logic\n\nYou might get early caelid access but you won't be expected to go there early.",
-   "default": true,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Goal & World Logic",
-   "group_collapsed": false
-  },
-  {
-   "key": "great_runes_required",
-   "class": "GreatRunesRequired",
+   "key": "num_regions",
+   "class": "NumRegions",
+   "display_name": "Number of Regions",
+   "description": "How many regions are in play this seed. 0 = all regions (full Shattering). N > 0 seals the\nrest: only kept regions get locks, checks, and goal requirement, for a shorter run.",
    "kind": "range",
    "base": "Range",
-   "display_name": "Leyndell Great Runes Required",
-   "description": "How many great runes are required to enter Leyndell. Enforced as a region rule on\nLeyndell, Royal Capital under EVERY world logic (rules_data). Under num_regions, region\nselection is NOT constrained by this: any rune deficit (rune bosses in sealed regions)\nis injected into the item pool instead (rune/region decoupling). num_regions runs can\nsatisfy at most 4 (Godrick / Rennala / Radahn / Rykard exist before the capital);\nhigher values are rejected at generation.",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 31
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "num_regions_order",
+   "class": "NumRegionsOrder",
+   "display_name": "Region Selection",
+   "description": "How kept regions are chosen when num_regions > 0. 'spine' keeps the first N of a fixed\nprogression path (Limgrave first); 'rolled' keeps N random regions. The goal region (Leyndell)\nis always kept, so the seed is always winnable.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "spine",
+   "choices": [
+    {
+     "name": "spine",
+     "value": 0
+    },
+    {
+     "name": "rolled",
+     "value": 1
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "ending_condition",
+   "class": "EndingCondition",
+   "display_name": "Ending Condition",
+   "description": "What the seed's goal requires. 'region_locks' (default): reach the goal region -- hold every\nkept Region Lock (the classic Shattering goal). 'great_runes': ALSO collect Great Runes. Great\nRunes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off this falls\nback to the region_locks goal. The requirement is auto-clamped to the number of Great Runes\nactually reachable this seed, so it can never make a seed unbeatable.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "region_locks",
+   "choices": [
+    {
+     "name": "region_locks",
+     "value": 0
+    },
+    {
+     "name": "great_runes",
+     "value": 1
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "goal_great_runes",
+   "class": "GreatRunesRequired",
+   "display_name": "Great Runes Required",
+   "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.",
+   "kind": "range",
+   "base": "Range",
    "default": 2,
    "choices": null,
    "range": {
@@ -340,790 +136,349 @@
    },
    "valid_keys": null,
    "casefold": false,
-   "group": "Great Runes",
-   "group_collapsed": false
-  },
-  {
-   "key": "great_runes_final_boss",
-   "class": "GreatRunesFinalBoss",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Final Boss Great Runes Required",
-   "description": "How many great runes are required to access the final boss (the Erdtree:\nRadagon / Elden Beast). 0 means no additional great-rune requirement.",
-   "default": 0,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 7
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Great Runes",
-   "group_collapsed": false
-  },
-  {
-   "key": "great_runes_mountaintops",
-   "class": "GreatRunesMountaintops",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Mountaintops Great Runes Required",
-   "description": "How many great runes are required to enter the Mountaintops of the Giants,\nin addition to the Rold Medallion. 0 means no great-rune requirement.",
-   "default": 0,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 7
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Great Runes",
-   "group_collapsed": false
-  },
-  {
-   "key": "graces_per_region",
-   "class": "GracesPerRegion",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Graces Unlocked Per Region",
-   "description": "Region fusion (TODO #13): how many Sites of Grace to unlock per region when you receive\nthat region's lock item (fast travel into the region, no Torrent slog). Graces are chosen by\nspatial spread (a central hub first, then maximum coverage) so the picks are useful, not\nclustered. 0 = unlock ALL of the region's graces (most convenient, least exploration).\n1 = just a warp-in hub. Higher = more coverage. Only takes effect with region gating\n(world_logic region_lock / region_bosses) and a client that consumes regionGraces.",
-   "default": 3,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 12
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Short Runs (Capital)",
-   "group_collapsed": false
-  },
-  {
-   "key": "grace_rando",
-   "class": "GraceRando",
-   "kind": "toggle",
-   "base": "DefaultOnToggle",
-   "display_name": "Grace Rando",
-   "description": "Grace rando (region gating only). Instead of a region lock lighting ALL of that\nregion's Sites of Grace, receiving the lock lights ONE RANDOM grace (your warp-in point)\nand every OTHER grace in the region becomes an individual item dropped at a check INSIDE\nthat same region -- found by exploring. Count-neutral (swaps for filler), so it never\ngrows the pool. ON BY DEFAULT under region gating; set false for the old bundle\n(graces_per_region) behavior. No effect outside a region-gating world_logic.",
-   "default": true,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
    "group": null,
-   "group_collapsed": false
-  },
-  {
-   "key": "region_access",
-   "class": "RegionAccessLogic",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Region Access Logic",
-   "description": "How region-lock logic models REACHING a region (world_logic region_lock / region_bosses).\n\n- **Geographic:** you must physically path through connected regions, holding every lock along\n  the way (e.g. Altus needs Liurnia Lock AND Altus Lock). The original behavior.\n- **Warp:** a region's OWN lock is sufficient -- receiving it unlocks that region's graces, so\n  you fast-travel straight in (Altus needs only Altus Lock). Matches the grace-grant bundle and\n  the physical region-lock enforcement, and allows seeds where a geographically-deep region is\n  the bootstrap. Only meaningful with region gating + the grace bundle (graces_per_region).",
-   "default": "geographic",
-   "choices": [
-    {
-     "name": "geographic",
-     "value": 0
-    },
-    {
-     "name": "warp",
-     "value": 1
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Goal & World Logic",
-   "group_collapsed": false
-  },
-  {
-   "key": "num_regions",
-   "class": "NumRegions",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Num Regions (Capital run)",
-   "description": "Short 'reach the capital and kill Morgott' run: keep this many overworld majors and seal\nthe rest. num_regions_order chooses HOW the kept set is picked:\n\n  rolled (default) -- N majors rolled at random; reached by warp (forces region_access=warp),\n                      since a non-contiguous set has no walking route.\n  spine            -- the fixed first-N steps of the spine toward Morgott (1 Limgrave,\n                      2 Weeping, 3 Stormveil, 4 Liurnia, 5 Caelid, 6 Dragonbarrow, 7 Altus,\n                      8 Volcano), reached geographically. This is the old region_count.\n\nLimgrave (the free start hub) and Leyndell + Morgott (the goal capstone) are ALWAYS kept and\nboth count toward this number, as does Altus Plateau (the only route into the capital) -- so\nthe structural minimum is 3. Great runes do NOT constrain the roll: any deficit vs\ngreat_runes_required is injected into the item pool from sealed rune bosses (rune/region\ndecoupling), e.g. num_regions 4 = Limgrave + Leyndell + Altus + 1 random middle.\n\nOnly takes effect with the **Capital** ending condition AND region gating (world_logic\nregion_lock / region_lock_bosses). 0 = disabled. ~4 gives a short (roughly 3-4 hour) run.",
-   "default": 0,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 9
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Short Runs (Capital)",
-   "group_collapsed": false
-  },
-  {
-   "key": "num_regions_order",
-   "class": "NumRegionsOrder",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Num Regions Order",
-   "description": "How num_regions chooses which overworld majors to keep (only matters when num_regions > 0).\n\n- **rolled** (default): roll N majors at random; reached by warp (forces region_access=warp).\n  The original num_regions behavior.\n- **spine**: keep the fixed first-N steps of the spine toward Morgott (Limgrave, Weeping,\n  Stormveil, Liurnia, Caelid, Dragonbarrow, Altus, Volcano), reached geographically. This is\n  the old region_count option, folded in here.\n\nIgnored unless num_regions > 0 (and, like num_regions, only under the Capital goal + lock\nlogic). Any rune deficit vs great_runes_required is pool-injected automatically.",
-   "default": "rolled",
-   "choices": [
-    {
-     "name": "rolled",
-     "value": 0
-    },
-    {
-     "name": "spine",
-     "value": 1
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Short Runs (Capital)",
-   "group_collapsed": false
-  },
-  {
-   "key": "num_regions_chain",
-   "class": "NumRegionsChain",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Num Regions Chain (linear sphere ramp)",
-   "description": "Chain the random num_regions Capital run into a linear lock breadcrumb so the difficulty\n(and AP fill spheres) ramp 1..N instead of every region opening from sphere 1.\n\nWith this ON, the kept regions form a single line off the Limgrave hub: the first region's\nlock is free, and every later region's lock is found on the PREVIOUS region's main boss --\nso you clear region 1 to open region 2, clear region 2 to open region 3, and so on, up to\nAltus -> Leyndell -> Morgott. Altus is always the last link before the capital. Sphere-ordered\ncompletion scaling can then tier each region by its depth in the chain.\n\nOnly meaningful with `num_regions > 0`, the **Capital** ending condition, and region gating\n(world_logic region_lock / region_lock_bosses); ignored otherwise. Off = the flat num_regions\nroll (all kept regions reachable from sphere 1).",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Short Runs (Capital)",
-   "group_collapsed": false
-  },
-  {
-   "key": "dlc_only_chain",
-   "class": "DLCOnlyChain",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "DLC-Only Chain (linear sphere ramp)",
-   "description": "Chain the DLC-only (Land of Shadow) run into a linear lock breadcrumb so the AP fill\nspheres (and completion scaling) ramp 1..N instead of every kept DLC region opening from\nsphere 1.\n\nPHASE 1: only acts under the **Messmer** ending condition (which forces dlc_only on). The kept\nDLC slice -- Gravesite (free hub) -> Belurat / Ensis -> Scadu Altus -> Shadow Keep (Messmer) --\nis breadcrumbed: the first gated region's lock is found on a Gravesite boss, and each later\nregion's lock is found on the PREVIOUS region's main boss, with Shadow Keep / Messmer pinned\nlast. Off = the flat dlc_only roll (all kept regions reachable from sphere 1).\n\nA plain dlc_only seed (no Messmer goal) with this ON warns and no-ops: the full 14-lock DLC\ntree chain is Phase 2 (it needs the per-region warp-grace audit). See SPEC-dlc-only-chain.md.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false
-  },
-  {
-   "key": "completion_scaling",
-   "class": "CompletionScaling",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Completion Scaling",
-   "description": "Reshape Elden Ring's difficulty curve by seed-completion order rather than leave it vanilla.\nThe baker re-scales every enemy from its native (geographic = completion-order) tier along the\nchosen curve. Inspired by FogMod's fog-gate-depth scaling. Runs with OR without enemy_rando -- a scale-only bake pass applies it when enemy rando is off.\n\n- off:    vanilla scaling.\n- flat:   identity (same as vanilla; confirms the pipeline ran).\n- gentle: convex -- easier for longer, difficulty concentrated late.\n- steep:  concave -- difficulty climbs fast, mid-game already punishing.\n- smoothstep: S-curve -- gentle early on-ramp, steep mid-game, plateau into the cap.",
-   "default": "off",
-   "choices": [
-    {
-     "name": "off",
-     "value": 0
-    },
-    {
-     "name": "flat",
-     "value": 1
-    },
-    {
-     "name": "gentle",
-     "value": 2
-    },
-    {
-     "name": "steep",
-     "value": 3
-    },
-    {
-     "name": "smoothstep",
-     "value": 4
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Enemy Randomizer",
-   "group_collapsed": false
-  },
-  {
-   "key": "completion_scaling_floor",
-   "class": "CompletionScalingFloor",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Completion Scaling Floor (% of MaxTier)",
-   "description": "Minimum scaling tier as a PERCENT of the baker's MaxTier (0 = earliest tier can stay 1;\n25 = nothing below ~a quarter of the curve). Only with completion_scaling on.",
-   "default": 0,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 50
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Enemy Randomizer",
-   "group_collapsed": false
-  },
-  {
-   "key": "completion_scaling_basis",
-   "class": "CompletionScalingBasis",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Completion Scaling Basis",
-   "description": "How completion_scaling orders the tiers.\n- geographic: by each enemy's native (vanilla) area tier. Start-UNAWARE -- a random start still\n  fights softened-but-mid-game enemies. Cheap; the v1 default.\n- sphere: by each REGION's Archipelago fill SPHERE, so your rolled start region is sphere 1\n  (tier 1) and difficulty climbs with YOUR progression, not geography. Needs the baker bridge\n  (SPEC-sphere-ordered-scaling.md) to actually apply; the apworld emits the table + ER_SPHERE_TIERS.txt\n  either way for inspection.",
-   "default": "geographic",
-   "choices": [
-    {
-     "name": "geographic",
-     "value": 0
-    },
-    {
-     "name": "sphere",
-     "value": 1
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Advanced & Experimental",
-   "group_collapsed": true
-  },
-  {
-   "key": "global_scadutree_blessing",
-   "class": "GlobalScadutreeBlessing",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Global Scadutree Blessing",
-   "description": "EXPERIMENTAL (default off). Turn Scadutree Fragments into a GAME-WIDE power curve.\nThe runtime client counts how many Scadutree Fragments you hold, converts that to a\nScadutree Blessing level via the vanilla cost curve, and writes the game's stored blessing\nlevel so the DLC blessing buff applies ANYWHERE -- not just the Land of Shadow. See\nSPEC-global-scadutree-blessing.md.\n\n- off:         vanilla. Fragments do nothing outside the DLC.\n- player_only: apply the player blessing globally (enemies untouched). Power fantasy /\n               accessibility knob.\n- scaled:      same player apply; intended to pair with completion_scaling lifted into the\n               DLC enemy-tier band (enemy side is a separate, later baker change). On the\n               client this currently behaves like player_only; the value is shipped so\n               seeds can opt in ahead of the enemy-side work.",
-   "default": "off",
-   "choices": [
-    {
-     "name": "off",
-     "value": 0
-    },
-    {
-     "name": "player_only",
-     "value": 1
-    },
-    {
-     "name": "scaled",
-     "value": 2
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Advanced & Experimental",
-   "group_collapsed": true
-  },
-  {
-   "key": "random_start_region",
-   "class": "RandomStartRegion",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Random Starting Region",
-   "description": "Roll a random overworld region to start in instead of Limgrave / The First Step. The chosen\nregion becomes the free sphere-1 hub: its lock is pre-collected (so it joins sphere 1 under the\nLimgrave-rooted warp graph), and its grace bundle + map reveal + open flag fire at load. Requires\na lock-based world_logic (region_lock / region_lock_bosses); forces region_access=warp. Inert\nunder dlc_only (Gravesite is already the fixed hub) and under any region-seal goal\n(capital/region_count/messmer/godrick) for now.\n\n- off:        vanilla -- start at The First Step (Limgrave).\n- overworld:  roll among the overworld majors (Weeping, Liurnia, Caelid, Altus) -- each has a\n              clean warp grace + map piece. Safest.\n- any_major:  any region with a grace bundle + lock. Spicier; some lack a map pillar.",
-   "default": "off",
-   "choices": [
-    {
-     "name": "off",
-     "value": 0
-    },
-    {
-     "name": "overworld",
-     "value": 1
-    },
-    {
-     "name": "any_major",
-     "value": 2
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Start",
-   "group_collapsed": false
-  },
-  {
-   "key": "start_region_freebie",
-   "class": "StartRegionFreebie",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Start Region Freebie",
-   "description": "How much comes free with the rolled start region. The start region is always reachable with\nzero items (its lock is pre-collected); this controls whether Limgrave (Roundtable / early\nservices / Torrent hand-off area) is also lit at load.\n\n- hub_only:    just the start region's graces + open flag.\n- to_limgrave: also light Limgrave's start graces so services are never stranded behind a lock\n               you happened not to start near (recommended).",
-   "default": "to_limgrave",
-   "choices": [
-    {
-     "name": "hub_only",
-     "value": 0
-    },
-    {
-     "name": "to_limgrave",
-     "value": 1
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Start",
-   "group_collapsed": false
-  },
-  {
-   "key": "royal_access",
-   "class": "RoyalAccess",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Royal Capital Accessable",
-   "description": "Keep Royal Capital graces accessable after it becomes ashen.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Advanced & Experimental",
-   "group_collapsed": true
-  },
-  {
-   "key": "early_leveling",
-   "class": "EarlyLeveling",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Early Leveling (skip Melina)",
-   "description": "Grant the ability to Level Up at Sites of Grace from the start, skipping Melina's accord\nand her meeting cutscene entirely. Sets event flag 4680 (Level Up enable) + 951 (Melina\nfirst-meeting done) at load. Useful for region-lock / dlc_only runs where her grace trigger\nmay never fire. Because suppressing the meeting also skips her Torrent hand-off, this co-grants\nTorrent (Spectral Steed Whistle) so you are never left without the mount.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Start",
-   "group_collapsed": false
-  },
-  {
-   "key": "extra_region_locks",
-   "class": "ExtraRegionLocks",
-   "kind": "set",
-   "base": "OptionSet",
-   "display_name": "Extra Region Locks",
-   "description": "Opt-in granular region locks (region_lock / region_lock_bosses only). Each name splits a\nfiner lock into its own sphere instead of folding under its parent region's lock. Empty\n(default) = coarse, the original behavior.\n  stormhill    -- gate Stormhill (Limgrave -> Stormveil mid-spine key)\n  godrick      -- gate the Godrick goal behind its own lock, separate from Stormveil Castle\n  castle_morne -- gate the Castle Morne interior separately from Weeping (needs the carve)\n  limgrave_caves -- ALIAS of limgrave_underground (auto-normalized in code); the same 10 underground regions (Fringefolk Hero's Grave, Coastal\n                    Cave + Church of Dragon Communion, Groveside Cave, Stormfoot Catacombs,\n                    Limgrave Tunnels, Murkwater Cave, Murkwater Catacombs, Highroad Cave,\n                    Deathtouched Catacombs) behind one shared lock\n  liurnia_caves -- gate Liurnia's 8 minor dungeons (Stillwater/Lakeside/Academy caves, Road's\n                   End/Black Knife/Cliffbottom catacombs, Raya Lucaria Crystal Tunnel,\n                   Ruin-Strewn Precipice) behind one shared lock\n  limgrave_underground -- gate Limgrave's 10 underground regions (Fringefolk Hero's Grave,\n                          Coastal Cave + Church of Dragon Communion, Groveside Cave, Stormfoot\n                          Catacombs, Limgrave Tunnels, Murkwater Cave, Murkwater Catacombs,\n                          Highroad Cave, Deathtouched Catacombs) behind one shared lock\n  mountaintops_caves -- gate the 6 Mountaintops/Snowfield minor dungeons (Giant-Conquering\n                        Hero's Grave, Giants' Mountaintop Catacombs, Spiritcaller Cave,\n                        Consecrated Snowfield Catacombs, Cave of the Forlorn, Yelough Anix\n                        Tunnel) behind one shared lock\n  altus_caves -- gate Altus Plateau's 6 minor dungeons (Sainted Hero's Grave, Unsightly\n                 Catacombs, Perfumer's Grotto, Sage's Cave, Old Altus Tunnel, Altus Tunnel)\n                 behind one shared lock, split out from Altus Plateau\n  dlc_catacombs -- (DLC) gate Fog Rift Catacombs + Belurat Gaol behind one shared lock,\n                   split out from Gravesite Plain (Messmer mini-campaign granularity)\n  chokepoint_locks -- gate legacy-dungeon BACK halves on their mid-boss chokepoint, and\n                      split that dungeon's sweep into before/after (Godskin Duo -> Farum\n                      Azula Main, Loretta -> Elphael). Pure logic; see SPEC-chokepoint-locks.md\n  snowfield -- split Consecrated Snowfield (101 overworld checks / 130 with its minor\n               dungeons) out of the Mountaintops/Rold cluster behind its own dedicated\n               'Snowfield Lock', so it seals and opens independently (still reached via\n               the Haligtree Secret Medallion route)",
-   "default": [],
-   "choices": null,
-   "range": null,
-   "valid_keys": [
-    "altus_caves",
-    "castle_morne",
-    "chokepoint_locks",
-    "dlc_catacombs",
-    "godrick",
-    "limgrave_caves",
-    "limgrave_underground",
-    "liurnia_caves",
-    "mountaintops_caves",
-    "snowfield",
-    "stormhill"
-   ],
-   "casefold": false,
-   "group": "Goal & World Logic",
    "group_collapsed": false
   },
   {
    "key": "enable_dlc",
    "class": "EnableDLC",
-   "kind": "toggle",
-   "base": "Toggle",
    "display_name": "Enable DLC",
-   "description": "Include the Shadow of the Erdtree DLC in the randomizer: the Land of Shadow's\nregions, checks, and items join the pool, and DLC bosses count toward boss-based\nending conditions. Requires owning the DLC. See dlc_timing for how early a seed\nmay require entering the DLC; dlc_only forces this on.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC",
-   "group_collapsed": false
-  },
-  {
-   "key": "dlc_only",
-   "class": "DLCOnly",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "DLC Only",
-   "description": "Restrict the check pool to the Shadow of the Erdtree DLC only (base game kept for\ntraversal, but holds no checks). Forces Enable DLC on. Inverse of enable_dlc.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC",
-   "group_collapsed": false
-  },
-  {
-   "key": "quick_start",
-   "class": "QuickStart",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Quick Start (RL120 runes, dlc_only)",
-   "description": "Quick Start (dlc_only): grant enough Lord's Runes at load-in to reach ~Runelevel 120\nright away. A DLC-only run skips the base game's rune-earning curve, so this hands you the\nrunes you would have farmed there. Reaching RL120 from level 1 costs 3,506,749 runes total;\nthis grants 71 Lord's Runes (50,000 each = 3,550,000), held as consumable items you spend\nand level with at any Site of Grace. Only takes effect when dlc_only is on (it is inert\notherwise, since a normal start earns these runes through play).",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC-Only Catch-up",
-   "group_collapsed": false
-  },
-  {
-   "key": "dlc_only_rune_catchup",
-   "class": "DLCOnlyRuneCatchup",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Rune Catch-up (Lord's Runes, dlc_only)",
-   "description": "Rune Catch-up (dlc_only): turn every rune-currency drop in the pool into a\nLord's Rune (50,000 runes each) so a DLC-only start can rocket up to the DLC's\nenemy scaling. A DLC-only run skips the base game's whole rune-earning curve;\nthis makes the rune drops you DO find pay out at the maximum rate. Every Golden\nRune / Hero's Rune / Numen's Rune / smaller rune (base and DLC) becomes a Lord's\nRune in place -- same number of items, just each worth 50,000. Great Runes and\nRune Arcs are NOT runes-currency and are left untouched. Only takes effect when\ndlc_only is on (inert otherwise).",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC-Only Catch-up",
-   "group_collapsed": false
-  },
-  {
-   "key": "scadu_frontload",
-   "class": "ScadutreeFrontload",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Scadutree Fragment Front-load",
-   "description": "Bias this many TOTAL Scadutree Fragments into the earliest reachable locations\n(sphere 1) so Scadutree Blessing can ramp early and the DLC's area-scaled enemies\n(enemy attack ~x3.75 from the first zone) stop one-shotting a fresh dlc_only start.\nThe fragments are still real checks -- just placed early; you still revere them at a\nLand of Shadow grace. 0 = no front-loading (fragments distribute normally -- the\n'true sicko' setting). Only meaningful with the DLC on; capped at how many fragments\nexist in the pool. See SPEC-scadu-in-base.md (dlc_only addendum).",
-   "default": 8,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 50
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC",
-   "group_collapsed": false
-  },
-  {
-   "key": "messmer_kindle",
-   "class": "MessmerKindle",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Messmer Kindle Shards",
-   "description": "Gate Enir Ilim behind collectible Messmer's Kindling Shards shuffled into the\nitem pool: entry requires messmer_kindle_required shards of the messmer_kindle_max\nin the pool, instead of the single vanilla Messmer's Kindling. Forced off under\nthe Messmer ending condition (Enir Ilim is sealed there).",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC",
-   "group_collapsed": false
-  },
-  {
-   "key": "messmer_kindle_required",
-   "class": "MessmerKindleRequired",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Messmer Kindle Shards Required",
-   "description": "Messmer Kindle Shards required to access Enir Ilim.",
-   "default": 5,
-   "choices": null,
-   "range": {
-    "start": 2,
-    "end": 15
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC",
-   "group_collapsed": false
-  },
-  {
-   "key": "messmer_kindle_max",
-   "class": "MessmerKindleMax",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Messmer Kindle Shards Max",
-   "description": "How many Messmer Kindle Shards there are.",
-   "default": 10,
-   "choices": null,
-   "range": {
-    "start": 2,
-    "end": 15
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC",
-   "group_collapsed": false
-  },
-  {
-   "key": "dlc_timing",
-   "class": "DLCTimingOption",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "DLC Timing",
-   "description": "Guarantee that you don't need to enter the DLC until later in the run.\n\n- **Early:** 'Pureblood Knight Medal' will spawn in an early sphere.\n- **Off:** You may have to enter the DLC with 'Pureblood Knight Medal' item.\n- **Late:** You won't have to enter the DLC until after getting to Snowfield.",
-   "default": "off",
-   "choices": [
-    {
-     "name": "early",
-     "value": 0
-    },
-    {
-     "name": "off",
-     "value": 1
-    },
-    {
-     "name": "late",
-     "value": 2
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "DLC",
-   "group_collapsed": false
-  },
-  {
-   "key": "death_link",
-   "class": "DeathLink",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Death Link",
-   "description": "When you die, everyone who enabled death link dies. Of course, the reverse is true too.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Equipment & QoL",
-   "group_collapsed": false
-  },
-  {
-   "key": "random_start",
-   "class": "RandomizeStartingLoadout",
+   "description": "Whether the Shadow of the Erdtree DLC regions (Land of Shadow, Belurat, Scadu Altus, Shadow\nKeep, Jagged Peak, Abyssal Woods) are in play. on (default): DLC regions are eligible and can be\nkept by num_regions alongside base-game regions. off: DLC regions are excluded from the region\npool entirely -- num_regions draws only from base-game regions, and every DLC lock/check/grace is\nsealed like any non-kept region. Ignored (forced on) when DLC Only is on.",
    "kind": "toggle",
    "base": "DefaultOnToggle",
-   "display_name": "Randomize Starting Loadout",
-   "description": "Randomizes the equipment characters begin with.",
    "default": true,
    "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,
-   "group": "Start",
+   "group": null,
    "group_collapsed": false
   },
   {
-   "key": "auto_upgrade",
-   "class": "AutoUpgradeOption",
+   "key": "dlc_only",
+   "class": "DLCOnly",
+   "display_name": "DLC Only",
+   "description": "off (default): normal -- base game (and DLC when Enable DLC is on) are all in play. on: ONLY\nthe Shadow of the Erdtree DLC regions are eligible; every base-game region is sealed. Implies\nEnable DLC (turning this on forces the DLC in even if Enable DLC is off). The goal becomes \"hold\nevery kept DLC lock\"; the base-game goal region (Leyndell) is sealed but is not required, so the\nseed stays winnable. Under DLC Only no Great Rune region survives, so a great_runes ending\ncollapses to region_locks (the requirement shrinks to 0) rather than becoming unwinnable; a\nstandalone Great Runes goal under DLC Only (runes in Land of Shadow) is scoped out of v0.2.",
    "kind": "toggle",
    "base": "Toggle",
-   "display_name": "Auto-Upgrade",
-   "description": "Automatically upgrades any received weapons to highest upgraded level.",
    "default": false,
    "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,
-   "group": "Equipment & QoL",
+   "group": null,
    "group_collapsed": false
   },
   {
-   "key": "progressive_items",
-   "class": "ProgressiveItems",
-   "kind": "set",
-   "base": "OptionSet",
-   "display_name": "Progressive Items",
-   "description": "Consolidated front-end for the progressive upgrade-item families. Each key replaces\nthat family's discrete pickups with PROGRESSIVE items (see the individual options for the\nfull detail). This is the preferred way to set them; the legacy per-family toggles still\nwork and are OR-unioned in (mapped onto the booleans at generate_early).\n\n  stone_bells     -- Miner's Bell Bearings -> 2 progressive (Smithing x4 / Somber x5)\n  glovewort_bells -- Glovewort Picker's Bell Bearings -> 2 progressive (Grave x3 / Ghost x3)\n  flasks          -- Golden Seeds + Sacred Tears -> 2 progressive (charges / potency)\n  physick         -- Flask of Wondrous Physick + low-value tears -> 1 progressive ladder",
-   "default": [],
+   "key": "capital_reconciler",
+   "class": "CapitalReconciler",
+   "display_name": "Capital Version Reconciler",
+   "description": "Keep the Leyndell map-version flag (9116) matched to where you actually are, so burning\nthe Erdtree never permanently strands the Royal Capital's checks: warp to a Royal grace (or\nwalk in from Altus) and the Royal Capital is back; warp to an Ashen grace and the finale is\nwhere you left it. Also lets Royal Capital checks carry progression. Default on.\n\nTurn OFF if the capital flag toggle misbehaves in-game (the toggle is assumed side-effect\nfree but not yet probe-verified): off restores vanilla one-way behavior AND re-bars the\nRoyal Capital from progression, so seeds stay winnable either way.",
+   "kind": "toggle",
+   "base": "DefaultOnToggle",
+   "default": true,
    "choices": null,
    "range": null,
-   "valid_keys": [
-    "flasks",
-    "glovewort_bells",
-    "physick",
-    "stone_bells"
-   ],
+   "valid_keys": null,
    "casefold": false,
-   "group": "Progressive Items",
+   "group": null,
    "group_collapsed": false
   },
   {
-   "key": "progressive_stone_bells",
-   "class": "ProgressiveStoneBells",
+   "key": "death_link",
+   "class": "DeathLink",
+   "display_name": "Death Link",
+   "description": "When you die, everyone who enabled death link dies. Of course, the reverse is true too.",
    "kind": "toggle",
    "base": "Toggle",
-   "display_name": "Progressive Stone Bell Bearings",
-   "description": "Replace the 9 discrete Miner's Bell Bearings with 2 PROGRESSIVE items\n(Smithing x4, Somber x5). The Nth copy received unlocks the next rung of the\nTwin Maidens stone shop, in order. Works with auto_upgrade too: the shop is a\nstone source, and using stones is what raises the live auto-upgrade target. See\nSPEC-progressive-stone-bells.md.",
    "default": false,
    "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,
-   "group": "Superseded (use progressive_items)",
-   "group_collapsed": true
+   "group": null,
+   "group_collapsed": false
   },
   {
-   "key": "progressive_bell_count",
-   "class": "ProgressiveBellCount",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Progressive Bell Pool Count",
-   "description": "How many copies of EACH progressive stone bell (Smithing, Somber) to put in the pool\nwhen progressive_stone_bells is on. There are only 4 Smithing / 5 Somber real upgrade\ntiers; copies beyond that are overflow that grant a Lord's Rune each (client-side). More\ncopies = the upgrade ladder comes online earlier and more rune payout, but in dlc_only they\ninject as mandatory progression and eat the tight injection budget, so keep it modest.\nApplies to both bells equally. Only matters when progressive_stone_bells is on.",
-   "default": 15,
+   "key": "reroll_enemy_drops",
+   "class": "RerollEnemyDrops",
+   "display_name": "Reroll Enemy Drops",
+   "description": "Reroll what farmable enemies drop. Their one-time drops (the AP checks) are untouched -- only the\nrepeatable, unflagged drops change, and only the consumable slots, at exactly the vanilla rates.",
+   "kind": "toggle",
+   "base": "DefaultOnToggle",
+   "default": true,
    "choices": null,
-   "range": {
-    "start": 5,
-    "end": 40
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "curated_filler",
+   "class": "CuratedFiller",
+   "display_name": "Curated Filler recipe (category -> weight)",
+   "description": "Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are\nsplit across the categories by weight. Categories: throwables, pots, greases, ammunition, foods,\nboluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep that\nshare as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,\ngreases x2, ammunition x20.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,\nstones: 15, runes: 15}.",
+   "kind": "dict",
+   "base": "OptionDict",
+   "default": {
+    "juice": 44,
+    "stones": 27,
+    "somber_stones": 6,
+    "runes": 10,
+    "throwables": 6,
+    "pots": 4,
+    "greases": 3,
+    "foods": 2,
+    "boluses": 1
    },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Progressive Items",
-   "group_collapsed": false
-  },
-  {
-   "key": "progressive_bell_early_count",
-   "class": "ProgressiveBellEarlyCount",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Progressive Bell Early Count",
-   "description": "How many copies of EACH progressive stone bell to FORCE into sphere-1 (no-item-reachable)\nlocations in dlc_only, via early_items, so the upgrade ladder opens near the start. Soft and\ncapped by pool availability + sphere-1 size, so it never fails gen. 0 = no early forcing\n(normal distribution). Only matters when progressive_stone_bells is on and dlc_only.",
-   "default": 4,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 10
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Progressive Items",
-   "group_collapsed": false
-  },
-  {
-   "key": "progressive_physick",
-   "class": "ProgressivePhysick",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Progressive Flask of Wondrous Physick",
-   "description": "Collapse the Flask of Wondrous Physick + the low-value Crystal tears into ONE\nprogressive item. The 1st copy grants the empty flask itself (the physick mechanic,\nearned in logic rather than handed out at spawn); each later copy grants a whole themed\ntear family -- [2] restoratives, [3] elemental Shrouding, [4] Sapping (DLC), [5] resistance\nKnots. The ~18 build-defining tears (Opaline / Thorny / Cerulean Hidden / ...) stay\nindividual randomized checks; pure-dup 'Alternate' tears are dropped. Copies past the last\nstep grant a Lord's Rune. Supersedes the start-flask grant of bell_physick (the Spirit\nCalling Bell still follows that option). See SPEC-progressive-physick.md.",
-   "default": false,
    "choices": null,
    "range": null,
-   "valid_keys": null,
+   "valid_keys": [],
    "casefold": false,
-   "group": "Superseded (use progressive_items)",
-   "group_collapsed": true
+   "group": null,
+   "group_collapsed": false
   },
   {
-   "key": "progressive_physick_count",
-   "class": "ProgressivePhysickCount",
+   "key": "pool_builder_pct_weapons",
+   "class": "PoolBuilderPctWeapons",
+   "display_name": "Pool Builder % Weapons",
+   "description": "Share of the Rune tail Pool Builder fills with weapon juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
    "kind": "range",
-   "base": "Range",
-   "display_name": "Progressive Physick Pool Count (dlc_only guarantee)",
-   "description": "How many copies of the Progressive Flask of Wondrous Physick to GUARANTEE into a dlc_only\npool, via the same count-neutral, filler-funded swap the stone bells / flasks use.\n\nPhysick is a SINGLE ladder (~5 steps: flask -> restoratives -> Shrouding -> Sapping(DLC) ->\nKnots), so keep this LOW -- copies past the ladder length just pay out as Lord's Runes. Additive\nto the normal injectable seating. 0 = off. Only matters with progressive_physick on + dlc_only.",
+   "base": "_PoolBuilderPctCategory",
    "default": 0,
    "choices": null,
    "range": {
     "start": 0,
-    "end": 40
+    "end": 100
    },
    "valid_keys": null,
    "casefold": false,
-   "group": "Progressive Items",
+   "group": null,
    "group_collapsed": false
   },
   {
-   "key": "crafting_kit_option",
-   "class": "CraftingKitOption",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Crafting Kit Behavior",
-   "description": "Choose how the Crafting Kit is handled.\n\n- **Randomize:** Can be anywhere.\n- **Early:** Make it anywhere before Altus and not in Caelid.\n- **Do Not Randomize:** Leave it at its normal spot.\n- **Start With:** Granted at the start of the run (a copy also stays in the pool).",
-   "default": "early",
-   "choices": [
-    {
-     "name": "randomize",
-     "value": 0
-    },
-    {
-     "name": "early",
-     "value": 1
-    },
-    {
-     "name": "do_not_randomize",
-     "value": 2
-    },
-    {
-     "name": "start_with",
-     "value": 3
-    }
-   ],
-   "range": null,
+   "key": "pool_builder_pct_armor",
+   "class": "PoolBuilderPctArmor",
+   "display_name": "Pool Builder % Armor",
+   "description": "Share of the Rune tail Pool Builder fills with armor juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "kind": "range",
+   "base": "_PoolBuilderPctCategory",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
    "valid_keys": null,
    "casefold": false,
-   "group": "Equipment & QoL",
+   "group": null,
    "group_collapsed": false
   },
   {
-   "key": "map_option",
-   "class": "MapOption",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Map Behavior",
-   "description": "Choose how maps are handled.\n\n- **Randomize:** Can be anywhere.\n- **Give:** Add to starting inventory.\n- **Do Not Randomize:** Leave it at its normal spot.",
-   "default": "give",
-   "choices": [
-    {
-     "name": "randomize",
-     "value": 0
-    },
-    {
-     "name": "give",
-     "value": 1
-    },
-    {
-     "name": "do_not_randomize",
-     "value": 2
-    }
-   ],
-   "range": null,
+   "key": "pool_builder_pct_spells",
+   "class": "PoolBuilderPctSpells",
+   "display_name": "Pool Builder % Spells & Incantations",
+   "description": "Share of the Rune tail filled with sorcery + incantation juice (the community tier list rates\nboth under one SPELL category). See the per-category percent notes on the other % options.",
+   "kind": "range",
+   "base": "_PoolBuilderPctCategory",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
    "valid_keys": null,
    "casefold": false,
-   "group": "Equipment & QoL",
+   "group": null,
    "group_collapsed": false
   },
   {
-   "key": "smithing_bell_bearing_option",
-   "class": "SmithingBellBearingOption",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Smithing Bell Bearing Behavior",
-   "description": "Choose how smithing stone bell bearings are handled.\n\n- **Randomize:** Can be anywhere.\n- **Progression Randomize:** Make them a progression item, and be required for the area after they would normally be in.\n- **Do Not Randomize:** Leave them at their normal spots.",
-   "default": "progression_randomize",
-   "choices": [
-    {
-     "name": "randomize",
-     "value": 0
-    },
-    {
-     "name": "progression_randomize",
-     "value": 1
-    },
-    {
-     "name": "do_not_randomize",
-     "value": 2
-    }
-   ],
+   "key": "pool_builder_pct_talismans",
+   "class": "PoolBuilderPctTalismans",
+   "display_name": "Pool Builder % Talismans",
+   "description": "Share of the Rune tail Pool Builder fills with talisman juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "kind": "range",
+   "base": "_PoolBuilderPctCategory",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "pool_builder_pct_ashes_of_war",
+   "class": "PoolBuilderPctAshesOfWar",
+   "display_name": "Pool Builder % Ashes of War",
+   "description": "Share of the Rune tail Pool Builder fills with ash-of-war juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "kind": "range",
+   "base": "_PoolBuilderPctCategory",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "filler_foreign_pct",
+   "class": "FillerForeignPct",
+   "display_name": "Filler Open to Foreign (%)",
+   "description": "Percent of THIS slot's filler (the generic Rune, plus vanilla GOODS when Shuffle Vanilla\nItems is on) that MAY travel to other players' worlds in a multiworld. 100 (default) = fully\nopen, greenfield's current behavior (no change). Lower values keep more of your filler in your\nown world: at pct we force (100 - pct)% of the distinct filler item names local. 0 = keep all\nfiller home. A propensity by distinct item name, not a hard per-copy rule. Inert in a solo seed\n(no other worlds) and composes with Local Items Only.",
+   "kind": "range",
+   "base": "Range",
+   "default": 100,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "leyndell_runes_required",
+   "class": "LeyndellRunesRequired",
+   "display_name": "Leyndell Great Runes Required",
+   "description": "Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the\nLeyndell Lock. 0 disables the gate. Clamped down to the Great Runes actually in the pool, so it\ncan never make a seed unbeatable.",
+   "kind": "range",
+   "base": "Range",
+   "default": 2,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 6
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "progressive_flasks",
+   "class": "ProgressiveFlasks",
+   "display_name": "Progressive Flasks",
+   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. The Kth copy you receive grants a Golden Seed or a Sacred\nTear on an interleaved schedule, and you still spend it at a grace at the game's own escalating\nprice -- so upgrades arrive on a steady cadence (Sacred Tears included) instead of 13 silent\nflat pickups. Off: seeds and tears stay discrete pickups at their shuffled locations. Flasks\nnever gate logic, so either way the seed is always winnable.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
+   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,
-   "group": "Equipment & QoL",
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "local_item_only",
+   "class": "LocalItemOnly",
+   "display_name": "Local Items Only",
+   "description": "Off (default). On: force every real vanilla item this seed produces -- all the shuffled\nweapons, armor, talismans, goods and ashes from Shuffle Vanilla Items, plus any Progressive\nupgrade items -- to stay in YOUR OWN world (adds them to Archipelago's local_items). Only the\nregion Locks (progression) and Rune (generic filler) can then land in other players' games,\nwhich is usually what you want since ER items are only useful in an ER game. Has no effect when\nShuffle Vanilla Items is off (there are no real items -- every check pays a Rune). This never\nchanges winnability: Region Locks stay the sole progression and are unaffected.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "exclude_local_item_only",
+   "class": "ExcludeLocalItemOnly",
+   "display_name": "Exclude From Local Items Only",
+   "description": "When Local Items Only is on, categories listed here are STILL allowed to travel to other\nplayers' worlds (i.e. NOT forced local). Use it to share some of your ER loot while keeping the\nrest. Valid categories: weapons, armor, talismans, goods, ashes, progressive. Empty (default) =\nkeep everything local. Ignored unless Local Items Only is on.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "armor",
+    "ashes",
+    "goods",
+    "progressive",
+    "talismans",
+    "weapons"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "progression_surface",
+   "class": "ProgressionSurface",
+   "display_name": "Progression Surface",
+   "description": "WHICH LOCATIONS MAY HOLD PROGRESSION. The location classes allowed to host this world's own\nprogression (region Locks, any required/gate Great Runes, legacy keys) -- and, in a multiworld,\nthe classes where OTHER players' progression can land in your world.\n\nDefault (193 locations): the major bosses and remembrances, the great runes, the key items, and the\ncollectathon lines -- Sacred Tears (Church), Golden Seeds (Seedtree), Scadutree Fragments and\nRevered Spirit Ashes for the DLC -- plus ShopSlot.\n\nShopSlot is AT MOST one slot per merchant, never every shop row: a merchant enters the pool once,\nso however large their stock they can hold at most one progression item and cannot dominate the\nsurface by breadth. The pinned slot is a ware that merchant ALONE sells (one stock flag game-wide,\nso the location is unambiguous), stocked from the start and with a resolved region; merchants with\nno such ware are skipped at regen (location_tags.SHOP_SLOT_SKIPS lists them with reasons). Use\n`Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed -- be aware that is ~70%\nof the surface and the game becomes \"farm runes, buy your progression\".\n\nNarrowing is safe: the feasibility ladder widens automatically rather than failing to generate, and\nan EMPTY set turns the confinement off entirely (progression scatters as vanilla AP fill decides).\nBasin = Crystal Tears; Boss = every boss-healthbar drop; Legendary = the param-rarity legendaries.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [
+    "Church",
+    "Fragment",
+    "GreatRune",
+    "KeyItem",
+    "MajorBoss",
+    "Remembrance",
+    "Revered",
+    "Seedtree",
+    "ShopSlot"
+   ],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "Basin",
+    "Boss",
+    "Church",
+    "Fragment",
+    "GreatRune",
+    "KeyItem",
+    "Legendary",
+    "MajorBoss",
+    "Remembrance",
+    "Revered",
+    "Seedtree",
+    "Shop",
+    "ShopNonSpell",
+    "ShopSlot"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "reroll_infinite_shop_stock",
+   "class": "RerollInfiniteShopStock",
+   "display_name": "Reroll Infinite Shop Stock",
+   "description": "Reroll every unlimited-stock merchant slot to a random high-impact consumable, priced at what it\nis worth. Those slots can never be AP checks (no stock flag = no way to see a purchase), so without\nthis they sell their vanilla ware forever.",
+   "kind": "toggle",
+   "base": "DefaultOnToggle",
+   "default": true,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
    "group_collapsed": false
   },
   {
    "key": "merchant_bell_logic",
    "class": "MerchantBellLogic",
+   "display_name": "Merchant Bell Logic",
+   "description": "Whether bell-bearing merchants' shop checks require their bell in logic. off = every shop\ncheck is always open; logic_only would gate them behind the merchant's Bell Bearing. The\nbell->merchant->shop-rows mapping is not derivable matt-free from disk (bell-item flags do not\nappear in ShopLineupParam; the join lives in EMEVD bell-handover events), so v1 carries the\noption only and it is a no-op until a v2 EMEVD enrichment supplies that map (see module docstring).",
    "kind": "choice",
    "base": "Choice",
-   "display_name": "Merchant Bell Bearing Logic",
-   "description": "Gate merchant shop checks behind that merchant's Bell Bearing.\n\n- **Off:** Merchant shops are in logic as normal.\n- **Logic Only:** A merchant's shop checks require receiving that merchant's Bell\n  Bearing (promoted to an in-pool progression item), pulling those checks out of\n  sphere 1. Only merchants whose bell has a real world drop are gated. Logic-only:\n  no physical relocation of stock. See docs/er/SPEC-merchant-bells.md.",
    "default": "off",
    "choices": [
     {
@@ -1138,547 +493,7 @@
    "range": null,
    "valid_keys": null,
    "casefold": false,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "spell_shop_spells_only",
-   "class": "SpellShopSpellsOnly",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Spell Shop Spells Only",
-   "description": "Constrain randomized spell-shop slots (sorcery and incantation vendors) to hold\nonly spells, so caster builds can still count on spell vendors stocking castable\nspells instead of arbitrary randomized items.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Equipment & QoL",
-   "group_collapsed": false
-  },
-  {
-   "key": "early_legacy_dungeons",
-   "class": "EarlyLegacyDungeonsEarly",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Early Legacy Dungeons Early",
-   "description": "Route logic through the early legacy dungeons first: progression into Liurnia\nand Caelid expects the Rusty Key (found in Stormveil), and progression into Altus\nexpects the Academy Glintstone Key (Raya Lucaria), so seeds send you through\nStormveil and the Academy early instead of skipping past them.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Equipment & QoL",
-   "group_collapsed": false
-  },
-  {
-   "key": "local_item_option",
-   "class": "LocalItemOnly",
-   "kind": "toggle",
-   "base": "DefaultOnToggle",
-   "display_name": "Local Item Option",
-   "description": "Only progression or useful items will show up in other players games.\nUsed with ExcludeLocalItemOnly option.",
-   "default": true,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "exclude_local_item_only",
-   "class": "ExcludeLocalItemOnly",
-   "kind": "list",
-   "base": "OptionList",
-   "display_name": "Exclude Local Item Only",
-   "description": "If LocalItemOnly is true then these item categories will show up in other players games.\n- [Items] **Item Group**\n- [~600] **Weapon**: All Weapons and Ammo.\n- [621] **Armor**: All Armors.\n- [154] **Accessory**: All Talismans.\n- [105] **AshofWar**: All Ashes of War.\n- [~3700] **Goods**: All Goods.\n\nGoods should always be local only.",
-   "default": [
-    "Weapon",
-    "Armor",
-    "Accessory",
-    "AshofWar"
-   ],
-   "choices": null,
-   "range": null,
-   "valid_keys": [
-    "Accessory",
-    "Armor",
-    "AshofWar",
-    "Goods",
-    "Weapon"
-   ],
-   "casefold": true,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "important_locations",
-   "class": "ERImportantLocations",
-   "kind": "list",
-   "base": "OptionList",
-   "display_name": "Important Locations",
-   "description": "Prevent these location types from having an unimportant items.\n- [Checks] **Locations**\n- [25] *Remembrance*: Main boss Remembrances.\n- [33] *Seedtree*: Golden Seed trees.\n- [13] *Basin*: Basins that contain tears.\n- [12] *Church*: Sacred Tears.\n- [24] *Map*: Map pillars.\n- [52] *Fragment*: Scadu Fragments.\n- [13] *Cross*: All cross items.\n- [26] *Revered*: Revered Spirit Ashes.\n- [21] *KeyItem*: Key items.\n- [~52] *Boss*: Major boss drops (broader than Remembrance; can over-constrain).\n- [21] *Shop*: Twin Maiden Husks shop (Roundtable Hold), non-missable. Opt-in; not in default.\n\nThe *total* amount of priority checks should be below:\n- **Vanilla**: [90] \n- **DLC**: [120]",
-   "default": [
-    "Remembrance",
-    "Seedtree",
-    "Church",
-    "Boss",
-    "Fragment",
-    "Revered"
-   ],
-   "choices": null,
-   "range": null,
-   "valid_keys": [
-    "Basin",
-    "Boss",
-    "Church",
-    "Cross",
-    "Fragment",
-    "KeyItem",
-    "Map",
-    "Remembrance",
-    "Revered",
-    "Seedtree",
-    "Shop"
-   ],
-   "casefold": true,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "exclude_locations",
-   "class": "ERExcludeLocations",
-   "kind": "set",
-   "base": "LocationSet",
-   "display_name": "ERExcludeLocations",
-   "description": "Prevent these locations from having an important items.\n- **dlc**: If you want DLC items but dont wanna do DLC.\n- **hidden**: Hard to find items.\n- **blizzard**: The hard to see area of snowfield.",
-   "default": [],
-   "choices": null,
-   "range": null,
-   "valid_keys": [
-    "blizzard",
-    "dlc",
-    "hidden"
-   ],
-   "casefold": true,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "excluded_location_behavior",
-   "class": "ExcludedLocationBehaviorOption",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Excluded Locations Behavior",
-   "description": "How to choose items for excluded locations in ER.\n\n- **Allow Useful:** Excluded locations can't have progression items, but they can have useful items.\n- **Forbid Useful:** Neither progression items nor useful items can be placed in excluded locations.\n- **Do Not Randomize:** Excluded locations always contain the same item as in vanilla Elden Ring.\n\nA \"progression item\" is anything that's required to unlock another location in some game.\nA \"useful item\" is something each game defines individually, usually items that are quite\ndesirable but not strictly necessary.",
-   "default": "forbid_useful",
-   "choices": [
-    {
-     "name": "allow_useful",
-     "value": 1
-    },
-    {
-     "name": "forbid_useful",
-     "value": 2
-    },
-    {
-     "name": "do_not_randomize",
-     "value": 3
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "missable_location_behavior",
-   "class": "MissableLocationBehaviorOption",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Missable Locations Behavior",
-   "description": "Which items can be placed in locations that can be permanently missed.\n\n- **Allow Useful:** Missable locations can't have progression items, but they can have useful items.\n- **Forbid Useful:** Neither progression items nor useful items can be placed in missable locations.\n- **Do Not Randomize:** Missable locations always contain the same item as in vanilla Elden Ring.\n\nA \"progression item\" is anything that's required to unlock another location in some game.\nA \"useful item\" is something each game defines individually, usually items that are quite\ndesirable but not strictly necessary.",
-   "default": "forbid_useful",
-   "choices": [
-    {
-     "name": "allow_useful",
-     "value": 1
-    },
-    {
-     "name": "forbid_useful",
-     "value": 2
-    },
-    {
-     "name": "do_not_randomize",
-     "value": 3
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "dungeon_sweep",
-   "class": "DungeonSweep",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Dungeon Sweep",
-   "description": "Beating a dungeon's boss automatically sends every remaining check in that dungeon.\n\n- **None:** Normal behavior; every check must be picked up individually.\n- **Minidungeons:** Catacombs, caves, tunnels, heroes' graves, and gaols sweep when\n  their boss dies.\n- **All:** Minidungeons plus legacy dungeons (Stormveil, Raya Lucaria, Volcano Manor,\n  Leyndell, Farum Azula, the Haligtree, Mohgwyn Palace, and the DLC legacy dungeons),\n  which sweep when their main (remembrance) boss dies, plus self-contained castle\n  regions (Caria Manor, Fog Rift Fort), which sweep on their boss drop.\n- **Bosses:** Total boss attribution (SPEC-boss-attribution.md). Everything in **All**,\n  plus every open-world check is attributed to the nearest field boss in its region\n  (Agheel, Lansseax, Tibia Mariner, evergaols, night bosses...), falling back to the\n  region's great-rune/remembrance boss. Killing any boss sweeps the checks attributed\n  to it; see Grace Sweep for a complementary trigger. The bake emits this map to\n  apconfig.json (sweep_flags).\n\nSwept shop checks are sent without purchase, and swept quest checks skip their\nquestlines (this also rescues missable NPC checks inside dungeons). Note this can\nsend 30+ checks at once, which affects pacing for everyone else in the multiworld.",
-   "default": "none",
-   "choices": [
-    {
-     "name": "none",
-     "value": 0
-    },
-    {
-     "name": "minidungeons",
-     "value": 1
-    },
-    {
-     "name": "all",
-     "value": 2
-    },
-    {
-     "name": "bosses",
-     "value": 3
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Sweep",
-   "group_collapsed": false
-  },
-  {
-   "key": "no_weapon_requirements",
-   "class": "NoWeaponRequirements",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "No Weapon Requirements",
-   "description": "Remove all stat requirements from weapons, ammo, and spells.\n\nAnything the multiworld hands you is immediately usable regardless of build —\nuseful when your weapon progression is at the mercy of the item pool.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Equipment & QoL",
-   "group_collapsed": false
-  },
-  {
-   "key": "bell_physick_option",
-   "class": "BellPhysickOption",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Bell & Physick Handling",
-   "description": "How to handle the Spirit Calling Bell and Flask of Wondrous Physick. Both are inert\non their own -- the bell needs Spirit Ashes, the flask needs Crystal Tears -- so a random\nearly pickup of either sits useless until its companions turn up.\n\n- **Start With:** granted at the start of the run (a copy is also left in the pool).\n- **Do Not Randomize:** locked at their vanilla locations (Ranni / Third Church of Marika).\n- **Randomize:** shuffled into the pool like any other item.",
-   "default": "start_with",
-   "choices": [
-    {
-     "name": "start_with",
-     "value": 0
-    },
-    {
-     "name": "do_not_randomize",
-     "value": 1
-    },
-    {
-     "name": "randomize",
-     "value": 2
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Equipment & QoL",
-   "group_collapsed": false
-  },
-  {
-   "key": "torrent_start",
-   "class": "TorrentStart",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Torrent at Start",
-   "description": "Whether the Spectral Steed Whistle (Torrent) is granted at the start -- decoupled from\nthe flask/bell start grant into its own knob.\n\n- **Auto (default):** grant Torrent at start when the normal Melina hand-off is bypassed,\n  i.e. when bell_physick is start_with OR progressive_physick is on. Preserves the prior\n  behaviour.\n- **On:** always grant Torrent at start.\n- **Off:** never grant it at start (meet Melina the vanilla way). Early Leveling still\n  force-grants Torrent regardless, since it suppresses her hand-off (flag 951).",
-   "default": "auto",
-   "choices": [
-    {
-     "name": "auto",
-     "value": 0
-    },
-    {
-     "name": "on",
-     "value": 1
-    },
-    {
-     "name": "off",
-     "value": 2
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Start",
-   "group_collapsed": false
-  },
-  {
-   "key": "vanilla_upgrades",
-   "class": "VanillaUpgrades",
-   "kind": "set",
-   "base": "OptionSet",
-   "display_name": "Vanilla Upgrades (lock at vanilla)",
-   "description": "Lock upgrade-item families at their VANILLA locations -- removes them from the randomized\npool and overrides important_locations for those classes. Replaces the old\nflask_upgrade_option / blessing_option \"do not randomize\" modes.\n\n  flasks    -- Golden Seeds (flask charges) + Sacred Tears (flask potency) stay vanilla.\n  blessings -- Scadutree Fragments + Revered Spirit Ashes stay vanilla (DLC only; ignored off).\n\nEmpty (default) = everything is randomized. To instead FORCE these to hold progression, list\nSeedtree / Church / Fragment / Revered in important_locations (the default already does all 4).",
-   "default": [],
-   "choices": null,
-   "range": null,
-   "valid_keys": [
-    "blessings",
-    "flasks"
-   ],
-   "casefold": false,
-   "group": "Fill Priority",
-   "group_collapsed": false
-  },
-  {
-   "key": "soft_progression",
-   "class": "SoftProgression",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Soft Progression (demote boring progression to useful under full)",
-   "description": "Wiggle room for `accessibility: full`. Demote progression that gates NOTHING in logic --\nupgrade Bell Bearings (smithing/somber/glovewort) and the Progressive Flask of Wondrous Physick\n-- to `useful` when accessibility is strict (full/items). Frees fill slack so the meaningful\nprogression lands on important_locations under full, without diluting it (no Bell Bearings on\nyour boss drops). No effect under minimal (everything spills there anyway). See SPEC.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "tidy_fun_consumables",
-   "class": "TidyFunConsumables",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Tidy Junk Consumables (Festering/Starlight/Seedbed)",
-   "description": "Pull junk 'fun consumables' out of the randomized pool -- progression only by\nclassification, gating ~nothing, crowding the priority/progression fill. Festering Bloody\nFingers (PvP, gate nothing) are skipped; Starlight Shards (Seluvis puppets, needs 3) and\nSeedbed Curses (Dung Eater, needs 5) are start-granted at their required counts so the gated\nchecks stay reachable. Reward checks stay shuffled. See SPEC-soft-consumables.md.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "location_pool",
-   "class": "LocationPool",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Location Pool Size",
-   "description": "How many locations are randomized checks -- controls your footprint in a multiworld.\n\n- **All:** every pickup (~3900). Big slice of the pool; lots of far-flung filler checks.\n- **Trimmed:** drops low-value filler pickups (golden runes, consumables, materials,\n  cookbooks); keeps gear, upgrades, and all key/boss/important checks (~2150).",
-   "default": "all",
-   "choices": [
-    {
-     "name": "all",
-     "value": 0
-    },
-    {
-     "name": "trimmed",
-     "value": 1
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "dlc_gear_curation",
-   "class": "DLCGearCuration",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "DLC Gear Curation",
-   "description": "Curate the gear pool: drop bad base-game weapons/armor, and (with the DLC) bring in the best DLC gear.\n\nWhen on, every base-game weapon/armor piece rated C-tier or below (mediocre /\nweak / joke gear) is removed from the item pool -- its location stays a randomized\ncheck, but the junk no longer spreads. If Enable DLC is also on, the freed slots\nare backfilled with one extra copy each of the best (S/A-tier) DLC weapons and\narmor, so you receive top-tier Shadow-of-the-Erdtree gear instead of vendor trash.\nWith the DLC off (or once the DLC gear is exhausted), the freed slots fall back to\nnormal filler. Tiers come from the bundled PvE tier list.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "junk_retention",
-   "class": "JunkRetention",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Junk Retention",
-   "description": "Keep a fraction of deliberately-bad \"comedy junk\" as real checks instead of scrubbing\nevery junk slot into something good.\n\nBad checks are part of the spirit of Archipelago -- opening a chest and getting throwable\nexcrement is a real (funny) outcome. This is the percent of the junk items present in the\npool to SPARE from the curation scrub, drawn (comedy-first) from a curated funny/gross\nlist (the Excrement trio, Soiled Loincloth, Toxic Mushroom, Ash of War: No Skill / Kick,\n...). See Junk Retention Style for what counts as sparable junk.\n\nCount-neutral: a spared item just occupies a slot a rune / uplift item would otherwise\nfill. Only does anything when a scrub path is active (Filler Replacement, or the dlc_only\nrelevance uplift); with no scrub, this junk already stays in the pool naturally.\n\n0 = scrub everything (vanilla). 12 (default) = a light seasoning of junk.",
-   "default": 12,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 100
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "junk_retention_style",
-   "class": "JunkRetentionStyle",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Junk Retention Style",
-   "description": "What counts as sparable junk for Junk Retention.\n\n- **Comedy:** spare only the curated COMEDY_JUNK list (funny/gross items). Default.\n- **Comedy And Generic:** comedy first, plus a small sprinkle of generic D/F-tier filler\n  (~30% of the comedy budget) so the junk isn't always the *same* joke items.\n- **Uniform:** no comedy preference -- spare from all D/F-tier filler equally.",
-   "default": "comedy",
-   "choices": [
-    {
-     "name": "comedy",
-     "value": 0
-    },
-    {
-     "name": "comedy_and_generic",
-     "value": 1
-    },
-    {
-     "name": "uniform",
-     "value": 2
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "filler_replacement",
-   "class": "FillerReplacement",
-   "kind": "choice",
-   "base": "Choice",
-   "display_name": "Filler Replacement",
-   "description": "Replace leftover junk / low-value filler in the item pool with worthwhile economy items.\n\nThe DLC-only and curated pools leave a few hundred 'filler' slots that would otherwise\nhold vendor-trash crafting mats, cookbooks and tiny rune drops. This swaps EVERY\nfiller-classified item in the pool (both the throwaway pads and the low-value game\nitems) for something useful, keeping the same pool size and filler classification so\nfill / progression-balancing are unaffected -- only the content of the junk slots changes.\n\n- **Off:** Vanilla behaviour -- filler stays as the usual junk goods.\n- **Runes:** Every filler slot becomes a Golden Rune (mid-to-high value). Pure money /\n  leveling boost; no interaction with auto_upgrade.\n- **Stones And Runes:** Filler becomes a mix of Smithing / Somber Smithing Stones (spread\n  across tiers) and Golden Runes. Best for an upgrade-hungry DLC run; intended for\n  auto_upgrade OFF (with auto_upgrade on, received gear is already maxed, so the stones\n  are wasted -- use Runes instead).",
-   "default": "off",
-   "choices": [
-    {
-     "name": "off",
-     "value": 0
-    },
-    {
-     "name": "runes",
-     "value": 1
-    },
-    {
-     "name": "stones_and_runes",
-     "value": 2
-    }
-   ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "no_spirit_ashes",
-   "class": "NoSpiritAshes",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "No Spirit Ashes",
-   "description": "Remove spirit summons from the run entirely. Every Spirit Ash / summon (generic and\nnamed legends alike) and the Spirit Calling Bell are dropped from the item pool -- their\nlocations stay randomized checks, backfilled with filler. Under bell_physick: start_with\nthe bell is also not granted at start. The pool builder skips its top-spirit injection too.\nUse when you don't want to engage the summon system at all. The two vanilla checks that\nrequire a summon mechanic to reach become unreachable (fine under accessibility: minimal).",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
-   "group_collapsed": false
-  },
-  {
-   "key": "progressive_flasks",
-   "class": "ProgressiveFlasks",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Progressive Flask Upgrades",
-   "description": "Replace the discrete Golden Seeds and Sacred Tears with two PROGRESSIVE items\n(Progressive Golden Seed = flask charges, Progressive Sacred Tear = flask potency).\nEach received copy grants one seed / tear that you spend at a grace / church; copies\npast the vanilla cap (30 seeds / 12 tears) grant a Lord's Rune instead. Clean single\nnames for trackers and trimmed / pool-builder pools. See SPEC-progressive-consumables.md.\nExpects flask_upgrade_option left at 'randomize' so the seeds/tears are in the pool.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Superseded (use progressive_items)",
-   "group_collapsed": true
-  },
-  {
-   "key": "progressive_flask_early_count",
-   "class": "ProgressiveFlaskEarlyCount",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Progressive Flask Early Count",
-   "description": "How many copies of EACH progressive flask item (Golden Seed, Sacred Tear) to\nFORCE into sphere-1 (no-item-reachable) locations in dlc_only, via early_items, so\nflask charges and potency ramp up near the start (mirror of progressive_bell_early_count).\nSoft and capped by pool availability + sphere-1 size, so it never fails gen. 0 = no\nearly forcing (normal distribution). Only matters when progressive_flasks is on and dlc_only.",
-   "default": 4,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 10
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Progressive Items",
-   "group_collapsed": false
-  },
-  {
-   "key": "progressive_flask_count",
-   "class": "ProgressiveFlaskCount",
-   "kind": "range",
-   "base": "Range",
-   "display_name": "Progressive Flask Pool Count (dlc_only guarantee)",
-   "description": "How many copies of EACH progressive flask item (Progressive Golden Seed = charges,\nProgressive Sacred Tear = potency) to GUARANTEE into a dlc_only pool -- via the same\ncount-neutral, filler-funded swap the stone bells use (cheapest junk dropped to fund them).\n\ndlc_only has few vanilla Golden Seed / Sacred Tear checks, so the normal 1:1 progressive_flasks\nswap barely fires there; this seats a tunable number regardless, and copies past the vanilla cap\n(30 seeds / 12 tears) pay out as Lord's Runes -- the flask analogue of progressive_bell_count.\n0 = off (1:1 swap only). Only matters with progressive_flasks on + dlc_only.",
-   "default": 0,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 40
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Progressive Items",
-   "group_collapsed": false
-  },
-  {
-   "key": "progressive_glovewort_bells",
-   "class": "ProgressiveGlovewortBells",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Progressive Glovewort Bell Bearings",
-   "description": "Replace the 6 discrete Glovewort Picker's Bell Bearings with two PROGRESSIVE items\n(Grave x3, Ghost x3). The Nth copy grants the next bell tier in order (you hand it to\nRoderika to stock that glovewort tier, vanilla). Copies past 3 grant a Lord's Rune.\nSibling of progressive_stone_bells. See SPEC-progressive-consumables.md.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Superseded (use progressive_items)",
-   "group_collapsed": true
-  },
-  {
-   "key": "pool_builder",
-   "class": "PoolBuilder",
-   "kind": "toggle",
-   "base": "Toggle",
-   "display_name": "Pool Builder (compose from all-game ladder)",
-   "description": "Compose the item pool from an all-game priority ladder instead of inheriting whatever\nthe included locations natively held. Native LOW-TIER pickups (C/D/F base weapons & armor,\narmor-set non-representative pieces, hand-curated trim junk) are scrubbed from the pool and\nswapped 1:1 for ranked whole-game juice -- S-tier weapons/armor/spells/Ashes of War, top\nspirit ashes, S talismans, glovewort bells, remembrances, crystal tears, capped Memory\nStones / Talisman Pouches -- then elastic runes + seeds/tears for the remainder. The\nLOCATION always stays a check; only the item on it changes, so the pool size is unchanged.\nIncludes armor-set collapse. Made for reduced-scope modes (godrick, legacy-dungeons,\ntrimmed) where the native contents are too thin or junk-heavy to be fun. junk_retention\nstill seasons in a few deliberate bad checks. Injects BASE-game juice (DLC juice is\ndlc_gear_curation / relevance_uplift's job). See SPEC-pool-builder.md.",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": "Pool & Curation",
+   "group": null,
    "group_collapsed": false
   }
  ],
@@ -1686,51 +501,49 @@
   {
    "id": "first_run",
    "title": "First Run",
-   "tagline": "Base game, forgiving, smaller check pool.",
-   "description": "Your first randomizer seed. Trimmed check pool (skips low-value filler pickups), no weapon stat requirements, received weapons arrive fully upgraded, and leveling works from the start.",
+   "tagline": "Base game, a bounded first seed.",
+   "description": "Your first randomizer seed: the base game with eight regions in play (a real progression graph, but not the whole Shattering). Start at Roundtable Hold, open regions as their Locks arrive.",
    "values": {
-    "location_pool": "trimmed",
-    "no_weapon_requirements": true,
-    "auto_upgrade": true,
-    "excluded_location_behavior": "allow_useful",
-    "missable_location_behavior": "allow_useful",
-    "early_leveling": true
+    "enable_dlc": false,
+    "num_regions": 8
    }
   },
   {
    "id": "short_solo",
    "title": "Short Solo",
-   "tagline": "A 3-4 hour Capital run: four regions, then Morgott.",
-   "description": "The short 'reach Leyndell and defeat Morgott' goal with only four overworld regions kept. Trimmed pool and early leveling keep the pace up.",
+   "tagline": "A tight ~evening run: four regions.",
+   "description": "Base game with only four regions kept -- a short, quick-to-finish solo seed. Leyndell (the goal region) is always kept, so it stays winnable.",
    "values": {
-    "ending_condition": "capital",
-    "num_regions": 4,
-    "location_pool": "trimmed",
-    "excluded_location_behavior": "allow_useful",
-    "missable_location_behavior": "allow_useful",
-    "early_leveling": true
+    "enable_dlc": false,
+    "num_regions": 4
    }
   },
   {
    "id": "multiworld_sync",
    "title": "Multiworld Sync",
    "tagline": "A polite footprint for playing with friends.",
-   "description": "Tuned for a shared session: the trimmed pool keeps your slice of the multiworld reasonable, and no weapon requirements means whatever the other worlds send you is immediately usable.",
+   "description": "Base game with six regions -- a moderate check pool that keeps your slice of a shared multiworld reasonable while still being a real run.",
    "values": {
-    "location_pool": "trimmed",
-    "no_weapon_requirements": true,
-    "excluded_location_behavior": "allow_useful",
-    "missable_location_behavior": "allow_useful"
+    "enable_dlc": false,
+    "num_regions": 6
    }
   },
   {
-   "id": "full_dlc_journey",
-   "title": "Full DLC Journey",
-   "tagline": "Everything: base game + Shadow of the Erdtree.",
-   "description": "The complete tour. DLC regions, checks, and items join the pool, and you won't be required to enter the Land of Shadow until after reaching the Consecrated Snowfield.",
+   "id": "base_shattering",
+   "title": "Base Shattering",
+   "tagline": "The whole base game: all 17 regions.",
+   "description": "The full base-game Shattering -- every base region in play (num_regions 0), DLC off. The balanced default marathon.",
    "values": {
-    "enable_dlc": true,
-    "dlc_timing": "late"
+    "enable_dlc": false
+   }
+  },
+  {
+   "id": "dlc_only",
+   "title": "DLC Only (experimental)",
+   "tagline": "Only the Shadow of the Erdtree regions.",
+   "description": "Every base-game region is sealed; only the 14 DLC regions are in play, and the goal becomes holding every kept DLC Lock. DLC is experimental in v0.2.",
+   "values": {
+    "dlc_only": true
    }
   }
  ]

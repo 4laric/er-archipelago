@@ -1,34 +1,35 @@
 #!/usr/bin/env python3
 """
-dump_options_metadata.py -- extract the ER apworld's full option surface to JSON, ast-only.
+dump_options_metadata.py -- extract the ER apworld's full option surface to JSON.
 
-The yaml options wizard (wizard/wizard.html) renders ENTIRELY from this JSON, so it is
-structurally incapable of describing an option that doesn't exist in options.py. Never
-hand-edit wizard/options-metadata.json; re-run this instead.
+The yaml options wizard (wizard/wizard.html) renders ENTIRELY from this JSON, and the
+standalone presets/*.yaml are emitted from the same run, so this tool is the single source
+of truth for "what options exist and what they do".
 
-Parses Archipelago/worlds/eldenring/options.py with `ast` (NO import of AP, NO regex
-string-pairing -- runs on any Python 3.8+, no AP env). Core classes used directly as
-EROptions fields (DeathLink) are resolved by ast-parsing Archipelago/Options.py, with a
-built-in fallback if the core file is absent.
+WHY THIS IMPORTS THE WORLD (it used to ast-parse a static options.py)
+--------------------------------------------------------------------
+As of v0.2 the option surface is DYNAMIC: `GFOptions` is built at import time with
+`make_dataclass(registry.collect_option_fields(...) minus FROZEN_OPTIONS)` (core.py). There
+is no static `options.py` with an `EROptions` dataclass to parse -- the yaml-settable surface
+only exists once the world is imported and the freeze is applied. So we install the world
+into a pinned upstream Archipelago (via tools/gf_test.py, the one installer) and introspect
+the REAL `GFOptions` dataclass. Zero drift: the wizard describes exactly the options the world
+generates from.
 
-Extracted per option class: yaml key (EROptions field name, canonical order), class name,
-base kind (choice/toggle/range/set/list/text), display_name, full docstring, default,
-choice values, range bounds, valid_keys (including the `valid_keys = valid_keys | {...}`
-folding pattern), and group membership from `option_groups`.
+Emitted per option: yaml key (canonical dataclass order), class name, kind
+(choice/toggle/range/set/list/dict/text), display_name, docstring, default, choice values,
+range bounds, valid_keys.
 
-Also the single source of truth for the wizard PRESETS: emitted into the JSON and,
-with --presets, written out as standalone presets/*.yaml.
-
-Usage:
+Usage (needs the pinned AP env; --ap-dir defaults to .ap-test/, bootstrapped on demand):
     python tools/dump_options_metadata.py              # write wizard/options-metadata.json
     python tools/dump_options_metadata.py --presets    # also write presets/*.yaml
     python tools/dump_options_metadata.py --inject     # also inline the JSON into wizard/wizard.html
     python tools/dump_options_metadata.py --check      # exit 1 if committed JSON is stale (CI drift gate)
+    python tools/dump_options_metadata.py --ap-dir DIR # reuse an existing upstream AP checkout
 
-Round-trip guarantee: every EROptions field appears in the JSON with a non-empty
-description (enforced here AND by worlds/eldenring/tests/test_options_descriptions.py).
+Round-trip guarantee: every field appears in the JSON with a non-empty description
+(enforced here AND by worlds/eldenring/tests/test_options_descriptions.py).
 """
-import ast
 import hashlib
 import json
 import os
@@ -37,284 +38,175 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE) if os.path.basename(HERE) == "tools" else HERE
-OPTIONS_REL = os.path.join("Archipelago", "worlds", "eldenring", "options.py")
-OPTIONS = os.path.join(ROOT, OPTIONS_REL)
-CORE_OPTIONS = os.path.join(ROOT, "Archipelago", "Options.py")
 OUT_JSON = os.path.join(ROOT, "wizard", "options-metadata.json")
 WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 PRESETS_DIR = os.path.join(ROOT, "presets")
-
-# Leaf base classes we understand, mapped to the wizard's control kinds.
-LEAF_KINDS = {
-    "Choice": "choice", "TextChoice": "choice",
-    "Toggle": "toggle", "DefaultOnToggle": "toggle",
-    "Range": "range", "NamedRange": "range",
-    "OptionSet": "set", "ItemSet": "set", "LocationSet": "set",
-    "OptionList": "list",
-    "FreeText": "text",
-}
-
-# Fallback metadata for core classes if Archipelago/Options.py can't be parsed.
-CORE_FALLBACK = {
-    "DeathLink": {
-        "base": "Toggle",
-        "display_name": "Death Link",
-        "description": "When you die, everyone who enabled death link dies. Of course, "
-                       "the reverse is true too.",
-        "default": False,
-    },
-}
+GAME = "Elden Ring"
 
 # ---------------------------------------------------------------------------
 # PRESETS -- the wizard's starting points, also written as presets/*.yaml.
-# Values use yaml-facing names (choice names as strings). Validated against the
-# extracted metadata below, so a stale key or value fails the dump loudly.
+# Values use yaml-facing names (choice names as strings, toggles as bools). Validated
+# against the extracted metadata below, so a stale key/value/non-deviation fails loudly.
+# Every preset carries ONLY deviations from the option defaults.
+#
+# NOTE: enable_dlc defaults ON (the class is DefaultOnToggle), but base game is the
+# recommended/supported v0.2 config (DLC is experimental), so the base-game presets set
+# `enable_dlc: false` explicitly -- that is a real deviation and the intended footprint.
 # ---------------------------------------------------------------------------
 PRESETS = [
     {
         "id": "first_run",
         "title": "First Run",
-        "tagline": "Base game, forgiving, smaller check pool.",
-        "description": "Your first randomizer seed. Trimmed check pool (skips low-value "
-                       "filler pickups), no weapon stat requirements, received weapons "
-                       "arrive fully upgraded, and leveling works from the start.",
-        "values": {
-            "location_pool": "trimmed",
-            "no_weapon_requirements": True,
-            "auto_upgrade": True,
-            "excluded_location_behavior": "allow_useful",
-            "missable_location_behavior": "allow_useful",
-            "early_leveling": True,
-        },
+        "tagline": "Base game, a bounded first seed.",
+        "description": "Your first randomizer seed: the base game with eight regions in play "
+                       "(a real progression graph, but not the whole Shattering). Start at "
+                       "Roundtable Hold, open regions as their Locks arrive.",
+        "values": {"enable_dlc": False, "num_regions": 8},
     },
     {
         "id": "short_solo",
         "title": "Short Solo",
-        "tagline": "A 3-4 hour Capital run: four regions, then Morgott.",
-        "description": "The short 'reach Leyndell and defeat Morgott' goal with only four "
-                       "overworld regions kept. Trimmed pool and early leveling keep the "
-                       "pace up.",
-        "values": {
-            "ending_condition": "capital",
-            "num_regions": 4,
-            "location_pool": "trimmed",
-            "excluded_location_behavior": "allow_useful",
-            "missable_location_behavior": "allow_useful",
-            "early_leveling": True,
-        },
+        "tagline": "A tight ~evening run: four regions.",
+        "description": "Base game with only four regions kept -- a short, quick-to-finish "
+                       "solo seed. Leyndell (the goal region) is always kept, so it stays "
+                       "winnable.",
+        "values": {"enable_dlc": False, "num_regions": 4},
     },
     {
         "id": "multiworld_sync",
         "title": "Multiworld Sync",
         "tagline": "A polite footprint for playing with friends.",
-        "description": "Tuned for a shared session: the trimmed pool keeps your slice of "
-                       "the multiworld reasonable, and no weapon requirements means "
-                       "whatever the other worlds send you is immediately usable.",
-        "values": {
-            "location_pool": "trimmed",
-            "no_weapon_requirements": True,
-            "excluded_location_behavior": "allow_useful",
-            "missable_location_behavior": "allow_useful",
-        },
+        "description": "Base game with six regions -- a moderate check pool that keeps your "
+                       "slice of a shared multiworld reasonable while still being a real run.",
+        "values": {"enable_dlc": False, "num_regions": 6},
     },
     {
-        "id": "full_dlc_journey",
-        "title": "Full DLC Journey",
-        "tagline": "Everything: base game + Shadow of the Erdtree.",
-        "description": "The complete tour. DLC regions, checks, and items join the pool, "
-                       "and you won't be required to enter the Land of Shadow until after "
-                       "reaching the Consecrated Snowfield.",
-        "values": {
-            "enable_dlc": True,
-            "dlc_timing": "late",
-        },
+        "id": "base_shattering",
+        "title": "Base Shattering",
+        "tagline": "The whole base game: all 17 regions.",
+        "description": "The full base-game Shattering -- every base region in play "
+                       "(num_regions 0), DLC off. The balanced default marathon.",
+        "values": {"enable_dlc": False},
+    },
+    {
+        "id": "dlc_only",
+        "title": "DLC Only (experimental)",
+        "tagline": "Only the Shadow of the Erdtree regions.",
+        "description": "Every base-game region is sealed; only the 14 DLC regions are in "
+                       "play, and the goal becomes holding every kept DLC Lock. DLC is "
+                       "experimental in v0.2.",
+        "values": {"dlc_only": True},
     },
 ]
 
 
-def _base_name(b):
-    if isinstance(b, ast.Name):
-        return b.id
-    if isinstance(b, ast.Attribute):
-        return b.attr
-    return None
+# ---------------------------------------------------------------------------
+# Import the live GFOptions from a pinned, upstream Archipelago with the world installed.
+# ---------------------------------------------------------------------------
+def load_gfoptions(ap_dir):
+    """Install the current world into a pinned upstream AP (via gf_test, the one installer) and
+    import its live GFOptions dataclass. Returns (GFOptions, pin)."""
+    sys.path.insert(0, HERE)
+    import gf_test  # the canonical installer; keeps AP pin + install logic in one place
+    from pathlib import Path
+    ap = Path(ap_dir).resolve()
+    pin = gf_test.ap_pin()
+    gf_test.ensure_ap(ap, pin)      # bootstrap the pinned upstream checkout if absent (refuses forks)
+    gf_test.install_world(ap)       # copy the current world in
+    # AP runs from its own root and its world loader scans ALL worlds -- some unrelated worlds fail
+    # to import for missing native deps (harmless; eldenring loads). Silence that noise, and feed
+    # a closed stdin so ModuleUpdate's "install missing dep?" prompt raises EOFError (caught by the
+    # loader) instead of hanging.
+    import contextlib
+    sys.path.insert(0, str(ap))
+    os.chdir(ap)
+    sys.stdin = open(os.devnull, "r")
+    import logging
+    logging.disable(logging.CRITICAL)
+    with open(os.devnull, "w") as devnull, \
+            contextlib.redirect_stderr(devnull), contextlib.redirect_stdout(devnull):
+        from worlds.eldenring.core import GFOptions
+    return GFOptions, pin
 
 
-def _class_attrs(cls):
-    """Class-body simple assignments, with the `x = x | {...}` union-folding pattern."""
-    out = {}
-    for n in cls.body:
-        if not (isinstance(n, ast.Assign) and len(n.targets) == 1
-                and isinstance(n.targets[0], ast.Name)):
-            continue
-        name = n.targets[0].id
-        v = n.value
-        # frozenset() / set() with no args -> empty
-        if (isinstance(v, ast.Call) and isinstance(v.func, ast.Name)
-                and v.func.id in ("frozenset", "set") and not v.args):
-            out[name] = []
-            continue
-        # x = x | {literal}  (ExtraRegionLocks valid_keys folding)
-        if (isinstance(v, ast.BinOp) and isinstance(v.op, ast.BitOr)
-                and isinstance(v.left, ast.Name) and v.left.id == name
-                and name in out):
-            try:
-                out[name] = sorted(set(out[name]) | set(ast.literal_eval(v.right)))
-            except Exception:
-                pass
-            continue
-        try:
-            val = ast.literal_eval(v)
-        except Exception:
-            continue
-        if isinstance(val, (set, frozenset)):
-            val = sorted(val)
-        out[name] = val
-    return out
-
-
-def _parse_classes(path):
-    # NUL-strip: a sandbox mount write can null-pad a shrinking overwrite; real Python
-    # source never contains NULs, so stripping is safe (and idempotent on clean files).
-    # source_sha256 is taken over the CLEANED text so all environments agree.
-    src = open(path, "r", encoding="utf-8", errors="replace").read().replace("\x00", "")
-    tree = ast.parse(src)
-    return src, tree, {c.name: c for c in tree.body if isinstance(c, ast.ClassDef)}
-
-
-def _resolve_base(name, local, core, seen=None):
-    """Walk the inheritance chain (local classes, then core) to a leaf in LEAF_KINDS."""
-    seen = seen or set()
-    if name in LEAF_KINDS:
-        return name
-    for classes in (local, core):
-        c = classes.get(name)
-        if c is None:
-            continue
-        for b in c.bases:
-            bn = _base_name(b)
-            if bn is None or bn in seen:
+def describe(key, cls):
+    """Introspect one live Option subclass into the wizard's metadata shape."""
+    import inspect
+    from Options import (Choice, Toggle, Range, NamedRange, OptionSet, OptionList, OptionDict)
+    doc = (inspect.getdoc(cls) or "").strip()
+    d = {
+        "key": key, "class": cls.__name__,
+        "display_name": getattr(cls, "display_name", cls.__name__),
+        "description": doc, "kind": None, "base": cls.__mro__[1].__name__,
+        "default": None, "choices": None, "range": None, "valid_keys": None,
+        "casefold": False, "group": None, "group_collapsed": False,
+    }
+    # Order matters: Range before Choice (NamedRange is a Range), Toggle before Choice
+    # (a Toggle is a Choice subclass in AP).
+    if issubclass(cls, (Range, NamedRange)):
+        d["kind"] = "range"
+        d["range"] = {"start": int(cls.range_start), "end": int(cls.range_end)}
+        d["default"] = int(cls.default) if isinstance(cls.default, int) else cls.default
+    elif issubclass(cls, Toggle):  # incl. DefaultOnToggle
+        d["kind"] = "toggle"
+        d["default"] = bool(cls.default)
+    elif issubclass(cls, Choice):
+        d["kind"] = "choice"
+        seen, choices = set(), []
+        for nm, val in getattr(cls, "options", {}).items():
+            if val in seen:      # 'off'/'false' aliases collapse to one entry
                 continue
-            leaf = _resolve_base(bn, local, core, seen | {name})
-            if leaf:
-                return leaf
-    return None
+            seen.add(val)
+            choices.append({"name": nm, "value": val})
+        d["choices"] = choices
+        d["default"] = getattr(cls, "name_lookup", {}).get(cls.default, cls.default)
+    elif issubclass(cls, OptionSet):
+        d["kind"] = "set"
+        d["valid_keys"] = sorted(getattr(cls, "valid_keys", []) or [])
+        d["default"] = sorted(cls.default) if cls.default else []
+    elif issubclass(cls, OptionList):
+        d["kind"] = "list"
+        d["valid_keys"] = sorted(getattr(cls, "valid_keys", []) or [])
+        d["default"] = list(cls.default) if cls.default else []
+    elif issubclass(cls, OptionDict):
+        d["kind"] = "dict"
+        d["valid_keys"] = sorted(getattr(cls, "valid_keys", []) or [])
+        d["default"] = dict(cls.default) if isinstance(cls.default, dict) else {}
+    else:
+        d["kind"] = "text"
+        d["default"] = getattr(cls, "default", "")
+    return d
 
 
-def extract():
-    src, tree, local = _parse_classes(OPTIONS)
-    core = {}
-    if os.path.isfile(CORE_OPTIONS):
-        try:
-            _, _, core = _parse_classes(CORE_OPTIONS)
-        except Exception:
-            core = {}
+def extract(ap_dir):
+    import dataclasses
+    GFOptions, pin = load_gfoptions(ap_dir)
+    from Options import PerGameCommonOptions
+    # The yaml-tunable ER surface = the fields GFOptions ADDS on top of PerGameCommonOptions
+    # (make_dataclass order = registry order, already minus FROZEN_OPTIONS).
+    common = {f.name for f in dataclasses.fields(PerGameCommonOptions)}
+    fields = [(f.name, f.type) for f in dataclasses.fields(GFOptions) if f.name not in common]
 
-    ero = local.get("EROptions")
-    if ero is None:
-        sys.exit("[FAIL] EROptions dataclass not found in options.py")
-    fields = [(n.target.id, n.annotation.id)
-              for n in ero.body
-              if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)
-              and isinstance(n.annotation, ast.Name)]
+    options = [describe(k, c) for (k, c) in fields]
 
-    # option_groups -> {ClassName: (group_name, collapsed)}
-    group_of, groups = {}, []
-    for n in tree.body:
-        if not (isinstance(n, ast.Assign) and len(n.targets) == 1
-                and isinstance(n.targets[0], ast.Name)
-                and n.targets[0].id == "option_groups"):
-            continue
-        for el in n.value.elts:
-            if not (isinstance(el, ast.Call) and _base_name(el.func) == "OptionGroup"):
-                continue
-            gname = ast.literal_eval(el.args[0])
-            members = [_base_name(e) for e in el.args[1].elts]
-            collapsed = any(kw.arg == "start_collapsed" and ast.literal_eval(kw.value)
-                            for kw in el.keywords)
-            groups.append({"name": gname, "collapsed": collapsed, "classes": members})
-            for m in members:
-                group_of[m] = (gname, collapsed)
-
-    def describe(cls_name):
-        cls, is_core = local.get(cls_name), False
-        if cls is None:
-            cls, is_core = core.get(cls_name), True
-        if cls is None:
-            fb = CORE_FALLBACK.get(cls_name)
-            if not fb:
-                sys.exit(f"[FAIL] option class {cls_name} not found in options.py or core Options.py")
-            return dict(fb, kind=LEAF_KINDS[fb["base"]], choices=None, range=None,
-                        valid_keys=None, casefold=False)
-        leaf = _resolve_base(cls_name, local, core)
-        if leaf is None:
-            sys.exit(f"[FAIL] cannot resolve base kind of {cls_name}")
-        kind = LEAF_KINDS[leaf]
-        cv = _class_attrs(cls)
-        doc = ast.get_docstring(cls) or ""
-        if not doc and is_core and cls_name in CORE_FALLBACK:
-            doc = CORE_FALLBACK[cls_name]["description"]
-        d = {
-            "base": leaf, "kind": kind,
-            "display_name": cv.get("display_name", cls_name),
-            "description": doc,
-            "choices": None, "range": None, "valid_keys": None, "casefold": False,
-            "default": None,
-        }
-        if kind == "choice":
-            opts = sorted((v, k[len("option_"):]) for k, v in cv.items()
-                          if k.startswith("option_") and isinstance(v, int))
-            d["choices"] = [{"name": nm, "value": v} for v, nm in opts]
-            dft = cv.get("default", opts[0][0] if opts else 0)
-            byval = {v: nm for v, nm in opts}
-            d["default"] = byval.get(dft, dft)
-        elif kind == "toggle":
-            d["default"] = bool(cv.get("default", 1 if leaf == "DefaultOnToggle" else 0))
-        elif kind == "range":
-            d["range"] = {"start": cv.get("range_start", 0), "end": cv.get("range_end", 0)}
-            d["default"] = cv.get("default", cv.get("range_start", 0))
-        elif kind in ("set", "list"):
-            vk = cv.get("valid_keys")
-            if vk is None:
-                vk = cv.get("valid_keys_casefold")
-                d["casefold"] = vk is not None
-            d["valid_keys"] = sorted(vk) if vk else []
-            dflt = cv.get("default", [])
-            d["default"] = list(dflt) if isinstance(dflt, (list, tuple)) else []
-        else:  # text
-            d["default"] = cv.get("default", "")
-        return d
-
-    options = []
-    for key, cls_name in fields:
-        d = describe(cls_name)
-        g = group_of.get(cls_name)
-        options.append({
-            "key": key, "class": cls_name, "kind": d["kind"], "base": d["base"],
-            "display_name": d["display_name"], "description": d["description"],
-            "default": d["default"], "choices": d["choices"], "range": d["range"],
-            "valid_keys": d["valid_keys"], "casefold": d["casefold"],
-            "group": g[0] if g else None, "group_collapsed": g[1] if g else False,
-        })
-
-    # Round-trip guarantee: every field carries a non-empty description.
     missing = [o["key"] for o in options if not o["description"].strip()]
     if missing:
-        sys.exit(f"[FAIL] options with no description: {', '.join(missing)} "
-                 "(the wizard cannot explain these -- fix the docstrings)")
+        sys.exit("[FAIL] options with no description: %s (fix the docstrings)" % ", ".join(missing))
 
     validate_presets(options)
 
+    field_order = [k for k, _ in fields]
+    # Deterministic surface hash (no timestamps) so --check can byte-compare.
+    surface = json.dumps([[o["key"], o["kind"], o["default"], o["choices"], o["range"],
+                           o["valid_keys"]] for o in options], sort_keys=True, default=str)
     return {
         "schema": 1,
-        "game": "EldenRing",
-        "source": OPTIONS_REL.replace(os.sep, "/"),
-        "source_sha256": hashlib.sha256(src.encode("utf-8")).hexdigest(),
-        "field_order": [k for k, _ in fields],
-        "groups": [{"name": g["name"], "collapsed": g["collapsed"],
-                    "options": [o["key"] for o in options if o["class"] in g["classes"]]}
-                   for g in groups],
-        "ungrouped": [o["key"] for o in options if o["group"] is None],
+        "game": GAME,
+        "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP %s)" % pin,
+        "source_sha256": hashlib.sha256(surface.encode("utf-8")).hexdigest(),
+        "field_order": field_order,
+        "groups": [],
+        "ungrouped": field_order,
         "options": options,
         "presets": PRESETS,
     }
@@ -364,9 +256,9 @@ def preset_yaml(meta, preset):
         "",
         "name: Player",
         "description: ER options wizard preset - %s" % preset["title"],
-        "game: EldenRing",
+        "game: %s" % GAME,
         "",
-        "EldenRing:",
+        "%s:" % GAME,
     ]
     by_key = {o["key"]: o for o in meta["options"]}
     for k in meta["field_order"]:
@@ -416,8 +308,14 @@ def inject(meta):
 
 
 def main(argv):
-    meta = extract()
+    ap_dir = os.path.join(ROOT, ".ap-test")
+    if "--ap-dir" in argv:
+        i = argv.index("--ap-dir")
+        ap_dir = argv[i + 1]
+
+    meta = extract(ap_dir)
     fresh = dumps(meta)
+
     if "--check" in argv:
         stale = []
         if not os.path.isfile(OUT_JSON):
@@ -432,16 +330,13 @@ def main(argv):
             print("[STALE] " + "; ".join(stale))
             print("        fix: python tools/dump_options_metadata.py --presets --inject")
             return 1
-        print("[ok] wizard metadata is current (%d options, %d groups, %d ungrouped)"
-              % (len(meta["options"]), len(meta["groups"]), len(meta["ungrouped"])))
+        print("[ok] wizard metadata is current (%d options)" % len(meta["options"]))
         return 0
 
     os.makedirs(os.path.dirname(OUT_JSON), exist_ok=True)
     with open(OUT_JSON, "w", encoding="utf-8", newline="\n") as f:
         f.write(fresh)
-    print("[ok] wrote %s (%d options, %d groups; ungrouped: %s)"
-          % (os.path.relpath(OUT_JSON, ROOT), len(meta["options"]), len(meta["groups"]),
-             ", ".join(meta["ungrouped"]) or "none"))
+    print("[ok] wrote %s (%d options)" % (os.path.relpath(OUT_JSON, ROOT), len(meta["options"])))
     if "--presets" in argv:
         write_presets(meta)
     if "--inject" in argv:
