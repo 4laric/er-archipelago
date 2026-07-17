@@ -1,0 +1,9 @@
+# location_descriptions.tsv -- LAYER 1 (highest priority) of the desc_sources waterfall.
+# Hand-authored English descriptions, keyed by the check's event flag. Anything here WINS over the
+# boss / spot-name / nearest-grace / locale layers, so this is where you correct any auto-descriptor
+# that reads badly, and where you give the "self-explanatory" special cases a chosen phrase.
+# Format:  <flag>\t<English description>    (tab-separated; '#' lines and blanks ignored)
+# The description is inserted as:  Region :: Item - <description> [f<flag>]
+flag	description
+# --- examples (edit / extend freely) ---
+510620	Scadutree Avatar

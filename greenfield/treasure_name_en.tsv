@@ -1,0 +1,17 @@
+# treasure_name_en.tsv -- LAYER 3 of the desc_sources waterfall: CURATED English place phrases.
+# Keyed by check flag. Most raw msb_flag_region `treasure_name` values are asset-id noise
+# (award / c0000_9000 / trigflag / bare 宝死体NNN corpse numbering); only a minority carry a real
+# place phrase, usually after a Japanese colon (宝箱000:魔術師の塔). tools/build_treasure_name_seed.py
+# proposes candidates (junk-filtered via desc_sources.clean_treasure_name); a human translates the
+# Japanese phrase to English HERE. Falls BELOW your hand overrides but ABOVE nearest-grace.
+# Format:  <flag>\t<English place phrase>
+flag	place
+# --- seeded from clean post-colon phrases (translations reviewed; extend via the seed tool) ---
+1033407100	Sorcerer's Tower
+1034437300	Sorcerer's Tower
+1034447000	Submerged Ruins, wolf-rider corpse
+1034447010	Lake statue
+1034457100	Wyvern's nest
+1034467100	Lake statue, behind the snake
+1034487100	Ruins cellar
+1037467000	Church

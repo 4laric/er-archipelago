@@ -1,0 +1,13 @@
+# nearest_grace.tsv -- LAYER 4 of the desc_sources waterfall: nearest Site of Grace name per check.
+# Keyed by check flag; value is the grace's human name. Rendered as "near <grace name>".
+# AUTO-GENERATED on Windows -- DO NOT hand-edit rows; put manual fixes in location_descriptions.tsv.
+#
+# Producer chain (needs elden_ring_artifacts + witchy'd MSBs, so it runs on Windows via build.ps1):
+#   1. tools/datamine_item_grace_coords.py  -- emit per-flag item XYZ (MSB Treasure/Enemy parts)
+#                                              and per-grace XYZ (BonfireWarpParam) -> *_coords.tsv
+#   2. tools/build_nearest_grace.py          -- nearest grace per item (map-local; same/adjacent tile)
+#                                              -> this file, grace id resolved to a name via REGION_ID_MAP.md
+#
+# Until that datamine has run this file is empty and the grace layer simply no-ops (checks fall
+# through to the map-tile locale). Commit the generated rows so the sandbox can consume them.
+flag	grace_name

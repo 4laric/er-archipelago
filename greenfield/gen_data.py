@@ -501,6 +501,42 @@ if os.path.isfile(_mfr):
 else:
     print("[gen_data] WARNING: msb_flag_region.tsv absent -- ground-truth re-derivation DISABLED")
 
+
+# ---- location DESCRIPTIONS (desc_sources.py waterfall) -------------------------------------------
+# Append a human descriptor to each check name so the in-client tracker (SPEC-item-tracker) can tell
+# apart same-item checks in a region (Scadutree Fragment x4). Priority + rationale live in
+# desc_sources.py / docs/specs/SPEC-location-descriptions.md. Every source below is an OPTIONAL
+# committed tsv (flag<TAB>text); an absent file just makes that layer no-op, so generation never
+# depends on the Windows-only coord datamine having run.
+_ds_spec = _ilu.spec_from_file_location("desc_sources", os.path.join(HERE, "desc_sources.py"))
+_desc_sources = _ilu.module_from_spec(_ds_spec); _ds_spec.loader.exec_module(_desc_sources)
+
+def _load_flag_str_tsv(_fname):
+    """flag<TAB>value -> {int flag: value}. utf-8-sig; skips #comments / blank / non-digit-flag rows
+    and a leading 'flag'-headed header. Absent file -> {}."""
+    _path = os.path.join(HERE, _fname); _out = {}
+    if not os.path.isfile(_path):
+        return _out
+    with open(_path, encoding="utf-8-sig", newline="") as _fh:
+        for _ln in _fh:
+            if not _ln.strip() or _ln.lstrip().startswith("#"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) < 2 or not _p[0].strip().lstrip("-").isdigit():
+                continue
+            _v = _p[1].strip()
+            if _v:
+                _out[int(_p[0].strip())] = _v
+    return _out
+
+_DESC_OVERRIDE = _load_flag_str_tsv("location_descriptions.tsv")   # 1. hand-authored English (wins)
+_BOSS_NAMES    = {}                                                # 2. TODO drop-flag -> boss name join
+_SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
+_NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. coord datamine (Windows regen)
+print(f"location desc: overrides={len(_DESC_OVERRIDE)} spot_en={len(_SPOT_EN)} "
+      f"nearest_grace={len(_NEAREST_GRACE)}")
+
+
 def _gt_full_map(_mid):
     """map_id -> the full 4-part map id region_of's tables are keyed on."""
     return _mid + ("_00" if _mid[:3] in ("m60", "m61") else "_00_00")
@@ -2158,10 +2194,17 @@ shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> ma
 apid=BASE_AP; names=set()
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
-    nm=f"{reg} :: {item} [f{flag}]"
+    _t=_loc_tags(r)
+    # human descriptor (desc_sources waterfall). KEEP [f{flag}] as the final, unique tiebreaker; the
+    # descriptor is the readable middle. Item substring + [f...] suffix stay intact so name-substring
+    # and flag-extraction consumers are unaffected.
+    _desc=_desc_sources.describe(flag, r.get('method',''), r.get('map',''),
+        is_boss=('Boss' in _t), is_remembrance=('Remembrance' in _t),
+        overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN,
+        nearest_grace=_NEAREST_GRACE)
+    nm=(f"{reg} :: {item} - {_desc} [f{flag}]" if _desc else f"{reg} :: {item} [f{flag}]")
     if nm in names: nm=f"{nm}#{apid}"
     names.add(nm)
-    _t=_loc_tags(r)
     if _t: loc_tags[apid]=_t
     # A check lands in the HUB either because it IS in the Roundtable (region column says so, or a
     # global/filler row was RECOVERED to a real tile -> region_of returns that tile's region), or
