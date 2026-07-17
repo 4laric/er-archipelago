@@ -74,22 +74,33 @@ Info "+ eldenring.apworld"
 $Me3Src = Join-Path $Repo "me3"
 if (-not (Test-Path $Me3Src)) { Die "me3\ runtime folder not found at $Me3Src." }
 $Me3Dst = Join-Path $Stage "me3"
-Copy-Item $Me3Src $Me3Dst -Recurse -Force
-Info "+ me3\ (runtime bundle)"
+New-Item -ItemType Directory -Force -Path $Me3Dst | Out-Null
 
-# Strip working/personal cruft the wholesale copy pulls in: save/watermark STATE
-# (harmful to ship -- a player would inherit grant watermarks), rotating logs, and
-# stray *.bak backups. Removed from the STAGED copy only; the repo me3\ is untouched.
-$Junk = Get-ChildItem -Path $Me3Dst -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
-    $_.Name -like 'ap_save_*.json' -or $_.Name -like '*.bak' -or $_.Name -like '*.bak_*' -or $_.Extension -eq '.log'
+# ALLOWLIST, not blacklist. The old code copied me3\ WHOLESALE and then stripped a hand-list of cruft
+# (saves / logs / .bak) -- so anything the strip-list didn't anticipate rode into the release: stale
+# .NET / old-loader artifacts, leftover mods\, a second dll, whatever was in your working me3\. A
+# strip-list is always one surprise behind. Copy ONLY the known release entries instead, so nothing
+# unexpected can ever ship. apconfig.json is (re)written fresh below, so it is deliberately NOT here.
+$Me3Allow = @('ap.me3', 'eldenring_archipelago.dll', 'check_lots_table.json', 'shoplineup_flags.json', 'ap-package')
+$copied = 0
+foreach ($name in $Me3Allow) {
+    $src = Join-Path $Me3Src $name
+    if (Test-Path $src) { Copy-Item $src (Join-Path $Me3Dst $name) -Recurse -Force; $copied++ }
 }
-foreach ($j in $Junk) { Remove-Item $j.FullName -Force -ErrorAction SilentlyContinue }
-$StagedLogDir = Join-Path $Me3Dst "log"
-if (Test-Path $StagedLogDir) { Remove-Item $StagedLogDir -Recurse -Force -ErrorAction SilentlyContinue }
-if ($Junk.Count -gt 0) { Info "  stripped $($Junk.Count) cruft file(s) (saves / logs / .bak) from staged me3\" }
-# Hard stop: the save state must NEVER ship (it is the dangerous one).
+Info "+ me3\ (allowlisted $copied of $($Me3Allow.Count) entries)"
+
+# Report -- loudly -- everything in your working me3\ that was NOT shipped, so cruft is visible (and you
+# can go clean it) even though the allowlist already kept it OUT of the release. apconfig.json is
+# expected (written fresh below) so it isn't flagged.
+$skipped = @(Get-ChildItem -Path $Me3Src -Force -ErrorAction SilentlyContinue |
+             Where-Object { $_.Name -notin $Me3Allow -and $_.Name -ne 'apconfig.json' })
+if ($skipped.Count -gt 0) {
+    Warn ("excluded $($skipped.Count) non-release item(s) from your working me3\ (NOT shipped -- clean them up): " +
+          (($skipped | Select-Object -First 25 | ForEach-Object { $_.Name }) -join ", "))
+}
+# Belt-and-suspenders: the save state must NEVER ship (the allowlist already excludes it, but assert).
 $LeakedSaves = @(Get-ChildItem -Path $Me3Dst -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'ap_save_*.json' })
-if ($LeakedSaves.Count -gt 0) { Die ("save-state file(s) still staged after cleanup: " + ($LeakedSaves.Name -join ", ")) }
+if ($LeakedSaves.Count -gt 0) { Die ("save-state file(s) staged despite the allowlist: " + ($LeakedSaves.Name -join ", ")) }
 
 # Hard requirements: without these the game will not load the client.
 $Dll   = Join-Path $Me3Dst "eldenring_archipelago.dll"
