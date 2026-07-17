@@ -1,0 +1,12 @@
+# tile_grace.tsv -- LAYER 4b of the desc_sources waterfall: map TILE -> a Site of Grace on/near it.
+# Keyed by map tile token (m61_50_43), value = grace human name. Rendered as "around <grace>".
+# Coarser than layer 4 (per-check nearest grace): the tile is decoded from the flag (always
+# available, so this rescues PENDING/global_filler checks), the grace is the best one on that tile.
+# AUTO-GENERATED on Windows -- DO NOT hand-edit; manual fixes go in location_descriptions.tsv.
+#
+# Producer (needs grace names, so it runs alongside the coord datamine on Windows):
+#   grace_flags.tsv (tile per grace) + the datamined grace-name table -> best grace per tile
+#   (prefer a grace whose grace_region_map play_region matches the tile's assigned region;
+#    graceless tiles take the nearest grace by tile-center distance in global gx/gz).
+# Until it's generated this file is empty and layer 4b no-ops (checks fall to the tile locale).
+tile	grace_name

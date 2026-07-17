@@ -143,7 +143,7 @@ def _clean(v):
 
 def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
              overrides=None, boss_names=None, spot_names=None,
-             nearest_grace=None, map_names=None):
+             nearest_grace=None, tile_grace=None, map_names=None):
     """Return the human description for a check (no flag, no item), or None.
 
     ``flag`` is an int. All source args are dicts keyed by that int (except map_names, keyed by the
@@ -154,7 +154,9 @@ def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
     boss_names = boss_names or {}
     spot_names = spot_names or {}
     nearest_grace = nearest_grace or {}
+    tile_grace = tile_grace or {}
     map_names = map_names if map_names is not None else _MAP_HUMAN
+    tok = map_short(map_id)   # the check's map TILE (caller passes the flag-decoded tile for PENDING rows)
 
     # 1. hand-authored override -- absolute priority
     d = _clean(overrides.get(flag))
@@ -172,21 +174,55 @@ def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
     if d:
         return d
 
-    # 4. nearest Site of Grace (coord datamine)
+    # 4. nearest Site of Grace, per-check EXACT (coord datamine)
     d = _clean(nearest_grace.get(flag))
     if d:
         return "near " + d
 
+    # 4b. tile-grace: the check's map TILE -> a Site of Grace on/near that tile. Coarser than layer 4
+    # (tile-level ~256 m, not the exact check position), but the tile is derived from the flag so it is
+    # ALWAYS available -- this is what rescues the PENDING/global_filler checks the coord datamine can't
+    # reach. Rendered "around <grace>" to distinguish it from layer 4's exact "near <grace>".
+    if tok:
+        d = _clean(tile_grace.get(tok))
+        if d:
+            return "around " + d
+
     # 5. locale fallback -- method + map sub-tile. REQUIRES a real map token: it only earns its place
-    # when it adds a spatial discriminator. Rows with no map (shop/hub checks, which are self-locating
-    # by their merchant/region prefix) get no locale and stay bare -- "some are self-explanatory".
-    # Gestures are the same: the seven gesture pickups are unique, named, and self-explanatory, so they
-    # skip the locale too (also keeps their exact-name test invariant intact).
+    # when it adds a spatial discriminator. Rows with no map AND no decodable tile (shop/hub checks,
+    # self-locating by their merchant/region prefix) stay bare -- "some are self-explanatory". Gestures
+    # skip it too (unique + self-explanatory; also keeps their exact-name test invariant).
     if (method or "").strip() in _NO_LOCALE_METHODS:
         return None
-    tok = map_short(map_id)
     if not tok:
         return None
     area = _clean(map_names.get(tok)) or tok
-    verb = _METHOD_HUMAN.get((method or "").strip(), (method or "").strip())
-    return (verb + " · " + area) if verb else area   # e.g. "treasure · m20_01"
+    verb = _METHOD_HUMAN.get((method or "").strip(), "")   # unknown method -> tile alone, no ugly verb
+    return (verb + " · " + area) if verb else area   # "treasure · m20_01"  /  "m61_49_49"
+
+
+def collision_ordinals(rows):
+    """The uniqueness backstop (waterfall "layer 6"). Given ``rows`` = a list of
+    ``(base_name, flag)`` in emission order, return ``{index: ordinal}`` for every row whose
+    ``base_name`` is shared by more than one row; the ordinal is a 1-based counter in flag-sorted
+    order within that collision group. Non-colliding rows are omitted (they need no suffix).
+
+    ``base_name`` is the display name WITHOUT the ``[f<flag>]`` suffix (i.e. ``Region :: Item`` or
+    ``Region :: Item - <desc>``). Appending ``(ordinal)`` to the colliding ones guarantees that no two
+    generated location names are identical even when the descriptor layers leave several checks with
+    the same descriptor (e.g. Scadutree Fragments sharing a tile before the coord datamine lands).
+
+    Deterministic + regen-stable: flags are vanilla game constants (seed/option/platform independent),
+    so a check's ordinal never changes across regens. Number over the FULL vanilla check set passed in
+    here, never a per-seed pool subset -- a trim/lean ``location_pool`` must not renumber survivors.
+    """
+    from collections import defaultdict
+    groups = defaultdict(list)
+    for i, (base, flag) in enumerate(rows):
+        groups[base].append((flag, i))
+    out = {}
+    for base, members in groups.items():
+        if len(members) > 1:
+            for n, (_flag, i) in enumerate(sorted(members), 1):
+                out[i] = n
+    return out

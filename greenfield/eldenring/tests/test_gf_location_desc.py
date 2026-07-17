@@ -91,8 +91,9 @@ def test_scadutree_x4_all_distinguishable():
 def test_locale_always_present_when_map_known():
     # every check with a known map gets *something* even with all sources empty
     assert ds.describe(999, "map_lot", "m12_03_00_00") == "world drop · m12_03"
-    # unknown method passes through; unknown map degrades to raw token
-    assert ds.describe(999, "weird", "m99_09") == "weird · m99_09"
+    # unknown/ugly method drops its verb -> tile alone (no "global_filler · m61_49_49")
+    assert ds.describe(999, "weird", "m99_09") == "m99_09"
+    assert ds.describe(999, "global_filler", "m61_49_49") == "m61_49_49"
     # truly nothing known -> None (name stays bare)
     assert ds.describe(999, "", "") is None
     # a shop/hub row (method present, but NO map) stays bare -- self-explanatory, no locale noise
@@ -105,6 +106,31 @@ def test_locale_always_present_when_map_known():
     assert ds.describe(60822, "gesture", "m11_00_00_00") is None
     # ...but a higher layer still names a gesture if one is supplied
     assert ds.describe(60822, "gesture", "m11_00_00_00", overrides={60822: "By the ramparts"}) == "By the ramparts"
+
+
+def test_tile_grace_layer_4b():
+    tg = {"m61_49_49": "Scaduview, Highroad Cross"}
+    # per-check exact grace (layer 4) wins over tile-grace (4b)
+    assert ds.describe(1, "treasure", "m61_49_49_00", nearest_grace={1: "Exact Grace"},
+                       tile_grace=tg) == "near Exact Grace"
+    # no exact grace -> tile-grace, rendered "around"
+    assert ds.describe(1, "global_filler", "m61_49_49_00", tile_grace=tg) == "around Scaduview, Highroad Cross"
+    # tile with no grace entry -> falls through to locale (tile token)
+    assert ds.describe(1, "global_filler", "m61_50_43_00", tile_grace=tg) == "m61_50_43"
+
+
+def test_collision_ordinals():
+    # three share a base, one is alone -> the three get 1..3 in flag order, the loner gets nothing
+    rows = [("A :: Frag - around G", 2050437500),
+            ("A :: Frag - around G", 2050437010),
+            ("A :: Frag - around G", 2051447500),
+            ("A :: Sword", 530810)]
+    o = ds.collision_ordinals(rows)
+    assert o == {1: 1, 0: 2, 2: 3}, o          # flag-sorted: ...010 -> 1, ...500 -> 2, ...447500 -> 3
+    assert 3 not in o                            # the unique row gets no ordinal
+    # applying the ordinals yields four distinct names
+    names = [b + (f" ({o[i]})" if i in o else "") for i, (b, _f) in enumerate(rows)]
+    assert len(set(names)) == 4
 
 
 if __name__ == "__main__":

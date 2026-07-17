@@ -529,12 +529,31 @@ def _load_flag_str_tsv(_fname):
                 _out[int(_p[0].strip())] = _v
     return _out
 
+def _load_tile_str_tsv(_fname):
+    """tile<TAB>value -> {tile_str: value}. Like _load_flag_str_tsv but the key is a map tile token
+    (m61_50_43), not a digit flag. utf-8-sig; skips #comments/blank and a 'tile'-headed header."""
+    _path = os.path.join(HERE, _fname); _out = {}
+    if not os.path.isfile(_path):
+        return _out
+    with open(_path, encoding="utf-8-sig", newline="") as _fh:
+        for _ln in _fh:
+            if not _ln.strip() or _ln.lstrip().startswith("#"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) < 2 or not re.match(r"m\d\d", _p[0].strip()):
+                continue
+            _v = _p[1].strip()
+            if _v:
+                _out[_p[0].strip()] = _v
+    return _out
+
 _DESC_OVERRIDE = _load_flag_str_tsv("location_descriptions.tsv")   # 1. hand-authored English (wins)
 _BOSS_NAMES    = {}                                                # 2. TODO drop-flag -> boss name join
 _SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
-_NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. coord datamine (Windows regen)
+_NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. per-check nearest grace (Windows)
+_TILE_GRACE    = _load_tile_str_tsv("tile_grace.tsv")              # 4b. tile -> grace name (Windows)
 print(f"location desc: overrides={len(_DESC_OVERRIDE)} spot_en={len(_SPOT_EN)} "
-      f"nearest_grace={len(_NEAREST_GRACE)}")
+      f"nearest_grace={len(_NEAREST_GRACE)} tile_grace={len(_TILE_GRACE)}")
 
 
 def _gt_full_map(_mid):
@@ -2191,20 +2210,23 @@ loc_tags={}
 defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
 erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
 shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
-apid=BASE_AP; names=set()
+apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
     _t=_loc_tags(r)
-    # human descriptor (desc_sources waterfall). KEEP [f{flag}] as the final, unique tiebreaker; the
-    # descriptor is the readable middle. Item substring + [f...] suffix stay intact so name-substring
-    # and flag-extraction consumers are unaffected.
-    _desc=_desc_sources.describe(flag, r.get('method',''), r.get('map',''),
+    # human descriptor (desc_sources waterfall). KEEP [f{flag}] as the final tiebreaker; the descriptor
+    # is the readable middle. Item substring + [f...] suffix stay intact so name-substring and
+    # flag-extraction consumers are unaffected. Feed the map TILE: use the placed map when present, else
+    # decode it from the flag (_recover_tile) so PENDING/global_filler checks still get a tile locator.
+    _mtile=r.get('map','') or ''
+    if not re.match(r'm\d\d', _mtile):
+        _mtile=_recover_tile(flag) or ''
+    _desc=_desc_sources.describe(flag, r.get('method',''), _mtile,
         is_boss=('Boss' in _t), is_remembrance=('Remembrance' in _t),
         overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN,
-        nearest_grace=_NEAREST_GRACE)
-    nm=(f"{reg} :: {item} - {_desc} [f{flag}]" if _desc else f"{reg} :: {item} [f{flag}]")
-    if nm in names: nm=f"{nm}#{apid}"
-    names.add(nm)
+        nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE)
+    _base=(f"{reg} :: {item} - {_desc}" if _desc else f"{reg} :: {item}")
+    _name_pending.append((reg, _base, apid, flag))
     if _t: loc_tags[apid]=_t
     # A check lands in the HUB either because it IS in the Roundtable (region column says so, or a
     # global/filler row was RECOVERED to a real tile -> region_of returns that tile's region), or
@@ -2225,7 +2247,20 @@ for r in rows:
     # all 49 of Enia's block-1015 rows are release-gated, several behind ENDGAME flags.
     if flag in SHOP_RELEASE_GATED_FLAGS:
         shop_gated_aps.append(apid)
-    buckets.setdefault(reg,[]).append((nm,apid,flag)); apid+=1
+    apid+=1
+
+# ---- collision ordinals (desc_sources "layer 6"): guarantee every location NAME is unique ---------
+# When several checks share an identical base name (same region+item+descriptor -- e.g. Scadutree
+# Fragments on one tile before the coord datamine lands), append " (n)" in flag-sorted order. This
+# replaces the old "#apid" hack with a stable, human-meaningful ordinal, and is the mechanical
+# guarantee of uniqueness regardless of how populated the descriptor layers are.
+_ords=_desc_sources.collision_ordinals([(_b,_fl) for (_rg,_b,_ap,_fl) in _name_pending])
+for _k,(_rg,_b,_ap,_fl) in enumerate(_name_pending):
+    _n=_ords.get(_k)
+    _nm=(f"{_b} ({_n}) [f{_fl}]" if _n else f"{_b} [f{_fl}]")
+    buckets.setdefault(_rg,[]).append((_nm,_ap,_fl))
+_all_names=[_x[0] for _v in buckets.values() for _x in _v]
+assert len(_all_names)==len(set(_all_names)), "FATAL: duplicate location names after ordinal pass"
 
 
 # ---- NOT_RANDOMIZED ledger: deliberate absence, made visible -------------------------------------

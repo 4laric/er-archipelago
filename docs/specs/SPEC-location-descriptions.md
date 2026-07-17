@@ -37,8 +37,12 @@ and no Archipelago (`eldenring/tests/test_gf_location_desc.py`). First non-empty
 | 1 | override | `location_descriptions.tsv` (flag→EN) | hand-authored, ALWAYS wins; where you fix any auto-descriptor or name a special case ("Remembrance of the Shadow Sunflower" → `Scadutree Avatar`) |
 | 2 | boss | `boss_names` (flag→name) | boss/remembrance drops → boss name. Currently empty (`_BOSS_NAMES = {}`); remembrances are already unique so this is polish. TODO: a drop-flag→boss-name join (BOSS_HEALTHBARS is keyed by defeat flag, not drop flag). |
 | 3 | spot | `treasure_name_en.tsv` (flag→EN) | CURATED place phrases. Most raw `msb_flag_region.treasure_name` values are asset-id noise (`award`/`c0000_9000`/bare `宝死体NNN`); the good ones are a JP place phrase after a colon. `clean_treasure_name()` isolates candidates; a human translates them here. |
-| 4 | grace | `nearest_grace.tsv` (flag→grace name) | rendered `near <grace>`. The real locator for the Scadutree ×4 case. Produced by the Windows coord datamine (§4). |
-| 5 | locale | method + map sub-tile | always-available last resort, e.g. `treasure · m20_01`. Requires a real map token, so shops/hub checks (no map) and gestures stay bare — "some are self-explanatory". |
+| 4 | grace | `nearest_grace.tsv` (flag→grace name) | rendered `near <grace>` (per-check EXACT). Produced by the Windows coord datamine (§4). |
+| 4b | tile-grace | `tile_grace.tsv` (tile→grace name) | rendered `around <grace>` (tile-level ~256 m). The tile is decoded from the flag (`_recover_tile`), so this reaches the `PENDING`/`global_filler` checks the coord datamine can't. Grace names from the Windows run. |
+| 5 | locale | method + map sub-tile | last resort, e.g. `treasure · m20_01` / bare `m61_49_49`. gen_data feeds the flag-decoded tile, so even `PENDING` rows get one; shops/hub (no tile) and gestures stay bare. |
+| 6 | ordinal | flag-sorted `(n)` | uniqueness backstop (`collision_ordinals`): any checks still sharing an identical base name get `(n)` in flag order over the FULL vanilla set. Guarantees no two location names are ever identical, whatever the layers above produced. |
+
+Per the 2026-07-17 Fable consult (see this file's git history / the disambiguation section below), `map == PENDING` in the region pipeline does NOT mean the check is placeless: the flag self-encodes a tile for **all 111 ambiguous progression_surface checks**, so gen_data decodes it (`_recover_tile`) and every ambiguous check becomes uniquely tile-located in-sandbox (verified: 190 surface checks → 190 unique names, 0 dupes). Layers 4b + 6 need no Windows work for uniqueness; the coord datamine only upgrades the tile tokens to real grace names and exact pins.
 
 Every source file is **optional**: an absent tsv makes its layer no-op, so generation never depends
 on the Windows datamine having run. `gen_data` loads them (`_load_flag_str_tsv`) and calls
