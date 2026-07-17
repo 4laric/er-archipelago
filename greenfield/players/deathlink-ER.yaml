@@ -1,0 +1,15 @@
+# Cross-game DeathLink test -- Elden Ring slot (base game).
+name: Tester_ER
+game: Elden Ring
+description: Cross-game DeathLink test -- Elden Ring
+
+Elden Ring:
+  num_regions: 0
+  num_regions_order: spine
+  ending_condition: region_locks
+  #leyndell_runes_required: 2
+  enable_dlc: true
+  dlc_only: true
+  accessibility: minimal
+  progression_balancing: 50
+  death_link: true
