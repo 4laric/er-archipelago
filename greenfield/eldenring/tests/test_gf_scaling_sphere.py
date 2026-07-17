@@ -41,6 +41,20 @@ def _tuples(ranges):
     return sorted(tuple(t) for t in ranges)
 
 
+def test_blessing_floor_producer_stays_alive_though_off_by_default():
+    # global_scadutree_blessing is frozen OFF (defaults.py, 2026-07-18) so NO default seed emits
+    # dlcScadutreeFloorRanges -- but the `scaled` option value and the pure producer are RETAINED.
+    # This proves the producer still works, so dlcScadutreeFloorRanges in
+    # test_gf_slot_data_fixture._CONTRACT_NOT_EMITTED is a JUSTIFIED not-emitted key, not a rotted
+    # one: a kept DLC region yields a [lo, hi, floor] triple per play_region bucket, and a base-game
+    # seed yields nothing (inert).
+    from worlds.eldenring.region_spine import DLC_REGIONS
+    floors = sc.blessing_floor_ranges(sorted(DLC_REGIONS))
+    assert floors, "blessing_floor_ranges must still emit floors for kept DLC regions"
+    assert all(len(t) == 3 for t in floors), "each floor is a [lo, hi, floor] triple"
+    assert sc.blessing_floor_ranges(["Limgrave", "Liurnia"]) == [], "no DLC kept -> no floors (inert)"
+
+
 def _region_targets(world, wire):
     """region -> emitted target, resolved through the play_region buckets."""
     pid_t = {lo: t for lo, _hi, t in wire}

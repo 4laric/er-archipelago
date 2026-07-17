@@ -207,7 +207,8 @@ Elden Ring:
 #    buyable_stonesword_keys   ON
 #    flatten_regular_upgrades  2    -- a UNIFORM 2-stone ladder, NOT the vanilla 2/4/6
 #    completion_scaling_floor  0    -- enemy scaling is always on, keyed to progression
-#    global_scadutree_blessing scaled  -- (only relevant with the DLC on)
+#    global_scadutree_blessing off    -- fully vanilla: DLC blessing is earned from Scadutree
+#                                          Fragments only (the per-area floor was removed 2026-07-18)
 #
 #  `grace_rando` no longer exists at all.
 # ============================================================================

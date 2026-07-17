@@ -68,19 +68,21 @@ INFORMATIONAL_EXTRAS = {
 # it actually emits, plus the informational extras. Built at import time so it tracks contract.py.
 # (enable_dlc / lockRevealFlags / versions are contract-declared but not emitted by the current
 # world. regionSphereTargetRanges IS emitted as of I2 -- features/scaling.py, the live scaling wire.)
-# dlcScadutreeFloorRanges IS emitted (global_scadutree_blessing is frozen at its declared default, 2 =
-# scaled; defaults.py). It was briefly listed here while the option was frozen OFF -- which is exactly
-# backwards: this guard exists to catch a contract key losing its producer, and the key losing its
-# producer is what it was reporting. A declared, client-consumed key that stops being emitted is a
-# HALF-FEATURE (CONTRIBUTING: emitted-but-unconsumed), not a baseline to refresh. If a key ever
-# genuinely stops being emitted, the fix is to justify it here in prose or tag the client path
-# CONTRACT: DEAD -- never to silence the gate.
+# dlcScadutreeFloorRanges is NOT emitted by a default seed as of 2026-07-18: global_scadutree_blessing
+# is frozen OFF (defaults.py balance call -- the per-DLC-region blessing FLOOR made the DLC too easy).
+# This is a JUSTIFIED not-emitted key, not a silenced gate: the option's `scaled` value, the gen
+# producer (blessing_floor_ranges / DLC_BLESSING_FLOORS), and the client floor consumer (scaling.rs)
+# are ALL retained -- a seed that sets `scaled` still emits + consumes the wire (covered by the pure
+# blessing_floor_ranges test in test_gf_scaling_sphere). Only the DEFAULT stopped emitting it, by
+# design. The guard's rule holds: a key that genuinely loses its producer must be justified here in
+# prose (this) or tagged CONTRACT: DEAD -- never silently dropped.
 # runeGatedGraces / greatRuneItemIds: RETIRED 2026-07-14 (gated-children fix). Their client half
 # was NEVER built -- the keys appear in contract_gen.rs and in no consumer over the client repo's
 # full history -- so the pair was emitted-and-parsed-by-nothing, the exact half-feature this guard
 # exists to name. A gated child's grace bundle is now withheld outright (features/graces.py) and
 # both keys are tagged CONTRACT: DEAD in contract.py.
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds"}   # `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
+_CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds",
+                         "dlcScadutreeFloorRanges"}   # blessing frozen OFF 2026-07-18 -- see above; `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).

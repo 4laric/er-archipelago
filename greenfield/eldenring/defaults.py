@@ -98,12 +98,14 @@ FROZEN_OPTIONS = {
     # after_consumption and friends). The option is now a REAL yaml toggle, default ON, declared on
     # features/progressive.ProgressiveFlasks -- the intended flask economy for v0.2.
     "dungeon_sweep": (2, "all"),
-    # NOT half-built -- finished on BOTH sides, so it ships at its declared default (2 = scaled), not
-    # off. gen has DLC_BLESSING_FLOORS and emits dlcScadutreeFloorRanges (only when this == 2); the
-    # client consumes it (er-logic scaling.rs: DLC enemy-tier cap; hook.rs get/set_scadutree_blessing).
-    # Freezing it OFF never emitted the floor wire, so the client's floor path was dead code and a DLC
-    # player arrived with ~0 blessing and got brutalised -- the exact thing the feature prevents.
-    "global_scadutree_blessing": (2, "scaled"),
+    # OFF (fully vanilla) as of 2026-07-18 (Alaric balance call): with the DLC enemy scaling handled
+    # separately, the per-DLC-region blessing FLOOR made the DLC "way too easy" -- you arrived at each
+    # area already at its expected blessing without collecting a single Scadutree Fragment. Off = the
+    # game grants blessing ONLY from fragments you actually hold, applied on rest, exactly as vanilla.
+    # The mechanism + client consumer (er-logic scaling.rs floor path; DLC_BLESSING_FLOORS; the
+    # `scaled` option value) are RETAINED, just not the shipped default -- so no default seed emits
+    # dlcScadutreeFloorRanges (justified in test_gf_slot_data_fixture._CONTRACT_NOT_EMITTED).
+    "global_scadutree_blessing": (0, "off"),
     "progression_surface_mode": (2, "strict"),
     # NB: `progression_surface` is deliberately NOT frozen -- it is the one genuinely interesting
     # player-facing lever (WHICH locations may hold progression), it is finished, and its categories are

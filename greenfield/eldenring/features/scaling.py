@@ -212,13 +212,14 @@ class GlobalScadutreeBlessing(Choice):
     blessing from held Scadutree Fragments via the vanilla curve (same effect, applied eagerly).
     scaled = player_only PLUS a per-DLC-region blessing FLOOR, so a DLC region you unlock without
     fragments still meets that area's expected blessing and its enemies aren't insane; collected
-    fragments still count above the floor (max). Default scaled -- inert unless DLC regions are in
-    play, and a much kinder default than being brutalised by blessing-assuming enemies."""
+    fragments still count above the floor (max). Default OFF (2026-07-18 balance call): the floor made
+    the DLC too easy -- you started every area already blessed -- so blessing is fully vanilla by
+    default (earn it from fragments). scaled/player_only remain available if you want the safety net."""
     display_name = "Global Scadutree Blessing"
     option_off = 0
     option_player_only = 1
     option_scaled = 2
-    default = 2
+    default = 0
 
 
 @register
