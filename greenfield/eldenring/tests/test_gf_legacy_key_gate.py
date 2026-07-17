@@ -11,6 +11,7 @@ from BaseClasses import ItemClassification as IC, CollectionState  # noqa: E402
 from Fill import distribute_items_restrictive  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import (  # noqa: E402
     _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES)
+from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from ._util import world_items  # noqa: E402
 
 GAME = "Elden Ring"
@@ -71,8 +72,13 @@ def test_lamenters_gaol_multi_gate_covers_both_keys_and_boss():
     gated behind BOTH keys (map-lot range 4102xxxx + the f520770 boss-reward extra). Pure over data."""
     gate = next(g for g in _MULTI_KEY_GATES if g["id"] == "lamenters_gaol")
     gated = _multi_gated_location_ids([gate])
-    for ap in (7772586, 7772590, 7773952):  # Upper Key loc, Lower Key loc, Lamenter's Mask (boss)
-        assert ap in gated, f"gaol check {ap} not gated"
+    # Look the checks up by their STABLE flags, not hard-coded ap-ids -- ap-ids are POSITIONAL and
+    # renumber whenever a check is added/removed (the tracker-description pass shifted these by 2).
+    charos = {int(f): ap for (_n, ap, f) in LOCATIONS.get("Charo's", ())}
+    for flag in (41027000, 41027320, 520770):  # Upper Key loc, Lower Key loc, Lamenter's Mask (boss)
+        ap = charos.get(flag)
+        assert ap is not None, f"flag {flag} is not a Charo's location"
+        assert ap in gated, f"gaol check flag {flag} (ap {ap}) not gated"
     assert all(set(ks) == set(GAOL_KEYS) for ks in gated.values()), "every gaol check needs BOTH keys"
 
 

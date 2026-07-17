@@ -40,7 +40,12 @@ class TestGestureData:
     def test_alarics_find_is_a_check_in_leyndell(self):
         # "By My Sword" paying vanilla in Leyndell (in-game 2026-07-14) is what exposed the class.
         by_my_sword = [(r, n) for (r, n, _a, f) in _gesture_locs() if f == 60822]
-        assert by_my_sword == [("Leyndell", "Leyndell :: By My Sword [f60822]")]
+        assert len(by_my_sword) == 1, by_my_sword
+        region, name = by_my_sword[0]
+        assert region == "Leyndell", region
+        # The tracker-description pass may append "- around <grace>" to the check NAME, so match the
+        # stable parts (the item + its flag), not the exact string.
+        assert "By My Sword" in name and "[f60822]" in name, name
 
     def test_regions_are_real(self):
         for (region, name, _a, _f) in _gesture_locs():

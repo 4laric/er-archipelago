@@ -25,7 +25,7 @@ of the three are checks a player can hunt and NEVER obtain. Do not paper over it
     suppression: the vanilla ware double-dips at these checks. They are deliberately NOT in
     coverage_quarantine.ACCEPTED_LEAKS -- they stay visible here until someone decides to either
     fix them (blank via an EMEVD/lot enrichment) or formally accept them.
-  * static full pool: 4833 emitted locations (562 shop checks).
+  * static full pool: 4833 emitted locations (561 shop checks).
 
 Run (static half): python -m pytest greenfield/eldenring/tests/test_coverage_gate.py
 Run (both halves): python tools/gf_test.py -- -k coverage_gate
@@ -44,7 +44,8 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 BASELINE_TOTAL_LOCATIONS = 4848   # 4833 (post synthetic-award-guard regen) + 10 finale (the
                                   # conditional Ashen Capital, 2026-07-14) + 7 gesture pickups --
                                   # every new location covered; the gate stayed at ZERO violations
-BASELINE_SHOP_CHECKS = 562
+BASELINE_SHOP_CHECKS = 561   # 562 -> 561 (2026-07-18): the shop-region/ShopSlot pass reclassified one
+                             # merchant check off the shop_stock_flag channel; total pool unchanged (4848)
 # EMPTY, and it must stay that way. ap_id -> region (so scoped runs can subset).
 #
 # This held the 6 suppression holes the gate found on debut -- Glintstone Scrap, Gravel Stone, and four
