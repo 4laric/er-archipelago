@@ -12,9 +12,14 @@ PROGRESSION (core._class_for reads world.gf_legacy_keys) and at least one vanill
 listed key sits OUTSIDE its dungeon (e.g. the Academy Glintstone Key on the Liurnia overworld at
 flag 1034457100, which is not in the m14 range), so fill always has a reachable slot to place it.
 
+Multi-key gates (features/legacy_key_gates._MULTI_KEY_GATES) handle a sub-dungeon whose checks need
+MORE THAN ONE key ANDed -- DLC Lamenter's Gaol needs BOTH the Gaol Upper and Lower Level Keys.
+
 Currently gated:
   Academy Glintstone Key  ->  Raya Lucaria Academy (its own region since region-spine v2; the key
                               is required IN ADDITION to the region's Lock, like the vanilla fog);
+  Gaol U+L Level Keys      ->  Lamenter's Gaol (m41_02, Charo's) -- BOTH keys, check-level, incl.
+                              the Lamenter boss reward (f520770). See _MULTI_KEY_GATES;
   Hole-Laden Necklace     ->  Metyr's remembrance check. NB: the Cathedral surface is Scaduview
                               (bucket 6920), but Metyr's ARENA is m25_00, whose own grace the game
                               buckets 6900 = Scadu Altus (MSB truth, measured 2026-07-12) -- so the
@@ -45,12 +50,29 @@ _LEGACY_KEYS = {
 }
 _LEGACY_EXTRA = {"Academy Glintstone Key": frozenset({197, 60440}), "Hole-Laden Necklace": frozenset({510550})}
 
+# MULTI-KEY gates: a dungeon whose checks need MORE THAN ONE key ANDed (nested cells). DLC Lamenter's
+# Gaol (m41_02, in Charo's): the Gaol Upper + Lower Level Keys open its nested cells, the Lamenter
+# boss sits behind them, and BOTH vanilla key locations sit INSIDE the gaol (flags 41027000 /
+# 41027320) -- so there is no "spare key outside" and the coarse region-lock model would treat the
+# whole gaol (incl. the Lamenter) as reachable on the Charo's Lock alone: softlock (Alaric, playtest
+# 2026-07-16). Require BOTH keys for EVERY gaol check + the boss reward. Conservative on purpose:
+# over-requiring a key (the outer cell may strictly need only the Upper key) never softlocks, and the
+# keys -- forbidden from the gaol via _GATING_ITEMS -- place freely into the rest of the pool.
+# `ranges` are map-lot flag windows [lo, hi); `extra` pins non-map-lot flags (the boss reward).
+_MULTI_KEY_GATES = (
+    {"id": "lamenters_gaol", "region": "Charo's",
+     "keys": ("Gaol Upper Level Key", "Gaol Lower Level Key"),
+     "ranges": ((41020000, 41030000),),
+     "extra": frozenset({520770})},   # Lamenter's Mask f520770 = the Lamenter boss reward
+)
+_MULTI_KEYS = frozenset(k for g in _MULTI_KEY_GATES for k in g["keys"])
+
 # Gating items (region keys + Great Runes) must NEVER be placed BEHIND another gate: two gates can
 # otherwise form an unsolvable cycle (the necklace lands on a Leyndell rune-gated check while a Great
 # Rune lands on the necklace-gated Metyr check -> deadlock; FillError seen 2026-07-10). Forbid ALL of
 # them on every gated location (supersedes the old "!= own key" self-gate rule).
 _GREAT_RUNES = frozenset(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
-_GATING_ITEMS = _GREAT_RUNES | frozenset(_LEGACY_KEYS)
+_GATING_ITEMS = _GREAT_RUNES | frozenset(_LEGACY_KEYS) | _MULTI_KEYS
 
 
 def _gated_location_ids(active):
@@ -70,6 +92,21 @@ def _gated_location_ids(active):
     return out
 
 
+def _multi_gated_location_ids(gates):
+    """ap_ids gated by a MULTI-key gate -> the tuple of keys that must ALL be held. {ap_id: (k1, k2)}.
+    A location matches if its flag falls in any of the gate's map-lot ranges or its `extra` set."""
+    out = {}
+    for g in gates:
+        for (_name, ap_id, flag) in LOCATIONS.get(g["region"], ()):
+            try:
+                fl = int(flag)
+            except (TypeError, ValueError):
+                continue
+            if fl in g["extra"] or any(lo <= fl < hi for (lo, hi) in g["ranges"]):
+                out[ap_id] = g["keys"]
+    return out
+
+
 class LegacyDungeonKeys(DefaultOnToggle):
     """Gate legacy dungeons behind their vanilla key item in logic (e.g. Raya Lucaria Academy needs
     the Academy Glintstone Key on top of its region Lock). Keeps fill from placing required
@@ -84,7 +121,7 @@ class LegacyKeyGates(Feature):
     OPTIONS = {"legacy_dungeon_keys": LegacyDungeonKeys}
 
     def _active_keys(self, world):
-        """Key names whose gate is live this seed: toggle on, vanilla items shuffled (so the key is
+        """SINGLE-key gate names live this seed: toggle on, vanilla items shuffled (so the key is
         in the pool), the key name is a real catalog item, and its parent region is kept."""
         opt = getattr(world.options, "legacy_dungeon_keys", None)
         if opt is None or not opt.value:
@@ -96,25 +133,44 @@ class LegacyKeyGates(Feature):
         return [k for k, (parent, _rng) in _LEGACY_KEYS.items()
                 if k in ITEM_CATALOG and parent in kept]
 
+    def _active_multi(self, world):
+        """MULTI-key gates live this seed: toggle on, vanilla items shuffled, region kept, and every
+        one of the gate's keys is a real catalog item (all keys must be placeable/holdable)."""
+        opt = getattr(world.options, "legacy_dungeon_keys", None)
+        if opt is None or not opt.value:
+            return []
+        shuf = getattr(world.options, "item_shuffle", None)
+        if not (shuf and shuf.value):
+            return []
+        kept = set(world._kept())
+        return [g for g in _MULTI_KEY_GATES
+                if g["region"] in kept and all(k in ITEM_CATALOG for k in g["keys"])]
+
     def generate_early(self, world) -> None:
-        # Publish the active keys so core._class_for upgrades them to PROGRESSION (they are GOODS =>
-        # filler by default). Empty -> nothing marked progression, default fill unchanged.
-        world.gf_legacy_keys = self._active_keys(world)
+        # Publish EVERY active gate key (single + multi) so core._class_for upgrades them to PROGRESSION
+        # (they are GOODS => filler by default). Empty -> nothing marked progression, default fill
+        # unchanged. set_rules re-derives single vs multi (multi keys are not in _LEGACY_KEYS).
+        keys = list(self._active_keys(world))
+        for g in self._active_multi(world):
+            keys += list(g["keys"])
+        world.gf_legacy_keys = keys
 
     def set_rules(self, world) -> None:
         active = getattr(world, "gf_legacy_keys", [])
-        if not active:
-            return
-        gate = _gated_location_ids(active)
-        if not gate:
+        single = [k for k in active if k in _LEGACY_KEYS]
+        multi = self._active_multi(world)
+        if not single and not multi:
             return
         player = world.player
+        gate = _gated_location_ids(single)          # {ap_id: key_name}
+        mgate = _multi_gated_location_ids(multi)     # {ap_id: (k1, k2, ...)}
         # ENTRANCE rule (2026-07-14, gated-children fix): a key that gates a whole MAP RANGE gates
         # region ENTRY, and core.create_regions parents such regions under region_spine.REGION_PARENT
         # (test_gf_gated_children enforces the pairing). Requiring the key on the "To <region>" edge
         # itself makes the wall transitive to any future child hung under it, exactly like the
         # physical seal. Check-level keys (empty range, e.g. the Hole-Laden Necklace) gate no entry.
-        for key in active:
+        # Multi-key gates are check-level (a sub-dungeon inside a kept region) -> no entrance rule.
+        for key in single:
             region, (lo, hi) = _LEGACY_KEYS[key]
             if hi <= lo:
                 continue
@@ -126,11 +182,19 @@ class LegacyKeyGates(Feature):
             entrance.access_rule = (lambda state, p=prev_ent, k=key:
                                     p(state) and state.has(k, player))
         for loc in world.multiworld.get_locations(player):
-            key = gate.get(getattr(loc, "address", None))
-            if key is None:
+            ap = getattr(loc, "address", None)
+            keys = ()
+            sk = gate.get(ap)
+            if sk is not None:
+                keys = (sk,)
+            mk = mgate.get(ap)
+            if mk is not None:
+                keys = keys + tuple(mk)
+            if not keys:
                 continue
             prev = loc.access_rule
-            loc.access_rule = lambda state, p=prev, k=key: p(state) and state.has(k, player)
+            loc.access_rule = (lambda state, p=prev, ks=keys:
+                               p(state) and all(state.has(k, player) for k in ks))
             prev_item = loc.item_rule
             loc.item_rule = lambda item, pv=prev_item: pv(item) and item.name not in _GATING_ITEMS
 
