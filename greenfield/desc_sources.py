@@ -63,6 +63,8 @@ def map_short(map_id):
     if not map_id:
         return ""
     m = str(map_id).split(";")[0].strip()  # a multi-map row uses the first
+    if not re.match(r"m\d\d", m):           # reject placeholders/non-tiles (PENDING, global, "") -> no locale
+        return ""
     parts = m.split("_")
     if len(parts) >= 3 and parts[0][:3] in ("m60", "m61"):
         return "_".join(parts[:3])         # overworld: mNN_XX_YY grid

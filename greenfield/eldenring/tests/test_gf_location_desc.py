@@ -31,6 +31,9 @@ def test_map_short():
     assert ds.map_short("m20_00_00_00;m20_01_00_00") == "m20_00"   # multi-map -> first
     assert ds.map_short("") == ""
     assert ds.map_short(None) == ""
+    # non-tile placeholders (shop/global rows) are NOT map tokens -> no locale
+    assert ds.map_short("PENDING") == ""
+    assert ds.map_short("global") == ""
 
 
 def test_clean_treasure_name_keeps_real_places():
@@ -95,6 +98,9 @@ def test_locale_always_present_when_map_known():
     # a shop/hub row (method present, but NO map) stays bare -- self-explanatory, no locale noise
     assert ds.describe(999, "shop", "") is None
     assert ds.describe(999, "shop_multi", None) is None
+    # shop/global rows carry a placeholder map ('PENDING'); must not leak "global · PENDING"
+    assert ds.describe(999, "global", "PENDING") is None
+    assert ds.describe(999, "shop_merchant", "PENDING") is None
     # gestures are unique + self-explanatory: no locale even with a map (keeps their exact-name test)
     assert ds.describe(60822, "gesture", "m11_00_00_00") is None
     # ...but a higher layer still names a gesture if one is supplied
