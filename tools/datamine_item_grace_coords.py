@@ -182,42 +182,42 @@ def _treasure_item_rows(map_id, lot2flags, part_idx, debug=False):
 
 # ---- grace positions + names --------------------------------------------------------------------
 def _grace_names():
-    """warpUnlockFlag -> human name. Prefer a hand grace_names.tsv; else parse REGION_ID_MAP.md. (B)."""
+    """warpUnlockFlag -> grace name, from committed greenfield/grace_names.tsv
+    (tools/datamine_grace_names.py: BonfireWarpParam.textId1 -> PlaceName FMG)."""
     names = {}
-    gn = os.path.join(AR, "grace_names.tsv")
+    gn = os.path.join(ROOT, "greenfield", "grace_names.tsv")
     if os.path.isfile(gn):
-        for row in csv.DictReader(open(gn, encoding="utf-8-sig"), delimiter="\t"):
-            try:
-                names[int(row["warpUnlockFlag"])] = (row.get("name") or "").strip()
-            except (KeyError, ValueError, TypeError):
-                pass
-        return names
-    rid = os.path.join(AR, "REGION_ID_MAP.md")
-    if os.path.isfile(rid):
-        # tolerant: any line pairing a warp/bonfire id with a name; refine to the real md columns on-box.
-        for ln in open(rid, encoding="utf-8", errors="replace"):
-            m = re.search(r"\b(7\d{4}|71\d{3})\b.*?\|\s*([^|]+?)\s*\|", ln)
-            if m:
-                names.setdefault(int(m.group(1)), m.group(2).strip())
+        for ln in open(gn, encoding="utf-8-sig"):
+            if ln.startswith("#") or not ln.strip():
+                continue
+            p = ln.rstrip("\n").split("\t")
+            if len(p) >= 2 and p[0].strip().isdigit():
+                names[int(p[0])] = p[1].strip()
     return names
 
 
 def _grace_rows():
-    """(flag, mapTile, (x,y,z)) from the positioned grace_flags.tsv (arena_graces uses the same file)."""
-    fp = os.path.join(AR, "grace_flags.tsv")
+    """(flag, mapTile, (x,y,z)): position from BonfireWarpParam.posX/Y/Z, tile from committed
+    greenfield/grace_flags.tsv. VALIDATED: these positions are in the SAME map-local frame as the MSB
+    Part positions (a Belurat treasure resolves to the correct Belurat grace at a sane distance)."""
+    tile = {}
+    gf = os.path.join(ROOT, "greenfield", "grace_flags.tsv")
+    if os.path.isfile(gf):
+        for row in csv.DictReader(open(gf, encoding="utf-8-sig"), delimiter="\t"):
+            try:
+                tile[int(row["warpUnlockFlag"])] = row["mapTile"].strip()
+            except (KeyError, ValueError, TypeError):
+                pass
     out = []
-    if not os.path.isfile(fp):
-        sys.stderr.write(f"missing {fp} (need the POSITIONED grace_flags.tsv from artifacts)\n")
+    bwp = os.path.join(VV, "BonfireWarpParam.csv")
+    if not os.path.isfile(bwp):
+        sys.stderr.write(f"missing {bwp}\n")
         return out
-    for row in csv.DictReader(open(fp, encoding="utf-8"), delimiter="\t"):
-        try:
-            fl = int(row["warpUnlockFlag"])
-            xyz = (row["posX"], row["posY"], row["posZ"])
-        except (KeyError, ValueError, TypeError):
+    for row in csv.DictReader(open(bwp, encoding="utf-8", errors="replace")):
+        fl = row.get("eventflagId", "")
+        if not fl.lstrip("-").isdigit() or int(fl) <= 200 or int(fl) not in tile:
             continue
-        if fl <= 200:
-            continue
-        out.append((fl, row["mapTile"], xyz))
+        out.append((int(fl), tile[int(fl)], (row["posX"], row["posY"], row["posZ"])))
     return out
 
 
