@@ -4,6 +4,68 @@
 # that reads badly, and where you give the "self-explanatory" special cases a chosen phrase.
 # Format:  <flag>\t<English description>    (tab-separated; '#' lines and blanks ignored)
 # The description is inserted as:  Region :: Item - <description> [f<flag>]
-flag	description
 # --- examples (edit / extend freely) ---
+flag	description
+171	Godrick
+172	Starscourge Radahn
+173	Morgott
+174	Rykard
+175	Mohg
+176	Malenia
+197	Rennala
+67000	Kale, Church of Elleh
+67100	Abandoned Merchant Siofra River, up high
+67220	Liurnia Merchang
+67900	Nomad Merchant Caelid South. Near the map piece
+250330	Twin Maiden Husks
+290000	Enia Shop
+320550	Moore, by cross outside of Belurat
+400001	talk to Melina after killing Morgott
+400072	Talk to Tanith
+400130	Kill albinauric disguised as pot (or, talk to him)
+400696	Kill Queelign in church of the crusade
+510010	Godrick
+510040	Morgott
+510070	Hoarah Loux
+510080	Astel
+510110	Fortissax
+510120	Mohg
+510150	Placidusax
+510160	Maliketh
+510190	Loretta (real)
+510200	Malenia
+510220	Rykard
+510230	Elden Beast
+510250	Sewer Mohg
+510260	Makkar
+510300	Starscourge Radahn
+510310	Fire Giant
+510330	Regal Ancestor Spirit
+510400	Divine Beast Dancing Lion
+510430	Promised Consort Radahn
+510440	Hippo
+510460	Messmer
+510480	Putrescent Knight
+510550	Metyr
+510560	Midra
+510600	Romina
 510620	Scadutree Avatar
+510630	BAYLE
+510640	Gaius
+510800	Leonine Misbegotten, Castle Morne Boss
+510900	Rellana
+520770	Lamenter, boss of Gaol
+530110	Agheel
+530810	Dancer of Ranah
+530820	Blackgaol Knight
+530905	Big Red Bear
+10007500	chest in room with banished knight ambush
+20007480	belurat, top of waterfall, ladder
+20007510	drapery, fall off the gravebird roofs
+41027000	in the accessible part of Gaol, chest in a room
+41027320	In the Gaol, after you use the Upper Level Key to unlock
+1034457100	behind the sleepy dragon, on a corpse
+1039507100	Godefroy, Evergaol
+1046367500	Fort Haight chest, up ladder
+1051397900	Fort Faroth chest
+1051587800	in arena after killing Commander Niall, Castle Sol
