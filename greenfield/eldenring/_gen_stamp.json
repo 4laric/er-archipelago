@@ -10,7 +10,7 @@
   "modules": {
     "boss_data.py": "sha256:d26469ace702d95e6d1abebcd6107af77359393e7c8a20e72d537f0e9f79e40a",
     "boss_sweeps.py": "sha256:459e30201b9bcc0913b33d0a9a1f63b605c428b9a73a7ddf7bfdacec23fc5dcb",
-    "data.py": "sha256:6975dfc4a28de69626edb508b99183f38978a47143af4eef6a7968f2a9dc4f29",
+    "data.py": "sha256:0f8ba1a345707fd757dc4e7344f8e2f7b0044d9cd2372dbcd3f6e83ad6762312",
     "item_ids.py": "sha256:9b9102ca78d96e4ce2bf7bf1ebebe938cbc9b09bb94c88ff28651653f6862c05",
     "item_tiers.py": "sha256:3e309defa08a1cf0eeb3cd92ef94884eb8676bc3aa87ab20c117752af6e53ea2",
     "location_tags.py": "sha256:0a004f15fa8b4e58d7ef971f4e00ec50fa291ba99a8ece2ccd8f788ab3b7eb6c",
