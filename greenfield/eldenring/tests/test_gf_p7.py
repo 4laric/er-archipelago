@@ -16,13 +16,14 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 GAME = "Elden Ring"
-TORCH = 24000000
+LANTERN = 0x40000000 | 2070    # goods 2070; replaces the old start Torch (hands-free pouch light)
 STEED = 0x40000000 | 130       # goods 130,  obtained-flag 60100 (Torrent enable)
 BELL = 0x40000000 | 8158       # goods 8158, obtained-flag 60110 (spirit summoning enable)
 PHYSICK = 0x40000000 | 250     # goods 250,  acquisition flag 60020
+WHETSTONE = 0x40000000 | 8590  # goods 8590, obtained-flag 60130 (Ashes of War enable)
 CRIMSON = 0x40000000 | 1001
 CERULEAN = 0x40000000 | 1051
-UNIQUES = {STEED: 60100, BELL: 60110, PHYSICK: 60020}
+UNIQUES = {STEED: 60100, BELL: 60110, PHYSICK: 60020, WHETSTONE: 60130}
 # item_shuffle is FROZEN ON, so start_items also grants the pot VESSELS. Import them rather than
 # re-hardcoding, so a new vessel can't silently drift this test.
 from worlds.eldenring.features.start_items import (  # noqa: E402
@@ -42,19 +43,20 @@ class Phase7Defaults(WorldTestBase):
 
     def test_start_items_default(self):
         si = self.world.fill_slot_data()["startItems"]
-        # The whistle moved OFF this list (uniqueStartGrants below); torch + flasks stay repeated.
-        self.assertEqual(si[:3], [TORCH, CRIMSON, CERULEAN])
+        # The whistle + whetstone knife are uniqueStartGrants (below), not here; lantern + flasks
+        # stay on the plain repeated path.
+        self.assertEqual(si[:3], [LANTERN, CRIMSON, CERULEAN])
         # item_shuffle is FROZEN ON (defaults.py), so start_items also grants pot VESSELS -- held
         # throwing-pot capacity == vessels held, else received pots overflow to storage unusable.
         self.assertTrue(all(x in VESSELS for x in si[3:]),
                         f"trailing startItems must be pot vessels, got {si[3:]}")
 
     def test_unique_start_grants_default(self):
-        # start_with_steed / start_with_bell / start_with_physick (all frozen ON) emit the
+        # start_with_steed / bell / physick / whetstone (all frozen ON) emit the
         # [FullID, obtainedFlag] pairs the client's flag-idempotent unique-grant path consumes.
         sd = self.world.fill_slot_data()
         self.assertEqual(sd["uniqueStartGrants"],
-                         [[STEED, 60100], [BELL, 60110], [PHYSICK, 60020]])
+                         [[STEED, 60100], [BELL, 60110], [PHYSICK, 60020], [WHETSTONE, 60130]])
 
     def test_unique_fullids_never_ride_the_repeated_path(self):
         # A unique FullID in plain startItems would be granted UNCONDITIONALLY next to the
