@@ -2642,7 +2642,8 @@ with open(OUT_PIDS, "w", newline="\n", encoding="utf-8") as _f:
     _f.write('region_groups.PLAY_REGION_GROUPS -- the buckets MEASURED from PlayRegionParam, NOT the\n')
     _f.write('BonfireWarpParam warp-menu ids that REGION_GROUPS is keyed by (they are different numbers\n')
     _f.write('for the same places; conflating them left the kick permissive on most of the map). Minus\n')
-    _f.write('the kick-excluded buckets (Roundtable HUB 11100, tutorial spawn 18000). Consumed by\n')
+    _f.write('the kick-excluded buckets (Roundtable HUB 11100; the intro/tutorial spawn buckets 18000\n')
+    _f.write('and 10010 -- see region_groups.KICK_EXCLUDED_PLAY_IDS). Consumed by\n')
     _f.write('features/area_locks.py (areaLockFlags) and baked into the client (tools/gen_region_locks.py)."""\n')
     _f.write("REGION_PLAY_IDS = {\n")
     for _r in sorted(_RPI):

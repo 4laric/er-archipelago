@@ -3,7 +3,8 @@ Region -> play_region ids (kick-watch geometry), the inverse of
 region_groups.PLAY_REGION_GROUPS -- the buckets MEASURED from PlayRegionParam, NOT the
 BonfireWarpParam warp-menu ids that REGION_GROUPS is keyed by (they are different numbers
 for the same places; conflating them left the kick permissive on most of the map). Minus
-the kick-excluded buckets (Roundtable HUB 11100, tutorial spawn 18000). Consumed by
+the kick-excluded buckets (Roundtable HUB 11100; the intro/tutorial spawn buckets 18000
+and 10010 -- see region_groups.KICK_EXCLUDED_PLAY_IDS). Consumed by
 features/area_locks.py (areaLockFlags) and baked into the client (tools/gen_region_locks.py)."""
 REGION_PLAY_IDS = {
     'Abyssal': [68600],
@@ -35,7 +36,7 @@ REGION_PLAY_IDS = {
     'Shadow Keep': [21000, 21010, 21020],
     'Siofra River': [12020, 12070],
     'Stone Coffin': [22000],
-    'Stormveil': [10000, 10010],
+    'Stormveil': [10000],
     'Weeping': [30000, 30010, 31010, 31020, 32000, 61020],
 }
 
@@ -44,4 +45,4 @@ REGION_PLAY_IDS = {
 # shipping a lock that does nothing is the bug the measured table exists to end.
 REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:abe65d49d52d6c7444beb50355ffad798156e66ebf78f6f317f35b31b84eed63', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:052aa981ef9a556396b44f9cedaf6a41caf0aa74c09acdfdb5ac6927c5d2b2ac'}
+_GEN_STAMP = {'inputs_hash': 'sha256:abe65d49d52d6c7444beb50355ffad798156e66ebf78f6f317f35b31b84eed63', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:e935a4bf0964a0d44e0e128fb4165e0709c6d0e36b86b0cc1f02e90f85660af6'}

@@ -113,10 +113,23 @@ PLAY2AP = {str(pid): region for region, pids in REGION_GROUPS.items() for pid in
 
 # Buckets that must NEVER receive kick-watch geometry, even though they belong to a region above:
 #   11100 -- the Roundtable HUB (always open; the client treats it as home);
-#   18000 -- the tutorial spawn (Stranded Graveyard). It rides Limgrave for CHECK regioning and
-#            grace bundles, but a fresh character SPAWNS there -- geometry here would let a rolled
-#            start that seals Limgrave eject the player out of the tutorial.
-KICK_EXCLUDED_PLAY_IDS = frozenset({11100, 18000})
+#   18000 -- m18_00, the OVERWORLD Stranded Graveyard cliff / Fringefolk Hero's Grave. Rides Limgrave
+#            for CHECK regioning and grace bundles; kept kick-exempt as a tutorial-adjacent bucket.
+#   10010 -- m10_01, the fresh-character SPAWN (the ruined Chapel-of-Anticipation intro, where you
+#            fight/flee the Grafted Scion). It has no checks and no graces of its own, but the game
+#            buckets it under Stormveil (m10) -- so a fresh start with Stormveil sealed (the norm)
+#            USED to kick the player out mid-intro, on a still-settling start-item inventory, and CTD
+#            (Alaric, playtest 2026-07-16). The old exclusion named 18000 as "the spawn"; the MEASURED
+#            spawn play_region is 10010 (client kick-watch log). Excluding it lets the intro play out
+#            with the starting kit (esp. under enemy_rando); the kick instead fires when the player
+#            reaches 10000 (m10_00, the Stranded Graveyard proper -- the last stop before Limgrave),
+#            warping them to Roundtable exactly as the design intends.
+# NOT excluded: 19000 (m19_00). It is the graced (71900) ELDEN THRONE endgame arena, owned by the
+# capital reconciler as the Ashen-capital bucket set (features/capital.capital_partition; see
+# test_gf_capital_reconciler _EXPECTED_ASHEN = [11050, 19000]). The intro never enters it -- the
+# measured intro spawn is 10010, not 19000 -- so excluding it would only break the reconciler's
+# Leyndell partition for no gain. 19000 stays in Leyndell's kick geometry.
+KICK_EXCLUDED_PLAY_IDS = frozenset({11100, 18000, 10010})
 
 
 def region_play_ids():
