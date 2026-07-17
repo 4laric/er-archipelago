@@ -38,15 +38,27 @@ pytest.importorskip("worlds.eldenring")
 import worlds.eldenring as _erpkg  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import _LEGACY_KEYS, _MULTI_KEY_GATES  # noqa: E402
 
-# Trapped keys REVIEWED as benign: their sole source is inside one interior map, but the key is a FREE
-# pickup within its region (it opens a side door, NOT its own source), so once the region Lock is held
-# the key is reachable and nothing is stranded -- unlike the Gaol keys, which sit behind the very cells
-# they unlock. Promote any of these to legacy_key_gates if a playtest ever proves a self-gate.
-# (Reviewed 2026-07-18. The two m20 keys are the least certain -- flagged for an in-game double-check.)
+# Trapped keys REVIEWED as benign -- their sole source is inside one interior map, but no REQUIRED
+# progression can end up stranded behind them (Alaric review 2026-07-18). Two distinct reasons:
+#   * STRUCTURAL benign: the key is a free pickup, not behind the door it opens (no self-gate). Once
+#     the region Lock is held the key is reachable, so nothing is stranded.
+#   * SURFACE-CONDITIONAL benign: the key DOES self-gate (a "progression item" in the strict sense),
+#     but everything it gates is OFF the progression_surface, so fill never places progression behind
+#     it under the DEFAULT (confined) surface. ⚠ This holds ONLY while the surface stays confined: a
+#     seed that WIDENS progression_surface to include those checks -- or plays "no bias" (surface off /
+#     progression allowed anywhere) -- turns this into a REAL Gaol-class self-gate softlock. If that
+#     mode is ever supported, PROMOTE the surface-conditional keys below to legacy_key_gates (a hard,
+#     surface-independent gate) rather than leaving them here.
 REVIEWED_BENIGN = {
+    # structural (free pickup, no self-gate):
     "Rusty Key": "Stormveil (m10) free corpse pickup; opens the Rampart Tower side door, not its own source",
-    "Storeroom Key": "m20 free pickup; opens a storeroom door, reachable once the region Lock is held",
-    "Well Depths Key": "m20 free pickup; opens a well shortcut, reachable once the region Lock is held",
+    # surface-conditional (self-gates, but gates only off-surface content):
+    "Storeroom Key": "Belurat (m20); gates only Hornsent Grandam questline content, none of it on "
+                     "the progression_surface -- safe while the surface stays confined (see ⚠ above)",
+    "Well Depths Key": "Belurat (m20); a self-gating progression item in the strict sense, BUT "
+                       "everything it gates is OFF the progression_surface, so no progression lands "
+                       "behind it under the default confined surface (see ⚠ above -- promote to "
+                       "legacy_key_gates if a 'no bias' / widened-surface mode is ever supported)",
 }
 
 
