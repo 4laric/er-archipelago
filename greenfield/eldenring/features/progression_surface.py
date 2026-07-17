@@ -181,7 +181,13 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
         defaulted = frozenset(_d) | frozenset(_b)
     # Hub merchant slots are barred in EVERY path (own + foreign), regardless of how `defaulted` was
     # computed/passed -- this is the single surface chokepoint both confinements funnel through.
-    barred = frozenset(defaulted) | _roundtable_merchant_aps()
+    # SURFACE_EXCLUDE_APS (hand-excluded surface-tagged checks, e.g. Secret Rite Scroll -- gen_data
+    # _SURFACE_EXCLUDE_FLAGS) are barred here too, always, for the same reason.
+    try:
+        from ..location_tags import SURFACE_EXCLUDE_APS as _sx
+    except Exception:
+        _sx = frozenset()
+    barred = frozenset(defaulted) | _roundtable_merchant_aps() | frozenset(_sx)
     return {ap for ap, tags in tags_map.items()
             if contract.has_class(tags, sel) and ap not in barred}
 

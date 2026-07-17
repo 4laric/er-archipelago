@@ -41,7 +41,7 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4850   # 4833 (post synthetic-award-guard regen) + 10 finale (the
+BASELINE_TOTAL_LOCATIONS = 4848   # 4833 (post synthetic-award-guard regen) + 10 finale (the
                                   # conditional Ashen Capital, 2026-07-14) + 7 gesture pickups --
                                   # every new location covered; the gate stayed at ZERO violations
 BASELINE_SHOP_CHECKS = 562

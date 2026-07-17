@@ -841,8 +841,21 @@ _UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
 # into Gravesite's locks/sweeps) or lie to the logic via HUB, DON'T randomize them -- they stay vanilla
 # pickups. All filler (recipe unlocks), so nothing progression-relevant is lost. (matt-diff category C.)
 _UNPLACEABLE_DLC_COOKBOOKS = frozenset({68510, 68520, 68530, 68540, 68550, 68560, 68830, 68910})
+# Surface-sheet drops (Alaric, 2026-07-17): NON-checks caught reviewing the progression_surface sheet.
+#   14007930 = a SECOND "Academy Glintstone Key" filed under Raya Lucaria Academy. There is only ONE
+#              Academy Glintstone Key in the game (the overworld pickup, flag 1034457100, Liurnia); this
+#              m14 flag is a phantom duplicate -- drop it so the key is a singleton.
+#   100020   = "Ruin Fragment" shop row (Kale, Church of Elleh) whose existence as a real check Alaric
+#              could not confirm -- drop rather than ship a phantom shop check.
+_SHEET_DROPS = frozenset({14007930, 100020})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
-                | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS)
+                | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
+                | _SHEET_DROPS)
+# Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
+# NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
+# as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
+#   21017340 = "Secret Rite Scroll" (Shadow Keep m21_01) -- KeyItem-tagged, but Alaric's call: off surface.
+_SURFACE_EXCLUDE_FLAGS = frozenset({21017340})
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
@@ -1435,6 +1448,12 @@ FLAG_REGION_OVERRIDE = {
                                                #   Peak -- this is the MAJOR_BOSS_EXTRAS anchor that gives the
                                                #   otherwise major-less Jagged Peak a MajorBoss check for the
                                                #   progression_surface restriction. (v0.2; verify in-game.)
+    # --- surface-sheet region fixes (Alaric, 2026-07-17, from the progression_surface description sheet) ---
+    67600: "Limgrave",                         # Missionary's Cookbook [2] = PATCHES' stock; Patches stands at
+                                               #   Murkwater Cave (Limgrave), not the Roundtable Hold the
+                                               #   shop-row block region reported.
+    66750: "Altus",                            # Perfume Bottle = the HERMIT MERCHANT's stock in ALTUS, not
+                                               #   Liurnia (the shop-row block region was wrong).
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
@@ -2210,6 +2229,7 @@ loc_tags={}
 defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
 erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
 shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
+surface_excluded_aps=[] # _SURFACE_EXCLUDE_FLAGS -> surface-tagged but BARRED from progression (Alaric's call)
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
@@ -2247,6 +2267,8 @@ for r in rows:
     # all 49 of Enia's block-1015 rows are release-gated, several behind ENDGAME flags.
     if flag in SHOP_RELEASE_GATED_FLAGS:
         shop_gated_aps.append(apid)
+    if flag in _SURFACE_EXCLUDE_FLAGS:
+        surface_excluded_aps.append(apid)
     apid+=1
 
 # ---- collision ordinals (desc_sources "layer 6"): guarantee every location NAME is unique ---------
@@ -2303,6 +2325,11 @@ _NR_RULES = (
      "unplaceable_dlc_cookbook: DLC cookbook whose lot id encodes no map and which no datamine "
      "places (ESD/scripted gift, matt-diff C 2026-07-14); stays a vanilla pickup rather than lie "
      "about its region"),
+    (lambda _fl, _r: _fl in _SHEET_DROPS,
+     "surface_sheet_drop: dropped on Alaric's 2026-07-17 progression_surface sheet review -- 14007930 "
+     "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
+     "f1034457100); 100020 a 'Ruin Fragment' shop row whose existence as a real check could not be "
+     "confirmed"),
     (lambda _fl, _r: _is_mausoleum_dupe(_r),
      "mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss "
      "drop is the real check; the copy can strand once the drop is shuffled"),
@@ -2323,7 +2350,7 @@ _NR_RULES = (
 _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | frozenset({400280})
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
-                                   | _UNPLACEABLE_DLC_COOKBOOKS)
+                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "
@@ -2827,15 +2854,12 @@ MAJOR_BOSS_EXTRAS = {
         # Remembrance of Putrescence (510480) is ALREADY Remembrance+MajorBoss. Stone Coffin needs
         # nothing; proposing Putrescent for Cerulean would have hard-failed the in-region invariant.
     ],
-    "Scaduview": [
-        (2049490900, "Commander Gaius", "Gaius's Greaves", "HIGH"),
-        # Gaius's drop used to file under GRAVESITE -- not because Gaius is there, but because its row
-        # is method=flag_prefix with region column 'Land of Shadow (DLC)', a PLACEHOLDER that REGION_MAP
-        # was MAPPING instead of DECODING. Its flag (2049490900) self-encodes m61_49_49, and the
-        # Scadutree Fragments on that same tile resolved correctly to Scaduview via the tile path.
-        # Same tile, two answers -- the tell. Fixed at the class (see the DLC-overworld flag_prefix
-        # decode above): 118 DLC checks left Gravesite for their real regions, Gaius among them.
-    ],
+    # "Scaduview" was anchored here by Gaius's Greaves (2049490900) -- REMOVED 2026-07-17 (Alaric):
+    # Gaius does NOT drop his greaves, so entering it as his boss drop was simply WRONG -- it is not a
+    # boss reward at all and has no business on the progression surface. Scaduview still has TWO real
+    # Remembrance+MajorBoss anchors (Shadow Sunflower 510620, Wild Boar Rider = Commander Gaius 510640),
+    # so the region keeps its surface. Gaius's Greaves still decodes to Scaduview (m61_49_49) as a normal
+    # world check via the DLC-overworld flag path.
     "Limgrave": [
         (530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
         # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
@@ -3964,6 +3988,11 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# They stay CHECKS (collect them before you burn and you keep them) but may never carry\n')
     f.write('# PROGRESSION: a check the player can put permanently out of reach cannot be required.\n')
     f.write('ERDTREE_BURN_APS = frozenset(' + repr(_burn) + ')\n')
+    _surfexcl = sorted(set(surface_excluded_aps))
+    f.write('\n# Surface-tagged checks HAND-EXCLUDED from the progression surface (_SURFACE_EXCLUDE_FLAGS\n')
+    f.write('# in gen_data; Alaric\'s call). They stay ordinary checks but never host this world\'s\n')
+    f.write('# progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.\n')
+    f.write('SURFACE_EXCLUDE_APS = frozenset(' + repr(_surfexcl) + ')\n')
     _shopgate = sorted(set(shop_gated_aps))
     f.write('\n# Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an\n')
     f.write('# unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a\n')

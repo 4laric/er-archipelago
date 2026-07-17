@@ -37,7 +37,7 @@ class LegacyKeyGateOn(WorldTestBase):
         # previously a SKIPped `global` row -- as a check. It is inside the m14 range, so it is correctly
         # gated by the Academy Glintstone Key (was 66 before recovery).
         gated = _gated_location_ids([KEY])
-        assert len(gated) == 69 and all(v == KEY for v in gated.values())  # +2 m14 drops surfaced by recovery loosening
+        assert len(gated) == 68 and all(v == KEY for v in gated.values())  # 69 -> 68: dropped the phantom 2nd Academy Glintstone Key f14007930 (Alaric 2026-07-17)
         st = CollectionState(self.multiworld)
         for it in world_items(self):
             if it.name != KEY and (it.classification & IC.progression):
