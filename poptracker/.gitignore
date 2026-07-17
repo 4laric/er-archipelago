@@ -1,0 +1,26 @@
+# Source / generated split (SPEC-map-tracker.md P1).
+#
+# COMMITTED SOURCE stays tracked: the stylized hull SVGs, the coordinate facts
+# (map_calibration*, region_centroids*, region_pins* -- the committed pins let the pack build with no
+# coord dump present), the hand-authored Lua glue (logic/autotracking/init), manifest, and layouts.
+#
+# GENERATED OUTPUT below is (re)built by tools/gen_poptracker.py from the greenfield apworld + the
+# committed coord facts. It churns with every apworld edit, so it is not tracked -- run
+# build_poptracker.ps1 (or `python tools/gen_poptracker.py`) before packaging.
+
+# rasterized map images (from the committed SVGs; heavy binaries)
+images/maps/*.png
+
+# merged PopTracker map def (base + DLC map_defs)
+maps/maps.json
+
+# AP-id / region maps derived from the apworld data model
+scripts/loc_map.lua
+scripts/loc_dlc.lua
+scripts/ap_map.lua
+scripts/region_graph.lua
+
+# location / item tables derived from the apworld data model
+locations/locations.json
+items/items.json
+layouts/item_grid.json
