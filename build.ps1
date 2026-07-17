@@ -183,11 +183,17 @@ if ($Greenfield) {
         throw ("Client submodule missing at {0} -- the generated tracker/contract tables cannot be " +
                "refreshed and would ship STALE against renumbered ap-ids. Run: git submodule update --init" -f $RustDir)
     }
-    Step "  regenerate the client's generated tables (tracker_regions.rs, contract_gen.rs)"
+    Step "  regenerate the client's generated tables (tracker_regions.rs, contract_gen.rs, region_locks.rs)"
     & python (Join-Path $Repo "tools\gen_location_regions.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
     & python (Join-Path $Repo "greenfield\gen_contract.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_contract.py FAILED -- contract_gen.rs not regenerated (see output above)." }
+    # region_locks.rs is the THIRD cross-repo generated table (baked from region_play_ids.py /
+    # region_open_flags.py -- i.e. the region_groups spine). It was omitted here, so a region_groups
+    # change shipped a stale client table until the drift gate (test_gf_data / gen_region_locks
+    # --check) failed. Regenerate it alongside the other two so `-All` never leaves it behind.
+    & python (Join-Path $Repo "tools\gen_region_locks.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_region_locks.py FAILED -- region_locks.rs not regenerated (see output above)." }
 
     # A regen that lands only in your working tree is HALF a fix: the apworld's CI checks the client
     # out at its DEFAULT BRANCH (main) and diffs, so the gate passes only when the regen is committed
@@ -337,9 +343,11 @@ if ($Rust) {
     if ($LASTEXITCODE -ne 0) { throw "datamine_boss_drops.py FAILED (see output above)." }
     & python (Join-Path $Repo "greenfield\gen_data.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_data.py FAILED (see output above)." }
-    Step "  regenerate generated tables (tracker_regions.rs) from greenfield data"
+    Step "  regenerate generated tables (tracker_regions.rs, region_locks.rs) from greenfield data"
     & python (Join-Path $Repo "tools\gen_location_regions.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
+    & python (Join-Path $Repo "tools\gen_region_locks.py")
+    if ($LASTEXITCODE -ne 0) { throw "gen_region_locks.py FAILED -- region_locks.rs not regenerated (see output above)." }
     if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
         throw "cargo not found on PATH. Install rustup from https://rustup.rs, then re-open the shell."
     }

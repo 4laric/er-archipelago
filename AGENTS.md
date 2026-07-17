@@ -148,8 +148,11 @@ byte-matches a Windows regen; the DATA DRIFT gate reconciles if not).
 **Do NOT hand Alaric a per-file regen checklist.** On his box `build.ps1 -All` (⊃ `-Greenfield`) runs
 the WHOLE deterministic regen: `gen-greenfield.ps1` → the datamine + `gen_data.py`, which rewrites
 **every** `eldenring/*.py` generated module **and** re-blesses both stamp files (`_gen_stamp.json` +
-each module's `_GEN_STAMP`), and it also regenerates the client's cross-repo tables
-(`tracker_regions.rs`, `contract_gen.rs`). So if your change touched a GENERATOR or a gen INPUT
+each module's `_GEN_STAMP`), and it also regenerates the client's THREE cross-repo tables
+(`tracker_regions.rs`, `contract_gen.rs`, and `region_locks.rs` — the last baked from the
+`region_groups` spine via `tools/gen_region_locks.py`; it was omitted from `build.ps1` until
+2026-07-17, so a `region_groups` change used to ship a stale client `region_locks.rs` until the
+`test_gf_data` / `gen_region_locks --check` drift gate failed — now wired). So if your change touched a GENERATOR or a gen INPUT
 (`gen_data.py`, `region_groups.py`, a datamined `.tsv`/`.csv`), say it **once** — "needs a
 `-Greenfield`/`-All` regen on your box" — never a file-by-file "remember to regenerate X.py, re-bless
 the stamps, rerun the tracker gen, …". He runs `-All`; it covers all of it. If you already regenerated
