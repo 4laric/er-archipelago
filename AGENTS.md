@@ -83,11 +83,20 @@ This section used to say flatly "`cargo build`/`test` runs on Windows". **That i
 2026-07-11 it cost **three** build round-trips on nothing but wrong symbol names. Two ways to get a
 compile check without touching the Windows box:
 
-**1. CI is the cheap one — it now gates `push` to `main`.**
-`from-software-archipelago-clients/.github/workflows/test.yaml` runs `cargo build` + clippy
-(`-Dwarnings`) on `windows-latest`. It used to trigger on `pull_request` **only**, so pushes straight to
-`main` sailed past it; fixed 2026-07-11. **After pushing a `.rs` change, check the run before telling
-Alaric to build** — anything that is a compile error will already be red.
+**1. CI is the cheap one — it gates `push` to `main`.**
+`from-software-archipelago-clients/.github/workflows/test.yaml` runs on `windows-latest` on every
+**push to `main`** (and `workflow_dispatch`), in this order: `cargo build`, then
+`cargo test -p er-codec -p er-semver -p er-logic -p eldenring-archipelago`, then `cargo fmt -- --check`,
+then `cargo clippy -- -D warnings` **and** `cargo clippy --features=profile -- -D warnings`. It used to
+trigger on `pull_request` **only**, so pushes straight to `main` sailed past it; fixed 2026-07-11. So a
+`.rs` push buys a full Windows build + test + fmt + clippy for free — a compile error, a broken test, a
+format nit, or a clippy lint all come back red.
+⚠️ **You cannot READ that run from the agent sandbox.** `git push` over `github.com` works, but
+`api.github.com` (and therefore `gh`) is **not reachable here** — it 502s through the egress proxy. So
+do NOT tell Alaric you "checked the CI run"; you can't. Push the fix and hand him the Actions link
+(`https://github.com/4laric/from-software-archipelago-clients/actions?query=branch%3Amain`) — the runner
+(or Alaric) confirms green. Reason about fmt/clippy yourself before pushing instead of relying on seeing
+the result.
 
 **2. Cross-compile from Linux — `xcompile-client-linux.sh` (repo root).**
 It builds the real `eldenring_archipelago.dll` for `x86_64-pc-windows-msvc` from a Linux host via
@@ -132,9 +141,21 @@ cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 "$PY" -m pytest -q -p
 ```
 
 Generated files (`eldenring/data.py`, `boss_data.py`, `boss_sweeps.py`, `region_open_flags.py`,
-`item_ids.py`, `location_tags.py`, …) are **regenerated, never hand-edited** — change `gen_data.py`
-and regen. Committing the regenerated data is fine (same artifacts + generator ⇒ byte-matches a
-Windows regen; the DATA DRIFT gate reconciles if not).
+`item_ids.py`, `location_tags.py`, `region_play_ids.py`, …) are **regenerated, never hand-edited** —
+change `gen_data.py` and regen. Committing the regenerated data is fine (same artifacts + generator ⇒
+byte-matches a Windows regen; the DATA DRIFT gate reconciles if not).
+
+**Do NOT hand Alaric a per-file regen checklist.** On his box `build.ps1 -All` (⊃ `-Greenfield`) runs
+the WHOLE deterministic regen: `gen-greenfield.ps1` → the datamine + `gen_data.py`, which rewrites
+**every** `eldenring/*.py` generated module **and** re-blesses both stamp files (`_gen_stamp.json` +
+each module's `_GEN_STAMP`), and it also regenerates the client's cross-repo tables
+(`tracker_regions.rs`, `contract_gen.rs`). So if your change touched a GENERATOR or a gen INPUT
+(`gen_data.py`, `region_groups.py`, a datamined `.tsv`/`.csv`), say it **once** — "needs a
+`-Greenfield`/`-All` regen on your box" — never a file-by-file "remember to regenerate X.py, re-bless
+the stamps, rerun the tracker gen, …". He runs `-All`; it covers all of it. If you already regenerated
+in-sandbox per this section, the committed data is correct and byte-matches his regen — the ONLY thing
+his run adds is the real artifact-hash stamp, which the freshness gate flags for him on its own. Don't
+narrate that as a chore.
 
 ### Datamine joins that work in the sandbox
 - **Item-lot flag → map:** the flag encodes it — `X0SS7000` = map `mX_SS` (e.g. `40017000` = `m40_01`).
