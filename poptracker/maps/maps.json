@@ -1,0 +1,16 @@
+[
+  {
+    "name": "lands_between",
+    "img": "images/maps/lands_between.png",
+    "location_size": 20,
+    "location_border_thickness": 2,
+    "location_shape": "diamond"
+  },
+  {
+    "name": "land_of_shadow",
+    "img": "images/maps/land_of_shadow.png",
+    "location_size": 20,
+    "location_border_thickness": 2,
+    "location_shape": "diamond"
+  }
+]
