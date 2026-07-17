@@ -4,9 +4,32 @@ Synthetic coordinates, no artifacts. Run: python3 eldenring/tests/test_gf_neares
 import importlib.util
 import os
 
+import pytest
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))  # repo root (.../er-archipelago)
-TOOL = os.path.join(ROOT, "tools", "build_nearest_grace.py")
+
+
+def _find_up(rel):
+    """Search UP from the test dir for `rel`. A fixed dirname^3 lands on `_ap` (not the repo root) when
+    the world is INSTALLED and CI runs from `_ap/worlds/eldenring/tests`; `_ap` lives inside the repo,
+    so a walk-up still reaches the source `tools/build_nearest_grace.py`. None when the source tree
+    isn't present (a bare player install)."""
+    d = HERE
+    for _ in range(10):
+        cand = os.path.join(d, rel)
+        if os.path.exists(cand):
+            return cand
+        nd = os.path.dirname(d)
+        if nd == d:
+            break
+        d = nd
+    return None
+
+
+TOOL = _find_up(os.path.join("tools", "build_nearest_grace.py"))
+if TOOL is None:
+    pytest.skip("tools/build_nearest_grace.py not found (source tree absent) -- source-tree tool test",
+                allow_module_level=True)
 
 
 def _load():

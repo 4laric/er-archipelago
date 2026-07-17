@@ -8,14 +8,36 @@ exercised with fixtures. Run directly:  python3 eldenring/tests/test_gf_location
 import importlib.util
 import os
 
+import pytest
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-GF = os.path.dirname(HERE)                 # .../eldenring
-GREENFIELD = os.path.dirname(GF)           # .../greenfield
+
+
+def _find_up(rel):
+    """Search UP from the test dir for `rel`. A fixed dirname^N breaks when the world is INSTALLED
+    (CI runs from `_ap/worlds/eldenring/tests`, one level deeper than the source tree), so walk up
+    until found -- `_ap` lives inside the repo, so the source `greenfield/desc_sources.py` is reachable
+    past it. None when the source tree isn't present at all (a bare player install)."""
+    d = HERE
+    for _ in range(10):
+        cand = os.path.join(d, rel)
+        if os.path.exists(cand):
+            return cand
+        nd = os.path.dirname(d)
+        if nd == d:
+            break
+        d = nd
+    return None
+
+
+_DESC = _find_up(os.path.join("greenfield", "desc_sources.py"))
+if _DESC is None:
+    pytest.skip("greenfield/desc_sources.py not found (source tree absent) -- source-tree tool test",
+                allow_module_level=True)
 
 
 def _load():
-    p = os.path.join(GREENFIELD, "desc_sources.py")
-    spec = importlib.util.spec_from_file_location("desc_sources", p)
+    spec = importlib.util.spec_from_file_location("desc_sources", _DESC)
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m
