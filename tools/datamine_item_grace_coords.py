@@ -126,56 +126,48 @@ def _enemy_item_rows(map_id, lot2flags, npc2lots):
     return rows
 
 
-def _part_position_index(map_id):
-    """part Name -> (x,y,z) for the part dirs a Treasure event can reference. (A) VALIDATE tag names."""
-    idx = {}
-    for sub in ("Asset", "DummyAsset", "Object", "DummyObject"):
-        d = _msb_sub(map_id, "Part", sub)
-        if d is None:
-            continue
-        for fp in glob.glob(os.path.join(d, "*.xml")):
-            try:
-                t = open(fp, encoding="utf-8-sig", errors="replace").read()
-            except OSError:
-                continue
-            nm = re.search(r"<Name>([^<]*)</Name>", t)
-            pos = _POS_RE.search(t)
-            if nm and pos:
-                idx[nm.group(1).strip()] = (pos.group(1), pos.group(2), pos.group(3))
-    return idx
-
-
-def _treasure_item_rows(map_id, lot2flags, part_idx, debug=False):
-    """Event/Treasure -> ItemLotID + referenced part -> that part's position. (A) VALIDATE."""
-    import xml.etree.ElementTree as ET
+def _treasure_item_rows(map_id, lot2flags):
+    """Event/Treasure -> ItemLotID (-> flags) + TreasurePartName -> that Asset/DummyAsset part's
+    Position. Reads ONLY the referenced part files (not the whole Part/Asset directory), so it stays
+    fast -- the earlier full-index version re-parsed every asset in every map and was CPU-bound.
+    VALIDATED against real MSBs (a Belurat treasure resolves to a Belurat grace at ~50m)."""
     d = _msb_sub(map_id, "Event", "Treasure")
     rows = []
     if d is None:
         return rows
+    partdirs = [pd for pd in (_msb_sub(map_id, "Part", s) for s in ("Asset", "DummyAsset")) if pd]
+    poscache = {}
+
+    def _partpos(name):
+        if name in poscache:
+            return poscache[name]
+        p = None
+        for pd in partdirs:
+            fp = os.path.join(pd, name + ".xml")
+            if os.path.isfile(fp):
+                m = _POS_RE.search(open(fp, encoding="utf-8-sig", errors="replace").read())
+                if m:
+                    p = (m.group(1), m.group(2), m.group(3))
+                break
+        poscache[name] = p
+        return p
+
     for fp in glob.glob(os.path.join(d, "*.xml")):
         try:
-            r = ET.parse(fp).getroot()
-        except (ET.ParseError, OSError):
+            t = open(fp, encoding="utf-8-sig", errors="replace").read()
+        except OSError:
             continue
-        lid = (r.findtext("ItemLotID") or "").strip()
-        if not lid or lid in ("-1", "0"):
+        lid = re.search(r"<ItemLotID>(-?\d+)</ItemLotID>", t)
+        if not lid or lid.group(1) in ("-1", "0"):
             continue
-        # a Position directly on the event wins; else resolve the referenced part by name
-        xyz = None
-        pm = _POS_RE.search(ET.tostring(r, encoding="unicode"))
-        if pm:
-            xyz = (pm.group(1), pm.group(2), pm.group(3))
-        else:
-            for tag in ("TreasurePartName", "PartName", "AttachPartName", "PartName1"):
-                nm = (r.findtext(tag) or "").strip()
-                if nm and nm in part_idx:
-                    xyz = part_idx[nm]
-                    break
-        if debug and not xyz:
-            sys.stderr.write(f"[treasure] {map_id} lot {lid}: no position resolved ({os.path.basename(fp)})\n")
+        lot = int(lid.group(1))
+        if lot not in lot2flags:
+            continue
+        pn = re.search(r"<TreasurePartName>([^<]*)</TreasurePartName>", t)
+        xyz = _partpos(pn.group(1).strip()) if pn else None
         if xyz is None:
             continue
-        for flag in lot2flags.get(int(lid), ()):
+        for flag in lot2flags[lot]:
             rows.append((flag, map_id, xyz))
     return rows
 
@@ -229,28 +221,35 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--maps", nargs="*", help="restrict to these map ids (e.g. m20_00 m20_01)")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--debug", action="store_true")
+    ap.add_argument("--enemy", action="store_true",
+                    help="also scan Part/Enemy for enemy-drop checks (slower -- reads every enemy in "
+                         "every map; treasure alone covers most checks)")
     args = ap.parse_args(argv)
 
+    print("[coords] reading params...", flush=True)
     lot2flags = _lot2flags()
-    npc2lots = _npc2lots()
+    npc2lots = _npc2lots() if args.enemy else {}
     gnames = _grace_names()
 
-    # enumerate maps present as witchy dirs
+    # enumerate maps present as witchy dirs (basename set de-dups map/ vs mapstudio/)
     maps = set()
     for m in MSB_DIRS:
         for p in glob.glob(os.path.join(m, "m*-msb-dcx")):
-            mid = os.path.basename(p)[:-len("-msb-dcx")]
-            maps.add(mid)
+            maps.add(os.path.basename(p)[:-len("-msb-dcx")])
     if args.maps:
         want = set(args.maps)
         maps = {mid for mid in maps if mid in want or mid[: mid.rfind("_", 0, mid.rfind("_"))] in want or any(mid.startswith(w) for w in want)}
+    maps = sorted(maps)
+    total = len(maps)
+    print(f"[coords] {total} maps (enemy scan: {'on' if args.enemy else 'off'})", flush=True)
 
     item_rows = []
-    for mid in sorted(maps):
-        part_idx = _part_position_index(mid)
-        item_rows += _enemy_item_rows(mid, lot2flags, npc2lots)
-        item_rows += _treasure_item_rows(mid, lot2flags, part_idx, debug=args.debug)
+    for i, mid in enumerate(maps, 1):
+        if args.enemy:
+            item_rows += _enemy_item_rows(mid, lot2flags, npc2lots)
+        item_rows += _treasure_item_rows(mid, lot2flags)
+        if i % 25 == 0 or i == total:
+            print(f"[coords] {i}/{total} maps  ({len(item_rows)} item rows so far)", flush=True)
 
     # de-dup (flag,map) keeping first position
     seen = set()
