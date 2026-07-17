@@ -140,14 +140,32 @@ def build_ladder(selection):
     return rungs
 
 
+def _roundtable_merchant_aps():
+    """Roundtable Hold (the always-open hub) MERCHANT ShopSlots -- Enia (remembrance weapons/armor)
+    and the Twin Maiden Husks. BARRED from the progression surface (Alaric 2026-07-18): the hub is
+    reachable at spawn, so a Lock / key item placed on a hub merchant slot is 'progression' you already
+    hold on turn one -- trivial. This rule touches ONLY hub ShopSlots; the hub's Golden Seed checks
+    (Seedtree, physical pickups) are left to the normal surface/defaulted logic. Derived from the
+    generated data, so a regen that adds or moves a hub ShopSlot is covered without a hand-list."""
+    try:
+        from ..data import LOCATIONS, HUB
+        from ..location_tags import LOCATION_TAGS as _lt
+    except Exception:
+        return frozenset()
+    return frozenset(ap for (_n, ap, _f) in LOCATIONS.get(HUB, ())
+                     if "ShopSlot" in _lt.get(ap, ()))
+
+
 def allowed_ap_ids(tags_map, classes, defaulted=None):
-    """ap-ids whose tags put them ON THE SURFACE for `classes` (Enia hard-excluded). Pure.
+    """ap-ids whose tags put them ON THE SURFACE for `classes` (Roundtable-Hold merchants -- Enia +
+    Twin Maiden Husks -- hard-excluded). Pure.
 
     Checks in `defaulted` (DEFAULTED_REGION_APS) are BARRED regardless of tags: their region was a
     guess that fell back to the hub, so AP believes them reachable at spawn while the item actually
     spawns wherever it really lives. Fill put a STORMVEIL CASTLE LOCK on one such Golden Seed
     (flag 400220, really in Stormveil) in a Caelid-start seed -- unwinnable. A guessed region may not
-    carry progression. See gen_data._region_is_derived()."""
+    carry progression. See gen_data._region_is_derived(). The hub MERCHANT slots are barred for a
+    related reason -- always reachable at spawn -> trivial progression (see _roundtable_merchant_aps)."""
     sel = set(classes)
     if defaulted is None:
         try:
@@ -161,8 +179,11 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
         except Exception:
             _b = frozenset()
         defaulted = frozenset(_d) | frozenset(_b)
+    # Hub merchant slots are barred in EVERY path (own + foreign), regardless of how `defaulted` was
+    # computed/passed -- this is the single surface chokepoint both confinements funnel through.
+    barred = frozenset(defaulted) | _roundtable_merchant_aps()
     return {ap for ap, tags in tags_map.items()
-            if contract.has_class(tags, sel) and ap not in defaulted}
+            if contract.has_class(tags, sel) and ap not in barred}
 
 
 def is_restricted_progression(item, player):
