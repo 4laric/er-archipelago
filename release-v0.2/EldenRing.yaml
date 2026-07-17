@@ -197,9 +197,10 @@ Elden Ring:
 #    dungeon_sweep             all  -- clearing a dungeon's boss sweeps its checks
 #    boss_lock_placement       own_region
 #    start_with_region_lock    ON   -- you start with one region already open
-#    start_with_torch          ON
+#    start_with_lantern        ON   -- hands-free pouch light (replaces the old start Torch)
 #    start_with_steed          ON   -- Torrent from the start
 #    start_with_flasks         ON
+#    start_with_whetstone      ON   -- Whetstone Knife: Ashes of War from the start
 #    reveal_all_maps           ON
 #    early_leveling            ON   -- level up without meeting Melina
 #    no_weapon_requirements    ON   -- any gear the multiworld sends you is usable

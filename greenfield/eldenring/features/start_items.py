@@ -37,8 +37,18 @@ from Options import DefaultOnToggle
 from ..registry import Feature, register
 from .. import contract
 
-# ER Torch: WEAPON param id 24000000; FullID = id | WEAPON_NIBBLE(0x00000000) = 24000000.
-_TORCH_FULL_ID = 24000000
+# ER Lantern: GOODS id 2070 (item_ids.py 1073743894 = 0x40000000 | 2070); FullID below. Replaces the
+# old start Torch (WEAPON 24000000): the Lantern lights caves/catacombs HANDS-FREE (equipped in a
+# pouch slot, no weapon slot burned), so it's the strictly better opening light source.
+_LANTERN_FULL_ID = 0x40000000 | 2070
+# Whetstone Knife: GOODS id 8590 (item_ids.py 1073750414 = 0x40000000 | 8590); obtained/acquisition
+# flag 60130 (data.py check for the Gatefront Ruins pickup, AP 7000026, m60_42_37). Granted as a
+# UNIQUE (flagged) start item -- same shape as the steed/bell/physick below -- so Ashes of War /
+# weapon skills work from the opening (the Gatefront hand-off is bypassed on region-lock starts).
+# Setting 60130 as the idempotency latch also collects that vanilla location, exactly like the other
+# uniques collect theirs.
+_WHETSTONE_KNIFE_FULL_ID = 0x40000000 | 8590
+_WHETSTONE_KNIFE_FLAG = 60130
 # Spectral Steed Whistle: GOODS id 130; FullID = id | GOODS_NIBBLE(0x40000000) = 1073741954.
 _STEED_WHISTLE_FULL_ID = 0x40000000 | 130
 # 60100 = the Spectral Steed Whistle OBTAINED-flag. In vanilla, MELINA's mount hand-off sets it, and
@@ -83,10 +93,18 @@ _HEFTY_CRACKED_POT_FULL_ID = 0x40000000 | 2009500
 _START_HEFTY_CRACKED_POTS = 10
 
 
-class StartWithTorch(DefaultOnToggle):
-    """Start with a Torch so dark caves and catacombs are navigable before you reach a grace.
-    On by default; turn off for a stricter start."""
-    display_name = "Start With Torch"
+class StartWithLantern(DefaultOnToggle):
+    """Start with a Lantern so dark caves and catacombs are navigable before you reach a grace --
+    hands-free (pouch slot), unlike the Torch it replaces. On by default; turn off for a stricter
+    start."""
+    display_name = "Start With Lantern"
+
+
+class StartWithWhetstone(DefaultOnToggle):
+    """Start with the Whetstone Knife so Ashes of War / weapon skills work from the opening (the
+    Gatefront Ruins hand-off is bypassed on region-lock starts). On by default. Granted only if you
+    don't already have it (obtained-flag 60130)."""
+    display_name = "Start With Whetstone Knife"
 
 
 class StartWithSteed(DefaultOnToggle):
@@ -118,14 +136,14 @@ class StartWithFlasks(DefaultOnToggle):
 @register
 class StartItems(Feature):
     name = "start_items"
-    OPTIONS = {"start_with_torch": StartWithTorch, "start_with_steed": StartWithSteed,
+    OPTIONS = {"start_with_lantern": StartWithLantern, "start_with_steed": StartWithSteed,
                "start_with_bell": StartWithBell, "start_with_physick": StartWithPhysick,
-               "start_with_flasks": StartWithFlasks}
+               "start_with_flasks": StartWithFlasks, "start_with_whetstone": StartWithWhetstone}
 
     def slot_data(self, world):
         items = []
-        if world.options.start_with_torch.value:
-            items.append(_TORCH_FULL_ID)
+        if world.options.start_with_lantern.value:
+            items.append(_LANTERN_FULL_ID)
         if world.options.start_with_flasks.value:
             items.append(_CRIMSON_FLASK_FULL_ID)
             items.append(_CERULEAN_FLASK_FULL_ID)
@@ -147,4 +165,6 @@ class StartItems(Feature):
             uniques.append([_SPIRIT_BELL_FULL_ID, _SPIRIT_BELL_FLAG])
         if world.options.start_with_physick.value:
             uniques.append([_WONDROUS_PHYSICK_FULL_ID, _WONDROUS_PHYSICK_FLAG])
+        if world.options.start_with_whetstone.value:
+            uniques.append([_WHETSTONE_KNIFE_FULL_ID, _WHETSTONE_KNIFE_FLAG])
         return {contract.START_ITEMS: items, contract.UNIQUE_START_GRANTS: uniques}

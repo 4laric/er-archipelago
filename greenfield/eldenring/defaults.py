@@ -63,11 +63,12 @@ FROZEN_OPTIONS = {
     "stone_ramp": (0, None),                   # mechanism DELETED (see core.post_fill); class inert
     "flatten_regular_upgrades": (2, None),
     "auto_upgrade": (1, None),
-    "start_with_torch": (1, None),
+    "start_with_lantern": (1, None),   # replaces the old start Torch: hands-free pouch light
     "start_with_flasks": (1, None),
     "start_with_steed": (1, None),
     "start_with_bell": (1, None),      # unique-grant path: flag 60110 latch, skip-if-owned
     "start_with_physick": (1, None),   # unique-grant path: flag 60020 latch, skip-if-owned
+    "start_with_whetstone": (1, None), # unique-grant path: flag 60130 latch, skip-if-owned
     "start_with_region_lock": (1, None),
     "reveal_all_maps": (1, None),
     "no_weapon_requirements": (1, None),
