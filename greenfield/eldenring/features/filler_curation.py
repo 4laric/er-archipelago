@@ -47,6 +47,32 @@ _PERFUMES = sorted(n for n in ITEM_CATALOG
                    if n.endswith("Spraymist") or n.endswith("Aromatic")
                    or (n.endswith("Perfume Bottle") and n != "Perfume Bottle"))
 
+# Spirit-ash SUMMONS, tier-ordered BEST-FIRST (SS -> S -> A -> B). C/D-tier junk summons are deliberately
+# OMITTED so they stay culled (they share the GOODS nibble, so `_is_junk_consumable` seizes the vanilla
+# copies; this roster only RE-INJECTS the good ones). Drawn UNIQUE best-first by features/filler_budget
+# (like `juice`), so the recipe WEIGHT is the single "how good-only" knob: a small weight surfaces only
+# SS/S, a larger one reaches A then B. Every name resolves in ITEM_CATALOG (absent / DLC-excluded members
+# are skipped at draw time). Excludes Fanged Imp / Spirit Jellyfish (progression-protected -> they survive
+# the cull on their own and would double-place). Tiers: Game8 PvE list + DLC/consensus.
+SPIRIT_ASHES = [
+    # SS
+    "Black Knife Tiche", "Mimic Tear Ashes", "Dung Eater Puppet",
+    # S
+    "Banished Knight Engvall", "Battlemage Hugues", "Lhutel the Headless", "Greatshield Soldier Ashes",
+    "Radahn Soldier Ashes", "Ancient Dragon Knight Kristoff", "Ancient Dragon Florissax",
+    "Black Knight Commander Andreas",
+    # A
+    "Latenna the Albinauric", "Stormhawk Deenh", "Bloodhound Knight Floh", "Cleanrot Knight Finlay",
+    "Nightmaiden & Swordstress Puppets", "Omenkiller Rollo", "Marionette Soldier Ashes",
+    "Kaiden Sellsword Ashes", "Perfumer Tricia", "Rotten Stray Ashes", "Dolores the Sleeping Arrow Puppet",
+    "Fire Knight Queelign", "Fire Knight Hilde", "Black Knight Captain Huw", "Divine Bird Warrior Ornis",
+    "Swordhand of Night Jolán", "Curseblade Meera",
+    # B
+    "Kindred of Rot Ashes", "Warhawk Ashes", "Depraved Perfumer Carmaan", "Blackflame Monk Amon",
+    "Finger Maiden Therolina Puppet", "Taylew the Golem Smith", "Demi-Human Swordsman Yosh",
+    "Bloodfiend Hexer's Ashes",
+]
+
 # ---- category -> member names (all resolve in ITEM_CATALOG; DLC filtered per-world at draw time) ----
 CATEGORIES = {
     "throwables": ["Throwing Dagger", "Bone Dart", "Poisonbone Dart", "Crystal Dart", "Kukri", "Fan Daggers",
@@ -84,6 +110,9 @@ CATEGORIES = {
     "stones": [f"Smithing Stone [{i}]" for i in range(1, 9)],
     "somber_stones": [f"Somber Smithing Stone [{i}]" for i in range(1, 10)],
     "runes": [f"Golden Rune [{i}]" for i in range(1, 14)],
+    # Good spirit-ash summons, RE-INJECTED unique best-first (see SPIRIT_ASHES above / the draw branch in
+    # features/filler_budget). Without this the GOODS-nibble junk seize strips ~all summons from the pool.
+    "spirit_ashes": SPIRIT_ASHES,
     # "junk" is a pseudo-category: that share is left as the original vanilla junk (not redrawn).
 }
 _VALID_CATS = frozenset(CATEGORIES) | {"junk"}
@@ -156,8 +185,12 @@ class CuratedFiller(OptionDict):
     # placed across spheres 0-1 where 24 are needed to afford +3 at a 25% clear rate. The floor exists to
     # stop a player being stuck at +0 deep into a seed, so the right move is to feed the economy, not to
     # weaken the softlock guard -- a check the player can destroy must not be REQUIRED, full stop.
+    # spirit_ashes 8: the good summons re-injected best-first (SS->S->A->B). The roster is ~36 unique
+    # items and the draw is capped there, so on a normal tail this surfaces most of the good ashes and
+    # scales down to SS/S-only on small seeds; raise for more, lower for a leaner spread. Competes on the
+    # non-economy remainder (stones/somber/runes are reserved off the top), so it never starves upgrades.
     default = {"juice": 44, "stones": 27, "somber_stones": 6, "runes": 10,
-               "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1}
+               "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1, "spirit_ashes": 8}
 
 
 @register

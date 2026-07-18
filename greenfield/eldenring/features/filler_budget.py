@@ -50,7 +50,7 @@ from Options import OptionError
 from ..item_ids import ITEM_CATALOG
 from ..data import HUB, LOCATIONS
 from ..item_ids import LOCATION_ITEM
-from .filler_curation import CATEGORIES, _VALID_CATS, displaceable_filler
+from .filler_curation import CATEGORIES, SPIRIT_ASHES, _VALID_CATS, displaceable_filler
 from .pool_builder import juice_order_for_floor, INTENSITY_FLOOR, CATEGORY_OPTION
 from ..item_tiers import ITEM_TIER_CATEGORY
 
@@ -460,6 +460,17 @@ def plan(world, total: int) -> List[Optional[str]]:
                     f"floor but the recipe allocated {n}. Spilling {n - len(picks)} slot(s) to junk.")
                 out += [None] * (n - len(picks))
             out += picks
+        elif cat == "spirit_ashes":
+            # UNIQUE best-first, exactly like juice: the roster is already tier-ordered (SS->S->A->B) and
+            # `_members` keeps that order while dropping DLC-excluded / absent names. A weight larger than
+            # the roster simply spills the overflow to junk (a kept vanilla item) -- never a duplicate ash.
+            picks = _members(world, "spirit_ashes")[:n]
+            if len(picks) < n:
+                logging.getLogger("Greenfield").warning(
+                    f"[eldenring:{world.player}] spirit_ashes: roster holds {len(picks)} in-catalog "
+                    f"ash(es) but the recipe allocated {n}. Spilling {n - len(picks)} slot(s) to junk.")
+                out += [None] * (n - len(picks))
+            out += picks
         else:
             members = _members(world, cat)
             if not members:
@@ -484,8 +495,11 @@ def classify(world, item) -> None:
     GOODS FullID nibble, so core._classify_full defaults it to `filler`. There is no second pass left
     to seize it any more, but AP's fill treats useful and filler differently and juice is meant to be
     the former."""
-    if item.name in _JUICE_NAMES:
+    if item.name in _JUICE_NAMES or item.name in _SPIRIT_ASH_NAMES:
         item.classification = ItemClassification.useful
 
 
 _JUICE_NAMES = frozenset(juice_order_for_floor(JUICE_FLOOR))
+# Re-injected spirit-ash summons are intentional USEFUL picks (same reason as juice: they carry the GOODS
+# nibble so core defaults them `filler`, but fill should treat a Mimic Tear as desirable, not junk).
+_SPIRIT_ASH_NAMES = frozenset(SPIRIT_ASHES)
