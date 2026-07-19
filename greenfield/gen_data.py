@@ -1357,8 +1357,8 @@ FLAG_REGION_OVERRIDE = {
     510300: "Caelid",                          # Remembrance of the Starscourge = Radahn (Caelid); mis-tiled m35
     510100: "Siofra River",                    # Valiant Gargoyles -- Gargoyle's Greatsword mis-tiled m35 (Divine Tower) -> Altus (Alaric 2026-07-10). Was 'Eternal Cities' and the comment said Nokstella; the duo's arena is the SIOFRA AQUEDUCT (below Nokron) -- verify in-game.
     # --- DLC (SotE) region fixes (Alaric 2026-07-10; DLC-CHECK-AUDIT.md) ---
-    510620: "Scaduview",                       # Rem. of the Shadow Sunflower (Scadutree Avatar) -- arena tile 50,48 grace 76960 -> play_region 6920 = Scaduview
-    510640: "Scaduview",                       # Rem. of the Wild Boar Rider = Commander Gaius -- arena tile 49,48 graces 76930/76931 -> play_region 6920 = Scaduview
+    510620: "Shadow Keep",                     # Rem. of the Shadow Sunflower (Scadutree Avatar) -- arena tile 50,48 grace 76960 -> play_region 6920, folded into Shadow Keep 2026-07-19 (was Scaduview)
+    510640: "Shadow Keep",                     # Rem. of the Wild Boar Rider = Commander Gaius -- arena tile 49,48 graces 76930/76931 -> play_region 6920, folded into Shadow Keep 2026-07-19 (was Scaduview); reached THROUGH the Keep
     21017800: "Shadow Keep",                   # Fire Knight Hilde drop: flag self-encodes m21_01 (Shadow Keep Church District) but the row's map column is the m20_00 emevd-scan mis-map; the emevd region_of path never applies the 8-digit lot self-encode. (matt-diff 2026-07-13)
     400696: "Scadu Altus",                     # Prayer Room Key: NPC-invader drop from Fire Knight Queelign at the Church of the Crusade (Scadu Altus, east of Fog Rift Catacombs). Scan pinned it to the LOWER m20_00 lot -> Belurat; the real placement is the overworld invader, no map/grace self-encode. matt agrees Scadu Altus. (Alaric-confirmed 2026-07-14)
     # --- Two-grace m61 tile splits (matt-diff 2026-07-13, GRACE-CORROBORATED) ---
@@ -2711,7 +2711,25 @@ for _reg in sorted(_gg_regions_hit):
 # is often a catacomb/cave INTERIOR grace the player can never see (e.g. Limgrave min was 73000 =
 # m30_00_00 catacomb -> "no graces in-game"). Serves as the region-open flag AND the start/front-door
 # grace. Fall back to any grace only for a pure-dungeon bucket with no overworld grace at all.
+# Per-region front-door PIN: overrides the overworld-beats-interior heuristic for the rare region
+# whose true entrance is an INTERIOR grace even though it also owns overworld graces. The only case
+# is Shadow Keep after the 2026-07-19 Scaduview fold: its real entrance 72102 is m21_00 (interior),
+# but folding in the Hinterland's overworld graces (76935 etc., m61) would make _front_door pick
+# 76935 -- warping Keep-unlock straight to the back-plateau instead of the gate. 76935 sits on the
+# Keep's OWN ground (bucket 21000), so the grace-ground gate can't catch it; the pin is the fix. The
+# pinned flag must be a real, non-foreign candidate of the region (asserted below). The Hinterland
+# graces still ride the Keep's bundle -- lit + warpable on Keep unlock -- just not as the front door.
+_FRONT_DOOR_PIN = {"Shadow Keep": 72102}
 def _front_door(r):
+    if r in _FRONT_DOOR_PIN:
+        _pin = _FRONT_DOOR_PIN[r]
+        if _pin not in _open_cand.get(r, ()):
+            raise SystemExit(f"gen_data: _FRONT_DOOR_PIN[{r!r}]={_pin} is not a candidate grace of "
+                             f"{r!r} ({sorted(_open_cand.get(r, ()))[:8]}...) -- stale pin, fix it.")
+        if _gg_foreign(_pin, r):
+            raise SystemExit(f"gen_data: _FRONT_DOOR_PIN[{r!r}]={_pin} stands on foreign ground "
+                             f"{_GRACE_GROUND.get(_pin)} -- a pin cannot fix a foreign front door.")
+        return _pin
     return min(_open_cand_ow[r]) if _open_cand_ow.get(r) else min(_open_cand[r])
 REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
 for _r, _fd in REGION_OPEN_FLAGS.items():
@@ -2873,10 +2891,11 @@ MAJOR_BOSS_EXTRAS = {
     ],
     # "Scaduview" was anchored here by Gaius's Greaves (2049490900) -- REMOVED 2026-07-17 (Alaric):
     # Gaius does NOT drop his greaves, so entering it as his boss drop was simply WRONG -- it is not a
-    # boss reward at all and has no business on the progression surface. Scaduview still has TWO real
-    # Remembrance+MajorBoss anchors (Shadow Sunflower 510620, Wild Boar Rider = Commander Gaius 510640),
-    # so the region keeps its surface. Gaius's Greaves still decodes to Scaduview (m61_49_49) as a normal
-    # world check via the DLC-overworld flag path.
+    # boss reward at all and has no business on the progression surface. No extras entry is needed now:
+    # Scaduview was FOLDED into Shadow Keep 2026-07-19, and its two real Remembrance+MajorBoss anchors
+    # (Shadow Sunflower 510620, Wild Boar Rider = Commander Gaius 510640) are Shadow Keep's now, on top
+    # of the Keep's own Messmer (510460) -- so the Keep's surface is well covered. Gaius's Greaves still
+    # decodes to m61_49_49 (now Shadow Keep) as a normal world check via the DLC-overworld flag path.
     "Limgrave": [
         (530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
         # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
@@ -2899,10 +2918,10 @@ MAJOR_BOSS_EXTRAS = {
     # sub-regions that split out of them (Rennala -> Raya Lucaria Academy, Morgott -> Leyndell,
     # Rellana -> Ensis, Putrescent Knight -> Stone Coffin), so the PARENTS need extras again. Each
     # entry below is an existing in-region check pinned by GLOBAL_RECOVER / FLAG_REGION_OVERRIDE;
-    # the regen invariant validates region membership. Four regions remain WITHOUT any major --
-    # Cerulean, Charo's, Rauh Base, Scaduview -- because no reliable in-region major-boss drop
-    # check exists in current data (SPEC-region-spine-v2.md; the progression_surface ladder covers
-    # them).
+    # the regen invariant validates region membership. Three regions remain WITHOUT any major --
+    # Cerulean, Charo's, Rauh Base -- because no reliable in-region major-boss drop check exists in
+    # current data (SPEC-region-spine-v2.md; the progression_surface ladder covers them). (Scaduview
+    # was a fourth until 2026-07-19, when it folded into Shadow Keep and brought its two majors along.)
     "Liurnia": [
         (510260, "Magma Wyrm Makar", "Magma Wyrm's Scalesword", "HIGH"),
         # Ruin-Strewn Precipice (bucket 39200, a Liurnia span); recovered via GLOBAL_RECOVER 510260

@@ -166,8 +166,7 @@ DLC_BLESSING_FLOORS = {
     "Charo's": 2,
     "Belurat": 3,
     "Scadu Altus": 7,
-    "Shadow Keep": 10,
-    "Scaduview": 10,
+    "Shadow Keep": 10,   # includes the folded-in Scaduview Hinterland (2026-07-19); same floor it had
     "Stone Coffin": 10,
     "Rauh Base": 10,
     "Ancient Ruins": 12,

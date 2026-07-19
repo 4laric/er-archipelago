@@ -55,12 +55,21 @@ DELIBERATE SPANS (one region, several buckets -- each earns its line):
   * Siofra River = 12020 (Siofra / Nokron) + 12070 (Siofra Bank / Worshippers' Woods);
   * Jagged Peak = 6850 + 6851 (Foot of the Jagged Peak / Dragon Communion Altar);
   * Abyssal = 6860 + 28000 (Midra's Manse, the woods' interior);
-  * Shadow Keep = 21000 + 21001 (Church District) + 21010 (Storehouse).
-Scaduview (6920, the Hinterland) is deliberately its OWN region now (the Cathedral of Manus Metyr is
-NOT part of it -- m25's grace 72500 -> 6900 = Scadu Altus; corrected 2026-07-13 matt-diff):
-the old "fold into Shadow Keep, only reachable through the Keep" reasoning predates region locks
-lighting a region's whole grace bundle -- with its own lock its graces make it warp-reachable, and
-folding it in would have made a back-exit grace the Keep's numerically-first overworld front door.
+  * Shadow Keep = 21000 + 21001 (Church District) + 21010 (Storehouse) + 6920 (Scaduview, the
+    Hinterland -- FOLDED IN 2026-07-19; see below).
+Scaduview (6920, the Hinterland) was its own region 2026-07-13..07-19, then FOLDED into Shadow Keep
+(Alaric, 2026-07-19). It never earned a standalone lock: its only reachable content is Commander
+Gaius plus his five-Scadutree-Fragment reward, the Scadutree Avatar, and one Finger Ruins -- every
+one entered THROUGH the Keep, and its own door ground IS the Keep's (front-door grace 76935 measured
+bucket 21000). Kept separate, its lock only STRANDED Gaius/Avatar behind a second gate a player
+holding just the Scaduview lock could not open. The 2026-07-13 "keep it separate" note argued a fold
+"would make a back-exit grace the Keep's numerically-first overworld front door" -- and it would:
+Shadow Keep's true entrance grace 72102 is an m21_00 INTERIOR grace, so once the overworld Hinterland
+graces (76935 etc., m61) join the region, _front_door's "overworld beats interior" heuristic picks
+76935. That is real, and it is handled surgically: gen_data._FRONT_DOOR_PIN pins Shadow Keep's front
+door to 72102 (the Keep gate), while the Hinterland graces still ride the Keep's bundle (lit on Keep
+unlock, warpable, on the Keep's own ground -- no kick). The Cathedral of Manus Metyr is still NOT
+part of this: m25's grace 72500 -> 6900 = Scadu Altus.
 """
 
 # region -> play_region buckets. Region names are the datapackage-visible region names; the HUB
@@ -96,8 +105,12 @@ REGION_GROUPS = {
     "Jagged Peak": (6850, 6851),
     "Abyssal": (6860, 28000),
     "Scadu Altus": (6900,),        # + Fog Rift Fort + Recluses' River (share 6900; un-gateable)
-    "Scaduview": (6920,),
-    "Shadow Keep": (21000, 21001, 21010),
+    # Scaduview (6920, the Hinterland) FOLDED into Shadow Keep 2026-07-19 (Alaric): as a standalone
+    # region it held no self-contained content -- its only reachable checks (Gaius + his 5-fragment
+    # reward, the Scadutree Avatar, one Finger Ruins) are ALL entered through the Keep, and its own
+    # ground is the Keep's (front-door grace 76935 stands on bucket 21000). A separate lock only
+    # stranded Gaius/Avatar behind a second gate. See docstring + the front-door pin in gen_data.
+    "Shadow Keep": (21000, 21001, 21010, 6920),
     "Ancient Ruins": (6940,),
     "Rauh Base": (6950,),
     "Belurat": (20000,),
@@ -234,7 +247,8 @@ PLAY_REGION_GROUPS = {
     # and sit at the Foot grace's own elevation; a Jagged Peak check (2049387010, Dragon Communion
     # Harpoon) stands inside one. Named geometry, no longer the refused "adjacency only" guess.
     "Jagged Peak": (68410, 68500,),         # m61_54_39 -> row 6850001 (its grace tile)
-    "Scaduview": (69300,),                  # see below -- band evidence, not a tile hit
+    # 69300 (Scaduview Hinterland geometry) folded into Shadow Keep 2026-07-19 -- see the REGION_GROUPS
+    # note + docstring. It sits with Shadow Keep's measured buckets below.
     # 68400 moved to Charo's (2026-07-15, in-game kick + MSB geometry): warping to Charo's own
     # front-door grace 76841 measured play_region 6840000 (client kick-watch log), and the MSB
     # PlayArea volumes carrying 6840000 (dev name "dragon-mountain west") contain that grace and
@@ -256,7 +270,7 @@ PLAY_REGION_GROUPS = {
     # --- DLC interiors ---
     "Belurat": (20000,),
     "Enir Ilim": (20010,),
-    "Shadow Keep": (21000, 21010, 21020),
+    "Shadow Keep": (21000, 21010, 21020, 69300),  # + 69300 = Scaduview Hinterland (folded 2026-07-19)
     "Stone Coffin": (22000,),
 
     # --- the hub ---
@@ -269,17 +283,15 @@ PLAY_REGION_GROUPS = {
 #                        (68100/68200 both have rows on the SEAM tile m61_47_44, which is exactly why the
 #                        check vote split 25/21 with Gravesite. The seam was the signal, not noise.)
 #   Jagged Peak 68500 -- row 6850001 sits on m61_54_39, a Jagged Peak grace tile.
-#   Scaduview   69300 -- CONFIRMED as Scaduview's bucket, with a twist (the predicted Hinterland kick
-#                        happened, 2026-07-15): warping to its front-door grace 76935 measured
-#                        play_region 2100010 -- NOT 693xxxxx -- because the grace stands on m21_00's
-#                        DEFAULT ground (bucket 21000 = Shadow Keep; the m21_00 MSB carves override
-#                        volumes for subs 2100001/11/12/13/15 and none for 2100010). 69300 itself is
-#                        still Scaduview's: its 6930000 MSB boundary volumes (m61_49_48/m61_50_48) and
-#                        the PlayRegionParam row anchored at m61_52_48 (mapMenuUnlockEventId = 76935!)
-#                        are real Scaduview geometry. Bucket 21000 is shared with the whole Keep
-#                        interior, so the fix is NOT a rebucket: region_spine.REGION_PARENT gates
-#                        Scaduview behind Shadow Keep (containment, the Sewer pattern), and
-#                        grace_ground.tsv carries the measured 76935 -> 21000 row.
+#   Scaduview   69300 -- the Hinterland geometry (6930000 MSB boundary boxes m61_49_48/m61_50_48, the
+#                        PlayRegionParam row at m61_52_48 with mapMenuUnlockEventId=76935). CONFIRMED
+#                        real, but 2026-07-19 FOLDED into Shadow Keep (see REGION_GROUPS note): its
+#                        front-door grace 76935 measured play_region 2100010 in-game (2026-07-15) --
+#                        bucket 21000 = Shadow Keep -- i.e. its own door already stood on the Keep's
+#                        ground. Rather than keep it a contained child, 69300 now rides Shadow Keep's
+#                        measured buckets; grace_ground.tsv's 76935 -> 21000 row (still valid, 21000
+#                        is Shadow Keep) keeps 76935 ancestor-owned, and _FRONT_DOOR_PIN holds the
+#                        Keep's front door at its own m21_00 entrance 72102.
 #
 # Kept as a set so the machinery survives (a future region added before its bucket is measured).
 REGIONS_PENDING_BUCKET = frozenset()

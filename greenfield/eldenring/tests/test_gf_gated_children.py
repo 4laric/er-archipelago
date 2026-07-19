@@ -141,9 +141,9 @@ class GatedChildrenLiveSeed(WorldTestBase):
     def test_armed_children_bundles_withheld_others_granted(self):
         rg = self._sd()["regionGraces"]
         kept = set(self.world._kept())
-        # DLC children (Scaduview) are absent from a DLC-off seed -- assert only the kept ones
-        # here, and pin the base trio by name so a rename can't quietly empty the loop.
-        # ScaduviewContainmentSeed below covers the DLC child on an enable_dlc seed.
+        # Pin the base trio by name so a rename can't quietly empty the loop. (Scaduview used to be a
+        # fourth, DLC, child here; it was FOLDED into Shadow Keep 2026-07-19 -- ScaduviewFoldedIntoKeep
+        # below now asserts the post-fold state on an enable_dlc seed.)
         assert {"Raya Lucaria Academy", "Leyndell", "Sewer"} <= kept & set(REGION_PARENT)
         for child in REGION_PARENT:
             if child not in kept:
@@ -229,40 +229,51 @@ class GatedChildrenLiveSeed(WorldTestBase):
                     f"progression {l.item.name} stranded on unreachable {l.name}")
 
 
-class ScaduviewContainmentSeed(WorldTestBase):
-    """The Scaduview kick (in-game, 2026-07-15): 'Region unlocked: Scaduview' (76935 set), warp to
-    its own front-door grace 'Hinterland' -> SEALED REGION (area 2100010) -> Roundtable. The ground
-    at that grace is m21_00's DEFAULT play region (bucket 21000 = Shadow Keep, shared with the whole
-    Keep interior -- subs 2100000/01/11..15), so the kick is unfixable by rebucketing: Scaduview is
-    a containment child of Shadow Keep (region_spine.REGION_PARENT), bundle withheld, logic
-    transitive through the Keep's Lock. This seed pins all three halves on an enable_dlc world."""
+class ScaduviewFoldedIntoKeep(WorldTestBase):
+    """Scaduview (the Hinterland) FOLDED into Shadow Keep 2026-07-19 (Alaric). As its own region it
+    held no self-contained content -- Commander Gaius + his five-fragment reward, the Scadutree Avatar,
+    one Finger Ruins -- every one entered THROUGH the Keep, so a standalone Scaduview Lock only
+    STRANDED Gaius/Avatar behind a second gate a Scaduview-lock-only player could never open. After
+    the fold they are Shadow Keep checks under the Keep's OWN Lock. This seed pins the fold on an
+    enable_dlc world: (a) Scaduview is gone as a region, (b) the former-Scaduview checks live in
+    Shadow Keep, and (c) they are gated by the Shadow Keep Lock (necessary-direction: removing it
+    makes them unreachable -- the containment guarantee, now direct instead of transitive)."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0, "enable_dlc": True}
 
-    def test_scaduview_bundle_withheld_and_keep_lock_gates_it(self):
+    # Stable event flags of former-Scaduview checks (survive ap-id renumbering): Gaius + Scadutree
+    # Avatar remembrances, the Hinterland fragments, Sharpshot Talisman, the Finger Ruins.
+    _FOLDED_FLAGS = ("[f510620]", "[f510640]", "[f2049487000]", "[f2049497500]", "[f2049497510]",
+                     "[f2049497550]", "[f60861]")
+
+    def test_scaduview_folded_into_shadow_keep(self):
         rg = self.world.fill_slot_data()["regionGraces"]
-        assert rg.get("Scaduview Lock") == [], (
-            f"Scaduview bundle must be withheld (containment wall), got {rg.get('Scaduview Lock')}")
+        assert "Scaduview Lock" not in rg, (
+            f"Scaduview folded into Shadow Keep -- no Scaduview Lock expected, got "
+            f"{rg.get('Scaduview Lock')}")
+        # its grace bundle rides Shadow Keep now (not withheld -- the Keep is not a gated child).
         assert rg.get("Shadow Keep Lock") == list(REGION_GRACE_POINTS["Shadow Keep"]), (
-            "the parent's own bundle must stay granted")
-        # logic half: a full state minus every Shadow Keep Lock copy reaches NO Scaduview check;
-        # handing one copy back opens it (remove-all-copies per test_gf_ending -- the withheld
-        # Lock may be precollected).
+            "Shadow Keep's own bundle (incl. the folded Hinterland graces) must stay granted")
+        # region half: every former-Scaduview check is a Shadow Keep check now.
+        folded = [l for l in self.multiworld.get_locations(self.player)
+                  if any(f in l.name for f in self._FOLDED_FLAGS)]
+        assert folded, "no former-Scaduview checks found on an enable_dlc seed"
+        for l in folded:
+            assert l.parent_region is not None and l.parent_region.name == "Shadow Keep", (
+                f"{l.name} should be a Shadow Keep check after the fold, got "
+                f"{l.parent_region.name if l.parent_region else None}")
+        # logic half (necessary direction, robust to any extra per-check gating): a full state minus
+        # every Shadow Keep Lock copy reaches NONE of them (remove-all-copies per test_gf_ending --
+        # the withheld Lock may be the precollected anchor).
         st = self.multiworld.get_all_state(False)
         copies = [it for it in world_items(self) if it.name == "Shadow Keep Lock"]
         assert copies, "Shadow Keep Lock missing from the created items"
         for it in copies:
             st.remove(it)
-        locs = [l for l in self.multiworld.get_locations(self.player)
-                if l.parent_region is not None and l.parent_region.name == "Scaduview"]
-        assert locs, "no Scaduview locations on an enable_dlc seed"
-        for l in locs[:8]:
+        for l in folded:
             assert not l.can_reach(st), (
-                f"{l.name} (Scaduview) reachable WITHOUT Shadow Keep Lock -- containment broken")
-        st.collect(copies[0], prevent_sweep=True)
-        for l in locs[:8]:
-            assert l.can_reach(st), f"{l.name} (Scaduview) blocked WITH Shadow Keep Lock"
+                f"{l.name} reachable WITHOUT Shadow Keep Lock -- the fold broke Keep gating")
 
 
 class LeyndellWallDisarmed(WorldTestBase):

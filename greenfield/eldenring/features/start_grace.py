@@ -88,8 +88,8 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
       * base regions kept  -> size-weighted draw over them ("base-weighted"). DLC locks stay in the
         pool as normal finds; they are just never the anchor here.
       * no base region kept (dlc_only) -> size-weighted draw over the kept DLC regions
-        ("dlc-fallback-weighted"): a small start is then unavoidable, but Scaduview (13 checks)
-        should be rare, not 1-in-14.
+        ("dlc-fallback-weighted"): a small start is then unavoidable, but a small DLC region
+        should be rare, not equal-odds with the big ones.
       * `major` is not None (STRICT progression_surface_mode == 2: the MajorBoss-hosting kept
         regions) -> it INTERSECTS the eligible set ("major-boss^..."). An empty intersection
         DEGRADES to the plain size-weighted draw (the returned rule says so) -- never raises.
