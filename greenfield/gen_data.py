@@ -855,7 +855,13 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
 #   21017340 = "Secret Rite Scroll" (Shadow Keep m21_01) -- KeyItem-tagged, but Alaric's call: off surface.
-_SURFACE_EXCLUDE_FLAGS = frozenset({21017340})
+# DLC Gravesite/Cerulean frags+ash, TEMPORARY off-surface (Alaric, 2026-07-19). Kept as ordinary checks
+# (still collectable), just barred from hosting this world's progression until their reachability is
+# confirmed -- so a region Lock can't strand on a spot that may not exist / may be deeper-gated:
+#   2046457040 = Scadutree Fragment (Gravesite m61_46_45) -- suspected to NOT EXIST in-game.
+#   2046457720 = Revered Spirit Ash (Gravesite m61_46_45) -- suspected reachable only WITH Rauh Base.
+#   2047397070 = Scadutree Fragment (Cerulean m61_47_39) -- suspected to be down in the fissure.
+_SURFACE_EXCLUDE_FLAGS = frozenset({21017340, 2046457040, 2046457720, 2047397070})
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
