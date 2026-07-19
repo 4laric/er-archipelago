@@ -1,15 +1,21 @@
-"""Unified "Progressive Flask Upgrade" -- the flask is a reconciled LEVELED STATE now.
+"""Unified "Progressive Flask Upgrade" -- the flask is a HYBRID across two axes.
 
 The design (v0.2, reworked 2026-07-19): every Golden Seed / Sacred Tear check pays a single
-"Progressive Flask Upgrade" item, and the client reconciles the player's flask to a cumulative
-LEVELED target -- slot_data `flaskLadder[K-1] = {charges, potency}` after receiving K copies. It is a
-STATE, not consumed goods, so a spent flask is never re-granted (the CTD the old per-copy Golden-Seed /
-Sacred-Tear goods ladder caused: reconcile.rs self-healed a spent seed and re-upgraded unbounded,
-playtest 2026-07-12). PROG_FLASK is NO LONGER emitted inside progressiveGrants.
+"Progressive Flask Upgrade" item. Each copy raises the flask on TWO independent axes, and the item
+rides BOTH wires at once (intentional, non-overlapping):
+  * CHARGES = a reconciled LEVELED STATE (contract.flaskLadder). The client reconciles the flask
+    charge target to flaskLadder[K-1]["charges"] after K copies -- a direct write, no spend to heal.
+  * POTENCY = GRANTED consumed Sacred Tears (progressiveGrants). Each copy grants ONE consumed Sacred
+    Tear (good 10020); the player upgrades potency at a grace the vanilla way, which updates every
+    flask mirror safely. consumed=True is REQUIRED (an OWNED build re-granted spent tears unbounded and
+    CTD'd, playtest 2026-07-12; the in-place potency item-id swap CTD'd on death against the
+    half-updated mirrors, playtest 2026-07-19). One tear per copy => one ledger entry per stream index
+    => no batching problem.
 
-This file guards the wire contract of the new ladder: monotonic non-decreasing, bounded
-(charges 2..14, potency 0..12), reaching the max at the LAST rung, with LENGTH == the PROG_FLASK
-copies the seed actually has (the substituted seed/tear checks, or a fixed 10 injected under dlc_only).
+This file guards: the progressiveGrants flask ladder is 12 consumed Sacred Tears (good 10020|nibble);
+the flaskLadder charges climb (escalating) to 14 at the last rung; the flaskLadder potency climbs a
+flat +1 per rung capped at 12 (min(rung,12)); LENGTH == the PROG_FLASK copies the seed has (the
+substituted seed/tear checks, or a fixed 12 injected under dlc_only).
 
 The vanilla cost tables (FLASK_CHARGE_SEED_COST / FLASK_POTENCY_TEAR_COST) are retained as documented
 data; test_cost_tables_match_tools keeps them equal to tools/upgrade_costs.py (one datum, one source).
@@ -49,22 +55,45 @@ def test_cost_tables_match_tools():
 
 
 def _assert_leveled_ladder_invariants(testcase, ladder):
-    """A flaskLadder is a non-empty list of {charges 2..14, potency 0..12}, monotonic non-decreasing,
-    reaching (14,12) at the last rung."""
+    """A flaskLadder is a non-empty list of {charges 2..14, potency 0..12}, monotonic non-decreasing.
+    CHARGES climb (escalating) to FLASK_CHARGES_MAX at the last rung. POTENCY climbs a flat +1 per rung
+    capped at FLASK_POTENCY_MAX -- i.e. rung i (1-based) has potency == min(i, 12). One consumed Sacred
+    Tear is granted per copy, so a rung may NEVER advance potency by more than 1 (a +2 rung would need
+    two tears at one stream index = the batching the ledger forbids)."""
     testcase.assertIsInstance(ladder, list)
     testcase.assertGreater(len(ladder), 0)
-    for r in ladder:
+    for i, r in enumerate(ladder, start=1):
         testcase.assertIsInstance(r, dict)
         testcase.assertIn("charges", r)
         testcase.assertIn("potency", r)
         testcase.assertTrue(pg.FLASK_CHARGES_BASE <= r["charges"] <= pg.FLASK_CHARGES_MAX,
                             f"charges out of [2,14]: {r}")
-        testcase.assertTrue(0 <= r["potency"] <= pg.FLASK_POTENCY_MAX, f"potency out of [0,12]: {r}")
+        testcase.assertEqual(r["potency"], min(i, pg.FLASK_POTENCY_MAX),
+                             f"potency must be min(rung,12) = +1/rung capped at 12: rung {i} -> {r}")
     for a, b in zip(ladder, ladder[1:]):
         testcase.assertLessEqual(a["charges"], b["charges"], "charges not monotonic")
         testcase.assertLessEqual(a["potency"], b["potency"], "potency not monotonic")
-    testcase.assertEqual(ladder[-1], {"charges": pg.FLASK_CHARGES_MAX, "potency": pg.FLASK_POTENCY_MAX},
-                         "the last rung must be maxed (14,12)")
+        testcase.assertLessEqual(b["potency"] - a["potency"], 1, "potency must never jump by >1 (1 tear/copy)")
+    testcase.assertEqual(ladder[-1]["charges"], pg.FLASK_CHARGES_MAX,
+                         "charges must reach FLASK_CHARGES_MAX (14) at the last rung")
+    testcase.assertEqual(ladder[-1]["potency"], min(len(ladder), pg.FLASK_POTENCY_MAX),
+                         "last-rung potency must be min(len,12)")
+
+
+def _assert_flask_potency_grants(testcase, rungs):
+    """The flask's progressiveGrants ladder = FLASK_POTENCY_MAX (12) consumed Sacred Tears, good
+    10020|nibble, empty flags. This is the POTENCY axis: one tear per copy, consumed=True (spent at a
+    grace; shipping it OWNED re-granted it unbounded and CTD'd, playtest 2026-07-12)."""
+    expected_goods = pg._GOOD_SACRED_TEAR | pg._GOODS_NIBBLE
+    testcase.assertEqual(pg._GOOD_SACRED_TEAR, 10020, "Sacred Tear good id must be 10020")
+    testcase.assertEqual(expected_goods, 1073751844, "Sacred Tear FullID must match item_ids.py")
+    testcase.assertEqual(len(rungs), pg.FLASK_POTENCY_MAX,
+                         f"flask potency ladder must have {pg.FLASK_POTENCY_MAX} rungs (12 tears)")
+    for r in rungs:
+        testcase.assertEqual(r["goods"], expected_goods, "every flask potency rung grants a Sacred Tear")
+        testcase.assertEqual(r["flags"], [], "flask potency rungs carry no flags")
+        testcase.assertIs(r["consumed"], True,
+                          "flask tears MUST be consumed (spent at a grace; OWNED re-grants unbounded)")
 
 
 # ---- the ladder on a FULL seed -----------------------------------------------------------------
@@ -98,35 +127,51 @@ class ProgressiveFlaskLadder(WorldTestBase):
                              f"{vanilla} still in the pool alongside {pg.PROG_FLASK}")
         self.assertGreater(names.count(pg.PROG_FLASK), 0, "no progressive flask copies in the pool")
 
-    def test_slot_data_emits_flask_ladder_not_a_grant(self):
-        """The flask rides its OWN key (flaskLadder) and is GONE from progressiveGrants -- that split
-        is the whole point (a leveled state cannot be re-granted like consumed goods)."""
+    def test_slot_data_emits_flask_ladder_and_potency_tears(self):
+        """The flask rides BOTH wires: CHARGES on flaskLadder (leveled state) and POTENCY on
+        progressiveGrants (12 consumed Sacred Tears). The split is the whole point -- charges are a
+        reconciled state (no spend to heal), potency is granted/ledgered tears the player upgrades at a
+        grace (which updates every flask mirror safely)."""
         sd = self.world.fill_slot_data()
         self.assertIn(contract.FLASK_LADDER, sd, "flaskLadder must be emitted when flasks are on")
         self.assertEqual(sd[contract.FLASK_LADDER], self._ladder(),
                          "emitted flaskLadder disagrees with the ladder create_items used")
-        self.assertNotIn(pg.PROG_FLASK, sd[contract.PROGRESSIVE_GRANTS],
-                         "PROG_FLASK must NOT be in progressiveGrants (it is a leveled state now)")
-        # and the emitted wire passes the contract shape checker
+        grants = sd[contract.PROGRESSIVE_GRANTS]
+        self.assertIn(pg.PROG_FLASK, grants,
+                      "PROG_FLASK MUST be in progressiveGrants now (its POTENCY axis grants tears)")
+        _assert_flask_potency_grants(self, grants[pg.PROG_FLASK])
+        # both wires pass their contract shape checkers
         self.assertIsNone(contract._chk_flask_ladder(sd[contract.FLASK_LADDER]))
+        self.assertIsNone(contract._chk_nested_grants({pg.PROG_FLASK: grants[pg.PROG_FLASK]}))
 
 
 # ---- the ladder under dlc_only (the fixed floor) -----------------------------------------------
 class ProgressiveFlaskLadderDLCOnly(WorldTestBase):
     """dlc_only seals every base region, so no kept REGION holds a seed/tear check (only the HUB's lone
-    Golden Seed substitutes). The feature tops the pool up to a fixed 10 copies and builds a 10-rung
-    ladder that maxes by rung 10 -- some rungs advancing multiple charge/potency steps."""
+    Golden Seed substitutes). The feature tops the pool up to a fixed 12 copies and builds a 12-rung
+    ladder: charges max (14) via the escalating schedule and potency maxes (12) via one tear/copy, so
+    BOTH axes fully max exactly at copy 12."""
     game = GAME
     options = {"dlc_only": True, "progressive_flasks": True}
 
-    def test_dlc_only_injects_ten_rung_ladder(self):
+    def test_dlc_only_injects_twelve_rung_ladder(self):
         w = self.world
         self.assertEqual(pg._region_flask_copies(w), 0,
                          "dlc_only should keep no REGION flask check (only the HUB's Golden Seed)")
+        self.assertEqual(pg.DLC_ONLY_FLASK_COPIES, 12, "dlc_only floor must be 12 (1 tear/copy -> potency 12)")
         ladder = pg.flask_ladder(w)
         self.assertEqual(len(ladder), pg.DLC_ONLY_FLASK_COPIES,
-                         "dlc_only ladder must be exactly the fixed floor length (10)")
+                         "dlc_only ladder must be exactly the fixed floor length (12)")
         _assert_leveled_ladder_invariants(self, ladder)
+        # both axes fully maxed at the last (12th) rung
+        self.assertEqual(ladder[-1], {"charges": pg.FLASK_CHARGES_MAX, "potency": pg.FLASK_POTENCY_MAX})
+
+    def test_dlc_only_potency_grants_twelve_tears(self):
+        """The dlc_only seed grants exactly 12 consumed Sacred Tears (one per copy) so potency reaches
+        its cap the ledgered/consumed way."""
+        grants = self.world.fill_slot_data()[contract.PROGRESSIVE_GRANTS]
+        self.assertIn(pg.PROG_FLASK, grants)
+        _assert_flask_potency_grants(self, grants[pg.PROG_FLASK])
 
     def test_pool_holds_exactly_ladder_length_copies(self):
         """Count-consistency: ladder length == PROG_FLASK copies actually in the pool (HUB substitution
@@ -134,6 +179,7 @@ class ProgressiveFlaskLadderDLCOnly(WorldTestBase):
         w = self.world
         copies = world_item_names(self).count(pg.PROG_FLASK)
         self.assertEqual(copies, pg.DLC_ONLY_FLASK_COPIES)
+        self.assertEqual(copies, 12)
         self.assertEqual(copies, len(pg.flask_ladder(w)))
 
     def test_maxes_by_the_last_rung_only(self):
@@ -175,10 +221,12 @@ def test_option_is_a_real_toggle_default_on():
         "progressive_flasks must default ON: the unified ladder is the intended v0.2 flask economy")
 
 
-# ---- the CTD, as a contract invariant (bells half still applies) --------------------------------
-def test_flask_is_not_in_progressive_grants_bells_still_declare_consumed():
-    """The flask no longer rides progressiveGrants at all (a leveled state cannot be re-granted). The
-    bell bearings still do, and must stay OWNED (self-healing) -- a key item you keep forever."""
+# ---- the CTD, as a contract invariant (consumed vs owned) ---------------------------------------
+def test_flask_potency_grants_consumed_tears_bells_stay_owned():
+    """The flask's POTENCY axis rides progressiveGrants as 12 CONSUMED Sacred Tears (spent at a grace;
+    shipping them OWNED re-granted spent tears unbounded and CTD'd, playtest 2026-07-12). The bell
+    bearings ride the same wire but must stay OWNED (self-healing) -- a key item you keep forever.
+    Same ladder machinery, opposite grant semantics."""
     from worlds.eldenring.features import progressive as pgg
 
     class _W:
@@ -191,9 +239,17 @@ def test_flask_is_not_in_progressive_grants_bells_still_declare_consumed():
         player = 1
 
     feat = pgg.Progressive()
-    # PROG_FLASK is excluded from progressiveGrants (slot_data path); it has no goods ladder now.
     active = feat._active_items(_W)
     assert pgg.PROG_FLASK in active, "flasks are on, so PROG_FLASK is an active pool item"
+
+    flask = feat._grant_ladder(_W, pgg.PROG_FLASK)
+    assert len(flask) == pgg.FLASK_POTENCY_MAX == 12, "flask potency ladder must be 12 tears"
+    assert all(r["goods"] == (pgg._GOOD_SACRED_TEAR | pgg._GOODS_NIBBLE) for r in flask), (
+        "every flask potency rung grants a Sacred Tear (good 10020|nibble)")
+    assert all(r["consumed"] is True for r in flask), (
+        "flask tears are SPENT at a grace -- they MUST be consumed (OWNED re-grants unbounded, CTD)")
+    assert all(r["flags"] == [] for r in flask), "flask tears carry no flags"
+
     bell = feat._grant_ladder(_W, pgg.PROG_SMITHING_BELL)
     assert bell, "bell ladder is empty"
     assert all(r["consumed"] is False for r in bell), (
