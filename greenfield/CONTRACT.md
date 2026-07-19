@@ -54,6 +54,7 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | `dungeonSweeps` | ANY |  | both | features/boss_locks.py ({} today; location-keyed variant) | region.rs | location-keyed dungeon sweep spec (needs boss-reward-location join); greenfield emits {} until wired -- flag-keyed dungeonSweepFlags is the live path. |
 | `sweepLockGates` | STR_MAP |  | both | features/boss_locks.py ({} today) | region.rs sweep gates | {str(i64 sweep trigger flag): '<Region> Lock'} -- gates a dungeon sweep behind holding the named lock; live client consumer. |
 | `progressiveGrants` | NESTED_GRANTS |  | both | features/progressive.py | progressive.rs | item name -> ordered [{goods, flags, consumed}] granted on each successive receipt. `consumed` (REQUIRED bool): true = the player SPENDS these goods, so grant them exactly once via the ledger; false = the player KEEPS them, so self-heal them (unique_goods). A consumable shipped as kept is re-granted every time it is spent -- unbounded flask upgrades, then a CTD (playtest 2026-07-12). |
+| `flaskLadder` | FLASK_LADDER |  | greenfield | features/progressive.py | progressive.rs / flask reconcile | ordered cumulative flask target list; entry i (0-based) = {charges 2..14, potency 0..12} the client RECONCILES the player's flask to after receiving (i+1) Progressive Flask Upgrade copies. Monotonic non-decreasing, reaching (14,12) at the last rung; length == the PROG_FLASK copies this seed actually has (the substituted Golden Seed / Sacred Tear checks kept, or a fixed 10 injected when none are kept -- dlc_only). REPLACES the flask arm of progressiveGrants: the flask is a reconciled LEVELED STATE now, NOT consumed-goods grants, so a spent flask is never re-granted (the CTD class that killed the old per-copy goods ladder). Emitted only when progressive_flasks is on. |
 | `death_link` | BOOL_OR_INT |  | both | features/deathlink.py (legacy duplicate of options.death_link) | er-logic/options.rs parse_death_link (reads options.death_link) | legacy top-level copy; the client reads options.death_link -- kept for back-compat. |
 | `no_weapon_requirements` | BOOL_OR_INT |  | both | features/weapon_reqs.py (legacy duplicate of options.no_weapon_requirements) | core.rs:304 no_weapon_reqs::set_enabled (reads options path) | legacy top-level copy; the client reads options.no_weapon_requirements. |
 | `enable_dlc` | BOOL_OR_INT |  | both | core._options_echo (options.enable_dlc; top-level unemitted) | er-logic/options.rs parse_dlc (reads options.enable_dlc) | DLC / Land of Shadow regions active; the LIVE copy is options.enable_dlc. |
@@ -103,5 +104,6 @@ runtime options ONLY through that sub-dict (er-logic/src/options.rs).
 | NUMBER | `as_f64` |
 | STR | `as_str` |
 | NESTED_GRANTS | `progressive.rs custom` |
+| FLASK_LADDER | `progressive.rs flask reconcile` |
 | OPTIONS_DICT | `options::parse_*_option sub-dict` |
 | ANY | `(diagnostic / foreign profile; unvalidated)` |

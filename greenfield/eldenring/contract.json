@@ -56,6 +56,10 @@
       "rust": "NestedGrants",
       "client_parser": "progressive.rs custom"
     },
+    "FLASK_LADDER": {
+      "rust": "FlaskLadder",
+      "client_parser": "progressive.rs flask reconcile"
+    },
     "OPTIONS_DICT": {
       "rust": "OptionsDict",
       "client_parser": "options::parse_*_option sub-dict"
@@ -584,6 +588,17 @@
       "producer": "features/progressive.py",
       "consumer": "progressive.rs",
       "doc": "item name -> ordered [{goods, flags, consumed}] granted on each successive receipt. `consumed` (REQUIRED bool): true = the player SPENDS these goods, so grant them exactly once via the ledger; false = the player KEEPS them, so self-heal them (unique_goods). A consumable shipped as kept is re-granted every time it is spent -- unbounded flask upgrades, then a CTD (playtest 2026-07-12)."
+    },
+    {
+      "name": "flaskLadder",
+      "shape": "FLASK_LADDER",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/progressive.py",
+      "consumer": "progressive.rs / flask reconcile",
+      "doc": "ordered cumulative flask target list; entry i (0-based) = {charges 2..14, potency 0..12} the client RECONCILES the player's flask to after receiving (i+1) Progressive Flask Upgrade copies. Monotonic non-decreasing, reaching (14,12) at the last rung; length == the PROG_FLASK copies this seed actually has (the substituted Golden Seed / Sacred Tear checks kept, or a fixed 10 injected when none are kept -- dlc_only). REPLACES the flask arm of progressiveGrants: the flask is a reconciled LEVELED STATE now, NOT consumed-goods grants, so a spent flask is never re-granted (the CTD class that killed the old per-copy goods ladder). Emitted only when progressive_flasks is on."
     },
     {
       "name": "death_link",

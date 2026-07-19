@@ -31,9 +31,8 @@ REGION_PLAY_IDS = {
     'Rauh Base': [40010, 42030, 69010],
     'Raya Lucaria Academy': [14000],
     'Scadu Altus': [40020, 41010, 42020, 69000, 69020, 69030],
-    'Scaduview': [69300],
     'Sewer': [35000],
-    'Shadow Keep': [21000, 21010, 21020],
+    'Shadow Keep': [21000, 21010, 21020, 69300],
     'Siofra River': [12020, 12070],
     'Stone Coffin': [22000],
     'Stormveil': [10000],
@@ -45,4 +44,4 @@ REGION_PLAY_IDS = {
 # shipping a lock that does nothing is the bug the measured table exists to end.
 REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:c32c818bf910fdea2ee9f5db125e2bc7c7ee2fc1214bcbf51f49e376208e1724', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:e935a4bf0964a0d44e0e128fb4165e0709c6d0e36b86b0cc1f02e90f85660af6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:abfb87091c2a4f2d9501497c07b921c2d063e3ca9599ff5298e6d45b3b28c775', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:b4e23c447de34e5418cdaaf35fb81d07cb43fe1f6164d283d9e703824c4d2392'}
