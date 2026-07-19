@@ -176,12 +176,15 @@ def _chk_nested_grants(v):
 
 
 def _chk_flask_ladder(v):
-    """flaskLadder : [{"charges": int, "potency": int}, ...] -- the cumulative flask target the client
-    reconciles the player's flask to after receiving (i+1) Progressive Flask Upgrade copies. The flask
-    is a reconciled LEVELED STATE (client-side), NOT consumed-goods grants -- so it rides its own key,
-    not progressiveGrants. (Range/monotonic invariants -- charges 2..14, potency 0..12, non-decreasing,
-    reaching the max at the last rung -- are guarded producer-side in features/progressive.py and its
-    tests; the wire shape check here is the container + int fields.)"""
+    """flaskLadder : [{"charges": int, "potency": int}, ...] -- the cumulative flask CHARGE target the
+    client reconciles the player's flask to after receiving (i+1) Progressive Flask Upgrade copies (a
+    direct write). Charges are a reconciled LEVELED STATE; POTENCY is documentation here -- the client
+    sets potency from the consumed Sacred Tears the SAME item grants via progressiveGrants (one tear
+    per copy), not from this ladder. So the flask is a HYBRID that rides BOTH wires (charges here,
+    potency in progressiveGrants); this is intentional and non-overlapping. (Range/monotonic invariants
+    -- charges 2..14, potency 0..12, non-decreasing, charges reaching max at the last rung -- are
+    guarded producer-side in features/progressive.py and its tests; the wire shape check here is the
+    container + int fields.)"""
     if not isinstance(v, (list, tuple)):
         return "expected [{charges:int, potency:int}, ...]"
     for e in v:
@@ -579,13 +582,18 @@ CONTRACT = (
     ContractKey("flaskLadder", "FLASK_LADDER", False, (GREENFIELD,),
                 "features/progressive.py", "progressive.rs / flask reconcile",
                 "ordered cumulative flask target list; entry i (0-based) = {charges 2..14, potency "
-                "0..12} the client RECONCILES the player's flask to after receiving (i+1) Progressive "
-                "Flask Upgrade copies. Monotonic non-decreasing, reaching (14,12) at the last rung; "
-                "length == the PROG_FLASK copies this seed actually has (the substituted Golden Seed / "
-                "Sacred Tear checks kept, or a fixed 10 injected when none are kept -- dlc_only). "
-                "REPLACES the flask arm of progressiveGrants: the flask is a reconciled LEVELED STATE "
-                "now, NOT consumed-goods grants, so a spent flask is never re-granted (the CTD class "
-                "that killed the old per-copy goods ladder). Emitted only when progressive_flasks is on."),
+                "0..12} for the flask after receiving (i+1) Progressive Flask Upgrade copies. The "
+                "client RECONCILES the CHARGE target directly (a leveled state); POTENCY here is "
+                "documentation -- the client sets potency from the consumed Sacred Tears the same item "
+                "grants via progressiveGrants (one tear per copy). Charges monotonic non-decreasing, "
+                "reaching 14 at the last rung; potency = min(rung,12); length == the PROG_FLASK copies "
+                "this seed has (substituted Golden Seed / Sacred Tear checks kept, or a fixed 12 "
+                "injected when none are kept -- dlc_only). The flask is a HYBRID riding BOTH wires "
+                "(charges here, potency in progressiveGrants) -- intentional and non-overlapping. The "
+                "charge axis is a leveled state (no spend to heal); the potency axis went back to "
+                "granted/ledgered Sacred Tears because the in-place potency item-id swap CTD'd on death "
+                "against ER's flask mirrors (playtest 2026-07-19). Emitted only when progressive_flasks "
+                "is on."),
     ContractKey("death_link", "BOOL_OR_INT", False, (BOTH,),
                 "features/deathlink.py (legacy duplicate of options.death_link)",
                 "er-logic/options.rs parse_death_link (reads options.death_link)",

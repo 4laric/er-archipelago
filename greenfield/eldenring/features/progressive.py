@@ -13,17 +13,31 @@ the vanilla item tables -- NOT any curated/location set). GOODS FullID = good_id
 
 Ships three independent toggles (progressive_flasks default ON; the others default OFF):
   - Progressive Flasks -> ONE item, "Progressive Flask Upgrade", replacing every Golden Seed and
-    Sacred Tear check one-for-one. The flask is a reconciled LEVELED STATE (client-side), NOT
-    consumed-goods grants: the Kth copy moves the flask to flaskLadder[K-1] = {charges, potency}, and
-    the client reconciles the live flask to that target. This is the fix for the CTD the old per-copy
-    goods ladder caused -- reconcile.rs self-healed a SPENT Golden Seed / Sacred Tear and re-upgraded
-    unbounded until the flask ran past its cap (playtest 2026-07-12). A leveled target has no spend to
-    heal. The "later pickups buy less" deceleration the old design inherited from the vanilla cost
-    table is now baked into the ladder's escalating charge-step weights. The ladder's LENGTH follows
-    the kept seed/tear checks (num_regions / DLC scale it for free); when NONE are kept (dlc_only) a
-    fixed 10 copies are injected and the ladder maxes by rung 10. PROG_FLASK stays a pool item and the
-    Golden Seed / Sacred Tear checks still SUBSTITUTE to it -- only the wire changed (flaskLadder, not
-    the progressiveGrants flask arm).
+    Sacred Tear check one-for-one. The flask is a HYBRID across two INDEPENDENT axes, and it rides
+    BOTH wires at once (intentional, non-overlapping):
+      * CHARGES = a reconciled LEVELED STATE (client-side, contract.flaskLadder). The Kth copy moves
+        the flask charge target to flaskLadder[K-1]["charges"]; the client reconciles the live flask
+        directly (a direct write to PlayerGameData.max_hp_flask -- CONFIRMED SAFE). A leveled charge
+        target has no spend to heal, so it cannot trigger the re-grant CTD class.
+      * POTENCY = GRANTED SACRED TEARS via progressiveGrants (the proven consumed/ledgered path). The
+        Kth copy grants ONE consumed Sacred Tear (good 10020), and the player upgrades flask potency
+        at a Site of Grace the vanilla way -- which correctly updates EVERY flask mirror (the
+        inventory entry, the equipped/quickslot reference, AND the global GaItem). One Sacred Tear per
+        copy => one ledger entry per stream index => no batching problem.
+    WHY THE SPLIT: an earlier build tried to raise potency by an in-place inventory item-id swap
+    (base+level*2). That CTD'd on death -- ER mirrors the flask tier across the inventory entry, the
+    equipped/quickslot reference, AND the global GaItem, and death's flask-refill crashed on the
+    half-updated state (playtest 2026-07-19). Granting a Sacred Tear and letting the player upgrade at
+    a grace touches every mirror safely, exactly as vanilla does. (An even earlier build shipped the
+    tears OWNED rather than consumed; reconcile.rs self-healed a SPENT tear and re-granted unbounded
+    until the flask ran past its cap and CTD'd, playtest 2026-07-12 -- hence consumed=True is
+    REQUIRED.) The charge axis's "later pickups buy less" deceleration is baked into the escalating
+    charge-step weights; the potency axis is a flat +1 tear per copy. The ladder's LENGTH follows the
+    kept seed/tear checks (num_regions / DLC scale it for free); when NONE are kept (dlc_only) a fixed
+    12 copies are injected -- enough for both charges (max 14) and potency (max 12, one tear each) to
+    fully max by copy 12. PROG_FLASK stays a pool item and the Golden Seed / Sacred Tear checks still
+    SUBSTITUTE to it; the flask now appears in BOTH progressiveGrants (potency tears) and flaskLadder
+    (charges) at once.
   - Progressive Stonesword Keys -> "Progressive Stonesword Key" (good 8000). Each copy grants one
     Stonesword Key; the player spends it on an Imp Statue seal.
   - Progressive Stone Bells -> "Progressive Smithing-Stone Miner's Bell Bearing" (4 tiers) and
@@ -59,6 +73,10 @@ except Exception:
     LOCATION_ITEM = {}
 
 _GOODS_NIBBLE = 0x40000000  # ER FullID category nibble for GOODS (mirrors core._GOODS_NIBBLE)
+_GOOD_SACRED_TEAR = 10020    # vanilla EquipParamGoods id for Sacred Tear (FullID 0x40000000|10020 =
+                             # 1073751844, matches item_ids.py). The flask POTENCY axis grants these
+                             # as consumed goods (the player upgrades potency at a grace the vanilla
+                             # way, which updates every flask mirror -- see the module docstring).
 
 # ---- progressive item names -------------------------------------------------------------------
 PROG_FLASK = "Progressive Flask Upgrade"
@@ -73,13 +91,22 @@ _GOODS_LADDERS: Dict[str, List[int]] = {
     PROG_STONESWORD_KEY: [8000] * 10,  # Stonesword Key; 10 copies = a generous supply
 }
 
-# ---- unified flask LEVELED ladder -------------------------------------------------------------
-# The flask is a reconciled LEVELED STATE (client-side), NOT consumed-goods grants: the Kth copy of
-# PROG_FLASK moves the player's flask to flaskLadder[K-1] = {charges, potency}. The client reconciles
-# the live flask to that target -- so a spent flask is never re-granted (the CTD class that killed the
-# old per-copy Golden-Seed/Sacred-Tear goods ladder: reconcile.rs self-healed a spent seed and
-# re-upgraded unbounded, playtest 2026-07-12). The deceleration the old design inherited from the
-# vanilla cost table is now baked into the ladder itself (escalating charge-step weights below).
+# ---- unified flask LEVELED ladder (CHARGES axis) ----------------------------------------------
+# The flask is a HYBRID. Its CHARGES axis is a reconciled LEVELED STATE (client-side): the Kth copy of
+# PROG_FLASK moves the player's flask charge target to flaskLadder[K-1]["charges"], and the client
+# reconciles the live flask with a direct write (PlayerGameData.max_hp_flask -- CONFIRMED SAFE). A
+# leveled charge target has no spend to heal, so it cannot trigger the re-grant CTD class.
+#
+# Its POTENCY axis is NOT set from this ladder on the client -- it is GRANTED as consumed Sacred Tears
+# via progressiveGrants (see _grant_ladder(PROG_FLASK) and the module docstring), because the in-place
+# potency item-id swap CTD'd on death (ER mirrors flask tier across the inventory entry, the equipped/
+# quickslot reference, AND the global GaItem; death's flask-refill crashed on the half-updated state,
+# playtest 2026-07-19). Granting a tear and upgrading at a grace touches every mirror the vanilla way.
+# The "potency" field below is therefore DOCUMENTATION ONLY (kept accurate = min(rung, 12), one tear
+# per copy); the client takes potency from the ledgered tears, not this ladder.
+#
+# The deceleration the old design inherited from the vanilla cost table is baked into the ladder's
+# escalating charge-step weights below.
 #
 # The vanilla per-level cost tables are RETAINED as documented vanilla data + the single-source datum
 # tests/test_gf_progressive_flasks.py::test_cost_tables_match_tools guards against tools/upgrade_costs.py
@@ -93,17 +120,23 @@ FLASK_POTENCY_TEAR_COST: List[int] = [1] * 12                        # vanilla t
 # potency 0 -> 12 (12 steps); the last rung is (14, 12). NB the wire spec (2->14, 12 steps) is followed
 # literally; vanilla's own base is 4 charges + 10 seed-bought steps (tools/upgrade_costs FLASK_BASE_
 # CHARGES) -- see the deliverable note. Charge steps carry ESCALATING weights so the ladder rises fast
-# early and slow late (the inherited deceleration); potency steps are flat (a Sacred Tear is a flat +1).
+# early and slow late (the inherited deceleration). The POTENCY axis climbs a flat +1 PER RUNG (capped
+# at 12): potency is granted as one consumed Sacred Tear per copy, so a rung MUST NOT advance potency
+# by more than 1 (a +2 rung would need 2 tears at one copy = 2 ledger entries at one stream index = the
+# batching the consumed-goods ledger forbids). See flask_ladder() -- potency is computed directly as
+# min(rung, 12), NOT distributed through _cum_levels like charges.
 FLASK_CHARGES_BASE = 2
 FLASK_CHARGES_MAX = 14
 FLASK_POTENCY_MAX = 12
 _CHARGE_STEP_WEIGHTS: List[int] = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]   # 12 steps (2 -> 14), escalating
-_POTENCY_STEP_WEIGHTS: List[int] = list(FLASK_POTENCY_TEAR_COST)          # 12 flat steps (0 -> 12)
+_POTENCY_STEP_WEIGHTS: List[int] = list(FLASK_POTENCY_TEAR_COST)          # 12 flat steps; documentation only
 
 # When NO Golden Seed / Sacred Tear check is kept (dlc_only, or a num_regions seed that seals every
 # flask region), there are no substituted PROG_FLASK copies -- so inject a fixed count of copies and
-# build a ladder that maxes by the last rung (some rungs then advance multiple steps).
-DLC_ONLY_FLASK_COPIES = 10
+# build a ladder that maxes by the last rung. 12 copies: one Sacred Tear per copy needs 12 copies to
+# reach potency 12, and the escalating charge schedule reaches 14 at rung 12 -- so both axes fully max
+# exactly at copy 12 (ladder length == copies == DLC_ONLY_FLASK_COPIES).
+DLC_ONLY_FLASK_COPIES = 12
 
 
 def _flasks_on(world) -> bool:
@@ -183,10 +216,14 @@ def _cum_levels(n_rungs: int, weights: List[int]) -> List[int]:
 
 
 def flask_ladder(world) -> List[Dict[str, int]]:
-    """The flaskLadder wire: [{"charges", "potency"}, ...], one rung per PROG_FLASK copy. Cumulative
-    non-decreasing target the client reconciles the flask to; the last rung is (FLASK_CHARGES_MAX,
-    FLASK_POTENCY_MAX). Deterministic (closed-form; world.random not needed) and cached on the world
-    so create_items and slot_data agree on both the ladder and its length."""
+    """The flaskLadder wire: [{"charges", "potency"}, ...], one rung per PROG_FLASK copy. Monotonic
+    non-decreasing. CHARGES reaches FLASK_CHARGES_MAX at the last rung (the client reconciles the flask
+    charge target via a direct write). POTENCY climbs a flat +1 per rung capped at FLASK_POTENCY_MAX
+    (= min(rung, 12)) and is DOCUMENTATION ONLY -- the client sets potency from the ledgered Sacred
+    Tears granted in progressiveGrants, one tear per copy. With the normal >=12 copies (full seed, or
+    dlc_only's fixed 12) the last rung is (FLASK_CHARGES_MAX, FLASK_POTENCY_MAX); with fewer than 12
+    copies potency honestly tops out below 12 (fewer tears granted). Deterministic (closed-form;
+    world.random not needed) and cached on the world so create_items and slot_data agree."""
     cached = getattr(world, "gf_flask_ladder", None)
     if cached is not None:
         return cached
@@ -194,10 +231,14 @@ def flask_ladder(world) -> List[Dict[str, int]]:
     if n <= 0:
         world.gf_flask_ladder = []
         return []
+    # CHARGES: escalating-weight schedule reaching FLASK_CHARGES_MAX at the last rung (client direct
+    # write). POTENCY: a flat +1 per rung capped at FLASK_POTENCY_MAX -- computed directly, NOT through
+    # _cum_levels, because potency is granted as ONE consumed Sacred Tear per copy (a +2 rung would need
+    # 2 tears at one stream index = the batching the ledger forbids). Potency here is documentation only
+    # (the client takes potency from the ledgered tears), but it is kept accurate = min(rung, 12).
     charge_lv = _cum_levels(n, _CHARGE_STEP_WEIGHTS)
-    pot_lv = _cum_levels(n, _POTENCY_STEP_WEIGHTS)
-    ladder = [{"charges": FLASK_CHARGES_BASE + c, "potency": p}
-              for c, p in zip(charge_lv, pot_lv)]
+    ladder = [{"charges": FLASK_CHARGES_BASE + c, "potency": min(rung, FLASK_POTENCY_MAX)}
+              for rung, c in enumerate(charge_lv, start=1)]
     world.gf_flask_ladder = ladder
     return ladder
 
@@ -268,11 +309,11 @@ _BELL_ITEMS = (PROG_SMITHING_BELL, PROG_SOMBER_BELL)
 
 class ProgressiveFlasks(Toggle):
     """On (default): every Golden Seed and Sacred Tear check pays out a single "Progressive Flask
-    Upgrade" item instead, one-for-one. The Kth copy you receive grants a Golden Seed or a Sacred
-    Tear on an interleaved schedule, and you still spend it at a grace at the game's own escalating
-    price -- so upgrades arrive on a steady cadence (Sacred Tears included) instead of 13 silent
-    flat pickups. Off: seeds and tears stay discrete pickups at their shuffled locations. Flasks
-    never gate logic, so either way the seed is always winnable."""
+    Upgrade" item instead, one-for-one. Each copy raises your flask on two axes: CHARGES climb on an
+    escalating schedule the client applies directly, and POTENCY rises by granting you a Sacred Tear
+    that you spend at a grace the vanilla way -- so upgrades arrive on a steady cadence instead of a
+    pile of silent flat pickups. Off: seeds and tears stay discrete pickups at their shuffled
+    locations. Flasks never gate logic, so either way the seed is always winnable."""
     display_name = "Progressive Flasks"
     default = 1
 
@@ -325,24 +366,32 @@ class Progressive(Feature):
 
     def _grant_ladder(self, world, name: str) -> List[Dict[str, Any]]:
         """Client `progressiveGrants` ladder for one progressive item: an ordered list of
-        {"goods": GOODS-packed FullID, "flags": [event flags]}. Fungible/keyed items (flasks,
-        stonesword keys) repeat a single good with no flags; stone bells carry a per-tier good AND
-        the shop-unlock flags for that rung."""
+        {"goods": GOODS-packed FullID, "flags": [event flags], "consumed": bool}. Fungible/keyed items
+        (flasks, stonesword keys) repeat a single good with no flags; stone bells carry a per-tier good
+        AND the shop-unlock flags for that rung."""
         # `consumed`: the rung's goods are SPENT by the player, so the client must grant them exactly
         # ONCE (ledgered by the copy's stream index) rather than treating them as something the player
         # should OWN. Absent/false = owned = the client's self-healing `unique_goods` path.
         #
-        # This distinction is not a nicety. Flask rungs grant Golden Seeds / Sacred Tears, which are
-        # spent at a Site of Grace. Shipped as OWNED, the reconciler saw the spent item missing from
-        # the inventory and handed it straight back -- upgrade, re-grant, upgrade, re-grant, unbounded,
-        # until the flask ran past its cap and the game CTD'd. (Alaric, live playtest 2026-07-12.)
-        # Bell bearings are the opposite: a key item you keep forever, and self-healing is exactly what
-        # you want if one is ever lost. Same ladder machinery, opposite grant semantics -- so the
-        # semantics have to be stated, not assumed.
+        # This distinction is not a nicety. The flask POTENCY rungs grant Sacred Tears, which are spent
+        # at a Site of Grace. Shipped as OWNED, the reconciler saw the spent tear missing from the
+        # inventory and handed it straight back -- upgrade, re-grant, upgrade, re-grant, unbounded,
+        # until the flask ran past its cap and the game CTD'd. (Alaric, live playtest 2026-07-12.) So
+        # the flask tears MUST be consumed=True. Bell bearings are the opposite: a key item you keep
+        # forever, and self-healing is exactly what you want if one is ever lost. Same ladder machinery,
+        # opposite grant semantics -- so the semantics have to be stated, not assumed.
         #
-        # NB the flask is NO LONGER a progressiveGrants ladder -- it is a reconciled LEVELED STATE
-        # (contract.flaskLadder), emitted by slot_data() directly. So _grant_ladder is never called for
-        # PROG_FLASK; the arm was removed (2026-07-19) with the per-copy goods schedule.
+        # The flask rides progressiveGrants for its POTENCY axis ONLY: one consumed Sacred Tear per
+        # copy, so the player upgrades potency at a grace the vanilla way (which updates every flask
+        # mirror -- inventory entry, equipped/quickslot ref, global GaItem -- correctly). The CHARGES
+        # axis is a separate reconciled leveled state (contract.flaskLadder, direct write). The old
+        # in-place potency item-id swap CTD'd on death against the half-updated mirrors (playtest
+        # 2026-07-19); granting a tear + a grace upgrade is the proven safe path.
+        if name == PROG_FLASK:
+            # POTENCY axis: one consumed Sacred Tear per copy, FLASK_POTENCY_MAX rungs (12). No flags.
+            # Copies past rung 12 overflow to a Lord's Rune client-side (existing behavior -- fine).
+            return [{"goods": _GOOD_SACRED_TEAR | _GOODS_NIBBLE, "flags": [], "consumed": True}
+                    for _ in range(FLASK_POTENCY_MAX)]
         if name in _BELL_GRANTS:
             return [{"goods": e["goods"] | _GOODS_NIBBLE, "flags": list(e["flags"]), "consumed": False}
                     for e in _BELL_GRANTS[name]]
@@ -382,17 +431,20 @@ class Progressive(Feature):
         # progressiveGrants = {item_name: [{"goods": FullID, "flags": [...], "consumed": bool}, ...]}.
         # Empty {} when no progressive toggle is on. Stonesword keys carry empty flags (spend-at-seal
         # goods); stone bells carry the Twin Maiden shop-unlock flags per rung (set = unlock). PROG_FLASK
-        # is DELIBERATELY EXCLUDED: the flask is a reconciled LEVELED STATE now (contract.flaskLadder),
-        # not a per-copy goods ladder -- shipping it in progressiveGrants is what re-granted spent seeds
-        # and CTD'd the game (playtest 2026-07-12).
+        # IS INCLUDED: its POTENCY axis is 12 consumed Sacred Tears (the player upgrades potency at a
+        # grace the vanilla way, which updates every flask mirror safely). Its CHARGES axis rides the
+        # SEPARATE flaskLadder wire below (a reconciled leveled state, direct write). The flask appearing
+        # in BOTH wires is intentional and non-overlapping (tears != charges): the old in-place potency
+        # item-id swap CTD'd on death against ER's half-updated flask mirrors (playtest 2026-07-19), and
+        # an even older OWNED-tears build re-granted spent tears unbounded (playtest 2026-07-12) -- so
+        # potency is now consumed-goods grants and consumed=True is required.
         grants: Dict[str, List[Dict[str, Any]]] = {}
         for name in self._active_items(world):
-            if name == PROG_FLASK:
-                continue
             grants[name] = self._grant_ladder(world, name)
         out: Dict[str, Any] = {contract.PROGRESSIVE_GRANTS: grants}
-        # flaskLadder: the cumulative {charges, potency} target per received PROG_FLASK copy. Emitted
-        # only when progressive_flasks is on (absent otherwise, exactly like the old flask arm).
+        # flaskLadder: the cumulative {charges, potency} target per received PROG_FLASK copy (charges are
+        # the load-bearing axis client-side; potency is documentation). Emitted only when
+        # progressive_flasks is on (absent otherwise).
         if _flasks_on(world):
             out[contract.FLASK_LADDER] = flask_ladder(world)
         return out
