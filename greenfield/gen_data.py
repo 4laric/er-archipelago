@@ -860,8 +860,19 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # confirmed -- so a region Lock can't strand on a spot that may not exist / may be deeper-gated:
 #   2046457040 = Scadutree Fragment (Gravesite m61_46_45) -- suspected to NOT EXIST in-game.
 #   2046457720 = Revered Spirit Ash (Gravesite m61_46_45) -- suspected reachable only WITH Rauh Base.
-#   2047397070 = Scadutree Fragment (Cerulean m61_47_39) -- suspected to be down in the fissure.
-_SURFACE_EXCLUDE_FLAGS = frozenset({21017340, 2046457040, 2046457720, 2047397070})
+#   2047397070 = Scadutree Fragment (Cerulean m61_47_39) -- at Fissure Cross; kept off until reachability
+#                from the region anchor is confirmed.
+# Scadu Altus vague-descriptor batch, TEMPORARY off-surface (Alaric, 2026-07-19): auto "near/around X"
+# names he can't pin to a real in-game spot -- barred so a lock can't strand on a check he can't locate.
+#   2049447500 = Revered Spirit Ash  (near Bonny Village)
+#   2050437010 = Scadutree Fragment  (near Scaduview Cross (1))
+#   2050437720 = Revered Spirit Ash  (near Scaduview Cross)
+#   2051447500 = Scadutree Fragment  (around Bridge Leading to the Village (1))
+#   2051447510 = Scadutree Fragment  (around Bridge Leading to the Village (2))
+_SURFACE_EXCLUDE_FLAGS = frozenset({
+    21017340, 2046457040, 2046457720, 2047397070,
+    2049447500, 2050437010, 2050437720, 2051447500, 2051447510,
+})
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
 # check per remembrance for a copy you can only make once you already HOLD the remembrance -- which,
