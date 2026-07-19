@@ -123,23 +123,34 @@ class TestGraceGround(unittest.TestCase):
                 bad.append((region, fd, sorted(owners)))
         self.assertFalse(bad, "front-door grace(s) on foreign ground: %r" % bad)
 
-    def test_scaduview_regression(self):
-        """The 2026-07-15 Scaduview kick, pinned: its front-door grace 76935 ("Hinterland") stands
-        on m21_00's DEFAULT ground -- in-game measured play_region 2100010, bucket 21000 -- which
-        is Shadow Keep's PRIMARY bucket (shared with the whole Keep interior), so it can never be
-        rebucketed to Scaduview. The honest encoding is containment: REGION_PARENT must gate
-        Scaduview behind Shadow Keep, keeping 76935 ancestor-owned rather than foreign."""
+    def test_scaduview_fold_regression(self):
+        """Scaduview (the Hinterland) was FOLDED into Shadow Keep 2026-07-19 (Alaric). It never held
+        self-contained content -- Gaius + his fragment reward, the Scadutree Avatar, one Finger Ruins,
+        all entered THROUGH the Keep -- and its own door ground was already the Keep's (76935 measured
+        bucket 21000). This pins the fold so a regen can't silently regress it:
+          * Scaduview is no longer a region (gone from open flags, play_ids, REGION_PARENT).
+          * grace 76935 ("Hinterland") still stands on bucket 21000 -- now Shadow Keep's OWN ground.
+          * Shadow Keep's front door stays its m21_00 entrance 72102, NOT the overworld Hinterland
+            grace 76935 that _front_door's overworld-beats-interior heuristic would otherwise pick --
+            the whole reason gen_data._FRONT_DOOR_PIN exists (a naive fold = Keep-unlock warps you to
+            the back plateau instead of the gate).
+          * 76935 still rides the Keep's bundle (lit + warpable on Keep unlock, its own ground)."""
+        self.assertNotIn("Scaduview", self.open_flags,
+                         "Scaduview folded into Shadow Keep -- must not survive as a region open flag")
+        self.assertNotIn("Scaduview", self.play_ids,
+                         "Scaduview folded into Shadow Keep -- must own no buckets of its own")
+        self.assertNotIn("Scaduview", self.parent,
+                         "Scaduview folded in -- no containment parent to keep")
         self.assertEqual(self.ground.get(76935), (21000,),
                          "grace_ground.tsv lost the MEASURED 76935 -> 21000 row (client kick line "
                          "2026-07-15); re-run tools/datamine_grace_ground.py --emit")
         self.assertIn(21000, self.play_ids.get("Shadow Keep", ()),
-                      "bucket 21000 is the Keep interior's own bucket; moving it strands the Keep")
-        self.assertEqual(self.parent.get("Scaduview"), "Shadow Keep",
-                         "Scaduview's front door stands on Shadow Keep ground: without the "
-                         "containment parent its lock warps the player straight into a kick")
-        self.assertEqual(self.open_flags.get("Scaduview"), 76935,
-                         "Scaduview's front door must stay 76935 (ancestor-owned), not silently "
-                         "demote to an underivable grace")
+                      "21000 is the Keep's own bucket, so 76935's ground is the Keep's own ground")
+        self.assertEqual(self.open_flags.get("Shadow Keep"), 72102,
+                         "Shadow Keep's front door must stay its m21_00 entrance 72102 (the "
+                         "_FRONT_DOOR_PIN), NOT the folded-in overworld Hinterland grace 76935")
+        self.assertIn(76935, self.graces.get("Shadow Keep", ()),
+                      "the folded-in Hinterland grace 76935 must ride the Keep's own bundle")
 
     def test_charos_regression(self):
         """The literal 2026-07-15 in-game failure, pinned: Charo's front door 76841 stands on
