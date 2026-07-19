@@ -175,6 +175,21 @@ def _chk_nested_grants(v):
     return None
 
 
+def _chk_flask_ladder(v):
+    """flaskLadder : [{"charges": int, "potency": int}, ...] -- the cumulative flask target the client
+    reconciles the player's flask to after receiving (i+1) Progressive Flask Upgrade copies. The flask
+    is a reconciled LEVELED STATE (client-side), NOT consumed-goods grants -- so it rides its own key,
+    not progressiveGrants. (Range/monotonic invariants -- charges 2..14, potency 0..12, non-decreasing,
+    reaching the max at the last rung -- are guarded producer-side in features/progressive.py and its
+    tests; the wire shape check here is the container + int fields.)"""
+    if not isinstance(v, (list, tuple)):
+        return "expected [{charges:int, potency:int}, ...]"
+    for e in v:
+        if not isinstance(e, dict) or not _is_int(e.get("charges")) or not _is_int(e.get("potency")):
+            return f"each entry must be {{charges:int, potency:int}}, got {e!r}"
+    return None
+
+
 def _chk_options_dict(v):
     # the `options` sub-dict itself; each declared sub-key is validated by validate_slot_data
     # against its OWN shape (see ContractKey.subkeys), so this only asserts the container.
@@ -203,6 +218,7 @@ SHAPES = {
     "NUMBER":          (_chk_number,          "Number",        "as_f64"),
     "STR":             (_chk_str,             "Str",           "as_str"),
     "NESTED_GRANTS":   (_chk_nested_grants,   "NestedGrants",  "progressive.rs custom"),
+    "FLASK_LADDER":    (_chk_flask_ladder,    "FlaskLadder",   "progressive.rs flask reconcile"),
     "OPTIONS_DICT":    (_chk_options_dict,    "OptionsDict",   "options::parse_*_option sub-dict"),
     "ANY":             (_chk_any,             "Any",           "(diagnostic / foreign profile; unvalidated)"),
 }
@@ -560,6 +576,16 @@ CONTRACT = (
                 "exactly once via the ledger; false = the player KEEPS them, so self-heal them "
                 "(unique_goods). A consumable shipped as kept is re-granted every time it is "
                 "spent -- unbounded flask upgrades, then a CTD (playtest 2026-07-12)."),
+    ContractKey("flaskLadder", "FLASK_LADDER", False, (GREENFIELD,),
+                "features/progressive.py", "progressive.rs / flask reconcile",
+                "ordered cumulative flask target list; entry i (0-based) = {charges 2..14, potency "
+                "0..12} the client RECONCILES the player's flask to after receiving (i+1) Progressive "
+                "Flask Upgrade copies. Monotonic non-decreasing, reaching (14,12) at the last rung; "
+                "length == the PROG_FLASK copies this seed actually has (the substituted Golden Seed / "
+                "Sacred Tear checks kept, or a fixed 10 injected when none are kept -- dlc_only). "
+                "REPLACES the flask arm of progressiveGrants: the flask is a reconciled LEVELED STATE "
+                "now, NOT consumed-goods grants, so a spent flask is never re-granted (the CTD class "
+                "that killed the old per-copy goods ladder). Emitted only when progressive_flasks is on."),
     ContractKey("death_link", "BOOL_OR_INT", False, (BOTH,),
                 "features/deathlink.py (legacy duplicate of options.death_link)",
                 "er-logic/options.rs parse_death_link (reads options.death_link)",
@@ -892,6 +918,10 @@ fn shape_ok(shape: Shape, v: &Value) -> bool {
                     && e.get("flags").and_then(|f| f.as_array())
                         .is_some_and(|f| f.iter().all(is_int))
             })))
+        }),
+        Shape::FlaskLadder => v.as_array().is_some_and(|a| {
+            a.iter().all(|e| e.get("charges").is_some_and(is_int)
+                && e.get("potency").is_some_and(is_int))
         }),
         Shape::OptionsDict => v.is_object(),
         Shape::Any => true,

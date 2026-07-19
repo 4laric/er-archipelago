@@ -28,6 +28,16 @@ try:
     from ..item_ids import AMMO_ITEM_NAMES   # param-derived (EquipParamWeapon.wepType); see gen_data.py
 except Exception:                            # pre-regen item_ids.py lacks it -> category empty, stacks inert
     AMMO_ITEM_NAMES = []
+try:
+    # The presence-floor roster (physick tears + smithing bell bearings). These are GOODS, so the junk
+    # predicate below would seize them as filler and the tail would displace every one of them -- which
+    # would mean a roster item's KEPT vanilla check could be trimmed out of the pool. Protect them like
+    # the collectathon lines so that when a tear/bell's home region IS kept it survives as itself
+    # (present -> features/presence_floor does not inject a duplicate). Same failure shape as the
+    # Scadutree Fragment / Revered Spirit Ash omission (test_gf_collectathon_protected).
+    from .presence_floor import PRESENCE_FLOOR_ITEMS
+except Exception:                            # feature not importable yet (standalone unit load) -> inert
+    PRESENCE_FLOOR_ITEMS = frozenset()
 
 
 def _dlc_pots():
@@ -170,7 +180,7 @@ class FillerCurationFeature(Feature):
 
 def _is_junk_consumable(name):
     """A filler good that is throwaway junk -- NOT the tuned economy and NOT protected funny junk."""
-    if name in FUNNY_JUNK or any(s in name for s in _ECONOMY_SUBSTR):
+    if name in FUNNY_JUNK or name in PRESENCE_FLOOR_ITEMS or any(s in name for s in _ECONOMY_SUBSTR):
         return False
     full = ITEM_CATALOG.get(name)
     return name == "Rune" or (full is not None and (full & 0xF0000000) == 0x40000000)
