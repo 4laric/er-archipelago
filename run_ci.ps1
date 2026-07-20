@@ -49,6 +49,7 @@ param(
     [int]    $FuzzTimeoutSec = 900,
     [int]    $FuzzPassPct = 80,      # FUZZ step passes at >= this SUCCESS+REJECT rate (default 80%)
     [switch] $SkipUnit,
+    [switch] $SkipZipGen,          # skip the zipped-apworld (custom_worlds) generation smoke
     [switch] $SkipFill,
     [switch] $SkipDiversity,
     [switch] $SkipGreenfield,
@@ -110,6 +111,22 @@ if (-not $SkipUnit) {
     Invoke-CiStep "UNIT (tools\gf_test.py -- pinned upstream AP)" {
         python (Join-Path $Repo "tools\gf_test.py") --tb=short
         if ($LASTEXITCODE -ne 0) { throw "GREENFIELD: AP world unit tests failed (exit $LASTEXITCODE)" }
+    }
+}
+
+# ----- 1a) zipped-apworld generation smoke (the custom_worlds crash class) -----
+# The UNIT step above installs and tests the world UNPACKED. A released .apworld is a ZIP, and code
+# that reads a bundled data file via open(dirname(__file__)/name) works unpacked but raises inside the
+# archive -- invisible to every unpacked test. That shipped the 2026-07-19 hotfix: coverage.py's
+# open() on check_lots_table.json failed inside the zip, the coverage gate saw an empty table and
+# raised CoverageError at post_fill, and EVERY custom_worlds (Nexus) generation died. This step zips
+# the world CI just validated into custom_worlds\ and runs one generation from it, so a non-zip-safe
+# resource read fails HERE, before release, instead of on a user's machine. Runs after UNIT (which
+# leaves the installed world in .ap-test\) so it zips exactly those bits.
+if (-not $SkipZipGen) {
+    Invoke-CiStep "ZIP-GEN (custom_worlds generation smoke)" {
+        python (Join-Path $Repo "tools\gf_zip_gen_smoke.py")
+        if ($LASTEXITCODE -ne 0) { throw "GREENFIELD: zipped-apworld generation failed (exit $LASTEXITCODE) -- a bundled-resource read is not zip-safe (the custom_worlds crash class)" }
     }
 }
 
