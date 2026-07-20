@@ -118,7 +118,14 @@ use fromsoftware_shared::FromStatic;                   (required for SoloParamRe
 ```
 
 You still need **Windows to RUN** the dll (it hooks a live Elden Ring process). Push your `.rs` fix to
-`main`; Alaric pulls, builds and bumps the submodule pointer.
+client `main`. The world repo's CI checks the client out at its **own main** (not the pinned gitlink —
+see `tests.yaml`), so your fix is exercised and the cross-repo generator gates run **without any
+submodule bump**; a stale gitlink never reddens CI. The superproject gitlink is just a pin so a fresh
+clone gets the matching DLL, and **`build.ps1 -Rust`/`-All` now auto-bumps it** (guarded: only when the
+client submodule is clean, already on `origin/main`, and actually behind the pin — added 2026-07-20,
+replacing the hand-run `git add from-software-archipelago-clients && git commit`). So do NOT tell Alaric
+to bump it as boilerplate — his next `build.ps1` does it. Verify (see §7) and only mention it if it is
+genuinely behind AND he has not re-run the build.
 
 ## 5. You CAN regenerate + test the apworld in-sandbox
 
@@ -189,4 +196,12 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
   ⚠️ This bullet used to name `feat/matt-free-backbone-mvp` as the rebase/push target. That was
   **stale and contradicted §2** — rebasing onto it would drop every recent commit. `main` is the
   target on both repos. (Corrected 2026-07-14.)
-- Relay commit SHAs + "needs a Windows cargo build / submodule bump" to Alaric explicitly.
+- Relay commit SHAs to Alaric explicitly. Two things NOT to recite as boilerplate:
+  - **"needs a submodule bump"** — VERIFY before saying it. `git ls-tree origin/main from-software-archipelago-clients`
+    (the pinned gitlink) vs `git ls-remote https://github.com/4laric/from-software-archipelago-clients.git refs/heads/main`
+    (client HEAD). Equal ⇒ already current, say nothing. `build.ps1 -Rust`/`-All` AUTO-bumps the gitlink
+    (guarded; see §4), so even when it is behind, Alaric's next build fixes it — mention it only if it is
+    behind AND he has not re-run the build. The world CI tests against client main regardless, so a bump
+    is never required for green CI. (Corrected 2026-07-20: this line used to demand a bump unconditionally.)
+  - **"needs a Windows cargo build"** — only when you actually pushed a client `.rs` change (the push-to-`main`
+    CI does that build; hand over the Actions link, don't claim you read the run).

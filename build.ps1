@@ -79,6 +79,7 @@ $ApDir    = Join-Path $Repo "Archipelago"      # AP checkout: Generate.py, Multi
 
 # Rust client is now an in-repo submodule (was the sibling from-software-archipelago-clients).
 $RustDir     = Join-Path $Repo "from-software-archipelago-clients"
+$RustName    = "from-software-archipelago-clients"   # repo-relative submodule path (gitlink)
 $RustTarget  = "x86_64-pc-windows-msvc"
 $RustDll     = Join-Path $RustDir "target\$RustTarget\release\eldenring_archipelago.dll"
 
@@ -368,6 +369,39 @@ if ($Rust) {
     } finally { Pop-Location }
     if (-not (Test-Path $RustDll)) { throw "build reported success but DLL not found: $RustDll" }
     Write-Host "  -> $RustDll" -ForegroundColor Green
+}
+
+# ----- bump the client submodule pointer ------------------------------------------------------
+# The superproject pins a client commit (the gitlink). The apworld CI tests against client MAIN
+# directly, NOT the gitlink, so a stale pin never reddens CI -- but the pin should still track the
+# client you just built, so a fresh clone gets the matching DLL. Auto-bump it here (replaces the
+# old hand-run "git add from-software-archipelago-clients && git commit"). SAFE by construction:
+# bumps ONLY when the submodule is clean, already on origin/main (never pins a local-only/dirty
+# commit), and actually behind the pin; stages ONLY the gitlink path (never -A); commits locally
+# (push the superproject yourself when ready).
+if ($Rust) {
+    Step "Client submodule pointer"
+    Push-Location $RustDir
+    $subDirty = (git status --porcelain 2>$null | Out-String).Trim()
+    git fetch --quiet origin 2>$null | Out-Null
+    $subHead = (git rev-parse HEAD 2>$null | Out-String).Trim()
+    $subMain = (git rev-parse origin/main 2>$null | Out-String).Trim()
+    Pop-Location
+    $pinLine = (git -C $Repo ls-tree HEAD -- $RustName 2>$null | Out-String)
+    $pinned  = if ($pinLine -match '\bcommit\s+([0-9a-f]{40})') { $Matches[1] } else { "" }
+    $short   = { param($h) if ($h) { $h.Substring(0, [Math]::Min(7, $h.Length)) } else { "?" } }
+    if ($subDirty) {
+        Write-Warning ("  submodule has uncommitted changes -- NOT bumping. Commit + push the client first:`n" +
+                       "    cd $RustName; git add crates; git commit -m 'regen'; git push origin HEAD:main; cd ..")
+    } elseif ($subHead -and $subHead -ne $subMain) {
+        Write-Warning ("  client HEAD {0} is not on origin/main yet -- push the client, then re-run to bump." -f (& $short $subHead))
+    } elseif ($subHead -and $subHead -ne $pinned) {
+        git -C $Repo add -- $RustName
+        git -C $Repo commit -q -m ("bump client submodule -> {0}" -f (& $short $subHead)) -- $RustName
+        Write-Host ("  bumped gitlink {0} -> {1} (superproject commit made; push when ready)" -f (& $short $pinned), (& $short $subHead)) -ForegroundColor Green
+    } else {
+        Write-Host "  gitlink already current" -ForegroundColor Green
+    }
 }
 
 # ----- rust client deploy to EML (alt loader) -------------------------------------------------
