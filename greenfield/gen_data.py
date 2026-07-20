@@ -873,9 +873,14 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 #   2050437720 = Revered Spirit Ash  (near Scaduview Cross)
 #   2051447500 = Scadutree Fragment  (around Bridge Leading to the Village (1))
 #   2051447510 = Scadutree Fragment  (around Bridge Leading to the Village (2))
+# More TEMPORARY off-surface (Alaric, 2026-07-20 walkthrough) -- kept as checks, barred from hosting
+# progression so a region Lock can't strand on a spot he can't pin / doesn't want gating:
+#   2048417700 = Scadutree Fragment (Gravesite m61_48_41) -- blind tile, unlocatable for now.
+#   20007510   = Well Depths Key (Belurat) -- the last awkward Belurat check; off surface for now.
 _SURFACE_EXCLUDE_FLAGS = frozenset({
     21017340, 2046457040, 2046457720, 2047397070,
     2049447500, 2050437010, 2050437720, 2051447500, 2051447510,
+    2048417700, 20007510,
 })
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
