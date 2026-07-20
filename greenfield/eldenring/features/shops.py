@@ -40,6 +40,25 @@ except Exception:  # not yet generated
     SHOP_ROW_FLAGS, SHOP_ROW_IDS, SHOP_LOC_REGION, SHOP_PREVIEW_GOODS = {}, {}, {}, {}
 
 
+# ER FullID category nibble for GOODS (shopPreviewGoods values are FullIDs; see module docstring).
+_GOODS_NIBBLE = 0x40000000
+
+# Dedicated spare EquipParamGoods rows for REGION-LOCK shop previews. Each is a row that EXISTS
+# (so the client can write its FMG/icon), has the [ERROR] placeholder name (no real name to clobber),
+# and is referenced by NO lot / shop / recipe -- the exact AP_PLACEHOLDER_GOODS (8852) criterion,
+# and clear of 8852 and the low/system band. Derived from EquipParamGoods.csv + GoodsName.fmg +
+# ShopLineupParam*/ItemLotParam* on the pinned artifacts (2026-07-20 verification: 332 spare rows
+# total). 64 rows >> the ~54 max region locks, so every lock name gets its own distinct row -- a
+# lock's preview never shares a row with a real good OR with another lock.
+_LOCK_PREVIEW_SPARE_GOODS = (
+    9314, 9315, 9316, 9317, 9318, 9319, 9332, 9333, 9334, 9335, 9336, 9337, 9338, 9339,
+    9349, 9350, 9351, 9352, 9353, 9354, 9355, 9356, 9357, 9358, 9359, 9366, 9367, 9368,
+    9369, 9370, 9394, 9395, 9396, 9397, 9398, 9399, 9404, 9405, 9406, 9407, 9408, 9409,
+    9410, 9424, 9425, 9426, 9427, 9428, 9429, 9430, 9442, 9443, 9444, 9445, 9446, 9447,
+    9448, 9449, 9450, 50200, 50201, 50202, 50203, 51760,
+)
+
+
 class MerchantBellLogic(Choice):
     """Whether bell-bearing merchants' shop checks require their bell in logic. off = every shop
     check is always open; logic_only would gate them behind the merchant's Bell Bearing. The
@@ -74,4 +93,30 @@ class Shops(Feature):
                 flags[int(row_id)] = fl
         # shopPreviewGoods stays keyed by AP location id (client shop_preview/shop_icon take (loc, good)).
         preview = {aid: g for aid, g in SHOP_PREVIEW_GOODS.items() if aid in scoped}
+
+        # REGION-LOCK PREVIEW REPOINT (2026-07-20). shopPreviewGoods is COSMETIC (the check fires by
+        # SHOP_ROW_FLAGS, not the ware), and the client overrides the preview good's shared FMG + icon
+        # GLOBALLY per good id. When a region lock lands on a shop check, it inherits that slot's
+        # vanilla ware as its preview good -- and if that ware is a real grantable good, every copy
+        # the player holds gets relabeled as the lock (playtest: "9 Leyndell Locks" that were 9
+        # Perfume Bottles, row 9510). Repoint each lock-holding shop slot at a DEDICATED spare row so
+        # the client names/flowers it without touching any real good. Locks are unique items, so one
+        # spare per lock NAME (sorted for determinism) suffices; lock names are built exactly as in
+        # core.set_rules (`f"{r} Lock"` over _kept()), so they match the placed item names.
+        lock_names = sorted(f"{r} Lock" for r in world._kept())
+        name_to_preview = {nm: (_LOCK_PREVIEW_SPARE_GOODS[i] | _GOODS_NIBBLE)
+                           for i, nm in enumerate(lock_names)
+                           if i < len(_LOCK_PREVIEW_SPARE_GOODS)}
+        if name_to_preview:
+            player = world.player
+            for loc in world.multiworld.get_locations(player):
+                aid = getattr(loc, "address", None)
+                if aid not in preview:
+                    continue
+                it = getattr(loc, "item", None)
+                if it is not None and getattr(it, "player", None) == player:
+                    repointed = name_to_preview.get(it.name)
+                    if repointed is not None:
+                        preview[aid] = repointed
+
         return {contract.SHOP_ROW_FLAGS: flags, contract.SHOP_PREVIEW_GOODS: preview}
