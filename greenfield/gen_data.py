@@ -847,11 +847,9 @@ _UNPLACEABLE_DLC_COOKBOOKS = frozenset({68510, 68520, 68530, 68540, 68550, 68560
 #              m14 flag is a phantom duplicate -- drop it so the key is a singleton.
 #   100020   = "Ruin Fragment" shop row (Kale, Church of Elleh) whose existence as a real check Alaric
 #              could not confirm -- drop rather than ship a phantom shop check.
-#   2044467950, 2046477950 = two DLC "Ancient Ruins :: Revered Spirit Ash" enemy_lot checks (Rauh /
-#              Church of the Bud) Alaric could NOT verify exist in-game (2026-07-20, live walkthrough).
-#              A Revered Spirit Ash is a treasure, not an enemy drop -- these are mis-detections; drop
-#              them. (The other enemy_lot Revered Spirit Ash flags, e.g. 20007900, are CONFIRMED real.)
-_SHEET_DROPS = frozenset({14007930, 100020, 2044467950, 2046477950})
+# (2044467950 / 2046477950 were briefly here; Alaric reclassified them to _SURFACE_EXCLUDE_FLAGS --
+#  kept as ordinary checks, just barred from hosting progression -- rather than dropped from the pool.)
+_SHEET_DROPS = frozenset({14007930, 100020})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
                 | _SHEET_DROPS)
@@ -877,10 +875,15 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # progression so a region Lock can't strand on a spot he can't pin / doesn't want gating:
 #   2048417700 = Scadutree Fragment (Gravesite m61_48_41) -- blind tile, unlocatable for now.
 #   20007510   = Well Depths Key (Belurat) -- the last awkward Belurat check; off surface for now.
+#   2044467950, 2046477950 = two DLC "Ancient Ruins :: Revered Spirit Ash" enemy_lot checks (Church of
+#                the Bud / Rauh) Alaric could not verify in-game (2026-07-20). Kept as ordinary checks
+#                but barred from progression -- so a region Lock can't strand on a spot that may not
+#                exist -- rather than dropped from the pool (Alaric's call, 2026-07-20).
 _SURFACE_EXCLUDE_FLAGS = frozenset({
     21017340, 2046457040, 2046457720, 2047397070,
     2049447500, 2050437010, 2050437720, 2051447500, 2051447510,
     2048417700, 20007510,
+    2044467950, 2046477950,
 })
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
