@@ -7,22 +7,27 @@ flag	grace_name
 60020	Third Church of Marika
 60130	Gatefront
 60220	Stranded Graveyard
+60240	Warmaster's Shack
 60260	Volcano Manor
 60400	Beside the Crater-Pocked Glade
 60410	Converted Tower
-60420	East Gate Bridge Trestle
-60430	Ranni's Chamber
+60420	Sorcerer's Isle
+60430	Manor Lower Level
 60460	Lenne's Rise
 62010	Gatefront
-62020	Laskyar Ruins
+62011	Castle Morne Rampart
+62012	Mistwood Outskirts
+62020	Liurnia Lake Shore
 62021	Academy Gate Town
 62022	Northern Liurnia Lake Shore
-62030	Forest-Spanning Greatbridge
+62030	Altus Highway Junction
 62031	Outer Wall Phantom Tree
 62032	Road of Iniquity
 62040	Southern Aeonia Swamp Bank
+62041	Dragonbarrow West
 62050	Zamor Ruins
 62051	Giants' Gravepost
+62052	Inner Consecrated Snowfield
 62060	Ainsel River Downstream
 62061	Lake of Rot Shoreside
 62062	Dynasty Mausoleum Entrance
@@ -31,8 +36,16 @@ flag	grace_name
 62080	Scorched Ruins
 62081	Highroad Cross
 62082	Cerulean Coast Cross
+62083	Temple Town Ruins
+62084	Church Ruins
+65030	Hermit Merchant's Shack
+65120	Hermit Merchant's Shack
+65140	Fort Haight West
 65150	Southern Aeonia Swamp Bank
 65200	Giants' Gravepost
+65210	Warmaster's Shack
+65220	Boilprawn Shack
+65230	Main Caria Manor Gate
 65240	Church of Pilgrimage
 65640	Redmane Castle Plaza
 65660	Fortified Manor, First Floor
@@ -49,9 +62,9 @@ flag	grace_name
 66150	Auriza Side Tomb
 66160	Auriza Side Tomb
 66170	Auriza Side Tomb
-66190	Caelem Ruins
+66190	Rotview Balcony
 66410	Debate Parlor
-66420	Scenic Isle
+66420	Laskyar Ruins
 66430	Jarburg
 66440	Jarburg
 66470	Auriza Side Tomb
@@ -60,6 +73,7 @@ flag	grace_name
 66700	Volcano Manor
 66710	Queen's Bedchamber
 66720	Queen's Bedchamber
+66730	Craftsman's Shack
 66740	Craftsman's Shack
 66760	Altus Highway Junction
 66770	Shaded Castle Ramparts
@@ -71,24 +85,34 @@ flag	grace_name
 66930	Bonny Gaol
 66940	Lamenter's Gaol
 66950	Scorched Ruins
-66960	Recluses' River Downstream
+66960	Bonny Village
 66970	Recluses' River Downstream
 66980	West Rampart
+67020	Fort Haight West
+67050	Stormhill Shack
+67060	Fallen Ruins of the Lake
+67070	Forest-Spanning Greatbridge
 67090	Consecrated Snowfield
 67120	Volcano Manor
 67130	Temple of Eiglay
-67200	Murkwater Coast
+67200	Murkwater Cave
+67250	Seethewater Terminus
 67260	Chamber Outside the Plaza
 67300	Siofra River Bank
 67310	Chamber Outside the Plaza
+67400	Academy Gate Town
 67410	Liurnia Lake Shore
 67420	Debate Parlor
 67430	Tombsward Catacombs
+67440	Inner Consecrated Snowfield
 67450	Laskyar Ruins
 67460	Main Caria Manor Gate
+67480	Gate Town Bridge
 67630	Aqueduct-Facing Cliffs
 67640	Minor Erdtree Church
 67650	Smoldering Church
+67800	Mistwood Outskirts
+67840	Craftsman's Shack
 67850	Castellan's Hall
 67860	Auriza Side Tomb
 67870	Smoldering Church
@@ -97,19 +121,28 @@ flag	grace_name
 68000	Wyndham Catacombs
 68020	Tempest-Facing Balcony
 68030	Cathedral of Dragon Communion
+68200	Summonwater Village Outskirts
 68400	Frenzied Flame Village Outskirts
 68410	Cathedral of the Forsaken
+68570	Jagged Peak Mountainside
+68580	Cathedral of Manus Metyr
 68590	Scorched Ruins
 68600	Cathedral of Manus Metyr
 68610	Gravesite Plain
-68630	Moorth Highway, South
+68620	Ellac River Cave
+68630	Pillar Path Cross
 68640	Church of the Bud, Main Entrance
 68650	Greatbridge, North
 68660	Belurat Gaol
+68670	Abyssal Woods
+68680	Ravine North
 68690	Scadu Altus, West
 68700	Ruined Forge Lava Intake
+68710	Cerulean Coast
+68720	Foot of the Jagged Peak
+68730	Greatbridge, North
 68740	Fog Rift Catacombs
-68750	Pillar Path Waypoint
+68750	Divided Falls
 68760	Cerulean Coast Cross
 68770	Moorth Ruins
 68780	Scorpion River Catacombs
@@ -118,14 +151,25 @@ flag	grace_name
 68810	Grand Altar of Dragon Communion
 68820	Behind the Fort of Reprimand
 68840	Garden of Deep Purple
+68850	Grand Altar of Dragon Communion
 68880	Manse Hall
+68890	Ancient Ruins Base
 68900	Castle Front
+68920	Grand Altar of Dragon Communion
 68930	West Rampart
+68940	Cerulean Coast West
 68950	The Fissure
 69740	Frenzied Flame Proscription
 69760	Frenzied Flame Village Outskirts
-580310	Behind Caria Manor
+580300	Seaside Ruins
+580310	Manor Upper Level
 580320	Rampartside Path
+580330	Ancient Snow Valley Ruins
+580340	Church of Pilgrimage
+580350	Windmill Heights
+580360	Fort Faroth
+580400	Greatbridge, North
+580410	Scadu Altus, West
 580420	Jagged Peak Mountainside
 580600	Scaduview Cross
 590200	Murkwater Cave
@@ -1745,6 +1789,9 @@ flag	grace_name
 43017030	Dragon's Pit
 43017040	Dragon's Pit Terminus
 1033407100	Altar South
+1033417000	Altar South
+1033417010	Altar South
+1033417020	Altar South
 1033447000	Revenger's Shack
 1033447010	Revenger's Shack
 1033447020	Revenger's Shack
@@ -1757,14 +1804,15 @@ flag	grace_name
 1033477010	The Four Belfries
 1033477020	The Four Belfries
 1033477030	The Four Belfries
+1033477200	Altar South
 1033477900	The Four Belfries
 1033477910	The Four Belfries
 1034417000	Moonlight Altar
-1034427000	Village of the Albinaurics
-1034427010	Village of the Albinaurics
+1034427000	Moonlight Altar
+1034427010	Moonlight Altar
 1034427020	Village of the Albinaurics
 1034427030	Village of the Albinaurics
-1034427040	Village of the Albinaurics
+1034427040	Moonlight Altar
 1034427050	Village of the Albinaurics
 1034427060	Village of the Albinaurics
 1034427100	Village of the Albinaurics
@@ -1773,8 +1821,11 @@ flag	grace_name
 1034447000	Temple Quarter
 1034447010	Temple Quarter
 1034447900	Temple Quarter
+1034457010	Crystalline Woods
+1034457020	Crystalline Woods
+1034457100	Crystalline Woods
 1034467100	Crystalline Woods
-1034477000	Sorcerer's Isle
+1034477000	The Four Belfries
 1034477110	Sorcerer's Isle
 1034477120	Sorcerer's Isle
 1034477130	Sorcerer's Isle
@@ -1788,8 +1839,8 @@ flag	grace_name
 1034477210	Sorcerer's Isle
 1034477220	Sorcerer's Isle
 1034477500	Sorcerer's Isle
-1034487000	Northern Liurnia Lake Shore
-1034487010	Northern Liurnia Lake Shore
+1034487000	Road to the Manor
+1034487010	Road to the Manor
 1034487100	Northern Liurnia Lake Shore
 1034497010	Road to the Manor
 1034507010	Ranni's Rise
@@ -1800,10 +1851,15 @@ flag	grace_name
 1034507060	Ranni's Rise
 1034507070	Ranni's Rise
 1034507080	Ranni's Rise
-1034507090	Ranni's Chamber
-1035427010	Cathedral of Manus Celes
-1035427030	Cathedral of Manus Celes
-1035427040	Cathedral of Manus Celes
+1034507090	Manor Lower Level
+1034517900	Royal Moongazing Grounds
+1035417000	Cathedral of Manus Celes
+1035417010	Cathedral of Manus Celes
+1035417100	Cathedral of Manus Celes
+1035417110	Cathedral of Manus Celes
+1035427010	Folly on the Lake
+1035427030	Village of the Albinaurics
+1035427040	Village of the Albinaurics
 1035427100	Cathedral of Manus Celes
 1035427110	Cathedral of Manus Celes
 1035427120	Cathedral of Manus Celes
@@ -1816,12 +1872,29 @@ flag	grace_name
 1035427190	Cathedral of Manus Celes
 1035427200	Cathedral of Manus Celes
 1035437010	Folly on the Lake
+1035447000	South Raya Lucaria Gate
+1035447010	South Raya Lucaria Gate
+1035447020	South Raya Lucaria Gate
+1035447030	South Raya Lucaria Gate
+1035447040	South Raya Lucaria Gate
+1035447050	South Raya Lucaria Gate
+1035447060	South Raya Lucaria Gate
+1035447070	South Raya Lucaria Gate
+1035447080	South Raya Lucaria Gate
+1035447090	South Raya Lucaria Gate
+1035447100	South Raya Lucaria Gate
+1035447110	South Raya Lucaria Gate
+1035447120	South Raya Lucaria Gate
 1035457000	South Raya Lucaria Gate
 1035457030	South Raya Lucaria Gate
 1035457100	South Raya Lucaria Gate
 1035467020	Main Academy Gate
-1035467100	Main Academy Gate
+1035467100	East Gate Bridge Trestle
 1035477010	East Gate Bridge Trestle
+1035487010	Sorcerer's Isle
+1035487020	The Ravine
+1035487030	East Raya Lucaria Gate
+1035497020	The Ravine
 1035507000	Manor Upper Level
 1035507010	Main Caria Manor Gate
 1035507020	Main Caria Manor Gate
@@ -1829,7 +1902,7 @@ flag	grace_name
 1035507050	Main Caria Manor Gate
 1035507060	Manor Upper Level
 1035507070	Royal Moongazing Grounds
-1035507080	Manor Upper Level
+1035507080	Behind Caria Manor
 1035507090	Manor Lower Level
 1035507100	Manor Upper Level
 1035507110	Manor Lower Level
@@ -1844,31 +1917,50 @@ flag	grace_name
 1035507200	Manor Upper Level
 1035507220	Manor Upper Level
 1035507230	Royal Moongazing Grounds
-1035507240	Manor Upper Level
+1035507240	Behind Caria Manor
 1035507250	Main Caria Manor Gate
 1035507260	Main Caria Manor Gate
 1035507270	Manor Lower Level
 1035507280	Main Caria Manor Gate
 1035507300	Manor Upper Level
 1035507900	Main Caria Manor Gate
+1035527010	Craftsman's Shack
+1035527020	Craftsman's Shack
+1035527030	Craftsman's Shack
+1035527040	Craftsman's Shack
 1035537000	Seethewater Terminus
 1035537010	Seethewater Terminus
+1035537020	Altar South
 1035537030	Seethewater Terminus
 1035537040	Seethewater Terminus
 1035537050	Seethewater Terminus
+1035547000	Road of Iniquity
+1035547010	Road of Iniquity
+1035547020	Seethewater Terminus
+1035547050	Seethewater Terminus
+1035547060	Seethewater Terminus
+1035547070	Seethewater Terminus
 1036417000	Slumbering Wolf's Shack
 1036417010	Slumbering Wolf's Shack
 1036417020	Slumbering Wolf's Shack
 1036437000	Fallen Ruins of the Lake
 1036437020	Fallen Ruins of the Lake
-1036437030	Boilprawn Shack
-1036457020	Gate Town North
-1036457110	Gate Town North
-1036487000	East Raya Lucaria Gate
+1036437030	Academy Gate Town
+1036447000	Academy Gate Town
+1036447010	Academy Gate Town
+1036447040	Fallen Ruins of the Lake
+1036447050	South Raya Lucaria Gate
+1036447060	South Raya Lucaria Gate
+1036447300	Fallen Ruins of the Lake
+1036457020	South Raya Lucaria Gate
+1036457110	South Raya Lucaria Gate
+1036477000	East Raya Lucaria Gate
+1036487000	Bellum Church
 1036497000	Bellum Church
 1036507010	Behind Caria Manor
 1036507020	Behind Caria Manor
-1036507030	Behind Caria Manor
+1036507030	Manor Upper Level
+1036517000	Craftsman's Shack
 1036527000	Craftsman's Shack
 1036527010	Craftsman's Shack
 1036527020	Craftsman's Shack
@@ -1876,6 +1968,7 @@ flag	grace_name
 1036527040	Craftsman's Shack
 1036527050	Craftsman's Shack
 1036527060	Craftsman's Shack
+1036537000	Seethewater Terminus
 1036547000	Ninth Mt. Gelmir Campsite
 1036547010	Road of Iniquity
 1036547020	Road of Iniquity
@@ -1883,19 +1976,23 @@ flag	grace_name
 1036547040	Ninth Mt. Gelmir Campsite
 1036547050	Road of Iniquity
 1036547400	Road of Iniquity
-1037427000	Scenic Isle
-1037427010	Scenic Isle
+1037417010	Slumbering Wolf's Shack
+1037427000	Laskyar Ruins
+1037427010	Laskyar Ruins
 1037427030	Scenic Isle
-1037427900	Scenic Isle
+1037427900	Laskyar Ruins
+1037437000	Academy Gate Town
+1037437010	Academy Gate Town
 1037447000	Academy Gate Town
 1037447010	Academy Gate Town
+1037457100	Eastern Liurnia Lake Shore
 1037467000	Church of Vows
 1037467010	Church of Vows
-1037477000	Raya Lucaria Crystal Tunnel
+1037477000	Ruined Labyrinth
 1037477010	Raya Lucaria Crystal Tunnel
-1037477020	Raya Lucaria Crystal Tunnel
-1037477030	Raya Lucaria Crystal Tunnel
-1037487000	Mausoleum Compound
+1037477020	Mausoleum Compound
+1037477030	Ruined Labyrinth
+1037487000	Bellum Church
 1037487010	Mausoleum Compound
 1037487020	Mausoleum Compound
 1037487030	Mausoleum Compound
@@ -1905,34 +2002,59 @@ flag	grace_name
 1037487070	Mausoleum Compound
 1037487080	Mausoleum Compound
 1037497000	Church of Inhibition
-1037497010	Church of Inhibition
+1037497010	Bellum Church
 1037497020	Church of Inhibition
 1037497030	Church of Inhibition
 1037497100	Church of Inhibition
 1037497200	Church of Inhibition
+1037507000	Ravine-Veiled Village
+1037507100	Ravine-Veiled Village
 1037517000	Abandoned Coffin
 1037517010	Abandoned Coffin
 1037517020	Abandoned Coffin
 1037527020	Seethewater River
-1037527030	Seethewater River
-1037527040	Seethewater River
-1037527050	Seethewater River
+1037527030	Craftsman's Shack
+1037527040	Primeval Sorcerer Azur
+1037527050	Primeval Sorcerer Azur
 1037527060	Seethewater River
-1037527070	Seethewater River
+1037527070	Primeval Sorcerer Azur
 1037527080	Seethewater River
-1037527090	Seethewater River
-1037527100	Seethewater River
+1037527090	Primeval Sorcerer Azur
+1037527100	Primeval Sorcerer Azur
 1037537000	Primeval Sorcerer Azur
 1037537010	Primeval Sorcerer Azur
 1037537020	Primeval Sorcerer Azur
 1037537400	Primeval Sorcerer Azur
+1037547000	First Mt. Gelmir Campsite
+1037547010	First Mt. Gelmir Campsite
+1037547020	Ninth Mt. Gelmir Campsite
+1037547030	Road of Iniquity
+1037547040	Ninth Mt. Gelmir Campsite
+1037547050	Primeval Sorcerer Azur
+1037547060	Primeval Sorcerer Azur
+1037547070	Primeval Sorcerer Azur
+1037547080	Primeval Sorcerer Azur
+1037547090	Primeval Sorcerer Azur
+1037547100	First Mt. Gelmir Campsite
+1037547110	Ninth Mt. Gelmir Campsite
+1037547120	Ninth Mt. Gelmir Campsite
+1037547130	Ninth Mt. Gelmir Campsite
+1037547140	Ninth Mt. Gelmir Campsite
+1037547150	Ninth Mt. Gelmir Campsite
+1037557000	Ninth Mt. Gelmir Campsite
+1038397000	Lake-Facing Cliffs
 1038407000	Liurnia Lake Shore
-1038417010	Laskyar Ruins
+1038417010	Liurnia Lake Shore
+1038427000	Gate Town Bridge
+1038427010	Gate Town Bridge
+1038427020	Gate Town Bridge
 1038437000	Gate Town Bridge
 1038437010	Gate Town Bridge
 1038437020	Gate Town Bridge
-1038457000	Eastern Liurnia Lake Shore
-1038457010	Eastern Liurnia Lake Shore
+1038447030	Eastern Liurnia Lake Shore
+1038447040	Artist's Shack
+1038457000	Eastern Tableland
+1038457010	Eastern Tableland
 1038457020	Artist's Shack
 1038467000	Eastern Tableland
 1038477010	Ruined Labyrinth
@@ -1942,23 +2064,38 @@ flag	grace_name
 1038487100	Frenzied Flame Village Outskirts
 1038487120	Frenzied Flame Village Outskirts
 1038487130	Frenzied Flame Village Outskirts
+1038497000	Church of Inhibition
+1038497010	Church of Inhibition
+1038497030	Frenzied Flame Village Outskirts
+1038497040	Frenzied Flame Village Outskirts
+1038497900	Frenzied Flame Village Outskirts
 1038507000	Ravine-Veiled Village
 1038507010	Grand Lift of Dectus
 1038517000	Erdtree-Gazing Hill
-1038517010	Erdtree-Gazing Hill
-1038517020	Erdtree-Gazing Hill
+1038517010	Altus Plateau
+1038517020	Altus Plateau
+1038517030	Altar South
 1038517040	Erdtree-Gazing Hill
 1038517050	Erdtree-Gazing Hill
 1038517060	Erdtree-Gazing Hill
 1038517070	Erdtree-Gazing Hill
 1038517080	Erdtree-Gazing Hill
+1038517090	Altar South
 1038517400	Erdtree-Gazing Hill
-1038537000	Old Altus Tunnel
-1038537010	Old Altus Tunnel
-1038537020	Old Altus Tunnel
-1038537030	Old Altus Tunnel
-1038537040	Old Altus Tunnel
-1038537050	Old Altus Tunnel
+1038527000	Seethewater River
+1038527010	Seethewater River
+1038527020	Seethewater River
+1038527030	Old Altus Tunnel
+1038527040	Seethewater River
+1038527050	Old Altus Tunnel
+1038527060	Seethewater River
+1038527070	Seethewater River
+1038537000	First Mt. Gelmir Campsite
+1038537010	First Mt. Gelmir Campsite
+1038537020	First Mt. Gelmir Campsite
+1038537030	First Mt. Gelmir Campsite
+1038537040	First Mt. Gelmir Campsite
+1038537050	First Mt. Gelmir Campsite
 1038547000	First Mt. Gelmir Campsite
 1038547010	First Mt. Gelmir Campsite
 1038547020	First Mt. Gelmir Campsite
@@ -1967,39 +2104,55 @@ flag	grace_name
 1038547060	First Mt. Gelmir Campsite
 1038547070	First Mt. Gelmir Campsite
 1038547080	First Mt. Gelmir Campsite
-1038547090	First Mt. Gelmir Campsite
+1038547090	Shaded Castle Inner Gate
 1038547110	First Mt. Gelmir Campsite
+1039397000	Lake-Facing Cliffs
 1039407000	Lake-Facing Cliffs
-1039417000	Liurnia Highway South
-1039417010	Liurnia Highway South
+1039417000	Liurnia Highway North
+1039417010	Liurnia Highway North
 1039417020	Liurnia Highway South
 1039417030	Liurnia Highway South
-1039417100	Liurnia Highway South
-1039417200	Liurnia Highway South
+1039417100	Liurnia Highway North
+1039417200	Liurnia Highway North
 1039427000	Liurnia Highway North
 1039427010	Liurnia Highway North
 1039427020	Liurnia Highway North
 1039427030	Liurnia Highway North
 1039427040	Liurnia Highway North
 1039427050	Liurnia Highway North
+1039437010	Jarburg
+1039437020	Jarburg
+1039437030	Jarburg
+1039437040	Jarburg
+1039437050	Jarburg
+1039437060	Jarburg
+1039437100	Gate Town Bridge
 1039447000	Jarburg
-1039447010	Jarburg
+1039447010	Artist's Shack
 1039447020	Jarburg
 1039447030	Jarburg
 1039447040	Jarburg
+1039487000	Frenzied Flame Village Outskirts
+1039487100	Frenzied Flame Village Outskirts
+1039507000	Altus Plateau
+1039507010	Altus Plateau
+1039507020	Altus Highway Junction
 1039517010	Altus Highway Junction
 1039517020	Altus Highway Junction
 1039517030	Altus Highway Junction
 1039517040	Altus Highway Junction
 1039517400	Altus Highway Junction
+1039527000	Old Altus Tunnel
+1039527020	Old Altus Tunnel
+1039527400	Old Altus Tunnel
 1039537000	Bridge of Iniquity
 1039537010	Bridge of Iniquity
-1039537020	Bridge of Iniquity
+1039537020	Old Altus Tunnel
 1039537030	Bridge of Iniquity
 1039537040	Bridge of Iniquity
-1039537050	Bridge of Iniquity
-1039537060	Bridge of Iniquity
-1039537070	Bridge of Iniquity
+1039537050	Bower of Bounty
+1039537060	Bower of Bounty
+1039537070	Bower of Bounty
 1039547010	Shaded Castle Ramparts
 1039547020	Shaded Castle Ramparts
 1039547030	Shaded Castle Ramparts
@@ -2027,6 +2180,15 @@ flag	grace_name
 1039547300	Shaded Castle Inner Gate
 1039547350	Shaded Castle Inner Gate
 1039570000	Shaded Castle Inner Gate
+1040387000	Stormhill Shack
+1040407000	Altar South
+1040507000	Altus Highway Junction
+1040517000	Rampartside Path
+1040517010	Altus Highway Junction
+1040517020	Altus Highway Junction
+1040517030	Altus Highway Junction
+1040517040	Altus Highway Junction
+1040517400	Altus Highway Junction
 1040527000	Forest-Spanning Greatbridge
 1040527010	Forest-Spanning Greatbridge
 1040527020	Forest-Spanning Greatbridge
@@ -2034,15 +2196,18 @@ flag	grace_name
 1040527040	Forest-Spanning Greatbridge
 1040527050	Forest-Spanning Greatbridge
 1040537000	Bower of Bounty
-1040537010	Bower of Bounty
+1040537010	Shaded Castle Ramparts
 1040537020	Bower of Bounty
-1040537030	Bower of Bounty
-1040537040	Bower of Bounty
+1040537030	Forest-Spanning Greatbridge
+1040537040	Forest-Spanning Greatbridge
 1040537050	Bower of Bounty
 1040537060	Bower of Bounty
-1040547010	Road of Iniquity Side Path
+1040547000	Altar South
+1040547010	Shaded Castle Ramparts
 1040547030	Road of Iniquity Side Path
+1040547050	Altar South
 1040547090	Road of Iniquity Side Path
+1040557000	Road of Iniquity Side Path
 1041327000	Isolated Merchant's Shack
 1041327010	Isolated Merchant's Shack
 1041327020	Isolated Merchant's Shack
@@ -2050,40 +2215,71 @@ flag	grace_name
 1041327040	Isolated Merchant's Shack
 1041327050	Isolated Merchant's Shack
 1041337000	Fourth Church of Marika
-1041337010	Fourth Church of Marika
+1041337010	Isolated Merchant's Shack
 1041337030	Fourth Church of Marika
 1041337100	Fourth Church of Marika
 1041337200	Fourth Church of Marika
 1041357000	Church of Dragon Communion
 1041357010	Church of Dragon Communion
 1041357020	Church of Dragon Communion
+1041367000	Church of Elleh
+1041377000	Stormhill Shack
+1041377020	Church of Elleh
 1041387010	Stormhill Shack
 1041387030	Stormhill Shack
 1041387040	Stormhill Shack
 1041387050	Stormhill Shack
 1041387100	Stormhill Shack
 1041387200	Stormhill Shack
+1041397000	Stormhill Shack
+1041517000	Outer Wall Phantom Tree
+1041517010	Outer Wall Phantom Tree
+1041517020	Outer Wall Phantom Tree
+1041517030	Altus Highway Junction
 1041527000	Rampartside Path
 1041527010	Rampartside Path
 1041527020	Rampartside Path
 1041527030	Rampartside Path
 1041527040	Rampartside Path
-1041527070	Rampartside Path
+1041527070	Forest-Spanning Greatbridge
 1041527080	Rampartside Path
 1041527090	Rampartside Path
+1041537010	Forest-Spanning Greatbridge
+1041537020	Rampartside Path
+1041537030	Forest-Spanning Greatbridge
+1041537040	Forest-Spanning Greatbridge
+1041537060	Windmill Village
+1041537070	Forest-Spanning Greatbridge
+1041537080	Windmill Village
 1041547000	Windmill Village
-1041547400	Windmill Village
+1041547400	Road of Iniquity Side Path
+1041557000	Road of Iniquity Side Path
+1041557010	Windmill Village
+1041557020	Road of Iniquity Side Path
+1042327000	Tombsward
+1042327020	Tombsward
 1042337000	Tombsward
+1042347000	Church of Pilgrimage
+1042347010	Tombsward Cave
+1042347020	Tombsward Cave
+1042347030	Church of Pilgrimage
+1042347100	Tombsward Cave
+1042357000	Seaside Ruins
+1042357010	The First Step
+1042357020	Church of Pilgrimage
+1042357030	Church of Pilgrimage
 1042367010	The First Step
 1042367030	Church of Elleh
 1042367040	Church of Elleh
 1042367050	The First Step
 1042367060	Church of Elleh
 1042377000	Gatefront
-1042377010	Gatefront
+1042377010	Limgrave Tunnels
+1042377060	Isolated Merchant's Shack
+1042377070	Isolated Merchant's Shack
 1042377300	Gatefront
 1042387000	Warmaster's Shack
-1042387010	Warmaster's Shack
+1042387010	Gatefront
 1042387020	Warmaster's Shack
 1042387030	Warmaster's Shack
 1042387040	Warmaster's Shack
@@ -2093,16 +2289,38 @@ flag	grace_name
 1042387090	Warmaster's Shack
 1042387100	Warmaster's Shack
 1042387110	Warmaster's Shack
-1042387120	Warmaster's Shack
-1042387140	Warmaster's Shack
-1042387200	Warmaster's Shack
+1042387120	Gatefront
+1042387140	Gatefront
+1042387200	Gatefront
 1042387600	Warmaster's Shack
+1042397010	Warmaster's Shack
+1042397900	Warmaster's Shack
+1042507000	Altar South
 1042517000	Outer Wall Phantom Tree
 1042517400	Outer Wall Phantom Tree
 1042517410	Outer Wall Phantom Tree
+1042527000	Rampartside Path
+1042527010	Rampartside Path
+1042527020	Rampartside Path
+1042527030	Rampartside Path
+1042527040	Outer Wall Battleground
+1042537000	Rampartside Path
+1042537010	Rampartside Path
+1042547000	Windmill Village
+1042547010	Windmill Village
+1042547020	Windmill Heights
+1042547030	Windmill Village
+1042547040	Windmill Village
+1042547050	Windmill Village
+1042547060	Windmill Village
+1042547070	Windmill Heights
+1042547080	Windmill Heights
+1042547090	Windmill Heights
+1042547100	Windmill Village
+1042547400	Windmill Village
 1042557000	Windmill Heights
-1043307000	Morne Moangrave
-1043307010	Morne Moangrave
+1043307000	Beside the Rampart Gaol
+1043307010	Beside the Rampart Gaol
 1043317000	Behind the Castle
 1043317010	Behind the Castle
 1043317020	Castle Morne Lift
@@ -2143,25 +2361,40 @@ flag	grace_name
 1043317400	Castle Morne Lift
 1043317900	Behind the Castle
 1043317910	Behind the Castle
+1043327000	Ailing Village Outskirts
+1043327010	Tombsward
+1043337000	Ailing Village Outskirts
+1043337010	Ailing Village Outskirts
 1043347000	Church of Pilgrimage
-1043347040	Church of Pilgrimage
-1043347050	Church of Pilgrimage
+1043347040	Ailing Village Outskirts
+1043347050	Ailing Village Outskirts
 1043347100	Church of Pilgrimage
 1043357000	Seaside Ruins
 1043357010	Seaside Ruins
 1043357030	Seaside Ruins
-1043357100	Seaside Ruins
+1043357100	Church of Pilgrimage
+1043367010	Seaside Ruins
+1043367020	Seaside Ruins
+1043367040	Seaside Ruins
+1043367070	Seaside Ruins
+1043367110	Seaside Ruins
 1043377000	Murkwater Cave
 1043377010	Murkwater Cave
 1043377020	Agheel Lake North
 1043387010	Murkwater Coast
 1043387020	Murkwater Coast
-1043397010	Saintsbridge
+1043397010	Warmaster's Shack
 1043397020	Saintsbridge
 1043397030	Saintsbridge
 1043397200	Saintsbridge
+1043407000	Saintsbridge
+1043407010	Saintsbridge
 1043507000	Minor Erdtree Church
 1043507010	Sealed Tunnel
+1043527000	Outer Wall Battleground
+1043527030	Outer Wall Battleground
+1043527400	Outer Wall Battleground
+1043527410	Outer Wall Battleground
 1043537000	Hermit Merchant's Shack
 1043537010	Hermit Merchant's Shack
 1043537020	Hermit Merchant's Shack
@@ -2170,23 +2403,31 @@ flag	grace_name
 1043537050	Hermit Merchant's Shack
 1043537060	Outer Wall Battleground
 1043537070	Outer Wall Battleground
+1044317010	Castle Morne Lift
+1044317020	Castle Morne Lift
+1044317030	Castle Morne Lift
+1044327010	Castle Morne Rampart
+1044327020	Castle Morne Rampart
+1044327030	Castle Morne Rampart
+1044327040	Castle Morne Rampart
 1044337000	Ailing Village Outskirts
 1044337020	South of the Lookout Tower
 1044337030	South of the Lookout Tower
-1044337040	South of the Lookout Tower
+1044337040	Beside the Crater-Pocked Glade
 1044337050	South of the Lookout Tower
 1044337060	South of the Lookout Tower
 1044337080	Ailing Village Outskirts
 1044337100	Ailing Village Outskirts
 1044337200	South of the Lookout Tower
+1044337210	Isolated Merchant's Shack
 1044347000	Bridge of Sacrifice
 1044347010	Bridge of Sacrifice
-1044347040	Bridge of Sacrifice
+1044347040	South of the Lookout Tower
 1044347050	Bridge of Sacrifice
 1044347060	Bridge of Sacrifice
 1044347070	Bridge of Sacrifice
 1044347080	Bridge of Sacrifice
-1044347100	Bridge of Sacrifice
+1044347100	South of the Lookout Tower
 1044357000	Agheel Lake South
 1044357010	Agheel Lake South
 1044357020	Agheel Lake South
@@ -2201,22 +2442,72 @@ flag	grace_name
 1044367030	Waypoint Ruins Cellar
 1044367040	Waypoint Ruins Cellar
 1044367100	Waypoint Ruins Cellar
+1044367200	Isolated Merchant's Shack
 1044367300	Waypoint Ruins Cellar
 1044367310	Waypoint Ruins Cellar
 1044367320	Waypoint Ruins Cellar
 1044367330	Waypoint Ruins Cellar
 1044367340	Waypoint Ruins Cellar
 1044377010	Mistwood Outskirts
-1044377020	Mistwood Outskirts
-1044377200	Mistwood Outskirts
+1044377020	Waypoint Ruins Cellar
+1044377200	Waypoint Ruins Cellar
 1044387010	Artist's Shack
-1044387040	Artist's Shack
-1044387100	Artist's Shack
+1044387040	Murkwater Coast
+1044387100	Murkwater Coast
+1044527000	Capital Rampart
+1044527010	Capital Rampart
+1044527020	Hermit Merchant's Shack
+1044537010	Hermit Merchant's Shack
 1045337000	Beside the Crater-Pocked Glade
+1045347000	Bridge of Sacrifice
+1045357000	Fort Haight West
+1045357020	Fort Haight West
+1045357030	Fort Haight West
+1045357040	Fort Haight West
+1045357050	Fort Haight West
+1045357060	Fort Haight West
+1045357070	Fort Haight West
+1045357080	Fort Haight West
+1045357090	Fort Haight West
+1045377000	Waypoint Ruins Cellar
+1045377010	Waypoint Ruins Cellar
+1045377050	Mistwood Outskirts
+1045377060	Mistwood Outskirts
+1045377070	Mistwood Outskirts
+1045377080	Mistwood Outskirts
+1045377090	Mistwood Outskirts
+1045377100	Waypoint Ruins Cellar
+1045387000	Mistwood Outskirts
+1045387020	Summonwater Village Outskirts
+1045387030	Summonwater Village Outskirts
+1045387040	Summonwater Village Outskirts
+1045387050	Summonwater Village Outskirts
+1045387060	Summonwater Village Outskirts
+1045387070	Summonwater Village Outskirts
+1045387080	Summonwater Village Outskirts
+1045397000	Summonwater Village Outskirts
+1045397020	Summonwater Village Outskirts
+1045397040	Summonwater Village Outskirts
+1045397050	Third Church of Marika
+1045397060	Third Church of Marika
+1045397070	Summonwater Village Outskirts
+1045397080	Third Church of Marika
+1045397090	Third Church of Marika
+1045397100	Summonwater Village Outskirts
+1045397110	Third Church of Marika
+1045397120	Summonwater Village Outskirts
+1045397140	Summonwater Village Outskirts
+1045527000	Altar South
 1045527010	Capital Rampart
 1045527020	Capital Rampart
 1045527030	Capital Rampart
-1046387010	Third Church of Marika
+1046367000	Fort Haight West
+1046367010	Fort Haight West
+1046367030	Fort Haight West
+1046367100	Fort Haight West
+1046367500	Fort Haight West
+1046377000	Third Church of Marika
+1046387010	Fort Gael North
 1046387100	Third Church of Marika
 1046397000	Gael Tunnel
 1046397010	Gael Tunnel
@@ -2226,17 +2517,38 @@ flag	grace_name
 1046407020	Rotview Balcony
 1046407040	Rotview Balcony
 1046407060	Rotview Balcony
+1046577300	Apostate Derelict
+1046577800	Apostate Derelict
+1047377000	Caelid Highway South
+1047377010	Caelid Highway South
+1047377020	Caelid Highway South
+1047377030	Caelid Highway South
+1047377040	Caelid Highway South
+1047377050	Caelid Highway South
+1047387010	Astray from Caelid Highway North
+1047387030	Astray from Caelid Highway North
+1047387040	Caelid Highway South
+1047387070	Fort Gael North
+1047387080	Fort Gael North
+1047387100	Fort Gael North
+1047387110	Fort Gael North
+1047387120	Fort Gael North
+1047387130	Fort Gael North
+1047387900	Fort Gael North
+1047387910	Astray from Caelid Highway North
+1047387920	Fort Gael North
 1047397000	Fort Gael North
-1047397040	Fort Gael North
-1047397080	Fort Gael North
-1047407000	Caelem Ruins
-1047407020	Caelem Ruins
-1047407030	Caelem Ruins
+1047397040	Smoldering Wall
+1047397080	Smoldering Wall
+1047407000	Rotview Balcony
+1047407020	Rotview Balcony
+1047407030	Isolated Merchant's Shack
 1047407040	Caelem Ruins
 1047407070	Caelem Ruins
 1047407080	Caelem Ruins
 1047407900	Caelem Ruins
-1047407910	Caelem Ruins
+1047407910	Rotview Balcony
+1047407920	Morne Moangrave
 1047517000	Forbidden Lands
 1047517010	Forbidden Lands
 1047517300	Forbidden Lands
@@ -2245,27 +2557,43 @@ flag	grace_name
 1047557020	Yelough Anix Tunnel
 1047557030	Yelough Anix Tunnel
 1047557900	Yelough Anix Tunnel
+1047567300	Yelough Anix Tunnel
+1047567310	Yelough Anix Tunnel
+1047567320	Altar South
+1047567330	Yelough Anix Tunnel
+1047577300	Apostate Derelict
+1047577310	Apostate Derelict
 1047587000	Apostate Derelict
 1047587800	Apostate Derelict
-1048377000	Caelid Highway South
+1048377000	Southern Aeonia Swamp Bank
 1048377020	Caelid Highway South
-1048377030	Caelid Highway South
+1048377030	Aeonia Swamp Shore
 1048387000	Aeonia Swamp Shore
 1048387010	Aeonia Swamp Shore
 1048387020	Aeonia Swamp Shore
 1048387030	Aeonia Swamp Shore
 1048397000	Smoldering Wall
-1048397010	Smoldering Wall
+1048397010	Deep Siofra Well
 1048397040	Smoldering Wall
-1048397050	Smoldering Wall
-1048397900	Smoldering Wall
+1048397050	Deep Siofra Well
+1048397900	Astray from Caelid Highway North
 1048407010	Deep Siofra Well
 1048407020	Deep Siofra Well
 1048407030	Deep Siofra Well
-1048407040	Deep Siofra Well
-1048407050	Deep Siofra Well
-1048407060	Dragonbarrow West
-1048407900	Deep Siofra Well
+1048407040	Smoldering Wall
+1048407050	Caelem Ruins
+1048407060	Caelem Ruins
+1048407900	Caelem Ruins
+1048517000	Grand Lift of Rold
+1048547800	Consecrated Snowfield
+1048547810	Consecrated Snowfield
+1048547820	Consecrated Snowfield
+1048547830	Consecrated Snowfield
+1048547840	Consecrated Snowfield
+1048557300	Yelough Anix Tunnel
+1048557600	Yelough Anix Tunnel
+1048557900	Altar South
+1048567300	Inner Consecrated Snowfield
 1048577000	Ordina, Liturgical Town
 1048577010	Ordina, Liturgical Town
 1048577020	Ordina, Liturgical Town
@@ -2280,19 +2608,22 @@ flag	grace_name
 1048577310	Ordina, Liturgical Town
 1048577800	Ordina, Liturgical Town
 1048577810	Ordina, Liturgical Town
+1048587300	Apostate Derelict
+1049367000	Impassable Greatbridge
+1049367010	Southern Aeonia Swamp Bank
 1049377010	Southern Aeonia Swamp Bank
 1049377020	Southern Aeonia Swamp Bank
 1049377050	Southern Aeonia Swamp Bank
 1049377070	Southern Aeonia Swamp Bank
 1049387010	Heart of Aeonia
 1049387020	Heart of Aeonia
-1049387030	Heart of Aeonia
-1049387040	Heart of Aeonia
-1049387060	Heart of Aeonia
-1049387070	Heart of Aeonia
+1049387030	Southern Aeonia Swamp Bank
+1049387040	Southern Aeonia Swamp Bank
+1049387060	Southern Aeonia Swamp Bank
+1049387070	Southern Aeonia Swamp Bank
 1049387080	Heart of Aeonia
-1049387110	Heart of Aeonia
-1049387120	Heart of Aeonia
+1049387110	Southern Aeonia Swamp Bank
+1049387120	Southern Aeonia Swamp Bank
 1049387800	Heart of Aeonia
 1049397000	Sellia Under-Stair
 1049397010	Sellia Under-Stair
@@ -2301,6 +2632,17 @@ flag	grace_name
 1049397040	Sellia Under-Stair
 1049397900	Chair-Crypt of Sellia
 1049397910	Sellia Under-Stair
+1049407000	Dragonbarrow West
+1049407010	Dragonbarrow West
+1049407020	Dragonbarrow West
+1049407040	Deep Siofra Well
+1049417040	Dragonbarrow West
+1049417070	Dragonbarrow West
+1049417080	Dragonbarrow West
+1049417090	Dragonbarrow West
+1049417100	Dragonbarrow Fork
+1049527000	Grand Lift of Rold
+1049527800	Grand Lift of Rold
 1049537000	Zamor Ruins
 1049537010	Zamor Ruins
 1049537020	Zamor Ruins
@@ -2309,24 +2651,57 @@ flag	grace_name
 1049537900	Zamor Ruins
 1049547300	Consecrated Snowfield
 1049547310	Consecrated Snowfield
+1049547900	Altar South
 1049557300	Inner Consecrated Snowfield
-1049557310	Inner Consecrated Snowfield
-1049557320	Inner Consecrated Snowfield
+1049557310	Consecrated Snowfield Catacombs
+1049557320	Consecrated Snowfield Catacombs
 1049557330	Inner Consecrated Snowfield
-1049557800	Inner Consecrated Snowfield
-1049557810	Inner Consecrated Snowfield
+1049557800	Consecrated Snowfield
+1049557810	Consecrated Snowfield Catacombs
+1049567300	Inner Consecrated Snowfield
+1049567310	Inner Consecrated Snowfield
+1049567320	Inner Consecrated Snowfield
+1049567330	Ordina, Liturgical Town
+1049567340	Inner Consecrated Snowfield
+1049567350	Ordina, Liturgical Town
 1050367000	Impassable Greatbridge
 1050367900	Impassable Greatbridge
 1050387000	Church of the Plague
 1050387010	Church of the Plague
 1050387020	Church of the Plague
+1050397000	Sellia Under-Stair
+1050397010	Sellia Under-Stair
+1050397020	Sellia Backstreets
+1050397030	Sellia Backstreets
+1050397040	Sellia Backstreets
+1050397050	Sellia Backstreets
+1050397060	Church of the Plague
+1050397070	Sellia Under-Stair
+1050397090	Fort Faroth
+1050397100	Sellia Backstreets
+1050397900	Sellia Under-Stair
+1050397910	Sellia Under-Stair
 1050537000	Giants' Mountaintop Catacombs
 1050537300	Giants' Mountaintop Catacombs
+1050547000	Consecrated Snowfield Catacombs
+1050547800	Giants' Mountaintop Catacombs
+1050547810	Giants' Mountaintop Catacombs
 1050557300	Consecrated Snowfield Catacombs
 1050557310	Consecrated Snowfield Catacombs
 1050557320	Consecrated Snowfield Catacombs
 1050557800	Consecrated Snowfield Catacombs
 1050557900	Consecrated Snowfield Catacombs
+1050567300	Inner Consecrated Snowfield
+1050567500	Ancient Snow Valley Ruins
+1050567510	Ancient Snow Valley Ruins
+1050567520	Ancient Snow Valley Ruins
+1050567600	Consecrated Snowfield Catacombs
+1050567620	Ancient Snow Valley Ruins
+1050567800	Inner Consecrated Snowfield
+1050567820	Consecrated Snowfield Catacombs
+1050577300	Ordina, Liturgical Town
+1050577800	Castle Sol Main Gate
+1051357000	Chamber Outside the Plaza
 1051367000	Chamber Outside the Plaza
 1051367020	Chamber Outside the Plaza
 1051367030	Chamber Outside the Plaza
@@ -2339,20 +2714,30 @@ flag	grace_name
 1051367110	Redmane Castle Plaza
 1051367130	Chamber Outside the Plaza
 1051367910	Chamber Outside the Plaza
+1051387000	Starscourge Radahn
+1051387010	Starscourge Radahn
+1051387020	Starscourge Radahn
 1051397040	Fort Faroth
 1051397050	Fort Faroth
 1051397060	Fort Faroth
 1051397900	Fort Faroth
+1051407040	Fort Faroth
 1051417000	Bestial Sanctum
 1051417010	Bestial Sanctum
 1051417030	Bestial Sanctum
-1051437020	Bestial Sanctum
+1051437020	Farum Greatbridge
 1051537000	Church of Repose
-1051537010	Church of Repose
-1051537300	Church of Repose
+1051537010	Foot of the Forge
+1051537300	Giants' Mountaintop Catacombs
 1051537600	Church of Repose
 1051537800	Church of Repose
-1051537810	Church of Repose
+1051537810	Foot of the Forge
+1051547000	Giants' Mountaintop Catacombs
+1051547800	Foot of the Forge
+1051557300	Consecrated Snowfield Catacombs
+1051557310	Ancient Snow Valley Ruins
+1051557320	Ancient Snow Valley Ruins
+1051557330	Ancient Snow Valley Ruins
 1051567020	Ancient Snow Valley Ruins
 1051567030	Ancient Snow Valley Ruins
 1051567300	Ancient Snow Valley Ruins
@@ -2387,45 +2772,67 @@ flag	grace_name
 1051577230	Snow Valley Ruins Overlook
 1051577300	Castle Sol Rooftop
 1051577600	Church of the Eclipse
+1051587800	Castle Sol Rooftop
 1052417000	Lenne's Rise
 1052417010	Lenne's Rise
 1052417020	Lenne's Rise
 1052417030	Lenne's Rise
+1052437000	Farum Greatbridge
 1052537000	Foot of the Forge
 1052537800	Foot of the Forge
 1052547000	Giants' Gravepost
 1052547010	Giants' Gravepost
 1052547020	Giants' Gravepost
 1052547800	Giants' Gravepost
+1052557000	Whiteridge Road
+1052557010	Whiteridge Road
+1052557020	Whiteridge Road
+1052557030	Whiteridge Road
+1052557300	Whiteridge Road
+1052557310	Whiteridge Road
+1052557800	Whiteridge Road
+1052557900	Whiteridge Road
 1052567300	Whiteridge Road
-1052567310	Whiteridge Road
+1052567310	Snow Valley Ruins Overlook
 1052577000	Freezing Lake
 1052577300	Freezing Lake
 1052577310	Freezing Lake
-1052577800	Freezing Lake
+1052577800	Spiritcaller Cave
 1052577810	Freezing Lake
-1052577900	Freezing Lake
+1052577900	Spiritcaller Cave
+1052587800	Castle Sol Rooftop
+1052587810	Castle Sol Rooftop
+1052587820	Castle Sol Rooftop
 1053567300	Spiritcaller Cave
-1053567310	Spiritcaller Cave
-1053567800	Spiritcaller Cave
-1053567810	Spiritcaller Cave
+1053567310	First Church of Marika
+1053567800	First Church of Marika
+1053567810	First Church of Marika
+1053577300	Spiritcaller Cave
 1054557000	First Church of Marika
 1054557310	First Church of Marika
 1054557800	First Church of Marika
+2044417000	Cliffroad Terminus
 2044457000	Ancient Ruins, Grand Stairway
 2044457010	Ancient Ruins, Grand Stairway
 2044457020	Ancient Ruins, Grand Stairway
 2044457900	Ancient Ruins, Grand Stairway
-2044467000	Church of the Bud, Main Entrance
+2044467000	Ancient Ruins, Grand Stairway
 2044467010	Church of the Bud, Main Entrance
 2044467020	Church of the Bud, Main Entrance
-2044467030	Church of the Bud, Main Entrance
+2044467030	Ancient Ruins, Grand Stairway
 2044467040	Church of the Bud, Main Entrance
 2044467050	Church of the Bud, Main Entrance
 2044467060	Church of the Bud, Main Entrance
 2044467070	Church of the Bud, Main Entrance
 2044467080	Church of the Bud, Main Entrance
 2044467110	Church of the Bud, Main Entrance
+2044477000	Ravine North
+2044477010	Ravine North
+2044477020	Ravine North
+2044477030	Ravine North
+2044477040	Ravine North
+2044477050	Ravine North
+2044477900	Ravine North
 2045417000	Cliffroad Terminus
 2045417010	Cliffroad Terminus
 2045417020	Cliffroad Terminus
@@ -2438,64 +2845,115 @@ flag	grace_name
 2045417900	Cliffroad Terminus
 2045427000	Main Gate Cross
 2045427700	Main Gate Cross
-2045457000	Rauh Ancient Ruins, West
-2045457010	Rauh Ancient Ruins, West
-2045457020	Rauh Ancient Ruins, West
-2045467000	Temple Town Ruins
-2045467020	Temple Town Ruins
-2045467040	Temple Town Ruins
-2045467050	Temple Town Ruins
+2045437000	Greatbridge, North
+2045437700	Greatbridge, North
+2045447000	Greatbridge, North
+2045447010	Greatbridge, North
+2045447020	Greatbridge, North
+2045457000	Ancient Ruins, Grand Stairway
+2045457010	Temple Town Ruins
+2045457020	Ancient Ruins, Grand Stairway
+2045467000	Church of the Bud, Main Entrance
+2045467020	Rauh Ancient Ruins, West
+2045467040	Church of the Bud, Main Entrance
+2045467050	Rauh Ancient Ruins, East
 2045467060	Temple Town Ruins
-2045467070	Temple Town Ruins
+2045467070	Ravine North
 2045467080	Temple Town Ruins
-2045467090	Temple Town Ruins
-2045467900	Temple Town Ruins
+2045467090	Ravine North
+2045467900	Rauh Ancient Ruins, East
 2045467910	Temple Town Ruins
-2045477010	Ravine North
-2045477020	Ravine North
+2045477010	Rauh Ancient Ruins, East
+2045477020	Rauh Ancient Ruins, East
 2045477040	Ravine North
-2045477050	Ravine North
-2045477060	Ravine North
-2045477070	Ravine North
+2045477050	Rauh Ancient Ruins, East
+2045477060	Rauh Ancient Ruins, East
+2045477070	Rauh Ancient Ruins, East
+2045487000	Rauh Ancient Ruins, East
+2046387000	Cerulean Coast West
+2046387010	Cerulean Coast West
+2046387020	Cerulean Coast West
+2046387030	Cerulean Coast West
+2046387040	Cerulean Coast West
+2046387050	Cerulean Coast West
+2046387070	Cerulean Coast West
 2046397000	Cerulean Coast West
 2046397020	Cerulean Coast West
 2046397030	Cerulean Coast West
 2046397040	Cerulean Coast West
 2046397050	Cerulean Coast West
 2046407000	Gravesite Plain
-2046407040	Gravesite Plain
+2046407040	Cerulean Coast West
 2046407050	Gravesite Plain
 2046407060	Gravesite Plain
 2046407700	Gravesite Plain
 2046427700	Three-Path Cross
+2046437000	Castle Front
+2046437010	Castle Front
+2046437020	Castle Front
+2046437040	Greatbridge, North
+2046437700	Greatbridge, North
+2046437710	Greatbridge, North
 2046447000	Greatbridge, North
 2046447010	Greatbridge, North
 2046447020	Greatbridge, North
 2046447030	Greatbridge, North
 2046447050	Greatbridge, North
-2046447060	Greatbridge, North
+2046447060	Castle Front
 2046447070	Greatbridge, North
 2046447700	Greatbridge, North
 2046447710	Greatbridge, North
 2046447900	Greatbridge, North
+2046457000	Temple Town Ruins
+2046457020	Temple Town Ruins
+2046457030	Temple Town Ruins
+2046457040	Temple Town Ruins
+2046457050	Temple Town Ruins
+2046457060	Temple Town Ruins
+2046457070	Temple Town Ruins
+2046457720	Greatbridge, North
+2046457910	Temple Town Ruins
+2046457920	Temple Town Ruins
+2046467000	Rauh Ancient Ruins, East
+2046467010	Rauh Ancient Ruins, East
+2046467020	Temple Town Ruins
+2046467800	Scadu Altus, West
 2046477000	Rauh Ancient Ruins, East
 2046477010	Rauh Ancient Ruins, East
-2046477020	Rauh Ancient Ruins, East
+2046477020	Viaduct Minor Tower
 2046477030	Rauh Ancient Ruins, East
 2046477060	Rauh Ancient Ruins, East
 2046477070	Rauh Ancient Ruins, East
-2046477090	Rauh Ancient Ruins, East
-2046477100	Rauh Ancient Ruins, East
-2046477120	Rauh Ancient Ruins, East
-2046477130	Rauh Ancient Ruins, East
+2046477090	Viaduct Minor Tower
+2046477100	Viaduct Minor Tower
+2046477120	Viaduct Minor Tower
+2046477130	Viaduct Minor Tower
 2046477140	Rauh Ancient Ruins, East
 2046477150	Rauh Ancient Ruins, East
 2046477160	Rauh Ancient Ruins, East
 2046477700	Viaduct Minor Tower
 2046477720	Rauh Ancient Ruins, East
 2046477750	Rauh Ancient Ruins, East
+2046487000	Viaduct Minor Tower
+2046487010	Viaduct Minor Tower
 2047357000	The Fissure
+2047367000	The Fissure
+2047367010	The Fissure
+2047377000	Cerulean Coast Cross
+2047387000	Cerulean Coast West
+2047387010	Cerulean Coast
+2047397000	Cerulean Coast
+2047397040	Cerulean Coast
+2047397050	Cerulean Coast West
+2047397080	Cerulean Coast
+2047397090	Cerulean Coast
+2047407000	Gravesite Plain
+2047407010	Ellac River Downstream
+2047407020	Ellac River Downstream
+2047407030	Gravesite Plain
+2047407100	Cerulean Coast West
 2047407710	Scorched Ruins
+2047407900	Gravesite Plain
 2047417000	Scorched Ruins
 2047417010	Scorched Ruins
 2047417020	Scorched Ruins
@@ -2505,10 +2963,14 @@ flag	grace_name
 2047417110	Ellac River Downstream
 2047417700	Scorched Ruins
 2047417800	Scorched Ruins
-2047437000	Ellac River Cave
-2047437010	Ellac River Cave
-2047437020	Ellac River Cave
-2047437030	Ellac River Cave
+2047427000	Ellac River Cave
+2047427030	Ellac River Downstream
+2047427040	Ellac River Cave
+2047427700	Scorched Ruins
+2047437000	Castle-Lord's Chamber
+2047437010	Castle Front
+2047437020	Castle Front
+2047437030	Castle Front
 2047437040	Ellac River Cave
 2047437050	Ellac River Cave
 2047437700	Ellac River Cave
@@ -2519,23 +2981,23 @@ flag	grace_name
 2047447050	Castle Ensis Checkpoint
 2047447060	Castle Ensis Checkpoint
 2047447070	Castle Ensis Checkpoint
-2047447080	Castle Ensis Checkpoint
+2047447080	Ensis Moongazing Grounds
 2047447090	Castle Ensis Checkpoint
 2047447100	Castle Front
 2047447110	Castle Front
-2047447120	Castle Ensis Checkpoint
+2047447120	Castle-Lord's Chamber
 2047447130	Castle Ensis Checkpoint
 2047447140	Castle Ensis Checkpoint
 2047447150	Castle Ensis Checkpoint
 2047447160	Castle Front
-2047447170	Castle Ensis Checkpoint
+2047447170	Ensis Moongazing Grounds
 2047447190	Castle Front
 2047447200	Castle Ensis Checkpoint
 2047447210	Castle Ensis Checkpoint
 2047447600	Castle Ensis Checkpoint
 2047447610	Castle Ensis Checkpoint
 2047447620	Castle Ensis Checkpoint
-2047447700	Castle Front
+2047447700	Castle-Lord's Chamber
 2047447710	Castle Ensis Checkpoint
 2047447720	Castle Ensis Checkpoint
 2047447730	Castle Ensis Checkpoint
@@ -2555,48 +3017,79 @@ flag	grace_name
 2047457900	Scadu Altus, West
 2047457910	Scadu Altus, West
 2047457920	Scadu Altus, West
+2047467000	Scadu Altus, West
+2047467010	Ancient Ruins Base
+2047467030	Ancient Ruins Base
+2047467500	Scadu Altus, West
 2047477000	Rauh Ancient Ruins, East
 2047477010	Viaduct Minor Tower
 2047477020	Viaduct Minor Tower
-2047477030	Viaduct Minor Tower
-2047477040	Viaduct Minor Tower
-2047477050	Viaduct Minor Tower
-2047477070	Viaduct Minor Tower
-2047477900	Viaduct Minor Tower
+2047477030	Ancient Ruins Base
+2047477040	Ancient Ruins Base
+2047477050	Ancient Ruins Base
+2047477070	Ancient Ruins Base
+2047477900	Ancient Ruins Base
 2048377010	Cerulean Coast Cross
 2048377020	Cerulean Coast Cross
 2048377030	Cerulean Coast Cross
 2048377050	Cerulean Coast Cross
+2048387000	Cerulean Coast
+2048387010	Cerulean Coast Cross
+2048387030	Charo's Hidden Grave
 2048397000	Cerulean Coast
 2048397010	Cerulean Coast
 2048397020	Cerulean Coast
 2048397030	Charo's Hidden Grave
-2048397040	Charo's Hidden Grave
+2048397040	Grand Altar of Dragon Communion
 2048397050	Charo's Hidden Grave
+2048407000	Charo's Hidden Grave
+2048407010	Ellac River Downstream
+2048407020	Ellac River Downstream
+2048417000	Ellac River Downstream
+2048417010	Ellac River Downstream
+2048417030	Scorched Ruins
+2048417700	Ellac River Downstream
+2048417800	Pillar Path Waypoint
 2048427000	Pillar Path Waypoint
 2048427020	Pillar Path Waypoint
 2048427900	Pillar Path Waypoint
-2048437000	Pillar Path Cross
+2048437000	Ellac River Cave
 2048437010	Pillar Path Cross
 2048437020	Pillar Path Cross
 2048437030	Pillar Path Cross
 2048437700	Pillar Path Cross
-2048447000	Ensis Moongazing Grounds
+2048447000	Castle Ensis Checkpoint
 2048447010	Castle-Lord's Chamber
 2048447020	Castle-Lord's Chamber
-2048447030	Ensis Moongazing Grounds
+2048447030	Castle Ensis Checkpoint
 2048447040	Castle-Lord's Chamber
 2048447050	Castle-Lord's Chamber
 2048447060	Castle-Lord's Chamber
 2048447070	Castle-Lord's Chamber
 2048447080	Castle-Lord's Chamber
-2048447500	Ensis Moongazing Grounds
+2048447500	Highroad Cross
 2048447800	Castle-Lord's Chamber
 2048447810	Castle-Lord's Chamber
 2048457000	Highroad Cross
 2048457510	Highroad Cross
-2048457520	Highroad Cross
+2048457520	Moorth Ruins
+2048467010	Ancient Ruins Base
+2048467030	Castle Watering Hole
+2048467040	Ancient Ruins Base
+2048467050	Ancient Ruins Base
+2048467060	Ancient Ruins Base
+2048467090	Ancient Ruins Base
+2048467500	Ancient Ruins Base
+2048467510	Ancient Ruins Base
+2049377000	Finger Ruins of Rhia
+2049387000	Grand Altar of Dragon Communion
+2049387010	Grand Altar of Dragon Communion
+2049387020	Grand Altar of Dragon Communion
+2049387030	Grand Altar of Dragon Communion
+2049387060	Finger Ruins of Rhia
 2049397000	Grand Altar of Dragon Communion
+2049427000	Behind the Fort of Reprimand
+2049427010	Divided Falls
 2049437000	Moorth Highway, South
 2049437200	Moorth Highway, South
 2049437210	Fort of Reprimand
@@ -2626,61 +3119,108 @@ flag	grace_name
 2049447040	Moorth Ruins
 2049447050	Bonny Village
 2049447060	Bonny Village
-2049447070	Moorth Ruins
+2049447070	Moorth Highway, South
 2049447090	Bonny Village
 2049447500	Bonny Village
 2049447530	Moorth Ruins
 2049447900	Bonny Village
+2049457000	Recluses' River Upstream
+2049457010	Recluses' River Upstream
+2049457050	Moorth Ruins
+2049457200	Recluses' River Upstream
+2049457500	Recluses' River Upstream
+2049457510	Recluses' River Upstream
+2049467010	Castle Watering Hole
+2049467510	Castle Watering Hole
+2049467520	Castle Watering Hole
+2049467530	Castle Watering Hole
+2049467540	Castle Watering Hole
+2049467550	Castle Watering Hole
+2049467560	Castle Watering Hole
+2049467570	Castle Watering Hole
+2049467580	Castle Watering Hole
+2049467590	Castle Watering Hole
+2049467600	Castle Watering Hole
+2049467900	Castle Watering Hole
 2049477000	Castle Watering Hole
 2049477500	Castle Watering Hole
 2049477510	Castle Watering Hole
 2049487000	Shadow Keep, Back Gate
+2049497500	Scaduview
+2049497510	Scaduview
+2049497520	Scaduview
+2049497530	Scaduview
+2049497540	Scaduview
+2049497550	Scaduview
 2050387000	Finger Ruins of Rhia
 2050387010	Finger Ruins of Rhia
-2050437000	Scaduview Cross
-2050437010	Scaduview Cross
-2050437040	Scaduview Cross
-2050437220	Scaduview Cross
+2050417010	Abyssal Woods
+2050437000	Recluses' River Downstream
+2050437010	Abyssal Woods
+2050437040	Abyssal Woods
+2050437220	Behind the Fort of Reprimand
 2050437500	Scaduview Cross
-2050437720	Scaduview Cross
+2050437720	Bonny Village
 2050447000	Recluses' River Downstream
 2050447010	Recluses' River Downstream
-2050447020	Recluses' River Downstream
-2050447030	Recluses' River Downstream
+2050447020	Bonny Village
+2050447030	Bonny Village
 2050447040	Recluses' River Downstream
-2050447050	Recluses' River Downstream
-2050447060	Recluses' River Downstream
+2050447050	Bonny Village
+2050447060	Bonny Village
 2050447070	Recluses' River Downstream
-2050447090	Recluses' River Downstream
-2050447100	Recluses' River Downstream
+2050447090	Bonny Village
+2050447100	Bonny Village
 2050447120	Recluses' River Downstream
 2050447140	Recluses' River Downstream
-2050447500	Recluses' River Downstream
+2050447500	Bonny Village
 2050447710	Recluses' River Downstream
 2050447720	Recluses' River Downstream
 2050447730	Recluses' River Downstream
 2050457000	Recluses' River Upstream
-2050457020	Recluses' River Upstream
+2050457020	Recluses' River Downstream
 2050457060	Recluses' River Upstream
 2050457080	Recluses' River Upstream
 2050457730	Recluses' River Upstream
+2050467000	Castle Watering Hole
+2050467020	Castle Watering Hole
+2050467030	Castle Watering Hole
+2050467040	Recluses' River Upstream
+2050467700	Recluses' River Upstream
+2050467710	Castle Watering Hole
+2050467720	Castle Watering Hole
+2050467730	Castle Watering Hole
+2050467800	Church District Highroad
+2050467900	Castle Watering Hole
+2050467910	Castle Watering Hole
+2050477010	Church District Highroad
+2050477020	Church District Highroad
+2051417000	Church Ruins
 2051427000	Woodland Trail
-2051447000	Bridge Leading to the Village
-2051447010	Bridge Leading to the Village
+2051447000	Recluses' River Downstream
+2051447010	Recluses' River Downstream
 2051447020	Bridge Leading to the Village
 2051447030	Bridge Leading to the Village
-2051447040	Bridge Leading to the Village
+2051447040	Recluses' River Downstream
 2051457000	Cathedral of Manus Metyr
 2051457530	Cathedral of Manus Metyr
-2051477010	Church District Highroad
-2051477020	Church District Highroad
-2051477030	Church District Highroad
-2051477500	Church District Highroad
+2051467020	Church District Highroad
+2051467500	Church District Highroad
+2051467900	Church District Highroad
+2051477010	Hinterland Bridge
+2051477020	Hinterland Bridge
+2051477030	Hinterland Bridge
+2051477500	Hinterland Bridge
 2051477510	Church District Highroad
-2052407010	Foot of the Jagged Peak
+2052407010	Church Ruins
+2052417000	Church Ruins
+2052417010	Church Ruins
 2053397000	Jagged Peak Summit
 2053397010	Jagged Peak Mountainside
 2053397020	Jagged Peak Mountainside
+2053407000	Jagged Peak Mountainside
 2053417000	Church Ruins
 2053417020	Church Ruins
 2053417500	Church Ruins
+2053487000	Fingerstone Hill
+2053487010	Fingerstone Hill

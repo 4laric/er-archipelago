@@ -91,6 +91,39 @@ def test_unnamed_grace_ignored():
     assert bng.build_map(coords) == {500: "Named Grace"}
 
 
+def test_overworld_tiles_merge_across_border():
+    # Overworld (m60/m61) tiles are per-tile map-local frames folded into one global grid
+    # (world = tile*256 + local). A graceless tile's check must still anchor to a neighbouring
+    # tile's grace metres across the border -- the whole point of the merge.
+    coords = [
+        "grace\t1\tm60_11_08_00\t5\t0\t0\tNeighbour Grace",   # global x = 11*256 + 5 = 2821
+        "item\t500\tm60_10_08_00\t250\t0\t0\t",               # global x = 10*256 + 250 = 2810 (~11m away)
+    ]
+    # old same-map-only logic would leave 500 blind (its tile has no grace)
+    assert bng.build_map(coords) == {500: "Neighbour Grace"}
+
+
+def test_overworld_merge_preserves_true_distance():
+    # Same local coords in DIFFERENT tiles are NOT the same point: the nearer tile wins by true
+    # world distance, so the merge can't collapse distinct tiles onto each other.
+    coords = [
+        "grace\t1\tm60_00_00_00\t0\t0\t0\tFar Grace",         # global (0,0,0)
+        "grace\t2\tm60_05_00_00\t10\t0\t0\tNear Grace",       # global (1290,0,0)
+        "item\t500\tm60_05_00_00\t0\t0\t0\t",                 # global (1280,0,0): Near=10m, Far=1280m
+    ]
+    assert bng.build_map(coords)[500] == "Near Grace"
+
+
+def test_interior_maps_still_isolated():
+    # Non-overworld map ids pass through _normalize untouched: still strictly same-map.
+    coords = [
+        "grace\t1\tm20_00_00_00\t0\t0\t0\tGrace A",
+        "grace\t2\tm20_01_00_00\t1\t0\t0\tGrace B",           # closer in raw coords, different map
+        "item\t500\tm20_00_00_00\t5\t0\t0\t",
+    ]
+    assert bng.build_map(coords)[500] == "Grace A"
+
+
 if __name__ == "__main__":
     import sys
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
