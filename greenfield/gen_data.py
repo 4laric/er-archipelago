@@ -847,7 +847,11 @@ _UNPLACEABLE_DLC_COOKBOOKS = frozenset({68510, 68520, 68530, 68540, 68550, 68560
 #              m14 flag is a phantom duplicate -- drop it so the key is a singleton.
 #   100020   = "Ruin Fragment" shop row (Kale, Church of Elleh) whose existence as a real check Alaric
 #              could not confirm -- drop rather than ship a phantom shop check.
-_SHEET_DROPS = frozenset({14007930, 100020})
+#   2044467950, 2046477950 = two DLC "Ancient Ruins :: Revered Spirit Ash" enemy_lot checks (Rauh /
+#              Church of the Bud) Alaric could NOT verify exist in-game (2026-07-20, live walkthrough).
+#              A Revered Spirit Ash is a treasure, not an enemy drop -- these are mis-detections; drop
+#              them. (The other enemy_lot Revered Spirit Ash flags, e.g. 20007900, are CONFIRMED real.)
+_SHEET_DROPS = frozenset({14007930, 100020, 2044467950, 2046477950})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
                 | _SHEET_DROPS)
