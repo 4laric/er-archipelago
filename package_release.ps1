@@ -24,6 +24,7 @@
 param(
     [string]$Version = "0.2",
     [switch]$SkipApworld,
+    [switch]$SkipGenSmoke,   # skip the zipped-apworld generation gate (NOT recommended for a real release)
     [switch]$DryRun
 )
 
@@ -53,6 +54,24 @@ if (-not $SkipApworld) {
 }
 if (-not (Test-Path $Apworld)) {
     Die "eldenring.apworld not found at $Apworld. Run without -SkipApworld, or build it first."
+}
+
+# ---------------------------------------------------------------------------
+# 1a. ZIP-GEN GATE -- the artifact must actually generate from custom_worlds.
+# ---------------------------------------------------------------------------
+# The apworld we are about to ship is a ZIP. Code that reads a bundled data file via
+# open(dirname(__file__)/name) works unpacked (every unit test) and raises inside the archive -- which
+# is how the 2026-07-19 build shipped un-generatable: coverage.py's open() on check_lots_table.json
+# failed in the zip, the coverage gate raised CoverageError at post_fill, and every custom_worlds
+# generation died. Gate on the EXACT artifact here (gf_zip_gen_smoke.py --apworld drops it into a
+# custom_worlds\ checkout and runs one generation), so a broken .apworld can never leave this script.
+if (-not $SkipGenSmoke) {
+    Info "Gen-smoke: generating one seed from the built apworld (custom_worlds) ..."
+    python (Join-Path $Repo "tools\gf_zip_gen_smoke.py") --apworld $Apworld
+    if ($LASTEXITCODE -ne 0) {
+        Die "the built eldenring.apworld FAILED to generate from custom_worlds (exit $LASTEXITCODE) -- a bundled-resource read is not zip-safe. Refusing to package an un-generatable artifact (the 2026-07-19 crash class)."
+    }
+    Info "Gen-smoke: OK -- the artifact generates cleanly from a zip."
 }
 
 # ---------------------------------------------------------------------------
