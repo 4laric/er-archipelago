@@ -734,11 +734,25 @@ class GreenfieldEldenRingWorld(World):
     # apworld ship separately, and "it's broken" with no versions is a report we cannot chase.
     @staticmethod
     def _data_inputs_hash() -> str:
+        # ZIP-SAFE read: an installed apworld is a zip, so open(__file__-path) fails and every zipped
+        # release would otherwise ship an EMPTY data-inputs hash in its version handshake (silent, but
+        # wrong). importlib.resources reads through the loader in both the zip and unpacked cases; the
+        # on-disk open() stays as the fallback for a source-tree load with no package context.
         try:
             import json as _json
-            _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_gen_stamp.json")
-            with open(_p, encoding="utf-8") as _fh:
-                return _json.load(_fh).get("inputs_hash", "")
+            raw = None
+            _pkg = __package__ or ""
+            if _pkg:
+                try:
+                    import importlib.resources as _ir
+                    raw = _ir.files(_pkg).joinpath("_gen_stamp.json").read_text(encoding="utf-8")
+                except Exception:
+                    raw = None
+            if raw is None:
+                _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_gen_stamp.json")
+                with open(_p, encoding="utf-8") as _fh:
+                    raw = _fh.read()
+            return _json.loads(raw).get("inputs_hash", "")
         except Exception:
             return ""
 

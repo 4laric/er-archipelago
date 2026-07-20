@@ -107,17 +107,39 @@ def _load(modname):
         return None
 
 
+def _read_bundled_text(name):
+    """Read a data file bundled beside this module, ZIP-SAFE.
+
+    THE custom_worlds CRASH (2026-07-19): an installed apworld is a ZIP, so `__file__` points INSIDE
+    the archive and `open(os.path.join(_HERE, name))` raises -- there is no such path on disk. Unpacked
+    (dev tree, CI's source checkout) it works, which is exactly why generation passed every test here
+    and still died for every Nexus user: the coverage gate's `open()` failed, `_load_static_table`
+    swallowed it and returned an EMPTY table, and assert_coverage then reported all 7121 checks as
+    unawarded/unsuppressed and raised CoverageError at post_fill.
+    `importlib.resources` reads through the module's LOADER (the zipimporter's resource reader for a
+    .apworld, plain files for an unpacked tree), so it works in both. Falls back to the on-disk path
+    for the source-tree case where this module was loaded by file path and `__package__` is unset."""
+    pkg = __package__ or ""
+    if pkg:
+        try:
+            import importlib.resources as _ir
+            return _ir.files(pkg).joinpath(name).read_text(encoding="utf-8")
+        except Exception:
+            pass
+    with open(os.path.join(_HERE, name), encoding="utf-8") as fh:
+        return fh.read()
+
+
 def _load_static_table():
     """check_lots_table.json -- the STATIC suppression authority (tools/gen_check_lots_table.py).
     {"placeholder_goods": 8852,
      "map"/"enemy": {"<flag>": {"lot": <lot>, "slots": [1..8]}},   # GOODS blanked at the lot
      "items":       {"<flag>": [<FullID>, ...]}}                    # weapon/armor/talisman/AoW by id
     Returns ({}, {}, {}) when absent (every ware-bearing location then reports unsuppressed --
-    loud, which is correct: without this table the client's static path is INERT)."""
-    path = os.path.join(_HERE, "check_lots_table.json")
+    loud, which is correct: without this table the client's static path is INERT). Read ZIP-SAFELY
+    (see _read_bundled_text): a plain open() here is what crashed every custom_worlds install."""
     try:
-        with open(path, encoding="utf-8") as fh:
-            t = json.load(fh)
+        t = json.loads(_read_bundled_text("check_lots_table.json"))
         return ({int(k): v for k, v in t.get("map", {}).items()},
                 {int(k): v for k, v in t.get("enemy", {}).items()},
                 {int(k): [int(i) for i in v] for k, v in t.get("items", {}).items()})
