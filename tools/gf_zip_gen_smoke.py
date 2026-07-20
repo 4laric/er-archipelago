@@ -18,9 +18,17 @@ generation from it. If any bundled-resource read is not zip-safe, generation die
 a release -- instead of on a user's machine. It is deliberately a black-box generation, not a pytest
 import: the failure mode is invisible to anything that imports the world unpacked.
 
-RUN:  python tools/gf_zip_gen_smoke.py
-Exits 0 on a clean generation, non-zero on any failure (so run_ci.ps1 / a CI job can gate on it).
+RUN:
+  python tools/gf_zip_gen_smoke.py                       # CI: zip the world CI just installed, gen
+  python tools/gf_zip_gen_smoke.py --apworld PATH.apworld # RELEASE: gen from the EXACT built artifact
+
+The --apworld form is the release gate (package_release.ps1): it generates from the very .apworld about
+to be shipped, so a broken artifact can never be published. With no argument it builds the zip itself
+from the installed world -- the CI form, testing current source.
+
+Exits 0 on a clean generation, non-zero on any failure (so run_ci.ps1 / package_release.ps1 gate on it).
 """
+import argparse
 import os
 import shutil
 import subprocess
@@ -72,28 +80,49 @@ def _zip_world(world_dir: Path, out: Path) -> None:
 
 
 def main() -> int:
-    ap = Path(gf_test.REPO) / ".ap-test"
-    world = ap / "worlds" / "eldenring"
-    # In CI the unit step (tools/gf_test.py) already bootstrapped `.ap-test` and installed the world, so
-    # we ZIP EXACTLY what CI just validated unpacked -- no re-copy, no dependence on release-only inputs
-    # (e.g. the EldenRing.yaml template install_world also stages, which generation does not need).
-    # Standalone (world not yet installed): bootstrap + install it the same way gf_test does.
-    if not world.is_dir():
-        if not (ap / "worlds").is_dir():
-            gf_test.ensure_ap(ap, gf_test.ap_pin())
-        gf_test.install_world(ap)
+    p = argparse.ArgumentParser(description="Generate one seed from a ZIPPED Elden Ring apworld.")
+    p.add_argument("--apworld", metavar="PATH", default=None,
+                   help="Generate from THIS prebuilt .apworld (the release artifact). Omit to build the "
+                        "zip from the installed world (the CI form).")
+    args = p.parse_args()
 
+    ap = Path(gf_test.REPO) / ".ap-test"
+    if not (ap / "worlds").is_dir():
+        # A usable AP checkout is required either way (Generate.py + the loader). In CI the unit step
+        # already bootstrapped it; for a fresh release machine, bootstrap the pinned upstream here.
+        gf_test.ensure_ap(ap, gf_test.ap_pin())
+
+    world = ap / "worlds" / "eldenring"
     apworld = ap / "custom_worlds" / "eldenring.apworld"
     hidden = ap / "worlds" / "_eldenring_zipsmoke_hidden"
     runner = ap / "_zipsmoke_run.py"
     players = ap / "Players"
+    apworld.parent.mkdir(parents=True, exist_ok=True)
 
-    _zip_world(world, apworld)
-    print("zip-smoke: built %s (%d bytes)" % (apworld, apworld.stat().st_size))
+    if args.apworld:
+        # RELEASE MODE: gen from the EXACT artifact being shipped -- copy it in as-is, never rebuild.
+        src = Path(args.apworld).resolve()
+        if not src.is_file():
+            print("zip-smoke: --apworld not found: %s" % src)
+            return 1
+        if apworld.exists():
+            apworld.unlink()
+        shutil.copy2(str(src), str(apworld))
+        print("zip-smoke: testing prebuilt artifact %s (%d bytes)" % (src, apworld.stat().st_size))
+    else:
+        # CI MODE: zip exactly what CI validated unpacked (fallback-install if none is present).
+        if not world.is_dir():
+            gf_test.install_world(ap)
+        _zip_world(world, apworld)
+        print("zip-smoke: built %s (%d bytes)" % (apworld, apworld.stat().st_size))
 
-    if hidden.exists():
-        shutil.rmtree(hidden)
-    shutil.move(str(world), str(hidden))  # hide the unpacked copy -> AP must load the zip
+    # Hide any unpacked copy so AP MUST load the zip from custom_worlds (a fresh bootstrap has none).
+    hid = False
+    if world.is_dir():
+        if hidden.exists():
+            shutil.rmtree(hidden)
+        shutil.move(str(world), str(hidden))
+        hid = True
 
     try:
         players.mkdir(exist_ok=True)
@@ -117,10 +146,12 @@ def main() -> int:
                 print("  " + line)
         return 1
     finally:
-        # Always restore the unpacked world so a following unpacked run is unaffected, and clean up.
-        if world.exists():
-            shutil.rmtree(world)
-        shutil.move(str(hidden), str(world))
+        # Restore the unpacked world (only if we hid one) so a following unpacked run is unaffected,
+        # and clean up the scratch artifacts.
+        if hid:
+            if world.exists():
+                shutil.rmtree(world)
+            shutil.move(str(hidden), str(world))
         runner.unlink(missing_ok=True)
         apworld.unlink(missing_ok=True)
 
