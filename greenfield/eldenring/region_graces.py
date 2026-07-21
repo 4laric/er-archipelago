@@ -32,4 +32,4 @@ REGION_GRACE_POINTS = {
     'Weeping': [73102, 73000, 73001, 73101, 73200, 76150, 76151, 76152, 76153, 76154, 76155, 76156, 76157, 76158, 76159, 76160, 76162],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:9065b2384ae4a8fa298b138f5f6d3f956c53e7c65f2438a9883c9a04feacc926', 'module': 'region_graces.py', 'body_sha256': 'sha256:6f3808edbfa89fe3c23a8e0a739491b5e9c045bb73eab4a8a71d5d2114459d01'}
+_GEN_STAMP = {'inputs_hash': 'sha256:2d5f6f8ba74824ea2ece7e4db2061189e2b8a78fe2d2c5440c5b6cc745c09339', 'module': 'region_graces.py', 'body_sha256': 'sha256:6f3808edbfa89fe3c23a8e0a739491b5e9c045bb73eab4a8a71d5d2114459d01'}
