@@ -38,8 +38,10 @@ try:
     _rspec = _ilu.spec_from_file_location("_boss_reward_lots", os.path.join(HERE, "eldenring", "boss_reward_lots.py"))
     _rmod = _ilu.module_from_spec(_rspec); _rspec.loader.exec_module(_rmod)
     _BOSS_REWARD_TILE = dict(_rmod.BOSS_REWARD_TILE)
+    _BOSS_REWARD_DEFEAT = dict(getattr(_rmod, "BOSS_REWARD_DEFEAT", {}))   # reward flag -> boss defeat flag
 except Exception as _e:
     _BOSS_REWARD_TILE = {}
+    _BOSS_REWARD_DEFEAT = {}
     print(f"[gen_data] boss_reward_lots.py unavailable ({_e!r}); mini-dungeon boss rewards will be "
           f"DROPPED from the world -- run tools/datamine_boss_reward_lots.py")
 # Hand-added boss-drop flags the EMEVD common-handler datamine missed (Alaric 2026-07). Each is a
@@ -210,6 +212,27 @@ assert _RG_HUB == HUB, "region_groups.HUB must match gen_data.HUB"
 # explorable play_regions in grace_region_map.tsv). A missing bucket silently demotes its checks
 # and graces to fallback paths; an extra one is an invented id.
 _rg_assert_covers({_v for _v in greg.values() if _v != "0"})
+
+# ---- boss-ARENA regions (greenfield/boss_area_regions.tsv, tools/datamine_boss_area_regions.py) ----
+# The play_region you STAND IN to kill a boss = where its reward is REACHABLE. For a few bosses that
+# arena is a FOREIGN play_region from the emevd map the reward is scripted in (the Golden Hippopotamus
+# is fought on Scadu Altus ground, bucket 69000, but its reward 510440 is scripted in m21_00 = Shadow
+# Keep; a Shadow-Keep-only player is KICKED before reaching the fight). region_of joins the reward flag
+# to its defeat flag through _BOSS_REWARD_DEFEAT and re-homes it ABOVE the msb map-truth branch when the
+# arena region differs. General & data-driven: any boss whose arena bucket is owned by another region
+# is corrected; a boss whose arena == its map region falls through and changes nothing.
+BOSS_AREA_REGION = {}
+try:
+    with open(os.path.join(HERE, "boss_area_regions.tsv"), encoding="utf-8") as _bfh:
+        for _line in _bfh:
+            if _line[:1] == "#" or _line.startswith("defeat_flag"):
+                continue
+            _p = _line.rstrip("\n").split("\t")
+            if len(_p) == 3 and _p[0].isdigit():
+                BOSS_AREA_REGION[int(_p[0])] = _p[2]
+except OSError as _e:
+    print(f"[gen_data] boss_area_regions.tsv unavailable ({_e!r}); boss-arena region corrections OFF "
+          f"(run tools/datamine_boss_area_regions.py --emit)")
 
 # region_map.csv's region-column LABEL -> region. Keys are the pipeline's raw labels (verbatim);
 # values are region_groups.py region names. UN-COLLAPSED 2026-07-12 (SPEC-region-spine-v2.md):
@@ -1373,7 +1396,6 @@ FLAG_REGION_OVERRIDE = {
     510640: "Shadow Keep",                     # Rem. of the Wild Boar Rider = Commander Gaius -- arena tile 49,48 graces 76930/76931 -> play_region 6920, folded into Shadow Keep 2026-07-19 (was Scaduview); reached THROUGH the Keep
     21017800: "Shadow Keep",                   # Fire Knight Hilde drop: flag self-encodes m21_01 (Shadow Keep Church District) but the row's map column is the m20_00 emevd-scan mis-map; the emevd region_of path never applies the 8-digit lot self-encode. (matt-diff 2026-07-13)
     400696: "Scadu Altus",                     # Prayer Room Key: NPC-invader drop from Fire Knight Queelign at the Church of the Crusade (Scadu Altus, east of Fog Rift Catacombs). Scan pinned it to the LOWER m20_00 lot -> Belurat; the real placement is the overworld invader, no map/grace self-encode. matt agrees Scadu Altus. (Alaric-confirmed 2026-07-14)
-    510440: "Scadu Altus",                     # Golden Hippopotamus drop (Aspects of the Crucible: Thorns + a Scadutree Fragment, lots 10440/10441). Needed HERE, not just GLOBAL_RECOVER: msb_flag_region.tsv files 510440 -> m21_00 -> DUNGEON_REGION_OVERRIDE -> Shadow Keep, and that MSB-truth branch (region_of) runs ABOVE GLOBAL_RECOVER, so only a FLAG_REGION_OVERRIDE (checked above it) actually re-homes it. The Hippo is fought at the Main Gate but its LIVE arena is play_region 6900010 (bucket 69000 = Scadu Altus; PlayRegionParam boss-alive variant keyed on defeat flag 21000850). GROUND TRUTH: Alaric, holding ONLY the Shadow Keep lock, was KICKED and could not reach the fight (playtest 2026-07-21) -- so a Shadow Keep drop is UNREACHABLE; you need Scadu Altus to kill it. GLOBAL_RECOVER[510440] is kept for recovery MEMBERSHIP and set to the SAME region so the tables agree. (Post-DEATH the floor reverts to 21000, which is why the filler SWEEP stays Shadow Keep.)
     # --- Two-grace m61 tile splits (matt-diff 2026-07-13, GRACE-CORROBORATED) ---
     # These tiles carry graces for TWO play-regions, so the ANCHOR61 tile-majority vote erases one side.
     # Per-check pins for the checks that belong to the OTHER region, applied ONLY where that region has a
@@ -1594,7 +1616,7 @@ GLOBAL_RECOVER = {
     510140: "Farum Azula",           # Bell Bearing[4]/AoW Black Flame Tornado -> Godskin Duo (Crumbling Farum Azula)
     510260: "Liurnia",  # Magma Wyrm's Scalesword -> Magma Wyrm Makar (Ruin-Strewn Precipice)
     510320: "Siofra River",          # Ancestral Follower Ashes -> Ancestor Spirit (Siofra / Ancestral Woods)
-    510440: "Scadu Altus",           # Aspects of the Crucible: Thorns (+ a Scadutree Fragment, lot 10441) -> Golden Hippopotamus. The Hippo is fought at the Shadow Keep MAIN GATE, but its LIVE boss arena is play_region 6900010 (bucket 69000 = Scadu Altus; PlayRegionParam boss-alive variant, pcPositionSaveLimitEventFlagId=21000850). GROUND TRUTH (Alaric playtest 2026-07-21): holding ONLY the Shadow Keep lock, he was KICKED and could not physically reach the fight -> a Shadow Keep assignment makes this drop UNREACHABLE. You need Scadu Altus to kill it, so the drop is Scadu Altus. (The post-DEATH plaza floor reverts to 21000, which is why the surrounding filler SWEEP stays Shadow Keep and why looting there Keep-only worked once the Hippo was already dead -- different fact from the live fight.)
+    510440: "Shadow Keep",           # Golden Hippopotamus. Recovery MEMBERSHIP + post-DEATH floor: the plaza reverts to play_region 21000 = Shadow Keep once the Hippo is dead (so the filler SWEEP is Shadow Keep). The LIVE-fight reward region is now DERIVED, not hand-set: region_of's boss-arena branch resolves 510440 -> defeat 21000850 -> PlayRegionParam boss-alive row 6900010 (bucket 69000 = Scadu Altus) ABOVE the msb branch, so this value is never consulted for the reward's region. (Membership is also covered by _BOSS_REWARD_TILE auto-recover; this entry could be dropped entirely.)
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
     65460: 'Gravesite',
@@ -1858,6 +1880,21 @@ def region_of(r):
     # merchant slot is still rewritten via DERIVED_SHOP_FLAGS / SHOP_ROW_IDS regardless).
     if _ovfl is not None and r.get('flag_source') == 'shop' and _ovfl in SHOP_ROW_REGION:
         return SHOP_ROW_REGION[_ovfl]
+    # BOSS-ARENA GROUND TRUTH (finer than the emevd map). A scripted boss reward is reachable from the
+    # play_region you STAND IN to kill the boss; for a few bosses that arena is a FOREIGN play_region
+    # from the map the reward is scripted in. PlayRegionParam's boss-alive row is the authority: when
+    # its region DIFFERS from the coarse map->region (the msb branch just below), it wins. General &
+    # data-driven -- the Golden Hippopotamus (510440 -> defeat 21000850 -> bucket 69000 = Scadu Altus,
+    # vs m21_00 = Shadow Keep, where a Keep-only player is KICKED); a boss whose arena == its map region
+    # matches _bmd and falls through, changing nothing. (boss_area_regions.tsv + _BOSS_REWARD_DEFEAT.)
+    if _ovfl is not None:
+        _bdf = _BOSS_REWARD_DEFEAT.get(_ovfl)
+        _bar = BOSS_AREA_REGION.get(_bdf) if _bdf is not None else None
+        if _bar is not None:
+            _bmap = MSB_TRUTH_MAP.get(_ovfl) or _BOSS_REWARD_TILE.get(_ovfl)
+            _bmd = _gt_region(_bmap) if _bmap else None
+            if _bmd is not None and _bar != _bmd:
+                return _bar
     # GROUND TRUTH (MSB/param datamine) beats the row's scanned map. Resolved through gen_data's OWN
     # map->region tables (NOT the grace join), so the grace-join oracle stays an INDEPENDENT check.
     _gtm = MSB_TRUTH_MAP.get(_ovfl) if _ovfl is not None else None

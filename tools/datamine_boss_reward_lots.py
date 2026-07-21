@@ -106,16 +106,53 @@ def flag_to_map():
     return out
 
 
+# --- reward-flag -> boss DEFEAT flag (the boss-area join key) -------------------------------------
+# The map EMEVD flips the reward flag ON in the SAME defeat $Event that calls
+# HandleBossDefeatAndDisplayBanner(defeatFlag) -- e.g. m21_00: HandleBossDefeatAndDisplayBanner(
+# 21000850) ; SetEventFlagID(21000850,ON) ; SetEventFlagID(9144,ON). So the boss's defeat flag is the
+# banner argument in whichever event body also sets the reward flag. This is the SAME parse as
+# flag_to_map(), one level finer (per-event, not per-file). Emitted so gen_data can join a boss reward
+# to its PlayRegionParam boss-area region (greenfield/boss_area_regions.tsv) and re-home the check to
+# the play_region you actually STAND IN to kill the boss (the Golden Hippopotamus: 510440 -> 21000850
+# -> bucket 69000 = Scadu Altus, not its m21_00 emevd map = Shadow Keep).
+_EV_RE     = re.compile(r"\$Event\(\s*\d+\s*,\s*\w+\s*,\s*function\([^)]*\)\s*\{", re.S)
+_BANNER_RE = re.compile(r"HandleBossDefeatAndDisplayBanner\(\s*(\d+)")
+_SETON_RE  = re.compile(r"SetEventFlagID\(\s*(\d+)\s*,\s*ON\s*\)")
+
+
+def flag_to_defeat():
+    """{rewardFlag: {defeatFlag}} -- across every map EMEVD, the boss defeat flag that shares a defeat
+    event with a reward-flag flip. A reward flag reached from two different defeat flags is left with
+    a >1 set (derive() then declines to join it -- never guess which boss a shared reward belongs to)."""
+    out = {}
+    for fp in glob.glob(os.path.join(EVT, "m*.emevd.dcx.js")):
+        src = _read(fp)
+        starts = [m.start() for m in _EV_RE.finditer(src)]
+        for i, s in enumerate(starts):
+            body = src[s:(starts[i + 1] if i + 1 < len(starts) else len(src))]
+            banners = _BANNER_RE.findall(body)
+            if not banners:
+                continue
+            defeat = int(banners[0])                       # the banner arg = the boss defeat flag
+            for rf in {int(x) for x in _SETON_RE.findall(body)}:
+                if 9000 <= rf <= 9999:                     # the common-award reward-trigger band
+                    out.setdefault(rf, set()).add(defeat)
+    return out
+
+
 def derive():
     """[(getFlag, tile, lot, rewardFlag, handler, note)] -- note is '' when the join is unambiguous."""
     common = _read(os.path.join(EVT, "common.emevd.dcx.js"))
     handlers = award_handlers(common)
     f2m = flag_to_map()
+    f2d = flag_to_defeat()
     rows, skipped = [], []
     for h, rf, lot, lot2, gf in registrations(common, handlers):
         maps = sorted(f2m.get(rf, ()))
+        defeats = f2d.get(rf, set())
+        defeat = next(iter(defeats)) if len(defeats) == 1 else 0   # 0 = no unambiguous boss defeat flag
         if len(maps) == 1:
-            rows.append((gf, maps[0], lot, rf, h, ""))
+            rows.append((gf, maps[0], lot, rf, h, defeat, ""))
         elif not maps:
             skipped.append((gf, lot, rf, h, "no map EMEVD flips this reward flag"))
         else:
@@ -136,7 +173,7 @@ def main():
     print("attributed: %d   unattributed: %d" % (len(rows), len(skipped)))
     if a.list:
         print("\n%-9s %-8s %-8s %-7s %s" % ("getFlag", "tile", "lot", "rwFlag", "handler"))
-        for gf, tile, lot, rf, h, _n in rows:
+        for gf, tile, lot, rf, h, _d, _n in rows:
             print("%-9d %-8s %-8d %-7d %d" % (gf, tile, lot, rf, h))
     if skipped:
         print("\nUNATTRIBUTED (left OUT of the table -- they stay unrecovered, as before):")
@@ -155,12 +192,19 @@ def main():
         f.write("# handler -> what it is (auto-discovered by signature + award call, not hardcoded)\n")
         f.write("BOSS_REWARD_HANDLERS = %r\n\n" % {h: (c or "") for h, c in sorted(handlers.items())})
         f.write("BOSS_REWARD_TILE = {\n")
-        for gf, tile, lot, rf, h, _n in rows:
+        for gf, tile, lot, rf, h, _d, _n in rows:
             f.write("    %d: %r,   # lot %d, reward flag %d, handler %d\n" % (gf, tile, lot, rf, h))
         f.write("}\n\n")
         f.write("BOSS_REWARD_LOT = {\n")
-        for gf, tile, lot, rf, h, _n in rows:
+        for gf, tile, lot, rf, h, _d, _n in rows:
             f.write("    %d: %d,\n" % (gf, lot))
+        f.write("}\n\n")
+        f.write("# reward getItemFlagId -> boss DEFEAT flag (PlayRegionParam boss-area join key; a reward\n")
+        f.write("# flag with no single defeat event -- shared/duo reward flags -- is omitted, never guessed).\n")
+        f.write("BOSS_REWARD_DEFEAT = {\n")
+        for gf, tile, lot, rf, h, _d, _n in rows:
+            if _d:
+                f.write("    %d: %d,   # defeat flag (boss-area key)\n" % (gf, _d))
         f.write("}\n")
     print("\nwrote %s (%d flags)" % (OUT, len(rows)))
 
