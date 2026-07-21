@@ -49,6 +49,15 @@ def _dlc_pots():
                   if n.startswith("Hefty ") and n.endswith(" Pot") and n != "Hefty Cracked Pot")
 
 
+def _dlc_fire_pots():
+    """DLC hefty FIRE-damage throwing pots (Hefty Fire Pot, ...) -- the Furnace Golem tool: you kill
+    them by throwing fire into the furnace on their head. Catalog-filtered like _dlc_pots, so empty
+    pre-regen and dropped per-world when DLC is off (absent names skipped at draw time)."""
+    return sorted(n for n in ITEM_CATALOG
+                  if n.startswith("Hefty ") and n.endswith(" Pot")
+                  and "Fire" in n and n != "Hefty Cracked Pot")
+
+
 # DLC perfume consumables (spraymist / aromatic / 'X Perfume Bottle'), auto-picked from the catalog so
 # no ids are guessed. The base 'Perfume Bottle' vessel is a start grant, not a filler perfume -> excluded.
 # Pre-regen this still yields the five 'X Perfume Bottle' DLC items already in the catalog; the catalog
@@ -65,6 +74,11 @@ CATEGORIES = {
     # regen mines them; absent names are silently skipped, so this is safe pre-regen.
     "pots": ["Fire Pot", "Lightning Pot", "Fetid Pot", "Holy Water Pot", "Freezing Pot", "Poison Pot",
              "Volcano Pot", "Sleep Pot", "Rancor Pot"] + _dlc_pots(),
+    # firepots -- fire/volcano-damage throwables. Weight this to lean the mix toward fire for DLC
+    # Furnace Golems (killed by throwing fire into the furnace on their head). Overlaps `pots` on
+    # purpose: an OPT-IN emphasis category, NOT in the default recipe, so a seed only leans fire when
+    # the player asks for it. Base Fire/Volcano Pot + DLC Hefty Fire Pot (catalog/DLC-filtered).
+    "firepots": ["Fire Pot", "Volcano Pot"] + _dlc_fire_pots(),
     "greases": ["Fire Grease", "Lightning Grease", "Magic Grease", "Holy Grease", "Blood Grease",
                 "Poison Grease", "Freezing Grease", "Rot Grease", "Dragonwound Grease", "Soporific Grease"],
     # Ammunition (arrows & bolts, base + DLC), PARAM-derived in gen_data.py: EquipParamWeapon rows with
@@ -101,7 +115,7 @@ _VALID_CATS = frozenset(CATEGORIES) | {"junk"}
 # STACK quantities (grant size) by category -> emitted as slot_data itemCounts. Others default 1.
 # ammunition x20: a quiver per drop (Alaric 2026-07-14, "x20 all the ammunition drops"). Far under the
 # game's held caps (999 for basic ammo, 99 for special), so a stack can never overflow a grant.
-STACK_QTY_BY_CATEGORY = {"throwables": 5, "pots": 2, "greases": 2, "ammunition": 20}
+STACK_QTY_BY_CATEGORY = {"throwables": 5, "pots": 2, "firepots": 2, "greases": 2, "ammunition": 20}
 
 # Beloved junk -- never seized, always survives.
 FUNNY_JUNK = frozenset({"Raw Meat Dumpling", "Gold-Tinged Excrement"})
@@ -139,10 +153,12 @@ def stack_qty_by_name():
 
 class CuratedFiller(OptionDict):
     """Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are
-    split across the categories by weight. Categories: throwables, pots, greases, ammunition, foods,
-    boluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep that
-    share as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,
-    greases x2, ammunition x20.
+    split across the categories by weight. Categories: throwables, pots, firepots, greases, ammunition,
+    foods, boluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep
+    that share as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,
+    firepots x2, greases x2, ammunition x20.
+    'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace
+    Golems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.
     'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed
     leveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.
     Example: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,
