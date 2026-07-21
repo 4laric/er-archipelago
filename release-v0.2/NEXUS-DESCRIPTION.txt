@@ -1,0 +1,83 @@
+[size=5][b]Elden Ring for Archipelago[/b][/size]
+
+Every meaningful item pickup in the Lands Between is a check. Your items are scattered across a multiworld, and they arrive in your inventory mid-session — from your own game, or from someone playing Hollow Knight three worlds over.
+
+This mod makes Elden Ring a first-class [url=https://archipelago.gg]Archipelago[/url] multiworld game. Corpse loot, chests, boss drops, shop slots — pick one up and the item that was there goes out to whoever it belongs to, while your own weapons, spells, flasks, and keys stream back in through the game's own event banner. It works solo too: same loop, you're just both ends of it.
+
+[size=4][b]Your game files are never touched[/b][/size]
+
+This is a [b]pure runtime[/b] randomizer. No game files are patched, no regulation.bin is edited, nothing is baked per seed. The whole thing is a Rust client (a DLL loaded by the ModEngine3 / me3 mod loader) that reads the seed's layout from the Archipelago server at connect time and does everything live — detecting checks, granting items, lighting graces, enforcing region locks. It even uses its own save file, so your normal characters are untouched.
+
+Remove the client and Elden Ring is exactly as you left it. Vanilla on disk, always.
+
+[size=4][b]How progression works (the part everyone gets wrong)[/b][/size]
+
+The world is [b]Shattered[/b]: carved into major regions — [b]17 in the base game, 31 with the DLC[/b] — and each region is sealed behind an Archipelago item called a [b]Region Lock[/b] ("Limgrave Lock", "Caelid Lock", ...). You start at Roundtable Hold with one region already open. When a region's Lock arrives from the multiworld, that region opens: [b]all of its graces light up on your map, and you warp in.[/b] Walk into a region whose Lock you don't hold — by any route — and the client warps you back to Roundtable Hold. Sealed means sealed, not honor-system.
+
+[b]The Lock is the only way into a region.[/b] Vanilla routes and vanilla key items gate [i]nothing[/i] here. You never need the Rold Medallion to reach the Mountaintops of the Giants; you never fight Mohg to enter the Land of Shadow. The Lock arrives, the graces light, you warp in.
+
+Two vanilla-flavored exceptions, both layered [b]on top of[/b] a region's own Lock, never in place of it:
+[list]
+[*][b]Raya Lucaria Academy[/b] additionally needs the [b]Academy Glintstone Key[/b], shuffled into the pool like any other item.
+[*][b]Leyndell[/b] additionally needs [b]Great Runes[/b] (2 by default, echoing the vanilla capital gate; automatically clamped to what's reachable in your seed).
+[/list]
+Neither can make a seed unbeatable — the key is always placed somewhere reachable, and the rune requirement shrinks if your seed holds fewer Great Runes.
+
+That's the whole trick: Elden Ring's famously go-anywhere map becomes an Archipelago progression puzzle, one region at a time — and the region you unlock next is often somewhere you'd never go "next" in a normal playthrough.
+
+[size=4][b]Size the run to your evening[/b][/size]
+[list]
+[*][b]num_regions[/b] — how many regions are in play. 0 is the full Shattering; 4 is a tight ~4-hour run. The goal region is always kept, so every seed is winnable.
+[*][b]ending_condition[/b] — hold every Region Lock in play (default), or chase a set number of Great Runes instead.
+[*][b]Fixed or rolled path[/b] — start in Limgrave on a fixed spine, or let the seed roll which regions you get.
+[/list]
+Every option is explained in a comment right next to it in the shipped YAML — 19 tunable options, sensible defaults. Change your slot name and you have a valid seed.
+
+[size=4][b]Shadow of the Erdtree[/b][/size]
+
+The DLC's [b]14 regions[/b] join the region pool with one option, and they behave exactly like every other region: their Lock arrives, their graces light, you warp in. You never fight Mohg or touch Miquella's cocoon to get there. There's even a [b]dlc_only[/b] mode that seals the entire base game and plays only the Land of Shadow. (DLC is off by default and experimental in v0.2 — base game is the recommended, supported way to play.)
+
+[size=4][b]Also in the box[/b][/size]
+[list]
+[*][b]Solo or multiworld[/b] — a solo base-game run is the recommended way to start.
+[*][b]DeathLink[/b] — optional shared deaths with the multiworld, both directions. And you [b]keep your Runes[/b] when a DeathLink death takes you — no losing your held Runes to someone else's mistake.
+[*][b]An in-game tracker[/b] (F6) — checks grouped by region with done/total counts; locked regions are dimmed and labeled with the item that opens them.
+[*][b]Dungeon sweeps[/b] — kill a dungeon's boss and its remaining checks register automatically. No crawling back through a catacomb for two chests you missed.
+[*][b]Region-hopping QoL, built in[/b] — you start with a lantern, Torrent, flasks, all map fragments, immediate leveling, and buyable Stonesword Keys, because unlocking regions out of order breaks the vanilla drip-feed of those things. Gear from the multiworld is usable regardless of stats, smithing costs are flattened, and every seed guarantees early upgrade stones within reach of your start.
+[*][b]Progression-based enemy scaling[/b] — always on, keyed to how far you are rather than vanilla's intended order. A region you unlock late is tuned tougher, even "early" territory.
+[*][b]A curated item pool[/b] — the junk end of the pool is shaped by a configurable recipe, trading filler for real weapons, armor, talismans, and spells.
+[/list]
+
+[size=4][b]Want randomized enemies and a random starting class too?[/b][/size]
+
+This project doesn't randomize enemies or starting classes — because [url=https://www.nexusmods.com/eldenring/mods/428]thefifthmatt's Elden Ring Item and Enemy Randomizer[/url] already does both superbly, and the two tools [b]stack cleanly[/b]. Matt's rewrites the game's files before you play; this project touches none of them at runtime. Run his enemy shuffle and starting-class randomization on top of your Archipelago seed, with one rule: [b]item randomization must be OFF in matt's[/b] — items are this project's job. A full illustrated walkthrough (including launching the Archipelago client through matt's own launcher) is in the [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md]enemy randomization guide[/url].
+
+[size=4][b]What you need[/b][/size]
+[list]
+[*][b]Elden Ring[/b] on PC (Steam). Shadow of the Erdtree only if you enable the DLC regions.
+[*][b]Archipelago 0.6.7[/b] — from [url=https://archipelago.gg]archipelago.gg[/url]. This release requires 0.6.7 specifically.
+[*][b]ModEngine3 (me3)[/b] — the mod loader that loads the client DLL into the game.
+[/list]
+Install is a two-file drop plus the shipped YAML — nothing to a running seed in about 15 minutes. Follow the [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/SETUP.md]setup guide[/url], then read the [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/PLAYER-GUIDE.md]player guide[/url] for how a run actually plays. One rule worth repeating: the apworld and the client DLL are a hash-matched pair — [b]always install both from the same release[/b].
+
+[size=4][b]Beta honesty[/b][/size]
+
+This is v0.2 and in active development. Nothing on the known-issues list can strand a run on the base game — the headline issue is that a small class of enemy-drop checks can currently pay out the vanilla item instead of the Archipelago one (those spots never hold progression, so the worst case is a missed filler item). DLC seeds work but have rough edges. The full, honest list — including the by-design behaviors that get reported as bugs — is in [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/KNOWN-ISSUES.md]Known Issues[/url]. If something looks wrong and isn't on that list, we want to hear about it: bring your YAML and the spoiler log.
+
+[size=4][b]Credits & provenance[/b][/size]
+
+This is a deliberately [b]clean-room[/b] project. The apworld is built from scratch against vanilla Elden Ring game data, and the runtime client is original MIT-licensed Rust code. The release ships [b]no game assets[/b] — no regulation data, no map or message files, only derived tables computed from data you already own by owning the game — and contains [b]no code, data, or config from any other randomizer project[/b]. That's a hard architectural constraint enforced in CI, not a claim after the fact.
+
+With thanks to:
+[list]
+[*][b]nex3[/b] — for the Archipelago Rust ecosystem (archipelago_rs) the runtime client builds on.
+[*][b]vswarte[/b] — for the FromSoftware reverse-engineering and tooling groundwork the client's live-game integration relies on.
+[*][b]The Archipelago project and community[/b] — for the multiworld framework, the MIT-licensed core, and the ecosystem conventions this release follows.
+[*][b]thefifthmatt[/b] — whose excellent randomizer we recommend alongside this one (and deliberately do not bundle, mirror, or redistribute — get it from [url=https://www.nexusmods.com/eldenring/mods/428]his page[/url], per his terms).
+[/list]
+
+Everything shipped here is MIT-licensed.
+
+[i]Elden Ring and Shadow of the Erdtree are property of FromSoftware / Bandai Namco. This is an unofficial fan project, not affiliated with or endorsed by them. It ships no game assets and modifies no game files.[/i]
+
+Now go find out which region the seed decides you deserve first.
