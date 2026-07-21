@@ -9,7 +9,7 @@
 #   .\build.ps1 -Apworld                 # package greenfield\eldenring -> eldenring.apworld  (THE shipping world)
 #   .\build.ps1 -Greenfield              # (re)gen the data-derived eldenring apworld + isolated multiworld
 #   .\build.ps1 -Generate                # regenerate the multiworld (Generate.py); REQUIRED after apworld changes
-#   .\build.ps1 -Rust                    # cargo test + build the Rust client cdylib (eldenring_archipelago.dll)
+#   .\build.ps1 -Rust                    # fmt+clippy gate (client CI mirror) + cargo test + build the cdylib (eldenring_archipelago.dll)
 #   .\build.ps1 -Me3Deploy               # stage DLL + apconfig + AP icon into me3\, write the ap.me3 profile
 #   .\build.ps1 -Me3Restore              # un-park the EML client dll (revert -Me3Deploy's park)
 #   .\build.ps1 -RustDeploy              # (EML alt loader) drop the Rust DLL into mods\ instead of me3
@@ -37,7 +37,7 @@ param(
     [switch]$ShowGenDiag,          # echo the per-generate gendiag (resolved-yaml debug) to console
     [int]$GenRetries = 2,          # gen re-roll attempts on a seed-dependent FillError (0 = off)
     [switch]$GenBumpRegions,       # also bump num_regions +1 in Players\*.yaml per retry (restored after)
-    [switch]$Rust,                 # cargo test + build the injected cdylib
+    [switch]$Rust,                 # fmt+clippy gate + cargo test + build the injected cdylib
     [switch]$RustDeploy,           # EML alt: drop the Rust DLL into mods\ (me3 is the primary loader)
     [switch]$Me3Deploy,            # stage DLL + apconfig + icon into me3\, write ap.me3 (primary loader)
     [switch]$Me3Restore,           # un-park the EML client dll (revert -Me3Deploy)
@@ -359,6 +359,20 @@ if ($Rust) {
     }
     Push-Location $RustDir
     try {
+        # LINT GATE -- mirror the client repo's own CI (from-software-archipelago-clients/.github/
+        # workflows/test.yaml: fmt -> clippy -> clippy --features=profile -> build -> test, a HARD
+        # -D warnings gate). Run it HERE so a fmt/clippy regression fails the local -Rust loop instead
+        # of only reddening the client's GitHub CI after a push (which is what bit us 2026-07-21, twice:
+        # a fmt diff then 9 clippy errors). Runs natively on Windows (the host target IS windows), so
+        # no cross-compile -- it is the exact command the client CI runs. Order matches CI: lint first.
+        Step "  cargo fmt --check (client CI gate)"
+        cargo fmt -- --check
+        if ($LASTEXITCODE -ne 0) { throw "cargo fmt --check failed -- run 'cargo fmt' in $RustDir (mirrors client CI test.yaml)." }
+        Step "  cargo clippy -D warnings (client CI gate)"
+        cargo clippy -- -D warnings
+        if ($LASTEXITCODE -ne 0) { throw "cargo clippy failed (-D warnings) -- fix the lints (mirrors client CI test.yaml)." }
+        cargo clippy --features=profile -- -D warnings
+        if ($LASTEXITCODE -ne 0) { throw "cargo clippy --features=profile failed (-D warnings) (mirrors client CI test.yaml)." }
         Step "  cargo test (pure-logic contract)"
         cargo test
         if ($LASTEXITCODE -ne 0) { throw "cargo test failed -- a pure-logic test broke OR the game module did not compile. See output above." }
