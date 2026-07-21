@@ -44,4 +44,4 @@ REGION_PLAY_IDS = {
 # shipping a lock that does nothing is the bug the measured table exists to end.
 REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ba0d7026b1ab0eb5159d2b7525a395ed064143d94f7e2e896e70fd2fbf376f3a', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:b4e23c447de34e5418cdaaf35fb81d07cb43fe1f6164d283d9e703824c4d2392'}
+_GEN_STAMP = {'inputs_hash': 'sha256:26348c98f165777f509994f773446b168a5866fd5aca169aa860395b8e46756b', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:b4e23c447de34e5418cdaaf35fb81d07cb43fe1f6164d283d9e703824c4d2392'}
