@@ -133,7 +133,10 @@ run rather than tune it.
   and behave like any other region: their Lock arrives, their graces light,
   you warp in. You never fight Mohg to get there. Off in the shipped yaml and
   experimental in v0.2; base game is the supported way to play.
-  (`dlc_only: true` goes further and seals the whole base game instead.)
+  (`dlc_only: true` goes further and seals the whole base game instead -- so
+  base-only NPC content is gone even where that NPC's story continues into the
+  DLC; e.g. Brother Corhyn's only pooled item, his Bell Bearing, lives in base
+  Leyndell and so simply isn't part of a `dlc_only` seed.)
 - **`death_link`** -- your deaths are shared with the multiworld, and theirs
   with you. You know whether you want this.
 

@@ -2558,6 +2558,11 @@ _ARENA_GRACE_FLAGS = frozenset({
     76508, 76509,          # unadjudicable map
     76852, 76853,          # unadjudicable map
     76930, 76931,          # unadjudicable map
+    76960,                 # Scadutree Base (m61_50_48) -- sits INSIDE the Scadutree Avatar arena
+                           # (Rem. of the Shadow Sunflower 510620, tile 50,48; see the gen_data map at
+                           # 510620). Force-lighting it with the Shadow Keep lock (Scaduview folded in)
+                           # warps you into the Avatar fight (playtest 2026-07-21, Alaric). DLC boss,
+                           # oracle-unadjudicated -> hand entry.
 })  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
                     # Warrior + Crucible Knight duo arena (bosses 1049390800/1049390801) -- granting it
                     # warps you into the middle of a live duo fight (playtest 2026-07-11, Alaric).
@@ -2622,8 +2627,20 @@ if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR
         "and graces it used to catch will be force-lit again (you warp onto a live boss). Re-run "
         "tools/datamine_arena_graces.py with the MSBs present."
         % (len(_DERIVED_ARENA_GRACE_FLAGS), _ARENA_FLOOR))
+# STATE-VARIANT GATE (non-burn): physically-present graces SEALED in vanilla until a world-state
+# change OTHER than the Erdtree burn (cf. _ASHEN_LEYNDELL_GRACE_FLAGS, the burn case). A region lock
+# force-lights the whole bundle, so lighting one warps the player into the sealed state before they
+# have triggered it. Skip -> it lights naturally when the player reaches the state the vanilla way,
+# and the checks stay reachable on foot from the region's OTHER lit graces once the state flips.
+#   72107 Sunken Chapel (m21_01, Shadow Keep): sealed behind the Storehouse water drain. The Shadow
+#     Keep lock was force-lighting it (playtest 2026-07-21, Alaric) -- a free warp into the water-gated
+#     interior before the drain. The drain needs no seed-randomized key, so on-foot reachability from
+#     the other Shadow Keep graces holds. (Water drain is a map-version swap -- confirm in a DLC
+#     playtest, not by EMEVD grep alone.)
+_STATE_GATED_GRACE_FLAGS = frozenset({72107})
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
-                     | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS)
+                     | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS
+                     | _STATE_GATED_GRACE_FLAGS)
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
       f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
       f"{len(_SKIP_GRACE_FLAGS)} total skipped")

@@ -246,6 +246,11 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         if dlc_only:
             pool = dlc_regions()          # DLC only (implies enabled)
+            # Base-game-only NPC content is sealed with the base game and does NOT reappear even when
+            # that NPC's story continues into the DLC. E.g. Brother Corhyn: his only pooled check is
+            # Corhyn's Bell Bearing (flag 400370, m11_05 ashen Leyndell -- a base region), so dlc_only
+            # drops it and no DLC-side Corhyn check exists to keep. Intended (Alaric 2026-07-21), not a
+            # coverage gap; documented here because "why did Corhyn vanish?" is a natural dlc_only Q.
         elif enable_dlc:
             pool = list(REGIONS)          # base + DLC (default)
         else:
