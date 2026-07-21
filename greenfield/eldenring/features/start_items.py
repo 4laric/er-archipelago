@@ -33,7 +33,7 @@ Matt-free (single vanilla item ids, no derivation):
       save; if that is right, the unique grant SKIPS on a fresh save and this option is inert until
       confirmed/re-keyed. Alaric: in-game confirm which way 60020 reads at spawn.)
 """
-from Options import DefaultOnToggle
+from Options import DefaultOnToggle, Toggle
 from ..registry import Feature, register
 from .. import contract
 
@@ -91,6 +91,14 @@ _START_PERFUME_BOTTLES = 10
 # Hefty Cracked Pot = GOODS 2009500 (DLC): the larger vessel for the DLC 'Hefty ...' throwing pots.
 _HEFTY_CRACKED_POT_FULL_ID = 0x40000000 | 2009500
 _START_HEFTY_CRACKED_POTS = 10
+# Whetblades (GOODS 8970..8974 = item_ids.py FullIDs 1073750794..798, 0x40000000 | 897x): Iron,
+# Red-Hot, Sanctified, Glintstone, Black. Each unlocks its affinity family in the grace "Ashes of War"
+# menu. Granted via the plain startItems path -- ITEM ONLY, NO flag: a whetblade's only vanilla event
+# flag is its pickup flag (65610/65640/65660/65680/65720), which IS this world's randomized CHECK flag,
+# so setting one at start would falsely mark that check collected. The affinity menu keys on possession,
+# so the item alone unlocks it; the whetblade checks stay in the pool. If a DISTINCT affinity-unlock
+# flag turns out to exist, move these to uniqueStartGrants paired with it.
+_WHETBLADE_FULL_IDS = [0x40000000 | g for g in (8970, 8971, 8972, 8973, 8974)]
 
 
 class StartWithLantern(DefaultOnToggle):
@@ -105,6 +113,15 @@ class StartWithWhetstone(DefaultOnToggle):
     Gatefront Ruins hand-off is bypassed on region-lock starts). On by default. Granted only if you
     don't already have it (obtained-flag 60130)."""
     display_name = "Start With Whetstone Knife"
+
+
+class StartWithWhetblades(Toggle):
+    """Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone, Black) so every Ash-of-War
+    affinity is selectable at any grace from the opening, instead of hunting the vanilla pickups. OFF by
+    default (opt-in). Grants the ITEMS only -- no event flag is set, because each whetblade's only
+    vanilla flag is its randomized check flag; the grace affinity menu keys on possession. The whetblade
+    CHECKS stay in the pool regardless."""
+    display_name = "Start With All Whetblades"
 
 
 class StartWithSteed(DefaultOnToggle):
@@ -138,7 +155,8 @@ class StartItems(Feature):
     name = "start_items"
     OPTIONS = {"start_with_lantern": StartWithLantern, "start_with_steed": StartWithSteed,
                "start_with_bell": StartWithBell, "start_with_physick": StartWithPhysick,
-               "start_with_flasks": StartWithFlasks, "start_with_whetstone": StartWithWhetstone}
+               "start_with_flasks": StartWithFlasks, "start_with_whetstone": StartWithWhetstone,
+               "start_with_whetblades": StartWithWhetblades}
 
     def slot_data(self, world):
         items = []
@@ -147,6 +165,8 @@ class StartItems(Feature):
         if world.options.start_with_flasks.value:
             items.append(_CRIMSON_FLASK_FULL_ID)
             items.append(_CERULEAN_FLASK_FULL_ID)
+        if getattr(world.options, "start_with_whetblades", None) and world.options.start_with_whetblades.value:
+            items += list(_WHETBLADE_FULL_IDS)
         _shuf = getattr(world.options, "item_shuffle", None)
         if _shuf is not None and _shuf.value:
             items += [_CRACKED_POT_FULL_ID] * _START_CRACKED_POTS
