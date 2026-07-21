@@ -31,18 +31,7 @@ ledger before anyone decided to accept them. Move an entry here only once it is 
 QUARANTINE = {}
 
 # ap_id -> {"reason", "issue", "date"}. Emitted + detectable but knowingly unsuppressable; FILLER only.
-ACCEPTED_LEAKS = {
-    7772051: {   # Shadow Keep :: Rune Arc - near Storehouse, First Floor (f21017010)
-        "reason": "Rune Arc (filler) whose vanilla ware is handed by an EMEVD award that bypasses the "
-                  "blanked ItemLotParam lot 21010010 (gen_data.EVENT_AWARD_ITEM_FLAGS): the lot is a "
-                  "decoy and the event delivers the item, so blanking suppresses nothing and it "
-                  "double-dips. Rune Arc is a farmable good, so id-keyed suppression is (correctly) "
-                  "declined and there is no delivery lot to blank -- no mechanism can suppress it. "
-                  "Filler (a spare consumable, never progression), so the leak is tolerable.",
-        "issue": "er-emevd-award-suppression-leak",
-        "date": "2026-07-21",
-    },
-}
+ACCEPTED_LEAKS = {}
 
 
 _REQUIRED_FIELDS = ("reason", "issue", "date")
