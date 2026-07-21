@@ -4006,6 +4006,7 @@ LOCATIONS = {
         ('Scadu Altus :: Sword of Night [f400671]', 7773874, 400671),
         ('Scadu Altus :: Claws of Night [f400672]', 7773875, 400672),
         ('Scadu Altus :: check - around Liurnia Lake Shore [f400730]', 7773883, 400730),
+        ('Scadu Altus :: [Incantation] Aspects of the Crucible: Thorns - Hippo [f510440]', 7773897, 510440),
         ('Scadu Altus :: Barbed Staff-Spear [f510610]', 7773898, 510610),
         ('Scadu Altus :: Curseblade Meera - around Bonny Gaol [f520760]', 7773949, 520760),
         ("Scadu Altus :: Rakshasa's Great Katana [f530830]", 7773960, 530830),
@@ -4307,7 +4308,6 @@ LOCATIONS = {
         ('Shadow Keep :: Fingercreeper Ashes - near Fingerstone Hill [f2053487000]', 7773807, 2053487000),
         ('Shadow Keep :: Shadow Realm Rune [6] - near Fingerstone Hill [f2053487010]', 7773808, 2053487010),
         ("Shadow Keep :: Leda's Rune [f400596]", 7773860, 400596),
-        ('Shadow Keep :: [Incantation] Aspects of the Crucible: Thorns - Hippo [f510440]', 7773897, 510440),
         ('Shadow Keep :: [Sorcery] Gravitational Missile [f530960]', 7773968, 530960),
         ('Shadow Keep :: Smithing Stone [5] - near Main Gate Plaza [f21007060]', 7774067, 21007060),
         ('Shadow Keep :: Smithing Stone [2] - near Main Gate Plaza [f21007180]', 7774068, 21007180),
@@ -5131,4 +5131,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:2494d5164cdd09642817b6909f11c33fb07d487534785b6d73fe04d1e0cac9f5', 'module': 'data.py', 'body_sha256': 'sha256:127aa96ec95574ac6316c436747f33853816958ac5ba1ba4a7a61e9749e91391'}
+_GEN_STAMP = {'inputs_hash': 'sha256:7223c96282bec294326a6e4195151ef049f67dc24018caf6f6a4ef5762b631a2', 'module': 'data.py', 'body_sha256': 'sha256:1e4b8f835fe7331da5b078f5f5c07aa433d6f4e718e595dfe44cb04a7e70ba48'}
