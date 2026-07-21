@@ -52,8 +52,9 @@ DERIVATION
     engine's own containment tolerance; SEAM_SLACK models that.) The seam emits ONE bucket -- the
     nearest, 69000 -- not {69000,21000}: the kick has already refuted 21000, and a two-bucket row
     would read as non-foreign and silently NOT fix the bug. Map-prefix is now the LAST resort, not
-    the first. A raw kick-watch line at 72102 (the play_region number) belongs in MEASURED_GROUND as
-    engine corroboration; it was observed but not captured, so 72102 currently rests on geometry.
+    the first. The 72102 kick is now ENGINE-MEASURED: warping to the grace read raw play_region
+    6900000/6900010 (bucket 69000, kick 3x, client log 2026-07-21) -- pinned in MEASURED_GROUND, which
+    asserts the seam derivation against it and holds 69000 even on a regen with no interior MSB.
 
 OUTPUT: greenfield/grace_ground.tsv (TRACKED -- CI has no artifacts). gen_data.py consumes it:
 a bundle grace whose derived ground is owned by a foreign region is NOT force-lit, and a region
@@ -110,6 +111,15 @@ SEAM_SLACK = 8.0
 #   default ground, which is what the plateau outside Scaduview's own 6930000 volumes reads.
 MEASURED_GROUND = {
     76935: ((21000,), "measured:2100010 client kick line 2026-07-15"),
+    #   72102 "Shadow Keep Main Gate" (entity 21001952): warping to the grace read raw play_region
+    #   6900000 / 6900010 -> bucket 69000 = Scadu Altus, kick=true 3x while holding ONLY the Keep lock
+    #   (Alaric, archipelago client log 2026-07-21, 12:12:19 / 12:14:27 / 12:15:21). AGREES with the
+    #   interior-seam derivation (72102 sits 3.6 m from the m21_00 Scadu Altus 6900000 approach column),
+    #   and hard-pins 69000 even if a regen ever runs without the interior MSB (the fallback would give
+    #   the map-prefix 21000 -- the exact stale value that caused the kick). NOTE the ARENA grace 72101
+    #   "Main Gate Plaza" is a DIFFERENT point (~29 m inside, boss-lit) and stays 21000 -- the Golden
+    #   Hippopotamus fight/loot is Keep ground; only this approach grace is on the Scadu Altus seam.
+    72102: ((69000,), "measured:6900000/6900010 client kick lines 2026-07-21 (warp to grace 21001952, 3x)"),
 }
 
 
