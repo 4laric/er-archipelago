@@ -21,6 +21,19 @@ def test_all_categories_resolve():
             assert n in ITEM_CATALOG, f"{cat} member {n} must resolve in the catalog"
 
 
+def test_firepots_is_opt_in_fire_lean():
+    """firepots leans the mix toward fire/volcano for DLC Furnace Golems. Base members are always
+    present; the DLC Hefty Fire Pot joins post-regen (catalog-filtered). It is OPT-IN: a valid recipe
+    category that is NOT in the default recipe, so existing seeds are unchanged unless weighted."""
+    fp = fc.CATEGORIES["firepots"]
+    assert "Fire Pot" in fp and "Volcano Pot" in fp, "firepots must carry the base fire throwables"
+    assert all(("Fire" in n or "Volcano" in n) for n in fp), f"firepots must be fire/volcano only: {fp}"
+    assert all(n in ITEM_CATALOG for n in fp), "firepots members must resolve in the catalog"
+    assert "firepots" in fc._VALID_CATS, "firepots must be an accepted recipe category"
+    assert "firepots" not in fc.CuratedFiller.default, "firepots must be opt-in (absent from default)"
+    assert fc.stack_qty_by_name().get("Fire Pot") == 2, "firepots members stack x2 like pots"
+
+
 def test_stack_quantities():
     q = fc.stack_qty_by_name()
     assert q["Kukri"] == 5 and q["Throwing Dagger"] == 5, "throwables grant x5"
