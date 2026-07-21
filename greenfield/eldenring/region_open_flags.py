@@ -27,7 +27,7 @@ REGION_OPEN_FLAGS = {
     'Raya Lucaria Academy': 71402,
     'Scadu Altus': 76900,
     'Sewer': 73501,
-    'Shadow Keep': 72102,
+    'Shadow Keep': 76935,
     'Siofra River': 71222,
     'Stone Coffin': 72201,
     'Stormveil': 71003,
@@ -37,4 +37,4 @@ REGION_OPEN_FLAGS = {
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:1fd8df7710c8143e9a9dd888cc135e1af40e681aa2493e01544537d7d9b9285c', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:bd7dae373d685b0e15483fd84ded4470ac8486568dfb12e1617b300f4a78534e'}
+_GEN_STAMP = {'inputs_hash': 'sha256:2494d5164cdd09642817b6909f11c33fb07d487534785b6d73fe04d1e0cac9f5', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:defaee057fa8e89cd922e78d8d7352096656cfdd6fd479c9084acd8f7fbd13ac'}
