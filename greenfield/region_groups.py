@@ -66,10 +66,14 @@ holding just the Scaduview lock could not open. The 2026-07-13 "keep it separate
 "would make a back-exit grace the Keep's numerically-first overworld front door" -- and it would:
 Shadow Keep's true entrance grace 72102 is an m21_00 INTERIOR grace, so once the overworld Hinterland
 graces (76935 etc., m61) join the region, _front_door's "overworld beats interior" heuristic picks
-76935. That is real, and it is handled surgically: gen_data._FRONT_DOOR_PIN pins Shadow Keep's front
-door to 72102 (the Keep gate), while the Hinterland graces still ride the Keep's bundle (lit on Keep
-unlock, warpable, on the Keep's own ground -- no kick). The Cathedral of Manus Metyr is still NOT
-part of this: m25's grace 72500 -> 6900 = Scadu Altus.
+76935 -- which is CORRECT. 72102 (the m21_00 gate grace) was found 2026-07-21 to stand at the gate
+THRESHOLD on SCADU ALTUS ground (bucket 69000): inside no 21000 Keep volume, 3.6 m outside the
+6900000 approach column. The Keep lock had been force-lighting it, so warping there with only the
+Keep lock was a kick (Alaric playtest). datamine_grace_ground.py's interior volume/seam derivation now
+resolves 72102 -> 69000, the grace-ground gate drops it from the Keep's force-lit bundle (it lights
+on foot when reached through Scadu Altus), and the Keep's front door is the Hinterland 76935 -- on the
+Keep's OWN ground (21000). gen_data._FRONT_DOOR_PIN is therefore now EMPTY. The Cathedral of Manus
+Metyr is still NOT part of this: m25's grace 72500 -> 6900 = Scadu Altus.
 """
 
 # region -> play_region buckets. Region names are the datapackage-visible region names; the HUB
@@ -290,8 +294,10 @@ PLAY_REGION_GROUPS = {
 #                        bucket 21000 = Shadow Keep -- i.e. its own door already stood on the Keep's
 #                        ground. Rather than keep it a contained child, 69300 now rides Shadow Keep's
 #                        measured buckets; grace_ground.tsv's 76935 -> 21000 row (still valid, 21000
-#                        is Shadow Keep) keeps 76935 ancestor-owned, and _FRONT_DOOR_PIN holds the
-#                        Keep's front door at its own m21_00 entrance 72102.
+#                        is Shadow Keep) keeps 76935 ancestor-owned and the Keep's front door. (The
+#                        m21_00 gate grace 72102 was found 2026-07-21 to stand on Scadu Altus ground
+#                        69000 -- the gate threshold seam -- so it is no longer the Keep's front door
+#                        and _FRONT_DOOR_PIN is now empty; see the datamine + gen_data notes.)
 #
 # Kept as a set so the machinery survives (a future region added before its bucket is measured).
 REGIONS_PENDING_BUCKET = frozenset()

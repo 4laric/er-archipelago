@@ -130,10 +130,10 @@ class TestGraceGround(unittest.TestCase):
         bucket 21000). This pins the fold so a regen can't silently regress it:
           * Scaduview is no longer a region (gone from open flags, play_ids, REGION_PARENT).
           * grace 76935 ("Hinterland") still stands on bucket 21000 -- now Shadow Keep's OWN ground.
-          * Shadow Keep's front door stays its m21_00 entrance 72102, NOT the overworld Hinterland
-            grace 76935 that _front_door's overworld-beats-interior heuristic would otherwise pick --
-            the whole reason gen_data._FRONT_DOOR_PIN exists (a naive fold = Keep-unlock warps you to
-            the back plateau instead of the gate).
+          * Shadow Keep's front door is 76935, the Hinterland: it stands on the Keep's OWN ground
+            (21000) and is a walk-in Keep entrance. (Until 2026-07-21 gen_data._FRONT_DOOR_PIN forced
+            the door to the m21_00 gate grace 72102 instead; the pin was removed once the datamine
+            learned 72102 stands on Scadu Altus ground -- see test_main_gate_stands_on_scadu_altus.)
           * 76935 still rides the Keep's bundle (lit + warpable on Keep unlock, its own ground)."""
         self.assertNotIn("Scaduview", self.open_flags,
                          "Scaduview folded into Shadow Keep -- must not survive as a region open flag")
@@ -146,11 +146,36 @@ class TestGraceGround(unittest.TestCase):
                          "2026-07-15); re-run tools/datamine_grace_ground.py --emit")
         self.assertIn(21000, self.play_ids.get("Shadow Keep", ()),
                       "21000 is the Keep's own bucket, so 76935's ground is the Keep's own ground")
-        self.assertEqual(self.open_flags.get("Shadow Keep"), 72102,
-                         "Shadow Keep's front door must stay its m21_00 entrance 72102 (the "
-                         "_FRONT_DOOR_PIN), NOT the folded-in overworld Hinterland grace 76935")
+        self.assertEqual(self.open_flags.get("Shadow Keep"), 76935,
+                         "Shadow Keep's front door is the Hinterland grace 76935 (on the Keep's own "
+                         "ground 21000); the old 72102 pin was removed -- 72102 stands on Scadu Altus")
         self.assertIn(76935, self.graces.get("Shadow Keep", ()),
                       "the folded-in Hinterland grace 76935 must ride the Keep's own bundle")
+
+    def test_main_gate_stands_on_scadu_altus(self):
+        """The Shadow Keep Main Gate grace 72102 (m21_00) stands at the gate THRESHOLD on SCADU ALTUS
+        ground, not the Keep's. Two independent facts agree: (1) geometry -- in the m21_00 MSB it is
+        inside no PlayArea volume, and the nearest one is the Scadu Altus 6900000 approach column
+        (3.6 m), with every Shadow Keep 21000 volume far behind it; (2) the ENGINE -- warping there
+        with only the Keep lock was an in-game kick (Alaric, 2026-07-21), which can ONLY happen if the
+        gate ground is NOT Keep-owned (a Keep-holder is never kicked off 21000). datamine_grace_ground
+        's interior volume/seam derivation resolves it to bucket 69000.
+
+        This asserts the POST-regen tsv, so it is RED until tools/datamine_grace_ground.py --emit is
+        re-run (with the full m21_00 MSB) and gen_data regenerated -- same commit. It is deliberately
+        LOUD, not skip-guarded: if the full MSB turns out to have a 21000 volume that actually contains
+        the gate, the derivation emits 21000 (or 21000;69000) and this fails -- exactly the signal we
+        want, since that would mean the kick has some other cause and the fix is wrong."""
+        g = self.ground.get(72102)
+        self.assertEqual(g, (69000,),
+                         "72102 must derive Scadu Altus ground 69000 (interior-seam vs 6900000). A "
+                         "21000 here is the stale map-prefix fallback that caused the Main Gate kick; "
+                         "re-run tools/datamine_grace_ground.py --emit with the m21_00 MSB present")
+        self.assertEqual(self.owner.get(69000), "Scadu Altus",
+                         "bucket 69000 is Scadu Altus in region_play_ids")
+        self.assertNotIn(72102, self.graces.get("Shadow Keep", ()),
+                         "72102 stands on Scadu Altus ground -- the grace-ground gate must drop it "
+                         "from the Keep's force-lit bundle (else the Keep lock warps into a kick)")
 
     def test_charos_regression(self):
         """The literal 2026-07-15 in-game failure, pinned: Charo's front door 76841 stands on

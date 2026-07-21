@@ -34,8 +34,26 @@ DERIVATION
     the underground) and under-surface dungeons those dst tiles are WORLD-MAP DISPLAY anchoring,
     not physical ground -- a blanket rule mis-files Bestial Sanctum on Farum Azula's 13000 and the
     Altus Plateau grace on the Precipice's 39200 (tried and reverted, 2026-07-15).
-  * INTERIOR graces: the bucket(s) whose PlayRegionParam id encodes the grace's own map
-    (m41_02 -> 41020). Coarse but sound: an interior map's buckets all belong to one region.
+  * INTERIOR graces (BonfireWarpParam areaNo NOT 60/61): the SAME point-in-volume test, now run
+    against the PlayArea volumes of the grace's OWN interior MSB (mAA_BB; world == local, no tile
+    offset). A volume that CONTAINS the grace gives its exact PlayRegionID bucket -- this is what
+    catches a FOREIGN region's ground poking into an interior map. Where the grace is inside NO
+    volume but within SEAM_SLACK m of a volume FACE (a gate/threshold seam) it SNAPS to that nearest
+    volume's bucket. Only inside-no-volume-and-near-none falls back to the map-prefix bucket(s)
+    (m41_02 -> 41020). The Shadow Keep Main Gate is why: grace 72102 sits in a seam 3.6 m outside the
+    Scadu Altus 6900000 approach column and is inside no Shadow Keep 21000 volume in the m21_00 MSB,
+    yet the old map-prefix path emitted 21000 (Shadow Keep) and warped Keep-holders into a kick.
+    IMPORTANT -- the map-prefix default is NOT a safe fallback at a seam: the 76935 note below says a
+    point inside no volume reads the map default (here 21000), but the in-game kick at 72102 (Alaric
+    2026-07-21) REFUTES that for this point -- a Keep-holder standing on 21000 is never kicked, so the
+    engine reads a non-21000 play_region at the gate, and the only play-region volume near it is
+    Scadu Altus's. The seam-snap makes the derivation agree with the engine. (The 3.6 m gap between
+    the grace and the authored volume face is closed engine-side by the arrival point and/or the
+    engine's own containment tolerance; SEAM_SLACK models that.) The seam emits ONE bucket -- the
+    nearest, 69000 -- not {69000,21000}: the kick has already refuted 21000, and a two-bucket row
+    would read as non-foreign and silently NOT fix the bug. Map-prefix is now the LAST resort, not
+    the first. A raw kick-watch line at 72102 (the play_region number) belongs in MEASURED_GROUND as
+    engine corroboration; it was observed but not captured, so 72102 currently rests on geometry.
 
 OUTPUT: greenfield/grace_ground.tsv (TRACKED -- CI has no artifacts). gen_data.py consumes it:
 a bundle grace whose derived ground is owned by a foreign region is NOT force-lit, and a region
@@ -45,12 +63,17 @@ whose FRONT-DOOR grace stands on foreign ground kills the gen (fix region_groups
     python tools/datamine_grace_ground.py --emit     # write greenfield/grace_ground.tsv
 
 Y-SLACK: containment allows +/-8 m vertically (grace assets sit slightly above the volume floor).
+SEAM_SLACK (interior only): the planar mirror of that tolerance -- an interior grace inside no
+volume but within SEAM_SLACK m of a volume face stands on that volume's ground. It only ever
+differs from the map-prefix fallback when the nearest face belongs to a FOREIGN-bucket volume
+(the seam case); a same-bucket nearest face snaps to the same answer the fallback would give.
 """
 import argparse
 import csv
 import glob
 import math
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -67,6 +90,15 @@ OUT = os.path.join(REPO, "greenfield", "grace_ground.tsv")
 # derivation depends on the unpacked MSBs being PRESENT -- rerunning without them must fail, not
 # quietly write an all-underivable table that turns the gen gate off.
 MIN_DERIVED = 200   # measured 2026-07-15: 293/421 graces derive a ground. Raise, never lower.
+
+# Planar tolerance for the INTERIOR seam-snap (see the docstring's INTERIOR bullet for the full
+# justification). Numerically the planar twin of the +/-8 m vertical yslack, and it covers the one
+# case that motivates it -- the Main Gate 72102 sits 3.6 m outside the Scadu Altus 6900000 approach
+# column. It is NOT merely a geometric fudge: at 72102 the in-game kick REFUTES the map-prefix
+# fallback (a Keep-holder on 21000 is never kicked), so the snap is what makes the derivation agree
+# with the engine. It changes the answer from the fallback only when the nearest face is a
+# foreign-bucket volume (a same-bucket nearest face snaps to the fallback's own answer).
+SEAM_SLACK = 8.0
 
 # In-game ENGINE measurements: grace flag -> (ground buckets, provenance). Each entry is a client
 # kick-watch/log line read at that grace -- the same instrument the enforcement itself uses. They
@@ -119,9 +151,59 @@ def _shape(el):
     return k, 0.0, 0.0, 0.0
 
 
+def _load_msb_playareas(d, area, tx, tz):
+    """Every PlayArea volume in ONE witchy'd MSB dir, world-positioned (world = tile*256 + local;
+    pass tx=tz=0 for an interior map, where local coords ARE world). Composite shapes are resolved
+    to their named child regions within the same MSB."""
+    out = []
+    pa = os.path.join(d, "Region", "PlayArea")
+    if not os.path.isdir(pa):
+        return out
+    pend = []
+    for f in glob.glob(os.path.join(pa, "*.xml")):
+        el = ET.parse(f).getroot()
+        pend.append((int(el.findtext("PlayRegionID")), el))
+    need = set()
+    for pr, el in pend:
+        k, a, _b, _h = _shape(el)
+        if k == "Composite":
+            need.update(a)
+    byname = {}
+    if need:
+        # composite children live in Region/Other (occasionally another category); search the
+        # shallow categories rather than the whole tree -- the mount is slow on deep globs.
+        _cand = glob.glob(os.path.join(d, "Region", "Other", "*.xml"))
+        _cand += [f for f in glob.glob(os.path.join(d, "Region", "*", "*.xml"))
+                  if os.sep + "Other" + os.sep not in f]
+        for f in _cand:
+            try:
+                el = ET.parse(f).getroot()
+            except ET.ParseError:
+                continue
+            nm = el.findtext("Name")
+            if nm in need:
+                byname[nm] = el
+    for pr, el in pend:
+        stack, seen = [el], set()
+        while stack:
+            e = stack.pop()
+            nm = e.findtext("Name")
+            if nm in seen:
+                continue
+            seen.add(nm)
+            k, a, b, h = _shape(e)
+            if k == "Composite":
+                stack.extend(byname[cn] for cn in a if cn in byname)
+                continue
+            pos, rot = e.find("Position"), e.find("Rotation")
+            x, y, z = (float(pos.findtext(c)) for c in "XYZ")
+            out.append(Vol(pr, area, nm, k, tx * 256 + x, y, tz * 256 + z,
+                           float(rot.findtext("Y")), a, b, h))
+    return out
+
+
 def load_volumes():
-    """Every PlayArea volume on the witchy'd m60/m61 overworld tiles, world-positioned.
-    Composite shapes are resolved to their named child regions within the same MSB."""
+    """Every PlayArea volume on the witchy'd m60/m61 overworld tiles, world-positioned."""
     vols = []
     tile_dirs = sorted(set(glob.glob(os.path.join(MAPDIR, "m6[01]_*_00-msb-dcx"))))
     if not tile_dirs:
@@ -130,54 +212,61 @@ def load_volumes():
     for d in tile_dirs:
         bn = os.path.basename(d)
         area, tx, tz = int(bn[1:3]), int(bn[4:6]), int(bn[7:9])
-        pa = os.path.join(d, "Region", "PlayArea")
-        if not os.path.isdir(pa):
-            continue
-        pend = []
-        for f in glob.glob(os.path.join(pa, "*.xml")):
-            el = ET.parse(f).getroot()
-            pend.append((int(el.findtext("PlayRegionID")), el))
-        need = set()
-        for pr, el in pend:
-            k, a, _b, _h = _shape(el)
-            if k == "Composite":
-                need.update(a)
-        byname = {}
-        if need:
-            # composite children live in Region/Other (occasionally another category); search the
-            # shallow categories rather than the whole tree -- the mount is slow on deep globs.
-            _cand = glob.glob(os.path.join(d, "Region", "Other", "*.xml"))
-            _cand += [f for f in glob.glob(os.path.join(d, "Region", "*", "*.xml"))
-                      if os.sep + "Other" + os.sep not in f]
-            for f in _cand:
-                try:
-                    el = ET.parse(f).getroot()
-                except ET.ParseError:
-                    continue
-                nm = el.findtext("Name")
-                if nm in need:
-                    byname[nm] = el
-        for pr, el in pend:
-            stack, seen = [el], set()
-            while stack:
-                e = stack.pop()
-                nm = e.findtext("Name")
-                if nm in seen:
-                    continue
-                seen.add(nm)
-                k, a, b, h = _shape(e)
-                if k == "Composite":
-                    stack.extend(byname[cn] for cn in a if cn in byname)
-                    continue
-                pos, rot = e.find("Position"), e.find("Rotation")
-                x, y, z = (float(pos.findtext(c)) for c in "XYZ")
-                vols.append(Vol(pr, area, nm, k, tx * 256 + x, y, tz * 256 + z,
-                                float(rot.findtext("Y")), a, b, h))
+        vols.extend(_load_msb_playareas(d, area, tx, tz))
     # dedupe (_00/_10 MSB variants carry identical copies)
     uniq = {}
     for v in vols:
         uniq[(v.area, v.pr, round(v.cx, 2), round(v.cz, 2), v.kind, round(v.a, 2))] = v
     return list(uniq.values())
+
+
+_INTERIOR_VOLS = {}
+
+
+def load_interior_volumes(mtile):
+    """PlayArea volumes for ONE interior map (mAA_BB), world == local. Cached per map. Returns []
+    if that MSB is absent -- interior volume derivation is best-effort, and an absent MSB simply
+    falls the grace back to the map-prefix default (the pre-2026-07-21 behaviour)."""
+    if mtile in _INTERIOR_VOLS:
+        return _INTERIOR_VOLS[mtile]
+    vols = []
+    m = re.match(r"m(\d\d)_(\d\d)$", mtile or "")
+    if m:
+        aa, bb = m.group(1), m.group(2)
+        for d in sorted(glob.glob(os.path.join(MAPDIR, "m%s_%s_00_00-msb-dcx" % (aa, bb)))):
+            vols.extend(_load_msb_playareas(d, int(aa), 0, 0))
+    _INTERIOR_VOLS[mtile] = vols
+    return vols
+
+
+def _nearest_face(vols, x, y, z):
+    """(planar face-distance, vol) for the nearest volume whose y-range (+/-yslack) holds y, else
+    None. Face-distance = how far (x,z) lies OUTSIDE the volume footprint (0 if inside it in plane).
+    Handles all three shapes so a grace can't snap PAST a nearer same-bucket cylinder/sphere onto a
+    farther foreign box. y-gated so a grace never snaps to a volume far above/below it."""
+    best = None
+    for v in vols:
+        dx, dz = x - v.cx, z - v.cz
+        if v.kind == "Box":
+            if not (v.cy - 8.0 <= y <= v.cy + (v.h or 1e18) + 8.0):
+                continue
+            r = math.radians(v.yaw)
+            c, sn = math.cos(r), math.sin(r)
+            du = abs(dx * c - dz * sn) - v.a / 2
+            dv = abs(dx * sn + dz * c) - v.b / 2
+            d = math.hypot(max(0.0, du), max(0.0, dv))
+        elif v.kind == "Cylinder":
+            if not (v.cy - 8.0 <= y <= v.cy + (v.h or 1e18) + 8.0):
+                continue
+            d = max(0.0, math.hypot(dx, dz) - v.a)   # a = radius
+        elif v.kind == "Sphere":
+            dy = max(0.0, abs(y - v.cy) - 8.0)        # sphere has no separate height; use 3-D gap
+            d = max(0.0, math.sqrt(dx * dx + dz * dz + dy * dy) - v.a)
+        else:
+            continue
+        if best is None or d < best[0]:
+            best = (d, v)
+    return best
 
 
 def main():
@@ -227,8 +316,27 @@ def main():
         else:
             ent = str(r["bonfireEntityId"] or "")
             tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
-            bks = sorted(interior.get(tile, set()))
-            src = "interior-map" if bks else "none"
+            bks, src = [], "none"
+            # Point-in-volume against the grace's OWN interior MSB first (the foreign-ground catch);
+            # its position is local == world for an interior map, so no tile offset.
+            try:
+                px, py, pz = float(r["posX"]), float(r["posY"]), float(r["posZ"])
+            except (TypeError, ValueError):
+                px = None
+            ivols = load_interior_volumes(tile) if px is not None else []
+            if ivols and px is not None:
+                hits = [v for v in ivols if v.contains(px, py, pz)]
+                if hits:
+                    bks = sorted({v.pr // 100 for v in hits})
+                    src = "interior-vol:" + hits[0].name
+                else:
+                    near = _nearest_face(ivols, px, py, pz)   # gate/threshold seam -> nearest face
+                    if near and near[0] <= SEAM_SLACK:
+                        bks = [near[1].pr // 100]
+                        src = "interior-seam:%s@%.1fm" % (near[1].name, near[0])
+            if not bks:                                       # inside no volume, near none: fall back
+                bks = sorted(interior.get(tile, set()))
+                src = "interior-map" if bks else "none"
         if f in MEASURED_GROUND:
             mbks, msrc = MEASURED_GROUND[f]
             if bks and tuple(bks) != tuple(mbks):

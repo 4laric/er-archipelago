@@ -2740,15 +2740,23 @@ for _reg in sorted(_gg_regions_hit):
 # is often a catacomb/cave INTERIOR grace the player can never see (e.g. Limgrave min was 73000 =
 # m30_00_00 catacomb -> "no graces in-game"). Serves as the region-open flag AND the start/front-door
 # grace. Fall back to any grace only for a pure-dungeon bucket with no overworld grace at all.
-# Per-region front-door PIN: overrides the overworld-beats-interior heuristic for the rare region
-# whose true entrance is an INTERIOR grace even though it also owns overworld graces. The only case
-# is Shadow Keep after the 2026-07-19 Scaduview fold: its real entrance 72102 is m21_00 (interior),
-# but folding in the Hinterland's overworld graces (76935 etc., m61) would make _front_door pick
-# 76935 -- warping Keep-unlock straight to the back-plateau instead of the gate. 76935 sits on the
-# Keep's OWN ground (bucket 21000), so the grace-ground gate can't catch it; the pin is the fix. The
-# pinned flag must be a real, non-foreign candidate of the region (asserted below). The Hinterland
-# graces still ride the Keep's bundle -- lit + warpable on Keep unlock -- just not as the front door.
-_FRONT_DOOR_PIN = {"Shadow Keep": 72102}
+# Per-region front-door PIN: overrides the overworld-beats-interior heuristic for a region whose
+# true entrance is an INTERIOR grace even though it also owns overworld graces. The pinned flag must
+# be a real, non-foreign candidate of the region (asserted below), so a pin can never paper over a
+# foreign-ground front door.
+#
+# EMPTY since 2026-07-21. It briefly pinned Shadow Keep -> 72102 (the Main Gate) to keep the Keep's
+# front door at the gate rather than the folded-in Hinterland grace 76935. But 72102 does NOT stand
+# on the Keep's ground: it sits at the gate threshold, inside no 21000 Keep volume and 3.6 m outside
+# the Scadu Altus 6900000 approach column, so datamine_grace_ground.py now derives 72102 -> 69000
+# (Scadu Altus). The Keep lock was thus force-lighting a grace on Scadu Altus ground -- warp there
+# with only the Keep lock and the kick-watch bounces you (Alaric, playtest 2026-07-21). The grace-
+# ground gate now (correctly) drops 72102 from the Keep's force-lit bundle, and the pin can no longer
+# point at it (foreign ground fails the assertion below). Shadow Keep's front door falls to 76935,
+# the Hinterland, which DOES stand on the Keep's own ground (bucket 21000, measured) -- a walk-in
+# Keep entrance, no kick. The Main Gate still lights on foot when the player reaches it through
+# Scadu Altus. (The pin machinery is kept for the next interior-entrance region that needs it.)
+_FRONT_DOOR_PIN = {}
 def _front_door(r):
     if r in _FRONT_DOOR_PIN:
         _pin = _FRONT_DOOR_PIN[r]
