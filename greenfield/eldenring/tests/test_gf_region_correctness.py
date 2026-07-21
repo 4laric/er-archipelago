@@ -210,6 +210,12 @@ class RegionCorrectness(unittest.TestCase):
         400130:     "Liurnia",                     # Haligtree Secret Medallion (Right), Village of the
                                                    #   Albinaurics. Was global/unplaced (SKIPPED) -> vanilla
                                                    #   leak; recovered as a Liurnia check.
+        510440:     "Scadu Altus",                 # Golden Hippopotamus drop (Thorns + Scadutree Fragment).
+                                                   #   MSB-truth files it m21_00 -> Shadow Keep, but its LIVE
+                                                   #   boss arena is play_region 6900010 (bucket 69000 = Scadu
+                                                   #   Altus); Alaric was KICKED reaching the fight Keep-only
+                                                   #   (playtest 2026-07-21), so a Keep drop is unreachable.
+                                                   #   FLAG_REGION_OVERRIDE re-homes it (above the MSB branch).
     }
 
     def test_flag_region_overrides_pinned(self):

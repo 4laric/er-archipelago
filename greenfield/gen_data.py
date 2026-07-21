@@ -402,7 +402,7 @@ _ALLROWS=list(csv.DictReader(open(os.path.join(HERE,"region_map.csv"),encoding="
 # ---- GROUND TRUTH: acquisition flag -> the items its ItemLotParam lot(s) actually GRANT -----------
 # The category tags (Seedtree / Church / Fragment / Revered / Basin) used to be derived from the
 # check's DISPLAY NAME. That is wrong twice over:
-#   * UNDER-tags: one flag can be fed by SEVERAL lots. The Golden Hippopotamus (Shadow Keep) fires
+#   * UNDER-tags: one flag can be fed by SEVERAL lots. The Golden Hippopotamus (Scadu Altus) fires
 #     flag 510440, which drives lot 10440 (Aspects of the Crucible: Thorns) AND lot 10441 (a Scadutree
 #     Fragment). The check is named after the first, so the Fragment tag never saw the fragment.
 #   * OVER-tags: the name matched things the lot does not actually grant (Crystal Tear: 18 tagged vs
@@ -1373,6 +1373,7 @@ FLAG_REGION_OVERRIDE = {
     510640: "Shadow Keep",                     # Rem. of the Wild Boar Rider = Commander Gaius -- arena tile 49,48 graces 76930/76931 -> play_region 6920, folded into Shadow Keep 2026-07-19 (was Scaduview); reached THROUGH the Keep
     21017800: "Shadow Keep",                   # Fire Knight Hilde drop: flag self-encodes m21_01 (Shadow Keep Church District) but the row's map column is the m20_00 emevd-scan mis-map; the emevd region_of path never applies the 8-digit lot self-encode. (matt-diff 2026-07-13)
     400696: "Scadu Altus",                     # Prayer Room Key: NPC-invader drop from Fire Knight Queelign at the Church of the Crusade (Scadu Altus, east of Fog Rift Catacombs). Scan pinned it to the LOWER m20_00 lot -> Belurat; the real placement is the overworld invader, no map/grace self-encode. matt agrees Scadu Altus. (Alaric-confirmed 2026-07-14)
+    510440: "Scadu Altus",                     # Golden Hippopotamus drop (Aspects of the Crucible: Thorns + a Scadutree Fragment, lots 10440/10441). Needed HERE, not just GLOBAL_RECOVER: msb_flag_region.tsv files 510440 -> m21_00 -> DUNGEON_REGION_OVERRIDE -> Shadow Keep, and that MSB-truth branch (region_of) runs ABOVE GLOBAL_RECOVER, so only a FLAG_REGION_OVERRIDE (checked above it) actually re-homes it. The Hippo is fought at the Main Gate but its LIVE arena is play_region 6900010 (bucket 69000 = Scadu Altus; PlayRegionParam boss-alive variant keyed on defeat flag 21000850). GROUND TRUTH: Alaric, holding ONLY the Shadow Keep lock, was KICKED and could not reach the fight (playtest 2026-07-21) -- so a Shadow Keep drop is UNREACHABLE; you need Scadu Altus to kill it. GLOBAL_RECOVER[510440] is kept for recovery MEMBERSHIP and set to the SAME region so the tables agree. (Post-DEATH the floor reverts to 21000, which is why the filler SWEEP stays Shadow Keep.)
     # --- Two-grace m61 tile splits (matt-diff 2026-07-13, GRACE-CORROBORATED) ---
     # These tiles carry graces for TWO play-regions, so the ANCHOR61 tile-majority vote erases one side.
     # Per-check pins for the checks that belong to the OTHER region, applied ONLY where that region has a
@@ -1593,7 +1594,7 @@ GLOBAL_RECOVER = {
     510140: "Farum Azula",           # Bell Bearing[4]/AoW Black Flame Tornado -> Godskin Duo (Crumbling Farum Azula)
     510260: "Liurnia",  # Magma Wyrm's Scalesword -> Magma Wyrm Makar (Ruin-Strewn Precipice)
     510320: "Siofra River",          # Ancestral Follower Ashes -> Ancestor Spirit (Siofra / Ancestral Woods)
-    510440: "Shadow Keep",           # Aspects of the Crucible: Thorns -> Golden Hippopotamus (DLC)
+    510440: "Scadu Altus",           # Aspects of the Crucible: Thorns (+ a Scadutree Fragment, lot 10441) -> Golden Hippopotamus. The Hippo is fought at the Shadow Keep MAIN GATE, but its LIVE boss arena is play_region 6900010 (bucket 69000 = Scadu Altus; PlayRegionParam boss-alive variant, pcPositionSaveLimitEventFlagId=21000850). GROUND TRUTH (Alaric playtest 2026-07-21): holding ONLY the Shadow Keep lock, he was KICKED and could not physically reach the fight -> a Shadow Keep assignment makes this drop UNREACHABLE. You need Scadu Altus to kill it, so the drop is Scadu Altus. (The post-DEATH plaza floor reverts to 21000, which is why the surrounding filler SWEEP stays Shadow Keep and why looting there Keep-only worked once the Hippo was already dead -- different fact from the live fight.)
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
     65460: 'Gravesite',
@@ -3830,7 +3831,7 @@ for _ap, _inm in LOCATION_ITEM.items():
                 _cur.append(_e)
 
 # ---- CATEGORY tags from GROUND TRUTH (LOT_ITEMS), not from the check's display name ---------------
-# A flag can be fed by SEVERAL lots: the Golden Hippopotamus (Shadow Keep) fires flag 510440, which
+# A flag can be fed by SEVERAL lots: the Golden Hippopotamus (Scadu Altus) fires flag 510440, which
 # drives lot 10440 (Aspects of the Crucible: Thorns) AND lot 10441 (a Scadutree Fragment). We name the
 # check after the first lot, so a NAME-derived Fragment tag never saw the fragment (45 tagged vs 46
 # real). Name matching also OVER-tagged (Crystal Tear: 18 vs 15). Tag from what the game GRANTS.
