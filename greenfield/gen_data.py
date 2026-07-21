@@ -2465,6 +2465,28 @@ with open(OUT,"w",encoding="utf-8") as f:
         _g3, _fu3, _n3 = GESTURE_AWARD_FLAGS[_fl3]
         f.write(f"    {_fl3}: ({_g3}, {_fu3}, {ascii(_n3)}),\n")
     f.write("}\n")
+    # EVENT_AWARD_ITEM_FLAGS -- checks whose vanilla ITEM is handed by an EMEVD award that BYPASSES the
+    # blanked ItemLotParam treasure lot. gen_check_lots_table pairs flag->lot by EXACT getItemFlagId, so
+    # the flag IS the honest key of a real ItemLotParam row -- but flag_source=='emevd' means that row is
+    # a DECOY and the actual delivery is the event, so blanking the lot suppresses nothing and the ware
+    # double-dips (the confirmed Rune Arc f21017010 shape). coverage._classify_suppression consults this
+    # to NOT count the lot as a suppressor, so the check surfaces as a real hole (NOT the gesture
+    # 'event_award_unsuppressable' accepted bucket -- an item leak is a violation unless the location is
+    # filler + coverage_quarantine.ACCEPTED_LEAKS).
+    #
+    # HAND list of playtest-CONFIRMED leakers, exactly like _ARENA_GRACE_FLAGS. The DERIVED oracle is a
+    # TODO that needs the artifacts: scan the map/common EMEVD for AwardItemLot(lot) and flag every
+    # emevd-source check whose EMEVD-awarded lot != its check_lots_table lot. The SUSPECT superset
+    # (emevd-source flags already in check_lots_table.json) is ~430 -- do NOT blanket-add it: most route
+    # the award through the very lot that gets blanked. Add a flag here only once its leak is confirmed.
+    _EVENT_AWARD_ITEM_FLAGS = tuple(sorted({
+        21017010,   # Rune Arc -- Shadow Keep, Storehouse First Floor (m21_01); confirmed in-game 2026-07-21 (Alaric)
+    }))
+    f.write("\n# EVENT_AWARD_ITEM_FLAGS -- emevd-award item checks whose delivery BYPASSES the blanked\n")
+    f.write("# lot (vanilla ware double-dips). coverage._classify_suppression skips lot_blank for these\n")
+    f.write("# so they surface as real suppression holes. HAND list of confirmed leakers (see gen_data);\n")
+    f.write("# derived EMEVD-AwardItemLot oracle is a TODO. Fail-open: absent/empty -> class inert.\n")
+    f.write(f"EVENT_AWARD_ITEM_FLAGS = {_EVENT_AWARD_ITEM_FLAGS!r}\n")
 print(f"spokes={len(spokes)} hub_locs={len(buckets.get(HUB,[]))} total={sum(len(v) for v in buckets.values())}")
 # ---- EMEVD/common-event audit REPORT (deterministic; classifies each emevd/global row once) ------
 _A_UNIQUE=_A_AMBIG=_A_NONE=0; _A_REPIN=0; _A_QUAR=0; _A_RECOVER=0; _A_REPIN_NOOP=0

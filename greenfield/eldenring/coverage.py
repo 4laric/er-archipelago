@@ -320,6 +320,13 @@ def build_coverage(world=None, kept=None, _static_table=None):
     if finale_on:
         scope.append(FINALE_REGION)
     GESTURE_AWARD_FLAGS = dict(getattr(data, "GESTURE_AWARD_FLAGS", {}))
+    # EVENT_AWARD_ITEM_FLAGS -- checks whose vanilla ITEM is handed by an EMEVD AwardItemLot that does
+    # NOT route through the blanked ItemLotParam treasure lot (the check_lots_table lot != the delivery
+    # lot). For these, a lot IS in check_lots_table (so the gate would call them lot_blank), but blanking
+    # it does not stop the event award -> the ware double-dips (the confirmed Rune Arc f21017010 shape).
+    # Derived by gen_data from the map/common EMEVD scan; fail-open empty pre-regen (then this class is
+    # inert and behaviour is unchanged). Consulted below to SUPPRESS the false lot_blank classification.
+    EVENT_AWARD_ITEM_FLAGS = set(getattr(data, "EVENT_AWARD_ITEM_FLAGS", ()))
 
     # ---- the client tables the gen EMITS (live) or their derivation (static) -------------------
     K_LOC = getattr(contract, "LOCATION_FLAGS", "locationFlags") if contract else "locationFlags"
@@ -438,7 +445,8 @@ def build_coverage(world=None, kept=None, _static_table=None):
                 rec, flag, static_map, static_enemy, static_items,
                 emitted_blank_lots_map, emitted_blank_lots_enemy,
                 emitted_check_item_flags, SHOP_ROW_FLAGS, SHOP_ROW_IDS, cif_src,
-                gesture_flags=frozenset(GESTURE_AWARD_FLAGS))
+                gesture_flags=frozenset(GESTURE_AWARD_FLAGS),
+                event_award_item_flags=frozenset(EVENT_AWARD_ITEM_FLAGS))
             rec.static_suppress = (flag in static_map or flag in static_enemy
                                    or flag in static_items or ap_id in SHOP_ROW_FLAGS)
 
@@ -510,7 +518,8 @@ def _is_filler_location(rec, contract):
 
 def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
                           blank_lots_map, blank_lots_enemy, check_item_flags,
-                          shop_flag_by_ap, shop_rows_by_ap, cif_src, gesture_flags=frozenset()):
+                          shop_flag_by_ap, shop_rows_by_ap, cif_src, gesture_flags=frozenset(),
+                          event_award_item_flags=frozenset()):
     """Resolve suppress_kind, in mechanism order:
       shop purchase -> lot blank (static flag->lot row AND the lot actually emitted in
       checkLotBlankMap/Enemy) -> static id-keyed (weapon/armor) -> per-seed checkItemFlags
@@ -523,12 +532,22 @@ def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
                                       "blank, no grant the detour sees; the vanilla gesture is "
                                       "unsuppressable BY DESIGN and this class says so out loud)")
         return "event_award_unsuppressable"
+    # EVENT_AWARD_ITEM_FLAGS: the EMEVD award bypasses the blanked treasure lot, so a lot in
+    # check_lots_table is NOT a real suppressor here -- skip the lot_blank classification and let it
+    # fall through to id-keyed / client-intercept, else "none" (a real hole, surfaced not swallowed;
+    # NOT the gesture "event_award_unsuppressable" accepted bucket -- an item leak is a violation
+    # unless the location is filler + ACCEPTED_LEAKS).
+    _bypass = flag in event_award_item_flags
+    if _bypass:
+        rec.provenance["suppress_note"] = ("flag in EVENT_AWARD_ITEM_FLAGS: EMEVD award bypasses the "
+                                           "blanked lot (check_lots_table lot != delivery) -- lot_blank "
+                                           "is not a real suppressor here")
     ent = static_map.get(flag)
-    if ent is not None and int(ent.get("lot", -1)) in blank_lots_map:
+    if ent is not None and int(ent.get("lot", -1)) in blank_lots_map and not _bypass:
         rec.provenance["suppress"] = "check_lots_table.json[map] + checkLotBlankMap"
         return "lot_blank_map"
     ent = static_enemy.get(flag)
-    if ent is not None and int(ent.get("lot", -1)) in blank_lots_enemy:
+    if ent is not None and int(ent.get("lot", -1)) in blank_lots_enemy and not _bypass:
         rec.provenance["suppress"] = "check_lots_table.json[enemy] + checkLotBlankEnemy"
         return "lot_blank_enemy"
     if flag in static_items:
@@ -640,8 +659,12 @@ def check_suppression(records, ctx):
     #     suppression (arming it would eat every farmed/bought/crafted copy -- the lesser evil).
         raw = rec.vanilla_full & _ROW_ID_MASK
         goods = (rec.vanilla_full & ~_ROW_ID_MASK) == _GOODS_CATEGORY
-        why = ("no ItemLotParam row carries this flag (absent from check_lots_table.json: "
-               "EMEVD-award or unjudged lot category)")
+        if rec.provenance.get("suppress_note"):
+            # EVENT_AWARD_ITEM_FLAGS: a lot IS in check_lots_table, but the EMEVD award bypasses it.
+            why = rec.provenance["suppress_note"]
+        else:
+            why = ("no ItemLotParam row carries this flag (absent from check_lots_table.json: "
+                   "EMEVD-award or unjudged lot category)")
         if goods:
             why += "; ware is a farmable/repeatable good, so id-keyed suppression is (correctly) not armed" \
                 if rec.suppress_kind == "none" and not rec.static_suppress else ""
