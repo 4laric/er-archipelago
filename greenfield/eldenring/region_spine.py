@@ -36,8 +36,9 @@ REGION_PARENT = {
     # Scaduview's containment entry was REMOVED 2026-07-19: the Hinterland was FOLDED into Shadow Keep
     # (region_groups) rather than kept a contained child, so it is no longer a separate region to gate
     # -- its checks ARE Shadow Keep checks now, under the Keep's own Lock. (Its door ground was always
-    # the Keep's bucket 21000, which is exactly why the fold is clean; the Keep's front door stays its
-    # own m21_00 entrance 72102 via gen_data._FRONT_DOOR_PIN.)
+    # the Keep's bucket 21000, which is exactly why the fold is clean; the Keep's front door is the
+    # Hinterland grace 76935, on that same 21000 ground. The m21_00 gate grace 72102 was found
+    # 2026-07-21 to stand on Scadu Altus ground instead, so it is no longer pinned as the front door.)
 }
 
 
