@@ -5131,4 +5131,10 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:2d5f6f8ba74824ea2ece7e4db2061189e2b8a78fe2d2c5440c5b6cc745c09339', 'module': 'data.py', 'body_sha256': 'sha256:127aa96ec95574ac6316c436747f33853816958ac5ba1ba4a7a61e9749e91391'}
+# EVENT_AWARD_ITEM_FLAGS -- emevd-award item checks whose delivery BYPASSES the blanked
+# lot (vanilla ware double-dips). coverage._classify_suppression skips lot_blank for these
+# so they surface as real suppression holes. HAND list of confirmed leakers (see gen_data);
+# derived EMEVD-AwardItemLot oracle is a TODO. Fail-open: absent/empty -> class inert.
+EVENT_AWARD_ITEM_FLAGS = (21017010,)
+
+_GEN_STAMP = {'inputs_hash': 'sha256:a26fde3fb142250841c91a8edffa362aae657dbcb852b4b0de7c1cfb1fa96ed5', 'module': 'data.py', 'body_sha256': 'sha256:270d9c31daeb3bc7442fe3a811d2e232ee565affda658d98d6a424a3d14f3d0f'}
