@@ -2536,6 +2536,11 @@ _ARENA_GRACE_FLAGS = frozenset({
     76508, 76509,          # unadjudicable map
     76852, 76853,          # unadjudicable map
     76930, 76931,          # unadjudicable map
+    76960,                 # Scadutree Base (m61_50_48) -- sits INSIDE the Scadutree Avatar arena
+                           # (Rem. of the Shadow Sunflower 510620, tile 50,48; see the gen_data map at
+                           # 510620). Force-lighting it with the Shadow Keep lock (Scaduview folded in)
+                           # warps you into the Avatar fight (playtest 2026-07-21, Alaric). DLC boss,
+                           # oracle-unadjudicated -> hand entry.
 })  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
                     # Warrior + Crucible Knight duo arena (bosses 1049390800/1049390801) -- granting it
                     # warps you into the middle of a live duo fight (playtest 2026-07-11, Alaric).
