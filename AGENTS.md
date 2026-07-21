@@ -159,13 +159,55 @@ each module's `_GEN_STAMP`), and it also regenerates the client's THREE cross-re
 (`tracker_regions.rs`, `contract_gen.rs`, and `region_locks.rs` — the last baked from the
 `region_groups` spine via `tools/gen_region_locks.py`; it was omitted from `build.ps1` until
 2026-07-17, so a `region_groups` change used to ship a stale client `region_locks.rs` until the
-`test_gf_data` / `gen_region_locks --check` drift gate failed — now wired). So if your change touched a GENERATOR or a gen INPUT
-(`gen_data.py`, `region_groups.py`, a datamined `.tsv`/`.csv`), say it **once** — "needs a
+`test_gf_data` / `gen_region_locks --check` drift gate failed — now wired). So if your change touched a
+GENERATOR or the region spine (`gen_data.py`, `region_groups.py`), say it **once** — "needs a
 `-Greenfield`/`-All` regen on your box" — never a file-by-file "remember to regenerate X.py, re-bless
-the stamps, rerun the tracker gen, …". He runs `-All`; it covers all of it. If you already regenerated
+the stamps, rerun the tracker gen, …". He runs `-All`; it covers all of that. If you already regenerated
 in-sandbox per this section, the committed data is correct and byte-matches his regen — the ONLY thing
 his run adds is the real artifact-hash stamp, which the freshness gate flags for him on its own. Don't
 narrate that as a chore.
+
+> ⚠️ **A datamined `greenfield/*.tsv` is the EXCEPTION — `-All` does NOT regenerate it.** `gen_data`
+> *consumes* those tables; it does not emit them. If your ROOT fix is in a datamine tool (e.g.
+> `datamine_grace_ground.py`), its `--emit` is a **manual step you run FIRST**, then `-All`. Do not
+> fold it into "just run -All" — see §5a.
+
+### 5a. TWO regen tiers — do not conflate them (the spurious-regen trap)
+
+More than one agent has "fixed" a datamine, told Alaric to "just run `-All`", and shipped nothing —
+because `-All` ran `gen_data` against the **stale** tsv. Others hand-edited a `--emit` output to fake
+the fix, desyncing it from its tool. **CI catches neither** (the tsvs are tracked; the artifacts/MSBs
+are absent in CI). Know which tier your change is in:
+
+- **Tier 1 — automated by `build.ps1 -All`/`-Greenfield`.** `gen-greenfield.ps1` runs exactly
+  `datamine_boss_drops.py` → `datamine_boss_healthbars.py` → `gen_data.py`, which rewrites the
+  `eldenring/*.py` modules from the committed tsvs + params. A change in `gen_data.py`, `region_groups.py`,
+  a boss-drop/healthbar input, or any `eldenring/*.py` consumer → **`-All` covers it. Say it once.**
+
+- **Tier 2 — MANUAL, never in any `.ps1`.** The tracked `greenfield/*.tsv` tables are `gen_data`
+  **inputs**, each emitted by its own datamine tool, run by hand — several need the unpacked witchy'd
+  MSBs the build never touches. If your fix's root is one of these, run that tool's `--emit` yourself,
+  **commit the regenerated tsv**, and only THEN does `-All` (via `gen_data`) pick it up. **Order is
+  emit → gen_data, not the reverse**, and both land in the SAME commit.
+
+  | tracked table | emitted by | needs |
+  |---|---|---|
+  | `grace_ground.tsv` | `tools/datamine_grace_ground.py --emit` | witchy'd m60/m61 **+ interior** MSBs |
+  | `arena_graces.tsv` | `tools/datamine_arena_graces.py` | witchy'd MSBs |
+  | `grace_names.tsv` | `tools/datamine_grace_names.py` | params / msgbnd |
+  | `grace_flags.tsv`, `grace_region_map.tsv` | `tools/regen_grace_tables.py` | `BonfireWarpParam` |
+  | `play_region_buckets.tsv` | `tools/datamine_play_regions.py` | `PlayRegionParam` |
+  | `item_grace_coords.tsv` | `tools/datamine_item_grace_coords.py` | MSBs / params |
+  | `dungeon_regions.tsv` | `tools/datamine_dungeon_regions.py` | committed grace tsvs |
+  | `msb_flag_region.tsv` | `tools/datamine_msb_item_regions.py` | witchy'd MSBs |
+  | `nearest_grace.tsv`, `tile_grace.tsv` | `tools/build_nearest_grace.py`, `tools/build_tile_grace.py` | committed grace tsvs (sandbox-runnable) |
+  | `shop_rows.tsv` | `tools/datamine_shop_rows.py` | params |
+  | `synthetic_flag_recovery.tsv` | `tools/recover_synthetic_flags.py` | committed tsvs |
+
+  If you **can't** run the MSB-gated tool in-sandbox (no unpacked MSBs here), say so plainly and hand
+  Alaric the exact `--emit` command **and** the emit → `-All` order — never imply `-All` covers it.
+  If you **can** (MSBs staged / a sandbox-runnable tool), emit it here and commit the fresh tsv so
+  the tree is self-consistent. Never hand-edit a `--emit` output to nudge one row; re-emit the whole file.
 
 ### Datamine joins that work in the sandbox
 - **Item-lot flag → map:** the flag encodes it — `X0SS7000` = map `mX_SS` (e.g. `40017000` = `m40_01`).
