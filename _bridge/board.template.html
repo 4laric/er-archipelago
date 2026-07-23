@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ER Archipelago — Project Board</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d222b; --border:#2a313d;
+    --text:#e6e9ef; --muted:#9aa4b2; --accent:#c9a227;
+    --p0:#ef4444; --p1:#f59e0b; --p2:#3b82f6; --p3:#6b7280;
+    --col-blocked:#ef4444; --col-ready:#f59e0b; --col-progress:#3b82f6;
+    --col-backlog:#8b5cf6; --col-done:#22c55e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px;line-height:1.45}
+  header{padding:18px 22px 10px;border-bottom:1px solid var(--border);
+    position:sticky;top:0;background:linear-gradient(180deg,#12151b,#0f1115);z-index:20}
+  h1{margin:0;font-size:19px;letter-spacing:.2px}
+  h1 .tag{color:var(--accent)}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+  .controls .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .controls label{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;margin-right:2px}
+  .chip{background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    padding:4px 10px;border-radius:20px;font-size:12px;cursor:pointer;user-select:none}
+  .chip.active{background:var(--accent);color:#1a1a1a;border-color:var(--accent);font-weight:600}
+  .chip.pri.active{color:#fff}
+  .spacer{flex:1}
+  .reset{background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px}
+  .reset:hover{color:var(--text);border-color:var(--muted)}
+
+  .nextup{margin:14px 22px 0;background:var(--panel);border:1px solid var(--border);
+    border-left:3px solid var(--accent);border-radius:8px;padding:12px 16px}
+  .nextup h2{margin:0 0 6px;font-size:13px;letter-spacing:.4px;text-transform:uppercase;color:var(--accent)}
+  .nextup ol{margin:6px 0 0;padding-left:20px}
+  .nextup li{margin:3px 0;color:var(--text)}
+  .nextup li span{color:var(--muted)}
+
+  .board{display:flex;gap:14px;padding:18px 22px 40px;overflow-x:auto;align-items:flex-start}
+  .col{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    min-width:288px;max-width:288px;flex:0 0 auto;display:flex;flex-direction:column}
+  .col-head{padding:11px 13px;border-bottom:1px solid var(--border);display:flex;
+    align-items:center;gap:8px;position:sticky;top:0}
+  .col-head .dot{width:9px;height:9px;border-radius:50%}
+  .col-head h3{margin:0;font-size:13px;letter-spacing:.3px;flex:1}
+  .col-head .count{background:var(--panel2);color:var(--muted);font-size:11px;
+    padding:1px 8px;border-radius:10px}
+  .col-body{padding:10px;display:flex;flex-direction:column;gap:9px;min-height:60px}
+  .col-body.drag-over{background:rgba(201,162,39,.06);outline:1px dashed var(--accent);outline-offset:-6px;border-radius:8px}
+
+  .card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;
+    padding:10px 11px;cursor:grab;transition:border-color .12s,transform .05s}
+  .card:hover{border-color:#3a4250}
+  .card.dragging{opacity:.5}
+  .card .top{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .pri-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;color:#fff;letter-spacing:.3px}
+  .pri-P0{background:var(--p0)} .pri-P1{background:var(--p1)} .pri-P2{background:var(--p2)} .pri-P3{background:var(--p3)}
+  .cat{font-size:10.5px;color:var(--muted);background:#11151c;border:1px solid var(--border);
+    padding:1px 7px;border-radius:10px}
+  .card .meta{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap;display:flex;gap:6px;align-items:center}
+  .card .meta .assignee{color:var(--accent)}
+  .card .title{font-size:13px;font-weight:600;margin-bottom:4px}
+  .card .desc{font-size:11.5px;color:var(--muted);line-height:1.4}
+  .empty{color:#5b6472;font-size:11.5px;text-align:center;padding:14px 6px;font-style:italic}
+  .hidden{display:none!important}
+  footer{color:#5b6472;font-size:11px;padding:0 22px 26px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Elden Ring <span class="tag">Archipelago</span> — Project Board</h1>
+  <div class="sub">Generated from cards.json · 2026-07-23 · drag to rearrange, then <b>Export cards.json</b> &amp; re-run sync · click chips to filter</div>
+  <div class="controls">
+    <div class="grp" id="catFilters"><label>Area</label></div>
+    <div class="spacer"></div>
+    <div class="grp" id="priFilters"><label>Priority</label></div>
+    <button class="reset" id="exportBtn" title="Download the current arrangement as cards.json">⬇ Export cards.json</button>
+    <button class="reset" id="resetBtn">Reset board</button>
+  </div>
+</header>
+
+<div class="nextup">
+  <h2>Recommended next up</h2>
+  <ol>
+    <li><b>Pin the vanilla-suppress leak.</b> The one live defect after 0.2.7: a class of vanilla items still isn't being suppressed. Datamine which suppression class leaks vs the coverage gate. <span>(the only broken thing shipping to players)</span></li>
+    <li><b>Hand MopWater the boss-name description layer.</b> Fill <code>_BOSS_NAMES</code> at gen_data.py:574 (join BOSS_REWARD_DEFEAT ∘ BOSS_HEALTHBARS in desc_sources.py); GitHub issue #3. <span>(first contributor task)</span></li>
+    <li><b>Block the main-menu / Connection screen.</b> Input blocking is wired everywhere except the game main menu (the screen that populates apconfig.json), which still leaks keys — the last residual on connect-overlay. <span>(P2)</span></li>
+    <li><b>Verify goal-send.</b> Implemented; just needs cargo test + gen-test + a multiworld smoke run to confirm the slot completes. <span>(P2)</span></li>
+    <li><b>One in-game verification pass.</b> completion-scaling and client-qol (no_equip_load) are built but unplayed — confirm on hardware together. <span>(P2/P3)</span></li>
+    <li><b>Delete the obsolete weapon-slot guard.</b> The SHOP_CTD was exonerated; remove weapon_shop_slots.py + its test, gen-sweep to confirm. <span>(P3, quick)</span></li>
+  </ol>
+</div>
+
+<div class="board" id="board"></div>
+<footer>Generated from cards.json by sync-board.ps1. Drag to rearrange locally, then <b>Export cards.json</b> and re-run the sync to push. Issue #, @assignee and 💬 comments are pulled from GitHub on each sync.</footer>
+
+<script>
+const COLUMNS = [
+  {id:"blocked",  name:"Blocked / Broken", color:"var(--col-blocked)"},
+  {id:"ready",    name:"Ready to Build & Test", color:"var(--col-ready)"},
+  {id:"progress", name:"In Progress", color:"var(--col-progress)"},
+  {id:"backlog",  name:"Backlog (Spec / Idea)", color:"var(--col-backlog)"},
+  {id:"done",     name:"Done / Verified", color:"var(--col-done)"},
+];
+
+const CARDS = __CARDS_JSON__;
+
+const PRIORITIES = ["P0","P1","P2","P3"];
+const STORE_KEY = "er_kanban_v1";
+
+// load saved moves
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORE_KEY)||"{}"); } catch(e){}
+CARDS.forEach(c => { if(saved[c.id]) c.col = saved[c.id]; });
+
+const cats = [...new Set(CARDS.map(c=>c.cat))].sort();
+let activeCats = new Set(cats);
+let activePris = new Set(PRIORITIES);
+
+const board = document.getElementById("board");
+const catWrap = document.getElementById("catFilters");
+const priWrap = document.getElementById("priFilters");
+
+cats.forEach(cat=>{
+  const el=document.createElement("span");
+  el.className="chip active"; el.textContent=cat;
+  el.onclick=()=>{ toggle(activeCats,cat,el); render(); };
+  catWrap.appendChild(el);
+});
+PRIORITIES.forEach(p=>{
+  const el=document.createElement("span");
+  el.className="chip pri active pri-"+p; el.textContent=p;
+  el.style.background=getComputedStyle(document.documentElement).getPropertyValue("--"+p.toLowerCase());
+  el.onclick=()=>{ toggle(activePris,p,el); render(); };
+  priWrap.appendChild(el);
+});
+
+function toggle(set,val,el){
+  if(set.has(val)){set.delete(val);el.classList.remove("active");}
+  else{set.add(val);el.classList.add("active");}
+}
+
+function visible(c){ return activeCats.has(c.cat) && activePris.has(c.pri); }
+const priRank = p => PRIORITIES.indexOf(p);
+
+function render(){
+  board.innerHTML="";
+  COLUMNS.forEach(col=>{
+    const colCards = CARDS.filter(c=>c.col===col.id && visible(c))
+                          .sort((a,b)=>priRank(a.pri)-priRank(b.pri));
+    const totalInCol = CARDS.filter(c=>c.col===col.id).length;
+    const colEl=document.createElement("div");
+    colEl.className="col";
+    colEl.innerHTML=`<div class="col-head"><span class="dot" style="background:${col.color}"></span>
+      <h3>${col.name}</h3><span class="count">${colCards.length}/${totalInCol}</span></div>`;
+    const body=document.createElement("div");
+    body.className="col-body"; body.dataset.col=col.id;
+    body.addEventListener("dragover",e=>{e.preventDefault();body.classList.add("drag-over");});
+    body.addEventListener("dragleave",()=>body.classList.remove("drag-over"));
+    body.addEventListener("drop",e=>{
+      e.preventDefault();body.classList.remove("drag-over");
+      const id=e.dataTransfer.getData("text/plain");
+      const card=CARDS.find(c=>c.id===id);
+      if(card){ card.col=col.id; saved[id]=col.id;
+        localStorage.setItem(STORE_KEY,JSON.stringify(saved)); render(); }
+    });
+    if(colCards.length===0){
+      const e=document.createElement("div");e.className="empty";e.textContent="—";body.appendChild(e);
+    }
+    colCards.forEach(c=>body.appendChild(cardEl(c)));
+    colEl.appendChild(body);
+    board.appendChild(colEl);
+  });
+}
+
+function cardEl(c){
+  const el=document.createElement("div");
+  el.className="card"; el.draggable=true;
+  const bits=[];
+  if(c.issue) bits.push(`<span class="issue">#${c.issue}</span>`);
+  if(c.assignee) bits.push(`<span class="assignee">@${c.assignee}</span>`);
+  if(c.comments>0) bits.push(`<span class="cmts">💬 ${c.comments}</span>`);
+  const meta = bits.length ? `<span class="meta">${bits.join("")}</span>` : "";
+  el.innerHTML=`<div class="top"><span class="pri-badge pri-${c.pri}">${c.pri}</span>
+    <span class="cat">${c.cat}</span>${meta}</div>
+    <div class="title">${c.title}</div><div class="desc">${c.desc}</div>`;
+  el.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",c.id);el.classList.add("dragging");});
+    el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+  return el;
+}
+
+// Export the CURRENT arrangement (drag moves included) back to the cards.json schema.
+document.getElementById("exportBtn").onclick=()=>{
+  const data=CARDS.map(c=>({
+    id:c.id, col:c.col, pri:c.pri, cat:c.cat, title:c.title, desc:c.desc,
+    issue:(c.issue??null), assignee:(c.assignee??null), comments:(c.comments??0), activeCol:(c.activeCol??null)
+  }));
+  const blob=new Blob([JSON.stringify(data,null,2)+"\n"],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="cards.json"; document.body.appendChild(a); a.click();
+  a.remove(); URL.revokeObjectURL(a.href);
+};
+
+document.getElementById("resetBtn").onclick=()=>{
+  localStorage.removeItem(STORE_KEY); saved={}; location.reload();
+};
+
+render();
+</script>
+</body>
+</html>

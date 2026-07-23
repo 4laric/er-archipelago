@@ -1,0 +1,382 @@
+{
+  "vanilla-suppress-class": {
+    "done": false,
+    "issue": 97
+  },
+  "weapon-shop-guard": {
+    "done": false,
+    "issue": 98
+  },
+  "keyitem-flags": {
+    "done": true,
+    "issue": 122
+  },
+  "dlc-church-grace": {
+    "done": true,
+    "issue": 123
+  },
+  "natural-progression-mode": {
+    "done": false,
+    "issue": 99
+  },
+  "boss-name-desc": {
+    "done": false,
+    "issue": 96
+  },
+  "auto-equip": {
+    "done": false,
+    "issue": 100
+  },
+  "region-spine": {
+    "done": true,
+    "issue": 124
+  },
+  "legible-locks": {
+    "done": true,
+    "issue": 125
+  },
+  "boss-locks": {
+    "done": true,
+    "issue": 126
+  },
+  "slotdata-extract": {
+    "done": true,
+    "issue": 127
+  },
+  "completion-scaling": {
+    "done": false,
+    "issue": 101
+  },
+  "goal-send": {
+    "done": false,
+    "issue": 102
+  },
+  "connect-overlay": {
+    "done": false,
+    "issue": 103
+  },
+  "nr-dlc-ridealong": {
+    "done": true,
+    "issue": 128
+  },
+  "upgrade-replay": {
+    "done": true,
+    "issue": 129
+  },
+  "dlc-only-leak": {
+    "done": true,
+    "issue": 130
+  },
+  "natural-key-triggers": {
+    "done": true,
+    "issue": 131
+  },
+  "gelmir-rebucket": {
+    "done": true,
+    "issue": 132
+  },
+  "v02-tag": {
+    "done": true,
+    "issue": 133
+  },
+  "shop-rows-wire": {
+    "done": true,
+    "issue": 134
+  },
+  "validation-debt": {
+    "done": true,
+    "issue": 135
+  },
+  "frontdoor-latch": {
+    "done": true,
+    "issue": 136
+  },
+  "option-slim": {
+    "done": true,
+    "issue": 137
+  },
+  "deathlink-keeprunes": {
+    "done": true,
+    "issue": 138
+  },
+  "curated-fill": {
+    "done": true,
+    "issue": 139
+  },
+  "filler-curation": {
+    "done": true,
+    "issue": 140
+  },
+  "test-coverage": {
+    "done": true,
+    "issue": 141
+  },
+  "boss-scaling": {
+    "done": true,
+    "issue": 142
+  },
+  "dlc-area-ids": {
+    "done": true,
+    "issue": 143
+  },
+  "client-qol": {
+    "done": false,
+    "issue": 104
+  },
+  "hard-mode-scaling": {
+    "done": false,
+    "issue": 108
+  },
+  "placeholder-reward-name": {
+    "done": false,
+    "issue": 109
+  },
+  "capstone": {
+    "done": true,
+    "issue": 144
+  },
+  "nr-chain": {
+    "done": false,
+    "issue": 105
+  },
+  "nex3-pr": {
+    "done": false,
+    "issue": 106
+  },
+  "fuzz-backlog": {
+    "done": false,
+    "issue": 107
+  },
+  "curated-fill-spec": {
+    "done": false,
+    "issue": 110
+  },
+  "scadu-global": {
+    "done": false,
+    "issue": 111
+  },
+  "oops-legacy": {
+    "done": false,
+    "issue": 112
+  },
+  "start-class": {
+    "done": false,
+    "issue": 113
+  },
+  "traps": {
+    "done": false,
+    "issue": 114
+  },
+  "fogwall": {
+    "done": false,
+    "issue": 115
+  },
+  "parry-deathlink": {
+    "done": false,
+    "issue": 116
+  },
+  "control-rando": {
+    "done": false,
+    "issue": 117
+  },
+  "dlc-gear": {
+    "done": false,
+    "issue": 118
+  },
+  "great-runes-present": {
+    "done": false,
+    "issue": 119
+  },
+  "nightreign": {
+    "done": false,
+    "issue": 120
+  },
+  "ds1-recon": {
+    "done": false,
+    "issue": 121
+  },
+  "progressive-flask-both-axes": {
+    "done": false,
+    "issue": 190
+  },
+  "rune-shop-arbitrage": {
+    "done": false,
+    "issue": 189
+  },
+  "boss-reward-datamine": {
+    "done": true,
+    "issue": 145
+  },
+  "hippo-region": {
+    "done": true,
+    "issue": 146
+  },
+  "grace-ground-playarea": {
+    "done": true,
+    "issue": 147
+  },
+  "play-region-two-id": {
+    "done": true,
+    "issue": 148
+  },
+  "coverage-gate-live": {
+    "done": true,
+    "issue": 149
+  },
+  "vanilla-leak": {
+    "done": true,
+    "issue": 150
+  },
+  "bedrock-interop": {
+    "done": true,
+    "issue": 151
+  },
+  "reconciler-pacing": {
+    "done": true,
+    "issue": 152
+  },
+  "start-anchor-weighted": {
+    "done": true,
+    "issue": 153
+  },
+  "kick-ingame": {
+    "done": true,
+    "issue": 154
+  },
+  "fmq-mistag": {
+    "done": true,
+    "issue": 155
+  },
+  "openflag-collision": {
+    "done": true,
+    "issue": 156
+  },
+  "grace-reconcile": {
+    "done": true,
+    "issue": 157
+  },
+  "vanilla-collected": {
+    "done": true,
+    "issue": 158
+  },
+  "reconnect-panic": {
+    "done": true,
+    "issue": 159
+  },
+  "underground-82001": {
+    "done": true,
+    "issue": 160
+  },
+  "nr-cave-graces": {
+    "done": true,
+    "issue": 161
+  },
+  "bedrock-playtest": {
+    "done": true,
+    "issue": 162
+  },
+  "boss-reward-lots": {
+    "done": true,
+    "issue": 163
+  },
+  "check-lots-ingame": {
+    "done": true,
+    "issue": 164
+  },
+  "repo-cloneable": {
+    "done": true,
+    "issue": 165
+  },
+  "shipped-yaml": {
+    "done": true,
+    "issue": 166
+  },
+  "both-ci": {
+    "done": true,
+    "issue": 167
+  },
+  "lod-snap": {
+    "done": true,
+    "issue": 168
+  },
+  "shop-gate": {
+    "done": true,
+    "issue": 169
+  },
+  "guessed-region": {
+    "done": true,
+    "issue": 170
+  },
+  "radahn": {
+    "done": true,
+    "issue": 171
+  },
+  "playtest-cleared": {
+    "done": true,
+    "issue": 172
+  },
+  "check-reg": {
+    "done": true,
+    "issue": 173
+  },
+  "hub-reroot": {
+    "done": true,
+    "issue": 174
+  },
+  "pure-runtime": {
+    "done": true,
+    "issue": 175
+  },
+  "baker-retired": {
+    "done": true,
+    "issue": 176
+  },
+  "test-tiers": {
+    "done": true,
+    "issue": 177
+  },
+  "contract": {
+    "done": true,
+    "issue": 178
+  },
+  "dlc-pass": {
+    "done": true,
+    "issue": 179
+  },
+  "flagpoll-defaults": {
+    "done": true,
+    "issue": 180
+  },
+  "shop-rows-derived": {
+    "done": true,
+    "issue": 181
+  },
+  "oracles": {
+    "done": true,
+    "issue": 182
+  },
+  "arena-grace": {
+    "done": true,
+    "issue": 183
+  },
+  "resolved-batch": {
+    "done": true,
+    "issue": 184
+  },
+  "pool-reshape": {
+    "done": true,
+    "issue": 185
+  },
+  "upgrade-curve": {
+    "done": true,
+    "issue": 186
+  },
+  "options-wizard": {
+    "done": true,
+    "issue": 187
+  },
+  "linux-client": {
+    "done": true,
+    "issue": 188
+  }
+}
