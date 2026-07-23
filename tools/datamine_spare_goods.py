@@ -145,18 +145,26 @@ def main():
               file=sys.stderr)
         return 1
 
-    # LEARN the placeholder strings instead of guessing them. The 64 known-good spares carry NO real
-    # name (shops.py: "[ERROR] placeholder name, no real name to clobber"), yet the FMG has an ENTRY for
-    # them -- so whatever text those rows hold IS a placeholder token. Any row whose text is one of those
-    # tokens (or a static null) counts as UNNAMED. Self-calibrating: no hardcoded "[ERROR]" that could
-    # drift with a witchy/locale change.
+    # LEARN the placeholder strings instead of guessing them -- two independent signals, unioned:
+    #  (1) KNOWN-GOOD: the 64 hand-listed spares carry NO real name (shops.py: "[ERROR] placeholder
+    #      name, no real name to clobber") yet the FMG has an ENTRY for them, so whatever text they
+    #      hold IS a placeholder token.
+    #  (2) FREQUENCY: a real good's name is ~unique, but a dummy string ("[ERROR]" and any siblings) is
+    #      shared across hundreds of unused rows. So any text appearing on >= FREQ_MIN rows is a
+    #      placeholder -- this catches dummy VARIANTS the known-good set never happened to use, which is
+    #      what capped the first pass at 82 (known-good only taught it one token).
+    # A row whose text is any learned placeholder (or a static null) counts as UNNAMED. Self-calibrating:
+    # no hardcoded "[ERROR]" that drifts with a witchy/locale change.
+    FREQ_MIN = 8                                          # no real ER goods name repeats this often
+    from collections import Counter
+    freq = Counter(texts.values())
     placeholders = set(_NULLS)
-    for g in _KNOWN_GOOD:
-        if g in texts:
-            placeholders.add(texts[g])
+    placeholders |= {t for t, n in freq.items() if n >= FREQ_MIN}
+    placeholders |= {texts[g] for g in _KNOWN_GOOD if g in texts}     # belt-and-suspenders
     named = {g for g, t in texts.items() if t not in placeholders}
-    print(f"learned {len(placeholders) - len(_NULLS)} placeholder token(s) from known-good rows: "
-          f"{sorted(p for p in placeholders if p not in _NULLS)[:8]}", file=sys.stderr)
+    _learned = sorted(((freq[p], p) for p in placeholders if p not in _NULLS), reverse=True)
+    print(f"learned {len(_learned)} placeholder token(s) [text xN]: "
+          + ", ".join(f"{p!r} x{n}" for n, p in _learned[:8]), file=sys.stderr)
 
     referenced = _referenced(pdir)
 
@@ -192,6 +200,14 @@ def main():
             f.write(f"{g}\n")
     print(f"wrote {OUT}: {len(spares)} spare goods rows "
           f"(exists={len(exists)} named={len(named)} referenced={len(referenced)})")
+
+    # EXCLUSION BREAKDOWN over the in-range existing rows -- shows whether NAME or REFERENCE is the
+    # limiting filter if the pool is still short of the ~332 target.
+    from collections import Counter as _C
+    _reasons = _C(_cut_reason(g) or "SPARE"
+                  for g in exists if MIN_ID <= g <= MAX_ID and g != PLACEHOLDER)
+    print("in-range breakdown: " + ", ".join(f"{k}={v}" for k, v in _reasons.most_common()),
+          file=sys.stderr)
 
     # SELF-DIAGNOSTIC: every known-good hand-listed spare this pool would drop is a scan bug -- say why.
     missing = [(g, _cut_reason(g)) for g in _KNOWN_GOOD if g not in set(spares)]
