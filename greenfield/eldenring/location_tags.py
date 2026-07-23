@@ -560,7 +560,7 @@ LOCATION_TAGS = {
     7770801: ['Boss'],
     7770802: ['Boss'],
     7770803: ['Boss'],
-    7770804: ['Boss'],
+    7770804: ['Boss', 'Legendary'],
     7770805: ['Boss', 'Legendary'],
     7770806: ['Boss'],
     7770807: ['Boss'],
@@ -587,6 +587,7 @@ LOCATION_TAGS = {
     7771230: ['Legendary'],
     7771245: ['Seedtree'],
     7771249: ['Seedtree'],
+    7771332: ['Legendary'],
     7771375: ['Legendary'],
     7771408: ['Boss'],
     7771411: ['Seedtree'],
@@ -886,7 +887,7 @@ LOCATION_TAGS = {
     7774840: ['Shop', 'ShopNonSpell'],
 }
 
-TAG_COUNTS = {'Basin': 15, 'Boss': 94, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 14, 'Legendary': 91, 'MajorBoss': 37, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 527, 'ShopNonSpell': 457, 'ShopSlot': 10}
+TAG_COUNTS = {'Basin': 15, 'Boss': 94, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 14, 'Legendary': 93, 'MajorBoss': 37, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 527, 'ShopNonSpell': 457, 'ShopSlot': 10}
 
 # Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.
 # A guessed region may not carry progression: see gen_data._region_is_derived().
@@ -903,7 +904,7 @@ ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770868, 7770869, 77708
 # Surface-tagged checks HAND-EXCLUDED from the progression surface (_SURFACE_EXCLUDE_FLAGS
 # in gen_data; Alaric's call). They stay ordinary checks but never host this world's
 # progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.
-SURFACE_EXCLUDE_APS = frozenset([7771881, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7774767, 7774790, 7774791])
+SURFACE_EXCLUDE_APS = frozenset([7771881, 7771911, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7774767, 7774790, 7774791])
 
 # Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an
 # unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a
@@ -923,4 +924,4 @@ SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025,
 SHOP_SLOT_PINS = {1000: 7770199, 1001: 7770114, 1005: 7770081, 1006: 7770096, 1007: 7770073, 1008: 7770127, 1009: 7770090, 1018: 7770516, 1019: 7770557, 1022: 7770623}
 SHOP_SLOT_SKIPS = {1015: 'no start-stocked row: all 49 of its rows are release-gated', 6000: 'no start-stocked row: all 17 of its rows are release-gated', 16004: 'no start-stocked row: all 18 of its rows are release-gated'}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:26348c98f165777f509994f773446b168a5866fd5aca169aa860395b8e46756b', 'module': 'location_tags.py', 'body_sha256': 'sha256:e6c940ba0694cde8397e2d2bb62544bfb61062d045afae98aaf5ed968dc9decb'}
+_GEN_STAMP = {'inputs_hash': 'sha256:4149929f004ddf1bffa2b7d890e1a6395b9ce88249e9132285ce9cb8d7c5ab8e', 'module': 'location_tags.py', 'body_sha256': 'sha256:7283ea9328e5a89eeb56ebefc25682d37f8cb32071032e16e31cdef796042fde'}
