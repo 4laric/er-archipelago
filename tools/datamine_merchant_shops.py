@@ -280,6 +280,11 @@ def main():
     ap.add_argument("--maps", nargs="*", help="restrict to these map ids (e.g. m60_40_54)")
     ap.add_argument("--probe", action="store_true",
                     help="dump extracted ranges for anchor/ filtered ESDs and exit (no tsv written)")
+    ap.add_argument("--audit", type=int, metavar="ROWID",
+                    help="diagnostic: list every unpacked talk binder (coverage) and every ESD whose "
+                         "RAW bytes contain this ShopLineupParam id as an int32 -- even if not a clean "
+                         "0x82 literal pair. Distinguishes 'binder not unpacked' from 'range is "
+                         "parameterized, not a literal'. Writes nothing.")
     args = ap.parse_args()
     map_filter = set(args.maps) if args.maps else None
 
@@ -287,6 +292,36 @@ def main():
         sys.exit(f"FATAL: {TALK} not found. Produce the ESD unpack first (see module docstring): copy "
                  f"script/talk/*.talkesdbnd.dcx into elden_ring_artifacts/talk/ and run WitchyBND on "
                  f"them. Nothing written.")
+
+    if args.audit is not None:
+        want = struct.pack("<i", args.audit)
+        binders = sorted(d for d in os.listdir(TALK) if os.path.isdir(os.path.join(TALK, d)))
+        print(f"# AUDIT for ShopLineupParam id {args.audit} (block {args.audit // 100})")
+        print(f"# {len(binders)} talk binder(s) unpacked: {binders}")
+        hits = []
+        for name in binders:
+            bdir = os.path.join(TALK, name)
+            for fn in sorted(os.listdir(bdir)):
+                if not _TALKFILE_RE.match(fn):
+                    continue
+                try:
+                    raw = open(os.path.join(bdir, fn), "rb").read()
+                except OSError:
+                    continue
+                if want in raw:
+                    off = raw.find(want)
+                    wrapped = off >= 1 and raw[off - 1] == 0x82   # is it a 0x82 int literal?
+                    hits.append((name, fn, off, wrapped))
+        if hits:
+            print(f"# {len(hits)} ESD(s) contain {args.audit} as a raw int32:")
+            for (name, fn, off, wrapped) in hits:
+                tag = "(0x82 literal)" if wrapped else "(NOT a 0x82 literal -- data table / computed)"
+                print(f"    {name}/{fn}  off={off}  {tag}")
+        else:
+            print(f"# {args.audit} appears in NO unpacked ESD as an int32. Either its merchant's talk "
+                  f"binder was not unpacked, or the shop range is computed (parameterized) rather than a "
+                  f"literal -- in which case the range must come from NpcParam / a talk-group param.")
+        return 0
 
     shop_ids = load_shop_ids()
     npc_names = load_npc_names()
