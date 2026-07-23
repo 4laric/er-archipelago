@@ -722,6 +722,18 @@ const CARDS = [
     "activeCol": null
   },
   {
+    "id": "somber-bell-1-presence",
+    "col": "ready",
+    "pri": "P3",
+    "cat": "Pool",
+    "title": "Add Somberstone Bell Bearing [1] to the presence floor",
+    "desc": "🔧 The presence floor (features/presence_floor.py) guarantees 8 of 9 bell bearings but DROPS Somberstone Miner's Bell Bearing [1] — its roster name doesn't resolve in ITEM_CATALOG (the looted [2]-[5] do). CONFIRMED DROP: the Fallingstar Beast at the end of Sellia Crystal Tunnel (m32_08, boss-defeat entry 32080800 in boss_healthbars.py) — a BOSS REWARD, the exact class boss_reward_lots.py already datamines. So [1] fails FMG-name matching (its real GoodsName likely differs from the synthesized 'Somberstone Miner's Bell Bearing [1]', or is the un-numbered first-tier name), but its goods FullID IS derivable as boss 32080800's reward lot. Task: pull that reward goods id via BOSS_REWARD_DEFEAT / the reward lot, then either fix the roster string to the real FMG name OR teach presence_floor to inject a roster item by explicit goods FullID (not just by name). Flip the test pin in test_gf_presence_floor (currently asserts UNRESOLVED == [\"Somberstone Miner's Bell Bearing [1]\"]). Verify the injected [1] grants + unlocks its somber tier in-game.",
+    "issue": null,
+    "assignee": null,
+    "comments": 0,
+    "activeCol": null
+  },
+  {
     "id": "boss-reward-datamine",
     "col": "done",
     "pri": "P2",
