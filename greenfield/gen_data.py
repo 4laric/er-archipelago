@@ -575,6 +575,7 @@ _BOSS_NAMES    = {}                                                # 2. TODO dro
 _SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
 _NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. per-check nearest grace (Windows)
 _TILE_GRACE    = _load_tile_str_tsv("tile_grace.tsv")              # 4b. tile -> grace name (Windows)
+_MAP_NAMES     = _load_tile_str_tsv("map_names.tsv")               # 5.  interior tile -> dungeon name (Windows)
 
 # Grace DISPLAY NAME -> {AP regions it lives in}. Feeds the desc_sources cross-region guard so a
 # check is never labelled "near <grace>" / "around <grace>" for a grace in a completely different
@@ -608,7 +609,7 @@ def _build_grace_region():
 _GRACE_REGION = _build_grace_region()
 print(f"location desc: overrides={len(_DESC_OVERRIDE)} spot_en={len(_SPOT_EN)} "
       f"nearest_grace={len(_NEAREST_GRACE)} tile_grace={len(_TILE_GRACE)} "
-      f"grace_region={len(_GRACE_REGION)}")
+      f"map_names={len(_MAP_NAMES)} grace_region={len(_GRACE_REGION)}")
 
 
 def _gt_full_map(_mid):
@@ -2358,7 +2359,7 @@ for r in rows:
     _desc=_desc_sources.describe(flag, r.get('method',''), _mtile,
         is_boss=('Boss' in _t), is_remembrance=('Remembrance' in _t),
         overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN,
-        nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE,
+        nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE, map_names=_MAP_NAMES,
         check_region=reg, grace_region=_GRACE_REGION, hub_region=HUB)
     _base=(f"{reg} :: {item} - {_desc}" if _desc else f"{reg} :: {item}")
     _name_pending.append((reg, _base, apid, flag))
