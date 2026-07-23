@@ -1926,6 +1926,70 @@ def _cookbook_region(_flag):
             return _rr
     return None
 
+# ---- MERCHANT-ESD SHOP REGION (greenfield/merchant_shops.tsv; tools/datamine_merchant_shops.py) -----
+# Ground-truth fix for the "block = ONE merchant" region bug (datamine_shop_rows.py:40-47) that mis-
+# tagged the Altus Hermit Merchant's stock (block 1007, rows 100725+) as Liurnia -> sealed out of any
+# roll that drops Liurnia even though the player reaches him in kept Altus. merchant_shops.tsv says which
+# PHYSICAL merchant opens each shop row (from its talk ESD's OpenRegularShop) and on which map (its MSB
+# placement). A row's HOME region is its physical merchant -- map tile != the HUB tile m11_10, which is
+# the Twin-Maiden bell RE-SELL (release-gated, not the merchant's home). Precedence in region_of:
+# FLAG_REGION_OVERRIDE (hand pins) > this (ESD ground truth) > SHOP_ROW_REGION (legacy block inheritance).
+#
+# SAFE SCOPE (v1): re-pin ONLY flags whose physical merchant(s) resolve to EXACTLY ONE AP region -- the
+# clean bug class (a split block's out-of-region half, like the Hermit at m60_43_53 = grace 76311
+# "Hermit Merchant's Shack", Altus). Flags with MULTIPLE physical regions (a merchant duplicated across
+# regions) or ONLY a HUB instance (Twin-Maiden base stock, e.g. Cipher Rings) are LEFT to the legacy
+# path: assigning them needs multi-region reachability the region-lock world can't yet express, so v1
+# does not touch them (no new risk, and the hand pins still win via P0).
+_HUB_TILE = "m11_10"
+def _build_merchant_shop_region():
+    _mpath = os.path.join(HERE, "merchant_shops.tsv")
+    _spath = os.path.join(HERE, "shop_rows.tsv")
+    if not (os.path.isfile(_mpath) and os.path.isfile(_spath)):
+        return {}
+    _row2flag = {}                                   # shop row id -> stock flag (shop_rows col0/col5)
+    with open(_spath, encoding="utf-8") as _f:
+        for _ln in _f:
+            if _ln.startswith("#") or _ln.startswith("row_id"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) >= 6:
+                try:
+                    _row2flag[int(_p[0])] = int(_p[5])
+                except ValueError:
+                    pass
+    _row2tiles = {}                                  # shop row id -> physical map tiles (HUB excluded)
+    with open(_mpath, encoding="utf-8-sig") as _f:
+        for _ln in _f:
+            if not _ln.strip() or _ln.lstrip().startswith("#") or _ln.startswith("row_id"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) < 5:
+                continue
+            try:
+                _rid = int(_p[0])
+            except ValueError:
+                continue
+            _mp = _p[4].strip()
+            if _mp and _mp != _HUB_TILE:
+                _row2tiles.setdefault(_rid, set()).add(_mp)
+    _flag2regs = {}                                  # stock flag -> {AP regions of its physical tiles}
+    for _rid, _tiles in _row2tiles.items():
+        _fl = _row2flag.get(_rid)
+        if _fl is None:
+            continue
+        for _t in _tiles:
+            _rr = _gt_region(_t)                     # None for coarse/unresolvable tiles -> skipped
+            if _rr:
+                _flag2regs.setdefault(_fl, set()).add(_rr)
+    _out = {_fl: next(iter(_rs)) for _fl, _rs in _flag2regs.items() if len(_rs) == 1}
+    _multi = sum(1 for _rs in _flag2regs.values() if len(_rs) > 1)
+    print(f"merchant-esd regions: {len(_out)} shop flag(s) re-pinned to their physical merchant's region "
+          f"({_multi} multi-region flag(s) left to the legacy path this pass)")
+    return _out
+MERCHANT_SHOP_REGION = _build_merchant_shop_region()
+
+
 def region_of(r):
     """Corrected region: per-flag override (highest priority) -> curated dungeon override -> EMEVD/
     common-event audit for emevd+global rows -> raw region_of for everything else."""
@@ -1941,6 +2005,11 @@ def region_of(r):
         return GESTURE_REGION[_ovfl]
     if _ovfl is not None and _ovfl in FLAG_REGION_OVERRIDE:
         return FLAG_REGION_OVERRIDE[_ovfl]
+    # MERCHANT-ESD GROUND TRUTH (merchant_shops.tsv): the physical merchant's region, from its talk ESD +
+    # MSB placement. Beats SHOP_ROW_REGION's block-inheritance guess (which mis-tagged split blocks like
+    # the Altus Hermit). v1 carries only single-physical-region flags, so this is a strict correction.
+    if _ovfl is not None and r.get('flag_source') == 'shop' and _ovfl in MERCHANT_SHOP_REGION:
+        return MERCHANT_SHOP_REGION[_ovfl]
     # SHOP-ROW GROUND TRUTH: a check whose ONLY source is a merchant (flag_source == 'shop') takes
     # the merchant block's region (SHOP_ROW_REGION, from shop_rows.tsv through REGION_MAP). Beats
     # every scan path below: the emevd nearest-neighbour tile and the shop_multi HUB default were
