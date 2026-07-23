@@ -1570,6 +1570,11 @@ FLAG_REGION_OVERRIDE = {
     170480: "Altus",                           #   Prophet Trousers (row 100740, 1000)
     170490: "Altus",                           #   Prophet Robe (row 100741, 1500)
     69770:  "Altus",                           #   Note: Below the Capital (row 100743, 800)
+    170360: "Altus",                           #   Rune Arc (row 100728) -- confirmed by the ESD datamine:
+                                               #   talk 801196000 OpenRegularShop(100725,100749) on tile
+                                               #   m60_43_53 (grace 76311 "Hermit Merchant's Shack", Altus);
+                                               #   the other Rune Arc 100714/170140 is the sibling Liurnia
+                                               #   merchant (talk 801186000, m60_36_49, Bellum Church).
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
