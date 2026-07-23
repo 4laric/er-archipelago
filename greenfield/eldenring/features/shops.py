@@ -39,24 +39,34 @@ try:
 except Exception:  # not yet generated
     SHOP_ROW_FLAGS, SHOP_ROW_IDS, SHOP_LOC_REGION, SHOP_PREVIEW_GOODS = {}, {}, {}, {}
 
+try:
+    from ..shop_data import SPARE_PREVIEW_GOODS      # datamined pool (tools/datamine_spare_goods.py)
+except Exception:                                   # predates the spare-goods emit
+    SPARE_PREVIEW_GOODS = ()
+
 
 # ER FullID category nibble for GOODS (shopPreviewGoods values are FullIDs; see module docstring).
 _GOODS_NIBBLE = 0x40000000
 
-# Dedicated spare EquipParamGoods rows for REGION-LOCK shop previews. Each is a row that EXISTS
-# (so the client can write its FMG/icon), has the [ERROR] placeholder name (no real name to clobber),
-# and is referenced by NO lot / shop / recipe -- the exact AP_PLACEHOLDER_GOODS (8852) criterion,
-# and clear of 8852 and the low/system band. Derived from EquipParamGoods.csv + GoodsName.fmg +
-# ShopLineupParam*/ItemLotParam* on the pinned artifacts (2026-07-20 verification: 332 spare rows
-# total). 64 rows >> the ~54 max region locks, so every lock name gets its own distinct row -- a
-# lock's preview never shares a row with a real good OR with another lock.
-_LOCK_PREVIEW_SPARE_GOODS = (
+# Dedicated spare EquipParamGoods rows for REGION-LOCK and FOREIGN-item shop previews. Each is a row
+# that EXISTS (so the client can write its FMG/icon), has the [ERROR] placeholder name (no real name to
+# clobber), and is referenced by NO lot / shop / recipe -- the exact AP_PLACEHOLDER_GOODS (8852)
+# criterion, above the 8852 low/system floor. The pool is DATAMINED (tools/datamine_spare_goods.py ->
+# greenfield/spare_goods.tsv -> shop_data.SPARE_PREVIEW_GOODS); gen_data emits it so this list tracks
+# the artifacts instead of drifting. NOTE the usable pool is ~82 rows, not the 332 an earlier comment
+# claimed -- 332 was the raw all-range count; only ~82 sit above the 8852 floor (the rest are in the
+# unusable low/system band). 82 > the ~54 max region locks, so every LOCK gets its own distinct row;
+# FOREIGN items draw from the remainder and, in a busy multiworld, may exceed it and share a row (still
+# flowered, just a shared name -- shops.py logs that overflow). The hardcoded tuple below is the
+# FALLBACK for a tree with no regenerated shop_data yet.
+_LOCK_PREVIEW_SPARE_GOODS_FALLBACK = (
     9314, 9315, 9316, 9317, 9318, 9319, 9332, 9333, 9334, 9335, 9336, 9337, 9338, 9339,
     9349, 9350, 9351, 9352, 9353, 9354, 9355, 9356, 9357, 9358, 9359, 9366, 9367, 9368,
     9369, 9370, 9394, 9395, 9396, 9397, 9398, 9399, 9404, 9405, 9406, 9407, 9408, 9409,
     9410, 9424, 9425, 9426, 9427, 9428, 9429, 9430, 9442, 9443, 9444, 9445, 9446, 9447,
     9448, 9449, 9450, 50200, 50201, 50202, 50203, 51760,
 )
+_LOCK_PREVIEW_SPARE_GOODS = tuple(SPARE_PREVIEW_GOODS) or _LOCK_PREVIEW_SPARE_GOODS_FALLBACK
 
 
 class MerchantBellLogic(Choice):
