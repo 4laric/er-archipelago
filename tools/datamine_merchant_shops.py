@@ -40,13 +40,16 @@ PRODUCE THE ESD UNPACK (once, on Windows):
     WitchyBND.exe elden_ring_artifacts\\talk\\*.talkesdbnd.dcx      (same tool that made the -msb-dcx dumps)
   -> elden_ring_artifacts\\talk\\m*-talkesdbnd-dcx\\t*.esd[.xml]
 
-ESD FORMAT IS SELF-CALIBRATING -- we do NOT hard-code the OpenRegularShop command id (unknowable until
-the dump exists). We extract every integer LITERAL from each ESD (works on WitchyBND xml OR raw .esd
-binary), then take consecutive literal pairs (a, b) with a <= b, both real ShopLineupParam ids in the
-merchant band [SHOP_LO, SHOP_HI], as candidate shop ranges. Anchors validate it: Kale's ESD must yield a
-range at 100000; the Twin Maidens' must cover 101800; row 100725 (Perfume Bottle) must resolve to an
-Altus tile (agreeing with the 66750 hand pin). Run with --probe first to eyeball the extraction before
-trusting the tsv.
+ESD FORMAT (confirmed from a real dump, t351006000.esd, 2026-07-23): raw binary EzState ("fsSL"). A
+command argument is an int-literal expression `0x82 <int32 LE> 0xA1`. `OpenRegularShop(begin, end)`
+stores its two args as ADJACENT literal expressions: `82 <begin> a1 82 <end> a1`. So a shop range is
+that exact 12-byte signature with BOTH ints in the ShopLineupParam band [SHOP_LO, SHOP_HI]. This is
+precise, not a guess: in the sample it matched the ONE real command (100350,100399) and rejected the
+~85 in-band integers sitting in the ESD's data tables (values stepping by 16/32, never wrapped in a
+0x82..a1 literal) that the old consecutive-any-integer heuristic wrongly paired into a dozen phantom
+ranges. If a future WitchyBND serializes ESD to XML/text instead, we fall back to a regex for the same
+literal pattern. Run with --probe first to eyeball the extraction; anchors (Twin Maidens cover 101800,
+the Altus Hermit block 1007 lands on an m60_4x tile) validate it before the tsv is trusted.
 
 USAGE (Windows, artifacts present):
     python tools/datamine_merchant_shops.py --probe          # dump what it extracts on anchor ESDs
@@ -74,7 +77,10 @@ OUT = os.path.join(REPO, "greenfield", "merchant_shops.tsv")
 # ESD opens live here; other shop menus (enhance/sell/recipe) index other id spaces and simply won't
 # pass the membership filter. Kept wide + validated by real-id membership rather than tightly guessed.
 SHOP_LO, SHOP_HI = 100000, 103000
-MAX_RANGE_SPAN = 400          # a single OpenRegularShop range never spans a whole block-hundreds gap
+# A single OpenRegularShop range can span a full merchant block or two (the Twin-Maiden re-sell spans
+# several); the precise 0x82..a1 adjacent-literal signature makes over-matching a non-issue, so this cap
+# only rejects an absurd whole-shop-space pair that could only be a parse artifact, not a real command.
+MAX_RANGE_SPAN = 2000
 
 _DIR_MSB_RE = re.compile(r"^(m\d\d)_(\d\d)_(\d\d)_(\d\d)-msb-dcx$")
 _DIR_TALK_RE = re.compile(r"^(m\d\d)_(\d\d)_(\d\d)_(\d\d)-talkesdbnd-dcx$")
@@ -83,7 +89,6 @@ _TALKID_RE = re.compile(r"<TalkID>\s*(-?\d+)\s*</TalkID>")
 _ENTITYID_RE = re.compile(r"<EntityID>\s*(-?\d+)\s*</EntityID>")
 _NPCID_RE = re.compile(r"<NPCParamID>\s*(-?\d+)\s*</NPCParamID>")
 _NAME_RE = re.compile(r"<Name>([^<]*)</Name>")
-_INT_RE = re.compile(rb"-?\d+")
 
 
 def _map_id(area, x, y):
@@ -179,38 +184,39 @@ def scan_msb(map_filter=None):
 
 # ---------------------------------------------------------------- ESD: talk id -> shop ranges
 
-def _extract_ints(path):
-    """Ordered list of integer literals in an ESD file. Handles WitchyBND xml/text (regex on text) AND
-    raw .esd binary (every 4-byte little-endian int32 that lands in the shop band -- a superset we then
-    filter by real-id membership, so binary noise is harmless)."""
+# Precise EzState signature for OpenRegularShop's two adjacent int-literal args, both in the shop band:
+#   0x82 <begin int32 LE> 0xA1  0x82 <end int32 LE> 0xA1
+_TEXT_SHOP_RE = re.compile(rb"OpenRegularShop\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)")
+
+
+def esd_ranges(path, shop_ids):
+    """(begin, end) OpenRegularShop ranges from one ESD. Binary EzState: the adjacent-literal signature
+    above (both ints in-band). Text/XML fallback: an OpenRegularShop(a,b) call. Deduped, sorted. `end`
+    is treated inclusive and intersected with real ShopLineupParam ids downstream, so an off-by-one at
+    the range edge cannot invent a row."""
     try:
         with open(path, "rb") as fh:
             raw = fh.read()
     except OSError:
         return []
-    # Text (WitchyBND xml or a decompiled .txt): pull integers in document order.
-    if b"<" in raw[:256] or b"OpenRegularShop" in raw or b"Shop" in raw[:4096]:
-        return [int(m.group()) for m in _INT_RE.finditer(raw)]
-    # Raw binary ESD: scan every 4-byte LE int32; keep those in the shop band (order = file offset,
-    # which preserves begin-before-end adjacency inside a command's arg bytecode).
-    ints = []
-    for off in range(0, len(raw) - 3):
-        v = struct.unpack_from("<i", raw, off)[0]
-        if SHOP_LO <= v <= SHOP_HI:
-            ints.append(v)
-    return ints
-
-
-def esd_ranges(path, shop_ids):
-    """Candidate (begin, end) shop ranges from one ESD: consecutive literal pairs (a, b) with
-    a <= b <= a+MAX_RANGE_SPAN, both real ShopLineupParam ids in-band. Deduped, sorted."""
-    ints = _extract_ints(path)
     out = set()
-    for i in range(len(ints) - 1):
-        a, b = ints[i], ints[i + 1]
-        if (SHOP_LO <= a <= b <= SHOP_HI and (b - a) <= MAX_RANGE_SPAN
-                and a in shop_ids and b in shop_ids):
-            out.add((a, b))
+    if b"OpenRegularShop" in raw:                       # decompiled text/xml form
+        for m in _TEXT_SHOP_RE.finditer(raw):
+            a, b = int(m.group(1)), int(m.group(2))
+            if SHOP_LO <= a <= b <= SHOP_HI:
+                out.add((a, b))
+        return sorted(out)
+    # raw binary EzState: scan the 12-byte adjacent-literal signature.
+    i, n = 0, len(raw)
+    while i <= n - 12:
+        if raw[i] == 0x82 and raw[i + 5] == 0xA1 and raw[i + 6] == 0x82 and raw[i + 11] == 0xA1:
+            a = struct.unpack_from("<i", raw, i + 1)[0]
+            b = struct.unpack_from("<i", raw, i + 7)[0]
+            if SHOP_LO <= a <= b <= SHOP_HI and (b - a) <= MAX_RANGE_SPAN:
+                out.add((a, b))
+                i += 12
+                continue
+        i += 1
     return sorted(out)
 
 
