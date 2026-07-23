@@ -88,8 +88,13 @@ class GreenfieldWorldTest(WorldTestBase):
     # rungs are Golden Seeds and which are Sacred Tears, per seed -- so you know roughly when a tear is
     # due but never precisely which pickup it is. The client reads the ladder off slot_data, so a
     # per-seed ladder is exactly what it should see.
+    # shopPreviewGoods: features/shops repoints each shop slot that holds a region Lock OR a FOREIGN
+    # item to a dedicated spare good, so the client flowers it without re-iconing a real good globally.
+    # WHICH slots hold a lock / a foreign item is a per-seed FILL outcome, so the preview map varies by
+    # seed by construction (it was invariant only while the repoint loop was dead -- str/int key bug,
+    # fixed 2026-07-23). Still DETERMINISTIC per seed (test_slot_data_is_deterministic guards that).
     _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "enemyDropRoll",
-                     "progressiveGrants"}
+                     "progressiveGrants", "shopPreviewGoods"}
 
     def test_slot_data_is_deterministic(self):
         """Same seed -> byte-identical slot_data (no set-iteration order leaking into the wire)."""
