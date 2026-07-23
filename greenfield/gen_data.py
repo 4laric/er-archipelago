@@ -1552,29 +1552,15 @@ FLAG_REGION_OVERRIDE = {
     67600: "Limgrave",                         # Missionary's Cookbook [2] = PATCHES' stock; Patches stands at
                                                #   Murkwater Cave (Limgrave), not the Roundtable Hold the
                                                #   shop-row block region reported.
-    66750: "Altus",                            # Perfume Bottle = the HERMIT MERCHANT's stock in ALTUS, not
-                                               #   Liurnia (the shop-row block region was wrong).
-    # HERMIT MERCHANT'S SHACK (Altus) -- rest of the block-1007 inventory the 66750 patch missed. Block
-    # 1007 holds TWO merchants (100700-100720 = a Liurnia nomadic merchant; 100725+ = the Altus Hermit),
-    # so "block = one merchant" mis-tagged the Hermit's stock as Liurnia -> sealed when Liurnia is rolled
-    # out even though the player reaches him in kept Altus (Alaric in-game 2026-07-23, vanilla + no check;
-    # the sibling Perfume Bottle 66750 fired as "Altus" the same session). Mapped to rows by exact
-    # name+price against Alaric's in-game inventory; mirror-softlock fix too (these carried a Lock this
-    # roll). Rune Arc (100714 vs 100728) left OUT pending confirm -- one is the OTHER merchant's.
-    170350: "Altus",                           #   Sentry's Torch (row 100727, 7000)
-    170370: "Altus",                           #   Golden Sunflower (row 100729, 300)
-    170380: "Altus",                           #   Distinguished Greatshield (row 100730, 5500)
-    170450: "Altus",                           #   Upper-Class Robe (row 100737, 2400)
-    170460: "Altus",                           #   Consort's Trousers (row 100738, 1500)
-    170470: "Altus",                           #   Prophet Blindfold (row 100739, 1000)
-    170480: "Altus",                           #   Prophet Trousers (row 100740, 1000)
-    170490: "Altus",                           #   Prophet Robe (row 100741, 1500)
-    69770:  "Altus",                           #   Note: Below the Capital (row 100743, 800)
-    170360: "Altus",                           #   Rune Arc (row 100728) -- confirmed by the ESD datamine:
-                                               #   talk 801196000 OpenRegularShop(100725,100749) on tile
-                                               #   m60_43_53 (grace 76311 "Hermit Merchant's Shack", Altus);
-                                               #   the other Rune Arc 100714/170140 is the sibling Liurnia
-                                               #   merchant (talk 801186000, m60_36_49, Bellum Church).
+    # NOTE: the Altus Hermit Merchant's block-1007 stock (Perfume Bottle 66750, Prophet set, Sentry's
+    # Torch, Golden Sunflower, Distinguished Greatshield, Upper-Class Robe, Consort's Trousers, Note,
+    # Rune Arc -- flags 170350/60/70/80/450/460/470/480/490, 69770) was HAND-PINNED here 2026-07-17..23
+    # while the bug was diagnosed. It is now DERIVED by MERCHANT_SHOP_REGION (talk 801196000 opens
+    # OpenRegularShop(100725,100749) on tile m60_43_53 = grace 76311 "Hermit Merchant's Shack", Altus),
+    # so the pins were REDUNDANT and were removed -- a redundant manual override hides which path is
+    # load-bearing (see the _BOSS_DROP_EXTRAS philosophy up top; the _redundant_shop_pins guard below
+    # enforces it for shop flags now). Patches (67600) stays: he relocates across regions (multi-tile),
+    # so the derivation leaves him to the legacy path and the hand pin is genuinely load-bearing.
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
@@ -1988,6 +1974,20 @@ def _build_merchant_shop_region():
           f"({_multi} multi-region flag(s) left to the legacy path this pass)")
     return _out
 MERCHANT_SHOP_REGION = _build_merchant_shop_region()
+
+# A REDUNDANT SHOP PIN IS A FAILURE (same rule as _BOSS_DROP_EXTRAS up top): a FLAG_REGION_OVERRIDE entry
+# that the merchant-ESD derivation already reproduces hides which path is load-bearing and silently rots
+# when the derivation drifts. So the moment MERCHANT_SHOP_REGION produces a flag's pinned region, the pin
+# must go. (Pins the derivation DISAGREES with, or does not cover -- Patches 67600 multi-region, Enia
+# 60500 HUB-only -- are load-bearing and stay; they are not flagged here.)
+_redundant_shop_pins = sorted(_f for _f, _reg in FLAG_REGION_OVERRIDE.items()
+                              if MERCHANT_SHOP_REGION.get(_f) == _reg)
+if _redundant_shop_pins:
+    raise SystemExit(
+        "gen_data: %d REDUNDANT FLAG_REGION_OVERRIDE shop pin(s) -- MERCHANT_SHOP_REGION (the merchant-"
+        "ESD derivation) already produces the same region. Delete them from FLAG_REGION_OVERRIDE: a pin "
+        "that only stays correct because the derivation is correct is dead weight. Flags: %r"
+        % (len(_redundant_shop_pins), _redundant_shop_pins))
 
 
 def region_of(r):
