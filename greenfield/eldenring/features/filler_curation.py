@@ -66,6 +66,21 @@ _PERFUMES = sorted(n for n in ITEM_CATALOG
                    if n.endswith("Spraymist") or n.endswith("Aromatic")
                    or (n.endswith("Perfume Bottle") and n != "Perfume Bottle"))
 
+# Base-game weapon greases (kept explicit -- named, always in the catalog).
+_BASE_GREASES = ["Fire Grease", "Lightning Grease", "Magic Grease", "Holy Grease", "Blood Grease",
+                 "Poison Grease", "Freezing Grease", "Rot Grease", "Dragonwound Grease", "Soporific Grease"]
+
+
+def _dlc_greases():
+    """DLC weapon grease(s) added to the filler pool -- currently just Messmerfire Grease (SotE).
+    Catalog-guarded like _dlc_pots: the name is absent (and so skipped at draw time) when DLC is off.
+    NAMED explicitly rather than pattern-matched on ' Grease': most other catalog greases (Dragon
+    Communion, Dragonbolt, Festive, Royal Magic, Shield) are BASE-game greases deliberately left out
+    of the curated base list, so an ' endswith Grease ' sweep would silently re-include them. Extend
+    this tuple for future DLC greases. (Alaric 2026-07-22 "get messmerfire grease into the pool".)"""
+    return [n for n in ("Messmerfire Grease",) if n in ITEM_CATALOG]
+
+
 # ---- category -> member names (all resolve in ITEM_CATALOG; DLC filtered per-world at draw time) ----
 CATEGORIES = {
     "throwables": ["Throwing Dagger", "Bone Dart", "Poisonbone Dart", "Crystal Dart", "Kukri", "Fan Daggers",
@@ -79,8 +94,7 @@ CATEGORIES = {
     # purpose: an OPT-IN emphasis category, NOT in the default recipe, so a seed only leans fire when
     # the player asks for it. Base Fire/Volcano Pot + DLC Hefty Fire Pot (catalog/DLC-filtered).
     "firepots": ["Fire Pot", "Volcano Pot"] + _dlc_fire_pots(),
-    "greases": ["Fire Grease", "Lightning Grease", "Magic Grease", "Holy Grease", "Blood Grease",
-                "Poison Grease", "Freezing Grease", "Rot Grease", "Dragonwound Grease", "Soporific Grease"],
+    "greases": _BASE_GREASES + _dlc_greases(),
     # Ammunition (arrows & bolts, base + DLC), PARAM-derived in gen_data.py: EquipParamWeapon rows with
     # wepType in {81 arrow, 83 greatarrow, 85 bolt, 86 ballista bolt} joined to the catalog. NEVER
     # name-derived -- "Honed Bolt" / "Vyke's Dragonbolt" / the Lightning-Strike family are INCANTATIONS

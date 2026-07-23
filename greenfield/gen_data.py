@@ -1407,6 +1407,10 @@ FLAG_REGION_OVERRIDE = {
     520000: "Weeping",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
                                                #   Weeping, mis-tiled to m10/Stormveil by the EMEVD scan.
     520010: "Weeping",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
+    400001: "Leyndell",          # Rold Medallion = GRANTED by Melina at the Elden Throne after Morgott
+                                               #   dies -- obtained IN Leyndell, needs Leyndell + Morgott, NOT
+                                               #   Altus. Raw pipeline pinned it to Altus off the m34_14
+                                               #   ("DLC Dungeon") grant-event tile. (Alaric 2026-07-23.)
     400031: "Liurnia",            # Lord of Blood's Favor = Varre's questline reward at the
     400033: "Liurnia",            #   Rose Church (Liurnia); mis-pinned to m10. (400031/400033
                                                #   are the given/blood-soaked states -- likely a dup, see below.)
@@ -3635,7 +3639,7 @@ for _fn in ("Boiled Crab", "Boiled Prawn"):
 # avoid catalog bloat. Count-NEUTRAL: this only widens the pool_builder juice CANDIDATE set (juice is
 # bounded by the Rune tail); the base shuffle pool is LOCATION_ITEM (placed items) and is untouched.
 # DLC-only names among them are flagged by the DLC_ITEM_NAMES pass below (so DLC-off seeds exclude them).
-_TIER_CATALOG_CATS = {"WEAPON", "ARMOR", "SPELL", "TALISMAN", "ASHOFWAR"}
+_TIER_CATALOG_CATS = {"WEAPON", "ARMOR", "SPELL", "TALISMAN", "ASHOFWAR", "SPIRITASH"}
 _TIER_CATALOG_KEEP = {"S", "A", "B"}
 _tier_tsv = os.path.join(REPO, "item_tiers.tsv")
 _aug_added = 0; _aug_unresolved = []

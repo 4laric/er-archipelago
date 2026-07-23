@@ -107,16 +107,52 @@ class Shops(Feature):
         name_to_preview = {nm: (_LOCK_PREVIEW_SPARE_GOODS[i] | _GOODS_NIBBLE)
                            for i, nm in enumerate(lock_names)
                            if i < len(_LOCK_PREVIEW_SPARE_GOODS)}
-        if name_to_preview:
-            player = world.player
-            for loc in world.multiworld.get_locations(player):
-                aid = getattr(loc, "address", None)
-                if aid not in preview:
-                    continue
-                it = getattr(loc, "item", None)
-                if it is not None and getattr(it, "player", None) == player:
-                    repointed = name_to_preview.get(it.name)
-                    if repointed is not None:
-                        preview[aid] = repointed
+
+        # FLOWER EVERY FOREIGN SHOP SLOT (Alaric 2026-07-22, "we should be flowering them all"). The
+        # client leaves a shop slot VANILLA whenever its preview good is a REAL grantable good, because
+        # flowering re-icons that good's EVERY copy globally (the hazard the lock repoint dodges). A
+        # slot holding ANOTHER player's item hits the same wall -- its vanilla ware is usually a real
+        # good -- so those foreign checks read as the vanilla item on the shelf. Fix: repoint each
+        # foreign slot at a dedicated spare good (exists, [ERROR] name, referenced by nothing, exactly
+        # like the lock spares) so the client flowers it without touching any real good. Own-world
+        # items stay on shop_sell -- they sell the real item and MUST keep their true preview.
+        # Spares past the lock allotment feed the foreign slots; determinism from get_locations' stable
+        # order over the sorted pool. Cosmetic only -- the check fires by SHOP_ROW_FLAGS, not the ware.
+        player = world.player
+        _free = [g | _GOODS_NIBBLE for g in _LOCK_PREVIEW_SPARE_GOODS[len(name_to_preview):]]
+        _fi = 0
+        _overflow = 0
+        for loc in world.multiworld.get_locations(player):
+            aid = getattr(loc, "address", None)
+            if aid is None:
+                continue
+            key = str(aid)                     # preview is keyed by STR ap-id (SHOP_PREVIEW_GOODS);
+            if key not in preview:             # loc.address is an int -- compare as strings or the
+                continue                       # lookup silently never matches (the old lock-repoint bug).
+            it = getattr(loc, "item", None)
+            if it is None:
+                continue
+            if getattr(it, "player", None) == player:
+                # own-world item: a region Lock takes its dedicated per-name spare; every other own
+                # good is sold as itself by shop_sell, so keep its true (vanilla) preview.
+                repointed = name_to_preview.get(it.name)
+                if repointed is not None:
+                    preview[key] = repointed
+                continue
+            # FOREIGN item: repoint to a spare so the client flowers it (spare is never a real good).
+            if _fi < len(_free):
+                preview[key] = _free[_fi]
+                _fi += 1
+            elif _free:
+                preview[key] = _free[-1]   # pool exhausted -> share the last spare (still flowers)
+                _overflow += 1
+            # else (no spares at all -- e.g. locks consumed the whole pool): leave vanilla, don't crash
+        if _overflow:
+            import logging
+            logging.getLogger("Greenfield").warning(
+                "[eldenring:%s] shop flowering: %d foreign slot(s) exceeded the %d free spare goods "
+                "and SHARE one preview good (they still flower, but show a single shared name). Widen "
+                "_LOCK_PREVIEW_SPARE_GOODS from the 332-row spare pool to give each its own name.",
+                world.player, _overflow, len(_free))
 
         return {contract.SHOP_ROW_FLAGS: flags, contract.SHOP_PREVIEW_GOODS: preview}
