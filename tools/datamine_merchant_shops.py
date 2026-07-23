@@ -336,7 +336,7 @@ def main():
 
     if args.probe:
         print(f"# PROBE: {esd_files} ESD file(s) yielded shop ranges; {len(talk_data)} talk id(s).")
-        for tid in sorted(talk_data)[:40]:
+        for tid in sorted(talk_data):
             d = talk_data[tid]
             print(f"talk {tid}: ranges={sorted(d['ranges'])} binder={sorted(d['binder_maps'])} "
                   f"msb={sorted(talk_maps.get(tid, []))} npc={talk_npc.get(tid)}")
