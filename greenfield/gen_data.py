@@ -575,8 +575,40 @@ _BOSS_NAMES    = {}                                                # 2. TODO dro
 _SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
 _NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. per-check nearest grace (Windows)
 _TILE_GRACE    = _load_tile_str_tsv("tile_grace.tsv")              # 4b. tile -> grace name (Windows)
+
+# Grace DISPLAY NAME -> {AP regions it lives in}. Feeds the desc_sources cross-region guard so a
+# check is never labelled "near <grace>" / "around <grace>" for a grace in a completely different
+# region (Alaric 2026-07-22: Roundtable-Hold Memory Stone tagged "near South Raya Lucaria Gate").
+# Built from the SAME spine tables the region resolver uses (grace_region_map -> play_region ->
+# PLAY2AP), so a legitimate folded check (its region and its grace's region fold together in PLAY2AP)
+# still matches; only HUB-default / shop checks with a spurious foreign tile are separated. A name can
+# recur across regions (set-valued). Graces at play_region 0 or unmapped names are simply absent ->
+# the guard stays inert for them (keeps today's descriptor).
+def _build_grace_region():
+    _names = {}
+    try:
+        with open(_grace_table("grace_names"), encoding="utf-8-sig", newline="") as _fh:
+            for _ln in _fh:
+                if not _ln.strip() or _ln.lstrip().startswith("#"):
+                    continue
+                _p = _ln.rstrip("\n").split("\t")
+                if len(_p) >= 2 and _p[0].strip().isdigit() and _p[1].strip():
+                    _names[_p[0].strip()] = _p[1].strip()
+    except SystemExit:
+        print("[gen_data] grace_names*.tsv unavailable; cross-region grace guard OFF")
+        return {}
+    _out = {}
+    for _gf, _nm in _names.items():
+        _pr = greg.get(_gf)
+        if _pr and _pr != "0":
+            _ap = PLAY2AP.get(_pr)
+            if _ap:
+                _out.setdefault(_nm, set()).add(_ap)
+    return _out
+_GRACE_REGION = _build_grace_region()
 print(f"location desc: overrides={len(_DESC_OVERRIDE)} spot_en={len(_SPOT_EN)} "
-      f"nearest_grace={len(_NEAREST_GRACE)} tile_grace={len(_TILE_GRACE)}")
+      f"nearest_grace={len(_NEAREST_GRACE)} tile_grace={len(_TILE_GRACE)} "
+      f"grace_region={len(_GRACE_REGION)}")
 
 
 def _gt_full_map(_mid):
@@ -2311,7 +2343,8 @@ for r in rows:
     _desc=_desc_sources.describe(flag, r.get('method',''), _mtile,
         is_boss=('Boss' in _t), is_remembrance=('Remembrance' in _t),
         overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN,
-        nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE)
+        nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE,
+        check_region=reg, grace_region=_GRACE_REGION, hub_region=HUB)
     _base=(f"{reg} :: {item} - {_desc}" if _desc else f"{reg} :: {item}")
     _name_pending.append((reg, _base, apid, flag))
     if _t: loc_tags[apid]=_t
@@ -2653,7 +2686,16 @@ if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR
 #     interior before the drain. The drain needs no seed-randomized key, so on-foot reachability from
 #     the other Shadow Keep graces holds. (Water drain is a map-version swap -- confirm in a DLC
 #     playtest, not by EMEVD grep alone.)
-_STATE_GATED_GRACE_FLAGS = frozenset({72107})
+#   76314 Capital Rampart (m60_..; Altus play_region 63002): the grace sits PAST the Draconic Tree
+#     Sentinel fog gate on the Altus->Leyndell approach and lights only on that boss's defeat. It is
+#     NOT 9005810 asset-hidden (absent from the EMEVD oracle's set, so it does NOT belong in
+#     _BOSS_GATED_GRACE_FLAGS) and NOT a remembrance arena -- it is a physically-present grace sealed
+#     by a boss-defeat state, same class as the water drain above. The Altus lock was force-granting
+#     it on region-open (playtest 2026-07-22, Alaric). Skip -> it lights the vanilla way when you beat
+#     the Draconic Tree Sentinel; the Sentinel needs no seed key, so on-foot reachability from Altus's
+#     other graces holds. (The Leyndell-side East/West Capital Rampart 71102/71105 are the entry graces
+#     once the Leyndell bundle opens -- handled by graces.bundle_withheld, not skipped here.)
+_STATE_GATED_GRACE_FLAGS = frozenset({72107, 76314})
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS
                      | _STATE_GATED_GRACE_FLAGS)

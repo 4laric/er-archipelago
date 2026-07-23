@@ -141,20 +141,61 @@ def _clean(v):
     return v.strip() if isinstance(v, str) else ""
 
 
+def _grace_in_region(grace_name, check_region, grace_region, hub_region):
+    """Region-consistency guard for the grace layers (4, 4b). Alaric 2026-07-22: "we should not be
+    associating locations with graces from a completely different region" -- a Roundtable-Hold /
+    shop check whose spurious map tile lies in Liurnia was labelled "near South Raya Lucaria Gate",
+    which is nonsense.
+
+    We suppress ONLY when the disconnected HUB (Roundtable Hold) is on one side of a region mismatch:
+    a HUB check cannot be "near" any overworld grace, and an overworld check cannot be near the HUB's
+    own grace (Table of Lost Grace). That is exactly the "completely different region" case -- the HUB
+    floats off the map with no physical adjacency to anywhere.
+
+    We deliberately KEEP other cross-region graces, because on the overworld a "different AP region"
+    is usually an ADJACENT or SAME place that folds/splits across a bucket line and is a perfectly good
+    locator: Stormveil <- "Castleward Tunnel" (the tunnel is Stormveil's own approach), Ashen Capital
+    <- Leyndell graces (Ashen Capital IS burnt Leyndell), the Rauh Base / Ancient Ruins split, a
+    border grace like "Fort Gael North". Stripping those would lose real information, not gain it.
+
+    ``grace_region`` maps a grace DISPLAY NAME -> set of AP region names (a name can recur across
+    regions). The guard is INERT (keeps every descriptor) when check_region, grace_region, or
+    hub_region is absent, so partial repos and existing callers are unaffected."""
+    if not check_region or not grace_region:
+        return True
+    regs = grace_region.get(grace_name)
+    if not regs:                      # grace region unknown -> don't guess, keep the descriptor
+        return True
+    if check_region in regs:          # region-consistent -> keep
+        return True
+    # a genuine mismatch: suppress ONLY across the disconnected HUB boundary (either direction).
+    if hub_region and (check_region == hub_region or hub_region in regs):
+        return False
+    return True                        # adjacent / same-place overworld cross-region -> keep
+
+
 def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
              overrides=None, boss_names=None, spot_names=None,
-             nearest_grace=None, tile_grace=None, map_names=None):
+             nearest_grace=None, tile_grace=None, map_names=None,
+             check_region=None, grace_region=None, hub_region=None):
     """Return the human description for a check (no flag, no item), or None.
 
     ``flag`` is an int. All source args are dicts keyed by that int (except map_names, keyed by the
-    short map token). Missing/empty sources are treated as absent, so a partially-populated repo
-    (no grace tsv yet, no curated spot names yet) still produces a layer-5 locale for every check.
+    short map token; and ``grace_region``, keyed by grace display name). Missing/empty sources are
+    treated as absent, so a partially-populated repo (no grace tsv yet, no curated spot names yet)
+    still produces a layer-5 locale for every check.
+
+    ``check_region`` (the check's AP region) + ``grace_region`` (grace name -> {AP regions}) +
+    ``hub_region`` (the disconnected HUB name) gate the grace layers so a HUB check is never described
+    by an overworld grace (and vice-versa); all three default None -> the guard is inert (unit tests
+    and partial repos are unaffected). See ``_grace_in_region``.
     """
     overrides = overrides or {}
     boss_names = boss_names or {}
     spot_names = spot_names or {}
     nearest_grace = nearest_grace or {}
     tile_grace = tile_grace or {}
+    grace_region = grace_region or {}
     map_names = map_names if map_names is not None else _MAP_HUMAN
     tok = map_short(map_id)   # the check's map TILE (caller passes the flag-decoded tile for PENDING rows)
 
@@ -174,18 +215,20 @@ def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
     if d:
         return d
 
-    # 4. nearest Site of Grace, per-check EXACT (coord datamine)
+    # 4. nearest Site of Grace, per-check EXACT (coord datamine). Skipped when the grace is known to
+    # live in a different AP region than the check (a spurious tile on a HUB/shop check).
     d = _clean(nearest_grace.get(flag))
-    if d:
+    if d and _grace_in_region(d, check_region, grace_region, hub_region):
         return "near " + d
 
     # 4b. tile-grace: the check's map TILE -> a Site of Grace on/near that tile. Coarser than layer 4
     # (tile-level ~256 m, not the exact check position), but the tile is derived from the flag so it is
     # ALWAYS available -- this is what rescues the PENDING/global_filler checks the coord datamine can't
-    # reach. Rendered "around <grace>" to distinguish it from layer 4's exact "near <grace>".
+    # reach. Rendered "around <grace>" to distinguish it from layer 4's exact "near <grace>". Same
+    # cross-region guard as layer 4.
     if tok:
         d = _clean(tile_grace.get(tok))
-        if d:
+        if d and _grace_in_region(d, check_region, grace_region, hub_region):
             return "around " + d
 
     # 5. locale fallback -- method + map sub-tile. REQUIRES a real map token: it only earns its place
@@ -195,6 +238,14 @@ def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
     if (method or "").strip() in _NO_LOCALE_METHODS:
         return None
     if not tok:
+        return None
+    # HUB check on an OVERWORLD tile -> the tile is spurious. The HUB (Roundtable Hold) is an interior
+    # (m11_10); a check quarantined/merchant-homed to the HUB but carrying an m60/m61 overworld tile is
+    # NOT physically there, so "shop · m60_35_45" on a Roundtable purchase is the same "completely
+    # different region" nonsense as the grace layers above. Drop to bare -- self-explanatory by its
+    # "Roundtable Hold :: <item>" prefix. (Interior-tile HUB rows keep their locale; real overworld
+    # checks are region_of'd to their overworld region, not the HUB, so they are untouched.)
+    if hub_region and check_region == hub_region and re.match(r"m6[01]_", tok):
         return None
     area = _clean(map_names.get(tok)) or tok
     verb = _METHOD_HUMAN.get((method or "").strip(), "")   # unknown method -> tile alone, no ugly verb

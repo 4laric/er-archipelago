@@ -141,6 +141,49 @@ def test_tile_grace_layer_4b():
     assert ds.describe(1, "global_filler", "m61_50_43_00", tile_grace=tg) == "m61_50_43"
 
 
+def test_cross_region_grace_guard():
+    # Alaric 2026-07-22: a Roundtable-Hold Memory Stone was labelled "near/around South Raya Lucaria
+    # Gate" -- a Liurnia grace on a HUB/shop check with a spurious map tile. The guard suppresses a
+    # grace-derived descriptor ONLY across the disconnected HUB boundary (either direction); adjacent
+    # / same-place overworld cross-region graces are KEPT (they are good locators).
+    HUB = "Roundtable Hold"
+    gr = {"South Raya Lucaria Gate": {"Liurnia"}, "Table of Lost Grace": {HUB},
+          "Castleward Tunnel": {"Limgrave"}}
+    tg = {"m60_35_45": "South Raya Lucaria Gate"}
+    ng = {60470: "South Raya Lucaria Gate"}
+
+    # HUB check + overworld grace -> SUPPRESS the grace (4b), then the spurious overworld-tile locale
+    # (5) too -> fully BARE (a Roundtable purchase is self-explanatory by its region prefix).
+    assert ds.describe(60470, "shop", "m60_35_45_00", tile_grace=tg,
+                       check_region=HUB, grace_region=gr, hub_region=HUB) is None
+    # same via the exact nearest-grace (layer 4).
+    assert ds.describe(60470, "shop", "m60_35_45_00", nearest_grace=ng,
+                       check_region=HUB, grace_region=gr, hub_region=HUB) is None
+    # a HUB check on an INTERIOR tile keeps its locale (only overworld tiles are spurious for the HUB).
+    assert ds.describe(1, "treasure", "m11_10_00_00",
+                       check_region=HUB, hub_region=HUB) == "treasure · m11_10"
+    # a real OVERWORLD check (region_of'd to its overworld region, not the HUB) keeps its locale.
+    assert ds.describe(1, "treasure", "m60_35_45_00",
+                       check_region="Liurnia", hub_region=HUB) == "treasure · m60_35_45"
+    # overworld check + the HUB's own grace (Table of Lost Grace) -> SUPPRESS (the other direction).
+    assert ds.describe(1, "treasure", "m11_10_00_00", tile_grace={"m11_10": "Table of Lost Grace"},
+                       check_region="Limgrave", grace_region=gr, hub_region=HUB) == "treasure · m11_10"
+    # ADJACENT overworld cross-region (Stormveil <- Castleward Tunnel, a Limgrave grace) -> KEPT.
+    assert ds.describe(1, "treasure", "m10_00_00_00", tile_grace={"m10_00": "Castleward Tunnel"},
+                       check_region="Stormveil", grace_region=gr, hub_region=HUB) == "around Castleward Tunnel"
+    # region-consistent grace -> KEPT.
+    assert ds.describe(60470, "treasure", "m60_35_45_00", tile_grace=tg,
+                       check_region="Liurnia", grace_region=gr, hub_region=HUB) == "around South Raya Lucaria Gate"
+    # a Roundtable grace on a Roundtable check -> KEPT (region-consistent, not a mismatch).
+    assert ds.describe(1, "treasure", "m11_10_00_00", tile_grace={"m11_10": "Table of Lost Grace"},
+                       check_region=HUB, grace_region=gr, hub_region=HUB) == "around Table of Lost Grace"
+    # guard is INERT without the region args (partial repo / existing callers) -> descriptor kept.
+    assert ds.describe(60470, "shop", "m60_35_45_00", tile_grace=tg) == "around South Raya Lucaria Gate"
+    # grace whose region we don't know -> not guessed, descriptor kept.
+    assert ds.describe(1, "treasure", "m99_99_00_00", tile_grace={"m99_99": "Mystery Grace"},
+                       check_region=HUB, grace_region=gr, hub_region=HUB) == "around Mystery Grace"
+
+
 def test_collision_ordinals():
     # three share a base, one is alone -> the three get 1..3 in flag order, the loner gets nothing
     rows = [("A :: Frag - around G", 2050437500),
