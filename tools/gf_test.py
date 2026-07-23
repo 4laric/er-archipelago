@@ -44,7 +44,7 @@ UPSTREAM = "https://github.com/ArchipelagoMW/Archipelago.git"
 # The ground-truth inputs the derivation oracles re-derive against. They live beside the package in the
 # source tree and must be copied INTO it. Without them the oracle suites (boss sweeps, shop release-gate)
 # do not fail -- they quietly assert nothing, which is worse than failing. So their absence is fatal.
-REQUIRED_INPUTS = ("region_map.csv", "shop_rows.tsv", "EldenRing.yaml")
+REQUIRED_INPUTS = ("region_map.csv", "shop_rows.tsv", "merchant_shops.tsv", "EldenRing.yaml")
 
 
 def sh(*cmd, cwd=None):

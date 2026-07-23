@@ -1931,8 +1931,18 @@ _HUB_TILE = "m11_10"
 def _build_merchant_shop_region():
     _mpath = os.path.join(HERE, "merchant_shops.tsv")
     _spath = os.path.join(HERE, "shop_rows.tsv")
-    if not (os.path.isfile(_mpath) and os.path.isfile(_spath)):
-        return {}
+    if not os.path.isfile(_spath):
+        return {}                                    # no shop data at all -> inert (partial source tree)
+    # FAIL LOUD, don't silently revert. The Hermit hand-pins were RETIRED (commit 2331115) because this
+    # derivation reproduces them, so if shop_rows.tsv is present (a real gen) but merchant_shops.tsv is
+    # gone, all 100+ corrections silently revert to their pre-fix regions -- the exact shipped bug --
+    # and the _redundant_shop_pins guard cannot catch it (an empty map flags nothing). So refuse.
+    if not os.path.isfile(_mpath):
+        raise SystemExit(
+            "FATAL: shop_rows.tsv is present but greenfield/merchant_shops.tsv is MISSING. The merchant-"
+            "ESD region derivation is load-bearing (the Hermit + ~100 merchant flags depend on it; their "
+            "hand-pins were retired). Regenerate it: python tools/datamine_merchant_shops.py. Refusing to "
+            "gen -- an empty derivation would silently revert every merchant to its wrong block-region.")
     _row2flag = {}                                   # shop row id -> stock flag (shop_rows col0/col5)
     with open(_spath, encoding="utf-8") as _f:
         for _ln in _f:
@@ -1959,19 +1969,37 @@ def _build_merchant_shop_region():
             _mp = _p[4].strip()
             if _mp and _mp != _HUB_TILE:
                 _row2tiles.setdefault(_rid, set()).add(_mp)
-    _flag2regs = {}                                  # stock flag -> {AP regions of its physical tiles}
+    # stock flag -> set of RESOLVED AP regions; separately track flags with an UNRESOLVED physical tile.
+    # A flag whose ONLY resolved region is 1 but which ALSO has an unresolved tile is SUSPECT: dropping
+    # the None and pinning the lone survivor conflates "resolves to one region" with "stands in one
+    # region" (the wandering-mausoleum shop stands map-wide but only its m12_03 tile resolves -> a false
+    # single-region pin). We still pin single-region today (the shipped 105 were all verified correct, and
+    # refusing to pin blindly could revert a correct one to its wrong legacy label), but LOG the suspects
+    # loudly so the fix -- resolve the tile (add it to dungeon_regions.tsv) or refuse to pin -- is a
+    # measured follow-up, not a blind change (Fable review D3, 2026-07-23).
+    _flag2regs, _flag_unresolved = {}, set()
     for _rid, _tiles in _row2tiles.items():
         _fl = _row2flag.get(_rid)
         if _fl is None:
             continue
         for _t in _tiles:
-            _rr = _gt_region(_t)                     # None for coarse/unresolvable tiles -> skipped
+            _rr = _gt_region(_t)
             if _rr:
                 _flag2regs.setdefault(_fl, set()).add(_rr)
+            else:
+                _flag_unresolved.add(_fl)
     _out = {_fl: next(iter(_rs)) for _fl, _rs in _flag2regs.items() if len(_rs) == 1}
-    _multi = sum(1 for _rs in _flag2regs.values() if len(_rs) > 1)
+    _multi = sorted(_fl for _fl, _rs in _flag2regs.items() if len(_rs) > 1)
+    _suspect = sorted(_fl for _fl in _out if _fl in _flag_unresolved)   # pinned, but has an unplaced tile
     print(f"merchant-esd regions: {len(_out)} shop flag(s) re-pinned to their physical merchant's region "
-          f"({_multi} multi-region flag(s) left to the legacy path this pass)")
+          f"({len(_multi)} multi-region left to legacy)")
+    if _multi:
+        print(f"  multi-region flags (disjunctive reachability the region-lock world can't express yet): "
+              f"{_multi[:30]}{' …' if len(_multi) > 30 else ''}")
+    if _suspect:
+        print(f"  !! {len(_suspect)} SUSPECT single-region pin(s): a physical tile failed _gt_region so "
+              f"the merchant may stand in >1 region (mausoleum-class). Verify or add the tile to "
+              f"dungeon_regions.tsv: {_suspect[:30]}{' …' if len(_suspect) > 30 else ''}")
     return _out
 MERCHANT_SHOP_REGION = _build_merchant_shop_region()
 
