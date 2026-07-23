@@ -35,12 +35,13 @@ import argparse
 import ast
 import glob
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.abspath(os.path.join(HERE, ".."))
 ART = os.path.join(REPO, "elden_ring_artifacts")
-PYDIR_DEFAULT = os.path.join(ART, "esd_py")
+PYDIR_DEFAULT = os.path.join(ART, "talk")   # ESDLang -writepy lands per-map .py under here (recursed)
 OUT = os.path.join(REPO, "greenfield", "esd_gates.tsv")
 
 # Function names ESDLang emits for the things we care about. Kept as a set so a decompiler-version
@@ -98,15 +99,27 @@ def _flag_test(test):
     return None
 
 
+_DEF_TALK_RE = re.compile(r"t(\d+)")   # ESDLang names state machines `def t<talkid>_x<state>(...)`
+
+
 class _Walker(ast.NodeVisitor):
     """Walk a decompiled ESD, tracking the stack of EventFlag gates in scope so each OpenRegularShop /
-    AwardItemLot is attributed to the flag condition(s) that must hold to reach it."""
-    def __init__(self, talk_id):
-        self.talk_id = talk_id
+    AwardItemLot is attributed to the flag condition(s) that must hold to reach it. talk_id is taken
+    from the enclosing `def t<id>_x<n>` so a combined/per-map file attributes each merchant correctly."""
+    def __init__(self, file_talk):
+        self.talk_id = file_talk       # fallback until inside a t<id> function
         self.gate_stack = []          # [(flag, sense)] currently-enclosing EventFlag conditions
         self.shops = []               # (talk, gate_flag, gate_sense, begin, end)
         self.gifts = []               # (talk, gate_flag, gate_sense, lot)
-        self.unknown_flagshaped = 0
+
+    def visit_FunctionDef(self, node):
+        m = _DEF_TALK_RE.match(node.name)
+        prev = self.talk_id
+        if m:
+            self.talk_id = m.group(1)
+        for n in node.body:
+            self.visit(n)
+        self.talk_id = prev
 
     def visit_If(self, node):
         gate = _flag_test(node.test)
@@ -115,12 +128,17 @@ class _Walker(ast.NodeVisitor):
             for n in node.body:
                 self.visit(n)
             self.gate_stack.pop()
+            # the else-branch holds under the NEGATED flag test (sense flipped), so a
+            # `if EventFlag(F)==0: pass else: OpenRegularShop(...)` still attributes the F-set gate.
+            self.gate_stack.append((gate[0], 1 - gate[1]))
+            for n in node.orelse:
+                self.visit(n)
+            self.gate_stack.pop()
         else:
             for n in node.body:
                 self.visit(n)
-        # the else-branch is NOT under this gate (it is under the negation); walk it ungated-by-this.
-        for n in node.orelse:
-            self.visit(n)
+            for n in node.orelse:
+                self.visit(n)
 
     def _innermost_gate(self):
         return self.gate_stack[-1] if self.gate_stack else (-1, 1)
@@ -152,7 +170,8 @@ def _iter_sources(pydir, pyfile):
     if pyfile:
         yield _talk_id_of(pyfile), open(pyfile, encoding="utf-8", errors="replace").read()
         return
-    for fp in sorted(glob.glob(os.path.join(pydir, "*.py"))):
+    # RECURSE: ESDLang -writepy lands .py in per-map subdirs (e.g. talk/m11_05_00_00-only/*.py).
+    for fp in sorted(glob.glob(os.path.join(pydir, "**", "*.py"), recursive=True)):
         yield _talk_id_of(fp), open(fp, encoding="utf-8", errors="replace").read()
 
 
