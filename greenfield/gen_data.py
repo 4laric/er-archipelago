@@ -934,10 +934,14 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 #                the Bud / Rauh) Alaric could not verify in-game (2026-07-20). Kept as ordinary checks
 #                but barred from progression -- so a region Lock can't strand on a spot that may not
 #                exist -- rather than dropped from the pool (Alaric's call, 2026-07-20).
+#   20007820   = Scadutree Fragment (Belurat, "Stagefront (2)") -- physically in Belurat but NOT
+#                reachable until you have Enir Ilim; off surface so a Belurat Lock can't strand on it
+#                (Alaric 2026-07-23). Its sibling 20007620 ("Stagefront (1)") IS Belurat-reachable and
+#                stays on surface (hand-described in location_descriptions.tsv).
 _SURFACE_EXCLUDE_FLAGS = frozenset({
     21017340, 2046457040, 2046457720, 2047397070,
     2049447500, 2050437010, 2050437720, 2051447500, 2051447510,
-    2048417700, 20007510,
+    2048417700, 20007510, 20007820,
     2044467950, 2046477950,
 })
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
