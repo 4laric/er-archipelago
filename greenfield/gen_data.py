@@ -1554,6 +1554,22 @@ FLAG_REGION_OVERRIDE = {
                                                #   shop-row block region reported.
     66750: "Altus",                            # Perfume Bottle = the HERMIT MERCHANT's stock in ALTUS, not
                                                #   Liurnia (the shop-row block region was wrong).
+    # HERMIT MERCHANT'S SHACK (Altus) -- rest of the block-1007 inventory the 66750 patch missed. Block
+    # 1007 holds TWO merchants (100700-100720 = a Liurnia nomadic merchant; 100725+ = the Altus Hermit),
+    # so "block = one merchant" mis-tagged the Hermit's stock as Liurnia -> sealed when Liurnia is rolled
+    # out even though the player reaches him in kept Altus (Alaric in-game 2026-07-23, vanilla + no check;
+    # the sibling Perfume Bottle 66750 fired as "Altus" the same session). Mapped to rows by exact
+    # name+price against Alaric's in-game inventory; mirror-softlock fix too (these carried a Lock this
+    # roll). Rune Arc (100714 vs 100728) left OUT pending confirm -- one is the OTHER merchant's.
+    170350: "Altus",                           #   Sentry's Torch (row 100727, 7000)
+    170370: "Altus",                           #   Golden Sunflower (row 100729, 300)
+    170380: "Altus",                           #   Distinguished Greatshield (row 100730, 5500)
+    170450: "Altus",                           #   Upper-Class Robe (row 100737, 2400)
+    170460: "Altus",                           #   Consort's Trousers (row 100738, 1500)
+    170470: "Altus",                           #   Prophet Blindfold (row 100739, 1000)
+    170480: "Altus",                           #   Prophet Trousers (row 100740, 1000)
+    170490: "Altus",                           #   Prophet Robe (row 100741, 1500)
+    69770:  "Altus",                           #   Note: Below the Capital (row 100743, 800)
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
