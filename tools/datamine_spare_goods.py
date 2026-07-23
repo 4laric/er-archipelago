@@ -46,16 +46,16 @@ _TEXT_RE = re.compile(r'<text id="(\d+)"[^>]*>(.*?)</text>', re.S)
 _NULLS = ("%null%", "&lt;?null?&gt;", "x", "")
 
 
-def _fmg_ids(paths):
-    """Set of goods ids that have a REAL (non-null) GoodsName entry across the given FMG xml paths."""
-    named = set()
+def _fmg_texts(paths):
+    """{goods id: raw name text} across the given FMG xml paths (later files win). Keeps EVERY entry,
+    including placeholder/null text, so the caller can learn which strings are placeholders."""
+    texts = {}
     for path in paths:
         if not os.path.isfile(path):
             continue
         for m in _TEXT_RE.finditer(open(path, encoding="utf-8", errors="replace").read()):
-            if m.group(2).strip() not in _NULLS:
-                named.add(int(m.group(1)))
-    return named
+            texts[int(m.group(1))] = m.group(2).strip()
+    return texts
 
 
 def _params_dir():
@@ -138,12 +138,25 @@ def main():
             except (ValueError, KeyError, TypeError):
                 continue
 
-    named = _fmg_ids([os.path.join(AR, "msg", "item-msgbnd-dcx", "GoodsName.fmg.xml")] +
-                     glob.glob(os.path.join(AR, "msg", "item_dlc0*-msgbnd-dcx", "GoodsName*.fmg.xml")))
-    if not named:
+    texts = _fmg_texts([os.path.join(AR, "msg", "item-msgbnd-dcx", "GoodsName.fmg.xml")] +
+                       glob.glob(os.path.join(AR, "msg", "item_dlc0*-msgbnd-dcx", "GoodsName*.fmg.xml")))
+    if not texts:
         print("no GoodsName FMG entries found -- refusing to emit (every row would look nameless).",
               file=sys.stderr)
         return 1
+
+    # LEARN the placeholder strings instead of guessing them. The 64 known-good spares carry NO real
+    # name (shops.py: "[ERROR] placeholder name, no real name to clobber"), yet the FMG has an ENTRY for
+    # them -- so whatever text those rows hold IS a placeholder token. Any row whose text is one of those
+    # tokens (or a static null) counts as UNNAMED. Self-calibrating: no hardcoded "[ERROR]" that could
+    # drift with a witchy/locale change.
+    placeholders = set(_NULLS)
+    for g in _KNOWN_GOOD:
+        if g in texts:
+            placeholders.add(texts[g])
+    named = {g for g, t in texts.items() if t not in placeholders}
+    print(f"learned {len(placeholders) - len(_NULLS)} placeholder token(s) from known-good rows: "
+          f"{sorted(p for p in placeholders if p not in _NULLS)[:8]}", file=sys.stderr)
 
     referenced = _referenced(pdir)
 
