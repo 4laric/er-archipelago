@@ -924,4 +924,4 @@ SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025,
 SHOP_SLOT_PINS = {1000: 7770199, 1001: 7770114, 1005: 7770081, 1006: 7770096, 1007: 7770073, 1008: 7770127, 1009: 7770090, 1018: 7770516, 1019: 7770557, 1022: 7770623}
 SHOP_SLOT_SKIPS = {1015: 'no start-stocked row: all 49 of its rows are release-gated', 6000: 'no start-stocked row: all 17 of its rows are release-gated', 16004: 'no start-stocked row: all 18 of its rows are release-gated'}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f4cc8a2cdb3a56a57d81546a8ed42545530793ac74b479dba0b3cbef051ce70b', 'module': 'location_tags.py', 'body_sha256': 'sha256:398809f704a7733e74aea2b48c54766e992d43622598bf560e429cf1c7c7b419'}
+_GEN_STAMP = {'inputs_hash': 'sha256:9f3677fdf1929a9232e98f15cdb25820a6d54a69bf708d1e7e547347f21c149a', 'module': 'location_tags.py', 'body_sha256': 'sha256:398809f704a7733e74aea2b48c54766e992d43622598bf560e429cf1c7c7b419'}
