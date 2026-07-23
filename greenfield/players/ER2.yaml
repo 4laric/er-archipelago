@@ -1,0 +1,21 @@
+# Elden Ring Archipelago -- 2-player co-op playtest (Alaric)
+# Base game only, num_regions 5 (spine = Limgrave-first), region-locks goal.
+name: Mop
+game: Elden Ring
+description: ER 2-player co-op playtest -- Mop
+
+Elden Ring:
+  # --- scope ---
+  num_regions: 5                 # keep 5 regions (+ Leyndell, the always-kept goal); shorter focused run
+  num_regions_order: rolled       # first N of the fixed path (Limgrave first) -- both players start Limgrave
+  ending_condition: region_locks # classic Shattering goal: reach Leyndell holding every kept Region Lock
+  enable_dlc: true              # BASE GAME ONLY
+  dlc_only: false
+
+  # --- multiplayer / feel ---
+  death_link: false               # co-op: you both die together. Flip to false if it gets too punishing.
+  progressive_flasks: true       # Golden Seed/Sacred Tear checks -> auto charge upgrades + granted tears
+
+  # --- standard AP ---
+  accessibility: minimal         # region-lock model: goal always reachable (not every check need be)
+  progression_balancing: 50
