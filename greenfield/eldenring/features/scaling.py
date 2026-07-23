@@ -43,6 +43,43 @@ from .area_locks import REGION_PLAY_IDS
 TARGET_MAX = 10000
 
 
+# ---- Intra-fold scaling delta (2026-07-22, Alaric; SPEC-intra-fold-scaling-delta-20260722.md) ----
+# A region's sphere target is broadcast FLAT to all its play_region buckets. When a region FOLDS
+# several vanilla areas of different native difficulty into one bucket-set, that flattens them --
+# worst case Greyoll's Dragonbarrow, a late-tier pocket inside the Caelid bucket, scaled down to
+# Caelid's target. This adds a HAND-AUTHORED per-bucket DELTA (target-space, 0..TARGET_MAX) applied
+# ON TOP of the region's target, CLAMPED so a bumped bucket can never reach the NEXT region's target
+# in the order (a local nudge, never a sphere-jump; preserves the "strictly below every later region"
+# invariant the order ramp asserts, and never inflates the max the client normalizes by). Playtest-
+# feel values, exactly like DLC_BLESSING_FLOORS. Scope = folded sub-areas ONLY (delta 0 == identity).
+# This is INTRA-fold variance, NOT cross-region reordering -- the 2026-06-19 "same sphere = same tier /
+# don't fix inversions" ruling is about REGION ordering and is untouched.
+_SCALING_BUCKET_DELTA = {
+    # bucket (play_region_id // 100) : delta in target space (0..TARGET_MAX)
+    64020: 2500,   # !! CONFIRM BUCKET + TUNE VALUE: Greyoll's Dragonbarrow (m60_49_40; m60_51_43 --
+                   #    the NE Caelid overworld tiles). Late-tier pocket folded into Caelid; this bumps
+                   #    it back toward its vanilla difficulty. 2500 ~= a couple tiers on the 0..10000 ramp.
+}
+
+
+def _apply_bucket_delta(triples):
+    """Add _SCALING_BUCKET_DELTA to matching buckets, clamped STRICTLY below the next distinct region
+    target (never a sphere-jump; never inflates the client-normalized max). Pure; empty delta ==
+    identity. triples = [[lo, hi, target], ...] with lo == hi == the bucket."""
+    if not _SCALING_BUCKET_DELTA:
+        return triples
+    distinct = sorted({t for _, _, t in triples})
+    out = []
+    for lo, hi, target in triples:
+        d = _SCALING_BUCKET_DELTA.get(lo, 0)  # lo == hi == play_region bucket
+        if d:
+            nxt = next((t for t in distinct if t > target), None)
+            ceil = (nxt - 1) if nxt is not None else TARGET_MAX
+            target = min(target + d, ceil)
+        out.append([lo, hi, target])
+    return out
+
+
 def sphere_target_ranges(kept):
     """[[lo, hi, target], ...] triples for `kept` region names (pure; unit-testable without AP).
 
@@ -58,7 +95,7 @@ def sphere_target_ranges(kept):
         target = round(i * TARGET_MAX / span)
         for pid in REGION_PLAY_IDS.get(region, []):
             triples.append([pid, pid, target])
-    return triples
+    return _apply_bucket_delta(triples)
 
 
 def _region_fill_spheres(world):
@@ -141,7 +178,7 @@ def _ranges_from_targets(region_target):
     for region, target in region_target.items():
         for pid in REGION_PLAY_IDS.get(region, []):
             triples.append([pid, pid, target])
-    return sorted(triples)
+    return sorted(_apply_bucket_delta(triples))
 
 
 # ---- DLC Scadutree-blessing floors (global_scadutree_blessing == 2 "scaled") --------------------

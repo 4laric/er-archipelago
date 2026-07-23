@@ -55,6 +55,29 @@ def test_blessing_floor_producer_stays_alive_though_off_by_default():
     assert sc.blessing_floor_ranges(["Limgrave", "Liurnia"]) == [], "no DLC kept -> no floors (inert)"
 
 
+def test_intra_fold_scaling_delta_bumps_clamps_and_never_inflates(monkeypatch):
+    # Pure mechanism test (SPEC-intra-fold-scaling-delta-20260722.md). Uses a CONTROLLED delta so it
+    # is robust to future tuning of the shipped _SCALING_BUCKET_DELTA values. Synthetic wire: three
+    # regions at targets 0 / 5000 / 10000; region-mid has a folded sub-bucket (999) at its base.
+    triples = [[100, 100, 0], [500, 500, 5000], [999, 999, 5000], [900, 900, 10000]]
+
+    monkeypatch.setattr(sc, "_SCALING_BUCKET_DELTA", {999: 2500})
+    out = {lo: t for lo, _, t in sc._apply_bucket_delta([list(t) for t in triples])}
+    assert out[999] > 5000, "folded bucket must bump above its region base"
+    assert out[999] < 10000, "bump must stay STRICTLY below the next region (no sphere-jump)"
+    assert out[500] == 5000, "a non-fold bucket in the same region is unchanged"
+    assert max(out.values()) == 10000, "delta must not inflate the client-normalized max"
+
+    # a delta on the TOP-target bucket must be a no-op, never a lowering
+    monkeypatch.setattr(sc, "_SCALING_BUCKET_DELTA", {900: 2500})
+    out2 = {lo: t for lo, _, t in sc._apply_bucket_delta([list(t) for t in triples])}
+    assert out2[900] == 10000, "delta on the top region must not lower the bucket"
+
+    # empty delta == identity
+    monkeypatch.setattr(sc, "_SCALING_BUCKET_DELTA", {})
+    assert sc._apply_bucket_delta([list(t) for t in triples]) == triples
+
+
 def _region_targets(world, wire):
     """region -> emitted target, resolved through the play_region buckets."""
     pid_t = {lo: t for lo, _hi, t in wire}
