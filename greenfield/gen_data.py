@@ -3390,9 +3390,20 @@ _CHECK_FLAGS_ALL = {int(r["flag"]) for r in rows if str(r.get("flag", "")).strip
 # makes a previously-assumed invariant checkable.
 CHECK_LOT_SLOTS_MAP = {}     # ItemLotParam_map   lot id -> [slot idx 1-8] holding a GOODS ware of a CHECK
 CHECK_LOT_SLOTS_ENEMY = {}   # ItemLotParam_enemy lot id -> same (boss / enemy one-time drops)
+# NON-GOODS check slots (weapon/armor/talisman/gem-ash). The goods blank above repoints its slots at
+# AP_PLACEHOLDER_GOODS -- a GOODS row -- so it can only touch goods slots; a non-goods slot pointed at a
+# goods id is a category mismatch. Non-goods check wares were therefore left to the id-keyed suppressor
+# (checkItemFlags). That suppressor only fires if the detour actually sees the AddItem AND the check flag
+# is not yet collected -- and for ENEMY / scarab / scripted overworld drops the vanilla item leaks anyway
+# (playtest: Ash of War: Lightning Ram scarab, Ornamental Straight Sword Grafted-Scion drop). Blanking
+# them AT THE SOURCE is grant-path- and flag-timing-independent: the client ZEROES these slots (lotItemId
+# =0), so the game hands out nothing. Safe because a flagged (getItemFlagId>0) lot is one-time, never
+# farmable, so zeroing it can't eat a legitimate repeatable source (same guarantee the goods blank uses).
+CHECK_LOT_ZERO_MAP = {}
+CHECK_LOT_ZERO_ENEMY = {}
 _ENEMY_LOT_FLAGS = {}        # lot -> flag, for the audit below
-for _fn, _dst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP),
-                  ("ItemLotParam_enemy.csv", CHECK_LOT_SLOTS_ENEMY)):
+for _fn, _dst, _zdst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP, CHECK_LOT_ZERO_MAP),
+                         ("ItemLotParam_enemy.csv", CHECK_LOT_SLOTS_ENEMY, CHECK_LOT_ZERO_ENEMY)):
     _fp = os.path.join(_ILP_DIR, _fn)
     if not os.path.isfile(_fp):
         continue
@@ -3406,15 +3417,13 @@ for _fn, _dst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP),
             if _lot <= 0 or _flag <= 0 or _flag not in _CHECK_FLAGS_ALL:
                 continue                       # unflagged = farmable (leave alone); unknown flag = not ours
             _sl = []
+            _zsl = []
             for _i in range(1, 9):
                 try:
                     _iid = int(_r.get("lotItemId%02d" % _i, 0) or 0)
                     _cat = int(_r.get("lotItemCategory%02d" % _i, 0) or 0)
                 except ValueError:
                     continue
-                # GOODS slots only. Weapon/armor check wares are left to the id-keyed suppressor, which
-                # is already SOUND for them (a weapon is essentially never farmable, so it lives in the
-                # check-only set and cannot eat a legitimate source).
                 # GOODS BY NIBBLE, not by a magic `== 1`. This read `_cat == 1`, so lotItemCategory
                 # 0 and 6 -- both GOODS -- were skipped, and the checks behind them handed out their
                 # vanilla ware forever. It cannot be fixed by the id-keyed suppressor either: those
@@ -3428,12 +3437,18 @@ for _fn, _dst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP),
                         "unknown category used to be SKIPPED, which silently leaks every check behind "
                         "it. Derive its nibble (tools/gen_check_lots_table.py votes it) and add it."
                         % (_cat, _lot, _i, _iid))
-                if _iid > 0 and str(_cat) in _LOT_CAT_GOODS and _iid != AP_PLACEHOLDER_GOODS:
-                    _sl.append(_i)
+                if _iid <= 0 or _iid == AP_PLACEHOLDER_GOODS:
+                    continue
+                if str(_cat) in _LOT_CAT_GOODS:
+                    _sl.append(_i)             # goods -> repoint to placeholder (client)
+                else:
+                    _zsl.append(_i)            # weapon/armor/talisman/gem -> zero the slot (client)
             if _sl:
                 _dst[_lot] = _sl
-                if _dst is CHECK_LOT_SLOTS_ENEMY:
-                    _ENEMY_LOT_FLAGS[_lot] = _flag
+            if _zsl:
+                _zdst[_lot] = _zsl
+            if (_sl or _zsl) and _dst is CHECK_LOT_SLOTS_ENEMY:
+                _ENEMY_LOT_FLAGS[_lot] = _flag
 
 # THE COLLISION, named out loud. Every id in both tables is a lot the old single-dict scheme got wrong.
 _COLLIDING = sorted(set(CHECK_LOT_SLOTS_MAP) & set(CHECK_LOT_SLOTS_ENEMY))
@@ -3468,11 +3483,20 @@ with open(OUT_CHECKLOTS, "w", newline="\n", encoding="utf-8") as f:
     f.write("AP_PLACEHOLDER_GOODS = %d\n\n" % AP_PLACEHOLDER_GOODS)
     f.write("CHECK_LOT_SLOTS_MAP = " + repr(dict(sorted(CHECK_LOT_SLOTS_MAP.items()))) + "\n\n")
     f.write("CHECK_LOT_SLOTS_ENEMY = " + repr(dict(sorted(CHECK_LOT_SLOTS_ENEMY.items()))) + "\n\n")
+    f.write("# NON-GOODS check slots (weapon/armor/talisman/gem-ash) the client ZEROES (lotItemId=0) so\n")
+    f.write("# the vanilla ware is never handed out -- grant-path- and flag-timing-independent, unlike the\n")
+    f.write("# id-keyed suppressor these used to rely on (which leaked on enemy/scarab/scripted drops:\n")
+    f.write("# Ash of War: Lightning Ram, Ornamental Straight Sword). ONE-TIME (flagged) lots only.\n")
+    f.write("CHECK_LOT_ZERO_MAP = " + repr(dict(sorted(CHECK_LOT_ZERO_MAP.items()))) + "\n\n")
+    f.write("CHECK_LOT_ZERO_ENEMY = " + repr(dict(sorted(CHECK_LOT_ZERO_ENEMY.items()))) + "\n\n")
     f.write("# Deprecated merged view (enemy wins on a collision, matching the pre-split behaviour).\n")
     f.write("CHECK_LOT_SLOTS = " + repr(dict(sorted(CHECK_LOT_SLOTS.items()))) + "\n")
 print(f"check_lots: {len(CHECK_LOT_SLOTS_MAP)} MAP + {len(CHECK_LOT_SLOTS_ENEMY)} ENEMY check lots to "
       f"blank ({sum(len(v) for v in CHECK_LOT_SLOTS_MAP.values()) + sum(len(v) for v in CHECK_LOT_SLOTS_ENEMY.values())} "
-      f"goods slots) -> placeholder {AP_PLACEHOLDER_GOODS}")
+      f"goods slots) -> placeholder {AP_PLACEHOLDER_GOODS}; "
+      f"{len(CHECK_LOT_ZERO_MAP)} MAP + {len(CHECK_LOT_ZERO_ENEMY)} ENEMY lots with "
+      f"{sum(len(v) for v in CHECK_LOT_ZERO_MAP.values()) + sum(len(v) for v in CHECK_LOT_ZERO_ENEMY.values())} "
+      f"non-goods slot(s) -> zeroed")
 
 # ---- ERDTREE BURN: m11_00 (normal Leyndell) IS DESTROYED WHEN MALIKETH DIES ------------------------
 # Alaric, playtest 2026-07-11: "when you kill Maliketh it sets ashen capital and warps you there".

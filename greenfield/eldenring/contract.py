@@ -533,6 +533,19 @@ CONTRACT = (
                 "ItemLotParam lot id (str) -> [goods slot indices] holding a CHECK's vanilla ware. The "
                 "client repoints those slots at apPlaceholderGoods so the vanilla ware is never handed "
                 "out at a check -- while farmed/mined/bought/crafted copies are left alone."),
+    ContractKey("checkLotZeroMap", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs (ItemLotParam_map, zero)",
+                "ItemLotParam_MAP lot id (str) -> the NON-GOODS slot indices (weapon/armor/talisman/gem) "
+                "holding a check's vanilla ware. The client ZEROES these slots (lotItemId=0, lotItemNum=0) "
+                "so nothing is handed out -- the goods repoint can't touch them (apPlaceholderGoods is a "
+                "GOODS row; a goods id in a weapon slot is a category mismatch). Zeroing at the source is "
+                "grant-path- and flag-timing-independent, closing the leak the id-keyed suppressor left on "
+                "enemy/scarab/scripted overworld drops. ONE-TIME (flagged) lots only, so it never eats a "
+                "farmable source."),
+    ContractKey("checkLotZeroEnemy", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/check_lots.py", "check_lots.rs (ItemLotParam_enemy, zero)",
+                "Same as checkLotZeroMap for ItemLotParam_ENEMY (boss / enemy one-time drops). SEPARATE "
+                "table for the same reason as checkLotBlankEnemy: a lot id can live in both tables."),
     ContractKey("apPlaceholderGoods", "INT", False, (GREENFIELD,),
                 "features/check_lots.py", "check_lots.rs / detour.rs unconditional suppress",
                 "A spare EquipParamGoods row (8852): exists so the game can grant it, no FMG name, "

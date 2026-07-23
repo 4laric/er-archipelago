@@ -33,9 +33,14 @@ So ONE placeholder goods row is enough:
 Result: no vanilla ware is EVER handed out at a check (the double-dip is gone), and nothing else is
 watched by item id, so mined ore, farmed drops, bought goods and crafted goods all just work.
 
-SCOPE: GOODS slots only. Weapon/armor check wares stay on the id-keyed suppressor, which is already
-sound for them -- a weapon is essentially never farmable, so it sits in the check-only set and cannot
-eat a legitimate source.
+SCOPE: GOODS slots are repointed to AP_PLACEHOLDER_GOODS (a goods row -- so it only works for goods
+slots). NON-GOODS check slots (weapon/armor/talisman/gem-ash) are instead ZEROED at the source
+(checkLotZeroMap / checkLotZeroEnemy, lotItemId=0), because a goods placeholder in a non-goods slot is
+a category mismatch. Non-goods wares used to rely on the id-keyed suppressor alone, but that only fires
+when the detour sees the AddItem and the check flag isn't already collected -- so enemy / scarab /
+scripted overworld drops leaked their vanilla item (playtest: Ash of War: Lightning Ram, Ornamental
+Straight Sword). Zeroing at the source is grant-path- and flag-timing-independent; the id-keyed
+suppressor stays armed as a belt-and-suspenders net (and still covers lotless EMEVD-award checks).
 
 Scoped to hub + kept spokes, like check_item_flags: a check that isn't in play this seed shouldn't have
 its lot rewritten.
@@ -56,6 +61,11 @@ except ImportError:                       # check_lots_data predates the map/ene
         from ..check_lots_data import CHECK_LOT_SLOTS as _LEGACY, AP_PLACEHOLDER_GOODS
     except ImportError:                   # no generated data at all: inert
         _LEGACY, AP_PLACEHOLDER_GOODS = {}, 0
+
+try:                                       # non-goods check slots to ZERO (predates -> empty, inert)
+    from ..check_lots_data import CHECK_LOT_ZERO_MAP, CHECK_LOT_ZERO_ENEMY
+except ImportError:
+    CHECK_LOT_ZERO_MAP, CHECK_LOT_ZERO_ENEMY = {}, {}
 
 
 @register
@@ -109,5 +119,11 @@ class CheckLots(Feature):
                 {str(lot): list(slots) for lot, slots in CHECK_LOT_SLOTS_MAP.items()},
             contract.CHECK_LOT_BLANK_ENEMY:
                 {str(lot): list(slots) for lot, slots in CHECK_LOT_SLOTS_ENEMY.items()},
+            # Non-goods check slots the client ZEROES (weapon/armor/talisman/gem) -- the goods repoint
+            # can't touch them, so this is what closes the enemy/scarab/scripted vanilla-drop leak.
+            contract.CHECK_LOT_ZERO_MAP:
+                {str(lot): list(slots) for lot, slots in CHECK_LOT_ZERO_MAP.items()},
+            contract.CHECK_LOT_ZERO_ENEMY:
+                {str(lot): list(slots) for lot, slots in CHECK_LOT_ZERO_ENEMY.items()},
             contract.AP_PLACEHOLDER_GOODS: int(AP_PLACEHOLDER_GOODS),
         }
