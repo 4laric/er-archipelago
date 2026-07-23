@@ -904,7 +904,7 @@ ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770868, 7770869, 77708
 # Surface-tagged checks HAND-EXCLUDED from the progression surface (_SURFACE_EXCLUDE_FLAGS
 # in gen_data; Alaric's call). They stay ordinary checks but never host this world's
 # progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.
-SURFACE_EXCLUDE_APS = frozenset([7771881, 7771911, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7774767, 7774790, 7774791])
+SURFACE_EXCLUDE_APS = frozenset([7771881, 7771911, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7773884, 7774767, 7774790, 7774791])
 
 # Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an
 # unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a
@@ -924,4 +924,4 @@ SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025,
 SHOP_SLOT_PINS = {1000: 7770199, 1001: 7770114, 1005: 7770081, 1006: 7770096, 1007: 7770073, 1008: 7770127, 1009: 7770090, 1018: 7770516, 1019: 7770557, 1022: 7770623}
 SHOP_SLOT_SKIPS = {1015: 'no start-stocked row: all 49 of its rows are release-gated', 6000: 'no start-stocked row: all 17 of its rows are release-gated', 16004: 'no start-stocked row: all 18 of its rows are release-gated'}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:4149929f004ddf1bffa2b7d890e1a6395b9ce88249e9132285ce9cb8d7c5ab8e', 'module': 'location_tags.py', 'body_sha256': 'sha256:7283ea9328e5a89eeb56ebefc25682d37f8cb32071032e16e31cdef796042fde'}
+_GEN_STAMP = {'inputs_hash': 'sha256:f4cc8a2cdb3a56a57d81546a8ed42545530793ac74b479dba0b3cbef051ce70b', 'module': 'location_tags.py', 'body_sha256': 'sha256:398809f704a7733e74aea2b48c54766e992d43622598bf560e429cf1c7c7b419'}

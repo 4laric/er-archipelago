@@ -37,7 +37,7 @@ LOCATIONS = {
     'Roundtable Hold': [
         ("Roundtable Hold :: Taunter's Tongue - around Table of Lost Grace [f60300]", 7770017, 60300),
         ('Roundtable Hold :: Memory Stone [f60470]', 7770024, 60470),
-        ('Roundtable Hold :: Talisman Pouch - m30_00 [f60500]', 7770025, 60500),
+        ('Roundtable Hold :: Talisman Pouch - Tombsward Catacombs [f60500]', 7770025, 60500),
         ("Roundtable Hold :: Fevor's Cookbook [3] - around Table of Lost Grace [f68210]", 7770135, 68210),
         ("Roundtable Hold :: Margit's Shackle [f110000]", 7770235, 110000),
         ('Roundtable Hold :: Stonesword Key (1) [f110020]', 7770236, 110020),
@@ -2134,7 +2134,7 @@ LOCATIONS = {
     'Limgrave': [
         ('Limgrave :: Flask of Wondrous Physick - near Third Church of Marika [f60020]', 7770011, 60020),
         ('Limgrave :: Spirit Calling Bell - around Church of Elleh [f60110]', 7770012, 60110),
-        ('Limgrave :: Crafting Kit - m11_10 [f60120]', 7770013, 60120),
+        ('Limgrave :: Crafting Kit - Table of Lost Grace [f60120]', 7770013, 60120),
         ('Limgrave :: Whetstone Knife - near Gatefront [f60130]', 7770014, 60130),
         ("Limgrave :: Duelist's Furled Finger - near Warmaster's Shack [f60240]", 7770015, 60240),
         ('Limgrave :: Cracked Pot (1) [f66030]', 7770048, 66030),
@@ -2265,8 +2265,8 @@ LOCATIONS = {
         ('Limgrave :: Sewing Needle - around Coastal Cave [f520340]', 7770790, 520340),
         ('Limgrave :: Golden Halberd - around South Raya Lucaria Gate [f530100]', 7770792, 530100),
         ('Limgrave :: Dragon Heart - Agheel [f530110]', 7770793, 530110),
-        ('Limgrave :: [Incantation] Aspects of the Crucible: Tail - m11_10 [f530120]', 7770794, 530120),
-        ("Limgrave :: Bloodhound's Fang - m11_10 [f530130]", 7770795, 530130),
+        ('Limgrave :: [Incantation] Aspects of the Crucible: Tail - Table of Lost Grace [f530120]', 7770794, 530120),
+        ("Limgrave :: Bloodhound's Fang - Table of Lost Grace [f530130]", 7770795, 530130),
         ('Limgrave :: Ash of War: Storm Wall - m60_40_39 [f540100]', 7770817, 540100),
         ('Limgrave :: Ash of War: Wild Strikes - around Stormhill Shack [f540104]', 7770818, 540104),
         ('Limgrave :: Ash of War: Determination - around Murkwater Cave [f540108]', 7770819, 540108),
@@ -2413,6 +2413,7 @@ LOCATIONS = {
         ('Limgrave :: Spiked Cracked Tear - near Fort Haight West [f65140]', 7773819, 65140),
         ("Limgrave :: Strength-knot Crystal Tear - near Warmaster's Shack [f65210]", 7773822, 65210),
         ("Limgrave :: Bernahl's Bell Bearing - m60_51_40 [f400299]", 7773851, 400299),
+        ('Limgrave :: Ornamental Straight Sword - m10_01 [f510030]', 7773884, 510030),
         ('Limgrave :: Golden Seed - around Cave of Knowledge [f510280]', 7773892, 510280),
         ('Limgrave :: Blue Dancer Charm - around Highroad Cave [f520350]', 7773922, 520350),
         ('Limgrave :: Roar Medallion - m32_01 [f520610]', 7773938, 520610),
@@ -3732,7 +3733,7 @@ LOCATIONS = {
         ('Raya Lucaria Academy :: Cracked Pot - near Debate Parlor [f66120]', 7770055, 66120),
         ('Raya Lucaria Academy :: Ritual Pot - near Debate Parlor [f66410]', 7770062, 66410),
         ("Raya Lucaria Academy :: Glintstone Craftsman's Cookbook [5] - near Debate Parlor [f67420]", 7770107, 67420),
-        ("Raya Lucaria Academy :: Sellen's Bell Bearing - m11_10 [f400106]", 7770674, 400106),
+        ("Raya Lucaria Academy :: Sellen's Bell Bearing - Table of Lost Grace [f400106]", 7770674, 400106),
         ("Raya Lucaria Academy :: Witch's Glintstone Crown - around Church of the Cuckoo [f400107]", 7770675, 400107),
         ("Raya Lucaria Academy :: Thops's Bell Bearing - around Church of the Cuckoo [f400360]", 7770710, 400360),
         ("Raya Lucaria Academy :: [Sorcery] Thops's Barrier - around Church of the Cuckoo [f400362]", 7770711, 400362),
@@ -4754,7 +4755,6 @@ LOCATIONS = {
         ('Stormveil :: Stormhawk Deenh - m10_01 [f10017900]', 7771014, 10017900),
         ('Stormveil :: Poisonbone Dart - near Cave of Knowledge [f18007000]', 7771826, 18007000),
         ('Stormveil :: Golden Rune [5] - near Cave of Knowledge [f18007020]', 7771827, 18007020),
-        ('Stormveil :: Ornamental Straight Sword - m10_01 [f510030]', 7773884, 510030),
         ('Stormveil :: Living Jar Shard - around Castleward Tunnel [f10007082]', 7773990, 10007082),
         ('Stormveil :: Dozing Cross-Legged - around Castleward Tunnel [f60836]', 7774845, 60836),
     ],
@@ -5131,4 +5131,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:4149929f004ddf1bffa2b7d890e1a6395b9ce88249e9132285ce9cb8d7c5ab8e', 'module': 'data.py', 'body_sha256': 'sha256:75c0b5623b884bcc49cb2a9edf6aee9abb50b248fb2ced549c70603fdef0766f'}
+_GEN_STAMP = {'inputs_hash': 'sha256:f4cc8a2cdb3a56a57d81546a8ed42545530793ac74b479dba0b3cbef051ce70b', 'module': 'data.py', 'body_sha256': 'sha256:a664317f188cd368540f0a0bdf64cde594d440e07f2b9430c4b37ab5df8bc5b9'}
