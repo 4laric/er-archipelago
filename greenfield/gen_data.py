@@ -943,6 +943,8 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
     2049447500, 2050437010, 2050437720, 2051447500, 2051447510,
     2048417700, 20007510, 20007820,
     2044467950, 2046477950,
+    510030,   # Ornamental Straight Sword (tutorial Grafted Scion drop) -- missable hard fight,
+              # obtainable only at the very start; a Limgrave Lock must never strand on it (2026-07-23).
 })
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
@@ -1411,6 +1413,11 @@ FLAG_REGION_OVERRIDE = {
     520000: "Weeping",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
                                                #   Weeping, mis-tiled to m10/Stormveil by the EMEVD scan.
     520010: "Weeping",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
+    510030: "Limgrave",          # Ornamental Straight Sword = the tutorial GRAFTED SCION drop (Chapel
+                                               #   of Anticipation) -- obtainable only at the very START (or the
+                                               #   Ashen-return), NOT Stormveil. boss_reward_lots mis-tied it to
+                                               #   m10_01 (defeat flag 10010800). Pin to sphere-0 Limgrave; also
+                                               #   surface-excluded (missable hard fight). (Alaric 2026-07-23.)
     400001: "Leyndell",          # Rold Medallion = GRANTED by Melina at the Elden Throne after Morgott
                                                #   dies -- obtained IN Leyndell, needs Leyndell + Morgott, NOT
                                                #   Altus. Raw pipeline pinned it to Altus off the m34_14
