@@ -21,12 +21,32 @@ class MissableDataTests(unittest.TestCase):
     def test_count_and_split(self):
         vals = list(MISSABLE_LOCATIONS.values())
         self.assertEqual(vals.count("deathroot"), 10)
-        self.assertEqual(vals.count("dragon_heart"), 19)
-        # quest_gated NPC-questline rewards are also missable (gen_data 18fb3ad).
-        self.assertEqual(len(MISSABLE_LOCATIONS), 29 + vals.count("questline"))
+        alt = [v for v in vals if v.startswith("alt_currency")]
+        # 2026-07-24: this was pinned at 19 "dragon_heart". The predicate was costType == 1 and it
+        # MISSED the DLC Grand Altar of Dragon Communion, whose Bayle incantations are costType 5 --
+        # so they were eligible to carry REQUIRED progression. Widened to "not runes" (costType != 0).
+        # The count grew because the INPUT PREDICATE got more correct, not looser: every added row is
+        # a shop row bought with something other than runes. A floor, not a pin, so the next currency
+        # FromSoft adds shows up as a pass rather than a rebaseline -- but a DROP is a lost currency
+        # family and must fail.
+        self.assertGreaterEqual(len(alt), 19,
+                                "alt-currency missables SHRANK -- a currency family stopped matching")
+        self.assertEqual(len(MISSABLE_LOCATIONS),
+                         10 + len(alt) + vals.count("questline"))
+
+    def test_both_dragon_communion_currencies_are_tagged(self):
+        """The bug this guards: ONE altar can mix cost types. Caelid's shelf is costType 1, the DLC
+        Grand Altar mixes 1 and 5 (believed Bayle's Heart -- a distinct, scarcer currency). Tagging
+        one family and not the other is how a limited-consumable purchase became an ordinary check."""
+        kinds = {v for v in MISSABLE_LOCATIONS.values() if v.startswith("alt_currency")}
+        self.assertGreaterEqual(len(kinds), 2,
+                                "only one alt-currency cost type is tagged: %r -- the DLC altar's "
+                                "second currency is missing again" % sorted(kinds))
 
     def test_only_known_sources(self):
-        self.assertTrue(set(MISSABLE_LOCATIONS.values()) <= {"deathroot", "dragon_heart", "questline"})
+        for v in set(MISSABLE_LOCATIONS.values()):
+            self.assertTrue(v in ("deathroot", "questline") or v.startswith("alt_currency:"),
+                            "unknown missable source label %r" % v)
 
     def test_ap_ids_are_ints(self):
         for aid in MISSABLE_LOCATIONS:
