@@ -16,7 +16,7 @@ from BaseClasses import Region, Location, Item, ItemClassification
 from worlds.AutoWorld import World, WebWorld
 from Options import PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle
 
-from .data import HUB, REGIONS, LOCATIONS
+from .data import HUB, REGIONS, LOCATIONS, FINALE_REGION
 try:
     from .location_tags import DEFAULTED_REGION_APS   # checks whose region is a GUESS -> filler only
 except ImportError:                                    # pre-regen data: fail OPEN, guard is inert
@@ -738,8 +738,17 @@ class GreenfieldEldenRingWorld(World):
             goal = GOAL_REGION
             if goal not in _kept_now:
                 from .features import goal_locations as _gl
+                from .features.finale import finale_active as _fin
                 _derived, _ = _gl.terminal_goal_ids(_kept_now)
-                goal = _derived or HUB
+                # The derived goal may be the CONDITIONAL finale region (data.FINALE_REGION, "Ashen
+                # Capital"): not in REGIONS, never rolled, created by features/finale.py only when
+                # its requirements are kept. Legitimate when it exists and a KeyError when it does
+                # not -- exactly the bug being fixed -- so check that it is really built before
+                # handing it to can_reach.
+                _built = set(_kept_now) | {HUB}
+                if _fin(_kept_now):
+                    _built.add(FINALE_REGION)
+                goal = _derived if _derived in _built else HUB
                 logging.getLogger("Elden Ring").info(
                     "[greenfield] %s is not in this seed's kept regions; natural-progression goal "
                     "derived from the kept set instead: %s", GOAL_REGION, goal)

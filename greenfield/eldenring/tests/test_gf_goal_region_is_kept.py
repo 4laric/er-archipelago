@@ -14,9 +14,21 @@ worse, cannot even be generated.
 import random
 import unittest
 
-from ..data import REGIONS
+from ..data import FINALE_REGION, HUB, REGIONS
+from ..features.finale import finale_active
 from ..features.goal_locations import terminal_goal_ids
 from ..region_spine import GOAL_REGION, DLC_REGIONS, compute_kept
+
+
+def _created(kept):
+    """Regions the world actually builds: the hub, the kept set, and -- only when its requirements
+    are kept -- the conditional finale region (features/finale.py). `Ashen Capital` is NOT in
+    data.REGIONS and is never rolled, so asserting `goal in kept` is too strict; asserting the goal
+    is REACHABLE-BY-NAME is the real invariant, because that is what can_reach looks up."""
+    out = set(kept) | {HUB}
+    if finale_active(kept):
+        out.add(FINALE_REGION)
+    return out
 
 
 class GoalRegionIsAlwaysKept(unittest.TestCase):
@@ -27,24 +39,25 @@ class GoalRegionIsAlwaysKept(unittest.TestCase):
         self.assertNotIn(GOAL_REGION, kept, "fixture must not contain the hardcoded goal")
         goal, _ids = terminal_goal_ids(kept)
         self.assertIsNotNone(goal, "no goal derived for a DLC-only seed")
-        self.assertIn(goal, kept,
-                      "derived goal %r is not in the kept set -- can_reach would KeyError" % goal)
+        self.assertIn(goal, _created(kept),
+                      "derived goal %r is not a created region -- can_reach would KeyError" % goal)
 
     def test_base_only_derives_a_kept_goal(self):
         kept = [r for r in REGIONS if r not in set(DLC_REGIONS)]
         goal, _ids = terminal_goal_ids(kept)
-        self.assertIn(goal, kept, "derived goal %r is not kept" % goal)
+        self.assertIn(goal, _created(kept), "derived goal %r is not a created region" % goal)
 
     def test_every_num_regions_slice_derives_a_kept_goal(self):
         """Walk the whole num_regions range: no N may produce a goal outside its own kept set."""
         bad = []
         for n in range(1, len(REGIONS) + 1):
             for order in ("spine", "rolled"):
-                kept = compute_kept(list(REGIONS), n, order, random.Random(n))
+                kept = compute_kept(n, order, random.Random(n), list(REGIONS))
                 goal, _ids = terminal_goal_ids(kept)
-                if goal is not None and goal not in kept:
+                if goal is not None and goal not in _created(kept):
                     bad.append((n, order, goal))
-        self.assertEqual(bad, [], "kept sets whose derived goal is not kept: %r" % (bad[:5],))
+        self.assertEqual(bad, [], "kept sets whose derived goal is not a created region: %r"
+                                  % (bad[:5],))
 
 
 if __name__ == "__main__":
