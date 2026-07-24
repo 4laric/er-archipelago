@@ -1,45 +1,78 @@
-"""ShopSlot pin invariants: per merchant, AT MOST one progression-eligible shop slot, pinned to a
-MERCHANT-UNIQUE, start-stocked, region-confident ware -- and every unpinned merchant is skipped
-VISIBLY, with a reason.
+"""ShopSlot pin invariants: per MERCHANT, at most one progression-eligible shop slot, pinned to a
+ware only that merchant sells in the field -- and every unpinned merchant is skipped VISIBLY.
 
-Model (Alaric 2026-07-15): a merchant enters the progression pool at most once (matt's cap), and the
-one eligible slot must be a ware the player can hunt down unambiguously -- a ware sold under exactly
-ONE stock flag in the whole game ("buy the Nomadic Warrior's Cookbook [13]" names one merchant; "buy
-a Ruin Fragment" could name three). Rows the merchant does not stock at start (release-gated) and
-checks whose region was a guess (DEFAULTED) are barred from progression anyway, so pinning one would
-be a dead pin: tagged eligible, barred in fill.
+Model (reworked 2026-07-24). A merchant enters the progression pool at most once. The old unit was
+the ShopLineupParam 100-block and the old uniqueness test was "this ware is sold under exactly one
+stock flag game-wide"; both were proxies and both were wrong. merchant_shops.tsv (talk ESD
+`OpenRegularShop`) says which NPC opens which row, and under the old test 8 of 10 pins were sold by
+2-7 merchants apiece -- one was filed in a region no seller stands in.
 
-Ground truth: greenfield/shop_rows.tsv (ShopLineupParam, tools/datamine_shop_rows.py) -- copied into
-the installed package by tools/gf_test.py (REQUIRED_INPUTS), resolved source-tree-or-installed like
-test_gf_shop_release_gate. No hand lists.
+Three corrections encoded here:
+  * MERCHANT := talk_id, not the 100-block. The block is not a merchant (merchant_shops.tsv's own
+    header exists to say so).
+  * The HUB MIRROR does not create ambiguity. The Twin Maiden Husks (m11_10) re-sell a merchant's
+    stock once you hand in that merchant's BELL BEARING, which you get by killing them -- so the hub
+    copy is never an alternative EARLY route. Counting it leaves ~zero pinnable checks; discounting
+    it leaves 181.
+  * A pin must be able to HOLD progression: not release-gated, not region-DEFAULTED, not MISSABLE
+    (which now includes every alt-currency shop row, costType != 0 -- the Dragon Communion altars).
+
+Ground truth: greenfield/shop_rows.tsv + greenfield/merchant_shops.tsv, both REQUIRED_INPUTS copied
+into the installed world by tools/gf_test.py. No hand lists.
 """
-import csv
+import collections
 import os
 import unittest
 
-from ..shop_data import SHOP_ROW_IDS
 from ..location_tags import (LOCATION_TAGS, SHOP_SLOT_PINS, SHOP_SLOT_SKIPS,
                              DEFAULTED_REGION_APS, SHOP_RELEASE_GATED_APS)
+from ..missable_locations import MISSABLE_LOCATIONS
+from ..shop_data import SHOP_ROW_IDS
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _GF_PKG = os.path.dirname(_HERE)
 _GREENFIELD = os.path.dirname(_GF_PKG)
-_TSV = next((p for p in (os.path.join(_GF_PKG, "shop_rows.tsv"),
-                         os.path.join(_GREENFIELD, "shop_rows.tsv")) if os.path.isfile(p)),
-            os.path.join(_GF_PKG, "shop_rows.tsv"))
-
-# Canonical samples (stable param facts, not ap-ids):
-# Twin Maiden Husks = block 1018. The White Cipher Ring (stock flag 60280) is sold nowhere else and
-# is on the shelf from the start -- the block must be pinned, on a unique ware.
-_TWIN_MAIDENS_BLOCK = 1018
-# Enia = block 1015: ALL 49 rows release-gated (several behind ENDGAME flag 9107) -> must be SKIPPED.
-_ENIA_BLOCK = 1015
+_HUB_TILE = "m11_10"
 
 
-def _rows():
-    with open(_TSV, encoding="utf-8") as f:
-        lines = [l for l in f if not l.startswith("#")]
-    return list(csv.DictReader(lines, delimiter="\t"))
+def _input(name):
+    for base in (_GF_PKG, _GREENFIELD):
+        p = os.path.join(base, name)
+        if os.path.isfile(p):
+            return p
+    return None
+
+
+def _tsv(path, skip_prefixes=("#", "row_id", "talk_id")):
+    out = []
+    with open(path, encoding="utf-8-sig") as fh:
+        for ln in fh:
+            if not ln.strip() or ln.startswith(skip_prefixes):
+                continue
+            out.append(ln.rstrip("\n").split("\t"))
+    return out
+
+
+def _sellers():
+    """(flag -> {talk_id opening a row with it}, talk_id -> {map_id})."""
+    sp, mp = _input("shop_rows.tsv"), _input("merchant_shops.tsv")
+    if not (sp and mp):
+        return None, None
+    row2flag = {}
+    for q in _tsv(sp):
+        if len(q) >= 6 and q[0].isdigit() and q[5].isdigit():
+            row2flag[int(q[0])] = int(q[5])
+    f2t, t2m = collections.defaultdict(set), collections.defaultdict(set)
+    for q in _tsv(mp):
+        if len(q) < 5 or not q[0].isdigit():
+            continue
+        fl = row2flag.get(int(q[0]))
+        if fl is None:
+            continue
+        f2t[fl].add(q[1])
+        if q[4].strip():
+            t2m[q[1]].add(q[4].strip())
+    return f2t, t2m
 
 
 def _shop_slot_aps():
@@ -47,79 +80,73 @@ def _shop_slot_aps():
 
 
 class ShopSlotPins(unittest.TestCase):
-    def test_tag_set_is_exactly_the_pin_set(self):
-        """The ShopSlot tag and SHOP_SLOT_PINS are the same claim -- drift means location_tags.py and
-        the pin table were generated by different logic."""
+    @classmethod
+    def setUpClass(cls):
+        cls.f2t, cls.t2m = _sellers()
+        if cls.f2t is None:
+            raise unittest.SkipTest("shop_rows.tsv / merchant_shops.tsv not resolvable")
+        # ap -> stock flag, via its first shop row
+        cls.flag_of = {}
+        row2flag = {}
+        for q in _tsv(_input("shop_rows.tsv")):
+            if len(q) >= 6 and q[0].isdigit() and q[5].isdigit():
+                row2flag[int(q[0])] = int(q[5])
+        for ap, rows in SHOP_ROW_IDS.items():
+            if rows:
+                cls.flag_of[int(ap)] = row2flag.get(rows[0])
+
+    def _field_openers(self, flag):
+        return {t for t in self.f2t.get(flag, ())
+                if any(m != _HUB_TILE for m in self.t2m.get(t, ()))}
+
+    def test_pins_exist(self):
+        """Rule 2: an empty result is a FAILURE. gen_data FATALs on zero; assert it here too."""
+        self.assertTrue(SHOP_SLOT_PINS, "ZERO ShopSlot pins -- the shop class fell off the surface")
+
+    def test_tagged_aps_match_the_pin_table(self):
         self.assertEqual(_shop_slot_aps(), set(SHOP_SLOT_PINS.values()),
                          "ShopSlot-tagged ap ids != SHOP_SLOT_PINS values")
         self.assertEqual(len(SHOP_SLOT_PINS), len(set(SHOP_SLOT_PINS.values())),
-                         "an ap id is pinned for two merchant blocks")
+                         "an ap id is pinned for two merchants")
 
-    def test_at_most_one_pin_per_merchant_block(self):
-        """THE CAP. Resolve every ShopSlot-tagged check to its merchant block via its shop rows; no
-        block may carry two, and each pin must sit in the block it is recorded under."""
-        seen = {}
-        for block, ap in SHOP_SLOT_PINS.items():
-            rows = SHOP_ROW_IDS.get(str(ap))
-            self.assertTrue(rows, f"pinned ap {ap} (block {block}) has no shop-row mapping")
-            self.assertEqual(rows[0] // 100, block,
-                             f"pinned ap {ap} recorded under block {block} but its first shop row "
-                             f"{rows[0]} sits in block {rows[0] // 100}")
-            self.assertNotIn(rows[0] // 100, seen,
-                             f"merchant block {block} carries two ShopSlot pins")
-            seen[rows[0] // 100] = ap
+    def test_every_pin_has_exactly_one_FIELD_seller_and_it_is_its_key(self):
+        """THE CAP, restated on the real unit: the pinned ware must be sold by exactly one merchant
+        outside the hub, and that merchant must be the talk_id it is filed under."""
+        bad = []
+        for talk, ap in sorted(SHOP_SLOT_PINS.items()):
+            flag = self.flag_of.get(ap)
+            if flag is None:
+                bad.append((talk, ap, "no shop row / stock flag"))
+                continue
+            field = self._field_openers(flag)
+            if field != {str(talk)}:
+                bad.append((talk, ap, "field sellers = %s" % sorted(field)))
+        self.assertEqual(bad, [], "pin(s) whose field-seller set is not exactly their merchant: %r"
+                                  % bad[:5])
 
     def test_pins_are_not_dead(self):
-        """A pin must be able to actually HOLD progression: not release-gated, not region-DEFAULTED."""
+        """A pin must be able to HOLD progression: not release-gated, not DEFAULTED, not missable."""
         pinned = set(SHOP_SLOT_PINS.values())
         self.assertEqual(set(), pinned & set(SHOP_RELEASE_GATED_APS),
                          "a ShopSlot pin is release-gated -- eligible in name, barred in fill")
         self.assertEqual(set(), pinned & set(DEFAULTED_REGION_APS),
                          "a ShopSlot pin has a GUESSED region -- eligible in name, barred in fill")
+        self.assertEqual(set(), pinned & set(MISSABLE_LOCATIONS),
+                         "a ShopSlot pin is MISSABLE (alt-currency shop / limited consumable) -- "
+                         "progression placed there can be spent away")
 
     def test_pins_and_skips_are_disjoint_and_reasoned(self):
         self.assertEqual(set(), set(SHOP_SLOT_PINS) & set(SHOP_SLOT_SKIPS),
-                         "a merchant block is both pinned and skipped")
-        for block, why in SHOP_SLOT_SKIPS.items():
+                         "a merchant is both pinned and skipped")
+        for talk, why in SHOP_SLOT_SKIPS.items():
             self.assertTrue(isinstance(why, str) and why.strip(),
-                            f"skipped block {block} has no reason -- skips must be LOUD")
+                            f"skipped merchant {talk} has no reason -- skips must be LOUD")
 
-    # ---- tsv oracle: re-derive the uniqueness predicate from ShopLineupParam ground truth --------
-    def test_every_pin_is_a_merchant_unique_ware(self):
-        """For each pinned check, its stock flag must sell exactly one ware, and that ware must be
-        sold under NO other stock flag in the whole tsv (gated/trade/spell rows included: ambiguity
-        is measured against everywhere the player can BUY the item)."""
-        rows = _rows()
-        self.assertTrue(rows, "shop_rows.tsv resolved but parsed to zero rows (rule 2)")
-        flag_items, item_flags = {}, {}
-        for r in rows:
-            key = (r["equip_type"], r["equip_id"])
-            fl = int(r["stock_flag"])
-            flag_items.setdefault(fl, set()).add(key)
-            item_flags.setdefault(key, set()).add(fl)
-        flag_by_row = {int(r["row_id"]): int(r["stock_flag"]) for r in rows}
-        for block, ap in sorted(SHOP_SLOT_PINS.items()):
-            fl = flag_by_row.get(SHOP_ROW_IDS[str(ap)][0])
-            self.assertIsNotNone(fl, f"pinned ap {ap}: shop row not in shop_rows.tsv")
-            items = flag_items.get(fl, set())
-            self.assertEqual(1, len(items),
-                             f"block {block} pin (flag {fl}) sells {len(items)} distinct wares -- "
-                             f"ambiguous, not pinnable")
-            ware = next(iter(items))
-            self.assertEqual({fl}, item_flags[ware],
-                             f"block {block} pinned ware {ware} is sold under flags "
-                             f"{sorted(item_flags[ware])} -- 2+ merchants sell it, the location is "
-                             f"ambiguous and may not be the pin")
-
-    def test_canonical_samples(self):
-        """Twin Maidens: pinned (White Cipher Ring class of ware exists). Enia: skipped, loudly,
-        because nothing is on her shelf at the start."""
-        self.assertIn(_TWIN_MAIDENS_BLOCK, SHOP_SLOT_PINS,
-                      "Twin Maiden Husks (block 1018) lost its pin -- it stocks start-available "
-                      "merchant-unique wares (White Cipher Ring, flag 60280)")
-        self.assertIn(_ENIA_BLOCK, SHOP_SLOT_SKIPS,
-                      "Enia (block 1015, every row release-gated) must be SKIPPED")
-        self.assertIn("release-gated", SHOP_SLOT_SKIPS[_ENIA_BLOCK])
+    def test_pin_keys_are_real_merchants(self):
+        known = {t for ts in self.f2t.values() for t in ts}
+        unknown = [t for t in SHOP_SLOT_PINS if str(t) not in known]
+        self.assertEqual(unknown, [], "pin key(s) are not talk ESD ids from merchant_shops.tsv: %r"
+                                      % unknown[:5])
 
 
 if __name__ == "__main__":
