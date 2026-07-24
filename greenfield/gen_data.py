@@ -3303,11 +3303,20 @@ _CAT_NIB = {0:0x00000000,1:0x10000000,2:0x20000000,3:0x40000000,4:0x80000000}
 #     290650 Bayle's Tyranny     costType 5  value 1   <- DLC altar, was NOT tagged
 #     290660 Bayle's Flame Ltng  costType 5  value 1   <- DLC altar, was NOT tagged
 #     290670 Ghostflame Breath   costType 1  value 3   <- DLC altar, was tagged
-# So the DLC altar mixes costType 1 and 5 on the same shelf, and enumerating cost types would have
-# gone stale again on the next currency FromSoft adds. We do not need to know what 5 MEANS -- only
-# that it is not runes. Testing `!= 0` is the datum; the per-type tally below keeps it auditable
-# (rule 4: a filter with no tally is a lie).
-DRAGONHEART_FLAGS = set()         # stock flags whose row is paid in ANYTHING but runes -> missable
+# costType 5 is believed to be BAYLE'S HEART -- a DLC-only currency distinct from the generic Dragon
+# Heart (Alaric, 2026-07-24, from play; NOT yet confirmed against EquipParamGoods/EquipMtrlSetParam,
+# and mtrlId is -1 on all four rows so the param does not say it here). If that is right the two
+# shelves have SEPARATE scarcity budgets, and the Bayle one is far tighter: one boss's drop spread
+# over several incantations, i.e. at most K of N are ever obtainable. That is stronger than
+# "missable" (which only bars REQUIRED progression); the labels below keep the families apart so a
+# pick-K-of-N rule can be written later without re-deriving anything.
+# It also settles the predicate: with two distinct currencies on ONE shelf, enumerating cost types is
+# wrong in principle, not merely stale. `!= 0` (not runes) is the datum. The per-type tally below
+# keeps it auditable (rule 4: a filter with no tally is a lie).
+# One stock flag can surface on SEVERAL rows -- and at DIFFERENT cost types (the branch's first
+# labelled regen showed the type-1 count drop 19 -> 14 when a plain `[flag] = costType` let the last
+# row read win). Silent last-write-wins on a derived label is the house failure mode, so keep the SET.
+DRAGONHEART_FLAGS = defaultdict(set)   # stock flag -> {costType}, for rows NOT paid in runes
 _COSTTYPE_TALLY = Counter()       # costType -> rows seen (printed; 0 == runes is the normal case)
 _slp_present = os.path.isfile(_SLP)
 if _slp_present:
@@ -3323,7 +3332,7 @@ if _slp_present:
                 _ct = int(_sr.get("costType", 0))
                 _COSTTYPE_TALLY[_ct] += 1
                 if _ct != 0:
-                    DRAGONHEART_FLAGS.add(_fl)
+                    DRAGONHEART_FLAGS[_fl].add(_ct)
             except (KeyError, ValueError):
                 pass
             try:
@@ -3797,9 +3806,19 @@ if _slp_present:
     print("shop costType tally (0 = runes; every other type is an alt currency -> missable): "
           + repr(dict(sorted(_COSTTYPE_TALLY.items())))
           + f" -> {len(DRAGONHEART_FLAGS)} alt-currency stock flag(s)")
+    _multi = {_f: sorted(_c) for _f, _c in DRAGONHEART_FLAGS.items() if len(_c) > 1}
+    if _multi:
+        print("shop costType: %d stock flag(s) sold at MORE THAN ONE cost type -- labelled with all "
+              "of them: %s" % (len(_multi), repr(dict(sorted(_multi.items())))))
     if not DRAGONHEART_FLAGS:
         raise SystemExit("FATAL: zero alt-currency shop rows -- the Dragon Communion altars are "
                          "known to exist, so an empty set means the costType read broke (rule 2).")
+
+def _alt_currency_label(_fl):
+    """"alt_currency:<types>" -- every cost type this flag is sold at, sorted, so the label is a
+    pure function of the data rather than of row order."""
+    return "alt_currency:" + "+".join(str(_c) for _c in sorted(DRAGONHEART_FLAGS[_fl]))
+
 
 _MISSABLE = {}   # ap_id -> source label ("deathroot" | "dragon_heart" == any alt currency)
 for _i, _r in enumerate(rows):
@@ -3808,7 +3827,10 @@ for _i, _r in enumerate(rows):
     if _mf in DEATHROOT_FLAGS:
         _MISSABLE[BASE_AP + _i] = "deathroot"
     elif _mf in DRAGONHEART_FLAGS:
-        _MISSABLE[BASE_AP + _i] = "dragon_heart"
+        # Label carries the COST TYPE so the currency families stay distinguishable (costType 1 =
+        # Dragon Heart, 5 = believed Bayle's Heart). "all alt-currency slots are missable" is the
+        # rule today; "at most K from one currency" needs to know which currency.
+        _MISSABLE[BASE_AP + _i] = _alt_currency_label(_mf)
     elif _mf in QUEST_GATED_FLAGS:
         _MISSABLE[BASE_AP + _i] = "questline"
 OUT_MISS = os.path.join(HERE, "eldenring", "missable_locations.py")
@@ -3822,7 +3844,7 @@ with open(OUT_MISS, "w", newline="\n", encoding="utf-8") as f:
         f.write(f"    {_aid}: {_MISSABLE[_aid]!r},\n")
     f.write("}\n")
 _mc = Counter(_MISSABLE.values())
-print(f"missable_locations: {len(_MISSABLE)} checks (deathroot={_mc.get('deathroot',0)}, dragon_heart={_mc.get('dragon_heart',0)})")
+print("missable_locations: %d checks -- %s" % (len(_MISSABLE), repr(dict(sorted(_mc.items())))))
 
 
 # ---- Real-item-pool foundation: each location's vanilla item -> its ER FullID (matt-free).
@@ -4373,7 +4395,8 @@ for _ap2, _b in _ap_blk.items():
 
 
 _ALT_CURRENCY_TALKS = {_t for _t, _aps0 in _talk_checks.items()
-                       if any(_MISSABLE.get(_a0) == "dragon_heart" for _a0 in _aps0)}
+                       if any(str(_MISSABLE.get(_a0, "")).startswith("alt_currency")
+                              for _a0 in _aps0)}
 
 
 def _talk_regions(_t):
