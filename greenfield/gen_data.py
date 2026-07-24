@@ -647,6 +647,16 @@ ROW_ITEM_NAME_FIX = {
     # DLC gate pickup). Relabel so it reads as the key and earns the KeyItem tag (same class of shared-
     # flag mis-name as 520160). Its region column is stale (m20_00) -- verify the true location. (2026-07-13)
     400696: "Prayer Room Key",
+    # 510460 = Messmer's defeat flag, shared by TWO map lots: 10460 (goods 2002901 = Remembrance of the
+    # Impaler) + 10461 (goods 2008021 = Messmer's Kindling, the finale KEY ITEM). The scan named the check
+    # after the lower lot (the remembrance), so the Kindling -- a real Key Item like the Rold Medallion --
+    # was never captured as its own shuffled item (Alaric 2026-07-24 datamine: lots 10460/10461 both fire
+    # getItemFlagId 510460). Relabel to the KEY, exactly like 400696/520160: the Kindling becomes the
+    # shuffled item (FullID resolves from the name -> goods 2008021), earns the KeyItem tag, and
+    # natural_progression gates Enir-Ilim on it (SPEC-vanilla-progression S4). The Remembrance of the
+    # Impaler rides along on the same pickup (one flag, one check) -- the accepted tradeoff. Needs a
+    # `-Greenfield` regen to bake (the sandbox has no artifacts).
+    510460: "Messmer's Kindling",
 }
 for _rowfix in _ALLROWS:
     try:
