@@ -916,7 +916,7 @@ LOCATIONS = {
         ("Caelid :: Armorer's Cookbook [5] - near Chamber Outside the Plaza [f67310]", 7770104, 67310),
         ("Caelid :: Missionary's Cookbook [3] - near Smoldering Church [f67650]", 7770118, 67650),
         ("Caelid :: Nomadic Warrior's Cookbook [14] - near Smoldering Church [f67870]", 7770124, 67870),
-        ("Caelid :: Nomadic Warrior's Cookbook [15] - Nomad Merchant Caelid South. Near the map piece [f67900]", 7770127, 67900),
+        ("Caelid :: Nomadic Warrior's Cookbook [15] [f67900]", 7770127, 67900),
         ("Caelid :: Ancient Dragon Apostle's Cookbook [3] - near Cathedral of Dragon Communion [f68030]", 7770133, 68030),
         ('Caelid :: Note: Hidden Cave [f69600]', 7770177, 69600),
         ("Caelid :: Note: Gravity's Advantage [f69700]", 7770186, 69700),
@@ -1634,7 +1634,7 @@ LOCATIONS = {
         ("Gravesite :: Loyal Knight's Cookbook - near Castle Ensis Checkpoint [f68790]", 7770162, 68790),
         ("Gravesite :: Fire Knight's Cookbook [2] - near Castle Front [f68900]", 7770172, 68900),
         ('Gravesite :: Rune Arc - shop · m60_43_32 [f320500]', 7770622, 320500),
-        ('Gravesite :: Note: Sealed Spiritsprings - Moore, by cross outside of Belurat [f320550]', 7770623, 320550),
+        ('Gravesite :: Note: Sealed Spiritsprings [f320550]', 7770623, 320550),
         ('Gravesite :: Rada Fruit [f320560]', 7770624, 320560),
         ('Gravesite :: Redflesh Mushroom [f320570]', 7770625, 320570),
         ('Gravesite :: Whiteflesh Mushroom - shop · m60_42_32 [f320580]', 7770626, 320580),
@@ -2169,7 +2169,7 @@ LOCATIONS = {
         ('Limgrave :: Cracked Pot (1) [f66030]', 7770048, 66030),
         ('Limgrave :: Cracked Pot (2) [f66060]', 7770049, 66060),
         ('Limgrave :: Hefty Cracked Pot - near Bonny Gaol [f66930]', 7770078, 66930),
-        ("Limgrave :: Nomadic Warrior's Cookbook [1] - Kale, Church of Elleh [f67000]", 7770081, 67000),
+        ("Limgrave :: Nomadic Warrior's Cookbook [1] [f67000]", 7770081, 67000),
         ("Limgrave :: Nomadic Warrior's Cookbook [3] - around Crumbling Beast Grave [f67010]", 7770082, 67010),
         ("Limgrave :: Nomadic Warrior's Cookbook [6] - near Fort Haight West [f67020]", 7770083, 67020),
         ("Limgrave :: Nomadic Warrior's Cookbook [7] - near Stormhill Shack [f67050]", 7770085, 67050),
@@ -2506,7 +2506,7 @@ LOCATIONS = {
         ('Liurnia :: Ritual Pot - around Main Caria Manor Gate [f66450]', 7770065, 66450),
         ("Liurnia :: Nomadic Warrior's Cookbook [12] - near Fallen Ruins of the Lake [f67060]", 7770086, 67060),
         ("Liurnia :: Nomadic Warrior's Cookbook [13] - around Fractured Marika [f67080]", 7770088, 67080),
-        ("Liurnia :: Nomadic Warrior's Cookbook [11] - Liurnia Merchang [f67220]", 7770096, 67220),
+        ("Liurnia :: Nomadic Warrior's Cookbook [11] [f67220]", 7770096, 67220),
         ("Liurnia :: Glintstone Craftsman's Cookbook [4] - near Academy Gate Town [f67400]", 7770105, 67400),
         ("Liurnia :: Glintstone Craftsman's Cookbook [1] - near Liurnia Lake Shore [f67410]", 7770106, 67410),
         ("Liurnia :: Glintstone Craftsman's Cookbook [2] - near Laskyar Ruins [f67450]", 7770110, 67450),
@@ -4454,7 +4454,7 @@ LOCATIONS = {
     ],
     'Siofra River': [
         ("Siofra River :: Black Whetblade - near Night's Sacred Ground [f65720]", 7770045, 65720),
-        ("Siofra River :: Nomadic Warrior's Cookbook [17] - Abandoned Merchant Siofra River, up high [f67100]", 7770090, 67100),
+        ("Siofra River :: Nomadic Warrior's Cookbook [17] - around Cathedral of Manus Celes [f67100]", 7770090, 67100),
         ("Siofra River :: Nomadic Warrior's Cookbook [18] [f67270]", 7770100, 67270),
         ("Siofra River :: Armorer's Cookbook [6] - near Siofra River Bank [f67300]", 7770103, 67300),
         ("Siofra River :: Missionary's Cookbook [5] - near Aqueduct-Facing Cliffs [f67630]", 7770116, 67630),
@@ -5131,4 +5131,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:0ab047ca528d1562453a5049ebf6c8216d4cbe61926146e107d5a6cd508f1cf2', 'module': 'data.py', 'body_sha256': 'sha256:9144acf820f89611d6cf9addbf22357d2b2cbf7ba5c45ed3b285787bcc125503'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fdf12fe4f33a14b7027f71eca95fc55368de4f239f58d97501ba2c250e2858e6', 'module': 'data.py', 'body_sha256': 'sha256:f4244370b9ce3a3a3f403f936ea349104cdecd2a12f63ad69e0301a0a6498b0d'}

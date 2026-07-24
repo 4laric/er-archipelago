@@ -30,29 +30,29 @@ LOCATION_TAGS = {
     7770040: ['Boss'],
     7770048: ['Shop', 'ShopNonSpell'],
     7770049: ['Shop', 'ShopNonSpell'],
-    7770050: ['Shop', 'ShopNonSpell'],
-    7770061: ['ShopNonSpell'],
-    7770066: ['Shop', 'ShopNonSpell'],
+    7770050: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770061: ['ShopNonSpell', 'ShopSlot'],
+    7770066: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770073: ['Shop', 'ShopNonSpell', 'ShopSlot'],
-    7770081: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770081: ['Shop', 'ShopNonSpell'],
     7770082: ['ShopNonSpell'],
-    7770088: ['ShopNonSpell'],
+    7770088: ['ShopNonSpell', 'ShopSlot'],
     7770090: ['ShopNonSpell', 'ShopSlot'],
     7770091: ['Shop', 'ShopNonSpell'],
     7770095: ['Shop', 'ShopNonSpell'],
-    7770096: ['ShopNonSpell', 'ShopSlot'],
-    7770097: ['Shop', 'ShopNonSpell'],
+    7770096: ['ShopNonSpell'],
+    7770097: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770100: ['Shop', 'ShopNonSpell'],
     7770101: ['Shop', 'ShopNonSpell'],
-    7770102: ['Shop', 'ShopNonSpell'],
-    7770114: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770102: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770114: ['Shop', 'ShopNonSpell'],
     7770115: ['Shop', 'ShopNonSpell'],
     7770120: ['Shop', 'ShopNonSpell'],
-    7770127: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770127: ['Shop', 'ShopNonSpell'],
     7770129: ['Shop', 'ShopNonSpell'],
-    7770131: ['Shop', 'ShopNonSpell'],
+    7770131: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770135: ['ShopNonSpell'],
-    7770136: ['Shop', 'ShopNonSpell'],
+    7770136: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770137: ['Shop', 'ShopNonSpell'],
     7770177: ['Shop', 'ShopNonSpell'],
     7770178: ['Shop', 'ShopNonSpell'],
@@ -62,7 +62,7 @@ LOCATION_TAGS = {
     7770182: ['Shop', 'ShopNonSpell'],
     7770183: ['Shop', 'ShopNonSpell'],
     7770184: ['Shop', 'ShopNonSpell'],
-    7770185: ['Shop', 'ShopNonSpell'],
+    7770185: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770186: ['Shop', 'ShopNonSpell'],
     7770187: ['Shop', 'ShopNonSpell'],
     7770188: ['Shop', 'ShopNonSpell'],
@@ -73,7 +73,7 @@ LOCATION_TAGS = {
     7770196: ['Shop', 'ShopNonSpell'],
     7770197: ['Shop', 'ShopNonSpell'],
     7770198: ['Shop', 'ShopNonSpell'],
-    7770199: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770199: ['Shop', 'ShopNonSpell'],
     7770200: ['Shop', 'ShopNonSpell'],
     7770201: ['Shop', 'ShopNonSpell'],
     7770202: ['Shop', 'ShopNonSpell'],
@@ -123,7 +123,7 @@ LOCATION_TAGS = {
     7770246: ['Shop', 'ShopNonSpell'],
     7770247: ['Shop', 'ShopNonSpell'],
     7770248: ['Shop', 'ShopNonSpell'],
-    7770249: ['Shop', 'ShopNonSpell'],
+    7770249: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770250: ['Shop', 'ShopNonSpell'],
     7770251: ['Shop', 'ShopNonSpell'],
     7770252: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
@@ -288,7 +288,7 @@ LOCATION_TAGS = {
     7770428: ['Shop', 'ShopNonSpell'],
     7770429: ['Shop', 'ShopNonSpell'],
     7770430: ['Shop', 'ShopNonSpell'],
-    7770431: ['Shop', 'ShopNonSpell'],
+    7770431: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770432: ['Shop', 'ShopNonSpell'],
     7770433: ['Shop', 'ShopNonSpell'],
     7770434: ['Shop', 'ShopNonSpell'],
@@ -335,7 +335,7 @@ LOCATION_TAGS = {
     7770475: ['Shop', 'ShopNonSpell'],
     7770476: ['Shop', 'ShopNonSpell'],
     7770477: ['Shop', 'ShopNonSpell'],
-    7770478: ['Shop', 'ShopNonSpell'],
+    7770478: ['Shop', 'ShopNonSpell', 'ShopSlot'],
     7770479: ['Shop', 'ShopNonSpell'],
     7770480: ['Shop', 'ShopNonSpell'],
     7770481: ['Shop', 'ShopNonSpell'],
@@ -373,7 +373,7 @@ LOCATION_TAGS = {
     7770513: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7770514: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7770515: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
-    7770516: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770516: ['Shop', 'ShopNonSpell'],
     7770517: ['Shop', 'ShopNonSpell'],
     7770518: ['Shop', 'ShopNonSpell'],
     7770519: ['Shop', 'ShopNonSpell'],
@@ -414,7 +414,7 @@ LOCATION_TAGS = {
     7770554: ['Shop', 'ShopNonSpell'],
     7770555: ['Shop', 'ShopNonSpell'],
     7770556: ['Shop', 'ShopNonSpell'],
-    7770557: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770557: ['Shop', 'ShopNonSpell'],
     7770558: ['Shop', 'ShopNonSpell'],
     7770559: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7770560: ['Shop', 'ShopNonSpell'],
@@ -479,8 +479,8 @@ LOCATION_TAGS = {
     7770619: ['Shop', 'ShopNonSpell'],
     7770620: ['Shop', 'ShopNonSpell'],
     7770621: ['Shop', 'ShopNonSpell'],
-    7770622: ['Shop', 'ShopNonSpell'],
-    7770623: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770622: ['Shop', 'ShopNonSpell', 'ShopSlot'],
+    7770623: ['Shop', 'ShopNonSpell'],
     7770624: ['Shop', 'ShopNonSpell'],
     7770625: ['Shop', 'ShopNonSpell'],
     7770626: ['Shop', 'ShopNonSpell'],
@@ -517,7 +517,7 @@ LOCATION_TAGS = {
     7770665: ['KeyItem'],
     7770679: ['Legendary'],
     7770683: ['Seedtree'],
-    7770695: ['ShopNonSpell'],
+    7770695: ['ShopNonSpell', 'ShopSlot'],
     7770714: ['Legendary'],
     7770716: ['Legendary'],
     7770745: ['Legendary'],
@@ -887,7 +887,7 @@ LOCATION_TAGS = {
     7774840: ['Shop', 'ShopNonSpell'],
 }
 
-TAG_COUNTS = {'Basin': 15, 'Boss': 94, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 14, 'Legendary': 93, 'MajorBoss': 37, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 527, 'ShopNonSpell': 457, 'ShopSlot': 10}
+TAG_COUNTS = {'Basin': 15, 'Boss': 94, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 14, 'Legendary': 93, 'MajorBoss': 37, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 527, 'ShopNonSpell': 457, 'ShopSlot': 16}
 
 # Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.
 # A guessed region may not carry progression: see gen_data._region_is_derived().
@@ -915,13 +915,15 @@ SURFACE_EXCLUDE_APS = frozenset([7771881, 7771911, 7772079, 7773360, 7773472, 77
 # release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.
 SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025, 7770135, 7770207, 7770216, 7770217, 7770218, 7770219, 7770220, 7770221, 7770222, 7770232, 7770233, 7770243, 7770244, 7770245, 7770252, 7770258, 7770266, 7770267, 7770268, 7770269, 7770270, 7770271, 7770273, 7770275, 7770292, 7770293, 7770294, 7770295, 7770296, 7770297, 7770298, 7770299, 7770300, 7770301, 7770302, 7770303, 7770304, 7770305, 7770306, 7770307, 7770308, 7770309, 7770310, 7770311, 7770312, 7770315, 7770316, 7770317, 7770318, 7770319, 7770320, 7770322, 7770323, 7770324, 7770325, 7770326, 7770327, 7770328, 7770329, 7770330, 7770331, 7770332, 7770333, 7770334, 7770335, 7770336, 7770337, 7770338, 7770486, 7770487, 7770488, 7770489, 7770490, 7770491, 7770492, 7770493, 7770494, 7770495, 7770496, 7770497, 7770498, 7770499, 7770500, 7770501, 7770502, 7770503, 7770504, 7770505, 7770506, 7770507, 7770508, 7770509, 7770510, 7770511, 7770512, 7770513, 7770514, 7770515, 7770532, 7770533, 7770534, 7770535, 7770536, 7770537, 7770538, 7770539, 7770540, 7770541, 7770542, 7770543, 7770544, 7770545, 7770546, 7770547, 7770548, 7770549, 7770550, 7770551, 7770552, 7770553, 7770554, 7770610, 7770611, 7770612, 7770613, 7770619, 7770620, 7770621, 7770635, 7770636, 7770637, 7770638, 7770639, 7770640, 7770641, 7770642, 7770643, 7770644, 7770645, 7770646, 7770648, 7770649, 7770650, 7774794, 7774795, 7774806, 7774807, 7774808, 7774809, 7774810, 7774811, 7774812, 7774813, 7774814, 7774815, 7774816, 7774817, 7774818, 7774819, 7774820, 7774821, 7774822, 7774823, 7774824, 7774825, 7774826, 7774827, 7774828, 7774829, 7774830, 7774831, 7774832, 7774833, 7774834, 7774835, 7774836, 7774837, 7774838, 7774839, 7774840])
 
-# ShopSlot pins: merchant block (ShopLineupParam row id // 100) -> the ONE ap id that
-# carries the ShopSlot tag: the lowest ap among the block's start-stocked (release_flag
-# == 0), MERCHANT-UNIQUE-ware (sold under exactly one stock flag game-wide, so the
-# location is unambiguous), region-confident (not DEFAULTED) rows. Blocks with no such
-# row are in SHOP_SLOT_SKIPS with the reason -- skipping is INTENDED (the gen log carries
-# the same list as WARNINGs); an empty PINS dict is a gen_data FATAL.
-SHOP_SLOT_PINS = {1000: 7770199, 1001: 7770114, 1005: 7770081, 1006: 7770096, 1007: 7770073, 1008: 7770127, 1009: 7770090, 1018: 7770516, 1019: 7770557, 1022: 7770623}
-SHOP_SLOT_SKIPS = {1015: 'no start-stocked row: all 49 of its rows are release-gated', 6000: 'no start-stocked row: all 17 of its rows are release-gated', 16004: 'no start-stocked row: all 18 of its rows are release-gated'}
+# ShopSlot pins: MERCHANT (the NPC talk ESD id that calls OpenRegularShop, from
+# merchant_shops.tsv) -> the ONE ap id carrying the ShopSlot tag. Lowest ap among that
+# merchant's checks that are EXCLUSIVE to it (no other talk ESD opens a row with that
+# stock flag), start-stocked (release_flag == 0), region-confident (not DEFAULTED) and
+# region-CONSISTENT (the merchant physically stands in the region the check is filed
+# under). Merchants with no such row are in SHOP_SLOT_SKIPS with the reason -- skipping
+# is INTENDED; an empty PINS dict is a gen_data FATAL.
+# Was keyed by ShopLineupParam block until 2026-07-24; the block is not a merchant.
+SHOP_SLOT_PINS = {'331006000': 7770695, '349006000': 7770249, '415006100': 7770622, '801136000': 7770185, '801146000': 7770050, '801176000': 7770136, '801186000': 7770088, '801196000': 7770073, '801206000': 7770131, '801216000': 7770097, '801226000': 7770431, '801236000': 7770061, '801256000': 7770066, '801271202': 7770090, '801281201': 7770102, '801291205': 7770478}
+SHOP_SLOT_SKIPS = {'302001000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302011000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302021000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302031000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302041000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302051000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302061000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '309001600': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '309003100': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '309006000': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316006000': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316206000': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316211400': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316301400': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '319006000': "region MISMATCH: merchant stands in ['Caelid', 'Limgrave'] but its 2 candidate row(s) are filed ['Roundtable Hold'] -- a pin fill would believe is reachable early", '326001600': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '326006000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '326101600': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '419002200': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '419006100': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '601006000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 3 of its slots are missable and none may carry progression', '601016000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 13 of its slots are missable and none may carry progression', '800001100': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800003500': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800006000': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800026000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800046000': 'no exclusive ware: every one of its 14 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801116000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801126000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801156000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801166000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801266000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 8 of its slots are missable and none may carry progression', '801516000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)'}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:0ab047ca528d1562453a5049ebf6c8216d4cbe61926146e107d5a6cd508f1cf2', 'module': 'location_tags.py', 'body_sha256': 'sha256:398809f704a7733e74aea2b48c54766e992d43622598bf560e429cf1c7c7b419'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fdf12fe4f33a14b7027f71eca95fc55368de4f239f58d97501ba2c250e2858e6', 'module': 'location_tags.py', 'body_sha256': 'sha256:8d095b971d16fa5c59d64b37b550a07ce527cdf3af19543d78910c9017a5b616'}
