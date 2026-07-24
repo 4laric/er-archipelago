@@ -101,31 +101,80 @@ class NaturalProgressionTest(WorldTestBase):
     def test_every_sealed_region_has_an_opener(self):
         """core.py seals EVERY in-play region with an areaLock + open flag. A region that has an open
         flag but NO naturalKeyTrigger is sealed with nothing to bloom it -> the client never opens it:
-        the start spoke (Limgrave) sealed = unplayable from turn one, and a logic-only count-gate
-        (Caelid) sealed forever is a logic/client soft-lock (AP logic can place goal progression there,
-        the player can never reach it). So every KEPT region that HAS an open flag must carry a trigger
-        -- unless it is the game-native capital (Leyndell/Sewer open in-game on held Great Runes via
-        leyndell_gate + the withheld capital grace, no client trigger). This is the guard that would
-        have caught the first playtest's born-softlocked Limgrave."""
+        the start spoke (Limgrave) sealed = unplayable from turn one, and a count-gate (Caelid) or the
+        capital (Leyndell) sealed forever is a logic/client soft-lock (AP logic can place goal
+        progression there, the player can never reach it). So every KEPT region that HAS an open flag
+        must carry a trigger -- INCLUDING the capital pair since the count primitive landed
+        (2026-07-24): Leyndell/Sewer bloom on the Nth Great Rune, exactly when the vanilla wall opens
+        (the 2026-07-24 playtest showed the areaLock seal does NOT open on the game's own wall). This
+        is the guard that would have caught the first playtest's born-softlocked Limgrave."""
         from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS
         world = self.multiworld.worlds[self.player]
         trig = world.fill_slot_data().get("naturalKeyTriggers", {})
         sealed_no_opener = [r for r in world._kept()
-                            if r not in _np.GAME_NATIVE_GATE
-                            and REGION_OPEN_FLAGS.get(r) is not None
+                            if REGION_OPEN_FLAGS.get(r) is not None
                             and f"{r} Lock" not in trig]
         self.assertEqual(sorted(sealed_no_opener), [],
                          f"regions sealed with no client opener (born-softlock): {sorted(sealed_no_opener)}")
 
     def test_start_spoke_opens_at_start(self):
-        """The flattened off-START spokes and logic-only count-gates must bloom immediately, via an
-        ALWAYS-OPEN trigger -- a clause with no items and no flags, which the client's natural_key_fired
-        satisfies vacuously (all() over []) on the first tick. Limgrave (the start spoke) is the
-        load-bearing case; Caelid (count-gate, logic-only interim) rides the same mechanism."""
+        """The flattened off-START spokes must bloom immediately, via an ALWAYS-OPEN trigger -- a
+        clause with no items and no flags, which the client's natural_key_fired satisfies vacuously
+        (all() over []) on the first tick. Limgrave (the start spoke) is the load-bearing case.
+        Caelid must NOT ride this mechanism any more: it has a real COUNT trigger (below) -- the
+        always-open interim made Caelid reachable at start ('I have Caelid access and I shouldn't',
+        playtest 2026-07-24)."""
         world = self.multiworld.worlds[self.player]
         trig = world.fill_slot_data().get("naturalKeyTriggers", {})
-        for region in ("Limgrave", "Caelid"):
+        for region in ("Limgrave", "Weeping"):
             self.assertIn(f"{region} Lock", trig, f"{region} must have an opener trigger")
             clauses = trig[f"{region} Lock"]["anyOf"]
-            self.assertTrue(any(not c["items"] and not c["flags"] for c in clauses),
+            self.assertTrue(any(not c.get("items") and not c.get("flags")
+                                and not c.get("countItems") and not c.get("count")
+                                for c in clauses),
                             f"{region} must open at start via an empty (always-satisfied) clause")
+
+    # --- COUNT triggers (client count primitive, 2026-07-24) --------------------------
+    def _count_clauses(self, region):
+        world = self.multiworld.worlds[self.player]
+        trig = world.fill_slot_data().get("naturalKeyTriggers", {})
+        self.assertIn(f"{region} Lock", trig, f"{region} must have an opener trigger")
+        return trig[f"{region} Lock"]["anyOf"]
+
+    def test_caelid_count_trigger(self):
+        """Caelid = COUNT gate (COUNT_GATES: 2 of the pooled remembrances), NOT always-open: the
+        trigger must be a count clause the client's count primitive evaluates (fires on the 2nd
+        received remembrance), and no clause may be empty/always-satisfied."""
+        clauses = self._count_clauses("Caelid")
+        self.assertEqual(len(clauses), 1, "Caelid: exactly one count clause")
+        c = clauses[0]
+        self.assertEqual(c.get("count"), 2, "Caelid opens on 2 of the set")
+        count_items = c.get("countItems", [])
+        self.assertGreaterEqual(len(count_items), 2, "count set must have >= count members")
+        self.assertTrue(set(count_items) <= set(_np.REMEMBRANCES),
+                        "Caelid's count set must be remembrances")
+        self.assertFalse(c.get("items") or c.get("flags"),
+                         "Caelid's count clause carries no all-of items/flags")
+        # And it must never be satisfiable at start (the 2026-07-24 regression).
+        self.assertFalse(any(not c.get("items") and not c.get("flags") and not c.get("count")
+                             for c in clauses),
+                         "Caelid must NOT open at start via an empty clause")
+
+    def test_leyndell_count_trigger_on_great_runes(self):
+        """The capital blooms client-side on the Nth Great Rune (N = leyndell_runes_required,
+        default 2, clamped by leyndell_gate -> world.gf_leyndell_runes): the count trigger sets open
+        flag 71102 exactly when the vanilla 2-rune wall opens. Sewer (73501, one wall deeper) rides
+        the same rune count -- without it the client kick reseals the player at the well."""
+        world = self.multiworld.worlds[self.player]
+        runes = list(getattr(world, "gf_leyndell_runes", []))
+        self.assertTrue(runes, "default seed must arm the rune gate (leyndell_runes_required=2)")
+        for region in ("Leyndell", "Sewer"):
+            clauses = self._count_clauses(region)
+            self.assertEqual(len(clauses), 1, f"{region}: exactly one count clause")
+            c = clauses[0]
+            self.assertEqual(c.get("count"), len(runes),
+                             f"{region} opens on the clamped rune count")
+            count_items = c.get("countItems", [])
+            self.assertTrue(count_items and all(n.endswith("Great Rune") for n in count_items),
+                            f"{region}'s count set must be Great Runes")
+            self.assertGreaterEqual(len(count_items), len(runes))

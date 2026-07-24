@@ -33,12 +33,16 @@ are encoded as COMPOUND key clauses (you must hold the upstream key), not graph 
                  SUPERSEDES the committed spec S2 "Altus prereq DROPPED" line; update the spec).
 
 TWO NEW PRIMITIVES (spec S2): the COUNT-gate (open on N-of-a-set) and the COMPOUND-gate (items AND
-world flags). v0.1 DRAFT scope: single-item + OR + compound-of-items gates are wired end-to-end
-(logic entrance rule + client naturalKeyTriggers). The COUNT-gate is LOGIC-ONLY this pass -- a count
-over a large set is not expressible as naturalKeyTriggers anyOf-subsets and wants a real client count
-primitive (a genuine follow-up). Leyndell's 2-Great-Rune gate is the game's OWN native capital gate
-(the vanilla main gate opens on 2 held runes; leyndell_gate carries the AP-logic mirror), so it needs
-no client trigger from us.
+world flags). v0.1 DRAFT wired single-item + OR + compound-of-items gates end-to-end; the COUNT-gate
+was LOGIC-ONLY until the client count primitive landed (2026-07-24): a clause may now carry
+``{"countItems": [names...], "count": N}`` (region.rs parse_natural_keys / er-logic
+natural_key_fired) and fires when >= N distinct countItems have been received -- so COUNT_GATES
+(Caelid) now emits a real client trigger instead of degrading to always-open. Leyndell's
+N-Great-Rune gate ALSO rides the count primitive now: the vanilla main gate does open in-game on
+held runes, but the client's areaLock seal (open flag 71102, set by nothing in this mode -- no
+"Leyndell Lock" item exists) kept the capital kicked-sealed in the 2026-07-24 playtest, so slot_data
+emits a count trigger on N Great Runes that blooms the capital's open flag (and Sewer's 73501, one
+wall deeper) exactly when the vanilla wall would open. leyndell_gate keeps the AP-logic mirror.
 
 DLC key resolution (Alaric 2026-07-24 -- corrects spec S3/S4/S5):
   * Abyssal Woods -> Barbed Staff-Spear (Jori, Elder Inquisitor, is NOT a remembrance boss; the spec's
@@ -55,8 +59,10 @@ DLC key resolution (Alaric 2026-07-24 -- corrects spec S3/S4/S5):
     becomes a real pooled item after a `-Greenfield` regen. Enir-Ilim's clause is availability-guarded
     (opens ungated pre-regen; gates on Blood Lord + Kindling post-regen). The spec's additional
     K-Scadutree-Fragment count-gate half still needs the client count primitive.
-  * Caelid's "2 remembrances" count collides with the festival-softlock flag 9410 (spec S5) -> the gate
-    is LOGIC-ONLY here (no client trigger), so nothing touches 9410; reconcile before wiring the client.
+  * Caelid's "2 remembrances" count vs the festival-softlock flag 9410 (spec S5): RECONCILED -- the
+    Radahn Festival flag is force-set at spawn by start_grace (_RADAHN_FESTIVAL, playtest 2026-07-11),
+    independent of Caelid's gate, and the client count trigger only sets Caelid's open flag / graces /
+    reveal flags (tick_natural_key_triggers), never 9410. Nothing here touches 9410.
 
 Pure-ish module: imports Options/registry/data/region_spine/item_ids only (never core -> no cycle), so
 its pure helpers unit-test without a live world.
@@ -145,14 +151,18 @@ GATE_CLAUSES = {
     "Enir Ilim": [("Remembrance of the Blood Lord", "Messmer's Kindling")],
 }
 
-# COUNT-gates (open on N of a named set). LOGIC-ONLY this pass (see docstring). region -> (set, N).
+# COUNT-gates (open on N of a named set). Wired end-to-end since 2026-07-24: entrance_rule counts in
+# AP logic AND slot_data emits a client count trigger ({"countItems": [...], "count": N} clause --
+# region.rs / er-logic natural_key_fired). region -> (set, N).
 COUNT_GATES = {
-    "Caelid": (REMEMBRANCES, 2),   # spec S3 "2 remembrances"; festival flag 9410 reconcile deferred (S5)
+    "Caelid": (REMEMBRANCES, 2),   # spec S3 "2 remembrances"; 9410 reconciled (see docstring)
 }
 
-# Regions whose opening is the GAME's own native gate -> no clause of ours, no client trigger. Leyndell
-# = 2 Great Runes (leyndell_gate owns the rune logic + the vanilla capital gate opens in-game on held
-# runes); Sewer rides the capital as Leyndell's child.
+# Regions whose opening is the GAME's own native gate -> no ENTRANCE clause of ours (leyndell_gate
+# owns the rune half of the AP logic: Leyndell = N Great Runes on the "To Leyndell" edge; Sewer rides
+# the capital as Leyndell's child). They DO get a client count trigger from slot_data below (N Great
+# Runes) -- the vanilla main gate opens in-game on held runes, but the client's areaLock seal needs
+# the open flag bloomed or the kick keeps the capital shut (2026-07-24 playtest).
 GAME_NATIVE_GATE = frozenset({"Leyndell", "Sewer"})
 
 # Graph parents kept in THIS mode (everything else flattens off the hub). Leyndell stays behind Altus
@@ -313,6 +323,7 @@ class NaturalProgressionFeature(Feature):
         # Only regions with a live clause AND a real open flag (the client needs a flag to bloom).
         if not is_on(world):
             return {}
+        kept = set(world._kept())
         triggers = {}
         for region, clauses in active_clauses(world).items():
             if REGION_OPEN_FLAGS.get(region) is None:
@@ -320,20 +331,52 @@ class NaturalProgressionFeature(Feature):
             triggers[f"{region} Lock"] = {
                 "anyOf": [{"items": list(c), "flags": []} for c in clauses]
             }
+        # COUNT triggers (client count primitive, 2026-07-24): a clause {"countItems": [...],
+        # "count": N} fires when >= N distinct countItems have been received (region.rs
+        # parse_natural_keys / er-logic natural_key_fired; absent count fields parse to []/0 =
+        # vacuous, so plain clauses above are untouched).
+        #   * COUNT_GATES (Caelid: 2 remembrances) -- same availability rule as entrance_rule/
+        #     _count_set: emitted only when >= N of the set are pooled, else the region degrades to
+        #     open via the always-open fallback below (matching the degraded AP-logic rule).
+        #   * Leyndell + Sewer (the game-native capital): the vanilla main gate opens in-game on N
+        #     held Great Runes (leyndell_gate carries the AP-logic mirror and picks/clamps N ->
+        #     world.gf_leyndell_runes), but the client's areaLock seal on open flags 71102/73501 has
+        #     no "<Region> Lock" item to open it in this mode -- the 2026-07-24 playtest capital
+        #     never opened. Bloom both on the Nth received rune: exactly when the vanilla wall
+        #     would open, so this cannot hand the player anything early, and it cannot strand the
+        #     in-game wall (the runes the client counts are the very key-item grants the game's own
+        #     gate counts). The capital's grace bundle stays WITHHELD while the wall is armed
+        #     (graces.py emits regionGraces["Leyndell Lock"] = []), so the bloom sets the open/
+        #     reveal flags -- unsealing the kick -- without granting a warp past the wall. When the
+        #     rune gate is DISARMED (leyndell_runes_required 0 / no pooled rune), gf_leyndell_runes
+        #     is empty -> no count trigger -> the always-open fallback covers the capital, matching
+        #     graces.py's disarmed-gate reading ("0 disables the gate" = deliberately bypass).
+        for region, (names, n) in COUNT_GATES.items():
+            if region not in kept or REGION_OPEN_FLAGS.get(region) is None:
+                continue
+            live = _count_set(world, names, n)
+            if live is None:
+                continue  # gate can't bind this seed -> degrade to open (fallback below)
+            triggers[f"{region} Lock"] = {"anyOf": [{"countItems": sorted(live), "count": n}]}
+        runes = list(getattr(world, "gf_leyndell_runes", []) or [])
+        if runes:
+            for region in GAME_NATIVE_GATE:  # Leyndell + Sewer, both behind the same rune wall
+                if region in kept and REGION_OPEN_FLAGS.get(region) is not None:
+                    triggers[f"{region} Lock"] = {
+                        "anyOf": [{"countItems": sorted(GREAT_RUNES), "count": len(runes)}]
+                    }
         # BORN-SOFTLOCK FIX (2026-07-24): core.py seals EVERY in-play region with an areaLock + open
         # flag, but a region with no live clause gets no bloom trigger above -- so the client seals it
         # and nothing ever opens it. The start spoke (Limgrave) sealed = the seed is unplayable from
-        # turn one; a logic-only COUNT-gate (Caelid) sealed forever is a real soft-lock too (AP logic
-        # believes it reachable on 2 remembrances and can place goal progression there, but the client
-        # never opens it). Emit an ALWAYS-OPEN trigger -- one empty clause, which natural_key_fired
+        # turn one. Emit an ALWAYS-OPEN trigger -- one empty clause, which natural_key_fired
         # satisfies vacuously (all() over [] is true) and blooms on the first client tick -- for every
-        # KEPT region that HAS an open flag but NO live clause and is NOT the game-native capital
-        # (Leyndell / Sewer open in-game on held Great Runes via leyndell_gate + the withheld capital
-        # grace -- "needs no client half at all"; same path non-natural mode ships). This covers the
-        # flattened off-START spokes (Limgrave, Weeping) and the logic-only count-gates (Caelid opens
-        # client-side now, still gated in AP logic until a real client count primitive lands).
+        # KEPT region that HAS an open flag but NO trigger yet. This covers the flattened off-START
+        # spokes (Limgrave, Weeping), any degraded gate (all clauses dropped / a count set with
+        # fewer than N pooled members), and the disarmed-rune-gate capital (see above). Regions with
+        # a real clause or count trigger above are skipped by the `name not in triggers` guard --
+        # Caelid and the armed capital no longer fall through to always-open.
         for region in world._kept():
-            if region in GAME_NATIVE_GATE or REGION_OPEN_FLAGS.get(region) is None:
+            if REGION_OPEN_FLAGS.get(region) is None:
                 continue
             name = f"{region} Lock"
             if name not in triggers:
