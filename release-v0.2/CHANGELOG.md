@@ -3,6 +3,40 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.9 — 2026-07-24
+
+Requires **Archipelago 0.6.7**. Regenerate your seed. Shop and merchant fixes, one of
+which can affect whether a seed is finishable.
+
+### Fixed
+
+- **Dragon Communion purchases could be asked to carry progression.** Incantations
+  bought at a Dragon Communion altar cost Dragon Hearts — a limited consumable — so
+  spending one closes off the others. Those checks are meant to be marked missable and
+  barred from holding anything required. The rule only matched one of the game's cost
+  types, so **eleven alt-currency checks were unmarked**, including every ware at the
+  DLC's Grand Altar of Dragon Communion. A seed could place a required item behind a
+  purchase you no longer had the hearts to make. Now any purchase not paid in Runes is
+  marked, and each cost type is tracked separately.
+- **Merchant hints named one shop when several sell the ware.** The tracker would say
+  "Nomadic Warrior's Cookbook [1] — Kalé, Church of Elleh", you'd buy out Kalé's stock,
+  and the check wouldn't fire — because four different merchants sell that row and the
+  note named one of them. **496 of the game's 709 shop-check rows have more than one
+  seller.** Five hand-written seller notes are removed, and generation now refuses to
+  build if one comes back.
+- **The one progression-eligible slot per merchant now really belongs to that
+  merchant.** Each merchant contributes at most one slot that can hold progression.
+  That slot was picked on a test that couldn't tell "one shop sells this" from "one
+  price tag exists for it", so eight of the ten picks were sold by two to seven
+  merchants apiece, and one was filed in a region where **no seller stands at all**.
+  Slots are now chosen per physical merchant, must be a ware only that merchant sells
+  out in the world, and must sit in the region the check claims. Fewer slots qualify,
+  and the ones that do are findable.
+
+*(The Twin Maiden Husks re-sell a merchant's stock after you hand in their bell
+bearing; that mirror is no longer counted as a second seller, since you can only reach
+it by killing the merchant first.)*
+
 ## v0.2.8 — 2026-07-23
 
 Requires **Archipelago 0.6.7**. Hotfix-heavy; regenerate your seed and refresh the
