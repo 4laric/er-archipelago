@@ -11,11 +11,11 @@ MISSABLE_LOCATIONS = {
     7770273: 'alt_currency:2',
     7770274: 'alt_currency:2',
     7770275: 'alt_currency:2',
-    7770455: 'alt_currency:4',
-    7770456: 'alt_currency:4',
-    7770457: 'alt_currency:4',
-    7770458: 'alt_currency:4',
-    7770459: 'alt_currency:4',
+    7770455: 'alt_currency:1+2+3+4',
+    7770456: 'alt_currency:1+2+3+4',
+    7770457: 'alt_currency:1+2+3+4',
+    7770458: 'alt_currency:1+2+3+4',
+    7770459: 'alt_currency:1+2+3+4',
     7770606: 'alt_currency:1',
     7770607: 'alt_currency:1',
     7770608: 'alt_currency:1',
@@ -105,4 +105,4 @@ MISSABLE_LOCATIONS = {
     7773928: 'questline',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:11a3b242693c114e79403615a65bf1f1f5b58105c0ebfb6bacfffb18753862c2', 'module': 'missable_locations.py', 'body_sha256': 'sha256:7ea6d9bfc64ec7a3999c4b0ca5c34b1672d9968f04501f9f2848771c4f70ec3d'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ebcd9888c27c4757bda771e665cec9638e8d95efd87b28d790d843b26f075749', 'module': 'missable_locations.py', 'body_sha256': 'sha256:10c0e347fd591c9630553a0810649139c8301708ef4fd5491b512a79b7384466'}
