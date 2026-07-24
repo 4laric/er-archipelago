@@ -9,7 +9,7 @@ reviewable. For the *quality bar* (what a good change looks like) read `CONTRIBU
 
 | Copy | Where | Reached by | Use for |
 |------|-------|-----------|---------|
-| **Mount** | `…\Documents\er-archipelago` (Alaric's real Windows repo) | the harness **Read / Edit / Write** tools | reading; Alaric builds/tests here |
+| **Mount** | `…\Documents\er-archipelago` (Alaric's real Windows repo) | the harness **Read / Edit / Write** tools | **nothing — not even reading** (see the ban below). Alaric builds/tests/regens here |
 | **Sandbox clone** | `~/work/er-archipelago` (a fresh clone in the Linux sandbox) | **bash** (`mcp__workspace__bash`) | **all editing, regen, tests, commits, pushes** |
 
 They are different filesystems. `Edit` writes the mount; `bash` sees the sandbox clone.
@@ -37,22 +37,40 @@ They are different filesystems. `Edit` writes the mount; `bash` sees the sandbox
 > against a mount path will invent corruption that isn't there (see §6). Read git blobs instead:
 > `git show origin/main:<path>`.
 
-## 2. The active branch is `main` (this changed — the old advice is inverted)
+## 2. Which branch is live CHANGES — verify it, never trust this line
 
-**`main` is now the live branch on both repos.** The greenfield work was merged into it and the
-world ships as game `"Elden Ring"`. Just clone and work on `main`; no checkout dance.
+**`main` is the trunk on both repos.** But feature work does not always live there, and *this section
+has been wrong twice*, in both directions:
 
-⚠️ This section used to say the opposite — "the active branch is `feat/matt-free-backbone-mvp`, NOT
-`main`". That is **stale and now actively harmful**: `feat/matt-free-backbone-mvp` is **0 commits
-ahead of `main`** and `main` is **36 ahead of it**, so following the old advice checks you out onto a
-branch that is missing all recent work. `origin/HEAD` may still point at the old branch — ignore it.
+- it once said "the active branch is `feat/matt-free-backbone-mvp`, NOT `main`" — by then that branch
+  was 0 ahead of `main` and 36 behind, so following it checked you out onto a tree missing every
+  recent commit;
+- it was then corrected to a flat "`main` is the live branch, just clone and work on it" — which is
+  what you are reading now, and it is **also** incomplete.
 
-Verify rather than trust this file (it has been wrong before):
+**As of 2026-07-24:**
+
+| repo | trunk | where live work is | note |
+|---|---|---|---|
+| `er-archipelago` (world) | `main` | **`feat/natural-progression-mode`** | 11 ahead of `main`, 0 behind. The natural-progression mode, the count-gate primitive and the field-boss sweep work are all here and **not** on `main` |
+| `from-software-archipelago-clients` (client) | `main` | `main` | push straight to `main`; that push is the Windows build gate (§4) |
+
+So: **there is no standing answer to "which branch".** Do not read one out of this file. Derive it,
+and if the repo state is ambiguous, ask Alaric — a wrong branch costs a whole session's work.
 
 ```bash
-git fetch origin && git branch -r
-git rev-list --count origin/main..origin/feat/matt-free-backbone-mvp   # expect 0
+git ls-remote --heads origin | awk '{print $2}' | sort   # what actually exists, right now
+# ahead/behind between trunk and a candidate branch (left = main-only, right = branch-only):
+git fetch origin && git rev-list --left-right --count origin/main...origin/<branch>
 ```
+
+Read that output the way §7 wants you to read any derivation: a branch that is **0 ahead** of `main`
+is a finished/merged branch and is not where work goes; a branch that is **behind** `main` needs a
+rebase before you add to it. `origin/HEAD` may still point at a long-dead branch — ignore it.
+
+(Rewritten 2026-07-24: the previous "`main` is the live branch" text was correct about the trunk and
+wrong about where work happens, which is the same failure mode as the `feat/matt-free-backbone-mvp`
+advice it replaced. The section is now a *procedure*, not a fact, because the fact keeps rotting.)
 
 ## 3. Session setup (sandbox is wiped between sessions — redo each time)
 
@@ -64,7 +82,7 @@ printf 'https://x-access-token:%s@github.com\n' "$PAT" > /tmp/.gitcred; chmod 60
 git config --global credential.helper 'store --file=/tmp/.gitcred'
 git config --global user.email 'alaric.mckenzie.boone@gmail.com'; git config --global user.name 'Alaric'
 git clone --no-recurse-submodules https://github.com/4laric/er-archipelago.git ~/work/er-archipelago
-cd ~/work/er-archipelago && git checkout main    # main IS the live branch (see §2); no checkout dance
+cd ~/work/er-archipelago && git checkout <the branch you VERIFIED per §2>   # do NOT assume main
 git remote set-url origin https://github.com/4laric/er-archipelago.git   # keep the token out of .git/config
 git config core.hooksPath tools/hooks                                    # enable the truncation gate
 ```
@@ -77,7 +95,9 @@ The client lives in submodule `from-software-archipelago-clients` (crate
 `eldenring-archipelago`), branch **`main`**. Clone it over HTTPS the same way.
 
 ⚠️ This section used to say **`eldenring-client-draft`**. That branch **no longer exists on origin** —
-the client repo has only `main`. (Same correction as §2.) ### You do NOT have to hand every Rust change to Alaric to compile
+the client repo has only `main`. (Same correction as §2.)
+
+### You do NOT have to hand every Rust change to Alaric to compile
 
 This section used to say flatly "`cargo build`/`test` runs on Windows". **That is misleading**, and on
 2026-07-11 it cost **three** build round-trips on nothing but wrong symbol names. Two ways to get a
@@ -105,6 +125,18 @@ It builds the real `eldenring_archipelago.dll` for `x86_64-pc-windows-msvc` from
 SDK download fails. Use it on a real Linux box / WSL2 / a CI runner. Pure-logic crates are host-native
 and cheap either way: `cargo test -p er-codec -p er-semver -p er-logic`.
 
+**2a. What the sandbox CAN and CANNOT build. CHECK THE TOOLCHAIN FIRST — `cargo` is often absent.**
+`cargo test -p er-logic` is the workhorse for anything decision-shaped (the whole replay tier lives
+there, ~413 host tests, seconds to run) — *when a Rust toolchain exists*. It is not preinstalled, and
+on 2026-07-24 neither route to get one worked: `sudo` is blocked (no-new-privileges, so `apt-get
+install cargo` fails) and `sh.rustup.rs` was unreachable. So run `command -v cargo` before you plan
+around it, and if it is missing say plainly that the Rust side is UNVERIFIED here and let the Windows
+CI be the gate. Do not describe a test run you could not perform. The
+`eldenring-archipelago` and `shared` crates **never** build here (imgui / MSVC / detour deps); verify a
+change to those by inspection plus, if the risk is a type or symbol name, a throwaway crate that
+typechecks the call against the real dependency version (e.g. `windows 0.62.2`). Do not report an
+un-built `eldenring-archipelago` change as "verified" — push it and let the Windows CI say so.
+
 **3. If you still cannot compile, ASK rather than guess.** The `eldenring` crate is **not vendored in the
 sandbox**, so its type and method names are unknowable from there. Guessing them is what burned the three
 round-trips. Ask Alaric to paste the relevant names once. Known-settled naming lives in the module doc
@@ -127,17 +159,30 @@ replacing the hand-run `git add from-software-archipelago-clients && git commit`
 to bump it as boilerplate — his next `build.ps1` does it. Verify (see §7) and only mention it if it is
 genuinely behind AND he has not re-run the build.
 
-## 5. You CAN regenerate + test the apworld in-sandbox
+## 5. What you can run in-sandbox: the TESTS, not the regen
 
-The licensing-restricted game data lives on the **mount** at `elden_ring_artifacts/`
-(`.gitignore`d — never commit it). Symlink it in and `gen_data.py` runs:
+⚠️ **Corrected 2026-07-24.** This section used to say "You CAN regenerate + test the apworld
+in-sandbox" and told you to `ln -sfn <MOUNT>/elden_ring_artifacts …` into the sandbox clone. **Both
+halves were wrong**: symlinking the mount violates the §1 ban outright (and a truncated mount read of
+a param CSV is a silent-wrong-answer machine), and a full `gen_data.py` regen needs the FMG/EMEVD/MSB
+side of `elden_ring_artifacts/` that the sandbox does not have.
 
-```bash
-ln -sfn <MOUNT>/elden_ring_artifacts ~/work/er-archipelago/elden_ring_artifacts
-cd ~/work/er-archipelago/greenfield && python3 gen_data.py    # regenerates eldenring/*.py deterministically
-```
+**The licensing-restricted game data is Windows-only and stays there.** It is never copied, never
+symlinked, never committed (`.gitignore`d).
 
-Test the world (provisions a Python-3.11 AP runtime under `~/.greenfield-ci`):
+- **Regen is Alaric's box.** `build.ps1 -Greenfield` / `-All` — see §5a for the two tiers. If your
+  change touches a generator, say once that it needs a regen; do not fake one here.
+- **A small param-CSV subset can be staged in the sandbox** for datamine-shaped static work; the tools
+  that support it honour the `ER_ARTIFACTS_VV` env override (`tools/datamine_flag_lots.py`,
+  `tools/gen_check_lots_table.py`). This is *opt-in staging for a specific investigation*, not a
+  standing capability — assume it is absent unless you put it there this session.
+- **Static validation is the sandbox ceiling** for anything artifact-derived: you can prove a
+  grouping/predicate/shape claim against staged CSVs, and you must label it as static-validated when
+  you hand it over. "Static-validated" and "regenerated" are different words; do not swap them.
+- **The world's pytest suite DOES run here**, and should, on every Python change (below).
+
+Test the world in-sandbox (provisions a Python-3.11 AP runtime under `~/.greenfield-ci`) — from the
+repo root of your sandbox clone:
 
 ```bash
 bash greenfield/provision-linux-env.sh        # once per session
@@ -149,8 +194,10 @@ cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 "$PY" -m pytest -q -p
 
 Generated files (`eldenring/data.py`, `boss_data.py`, `boss_sweeps.py`, `region_open_flags.py`,
 `item_ids.py`, `location_tags.py`, `region_play_ids.py`, …) are **regenerated, never hand-edited** —
-change `gen_data.py` and regen. Committing the regenerated data is fine (same artifacts + generator ⇒
-byte-matches a Windows regen; the DATA DRIFT gate reconciles if not).
+change `gen_data.py` and regen — **on Windows** (§5 above). The generator is deterministic, so the same
+artifacts + generator byte-match wherever they run and the DATA DRIFT gate reconciles if they don't; that
+is why committing regenerated data is fine when the regen was real. It is not a licence to produce one
+here without the artifacts.
 
 **Do NOT hand Alaric a per-file regen checklist.** On his box `build.ps1 -All` (⊃ `-Greenfield`) runs
 the WHOLE deterministic regen: `gen-greenfield.ps1` → the datamine + `gen_data.py`, which rewrites
@@ -162,10 +209,9 @@ each module's `_GEN_STAMP`), and it also regenerates the client's THREE cross-re
 `test_gf_data` / `gen_region_locks --check` drift gate failed — now wired). So if your change touched a
 GENERATOR or the region spine (`gen_data.py`, `region_groups.py`), say it **once** — "needs a
 `-Greenfield`/`-All` regen on your box" — never a file-by-file "remember to regenerate X.py, re-bless
-the stamps, rerun the tracker gen, …". He runs `-All`; it covers all of that. If you already regenerated
-in-sandbox per this section, the committed data is correct and byte-matches his regen — the ONLY thing
-his run adds is the real artifact-hash stamp, which the freshness gate flags for him on its own. Don't
-narrate that as a chore.
+the stamps, rerun the tracker gen, …". He runs `-All`; it covers all of that. What you should NOT do is
+claim the regen is already done: the artifacts are not here (§5), so the generated modules in your
+commit are whatever the last real regen produced. Say "needs a `-Greenfield` on your box" once and stop.
 
 > ⚠️ **A datamined `greenfield/*.tsv` is the EXCEPTION — `-All` does NOT regenerate it.** `gen_data`
 > *consumes* those tables; it does not emit them. If your ROOT fix is in a datamine tool (e.g.
@@ -232,12 +278,13 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
 - Stage explicitly — **never `git add -A`** (the repo is public and game-data-purged; don't
   leak the artifacts symlink). `git diff --cached --stat` before committing.
 - The pre-commit hook runs `check_integrity --staged` automatically.
-- `git fetch` + `git rebase origin/main` before pushing (Alaric pushes concurrently, often
-  mid-session — re-fetch late, not once at the start); resolve/regen if the rebase touched
-  generated files, then `git push origin HEAD:main`.
-  ⚠️ This bullet used to name `feat/matt-free-backbone-mvp` as the rebase/push target. That was
-  **stale and contradicted §2** — rebasing onto it would drop every recent commit. `main` is the
-  target on both repos. (Corrected 2026-07-14.)
+- `git fetch` + rebase onto **the branch you verified in §2** before pushing (Alaric pushes
+  concurrently, often mid-session — re-fetch late, not once at the start); resolve/regen if the rebase
+  touched generated files, then `git push origin HEAD:<that branch>`.
+  ⚠️ Do not copy a branch name out of this file into a `push` command. This bullet has named the wrong
+  target twice (`feat/matt-free-backbone-mvp`, then a flat `main` while world work was on
+  `feat/natural-progression-mode`). Client fixes go to client `main`; world work goes wherever §2's
+  verify command says it is. (Corrected 2026-07-14, re-corrected 2026-07-24.)
 - Relay commit SHAs to Alaric explicitly. Two things NOT to recite as boilerplate:
   - **"needs a submodule bump"** — VERIFY before saying it. `git ls-tree origin/main from-software-archipelago-clients`
     (the pinned gitlink) vs `git ls-remote https://github.com/4laric/from-software-archipelago-clients.git refs/heads/main`

@@ -571,6 +571,60 @@ def _load_tile_str_tsv(_fname):
     return _out
 
 _DESC_OVERRIDE = _load_flag_str_tsv("location_descriptions.tsv")   # 1. hand-authored English (wins)
+
+# ---- MULTI-MERCHANT SHOP ROWS may not carry a single-seller hand pin -------------------------
+# 2026-07-24, from the playtest: the tracker sent Alaric to "Kale, Church of Elleh" for flag 67000;
+# he bought Kale's entire stock and the check never fired. merchant_shops.tsv -- whose own header
+# says "a row with >1 distinct map region -> gen_data collapses to HUB + DEFAULTED" -- lists FOUR
+# merchant instances opening that row (m11_00, m11_10 Roundtable/Twin Maidens, m35_00, m60_42_36).
+# The derivation had correctly refused to name a seller; a hand entry in location_descriptions.tsv
+# (layer 1, wins) put a confident one back on top of it. That is the exact failure CONTRIBUTING
+# calls "a guess wearing the costume of a fact", and a REDUNDANT MANUAL OVERRIDE IS A FAILURE: the
+# only way a crutch gets removed is if leaving it in fails the build.
+# 496 of 709 shop-check rows are multi-merchant, so this is a rule, not a special case.
+def _multi_merchant_shop_flags():
+    """Shop-check flags whose ShopLineupParam row is opened by merchants on >1 map -> no seller
+    can be named. Empty (guard inert) if either derived table is missing."""
+    _row_maps = defaultdict(set)
+    try:
+        with open(os.path.join(HERE, "merchant_shops.tsv"), encoding="utf-8-sig") as _fh:
+            for _ln in _fh:
+                if _ln.startswith("#"):
+                    continue
+                _p = _ln.rstrip("\n").split("\t")
+                if len(_p) >= 5 and _p[0].isdigit() and _p[4].strip():
+                    _row_maps[_p[0]].add(_p[4].strip())
+    except OSError:
+        return {}
+    _out = {}
+    try:
+        with open(os.path.join(HERE, "shop_rows.tsv"), encoding="utf-8-sig") as _fh:
+            for _ln in _fh:
+                if _ln.startswith("#"):
+                    continue
+                _p = _ln.rstrip("\n").split("\t")
+                if len(_p) > 5 and _p[0].isdigit() and _p[5].strip().isdigit():
+                    if len(_row_maps.get(_p[0], ())) > 1:
+                        _out[_p[5].strip()] = (_p[0], sorted(_row_maps[_p[0]]))
+    except OSError:
+        return {}
+    return _out
+
+_MULTI_MERCHANT = _multi_merchant_shop_flags()
+_bad_pins = sorted(set(_DESC_OVERRIDE) & set(_MULTI_MERCHANT))
+if _bad_pins:
+    _lines = "\n".join(
+        "    flag %s -> %r  (row %s sold on maps %s)"
+        % (_f, _DESC_OVERRIDE[_f], _MULTI_MERCHANT[_f][0], ", ".join(_MULTI_MERCHANT[_f][1]))
+        for _f in _bad_pins)
+    raise SystemExit(
+        "[gen_data] location_descriptions.tsv names ONE seller for %d shop row(s) that several\n"
+        "merchants open. The row's flag fires on a purchase from ANY of them, so the hand text\n"
+        "sends the player to a shop that may not stock it (playtest 2026-07-24, flag 67000).\n"
+        "Delete these entries -- merchant_shops.tsv already carries the truth:\n%s"
+        % (len(_bad_pins), _lines))
+print(f"location desc: multi-merchant shop rows guarded = {len(_MULTI_MERCHANT)} "
+      f"(no single-seller hand pin permitted on any of them)")
 _BOSS_NAMES    = {}                                                # 2. TODO drop-flag -> boss name join
 _SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
 _NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. per-check nearest grace (Windows)
@@ -1826,7 +1880,8 @@ GLOBAL_RECOVER = {
 # fill must not place required progression there (features/missable_locations.py enforces via item_rule).
 #   Deathroot: the 10 Gurranq reward flags above (delivering deathroots; Gurranq killable).
 #   Dragon Heart: the Dragon Communion incantation purchases -- derived below from ShopLineupParam
-#     costType==1 (Dragon-Heart-cost shop rows) -> DRAGONHEART_FLAGS. Both fold into MISSABLE_FLAGS.
+#     costType != 0 (alt-currency shop rows: Dragon Communion altars) -> DRAGONHEART_FLAGS. Both
+#     fold into MISSABLE_FLAGS.
 # (Stonesword-key / Shabriri / Seedbed deferred -- questline-avoidance covers the latter two.)
 DEATHROOT_FLAGS = set(range(400230, 400240))
 # NPC-QUESTLINE-GATED rewards (Alaric 2026-07-09, audited against ER quest acquisition). These fire
@@ -3239,8 +3294,30 @@ _REC = os.path.join(_SLP_DIR, "ShopLineupParam_Recipe.csv")
 _flag2goods = defaultdict(list)   # stock_flag -> [(equipId, equipType)]
 _flag2rows = defaultdict(list)    # stock_flag -> [ShopLineupParam row ID] (client shopRowFlags key)
 _CAT_NIB = {0:0x00000000,1:0x10000000,2:0x20000000,3:0x40000000,4:0x80000000}
-DRAGONHEART_FLAGS = set()         # stock flags whose ShopLineupParam row is paid in Dragon Hearts
-                                  # (costType==1) = the Dragon Communion incantation altars -> missable.
+# ALT-CURRENCY stock flags: any ShopLineupParam row NOT paid in runes. costType 0 == runes; anything
+# else is a limited consumable, so the purchase is missable (spend the currency elsewhere and the
+# check can become unbuyable).
+# 2026-07-24: this used to test `costType == 1` and therefore MISSED the DLC Grand Altar of Dragon
+# Communion. Measured from the param CSV (Alaric):
+#     290510 Dragonice           costType 1  value 1   <- Caelid altar, was tagged
+#     290650 Bayle's Tyranny     costType 5  value 1   <- DLC altar, was NOT tagged
+#     290660 Bayle's Flame Ltng  costType 5  value 1   <- DLC altar, was NOT tagged
+#     290670 Ghostflame Breath   costType 1  value 3   <- DLC altar, was tagged
+# costType 5 is believed to be BAYLE'S HEART -- a DLC-only currency distinct from the generic Dragon
+# Heart (Alaric, 2026-07-24, from play; NOT yet confirmed against EquipParamGoods/EquipMtrlSetParam,
+# and mtrlId is -1 on all four rows so the param does not say it here). If that is right the two
+# shelves have SEPARATE scarcity budgets, and the Bayle one is far tighter: one boss's drop spread
+# over several incantations, i.e. at most K of N are ever obtainable. That is stronger than
+# "missable" (which only bars REQUIRED progression); the labels below keep the families apart so a
+# pick-K-of-N rule can be written later without re-deriving anything.
+# It also settles the predicate: with two distinct currencies on ONE shelf, enumerating cost types is
+# wrong in principle, not merely stale. `!= 0` (not runes) is the datum. The per-type tally below
+# keeps it auditable (rule 4: a filter with no tally is a lie).
+# One stock flag can surface on SEVERAL rows -- and at DIFFERENT cost types (the branch's first
+# labelled regen showed the type-1 count drop 19 -> 14 when a plain `[flag] = costType` let the last
+# row read win). Silent last-write-wins on a derived label is the house failure mode, so keep the SET.
+DRAGONHEART_FLAGS = defaultdict(set)   # stock flag -> {costType}, for rows NOT paid in runes
+_COSTTYPE_TALLY = Counter()       # costType -> rows seen (printed; 0 == runes is the normal case)
 _slp_present = os.path.isfile(_SLP)
 if _slp_present:
     for _src in [_SLP] + ([_REC] if os.path.isfile(_REC) else []):
@@ -3252,8 +3329,10 @@ if _slp_present:
             if _fl <= 0:
                 continue
             try:
-                if int(_sr.get("costType", 0)) == 1:
-                    DRAGONHEART_FLAGS.add(_fl)
+                _ct = int(_sr.get("costType", 0))
+                _COSTTYPE_TALLY[_ct] += 1
+                if _ct != 0:
+                    DRAGONHEART_FLAGS[_fl].add(_ct)
             except (KeyError, ValueError):
                 pass
             try:
@@ -3723,14 +3802,35 @@ print(f"shop_data: {len(SHOP_ROW_FLAGS)} shop checks, {len(SHOP_PREVIEW_GOODS)} 
 # winnable if the player can't (or doesn't) reach them. Selected by flag: deathroot Gurranq rewards +
 # Dragon-Communion (Dragon-Heart) shop purchases. `rows` is positional -> ap_id == BASE_AP + index
 # (same indexing the bucket + shop loops use). Sources tagged for legibility / future stonesword add.
-_MISSABLE = {}   # ap_id -> source label ("deathroot" | "dragon_heart")
+if _slp_present:
+    print("shop costType tally (0 = runes; every other type is an alt currency -> missable): "
+          + repr(dict(sorted(_COSTTYPE_TALLY.items())))
+          + f" -> {len(DRAGONHEART_FLAGS)} alt-currency stock flag(s)")
+    _multi = {_f: sorted(_c) for _f, _c in DRAGONHEART_FLAGS.items() if len(_c) > 1}
+    if _multi:
+        print("shop costType: %d stock flag(s) sold at MORE THAN ONE cost type -- labelled with all "
+              "of them: %s" % (len(_multi), repr(dict(sorted(_multi.items())))))
+    if not DRAGONHEART_FLAGS:
+        raise SystemExit("FATAL: zero alt-currency shop rows -- the Dragon Communion altars are "
+                         "known to exist, so an empty set means the costType read broke (rule 2).")
+
+def _alt_currency_label(_fl):
+    """"alt_currency:<types>" -- every cost type this flag is sold at, sorted, so the label is a
+    pure function of the data rather than of row order."""
+    return "alt_currency:" + "+".join(str(_c) for _c in sorted(DRAGONHEART_FLAGS[_fl]))
+
+
+_MISSABLE = {}   # ap_id -> source label ("deathroot" | "dragon_heart" == any alt currency)
 for _i, _r in enumerate(rows):
     try: _mf = int(_r["flag"])
     except (KeyError, ValueError): continue
     if _mf in DEATHROOT_FLAGS:
         _MISSABLE[BASE_AP + _i] = "deathroot"
     elif _mf in DRAGONHEART_FLAGS:
-        _MISSABLE[BASE_AP + _i] = "dragon_heart"
+        # Label carries the COST TYPE so the currency families stay distinguishable (costType 1 =
+        # Dragon Heart, 5 = believed Bayle's Heart). "all alt-currency slots are missable" is the
+        # rule today; "at most K from one currency" needs to know which currency.
+        _MISSABLE[BASE_AP + _i] = _alt_currency_label(_mf)
     elif _mf in QUEST_GATED_FLAGS:
         _MISSABLE[BASE_AP + _i] = "questline"
 OUT_MISS = os.path.join(HERE, "eldenring", "missable_locations.py")
@@ -3744,7 +3844,7 @@ with open(OUT_MISS, "w", newline="\n", encoding="utf-8") as f:
         f.write(f"    {_aid}: {_MISSABLE[_aid]!r},\n")
     f.write("}\n")
 _mc = Counter(_MISSABLE.values())
-print(f"missable_locations: {len(_MISSABLE)} checks (deathroot={_mc.get('deathroot',0)}, dragon_heart={_mc.get('dragon_heart',0)})")
+print("missable_locations: %d checks -- %s" % (len(_MISSABLE), repr(dict(sorted(_mc.items())))))
 
 
 # ---- Real-item-pool foundation: each location's vanilla item -> its ER FullID (matt-free).
@@ -4191,47 +4291,161 @@ _SPELL_SHOP_CHECKS = sum(_blk_tot[_b] for _b in _SPELL_VENDOR_BLOCKS)
 # reason, both here and in the generated SHOP_SLOT_SKIPS. Skipping is INTENDED (Enia stocks nothing at
 # start; some blocks sell nothing unique), so it is a WARNING, never an error -- but ZERO pins overall
 # would mean the inputs collapsed, and that IS an error (rule 2: empty result = failure).
-_merch_rows = defaultdict(list)               # non-spell merchant block -> its check ap-ids
-for _ap2, _b in _ap_blk.items():
-    if _b not in _SPELL_VENDOR_BLOCKS:
-        _merch_rows[_b].append(_ap2)
+# ---- 2026-07-24 REWORK: the MERCHANT is the NPC's talk ESD, not the 100-block ------------------
+# The old unit was the ShopLineupParam 100-block and the old uniqueness test was `_ware_unique`:
+# "this ware is sold under exactly ONE stock flag game-wide". Both were proxies, and both were wrong:
+#
+#   * merchant_shops.tsv exists precisely because "block = one merchant" is false -- its header says
+#     it "replaces datamine_shop_rows.py's false 'block = one merchant' region inheritance". One
+#     ShopLineupParam row is opened by up to EIGHT different talk ESDs.
+#   * ware-uniqueness is the wrong RELATION. It asks about ware<->flag; what makes a location
+#     hunt-downable is row<->MERCHANT. Under the old test, 8 of the 10 pins were sold by 2-7
+#     merchants apiece -- "buy the Nomadic Warrior's Cookbook [1]" named FOUR shops, and block 1001's
+#     pin (Missionary's Cookbook [2], 7 sellers) was filed in Limgrave with no Limgrave seller at all,
+#     i.e. a false EARLY reachability claim on a progression-carrying slot.
+#
+# The ESD already answers the real question: datamine_merchant_shops.py reads `OpenRegularShop` out
+# of each NPC's talk ESD, so merchant_shops.tsv carries (row_id, talk_id, npc_param_id,
+# merchant_name, map_id). MERCHANT := talk_id. 213 of 709 rows are opened by exactly one.
+#
+# The CHECK is the FLAG, not the row: a bell-bearing MIRROR surfaces the same stock flag under a
+# second row, and both rows are the same purchase. So a check's sellers = every talk_id that opens
+# ANY row carrying its flag.
+#
+# Criteria, restated:
+#   1. EXCLUSIVE  -- exactly one talk_id opens it. Replaces _ware_unique.
+#   2. START-STOCKED -- eventFlag_forRelease == 0 (unchanged; the ESD's own gate_flag is NOT usable
+#      for this yet: joining esd_gates ungated ranges collapses to 31 rows at a single merchant,
+#      which is a degenerate result, so that gate needs classifying (bell-bearing vs dialogue state)
+#      before it can mean "available at start").
+#   3. REGION-CONFIDENT -- not DEFAULTED, not erdtree-burn doomed (unchanged).
+#   4. REGION-CONSISTENT (NEW) -- the region the check is FILED under must be one the seller actually
+#      stands in. This is what block 1001 failed. A pin whose seller is nowhere near its region is a
+#      lie fill will believe.
+# Representative = lowest ap among the survivors (pure, deterministic). No clearing row -> SKIP,
+# loudly, with the reason. Zero pins overall is still FATAL.
+def _shop_flag_openers():
+    """(flag -> {talk_id}, talk_id -> {map_id}) from merchant_shops.tsv joined to shop_rows by row."""
+    _r2f, _f2t, _t2m = {}, defaultdict(set), defaultdict(set)
+    _sp = os.path.join(HERE, "shop_rows.tsv")
+    _mp = os.path.join(HERE, "merchant_shops.tsv")
+    if not (os.path.isfile(_sp) and os.path.isfile(_mp)):
+        return _f2t, _t2m                      # partial tree -> inert; the caller's FATAL still guards
+    with open(_sp, encoding="utf-8-sig") as _fh:
+        for _ln in _fh:
+            if _ln.startswith("#") or _ln.startswith("row_id"):
+                continue
+            _q = _ln.rstrip("\n").split("\t")
+            if len(_q) >= 6 and _q[0].isdigit() and _q[5].isdigit():
+                _r2f[int(_q[0])] = int(_q[5])
+    with open(_mp, encoding="utf-8-sig") as _fh:
+        for _ln in _fh:
+            if _ln.startswith("#") or _ln.startswith("row_id") or not _ln.strip():
+                continue
+            _q = _ln.rstrip("\n").split("\t")
+            if len(_q) < 5 or not _q[0].isdigit():
+                continue
+            _fl = _r2f.get(int(_q[0]))
+            if _fl is None:
+                continue                        # a shop row that is not an AP check -- not our unit
+            _f2t[_fl].add(_q[1])
+            if _q[4].strip():
+                _t2m[_q[1]].add(_q[4].strip())
+    return _f2t, _t2m
+
+
+_FLAG_OPENERS, _TALK_MAPS = _shop_flag_openers()
+# THE HUB MIRROR (measured 2026-07-24, and it is why "exclusive" barely exists): the Twin Maiden
+# Husks (m11_10) re-sell almost every nomadic merchant's stock once you hand in that merchant's BELL
+# BEARING -- which you get by killing them. The hub copy is never an alternative EARLY route to the
+# ware; it is the same merchant's stock, relocated after the fact. Counting it as a competing seller
+# collapses the pool: of 373 start-stocked non-DEFAULTED shop checks only 77 have a single opener,
+# and every one of those is hub-only (barred anyway) or a spell -- ZERO usable pins, which would trip
+# the FATAL below. Ignoring the hub mirror, 181 have exactly ONE FIELD seller: a nameable NPC
+# standing in a real region. That is the unit.
+_HUB_SHOP_TILE = "m11_10"
+
+
+def _field_openers(_fl):
+    """Talk ESDs selling this flag OUTSIDE the hub."""
+    return {_t for _t in _FLAG_OPENERS.get(_fl, ())
+            if any(_m != _HUB_SHOP_TILE for _m in _TALK_MAPS.get(_t, ()))}
+_ap_region2 = {aid: _reg9 for _reg9, _locs9 in buckets.items() for (_nm9, aid, _fl9) in _locs9}
 _gated_ap = set(shop_gated_aps)
 _def_ap = set(defaulted_aps)
 _burn_ap = set(erdtree_burn_aps)
 _ap2flag = {aid: fl for _reg, _locs in buckets.items() for (_nm, aid, fl) in _locs}
 
+# ALT-CURRENCY MERCHANTS (Alaric 2026-07-24): a Dragon Communion altar is paid in Dragon Hearts, a
+# limited consumable, so EVERY slot it sells is missable -- spend the heart on one incantation and
+# the others may become unbuyable. The missable pass already tags the individual costType==1 rows
+# (DRAGONHEART_FLAGS -> _MISSABLE "dragon_heart"); at MERCHANT granularity we can now state the rule
+# the way it is actually meant: if any row a merchant opens is alt-currency, the merchant is an
+# alt-currency shop and none of its slots may carry progression.
+# The input this depends on was INCOMPLETE until 2026-07-24: DRAGONHEART_FLAGS tested costType==1 and
+# so missed the DLC Grand Altar entirely (Bayle's Tyranny is costType 5). Widened to "not runes" --
+# see the note on DRAGONHEART_FLAGS. Alaric spotted it because a Bayle incantation turned up as a
+# candidate PIN, which is the only reason anyone was looking at that shelf.
+_talk_checks = defaultdict(list)               # talk_id -> its non-spell check ap-ids
+for _ap2, _b in _ap_blk.items():
+    if _b in _SPELL_VENDOR_BLOCKS:
+        continue
+    for _t in _field_openers(_ap2flag.get(_ap2)):
+        _talk_checks[_t].append(_ap2)
 
-def _ware_unique(_fl):
-    """This stock flag sells exactly one ware, and that ware is sold under no other flag game-wide."""
-    _items = SHOP_FLAG_ITEMS.get(_fl, set())
-    return len(_items) == 1 and SHOP_ITEM_FLAGS.get(next(iter(_items)), set()) == {_fl}
+
+_ALT_CURRENCY_TALKS = {_t for _t, _aps0 in _talk_checks.items()
+                       if any(str(_MISSABLE.get(_a0, "")).startswith("alt_currency")
+                              for _a0 in _aps0)}
+
+
+def _talk_regions(_t):
+    """AP regions the merchant physically stands in (None-dropped: an unresolved tile must not
+    silently widen the set -- it just fails to vouch for anything)."""
+    return {_r for _r in (_gt_region(_m) for _m in _TALK_MAPS.get(_t, ())
+                          if _m != _HUB_SHOP_TILE) if _r}
 
 
 _SHOP_SLOTS = {}
 _SHOP_SLOT_SKIPS = {}
-for _b, _aps2 in sorted(_merch_rows.items()):
-    _open = [a for a in _aps2 if a not in _gated_ap]
+for _t, _aps2 in sorted(_talk_checks.items()):
+    _aps2 = sorted(set(_aps2))
+    if _t in _ALT_CURRENCY_TALKS:
+        _SHOP_SLOT_SKIPS[_t] = ("alt-currency merchant (Dragon Communion altar): its wares are paid "
+                                "in a limited consumable, so ALL %d of its slots are missable and "
+                                "none may carry progression" % len(_aps2))
+        continue
+    _excl = [a for a in _aps2 if len(_field_openers(_ap2flag.get(a))) == 1]
+    if not _excl:
+        _SHOP_SLOT_SKIPS[_t] = ("no exclusive ware: every one of its %d check(s) is also sold by "
+                                "another FIELD merchant (hub mirror ignored)" % len(_aps2))
+        continue
+    _open = [a for a in _excl if a not in _gated_ap]
     if not _open:
-        _SHOP_SLOT_SKIPS[_b] = ("no start-stocked row: all %d of its rows are release-gated"
-                                % len(_aps2))
+        _SHOP_SLOT_SKIPS[_t] = ("no start-stocked exclusive row: all %d are release-gated"
+                                % len(_excl))
         continue
-    _uniq = [a for a in _open if _ware_unique(_ap2flag[a])]
-    if not _uniq:
-        _SHOP_SLOT_SKIPS[_b] = ("no merchant-unique ware: every one of its %d start-stocked rows "
-                                "sells something also sold elsewhere" % len(_open))
-        continue
-    _conf = [a for a in _uniq if a not in _def_ap and a not in _burn_ap]
+    _conf = [a for a in _open if a not in _def_ap and a not in _burn_ap and a not in _MISSABLE]
     if not _conf:
-        _SHOP_SLOT_SKIPS[_b] = ("region unresolved: all %d of its unique-ware rows are region-"
+        _SHOP_SLOT_SKIPS[_t] = ("region unresolved: all %d exclusive start-stocked row(s) are "
                                 "DEFAULTED (or erdtree-burn doomed) -> barred from progression anyway"
-                                % len(_uniq))
+                                % len(_open))
         continue
-    _rep = min(_conf)
-    _SHOP_SLOTS[_b] = _rep
+    _mregs = _talk_regions(_t)
+    _cons = [a for a in _conf if _ap_region2.get(a) in _mregs] if _mregs else []
+    if not _cons:
+        _SHOP_SLOT_SKIPS[_t] = ("region MISMATCH: merchant stands in %s but its %d candidate row(s) "
+                                "are filed %s -- a pin fill would believe is reachable early"
+                                % (sorted(_mregs) or "(unresolved)", len(_conf),
+                                   sorted({_ap_region2.get(a) for a in _conf})))
+        continue
+    _rep = min(_cons)
+    _SHOP_SLOTS[_t] = _rep
     _tags = loc_tags.setdefault(_rep, [])
     if "ShopSlot" not in _tags:
         _tags.append("ShopSlot")
-print(f"ShopSlot: {len(_SHOP_SLOTS)} of {len(_merch_rows)} non-spell merchant block(s) pinned -- ONE "
+_merch_rows = _talk_checks                     # name kept for the summary print below
+print(f"ShopSlot: {len(_SHOP_SLOTS)} of {len(_merch_rows)} non-spell MERCHANT(s) (talk ESD) pinned -- ONE "
       f"merchant-unique, start-stocked, region-confident progression slot each; "
       f"{len(_SHOP_SLOT_SKIPS)} block(s) SKIPPED; "
       f"{len(_SPELL_VENDOR_BLOCKS)} spell vendor(s) excluded upstream")
@@ -4333,12 +4547,14 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose\n')
     f.write('# release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.\n')
     f.write('SHOP_RELEASE_GATED_APS = frozenset(' + repr(_shopgate) + ')\n')
-    f.write('\n# ShopSlot pins: merchant block (ShopLineupParam row id // 100) -> the ONE ap id that\n')
-    f.write('# carries the ShopSlot tag: the lowest ap among the block\'s start-stocked (release_flag\n')
-    f.write('# == 0), MERCHANT-UNIQUE-ware (sold under exactly one stock flag game-wide, so the\n')
-    f.write('# location is unambiguous), region-confident (not DEFAULTED) rows. Blocks with no such\n')
-    f.write('# row are in SHOP_SLOT_SKIPS with the reason -- skipping is INTENDED (the gen log carries\n')
-    f.write('# the same list as WARNINGs); an empty PINS dict is a gen_data FATAL.\n')
+    f.write('\n# ShopSlot pins: MERCHANT (the NPC talk ESD id that calls OpenRegularShop, from\n')
+    f.write('# merchant_shops.tsv) -> the ONE ap id carrying the ShopSlot tag. Lowest ap among that\n')
+    f.write('# merchant\'s checks that are EXCLUSIVE to it (no other talk ESD opens a row with that\n')
+    f.write('# stock flag), start-stocked (release_flag == 0), region-confident (not DEFAULTED) and\n')
+    f.write('# region-CONSISTENT (the merchant physically stands in the region the check is filed\n')
+    f.write('# under). Merchants with no such row are in SHOP_SLOT_SKIPS with the reason -- skipping\n')
+    f.write('# is INTENDED; an empty PINS dict is a gen_data FATAL.\n')
+    f.write('# Was keyed by ShopLineupParam block until 2026-07-24; the block is not a merchant.\n')
     f.write('SHOP_SLOT_PINS = ' + repr(dict(sorted(_SHOP_SLOTS.items()))) + '\n')
     f.write('SHOP_SLOT_SKIPS = ' + repr(dict(sorted(_SHOP_SLOT_SKIPS.items()))) + '\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
