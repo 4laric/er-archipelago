@@ -40,13 +40,18 @@ primitive (a genuine follow-up). Leyndell's 2-Great-Rune gate is the game's OWN 
 (the vanilla main gate opens on 2 held runes; leyndell_gate carries the AP-logic mirror), so it needs
 no client trigger from us.
 
-OPEN QUESTIONS carried from spec S5 (need Alaric's datamine / an in-game oracle) -- marked below:
-  * Pureblood Knight's Medallion is NOT a shuffled catalog item -> Mohgwyn uses the Secret-Medallion x2
-    route only this pass (the DAG's other Mohgwyn route).
-  * "Messmer's Kindling" is a vanilla CONCEPT with no catalog item -> Enir-Ilim gates on Shadow-Keep
-    access only; the Kindling + K-Scadutree-Fragment count is DEFERRED (K undefined; needs the client
-    count primitive too).
-  * "Jori's remembrance" has no catalog item -> Abyssal Woods gates on DLC entry only.
+DLC key resolution (Alaric 2026-07-24 -- corrects spec S3/S4/S5):
+  * Abyssal Woods -> Barbed Staff-Spear (Jori, Elder Inquisitor, is NOT a remembrance boss; the spec's
+    "Jori's remembrance" was a slip). Barbed Staff-Spear is a real pooled catalog item -> RESOLVED.
+  * Mohgwyn -> Pureblood Knight's Medal (Varre) OR Secret-Medallion x2. Pureblood was an unplaced
+    common-event grant (not pooled); INJECTED via gen_data.GLOBAL_RECOVER[400032]="Liurnia" -> becomes a
+    real pooled item after a `-Greenfield` regen. The clause is availability-guarded (rides Secret-
+    Medallion until the regen bakes the medal).
+  * Enir-Ilim -> "Messmer's Kindling" IS a real vanilla KEY ITEM (like the Rold Medallion), but it is
+    ABSENT from this build's datamine (no flag/lot captured in region_map.csv), so it cannot be pooled
+    yet. Needs a datamine pass to capture its acquisition flag, then the same GLOBAL_RECOVER injection;
+    until then Enir-Ilim rides Shadow-Keep access. (Kindling's Scadutree-fragment count-gate half still
+    needs the client count primitive.)
   * Caelid's "2 remembrances" count collides with the festival-softlock flag 9410 (spec S5) -> the gate
     is LOGIC-ONLY here (no client trigger), so nothing touches 9410; reconcile before wiring the client.
 
@@ -100,10 +105,12 @@ GATE_CLAUSES = {
     "Siofra River": [("Remembrance of the Starscourge",)],
     "Ainsel River": [("Remembrance of the Starscourge",)],
     "Deeproot Depths": [("Remembrance of the Starscourge",)],
-    # Mohgwyn: Pureblood Knight's Medallion is NOT a catalog item (spec S5 open q) -> Secret-Medallion
-    # x2 route only (also the Snowfield-portal route in the DAG). Re-add a Pureblood clause here once
-    # that item is confirmed pooled.
-    "Mohgwyn": [("Haligtree Secret Medallion (Left)", "Haligtree Secret Medallion (Right)")],
+    # Mohgwyn: two routes (spec S3) -- Varre's Pureblood Knight's Medal, OR the Snowfield Secret-Medallion
+    # x2 portal. The Pureblood clause is availability-guarded: the medal is INJECTED into the pool via
+    # gen_data.GLOBAL_RECOVER[400032] (Alaric 2026-07-24) but only exists after a `-Greenfield` regen, so
+    # until then active_clauses drops that clause and Mohgwyn rides the Secret-Medallion route alone.
+    "Mohgwyn": [("Pureblood Knight's Medal",),
+                ("Haligtree Secret Medallion (Left)", "Haligtree Secret Medallion (Right)")],
     "Farum Azula": [("Remembrance of the Fire Giant",)],
     # --- DLC fold bloc: everything behind Mohg / Blood Lord remembrance (kept chokepoint) ---
     "Gravesite": [("Remembrance of the Blood Lord",)],
@@ -120,8 +127,11 @@ GATE_CLAUSES = {
     "Ancient Ruins": [("Remembrance of the Blood Lord", "Aspects of the Crucible: Thorns")],
     "Rauh Base": [("Remembrance of the Blood Lord", "Aspects of the Crucible: Thorns")],
     "Jagged Peak": [("Remembrance of the Blood Lord", "Dragon-Hunter's Great Katana")],
-    # Abyssal Woods: "Jori's remembrance" has no catalog item (spec S5) -> DLC entry only this pass.
-    "Abyssal": [("Remembrance of the Blood Lord",)],
+    # Abyssal Woods: the spec's "Jori's remembrance" is a naming slip -- Jori (Elder Inquisitor) is not
+    # a remembrance boss. His signature drop is the Barbed Staff-Spear (a real, pooled catalog item;
+    # vanilla location is a Scadu Altus check f510610, but keys are location-independent so it gates
+    # Abyssal fine). DLC entry (Blood Lord) is folded in to keep Abyssal behind Mohg. (Alaric 2026-07-24.)
+    "Abyssal": [("Remembrance of the Blood Lord", "Barbed Staff-Spear")],
     # Enir-Ilim finale: spec wants Messmer's Kindling + K Scadutree Fragments; Kindling is a vanilla
     # concept with no catalog item and K is undefined (spec S5) -> gate on Shadow-Keep access for now.
     "Enir Ilim": [("Remembrance of the Blood Lord", "Aspects of the Crucible: Thorns")],

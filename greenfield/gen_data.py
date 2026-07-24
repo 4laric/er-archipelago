@@ -1671,6 +1671,14 @@ GLOBAL_RECOVER = {
     510140: "Farum Azula",           # Bell Bearing[4]/AoW Black Flame Tornado -> Godskin Duo (Crumbling Farum Azula)
     510260: "Liurnia",  # Magma Wyrm's Scalesword -> Magma Wyrm Makar (Ruin-Strewn Precipice)
     510320: "Siofra River",          # Ancestral Follower Ashes -> Ancestor Spirit (Siofra / Ancestral Woods)
+    # INJECT the Pureblood Knight's Medal (Varre's reward, flag 400032) as a real check so it enters the
+    # pool: it is a global common-event grant the pipeline left unplaced (map PENDING, region 'global'),
+    # so it never became a catalog item -> natural_progression could not gate Mohgwyn on it (spec S3's
+    # Mohgwyn route). Recovered to Liurnia (Varre operates out of the Rose Church, Liurnia). On regen its
+    # name resolves via FMG and its FullID via the lot, exactly like the other recovered globals; then
+    # features/natural_progression gates Mohgwyn on it (OR the Snowfield Secret-Medallion route). NEEDS a
+    # Windows `build.ps1 -Greenfield` regen to bake -- the sandbox has no artifacts. (Alaric 2026-07-24.)
+    400032: "Liurnia",               # Pureblood Knight's Medal -> Varre (Rose Church, Liurnia)
     510440: "Shadow Keep",           # Golden Hippopotamus. Recovery MEMBERSHIP + post-DEATH floor: the plaza reverts to play_region 21000 = Shadow Keep once the Hippo is dead (so the filler SWEEP is Shadow Keep). The LIVE-fight reward region is now DERIVED, not hand-set: region_of's boss-arena branch resolves 510440 -> defeat 21000850 -> PlayRegionParam boss-alive row 6900010 (bucket 69000 = Scadu Altus) ABOVE the msb branch, so this value is never consulted for the reward's region. (Membership is also covered by _BOSS_REWARD_TILE auto-recover; this entry could be dropped entirely.)
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
