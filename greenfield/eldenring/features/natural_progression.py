@@ -311,7 +311,6 @@ class NaturalProgressionFeature(Feature):
         # Emit naturalKeyTriggers keyed by the "<Region> Lock" identifier the region-lock slot_data
         # already uses, so the client blooms each region's open flag on receipt of the real keys.
         # Only regions with a live clause AND a real open flag (the client needs a flag to bloom).
-        # Count-gates (logic-only) and the game-native capital emit nothing here (documented).
         if not is_on(world):
             return {}
         triggers = {}
@@ -321,4 +320,22 @@ class NaturalProgressionFeature(Feature):
             triggers[f"{region} Lock"] = {
                 "anyOf": [{"items": list(c), "flags": []} for c in clauses]
             }
+        # BORN-SOFTLOCK FIX (2026-07-24): core.py seals EVERY in-play region with an areaLock + open
+        # flag, but a region with no live clause gets no bloom trigger above -- so the client seals it
+        # and nothing ever opens it. The start spoke (Limgrave) sealed = the seed is unplayable from
+        # turn one; a logic-only COUNT-gate (Caelid) sealed forever is a real soft-lock too (AP logic
+        # believes it reachable on 2 remembrances and can place goal progression there, but the client
+        # never opens it). Emit an ALWAYS-OPEN trigger -- one empty clause, which natural_key_fired
+        # satisfies vacuously (all() over [] is true) and blooms on the first client tick -- for every
+        # KEPT region that HAS an open flag but NO live clause and is NOT the game-native capital
+        # (Leyndell / Sewer open in-game on held Great Runes via leyndell_gate + the withheld capital
+        # grace -- "needs no client half at all"; same path non-natural mode ships). This covers the
+        # flattened off-START spokes (Limgrave, Weeping) and the logic-only count-gates (Caelid opens
+        # client-side now, still gated in AP logic until a real client count primitive lands).
+        for region in world._kept():
+            if region in GAME_NATIVE_GATE or REGION_OPEN_FLAGS.get(region) is None:
+                continue
+            name = f"{region} Lock"
+            if name not in triggers:
+                triggers[name] = {"anyOf": [{"items": [], "flags": []}]}
         return {"naturalKeyTriggers": triggers} if triggers else {}

@@ -96,3 +96,36 @@ class NaturalProgressionTest(WorldTestBase):
         clause = trig["Stormveil Lock"]["anyOf"]
         self.assertTrue(any("Rusty Key" in c["items"] for c in clause),
                         "Stormveil's trigger must reference Rusty Key")
+
+    # --- BORN-SOFTLOCK GUARD (2026-07-24) --------------------------------------------
+    def test_every_sealed_region_has_an_opener(self):
+        """core.py seals EVERY in-play region with an areaLock + open flag. A region that has an open
+        flag but NO naturalKeyTrigger is sealed with nothing to bloom it -> the client never opens it:
+        the start spoke (Limgrave) sealed = unplayable from turn one, and a logic-only count-gate
+        (Caelid) sealed forever is a logic/client soft-lock (AP logic can place goal progression there,
+        the player can never reach it). So every KEPT region that HAS an open flag must carry a trigger
+        -- unless it is the game-native capital (Leyndell/Sewer open in-game on held Great Runes via
+        leyndell_gate + the withheld capital grace, no client trigger). This is the guard that would
+        have caught the first playtest's born-softlocked Limgrave."""
+        from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS
+        world = self.multiworld.worlds[self.player]
+        trig = world.fill_slot_data().get("naturalKeyTriggers", {})
+        sealed_no_opener = [r for r in world._kept()
+                            if r not in _np.GAME_NATIVE_GATE
+                            and REGION_OPEN_FLAGS.get(r) is not None
+                            and f"{r} Lock" not in trig]
+        self.assertEqual(sorted(sealed_no_opener), [],
+                         f"regions sealed with no client opener (born-softlock): {sorted(sealed_no_opener)}")
+
+    def test_start_spoke_opens_at_start(self):
+        """The flattened off-START spokes and logic-only count-gates must bloom immediately, via an
+        ALWAYS-OPEN trigger -- a clause with no items and no flags, which the client's natural_key_fired
+        satisfies vacuously (all() over []) on the first tick. Limgrave (the start spoke) is the
+        load-bearing case; Caelid (count-gate, logic-only interim) rides the same mechanism."""
+        world = self.multiworld.worlds[self.player]
+        trig = world.fill_slot_data().get("naturalKeyTriggers", {})
+        for region in ("Limgrave", "Caelid"):
+            self.assertIn(f"{region} Lock", trig, f"{region} must have an opener trigger")
+            clauses = trig[f"{region} Lock"]["anyOf"]
+            self.assertTrue(any(not c["items"] and not c["flags"] for c in clauses),
+                            f"{region} must open at start via an empty (always-satisfied) clause")

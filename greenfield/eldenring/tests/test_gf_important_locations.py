@@ -57,12 +57,23 @@ class TagDataTests(unittest.TestCase):
         by definition a dragon-boss drop. So this is a check that always existed in the GAME and finally
         exists in the WORLD -- exactly the direction the warning below blesses.
 
-        ⚠️ If this number moves again, FIRST check whether an EMEVD-derived input is stale rather than
-        rebaselining: `python tools/datamine_boss_drops.py` and `datamine_boss_healthbars.py` are cheap.
-        A number that grows because the ground truth got better is fine; one that grows because a
-        predicate got looser is a bug.
+        REBASELINED 94 -> 95 (2026-07-24, co-check regen -- SPEC-flag-lot-item-model). This is a
+        CO-CHECK sibling, NOT a datamine change: the distinct Boss-tagged FLAG set is UNCHANGED at 94
+        (verified). The +1 is a second Boss-tagged LOCATION for flag 510440 -- the Hippo's death flag in
+        Scadu Altus, one of the four CO_CHECK_FLAGS. That flag drives two lots: the primary ('Aspects of
+        the Crucible: Thorns') and the sibling ('Scadutree Fragment', ap 7900001), each now its own
+        co-firing check. Both are genuine Hippo boss drops, so both carry 'Boss' -- the count follows
+        AP LOCATIONS, and one already-Boss flag simply gained its sibling location. The predicate did NOT
+        move; widening CO_CHECK_FLAGS beyond the four is the only thing that can move this number via
+        co-checks (each added shared-flag Boss drop adds one).
+
+        ⚠️ If this number moves again, FIRST check whether an EMEVD-derived input is stale, or whether a
+        CO_CHECK_FLAGS addition added a sibling, rather than rebaselining: `python
+        tools/datamine_boss_drops.py` and `datamine_boss_healthbars.py` are cheap. A number that grows
+        because the ground truth got better (or a deliberate co-check sibling landed) is fine; one that
+        grows because a predicate got looser is a bug.
         """
-        self.assertEqual(TAG_COUNTS["Boss"], 94)
+        self.assertEqual(TAG_COUNTS["Boss"], 95)
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
