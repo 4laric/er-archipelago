@@ -302,15 +302,44 @@ def _open_allowed(world, classes):
 def _place(world, allowed, to_place, lock):
     """One fill_restrictive pass. Base state = get_all_state(False) (the base-state fix): the rest of
     the pool + precollected + already-placed locks count as available, so gated majors look reachable.
-    fill_restrictive mutates to_place in place, leaving only the UNPLACED items."""
+    fill_restrictive mutates to_place in place, leaving only the UNPLACED items.
+
+    ACCESS-CHECK FIX (2026-07-24): fill_restrictive only enforces per-item reachability while the game
+    is NOT yet beatable in its max-exploration state. Under accessibility:minimal it computes
+    ``perform_access_check = not has_beaten_game(maximum_exploration_state)`` -- and that max-exploration
+    state re-collects the ENTIRE item_pool (every gate key we are placing), so the goal is ALWAYS
+    "beaten" during our pre-fill => the check switches OFF => fill_restrictive stops verifying
+    reachability and LOCKS our gate keys into whatever slots remain, including regions sealed behind
+    OTHER gate keys. In vanilla-progression mode the full vanilla dependency graph (deep compound / count
+    chokepoints, ~30 keys) makes that a routine multi-region cycle -> keys stranded behind their own
+    gates -> audit_reachable's unrescuable FillError. We WANT our own spine fully reachable regardless of
+    the player's accessibility (that is the entire point of the surface + the audit), so force the check
+    ON for the duration of OUR placement by lifting accessibility off minimal, then restore it. Verified
+    a no-op for the region-lock spine (its DAG already placed reachably) and the fix for vanilla mode
+    (0 spill / 0 rescue where the strand was ~30 keys). The restore is in ``finally`` so a fill raise
+    can't leak the override; placement is synchronous and single-threaded per world, so no race."""
+    import inspect
     from Fill import fill_restrictive
     mw = world.multiworld
     state = mw.get_all_state(False)
+    # Build kwargs by SIGNATURE, not a try/except-TypeError fallback: the old fallback dropped BOTH
+    # `lock` and `allow_partial`, so on an AP without allow_partial a strict lock would silently go
+    # unlocked (progression-balancing could then move it off the surface) AND, now that we force the
+    # access check on below, an over-full surface would raise FillError instead of spilling -- breaking
+    # the ladder's "never FillErrors" contract. Gating on the signature keeps `lock` unconditional and
+    # only omits allow_partial when the running AP truly lacks it. (Fable review 2026-07-24.)
+    kwargs = {"single_player_placement": True, "lock": lock}
+    if "allow_partial" in inspect.signature(fill_restrictive).parameters:
+        kwargs["allow_partial"] = True
+    acc = getattr(world.options, "accessibility", None)
+    saved = acc.value if acc is not None else None
     try:
-        fill_restrictive(mw, state, allowed, to_place, single_player_placement=True,
-                         lock=lock, allow_partial=True)
-    except TypeError:  # older AP signature without allow_partial
-        fill_restrictive(mw, state, allowed, to_place, single_player_placement=True)
+        if acc is not None:
+            acc.value = 0  # Accessibility.option_full -> perform_access_check stays True in fill_restrictive
+        fill_restrictive(mw, state, allowed, to_place, **kwargs)
+    finally:
+        if acc is not None:
+            acc.value = saved
 
 
 def apply(world) -> None:

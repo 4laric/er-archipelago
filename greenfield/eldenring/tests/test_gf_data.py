@@ -21,6 +21,11 @@ DATA_PY = os.path.join(os.path.dirname(HERE), "data.py")
 # ap-id space the client contract depends on (see __init__.py _ITEM_BASE=7780000 / gen_data
 # BASE_AP=7770000). A shift here silently remaps every check.
 BASE_AP = 7770000
+# Reserved band for CO-CHECK sibling lots (SPEC-flag-lot-item-model / gen_data.COCHECK_BASE). These
+# ap-ids are allocated ONCE from the append-only co_check_ids.tsv registry, NOT positionally, so they
+# are intentionally NOT contiguous with the main band (the positional band tops out ~7775300). Keep in
+# sync with gen_data.COCHECK_BASE.
+COCHECK_BASE = 7900000
 
 
 def _load_data():
@@ -28,6 +33,34 @@ def _load_data():
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+def _registered_cocheck_ids():
+    """The set of co-check sibling ap-ids declared in co_check_ids.tsv (the append-only registry), or
+    an empty set if the file isn't beside data.py or in the greenfield/ source dir. The built apworld
+    ships the registry next to data.py; the raw source tree keeps it one level up in greenfield/. An
+    empty result means 'no registry here' -- only meaningful when the data ALSO has no co-check band
+    (the pre-regen source tree), which the caller checks."""
+    eldenring_dir = os.path.dirname(DATA_PY)
+    candidates = [os.path.join(eldenring_dir, "co_check_ids.tsv"),
+                  os.path.join(os.path.dirname(eldenring_dir), "co_check_ids.tsv")]
+    for p in candidates:
+        if not os.path.exists(p):
+            continue
+        ids = set()
+        with open(p, encoding="utf-8") as fh:
+            for ln in fh:
+                ln = ln.strip()
+                if not ln or ln.startswith("#") or ln.startswith("flag\t"):
+                    continue
+                parts = ln.split("\t")
+                if len(parts) >= 4:
+                    try:
+                        ids.add(int(parts[3]))
+                    except ValueError:
+                        pass
+        return ids
+    return set()
 
 
 class GreenfieldDataInvariants(unittest.TestCase):
@@ -81,9 +114,25 @@ class GreenfieldDataInvariants(unittest.TestCase):
     def test_ap_ids_unique_contiguous_from_base(self):
         ids = sorted(a for _n, a, _f in self.locs)
         self.assertEqual(len(ids), len(set(ids)), "duplicate ap ids")
-        self.assertEqual(ids[0], BASE_AP, f"ap-id space shifted (min={ids[0]}, expected {BASE_AP})")
-        self.assertEqual(ids, list(range(BASE_AP, BASE_AP + len(ids))),
-                         "ap ids are not contiguous (gen_data assigns them sequentially)")
+        # Two disjoint bands. The MAIN (positional) band is assigned sequentially by gen_data and must
+        # be contiguous from BASE_AP -- a shift or gap here silently remaps every check. The CO-CHECK
+        # band (>= COCHECK_BASE, SPEC-flag-lot-item-model) is sparse and registry-allocated, so it is
+        # NOT contiguous with the main band; every id in it must be one the co_check_ids.tsv registry
+        # declares (an invented or positional co-check id is the drift this guards).
+        main = [i for i in ids if i < COCHECK_BASE]
+        co = [i for i in ids if i >= COCHECK_BASE]
+        self.assertTrue(main, "no positional ap-ids below COCHECK_BASE -- id space misconfigured")
+        self.assertEqual(main[0], BASE_AP, f"ap-id space shifted (min={main[0]}, expected {BASE_AP})")
+        self.assertEqual(main, list(range(BASE_AP, BASE_AP + len(main))),
+                         "positional ap ids are not contiguous (gen_data assigns them sequentially)")
+        if co:
+            registered = _registered_cocheck_ids()
+            self.assertTrue(registered,
+                            f"data has co-check band ap-ids (>= {COCHECK_BASE}) but co_check_ids.tsv "
+                            "registry was not found beside data.py or in greenfield/")
+            unregistered = sorted(set(co) - registered)
+            self.assertEqual(unregistered, [],
+                             f"co-check ap-ids not declared in co_check_ids.tsv registry: {unregistered}")
 
     def test_flags_positive(self):
         bad = [(n, f) for n, _a, f in self.locs if f <= 0]
