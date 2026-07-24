@@ -300,6 +300,12 @@ Run through this before a change lands (PR or direct):
       regenerated from it, not hand-edited.
 - [ ] No game data or build outputs staged; `git diff --cached --stat` reviewed.
 - [ ] Item-pool changes are count-neutral.
+- [ ] No fix re-ranks, prioritises, or special-cases the item/class that happened to break: if the
+      model's *arity* is wrong (one flag ↔ many lots, two id spaces, two map versions), the model
+      changed, not a tiebreak.
+- [ ] Every constraint the change designs around names its owner — GAME / ARCHIPELAGO / US — with a
+      citation for the first two; anything handed to a subagent or a future session is labelled
+      assumption-vs-invariant, never silently hardened into a brief.
 
 ---
 
@@ -412,6 +418,61 @@ MSBs and FMGs. If we are guessing, we have not looked hard enough.
 
 **Refusing to answer beats answering confidently wrong.** If the region is unknown, say so
 (`DEFAULTED_REGION_APS`) and bar it from carrying progression.
+
+### When the data contradicts the model, the MODEL changes
+
+The 2026-07-24 lesson, and the sharpest version of this section so far.
+
+**Messmer's Kindling went missing from the pool.** The generator modelled checks as **one event flag,
+one check** — a 1:1 map. The game does not work that way: an event flag can award **several** item
+lots, so a flag with N meaningful items is N checks. Under a 1:1 model every sibling but one is
+silently dropped, and a key item is one unlucky draw away from vanishing. Nothing errored — the seed
+genned, and the item was simply not there (*"Check the output for what is MISSING"* — Rule 6).
+
+The proposed fix was **"rank key-item drops higher"** so the surviving sibling would be the Kindling.
+It would have worked. On that flag. That is the entire problem:
+
+> **A fix that re-ranks, prioritises, or special-cases the item that happened to break is a hand pin
+> wearing an algorithm's clothes.** It buys back the one symptom you know about and leaves the wrong
+> model in place, still silently dropping every sibling you *haven't* noticed yet — and now with a
+> heuristic standing on top of it that looks like a deliberate design decision.
+
+The real fix is to change the shape of the model to the shape of the data: **N co-firing checks per
+shared flag**, with the meaningful/junk partition taken from a param the game already ships
+(`EquipParamGoods.isDiscard`), not from a curated list of item names. Bigger diff, no whack-a-mole,
+and it fixes the siblings nobody reported.
+
+So when a check, a count, or an item comes out wrong, ask **in this order**:
+
+1. **What does the game datum actually look like?** Not "what value should I set" — what is the
+   *cardinality and shape* of the thing? (one flag → many lots; one lot → many items; two id spaces;
+   two map versions.) Most of this file's worst bugs were a model with the wrong arity, not a wrong
+   constant.
+2. **Does my model have that shape?** If not, changing the model IS the fix. Re-ranking inside a
+   wrong-arity model is not.
+3. **Only if the derivation genuinely cannot reach** the datum may a hand entry exist — under the
+   redundancy hard-error below.
+
+### Constraint ownership — say who owns it before you obey it
+
+The same incident produced a worse artefact than the bad fix. Working from the 1:1 model, the agent
+**handed the task to a subagent with "checks must stay one-to-one" as a HARD CONSTRAINT.**
+
+The 1:1 rule was never a constraint. It wasn't the game (the game shares flags across lots), it
+wasn't Archipelago (AP is happy with N locations per trigger) — **it was ours**, undocumented, and
+probably accidental. Promoting it to a requirement in a handoff makes the actual fix *unreachable*
+for the next worker, who now has to violate their brief to be right, and who has no way to tell an
+inherited guess from a real invariant.
+
+- **Before you design around a constraint, name its owner: the GAME, ARCHIPELAGO, or US.** Only the
+  first two are non-negotiable, and both are checkable — cite the param/EMEVD row or the AP API. If
+  the answer is "us", it is a design choice on the table, and the right move may be to delete it.
+- **Never hand an unowned assumption to another agent (or a future session) as a constraint.** Write
+  it as what it is: *"current code assumes 1:1 flag→check; I have not verified that this is required
+  — check it before building on it."* A handoff is where assumptions get laundered into requirements,
+  and a subagent cannot audit a premise it was told to hold fixed.
+- **A constraint that makes the bug unfixable is evidence the constraint is the bug.** If honouring
+  it forces you into a special-case, stop and re-check who owns it.
 
 ### A REDUNDANT MANUAL OVERRIDE IS A FAILURE
 
