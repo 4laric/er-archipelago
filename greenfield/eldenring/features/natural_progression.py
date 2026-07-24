@@ -47,13 +47,14 @@ DLC key resolution (Alaric 2026-07-24 -- corrects spec S3/S4/S5):
     common-event grant (not pooled); INJECTED via gen_data.GLOBAL_RECOVER[400032]="Liurnia" -> becomes a
     real pooled item after a `-Greenfield` regen. The clause is availability-guarded (rides Secret-
     Medallion until the regen bakes the medal).
-  * Enir-Ilim -> Messmer's Kindling (a real vanilla KEY ITEM, goods 2008021). It shared Messmer's defeat
-    flag 510460 with the Remembrance of the Impaler (lots 10460+10461), so the scan captured only the
-    remembrance; INJECTED via gen_data.ROW_ITEM_NAME_FIX[510460]="Messmer's Kindling" (key-item-wins-the-
-    shared-flag, same convention as Golden Seed 520160 / Prayer Room Key 400696) -> becomes a real pooled
-    item after a `-Greenfield` regen (the remembrance rides along on the pickup). Enir-Ilim's clause is
-    availability-guarded (opens ungated pre-regen; gates on Blood Lord + Kindling post-regen). The spec's
-    additional K-Scadutree-Fragment count-gate half still needs the client count primitive.
+  * Enir-Ilim -> Messmer's Kindling (a real vanilla KEY ITEM, goods 2008021). It shares Messmer's defeat
+    flag 510460 with the Remembrance of the Impaler (lots 10460+10461); captured as its own CO-CHECK
+    (SPEC-flag-lot-item-model: gen_data.CO_CHECK_FLAGS + co_check_ids.tsv -- the sibling lot is its own
+    co-firing location, the remembrance stays the primary check, BOTH items are pooled, nothing deleted;
+    supersedes the retired ROW_ITEM_NAME_FIX rename, which deleted the remembrance from the game) ->
+    becomes a real pooled item after a `-Greenfield` regen. Enir-Ilim's clause is availability-guarded
+    (opens ungated pre-regen; gates on Blood Lord + Kindling post-regen). The spec's additional
+    K-Scadutree-Fragment count-gate half still needs the client count primitive.
   * Caelid's "2 remembrances" count collides with the festival-softlock flag 9410 (spec S5) -> the gate
     is LOGIC-ONLY here (no client trigger), so nothing touches 9410; reconcile before wiring the client.
 
@@ -134,11 +135,12 @@ GATE_CLAUSES = {
     # vanilla location is a Scadu Altus check f510610, but keys are location-independent so it gates
     # Abyssal fine). DLC entry (Blood Lord) is folded in to keep Abyssal behind Mohg. (Alaric 2026-07-24.)
     "Abyssal": [("Remembrance of the Blood Lord", "Barbed Staff-Spear")],
-    # Enir-Ilim finale: gate on Messmer's Kindling (spec S4), the vanilla finale key. Kindling is now
-    # INJECTED via gen_data.ROW_ITEM_NAME_FIX[510460] (it shared Messmer's flag with the remembrance;
-    # Alaric 2026-07-24) -> it becomes a real pooled item after a `-Greenfield` regen. Availability-
-    # guarded: PRE-regen (Kindling absent) this clause drops and Enir-Ilim opens ungated -- harmless, as
-    # the goal is the base capital, not Enir-Ilim; POST-regen the finale gates on Blood Lord + Kindling.
+    # Enir-Ilim finale: gate on Messmer's Kindling (spec S4), the vanilla finale key. Kindling is a
+    # CO-CHECK (gen_data.CO_CHECK_FLAGS[510460] + co_check_ids.tsv: its sibling lot 10461 is its own
+    # co-firing location beside the Remembrance primary, both pooled -- SPEC-flag-lot-item-model) ->
+    # it becomes a real pooled item after a `-Greenfield` regen. Availability-guarded: PRE-regen
+    # (Kindling absent) this clause drops and Enir-Ilim opens ungated -- harmless, as the goal is the
+    # base capital, not Enir-Ilim; POST-regen the finale gates on Blood Lord + Kindling.
     # (The spec's additional K-Scadutree-Fragment count is deferred -- it needs the client count primitive.)
     "Enir Ilim": [("Remembrance of the Blood Lord", "Messmer's Kindling")],
 }

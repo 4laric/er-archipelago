@@ -5,8 +5,16 @@ this seed EMITS (post option-filtering), that the location is
 
   (a) DETECTABLE   -- it carries a real acquisition flag present in the client's flag-poll table
                       (slot_data locationFlags) / shop-stock table (shopRowFlags), valid, not
-                      aliased to another live location, and disjoint from the system flags the
-                      client itself writes (region-open + grace warp flags, map-reveal flags, the
+                      aliased to another live location -- UNLESS the sharers form a declared
+                      CO-CHECK GROUP (SPEC-flag-lot-item-model: one getItemFlagId drives several
+                      ItemLotParam lots, each its own location; the client's poll is keyed by
+                      ap_id -- flagpoll.rs location_flags: HashMap<i64,u32> -- so every member
+                      fires when the flag sets). A shared flag is legal iff EVERY sharer has a
+                      LOCATION_LOT binding (check_lots_data.py) and the bound (table, lot) pairs
+                      are pairwise DISTINCT; per-member own-lot suppression is then enforced by
+                      (b). Accidental aliasing (any sharer unbound, or two sharers on one lot)
+                      stays a hard violation. Also disjoint from the system flags the client
+                      itself writes (region-open + grace warp flags, map-reveal flags, the
                       deathlink-kill flag, the underground view flag);
   (b) SUPPRESSED   -- if it vanilla-holds a ware, a suppression mechanism exists so the vanilla
                       ware is not handed out alongside the AP-placed item. Since the 2026-07
@@ -133,18 +141,37 @@ def _read_bundled_text(name):
 def _load_static_table():
     """check_lots_table.json -- the STATIC suppression authority (tools/gen_check_lots_table.py).
     {"placeholder_goods": 8852,
-     "map"/"enemy": {"<flag>": {"lot": <lot>, "slots": [1..8]}},   # GOODS blanked at the lot
-     "items":       {"<flag>": [<FullID>, ...]}}                    # weapon/armor/talisman/AoW by id
+     "map"/"enemy":       {"<flag>": {"lot": <lot>, "slots": [1..8]}},   # legacy: ONE lot per flag
+     "map_v2"/"enemy_v2": {"<flag>": [{"lot":..,"slots":[..]}, ...]},    # SHARED-flag overlay
+     "items":             {"<flag>": [<FullID>, ...]}}                   # weapon/armor/... by id
+    Returns (map, enemy, items) with map/enemy NORMALIZED to {flag: [entry, ...]} -- the overlay
+    where present, else the single legacy entry wrapped in a list (SPEC-flag-lot-item-model: one
+    flag can drive several lots; the legacy one-lot shape was last-write-wins lossy). Use
+    _entries() when consuming, so a test-injected legacy-shaped dict still works.
     Returns ({}, {}, {}) when absent (every ware-bearing location then reports unsuppressed --
     loud, which is correct: without this table the client's static path is INERT). Read ZIP-SAFELY
     (see _read_bundled_text): a plain open() here is what crashed every custom_worlds install."""
     try:
         t = json.loads(_read_bundled_text("check_lots_table.json"))
-        return ({int(k): v for k, v in t.get("map", {}).items()},
-                {int(k): v for k, v in t.get("enemy", {}).items()},
+        out = []
+        for key in ("map", "enemy"):
+            legacy = {int(k): v for k, v in t.get(key, {}).items()}
+            overlay = {int(k): v for k, v in t.get(key + "_v2", {}).items()}
+            out.append({k: overlay.get(k, [v] if isinstance(v, dict) else list(v))
+                        for k, v in legacy.items()})
+        return (out[0], out[1],
                 {int(k): [int(i) for i in v] for k, v in t.get("items", {}).items()})
     except Exception:
         return {}, {}, {}
+
+
+def _entries(table, flag):
+    """The per-lot entry LIST for `flag` in a normalized static map/enemy table. Tolerates a
+    legacy-shaped single-dict value (tests inject those) by wrapping it."""
+    v = table.get(flag)
+    if v is None:
+        return []
+    return [v] if isinstance(v, dict) else list(v)
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -300,6 +327,18 @@ def build_coverage(world=None, kept=None, _static_table=None):
     static_map, static_enemy, static_items = (_static_table if _static_table is not None
                                               else _load_static_table())
 
+    # CO-CHECK bindings (SPEC-flag-lot-item-model): ap_id -> ("map"|"enemy", lot). Emitted by
+    # gen_data into check_lots_data.py for every member (primary + siblings) of an allowlisted
+    # shared-flag family. Absent pre-regen -> {} and the shared-flag legality test below simply
+    # never legalizes (identical to the old unconditional no-alias rule).
+    cld_mod = _load("check_lots_data")
+    LOCATION_LOT = {}
+    for _ap, _tl in (getattr(cld_mod, "LOCATION_LOT", {}) or {}).items():
+        try:
+            LOCATION_LOT[int(_ap)] = (str(_tl[0]), int(_tl[1]))
+        except (TypeError, ValueError, IndexError):
+            continue
+
     # ---- scope --------------------------------------------------------------------------------
     if world is not None:
         scope_kept = list(world._kept())
@@ -438,7 +477,8 @@ def build_coverage(world=None, kept=None, _static_table=None):
                 rec, flag, static_map, static_enemy, static_items,
                 emitted_blank_lots_map, emitted_blank_lots_enemy,
                 emitted_check_item_flags, SHOP_ROW_FLAGS, SHOP_ROW_IDS, cif_src,
-                gesture_flags=frozenset(GESTURE_AWARD_FLAGS))
+                gesture_flags=frozenset(GESTURE_AWARD_FLAGS),
+                location_lot=LOCATION_LOT)
             rec.static_suppress = (flag in static_map or flag in static_enemy
                                    or flag in static_items or ap_id in SHOP_ROW_FLAGS)
 
@@ -472,6 +512,7 @@ def build_coverage(world=None, kept=None, _static_table=None):
         "emitted_blank_lots_enemy": emitted_blank_lots_enemy,
         "static_map": static_map, "static_enemy": static_enemy, "static_items": static_items,
         "shop_flag_by_ap": SHOP_ROW_FLAGS, "shop_rows_by_ap": SHOP_ROW_IDS,
+        "location_lot": LOCATION_LOT,
         "system_flags": system_flags,
         "BOSS_DROP_FLAGS": BOSS_DROP_FLAGS,
         "MISSABLE_LOCATIONS": MISSABLE_LOCATIONS,
@@ -510,11 +551,18 @@ def _is_filler_location(rec, contract):
 
 def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
                           blank_lots_map, blank_lots_enemy, check_item_flags,
-                          shop_flag_by_ap, shop_rows_by_ap, cif_src, gesture_flags=frozenset()):
+                          shop_flag_by_ap, shop_rows_by_ap, cif_src, gesture_flags=frozenset(),
+                          location_lot=None):
     """Resolve suppress_kind, in mechanism order:
       shop purchase -> lot blank (static flag->lot row AND the lot actually emitted in
       checkLotBlankMap/Enemy) -> static id-keyed (weapon/armor) -> per-seed checkItemFlags
-      client intercept -> placed==vanilla -> none (a real hole iff the location has a ware)."""
+      client intercept -> placed==vanilla -> none (a real hole iff the location has a ware).
+
+    CO-CHECK precision (SPEC-flag-lot-item-model): a location with a LOCATION_LOT binding is one
+    member of a shared-flag family, and the lot blank only counts if it covers the member's OWN
+    (table, lot) -- "some sibling's lot is blanked" is exactly the hole the old flag-keyed test
+    could not see. Unbound locations keep the any-entry test (the static table is per-lot lists
+    now; the per-seed emission blanks every family lot)."""
     if rec.ap_id in shop_flag_by_ap and shop_rows_by_ap.get(rec.ap_id):
         rec.provenance["suppress"] = "shop_data.py (purchase IS the vanilla delivery)"
         return "shop_stock"
@@ -523,14 +571,24 @@ def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
                                       "blank, no grant the detour sees; the vanilla gesture is "
                                       "unsuppressable BY DESIGN and this class says so out loud)")
         return "event_award_unsuppressable"
-    ent = static_map.get(flag)
-    if ent is not None and int(ent.get("lot", -1)) in blank_lots_map:
-        rec.provenance["suppress"] = "check_lots_table.json[map] + checkLotBlankMap"
-        return "lot_blank_map"
-    ent = static_enemy.get(flag)
-    if ent is not None and int(ent.get("lot", -1)) in blank_lots_enemy:
-        rec.provenance["suppress"] = "check_lots_table.json[enemy] + checkLotBlankEnemy"
-        return "lot_blank_enemy"
+    bind = (location_lot or {}).get(rec.ap_id)
+    for table, static_tbl, blank_lots, kind, prov in (
+            ("map", static_map, blank_lots_map, "lot_blank_map",
+             "check_lots_table.json[map(+_v2)] + checkLotBlankMap"),
+            ("enemy", static_enemy, blank_lots_enemy, "lot_blank_enemy",
+             "check_lots_table.json[enemy(+_v2)] + checkLotBlankEnemy")):
+        lots = [int(e.get("lot", -1)) for e in _entries(static_tbl, flag)]
+        if bind is not None:
+            if bind[0] != table:
+                continue                       # bound to the other table -> this branch can't cover it
+            hit = bind[1] in lots and bind[1] in blank_lots
+            if hit:
+                rec.provenance["suppress"] = prov + f" (own lot {bind[1]})"
+                return kind
+            continue                           # bound member NOT covered here -> try id-keyed layers
+        if any(l in blank_lots for l in lots):
+            rec.provenance["suppress"] = prov
+            return kind
     if flag in static_items:
         rec.provenance["suppress"] = "check_lots_table.json[items] (id-keyed)"
         return "static_item_ids"
@@ -580,10 +638,24 @@ def check_detection(records, ctx):
                                      f"shop stock flag {f} disagrees with data.py locationFlags "
                                      f"entry {emitted.get(rec.ap_id)}", rec.provenance)); continue
         if len(by_flag.get(f, [])) > 1:
-            others = [a for a in by_flag[f] if a != rec.ap_id]
-            out.append(Violation(rec.ap_id, rec.name, "detection",
-                                 f"aliased detect_flag {f} shared with {others[:4]}",
-                                 rec.provenance)); continue
+            # CO-CHECK GROUP legality (SPEC-flag-lot-item-model): a shared flag is legal iff EVERY
+            # sharer carries a LOCATION_LOT binding and the bound (table, lot) pairs are pairwise
+            # distinct -- N sibling ItemLotParam lots co-firing on one getItemFlagId, each its own
+            # location (the client's ap_id-keyed poll reports them all). Anything else is the same
+            # accidental-alias violation as always. Per-member OWN-lot suppression is enforced by
+            # the suppression check (_classify_suppression's bind branch), keeping (a)/(b)
+            # orthogonal like every other pair of gate checks.
+            group = by_flag[f]
+            ll = ctx.get("location_lot", {}) or {}
+            binds = [ll.get(a) for a in group]
+            if not (all(b is not None for b in binds) and len(set(binds)) == len(binds)):
+                others = [a for a in group if a != rec.ap_id]
+                out.append(Violation(rec.ap_id, rec.name, "detection",
+                                     f"aliased detect_flag {f} shared with {others[:4]} -- not a "
+                                     f"declared co-check group (every sharer needs a distinct "
+                                     f"LOCATION_LOT (table, lot) binding; bindings="
+                                     f"{[ll.get(a) for a in group[:4]]})",
+                                     rec.provenance)); continue
     return out
 
 

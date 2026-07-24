@@ -25,7 +25,27 @@ Emits greenfield/eldenring/check_lots_table.json:
     {"placeholder_goods": 8852,
      "map":   {"<flag>": {"lot": <lot>, "slots": [1..8]}, ...},   # GOODS slots -> blank at the lot
      "enemy": {"<flag>": {"lot": <lot>, "slots": [1..8]}, ...},
+     "map_v2":   {"<flag>": [{"lot": <lot>, "slots": [1..8]}, ...], ...},   # SHARED-flag overlay
+     "enemy_v2": {"<flag>": [{"lot": <lot>, "slots": [1..8]}, ...], ...},
      "items": {"<flag>": [<ER item id>, ...]}}                     # WEAPON/ARMOR wares -> suppress by id
+
+THE SHARED-FLAG SHAPE (SPEC-flag-lot-item-model). One getItemFlagId can drive SEVERAL lots (Messmer
+510460 -> lots 10460 + 10461, Remembrance + Kindling). The legacy "map"/"enemy" shape is one lot per
+flag, and this generator used to fill it LAST-WRITE-WINS -- whichever sibling the CSV listed last
+silently won, and the other lots were invisible to the static (foreign-apworld) path while gen_data's
+per-seed path blanked them all. Two paths, two behaviours, both accidental. Now:
+
+  * "map"/"enemy" (LEGACY, one entry per flag) stay for the shipped static_lots.rs parser, but the
+    entry is DETERMINISTIC: the LOWEST lot id (the lot the region_map scan named the check after),
+    never scan-order luck.
+  * "map_v2"/"enemy_v2" (the OVERLAY) carry the COMPLETE per-lot list -- emitted ONLY for flags with
+    more than one goods-carrying lot in that table, sorted by lot id. A consumer resolves a flag's
+    blank-list as:
+        entries(flag) = map_v2[flag]  if present  else  [map[flag]]
+    (identical semantics for the ~4.2k single-lot flags, complete for the shared ones). The client
+    static_lots.rs change to read the overlay is a SEPARATE follow-up (cargo); until it lands,
+    foreign apworlds keep legacy one-lot blanking -- deterministic now, no worse than before. The
+    gen-side coverage gate (coverage._load_static_table) reads the overlay already.
 
 TWO MECHANISMS, because the game gives us two problems:
 
@@ -54,7 +74,10 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
-VV = os.path.join(REPO, "elden_ring_artifacts", "vanilla_er", "vanilla_er")
+# ER_ARTIFACTS_VV: same override datamine_flag_lots.py honours (Linux sandbox stages just the param
+# CSVs there); on Windows the default repo path applies.
+VV = os.environ.get("ER_ARTIFACTS_VV") or os.path.join(
+    REPO, "elden_ring_artifacts", "vanilla_er", "vanilla_er")
 OUT = os.path.join(REPO, "greenfield", "eldenring", "check_lots_table.json")
 
 # The one goods row the client suppresses unconditionally. It EXISTS (so the game can grant it), has
@@ -198,7 +221,8 @@ def _catalog_raw_to_nibbles():
 
 
 def build():
-    out = {"placeholder_goods": AP_PLACEHOLDER_GOODS, "map": {}, "enemy": {}, "items": {}}
+    out = {"placeholder_goods": AP_PLACEHOLDER_GOODS, "map": {}, "enemy": {},
+           "map_v2": {}, "enemy_v2": {}, "items": {}}
     known = _catalog_raw_to_nibbles()
     # PASS 1: collect every (category, raw) the lots reference, so the nibble map can be derived from
     # them rather than declared.
@@ -255,11 +279,16 @@ def build():
 
     # PASS 2: route each slot by its DERIVED nibble. GOODS -> blank the lot slot (the client repoints it
     # at the placeholder). Everything else -> id-keyed suppression against the detour's FullID.
+    #
+    # SHARED FLAGS (see the module docstring): collect EVERY goods-carrying lot per flag, then emit
+    # legacy one-entry (lowest lot -- deterministic, replacing the old last-write-wins overwrite) plus
+    # the complete "_v2" overlay list for flags with >1 lot in that table.
+    per_flag = {"map": {}, "enemy": {}}          # key -> {flag_str: [{"lot":..,"slots":[..]}, ...]}
     for key, flag, lot, entries in pending:
         k = str(flag)
         slots = [i for (i, cat, _iid) in entries if nibble[cat] == GOODS_NIBBLE]
         if slots:
-            out[key][k] = {"lot": lot, "slots": slots}
+            per_flag[key].setdefault(k, []).append({"lot": lot, "slots": slots})
         for (_i, cat, iid) in entries:
             if nibble[cat] == GOODS_NIBBLE:
                 continue
@@ -267,6 +296,12 @@ def build():
             out["items"].setdefault(k, [])
             if full not in out["items"][k]:
                 out["items"][k].append(full)
+    for key in ("map", "enemy"):
+        for k, ents in per_flag[key].items():
+            ents.sort(key=lambda e: e["lot"])
+            out[key][k] = ents[0]                              # legacy: LOWEST lot, deterministic
+            if len(ents) > 1:
+                out[key + "_v2"][k] = ents                     # overlay: the complete family
 
     _assert_covers_every_lot_check(out)
 
@@ -329,7 +364,8 @@ def main():
     n_map, n_ene, n_it = len(tbl["map"]), len(tbl["enemy"]), len(tbl["items"])
     both = set(tbl["map"]) & set(tbl["enemy"])
     print("check_lots_table: %d map flag(s), %d enemy flag(s), %d in BOTH; %d flag(s) with "
-          "weapon/armor wares (id-keyed)" % (n_map, n_ene, len(both), n_it))
+          "weapon/armor wares (id-keyed); SHARED-flag overlay: %d map_v2 + %d enemy_v2"
+          % (n_map, n_ene, len(both), n_it, len(tbl["map_v2"]), len(tbl["enemy_v2"])))
     if a.check:
         if not os.path.isfile(OUT):
             print("STALE: %s missing -- run tools/gen_check_lots_table.py" % OUT)

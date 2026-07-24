@@ -634,30 +634,17 @@ ROW_MAP_REGION_FIX = {
     197: ("m14_00_00_00", "Raya Lucaria Academy"),
     65060: ("m60_41_53_00", "Altus Plateau"),
 }
-# Item-NAME corrections: a getItemFlagId shared by two ItemLotParam_map lots is named after the LOWER
-# lot id by the scan, which can pick a co-located spirit ash over the Golden Seed. 520160's lots are
-# 20160 (Redmane Knight Ogha ash) + 20161 (Golden Seed); the scan named it Ogha. The Seed is the
-# meaningful pickup (War-Dead Catacombs Putrid Tree Spirit, wiki Golden Seed #17) and the ash is not a
-# check anywhere, so relabel to Golden Seed (also earns the Seedtree important-loc tag). Recovered to a
-# region via GLOBAL_RECOVER[520160] below. (Alaric 2026-07-10)
-ROW_ITEM_NAME_FIX = {
-    520160: "Golden Seed",
-    # 400696's getItemFlagId is shared by two ItemLotParam lots; the scan named it after the LOWER lot
-    # (an "Ash of War: Flame Skewer") over lot 106931 (goods 2008036 = Prayer Room Key, the meaningful
-    # DLC gate pickup). Relabel so it reads as the key and earns the KeyItem tag (same class of shared-
-    # flag mis-name as 520160). Its region column is stale (m20_00) -- verify the true location. (2026-07-13)
-    400696: "Prayer Room Key",
-    # 510460 = Messmer's defeat flag, shared by TWO map lots: 10460 (goods 2002901 = Remembrance of the
-    # Impaler) + 10461 (goods 2008021 = Messmer's Kindling, the finale KEY ITEM). The scan named the check
-    # after the lower lot (the remembrance), so the Kindling -- a real Key Item like the Rold Medallion --
-    # was never captured as its own shuffled item (Alaric 2026-07-24 datamine: lots 10460/10461 both fire
-    # getItemFlagId 510460). Relabel to the KEY, exactly like 400696/520160: the Kindling becomes the
-    # shuffled item (FullID resolves from the name -> goods 2008021), earns the KeyItem tag, and
-    # natural_progression gates Enir-Ilim on it (SPEC-vanilla-progression S4). The Remembrance of the
-    # Impaler rides along on the same pickup (one flag, one check) -- the accepted tradeoff. Needs a
-    # `-Greenfield` regen to bake (the sandbox has no artifacts).
-    510460: "Messmer's Kindling",
-}
+# Item-NAME corrections for a region_map row whose scanned name is provably wrong. RETIRED as the
+# shared-flag workaround (2026-07-24, SPEC-flag-lot-item-model): the three entries this table ever
+# held -- 520160 "Golden Seed", 400696 "Prayer Room Key", 510460 "Messmer's Kindling" -- were all
+# renames of a check whose getItemFlagId is shared by TWO ItemLotParam lots (the scan named the check
+# after the LOWEST lot, dropping the sibling's item; the rename picked the sibling and DELETED the
+# primary's item from the game, because the per-seed path blanks every lot on a check flag). That
+# class is now modeled faithfully instead: the sibling lot becomes its OWN co-firing check (see
+# CO_CHECK_FLAGS below -- the primary row keeps its scanned name, the sibling gets a registry ap_id,
+# BOTH items are pooled, nothing is deleted). Keep the table for any future genuinely-wrong NAME on a
+# single-lot row; never re-add a shared-flag rename here.
+ROW_ITEM_NAME_FIX = {}
 for _rowfix in _ALLROWS:
     try:
         _ff = int(_rowfix["flag"])
@@ -669,6 +656,104 @@ for _rowfix in _ALLROWS:
     _nmfix = ROW_ITEM_NAME_FIX.get(_ff)
     if _nmfix:
         _rowfix["item_name"] = _nmfix
+
+# ---- CO-CHECKS: N co-firing checks on one shared acquisition flag (SPEC-flag-lot-item-model) ------
+# ItemLotParam is one-to-MANY: one getItemFlagId can drive several lots, each granting its own item
+# (Messmer's death flag 510460 -> lot 10460 Remembrance of the Impaler + lot 10461 Messmer's
+# Kindling). The client's flag poll is keyed by AP LOCATION ID, not by flag (flagpoll.rs
+# location_flags: HashMap<i64,u32>; core.rs pushes every loc whose flag is set), so N locations
+# sharing a flag all co-fire on the pickup -- the faithful projection is one check PER LOT, each
+# independently shuffled, each blanking its OWN lot. The old shape (one check per flag, sibling item
+# renamed in via ROW_ITEM_NAME_FIX, every family lot blanked) DELETED the non-selected item from the
+# game entirely.
+#
+# CO_CHECK_FLAGS is the mechanism-first ALLOWLIST: only these flags project sibling co-checks this
+# pass (a first playtest validates the mechanism before the policy widens). The full candidate sheet
+# is `python tools/datamine_flag_lots.py --report` (292 shared flags; 175 with a policy-MEANINGFUL
+# sibling -- key item / remembrance / great rune / spell / non-goods gear; farmable consumables and
+# spirit ashes classify junk). WIDENING LATER IS ONE LINE: replace this frozenset with the flags the
+# report marks meaningful (policy constants live in datamine_flag_lots.MEANINGFUL_GOODS_TYPES /
+# MEANINGFUL_CATEGORIES), then append the new sibling rows to co_check_ids.tsv (the regen FATALs
+# with the exact lines to add). Seeded with the four hand-verified families (Alaric 2026-07-24):
+CO_CHECK_FLAGS = frozenset({
+    510460,   # Messmer: lot 10460 Remembrance of the Impaler (primary) + 10461 Messmer's Kindling
+              #          (KEY ITEM, goods 2008021; natural_progression gates Enir-Ilim on it)
+    510440,   # Golden Hippopotamus: 10440 Aspects of the Crucible: Thorns (primary; nat-prog Shadow
+              #          Keep/Rauh gate key) + 10441 Scadutree Fragment
+    520160,   # War-Dead Catacombs Putrid Tree Spirit: 20160 Redmane Knight Ogha ash (primary) +
+              #          20161 Golden Seed (wiki #17); region via GLOBAL_RECOVER[520160]
+    400696,   # DLC Prayer Room: 106930 Ash of War: Flame Skewer (primary) + 106931 Prayer Room Key
+              #          (KEY ITEM, goods 2008036)
+})
+COCHECK_BASE = 7900000   # reserved ap_id band (positional BASE_AP space tops out ~7775300)
+
+def _load_flag_lots():
+    """greenfield/flag_lots.tsv (tools/datamine_flag_lots.py -- the faithful flag->lots capture,
+    TRACKED so it is sandbox-visible) -> {flag: [(table, lot, slot, category, item_id, num,
+    goods_type), ...]} sorted (map-before-enemy, then lot, slot). Absent -> {} (co-check projection
+    then FATALs iff CO_CHECK_FLAGS is non-empty -- an allowlisted flag with no family is a broken
+    regen, never a silent skip)."""
+    _p = os.path.join(HERE, "flag_lots.tsv")
+    _out = {}
+    if not os.path.isfile(_p):
+        return _out
+    with open(_p, encoding="utf-8-sig", newline="") as _fh:
+        _rd = csv.DictReader(_fh, delimiter="\t")
+        for _r in _rd:
+            try:
+                _fl = int(_r["flag"]); _lot = int(_r["lot"]); _sl = int(_r["slot"])
+                _cat = int(_r["category"]); _iid = int(_r["item_id"]); _n = int(_r["num"] or 1)
+            except (KeyError, TypeError, ValueError):
+                continue
+            _gt = (_r.get("goods_type") or "").strip()
+            _out.setdefault(_fl, []).append(
+                (_r["table"], _lot, _sl, _cat, _iid, _n, int(_gt) if _gt else None))
+    for _v in _out.values():
+        _v.sort(key=lambda _t: (0 if _t[0] == "map" else 1, _t[1], _t[2]))
+    return _out
+
+FLAG_LOTS = _load_flag_lots()
+
+def _load_co_check_ids():
+    """greenfield/co_check_ids.tsv -- the APPEND-ONLY sibling-lot ap_id registry
+    -> {(flag, table, lot): ap_id}. Ids are allocated once in the COCHECK band and never reused or
+    re-derived (positional ids renumber; registry ids don't). Validated here: band membership,
+    uniqueness, and existence in FLAG_LOTS -- a corrupt registry must kill the regen."""
+    _p = os.path.join(HERE, "co_check_ids.tsv")
+    _out = {}
+    if not os.path.isfile(_p):
+        return _out
+    with open(_p, encoding="utf-8-sig", newline="") as _fh:
+        for _ln in _fh:
+            if not _ln.strip() or _ln.lstrip().startswith("#") or _ln.startswith("flag\t"):
+                continue
+            _pv = _ln.rstrip("\n").split("\t")
+            if len(_pv) < 4:
+                raise SystemExit(f"FATAL: co_check_ids.tsv malformed row: {_ln!r}")
+            _fl, _tb, _lot, _ap = int(_pv[0]), _pv[1].strip(), int(_pv[2]), int(_pv[3])
+            if _tb not in ("map", "enemy"):
+                raise SystemExit(f"FATAL: co_check_ids.tsv bad table {_tb!r} (flag {_fl})")
+            if _ap < COCHECK_BASE:
+                raise SystemExit(f"FATAL: co_check_ids.tsv ap_id {_ap} below COCHECK_BASE "
+                                 f"{COCHECK_BASE} (flag {_fl}) -- the band is what keeps registry "
+                                 f"ids disjoint from positional ids; never hand-pick one")
+            _out[(_fl, _tb, _lot)] = _ap
+    if len(set(_out.values())) != len(_out):
+        raise SystemExit("FATAL: co_check_ids.tsv has duplicate ap_ids -- the registry is "
+                         "append-only and ids are never reused; restore from git")
+    if FLAG_LOTS:
+        for (_fl, _tb, _lot) in _out:
+            if not any(_e[0] == _tb and _e[1] == _lot for _e in FLAG_LOTS.get(_fl, ())):
+                raise SystemExit(f"FATAL: co_check_ids.tsv row ({_fl}, {_tb}, {_lot}) names a lot "
+                                 f"that is not in flag_lots.tsv's family for that flag -- registry "
+                                 f"and capture disagree; re-run tools/datamine_flag_lots.py and "
+                                 f"reconcile (never delete the registry row: retire it in place)")
+    return _out
+
+CO_CHECK_IDS = _load_co_check_ids()
+print(f"co-checks: allowlist {len(CO_CHECK_FLAGS)} flag(s); flag_lots.tsv families "
+      f"{len(FLAG_LOTS)}; registry {len(CO_CHECK_IDS)} sibling id(s)")
+
 # Redundant obtained-flag TWINS of a physically-placed pickup: dropped so the medallion isn't a
 # double check. 400280 = Haligtree Secret Medallion (Left) obtained flag, which the flag_prefix
 # heuristic buckets into Leyndell -- but the Left half is a real world pickup (Castle Sol, flag
@@ -1750,7 +1835,7 @@ GLOBAL_RECOVER = {
     # set (43/43 flag-keyed map lots; the 44th, Kenneth Haight, is an enemy drop with getItemFlagId 0).
     # (Alaric 2026-07-10)
     510280: "Limgrave",   # Golden Seed (Stormhill golden sapling, wiki #3); shares flag w/ Banished Knight Oleg ash (lot 10281)
-    520160: "Caelid",     # Golden Seed (War-Dead Catacombs Putrid Tree Spirit, wiki #17); shares flag w/ Redmane Knight Ogha ash (lot 20160); item_name relabeled above
+    520160: "Caelid",     # Golden Seed (War-Dead Catacombs Putrid Tree Spirit, wiki #17); shares flag w/ Redmane Knight Ogha ash (lot 20160) -- now a CO_CHECK_FLAGS family: the ash row is primary, the Seed is its own co-check (this region recovery covers BOTH members)
     # Golden Tailoring Tools (60150): the cloak-alteration tool at the Church of Vows (Liurnia). A
     # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
     # never a check). Recover it as a Liurnia check (Alaric 2026-07-09).
@@ -2535,6 +2620,126 @@ for _k,(_rg,_b,_ap,_fl) in enumerate(_name_pending):
     buckets.setdefault(_rg,[]).append((_nm,_ap,_fl))
 _all_names=[_x[0] for _v in buckets.values() for _x in _v]
 assert len(_all_names)==len(set(_all_names)), "FATAL: duplicate location names after ordinal pass"
+
+# ---- CO-CHECK PROJECTION (SPEC-flag-lot-item-model; CO_CHECK_FLAGS/CO_CHECK_IDS above) ------------
+# For each allowlisted shared flag: the PRIMARY (lowest map-table lot -- the lot the region_map scan
+# named the row after) keeps its positional ap_id and its scanned name; every SIBLING lot becomes its
+# own location in the SAME region (physically the same acquisition), with its registry ap_id, named
+# after ITS OWN lot's item (FMG). All members co-fire on the shared flag (client poll is ap_id-keyed).
+# Runs AFTER the ordinal pass: co-check names carry the item name, which differs from the primary's,
+# and global uniqueness is re-asserted below. Everything here FATALs rather than degrades -- this
+# projection only ever runs at a real regen (gen_data cannot run without artifacts at all), and a
+# half-projected family is worse than a loud death.
+CO_CHECK_EMITTED = {}        # sibling ap_id -> (flag, table, lot, FullID, fmg_base_name)
+CO_CHECK_LOCATION_LOT = {}   # member ap_id (primary + siblings) -> (table, lot)
+if CO_CHECK_FLAGS:
+    if not FLAG_LOTS:
+        raise SystemExit("FATAL: CO_CHECK_FLAGS is non-empty but flag_lots.tsv is missing/empty -- "
+                         "run tools/datamine_flag_lots.py first (AGENTS.md 5a: datamine tsvs are a "
+                         "manual step BEFORE the regen)")
+    if not _name2full:
+        raise SystemExit("FATAL: co-check projection needs the FMG name tables (msg/) -- a sibling "
+                         "check must be named after its own lot's item, and guessing names is how "
+                         "the shared-flag class shipped wrong the first time")
+    _flag_apid = {}
+    for (_rg9, _b9, _ap9, _fl9) in _name_pending:
+        _flag_apid.setdefault(_fl9, _ap9)
+    _full2name = {}
+    for _nm9, _fu9 in _name2full.items():        # insertion order = FMG priority (base before DLC)
+        _full2name.setdefault(_fu9, _nm9)
+    _row_of_flag = {}
+    for _r9 in rows:
+        try: _row_of_flag.setdefault(int(_r9["flag"]), _r9)
+        except (KeyError, ValueError): pass
+    for _cfl in sorted(CO_CHECK_FLAGS):
+        _fam = FLAG_LOTS.get(_cfl)
+        if not _fam:
+            raise SystemExit(f"FATAL: co-check flag {_cfl} has no flag_lots.tsv family -- allowlist "
+                             f"and capture disagree (re-run tools/datamine_flag_lots.py)")
+        if _cfl not in _flag_apid:
+            raise SystemExit(f"FATAL: co-check flag {_cfl} was not emitted as a check (dropped by a "
+                             f"guard/exclusion upstream) -- an allowlisted flag must be live; fix "
+                             f"the exclusion or remove it from CO_CHECK_FLAGS")
+        _lots9 = []
+        for _e9 in _fam:                          # ordered: map before enemy, then lot, slot
+            if (_e9[0], _e9[1]) not in _lots9:
+                _lots9.append((_e9[0], _e9[1]))
+        if len(_lots9) < 2:
+            raise SystemExit(f"FATAL: co-check flag {_cfl} has a single lot ({_lots9}) -- nothing "
+                             f"to project; remove it from CO_CHECK_FLAGS")
+        _prim9 = _lots9[0]
+        _prow9 = _row_of_flag[_cfl]
+        _papid9 = _flag_apid[_cfl]
+        CO_CHECK_LOCATION_LOT[_papid9] = _prim9
+        _preg9 = region_of(_prow9)
+        for (_tb9, _lot9) in _lots9[1:]:
+            _apid9 = CO_CHECK_IDS.get((_cfl, _tb9, _lot9))
+            if _apid9 is None:
+                raise SystemExit(
+                    f"FATAL: co-check sibling (flag {_cfl}, {_tb9} lot {_lot9}) has no ap_id in "
+                    f"co_check_ids.tsv -- APPEND (never insert) a row with the next free id >= "
+                    f"{COCHECK_BASE}:\n    {_cfl}\t{_tb9}\t{_lot9}\t<next-free-id>")
+            _sl_items9 = {( _e9[3], _e9[4]) for _e9 in _fam if _e9[0] == _tb9 and _e9[1] == _lot9}
+            if len(_sl_items9) != 1:
+                raise SystemExit(f"FATAL: co-check sibling lot {_lot9} (flag {_cfl}) grants "
+                                 f"{len(_sl_items9)} distinct items {sorted(_sl_items9)} -- the "
+                                 f"first-cut projection is one item per sibling lot; model this "
+                                 f"family before allowlisting it")
+            _cat9, _iid9 = next(iter(_sl_items9))
+            _nib9 = _LOT_CAT.get(str(_cat9))
+            if _nib9 is None:
+                raise SystemExit(f"FATAL: co-check sibling lot {_lot9} (flag {_cfl}) has "
+                                 f"lotItemCategory {_cat9} outside _LOT_CAT")
+            _full9 = (_nib9 << 28) | _iid9
+            _snm9 = _full2name.get(_full9)
+            if not _snm9:
+                raise SystemExit(f"FATAL: co-check sibling item FullID 0x{_full9:08x} (flag {_cfl}, "
+                                 f"lot {_lot9}) has no FMG name -- cannot mint a check for an "
+                                 f"unnameable item (the item-existence doctrine)")
+            _srow9 = dict(_prow9); _srow9["item_name"] = _snm9
+            _t9 = _loc_tags(_srow9)
+            _mtile9 = _prow9.get("map", "") or ""
+            if not re.match(r"m\d\d", _mtile9):
+                _mtile9 = _recover_tile(_cfl) or ""
+            _desc9 = _desc_sources.describe(_cfl, _prow9.get("method", ""), _mtile9,
+                is_boss=("Boss" in _t9), is_remembrance=("Remembrance" in _t9),
+                overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN,
+                nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE, map_names=_MAP_NAMES,
+                check_region=_preg9, grace_region=_GRACE_REGION, hub_region=HUB)
+            _bnm9 = (f"{_preg9} :: {_snm9} - {_desc9}" if _desc9 else f"{_preg9} :: {_snm9}")
+            _lnm9 = f"{_bnm9} [f{_cfl}]"
+            buckets.setdefault(_preg9, []).append((_lnm9, _apid9, _cfl))
+            if _t9:
+                loc_tags[_apid9] = _t9
+            # progression-bar class membership mirrors the primary (same physical acquisition):
+            if _preg9 == HUB and not _region_is_derived(_prow9):
+                defaulted_aps.append(_apid9)
+            if str(_prow9.get("map", "")).startswith("m11_00"):
+                erdtree_burn_aps.append(_apid9)
+            if _cfl in SHOP_RELEASE_GATED_FLAGS:
+                shop_gated_aps.append(_apid9)
+            if _cfl in _SURFACE_EXCLUDE_FLAGS:
+                surface_excluded_aps.append(_apid9)
+            CO_CHECK_EMITTED[_apid9] = (_cfl, _tb9, _lot9, _full9, _snm9)
+            CO_CHECK_LOCATION_LOT[_apid9] = (_tb9, _lot9)
+    # invariants: names still globally unique; ap_ids unique and band-disjoint; every family's
+    # emitted members bind DISTINCT lots (the coverage gate re-checks this from the shipped data).
+    _all_names = [_x[0] for _v in buckets.values() for _x in _v]
+    if len(_all_names) != len(set(_all_names)):
+        raise SystemExit("FATAL: co-check projection produced a duplicate location name -- a "
+                         "sibling's item name collided; rename via the descriptor or drop the "
+                         "flag from CO_CHECK_FLAGS")
+    _all_aps = [_x[1] for _v in buckets.values() for _x in _v]
+    if len(_all_aps) != len(set(_all_aps)):
+        raise SystemExit("FATAL: duplicate ap_id after co-check projection (registry/positional "
+                         "band collision?)")
+    for _apid9, (_cfl, _tb9, _lot9, _full9, _snm9) in CO_CHECK_EMITTED.items():
+        if not (_apid9 >= COCHECK_BASE):
+            raise SystemExit(f"FATAL: co-check ap_id {_apid9} outside the COCHECK band")
+    print(f"co-checks: projected {len(CO_CHECK_EMITTED)} sibling check(s) across "
+          f"{len(CO_CHECK_FLAGS)} shared flag(s): "
+          + ", ".join(f"{_v[0]}/{_v[1]}:{_v[2]}={_v[4]!r}->{_k}"
+                      for _k, _v in sorted(CO_CHECK_EMITTED.items())))
 
 
 # ---- NOT_RANDOMIZED ledger: deliberate absence, made visible -------------------------------------
@@ -3608,6 +3813,21 @@ else:
 # gets WORSE if something still reads this.
 CHECK_LOT_SLOTS = dict(CHECK_LOT_SLOTS_MAP)
 CHECK_LOT_SLOTS.update(CHECK_LOT_SLOTS_ENEMY)
+
+# CO-CHECK invariant: every member of every projected family (primary + siblings) must bind a lot
+# this table actually suppresses -- goods-blanked or non-goods-zeroed, in the member's own param
+# table. A member whose lot the client cannot touch would double-dip its vanilla ware at a check
+# that IS in the pool, silently, in every seed. (The per-seed tables already blank/zero every lot
+# whose flag is a check flag, so this is a consistency assert, not new coverage -- but consistency
+# is exactly what the last-write-wins static table lost.)
+for _ap9, (_tb9x, _lot9x) in sorted(CO_CHECK_LOCATION_LOT.items()):
+    _blank9 = CHECK_LOT_SLOTS_MAP if _tb9x == "map" else CHECK_LOT_SLOTS_ENEMY
+    _zero9 = CHECK_LOT_ZERO_MAP if _tb9x == "map" else CHECK_LOT_ZERO_ENEMY
+    if _lot9x not in _blank9 and _lot9x not in _zero9:
+        raise SystemExit(f"FATAL: co-check member ap {_ap9} binds {_tb9x} lot {_lot9x}, which is "
+                         f"in neither the goods-blank nor the zero table -- its vanilla ware "
+                         f"would double-dip; the lot family and the suppression scan disagree")
+
 OUT_CHECKLOTS = os.path.join(HERE, "eldenring", "check_lots_data.py")
 with open(OUT_CHECKLOTS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT. SPEC-runtime-minibake.\n')
@@ -3626,7 +3846,12 @@ with open(OUT_CHECKLOTS, "w", newline="\n", encoding="utf-8") as f:
     f.write("CHECK_LOT_ZERO_MAP = " + repr(dict(sorted(CHECK_LOT_ZERO_MAP.items()))) + "\n\n")
     f.write("CHECK_LOT_ZERO_ENEMY = " + repr(dict(sorted(CHECK_LOT_ZERO_ENEMY.items()))) + "\n\n")
     f.write("# Deprecated merged view (enemy wins on a collision, matching the pre-split behaviour).\n")
-    f.write("CHECK_LOT_SLOTS = " + repr(dict(sorted(CHECK_LOT_SLOTS.items()))) + "\n")
+    f.write("CHECK_LOT_SLOTS = " + repr(dict(sorted(CHECK_LOT_SLOTS.items()))) + "\n\n")
+    f.write("# CO-CHECK bindings (SPEC-flag-lot-item-model): ap_id -> (table, lot) for every member\n")
+    f.write("# (primary + siblings) of an allowlisted shared-flag family. The coverage gate uses this\n")
+    f.write("# to legalize a shared detect flag (distinct lots per member) and to demand each member's\n")
+    f.write("# suppression at its OWN lot. Empty when CO_CHECK_FLAGS is empty.\n")
+    f.write("LOCATION_LOT = " + repr(dict(sorted(CO_CHECK_LOCATION_LOT.items()))) + "\n")
 print(f"check_lots: {len(CHECK_LOT_SLOTS_MAP)} MAP + {len(CHECK_LOT_SLOTS_ENEMY)} ENEMY check lots to "
       f"blank ({sum(len(v) for v in CHECK_LOT_SLOTS_MAP.values()) + sum(len(v) for v in CHECK_LOT_SLOTS_ENEMY.values())} "
       f"goods slots) -> placeholder {AP_PLACEHOLDER_GOODS}; "
@@ -3751,6 +3976,16 @@ for _i, _r in enumerate(rows):
         _MISSABLE[BASE_AP + _i] = "dragon_heart"
     elif _mf in QUEST_GATED_FLAGS:
         _MISSABLE[BASE_AP + _i] = "questline"
+# CO-CHECK members inherit their flag's missability (same physical acquisition -- a group must never
+# mix "missable" and "not": AP could then require the un-missable member of a pickup the player can
+# no longer perform). None of the seeded four qualifies; kept general for the allowlist widening.
+for _ap9, (_cfl9, _tb9x, _lot9x, _fu9x, _nm9x) in CO_CHECK_EMITTED.items():
+    if _cfl9 in DEATHROOT_FLAGS:
+        _MISSABLE[_ap9] = "deathroot"
+    elif _cfl9 in DRAGONHEART_FLAGS:
+        _MISSABLE[_ap9] = "dragon_heart"
+    elif _cfl9 in QUEST_GATED_FLAGS:
+        _MISSABLE[_ap9] = "questline"
 OUT_MISS = os.path.join(HERE, "eldenring", "missable_locations.py")
 with open(OUT_MISS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). ap_ids of MISSABLE checks -- gated behind a limited\n')
@@ -3802,6 +4037,25 @@ for _i, _r in enumerate(rows):
         continue
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
     LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
+# CO-CHECK siblings: each projected sibling location vanilla-holds ITS OWN lot's item (the FMG name
+# resolved at projection). COUNT-NEUTRALITY: every co-check location must contribute exactly one
+# pooled item, same as any positional row -- items grow by len(CO_CHECK_EMITTED) alongside
+# locations, and a sibling whose name fails to canonicalize is a FATAL, never a silent Rune-filler
+# fallback (the whole point of the projection is that this item is REAL and shuffled).
+for _ap9, (_cfl9, _tb9x, _lot9x, _full9x, _snm9x) in sorted(CO_CHECK_EMITTED.items()):
+    _rfull9, _rbase9 = _resolve_item(_snm9x)
+    if _rfull9 is None:
+        raise SystemExit(f"FATAL: co-check sibling item {_snm9x!r} (ap {_ap9}, flag {_cfl9}) does "
+                         f"not canonicalize through _resolve_item -- FMG tables incoherent")
+    if _rfull9 != _full9x:
+        raise SystemExit(f"FATAL: co-check sibling {_snm9x!r} canonicalizes to FullID "
+                         f"0x{_rfull9:08x} but its lot grants 0x{_full9x:08x} -- name/id mismatch "
+                         f"(cross-category name clash?); model this family before allowlisting")
+    ITEM_CATALOG[_rbase9] = _rfull9
+    LOCATION_ITEM[_ap9] = _rbase9
+if CO_CHECK_EMITTED and not all(_ap9 in LOCATION_ITEM for _ap9 in CO_CHECK_EMITTED):
+    raise SystemExit("FATAL: a co-check location has no pooled item -- items==locations "
+                     "count-neutrality broken")
 # Finished throwing pots: crafted (never LOOTED), so absent from the placed-item catalog above -- but
 # they are valid grantable GOODS (EquipParamGoods ids verified against GoodsName.fmg.xml). Added
 # explicitly so the curated-consumables filler (features/filler_curation.py) can hand them out; the
@@ -4079,7 +4333,8 @@ OUT_TAGS = os.path.join(HERE, "eldenring", "location_tags.py")
 # NOTE: "Rold Medallion" is kept but is effectively a Morgott drop behind dialogue (low diversity).
 # DLC gate keys added 2026-07-13 (same "gate/travel key, not quest item" bar): the Belurat pair
 # (Storeroom/Well Depths), the Belurat Gaol pair (Gaol Upper/Lower Level), the Shadow Keep Secret Rite
-# Scroll, and the Prayer Room Key (relabelled in ROW_ITEM_NAME_FIX). DELIBERATELY EXCLUDED: Hole-Laden
+# Scroll, and the Prayer Room Key (its own CO-CHECK location since 2026-07-24 -- flag 400696's
+# sibling lot 106931; the tag flows from LOCATION_ITEM like any location). DELIBERATELY EXCLUDED: Hole-Laden
 # Necklace (Ymir/St. Trina quest item, not a gate -- like the cut Carian Inverted Statue) and "O Mother"
 # (a gesture, not a key -- debatable since it opens the Shadow Keep back door; left for review).
 _KEYITEMS = ("Dectus Medallion", "Rold Medallion", "Haligtree Secret Medallion",
@@ -4130,6 +4385,15 @@ if LOT_ITEMS:
         _granted = LOT_ITEMS.get(_fl2)
         if _granted is None:
             continue
+        # CO-CHECK members: the flag-level grant set spans the WHOLE family, which would category-tag
+        # every member with every sibling's ware (both 520160 members would read Seedtree). A bound
+        # member is tagged from ITS OWN lot's items only -- the same per-lot honesty the projection
+        # is for.
+        _bind2 = CO_CHECK_LOCATION_LOT.get(_ap2)
+        if _bind2 is not None and FLAG_LOTS.get(_fl2):
+            _granted = {(_LOT_CAT[str(_e2[3])] << 28) | _e2[4]
+                        for _e2 in FLAG_LOTS[_fl2]
+                        if (_e2[0], _e2[1]) == _bind2 and str(_e2[3]) in _LOT_CAT}
         _tags = loc_tags.get(_ap2, [])
         _is_shop = "Shop" in _tags
         _names = [(_NAME_BY_FULL.get(_x) or "").lower() for _x in (_granted or ())]
