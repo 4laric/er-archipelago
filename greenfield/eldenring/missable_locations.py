@@ -7,6 +7,10 @@ MISSABLE_LOCATIONS = {
     7770009: 'questline',
     7770010: 'questline',
     7770216: 'questline',
+    7770272: 'dragon_heart',
+    7770273: 'dragon_heart',
+    7770274: 'dragon_heart',
+    7770275: 'dragon_heart',
     7770455: 'dragon_heart',
     7770456: 'dragon_heart',
     7770457: 'dragon_heart',
@@ -20,6 +24,8 @@ MISSABLE_LOCATIONS = {
     7770611: 'dragon_heart',
     7770612: 'dragon_heart',
     7770613: 'dragon_heart',
+    7770614: 'dragon_heart',
+    7770615: 'dragon_heart',
     7770616: 'dragon_heart',
     7770617: 'dragon_heart',
     7770618: 'dragon_heart',
@@ -99,4 +105,4 @@ MISSABLE_LOCATIONS = {
     7773928: 'questline',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:559ec030f7e427e3431545d51f952b78b93a8405e6ea22761346194e144c6a5b', 'module': 'missable_locations.py', 'body_sha256': 'sha256:bb97df023e8bb5b34e904a275d935a23840999380589347335a46c5b8cbe3e64'}
+_GEN_STAMP = {'inputs_hash': 'sha256:6fdc571881a6d9c033dc92156409987efb93dd7e7c21ea41bcd02ae8ab5e78c4', 'module': 'missable_locations.py', 'body_sha256': 'sha256:6c25998d793ad2f9b5707d610dfb6a8bca810d7d978ce943ca07134e3f103de8'}
