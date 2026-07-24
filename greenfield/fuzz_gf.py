@@ -22,7 +22,8 @@ Pipeline:
      OTHER games -- those are IGNORED; classification keys only on the
      greenfield/Generate outcome (exit code + Fill/Option/greenfield markers).
   3. print ONE summary line and, for any failure, the reproducer yaml + options.
-  4. exit 0 if (SUCCESS + REJECT) / N * 100 >= --pass-pct, else exit 1.
+  4. exit 1 on ANY crash or FillError (no percentage budget -- see main()), else
+     exit 0 iff (SUCCESS + REJECT) / N * 100 >= --pass-pct.
 
 CLI (the CI gates call this VERBATIM):
     python greenfield/fuzz_gf.py --count N --pass-pct P \
@@ -92,6 +93,12 @@ def run_one(ap_dir, py, yaml_path):
     os.makedirs(out, exist_ok=True)
     shutil.copy(yaml_path, os.path.join(players, os.path.basename(yaml_path)))
     env = dict(os.environ)
+    # AP_NONINTERACTIVE is a LOCAL patch to Generate.py, and an AP re-checkout silently drops it --
+    # so it cannot be the only guard. Stock AP's exit path calls input("Press enter to close.");
+    # with an inherited stdin a CRASHED gen parks on that prompt until a human presses enter, and the
+    # harness reports the 1-second crash as a timeout (2026-07-24: reported as a HANG, then reported
+    # as a PASS). stdin=DEVNULL below makes input() raise EOFError instantly instead of blocking, and
+    # needs nothing from the AP checkout.
     env["AP_NONINTERACTIVE"] = "1"
     env["SKIP_REQUIREMENTS_UPDATE"] = "1"
     cmd = [py, "Generate.py", "--player_files_path", players, "--outputpath", out]
@@ -99,6 +106,7 @@ def run_one(ap_dir, py, yaml_path):
     try:
         p = subprocess.run(
             cmd, cwd=ap_dir, env=env,
+            stdin=subprocess.DEVNULL,          # see below -- this is the load-bearing one
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             timeout=GEN_TIMEOUT,
         )
@@ -246,7 +254,20 @@ def main(argv=None):
         for ln in tail.splitlines():
             print("  | " + ln)
 
+    # A CRASH or a FILLERROR is not a statistic. CONTRIBUTING's headline gate is absolute -- every
+    # option combination gens cleanly or rejects gracefully, "never a stack trace, never a
+    # FillError" -- and 1-in-25 crashing is 100% crashing for whoever rolls that yaml. A percentage
+    # is the right shape for flaky outcomes and the wrong shape for a deterministic one: on
+    # 2026-07-24 a KeyError crash was averaged away and the gate printed PASS.
+    # A HANG stays under the threshold only because it can be a slow machine; a crash cannot.
+    hard = counts["CRASH"] + counts["FILLERROR"]
+    if hard:
+        print("GF-FUZZ: FAIL -- %d hard failure(s) (CRASH %d, FILLERROR %d). These do not get a "
+              "percentage budget." % (hard, counts["CRASH"], counts["FILLERROR"]))
+        return 1
     ok = pct >= args.pass_pct
+    if not ok:
+        print("GF-FUZZ: FAIL -- %.1f%% clean, below the required %.1f%%" % (pct, args.pass_pct))
     return 0 if ok else 1
 
 

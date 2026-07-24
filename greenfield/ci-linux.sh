@@ -131,8 +131,11 @@ step "GREENFIELD (c) ISOLATED GEN"
 # suite that skips on one gate and runs on another is the drift this collapse removes.
 "$PY" "$REPO/tools/gf_test.py" --install-only --ap-dir "$AP"
 out="$CACHE/out"; rm -rf "$out"; mkdir -p "$out"
+# </dev/null: AP_NONINTERACTIVE is a LOCAL patch an AP re-checkout drops. Stock Generate.py's exit
+# path calls input("Press enter to close."), so a CRASHED gen parks forever on an inherited stdin and
+# the failure reports as a hang (2026-07-24). Closing stdin makes input() raise instantly instead.
 if ( cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
-      "$PY" Generate.py --player_files_path "$GF/players" --outputpath "$out" ) \
+      "$PY" Generate.py --player_files_path "$GF/players" --outputpath "$out" </dev/null ) \
    && ls "$out"/AP_*.zip >/dev/null 2>&1; then record GEN PASS; else record GEN FAIL; fi
 
 step "GREENFIELD (d) WORLD UNIT"
