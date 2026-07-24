@@ -723,7 +723,26 @@ class GreenfieldEldenRingWorld(World):
             # natural_progression mints NO region locks, so has_all([]) would be vacuously true: the
             # goal is instead REACHING the goal region (Leyndell), whose entrance requires 2 Great
             # Runes (features/leyndell_gate) reached through the real-key gate graph -> a genuine spine.
+            #
+            # ...unless Leyndell is not in this seed. Under `dlc_only` every BASE region is dropped,
+            # Leyndell is never created, and `can_reach("Leyndell")` raised KeyError out of AP's
+            # region cache -- inside the completion lambda, which BaseClasses evaluates on EVERY
+            # fill_restrictive batch regardless of accessibility, so the crash landed in pre_fill.
+            # Latent since this mode's birth commit (28d0540); found by the fuzz gate
+            # (GF-fuzz-573519869-0021: natural_progression + dlc_only). goal_locations.py already
+            # ruled that the goal is "never a hardcoded region" -- honour that here rather than
+            # banning the combination: ask it what the END of THIS kept set is (DLC finale first,
+            # else the deepest kept region), so the mode degrades to a playable seed instead of a
+            # stack trace.
+            _kept_now = self._kept()
             goal = GOAL_REGION
+            if goal not in _kept_now:
+                from .features import goal_locations as _gl
+                _derived, _ = _gl.terminal_goal_ids(_kept_now)
+                goal = _derived or HUB
+                logging.getLogger("Elden Ring").info(
+                    "[greenfield] %s is not in this seed's kept regions; natural-progression goal "
+                    "derived from the kept set instead: %s", GOAL_REGION, goal)
             if required:
                 need = len(required)
                 self.multiworld.completion_condition[player] = \
