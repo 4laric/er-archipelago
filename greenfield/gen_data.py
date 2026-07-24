@@ -571,6 +571,60 @@ def _load_tile_str_tsv(_fname):
     return _out
 
 _DESC_OVERRIDE = _load_flag_str_tsv("location_descriptions.tsv")   # 1. hand-authored English (wins)
+
+# ---- MULTI-MERCHANT SHOP ROWS may not carry a single-seller hand pin -------------------------
+# 2026-07-24, from the playtest: the tracker sent Alaric to "Kale, Church of Elleh" for flag 67000;
+# he bought Kale's entire stock and the check never fired. merchant_shops.tsv -- whose own header
+# says "a row with >1 distinct map region -> gen_data collapses to HUB + DEFAULTED" -- lists FOUR
+# merchant instances opening that row (m11_00, m11_10 Roundtable/Twin Maidens, m35_00, m60_42_36).
+# The derivation had correctly refused to name a seller; a hand entry in location_descriptions.tsv
+# (layer 1, wins) put a confident one back on top of it. That is the exact failure CONTRIBUTING
+# calls "a guess wearing the costume of a fact", and a REDUNDANT MANUAL OVERRIDE IS A FAILURE: the
+# only way a crutch gets removed is if leaving it in fails the build.
+# 496 of 709 shop-check rows are multi-merchant, so this is a rule, not a special case.
+def _multi_merchant_shop_flags():
+    """Shop-check flags whose ShopLineupParam row is opened by merchants on >1 map -> no seller
+    can be named. Empty (guard inert) if either derived table is missing."""
+    _row_maps = defaultdict(set)
+    try:
+        with open(os.path.join(HERE, "merchant_shops.tsv"), encoding="utf-8-sig") as _fh:
+            for _ln in _fh:
+                if _ln.startswith("#"):
+                    continue
+                _p = _ln.rstrip("\n").split("\t")
+                if len(_p) >= 5 and _p[0].isdigit() and _p[4].strip():
+                    _row_maps[_p[0]].add(_p[4].strip())
+    except OSError:
+        return {}
+    _out = {}
+    try:
+        with open(os.path.join(HERE, "shop_rows.tsv"), encoding="utf-8-sig") as _fh:
+            for _ln in _fh:
+                if _ln.startswith("#"):
+                    continue
+                _p = _ln.rstrip("\n").split("\t")
+                if len(_p) > 5 and _p[0].isdigit() and _p[5].strip().isdigit():
+                    if len(_row_maps.get(_p[0], ())) > 1:
+                        _out[_p[5].strip()] = (_p[0], sorted(_row_maps[_p[0]]))
+    except OSError:
+        return {}
+    return _out
+
+_MULTI_MERCHANT = _multi_merchant_shop_flags()
+_bad_pins = sorted(set(_DESC_OVERRIDE) & set(_MULTI_MERCHANT))
+if _bad_pins:
+    _lines = "\n".join(
+        "    flag %s -> %r  (row %s sold on maps %s)"
+        % (_f, _DESC_OVERRIDE[_f], _MULTI_MERCHANT[_f][0], ", ".join(_MULTI_MERCHANT[_f][1]))
+        for _f in _bad_pins)
+    raise SystemExit(
+        "[gen_data] location_descriptions.tsv names ONE seller for %d shop row(s) that several\n"
+        "merchants open. The row's flag fires on a purchase from ANY of them, so the hand text\n"
+        "sends the player to a shop that may not stock it (playtest 2026-07-24, flag 67000).\n"
+        "Delete these entries -- merchant_shops.tsv already carries the truth:\n%s"
+        % (len(_bad_pins), _lines))
+print(f"location desc: multi-merchant shop rows guarded = {len(_MULTI_MERCHANT)} "
+      f"(no single-seller hand pin permitted on any of them)")
 _BOSS_NAMES    = {}                                                # 2. TODO drop-flag -> boss name join
 _SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
 _NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. per-check nearest grace (Windows)
