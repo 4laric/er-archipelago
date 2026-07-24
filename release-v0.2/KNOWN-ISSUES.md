@@ -6,6 +6,22 @@ run on the base game, which is the recommended, supported configuration.
 
 ## Active issues
 
+- **A rare crash when fast-travelling.** One crash-to-desktop is still open: it has
+  happened twice on a warp, both times after a long play session, and it does not
+  reproduce on demand (loading the same save and warping to the same grace is fine).
+  The crash that fired after boss sweeps is fixed in v0.2.9, and this one may turn out
+  to be the same root cause showing up late -- a stale pointer can damage memory that
+  faults somewhere else much later. What to do: if it happens, keep the
+  `crash-<pid>.txt` the client writes next to itself and attach it to a report. That
+  file is what identified the sweep crash.
+
+- **Some checks hand you a duplicate vanilla item.** For weapons, armour, talismans
+  and Ashes of War, the vanilla item stays on the shelf, so you can receive it as well
+  as the multiworld item. Deliberate as of v0.2.9: the alternative was emptying the
+  slot, which removed the pickup entirely and meant the check never registered at all.
+  A duplicate is cosmetic; a dead check can strand a run. The proper fix is in
+  progress.
+
 - **A few checks can pay out the vanilla item instead of the Archipelago
   one.** A small class of drops that arrive through the ordinary enemy-drop
   channel can hand you the item the vanilla game would have given, rather than
