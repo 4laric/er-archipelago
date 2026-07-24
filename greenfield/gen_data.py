@@ -4728,12 +4728,56 @@ _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 # the recovered boss-reward/deathroot rows, which carry the 'Boss' tag), DISJOINT (nearest-boss
 # partition assigns each check once), REGION-CONSISTENT (_freg match), distance <= 2 (cap).
 _M60_TILE_RE = re.compile(r"^m60_\d\d_\d\d$")
+_REC_SWEEP_TALLY = Counter()
+def _self_encoded_m60_tile(_flag):
+    """The m60 tile encoded IN THE FLAG ITSELF: 10-digit 10XXYYLLLL -> m60_XX_YY. This is the public
+    ER id convention (same family as the X0SS7000 dungeon form), so ANY oracle can re-derive it from
+    the flag alone with no access to our tables -- which is precisely why the sweep gate requires it."""
+    try: _s = str(int(_flag))
+    except (TypeError, ValueError): return None
+    return "m60_%s_%s" % (_s[2:4], _s[4:6]) if len(_s) == 10 and _s[:2] == "10" else None
+
 def _recovered_m60_tile(_row):
-    """Decoded m60_XX_YY tile for a late-recovered global/global_filler row, else None."""
+    """Sweep-eligible m60 tile for a late-recovered global/global_filler row, else None.
+
+    2026-07-24 (v2, after `test_field_sweeps_are_local` went red on the regen): the first cut asked
+    only "did `_recover_tile` return something m60-shaped?" -- and `_recover_tile` has THREE ways to
+    answer. Two of them are not the flag's own encoding: `_BOSS_REWARD_TILE` (EMEVD-derived) and
+    `_ENTITY_SUFFIX` (an index over drop entities that resolves ambiguity by `min()` -- i.e. it
+    NEVER FAILS; it picks). A member admitted on either of those carries a locality claim that
+    nothing outside gen_data can check: its `map` column stays PENDING, so the independent scoping
+    oracle re-derives PENDING, cannot place the check on a tile, and correctly refuses to certify the
+    sweep. That is the gate doing its job, not a stale pin -- the eligibility test had gone loose.
+
+    So eligibility is now: the flag SELF-ENCODES an m60 tile, **and** `_recover_tile` (exclusions,
+    MAP_REVEAL/MINIBAKER/EXCLUDE, `_VALID_TILE_PREFIXES`) independently returns THE SAME tile. Two
+    derivations must agree; a disagreement is REFUSED and counted, never silently resolved in favour
+    of one. Everything else is a non-member with a reason attached (`_REC_SWEEP_TALLY`).
+
+    This keeps the whole Summonwater fix -- the 12 kill-site checks around the Tibia Mariner
+    (flags 1045397000-1045397140) are all self-encoded m60_45_39. What it drops is the band whose
+    tile we cannot show our work for. To sweep those later, PUBLISH the recovered tile (write it into
+    the `map` column instead of leaving PENDING) so the oracle can see it -- do not widen this gate."""
     if _row["method"] not in ("global", "global_filler"):
         return None
+    _se = _self_encoded_m60_tile(_row.get("flag"))
     _rt = _recover_tile(_row.get("flag"))
-    return _rt if _rt and _M60_TILE_RE.match(_rt) else None
+    if _se is None:
+        # Not our band: interior 8-digit, 6-digit entity-suffix, m61/DLC, or undecodable. Counted by
+        # what the recovery pipeline WOULD have claimed, so the printout below shows what we passed on.
+        _REC_SWEEP_TALLY["no self-encoded m60 tile"
+                         + (" (recovery claimed %s)" % _rt.split("_")[0] if _rt else " (no recovery)")] += 1
+        return None
+    if _rt is None:
+        _REC_SWEEP_TALLY["self-encoded but EXCLUDED by _recover_tile (map-reveal/vendor/invalid tile)"] += 1
+        return None
+    if _rt != _se:
+        # e.g. a _BOSS_REWARD_TILE entry disagreeing with the flag's own encoding. Refuse: we do not
+        # know which is right, and a sweep is a gameplay grant -- see CONTRIBUTING rule 1.
+        _REC_SWEEP_TALLY["REFUSED: _recover_tile %s != self-encoded %s" % (_rt, _se)] += 1
+        return None
+    _REC_SWEEP_TALLY["admitted (self-encoded, agreed)"] += 1
+    return _se
 for _i, _r in enumerate(rows):
     _rec_tile = _recovered_m60_tile(_r)
     _swept = _r["method"] in ("treasure", "emevd") or (
@@ -4755,6 +4799,20 @@ for _i, _r in enumerate(rows):
     _mt = re.match(r"(m60_\d\d_\d\d)", _r["map"] or "")
     if _mt:
         _mem_tile[_mt.group(1)].append(_ap)
+# Rule 4 ("a filter with no tally is a lie") + Rule 2 ("an empty result is a FAILURE"): say out loud
+# how many recovered-global rows joined the field-neighborhood pass and WHY each of the rest did not.
+# A count that moves between regens must be explainable as "the input got better" or "the predicate
+# got looser" -- this printout is what makes that answerable without re-deriving it by hand.
+_rec_admitted = _REC_SWEEP_TALLY.get("admitted (self-encoded, agreed)", 0)
+print("boss_sweeps: recovered-global field-sweep candidates: %d admitted / %d considered"
+      % (_rec_admitted, sum(_REC_SWEEP_TALLY.values())))
+for _why, _n in sorted(_REC_SWEEP_TALLY.items(), key=lambda _kv: (-_kv[1], _kv[0])):
+    if _why != "admitted (self-encoded, agreed)":
+        print("boss_sweeps:   not admitted: %-72s %d" % (_why[:72], _n))
+if not _rec_admitted:
+    print("boss_sweeps: WARNING recovered-global admissions are ZERO -- the kill-site checks around "
+          "every field boss are un-sweepable again (regression, not a clean run)")
+
 def _filler_only(_aps):
     return [_a for _a in _aps if not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(_a, ())))]
 
