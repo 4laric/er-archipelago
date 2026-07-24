@@ -4646,7 +4646,12 @@ print(f'location_tags: {len(_shopgate)} shop check(s) RELEASE-GATED (not stocked
 #                                           ("killed Ekzykes, nothing happened"); nearest-boss
 #                                           assignment keeps groups DISJOINT and region-consistent
 #                                           (distance ties split round-robin so same-tile pairs both
-#                                           get a share).
+#                                           get a share). 2026-07-24: "overworld check" now includes
+#                                           the late-RECOVERED global/global_filler lots, tile-keyed
+#                                           by their flag's self-encoded m60 tile (_recover_tile) --
+#                                           they were invisible to the sweep before, which left the
+#                                           kill-site checks around a field boss un-sweepable
+#                                           ("killed Tibia Mariner, no boss sweep").
 # Recovered flag_prefix dungeon checks are swept map-locally, so a catacomb boss grants its whole
 # catacomb. Falls back to the pre-rework region-wide banner scan if BOSS_HEALTHBARS is unavailable.
 def _mp2(m):
@@ -4696,13 +4701,52 @@ def _m61_boss_region(_ent):
 _LEGACY_BMAP_REGION = {"m25_00": "Scadu Altus"}
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
+# RECOVERED-GLOBAL sweep eligibility (2026-07-24, "killed Tibia Mariner, no boss sweep"): the ~1k
+# late-recovered global/global_filler rows (appended to `rows` by _recover_row_ok; their `map`
+# column stays PENDING for overworld decodes) were invisible to EVERY sweep pass -- the _swept
+# gate below only admitted treasure/emevd/flag_prefix -- so none of the checks physically AT a
+# field boss's kill site belonged to any sweep group. Worst case in the wild: Summonwater Village
+# (Tibia Mariner 1045390800) -- its entire surrounding check set (ap 7774616-7774634 in the
+# 2026-07-24 numbering) was un-sweepable, while the boss's neighborhood sweep granted only 7
+# far-side treasure rows 1-2 tiles east, so in-game the kill read as "nothing happened".
+# Fold them in: a recovered row whose flag decodes to a BASE-GAME overworld tile is sweep-eligible,
+# keyed into _mem_tile by its decoded tile so the FIELD NEIGHBORHOOD pass below assigns it to the
+# nearest same-region field boss. The decoder is the SAME _recover_tile that admitted the row into
+# `rows` in the first place (trust-the-flag, exclusion-honoring, _VALID_TILE_PREFIXES-checked) --
+# no second, drift-prone regex. Deliberate scope limits:
+#   * _mem_tile ONLY. The map column stays PENDING, so _swept_map_prefix still yields None (no
+#     _mem_map/_mreg_votes contamination -- no interior/legacy boss keys an m60 prefix anyway),
+#     and recovered rows are kept OUT of _mem_region so the legacy region-DIVVY pools stay
+#     byte-identical to HEAD (this change folds kill-site checks into FIELD sweeps; widening the
+#     legacy divvy over the recovered band is a separate, larger decision).
+#   * m60 (base game) only for now. _recover_tile also decodes m61_XX_YY DLC tiles (10-digit
+#     '11...' and '20AABB...' forms); admit those here once DLC overworld sweeps land. Today
+#     BOSS_HEALTHBARS carries no m61-tiled field trigger and _tile_xy below only matches
+#     m60_XX_YY, so an m61 entry would be inert -- gate it explicitly anyway so enabling DLC is
+#     a conscious one-line change, not an accident.
+# Invariants preserved by construction: FILLER-ONLY (_filler_only cut unchanged -- it also cuts
+# the recovered boss-reward/deathroot rows, which carry the 'Boss' tag), DISJOINT (nearest-boss
+# partition assigns each check once), REGION-CONSISTENT (_freg match), distance <= 2 (cap).
+_M60_TILE_RE = re.compile(r"^m60_\d\d_\d\d$")
+def _recovered_m60_tile(_row):
+    """Decoded m60_XX_YY tile for a late-recovered global/global_filler row, else None."""
+    if _row["method"] not in ("global", "global_filler"):
+        return None
+    _rt = _recover_tile(_row.get("flag"))
+    return _rt if _rt and _M60_TILE_RE.match(_rt) else None
 for _i, _r in enumerate(rows):
+    _rec_tile = _recovered_m60_tile(_r)
     _swept = _r["method"] in ("treasure", "emevd") or (
-        _r["method"] == "flag_prefix" and _is_dungeon(_mp2(_r["map"])))
+        _r["method"] == "flag_prefix" and _is_dungeon(_mp2(_r["map"]))) or bool(_rec_tile)
     if not _swept:
         continue
     _ap = BASE_AP + _i; _reg = region_of(_r); _mp = _swept_map_prefix(_r)
     _ap_region[_ap] = _reg
+    if _rec_tile:
+        # Field-neighborhood candidate ONLY (see the scope note above): not _mem_region (legacy
+        # divvy unchanged), not _mem_map (dungeon map-local sweeps unchanged).
+        _mem_tile[_rec_tile].append(_ap)
+        continue
     _mem_region[_reg].append(_ap)
     if _mp:
         _mem_map[_mp].append(_ap)
