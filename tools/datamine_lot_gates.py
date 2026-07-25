@@ -25,22 +25,38 @@ INPUT: ESDLang/DarkScript3-decompiled EMEVD JS, `elden_ring_artifacts/event/*.em
        Windows-only artifacts -- this cannot run in the agent sandbox.
 
 --------------------------------------------------------------------------------------------------
-⚠️ READ THIS BEFORE TRUSTING ANY OUTPUT. The EMEVD instruction VOCABULARY is not guessed here, and it
-must not be. I wrote this without the artifacts in front of me, so the patterns below are CANDIDATES
-derived from how tools/datamine_boss_drops.py parses the same corpus -- not from having seen a flag
-test. A parser that invents instruction names produces a confident, complete, WRONG table, which is
-this repo's signature failure.
+⚠️ THE VOCABULARY IS MEASURED, NOT GUESSED -- and the first guess was WRONG.
 
-So the tool has two modes and the first one is not optional:
+v1 of this file looked for `If*EventFlag*` calls. `--vocab` on the real corpus (Alaric, 2026-07-25:
+589 files, 4893 events) found ZERO of those. The predicate is a bare `EventFlag(<id>)` used as an
+expression inside control flow, 12993 of them:
+
+    EndIf(EventFlag(2052));            <- terminate the event when 2052 is SET
+    SetEventFlagID(6001, ON);          <- the SETTER, excluded: this event CAUSES the flag
+
+and `AwardItemLot(101590)` names a LOT, not a flag, so it is joined back through the committed
+flag_lots.tsv. Had v1 been allowed to emit, it would have written an empty table and called it "no
+gated checks found". That is why --vocab exists and why it runs first.
+
+The tool has two modes and the first one is still not optional after any corpus change:
 
     python tools/datamine_lot_gates.py --vocab     # LOOK. Emits nothing. Prints the call-name
                                                    # histogram + real sample lines.
     python tools/datamine_lot_gates.py --emit      # only once --vocab has confirmed the names
 
-`--vocab` output is the thing to paste back if the names do not match: FLAG_TEST_RE / AWARD_RE below
-are then corrected against the real corpus, not against my recollection. `--emit` hard-refuses on a
-degenerate parse (no events, no flag tests, or an implausible hit rate) rather than writing a table
-that looks fine and means nothing.
+`--emit` hard-refuses on a degenerate parse -- no events, no flag tests, no AwardItemLot sites, no
+pairs, or an implausible flood -- rather than writing a table that looks fine and means nothing.
+
+STILL NOT DERIVED, deliberately:
+  * POLARITY. `EndIf(EventFlag(X))` means the body needs X CLEAR -- the opposite of "X appears in a
+    condition, so X must be set". Each construct has its own sense, the tool RECORDS the construct
+    verbatim in a `context` column and prints the histogram, and the sense is assigned once per
+    context during triage. A false gate is an unwinnable seed.
+  * TREASURE. `EnableAssetTreasure(assetEntityId)` names an ASSET, and asset -> lot needs the MSB.
+    Counted and reported as unresolved, never guessed at.
+  * COMMON EVENTS. Only the 26 literal `AwardItemLot(<lot>)` sites are followed; awards routed
+    through a common event's `itemLotId` param are not. datamine_boss_drops.py does that join and is
+    the model if the first pass shows it matters.
 --------------------------------------------------------------------------------------------------
 """
 import argparse
@@ -59,17 +75,35 @@ OUT = os.path.join(GF, "lot_gates.tsv")
 # One decompiled event: `$Event(<id>, <restart behaviour>, function(<params>) {`
 EVENT_RE = re.compile(r"\$Event\((\d+),\s*\w+,\s*function\(([^)]*)\)\s*\{")
 
-# CANDIDATE: a condition on an event flag. DarkScript3 emits the flag id as the last integer arg and
-# the ON/OFF state as a bare word. Both orders are accepted because I have not seen the corpus.
-FLAG_TEST_RE = re.compile(
-    r"\b(If\w*EventFlag\w*|IsEventFlag\w*)\s*\(([^)]*)\)", re.I)
-# CANDIDATE: the award/spawn side. AwardItemLot is certain (boss_drops relies on it); the
-# treasure/asset enables are candidates.
-AWARD_RE = re.compile(
-    r"\b(AwardItemLot|Enable\w*Treasure|Enable\w*Asset|Enable\w*Obj\w*)\s*\(([^)]*)\)", re.I)
-# ON/OFF -> sense. Anything else is reported, never assumed.
-ON_WORDS = {"on", "true", "1", "enabled"}
-OFF_WORDS = {"off", "false", "0", "disabled"}
+# CONFIRMED against the real corpus (Alaric ran --vocab, 2026-07-25: 589 files, 4893 events).
+# The predicate is a BARE `EventFlag(<id>)` used as an expression inside control flow -- 12993 hits --
+# not any `If*EventFlag*` call. My first guess matched ZERO of them, which is exactly why --vocab
+# exists and why nothing was emitted before it ran.
+#
+#     EndIf(EventFlag(2052));            <- terminate the event when 2052 is SET
+#     SetEventFlagID(6001, ON);          <- the SETTER, not a test (excluded below)
+#
+# Also real, and carrying a flag id in a condition: EventFlagState (399), WaitForEventFlag (87),
+# AnyBatchEventFlags (329), AllBatchEventFlags (21), CountEventFlags (44).
+FLAG_TEST_RE = re.compile(r"\bEventFlag\s*\(\s*(\d+)\s*\)")
+FLAG_TEST_OTHER_RE = re.compile(
+    r"\b(EventFlagState|WaitForEventFlag|AnyBatchEventFlags|AllBatchEventFlags|CountEventFlags)"
+    r"\s*\(([^)]*)\)")
+# The SETTER must never be read as a test: `SetEventFlagID(6001, ON)` says this event CAUSES the
+# flag, which is the opposite of depending on it. Counting it as a gate would invert the graph.
+FLAG_SET_RE = re.compile(r"\b(SetEventFlagID|SetNetworkconnectedEventFlagID|BatchSetEventFlags|"
+                         r"BatchSetNetworkconnectedEventFlags|RandomlySetEventFlagInRange|"
+                         r"DisplayGenericDialogAndSetEventFlags)\s*\(([^)]*)\)")
+
+# CONFIRMED: `AwardItemLot(101590)` takes an ItemLotParam LOT ID, not a flag -- so the lot is mapped
+# back to its check flag through the committed greenfield/flag_lots.tsv. Only 26 literal call sites;
+# most awards go through common events with an `itemLotId` PARAM, which this pass does not resolve
+# (datamine_boss_drops.py does that join and is the model if it turns out to matter).
+AWARD_LOT_RE = re.compile(r"\bAwardItemLot\s*\(\s*(\d+)\s*\)")
+# CONFIRMED: treasure is enabled by ASSET ENTITY id, not by lot or flag. Resolving asset -> lot needs
+# the MSB, which this tool does not read, so these are recorded as UNRESOLVED rather than guessed.
+TREASURE_RE = re.compile(r"\b(EnableAssetTreasure|DisableAssetTreasure|ForceCharacterTreasure)"
+                         r"\s*\(\s*(\w+)\s*\)")
 
 _INT_RE = re.compile(r"-?\d+")
 
@@ -138,73 +172,124 @@ def _sense(args):
     return None                                   # UNKNOWN -> reported, never defaulted
 
 
+def _lot_to_flag():
+    """ItemLotParam lot id -> the CHECK flag it awards, from the committed greenfield/flag_lots.tsv.
+
+    `AwardItemLot` names a LOT, our checks are keyed by acquisition FLAG, and this is the join. It is
+    a tracked tsv, so this half is verifiable without artifacts."""
+    import csv
+    path = os.path.join(GF, "flag_lots.tsv")
+    if not os.path.isfile(path):
+        sys.exit("FATAL: %s missing -- AwardItemLot names a LOT and there is no way to reach the "
+                 "check flag without it." % path)
+    out = {}
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        for r in csv.DictReader(fh, delimiter="\t"):
+            try:
+                out.setdefault(int(r["lot"]), set()).add(int(r["flag"]))
+            except (KeyError, TypeError, ValueError):
+                continue
+    if len(out) < 1000:
+        sys.exit("FATAL: only %d lots parsed from flag_lots.tsv -- refusing to scan against a "
+                 "truncated join." % len(out))
+    return out
+
+
+def _context(body, pos):
+    """The construct a flag test sits inside -- `EndIf`, `WaitFor`, `SkipIf`, `If`, negated, ...
+
+    ⚠️ THE POLARITY IS NOT DERIVED HERE, ON PURPOSE. `EndIf(EventFlag(2052))` means "terminate the
+    event when 2052 is SET", so the body below it requires the flag CLEAR -- the opposite of the
+    reading a naive `flag appears in a condition => flag must be set` would give. Every construct has
+    its own sense and I have not seen them all, so the context is RECORDED verbatim and the polarity
+    is assigned once, per construct, during triage. Inventing it here is how a false gate -- an
+    unwinnable seed -- gets written into a table that looks derived.
+    """
+    left = body[max(0, pos - 60):pos]
+    m = re.findall(r"([A-Za-z_]\w*)\s*\(\s*$|([A-Za-z_]\w*)\s*\(\s*!\s*$", left)
+    neg = bool(re.search(r"!\s*$", left))
+    name = ""
+    m2 = re.findall(r"([A-Za-z_]\w*)\s*\(", left)
+    if m2:
+        name = m2[-1]
+    return ("!" if neg else "") + (name or "?")
+
+
 def emit(dry):
     files = _sources()
     check_flags = _check_flags()
-    rows, unknown_sense, ev_total, tested = [], 0, 0, 0
+    lot_to_flag = _lot_to_flag()
+    rows = []
+    ev_total = tested = awards = treasure_unresolved = 0
+    ctx_hist = collections.Counter()
     for path in files:
         src = os.path.basename(path)
         text = open(path, encoding="utf-8", errors="replace").read()
         for eid, body in _events(text):
             ev_total += 1
+            # Blank the SETTERS first: a set is this event CAUSING the flag, never depending on it.
+            scan = FLAG_SET_RE.sub(lambda m: " " * len(m.group(0)), body)
             gates = []
-            for m in FLAG_TEST_RE.finditer(body):
+            for m in FLAG_TEST_RE.finditer(scan):
                 tested += 1
-                ints = _ints(m.group(2))
-                if not ints:
-                    continue
-                sense = _sense(m.group(2))
-                if sense is None:
-                    unknown_sense += 1
-                    continue
-                gates.append((ints[-1], sense, m.group(0)[:110]))
+                ctx = _context(scan, m.start())
+                ctx_hist[ctx] += 1
+                gates.append((int(m.group(1)), ctx, scan[max(0, m.start() - 40):m.end() + 10]))
+            for m in FLAG_TEST_OTHER_RE.finditer(scan):
+                for i in _ints(m.group(2)):
+                    tested += 1
+                    ctx_hist[m.group(1)] += 1
+                    gates.append((i, m.group(1), m.group(0)[:110]))
             if not gates:
                 continue
-            # every check flag this event AWARDS or ENABLES
             awarded = set()
-            for m in AWARD_RE.finditer(body):
-                awarded.update(i for i in _ints(m.group(2)) if i in check_flags)
-            # ... plus check flags named anywhere in the body, which catches the treasure-entity
-            # indirection this parser deliberately does NOT try to resolve (that needs the MSB).
-            for i in _ints(body):
-                if i in check_flags:
-                    awarded.add(i)
+            for m in AWARD_LOT_RE.finditer(body):
+                awards += 1
+                awarded |= {f for f in lot_to_flag.get(int(m.group(1)), ()) if f in check_flags}
+            treasure_unresolved += len(TREASURE_RE.findall(body))
             for cf in sorted(awarded):
-                for gf, sense, ev in gates:
+                for gf, ctx, ev in gates:
                     if gf == cf:
-                        continue                  # a check's own acquisition flag is not its gate
-                    rows.append((cf, gf, sense, eid, src, ev.replace("\t", " ")))
-    print("scanned %d file(s), %d event(s), %d flag test(s); %d unresolved sense; %d raw pair(s)"
-          % (len(files), ev_total, tested, unknown_sense, len(rows)))
-    # REFUSE on a degenerate parse. Each of these means the vocabulary is wrong, and a table written
-    # anyway would be confidently empty or confidently enormous -- both worse than no table.
+                        continue          # a check's own acquisition flag is not its gate
+                    rows.append((cf, gf, ctx, eid, src,
+                                 " ".join(ev.split())[:120]))
+    print("scanned %d file(s), %d event(s); %d flag test(s), %d AwardItemLot call(s), "
+          "%d treasure call(s) UNRESOLVED (asset->lot needs the MSB); %d pair(s)"
+          % (len(files), ev_total, tested, awards, treasure_unresolved, len(rows)))
+    print("flag-test CONTEXTS (polarity is assigned per context in triage, never guessed here):")
+    for ctx, n in ctx_hist.most_common(12):
+        print("   %8d  %s" % (n, ctx))
     if ev_total < 100:
         sys.exit("FATAL: only %d events parsed -- EVENT_RE does not match this corpus. Run --vocab."
                  % ev_total)
     if tested == 0:
         sys.exit("FATAL: zero flag tests found -- FLAG_TEST_RE matches nothing. Run --vocab.")
+    if awards == 0:
+        sys.exit("FATAL: zero AwardItemLot call sites -- the award side matches nothing. Run --vocab.")
     if not rows:
-        sys.exit("FATAL: zero gated checks found. Either no check flag shares an event with a flag "
-                 "test (implausible) or the parse is wrong. Run --vocab.")
+        sys.exit("FATAL: zero gated checks. Every AwardItemLot event is unconditional (implausible) "
+                 "or the join through flag_lots.tsv missed. Run --vocab and check the lot ids.")
     if len(rows) > 20000:
-        sys.exit("FATAL: %d pairs -- the body-wide integer sweep is matching everything. Tighten "
-                 "AWARD_RE before trusting this." % len(rows))
+        sys.exit("FATAL: %d pairs -- too broad to be evidence. Tighten before trusting this."
+                 % len(rows))
     rows.sort()
     if dry:
         for r in rows[:40]:
-            print("   check %-10s gated on %-10s sense=%s  event %-12s %s" % r[:5])
+            print("   check %-10s gated on %-10s ctx=%-12s event %-12s %s" % r[:5])
         print("   ... %d row(s) total (dry run, nothing written)" % len(rows))
         return 0
     with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("# AUTO-GENERATED by tools/datamine_lot_gates.py -- DO NOT EDIT.\n")
-        fh.write("# check_flag exists only once gate_flag is in state `sense` (1 set / 0 clear).\n")
-        fh.write("# CANDIDATE PAIRS, not conclusions: co-occurrence in one event is evidence, not\n")
-        fh.write("# proof. Triage before wiring any of it into logic -- a false gate is an\n")
-        fh.write("# unwinnable seed, and a false NON-gate is the bug this exists to find.\n")
-        fh.write("check_flag\tgate_flag\tsense\tevent_id\tsource\tevidence\n")
+        fh.write("# check_flag co-occurs with a test of gate_flag in one EMEVD event.\n")
+        fh.write("# `context` is the construct the test sits in (EndIf / WaitFor / SkipIf / ...).\n")
+        fh.write("# POLARITY IS NOT ENCODED: EndIf(EventFlag(X)) means the body needs X CLEAR, the\n")
+        fh.write("#   OPPOSITE of the naive reading. Assign the sense per context during triage.\n")
+        fh.write("# CANDIDATE PAIRS, not conclusions -- co-occurrence is evidence, not proof. A\n")
+        fh.write("#   false gate is an unwinnable seed; a false non-gate is the bug this finds.\n")
+        fh.write("check_flag\tgate_flag\tcontext\tevent_id\tsource\tevidence\n")
         for r in rows:
             fh.write("\t".join(str(x) for x in r) + "\n")
-    print("wrote %s: %d candidate gate pair(s) over %d distinct check flag(s)"
+    print("wrote %s: %d candidate pair(s) over %d distinct check flag(s)"
           % (OUT, len(rows), len({r[0] for r in rows})))
     return 0
 
