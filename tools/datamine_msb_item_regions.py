@@ -224,17 +224,37 @@ class _AssetIndex:
         ent = (root.findtext("EntityID") or "").strip()
         return int(ent) if ent.lstrip("-").isdigit() and int(ent) > 0 else None
 
+    # Two fields out of a small XML: a regex over the raw text, not a DOM.
+    _NAME_RE = re.compile(r"<Name>([^<]*)</Name>")
+    _ENT_RE = re.compile(r"<EntityID>([^<]*)</EntityID>")
+
     def _build(self):
+        """Index a whole map's Asset parts WITHOUT XML-parsing every one of them.
+
+        This fallback is what made the run slow. `map-scans` ticked 0 -> 1 -> 2 on exactly the maps
+        where Alaric's parallel run stalled (m12_07, m12_05, 2026-07-25) -- big underground maps whose
+        part files are not filename-addressable, so the index gets built, and building it meant
+        ElementTree-parsing thousands of files to read two fields out of each.
+
+        `ET.parse` builds a DOM per file. Two regexes over the raw text do the same job here for a
+        fraction of the cost, and the shape is trivially checkable: these are witchy-emitted files
+        with one `<Name>` and at most one `<EntityID>` at the top level.
+        """
         self._index = {}
         self.stats["map_scans"] += 1
         for f in glob.glob(os.path.join(self.dir, "*.xml")):
             try:
-                r = ET.parse(f).getroot()
-            except (ET.ParseError, OSError):
+                with open(f, encoding="utf-8", errors="replace") as fh:
+                    txt = fh.read()
+            except OSError:
                 continue
-            nm = (r.findtext("Name") or "").strip()
-            if nm:
-                self._index[nm] = self._entity_of(r)
+            nm = self._NAME_RE.search(txt)
+            if not nm:
+                continue
+            ent = self._ENT_RE.search(txt)
+            val = (ent.group(1).strip() if ent else "")
+            self._index[nm.group(1).strip()] = (
+                int(val) if val.lstrip("-").isdigit() and int(val) > 0 else None)
 
     def get(self, part_name):
         direct = os.path.join(self.dir, part_name + ".xml")
@@ -346,10 +366,21 @@ def build_treasure_assets(only_maps=None, jobs=1):
         eta_state["last"] = now
         t_old, d_old = eta_state["window"][0]
         dt, dd = now - t_old, done - d_old
-        rate = (dd / dt) if dt > 0 and dd > 0 else (done / max(1e-9, now - t0))
+        # SAY WHICH BASIS IT USED. The window degenerates when completions arrive in bursts -- every
+        # sample lands within a second of the others, dt collapses, and the recent rate is
+        # meaningless. It then falls back to the cumulative average, and the first version still
+        # printed "(last 0s)", which reads as a measured recent rate and is not one. Alaric's run
+        # showed `0.1 map/s (last 0s) | ETA 4h 28m`: the number was cumulative, over a prefix of tiny
+        # maps, and the label said otherwise.
+        if dt >= 5 and dd > 0:
+            rate, basis = dd / dt, "last %ds" % int(dt)
+        else:
+            rate, basis = done / max(1e-9, now - t0), "cumulative"
         left = total - done
-        print("  ... %d/%d done in %s | %.1f map/s (last %ds) | ETA %s"
-              % (done, total, _hms(now - t0), rate, int(dt), _hms(left / rate) if rate > 0 else "?"),
+        print("  ... %d/%d done in %s | %.2f map/s (%s) | ETA %s%s"
+              % (done, total, _hms(now - t0), rate, basis,
+                 _hms(left / rate) if rate > 0 else "?",
+                 "  [early estimate -- maps are very uneven]" if done < 0.05 * total else ""),
               file=sys.stderr, flush=True)
 
     def _absorb(map_id, found_rows, st, i):
