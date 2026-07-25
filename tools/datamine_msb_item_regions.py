@@ -212,6 +212,28 @@ def explain(flag):
                 print("      Part/%-10s %4d file(s)  %s" % (t, n,
                       "HIT " + direct if os.path.isfile(direct) else "no %s.xml" % part))
             # 3. THE STEP THAT SAVES THE ROUND TRIP: where does the name actually appear?
+            # VERDICT, so the reader does not have to infer it from a 0.
+            for t in _AssetIndex.PART_TYPES:
+                pf = os.path.join(msb_dir, "Part", t, part + ".xml")
+                if not os.path.isfile(pf):
+                    continue
+                try:
+                    proot = ET.parse(pf).getroot()
+                except (ET.ParseError, OSError):
+                    break
+                ent = (proot.findtext("EntityID") or "").strip()
+                if ent in ("0", "-1", ""):
+                    print("   ⭐ VERDICT: the part EXISTS and its EntityID is %s -- it has NO ENTITY."
+                          % (ent or "absent"))
+                    print("      An asset with no entity id cannot be named by")
+                    print("      EnableAssetTreasure(assetEntityId), so this treasure is NOT gated")
+                    print("      through that instruction and the asset->lot join can never resolve")
+                    print("      it. Whatever withholds this pickup works some other way; look at the")
+                    print("      ITEM LOT and the flag itself, not the asset.")
+                else:
+                    print("   ⭐ VERDICT: resolves to asset entity %s -- the join should produce a row."
+                          % ent)
+                break
             print("   grepping the whole MSB for %r ..." % part)
             seen = 0
             for g in glob.glob(os.path.join(msb_dir, "**", "*.xml"), recursive=True):
