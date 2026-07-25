@@ -150,33 +150,81 @@ def _npc2lots():
 # ---------------------------------------------------------------- schema probe
 
 def probe(msb_dir):
-    """Print the CHILD TAG NAMES of a Treasure event and an Asset part. No output file.
+    """Print what the MSB actually holds for the asset->lot chain. Writes nothing.
 
-    WHY THIS EXISTS. `EnableAssetTreasure(assetEntityId)` in the EMEVD names an ASSET, and
-    tools/datamine_lot_gates.py needs asset -> item lot to resolve 186 treasure gates -- the largest
-    population it cannot see, and the one holding the case it was built for. The first attempt joined
-    the asset id against the LOT ids already in msb_flag_region.tsv, on the assumption that ER treasure
-    assets and lots share a numbering. Measured: 0 of 186 matched. They do not.
+    Round 1 (Alaric, 2026-07-25) answered the first half and killed my directory guess:
 
-    The MSB has both halves -- a Treasure event carries `ItemLotID` and a reference to its part; the
-    Asset part carries an EntityID -- but I have not seen the schema, and guessing tag names produces
-    a confident empty join that reads like "the data is not there". So: print the tags, then write the
-    join against what is actually printed.
+        <TreasurePartName> AEG099_990_9001      <- the link to the part
+        <ItemLotID>        10000450
+        <StartDisabled>    0                    <- ⭐ see below
+        Parts/Asset -> 0 files                  <- wrong subdir name, hence this round
+
+    ⭐ `StartDisabled` is the find. A treasure that starts DISABLED cannot be picked up until
+    something enables it -- which is exactly the class datamine_lot_gates.py was built to chase
+    (f67050, the Stormhill Shack cookbook, exists only after you rest at a Liurnia grace). If that
+    field is set on the gated ones, the POPULATION is enumerable from the MSB alone, with no EMEVD
+    and no asset->lot join at all. The EMEVD is then only needed for WHICH flag, on a candidate set
+    that is already small.
+
+    So this prints, per map: the Parts/* subdirectory names, the part carrying `TreasurePartName`
+    (and its EntityID), and the StartDisabled distribution over every Treasure event.
     """
     import xml.etree.ElementTree as _ET
-    for kind, sub in (("Treasure event", os.path.join("Event", "Treasure")),
-                      ("Asset part", os.path.join("Parts", "Asset"))):
-        d = os.path.join(msb_dir, sub)
-        files = sorted(glob.glob(os.path.join(d, "*.xml")))
-        print("== %s  (%s)  %d file(s)" % (kind, d, len(files)))
-        if not files:
-            print("   (none -- is this the right unpacked-MSB layout?)")
+    tdir = os.path.join(msb_dir, "Event", "Treasure")
+    tfiles = sorted(glob.glob(os.path.join(tdir, "*.xml")))
+    print("== Treasure events: %d" % len(tfiles))
+    if not tfiles:
+        print("   (none -- wrong layout?)")
+        return 0
+
+    # 1. StartDisabled distribution -- the cheap, decisive read.
+    dist, disabled_examples = {}, []
+    for f in tfiles:
+        try:
+            r = _ET.parse(f).getroot()
+        except (_ET.ParseError, OSError):
             continue
-        r = _ET.parse(files[0]).getroot()
-        print("   root <%s>; children:" % r.tag)
-        for ch in list(r)[:40]:
-            txt = (ch.text or "").strip()[:40]
-            print("      <%s> %s" % (ch.tag, txt))
+        sd = (r.findtext("StartDisabled") or "?").strip()
+        dist[sd] = dist.get(sd, 0) + 1
+        if sd not in ("0", "?") and len(disabled_examples) < 8:
+            disabled_examples.append((r.findtext("ItemLotID"), r.findtext("TreasurePartName"),
+                                      (r.findtext("Name") or "")[:40]))
+    print("   StartDisabled distribution: %s" % dist)
+    if disabled_examples:
+        print("   ⭐ START-DISABLED treasures (lot, part, name) -- the gated candidates:")
+        for e in disabled_examples:
+            print("      %s  %s  %s" % e)
+    else:
+        print("   (none start disabled in this map -- try a map that HAS a gated pickup, e.g. the")
+        print("    Stormhill Shack cookbook lives in m60_40_39)")
+
+    # 2. Where do parts live, and what does the referenced one look like?
+    pdir = os.path.join(msb_dir, "Parts")
+    subs = sorted(os.path.basename(d) for d in glob.glob(os.path.join(pdir, "*")) if os.path.isdir(d))
+    print("== Parts/ subdirectories: %s" % (subs or "(none)"))
+    want = None
+    for f in tfiles:
+        try:
+            want = (_ET.parse(f).getroot().findtext("TreasurePartName") or "").strip()
+        except (_ET.ParseError, OSError):
+            continue
+        if want:
+            break
+    print("   looking for part %r" % want)
+    for sub in subs:
+        for f in sorted(glob.glob(os.path.join(pdir, sub, "*.xml"))):
+            try:
+                r = _ET.parse(f).getroot()
+            except (_ET.ParseError, OSError):
+                continue
+            if (r.findtext("Name") or "").strip() != want:
+                continue
+            print("   FOUND in Parts/%s -- <%s> children:" % (sub, r.tag))
+            for ch in list(r)[:24]:
+                print("      <%s> %s" % (ch.tag, (ch.text or "").strip()[:40]))
+            return 0
+    print("   NOT FOUND by <Name> in any Parts/* -- the link may be by a different field; the")
+    print("   subdirectory list above is what to write the lookup against.")
     return 0
 
 
@@ -395,10 +443,14 @@ def main(argv=None):
     args = ap.parse_args(argv)
     if args.probe:
         roots = [os.path.join(ART, "mapstudio"), ART]
+        want = set(args.maps) if args.maps else None
         for _map_id, _msb_dir in _iter_msb_dirs(roots):
+            if want and _map_id not in want:
+                continue
             print("probing %s" % _map_id)
             return probe(_msb_dir)
-        sys.exit("FATAL: no unpacked MSB dirs found under %s -- nothing to probe." % ART)
+        sys.exit("FATAL: no unpacked MSB dir%s found under %s -- nothing to probe."
+                 % (" matching --maps" if want else "", ART))
     rows, nmaps = build(set(args.maps) if args.maps else None, set(args.sources))
     scope = ",".join(sorted(args.maps)) if args.maps else "all"
     if args.stdout:
