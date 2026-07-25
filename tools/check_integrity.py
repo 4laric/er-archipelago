@@ -56,6 +56,9 @@ def git_files(mode):
     return [f for f in out.stdout.splitlines() if f.strip()]
 
 
+TRIPLE_QUOTES = ('"""', "'''")
+
+
 def strip_noise(text, language):
     """Best-effort removal of strings/comments so delimiter counts mean something.
     Heuristic only -- feeds a WARN, never an ERROR."""
@@ -73,6 +76,20 @@ def strip_noise(text, language):
         if text.startswith(line_comment, i):
             j = text.find("\n", i)
             i = n if j < 0 else j
+            continue
+        # TRIPLE-QUOTED STRINGS FIRST. Without this the lexer reads '''"""''' as an EMPTY string
+        # followed by a lone quote, so the docstring BODY is scanned as code -- and every apostrophe
+        # in it ("the client's kick") opens a phantom string span that swallows arbitrary text and
+        # exposes a bracket somewhere else. That produced a false "delimiter imbalance" WARN on
+        # tools/datamine_play_regions.py on 2026-07-25, on a file with 60 matched pairs of each.
+        #
+        # This is a guard, and a guard is a derivation too: a pre-commit hook that cries wolf gets
+        # bypassed with --no-verify, which is exactly the door truncation walks through. A false
+        # positive here is not harmless noise, it is the gate disarming itself.
+        if text[i:i + 3] in TRIPLE_QUOTES:
+            q3 = text[i:i + 3]
+            j = text.find(q3, i + 3)
+            i = n if j < 0 else j + 3
             continue
         if c == '"' or (c == "'" and not dq_only):
             q = c
