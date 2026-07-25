@@ -148,6 +148,38 @@ def sibling_meaningful(category, goods_type):
         return False
 
 
+def family_kind(items):
+    """Classify a multi-ITEM family from the categories it awards. `items` = deduped rows.
+
+    ARMOR_SET is the population Alaric named (2026-07-25): "a lot of armor sets are all pieces in one
+    location". Protector ids run base+0/100/200/300 for head/chest/gauntlets/legs, so a family with
+    three or more category-3 items IS a set (some sets ship three pieces -- no gauntlets); the extra
+    weapon or goods riding along is the boss-drop shape.
+    """
+    prot = sum(1 for r in items if r["category"] == "3")
+    if prot >= 3:
+        return "ARMOR_SET"
+    if any(r["category"] in ("2", "4", "5", "6") for r in items):
+        return "MIXED_GEAR"
+    return "GOODS"
+
+
+def dedup_items(fam):
+    """Family rows -> one row per DISTINCT (category, item_id), lowest lot first.
+
+    ⭐ DEDUPING IS NOT COSMETIC. 42 shared flags hang several lots on the SAME item -- e.g. flag
+    400036, lots 100361 and 110301, both Festering Bloody Finger. A per-LOT projection turns those
+    into two AP locations holding the same thing, and if (as the 10xxxx/11xxxx lot banding suggests)
+    they are the same pickup in two MAP VERSIONS, only one ever spawns and the other is a location no
+    player can reach. Those flags are excluded from the widen list below and NOT silently projected:
+    which of the two they are cannot be settled from the committed tables, so this refuses to decide.
+    """
+    out = {}
+    for r in sorted(fam, key=lambda x: (0 if x["table"] == "map" else 1, int(x["lot"]), int(x["slot"]))):
+        out.setdefault((r["category"], r["item_id"]), r)
+    return list(out.values())
+
+
 def report():
     """Print every SHARED flag (>1 lot) from the COMMITTED tsv, one line per lot, with the policy
     verdict per sibling -- the review sheet for widening CO_CHECK_FLAGS beyond the seeded four."""
@@ -186,6 +218,68 @@ def report():
             print(ln)
     print("\n%d shared flags total; %d with at least one MEANINGFUL (policy) sibling; "
           "allowlist today: see gen_data.CO_CHECK_FLAGS" % (len(shared), n_meaningful_flags))
+    widen_summary(shared)
+
+
+def widen_summary(shared):
+    """The widening sheet, grouped by family kind and DEDUPED BY ITEM.
+
+    `report()` above lists lots. This lists CHECKS, which is not the same number and is the one that
+    matters: a sibling lot awarding an item the family already awards is not a new check.
+    """
+    from collections import Counter
+    kinds = Counter()
+    new_checks = Counter()
+    dup_only = []
+    for f, fam in sorted(shared.items()):
+        items = dedup_items(fam)
+        if len(items) < 2:
+            dup_only.append(f)
+            continue
+        kind = family_kind(items)
+        sibs = [r for r in items[1:] if sibling_meaningful(r["category"], r["goods_type"])]
+        kinds[kind] += 1
+        new_checks[kind] += len(sibs)
+    print("\n== WIDENING SHEET (deduped by ITEM -- these are CHECKS, not lots) ==")
+    for k in ("ARMOR_SET", "MIXED_GEAR", "GOODS"):
+        print("   %-11s families=%-4d meaningful siblings = %d new check(s)"
+              % (k, kinds[k], new_checks[k]))
+    print("   %-11s families=%-4d (every extra lot awards an item the family already awards --"
+          % ("DUP-ONLY", len(dup_only)))
+    print("   %-11s  EXCLUDED: cannot tell a genuine second copy from the same pickup in another"
+          % "")
+    print("   %-11s  MAP VERSION from the committed tables, and the second reading makes the"
+          % "")
+    print("   %-11s  co-check unreachable. Needs a human or an MSB pass.)" % "")
+    print("   TOTAL projectable = %d new check(s) across %d families"
+          % (sum(new_checks.values()), sum(kinds.values())))
+
+
+def widen_list(kinds_wanted):
+    """Print the CO_CHECK_FLAGS entries and the co_check_ids.tsv rows for the requested kinds."""
+    if not os.path.isfile(OUT):
+        raise SystemExit("FATAL: %s missing -- run the datamine first" % OUT)
+    from collections import defaultdict
+    by_flag = defaultdict(list)
+    with open(OUT, encoding="utf-8") as fh:
+        for r in csv.DictReader(fh, delimiter="\t"):
+            by_flag[int(r["flag"])].append(r)
+    shared = {f: v for f, v in by_flag.items() if len({(x["table"], x["lot"]) for x in v}) > 1}
+    print("# CO_CHECK_FLAGS additions (%s)" % ",".join(sorted(kinds_wanted)))
+    rows = []
+    for f, fam in sorted(shared.items()):
+        items = dedup_items(fam)
+        if len(items) < 2 or family_kind(items) not in kinds_wanted:
+            continue
+        sibs = [r for r in items[1:] if sibling_meaningful(r["category"], r["goods_type"])]
+        if not sibs:
+            continue
+        print("    %d,   # %s: %d sibling check(s)" % (f, family_kind(items), len(sibs)))
+        for r in sibs:
+            rows.append((f, r["table"], int(r["lot"])))
+    print("\n# co_check_ids.tsv rows -- ap_ids are ALLOCATED BY gen_data, not by this tool.")
+    print("# Widen CO_CHECK_FLAGS first; the regen FATALs with the exact lines, in its own order.")
+    print("# %d sibling lot(s) will need an id." % len(rows))
 
 
 def render(rows):
@@ -198,9 +292,15 @@ def render(rows):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true", help="drift gate: exit 1 if flag_lots.tsv is stale")
+    ap.add_argument("--widen", metavar="KINDS",
+                    help="print the CO_CHECK_FLAGS additions for these family kinds "
+                         "(comma-separated: ARMOR_SET,MIXED_GEAR,GOODS)")
     ap.add_argument("--report", action="store_true",
                     help="co-check candidate report from the COMMITTED tsv (no artifacts needed)")
     args = ap.parse_args()
+    if args.widen:
+        widen_list({k.strip().upper() for k in args.widen.split(",") if k.strip()})
+        return
     if args.report:
         report()
         return
