@@ -47,7 +47,66 @@ check_flag	gate_flag	context	event_id	source	evidence
 400690	21009240	EndIf	4931	common.emevd.dcx.js	dIf(!PlayerIsInOwnWorld()); EndIf(!(EventFlag(21009240) && !Event
 530865	2047440360	EndIf	2047442360	m61_47_44_00.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai
 530865	2047440360	EndIf	2047442360	m61_47_44_10.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai
+12017090	12010593	!WaitFor/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea
+12017090	12010593	!WaitFor/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea
+12017090	12010593	if/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {
+12017090	12010593	if/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {
 16007690	16000800	EndIf	16002691	m16_00_00_00.emevd.dcx.js	, assetEntityId2, entityId) { EndIf(EventFlag(16000800) || !Playe
 16007690	16002696	WaitFor	16002691	m16_00_00_00.emevd.dcx.js	onButtonInArea(9532, assetEntityId2) && EventFlag(16002696)); Del
+16007710	16000850	EndIf/EnableAssetTreasure	16002850	m16_00_00_00.emevd.dcx.js	002850, Restart, function() { EndIf(EventFlag(16000850)); Wai
+16007710	16000850	if/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	16002855, Restart, function() { if (EventFlag(16000850)) {
+16007710	16000850	if/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	16002855, Restart, function() { if (EventFlag(16000850)) {
+16007710	16000851	!if/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	DisableCharacterAI(16000850); if (!EventFlag(16000851)) {
+16007710	16000851	!if/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	DisableCharacterAI(16000850); if (!EventFlag(16000851)) {
+16007710	16002855	WaitFor/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea
+16007710	16002855	WaitFor/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea
 16007950	16009264	EndIf	16003706	m16_00_00_00.emevd.dcx.js	(chrEntityId, chrEntityId2) { EndIf(EventFlag(16009264)); Wai
+20007810	20000544	if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {
+20007810	20000544	if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {
+20007810	20000800	?/EnableAssetTreasure	20002800	m20_00_00_00.emevd.dcx.js	asSpEffect(10000, 9646)) || EventFlag(20000800)); Han
+20007810	20000800	EndIf/EnableAssetTreasure	20002800	m20_00_00_00.emevd.dcx.js	002800, Restart, function() { EndIf(EventFlag(20000800)); Wai
+20007810	20000800	if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	20002810, Restart, function() { if (EventFlag(20000800)) {
+20007810	20000800	if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	20002810, Restart, function() { if (EventFlag(20000800)) {
+20007810	20000801	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	000, TargetType.BluePhantom)); if (!EventFlag(20000801)) {
+20007810	20000801	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	000, TargetType.BluePhantom)); if (!EventFlag(20000801)) {
+20007810	20002739	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	layerIsInOwnWorld()) { if (!EventFlag(20002739)) {
+20007810	20002739	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	lse); } } else if (!EventFlag(20002739)) {
+20007810	20002739	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	layerIsInOwnWorld()) { if (!EventFlag(20002739)) {
+20007810	20002739	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	lse); } } else if (!EventFlag(20002739)) {
+20007810	20002805	WaitFor/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	); } else { WaitFor(EventFlag(20002805) || InArea
+20007810	20002805	WaitFor/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea
+20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	); } else { WaitFor(EventFlag(20002805) || InArea
+20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea
+21017120	72112	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF
+21017120	72112	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF
+21017120	72113	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	tFlag(21010500) && (EventFlag(72112) || EventFlag(72113))));
+21017120	72113	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	tFlag(21010500) && (EventFlag(72112) || EventFlag(72113))));
+21017120	21010500	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	PlayerIsInOwnWorld()); GotoIf(L0, !(EventFlag(21010500) && (Event
+21017120	21010500	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	PlayerIsInOwnWorld()); GotoIf(L0, !(EventFlag(21010500) && (Event
+21017120	21010501	!GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For
+21017120	21010501	!GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For
 30107100	30100465	WaitFor	30102490	m30_10_00_00.emevd.dcx.js	EndIf(EventFlag(30107100)); WaitFor(EventFlag(30100465)); End
+31007010	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {
+31007010	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {
+31007010	31008523	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1); EnableAsset(31001523); if (!EventFlag(31008523)) {
+31007030	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {
+31007030	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {
+31007030	31008523	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1); EnableAsset(31001523); if (!EventFlag(31008523)) {
+35007000	300	if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {
+35007000	300	if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {
+35007000	35008540	!if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {
+35007000	35008540	!if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {
+1048577810	1048570310	WaitForEventFlag/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)
+1048577810	1048570310	WaitForEventFlag/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)
+1048577810	1048570350	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(EventFlag(1048572309)); EndIf(EventFlag(1048570350)); Wai
+1048577810	1048570350	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(EventFlag(1048572309)); EndIf(EventFlag(1048570350)); Wai
+1048577810	1048572306	!if/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	; if (!EventFlag(1048572306)) {
+1048577810	1048572306	!if/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	; if (!EventFlag(1048572306)) {
+1048577810	1048572308	GotoIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	DisableNetworkSync(); GotoIf(L5, EventFlag(1048572308)); Got
+1048577810	1048572308	GotoIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	DisableNetworkSync(); GotoIf(L5, EventFlag(1048572308)); Got
+1048577810	1048572309	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(!PlayerIsInOwnWorld()); EndIf(EventFlag(1048572309)); End
+1048577810	1048572309	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	s(1); RestartEvent(); L5: EndIf(EventFlag(1048572309)); Dea
+1048577810	1048572309	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(!PlayerIsInOwnWorld()); EndIf(EventFlag(1048572309)); End
+1048577810	1048572309	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	s(1); RestartEvent(); L5: EndIf(EventFlag(1048572309)); Dea
+1048577810	1048572309	GotoIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea
+1048577810	1048572309	GotoIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea
