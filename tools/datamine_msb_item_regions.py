@@ -150,81 +150,53 @@ def _npc2lots():
 # ---------------------------------------------------------------- schema probe
 
 def probe(msb_dir):
-    """Print what the MSB actually holds for the asset->lot chain. Writes nothing.
+    """DUMP THE ACTUAL LAYOUT. No guessing, no output file.
 
-    Round 1 (Alaric, 2026-07-25) answered the first half and killed my directory guess:
+    Three of my structural guesses have now been wrong in a row, each costing a round trip:
 
-        <TreasurePartName> AEG099_990_9001      <- the link to the part
-        <ItemLotID>        10000450
-        <StartDisabled>    0                    <- ⭐ see below
-        Parts/Asset -> 0 files                  <- wrong subdir name, hence this round
+        Parts/Asset          -> 0 files      (guessed the subdir)
+        Parts/               -> (none)       (guessed the parent)
+        asset id ~= lot id   -> 0 of 186     (guessed the numbering)
+        StartDisabled        -> 0/1 on m60_40_39's only treasure, so it does NOT mark the gated ones
 
-    ⭐ `StartDisabled` is the find. A treasure that starts DISABLED cannot be picked up until
-    something enables it -- which is exactly the class datamine_lot_gates.py was built to chase
-    (f67050, the Stormhill Shack cookbook, exists only after you rest at a Liurnia grace). If that
-    field is set on the gated ones, the POPULATION is enumerable from the MSB alone, with no EMEVD
-    and no asset->lot join at all. The EMEVD is then only needed for WHICH flag, on a candidate set
-    that is already small.
+    Every one was a plausible story about a schema I had not looked at, and each produced a confident
+    empty result that reads like "the data is not there". So this stops proposing shapes and prints
+    what is on disk: the real directory tree under the MSB, and every field of every Treasure event in
+    the map. Write the join against THAT.
 
-    So this prints, per map: the Parts/* subdirectory names, the part carrying `TreasurePartName`
-    (and its EntityID), and the StartDisabled distribution over every Treasure event.
+    Run it on the map with the case in it:
+        python tools/datamine_msb_item_regions.py --probe --maps m60_40_39
     """
     import xml.etree.ElementTree as _ET
+    print("== MSB dir: %s" % msb_dir)
+    print("== real layout (2 levels, file counts):")
+    for entry in sorted(os.listdir(msb_dir)):
+        full = os.path.join(msb_dir, entry)
+        if not os.path.isdir(full):
+            print("   %-28s (file)" % entry)
+            continue
+        subs = sorted(os.listdir(full))
+        dirs = [d for d in subs if os.path.isdir(os.path.join(full, d))]
+        nfile = len(subs) - len(dirs)
+        print("   %-28s %d file(s), %d subdir(s)" % (entry + "/", nfile, len(dirs)))
+        for d in dirs:
+            n = len(glob.glob(os.path.join(full, d, "*")))
+            print("      %-24s %d file(s)" % (d + "/", n))
+
     tdir = os.path.join(msb_dir, "Event", "Treasure")
     tfiles = sorted(glob.glob(os.path.join(tdir, "*.xml")))
-    print("== Treasure events: %d" % len(tfiles))
-    if not tfiles:
-        print("   (none -- wrong layout?)")
-        return 0
-
-    # 1. StartDisabled distribution -- the cheap, decisive read.
-    dist, disabled_examples = {}, []
+    print("== every Treasure event in this map (%d), all fields:" % len(tfiles))
     for f in tfiles:
         try:
             r = _ET.parse(f).getroot()
         except (_ET.ParseError, OSError):
             continue
-        sd = (r.findtext("StartDisabled") or "?").strip()
-        dist[sd] = dist.get(sd, 0) + 1
-        if sd not in ("0", "?") and len(disabled_examples) < 8:
-            disabled_examples.append((r.findtext("ItemLotID"), r.findtext("TreasurePartName"),
-                                      (r.findtext("Name") or "")[:40]))
-    print("   StartDisabled distribution: %s" % dist)
-    if disabled_examples:
-        print("   ⭐ START-DISABLED treasures (lot, part, name) -- the gated candidates:")
-        for e in disabled_examples:
-            print("      %s  %s  %s" % e)
-    else:
-        print("   (none start disabled in this map -- try a map that HAS a gated pickup, e.g. the")
-        print("    Stormhill Shack cookbook lives in m60_40_39)")
-
-    # 2. Where do parts live, and what does the referenced one look like?
-    pdir = os.path.join(msb_dir, "Parts")
-    subs = sorted(os.path.basename(d) for d in glob.glob(os.path.join(pdir, "*")) if os.path.isdir(d))
-    print("== Parts/ subdirectories: %s" % (subs or "(none)"))
-    want = None
-    for f in tfiles:
-        try:
-            want = (_ET.parse(f).getroot().findtext("TreasurePartName") or "").strip()
-        except (_ET.ParseError, OSError):
-            continue
-        if want:
-            break
-    print("   looking for part %r" % want)
-    for sub in subs:
-        for f in sorted(glob.glob(os.path.join(pdir, sub, "*.xml"))):
-            try:
-                r = _ET.parse(f).getroot()
-            except (_ET.ParseError, OSError):
-                continue
-            if (r.findtext("Name") or "").strip() != want:
-                continue
-            print("   FOUND in Parts/%s -- <%s> children:" % (sub, r.tag))
-            for ch in list(r)[:24]:
-                print("      <%s> %s" % (ch.tag, (ch.text or "").strip()[:40]))
-            return 0
-    print("   NOT FOUND by <Name> in any Parts/* -- the link may be by a different field; the")
-    print("   subdirectory list above is what to write the lookup against.")
+        print("   --- %s" % os.path.basename(f))
+        for ch in list(r):
+            print("       <%-20s> %s" % (ch.tag, (ch.text or "").strip()[:52]))
+    print("\nNOTE: msb_flag_region.tsv says f67050 (Stormhill Shack cookbook) is lot 1040390000 in")
+    print("this map. If the treasure above is that lot and starts ENABLED, the gating is NOT in the")
+    print("MSB treasure record and the EMEVD/asset route is the only one left.")
     return 0
 
 
