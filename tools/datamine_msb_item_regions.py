@@ -215,8 +215,18 @@ class _AssetIndex:
     one per question asked of it.
     """
 
+    # EVERY part type, not just Asset. 229 of ~2824 treasures resolved (8%) with Asset alone, and
+    # f67050 -- the case this exists for -- was not among them. `TreasurePartName` names a PART, and
+    # nothing says a treasure's part must be an Asset: the MSB name for f67050's is 宝死体000,
+    # "treasure CORPSE", which is a character. Fable flagged this and I underweighted it.
+    # The subdirectory list is measured (Alaric's --probe): Asset, Collision, Enemy, MapPiece.
+    # Searched in this order, and which type resolved each row is RECORDED, so the next reader gets
+    # the distribution instead of another assumption.
+    PART_TYPES = ("Asset", "Enemy", "MapPiece", "Collision")
+
     def __init__(self, msb_dir, stats):
-        self.dir = os.path.join(msb_dir, "Part", "Asset")
+        self.msb_dir = msb_dir
+        self.dirs = [os.path.join(msb_dir, "Part", t) for t in self.PART_TYPES]
         self.stats = stats
         self._index = None
 
@@ -242,9 +252,10 @@ class _AssetIndex:
         """
         self._index = {}
         self.stats["map_scans"] += 1
-        files = sorted(glob.glob(os.path.join(self.dir, "*.xml")))
+        files = [(f, t) for d, t in zip(self.dirs, self.PART_TYPES)
+                 for f in sorted(glob.glob(os.path.join(d, "*.xml")))]
         checked = False
-        for f in files:
+        for f, ptype in files:
             try:
                 with open(f, encoding="utf-8", errors="replace") as fh:
                     txt = fh.read()
@@ -275,14 +286,33 @@ class _AssetIndex:
             nm = nm.group(1).strip()
             # DUPLICATE NAMES: refuse to pick. dict last-writer-wins would make the output depend on
             # filesystem order -- machine-dependent rows, silently.
-            if nm in self._index and self._index[nm] != eid:
+            prev = self._index.get(nm)
+            if prev is not None and prev != "AMBIGUOUS" and prev[0] != eid:
                 self.stats["dup_name"] += 1
                 self._index[nm] = "AMBIGUOUS"
                 continue
-            self._index[nm] = eid
+            self._index[nm] = (eid, ptype)
 
     def get(self, part_name):
-        direct = os.path.join(self.dir, part_name + ".xml")
+        for d, ptype in zip(self.dirs, self.PART_TYPES):
+            ent = self._get_in(d, ptype, part_name)
+            if ent is not None:
+                return ent
+        if self._index is None:
+            self._build()
+        hit = self._index.get(part_name)
+        if hit is None:
+            self.stats["missing_part"] += 1
+            return None
+        if hit == "AMBIGUOUS":
+            return None
+        ent, ptype = hit
+        self.stats["indexed"] += 1
+        self.stats["type_" + ptype] += 1
+        return ent
+
+    def _get_in(self, d, ptype, part_name):
+        direct = os.path.join(d, part_name + ".xml")
         if os.path.isfile(direct):
             try:
                 root = ET.parse(direct).getroot()
@@ -292,22 +322,17 @@ class _AssetIndex:
                 # Fable caught this with a file named AEG_A.xml containing <Name>AEG_B</Name>.
                 if (root.findtext("Name") or "").strip() != part_name:
                     self.stats["name_mismatch"] += 1
-                else:
-                    ent = self._entity_of(root)
-                    self.stats["direct" if ent is not None else "no_entity"] += 1
-                    return ent
+                    return None
+                ent = self._entity_of(root)
+                if ent is None:
+                    self.stats["no_entity"] += 1
+                    return None
+                self.stats["direct"] += 1
+                self.stats["type_" + ptype] += 1
+                return ent
             except (ET.ParseError, OSError):
                 pass
-        if self._index is None:
-            self._build()
-        if part_name not in self._index:
-            self.stats["missing_part"] += 1
-            return None
-        ent = self._index[part_name]
-        if ent == "AMBIGUOUS":
-            return None
-        self.stats["indexed" if ent is not None else "no_entity"] += 1
-        return ent
+        return None
 
 
 def _scan_map_treasures(item):
@@ -319,7 +344,8 @@ def _scan_map_treasures(item):
     """
     map_id, msb_dir = item
     stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
-             "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0}
+             "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0,
+             "type_Asset": 0, "type_Enemy": 0, "type_MapPiece": 0, "type_Collision": 0}
     assets = _AssetIndex(msb_dir, stats)
     out = []
     for f in glob.glob(os.path.join(msb_dir, "Event", "Treasure", "*.xml")):
@@ -357,7 +383,8 @@ def build_treasure_assets(only_maps=None, jobs=1):
     lot_map = _lot2flags("ItemLotParam_map.csv")
     rows, maps = [], 0
     stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
-             "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0}
+             "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0,
+             "type_Asset": 0, "type_Enemy": 0, "type_MapPiece": 0, "type_Collision": 0}
     roots = [os.path.join(ART, "mapstudio"), ART]
     # DEDUPE BY MAP ID. `_iter_msb_dirs` walks mapstudio AND the root-level witchy dirs, so maps come
     # back more than once -- Alaric's run had `m10_00` at [1] and again at [2], the second yielding 0
@@ -454,6 +481,11 @@ def build_treasure_assets(only_maps=None, jobs=1):
           % (maps, stats["treasures"], len(rows), _hms(_time.monotonic() - t0), stats["direct"],
              stats["indexed"], stats["map_scans"], stats["no_entity"], stats["missing_part"],
              stats["name_mismatch"], stats["dup_name"]), file=sys.stderr, flush=True)
+    print("treasure assets: resolved BY PART TYPE -- %s  (Asset alone resolved 229 of ~2824 before "
+          "the other types were searched; this is the distribution that says whether that was the "
+          "reason)" % ", ".join("%s=%d" % (t, stats["type_" + t])
+                                for t in ("Asset", "Enemy", "MapPiece", "Collision")),
+          file=sys.stderr, flush=True)
     if maps and not rows:
         sys.exit("FATAL: %d map(s) scanned and ZERO asset entities resolved. Either Part/Asset has no "
                  "<EntityID>, or TreasurePartName does not match the part. Re-run --probe and write "
