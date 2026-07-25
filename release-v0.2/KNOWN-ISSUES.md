@@ -15,12 +15,11 @@ run on the base game, which is the recommended, supported configuration.
   `crash-<pid>.txt` the client writes next to itself and attach it to a report. That
   file is what identified the sweep crash.
 
-- **Some checks hand you a duplicate vanilla item.** For weapons, armour, talismans
-  and Ashes of War, the vanilla item stays on the shelf, so you can receive it as well
-  as the multiworld item. Deliberate as of v0.2.9: the alternative was emptying the
-  slot, which removed the pickup entirely and meant the check never registered at all.
-  A duplicate is cosmetic; a dead check can strand a run. The proper fix is in
-  progress.
+<!-- RESOLVED 2026-07-24 (client 1121d93): non-goods check slots are now REPOINTED at the
+     placeholder -- the slot's category is written alongside its item id, so the vanilla ware no
+     longer rides along. Confirmed in-game by Alaric the same day: a gear chest holds ONE item and
+     registers as a single check. Entry removed rather than edited; the fix is not a workaround.
+     NOT yet exercised in-game: a lotItemCategory 6 (sorcery) slot, and a boss drop. -->
 
 - **A few checks can pay out the vanilla item instead of the Archipelago
   one.** A small class of drops that arrive through the ordinary enemy-drop
