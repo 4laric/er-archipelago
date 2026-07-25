@@ -261,6 +261,32 @@ def _common_lot_params():
     return out
 
 
+def _treasure_assets():
+    """{asset entity id -> {check flags}} from greenfield/treasure_assets.tsv.
+
+    THE join for `EnableAssetTreasure(assetEntityId)`. Produced by
+    `tools/datamine_msb_item_regions.py --emit-assets` (Windows; needs the unpacked MSBs) after two
+    cheaper theories were measured dead: asset ids do not share the lot numbering (0 of 186), and
+    StartDisabled does not mark the gated pickups.
+    """
+    import csv
+    path = os.path.join(GF, "treasure_assets.tsv")
+    if not os.path.isfile(path):
+        print("  (no greenfield/treasure_assets.tsv -- run "
+              "`datamine_msb_item_regions.py --emit-assets` to resolve the treasure sites)",
+              file=sys.stderr)
+        return {}
+    out = {}
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        rows = (ln for ln in fh if not ln.lstrip().startswith("#"))
+        for r in csv.DictReader(rows, delimiter="\t"):
+            try:
+                out.setdefault(int(r["asset_entity"]), set()).add(int(r["flag"]))
+            except (KeyError, TypeError, ValueError):
+                continue
+    return out
+
+
 def _treasure_lots():
     """{treasure lot id -> {check flags}} from the committed greenfield/msb_flag_region.tsv.
 
@@ -306,6 +332,7 @@ def emit(dry):
     print("common events awarding an itemLotId param: %d (%d more award from a param this cannot "
           "name -- reported, not guessed)" % (len(common_lots), len(unnamed)))
     treasure_lots = _treasure_lots()
+    treasure_assets = _treasure_assets()
     rows = []
     ev_total = tested = awards = treasure_unresolved = treasure_hits = 0
     treasure_asset_ids = set()
@@ -348,7 +375,7 @@ def emit(dry):
                 if not arg.lstrip("-").isdigit():
                     treasure_unresolved += 1
                     continue
-                hit = treasure_lots.get(int(arg))
+                hit = treasure_assets.get(int(arg)) or treasure_lots.get(int(arg))
                 if hit:
                     treasure_hits += 1
                     awarded |= {f for f in hit if f in check_flags}
