@@ -14,13 +14,23 @@ good's shared FMG entry (see shop_preview.rs's `real.contains(&gid)` guard, whic
 This runs on the WINDOWS box: it reads the Smithbox param CSV dump, which is licensing-restricted and
 never leaves it. The only thing that comes back to the repo is ONE INTEGER.
 
-WHAT IT CAN AND CANNOT PROVE
-----------------------------
-From params alone it can prove a row is STRUCTURALLY unreferenced: not in any item lot, not sold by
-any shop, not a recipe output, not a crafting material. It CANNOT prove "no FMG name" -- names live in
-the msgbnd, not the params -- so candidates are ranked and the top few must have their name checked
-(or be granted in-game once, which is the cheap confirmation). The tool says which claim is which
-rather than implying it settled both.
+THE DATUM, NOT THE ABSENCE (corrected 2026-07-25)
+------------------------------------------------
+The first version of this tool ranked rows by "referenced by nothing I scanned" and reported 1137 of
+2326 goods rows as spare -- half the table, with row id 0 at the top. That predicate was wrong in
+principle: absence of a reference is invisible evidence (a row can be granted by EMEVD or an NPC's
+ESD without appearing in any param), and CONTRIBUTING is explicit that absence is what you go looking
+for, not what you conclude from.
+
+The game ships the answer. `disableParam_NT = 1` is FromSoft's own marker for a row disabled in the
+shipping build, and 8852 -- the placeholder already proven in-game -- carries it, together with an
+empty Name, `sortId 999999` + `sortGroupId 255` (hidden from the menu sort) and `goodsType 1`. So we
+select on the datum and match 8852's SHAPE, and the reference scan is demoted to a CONFIRMATION that
+prints when a datum-selected row turns out to be referenced anyway (which would mean the marker and
+the tables disagree -- worth seeing, not worth hiding).
+
+Still cannot prove "no FMG name": names live in the msgbnd, not the params. The shape filter makes it
+very likely and the confirmation is one in-game grant.
 
 USAGE (PowerShell)
 ------------------
@@ -57,17 +67,19 @@ def main() -> int:
     ap.add_argument("csv_dir", type=Path)
     ap.add_argument("--top", type=int, default=20)
     ap.add_argument("--exclude", type=int, nargs="*", default=[8852], help="already-claimed rows")
+    ap.add_argument("--goods-type", type=int, default=1, help="match 8852's goodsType (default 1)")
     args = ap.parse_args()
 
     d = args.csv_dir
     if not d.is_dir():
         sys.exit(f"{d}: not a directory")
 
-    goods = {}
+    goods, rows = {}, {}
     for r in read(d / "EquipParamGoods.csv"):
         rid = (r.get("ID") or r.get("Row ID") or "").strip()
         if rid.isdigit():
             goods[int(rid)] = (r.get("Name") or "").strip()
+            rows[int(rid)] = r
     if not goods:
         sys.exit("EquipParamGoods.csv yielded ZERO rows -- an empty input is a FAILURE, not a clean run")
 
@@ -102,17 +114,41 @@ def main() -> int:
                 mark(int(v), "craft-material")
 
     excl = set(args.exclude)
-    spare = [(rid, nm) for rid, nm in sorted(goods.items())
-             if rid not in referenced and rid not in excl]
+    # THE DATUM: the game's own "this row is disabled in the shipping build" marker, plus 8852's shape.
+    ref_name = {"8852": "the proven placeholder"}
+    spare = []
+    contradicted = []
+    for rid, row in sorted(rows.items()):
+        if rid in excl:
+            continue
+        if (row.get("disableParam_NT") or "").strip() != "1":
+            continue
+        if (row.get("Name") or "").strip():
+            continue                                    # a named row is somebody's item
+        if (row.get("sortId") or "").strip() != "999999":
+            continue                                    # not hidden from the menu sort
+        if (row.get("goodsType") or "").strip() != str(args.goods_type):
+            continue                                    # must be grantable/holdable like 8852
+        if rid in referenced:
+            contradicted.append((rid, sorted(referenced[rid])))
+            continue
+        spare.append((rid, row))
 
-    print(f"[goods] rows {len(goods)} | referenced {len(referenced)} | "
+    print(f"[goods] rows {len(goods)} | param-referenced {len(referenced)} | "
           f"excluded {len(excl)} | SPARE candidates {len(spare)}")
+    if contradicted:
+        # The marker and the tables disagree. Loud, not filtered away.
+        detail = ", ".join("%d(%s)" % (r, "/".join(w)) for r, w in contradicted[:6])
+        print("[goods] %d row(s) are marked disabled BUT referenced -- marker and tables "
+              "disagree, do not use these: %s" % (len(contradicted), detail))
     if not spare:
         sys.exit("no spare row found -- that is a real answer, not an error, but check the [skip] "
                  "lines above: a param file that failed to load cannot rule anything out")
-    print("\nStructurally unreferenced (NOT proven nameless -- check FMG or grant one in-game):")
-    for rid, nm in spare[:args.top]:
-        print(f"  {rid:<9} {nm[:58]}")
+    print("\nMarked disabled by the game + 8852's shape (NOT proven nameless -- grant one in-game):")
+    print(f"  {'id':<9} {'iconId':<8} {'maxNum':<7} {'rarity':<7} {'sortGroupId'}")
+    for rid, row in spare[:args.top]:
+        print(f"  {rid:<9} {(row.get('iconId') or '?'):<8} {(row.get('maxNum') or '?'):<7} "
+              f"{(row.get('rarity') or '?'):<7} {row.get('sortGroupId') or '?'}")
     print(f"\nPick one, confirm it has no FMG name, then wire it as the SHOP placeholder.")
     return 0
 
