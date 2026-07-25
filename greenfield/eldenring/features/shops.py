@@ -44,9 +44,42 @@ try:
 except Exception:                                   # predates the spare-goods emit
     SPARE_PREVIEW_GOODS = ()
 
+try:
+    from ..item_ids import ITEM_CATALOG              # item NAME -> ER FullID (generated)
+except Exception:                                   # not yet generated
+    ITEM_CATALOG = {}
+
 
 # ER FullID category nibble for GOODS (shopPreviewGoods values are FullIDs; see module docstring).
 _GOODS_NIBBLE = 0x40000000
+
+# Categories the CLIENT can natively sell out of a shop row (shop_sell.equip_type_for: 0 weapon,
+# 1 protector, 2 accessory, 3 goods). GEM (0x80000000) and custom weapons have no ShopLineupParam
+# equipType, so an own-world reward in one of those is NOT natively sellable -- it falls through to
+# the shop_preview display override exactly like a foreign item, and therefore needs a spare of its
+# own. This MIRRORS the client's scout_proof `er_sell_id` filter; the client half is the one that
+# decides, so keep this in step with it (crates/eldenring-archipelago/src/scout_proof.rs).
+_SELLABLE_NIBBLES = frozenset((0x00000000, 0x10000000, 0x20000000, _GOODS_NIBBLE))
+# Synthetic goods rows (the AP-injected band) are excluded by the client's filter too.
+_SYNTHETIC_GOODS_MIN_ID = 3_780_000
+
+
+def _client_can_sell(item_name):
+    """Can shop_sell rewrite a row to natively sell this own-world reward?
+
+    UNKNOWN answers False on purpose. A wrong False costs one spare row out of the pool and nothing
+    else -- shop_sell still rewrites the row, and shop_repoint skips every row shop_sell owns, so the
+    unused spare is inert. A wrong True is the bug this exists to kill: the slot keeps its vanilla
+    preview good, the client's real-good guard protects it, and the player reads the vanilla ware off
+    the shelf (Alaric 2026-07-25, an Ash of War behind "Armorer's Cookbook [2]"). Refusing to answer
+    beats answering confidently wrong.
+    """
+    full = ITEM_CATALOG.get(item_name)
+    if full is None:
+        return False
+    if (full & 0x0FFFFFFF) >= _SYNTHETIC_GOODS_MIN_ID:
+        return False
+    return (full & 0xF0000000) in _SELLABLE_NIBBLES
 
 # Dedicated spare EquipParamGoods rows for REGION-LOCK and FOREIGN-item shop previews. Each is a row
 # that EXISTS (so the client can write its FMG/icon), has the [ERROR] placeholder name (no real name to
@@ -143,11 +176,26 @@ class Shops(Feature):
             if it is None:
                 continue
             if getattr(it, "player", None) == player:
-                # own-world item: a region Lock takes its dedicated per-name spare; every other own
-                # good is sold as itself by shop_sell, so keep its true (vanilla) preview.
+                # own-world item: a region Lock takes its dedicated per-name spare; a reward the
+                # client can natively SELL keeps its true (vanilla) preview, because shop_sell
+                # rewrites the row to sell the real item -- correct name, icon and lore, no override.
                 repointed = name_to_preview.get(it.name)
                 if repointed is not None:
                     preview[key] = repointed
+                    continue
+                if _client_can_sell(it.name):
+                    continue
+                # OWN-WORLD BUT UNSELLABLE (gem / Ash of War / custom). shop_sell bails on it (no
+                # equipType), so the slot falls through to the shop_preview override -- and with its
+                # VANILLA preview good that override hits the real-good guard and leaves the slot
+                # reading as the vanilla ware. Same wall as a foreign item, so: same fix, draw a
+                # spare. (Alaric, in-game 2026-07-25: "Armorer's Cookbook [2]" paying an Ash of War.)
+                if _fi < len(_free):
+                    preview[key] = _free[_fi]
+                    _fi += 1
+                elif _free:
+                    preview[key] = _free[-1]
+                    _overflow += 1
                 continue
             # FOREIGN item: repoint to a spare so the client flowers it (spare is never a real good).
             if _fi < len(_free):
@@ -160,9 +208,9 @@ class Shops(Feature):
         if _overflow:
             import logging
             logging.getLogger("Greenfield").warning(
-                "[eldenring:%s] shop flowering: %d foreign slot(s) exceeded the %d free spare goods "
-                "and SHARE one preview good (they still flower, but show a single shared name). Widen "
-                "_LOCK_PREVIEW_SPARE_GOODS from the 332-row spare pool to give each its own name.",
+                "[eldenring:%s] shop flowering: %d foreign/unsellable slot(s) exceeded the %d free "
+                "spare goods and SHARE one preview good (they still flower, but show a single shared "
+                "name). Widen the spare pool (tools/datamine_spare_goods.py) to give each its own name.",
                 world.player, _overflow, len(_free))
 
         return {contract.SHOP_ROW_FLAGS: flags, contract.SHOP_PREVIEW_GOODS: preview}

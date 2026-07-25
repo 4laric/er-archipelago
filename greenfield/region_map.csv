@@ -2419,9 +2419,9 @@ ap_id,flag,flag_source,item_name,map,region,method
 7002417,16007991,map_lot,Golden Rune [1],PENDING,Global / Filler (scattered by design),global_filler
 7002418,16007992,map_lot,Golden Rune [1],PENDING,Global / Filler (scattered by design),global_filler
 7002419,16007999,map_lot,Dragon Heart,m16_00_00_00,Volcano Manor / Mt. Gelmir,emevd
-7002420,18007000,map_lot,Poisonbone Dart,m10_01_00_00,Stormveil Castle,emevd
+7002420,18007000,map_lot,Poisonbone Dart,m18_00_00_00,Stormveil (assoc.),emevd
 7002421,18007010,map_lot,Stonesword Key,PENDING,Global / Filler (scattered by design),global_filler
-7002422,18007020,map_lot,Golden Rune [5],m10_01_00_00,Stormveil Castle,emevd
+7002422,18007020,map_lot,Golden Rune [5],m18_00_00_00,Stormveil (assoc.),emevd
 7002423,18007030,map_lot,Dragonwound Grease,PENDING,Global / Common-event (unplaced),global
 7002424,18007040,map_lot,Lightning Grease,PENDING,Global / Common-event (unplaced),global
 7002425,18007050,map_lot,Erdtree's Favor,m18_00_00_00,Stormveil (assoc.),emevd
