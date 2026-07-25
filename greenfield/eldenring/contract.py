@@ -534,14 +534,19 @@ CONTRACT = (
                 "client repoints those slots at apPlaceholderGoods so the vanilla ware is never handed "
                 "out at a check -- while farmed/mined/bought/crafted copies are left alone."),
     ContractKey("checkLotZeroMap", "LISTVAL_INT_MAP", False, (GREENFIELD,),
-                "features/check_lots.py", "check_lots.rs (ItemLotParam_map, zero)",
+                "features/check_lots.py", "check_lots.rs (ItemLotParam_map, non-goods repoint)",
                 "ItemLotParam_MAP lot id (str) -> the NON-GOODS slot indices (weapon/armor/talisman/gem) "
-                "holding a check's vanilla ware. The client ZEROES these slots (lotItemId=0, lotItemNum=0) "
-                "so nothing is handed out -- the goods repoint can't touch them (apPlaceholderGoods is a "
-                "GOODS row; a goods id in a weapon slot is a category mismatch). Zeroing at the source is "
-                "grant-path- and flag-timing-independent, closing the leak the id-keyed suppressor left on "
-                "enemy/scarab/scripted overworld drops. ONE-TIME (flagged) lots only, so it never eats a "
-                "farmable source."),
+                "holding a check's vanilla ware. The client REPOINTS these slots at apPlaceholderGoods, "
+                "writing the slot's lotItemCategory (=1, goods) alongside the id -- which is what makes a "
+                "GOODS row legal where a weapon sat, and is why the old 'category mismatch' objection no "
+                "longer holds. Suppressing at the source is grant-path- and flag-timing-independent, "
+                "closing the leak the id-keyed suppressor left on enemy/scarab/scripted overworld drops. "
+                "ONE-TIME (flagged) lots only, so it never eats a farmable source. "
+                "KEY NAME IS HISTORICAL: these slots were once ZEROED (lotItemId=0, lotItemNum=0). That "
+                "removed the pickup, and the pickup IS the check, so it silently killed every gear chest, "
+                "scarab drop and boss drop. Fixed client-side 1121d93, confirmed in-game 2026-07-24. The "
+                "key is not renamed because that would break connect for a seed rolled on an older "
+                "apworld; do NOT restore the zeroing this name implies."),
     ContractKey("checkLotZeroEnemy", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/check_lots.py", "check_lots.rs (ItemLotParam_enemy, zero)",
                 "Same as checkLotZeroMap for ItemLotParam_ENEMY (boss / enemy one-time drops). SEPARATE "

@@ -3,6 +3,92 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.9 — 2026-07-24
+
+Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client — they
+ship together. Shop and merchant fixes on the apworld side, and on the client a crash,
+three classes of check that gave you nothing, and shop purchases that handed over the
+vanilla item.
+
+### Fixed — apworld
+
+- **Dragon Communion purchases could be asked to carry progression.** Incantations
+  bought at a Dragon Communion altar cost Dragon Hearts — a limited consumable — so
+  spending one closes off the others. Those checks are meant to be marked missable and
+  barred from holding anything required. The rule only matched one of the game's cost
+  types, so **eleven alt-currency checks were unmarked**, including every ware at the
+  DLC's Grand Altar of Dragon Communion. A seed could place a required item behind a
+  purchase you no longer had the hearts to make. Now any purchase not paid in Runes is
+  marked, and each cost type is tracked separately.
+- **Merchant hints named one shop when several sell the ware.** The tracker would say
+  "Nomadic Warrior's Cookbook [1] — Kalé, Church of Elleh", you'd buy out Kalé's stock,
+  and the check wouldn't fire — because four different merchants sell that row and the
+  note named one of them. **496 of the game's 709 shop-check rows have more than one
+  seller.** Five hand-written seller notes are removed, and generation now refuses to
+  build if one comes back.
+- **The one progression-eligible slot per merchant now really belongs to that
+  merchant.** Each merchant contributes at most one slot that can hold progression.
+  That slot was picked on a test that couldn't tell "one shop sells this" from "one
+  price tag exists for it", so eight of the ten picks were sold by two to seven
+  merchants apiece, and one was filed in a region where **no seller stands at all**.
+  Slots are now chosen per physical merchant, must be a ware only that merchant sells
+  out in the world, and must sit in the region the check claims. Fewer slots qualify,
+  and the ones that do are findable.
+
+*(The Twin Maiden Husks re-sell a merchant's stock after you hand in their bell
+bearing; that mirror is no longer counted as a second seller, since you can only reach
+it by killing the merchant first.)*
+
+### Fixed — client
+
+The apworld and the client ship together; refresh both.
+
+- **Crash a few seconds after a boss sweep.** Felling a boss that pays out a batch of
+  nearby checks could take the game down with an access violation. The client kept a
+  pointer to your inventory that it captured once and reused forever; a map load frees
+  that memory, so every grant after your first load was handing the game a dead
+  reference. It now retires the pointer at every load and re-acquires it before the
+  next grant.
+- **Chests, scarab Ash-of-War drops and boss drops that gave you nothing.** Suppressing
+  the vanilla item at a check is the same act as detecting it — both hang off the
+  pickup. For weapons, armour, talismans and Ashes of War the client was emptying the
+  slot outright, so there was nothing to pick up: no item, no popup, and the check
+  never registered. Leonine Misbegotten's drop went unclaimed for a four-hour session
+  this way.
+- **Swept checks left dead pickups lying around.** When a boss sweep claimed the checks
+  near its arena, the world was never told: the chests and corpses stayed put, opened
+  on nothing, and gave no sign they had already been collected. The sweep now marks
+  each one, retrying until the game confirms it.
+- **Shop purchases that delivered the vanilla ware.** After the first map load, every
+  rewritten shop row quietly reverted to selling its vanilla item while the client
+  still believed it had been handed over — so you bought the check, got the ordinary
+  item, and the multiworld item never arrived. Both halves are fixed: rows are
+  re-armed on every load, and delivery is now re-proved against the live shop row
+  rather than assumed.
+- **Progressive Flask Upgrades that appeared to do nothing.** The flask has two axes:
+  Sacred Tears raise potency, charges are reconciled against a ladder. The early rungs
+  of that ladder ask for fewer charges than a fresh character already has, so the first
+  few upgrades legitimately added none — silently. The client now says so, and
+  announces a charge increase when one actually happens.
+
+### Added — client
+
+- **On-screen notices for grants that have no item.** Anything the client applies
+  directly — flask charges today — now announces itself in the overlay, so an effect
+  with no inventory item is no longer indistinguishable from a broken feature.
+- **Crash reports.** A native crash now writes `crash-<pid>.txt` next to the client
+  with the fault address and a stack. If the game goes down, that file is the single
+  most useful thing to attach to a bug report.
+
+### Changed
+
+- **Some checks may hand you a duplicate vanilla item.** Stopping the dead-pickup bug
+  above means the vanilla ware stays on the shelf for weapons, armour, talismans and
+  Ashes of War, so you can receive both it and the multiworld item. This is deliberate
+  and temporary: a duplicate is cosmetic, while the alternative was a check that never
+  fired at all. The proper fix — swapping those slots for the Archipelago placeholder
+  rather than emptying them — is in progress.
+
 ## v0.2.8 — 2026-07-23
 
 Requires **Archipelago 0.6.7**. Hotfix-heavy; regenerate your seed and refresh the

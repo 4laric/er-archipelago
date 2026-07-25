@@ -6,6 +6,21 @@ run on the base game, which is the recommended, supported configuration.
 
 ## Active issues
 
+- **A rare crash when fast-travelling.** One crash-to-desktop is still open: it has
+  happened twice on a warp, both times after a long play session, and it does not
+  reproduce on demand (loading the same save and warping to the same grace is fine).
+  The crash that fired after boss sweeps is fixed in v0.2.9, and this one may turn out
+  to be the same root cause showing up late -- a stale pointer can damage memory that
+  faults somewhere else much later. What to do: if it happens, keep the
+  `crash-<pid>.txt` the client writes next to itself and attach it to a report. That
+  file is what identified the sweep crash.
+
+<!-- RESOLVED 2026-07-24 (client 1121d93): non-goods check slots are now REPOINTED at the
+     placeholder -- the slot's category is written alongside its item id, so the vanilla ware no
+     longer rides along. Confirmed in-game by Alaric the same day: a gear chest holds ONE item and
+     registers as a single check. Entry removed rather than edited; the fix is not a workaround.
+     NOT yet exercised in-game: a lotItemCategory 6 (sorcery) slot, and a boss drop. -->
+
 - **A few checks can pay out the vanilla item instead of the Archipelago
   one.** A small class of drops that arrive through the ordinary enemy-drop
   channel can hand you the item the vanilla game would have given, rather than

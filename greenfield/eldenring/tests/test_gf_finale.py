@@ -68,6 +68,13 @@ class FinaleActiveSeed(WorldTestBase):
     run_default_tests = False
     options = {"num_regions": 0}
 
+    def _finale_entrances(self):
+        entrances = self.multiworld.get_region(FINALE_REGION, self.player).entrances
+        assert entrances, "finale region has no entrance"
+        assert {e.parent_region.name for e in entrances} == {FINALE_HOST_REGION}
+        return entrances
+
+
     def test_locations_exist_and_flags_reach_the_client(self):
         names = {loc.name for loc in self.multiworld.get_locations(self.player)}
         finale_names = {n for (n, _a, _f) in finale_entries()}
@@ -90,25 +97,86 @@ class FinaleActiveSeed(WorldTestBase):
         empty = [l for l in locs if l.item is None]
         assert len(pool) == len(empty), (len(pool), len(empty), len(locs))
 
-    def test_entrance_requires_every_prerequisite_lock(self):
-        # fill can never strand progression behind an unburnable Erdtree: the finale entrance
-        # is closed until EVERY prerequisite Lock is held.
+    def test_entrance_matches_held_or_precollected_under_the_shipping_anchor(self):
+        # SHIPPING CONFIG (start_with_region_lock is frozen ON in defaults.FROZEN_OPTIONS): the
+        # start anchor precollects ONE region Lock, so a prerequisite Lock may be free THIS seed.
+        # The invariant that survives that is `held OR precollected`, and it is checked TOTALLY
+        # (every subset), not by omitting one lock at a time -- an omit-leg whose lock is free is
+        # unfalsifiable, which is exactly how the old test flaked (see the class below).
+        import itertools
         from BaseClasses import CollectionState
-        state = CollectionState(self.multiworld)
-        region = self.multiworld.get_region(FINALE_REGION, self.player)
-        entrances = region.entrances
-        assert entrances, "finale region has no entrance"
-        parent_names = {e.parent_region.name for e in entrances}
-        assert parent_names == {FINALE_HOST_REGION}
+        free = {i.name for i in self.multiworld.precollected_items[self.player]}
+        entrances = self._finale_entrances()
         locks = [f"{r} Lock" for r in FINALE_REQUIRES]
+        for r in range(len(locks) + 1):
+            for combo in itertools.combinations(locks, r):
+                state = CollectionState(self.multiworld)   # holds the anchor's free lock, as in play
+                for lk in combo:
+                    state.collect(self.world.create_item(lk), prevent_sweep=True)
+                expected = set(locks) <= (set(combo) | free)
+                got = all(e.access_rule(state) for e in entrances)
+                assert got == expected, (
+                    f"finale entrance open={got}, expected {expected} with held={sorted(combo)} "
+                    f"free={sorted(free & set(locks))}")
+
+
+class FinaleEntranceLockMatrix(WorldTestBase):
+    """The finale entrance rule, checked against a state that holds NOTHING for free.
+
+    Bug mechanism this class exists for: `core.create_items` precollects one region Lock (the size-
+    weighted start anchor) and `CollectionState(multiworld)` collects precollected items, so the
+    stock state already held `Farum Azula Lock` on ~3% of seeds (97 of 3077 base-region weight).
+    The old omit-one-lock matrix then asserted "the entrance must NOT open without Farum Azula"
+    while the state held it -- an unfalsifiable leg that failed CI at the anchor's draw rate.
+    (`Leyndell`, the other prerequisite, is a REGION_PARENT gated child and is excluded from anchor
+    eligibility outright, so its leg could never break -- the flake was one-sided.)
+
+    Stripping the free locks makes every leg meaningful and the result seed-independent."""
+    game = GAME
+    run_default_tests = False
+    options = {"num_regions": 0}
+
+    def _finale_entrances(self):
+        entrances = self.multiworld.get_region(FINALE_REGION, self.player).entrances
+        assert entrances, "finale region has no entrance"
+        assert {e.parent_region.name for e in entrances} == {FINALE_HOST_REGION}
+        return entrances
+
+
+    def _stripped_state(self):
+        """A fresh CollectionState with every free region Lock removed from the precollected set."""
+        from BaseClasses import CollectionState
+        mw = self.multiworld
+        saved = list(mw.precollected_items[self.player])
+        stripped = [i for i in saved if not i.name.endswith(" Lock")]
+        # Assert the strip LANDED and had something to strip: if the anchor ever stops precollecting
+        # a Lock this guard is measuring nothing, and a guard that silently measures nothing is the
+        # failure this file is about. Loud, not lenient.
+        assert len(stripped) < len(saved), (
+            "expected the start anchor to precollect a region Lock and found none -- "
+            "start_with_region_lock is frozen ON in defaults.FROZEN_OPTIONS; if that changed, "
+            "this class needs rewriting, not relaxing")
+        mw.precollected_items[self.player] = stripped
+        try:
+            return CollectionState(mw)
+        finally:
+            mw.precollected_items[self.player] = saved
+
+    def test_entrance_stays_closed_without_each_prerequisite_lock(self):
+        # fill can never strand progression behind an unburnable Erdtree: the finale entrance is
+        # closed until EVERY prerequisite Lock is held.
+        entrances = self._finale_entrances()
+        locks = [f"{r} Lock" for r in FINALE_REQUIRES]
+        assert not any(e.access_rule(self._stripped_state()) for e in entrances), \
+            "finale entrance open while holding NO locks at all"
         for i in range(len(locks)):
-            state = CollectionState(self.multiworld)
+            state = self._stripped_state()
             for j, lk in enumerate(locks):
                 if j != i:
                     state.collect(self.world.create_item(lk), prevent_sweep=True)
             assert not all(e.access_rule(state) for e in entrances), \
                 f"finale entrance opened without {locks[i]}"
-        state = CollectionState(self.multiworld)
+        state = self._stripped_state()
         for lk in locks:
             state.collect(self.world.create_item(lk), prevent_sweep=True)
         assert any(e.access_rule(state) for e in entrances), \

@@ -25,6 +25,7 @@ param(
     [string]$Version = "0.2",
     [switch]$SkipApworld,
     [switch]$SkipGenSmoke,   # skip the zipped-apworld generation gate (NOT recommended for a real release)
+    [switch]$SkipCrossRepoCheck, # skip the apworld<->client data-agreement gate (NOT recommended)
     [switch]$DryRun
 )
 
@@ -86,6 +87,73 @@ Info "Staging into $Stage"
 # ---------------------------------------------------------------------------
 Copy-Item $Apworld (Join-Path $Stage "eldenring.apworld") -Force
 Info "+ eldenring.apworld"
+
+# ---------------------------------------------------------------------------
+# 3b. CROSS-REPO DATA AGREEMENT -- the apworld and the client must be built from the
+#     SAME world data.
+# ---------------------------------------------------------------------------
+# Three generated tables are emitted BY the world INTO the client: tracker_regions.rs,
+# contract_gen.rs and region_locks.rs. They ship COMPILED INTO the .dll while the data they were
+# derived from ships in the .apworld -- two halves of one bundle, from two repos, with nothing
+# tying them together at package time.
+#
+# 2026-07-24, the release that prompted this gate: world main and client main disagreed by 465 lines
+# of tracker_regions.rs (the client's copy had been generated from a feature branch's data -- 4853
+# locations vs main's 4848). The apworld's own CI step was GREEN; only the cross-repo check was red,
+# and a bundle was published from that state. A contract mismatch surfaces to a PLAYER on connect,
+# which is the worst possible place to find it.
+#
+# So: re-derive the three tables from THIS tree and refuse to package if the client's committed
+# copies differ. Then check the .dll being shipped is NEWER than them -- source agreement proves
+# nothing if the binary predates the regen.
+if (-not $SkipCrossRepoCheck) {
+    $Client = Join-Path $Repo "from-software-archipelago-clients"
+    if (-not (Test-Path (Join-Path $Client ".git"))) {
+        Warn "client submodule not checked out -- cross-repo data agreement UNVERIFIED"
+    } else {
+        Info "Cross-repo: re-deriving the client's generated tables from this world tree ..."
+        foreach ($t in @("tools\gen_location_regions.py", "tools\gen_region_locks.py")) {
+            & python (Join-Path $Repo $t) --check
+            if ($LASTEXITCODE -eq 4) { Warn "$t --check: no client tree; UNVERIFIED" }
+            elseif ($LASTEXITCODE -ne 0) {
+                Die ("$t reports the client's generated table is STALE. The .apworld and the .dll " +
+                     "would ship from DIFFERENT world data -- the contract mismatch lands on the " +
+                     "player at connect. Regenerate (build.ps1 -All), rebuild the client, push both.")
+            }
+        }
+        # contract_gen.rs has no --check: emit it and compare the client working tree instead.
+        & python (Join-Path $Repo "greenfield\gen_contract.py")
+        if ($LASTEXITCODE -ne 0) { Die "gen_contract.py FAILED -- cannot verify the client contract table." }
+        $dirty = & git -C $Client status --porcelain -- `
+                    "crates/er-logic/src/tracker_regions.rs" `
+                    "crates/er-logic/src/region_locks.rs" `
+                    "crates/eldenring-archipelago/src/contract_gen.rs"
+        if ($dirty) {
+            Die ("the client's generated tables do not match this world tree:`n$dirty`n" +
+                 "Commit + push the client, rebuild the .dll, then package.")
+        }
+        Info "Cross-repo: apworld and client generated tables AGREE."
+
+        # The .dll is a BUILD ARTIFACT: matching sources prove nothing if the binary is older.
+        $dll = Join-Path (Join-Path $Repo "me3") "eldenring_archipelago.dll"
+        if (Test-Path $dll) {
+            $dllTime = (Get-Item $dll).LastWriteTimeUtc
+            foreach ($rel in @("crates\er-logic\src\tracker_regions.rs",
+                               "crates\er-logic\src\region_locks.rs",
+                               "crates\eldenring-archipelago\src\contract_gen.rs")) {
+                $f = Join-Path $Client $rel
+                if ((Test-Path $f) -and ((Get-Item $f).LastWriteTimeUtc -gt $dllTime)) {
+                    Die ("me3\eldenring_archipelago.dll is OLDER than $rel -- the .dll predates a " +
+                         "generated table compiled into it. Rebuild the client (build.ps1 -Rust) " +
+                         "before packaging.")
+                }
+            }
+            Info "Cross-repo: the staged .dll is newer than every generated table it compiles in."
+        } else {
+            Warn "me3\eldenring_archipelago.dll not present yet -- .dll freshness UNVERIFIED"
+        }
+    }
+}
 
 # ---------------------------------------------------------------------------
 # 4. me3 runtime (client + AP-icon override + config)
