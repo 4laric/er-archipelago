@@ -2,6 +2,11 @@
 # Treasure check flag -> its ItemLotParam lot -> the ASSET ENTITY the EMEVD
 # names in EnableAssetTreasure/DisableAssetTreasure. Consumed by
 # tools/datamine_lot_gates.py to resolve the treasure gate sites.
+# maps=all
+# SCOPE IS LOAD-BEARING: `--maps X --emit-assets` overwrites this same path
+# with a ONE-MAP subset, and the consumer cannot tell that from a full run --
+# every other site just reads as 'unresolved'. Same reason msb_flag_region.tsv
+# carries its scope.
 flag	item_lot_id	asset_entity	map_id	part_name
 114	14000960	14001606	m14_00	AEG099_630_9006
 60130	1042371010	1042371601	m60_42_37	AEG099_630_9001
