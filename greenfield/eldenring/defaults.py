@@ -44,6 +44,12 @@ class Frozen:
 FROZEN_OPTIONS = {
     # ---- always-on in the playtest yaml -> now the behaviour -------------------------------------
     "item_shuffle": (1, None),                 # every check pays its real vanilla item. THE randomizer.
+    # A shop check keeps the price of the ware it USED to sell, so a slot that cost 3500 can end up
+    # selling a Golden Rune [1] (worth 2000) -- randomised reward, un-randomised cost, and the check
+    # goes uncollected because nobody presses a slot that is strictly bad. Rolled into
+    # [0, 2x the rune's own worth] instead (Alaric 2026-07-25). Frozen ON: it is the behaviour, not a
+    # knob -- unfreeze here if it ever needs to be player-visible.
+    "rune_shop_pricing": (1, None),
     # The pool_builder_* knobs are now CONSTANTS of features/filler_budget, which is the single owner
     # of the filler tail. `scope` is meaningless (there is one budget: rune tail + displaceable junk),
     # `intensity` is the allocator's JUICE_FLOOR, and `juice_cap` is gone -- juice is a recipe weight

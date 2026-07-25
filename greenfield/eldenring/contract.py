@@ -569,6 +569,16 @@ CONTRACT = (
                 "carry no stock flag so they can never be checks; rerolled per seed to a consumable. "
                 "The PRICE rides along because those rows inherit the old ware's cost (gem slots = 1 "
                 "rune, 166 armor slots free) -- without it every seed is a free-consumable dispenser."),
+    ContractKey("shopRunePrices", "SCALAR_INT_MAP", False, (GREENFIELD,),
+                "features/rune_pricing.py", "shop_prices.rs configure/run",
+                "ShopLineupParam row id (str) -> rune price, for CHECK rows whose reward is a rune "
+                "item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware "
+                "it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth "
+                "~200 -- the reward is randomised but its cost is not, which makes the slot strictly "
+                "bad rather than a gamble. Rolled per seed in [0, 2x the rune's own derived worth] "
+                "(GOODS_PRICE, the same basicPrice/sellValue*10 chain shop_stock prices its rerolls "
+                "with), so buying one is sometimes free and sometimes a bad trade. Absent/empty = "
+                "every row keeps its vanilla price."),
     ContractKey("shopPreviewGoods", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:353 i64_map",
                 "AP location id -> preview goods id shown in the shop slot."),
