@@ -51,6 +51,12 @@ FILE_INPUTS = [
                                                    # tools/datamine_flag_lots.py -- SPEC-flag-lot-item-model)
     "greenfield/co_check_ids.tsv",                 # append-only co-check ap_id registry; a hand-edited
                                                    # or stale registry must invalidate the stamp
+    "greenfield/nearest_grace.tsv",                # layer-4 location descriptions ("near <grace>").
+                                                   # gen_data CONSUMES it, so a change here changes
+                                                   # generated names -- it was absent from this list
+                                                   # until 2026-07-25, meaning a stale (or newly
+                                                   # re-emitted) copy did not invalidate the stamp
+                                                   # and the drift gate could not see it
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",
 ]

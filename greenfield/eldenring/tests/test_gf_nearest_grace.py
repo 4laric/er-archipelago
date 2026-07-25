@@ -78,8 +78,45 @@ def test_max_dist_cap():
         "grace\t1\tmA\t0\t0\t0\tFar Grace",
         "item\t500\tmA\t1000\t0\t0\t",
     ]
-    assert bng.build_map(coords) == {500: "Far Grace"}          # no cap -> matched
-    assert bng.build_map(coords, max_dist=200.0) == {}          # capped -> dropped
+    assert bng.build_map(coords) == {500: "Far Grace"}          # 1000 m is inside the default cap
+    assert bng.build_map(coords, max_dist=200.0) == {}          # explicit cap -> dropped
+    assert bng.build_map(coords, max_dist=None) == {500: "Far Grace"}   # opt out entirely
+
+
+def test_the_default_is_capped_not_open():
+    """The default used to be `no cap`, and a nearest-neighbour with no cap NEVER fails: 18 overworld
+    checks anchored to a grace 8.7-10.4 km away, twelve of them to Altar South, which is what made
+    that grace look like it spanned four regions. Pin the default so it cannot quietly reopen."""
+    assert bng.DEFAULT_MAX_DIST == 2000.0
+    coords = [
+        "grace\t1\tmA\t0\t0\t0\tDistant Grace",
+        "item\t500\tmA\t9000\t0\t0\t",
+    ]
+    assert bng.build_map(coords) == {}, "a 9 km 'nearest' grace must be refused, not answered"
+
+
+def test_drops_are_tallied_not_silent():
+    """A filter with no tally is a lie (CONTRIBUTING rule 4)."""
+    coords = [
+        "grace\t1\tmA\t0\t0\t0\tDistant Grace",
+        "item\t500\tmA\t9000\t0\t0\t",
+        "item\t501\tmA\t10\t0\t0\t",
+    ]
+    mapping, dropped = bng.build_keyed_map_reporting(coords)
+    assert mapping == {501: ("Distant Grace", "1")}
+    assert dropped == [(500, "Distant Grace", 9000.0)], dropped
+
+
+def test_a_map_with_no_named_grace_is_not_reported_as_a_drop():
+    """"No grace within the cap" and "no named grace in this map at all" are different facts, and
+    only the first is this cap's doing. Conflating them would make the tally noise."""
+    coords = [
+        "grace\t1\tmA\t0\t0\t0\t",          # unnamed -> unusable
+        "item\t500\tmA\t10\t0\t0\t",
+    ]
+    mapping, dropped = bng.build_keyed_map_reporting(coords)
+    assert mapping == {}
+    assert dropped == [], "an unnamed-grace map is not a distance drop"
 
 
 def test_unnamed_grace_ignored():

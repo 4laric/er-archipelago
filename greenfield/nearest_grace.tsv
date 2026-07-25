@@ -1806,7 +1806,6 @@ flag	grace_name	grace_key
 1033477010	The Four Belfries	76227
 1033477020	The Four Belfries	76227
 1033477030	The Four Belfries	76227
-1033477200	Altar South	76252
 1033477900	The Four Belfries	76227
 1033477910	The Four Belfries	76227
 1034417000	Moonlight Altar	76250
@@ -1932,7 +1931,6 @@ flag	grace_name	grace_key
 1035527040	Craftsman's Shack	76356
 1035537000	Seethewater Terminus	76355
 1035537010	Seethewater Terminus	76355
-1035537020	Altar South	76252
 1035537030	Seethewater Terminus	76355
 1035537040	Seethewater Terminus	76355
 1035537050	Seethewater Terminus	76355
@@ -2076,13 +2074,11 @@ flag	grace_name	grace_key
 1038517000	Erdtree-Gazing Hill	76302
 1038517010	Altus Plateau	76301
 1038517020	Altus Plateau	76301
-1038517030	Altar South	76252
 1038517040	Erdtree-Gazing Hill	76302
 1038517050	Erdtree-Gazing Hill	76302
 1038517060	Erdtree-Gazing Hill	76302
 1038517070	Erdtree-Gazing Hill	76302
 1038517080	Erdtree-Gazing Hill	76302
-1038517090	Altar South	76252
 1038517400	Erdtree-Gazing Hill	76302
 1038527000	Seethewater River	76354
 1038527010	Seethewater River	76354
@@ -2183,7 +2179,6 @@ flag	grace_name	grace_key
 1039547350	Shaded Castle Inner Gate	76321
 1039570000	Shaded Castle Inner Gate	76321
 1040387000	Stormhill Shack	76102
-1040407000	Altar South	76252
 1040507000	Altus Highway Junction	76303
 1040517000	Rampartside Path	76305
 1040517010	Altus Highway Junction	76303
@@ -2204,10 +2199,8 @@ flag	grace_name	grace_key
 1040537040	Forest-Spanning Greatbridge	76304
 1040537050	Bower of Bounty	76306
 1040537060	Bower of Bounty	76306
-1040547000	Altar South	76252
 1040547010	Shaded Castle Ramparts	76320
 1040547030	Road of Iniquity Side Path	76307
-1040547050	Altar South	76252
 1040547090	Road of Iniquity Side Path	76307
 1040557000	Road of Iniquity Side Path	76307
 1041327000	Isolated Merchant's Shack	76156
@@ -2277,8 +2270,6 @@ flag	grace_name	grace_key
 1042367060	Church of Elleh	76100
 1042377000	Gatefront	76111
 1042377010	Limgrave Tunnels	73201
-1042377060	Isolated Merchant's Shack	76156
-1042377070	Isolated Merchant's Shack	76156
 1042377300	Gatefront	76111
 1042387000	Warmaster's Shack	76118
 1042387010	Gatefront	76111
@@ -2297,7 +2288,6 @@ flag	grace_name	grace_key
 1042387600	Warmaster's Shack	76118
 1042397010	Warmaster's Shack	76118
 1042397900	Warmaster's Shack	76118
-1042507000	Altar South	76252
 1042517000	Outer Wall Phantom Tree	76309
 1042517400	Outer Wall Phantom Tree	76309
 1042517410	Outer Wall Phantom Tree	76309
@@ -2421,7 +2411,6 @@ flag	grace_name	grace_key
 1044337080	Ailing Village Outskirts	76154
 1044337100	Ailing Village Outskirts	76154
 1044337200	South of the Lookout Tower	76153
-1044337210	Isolated Merchant's Shack	76156
 1044347000	Bridge of Sacrifice	76157
 1044347010	Bridge of Sacrifice	76157
 1044347040	South of the Lookout Tower	76153
@@ -2444,7 +2433,6 @@ flag	grace_name	grace_key
 1044367030	Waypoint Ruins Cellar	76120
 1044367040	Waypoint Ruins Cellar	76120
 1044367100	Waypoint Ruins Cellar	76120
-1044367200	Isolated Merchant's Shack	76156
 1044367300	Waypoint Ruins Cellar	76120
 1044367310	Waypoint Ruins Cellar	76120
 1044367320	Waypoint Ruins Cellar	76120
@@ -2499,7 +2487,6 @@ flag	grace_name	grace_key
 1045397110	Third Church of Marika	76104
 1045397120	Summonwater Village Outskirts	76119
 1045397140	Summonwater Village Outskirts	76119
-1045527000	Altar South	76252
 1045527010	Capital Rampart	76314
 1045527020	Capital Rampart	76314
 1045527030	Capital Rampart	76314
@@ -2550,7 +2537,6 @@ flag	grace_name	grace_key
 1047407080	Caelem Ruins	76403
 1047407900	Caelem Ruins	76403
 1047407910	Rotview Balcony	76401
-1047407920	Morne Moangrave	76161
 1047517000	Forbidden Lands	76500
 1047517010	Forbidden Lands	76500
 1047517300	Forbidden Lands	76500
@@ -2561,7 +2547,6 @@ flag	grace_name	grace_key
 1047557900	Yelough Anix Tunnel	73211
 1047567300	Yelough Anix Tunnel	73211
 1047567310	Yelough Anix Tunnel	73211
-1047567320	Altar South	76252
 1047567330	Yelough Anix Tunnel	73211
 1047577300	Apostate Derelict	76653
 1047577310	Apostate Derelict	76653
@@ -2594,7 +2579,6 @@ flag	grace_name	grace_key
 1048547840	Consecrated Snowfield	76550
 1048557300	Yelough Anix Tunnel	73211
 1048557600	Yelough Anix Tunnel	73211
-1048557900	Altar South	76252
 1048567300	Inner Consecrated Snowfield	76551
 1048577000	Ordina, Liturgical Town	76652
 1048577010	Ordina, Liturgical Town	76652
@@ -2653,7 +2637,6 @@ flag	grace_name	grace_key
 1049537900	Zamor Ruins	76501
 1049547300	Consecrated Snowfield	76550
 1049547310	Consecrated Snowfield	76550
-1049547900	Altar South	76252
 1049557300	Inner Consecrated Snowfield	76551
 1049557310	Consecrated Snowfield Catacombs	73019
 1049557320	Consecrated Snowfield Catacombs	73019

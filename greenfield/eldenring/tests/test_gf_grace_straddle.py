@@ -17,6 +17,13 @@ nearest-neighbour tile fallback, which never fails and therefore answered confid
 NOT EVERY STRADDLE IS A DEFECT, which is why this pins a COUNT rather than demanding zero:
   * MAP VERSIONS -- `Leyndell, Capital of Ash` legitimately exists in both Leyndell and Ashen Capital.
   * `nearest_grace` is itself a nearest-neighbour derivation, so the GRACE may be the wrong one.
+    This is not hypothetical and it was the single largest entry on this list: `Altar South` appeared
+    to span FOUR regions (Liurnia, Altus, Mt. Gelmir, Mountaintops of the Giants) because twelve
+    checks 8.7-10.4 KILOMETRES away had anchored to it -- the resolver had no distance cap, and a
+    nearest-neighbour with no cap never fails. Its four genuine checks are 59-201 m out and all
+    Liurnia. The regions were right; the grace was wrong. Capped in build_nearest_grace.py
+    (DEFAULT_MAX_DIST); 13 straddles' worth of noise left this screen with it. When a straddle looks
+    geographically impossible, suspect the GRACE first.
 Pinning the count is the honest middle: it cannot grow silently, and driving it down is real work
 rather than an allowlist. DO NOT "fix" a failure here by adding an exemption -- quarantining to go
 green is how the last one hid. Lower the number, then lower the pin.
@@ -29,8 +36,8 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 
 # Measured on main 2026-07-25, after (a) the Cave of Knowledge map fix and (b) grouping on the
 # grace's own KEY instead of its display name. A RATCHET, not a target: it may only ever go DOWN.
-MAX_STRADDLING_GRACES = 41
-MAX_MINORITY_CHECKS = 111
+MAX_STRADDLING_GRACES = 39
+MAX_MINORITY_CHECKS = 98
 
 
 def _nearest_grace(column=1):
