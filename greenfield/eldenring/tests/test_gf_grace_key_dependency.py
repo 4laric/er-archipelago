@@ -1,17 +1,18 @@
 """`nearest_grace.tsv` must keep its `grace_key` column -- gen_data now REGIONS checks with it.
 
-Since 2026-07-25 `gen_data._load_grace_play_region()` reads column 3 (the grace's own warpUnlockFlag)
-and uses it to region every overworld check whose nearest grace is known:
+The GRACE-STRADDLE SCREEN groups checks by the grace's own key, and `gen_data._load_grace_play_region()`
+reads the same column to report how many checks that oracle can actually see.
 
-    play_region = grace_region_map[nearest_grace.grace_key]      # metric NN, capped at 2000 m
-    ... falling back to the TILE only when that is absent, and to DEFAULTED when the tile is
-    unanchored (tile_pr_strict).
+⚠️ It is NOT used to region checks. That was tried (e14dfa7) and reverted: regioning a check by its
+own nearest grace makes the straddle screen circular -- the check can no longer disagree with the
+grace it was regioned by, so the oracle stops being able to find anything. The column is the
+ORACLE's input, not the derivation's.
 
-That makes the column load-bearing in a way it was not when it only fed a description string. If a
-regen with an older `build_nearest_grace.py` drops it, nothing errors: every overworld check silently
-falls back to the tile guess -- the exact 15%-wrong derivation this change exists to stop using --
-and the only symptom is regions quietly moving. gen_data prints a WARNING in that case; this test is
-the part that fails.
+That still makes it load-bearing. If a regen with an older `build_nearest_grace.py` drops it, nothing
+errors: the straddle screen falls back on... nothing, because `_straddles()` asserts the column is
+there -- and this test is the earlier, more legible failure. Seven grace display NAMES are shared by
+two physically distant graces, so a name-keyed join would group checks under the wrong grace and
+manufacture straddles that do not exist (2 of them, 4 phantom minority checks, measured).
 
 It is also why the column holds the KEY and not the display name: seven grace names are shared by two
 physically distant graces, so a name-keyed join would region checks by the wrong grace entirely (see

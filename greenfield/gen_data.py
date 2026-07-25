@@ -247,8 +247,12 @@ def _load_grace_play_region():
               f"re-emit it (tools/build_nearest_grace.py). Those checks fall back to the tile.")
     return _out
 
+# NOT WIRED INTO REGIONING ON PURPOSE -- see _region_of_raw. Kept because it is the join the
+# grace-straddle oracle needs, and printing the count is the arming log for that oracle's input:
+# a collapse here means the screen is running on fewer checks than it thinks.
 GRACE_PLAY_REGION = _load_grace_play_region()
-print(f"grace play_region: {len(GRACE_PLAY_REGION)} check(s) can be regioned from their nearest grace")
+print(f"grace play_region: {len(GRACE_PLAY_REGION)} check(s) resolvable from their nearest grace "
+      f"(oracle input; NOT used to region checks -- that would make the straddle screen circular)")
 # ---- play_region -> region: THE spine (region_groups.py, the single source) -----------------
 # tile_pr() above names an overworld tile's play_region; PLAY2AP names the region. It now covers
 # ALL 54 explorable buckets (overworld, legacy, underground, DLC), so a grace's own play_region id
@@ -395,13 +399,18 @@ def _overworld_tile_of(r):
 def _region_of_raw(r):
     reg=r['region']; meth=r['method']
     if reg.startswith('Overworld m60'):
-        # ORDER: the check's own nearest GRACE (metric, capped, no inference) beats the TILE (a
-        # 256 m square inferred from a neighbour), and an unanchored tile does not answer at all.
-        _pr = GRACE_PLAY_REGION.get(str(r.get('flag')))
-        if _pr is None:
-            t = _overworld_tile_of(r)
-            _pr = tile_pr_strict(*t) if t else None
-        return PLAY2AP.get(_pr, HUB)
+        # An UNANCHORED tile does not answer (tile_pr_strict -> None -> PLAY2AP miss -> HUB, and
+        # _region_is_derived reports DEFAULTED, which bars it from carrying progression).
+        #
+        # It deliberately does NOT consult the check's nearest grace, even though that is the finer
+        # derivation. The grace join is what the grace-straddle screen compares region assignment
+        # AGAINST; regioning checks by their own grace makes that oracle circular -- a check can no
+        # longer disagree with the grace it was regioned by, so the screen stops being able to find
+        # anything. The same reasoning is why region_of()'s MSB branch resolves through gen_data's
+        # own tables. (Tried grace-first in e14dfa7 and reverted here: it moved 86 checks and quietly
+        # cost the independence, which is a trade nobody had agreed to make.)
+        t = _overworld_tile_of(r)
+        return PLAY2AP.get(tile_pr_strict(*t) if t else None, HUB)
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
@@ -441,11 +450,8 @@ def _region_is_derived(r):
     if reg.startswith('Overworld m60'):
         # Mirrors _region_of_raw EXACTLY -- if these two ever disagree, a check is either barred from
         # progression while its region is known, or (far worse) allowed to carry it on a guess.
-        _pr = GRACE_PLAY_REGION.get(str(r.get('flag')))
-        if _pr is None:
-            t = _overworld_tile_of(r)          # flag-decode first; LOD-suffixed guesses return None
-            _pr = tile_pr_strict(*t) if t else None
-        return _pr in PLAY2AP
+        t = _overworld_tile_of(r)              # flag-decode first; LOD-suffixed guesses return None
+        return (tile_pr_strict(*t) if t else None) in PLAY2AP
     if meth=='shop_multi': return False
     return reg in REGION_MAP
 
