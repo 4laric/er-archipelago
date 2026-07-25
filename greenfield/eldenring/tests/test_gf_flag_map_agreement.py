@@ -31,9 +31,32 @@ All nine are Shadow of the Erdtree locations. m40-m43 are the DLC's small-dungeo
 base-game catacombs/caves/tunnels are m30/m31/m32. The "base-game dungeon number" reading was mine
 and it was wrong, and one grace-name lookup settled it. 9/9 corroborate dungeon_regions.tsv.
 
-Only the `map` column is corrected: DUNGEON_REGION_OVERRIDE is keyed on map id and wins over the
-coarse `region` bucket, so once the map is right the region derives itself. The coarse label is set
-to the one its map's sibling rows already use, and is inert for these maps.
+Only the `map` column is corrected. The coarse `region` label is set to the one that map's sibling
+rows already use.
+
+## CORRECTION, measured after the regen -- what that fix did NOT do
+
+The commit that made it claimed it "moves nine checks by fixing ONE wrong field", and predicted the
+straddle pins would fall again. **Both were wrong, and neither had been measured.** After the regen:
+all nine checks have the SAME region they had before (Gravesite, Rauh Base, Scadu Altus, Shadow Keep),
+and the straddle pins did not move (39 / 98 either way).
+
+The reason is in gen_data itself. For interior flag prefixes -- including 40/41/42/43 and 21 -- it
+ALREADY decodes the map from the flag and overwrites the row's `map` (`_rec = f"m{_fs[:2]}_{_fs[2:4]}
+_00_00"`, guarded on DUNGEON_REGION_OVERRIDE). So the wrong column never reached region resolution:
+region_map.csv said m18_00, gen_data quietly corrected it to m40_00, and the region was right the
+whole time.
+
+What the wrong column DID reach is the layer-4 DESCRIPTION, which reads the raw value. That is the
+real, verified effect: nine checks stopped being described by the tutorial cave. "Gravesite :: Anvil
+Hammer - around Cave of Knowledge" is now "around Ruined Forge Lava Intake".
+
+Which means this screen is NOT a region bug-finder. It is a consistency check between the committed
+input and the correction gen_data already applies in memory, and it protects the description layer,
+which has no such correction. Worth keeping and worth stating accurately -- a fix whose claimed
+mechanism is wrong is a comment that will mislead the next reader even though the diff was fine.
+That is the same "confident wrong answer" this file exists to catch, produced by the person writing
+the catcher.
 
 ONE disagreement remains, pinned: flag 10007452 encodes m10_00 (Stormveil) and region_map.csv files
 it under m11_10 (Roundtable Hold). m10_00 has no dungeon_regions entry, so the grace check that
