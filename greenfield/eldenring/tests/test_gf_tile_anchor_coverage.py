@@ -17,10 +17,21 @@ the reported Church of Pilgrimage bug (a Weeping Sacred Tear reading as Limgrave
 `Summonwater Village Outskirts`, whose SEVEN minority checks are on graceless tiles -- all seven.
 Measured 2026-07-25: 34 of the grace-straddle screen's 98 minority checks sit on graceless tiles.
 
-This file does not fix that. The fix is #192 -- re-emit `play_region_buckets.tsv` with RAW
-PlayRegionParam ids (the `// 100` bucket also collapses the game's own subdivision: Weeping 61002 and
-Limgrave 61000 are one bucket) and make the uncovered case DEFAULT LOUDLY instead of answering. That
-needs PlayRegionParam.csv, which is Windows-only.
+This file does not fix that. The fix is to make the uncovered case DEFAULT LOUDLY instead of
+answering -- give `tile_pr` a failure branch and bar a defaulted check from carrying progression.
+
+⚠️ CORRECTION 2026-07-25. An earlier version of this note said the fix also needed re-emitting
+`play_region_buckets.tsv` with RAW ids because "the `// 100` bucket collapses the game's own
+subdivision: Weeping 61002 and Limgrave 61000 are one bucket". **That was an ID-SPACE confusion and
+it is wrong.** 61002 is a BonfireWarpParam WARP id (18 graces carry it in grace_region_map.tsv), not
+a PlayRegionParam bucket. PlayRegionParam does subdivide -- 61000 / 61010 / 61020 are three distinct
+buckets, Weeping is 61020 -- and `region_groups.PLAY_REGION_GROUPS` has had all three, correctly
+assigned, since 2026-07-13. Nothing is collapsed and no re-emit is owed.
+
+The two tables in region_groups.py are deliberate and must not be conflated: `PLAY_REGION_GROUPS` is
+PlayRegionParam buckets (the client KICK), `REGION_GROUPS` is warp ids (PLAY2AP, which regions
+CHECKS). `tile_pr` and PLAY2AP both live in the WARP-id space, which is self-consistent -- the defect
+below is coverage, not id space.
 
 What this file does is make the exposure a NUMBER that cannot grow quietly. It needs no artifacts:
 both inputs are committed tsvs, and it recomputes ANCHOR exactly as gen_data does.

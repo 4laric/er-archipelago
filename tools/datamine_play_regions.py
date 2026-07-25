@@ -269,16 +269,47 @@ def current_groups():
     """{bucket: region} from THE spine, greenfield/region_groups.py -- imported by path (it imports
     nothing), exactly like tools/datamine_dungeon_regions.py does. The previous regex parser here
     produced two of this tool's five wrong answers (inside-out parse; quote-class truncation of
-    "Charo's"); importing the module makes that whole class unrepresentable."""
+    "Charo's"); importing the module makes that whole class unrepresentable.
+
+    ⚠️ IT MUST BE `PLAY_REGION_GROUPS`, NOT `REGION_GROUPS`. THEY ARE DIFFERENT ID SPACES.
+
+    This tool measures PlayRegionParam, whose ids//100 are the buckets the client's kick compares.
+    region_groups.py holds TWO tables, deliberately:
+
+      * `PLAY_REGION_GROUPS` -- PlayRegionParam buckets. THE ONE THIS TOOL SPEAKS. Drives the kick
+        geometry (`region_play_ids()` -> eldenring/region_play_ids.py -> areaLockFlags -> client).
+      * `REGION_GROUPS`      -- BonfireWarpParam.bonfireSubCategoryId WARP-menu ids. Drives PLAY2AP,
+        which regions CHECKS by joining grace_region_map.tsv. Same places, different numbers.
+
+    Until 2026-07-25 this read `REGION_GROUPS`, so it compared the warp-id table against the
+    PlayRegionParam universe and reported the mismatch as findings: "27 phantom, 89 missing, 2
+    mis-assigned". Every one of those 27 "phantoms" is a real, populated warp id -- 61002 alone
+    carries 18 graces in grace_region_map.tsv. And its `PROPOSED REGION_GROUPS` block invited pasting
+    PlayRegionParam buckets over the warp-id table, which would leave PLAY2AP matching almost nothing
+    and drop every overworld check to the HUB. That is the id-space catastrophe this repo's
+    CONTRIBUTING already documents, aimed at the other table.
+
+    `PLAY_REGION_GROUPS` has been complete and gated since 2026-07-13 (119 buckets + 15 explicitly
+    UNASSIGNED = the full 134), so pointed at the right table this tool reports a clean audit.
+    """
     rg = load_module(os.path.join(REPO, "greenfield", "region_groups.py"), "_gf_region_groups")
     cur = {}
-    for region, pids in rg.REGION_GROUPS.items():
+    for region, pids in rg.PLAY_REGION_GROUPS.items():
         for p in pids:
             if p in cur and cur[p] != region:
-                fail("REGION_GROUPS assigns bucket %d to both %r and %r." % (p, cur[p], region))
+                fail("PLAY_REGION_GROUPS assigns bucket %d to both %r and %r." % (p, cur[p], region))
             cur[int(p)] = region
     if not cur:
-        fail("REGION_GROUPS is empty.")
+        fail("PLAY_REGION_GROUPS is empty.")
+    # ID-SPACE GUARD. If a future edit points this back at REGION_GROUPS, the symptom is a flood of
+    # plausible-looking phantoms, which reads as a finding rather than a bug. Assert the shape
+    # instead: the warp-id table is ~54 buckets and overlaps the PlayRegionParam universe only on
+    # the base overworld, so a table that misses most of the universe is the wrong table.
+    if hasattr(rg, "REGION_GROUPS"):
+        warp = {int(p) for pids in rg.REGION_GROUPS.values() for p in pids}
+        if cur and warp and set(cur) == warp:
+            fail("this tool is reading the WARP-id table (REGION_GROUPS). It measures PlayRegionParam; "
+                 "see current_groups.__doc__.")
     return rg, cur
 
 
@@ -397,7 +428,7 @@ def main() -> int:
     if unattributed:
         print()
         print("== BUCKETS WITH NO ATTRIBUTABLE CHECK -- NEEDS A HUMAN ==")
-        print("   (real buckets the game HAS. Omitting one from REGION_GROUPS means the KICK has no")
+        print("   (real buckets the game HAS. Omitting one from PLAY_REGION_GROUPS means the KICK has no")
         print("    opinion there, i.e. that ground is silently PERMISSIVE. Assign each to a region")
         print("    or to region_groups.UNASSIGNED_BUCKETS with a reason.)")
         for b, kind, ts in unattributed:
@@ -428,7 +459,9 @@ def main() -> int:
              len(unattributed), len(bucketless)))
 
     print()
-    print("== PROPOSED REGION_GROUPS (measured; review before trusting) ==")
+    print("== PROPOSED PLAY_REGION_GROUPS (measured; review before trusting) ==")
+    print("   NOTE: this is the PlayRegionParam bucket table. Do NOT paste it over REGION_GROUPS --")
+    print("   that one is keyed by BonfireWarpParam warp ids and is a DIFFERENT id space.")
     by_region = collections.defaultdict(list)
     for b, (r, _n, _t) in derived.items():
         by_region[r].append(b)
