@@ -1,0 +1,26 @@
+# co_check_ids.tsv -- APPEND-ONLY ap_id registry for CO-CHECK sibling lots (SPEC-flag-lot-item-model §2.2).
+#
+# A shared getItemFlagId drives several ItemLotParam lots; each SIBLING lot (every family member
+# except the primary -- the lot the original region_map.csv row was named after, the family's
+# lowest) becomes its own co-firing check. Its ap_id comes from HERE, never from a positional
+# index: `ap_id = BASE_AP + row index` renumbers on any insertion (gen_data.py "APPENDED, never
+# inserted"), and even tail-appends shift when the appended set grows. Registry ids are allocated
+# once, in the reserved COCHECK band (>= 7900000; the positional band tops out ~7775300), and are
+# NEVER reused or re-derived. Delisting a co-check retires its row in place (comment it out with
+# the reason) -- the id stays burned.
+#
+# gen_data.py reads this file and PROJECTS a co-check location for every row whose flag is in
+# CO_CHECK_FLAGS (the allowlist beside ROW_ITEM_NAME_FIX's old slot); a regen that needs an id
+# not present here must fail loudly, never invent one. Keys must exist in flag_lots.tsv.
+#
+# Seeded 2026-07-24 with the four hand-verified shared-flag families (allocation order = sorted
+# (flag, table, lot) at seed time; later additions APPEND with the next free id):
+#   400696 lot 106931 -> Prayer Room Key   (primary 106930 = Ash of War: Flame Skewer)
+#   510440 lot  10441 -> Scadutree Fragment (primary 10440 = Aspects of the Crucible: Thorns)
+#   510460 lot  10461 -> Messmer's Kindling (primary 10460 = Remembrance of the Impaler)
+#   520160 lot  20161 -> Golden Seed        (primary 20160 = Redmane Knight Ogha ash)
+flag	table	lot	ap_id
+400696	map	106931	7900000
+510440	map	10441	7900001
+510460	map	10461	7900002
+520160	map	20161	7900003

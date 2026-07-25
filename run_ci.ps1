@@ -18,7 +18,7 @@
                   or -OnlyGreenfield to run just this gate)
     4. FUZZ   gen_fuzz.ps1  (random option combinations -> clean gen or
               OptionError). CRASH/HANG ALWAYS fail; FILLERROR is soft -- PASS iff no
-              CRASH/HANG AND >= -FuzzPassPct% SUCCESS+REJECT (default 80%).
+              CRASH/HANG AND >= -FuzzPassPct% SUCCESS+REJECT (default 100%).
     5. PURE   cargo test -p er-logic -p er-codec -p er-semver (Windows-free crates;
               default-on, -SkipPure to skip; consumes the fixture UNIT regenerates)
     6. CARGO  (opt-in, -Cargo) full cargo test in from-software-archipelago-clients
@@ -34,7 +34,7 @@
     .\run_ci.ps1 -SkipDiversity           # skip the num_regions diversity gate
     .\run_ci.ps1 -OnlyGreenfield          # run ONLY the greenfield gate (skip everything else)
     .\run_ci.ps1 -SkipGreenfield          # skip the greenfield world tests + gen gate
-    .\run_ci.ps1 -FuzzPassPct 100         # require a perfectly clean fuzz batch
+    .\run_ci.ps1 -FuzzPassPct 90          # allow a rougher batch (crashes still fail)
     .\run_ci.ps1 -Cargo                   # include Rust client tests
     .\run_ci.ps1 -FuzzSeed 12345 -GenSeed 987   # reproduce a CI fuzz failure
 
@@ -47,7 +47,10 @@ param(
     [long]   $FuzzSeed = 0,          # 0 = fresh (printed by gen_fuzz)
     [long]   $GenSeed = 0,           # 0 = fresh (printed by gen_fuzz)
     [int]    $FuzzTimeoutSec = 900,
-    [int]    $FuzzPassPct = 80,      # FUZZ step passes at >= this SUCCESS+REJECT rate (default 80%)
+    [int]    $FuzzPassPct = 100,     # FUZZ passes at >= this SUCCESS+REJECT rate. 100 since
+                                     # 2026-07-24 (Alaric): the greenfield world holds a clean
+                                     # batch; the matt-based world never did. A crash or
+                                     # FillError fails regardless of this number.
     [switch] $SkipUnit,
     [switch] $SkipZipGen,          # skip the zipped-apworld (custom_worlds) generation smoke
     [switch] $SkipFill,

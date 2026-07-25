@@ -521,7 +521,6 @@ LOCATION_TAGS = {
     7770714: ['Legendary'],
     7770716: ['Legendary'],
     7770745: ['Legendary'],
-    7770746: ['KeyItem'],
     7770752: ['Legendary'],
     7770753: ['Remembrance', 'MajorBoss'],
     7770754: ['Remembrance', 'MajorBoss'],
@@ -748,84 +747,83 @@ LOCATION_TAGS = {
     7773829: ['Boss'],
     7773836: ['Basin'],
     7773838: ['KeyItem'],
-    7773839: ['Seedtree'],
-    7773854: ['Legendary'],
-    7773875: ['Legendary'],
-    7773886: ['Boss'],
+    7773839: ['KeyItem'],
+    7773840: ['Seedtree'],
+    7773855: ['Legendary'],
+    7773876: ['Legendary'],
     7773887: ['Boss'],
-    7773888: ['MajorBoss'],
-    7773890: ['MajorBoss'],
-    7773891: ['Boss', 'MajorBoss'],
-    7773892: ['Seedtree'],
-    7773894: ['Boss'],
-    7773897: ['Boss', 'Fragment'],
-    7773900: ['MajorBoss'],
-    7773902: ['Legendary'],
-    7773904: ['Boss'],
-    7773916: ['Seedtree'],
-    7773918: ['Seedtree'],
-    7773920: ['Legendary'],
-    7773923: ['Legendary'],
-    7773934: ['Legendary'],
-    7773943: ['Boss'],
-    7773950: ['MajorBoss'],
-    7773952: ['Legendary'],
-    7773953: ['Boss'],
+    7773888: ['Boss'],
+    7773889: ['MajorBoss'],
+    7773891: ['MajorBoss'],
+    7773892: ['Boss', 'MajorBoss'],
+    7773893: ['Seedtree'],
+    7773895: ['Boss'],
+    7773898: ['Boss'],
+    7773901: ['MajorBoss'],
+    7773903: ['Legendary'],
+    7773905: ['Boss'],
+    7773919: ['Seedtree'],
+    7773921: ['Legendary'],
+    7773924: ['Legendary'],
+    7773935: ['Legendary'],
+    7773944: ['Boss'],
+    7773951: ['MajorBoss'],
+    7773953: ['Legendary'],
     7773954: ['Boss'],
     7773955: ['Boss'],
     7773956: ['Boss'],
     7773957: ['Boss'],
-    7773958: ['Legendary', 'MajorBoss'],
+    7773958: ['Boss'],
     7773959: ['Legendary', 'MajorBoss'],
-    7773960: ['Legendary'],
-    7773961: ['Boss'],
+    7773960: ['Legendary', 'MajorBoss'],
+    7773961: ['Legendary'],
     7773962: ['Boss'],
-    7773963: ['Boss', 'MajorBoss'],
-    7773964: ['Boss'],
+    7773963: ['Boss'],
+    7773964: ['Boss', 'MajorBoss'],
     7773965: ['Boss'],
-    7773967: ['Boss'],
+    7773966: ['Boss'],
     7773968: ['Boss'],
     7773969: ['Boss'],
-    7773976: ['Legendary'],
-    7774006: ['Seedtree'],
-    7774063: ['Legendary'],
-    7774074: ['Fragment'],
-    7774222: ['Church'],
-    7774247: ['Legendary'],
-    7774348: ['Seedtree'],
-    7774372: ['Seedtree'],
-    7774392: ['Legendary'],
-    7774408: ['Seedtree'],
-    7774467: ['Legendary'],
-    7774516: ['Seedtree'],
-    7774527: ['Seedtree'],
-    7774535: ['Legendary'],
-    7774567: ['Legendary'],
-    7774663: ['Boss'],
-    7774669: ['Boss'],
+    7773970: ['Boss'],
+    7773977: ['Legendary'],
+    7774007: ['Seedtree'],
+    7774064: ['Legendary'],
+    7774075: ['Fragment'],
+    7774223: ['Church'],
+    7774248: ['Legendary'],
+    7774349: ['Seedtree'],
+    7774373: ['Seedtree'],
+    7774393: ['Legendary'],
+    7774409: ['Seedtree'],
+    7774468: ['Legendary'],
+    7774517: ['Seedtree'],
+    7774528: ['Seedtree'],
+    7774536: ['Legendary'],
+    7774568: ['Legendary'],
+    7774664: ['Boss'],
     7774670: ['Boss'],
-    7774687: ['Boss'],
+    7774671: ['Boss'],
     7774688: ['Boss'],
-    7774689: ['Legendary'],
-    7774697: ['Seedtree'],
-    7774713: ['Boss'],
-    7774728: ['Seedtree'],
-    7774729: ['Legendary'],
-    7774744: ['Boss', 'Legendary'],
-    7774752: ['Seedtree'],
-    7774761: ['Fragment'],
+    7774689: ['Boss'],
+    7774690: ['Legendary'],
+    7774698: ['Seedtree'],
+    7774714: ['Boss'],
+    7774729: ['Seedtree'],
+    7774730: ['Legendary'],
+    7774745: ['Boss', 'Legendary'],
+    7774753: ['Seedtree'],
     7774762: ['Fragment'],
     7774763: ['Fragment'],
-    7774765: ['Fragment'],
+    7774764: ['Fragment'],
     7774766: ['Fragment'],
     7774767: ['Fragment'],
     7774768: ['Fragment'],
     7774769: ['Fragment'],
     7774770: ['Fragment'],
     7774771: ['Fragment'],
-    7774774: ['Fragment'],
-    7774777: ['Fragment'],
-    7774779: ['Fragment'],
+    7774772: ['Fragment'],
+    7774775: ['Fragment'],
+    7774778: ['Fragment'],
     7774780: ['Fragment'],
     7774781: ['Fragment'],
     7774782: ['Fragment'],
@@ -833,10 +831,10 @@ LOCATION_TAGS = {
     7774784: ['Fragment'],
     7774785: ['Fragment'],
     7774786: ['Fragment'],
-    7774788: ['Fragment'],
-    7774790: ['Fragment'],
+    7774787: ['Fragment'],
+    7774789: ['Fragment'],
     7774791: ['Fragment'],
-    7774792: ['Shop', 'ShopNonSpell'],
+    7774792: ['Fragment'],
     7774793: ['Shop', 'ShopNonSpell'],
     7774794: ['Shop', 'ShopNonSpell'],
     7774795: ['Shop', 'ShopNonSpell'],
@@ -871,8 +869,8 @@ LOCATION_TAGS = {
     7774824: ['Shop', 'ShopNonSpell'],
     7774825: ['Shop', 'ShopNonSpell'],
     7774826: ['Shop', 'ShopNonSpell'],
-    7774827: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
-    7774828: ['Shop', 'ShopNonSpell'],
+    7774827: ['Shop', 'ShopNonSpell'],
+    7774828: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7774829: ['Shop', 'ShopNonSpell'],
     7774830: ['Shop', 'ShopNonSpell'],
     7774831: ['Shop', 'ShopNonSpell'],
@@ -885,13 +883,17 @@ LOCATION_TAGS = {
     7774838: ['Shop', 'ShopNonSpell'],
     7774839: ['Shop', 'ShopNonSpell'],
     7774840: ['Shop', 'ShopNonSpell'],
+    7774841: ['Shop', 'ShopNonSpell'],
+    7900000: ['KeyItem'],
+    7900001: ['Boss', 'Fragment'],
+    7900003: ['Seedtree'],
 }
 
-TAG_COUNTS = {'Basin': 15, 'Boss': 94, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 14, 'Legendary': 93, 'MajorBoss': 37, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 527, 'ShopNonSpell': 457, 'ShopSlot': 16}
+TAG_COUNTS = {'Basin': 15, 'Boss': 95, 'Church': 13, 'EniaShop': 27, 'Fragment': 46, 'GreatRune': 6, 'KeyItem': 15, 'Legendary': 93, 'MajorBoss': 37, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 527, 'ShopNonSpell': 457, 'ShopSlot': 16}
 
 # Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.
 # A guessed region may not carry progression: see gen_data._region_is_derived().
-DEFAULTED_REGION_APS = frozenset([7770455, 7770457, 7770459, 7773839, 7773855, 7773951, 7773966, 7773974, 7773984, 7773985, 7774696, 7774806, 7774807, 7774808, 7774809, 7774810, 7774811, 7774812, 7774813, 7774814, 7774815, 7774816, 7774817, 7774818, 7774819, 7774820, 7774821, 7774822, 7774823, 7774824, 7774825, 7774826, 7774827, 7774828, 7774829, 7774830, 7774831, 7774832, 7774833, 7774834, 7774835, 7774836, 7774837, 7774838, 7774839, 7774840])
+DEFAULTED_REGION_APS = frozenset([7770455, 7770457, 7770459, 7773840, 7773856, 7773952, 7773967, 7773975, 7773985, 7773986, 7774697, 7774807, 7774808, 7774809, 7774810, 7774811, 7774812, 7774813, 7774814, 7774815, 7774816, 7774817, 7774818, 7774819, 7774820, 7774821, 7774822, 7774823, 7774824, 7774825, 7774826, 7774827, 7774828, 7774829, 7774830, 7774831, 7774832, 7774833, 7774834, 7774835, 7774836, 7774837, 7774838, 7774839, 7774840, 7774841])
 
 # m11_00 (normal Leyndell) -- DESTROYED when Maliketh dies (common.emevd $Event(900):
 # the Erdtree burns, Leyndell's graces 71100-71110 are switched OFF, and you are warped
@@ -899,12 +901,12 @@ DEFAULTED_REGION_APS = frozenset([7770455, 7770457, 7770459, 7773839, 7773855, 7
 # Leyndell is still sealed, so the player can burn it with these still uncollected.
 # They stay CHECKS (collect them before you burn and you keep them) but may never carry
 # PROGRESSION: a check the player can put permanently out of reach cannot be required.
-ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770868, 7770869, 7770899, 7771015, 7771016, 7771017, 7771018, 7771019, 7771020, 7771021, 7771022, 7771023, 7771024, 7771025, 7771026, 7771027, 7771028, 7771029, 7771030, 7771031, 7771032, 7771033, 7771034, 7771035, 7771036, 7771037, 7771038, 7771039, 7771040, 7771041, 7771042, 7771043, 7771044, 7771045, 7771046, 7771047, 7771048, 7771049, 7771050, 7771051, 7771052, 7771053, 7771054, 7771055, 7771056, 7771057, 7771058, 7771059, 7771060, 7771061, 7771062, 7771063, 7771064, 7771065, 7771066, 7771067, 7771068, 7771069, 7771070, 7771071, 7771072, 7771073, 7771074, 7771075, 7771076, 7771077, 7771078, 7771079, 7771080, 7771081, 7771082, 7771083, 7771084, 7771085, 7771086, 7771087, 7771088, 7771089, 7771090, 7771091, 7771092, 7771093, 7771094, 7771095, 7771096, 7771097, 7771098, 7771099, 7771100, 7771101, 7771102, 7771103, 7771104, 7771105, 7771106, 7771107, 7771108, 7771109, 7771110, 7771111, 7771112, 7771113, 7771114, 7771115, 7771116, 7771117, 7771118, 7771119, 7771120, 7771121, 7771122, 7771123, 7771124, 7771125, 7771126, 7771127, 7771128, 7771129, 7771130, 7771131, 7773991, 7773992, 7773993, 7773994, 7773995, 7773996, 7773997, 7773998, 7773999, 7774000, 7774001, 7774002, 7774003, 7774004, 7774005, 7774006, 7774007, 7774842])
+ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770868, 7770869, 7770899, 7771015, 7771016, 7771017, 7771018, 7771019, 7771020, 7771021, 7771022, 7771023, 7771024, 7771025, 7771026, 7771027, 7771028, 7771029, 7771030, 7771031, 7771032, 7771033, 7771034, 7771035, 7771036, 7771037, 7771038, 7771039, 7771040, 7771041, 7771042, 7771043, 7771044, 7771045, 7771046, 7771047, 7771048, 7771049, 7771050, 7771051, 7771052, 7771053, 7771054, 7771055, 7771056, 7771057, 7771058, 7771059, 7771060, 7771061, 7771062, 7771063, 7771064, 7771065, 7771066, 7771067, 7771068, 7771069, 7771070, 7771071, 7771072, 7771073, 7771074, 7771075, 7771076, 7771077, 7771078, 7771079, 7771080, 7771081, 7771082, 7771083, 7771084, 7771085, 7771086, 7771087, 7771088, 7771089, 7771090, 7771091, 7771092, 7771093, 7771094, 7771095, 7771096, 7771097, 7771098, 7771099, 7771100, 7771101, 7771102, 7771103, 7771104, 7771105, 7771106, 7771107, 7771108, 7771109, 7771110, 7771111, 7771112, 7771113, 7771114, 7771115, 7771116, 7771117, 7771118, 7771119, 7771120, 7771121, 7771122, 7771123, 7771124, 7771125, 7771126, 7771127, 7771128, 7771129, 7771130, 7771131, 7773992, 7773993, 7773994, 7773995, 7773996, 7773997, 7773998, 7773999, 7774000, 7774001, 7774002, 7774003, 7774004, 7774005, 7774006, 7774007, 7774008, 7774843])
 
 # Surface-tagged checks HAND-EXCLUDED from the progression surface (_SURFACE_EXCLUDE_FLAGS
 # in gen_data; Alaric's call). They stay ordinary checks but never host this world's
 # progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.
-SURFACE_EXCLUDE_APS = frozenset([7771881, 7771911, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7773884, 7774767, 7774790, 7774791])
+SURFACE_EXCLUDE_APS = frozenset([7771881, 7771911, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7773885, 7774768, 7774791, 7774792])
 
 # Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an
 # unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a
@@ -913,7 +915,7 @@ SURFACE_EXCLUDE_APS = frozenset([7771881, 7771911, 7772079, 7773360, 7773472, 77
 # when it appears, so these may never carry PROGRESSION. They remain CHECKS.
 # Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose
 # release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.
-SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025, 7770135, 7770207, 7770216, 7770217, 7770218, 7770219, 7770220, 7770221, 7770222, 7770232, 7770233, 7770243, 7770244, 7770245, 7770252, 7770258, 7770266, 7770267, 7770268, 7770269, 7770270, 7770271, 7770273, 7770275, 7770292, 7770293, 7770294, 7770295, 7770296, 7770297, 7770298, 7770299, 7770300, 7770301, 7770302, 7770303, 7770304, 7770305, 7770306, 7770307, 7770308, 7770309, 7770310, 7770311, 7770312, 7770315, 7770316, 7770317, 7770318, 7770319, 7770320, 7770322, 7770323, 7770324, 7770325, 7770326, 7770327, 7770328, 7770329, 7770330, 7770331, 7770332, 7770333, 7770334, 7770335, 7770336, 7770337, 7770338, 7770486, 7770487, 7770488, 7770489, 7770490, 7770491, 7770492, 7770493, 7770494, 7770495, 7770496, 7770497, 7770498, 7770499, 7770500, 7770501, 7770502, 7770503, 7770504, 7770505, 7770506, 7770507, 7770508, 7770509, 7770510, 7770511, 7770512, 7770513, 7770514, 7770515, 7770532, 7770533, 7770534, 7770535, 7770536, 7770537, 7770538, 7770539, 7770540, 7770541, 7770542, 7770543, 7770544, 7770545, 7770546, 7770547, 7770548, 7770549, 7770550, 7770551, 7770552, 7770553, 7770554, 7770610, 7770611, 7770612, 7770613, 7770619, 7770620, 7770621, 7770635, 7770636, 7770637, 7770638, 7770639, 7770640, 7770641, 7770642, 7770643, 7770644, 7770645, 7770646, 7770648, 7770649, 7770650, 7774794, 7774795, 7774806, 7774807, 7774808, 7774809, 7774810, 7774811, 7774812, 7774813, 7774814, 7774815, 7774816, 7774817, 7774818, 7774819, 7774820, 7774821, 7774822, 7774823, 7774824, 7774825, 7774826, 7774827, 7774828, 7774829, 7774830, 7774831, 7774832, 7774833, 7774834, 7774835, 7774836, 7774837, 7774838, 7774839, 7774840])
+SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025, 7770135, 7770207, 7770216, 7770217, 7770218, 7770219, 7770220, 7770221, 7770222, 7770232, 7770233, 7770243, 7770244, 7770245, 7770252, 7770258, 7770266, 7770267, 7770268, 7770269, 7770270, 7770271, 7770273, 7770275, 7770292, 7770293, 7770294, 7770295, 7770296, 7770297, 7770298, 7770299, 7770300, 7770301, 7770302, 7770303, 7770304, 7770305, 7770306, 7770307, 7770308, 7770309, 7770310, 7770311, 7770312, 7770315, 7770316, 7770317, 7770318, 7770319, 7770320, 7770322, 7770323, 7770324, 7770325, 7770326, 7770327, 7770328, 7770329, 7770330, 7770331, 7770332, 7770333, 7770334, 7770335, 7770336, 7770337, 7770338, 7770486, 7770487, 7770488, 7770489, 7770490, 7770491, 7770492, 7770493, 7770494, 7770495, 7770496, 7770497, 7770498, 7770499, 7770500, 7770501, 7770502, 7770503, 7770504, 7770505, 7770506, 7770507, 7770508, 7770509, 7770510, 7770511, 7770512, 7770513, 7770514, 7770515, 7770532, 7770533, 7770534, 7770535, 7770536, 7770537, 7770538, 7770539, 7770540, 7770541, 7770542, 7770543, 7770544, 7770545, 7770546, 7770547, 7770548, 7770549, 7770550, 7770551, 7770552, 7770553, 7770554, 7770610, 7770611, 7770612, 7770613, 7770619, 7770620, 7770621, 7770635, 7770636, 7770637, 7770638, 7770639, 7770640, 7770641, 7770642, 7770643, 7770644, 7770645, 7770646, 7770648, 7770649, 7770650, 7774795, 7774796, 7774807, 7774808, 7774809, 7774810, 7774811, 7774812, 7774813, 7774814, 7774815, 7774816, 7774817, 7774818, 7774819, 7774820, 7774821, 7774822, 7774823, 7774824, 7774825, 7774826, 7774827, 7774828, 7774829, 7774830, 7774831, 7774832, 7774833, 7774834, 7774835, 7774836, 7774837, 7774838, 7774839, 7774840, 7774841])
 
 # ShopSlot pins: MERCHANT (the NPC talk ESD id that calls OpenRegularShop, from
 # merchant_shops.tsv) -> the ONE ap id carrying the ShopSlot tag. Lowest ap among that
@@ -926,4 +928,4 @@ SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025,
 SHOP_SLOT_PINS = {'331006000': 7770695, '349006000': 7770249, '415006100': 7770622, '801136000': 7770185, '801146000': 7770050, '801176000': 7770136, '801186000': 7770088, '801196000': 7770073, '801206000': 7770131, '801216000': 7770097, '801226000': 7770431, '801236000': 7770061, '801256000': 7770066, '801271202': 7770090, '801281201': 7770102, '801291205': 7770478}
 SHOP_SLOT_SKIPS = {'302001000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302011000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302021000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302031000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302041000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302051000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '302061000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '309001600': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '309003100': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '309006000': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316006000': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316206000': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316211400': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '316301400': 'no exclusive ware: every one of its 13 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '319006000': "region MISMATCH: merchant stands in ['Caelid', 'Limgrave'] but its 2 candidate row(s) are filed ['Roundtable Hold'] -- a pin fill would believe is reachable early", '326001600': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '326006000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '326101600': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '419002200': 'no exclusive ware: every one of its 17 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '419006100': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '601006000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 3 of its slots are missable and none may carry progression', '601016000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 13 of its slots are missable and none may carry progression', '800001100': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800003500': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800006000': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800026000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800046000': 'no exclusive ware: every one of its 14 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801116000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801126000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801156000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801166000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801266000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 8 of its slots are missable and none may carry progression', '801516000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)'}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:fdf12fe4f33a14b7027f71eca95fc55368de4f239f58d97501ba2c250e2858e6', 'module': 'location_tags.py', 'body_sha256': 'sha256:8d095b971d16fa5c59d64b37b550a07ce527cdf3af19543d78910c9017a5b616'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ebcd9888c27c4757bda771e665cec9638e8d95efd87b28d790d843b26f075749', 'module': 'location_tags.py', 'body_sha256': 'sha256:1213bb2dbb14635d309740e199d0739ac93b2dc4bea4576037f2044f49d90ea8'}

@@ -60,6 +60,7 @@ ITEM_TIERS = {
     'Ash of War: Enchanted Shot': 0,
     'Ash of War: Endure': 2,
     'Ash of War: Eruption': 1,
+    'Ash of War: Flame Skewer': 0,
     'Ash of War: Flame of the Redmanes': 3,
     'Ash of War: Flaming Strike': 2,
     'Ash of War: Ghostflame Call': 1,
@@ -1290,6 +1291,7 @@ ITEM_TIER_CATEGORY = {
     'Ash of War: Enchanted Shot': 'ASHOFWAR',
     'Ash of War: Endure': 'ASHOFWAR',
     'Ash of War: Eruption': 'ASHOFWAR',
+    'Ash of War: Flame Skewer': 'ASHOFWAR',
     'Ash of War: Flame of the Redmanes': 'ASHOFWAR',
     'Ash of War: Flaming Strike': 'ASHOFWAR',
     'Ash of War: Ghostflame Call': 'ASHOFWAR',
@@ -2461,4 +2463,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:fdf12fe4f33a14b7027f71eca95fc55368de4f239f58d97501ba2c250e2858e6', 'module': 'item_tiers.py', 'body_sha256': 'sha256:cdd1bdc8dd2836b97a3a54d1d7629b010c43820987537428e7b6cd919d6d2b0f'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ebcd9888c27c4757bda771e665cec9638e8d95efd87b28d790d843b26f075749', 'module': 'item_tiers.py', 'body_sha256': 'sha256:fc42992f85f8786b2266d890ad8ee74562e43b429e63db33b8e36f171f8ee3e2'}

@@ -102,6 +102,17 @@ class BossSweepScoping(unittest.TestCase):
         raw = self.flag_map.get(self.ap_flag.get(ap, -1), "")
         if raw and raw != "PENDING":
             return raw
+        # OVERWORLD self-encoding, same family as the dungeon rule above: a 10-digit lot flag
+        # 10XXYYLLLL encodes tile m60_XX_YY. The late-recovered global/global_filler lots keep
+        # map=PENDING in region_map.csv (they were never PLACED by the scan), so without this the
+        # oracle cannot locate them at all -- and gen_data's field-sweep gate deliberately admits
+        # ONLY rows whose tile is derivable exactly this way, so any member it admits MUST be
+        # locatable here. Re-derived from the flag, never imported from gen_data: that is what keeps
+        # this oracle independent. A member the oracle still cannot place is a genuine failure --
+        # it means the generator claimed a tile from a private table (_BOSS_REWARD_TILE /
+        # _ENTITY_SUFFIX) that nobody outside gen_data can check.
+        if len(fs) == 10 and fs[:2] == "10":
+            return "m60_" + fs[2:4] + "_" + fs[4:6] + "_00"
         return raw
 
     def _members_by_class(self, cls_name):
@@ -184,6 +195,29 @@ class BossSweepScoping(unittest.TestCase):
                     bad.append((ent, ap, "sweep=" + str(reg), "loc=" + str(self.ap_region.get(ap))))
         self.assertEqual(bad, [], str(len(bad)) + " sweep member(s) whose location region != the sweep's "
                          "region (cross-region leak). Sample: " + repr(bad[:5]))
+
+    def test_summonwater_killsite_checks_are_swept(self):
+        """The 2026-07-24 "killed the Tibia Mariner, no boss sweep" report. The checks physically AT
+        a field boss's kill site are the late-recovered global/global_filler lots (map=PENDING); they
+        were invisible to every sweep pass, so felling the boss granted only far-side treasure rows
+        and read in-game as nothing happening. Summonwater Village is the reported case: the twelve
+        m60_45_39 lots below (flags 1045397000-1045397140, self-encoded tile) must each belong to a
+        field sweep. Absence is the bug -- and absence is invisible unless something goes looking."""
+        in_field = set()
+        for _ent, _info, members in self._members_by_class("field"):
+            in_field.update(members)
+        # Candidates = locations on that tile that a FIELD sweep is allowed to grant (filler-only:
+        # an important-tagged check is excluded by design, so it is not evidence of the bug).
+        cands = [ap for ap, flag in self.ap_flag.items()
+                 if 1045397000 <= flag <= 1045397140
+                 and not (FIELD_EXCLUDE & set(self.lt.get(ap, ())))]
+        self.assertTrue(cands, "no Summonwater m60_45_39 lots in data.py at all -- the recovery that "
+                        "produced them regressed upstream of the sweep pass (empty is a FAILURE, "
+                        "not a clean run)")
+        missing = sorted(ap for ap in cands if ap not in in_field)
+        self.assertEqual(missing, [], str(len(missing)) + " of " + str(len(cands)) + " Summonwater "
+                         "kill-site check(s) belong to NO field sweep -- the recovered-global "
+                         "admission gate regressed. Sample: " + repr(missing[:5]))
 
     def test_recovered_catacombs_have_members(self):
         """The 9 catacombs whose checks were unplaced (flag_prefix/PENDING) must sweep them after the

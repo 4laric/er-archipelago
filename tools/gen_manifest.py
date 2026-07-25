@@ -47,6 +47,10 @@ FILE_INPUTS = [
                                                   # boss-reward table would not invalidate the stamp
     "greenfield/grace_flags.tsv",                  # DERIVED + TRACKED (was artifacts-only; a
     "greenfield/grace_region_map.tsv",             # git clean -xdf deleted both, no copy existed)
+    "greenfield/flag_lots.tsv",                    # faithful flag->lots capture (co-check families;
+                                                   # tools/datamine_flag_lots.py -- SPEC-flag-lot-item-model)
+    "greenfield/co_check_ids.tsv",                 # append-only co-check ap_id registry; a hand-edited
+                                                   # or stale registry must invalidate the stamp
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",
 ]

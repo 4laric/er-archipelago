@@ -483,8 +483,14 @@ def classify(world, item) -> None:
     """Juice is intentional USEFUL gear. Some catalog gear (notably spells/incantations) carries the
     GOODS FullID nibble, so core._classify_full defaults it to `filler`. There is no second pass left
     to seize it any more, but AP's fill treats useful and filler differently and juice is meant to be
-    the former."""
-    if item.name in _JUICE_NAMES:
+    the former.
+
+    EXCEPTION: natural_progression uses some juice-tier WEAPONS as region GATE KEYS (e.g.
+    Dragon-Hunter's Great Katana gates Jagged Peak; Magma Wyrm's Scalesword / Inquisitor's Girandole
+    gate Altus). core._class_for marks those PROGRESSION (world.gf_natural_keys) and they MUST stay
+    progression -- demoting a gate key to `useful` makes has()/fill blind to it and strands its region
+    (all_state can't reach Jagged Peak; fill can strand the seed). Never demote a designated key."""
+    if item.name in _JUICE_NAMES and item.name not in getattr(world, "gf_natural_keys", ()):
         item.classification = ItemClassification.useful
 
 

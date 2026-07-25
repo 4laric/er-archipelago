@@ -41,11 +41,18 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4848   # 4833 (post synthetic-award-guard regen) + 10 finale (the
-                                  # conditional Ashen Capital, 2026-07-14) + 7 gesture pickups --
-                                  # every new location covered; the gate stayed at ZERO violations
+BASELINE_TOTAL_LOCATIONS = 4853   # 4848 + 5 (co-check regen 2026-07-24, SPEC-flag-lot-item-model):
+                                  # +4 co-check sibling lots (ap 7900000-7900003: Prayer Room Key,
+                                  # Scadutree Fragment @ Hippo, Messmer's Kindling @ Messmer, Golden
+                                  # Seed) -- each a shared getItemFlagId's ride-along lot now its own
+                                  # co-firing check -- plus +1 positional location the same regen
+                                  # surfaced (ap 7774848, flag 60864, "O Mother" @ Scadu Altus). Every
+                                  # new location covered; detection/award/region/suppression stayed at
+                                  # ZERO violations. Prior lineage: 4833 (synthetic-award-guard regen)
+                                  # + 10 finale (Ashen Capital, 2026-07-14) + 7 gesture pickups = 4848.
 BASELINE_SHOP_CHECKS = 561   # 562 -> 561 (2026-07-18): the shop-region/ShopSlot pass reclassified one
-                             # merchant check off the shop_stock_flag channel; total pool unchanged (4848)
+                             # merchant check off the shop_stock_flag channel; unchanged by the co-check
+                             # regen (the 5 new locations are key-item/collectible checks, not shop rows)
 # EMPTY, and it must stay that way. ap_id -> region (so scoped runs can subset).
 #
 # This held the 6 suppression holes the gate found on debut -- Glintstone Scrap, Gravel Stone, and four
