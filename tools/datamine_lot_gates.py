@@ -244,9 +244,56 @@ def _common_lot_params():
     for eid, body in _events(text):
         m = EVENT_RE.search(text[text.index(body):text.index(body) + 400])
         params = [p.strip() for p in (m.group(2) if m else "").split(",") if p.strip()]
-        if "itemLotId" not in params or "AwardItemLot" not in body:
+        if "AwardItemLot" not in body:
             continue
-        out[eid] = params.index("itemLotId")
+        # SUBSTRING, not equality. Exact `itemLotId` matched exactly ONE common event on the real
+        # corpus while the vocab dump plainly showed several `AwardItemLot(itemLotId)` sites -- the
+        # decompiler decorates some param names (X0_4_itemLotId and friends). Matching the whole name
+        # was a guess about the decompiler's style dressed as a key.
+        idx = next((i for i, q in enumerate(params) if "itemlotid" in q.lower()), None)
+        if idx is None:
+            # Last resort: the event awards a lot from SOME param and we cannot tell which. Reported,
+            # never guessed -- picking one would fabricate a check->gate edge.
+            if re.search(r"AwardItemLot\s*\(\s*[A-Za-z_]", body):
+                out.setdefault("_unnamed", set()).add(eid)
+            continue
+        out[eid] = idx
+    return out
+
+
+def _treasure_lots():
+    """{treasure lot id -> {check flags}} from the committed greenfield/msb_flag_region.tsv.
+
+    `EnableAssetTreasure(assetEntityId)` names an ASSET, and the first pass reported 186 of them
+    unresolved -- the single largest untapped population, and the one holding the class this tool was
+    built for (f67050, the Stormhill Shack cookbook, is a treasure). Resolving asset -> lot was
+    assumed to need the MSB.
+
+    It may not: msb_flag_region.tsv already carries `flag -> item_lot_id` for every treasure, and ER
+    treasure asset entity ids and lot ids share a numbering (f67050 -> lot 1040390000). So this tries
+    the direct join and the caller PRINTS THE MATCH RATE. A low rate means the numbering assumption is
+    wrong and the MSB really is needed -- which is a measurement, not a hunch, and costs one run."""
+    import csv
+    path = os.path.join(GF, "msb_flag_region.tsv")
+    if not os.path.isfile(path):
+        return {}
+    out = {}
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        # SKIP THE COMMENT PREAMBLE FIRST. csv.DictReader takes the FIRST line as the header, and this
+        # file opens with `# maps=all sources=...` -- so reading it raw makes every field name wrong,
+        # every lookup a KeyError, and the whole join silently EMPTY. The smoke test caught it as
+        # "treasure lot 1040390000 -> None" on a row that is plainly in the file. An empty join here
+        # would have looked exactly like "the asset-id numbering assumption is wrong, we need the
+        # MSB after all" -- a wrong conclusion, reached confidently, from a parsing bug.
+        rows = (ln for ln in fh if not ln.lstrip().startswith("#"))
+        for r in csv.DictReader(rows, delimiter="\t"):
+            try:
+                out.setdefault(int(r["item_lot_id"]), set()).add(int(r["flag"]))
+            except (KeyError, TypeError, ValueError):
+                continue
+    if not out:
+        sys.exit("FATAL: msb_flag_region.tsv parsed to ZERO lot->flag rows -- refusing to report "
+                 "every treasure as unresolved on the strength of a broken join.")
     return out
 
 
@@ -255,9 +302,12 @@ def emit(dry):
     check_flags = _check_flags()
     lot_to_flag = _lot_to_flag()
     common_lots = _common_lot_params()
-    print("common events awarding an itemLotId param: %d" % len(common_lots))
+    unnamed = common_lots.pop("_unnamed", set())
+    print("common events awarding an itemLotId param: %d (%d more award from a param this cannot "
+          "name -- reported, not guessed)" % (len(common_lots), len(unnamed)))
+    treasure_lots = _treasure_lots()
     rows = []
-    ev_total = tested = awards = treasure_unresolved = 0
+    ev_total = tested = awards = treasure_unresolved = treasure_hits = 0
     ctx_hist = collections.Counter()
     for path in files:
         src = os.path.basename(path)
@@ -292,7 +342,17 @@ def emit(dry):
                     continue
                 awards += 1
                 awarded |= {f for f in lot_to_flag.get(int(args[idx]), ()) if f in check_flags}
-            treasure_unresolved += len(TREASURE_RE.findall(body))
+            for m in TREASURE_RE.finditer(body):
+                arg = m.group(2)
+                if not arg.lstrip("-").isdigit():
+                    treasure_unresolved += 1
+                    continue
+                hit = treasure_lots.get(int(arg))
+                if hit:
+                    treasure_hits += 1
+                    awarded |= {f for f in hit if f in check_flags}
+                else:
+                    treasure_unresolved += 1
             for cf in sorted(awarded):
                 for gf, ctx, ev in gates:
                     if gf == cf:
@@ -300,8 +360,8 @@ def emit(dry):
                     rows.append((cf, gf, ctx, eid, src,
                                  " ".join(ev.split())[:120]))
     print("scanned %d file(s), %d event(s); %d flag test(s), %d AwardItemLot call(s), "
-          "%d treasure call(s) UNRESOLVED (asset->lot needs the MSB); %d pair(s)"
-          % (len(files), ev_total, tested, awards, treasure_unresolved, len(rows)))
+          "%d treasure call(s) RESOLVED via msb_flag_region, %d still unresolved; %d pair(s)"
+          % (len(files), ev_total, tested, awards, treasure_hits, treasure_unresolved, len(rows)))
     print("flag-test CONTEXTS (polarity is assigned per context in triage, never guessed here):")
     for ctx, n in ctx_hist.most_common(12):
         print("   %8d  %s" % (n, ctx))
