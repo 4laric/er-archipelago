@@ -100,6 +100,8 @@ FLAG_SET_RE = re.compile(r"\b(SetEventFlagID|SetNetworkconnectedEventFlagID|Batc
 # most awards go through common events with an `itemLotId` PARAM, which this pass does not resolve
 # (datamine_boss_drops.py does that join and is the model if it turns out to matter).
 AWARD_LOT_RE = re.compile(r"\bAwardItemLot\s*\(\s*(\d+)\s*\)")
+# `$InitializeCommonEvent(<slot>, <commonEventId>, <args...>)` -- the indirection most awards take.
+COMMON_CALL_RE = re.compile(r"\$InitializeCommonEvent\(\s*\d+\s*,\s*(\d+)\s*,\s*([^)]*)\)")
 # CONFIRMED: treasure is enabled by ASSET ENTITY id, not by lot or flag. Resolving asset -> lot needs
 # the MSB, which this tool does not read, so these are recorded as UNRESOLVED rather than guessed.
 TREASURE_RE = re.compile(r"\b(EnableAssetTreasure|DisableAssetTreasure|ForceCharacterTreasure)"
@@ -205,20 +207,55 @@ def _context(body, pos):
     is assigned once, per construct, during triage. Inventing it here is how a false gate -- an
     unwinnable seed -- gets written into a table that looks derived.
     """
-    left = body[max(0, pos - 60):pos]
-    m = re.findall(r"([A-Za-z_]\w*)\s*\(\s*$|([A-Za-z_]\w*)\s*\(\s*!\s*$", left)
+    # Walk out to the OUTERMOST unclosed construct, not the nearest call. The first version took the
+    # last identifier before the paren, which on `WaitFor(ElapsedSeconds(2) && EventFlag(7608))`
+    # answered `ElapsedSeconds` -- a sibling argument, not the thing that decides the polarity. It
+    # also read from a fixed 60-char window and so reported truncated identifiers (`racterTeamType`).
+    # Both were visible in the first real run; neither was wrong enough to notice without the output.
+    stmt = body.rfind(";", 0, pos) + 1
+    nl = body.rfind("\n", 0, pos) + 1
+    left = body[max(stmt, nl):pos]
     neg = bool(re.search(r"!\s*$", left))
-    name = ""
-    m2 = re.findall(r"([A-Za-z_]\w*)\s*\(", left)
-    if m2:
-        name = m2[-1]
+    depth, name = 0, ""
+    for m in re.finditer(r"([A-Za-z_]\w*)?\s*([()])", left):
+        if m.group(2) == "(":
+            if depth == 0 and m.group(1):
+                name = m.group(1)          # outermost open construct on this statement
+            depth += 1
+        else:
+            depth = max(0, depth - 1)
     return ("!" if neg else "") + (name or "?")
+
+
+def _common_lot_params():
+    """{commonEventId: itemLotId arg index} from common_func.
+
+    Only 26 sites call `AwardItemLot(<literal>)`. The rest route through a common event that takes an
+    `itemLotId` PARAM, so without this join the scan sees a fraction of the awards in the game -- the
+    first real run returned 45 pairs, which is not a finding, it is a sample. Same parse
+    tools/datamine_boss_drops.py already uses for boss handlers, so the shape is known-good rather
+    than another guess."""
+    path = os.path.join(EVT, "common_func.emevd.dcx.js")
+    if not os.path.isfile(path):
+        print("  (no common_func.emevd.dcx.js -- literal AwardItemLot sites only)", file=sys.stderr)
+        return {}
+    text = open(path, encoding="utf-8", errors="replace").read()
+    out = {}
+    for eid, body in _events(text):
+        m = EVENT_RE.search(text[text.index(body):text.index(body) + 400])
+        params = [p.strip() for p in (m.group(2) if m else "").split(",") if p.strip()]
+        if "itemLotId" not in params or "AwardItemLot" not in body:
+            continue
+        out[eid] = params.index("itemLotId")
+    return out
 
 
 def emit(dry):
     files = _sources()
     check_flags = _check_flags()
     lot_to_flag = _lot_to_flag()
+    common_lots = _common_lot_params()
+    print("common events awarding an itemLotId param: %d" % len(common_lots))
     rows = []
     ev_total = tested = awards = treasure_unresolved = 0
     ctx_hist = collections.Counter()
@@ -246,6 +283,15 @@ def emit(dry):
             for m in AWARD_LOT_RE.finditer(body):
                 awards += 1
                 awarded |= {f for f in lot_to_flag.get(int(m.group(1)), ()) if f in check_flags}
+            for m in COMMON_CALL_RE.finditer(body):
+                idx = common_lots.get(int(m.group(1)))
+                if idx is None:
+                    continue
+                args = [a.strip() for a in m.group(2).split(",")]
+                if idx >= len(args) or not args[idx].lstrip("-").isdigit():
+                    continue
+                awards += 1
+                awarded |= {f for f in lot_to_flag.get(int(args[idx]), ()) if f in check_flags}
             treasure_unresolved += len(TREASURE_RE.findall(body))
             for cf in sorted(awarded):
                 for gf, ctx, ev in gates:
