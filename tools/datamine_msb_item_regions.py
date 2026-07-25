@@ -205,49 +205,74 @@ def probe(msb_dir):
 ASSETS_OUT = os.path.join(REPO, "greenfield", "treasure_assets.tsv")
 
 
-def _asset_entities(msb_dir):
-    """{part name -> EntityID} for every Asset part in one map.
+def _asset_entity(msb_dir, part_name, stats):
+    """EntityID for ONE Asset part, by FILENAME first.
 
-    Layout MEASURED, not guessed (Alaric's --probe on m60_40_39, 2026-07-25): the directory is
-    `Part/Asset` -- SINGULAR `Part` -- with 174 files in that one map. I guessed `Parts/Asset` and
-    then `Parts/` before printing the tree, and both were confidently empty.
+    The full-scan version parsed every Asset XML in every map -- 174 files in m60_40_39 alone, across
+    ~300 maps -- to find the one or two parts a map's treasures actually reference. That is tens of
+    thousands of parses to answer a handful of questions, and from the outside it is indistinguishable
+    from a hang (Alaric, 2026-07-25).
+
+    Witchy names each part file after its `<Name>`, so the part is normally one direct open. The scan
+    stays as a FALLBACK for maps that break that convention, and `stats` counts how often it fires --
+    if it is common the assumption is wrong and the log says so rather than just being slow.
     """
-    out = {}
     adir = os.path.join(msb_dir, "Part", "Asset")
+    direct = os.path.join(adir, part_name + ".xml")
+    if os.path.isfile(direct):
+        try:
+            r = ET.parse(direct).getroot()
+            ent = (r.findtext("EntityID") or "").strip()
+            if ent.lstrip("-").isdigit() and int(ent) > 0:
+                stats["direct"] += 1
+                return int(ent)
+            stats["no_entity"] += 1
+            return None
+        except (ET.ParseError, OSError):
+            pass
+    stats["scanned"] += 1
     for f in glob.glob(os.path.join(adir, "*.xml")):
         try:
             r = ET.parse(f).getroot()
         except (ET.ParseError, OSError):
             continue
-        nm = (r.findtext("Name") or "").strip()
+        if (r.findtext("Name") or "").strip() != part_name:
+            continue
         ent = (r.findtext("EntityID") or "").strip()
-        if nm and ent.lstrip("-").isdigit() and int(ent) > 0:
-            out[nm] = int(ent)
-    return out
+        if ent.lstrip("-").isdigit() and int(ent) > 0:
+            return int(ent)
+        stats["no_entity"] += 1
+        return None
+    stats["missing_part"] += 1
+    return None
 
 
 def build_treasure_assets(only_maps=None):
     """flag -> (item_lot_id, asset entity id), the join `EnableAssetTreasure(assetEntityId)` needs.
 
-    THE CHAIN, every link now observed rather than assumed:
+    THE CHAIN, every link observed rather than assumed:
         Treasure event   <TreasurePartName> AEG099_610_9000   <ItemLotID> 1040390000
-        Part/Asset/*     <Name> AEG099_610_9000               <EntityID> ?
+        Part/Asset/*     <Name> AEG099_610_9000               <EntityID> ...
         ItemLotParam     lot 1040390000                       -> check flag 67050
 
     datamine_lot_gates.py reported 186 `EnableAssetTreasure` sites it could not resolve -- the largest
-    population it cannot see, and the one holding f67050 (the Stormhill Shack cookbook, the case that
-    started this). Two shortcuts were tried and both measured dead: asset ids do not share the lot
-    numbering (0 of 186), and `StartDisabled` does not mark the gated pickups (m60_40_39's only
-    treasure IS the cookbook and it starts ENABLED). So the real join it is.
+    population it cannot see, and the one holding f67050 (the Stormhill Shack cookbook). Two shortcuts
+    were measured dead first: asset ids do not share the lot numbering (0 of 186), and `StartDisabled`
+    does not mark the gated pickups (m60_40_39's only treasure IS the cookbook and starts ENABLED).
+
+    Prints per-map progress: this walks every unpacked MSB, and silence for minutes is
+    indistinguishable from a hang.
     """
     lot_map = _lot2flags("ItemLotParam_map.csv")
-    rows, maps, no_entity = [], 0, 0
+    rows, maps = [], 0
+    stats = {"direct": 0, "scanned": 0, "no_entity": 0, "missing_part": 0, "treasures": 0}
     roots = [os.path.join(ART, "mapstudio"), ART]
-    for map_id, msb_dir in _iter_msb_dirs(roots):
-        if only_maps and map_id not in only_maps:
-            continue
+    dirs = [(m, d) for m, d in _iter_msb_dirs(roots) if not only_maps or m in only_maps]
+    total = len(dirs)
+    print("treasure assets: %d map(s) to scan" % total, file=sys.stderr, flush=True)
+    for i, (map_id, msb_dir) in enumerate(dirs, start=1):
         maps += 1
-        ents = _asset_entities(msb_dir)
+        found = 0
         for f in glob.glob(os.path.join(msb_dir, "Event", "Treasure", "*.xml")):
             try:
                 r = ET.parse(f).getroot()
@@ -255,20 +280,25 @@ def build_treasure_assets(only_maps=None):
                 continue
             lid = (r.findtext("ItemLotID") or "").strip()
             part = (r.findtext("TreasurePartName") or "").strip()
-            if not lid.isdigit() or int(lid) <= 0:
+            if not lid.isdigit() or int(lid) <= 0 or not part:
                 continue
-            ent = ents.get(part)
+            stats["treasures"] += 1
+            ent = _asset_entity(msb_dir, part, stats)
             if ent is None:
-                no_entity += 1
                 continue
             for flag in lot_map.get(int(lid), ()):
                 rows.append((flag, int(lid), ent, map_id, part))
-    print("treasure assets: %d map(s), %d row(s); %d treasure(s) whose part had no EntityID"
-          % (maps, len(rows), no_entity), file=sys.stderr)
+                found += 1
+        print("  [%4d/%4d] %-20s %d row(s)  (running total %d)"
+              % (i, total, map_id, found, len(rows)), file=sys.stderr, flush=True)
+    print("treasure assets: %d map(s), %d treasure(s), %d row(s); part lookups: %d direct, "
+          "%d needed a full scan; %d part(s) had no EntityID, %d part(s) not found"
+          % (maps, stats["treasures"], len(rows), stats["direct"], stats["scanned"],
+             stats["no_entity"], stats["missing_part"]), file=sys.stderr, flush=True)
     if maps and not rows:
         sys.exit("FATAL: %d map(s) scanned and ZERO asset entities resolved. Either Part/Asset has no "
-                 "<EntityID>, or TreasurePartName does not match <Name>. Re-run --probe and write the "
-                 "lookup against what it prints -- do NOT ship an empty join." % maps)
+                 "<EntityID>, or TreasurePartName does not match the part. Re-run --probe and write "
+                 "the lookup against what it prints -- do NOT ship an empty join." % maps)
     return sorted(set(rows))
 
 
