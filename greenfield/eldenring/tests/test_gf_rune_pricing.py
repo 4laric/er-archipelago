@@ -34,12 +34,34 @@ class RuneNameTests(WorldTestBase):
                   "Rune Factory", "", None):
             self.assertFalse(rp.is_rune_item(n), repr(n))
 
+    def test_the_payout_ladder_is_what_worth_means(self):
+        """The load-bearing assumption, pinned: GOODS_PRICE is a MERCHANT price and a rune's is a 10x
+        markup over its payout, so the roll must be relative to `GOODS_PRICE // 10`.
+
+        Priced off the raw GOODS_PRICE, a Golden Rune [10] -- 5000 runes -- cost up to 125000 (Alaric,
+        playtest 2026-07-25). This asserts the divisor against the published payout ladder, so if
+        gen_data's price derivation ever changes, this fails loudly instead of silently repricing
+        every rune slot by 10x."""
+        ladder = [200, 400, 800, 1200, 1600, 2000, 2500, 3000, 3800, 5000, 6250, 7500, 10000]
+        seen = 0
+        for i, want in enumerate(ladder, start=1):
+            full = ITEM_CATALOG.get("Golden Rune [%d]" % i)
+            if full is None:
+                continue
+            seen += 1
+            self.assertEqual(
+                rp.rune_worth(full), want,
+                "Golden Rune [%d] worth %r, expected its %d-rune payout. GOODS_PRICE // %d no longer "
+                "reproduces the ladder -- the markup assumption has broken."
+                % (i, rp.rune_worth(full), want, rp.GOODS_PRICE_MARKUP))
+        self.assertGreaterEqual(seen, 10, "the Golden Rune ladder is missing from the catalog")
+
     def test_the_runes_are_actually_priceable(self):
         """The roll needs GOODS_PRICE to know the rune's worth. If the catalog and the price table
         stop overlapping this feature silently does nothing, so assert the join instead."""
         runes = [n for n in ITEM_CATALOG if rp.is_rune_item(n)]
         self.assertGreater(len(runes), 5, "no rune items in the catalog -- the join has drifted")
-        priced = [n for n in runes if GOODS_PRICE.get(ITEM_CATALOG[n] & _ROW_MASK)]
+        priced = [n for n in runes if rp.rune_worth(ITEM_CATALOG[n])]
         self.assertGreater(
             len(priced), 5,
             "rune items exist but none has a derived worth in GOODS_PRICE, so every roll would be "
@@ -80,8 +102,8 @@ class RunePricingRolls(WorldTestBase):
 
     def _a_rune(self):
         for n in sorted(ITEM_CATALOG):
-            if rp.is_rune_item(n) and GOODS_PRICE.get(ITEM_CATALOG[n] & _ROW_MASK):
-                return n, GOODS_PRICE[ITEM_CATALOG[n] & _ROW_MASK]
+            if rp.is_rune_item(n) and rp.rune_worth(ITEM_CATALOG[n]):
+                return n, rp.rune_worth(ITEM_CATALOG[n])
         self.skipTest("no priceable rune in the catalog")
 
     def test_a_rune_reward_reprices_every_row_of_its_slot(self):

@@ -53,6 +53,30 @@ _RUNE_RE = re.compile(r"^(?:Golden|Hero's|Lord's|Numen's) Rune(?: \[\d+\])?$")
 # The roll is [0, PRICE_MULT x worth]. 2 = "up to double", Alaric 2026-07-25.
 PRICE_MULT = 2
 
+# ⭐ WORTH IS THE PAYOUT, NOT THE SHOP PRICE. GOODS_PRICE is what a MERCHANT charges, and for runes
+# that is a 10x markup over what the rune actually gives you. Priced off it, a Golden Rune [10] --
+# 5000 runes in your pocket -- cost up to 125000, which is not a gamble, it is the same
+# never-press-it slot in a new hat. (Alaric, playtest 2026-07-25: "rune prices are too high" --
+# 34191, 78140, 192430 on screen.)
+#
+# The 10x is DERIVED, not assumed. GOODS_PRICE // 10 reproduces the entire published Golden Rune
+# payout ladder exactly -- 200, 400, 800, 1200, 1600, 2000, 2500, 3000, 3800, 5000, 6250, 7500,
+# 10000 for [1]..[13] -- which is 13 independent confirmations, not a coincidence. It follows from
+# gen_data's own chain: a rune has no vanilla shop row, so its GOODS_PRICE falls through to
+# sellValue*10, and for a rune sellValue IS the payout.
+#
+# test_gf_rune_pricing pins that ladder, so if the GOODS_PRICE derivation ever changes this
+# assumption fails LOUDLY instead of quietly repricing every rune slot by 10x.
+GOODS_PRICE_MARKUP = 10
+
+
+def rune_worth(full_id):
+    """What the rune is WORTH to the player (its rune payout), or None if it cannot be derived."""
+    price = GOODS_PRICE.get(full_id & _ROW_MASK)
+    if not price:
+        return None
+    return max(1, int(price) // GOODS_PRICE_MARKUP)
+
 
 def is_rune_item(name):
     return bool(_RUNE_RE.match(name or ""))
@@ -92,7 +116,7 @@ class RunePricing(Feature):
             full = ITEM_CATALOG.get(it.name)
             if full is None or (full & 0xF0000000) != _GOODS_NIBBLE:
                 continue
-            worth = GOODS_PRICE.get(full & _ROW_MASK)
+            worth = rune_worth(full)
             if not worth:
                 # REFUSE rather than invent a price: an unpriced rune left at the slot's own cost is
                 # the status quo, while a made-up one could be anything. Counted, not swallowed.
