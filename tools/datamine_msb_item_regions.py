@@ -147,6 +147,39 @@ def _npc2lots():
     return out
 
 
+# ---------------------------------------------------------------- schema probe
+
+def probe(msb_dir):
+    """Print the CHILD TAG NAMES of a Treasure event and an Asset part. No output file.
+
+    WHY THIS EXISTS. `EnableAssetTreasure(assetEntityId)` in the EMEVD names an ASSET, and
+    tools/datamine_lot_gates.py needs asset -> item lot to resolve 186 treasure gates -- the largest
+    population it cannot see, and the one holding the case it was built for. The first attempt joined
+    the asset id against the LOT ids already in msb_flag_region.tsv, on the assumption that ER treasure
+    assets and lots share a numbering. Measured: 0 of 186 matched. They do not.
+
+    The MSB has both halves -- a Treasure event carries `ItemLotID` and a reference to its part; the
+    Asset part carries an EntityID -- but I have not seen the schema, and guessing tag names produces
+    a confident empty join that reads like "the data is not there". So: print the tags, then write the
+    join against what is actually printed.
+    """
+    import xml.etree.ElementTree as _ET
+    for kind, sub in (("Treasure event", os.path.join("Event", "Treasure")),
+                      ("Asset part", os.path.join("Parts", "Asset"))):
+        d = os.path.join(msb_dir, sub)
+        files = sorted(glob.glob(os.path.join(d, "*.xml")))
+        print("== %s  (%s)  %d file(s)" % (kind, d, len(files)))
+        if not files:
+            print("   (none -- is this the right unpacked-MSB layout?)")
+            continue
+        r = _ET.parse(files[0]).getroot()
+        print("   root <%s>; children:" % r.tag)
+        for ch in list(r)[:40]:
+            txt = (ch.text or "").strip()[:40]
+            print("      <%s> %s" % (ch.tag, txt))
+    return 0
+
+
 # ---------------------------------------------------------------- source: treasure
 
 def _treasure_rows(msb_dir, map_id, lot_map):
@@ -355,7 +388,17 @@ def main(argv=None):
                     help="which provenance chains to emit (default: all)")
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--stdout", action="store_true", help="print instead of writing the tsv")
+    ap.add_argument("--probe", action="store_true",
+                    help="LOOK FIRST: print the Treasure-event and Asset-part XML tag names of the "
+                         "first MSB found, and write nothing. Needed to build the asset->lot join "
+                         "datamine_lot_gates.py wants; see probe.__doc__.")
     args = ap.parse_args(argv)
+    if args.probe:
+        roots = [os.path.join(ART, "mapstudio"), ART]
+        for _map_id, _msb_dir in _iter_msb_dirs(roots):
+            print("probing %s" % _map_id)
+            return probe(_msb_dir)
+        sys.exit("FATAL: no unpacked MSB dirs found under %s -- nothing to probe." % ART)
     rows, nmaps = build(set(args.maps) if args.maps else None, set(args.sources))
     scope = ",".join(sorted(args.maps)) if args.maps else "all"
     if args.stdout:

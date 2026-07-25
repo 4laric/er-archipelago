@@ -308,6 +308,7 @@ def emit(dry):
     treasure_lots = _treasure_lots()
     rows = []
     ev_total = tested = awards = treasure_unresolved = treasure_hits = 0
+    treasure_asset_ids = set()
     ctx_hist = collections.Counter()
     for path in files:
         src = os.path.basename(path)
@@ -353,6 +354,7 @@ def emit(dry):
                     awarded |= {f for f in hit if f in check_flags}
                 else:
                     treasure_unresolved += 1
+                    treasure_asset_ids.add(int(arg))
             for cf in sorted(awarded):
                 for gf, ctx, ev in gates:
                     if gf == cf:
@@ -362,6 +364,11 @@ def emit(dry):
     print("scanned %d file(s), %d event(s); %d flag test(s), %d AwardItemLot call(s), "
           "%d treasure call(s) RESOLVED via msb_flag_region, %d still unresolved; %d pair(s)"
           % (len(files), ev_total, tested, awards, treasure_hits, treasure_unresolved, len(rows)))
+    if treasure_asset_ids:
+        sample = sorted(treasure_asset_ids)[:12]
+        print("unresolved treasure ASSET ids (%d distinct) -- their numbering vs the lot ids in\n"
+              "  msb_flag_region.tsv is what says whether a direct join is possible at all:\n   %s"
+              % (len(treasure_asset_ids), ", ".join(str(a) for a in sample)))
     print("flag-test CONTEXTS (polarity is assigned per context in triage, never guessed here):")
     for ctx, n in ctx_hist.most_common(12):
         print("   %8d  %s" % (n, ctx))
