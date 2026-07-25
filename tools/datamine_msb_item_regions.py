@@ -319,6 +319,39 @@ def build_treasure_assets(only_maps=None, jobs=1):
     print("treasure assets: %d distinct map(s) to scan, %d job(s)" % (total, jobs),
           file=sys.stderr, flush=True)
 
+    import time as _time
+    t0 = _time.monotonic()
+    eta_state = {"last": t0, "window": [(t0, 0)]}
+
+    def _hms(sec):
+        sec = int(max(0, sec))
+        h, m, sec = sec // 3600, (sec % 3600) // 60, sec % 60
+        return ("%dh %02dm" % (h, m)) if h else ("%dm %02ds" % (m, sec)) if m else ("%ds" % sec)
+
+    def _eta(done):
+        """Print an ETA at most once a minute, from the RECENT rate.
+
+        Cumulative rate would be wrong in a predictable direction here: the maps are wildly uneven --
+        a legacy dungeon has hundreds of assets, an overworld tile has a handful -- so an average
+        taken over an unrepresentative prefix quietly misleads for the whole run. The estimate uses
+        the last ~60s of completions and SAYS it is doing that, because an ETA with no stated basis
+        is just a number that looks authoritative.
+        """
+        now = _time.monotonic()
+        eta_state["window"].append((now, done))
+        eta_state["window"][:] = [(t, d) for t, d in eta_state["window"] if now - t <= 90] \
+            or [eta_state["window"][-1]]
+        if now - eta_state["last"] < 60 or done <= 0:
+            return
+        eta_state["last"] = now
+        t_old, d_old = eta_state["window"][0]
+        dt, dd = now - t_old, done - d_old
+        rate = (dd / dt) if dt > 0 and dd > 0 else (done / max(1e-9, now - t0))
+        left = total - done
+        print("  ... %d/%d done in %s | %.1f map/s (last %ds) | ETA %s"
+              % (done, total, _hms(now - t0), rate, int(dt), _hms(left / rate) if rate > 0 else "?"),
+              file=sys.stderr, flush=True)
+
     def _absorb(map_id, found_rows, st, i):
         nonlocal maps
         maps += 1
@@ -332,6 +365,7 @@ def build_treasure_assets(only_maps=None, jobs=1):
         print("  [%4d/%4d] %-20s %d row(s)  total %d  (direct %d, indexed %d, map-scans %d)"
               % (i, total, map_id, n, len(rows), stats["direct"], stats["indexed"],
                  stats["map_scans"]), file=sys.stderr, flush=True)
+        _eta(i)
 
     if jobs <= 1 or total < 2:
         # Serial path kept deliberately: a process pool is one more thing that can fail (spawn,
@@ -348,10 +382,10 @@ def build_treasure_assets(only_maps=None, jobs=1):
 
     # ORDER-INDEPENDENT OUTPUT. Workers finish out of order, so the row list is not in map order --
     # the emit sorts, and this asserts the parallel and serial paths cannot disagree on CONTENT.
-    print("treasure assets: %d map(s), %d treasure(s), %d row(s); lookups: %d direct, %d via a "
-          "map index (%d map scan(s)); %d part(s) had no EntityID, %d not found"
-          % (maps, stats["treasures"], len(rows), stats["direct"], stats["indexed"],
-             stats["map_scans"], stats["no_entity"], stats["missing_part"]),
+    print("treasure assets: %d map(s), %d treasure(s), %d row(s) in %s; lookups: %d direct, %d via "
+          "a map index (%d map scan(s)); %d part(s) had no EntityID, %d not found"
+          % (maps, stats["treasures"], len(rows), _hms(_time.monotonic() - t0), stats["direct"],
+             stats["indexed"], stats["map_scans"], stats["no_entity"], stats["missing_part"]),
           file=sys.stderr, flush=True)
     if maps and not rows:
         sys.exit("FATAL: %d map(s) scanned and ZERO asset entities resolved. Either Part/Asset has no "
