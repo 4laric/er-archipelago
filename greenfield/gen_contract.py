@@ -12,6 +12,13 @@ sys.path.insert(0, os.path.join(HERE, "eldenring"))
 import contract  # noqa: E402
 
 def w(path, text):
+    # Every generated file ends with a newline. tools/check_integrity.py treats a missing trailing
+    # newline as a possible TRUNCATED TAIL, so a generator that omits one produces a permanent WARN
+    # on a perfectly clean file -- and a gate that cries wolf on every run is a gate people stop
+    # reading, which is how a real truncation gets waved through. Enforced here rather than in
+    # to_json() so it holds for every future output of this script too.
+    if not text.endswith("\n"):
+        text += "\n"
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(text)
     print("wrote", os.path.relpath(path, REPO), f"({len(text)} b)")
