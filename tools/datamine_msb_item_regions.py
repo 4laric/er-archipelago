@@ -205,46 +205,54 @@ def probe(msb_dir):
 ASSETS_OUT = os.path.join(REPO, "greenfield", "treasure_assets.tsv")
 
 
-def _asset_entity(msb_dir, part_name, stats):
-    """EntityID for ONE Asset part, by FILENAME first.
+class _AssetIndex:
+    """Per-map `part name -> EntityID`, built AT MOST ONCE and only if the direct lookup misses.
 
-    The full-scan version parsed every Asset XML in every map -- 174 files in m60_40_39 alone, across
-    ~300 maps -- to find the one or two parts a map's treasures actually reference. That is tens of
-    thousands of parses to answer a handful of questions, and from the outside it is indistinguishable
-    from a hang (Alaric, 2026-07-25).
-
-    Witchy names each part file after its `<Name>`, so the part is normally one direct open. The scan
-    stays as a FALLBACK for maps that break that convention, and `stats` counts how often it fires --
-    if it is common the assumption is wrong and the log says so rather than just being slow.
+    v1 opened `Part/Asset/<part>.xml` directly and, on a miss, scanned the whole directory -- PER
+    TREASURE. A map whose parts are not filename-addressable therefore re-scanned its 174 files for
+    every treasure in it, which is how 1347 maps turned into an overnight job (Alaric, 2026-07-25).
+    The scan is now memoised per map, so the worst case is one pass over each map's assets instead of
+    one per question asked of it.
     """
-    adir = os.path.join(msb_dir, "Part", "Asset")
-    direct = os.path.join(adir, part_name + ".xml")
-    if os.path.isfile(direct):
-        try:
-            r = ET.parse(direct).getroot()
-            ent = (r.findtext("EntityID") or "").strip()
-            if ent.lstrip("-").isdigit() and int(ent) > 0:
-                stats["direct"] += 1
-                return int(ent)
-            stats["no_entity"] += 1
+
+    def __init__(self, msb_dir, stats):
+        self.dir = os.path.join(msb_dir, "Part", "Asset")
+        self.stats = stats
+        self._index = None
+
+    def _entity_of(self, root):
+        ent = (root.findtext("EntityID") or "").strip()
+        return int(ent) if ent.lstrip("-").isdigit() and int(ent) > 0 else None
+
+    def _build(self):
+        self._index = {}
+        self.stats["map_scans"] += 1
+        for f in glob.glob(os.path.join(self.dir, "*.xml")):
+            try:
+                r = ET.parse(f).getroot()
+            except (ET.ParseError, OSError):
+                continue
+            nm = (r.findtext("Name") or "").strip()
+            if nm:
+                self._index[nm] = self._entity_of(r)
+
+    def get(self, part_name):
+        direct = os.path.join(self.dir, part_name + ".xml")
+        if os.path.isfile(direct):
+            try:
+                ent = self._entity_of(ET.parse(direct).getroot())
+                self.stats["direct" if ent is not None else "no_entity"] += 1
+                return ent
+            except (ET.ParseError, OSError):
+                pass
+        if self._index is None:
+            self._build()
+        if part_name not in self._index:
+            self.stats["missing_part"] += 1
             return None
-        except (ET.ParseError, OSError):
-            pass
-    stats["scanned"] += 1
-    for f in glob.glob(os.path.join(adir, "*.xml")):
-        try:
-            r = ET.parse(f).getroot()
-        except (ET.ParseError, OSError):
-            continue
-        if (r.findtext("Name") or "").strip() != part_name:
-            continue
-        ent = (r.findtext("EntityID") or "").strip()
-        if ent.lstrip("-").isdigit() and int(ent) > 0:
-            return int(ent)
-        stats["no_entity"] += 1
-        return None
-    stats["missing_part"] += 1
-    return None
+        ent = self._index[part_name]
+        self.stats["indexed" if ent is not None else "no_entity"] += 1
+        return ent
 
 
 def build_treasure_assets(only_maps=None):
@@ -265,13 +273,25 @@ def build_treasure_assets(only_maps=None):
     """
     lot_map = _lot2flags("ItemLotParam_map.csv")
     rows, maps = [], 0
-    stats = {"direct": 0, "scanned": 0, "no_entity": 0, "missing_part": 0, "treasures": 0}
+    stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
+             "missing_part": 0, "treasures": 0}
     roots = [os.path.join(ART, "mapstudio"), ART]
-    dirs = [(m, d) for m, d in _iter_msb_dirs(roots) if not only_maps or m in only_maps]
+    # DEDUPE BY MAP ID. `_iter_msb_dirs` walks mapstudio AND the root-level witchy dirs, so most maps
+    # come back twice -- Alaric's run showed `m10_00` at [1] and again at [2], the second yielding 0
+    # rows every time. Half of 1347 scans were re-reads of a map already done. First one wins.
+    seen, dirs = set(), []
+    for m, d in _iter_msb_dirs(roots):
+        if only_maps and m not in only_maps:
+            continue
+        if m in seen:
+            continue
+        seen.add(m)
+        dirs.append((m, d))
     total = len(dirs)
-    print("treasure assets: %d map(s) to scan" % total, file=sys.stderr, flush=True)
+    print("treasure assets: %d distinct map(s) to scan" % total, file=sys.stderr, flush=True)
     for i, (map_id, msb_dir) in enumerate(dirs, start=1):
         maps += 1
+        assets = _AssetIndex(msb_dir, stats)
         found = 0
         for f in glob.glob(os.path.join(msb_dir, "Event", "Treasure", "*.xml")):
             try:
@@ -283,18 +303,24 @@ def build_treasure_assets(only_maps=None):
             if not lid.isdigit() or int(lid) <= 0 or not part:
                 continue
             stats["treasures"] += 1
-            ent = _asset_entity(msb_dir, part, stats)
+            ent = assets.get(part)
             if ent is None:
                 continue
             for flag in lot_map.get(int(lid), ()):
                 rows.append((flag, int(lid), ent, map_id, part))
                 found += 1
-        print("  [%4d/%4d] %-20s %d row(s)  (running total %d)"
-              % (i, total, map_id, found, len(rows)), file=sys.stderr, flush=True)
-    print("treasure assets: %d map(s), %d treasure(s), %d row(s); part lookups: %d direct, "
-          "%d needed a full scan; %d part(s) had no EntityID, %d part(s) not found"
-          % (maps, stats["treasures"], len(rows), stats["direct"], stats["scanned"],
-             stats["no_entity"], stats["missing_part"]), file=sys.stderr, flush=True)
+        # Carry the lookup mix in the LIVE line, not just the summary: if `scans` climbs with every
+        # map the filename convention does not hold and the run is quadratic-ish -- which is worth
+        # knowing at map 20, not at the end of an overnight job.
+        print("  [%4d/%4d] %-20s %d row(s)  total %d  (direct %d, indexed %d, map-scans %d)"
+              % (i, total, map_id, found, len(rows),
+                 stats["direct"], stats["indexed"], stats["map_scans"]),
+              file=sys.stderr, flush=True)
+    print("treasure assets: %d map(s), %d treasure(s), %d row(s); lookups: %d direct, %d via a "
+          "map index (%d map scan(s)); %d part(s) had no EntityID, %d not found"
+          % (maps, stats["treasures"], len(rows), stats["direct"], stats["indexed"],
+             stats["map_scans"], stats["no_entity"], stats["missing_part"]),
+          file=sys.stderr, flush=True)
     if maps and not rows:
         sys.exit("FATAL: %d map(s) scanned and ZERO asset entities resolved. Either Part/Asset has no "
                  "<EntityID>, or TreasurePartName does not match the part. Re-run --probe and write "
