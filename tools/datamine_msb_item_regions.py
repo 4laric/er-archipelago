@@ -149,6 +149,96 @@ def _npc2lots():
 
 # ---------------------------------------------------------------- schema probe
 
+def explain(flag):
+    """Trace ONE check flag end to end, in seconds. The whole point is to not need a 1250-map run.
+
+    The diagnose loop for this join has been: I change something, Alaric runs a walk over every MSB
+    in the game, pastes the summary, I read one number off it, repeat. That is minutes-to-hours per
+    bit of information, and most of the questions are about a SINGLE check.
+
+    `--explain 67050` answers them directly: which map, which lot, which Treasure event, which part,
+    where that part was looked for, what is actually in those directories, and -- if the part is not
+    where expected -- WHERE IN THE MSB THE NAME ACTUALLY APPEARS. That last one is the step that has
+    cost the most round trips, because "not found" has never distinguished "wrong directory" from
+    "wrong name" from "not in this map at all".
+    """
+    import csv as _csv
+    # 1. flag -> map + lot, from the committed tsv (no artifacts needed for this half)
+    path = os.path.join(REPO, "greenfield", "msb_flag_region.tsv")
+    hits = []
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8-sig", newline="") as fh:
+            rows = (ln for ln in fh if not ln.lstrip().startswith("#"))
+            for r in _csv.DictReader(rows, delimiter="\t"):
+                if (r.get("flag") or "").strip() == str(flag):
+                    hits.append(r)
+    print("== flag %s in msb_flag_region.tsv: %d row(s)" % (flag, len(hits)))
+    for r in hits:
+        print("   map=%s lot=%s source=%s name=%s"
+              % (r.get("map_id"), r.get("item_lot_id"), r.get("source"), r.get("treasure_name")))
+    if not hits:
+        print("   (not a treasure-sourced check -- this tracer only follows the treasure chain)")
+        return 0
+
+    want_lots = {(r.get("item_lot_id") or "").strip() for r in hits}
+    map_ids = {(r.get("map_id") or "").strip() for r in hits}
+    roots = [os.path.join(ART, "mapstudio"), ART]
+    for map_id, msb_dir in _iter_msb_dirs(roots):
+        if map_id not in map_ids:
+            continue
+        print("== MSB %s -> %s" % (map_id, msb_dir))
+        found_event = False
+        for f in glob.glob(os.path.join(msb_dir, "Event", "Treasure", "*.xml")):
+            try:
+                r = ET.parse(f).getroot()
+            except (ET.ParseError, OSError):
+                continue
+            if (r.findtext("ItemLotID") or "").strip() not in want_lots:
+                continue
+            found_event = True
+            print("   Treasure event %s:" % os.path.basename(f))
+            for ch in list(r):
+                print("      <%-18s> %s" % (ch.tag, (ch.text or "").strip()[:50]))
+            part = (r.findtext("TreasurePartName") or "").strip()
+            if not part:
+                print("   -> no TreasurePartName: nothing to resolve.")
+                continue
+            # 2. where did we LOOK, and what is actually there?
+            print("   looking for part %r:" % part)
+            for t in _AssetIndex.PART_TYPES:
+                d = os.path.join(msb_dir, "Part", t)
+                direct = os.path.join(d, part + ".xml")
+                n = len(glob.glob(os.path.join(d, "*.xml")))
+                print("      Part/%-10s %4d file(s)  %s" % (t, n,
+                      "HIT " + direct if os.path.isfile(direct) else "no %s.xml" % part))
+            # 3. THE STEP THAT SAVES THE ROUND TRIP: where does the name actually appear?
+            print("   grepping the whole MSB for %r ..." % part)
+            seen = 0
+            for g in glob.glob(os.path.join(msb_dir, "**", "*.xml"), recursive=True):
+                try:
+                    with open(g, encoding="utf-8", errors="replace") as fh:
+                        txt = fh.read()
+                except OSError:
+                    continue
+                if part not in txt:
+                    continue
+                seen += 1
+                rel = os.path.relpath(g, msb_dir)
+                nm = re.search(r"<Name>([^<]*)</Name>", txt)
+                ent = re.search(r"<EntityID>([^<]*)</EntityID>", txt)
+                print("      %-46s <Name>=%s <EntityID>=%s"
+                      % (rel, nm.group(1) if nm else "?", ent.group(1) if ent else "-"))
+                if seen >= 12:
+                    print("      ... (more)")
+                    break
+            if not seen:
+                print("      NOT ANYWHERE in this MSB -- the part lives in another map, or the name "
+                      "is transformed between the Treasure event and the part record.")
+        if not found_event:
+            print("   no Treasure event in this map carries lot %s" % ",".join(sorted(want_lots)))
+    return 0
+
+
 def probe(msb_dir):
     """DUMP THE ACTUAL LAYOUT. No guessing, no output file.
 
@@ -707,6 +797,10 @@ def main(argv=None):
     ap.add_argument("--emit-assets", action="store_true",
                     help="write greenfield/treasure_assets.tsv (flag -> lot -> asset entity), the "
                          "join datamine_lot_gates.py needs for the 186 treasure gate sites")
+    ap.add_argument("--explain", metavar="FLAG",
+                    help="trace ONE check flag through the treasure chain in seconds -- map, lot, "
+                         "event, part, where it was looked for, and where the name actually appears. "
+                         "Use this instead of a full --emit-assets walk to diagnose a single miss.")
     ap.add_argument("--probe", action="store_true",
                     help="LOOK FIRST: print the Treasure-event and Asset-part XML tag names of the "
                          "first MSB found, and write nothing. Needed to build the asset->lot join "
@@ -729,6 +823,8 @@ def main(argv=None):
                 fh.write("\t".join(str(x) for x in r) + "\n")
         print("wrote %s: %d row(s)" % (ASSETS_OUT, len(rows)))
         return 0
+    if args.explain:
+        return explain(args.explain)
     if args.probe:
         roots = [os.path.join(ART, "mapstudio"), ART]
         want = set(args.maps) if args.maps else None
