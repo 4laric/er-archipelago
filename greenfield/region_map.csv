@@ -2768,7 +2768,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7002766,21017770,map_lot,Somber Smithing Stone [8],m21_01_00_00,DLC Interior,emevd
 7002767,21017780,map_lot,[Incantation] Wrath from Afar,PENDING,DLC Interior,flag_prefix
 7002768,21017790,map_lot,Rune of an Unsung Hero,PENDING,DLC Interior,flag_prefix
-7002769,21017800,map_lot,Fire Knight Hilde,m20_00_00_00,Mohgwyn / Consecrated-adjacent,emevd
+7002769,21017800,map_lot,Fire Knight Hilde,m21_01_00_00,DLC Interior,emevd
 7002770,21017810,map_lot,Rada Fruit,PENDING,Global / Filler (scattered by design),global_filler
 7002771,21017820,map_lot,Rada Fruit,m21_01_00_00,DLC Interior,emevd
 7002772,21017830,map_lot,Rada Fruit,PENDING,Global / Filler (scattered by design),global_filler
@@ -3326,7 +3326,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003324,39207970,enemy_lot,Golden Rune [6],PENDING,Global / Filler (scattered by design),global_filler
 7003325,39207980,enemy_lot,Golden Rune [6],PENDING,Global / Filler (scattered by design),global_filler
 7003326,39207990,enemy_lot,Golden Rune [6],PENDING,Global / Filler (scattered by design),global_filler
-7003327,40007000,map_lot,Grave Glovewort [1],m18_00_00_00,Stormveil (assoc.),emevd
+7003327,40007000,map_lot,Grave Glovewort [1],m40_00_00_00,DLC Dungeon,emevd
 7003328,40007020,map_lot,Knot Resin,PENDING,Global / Common-event (unplaced),global
 7003329,40007040,map_lot,Dragonbolt Grease,PENDING,Global / Common-event (unplaced),global
 7003330,40007050,map_lot,Grave Glovewort [2],PENDING,Global / Filler (scattered by design),global_filler
@@ -3341,7 +3341,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003339,40007810,map_lot,Black Knight Commander Andreas,PENDING,Global / Common-event (unplaced),global
 7003340,40007820,map_lot,Shadow Realm Rune [3],PENDING,Global / Common-event (unplaced),global
 7003341,40007900,map_lot,Ash of War: Blinkbolt,PENDING,Global / Common-event (unplaced),global
-7003342,40017000,map_lot,Rejuvenating Boluses,m18_00_00_00,Stormveil (assoc.),emevd
+7003342,40017000,map_lot,Rejuvenating Boluses,m40_01_00_00,DLC Dungeon,emevd
 7003343,40017010,map_lot,Grave Glovewort [3],PENDING,Global / Filler (scattered by design),global_filler
 7003344,40017020,map_lot,Redflesh Mushroom,PENDING,Global / Common-event (unplaced),global
 7003345,40017030,map_lot,Ghost Glovewort [5],PENDING,Global / Filler (scattered by design),global_filler
@@ -3357,7 +3357,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003355,40017130,map_lot,Ghost Glovewort [8],PENDING,Global / Filler (scattered by design),global_filler
 7003356,40017140,map_lot,Shadow Realm Rune [4],PENDING,Global / Common-event (unplaced),global
 7003357,40017150,map_lot,Broken Rune,PENDING,Global / Common-event (unplaced),global
-7003358,40027000,map_lot,Grave Glovewort [5],m18_00_00_00,Stormveil (assoc.),emevd
+7003358,40027000,map_lot,Grave Glovewort [5],m40_02_00_00,DLC Dungeon,emevd
 7003359,40027010,map_lot,Grave Glovewort [1],PENDING,Global / Filler (scattered by design),global_filler
 7003360,40027020,map_lot,Viridian Amber Medallion +3,PENDING,Global / Common-event (unplaced),global
 7003361,40027100,map_lot,Ghost Glovewort [2],PENDING,Global / Filler (scattered by design),global_filler
@@ -3369,7 +3369,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003367,40027210,map_lot,Ghost Glovewort [4],PENDING,Global / Filler (scattered by design),global_filler
 7003368,40027220,map_lot,Bigmouth Imp Ashes,m40_02_00_00,DLC Dungeon,emevd
 7003369,40027900,enemy_lot,Great Ghost Glovewort,PENDING,Global / Filler (scattered by design),global_filler
-7003370,41007000,map_lot,Frozen Maggot,m18_00_00_00,Stormveil (assoc.),emevd
+7003370,41007000,map_lot,Frozen Maggot,m41_00_00_00,DLC Legacy Dungeon,emevd
 7003371,41007010,map_lot,Silver Horn Tender,PENDING,Global / Common-event (unplaced),global
 7003372,41007020,map_lot,Frozen Maggot,PENDING,Global / Common-event (unplaced),global
 7003373,41007100,map_lot,Broken Rune,PENDING,Global / Common-event (unplaced),global
@@ -3406,7 +3406,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003404,41017985,enemy_lot,Living Jar Shard,PENDING,Global / Filler (scattered by design),global_filler
 7003405,41017990,enemy_lot,Living Jar Shard,PENDING,Global / Filler (scattered by design),global_filler
 7003406,41017995,enemy_lot,Living Jar Shard,PENDING,Global / Filler (scattered by design),global_filler
-7003407,41027000,map_lot,Gaol Upper Level Key,m18_00_00_00,Stormveil (assoc.),emevd
+7003407,41027000,map_lot,Gaol Upper Level Key,m41_02_00_00,DLC Legacy Dungeon,emevd
 7003408,41027010,map_lot,"Prattling Pate ""Lamentation""",PENDING,Global / Common-event (unplaced),global
 7003409,41027100,map_lot,Chilling Perfume Bottle,PENDING,Global / Common-event (unplaced),global
 7003410,41027110,map_lot,Call of Tibia,PENDING,Global / Common-event (unplaced),global
@@ -3419,7 +3419,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003417,41027985,enemy_lot,Living Jar Shard,PENDING,Global / Filler (scattered by design),global_filler
 7003418,41027990,enemy_lot,Living Jar Shard,PENDING,Global / Filler (scattered by design),global_filler
 7003419,41027995,enemy_lot,Living Jar Shard,PENDING,Global / Filler (scattered by design),global_filler
-7003420,42007000,map_lot,Anvil Hammer,m18_00_00_00,Stormveil (assoc.),emevd
+7003420,42007000,map_lot,Anvil Hammer,m42_00_00_00,DLC Dungeon,emevd
 7003421,42007100,map_lot,Smithing Stone [5],PENDING,Global / Filler (scattered by design),global_filler
 7003422,42007110,map_lot,Smithing Stone [2],PENDING,Global / Filler (scattered by design),global_filler
 7003423,42007130,map_lot,Smithing Stone [4],PENDING,Global / Filler (scattered by design),global_filler
@@ -3437,7 +3437,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003435,42027060,map_lot,Smithscript Cirque,PENDING,Global / Common-event (unplaced),global
 7003436,42027070,map_lot,Smithing Stone [3],PENDING,Global / Filler (scattered by design),global_filler
 7003437,42027080,map_lot,Smithing Stone [8],PENDING,Global / Filler (scattered by design),global_filler
-7003438,42037000,map_lot,Taylew the Golem Smith,m18_00_00_00,Stormveil (assoc.),emevd
+7003438,42037000,map_lot,Taylew the Golem Smith,m42_03_00_00,DLC Legacy Dungeon,emevd
 7003439,42037100,map_lot,Smithscript Axe,m42_03_00_00,DLC Legacy Dungeon,treasure
 7003440,42037110,map_lot,Ancient Dragon Smithing Stone,m42_03_00_00,DLC Legacy Dungeon,treasure
 7003441,42037120,map_lot,Smithscript Shield,m42_03_00_00,DLC Legacy Dungeon,treasure
@@ -3447,7 +3447,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003445,42037160,map_lot,Smithscript Greathammer,m42_03_00_00,DLC Legacy Dungeon,treasure
 7003446,42037170,map_lot,Smithing Stone [4],m42_03_00_00,DLC Legacy Dungeon,treasure
 7003447,42037180,map_lot,Smithing Stone [8],m42_03_00_00,DLC Legacy Dungeon,treasure
-7003448,43007000,map_lot,Sliver of Meat,m18_00_00_00,Stormveil (assoc.),emevd
+7003448,43007000,map_lot,Sliver of Meat,m43_00_00_00,DLC Dungeon,emevd
 7003449,43007010,map_lot,Hefty Beast Bone,PENDING,Global / Common-event (unplaced),global
 7003450,43007020,map_lot,Shadow Realm Rune [1],PENDING,Global / Common-event (unplaced),global
 7003451,43007030,map_lot,Sanguine Amaryllis,PENDING,Global / Common-event (unplaced),global

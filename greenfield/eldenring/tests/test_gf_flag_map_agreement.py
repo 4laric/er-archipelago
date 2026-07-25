@@ -12,15 +12,33 @@ and fell through to a default that happened to say Limgrave -- so the CONFIDENT 
 ones and the "don't know" rows were right, which is this repo's disease in miniature.
 
 Those two are FIXED (m18_00_00_00, matching their siblings; `dungeon_regions.tsv` independently
-resolves m18_00 -> Limgrave through the grace join). The rest are pinned below.
+resolves m18_00 -> Limgrave through the grace join).
 
-The remaining 10 are NOT fixed here on purpose. Nine of them are catacomb/cave/tunnel/gaol flags
-(m40/m41/m42/m43) that region_map.csv attributes to m18_00 -- the tutorial cave swallowing checks
-from unrelated dungeons. Re-homing them means trusting `dungeon_regions.tsv` for m40_00 -> Gravesite
-and m40_01 -> Rauh Base, i.e. DLC regions for what read as base-game dungeon maps. That may well be
-right, but it is a claim about map numbering nobody has verified, and moving 9 checks between
-regions on an unverified premise is how a confident wrong answer ships. So: pin, name, and leave the
-work visible.
+NINE MORE FIXED 2026-07-25, and the way the premise got checked is the point. Eight were
+m40/m41/m42/m43 flags that region_map.csv filed under m18_00 -- the tutorial cave swallowing checks
+from unrelated dungeons -- and one was an m21_01 flag filed under m20_00. Re-homing them meant
+trusting `dungeon_regions.tsv` when it said m40_00 -> Gravesite, i.e. a DLC region for what LOOKS
+like a base-game catacomb number, and that was held back a commit because nobody had verified it.
+
+Alaric: "should be grace checkable". It is. Every one of those maps contains exactly one grace, and
+the grace NAME is the game telling you where you are:
+
+    m40_00 Fog Rift Catacombs        m41_00 Belurat Gaol            m42_00 Ruined Forge Lava Intake
+    m40_01 Scorpion River Catacombs  m41_02 Lamenter's Gaol         m42_03 Taylew's Ruined Forge
+    m40_02 Darklight Catacombs       m21_01 Messmer's Dark Chamber  m43_00 Rivermouth Cave
+
+All nine are Shadow of the Erdtree locations. m40-m43 are the DLC's small-dungeon ranges; the
+base-game catacombs/caves/tunnels are m30/m31/m32. The "base-game dungeon number" reading was mine
+and it was wrong, and one grace-name lookup settled it. 9/9 corroborate dungeon_regions.tsv.
+
+Only the `map` column is corrected: DUNGEON_REGION_OVERRIDE is keyed on map id and wins over the
+coarse `region` bucket, so once the map is right the region derives itself. The coarse label is set
+to the one its map's sibling rows already use, and is inert for these maps.
+
+ONE disagreement remains, pinned: flag 10007452 encodes m10_00 (Stormveil) and region_map.csv files
+it under m11_10 (Roundtable Hold). m10_00 has no dungeon_regions entry, so the grace check that
+settled the other nine cannot settle this one -- and a flag allocated in one map's band CAN be
+awarded by a common event somewhere else, which is exactly the case this pin exists to keep visible.
 
 DO NOT raise the pin. Lower it by fixing rows.
 """
@@ -31,8 +49,9 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-# Measured on main 2026-07-25 after the Cave of Knowledge fix. A RATCHET: it may only go DOWN.
-MAX_FLAG_MAP_DISAGREEMENTS = 10
+# Measured on main 2026-07-25 after the Cave of Knowledge fix and the nine grace-corroborated
+# re-homings. A RATCHET: it may only go DOWN.
+MAX_FLAG_MAP_DISAGREEMENTS = 1
 
 
 def _region_map_rows():
@@ -80,6 +99,22 @@ def test_flag_map_disagreements_do_not_grow():
         f"(pin {MAX_FLAG_MAP_DISAGREEMENTS}). The flag is the game's datum; the map column is an "
         "EMEVD attribution. Fix the row, do NOT raise the pin:\n  "
         + "\n  ".join("flag=%s flag_says=%s csv_says=%s region=%s %s" % x for x in d[:12]))
+
+
+def test_the_regraced_dungeon_rows_stay_fixed():
+    """The nine rows re-homed on grace-name corroboration. Named so a regen that reinstates the EMEVD
+    attribution says WHICH claim it is contradicting."""
+    rows = {r["flag"]: r for r in _region_map_rows()}
+    expected = {
+        "21017800": "m21_01_00_00", "40007000": "m40_00_00_00", "40017000": "m40_01_00_00",
+        "40027000": "m40_02_00_00", "41007000": "m41_00_00_00", "41027000": "m41_02_00_00",
+        "42007000": "m42_00_00_00", "42037000": "m42_03_00_00", "43007000": "m43_00_00_00",
+    }
+    for flag, want in expected.items():
+        assert flag in rows, f"{flag} vanished from region_map.csv"
+        assert rows[flag]["map"] == want, (
+            f"{flag} is on {rows[flag]['map']}; its flag encodes {want}, and that map's own grace "
+            "(see the module docstring) confirms the DLC location.")
 
 
 def test_the_cave_of_knowledge_rows_stay_fixed():
