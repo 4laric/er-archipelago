@@ -208,12 +208,17 @@ def tile_pr(x,y):
     return best
 
 def tile_pr_strict(x,y):
-    """play_region for a tile we have actually SEEN, else None. THE ONE REGION DECISIONS USE.
+    """play_region for a tile we have actually SEEN, else None.
 
-    CONTRIBUTING rule 1: a derivation that cannot answer must FAIL, not answer. An unanchored tile is
-    ground with no grace in it, so we do not know its play_region -- and `None` flows into
-    `PLAY2AP.get(...)`, whose miss path is already the DEFAULTED quarantine (`_region_is_derived`),
-    where a guess is barred from carrying progression."""
+    ⚠️ NOT WIRED. CONTRIBUTING rule 1 says a derivation that cannot answer must FAIL, and this is
+    that function -- but switching the region decision onto it (e14dfa7) DEFAULTED 55 checks to the
+    HUB, and three of them are the LOD-tile checks `test_gf_lod_tile_regions` pins BY FLAG as having
+    a known real region (1048557900 / 1049547900 Mountaintops, from a previous silent-dead-check fix).
+    Refusing loses answers that were right, and that test is the record of which ones.
+    Reconcile the two before wiring this: the honest shape is probably a THIRD state -- known /
+    guessed / unknown -- where "guessed" still regions the check but is barred from progression, not
+    the two states we have. Left here, unused, because deleting it would lose the analysis with it;
+    `test_gf_tile_anchor_coverage.py` pins how much ground is at stake (144 tiles, 640 checks)."""
     return ANCHOR.get((x,y))
 
 # ---- per-check nearest-grace play_region: a BETTER derivation than the tile, where it exists -------
@@ -410,7 +415,7 @@ def _region_of_raw(r):
         # own tables. (Tried grace-first in e14dfa7 and reverted here: it moved 86 checks and quietly
         # cost the independence, which is a trade nobody had agreed to make.)
         t = _overworld_tile_of(r)
-        return PLAY2AP.get(tile_pr_strict(*t) if t else None, HUB)
+        return PLAY2AP.get(tile_pr(*t), HUB) if t else HUB
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
@@ -451,7 +456,7 @@ def _region_is_derived(r):
         # Mirrors _region_of_raw EXACTLY -- if these two ever disagree, a check is either barred from
         # progression while its region is known, or (far worse) allowed to carry it on a guess.
         t = _overworld_tile_of(r)              # flag-decode first; LOD-suffixed guesses return None
-        return (tile_pr_strict(*t) if t else None) in PLAY2AP
+        return bool(t) and tile_pr(*t) in PLAY2AP
     if meth=='shop_multi': return False
     return reg in REGION_MAP
 
