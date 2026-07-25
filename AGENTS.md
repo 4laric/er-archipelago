@@ -125,13 +125,33 @@ It builds the real `eldenring_archipelago.dll` for `x86_64-pc-windows-msvc` from
 SDK download fails. Use it on a real Linux box / WSL2 / a CI runner. Pure-logic crates are host-native
 and cheap either way: `cargo test -p er-codec -p er-semver -p er-logic`.
 
-**2a. What the sandbox CAN and CANNOT build. CHECK THE TOOLCHAIN FIRST — `cargo` is often absent.**
+**2a. What the sandbox CAN and CANNOT build. `cargo` is absent, but you can INSTALL it — the
+2026-07-24 "rustup is unreachable" finding was wrong, and the real blocker is `TMPDIR`.**
 `cargo test -p er-logic` is the workhorse for anything decision-shaped (the whole replay tier lives
-there, ~413 host tests, seconds to run) — *when a Rust toolchain exists*. It is not preinstalled, and
-on 2026-07-24 neither route to get one worked: `sudo` is blocked (no-new-privileges, so `apt-get
-install cargo` fails) and `sh.rustup.rs` was unreachable. So run `command -v cargo` before you plan
-around it, and if it is missing say plainly that the Rust side is UNVERIFIED here and let the Windows
-CI be the gate. Do not describe a test run you could not perform. The
+there, ~443 host tests, seconds to run). It is not preinstalled. `sudo` really is blocked
+(no-new-privileges, so `apt-get install cargo` fails), but `sh.rustup.rs` is **reachable** — what
+failed on 07-24 was `mktemp -d`, because `$TMPDIR` and `$HOME` both point at `/sessions/<session>/`,
+which is a SHARED 9.8 GB volume that is routinely 100% full. rustup reports that as
+`error: command failed: mktemp -d`, which reads like a network/permission failure and is not one.
+Point everything at `/tmp` (a different device, `/dev/sda1`, usually with room) and it just works:
+
+```bash
+export TMPDIR=/tmp RUSTUP_HOME=/tmp/rustup CARGO_HOME=/tmp/cargo CARGO_TARGET_DIR=/tmp/ertarget
+curl -sSf https://sh.rustup.rs -o /tmp/ru.sh
+sh /tmp/ru.sh -y --profile minimal --default-toolchain stable --no-modify-path   # ~40s
+export PATH=/tmp/cargo/bin:$PATH
+cargo test -p er-logic          # + cargo fmt -p er-logic -- --check, cargo clippy ... -D warnings
+```
+
+⚠️ It is ~1.8 GB installed (toolchain 1.2 G + registry 0.5 G) against a ~2 GB budget on `/tmp`, so
+you cannot hold it AND `greenfield/provision-linux-env.sh` at once. Do the Rust half first, then
+`rm -rf /tmp/rustup /tmp/cargo` and provision the Python env (which also needs `HOME` and
+`GF_CI_HOME` redirected off `/sessions`: `HOME=/tmp/gfhome GF_CI_HOME=/tmp/gfci bash
+greenfield/provision-linux-env.sh`). Reinstalling rust later costs ~40s.
+
+Run `command -v cargo` before you plan around it, and if you choose not to install it, say plainly
+that the Rust side is UNVERIFIED here and let the Windows CI be the gate. Do not describe a test run
+you could not perform. The
 `eldenring-archipelago` and `shared` crates **never** build here (imgui / MSVC / detour deps); verify a
 change to those by inspection plus, if the risk is a type or symbol name, a throwaway crate that
 typechecks the call against the real dependency version (e.g. `windows 0.62.2`). Do not report an
