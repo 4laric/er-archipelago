@@ -27,13 +27,29 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 
-# Measured on main 2026-07-25. A RATCHET, not a target: it may only ever go DOWN.
-MAX_STRADDLING_GRACES = 44
-MAX_MINORITY_CHECKS = 117
+# Measured on main 2026-07-25, after (a) the Cave of Knowledge map fix and (b) grouping on the
+# grace's own KEY instead of its display name. A RATCHET, not a target: it may only ever go DOWN.
+MAX_STRADDLING_GRACES = 41
+MAX_MINORITY_CHECKS = 111
 
 
-def _nearest_grace():
-    """flag (str) -> grace name. Beside the installed package (tools/gf_test.py copies the tsvs)."""
+def _nearest_grace(column=1):
+    """flag (str) -> nearest_grace.tsv column. Beside the installed package (gf_test.py copies it).
+
+    column 1 = grace NAME (for humans), column 2 = grace KEY (the grace's own warpUnlockFlag).
+
+    GROUP ON THE KEY. Seven display names are shared by two physically distant graces -- the five
+    Leyndell/Ashen-Capital map-version pairs (Divine Bridge, East Capital Rampart, Elden Throne,
+    Erdtree Sanctuary, Queen's Bedchamber) plus two genuinely duplicated shacks (Artist's Shack in
+    Liurnia and Altus, Isolated Merchant's Shack in the Weeping Peninsula and Dragonbarrow). Keyed on
+    the name, this screen merged each pair into one bucket and reported the merge as a straddle.
+    Measured: keying on the name gives 43 straddles / 115 minority checks, keying on the grace's own
+    flag gives 41 / 111 -- so 2 of the reported straddles and 4 of the reported misregioned checks
+    were the oracle's own doing (Artist's Shack and Queen's Bedchamber), indistinguishable in the
+    output from real findings. Only 2 of the 7 duplicated names produced a phantom, because the pair
+    must ALSO sit in different regions and both hold checks; the point is that nothing in the output
+    said which. An oracle that manufactures findings is worse than one that misses them.
+    """
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "nearest_grace.tsv")
     if not os.path.isfile(path):
         pytest.skip("nearest_grace.tsv not installed beside the package -- oracle would run BLIND")
@@ -42,22 +58,40 @@ def _nearest_grace():
         if line.startswith("#"):
             continue
         parts = line.rstrip("\n").split("\t")
-        if len(parts) >= 2 and parts[1]:
-            out[parts[0]] = parts[1]
+        if parts[0] == "flag":
+            continue  # header
+        if len(parts) > column and parts[column]:
+            out[parts[0]] = parts[column]
     assert out, "nearest_grace.tsv parsed to ZERO rows -- an empty oracle is a failure, not a pass"
     return out
 
 
 def _straddles():
+    """{grace key -> Counter(region)} for graces whose checks land in more than one region."""
     import collections
     region = {str(f): r for r, locs in LOCATIONS.items() for (_n, _a, f) in locs}
+    keys = _nearest_grace(column=2)
+    assert keys, (
+        "nearest_grace.tsv has no grace_key column -- re-emit it with tools/build_nearest_grace.py. "
+        "Falling back to the NAME would silently reintroduce the phantom straddles this screen "
+        "exists to not manufacture.")
     by_grace = collections.defaultdict(collections.Counter)
-    for flag, grace in _nearest_grace().items():
+    for flag, key in keys.items():
         r = region.get(flag)
         if r is not None:
-            by_grace[grace][r] += 1
+            by_grace[key][r] += 1
     assert by_grace, "no check resolved to a grace -- the join matched nothing"
     return {g: c for g, c in by_grace.items() if len(c) > 1}
+
+
+def _name_of(key):
+    """Grace key -> its display name, for failure messages only."""
+    return {k: n for k, n in zip(_nearest_grace(column=2).values(),
+                                 _nearest_grace(column=1).values())}.get(key, key)
+
+
+def _straddling_names():
+    return sorted(_name_of(k) for k in _straddles())
 
 
 def test_grace_straddle_count_does_not_grow():
@@ -65,7 +99,7 @@ def test_grace_straddle_count_does_not_grow():
     assert len(s) <= MAX_STRADDLING_GRACES, (
         f"{len(s)} graces have checks in more than one region (pin {MAX_STRADDLING_GRACES}). "
         "A new straddle means a region derivation moved. Find which side is wrong -- do NOT raise "
-        "the pin: " + ", ".join(sorted(s)[:10]))
+        "the pin: " + ", ".join(_straddling_names()[:10]))
 
 
 def test_minority_side_checks_do_not_grow():
@@ -79,7 +113,6 @@ def test_minority_side_checks_do_not_grow():
 def test_the_church_of_pilgrimage_case_is_still_visible():
     # The reported bug, pinned as a NAMED case so the screen cannot silently stop seeing it.
     # Delete this test when the church resolves to one region -- and lower the pins in the same commit.
-    s = _straddles()
-    assert "Church of Pilgrimage" in s, (
+    assert "Church of Pilgrimage" in _straddling_names(), (
         "Church of Pilgrimage no longer straddles -- if that is a real fix, drop this test AND "
         "lower MAX_STRADDLING_GRACES / MAX_MINORITY_CHECKS in the same commit")
