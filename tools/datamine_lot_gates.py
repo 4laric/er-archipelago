@@ -163,166 +163,6 @@ def _ints(args):
     return [int(x) for x in _INT_RE.findall(args)]
 
 
-def _sense(args):
-    toks = [t.strip().strip("'\"").lower() for t in args.split(",")]
-    for t in toks:
-        base = t.split(".")[-1]
-        if base in ON_WORDS:
-            return 1
-        if base in OFF_WORDS:
-            return 0
-    return None                                   # UNKNOWN -> reported, never defaulted
-
-
-def _lot_to_flag():
-    """ItemLotParam lot id -> the CHECK flag it awards, from the committed greenfield/flag_lots.tsv.
-
-    `AwardItemLot` names a LOT, our checks are keyed by acquisition FLAG, and this is the join. It is
-    a tracked tsv, so this half is verifiable without artifacts."""
-    import csv
-    path = os.path.join(GF, "flag_lots.tsv")
-    if not os.path.isfile(path):
-        sys.exit("FATAL: %s missing -- AwardItemLot names a LOT and there is no way to reach the "
-                 "check flag without it." % path)
-    out = {}
-    with open(path, encoding="utf-8-sig", newline="") as fh:
-        for r in csv.DictReader(fh, delimiter="\t"):
-            try:
-                out.setdefault(int(r["lot"]), set()).add(int(r["flag"]))
-            except (KeyError, TypeError, ValueError):
-                continue
-    if len(out) < 1000:
-        sys.exit("FATAL: only %d lots parsed from flag_lots.tsv -- refusing to scan against a "
-                 "truncated join." % len(out))
-    return out
-
-
-def _context(body, pos):
-    """The construct a flag test sits inside -- `EndIf`, `WaitFor`, `SkipIf`, `If`, negated, ...
-
-    ⚠️ THE POLARITY IS NOT DERIVED HERE, ON PURPOSE. `EndIf(EventFlag(2052))` means "terminate the
-    event when 2052 is SET", so the body below it requires the flag CLEAR -- the opposite of the
-    reading a naive `flag appears in a condition => flag must be set` would give. Every construct has
-    its own sense and I have not seen them all, so the context is RECORDED verbatim and the polarity
-    is assigned once, per construct, during triage. Inventing it here is how a false gate -- an
-    unwinnable seed -- gets written into a table that looks derived.
-    """
-    # Walk out to the OUTERMOST unclosed construct, not the nearest call. The first version took the
-    # last identifier before the paren, which on `WaitFor(ElapsedSeconds(2) && EventFlag(7608))`
-    # answered `ElapsedSeconds` -- a sibling argument, not the thing that decides the polarity. It
-    # also read from a fixed 60-char window and so reported truncated identifiers (`racterTeamType`).
-    # Both were visible in the first real run; neither was wrong enough to notice without the output.
-    stmt = body.rfind(";", 0, pos) + 1
-    nl = body.rfind("\n", 0, pos) + 1
-    left = body[max(stmt, nl):pos]
-    neg = bool(re.search(r"!\s*$", left))
-    depth, name = 0, ""
-    for m in re.finditer(r"([A-Za-z_]\w*)?\s*([()])", left):
-        if m.group(2) == "(":
-            if depth == 0 and m.group(1):
-                name = m.group(1)          # outermost open construct on this statement
-            depth += 1
-        else:
-            depth = max(0, depth - 1)
-    return ("!" if neg else "") + (name or "?")
-
-
-def _common_lot_params():
-    """{commonEventId: itemLotId arg index} from common_func.
-
-    Only 26 sites call `AwardItemLot(<literal>)`. The rest route through a common event that takes an
-    `itemLotId` PARAM, so without this join the scan sees a fraction of the awards in the game -- the
-    first real run returned 45 pairs, which is not a finding, it is a sample. Same parse
-    tools/datamine_boss_drops.py already uses for boss handlers, so the shape is known-good rather
-    than another guess."""
-    path = os.path.join(EVT, "common_func.emevd.dcx.js")
-    if not os.path.isfile(path):
-        print("  (no common_func.emevd.dcx.js -- literal AwardItemLot sites only)", file=sys.stderr)
-        return {}
-    text = open(path, encoding="utf-8", errors="replace").read()
-    out = {}
-    for eid, body in _events(text):
-        m = EVENT_RE.search(text[text.index(body):text.index(body) + 400])
-        params = [p.strip() for p in (m.group(2) if m else "").split(",") if p.strip()]
-        if "AwardItemLot" not in body:
-            continue
-        # SUBSTRING, not equality. Exact `itemLotId` matched exactly ONE common event on the real
-        # corpus while the vocab dump plainly showed several `AwardItemLot(itemLotId)` sites -- the
-        # decompiler decorates some param names (X0_4_itemLotId and friends). Matching the whole name
-        # was a guess about the decompiler's style dressed as a key.
-        idx = next((i for i, q in enumerate(params) if "itemlotid" in q.lower()), None)
-        if idx is None:
-            # Last resort: the event awards a lot from SOME param and we cannot tell which. Reported,
-            # never guessed -- picking one would fabricate a check->gate edge.
-            if re.search(r"AwardItemLot\s*\(\s*[A-Za-z_]", body):
-                out.setdefault("_unnamed", set()).add(eid)
-            continue
-        out[eid] = idx
-    return out
-
-
-def _treasure_assets():
-    """{asset entity id -> {check flags}} from greenfield/treasure_assets.tsv.
-
-    THE join for `EnableAssetTreasure(assetEntityId)`. Produced by
-    `tools/datamine_msb_item_regions.py --emit-assets` (Windows; needs the unpacked MSBs) after two
-    cheaper theories were measured dead: asset ids do not share the lot numbering (0 of 186), and
-    StartDisabled does not mark the gated pickups.
-    """
-    import csv
-    path = os.path.join(GF, "treasure_assets.tsv")
-    if not os.path.isfile(path):
-        print("  (no greenfield/treasure_assets.tsv -- run "
-              "`datamine_msb_item_regions.py --emit-assets` to resolve the treasure sites)",
-              file=sys.stderr)
-        return {}
-    out = {}
-    with open(path, encoding="utf-8-sig", newline="") as fh:
-        rows = (ln for ln in fh if not ln.lstrip().startswith("#"))
-        for r in csv.DictReader(rows, delimiter="\t"):
-            try:
-                out.setdefault(int(r["asset_entity"]), set()).add(int(r["flag"]))
-            except (KeyError, TypeError, ValueError):
-                continue
-    return out
-
-
-def _treasure_lots():
-    """{treasure lot id -> {check flags}} from the committed greenfield/msb_flag_region.tsv.
-
-    `EnableAssetTreasure(assetEntityId)` names an ASSET, and the first pass reported 186 of them
-    unresolved -- the single largest untapped population, and the one holding the class this tool was
-    built for (f67050, the Stormhill Shack cookbook, is a treasure). Resolving asset -> lot was
-    assumed to need the MSB.
-
-    It may not: msb_flag_region.tsv already carries `flag -> item_lot_id` for every treasure, and ER
-    treasure asset entity ids and lot ids share a numbering (f67050 -> lot 1040390000). So this tries
-    the direct join and the caller PRINTS THE MATCH RATE. A low rate means the numbering assumption is
-    wrong and the MSB really is needed -- which is a measurement, not a hunch, and costs one run."""
-    import csv
-    path = os.path.join(GF, "msb_flag_region.tsv")
-    if not os.path.isfile(path):
-        return {}
-    out = {}
-    with open(path, encoding="utf-8-sig", newline="") as fh:
-        # SKIP THE COMMENT PREAMBLE FIRST. csv.DictReader takes the FIRST line as the header, and this
-        # file opens with `# maps=all sources=...` -- so reading it raw makes every field name wrong,
-        # every lookup a KeyError, and the whole join silently EMPTY. The smoke test caught it as
-        # "treasure lot 1040390000 -> None" on a row that is plainly in the file. An empty join here
-        # would have looked exactly like "the asset-id numbering assumption is wrong, we need the
-        # MSB after all" -- a wrong conclusion, reached confidently, from a parsing bug.
-        rows = (ln for ln in fh if not ln.lstrip().startswith("#"))
-        for r in csv.DictReader(rows, delimiter="\t"):
-            try:
-                out.setdefault(int(r["item_lot_id"]), set()).add(int(r["flag"]))
-            except (KeyError, TypeError, ValueError):
-                continue
-    if not out:
-        sys.exit("FATAL: msb_flag_region.tsv parsed to ZERO lot->flag rows -- refusing to report "
-                 "every treasure as unresolved on the strength of a broken join.")
-    return out
-
-
 def emit(dry):
     files = _sources()
     check_flags = _check_flags()
@@ -334,7 +174,7 @@ def emit(dry):
     treasure_lots = _treasure_lots()
     treasure_assets = _treasure_assets()
     rows = []
-    ev_total = tested = awards = treasure_unresolved = treasure_hits = 0
+    ev_total = tested = awards = treasure_unresolved = treasure_hits = treasure_character = 0
     treasure_asset_ids = set()
     ctx_hist = collections.Counter()
     for path in files:
@@ -371,26 +211,45 @@ def emit(dry):
                 awards += 1
                 awarded |= {f for f in lot_to_flag.get(int(args[idx]), ()) if f in check_flags}
             for m in TREASURE_RE.finditer(body):
-                arg = m.group(2)
+                verb, arg = m.group(1), m.group(2)
+                if verb == "ForceCharacterTreasure":
+                    # A CHARACTER entity, not an asset. Joining it against an asset table can only
+                    # ever miss, and counting those misses as "unresolved asset sites" inflates the
+                    # number this whole effort is measured by. Segregated.
+                    treasure_character += 1
+                    continue
                 if not arg.lstrip("-").isdigit():
                     treasure_unresolved += 1
                     continue
-                hit = treasure_assets.get(int(arg)) or treasure_lots.get(int(arg))
+                # NO FALLBACK to the lot-id table. That join was MEASURED DEAD (0 of 186) and left
+                # in as an `or` -- so any numeric collision between an asset entity id and a lot id
+                # would fabricate a check->gate edge, and a fabricated gate is an unwinnable seed.
+                # Fable demonstrated it: EnableAssetTreasure(1000) "resolving" to a flag via the lot
+                # table. A disproven join kept as a fallback is not belt-and-braces, it is a lie
+                # about why the code works.
+                hit = treasure_assets.get(int(arg))
                 if hit:
                     treasure_hits += 1
-                    awarded |= {f for f in hit if f in check_flags}
+                    # THE VERB IS THE POLARITY. A pair from Disable* means the flag makes the check
+                    # UNAVAILABLE (missable) -- the inverted sense of an Enable pair -- and without
+                    # the verb the two are indistinguishable in the tsv, so one `context` would span
+                    # two opposite populations. Carried into the context column.
+                    awarded |= {(f, verb) for f in hit if f in check_flags}
                 else:
                     treasure_unresolved += 1
                     treasure_asset_ids.add(int(arg))
-            for cf in sorted(awarded):
+            for entry in sorted(awarded, key=lambda e: (e[0] if isinstance(e, tuple) else e)):
+                cf, verb = entry if isinstance(entry, tuple) else (entry, "")
                 for gf, ctx, ev in gates:
                     if gf == cf:
                         continue          # a check's own acquisition flag is not its gate
-                    rows.append((cf, gf, ctx, eid, src,
+                    rows.append((cf, gf, (ctx + "/" + verb) if verb else ctx, eid, src,
                                  " ".join(ev.split())[:120]))
     print("scanned %d file(s), %d event(s); %d flag test(s), %d AwardItemLot call(s), "
-          "%d treasure call(s) RESOLVED via msb_flag_region, %d still unresolved; %d pair(s)"
-          % (len(files), ev_total, tested, awards, treasure_hits, treasure_unresolved, len(rows)))
+          "%d treasure call(s) RESOLVED, %d unresolved, %d ForceCharacterTreasure (character "
+          "entity, not an asset -- never resolvable here); %d pair(s)"
+          % (len(files), ev_total, tested, awards, treasure_hits, treasure_unresolved,
+             treasure_character, len(rows)))
     if treasure_asset_ids:
         sample = sorted(treasure_asset_ids)[:12]
         print("unresolved treasure ASSET ids (%d distinct) -- their numbering vs the lot ids in\n"
@@ -409,6 +268,13 @@ def emit(dry):
     if not rows:
         sys.exit("FATAL: zero gated checks. Every AwardItemLot event is unconditional (implausible) "
                  "or the join through flag_lots.tsv missed. Run --vocab and check the lot ids.")
+    if treasure_assets and treasure_hits == 0 and treasure_unresolved:
+        sys.exit("FATAL: treasure_assets.tsv is loaded (%d entities) and resolved ZERO of %d "
+                 "EnableAssetTreasure sites. That is the population this tool exists for, and it is "
+                 "the one join that had no refusal condition. Either the asset ids in the EMEVD are "
+                 "entity GROUPS rather than part entities, or the tsv was emitted for a subset of "
+                 "maps -- check its `# maps=` header before reading anything else."
+                 % (len(treasure_assets), treasure_unresolved))
     if len(rows) > 20000:
         sys.exit("FATAL: %d pairs -- too broad to be evidence. Tighten before trusting this."
                  % len(rows))

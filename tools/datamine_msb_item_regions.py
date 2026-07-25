@@ -242,7 +242,9 @@ class _AssetIndex:
         """
         self._index = {}
         self.stats["map_scans"] += 1
-        for f in glob.glob(os.path.join(self.dir, "*.xml")):
+        files = sorted(glob.glob(os.path.join(self.dir, "*.xml")))
+        checked = False
+        for f in files:
             try:
                 with open(f, encoding="utf-8", errors="replace") as fh:
                     txt = fh.read()
@@ -253,16 +255,47 @@ class _AssetIndex:
                 continue
             ent = self._ENT_RE.search(txt)
             val = (ent.group(1).strip() if ent else "")
-            self._index[nm.group(1).strip()] = (
-                int(val) if val.lstrip("-").isdigit() and int(val) > 0 else None)
+            eid = int(val) if val.lstrip("-").isdigit() and int(val) > 0 else None
+            # AGREE WITH THE DOM, ON REAL DATA, ONCE PER MAP. The regex takes the FIRST <EntityID>
+            # anywhere in the text; findtext() takes a DIRECT CHILD of root. On a file with a nested
+            # <EntityID> those differ, and every index-resolved row would be wrong -- and wrong
+            # DIFFERENTLY from the direct-resolved ones. The docstring asserted "one at top level";
+            # Fable pointed out that was asserted and never checked, so now it is checked.
+            if not checked:
+                checked = True
+                try:
+                    root = ET.parse(f).getroot()
+                    if (root.findtext("Name") or "").strip() != nm.group(1).strip() \
+                            or self._entity_of(root) != eid:
+                        sys.exit("FATAL: the regex index disagrees with the XML parse on %s -- the "
+                                 "'one <Name>/<EntityID> at top level' assumption does not hold for "
+                                 "this corpus. Fix _build before trusting any row it produces." % f)
+                except (ET.ParseError, OSError):
+                    pass
+            nm = nm.group(1).strip()
+            # DUPLICATE NAMES: refuse to pick. dict last-writer-wins would make the output depend on
+            # filesystem order -- machine-dependent rows, silently.
+            if nm in self._index and self._index[nm] != eid:
+                self.stats["dup_name"] += 1
+                self._index[nm] = "AMBIGUOUS"
+                continue
+            self._index[nm] = eid
 
     def get(self, part_name):
         direct = os.path.join(self.dir, part_name + ".xml")
         if os.path.isfile(direct):
             try:
-                ent = self._entity_of(ET.parse(direct).getroot())
-                self.stats["direct" if ent is not None else "no_entity"] += 1
-                return ent
+                root = ET.parse(direct).getroot()
+                # VERIFY THE NAME. The filename is a CONVENTION, not the identity -- witchy could
+                # decorate it (collision suffix, index prefix, truncation) and then this path does not
+                # MISS, it returns another part's EntityID and the stats read a healthy "direct 1".
+                # Fable caught this with a file named AEG_A.xml containing <Name>AEG_B</Name>.
+                if (root.findtext("Name") or "").strip() != part_name:
+                    self.stats["name_mismatch"] += 1
+                else:
+                    ent = self._entity_of(root)
+                    self.stats["direct" if ent is not None else "no_entity"] += 1
+                    return ent
             except (ET.ParseError, OSError):
                 pass
         if self._index is None:
@@ -271,6 +304,8 @@ class _AssetIndex:
             self.stats["missing_part"] += 1
             return None
         ent = self._index[part_name]
+        if ent == "AMBIGUOUS":
+            return None
         self.stats["indexed" if ent is not None else "no_entity"] += 1
         return ent
 
@@ -284,7 +319,7 @@ def _scan_map_treasures(item):
     """
     map_id, msb_dir = item
     stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
-             "missing_part": 0, "treasures": 0}
+             "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0}
     assets = _AssetIndex(msb_dir, stats)
     out = []
     for f in glob.glob(os.path.join(msb_dir, "Event", "Treasure", "*.xml")):
@@ -322,7 +357,7 @@ def build_treasure_assets(only_maps=None, jobs=1):
     lot_map = _lot2flags("ItemLotParam_map.csv")
     rows, maps = [], 0
     stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
-             "missing_part": 0, "treasures": 0}
+             "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0}
     roots = [os.path.join(ART, "mapstudio"), ART]
     # DEDUPE BY MAP ID. `_iter_msb_dirs` walks mapstudio AND the root-level witchy dirs, so maps come
     # back more than once -- Alaric's run had `m10_00` at [1] and again at [2], the second yielding 0
@@ -414,10 +449,11 @@ def build_treasure_assets(only_maps=None, jobs=1):
     # ORDER-INDEPENDENT OUTPUT. Workers finish out of order, so the row list is not in map order --
     # the emit sorts, and this asserts the parallel and serial paths cannot disagree on CONTENT.
     print("treasure assets: %d map(s), %d treasure(s), %d row(s) in %s; lookups: %d direct, %d via "
-          "a map index (%d map scan(s)); %d part(s) had no EntityID, %d not found"
+          "a map index (%d map scan(s)); %d no EntityID, %d part not found, %d FILENAME/<Name> "
+          "MISMATCH, %d duplicate <Name> (dropped)"
           % (maps, stats["treasures"], len(rows), _hms(_time.monotonic() - t0), stats["direct"],
-             stats["indexed"], stats["map_scans"], stats["no_entity"], stats["missing_part"]),
-          file=sys.stderr, flush=True)
+             stats["indexed"], stats["map_scans"], stats["no_entity"], stats["missing_part"],
+             stats["name_mismatch"], stats["dup_name"]), file=sys.stderr, flush=True)
     if maps and not rows:
         sys.exit("FATAL: %d map(s) scanned and ZERO asset entities resolved. Either Part/Asset has no "
                  "<EntityID>, or TreasurePartName does not match the part. Re-run --probe and write "
@@ -651,6 +687,11 @@ def main(argv=None):
             fh.write("# Treasure check flag -> its ItemLotParam lot -> the ASSET ENTITY the EMEVD\n")
             fh.write("# names in EnableAssetTreasure/DisableAssetTreasure. Consumed by\n")
             fh.write("# tools/datamine_lot_gates.py to resolve the treasure gate sites.\n")
+            fh.write("# maps=%s\n" % (",".join(sorted(args.maps)) if args.maps else "all"))
+            fh.write("# SCOPE IS LOAD-BEARING: `--maps X --emit-assets` overwrites this same path\n")
+            fh.write("# with a ONE-MAP subset, and the consumer cannot tell that from a full run --\n")
+            fh.write("# every other site just reads as 'unresolved'. Same reason msb_flag_region.tsv\n")
+            fh.write("# carries its scope.\n")
             fh.write("flag\titem_lot_id\tasset_entity\tmap_id\tpart_name\n")
             for r in rows:
                 fh.write("\t".join(str(x) for x in r) + "\n")
