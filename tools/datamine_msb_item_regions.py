@@ -255,7 +255,35 @@ class _AssetIndex:
         return ent
 
 
-def build_treasure_assets(only_maps=None):
+def _scan_map_treasures(item):
+    """ONE map -> [(item_lot_id, asset_entity, map_id, part_name)] + its lookup stats.
+
+    Module-level and returning only plain tuples, because on Windows a process pool SPAWNS: the
+    callable must be importable and the payload picklable. The lot -> flag join is deliberately NOT
+    done here -- shipping the whole lot_map to every worker would cost more than the parse it saves.
+    """
+    map_id, msb_dir = item
+    stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
+             "missing_part": 0, "treasures": 0}
+    assets = _AssetIndex(msb_dir, stats)
+    out = []
+    for f in glob.glob(os.path.join(msb_dir, "Event", "Treasure", "*.xml")):
+        try:
+            r = ET.parse(f).getroot()
+        except (ET.ParseError, OSError):
+            continue
+        lid = (r.findtext("ItemLotID") or "").strip()
+        part = (r.findtext("TreasurePartName") or "").strip()
+        if not lid.isdigit() or int(lid) <= 0 or not part:
+            continue
+        stats["treasures"] += 1
+        ent = assets.get(part)
+        if ent is not None:
+            out.append((int(lid), ent, map_id, part))
+    return map_id, out, stats
+
+
+def build_treasure_assets(only_maps=None, jobs=1):
     """flag -> (item_lot_id, asset entity id), the join `EnableAssetTreasure(assetEntityId)` needs.
 
     THE CHAIN, every link observed rather than assumed:
@@ -276,9 +304,9 @@ def build_treasure_assets(only_maps=None):
     stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
              "missing_part": 0, "treasures": 0}
     roots = [os.path.join(ART, "mapstudio"), ART]
-    # DEDUPE BY MAP ID. `_iter_msb_dirs` walks mapstudio AND the root-level witchy dirs, so most maps
-    # come back twice -- Alaric's run showed `m10_00` at [1] and again at [2], the second yielding 0
-    # rows every time. Half of 1347 scans were re-reads of a map already done. First one wins.
+    # DEDUPE BY MAP ID. `_iter_msb_dirs` walks mapstudio AND the root-level witchy dirs, so maps come
+    # back more than once -- Alaric's run had `m10_00` at [1] and again at [2], the second yielding 0
+    # rows. First one wins.
     seen, dirs = set(), []
     for m, d in _iter_msb_dirs(roots):
         if only_maps and m not in only_maps:
@@ -288,34 +316,38 @@ def build_treasure_assets(only_maps=None):
         seen.add(m)
         dirs.append((m, d))
     total = len(dirs)
-    print("treasure assets: %d distinct map(s) to scan" % total, file=sys.stderr, flush=True)
-    for i, (map_id, msb_dir) in enumerate(dirs, start=1):
+    print("treasure assets: %d distinct map(s) to scan, %d job(s)" % (total, jobs),
+          file=sys.stderr, flush=True)
+
+    def _absorb(map_id, found_rows, st, i):
+        nonlocal maps
         maps += 1
-        assets = _AssetIndex(msb_dir, stats)
-        found = 0
-        for f in glob.glob(os.path.join(msb_dir, "Event", "Treasure", "*.xml")):
-            try:
-                r = ET.parse(f).getroot()
-            except (ET.ParseError, OSError):
-                continue
-            lid = (r.findtext("ItemLotID") or "").strip()
-            part = (r.findtext("TreasurePartName") or "").strip()
-            if not lid.isdigit() or int(lid) <= 0 or not part:
-                continue
-            stats["treasures"] += 1
-            ent = assets.get(part)
-            if ent is None:
-                continue
-            for flag in lot_map.get(int(lid), ()):
-                rows.append((flag, int(lid), ent, map_id, part))
-                found += 1
-        # Carry the lookup mix in the LIVE line, not just the summary: if `scans` climbs with every
-        # map the filename convention does not hold and the run is quadratic-ish -- which is worth
-        # knowing at map 20, not at the end of an overnight job.
+        n = 0
+        for lid, ent, mid, part in found_rows:
+            for flag in lot_map.get(lid, ()):
+                rows.append((flag, lid, ent, mid, part))
+                n += 1
+        for k, v in st.items():
+            stats[k] += v
         print("  [%4d/%4d] %-20s %d row(s)  total %d  (direct %d, indexed %d, map-scans %d)"
-              % (i, total, map_id, found, len(rows),
-                 stats["direct"], stats["indexed"], stats["map_scans"]),
-              file=sys.stderr, flush=True)
+              % (i, total, map_id, n, len(rows), stats["direct"], stats["indexed"],
+                 stats["map_scans"]), file=sys.stderr, flush=True)
+
+    if jobs <= 1 or total < 2:
+        # Serial path kept deliberately: a process pool is one more thing that can fail (spawn,
+        # pickling, an antivirus that dislikes 8 python children), and when the parse is what is
+        # broken you want the simple one. `--jobs 1` is the fallback, not a legacy branch.
+        for i, item in enumerate(dirs, start=1):
+            _absorb(*_scan_map_treasures(item), i)
+    else:
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        with ProcessPoolExecutor(max_workers=jobs) as ex:
+            futs = {ex.submit(_scan_map_treasures, item): item[0] for item in dirs}
+            for i, fut in enumerate(as_completed(futs), start=1):
+                _absorb(*fut.result(), i)
+
+    # ORDER-INDEPENDENT OUTPUT. Workers finish out of order, so the row list is not in map order --
+    # the emit sorts, and this asserts the parallel and serial paths cannot disagree on CONTENT.
     print("treasure assets: %d map(s), %d treasure(s), %d row(s); lookups: %d direct, %d via a "
           "map index (%d map scan(s)); %d part(s) had no EntityID, %d not found"
           % (maps, stats["treasures"], len(rows), stats["direct"], stats["indexed"],
@@ -536,6 +568,9 @@ def main(argv=None):
                     help="which provenance chains to emit (default: all)")
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--stdout", action="store_true", help="print instead of writing the tsv")
+    ap.add_argument("--jobs", "-j", type=int, default=min(8, (os.cpu_count() or 1)),
+                    help="parallel map scans (default: min(8, cpu count)). `-j 1` runs serially, "
+                         "which is the one to use if the pool itself misbehaves.")
     ap.add_argument("--emit-assets", action="store_true",
                     help="write greenfield/treasure_assets.tsv (flag -> lot -> asset entity), the "
                          "join datamine_lot_gates.py needs for the 186 treasure gate sites")
@@ -545,7 +580,7 @@ def main(argv=None):
                          "datamine_lot_gates.py wants; see probe.__doc__.")
     args = ap.parse_args(argv)
     if args.emit_assets:
-        rows = build_treasure_assets(set(args.maps) if args.maps else None)
+        rows = build_treasure_assets(set(args.maps) if args.maps else None, jobs=args.jobs)
         with open(ASSETS_OUT, "w", encoding="utf-8", newline="\n") as fh:
             fh.write("# AUTO-GENERATED by tools/datamine_msb_item_regions.py --emit-assets.\n")
             fh.write("# Treasure check flag -> its ItemLotParam lot -> the ASSET ENTITY the EMEVD\n")
