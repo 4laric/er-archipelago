@@ -2283,6 +2283,8 @@ LOCATIONS = {
         ('Limgrave :: "Homing Instinct" Painting - around Murkwater Coast [f580000]', 7770895, 580000),
         ('Limgrave :: Incantation Scarab - near Seaside Ruins [f580300]', 7770901, 580300),
         ('Limgrave :: Warhawk Ashes - near Church of Pilgrimage [f580340]', 7770905, 580340),
+        ('Limgrave :: Poisonbone Dart - near Cave of Knowledge [f18007000]', 7771826, 18007000),
+        ('Limgrave :: Golden Rune [5] - near Cave of Knowledge [f18007020]', 7771827, 18007020),
         ("Limgrave :: Erdtree's Favor - near Cave of Knowledge [f18007050]", 7771828, 18007050),
         ('Limgrave :: Erdtree Greatbow - around Cave of Knowledge [f18007900]', 7771829, 18007900),
         ('Limgrave :: Root Resin - near Stormfoot Catacombs [f30027000]', 7772165, 30027000),
@@ -4774,8 +4776,6 @@ LOCATIONS = {
         ('Stormveil :: Godskin Prayerbook - around Castleward Tunnel [f10007990]', 7771012, 10007990),
         ('Stormveil :: The Stormhawk King - m10_01 [f10017010]', 7771013, 10017010),
         ('Stormveil :: Stormhawk Deenh - m10_01 [f10017900]', 7771014, 10017900),
-        ('Stormveil :: Poisonbone Dart - near Cave of Knowledge [f18007000]', 7771826, 18007000),
-        ('Stormveil :: Golden Rune [5] - near Cave of Knowledge [f18007020]', 7771827, 18007020),
         ('Stormveil :: Living Jar Shard - around Castleward Tunnel [f10007082]', 7773991, 10007082),
         ('Stormveil :: Dozing Cross-Legged - around Castleward Tunnel [f60836]', 7774846, 60836),
     ],
@@ -5136,4 +5136,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ebcd9888c27c4757bda771e665cec9638e8d95efd87b28d790d843b26f075749', 'module': 'data.py', 'body_sha256': 'sha256:f3fb7d3fd88ee91236b1ab6c5df8259ac8de2d31ff539d09719dc036f8e610b6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:752732bc0ca999289f9fdbbf391aa254eacb69aed511f135564ee68186272ccc', 'module': 'data.py', 'body_sha256': 'sha256:d728f0f7fa4fe293bfb23c23f44d7a5228a39d10f1b78f6faff5871e6c3196bc'}
