@@ -191,12 +191,64 @@ _TILE_Y_MIN = min(y for _, y in ANCHOR)
 _TILE_Y_MAX = max(y for _, y in ANCHOR)
 
 def tile_pr(x,y):
+    """NEAREST-NEIGHBOUR play_region for an overworld tile. ⚠️ IT CANNOT FAIL -- see tile_pr_strict.
+
+    Kept for diagnostics and for callers that genuinely want a best-effort label. It must NOT be used
+    to decide a CHECK's region: ANCHOR only holds tiles that CONTAIN A GRACE (132 of the 231 m60 tiles
+    that hold checks), so for the other 99 this returns a confident answer for ground it has never
+    seen. Measured 2026-07-25 against the independent per-check nearest-grace oracle: on an ANCHORED
+    tile the two agree 98.1% of the time (749 checks); one tile away they agree **84.8%** (429 checks,
+    65 disagreements). That 15% is not noise -- it is the Church of Pilgrimage bug (a Weeping Sacred
+    Tear reading Limgrave) and all seven of Summonwater's phantom "Caelid" checks."""
     if (x,y) in ANCHOR: return ANCHOR[(x,y)]
     best,bd=None,1e18
     for (ax,ay),pr in ANCHOR.items():
         d=(ax-x)**2+(ay-y)**2
         if d<bd: bd,best=d,pr
     return best
+
+def tile_pr_strict(x,y):
+    """play_region for a tile we have actually SEEN, else None. THE ONE REGION DECISIONS USE.
+
+    CONTRIBUTING rule 1: a derivation that cannot answer must FAIL, not answer. An unanchored tile is
+    ground with no grace in it, so we do not know its play_region -- and `None` flows into
+    `PLAY2AP.get(...)`, whose miss path is already the DEFAULTED quarantine (`_region_is_derived`),
+    where a guess is barred from carrying progression."""
+    return ANCHOR.get((x,y))
+
+# ---- per-check nearest-grace play_region: a BETTER derivation than the tile, where it exists -------
+# The tile is a 256 m square whose region we infer from whichever neighbouring tile happens to hold a
+# grace. The check's own nearest grace is a METRIC nearest-neighbour, capped at 2000 m by
+# tools/build_nearest_grace.py, and the grace's play_region is read straight off BonfireWarpParam --
+# no inference at all. So where both exist and disagree, the grace is the better answer, and where the
+# tile has no anchor the grace is the ONLY answer.
+#
+# This is only possible because nearest_grace.tsv carries the grace's own KEY as of 2026-07-25 (its
+# display NAME is shared by seven pairs of distant graces -- see tools/build_nearest_grace.py).
+def _load_grace_play_region():
+    """check flag (str) -> the play_region of its nearest grace, from committed tsvs only."""
+    _path = os.path.join(HERE, "nearest_grace.tsv")
+    if not os.path.isfile(_path):
+        return {}
+    _out, _nokey = {}, 0
+    with open(_path, encoding="utf-8-sig", newline="") as _fh:
+        for _ln in _fh:
+            if not _ln.strip() or _ln.lstrip().startswith("#"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) < 3 or not _p[0].strip().lstrip("-").isdigit():
+                _nokey += 1 if len(_p) >= 2 else 0
+                continue
+            _pr = greg.get(_p[2].strip())
+            if _pr and _pr != "0":
+                _out[_p[0].strip()] = _pr
+    if _nokey:
+        print(f"[gen_data] WARNING: nearest_grace.tsv has {_nokey} row(s) with no grace_key column -- "
+              f"re-emit it (tools/build_nearest_grace.py). Those checks fall back to the tile.")
+    return _out
+
+GRACE_PLAY_REGION = _load_grace_play_region()
+print(f"grace play_region: {len(GRACE_PLAY_REGION)} check(s) can be regioned from their nearest grace")
 # ---- play_region -> region: THE spine (region_groups.py, the single source) -----------------
 # tile_pr() above names an overworld tile's play_region; PLAY2AP names the region. It now covers
 # ALL 54 explorable buckets (overworld, legacy, underground, DLC), so a grace's own play_region id
@@ -343,8 +395,13 @@ def _overworld_tile_of(r):
 def _region_of_raw(r):
     reg=r['region']; meth=r['method']
     if reg.startswith('Overworld m60'):
-        t = _overworld_tile_of(r)
-        return PLAY2AP.get(tile_pr(*t), HUB) if t else HUB
+        # ORDER: the check's own nearest GRACE (metric, capped, no inference) beats the TILE (a
+        # 256 m square inferred from a neighbour), and an unanchored tile does not answer at all.
+        _pr = GRACE_PLAY_REGION.get(str(r.get('flag')))
+        if _pr is None:
+            t = _overworld_tile_of(r)
+            _pr = tile_pr_strict(*t) if t else None
+        return PLAY2AP.get(_pr, HUB)
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
@@ -382,8 +439,13 @@ def _region_is_derived(r):
     if _srfl is not None and r.get('flag_source') == 'shop' and _srfl in SHOP_ROW_REGION:
         return True                            # merchant-block region (SHOP_ROW_REGION) = DERIVED
     if reg.startswith('Overworld m60'):
-        t = _overworld_tile_of(r)              # flag-decode first; LOD-suffixed guesses return None
-        return bool(t) and tile_pr(*t) in PLAY2AP
+        # Mirrors _region_of_raw EXACTLY -- if these two ever disagree, a check is either barred from
+        # progression while its region is known, or (far worse) allowed to carry it on a guess.
+        _pr = GRACE_PLAY_REGION.get(str(r.get('flag')))
+        if _pr is None:
+            t = _overworld_tile_of(r)          # flag-decode first; LOD-suffixed guesses return None
+            _pr = tile_pr_strict(*t) if t else None
+        return _pr in PLAY2AP
     if meth=='shop_multi': return False
     return reg in REGION_MAP
 
