@@ -140,8 +140,10 @@ def main() -> int:
         fh.write("param\tordinal\tcolumn\ttype\n")
         for r in rows:
             fh.write("%s\t%d\t%s\t%s\n" % r)
+    # Trailing newline: tools/check_integrity.py flags a missing one as a possible truncated tail,
+    # and a spurious warning on a clean file trains people to ignore the gate.
     (args.out / "param_index.json").write_text(
-        json.dumps(index, indent=1, sort_keys=True, ensure_ascii=False), encoding="utf-8")
+        json.dumps(index, indent=1, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
     with (args.out / "column_to_params.tsv").open("w", encoding="utf-8", newline="") as fh:
         fh.write("column\tn_params\tparams\n")
         for col in sorted(reverse):

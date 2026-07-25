@@ -33,10 +33,17 @@ So ONE placeholder goods row is enough:
 Result: no vanilla ware is EVER handed out at a check (the double-dip is gone), and nothing else is
 watched by item id, so mined ore, farmed drops, bought goods and crafted goods all just work.
 
+WHY THE KEYS SAY "Zero": these non-goods slots were once EMPTIED (lotItemId=0, lotItemNum=0). That
+removed the pickup -- and the pickup IS the check, since detection is the acquisition flag firing -- so
+it silently killed every gear chest, scarab Ash-of-War drop and boss drop. Fixed client-side (1121d93,
+confirmed in-game 2026-07-24) by writing the slot CATEGORY with the id. The slot_data keys keep their
+old names because renaming them breaks connect for a seed rolled on an older apworld. Do NOT "restore"
+the zeroing the name implies.
+
 SCOPE: GOODS slots are repointed to AP_PLACEHOLDER_GOODS (a goods row -- so it only works for goods
-slots). NON-GOODS check slots (weapon/armor/talisman/gem-ash) are instead ZEROED at the source
-(checkLotZeroMap / checkLotZeroEnemy, lotItemId=0), because a goods placeholder in a non-goods slot is
-a category mismatch. Non-goods wares used to rely on the id-keyed suppressor alone, but that only fires
+slots). NON-GOODS check slots (weapon/armor/talisman/gem-ash) are REPOINTED the same way
+(wire keys checkLotZeroMap / checkLotZeroEnemy -- historical names, see below), the client writing the
+slot's lotItemCategory alongside the id so a goods row is legal where a weapon sat. Non-goods wares used to rely on the id-keyed suppressor alone, but that only fires
 when the detour sees the AddItem and the check flag isn't already collected -- so enemy / scarab /
 scripted overworld drops leaked their vanilla item (playtest: Ash of War: Lightning Ram, Ornamental
 Straight Sword). Zeroing at the source is grant-path- and flag-timing-independent; the id-keyed
@@ -119,7 +126,7 @@ class CheckLots(Feature):
                 {str(lot): list(slots) for lot, slots in CHECK_LOT_SLOTS_MAP.items()},
             contract.CHECK_LOT_BLANK_ENEMY:
                 {str(lot): list(slots) for lot, slots in CHECK_LOT_SLOTS_ENEMY.items()},
-            # Non-goods check slots the client ZEROES (weapon/armor/talisman/gem) -- the goods repoint
+            # Non-goods check slots the client REPOINTS (weapon/armor/talisman/gem) -- the goods repoint
             # can't touch them, so this is what closes the enemy/scarab/scripted vanilla-drop leak.
             contract.CHECK_LOT_ZERO_MAP:
                 {str(lot): list(slots) for lot, slots in CHECK_LOT_ZERO_MAP.items()},
