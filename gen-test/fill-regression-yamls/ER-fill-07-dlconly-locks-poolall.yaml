@@ -1,0 +1,21 @@
+# FILL REGRESSION 07 -- dlc_only region-lock must not spill every lock to start.
+# Guards: er-trimmed-lock-spill, er-dlc-only-region-lock, er-dlc-only-pull-base-locks.
+#   dlc_only + region_lock + location_pool:all -- the DLC graph must bootstrap as a
+#   tree, not dump all locks into sphere 1.
+name: fillreg07
+description: dlc_only region-lock no-spill guard (pool=all)
+game: EldenRing
+EldenRing:
+  enable_dlc: true
+  dlc_only: true
+  world_logic: region_lock
+  ending_condition: elden_beast
+  location_pool: all
+  region_access: warp
+  pool_builder: true
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+  early_leveling: true
+  torrent_start: on
+  accessibility: minimal
+  progression_balancing: 50

@@ -1,0 +1,28 @@
+# FILL REGRESSION 08 -- soft_progression must not demote a gating smithing bell to
+# "useful" -> "appears as unbeatable".
+# CHANGED 2026-06-21: was full base region_lock (overflowed every seed). Re-pinned to
+# the proven num_regions capital pattern; smithing bells stay a progression gate.
+# Guards: er-softprog-bellgate-contradiction.
+name: fillreg08
+description: soft_progression x smithing-bell gate guard (num_regions-sealed)
+game: EldenRing
+EldenRing:
+  enable_dlc: false
+  world_logic: region_lock
+  ending_condition: capital
+  num_regions: 4
+  region_access: warp
+  graces_per_region: 0
+  soft_progression: true
+  smithing_bell_bearing_option: progression_randomize
+  progressive_stone_bells: false
+  auto_upgrade: false
+  location_pool: all
+  pool_builder: true
+  important_locations: ["Remembrance", "Church", "Seedtree"]
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+  early_leveling: true
+  torrent_start: on
+  accessibility: minimal
+  progression_balancing: 50

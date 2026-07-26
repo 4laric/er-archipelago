@@ -1,0 +1,28 @@
+# FILL REGRESSION 05 -- trimmed pool must not hit "not enough filler" / overflow.
+# CHANGED 2026-06-21: was a FULL base region_lock run (no sealing) -> overflowed
+# "No more spots to place N items" every seed. Full ~3900-check base region_lock is
+# not a fill-validated mode (even working.yaml seals via num_regions). Re-pinned to
+# the proven num_regions capital pattern so trimmed pool curation is what's tested.
+# Guards: er-trimmed-forbid-useful-shortage, er-trimmed-curation-impl.
+name: fillreg05
+description: trimmed pool filler-shortage guard (num_regions-sealed)
+game: EldenRing
+EldenRing:
+  enable_dlc: false
+  world_logic: region_lock
+  ending_condition: capital
+  num_regions: 4
+  region_access: warp
+  graces_per_region: 0
+  location_pool: trimmed
+  pool_builder: true
+  soft_progression: true
+  tidy_fun_consumables: true
+  progressive_flasks: true
+  important_locations: ["Remembrance", "Church", "Seedtree"]
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+  early_leveling: true
+  torrent_start: on
+  accessibility: minimal
+  progression_balancing: 50

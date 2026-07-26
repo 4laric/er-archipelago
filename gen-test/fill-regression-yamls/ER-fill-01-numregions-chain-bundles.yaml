@@ -1,0 +1,30 @@
+# FILL REGRESSION 01 -- num_regions "No more spots to place N items".
+# Guards: er-num-regions-fill-overflow, er-numregions-chain-host-reach,
+#         er-important-locations-scope. The constrained early-reachable set
+#         (small num_regions + chain + 4 bundle locks) must still find spots
+#         for the chain-gating progression. MUST stay placeable.
+name: fillreg01
+description: num_regions chain + bundle locks overflow guard
+game: EldenRing
+EldenRing:
+  enable_dlc: false
+  world_logic: region_lock
+  ending_condition: capital
+  num_regions: 4
+  region_access: warp
+  graces_per_region: 0
+  extra_region_locks:
+    - limgrave_caves
+    - liurnia_caves
+    - altus_caves
+    - mountaintops_caves
+  location_pool: all
+  pool_builder: true
+  soft_progression: true
+  important_locations: ["Remembrance", "Church", "Seedtree"]
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+  early_leveling: true
+  torrent_start: on
+  accessibility: minimal
+  progression_balancing: 50

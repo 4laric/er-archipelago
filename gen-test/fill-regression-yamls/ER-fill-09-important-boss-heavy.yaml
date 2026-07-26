@@ -1,0 +1,24 @@
+# FILL REGRESSION 09 -- heavy important_locations must stay placeable under num_regions.
+# Guards: er-important-locations-scope, er-num-regions-fill-overflow.
+#   Boss + KeyItem priority on a small num_regions chain is the heaviest fill
+#   pressure; the priority sweep must be num_regions/Enia-aware. STRESS config
+#   (lower baseline floor -- watch for a DROP, not for non-100%).
+name: fillreg09
+description: important_locations Boss/KeyItem-heavy scope stress guard
+game: EldenRing
+EldenRing:
+  enable_dlc: false
+  world_logic: region_lock
+  ending_condition: capital
+  num_regions: 4
+  region_access: warp
+  important_locations: ["Remembrance", "Seedtree", "Church", "Boss", "KeyItem"]
+  location_pool: all
+  pool_builder: true
+  soft_progression: true
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+  early_leveling: true
+  torrent_start: on
+  accessibility: minimal
+  progression_balancing: 50

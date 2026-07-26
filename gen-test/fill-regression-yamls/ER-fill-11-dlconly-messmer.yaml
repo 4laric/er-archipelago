@@ -1,0 +1,21 @@
+# FILL REGRESSION 11 -- Messmer mini-campaign goal (forces dlc_only on).
+# Guards: er-dlc-mini-campaign-spec, er-dlc-only-region-lock.
+#   ending=messmer keeps only front-half DLC and seals the rest; the sealed
+#   DLC graph must still fill to a beatable Messmer.
+name: fillreg11
+description: dlc_only Messmer mini-campaign fill guard
+game: EldenRing
+EldenRing:
+  enable_dlc: true
+  dlc_only: true
+  world_logic: region_lock
+  ending_condition: messmer
+  region_access: warp
+  location_pool: all
+  pool_builder: true
+  missable_location_behavior: allow_useful
+  excluded_location_behavior: allow_useful
+  early_leveling: true
+  torrent_start: on
+  accessibility: minimal
+  progression_balancing: 50
