@@ -1,5 +1,43 @@
 # SPEC — the MSB spatial walk: what it is actually for
 
+> ## 🛑 STATUS: CLOSED 2026-07-26 (Alaric). Do not reopen without reading §0.
+>
+> The walk was RUN, the cheap slices landed, and the remainder is measured unreachable. Check
+> locations went **3192 → 3912 of 4856 (65.7% → 80.6%)** and stopped there for reasons that are not
+> effort-shaped. §0 records where it stopped and what would justify restarting.
+
+## 0. Where it ended, and what would reopen it
+
+**Done and shipped:**
+- `--enemy` was opt-in and had never been used: +61 enemy-source, +102 of 111 treasure, +36 others.
+  202 checks, one flag.
+- merchant positions folded in (`5afecc4`, `663111f`): **+518 checks**, one row per (check, merchant
+  instance) — 378 of them on more than one map, max 7. The one-to-many model, populated.
+- descriptors: bare checks **608 → 126**, raw-tile locales **43 → 2**.
+
+**Measured DEAD — do not re-attempt without a new input:**
+- **event-source checks: 20 of 517 resolve (3.9%).** The treasure/enemy part join does not reach
+  them. The handoff predicted this slice was "most likely to collapse"; it collapsed.
+- **the 944 with no position at all** are `400xxx` key-item flags, 6-digit common-event flags, the
+  gestures and 40 unnamed-merchant shop rows. No lot placement, so NO spatial method reaches them —
+  including check-to-check, which cannot compute a distance for a thing with no coordinates.
+- **check-to-check k-NN** (Alaric's idea, and the machinery already exists in
+  `build_nearest_grace._normalize`/`_dist`, `world = tile*256 + local`, 2000 m cap): of 558
+  positioned graceless-tile checks, **541 already have a nearest grace**; the 17 that do not are
+  >2000 m from the nearest anchored check as well. It would inherit the same reach for ~17 checks.
+- tile anchoring: both routes dead (see `test_gf_tile_anchor_coverage`), and 🛑 the premise that a
+  256 m tile has ONE region is FALSE — anchored tiles straddle regions MORE often (9%) than
+  graceless ones (5%). A tile→region table is the wrong arity.
+
+**What would reopen it:** a new INPUT, not more effort. Specifically (a) whatever actually positions
+an event-source award, or (b) a spatial oracle independent of graces — which is the only thing that
+can break the `test_gf_grace_straddle` circularity that blocks grace-first regioning. Check-to-check
+is a candidate for (b) *as a referee*, not as coverage.
+
+---
+
+**Original spec below, written before the walk ran. §1 was right and is why the walk was cheap.**
+
 **Status: teed up, not started. Written 2026-07-26 after measuring which questions it does and does
 not answer.** Read §1 before starting it, because the obvious reason to do this walk is the wrong one.
 
