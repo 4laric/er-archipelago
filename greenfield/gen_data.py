@@ -1240,7 +1240,38 @@ _SHEET_DROPS = frozenset({14007930, 100020})
 # 🛑 Do not let this calcify into a hand list. `test_gf_lot_gates_cross_region` is its keeper: it
 # re-derives the population every run and fails if any member is NOT missable-tagged, so a NEW
 # questline-gated check surfaced by a better datamine turns it red instead of silently shipping.
-_QUESTLINE_GATED = frozenset({400061, 400381, 400394, 400602, 400614, 400644, 400645, 1044357100})
+#
+# ---- ADDED 2026-07-26, after the screen grew two more locators (601710e -> e7eb98d) ------------
+# Alaric hit f400191 in playtest -- the Stormhill Shack Golden Seed is not there until you have
+# progressed past the Roundtable -- and chasing it showed the screen had been resolving a gate flag
+# by DECODING ITS NUMBER, which only works for map-encoded flags. It dropped every pair it could not
+# decode, silently, and said clean. These eight are what the widened screen found:
+#
+#   400033     Liurnia   :: Lord of Blood's Favor       <- Sewer          (gate 35009209; Varre)
+#   400107     Raya Luc. :: Witch's Glintstone Crown    <- Weeping        (gate 3469)
+#   400183     Limgrave  :: Golden Rune [1], Murkwater  <- Mt. Gelmir     (gates 3683/3691; Patches,
+#                                                                         who relocates to Volcano Manor)
+#   400191     Limgrave  :: Golden Seed, Stormhill Shack<- Roundtable Hold(gates 3708/3709) ← the report
+#   400622     ShadowKeep:: Wise Man's Mask             <- Scadu Altus    (gate 7621)
+#   11007985   Leyndell  :: Raging Wolf Helm            <- Mt. Gelmir     (gate 7605; Volcano Manor
+#                                                                         invasion reward)
+#   1042397500 Limgrave  :: Scaled Helm                 <- Mt. Gelmir     (gate 7602; same questline)
+#   1050567700 Mountaintops :: Hoslow's Petal Whip      <- Mt. Gelmir     (gate 7604; same questline)
+#
+# ⚠️ EVIDENCE STRENGTH IS NOT UNIFORM HERE, and the weakest carried most of it. Of 227 pairs the
+# locators resolved 83 by map-setter, 0 by common call-site, 69 by TEST-SITE, 75 not at all. The
+# principled handle -- route a common-set flag through the map that $InitializeCommonEvents it --
+# contributed NOTHING, because common $Event(3719) is auto-run and has no call site. So most of the
+# eight rest on "the flag is TESTED over there", which says where a flag MATTERS, not where it lives.
+# That is precisely why the disposition is MISSABLE and not an access rule: a missable tag only stops
+# fill REQUIRING the check, it costs nothing if the inference is wrong, and it is reversible. Do not
+# promote any of these to a can_reach rule on this evidence.
+# 🛑 And the screen still cannot see ~two thirds of the corpus (75 no-handle + the undecodable).
+# Absence from this list is not evidence of safety.
+_QUESTLINE_GATED = frozenset({400061, 400381, 400394, 400602, 400614, 400644, 400645, 1044357100,
+                              # widened-screen additions, 2026-07-26 (table above):
+                              400033, 400107, 400183, 400191, 400622, 11007985, 1042397500,
+                              1050567700})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
                 | _SHEET_DROPS)
