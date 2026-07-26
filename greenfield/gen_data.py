@@ -701,6 +701,57 @@ print(f"location desc: multi-merchant shop rows guarded = {len(_MULTI_MERCHANT)}
 _BOSS_NAMES    = {}                                                # 2. TODO drop-flag -> boss name join
 _SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
 _NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. per-check nearest grace (Windows)
+def _load_shop_sellers():
+    """check flag -> [merchant display names], for desc_sources layer 3b.
+
+    A shop row has no map, so every spatial descriptor layer misses it and the check ships bare --
+    522 of the 608 descriptor-less checks are shop rows (measured 2026-07-26). The merchant IS the
+    location for those, and merchant_shops.tsv has carried readable names since that date.
+
+    shop_rows.tsv   stock_flag <- row_id      (the check's flag)
+    merchant_shops  row_id     -> merchant_name, one line per (row, merchant INSTANCE)
+
+    ALL sellers, deduped and sorted for a deterministic regen -- never just one. Naming a single shop
+    when several sell the ware is the v0.2.9 bug that cost five hand-written hints; 496 of 709 rows
+    have more than one seller. Inert (empty) if either table is absent, so a partial tree still gens.
+    """
+    _rowflag, _out = {}, defaultdict(set)
+    try:
+        _sh = os.path.join(HERE, "shop_rows.tsv")
+        _mp = os.path.join(HERE, "merchant_shops.tsv")
+        if not (os.path.isfile(_sh) and os.path.isfile(_mp)):
+            return {}
+        _h = None
+        for _ln in open(_sh, encoding="utf-8-sig"):
+            if _ln.startswith("#"):
+                continue
+            _c = _ln.rstrip("\n").split("\t")
+            if _h is None:
+                _h = _c
+                continue
+            _r = dict(zip(_h, _c))
+            _f = (_r.get("stock_flag") or "").strip()
+            if _f.isdigit():
+                _rowflag.setdefault((_r.get("row_id") or "").strip(), int(_f))
+        _h = None
+        for _ln in open(_mp, encoding="utf-8-sig"):
+            if _ln.startswith("#"):
+                continue
+            _c = _ln.rstrip("\n").split("\t")
+            if _h is None:
+                _h = _c
+                continue
+            _r = dict(zip(_h, _c))
+            _nm = (_r.get("merchant_name") or "").strip()
+            _fl = _rowflag.get((_r.get("row_id") or "").strip())
+            if _nm and _fl is not None:
+                _out[_fl].add(_nm)
+    except OSError:
+        return {}
+    return {_k: sorted(_v) for _k, _v in _out.items()}
+
+
+_SHOP_SELLERS  = _load_shop_sellers()                              # 3b. flag -> who sells it
 _TILE_GRACE    = _load_tile_str_tsv("tile_grace.tsv")              # 4b. tile -> grace name (Windows)
 _MAP_NAMES     = _load_tile_str_tsv("map_names.tsv")               # 5.  interior tile -> dungeon name (Windows)
 
@@ -2895,7 +2946,7 @@ for r in rows:
         _mtile=_recover_tile(flag) or ''
     _desc=_desc_sources.describe(flag, r.get('method',''), _mtile,
         is_boss=('Boss' in _t), is_remembrance=('Remembrance' in _t),
-        overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN,
+        overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN, sellers=_SHOP_SELLERS,
         nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE, map_names=_MAP_NAMES,
         check_region=reg, grace_region=_GRACE_REGION, hub_region=HUB)
     _base=(f"{reg} :: {item} - {_desc}" if _desc else f"{reg} :: {item}")
@@ -3042,7 +3093,7 @@ if CO_CHECK_FLAGS:
                 _mtile9 = _recover_tile(_cfl) or ""
             _desc9 = _desc_sources.describe(_cfl, _prow9.get("method", ""), _mtile9,
                 is_boss=("Boss" in _t9), is_remembrance=("Remembrance" in _t9),
-                overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN,
+                overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN, sellers=_SHOP_SELLERS,
                 nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE, map_names=_MAP_NAMES,
                 check_region=_preg9, grace_region=_GRACE_REGION, hub_region=HUB)
             _bnm9 = (f"{_preg9} :: {_snm9} - {_desc9}" if _desc9 else f"{_preg9} :: {_snm9}")

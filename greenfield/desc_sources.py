@@ -20,6 +20,7 @@ PRIORITY WATERFALL (first non-empty hit wins):
   1. override      location_descriptions.tsv  (flag -> English)     -- hand-authored, always wins
   2. boss          boss/remembrance drop       -> boss/enemy name    -- clean English, from boss tables
   3. spot          treasure_name_en.tsv        (flag -> English)     -- CURATED place phrase (opt-in)
+  3b. merchant     merchant_shops.tsv          (flag -> seller names) -- WHO sells it (shop rows)
   4. grace         nearest_grace.tsv           (flag -> grace name)  -- coord datamine (Windows regen)
   5. locale        method + map sub-tile                              -- always available, last resort
 
@@ -137,6 +138,30 @@ def clean_treasure_name(raw):
     return s
 
 
+def render_sellers(names):
+    """['Patches', 'Thiollier'] -> 'from Patches or Thiollier'. '' when there is nothing to say.
+
+    WHY THIS LAYER EXISTS. A shop row carries no map, so the layer-5 locale finds no tile and the
+    check stays bare -- and MEASURED 2026-07-26, 522 of the 608 descriptor-less live checks are shop
+    rows. Four identical 'Roundtable Hold :: Stonesword Key' lines separated only by [f...]. For a
+    shop check the MERCHANT is the location, and merchant_shops.tsv only started carrying readable
+    names on 2026-07-26 (before that the column held raw FMG text ids).
+
+    ⭐ EVERY seller is listed, never one. v0.2.9 had to DELETE five hand-written seller notes for
+    exactly this: they named one shop when several sold the ware, so you bought out Kale and the
+    check never fired. 496 of 709 shop rows have more than one seller -- naming one is wrong more
+    often than it is right. Measured over the checks this layer serves: 135 have 1 seller, 257 have
+    2, 78 have 3, 12 have 4. Four is the maximum, so the full list stays short and needs no
+    truncation and no "and N others" hedge.
+    """
+    names = [n for n in (str(x).strip() for x in (names or [])) if n]
+    if not names:
+        return ""
+    if len(names) == 1:
+        return "from " + names[0]
+    return "from " + ", ".join(names[:-1]) + " or " + names[-1]
+
+
 def _clean(v):
     return v.strip() if isinstance(v, str) else ""
 
@@ -175,7 +200,7 @@ def _grace_in_region(grace_name, check_region, grace_region, hub_region):
 
 
 def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
-             overrides=None, boss_names=None, spot_names=None,
+             overrides=None, boss_names=None, spot_names=None, sellers=None,
              nearest_grace=None, tile_grace=None, map_names=None,
              check_region=None, grace_region=None, hub_region=None):
     """Return the human description for a check (no flag, no item), or None.
@@ -193,6 +218,7 @@ def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
     overrides = overrides or {}
     boss_names = boss_names or {}
     spot_names = spot_names or {}
+    sellers = sellers or {}
     nearest_grace = nearest_grace or {}
     tile_grace = tile_grace or {}
     grace_region = grace_region or {}
@@ -212,6 +238,14 @@ def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
 
     # 3. curated English spot name (from the good post-colon place phrases)
     d = _clean(spot_names.get(flag))
+    if d:
+        return d
+
+    # 3b. WHO SELLS IT. A shop row has no map, so every layer below finds nothing and the check stays
+    # bare -- and the merchant is what a player actually needs to be told. Placed ABOVE the grace
+    # layers deliberately: now that merchant positions exist (2026-07-26) a shop check CAN reach a
+    # nearest grace, but "from Patches" beats "near whatever grace Patches happens to stand next to".
+    d = render_sellers(sellers.get(flag))
     if d:
         return d
 
