@@ -120,6 +120,29 @@ def build():
     if not gates:
         tally["NOTE: esd_gates.tsv absent or empty -- availability left blank"] += 1
 
+    # ---- 3. flag-encoded tile: the WEAKEST source, and labelled as such -------------------------
+    # An item-lot flag encodes its own map: overworld `1XXYY7NNN` -> m60_XX_YY (`2` -> m61), interior
+    # `MMSS7NNN` -> mMM_SS. gen_data already trusts this rule (_recover_tile) and so does
+    # test_gf_lot_gates_cross_region's resolver, but it is a derivation FROM THE ID, not an observation
+    # of where the thing stands -- so it gets its own source name and a consumer can refuse it.
+    #
+    # CONTROL, measured against the independent observed maps in msb_flag_region: of 2327 flags that
+    # have BOTH, 2281 agree = 98.02%. The 46 that do not split two ways, and neither is random:
+    #   * the observed map is a COARSE LOD tile (m60_10_09) while the decode gives the fine tile --
+    #     here the decode is the better answer (cf. the LOD tile-snap bug);
+    #   * genuinely adjacent tiles (observed m60_35_54 vs decoded m60_36_54) -- an item can sit just
+    #     over the boundary from the tile whose flag block owns it; here the observation wins.
+    # 🛑 So this is a HINT, not ground truth. It is emitted only where nothing better exists, and it
+    # is NOT the tile_pr trap in a new hat: tile_pr was a nearest-neighbour with NO failure branch, so
+    # it always answered. This refuses -- 166 flags decode to nothing and are counted, not guessed.
+    def _flag_tile(fl):
+        t = str(fl)
+        if len(t) == 10 and t[0] in "12":
+            return "m6%s_%s_%s" % ("0" if t[0] == "1" else "1", t[2:4], t[4:6])
+        if len(t) == 8 and t[4] == "7":
+            return "m%s_%s" % (t[0:2], t[2:4])
+        return None
+
     for f, rids in row_of_flag.items():
         placed = False
         for rid in rids:
@@ -150,15 +173,48 @@ def build():
                 placed = True
         if not placed:
             tally["shop flag with NO merchant map (unknown position)"] += 1
+    return out, tally, _flag_tile
+
+
+def add_flag_tiles(out, tally, flag_tile, wanted):
+    """Fill ONLY the flags nothing else placed. `wanted` is the caller's universe of flags (so this
+    never invents rows for ids no check uses)."""
+    placed = {f for (f, _m, _s, _d, _a, _n) in out}
+    for f in sorted(wanted, key=int):
+        if f in placed:
+            continue
+        t = flag_tile(f)
+        if not t:
+            tally["flag decodes to NO map (refused, not guessed)"] += 1
+            continue
+        out.append((f, t, "flag_tile", "decoded from the flag id", "", ""))
     return out, tally
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true", help="write greenfield/check_maps.tsv")
+    ap.add_argument("--flag-tiles", action="store_true", default=True,
+                    help="also emit source=flag_tile for flags nothing else places (default on; "
+                         "98.02%% agreement with the observed maps -- see the note in build())")
+    ap.add_argument("--no-flag-tiles", dest="flag_tiles", action="store_false")
     args = ap.parse_args()
 
-    out, tally = build()
+    out, tally, flag_tile = build()
+    if args.flag_tiles:
+        # the universe is region_map.csv's flags -- it is comma-separated, so read it directly
+        # rather than through the TSV reader.
+        universe = set()
+        rmp = os.path.join(GF, "region_map.csv")
+        if os.path.isfile(rmp):
+            import csv as _csv
+            with open(rmp, encoding="utf-8-sig", newline="") as fh:
+                for r in _csv.DictReader(fh):
+                    if (r.get("flag") or "").strip().isdigit():
+                        universe.add(r["flag"].strip())
+        if not universe:
+            sys.exit("FATAL: region_map.csv gave no flags -- refusing to fill tiles into a void.")
+        out, tally = add_flag_tiles(out, tally, flag_tile, universe)
     flags = {f for (f, _m, _s, _d, _a, _n) in out}
     per = collections.Counter(f for (f, _m, _s, _d, _a, _n) in out)
     multi = sum(1 for f in per if per[f] > 1)
