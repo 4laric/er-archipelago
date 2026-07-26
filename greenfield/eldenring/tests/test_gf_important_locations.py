@@ -226,9 +226,27 @@ class TagDataTests(unittest.TestCase):
 
 
 def _tagged_in_play(world, mw):
+    """Tagged locations the feature actually ENFORCES on.
+
+    MISSABLE is excluded, and must be: important says "reject filler", missable says "reject
+    progression", and a location under both accepts NOTHING. Missable wins, because a check that can
+    be lost permanently must not be forced to hold something good -- that just guarantees the player
+    loses it. Mirrors the filter in features/important_locations.set_rules; if this helper and that
+    filter drift, one of these tests goes red, which is the intent.
+
+    (Added 2026-07-26. f400191, the Stormhill Shack Golden Seed, is Seedtree-tagged AND became
+    missable when the widened cross-region screen found its Roundtable gate -- the first location to
+    sit under both rules. The old helper made test_tagged_reject_filler demand the contradiction.)
+    """
     sel = set(world.options.important_locations.value) & set(_VALID)
+    try:
+        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS as _miss
+    except ImportError:                                          # pragma: no cover - partial tree
+        _miss = {}
     return [l for l in mw.get_locations(world.player)
-            if LOCATION_TAGS.get(getattr(l, "address", None)) and sel.intersection(LOCATION_TAGS[l.address])]
+            if LOCATION_TAGS.get(getattr(l, "address", None))
+            and sel.intersection(LOCATION_TAGS[l.address])
+            and l.address not in _miss]
 
 
 class ImportantLocEnforced(WorldTestBase):
