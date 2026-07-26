@@ -84,8 +84,12 @@ import pytest
 # more overworld checks (1809 -> 1945; --enemy is opt-in and the previous emit had not used it, so
 # all 61 enemy-source checks were simply absent). Measured against the OLD table at 8e52c6a:
 #
-#     before   144 graceless tiles | 640 of 1809 exposed (35%)
-#     now      145 graceless tiles | 670 of 1945 exposed (34%)
+#     2026-07-25   144 graceless tiles | 640 of 1809 exposed (35%)
+#     --enemy run  145 graceless tiles | 670 of 1945 exposed (34%)
+#     + merchants  149 graceless tiles | 902 of 2670 exposed (34%)   <- 663111f folded in the 518
+#                                                                      merchant-positioned shop checks
+# The SHARE has now held at 34% across two separate improvements to the coordinate table while the
+# raw count rose 640 -> 902. That is the whole argument for MAX_EXPOSED_SHARE below.
 #
 # One new graceless tile, m60_33_45, which previously held no LOCATED check at all. No predicate
 # moved. ⭐ And the SHARE went DOWN -- we can see more of the map than we could, and a slightly
@@ -95,8 +99,8 @@ import pytest
 # improves, so they will keep going red for the RIGHT reason and keep inviting a blind bump. That is
 # why MAX_EXPOSED_SHARE below exists -- it is the quantity that actually means something, and it may
 # only fall.
-MAX_GRACELESS_TILES = 145
-MAX_CHECKS_ON_GRACELESS_TILES = 670
+MAX_GRACELESS_TILES = 149
+MAX_CHECKS_ON_GRACELESS_TILES = 902
 # The honest invariant: the FRACTION of located overworld checks whose region is a tile guess. Unlike
 # the raw counts this cannot be inflated by locating more checks, so it is the one to defend.
 MAX_EXPOSED_SHARE = 0.35

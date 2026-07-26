@@ -36,8 +36,31 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 
 # Measured on main 2026-07-25, after (a) the Cave of Knowledge map fix and (b) grouping on the
 # grace's own KEY instead of its display name. A RATCHET, not a target: it may only ever go DOWN.
-MAX_STRADDLING_GRACES = 39
-MAX_MINORITY_CHECKS = 98
+# RE-PINNED 2026-07-26 (39/98 -> 52/116) and the question this file's own failure message asks --
+# "a new straddle means a region derivation moved" -- was ANSWERED FIRST, with a control, not assumed:
+#
+#   nearest_grace.tsv grew 3205 -> 3435 rows, because datamine_item_grace_coords.py --enemy located
+#   the 61 enemy-source checks (--enemy is opt-in and the previous emit had not used it) and the
+#   merchant fold added shop positions.
+#
+#   CONTROL -- recompute the straddles on the NEW table but restricted to the OLD flag set:
+#       new table, all flags      52 graces / 116 minority
+#       new table, OLD flags only 39 graces /  98 minority   <-- EXACTLY the old pins
+#       old table                 39 graces /  98 minority
+#
+#   Not one existing check changed side. All 13 new straddling graces and all 18 new minority checks
+#   are checks the oracle COULD NOT SEE BEFORE. No region derivation moved.
+#
+# ⚠️ These counts can only rise as the coordinate table improves, so they will keep going red for
+# the right reason. Run that control before touching them again -- it is three lines and it answers
+# the question outright:
+#   restrict `keys` to the flags present in the PREVIOUS nearest_grace.tsv (git show <sha>:...) and
+#   recompute. Unchanged => new checks. Changed => a derivation moved, and THAT is the bug.
+MAX_STRADDLING_GRACES = 52
+MAX_MINORITY_CHECKS = 116
+# The share cannot be inflated by locating more checks, so it is the quantity to defend.
+# Observed: 98/3205 = 3.1% before, 116/3435 = 3.4% now.
+MAX_MINORITY_SHARE = 0.040
 
 
 def _nearest_grace(column=1):
@@ -112,6 +135,13 @@ def test_grace_straddle_count_does_not_grow():
 def test_minority_side_checks_do_not_grow():
     s = _straddles()
     minority = sum(sum(c.values()) - c.most_common(1)[0][1] for c in s.values())
+    _total = len(_nearest_grace(column=2))
+    _share = minority / _total if _total else 0.0
+    assert _share <= MAX_MINORITY_SHARE, (
+        f"{100.0 * _share:.1f}% of grace-resolved checks ({minority} of {_total}) sit on the minority "
+        f"side of a straddling grace -- over the {100.0 * MAX_MINORITY_SHARE:.0f}% ceiling. THIS is "
+        "the assertion that means something: locating more checks cannot move it, only a derivation "
+        "getting worse can.")
     assert minority <= MAX_MINORITY_CHECKS, (
         f"{minority} checks sit on the minority side of a straddling grace (pin {MAX_MINORITY_CHECKS}). "
         "That is the upper bound on misregioned checks and it may only shrink.")
