@@ -1,11 +1,23 @@
 """No check is gated on a flag that belongs to ANOTHER region.
 
-THE BUG THIS SCREENS FOR. `f67050` -- the cookbook Roderika leaves at Stormhill Shack -- is regioned
-Limgrave, correctly: that is where the player stands, and the region drives the client's kick. But the
-pickup does not EXIST until you rest at a grace in Liurnia. So the generator asserts a reachability it
-does not have, and fill may place progression there in a seed where Liurnia is locked. That is not a
-misregion; it is a missing ACCESS RULE, and it is invisible to every region oracle we have, because
-the region is right.
+THE BUG THIS SCREENS FOR. A check regioned CORRECTLY that still cannot EXIST yet: the generator
+asserts a reachability it does not have, and fill may place progression there in a seed where the real
+prerequisite is locked. Not a misregion -- a missing ACCESS RULE, invisible to every region oracle we
+have, precisely because the region is right.
+
+⚠️ THE EXEMPLAR IN THIS DOCSTRING WAS WRONG UNTIL 2026-07-25, and it sent two sessions to the wrong
+place. It read: "`f67050` -- the cookbook Roderika leaves at Stormhill Shack -- ... the pickup does not
+EXIST until you rest at a grace in Liurnia." **f67050 is ungated**: its MSB Treasure has
+`StartDisabled=0`, its asset is `NeverDisable` with no condition, the flag and its lot appear NOWHERE
+in all 589 decompiled EMEVD, and Fextralife/Game8 both place it on a dead man at the collapsed bridge
+to Stormveil with no Roderika involvement at all.
+
+The REAL exemplar is the GOLDEN SEED, **`f400191`** (`Golden Seed - around Stormhill Shack`, lot
+101910) -- "in Stormhill Shack where Roderika was sitting, if the player rests at any site of grace in
+Liurnia of the Lakes, or by giving her Chrysalids' Memento". The behaviour reported was real; it was
+attached to the wrong flag. Its gate is now in lot_gates.tsv three times over (flags 3708 / 3709 /
+1041389414 -- the three ways to trigger it), found only once the scan learned to resolve
+common-event ARGUMENTS.
 
 `tools/datamine_lot_gates.py` finds candidates by scanning decompiled EMEVD for "check flag X
 co-occurs with a test of flag Y". This test takes its output and asks the only question that matters:

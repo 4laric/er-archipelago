@@ -68,7 +68,10 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-EVT = os.path.join(ROOT, "elden_ring_artifacts", "event")
+# ER_EVENT_DIR mirrors the ER_ARTIFACTS_VV precedent (AGENTS.md §5): it lets the decompiled EMEVD be
+# staged outside the repo for a specific investigation, so the emit below is the TOOL's own output and
+# never a hand-edited or path-patched copy of it.
+EVT = os.environ.get("ER_EVENT_DIR") or os.path.join(ROOT, "elden_ring_artifacts", "event")
 GF = os.path.join(ROOT, "greenfield")
 OUT = os.path.join(GF, "lot_gates.tsv")
 
@@ -108,6 +111,100 @@ TREASURE_RE = re.compile(r"\b(EnableAssetTreasure|DisableAssetTreasure|ForceChar
                          r"\s*\(\s*(\w+)\s*\)")
 
 _INT_RE = re.compile(r"-?\d+")
+
+# 🛑 THE AWARD VERB SET WAS WRONG, and it is why this tool concluded "AwardItemLot is RARE -- scripted
+# awards are not the mechanism in ER". Corpus counts: AwardItemsIncludingClients 205,
+# AwardGesture 29, AwardItemLot 26. The tool knew only the MINORITY verb, so the primary award path
+# was invisible and its absence was read as evidence about the GAME rather than about the scan.
+_AWARD_FNS = ("AwardItemsIncludingClients", "AwardItemLot", "AwardGesture")
+
+
+def _common_sigs():
+    """{commonEventId: (params, [lot arg idx], {flag arg idx: test construct})} from common_func.
+
+    ⭐ THE GATE IS A COMMON-EVENT ARGUMENT. This is the blind spot that made the first triage report
+    "0 cross-region gates": the literal gate flag sits at the CALL SITE, while the test that consumes
+    it sits in the CALLEE, on a PARAMETER --
+
+        $InitializeCommonEvent(0, 90005750, 1041381702, 4350, 101910, 400191, 400191, 3708, 0)
+        $Event(90005750, ..., function(assetEntityId, actionButtonParameterId, itemLotId,
+                                       eventFlagId, eventFlagId2, eventFlagId3, sfxId) {
+            WaitFor(EventFlag(eventFlagId3) && !AllBatchEventFlags(eventFlagId, eventFlagId2));
+            ... AwardItemsIncludingClients(itemLotId);
+
+    A scan for `EventFlag(<literal>)` inside event bodies sees NOTHING here. Measured: 185 of 256
+    common events test a parameter as an event flag, and 3676 of 10449 $InitializeCommonEvent call
+    sites target one of them -- so the literal-only pass was reading ~1% of the relevant corpus.
+
+    (Exactly the defect Fable found in datamine_esd_flags.py: constant at the call site, use in the
+    callee. Same fix shape, ported.)
+
+    Pairing here is STRONGER than the co-occurrence pass: the lot and the gate come from the SAME
+    call site, so the edge is not an inference about two things sharing an event body."""
+    path = os.path.join(EVT, "common_func.emevd.dcx.js")
+    if not os.path.isfile(path):
+        print("  (no common_func.emevd.dcx.js -- common-argument gates NOT scanned)", file=sys.stderr)
+        return {}
+    text = open(path, encoding="utf-8", errors="replace").read()
+    out = {}
+    ms = list(EVENT_RE.finditer(text))
+    for i, m in enumerate(ms):
+        eid = int(m.group(1))
+        params = [q.strip() for q in m.group(2).split(",") if q.strip()]
+        body = text[m.end(): ms[i + 1].start() if i + 1 < len(ms) else len(text)]
+        lot_idx, flag_idx = [], {}
+        for j, q in enumerate(params):
+            e = re.escape(q)
+            if any(re.search(r"\b%s\s*\(\s*%s\s*\)" % (a, e), body) for a in _AWARD_FNS):
+                lot_idx.append(j)
+            t = (re.search(r"(\w+)\(\s*EventFlag\(\s*%s\s*\)" % e, body)
+                 or re.search(r"\bEventFlag\(\s*%s\s*\)" % e, body)
+                 or re.search(r"\b(AllBatchEventFlags|AnyBatchEventFlags)\([^)]*\b%s\b" % e, body))
+            if t:
+                flag_idx[j] = (t.group(1) if t.lastindex else "EventFlag")
+        if lot_idx and flag_idx:
+            out[eid] = (params, lot_idx, flag_idx)
+    return out
+
+
+def _common_arg_gates(files, lot_to_flag, check_flags):
+    """Rows in emit()'s shape, from call-site arguments. Returns (rows, stats)."""
+    sigs = _common_sigs()
+    rows, stat = [], collections.Counter()
+    stat["sigs"] = len(sigs)
+    if not sigs:
+        return rows, stat
+    for path in files:
+        src = os.path.basename(path)
+        text = open(path, encoding="utf-8", errors="replace").read()
+        for m in COMMON_CALL_RE.finditer(text):
+            ceid = int(m.group(1))
+            if ceid not in sigs:
+                continue
+            stat["sites"] += 1
+            args = [a.strip() for a in m.group(2).split(",")]
+            _params, lot_idx, flag_idx = sigs[ceid]
+            cfl = set()
+            for i in lot_idx:
+                if i < len(args) and args[i].lstrip("-").isdigit():
+                    cfl |= {f for f in lot_to_flag.get(int(args[i]), ()) if f in check_flags}
+            if not cfl:
+                stat["site_lot_not_a_check"] += 1
+                continue
+            for gi, ctx in flag_idx.items():
+                if gi >= len(args) or not args[gi].lstrip("-").isdigit():
+                    stat["gate_arg_not_literal"] += 1
+                    continue
+                g = int(args[gi])
+                if g <= 0:
+                    stat["gate_sentinel"] += 1   # 0/-1 = "no gate" sentinel, never a flag
+                    continue
+                for c in sorted(cfl):
+                    if g == c:
+                        continue                  # a check's own acquisition flag is not its gate
+                    rows.append((c, g, "commonarg/" + ctx, ceid, src,
+                                 "$InitializeCommonEvent(%d) arg%d" % (ceid, gi)))
+    return rows, stat
 
 
 def _sources():
@@ -422,6 +519,17 @@ def emit(dry):
         sys.exit("FATAL: zero flag tests found -- FLAG_TEST_RE matches nothing. Run --vocab.")
     if awards == 0:
         sys.exit("FATAL: zero AwardItemLot call sites -- the award side matches nothing. Run --vocab.")
+    ca_rows, ca = _common_arg_gates(files, lot_to_flag, check_flags)
+    print("common-ARGUMENT gates: %d common event(s) award a param lot AND test a param flag; "
+          "%d call site(s); %d pair(s)" % (ca["sigs"], ca["sites"], len(ca_rows)))
+    print("   lot arg not a check: %d | gate arg not literal: %d | gate 0/-1 sentinel: %d"
+          % (ca["site_lot_not_a_check"], ca["gate_arg_not_literal"], ca["gate_sentinel"]))
+    if ca["sigs"] and not ca_rows:
+        sys.exit("FATAL: %d flag-testing common event signatures parsed but ZERO pairs resolved. An "
+                 "empty result from a join that MUST match is a failure, not a clean run."
+                 % ca["sigs"])
+    rows.extend(ca_rows)
+
     if not rows:
         sys.exit("FATAL: zero gated checks. Every AwardItemLot event is unconditional (implausible) "
                  "or the join through flag_lots.tsv missed. Run --vocab and check the lot ids.")
