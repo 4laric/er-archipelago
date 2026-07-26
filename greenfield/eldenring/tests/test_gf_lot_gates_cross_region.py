@@ -153,6 +153,56 @@ def _gate_region_resolver():
     return resolve
 
 
+def test_f400191_the_case_this_screen_was_built_for_is_still_seen():
+    """END TO END, BY NAME. CONTRIBUTING rule 11.
+
+    We spent a day on f400191 -- the Stormhill Shack Golden Seed, which does not exist until you
+    have progressed past the Roundtable -- and the next build shipped it STILL miscategorised. Not
+    because anything broke: datamine_lot_gates found the gate and wrote all three flags to
+    lot_gates.tsv, and the screen read that table. The screen then resolved a gate flag's region by
+    decoding its NUMBER, which only works for map-encoded flags, and dropped every pair it could
+    not decode. f400191's gates are bare 4-digit NPC state ids. Produced, stored, silently discarded
+    by its own consumer, suite green.
+
+    So this asserts the WHOLE pipeline still reports it, stage by stage. A test on the datamine
+    alone or the screen alone would have passed throughout the entire incident.
+    """
+    rows = [r for r in _rows("lot_gates.tsv") if (r.get("check_flag") or "").strip() == "400191"]
+    assert rows, ("f400191 has vanished from lot_gates.tsv -- the DATAMINE half regressed. Re-emit "
+                  "with `python tools/datamine_lot_gates.py --emit`.")
+    gates = {(r.get("gate_flag") or "").strip() for r in rows}
+    assert {"3708", "3709"} <= gates, (
+        "f400191's questline gate flags 3708/3709 are missing from lot_gates.tsv; found %s" % sorted(gates))
+
+    resolve = _gate_region_resolver()
+    check_region = {str(f): r for r, locs in LOCATIONS.items() for (_n, _a, f) in locs}
+    mine = check_region.get("400191")
+    assert mine, "f400191 is not a location at all any more -- it fell out of the world"
+
+    foreign = set()
+    for r in rows:
+        gf = (r.get("gate_flag") or "").strip()
+        greg = resolve(gf) or resolve.from_map(
+            (r.get("gate_map") or "").strip() or (r.get("gate_common_map") or "").strip())
+        if not greg:
+            for mid in (r.get("gate_test_map") or "").split("|"):
+                cand = resolve.from_map(mid.strip())
+                if cand and cand != mine:
+                    foreign.add(cand)
+        elif greg != mine:
+            foreign.add(greg)
+    assert foreign, (
+        "the SCREEN can no longer see that f400191 is gated from another region. Every locator "
+        "failed on it -- which is exactly the state that shipped the bug. Check the gate_map / "
+        "gate_common_map / gate_test_map columns are populated (re-emit) before touching this test.")
+
+    ap = {str(f): a for _r, locs in LOCATIONS.items() for (_n, a, f) in locs}["400191"]
+    assert ap in MISSABLE_LOCATIONS, (
+        "f400191 is seen as cross-region (gated from %s) but is NOT missable-tagged, so fill may "
+        "put REQUIRED progression on a check that does not exist until the player has progressed "
+        "past the Roundtable. Add 400191 to gen_data._QUESTLINE_GATED and regen." % sorted(foreign))
+
+
 def test_no_check_is_gated_on_another_regions_flag():
     check_region = {str(f): r for r, locs in LOCATIONS.items() for (_n, _a, f) in locs}
     check_name = {str(f): n for _r, locs in LOCATIONS.items() for (n, _a, f) in locs}
