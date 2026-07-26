@@ -290,6 +290,65 @@ def _setter_maps(files):
     return out
 
 
+def _flag_locators(files):
+    """Three locators for a gate flag, in DESCENDING strength. Returns (setter, common, tested).
+
+    CONFIRMED 2026-07-26 (`--where 3708`, Alaric's box): flag 3708 -- one of the two gating f400191,
+    the Stormhill Shack Golden Seed -- is set ONCE, in `common.emevd $Event(3719)` via
+    SetNetworkconnectedEventFlagID, and TESTED three times, all in `m11_10` (the Roundtable Hold).
+    So the map-setter handle could never have resolved it, and the evidence that it is not a
+    Limgrave-local prerequisite was in the TEST sites the whole time.
+
+      setter  -- a MAP emevd sets it. Strongest: that is where the thing happens.
+      common  -- only common/common_func set it, so resolve the common event through the maps that
+                 $InitializeCommonEvent it. This is hypothesis (a) from --where, and it is the FOURTH
+                 time this corpus has needed call-site resolution rather than a literal scan.
+      tested  -- nothing above resolved it; fall back to the maps that TEST it. WEAKEST, and
+                 deliberately so: "tested in m11_10" is evidence about where the flag MATTERS, not
+                 proof of where it lives. The screen must use it only to make a check MISSABLE (a
+                 reversible, proportionate bar), never to mint a hard access rule.
+
+    Common files are still never allowed to answer as a place directly.
+    """
+    setter = collections.defaultdict(set)
+    tested = collections.defaultdict(set)
+    common_sets = collections.defaultdict(set)     # flag -> {common event id that sets it}
+    common_calls = collections.defaultdict(set)    # common event id -> {map that initialises it}
+    for path in files:
+        base = os.path.basename(path)
+        mm = _MAP_FILE_RE.match(base)
+        text = open(path, encoding="utf-8", errors="replace").read()
+        for eid, body in _events(text):
+            for m in FLAG_SET_RE.finditer(body):
+                for fid in _ints(m.group(2)):
+                    if mm:
+                        setter[fid].add(mm.group(1))
+                    else:
+                        common_sets[fid].add(eid)
+            blanked = FLAG_SET_RE.sub(lambda m: " " * len(m.group(0)), body)
+            if mm:
+                for m in FLAG_TEST_RE.finditer(blanked):
+                    tested[int(m.group(1))].add(mm.group(1))
+            for m in COMMON_CALL_RE.finditer(body):
+                if mm:
+                    common_calls[int(m.group(1))].add(mm.group(1))
+    common = collections.defaultdict(set)
+    unroutable = 0
+    for fid, eids in common_sets.items():
+        maps = set()
+        for e in eids:
+            maps |= common_calls.get(e, set())
+        if maps:
+            common[fid] = maps
+        else:
+            unroutable += 1
+    print("flag locators: %d set by a MAP; %d set only in common of which %d route back to a map "
+          "through $InitializeCommonEvent (%d do not -- auto-run commons, reported not guessed); "
+          "%d have at least one map TEST site."
+          % (len(setter), len(common_sets), len(common), unroutable, len(tested)))
+    return setter, common, tested
+
+
 def _sources():
     files = sorted(glob.glob(os.path.join(EVT, "*.emevd.dcx.js")))
     if not files:
@@ -510,7 +569,7 @@ def emit(dry):
           "name -- reported, not guessed)" % (len(common_lots), len(unnamed)))
     treasure_lots = _treasure_lots()
     treasure_assets = _treasure_assets()
-    setter_maps = _setter_maps(files)
+    setter_maps, common_maps, test_maps = _flag_locators(files)
     rows = []
     ev_total = tested = awards = treasure_unresolved = treasure_hits = treasure_character = 0
     treasure_asset_ids = set()
@@ -647,13 +706,30 @@ def emit(dry):
         fh.write("#   Empty = no MAP sets it (common-event only, or nothing found). This is the\n")
         fh.write("#   region handle for gate flags whose NUMBER carries no map encoding -- the\n")
         fh.write("#   NPC/questline state flags the numeric decode was blind to.\n")
-        fh.write("check_flag\tgate_flag\tcontext\tevent_id\tsource\tevidence\tgate_map\n")
-        _resolved = 0
+        fh.write("# gate_common_map = when ONLY common.emevd sets the flag, the map(s) that\n")
+        fh.write("#   $InitializeCommonEvent the setting event. gate_test_map = maps that TEST it.\n")
+        fh.write("#   Strength order: gate_map > gate_common_map > gate_test_map. The last is\n")
+        fh.write("#   evidence about where the flag MATTERS, not where it lives -- good enough to\n")
+        fh.write("#   tag a check MISSABLE, NOT good enough to mint an access rule.\n")
+        fh.write("check_flag\tgate_flag\tcontext\tevent_id\tsource\tevidence\tgate_map"
+                 "\tgate_common_map\tgate_test_map\n")
+        _resolved = _by_common = _by_test = 0
         for r in rows:
-            _gm = "|".join(sorted(setter_maps.get(int(r[1]), ())))
+            _f = int(r[1])
+            _gm = "|".join(sorted(setter_maps.get(_f, ())))
+            _cm = "" if _gm else "|".join(sorted(common_maps.get(_f, ())))
+            # A flag's own check-map test site is not evidence of anything; keep all of them and let
+            # the screen subtract the check's own region, which is the only place that knows it.
+            _tm = "" if (_gm or _cm) else "|".join(sorted(test_maps.get(_f, ())))
             if _gm:
                 _resolved += 1
-            fh.write("\t".join(str(x) for x in r) + "\t" + _gm + "\n")
+            elif _cm:
+                _by_common += 1
+            elif _tm:
+                _by_test += 1
+            fh.write("\t".join(str(x) for x in r) + "\t" + _gm + "\t" + _cm + "\t" + _tm + "\n")
+        print("locator use: %d pair(s) by map-setter, %d by common call-site, %d by test-site "
+              "(weakest)." % (_resolved, _by_common, _by_test))
     _distinct = {r[1] for r in rows}
     _dist_res = len({g for g in _distinct if setter_maps.get(int(g))})
     print("wrote %s: %d candidate pair(s) over %d distinct check flag(s)"
@@ -772,6 +848,32 @@ def self_test():
                     broken[fid].add(os.path.basename(path).split(".")[0])
         check("control: without the map-file guard, common.emevd answers (so the guard is real)",
               7777 in broken and "common" in broken[7777])
+
+    # SEPARATE fixture dir on purpose: the block above already uses 3708 and common.emevd for other
+    # cases, and reusing one directory made this scenario clobber them. Caught by RUNNING it -- the
+    # two failures were mine, not the code's.
+    with tempfile.TemporaryDirectory() as d2:
+        def w2(fn, body):
+            open(os.path.join(d2, fn), "w", encoding="utf-8").write(body)
+        # The REAL shape `--where 3708` found on Alaric's box, 2026-07-26.
+        w2("common.emevd.dcx.js",
+           "$Event(3719, Default, function() { SetNetworkconnectedEventFlagID(3708, ON); });\n"
+           "$Event(4242, Default, function() { SetEventFlagID(9999, ON); });")
+        w2("m11_10_00_00.emevd.dcx.js",
+           "$Event(11103711, Default, function() { WaitFor(!EventFlag(3708)); "
+           "$InitializeCommonEvent(0, 3719, 1); });")
+        w2("m60_41_38_00.emevd.dcx.js",
+           "$Event(1, Default, function() { WaitFor(EventFlag(3708)); });")
+        setter, common, tested = _flag_locators(sorted(glob.glob(os.path.join(d2, "*.emevd.dcx.js"))))
+
+        check("3708 has NO map setter -- which is exactly why the first handle missed it",
+              3708 not in setter)
+        check("common setter routes back through $InitializeCommonEvent to the caller map",
+              common.get(3708) == {"m11_10_00_00"})
+        check("test sites come from MAPS only, and include the gate's home and the check's map",
+              tested.get(3708) == {"m11_10_00_00", "m60_41_38_00"})
+        check("a common event NOBODY initialises is not routed (auto-run: reported, not guessed)",
+              9999 not in common)
 
     print("")
     if fails:

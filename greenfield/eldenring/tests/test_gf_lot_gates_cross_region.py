@@ -168,20 +168,41 @@ def test_no_check_is_gated_on_another_regions_flag():
         "oracle is a FAILURE, not a pass.")
 
     cross, unprotected, decodable = [], [], 0
-    by_flag = by_setter = ambiguous = no_handle = 0
+    by_flag = by_setter = by_test = ambiguous = no_handle = 0
     for row in pairs:
         cf, gf = row.get("check_flag"), row.get("gate_flag")
         creg, greg = check_region.get(cf), resolve(gf)
         gate_map = (row.get("gate_map") or "").strip()
+        common_map = (row.get("gate_common_map") or "").strip()
+        test_map = (row.get("gate_test_map") or "").strip()
         if greg:
             by_flag += 1
-        elif gate_map:
-            # SECOND HANDLE: where the flag is SET. Covers everything the numeric decode cannot.
-            greg = resolve.from_map(gate_map)
+        elif gate_map or common_map:
+            # HANDLES 2 and 3: where the flag is SET -- directly by a map, or by a common event
+            # routed back through the maps that $InitializeCommonEvent it.
+            greg = resolve.from_map(gate_map or common_map)
             if greg:
                 by_setter += 1
             else:
                 ambiguous += 1
+        elif test_map:
+            # HANDLE 4, WEAKEST. Nothing sets it anywhere we can place, so fall back to where it is
+            # TESTED -- minus the check's own map, which is not evidence of anything. Confirmed
+            # shape: 3708 is set in common $Event(3719) and tested only in m11_10, the Roundtable
+            # Hold, while its check f400191 sits in Limgrave.
+            # This says where the flag MATTERS, not where it lives, so it may only make a check
+            # MISSABLE. The unprotected-gate assert below is exactly that bar, and nothing here
+            # mints an access rule.
+            _foreign = {m for m in (x.strip() for x in test_map.split("|"))
+                        if m and resolve.from_map(m) and resolve.from_map(m) != creg}
+            _regions = {resolve.from_map(m) for m in _foreign}
+            greg = _regions.pop() if len(_regions) == 1 else None
+            if greg:
+                by_test += 1
+            elif _regions:
+                ambiguous += 1
+            else:
+                no_handle += 1
         else:
             no_handle += 1
         if not creg or not greg:
@@ -200,9 +221,11 @@ def test_no_check_is_gated_on_another_regions_flag():
     # one channel pytest always shows. Coverage has to be legible on a GREEN run -- that is the whole
     # point of a screen that knows how blind it is.
     warnings.warn(
-        "[lot-gates screen] %d/%d pairs resolvable -- %d by flag-number decode, %d by setter-map, "
-        "%d ambiguous (several maps, different regions -- REFUSED, not guessed), %d with no handle "
-        "at all." % (decodable, len(pairs), by_flag, by_setter, ambiguous, no_handle), stacklevel=2)
+        "[lot-gates screen] %d/%d pairs resolvable -- %d by flag-number decode, %d by setter-map "
+        "(incl. common call-site), %d by TEST-site fallback (weakest: makes a check missable, never "
+        "an access rule), %d ambiguous (several regions -- REFUSED, not guessed), %d with no handle "
+        "at all." % (decodable, len(pairs), by_flag, by_setter, by_test, ambiguous, no_handle),
+        stacklevel=2)
     if not by_setter and no_handle:
         warnings.warn(
             "lot_gates.tsv has no usable `gate_map` column, so this screen is still running on the "
