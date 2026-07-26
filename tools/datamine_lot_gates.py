@@ -680,6 +680,52 @@ def _check_flags():
     return out
 
 
+def where(flag):
+    """Say EVERYWHERE a flag is set or tested, common files INCLUDED. A diagnostic, not a screen.
+
+    WHY IT EXISTS. The gate_map handle resolved 83/227 pairs but came back EMPTY for 3708/3709 --
+    the flags gating f400191, the very case it was built for. Two hypotheses survive and they need
+    DIFFERENT fixes, so the next move must not be a guess:
+
+      (a) the flags are set in common.emevd, which _setter_maps excludes on purpose (a common event
+          is not a place). Then the handle exists but has to be resolved through the
+          $InitializeCommonEvent CALL SITE, exactly as the gate scan itself had to be -- the map that
+          initialises the setter supplies the region.
+      (b) nothing in the EMEVD sets them at all (an ESD/talk-side write, or a param). Then EMEVD is
+          the wrong corpus and no amount of scanning it will help.
+
+    esd_flags.tsv does not settle it: it holds 39 four-digit flags and NONE in 3700-3799, and even
+    Edgar's 3409 is absent, so its ESD-setter corpus does not cover this class either.
+
+        python tools/datamine_lot_gates.py --where 3708
+    """
+    files = _sources()
+    setters, testers = [], []
+    for path in files:
+        base = os.path.basename(path)
+        text = open(path, encoding="utf-8", errors="replace").read()
+        for eid, body in _events(text):
+            for m in FLAG_SET_RE.finditer(body):
+                if flag in _ints(m.group(2)):
+                    setters.append((base, eid, m.group(0)[:110]))
+            blanked = FLAG_SET_RE.sub(lambda m: " " * len(m.group(0)), body)
+            for m in FLAG_TEST_RE.finditer(blanked):
+                if int(m.group(1)) == flag:
+                    testers.append((base, eid, blanked[max(0, m.start() - 50):m.end() + 10].strip()))
+    print("flag %d -- SET at %d site(s):" % (flag, len(setters)))
+    for b, e, ev in setters[:25]:
+        print("   %-28s $Event(%s)  %s" % (b, e, ev.replace("\n", " ")))
+    if not setters:
+        print("   NONE. The EMEVD never sets it -- hypothesis (b): wrong corpus, stop scanning it.")
+    elif all(not _MAP_FILE_RE.match(b) for b, _e, _ev in setters):
+        print("   ALL of them are common/common_func -- hypothesis (a): resolve through the")
+        print("   $InitializeCommonEvent call site to get a map, do not let common answer directly.")
+    print("\nflag %d -- TESTED at %d site(s) (first 10):" % (flag, len(testers)))
+    for b, e, ev in testers[:10]:
+        print("   %-28s $Event(%s)  %s" % (b, e, ev.replace("\n", " ")))
+    return 0
+
+
 def self_test():
     """Offline proof of the setter-map harvest. The real EMEVD is Windows-only, so the LOGIC is
     exercised against fixtures here -- runnable in the agent sandbox, where the corpus is not.
@@ -741,11 +787,17 @@ def main(argv=None):
                     help="LOOK FIRST: print the EMEVD call-name histogram + sample lines. No output.")
     ap.add_argument("--emit", action="store_true", help="write greenfield/lot_gates.tsv")
     ap.add_argument("--dry", action="store_true", help="parse and print, write nothing")
+    ap.add_argument("--where", type=int, metavar="FLAG",
+                    help="diagnostic: print every EMEVD site that SETS or TESTS a flag, common "
+                         "files included. Answers whether an unresolved gate flag is common-set "
+                         "(fixable) or not EMEVD-set at all (wrong corpus).")
     ap.add_argument("--self-test", action="store_true", dest="self_test",
                     help="offline fixture tests for the setter-map harvest (no artifacts needed)")
     args = ap.parse_args(argv)
     if args.self_test:
         return self_test()
+    if args.where is not None:
+        return where(args.where)
     if args.vocab:
         return vocab()
     if args.emit or args.dry:
