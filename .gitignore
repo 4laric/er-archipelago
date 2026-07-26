@@ -9,8 +9,20 @@
 # being committed to a public repo. Match it either way.
 /elden_ring_artifacts/
 /elden_ring_artifacts
-# AP generation test output.
-/gen-test/
+# AP generation test output (zips, logs, per-run dirs) -- transient, keep it out.
+/gen-test/*
+# ...but the FILL-REGRESSION SUITE under it is SOURCE, not output, and hiding it was a mistake.
+# run_fill_regression.ps1 -- which run_ci.ps1 runs as its FILL gate -- drives gen_sweep.ps1 over
+# gen-test\fill-regression-yamls (one yaml per historically-recorded fill bug) and compares each
+# config's pass-rate to a floor recorded in baseline.json. Those floors ARE the record of which fill
+# bugs are fixed and how well they must keep passing. Untracked, they live on exactly one machine:
+# a fresh clone makes run_fill_regression throw "suite folder not found", and `-UpdateBaseline` can
+# lower a floor with nobody able to review the diff. Track the yamls and the baseline; keep the
+# sweep OUTPUT ignored.
+!/gen-test/fill-regression-yamls/
+/gen-test/fill-regression-yamls/*
+!/gen-test/fill-regression-yamls/*.yaml
+!/gen-test/fill-regression-yamls/baseline.json
 # Downloaded Nexus randomizer package.
 /Elden Ring Randomizer-428-v0-11-4-1763103112 (2)/
 
