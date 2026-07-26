@@ -620,7 +620,7 @@ LOCATIONS = {
         ("Altus :: Golden Rune [2] - near Hermit Merchant's Shack [f1044527020]", 7773080, 1044527020),
         ("Altus :: Golden Rune [4] - near Hermit Merchant's Shack [f1044537010]", 7773081, 1044537010),
         ('Altus :: Twinbird Kite Shield - m60_44_53 [f1044537300]', 7773082, 1044537300),
-        ('Altus :: Gravity Stone Fan - treasure · m60_11_13 [f1045527000]', 7773084, 1045527000),
+        ('Altus :: Gravity Stone Fan - around Capital Rampart [f1045527000]', 7773084, 1045527000),
         ('Altus :: Gravel Stone - near Capital Rampart [f1045527010]', 7773085, 1045527010),
         ('Altus :: Smithing Stone [6] - near Capital Rampart [f1045527020]', 7773086, 1045527020),
         ('Altus :: Smithing Stone [5] - near Capital Rampart [f1045527030]', 7773087, 1045527030),
@@ -2336,8 +2336,8 @@ LOCATIONS = {
         ('Limgrave :: Smithing Stone [1] - near Church of Elleh [f1042367060]', 7772956, 1042367060),
         ('Limgrave :: Ruin Fragment - near Gatefront [f1042377000]', 7772957, 1042377000),
         ('Limgrave :: Kukri - near Limgrave Tunnels [f1042377010]', 7772958, 1042377010),
-        ('Limgrave :: Flail - treasure · m60_10_09 [f1042377060]', 7772959, 1042377060),
-        ("Limgrave :: Lordsworn's Greatsword - treasure · m60_10_09 [f1042377070]", 7772960, 1042377070),
+        ('Limgrave :: Flail - around Gatefront [f1042377060]', 7772959, 1042377060),
+        ("Limgrave :: Lordsworn's Greatsword - around Gatefront [f1042377070]", 7772960, 1042377070),
         ("Limgrave :: Arrow's Reach Talisman - near Gatefront [f1042377300]", 7772961, 1042377300),
         ('Limgrave :: Reduvia - around Murkwater Cave [f1042377700]', 7772962, 1042377700),
         ("Limgrave :: Beast Liver - near Warmaster's Shack [f1042387000]", 7772963, 1042387000),
@@ -3260,7 +3260,7 @@ LOCATIONS = {
         ('Mountaintops of the Giants :: Golden Rune [11] - near Consecrated Snowfield (1) [f1048547840]', 7773165, 1048547840),
         ('Mountaintops of the Giants :: Golden Rune [13] - near Yelough Anix Tunnel (2) [f1048557300]', 7773166, 1048557300),
         ('Mountaintops of the Giants :: Stalwart Horn Charm +1 - near Yelough Anix Tunnel [f1048557600]', 7773167, 1048557600),
-        ('Mountaintops of the Giants :: Flowing Curved Sword - treasure · m60_12_13 [f1048557900]', 7773168, 1048557900),
+        ('Mountaintops of the Giants :: Flowing Curved Sword - treasure · m60_48_55 [f1048557900]', 7773168, 1048557900),
         ('Mountaintops of the Giants :: Stonesword Key - near Inner Consecrated Snowfield [f1048567300]', 7773169, 1048567300),
         ('Mountaintops of the Giants :: Rune Arc - near Ordina, Liturgical Town [f1048577000]', 7773170, 1048577000),
         ('Mountaintops of the Giants :: Golden Rune [13] - near Ordina, Liturgical Town (1) [f1048577010]', 7773171, 1048577010),
@@ -3287,7 +3287,7 @@ LOCATIONS = {
         ("Mountaintops of the Giants :: Smithing-Stone Miner's Bell Bearing [3] - near Zamor Ruins [f1049537900]", 7773207, 1049537900),
         ('Mountaintops of the Giants :: Golden Rune [13] - near Consecrated Snowfield [f1049547300]', 7773208, 1049547300),
         ('Mountaintops of the Giants :: Golden Rune [11] - near Consecrated Snowfield (2) [f1049547310]', 7773209, 1049547310),
-        ("Mountaintops of the Giants :: St. Trina's Torch - treasure · m60_12_13 [f1049547900]", 7773210, 1049547900),
+        ("Mountaintops of the Giants :: St. Trina's Torch - around Consecrated Snowfield [f1049547900]", 7773210, 1049547900),
         ("Mountaintops of the Giants :: Somber Smithing Stone [7] - near Giants' Mountaintop Catacombs (1) [f1050537000]", 7773228, 1050537000),
         ("Mountaintops of the Giants :: Smoldering Butterfly - near Giants' Mountaintop Catacombs [f1050537300]", 7773229, 1050537300),
         ('Mountaintops of the Giants :: Lost Ashes of War - near Consecrated Snowfield Catacombs [f1050547000]', 7773230, 1050547000),
@@ -5150,4 +5150,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:6b3d466a4046b9c9cd44e7b828ef0245154db941791ba783f6c2e84238566c7f', 'module': 'data.py', 'body_sha256': 'sha256:06815db687592dc64bc9246cfd26c1d35f36c52fb03b6322dbced2543345775a'}
+_GEN_STAMP = {'inputs_hash': 'sha256:1619b81454db3af524a39ba20b7eab55a76f304af630c0d1abf9dad2caa29e6e', 'module': 'data.py', 'body_sha256': 'sha256:5e6319ae355449e59fc48b6b824dd07737555b0945d36bb317c81b6433e9c13c'}
