@@ -38,6 +38,34 @@ both inputs are committed tsvs, and it recomputes ANCHOR exactly as gen_data doe
 
 DO NOT raise the pins. They come down when tiles get anchored or when the derivation learns to
 refuse.
+
+## WHAT IT WOULD TAKE TO ANCHOR THE REST -- two routes MEASURED 2026-07-26, both dead
+
+Asked directly, and answered with numbers rather than a plan. On the slice measured here (check-
+bearing m60 tiles from region_map.csv: 204 tiles, 117 anchored, 87 graceless carrying 308 checks --
+a narrower universe than the pins above, which is why the numbers differ; the pins were NOT
+re-derived):
+
+  1. MORE GRACES REACHING THE JOIN -- nothing to win. Every one of the 166 m60 graces in
+     grace_flags.tsv already resolves to a play_region through grace_region_map.tsv. ZERO are lost in
+     the join. The tiles are graceless because THE GAME PUT NO GRACE THERE, not because we drop rows.
+
+  2. PlayRegionParam.gridXNo / gridZNo -- looks exactly like a tile -> region table and is not.
+     * coverage: 86 non-origin grid cells, covering 12 of the 87 graceless check-bearing tiles
+       (54 of 308 checks). Not enough to matter even if it were right.
+     * and it is not right: on tiles where BOTH exist, the ids do not correspond. Tile (37,47) is
+       grace play_region 62000; PlayRegionParam says 3202001. (38,53) -> 63000 vs 3204001.
+       (46,39) -> 64000 vs 3207001. A THIRD id space, unrelated to the warp-id space tile_pr and
+       PLAY2AP live in -- exactly the confusion §2 of this docstring already corrects once.
+     Those grid columns are most likely sign/invasion placement, not a region extent.
+
+So the remaining routes are the expensive one and the honest one:
+  * SPATIAL, from the MSBs -- each m60 tile has one; derive the tile's region from what physically
+    stands in it. A 2.2 GB mount walk and a real datamine (the same one precise XYZ needs).
+  * REFUSE -- give tile_pr a failure branch and let the 87/308 default LOUDLY, barred from carrying
+    progression, which is what the top of this docstring already prescribes. Cheap and correct, but
+    it shrinks the progression surface by 308 checks, so it is a FILL change: it needs gen_sweep +
+    run_fill_regression, and it is Alaric's call, not a tidy-up.
 """
 import collections
 import csv
