@@ -359,6 +359,16 @@ def build(shop_ids, talk_data, talk_maps, talk_npc, npc_names):
     return rows
 
 
+def _tracked_row_count():
+    """Rows in the committed table, so the refusal message quotes a REAL number instead of a
+    hardcoded one that rots the next time the table grows."""
+    try:
+        with open(OUT, encoding="utf-8-sig") as fh:
+            return sum(1 for ln in fh if not ln.startswith("#") and not ln.startswith("row_id"))
+    except OSError:
+        return "?"
+
+
 def refresh_names(path):
     """Rewrite ONLY the merchant_name column, from npc_name_id + the NpcName FMGs.
 
@@ -427,6 +437,21 @@ def main():
     if args.refresh_names:
         return refresh_names(args.out)
     map_filter = set(args.maps) if args.maps else None
+    # 🛑 --maps RESTRICTS THE SCAN BUT THE EMIT IS WHOLE-TABLE. A subset run therefore rewrites the
+    # tracked tsv with only the rows its two maps could see -- a "sanity pass" silently truncating
+    # the very table it is sanity-checking. That happened for real on 2026-07-26: --maps m10_00
+    # m11_10 cut 1954 rows to 775, and the built-in Hermit probe then fired a FALSE alarm because the
+    # Altus tile had not been scanned, so the guard could not tell "subset run" from "broken join".
+    # Refuse the combination instead of documenting it: a subset run must say where to put its output.
+    if map_filter and os.path.abspath(args.out) == os.path.abspath(OUT):
+        sys.exit(
+            "FATAL: --maps is a VALIDATION SUBSET, but this tool always emits the WHOLE table -- "
+            "writing it to the tracked %s would replace its %s row(s) with only the ones these maps "
+            "can see, and the self-checks below would fire false alarms on the missing maps.\n"
+            "  full run (what you commit):   python tools/datamine_merchant_shops.py\n"
+            "  subset run (validation):      python tools/datamine_merchant_shops.py --maps %s "
+            "--out /tmp/ms-subset.tsv"
+            % (os.path.relpath(OUT, REPO), _tracked_row_count(), " ".join(sorted(map_filter))))
 
     if not os.path.isdir(TALK):
         sys.exit(f"FATAL: {TALK} not found. Produce the ESD unpack first (see module docstring): copy "
@@ -533,7 +558,13 @@ def main():
     print("  block-1007 split probe (expect 100725/100741 on an Altus m60_4x tile, distinct from "
           f"the early Liurnia rows): {hermit_probe}")
     altus_maps = set(_maps_of(100725)) | set(_maps_of(100741))
-    if altus_maps and not any(re.match(r"m60_4", m) for m in altus_maps):
+    # ...and the probe only means anything when the Altus tile was actually in scope. On a subset run
+    # its absence is the FILTER, not a defect -- a guard that cannot tell those apart is a guard that
+    # cries wolf, and people stop reading those.
+    if map_filter and not any(m.startswith("m60_4") for m in map_filter):
+        print("  (Hermit probe SKIPPED: --maps excluded the Altus m60_4x tiles, so a miss here would "
+              "be the filter, not a finding.)")
+    elif altus_maps and not any(re.match(r"m60_4", m) for m in altus_maps):
         print("  !! WARNING: Hermit rows 100725/100741 did NOT resolve to an Altus (m60_4x) tile "
               f"-> {sorted(altus_maps)}. The MSB TalkID field or the ESD extraction may be wrong; "
               "verify with --probe before trusting this tsv.", file=sys.stderr)
