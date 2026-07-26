@@ -72,8 +72,57 @@ class TagDataTests(unittest.TestCase):
         tools/datamine_boss_drops.py` and `datamine_boss_healthbars.py` are cheap. A number that grows
         because the ground truth got better (or a deliberate co-check sibling landed) is fine; one that
         grows because a predicate got looser is a bug.
+        REBASELINED 95 -> 134 (2026-07-26, MajorBoss subset closure). The DEFINITION got right; the
+        predicate did not get looser. 'Boss' had been excluding the major bosses because
+        tools/datamine_boss_drops.py step (4) drops any reward whose ITEM NAME contains "remembrance"
+        or "great rune" -- a filter we own, not one the game imposes (its own
+        HandleBossDefeatAndDisplayBanner fires for the majors; the tool finds them and discards them).
+        The effect was player-visible: important_locations=["Boss"] is a PLAYER option value, and it
+        returned 95 checks with Godrick, Rennala, Radahn, Rykard, Mohg and Malenia all missing.
+        gen_data now closes MajorBoss under Boss, so the delta is exactly the 39 majors that were
+        outside it (34 already tagged MajorBoss + the 5 the arity fix newly tags). Post-closure, Boss
+        is exactly the union of {Boss, MajorBoss, Remembrance, GreatRune} = 134.
+
+        ⚠️ Same warning as above still applies to any FURTHER movement.
         """
-        self.assertEqual(TAG_COUNTS["Boss"], 95)
+        self.assertEqual(TAG_COUNTS["Boss"], 134)
+
+    def test_majorboss_is_a_subset_of_boss(self):
+        """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
+        2026-07-26).
+
+        It did NOT hold before: 34 of 37 MajorBoss checks carried no Boss tag, and the 3 that did
+        (Agheel, Magma Wyrm Makkar, Big Red Bear) held it only because their reward is not NAMED
+        after a remembrance -- the leak that proves the old filter was a name match rather than a
+        model. gen_data closes the set; this fails if anyone reopens it.
+        """
+        offenders = sorted(ap for ap, tags in LOCATION_TAGS.items()
+                           if "MajorBoss" in tags and "Boss" not in tags)
+        self.assertEqual(offenders, [], f"{len(offenders)} MajorBoss checks are not Boss: "
+                                        f"{offenders[:8]} -- run build.ps1 -Greenfield if the "
+                                        f"generated tables predate the closure")
+
+    def test_remembrance_and_greatrune_are_major_boss(self):
+        """Only a major boss drops a remembrance or a great rune, so every such check is MajorBoss.
+
+        This is the ARITY half: one boss drops SEVERAL checks, and MajorBoss used to be keyed on
+        method=="boss_arena" -- which records how the ROW was recovered, not what the drop is. For a
+        boss with two drops the tag landed on whichever one came in through that path, splitting five
+        bosses down the middle: Godrick's and Morgott's great runes missed it, and Mohg's, Malenia's
+        and Radahn's remembrances missed it. Same shape as the Messmer's Kindling one-flag-many-lots
+        bug.
+        """
+        offenders = sorted(ap for ap, tags in LOCATION_TAGS.items()
+                           if ("Remembrance" in tags or "GreatRune" in tags)
+                           and "MajorBoss" not in tags)
+        self.assertEqual(offenders, [], f"{len(offenders)} Remembrance/GreatRune checks are not "
+                                        f"MajorBoss: {offenders[:8]}")
+
+    def test_major_boss_count(self):
+        """37 -> 42: the five sibling drops the boss_arena keying had split off. Moves only when a
+        major boss's drop set changes, or when a new Remembrance/GreatRune check appears -- the
+        closure picks those up automatically, which is why this is a closure and not a hand list."""
+        self.assertEqual(TAG_COUNTS["MajorBoss"], 42)
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable

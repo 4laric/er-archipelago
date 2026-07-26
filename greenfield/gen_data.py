@@ -5111,11 +5111,54 @@ for _reg, _locs in buckets.items():
 _MAJOR_EXTRA = {ra for _lst in MAJOR_BOSS_EXTRAS.values()
                 for (_fl, _bn, _di, _cf) in _lst
                 for (ra, _rr) in _flag_locs.get(_fl, [])}
-_MAJOR_AIDS = _MAJOR_ARENA | _MAJOR_EXTRA
+# CLOSURE 1 -- a Remembrance or Great Rune drop IS a major-boss drop, definitionally. Only demigods
+# and shardbearers drop them; there is no remembrance without a major boss behind it. Before this, the
+# MajorBoss set was keyed on method=="boss_arena", and `method` records HOW WE RECOVERED THE ROW, not
+# what the drop is -- so for a boss with TWO drops the tag landed on whichever one happened to come in
+# through the boss_arena path and the sibling silently missed out. It split five bosses down the
+# middle (region_map.csv, verified 2026-07-26):
+#     Godrick   great rune 171 emevd      <- MISSED   remembrance 510010 boss_arena  <- tagged
+#     Morgott   great rune 173 emevd      <- MISSED   remembrance 510040 boss_arena  <- tagged
+#     Mohg      great rune 175 boss_arena <- tagged   remembrance 510120 emevd       <- MISSED
+#     Malenia   great rune 176 boss_arena <- tagged   remembrance 510200 emevd       <- MISSED
+#     Radahn    great rune 172 boss_arena <- tagged   remembrance        emevd       <- MISSED
+# Same arity as the Messmer's Kindling bug: ONE BOSS, SEVERAL CHECKS. Keying the tag on a provenance
+# artefact rather than on the datum is what let it split. (CONTRIBUTING: Provenance / the model
+# changes when the data contradicts it.)
+_MAJOR_DERIVED = {_ap for _ap, _tg in loc_tags.items()
+                  if "Remembrance" in _tg or "GreatRune" in _tg}
+_MAJOR_AIDS = _MAJOR_ARENA | _MAJOR_EXTRA | _MAJOR_DERIVED
 for _ap in sorted(_MAJOR_AIDS):
     _cur = loc_tags.setdefault(_ap, [])
     if "MajorBoss" not in _cur:
         _cur.append("MajorBoss")
+
+# CLOSURE 2 -- a major boss is a boss. MajorBoss must be a SUBSET of Boss (Alaric, 2026-07-26).
+# It was not: 34 of 37 majors carried no Boss tag, so `important_locations = ["Boss"]` -- a PLAYER
+# option value -- yielded 95 checks with Godrick, Rennala, Radahn, Rykard, Mohg and Malenia all
+# absent. The cause is upstream, in tools/datamine_boss_drops.py step (4): it discards any reward
+# whose ITEM NAME contains "remembrance" or "great rune". That filter is OURS, not the game's -- the
+# game's own HandleBossDefeatAndDisplayBanner fires for the majors and the tool finds them before
+# throwing them away. It is also leaky, which is the tell that it is the wrong instrument: Agheel,
+# Magma Wyrm Makkar and Big Red Bear kept their Boss tag purely because their reward is not NAMED
+# after a remembrance. Closing here makes the subset hold by construction whatever the datamine does;
+# the name filter should still go, on a box with the artifacts.
+for _ap in sorted(_MAJOR_AIDS):
+    _cur = loc_tags.setdefault(_ap, [])
+    if "Boss" not in _cur:
+        _cur.append("Boss")
+
+# Regen-time HARD GATE on both closures. These are definitional, so a violation means someone edited
+# the tagging above -- fail the regen rather than ship a silently narrower player-facing "Boss".
+_sub_bad = sorted(_ap for _ap, _tg in loc_tags.items()
+                  if "MajorBoss" in _tg and "Boss" not in _tg)
+_maj_bad = sorted(_ap for _ap, _tg in loc_tags.items()
+                  if ("Remembrance" in _tg or "GreatRune" in _tg) and "MajorBoss" not in _tg)
+if _sub_bad or _maj_bad:
+    raise AssertionError(
+        "location tag hierarchy broken: %d MajorBoss without Boss %s; %d Remembrance/GreatRune "
+        "without MajorBoss %s. Both closures are definitional -- fix the tagging, do not relax "
+        "the gate." % (len(_sub_bad), _sub_bad[:8], len(_maj_bad), _maj_bad[:8]))
 
 # ---- Regen-time INVARIANT: every MajorBoss must be a real check in its stated region. --------------
 # buckets = {region: [(name, ap_id, flag)]} built above (the LOCATIONS source). ARENA majors carry
