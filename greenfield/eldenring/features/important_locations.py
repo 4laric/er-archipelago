@@ -42,9 +42,25 @@ class ImportantLocationsFeature(Feature):
         selected = set(world.options.important_locations.value) & set(_VALID)
         if not selected or not LOCATION_TAGS:
             return
+        # MISSABLE WINS over important. A missable check can be lost permanently, so forcing a
+        # juice item onto one guarantees the player loses that item -- and the two rules are
+        # outright contradictory: important says "reject filler", missable says "reject
+        # progression", which leaves a location that accepts NOTHING and fails
+        # test_gf_missable::test_reject_progression_accept_filler.
+        #
+        # It surfaced 2026-07-26 when the widened cross-region screen made f400191 (Golden Seed,
+        # Stormhill Shack) missable: it is Seedtree-tagged, and Seedtree is in this option's DEFAULT
+        # set, so ONE location out of 118 missable ones became unfillable. The clash was always
+        # latent -- any missable check carrying a default tag would have done it -- so this is the
+        # rule, not a patch for that flag.
+        try:
+            from ..missable_locations import MISSABLE_LOCATIONS as _MISS
+        except ImportError:                                     # pragma: no cover - partial tree
+            _MISS = {}
         tagged = [loc for loc in world.multiworld.get_locations(world.player)
                   if LOCATION_TAGS.get(getattr(loc, "address", None))
-                  and selected.intersection(LOCATION_TAGS[loc.address])]
+                  and selected.intersection(LOCATION_TAGS[loc.address])
+                  and loc.address not in _MISS]
         if not tagged:
             return
         # Fill-safety: only force non-filler where the pool can ACTUALLY supply it. The reject-filler

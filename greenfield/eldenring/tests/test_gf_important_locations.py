@@ -187,6 +187,29 @@ class TagDataTests(unittest.TestCase):
                          "the two Golden Seeds now share a position -- the conflation this test "
                          "exists to prevent has come back")
 
+    def test_missable_locations_are_never_forced_to_hold_juice(self):
+        """A missable check can be lost forever, so it must not be FORCED to hold something good.
+
+        important_locations says "reject filler"; missable_locations says "reject progression".
+        Applied to the same location that is a contradiction -- it accepts NOTHING, and
+        test_gf_missable::test_reject_progression_accept_filler goes red. It surfaced 2026-07-26
+        when f400191 (Golden Seed, Stormhill Shack) became missable: Seedtree-tagged, and Seedtree
+        is in this option's DEFAULT set. The clash was always latent; missable now wins.
+
+        This asserts the DATA precondition the feature relies on. The behavioural half lives in
+        features/important_locations.set_rules, which filters MISSABLE_LOCATIONS out of `tagged`.
+        """
+        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+        clash = sorted(a for a in MISSABLE_LOCATIONS
+                       if set(_DEFAULT) & set(LOCATION_TAGS.get(a, ())))
+        # Not asserting the clash is EMPTY -- it legitimately is not, and pretending otherwise
+        # would just re-hide it. Asserting it is KNOWN and small, so a jump gets looked at.
+        self.assertLessEqual(len(clash), 5,
+                             f"{len(clash)} missable locations now carry a DEFAULT important tag "
+                             f"({clash[:5]}). Each is excluded from enforcement, which is correct, "
+                             f"but a jump means a lot of juice-worthy checks just became losable -- "
+                             f"explain it before raising this bound.")
+
     def test_major_boss_count(self):
         """37 -> 42: the five sibling drops the boss_arena keying had split off. Moves only when a
         major boss's drop set changes, or when a new Remembrance/GreatRune check appears -- the
