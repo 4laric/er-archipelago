@@ -63,7 +63,7 @@ import os
 import re
 import struct
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.abspath(os.path.join(HERE, ".."))
@@ -124,9 +124,48 @@ def load_shop_ids():
     return ids
 
 
+# NpcParam.nameId is an FMG TEXT ID, not a name. The column was emitting the id, so
+# merchant_name read "130900" where a human needs "Patches" -- and a table nobody can read is a table
+# nobody audits. These are the same msgbnd dirs gen_data's _NAME_FMGS uses.
+_NPC_NAME_FMGS = [
+    os.path.join(ART, "msg", "item-msgbnd-dcx", "NpcName.fmg.xml"),
+    os.path.join(ART, "msg", "item_dlc01-msgbnd-dcx", "NpcName_dlc01.fmg.xml"),
+    os.path.join(ART, "msg", "item_dlc02-msgbnd-dcx", "NpcName_dlc02.fmg.xml"),
+]
+_PLACEHOLDER_NAMES = ("%null%", "[ERROR]")
+
+
+def load_npc_name_texts():
+    """nameId -> display name, from the NpcName FMGs. {} if none are present (callers must say so)."""
+    import xml.etree.ElementTree as ET
+    out = {}
+    for path in _NPC_NAME_FMGS:
+        if not os.path.isfile(path):
+            continue
+        for t in ET.parse(path).getroot().iter("text"):
+            i, tx = t.get("id"), (t.text or "").strip()
+            if i and tx and tx not in _PLACEHOLDER_NAMES:
+                out.setdefault(int(i), tx)
+    return out
+
+
+def name_of(name_id, texts):
+    """The display name for a nameId, or "" -- and "" is a REFUSAL, never a guess.
+    nameId 0 is 'unset' at the datum level; it resolves to the literal string "DLC dummy" in the
+    FMG, which is a placeholder wearing a name's clothes. Rejected on the ID, not by blacklisting
+    the string, so it cannot rot when FromSoft changes the placeholder text."""
+    try:
+        nid = int(name_id)
+    except (TypeError, ValueError):
+        return ""
+    if nid <= 0:
+        return ""
+    return texts.get(nid, "")
+
+
 def load_npc_names():
-    """NpcParam ID -> a cosmetic label (nameId), best-effort; empty if NpcParam absent. Purely for the
-    human-readable merchant_name column -- never load-bearing."""
+    """NpcParam ID -> nameId (an FMG text id), best-effort; empty if NpcParam absent. Resolved to a
+    display name by name_of(); never load-bearing either way."""
     path = os.path.join(VV, "NpcParam.csv")
     out = {}
     if not os.path.isfile(path):
@@ -274,9 +313,57 @@ def build(shop_ids, talk_data, talk_maps, talk_npc, npc_names):
     return rows
 
 
+def refresh_names(path):
+    """Rewrite ONLY the merchant_name column, from npc_name_id + the NpcName FMGs.
+
+    Why this exists: the full --emit needs the unpacked MSBs and the talk ESD, so a name-table fix
+    would otherwise be gated behind a scan that has nothing to do with names. This reads the table's
+    OWN committed nameIds, so it is a re-derivation by the owning tool -- not a hand edit of a
+    generated file, which is the thing CONTRIBUTING forbids.
+
+    IDEMPOTENT and back-compatible: `npc_name_id` is read from the new last column when present, and
+    otherwise from the legacy `merchant_name` column, which used to hold the id itself.
+    """
+    texts = load_npc_name_texts()
+    if not texts:
+        sys.exit("FATAL: no NpcName FMG under elden_ring_artifacts/msg -- refusing to blank every "
+                 "name in %s. An empty result is a failure, not a clean run." % path)
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        lines = fh.read().splitlines()
+    out, tally = [], Counter()
+    for ln in lines:
+        if ln.startswith("#"):
+            out.append(ln); continue
+        p6 = ln.split("\t")
+        if p6 and p6[0] == "row_id":
+            out.append("row_id\ttalk_id\tnpc_param_id\tmerchant_name\tmap_id\tmap_source\tnpc_name_id")
+            continue
+        if len(p6) < 6 or not p6[0].strip().isdigit():
+            out.append(ln); tally["passed through (not a data row)"] += 1; continue
+        nid = p6[6].strip() if len(p6) >= 7 else p6[3].strip()
+        nm = name_of(nid, texts)
+        tally["named" if nm else ("nameId 0 / unset" if nid in ("", "0") else "nameId NOT in any FMG")] += 1
+        out.append("\t".join(p6[:3] + [nm, p6[4], p6[5], nid]))
+    named = tally["named"]
+    total = sum(v for k, v in tally.items() if k != "passed through (not a data row)")
+    # An "empty result reads as success" guard: this table is ~97% nameable, so a collapse means the
+    # FMG or the id column moved, not that the game changed.
+    if total and named * 100 // max(total, 1) < 50:
+        sys.exit("FATAL: only %d of %d rows resolved to a name -- the nameId column or the FMG id "
+                 "space has drifted. Refusing to write a mostly-blank table." % (named, total))
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(out) + "\n")
+    print("merchant_shops --refresh-names: %d row(s); %s" % (total, dict(tally)))
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=OUT)
+    ap.add_argument("--refresh-names", action="store_true",
+                    help="rewrite ONLY the merchant_name column of an existing table, from the "
+                         "committed npc_name_id + the NpcName FMGs. Needs no MSB/ESD scan, so it "
+                         "runs anywhere the msgbnd is unpacked. Idempotent.")
     ap.add_argument("--maps", nargs="*", help="restrict to these map ids (e.g. m60_40_54)")
     ap.add_argument("--probe", action="store_true",
                     help="dump extracted ranges for anchor/ filtered ESDs and exit (no tsv written)")
@@ -286,6 +373,9 @@ def main():
                          "0x82 literal pair. Distinguishes 'binder not unpacked' from 'range is "
                          "parameterized, not a literal'. Writes nothing.")
     args = ap.parse_args()
+
+    if args.refresh_names:
+        return refresh_names(args.out)
     map_filter = set(args.maps) if args.maps else None
 
     if not os.path.isdir(TALK):
@@ -343,6 +433,10 @@ def main():
         return 0
 
     rows = build(shop_ids, talk_data, talk_maps, talk_npc, npc_names)
+    _name_texts = load_npc_name_texts()
+    if not _name_texts:
+        print("WARNING: no NpcName FMG found under elden_ring_artifacts/msg -- merchant_name will be "
+              "BLANK for every row. That is a refusal, not a name; unpack the msgbnd and re-emit.")
 
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
         f.write("# AUTO-GENERATED by tools/datamine_merchant_shops.py -- which physical merchant opens\n")
@@ -350,10 +444,11 @@ def main():
         f.write("# 'block = one merchant' region inheritance. One line per (row, merchant instance);\n")
         f.write("# a row with >1 distinct map region -> gen_data collapses to HUB + DEFAULTED. map_id ->\n")
         f.write("# region is gen_data's job (_gt_region). map_source: msb|binder|msb+binder|none.\n")
-        f.write("row_id\ttalk_id\tnpc_param_id\tmerchant_name\tmap_id\tmap_source\n")
+        f.write("row_id\ttalk_id\tnpc_param_id\tmerchant_name\tmap_id\tmap_source\tnpc_name_id\n")
         for rid in sorted(rows):
             for (tid, npc, mname, mid, src) in rows[rid]:
-                f.write(f"{rid}\t{tid}\t{npc if npc is not None else ''}\t{mname}\t{mid}\t{src}\n")
+                f.write(f"{rid}\t{tid}\t{npc if npc is not None else ''}\t"
+                        f"{name_of(mname, _name_texts)}\t{mid}\t{src}\t{mname}\n")
 
     # ---- run report + self-validation (report; hard-fail only on the motivating regression) ----
     covered = set(rows)
