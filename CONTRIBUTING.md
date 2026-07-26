@@ -390,6 +390,39 @@ the edit landed, and assert the OUTPUT SHAPE before writing a file another compo
 comment states an invariant, **there must be a test that fails when it stops being true** — otherwise it
 is folklore with syntax highlighting.
 
+**11. The case that motivated the work is the acceptance test. Assert the screen SEES it.**
+The 2026-07-26 lesson, and the most expensive kind because every part looked green.
+
+> We spent a day on `f400191` -- the Stormhill Shack Golden Seed, which does not exist until you have
+> progressed past the Roundtable. We found its gate. We wrote `datamine_lot_gates.py`, confirmed the
+> vocabulary with `--vocab`, resolved common-event ARGUMENTS to see past a blind spot, emitted the
+> table, and built `test_gf_lot_gates_cross_region` to screen exactly this class.
+>
+> The next build shipped `f400191` **still miscategorised** -- an unprotected Limgrave check that fill
+> could put required progression on.
+>
+> Nothing was broken. The datamine FOUND the gate and wrote all three of its flags to `lot_gates.tsv`.
+> The screen READ that table. But the screen resolved a gate flag's region by decoding its NUMBER,
+> which only works for map-encoded flags, and `continue`d past every pair it could not decode. The
+> flags gating `f400191` are bare 4-digit NPC state ids. So the finding was produced, stored, and then
+> silently dropped by its own consumer, and the suite went green.
+
+**A pipeline whose stages are each individually correct can still drop the exact input that caused it
+to be built.** The producer's coverage and the consumer's coverage are different numbers, and nobody
+checks the composition.
+
+So: **when you build a tool or a gate because of a specific case, add that case as a fixture and
+assert the finished pipeline still reports it.** Not the datamine in isolation, not the screen in
+isolation -- end to end, by name. If the exemplar cannot be a fixture, say in the test how you would
+know it was still covered.
+
+Corollary, and the part that stings: **the coverage number was already written down and stated
+honestly.** The screen's own floor read *"17 of 104 decode today"* -- 84% blind, in a comment, in the
+assertion message, committed. Nobody drew the conclusion. **A self-reported coverage number is not a
+safeguard unless something ACTS on it.** If a screen knows it is partial, it must say so on a GREEN
+run (`warnings.warn`, not `print` -- stdout is captured), and a coverage floor should be a ratchet
+that you are made to justify, not a number that only fires when it gets worse.
+
 ### The tell
 
 When a number looks wrong, **do not reason about it. Instrument it.**
