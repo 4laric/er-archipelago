@@ -407,8 +407,13 @@ class _AssetIndex:
 
     def get(self, part_name):
         for d, ptype in zip(self.dirs, self.PART_TYPES):
-            ent = self._get_in(d, ptype, part_name)
-            if ent is not None:
+            found, ent = self._get_in(d, ptype, part_name)
+            if found:
+                # FOUND IS NOT THE SAME AS RESOLVED. A part whose EntityID is 0 is ANSWERED -- it has
+                # no entity, full stop -- and must not send us hunting through the other part types
+                # and then building the whole map index. 3017 of 3573 treasure parts are EntityID 0
+                # (Alaric's full run), so conflating the two triggered ~3000 needless index builds:
+                # 392 map scans and 45 MINUTES of the 45-minute runtime, for parts already located.
                 return ent
         if self._index is None:
             self._build()
@@ -419,11 +424,19 @@ class _AssetIndex:
         if hit == "AMBIGUOUS":
             return None
         ent, ptype = hit
+        if ent is None:
+            # Counted as what it is. Previously this bumped `indexed` AND `type_<t>` regardless, so
+            # the summary reported the SAME 3017 parts as both "resolved via a map index" and "no
+            # EntityID" -- two lines that looked like independent measurements of different things.
+            self.stats["no_entity"] += 1
+            return None
         self.stats["indexed"] += 1
         self.stats["type_" + ptype] += 1
         return ent
 
     def _get_in(self, d, ptype, part_name):
+        """(found_here, entity_or_None). `found_here` short-circuits the search; the entity may be
+        None because the part legitimately has none."""
         direct = os.path.join(d, part_name + ".xml")
         if os.path.isfile(direct):
             try:
@@ -434,17 +447,17 @@ class _AssetIndex:
                 # Fable caught this with a file named AEG_A.xml containing <Name>AEG_B</Name>.
                 if (root.findtext("Name") or "").strip() != part_name:
                     self.stats["name_mismatch"] += 1
-                    return None
+                    return False, None
                 ent = self._entity_of(root)
                 if ent is None:
                     self.stats["no_entity"] += 1
-                    return None
+                    return True, None          # answered: this part has no entity
                 self.stats["direct"] += 1
                 self.stats["type_" + ptype] += 1
-                return ent
+                return True, ent
             except (ET.ParseError, OSError):
                 pass
-        return None
+        return False, None
 
 
 def _scan_map_treasures(item):
@@ -594,8 +607,10 @@ def build_treasure_assets(only_maps=None, jobs=1):
              stats["indexed"], stats["map_scans"], stats["no_entity"], stats["missing_part"],
              stats["name_mismatch"], stats["dup_name"]), file=sys.stderr, flush=True)
     print("treasure assets: resolved BY PART TYPE -- %s  (Asset alone resolved 229 of ~2824 before "
-          "the other types were searched; this is the distribution that says whether that was the "
-          "reason)" % ", ".join("%s=%d" % (t, stats["type_" + t])
+          "MEASURED 2026-07-25: Enemy=MapPiece=Collision=0. EVERY treasure part is an Asset -- the "
+          "multi-type search found nothing, and 3017 of 3573 parts simply have EntityID 0, i.e. no "
+          "entity for the EMEVD to name. ~230 is the whole addressable population, not a shortfall)"
+          % ", ".join("%s=%d" % (t, stats["type_" + t])
                                 for t in ("Asset", "Enemy", "MapPiece", "Collision")),
           file=sys.stderr, flush=True)
     if maps and not rows:
