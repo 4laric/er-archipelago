@@ -48,12 +48,23 @@ has been wrong twice*, in both directions:
 - it was then corrected to a flat "`main` is the live branch, just clone and work on it" — which is
   what you are reading now, and it is **also** incomplete.
 
-**As of 2026-07-24:**
+**Derived 2026-07-25 — a SNAPSHOT, not the answer. Re-run the commands below before you trust it:**
 
 | repo | trunk | where live work is | note |
 |---|---|---|---|
-| `er-archipelago` (world) | `main` | **`feat/natural-progression-mode`** | 11 ahead of `main`, 0 behind. The natural-progression mode, the count-gate primitive and the field-boss sweep work are all here and **not** on `main` |
+| `er-archipelago` (world) | `main` | **`main`** | `feat/natural-progression-mode` — named here as "live" on 07-24 — is now **0 ahead / 65 behind** `main`: merged and finished. No branch on origin holds live work (see below). Work on `main` |
 | `from-software-archipelago-clients` (client) | `main` | `main` | push straight to `main`; that push is the Windows build gate (§4) |
+
+Of the 26 non-`main` branches on the world origin, **21 are 0 ahead** (fully merged) and the other 5
+carry 1-3 commits each while sitting 176-654 behind — stale scraps from July 8-21
+(`agent/agents-md-client-note`, `agent/coverage-gate`, `agent/main-gate-grace-scadu-altus`,
+`agent/surface-and-consumable`, `feat/spirit-ash-tiers`), not workplaces. Worth a skim before you
+re-solve something, worth nothing as a base.
+
+⚠️ **This table has now rotted three times, in three different directions:**
+`feat/matt-free-backbone-mvp` (already dead when it was recommended) → a flat "`main` is the live
+branch" (right trunk, wrong claim about where work happens) → `feat/natural-progression-mode` (true
+the day it was written, merged two days later). Its half-life is about a week. **Derive, then read.**
 
 So: **there is no standing answer to "which branch".** Do not read one out of this file. Derive it,
 and if the repo state is ambiguous, ask Alaric — a wrong branch costs a whole session's work.
@@ -63,6 +74,12 @@ git ls-remote --heads origin | awk '{print $2}' | sort   # what actually exists,
 # ahead/behind between trunk and a candidate branch (left = main-only, right = branch-only):
 git fetch origin && git rev-list --left-right --count origin/main...origin/<branch>
 ```
+
+> 🛑 **A `--depth N` clone makes `rev-list --left-right` LIE, silently.** The left-hand (main-only)
+> number saturates at your clone depth, so on a `--depth 20` clone every branch reports exactly
+> `20 <right>` and they all look equally divergent. It does not warn; it is a confident wrong number
+> of precisely the kind CONTRIBUTING's "silent wrong answer" section is about. `git fetch --unshallow`
+> before you measure, or don't shallow-clone at all. (Found the hard way, 2026-07-25.)
 
 Read that output the way §7 wants you to read any derivation: a branch that is **0 ahead** of `main`
 is a finished/merged branch and is not where work goes; a branch that is **behind** `main` needs a
@@ -111,12 +128,21 @@ then `cargo clippy -- -D warnings` **and** `cargo clippy --features=profile -- -
 trigger on `pull_request` **only**, so pushes straight to `main` sailed past it; fixed 2026-07-11. So a
 `.rs` push buys a full Windows build + test + fmt + clippy for free — a compile error, a broken test, a
 format nit, or a clippy lint all come back red.
-⚠️ **You cannot READ that run from the agent sandbox.** `git push` over `github.com` works, but
-`api.github.com` (and therefore `gh`) is **not reachable here** — it 502s through the egress proxy. So
-do NOT tell Alaric you "checked the CI run"; you can't. Push the fix and hand him the Actions link
-(`https://github.com/4laric/from-software-archipelago-clients/actions?query=branch%3Amain`) — the runner
-(or Alaric) confirms green. Reason about fmt/clippy yourself before pushing instead of relying on seeing
-the result.
+✅ **You CAN read that run from the agent sandbox — so READ IT.** (Corrected 2026-07-25; this block
+used to say `api.github.com` "is not reachable here — it 502s through the egress proxy". It is
+reachable, and for these PUBLIC repos it needs **no token at all**.)
+
+```bash
+curl -s "https://api.github.com/repos/4laric/from-software-archipelago-clients/actions/runs?branch=main&per_page=3" \
+  | python3 -c "import sys,json;[print(r['head_sha'][:7],r['status'],r['conclusion']) for r in json.load(sys.stdin)['workflow_runs']]"
+```
+
+That false claim has already cost a real bug: on 2026-07-25 `cargo fmt --check` was RED on client
+`main` across four commits (`c128ba0`…`a32f685`) while the agent told Alaric "CI is the gate" and never
+looked. Hand him the Actions link as well
+(`https://github.com/4laric/from-software-archipelago-clients/actions?query=branch%3Amain`), but never
+substitute the link for the check — and still reason about fmt/clippy before pushing. CI is a backstop,
+not a replacement for thinking.
 
 **2. Cross-compile from Linux — `xcompile-client-linux.sh` (repo root).**
 It builds the real `eldenring_archipelago.dll` for `x86_64-pc-windows-msvc` from a Linux host via
@@ -303,8 +329,8 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
   touched generated files, then `git push origin HEAD:<that branch>`.
   ⚠️ Do not copy a branch name out of this file into a `push` command. This bullet has named the wrong
   target twice (`feat/matt-free-backbone-mvp`, then a flat `main` while world work was on
-  `feat/natural-progression-mode`). Client fixes go to client `main`; world work goes wherever §2's
-  verify command says it is. (Corrected 2026-07-14, re-corrected 2026-07-24.)
+  `feat/natural-progression-mode`, now merged). Client fixes go to client `main`; world work goes wherever
+  §2's verify command says it is. (Corrected 2026-07-14, re-corrected 2026-07-24 and 2026-07-25.)
 - Relay commit SHAs to Alaric explicitly. Two things NOT to recite as boilerplate:
   - **"needs a submodule bump"** — VERIFY before saying it. `git ls-tree origin/main from-software-archipelago-clients`
     (the pinned gitlink) vs `git ls-remote https://github.com/4laric/from-software-archipelago-clients.git refs/heads/main`
