@@ -5,231 +5,235 @@
 #   OPPOSITE of the naive reading. Assign the sense per context during triage.
 # CANDIDATE PAIRS, not conclusions -- co-occurrence is evidence, not proof. A
 #   false gate is an unwinnable seed; a false non-gate is the bug this finds.
-check_flag	gate_flag	context	event_id	source	evidence
-9500	11059206	commonarg/WaitFor	90005750	m11_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-9502	4131	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-60110	1042369413	commonarg/WaitFor	90005750	m60_42_36_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-60300	11102180	commonarg/WaitFor	90005792	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-65270	1039522181	commonarg/WaitFor	90005792	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-65660	11007992	EndIf	11002696	m11_00_00_00.emevd.dcx.js	002696, Restart, function() { EndIf(EventFlag(11007992)); Wai
-400033	3383	EndIf	3051	common.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(EventFlag(3383)); Wai
-400033	3383	WaitFor	3051	common.emevd.dcx.js	383)); WaitFor(EventFlag(400031) && EventFlag(3383) && !Event
-400033	400031	!EndIf	10010791	m10_01_00_00.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(!EventFlag(400031)); Wai
-400033	400031	!EndIf	1037493700	m60_37_49_00.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(!EventFlag(400031)); Wai
-400033	400031	WaitFor	3051	common.emevd.dcx.js	EndIf(EventFlag(3383)); WaitFor(EventFlag(400031) && EventF
-400033	35009209	!WaitFor	3051	common.emevd.dcx.js	ventFlag(400031) && EventFlag(3383) && !EventFlag(35009209)); End
-400037	12059166	commonarg/WaitFor	90005750	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400061	1033442181	commonarg/WaitFor	90005792	m60_33_44_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400061	1043319208	commonarg/WaitFor	90005750	m60_43_31_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400061	1045349258	commonarg/WaitFor	90005750	m60_45_34_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400071	16009266	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400072	16009270	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400073	16009208	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400074	16009216	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400075	16009217	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400076	16009267	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400077	16009268	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400078	16009269	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400089	35009211	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400091	16009337	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400091	16009338	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400106	7608	WaitFor	14000731	m14_00_00_00.emevd.dcx.js	106)); WaitFor(ElapsedSeconds(2) && EventFlag(7608)); Awa
-400107	3469	commonarg/WaitFor	90005750	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400148	3569	commonarg/WaitFor	90005750	m60_34_50_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400149	1035509215	commonarg/WaitFor	90005750	m60_35_50_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400149	1035509216	commonarg/WaitFor	90005750	m60_35_50_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400159	12012716	!WaitFor	3050	common.emevd.dcx.js	)); WaitFor(EventFlag(12019280) && !EventFlag(12012716)); Rem
-400159	12019280	WaitFor	3050	common.emevd.dcx.js	EndIf(EventFlag(400159)); WaitFor(EventFlag(12019280) && !Event
-400163	1039529205	commonarg/WaitFor	90005750	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400174	3671	WaitFor	13003711	m13_00_00_00.emevd.dcx.js	dIf(!PlayerIsInOwnWorld()); WaitFor(EventFlag(3671) && EventF
-400174	13009254	commonarg/WaitFor	90005750	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400174	13009256	WaitFor	13003711	m13_00_00_00.emevd.dcx.js	orld()); WaitFor(EventFlag(3671) && EventFlag(13009256)); Set
-400174	13009257	!EventFlag	13003711	m13_00_00_00.emevd.dcx.js	flagHp &= EventFlag(13009258) && !EventFlag(13009257);
-400174	13009257	?	13003711	m13_00_00_00.emevd.dcx.js	tityId, TeamType.Disabled); flag &= EventFlag(13009257); Wait
-400174	13009257	EventFlag	13003711	m13_00_00_00.emevd.dcx.js	flag &= EventFlag(13009258) && EventFlag(13009257);
-400174	13009258	?	13003711	m13_00_00_00.emevd.dcx.js	GotoIf(L2, flagHp); flag &= EventFlag(13009258) && EventF
-400174	13009258	?	13003711	m13_00_00_00.emevd.dcx.js	ventFlag(13009258)) { flagHp &= EventFlag(13009258) && !Event
-400174	13009258	if	13003711	m13_00_00_00.emevd.dcx.js	terTalkRange(chrEntityId, 200); if (EventFlag(13009258)) {
-400174	13009260	?	13003711	m13_00_00_00.emevd.dcx.js	lity(chrEntityId); WaitFor( EventFlag(13009260)
-400183	3683	EndIf	31002800	m31_00_00_00.emevd.dcx.js	on() { EndIf(EventFlag(31000800) || EventFlag(3683) || EventF
-400183	3683	EndIf	31002811	m31_00_00_00.emevd.dcx.js	on() { EndIf(EventFlag(31000800) || EventFlag(3683) || EventF
-400183	3691	EndIf	31002800	m31_00_00_00.emevd.dcx.js	entFlag(31000800) || EventFlag(3683) || EventFlag(3691)); Wai
-400183	3691	EndIf	31002811	m31_00_00_00.emevd.dcx.js	entFlag(31000800) || EventFlag(3683) || EventFlag(3691)); Wai
-400183	31000800	?	31002800	m31_00_00_00.emevd.dcx.js	asSpEffect(10000, 9646)) || EventFlag(31000800));
-400183	31000800	EndIf	31002800	m31_00_00_00.emevd.dcx.js	002800, Restart, function() { EndIf(EventFlag(31000800) || EventF
-400183	31000800	EndIf	31002800	m31_00_00_00.emevd.dcx.js	acterHPValue(31000800) <= 0); EndIf(EventFlag(31000800)); Wai
-400183	31000800	EndIf	31002811	m31_00_00_00.emevd.dcx.js	002811, Restart, function() { EndIf(EventFlag(31000800) || EventF
-400183	31000800	WaitFor	31002811	m31_00_00_00.emevd.dcx.js	!CharacterHasSpEffect(10000, 9646)) || EventFlag(31000800));
-400183	31009810	WaitFor	31002811	m31_00_00_00.emevd.dcx.js	(3683) || EventFlag(3691)); WaitFor(EventFlag(31009810)); Set
-400191	3708	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400191	3709	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400191	1041389414	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400240	3768	commonarg/WaitFor	90005750	m60_34_49_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400291	16009463	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400292	13002181	commonarg/WaitFor	90005792	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400308	1044529272	commonarg/WaitFor	90005750	m60_44_52_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400308	1044529272	commonarg/WaitFor	90005750	m60_44_52_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400312	7611	commonarg/WaitFor	90005750	m60_50_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400312	1050389238	commonarg/WaitFor	90005750	m60_50_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400321	4192	commonarg/WaitFor	90005750	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400323	7611	WaitFor	15000714	m15_00_00_00.emevd.dcx.js	323)); WaitFor(ElapsedSeconds(2) && EventFlag(7611)); Awa
-400323	7611	commonarg/WaitFor	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400324	15009212	?	15000713	m15_00_00_00.emevd.dcx.js	&& !EventFlag(400324) && EventFlag(15009212)
-400339	12039162	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400348	4067	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400349	4048	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400358	400359	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400359	3909	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400360	3806	commonarg/WaitFor	90005750	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400381	35009337	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400381	1045522181	commonarg/WaitFor	90005792	m60_45_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400381	1045522181	commonarg/WaitFor	90005792	m60_45_52_10.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400382	35009336	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400393	1035429255	commonarg/WaitFor	90005750	m60_35_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400394	1034509430	commonarg/WaitFor	90005750	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400401	7609	WaitFor	14000712	m14_00_00_00.emevd.dcx.js	401)); WaitFor(ElapsedSeconds(2) && EventFlag(7609));
-400410	4103	EndIf	3052	common.emevd.dcx.js	EndIf(EventFlag(400410)); EndIf(EventFlag(4103)); Wai
-400410	1036412703	!WaitFor	3052	common.emevd.dcx.js	; WaitFor(EventFlag(1036419209) && !EventFlag(1036412703)); Awa
-400410	1036419209	WaitFor	3052	common.emevd.dcx.js	EndIf(EventFlag(4103)); WaitFor(EventFlag(1036419209) && !Event
-400410	1036419215	commonarg/WaitFor	90005750	m60_36_41_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400411	1047589210	commonarg/WaitFor	90005750	m60_47_58_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400460	3829	commonarg/WaitFor	90005750	m60_39_44_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400480	7610	commonarg/WaitFor	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400490	11109656	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400500	11059305	commonarg/WaitFor	90005750	m11_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400510	7612	commonarg/WaitFor	90005774	m60_40_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400594	7624	commonarg/WaitFor	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
-400595	7622	commonarg/WaitFor	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
-400598	4448	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400602	4427	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400602	2046429375	commonarg/WaitFor	90005750	m61_46_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400614	4370	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400614	7623	commonarg/WaitFor	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
-400614	2044460180	commonarg/WaitFor	90005774	m61_44_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400614	2044460180	commonarg/WaitFor	90005774	m61_44_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400620	21019328	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400622	7621	commonarg/WaitFor	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
-400622	21019331	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400624	4408	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400625	21019332	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400632	22000496	commonarg/WaitFor	90005774	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400634	4469	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400644	4386	commonarg/WaitFor	90005750	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400644	4386	commonarg/WaitFor	90005750	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400644	4387	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400644	2045429280	commonarg/WaitFor	90005750	m61_45_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400645	2045410180	commonarg/WaitFor	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/WaitFor	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/WaitFor	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/WaitFor	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/WaitFor	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/WaitFor	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/WaitFor	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/WaitFor	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2047460184	commonarg/WaitFor	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2047460184	commonarg/WaitFor	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2048400180	commonarg/WaitFor	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2048440180	commonarg/WaitFor	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2049460180	commonarg/WaitFor	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2050470180	commonarg/WaitFor	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400666	2051450800	commonarg/WaitFor	90005750	m61_50_45_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400671	2051459742	commonarg/WaitFor	90005750	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400672	2051450180	commonarg/WaitFor	90005774	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400690	21009210	GotoIf	4931	common.emevd.dcx.js	!EventFlag(21009214))); GotoIf(L1, EventFlag(21009210)); Got
-400690	21009211	GotoIf	4931	common.emevd.dcx.js	1, EventFlag(21009210)); GotoIf(L2, EventFlag(21009211)); End
-400690	21009214	!EndIf	4931	common.emevd.dcx.js	)); EndIf(!(EventFlag(21009240) && !EventFlag(21009214))); Go
-400690	21009240	EndIf	4931	common.emevd.dcx.js	dIf(!PlayerIsInOwnWorld()); EndIf(!(EventFlag(21009240) && !Event
-400692	21009213	commonarg/WaitFor	90005750	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400704	2049399729	commonarg/WaitFor	90005750	m61_49_39_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400712	2052409211	commonarg/WaitFor	90005750	m61_52_40_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400714	2052409212	commonarg/WaitFor	90005750	m61_52_40_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400723	20009293	commonarg/WaitFor	90005750	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400730	2049449211	commonarg/WaitFor	90005750	m61_49_44_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400732	4566	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400740	4286	commonarg/WaitFor	90005750	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-530865	2047440360	EndIf	2047442360	m61_47_44_00.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai
-530865	2047440360	EndIf	2047442360	m61_47_44_10.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai
-11007985	7605	commonarg/WaitFor	90005774	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-11107900	11109656	commonarg/WaitFor	90005774	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-12017090	12010593	!WaitFor/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea
-12017090	12010593	!WaitFor/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea
-12017090	12010593	if/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {
-12017090	12010593	if/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {
-12057950	12052412	commonarg/WaitFor	90005792	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-16007690	16000800	EndIf	16002691	m16_00_00_00.emevd.dcx.js	, assetEntityId2, entityId) { EndIf(EventFlag(16000800) || !Playe
-16007690	16002696	WaitFor	16002691	m16_00_00_00.emevd.dcx.js	onButtonInArea(9532, assetEntityId2) && EventFlag(16002696)); Del
-16007710	16000850	EndIf/EnableAssetTreasure	16002850	m16_00_00_00.emevd.dcx.js	002850, Restart, function() { EndIf(EventFlag(16000850)); Wai
-16007710	16000850	if/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	16002855, Restart, function() { if (EventFlag(16000850)) {
-16007710	16000850	if/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	16002855, Restart, function() { if (EventFlag(16000850)) {
-16007710	16000851	!if/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	DisableCharacterAI(16000850); if (!EventFlag(16000851)) {
-16007710	16000851	!if/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	DisableCharacterAI(16000850); if (!EventFlag(16000851)) {
-16007710	16002855	WaitFor/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea
-16007710	16002855	WaitFor/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea
-16007940	16002181	commonarg/WaitFor	90005792	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-16007950	16009264	EndIf	16003706	m16_00_00_00.emevd.dcx.js	(chrEntityId, chrEntityId2) { EndIf(EventFlag(16009264)); Wai
-20007810	20000544	if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {
-20007810	20000544	if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {
-20007810	20000800	?/EnableAssetTreasure	20002800	m20_00_00_00.emevd.dcx.js	asSpEffect(10000, 9646)) || EventFlag(20000800)); Han
-20007810	20000800	EndIf/EnableAssetTreasure	20002800	m20_00_00_00.emevd.dcx.js	002800, Restart, function() { EndIf(EventFlag(20000800)); Wai
-20007810	20000800	if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	20002810, Restart, function() { if (EventFlag(20000800)) {
-20007810	20000800	if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	20002810, Restart, function() { if (EventFlag(20000800)) {
-20007810	20000801	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	000, TargetType.BluePhantom)); if (!EventFlag(20000801)) {
-20007810	20000801	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	000, TargetType.BluePhantom)); if (!EventFlag(20000801)) {
-20007810	20002739	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	layerIsInOwnWorld()) { if (!EventFlag(20002739)) {
-20007810	20002739	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	lse); } } else if (!EventFlag(20002739)) {
-20007810	20002739	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	layerIsInOwnWorld()) { if (!EventFlag(20002739)) {
-20007810	20002739	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	lse); } } else if (!EventFlag(20002739)) {
-20007810	20002805	WaitFor/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	); } else { WaitFor(EventFlag(20002805) || InArea
-20007810	20002805	WaitFor/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea
-20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	); } else { WaitFor(EventFlag(20002805) || InArea
-20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea
-21017120	72112	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF
-21017120	72112	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF
-21017120	72113	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	tFlag(21010500) && (EventFlag(72112) || EventFlag(72113))));
-21017120	72113	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	tFlag(21010500) && (EventFlag(72112) || EventFlag(72113))));
-21017120	21010500	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	PlayerIsInOwnWorld()); GotoIf(L0, !(EventFlag(21010500) && (Event
-21017120	21010500	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	PlayerIsInOwnWorld()); GotoIf(L0, !(EventFlag(21010500) && (Event
-21017120	21010501	!GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For
-21017120	21010501	!GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For
-30107100	30100465	WaitFor	30102490	m30_10_00_00.emevd.dcx.js	EndIf(EventFlag(30107100)); WaitFor(EventFlag(30100465)); End
-31007010	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {
-31007010	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {
-31007010	31008523	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1); EnableAsset(31001523); if (!EventFlag(31008523)) {
-31007030	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {
-31007030	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {
-31007030	31008523	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1); EnableAsset(31001523); if (!EventFlag(31008523)) {
-35007000	300	if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {
-35007000	300	if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {
-35007000	35008540	!if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {
-35007000	35008540	!if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {
-39207500	7606	commonarg/WaitFor	90005774	m39_20_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1035437100	1035432220	commonarg/WaitFor	90005390	m60_35_43_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1
-1035467700	7607	commonarg/WaitFor	90005774	m60_35_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1037497300	1037492181	commonarg/WaitFor	90005792	m60_37_49_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1038547700	1038542410	commonarg/WaitFor	90005792	m60_38_54_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1039537700	7603	commonarg/WaitFor	90005774	m60_39_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1042377700	1043379262	commonarg/WaitFor	90005774	m60_43_37_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1042397500	7602	commonarg/WaitFor	90005774	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1042397700	1042392181	commonarg/WaitFor	90005792	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1043537100	1042532350	commonarg/WaitFor	90005390	m60_42_53_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1
-1044357100	1035432270	commonarg/WaitFor	90005390	m60_44_35_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1
-1046407700	1046402181	commonarg/WaitFor	90005792	m60_46_40_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1047567700	1047562181	commonarg/WaitFor	90005792	m60_47_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1048387500	1048382181	commonarg/WaitFor	90005792	m60_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1048567800	1048562181	commonarg/WaitFor	90005792	m60_48_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1048577810	1048570310	WaitForEventFlag/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)
-1048577810	1048570310	WaitForEventFlag/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)
-1048577810	1048570350	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(EventFlag(1048572309)); EndIf(EventFlag(1048570350)); Wai
-1048577810	1048570350	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(EventFlag(1048572309)); EndIf(EventFlag(1048570350)); Wai
-1048577810	1048572306	!if/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	; if (!EventFlag(1048572306)) {
-1048577810	1048572306	!if/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	; if (!EventFlag(1048572306)) {
-1048577810	1048572308	GotoIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	DisableNetworkSync(); GotoIf(L5, EventFlag(1048572308)); Got
-1048577810	1048572308	GotoIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	DisableNetworkSync(); GotoIf(L5, EventFlag(1048572308)); Got
-1048577810	1048572309	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(!PlayerIsInOwnWorld()); EndIf(EventFlag(1048572309)); End
-1048577810	1048572309	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	s(1); RestartEvent(); L5: EndIf(EventFlag(1048572309)); Dea
-1048577810	1048572309	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(!PlayerIsInOwnWorld()); EndIf(EventFlag(1048572309)); End
-1048577810	1048572309	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	s(1); RestartEvent(); L5: EndIf(EventFlag(1048572309)); Dea
-1048577810	1048572309	GotoIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea
-1048577810	1048572309	GotoIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea
-1050567700	7604	commonarg/WaitFor	90005774	m60_50_56_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1051537500	1051532181	commonarg/WaitFor	90005792	m60_51_53_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+# gate_map = the map emevd(s) that SET gate_flag, `|`-joined when several do.
+#   Empty = no MAP sets it (common-event only, or nothing found). This is the
+#   region handle for gate flags whose NUMBER carries no map encoding -- the
+#   NPC/questline state flags the numeric decode was blind to.
+check_flag	gate_flag	context	event_id	source	evidence	gate_map
+9500	11059206	commonarg/WaitFor	90005750	m11_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m11_05_00_00
+9502	4131	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+60110	1042369413	commonarg/WaitFor	90005750	m60_42_36_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_42_36_00
+60300	11102180	commonarg/WaitFor	90005792	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+65270	1039522181	commonarg/WaitFor	90005792	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+65660	11007992	EndIf	11002696	m11_00_00_00.emevd.dcx.js	002696, Restart, function() { EndIf(EventFlag(11007992)); Wai	
+400033	3383	EndIf	3051	common.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(EventFlag(3383)); Wai	m60_37_46_00
+400033	3383	WaitFor	3051	common.emevd.dcx.js	383)); WaitFor(EventFlag(400031) && EventFlag(3383) && !Event	m60_37_46_00
+400033	400031	!EndIf	10010791	m10_01_00_00.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(!EventFlag(400031)); Wai	
+400033	400031	!EndIf	1037493700	m60_37_49_00.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(!EventFlag(400031)); Wai	
+400033	400031	WaitFor	3051	common.emevd.dcx.js	EndIf(EventFlag(3383)); WaitFor(EventFlag(400031) && EventF	
+400033	35009209	!WaitFor	3051	common.emevd.dcx.js	ventFlag(400031) && EventFlag(3383) && !EventFlag(35009209)); End	
+400037	12059166	commonarg/WaitFor	90005750	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400061	1033442181	commonarg/WaitFor	90005792	m60_33_44_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+400061	1043319208	commonarg/WaitFor	90005750	m60_43_31_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_43_31_00
+400061	1045349258	commonarg/WaitFor	90005750	m60_45_34_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_45_34_00
+400071	16009266	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m16_00_00_00
+400072	16009270	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400073	16009208	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400074	16009216	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400075	16009217	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400076	16009267	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m16_00_00_00
+400077	16009268	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m16_00_00_00
+400078	16009269	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m16_00_00_00
+400089	35009211	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m35_00_00_00
+400091	16009337	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m16_00_00_00
+400091	16009338	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m16_00_00_00
+400106	7608	WaitFor	14000731	m14_00_00_00.emevd.dcx.js	106)); WaitFor(ElapsedSeconds(2) && EventFlag(7608)); Awa	
+400107	3469	commonarg/WaitFor	90005750	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400148	3569	commonarg/WaitFor	90005750	m60_34_50_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400149	1035509215	commonarg/WaitFor	90005750	m60_35_50_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400149	1035509216	commonarg/WaitFor	90005750	m60_35_50_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400159	12012716	!WaitFor	3050	common.emevd.dcx.js	)); WaitFor(EventFlag(12019280) && !EventFlag(12012716)); Rem	m12_01_00_00
+400159	12019280	WaitFor	3050	common.emevd.dcx.js	EndIf(EventFlag(400159)); WaitFor(EventFlag(12019280) && !Event	m12_01_00_00
+400163	1039529205	commonarg/WaitFor	90005750	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400174	3671	WaitFor	13003711	m13_00_00_00.emevd.dcx.js	dIf(!PlayerIsInOwnWorld()); WaitFor(EventFlag(3671) && EventF	
+400174	13009254	commonarg/WaitFor	90005750	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m13_00_00_00
+400174	13009256	WaitFor	13003711	m13_00_00_00.emevd.dcx.js	orld()); WaitFor(EventFlag(3671) && EventFlag(13009256)); Set	
+400174	13009257	!EventFlag	13003711	m13_00_00_00.emevd.dcx.js	flagHp &= EventFlag(13009258) && !EventFlag(13009257);	
+400174	13009257	?	13003711	m13_00_00_00.emevd.dcx.js	tityId, TeamType.Disabled); flag &= EventFlag(13009257); Wait	
+400174	13009257	EventFlag	13003711	m13_00_00_00.emevd.dcx.js	flag &= EventFlag(13009258) && EventFlag(13009257);	
+400174	13009258	?	13003711	m13_00_00_00.emevd.dcx.js	GotoIf(L2, flagHp); flag &= EventFlag(13009258) && EventF	
+400174	13009258	?	13003711	m13_00_00_00.emevd.dcx.js	ventFlag(13009258)) { flagHp &= EventFlag(13009258) && !Event	
+400174	13009258	if	13003711	m13_00_00_00.emevd.dcx.js	terTalkRange(chrEntityId, 200); if (EventFlag(13009258)) {	
+400174	13009260	?	13003711	m13_00_00_00.emevd.dcx.js	lity(chrEntityId); WaitFor( EventFlag(13009260)	
+400183	3683	EndIf	31002800	m31_00_00_00.emevd.dcx.js	on() { EndIf(EventFlag(31000800) || EventFlag(3683) || EventF	m16_00_00_00
+400183	3683	EndIf	31002811	m31_00_00_00.emevd.dcx.js	on() { EndIf(EventFlag(31000800) || EventFlag(3683) || EventF	m16_00_00_00
+400183	3691	EndIf	31002800	m31_00_00_00.emevd.dcx.js	entFlag(31000800) || EventFlag(3683) || EventFlag(3691)); Wai	
+400183	3691	EndIf	31002811	m31_00_00_00.emevd.dcx.js	entFlag(31000800) || EventFlag(3683) || EventFlag(3691)); Wai	
+400183	31000800	?	31002800	m31_00_00_00.emevd.dcx.js	asSpEffect(10000, 9646)) || EventFlag(31000800));	m31_00_00_00
+400183	31000800	EndIf	31002800	m31_00_00_00.emevd.dcx.js	002800, Restart, function() { EndIf(EventFlag(31000800) || EventF	m31_00_00_00
+400183	31000800	EndIf	31002800	m31_00_00_00.emevd.dcx.js	acterHPValue(31000800) <= 0); EndIf(EventFlag(31000800)); Wai	m31_00_00_00
+400183	31000800	EndIf	31002811	m31_00_00_00.emevd.dcx.js	002811, Restart, function() { EndIf(EventFlag(31000800) || EventF	m31_00_00_00
+400183	31000800	WaitFor	31002811	m31_00_00_00.emevd.dcx.js	!CharacterHasSpEffect(10000, 9646)) || EventFlag(31000800));	m31_00_00_00
+400183	31009810	WaitFor	31002811	m31_00_00_00.emevd.dcx.js	(3683) || EventFlag(3691)); WaitFor(EventFlag(31009810)); Set	m31_00_00_00
+400191	3708	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400191	3709	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400191	1041389414	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_41_38_00
+400240	3768	commonarg/WaitFor	90005750	m60_34_49_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400291	16009463	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m16_00_00_00
+400292	13002181	commonarg/WaitFor	90005792	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+400308	1044529272	commonarg/WaitFor	90005750	m60_44_52_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_44_52_00|m60_44_52_10
+400308	1044529272	commonarg/WaitFor	90005750	m60_44_52_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_44_52_00|m60_44_52_10
+400312	7611	commonarg/WaitFor	90005750	m60_50_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400312	1050389238	commonarg/WaitFor	90005750	m60_50_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_50_38_00
+400321	4192	commonarg/WaitFor	90005750	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400323	7611	WaitFor	15000714	m15_00_00_00.emevd.dcx.js	323)); WaitFor(ElapsedSeconds(2) && EventFlag(7611)); Awa	
+400323	7611	commonarg/WaitFor	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400324	15009212	?	15000713	m15_00_00_00.emevd.dcx.js	&& !EventFlag(400324) && EventFlag(15009212)	m15_00_00_00
+400339	12039162	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400348	4067	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400349	4048	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400358	400359	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400359	3909	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400360	3806	commonarg/WaitFor	90005750	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400381	35009337	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m35_00_00_00
+400381	1045522181	commonarg/WaitFor	90005792	m60_45_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+400381	1045522181	commonarg/WaitFor	90005792	m60_45_52_10.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+400382	35009336	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m35_00_00_00
+400393	1035429255	commonarg/WaitFor	90005750	m60_35_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_35_42_00
+400394	1034509430	commonarg/WaitFor	90005750	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400401	7609	WaitFor	14000712	m14_00_00_00.emevd.dcx.js	401)); WaitFor(ElapsedSeconds(2) && EventFlag(7609));	
+400410	4103	EndIf	3052	common.emevd.dcx.js	EndIf(EventFlag(400410)); EndIf(EventFlag(4103)); Wai	m60_37_46_00
+400410	1036412703	!WaitFor	3052	common.emevd.dcx.js	; WaitFor(EventFlag(1036419209) && !EventFlag(1036412703)); Awa	
+400410	1036419209	WaitFor	3052	common.emevd.dcx.js	EndIf(EventFlag(4103)); WaitFor(EventFlag(1036419209) && !Event	
+400410	1036419215	commonarg/WaitFor	90005750	m60_36_41_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_36_41_00
+400411	1047589210	commonarg/WaitFor	90005750	m60_47_58_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m60_47_58_00
+400460	3829	commonarg/WaitFor	90005750	m60_39_44_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400480	7610	commonarg/WaitFor	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400490	11109656	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m11_10_00_00
+400500	11059305	commonarg/WaitFor	90005750	m11_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m11_05_00_00
+400510	7612	commonarg/WaitFor	90005774	m60_40_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400594	7624	commonarg/WaitFor	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1	
+400595	7622	commonarg/WaitFor	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1	
+400598	4448	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400602	4427	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400602	2046429375	commonarg/WaitFor	90005750	m61_46_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400614	4370	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400614	7623	commonarg/WaitFor	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1	
+400614	2044460180	commonarg/WaitFor	90005774	m61_44_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400614	2044460180	commonarg/WaitFor	90005774	m61_44_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400620	21019328	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400622	7621	commonarg/WaitFor	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1	
+400622	21019331	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400624	4408	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400625	21019332	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400632	22000496	commonarg/WaitFor	90005774	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	m22_00_00_00
+400634	4469	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400644	4386	commonarg/WaitFor	90005750	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400644	4386	commonarg/WaitFor	90005750	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400644	4387	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400644	2045429280	commonarg/WaitFor	90005750	m61_45_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400645	2045410180	commonarg/WaitFor	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2045429297	commonarg/WaitFor	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2045429297	commonarg/WaitFor	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2045429297	commonarg/WaitFor	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2045429297	commonarg/WaitFor	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2045429297	commonarg/WaitFor	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2045429297	commonarg/WaitFor	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2045429297	commonarg/WaitFor	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2047460184	commonarg/WaitFor	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2047460184	commonarg/WaitFor	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2048400180	commonarg/WaitFor	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2048440180	commonarg/WaitFor	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2049460180	commonarg/WaitFor	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400645	2050470180	commonarg/WaitFor	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400666	2051450800	commonarg/WaitFor	90005750	m61_50_45_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	m61_51_45_00
+400671	2051459742	commonarg/WaitFor	90005750	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400672	2051450180	commonarg/WaitFor	90005774	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+400690	21009210	GotoIf	4931	common.emevd.dcx.js	!EventFlag(21009214))); GotoIf(L1, EventFlag(21009210)); Got	
+400690	21009211	GotoIf	4931	common.emevd.dcx.js	1, EventFlag(21009210)); GotoIf(L2, EventFlag(21009211)); End	
+400690	21009214	!EndIf	4931	common.emevd.dcx.js	)); EndIf(!(EventFlag(21009240) && !EventFlag(21009214))); Go	
+400690	21009240	EndIf	4931	common.emevd.dcx.js	dIf(!PlayerIsInOwnWorld()); EndIf(!(EventFlag(21009240) && !Event	
+400692	21009213	commonarg/WaitFor	90005750	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400704	2049399729	commonarg/WaitFor	90005750	m61_49_39_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400712	2052409211	commonarg/WaitFor	90005750	m61_52_40_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400714	2052409212	commonarg/WaitFor	90005750	m61_52_40_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400723	20009293	commonarg/WaitFor	90005750	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400730	2049449211	commonarg/WaitFor	90005750	m61_49_44_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400732	4566	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+400740	4286	commonarg/WaitFor	90005750	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5	
+530865	2047440360	EndIf	2047442360	m61_47_44_00.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai	m61_47_44_00|m61_47_44_10
+530865	2047440360	EndIf	2047442360	m61_47_44_10.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai	m61_47_44_00|m61_47_44_10
+11007985	7605	commonarg/WaitFor	90005774	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+11107900	11109656	commonarg/WaitFor	90005774	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	m11_10_00_00
+12017090	12010593	!WaitFor/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea	m12_01_00_00
+12017090	12010593	!WaitFor/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea	m12_01_00_00
+12017090	12010593	if/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {	m12_01_00_00
+12017090	12010593	if/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {	m12_01_00_00
+12057950	12052412	commonarg/WaitFor	90005792	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+16007690	16000800	EndIf	16002691	m16_00_00_00.emevd.dcx.js	, assetEntityId2, entityId) { EndIf(EventFlag(16000800) || !Playe	m16_00_00_00
+16007690	16002696	WaitFor	16002691	m16_00_00_00.emevd.dcx.js	onButtonInArea(9532, assetEntityId2) && EventFlag(16002696)); Del	m16_00_00_00
+16007710	16000850	EndIf/EnableAssetTreasure	16002850	m16_00_00_00.emevd.dcx.js	002850, Restart, function() { EndIf(EventFlag(16000850)); Wai	m16_00_00_00
+16007710	16000850	if/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	16002855, Restart, function() { if (EventFlag(16000850)) {	m16_00_00_00
+16007710	16000850	if/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	16002855, Restart, function() { if (EventFlag(16000850)) {	m16_00_00_00
+16007710	16000851	!if/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	DisableCharacterAI(16000850); if (!EventFlag(16000851)) {	m16_00_00_00
+16007710	16000851	!if/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	DisableCharacterAI(16000850); if (!EventFlag(16000851)) {	m16_00_00_00
+16007710	16002855	WaitFor/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea	
+16007710	16002855	WaitFor/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea	
+16007940	16002181	commonarg/WaitFor	90005792	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+16007950	16009264	EndIf	16003706	m16_00_00_00.emevd.dcx.js	(chrEntityId, chrEntityId2) { EndIf(EventFlag(16009264)); Wai	m16_00_00_00
+20007810	20000544	if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {	
+20007810	20000544	if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {	
+20007810	20000800	?/EnableAssetTreasure	20002800	m20_00_00_00.emevd.dcx.js	asSpEffect(10000, 9646)) || EventFlag(20000800)); Han	m20_00_00_00
+20007810	20000800	EndIf/EnableAssetTreasure	20002800	m20_00_00_00.emevd.dcx.js	002800, Restart, function() { EndIf(EventFlag(20000800)); Wai	m20_00_00_00
+20007810	20000800	if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	20002810, Restart, function() { if (EventFlag(20000800)) {	m20_00_00_00
+20007810	20000800	if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	20002810, Restart, function() { if (EventFlag(20000800)) {	m20_00_00_00
+20007810	20000801	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	000, TargetType.BluePhantom)); if (!EventFlag(20000801)) {	m20_00_00_00
+20007810	20000801	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	000, TargetType.BluePhantom)); if (!EventFlag(20000801)) {	m20_00_00_00
+20007810	20002739	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	layerIsInOwnWorld()) { if (!EventFlag(20002739)) {	
+20007810	20002739	!if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	lse); } } else if (!EventFlag(20002739)) {	
+20007810	20002739	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	layerIsInOwnWorld()) { if (!EventFlag(20002739)) {	
+20007810	20002739	!if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	lse); } } else if (!EventFlag(20002739)) {	
+20007810	20002805	WaitFor/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	); } else { WaitFor(EventFlag(20002805) || InArea	
+20007810	20002805	WaitFor/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea	
+20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	); } else { WaitFor(EventFlag(20002805) || InArea	
+20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea	
+21017120	72112	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF	
+21017120	72112	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF	
+21017120	72113	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	tFlag(21010500) && (EventFlag(72112) || EventFlag(72113))));	
+21017120	72113	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	tFlag(21010500) && (EventFlag(72112) || EventFlag(72113))));	
+21017120	21010500	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	PlayerIsInOwnWorld()); GotoIf(L0, !(EventFlag(21010500) && (Event	m21_01_00_00
+21017120	21010500	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	PlayerIsInOwnWorld()); GotoIf(L0, !(EventFlag(21010500) && (Event	m21_01_00_00
+21017120	21010501	!GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For	m21_01_00_00
+21017120	21010501	!GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For	m21_01_00_00
+30107100	30100465	WaitFor	30102490	m30_10_00_00.emevd.dcx.js	EndIf(EventFlag(30107100)); WaitFor(EventFlag(30100465)); End	m30_10_00_00
+31007010	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {	
+31007010	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {	
+31007010	31008523	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1); EnableAsset(31001523); if (!EventFlag(31008523)) {	
+31007030	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {	
+31007030	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {	
+31007030	31008523	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1); EnableAsset(31001523); if (!EventFlag(31008523)) {	
+35007000	300	if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {	
+35007000	300	if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {	
+35007000	35008540	!if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {	m35_00_00_00
+35007000	35008540	!if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {	m35_00_00_00
+39207500	7606	commonarg/WaitFor	90005774	m39_20_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+1035437100	1035432220	commonarg/WaitFor	90005390	m60_35_43_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1	
+1035467700	7607	commonarg/WaitFor	90005774	m60_35_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+1037497300	1037492181	commonarg/WaitFor	90005792	m60_37_49_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+1038547700	1038542410	commonarg/WaitFor	90005792	m60_38_54_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+1039537700	7603	commonarg/WaitFor	90005774	m60_39_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+1042377700	1043379262	commonarg/WaitFor	90005774	m60_43_37_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	m60_43_37_00
+1042397500	7602	commonarg/WaitFor	90005774	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+1042397700	1042392181	commonarg/WaitFor	90005792	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+1043537100	1042532350	commonarg/WaitFor	90005390	m60_42_53_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1	
+1044357100	1035432270	commonarg/WaitFor	90005390	m60_44_35_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1	
+1046407700	1046402181	commonarg/WaitFor	90005792	m60_46_40_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+1047567700	1047562181	commonarg/WaitFor	90005792	m60_47_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+1048387500	1048382181	commonarg/WaitFor	90005792	m60_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+1048567800	1048562181	commonarg/WaitFor	90005792	m60_48_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
+1048577810	1048570310	WaitForEventFlag/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)	m60_48_57_00
+1048577810	1048570310	WaitForEventFlag/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)	m60_48_57_00
+1048577810	1048570350	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(EventFlag(1048572309)); EndIf(EventFlag(1048570350)); Wai	m60_48_57_00
+1048577810	1048570350	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(EventFlag(1048572309)); EndIf(EventFlag(1048570350)); Wai	m60_48_57_00
+1048577810	1048572306	!if/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	; if (!EventFlag(1048572306)) {	m60_48_57_00
+1048577810	1048572306	!if/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	; if (!EventFlag(1048572306)) {	m60_48_57_00
+1048577810	1048572308	GotoIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	DisableNetworkSync(); GotoIf(L5, EventFlag(1048572308)); Got	m60_48_57_00
+1048577810	1048572308	GotoIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	DisableNetworkSync(); GotoIf(L5, EventFlag(1048572308)); Got	m60_48_57_00
+1048577810	1048572309	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(!PlayerIsInOwnWorld()); EndIf(EventFlag(1048572309)); End	m60_48_57_00
+1048577810	1048572309	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	s(1); RestartEvent(); L5: EndIf(EventFlag(1048572309)); Dea	m60_48_57_00
+1048577810	1048572309	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(!PlayerIsInOwnWorld()); EndIf(EventFlag(1048572309)); End	m60_48_57_00
+1048577810	1048572309	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	s(1); RestartEvent(); L5: EndIf(EventFlag(1048572309)); Dea	m60_48_57_00
+1048577810	1048572309	GotoIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea	m60_48_57_00
+1048577810	1048572309	GotoIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea	m60_48_57_00
+1050567700	7604	commonarg/WaitFor	90005774	m60_50_56_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0	
+1051537500	1051532181	commonarg/WaitFor	90005792	m60_51_53_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1	
