@@ -103,11 +103,28 @@ def main():
             if len(s) == 10 and s[0] == "1":
                 tile_of[f] = (int(s[2:4]), int(s[4:6]))
 
-    hit, byreg, tiles = [], collections.Counter(), collections.Counter()
+    # THE FINE-TILE BOUND, replicated from gen_data._is_fine_tile. The overworld ships LOD variants
+    # (m60_XX_YY_01 / _02) on a 2x-4x coarser grid -- (10, 09) and friends. They are not tiles at all,
+    # gen_data's LOD guard already refuses them, and the tile-guess bar skips them for that reason.
+    # WITHOUT this the preview reports them as newly barred and they are PHANTOM: on 2026-07-26 that
+    # was 6 false positives, every one a known LOD case -- the Flail f1042377060 (the LOD guard's own
+    # worked example) and f1048557900 / f1049547900, the two flags test_gf_lod_tile_regions pins BY
+    # FLAG. A preview that disagrees with the thing it previews is worse than no preview.
+    xs = [x for x, _ in anchor]
+    ys = [y for _, y in anchor]
+    xmin, xmax, ymin, ymax = min(xs), max(xs), min(ys), max(ys)
+
+    def is_fine(x, y):
+        return xmin <= x <= xmax and ymin <= y <= ymax
+
+    hit, byreg, tiles, lod = [], collections.Counter(), collections.Counter(), 0
     for reg, locs in LOC.items():
         for (name, ap_id, f) in locs:
             t = tile_of.get(f)
             if not t or t in anchor:
+                continue
+            if not is_fine(*t):
+                lod += 1          # coarse LOD index: not a tile, already refused upstream
                 continue
             tiles[t] += 1
             if ap_id in already:
@@ -122,6 +139,7 @@ def main():
     print("live checks                                  %d" % total)
     print("anchored m60 tiles (contain a grace)         %d" % len(anchor))
     print("checks on a GRACELESS tile                   %d  over %d tiles" % (sum(tiles.values()), len(tiles)))
+    print("coarse LOD indices skipped (not tiles)       %d" % lod)
     print("already barred (DEFAULTED_REGION_APS)        %d" % len(already))
     print("NEWLY barred from progression                %d   <-- the cost of this change" % len(hit))
     tagged = [h for h in hit if ltags.get(h[2])]
