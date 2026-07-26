@@ -1128,7 +1128,11 @@ _UNPLACEABLE_DLC_COOKBOOKS = frozenset({68510, 68520, 68530, 68540, 68550, 68560
 # (2044467950 / 2046477950 were briefly here; Alaric reclassified them to _SURFACE_EXCLUDE_FLAGS --
 #  kept as ordinary checks, just barred from hosting progression -- rather than dropped from the pool.)
 _SHEET_DROPS = frozenset({14007930, 100020})
-# QUESTLINE-GATED drops -- EXCLUDED because QUESTLINES ARE OUT OF SCOPE (Alaric, 2026-07-25).
+# CROSS-REGION QUESTLINE-GATED checks -- RANDOMISED, and tagged MISSABLE (Alaric, 2026-07-26:
+# "it's fine for all the quest stuff to be randomized and missable. probably better than excluding
+# it"). They fold into QUEST_GATED_FLAGS below, so they stay ordinary collectable checks that simply
+# never host REQUIRED progression. (`906b3e1` briefly EXCLUDED them instead; that dropped 8 real
+# pickups out of the pool to buy a property the missable item-rule already provides.)
 # ⭐ DERIVED, not hand-picked: these are exactly the checks `test_gf_lot_gates_cross_region` reports,
 # i.e. a check in region A whose EMEVD prerequisite flag belongs to region B. They surfaced only once
 # datamine_lot_gates.py learned to resolve common-event ARGUMENTS (the gate is a literal at the
@@ -1136,8 +1140,9 @@ _SHEET_DROPS = frozenset({14007930, 100020})
 # scan saw ~1% of the corpus). Re-derive with `python tools/datamine_lot_gates.py --emit` + that test.
 #
 # Every one is an NPC-QUESTLINE drop: the item sits in region A but does not EXIST until a questline
-# advances in region B. Randomising them asserts a reachability the seed cannot support -- fill can
-# put progression behind a lock the player has no way to open.
+# advances in region B. The DANGER is only ever fill putting REQUIRED progression there -- the check
+# itself is fine, and a player who does the questline gets it. That is exactly what the missable
+# item-rule forbids, so tagging is the proportionate fix and exclusion was not.
 #
 #   400061     Liurnia   :: Shabriri Grape (Revenger's Shack)   <- Weeping        (Edgar / Irina)
 #   400381     Sewer     :: Sword of Milos (Underground Roadside) <- Altus        (Dung Eater)
@@ -1148,17 +1153,16 @@ _SHEET_DROPS = frozenset({14007930, 100020})
 #   400645     Enir Ilim :: Verdigris Greatshield               <- Gravesite/Ensis(Ansbach)
 #   1044357100 Limgrave  :: Larval Tear (Agheel Lake South)     <- Liurnia
 #
-# 🔓 IF QUESTLINES ARE EVER SCOPED IN, this is the set to revisit FIRST -- and the fix is then an
-# access rule in core.py per questline, NOT a region change: the regions here are CORRECT, it is the
-# reachability claim that is not. Related, same scope decision: Roderika's Sitting Sideways Gesture
-# and Spirit Jellyfish Ashes are not checks at all for exactly this reason.
-# 🛑 This list must SHRINK to empty if questlines come in scope -- do not let it calcify. The
-# cross-region test is its keeper: excluding these makes it green, and any NEW questline-gated check
-# turns it red again, which is the loud failure we want rather than a silently growing hand list.
+# 🔓 IF QUESTLINES ARE EVER SCOPED IN, this is the set to revisit FIRST -- the fix is then a real
+# access rule in core.py per questline, NOT a region change (the regions here are CORRECT; it is the
+# reachability claim that is not), and these checks could then carry progression like any other.
+# 🛑 Do not let this calcify into a hand list. `test_gf_lot_gates_cross_region` is its keeper: it
+# re-derives the population every run and fails if any member is NOT missable-tagged, so a NEW
+# questline-gated check surfaced by a better datamine turns it red instead of silently shipping.
 _QUESTLINE_GATED = frozenset({400061, 400381, 400394, 400602, 400614, 400644, 400645, 1044357100})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS | _QUESTLINE_GATED)
+                | _SHEET_DROPS)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
@@ -2106,6 +2110,17 @@ QUEST_GATED_FLAGS = {
     400671, 400672, 400692, 400700, 400702, 400704, 400710, 400711, 400732,
     400740, 510030, 510420, 520400,
 }
+# ⭐ Fold in the CROSS-REGION-gated set derived above (_QUESTLINE_GATED). Alaric 2026-07-26: randomised
+# + missable BEATS excluded -- the pickup stays in the pool and only loses the right to host REQUIRED
+# progression, which is the one thing that could strand a seed.
+# MEASURED, not asserted: two independent derivations -- the 2026-07-09 hand audit above and the
+# EMEVD cross-region screen -- and they OVERLAP. Print the split rather than let a silent union hide
+# either the corroboration or a set that has stopped contributing anything.
+_QG_NEW = _QUESTLINE_GATED - QUEST_GATED_FLAGS
+print("quest_gated: %d hand-audited flag(s); cross-region screen adds %d NEW %s, %d already covered "
+      "by BOTH derivations" % (len(QUEST_GATED_FLAGS), len(_QG_NEW), sorted(_QG_NEW),
+                               len(_QUESTLINE_GATED) - len(_QG_NEW)))
+QUEST_GATED_FLAGS |= _QUESTLINE_GATED
 
 
 # Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in
@@ -2943,12 +2958,6 @@ _NR_RULES = (
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
      "f1034457100); 100020 a 'Ruin Fragment' shop row whose existence as a real check could not be "
      "confirmed"),
-    (lambda _fl, _r: _fl in _QUESTLINE_GATED,
-     "questline_gated: available only after NPC-questline progress whose prerequisite lives in "
-     "ANOTHER region (lot_gates common-event args, 2026-07-25) -- questlines are OUT OF SCOPE, so "
-     "the check is excluded rather than given a fake reachability; if questlines are ever scoped "
-     "in, delete _QUESTLINE_GATED and write an access rule per questline in core.py (the regions "
-     "are RIGHT, the reachability claim is not)"),
     (lambda _fl, _r: _is_mausoleum_dupe(_r),
      "mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss "
      "drop is the real check; the copy can strand once the drop is shuffled"),
@@ -2969,8 +2978,7 @@ _NR_RULES = (
 _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | frozenset({400280})
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
-                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS
-                                   | _QUESTLINE_GATED)
+                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "

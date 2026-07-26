@@ -23,23 +23,30 @@ common-event ARGUMENTS.
 co-occurs with a test of flag Y". This test takes its output and asks the only question that matters:
 does Y belong to a DIFFERENT region than X? If so, X claims an early reachability it cannot support.
 
-RESULT, 2026-07-25: **0 cross-region, out of the 17 pairs where BOTH sides resolve to a region.**
+RESULT, 2026-07-26: **8 cross-region gates among the pairs where BOTH sides resolve to a region, and
+all 8 are missable-tagged.** The class is PRESENT in the game and this screen's job is to keep every
+member neutralised, not to report zero.
 
-Read that number carefully, because it is the honest one and it is much smaller than "0 of 104". Only
-17 of the 104 gate flags decode to a region at all -- the decode rule covers interior `MMSS7NNN` and
-tile-encoded overworld flags, and most gates are neither (13 sit in the 1k-10k common/progress band,
-whose flags name no map). So the claim this test pins is: *among the gates we can place, none is
-foreign to its check*. It is silent on the other 87.
+Only a minority of gate flags decode to a region at all -- the decode rule covers interior `MMSS7NNN`
+and tile-encoded overworld flags, and many gates are neither (a band of them sit in the 1k-10k
+common/progress range, whose flags name no map). So the claim this test pins is: *among the gates we
+can place, none is foreign to its check AND unprotected*. It is silent on the ones that do not decode,
+and `decodable` below is asserted so that silence cannot grow unnoticed.
 
 ⚠️ SCOPE, because a green test here is easy to over-read:
-  * The scan covers 19 literal `AwardItemLot` sites, 1 common event, and 21 of 38 resolvable
-    `EnableAssetTreasure` sites. Scripted awards are RARE in ER.
+  * 🛑 The old version of this paragraph read "the scan covers 19 literal `AwardItemLot` sites ...
+    scripted awards are RARE in ER." **That was a fact about the SCAN, not about the game**, and it
+    is the single claim that kept two sessions away from the answer. Corpus counts:
+    `AwardItemsIncludingClients` 205, `AwardGesture` 29, `AwardItemLot` 26 -- the tool knew only the
+    minority verb. Fixed in `49b16b3`, along with common-event ARGUMENT resolution, which took the
+    table from 104 pairs / 23 checks to 617 pairs / 408 distinct checks.
   * 148 `ForceCharacterTreasure` sites (corpse-carried pickups) are NOT covered -- they need a
     character-entity join that does not exist yet.
-  * f67050 itself is NOT in the population: its treasure asset has EntityID 0, so the EMEVD cannot
-    name it by asset at all, and whatever gates it works some other way.
-  So this passing does NOT mean the class is absent from the game. It means it is absent from the
-  slice we can currently see, which is a much smaller claim and the honest one.
+  * A treasure asset with `EntityID 0` cannot be named by the EMEVD at all, so whatever gates it
+    works some other way and is invisible here. `f67050` is one of those -- and it is also
+    genuinely UNGATED, five ways (see above).
+  So this passing does NOT mean every member of the class is caught. It means every member we can
+  currently SEE is neutralised, which is a much smaller claim and the honest one.
 
 Both sides are resolved regions -- the check's from the GENERATED data, the gate's by decoding the
 flag's own map (the `MMSS7NNN` rule, same as test_gf_flag_map_agreement). An earlier pass compared a
@@ -56,15 +63,25 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
-# 0, and it stays 0. The 8 checks this screen first caught (2026-07-25) were all NPC-QUESTLINE drops
-# -- item in region A, prerequisite in region B -- and were EXCLUDED at the source, in gen_data's
-# _QUESTLINE_GATED, because questlines are out of scope. They were NOT quarantined here: raising this
-# number would have thrown away the only real result the gate hunt has produced. If questlines are
-# ever scoped in, delete that set and give each one an access rule in core.py -- the regions are
-# right, the reachability claim is not -- and this screen is what will tell you when you have missed
-# one, because a new questline-gated check turns it red again.
-MAX_CROSS_REGION_GATES = 0
+# WHAT THIS SCREEN DEMANDS, and why it is not "zero".
+# The 8 checks it first caught (2026-07-25) are all NPC-QUESTLINE drops -- item in region A,
+# prerequisite in region B. `906b3e1` EXCLUDED them; Alaric reversed that on 2026-07-26 ("it's fine
+# for all the quest stuff to be randomized and missable. probably better than excluding it"), and he
+# is right: the check is not the hazard. The hazard is fill placing REQUIRED progression on it. So
+# the demand is not that the class be ABSENT, it is that every member be NEUTRALISED --
+# missable-tagged, which makes features/missable_locations.py forbid advancement items there.
+#
+# That is a strictly stronger screen than `<= 0` was: it re-derives the population every run, so a
+# NEW cross-region gate surfaced by a better datamine fails here instead of silently shipping, and
+# it does so without deleting 8 real pickups from the pool.
+#
+# ⚠️ MEASURED 2026-07-25 by the previous session's report of this screen; NOT re-run in the agent
+# sandbox (it needs the AP world package + a real regen). If the first real run reports a different
+# number, CONFIRM the true one and update this constant -- do not just lower it. A SHRINK means the
+# screen has gone BLIND, not that the game changed.
+EXPECTED_CROSS_REGION_GATES = 8
 
 _PKG = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -119,7 +136,13 @@ def test_no_check_is_gated_on_another_regions_flag():
     pairs = list(_rows("lot_gates.tsv"))
     assert pairs, "lot_gates.tsv parsed to ZERO pairs -- an empty screen is a failure, not a pass"
 
-    cross, decodable = [], 0
+    check_ap = {str(f): a for _r, locs in LOCATIONS.items() for (_n, a, f) in locs}
+    assert MISSABLE_LOCATIONS, (
+        "missable_locations.MISSABLE_LOCATIONS is EMPTY -- the protection this screen checks for does "
+        "not exist, so every cross-region gate would read as 'neutralised' by an empty set. An empty "
+        "oracle is a FAILURE, not a pass.")
+
+    cross, unprotected, decodable = [], [], 0
     for row in pairs:
         cf, gf = row.get("check_flag"), row.get("gate_flag")
         creg, greg = check_region.get(cf), resolve(gf)
@@ -127,8 +150,11 @@ def test_no_check_is_gated_on_another_regions_flag():
             continue
         decodable += 1
         if creg != greg:
-            cross.append("check %s [%s] %s <- gate %s [%s] ctx=%s"
-                         % (cf, creg, check_name.get(cf, "")[:40], gf, greg, row.get("context")))
+            where = ("check %s [%s] %s <- gate %s [%s] ctx=%s"
+                     % (cf, creg, check_name.get(cf, "")[:40], gf, greg, row.get("context")))
+            cross.append(where)
+            if check_ap.get(cf) not in MISSABLE_LOCATIONS:
+                unprotected.append(where)
     # A screen that decodes nothing would pass silently. Say what it actually examined.
     # Floor MEASURED, not guessed: 17 of 104 decode today. Set just below so a real collapse in the
     # decode rule fails loudly, without pretending the coverage is better than it is.
@@ -136,8 +162,19 @@ def test_no_check_is_gated_on_another_regions_flag():
         "only %d of %d pairs had both sides resolvable (17 did on 2026-07-25) -- the flag-decode rule "
         "has stopped matching lot_gates.tsv's gate_flag column, and this screen is now looking at too "
         "little to mean anything." % (decodable, len(pairs)))
-    assert len(cross) <= MAX_CROSS_REGION_GATES, (
-        "%d check(s) are gated on a flag from ANOTHER region -- each is a check claiming an early "
-        "reachability it does not have, which is how fill puts progression behind a lock the player "
-        "cannot open. These need an access rule in core.py, NOT a region change (the region is "
-        "right; the reachability claim is not):\n  %s" % (len(cross), "\n  ".join(cross)))
+    # THE GATE: cross-region is allowed, UNPROTECTED cross-region is not.
+    assert not unprotected, (
+        "%d check(s) are gated on a flag from ANOTHER region and are NOT missable-tagged -- each is a "
+        "check claiming an early reachability it does not have, which is how fill puts progression "
+        "behind a lock the player cannot open. Add the flag to gen_data's _QUESTLINE_GATED (folded "
+        "into QUEST_GATED_FLAGS -> MISSABLE) and regen, or give it a real access rule in core.py. NOT "
+        "a region change -- the region is right; the reachability claim is not:\n  %s"
+        % (len(unprotected), "\n  ".join(unprotected)))
+    # A screen that stops FINDING the class passes for the wrong reason (CONTRIBUTING: "an empty
+    # result is a FAILURE, not a clean run"). Guard the floor the way _ARENA_FLOOR does.
+    assert len(cross) >= EXPECTED_CROSS_REGION_GATES, (
+        "this screen found only %d cross-region gate(s); %d were known on 2026-07-25 and all of them "
+        "are still supposed to be here (they are randomised + missable now, not excluded). A SHRINK "
+        "means the derivation went blind -- lot_gates.tsv, the region decode, or the check->region "
+        "join stopped working. Confirm what changed before touching this number:\n  %s"
+        % (len(cross), EXPECTED_CROSS_REGION_GATES, "\n  ".join(cross)))
