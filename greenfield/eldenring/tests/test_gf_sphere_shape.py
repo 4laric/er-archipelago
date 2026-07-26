@@ -110,8 +110,8 @@ class SphereShape(WorldTestBase):
 
         share0 = counts[0] / total
         _report("[sphere-shape] %d spheres | %d own checks | sphere0 %d (%.1f%%) | "
-                "checks/sphere %s | progression/sphere %s | TRIPWIRES ARE LOOSE ON PURPOSE: "
-                "tighten MIN_SPHERES / MAX_SPHERE0_SHARE from THESE numbers, not from a guess"
+                "checks/sphere %s | progression/sphere %s | bounds are calibrated from 2 seeds: "
+                "tighten MIN_SPHERES / MAX_SPHERE0_SHARE from MORE of these, never from a guess"
                 % (len(spheres), total, counts[0], 100 * share0, counts[:24], prog[:24]))
 
         self.assertGreaterEqual(
