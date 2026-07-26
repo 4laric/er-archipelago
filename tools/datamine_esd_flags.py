@@ -326,6 +326,15 @@ def scan(pydir, pyfile):
 
             kind = forced_how or ("conditional" if is_if else how)
             for v in vals:
+                # 🛑 NEGATIVE IDS ARE A SENTINEL COLLISION, not a flag. Callers really do pass
+                # flag5=-1 into an unconditional SetEventFlag, so -1 reaches the engine -- but it is
+                # not an allocated event flag (they are GROUP-allocated), and `-1` is already the
+                # "UNGATED" sentinel in esd_gates.tsv (86 rows). A consumer joining this table against
+                # that one on flag id would match all 86 and fabricate NPC-state gates out of nothing.
+                # Excluded and TALLIED. (Alaric spotted these while questioning a count, 2026-07-25.)
+                if v < 0:
+                    stat["site_negative_sentinel"] += 1
+                    continue
                 rows.add((v, sense, talk, mp, kind))
             stat["site_" + ("rawsense" if forced_how else
                             ("conditional" if is_if else how))] += 1
@@ -413,6 +422,8 @@ def main():
         print("      %5d  %s" % (v, k))
     print("  %-25s: %d   (raw int sense, emitted as sense=other)" % ("non-enum sense", stat["site_rawsense"]))
     print("  %-25s: %d" % ("sense unparsable", stat["site_sense_unparsed"]))
+    print("  %-25s: %d   (negative id = sentinel, not a flag; excluded)"
+          % ("negative id", stat["site_negative_sentinel"]))
     print("  %-25s: %d   (multi-bit, excluded by design)" % ("SetEventFlagValue", stat["site_value_write"]))
     print("  %-25s: %d" % ("bad arity", stat["site_bad_arity"]))
     print("rows: %d | distinct flags: %d | on: %d off: %d"

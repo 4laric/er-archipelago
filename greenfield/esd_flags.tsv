@@ -5,16 +5,11 @@
 # NPC-STATE gate from a world/progression gate.
 # MEASURED THIS RUN (recomputed on every emit; the tool hard-fails if the
 # disjointness breaks or the positive control goes empty):
-#   esd flags 2409 | msb_flag_region 0/2803 | corpse 0/1824 | flag_lots 3/4558
+#   esd flags 2408 | msb_flag_region 0/2803 | corpse 0/1824 | flag_lots 3/4558
 #   POSITIVE CONTROL: 13/53 lot_gates gate_flags are ESD-set
 # how: literal | arg (call-graph resolved) | argsum (const+param step ladder)
 #      | conditional (SetEventFlagIf)
 flag	sense	talk_id	map_id	how
--1	on	415006100	m61_00_00_00	arg
--1	on	418001205	m12_05_00_00	arg
--1	on	418006100	m61_00_00_00	arg
--1	on	801106000	m60_00_00_00	arg
--1	on	801516000	m60_00_00_00	arg
 4	on	800016000	m60_00_00_00	argsum
 4	on	800026000	m60_00_00_00	argsum
 4	on	800036000	m60_00_00_00	argsum
