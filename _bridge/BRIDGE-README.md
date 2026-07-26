@@ -10,6 +10,7 @@ be tested offline. Runs on your machine — this repo's sandbox can't reach the 
 | File | Role |
 |---|---|
 | `cards.json` | **Source of truth** for card content (id, col, pri, cat, title, desc) + pulled fields (issue, assignee, comments, activeCol). |
+| `"local": true` | Optional per-card flag. A **board-only** card: rendered, never mirrored to GitHub (no create/update/close/reopen). For signposts like the archive pointer, which otherwise open an issue only to close it in the same run. If a local card still carries an `issue`, the sync WARNs and leaves that issue untouched rather than orphaning it. |
 | `board.template.html` | The kanban HTML with a `__CARDS_JSON__` placeholder + an **Export cards.json** button. |
 | `sync_board.py` | The bridge: links issues, pushes content, merges open/closed, pulls state, regenerates the board. |
 | `test_sync_board.py` | Offline tests (mocked GitHub). `python sync_board.py --self-test`. |

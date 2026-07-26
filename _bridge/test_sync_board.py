@@ -154,6 +154,40 @@ def run():
         check("placeholder consumed", "__CARDS_JSON__" not in html)
         check("no raw </script> breakout in payload", "</script> trick" not in html and "<\\/script> trick" in html)
 
+    print("local (board-only) cards:")
+    local_card = {"id": "done-archive-pointer", "col": "done", "pri": "P3", "cat": "Infra",
+                  "title": "Completed work archived", "desc": "signpost, not work", "local": True}
+    real_card = {"id": "real-work", "col": "ready", "pri": "P1", "cat": "Infra",
+                 "title": "Real work", "desc": "d"}
+
+    gh = FakeGitHub([])
+    stat, snap = S.run_sync([dict(local_card), dict(real_card)], {}, gh, log=lambda *a: None)
+    created = [c for c in gh.calls if c[0] == "create"]
+    check("local card creates no issue", len(created) == 1 and created[0][2] == "Real work")
+    check("local card opens no state call", not [c for c in gh.calls if c[0] == "state"])
+    check("local counted, not created", stat["local"] == 1 and stat["created"] == 1)
+    check("local card still gets a snapshot row", snap["done-archive-pointer"]["issue"] is None)
+
+    # BREAK THE FIX: without the flag the same card DOES create an issue (and closes it,
+    # since it sits in Done) -- which is the noise the flag exists to prevent.
+    unflagged = dict(local_card); unflagged.pop("local")
+    gh2 = FakeGitHub([])
+    S.run_sync([unflagged], {}, gh2, log=lambda *a: None)
+    check("without the flag it creates AND closes (fix is load-bearing)",
+          any(c[0] == "create" for c in gh2.calls) and any(c[0] == "state" and c[2] == "closed"
+                                                           for c in gh2.calls))
+
+    # A local card that already carries an issue must NOT be silently unlinked.
+    linked = dict(local_card); linked["issue"] = 42
+    gh3 = FakeGitHub([issue(42, "Completed work archived", "<!-- card:done-archive-pointer -->")])
+    logged = []
+    _, snap3 = S.run_sync([linked], {}, gh3, log=lambda m: logged.append(m))
+    check("local card with an issue warns instead of orphaning",
+          any("marked local but carries issue" in m for m in logged))
+    check("local card with an issue leaves the issue untouched",
+          not [c for c in gh3.calls if c[0] in ("update", "state")]
+          and snap3["done-archive-pointer"]["issue"] == 42)
+
     print("")
     if FAILED:
         print("FAILED: {} test(s): {}".format(len(FAILED), ", ".join(FAILED)))

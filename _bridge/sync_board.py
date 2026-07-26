@@ -206,6 +206,21 @@ def same_labels(a, b):
     return sorted(a) == sorted(b)
 
 
+def is_local(card):
+    """True for a BOARD-ONLY card: rendered on the board, never mirrored to GitHub.
+
+    Some cards are signposts, not work. The archive pointer ("Completed work archived")
+    is the motivating case: syncing it opens an issue only to close it in the same run,
+    leaving a permanent piece of noise in the tracker that reads like a real task. There
+    is no way to say "this is not work" with col/pri alone, so it is an explicit opt-out:
+    set "local": true on the card.
+
+    A local card is skipped for create, update, close and reopen. It still renders on the
+    board and still gets a snapshot row, so flipping the flag back off resumes cleanly.
+    """
+    return bool(card.get("local"))
+
+
 def run_sync(cards, snapshot, gh, mode="sync", dry=False, log=print):
     issues = gh.list_issues()
     log("  {} issue(s) on the repo.".format(len(issues)))
@@ -214,16 +229,33 @@ def run_sync(cards, snapshot, gh, mode="sync", dry=False, log=print):
     if mode != "pull":
         want = set()
         for c in cards:
+            if is_local(c):
+                continue
             want.update(labels_for(c))
         for l in sorted(want):
             gh.ensure_label(l)
 
-    stat = dict(created=0, updated=0, closed=0, reopened=0, pulled=0, adopted=0, conflicts=0)
+    stat = dict(created=0, updated=0, closed=0, reopened=0, pulled=0, adopted=0, conflicts=0,
+                local=0)
     new_snap = {}
 
     for c in cards:
-        iss = link_issue(c, by_num, by_marker, by_norm)
         board_done = c["col"] == "done"
+
+        # ---- board-only cards never touch GitHub ----
+        if is_local(c):
+            if c.get("issue"):
+                # Do not silently orphan a real issue: say so and leave the issue alone.
+                log("WARN    {} is marked local but carries issue #{}; the issue is left "
+                    "UNTOUCHED and still linked. Clear card.issue if that is intended."
+                    .format(c["id"], c["issue"]))
+            else:
+                log("LOCAL   {}  [{}] board-only, not mirrored".format(c["id"], c["col"]))
+            stat["local"] += 1
+            new_snap[c["id"]] = {"done": board_done, "issue": c.get("issue")}
+            continue
+
+        iss = link_issue(c, by_num, by_marker, by_norm)
 
         # ---- create ----
         if iss is None:
@@ -368,7 +400,7 @@ def main(argv=None):
 
     tag = " (DRY RUN - nothing written)" if args.dry_run else ""
     print("\nDone{}. created={created} updated={updated} closed={closed} reopened={reopened} "
-          "pulled={pulled} adopted={adopted} conflicts={conflicts}".format(tag, **stat))
+          "pulled={pulled} adopted={adopted} conflicts={conflicts} local={local}".format(tag, **stat))
     if stat["conflicts"]:
         print("Review the CONFLICT lines above - the board value was kept.")
 

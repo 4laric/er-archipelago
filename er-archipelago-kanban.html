@@ -116,7 +116,7 @@ const CARDS = [
     "cat": "DLC",
     "title": "Shadow Keep church-basement grace = lethal warp-in",
     "desc": "🟠 KNOWN ISSUE — STILL ACTIVE in 0.2.8 (per release-v0.2/KNOWN-ISSUES.md): with DLC on, the region grace bundle can light the church-basement grace (Church District Lower / Scadutree Base) BEFORE the keep is drained, and fast-travelling there drops you onto lethal moving platforms. Workaround: don't warp to that grace until Shadow Keep is drained. Fix (pending): gate the grace on the drain state. DLC is EXPERIMENTAL; base game is the supported config, so not a base-game blocker. [Reinstated 2026-07-23 — was mistakenly archived as Done; the shipped 0.2.8 still lists it active.]",
-    "issue": null,
+    "issue": 123,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -128,7 +128,7 @@ const CARDS = [
     "cat": "Client",
     "title": "Vanilla-suppress: non-goods check lots leak (client half left)",
     "desc": "🟠 LIVE DEFECT — root cause CONFIRMED (other agent, 2026-07-23), supersedes the earlier shop-weapon-slot hypothesis. Non-goods checks (weapon/armor/talisman/gem-ash) could hand out their VANILLA ware alongside the AP item: the goods lot-blank repoints slots at apPlaceholderGoods (a GOODS row) so it only neutralizes GOODS slots; non-goods wares fell to the id-keyed checkItemFlags suppressor, which only fires if the detour sees the AddItem AND the flag isn’t already collected — so enemy / scarab / scripted overworld drops LEAKED (repros: Ash of War: Lightning Ram 540310, Ornamental Straight Sword 510030). ✅ APWORLD HALF SHIPPED: gen_data now collects the non-goods slots of each check lot into CHECK_LOT_ZERO_MAP / CHECK_LOT_ZERO_ENEMY, emitted via new contract keys checkLotZeroMap / checkLotZeroEnemy — 1013 non-goods checks (978 map + 35 enemy), flagged one-time lots only so zeroing never eats a farmable source; id-keyed suppressor stays armed as backstop for lotless ESD/EMEVD-award checks. ✅ CLIENT HALF LANDED 2026-07-23: check_lots.rs zeroes the non-goods slots from checkLotZeroMap/Enemy (client a98cfc9, CI green); er-archipelago gitlink bumped (0bf4a98). ONLY REMAINING: in-game confirm an emptied flagged lot still fires its acquisition flag so the check registers (repros: Ash of War: Lightning Ram 540310, Ornamental Straight Sword 510030). Ships in 0.2.9.",
-    "issue": null,
+    "issue": 97,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -140,7 +140,7 @@ const CARDS = [
     "cat": "Shops",
     "title": "Randomize shop weapon slots (shop-rando quality)",
     "desc": "⭐ A shop-rando QUALITY improvement — NOT the vanilla-leak fix (that root cause turned out to be the non-goods check lots; see 'Vanilla-suppress: non-goods check lots leak'). SHOP_CTD was exonerated, so a weapon row can rewrite natively to ANY reward. Task: (1) client — let a weapon row rewrite to any reward, dropping the vanilla-sell fallback in shop_sell.rs; (2) apworld — delete the now-obsolete fill guard features/weapon_shop_slots.py + tests/test_gf_weapon_shop_slots.py that pins weapon slots to own-world weapons. Verify in-game: a weapon slot with a non-weapon / foreign reward sells + grants the real item, no CTD.",
-    "issue": null,
+    "issue": 98,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -152,7 +152,7 @@ const CARDS = [
     "cat": "Modes",
     "title": "Natural-like progression mode",
     "desc": "⭐ Build-ready (spec + DAG both exist). A mode that gates each region on its legible vanilla key so the player advances through the SPINE in a vanilla-like order — the Threshold Rule: 'enter, then resolve on a capstone boss gated by a real key.' SPEC: docs/history/SPEC-region-capstone-model-20260708.md + WIRING-region-capstone-v0.2.md §1 (dependency DAG, tasks #3–#10). DAG: the lock-chain linearized by features/scaling.py region_sphere (SPINE order == sphere gradient). Primitives are Done (region-spine + legible key-named locks). Task: an option that arranges the capstone locks into the DAG's topological order → natural route; verify with gen-sweep + region-gate tests. Scope: controls progression ORDER only — SCALING stays spheres-based (owned by nr-chain / completion-scaling), not this mode. Full spec now committed: docs/specs/SPEC-vanilla-progression-20260722.md + vanilla-progression-dag.mermaid (the flatten-keep-a-few spine, count/compound gates, DLC fold bloc).",
-    "issue": null,
+    "issue": 99,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -164,7 +164,7 @@ const CARDS = [
     "cat": "Data",
     "title": "Boss-name description layer (MopWater)",
     "desc": "⭐ First code task for MopWater. Fill _BOSS_NAMES at gen_data.py:574 — join boss_reward_lots.BOSS_REWARD_DEFEAT (drop→defeat flag) ∘ boss_healthbars.BOSS_HEALTHBARS (defeat flag→name) in desc_sources.py. Zero fill risk; provable in tests/test_gf_location_desc.py. Human part = checking joined names against real boss drops (his department) + deleting every now-redundant hand row in location_descriptions.tsv.",
-    "issue": null,
+    "issue": 96,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -176,7 +176,7 @@ const CARDS = [
     "cat": "Client",
     "title": "auto_equip wiring (MopWater — RE/client slice)",
     "desc": "⭐ Contributor slice offered to MopWater — the RE/client counterpart to the boss-name task. On grant, equip the item into its slot. RE groundwork done: player-data anchors mapped (ChrAsm PGD+0x39C/0x3A0) and the SpEffect-to-player primitive already exists (from no_equip_load). Remaining = wire it in the Rust client — resolve the equip slot + write via the mapped anchors, guard bad states; verify in-game. Client repo (from-software-archipelago-clients), Windows/cargo.",
-    "issue": null,
+    "issue": 100,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -188,7 +188,7 @@ const CARDS = [
     "cat": "Scaling",
     "title": "Completion scaling wire",
     "desc": "🔧 regionSphereTargetRanges emitted in play_region/100 space; client resolves /100. 2026-07-23: intra-fold vanilla-delta sphere wire landed + data regenerated (test_gf_scaling_sphere.py). In-game scaling confirmation still pending.",
-    "issue": null,
+    "issue": 101,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -200,7 +200,7 @@ const CARDS = [
     "cat": "Client",
     "title": "Goal-send impl",
     "desc": "goal.rs + core wiring IMPLEMENTED — pending verification (cargo test + gen-test + a multiworld smoke run confirming the slot actually completes).",
-    "issue": null,
+    "issue": 102,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -212,7 +212,7 @@ const CARDS = [
     "cat": "Client",
     "title": "In-client connect overlay",
     "desc": "imgui Server/Slot/Password form BUILT GREEN; real InputBlocker now wired EVERYWHERE except the game main-menu / Connection screen (the one that populates apconfig.json), which still leaks keys. Residual = block the main-menu connection screen.",
-    "issue": null,
+    "issue": 103,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -224,7 +224,7 @@ const CARDS = [
     "cat": "Client",
     "title": "Client QoL features",
     "desc": "⭐ no_equip_load SHIPPED (weightless SpEffect 20012080) + Bedrock option-name aliases — PENDING in-game verification. (auto_equip split out to its own card — offered to MopWater as an RE/client slice.)",
-    "issue": null,
+    "issue": 104,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -236,7 +236,7 @@ const CARDS = [
     "cat": "Scaling",
     "title": "Configurable scaling difficulty (hard mode)",
     "desc": "📋 SPEC (Alaric, 2026-07-23): a difficulty option layered on the completion-scaling curve. Approach — COMPRESS the smoothstep and RAISE THE FLOOR: enemies start higher but ramp to the same endpoint, so early game is harder and late game converges to normal. Builds on the regionSphereTargetRanges sphere wire.",
-    "issue": null,
+    "issue": 108,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -248,7 +248,7 @@ const CARDS = [
     "cat": "Client",
     "title": "Placeholder shows the reward name",
     "desc": "📋 The chest/pickup popup says \"Archipelago Item\", not your actual loot. Dress flag 8852's FMG at pickup from the scout — one shared row = a global entry.",
-    "issue": null,
+    "issue": 109,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -260,7 +260,7 @@ const CARDS = [
     "cat": "Outreach",
     "title": "nex3 archipelago_rs upstream PR",
     "desc": "Upstream the Connect-version change so the fork can die. nex3 is the contact. ⚠️ Outreach gets undershot — surface it EARLY, not after the code is perfect.",
-    "issue": null,
+    "issue": 106,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -272,7 +272,7 @@ const CARDS = [
     "cat": "Infra",
     "title": "Fuzz findings backlog",
     "desc": "Open items from the fuzz runs: trimmed-mode shortage, curated_fill edges. (Warp reachability split out to its own Ready card — it's live-seed correctness.)",
-    "issue": null,
+    "issue": 107,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -284,7 +284,7 @@ const CARDS = [
     "cat": "Pool",
     "title": "Curated fill + filler_local_pct (spec)",
     "desc": "⭐ The dial for how much of the filler tail stays local vs goes to the multiworld.",
-    "issue": null,
+    "issue": 110,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -296,7 +296,7 @@ const CARDS = [
     "cat": "Scaling",
     "title": "Global scadutree blessing (spec)",
     "desc": "Fragments as a game-wide AP power curve. The crux is persisting the stored level (needs RE).",
-    "issue": null,
+    "issue": 111,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -308,7 +308,7 @@ const CARDS = [
     "cat": "Modes",
     "title": "Oops All Legacy Dungeons (spec)",
     "desc": "Chain the legacy dungeons by grace-warp and delete the open world.",
-    "issue": null,
+    "issue": 112,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -320,7 +320,7 @@ const CARDS = [
     "cat": "Modes",
     "title": "Starting class rando (spec)",
     "desc": "📋 DRAFT — implementation explicitly on hold.",
-    "issue": null,
+    "issue": 113,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -332,7 +332,7 @@ const CARDS = [
     "cat": "Traps",
     "title": "Trap items",
     "desc": "AP traps (summon bear, warp, freeze…). Mine the Crowd Control mod for a ready-made collection.",
-    "issue": null,
+    "issue": 114,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -344,7 +344,7 @@ const CARDS = [
     "cat": "Region Locks",
     "title": "Physical fog-wall enforcement",
     "desc": "Replace the play-region KICK with a baked, flag-gated fog WALL. Parked: real walls need Smithbox.",
-    "issue": null,
+    "issue": 115,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -356,7 +356,7 @@ const CARDS = [
     "cat": "Client",
     "title": "Parriable deathlink",
     "desc": "A parry negates an incoming deathlink (riposte reflects it back). Needs the input/anim-read subsystem.",
-    "issue": null,
+    "issue": 116,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -368,7 +368,7 @@ const CARDS = [
     "cat": "Modes",
     "title": "Control randomizer",
     "desc": "Start gimped; receive dodge-roll, camera, Torrent double-jump as AP items. Client input-mask subsystem, spec only.",
-    "issue": null,
+    "issue": 117,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -380,7 +380,7 @@ const CARDS = [
     "cat": "Pool",
     "title": "DLC gear curation",
     "desc": "Swap the worst base-game gear 1:1 for the best S/A DLC gear.",
-    "issue": null,
+    "issue": 118,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -392,7 +392,7 @@ const CARDS = [
     "cat": "Modes",
     "title": "great_runes_present",
     "desc": "Force extra great runes into the num_regions pool beyond the Leyndell gate.",
-    "issue": null,
+    "issue": 119,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -404,7 +404,7 @@ const CARDS = [
     "cat": "Outreach",
     "title": "Nightreign AP (Hades pattern)",
     "desc": "Port the Polycosmos 'Reverse Heat' pattern to Nightreign. Idea only.",
-    "issue": null,
+    "issue": 120,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -416,7 +416,7 @@ const CARDS = [
     "cat": "Outreach",
     "title": "DS1 AP recon",
     "desc": "tathxo/DSAP builds on the MIT Archipelago.Core — worth reading before the next client refactor.",
-    "issue": null,
+    "issue": 121,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -428,7 +428,7 @@ const CARDS = [
     "cat": "Pool",
     "title": "Progressive flask grants both axes (intentional)",
     "desc": "📋 TRACKED-INTENTIONAL (not a bug — filed so it stops re-surfacing as one): every Progressive Flask Upgrade grants BOTH a flask charge AND a consumed Sacred Tear (flaskLadder + progressiveGrants) in greenfield/eldenring/features/progressive.py (PROG_FLASK). The original design ALTERNATED rungs (Golden Seeds vs Sacred Tears); switching to both-axes-per-copy was a deliberate change for DLC-ONLY seeds, to catch the player up faster (DLC layers its own Scadutree/Revered economy on top of base flask progression). dlc_only injects 12 copies when no seed/tear checks are kept. Both modes are viable: progressive-on = both-axes (DLC catch-up default); progressive-off = vanilla Golden Seeds + Sacred Tears. Possible future enhancement (low, not blocking): restore the alternating seed/tear schedule as a BASE-GAME option while keeping both-axes for DLC. Already documented in-file; this card is the record of WHY.",
-    "issue": null,
+    "issue": 190,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -440,7 +440,7 @@ const CARDS = [
     "cat": "Shops",
     "title": "Restore rune-shop arbitrage (randomize shop costs)",
     "desc": "⭐ Bring back the rune-shop arbitrage — GONE in the current build, Alaric wants it back. A consumable rune (Lord's Rune, ~50k on use) landing in a shop cheaper than its value → buy for ~2k, consume for ~48k (fun). WHY it's gone: gen_data's GOODS_PRICE now derives each rerolled item's price from what it's WORTH (vanilla price → EquipParamGoods.basicPrice → sellValue x10, gen_data.py ~3186-3227), so nothing is ever underpriced. Fix (Alaric) — split pricing by STOCK TYPE: FINITE one-time rows (the shop_rows.tsv AP checks: eventFlag_forStock>0 AND sellQuantity>=1) all get a seed-seeded random cost in [0, 5000] — the fun one-shot flip; INFINITE-stock rows (INFINITE_SHOP_ROWS, sellQuantity -1) stay priced AT COST / at-worth so you can’t infinitely farm the arbitrage. Deterministic from the seed.",
-    "issue": null,
+    "issue": 189,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -452,19 +452,19 @@ const CARDS = [
     "cat": "Pool",
     "title": "Add Somberstone Bell Bearing [1] to the presence floor",
     "desc": "🔧 The presence floor (features/presence_floor.py) guarantees 8 of 9 bell bearings but DROPS Somberstone Miner's Bell Bearing [1] — its roster name doesn't resolve in ITEM_CATALOG (the looted [2]-[5] do). CONFIRMED DROP: the Fallingstar Beast at the end of Sellia Crystal Tunnel (m32_08, boss-defeat entry 32080800 in boss_healthbars.py) — a BOSS REWARD, the exact class boss_reward_lots.py already datamines. So [1] fails FMG-name matching (its real GoodsName likely differs from the synthesized 'Somberstone Miner's Bell Bearing [1]', or is the un-numbered first-tier name), but its goods FullID IS derivable as boss 32080800's reward lot. Task: pull that reward goods id via BOSS_REWARD_DEFEAT / the reward lot, then either fix the roster string to the real FMG name OR teach presence_floor to inject a roster item by explicit goods FullID (not just by name). Flip the test pin in test_gf_presence_floor (currently asserts UNRESOLVED == [\"Somberstone Miner's Bell Bearing [1]\"]). Verify the injected [1] grants + unlocks its somber tier in-game.",
-    "issue": null,
+    "issue": 209,
     "assignee": null,
     "comments": 0,
     "activeCol": null
   },
   {
     "id": "ship-v029",
-    "col": "ready",
+    "col": "done",
     "pri": "P1",
     "cat": "Release",
     "title": "Ship v0.2.9 correctness patch (carryover hardening)",
-    "desc": "🚀 v0.2.8 SHIPPED 2026-07-23 but with a DIFFERENT scope — the merchant-region correctness class (shop checks sealed in the wrong region; see archive), NOT the hardening. Two items did NOT make 0.2.8 and roll to 0.2.9: (1) the vanilla-suppress CLIENT half — 0.2.8 ships the apworld data to blank non-goods lots at source, but the client zero-slot handler (check_lots.rs, checkLotZeroMap/Enemy) is still pending, so the double-dip is LIVE per 0.2.8's own Known Issues; (2) goal-send VERIFIED (untouched in 0.2.8). Plus the client rebuild that carries the zero-slot handler. Ship these two as 0.2.9.",
-    "issue": null,
+    "desc": "🚀 v0.2.8 SHIPPED 2026-07-23 but with a DIFFERENT scope — the merchant-region correctness class (shop checks sealed in the wrong region; see archive), NOT the hardening. Two items did NOT make 0.2.8 and roll to 0.2.9: (1) the vanilla-suppress CLIENT half — 0.2.8 ships the apworld data to blank non-goods lots at source, but the client zero-slot handler (check_lots.rs, checkLotZeroMap/Enemy) is still pending, so the double-dip is LIVE per 0.2.8's own Known Issues; (2) goal-send VERIFIED (untouched in 0.2.8). Plus the client rebuild that carries the zero-slot handler. Ship these two as 0.2.9. [2026-07-26: DONE -- v0.2.9 shipped 2026-07-24 (CHANGELOG.md) and v0.2.10 (tag 5d4bde4) shipped after it. Carded done so the sync records it as a created-then-closed issue rather than opening a stale one.]",
+    "issue": 210,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -476,7 +476,7 @@ const CARDS = [
     "cat": "Outreach",
     "title": "Live-player bug intake loop",
     "desc": "📥 0.2.7 is public on Nexus with real players and the board has NO intake process. Stand up a triage loop (Nexus comments / Discord) → board cards. Pre-seed the predicted #1 question: the game id is \"Elden Ring\", not EldenRing. Route reproducible live bugs to MopWater (witness/reproducer).",
-    "issue": null,
+    "issue": 211,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -488,7 +488,7 @@ const CARDS = [
     "cat": "Release",
     "title": "Player Guide + known-issues refresh (0.2.10)",
     "desc": "📖 Elden-Ring-Archipelago-Player-Guide.md exists (164 lines). Refresh it for 0.2.7 and add a KNOWN ISSUES section: the live vanilla-suppress leak (non-goods check lots hand out the vanilla ware too) until 0.2.8 lands, plus the \"Elden Ring\" vs EldenRing game-id note. [2026-07-26: retitled from 0.2.7 -- three releases stale. See the release-docs-0210 card: CHANGELOG stops at v0.2.9 and KNOWN-ISSUES has no 0.2.10 entry.]",
-    "issue": null,
+    "issue": 212,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -500,7 +500,7 @@ const CARDS = [
     "cat": "Release",
     "title": "v0.3 milestone / scope",
     "desc": "🎯 Define the 0.3 scope. Candidate marquee: natural-progression-mode (spec + DAG + primitives ready). Plus finish connect-overlay (main-menu blocker), client-qol residuals (no_equip_load verify + auto_equip), placeholder-reward-name. Decide the cut line.",
-    "issue": null,
+    "issue": 213,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -512,7 +512,7 @@ const CARDS = [
     "cat": "Outreach",
     "title": "Keep 2-3 contributor slices ready",
     "desc": "🧑‍💻 MopWater has boss-name-desc + auto-equip. Maintain a PIPELINE of next well-bounded slices so outreach doesn't stall when those land. CONTRIBUTING.md (451 lines) is the bar. somber-bell-1-presence is a good data-side third slice; mine 2-3 more (e.g. the placeholder-reward-name FMG dress, a fuzz finding).",
-    "issue": null,
+    "issue": 214,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -524,7 +524,7 @@ const CARDS = [
     "cat": "Infra",
     "title": "Fuzz finding: warp reachability",
     "desc": "🔎 Split out of the fuzz backlog: warp reachability is player-facing correctness for LIVE seeds, not a grab-bag item. Chase the fuzz-run warp-reachability finding to ground.",
-    "issue": null,
+    "issue": 215,
     "assignee": null,
     "comments": 0,
     "activeCol": null
@@ -535,11 +535,12 @@ const CARDS = [
     "pri": "P3",
     "cat": "Infra",
     "title": "Completed work archived",
-    "desc": "📦 Completed/verified items (through v0.2.7 + early v0.2.8) are archived to _bridge/BOARD-DONE-ARCHIVE.md so the board shows only OPEN work. This is the sole Done card by design.",
+    "desc": "📦 Completed/verified items (through v0.2.7 + early v0.2.8) are archived to _bridge/BOARD-DONE-ARCHIVE.md so the board shows only OPEN work. This is the sole Done card by design. [2026-07-26: marked \"local\": true -- this is a signpost, not work, so the bridge no longer mirrors it to GitHub. Without the flag the sync opened an issue and closed it in the same run.]",
     "issue": null,
     "assignee": null,
     "comments": 0,
-    "activeCol": null
+    "activeCol": null,
+    "local": true
   },
   {
     "id": "numregions-chain",
@@ -562,7 +563,7 @@ const CARDS = [
     "desc": "One flag can award several lots, so a flag with N meaningful items is N checks (the Messmer's Kindling arity bug). flag_lots.tsv already carries what's needed -- no MSB rescan. Widening sheet: 321 projectable, armour sets = 248; 42 duplicate-lot families are EXCLUDED (map-version duplicates -> unreachable). Machinery already exists.",
     "issue": 191,
     "assignee": null,
-    "comments": 0,
+    "comments": 1,
     "activeCol": null
   },
   {
@@ -574,7 +575,7 @@ const CARDS = [
     "desc": "Schema only, no rows -- so it carries no licensed game data and can be committed. Would let sandbox-side work reason about param fields without the Windows-only artifacts.",
     "issue": 192,
     "assignee": null,
-    "comments": 0,
+    "comments": 1,
     "activeCol": null
   },
   {
@@ -586,7 +587,7 @@ const CARDS = [
     "desc": "Generate.py parks on 'Press enter to continue' on a crash, so a failure reads as a hang. VERIFIED 2026-07-26 on 3f2b8a5: of the 12 files that mention Generate.py, only 5 actually INVOKE it, and 4 are guarded (build.ps1, gen_fuzz.ps1, gen_sweep.ps1, ci-linux.sh, gen-greenfield.ps1, fuzz_gf.py). The single remaining gap is tools/gf_zip_gen_smoke.py: its RUNNER neuters ModuleUpdate's pip prompt but never sets AP_NONINTERACTIVE, and it passes no env dict, so it inherits. The other 7 mentions are comments/docstrings, not calls.",
     "issue": 193,
     "assignee": null,
-    "comments": 0,
+    "comments": 1,
     "activeCol": null
   },
   {
@@ -598,7 +599,7 @@ const CARDS = [
     "desc": "FIXED -- verified 2026-07-26 on 3f2b8a5. core.py now asks terminal_goal_ids() what the END of THIS kept set is instead of assuming Leyndell, checks the derived goal is actually BUILT (the conditional Ashen Capital finale region is legitimate when it exists and a KeyError when it does not), falls back to HUB, and logs the substitution. Guarded by tests/test_gf_goal_region_is_kept.py. Found originally by the fuzz gate (GF-fuzz-573519869-0021); latent since 28d0540.",
     "issue": 194,
     "assignee": null,
-    "comments": 0,
+    "comments": 1,
     "activeCol": null
   },
   {
@@ -610,7 +611,7 @@ const CARDS = [
     "desc": "120 refused candidates in two classes. Refusing beats answering confidently wrong, but the refusal set has never been audited to see how much of it is recoverable.",
     "issue": 195,
     "assignee": null,
-    "comments": 0,
+    "comments": 1,
     "activeCol": null
   },
   {
@@ -622,7 +623,7 @@ const CARDS = [
     "desc": "The world CI checks the client out at its OWN main, not the pinned gitlink. So client generated tables pushed from a world FEATURE branch go live before the world change merges, and world main goes red on a table it has not adopted yet. Related: the 'generators...stale' CI failure means push the CLIENT repo too.",
     "issue": 196,
     "assignee": null,
-    "comments": 0,
+    "comments": 1,
     "activeCol": null
   },
   {
@@ -634,7 +635,7 @@ const CARDS = [
     "desc": "Distinct from the use-after-free fixed in #197. Still listed as an ACTIVE known issue in release-v0.2/KNOWN-ISSUES.md ('a rare crash when fast-travelling', twice on a warp, no on-demand repro). The CTD is OURS -- vanilla does not crash. Next step: symbolize the DLL RVAs from a crash dump.",
     "issue": 198,
     "assignee": null,
-    "comments": 0,
+    "comments": 1,
     "activeCol": null
   },
   {
@@ -668,7 +669,7 @@ const CARDS = [
     "cat": "Release",
     "title": "Release docs never caught up to v0.2.10",
     "desc": "VERIFIED 2026-07-26: tag v0.2.10 (5d4bde4) exists on origin and the build shipped to GitHub + Nexus, but release-v0.2/CHANGELOG.md stops at v0.2.9 (2026-07-24) and KNOWN-ISSUES.md does not mention 0.2.10 at all -- zero occurrences of the string in either. The ONLY reference to 0.2.10 anywhere in the repo is the 2026-07-26 handoff. Players reading the shipped docs see a version that predates what they downloaded. Needs a CHANGELOG entry for the 53 commits and a KNOWN-ISSUES pass.",
-    "issue": null,
+    "issue": 216,
     "assignee": null,
     "comments": 0,
     "activeCol": null
