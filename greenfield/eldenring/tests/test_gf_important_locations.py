@@ -8,7 +8,8 @@ import unittest
 import pytest
 
 from BaseClasses import ItemClassification
-from worlds.eldenring.location_tags import LOCATION_TAGS, TAG_COUNTS
+from worlds.eldenring.data import LOCATIONS
+from worlds.eldenring.location_tags import LOCATION_TAGS, TAG_COUNTS, DEFAULTED_REGION_APS
 from worlds.eldenring.features.important_locations import _DEFAULT, _VALID, _is_important
 from worlds.eldenring.contract import SURFACE_EXCLUDE_TAGS
 
@@ -117,6 +118,37 @@ class TagDataTests(unittest.TestCase):
                            and "MajorBoss" not in tags)
         self.assertEqual(offenders, [], f"{len(offenders)} Remembrance/GreatRune checks are not "
                                         f"MajorBoss: {offenders[:8]}")
+
+    def test_guessed_regions_do_not_claim_certainty(self):
+        """A check whose region is a GUESS must not present it as a fact.
+
+        DEFAULTED_REGION_APS checks are already barred from carrying progression, but their NAMES
+        asserted the region flatly -- Alaric hit this in playtest 2026-07-26 on
+        'Caelid :: Deathroot - m60_45_39', which is on the Limgrave side of a genuine BORDER tile
+        whose other 13 labelled checks are Caelid, so tile_pr answered with the majority and the
+        label showed no doubt. 506 checks were in that state. gen_data now appends
+        REGION_UNCONFIRMED; the region PREFIX is left intact so tracker grouping and the client's
+        kick geometry are unaffected.
+
+        CONTRIBUTING: make not-knowing louder than knowing. Refusing to answer beats answering
+        confidently wrong -- and where we cannot refuse (the region is load-bearing for the kick),
+        the next best thing is to answer while SAYING it is a guess.
+        """
+        name_of = {a: n for _r, locs in LOCATIONS.items() for (n, a, _f) in locs}
+        naked = sorted(a for a in DEFAULTED_REGION_APS
+                       if a in name_of and "(region unconfirmed)" not in name_of[a])
+        self.assertEqual(naked, [], f"{len(naked)} guessed-region check(s) still claim their region "
+                                    f"as fact, e.g. {[name_of[a] for a in naked[:3]]} -- run "
+                                    f"build.ps1 -Greenfield if the tables predate the change")
+
+    def test_confident_regions_are_not_marked(self):
+        """The mirror: a check whose region is DERIVED must not wear the hedge. A marker on
+        everything is the same as a marker on nothing."""
+        name_of = {a: n for _r, locs in LOCATIONS.items() for (n, a, _f) in locs}
+        wrong = sorted(a for a, n in name_of.items()
+                       if "(region unconfirmed)" in n and a not in DEFAULTED_REGION_APS)
+        self.assertEqual(wrong, [], f"{len(wrong)} check(s) are marked unconfirmed but their region "
+                                    f"is derived, not guessed")
 
     def test_major_boss_count(self):
         """37 -> 42: the five sibling drops the boss_arena keying had split off. Moves only when a

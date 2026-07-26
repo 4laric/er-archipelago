@@ -715,7 +715,7 @@ def _load_shop_sellers():
     when several sell the ware is the v0.2.9 bug that cost five hand-written hints; 496 of 709 rows
     have more than one seller. Inert (empty) if either table is absent, so a partial tree still gens.
     """
-    _rowflag, _out = {}, defaultdict(set)
+    _rowflag, _out, _rowrel = {}, defaultdict(set), {}
     try:
         _sh = os.path.join(HERE, "shop_rows.tsv")
         _mp = os.path.join(HERE, "merchant_shops.tsv")
@@ -733,6 +733,8 @@ def _load_shop_sellers():
             _f = (_r.get("stock_flag") or "").strip()
             if _f.isdigit():
                 _rowflag.setdefault((_r.get("row_id") or "").strip(), int(_f))
+            _rel = (_r.get("release_flag") or "0").strip()
+            _rowrel[(_r.get("row_id") or "").strip()] = _rel not in ("0", "", "-1")
         _h = None
         for _ln in open(_mp, encoding="utf-8-sig"):
             if _ln.startswith("#"):
@@ -742,13 +744,41 @@ def _load_shop_sellers():
                 _h = _c
                 continue
             _r = dict(zip(_h, _c))
+            _rid = (_r.get("row_id") or "").strip()
             _nm = (_r.get("merchant_name") or "").strip()
-            _fl = _rowflag.get((_r.get("row_id") or "").strip())
+            _fl = _rowflag.get(_rid)
             if _nm and _fl is not None:
-                _out[_fl].add(_nm)
+                _out[_fl].add((_nm, bool(_rowrel.get(_rid))))
     except OSError:
         return {}
-    return {_k: sorted(_v) for _k, _v in _out.items()}
+    # THE TWIN MAIDEN HUSKS ARE A RESALE SINK, NOT A SOURCE (Alaric, playtest 2026-07-26:
+    # "remove 'or Twin Maiden Husks' ... the ones where it's on them because of the merchant bell
+    # bearing"). Every merchant's bell bearing routes that merchant's stock to the Husks in the
+    # Roundtable Hold, so they accumulate as a co-seller of wares they do not stock until you have
+    # found and handed in the bearing. "from Nomadic Merchant or Twin Maiden Husks" therefore
+    # advertises a second early source that does not exist.
+    #
+    # ⚠️ WHAT I TRIED FIRST AND WHY IT IS NOT HERE. The principled version -- drop any seller whose
+    # ShopLineupParam row is RELEASE-GATED while an ungated seller survives -- was implemented and
+    # MEASURED: it changed 0 of 548 seller lists. The bell-bearing gate is not on the row (the Husks
+    # mirror the SAME row_id at release_flag 0; row 100585 "Note: Land Squirts" is attributed to
+    # Nomadic Merchant at m60_41_36 AND the Husks at m11_10, both ungated), and esd_gates.tsv reports
+    # gate_flag -1 on all 40 of their ESD paths. Shipping a rule that changes nothing would have been
+    # dead code dressed as a fix. So this is the narrow, stated rule instead.
+    #
+    # 🛑 KNOWN LIMIT, do not read this as clean. merchant_shops.tsv over-attributes at BLOCK level:
+    # block 1000 claims Gostoc, Sellen and three name-states of Bernahl alongside the Husks, and
+    # block 1005 lists Kale, "Nomadic Merchant" and an EMPTY name. The Husks are the symptom Alaric
+    # saw; the disease is that attribution, and block 1000 is plausibly the Husks' own base stock, in
+    # which case this drops the RIGHT seller and keeps wrong ones. Fixing that is a
+    # datamine_merchant_shops.py job (needs the params) and is filed separately. Until then this
+    # removes the one name he can prove is misleading, and never empties a list.
+    _res = {}
+    for _k, _v in _out.items():
+        _names = sorted({_n for (_n, _g) in _v if _n})
+        _kept = [_n for _n in _names if _n != "Twin Maiden Husks"]
+        _res[_k] = _kept if _kept else _names
+    return _res
 
 
 _SHOP_SELLERS  = _load_shop_sellers()                              # 3b. flag -> who sells it
@@ -2933,6 +2963,16 @@ tile_guessed_aps=[]     # region came from an UNANCHORED tile -> kept, but barre
 erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
 shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
 surface_excluded_aps=[] # _SURFACE_EXCLUDE_FLAGS -> surface-tagged but BARRED from progression (Alaric's call)
+# HONEST LABEL for a GUESSED region. A check whose region we defaulted or tile-guessed is already
+# barred from progression (DEFAULTED_REGION_APS), but its NAME still asserted the region flatly --
+# "Caelid :: Deathroot - m60_45_39" reads as a fact when internally we do not believe it. Alaric hit
+# exactly this in playtest 2026-07-26 on that check: the Tibia Mariner is on the Limgrave side of
+# m60_45_39, a genuine BORDER tile whose other 13 labelled checks are Caelid, so tile_pr answered
+# with the majority and the label showed no doubt at all. 506 checks carry a guessed region and every
+# one of them displayed it confidently. Make not-knowing louder than knowing (CONTRIBUTING).
+# The REGION PREFIX is deliberately left intact -- the tracker groups on it and the client's kick
+# geometry uses the same value -- so the marker is a suffix and no group splits.
+REGION_UNCONFIRMED = " (region unconfirmed)"
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 for r in rows:
     reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
@@ -2992,6 +3032,12 @@ for r in rows:
                 and (not defaulted_aps or defaulted_aps[-1] != apid)):
             defaulted_aps.append(apid)
             tile_guessed_aps.append(apid)
+    # Mark the NAME the moment the guess is known (both paths above land here: HUB-defaulted and
+    # tile-guessed). Done before the ordinal pass so collision_ordinals sees the final base names.
+    if defaulted_aps and defaulted_aps[-1] == apid and _name_pending and _name_pending[-1][2] == apid:
+        _rg0, _b0, _ap0, _fl0 = _name_pending[-1]
+        if not _b0.endswith(REGION_UNCONFIRMED):
+            _name_pending[-1] = (_rg0, _b0 + REGION_UNCONFIRMED, _ap0, _fl0)
     # m11_00 = normal Leyndell. The whole map variant is DESTROYED the moment Maliketh dies (the
     # Erdtree burns and you are warped into m11_05, the Ashen Capital -- see the ERDTREE BURN note).
     # Its checks stay collectable UNTIL then, so they remain checks -- they just may not carry
@@ -3045,6 +3091,8 @@ if CO_CHECK_FLAGS:
     _flag_apid = {}
     for (_rg9, _b9, _ap9, _fl9) in _name_pending:
         _flag_apid.setdefault(_fl9, _ap9)
+    # Primaries whose region is a guess -- a sibling of one of these inherits the doubt.
+    _def_ap_running = set(defaulted_aps)
     _full2name = {}
     for _nm9, _fu9 in _name2full.items():        # insertion order = FMG priority (base before DLC)
         _full2name.setdefault(_fu9, _nm9)
@@ -3108,6 +3156,10 @@ if CO_CHECK_FLAGS:
                 nearest_grace=_NEAREST_GRACE, tile_grace=_TILE_GRACE, map_names=_MAP_NAMES,
                 check_region=_preg9, grace_region=_GRACE_REGION, hub_region=HUB)
             _bnm9 = (f"{_preg9} :: {_snm9} - {_desc9}" if _desc9 else f"{_preg9} :: {_snm9}")
+            # A co-check sibling is the SAME physical acquisition as its primary, so it inherits the
+            # primary's region confidence -- mark it the same way (the bar below mirrors it too).
+            if _apid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
+                _bnm9 += REGION_UNCONFIRMED
             _lnm9 = f"{_bnm9} [f{_cfl}]"
             buckets.setdefault(_preg9, []).append((_lnm9, _apid9, _cfl))
             if _t9:
