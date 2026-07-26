@@ -24,8 +24,14 @@ from nothing is exactly the "confident wrong answer" this project keeps paying f
 floor would fail honest seeds and get raised until it meant nothing. So:
 
   * the ASSERTIONS only catch a collapse -- the disaster CONTRIBUTING names in so many words;
-  * the real distribution is PRINTED on every run, so the first green CI log hands the next person
-    the actual numbers to tighten these from.
+  * the real distribution is REPORTED on every run, so a green CI log hands the next person the
+    actual numbers to tighten these from.
+
+    ⚠️ It is reported through `warnings.warn`, NOT print, and that is deliberate: pytest CAPTURES
+    stdout for a PASSING test, so the first version of this file printed its numbers into a void --
+    the whole point of the loose thresholds, lost, and I had already claimed in a commit message
+    that the log would carry them. The warnings summary is the one channel pytest always prints.
+    `print` is kept as well for anyone running with -s.
 
 Tighten them from that data. Do not guess them.
 
@@ -33,7 +39,7 @@ Why num_regions is large here: at 4 regions "spheres 0-1 are ~80% of a small see
 test_gf_filler_economy_floor) -- almost everything is early by construction, so the shape carries no
 information. The gradient only means something once the locks have something to gate.
 """
-import collections
+import warnings
 
 import pytest
 
@@ -46,6 +52,17 @@ GAME = "Elden Ring"
 # "spheres collapsing to 1-2" is CONTRIBUTING's own phrasing for the regression, so 3 is the
 # smallest number that is not the thing it warns about.
 MIN_SPHERES = 3
+
+
+class SphereShapeReport(UserWarning):
+    """Carries the observed distribution into pytest's warnings summary, where a PASSING run can
+    still show it. Grep CI for 'sphere-shape'."""
+
+
+def _report(msg):
+    print(msg)
+    warnings.warn(msg, SphereShapeReport, stacklevel=2)
+
 # A ceiling loose enough that only "the whole map is open from the start" trips it. A healthy large
 # seed should be FAR below this; if the printed number is anywhere near it, that is the finding.
 MAX_SPHERE0_SHARE = 0.90
@@ -81,12 +98,10 @@ class SphereShape(WorldTestBase):
                             if l.item is not None and l.item.player == player and l.item.advancement))
 
         share0 = counts[0] / total
-        print("\n[sphere-shape] %d spheres | %d own checks | sphere0 %d (%.1f%%)"
-              % (len(spheres), total, counts[0], 100 * share0))
-        print("[sphere-shape] checks per sphere:      %s" % counts[:24])
-        print("[sphere-shape] progression per sphere: %s" % prog[:24])
-        print("[sphere-shape] TRIPWIRES ARE LOOSE ON PURPOSE -- tighten MIN_SPHERES / "
-              "MAX_SPHERE0_SHARE from these observed numbers, not from a guess.")
+        _report("[sphere-shape] %d spheres | %d own checks | sphere0 %d (%.1f%%) | "
+                "checks/sphere %s | progression/sphere %s | TRIPWIRES ARE LOOSE ON PURPOSE: "
+                "tighten MIN_SPHERES / MAX_SPHERE0_SHARE from THESE numbers, not from a guess"
+                % (len(spheres), total, counts[0], 100 * share0, counts[:24], prog[:24]))
 
         self.assertGreaterEqual(
             len(spheres), MIN_SPHERES,
@@ -123,8 +138,8 @@ class SphereShape(WorldTestBase):
         if total_prog == 0:
             self.skipTest("no own progression items placed in own locations -- nothing to shape")
         share0 = prog[0] / total_prog
-        print("\n[sphere-shape] own progression items: %d total, %d in sphere 0 (%.1f%%)"
-              % (total_prog, prog[0], 100 * share0))
+        _report("[sphere-shape] own progression items: %d total, %d in sphere 0 (%.1f%%) | "
+                "per-sphere %s" % (total_prog, prog[0], 100 * share0, prog[:24]))
         self.assertLess(
             share0, 1.0,
             "EVERY progression item this world placed for itself sits in sphere 0 (%d of %d). "
