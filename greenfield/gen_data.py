@@ -2590,11 +2590,16 @@ print(f"finale: requires {FINALE_REQUIRES} (burn trigger in {_fin_burn_region!r}
 # Map EMEVDs call them via $InitializeCommonEvent(0, <event>, <eventFlagId>, <gestureParamId>, ...).
 # GestureParam.ID -> itemId names the goods; the GoodsName FMGs name the check.
 #
-# SCOPE: exactly these two common events. Every OTHER AwardGesture site in the game is an NPC /
-# quest / scripted award (talk outcomes, multiplayer rewards $Event(9930), map-local quest events
-# like m31_00 31003704, and m16_00's local clone 16003762 whose pickup only SPAWNS behind quest
-# flag 9122) -- not a world pickup; they stay vanilla. The counts pinned below are the proof: a
-# scan that returns different numbers must die loudly, never re-baseline itself.
+# SCOPE, WIDENED 2026-07-26 (Alaric: "any other questline checks as well" -- questline content is
+# in scope now that it is randomised + MISSABLE rather than excluded; see _QUESTLINE_GATED):
+#   (a) the two common events above -> the world gesture pickups, and
+#   (b) the LITERAL AwardGesture sites in map EMEVDs -- NPC / quest / scripted awards (talk
+#       outcomes, map-local quest events like m31_00 31003704, m16_00's local clone 16003762).
+# These used to be COUNTED and discarded as "out of scope". They are checks now, with one
+# exception that must NOT be minted: a site with no acquisition flag of its own RIDES an existing
+# treasure flag, and minting it would put two locations on one physical interaction.
+# The counts pinned below are the proof: a scan that returns different numbers must die loudly,
+# never re-baseline itself.
 #
 # DETECT-ONLY: the award is an EMEVD instruction, not an ItemLotParam row, so the pure-runtime
 # client can neither blank a lot nor intercept the grant -- the AddItemFunc detour (detour.rs) is
@@ -2628,16 +2633,78 @@ def _gesture_derive():
                 _id2name.setdefault(int(_i8), _tx8)
     _rx = re.compile(r"\$InitializeCommonEvent\(\d+, (" + "|".join(_GESTURE_EVENTS)
                      + r"), (\d+), (\d+), (\d+)")
-    _sites = []            # (event_id, flag, gesture_id, arg3, map_id)
-    _other_awards = 0      # literal AwardGesture(...) in map emevds = the out-of-scope NPC/quest class
+    _sites = []            # (event_id, flag, gesture_id, arg3, map_id)  -- the two common events
+    _npc = []              # (map_id, event_id, gesture_id, acq_flag)     -- NPC/quest awards
+    _npc_riders = []       # (map_id, event_id, gesture_id, ridden_flag)  -- rides a LIVE check
+    _npc_unsourced = []    # (map_id, event_id, gesture_id, waited_flag)  -- nothing sets the flag
+    _npc_pending = []      # awards with no own flag, classified after the whole corpus is read
+    _set_anywhere = set()  # every flag ANY emevd sets ON -- the oracle for the classification
+    _evsplit = re.compile(r"^\$Event\((\d+),", re.M)
     for _fn8 in sorted(os.listdir(_EV_DIR_F)):
         _mm8 = re.match(r"(m\d\d_\d\d_\d\d_\d\d)\.emevd\.dcx\.js$", _fn8)
         if not _mm8:
             continue
+        _mid8 = _mm8.group(1)
         _t8 = open(os.path.join(_EV_DIR_F, _fn8), encoding="utf-8", errors="replace").read()
         for _ev8, _fl8, _gid8, _a38 in _rx.findall(_t8):
-            _sites.append((_ev8, int(_fl8), int(_gid8), int(_a38), _mm8.group(1)))
-        _other_awards += _t8.count("AwardGesture(")
+            _sites.append((_ev8, int(_fl8), int(_gid8), int(_a38), _mid8))
+        _set_anywhere.update(int(_x8) for _x8 in re.findall(
+            r"Set(?:Networkconnected)?EventFlagID?\((\d+),\s*ON\)", _t8))
+        if "AwardGesture(" not in _t8:
+            continue
+        # split into top-level $Event bodies so a flag from a NEIGHBOURING event can never be
+        # attributed here (the "grep a whole file and call it one scope" failure).
+        _st8 = [(_m8.start(), int(_m8.group(1))) for _m8 in _evsplit.finditer(_t8)]
+        for _i8, (_p8, _eid8) in enumerate(_st8):
+            _body8 = _t8[_p8: _st8[_i8 + 1][0] if _i8 + 1 < len(_st8) else len(_t8)]
+            for _am8 in re.finditer(r"AwardGesture\(([A-Za-z0-9_]+)\)", _body8):
+                _g8 = _am8.group(1)
+                if not _g8.isdigit():
+                    # PARAMETERIZED map-local clone: the ids are literals at the CALL SITE and the
+                    # award is in the callee -- the blind spot that hid the lot gates for two
+                    # sessions. Resolve the call, do not skip it.
+                    _cs8 = re.findall(r"\$Initialize(?:Common)?Event\(\s*\d+,\s*%d\s*,([^)]*)\)"
+                                      % _eid8, _t8)
+                    if len(_cs8) != 1:
+                        raise SystemExit(f"FATAL: parameterized AwardGesture in {_mid8} event "
+                                         f"{_eid8} has {len(_cs8)} call sites (expected exactly 1) "
+                                         f"-- resolve them explicitly, do not guess")
+                    _a8 = [_x8.strip() for _x8 in _cs8[0].split(",")]
+                    # signature: (assetEntityId, actionButtonParameterId, gestureParamId,
+                    #             eventFlagId, eventFlagId2, eventFlagId3, sfxId)
+                    if len(_a8) < 4 or not all(_x8.isdigit() for _x8 in _a8[2:4]):
+                        raise SystemExit(f"FATAL: cannot resolve gesture/flag args at the call site "
+                                         f"of {_mid8} event {_eid8}: {_a8}")
+                    _npc.append((_mid8, _eid8, int(_a8[2]), int(_a8[3])))
+                    continue
+                # ACQUISITION flag: set ON *adjacent to the award* AND used as an already-have-it
+                # early exit. Proximity is the discriminator -- a flag that is merely set somewhere
+                # in the event is quest PROGRESS state, and two events here carry exactly that
+                # (31002704 beside 60819, 1051569206 beside 60829). A "set AND tested" rule returns
+                # both and cannot choose; measured separation of the real one is 25-39 chars.
+                _bail8 = {int(_x8) for _x8 in re.findall(r"EndIf\(EventFlag\((\d+)\)\)", _body8)}
+                _bail8 |= {int(_x8) for _x8 in re.findall(r"!EventFlag\((\d+)\)", _body8)}
+                _cand8 = sorted((abs(_sm8.start() - _am8.start()), int(_sm8.group(1)))
+                                for _sm8 in re.finditer(
+                                    r"Set(?:Networkconnected)?EventFlagID?\((\d+),\s*ON\)", _body8)
+                                if int(_sm8.group(1)) in _bail8)
+                if _cand8:
+                    if len(_cand8) > 1 and _cand8[1][0] - _cand8[0][0] < 40:
+                        raise SystemExit(f"FATAL: {_mid8} event {_eid8} has two equally-close "
+                                         f"acquisition-flag candidates {_cand8[:2]} -- the "
+                                         f"proximity rule cannot choose; resolve by hand")
+                    _npc.append((_mid8, _eid8, int(_g8), _cand8[0][1]))
+                else:
+                    # No own flag: the award fires off a flag this event only WAITS on. Classify --
+                    # do not assume. (I assumed "rides an existing treasure" and the liveness guard
+                    # below caught me: neither flag is a check, a lot, or set by any script.)
+                    _ride8 = sorted(_bail8 - {int(_x8) for _x8 in re.findall(
+                        r"Set(?:Networkconnected)?EventFlagID?\((\d+),\s*ON\)", _body8)})
+                    if len(_ride8) != 1:
+                        raise SystemExit(f"FATAL: {_mid8} event {_eid8} awards gesture {_g8} with "
+                                         f"no acquisition flag and {len(_ride8)} ride candidates "
+                                         f"{_ride8} -- cannot classify; resolve by hand")
+                    _npc_pending.append((_mid8, _eid8, int(_g8), _ride8[0]))
     # 900005571 ("gesture acquisition with treasure") does not stand alone: its 3rd arg is the
     # eventFlagId2 of an EXISTING TREASURE -- the gesture unlock RIDES that treasure's own flag
     # (m61_48_45: gesture 111 rides Monk's Missive f2048457510, a live check in data.py). Minting
@@ -2667,6 +2734,48 @@ def _gesture_derive():
         raise SystemExit(f"FATAL: gesture scan drift: {len(_sites)} sites / {len(_by_flag)} "
                          f"standalone flags / dups {_dups} / riders {len(_riders)} "
                          f"(expected 9 / 7 / exactly one / 1)")
+    # ---- NPC / quest awards: their own count PIN (MEASURED 2026-07-26 over all 589 decompiled
+    # EMEVD, artifacts of 2026-06-30): 9 literal AwardGesture sites in map EMEVDs -> 7 with an
+    # acquisition flag of their own (7 DISTINCT, all in the 608xx gesture band, none colliding
+    # with the 7 common-event flags) + 2 riders. Same rule as above: a different shape dies loudly.
+    # ---- classify the no-own-flag awards. THREE outcomes, and "I could not tell" is one of them.
+    for (_mid8, _eid8, _gid8, _wf8) in _npc_pending:
+        if _wf8 in _live_now:
+            _npc_riders.append((_mid8, _eid8, _gid8, _wf8))          # pickup already a check: skip
+        elif _wf8 not in _set_anywhere:
+            _npc_unsourced.append((_mid8, _eid8, _gid8, _wf8))       # nothing can turn it ON: refuse
+        else:
+            raise SystemExit(f"FATAL: gesture {_gid8} ({_mid8} event {_eid8}) fires on flag {_wf8}, "
+                             f"which IS set by some event but is NOT a live check -- that is a real "
+                             f"pickup we do not model. Resolve it; do not skip it")
+    _npc_by_flag = defaultdict(list)
+    for (_mid8, _eid8, _gid8, _fl8) in _npc:
+        _npc_by_flag[_fl8].append((_gid8, _mid8))
+    if len(_npc) != 7 or len(_npc_by_flag) != 7 or len(_npc_riders) != 0 or len(_npc_unsourced) != 2:
+        raise SystemExit(f"FATAL: NPC/quest gesture scan drift: {len(_npc)} sites / "
+                         f"{len(_npc_by_flag)} distinct flags / {len(_npc_riders)} rider(s) / "
+                         f"{len(_npc_unsourced)} unsourced (expected 7 / 7 / 0 / 2). "
+                         f"Sites: {sorted(_npc)}; riders: {sorted(_npc_riders)}; "
+                         f"unsourced: {sorted(_npc_unsourced)}")
+    for (_mid8, _eid8, _gid8, _wf8) in sorted(_npc_unsourced):
+        print(f"gesture: REFUSED {_mid8} event {_eid8} (gesture {_gid8}) -- it fires on flag {_wf8}, "
+              f"and NOTHING in the 589-file EMEVD corpus, the decompiled talk ESD, or "
+              f"ItemLotParam_map sets or awards it. A check on a flag that can never turn ON is a "
+              f"DEAD check, so it is not minted. Re-check when the ESD decompile is complete")
+    # A rider awards a gesture off a flag it does not set -- so the pickup must ALREADY be a check,
+    # or the skip orphans it. Identical guard to the 900005571 riders above, and it is the reason
+    # these two are not minted rather than an assertion that they do not matter.
+    for (_mid8, _eid8, _gid8, _rf8) in _npc_riders:
+        if _rf8 not in _live_now:
+            raise SystemExit(f"FATAL: NPC gesture {_gid8} ({_mid8} event {_eid8}) rides flag {_rf8} "
+                             f"which is NOT a live check -- skipping it would orphan a real "
+                             f"pickup; mint it (or fix the treasure) instead")
+    _collide8 = sorted(set(_npc_by_flag) & set(_by_flag))
+    if _collide8:
+        raise SystemExit(f"FATAL: NPC gesture flag(s) {_collide8} are ALSO common-event gesture "
+                         f"flags -- one interaction, two sources; reconcile (keep exactly one)")
+    for _fl8, _v8 in _npc_by_flag.items():
+        _by_flag[_fl8].extend(_v8)
     # a shared flag must award ONE gesture (else it is not one check).
     for _fl8, _v8 in _by_flag.items():
         if len({_g8 for (_g8, _m8) in _v8}) != 1:
@@ -2713,14 +2822,16 @@ def _gesture_derive():
                        "item_name": _nm8, "map": _maps8[0] if len(_maps8) == 1 else ";".join(_maps8),
                        "region": _region[_fl8], "method": "gesture"})
         _table[_fl8] = (_gid8, 0x40000000 | _good8, _nm8)
-    return _rows8, _region, _table, len(_sites), _other_awards
+    return _rows8, _region, _table, len(_sites), len(_npc), len(_npc_riders)
 
-_gesture_rows, _gesture_region, GESTURE_AWARD_FLAGS, _gesture_sites, _gesture_other = _gesture_derive()
+(_gesture_rows, _gesture_region, GESTURE_AWARD_FLAGS,
+ _gesture_sites, _gesture_npc, _gesture_riders) = _gesture_derive()
 GESTURE_REGION.update(_gesture_region)
 rows = rows + _gesture_rows
-print(f"gesture: +{len(_gesture_rows)} DERIVED gesture-pickup checks ({_gesture_sites} common-event "
-      f"call sites; {_gesture_other} other AwardGesture site(s) in map EMEVDs are NPC/quest awards, "
-      f"out of scope) -> regions "
+print(f"gesture: +{len(_gesture_rows)} DERIVED gesture-pickup checks "
+      f"({_gesture_sites} common-event call sites + {_gesture_npc} NPC/quest award site(s), "
+      f"scoped IN 2026-07-26; {_gesture_riders} rider(s) NOT minted -- they ride a flag that is "
+      f"already a live check) -> regions "
       + ", ".join(f"{_fl}={_gesture_region[_fl]!r}" for _fl in sorted(_gesture_region)))
 # region_map.csv must NOT also carry these flags -- if the upstream pipeline ever grows a row for
 # one, two sources would mint two locations for one flag. Reconcile by hand if this ever fires.
