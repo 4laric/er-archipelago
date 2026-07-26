@@ -1,14 +1,27 @@
 """GESTURE PICKUPS: the detect-only checks that never existed (gen_data._gesture_derive).
 
-Ground truth (elden_ring_artifacts, 2026-07-14): common_func $Event(90005570) / $Event(900005571)
-are the game's parameterized gesture-pickup events (AwardGesture + SetEventFlagID); the map EMEVDs
-call them at exactly 9 sites. 8 are standalone 90005570 pickups over 7 distinct flags (60824 "Fire
-Spur Me" has two physical pickups sharing ONE flag = one check); the single 900005571 site (60860)
-RIDES the Monk's Missive treasure f2048457510 -- already a live check -- so minting it would put
-two locations on one interaction, and it is skipped by the derivation. The award is EMEVD, not an
-ItemLotParam row, so the class is DETECT-ONLY: the flag poll sees it, nothing can suppress the
-vanilla gesture, and the coverage gate classifies it 'event_award_unsuppressable' -- explicitly,
-never folded into "no ware".
+TWO populations, 14 checks. Both are EMEVD awards, so the whole class is DETECT-ONLY: the flag poll
+sees it, nothing can suppress the vanilla gesture, and the coverage gate classifies it
+'event_award_unsuppressable' -- explicitly, never folded into "no ware".
+
+(a) WORLD PICKUPS -- 7 checks (ground truth 2026-07-14). common_func $Event(90005570) /
+    $Event(900005571) are the game's parameterized gesture-pickup events; the map EMEVDs call them
+    at exactly 9 sites. 8 are standalone 90005570 pickups over 7 distinct flags (60824 "Fire Spur
+    Me" has two physical pickups sharing ONE flag = one check); the single 900005571 site (60860)
+    RIDES the Monk's Missive treasure f2048457510 -- already a live check -- so minting it would
+    put two locations on one interaction, and the derivation skips it.
+
+(b) NPC / QUEST AWARDS -- 7 checks, scoped IN 2026-07-26 (Alaric: questline content is randomised +
+    MISSABLE now, not excluded). These are the literal AwardGesture sites in map EMEVDs that
+    _gesture_derive used to COUNT and discard. 9 sites -> 7 with an acquisition flag of their own;
+    m16_00's site is PARAMETERIZED and resolved at its $InitializeEvent CALL SITE.
+
+🛑 The other 2 sites are REFUSED, and the refusal is pinned below. m10_00/10002691 (gesture 94) and
+m18_00/18002690 (gesture 9) fire on flags 10007490 / 18007090 that are set by NOTHING -- absent from
+all 589 decompiled EMEVD (only those two events READ them), from the complete 365-file talk ESD, from
+ItemLotParam_map, flag_lots.tsv, region_map.csv and msb_flag_region.tsv. A check on a flag that can
+never turn ON is a DEAD check. They were first misread as "riders on an existing treasure" and the
+derivation's liveness guard is what caught that.
 """
 import json
 import os
@@ -21,7 +34,17 @@ from worlds.eldenring.data import HUB, LOCATIONS, REGIONS, GESTURE_AWARD_FLAGS  
 from worlds.eldenring import coverage as cov  # noqa: E402
 
 GAME = "Elden Ring"
-EXPECTED = {60809, 60822, 60824, 60833, 60836, 60861, 60864}
+# (a) world pickups, via the two common events
+EXPECTED_WORLD = {60809, 60822, 60824, 60833, 60836, 60861, 60864}
+# (b) NPC/quest awards, literal AwardGesture in map EMEVDs (2026-07-26)
+#   60843 m11_10 ev 11103706 g102 | 60802 m16_00 ev 16003762 g2 (call-site arg) |
+#   60819 m31_00 ev 31003704 g41  | 60832 m31_00 ev 31003714 g90 |
+#   60826 m60_42_36 ev 1042363703 g60 | 60801 m60_51_36 ev 1051360734 g1 |
+#   60829 m60_51_56 ev 1051563701 g72
+EXPECTED_NPC = {60801, 60802, 60819, 60826, 60829, 60832, 60843}
+EXPECTED = EXPECTED_WORLD | EXPECTED_NPC
+# flags the derivation must REFUSE: nothing in any corpus sets them (see the module docstring)
+REFUSED_DEAD_FLAGS = {10007490, 18007090}
 
 
 def _gesture_locs():
@@ -31,11 +54,22 @@ def _gesture_locs():
 
 
 class TestGestureData:
-    def test_the_seven_pickups_exist_once_each(self):
+    def test_the_fourteen_pickups_exist_once_each(self):
+        # The SET is the pin; the count follows from it. 7 world + 7 NPC/quest, disjoint.
+        assert EXPECTED_WORLD & EXPECTED_NPC == set(), "the two populations must not overlap"
         assert set(GESTURE_AWARD_FLAGS) == EXPECTED
         locs = _gesture_locs()
-        assert len(locs) == 7, f"each gesture flag must be exactly one location, got {locs}"
+        assert len(locs) == len(EXPECTED) == 14, \
+            f"each gesture flag must be exactly one location, got {locs}"
         assert {f for (_r, _n, _a, f) in locs} == EXPECTED
+
+    def test_the_dead_flag_awards_stay_refused(self):
+        # A gesture award whose flag nothing can set would be a check that can never fire. If one of
+        # these ever becomes a location, something started setting the flag -- find out WHAT before
+        # accepting it (the derivation FATALs on exactly that transition).
+        all_flags = {f for locs in LOCATIONS.values() for (_n, _a, f) in locs}
+        assert not (REFUSED_DEAD_FLAGS & all_flags), \
+            "a gesture award on an unsettable flag was minted as a check"
 
     def test_alarics_find_is_a_check_in_leyndell(self):
         # "By My Sword" paying vanilla in Leyndell (in-game 2026-07-14) is what exposed the class.
