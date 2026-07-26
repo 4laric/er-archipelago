@@ -369,6 +369,26 @@ if ($Rust) {
     } finally { Pop-Location }
     if (-not (Test-Path $RustDll)) { throw "build reported success but DLL not found: $RustDll" }
     Write-Host "  -> $RustDll" -ForegroundColor Green
+
+    # BUILD STAMP: the hashes of the generated cross-repo tables THIS dll was compiled from.
+    # package_release.ps1 needs to answer "was this .dll built from the tables about to ship?" and
+    # no TIME can answer it -- not the file mtime (a git checkout stamps it without changing the
+    # content) and not the commit time either (you necessarily COMMIT the regenerated tables AFTER
+    # you build, so the table always post-dates the binary and the gate can never pass). Only the
+    # content can answer it. Written beside the DLL, copied along with it by -Me3Deploy.
+    $tblRel = @("crates\er-logic\src\tracker_regions.rs",
+                "crates\er-logic\src\region_locks.rs",
+                "crates\eldenring-archipelago\src\contract_gen.rs")
+    $stamp = [ordered]@{}
+    foreach ($rel in $tblRel) {
+        $f = Join-Path $RustDir $rel
+        if (Test-Path $f) {
+            $stamp[($rel -replace '\\', '/')] = (Get-FileHash -Algorithm SHA256 -LiteralPath $f).Hash
+        }
+    }
+    $stampPath = "$RustDll.tables.json"
+    $stamp | ConvertTo-Json | Set-Content -LiteralPath $stampPath -Encoding UTF8
+    Write-Host ("  build stamp -> {0} ({1} table hashes)" -f $stampPath, $stamp.Count)
 }
 
 # ----- bump the client submodule pointer ------------------------------------------------------
@@ -430,6 +450,11 @@ if ($Me3Deploy) {
     # not target\release (which cargo clean wipes).
     Copy-Item $RustDll $Me3DllDest -Force
     Write-Host "  client DLL -> $Me3DllDest"
+    # Carry the build stamp with the binary it describes (see -Rust). If it is absent the DLL
+    # predates this mechanism: packaging says UNVERIFIED rather than guessing from timestamps.
+    if (Test-Path "$RustDll.tables.json") {
+        Copy-Item "$RustDll.tables.json" "$Me3DllDest.tables.json" -Force
+    }
 
     New-Item -ItemType Directory -Force -Path (Join-Path $Me3Package "menu\hi"), (Join-Path $Me3Package "menu\low") | Out-Null
 

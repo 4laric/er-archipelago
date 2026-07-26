@@ -134,49 +134,44 @@ if (-not $SkipCrossRepoCheck) {
         }
         Info "Cross-repo: apworld and client generated tables AGREE."
 
-        # The .dll is a BUILD ARTIFACT: matching sources prove nothing if the binary is older.
-        #
-        # Ask git WHEN THE CONTENT LAST CHANGED, not the filesystem when the file was last touched.
-        # A file mtime answers the wrong question in both directions and this gate got it wrong both
-        # ways on 2026-07-26:
-        #   * a `git pull` / `checkout` stamps a fresh mtime on a file whose CONTENT did not change,
-        #     so a perfectly current .dll reads as stale;
-        #   * this script runs gen_contract.py a few lines above, which used to rewrite
-        #     contract_gen.rs unconditionally -- so merely RUNNING the check guaranteed the next
-        #     comparison would fail. The gate was unpassable: rebuild, re-run, fail on the next file.
-        # The generators are idempotent now (they skip a byte-identical write), and the tables are
-        # known to match their committed content by the dirty-tree Die above -- so the last COMMIT
-        # touching each file is exactly when its content last moved, and that is what to compare.
+        # The .dll is a BUILD ARTIFACT: matching sources prove nothing if the binary was built from
+        # different bytes. The question is "was this .dll compiled from the tables about to ship?",
+        # and NO TIMESTAMP CAN ANSWER IT. Both previous attempts were unpassable:
+        #   * file mtime -- a git checkout stamps it without changing content, so a current .dll
+        #     read as stale; and this script used to rewrite contract_gen.rs a few lines above,
+        #     guaranteeing its own next failure.
+        #   * git commit time -- worse, unpassable BY CONSTRUCTION: you necessarily commit the
+        #     regenerated tables AFTER you build the .dll from them, so the table always post-dates
+        #     the binary and the gate can never go green. (Caught by Alaric, 2026-07-26.)
+        # So compare CONTENT. build.ps1 -Rust writes the SHA-256 of the three generated tables next
+        # to the .dll it just compiled, and -Me3Deploy carries that stamp along with the binary.
         $dll = Join-Path (Join-Path $Repo "me3") "eldenring_archipelago.dll"
-        if (Test-Path $dll) {
-            $dllTime = (Get-Item $dll).LastWriteTimeUtc
-            foreach ($rel in @("crates\er-logic\src\tracker_regions.rs",
-                               "crates\er-logic\src\region_locks.rs",
-                               "crates\eldenring-archipelago\src\contract_gen.rs")) {
-                $f = Join-Path $Client $rel
-                if (-not (Test-Path $f)) { continue }
-                # NOTE the two locals: PowerShell does NOT evaluate a method call in ARGUMENT
-                # position (`$rel.Replace(...)` passes the literal text), and mixing `+` with `-f`
-                # in one expression is a precedence trap. Both spelled out rather than clever.
-                $relSlash = $rel.Replace("\", "/")
-                $iso = (& git -C $Client log -1 --format=%cI -- $relSlash 2>$null)
-                if ($LASTEXITCODE -ne 0 -or -not $iso) {
-                    Warn "cannot read the commit time of $rel -- .dll freshness UNVERIFIED for it"
-                    continue
-                }
-                $changed = ([datetimeoffset]$iso).UtcDateTime
-                if ($changed -gt $dllTime) {
-                    $msg = "me3\eldenring_archipelago.dll was built BEFORE the last content change to "
-                    $msg += "$rel (table changed "
-                    $msg += "{0:yyyy-MM-dd HH:mm}Z, .dll built {1:yyyy-MM-dd HH:mm}Z" -f $changed, $dllTime
-                    $msg += ") -- the binary has an older copy of a generated table compiled into it. "
-                    $msg += "Rebuild the client (build.ps1 -Rust) before packaging."
-                    Die $msg
-                }
-            }
-            Info "Cross-repo: the staged .dll post-dates the last content change to every generated table."
-        } else {
+        $stampPath = "$dll.tables.json"
+        if (-not (Test-Path $dll)) {
             Warn "me3\eldenring_archipelago.dll not present yet -- .dll freshness UNVERIFIED"
+        } elseif (-not (Test-Path $stampPath)) {
+            Warn ("no build stamp beside the .dll -- it predates build.ps1's table stamping. " +
+                  ".dll/table agreement UNVERIFIED; run build.ps1 -Rust -Me3Deploy to produce one.")
+        } else {
+            $stamp = Get-Content -LiteralPath $stampPath -Raw | ConvertFrom-Json
+            $mismatch = @()
+            foreach ($rel in @("crates/er-logic/src/tracker_regions.rs",
+                               "crates/er-logic/src/region_locks.rs",
+                               "crates/eldenring-archipelago/src/contract_gen.rs")) {
+                $f = Join-Path $Client ($rel -replace "/", "\")
+                if (-not (Test-Path $f)) { continue }
+                $now = (Get-FileHash -Algorithm SHA256 -LiteralPath $f).Hash
+                $was = $stamp.$rel
+                if (-not $was) { $mismatch += "$rel (not in the build stamp)" }
+                elseif ($was -ne $now) { $mismatch += "$rel (built from $($was.Substring(0,12))..., tree has $($now.Substring(0,12))...)" }
+            }
+            if ($mismatch.Count -gt 0) {
+                $m = "the staged .dll was built from DIFFERENT generated tables than the ones about to ship:`n"
+                $m += ($mismatch -join "`n")
+                $m += "`nRebuild the client (build.ps1 -Rust -Me3Deploy) before packaging."
+                Die $m
+            }
+            Info "Cross-repo: the staged .dll was built from exactly these generated tables (SHA-256)."
         }
     }
 }
