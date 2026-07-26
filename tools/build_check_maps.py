@@ -10,9 +10,28 @@ it -- and the biggest slice by far is SHOP ROWS, which have no MSB part at all. 
 non-spatial: **the merchant has a location** (Alaric), and 11 named merchants stand on more than one
 map, so a shop check has SEVERAL positions.
 
-The payoff does not need XYZ. What it buys is MAP ATTRIBUTION, which is what kills `tile_pr()` -- a
-nearest-neighbour that has no failure branch, so it never refuses and has already put checks in the
-wrong region. A check whose map we KNOW never needs to be guessed at.
+The payoff is MAP ATTRIBUTION -- knowing WHERE a check is, one row per position.
+
+🛑 IT DOES NOT FIX `tile_pr()`, AND I CLAIMED IT WOULD. Measured 2026-07-26 before wiring it into
+gen_data, which is why it is not wired:
+
+  * gen_data's region waterfall already consumes almost everything here (MSB_TRUTH_MAP,
+    MERCHANT_SHOP_REGION, SHOP_ROW_REGION, GLOBAL_RECOVER, _recover_tile). Only **46** checks are
+    DEFAULTED_REGION_APS today, and this table places **3** of them -- two of those on more than one
+    map, so they would stay HUB anyway.
+  * The `tile_pr` exposure is a DIFFERENT QUESTION. Those checks are not missing a map; they are on a
+    tile with NO GRACE, so the TILE -> REGION step nearest-neighbours. Of the graceless-tile overworld
+    checks, this table names the SAME tile they already have for 301, nothing for 5, and a different
+    map for **2**. Knowing the map cannot help when the map is already known and it is the tile's
+    REGION that is unanchored.
+
+So wiring this into regioning would move ~1-3 checks on the weakest evidence available, in exchange
+for a new consumer in the hot path. Not worth it. What WOULD close the tile exposure is a tile ->
+region source: anchor more tiles (more graces in the grace_flags x grace_region_map join), or read
+PlayRegionParam directly. See tests/test_gf_tile_anchor_coverage.py, which pins the exposure.
+
+What this table IS for: the one-to-many coordinate/availability model -- which merchant instance sells
+a row, on which map, behind which ESD gate -- and as the base layer XYZ hangs off.
 
 So this table is deliberately map-granular and derives ONLY from committed tsvs -- it runs in the
 agent sandbox with no game artifacts at all. XYZ is a later, orthogonal layer: when a position is
