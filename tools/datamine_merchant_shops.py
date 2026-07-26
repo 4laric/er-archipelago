@@ -88,6 +88,9 @@ _TALKFILE_RE = re.compile(r"^t(\d+)\.esd(?:\.xml)?$", re.I)
 _TALKID_RE = re.compile(r"<TalkID>\s*(-?\d+)\s*</TalkID>")
 _ENTITYID_RE = re.compile(r"<EntityID>\s*(-?\d+)\s*</EntityID>")
 _NPCID_RE = re.compile(r"<NPCParamID>\s*(-?\d+)\s*</NPCParamID>")
+# Same shape datamine_item_grace_coords uses for Part/Enemy and datamine_arena_graces for graces --
+# MAP-LOCAL coordinates, the frame item_grace_coords.tsv is already in.
+_POS_RE = re.compile(r"<Position>\s*<X>(-?[\d.eE+]+)</X>\s*<Y>(-?[\d.eE+]+)</Y>\s*<Z>(-?[\d.eE+]+)</Z>")
 _NAME_RE = re.compile(r"<Name>([^<]*)</Name>")
 
 
@@ -205,10 +208,23 @@ def load_npc_names():
 # ---------------------------------------------------------------- MSB: talk id -> map, npc
 
 def scan_msb(map_filter=None):
-    """talk_id -> {map_id}, and talk_id -> npc_param_id (first seen). Reuses the regex-scan approach of
-    datamine_msb_item_regions._enemy_rows (full XML parse is 10x slower over ~200k Enemy parts)."""
+    """talk_id -> {map_id}, talk_id -> npc_param_id (first seen), and (talk_id, map_id) -> POSITION.
+
+    Reuses the regex-scan approach of datamine_msb_item_regions._enemy_rows (a full XML parse is 10x
+    slower over ~200k Enemy parts).
+
+    ⭐ The position costs NOTHING extra: this walk already opens and reads every Part/Enemy xml to
+    find TalkID -- the position is one more regex over text that is already in memory. That is why
+    the merchant coordinates are folded into THIS scan instead of a second pass over the same 2.2 GB.
+
+    Positions are MAP-LOCAL, the same frame item_grace_coords.tsv uses. A merchant can stand more
+    than once in one map (patrol copies, questline duplicates); the FIRST is kept and the rest are
+    TALLIED, never silently dropped -- `dupe_pos` in the return.
+    """
     talk_maps = defaultdict(set)
     talk_npc = {}
+    talk_pos = {}                 # (talk_id, map_id) -> (x, y, z)
+    dupe_pos = Counter()          # (talk_id, map_id) -> how many EXTRA placements were seen
     seen_dirs = 0
     for root in MAPSTUDIO_ROOTS:
         if not os.path.isdir(root):
@@ -241,7 +257,14 @@ def scan_msb(map_filter=None):
                         npc = _NPCID_RE.search(src)
                         if npc:
                             talk_npc[tid] = int(npc.group(1))
-    return talk_maps, talk_npc, seen_dirs
+                    pm = _POS_RE.search(src)
+                    if pm:
+                        key = (tid, mid)
+                        if key in talk_pos:
+                            dupe_pos[key] += 1
+                        else:
+                            talk_pos[key] = (pm.group(1), pm.group(2), pm.group(3))
+    return talk_maps, talk_npc, seen_dirs, talk_pos, dupe_pos
 
 
 # ---------------------------------------------------------------- ESD: talk id -> shop ranges
@@ -359,14 +382,18 @@ def refresh_names(path):
             out.append(ln); continue
         p6 = ln.split("\t")
         if p6 and p6[0] == "row_id":
-            out.append("row_id\ttalk_id\tnpc_param_id\tmerchant_name\tmap_id\tmap_source\tnpc_name_id")
+            out.append("\t".join(["row_id", "talk_id", "npc_param_id", "merchant_name",
+                                   "map_id", "map_source", "npc_name_id"] + p6[7:]))
             continue
         if len(p6) < 6 or not p6[0].strip().isdigit():
             out.append(ln); tally["passed through (not a data row)"] += 1; continue
         nid = p6[6].strip() if len(p6) >= 7 else p6[3].strip()
         nm = name_of(nid, texts)
         tally["named" if nm else ("nameId 0 / unset" if nid in ("", "0") else "nameId NOT in any FMG")] += 1
-        out.append("\t".join(p6[:3] + [nm, p6[4], p6[5], nid]))
+        # keep ANY columns past npc_name_id (pos_x/y/z ...) -- a refresh must NOT truncate the table
+        # it refreshes. Rebuilding a fixed-width row is how a later column gets silently dropped by
+        # an earlier tool.
+        out.append("\t".join(p6[:3] + [nm, p6[4], p6[5], nid] + p6[7:]))
     named = tally["named"]
     total = sum(v for k, v in tally.items() if k != "passed through (not a data row)")
     # An "empty result reads as success" guard: this table is ~97% nameable, so a collapse means the
@@ -439,7 +466,7 @@ def main():
     shop_ids = load_shop_ids()
     npc_names = load_npc_names()
     talk_data, esd_files = scan_talk(shop_ids, map_filter)
-    talk_maps, talk_npc, msb_dirs = scan_msb(map_filter)
+    talk_maps, talk_npc, msb_dirs, talk_pos, dupe_pos = scan_msb(map_filter)
 
     if not talk_data:
         sys.exit(f"FATAL: no shop ranges extracted from any ESD under {TALK} ({esd_files} candidate "
@@ -467,11 +494,24 @@ def main():
         f.write("# 'block = one merchant' region inheritance. One line per (row, merchant instance);\n")
         f.write("# a row with >1 distinct map region -> gen_data collapses to HUB + DEFAULTED. map_id ->\n")
         f.write("# region is gen_data's job (_gt_region). map_source: msb|binder|msb+binder|none.\n")
-        f.write("row_id\ttalk_id\tnpc_param_id\tmerchant_name\tmap_id\tmap_source\tnpc_name_id\n")
+        f.write("row_id\ttalk_id\tnpc_param_id\tmerchant_name\tmap_id\tmap_source\tnpc_name_id"
+                "\tpos_x\tpos_y\tpos_z\n")
+        _pos_hit = _pos_miss = 0
         for rid in sorted(rows):
             for (tid, npc, mname, mid, src) in rows[rid]:
+                _p = talk_pos.get((tid, mid))
+                if _p:
+                    _pos_hit += 1
+                else:
+                    _pos_miss += 1
+                    _p = ("", "", "")
                 f.write(f"{rid}\t{tid}\t{npc if npc is not None else ''}\t"
-                        f"{name_of(mname, _name_texts)}\t{mid}\t{src}\t{mname}\n")
+                        f"{name_of(mname, _name_texts)}\t{mid}\t{src}\t{mname}\t"
+                        f"{_p[0]}\t{_p[1]}\t{_p[2]}\n")
+        print("merchant_shops: POSITION on %d of %d (row,merchant) line(s); %d had no Part/Enemy "
+              "position for that (talk,map). Extra placements of one merchant in one map (kept the "
+              "first, tallied the rest): %d over %d (talk,map) pair(s)."
+              % (_pos_hit, _pos_hit + _pos_miss, _pos_miss, sum(dupe_pos.values()), len(dupe_pos)))
 
     # ---- run report + self-validation (report; hard-fail only on the motivating regression) ----
     covered = set(rows)
