@@ -32,6 +32,7 @@ MISSABLE_LOCATIONS = {
     7770619: 'alt_currency:1',
     7770620: 'alt_currency:1',
     7770621: 'alt_currency:1',
+    7770658: 'questline',
     7770660: 'questline',
     7770662: 'questline',
     7770664: 'questline',
@@ -39,7 +40,10 @@ MISSABLE_LOCATIONS = {
     7770671: 'questline',
     7770672: 'questline',
     7770673: 'questline',
+    7770675: 'questline',
     7770679: 'questline',
+    7770682: 'questline',
+    7770683: 'questline',
     7770696: 'questline',
     7770699: 'questline',
     7770700: 'questline',
@@ -65,6 +69,7 @@ MISSABLE_LOCATIONS = {
     7770731: 'questline',
     7770732: 'questline',
     7770733: 'questline',
+    7770735: 'questline',
     7770739: 'questline',
     7770740: 'questline',
     7770741: 'questline',
@@ -73,9 +78,11 @@ MISSABLE_LOCATIONS = {
     7770751: 'questline',
     7770752: 'questline',
     7770769: 'questline',
+    7771122: 'questline',
     7772250: 'questline',
     7772251: 'questline',
     7772610: 'questline',
+    7772981: 'questline',
     7773060: 'questline',
     7773838: 'questline',
     7773841: 'deathroot',
@@ -113,6 +120,7 @@ MISSABLE_LOCATIONS = {
     7774321: 'questline',
     7774322: 'questline',
     7774323: 'questline',
+    7774718: 'questline',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:68f4a4ec946e388ae1b459bc2ab36296fcfe6c4865bf3173d7647f4de9e5c625', 'module': 'missable_locations.py', 'body_sha256': 'sha256:2908b2f60d46f8cf89075e05f8f874f263a2c5f2e268794b423fbe9e223f54ff'}
+_GEN_STAMP = {'inputs_hash': 'sha256:cbfccef3ab811cd05de3391f39dae0ef735316afe711d8f9236d66399dba74c6', 'module': 'missable_locations.py', 'body_sha256': 'sha256:4bcf28d6e2a17ac51f6e99c415d18edbf74f8c0ad5d85ac19624d23774949a8a'}
