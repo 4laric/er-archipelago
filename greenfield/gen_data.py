@@ -2878,6 +2878,7 @@ if _gest_clash:
 buckets=OrderedDict()
 loc_tags={}
 defaulted_aps=[]        # region GUESSED (fell back to HUB) -> may never carry progression
+tile_guessed_aps=[]     # region came from an UNANCHORED tile -> kept, but barred from progression
 erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
 shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
 surface_excluded_aps=[] # _SURFACE_EXCLUDE_FLAGS -> surface-tagged but BARRED from progression (Alaric's call)
@@ -2906,6 +2907,29 @@ for r in rows:
     # guess, and only the latter is barred from progression. See _region_is_derived().
     if reg == HUB and not _region_is_derived(r):
         defaulted_aps.append(apid)
+    # ---- THE THIRD STATE: known / GUESSED / unknown -------------------------------------------
+    # tile_pr() nearest-neighbours an overworld tile onto the closest tile that CONTAINS A GRACE.
+    # It has no failure branch, so a GRACELESS tile always gets a confident answer about ground it
+    # has never seen -- 98.1% right on an anchored tile, 84.8% one tile away. That is the Church of
+    # Pilgrimage bug and all seven of Summonwater's phantom "Caelid" checks.
+    #
+    # Refusing outright was tried and REVERTED (e14dfa7 -> 8ff2e44): it defaulted 55 checks to the
+    # HUB, three of which test_gf_lod_tile_regions pins BY FLAG as having a KNOWN real region.
+    # Refusing loses answers that were right. So this is the third state gen_data's own
+    # tile_pr_strict docstring proposed: the check KEEPS its region (nothing is lost, no pinned test
+    # moves, no ap id renumbers) and is BARRED FROM CARRYING PROGRESSION, exactly like a DEFAULTED
+    # region -- because "probably Liurnia" is fine for a filler item and is an unwinnable seed for a
+    # Great Rune.
+    #
+    # LOD tiles are NOT included: their (10, 09)-style indices are not fine coords at all and the
+    # LOD guard above already refuses them. Only real fine tiles are judged here.
+    _gt = re.match(r"m60_(\d\d)_(\d\d)", _mtile or "")
+    if _gt:
+        _gx, _gy = int(_gt.group(1)), int(_gt.group(2))
+        if (_is_fine_tile(_gx, _gy) and (_gx, _gy) not in ANCHOR
+                and (not defaulted_aps or defaulted_aps[-1] != apid)):
+            defaulted_aps.append(apid)
+            tile_guessed_aps.append(apid)
     # m11_00 = normal Leyndell. The whole map variant is DESTROYED the moment Maliketh dies (the
     # Erdtree burns and you are warped into m11_05, the Ashen Capital -- see the ERDTREE BURN note).
     # Its checks stay collectable UNTIL then, so they remain checks -- they just may not carry
@@ -3142,6 +3166,12 @@ for _r3 in _ALLROWS:
             NOT_RANDOMIZED[_fl3] = _nr_why
             _nr_tally[_nr_why.split(':', 1)[0]] += 1
             break
+_tg_tagged = sum(1 for _a in set(tile_guessed_aps) if loc_tags.get(_a))
+print("tile_guessed: %d check(s) sit on an m60 tile with NO GRACE -- region KEPT, barred from "
+      "carrying progression. %d of them are surface-TAGGED (the only ones this actually costs); the "
+      "other %d are untagged filler. tile_pr's nearest-neighbour is 84.8%% right one tile out, and a "
+      "wrong region on a progression item is an unwinnable seed."
+      % (len(set(tile_guessed_aps)), _tg_tagged, len(set(tile_guessed_aps)) - _tg_tagged))
 print("not_randomized: %d deliberately-excluded region_map flags ledgered (%s)" % (
     len(NOT_RANDOMIZED), ", ".join("%s=%d" % _kv for _kv in sorted(_nr_tally.items()))))
 
