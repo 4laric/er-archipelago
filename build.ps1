@@ -376,19 +376,21 @@ if ($Rust) {
     # content) and not the commit time either (you necessarily COMMIT the regenerated tables AFTER
     # you build, so the table always post-dates the binary and the gate can never pass). Only the
     # content can answer it. Written beside the DLL, copied along with it by -Me3Deploy.
-    $tblRel = @("crates\er-logic\src\tracker_regions.rs",
+    $xrTbl = @("crates\er-logic\src\tracker_regions.rs",
                 "crates\er-logic\src\region_locks.rs",
                 "crates\eldenring-archipelago\src\contract_gen.rs")
-    $stamp = [ordered]@{}
-    foreach ($rel in $tblRel) {
-        $f = Join-Path $RustDir $rel
-        if (Test-Path $f) {
-            $stamp[($rel -replace '\\', '/')] = (Get-FileHash -Algorithm SHA256 -LiteralPath $f).Hash
+    $xrStamp = [ordered]@{}
+    foreach ($xrRel in $xrTbl) {
+        $xrFile = Join-Path $RustDir $xrRel
+        if (Test-Path $xrFile) {
+            $xrStamp[($xrRel -replace '\\', '/')] = (Get-FileHash -Algorithm SHA256 -LiteralPath $xrFile).Hash
         }
     }
-    $stampPath = "$RustDll.tables.json"
-    $stamp | ConvertTo-Json | Set-Content -LiteralPath $stampPath -Encoding UTF8
-    Write-Host ("  build stamp -> {0} ({1} table hashes)" -f $stampPath, $stamp.Count)
+    $xrStampPath = "$RustDll.tables.json"
+    # ASCII, not UTF8: PowerShell 5.1 writes a BOM with -Encoding UTF8, and the payload is only
+    # hex hashes and ASCII paths. One less thing between the writer and ConvertFrom-Json.
+    $xrStamp | ConvertTo-Json | Set-Content -LiteralPath $xrStampPath -Encoding ASCII
+    Write-Host ("  build stamp -> {0} ({1} table hashes)" -f $xrStampPath, $xrStamp.Count)
 }
 
 # ----- bump the client submodule pointer ------------------------------------------------------

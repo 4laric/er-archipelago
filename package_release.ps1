@@ -145,31 +145,31 @@ if (-not $SkipCrossRepoCheck) {
         #     the binary and the gate can never go green. (Caught by Alaric, 2026-07-26.)
         # So compare CONTENT. build.ps1 -Rust writes the SHA-256 of the three generated tables next
         # to the .dll it just compiled, and -Me3Deploy carries that stamp along with the binary.
-        $dll = Join-Path (Join-Path $Repo "me3") "eldenring_archipelago.dll"
-        $stampPath = "$dll.tables.json"
-        if (-not (Test-Path $dll)) {
+        $xrDll = Join-Path (Join-Path $Repo "me3") "eldenring_archipelago.dll"
+        $xrStampPath = "$xrDll.tables.json"
+        if (-not (Test-Path $xrDll)) {
             Warn "me3\eldenring_archipelago.dll not present yet -- .dll freshness UNVERIFIED"
-        } elseif (-not (Test-Path $stampPath)) {
+        } elseif (-not (Test-Path $xrStampPath)) {
             Warn ("no build stamp beside the .dll -- it predates build.ps1's table stamping. " +
                   ".dll/table agreement UNVERIFIED; run build.ps1 -Rust -Me3Deploy to produce one.")
         } else {
-            $stamp = Get-Content -LiteralPath $stampPath -Raw | ConvertFrom-Json
-            $mismatch = @()
-            foreach ($rel in @("crates/er-logic/src/tracker_regions.rs",
+            $xrStamp = Get-Content -LiteralPath $xrStampPath -Raw | ConvertFrom-Json
+            $xrMismatch = @()
+            foreach ($xrRel in @("crates/er-logic/src/tracker_regions.rs",
                                "crates/er-logic/src/region_locks.rs",
                                "crates/eldenring-archipelago/src/contract_gen.rs")) {
-                $f = Join-Path $Client ($rel -replace "/", "\")
-                if (-not (Test-Path $f)) { continue }
-                $now = (Get-FileHash -Algorithm SHA256 -LiteralPath $f).Hash
-                $was = $stamp.$rel
-                if (-not $was) { $mismatch += "$rel (not in the build stamp)" }
-                elseif ($was -ne $now) { $mismatch += "$rel (built from $($was.Substring(0,12))..., tree has $($now.Substring(0,12))...)" }
+                $xrFile = Join-Path $Client ($xrRel -replace "/", "\")
+                if (-not (Test-Path $xrFile)) { continue }
+                $xrNow = (Get-FileHash -Algorithm SHA256 -LiteralPath $xrFile).Hash
+                $xrWas = $xrStamp.$xrRel
+                if (-not $xrWas) { $xrMismatch += "$xrRel (not in the build stamp)" }
+                elseif ($xrWas -ne $xrNow) { $xrMismatch += "$xrRel (built from $($xrWas.Substring(0,12))..., tree has $($xrNow.Substring(0,12))...)" }
             }
-            if ($mismatch.Count -gt 0) {
-                $m = "the staged .dll was built from DIFFERENT generated tables than the ones about to ship:`n"
-                $m += ($mismatch -join "`n")
-                $m += "`nRebuild the client (build.ps1 -Rust -Me3Deploy) before packaging."
-                Die $m
+            if ($xrMismatch.Count -gt 0) {
+                $xrMsg = "the staged .dll was built from DIFFERENT generated tables than the ones about to ship:`n"
+                $xrMsg += ($xrMismatch -join "`n")
+                $xrMsg += "`nRebuild the client (build.ps1 -Rust -Me3Deploy) before packaging."
+                Die $xrMsg
             }
             Info "Cross-repo: the staged .dll was built from exactly these generated tables (SHA-256)."
         }
