@@ -65,6 +65,44 @@ USAGE
     python tools/datamine_treasure_enablers.py --emit
     ER_EVENT_DIR=<dir> lets the decompiled EMEVD be staged outside the repo (AGENTS.md 5).
 OUTPUT: greenfield/treasure_enablers.tsv
+
+## THE ASSET-DISABLE CLASS IS NOW FULLY SWEPT (2026-07-26) -- closed, with the score
+
+`StartDisabled` is one way to hide a treasure; the other is an event that turns it OFF
+(`DisableAssetTreasure` / `DisableObjAct`) and only turns it on later. No award site is involved, so
+`datamine_lot_gates.py` structurally cannot see that class. Resolving those sites through their
+`$InitializeEvent` CALL SITES takes 137 literal ObjAct sites to 1670 -- the same call-site blind spot
+as the lot gates, for the fourth time.
+
+Every live check that any event disables was chased. FINAL SCORE:
+
+  * ~35 are COMMON events and are the ordinary lifecycle, not gates. Verified 90005560 =
+    "[Common] Destruction asset treasure": the treasure is off until you smash the pot, then on.
+  * the ObjAct-gated ones are same-map: 9 are `$Event(<map>0790)` "restrictions on opening boss-room
+    reward chests" on that map's own boss, and f114 (Dark Moon Ring) is EnableObjAct after Rennala.
+  * 🔥 TWO REAL FINDINGS, both now tagged missable in gen_data._NPC_STATE_GATED (6b64d3b):
+      - EDGAR: m60_33_44 $Event(1033440705) disables f1033447000/7010/7020/7030/7040 ("Raw Meat
+        Dumpling near Revenger's Shack" x5) until EventFlag(3409), a state in Edgar's state machine
+        $Event(3419). Same shack and questline as f400061, which was already tagged -- these five
+        were invisible to the screen that caught it.
+      - PATCHES: m31_00 $Event(31002875) swaps a PAIR on EventFlag(3691), a state in Patches'
+        $Event(3699). f31007010 "Cloth Garb" (Alaric: the chest Patches ambushes you at) and
+        f31007030 "Glass Shard". Exactly one exists at a time.
+  * and the last 8 map-local disables were chased on 2026-07-26 and are ALL BENIGN:
+      f12017090  m12_01  gated on 12010593, same map
+      f16007710  m16_00  mid-boss 16000850, same map
+      f20007810  m20_00  boss 20000800, same map
+      f21017120  m21_01  flags 72112/72113 -- both are m21_01 GRACES, same map
+      f35007000  m35_00  swapped on flag 300 (the Erdtree burn) between assets 35001606 and
+                         35001607 -- but BOTH carry the SAME flag AND the same lot 35000000, so the
+                         check survives the burn on the other body. A map-version swap that
+                         preserves the check: the benign form of the dup-lot family.
+      f1048577810 m60_48_57  map-local warp event, same map
+      f580410 / f580420  DLC: `EndIf(EventFlag(eventFlagId))` where the call site passes the check's
+                         OWN flag -- an already-acquired bail, not a foreign gate.
+
+So the class is closed. It produced exactly seven checks that needed protection, and they have it.
+Reopen it only if the EMEVD corpus or the MSB tables improve.
 """
 import argparse
 import collections
