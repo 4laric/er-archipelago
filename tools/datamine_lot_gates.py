@@ -152,18 +152,48 @@ def _common_sigs():
         eid = int(m.group(1))
         params = [q.strip() for q in m.group(2).split(",") if q.strip()]
         body = text[m.end(): ms[i + 1].start() if i + 1 < len(ms) else len(text)]
-        lot_idx, flag_idx = [], {}
+        lot_idx, flag_idx, batch_pairs = [], {}, []
+        # ⭐ ROLE, NOT NAME. The first version of this pass emitted EVERY param tested as a flag as if
+        # it were a prerequisite, and CI came back with 27 "cross-region gates" that were mostly this
+        # bug. A FALSE gate is an unwinnable seed; a false non-gate is only a miss. So a param is a
+        # GATE only when it is a positive requirement, and the two non-gate roles are excluded by
+        # construction:
+        #
+        #   batch   AllBatchEventFlags(eventFlagId, eventFlagId2) -- the ACQUISITION RANGE ("already
+        #           taken"), not a prerequisite. 90005750 pairs it with the check's OWN flag, so
+        #           check 400381 was emitting 400382 -- the other end of its own range -- as its gate.
+        #           An `arg == check flag` guard does not catch that; a RANGE guard does.
+        #   bailout EndIf(EventFlag(p)) / if (EventFlag(p)) { ... EndEvent(); } -- a COMPLETION test.
+        #           Its polarity is the OPPOSITE of a gate (the body runs when the flag is CLEAR).
+        #           This is what the module docstring means by "POLARITY IS NOT ENCODED"; encode it.
+        for bm in re.finditer(r"\b(?:All|Any)BatchEventFlags\(\s*([A-Za-z_]\w*)\s*,\s*([A-Za-z_]\w*)\s*\)", body):
+            a, b = bm.group(1), bm.group(2)
+            if a in params and b in params:
+                batch_pairs.append((params.index(a), params.index(b)))
+        batched = {i for pr in batch_pairs for i in pr}
         for j, q in enumerate(params):
             e = re.escape(q)
             if any(re.search(r"\b%s\s*\(\s*%s\s*\)" % (a, e), body) for a in _AWARD_FNS):
                 lot_idx.append(j)
-            t = (re.search(r"(\w+)\(\s*EventFlag\(\s*%s\s*\)" % e, body)
-                 or re.search(r"\bEventFlag\(\s*%s\s*\)" % e, body)
-                 or re.search(r"\b(AllBatchEventFlags|AnyBatchEventFlags)\([^)]*\b%s\b" % e, body))
-            if t:
-                flag_idx[j] = (t.group(1) if t.lastindex else "EventFlag")
+            if j in batched:
+                continue                      # acquisition range -- never a gate
+            if re.search(r"\bEndIf\(\s*!?\s*EventFlag\(\s*%s\s*\)" % e, body):
+                continue                      # bail-out: completion test, inverted polarity
+            if re.search(r"if\s*\(\s*EventFlag\(\s*%s\s*\)\s*\)\s*\{[^}]{0,400}?EndEvent\(\)" % e,
+                         body, re.S):
+                continue                      # `if (flag) { ... EndEvent(); }` -- same shape
+            # ⚠️ The negation test must be LOCAL to the WaitFor. A body-wide
+            # `not re.search(r"!EventFlag(p)", body)` deleted the one case we KNOW is true: 90005750
+            # later contains `flag = !EventFlag(eventFlagId3) || ...`, so the Golden Seed's real gate
+            # was filtered out by a line that has nothing to do with the requirement. Verifying a
+            # filter against a known-true case is the only reason that was caught.
+            for wm in re.finditer(r"\bWaitFor\(([^;]{0,300}?)\)\s*;", body, re.S):
+                if any("!" not in om.group(1) for om in
+                       re.finditer(r"(!?\s*)EventFlag\(\s*%s\s*\)" % e, wm.group(1))):
+                    flag_idx[j] = "WaitFor"   # POSITIVE prerequisite -- the only real gate shape
+                    break
         if lot_idx and flag_idx:
-            out[eid] = (params, lot_idx, flag_idx)
+            out[eid] = (params, lot_idx, flag_idx, batch_pairs)
     return out
 
 
@@ -183,7 +213,7 @@ def _common_arg_gates(files, lot_to_flag, check_flags):
                 continue
             stat["sites"] += 1
             args = [a.strip() for a in m.group(2).split(",")]
-            _params, lot_idx, flag_idx = sigs[ceid]
+            _params, lot_idx, flag_idx, _batch = sigs[ceid]
             cfl = set()
             for i in lot_idx:
                 if i < len(args) and args[i].lstrip("-").isdigit():
@@ -191,11 +221,22 @@ def _common_arg_gates(files, lot_to_flag, check_flags):
             if not cfl:
                 stat["site_lot_not_a_check"] += 1
                 continue
+            # Acquisition ranges resolved AT THE CALL SITE: any gate value inside one is the check's
+            # own bookkeeping, not a prerequisite.
+            ranges = []
+            for ai, bi in sigs[ceid][3]:
+                if ai < len(args) and bi < len(args) and args[ai].lstrip("-").isdigit() \
+                        and args[bi].lstrip("-").isdigit():
+                    lo, hi = sorted((int(args[ai]), int(args[bi])))
+                    ranges.append((lo, hi))
             for gi, ctx in flag_idx.items():
                 if gi >= len(args) or not args[gi].lstrip("-").isdigit():
                     stat["gate_arg_not_literal"] += 1
                     continue
                 g = int(args[gi])
+                if any(lo <= g <= hi for lo, hi in ranges):
+                    stat["gate_in_acquisition_range"] += 1
+                    continue
                 if g <= 0:
                     stat["gate_sentinel"] += 1   # 0/-1 = "no gate" sentinel, never a flag
                     continue
@@ -522,8 +563,10 @@ def emit(dry):
     ca_rows, ca = _common_arg_gates(files, lot_to_flag, check_flags)
     print("common-ARGUMENT gates: %d common event(s) award a param lot AND test a param flag; "
           "%d call site(s); %d pair(s)" % (ca["sigs"], ca["sites"], len(ca_rows)))
-    print("   lot arg not a check: %d | gate arg not literal: %d | gate 0/-1 sentinel: %d"
-          % (ca["site_lot_not_a_check"], ca["gate_arg_not_literal"], ca["gate_sentinel"]))
+    print("   lot arg not a check: %d | gate arg not literal: %d | gate 0/-1 sentinel: %d | "
+          "gate inside acquisition range: %d"
+          % (ca["site_lot_not_a_check"], ca["gate_arg_not_literal"], ca["gate_sentinel"],
+             ca["gate_in_acquisition_range"]))
     if ca["sigs"] and not ca_rows:
         sys.exit("FATAL: %d flag-testing common event signatures parsed but ZERO pairs resolved. An "
                  "empty result from a join that MUST match is a failure, not a clean run."

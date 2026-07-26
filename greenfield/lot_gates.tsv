@@ -6,52 +6,23 @@
 # CANDIDATE PAIRS, not conclusions -- co-occurrence is evidence, not proof. A
 #   false gate is an unwinnable seed; a false non-gate is the bug this finds.
 check_flag	gate_flag	context	event_id	source	evidence
-191	9101	commonarg/EventFlag	90005110	m34_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005110) arg1
-192	9130	commonarg/EventFlag	90005110	m34_13_00_00.emevd.dcx.js	$InitializeCommonEvent(90005110) arg1
-193	9104	commonarg/EventFlag	90005110	m34_14_00_00.emevd.dcx.js	$InitializeCommonEvent(90005110) arg1
-194	9122	commonarg/EventFlag	90005110	m34_12_00_00.emevd.dcx.js	$InitializeCommonEvent(90005110) arg1
-195	9112	commonarg/EventFlag	90005110	m34_14_00_00.emevd.dcx.js	$InitializeCommonEvent(90005110) arg1
-196	9120	commonarg/EventFlag	90005110	m34_15_00_00.emevd.dcx.js	$InitializeCommonEvent(90005110) arg1
 9500	11059206	commonarg/WaitFor	90005750	m11_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 9502	4131	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-60110	400390	commonarg/AllBatchEventFlags	90005750	m60_42_36_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg3
-60110	400390	commonarg/AllBatchEventFlags	90005750	m60_42_36_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
 60110	1042369413	commonarg/WaitFor	90005750	m60_42_36_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-60300	11100180	commonarg/EventFlag	90005792	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-60300	11102180	commonarg/EventFlag	90005792	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-60300	11102181	commonarg/EventFlag	90005792	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-60450	1037530800	commonarg/EventFlag	90005860	m60_37_53_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65040	1033430800	commonarg/EventFlag	90005860	m60_33_43_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65050	1052560800	commonarg/EventFlag	90005860	m60_52_56_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65060	1041530800	commonarg/EventFlag	90005860	m60_41_53_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65090	1043330800	commonarg/EventFlag	90005860	m60_43_33_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65100	1047400800	commonarg/EventFlag	90005860	m60_47_40_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65110	1051400800	commonarg/EventFlag	90005860	m60_51_40_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65130	1050570850	commonarg/EventFlag	90005860	m60_50_57_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65180	1037540810	commonarg/EventFlag	90005860	m60_37_54_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65270	1039520180	commonarg/EventFlag	90005792	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-65270	1039522181	commonarg/EventFlag	90005792	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-65270	1039522182	commonarg/EventFlag	90005792	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-65290	1038480800	commonarg/EventFlag	90005860	m60_38_48_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-65410	2248460291	commonarg/EventFlag	90005301	m61_48_46_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
+60300	11102180	commonarg/WaitFor	90005792	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+65270	1039522181	commonarg/WaitFor	90005792	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 65660	11007992	EndIf	11002696	m11_00_00_00.emevd.dcx.js	002696, Restart, function() { EndIf(EventFlag(11007992)); Wai
-66990	2047370300	commonarg/EventFlag	90005301	m61_47_37_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-68870	2048380800	commonarg/EventFlag	90005301	m61_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
 400033	3383	EndIf	3051	common.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(EventFlag(3383)); Wai
 400033	3383	WaitFor	3051	common.emevd.dcx.js	383)); WaitFor(EventFlag(400031) && EventFlag(3383) && !Event
 400033	400031	!EndIf	10010791	m10_01_00_00.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(!EventFlag(400031)); Wai
 400033	400031	!EndIf	1037493700	m60_37_49_00.emevd.dcx.js	EndIf(EventFlag(400033)); EndIf(!EventFlag(400031)); Wai
 400033	400031	WaitFor	3051	common.emevd.dcx.js	EndIf(EventFlag(3383)); WaitFor(EventFlag(400031) && EventF
 400033	35009209	!WaitFor	3051	common.emevd.dcx.js	ventFlag(400031) && EventFlag(3383) && !EventFlag(35009209)); End
-400037	400036	commonarg/AllBatchEventFlags	90005750	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg3
 400037	12059166	commonarg/WaitFor	90005750	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400061	1033440180	commonarg/EventFlag	90005792	m60_33_44_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-400061	1033442181	commonarg/EventFlag	90005792	m60_33_44_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400061	1033442182	commonarg/EventFlag	90005792	m60_33_44_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
+400061	1033442181	commonarg/WaitFor	90005792	m60_33_44_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 400061	1043319208	commonarg/WaitFor	90005750	m60_43_31_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400061	1045349258	commonarg/WaitFor	90005750	m60_45_34_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400071	16009266	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400072	400070	commonarg/AllBatchEventFlags	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg3
 400072	16009270	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400073	16009208	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400074	16009216	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
@@ -94,39 +65,25 @@ check_flag	gate_flag	context	event_id	source	evidence
 400191	3709	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400191	1041389414	commonarg/WaitFor	90005750	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400240	3768	commonarg/WaitFor	90005750	m60_34_49_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400240	400241	commonarg/AllBatchEventFlags	90005750	m60_34_49_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
 400291	16009463	commonarg/WaitFor	90005750	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400292	13000180	commonarg/EventFlag	90005792	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-400292	13002181	commonarg/EventFlag	90005792	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400292	13002182	commonarg/EventFlag	90005792	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-400308	400309	commonarg/AllBatchEventFlags	90005750	m60_44_52_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
-400308	400309	commonarg/AllBatchEventFlags	90005750	m60_44_52_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
+400292	13002181	commonarg/WaitFor	90005792	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 400308	1044529272	commonarg/WaitFor	90005750	m60_44_52_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400308	1044529272	commonarg/WaitFor	90005750	m60_44_52_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400312	7611	commonarg/WaitFor	90005750	m60_50_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400312	1050389238	commonarg/WaitFor	90005750	m60_50_38_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400321	4192	commonarg/WaitFor	90005750	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400323	7611	WaitFor	15000714	m15_00_00_00.emevd.dcx.js	323)); WaitFor(ElapsedSeconds(2) && EventFlag(7611)); Awa
-400323	7611	commonarg/EventFlag	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400323	7611	commonarg/WaitFor	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 400324	15009212	?	15000713	m15_00_00_00.emevd.dcx.js	&& !EventFlag(400324) && EventFlag(15009212)
 400339	12039162	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400348	4067	commonarg/WaitFor	90005750	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400349	4048	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400358	400356	commonarg/AllBatchEventFlags	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg3
 400358	400359	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400359	3909	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400360	3806	commonarg/WaitFor	90005750	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400360	400362	commonarg/AllBatchEventFlags	90005750	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
-400381	400382	commonarg/AllBatchEventFlags	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg3
-400381	400382	commonarg/AllBatchEventFlags	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
 400381	35009337	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400381	1045520180	commonarg/EventFlag	90005792	m60_45_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-400381	1045520180	commonarg/EventFlag	90005792	m60_45_52_10.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-400381	1045522181	commonarg/EventFlag	90005792	m60_45_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400381	1045522181	commonarg/EventFlag	90005792	m60_45_52_10.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-400381	1045522182	commonarg/EventFlag	90005792	m60_45_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-400381	1045522182	commonarg/EventFlag	90005792	m60_45_52_10.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-400382	400381	commonarg/AllBatchEventFlags	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg3
+400381	1045522181	commonarg/WaitFor	90005792	m60_45_52_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+400381	1045522181	commonarg/WaitFor	90005792	m60_45_52_10.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 400382	35009336	commonarg/WaitFor	90005750	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400393	1035429255	commonarg/WaitFor	90005750	m60_35_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400394	1034509430	commonarg/WaitFor	90005750	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
@@ -137,68 +94,52 @@ check_flag	gate_flag	context	event_id	source	evidence
 400410	1036419215	commonarg/WaitFor	90005750	m60_36_41_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400411	1047589210	commonarg/WaitFor	90005750	m60_47_58_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400460	3829	commonarg/WaitFor	90005750	m60_39_44_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400480	7610	commonarg/EventFlag	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400480	7610	commonarg/WaitFor	90005774	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 400490	11109656	commonarg/WaitFor	90005750	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400500	11059305	commonarg/WaitFor	90005750	m11_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400510	7612	commonarg/EventFlag	90005774	m60_40_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400594	7624	commonarg/EventFlag	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
-400595	7622	commonarg/EventFlag	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
+400510	7612	commonarg/WaitFor	90005774	m60_40_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400594	7624	commonarg/WaitFor	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
+400595	7622	commonarg/WaitFor	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
 400598	4448	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400602	4427	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400602	2046429375	commonarg/WaitFor	90005750	m61_46_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400614	4370	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400614	7623	commonarg/EventFlag	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
-400614	2044460180	commonarg/EventFlag	90005774	m61_44_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400614	2044460180	commonarg/EventFlag	90005774	m61_44_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400614	7623	commonarg/WaitFor	90005776	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
+400614	2044460180	commonarg/WaitFor	90005774	m61_44_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400614	2044460180	commonarg/WaitFor	90005774	m61_44_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 400620	21019328	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400622	7621	commonarg/EventFlag	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
-400622	400623	commonarg/AllBatchEventFlags	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
+400622	7621	commonarg/WaitFor	90005776	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005776) arg1
 400622	21019331	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400624	4408	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400625	21019332	commonarg/WaitFor	90005750	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400632	22000496	commonarg/EventFlag	90005774	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400632	22000496	commonarg/WaitFor	90005774	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 400634	4469	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400644	4386	commonarg/WaitFor	90005750	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400644	4386	commonarg/WaitFor	90005750	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400644	4387	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400644	400645	commonarg/AllBatchEventFlags	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
-400644	400645	commonarg/AllBatchEventFlags	90005750	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
-400644	400645	commonarg/AllBatchEventFlags	90005750	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005750) arg4
 400644	2045429280	commonarg/WaitFor	90005750	m61_45_42_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400645	2045410180	commonarg/EventFlag	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/EventFlag	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/EventFlag	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/EventFlag	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/EventFlag	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/EventFlag	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/EventFlag	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2045429297	commonarg/EventFlag	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2047460184	commonarg/EventFlag	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2047460184	commonarg/EventFlag	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2048400180	commonarg/EventFlag	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2048440180	commonarg/EventFlag	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2049460180	commonarg/EventFlag	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-400645	2050470180	commonarg/EventFlag	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045410180	commonarg/WaitFor	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045429297	commonarg/WaitFor	90005774	m61_45_41_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045429297	commonarg/WaitFor	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045429297	commonarg/WaitFor	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045429297	commonarg/WaitFor	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045429297	commonarg/WaitFor	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045429297	commonarg/WaitFor	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2045429297	commonarg/WaitFor	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2047460184	commonarg/WaitFor	90005774	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2047460184	commonarg/WaitFor	90005774	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2048400180	commonarg/WaitFor	90005774	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2048440180	commonarg/WaitFor	90005774	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2049460180	commonarg/WaitFor	90005774	m61_49_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400645	2050470180	commonarg/WaitFor	90005774	m61_50_47_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 400666	2051450800	commonarg/WaitFor	90005750	m61_50_45_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400671	2051459742	commonarg/WaitFor	90005750	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400672	2051450180	commonarg/EventFlag	90005774	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+400672	2051450180	commonarg/WaitFor	90005774	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 400690	21009210	GotoIf	4931	common.emevd.dcx.js	!EventFlag(21009214))); GotoIf(L1, EventFlag(21009210)); Got
 400690	21009211	GotoIf	4931	common.emevd.dcx.js	1, EventFlag(21009210)); GotoIf(L2, EventFlag(21009211)); End
 400690	21009214	!EndIf	4931	common.emevd.dcx.js	)); EndIf(!(EventFlag(21009240) && !EventFlag(21009214))); Go
 400690	21009240	EndIf	4931	common.emevd.dcx.js	dIf(!PlayerIsInOwnWorld()); EndIf(!(EventFlag(21009240) && !Event
 400692	21009213	commonarg/WaitFor	90005750	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-400694	400696	commonarg/EventFlag	90005768	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg4
-400694	400696	commonarg/EventFlag	90005768	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg4
-400694	400696	commonarg/EventFlag	90005768	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005768) arg4
-400694	20000180	commonarg/EndIf	90005768	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg0
-400694	2047460180	commonarg/EndIf	90005768	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg0
-400694	2047460180	commonarg/EndIf	90005768	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005768) arg0
-400696	400694	commonarg/EndIf	90005768	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg2
-400696	400694	commonarg/EndIf	90005768	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg2
-400696	400694	commonarg/EndIf	90005768	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005768) arg2
-400696	20000180	commonarg/EndIf	90005768	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg0
-400696	2047460180	commonarg/EndIf	90005768	m61_47_46_00.emevd.dcx.js	$InitializeCommonEvent(90005768) arg0
-400696	2047460180	commonarg/EndIf	90005768	m61_47_46_10.emevd.dcx.js	$InitializeCommonEvent(90005768) arg0
 400704	2049399729	commonarg/WaitFor	90005750	m61_49_39_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400712	2052409211	commonarg/WaitFor	90005750	m61_52_40_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400714	2052409212	commonarg/WaitFor	90005750	m61_52_40_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
@@ -206,226 +147,15 @@ check_flag	gate_flag	context	event_id	source	evidence
 400730	2049449211	commonarg/WaitFor	90005750	m61_49_44_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400732	4566	commonarg/WaitFor	90005750	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
 400740	4286	commonarg/WaitFor	90005750	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005750) arg5
-530100	1042360800	commonarg/EventFlag	90005860	m60_42_36_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530110	1043360800	commonarg/EventFlag	90005861	m60_43_36_00.emevd.dcx.js	$InitializeCommonEvent(90005861) arg0
-530120	1042370800	commonarg/EndIf	90005880	m60_42_37_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-530120	1042370805	commonarg/EventFlag	90005880	m60_42_37_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-530130	1044350800	commonarg/EndIf	90005880	m60_44_35_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-530130	1044350805	commonarg/EventFlag	90005880	m60_44_35_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-530170	1045390800	commonarg/EventFlag	90005860	m60_45_39_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530170	1045390800	commonarg/EventFlag	90005860	m60_45_39_10.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530210	1034450800	commonarg/EventFlag	90005861	m60_34_45_00.emevd.dcx.js	$InitializeCommonEvent(90005861) arg0
-530225	1035420800	commonarg/EventFlag	90005860	m60_35_42_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530240	1039440800	commonarg/EventFlag	90005860	m60_39_44_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530245	1038410800	commonarg/EndIf	90005880	m60_38_41_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-530245	1038410805	commonarg/EventFlag	90005880	m60_38_41_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-530250	1033450800	commonarg/EndIf	90005880	m60_33_45_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-530250	1033450805	commonarg/EventFlag	90005880	m60_33_45_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-530255	1036500800	commonarg/EndIf	90005880	m60_36_50_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-530255	1036500805	commonarg/EventFlag	90005880	m60_36_50_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-530260	1034420800	commonarg/EventFlag	90005860	m60_34_42_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530265	1033420800	commonarg/EndIf	90005880	m60_33_42_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-530265	1033420805	commonarg/EventFlag	90005880	m60_33_42_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-530300	1037510800	commonarg/EventFlag	90005860	m60_37_51_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530300	1041520800	commonarg/EventFlag	90005860	m60_41_52_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530310	1041500800	commonarg/EventFlag	90005860	m60_41_50_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530315	1045520800	commonarg/EventFlag	90005860	m60_45_52_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530315	1045520800	commonarg/EventFlag	90005860	m60_45_52_10.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530325	1042550800	commonarg/EventFlag	90005860	m60_42_55_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530350	1040520800	commonarg/EventFlag	90005860	m60_40_52_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530375	1036540800	commonarg/EventFlag	90005860	m60_36_54_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530385	1038520800	commonarg/EventFlag	90005860	m60_38_52_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530390	1035530800	commonarg/EventFlag	90005861	m60_35_53_00.emevd.dcx.js	$InitializeCommonEvent(90005861) arg0
-530400	1048370800	commonarg/EventFlag	90005861	m60_48_37_00.emevd.dcx.js	$InitializeCommonEvent(90005861) arg0
-530405	1049380800	commonarg/EventFlag	90005860	m60_49_38_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530420	1052410800	commonarg/EventFlag	90005860	m60_52_41_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530425	1051430800	commonarg/EventFlag	90005860	m60_51_43_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530505	1049520800	commonarg/EventFlag	90005860	m60_49_52_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530510	1254560800	commonarg/EventFlag	90005861	m60_54_56_00.emevd.dcx.js	$InitializeCommonEvent(90005861) arg0
-530515	1053560800	commonarg/EndIf	90005880	m60_53_56_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-530515	1053560805	commonarg/EventFlag	90005880	m60_53_56_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-530530	1050570800	commonarg/EventFlag	90005860	m60_50_57_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530550	1050560800	commonarg/EventFlag	90005861	m60_50_56_00.emevd.dcx.js	$InitializeCommonEvent(90005861) arg0
-530600	12010850	commonarg/EventFlag	90005860	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530620	12020830	commonarg/EventFlag	90005860	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530800	2052400800	commonarg/EventFlag	90005860	m61_52_40_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530805	2054390850	commonarg/EventFlag	90005860	m61_54_39_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530840	2048380850	commonarg/EventFlag	90005860	m61_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530845	2046400800	commonarg/EventFlag	90005860	m61_46_40_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530850	2049410800	commonarg/EventFlag	90005860	m61_49_41_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530855	2047390800	commonarg/EventFlag	90005860	m61_47_39_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530860	2045440800	commonarg/EventFlag	90005860	m61_45_44_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530860	2045440800	commonarg/EventFlag	90005860	m61_45_44_10.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
 530865	2047440360	EndIf	2047442360	m61_47_44_00.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai
 530865	2047440360	EndIf	2047442360	m61_47_44_10.emevd.dcx.js	442360, Restart, function() { EndIf(EventFlag(2047440360)); Wai
-530865	2047440360	commonarg/EventFlag	90005301	m61_47_44_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-530865	2047440360	commonarg/EventFlag	90005301	m61_47_44_10.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-530905	2044470800	commonarg/EventFlag	90005860	m61_44_47_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530905	2044470800	commonarg/EventFlag	90005860	m61_44_47_10.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530930	2049450800	commonarg/EventFlag	90005860	m61_49_45_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530940	2046460800	commonarg/EventFlag	90005860	m61_46_46_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530940	2046460800	commonarg/EventFlag	90005860	m61_46_46_10.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530945	2049430800	commonarg/EventFlag	90005860	m61_49_43_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530955	2047450800	commonarg/EventFlag	90005860	m61_47_45_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530955	2047450800	commonarg/EventFlag	90005860	m61_47_45_10.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530960	2052480800	commonarg/EventFlag	90005860	m61_52_48_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-530965	2049430850	commonarg/EventFlag	90005860	m61_49_43_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-540100	1040390200	commonarg/EventFlag	90005300	m60_40_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540104	1041380230	commonarg/EventFlag	90005300	m60_41_38_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540108	1043370210	commonarg/EventFlag	90005300	m60_43_37_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540112	1044360220	commonarg/EventFlag	90005300	m60_44_36_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540112	1044360220	commonarg/EventFlag	90005300	m60_44_36_10.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540116	1045370200	commonarg/EventFlag	90005300	m60_45_37_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540116	1045370200	commonarg/EventFlag	90005300	m60_45_37_10.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540118	1046390210	commonarg/EventFlag	90005300	m60_46_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540118	1046390210	commonarg/EventFlag	90005300	m60_46_39_10.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540120	1041370200	commonarg/EventFlag	90005300	m60_41_37_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540132	1042330220	commonarg/EventFlag	90005300	m60_42_33_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540136	1043330221	commonarg/EventFlag	90005300	m60_43_33_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540138	1044320200	commonarg/EventFlag	90005300	m60_44_32_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540140	1044330290	commonarg/EventFlag	90005300	m60_44_33_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540142	1044380210	commonarg/EventFlag	90005300	m60_44_38_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540142	1044380210	commonarg/EventFlag	90005300	m60_44_38_10.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540144	1041350210	commonarg/EventFlag	90005300	m60_41_35_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540146	1042390310	commonarg/EventFlag	90005300	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540170	10000495	commonarg/EventFlag	90005300	m10_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540172	10000496	commonarg/EventFlag	90005300	m10_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540174	10000497	commonarg/EventFlag	90005300	m10_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540200	1035510200	commonarg/EventFlag	90005300	m60_34_50_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540202	1036440250	commonarg/EventFlag	90005300	m60_36_44_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540204	1036490200	commonarg/EventFlag	90005300	m60_36_49_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540206	1039390200	commonarg/EventFlag	90005300	m60_39_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540208	1035420220	commonarg/EventFlag	90005300	m60_35_42_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540210	1035470260	commonarg/EventFlag	90005300	m60_35_47_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540218	1034440220	commonarg/EventFlag	90005300	m60_34_44_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540220	1035500322	commonarg/EventFlag	90005300	m60_35_50_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540224	1037510210	commonarg/EventFlag	90005300	m60_37_51_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540236	1037480200	commonarg/EventFlag	90005300	m60_37_48_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540238	1033430200	commonarg/EventFlag	90005300	m60_33_43_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540250	1035500320	commonarg/EventFlag	90005300	m60_35_50_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540252	1039430310	commonarg/EventFlag	90005300	m60_39_43_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540254	1037480210	commonarg/EventFlag	90005300	m60_37_48_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540256	1038500210	commonarg/EventFlag	90005300	m60_38_50_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540258	1039450210	commonarg/EventFlag	90005300	m60_39_45_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540260	1034430310	commonarg/EventFlag	90005300	m60_34_43_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540262	1037440210	commonarg/EventFlag	90005300	m60_37_44_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540264	1033450200	commonarg/EventFlag	90005300	m60_33_45_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540272	14000486	commonarg/EventFlag	90005300	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540290	39200290	commonarg/EventFlag	90005300	m39_20_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540300	1037510500	commonarg/EventFlag	90005300	m60_37_51_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540302	1038510500	commonarg/EventFlag	90005300	m60_38_51_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540304	1039510500	commonarg/EventFlag	90005300	m60_39_51_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540306	1039520500	commonarg/EventFlag	90005300	m60_39_52_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540308	1041530500	commonarg/EventFlag	90005300	m60_41_53_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540310	1040510500	commonarg/EventFlag	90005300	m60_40_51_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540312	1040540500	commonarg/EventFlag	90005300	m60_40_54_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540314	1043510500	commonarg/EventFlag	90005300	m60_43_51_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540316	1043520400	commonarg/EventFlag	90005300	m60_43_52_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540318	1043530500	commonarg/EventFlag	90005300	m60_43_53_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540320	1040530500	commonarg/EventFlag	90005300	m60_40_53_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540332	1037530400	commonarg/EventFlag	90005300	m60_37_53_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540334	1036540498	commonarg/EventFlag	90005300	m60_36_54_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540370	11000665	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540372	11000666	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540400	1047400290	commonarg/EventFlag	90005300	m60_47_40_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540402	1048380290	commonarg/EventFlag	90005300	m60_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540404	1049380290	commonarg/EventFlag	90005300	m60_49_38_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540406	1048370299	commonarg/EventFlag	90005300	m60_48_37_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540408	1051350290	commonarg/EventFlag	90005300	m60_51_35_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540410	1047390299	commonarg/EventFlag	90005300	m60_47_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540410	1047390299	commonarg/EventFlag	90005300	m60_47_39_10.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540412	1048410290	commonarg/EventFlag	90005300	m60_48_41_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540414	1049360290	commonarg/EventFlag	90005300	m60_49_36_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540416	1049390298	commonarg/EventFlag	90005300	m60_49_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540418	1049390299	commonarg/EventFlag	90005300	m60_49_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540420	1051410290	commonarg/EventFlag	90005300	m60_51_41_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540422	1047390298	commonarg/EventFlag	90005300	m60_47_39_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540422	1047390298	commonarg/EventFlag	90005300	m60_47_39_10.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540424	1049360291	commonarg/EventFlag	90005300	m60_49_36_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540426	1049410299	commonarg/EventFlag	90005300	m60_49_41_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540428	1051420299	commonarg/EventFlag	90005300	m60_51_42_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540508	1051570315	commonarg/EventFlag	90005300	m60_51_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540510	1053570210	commonarg/EventFlag	90005300	m60_53_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540512	1051540210	commonarg/EventFlag	90005300	m60_51_54_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540516	1052550300	commonarg/EventFlag	90005300	m60_52_55_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540522	1048550200	commonarg/EventFlag	90005300	m60_48_55_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540524	1148560200	commonarg/EventFlag	90005300	m60_48_56_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540526	1048570200	commonarg/EventFlag	90005300	m60_48_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540590	16000420	commonarg/EventFlag	90005300	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540592	16000421	commonarg/EventFlag	90005300	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540600	12010403	commonarg/EventFlag	90005300	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540602	12010404	commonarg/EventFlag	90005300	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540610	12020474	commonarg/EventFlag	90005300	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540630	12020472	commonarg/EventFlag	90005300	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540642	12020477	commonarg/EventFlag	90005300	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540646	12020479	commonarg/EventFlag	90005300	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540648	12020470	commonarg/EventFlag	90005300	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540652	12070402	commonarg/EventFlag	90005300	m12_07_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540660	12030350	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540668	12030354	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540670	12030355	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540680	12050400	commonarg/EventFlag	90005300	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540682	12050401	commonarg/EventFlag	90005300	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540684	12050402	commonarg/EventFlag	90005300	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540686	12050403	commonarg/EventFlag	90005300	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540772	13000341	commonarg/EventFlag	90005300	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540900	2050450390	commonarg/EventFlag	90005300	m61_50_45_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540902	2048440392	commonarg/EventFlag	90005300	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540904	2048460390	commonarg/EventFlag	90005301	m61_48_46_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-540906	2051450390	commonarg/EventFlag	90005300	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540910	2048470500	commonarg/EventFlag	90005301	m61_48_47_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-540912	2048470501	commonarg/EventFlag	90005301	m61_48_47_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-540914	2048470502	commonarg/EventFlag	90005301	m61_48_47_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-540916	2045470350	commonarg/EventFlag	90005301	m61_45_47_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-540916	2045470350	commonarg/EventFlag	90005301	m61_45_47_10.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-540920	2048440393	commonarg/EventFlag	90005300	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-540922	2048440398	commonarg/EventFlag	90005300	m61_48_44_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-10007085	10000289	commonarg/EventFlag	90005300	m10_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-10007195	10000291	commonarg/EventFlag	90005300	m10_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-10007295	10000498	commonarg/EventFlag	90005300	m10_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-11007185	11000399	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-11007195	11000499	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-11007985	7605	commonarg/EventFlag	90005774	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-11007985	11001985	commonarg/EndIf	90005774	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg2
-11007987	11000393	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-11007991	11000299	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-11007993	11000497	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-11007998	11000389	commonarg/EventFlag	90005300	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-11107900	11109656	commonarg/EventFlag	90005774	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+11007985	7605	commonarg/WaitFor	90005774	m11_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+11107900	11109656	commonarg/WaitFor	90005774	m11_10_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 12017090	12010593	!WaitFor/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea
 12017090	12010593	!WaitFor/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	); WaitFor(PlayerIsInOwnWorld() && !EventFlag(12010593) && InArea
 12017090	12010593	if/DisableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {
 12017090	12010593	if/EnableAssetTreasure	12012593	m12_01_00_00.emevd.dcx.js	12012593, Restart, function() { if (EventFlag(12010593)) {
-12017105	12010240	commonarg/EventFlag	90005300	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12017995	12010401	commonarg/EventFlag	90005300	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12017997	12010420	commonarg/EventFlag	90005300	m12_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12027435	12020430	commonarg/EventFlag	90005300	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12027445	12020431	commonarg/EventFlag	90005300	m12_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12037800	12030240	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12037810	12030241	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12037820	12030256	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12037830	12030257	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12037840	12030297	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12037850	12030201	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12037950	12030390	commonarg/EventFlag	90005860	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-12037960	12030391	commonarg/EventFlag	90005300	m12_03_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-12057950	12050412	commonarg/EventFlag	90005792	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-12057950	12052412	commonarg/EventFlag	90005792	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-12057950	12052413	commonarg/EventFlag	90005792	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-13007991	13000490	commonarg/EventFlag	90005300	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-13007993	13000495	commonarg/EventFlag	90005300	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-13007995	13000496	commonarg/EventFlag	90005300	m13_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-14007005	14000633	commonarg/EventFlag	90005300	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-14007015	14000634	commonarg/EventFlag	90005300	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-14007025	14000637	commonarg/EventFlag	90005300	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-14007035	14000638	commonarg/EventFlag	90005300	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-14007980	14000499	commonarg/EventFlag	90005300	m14_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-15001200	15000398	commonarg/EventFlag	90005300	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-15001250	15000390	commonarg/EventFlag	90005300	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-15001260	15000391	commonarg/EventFlag	90005300	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-15001270	15000392	commonarg/EventFlag	90005300	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-15001280	15000393	commonarg/EventFlag	90005300	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-15001290	15000394	commonarg/EventFlag	90005300	m15_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
+12057950	12052412	commonarg/WaitFor	90005792	m12_05_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 16007690	16000800	EndIf	16002691	m16_00_00_00.emevd.dcx.js	, assetEntityId2, entityId) { EndIf(EventFlag(16000800) || !Playe
 16007690	16002696	WaitFor	16002691	m16_00_00_00.emevd.dcx.js	onButtonInArea(9532, assetEntityId2) && EventFlag(16002696)); Del
 16007710	16000850	EndIf/EnableAssetTreasure	16002850	m16_00_00_00.emevd.dcx.js	002850, Restart, function() { EndIf(EventFlag(16000850)); Wai
@@ -435,11 +165,8 @@ check_flag	gate_flag	context	event_id	source	evidence
 16007710	16000851	!if/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	DisableCharacterAI(16000850); if (!EventFlag(16000851)) {
 16007710	16002855	WaitFor/DisableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea
 16007710	16002855	WaitFor/EnableAssetTreasure	16002855	m16_00_00_00.emevd.dcx.js	alse); } else { L1: WaitFor(EventFlag(16002855) && InArea
-16007940	16000180	commonarg/EventFlag	90005792	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-16007940	16002181	commonarg/EventFlag	90005792	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-16007940	16002182	commonarg/EventFlag	90005792	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
+16007940	16002181	commonarg/WaitFor	90005792	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 16007950	16009264	EndIf	16003706	m16_00_00_00.emevd.dcx.js	(chrEntityId, chrEntityId2) { EndIf(EventFlag(16009264)); Wai
-16007999	16000512	commonarg/EventFlag	90005300	m16_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
 20007810	20000544	if/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {
 20007810	20000544	if/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	cterFadeOnEnable(20000800); if (EventFlag(20000544)) {
 20007810	20000800	?/EnableAssetTreasure	20002800	m20_00_00_00.emevd.dcx.js	asSpEffect(10000, 9646)) || EventFlag(20000800)); Han
@@ -456,12 +183,6 @@ check_flag	gate_flag	context	event_id	source	evidence
 20007810	20002805	WaitFor/DisableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea
 20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	); } else { WaitFor(EventFlag(20002805) || InArea
 20007810	20002805	WaitFor/EnableAssetTreasure	20002810	m20_00_00_00.emevd.dcx.js	DisableAsset(20001810); WaitFor(EventFlag(20002805) && InArea
-20007991	20000410	commonarg/EventFlag	90005301	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-20007993	20000403	commonarg/EventFlag	90005301	m20_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-20017991	20010455	commonarg/EventFlag	90005301	m20_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-21007991	21000470	commonarg/EventFlag	90005301	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-21007993	21000471	commonarg/EventFlag	90005301	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-21007995	21000453	commonarg/EventFlag	90005301	m21_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
 21017120	72112	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF
 21017120	72112	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	GotoIf(L0, !(EventFlag(21010500) && (EventFlag(72112) || EventF
 21017120	72113	GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	tFlag(21010500) && (EventFlag(72112) || EventFlag(72113))));
@@ -470,9 +191,6 @@ check_flag	gate_flag	context	event_id	source	evidence
 21017120	21010500	GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	PlayerIsInOwnWorld()); GotoIf(L0, !(EventFlag(21010500) && (Event
 21017120	21010501	!GotoIf/DisableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For
 21017120	21010501	!GotoIf/EnableAssetTreasure	21012500	m21_01_00_00.emevd.dcx.js	; L1: GotoIf(L0, !EventFlag(21010501)); For
-21017991	21010459	commonarg/EventFlag	90005301	m21_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-21027991	21020450	commonarg/EventFlag	90005301	m21_02_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-22007900	22000460	commonarg/EventFlag	90005301	m22_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
 30107100	30100465	WaitFor	30102490	m30_10_00_00.emevd.dcx.js	EndIf(EventFlag(30107100)); WaitFor(EventFlag(30100465)); End
 31007010	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {
 31007010	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {
@@ -480,76 +198,25 @@ check_flag	gate_flag	context	event_id	source	evidence
 31007030	3691	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1002875, Restart, function() { if (!EventFlag(3691)) {
 31007030	31008521	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	EnableAsset(31001521); if (!EventFlag(31008521)) {
 31007030	31008523	!if/DisableAssetTreasure	31002875	m31_00_00_00.emevd.dcx.js	1); EnableAsset(31001523); if (!EventFlag(31008523)) {
-34117400	34110280	commonarg/EventFlag	90005300	m34_11_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-34117700	34110710	commonarg/EventFlag	90005300	m34_11_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-34117710	34110711	commonarg/EventFlag	90005300	m34_11_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
 35007000	300	if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {
 35007000	300	if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	35002600, Restart, function() { if (EventFlag(300)) {
 35007000	35008540	!if/DisableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {
 35007000	35008540	!if/EnableAssetTreasure	35002600	m35_00_00_00.emevd.dcx.js	If(!PlayerIsInOwnWorld()); if (!EventFlag(35008540)) {
-35007970	35000495	commonarg/EventFlag	90005300	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-35007980	35000496	commonarg/EventFlag	90005300	m35_00_00_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-39207500	7606	commonarg/EventFlag	90005774	m39_20_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-43017900	43010350	commonarg/EventFlag	90005301	m43_01_00_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-1033417400	1033410350	commonarg/EventFlag	90005300	m60_33_41_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1033417410	1033410351	commonarg/EventFlag	90005300	m60_33_41_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1034427400	1034420340	commonarg/EventFlag	90005300	m60_34_42_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1035437100	1035430220	commonarg/EndIf	90005390	m60_35_43_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg0
+39207500	7606	commonarg/WaitFor	90005774	m39_20_00_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
 1035437100	1035432220	commonarg/WaitFor	90005390	m60_35_43_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1
-1035467700	7607	commonarg/EventFlag	90005774	m60_35_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1036457400	1036450800	commonarg/EventFlag	90005860	m60_36_45_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1036487400	1036480800	commonarg/EventFlag	90005860	m60_36_48_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1037427400	1037420800	commonarg/EventFlag	90005860	m60_37_42_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1037467400	1037460800	commonarg/EventFlag	90005860	m60_37_46_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1037497300	1037490180	commonarg/EventFlag	90005792	m60_37_49_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1037497300	1037492181	commonarg/EventFlag	90005792	m60_37_49_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1037497300	1037492182	commonarg/EventFlag	90005792	m60_37_49_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1038547100	1038540400	commonarg/EventFlag	90005300	m60_38_54_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1038547700	1038540410	commonarg/EventFlag	90005792	m60_38_54_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1038547700	1038542410	commonarg/EventFlag	90005792	m60_38_54_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1038547700	1038542411	commonarg/EventFlag	90005792	m60_38_54_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1039437400	1039430800	commonarg/EventFlag	90005860	m60_39_43_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1039517200	1039510800	commonarg/EventFlag	90005860	m60_39_51_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1039537700	7603	commonarg/EventFlag	90005774	m60_39_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1042337100	1042330800	commonarg/EndIf	90005880	m60_42_33_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-1042337100	1042330805	commonarg/EventFlag	90005880	m60_42_33_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-1042377700	1043379262	commonarg/EventFlag	90005774	m60_43_37_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1042387400	1042380800	commonarg/EventFlag	90005860	m60_42_38_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1042387410	1042380850	commonarg/EventFlag	90005860	m60_42_38_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1042397500	7602	commonarg/EventFlag	90005774	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1042397700	1042390180	commonarg/EventFlag	90005792	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1042397700	1042392181	commonarg/EventFlag	90005792	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1042397700	1042392182	commonarg/EventFlag	90005792	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1042507020	1042500300	commonarg/EventFlag	90005300	m60_42_50_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1042517900	1042510300	commonarg/EventFlag	90005300	m60_42_51_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1043347400	1043340340	commonarg/EventFlag	90005300	m60_43_34_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1043377400	1043370800	commonarg/EventFlag	90005860	m60_43_37_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1043527500	1043520506	commonarg/EventFlag	90005300	m60_43_52_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1043537100	1042530350	commonarg/EndIf	90005390	m60_42_53_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg0
+1035467700	7607	commonarg/WaitFor	90005774	m60_35_46_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+1037497300	1037492181	commonarg/WaitFor	90005792	m60_37_49_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+1038547700	1038542410	commonarg/WaitFor	90005792	m60_38_54_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+1039537700	7603	commonarg/WaitFor	90005774	m60_39_53_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+1042377700	1043379262	commonarg/WaitFor	90005774	m60_43_37_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+1042397500	7602	commonarg/WaitFor	90005774	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+1042397700	1042392181	commonarg/WaitFor	90005792	m60_42_39_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 1043537100	1042532350	commonarg/WaitFor	90005390	m60_42_53_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1
-1043537400	1043530800	commonarg/EventFlag	90005860	m60_43_53_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1044327400	1044320800	commonarg/EventFlag	90005860	m60_44_32_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1044327410	1044320850	commonarg/EventFlag	90005860	m60_44_32_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1044357100	1035430270	commonarg/EndIf	90005390	m60_44_35_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg0
 1044357100	1035432270	commonarg/WaitFor	90005390	m60_44_35_00.emevd.dcx.js	$InitializeCommonEvent(90005390) arg1
-1044537300	1044530800	commonarg/EventFlag	90005860	m60_44_53_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1044537300	1044530800	commonarg/EventFlag	90005860	m60_44_53_10.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1046407700	1046400180	commonarg/EventFlag	90005792	m60_46_40_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1046407700	1046402181	commonarg/EventFlag	90005792	m60_46_40_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1046407700	1046402182	commonarg/EventFlag	90005792	m60_46_40_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1047387700	1047380299	commonarg/EventFlag	90005300	m60_47_38_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1047387700	1047380299	commonarg/EventFlag	90005300	m60_47_38_10.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1047567700	1047560180	commonarg/EventFlag	90005792	m60_47_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1047567700	1047562181	commonarg/EventFlag	90005792	m60_47_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1047567700	1047562182	commonarg/EventFlag	90005792	m60_47_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1048387500	1048380180	commonarg/EventFlag	90005792	m60_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1048387500	1048382181	commonarg/EventFlag	90005792	m60_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1048387500	1048382182	commonarg/EventFlag	90005792	m60_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1048417800	1048410800	commonarg/EventFlag	90005860	m60_48_41_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1048567800	1048560180	commonarg/EventFlag	90005792	m60_48_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1048567800	1048562181	commonarg/EventFlag	90005792	m60_48_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1048567800	1048562182	commonarg/EventFlag	90005792	m60_48_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1048577700	1048570800	commonarg/EventFlag	90005860	m60_48_57_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
+1046407700	1046402181	commonarg/WaitFor	90005792	m60_46_40_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+1047567700	1047562181	commonarg/WaitFor	90005792	m60_47_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+1048387500	1048382181	commonarg/WaitFor	90005792	m60_48_38_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
+1048567800	1048562181	commonarg/WaitFor	90005792	m60_48_56_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
 1048577810	1048570310	WaitForEventFlag/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)
 1048577810	1048570310	WaitForEventFlag/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	WaitForEventFlag(ON, TargetEventFlagType.EventFlag, 1048570310)
 1048577810	1048570350	EndIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EndIf(EventFlag(1048572309)); EndIf(EventFlag(1048570350)); Wai
@@ -564,62 +231,5 @@ check_flag	gate_flag	context	event_id	source	evidence
 1048577810	1048572309	EndIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	s(1); RestartEvent(); L5: EndIf(EventFlag(1048572309)); Dea
 1048577810	1048572309	GotoIf/DisableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea
 1048577810	1048572309	GotoIf/EnableAssetTreasure	1048572300	m60_48_57_00.emevd.dcx.js	EventFlag(1048572308)); GotoIf(L6, EventFlag(1048572309)); Dea
-1048577900	1048570250	commonarg/EventFlag	90005300	m60_48_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1048577910	1048570251	commonarg/EventFlag	90005300	m60_48_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1048577920	1048570252	commonarg/EventFlag	90005300	m60_48_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1048577930	1048570253	commonarg/EventFlag	90005300	m60_48_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1049377100	1049370800	commonarg/EventFlag	90005860	m60_49_37_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1049377110	1049370850	commonarg/EventFlag	90005860	m60_49_37_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1049377700	1049370299	commonarg/EventFlag	90005300	m60_49_37_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1049397850	1049390850	commonarg/EndIf	90005880	m60_49_39_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg0
-1049397850	1049390855	commonarg/EventFlag	90005880	m60_49_39_00.emevd.dcx.js	$InitializeCommonEvent(90005880) arg1
-1049547700	1049540200	commonarg/EventFlag	90005300	m60_49_54_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1049577700	1049570310	commonarg/EventFlag	90005300	m60_49_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1049577710	1049570300	commonarg/EventFlag	90005300	m60_49_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1049577720	1049570320	commonarg/EventFlag	90005300	m60_49_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1050407800	1050400800	commonarg/EventFlag	90005300	m60_50_40_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1050537700	1050530210	commonarg/EventFlag	90005300	m60_50_53_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1050567700	7604	commonarg/EventFlag	90005774	m60_50_56_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
-1051367700	1051360291	commonarg/EventFlag	90005300	m60_51_36_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1051367800	1051360292	commonarg/EventFlag	90005300	m60_51_36_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1051537500	1051530180	commonarg/EventFlag	90005792	m60_51_53_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg0
-1051537500	1051532181	commonarg/EventFlag	90005792	m60_51_53_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
-1051537500	1051532182	commonarg/EventFlag	90005792	m60_51_53_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg2
-1051537700	1051530210	commonarg/EventFlag	90005300	m60_51_53_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1051567700	1051560210	commonarg/EventFlag	90005300	m60_51_56_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1051577720	1051570421	commonarg/EventFlag	90005300	m60_51_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1051577800	1051570310	commonarg/EventFlag	90005300	m60_51_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1051577810	1051570311	commonarg/EventFlag	90005300	m60_51_57_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-1052417100	1052410850	commonarg/EventFlag	90005860	m60_52_41_00.emevd.dcx.js	$InitializeCommonEvent(90005860) arg0
-1052557700	1052550390	commonarg/EventFlag	90005300	m60_52_55_00.emevd.dcx.js	$InitializeCommonEvent(90005300) arg0
-2045467500	2045460200	commonarg/EventFlag	90005301	m61_45_46_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2045467500	2045460200	commonarg/EventFlag	90005301	m61_45_46_10.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2045477400	2045470200	commonarg/EventFlag	90005301	m61_45_47_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2045477400	2045470200	commonarg/EventFlag	90005301	m61_45_47_10.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2046397060	2046390200	commonarg/EventFlag	90005301	m61_46_39_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2046427980	2046420300	commonarg/EventFlag	90005301	m61_46_42_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2046467000	2046460290	commonarg/EventFlag	90005301	m61_46_46_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2046467000	2046460290	commonarg/EventFlag	90005301	m61_46_46_10.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2047397070	2047390300	commonarg/EventFlag	90005301	m61_47_39_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2047407980	2047400499	commonarg/EventFlag	90005301	m61_47_40_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2047437980	2047430300	commonarg/EventFlag	90005301	m61_47_43_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2047447900	2047440310	commonarg/EventFlag	90005301	m61_47_44_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2047447900	2047440310	commonarg/EventFlag	90005301	m61_47_44_10.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2047457700	2047450380	commonarg/EventFlag	90005301	m61_47_45_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2047457700	2047450380	commonarg/EventFlag	90005301	m61_47_45_10.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2048407020	2048400200	commonarg/EventFlag	90005301	m61_48_40_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2048417980	2048410300	commonarg/EventFlag	90005301	m61_48_41_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2048467710	2048460301	commonarg/EventFlag	90005301	m61_48_46_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2049427700	2049420200	commonarg/EventFlag	90005301	m61_49_42_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2049427720	2049420202	commonarg/EventFlag	90005301	m61_49_42_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2050417700	2050410200	commonarg/EventFlag	90005301	m61_50_41_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2050427700	2050420200	commonarg/EventFlag	90005301	m61_50_42_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2050447740	2050440340	commonarg/EventFlag	90005301	m61_50_44_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2050467500	2050460300	commonarg/EventFlag	90005301	m61_50_46_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2050467510	2050460310	commonarg/EventFlag	90005301	m61_50_46_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2051417700	2051410200	commonarg/EventFlag	90005301	m61_51_41_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2051417710	2051410201	commonarg/EventFlag	90005301	m61_51_41_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2051447500	2051440300	commonarg/EventFlag	90005301	m61_51_44_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2051447510	2051440310	commonarg/EventFlag	90005301	m61_51_44_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2051457700	2251450280	commonarg/EventFlag	90005301	m61_51_45_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
-2052427500	2052420300	commonarg/EventFlag	90005301	m61_52_42_00.emevd.dcx.js	$InitializeCommonEvent(90005301) arg0
+1050567700	7604	commonarg/WaitFor	90005774	m60_50_56_00.emevd.dcx.js	$InitializeCommonEvent(90005774) arg0
+1051537500	1051532181	commonarg/WaitFor	90005792	m60_51_53_00.emevd.dcx.js	$InitializeCommonEvent(90005792) arg1
