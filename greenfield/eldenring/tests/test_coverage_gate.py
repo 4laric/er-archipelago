@@ -41,7 +41,22 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4853   # 4848 + 5 (co-check regen 2026-07-24, SPEC-flag-lot-item-model):
+BASELINE_TOTAL_LOCATIONS = 4860   # 4853 + 7 (gesture scope-in 2026-07-26, 89b7d8a): the literal
+                                  # AwardGesture sites in map EMEVDs -- NPC/quest awards _gesture_derive
+                                  # used to COUNT and discard -- are checks now that questline content is
+                                  # randomised + MISSABLE rather than excluded. 9 sites -> 7 with an
+                                  # acquisition flag of their own; the other 2 are REFUSED because
+                                  # nothing in any corpus sets their flag (a check that can never fire).
+                                  # The delta was MEASURED, not assumed: report_coverage() run against
+                                  # this tree gives exactly +7 -- flags 60801/60802/60819/60826/60829/
+                                  # 60832/60843 (Polite Bow, My Thanks, Grovel For Mercy, Bravo!, Fancy
+                                  # Spin, Patches' Crouch, Rapture) -- all seven present as records, all
+                                  # suppress_kind 'event_award_unsuppressable' with the ware still
+                                  # visible, and award/detection/region/suppression/quarantine ALL still
+                                  # at ZERO violations. A count that grows because a predicate got looser
+                                  # is a bug; this one grew because the input SCOPE grew, and that is the
+                                  # question that was answered before touching the number.
+                                  # Prior: 4848 + 5 (co-check regen 2026-07-24, SPEC-flag-lot-item-model):
                                   # +4 co-check sibling lots (ap 7900000-7900003: Prayer Room Key,
                                   # Scadutree Fragment @ Hippo, Messmer's Kindling @ Messmer, Golden
                                   # Seed) -- each a shared getItemFlagId's ride-along lot now its own
