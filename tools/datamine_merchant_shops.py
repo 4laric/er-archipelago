@@ -135,6 +135,29 @@ _NPC_NAME_FMGS = [
 _PLACEHOLDER_NAMES = ("%null%", "[ERROR]")
 
 
+# ------------------------------------------------------------------ merchant IDENTITY: a warning
+# 🛑 NO COLUMN IN THIS TABLE IS A MERCHANT IDENTITY. Do not count "how many merchants relocate" off
+# one of them without reading this; the number is wrong in BOTH directions and it has already been
+# reported wrong twice.
+#
+#   * nameId SPLITS one NPC across questline states. Alaric, 2026-07-26, in-game: "scribe corhyn and
+#     brother corhyn same guy" -- 135100 and 135101 are one man, and keying on nameId reports him as
+#     two merchants on 4 and 2 maps instead of one on 6. Generalising his correction finds a second:
+#     Knight Bernahl / Recusant Bernahl.
+#   * nameId also MERGES: every row whose nameId is 0 collapses into one phantom "merchant" standing
+#     on 6 maps. (name_of() refuses nameId 0 for this reason.)
+#   * npc_param_id SPLITS one NPC across instances: Gostoc has SIX (36650014..36650514), Sellen four,
+#     Patches three.
+#   * talk_id // 100000 looks like the answer and is not. MEASURED over this table: it reproduces
+#     Alaric's Corhyn correction and finds Bernahl (good), but it MERGES the anonymous merchant
+#     CLASSES -- 8011/8012 lump Nomadic/Isolated/Hermit/Imprisoned/Abandoned Merchant together, and
+#     those are many physical people -- and it SPLITS Sellen across 3160/3162/3163.
+#
+# So: relocation is only safely stated PER SHOP ROW (which is what the coordinate model needs --
+# check -> {(map_id, x, y, z, availability)}), or with the identity question explicitly labelled
+# unresolved. If you need real identities, they have to come from a datum this table does not carry.
+
+
 def load_npc_name_texts():
     """nameId -> display name, from the NpcName FMGs. {} if none are present (callers must say so)."""
     import xml.etree.ElementTree as ET
