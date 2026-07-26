@@ -234,12 +234,20 @@ def main():
             return 1
         print(f"OK: up to date ({len(rows)} regions).")
         return 0
-    open(OUT_RS, "w", encoding="utf-8", newline="\n").write(new)
+    # IDEMPOTENT (see gen_contract.py): rewriting a byte-identical file stamps a fresh mtime for
+    # no reason, and anything downstream comparing build artefacts against it then reads "stale".
+    try:
+        _cur = open(OUT_RS, encoding="utf-8", newline="").read().replace("\r\n", "\n")
+    except OSError:
+        _cur = None
+    _wrote = _cur != new
+    if _wrote:
+        open(OUT_RS, "w", encoding="utf-8", newline="\n").write(new)
     wired = wire_lib_rs()
     flagged = sum(1 for r in rows if r[2] is not None)
     unflagged = [r[0] for r in rows if r[2] is None]
     pids = sum(len(r[3]) for r in rows)
-    print(f"Wrote {OUT_RS}: {len(rows)} regions ({flagged} with open flags, {pids} play_region ids).")
+    print(f"{'Wrote' if _wrote else 'Unchanged'} {OUT_RS}: {len(rows)} regions ({flagged} with open flags, {pids} play_region ids).")
     if unflagged:
         print("No open flag (geometry only, cannot be gated): " + ", ".join(unflagged))
     print("Wired lib.rs." if wired else "lib.rs already wired.")

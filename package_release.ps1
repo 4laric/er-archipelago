@@ -135,6 +135,18 @@ if (-not $SkipCrossRepoCheck) {
         Info "Cross-repo: apworld and client generated tables AGREE."
 
         # The .dll is a BUILD ARTIFACT: matching sources prove nothing if the binary is older.
+        #
+        # Ask git WHEN THE CONTENT LAST CHANGED, not the filesystem when the file was last touched.
+        # A file mtime answers the wrong question in both directions and this gate got it wrong both
+        # ways on 2026-07-26:
+        #   * a `git pull` / `checkout` stamps a fresh mtime on a file whose CONTENT did not change,
+        #     so a perfectly current .dll reads as stale;
+        #   * this script runs gen_contract.py a few lines above, which used to rewrite
+        #     contract_gen.rs unconditionally -- so merely RUNNING the check guaranteed the next
+        #     comparison would fail. The gate was unpassable: rebuild, re-run, fail on the next file.
+        # The generators are idempotent now (they skip a byte-identical write), and the tables are
+        # known to match their committed content by the dirty-tree Die above -- so the last COMMIT
+        # touching each file is exactly when its content last moved, and that is what to compare.
         $dll = Join-Path (Join-Path $Repo "me3") "eldenring_archipelago.dll"
         if (Test-Path $dll) {
             $dllTime = (Get-Item $dll).LastWriteTimeUtc
@@ -142,13 +154,27 @@ if (-not $SkipCrossRepoCheck) {
                                "crates\er-logic\src\region_locks.rs",
                                "crates\eldenring-archipelago\src\contract_gen.rs")) {
                 $f = Join-Path $Client $rel
-                if ((Test-Path $f) -and ((Get-Item $f).LastWriteTimeUtc -gt $dllTime)) {
-                    Die ("me3\eldenring_archipelago.dll is OLDER than $rel -- the .dll predates a " +
-                         "generated table compiled into it. Rebuild the client (build.ps1 -Rust) " +
-                         "before packaging.")
+                if (-not (Test-Path $f)) { continue }
+                # NOTE the two locals: PowerShell does NOT evaluate a method call in ARGUMENT
+                # position (`$rel.Replace(...)` passes the literal text), and mixing `+` with `-f`
+                # in one expression is a precedence trap. Both spelled out rather than clever.
+                $relSlash = $rel.Replace("\", "/")
+                $iso = (& git -C $Client log -1 --format=%cI -- $relSlash 2>$null)
+                if ($LASTEXITCODE -ne 0 -or -not $iso) {
+                    Warn "cannot read the commit time of $rel -- .dll freshness UNVERIFIED for it"
+                    continue
+                }
+                $changed = ([datetimeoffset]$iso).UtcDateTime
+                if ($changed -gt $dllTime) {
+                    $msg = "me3\eldenring_archipelago.dll was built BEFORE the last content change to "
+                    $msg += "$rel (table changed "
+                    $msg += "{0:yyyy-MM-dd HH:mm}Z, .dll built {1:yyyy-MM-dd HH:mm}Z" -f $changed, $dllTime
+                    $msg += ") -- the binary has an older copy of a generated table compiled into it. "
+                    $msg += "Rebuild the client (build.ps1 -Rust) before packaging."
+                    Die $msg
                 }
             }
-            Info "Cross-repo: the staged .dll is newer than every generated table it compiles in."
+            Info "Cross-repo: the staged .dll post-dates the last content change to every generated table."
         } else {
             Warn "me3\eldenring_archipelago.dll not present yet -- .dll freshness UNVERIFIED"
         }

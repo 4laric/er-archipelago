@@ -239,12 +239,20 @@ def main():
             return 1
         print(f"OK: up to date ({len(rows)} locations).")
         return 0
-    open(OUT_RS, "w", encoding="utf-8", newline="\n").write(new)
+    # IDEMPOTENT (see gen_contract.py): rewriting a byte-identical file stamps a fresh mtime for
+    # no reason, and anything downstream comparing build artefacts against it then reads "stale".
+    try:
+        _cur = open(OUT_RS, encoding="utf-8", newline="").read().replace("\r\n", "\n")
+    except OSError:
+        _cur = None
+    _wrote = _cur != new
+    if _wrote:
+        open(OUT_RS, "w", encoding="utf-8", newline="\n").write(new)
     wired = wire_lib_rs()
     bt = sum(1 for r in rows if r[3])
     miss = sum(1 for r in rows if r[4])
     coarse = len({r[2] for r in rows} - {""})
-    print(f"Wrote {OUT_RS}: {len(rows)} locations, {bt} on the progression surface, {miss} missable, "
+    print(f"{'Wrote' if _wrote else 'Unchanged'} {OUT_RS}: {len(rows)} locations, {bt} on the progression surface, {miss} missable, "
           f"{coarse} coarse regions, {len(lock_items)} lock items.")
     print("Wired lib.rs." if wired else "lib.rs already wired.")
     return 0

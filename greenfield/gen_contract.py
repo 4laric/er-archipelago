@@ -19,6 +19,17 @@ def w(path, text):
     # to_json() so it holds for every future output of this script too.
     if not text.endswith("\n"):
         text += "\n"
+    # IDEMPOTENT: do not rewrite a byte-identical file. An unconditional write is invisible in a
+    # diff but it stamps a fresh mtime, and package_release.ps1 used to compare the shipped .dll's
+    # mtime against these files -- so simply RUNNING this script guaranteed "the .dll is older than
+    # contract_gen.rs" on the very next check. A no-op that changes the filesystem is not a no-op.
+    try:
+        with open(path, encoding="utf-8", newline="") as f:
+            if f.read().replace("\r\n", "\n") == text:
+                print("unchanged", os.path.relpath(path, REPO), f"({len(text)} b)")
+                return
+    except OSError:
+        pass
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(text)
     print("wrote", os.path.relpath(path, REPO), f"({len(text)} b)")
