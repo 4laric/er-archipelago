@@ -58,6 +58,7 @@ import collections
 import csv
 import os
 import re
+import warnings
 
 import pytest
 
@@ -125,6 +126,30 @@ def _gate_region_resolver():
             return tile_region.get(("m61", int(s[2:4]), int(s[4:6])))
         return None
 
+    def from_map(gate_map):
+        """Resolve the `gate_map` column: the map(s) whose EMEVD SET the gate flag.
+
+        Decoding a flag's NUMBER only works for map-encoded flags, so NPC/questline state flags
+        (3708, 3709, 3409 -- bare 4-digit ids) resolved to nothing and their pairs were dropped,
+        87 of 104 of them. A flag we cannot decode can still be LOCATED by where it is set, which
+        is what datamine_lot_gates now emits.
+
+        A `|`-joined value is a genuine one-to-many. If the maps disagree about the region this
+        REFUSES rather than picking one -- an ambiguous gate resolved by first-wins is the
+        confident-wrong-answer this whole screen exists to catch.
+        """
+        regions = set()
+        for mid in (gate_map or "").split("|"):
+            mid = mid.strip()
+            m = re.match(r"(m6[01])_(\d\d)_(\d\d)", mid)
+            if m:
+                regions.add(tile_region.get((m.group(1), int(m.group(2)), int(m.group(3)))))
+            elif re.match(r"m\d\d_\d\d", mid):
+                regions.add(dungeon.get(mid[:6]))
+        regions.discard(None)
+        return regions.pop() if len(regions) == 1 else None
+
+    resolve.from_map = from_map
     return resolve
 
 
@@ -143,9 +168,22 @@ def test_no_check_is_gated_on_another_regions_flag():
         "oracle is a FAILURE, not a pass.")
 
     cross, unprotected, decodable = [], [], 0
+    by_flag = by_setter = ambiguous = no_handle = 0
     for row in pairs:
         cf, gf = row.get("check_flag"), row.get("gate_flag")
         creg, greg = check_region.get(cf), resolve(gf)
+        gate_map = (row.get("gate_map") or "").strip()
+        if greg:
+            by_flag += 1
+        elif gate_map:
+            # SECOND HANDLE: where the flag is SET. Covers everything the numeric decode cannot.
+            greg = resolve.from_map(gate_map)
+            if greg:
+                by_setter += 1
+            else:
+                ambiguous += 1
+        else:
+            no_handle += 1
         if not creg or not greg:
             continue
         decodable += 1
@@ -158,9 +196,24 @@ def test_no_check_is_gated_on_another_regions_flag():
     # A screen that decodes nothing would pass silently. Say what it actually examined.
     # Floor MEASURED, not guessed: 17 of 104 decode today. Set just below so a real collapse in the
     # decode rule fails loudly, without pretending the coverage is better than it is.
+    # `print` in a PASSING pytest goes into a void (stdout is captured); the warnings summary is the
+    # one channel pytest always shows. Coverage has to be legible on a GREEN run -- that is the whole
+    # point of a screen that knows how blind it is.
+    warnings.warn(
+        "[lot-gates screen] %d/%d pairs resolvable -- %d by flag-number decode, %d by setter-map, "
+        "%d ambiguous (several maps, different regions -- REFUSED, not guessed), %d with no handle "
+        "at all." % (decodable, len(pairs), by_flag, by_setter, ambiguous, no_handle), stacklevel=2)
+    if not by_setter and no_handle:
+        warnings.warn(
+            "lot_gates.tsv has no usable `gate_map` column, so this screen is still running on the "
+            "flag-number decode alone (%d of %d pairs invisible). Re-emit with "
+            "`python tools/datamine_lot_gates.py --emit` to widen it -- and expect newly-visible "
+            "unprotected gates to turn this test red, which is the gate working."
+            % (no_handle, len(pairs)), stacklevel=2)
     assert decodable >= 15, (
-        "only %d of %d pairs had both sides resolvable (17 did on 2026-07-25) -- the flag-decode rule "
-        "has stopped matching lot_gates.tsv's gate_flag column, and this screen is now looking at too "
+        "only %d of %d pairs had both sides resolvable (17 did on 2026-07-25, by flag-number decode "
+        "alone) -- BOTH handles have failed: the flag-decode rule stopped matching, and the "
+        "`gate_map` setter column is absent or unresolvable. This screen is now looking at too "
         "little to mean anything." % (decodable, len(pairs)))
     # THE GATE: cross-region is allowed, UNPROTECTED cross-region is not.
     assert not unprotected, (

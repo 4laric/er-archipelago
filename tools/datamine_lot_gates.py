@@ -2,8 +2,12 @@
 # -*- coding: utf-8 -*-
 """datamine_lot_gates.py -- which EVENT FLAG must already be set before a CHECK can exist.
 
-WHY (Alaric, 2026-07-25). `f67050` -- Nomadic Warrior's Cookbook [7], the one Roderika leaves behind
-at Stormhill Shack -- is regioned **Limgrave**, and Limgrave is CORRECT: that is where the player
+WHY (Alaric, 2026-07-25). ⚠️ The original exemplar here was `f67050`, and it was WRONG -- that
+cookbook turned out to be UNGATED, obtainable five ways. The real one is `f400191`, the Golden Seed
+at Stormhill Shack (gated on questline flags 3708/3709 via $InitializeCommonEvent(90005750) arg5,
+confirmed in play by Alaric 2026-07-26: it is not there until you rest at a grace in Liurnia). The
+shape of the argument was right even though the example was not, so it is kept below with the
+correct flag substituted. `f400191` is regioned **Limgrave**, and Limgrave is CORRECT: that is where the player
 physically stands to pick it up, and the region drives the client's kick geometry. But the pickup does
 not exist until you have rested at a grace in **Liurnia**. So AP believes it is an early Limgrave
 check and will happily place progression on it in a seed where Liurnia is locked or late.
@@ -248,6 +252,44 @@ def _common_arg_gates(files, lot_to_flag, check_flags):
     return rows, stat
 
 
+_MAP_FILE_RE = re.compile(r"^(m\d\d_\d\d_\d\d_\d\d)\.emevd")
+
+
+def _setter_maps(files):
+    """gate_flag -> {map_id that SETS it}, harvested from the same corpus.
+
+    WHY THIS EXISTS. The cross-region screen used to resolve a gate flag's region by DECODING its
+    number, and that only works for map-encoded flags. NPC/questline state flags are bare 4-digit ids
+    (3708, 3709, 3409) with nothing to decode, so `resolve()` returned None and the pair was dropped
+    -- 87 of 104 pairs, silently. That is how f400191 (Golden Seed, Stormhill Shack, gated on a
+    Liurnia questline flag) shipped claiming an early Limgrave reachability it does not have, while
+    the screen reported clean. A filter with no tally is a lie (CONTRIBUTING rule 4).
+
+    A flag we cannot decode can still be LOCATED: whichever map's EMEVD calls SetEventFlag on it is
+    where the thing that sets it happens. That is a datum, not a guess.
+
+    `common.emevd` / `common_func` are DELIBERATELY EXCLUDED -- a common event is not a place, and
+    letting it answer would hand back a confident non-region. A flag set from several maps is
+    reported with ALL of them (a `|`-joined value), never collapsed to a first-wins pick: that is a
+    genuine one-to-many, and the consumer must decide, not this tool.
+    """
+    out = collections.defaultdict(set)
+    common_only = collections.Counter()
+    for path in files:
+        base = os.path.basename(path)
+        m = _MAP_FILE_RE.match(base)
+        for mm in FLAG_SET_RE.finditer(open(path, encoding="utf-8", errors="replace").read()):
+            for fid in _ints(mm.group(2)):
+                if m:
+                    out[fid].add(m.group(1))
+                else:
+                    common_only[fid] += 1
+    only_common = sorted(f for f in common_only if f not in out)
+    print("setter-map index: %d flag(s) set by a MAP emevd; %d set ONLY from common/common_func "
+          "(no place -- reported, not guessed)" % (len(out), len(only_common)))
+    return out
+
+
 def _sources():
     files = sorted(glob.glob(os.path.join(EVT, "*.emevd.dcx.js")))
     if not files:
@@ -468,6 +510,7 @@ def emit(dry):
           "name -- reported, not guessed)" % (len(common_lots), len(unnamed)))
     treasure_lots = _treasure_lots()
     treasure_assets = _treasure_assets()
+    setter_maps = _setter_maps(files)
     rows = []
     ev_total = tested = awards = treasure_unresolved = treasure_hits = treasure_character = 0
     treasure_asset_ids = set()
@@ -600,11 +643,24 @@ def emit(dry):
         fh.write("#   OPPOSITE of the naive reading. Assign the sense per context during triage.\n")
         fh.write("# CANDIDATE PAIRS, not conclusions -- co-occurrence is evidence, not proof. A\n")
         fh.write("#   false gate is an unwinnable seed; a false non-gate is the bug this finds.\n")
-        fh.write("check_flag\tgate_flag\tcontext\tevent_id\tsource\tevidence\n")
+        fh.write("# gate_map = the map emevd(s) that SET gate_flag, `|`-joined when several do.\n")
+        fh.write("#   Empty = no MAP sets it (common-event only, or nothing found). This is the\n")
+        fh.write("#   region handle for gate flags whose NUMBER carries no map encoding -- the\n")
+        fh.write("#   NPC/questline state flags the numeric decode was blind to.\n")
+        fh.write("check_flag\tgate_flag\tcontext\tevent_id\tsource\tevidence\tgate_map\n")
+        _resolved = 0
         for r in rows:
-            fh.write("\t".join(str(x) for x in r) + "\n")
+            _gm = "|".join(sorted(setter_maps.get(int(r[1]), ())))
+            if _gm:
+                _resolved += 1
+            fh.write("\t".join(str(x) for x in r) + "\t" + _gm + "\n")
+    _distinct = {r[1] for r in rows}
+    _dist_res = len({g for g in _distinct if setter_maps.get(int(g))})
     print("wrote %s: %d candidate pair(s) over %d distinct check flag(s)"
           % (OUT, len(rows), len({r[0] for r in rows})))
+    print("gate_map resolved: %d/%d pair(s), %d/%d distinct gate flag(s). The UNRESOLVED remainder "
+          "is the screen's real blind spot -- it is printed, not hidden."
+          % (_resolved, len(rows), _dist_res, len(_distinct)))
     return 0
 
 
@@ -624,13 +680,72 @@ def _check_flags():
     return out
 
 
+def self_test():
+    """Offline proof of the setter-map harvest. The real EMEVD is Windows-only, so the LOGIC is
+    exercised against fixtures here -- runnable in the agent sandbox, where the corpus is not.
+
+    Deliberately includes the break-the-fix control: with common/common_func allowed to answer, a
+    flag set only from common.emevd would report a 'region' that is not a place.
+    """
+    import tempfile
+    fails = []
+
+    def check(name, cond):
+        print(("  PASS " if cond else "  FAIL ") + name)
+        if not cond:
+            fails.append(name)
+
+    with tempfile.TemporaryDirectory() as d:
+        def w(fn, body):
+            open(os.path.join(d, fn), "w", encoding="utf-8").write(body)
+        w("m60_41_38_00.emevd.dcx.js", "$Event(1, Default, function() { EndIf(EventFlag(3708)); });")
+        w("m60_36_43_00.emevd.dcx.js", "$Event(2, Default, function() { SetEventFlagID(3708, ON); });")
+        w("m60_37_43_00.emevd.dcx.js", "$Event(3, Default, function() { SetEventFlagID(9001, ON); "
+                                       "SetEventFlagID(3708, ON); });")
+        w("common.emevd.dcx.js", "$Event(4, Default, function() { SetEventFlagID(7777, ON); });")
+        w("common_func.emevd.dcx.js", "$Event(5, Default, function() { SetEventFlagID(7778, ON); });")
+        files = sorted(glob.glob(os.path.join(d, "*.emevd.dcx.js")))
+        sm = _setter_maps(files)
+
+        check("a map setter is found", sm.get(3708) is not None)
+        check("MULTI-setter keeps every map, never first-wins",
+              sm.get(3708) == {"m60_36_43_00", "m60_37_43_00"})
+        check("a flag only TESTED is not treated as set there",
+              "m60_41_38_00" not in sm.get(3708, set()))
+        check("single-map setter resolves to exactly that map", sm.get(9001) == {"m60_37_43_00"})
+        check("common.emevd is NOT a place", 7777 not in sm)
+        check("common_func is NOT a place", 7778 not in sm)
+        check("unset flag resolves to nothing, rather than to something plausible",
+              sm.get(4242) is None)
+
+        # BREAK THE FIX: if common files were allowed to answer, 7777 would get a bogus 'region'.
+        broken = collections.defaultdict(set)
+        for path in files:
+            for mm in FLAG_SET_RE.finditer(open(path, encoding="utf-8").read()):
+                for fid in _ints(mm.group(2)):
+                    broken[fid].add(os.path.basename(path).split(".")[0])
+        check("control: without the map-file guard, common.emevd answers (so the guard is real)",
+              7777 in broken and "common" in broken[7777])
+
+    print("")
+    if fails:
+        print("FAILED: %d -- %s" % (len(fails), ", ".join(fails)))
+        return 1
+    print("ALL PASS")
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--vocab", action="store_true",
                     help="LOOK FIRST: print the EMEVD call-name histogram + sample lines. No output.")
     ap.add_argument("--emit", action="store_true", help="write greenfield/lot_gates.tsv")
     ap.add_argument("--dry", action="store_true", help="parse and print, write nothing")
+    ap.add_argument("--self-test", action="store_true", dest="self_test",
+                    help="offline fixture tests for the setter-map harvest (no artifacts needed)")
     args = ap.parse_args(argv)
+    if args.self_test:
+        return self_test()
     if args.vocab:
         return vocab()
     if args.emit or args.dry:
