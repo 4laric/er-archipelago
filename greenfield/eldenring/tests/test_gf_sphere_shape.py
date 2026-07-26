@@ -48,10 +48,19 @@ pytest.importorskip("worlds.eldenring")
 
 GAME = "Elden Ring"
 
-# --- TRIPWIRES, not pins. See the module docstring before touching these. ---------------------
-# "spheres collapsing to 1-2" is CONTRIBUTING's own phrasing for the regression, so 3 is the
-# smallest number that is not the thing it warns about.
-MIN_SPHERES = 3
+# --- TRIPWIRES, now CALIBRATED FROM OBSERVED CI RUNS (see the module docstring) ----------------
+# First green run of this file (e58a661, num_regions 12, seed 0x5F4E3) reported:
+#     7 spheres | 2690 own checks | sphere0 562 (20.9%)
+#     checks/sphere      [562, 145, 265, 379, 812, 375, 152]
+#     own progression 15 | sphere0 2 (13.3%) | per-sphere [2, 2, 2, 5, 3, 1, 0]
+# That is a healthy gradient, and it is what these bounds are set against -- not a guess.
+#
+# ⚠️ TIGHTENED CONSERVATIVELY, because this is TWO seeds, not a distribution. "It genned on my one
+# yaml" is the failure this project names; two is not much better. MIN_SPHERES is set well under the
+# observed 7 and MAX_SPHERE0_SHARE at ~2.4x the observed share, so ordinary seed variance cannot trip
+# them while a genuine collapse still does. Tighten further only from more seeds -- the numbers are
+# in every CI log under 'sphere-shape'.
+MIN_SPHERES = 4
 
 
 class SphereShapeReport(UserWarning):
@@ -63,12 +72,14 @@ def _report(msg):
     print(msg)
     warnings.warn(msg, SphereShapeReport, stacklevel=2)
 
-# A ceiling loose enough that only "the whole map is open from the start" trips it. A healthy large
-# seed should be FAR below this; if the printed number is anywhere near it, that is the finding.
-MAX_SPHERE0_SHARE = 0.90
+# Observed 20.9%. At >50% the map is effectively open from the start, which is the regression
+# CONTRIBUTING describes; below that, seed variance has room.
+MAX_SPHERE0_SHARE = 0.50
 # One pinned seed, so a red run is reproducible (Generate.py picks a fresh seed each time, which is
 # why this class of bug feels intermittent -- same reasoning as gen_sweep.ps1's pinned seeds).
-SEED = 0x5F4E3
+SEED = 0x5F4E3        # sphere/location shape
+SEED_B = 0xA11CE      # the item-side test uses a DIFFERENT seed, so the pair samples TWO worlds
+                      # for the price of the fills we were already doing
 
 
 class SphereShape(WorldTestBase):
@@ -124,7 +135,7 @@ class SphereShape(WorldTestBase):
         """
         from Fill import distribute_items_restrictive
 
-        self.world_setup(seed=SEED)
+        self.world_setup(seed=SEED_B)
         distribute_items_restrictive(self.multiworld)
         player = self.world.player
 
