@@ -150,6 +150,43 @@ class TagDataTests(unittest.TestCase):
         self.assertEqual(wrong, [], f"{len(wrong)} check(s) are marked unconfirmed but their region "
                                     f"is derived, not guessed")
 
+    def test_f510280_is_the_fringefolk_seed_not_stormhill(self):
+        """Two DISTINCT Golden Seeds, and gen_data's comment used to conflate them.
+
+        Alaric, in play 2026-07-26: "there's one at stormhill sapling, and there's one in the cave
+        of knowledge on the ulcerated tree spirit behind the stonesword wall, but they're distinct".
+        f400191 is the Stormhill sapling (map m60_41_38). f510280 is the Fringefolk one -- and the
+        FLAG_REGION_OVERRIDE comment for it claimed "Stormhill golden sapling", which is a fact
+        asserted in a comment with nothing to fail when it stopped being true.
+
+        The Limgrave pin itself is right (play_region 18000 rides Limgrave's bundle); only the
+        reason was invented. This pins the reason to the datum instead of to prose.
+        """
+        import csv as _csv
+        import os as _os
+        pkg = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+        path = _os.path.join(pkg, "check_maps.tsv")
+        if not _os.path.isfile(path):
+            self.skipTest("check_maps.tsv not installed beside the package -- oracle would run blind")
+        # check_maps is ONE-TO-MANY by design (one check, N physical positions), so collect SETS --
+        # a first-wins dict would silently hide a second position appearing later.
+        maps = {}
+        with open(path, encoding="utf-8-sig", newline="") as fh:
+            for r in _csv.DictReader((ln for ln in fh if not ln.lstrip().startswith("#")),
+                                     delimiter="\t"):
+                maps.setdefault((r.get("flag") or "").strip(), set()).add(
+                    (r.get("map_id") or "").strip())
+        self.assertTrue(maps, "check_maps.tsv parsed to ZERO rows -- an empty oracle is a failure")
+        self.assertIn("m18_00", maps.get("510280", set()),
+                      "f510280 is the Fringefolk Hero's Grave seed; if m18_00 is no longer among "
+                      "its positions the Limgrave pin's justification no longer holds -- re-derive, "
+                      "do not re-word the comment")
+        self.assertIn("m60_41_38", maps.get("400191", set()),
+                      "f400191 is the Stormhill sapling seed -- the OTHER one")
+        self.assertFalse(maps.get("510280", set()) & maps.get("400191", set()),
+                         "the two Golden Seeds now share a position -- the conflation this test "
+                         "exists to prevent has come back")
+
     def test_major_boss_count(self):
         """37 -> 42: the five sibling drops the boss_arena keying had split off. Moves only when a
         major boss's drop set changes, or when a new Remembrance/GreatRune check appears -- the

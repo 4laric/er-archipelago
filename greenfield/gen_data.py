@@ -2074,7 +2074,23 @@ GLOBAL_RECOVER = {
     # is NOT a separate check anywhere, so recovering them loses nothing and completes the Golden Seed
     # set (43/43 flag-keyed map lots; the 44th, Kenneth Haight, is an enemy drop with getItemFlagId 0).
     # (Alaric 2026-07-10)
-    510280: "Limgrave",   # Golden Seed (Stormhill golden sapling, wiki #3); shares flag w/ Banished Knight Oleg ash (lot 10281)
+    # 510280 -- CORRECTED 2026-07-26. This comment used to read "Golden Seed (Stormhill golden
+    # sapling, wiki #3)" and that was WRONG: it named a DIFFERENT seed. Alaric, in play: there is one
+    # at the Stormhill sapling AND one in the Cave of Knowledge on the Ulcerated Tree Spirit behind
+    # the stonesword wall, "but they're distinct". The Stormhill sapling is f400191 (map m60_41_38).
+    # THIS one is the Fringefolk seed: check_maps.tsv gives 510280 -> m18_00, and region_groups' own
+    # note for play_region 18000 reads "m18_00, the OVERWORLD Stranded Graveyard cliff / Fringefolk
+    # Hero's Grave", which is exactly the far side of that imp-statue door. So the Limgrave pin is
+    # CORRECT and stays -- 18000 rides Limgrave's bundle -- only its stated reason was a fabrication.
+    # Guarded by test_gf_important_locations::test_f510280_is_the_fringefolk_seed_not_stormhill so
+    # the claim cannot rot again (CONTRIBUTING rule 10).
+    # ⚠️ STILL UNVERIFIED: the old comment also called lot 10281 (item 201000) "Banished Knight Oleg
+    # ash". 201000 does not appear in item_ids.py and no location is named Oleg, so that half is
+    # unconfirmed too -- left as a question on the board, not restated as fact.
+    # NB the descriptor says "around Cave of Knowledge" because map_names.tsv names m18_00 after one
+    # of its TWO graces (71800/71801); the map covers the Stranded Graveyard and Fringefolk Hero's
+    # Grave together. The map id is right; the human name is imprecise.
+    510280: "Limgrave",
     520160: "Caelid",     # Golden Seed (War-Dead Catacombs Putrid Tree Spirit, wiki #17); shares flag w/ Redmane Knight Ogha ash (lot 20160) -- now a CO_CHECK_FLAGS family: the ash row is primary, the Seed is its own co-check (this region recovery covers BOTH members)
     # Golden Tailoring Tools (60150): the cloak-alteration tool at the Church of Vows (Liurnia). A
     # `global`/common-event row that resolved to no tile, so it was dropped (stayed a vanilla pickup,
