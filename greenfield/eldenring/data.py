@@ -242,6 +242,7 @@ LOCATIONS = {
         ('Roundtable Hold :: Crimson Amber Medallion [f230160]', 7774839, 230160),
         ('Roundtable Hold :: Axe Talisman [f230170]', 7774840, 230170),
         ('Roundtable Hold :: Note: Stonedigger Trolls [f230190]', 7774841, 230190),
+        ('Roundtable Hold :: Rapture - around Table of Lost Grace [f60843]', 7774853, 60843),
     ],
     'Abyssal': [
         ("Abyssal :: Mad Craftsman's Cookbook [2] - near Abyssal Woods [f68670]", 7770150, 68670),
@@ -1238,6 +1239,7 @@ LOCATIONS = {
         ('Caelid :: Golden Seed - near Farum Greatbridge [f1051437020]', 7774729, 1051437020),
         ("Caelid :: Ash of War: Bloodhound's Step - around Lenne's Rise [f1052417100]", 7774745, 1052417100),
         ('Caelid :: Sacrificial Twig [f180800]', 7774805, 180800),
+        ('Caelid :: Polite Bow - around Chamber Outside the Plaza [f60801]', 7774842, 60801),
         ('Caelid :: Golden Seed - around War-Dead Catacombs [f520160]', 7900003, 520160),
     ],
     'Cerulean': [
@@ -2159,7 +2161,7 @@ LOCATIONS = {
         ('Leyndell :: Stonesword Key - near Avenue Balcony (2) [f11007980]', 7774006, 11007980),
         ('Leyndell :: Golden Seed - near Erdtree Sanctuary [f11007990]', 7774007, 11007990),
         ('Leyndell :: Somber Smithing Stone [7] - around East Capital Rampart [f11007995]', 7774008, 11007995),
-        ('Leyndell :: By My Sword - around East Capital Rampart [f60822]', 7774843, 60822),
+        ('Leyndell :: By My Sword - around East Capital Rampart [f60822]', 7774846, 60822),
     ],
     'Limgrave': [
         ('Limgrave :: Flask of Wondrous Physick - near Third Church of Marika [f60020]', 7770011, 60020),
@@ -2491,8 +2493,11 @@ LOCATIONS = {
         ('Limgrave :: Smoldering Butterfly - m60_47_38 (1) [f1047387980]', 7774635, 1047387980),
         ('Limgrave :: Smoldering Butterfly - m60_47_38 (2) [f1047387990]', 7774636, 1047387990),
         ("Limgrave :: St. Trina's Arrow [f150660]", 7774797, 150660),
-        ('Limgrave :: Strength! - around Cave of Knowledge [f60809]', 7774842, 60809),
-        ('Limgrave :: Crossed Legs [f60833]', 7774845, 60833),
+        ('Limgrave :: Strength! - around Cave of Knowledge [f60809]', 7774844, 60809),
+        ('Limgrave :: Grovel For Mercy [f60819]', 7774845, 60819),
+        ('Limgrave :: Bravo! - around Church of Elleh [f60826]', 7774848, 60826),
+        ("Limgrave :: Patches' Crouch [f60832]", 7774850, 60832),
+        ('Limgrave :: Crossed Legs [f60833]', 7774851, 60833),
     ],
     'Liurnia': [
         ('Liurnia :: Memory Stone - near Converted Tower [f60410]', 7770019, 60410),
@@ -3080,7 +3085,7 @@ LOCATIONS = {
         ('Liurnia :: Golden Rune [4] - near Altus Highway Junction [f1039507020]', 7774465, 1039507020),
         ('Liurnia :: Treespear - m60_40_40 [f1040407000]', 7774494, 1040407000),
         ('Liurnia :: Sacrificial Twig [f160820]', 7774804, 160820),
-        ("Liurnia :: Fire Spur Me - around Slumbering Wolf's Shack [f60824]", 7774844, 60824),
+        ("Liurnia :: Fire Spur Me - around Slumbering Wolf's Shack [f60824]", 7774847, 60824),
     ],
     'Mohgwyn': [
         ("Mohgwyn :: Mohg's Great Rune - Mohg [f175]", 7770005, 175),
@@ -3470,6 +3475,7 @@ LOCATIONS = {
         ('Mountaintops of the Giants :: Golden Rune [12] - around Spiritcaller Cave (1) [f1053567700]', 7774759, 1053567700),
         ('Mountaintops of the Giants :: Golden Rune [12] - around Spiritcaller Cave (2) [f1053567710]', 7774760, 1053567710),
         ('Mountaintops of the Giants :: Golden Rune [12] - around Spiritcaller Cave (3) [f1053567720]', 7774761, 1053567720),
+        ('Mountaintops of the Giants :: Fancy Spin - around Ancient Snow Valley Ruins [f60829]', 7774849, 60829),
     ],
     'Mt. Gelmir': [
         ("Mt. Gelmir :: Rykard's Great Rune - Rykard [f174]", 7770004, 174),
@@ -3692,6 +3698,7 @@ LOCATIONS = {
         ('Mt. Gelmir :: Smoldering Butterfly - m60_35_54 [f1035547990]', 7774400, 1035547990),
         ('Mt. Gelmir :: Somber Smithing Stone [4] - around Ninth Mt. Gelmir Campsite [f1036547990]', 7774420, 1036547990),
         ('Mt. Gelmir :: Golden Rune [10] - around Bridge of Iniquity [f1039537750]', 7774469, 1039537750),
+        ('Mt. Gelmir :: My Thanks - around Volcano Manor [f60802]', 7774843, 60802),
     ],
     'Rauh Base': [
         ("Rauh Base :: Greater Potentate's Cookbook [8] - near Ravine North [f68680]", 7770151, 68680),
@@ -4093,7 +4100,7 @@ LOCATIONS = {
         ('Scadu Altus :: Smithing Stone [1] - near Bridge Leading to the Village [f2051447020]', 7774790, 2051447020),
         ('Scadu Altus :: Scadutree Fragment - around Bridge Leading to the Village (1) [f2051447500]', 7774791, 2051447500),
         ('Scadu Altus :: Scadutree Fragment - around Bridge Leading to the Village (2) [f2051447510]', 7774792, 2051447510),
-        ("Scadu Altus :: O Mother - around Recluses' River Upstream (1) [f60864]", 7774848, 60864),
+        ("Scadu Altus :: O Mother - around Recluses' River Upstream (1) [f60864]", 7774855, 60864),
         ('Scadu Altus :: Prayer Room Key - Kill Queelign in church of the crusade [f400696]', 7900000, 400696),
         ('Scadu Altus :: Scadutree Fragment - Hippo [f510440]', 7900001, 510440),
     ],
@@ -4456,7 +4463,7 @@ LOCATIONS = {
         ('Shadow Keep :: Scadutree Fragment - in the area past Commander Gaius (3) [f2049497530]', 7774785, 2049497530),
         ('Shadow Keep :: Scadutree Fragment - in the area past Commander Gaius (4) [f2049497540]', 7774786, 2049497540),
         ('Shadow Keep :: Scadutree Fragment - in the area past Commander Gaius (5) [f2049497550]', 7774787, 2049497550),
-        ('Shadow Keep :: The Two Fingers [f60861]', 7774847, 60861),
+        ('Shadow Keep :: The Two Fingers [f60861]', 7774854, 60861),
         ("Shadow Keep :: Messmer's Kindling - Messmer [f510460]", 7900002, 510460),
     ],
     'Siofra River': [
@@ -4777,7 +4784,7 @@ LOCATIONS = {
         ('Stormveil :: The Stormhawk King - m10_01 [f10017010]', 7771013, 10017010),
         ('Stormveil :: Stormhawk Deenh - m10_01 [f10017900]', 7771014, 10017900),
         ('Stormveil :: Living Jar Shard - around Castleward Tunnel [f10007082]', 7773991, 10007082),
-        ('Stormveil :: Dozing Cross-Legged - around Castleward Tunnel [f60836]', 7774846, 60836),
+        ('Stormveil :: Dozing Cross-Legged - around Castleward Tunnel [f60836]', 7774852, 60836),
     ],
     'Weeping': [
         ('Weeping :: Memory Stone - near Beside the Crater-Pocked Glade [f60400]', 7770018, 60400),
@@ -5127,13 +5134,20 @@ CAPITAL_RELEASE_ROWS = ((101516, 9116, 118), (101517, 9116, 118), (101518, 9116,
 # suppress nothing -- coverage.py classifies these 'event_award_unsuppressable', and
 # features/check_item_flags.py must never arm their wares.
 GESTURE_AWARD_FLAGS = {
+    60801: (1, 1073750825, 'Polite Bow'),
+    60802: (2, 1073750826, 'My Thanks'),
     60809: (9, 1073750833, 'Strength!'),
+    60819: (41, 1073750843, 'Grovel For Mercy'),
     60822: (52, 1073750846, 'By My Sword'),
     60824: (54, 1073750848, 'Fire Spur Me'),
+    60826: (60, 1073750850, 'Bravo!'),
+    60829: (72, 1073750853, 'Fancy Spin'),
+    60832: (90, 1073750856, "Patches' Crouch"),
     60833: (91, 1073750857, 'Crossed Legs'),
     60836: (94, 1073750860, 'Dozing Cross-Legged'),
+    60843: (102, 1073750867, 'Rapture'),
     60861: (112, 1075750826, 'The Two Fingers'),
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bc0389007106d960177df7841271b2193f756db733fe26d91fd16f9087788929', 'module': 'data.py', 'body_sha256': 'sha256:384999fceae3c2d1731dac11520db41b01eb4bd4cf0b843215d35f6729faa652'}
+_GEN_STAMP = {'inputs_hash': 'sha256:0528b9ceecf203e942d32cc23d6275acf3b892dd65f79685960c32cd0e43cdf5', 'module': 'data.py', 'body_sha256': 'sha256:4aba84803b2f3cac500aabac409fe8b9c210579a41a254e318013fc4e8160e76'}
