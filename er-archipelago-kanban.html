@@ -123,15 +123,15 @@ const CARDS = [
   },
   {
     "id": "vanilla-suppress-class",
-    "col": "progress",
+    "col": "done",
     "pri": "P1",
     "cat": "Client",
     "title": "Vanilla-suppress: non-goods check lots leak (client half left)",
-    "desc": "🟠 LIVE DEFECT — root cause CONFIRMED (other agent, 2026-07-23), supersedes the earlier shop-weapon-slot hypothesis. Non-goods checks (weapon/armor/talisman/gem-ash) could hand out their VANILLA ware alongside the AP item: the goods lot-blank repoints slots at apPlaceholderGoods (a GOODS row) so it only neutralizes GOODS slots; non-goods wares fell to the id-keyed checkItemFlags suppressor, which only fires if the detour sees the AddItem AND the flag isn’t already collected — so enemy / scarab / scripted overworld drops LEAKED (repros: Ash of War: Lightning Ram 540310, Ornamental Straight Sword 510030). ✅ APWORLD HALF SHIPPED: gen_data now collects the non-goods slots of each check lot into CHECK_LOT_ZERO_MAP / CHECK_LOT_ZERO_ENEMY, emitted via new contract keys checkLotZeroMap / checkLotZeroEnemy — 1013 non-goods checks (978 map + 35 enemy), flagged one-time lots only so zeroing never eats a farmable source; id-keyed suppressor stays armed as backstop for lotless ESD/EMEVD-award checks. ✅ CLIENT HALF LANDED 2026-07-23: check_lots.rs zeroes the non-goods slots from checkLotZeroMap/Enemy (client a98cfc9, CI green); er-archipelago gitlink bumped (0bf4a98). ONLY REMAINING: in-game confirm an emptied flagged lot still fires its acquisition flag so the check registers (repros: Ash of War: Lightning Ram 540310, Ornamental Straight Sword 510030). Ships in 0.2.9.",
+    "desc": "🟠 LIVE DEFECT — root cause CONFIRMED (other agent, 2026-07-23), supersedes the earlier shop-weapon-slot hypothesis. Non-goods checks (weapon/armor/talisman/gem-ash) could hand out their VANILLA ware alongside the AP item: the goods lot-blank repoints slots at apPlaceholderGoods (a GOODS row) so it only neutralizes GOODS slots; non-goods wares fell to the id-keyed checkItemFlags suppressor, which only fires if the detour sees the AddItem AND the flag isn’t already collected — so enemy / scarab / scripted overworld drops LEAKED (repros: Ash of War: Lightning Ram 540310, Ornamental Straight Sword 510030). ✅ APWORLD HALF SHIPPED: gen_data now collects the non-goods slots of each check lot into CHECK_LOT_ZERO_MAP / CHECK_LOT_ZERO_ENEMY, emitted via new contract keys checkLotZeroMap / checkLotZeroEnemy — 1013 non-goods checks (978 map + 35 enemy), flagged one-time lots only so zeroing never eats a farmable source; id-keyed suppressor stays armed as backstop for lotless ESD/EMEVD-award checks. ✅ CLIENT HALF LANDED 2026-07-23: check_lots.rs zeroes the non-goods slots from checkLotZeroMap/Enemy (client a98cfc9, CI green); er-archipelago gitlink bumped (0bf4a98). ONLY REMAINING: in-game confirm an emptied flagged lot still fires its acquisition flag so the check registers (repros: Ash of War: Lightning Ram 540310, Ornamental Straight Sword 510030). Ships in 0.2.9. [2026-07-26: COMPLETE -- confirmed by Alaric. Carded done; the bridge closes the issue.]",
     "issue": 97,
     "assignee": null,
     "comments": 0,
-    "activeCol": null
+    "activeCol": "progress"
   },
   {
     "id": "weapon-shop-guard",
@@ -147,15 +147,15 @@ const CARDS = [
   },
   {
     "id": "natural-progression-mode",
-    "col": "ready",
+    "col": "done",
     "pri": "P1",
     "cat": "Modes",
     "title": "Natural-like progression mode",
-    "desc": "⭐ Build-ready (spec + DAG both exist). A mode that gates each region on its legible vanilla key so the player advances through the SPINE in a vanilla-like order — the Threshold Rule: 'enter, then resolve on a capstone boss gated by a real key.' SPEC: docs/history/SPEC-region-capstone-model-20260708.md + WIRING-region-capstone-v0.2.md §1 (dependency DAG, tasks #3–#10). DAG: the lock-chain linearized by features/scaling.py region_sphere (SPINE order == sphere gradient). Primitives are Done (region-spine + legible key-named locks). Task: an option that arranges the capstone locks into the DAG's topological order → natural route; verify with gen-sweep + region-gate tests. Scope: controls progression ORDER only — SCALING stays spheres-based (owned by nr-chain / completion-scaling), not this mode. Full spec now committed: docs/specs/SPEC-vanilla-progression-20260722.md + vanilla-progression-dag.mermaid (the flatten-keep-a-few spine, count/compound gates, DLC fold bloc).",
+    "desc": "⭐ Build-ready (spec + DAG both exist). A mode that gates each region on its legible vanilla key so the player advances through the SPINE in a vanilla-like order — the Threshold Rule: 'enter, then resolve on a capstone boss gated by a real key.' SPEC: docs/history/SPEC-region-capstone-model-20260708.md + WIRING-region-capstone-v0.2.md §1 (dependency DAG, tasks #3–#10). DAG: the lock-chain linearized by features/scaling.py region_sphere (SPINE order == sphere gradient). Primitives are Done (region-spine + legible key-named locks). Task: an option that arranges the capstone locks into the DAG's topological order → natural route; verify with gen-sweep + region-gate tests. Scope: controls progression ORDER only — SCALING stays spheres-based (owned by nr-chain / completion-scaling), not this mode. Full spec now committed: docs/specs/SPEC-vanilla-progression-20260722.md + vanilla-progression-dag.mermaid (the flatten-keep-a-few spine, count/compound gates, DLC fold bloc). [2026-07-26: COMPLETE -- confirmed by Alaric. Carded done; the bridge closes the issue.]",
     "issue": 99,
     "assignee": null,
     "comments": 0,
-    "activeCol": null
+    "activeCol": "ready"
   },
   {
     "id": "boss-name-desc",

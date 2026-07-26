@@ -4,7 +4,7 @@
     "issue": 123
   },
   "vanilla-suppress-class": {
-    "done": false,
+    "done": true,
     "issue": 97
   },
   "weapon-shop-guard": {
@@ -12,7 +12,7 @@
     "issue": 98
   },
   "natural-progression-mode": {
-    "done": false,
+    "done": true,
     "issue": 99
   },
   "boss-name-desc": {
