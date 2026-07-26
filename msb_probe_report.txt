@@ -1,0 +1,87 @@
+=== ROOT DETECTION ===
+  .\elden_ring_artifacts\mapstudio\                            EXISTS
+
+using: .\elden_ring_artifacts\mapstudio\
+
+=== PHASE 1: LAYOUT ===
+files: 400001 (CAPPED)   bytes: 2.2GB
+extensions:
+    393027  .xml
+      3354  .entryfilelist
+      2253  .breakgeom.dcx
+      1347  .msb.dcx
+        10  .03追加】.xml
+         3  .worldloadlistlist.dcx
+         1  .dll
+         1  . Options and seed nocrawl nodeathless noearlymedal nooutfits norandomania scale sombermode v10 weaponreqs bias50 seed1828481127.xml
+         1  .03追加】A.xml
+         1  .03追加】B.xml
+         1  .15】水抜き結果再現判定領域.xml
+         1  .15】王軍浮遊対策.xml
+depth histogram: {0: 1519, 1: 5607, 2: 392874}
+sample paths:
+   m10_00_00_00.msb.dcx
+   m10_00_00_99.msb.dcx
+   m10_01_00_00.msb.dcx
+   m10_01_00_99.msb.dcx
+   m11_00_00_00.msb.dcx
+   m11_00_00_99.msb.dcx
+   m11_05_00_00.msb.dcx
+   m11_05_00_99.msb.dcx
+   m11_10_00_00.msb.dcx
+   m11_10_00_99.msb.dcx
+   m11_70_00_00.msb.dcx
+   m11_71_00_00.msb.dcx
+
+=== PHASE 2: TILE m60_40_39 ===
+files whose name starts with m60_40_39: 436
+   m60_40_39_00_lod0.breakgeom.dcx                            94.0B
+   m60_40_39_00_lod1.breakgeom.dcx                            94.0B
+   m60_40_39_00_lod2.breakgeom.dcx                            94.0B
+   m60_40_39_00接続.xml                                         730.0B
+   m60_40_39_00-AEG004_109_1009.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1022.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1030.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1041.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1042.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1054.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1055.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1056.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1057.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1058.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1059.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1060.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1061.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1062.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1064.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1065.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1066.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1067.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1068.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1070.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1071.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1076.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1078.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1079.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1080.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1081.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1082.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1083.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1084.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1085.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1086.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1087.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1088.xml                           6.7KB
+   m60_40_39_00-AEG004_109_1090.xml                           6.7KB
+   m60_40_39_00-AEG004_110_1012.xml                           6.7KB
+   m60_40_39_00-AEG004_110_1013.xml                           6.7KB
+
+=== PHASE 3: IS 5b9d/6b7b/4f53 (treasure-corpse marker) READABLE IN THESE FILES? ===
+   m60_40_39_00_lod0.breakgeom.dcx                            DCX/packed   marker in: NOT FOUND
+   m60_40_39_00_lod1.breakgeom.dcx                            DCX/packed   marker in: NOT FOUND
+   m60_40_39_00_lod2.breakgeom.dcx                            DCX/packed   marker in: NOT FOUND
+   m60_40_39_00接続.xml                                         other/binary marker in: NOT FOUND
+   m60_40_39_00-AEG004_109_1009.xml                           other/binary marker in: NOT FOUND
+   m60_40_39_00-AEG004_109_1022.xml                           other/binary marker in: NOT FOUND
+   m60_40_39_00-AEG004_109_1030.xml                           other/binary marker in: NOT FOUND
+   m60_40_39_00-AEG004_109_1041.xml                           other/binary marker in: NOT FOUND
