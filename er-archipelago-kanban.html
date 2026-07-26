@@ -673,6 +673,66 @@ const CARDS = [
     "assignee": null,
     "comments": 0,
     "activeCol": null
+  },
+  {
+    "id": "roderika-drops-missing",
+    "col": "ready",
+    "pri": "P1",
+    "cat": "Data",
+    "title": "Roderika's drops are not randomized (Spirit Jellyfish Ashes + Sitting Sideways)",
+    "desc": "IN-GAME, Alaric 2026-07-26. TWO different failures on one NPC. (1) Spirit Jellyfish Ashes, flag 400190: the game datum is present -- flag_lots.tsv line 390 has lot 101900 -> item 236000, and region_map.csv line 920 carries ap 7000918 -- but its region is 'Global / Common-event (unplaced)' with map PENDING, and it appears ZERO times in eldenring/data.py. It never became a check, so the vanilla item is delivered. Cause looks like the familiar one: 400190 is a 6-digit 4xxxxx flag with no map encoding, so _recover_tile cannot decode a tile and the row falls out -- same shape as the 5xxxxx boss-reward flags that needed datamine_boss_reward_lots.py. (2) Sitting Sideways: GESTURE_AWARD_FLAGS in data.py holds 14 entries and this is not one of them -- never captured by _gesture_derive, so there is nothing to place.",
+    "issue": 217,
+    "assignee": null,
+    "comments": 0,
+    "activeCol": null
+  },
+  {
+    "id": "unplaced-global-rows",
+    "col": "ready",
+    "pri": "P1",
+    "cat": "Data",
+    "title": "621 region_map rows are unplaced -- every one is a silently un-randomized vanilla handout",
+    "desc": "MEASURED 2026-07-26 on 3f2b8a5: 621 of 5163 region_map.csv rows have region 'Global / Common-event (unplaced)', all method 'global'. Among them: Flask of Wondrous Physick, Tarnished's Furled Finger, Tailoring Tools, Bloody Finger, White Cipher Ring, and Roderika's Spirit Jellyfish Ashes. None errors; each just hands out the vanilla item. LEAD, needs instrumenting before anyone acts: check_maps.tsv already knows a map for 430 of the 621. That REFRAMES the earlier 'wiring check_maps into gen_data moves ~1-3 checks' measurement, which was about the tile->region exposure for checks that ALREADY EXIST -- it never measured the set of checks that do not exist at all. 400190 itself is NOT in check_maps, so it needs its own join.",
+    "issue": 218,
+    "assignee": null,
+    "comments": 0,
+    "activeCol": null
+  },
+  {
+    "id": "lot-gates-second-handle",
+    "col": "ready",
+    "pri": "P1",
+    "cat": "Region Locks",
+    "title": "Arm the widened cross-region gate screen (re-emit lot_gates.tsv)",
+    "desc": "TOOL FIX SHIPPED 601710e; the DATA half is a manual Tier-2 emit on Alaric's box. datamine_lot_gates now harvests SetEventFlag sites into a gate_map column, so a gate flag with no map encoding can still be located by which map SETS it. Until `python tools/datamine_lot_gates.py --emit` runs, the screen still resolves by flag-number decode alone -- 17 of 227 pairs -- and warns that it is doing so. WHY IT MATTERS: f400191, the Stormhill Shack Golden Seed, is gated on questline flags 3708/3709 and does not exist until you rest at a grace in LIURNIA (Alaric, in play 2026-07-26), yet it is an unprotected Limgrave check that can host required progression. Expect the re-emit to turn test_gf_lot_gates_cross_region RED with newly-visible gates -- that is the gate working. Each one then needs a _QUESTLINE_GATED entry or a real can_reach rule.",
+    "issue": 219,
+    "assignee": null,
+    "comments": 0,
+    "activeCol": null
+  },
+  {
+    "id": "merchant-block-overattribution",
+    "col": "ready",
+    "pri": "P2",
+    "cat": "Shops",
+    "title": "merchant_shops.tsv over-attributes shop rows at BLOCK level",
+    "desc": "FOUND 2026-07-26 while removing the Twin Maiden Husks from seller lists. One ShopLineupParam row is attributed to every merchant whose talk ESD touches its block, so block 1000 claims Gatekeeper Gostoc, Sorceress Sellen and THREE name-states of Bernahl (Knight / Recusant / Sword of) alongside the Husks; block 1005 lists Merchant Kale, 'Nomadic Merchant' and an EMPTY name. This is the old 'block = one merchant' fallacy inverted -- now every block collects a pile of merchants instead of exactly one. Consequences: descriptors name sellers who do not stock the ware, and the same NPC appears as several people. The Husks rule shipped in d89dee5 removes the one name Alaric could prove misleading, but on block 1000 it may be dropping the RIGHT seller while keeping wrong ones. Root fix is in tools/datamine_merchant_shops.py (needs the params) plus deduping NPC name-states.",
+    "issue": 220,
+    "assignee": null,
+    "comments": 0,
+    "activeCol": null
+  },
+  {
+    "id": "f510280-contradictory-provenance",
+    "col": "ready",
+    "pri": "P2",
+    "cat": "Data",
+    "title": "f510280 Golden Seed: three of our own sources disagree about where it is",
+    "desc": "Alaric, 2026-07-26. check_maps.tsv says map m18_00 and map_names.tsv says m18_00 = Cave of Knowledge, which is what the descriptor shows. But gen_data.py line ~2047 hand-pins the region with the comment 'Golden Seed (Stormhill golden sapling, wiki #3)' -- asserting STORMHILL, contradicting m18_00 outright. And flag_lots.tsv shows the flag awards TWO lots: 10280 Golden Seed and 10281 item 201000, a spirit ash the comment names as Banished Knight Oleg, which points at a third place again. A fact asserted in a comment with no test that fails when it stops being true (CONTRIBUTING rule 10). NOTE the seed is NOT in DEFAULTED_REGION_APS, so it is asserted with full confidence and can host progression. Needs Alaric to say where he actually picked it up; that breaks the tie.",
+    "issue": 221,
+    "assignee": null,
+    "comments": 0,
+    "activeCol": null
   }
 ];
 
