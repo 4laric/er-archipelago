@@ -75,8 +75,31 @@ import re
 import pytest
 
 # Measured on main 2026-07-25. RATCHETS: they may only go DOWN.
-MAX_GRACELESS_TILES = 144
-MAX_CHECKS_ON_GRACELESS_TILES = 640
+# RE-PINNED 2026-07-26, and the question CONTRIBUTING demands is answered before touching them:
+# "a count that grows because the ground truth improved is fine; a count that grows because a
+# predicate got looser is a bug. Rebaselining without answering which one it is, is how you launder
+# a regression into a test."
+#
+# THIS ONE GREW BECAUSE THE INPUT GOT BETTER. `datamine_item_grace_coords.py --enemy` located 136
+# more overworld checks (1809 -> 1945; --enemy is opt-in and the previous emit had not used it, so
+# all 61 enemy-source checks were simply absent). Measured against the OLD table at 8e52c6a:
+#
+#     before   144 graceless tiles | 640 of 1809 exposed (35%)
+#     now      145 graceless tiles | 670 of 1945 exposed (34%)
+#
+# One new graceless tile, m60_33_45, which previously held no LOCATED check at all. No predicate
+# moved. ⭐ And the SHARE went DOWN -- we can see more of the map than we could, and a slightly
+# smaller fraction of it is guessed.
+#
+# ⚠️ THE ABSOLUTE COUNTS ARE FRAGILE BY CONSTRUCTION: they can only rise as the coordinate table
+# improves, so they will keep going red for the RIGHT reason and keep inviting a blind bump. That is
+# why MAX_EXPOSED_SHARE below exists -- it is the quantity that actually means something, and it may
+# only fall.
+MAX_GRACELESS_TILES = 145
+MAX_CHECKS_ON_GRACELESS_TILES = 670
+# The honest invariant: the FRACTION of located overworld checks whose region is a tile guess. Unlike
+# the raw counts this cannot be inflated by locating more checks, so it is the one to defend.
+MAX_EXPOSED_SHARE = 0.35
 
 _TILE_RE = re.compile(r"(m6[01])_(\d\d)_(\d\d)")
 
@@ -145,11 +168,19 @@ def test_checks_resolved_by_a_tile_guess_do_not_grow():
     tiles = _check_tiles()
     exposed = sum(n for t, n in tiles.items() if t not in anchor)
     total = sum(tiles.values())
+    share = exposed / total
+    assert share <= MAX_EXPOSED_SHARE, (
+        f"{100.0 * share:.1f}% of located overworld checks ({exposed} of {total}) get their region "
+        f"from a tile GUESS -- over the {100.0 * MAX_EXPOSED_SHARE:.0f}% ceiling. THIS is the "
+        "assertion that means something: it cannot be moved by locating more checks, only by the "
+        "derivation getting worse.")
     assert exposed <= MAX_CHECKS_ON_GRACELESS_TILES, (
-        f"{exposed} of {total} overworld checks ({100.0 * exposed / total:.0f}%) sit on a tile with "
-        f"no grace, so their region is a nearest-neighbour GUESS (pin "
-        f"{MAX_CHECKS_ON_GRACELESS_TILES}). This is the upper bound on tile-guessed regions and it "
-        "may only shrink.")
+        f"{exposed} of {total} overworld checks ({100.0 * share:.0f}%) sit on a tile with no grace, "
+        f"so their region is a nearest-neighbour GUESS (pin {MAX_CHECKS_ON_GRACELESS_TILES}). "
+        "Before raising this, answer the question CONTRIBUTING asks: did the SHARE above also rise? "
+        "If it did not, the coordinate table simply located more checks and this count is expected "
+        "to follow -- re-pin it WITH the before/after measurement, as the 2026-07-26 entry does. If "
+        "the share DID rise, something got worse and the pin is not the problem.")
 
 
 def test_the_summonwater_case_is_still_visible():
