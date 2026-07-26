@@ -2943,6 +2943,12 @@ _NR_RULES = (
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
      "f1034457100); 100020 a 'Ruin Fragment' shop row whose existence as a real check could not be "
      "confirmed"),
+    (lambda _fl, _r: _fl in _QUESTLINE_GATED,
+     "questline_gated: available only after NPC-questline progress whose prerequisite lives in "
+     "ANOTHER region (lot_gates common-event args, 2026-07-25) -- questlines are OUT OF SCOPE, so "
+     "the check is excluded rather than given a fake reachability; if questlines are ever scoped "
+     "in, delete _QUESTLINE_GATED and write an access rule per questline in core.py (the regions "
+     "are RIGHT, the reachability claim is not)"),
     (lambda _fl, _r: _is_mausoleum_dupe(_r),
      "mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss "
      "drop is the real check; the copy can strand once the drop is shuffled"),
@@ -2963,7 +2969,8 @@ _NR_RULES = (
 _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | frozenset({400280})
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
-                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS)
+                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS
+                                   | _QUESTLINE_GATED)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "
