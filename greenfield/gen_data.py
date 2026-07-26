@@ -2944,6 +2944,17 @@ for r in rows:
     _mtile=r.get('map','') or ''
     if not re.match(r'm\d\d', _mtile):
         _mtile=_recover_tile(flag) or ''
+    else:
+        # ...and an LOD TOKEN IS NOT A TILE. The overworld ships coarse LOD variants (m60_XX_YY_01 /
+        # _02) whose XX/YY are on a 2x-4x grid, so a row mapped to one describes itself as
+        # "treasure · m60_10_09" -- a locator that names ground that does not exist at that index,
+        # and one the grace layers cannot resolve either. The flag self-encodes the REAL fine tile
+        # (1XXYY7NNN), so prefer that. MEASURED 2026-07-26: exactly 5 checks were rendering an LOD
+        # token -- the Flail f1042377060 (the LOD guard's own worked example), Lordsworn's
+        # Greatsword, Gravity Stone Fan, Flowing Curved Sword and St. Trina's Torch.
+        _lodm = re.match(r'm6[01]_(\d\d)_(\d\d)', _mtile)
+        if _lodm and not _is_fine_tile(int(_lodm.group(1)), int(_lodm.group(2))):
+            _mtile = _recover_tile(flag) or _mtile
     _desc=_desc_sources.describe(flag, r.get('method',''), _mtile,
         is_boss=('Boss' in _t), is_remembrance=('Remembrance' in _t),
         overrides=_DESC_OVERRIDE, boss_names=_BOSS_NAMES, spot_names=_SPOT_EN, sellers=_SHOP_SELLERS,
