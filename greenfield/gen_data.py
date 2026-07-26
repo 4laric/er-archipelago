@@ -1128,9 +1128,37 @@ _UNPLACEABLE_DLC_COOKBOOKS = frozenset({68510, 68520, 68530, 68540, 68550, 68560
 # (2044467950 / 2046477950 were briefly here; Alaric reclassified them to _SURFACE_EXCLUDE_FLAGS --
 #  kept as ordinary checks, just barred from hosting progression -- rather than dropped from the pool.)
 _SHEET_DROPS = frozenset({14007930, 100020})
+# QUESTLINE-GATED drops -- EXCLUDED because QUESTLINES ARE OUT OF SCOPE (Alaric, 2026-07-25).
+# ⭐ DERIVED, not hand-picked: these are exactly the checks `test_gf_lot_gates_cross_region` reports,
+# i.e. a check in region A whose EMEVD prerequisite flag belongs to region B. They surfaced only once
+# datamine_lot_gates.py learned to resolve common-event ARGUMENTS (the gate is a literal at the
+# $InitializeCommonEvent call site; the test lives in the callee on a parameter, so a literal-only
+# scan saw ~1% of the corpus). Re-derive with `python tools/datamine_lot_gates.py --emit` + that test.
+#
+# Every one is an NPC-QUESTLINE drop: the item sits in region A but does not EXIST until a questline
+# advances in region B. Randomising them asserts a reachability the seed cannot support -- fill can
+# put progression behind a lock the player has no way to open.
+#
+#   400061     Liurnia   :: Shabriri Grape (Revenger's Shack)   <- Weeping        (Edgar / Irina)
+#   400381     Sewer     :: Sword of Milos (Underground Roadside) <- Altus        (Dung Eater)
+#   400394     Ainsel    :: Miniature Ranni (Dragonkin Nokstella) <- Liurnia      (Ranni)
+#   400602     Enir Ilim :: Freyja's Greatsword                 <- Gravesite      (Freyja)
+#   400614     Enir Ilim :: Falx                                <- Ancient Ruins  (Ansbach/Thiollier)
+#   400644     Enir Ilim :: Moore's Bell Bearing                <- Gravesite      (Moore)
+#   400645     Enir Ilim :: Verdigris Greatshield               <- Gravesite/Ensis(Ansbach)
+#   1044357100 Limgrave  :: Larval Tear (Agheel Lake South)     <- Liurnia
+#
+# 🔓 IF QUESTLINES ARE EVER SCOPED IN, this is the set to revisit FIRST -- and the fix is then an
+# access rule in core.py per questline, NOT a region change: the regions here are CORRECT, it is the
+# reachability claim that is not. Related, same scope decision: Roderika's Sitting Sideways Gesture
+# and Spirit Jellyfish Ashes are not checks at all for exactly this reason.
+# 🛑 This list must SHRINK to empty if questlines come in scope -- do not let it calcify. The
+# cross-region test is its keeper: excluding these makes it green, and any NEW questline-gated check
+# turns it red again, which is the loud failure we want rather than a silently growing hand list.
+_QUESTLINE_GATED = frozenset({400061, 400381, 400394, 400602, 400614, 400644, 400645, 1044357100})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS)
+                | _SHEET_DROPS | _QUESTLINE_GATED)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.

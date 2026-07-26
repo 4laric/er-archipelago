@@ -57,6 +57,13 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 
+# 0, and it stays 0. The 8 checks this screen first caught (2026-07-25) were all NPC-QUESTLINE drops
+# -- item in region A, prerequisite in region B -- and were EXCLUDED at the source, in gen_data's
+# _QUESTLINE_GATED, because questlines are out of scope. They were NOT quarantined here: raising this
+# number would have thrown away the only real result the gate hunt has produced. If questlines are
+# ever scoped in, delete that set and give each one an access rule in core.py -- the regions are
+# right, the reachability claim is not -- and this screen is what will tell you when you have missed
+# one, because a new questline-gated check turns it red again.
 MAX_CROSS_REGION_GATES = 0
 
 _PKG = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
