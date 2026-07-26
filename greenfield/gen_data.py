@@ -2110,6 +2110,37 @@ QUEST_GATED_FLAGS = {
     400671, 400672, 400692, 400700, 400702, 400704, 400710, 400711, 400732,
     400740, 510030, 510420, 520400,
 }
+# NPC-STATE-GATED checks -- a SECOND, independent derivation (2026-07-26). These are not gated at an
+# award site at all, so `datamine_lot_gates.py` structurally cannot see them: an NPC state-machine
+# event simply turns the treasure OFF (`DisableAssetTreasure` / `DisableObjAct` at init) and only
+# turns it on once a state flag is set. Found by resolving the ObjAct/asset-disable sites through
+# their $InitializeEvent CALL SITES (137 literal sites -> 1670 resolved; the same call-site blind
+# spot as the lot gates).
+#
+#   m60_33_44 $Event(1033440705) "NPC311 Lord of the Peninsula Fort -- NPC init -- treasure corpse"
+#   holds five checks DISABLED until EventFlag(3409). 3409 is a state in $Event(3419) "NPC311
+#   Peninsula Fort Castle Lord -- character state transition" = EDGAR (band 3405-3417, mutually
+#   exclusive), whose own prerequisites are flags in m60_45_34 / m60_39_40.
+#     1033447000/7010/7020/7030/7040  Liurnia :: Raw Meat Dumpling - near Revenger's Shack (1)..(5)
+#   ⭐ SAME shack, SAME questline, SAME gate as f400061 (Shabriri Grape) -- which is in
+#   _QUESTLINE_GATED above. These five were simply invisible to the screen that caught it.
+#
+#   m31_00 $Event(31002875) "boss room treasure chest switch" (Murkwater Cave) swaps a PAIR on
+#   EventFlag(3691) -- a state in $Event(3699) "NPC309 Thief Head" = PATCHES (band 3685-3699,
+#   mutually exclusive). !3691 -> 31001521 live and 31001523 disabled; 3691 -> the exact reverse.
+#     31007010  Limgrave :: Cloth Garb    (Alaric: the chest Patches ambushes you at)
+#     31007030  Limgrave :: Glass Shard   (Alaric: believed the trap chest)
+#   ⚠️ Exactly ONE of the pair exists at a time. Whether a player can obtain BOTH across a run is a
+#   LIVE-GAME question nobody has answered; Alaric's call was to tag them "for safety" rather than
+#   assume. Tagging costs a filler slot; assuming wrong costs an unwinnable seed.
+#
+# 🛑 Kept SEPARATE from _QUESTLINE_GATED on purpose: that set's provenance is "what the cross-region
+# lot_gates screen reports", and its keeper test re-derives exactly that. Folding a different
+# derivation into it would make the set unfalsifiable by its own test.
+_NPC_STATE_GATED = frozenset({
+    1033447000, 1033447010, 1033447020, 1033447030, 1033447040,   # Edgar / Revenger's Shack
+    31007010, 31007030,                                            # Patches / Murkwater Cave pair
+})
 # ⭐ Fold in the CROSS-REGION-gated set derived above (_QUESTLINE_GATED). Alaric 2026-07-26: randomised
 # + missable BEATS excluded -- the pickup stays in the pool and only loses the right to host REQUIRED
 # progression, which is the one thing that could strand a seed.
@@ -2117,10 +2148,12 @@ QUEST_GATED_FLAGS = {
 # EMEVD cross-region screen -- and they OVERLAP. Print the split rather than let a silent union hide
 # either the corroboration or a set that has stopped contributing anything.
 _QG_NEW = _QUESTLINE_GATED - QUEST_GATED_FLAGS
-print("quest_gated: %d hand-audited flag(s); cross-region screen adds %d NEW %s, %d already covered "
-      "by BOTH derivations" % (len(QUEST_GATED_FLAGS), len(_QG_NEW), sorted(_QG_NEW),
-                               len(_QUESTLINE_GATED) - len(_QG_NEW)))
-QUEST_GATED_FLAGS |= _QUESTLINE_GATED
+_NS_NEW = _NPC_STATE_GATED - QUEST_GATED_FLAGS - _QUESTLINE_GATED
+print("quest_gated: %d hand-audited flag(s); cross-region screen adds %d NEW %s (%d covered by BOTH); "
+      "NPC-state/asset-disable scan adds %d NEW %s"
+      % (len(QUEST_GATED_FLAGS), len(_QG_NEW), sorted(_QG_NEW),
+         len(_QUESTLINE_GATED) - len(_QG_NEW), len(_NS_NEW), sorted(_NS_NEW)))
+QUEST_GATED_FLAGS |= _QUESTLINE_GATED | _NPC_STATE_GATED
 
 
 # Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in
