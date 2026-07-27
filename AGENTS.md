@@ -434,6 +434,26 @@ tiles land 50–122 m from a real named grace. `test_gf_desc_triage.py` pins it 
 cases and asserts every projected point lands inside its map — so if it is wrong, it is wrong
 *visibly and consistently*, not silently. To falsify: check one of those five merchants in game.
 
+**🛑 MEASURED AND KILLED 2026-07-27 — do not rebuild this.** When the full msg set landed,
+`PlaceName` (1007 ids) × `WorldMapPointParam` (472 markers, 289 resolving to a real place name with
+a position and a reveal flag) looked like the obvious way to upgrade the weak descriptors. It is
+not, and the number is not close:
+
+| | |
+|---|---|
+| weak-descriptor checks (bare 144 / machine-locale 181 / coarse "around" 656) | **982** |
+| …of those, having ANY datamined coordinate | **80 (8%)** |
+| …within 300 m of a named map point | **17 (2%)** |
+
+**The ceiling is the CHECKS, not the map points.** 902 of the 982 have no position at all — they are
+weak *because* they are unplaced, so no spatial source can reach them, and a better place-name
+corpus changes nothing. Of the 80 that ARE placed, 17 do get a name (21% of the addressable set),
+which is fine and worthless at that scale.
+
+Two routes that would actually move it, neither cheap: get coordinates for the 902 (that is the MSB
+gap again — `item_grace_coords.tsv` is a Windows MSB datamine), or improve the descriptor from a
+NON-spatial source (who drops it, which quest, which shop). Measure before building either.
+
 🛑 Related, NOT fixed here: `tools/build_nearest_grace.py::_normalize` folds every overworld tile at
 `*256` regardless of LOD and its regex requires a trailing `_`, so (a) 17 LOD2 check flags and
 (b) **all 570 merchant-only flags** get no nearest grace at all. Both are missing-never-wrong under
