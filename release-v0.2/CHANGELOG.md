@@ -3,6 +3,28 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.12 — unreleased
+
+Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Location
+names changed in this release, so an in-flight seed will not match a new tracker — finish
+old seeds before updating, or reroll.
+
+### Changed — apworld
+
+- **24 checks now name a landmark, and five of them said nothing at all before.** A check's
+  tracker line ends with the nearest Site of Grace to where the item actually is, and a boss
+  **reward** never had one — it is handed over by an event rather than placed in the map, so
+  there was no position to measure from. Those rewards now borrow their boss's arena. Five
+  bare lines gained a landmark (*Sword of Night*, *Claws of Night*, *Priestess Heart*, and
+  Igon's rewards), three stopped showing a raw map id (*Hoslow's Petal Whip* now reads **near
+  Consecrated Snowfield Catacombs**), and sixteen got sharper — *Bull-Goat Helm* went from
+  "around Ruin-Strewn Precipice" to **near Magma Wyrm Makar**. They are a small set but a
+  memorable one: legendary weapons, key items and Deathroot. The landmark is the **boss's**
+  location rather than the item's, which is an inference and recorded as one — so where a boss
+  can be fought in more than one place it is refused rather than guessed. Fire Knight Queelign
+  is fightable at the Church of the Crusade or in Belurat and drops the Crusade Insignia first
+  and the Prayer Room Key second wherever those happen, so neither keeps a landmark.
+
 ## v0.2.11 — 2026-07-26
 
 Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Location

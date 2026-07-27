@@ -4,7 +4,7 @@
 # 🛑 This is the ARENA, not the item's own spot, and it is DERIVED not measured --
 #    which is why it lives here and NOT in item_grace_coords.tsv. Keep the `via`
 #    column with the row; a consumer must be able to tell these apart.
-# EMITTED 27 unambiguous.
+# EMITTED 24 unambiguous.
 # REFUSED 31 AMBIGUOUS (block named >1 arena -- guessing would be a
 #    coin flip presented as a datum). Listed so the count is never read as zero:
 #    refused flag 9500: candidates 11050800,11050850
@@ -38,6 +38,43 @@
 #    refused flag 15001270: candidates 15000800,15000850
 #    refused flag 15001280: candidates 15000800,15000850
 #    refused flag 15001290: candidates 15000800,15000850
+# REFUSED 33 attributed to SEVERAL MAPS -- a relocating NPC's drop, where
+#    which site you get it at depends on ENCOUNTER ORDER, not on anything derivable
+#    (Fire Knight Queelign: Church of the Crusade AND Belurat). Naming one of them
+#    would be confidently wrong half the time:
+#    refused flag 60510: sites m10_00,m11_00
+#    refused flag 400033: sites m10_01,m60_37_49
+#    refused flag 400061: sites m60_33_44,m60_43_31,m60_45_34
+#    refused flag 400614: sites m20_01,m21_00,m61_44_46
+#    refused flag 400645: sites m61_45_41,m61_47_46,m61_48_40,m61_48_44,m61_49_46,m61_50_47
+#    refused flag 400694: sites m20_00,m61_47_46
+#    refused flag 400696: sites m20_00,m61_47_46
+#    refused flag 510610: sites m40_02,m61_52_43
+#    refused flag 520800: sites m34_10,m43_00
+#    refused flag 530300: sites m60_37_51,m60_41_52
+#    refused flag 2045477500: sites m61_45_47,m61_50_46
+#    refused flag 2045477510: sites m61_45_47,m61_50_46
+#    refused flag 2045477520: sites m61_45_47,m61_50_46
+#    refused flag 2045477530: sites m61_45_47,m61_50_46
+#    refused flag 2045477540: sites m61_45_47,m61_50_46
+#    refused flag 2045477550: sites m61_45_47,m61_50_46
+#    refused flag 2045477560: sites m61_45_47,m61_50_46
+#    refused flag 2045477570: sites m61_45_47,m61_50_46
+#    refused flag 2045477580: sites m61_45_47,m61_50_46
+#    refused flag 2045477590: sites m61_45_47,m61_50_46
+#    refused flag 2045477600: sites m61_45_47,m61_50_46
+#    refused flag 2045477700: sites m40_00,m61_50_46
+#    refused flag 2045477710: sites m40_00,m61_50_46
+#    refused flag 2045477720: sites m40_00,m61_50_46
+#    refused flag 2045477730: sites m40_00,m61_50_46
+#    refused flag 2045477740: sites m40_00,m61_50_46
+#    refused flag 2045477750: sites m40_00,m61_50_46
+#    refused flag 2045477760: sites m40_00,m61_50_46
+#    refused flag 2045477770: sites m40_00,m61_50_46
+#    refused flag 2045477780: sites m40_00,m61_50_46
+#    refused flag 2045477790: sites m40_00,m61_50_46
+#    refused flag 2045477800: sites m40_00,m61_50_46
+#    refused flag 2045477900: sites m40_00,m61_45_47,m61_50_46
 # REFUSED 2 where the arena flag is the check's OWN GATE flag
 #    (the block references the boss to GATE the item, not to award it there):
 #    refused flag 400666: arena 2051450800 is its gate_flag in lot_gates.tsv
@@ -48,14 +85,11 @@ item	400149	m60_35_50_00	-31.85	430.95	100.61		boss_arena	1035500800	awarding EM
 item	400393	m60_35_42_00	-38.61	269.17	-17.9		boss_arena	1035420800	awarding EMEVD block in m60_35_42 references defeat flag 1035420800
 item	400460	m60_39_44_00	-81.59	294.79	-41.36		boss_arena	1039440800	awarding EMEVD block in m60_39_44 references defeat flag 1039440800
 item	400598	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
-item	400614	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
 item	400624	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
 item	400632	m22_00_00_00	-70.1	-295.01	104.29		boss_arena	22000800	awarding EMEVD block in m22_00 references defeat flag 22000800
 item	400634	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
 item	400671	m61_51_45_00	-95.17	472.02	-5.55		boss_arena	2051450800	awarding EMEVD block in m61_51_45 references defeat flag 2051450800
 item	400672	m61_51_45_00	-95.17	472.02	-5.55		boss_arena	2051450800	awarding EMEVD block in m61_51_45 references defeat flag 2051450800
-item	400694	m20_00_00_00	-43.02	118.48	336.61		boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
-item	400696	m20_00_00_00	-43.02	118.48	336.61		boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
 item	400704	m61_54_39_00	112.04	953.86	26.01		boss_arena	2054390800	awarding EMEVD block in m61_49_39 references defeat flag 2054390800
 item	400712	m61_52_40_00	-69.75	287.39	-77.82		boss_arena	2052400800	awarding EMEVD block in m61_52_40 references defeat flag 2052400800
 item	400714	m61_52_40_00	-69.75	287.39	-77.82		boss_arena	2052400800	awarding EMEVD block in m61_52_40 references defeat flag 2052400800

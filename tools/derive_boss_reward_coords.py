@@ -19,23 +19,31 @@ that references the check's flag. If that same block references a GameAreaParam 
 event that awards the lot is the event that waits on that boss dying -- so the reward is AT that
 boss, and the arena position is a sound anchor for it.
 
-🛑 TWO REFUSALS, AND THEY ARE MOST OF THE STORY. The headline number fell by more than half once
-each was applied, and both were found by cross-checking rather than by the join itself:
+🛑 THREE REFUSALS, AND THEY ARE MOST OF THE STORY. The headline fell from 59 to 24 as each was
+added, and NOT ONE of them was visible from the join itself -- every one came from cross-checking
+against something else:
 
-    60 blocks matched
-   -31  AMBIGUOUS: the block names TWO arenas. m10_00's names both 10000800 (Godrick) and
-        10000850 (Margit), so "take the first" -- which my first pass did, reporting 59 -- is a
-        coin flip presented as a datum.
-   - 2  GATE, NOT AWARD SITE: a block can reference a defeat flag because the item is GATED
-        behind that boss ("available once X is dead"), which says nothing about WHERE it is.
-        lot_gates.tsv already knows this; f400666 and f16007690 are gated BY the very arena we
-        anchored them to. (22 of 29 appear in lot_gates at all, but only these 2 are gated by
-        their own anchor -- so this refuses exactly the provably-wrong ones.)
-    =27 EMITTED
+   -33  SEVERAL POSSIBLE SITES: a relocating NPC's drop is attributed to every map he can be
+        fought in, and WHICH ONE you get it at depends on encounter ORDER -- nothing in the data
+        decides it. Fire Knight Queelign appears at the Church of the Crusade AND in Belurat and
+        drops Crusade Insignia first, Prayer Room Key second, wherever those happen. My first
+        version took `setdefault` (first map wins) and cheerfully said "near Theatre of the Divine
+        Beast" for a key you may have picked up in Scadu Altus.
+   -31  AMBIGUOUS ARENA: the block names TWO arenas. m10_00's names both 10000800 (Godrick) and
+        10000850 (Margit), so "take the first" -- which my first pass also did -- is a coin flip
+        presented as a datum.
+   - 2  GATE, NOT AWARD SITE: a block can reference a defeat flag because the item is GATED behind
+        that boss, which says nothing about WHERE it is. lot_gates.tsv already knows: f400666 and
+        f16007690 are gated BY the very arena we anchored them to.
+    =24 EMITTED
 
-Both refusal lists are written into the tsv header so the counts can never be read as zero.
+All three refusal lists are written into the tsv header, with their candidates, so no count can be
+read as zero and nothing is lost if a disambiguator turns up.
 
-Honest yield: 27 checks. 4086 -> 4113 of 4875 (83.8% -> 84.4%).
+Honest yield: 24 checks. 4086 -> 4110 of 4875 (83.8% -> 84.3%).
+
+⭐ THE PATTERN WORTH KEEPING: every refusal here started as a confident number. 59 -> 27 -> 24. A
+join that cannot see its own ambiguity will report the ambiguity as a finding.
 
 🛑 THE POSITION IS THE ARENA, NOT THE ITEM. It is DERIVED, not measured, which is why it lands in
 its own file with a `via` column rather than being merged into item_grace_coords.tsv. A consumer
@@ -87,13 +95,27 @@ def main():
     LOC = load_module_consts(os.path.join(gf, "eldenring", "data.py"), {"LOCATIONS"})["LOCATIONS"]
     checks = {f for v in LOC.values() for (_n, _a, f) in v}
 
-    targets = {}
+    # 🛑 ONE CHECK, SEVERAL PLACES. A relocating NPC's drop is attributed to EVERY map he can be
+    # fought in, and which one you get it at depends on the ORDER you meet him -- not on anything
+    # in the data. Fire Knight Queelign is the case that exposed this (Alaric, from the wiki, and
+    # msb_flag_region agrees): he appears at the Church of the Crusade AND in Belurat, and drops
+    # Crusade Insignia first and the Prayer Room Key second WHEREVER those encounters happen. So
+    # f400694/f400696 are each attributed to BOTH m20_00 and m61_47_46.
+    #
+    # The first version of this took `setdefault` -- first map wins, the rest silently dropped --
+    # which is exactly the `bosses[0]` mistake refused above, and it produced "near Theatre of the
+    # Divine Beast" for a key you may well have picked up in Scadu Altus. A descriptor that names
+    # ONE of two possible places is worse than no descriptor: it is confidently wrong half the time.
+    # So a multi-map check is REFUSED, and the sites are listed.
+    all_maps = defaultdict(set)
     for r in read_tsv(os.path.join(gf, "msb_flag_region.tsv")):
         if not r.get("flag", "").isdigit():
             continue
         f = int(r["flag"])
         if r.get("source") == "event" and f in checks and f not in positioned:
-            targets.setdefault(f, r["map_id"])
+            all_maps[f].add(r["map_id"])
+    multimap = {f: sorted(m) for f, m in all_maps.items() if len(m) > 1}
+    targets = {f: sorted(m)[0] for f, m in all_maps.items() if len(m) == 1}
 
     by_map = defaultdict(list)
     for f, mp in targets.items():
@@ -169,6 +191,12 @@ def main():
         fh.write("#    coin flip presented as a datum). Listed so the count is never read as zero:\n")
         for f, bs in refused:
             fh.write(f"#    refused flag {f}: candidates {','.join(str(b) for b in bs)}\n")
+        fh.write(f"# REFUSED {len(multimap)} attributed to SEVERAL MAPS -- a relocating NPC's drop, where\n")
+        fh.write("#    which site you get it at depends on ENCOUNTER ORDER, not on anything derivable\n")
+        fh.write("#    (Fire Knight Queelign: Church of the Crusade AND Belurat). Naming one of them\n")
+        fh.write("#    would be confidently wrong half the time:\n")
+        for f, ms in sorted(multimap.items()):
+            fh.write(f"#    refused flag {f}: sites {','.join(ms)}\n")
         fh.write(f"# REFUSED {len(gate_refused)} where the arena flag is the check's OWN GATE flag\n")
         fh.write("#    (the block references the boss to GATE the item, not to award it there):\n")
         for f, b in gate_refused:
@@ -182,6 +210,7 @@ def main():
     print(f"  blocks matched                       : {len(found)}")
     print(f"  EMITTED (unambiguous)                : {len(emitted)}")
     print(f"  REFUSED (ambiguous, >1 arena)        : {len(refused)}")
+    print(f"  REFUSED (several possible sites)     : {len(multimap)}  {sorted(multimap)}")
     print(f"  REFUSED (arena flag GATES the check) : {len(gate_refused)}  {gate_refused or ''}")
     print(f"  coverage {len(positioned)} -> {len(positioned) + len(emitted)} of {len(checks)}"
           f"  ({100*len(positioned)/len(checks):.1f}% -> "

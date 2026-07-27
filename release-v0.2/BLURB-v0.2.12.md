@@ -1,7 +1,12 @@
 # v0.2.12 — release blurb (draft)
 
-> Drafted 2026-07-27. **Two things to settle before this ships** — see "Before you post" at the
+> Drafted 2026-07-27. **Three things to settle before this ships** — see "Before you post" at the
 > bottom. Everything above it is verified; nothing there is a guess.
+>
+> 🛑 **ONE OF THEM IS A REGEN.** The landmark section below describes the world AFTER a second
+> `gen_data` run. The regen already pushed contains one descriptor I have since withdrawn
+> (*Crusade Insignia — near Theatre of the Divine Beast*, wrong for half of players — see the
+> Queelign note). Ship the blurb only after regenerating, or that line goes out with it.
 
 ---
 
@@ -24,11 +29,15 @@ strength vanilla reserves for its endgame — where it previously stopped at 3.7
 rises with it. **This changes the default experience**, so if you liked v0.2.11's curve, set
 `maximum_enemy_difficulty: 50`.
 
-Also: enemies get scaled noticeably sooner after a fast travel, and a long-standing crash around
-Siofra and the Eternal Cities has been fixed at the root.
+Also: enemies get scaled noticeably sooner after a fast travel, a long-standing crash around Siofra
+and the Eternal Cities has been fixed at the root, and **24 checks now tell you where they are** —
+including five that previously said nothing at all.
 
 **Update both halves.** The apworld and the client `.dll` ship as a matched pair and now carry the
 same version number for the first time.
+
+⚠️ **Location names changed again this release**, so an in-flight seed will not match a new tracker.
+Finish old seeds before updating, or reroll.
 
 ---
 
@@ -80,6 +89,32 @@ That is a deliberate balance change, not a side effect. If you preferred the old
   not understand. If you generate with an option your `.dll` predates, it says so on screen and in
   the log, naming the option.
 
+### 24 checks now say where they are
+
+A check's tracker line ends with a landmark — *Reduvia — near Murkwater Cave*. That landmark comes
+from the nearest Site of Grace to the item's actual position, and a boss's reward never had one:
+unlike a chest or a corpse, it is handed to you by an event and is not placed anywhere in the map
+data, so there was nothing to measure a distance from.
+
+Those rewards can now borrow their boss's arena. 24 lines improved:
+
+- **Five said nothing at all** and now do — *Sword of Night* and *Claws of Night* (near Cathedral of
+  Manus Metyr), *Priestess Heart* (near Rest of the Dread Dragon), and Igon's rewards at the foot of
+  the Jagged Peak.
+- **Three were showing a raw map id** like `m60_50_56`. *Hoslow's Petal Whip* now reads **near
+  Consecrated Snowfield Catacombs**, which is where Juno Hoslow invades you.
+- **Sixteen got sharper** — *around* a landmark became *near* one, or a better landmark entirely:
+  *Bull-Goat Helm* moved from "around Ruin-Strewn Precipice" to **near Magma Wyrm Makar**, and
+  *St. Trina's Blossom* from "around Stone Coffin Fissure" to **near Garden of Deep Purple**.
+
+Not many checks, but they are the memorable ones — legendary weapons, key items and Deathroot.
+
+Some rewards deliberately **kept** their blank line rather than get a wrong one. Fire Knight
+Queelign can be fought at the Church of the Crusade *or* in Belurat, and drops the Crusade Insignia
+first and the Prayer Room Key second — wherever those two fights happen to be for you. There is no
+fact in the game data about which site your key came from, so naming one would be wrong for half of
+you. Those checks say nothing instead.
+
 ### Renamed options
 
 `completion_scaling_floor` → `minimum_enemy_difficulty`, and `completion_scaling_ramp` →
@@ -101,7 +136,7 @@ needed to be. They ship as a matched pair; they now say so.
 
 ## Before you post
 
-Two items I could not settle from here:
+Items I could not settle from here:
 
 1. **The in-game crash check is not done.** The Siofra fix is verified by inspection and by the
    Windows build, but nobody has run the game with it. It needs a Siofra well descent and a warp to
@@ -112,5 +147,26 @@ Two items I could not settle from here:
    this is the change most likely to generate feedback. Consider a short seed at defaults before
    shipping.
 
-Anything of yours from this window that belongs here — the check browser, the description work, the
-item-naming sweep — I have deliberately left out rather than describe from commit subjects.
+3. **REGENERATE BEFORE POSTING, and re-read the Queelign paragraph after you do.** The pushed
+   regen still has *Crusade Insignia — near Theatre of the Divine Beast*. Queelign is fightable at
+   the Church of the Crusade **or** in Belurat, dropping the Crusade Insignia first and the Prayer
+   Room Key second wherever those fights land, so no single landmark is right for everyone. That
+   check is now refused and will go back to having no landmark on the next `gen_data` — at which
+   point the paragraph above is true and the count is **24**, not 26. It is 26 in the currently
+   pushed data, two of which I no longer stand behind.
+
+   ⚠️ The hand-written line **`400696 → "Kill Queelign in church of the crusade"`** in
+   `location_descriptions.tsv` has the same problem, and I have NOT touched it because it is
+   yours. It names one of the two sites, so it is wrong for anyone who met him in Belurat first.
+   Something like *"dropped by Fire Knight Queelign"* would be true for everyone.
+
+4. **Nothing else from the tooling window belongs in a player blurb, and I left it out on purpose.**
+   The check browser, the description-triage page, the item-naming sweep, the params/msg bundling
+   and the provenance work are all developer-facing: they changed how we *find* things, not what a
+   player sees. The only player-visible output of that whole stretch is the 26 landmarks above —
+   so that is the only part written up. Resisting the urge to list the rest is the point.
+
+⚠️ One thing I DID add that is not a feature: the **location-names-changed warning** in the short
+version. 26 names moved this release, and by this project's own convention (v0.2.11 carried the same
+note) that breaks an in-flight seed's tracker. It was missing from the draft and matters more to a
+player mid-run than anything else on this page.
