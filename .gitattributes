@@ -1,4 +1,9 @@
 * text=auto
+
+# Generated, and CI fails on a non-empty diff of it -- pin LF so a Windows regen and the
+# Linux CI regen produce identical bytes. tools/build_check_browser.py also writes LF.
+er-archipelago-check-browser.html text eol=lf
+
 *.dcx binary
 *.bin binary
 *.dll binary

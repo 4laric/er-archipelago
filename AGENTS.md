@@ -359,6 +359,15 @@ are absent in CI). Know which tier your change is in:
   (warp→play_region) → `REGION_ID_MAP.md` (play_region→region). Use this instead of MSBs —
   `soulstruct` is **Oodle-blocked** on packed `.msb.dcx` (the Oodle DLL is Windows-only).
 - Decompiled EMEVD is greppable text at `elden_ring_artifacts/event/*.emevd.dcx.js`.
+- **Reading the corpus by hand:** open `er-archipelago-check-browser.html` (root, no server, no
+  artifacts). One offline page over all checks — full-text search plus facets for region, tag,
+  map tile, and *property* (`missable`, `has lot gate`, `no map position`, `no nearest grace`,
+  `shop row`), with per-check item lots, shop rows, gates, maps and nearest grace. Regenerate with
+  `python tools/build_check_browser.py` after any `gen_data.py` run; it is AP-free and joins only
+  committed greenfield data, so it can be rebuilt in the sandbox. CI regenerates it and fails on a
+  non-empty diff, and `tests/test_gf_check_browser.py` gates totality/agreement/determinism.
+  It is a **reader**, not an oracle: it shows what the world already declares, and any number it
+  displays is a join over the same tsvs the generators use.
 
 ## 6. The truncation gate (why edits are safe)
 

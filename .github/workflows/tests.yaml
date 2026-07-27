@@ -154,6 +154,10 @@ jobs:
           python tools/gen_location_regions.py
           python tools/gen_region_locks.py
           python greenfield/gen_contract.py
+          # Pure join over committed greenfield data -> er-archipelago-check-browser.html.
+          # It is stamped with data.py's inputs_hash (NOT the commit) and writes LF, so a
+          # regen here is byte-identical to a Windows regen and the diff below is meaningful.
+          python tools/build_check_browser.py
 
           # Check the two things that are actually GENERATED OUTPUT, in the two places they live.
           #
