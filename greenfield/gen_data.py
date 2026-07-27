@@ -2791,6 +2791,60 @@ print(f"finale: requires {FINALE_REQUIRES} (burn trigger in {_fin_burn_region!r}
 # gesture goods are kept OUT of ITEM_CATALOG/LOCATION_ITEM: granting a gesture-linked goods id has
 # no verified client grant path, so the pool must not carry it (the locations pay Rune/filler).
 _GESTURE_EVENTS = ("90005570", "900005571")
+# ---- THE THIRD AWARD CORPUS: gestures an NPC TEACHES YOU IN DIALOGUE ---------------------------
+# _gesture_derive below reads EMEVD only, so an ESD-taught gesture is structurally invisible to it:
+# Roderika teaches "Sitting Sideways", the player learns the vanilla gesture, and nothing fires
+# (Alaric, in-game 2026-07-26; kanban #217). greenfield/esd_gestures.tsv is the fix -- emitted by
+# tools/datamine_esd_gestures.py from the decompiled talk ESD (Tier 2, AGENTS §5a: `-All` CONSUMES
+# it and never emits it; the datamine is run by hand and its output committed FIRST).
+# 🛑 The ESD verb is `AcquireGesture`, NOT the EMEVD's `AwardGesture` -- measured by
+# tools/probe_esd_gestures.py, because a regex on the wrong spelling returns a confident empty
+# table that reads exactly like "no NPC teaches a gesture".
+_ESD_GESTURES_TSV = os.path.join(HERE, "esd_gestures.tsv")
+# REGION GROUND TRUTH for ESD-taught gestures. Everything else goes to the HUB on purpose -- see
+# _gesture_derive's ESD block for why the ESD map column cannot be trusted as a place.
+#   60803 / 60835 = Roderika's two (gestures 3 and 93; 93 is Sitting Sideways). Alaric 2026-07-26,
+#   "ashes are in limgrave, same as the gesture" -- the same call that pinned f400190.
+_ESD_GESTURE_REGION = {60803: "Limgrave", 60835: "Limgrave"}
+# Count PIN, MEASURED on the 2026-07-26 emit (45 rows / 20 distinct flags / all state-scoped, zero
+# unpaired and zero ambiguous -- the tool REFUSES to emit otherwise, so a successful emit is the
+# proof). 2 of the 20 are corroboration rows the EMEVD scan already knows (60819 g41, 60832 g90 --
+# both Patches: one interaction, two script sources), leaving 18 NEW checks. A different shape means
+# the corpus or the pairing rule changed; find out WHICH before touching these numbers.
+_ESD_GESTURE_PINS = {"rows": 45, "flags": 20, "corroborated": 2, "new": 18}
+
+
+def _read_esd_gestures():
+    """flag -> (gesture_id, sorted map ids) from esd_gestures.tsv. Refuses on an absent or empty
+    table: an empty result here is indistinguishable from "no NPC teaches a gesture", which is the
+    exact bug this corpus exists to fix."""
+    if not os.path.isfile(_ESD_GESTURES_TSV):
+        raise SystemExit(f"FATAL: {_ESD_GESTURES_TSV} is missing. It is a gen_data INPUT that "
+                         f"`build.ps1 -All` does NOT emit (AGENTS §5a Tier 2) -- run "
+                         f"`python tools/datamine_esd_gestures.py` and commit the tsv first.")
+    _byflag = {}
+    _maps = defaultdict(set)
+    _n = 0
+    for _ln in open(_ESD_GESTURES_TSV, encoding="utf-8"):
+        if _ln.startswith("#") or _ln.startswith("gesture_id\t"):
+            continue
+        _c = _ln.rstrip("\n").split("\t")
+        if len(_c) < 6 or not (_c[0].isdigit() and _c[1].isdigit()):
+            continue
+        _n += 1
+        _g, _f = int(_c[0]), int(_c[1])
+        if _byflag.setdefault(_f, _g) != _g:
+            raise SystemExit(f"FATAL: esd_gestures.tsv pairs flag {_f} with BOTH gesture "
+                             f"{_byflag[_f]} and {_g} -- that is not one check. Re-emit; the "
+                             f"pairing rule broke.")
+        _maps[_f].add(_c[3])
+    if _n != _ESD_GESTURE_PINS["rows"] or len(_byflag) != _ESD_GESTURE_PINS["flags"]:
+        raise SystemExit(f"FATAL: esd_gestures.tsv shape drift: {_n} rows / {len(_byflag)} flags "
+                         f"(pinned {_ESD_GESTURE_PINS['rows']} / {_ESD_GESTURE_PINS['flags']}). "
+                         f"Re-derive and explain the delta before re-pinning.")
+    return {_f: (_g, sorted(_maps[_f])) for _f, _g in _byflag.items()}
+
+
 def _gesture_derive():
     _gp = os.path.join(AR, "vanilla_er", "vanilla_er", "GestureParam.csv")
     if not (os.path.isdir(_EV_DIR_F) and os.path.isfile(_gp)):
@@ -2957,6 +3011,32 @@ def _gesture_derive():
                          f"flags -- one interaction, two sources; reconcile (keep exactly one)")
     for _fl8, _v8 in _npc_by_flag.items():
         _by_flag[_fl8].extend(_v8)
+    # ---- THIRD CORPUS: the ESD-taught gestures (see _read_esd_gestures above) -------------------
+    # Two flags here are ALREADY EMEVD checks (Patches: 60819 g41, 60832 g90) -- one physical
+    # interaction with two script sources. They are NOT minted twice: the consumer must keep exactly
+    # one location per flag. Their value is as a POSITIVE CONTROL on the ESD pairing rule, whose
+    # answer is known independently -- so disagreement is FATAL, not a tiebreak.
+    _esd = _read_esd_gestures()
+    _esd_new = {}
+    _corroborated = 0
+    for _fl8 in sorted(_esd):
+        _gid8, _maps8 = _esd[_fl8]
+        if _fl8 in _by_flag:
+            _known8 = {_g8 for (_g8, _m8) in _by_flag[_fl8]}
+            if _known8 != {_gid8}:
+                raise SystemExit(f"FATAL: ESD says flag {_fl8} awards gesture {_gid8}; the EMEVD "
+                                 f"scan says {sorted(_known8)}. The ESD pairing rule and the "
+                                 f"committed EMEVD table disagree on a row whose answer is known -- "
+                                 f"every other ESD row is suspect until that is explained")
+            _corroborated += 1
+            continue
+        _esd_new[_fl8] = (_gid8, _maps8)
+    if (_corroborated != _ESD_GESTURE_PINS["corroborated"]
+            or len(_esd_new) != _ESD_GESTURE_PINS["new"]):
+        raise SystemExit(f"FATAL: ESD gesture overlap drift: {_corroborated} corroborated / "
+                         f"{len(_esd_new)} new (pinned {_ESD_GESTURE_PINS['corroborated']} / "
+                         f"{_ESD_GESTURE_PINS['new']}). A shrinking overlap means the control "
+                         f"stopped running; a growing one means a check may now have two sources")
     # a shared flag must award ONE gesture (else it is not one check).
     for _fl8, _v8 in _by_flag.items():
         if len({_g8 for (_g8, _m8) in _v8}) != 1:
@@ -2966,7 +3046,7 @@ def _gesture_derive():
     # universe). NOTE the premise is NOT "no gesture-linked goods is ever lot-awarded" -- the DLC
     # missive goods are (2009004 'O Mother' is a normal treasure, its own check f2050457510); the
     # first run of this derivation asserted the goods form and died on exactly that, correctly.
-    _in_award_universe = sorted(set(_by_flag) & (REAL_FLAGS or set()))
+    _in_award_universe = sorted((set(_by_flag) | set(_esd_new)) & (REAL_FLAGS or set()))
     if _in_award_universe:
         raise SystemExit(f"FATAL: gesture flags {_in_award_universe} ARE in the ItemLotParam/shop "
                          f"award universe -- the detect-only premise is dead for them; redesign, "
@@ -3003,10 +3083,40 @@ def _gesture_derive():
                        "item_name": _nm8, "map": _maps8[0] if len(_maps8) == 1 else ";".join(_maps8),
                        "region": _region[_fl8], "method": "gesture"})
         _table[_fl8] = (_gid8, 0x40000000 | _good8, _nm8)
-    return _rows8, _region, _table, len(_sites), len(_npc), len(_npc_riders)
+    # ---- ESD-taught gestures: same row shape, DIFFERENT region rule ----------------------------
+    # 🛑 The ESD map column is the talkesdbnd CONTAINER the dialogue file lives in, NOT where the NPC
+    # stands: 'm60_00_00_00' is the shared overworld bundle and 'm00_00_00_00' the common one. Worse,
+    # these NPCs RELOCATE -- that is precisely why one gesture shows up under four or five talk maps
+    # (60841 spans m11_00/m11_05/m11_10/m60_00). Feeding that to _tile_prefix2 would decode
+    # 'm60_00_00_00' to tile (0,0) and tile_pr would nearest-neighbour it to a confident, WRONG
+    # region -- the identical mechanism as the LOD bug that put a Limgrave Flail in Weeping.
+    # So: HUB unless there is GROUND TRUTH. HUB is a DEFAULTED region, which bars the check from
+    # carrying progression, and every one of these is questline-missable besides -- two independent
+    # reasons it cannot strand a seed. Each HUB'd flag PRINTS with its name so it can be pinned
+    # incrementally as Alaric identifies the NPC; not-knowing is louder than knowing.
+    for _fl8 in sorted(_esd_new):
+        _gid8, _mps8 = _esd_new[_fl8]
+        if _gid8 not in _g2i or not _g2i[_gid8]:
+            raise SystemExit(f"FATAL: ESD gesture id {_gid8} (flag {_fl8}) has no GestureParam.itemId")
+        _good8 = _g2i[_gid8]
+        _nm8 = _id2name.get(_good8)
+        if not _nm8:
+            raise SystemExit(f"FATAL: ESD gesture goods {_good8} (flag {_fl8}) has no FMG name")
+        _region[_fl8] = _ESD_GESTURE_REGION.get(_fl8, HUB)
+        if _fl8 not in _ESD_GESTURE_REGION:
+            print(f"gesture: ESD flag {_fl8} ({_nm8!r}, gesture {_gid8}) taught on talk map(s) "
+                  f"{_mps8} -> HUB (an ESD map is a bundle, not a place; pin it in "
+                  f"_ESD_GESTURE_REGION when the NPC is identified). Filler-only.")
+        _rows8.append({"ap_id": "", "flag": str(_fl8), "flag_source": "esd_gesture_award",
+                       "item_name": _nm8, "map": ";".join(_mps8),
+                       "region": _region[_fl8], "method": "gesture"})
+        _table[_fl8] = (_gid8, 0x40000000 | _good8, _nm8)
+    return (_rows8, _region, _table, len(_sites), len(_npc), len(_npc_riders),
+            sorted(_esd_new), _corroborated)
 
 (_gesture_rows, _gesture_region, GESTURE_AWARD_FLAGS,
- _gesture_sites, _gesture_npc, _gesture_riders) = _gesture_derive()
+ _gesture_sites, _gesture_npc, _gesture_riders,
+ _esd_gesture_flags, _esd_gesture_corroborated) = _gesture_derive()
 GESTURE_REGION.update(_gesture_region)
 rows = rows + _gesture_rows
 print(f"gesture: +{len(_gesture_rows)} DERIVED gesture-pickup checks "
@@ -3014,6 +3124,18 @@ print(f"gesture: +{len(_gesture_rows)} DERIVED gesture-pickup checks "
       f"scoped IN 2026-07-26; {_gesture_riders} rider(s) NOT minted -- they ride a flag that is "
       f"already a live check) -> regions "
       + ", ".join(f"{_fl}={_gesture_region[_fl]!r}" for _fl in sorted(_gesture_region)))
+print(f"gesture: of those, {len(_esd_gesture_flags)} are ESD-TAUGHT (AcquireGesture in the talk "
+      f"ESD -- a corpus _gesture_derive was structurally blind to until 2026-07-26): "
+      f"{_esd_gesture_flags}; {_esd_gesture_corroborated} further ESD flag(s) were already EMEVD "
+      f"checks and were NOT minted twice (they are the pairing rule's positive control)")
+# MISSABLE: every ESD-taught gesture is an NPC DIALOGUE award, so it is lost if the NPC is killed or
+# the questline is skipped -- exactly the class QUEST_GATED_FLAGS exists for, and exactly Alaric's
+# standing call (2026-07-26: randomised + missable BEATS excluded). They stay ordinary collectable
+# checks and merely lose the right to host REQUIRED progression.
+# ⚠️ NOT extended to the 7 EMEVD NPC/quest gestures scoped in by 89b7d8a (60801/60802/60819/60826/
+# 60829/60832/60843) -- several of those look missable too and NONE is tagged today, but that would
+# move existing checks on a judgement nobody has made yet. Flagged, deliberately not folded in.
+QUEST_GATED_FLAGS |= set(_esd_gesture_flags)
 # region_map.csv must NOT also carry these flags -- if the upstream pipeline ever grows a row for
 # one, two sources would mint two locations for one flag. Reconcile by hand if this ever fires.
 _gest_clash = sorted(set(GESTURE_AWARD_FLAGS)
