@@ -40,35 +40,61 @@ def _floor_tier(floor_mult, ladder=scaling_ladder.SCALING_HP_LADDER):
 
 
 def test_option_is_reachable_from_yaml():
-    assert "completion_scaling_floor" not in defaults.FROZEN_OPTIONS, (
-        "completion_scaling_floor is frozen again -- the difficulty floor is unreachable from yaml, "
+    assert "minimum_enemy_difficulty" not in defaults.FROZEN_OPTIONS, (
+        "minimum_enemy_difficulty is frozen -- the difficulty floor is unreachable from yaml, "
         "and the percent->multiplier conversion it needs is now dead code.")
-    assert sc.Scaling.OPTIONS["completion_scaling_floor"] is sc.CompletionScalingFloor
+    assert sc.Scaling.OPTIONS["minimum_enemy_difficulty"] is sc.MinimumEnemyDifficulty
 
 
 def test_range_spans_the_whole_ladder_and_defaults_to_no_change():
     # The old range_end of 50 was written against the percent reading and never revisited; under the
     # real (multiplier) semantics it could not express "floor at the top tier" meaningfully at all.
-    assert sc.CompletionScalingFloor.range_end == 100
-    assert sc.CompletionScalingFloor.range_start == 0
-    assert sc.CompletionScalingFloor.default == 0, "new options default to no-change"
+    assert sc.MinimumEnemyDifficulty.range_end == 100
+    assert sc.MinimumEnemyDifficulty.range_start == 0
+    assert sc.MinimumEnemyDifficulty.default == 0, "new options default to no-change"
 
 
 def test_docstring_describes_the_real_scale():
     """CONTRIBUTING options hygiene: "a docstring that lies is a bug" -- and this option's docstring
     is the specific one that lied (it said "percent of max" of an unstated quantity, while the wire
     carried an HP multiplier). It feeds the yaml reference layer, so pin that it names the units."""
-    doc = sc.CompletionScalingFloor.__doc__.lower()
+    doc = sc.MinimumEnemyDifficulty.__doc__.lower()
     assert "hp" in doc, "the docstring must say what the scale multiplies (enemy HP)"
-    assert "7.42" in doc, "the docstring must name the top of the ladder, not just 'max'"
+    assert "rune" in doc, "the docstring must say rune rewards are unaffected -- players ask"
 
 
 def test_ramp_option_is_reachable_and_defaults_to_the_linear_curve():
-    assert "completion_scaling_ramp" not in defaults.FROZEN_OPTIONS
-    assert sc.Scaling.OPTIONS["completion_scaling_ramp"] is sc.CompletionScalingRamp
-    assert sc.CompletionScalingRamp.default == 100, "default must be the unchanged linear ramp"
-    assert sc.CompletionScalingRamp.range_end == 100, (
-        "values above 100 would mean 'never reach the top', which the client renormalizes away")
+    assert "difficulty_ramp_speed" not in defaults.FROZEN_OPTIONS
+    assert sc.Scaling.OPTIONS["difficulty_ramp_speed"] is sc.DifficultyRampSpeed
+    assert sc.DifficultyRampSpeed.default == 0, "default must be the unchanged even ramp"
+    assert sc.DifficultyRampSpeed.range_start == 0 and sc.DifficultyRampSpeed.range_end == 100
+
+
+def test_both_difficulty_sliders_point_the_same_way():
+    """THE USABILITY RULE, pinned. Two difficulty knobs that disagree about which direction is
+    harder is a bug players hit before they hit any of ours. `minimum_enemy_difficulty` rises with
+    difficulty, so `difficulty_ramp_speed` is INVERTED against the internal ramp_pct to match."""
+    assert sc.MinimumEnemyDifficulty.default == 0 and sc.DifficultyRampSpeed.default == 0, (
+        "both default to 0 = least change")
+    # higher speed -> lower ramp_pct -> the top tier is reached EARLIER -> harder
+    pcts = [sc.ramp_pct_from_speed(v) for v in (0, 25, 50, 75, 100)]
+    assert pcts == sorted(pcts, reverse=True), f"speed must invert monotonically, got {pcts}"
+    assert sc.ramp_pct_from_speed(0) == 100, "speed 0 is the unchanged even ramp"
+    assert sc.ramp_pct_from_speed(100) == 1, "speed 100 is maximum almost immediately"
+    assert sc.ramp_pct_from_speed(-5) == 100 and sc.ramp_pct_from_speed(999) == 1, "clamps"
+
+
+def test_the_old_option_names_raise_instead_of_being_ignored():
+    """Archipelago drops unknown yaml keys silently, so a rename would leave the old key reading
+    like a setting and doing nothing (the hazard test_gf_shipping_yaml exists for). Options.Removed
+    raises instead."""
+    import Options
+    for old in ("completion_scaling_floor", "completion_scaling_ramp"):
+        cls = sc.Scaling.OPTIONS[old]
+        assert issubclass(cls, Options.Removed), f"{old} must be a Removed stub"
+        cls("")  # absent / empty is fine
+        with pytest.raises(Exception):
+            cls("50")  # a stale yaml VALUE must be refused
 
 
 @pytest.mark.parametrize("pct,expect_top", [(0, False), (25, False), (50, False), (100, True)])
@@ -92,7 +118,7 @@ class TestSlotDataUnits:
 
         class _T(WorldTestBase):
             game = GAME
-            options = {"completion_scaling_floor": pct}
+            options = {"minimum_enemy_difficulty": pct}
 
         t = _T()
         t.setUp()

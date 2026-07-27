@@ -806,8 +806,14 @@ class GreenfieldEldenRingWorld(World):
             # (er-logic/scaling.rs floor_tier_from_multiplier); the option is a PERCENT. Emitting the
             # raw percent here -- as this line did until 2026-07-27 -- pinned every enemy to the top
             # tier for any value above 3. See features/scaling.floor_multiplier for the full story.
+            #
+            # ⚠️ THE OPTION AND THE WIRE KEY HAVE DIFFERENT NAMES ON PURPOSE. The yaml option was
+            # renamed to `minimum_enemy_difficulty` for legibility; the slot_data key stays
+            # `completion_scaling_floor` because a RELEASED client reads it and the contract hash is
+            # part of the connect handshake. Renaming a player-facing knob is free; renaming a wire
+            # key is a client release plus every seed already rolled.
             contract.COMPLETION_SCALING_FLOOR: scaling_floor_multiplier(
-                _opt("completion_scaling_floor")),
+                _opt("minimum_enemy_difficulty")),
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level

@@ -187,6 +187,20 @@ def extract(ap_dir):
     common = {f.name for f in dataclasses.fields(PerGameCommonOptions)}
     fields = [(f.name, f.type) for f in dataclasses.fields(GFOptions) if f.name not in common]
 
+    # HIDDEN OPTIONS ARE NOT PLAYER SURFACE. `Options.Visibility.none` marks a field the player is
+    # not meant to see -- notably the `Options.Removed` stubs left behind by a rename, whose whole
+    # job is to raise on a stale yaml. This tool feeds the wizard and the presets, so listing them
+    # would put two dead knobs in front of exactly the audience the rename was for. (Added
+    # 2026-07-27 with the first Removed stubs; before that nothing in this world was hidden, so the
+    # filter had never been needed and its absence was invisible.)
+    from Options import Visibility
+    hidden = [k for (k, c) in fields if getattr(c, "visibility", Visibility.all) == Visibility.none]
+    if hidden:
+        print("  hiding %d non-visible option(s) from the player surface: %s"
+              % (len(hidden), ", ".join(hidden)))
+    fields = [(k, c) for (k, c) in fields
+              if getattr(c, "visibility", Visibility.all) != Visibility.none]
+
     options = [describe(k, c) for (k, c) in fields]
 
     missing = [o["key"] for o in options if not o["description"].strip()]

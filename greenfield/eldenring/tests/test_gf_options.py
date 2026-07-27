@@ -80,7 +80,7 @@ def test_scaling_floor_combinations_generate_clean(floor, label, extra):
 
     class _T(WorldTestBase):
         game = GAME
-        options = dict(extra, completion_scaling_floor=floor)
+        options = dict(extra, minimum_enemy_difficulty=floor)
 
     t = _T()
     t.setUp()

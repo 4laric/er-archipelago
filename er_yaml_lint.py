@@ -85,7 +85,7 @@ CHOICE = {
 DEFAULT = {
     "ending_condition":"final_boss","world_logic":"region_lock","region_access":"geographic",
     "dlc_only":False,"enable_dlc":False,"enemy_rando":False,"grace_rando":True,
-    "num_regions":0,"num_regions_order":"rolled","completion_scaling_floor":0,"graces_per_region":3,
+    "num_regions":0,"num_regions_order":"rolled","minimum_enemy_difficulty":0,"graces_per_region":3,
     "pool_builder":False,"pool_builder_dlc_gear":False,"soft_progression":False,
     "dlc_only_chain":False,"messmer_kindle":False,"quick_start":False,
     "dlc_only_rune_catchup":False,"num_regions_chain":False,
@@ -234,8 +234,16 @@ def lint_block(block: dict) -> list[Finding]:
         for k in ("swap_multiboss","boss_runes_match","impolite_enemies"):
             if c.truthy(k):
                 warn(k, "INERT without enemy_rando: true")
-    if c.num("completion_scaling_floor") > 0 and c.cval("completion_scaling") in (None,"off"):
-        warn("completion_scaling_floor", "INERT without completion_scaling on")
+    # RENAMED 2026-07-27 -> minimum_enemy_difficulty / difficulty_ramp_speed. The old rule here
+    # ("INERT without completion_scaling on") is dead twice over: completion_scaling is not a yaml
+    # option any more (scaling is unconditionally on), so it fired on every valid yaml that set a
+    # floor. Flag the stale NAMES instead -- the world now rejects them outright via Options.Removed,
+    # and saying so here is friendlier than a generation traceback.
+    for _old, _new in (("completion_scaling_floor", "minimum_enemy_difficulty"),
+                       ("completion_scaling_ramp", "difficulty_ramp_speed")):
+        if c.cval(_old) is not None:
+            warn(_old, f"RENAMED to {_new}; generation will refuse this key"
+                       + (" (and the ramp INVERTED: higher is now harder)" if "ramp" in _old else ""))
 
     # 4) dlc_only gates
     if not c.truthy("dlc_only"):

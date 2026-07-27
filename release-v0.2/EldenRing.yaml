@@ -174,36 +174,29 @@ Elden Ring:
 
   # ---- Difficulty -----------------------------------------------------------
 
-  # Enemy scaling is ALWAYS on and keyed to progression, not geography: the
-  # deeper a region sits in YOUR seed's lock chain, the harder its enemies. The
-  # client applies one of twenty vanilla enemy-scaling effects, from 1.14x enemy
-  # HP at the shallowest region to 7.42x at the deepest. Rune rewards are never
-  # changed, at any setting.
+  # Enemies get stronger the FURTHER INTO YOUR RUN a region is -- not by where it
+  # sits on the map. Unlock the Weeping Peninsula last and it will be tuned like
+  # endgame territory. This is always on; the two knobs below only shape it.
   #
-  # The FLOOR is the minimum tier, applied everywhere from the very start. It
-  # raises the early game without touching the top end -- useful because a region
-  # you unlock late in a region_lock seed can still be a geographically early one.
-  # It is a percent of the LADDER, not a percent of enemy HP.
-  #
-  #     0   the full curve from the bottom  (default)
-  #    25   nothing below ~1.95x enemy HP
-  #    50   nothing below ~4.12x
-  #   100   7.42x everywhere, from Limgrave onward   (hard mode)
-  completion_scaling_floor: 0
+  # Both are 0-100, and on both, HIGHER IS HARDER. Leave them at 0 for the
+  # standard curve. Enemy rune rewards never change, at any setting.
 
-  # The RAMP is how fast you climb to the top. The ceiling is fixed at 7.42x;
-  # this is the percent of your progression order by which enemies reach it.
-  #
-  #   100   an even ramp across the whole run -- the last region is the first to
-  #         hit the top tier  (default)
-  #    50   top tier from halfway; everything past that is equally hard
-  #    25   top tier a quarter of the way in
-  #
-  # Lower is harder, and it COMPRESSES rather than steepens -- the tail of the run
-  # flattens out at maximum difficulty. There is no value above 100: "never quite
-  # reach the top" cannot be expressed, because the client re-normalizes by the
-  # deepest target it is sent and would undo it.
-  completion_scaling_ramp: 100
+  # How hard the EASIEST enemies are. Raising this lifts the whole floor, so
+  # nowhere stays a walkover -- handy because an "early" region you unlock late
+  # would otherwise be free.
+  #     0   normal                                        (default)
+  #    25   nothing below about 2x enemy HP
+  #    50   nothing below about 4x
+  #   100   everything at maximum, everywhere, immediately
+  minimum_enemy_difficulty: 0
+
+  # How QUICKLY you reach the hardest enemies. This does not change how hard the
+  # hardest enemies are -- it changes how much of the run is spent below them.
+  #     0   spread evenly across the run                  (default)
+  #    50   maximum from about halfway
+  #    75   maximum about a quarter of the way in
+  #   100   maximum almost immediately
+  difficulty_ramp_speed: 0
 
   # ---- Standard Archipelago options -----------------------------------------
 

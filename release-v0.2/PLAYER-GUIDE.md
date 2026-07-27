@@ -97,6 +97,50 @@ late is tuned tougher, even if it's "early" territory. If the Weeping Peninsula
 is suddenly wrecking you, you're probably not undergeared -- you probably just
 unlocked it late. That's the system working.
 
+Under the hood the game has its own ladder of enemy-strength settings, and the
+client picks a rung per region based on how deep that region sits in *your*
+seed's chain. The shallowest is roughly vanilla; the deepest is about **7.4x
+enemy HP**. Your rune rewards are never touched, at any setting -- a scaled-up
+enemy is worth exactly what it was worth before.
+
+#### Making it harder (or gentler early)
+
+Two yaml knobs. Both are `0`-`100`, both default to `0`, and on both,
+**higher is harder**:
+
+```yaml
+minimum_enemy_difficulty: 0   # how hard the EASIEST enemies are
+difficulty_ramp_speed: 0      # how QUICKLY you reach the hardest ones
+```
+
+**`minimum_enemy_difficulty`** raises the floor. At `0` your first region is
+about as weak as vanilla. At `50` nothing in the game sits below roughly 4x
+enemy HP, however early you reached it. At `100` everything is at maximum from
+your very first region -- the whole world at endgame strength.
+
+Use it if the early game feels like a formality, or if you keep unlocking
+"early" regions late and steamrolling them.
+
+**`difficulty_ramp_speed`** changes *when* the climb happens, not how high it
+goes. At `0` the increase is spread evenly across your whole run, so your last
+region is the first to hit maximum. At `50` you're at maximum from about
+halfway, and everything after that is equally hard. At `100` you're at maximum
+almost immediately.
+
+Use it if you like the peak but want to get there sooner. Note it **compresses**
+the curve rather than steepening it: the back half of your run flattens out at
+full difficulty instead of continuing to climb.
+
+The two stack. `minimum_enemy_difficulty: 40` with `difficulty_ramp_speed: 60`
+is a run that starts genuinely dangerous and is at full strength before the
+midpoint. Both at `0` is the standard experience.
+
+> **Renamed in this build.** These were `completion_scaling_floor` and
+> `completion_scaling_ramp`. If you have an older yaml using those names,
+> generation will stop and tell you -- it won't silently ignore them. Note that
+> the ramp also **flipped direction**: the old `completion_scaling_ramp: 25` is
+> the new `difficulty_ramp_speed: 75`.
+
 ## DeathLink
 
 Off by default; `death_link: true` in your yaml turns it on. Your deaths are

@@ -31,7 +31,7 @@ raises on duplicate keys).
 """
 import random
 
-from Options import Range, Choice
+from Options import Range, Choice, Removed
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from .. import contract
@@ -259,38 +259,69 @@ def blessing_floor_ranges(kept):
     return triples
 
 
-class CompletionScalingFloor(Range):
-    """Minimum enemy-scaling tier, as a percent of the deepest tier, applied everywhere from the
-    start -- so early regions aren't trivially weak once you outgrow them. This is the HARD-MODE
-    knob: it raises the difficulty FLOOR without touching the ceiling. 0 (default) = the full curve
-    from the bottom, exactly as before. The scale is the client's 10-rung ladder of vanilla enemy
-    SpEffects: 0 = 1.14x enemy HP, 50 = ~4.12x, 100 = 7.42x everywhere (the deepest region's tier,
-    from Limgrave onward). Enemy rune rewards are unchanged at every setting."""
-    display_name = "Completion Scaling Floor"
+class MinimumEnemyDifficulty(Range):
+    """How hard the EASIEST enemies in your run are. 0 (default) leaves the early game at its normal
+    strength; higher values lift the whole floor, so nowhere stays trivial once you have outgrown it.
+
+      0    normal -- your first region is as weak as vanilla-ish   (default)
+      25   nothing below about 2x enemy HP
+      50   nothing below about 4x
+      100  everything at maximum, everywhere, from your first region on
+
+    Useful because progression here is not geography: a region you unlock late can be an "early"
+    one, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting."""
+    display_name = "Minimum Enemy Difficulty"
     range_start = 0
     range_end = 100
     default = 0
 
 
-class CompletionScalingRamp(Range):
-    """How FAST enemies climb to the hardest tier. The top of the ladder is fixed (7.42x enemy HP at
-    the deepest region of your seed); this decides how much of the run you spend getting there.
+# ---- RENAMED 2026-07-27 -- stale yamls must FAIL, not be silently ignored ----------------------
+# Archipelago drops unknown yaml keys without a word (the hazard test_gf_shipping_yaml exists for),
+# so a straight rename would leave `completion_scaling_floor: 50` reading like a setting and doing
+# nothing. `Options.Removed` raises instead: "Option removed, please update your options file."
+# It is `Visibility.none`, so it does not appear in the wizard or on the webhost.
+#
+# `completion_scaling_floor` was a real name for months (it is in v0.1-era yamls and in the v0.2
+# template's FIXED list). `completion_scaling_ramp` existed for about an hour on main and never
+# shipped, but it is cheap to catch and expensive to debug.
+class CompletionScalingFloor(Removed):
+    """Renamed to `minimum_enemy_difficulty`."""
 
-    It is a percent of your progression order -- the point by which enemies hit the top tier:
 
-      100  the last region is the first to reach it -- an even ramp across the whole run (default)
-       50  top tier from halfway, and everything past that is equally hard
-       25  top tier a quarter of the way in
+class CompletionScalingRamp(Removed):
+    """Renamed to `difficulty_ramp_speed` -- and INVERTED: higher is now harder."""
 
-    Lower is harder, and it compresses rather than steepens: the tail of the run flattens out at
-    maximum difficulty instead of the curve rising the whole way. Pairs with Completion Scaling
-    Floor, which sets the BOTTOM of the same ladder. Only values up to 100 exist because "never quite
-    reach the top" is not expressible -- the client re-normalizes by the deepest target it is sent,
-    so lowering the ceiling from here would be silently undone."""
-    display_name = "Completion Scaling Ramp"
-    range_start = 1
+
+class DifficultyRampSpeed(Range):
+    """How quickly enemies get harder as you progress. 0 (default) spreads the climb evenly across
+    the whole run; higher values front-load it, so you hit the hardest enemies sooner and the rest of
+    the run stays there.
+
+      0    even across the run -- your last region is the first to reach maximum   (default)
+      50   maximum from about halfway; everything after that is equally hard
+      75   maximum about a quarter of the way in
+      100  maximum almost immediately
+
+    This does not change how hard the HARDEST enemies are -- that ceiling is fixed. It changes how
+    much of your run is spent below it. Pairs with Minimum Enemy Difficulty, which raises the
+    BOTTOM instead."""
+    display_name = "Difficulty Ramp Speed"
+    range_start = 0
     range_end = 100
-    default = 100
+    default = 0
+
+
+def ramp_pct_from_speed(speed):
+    """Player-facing SPEED (0..100, higher = harder) -> `scaling_ladder.ramped_target`'s ramp_pct
+    (the percent of the run by which the top tier is reached; LOWER = harder).
+
+    Two representations, one conversion, in one place -- the same discipline as `floor_multiplier`,
+    and for the same reason. `ramp_pct` is the honest mechanical quantity, but as a player-facing
+    knob it points the wrong way: 25 would be harder than 100, while the neighbouring
+    `minimum_enemy_difficulty` gets harder as it RISES. Two difficulty sliders that disagree about
+    which direction is harder is a usability bug, so the option is inverted here and only here."""
+    return max(1, 100 - max(0, min(100, int(speed))))
 
 
 class GlobalScadutreeBlessing(Choice):
@@ -314,9 +345,12 @@ class GlobalScadutreeBlessing(Choice):
 class Scaling(Feature):
     name = "scaling"
     OPTIONS = {
+        "minimum_enemy_difficulty": MinimumEnemyDifficulty,
+        "difficulty_ramp_speed": DifficultyRampSpeed,
+        "global_scadutree_blessing": GlobalScadutreeBlessing,
+        # Renamed 2026-07-27; these raise on a stale yaml rather than being ignored.
         "completion_scaling_floor": CompletionScalingFloor,
         "completion_scaling_ramp": CompletionScalingRamp,
-        "global_scadutree_blessing": GlobalScadutreeBlessing,
     }
 
     def slot_data(self, world):
@@ -326,7 +360,7 @@ class Scaling(Feature):
         # mid/high tiers are populated even though the lock DAG is wide early ("felt easy").
         # SPINE-order depth is the fallback when the fill sphere can't be computed (no world /
         # degenerate); it is already a total order.
-        ramp = int(world.options.completion_scaling_ramp.value)
+        ramp = ramp_pct_from_speed(world.options.difficulty_ramp_speed.value)
         region_sphere = _region_fill_spheres(world)
         if region_sphere:
             order = _order_from_spheres(region_sphere, _order_rng(world))
@@ -343,7 +377,7 @@ class Scaling(Feature):
             # DIFFERENT UNITS -- named here on purpose rather than left to be discovered
             # (CONTRIBUTING rule 3: name the space wherever two components exchange a value), and
             # asserted in tests/test_gf_scaling_floor_units.py so the pair cannot silently converge.
-            "completion_scaling_floor": int(world.options.completion_scaling_floor.value),
+            "completion_scaling_floor": int(world.options.minimum_enemy_difficulty.value),
             "global_scadutree_blessing": blessing,
             contract.REGION_SPHERE_TARGET_RANGES: ranges,
         }

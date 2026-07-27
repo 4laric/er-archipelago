@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "ee26300a506b6a11dbc6fba8f324736629925c2b7ea61767dff3d8afbba23a01",
+ "source_sha256": "119232ebd6429ebede62074be1479d34306e595aad191d69a826209a5e621cd1",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -142,8 +142,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "natural_progression",
   "progression_surface",
   "confine_foreign_progression",
-  "completion_scaling_floor",
-  "completion_scaling_ramp",
+  "minimum_enemy_difficulty",
+  "difficulty_ramp_speed",
   "reroll_infinite_shop_stock",
   "merchant_bell_logic",
   "start_with_whetblades"
@@ -173,8 +173,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "natural_progression",
   "progression_surface",
   "confine_foreign_progression",
-  "completion_scaling_floor",
-  "completion_scaling_ramp",
+  "minimum_enemy_difficulty",
+  "difficulty_ramp_speed",
   "reroll_infinite_shop_stock",
   "merchant_bell_logic",
   "start_with_whetblades"
@@ -613,10 +613,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false
   },
   {
-   "key": "completion_scaling_floor",
-   "class": "CompletionScalingFloor",
-   "display_name": "Completion Scaling Floor",
-   "description": "Minimum enemy-scaling tier, as a percent of the deepest tier, applied everywhere from the\nstart -- so early regions aren't trivially weak once you outgrow them. This is the HARD-MODE\nknob: it raises the difficulty FLOOR without touching the ceiling. 0 (default) = the full curve\nfrom the bottom, exactly as before. The scale is the client's 10-rung ladder of vanilla enemy\nSpEffects: 0 = 1.14x enemy HP, 50 = ~4.12x, 100 = 7.42x everywhere (the deepest region's tier,\nfrom Limgrave onward). Enemy rune rewards are unchanged at every setting.",
+   "key": "minimum_enemy_difficulty",
+   "class": "MinimumEnemyDifficulty",
+   "display_name": "Minimum Enemy Difficulty",
+   "description": "How hard the EASIEST enemies in your run are. 0 (default) leaves the early game at its normal\nstrength; higher values lift the whole floor, so nowhere stays trivial once you have outgrown it.\n\n  0    normal -- your first region is as weak as vanilla-ish   (default)\n  25   nothing below about 2x enemy HP\n  50   nothing below about 4x\n  100  everything at maximum, everywhere, from your first region on\n\nUseful because progression here is not geography: a region you unlock late can be an \"early\"\none, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting.",
    "kind": "range",
    "base": "Range",
    "default": 0,
@@ -631,16 +631,16 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false
   },
   {
-   "key": "completion_scaling_ramp",
-   "class": "CompletionScalingRamp",
-   "display_name": "Completion Scaling Ramp",
-   "description": "How FAST enemies climb to the hardest tier. The top of the ladder is fixed (7.42x enemy HP at\nthe deepest region of your seed); this decides how much of the run you spend getting there.\n\nIt is a percent of your progression order -- the point by which enemies hit the top tier:\n\n  100  the last region is the first to reach it -- an even ramp across the whole run (default)\n   50  top tier from halfway, and everything past that is equally hard\n   25  top tier a quarter of the way in\n\nLower is harder, and it compresses rather than steepens: the tail of the run flattens out at\nmaximum difficulty instead of the curve rising the whole way. Pairs with Completion Scaling\nFloor, which sets the BOTTOM of the same ladder. Only values up to 100 exist because \"never quite\nreach the top\" is not expressible -- the client re-normalizes by the deepest target it is sent,\nso lowering the ceiling from here would be silently undone.",
+   "key": "difficulty_ramp_speed",
+   "class": "DifficultyRampSpeed",
+   "display_name": "Difficulty Ramp Speed",
+   "description": "How quickly enemies get harder as you progress. 0 (default) spreads the climb evenly across\nthe whole run; higher values front-load it, so you hit the hardest enemies sooner and the rest of\nthe run stays there.\n\n  0    even across the run -- your last region is the first to reach maximum   (default)\n  50   maximum from about halfway; everything after that is equally hard\n  75   maximum about a quarter of the way in\n  100  maximum almost immediately\n\nThis does not change how hard the HARDEST enemies are -- that ceiling is fixed. It changes how\nmuch of your run is spent below it. Pairs with Minimum Enemy Difficulty, which raises the\nBOTTOM instead.",
    "kind": "range",
    "base": "Range",
-   "default": 100,
+   "default": 0,
    "choices": null,
    "range": {
-    "start": 1,
+    "start": 0,
     "end": 100
    },
    "valid_keys": null,
