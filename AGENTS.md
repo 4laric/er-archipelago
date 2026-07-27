@@ -450,9 +450,29 @@ weak *because* they are unplaced, so no spatial source can reach them, and a bet
 corpus changes nothing. Of the 80 that ARE placed, 17 do get a name (21% of the addressable set),
 which is fine and worthless at that scale.
 
-Two routes that would actually move it, neither cheap: get coordinates for the 902 (that is the MSB
-gap again — `item_grace_coords.tsv` is a Windows MSB datamine), or improve the descriptor from a
-NON-spatial source (who drops it, which quest, which shop). Measure before building either.
+**🛑 AND THE MSB ROUTE IS ALSO DEAD — retracted 2026-07-27, same day I specced it.** The obvious
+follow-up was "distil the missing positions out of the MSBs on the box". The measurement looked
+compelling: 505 live checks are seen by `msb_flag_region` but have no coordinate, and 537 of the
+546 missing rows are `source=event`. I read that as "the two datamines read different MSB record
+types — one reads Event records, the other Treasure records" and wrote a spec plus a probe.
+
+**Wrong, and `datamine_msb_item_regions.py`'s own docstring says so.** `source=event` does not mean
+an MSB Event record. It means the map was attributed from **EMEVD** — those items are boss drops
+and event awards that are *"NOT NpcParam drops and NOT map Treasures"* and have **no MSB presence at
+all**. Their `treasure_name` (`common90005300`) is the EMEVD **award site**, which I read as an MSB
+asset marker. There is nothing in any MSB to extract a position from.
+
+So the honest bottom line: **there is no large MSB win available.** Only **9** checks have an MSB
+`treasure` record and no coordinate — the coords datamine is essentially complete for things the
+MSBs actually place. The unplaced population is unplaced because it is awarded by script, sold by a
+merchant, or dropped by an enemy.
+
+That leaves exactly one route: a **NON-spatial** descriptor — who drops it, which quest, which
+merchant. `TalkMsg` and the 365-file talk ESD are both bundled now, which makes that newly viable.
+
+⚠️ For anyone reaching for the MSBs anyway, the layout is
+`elden_ring_artifacts/{mapstudio,map}/<map_id>-msb-dcx/` with witchy's per-record XML underneath
+(`Event/Treasure/*.xml`, `Part/Enemy/*.xml`, `Region/Other/*.xml`). Tools search both roots.
 
 🛑 Related, NOT fixed here: `tools/build_nearest_grace.py::_normalize` folds every overworld tile at
 `*256` regardless of LOD and its regex requires a trailing `_`, so (a) 17 LOD2 check flags and
