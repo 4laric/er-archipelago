@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ER Archipelago — Description Triage</title>
+<style>
+:root{--bg:#14120e;--bg2:#1c1a15;--bg3:#252118;--line:#3a3428;--fg:#e8e2d2;--dim:#9a927e;
+ --gold:#c9a961;--gold2:#e0c98a;--blue:#7fa8c9;--red:#c97f7f;--green:#8fb87a;--purple:#a98fc9;--orange:#d9a05b}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--fg);font:13px/1.45 "Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+header{padding:9px 14px;border-bottom:1px solid var(--line);background:var(--bg2);display:flex;gap:12px;align-items:center;flex-wrap:wrap;flex:0 0 auto}
+h1{font:600 14px/1 inherit;margin:0;letter-spacing:.05em;color:var(--gold);white-space:nowrap}
+h1 small{display:block;font:400 10px/1.4 monospace;color:var(--dim);letter-spacing:0;margin-top:3px}
+input,select,textarea{background:var(--bg3);border:1px solid var(--line);color:var(--fg);padding:6px 9px;border-radius:4px;font:13px/1.3 inherit;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+#q{flex:1 1 220px;min-width:160px}
+.btn{background:var(--bg3);border:1px solid var(--line);color:var(--dim);padding:6px 10px;border-radius:4px;cursor:pointer;font:11px/1.2 inherit;white-space:nowrap}
+.btn:hover{color:var(--gold);border-color:var(--gold)}
+.btn.hot{color:#14120e;background:var(--gold);border-color:var(--gold);font-weight:600}
+.btn.hot:hover{background:var(--gold2)}
+label.ck{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);cursor:pointer;white-space:nowrap}
+label.ck input{accent-color:var(--gold)}
+main{flex:1 1 auto;display:flex;min-height:0}
+#list{width:330px;flex:0 0 auto;overflow-y:auto;border-right:1px solid var(--line);background:var(--bg2)}
+.row{padding:7px 11px;border-bottom:1px solid #241f18;cursor:pointer}
+.row:hover{background:var(--bg3)}
+.row.sel{background:#2e2818;border-left:3px solid var(--gold);padding-left:8px}
+.row.done{opacity:.45}
+.row .it{font-weight:600;color:var(--gold2);font-size:12px}
+.row .meta{font:10px/1.5 monospace;color:var(--dim);margin-top:2px}
+.row .d{font-size:11px;color:var(--dim);font-style:italic;margin-top:1px}
+.sc{float:right;font:10px/1.4 monospace;color:var(--orange)}
+.chip{display:inline-block;padding:0 4px;margin:2px 3px 0 0;border-radius:3px;font:9px/1.6 monospace;background:var(--bg3);border:1px solid var(--line);color:var(--dim)}
+.chip.bad{color:var(--red);border-color:#5a3a3a}
+.chip.imp{color:var(--gold);border-color:#5a4a28}
+.chip.fill{color:#6a6455}
+#mid{flex:1 1 auto;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+#mapwrap{flex:1 1 auto;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#mapwrap svg{max-width:100%;max-height:100%;display:block}
+#maphint{position:absolute;top:8px;left:10px;font:10px/1.5 monospace;color:var(--dim);background:rgba(20,18,14,.82);padding:4px 8px;border-radius:4px;border:1px solid var(--line);pointer-events:none;max-width:60%}
+#mapbtns{position:absolute;top:8px;right:10px;display:flex;gap:6px}
+#side{width:340px;flex:0 0 auto;border-left:1px solid var(--line);background:var(--bg2);overflow-y:auto;padding:12px 14px 40px}
+#side h2{font:600 13px/1.3 inherit;margin:0 0 3px;color:var(--gold2)}
+#side .sub{font:10px/1.5 monospace;color:var(--dim);margin-bottom:10px;word-break:break-all}
+.sec{margin:12px 0 0}
+.sec h3{font:600 9px/1 inherit;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:0 0 5px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:74px 1fr;gap:2px 8px;font-size:11px}
+.kv dt{color:var(--dim)}
+.kv dd{margin:0;word-break:break-word}
+#ann{width:100%;min-height:66px;resize:vertical;font:13px/1.4 inherit}
+.sib{padding:4px 7px;border:1px solid var(--line);border-radius:4px;margin-bottom:4px;cursor:pointer;font:11px/1.4 monospace;background:var(--bg3)}
+.sib:hover{border-color:var(--gold)}
+.sib b{color:var(--purple)}
+.warn{color:var(--red);font-size:11px;margin-top:6px}
+footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);background:var(--bg2);font:10px/1.4 monospace;color:var(--dim);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#3a3428;border-radius:5px}
+.dot{cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <h1>DESCRIPTION TRIAGE<small id="stamp"></small></h1>
+  <input id="q" placeholder="search item / region / flag&hellip;" autocomplete="off">
+  <select id="reg"><option value="">all regions</option></select>
+  <label class="ck"><input type="checkbox" id="fimp"> important only</label>
+  <label class="ck"><input type="checkbox" id="ffill" checked> hide bulk filler</label>
+  <label class="ck"><input type="checkbox" id="fdone" checked> hide already-described</label>
+  <label class="ck"><input type="checkbox" id="fplot"> plottable only</label>
+  <span id="count"></span>
+  <button class="btn hot" id="exp">export TSV</button>
+  <button class="btn" id="imp">import draft</button>
+</header>
+<main>
+  <div id="list"></div>
+  <div id="mid">
+    <div id="mapwrap">
+      <div id="maphint"></div>
+      <div id="mapbtns">
+        <button class="btn" id="mbase">Lands Between</button>
+        <button class="btn" id="mdlc">Land of Shadow</button>
+      </div>
+      <div id="mapslot"></div>
+    </div>
+  </div>
+  <aside id="side"></aside>
+</main>
+<footer id="foot"></footer>
+
+<script>
+const DATA = /*__DATA__*/null;
+const SVGS = {m60: __SVG_BASE__, m61: __SVG_DLC__};
+const CHECKS = DATA.checks, META = DATA.meta, GRACES = DATA.graces, CAL = META.cal;
+
+const drafts = {};             // flag -> description the user typed this session
+let selected = null, filtered = [], curMap = 'm60';
+
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const byFlag = {}; CHECKS.forEach(c=>byFlag[c.f]=c);
+
+/* ---------- projection: world gx/gz -> image px, per calibration ---------- */
+function project(p){
+  const cal = CAL[p.b]; if(!cal) return null;
+  const b = cal.world_bounds, im = cal.image;
+  return {
+    x: im.margin + (p.gx - b.gx_min)/(b.gx_max - b.gx_min) * im.draw_w,
+    y: im.margin + (1 - (p.gz - b.gz_min)/(b.gz_max - b.gz_min)) * im.draw_h
+  };
+}
+
+/* ---------- filtering ---------- */
+function apply(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const reg = document.getElementById('reg').value;
+  const imp = document.getElementById('fimp').checked;
+  const nofill = document.getElementById('ffill').checked;
+  const nodone = document.getElementById('fdone').checked;
+  const plot = document.getElementById('fplot').checked;
+  filtered = CHECKS.filter(c=>{
+    if(reg && c.r!==reg) return false;
+    if(imp && !c.why.includes('important item')) return false;
+    if(nofill && c.why.includes('bulk filler')) return false;
+    if(nodone && (c.have || drafts[c.f])) return false;
+    if(plot && !c.pos.length) return false;
+    if(q){
+      const h = (c.item+' '+c.r+' '+c.f+' '+c.desc+' '+c.t.join(' ')+' '+(c.lots||[]).join(' ')).toLowerCase();
+      if(!h.includes(q)) return false;
+    }
+    return true;
+  });
+  document.getElementById('count').textContent =
+    `${filtered.length} to do · ${Object.keys(drafts).length} drafted`;
+}
+
+function renderList(){
+  const el = document.getElementById('list');
+  el.innerHTML = filtered.slice(0,400).map(c=>{
+    const done = c.have || drafts[c.f];
+    return `<div class="row ${selected===c.f?'sel':''} ${done?'done':''}" data-f="${c.f}">
+      <span class="sc">${c.s}</span>
+      <div class="it">${esc(c.item)}${c.ord?` <span style="color:var(--purple)">(${c.ord})</span>`:''}</div>
+      <div class="meta">${esc(c.r)} · f${c.f}${c.pos.length?'':' · <span style="color:var(--red)">no position</span>'}</div>
+      <div class="d">${esc(c.desc||'(no descriptor)')}</div>
+      <div>${c.why.map(w=>`<span class="chip ${w==='bulk filler'?'fill':(w==='important item'?'imp':'bad')}">${esc(w)}</span>`).join('')}</div>
+    </div>`;
+  }).join('') + (filtered.length>400?`<div style="padding:10px;color:var(--dim);font-size:11px">…${filtered.length-400} more — narrow the filters</div>`:'');
+  el.querySelectorAll('.row').forEach(r=>r.addEventListener('click',()=>select(+r.dataset.f)));
+}
+
+/* ---------- map ---------- */
+function loadMap(which){
+  curMap = which;
+  const slot = document.getElementById('mapslot');
+  slot.innerHTML = SVGS[which] || '<div style="color:var(--dim)">no map</div>';
+  const svg = slot.querySelector('svg');
+  if(!svg) return;
+  svg.setAttribute('id','themap');
+  // a layer for our overlay, drawn on top of the committed art
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('id','ovl'); svg.appendChild(g);
+  drawOverlay();
+}
+function drawOverlay(){
+  const g = document.getElementById('ovl'); if(!g) return;
+  g.innerHTML = '';
+  const c = selected!=null ? byFlag[selected] : null;
+  const add = (p,r,fill,stroke,w,cls,title,flag)=>{
+    const pr = project(p); if(!pr) return;
+    const el = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    el.setAttribute('cx',pr.x.toFixed(1)); el.setAttribute('cy',pr.y.toFixed(1));
+    el.setAttribute('r',r); el.setAttribute('fill',fill);
+    if(stroke){el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',w||1.5);}
+    if(cls) el.setAttribute('class',cls);
+    if(flag!=null) el.addEventListener('click',()=>select(flag));
+    const t = document.createElementNS('http://www.w3.org/2000/svg','title');
+    t.textContent = title; el.appendChild(t);
+    g.appendChild(el);
+  };
+  // faint context: every filtered check that lands on this map
+  filtered.forEach(k=>k.pos.forEach(p=>{ if(p.b===curMap) add(p,2,'rgba(90,70,40,.5)',null,0,'dot',`${k.item} · f${k.f}`,k.f); }));
+  if(!c) return;
+  // siblings: the whole reason this is a map
+  (c.sib||[]).forEach(sf=>{
+    const s = byFlag[sf]; if(!s) return;
+    s.pos.forEach(p=>{ if(p.b===curMap) add(p,6,'none','#a98fc9',2.5,'dot',`SIBLING ${s.item} (${s.ord}) · f${s.f}`,sf); });
+  });
+  // the selected check
+  c.pos.forEach(p=>{ if(p.b===curMap) add(p,7,'#c9a961','#14120e',2,'dot',`${c.item} · f${c.f}`,c.f); });
+  const hint = document.getElementById('maphint');
+  const on = c.pos.filter(p=>p.b===curMap).length;
+  hint.innerHTML = on
+    ? `<span style="color:var(--gold)">●</span> this check${(c.sib||[]).length?`  <span style="color:var(--purple)">○</span> ${(c.sib||[]).length} indistinguishable sibling(s)`:''}`
+      + (c.pos.length>1?`<br>${c.pos.length} positions — this check exists in more than one place`:'')
+    : `<span style="color:var(--red)">this check has no overworld position</span><br>`
+      + (c.maps.length?`interior: ${esc(c.maps.join(', '))} — not on this map`:'no map at all')
+      + (c.pos.length?`<br>it IS on the other map — switch above`:'');
+}
+
+/* ---------- detail + annotation ---------- */
+function select(f){
+  selected = f;
+  const c = byFlag[f];
+  if(c && c.pos.length && !c.pos.some(p=>p.b===curMap)) loadMap(c.pos[0].b); else drawOverlay();
+  renderList(); renderSide();
+  const r = document.querySelector('.row.sel'); if(r) r.scrollIntoView({block:'nearest'});
+}
+function renderSide(){
+  const el = document.getElementById('side');
+  const c = byFlag[selected];
+  if(!c){ el.innerHTML = '<div style="color:var(--dim);padding-top:40px;text-align:center">pick a check</div>'; return; }
+  const sibs = (c.sib||[]).map(sf=>{
+    const s = byFlag[sf]; if(!s) return '';
+    return `<div class="sib" data-f="${sf}"><b>(${s.ord})</b> f${sf} — ${esc(s.desc||'no descriptor')}${drafts[sf]?` <span style="color:var(--green)">✓ drafted</span>`:''}</div>`;
+  }).join('');
+  el.innerHTML = `
+    <h2>${esc(c.item)}${c.ord?` <span style="color:var(--purple)">(${c.ord})</span>`:''}</h2>
+    <div class="sub">${esc(c.r)} :: f${c.f} · AP ${c.id} · need ${c.s}</div>
+    <div class="sec"><h3>Your description</h3>
+      <textarea id="ann" placeholder="e.g. on the cliff above the bridge">${esc(drafts[c.f]!==undefined?drafts[c.f]:(c.have||''))}</textarea>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="btn hot" id="save">save + next</button>
+        <button class="btn" id="skip">skip</button>
+        <button class="btn" id="clr">clear</button>
+      </div>
+      ${c.have?`<div class="warn">already in location_descriptions.tsv: "${esc(c.have)}" — editing overwrites it</div>`:''}
+      <div style="font-size:10px;color:var(--dim);margin-top:6px">Renders as
+        <i>${esc(c.r)} :: ${esc(c.item)} — <b>your text</b> [f${c.f}]</i></div>
+    </div>
+    ${sibs?`<div class="sec"><h3>Indistinguishable siblings (${(c.sib||[]).length})</h3>
+      <div style="font-size:10px;color:var(--dim);margin-bottom:5px">These render identically. Say what makes THIS one different.</div>${sibs}</div>`:''}
+    <div class="sec"><h3>Context</h3><dl class="kv">
+      <dt>Current</dt><dd>${esc(c.desc)||'<span style="color:var(--red)">bare</span>'} <span style="color:var(--dim)">(${esc(c.layer)})</span></dd>
+      <dt>Nearest grace</dt><dd>${esc(c.g)||'<span style="color:var(--dim)">none</span>'}</dd>
+      <dt>Map</dt><dd>${c.maps.length?esc(c.maps.join(', ')):'<span style="color:var(--dim)">none</span>'}</dd>
+      <dt>Tags</dt><dd>${c.t.length?c.t.map(esc).join(', '):'—'}</dd>
+      ${c.lots.length?`<dt>Lot item</dt><dd>${c.lots.slice(0,4).map(esc).join(', ')}</dd>`:''}
+      ${c.pos.length?`<dt>Position</dt><dd>${c.pos.map(p=>`${p.m}`).map(esc).join('<br>')}</dd>`:''}
+    </dl></div>`;
+  const ta = document.getElementById('ann');
+  ta.addEventListener('input',()=>{ drafts[c.f] = ta.value; save(); });
+  ta.focus();
+  document.getElementById('save').addEventListener('click',()=>{ drafts[c.f]=ta.value; save(); next(); });
+  document.getElementById('skip').addEventListener('click',next);
+  document.getElementById('clr').addEventListener('click',()=>{ delete drafts[c.f]; save(); renderSide(); apply(); renderList(); });
+  el.querySelectorAll('.sib').forEach(s=>s.addEventListener('click',()=>select(+s.dataset.f)));
+}
+function next(){
+  apply();
+  const i = filtered.findIndex(c=>c.f===selected);
+  const n = filtered[i+1] || filtered[0];
+  renderList();
+  if(n) select(n.f); else { renderSide(); drawOverlay(); }
+}
+function save(){
+  try{ localStorage.setItem('er_desc_drafts', JSON.stringify({stamp:META.stamp, drafts})); }catch(e){}
+  document.getElementById('count').textContent =
+    `${filtered.length} to do · ${Object.keys(drafts).length} drafted`;
+}
+
+/* ---------- export / import ---------- */
+document.getElementById('exp').addEventListener('click',()=>{
+  const keys = Object.keys(drafts).filter(k=>String(drafts[k]).trim());
+  if(!keys.length){ alert('Nothing drafted yet.'); return; }
+  const lines = [
+    '# location_descriptions.tsv rows drafted in the desc-triage tool.',
+    '# Built against data.py inputs_hash ' + META.stamp,
+    '# Paste these into greenfield/location_descriptions.tsv (layer 1 -- always wins),',
+    '# then regenerate: python greenfield/gen_data.py',
+    '# A row here whose flag ALREADY exists in that file should REPLACE it, not be appended.',
+    'flag\tdescription'
+  ];
+  keys.map(Number).sort((a,b)=>a-b).forEach(f=>{
+    lines.push(f + '\t' + String(drafts[f]).replace(/[\t\r\n]+/g,' ').trim());
+  });
+  const b = new Blob([lines.join('\n')+'\n'],{type:'text/tab-separated-values'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'location_descriptions_draft.tsv';
+  a.click();
+});
+document.getElementById('imp').addEventListener('click',()=>{
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='.tsv,.txt';
+  inp.addEventListener('change',()=>{
+    const fr = new FileReader();
+    fr.onload = () => {
+      let n=0, badStamp=false;
+      fr.result.split(/\r?\n/).forEach(line=>{
+        if(line.startsWith('# Built against data.py inputs_hash') && !line.includes(META.stamp)) badStamp=true;
+        if(!line || line.startsWith('#') || line.startsWith('flag\t')) return;
+        const [f,...rest] = line.split('\t');
+        if(/^\d+$/.test(f) && rest.join(' ').trim()){ drafts[+f] = rest.join(' ').trim(); n++; }
+      });
+      if(badStamp) alert('WARNING: that draft was written against a DIFFERENT data build.\n'
+        + 'Flags are stable, but the checks/descriptions it was written against may have moved.\nImported anyway — re-check before committing.');
+      save(); apply(); renderList(); renderSide();
+      alert(`imported ${n} row(s)`);
+    };
+    fr.readAsText(inp.files[0]);
+  });
+  inp.click();
+});
+
+/* ---------- boot ---------- */
+(function(){
+  try{
+    const raw = JSON.parse(localStorage.getItem('er_desc_drafts')||'null');
+    if(raw && raw.drafts){
+      Object.assign(drafts, raw.drafts);
+      if(raw.stamp && raw.stamp!==META.stamp)
+        setTimeout(()=>alert('Restored drafts were written against a DIFFERENT data build.\nFlags are stable, so they still apply — but re-check any whose check has moved.'),300);
+    }
+  }catch(e){}
+  const reg = document.getElementById('reg');
+  [...new Set(CHECKS.map(c=>c.r))].sort().forEach(r=>{
+    const o=document.createElement('option'); o.value=o.textContent=r; reg.appendChild(o);
+  });
+  ['q','reg','fimp','ffill','fdone','fplot'].forEach(id=>
+    document.getElementById(id).addEventListener('input',()=>{apply();renderList();drawOverlay();}));
+  document.getElementById('mbase').addEventListener('click',()=>loadMap('m60'));
+  document.getElementById('mdlc').addEventListener('click',()=>loadMap('m61'));
+  document.getElementById('stamp').textContent =
+    `${META.total} checks · ${META.ambiguous} indistinguishable in ${META.families} families`;
+  document.getElementById('foot').innerHTML = [
+    `<span style="color:var(--red)">${META.noitem} with no item name</span>`,
+    `<span>${META.ambiguous} carry a collision ordinal</span>`,
+    `<span>${META.bare} bare · ${META.locale} machine-locale</span>`,
+    `<span>${META.have_override} already hand-described</span>`,
+    `<span>${META.plottable} plottable</span>`,
+    `<span style="margin-left:auto">drafts autosave locally — EXPORT before closing</span>`
+  ].join('');
+  apply(); loadMap('m60'); renderList();
+  if(filtered.length) select(filtered[0].f); else renderSide();
+})();
+</script>
+</body>
+</html>

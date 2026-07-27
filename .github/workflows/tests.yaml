@@ -158,6 +158,7 @@ jobs:
           # It is stamped with data.py's inputs_hash (NOT the commit) and writes LF, so a
           # regen here is byte-identical to a Windows regen and the diff below is meaningful.
           python tools/build_check_browser.py
+          python tools/build_desc_triage.py
 
           # Check the two things that are actually GENERATED OUTPUT, in the two places they live.
           #

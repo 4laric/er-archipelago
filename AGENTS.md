@@ -369,6 +369,42 @@ are absent in CI). Know which tier your change is in:
   It is a **reader**, not an oracle: it shows what the world already declares, and any number it
   displays is a join over the same tsvs the generators use.
 
+### DESC-TRIAGE — authoring `location_descriptions.tsv`
+
+`er-archipelago-desc-triage.html` (root, `python tools/build_desc_triage.py`) ranks checks by how
+badly they need a hand description and puts them **on the committed overworld maps**, because the
+question you have to answer when writing one is "which of these four is this?" — MEASURED, 986
+checks carry a `collision_ordinals()` "(N)" suffix across 306 families, meaning the waterfall could
+not tell them apart. Pick a row, see it and its indistinguishable siblings plotted together, type
+what makes it different, export a `flag<TAB>description` TSV to paste into
+`greenfield/location_descriptions.tsv` (layer 1, always wins), then regenerate.
+
+The need score is a **triage heuristic, not a truth claim**, and is rendered decomposed so you can
+disagree per row: no item name +100, indistinguishable sibling +50, bare +25, machine locale +20,
+coarse tile-grace +10, important tag +15, bulk filler −30.
+
+**Overworld coordinate fold — the part to be careful with.** The 4th map-id field is
+`[version][lod]`; LOD is documented (`tests/test_gf_lod_tile_regions.py`, `gen_data.py:177`).
+Placement uses
+
+    lod = int(suffix[1]) if a 4th field else (2 if tileX < 30 else 0)   # merchant ids are truncated
+    pitch = 256 << lod
+    world = tile*pitch + local + (pitch-256)/2
+
+then `poptracker/maps/map_calibration*.json`. Two parts are **INFERRED, documented nowhere**: the
+`(pitch-256)/2` centring term, and "3-field id + low tile = truncated LOD2" (merchant rows lose the
+suffix in `datamine_merchant_shops._map_id`). Evidence for the centring term: without it all 18
+LOD2 rows sit 244–463 m outside the tile their own flag encodes, and with it five coarse merchant
+tiles land 50–122 m from a real named grace. `test_gf_desc_triage.py` pins it with hand-computed
+cases and asserts every projected point lands inside its map — so if it is wrong, it is wrong
+*visibly and consistently*, not silently. To falsify: check one of those five merchants in game.
+
+🛑 Related, NOT fixed here: `tools/build_nearest_grace.py::_normalize` folds every overworld tile at
+`*256` regardless of LOD and its regex requires a trailing `_`, so (a) 17 LOD2 check flags and
+(b) **all 570 merchant-only flags** get no nearest grace at all. Both are missing-never-wrong under
+the default 2000 m cap, and layer 3b (sellers) covers shop checks anyway — but the claim at
+`desc_sources.py:244-247` that a shop check "CAN reach a nearest grace" is currently false.
+
 ## 6. The truncation gate (why edits are safe)
 
 The sandbox mount can silently truncate/NUL-pad large writes. Tools guard against it:
