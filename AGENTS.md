@@ -285,7 +285,8 @@ $PY -m pip install -q --no-cache-dir schema jsonschema pathspec pytest
 # 3. Archipelago at the pin, SPARSE (a full checkout will not finish inside one call)
 git clone --depth 1 --branch "$(tr -d '[:space:]' < .ap-version)" --single-branch \
   https://github.com/ArchipelagoMW/Archipelago.git $O/gfci/ap
-cd $O/gfci/ap && git sparse-checkout init --cone && git sparse-checkout set worlds/generic test
+cd $O/gfci/ap && git sparse-checkout set --no-cone \
+  '/*.py' '/worlds/*.py' '/worlds/generic/**' '/test/**' '/data/**' '/rule_builder/**'
 # 4. install the world (AGENTS §5) and run
 rm -rf worlds/eldenring && cp -r <repo>/greenfield/eldenring worlds/eldenring
 cp <repo>/greenfield/region_map.csv worlds/eldenring/region_map.csv
@@ -305,8 +306,12 @@ TMPDIR=/tmp AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
   behind. This looks like a network failure and is not one. Fetch the tarball with `curl -C -`
   (resumable across calls) and extract it yourself with `--skip-old-files`, which makes re-running
   effectively resumable too.
-- 🛑 **A full AP checkout will not finish either** (~3500 files). Sparse-checkout `worlds/generic`
-  + `test`; cone mode keeps the root `.py` files, which is all the core needs. Some unrelated worlds
+- 🛑 **A full AP checkout will not finish either** (~3500 files). Sparse-checkout it — but use
+  `--no-cone` with the pattern list above. ⚠️ **`init --cone` does NOT keep the root `.py` files**,
+  whatever this doc used to say: it leaves you with `test/` and `worlds/` only, and you then chase
+  `ModuleNotFoundError: BaseClasses` → `pathspec` → `rule_builder` one 45 s call at a time, each of
+  which reads like a missing dependency rather than a missing checkout. `rule_builder/` is needed
+  too (`worlds/AutoWorld.py` imports it) and is easy to miss. Some unrelated worlds
   then fail to import (`worlds.sm` wants `variaRandomizer`); AP logs it and carries on with the rest
   registered. Harmless -- do not chase it.
 - ⚠️ Python **3.10 is present and will get you a long way in** before dying on `typing.Self`. Check
