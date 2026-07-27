@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import json
 import hashlib
 import os
 import sqlite3
@@ -159,6 +160,24 @@ def build(src, db_path):
                      zlib.compress(data, 9)))
     con.execute("INSERT OR REPLACE INTO meta VALUES ('n_files', ?)", (str(len(files)),))
     con.execute("INSERT OR REPLACE INTO meta VALUES ('raw_bytes', ?)", (str(raw),))
+    # ---- record the SOURCE box's gen_manifest, so the stamp can self-diagnose -------------------
+    # A bundle regen reproduces the generated modules byte-for-byte (proved 2026-07-27: 11/11 body
+    # hashes identical) but the _GEN_STAMP `inputs_hash` still differed between the two boxes, and
+    # working out WHY cost a round-trip through Alaric -- exactly what this tool exists to stop.
+    # gen_manifest declares the input set; capture its per-file digests HERE, where the real
+    # artifacts are, and --diff-manifest on the other side names the differing file instead of
+    # leaving two opaque hashes to stare at.
+    try:
+        sys.path.insert(0, HERE)
+        import gen_manifest as _gm
+        man = _gm.compute_manifest(REPO)
+        con.execute("INSERT OR REPLACE INTO meta VALUES ('gen_manifest', ?)",
+                    (json.dumps(man, sort_keys=True),))
+        print(f"  gen_manifest recorded: inputs_hash={man['inputs_hash'][:26]}... "
+              f"{man['n_files']} declared input(s), missing={man['missing']}")
+    except Exception as _e:
+        print(f"  WARNING: gen_manifest unavailable ({_e!r}) -- bundle has no manifest, so "
+              f"--diff-manifest cannot explain a stamp mismatch on the other side.")
     con.commit()
     con.close()
     packed = os.path.getsize(db_path)
@@ -212,6 +231,47 @@ def extract(db_path, dest):
           "regen and an artifact regen are byte-identical by construction. Confirm it anyway -- "
           "compare eldenring/_gen_stamp.json against a regen from the real artifacts.")
     return 0
+
+
+def diff_manifest(db_path, repo):
+    """Compare THIS tree's gen_manifest against the one recorded when the bundle was built.
+
+    Reports the differing DECLARED INPUTS by name. `inputs_hash` is a hash of the whole input set,
+    so two boxes disagreeing tells you nothing about WHICH input moved -- this does."""
+    con = sqlite3.connect(db_path)
+    row = con.execute("SELECT v FROM meta WHERE k='gen_manifest'").fetchone()
+    con.close()
+    if not row:
+        print("this bundle carries no recorded manifest (built before that was added). Re-run "
+              "--build on the box with the artifacts and the next one will explain itself.")
+        return 2
+    theirs = json.loads(row[0])
+    sys.path.insert(0, HERE)
+    import gen_manifest as _gm
+    mine = _gm.compute_manifest(repo)
+    print(f"bundle-side inputs_hash : {theirs['inputs_hash']}  ({theirs['n_files']} files)")
+    print(f"this-tree  inputs_hash : {mine['inputs_hash']}  ({mine['n_files']} files)")
+    if theirs["inputs_hash"] == mine["inputs_hash"]:
+        print("MATCH -- a regen here stamps identically to one on the source box.")
+        return 0
+    tf, mf = theirs["files"], mine["files"]
+    only_t = sorted(set(tf) - set(mf))
+    only_m = sorted(set(mf) - set(tf))
+    differ = sorted(k for k in set(tf) & set(mf) if tf[k] != mf[k])
+    if only_t:
+        print(f"  declared inputs present on the SOURCE box and absent here ({len(only_t)}):")
+        for k in only_t[:20]:
+            print(f"    {k}")
+    if only_m:
+        print(f"  present HERE and not on the source box ({len(only_m)}): {only_m[:20]}")
+    if differ:
+        print(f"  same path, DIFFERENT content ({len(differ)}):")
+        for k in differ[:20]:
+            print(f"    {k}")
+    print("\nNOTE a stamp mismatch does NOT mean the regen is wrong: compare the module "
+          "body_sha256 values in _gen_stamp.json -- those are the generated CONTENT, and on "
+          "2026-07-27 all 11 matched across boxes while only inputs_hash differed.")
+    return 1
 
 
 def selftest():
@@ -271,9 +331,13 @@ def main():
     ap.add_argument("--db", default=DEFAULT_DB)
     ap.add_argument("--artifacts", default=ARTIFACTS)
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--diff-manifest", nargs="?", const=DEFAULT_DB, metavar="DB",
+                    help="explain an inputs_hash mismatch by naming the differing declared input")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+    if a.diff_manifest:
+        return diff_manifest(a.diff_manifest, REPO)
     if a.build:
         return build(a.artifacts, a.db)
     if a.verify:
