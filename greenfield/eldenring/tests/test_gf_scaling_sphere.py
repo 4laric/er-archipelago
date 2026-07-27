@@ -55,6 +55,36 @@ def test_blessing_floor_producer_stays_alive_though_off_by_default():
     assert sc.blessing_floor_ranges(["Limgrave", "Liurnia"]) == [], "no DLC kept -> no floors (inert)"
 
 
+def test_dlc_buckets_are_derived_from_the_region_set_not_the_blessing_option():
+    """THE BUG (2026-07-27): the client's only 'is this a DLC region?' test was
+    `blessing_floor_for_region(&cfg.dlc_blessing_floors, r).is_some()` -- and those floors are
+    emitted ONLY when global_scadutree_blessing == 2, which has NOT been the default since
+    2026-07-18. So on every default seed the DLC flag was `false` for every bucket in the game.
+    Nothing failed, because it only shortened a log line.
+
+    `dlcRegionBuckets` answers the question the question was actually about. Gated here so it can
+    never drift back into depending on an option: the bucket set must be identical whatever
+    global_scadutree_blessing says, and it must be non-empty exactly when a DLC region is kept.
+    """
+    from worlds.eldenring.region_spine import DLC_REGIONS
+
+    dlc = sorted(DLC_REGIONS)
+    buckets = sc.dlc_region_buckets(dlc)
+    assert buckets, "kept DLC regions must yield buckets"
+    assert buckets == sorted(set(buckets)), "sorted and de-duplicated"
+    assert all(isinstance(b, int) for b in buckets)
+
+    # Base-game-only kept set -> empty (inert; the key is not emitted at all).
+    assert sc.dlc_region_buckets(["Limgrave", "Liurnia"]) == []
+
+    # The DLC buckets and the blessing floors describe the SAME regions, but the floors are the ones
+    # that vanish with an option. Same bucket universe, different emission conditions.
+    floor_buckets = sorted({lo for lo, _hi, _f in sc.blessing_floor_ranges(dlc)})
+    assert floor_buckets == buckets, (
+        "the blessing floors and the DLC bucket wire disagree about which buckets are DLC -- one of "
+        "them is wrong, and only the bucket wire is emitted unconditionally")
+
+
 def test_intra_fold_scaling_delta_bumps_clamps_and_never_inflates(monkeypatch):
     # Pure mechanism test (SPEC-intra-fold-scaling-delta-20260722.md). Uses a CONTROLLED delta so it
     # is robust to future tuning of the shipped _SCALING_BUCKET_DELTA values. Synthetic wire: three

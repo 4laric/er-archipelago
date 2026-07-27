@@ -61,7 +61,15 @@ PARAM_CSVS = ["BonfireWarpParam.csv", "EquipMtrlSetParam.csv", "EquipParamAccess
               "EquipParamGoods.csv", "EquipParamProtector.csv", "EquipParamWeapon.csv",
               "GestureParam.csv", "ItemLotParam_enemy.csv", "ItemLotParam_map.csv",
               "NpcParam.csv", "PlayRegionParam.csv", "ShopLineupParam.csv",
-              "ShopLineupParam_Recipe.csv"]
+              "ShopLineupParam_Recipe.csv",
+              # NOT read by gen_data.py -- carried so the ENEMY-SCALING LADDERS can be DERIVED.
+              # Both the base ladder (7010..7100) and the DLC one (20007000..20007310) are currently
+              # hand-transcribed into er-logic/src/scaling.rs from an offline dump, and mirrored again
+              # into greenfield/eldenring/scaling_ladder.py. Two transcriptions of a param nobody can
+              # check: the HP rates are load-bearing (they are what completion_scaling_floor converts
+              # THROUGH) and the DLC rates are known only from three numbers in a code comment.
+              # With this row in the bundle both sides can be generated and gated instead.
+              "SpEffectParam.csv"]
 FMG_XMLS = [f"{stem}Name{suf}.fmg.xml"
             for suf in ("", "_dlc01", "_dlc02")
             for stem in ("Weapon", "Protector", "Accessory", "Goods", "Gem")]

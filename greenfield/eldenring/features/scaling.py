@@ -218,6 +218,31 @@ DLC_BLESSING_FLOORS = {
 _DLC_BLESSING_BUCKET_OVERRIDE = {}
 
 
+def dlc_region_buckets(kept):
+    """Sorted play_region buckets belonging to KEPT DLC regions. Pure; [] when no DLC is in play.
+
+    WHY THIS EXISTS. The client needs to know "is this bucket a DLC region?" and until now its only
+    way to ask was `blessing_floor_for_region(&cfg.dlc_blessing_floors, region).is_some()` -- i.e. it
+    inferred DLC-ness from the presence of a SCADUTREE BLESSING FLOOR. Those floors are emitted only
+    when `global_scadutree_blessing == 2`, and the shipped default has been `off` since 2026-07-18,
+    so on EVERY default seed that test answers `false` for every bucket in the game. The DLC flag in
+    the enemy-scaling log has therefore been dead since the day the default changed, and nobody
+    noticed, because a `false` there just prints a shorter line.
+
+    Harmless while it only decorates a log. NOT harmless as the input to a scaling decision -- and
+    that is exactly what the DLC enemy ladder (er-logic scaling.rs DLC_SCALING_ID_RANGE, the
+    20007xxx block) will need. So the signal is now DERIVED FROM THE REGION SET, which is what it
+    always meant, instead of borrowed from an unrelated option's side effect.
+
+    Same lo==hi bucket space as areaLockFlags / regionSphereTargetRanges (play_region_id // 100),
+    but emitted as a flat sorted list: this is a MEMBERSHIP set, and shaping it as ranges with a
+    meaningless third column would be inventing a value to fit an existing parser.
+    """
+    keptset = set(kept)
+    return sorted({pid for region in DLC_REGIONS if region in keptset
+                   for pid in REGION_PLAY_IDS.get(region, [])})
+
+
 def blessing_floor_ranges(kept):
     """[[lo, hi, floor], ...] Scadutree-blessing floors per DLC-region play_region bucket, for the kept
     DLC regions (pure; unit-testable without AP). Same lo==hi bucket space as regionSphereTargetRanges /
@@ -285,6 +310,7 @@ class Scaling(Feature):
         else:
             ranges = sphere_target_ranges(world._kept())
         blessing = int(world.options.global_scadutree_blessing.value)
+        kept_regions = world._kept()
         out = {
             "completion_scaling": 4,  # smoothstep (client curve id; SPEC-PARITY P2)
             # UNIT SPACE: this legacy TOP-LEVEL copy is the raw player-facing PERCENT (0..100). The
@@ -297,12 +323,18 @@ class Scaling(Feature):
             "global_scadutree_blessing": blessing,
             contract.REGION_SPHERE_TARGET_RANGES: ranges,
         }
+        # WHICH BUCKETS ARE DLC -- independent of every option, because that is what the question
+        # actually depends on. Emitted whenever a DLC region is kept; absent (inert) otherwise, so a
+        # base-game seed's slot_data is unchanged. See dlc_region_buckets for why the client could
+        # not previously ask this without accidentally asking about Scadutree blessing instead.
+        if set(kept_regions) & DLC_REGIONS:
+            buckets = dlc_region_buckets(kept_regions)
+            if buckets:
+                out[contract.DLC_REGION_BUCKETS] = buckets
         # mode 2 (scaled): emit the per-DLC-region blessing floor wire, but only when DLC regions are
         # actually kept (otherwise inert -- no key, so a base-game seed is byte-identical to mode 1).
-        if blessing == 2:
-            kept = world._kept()
-            if set(kept) & DLC_REGIONS:
-                floors = blessing_floor_ranges(kept)
-                if floors:
-                    out[contract.DLC_SCADUTREE_FLOOR_RANGES] = floors
+        if blessing == 2 and set(kept_regions) & DLC_REGIONS:
+            floors = blessing_floor_ranges(kept_regions)
+            if floors:
+                out[contract.DLC_SCADUTREE_FLOOR_RANGES] = floors
         return out

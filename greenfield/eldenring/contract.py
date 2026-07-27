@@ -410,8 +410,18 @@ CONTRACT = (
                 "[[lo,hi,floor], ...] play_region/100 sub-id ranges -> Scadutree-blessing FLOOR level "
                 "(0..20) per DLC region. Emitted ONLY when global_scadutree_blessing==2 and >=1 DLC "
                 "region is kept. Client mode-2 writes max(held-fragment level, region floor) so DLC "
-                "enemies' blessing assumption is met on arrival; the enemy 70xx sphere scaler is capped "
-                "in these buckets to avoid double-counting."),
+                "enemies' blessing assumption is met on arrival. "
+                "🛑 This key is NOT a DLC-region marker -- use dlcRegionBuckets. The client used to "
+                "infer DLC-ness from its presence, which is false on every default seed (blessing has "
+                "defaulted to `off` since 2026-07-18). (The old claim that 'the enemy 70xx sphere "
+                "scaler is capped in these buckets' was also stale: DLC_ENEMY_TIER_CAP was removed "
+                "2026-07-15 and DLC now scales by sphere exactly like base game.)"),
+    ContractKey("dlcRegionBuckets", "INT_LIST", False, (GREENFIELD,),
+                "features/scaling.dlc_region_buckets", "er-logic/scaling.rs is_dlc_bucket",
+                "sorted play_region/100 sub-ids belonging to KEPT DLC regions -- a pure membership "
+                "set, derived from the region set and independent of every option. Absent when no "
+                "DLC region is in play. This is the ONLY correct 'is this bucket DLC?' signal; it "
+                "exists because the previous proxy (dlcScadutreeFloorRanges) is empty by default."),
     ContractKey("completionScalingBasis", "INT", False, (GREENFIELD,),
                 "core._base_slot_data", "er-logic/scaling.rs basis parse",
                 "scaling basis Choice VALUE (int 1 = sphere); client also tolerates the legacy "
