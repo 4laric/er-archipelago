@@ -153,6 +153,39 @@ class DescTriageTest(unittest.TestCase):
             self.assertAlmostEqual(got[1], want[1], places=3, msg=f"{mid} gx")
             self.assertAlmostEqual(got[2], want[2], places=3, msg=f"{mid} gz")
 
+    def test_fine_grid_fold_matches_the_games_own_conversion_table(self):
+        """⭐ THE FINE-GRID FOLD IS NO LONGER INFERRED.
+
+        WorldMapLegacyConvParam (196 rows, bundled 2026-07-27 when gen_inputs started globbing
+        the params dir) is the game's OWN legacy<->overworld conversion table. Rows 1113-1116
+        express ONE world point in FOUR different tile frames, with locals that run far outside
+        a 256 m tile (-1024, +2304 -- so the local frame is not clamped, and the fold is a pure
+        affine map). Under `tile*256 + local` all four collapse to exactly (12544, 12544).
+
+        Four independent frames agreeing to the metre is about as close to proof as a datamine
+        gets, and it is much better evidence than the "looks about right" this started as. The
+        fixture is PINNED here rather than read from the param so the gate needs no artifacts.
+
+        🛑 SCOPE, because this proves less than it looks like it proves: all 163 overworld-
+        destination rows sit on the FINE grid (tile indices 33..54). This param contains ZERO
+        coarse/LOD2 rows, so it says NOTHING about the (pitch-256)/2 centring term in
+        test_lod_fold_pins_the_centring_term -- that half is still inference, and the in-game
+        merchant spot-check in AGENTS.md is still the way to falsify it.
+        """
+        cases = [                     # (tile_x, tile_z, local_x, local_z) -- WorldMapLegacyConvParam
+            (50, 40, -256.0, 2304.0),                                    # ID 1113
+            (50, 41, -256.0, 2048.0),                                    # ID 1114
+            (51, 45, -512.0, 1024.0),                                    # ID 1115
+            (53, 46, -1024.0, 768.0),                                    # ID 1116
+        ]
+        got = set()
+        for tx, tz, lx, lz in cases:
+            w = self.tool.world_xz(f"m61_{tx:02d}_{tz:02d}_00", lx, lz)
+            self.assertIsNotNone(w, f"m61_{tx:02d}_{tz:02d}_00 did not fold")
+            got.add((round(w[1], 3), round(w[2], 3)))
+        self.assertEqual(got, {(12544.0, 12544.0)},
+                         "the four frames no longer agree -- tile*256+local is broken: " + str(got))
+
     def test_interiors_are_refused_not_guessed(self):
         for mid in ("m11_10_00_00", "m30_00_00_00", "m40_00", "PENDING", ""):
             self.assertIsNone(self.tool.world_xz(mid, 1.0, 2.0), f"{mid} should not fold")
