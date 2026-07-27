@@ -27,12 +27,22 @@ import subprocess
 import sys
 import tempfile
 import unittest
+
+try:                       # package-relative under pytest; plain path when run directly
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
 from collections import Counter, defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)
 GREENFIELD = os.path.dirname(GF_PKG)
-REPO = os.path.dirname(GREENFIELD)
+# Resolve the checkout by MARKER, never positionally: under tools/gf_test.py this file
+# lives at _ap/worlds/eldenring/tests and a positional walk-up yields `_ap`, which has no
+# tools/. See _util.find_repo_root -- this is the bug that errored 45 tests in CI.
+REPO = find_repo_root(HERE) or os.path.dirname(GREENFIELD)
+RUNNING_FROM_REPO = find_repo_root(HERE) is not None
 TOOL = os.path.join(REPO, "tools", "build_desc_triage.py")
 SHIPPED = os.path.join(REPO, "er-archipelago-desc-triage.html")
 
@@ -62,6 +72,7 @@ def _viewbox(name):
     return (float(m.group(1)), float(m.group(2))) if m else None
 
 
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class DescTriageTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -31,12 +31,22 @@ import subprocess
 import sys
 import tempfile
 import unittest
+
+try:                       # package-relative under pytest; plain path when run directly
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
 from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)                       # .../greenfield/eldenring
 GREENFIELD = os.path.dirname(GF_PKG)                 # .../greenfield
-REPO = os.path.dirname(GREENFIELD)                   # .../er-archipelago
+# Resolve the checkout by MARKER, never positionally: under tools/gf_test.py this file
+# lives at _ap/worlds/eldenring/tests and a positional walk-up yields `_ap`, which has no
+# tools/. See _util.find_repo_root -- this is the bug that errored 45 tests in CI.
+REPO = find_repo_root(HERE) or os.path.dirname(GREENFIELD)
+RUNNING_FROM_REPO = find_repo_root(HERE) is not None                   # .../er-archipelago
 TOOL = os.path.join(REPO, "tools", "build_check_browser.py")
 SHIPPED = os.path.join(REPO, "er-archipelago-check-browser.html")
 
@@ -63,6 +73,7 @@ def _build(out_path):
         return fh.read()
 
 
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class CheckBrowserTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
