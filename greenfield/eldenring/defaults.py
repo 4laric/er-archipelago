@@ -128,7 +128,13 @@ FROZEN_OPTIONS = {
     "progressive_stonesword_keys": (0, None),
     "stone_injection": (0, None),              # DELETED mechanism; the class is inert
     "filler_upgrade_weight": (1, None),        # inert under the always-on item_shuffle
-    "completion_scaling_floor": (0, None),     # scaling.py still emits the key (client contract)
+    # UN-FROZEN 2026-07-27. `completion_scaling_floor` is the difficulty FLOOR -- the hard-mode knob
+    # -- and it is now a real yaml option again (features/scaling.CompletionScalingFloor, default 0 =
+    # unchanged). It was frozen at 0 on 2026-07-11 as part of the surface slim, which is also the only
+    # reason its units bug never reached a player: core._options_echo emitted the raw PERCENT while
+    # the client parses an HP MULTIPLIER, so any value above 3 pinned the whole game to the top
+    # scaling tier. Fixed in the same change (features/scaling.floor_multiplier); do NOT re-freeze
+    # this without also deciding what happens to that conversion.
 }
 
 

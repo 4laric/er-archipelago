@@ -172,6 +172,27 @@ Elden Ring:
   # observe a purchase on them -- so nothing is lost by rerolling.)
   reroll_infinite_shop_stock: true
 
+  # ---- Difficulty -----------------------------------------------------------
+
+  # Enemy scaling is ALWAYS on and keyed to progression, not geography: the
+  # deeper a region sits in YOUR seed's lock chain, the harder its enemies. The
+  # client applies one of ten vanilla enemy-scaling effects, from 1.14x enemy HP
+  # at the shallowest region to 3.70x at the deepest. Rune rewards are never
+  # changed, at any setting.
+  #
+  # This is the FLOOR: the minimum tier, applied everywhere from the very start.
+  # It raises the difficulty of the early game without touching the top end --
+  # useful because a region you unlock late in a region_lock seed can still be a
+  # geographically early one.
+  #
+  #     0   the full curve from the bottom  (default, unchanged)
+  #    25   nothing below ~1.66x enemy HP
+  #    50   nothing below ~1.95x
+  #   100   3.70x everywhere, from Limgrave onward   (hard mode)
+  #
+  # It is a percent of the ladder, NOT a percent of enemy HP.
+  completion_scaling_floor: 0
+
   # ---- Standard Archipelago options -----------------------------------------
 
   # region_lock seeds want `minimal`, not `full`.
@@ -206,7 +227,6 @@ Elden Ring:
 #    no_weapon_requirements    ON   -- any gear the multiworld sends you is usable
 #    buyable_stonesword_keys   ON
 #    flatten_regular_upgrades  2    -- a UNIFORM 2-stone ladder, NOT the vanilla 2/4/6
-#    completion_scaling_floor  0    -- enemy scaling is always on, keyed to progression
 #    global_scadutree_blessing off    -- fully vanilla: DLC blessing is earned from Scadutree
 #                                          Fragments only (the per-area floor was removed 2026-07-18)
 #

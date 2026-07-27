@@ -35,6 +35,7 @@ from Options import Range, Choice
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from .. import contract
+from ..scaling_ladder import SCALING_HP_LADDER, floor_multiplier  # noqa: F401  (re-export)
 from .area_locks import REGION_PLAY_IDS
 
 # Wire normalization ceiling. The client normalizes by the max emitted target (scaling.rs
@@ -233,11 +234,15 @@ def blessing_floor_ranges(kept):
 
 
 class CompletionScalingFloor(Range):
-    """Minimum completion-scaling tier as a percent of max, applied from the start so early regions
-    aren't trivially weak. 0 = the full smoothstep curve from zero."""
+    """Minimum enemy-scaling tier, as a percent of the deepest tier, applied everywhere from the
+    start -- so early regions aren't trivially weak once you outgrow them. This is the HARD-MODE
+    knob: it raises the difficulty FLOOR without touching the ceiling. 0 (default) = the full curve
+    from the bottom, exactly as before. The scale is the client's 10-rung ladder of vanilla enemy
+    SpEffects: 0 = 1.14x enemy HP, 50 = ~1.95x, 100 = 3.70x everywhere (the deepest region's tier,
+    from Limgrave onward). Enemy rune rewards are unchanged at every setting."""
     display_name = "Completion Scaling Floor"
     range_start = 0
-    range_end = 50
+    range_end = 100
     default = 0
 
 
@@ -282,6 +287,12 @@ class Scaling(Feature):
         blessing = int(world.options.global_scadutree_blessing.value)
         out = {
             "completion_scaling": 4,  # smoothstep (client curve id; SPEC-PARITY P2)
+            # UNIT SPACE: this legacy TOP-LEVEL copy is the raw player-facing PERCENT (0..100). The
+            # key the client actually reads is sd["options"]["completion_scaling_floor"], emitted by
+            # core._options_echo as the HP MULTIPLIER (see floor_multiplier). Two keys, same name,
+            # DIFFERENT UNITS -- named here on purpose rather than left to be discovered
+            # (CONTRIBUTING rule 3: name the space wherever two components exchange a value), and
+            # asserted in tests/test_gf_scaling_floor_units.py so the pair cannot silently converge.
             "completion_scaling_floor": int(world.options.completion_scaling_floor.value),
             "global_scadutree_blessing": blessing,
             contract.REGION_SPHERE_TARGET_RANGES: ranges,

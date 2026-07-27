@@ -120,7 +120,8 @@ if "$PY" "$GF/eldenring/tests/test_gf_data.py" \
    && "$PY" "$GF/eldenring/tests/test_gf_region_artifact_oracle.py" \
    && "$PY" "$GF/eldenring/tests/test_gf_grace_skip_oracle.py" \
    && "$PY" "$GF/eldenring/tests/test_gf_grace_skip_classes.py" \
-   && "$PY" "$GF/eldenring/tests/test_gf_client_contract_paths.py"; then
+   && "$PY" "$GF/eldenring/tests/test_gf_client_contract_paths.py" \
+   && "$PY" "$GF/eldenring/tests/test_gf_scaling_ladder_mirror.py"; then
   record PURE PASS; else record PURE FAIL; fi
 
 step "GREENFIELD (c) ISOLATED GEN"

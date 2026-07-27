@@ -782,7 +782,14 @@ class GreenfieldEldenRingWorld(World):
         parse_bool_option et al.), but the features only emitted TOP-LEVEL copies -- so death_link/
         enable_dlc/no_weapon_requirements/scaling knobs were silently dark with "slot_data OK".
         Emitted CENTRALLY here (features never write into `options`), contract-validated at gen;
-        the features' top-level emissions remain as harmless legacy duplicates."""
+        the features' top-level emissions remain as legacy duplicates.
+
+        ⚠️ NOT every entry is a plain echo. `completion_scaling_floor` is UNIT-CONVERTED here (percent
+        -> HP multiplier) because the client parses it as a multiplier; its top-level legacy copy
+        keeps the percent. Same name, two units, one deliberate conversion -- see
+        features/scaling.floor_multiplier and tests/test_gf_scaling_floor_units.py."""
+        from .scaling_ladder import floor_multiplier as scaling_floor_multiplier
+
         def _opt(name: str, default: int = 0) -> int:
             o = getattr(self.options, name, None)
             return int(o.value) if o is not None else default
@@ -795,7 +802,12 @@ class GreenfieldEldenRingWorld(World):
             contract.ENABLE_DLC: int(dlc_only or enable_dlc),
             contract.NO_WEAPON_REQUIREMENTS: _opt("no_weapon_requirements"),
             contract.COMPLETION_SCALING: 4,  # smoothstep curve id (nonzero = on; matches features/scaling.py)
-            contract.COMPLETION_SCALING_FLOOR: _opt("completion_scaling_floor"),
+            # UNIT CONVERSION, NOT AN ECHO. The client reads this as an HP MULTIPLIER
+            # (er-logic/scaling.rs floor_tier_from_multiplier); the option is a PERCENT. Emitting the
+            # raw percent here -- as this line did until 2026-07-27 -- pinned every enemy to the top
+            # tier for any value above 3. See features/scaling.floor_multiplier for the full story.
+            contract.COMPLETION_SCALING_FLOOR: scaling_floor_multiplier(
+                _opt("completion_scaling_floor")),
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level

@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "b1d8c13295dbb81751c7429bfbd72e35c864aee936bc8fa4279ae6f85a7371db",
+ "source_sha256": "23e017d1b5cbdd62016f69d583ba795dce6b559d83dc5f787506b93d4087d6fc",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -139,10 +139,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "progressive_flasks",
   "local_item_only",
   "exclude_local_item_only",
+  "natural_progression",
   "progression_surface",
   "confine_foreign_progression",
+  "completion_scaling_floor",
   "reroll_infinite_shop_stock",
-  "merchant_bell_logic"
+  "merchant_bell_logic",
+  "start_with_whetblades"
  ],
  "groups": [],
  "ungrouped": [
@@ -166,10 +169,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "progressive_flasks",
   "local_item_only",
   "exclude_local_item_only",
+  "natural_progression",
   "progression_surface",
   "confine_foreign_progression",
+  "completion_scaling_floor",
   "reroll_infinite_shop_stock",
-  "merchant_bell_logic"
+  "merchant_bell_logic",
+  "start_with_whetblades"
  ],
  "options": [
   {
@@ -183,7 +189,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": {
     "start": 0,
-    "end": 31
+    "end": 30
    },
    "valid_keys": null,
    "casefold": false,
@@ -335,7 +341,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "curated_filler",
    "class": "CuratedFiller",
    "display_name": "Curated Filler recipe (category -> weight)",
-   "description": "Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are\nsplit across the categories by weight. Categories: throwables, pots, greases, ammunition, foods,\nboluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep that\nshare as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,\ngreases x2, ammunition x20.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,\nstones: 15, runes: 15}.",
+   "description": "Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are\nsplit across the categories by weight. Categories: throwables, pots, firepots, greases, ammunition,\nfoods, boluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep\nthat share as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,\nfirepots x2, greases x2, ammunition x20.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,\nstones: 15, runes: 15}.",
    "kind": "dict",
    "base": "OptionDict",
    "default": {
@@ -486,7 +492,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "progressive_flasks",
    "class": "ProgressiveFlasks",
    "display_name": "Progressive Flasks",
-   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. The Kth copy you receive grants a Golden Seed or a Sacred\nTear on an interleaved schedule, and you still spend it at a grace at the game's own escalating\nprice -- so upgrades arrive on a steady cadence (Sacred Tears included) instead of 13 silent\nflat pickups. Off: seeds and tears stay discrete pickups at their shuffled locations. Flasks\nnever gate logic, so either way the seed is always winnable.",
+   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Each copy raises your flask on two axes: CHARGES climb on an\nescalating schedule the client applies directly, and POTENCY rises by granting you a Sacred Tear\nthat you spend at a grace the vanilla way -- so upgrades arrive on a steady cadence instead of a\npile of silent flat pickups. Off: seeds and tears stay discrete pickups at their shuffled\nlocations. Flasks never gate logic, so either way the seed is always winnable.",
    "kind": "toggle",
    "base": "Toggle",
    "default": true,
@@ -530,6 +536,21 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "talismans",
     "weapons"
    ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "natural_progression",
+   "class": "NaturalProgression",
+   "display_name": "Natural Progression",
+   "description": "Faithful-vanilla progression: play the whole map with regions gated by REAL vanilla keys +\nboss remembrances (shuffled), in vanilla's dependency SHAPE -- the inverse of The Shattering\n(num_regions). No synthetic region locks. Off (default): normal num_regions behaviour. On: every\nregion opens on its own real key off the start, minus the kept chokepoints (DLC behind Mohg, Gelmir\nbehind Liurnia+Academy, Rauh behind Shadow Keep, the capital behind Altus + 2 Great Runes); the\nwhole eligible map is in play (num_regions is ignored). SPEC-vanilla-progression-20260722.md.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
    "casefold": false,
    "group": null,
    "group_collapsed": false
@@ -590,6 +611,24 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false
   },
   {
+   "key": "completion_scaling_floor",
+   "class": "CompletionScalingFloor",
+   "display_name": "Completion Scaling Floor",
+   "description": "Minimum enemy-scaling tier, as a percent of the deepest tier, applied everywhere from the\nstart -- so early regions aren't trivially weak once you outgrow them. This is the HARD-MODE\nknob: it raises the difficulty FLOOR without touching the ceiling. 0 (default) = the full curve\nfrom the bottom, exactly as before. The scale is the client's 10-rung ladder of vanilla enemy\nSpEffects: 0 = 1.14x enemy HP, 50 = ~1.95x, 100 = 3.70x everywhere (the deepest region's tier,\nfrom Limgrave onward). Enemy rune rewards are unchanged at every setting.",
+   "kind": "range",
+   "base": "Range",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
    "key": "reroll_infinite_shop_stock",
    "class": "RerollInfiniteShopStock",
    "display_name": "Reroll Infinite Shop Stock",
@@ -622,6 +661,21 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "value": 1
     }
    ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "start_with_whetblades",
+   "class": "StartWithWhetblades",
+   "display_name": "Start With All Whetblades",
+   "description": "Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone, Black) so every Ash-of-War\naffinity is selectable at any grace from the opening, instead of hunting the vanilla pickups. OFF by\ndefault (opt-in). Grants the ITEMS only -- no event flag is set, because each whetblade's only\nvanilla flag is its randomized check flag; the grace affinity menu keys on possession. The whetblade\nCHECKS stay in the pool regardless.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,

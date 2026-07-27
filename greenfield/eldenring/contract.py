@@ -347,8 +347,12 @@ OPTIONS_SUBKEYS = (
                 "core._options_echo", "er-logic/scaling.rs:146 parse_bool_option",
                 "completion scaling on/off + curve id (nonzero = on; 4 = smoothstep)."),
     ContractKey("completion_scaling_floor", "NUMBER", True, (GREENFIELD,),
-                "core._options_echo", "er-logic/scaling.rs floor (client reads f64)",
-                "minimum scaling tier as percent of max, applied from the start."),
+                "core._options_echo (unit-converted by features/scaling.floor_multiplier)",
+                "er-logic/scaling.rs:225 floor_tier_from_multiplier (client reads f64)",
+                "minimum enemy-scaling tier, as the HP MULTIPLIER of that tier's ladder rung -- NOT "
+                "the option's percent. 0 = no floor; 1.141..3.703 spans the ladder. The client picks "
+                "the first tier whose hp >= this value, so sending the raw percent would floor at the "
+                "TOP tier. The player-facing percent rides in the top-level legacy copy."),
     ContractKey("global_scadutree_blessing", "INT", True, (GREENFIELD,),
                 "core._options_echo", "scaling.rs scadutree scope",
                 "DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled)."),
@@ -639,9 +643,12 @@ CONTRACT = (
                 "er-logic/scaling.rs:146 (reads options.completion_scaling)",
                 "legacy top-level copy of the scaling toggle/curve id (4 = smoothstep)."),
     ContractKey("completion_scaling_floor", "NUMBER", False, (GREENFIELD,),
-                "features/scaling.py (legacy duplicate of options.completion_scaling_floor)",
-                "(client reads options.completion_scaling_floor)",
-                "legacy top-level copy of the scaling floor percent."),
+                "features/scaling.py (NOT a duplicate: this is the player-facing PERCENT)",
+                "(no client consumer; the client reads options.completion_scaling_floor)",
+                "the raw yaml PERCENT (0..100) the player set -- a different UNIT SPACE from the "
+                "same-named options.* key, which carries the HP multiplier the client parses. "
+                "Informational / spoiler-side only. Do not 'unify' the two without reading "
+                "features/scaling.floor_multiplier first."),
     ContractKey("global_scadutree_blessing", "INT", False, (GREENFIELD,),
                 "features/scaling.py (legacy duplicate of options.global_scadutree_blessing)",
                 "(client reads options.global_scadutree_blessing)",

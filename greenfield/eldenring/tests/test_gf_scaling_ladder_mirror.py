@@ -1,0 +1,168 @@
+"""Tier-B CROSS-REPO gate, runnable from SOURCE with no Archipelago install: the world's copy of the
+enemy-scaling tier ladder must match the client's, and the percent->multiplier conversion built on it
+must invert the client's own search exactly.
+
+THE BUG THIS EXISTS FOR (found 2026-07-27, latent since 2026-07-06)
+
+`completion_scaling_floor` is the difficulty FLOOR -- the hard-mode lever. The two sides spoke
+DIFFERENT UNITS and neither said so:
+
+    world   a Range documented as "a percent of max"; core._options_echo emitted the raw int
+    client  er-logic/scaling.rs `floor_tier_from_multiplier` -- the FIRST tier whose `hp >= value`.
+            An HP MULTIPLIER, over a ladder topping out at 3.703.
+
+Every value above 3 selected the TOP tier. 46 of the old Range(0..50)'s 51 settings collapsed to one
+outcome, and `completion_scaling_floor: 25` -- the obvious reading of a percent -- would have pinned
+EVERY enemy in the game to 3.70x HP from the moment the player left Roundtable. Nothing crashed; the
+knob simply meant something else. It never reached a player only because the option was frozen at 0.
+
+And it was already KNOWN: `docs/history/RECON-tracker-scaling-20260706.md` line 171 states it
+outright and prescribes the conversion as item 3 of five. The other four shipped. Item 3 did not, and
+no gate was watching. That gap is what this file closes.
+
+WHY THIS FILE IS STANDALONE (`python <this file>`), not pytest
+It reads the CLIENT submodule source, which only exists in the repo tree -- the installed-world copy
+under `<AP>/worlds/eldenring/` has no sibling `from-software-archipelago-clients/`. Same reason and
+same shape as `test_gf_client_contract_paths.py`; both run in ci-linux.sh's "GREENFIELD (b) PURE
+UNIT" step, from source. It imports only `scaling_ladder.py`, which is AP-free for exactly this.
+
+WHAT IS GATED
+  * the ladder mirror matches the Rust `SCALING_TIERS`, rung for rung;
+  * the ladder is STRICTLY ASCENDING -- the premise that makes the round-trip exact;
+  * every percent round-trips through the client's search to the tier it promises;
+  * the pre-fix raw-percent emission still reproduces the top-tier inversion (rule 7: verify the fix
+    by breaking it -- if this stops failing, the client changed and the fix needs re-deriving);
+  * the Rust predicate is still `position(|t| t.hp >= floor_mult)`, so the local oracle cannot rot
+    into agreement with a client that moved.
+"""
+import importlib.util
+import os
+import re
+import unittest
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+GF_PKG = os.path.dirname(HERE)                    # .../greenfield/eldenring
+REPO_ROOT = os.path.dirname(os.path.dirname(GF_PKG))
+LADDER_PY = os.path.join(GF_PKG, "scaling_ladder.py")
+ER_LOGIC_SCALING_RS = os.path.join(
+    REPO_ROOT, "from-software-archipelago-clients", "crates", "er-logic", "src", "scaling.rs")
+
+
+def _load_ladder():
+    """Path-load `scaling_ladder.py` so this runs with no AP install and no package import."""
+    spec = importlib.util.spec_from_file_location("gf_scaling_ladder_gate", LADDER_PY)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _rust_ladder_hp(src):
+    """The `hp:` rates of `SCALING_TIERS`, in declaration order, parsed from the Rust source."""
+    m = re.search(r"pub const SCALING_TIERS:\s*&\[ScalingTier\]\s*=\s*&\[(.*?)\n\];", src, re.S)
+    assert m, ("could not find `pub const SCALING_TIERS` in %s -- the ladder was renamed or moved. "
+               "This gate is now BLIND; re-point it, do not delete it." % ER_LOGIC_SCALING_RS)
+    return [float(x) for x in re.findall(r"\bhp:\s*([0-9.]+)", m.group(1))]
+
+
+class ScalingLadderMirror(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.isfile(LADDER_PY):
+            raise unittest.SkipTest("scaling_ladder.py absent (installed-world copy).")
+        if not os.path.isfile(ER_LOGIC_SCALING_RS):
+            raise unittest.SkipTest(
+                "client crate absent (%s) -- this cross-repo gate needs the client submodule "
+                "checked out (`git submodule update --init`). CI has it."
+                % ER_LOGIC_SCALING_RS)
+        cls.mod = _load_ladder()
+        with open(ER_LOGIC_SCALING_RS, encoding="utf-8") as fh:
+            cls.src = fh.read()
+        cls.rust = _rust_ladder_hp(cls.src)
+
+    def test_extractor_is_not_vacuous(self):
+        # A regex that matched nothing must FAIL, not pass quietly (CONTRIBUTING rule 2: an empty
+        # result is a failure). Without this the whole file goes green against an empty list.
+        self.assertGreaterEqual(
+            len(self.rust), 5,
+            "parsed only %d hp rates out of SCALING_TIERS -- the extractor broke. A gate that "
+            "measures nothing is a lie." % len(self.rust))
+
+    def test_python_mirror_matches_the_rust_ladder(self):
+        py = list(self.mod.SCALING_HP_LADDER)
+        self.assertEqual(
+            py, self.rust,
+            "greenfield SCALING_HP_LADDER has DRIFTED from er-logic SCALING_TIERS.\n"
+            "  python: %s\n  rust:   %s\n"
+            "Every completion_scaling_floor a player sets is converted through the python copy, so "
+            "a drifted rung silently moves their difficulty floor by a tier. Re-mirror it."
+            % (py, self.rust))
+
+    def test_ladder_is_strictly_ascending(self):
+        """The round-trip is exact ONLY because of this: a `first hp >= rung` search recovers that
+        rung's index only if no earlier rung is also >= it. Pin the premise, not just the result."""
+        lad = self.mod.SCALING_HP_LADDER
+        self.assertTrue(all(a < b for a, b in zip(lad, lad[1:])),
+                        "ladder is not strictly ascending: %s" % (lad,))
+
+    def test_rust_predicate_is_still_a_ge_search_over_hp(self):
+        """`_floor_tier` below mirrors `position(|t| t.hp >= floor_mult)`. If the client changes that
+        comparison the oracle would still agree with ITSELF while diverging from reality, so pin the
+        shape at the source (CONTRIBUTING rule 8: what would make this guard pass while the bug is
+        present?)."""
+        m = re.search(r"pub fn floor_tier_from_multiplier\b.*?\n}", self.src, re.S)
+        self.assertIsNotNone(
+            m, "floor_tier_from_multiplier not found in er-logic/scaling.rs -- re-point this gate.")
+        self.assertRegex(
+            m.group(0), r"\.position\(\|t\|\s*t\.hp\s*>=\s*floor_mult\)",
+            "the client's floor search is no longer `position(|t| t.hp >= floor_mult)`. The world's "
+            "percent->multiplier conversion is built on that exact predicate -- re-derive "
+            "scaling_ladder.floor_multiplier before updating this assertion.")
+
+    # -- the client's search, restated locally as the oracle ------------------------------------
+    def _floor_tier(self, floor_mult):
+        for i, hp in enumerate(self.rust):        # the RUST ladder, deliberately: cross-check
+            if hp >= floor_mult:
+                return i
+        return len(self.rust) - 1
+
+    def test_every_percent_round_trips_to_the_tier_it_promises(self):
+        top = len(self.rust) - 1
+        for pct in (0, 1, 5, 10, 25, 33, 50, 66, 75, 90, 99, 100):
+            with self.subTest(pct=pct):
+                want = round(pct / 100 * top)
+                got = self._floor_tier(self.mod.floor_multiplier(pct))
+                self.assertEqual(
+                    got, want,
+                    "completion_scaling_floor: %d resolved to tier %d (%.3fx HP), expected tier %d "
+                    "(%.3fx)." % (pct, got, self.rust[got], want, self.rust[want]))
+
+    def test_the_motivating_case_and_the_inversion_it_replaced(self):
+        """CONTRIBUTING rule 11: the case that motivated the work is the acceptance test."""
+        top = len(self.rust) - 1
+        got = self._floor_tier(self.mod.floor_multiplier(25))
+        self.assertLess(
+            got, top,
+            "completion_scaling_floor: 25 reached the TOP tier -- that is the inversion this gate "
+            "exists for, not a tuning question.")
+
+        # Break the fix: replay the pre-2026-07-27 emission (the percent, straight through).
+        self.assertEqual(
+            self._floor_tier(25), top,
+            "the OLD raw-percent emission no longer reproduces the top-tier inversion. The client's "
+            "floor parse must have changed; re-derive this gate rather than relaxing it.")
+
+    def test_default_stays_int_zero(self):
+        """A yaml that never mentions the option must generate byte-identically to before it was
+        reachable -- the pre-existing wire value was the int 0."""
+        got = self.mod.floor_multiplier(0)
+        self.assertEqual(got, 0)
+        self.assertIsInstance(got, int,
+                              "default floor must emit int 0, not %r" % (got,))
+
+    def test_out_of_range_clamps(self):
+        self.assertEqual(self.mod.floor_multiplier(-5), 0)
+        self.assertEqual(self.mod.floor_multiplier(9999), self.mod.SCALING_HP_LADDER[-1])
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
