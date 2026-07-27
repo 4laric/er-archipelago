@@ -664,15 +664,15 @@ const CARDS = [
   },
   {
     "id": "release-docs-0210",
-    "col": "ready",
+    "col": "done",
     "pri": "P1",
     "cat": "Release",
     "title": "Release docs never caught up to v0.2.10",
-    "desc": "VERIFIED 2026-07-26: tag v0.2.10 (5d4bde4) exists on origin and the build shipped to GitHub + Nexus, but release-v0.2/CHANGELOG.md stops at v0.2.9 (2026-07-24) and KNOWN-ISSUES.md does not mention 0.2.10 at all -- zero occurrences of the string in either. The ONLY reference to 0.2.10 anywhere in the repo is the 2026-07-26 handoff. Players reading the shipped docs see a version that predates what they downloaded. Needs a CHANGELOG entry for the 53 commits and a KNOWN-ISSUES pass.",
+    "desc": "VERIFIED 2026-07-26: tag v0.2.10 (5d4bde4) exists on origin and the build shipped to GitHub + Nexus, but release-v0.2/CHANGELOG.md stops at v0.2.9 (2026-07-24) and KNOWN-ISSUES.md does not mention 0.2.10 at all -- zero occurrences of the string in either. The ONLY reference to 0.2.10 anywhere in the repo is the 2026-07-26 handoff. Players reading the shipped docs see a version that predates what they downloaded. Needs a CHANGELOG entry for the 53 commits and a KNOWN-ISSUES pass. [2026-07-26 DONE: v0.2.10 backfilled and v0.2.11 written (197ed50), KNOWN-ISSUES stamped v0.2.11. And the class is now gated: package_release.ps1 refuses to build when CHANGELOG's newest entry is not the version being packaged (9b6591f) -- verified against the real tags, it would have thrown on BOTH v0.2.10 and v0.2.11.]",
     "issue": 216,
     "assignee": null,
     "comments": 0,
-    "activeCol": null
+    "activeCol": "ready"
   },
   {
     "id": "roderika-drops-missing",
