@@ -63,12 +63,18 @@ PARAM_CSVS = ["BonfireWarpParam.csv", "EquipMtrlSetParam.csv", "EquipParamAccess
               "NpcParam.csv", "PlayRegionParam.csv", "ShopLineupParam.csv",
               "ShopLineupParam_Recipe.csv",
               # NOT read by gen_data.py -- carried so the ENEMY-SCALING LADDERS can be DERIVED.
-              # Both the base ladder (7010..7100) and the DLC one (20007000..20007310) are currently
-              # hand-transcribed into er-logic/src/scaling.rs from an offline dump, and mirrored again
-              # into greenfield/eldenring/scaling_ladder.py. Two transcriptions of a param nobody can
-              # check: the HP rates are load-bearing (they are what completion_scaling_floor converts
-              # THROUGH) and the DLC rates are known only from three numbers in a code comment.
-              # With this row in the bundle both sides can be generated and gated instead.
+              # Both the base ladder (7010..7100) and the DLC one (20007000..20007310) are today
+              # hand-transcribed into er-logic/src/scaling.rs from an offline dump, and mirrored
+              # AGAIN into greenfield/eldenring/scaling_ladder.py. Nothing checks either copy against
+              # the game, and the HP rates are load-bearing: completion_scaling_floor converts
+              # THROUGH them, so a wrong rung silently moves every player's difficulty floor. The DLC
+              # rates are known only from three numbers in a code comment.
+              #
+              # ~9 MB raw (Alaric, 2026-07-27), so ~1 MB on top of a 3.6 MB bundle. I briefly
+              # proposed distilling just the ~42 ladder rows into a tsv instead and was wrong twice
+              # over: the size did not justify it, and it is precisely what the DESIGN note above
+              # says not to do ("A MIRROR, NOT A DISTILLATION" -- the moment something needs a column
+              # the distillation dropped, the artifact dependency comes back silently). Mirror it.
               "SpEffectParam.csv"]
 FMG_XMLS = [f"{stem}Name{suf}.fmg.xml"
             for suf in ("", "_dlc01", "_dlc02")
@@ -351,9 +357,15 @@ def selftest():
             if not os.path.isfile(b) or open(a, "rb").read() != open(b, "rb").read():
                 ok = False
                 print(f"  FAIL round-trip lost or altered a NESTED file: {rp}")
-        if len(made) != 31:
+        # DERIVED, not hardcoded. This was a literal 31, which went red the moment SpEffectParam.csv
+        # joined PARAM_CSVS (2026-07-27) -- a true statement about the old SPEC masquerading as an
+        # invariant. What the check is actually for is that the fixture covers every SPEC entry
+        # (named files AND the glob dirs), so count that instead: adding an input can no longer
+        # break the selftest, and DROPPING one still does.
+        want = sum(len(names) if names else 1 for _rel, names, _glob in SPEC)
+        if len(made) != want:
             ok = False
-            print(f"  FAIL fixture built {len(made)} files, expected 31")
+            print(f"  FAIL fixture built {len(made)} files, expected {want} (one per SPEC entry)")
         # a REQUIRED file going missing must be a hard refusal, not a smaller bundle
         os.remove(os.path.join(src, "vanilla_er", "vanilla_er", "ItemLotParam_map.csv"))
         try:
