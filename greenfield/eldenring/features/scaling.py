@@ -35,12 +35,13 @@ from Options import Range, Choice
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from .. import contract
-from ..scaling_ladder import SCALING_HP_LADDER, floor_multiplier  # noqa: F401  (re-export)
+from ..scaling_ladder import (SCALING_HP_LADDER, floor_multiplier,  # noqa: F401 (re-export)
+                              ramped_target)
 from .area_locks import REGION_PLAY_IDS
 
 # Wire normalization ceiling. The client normalizes by the max emitted target (scaling.rs
 # tier_for_target), so the exact ceiling only needs enough integer resolution over er-logic's
-# 10-tier ladder; 10000 matches the frozen I2 spec.
+# 20-rung ladder (7010..7200); 10000 matches the frozen I2 spec.
 TARGET_MAX = 10000
 
 
@@ -81,7 +82,7 @@ def _apply_bucket_delta(triples):
     return out
 
 
-def sphere_target_ranges(kept):
+def sphere_target_ranges(kept, ramp_pct=100):
     """[[lo, hi, target], ...] triples for `kept` region names (pure; unit-testable without AP).
 
     SPINE-ordered depth within the kept set, normalized so the deepest kept region == TARGET_MAX.
@@ -93,7 +94,7 @@ def sphere_target_ranges(kept):
     span = max(len(ordered) - 1, 1)
     triples = []
     for i, region in enumerate(ordered):
-        target = round(i * TARGET_MAX / span)
+        target = ramped_target(i, span, TARGET_MAX, ramp_pct)
         for pid in REGION_PLAY_IDS.get(region, []):
             triples.append([pid, pid, target])
     return _apply_bucket_delta(triples)
@@ -148,14 +149,14 @@ def _order_from_spheres(region_sphere, rng):
     return order
 
 
-def _targets_from_order(order):
+def _targets_from_order(order, ramp_pct=100):
     """region -> target 0..TARGET_MAX: an even, strictly MONOTONIC ramp over the total order
     (position 0 -> 0, last -> TARGET_MAX; a single region -> 0, no depth to scale over). Same-sphere
     regions occupy different positions, so they get DIFFERENT targets -- that is the point of the
     order ramp. Monotone along reachability by construction: the order is sphere-primary, so no
     region's target ever exceeds a region it cannot precede."""
     span = max(len(order) - 1, 1)
-    return {r: round(i * TARGET_MAX / span) for i, r in enumerate(order)}
+    return {r: ramped_target(i, span, TARGET_MAX, ramp_pct) for i, r in enumerate(order)}
 
 
 def _order_rng(world):
@@ -263,12 +264,33 @@ class CompletionScalingFloor(Range):
     start -- so early regions aren't trivially weak once you outgrow them. This is the HARD-MODE
     knob: it raises the difficulty FLOOR without touching the ceiling. 0 (default) = the full curve
     from the bottom, exactly as before. The scale is the client's 10-rung ladder of vanilla enemy
-    SpEffects: 0 = 1.14x enemy HP, 50 = ~1.95x, 100 = 3.70x everywhere (the deepest region's tier,
+    SpEffects: 0 = 1.14x enemy HP, 50 = ~4.12x, 100 = 7.42x everywhere (the deepest region's tier,
     from Limgrave onward). Enemy rune rewards are unchanged at every setting."""
     display_name = "Completion Scaling Floor"
     range_start = 0
     range_end = 100
     default = 0
+
+
+class CompletionScalingRamp(Range):
+    """How FAST enemies climb to the hardest tier. The top of the ladder is fixed (7.42x enemy HP at
+    the deepest region of your seed); this decides how much of the run you spend getting there.
+
+    It is a percent of your progression order -- the point by which enemies hit the top tier:
+
+      100  the last region is the first to reach it -- an even ramp across the whole run (default)
+       50  top tier from halfway, and everything past that is equally hard
+       25  top tier a quarter of the way in
+
+    Lower is harder, and it compresses rather than steepens: the tail of the run flattens out at
+    maximum difficulty instead of the curve rising the whole way. Pairs with Completion Scaling
+    Floor, which sets the BOTTOM of the same ladder. Only values up to 100 exist because "never quite
+    reach the top" is not expressible -- the client re-normalizes by the deepest target it is sent,
+    so lowering the ceiling from here would be silently undone."""
+    display_name = "Completion Scaling Ramp"
+    range_start = 1
+    range_end = 100
+    default = 100
 
 
 class GlobalScadutreeBlessing(Choice):
@@ -293,6 +315,7 @@ class Scaling(Feature):
     name = "scaling"
     OPTIONS = {
         "completion_scaling_floor": CompletionScalingFloor,
+        "completion_scaling_ramp": CompletionScalingRamp,
         "global_scadutree_blessing": GlobalScadutreeBlessing,
     }
 
@@ -303,12 +326,13 @@ class Scaling(Feature):
         # mid/high tiers are populated even though the lock DAG is wide early ("felt easy").
         # SPINE-order depth is the fallback when the fill sphere can't be computed (no world /
         # degenerate); it is already a total order.
+        ramp = int(world.options.completion_scaling_ramp.value)
         region_sphere = _region_fill_spheres(world)
         if region_sphere:
             order = _order_from_spheres(region_sphere, _order_rng(world))
-            ranges = _ranges_from_targets(_targets_from_order(order))
+            ranges = _ranges_from_targets(_targets_from_order(order, ramp))
         else:
-            ranges = sphere_target_ranges(world._kept())
+            ranges = sphere_target_ranges(world._kept(), ramp)
         blessing = int(world.options.global_scadutree_blessing.value)
         kept_regions = world._kept()
         out = {

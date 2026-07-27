@@ -163,6 +163,44 @@ class ScalingLadderMirror(unittest.TestCase):
         self.assertEqual(self.mod.floor_multiplier(-5), 0)
         self.assertEqual(self.mod.floor_multiplier(9999), self.mod.SCALING_HP_LADDER[-1])
 
+    # ---- the RAMP (completion_scaling_ramp) -----------------------------------------------
+    def test_default_ramp_is_the_linear_curve_it_replaced(self):
+        """ramp 100 must be byte-identical to the old `round(i * TARGET_MAX / span)`. A yaml that
+        never mentions the option generates exactly as before."""
+        rt, MAX, span = self.mod.ramped_target, 10000, 16
+        for i in range(span + 1):
+            self.assertEqual(rt(i, span, MAX, 100), round(i * MAX / span), f"position {i}")
+
+    def test_a_faster_ramp_saturates_early_and_never_lowers_the_max(self):
+        """The whole reason this is expressible: the max emitted target STAYS at TARGET_MAX, so the
+        client's re-normalization is unchanged and the tail simply sits on the top rung. Lowering
+        the ceiling instead would be silently undone (see ramped_target's docstring)."""
+        rt, MAX, span = self.mod.ramped_target, 10000, 16
+        for pct in (25, 50, 75):
+            vals = [rt(i, span, MAX, pct) for i in range(span + 1)]
+            self.assertEqual(max(vals), MAX,
+                             f"ramp {pct} lowered the max emitted target to {max(vals)} -- the "
+                             f"client would renormalize it straight back and the option would be a "
+                             f"silent no-op")
+            self.assertTrue(all(a <= b for a, b in zip(vals, vals[1:])),
+                            f"ramp {pct} is not monotonic: {vals}")
+            # top tier reached at ~pct% of the way through, and flat after
+            first_max = vals.index(MAX)
+            self.assertAlmostEqual(first_max / span, pct / 100.0, delta=1.0 / span,
+                                   msg=f"ramp {pct} hits max at position {first_max}/{span}")
+
+    def test_a_faster_ramp_is_never_easier_than_a_slower_one(self):
+        rt, MAX, span = self.mod.ramped_target, 10000, 16
+        for i in range(span + 1):
+            self.assertGreaterEqual(rt(i, span, MAX, 50), rt(i, span, MAX, 100))
+            self.assertGreaterEqual(rt(i, span, MAX, 25), rt(i, span, MAX, 50))
+
+    def test_ramp_clamps_and_survives_degenerate_spans(self):
+        rt = self.mod.ramped_target
+        self.assertEqual(rt(0, 0, 10000, 100), 0, "a one-region seed has no depth to ramp over")
+        self.assertEqual(rt(5, 10, 10000, 0), rt(5, 10, 10000, 1), "ramp 0 clamps to 1")
+        self.assertEqual(rt(5, 10, 10000, 500), rt(5, 10, 10000, 100), "ramp >100 clamps to 100")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

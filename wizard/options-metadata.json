@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "23e017d1b5cbdd62016f69d583ba795dce6b559d83dc5f787506b93d4087d6fc",
+ "source_sha256": "ee26300a506b6a11dbc6fba8f324736629925c2b7ea61767dff3d8afbba23a01",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -28,6 +28,7 @@
   "progression_surface",
   "confine_foreign_progression",
   "completion_scaling_floor",
+  "completion_scaling_ramp",
   "reroll_infinite_shop_stock",
   "merchant_bell_logic",
   "start_with_whetblades"
@@ -58,6 +59,7 @@
   "progression_surface",
   "confine_foreign_progression",
   "completion_scaling_floor",
+  "completion_scaling_ramp",
   "reroll_infinite_shop_stock",
   "merchant_bell_logic",
   "start_with_whetblades"
@@ -499,13 +501,31 @@
    "key": "completion_scaling_floor",
    "class": "CompletionScalingFloor",
    "display_name": "Completion Scaling Floor",
-   "description": "Minimum enemy-scaling tier, as a percent of the deepest tier, applied everywhere from the\nstart -- so early regions aren't trivially weak once you outgrow them. This is the HARD-MODE\nknob: it raises the difficulty FLOOR without touching the ceiling. 0 (default) = the full curve\nfrom the bottom, exactly as before. The scale is the client's 10-rung ladder of vanilla enemy\nSpEffects: 0 = 1.14x enemy HP, 50 = ~1.95x, 100 = 3.70x everywhere (the deepest region's tier,\nfrom Limgrave onward). Enemy rune rewards are unchanged at every setting.",
+   "description": "Minimum enemy-scaling tier, as a percent of the deepest tier, applied everywhere from the\nstart -- so early regions aren't trivially weak once you outgrow them. This is the HARD-MODE\nknob: it raises the difficulty FLOOR without touching the ceiling. 0 (default) = the full curve\nfrom the bottom, exactly as before. The scale is the client's 10-rung ladder of vanilla enemy\nSpEffects: 0 = 1.14x enemy HP, 50 = ~4.12x, 100 = 7.42x everywhere (the deepest region's tier,\nfrom Limgrave onward). Enemy rune rewards are unchanged at every setting.",
    "kind": "range",
    "base": "Range",
    "default": 0,
    "choices": null,
    "range": {
     "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "completion_scaling_ramp",
+   "class": "CompletionScalingRamp",
+   "display_name": "Completion Scaling Ramp",
+   "description": "How FAST enemies climb to the hardest tier. The top of the ladder is fixed (7.42x enemy HP at\nthe deepest region of your seed); this decides how much of the run you spend getting there.\n\nIt is a percent of your progression order -- the point by which enemies hit the top tier:\n\n  100  the last region is the first to reach it -- an even ramp across the whole run (default)\n   50  top tier from halfway, and everything past that is equally hard\n   25  top tier a quarter of the way in\n\nLower is harder, and it compresses rather than steepens: the tail of the run flattens out at\nmaximum difficulty instead of the curve rising the whole way. Pairs with Completion Scaling\nFloor, which sets the BOTTOM of the same ladder. Only values up to 100 exist because \"never quite\nreach the top\" is not expressible -- the client re-normalizes by the deepest target it is sent,\nso lowering the ceiling from here would be silently undone.",
+   "kind": "range",
+   "base": "Range",
+   "default": 100,
+   "choices": null,
+   "range": {
+    "start": 1,
     "end": 100
    },
    "valid_keys": null,

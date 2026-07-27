@@ -60,7 +60,15 @@ def test_docstring_describes_the_real_scale():
     carried an HP multiplier). It feeds the yaml reference layer, so pin that it names the units."""
     doc = sc.CompletionScalingFloor.__doc__.lower()
     assert "hp" in doc, "the docstring must say what the scale multiplies (enemy HP)"
-    assert "3.70" in doc, "the docstring must name the top of the ladder, not just 'max'"
+    assert "7.42" in doc, "the docstring must name the top of the ladder, not just 'max'"
+
+
+def test_ramp_option_is_reachable_and_defaults_to_the_linear_curve():
+    assert "completion_scaling_ramp" not in defaults.FROZEN_OPTIONS
+    assert sc.Scaling.OPTIONS["completion_scaling_ramp"] is sc.CompletionScalingRamp
+    assert sc.CompletionScalingRamp.default == 100, "default must be the unchanged linear ramp"
+    assert sc.CompletionScalingRamp.range_end == 100, (
+        "values above 100 would mean 'never reach the top', which the client renormalizes away")
 
 
 @pytest.mark.parametrize("pct,expect_top", [(0, False), (25, False), (50, False), (100, True)])

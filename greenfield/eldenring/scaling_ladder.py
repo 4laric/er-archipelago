@@ -35,17 +35,54 @@ a client release and a compatibility story for every seed already rolled.
 # syntax highlighting (CONTRIBUTING rule 10) and a drifted rung would move every player's difficulty
 # floor by a tier with nothing to say so.
 #
-# PROVENANCE: hand-transcribed from an offline `SpEffectParam.csv` dump into the Rust const, and
-# mirrored here from that. `SpEffectParam.csv` is NOT in `gen_inputs.db` (tools/gen_inputs.py
-# PARAM_CSVS ships 13 tables and this is not one of them), so neither copy can currently be DERIVED.
-# Adding it to that list would let both sides be generated from the param instead of transcribed --
-# the right end state, and a prerequisite for extending the ladder past 7100 (see below).
-SCALING_HP_LADDER = (1.141, 1.281, 1.656, 1.813, 1.953, 2.266, 2.406, 2.688, 3.250, 3.703)
+# PROVENANCE: DERIVED from `SpEffectParam.csv`, which joined `gen_inputs.db` on 2026-07-27
+# (tools/gen_inputs.py PARAM_CSVS). Rungs `7010..7200`, 20 of them, strictly ascending.
+#
+# EXTENDED 2026-07-27, from the subset `7010..7100` (top rung 3.703x) to the full run (7.422x). The
+# Rust comment had said for months that the ladder continued to ~7.4x and to "extend toward 7200 for
+# a harsher curve"; it was right, and nothing could check it until the param was in the bundle. The
+# first ten rungs came back byte-identical to the hand-transcribed values, so that transcription was
+# correct -- but it was correct by luck, not by construction, which is what the drift gate fixes.
+#
+# ⚠️ This DOUBLED the deepest region's enemy HP and raised every mid-run tier with it. Deliberate
+# (Alaric, 2026-07-27): the ceiling is fixed at 7.422x and `completion_scaling_ramp` chooses how fast
+# a seed climbs to it.
+SCALING_HP_LADDER = (1.141, 1.281, 1.656, 1.813, 1.953, 2.266, 2.406, 2.688, 3.25, 3.703,
+                     4.125, 4.844, 5.484, 6.563, 6.688, 6.875, 7.047, 7.203, 7.328, 7.422)
 
-# NOTE ON THE CEILING, for whoever comes here wanting a harder endgame: raising it is NOT possible
-# from gen. The client normalizes every emitted target by the MAX emitted target
-# (`scaling.rs tier_for_target`), so scaling the wire up is a literal no-op -- the deepest region
-# always lands on the last rung. The ceiling is this ladder, and it lives in the client.
+# 🛑 THE CEILING IS NOT GEN-SIDE. The client normalizes every emitted target by the MAX EMITTED
+# TARGET (`scaling.rs tier_for_target`), so scaling the wire up is a literal no-op -- the deepest
+# region always lands on the last rung whatever numbers gen sends. The ceiling is this ladder, and it
+# lives in the client. What gen CAN choose is how fast a seed climbs to it: see `ramped_target`.
+
+
+def ramped_target(position, span, target_max, ramp_pct=100):
+    """Order POSITION (0..span) -> scaling target (0..target_max), given a ramp speed.
+
+    `ramp_pct` is the share of the progression order by which a seed reaches the TOP tier:
+
+        100  linear -- the last region is the first to hit the top rung  (default, unchanged)
+         50  top tier from halfway through the lock chain, flat thereafter
+         25  top tier a quarter of the way in
+
+    Why a percent-of-the-run and not an exponent: this is the one formulation a player can predict
+    from the number, and it is the one the CLIENT cannot undo. Emitting a lower CEILING is impossible
+    (the client re-normalizes, above), but SATURATING EARLY is not -- the max emitted target is still
+    `target_max`, so normalization is unchanged and the tail simply sits at the top rung.
+
+    `ramp_pct > 100` would mean "never quite reach the top", which IS the un-expressible case: the
+    max emitted target would fall and the client would renormalize it straight back. So the option
+    range stops at 100 rather than offering a setting that silently does nothing.
+
+    Monotonic non-decreasing in `position`; clamped to `target_max`. Pure.
+    """
+    if span <= 0:
+        return 0
+    ramp_pct = max(1, min(100, int(ramp_pct)))
+    frac = position / span
+    if ramp_pct < 100:
+        frac = frac * 100.0 / ramp_pct
+    return round(min(1.0, frac) * target_max)
 
 
 def floor_multiplier(pct):
