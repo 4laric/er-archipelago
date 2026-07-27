@@ -102,6 +102,13 @@ def install_world(ap):
     tpl = REPO / "release-v0.2" / "EldenRing.yaml"
     if tpl.is_file():
         shutil.copy2(tpl, dst / tpl.name)
+    # The SHIPPED player guide (repo root -- the one package_release.ps1 marks required, NOT
+    # release-v0.2/PLAYER-GUIDE.md, which is packaged by nothing). test_gf_player_guide asserts the
+    # options it names are real and that the difficulty knobs are documented there; without this
+    # copy that gate would silently SKIP in the installed-world run, which is the run CI does.
+    guide = REPO / "Elden-Ring-Archipelago-Player-Guide.md"
+    if guide.is_file():
+        shutil.copy2(guide, dst / guide.name)
 
     missing = [n for n in REQUIRED_INPUTS if not (dst / n).is_file()]
     if missing:

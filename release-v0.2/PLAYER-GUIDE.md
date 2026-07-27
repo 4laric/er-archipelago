@@ -1,3 +1,16 @@
+> 🛑 **THIS FILE IS NOT SHIPPED, AND NOTHING LINKS TO IT.**
+>
+> The player guide that reaches players is **`Elden-Ring-Archipelago-Player-Guide.md` in the repo
+> root** — `package_release.ps1` marks it `required = $true`, and README / SETUP.md both point at it.
+> This file is packaged by nothing and referenced by nothing; the two are forked copies of the same
+> document that have diverged.
+>
+> It cost something already: on 2026-07-27 the entire player-facing writeup of the new difficulty
+> options was written *here*, and nobody would have read a word of it. `test_gf_player_guide.py` now
+> gates the shipped one — it has no opinion about this file.
+>
+> **Update the root guide. Deleting or merging this one is Alaric's call, not a drive-by.**
+
 # Elden Ring Archipelago -- Player Guide (v0.2)
 
 You are installed and connected -- if not, the [setup guide](SETUP.md) gets you

@@ -89,7 +89,9 @@ checks.)
 **Enemies are scaled -- and late regions hit harder.** Scaling is always on and
 keyed to your progression, not to vanilla's intended order. A region you unlock
 late is tuned tougher, even if it's "early" territory like the Weeping
-Peninsula.
+Peninsula. If the Weeping Peninsula is wrecking you, you're probably not
+undergeared -- you just unlocked it late. See "Enemy difficulty" below if you
+want to reshape that.
 
 **A pickup showed someone else's item name.** That chest held "Progressive
 Sword" for a Hollow Knight player three worlds over. You sent it; something of
@@ -139,6 +141,47 @@ run rather than tune it.
   Leyndell and so simply isn't part of a `dlc_only` seed.)
 - **`death_link`** -- your deaths are shared with the multiworld, and theirs
   with you. You know whether you want this.
+
+### Enemy difficulty
+
+Three of them, all `0`-`100`, all defaulting to a standard curve, and on all
+three **higher is harder**:
+
+```yaml
+minimum_enemy_difficulty: 0     # how hard the EASIEST enemies are
+maximum_enemy_difficulty: 100   # how hard the TOUGHEST ones get
+difficulty_ramp_speed: 0        # how QUICKLY you reach them
+```
+
+The game has its own ladder of enemy-strength settings, and the client picks a
+rung per region based on how deep that region sits in *your* seed's chain. The
+shallowest is roughly vanilla; the deepest is about **7.4x enemy HP**, the
+strength vanilla saves for its endgame. Rune rewards never change, at any
+setting -- a scaled-up enemy is worth exactly what it was worth before.
+
+- **`minimum_enemy_difficulty`** raises the floor, so nowhere stays a walkover.
+  At `50`, nothing in the game sits below roughly 4x enemy HP however early you
+  got there. Use it if the opening hours feel like a formality.
+- **`maximum_enemy_difficulty`** lowers the top. Worth a thought on a **short
+  seed**: with `num_regions: 4` your deepest region arrives fast but is still
+  the end of your run, so it's scaled like one -- you can meet endgame-strength
+  enemies holding a +6 weapon. Capping keeps the curve's shape and lowers its
+  top. (Below `100` this needs an up-to-date client; an older one refuses the
+  seed and says so rather than ignoring your cap.)
+- **`difficulty_ramp_speed`** changes *when* the climb happens, not how high it
+  goes. At `50` you're at maximum from about halfway and everything after is
+  equally hard. It compresses the curve rather than steepening it.
+
+They stack. `minimum_enemy_difficulty: 40` with `difficulty_ramp_speed: 60`
+starts genuinely dangerous and is at full strength before the midpoint; add
+`maximum_enemy_difficulty: 60` and it's a flat, consistently tough run instead
+of an escalating one.
+
+> **Renamed in v0.2.12.** These were `completion_scaling_floor` and
+> `completion_scaling_ramp`. An older yaml using those names stops generation
+> with a message -- it won't silently ignore them. The ramp also **flipped
+> direction**: the old `completion_scaling_ramp: 25` is the new
+> `difficulty_ramp_speed: 75`.
 
 A lot of what you might expect to toggle here is simply how v0.2 plays --
 fixed, not configurable. Checks pay out real shuffled Elden Ring items.
