@@ -85,26 +85,55 @@ CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, size INTEGER, sha256 TE
 """
 
 
-def _walk(src):
-    """[(relpath, abspath)] for everything SPEC asks for. Raises on a missing required dir/file."""
-    out, missing = [], []
+def _walk(src, report=None):
+    """[(relpath, abspath)] for everything SPEC asks for. Raises on a missing required dir/file.
+
+    RECURSES for the glob entries. The first version used os.listdir, which is flat -- and the
+    decompiled talk ESD is nested one level down (talk/m11_10_00_00-only/t320001110.py), so it
+    matched NOTHING and, because `talk` is optional, said nothing about it. The first real build
+    packed 617 files (28 params/FMGs + 589 EMEVD) and reported success with the entire ESD corpus
+    missing. That is the exact quiet-success failure this tool's other guards exist to stop, so an
+    OPTIONAL dir that is PRESENT but yields ZERO files is now reported loudly -- "absent" and
+    "present and empty" are different facts.
+    """
+    out, missing, notes = [], [], []
     for rel, names, glob in SPEC:
         d = os.path.join(src, rel)
         if not os.path.isdir(d):
             if rel not in OPTIONAL_DIRS:
                 missing.append(f"{rel}/ (directory)")
+            else:
+                notes.append(f"{rel}/: ABSENT (optional) -- not bundled")
             continue
         if names:
+            n_before = len(out)
             for n in names:
                 p = os.path.join(d, n)
                 if os.path.isfile(p):
                     out.append((os.path.join(rel, n).replace("\\", "/"), p))
                 else:
                     missing.append(os.path.join(rel, n))
+            notes.append(f"{rel}/: {len(out) - n_before} file(s)")
         else:
-            for n in sorted(os.listdir(d)):
-                if fnmatch.fnmatch(n, glob) and os.path.isfile(os.path.join(d, n)):
-                    out.append((os.path.join(rel, n).replace("\\", "/"), os.path.join(d, n)))
+            n_before = len(out)
+            for dirpath, _dirs, fnames in os.walk(d):
+                for n in sorted(fnames):
+                    if not fnmatch.fnmatch(n, glob):
+                        continue
+                    ap = os.path.join(dirpath, n)
+                    rp = os.path.relpath(ap, src).replace("\\", "/")
+                    out.append((rp, ap))
+            got = len(out) - n_before
+            notes.append(f"{rel}/: {got} file(s) matching {glob}")
+            if got == 0:
+                msg = (f"{rel}/ EXISTS but matched ZERO {glob} files. Present-and-empty is not the "
+                       f"same as absent -- check the layout before trusting this bundle.")
+                if rel in OPTIONAL_DIRS:
+                    notes.append("  WARNING: " + msg)
+                else:
+                    missing.append(msg)
+    if report is not None:
+        report.extend(notes)
     if missing:
         raise SystemExit("FATAL: gen inputs missing from %s:\n  %s\n"
                          "A bundle built without these would regen a SMALLER world and call it a "
@@ -113,7 +142,10 @@ def _walk(src):
 
 
 def build(src, db_path):
-    files = _walk(src)
+    report = []
+    files = _walk(src, report)
+    for line in report:
+        print("  " + line)
     if os.path.exists(db_path):
         os.remove(db_path)
     con = sqlite3.connect(db_path)
@@ -191,24 +223,31 @@ def selftest():
     ok = True
     try:
         src = os.path.join(root, "art")
+        made = []
         for rel, names, glob in SPEC:
             d = os.path.join(src, rel)
-            os.makedirs(d, exist_ok=True)
+            # NEST the glob dirs one level down -- that nesting is the bug this fixture reproduces
+            # (the decompiled talk ESD lives in talk/<map>-only/*.py and a flat listdir missed it).
+            sub = "" if names else "m11_10_00_00-only"
+            os.makedirs(os.path.join(d, sub) if sub else d, exist_ok=True)
             for n in (names or [f"m10_00_00_00{glob[1:]}"]):
-                open(os.path.join(d, n), "w", encoding="utf-8").write(f"synthetic {n}\n" * 50)
+                rp = os.path.join(rel, sub, n) if sub else os.path.join(rel, n)
+                open(os.path.join(src, rp), "w", encoding="utf-8").write(f"synthetic {n}\n" * 50)
+                made.append(rp)
         db = os.path.join(root, "b.db")
         build(src, db)
         if verify(db) != 0:
             ok = False
         dest = os.path.join(root, "out")
         extract(db, dest)
-        for rel, names, glob in SPEC:
-            for n in (names or [f"m10_00_00_00{glob[1:]}"]):
-                a = os.path.join(src, rel, n)
-                b = os.path.join(dest, rel, n)
-                if open(a, "rb").read() != open(b, "rb").read():
-                    ok = False
-                    print(f"  FAIL round-trip differs: {rel}/{n}")
+        for rp in made:
+            a, b = os.path.join(src, rp), os.path.join(dest, rp)
+            if not os.path.isfile(b) or open(a, "rb").read() != open(b, "rb").read():
+                ok = False
+                print(f"  FAIL round-trip lost or altered a NESTED file: {rp}")
+        if len(made) != 31:
+            ok = False
+            print(f"  FAIL fixture built {len(made)} files, expected 31")
         # a REQUIRED file going missing must be a hard refusal, not a smaller bundle
         os.remove(os.path.join(src, "vanilla_er", "vanilla_er", "ItemLotParam_map.csv"))
         try:
