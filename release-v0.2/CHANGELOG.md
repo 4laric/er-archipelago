@@ -3,11 +3,36 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.2.12 — unreleased
+## v0.2.13 — 2026-07-27
 
 Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Location
-names changed in this release, so an in-flight seed will not match a new tracker — finish
-old seeds before updating, or reroll.
+names changed in v0.2.12, so an in-flight seed from v0.2.11 or earlier will not match a new
+tracker — finish old seeds before updating, or reroll.
+
+### Fixed — client
+
+- **Enemy scaling did nothing at all in v0.2.12, and works again now.** A guard added that
+  release to avoid touching characters while a map was still loading was far too strict: it
+  rejected roughly 99.5% of the game's character slots, so a sweep that should have rescaled
+  a few hundred enemies typically rescaled one — the player's horse. Every enemy kept its
+  **vanilla** strength, which for a rolled start in a late region (Mohgwyn, the Consecrated
+  Snowfield) meant walking out of the first grace into endgame enemies at full power.
+  Reported by ShadowTL. The guard is reverted; the settle window that guarded this before
+  v0.2.12 is unchanged and is doing the job again. Sweeps now scale 240–280 enemies where
+  they were scaling 1–2. **The apworld was never at fault** — it had been sending the correct
+  difficulty all along, and the client was discarding it. Client-side fix: replace the `.dll`.
+
+### Changed
+
+- **Version is now `0.2.13` on both halves.** Not `0.2.12.1`: the client crate's version must
+  be three-component semver, and a test pins it to the apworld's `APWORLD_VERSION`. The
+  contract hash is unchanged, so a v0.2.12 apworld still pairs with a v0.2.13 client without
+  reporting a mismatch — only the descriptive version differs.
+
+## v0.2.12 — 2026-07-27
+
+Superseded by v0.2.13 the same day; see the enemy-scaling entry above. Everything below
+shipped in v0.2.12 and is still current.
 
 ### Fixed — apworld
 
