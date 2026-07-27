@@ -89,11 +89,17 @@ footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);backgroun
   <span id="count"></span>
   <button class="btn" id="clear">clear filters</button>
   <button class="btn" id="resid">negative space</button>
+  <button class="btn" id="mapbtn">map</button>
+  <button class="btn" id="diffbtn">diff a build</button>
   <button class="btn" id="perma">copy permalink</button>
   <button class="btn" id="csv">export csv</button>
 </header>
 <main>
   <nav id="facets"></nav>
+  <div id="mapview" style="display:none;flex:1 1 auto;position:relative;overflow:auto;text-align:center">
+    <div id="mapnote" style="position:sticky;top:0;z-index:3;background:rgba(20,18,14,.93);border-bottom:1px solid var(--line);padding:6px 12px;font:11px/1.5 monospace;color:var(--dim);text-align:left"></div>
+    <div id="mapslot"></div>
+  </div>
   <div id="listwrap">
     <table>
       <thead><tr>
@@ -322,6 +328,130 @@ function renderResiduals(){
      to guess.</div>`;
 }
 
+/* ---------- MAP: plot the current filter ----------
+   Colour = region, so a misregioned check is a visible outlier rather than a datamine.
+   🛑 The calibration covers base overworld + DLC ONLY. Interior checks have no position
+   here; they are COUNTED AND STATED at the top, never quietly omitted. */
+const SVGS = {m60: __SVG_BASE__, m61: __SVG_DLC__};
+let showMap=false, curMap='m60';
+const REGCOL = {};
+(function(){
+  const rs=[...new Set(CHECKS.map(c=>c.r))].sort();
+  rs.forEach((r,i)=>REGCOL[r]=`hsl(${Math.round(i*360/rs.length)},62%,58%)`);
+})();
+function project(p){
+  const cal=META.cal&&META.cal[p.b]; if(!cal) return null;
+  const b=cal.world_bounds, im=cal.image;
+  return {x: im.margin+(p.gx-b.gx_min)/(b.gx_max-b.gx_min)*im.draw_w,
+          y: im.margin+(1-(p.gz-b.gz_min)/(b.gz_max-b.gz_min))*im.draw_h};
+}
+function renderMap(){
+  const slot=document.getElementById('mapslot');
+  slot.innerHTML = SVGS[curMap]||'<div style="color:var(--dim);padding:40px">no map</div>';
+  const svg=slot.querySelector('svg'); if(!svg) return;
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  svg.appendChild(g);
+  let on=0, other=0, nopos=0;
+  const seen=new Set();
+  filtered.forEach(c=>{
+    if(!c.pos.length){ nopos++; return; }
+    let here=false;
+    c.pos.forEach(p=>{
+      if(p.b!==curMap){ other++; return; }
+      here=true;
+      const pr=project(p); if(!pr) return;
+      const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      el.setAttribute('cx',pr.x.toFixed(1)); el.setAttribute('cy',pr.y.toFixed(1));
+      el.setAttribute('r',selected===c.id?7:3);
+      el.setAttribute('fill',selected===c.id?'#fff':REGCOL[c.r]||'#999');
+      el.setAttribute('stroke',selected===c.id?'#000':'rgba(0,0,0,.45)');
+      el.setAttribute('stroke-width',selected===c.id?2.5:.8);
+      el.style.cursor='pointer';
+      const t=document.createElementNS('http://www.w3.org/2000/svg','title');
+      t.textContent=`${c.r} :: ${c.n}  ·  f${c.f}`; el.appendChild(t);
+      el.addEventListener('click',()=>{ selected=c.id; showDetail(c); renderMap(); writeHash(); });
+      g.appendChild(el);
+    });
+    if(here) on++; seen.add(c.r);
+  });
+  const legend=[...seen].sort().map(r=>
+    `<span style="white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${REGCOL[r]}"></span> ${esc(r)}</span>`).join('  ');
+  document.getElementById('mapnote').innerHTML =
+    `<b style="color:var(--gold)">${on}</b> of ${filtered.length} filtered checks plotted on `
+    + `${curMap==='m60'?'the Lands Between':'the Land of Shadow'} `
+    + `<a href="#" id="swapmap" style="color:var(--gold2)">⇄ switch to ${curMap==='m60'?'Land of Shadow':'Lands Between'}</a>`
+    + (other?` · <span style="color:var(--blue)">${other} position(s) on the other map</span>`:'')
+    + (nopos?` · <span style="color:var(--red)">${nopos} have NO overworld position (interiors — this map cannot show them)</span>`:'')
+    + `<div style="margin-top:5px;display:flex;gap:10px;flex-wrap:wrap">${legend}</div>`;
+}
+
+/* ---------- DIFF: two builds, same page ----------
+   🛑 A REVIEW AID, never a gate. The byte-staleness gate in CI is the gate; if this says
+   "nothing changed" while the bytes changed, that is a FINDING, not a pass. */
+let diffData=null;
+function renderDiff(){
+  const A=diffData, B={checks:CHECKS,meta:META};
+  const ai={}, bi={};
+  A.checks.forEach(c=>ai[c.id]=c); B.checks.forEach(c=>bi[c.id]=c);
+  const added=B.checks.filter(c=>!ai[c.id]), removed=A.checks.filter(c=>!bi[c.id]);
+  const moved=[], retagged=[], redesc=[], regraced=[];
+  B.checks.forEach(c=>{ const o=ai[c.id]; if(!o) return;
+    if(o.r!==c.r) moved.push([c,o.r,c.r]);
+    if((o.t||[]).join(',')!==(c.t||[]).join(',')) retagged.push([c,(o.t||[]).join(' ')||'—',(c.t||[]).join(' ')||'—']);
+    if(o.n!==c.n) redesc.push([c,o.n,c.n]);
+    if((o.g||'')!==(c.g||'')) regraced.push([c,o.g||'—',c.g||'—']);
+  });
+  const sec=(title,rows,fmt)=>!rows.length?'':`<tr><td colspan="6" style="background:var(--bg3);color:var(--gold);font:600 11px/1.6 inherit;padding:5px 10px">${title} (${rows.length})</td></tr>`
+    + rows.slice(0,150).map(fmt).join('')
+    + (rows.length>150?`<tr><td colspan="6" style="color:var(--dim);padding:4px 10px">…${rows.length-150} more</td></tr>`:'');
+  const chg=(c,a,b)=>`<tr data-id="${c.id}"><td class="rg">${esc(c.r)}</td><td class="nm">${esc(c.n)}</td>
+    <td style="color:var(--red)">${esc(a)}</td><td style="color:var(--green)">${esc(b)}</td>
+    <td class="mono">${c.f}</td><td class="mono">${c.id}</td></tr>`;
+  const same = A.meta.stamp===B.meta.stamp;
+  document.getElementById('rows').innerHTML =
+    sec('ADDED checks', added, c=>`<tr><td class="rg">${esc(c.r)}</td><td class="nm">${esc(c.n)}</td><td colspan="2" style="color:var(--green)">new</td><td class="mono">${c.f}</td><td class="mono">${c.id}</td></tr>`)
+  + sec('REMOVED checks', removed, c=>`<tr><td class="rg">${esc(c.r)}</td><td class="nm">${esc(c.n)}</td><td colspan="2" style="color:var(--red)">gone</td><td class="mono">${c.f}</td><td class="mono">${c.id}</td></tr>`)
+  + sec('REGION changed', moved, ([c,a,b])=>chg(c,a,b))
+  + sec('TAGS changed', retagged, ([c,a,b])=>chg(c,a,b))
+  + sec('NAME / description changed', redesc, ([c,a,b])=>chg(c,a,b))
+  + sec('NEAREST GRACE changed', regraced, ([c,a,b])=>chg(c,a,b))
+  || `<tr><td colspan="6" style="padding:14px;color:${same?'var(--dim)':'var(--red)'}">
+       No semantic difference.${same?' Both builds carry the same inputs_hash, so that is expected.'
+       :' ⚠ But the two builds have DIFFERENT inputs_hash — bytes changed while meaning did not. That is a finding, not a pass.'}</td></tr>`;
+  const n = added.length+removed.length+moved.length+retagged.length+redesc.length+regraced.length;
+  document.getElementById('count').textContent = `${n} semantic change(s)`;
+  document.getElementById('rows').querySelectorAll('tr[data-id]').forEach(tr=>
+    tr.addEventListener('click',()=>{ const c=bi[+tr.dataset.id]; if(c){selected=c.id; showDetail(c);} }));
+  const d=document.getElementById('detail'); d.className='empty';
+  d.innerHTML=`<div style="text-align:left;color:var(--dim);font-size:12px">
+    <b style="color:var(--gold)">Build diff.</b><br><br>
+    <b>loaded</b> <span style="font:10px/1.4 monospace">${esc((A.meta.stamp||'?').slice(7,19))}</span><br>
+    <b>this</b> &nbsp;&nbsp;<span style="font:10px/1.4 monospace">${esc((B.meta.stamp||'?').slice(7,19))}</span><br><br>
+    Keyed by AP id. This is a <b>review aid, not a gate</b> — CI's byte-staleness check is the
+    gate. Generated .py diffs run to thousands of unreadable lines; this says what actually
+    moved.</div>`;
+}
+document.getElementById('diffbtn').addEventListener('click',()=>{
+  if(diffData){ diffData=null; document.getElementById('diffbtn').classList.remove('hot');
+    document.getElementById('diffbtn').textContent='diff a build'; render(); return; }
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.html';
+  inp.addEventListener('change',()=>{
+    const fr=new FileReader();
+    fr.onload=()=>{
+      const m=/^const DATA = (\{.*\});$/m.exec(fr.result);
+      if(!m){ alert('That file has no embedded DATA payload — is it a check-browser build?'); return; }
+      try{ diffData=JSON.parse(m[1]); }catch(e){ alert('Payload would not parse: '+e); return; }
+      if(!diffData.checks){ alert('Payload has no checks[].'); diffData=null; return; }
+      showMap=false; showResiduals=false;
+      document.getElementById('diffbtn').classList.add('hot');
+      document.getElementById('diffbtn').textContent='× close diff';
+      render();
+    };
+    fr.readAsText(inp.files[0]);
+  });
+  inp.click();
+});
+
 /* ---------- permalink: encode the QUERY, not the ANSWER ---------- */
 function writeHash(){
   const p=[];
@@ -329,6 +459,7 @@ function writeHash(){
   FACETS.forEach(f=>{ if(active[f.key].size) p.push(f.key+'='+[...active[f.key]].map(encodeURIComponent).join('|')); });
   if(sortKey!=='r'||sortDir!==1) p.push('sort='+sortKey+(sortDir<0?':d':''));
   if(showResiduals) p.push('view=residuals');
+  if(showMap){ p.push('view=map'); if(curMap!=='m60') p.push('m='+curMap); }
   if(selected) p.push('sel='+selected);
   const h = p.join('&');
   if(location.hash.slice(1)!==h) history.replaceState(null,'',h?('#'+h):location.pathname);
@@ -341,7 +472,8 @@ function readHash(){
     const k=kv.slice(0,i), v=decodeURIComponent(kv.slice(i+1));
     if(k==='q'){ query=v.toLowerCase(); document.getElementById('q').value=v; }
     else if(k==='sort'){ const [s,d]=v.split(':'); sortKey=s; sortDir=d==='d'?-1:1; }
-    else if(k==='view'){ showResiduals = v==='residuals'; }
+    else if(k==='view'){ showResiduals = v==='residuals'; showMap = v==='map'; }
+    else if(k==='m'){ curMap = v; }
     else if(k==='sel'){ selected=+v; }
     else if(active[k]){
       v.split('|').map(decodeURIComponent).forEach(val=>{
@@ -363,7 +495,13 @@ function readHash(){
 /* ---------- wiring ---------- */
 function render(){
   apply(); renderCap=300; buildFacets();
-  if(showResiduals) renderResiduals(); else renderRows();
+  document.getElementById('mapview').style.display = showMap?'block':'none';
+  document.getElementById('listwrap').style.display = showMap?'none':'block';
+  if(diffData) renderDiff();
+  else if(showMap) renderMap();
+  else if(showResiduals) renderResiduals();
+  else renderRows();
+  if(showMap && !diffData){ /* keep the row list in sync underneath */ }
   writeHash();
 }
 document.getElementById('q').addEventListener('input',e=>{
@@ -378,6 +516,17 @@ document.getElementById('resid').addEventListener('click',()=>{
   document.getElementById('resid').classList.toggle('hot',showResiduals);
   document.getElementById('resid').textContent = showResiduals?'← back to checks':`negative space (${RESIDUALS.length})`;
   render();
+});
+document.getElementById('mapbtn').addEventListener('click',()=>{
+  showMap=!showMap; if(showMap) showResiduals=false;
+  const b=document.getElementById('mapbtn');
+  b.classList.toggle('hot',showMap);
+  b.textContent = showMap?'× close map':'map';
+  render();
+});
+document.getElementById('mapnote').addEventListener('click',e=>{
+  if(!e.target.closest('#swapmap')) return;
+  curMap = curMap==='m60'?'m61':'m60'; renderMap(); writeHash();
 });
 document.getElementById('perma').addEventListener('click',()=>{
   writeHash();
@@ -421,10 +570,13 @@ document.getElementById('foot').innerHTML = [
     + `${META.gate_any.toLocaleString()} with gate evidence <span style="color:var(--dim)">(${META.gate_lot} lot_gates alone)</span></span>`,
   `<span>${META.missable.toLocaleString()} missable</span>`,
   `<span>${META.residuals.toLocaleString()} residual rows</span>`,
+  `<span>${META.plottable.toLocaleString()} plottable <span style="color:var(--dim)">(rest are interiors)</span></span>`,
   `<span style="margin-left:auto">generated from repo data — no game files</span>`
 ].join('');
 document.getElementById('resid').textContent = `negative space (${RESIDUALS.length})`;
 readHash();
+if(showMap){ const b=document.getElementById('mapbtn'); b.classList.add('hot'); b.textContent='× close map'; }
+if(showResiduals){ const b=document.getElementById('resid'); b.classList.add('hot'); b.textContent='← back to checks'; }
 render();
 if(selected){ const c=CHECKS.find(x=>x.id===selected); if(c) showDetail(c); }
 </script>

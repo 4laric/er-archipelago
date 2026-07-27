@@ -97,6 +97,39 @@ def read_tsv(path):
     return rows
 
 
+OW_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)(?:_(\d)(\d))?$")
+
+
+def world_xz(map_id, x, z):
+    """Overworld map-local coords -> (base, gx, gz) in the single folded frame that
+    poptracker/maps/map_calibration*.json is authored in. None for interiors.
+
+    The 4th map-id field is [version][lod]. LOD is DOCUMENTED (see
+    greenfield/eldenring/tests/test_gf_lod_tile_regions.py and gen_data.py:177): _00 is the
+    fine grid, _01 2x coarser, _02 4x coarser, so pitch = 256 << lod.
+
+    Two parts are INFERRED and documented nowhere -- both pinned by
+    tests/test_gf_desc_triage.py so they fail loudly rather than drift:
+      * the (pitch-256)/2 centring term. Without it all 18 LOD2 rows sit 244-463 m outside
+        the tile their own flag encodes; with it, five coarse merchant tiles land 50-122 m
+        from a real named grace. See the DESC-TRIAGE section of AGENTS.md to falsify.
+      * "3-field id + low tile = truncated LOD2" -- tools/datamine_merchant_shops.py::_map_id
+        builds `area_x_y` and drops both digits, and the fine grid starts at tile 33.
+
+    🛑 This is NOT the same transform as tools/build_nearest_grace.py::_normalize, which
+    folds at *256 regardless of LOD and whose regex needs a trailing '_'. That one is wrong
+    for LOD2 and for 3-field merchant ids (missing-never-wrong under its distance cap).
+    """
+    m = OW_RE.match(map_id)
+    if not m:
+        return None
+    base, tx, tz, _ver, lod = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4), m.group(5)
+    lod = int(lod) if lod is not None else (2 if tx < 30 else 0)
+    pitch = 256 << lod
+    off = (pitch - 256) / 2.0
+    return base, tx * pitch + x + off, tz * pitch + z + off
+
+
 def data_stamp(path):
     """data.py's _GEN_STAMP.inputs_hash -- a content id that is stable across commits."""
     with open(path, encoding="utf-8") as fh:
@@ -229,6 +262,31 @@ def main():
                                             "sense": r.get("gate_sense", ""),
                                             "range": f"{lo}-{hi}"})
 
+    # --- positions, for the MAP tab ---------------------------------------------------
+    # Plotting the CURRENT FILTER makes a whole bug class visual: a misregioned check is a
+    # colour outlier, a tile-straddle question is "look at the border". 🛑 The calibration
+    # covers BASE OVERWORLD + DLC only -- interiors have no position on these two maps.
+    # Those are counted and stated, never silently dropped, or the map would imply spatial
+    # coverage the data does not have.
+    pos_by_flag = defaultdict(list)
+    for r in read_tsv(os.path.join(gf, "item_grace_coords.tsv")):
+        if r.get("kind") != "item":
+            continue
+        try:
+            f, x, z = int(r["key"]), float(r["x"]), float(r["z"])
+        except (KeyError, ValueError):
+            continue
+        w = world_xz(r["map_id"], x, z)
+        if w:
+            pos_by_flag[f].append({"b": w[0], "gx": round(w[1], 1), "gz": round(w[2], 1)})
+
+    cal = {}
+    for key, fn in (("m60", "map_calibration.json"), ("m61", "map_calibration_dlc.json")):
+        p = os.path.join(root, "poptracker", "maps", fn)
+        if os.path.exists(p):
+            with open(p, encoding="utf-8") as fh:
+                cal[key] = json.load(fh)
+
     def tsv_caveats(name):
         """The '#' header of a generated tsv, VERBATIM. These headers carry the polarity
         and 'this is not a risk list' warnings; the UI shows them next to the data."""
@@ -280,7 +338,16 @@ def main():
                 "gift": gifts_by_flag.get(flag, []),
                 "eshop": esd_shop_by_flag.get(flag, []),
                 "sd": flag in startdisabled,
+                "pos": pos_by_flag.get(flag, []),
             }
+            # a flag on both _00 and _10 map versions is ONE physical spot, not two dots
+            seen, uniq = set(), []
+            for p in rec["pos"]:
+                k = (p["b"], round(p["gx"]), round(p["gz"]))
+                if k not in seen:
+                    seen.add(k)
+                    uniq.append(p)
+            rec["pos"] = uniq
             if ap_id in MISSABLE:
                 rec["miss"] = MISSABLE[ap_id]
             fl = []
@@ -359,6 +426,8 @@ def main():
         "gate_any": sum(1 for c in checks
                         if c["gates"] or c["enab"] or c["gift"] or c["eshop"]),
         "residuals": len(residuals),
+        "plottable": sum(1 for c in checks if c["pos"]),
+        "cal": cal,
         "caveats": {n: tsv_caveats(n + ".tsv") for n in
                     ("treasure_enablers", "esd_gates", "esd_gifts",
                      "msb_gated_treasures", "lot_gates")},
@@ -370,6 +439,14 @@ def main():
                             "check_browser_template.html")
     with open(tpl_path, encoding="utf-8") as fh:
         tpl = fh.read()
+    for token, fn in (("__SVG_BASE__", "lands_between_map.svg"),
+                      ("__SVG_DLC__", "land_of_shadow_map.svg")):
+        p = os.path.join(root, "poptracker", "maps", fn)
+        svg = ""
+        if os.path.exists(p):
+            with open(p, encoding="utf-8") as fh:
+                svg = fh.read()
+        tpl = tpl.replace(token, json.dumps(svg))
     payload = json.dumps({"meta": meta, "checks": checks, "residuals": residuals},
                          separators=(",", ":"), sort_keys=True, ensure_ascii=False)
     html = tpl.replace("/*__DATA__*/null", payload)

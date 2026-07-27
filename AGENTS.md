@@ -381,6 +381,19 @@ are absent in CI). Know which tier your change is in:
   verdicts). Search there before announcing a "missing check": that residual is where
   "~126 invisible lots" and "27 phantoms" both came from. A blank reason means **nobody recorded
   one** — an honest unknown, not an invitation to guess.
+- **Map tab.** Plots the CURRENT FILTER on the committed poptracker maps, coloured by region, so a
+  misregioned check is a colour outlier instead of a datamine and a tile-straddle question is "look
+  at the border". 1930 of 4879 place; the header states the non-plottable interior count every
+  time, because a map that quietly omits them implies spatial coverage the data lacks. Uses the
+  same `world_xz` as the triage tool (one implementation, one test) and each map's OWN calibration
+  — projecting DLC through the base transform puts every Shadow-Realm check in the sea, plausibly
+  enough to be believed, so a test forbids it.
+- **Diff a build.** Load an older `er-archipelago-check-browser.html`; it re-extracts that build's
+  payload and reports what actually MOVED — checks added/removed, region changes, tag flips,
+  name/description churn, nearest-grace churn — keyed by AP id, with both `inputs_hash` stamps
+  shown. This is how you review a regen: the generated `.py` diffs run to thousands of unreadable
+  lines. 🛑 **A REVIEW AID, NOT A GATE.** CI's byte-staleness check is the gate. If diff says
+  "nothing changed" while the bytes changed, that is a FINDING, not a pass — and the page says so.
 - **Permalinks.** Facets, query, sort and selection serialise into `location.hash`, so a handoff
   can cite `…#gate=enabler:%20NO_ENABLER&r=Limgrave` instead of pasting a list that rots. Reopening
   an old link against a newer build re-derives the number; if a filter term no longer matches

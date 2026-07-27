@@ -47,7 +47,9 @@ import os
 import re
 from collections import defaultdict
 
-from build_check_browser import load_module_consts, read_tsv, data_stamp
+# world_xz lives in build_check_browser so BOTH pages fold coordinates identically --
+# two copies of an inferred transform would drift and only one would be pinned by tests.
+from build_check_browser import load_module_consts, read_tsv, data_stamp, world_xz
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = "er-archipelago-desc-triage.html"
@@ -55,7 +57,6 @@ DEFAULT_OUT = "er-archipelago-desc-triage.html"
 NAME_RE = re.compile(r"^(?P<region>.*?) :: (?P<rest>.*?) \[f(?P<flag>\d+)\]$")
 ORD_RE = re.compile(r"\s\((\d+)\)$")
 LOCALE_RE = re.compile(r"^(?:world drop|treasure|enemy drop|shop|event|gesture)\s·\s|^m\d\d")
-OW_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)(?:_(\d)(\d))?$")
 
 IMPORTANT = {"Boss", "MajorBoss", "GreatRune", "Remembrance", "KeyItem", "Legendary",
              "Seedtree", "Fragment", "Revered", "Church", "Basin"}
@@ -96,22 +97,6 @@ def desc_layer(flag, desc, overrides):
         return "5-locale"
     return "2/3-boss-or-spot"
 
-
-def world_xz(map_id, x, z):
-    """Overworld map-local -> global (gx, gz). None for interiors. See COORDINATES above."""
-    m = OW_RE.match(map_id)
-    if not m:
-        return None
-    base, tx, tz, _ver, lod = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4), m.group(5)
-    if lod is not None:
-        lod = int(lod)
-    else:
-        # merchant rows lose the 4th field to datamine_merchant_shops._map_id; a LOW tile index
-        # on a 3-field id is a truncated LOD2 tile (the fine grid starts at 33).
-        lod = 2 if tx < 30 else 0
-    pitch = 256 << lod
-    off = (pitch - 256) / 2.0
-    return base, tx * pitch + x + off, tz * pitch + z + off
 
 
 def score(rec):

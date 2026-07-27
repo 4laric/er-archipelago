@@ -176,6 +176,74 @@ class CheckBrowserTest(unittest.TestCase):
         for r in self.data["residuals"]:
             self.assertIsInstance(r["reason"], str)
 
+    # -- G. the map tab ----------------------------------------------------
+    # A point placed off-image is invisible; a point placed WRONG is worse, because the
+    # map is used to eyeball misregioned checks and a wrong dot invents an outlier.
+    def test_every_plotted_point_lands_inside_its_map(self):
+        cal = self.data["meta"]["cal"]
+        self.assertTrue(cal, "no calibration carried -- the map tab has nothing to project with")
+        boxes = {}
+        for key, svg in (("m60", "lands_between_map.svg"), ("m61", "land_of_shadow_map.svg")):
+            with open(os.path.join(REPO, "poptracker", "maps", svg), encoding="utf-8") as fh:
+                m = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', fh.read(400))
+            boxes[key] = (float(m.group(1)), float(m.group(2)))
+        oob, n = [], 0
+        for c in self.checks:
+            for p in c.get("pos", []):
+                k = cal.get(p["b"])
+                if not k:
+                    continue
+                wb, im = k["world_bounds"], k["image"]
+                px = im["margin"] + (p["gx"] - wb["gx_min"]) / (wb["gx_max"] - wb["gx_min"]) * im["draw_w"]
+                py = im["margin"] + (1 - (p["gz"] - wb["gz_min"]) / (wb["gz_max"] - wb["gz_min"])) * im["draw_h"]
+                W, H = boxes[p["b"]]
+                n += 1
+                if not (0 <= px <= W and 0 <= py <= H):
+                    oob.append((c["f"], p["b"], round(px), round(py)))
+        self.assertTrue(n > 1500, f"only {n} points -- the coord join went missing")
+        self.assertFalse(oob, f"{len(oob)} of {n} points land OFF the map: {oob[:5]}")
+
+    def test_dlc_calibration_is_not_the_base_one(self):
+        """m61 has its own bounds and draw_h. Projecting DLC through the base transform
+        would put every Shadow-Realm check in the sea, plausibly enough to be believed."""
+        cal = self.data["meta"]["cal"]
+        self.assertIn("m61", cal)
+        self.assertNotEqual(cal["m60"]["world_bounds"], cal["m61"]["world_bounds"])
+
+    def test_map_positions_are_deduped_across_map_versions(self):
+        for c in self.checks:
+            keys = [(p["b"], round(p["gx"]), round(p["gz"])) for p in c.get("pos", [])]
+            self.assertEqual(len(keys), len(set(keys)), f"f{c['f']} has duplicate positions")
+
+    def test_plottable_count_matches_the_payload(self):
+        self.assertEqual(self.data["meta"]["plottable"],
+                         sum(1 for c in self.checks if c.get("pos")))
+        # the map must NOT silently imply full spatial coverage
+        self.assertLess(self.data["meta"]["plottable"], self.data["meta"]["total"],
+                        "every check claims a position -- interiors should have none")
+
+    def test_both_maps_are_inlined(self):
+        """The page is offline; an <img src> or a CDN would make the map tab blank."""
+        for token in ("lands_between", "land_of_shadow"):
+            self.assertIn(token, self.html, f"{token} map not inlined")
+        self.assertNotIn("cdnjs", self.html)
+        self.assertNotIn("<img", self.html)
+
+    # -- H. diff mode is a REVIEW AID, not a gate --------------------------
+    def test_payload_is_reparseable_by_the_diff_loader(self):
+        """Diff mode re-extracts a payload from another build with this exact regex; if
+        the emitted shape ever stops matching it, diff silently loads nothing."""
+        m = re.search(r"^const DATA = (\{.*\});$", self.html, re.M)
+        self.assertIsNotNone(m, "diff mode's loader regex no longer matches our own output")
+        again = json.loads(m.group(1))
+        self.assertEqual(len(again["checks"]), len(self.checks))
+        for k in ("id", "r", "n", "t", "f", "g"):
+            self.assertIn(k, again["checks"][0], f"diff keys on {k}; it left the payload")
+
+    def test_diff_mode_is_labelled_as_not_a_gate(self):
+        self.assertIn("review aid", self.html)
+        self.assertIn("not a gate", self.html)
+
     # -- D. freshness ------------------------------------------------------
     def test_committed_page_is_not_stale(self):
         if not os.path.exists(SHIPPED):
