@@ -66,14 +66,35 @@ def main():
         sys.exit(f"FATAL: {src} not found. Run tools/gen_inputs.py --extract first.")
 
     with open(src, encoding="utf-8", errors="replace") as fh:
-        rows = [r for r in csv.DictReader(fh) if r.get("ID", "").strip().isdigit()]
+        reader = csv.DictReader(fh)
+        header = set(reader.fieldnames or ())
+        rows = [r for r in reader if r.get("ID", "").strip().isdigit()]
+
+    # EVERY column we read, checked against the real header. Without this a typo'd name makes
+    # r.get() return None, _int() turns that into 0, and the tool emits confident nonsense --
+    # which is precisely what happened with bossMapNo/bossMapMapNo. A derivation that cannot
+    # find its input must FAIL, not answer (CONTRIBUTING).
+    needed = {"ID", "bonusSoul_single", "foundBossFlagId", "bossChallengeFlagId",
+              "defeatBossFlagId", "bossPosX", "bossPosY", "bossPosZ",
+              "bossMapAreaNo", "bossMapBlockNo", "bossMapMapNo"}
+    absent = sorted(needed - header)
+    if absent:
+        sys.exit("FATAL: GameAreaParam.csv has no column(s) %s.\nPresent: %s\n"
+                 "Refusing rather than defaulting them to 0 -- that produces plausible, wrong "
+                 "coordinates." % (", ".join(absent), ", ".join(sorted(header))))
 
     out = []
     for r in rows:
         rid = _int(r["ID"])
         defeat = _int(r.get("defeatBossFlagId"))
+        # 🛑 bossMapMapNo, NOT bossMapNo. The first version of this tool read a column that does
+        # not exist, so _int() defaulted it to 0 and every OVERWORLD arena was folded with
+        # tile_z = 0 -- 106 positions silently wrong, and wrong in a way that still produced
+        # plausible-looking coordinates. Interiors were unaffected (their MapNo really is 0),
+        # which is exactly why it survived the first read. The header-name check below makes the
+        # same mistake fail loudly instead.
         a, b, m = (_int(r.get("bossMapAreaNo")), _int(r.get("bossMapBlockNo")),
-                   _int(r.get("bossMapNo")))
+                   _int(r.get("bossMapMapNo")))
         # mapAreaNo/BlockNo/MapNo -> the map id the rest of the repo speaks
         map_id = f"m{a:02d}_{b:02d}_{m:02d}_00" if a else ""
         px, py, pz = (_float(r.get("bossPosX")), _float(r.get("bossPosY")),
@@ -93,6 +114,29 @@ def main():
             "world_gz": round(w[2], 1) if w else "",
         })
     out.sort(key=lambda x: x["area_id"])
+
+    # --- SECOND SOURCE: the area id encodes the tile for overworld arenas ------------
+    # 1033420800 -> 10|33|42|0800 : prefix, tileX, tileZ, suffix. Two independent readings of the
+    # same fact, and the id was sitting in the first column all along -- this catches a misread
+    # map column instantly (it flags all 106 the moment bossMapMapNo is read as bossMapNo).
+    #
+    # 🛑 A WARNING, NOT A REFUSAL, and the slice is why. My first version sliced s[1:4]/s[4:6],
+    # which flagged four rows; three were real and the fourth (1248550800, prefix "12" not "10")
+    # was purely my parsing. Having been wrong about the format once, a FATAL here would be a
+    # guard that stops the build on its own bug. The residual disagreements are all OFF BY ONE IN
+    # TILE Z -- an arena metres over a tile border, which this repo has already established is a
+    # BORDER and not a defect (a tile legitimately spans regions). Report them; do not refuse.
+    border = []
+    for r in out:
+        if r["boss_map"][:3] not in ("m60", "m61"):
+            continue
+        s = str(r["area_id"])
+        if len(s) != 10:
+            continue
+        want = f"{int(s[2:4]):02d}_{int(s[4:6]):02d}"
+        if want != r["boss_map"][4:9]:
+            border.append((r["area_id"], r["boss_map"], want))
+    r_border = border
 
     # --- cross-check against what we already derive ----------------------------------
     ours = set()
@@ -132,6 +176,10 @@ def main():
     print(f"    only in boss_area_regions: {len(only_ours)}   <- EMEVD-derived, no arena row")
     print(f"    only in GameAreaParam    : {len(only_theirs)}   <- arenas our derivation misses")
     print(f"\n  map spread: {dict(Counter(r['boss_map'][:3] for r in out if r['boss_map']).most_common(6))}")
+    print(f"\n  id-vs-column tile agreement: {len(out) - len(r_border)} agree, "
+          f"{len(r_border)} sit in a NEIGHBOURING tile (border arenas, not defects):")
+    for aid, got, want in r_border:
+        print(f"      {aid}  columns say {got}, id says {want}")
     return 0
 
 
