@@ -2814,6 +2814,31 @@ _ESD_GESTURE_REGION = {60803: "Limgrave", 60835: "Limgrave"}
 _ESD_GESTURE_PINS = {"rows": 45, "flags": 20, "corroborated": 2, "new": 18}
 
 
+def _talk_merchant_tiles():
+    """talk_id -> {physical map tiles} from merchant_shops.tsv (tools/datamine_merchant_shops.py).
+
+    Nine of the twenty ESD gesture talks belong to a MERCHANT, and that table already knows where he
+    physically stands -- so for those the region is DERIVABLE and does not have to default to the HUB.
+    The HUB tile is excluded on the same grounds as _build_merchant_shop_region: m11_10 is the
+    Twin-Maiden re-sell counter, not anybody's home. Absent table -> empty map -> every gesture keeps
+    the HUB default, which is the safe direction."""
+    _mpath = os.path.join(HERE, "merchant_shops.tsv")
+    _out = defaultdict(set)
+    if not os.path.isfile(_mpath):
+        return _out
+    with open(_mpath, encoding="utf-8-sig") as _f:
+        for _ln in _f:
+            if not _ln.strip() or _ln.lstrip().startswith("#") or _ln.startswith("row_id"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) < 5:
+                continue
+            _tile = _p[4].strip()
+            if _tile and _tile != _HUB_TILE:
+                _out[_p[1].strip()].add((_tile, _p[3].strip()))
+    return _out
+
+
 def _read_esd_gestures():
     """flag -> (gesture_id, sorted map ids) from esd_gestures.tsv. Refuses on an absent or empty
     table: an empty result here is indistinguishable from "no NPC teaches a gesture", which is the
@@ -2824,6 +2849,7 @@ def _read_esd_gestures():
                          f"`python tools/datamine_esd_gestures.py` and commit the tsv first.")
     _byflag = {}
     _maps = defaultdict(set)
+    _talks = defaultdict(set)
     _n = 0
     for _ln in open(_ESD_GESTURES_TSV, encoding="utf-8"):
         if _ln.startswith("#") or _ln.startswith("gesture_id\t"):
@@ -2838,11 +2864,12 @@ def _read_esd_gestures():
                              f"{_byflag[_f]} and {_g} -- that is not one check. Re-emit; the "
                              f"pairing rule broke.")
         _maps[_f].add(_c[3])
+        _talks[_f].add(_c[2])
     if _n != _ESD_GESTURE_PINS["rows"] or len(_byflag) != _ESD_GESTURE_PINS["flags"]:
         raise SystemExit(f"FATAL: esd_gestures.tsv shape drift: {_n} rows / {len(_byflag)} flags "
                          f"(pinned {_ESD_GESTURE_PINS['rows']} / {_ESD_GESTURE_PINS['flags']}). "
                          f"Re-derive and explain the delta before re-pinning.")
-    return {_f: (_g, sorted(_maps[_f])) for _f, _g in _byflag.items()}
+    return {_f: (_g, sorted(_maps[_f]), sorted(_talks[_f])) for _f, _g in _byflag.items()}
 
 
 def _gesture_derive():
@@ -3019,8 +3046,9 @@ def _gesture_derive():
     _esd = _read_esd_gestures()
     _esd_new = {}
     _corroborated = 0
+    _MERCHANT_TILES = _talk_merchant_tiles()
     for _fl8 in sorted(_esd):
-        _gid8, _maps8 = _esd[_fl8]
+        _gid8, _maps8, _talks8 = _esd[_fl8]
         if _fl8 in _by_flag:
             _known8 = {_g8 for (_g8, _m8) in _by_flag[_fl8]}
             if _known8 != {_gid8}:
@@ -3030,7 +3058,7 @@ def _gesture_derive():
                                  f"every other ESD row is suspect until that is explained")
             _corroborated += 1
             continue
-        _esd_new[_fl8] = (_gid8, _maps8)
+        _esd_new[_fl8] = (_gid8, _maps8, _talks8)
     if (_corroborated != _ESD_GESTURE_PINS["corroborated"]
             or len(_esd_new) != _ESD_GESTURE_PINS["new"]):
         raise SystemExit(f"FATAL: ESD gesture overlap drift: {_corroborated} corroborated / "
@@ -3095,18 +3123,39 @@ def _gesture_derive():
     # reasons it cannot strand a seed. Each HUB'd flag PRINTS with its name so it can be pinned
     # incrementally as Alaric identifies the NPC; not-knowing is louder than knowing.
     for _fl8 in sorted(_esd_new):
-        _gid8, _mps8 = _esd_new[_fl8]
+        _gid8, _mps8, _talks8 = _esd_new[_fl8]
         if _gid8 not in _g2i or not _g2i[_gid8]:
             raise SystemExit(f"FATAL: ESD gesture id {_gid8} (flag {_fl8}) has no GestureParam.itemId")
         _good8 = _g2i[_gid8]
         _nm8 = _id2name.get(_good8)
         if not _nm8:
             raise SystemExit(f"FATAL: ESD gesture goods {_good8} (flag {_fl8}) has no FMG name")
-        _region[_fl8] = _ESD_GESTURE_REGION.get(_fl8, HUB)
-        if _fl8 not in _ESD_GESTURE_REGION:
+        # PRECEDENCE: ground-truth pin > merchant-ESD placement > HUB. The middle rung is the same
+        # derivation _build_merchant_shop_region uses for shop rows -- where the NPC physically
+        # STANDS, from his MSB placement -- and it applies here because 9 of the 20 gesture talks
+        # belong to a merchant. It pins only when every instance resolves to ONE region: a merchant
+        # who RELOCATES (Patches m16_00/m31_00/m60_37_42, Kale, Corhyn) resolves to several and
+        # stays at the HUB, which is the same refusal the EMEVD branch makes for a two-region
+        # gesture. Non-merchant NPCs are not in that table at all and also stay.
+        _who8 = sorted({_nm for _t8 in _talks8 for (_tile, _nm) in _MERCHANT_TILES.get(_t8, ())
+                        if _nm})
+        _mregs8 = {_gt_region(_tile) for _t8 in _talks8
+                   for (_tile, _nm) in _MERCHANT_TILES.get(_t8, ())}
+        _mregs8.discard(None)
+        if _fl8 in _ESD_GESTURE_REGION:
+            _region[_fl8] = _ESD_GESTURE_REGION[_fl8]
+        elif len(_mregs8) == 1:
+            _region[_fl8] = next(iter(_mregs8))
+            print(f"gesture: ESD flag {_fl8} ({_nm8!r}, gesture {_gid8}) -> {_region[_fl8]!r} via "
+                  f"merchant_shops.tsv ({', '.join(_who8) or 'unnamed'} stands there)")
+        else:
+            _region[_fl8] = HUB
             print(f"gesture: ESD flag {_fl8} ({_nm8!r}, gesture {_gid8}) taught on talk map(s) "
-                  f"{_mps8} -> HUB (an ESD map is a bundle, not a place; pin it in "
-                  f"_ESD_GESTURE_REGION when the NPC is identified). Filler-only.")
+                  f"{_mps8}"
+                  + (f" by {', '.join(_who8)}, who resolves to {len(_mregs8)} region(s) "
+                     f"{sorted(_mregs8)}" if _who8 else " by a non-merchant NPC")
+                  + " -> HUB (an ESD map is a bundle, not a place; pin it in _ESD_GESTURE_REGION "
+                    "when the NPC's home is settled). Filler-only.")
         _rows8.append({"ap_id": "", "flag": str(_fl8), "flag_source": "esd_gesture_award",
                        "item_name": _nm8, "map": ";".join(_mps8),
                        "region": _region[_fl8], "method": "gesture"})
