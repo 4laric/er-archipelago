@@ -2045,6 +2045,23 @@ GLOBAL_RECOVER = {
     # features/natural_progression gates Mohgwyn on it (OR the Snowfield Secret-Medallion route). NEEDS a
     # Windows `build.ps1 -Greenfield` regen to bake -- the sandbox has no artifacts. (Alaric 2026-07-24.)
     400032: "Liurnia",               # Pureblood Knight's Medal -> Varre (Rose Church, Liurnia)
+    # Spirit Jellyfish Ashes (400190): Roderika's OTHER gift at the Stormhill Shack. Exactly the
+    # 400032 shape -- an NPC handover whose 4xxxxx flag encodes no map, so `_recover_tile` returns
+    # None, `_recover_row_ok` drops the row, and the ashes are a location NOWHERE: Roderika hands
+    # over the vanilla item and nothing fires (Alaric, IN-GAME 2026-07-26; kanban #217).
+    # Its SIBLING off the same dialogue tree is already a live check -- lot 101910 / flag 400191,
+    # 'Limgrave :: Golden Seed - around Stormhill Shack' -- rescued only because the EMEVD scan
+    # happened to find 400191 in m60_41_38. Nothing rescued 400190; one lot number apart.
+    # Region is GROUND TRUTH, not a decode: Alaric 2026-07-26, "ashes are in limgrave, same as the
+    # gesture". That matters because esd_flags.tsv also puts her talks (320001110/320006000) on
+    # m11_10 = Roundtable Hold -- she RELOCATES, so a map-join would have had two answers and
+    # picked one. Pinning agrees with what the tree already decided for her Golden Seed.
+    # Source chain: flag_lots.tsv line 390 (400190 map 101900 -> goods 236000);
+    #               region_map.csv line 920 (ap 7000918, map PENDING, method global);
+    #               esd_gifts.tsv (talks 320001110/320006000 AwardItemLot 101900).
+    # Also tagged questline-missable in QUEST_GATED_FLAGS below -- an NPC handover can be lost.
+    # Pinned by test_gf_esd_npc_awards.py (RED until this regen bakes).
+    400190: "Limgrave",              # Spirit Jellyfish Ashes -> Roderika (Stormhill Shack, Limgrave)
     510440: "Shadow Keep",           # Golden Hippopotamus. Recovery MEMBERSHIP + post-DEATH floor: the plaza reverts to play_region 21000 = Shadow Keep once the Hippo is dead (so the filler SWEEP is Shadow Keep). The LIVE-fight reward region is now DERIVED, not hand-set: region_of's boss-arena branch resolves 510440 -> defeat 21000850 -> PlayRegionParam boss-alive row 6900010 (bucket 69000 = Scadu Altus) ABOVE the msb branch, so this value is never consulted for the reward's region. (Membership is also covered by _BOSS_REWARD_TILE auto-recover; this entry could be dropped entirely.)
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
@@ -2230,6 +2247,9 @@ QUEST_GATED_FLAGS = {
     9500, 9502, 9504, 100560,
     400030, 400032, 400037, 400061, 400071, 400077, 400078, 400080, 400089,
     400091, 400100, 400105, 400158, 400162, 400173, 400174, 400182, 400189,
+    400190,   # Spirit Jellyfish Ashes -- Roderika's handover (recovered above, 2026-07-26). Her
+              # neighbour 400189 (Patches' Bell Bearing) was already here; the ashes were not,
+              # because a flag that is a check NOWHERE never needed a missable tag.
     400293, 400299, 400308, 400310, 400311, 400312, 400321, 400323, 400324,
     400331, 400333, 400339, 400348, 400349, 400356, 400358, 400359, 400360,
     400361, 400362, 400370, 400381, 400382, 400391, 400392, 400393, 400394,
