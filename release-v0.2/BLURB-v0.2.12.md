@@ -8,10 +8,11 @@
 > showed a raw map id, 16 sharpened — and all eight items named by title verified individually.
 > The withdrawn *Crusade Insignia* line is gone; it reads "around Belurat, Tower Settlement" again.
 >
-> 🛑 **ONE MORE REGEN IS NEEDED**, for the two-region missable fix below (`multisite_checks.tsv` +
-> the `gen_data` hook landed after `c6c635d`). Until it runs, those 27 checks can still be handed
-> required progression. That is a seed-safety fix, so it should ship with the release rather than
-> after it.
+> ✅ **The missable regen is in too.** `MISSABLE_LOCATIONS` went 151 → 179, all 34 two-region flags
+> are tagged (0 untagged), and the Queelign pair is among them. Both claims on this page are now
+> checked against shipped data: **24 / 5 / 3 / 16** landmarks, **+28** newly un-requirable checks.
+>
+> Nothing below needs another regen. The two remaining items are playtest questions, not builds.
 
 ---
 
@@ -120,14 +121,14 @@ first and the Prayer Room Key second — wherever those two fights happen to be 
 fact in the game data about which site your key came from, so naming one would be wrong for half of
 you. Those checks say nothing instead.
 
-### 27 two-region checks can no longer be required
+### 28 two-region checks can no longer be required
 
 Chasing that Queelign oddity turned up a seed-safety problem behind it. A check is filed in one
 region, and the logic treats it as available once that region opens — but a pickup obtainable in
 **two** regions, with the order deciding which, breaks that assumption. Put a required item on one
 and a player routed the other way is stranded behind a region they have not unlocked yet.
 
-27 checks now refuse required progression for that reason. They are still randomised and still
+28 checks now refuse required progression for that reason. They are still randomised and still
 yours; they simply cannot hold anything the seed *needs*. The screen that found them also
 re-derived seven that earlier hand audits had already caught one at a time — Lord of Blood's
 Favor, Shabriri Grape, Sword of Milos and friends — which is the reason to trust it about the
