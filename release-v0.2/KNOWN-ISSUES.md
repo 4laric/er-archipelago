@@ -1,5 +1,7 @@
 # Known Issues -- v0.2
 
+Current as of **v0.2.11** (2026-07-26).
+
 Everything we currently know about, what it looks like in play, and what (if
 anything) to do about it. The short version: nothing on this list can strand a
 run on the base game, which is the recommended, supported configuration.
@@ -28,6 +30,23 @@ run on the base game, which is the recommended, supported configuration.
   hold progression items, so it cannot strand a run -- the worst case is that
   you miss a filler item. What to do: nothing; keep playing. A fix is in
   progress for a future release.
+
+- **Some NPC gifts and quest pickups are not randomised yet.** A batch of
+  pickups never got a location built for them, so the game simply hands you the
+  vanilla item and nothing registers as a check. The one you are most likely to
+  notice is **Roderika at Stormhill Shack** -- neither her Spirit Jellyfish Ashes
+  nor the Sitting Sideways gesture is a check. Others in the same batch include
+  the Flask of Wondrous Physick, the Tarnished's Furled Finger and the Tailoring
+  Tools. What to do: nothing, and nothing is lost -- you still get the vanilla
+  item, there is just no multiworld check attached. Being worked on; the two
+  halves have different causes and are tracked as #217 and #218.
+
+- **A check's region can be a guess, and now says so.** 506 checks read
+  `(region unconfirmed)` in their name. That is not a bug report -- it is the
+  label being honest. Those checks are usually near a border, where the closest
+  landmark we can name is across a region line. They are never allowed to hold
+  progression, so a wrong guess cannot strand a run; the tracker may just group
+  one under a neighbouring region. What to do: nothing.
 
 - **DLC: the Shadow Keep church-basement grace can warp you in before the
   water is drained.** With the DLC enabled, the region grace bundle can light

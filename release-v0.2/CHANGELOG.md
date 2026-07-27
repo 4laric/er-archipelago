@@ -3,6 +3,82 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.11 — 2026-07-26
+
+Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Location
+names changed in this release, so an in-flight seed will not match a new tracker — finish
+old seeds before updating, or reroll.
+
+### Changed — apworld
+
+- **`Boss` now means every boss.** The `Boss` location type was silently excluding the
+  remembrance and great-rune bosses, so `important_locations: [Boss]` gave you 95 checks
+  with **Godrick, Rennala, Radahn, Rykard, Mohg and Malenia all absent**. The cause was a
+  filter that discarded any boss whose reward is *named* after a remembrance or a great
+  rune — our rule, not the game's, and a leaky one: Agheel and a couple of others kept
+  their tag purely because their drop is named something else. `Boss` is now 134 checks and
+  a major boss is guaranteed to be one. If you play with this option, expect more of them.
+- **A guessed region says so.** 506 checks sit on ground we cannot pin exactly — usually a
+  border tile, where the nearest landmark is across a region line. They now read
+  `(region unconfirmed)` instead of stating a region we do not actually know. Nothing about
+  where they are has changed; they were already barred from holding progression. Only the
+  label was overconfident. The example that prompted it: the Tibia Mariner's Deathroot at
+  Summonwater, which sits on the Limgrave side of a tile whose other checks are Caelid.
+- **Shop checks name the merchant who actually sells it.** Turning in a bell bearing moves
+  a merchant's stock to the Twin Maiden Husks, so the Husks were being listed as a second
+  seller on **377 wares they do not stock until you have found that bearing** — reading as
+  an early alternative that does not exist. They are dropped from those notes and kept
+  where they genuinely are the seller.
+- **Eight more questline-gated checks are marked missable.** Each sits in one region but
+  does not exist until a questline advances somewhere else — most visibly the **Golden Seed
+  at Stormhill Shack**, which is not there until you have progressed past the Roundtable.
+  They stay randomised and stay yours if you do the questline; a seed just cannot put
+  anything *required* on them any more. The others: Varré's Lord of Blood's Favor, the
+  Witch's Glintstone Crown, Patches' Murkwater Cave drops, the Wise Man's Mask, and three
+  Volcano Manor invasion rewards.
+
+### Fixed — apworld
+
+- **A missable check could be forced to hold something good, and then hold nothing at all.**
+  `important_locations` says a tagged check must reject filler; a missable check must reject
+  progression. A location under both accepted *nothing*, and generation had no legal item
+  for it. Missable now wins — a check you can lose permanently is never forced to carry
+  something worth losing.
+
+## v0.2.10 — 2026-07-26
+
+Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Mostly
+about knowing where a check actually is, and about questline pickups no longer being
+thrown away.
+
+### Added — apworld
+
+- **Seven NPC and quest gestures are checks now.** Questline rewards used to be out of
+  scope; they are in, randomised, and marked missable so a seed never *requires* one.
+- **Check descriptions got a lot less bare** — 608 checks with no description down to 126.
+  482 shop checks now name the merchant who sells the ware, six unnamed dungeons were
+  filled in, and a batch of checks that were described by the wrong map tile now use the
+  right one.
+
+### Changed — apworld
+
+- **Questline-gated checks are randomised and missable, not excluded.** An earlier attempt
+  removed eight pickups from the pool entirely to guarantee a property the missable rule
+  already provides. They are back in, marked instead.
+- **Patches' chest pair and Edgar's five Revenger's Shack pickups are marked missable** —
+  they are switched off until an NPC state changes, which nothing had noticed.
+
+### Fixed — apworld
+
+- **1189 checks that had no position at all now have a map**, and merchant checks inherit
+  the merchant's own position — closing the coordinate gap from 34.3% to 19.4%.
+
+### Fixed — packaging
+
+- **The build freshness gate could never pass.** It compared timestamps against a file the
+  script itself rewrote, then against commit time, which is always *after* the build. It
+  now stamps the build with a content hash.
+
 ## v0.2.9 — 2026-07-24
 
 Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client — they
