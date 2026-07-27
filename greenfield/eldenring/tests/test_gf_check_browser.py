@@ -40,13 +40,16 @@ except ImportError:
 from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-GF_PKG = os.path.dirname(HERE)                       # .../greenfield/eldenring
-GREENFIELD = os.path.dirname(GF_PKG)                 # .../greenfield
-# Resolve the checkout by MARKER, never positionally: under tools/gf_test.py this file
-# lives at _ap/worlds/eldenring/tests and a positional walk-up yields `_ap`, which has no
-# tools/. See _util.find_repo_root -- this is the bug that errored 45 tests in CI.
-REPO = find_repo_root(HERE) or os.path.dirname(GREENFIELD)
-RUNNING_FROM_REPO = find_repo_root(HERE) is not None                   # .../er-archipelago
+_FOUND = find_repo_root(HERE)
+RUNNING_FROM_REPO = _FOUND is not None
+# 🛑 Derive greenfield paths FROM the found root, never positionally. In CI the AP
+# checkout `_ap/` sits INSIDE the repo, so find_repo_root succeeds and these suites
+# RUN there -- but a positional GREENFIELD then resolves to `_ap/worlds/` and every
+# tsv read misses. That is the second half of the 2026-07-27 path bug: fixing REPO
+# alone moved 45 errors to 3 failures instead of to 0.
+REPO = _FOUND or os.path.dirname(os.path.dirname(HERE))
+GREENFIELD = os.path.join(REPO, "greenfield") if _FOUND else os.path.dirname(os.path.dirname(HERE))
+GF_PKG = os.path.join(GREENFIELD, "eldenring") if _FOUND else os.path.dirname(HERE)
 TOOL = os.path.join(REPO, "tools", "build_check_browser.py")
 SHIPPED = os.path.join(REPO, "er-archipelago-check-browser.html")
 
