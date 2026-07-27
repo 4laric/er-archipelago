@@ -8,6 +8,9 @@ promised him, in writing (2026-07-06):
     "2 are specific to my .apworld (startRegion, regionOpenFlags). When these arguments aren't
      present, they fall back to vanilla behaviour."
 
+PROVENANCE-OK: the one location key below is SYNTHETIC -- it encodes the foreign key GRAMMAR so
+the degrade path can be tested, and contains no data from any other project. See PROVENANCE.md.
+
 THIS FILE IS THAT PROMISE. Its Rust half lives in the client:
 `region.rs::foreign_apworld_degrade` + `fogwall.rs::foreign_apworld_degrade`.
 

@@ -18,6 +18,7 @@ Pre-commit hook:  python3 tools/check_integrity.py --staged || exit 1
 CI step:          python3 tools/check_integrity.py --tracked
 """
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -125,6 +126,46 @@ def delimiter_delta(text, language):
 EMPTY_OK = ("__init__.py", ".gitkeep", ".keep")
 
 
+# --- foreign location lists ---------------------------------------------------------------
+# PROVENANCE.md: reading another randomizer's list to cross-check is fine; COMMITTING it, or any
+# subset of it, is not -- the from-scratch derivation is this project's whole legal and quality
+# asset. tools/diff_foreign_list.py reads such a file from your own disk at runtime and writes
+# nothing back, so a foreign list appearing in `git add` is always a mistake. This is the gate
+# that makes that a machine check instead of a habit.
+#
+# Signatures are deliberately NARROW -- they match the KEY GRAMMAR of a foreign list, not the mere
+# presence of flag numbers (our own tsvs are full of those, and a false positive here would block
+# legitimate commits and get the hook disabled, which is worse than no hook).
+FOREIGN_LIST_SIGNS = (
+    # matt-lineage location key: "301200,0:0000520110::" -- shop id, comma, colon-delimited
+    # 10-digit zero-padded acquisition flag, trailing "::".
+    (re.compile(r"^\s*\d{4,7},\d+:\d{10}::", re.M), "matt-lineage location key (`id,n:flag::`)"),
+    # the same grammar quoted inside a yaml/json/py table
+    (re.compile(r"[\"']\d{4,7},\d+:\d{10}::[\"']"), "quoted matt-lineage location key"),
+    # itemslots.yaml section grammar
+    (re.compile(r"^\s*-?\s*(?:ItemSlots|itemslots)\s*:", re.M), "itemslots.yaml structure"),
+)
+
+
+# Legitimate uses of the grammar exist: the foreign-apworld degrade test has to encode ONE
+# synthetic key to prove our client falls back to vanilla, and PROVENANCE.md quotes the grammar
+# while explaining the rule. Those files declare themselves with this marker rather than being
+# allowlisted by name here -- an in-file declaration shows up in the diff where a reviewer can
+# see the claim being made, and a filename allowlist would silently cover a file that later
+# gained real foreign data.
+PROVENANCE_OK = "PROVENANCE-OK:"
+
+
+def foreign_list_hits(text):
+    """Return the human names of any foreign-location-list signatures present.
+
+    A file carrying the PROVENANCE_OK marker is exempt -- it is asserting that its keys are
+    SYNTHETIC (grammar only, no foreign data). That assertion is reviewable in the diff."""
+    if PROVENANCE_OK in text:
+        return []
+    return [name for rx, name in FOREIGN_LIST_SIGNS if rx.search(text)]
+
+
 def check_one(path):
     if os.path.basename(path) in EMPTY_OK and os.path.getsize(path) == 0:
         return [], []
@@ -159,6 +200,14 @@ def check_one(path):
 
     if not text.endswith("\n"):
         warns.append("no trailing newline (often a truncated tail)")
+
+    # PROVENANCE gate -- see PROVENANCE.md. Exempt via an in-file PROVENANCE-OK: marker.
+    for sign in foreign_list_hits(text):
+        errs.append(
+            "FOREIGN LOCATION LIST (%s). Another randomizer's list must never be committed "
+            "-- see PROVENANCE.md. Use tools/diff_foreign_list.py, which reads it from your own "
+            "disk and writes nothing back. If these keys are SYNTHETIC (grammar only, no foreign "
+            "data), say so in the file with a `%s` comment." % (sign, PROVENANCE_OK))
 
     lang = ext(path).lstrip(".")
     lang = {"psm1": "ps1"}.get(lang, lang)

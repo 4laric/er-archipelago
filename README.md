@@ -13,7 +13,7 @@ the seed's layout from the Archipelago server at connect time and does everythin
 live -- detecting checks, granting items, lighting graces, and enforcing region
 locks. This tree ships **no game assets** and contains **no code or data from any
 other randomizer project**: the world is derived from scratch against vanilla
-game data (see `release-v0.2/ATTRIBUTION.md` for provenance and credits).
+game data (see **`PROVENANCE.md`** for the derivation, the foreign-list rule, and credits).
 
 ---
 

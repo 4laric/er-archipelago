@@ -164,3 +164,14 @@ dist/
 # snapshot. NEVER committed: it references his copyrighted list as a differential oracle. Keeping
 # it out of the tree keeps this repo clean-room. See tools/dev/README.md.
 tools/dev/
+
+# --- foreign randomizer location lists (PROVENANCE.md) ---
+# Reading another project's list to cross-check is fine; committing it is not.
+# tools/diff_foreign_list.py reads one from your own disk and writes nothing back.
+# tools/check_integrity.py refuses to commit a file carrying the key grammar; this is
+# the belt to that braces, so a list parked in the tree never even shows up as untracked.
+/foreign/
+itemslots.yaml
+items.txt
+locationIdsToKeys*.json
+*.foreign-list
