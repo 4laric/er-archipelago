@@ -224,10 +224,25 @@ def check_yamls(suite, live, frozen=frozenset()):
 # ---------------------------------------------------------------------------------------------
 def run_one(cfg_path, seed, out_dir, stage_dir, log_dir):
     """One Generate.py run. Returns a row dict. Never raises on a failed gen -- a gen that dies IS
-    the measurement."""
+    the measurement.
+
+    OUTPUT ISOLATION (2026-07-27). `out_dir` is now PER TASK. It used to be one shared
+    `<AP_DIR>/output` for the whole sweep, so `--jobs 4` pointed four concurrent Generate.py
+    processes at one directory. On 2026-07-27 that produced 3 CONFIGERRORs out of 8 seeds on ONE
+    config -- all three in the first 20 ms of the sweep, i.e. the moment the first four tasks start
+    together -- with `FileNotFoundError` raised inside Generate.py. The other 5 seeds of the same
+    config passed, and both failing seeds reproduce as SUCCESS when run alone, so it was never the
+    config: it was shared mutable state between parallel gens.
+
+    `sweep()` already isolates the STAGING dir per config, with a comment saying why ("Generate.py
+    globs the whole player-files dir"). The output dir is the same hazard and was simply missed. A
+    nondeterministic red that blames the config is worse than no gate, because it teaches you to
+    ignore the gate."""
     os.makedirs(log_dir, exist_ok=True)
     cfg = os.path.basename(cfg_path)
     log_path = os.path.join(log_dir, f"{os.path.splitext(cfg)[0]}_{seed}.log")
+    out_dir = os.path.join(out_dir, f"{os.path.splitext(cfg)[0]}_{seed}")
+    os.makedirs(out_dir, exist_ok=True)
     # SKIP_REQUIREMENTS_UPDATE: without it Generate.py runs ModuleUpdate, which on a box missing
     # pkg_resources tries to INSTALL it and blocks on input() -- with stdin closed that surfaces as
     # `EOFError: EOF when reading a line`, i.e. an env gap wearing the costume of a config error.
@@ -260,6 +275,32 @@ def run_one(cfg_path, seed, out_dir, stage_dir, log_dir):
             "log": os.path.relpath(log_path, REPO)}
 
 
+def run_one_retrying(cfg_path, seed, out_dir, stage_dir, log_dir):
+    """`run_one`, retried ONCE on CONFIGERROR -- and never quietly.
+
+    A CONFIGERROR means "the gen died for a reason that is not a fill regression": a broken yaml, a
+    missing option, or a HARNESS/ENVIRONMENT fault. The first two are deterministic and the
+    `--check-yamls` pre-flight already catches the option-name class before any seed runs, so a
+    CONFIGERROR that passes on a straight retry is by definition the third -- and failing the gate on
+    it teaches people to ignore the gate.
+
+    🛑 The retry is LOUD, on purpose. A silent retry is exactly the "tolerance without telemetry"
+    pattern CONTRIBUTING is about: it would launder a real intermittent fault into a green run and we
+    would lose the only evidence it exists. So a task that needed a retry is printed at the moment it
+    happens, carries `flaked=True` + `first_detail` into results.json, and is counted in a summary
+    line at the end whether or not the gate passes."""
+    row = run_one(cfg_path, seed, out_dir, stage_dir, log_dir)
+    if row["outcome"] != CONFIGERROR:
+        return row
+    first = row["detail"]
+    retry = run_one(cfg_path, seed, out_dir, stage_dir, log_dir)
+    retry["flaked"] = True
+    retry["first_detail"] = first
+    print(f"  RETRY  {os.path.basename(cfg_path)[:38]:38s} seed {seed}  first attempt "
+          f"{CONFIGERROR} -> {retry['outcome']}\n         first error was: {first}", flush=True)
+    return retry
+
+
 def sweep(configs, seeds, jobs, out_dir, log_dir):
     """Every (config, seed) pair, each config staged into its OWN dir so parallel runs cannot see
     each other's yaml. Generate.py globs the whole player-files dir, so a shared staging dir is how
@@ -275,13 +316,20 @@ def sweep(configs, seeds, jobs, out_dir, log_dir):
             stages[cfg] = d
         tasks = [(cfg, s) for cfg in configs for s in seeds]
         with cf.ThreadPoolExecutor(max_workers=jobs) as ex:
-            futs = {ex.submit(run_one, cfg, s, out_dir, stages[cfg], log_dir): (cfg, s)
+            futs = {ex.submit(run_one_retrying, cfg, s, out_dir, stages[cfg], log_dir): (cfg, s)
                     for cfg, s in tasks}
             for fut in cf.as_completed(futs):
                 row = fut.result()
                 rows.append(row)
+                # 🛑 DO NOT TRUNCATE A FAILURE. `detail[:70]` cut the 2026-07-27 CONFIGERROR off at
+                # `FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/` -- the
+                # gate reported a red it had made impossible to diagnose, and the path was the whole
+                # answer. A SUCCESS line stays short (its detail is a one-word "raised to N"); a
+                # failure prints in full, however long. Cheap, and the difference between a finding
+                # and a mystery.
+                detail = row["detail"] if row["outcome"] != SUCCESS else row["detail"][:70]
                 print(f"  {row['config'][:38]:38s} seed {row['seed']}  {row['outcome']:11s} "
-                      f"{row['detail'][:70]}", flush=True)
+                      f"{detail}", flush=True)
     finally:
         for d in stages.values():
             shutil.rmtree(d, ignore_errors=True)
@@ -352,6 +400,51 @@ def selftest():
         check("genuinely absent option IS dead", dead, ["region_access"])
     finally:
         shutil.rmtree(d, ignore_errors=True)
+
+    # ---- the CONFIGERROR retry (2026-07-27) -------------------------------------------------
+    # A gate you cannot test is not a gate, and a RETRY is the most dangerous thing to add to one:
+    # get it wrong and it turns a real failure green. So exercise all three branches with a stubbed
+    # run_one -- no AP, no gen.
+    global run_one
+    _real_run_one = run_one
+    try:
+        calls = {"n": 0}
+
+        def _stub(outcomes):
+            def f(cfg_path, seed, out_dir, stage_dir, log_dir):
+                i = calls["n"]
+                calls["n"] += 1
+                return {"config": os.path.basename(cfg_path), "seed": seed,
+                        "outcome": outcomes[min(i, len(outcomes) - 1)],
+                        "detail": f"detail-{i}"}
+            return f
+
+        calls["n"] = 0
+        run_one = _stub([SUCCESS])
+        r = run_one_retrying("a.yaml", 1, "o", "s", "l")
+        check("SUCCESS is not retried", (r["outcome"], calls["n"]), (SUCCESS, 1))
+
+        calls["n"] = 0
+        run_one = _stub([FILLERROR])
+        r = run_one_retrying("a.yaml", 1, "o", "s", "l")
+        check("FILLERROR is NOT retried (it is the finding)", (r["outcome"], calls["n"]),
+              (FILLERROR, 1))
+
+        calls["n"] = 0
+        run_one = _stub([CONFIGERROR, SUCCESS])
+        r = run_one_retrying("a.yaml", 1, "o", "s", "l")
+        check("CONFIGERROR retried once -> takes the retry's outcome",
+              (r["outcome"], calls["n"]), (SUCCESS, 2))
+        check("a retried task is FLAGGED, never silent", r.get("flaked"), True)
+        check("the first error is preserved for the report", r.get("first_detail"), "detail-0")
+
+        calls["n"] = 0
+        run_one = _stub([CONFIGERROR, CONFIGERROR])
+        r = run_one_retrying("a.yaml", 1, "o", "s", "l")
+        check("a REAL config error still fails after the retry",
+              (r["outcome"], calls["n"]), (CONFIGERROR, 2))
+    finally:
+        run_one = _real_run_one
 
     print("selftest:", "OK" if ok else "FAILED")
     return 0 if ok else 1
@@ -446,6 +539,18 @@ def main():
         floors = {k: v for k, v in json.load(open(args.baseline, encoding="utf-8")).items()
                   if not k.startswith("_")}
     vs = verdicts(rows, floors, args.margin)
+
+    # A retried task must never pass QUIETLY. It is counted here whatever the gate's verdict, so an
+    # intermittent harness/environment fault stays visible instead of being absorbed into a green run
+    # (CONTRIBUTING: "graceful degradation without telemetry is just silent failure with better
+    # manners"). If this number stops being 0, that is a finding, not noise.
+    flaked = [r for r in rows if r.get("flaked")]
+    if flaked:
+        print(f"\n==== ⚠️  {len(flaked)} task(s) needed a RETRY after a CONFIGERROR "
+              f"(counted as their retry's outcome; first errors below)")
+        for r in flaked:
+            print(f"  {r['config'][:38]:38s} seed {r['seed']}  -> {r['outcome']}")
+            print(f"         {r.get('first_detail', '')}")
 
     print("\n==== VERDICT (floor from baseline.json; margin %g)" % args.margin)
     print(f"{'config':44s} {'runs':>4} {'pass':>4} {'fill':>4} {'cfg':>4} {'pass%':>6} "
