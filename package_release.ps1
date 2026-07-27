@@ -38,6 +38,37 @@ $Name  = "ER-Archipelago-v$Version"
 $Dist  = Join-Path $Repo "dist"
 $Stage = Join-Path $Dist $Name
 $Rel   = Join-Path $Repo "release-v0.2"
+
+# ---- THE CHANGELOG MUST DESCRIBE THE VERSION BEING PACKAGED -----------------------------------
+# v0.2.10 shipped to GitHub and Nexus with NO changelog entry at all (issue #216), and v0.2.11 was
+# tagged one commit BEFORE its entry landed -- so a clean checkout of the tag would have packaged a
+# CHANGELOG whose newest release was 0.2.9. Both slipped because "tag the green commit" and "tag the
+# commit whose docs describe the release" pull in opposite directions when the docs land last.
+# Nothing was checking, and CHANGELOG.md is shipped required=$true, so the bad file goes to players.
+#
+# This is a CONTENT check, deliberately: the previous freshness gate here compared timestamps and was
+# unpassable by construction. Read the first "## vX.Y.Z" heading and require it to be the version
+# being built. Passable by doing the right thing (write the entry, then package), and it fails loudly
+# when it is not done.
+$chgPath = Join-Path $Rel "CHANGELOG.md"
+if (-not (Test-Path $chgPath)) {
+    throw "package_release: CHANGELOG.md not found at $chgPath -- it ships as a required doc."
+}
+$chgTop = (Select-String -Path $chgPath -Pattern '^##\s+v([0-9]+(?:\.[0-9]+)+)' |
+           Select-Object -First 1)
+if (-not $chgTop) {
+    throw "package_release: no '## vX.Y.Z' heading found in CHANGELOG.md -- cannot confirm this " +
+          "build is documented. Fix the changelog rather than removing this check."
+}
+$chgVer = $chgTop.Matches[0].Groups[1].Value
+if ($chgVer -ne $Version) {
+    throw ("package_release: CHANGELOG.md's newest entry is v$chgVer but this build is v$Version. " +
+           "Players get whatever is in that file, so shipping it would describe the wrong release " +
+           "(this is exactly how v0.2.10 shipped undocumented). Write the v$Version entry FIRST, " +
+           "then tag and package -- or pass -Version $chgVer if that is the build you meant.")
+}
+Write-Host "  changelog: newest entry is v$chgVer, matches the build" -ForegroundColor DarkGray
+
 $Warnings = New-Object System.Collections.Generic.List[string]
 
 function Info($m) { Write-Host "[pkg]  $m" }
