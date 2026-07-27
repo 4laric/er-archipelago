@@ -61,6 +61,43 @@ class OptionsDescriptionGate(WorldTestBase):
 # The units themselves are gated in test_gf_scaling_floor_units.py / test_gf_scaling_ladder_mirror.py;
 # this is the combination sweep, not a third copy of that assertion.
 # ---------------------------------------------------------------------------------------------
+def test_a_default_all_regions_seed_spans_the_WHOLE_ladder():
+    """THE REGRESSION THIS CATCHES, and it is not a fill failure.
+
+    A broken order-ramp emits one target for every region. The seed still generates, every fill check
+    still passes, and the player just... never sees difficulty change. Verified by breaking it
+    (2026-07-27): forcing a constant target collapsed the span from 19 to 6.
+
+    Note it did NOT go flat -- `_SCALING_BUCKET_DELTA` bumps a Caelid bucket, so at least two tiers
+    survive any breakage that keeps Caelid. A "did every region get the same tier?" check would have
+    called that break healthy. The SPAN is the property with teeth.
+    """
+    from worlds.eldenring import contract, scaling_ladder
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 0}
+
+    t = _T()
+    t.setUp()
+    try:
+        sd = t.world.fill_slot_data()
+    finally:
+        t.tearDown()
+
+    n = len(scaling_ladder.SCALING_HP_LADDER)
+    targets = [x for _lo, _hi, x in sd[contract.REGION_SPHERE_TARGET_RANGES]]
+    mx = max(targets)
+    assert mx > 0, "every region emitted target 0 -- the ramp produced no curve at all"
+    tiers = sorted(round(x / mx * (n - 1)) for x in targets)
+    assert tiers[0] == 0, f"shallowest region is tier {tiers[0]}, expected 0 at a default floor"
+    assert tiers[-1] == n - 1, f"deepest region is tier {tiers[-1]}, expected the top rung {n - 1}"
+    assert len(set(tiers)) >= n // 2, (
+        f"the curve resolved to only {len(set(tiers))} distinct tiers out of {n}. An all-regions "
+        f"seed at default settings should populate most of the ladder; this many collisions means "
+        f"the ramp collapsed.")
+
+
 _FLOORS = (0, 25, 100)
 _COMBOS = (
     ("base_all_regions", {}),

@@ -1,0 +1,22 @@
+# FILL REGRESSION 12 -- the DEFAULT difficulty curve, across seeds.
+#
+# Added 2026-07-27 after a player reported "enemies don't scale down" on a default seed. Until then
+# the ONLY scaling coverage was two hand-built worlds in pytest -- nothing looked at the curve over a
+# seed sweep, and the curve is a per-seed random outcome (the order ramp's tie-break is seeded).
+#
+# This config sets NO difficulty options on purpose: it pins what a player who touches nothing gets.
+# The gate is the `enemy scaling:` telemetry line, aggregated by tools/fill_regression.py -- a run
+# where every region resolves to ONE tier is a FLAT curve, which generates perfectly and is exactly
+# the failure a fill-only suite cannot see.
+#
+# num_regions 0 (all regions) so the ramp has real depth to spread over; a 4-region seed would make
+# a flat curve much harder to distinguish from a short one.
+name: fillreg12
+description: default difficulty curve -- must not flatten
+game: Elden Ring
+
+Elden Ring:
+  num_regions: 0
+  ending_condition: region_locks
+  accessibility: minimal
+  progression_balancing: 50

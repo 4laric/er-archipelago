@@ -36,7 +36,8 @@ from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from .. import contract
 from ..scaling_ladder import (SCALING_HP_LADDER, ceiling_multiplier,  # noqa: F401 (re-export)
-                              floor_multiplier, ramped_target)
+                              floor_multiplier, ramped_target,
+                              tier_for_ceiling_multiplier, tier_for_floor_multiplier)
 from .area_locks import REGION_PLAY_IDS
 
 # Wire normalization ceiling. The client normalizes by the max emitted target (scaling.rs
@@ -443,4 +444,31 @@ class Scaling(Feature):
             floors = blessing_floor_ranges(kept_regions)
             if floors:
                 out[contract.DLC_SCADUTREE_FLOOR_RANGES] = floors
+
+        # ---- TELEMETRY: state the curve this seed actually emitted -----------------------------
+        # Same pattern and same reason as progression_surface's SPILLED line: a per-seed measurement
+        # in the gen log, which tools/fill_regression.py aggregates across a seed sweep. Until this
+        # existed, the ONLY scaling coverage was a couple of hand-built worlds in pytest -- so a
+        # change that quietly flattened the curve on 1-in-20 seeds had nothing looking at it.
+        #
+        # Reports the RESOLVED tiers, not the option values, because the option values are the thing
+        # a bug would leave looking correct. tier_lo/tier_hi are computed the way the CLIENT computes
+        # them (round(frac * (NUM-1)), clamped by floor and ceiling), so this line is the curve the
+        # player gets, not the curve gen intended.
+        _n = len(SCALING_HP_LADDER)
+        _floor_t = tier_for_floor_multiplier(floor_multiplier(
+            int(world.options.minimum_enemy_difficulty.value)))
+        _ceil_t = tier_for_ceiling_multiplier(ceiling_multiplier(
+            int(world.options.maximum_enemy_difficulty.value)))
+        _targets = [t for _lo, _hi, t in ranges]
+        _mx = max(_targets) if _targets else 0
+        _tiers = sorted(
+            min(max(round(t / _mx * (_n - 1)) if _mx else 0, _floor_t), _ceil_t) for t in _targets)
+        import logging
+        logging.getLogger("Greenfield").info(
+            "[greenfield] enemy scaling: %d buckets, tiers %d..%d of %d (floor %d, ceiling %d), "
+            "%d at ceiling, median %d; ramp %d",
+            len(_targets), _tiers[0] if _tiers else 0, _tiers[-1] if _tiers else 0, _n - 1,
+            _floor_t, _ceil_t, sum(1 for t in _tiers if t == _ceil_t),
+            _tiers[len(_tiers) // 2] if _tiers else 0, ramp)
         return out

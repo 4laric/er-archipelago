@@ -56,6 +56,26 @@ SCALING_HP_LADDER = (1.141, 1.281, 1.656, 1.813, 1.953, 2.266, 2.406, 2.688, 3.2
 # lives in the client. What gen CAN choose is how fast a seed climbs to it: see `ramped_target`.
 
 
+def tier_for_floor_multiplier(mult):
+    """MIRROR of er-logic `floor_tier_from_multiplier`: the FIRST rung at least this strong.
+
+    Gen has no business re-deriving what the client computes -- but for TELEMETRY it must, because a
+    log line that reports the option value instead of the resolved tier reports the one number a bug
+    would leave looking correct. Both mirrors are pinned against the Rust source by
+    tests/test_gf_scaling_ladder_mirror.py, which is what keeps this from becoming folklore."""
+    for i, hp in enumerate(SCALING_HP_LADDER):
+        if hp >= mult:
+            return i
+    return len(SCALING_HP_LADDER) - 1
+
+
+def tier_for_ceiling_multiplier(mult):
+    """MIRROR of er-logic `ceiling_tier_from_multiplier`: the LAST rung no stronger than this.
+    Deliberately the opposite search from `tier_for_floor_multiplier` -- see ceiling_multiplier."""
+    hits = [i for i, hp in enumerate(SCALING_HP_LADDER) if hp <= mult]
+    return hits[-1] if hits else 0
+
+
 def ceiling_multiplier(pct):
     """`maximum_enemy_difficulty` PERCENT (0..100) -> the HP MULTIPLIER capping the scaling tier.
 

@@ -79,6 +79,12 @@ _ERR_RE = re.compile(r"Error|Exception|Traceback")
 _NAMED_ERR_RE = re.compile(r"^[A-Za-z_][\w.]*(Error|Exception)\b\s*:")
 _SEEDNAME_RE = re.compile(r"AP_(\d+)\.zip")
 _SPILL_RE = re.compile(r"progression surface: rung (.+?) placed (\d+)/(\d+); (\d+) SPILLED")
+# The enemy-scaling curve this seed emitted, as the CLIENT will resolve it (features/scaling.py).
+# Added 2026-07-27 after a player reported "enemies don't scale down" and the suite had NOTHING
+# watching scaling across seeds -- only two hand-built worlds in pytest.
+_SCALING_RE = re.compile(
+    r"enemy scaling: (\d+) buckets, tiers (\d+)\.\.(\d+) of (\d+) \(floor (\d+), ceiling (\d+)\), "
+    r"(\d+) at ceiling, median (\d+); ramp (\d+)")
 
 SUCCESS, FILLERROR, CONFIGERROR = "SUCCESS", "FILLERROR", "CONFIGERROR"
 
@@ -120,6 +126,41 @@ def parse_spill(log_text: str):
     if not m:
         return None
     return (m.group(1), int(m.group(2)), int(m.group(3)), int(m.group(4)))
+
+
+def parse_scaling(log_text: str):
+    """The emitted scaling curve, or None if the line is absent.
+
+    ABSENT IS NOT ZERO. A seed with no scaling line is an OLDER world or a broken emit, and both are
+    different claims from "measured a flat curve" -- same rule as parse_spill (858f9d6). The verdict
+    layer reports it as NOT MEASURED rather than folding it into an average."""
+    m = _SCALING_RE.search(log_text)
+    if not m:
+        return None
+    b, lo, hi, top, fl, ce, at_ce, med, ramp = (int(x) for x in m.groups())
+    return {"buckets": b, "tier_lo": lo, "tier_hi": hi, "tier_top": top,
+            "floor": fl, "ceiling": ce, "at_ceiling": at_ce, "median": med, "ramp": ramp}
+
+
+def scaling_report(rows):
+    """Aggregate the scaling curve across the sweep. Pure over the row dicts.
+
+    What this is FOR: a curve that silently flattens -- every region on one tier -- generates
+    perfectly and passes every fill check, because it is not a fill property at all. The sweep is
+    the only place we look at many seeds, so it is the only place that shape can be watched."""
+    seen = [r["scaling"] for r in rows if r.get("scaling")]
+    missing = sum(1 for r in rows if not r.get("scaling"))
+    if not seen:
+        return None, missing
+    span = [s["tier_hi"] - s["tier_lo"] for s in seen]
+    return {
+        "runs": len(seen),
+        "tier_lo": min(s["tier_lo"] for s in seen),
+        "tier_hi": max(s["tier_hi"] for s in seen),
+        "min_span": min(span),
+        "median_span": sorted(span)[len(span) // 2],
+        "flat_runs": sum(1 for x in span if x == 0),
+    }, missing
 
 
 def verdicts(rows, floors, margin=0):
@@ -262,6 +303,7 @@ def run_one(cfg_path, seed, out_dir, stage_dir, log_dir):
         fh.write(text)
     outcome, detail = classify(text, code)
     spill = parse_spill(text)
+    scaling = parse_scaling(text)
     name = _SEEDNAME_RE.search(text)
     return {"config": cfg, "seed": seed, "outcome": outcome, "detail": detail, "exit": code,
             "seedname": (name.group(1) if name else None), "secs": round(time.time() - t0, 1),
@@ -269,6 +311,7 @@ def run_one(cfg_path, seed, out_dir, stage_dir, log_dir):
             "spill_placed": spill[1] if spill else None,
             "spill_total": spill[2] if spill else None,
             "spilled": spill[3] if spill else None,
+            "scaling": scaling,
             "log": os.path.relpath(log_path, REPO)}
 
 
@@ -442,6 +485,24 @@ def selftest():
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
+    # ---- the scaling telemetry parse (2026-07-27) --------------------------------------------
+    real = ("[greenfield] enemy scaling: 116 buckets, tiers 0..19 of 19 (floor 0, ceiling 19), "
+            "1 at ceiling, median 8; ramp 100")
+    got = parse_scaling(real)
+    check("scaling line parses", (got or {}).get("tier_hi"), 19)
+    check("scaling ramp parsed", (got or {}).get("ramp"), 100)
+    check("absent scaling line -> None, not zero", parse_scaling("nothing here"), None)
+    # ABSENT != FLAT. A run with no line is NOT MEASURED; folding it in as a flat curve would invent
+    # a finding, which is the failure this whole file is written against.
+    rep, missing = scaling_report([{"scaling": got}, {"scaling": None}])
+    check("scaling report counts measured runs", (rep or {}).get("runs"), 1)
+    check("scaling report counts UNMEASURED separately", missing, 1)
+    check("no measured run -> report is None, not an empty average",
+          scaling_report([{"scaling": None}])[0], None)
+    flat = dict(got, tier_lo=7, tier_hi=7)
+    check("a genuinely flat curve is counted",
+          (scaling_report([{"scaling": flat}])[0] or {}).get("flat_runs"), 1)
+
     # ---- the CONFIGERROR retry (2026-07-27) -------------------------------------------------
     # A gate you cannot test is not a gate, and a RETRY is the most dangerous thing to add to one:
     # get it wrong and it turns a real failure green. So exercise all three branches with a stubbed
@@ -592,6 +653,30 @@ def main():
         for r in flaked:
             print(f"  {r['config'][:38]:38s} seed {r['seed']}  -> {r['outcome']}")
             print(f"         {r.get('first_detail', '')}")
+
+    # SCALING CURVE across the sweep. Reported whether or not the gate passes: a curve that
+    # flattens is not a fill failure and would otherwise pass in total silence.
+    sc, sc_missing = scaling_report(rows)
+    if sc is None:
+        print("\n==== enemy scaling: NOT MEASURED in %d run(s) -- no telemetry line. Older world, "
+              "or the emit broke." % sc_missing)
+    else:
+        print("\n==== enemy scaling over %d run(s): tiers %d..%d, span min %d / median %d, "
+              "%d FLAT run(s)%s"
+              % (sc["runs"], sc["tier_lo"], sc["tier_hi"], sc["min_span"], sc["median_span"],
+                 sc["flat_runs"],
+                 ("  (%d run(s) not measured)" % sc_missing) if sc_missing else ""))
+        # SPAN is the signal, not flatness. Forcing a constant target (2026-07-27, verify-by-breaking)
+        # gave span 6 instead of 19 -- badly broken, but NOT flat, because _SCALING_BUCKET_DELTA bumps
+        # one Caelid bucket and so guarantees two distinct tiers whenever Caelid is kept. A flat-only
+        # detector would have reported that break as healthy. Watch the span collapse instead; the
+        # deterministic assertion lives in tests/test_gf_options.py where the world is controlled.
+        if sc["flat_runs"]:
+            print("  🛑 a FLAT run means every region resolved to ONE tier -- the curve did nothing.")
+        elif sc["min_span"] < 10:
+            print("  ⚠️  span collapsed below 10 on at least one run. A healthy all-regions seed spans "
+                  "the whole ladder; a squeezed floor/ceiling config legitimately spans less, so read "
+                  "this against the configs in the suite rather than as a hard failure.")
 
     print("\n==== VERDICT (floor from baseline.json; margin %g)" % args.margin)
     print(f"{'config':44s} {'runs':>4} {'pass':>4} {'fill':>4} {'cfg':>4} {'pass%':>6} "

@@ -1,0 +1,25 @@
+# FILL REGRESSION 13 -- all three difficulty knobs OFF their defaults, together.
+#
+# floor and ceiling squeeze the tier range from both ends while the ramp compresses WHERE the climb
+# happens, so this is the combination most likely to collapse the curve to a single tier or to
+# invert -- and, being a slot_data wire rather than a fill property, it would generate cleanly the
+# whole time.
+#
+# Deliberately NOT an extreme: 30/70/40 leaves a real span, so a flat result means something broke
+# rather than "you asked for flat". The extremes are covered as unit cases in
+# tests/test_gf_scaling_floor_units.py; this file is here for the SEED SWEEP.
+#
+# The floor/ceiling pair is also the one combination gen can REFUSE (OptionError when min > max), so
+# a regression that inverts them shows up here as a CONFIGERROR, not a silent wrong curve.
+name: fillreg13
+description: floor + ceiling + ramp together -- curve must stay ordered and non-flat
+game: Elden Ring
+
+Elden Ring:
+  num_regions: 0
+  minimum_enemy_difficulty: 30
+  maximum_enemy_difficulty: 70
+  difficulty_ramp_speed: 40
+  ending_condition: region_locks
+  accessibility: minimal
+  progression_balancing: 50
