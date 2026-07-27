@@ -246,7 +246,6 @@ LOCATIONS = {
         ('Roundtable Hold :: My Lord [f60805]', 7774858, 60805),
         ('Roundtable Hold :: As You Wish [f60810]', 7774859, 60810),
         ('Roundtable Hold :: Calm Down! [f60816]', 7774860, 60816),
-        ('Roundtable Hold :: Nod In Thought [f60817]', 7774861, 60817),
         ('Roundtable Hold :: Heartening Cry [f60821]', 7774862, 60821),
         ('Roundtable Hold :: Triumphant Delight [f60828]', 7774863, 60828),
         ('Roundtable Hold :: Finger Snap [f60830]', 7774864, 60830),
@@ -254,8 +253,6 @@ LOCATIONS = {
         ('Roundtable Hold :: Balled Up [f60839]', 7774867, 60839),
         ('Roundtable Hold :: What Do You Want? - around Table of Lost Grace [f60840]', 7774868, 60840),
         ('Roundtable Hold :: Prayer [f60841]', 7774869, 60841),
-        ('Roundtable Hold :: Desperate Prayer [f60842]', 7774870, 60842),
-        ('Roundtable Hold :: Erudition [f60845]', 7774871, 60845),
         ('Roundtable Hold :: Outer Order [f60846]', 7774872, 60846),
         ('Roundtable Hold :: Inner Order [f60847]', 7774873, 60847),
         ('Roundtable Hold :: Golden Order Totality [f60848]', 7774874, 60848),
@@ -1256,6 +1253,7 @@ LOCATIONS = {
         ("Caelid :: Ash of War: Bloodhound's Step - around Lenne's Rise [f1052417100]", 7774746, 1052417100),
         ('Caelid :: Sacrificial Twig - from Isolated Merchant [f180800]', 7774806, 180800),
         ('Caelid :: Polite Bow - around Chamber Outside the Plaza [f60801]', 7774843, 60801),
+        ('Caelid :: Desperate Prayer [f60842]', 7774870, 60842),
         ('Caelid :: Golden Seed - around War-Dead Catacombs [f520160]', 7900003, 520160),
     ],
     'Cerulean': [
@@ -2516,6 +2514,7 @@ LOCATIONS = {
         ("Limgrave :: Patches' Crouch [f60832]", 7774851, 60832),
         ('Limgrave :: Crossed Legs (region unconfirmed) [f60833]', 7774852, 60833),
         ('Limgrave :: Curtsy [f60803]', 7774857, 60803),
+        ('Limgrave :: Nod In Thought [f60817]', 7774861, 60817),
         ('Limgrave :: Sitting Sideways [f60835]', 7774865, 60835),
     ],
     'Liurnia': [
@@ -3105,6 +3104,7 @@ LOCATIONS = {
         ('Liurnia :: Treespear - m60_40_40 (region unconfirmed) [f1040407000]', 7774495, 1040407000),
         ('Liurnia :: Sacrificial Twig - from Isolated Merchant [f160820]', 7774805, 160820),
         ("Liurnia :: Fire Spur Me - around Slumbering Wolf's Shack [f60824]", 7774848, 60824),
+        ('Liurnia :: Erudition [f60845]', 7774871, 60845),
     ],
     'Mohgwyn': [
         ("Mohgwyn :: Mohg's Great Rune - Mohg [f175]", 7770005, 175),
@@ -5187,4 +5187,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:729fc03eab2894898ef29049d1a34da7a6d0e2e1c26376f2eed2ae1f55486b12', 'module': 'data.py', 'body_sha256': 'sha256:6cc8d2d83b39f9d7d8a7ce2eb7d42008e6ef0f40c9b4a108df29c6c0183d3b47'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bb9a38440fa4f02139202c371bb5bbad514d90ad3531f45aefefaeaa46d2bdaf', 'module': 'data.py', 'body_sha256': 'sha256:83b54d3a060e9f4a73152877d5e1c9a34811ba94e3593cbebb2290d4f027a8e1'}
