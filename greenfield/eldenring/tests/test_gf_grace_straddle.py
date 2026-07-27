@@ -79,6 +79,18 @@ def _nearest_grace(column=1):
     output from real findings. Only 2 of the 7 duplicated names produced a phantom, because the pair
     must ALSO sit in different regions and both hold checks; the point is that nothing in the output
     said which. An oracle that manufactures findings is worse than one that misses them.
+
+    ⭐ SAME REASONING, SECOND CASE (2026-07-27): rows with a non-empty `via` column are DERIVED
+    positions and are EXCLUDED here. `boss_reward_coords.tsv` anchors a boss reward at the BOSS'S
+    ARENA, not at the item -- so its nearest grace tells you where the boss is, which is not
+    evidence about where the item is REGIONED. Feeding them in moved this screen 52 -> 53 straddles
+    and 116 -> 118 minority checks: 7 derived rows landed on straddling graces (Prayer Room Key and
+    Crusade Insignia both onto 'Theatre of the Divine Beast', Igon's rewards onto 'Foot of the
+    Jagged Peak', 2 Deathroot onto overworld graces). Every one of those is a phantom of the
+    anchoring, not a region derivation that moved -- which is exactly the failure mode the
+    paragraph above exists to prevent, so the fix is to exclude them rather than raise the pin.
+    This screen is an oracle over MEASURED geometry; an inferred anchor is not admissible evidence
+    in it. Other consumers (a "near <grace>" descriptor) are welcome to the same rows.
     """
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "nearest_grace.tsv")
     if not os.path.isfile(path):
@@ -90,6 +102,10 @@ def _nearest_grace(column=1):
         parts = line.rstrip("\n").split("\t")
         if parts[0] == "flag":
             continue  # header
+        # column 3 = `via`: empty for a MEASURED position, else the derivation that produced it.
+        # Derived rows are not admissible evidence in this screen -- see the docstring.
+        if len(parts) > 3 and parts[3].strip():
+            continue
         if len(parts) > column and parts[column]:
             out[parts[0]] = parts[column]
     assert out, "nearest_grace.tsv parsed to ZERO rows -- an empty oracle is a failure, not a pass"

@@ -42,31 +42,31 @@
 #    (the block references the boss to GATE the item, not to award it there):
 #    refused flag 400666: arena 2051450800 is its gate_flag in lot_gates.tsv
 #    refused flag 16007690: arena 16000800 is its gate_flag in lot_gates.tsv
-flag	map_id	x	y	z	via	arena_defeat_flag	evidence
-400148	m60_34_50_00	76.01	440.94	63.31	boss_arena	1034500800	awarding EMEVD block in m60_34_50 references defeat flag 1034500800
-400149	m60_35_50_00	-31.85	430.95	100.61	boss_arena	1035500800	awarding EMEVD block in m60_35_50 references defeat flag 1035500800
-400393	m60_35_42_00	-38.61	269.17	-17.9	boss_arena	1035420800	awarding EMEVD block in m60_35_42 references defeat flag 1035420800
-400460	m60_39_44_00	-81.59	294.79	-41.36	boss_arena	1039440800	awarding EMEVD block in m60_39_44 references defeat flag 1039440800
-400598	m20_01_00_00	-287.24	299.7	-141.21	boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
-400614	m20_01_00_00	-287.24	299.7	-141.21	boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
-400624	m20_01_00_00	-287.24	299.7	-141.21	boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
-400632	m22_00_00_00	-70.1	-295.01	104.29	boss_arena	22000800	awarding EMEVD block in m22_00 references defeat flag 22000800
-400634	m20_01_00_00	-287.24	299.7	-141.21	boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
-400671	m61_51_45_00	-95.17	472.02	-5.55	boss_arena	2051450800	awarding EMEVD block in m61_51_45 references defeat flag 2051450800
-400672	m61_51_45_00	-95.17	472.02	-5.55	boss_arena	2051450800	awarding EMEVD block in m61_51_45 references defeat flag 2051450800
-400694	m20_00_00_00	-43.02	118.48	336.61	boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
-400696	m20_00_00_00	-43.02	118.48	336.61	boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
-400704	m61_54_39_00	112.04	953.86	26.01	boss_arena	2054390800	awarding EMEVD block in m61_49_39 references defeat flag 2054390800
-400712	m61_52_40_00	-69.75	287.39	-77.82	boss_arena	2052400800	awarding EMEVD block in m61_52_40 references defeat flag 2052400800
-400714	m61_52_40_00	-69.75	287.39	-77.82	boss_arena	2052400800	awarding EMEVD block in m61_52_40 references defeat flag 2052400800
-400723	m20_00_00_00	-43.02	118.48	336.61	boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
-400732	m20_01_00_00	-287.24	299.7	-141.21	boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
-400740	m22_00_00_00	-70.1	-295.01	104.29	boss_arena	22000800	awarding EMEVD block in m22_00 references defeat flag 22000800
-530170	m60_45_39_00	-35.05	92.23	1.29	boss_arena	1045390800	awarding EMEVD block in m60_45_39 references defeat flag 1045390800
-530240	m60_39_44_00	-81.59	294.79	-41.36	boss_arena	1039440800	awarding EMEVD block in m60_39_44 references defeat flag 1039440800
-530385	m60_38_52_00	-127.16	823.41	71.56	boss_arena	1038520800	awarding EMEVD block in m60_38_52 references defeat flag 1038520800
-580020	m60_39_54_00	-53.72	768.29	56.51	boss_arena	1039540800	awarding EMEVD block in m60_39_54 references defeat flag 1039540800
-39207500	m39_20_00_00	-106.67	353.66	-1310.49	boss_arena	39200800	awarding EMEVD block in m39_20 references defeat flag 39200800
-1042377700	m60_43_37_00	72.46	90.96	-94.7	boss_arena	1043370800	awarding EMEVD block in m60_43_37 references defeat flag 1043370800
-1050567700	m60_50_56_00	15.43	1255.08	9.55	boss_arena	1050560800	awarding EMEVD block in m60_50_56 references defeat flag 1050560800
-1051577720	m60_51_57_00	78.08	1632.02	210.23	boss_arena	1051570800	awarding EMEVD block in m60_51_57 references defeat flag 1051570800
+kind	key	map_id	x	y	z	name	via	arena_defeat_flag	evidence
+item	400148	m60_34_50_00	76.01	440.94	63.31		boss_arena	1034500800	awarding EMEVD block in m60_34_50 references defeat flag 1034500800
+item	400149	m60_35_50_00	-31.85	430.95	100.61		boss_arena	1035500800	awarding EMEVD block in m60_35_50 references defeat flag 1035500800
+item	400393	m60_35_42_00	-38.61	269.17	-17.9		boss_arena	1035420800	awarding EMEVD block in m60_35_42 references defeat flag 1035420800
+item	400460	m60_39_44_00	-81.59	294.79	-41.36		boss_arena	1039440800	awarding EMEVD block in m60_39_44 references defeat flag 1039440800
+item	400598	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
+item	400614	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
+item	400624	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
+item	400632	m22_00_00_00	-70.1	-295.01	104.29		boss_arena	22000800	awarding EMEVD block in m22_00 references defeat flag 22000800
+item	400634	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
+item	400671	m61_51_45_00	-95.17	472.02	-5.55		boss_arena	2051450800	awarding EMEVD block in m61_51_45 references defeat flag 2051450800
+item	400672	m61_51_45_00	-95.17	472.02	-5.55		boss_arena	2051450800	awarding EMEVD block in m61_51_45 references defeat flag 2051450800
+item	400694	m20_00_00_00	-43.02	118.48	336.61		boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
+item	400696	m20_00_00_00	-43.02	118.48	336.61		boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
+item	400704	m61_54_39_00	112.04	953.86	26.01		boss_arena	2054390800	awarding EMEVD block in m61_49_39 references defeat flag 2054390800
+item	400712	m61_52_40_00	-69.75	287.39	-77.82		boss_arena	2052400800	awarding EMEVD block in m61_52_40 references defeat flag 2052400800
+item	400714	m61_52_40_00	-69.75	287.39	-77.82		boss_arena	2052400800	awarding EMEVD block in m61_52_40 references defeat flag 2052400800
+item	400723	m20_00_00_00	-43.02	118.48	336.61		boss_arena	20000800	awarding EMEVD block in m20_00 references defeat flag 20000800
+item	400732	m20_01_00_00	-287.24	299.7	-141.21		boss_arena	20010800	awarding EMEVD block in m20_01 references defeat flag 20010800
+item	400740	m22_00_00_00	-70.1	-295.01	104.29		boss_arena	22000800	awarding EMEVD block in m22_00 references defeat flag 22000800
+item	530170	m60_45_39_00	-35.05	92.23	1.29		boss_arena	1045390800	awarding EMEVD block in m60_45_39 references defeat flag 1045390800
+item	530240	m60_39_44_00	-81.59	294.79	-41.36		boss_arena	1039440800	awarding EMEVD block in m60_39_44 references defeat flag 1039440800
+item	530385	m60_38_52_00	-127.16	823.41	71.56		boss_arena	1038520800	awarding EMEVD block in m60_38_52 references defeat flag 1038520800
+item	580020	m60_39_54_00	-53.72	768.29	56.51		boss_arena	1039540800	awarding EMEVD block in m60_39_54 references defeat flag 1039540800
+item	39207500	m39_20_00_00	-106.67	353.66	-1310.49		boss_arena	39200800	awarding EMEVD block in m39_20 references defeat flag 39200800
+item	1042377700	m60_43_37_00	72.46	90.96	-94.7		boss_arena	1043370800	awarding EMEVD block in m60_43_37 references defeat flag 1043370800
+item	1050567700	m60_50_56_00	15.43	1255.08	9.55		boss_arena	1050560800	awarding EMEVD block in m60_50_56 references defeat flag 1050560800
+item	1051577720	m60_51_57_00	78.08	1632.02	210.23		boss_arena	1051570800	awarding EMEVD block in m60_51_57 references defeat flag 1051570800
