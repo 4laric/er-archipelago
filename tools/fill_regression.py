@@ -226,18 +226,15 @@ def run_one(cfg_path, seed, out_dir, stage_dir, log_dir):
     """One Generate.py run. Returns a row dict. Never raises on a failed gen -- a gen that dies IS
     the measurement.
 
-    OUTPUT ISOLATION (2026-07-27). `out_dir` is now PER TASK. It used to be one shared
-    `<AP_DIR>/output` for the whole sweep, so `--jobs 4` pointed four concurrent Generate.py
-    processes at one directory. On 2026-07-27 that produced 3 CONFIGERRORs out of 8 seeds on ONE
-    config -- all three in the first 20 ms of the sweep, i.e. the moment the first four tasks start
-    together -- with `FileNotFoundError` raised inside Generate.py. The other 5 seeds of the same
-    config passed, and both failing seeds reproduce as SUCCESS when run alone, so it was never the
-    config: it was shared mutable state between parallel gens.
+    OUTPUT ISOLATION (2026-07-27). `out_dir` is PER TASK. It used to be one shared
+    `<AP_DIR>/output`, so `--jobs 4` pointed four concurrent Generate.py processes at one directory.
+    `sweep()` already isolates the STAGING dir per config for the same class of reason ("Generate.py
+    globs the whole player-files dir"); the output dir was simply missed.
 
-    `sweep()` already isolates the STAGING dir per config, with a comment saying why ("Generate.py
-    globs the whole player-files dir"). The output dir is the same hazard and was simply missed. A
-    nondeterministic red that blames the config is worse than no gate, because it teaches you to
-    ignore the gate."""
+    ⚠️ Honesty about this one: I added it believing it was the cause of the intermittent CONFIGERROR,
+    and IT WAS NOT -- see `ensure_host_yaml`, which is. This is hygiene that happens to be right, not
+    the fix, and the distinction matters because the next person to see a flake here should not read
+    this paragraph and conclude the shared output dir has already been ruled in."""
     os.makedirs(log_dir, exist_ok=True)
     cfg = os.path.basename(cfg_path)
     log_path = os.path.join(log_dir, f"{os.path.splitext(cfg)[0]}_{seed}.log")
@@ -275,6 +272,49 @@ def run_one(cfg_path, seed, out_dir, stage_dir, log_dir):
             "log": os.path.relpath(log_path, REPO)}
 
 
+def ensure_host_yaml():
+    """Materialize `<AP_DIR>/host.yaml` ONCE, serially, before any parallel gen starts.
+
+    🛑 THIS IS THE REAL CAUSE of the intermittent `CONFIGERROR FileNotFoundError:
+    .../_ap/host.yaml.tmp` (2026-07-27), and it took an UNTRUNCATED error message to find -- the
+    filename was the entire answer and the gate had been cutting it off mid-path.
+
+    Archipelago's `Settings.save()` (settings.py) is not concurrency-safe, by design:
+
+        temp_location = location + ".tmp"   # "not using tempfile to test expected file access"
+        if os.path.exists(temp_location): os.unlink(temp_location)
+        ...write temp...  ...read temp back to validate...  os.rename(temp, location)
+
+    A FIXED temp filename in a FIXED directory. `Settings` also registers an atexit `autosave` that
+    fires whenever the loaded host.yaml was missing keys. So every Generate.py in the sweep tries to
+    rewrite `<AP_DIR>/host.yaml` as it exits, and with `--jobs 4` in one `cwd` they interleave: B
+    unlinks A's temp, or renames it away, and A's read-back raises FileNotFoundError. Nothing to do
+    with the yaml under test -- which is why the failures clustered at sweep start and why the same
+    seeds pass when run alone.
+
+    Fix: load and save the settings ONCE up front. After that host.yaml is complete on disk, so
+    `changed` stays False in every child and no autosave races. Cheap, and it removes the race
+    rather than retrying through it.
+
+    Best-effort: if this cannot run, the sweep still works -- it just keeps the old exposure -- so it
+    reports and continues rather than refusing to gate."""
+    host = os.path.join(AP_DIR, "host.yaml")
+    if os.path.isfile(host):
+        return True
+    env = dict(os.environ, AP_NONINTERACTIVE="1", SKIP_REQUIREMENTS_UPDATE="1")
+    p = subprocess.run(
+        [sys.executable, "-c", "import settings; settings.get_settings().save()"],
+        cwd=AP_DIR, env=env, stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=300)
+    if os.path.isfile(host):
+        print(f"  host.yaml materialized before the sweep ({host})")
+        return True
+    # Loud, not silent: the sweep is about to run with a known race still live.
+    print(f"  ⚠️  could not materialize {host} (exit {p.returncode}); parallel gens may race on "
+          f"host.yaml.tmp:\n{p.stdout.decode('utf-8', 'replace')[-500:]}")
+    return False
+
+
 def run_one_retrying(cfg_path, seed, out_dir, stage_dir, log_dir):
     """`run_one`, retried ONCE on CONFIGERROR -- and never quietly.
 
@@ -309,6 +349,7 @@ def sweep(configs, seeds, jobs, out_dir, log_dir):
     import tempfile
     rows = []
     stages = {}
+    ensure_host_yaml()  # serially, BEFORE any parallel gen -- see the function docstring
     try:
         for cfg in configs:
             d = tempfile.mkdtemp(prefix="gffr_stage_")
