@@ -25,9 +25,24 @@ CORPORA (all AP-free, all from the committed gen_inputs.db bundle -- no artifact
   and stay on the Windows box. `--emit-msb-worklist` writes the exact id/lot list to grep there,
   so the MSB half is a named gap with a work item, not a silence.
 
-The category -> FMG family mapping is DERIVED, not assumed: ids that DO resolve are used to learn
-which family each ItemLotParam category draws from, and the learned mapping is printed. A category
-we have no evidence for is reported as unknown rather than guessed.
+⭐ 2026-07-27, SETTLED BY THE PARAMS. The first version of this tool inferred three things and said
+so. The params-dir glob then landed 225 more CSVs and turned all three from inference into reading:
+
+  1. CATEGORY -> TABLE is membership, not name-matching. The first pass learned the map by matching
+     FMG *names* and got category 3 wrong (voted Weapon 10/16, on id collisions between the Weapon
+     and Protector id spaces). Asking which EquipParam table actually CONTAINS the id gives
+     category 3 -> Protector 432/524, and the clean 1..5 ordering:
+         1 Goods | 2 Weapon | 3 Protector | 4 Accessory | 5 Gem | 6 CustomWeapon
+  2. WEAPON IDS CARRY THE UPGRADE LEVEL, confirmed rather than guessed: 2550001..2550010 do NOT
+     exist as EquipParamWeapon rows -- only 2550000 does -- and ReinforceParamWeapon says
+     reinforceTypeId 2200 (Sword of Light/Darkness) has levels 0..10, exactly the ten lot ids.
+     No ladder in the game exceeds +25, so id//100*100 is a SAFE strip, not a lucky one.
+  3. CATEGORY 6 IS EquipParamCustomWeapon -- a weapon + Ash of War pairing, which is why those ids
+     resolved in no FMG at all. They name through baseWepId + gemId:
+         4548045 = Igon's Greatbow + Ash of War: Igon's Drake Hunt
+
+That is the whole reason to carry params we do not read: the six ids that were "absent from every
+corpus" were absent from the corpora we happened to have bundled, which is a different fact.
 
 Run:  python tools/sweep_unnamed_items.py [--inputs DIR] [--out greenfield/unnamed_item_sweep.tsv]
       python tools/sweep_unnamed_items.py --emit-msb-worklist msb_worklist.txt
@@ -50,7 +65,11 @@ FMG_DIRS = (("base", "item-msgbnd-dcx", ""),
             ("dlc01", "item_dlc01-msgbnd-dcx", "_dlc01"),
             ("dlc02", "item_dlc02-msgbnd-dcx", "_dlc02"))
 PARAM_OF_FAMILY = {"Weapon": "EquipParamWeapon", "Goods": "EquipParamGoods",
-                   "Protector": "EquipParamProtector", "Accessory": "EquipParamAccessory"}
+                   "Protector": "EquipParamProtector", "Accessory": "EquipParamAccessory",
+                   # Gem = Ashes of War. Leaving it out skews the membership vote badly:
+                   # category 5 then reads Goods 5/8 instead of Gem 88/112, because the Goods
+                   # id space is huge and collides with everything.
+                   "Gem": "EquipParamGem"}
 
 
 def load_fmgs(inputs):
@@ -68,6 +87,24 @@ def load_fmgs(inputs):
                     if val and val not in ("%null%", "[ERROR]"):
                         ids.setdefault(int(m.group(1)), val)
         out[fam] = ids
+    return out
+
+
+def load_custom_weapons(inputs):
+    """id -> (baseWepId, gemId) from EquipParamCustomWeapon: an ItemLotParam category-6 id is a
+    weapon+Ash-of-War PAIRING, not an item, so it appears in no FMG. This param only became
+    available when gen_inputs started globbing the params dir."""
+    p = os.path.join(inputs, "vanilla_er", "vanilla_er", "EquipParamCustomWeapon.csv")
+    if not os.path.exists(p):
+        return {}
+    out = {}
+    with open(p, encoding="utf-8", errors="replace") as fh:
+        for r in csv.DictReader(fh):
+            if r.get("ID", "").strip().isdigit():
+                try:
+                    out[int(r["ID"])] = (int(r.get("baseWepId") or 0), int(r.get("gemId") or 0))
+                except ValueError:
+                    continue
     return out
 
 
@@ -134,30 +171,43 @@ def main():
                 unnamed_flags[flag] = region
 
     lots_by_flag = defaultdict(list)
-    named_pairs = []                      # (category, item_id) that DID resolve -> learns the map
+    named_pairs = []                      # (category, item_id) that DID resolve
+    all_pairs = []                        # every (category, item_id) -> learns the map
     for r in read_tsv(os.path.join(gf, "flag_lots.tsv")):
         try:
             f, cat, iid = int(r["flag"]), r.get("category", ""), r.get("item_id", "")
         except (KeyError, ValueError):
             continue
         lots_by_flag[f].append(r)
+        if cat and iid.isdigit():
+            all_pairs.append((cat, int(iid), r.get("name", "").strip()))
         if r.get("name", "").strip() and cat and iid.isdigit():
             named_pairs.append((cat, int(iid), r["name"].strip()))
 
     fmgs = load_fmgs(args.inputs)
+    custom = load_custom_weapons(args.inputs)
 
-    # --- LEARN category -> FMG family from the rows that already resolve -------------
+    # --- category -> family, by PARAM MEMBERSHIP (see item 1 in the docstring) --------
+    # "which table contains this id" beats "which FMG has a matching name": the id spaces
+    # overlap, and name-matching is what got category 3 wrong.
+    fam_ids = {fam: load_param_ids(args.inputs, PARAM_OF_FAMILY[fam]) or set()
+               for fam in PARAM_OF_FAMILY}
+    # Vote over EVERY row with an item id, not just the already-named ones. Membership does
+    # not need a name, and restricting to named rows let the Goods-heavy majority swamp the
+    # small categories -- it read category 5 as Goods 5/13 instead of Gem 88/112.
     votes = defaultdict(Counter)
-    for cat, iid, nm in named_pairs:
-        for fam, ids in fmgs.items():
-            if ids.get(iid) == nm:
+    for cat, iid, _nm in all_pairs:
+        for fam, s in fam_ids.items():
+            if iid in s or (iid // 100) * 100 in s:
                 votes[cat][fam] += 1
     learned = {cat: c.most_common(1)[0][0] for cat, c in votes.items() if c}
-    print("category -> FMG family, DERIVED from rows that already resolve:")
+    print("category -> EquipParam table, by MEMBERSHIP (not FMG name-matching):")
     for cat in sorted(votes, key=lambda x: (len(x), x)):
         tot = sum(votes[cat].values())
         best, n = votes[cat].most_common(1)[0]
-        print(f"  category {cat:>2} -> {best:<10} ({n}/{tot} agree)")
+        print(f"  category {cat:>2} -> {best:<10} ({n}/{tot})")
+    if custom:
+        print(f"  category  6 -> CustomWeapon ({len(custom)} EquipParamCustomWeapon rows loaded)")
     unknown_cats = sorted({r.get("category", "") for f in unnamed_flags
                            for r in lots_by_flag.get(f, [])} - set(learned))
     if unknown_cats:
@@ -201,10 +251,19 @@ def main():
         # Proven by EMEVD, which calls them PlayerHasItem(ItemType.Weapon, 2550001). A lookup that
         # does not strip this misses every upgraded weapon in the table.
         base = (iid // 100) * 100 if iid is not None else None
+        custom_name = ""
         in_fmg_base = sorted(f for f, d in fmgs.items()
                              if base is not None and base != iid and base in d)
         own = fmgs.get(fam, {})
-        if iid in own:
+        # category 6: name it through the weapon + Ash of War it pairs
+        if iid in custom:
+            bw, gem = custom[iid]
+            wn = (fmgs["Weapon"].get(bw) or fmgs["Weapon"].get((bw // 100) * 100) or f"weapon {bw}")
+            gn = fmgs["Gem"].get(gem) or f"gem {gem}"
+            lvl = bw % 100
+            verdict = "NAMABLE: EquipParamCustomWeapon (weapon + Ash of War)"
+            custom_name = f"{wn}{'+%d' % lvl if lvl else ''} with {gn}"
+        elif iid in own:
             verdict = "NAMABLE: own-category FMG"
         elif base in own:
             verdict = f"NAMABLE: own-category FMG after stripping reinforcement (base {base})"
@@ -220,7 +279,7 @@ def main():
             "verdict": verdict,
             "fmg_hit": ",".join(in_fmg) or "-",
             "fmg_hit_base_id": ",".join(in_fmg_base) or "-",
-            "name_if_found": (own.get(iid) or own.get(base)
+            "name_if_found": (custom_name or own.get(iid) or own.get(base)
                               or next((d[iid] for d in fmgs.values() if iid in d),
                                       next((d[base] for d in fmgs.values() if base in d), ""))) or "-",
             "param_row_exists": ",".join(in_params) or "-",
@@ -249,20 +308,28 @@ def main():
     verdicts = _C(r["verdict"].split(":")[0].split(" --")[0] for r in rows)
     no_param = [r for r in rows if r["param_row_exists"] == "-"]
     no_fmg = [r for r in rows if r["fmg_hit"] == "-"]
-    nowhere = [r for r in rows if r["param_row_exists"] == "-" and r["fmg_hit"] == "-"
-               and r["emevd_files"] == "-" and r["talk_files"] == "-"
-               and r["lot_in_emevd"] == "-"]
+    # "still unexplained" must follow the VERDICT, not the raw param/FMG columns -- a
+    # category-6 row names through EquipParamCustomWeapon while having no FMG hit at all.
+    nowhere = [r for r in rows if r["verdict"].startswith("ABSENT")]
     print(f"\nwrote {out_path}  ({len(rows)} rows)")
     print("  verdicts:")
     for k, n in verdicts.most_common():
         print(f"      {n:5d}  {k}")
     print(f"  no EquipParam row at all      : {len(no_param)}")
     print(f"  no FMG name in any family     : {len(no_fmg)}")
-    print(f"  absent from EVERY corpus here : {len(nowhere)}  <- MSBs are the only stone left")
+    print(f"  STILL UNEXPLAINED             : {len(nowhere)}"
+          + ("  <- MSBs are the only stone left" if nowhere else "  (nothing left for the MSBs)"))
     by_cat = Counter(r["category"] for r in rows)
     print(f"  by ItemLotParam category      : {dict(sorted(by_cat.items()))}")
 
-    if args.emit_msb_worklist:
+    if args.emit_msb_worklist and not nowhere:
+        # Nothing left for the MSBs. Do NOT write a header-only file: it reads as an open work
+        # item that is really closed, and -- found the hard way on 2026-07-27 -- a generated file
+        # that legitimately SHRINKS to a prefix of its old self trips check_integrity's truncation
+        # heuristic, which cannot tell a real shrink from a cut-off write.
+        print(f"  no MSB worklist written: 0 unexplained ids (delete any stale "
+              f"{os.path.basename(args.emit_msb_worklist)})")
+    elif args.emit_msb_worklist:
         with open(args.emit_msb_worklist, "w", encoding="utf-8", newline="\n") as fh:
             fh.write("# Grep these through the witchy'd MSBs on the Windows box:\n")
             fh.write("#   Select-String -Path <msb-xml-dir>\\*.xml -Pattern (Get-Content this-file)\n")
