@@ -274,6 +274,44 @@ def diff_manifest(db_path, repo):
     return 1
 
 
+def ensure(db_path, dest):
+    """Extract only if the tree is not already there. The one-liner CI and a fresh sandbox both
+    want: no artifacts -> materialise them; artifacts present -> leave the real ones alone."""
+    marker = os.path.join(dest, "vanilla_er", "vanilla_er", "ItemLotParam_map.csv")
+    if os.path.isfile(marker):
+        print(f"gen inputs already present at {dest} -- leaving them alone")
+        return 0
+    return extract(db_path, dest)
+
+
+def verify_regen(repo, ref="HEAD"):
+    """Did a regen HERE reproduce the committed generated modules?
+
+    Compares `_gen_stamp.json`'s per-module body_sha256 against `ref`'s, and IGNORES inputs_hash on
+    purpose: inputs_hash covers the whole declared input set, which legitimately differs between a
+    box with the real artifacts and one running off the bundle (the bundle carries what gen_data
+    READS, not the MSBs). body_sha256 is the generated CONTENT, and that is what must match. Proven
+    2026-07-27: 11/11 body hashes identical across Windows-artifacts and Linux-bundle regens while
+    inputs_hash differed. A gate on the raw file diff would have called that a failure."""
+    import subprocess
+    rel = "greenfield/eldenring/_gen_stamp.json"
+    now = json.load(open(os.path.join(repo, rel), encoding="utf-8"))
+    was = json.loads(subprocess.run(["git", "-C", repo, "show", f"{ref}:{rel}"],
+                                    capture_output=True, text=True, check=True).stdout)
+    bad = sorted(k for k in set(now["modules"]) | set(was["modules"])
+                 if now["modules"].get(k) != was["modules"].get(k))
+    if now["counts"] != was["counts"]:
+        print(f"COUNTS DIFFER: committed {was['counts']} -> regen {now['counts']}")
+    if bad:
+        print(f"REGEN DRIFT: {len(bad)} generated module(s) differ from {ref}: {bad}")
+        print("  The committed generated data is STALE (or this tree changed a generator). "
+              "Regenerate and commit; do not edit the modules by hand.")
+        return 1
+    print(f"regen verified: {len(now['modules'])} module body hashes match {ref}; counts match. "
+          f"(inputs_hash intentionally not compared -- see verify_regen docstring.)")
+    return 0
+
+
 def selftest():
     """Round-trip on synthetic files. No artifacts, no game data -- so the packer is not shipping
     unexercised just because its input only exists on one machine."""
@@ -333,11 +371,18 @@ def main():
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--diff-manifest", nargs="?", const=DEFAULT_DB, metavar="DB",
                     help="explain an inputs_hash mismatch by naming the differing declared input")
+    ap.add_argument("--ensure", metavar="DEST", help="extract only if the inputs are not there")
+    ap.add_argument("--verify-regen", nargs="?", const="HEAD", metavar="REF",
+                    help="assert a regen here reproduced the committed modules (body hashes)")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
     if a.diff_manifest:
         return diff_manifest(a.diff_manifest, REPO)
+    if a.ensure:
+        return ensure(a.db, a.ensure)
+    if a.verify_regen:
+        return verify_regen(REPO, a.verify_regen)
     if a.build:
         return build(a.artifacts, a.db)
     if a.verify:

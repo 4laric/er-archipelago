@@ -65,6 +65,66 @@ jobs:
         run: python tools/gf_test.py --ap-dir _ap
 
   # ---------------------------------------------------------------------------------------------
+  # 1b. REGEN FROM THE BUNDLE + the fill-regression gate.
+  #
+  #     gen_data.py used to be un-runnable anywhere but Alaric's box, because it needs
+  #     elden_ring_artifacts/. gen_inputs.db (2026-07-27) carries the 982 files it actually reads --
+  #     13 param CSVs, 15 FMG XMLs, the decompiled EMEVD and talk ESD, no MSBs -- verbatim, 3.7 MB.
+  #     So CI can now regenerate and check the committed output for real, instead of trusting that
+  #     whoever last touched a generator remembered to.
+  #
+  #     🛑 The check is on _gen_stamp.json's per-module body_sha256, NOT on a raw git diff. A regen
+  #     off the bundle differs from one off the full artifacts in exactly one field -- inputs_hash,
+  #     which covers the whole declared input set including files gen_data never reads. MEASURED
+  #     2026-07-27: 11/11 module body hashes identical across a Windows-artifacts regen and a
+  #     Linux-bundle regen, while inputs_hash differed. A diff-based gate would call that red
+  #     forever and teach everyone to ignore it.
+  # ---------------------------------------------------------------------------------------------
+  regen-and-fill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read the Archipelago pin
+        id: ap
+        run: echo "version=$(cat .ap-version)" >> "$GITHUB_OUTPUT"
+      - name: Check out stock upstream Archipelago
+        uses: actions/checkout@v4
+        with:
+          repository: ArchipelagoMW/Archipelago
+          ref: ${{ steps.ap.outputs.version }}
+          path: _ap
+      - name: Install Archipelago's requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install "setuptools<80"          # AP 0.6.x: pkg_resources removal
+          pip install -r _ap/requirements.txt
+
+      - name: Materialise gen_data's inputs from the committed bundle
+        run: python tools/gen_inputs.py --ensure elden_ring_artifacts
+
+      - name: Regenerate, and prove the committed output is not stale
+        run: |
+          python greenfield/gen_data.py
+          python tools/gen_inputs.py --verify-regen HEAD
+
+      # Install the world and run the fill gate. --check-yamls refuses a suite naming an option the
+      # world does not have, so a stale config fails as ITSELF rather than as nine fill regressions
+      # (which is exactly how the PowerShell gate misreported on 2026-07-26).
+      - name: Fill-regression gate
+        env:
+          GF_AP_DIR: _ap
+        run: |
+          rm -rf _ap/worlds/eldenring
+          cp -r greenfield/eldenring _ap/worlds/eldenring
+          cp greenfield/region_map.csv _ap/worlds/eldenring/region_map.csv
+          python tools/fill_regression.py --selftest
+          python tools/fill_regression.py --count 8 --seed-base 20260727 --jobs 4
+
+  # ---------------------------------------------------------------------------------------------
   # 2. The AP-FREE generators. These need no Archipelago and no game artifacts -- only committed
   #    greenfield data -- so CI can run them, and they are precisely what broke the Windows build.
   #    Two failure modes, both caught here:

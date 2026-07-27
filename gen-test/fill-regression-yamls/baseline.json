@@ -1,12 +1,12 @@
 {
-    "_comment": "Per-config minimum pass-rate floor (%). Suite FAILS a config below its floor (catches regressions, not non-100% configs). CALIBRATE with .\\run_fill_regression.ps1 -UpdateBaseline on a known-good apworld. RETIRED 2026-07-02 (fix-or-drop, lean not worth preserving -- see retired/README.md): 06 lean-multiworld, 10 chokepoint-snowfield, and (second wave, same day) 13 important-locations-shortage + 14 grace-rando-lean -- both lean-pool canaries, 0/8 since introduction (13: 'No more spots to place 44 items'; 14: excluded-locations excludable shortage, drifted 46->48 as exclusions grew). grace_rando placement mechanics remain guarded by tests/test_multiworld_gen.py T4. 2026-06-21 history: 05/06/08/12 re-pinned to num_regions-sealed (were full-base, overflowed). See INVESTIGATION-fill-2026-06-21.md. RETIRED 2026-07-02 (questline full closure): 12 questlines-full-trimmed -- its option no longer exists.",
-    "ER-fill-01-numregions-chain-bundles.yaml": 90,
-    "ER-fill-02-numregions-warp-enia.yaml": 90,
-    "ER-fill-03-numregions-pool-leyndell.yaml": 100,
-    "ER-fill-04-numregions-pool-greatrunes.yaml": 100,
-    "ER-fill-05-trimmed-allow-useful.yaml": 100,
-    "ER-fill-07-dlconly-locks-poolall.yaml": 100,
-    "ER-fill-08-softprog-bellgate.yaml": 100,
-    "ER-fill-09-important-boss-heavy.yaml": 80,
-    "ER-fill-11-dlconly-messmer.yaml": 100
+  "_comment": "Per-config minimum pass-rate floor (%). REBASELINED 2026-07-27 with the yaml rebuild: the previous floors described a DIFFERENT OPTION SET (region_access, location_pool, soft_progression, ...) and could not carry over -- keeping them would have gated a rebuilt config against a number measured for a config that no longer exists. Set to 0 = MEASURE ME: the gate cannot regress below zero, so this is honestly inert until a volume run calibrates it. Calibrate with `python tools/fill_regression.py --count 25 --update-baseline` (CI job regen-and-fill runs 8 seeds per push and will show the real rates in its log first). VERIFIED so far: ER-fill-03 genned SUCCESS on seed 1111111111111111111 in the sandbox, so the suite is live, not merely syntactically valid. History of retirements kept below.\nPRIOR COMMENT: Per-config minimum pass-rate floor (%). Suite FAILS a config below its floor (catches regressions, not non-100% configs). CALIBRATE with .\\run_fill_regression.ps1 -UpdateBaseline on a known-good apworld. RETIRED 2026-07-02 (fix-or-drop, lean not worth preserving -- see retired/README.md): 06 lean-multiworld, 10 chokepoint-snowfield, and (second wave, same day) 13 important-locations-shortage + 14 grace-rando-lean -- both lean-pool canaries, 0/8 since introduction (13: 'No more spots to place 44 items'; 14: excluded-locations excludable shortage, drifted 46->48 as exclusions grew). grace_rando placement mechanics remain guarded by tests/test_multiworld_gen.py T4. 2026-06-21 history: 05/06/08/12 re-pinned to num_regions-sealed (were full-base, overflowed). See INVESTIGATION-fill-2026-06-21.md. RETIRED 2026-07-02 (questline full closure): 12 questlines-full-trimmed -- its option no longer exists.",
+  "ER-fill-01-numregions-chain-bundles.yaml": 0,
+  "ER-fill-02-numregions-warp-enia.yaml": 0,
+  "ER-fill-03-numregions-pool-leyndell.yaml": 0,
+  "ER-fill-04-numregions-pool-greatrunes.yaml": 0,
+  "ER-fill-05-trimmed-allow-useful.yaml": 0,
+  "ER-fill-07-dlconly-locks-poolall.yaml": 0,
+  "ER-fill-08-softprog-bellgate.yaml": 0,
+  "ER-fill-09-important-boss-heavy.yaml": 0,
+  "ER-fill-11-dlconly-messmer.yaml": 0
 }

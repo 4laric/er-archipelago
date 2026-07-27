@@ -391,13 +391,17 @@ def apply(world) -> None:
     # lands on some ordinary reachable check -- possibly in ANOTHER player's world, since
     # local_items deliberately lets region Locks travel -- instead of on a vetted surface check.
     world.gf_prog_surface_spilled_names = sorted(it.name for it in to_place)
-    if to_place:
-        import logging
-        logging.getLogger("Greenfield").info(
-            "[greenfield] progression surface: rung %s placed %d/%d; %d SPILLED to normal fill "
-            "(curation only -- winnability is guarded elsewhere): %s",
-            resolved, n0 - len(to_place), n0, len(to_place),
-            ", ".join(world.gf_prog_surface_spilled_names))
+    # UNCONDITIONAL. It used to log only when something spilled, which made "no spill" and "no
+    # telemetry at all" indistinguishable downstream -- tools/fill_regression could only report the
+    # spill distribution as NOT MEASURED and had to say so. "Armed with N entries" is the house
+    # pattern (CONTRIBUTING, Runtime visibility): a feature states its status every run, and a ZERO
+    # is a measurement, not a silence.
+    import logging
+    logging.getLogger("Greenfield").info(
+        "[greenfield] progression surface: rung %s placed %d/%d; %d SPILLED to normal fill%s",
+        resolved, n0 - len(to_place), n0, len(to_place),
+        (" (curation only -- winnability is guarded elsewhere): "
+         + ", ".join(world.gf_prog_surface_spilled_names)) if to_place else "")
 
     # D (2026-07-10): break the boss-key <-> region-lock cycle. When boss_keys is on, the default
     # surface IS key-gated boss checks, and `_place` validates against get_all_state (which counts

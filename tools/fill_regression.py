@@ -76,6 +76,7 @@ LOGIC_RE = re.compile(r"FillError|No more spots|appears as unbeatable|Unable to 
                       r"cannot be placed|unreachable", re.I)
 _NOISE_RE = re.compile(r"EOFError|atexit|Press enter", re.I)
 _ERR_RE = re.compile(r"Error|Exception|Traceback")
+_NAMED_ERR_RE = re.compile(r"^[A-Za-z_][\w.]*(Error|Exception)\b\s*:")
 _SEEDNAME_RE = re.compile(r"AP_(\d+)\.zip")
 _SPILL_RE = re.compile(r"progression surface: rung (.+?) placed (\d+)/(\d+); (\d+) SPILLED")
 
@@ -100,8 +101,14 @@ def classify(log_text: str, exit_code: int) -> tuple[str, str]:
         hits = [ln.strip() for ln in log_text.splitlines() if LOGIC_RE.search(ln)]
         return FILLERROR, (hits[-1] if hits else "")
     # skip the atexit/EOF noise an unpatched Generate.py emits on closed stdin -- report the REAL one
-    hits = [ln.strip() for ln in log_text.splitlines()
-            if _ERR_RE.search(ln) and not _NOISE_RE.search(ln)]
+    # Prefer an actual `SomeError: message` line over the bare "Traceback (most recent call last):"
+    # header. The first real run reported detail="Traceback (most recent call last):" -- true, and
+    # useless. A gate's whole value is the sentence it hands you.
+    lines = [ln.strip() for ln in log_text.splitlines() if not _NOISE_RE.search(ln)]
+    named = [ln for ln in lines if _NAMED_ERR_RE.match(ln)]
+    if named:
+        return CONFIGERROR, named[-1]
+    hits = [ln for ln in lines if _ERR_RE.search(ln)]
     return CONFIGERROR, (hits[-1] if hits else f"non-zero exit {exit_code}, no recognizable error")
 
 
@@ -221,7 +228,12 @@ def run_one(cfg_path, seed, out_dir, stage_dir, log_dir):
     os.makedirs(log_dir, exist_ok=True)
     cfg = os.path.basename(cfg_path)
     log_path = os.path.join(log_dir, f"{os.path.splitext(cfg)[0]}_{seed}.log")
-    env = dict(os.environ, AP_NONINTERACTIVE="1", PYTHONIOENCODING="utf-8")
+    # SKIP_REQUIREMENTS_UPDATE: without it Generate.py runs ModuleUpdate, which on a box missing
+    # pkg_resources tries to INSTALL it and blocks on input() -- with stdin closed that surfaces as
+    # `EOFError: EOF when reading a line`, i.e. an env gap wearing the costume of a config error.
+    # (Found on the first real gen, 2026-07-27. AGENTS §5 sets it for pytest; the harness must too.)
+    env = dict(os.environ, AP_NONINTERACTIVE="1", PYTHONIOENCODING="utf-8",
+               SKIP_REQUIREMENTS_UPDATE="1")
     cmd = [sys.executable, "Generate.py", "--seed", str(seed),
            "--player_files_path", stage_dir, "--outputpath", out_dir]
     t0 = time.time()
@@ -300,6 +312,9 @@ def selftest():
     check("dead option -> CONFIGERROR",
           classify("Traceback\nOptionError: region_access is not a valid option\n", 1)[0],
           CONFIGERROR)
+    check("named error beats the Traceback header",
+          classify("Traceback (most recent call last):\n  File x\nOptionError: bad thing\n", 1)[1],
+          "OptionError: bad thing")
     check("atexit noise is not the error",
           classify("OptionError: real problem here\nEOFError: EOF when reading a line\n", 1)[1],
           "OptionError: real problem here")

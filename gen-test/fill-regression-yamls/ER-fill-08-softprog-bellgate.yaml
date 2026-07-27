@@ -3,26 +3,40 @@
 # CHANGED 2026-06-21: was full base region_lock (overflowed every seed). Re-pinned to
 # the proven num_regions capital pattern; smithing bells stay a progression gate.
 # Guards: er-softprog-bellgate-contradiction.
+#
+# ===== REBUILT 2026-07-27 -- the option set this file was written against is GONE =====
+# Every option below is verified live against GFOptions (37 options) by
+# tools/fill_regression.py --check-yamls, which REFUSES to run a suite naming an option the
+# world does not have. The originals set names that no longer exist anywhere in greenfield --
+# region_access, location_pool, missable_location_behavior, excluded_location_behavior,
+# torrent_start and world_logic in EVERY file -- so they were silently doing nothing and this
+# config had stopped pinning its bug. A reproducer that cannot reproduce launders a regression
+# into a pass, which is worse than having no reproducer.
+#
+# 🛑 READ THIS BEFORE TRUSTING THE FILENAME. Some of the original AXES no longer exist as
+# options at all, so this file pins a NARROWER property than its name claims:
+#   world_logic / region_access   region locks + warp are simply the model now, not a choice
+#   location_pool                 the pool is the whole world; trimmed/all is gone
+#   extra_region_locks            no option; area_locks is not yaml-configurable
+#   graces_per_region             grace_rando was removed in v0.2
+#   soft_progression              progression_surface_mode is FROZEN at strict
+#   missable/excluded_*_behavior  protect_missable_locations is FROZEN on
+#   torrent_start, early_leveling, pool_builder, auto_upgrade, progressive_stone_bells
+#                                 all in defaults.FROZEN_OPTIONS -- they are the behaviour now
+# TRANSLATED, not dropped:
+#   important_locations -> progression_surface   (same class vocabulary, live successor)
+#   smithing_bell_bearing_option -> merchant_bell_logic
+#   ending_condition VALUES changed too: capital/elden_beast are dead; the live keys are
+#   great_runes / region_locks. Every file here uses region_locks.
+# The floors in baseline.json were re-measured on this rebuild -- the old ones described a
+# different option set and could not carry over.
 name: fillreg08
 description: soft_progression x smithing-bell gate guard (num_regions-sealed)
-game: EldenRing
-EldenRing:
-  enable_dlc: false
-  world_logic: region_lock
-  ending_condition: capital
+game: Elden Ring
+Elden Ring:
+  merchant_bell_logic: logic_only
   num_regions: 4
-  region_access: warp
-  graces_per_region: 0
-  soft_progression: true
-  smithing_bell_bearing_option: progression_randomize
-  progressive_stone_bells: false
-  auto_upgrade: false
-  location_pool: all
-  pool_builder: true
-  important_locations: ["Remembrance", "Church", "Seedtree"]
-  missable_location_behavior: allow_useful
-  excluded_location_behavior: allow_useful
-  early_leveling: true
-  torrent_start: on
+  progression_surface: ["Remembrance", "Church", "Seedtree"]
+  ending_condition: region_locks
   accessibility: minimal
   progression_balancing: 50
