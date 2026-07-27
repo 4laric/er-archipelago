@@ -34,6 +34,34 @@ an event-source award, or (b) a spatial oracle independent of graces — which i
 can break the `test_gf_grace_straddle` circularity that blocks grace-first regioning. Check-to-check
 is a candidate for (b) *as a referee*, not as coverage.
 
+### 2026-07-27 — a candidate (a) arrived, and it is worth +59. Alaric's call, not built.
+
+`gen_inputs.py` now globs the params dir (14 → 239 CSVs), which brought in **`GameAreaParam`** →
+`greenfield/game_areas.tsv`: 216 boss arenas with `defeatBossFlagId` and a **position, without the
+MSBs**. Event-source awards are explicitly *"BOSS drops (remembrances, great runes, boss rewards)"*
+(`datamine_msb_item_regions` docstring), so an arena is a candidate anchor for exactly this slice.
+
+Measured, not estimated:
+
+| join | yield |
+|---|---|
+| check flag **is** a boss defeat flag | **0** — boss rewards carry their own acquisition flag |
+| check is in a map that *has* an arena | 465 of 496 — **too loose to use**, a map holds several arenas |
+| ⭐ the awarding **EMEVD block** also references a GameAreaParam defeat flag | **59 of 496 (12%)** |
+
+Only the third is principled: the same event that awards the lot waits on that boss's defeat, so the
+reward is *at* that boss. It would take the event-source slice from **20/517 (3.9%) → ~79 (15%)**,
+and overall coverage 3912 → 3971 of 4875 (**80.6% → 81.4%**).
+
+🛑 Two reasons this is a decision and not an obvious yes:
+- **+59 checks.** A 3× improvement on a slice that is 4% of the corpus is still 1% overall.
+- The position is the **ARENA, not the item's own spot** — derived, not measured. It must land in a
+  distinguishable column (`via=boss_arena`), never mixed into the same column as an MSB-measured
+  position. A "near X" descriptor is arguably improved by it; a distance computation is not.
+
+The other 437 remain what §0 already says they are: awarded by script with no lot placement, and no
+spatial method reaches them.
+
 ---
 
 **Original spec below, written before the walk ran. §1 was right and is why the walk was cheap.**
