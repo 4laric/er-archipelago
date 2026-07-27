@@ -6,7 +6,7 @@
     "regions": 30,
     "sweeps": 242
   },
-  "inputs_hash": "sha256:91daaec74c9c2b0974155ee9bbfd05c2e0efe2aff45734b65f6b673d10f91b51",
+  "inputs_hash": "sha256:8586e401374faa2eeef140f5a268645bd18ad4a8d5b459bc5783c41bbba56b05",
   "modules": {
     "boss_data.py": "sha256:8369996ed26555336bd24ef1de360ed19057862b86e86e6b30b76078dd389a35",
     "boss_sweeps.py": "sha256:9b5eb315b6c860a96ae019c3cdc5ae13100d0c1d439d5b525335b2fffd3a559a",
@@ -14,7 +14,7 @@
     "item_ids.py": "sha256:1d80431db3ed8f3886f09cc9b8e0faacb12f8e72d5f38e5b99a564b5c20925c1",
     "item_tiers.py": "sha256:fc42992f85f8786b2266d890ad8ee74562e43b429e63db33b8e36f171f8ee3e2",
     "location_tags.py": "sha256:cbc21e2c252f17d1d04288ca1ae8d9d2e01ee01af1ee9225eeb8c6b1f29e7419",
-    "missable_locations.py": "sha256:5ce69b49db29a38020c276bd47aabe26048bc99b8ad2b74b1f1c68cabea9054f",
+    "missable_locations.py": "sha256:4f2f8ff2ee2bb4dd9219e670170990e4587a92e277ef705a5f283b65a1e5784b",
     "region_graces.py": "sha256:64281cfafd7bf5abcd1d5df12c6457efa60e469966d2ef1d56784a44d2c53b11",
     "region_open_flags.py": "sha256:defaee057fa8e89cd922e78d8d7352096656cfdd6fd479c9084acd8f7fbd13ac",
     "region_play_ids.py": "sha256:b4e23c447de34e5418cdaaf35fb81d07cb43fe1f6164d283d9e703824c4d2392",

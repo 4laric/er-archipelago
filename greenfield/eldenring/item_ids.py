@@ -7608,4 +7608,4 @@ AMMO_ITEM_NAMES = [
     "St. Trina's Arrow",
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:91daaec74c9c2b0974155ee9bbfd05c2e0efe2aff45734b65f6b673d10f91b51', 'module': 'item_ids.py', 'body_sha256': 'sha256:1d80431db3ed8f3886f09cc9b8e0faacb12f8e72d5f38e5b99a564b5c20925c1'}
+_GEN_STAMP = {'inputs_hash': 'sha256:8586e401374faa2eeef140f5a268645bd18ad4a8d5b459bc5783c41bbba56b05', 'module': 'item_ids.py', 'body_sha256': 'sha256:1d80431db3ed8f3886f09cc9b8e0faacb12f8e72d5f38e5b99a564b5c20925c1'}
