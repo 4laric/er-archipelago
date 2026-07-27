@@ -378,6 +378,26 @@ def apply(world) -> None:
     world.gf_prog_surface_resolved = list(resolved)
     world.gf_prog_surface_spilled = len(to_place)
     world.gf_prog_surface_placed = n0 - len(to_place)
+    # WHICH items spilled, not just how many. The count alone has lived in the SPOILER since this
+    # feature landed -- post-hoc, per-seed, and no gate reads it -- so the one path that silently
+    # undoes the confinement was the one path nobody could see. "Tolerance requires telemetry"
+    # (CONTRIBUTING, Runtime visibility): a degrade announces itself, with enough detail to act on.
+    #
+    # 🛑 A SPILL IS NOT A SOFTLOCK, and this log must not be read as one. Winnability is guarded
+    # independently and still holds for a spilled item: core._add_locations bars advancement from ANY
+    # player on DEFAULTED_REGION_APS / ERDTREE_BURN_APS, features/missable_locations does the same on
+    # every missable check, and audit_reachable (post_fill) rescues-or-fails on any own advancement
+    # item that ends up unreachable "whatever minted it". What a spill costs is CURATION: the Lock
+    # lands on some ordinary reachable check -- possibly in ANOTHER player's world, since
+    # local_items deliberately lets region Locks travel -- instead of on a vetted surface check.
+    world.gf_prog_surface_spilled_names = sorted(it.name for it in to_place)
+    if to_place:
+        import logging
+        logging.getLogger("Greenfield").info(
+            "[greenfield] progression surface: rung %s placed %d/%d; %d SPILLED to normal fill "
+            "(curation only -- winnability is guarded elsewhere): %s",
+            resolved, n0 - len(to_place), n0, len(to_place),
+            ", ".join(world.gf_prog_surface_spilled_names))
 
     # D (2026-07-10): break the boss-key <-> region-lock cycle. When boss_keys is on, the default
     # surface IS key-gated boss checks, and `_place` validates against get_all_state (which counts

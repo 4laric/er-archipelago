@@ -918,9 +918,11 @@ class GreenfieldEldenRingWorld(World):
         if _psr is not None:
             _pl = getattr(self, "gf_prog_surface_placed", "?")
             _sp = getattr(self, "gf_prog_surface_spilled", "?")
+            _spn = getattr(self, "gf_prog_surface_spilled_names", None)
             spoiler_handle.write(
                 f"\nElden Ring ({name}) progression surface: resolved rung {_psr} "
-                f"-- {_pl} progression items confined to surface, {_sp} spilled to pool.\n")
+                f"-- {_pl} progression items confined to surface, {_sp} spilled to pool"
+                + (f": {', '.join(_spn)}" if _spn else "") + ".\n")
         try:
             sd = self.fill_slot_data()
             spoiler_handle.write(f"\nElden Ring ({name}) slot_data ({len(sd)} keys) -- exactly what the client receives:\n")
