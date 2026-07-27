@@ -117,6 +117,65 @@ class CheckBrowserTest(unittest.TestCase):
     def test_output_has_no_crlf(self):
         self.assertNotIn("\r\n", self.html, "build wrote CRLF; CI regen on Linux would diff")
 
+    # -- E. gate evidence is PLURAL ----------------------------------------
+    # The page previously showed only lot_gates, teaching the reader "110 of 4879 checks
+    # are gated". Four corpora document gating and their union is 684. These gates keep
+    # the other three joined AND keep their caveats in the payload, because a UI that
+    # flattens NO_ENTITY_HANDLE ("proof of no gating") into "gated: unknown" inverts it.
+    def test_all_four_gate_corpora_reach_the_payload(self):
+        for key, tsv in (("gates", "lot_gates.tsv"), ("enab", "treasure_enablers.tsv"),
+                         ("gift", "esd_gifts.tsv"), ("eshop", "esd_gates.tsv")):
+            n = sum(1 for c in self.checks if c.get(key))
+            self.assertTrue(n > 0, f"no check carries {key} -- the {tsv} join is broken")
+
+    def test_enabler_join_matches_the_tsv(self):
+        """treasure_enablers.tsv states its own distinct-check count in its header."""
+        rows = self.tool.read_tsv(os.path.join(GREENFIELD, "treasure_enablers.tsv"))
+        want = {int(r["flag"]) for r in rows if r.get("flag", "").isdigit()}
+        got = {c["f"] for c in self.checks if c.get("enab")}
+        self.assertEqual(got, want & {c["f"] for c in self.checks})
+
+    def test_enabler_verdicts_are_carried_verbatim(self):
+        """Never normalise a verdict string: the UI facets on it and the caveat text
+        explains it by that exact name."""
+        rows = self.tool.read_tsv(os.path.join(GREENFIELD, "treasure_enablers.tsv"))
+        want = {r["verdict"] for r in rows if r.get("verdict")}
+        got = {e["verdict"] for c in self.checks for e in c.get("enab", []) if e["verdict"]}
+        self.assertEqual(got, want)
+        self.assertIn("NO_ENTITY_HANDLE", got, "the 'proof of no gating' verdict vanished")
+
+    def test_caveat_headers_are_present_and_not_paraphrased(self):
+        cav = self.data["meta"]["caveats"]
+        for k in ("treasure_enablers", "esd_gates", "esd_gifts", "msb_gated_treasures", "lot_gates"):
+            self.assertTrue(cav.get(k, "").strip(), f"no caveat text carried for {k}")
+        # the specific warnings that stop a misread -- if the header is reworded, re-check the UI
+        self.assertIn("NO_ENTITY_HANDLE", cav["treasure_enablers"])
+        self.assertIn("POLARITY IS NOT ENCODED", cav["treasure_enablers"])
+        self.assertIn("NOT A RISK LIST", cav["msb_gated_treasures"].upper())
+
+    def test_gate_union_is_not_a_sum(self):
+        """The corpora overlap; the footer shows a union. If this ever equals the sum,
+        someone has double-counted."""
+        m = self.data["meta"]
+        parts = m["gate_lot"] + m["gate_enabler"] + m["gate_gift"] + m["gate_eshop"]
+        self.assertLessEqual(m["gate_any"], parts)
+        self.assertGreater(m["gate_any"], m["gate_lot"],
+                           "union is no bigger than lot_gates alone -- the new joins are inert")
+
+    # -- F. negative space --------------------------------------------------
+    def test_residuals_are_present_and_disjoint_from_checks(self):
+        res = self.data["residuals"]
+        self.assertTrue(len(res) > 0)
+        check_flags = {c["f"] for c in self.checks}
+        bad = [r for r in res if r["k"].startswith("itemlot") and r["f"] in check_flags]
+        self.assertFalse(bad, f"{len(bad)} residual(s) are actually checks: {bad[:3]}")
+
+    def test_residual_reasons_are_recorded_or_honestly_blank(self):
+        """A fabricated reason is the disease this view exists to cure. Blank is allowed;
+        a non-string is not."""
+        for r in self.data["residuals"]:
+            self.assertIsInstance(r["reason"], str)
+
     # -- D. freshness ------------------------------------------------------
     def test_committed_page_is_not_stale(self):
         if not os.path.exists(SHIPPED):

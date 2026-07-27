@@ -88,6 +88,8 @@ footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);backgroun
   <input id="q" placeholder="search name, flag, ap id, grace, map, item&hellip;  (/ to focus)" autocomplete="off">
   <span id="count"></span>
   <button class="btn" id="clear">clear filters</button>
+  <button class="btn" id="resid">negative space</button>
+  <button class="btn" id="perma">copy permalink</button>
   <button class="btn" id="csv">export csv</button>
 </header>
 <main>
@@ -111,7 +113,7 @@ footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);backgroun
 
 <script>
 const DATA = /*__DATA__*/null;
-const CHECKS = DATA.checks, META = DATA.meta;
+const CHECKS = DATA.checks, META = DATA.meta, RESIDUALS = DATA.residuals;
 
 /* ---------- facet definitions ---------- */
 const FACETS = [
@@ -120,13 +122,25 @@ const FACETS = [
   {key:'prop',label:'Property', get:c=>{
       const p=[];
       if(c.miss) p.push('missable');
-      if(c.gates&&c.gates.length) p.push('has lot gate');
       if(!c.maps.length) p.push('no map position');
       if(!c.g) p.push('no nearest grace');
       if(c.shop&&c.shop.length) p.push('shop row');
       if(c.lots&&c.lots.length) p.push('has itemlot');
       if(c.fl) c.fl.forEach(x=>p.push(x));
       return p.length?p:['(plain)'];
+  }},
+  /* Gate evidence is its OWN facet and each corpus is its own value, deliberately:
+     collapsing them to one "gated" flag is how "110 of 4879" became a believed number
+     when four tables document 684. Enabler verdicts keep their source wording -- see
+     the caveat block in the detail panel for why NO_ENTITY_HANDLE is not "unknown". */
+  {key:'gate',label:'Gate evidence', get:c=>{
+      const p=[];
+      if(c.gates&&c.gates.length) p.push('lot gate (EMEVD)');
+      if(c.gift&&c.gift.length)   p.push('ESD gift path');
+      if(c.eshop&&c.eshop.length) p.push('ESD shop gate');
+      if(c.sd)                    p.push('MSB StartDisabled=1');
+      (c.enab||[]).forEach(e=>{ if(e.verdict) p.push('enabler: '+e.verdict); });
+      return p.length?[...new Set(p)]:['(no gate evidence)'];
   }},
   {key:'maps',label:'Map tile',  get:c=>c.maps.length?c.maps:['(none)']},
 ];
@@ -214,7 +228,7 @@ function renderRows(){
     <td class="mono">${c.id}</td>
     <td class="rg">${esc(c.g||'')}</td></tr>`).join('');
   tb.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{
-    selected=+tr.dataset.id; renderRows(); showDetail(CHECKS.find(c=>c.id===selected));
+    selected=+tr.dataset.id; renderRows(); showDetail(CHECKS.find(c=>c.id===selected)); writeHash();
   }));
   document.getElementById('count').textContent =
     `${filtered.length.toLocaleString()} / ${CHECKS.length.toLocaleString()}` +
@@ -253,19 +267,123 @@ function showDetail(c){
      ${rows(c.lots,l=>`<div>${esc(l.table)} <b>${esc(l.lot)}</b>.${esc(l.slot)} cat${esc(l.cat)} id${esc(l.item)} ×${esc(l.n)}<br><span style="color:var(--gold2)">${esc(l.name)}</span></div>`)}</div>
    ${(c.shop||[]).length?`<div class="sec"><h3>Shop rows (${c.shop.length})</h3>
      ${rows(c.shop,s=>`<div>row <b>${esc(s.row)}</b> — ${esc(s.item)} · ${esc(s.value)} runes<br><span style="color:var(--dim)">${esc(s.where)}</span></div>`)}</div>`:''}
-   ${(c.gates||[]).length?`<div class="sec"><h3>Lot gates (${c.gates.length})</h3>
-     ${rows(c.gates,g=>`<div>gate <b>f${esc(g.gate)}</b> · ${esc(g.ctx)} · ev ${esc(g.ev)}</div>`)}</div>`:''}
+   ${gateSection(c)}
   `;
 }
 
+/* ---------- gate evidence: FOUR corpora, each with its own caveats ---------- */
+function gateSection(c){
+  const n = (c.gates||[]).length + (c.enab||[]).length + (c.gift||[]).length + (c.eshop||[]).length;
+  if(!n && !c.sd) return `<div class="sec"><h3>Gate evidence</h3>
+    <div style="color:var(--dim)">No row in lot_gates, treasure_enablers, esd_gifts or esd_gates
+    mentions this check. That is <b>absence of evidence across four tables</b>, which is not the
+    same as proof it is ungated.</div></div>`;
+  const src = [];
+  if((c.gates||[]).length) src.push(['lot_gates', `EMEVD lot gates (${c.gates.length})`,
+    c.gates.map(g=>`<div>gate <b>f${esc(g.gate)}</b> · ${esc(g.ctx)} · ev ${esc(g.ev)}</div>`).join('')]);
+  if((c.enab||[]).length) src.push(['treasure_enablers', `StartDisabled enablers (${c.enab.length})`,
+    c.enab.map(e=>`<div><b style="color:${e.verdict==='ENABLER_FOUND'?'var(--green)':(e.verdict==='NO_ENTITY_HANDLE'?'var(--blue)':'var(--dim)')}">${esc(e.verdict)}</b>
+      ${e.kind?` · ${esc(e.kind)}`:''}${e.ev?` · ev ${esc(e.ev)}`:''}${e.chest?` · InChest=${esc(e.chest)}`:''}
+      ${e.self?`<br><span style="color:var(--dim)">self-set (MEMO, not a prereq): ${esc(e.self)}</span>`:''}
+      ${e.ext?`<br><span style="color:var(--gold2)">external gate: ${esc(e.ext)}</span>${e.extin?` <span style="color:var(--dim)">set in ${esc(e.extin)}</span>`:' <span style="color:var(--dim)">(nothing sets it)</span>'}`:''}
+      ${e.verbatim?`<br><span style="color:var(--fg)">${esc(e.verbatim)}</span>`:''}</div>`).join('')]);
+  if((c.gift||[]).length) src.push(['esd_gifts', `ESD gift paths (${c.gift.length})`,
+    c.gift.map(g=>`<div>talk <b>${esc(g.talk)}</b> · lot ${esc(g.lot)} · gate f${esc(g.gate)} sense ${esc(g.sense)}</div>`).join('')]);
+  if((c.eshop||[]).length) src.push(['esd_gates', `ESD shop gates (${c.eshop.length})`,
+    c.eshop.map(g=>`<div>talk <b>${esc(g.talk)}</b> · gate f${esc(g.gate)} sense ${esc(g.sense)} · rows ${esc(g.range)}</div>`).join('')]);
+  return `<div class="sec"><h3>Gate evidence — ${n} row(s) across ${src.length} corpus/corpora</h3>
+    ${c.sd?`<div style="color:var(--gold2);font-size:11px;margin-bottom:6px">MSB <b>StartDisabled=1</b> — this is a property of the CONTAINER (a closed chest), <b>not</b> an access gate.</div>`:''}
+    ${src.map(([key,title,body])=>`<div style="margin-bottom:9px">
+      <div style="font:600 10px/1.4 monospace;color:var(--gold2)">${esc(title)}
+        <span class="cav" data-k="${key}" style="cursor:pointer;color:var(--dim);border-bottom:1px dotted var(--dim)">why this can be misread ▾</span></div>
+      <pre class="cavbox" id="cav-${key}" style="display:none;white-space:pre-wrap;font:10px/1.45 monospace;color:var(--dim);background:var(--bg3);border:1px solid var(--line);border-radius:4px;padding:6px;margin:4px 0">${esc(META.caveats[key]||'')}</pre>
+      <div class="rows">${body}</div></div>`).join('')}</div>`;
+}
+
+/* ---------- NEGATIVE SPACE: rows in the side tables that are NOT checks ---------- */
+let showResiduals=false;
+function renderResiduals(){
+  const q = query;
+  const rs = RESIDUALS.filter(r=>!q || (r.k+' '+r.f+' '+r.what+' '+r.detail+' '+r.reason).toLowerCase().includes(q));
+  document.getElementById('count').textContent = `${rs.length} / ${RESIDUALS.length} residual rows`;
+  document.getElementById('rows').innerHTML = rs.slice(0,400).map(r=>`<tr>
+    <td class="rg">${esc(r.k)}</td>
+    <td class="nm" title="${esc(r.what)}">${esc(r.what)}</td>
+    <td>${esc(r.detail)}</td>
+    <td class="mono">${r.f||''}</td>
+    <td colspan="2" style="font-size:11px;color:${r.reason?'var(--dim)':'var(--red)'}">${esc(r.reason)||'reason NOT RECORDED — do not invent one'}</td>
+  </tr>`).join('');
+  document.getElementById('detail').className='empty';
+  document.getElementById('detail').innerHTML =
+    `<div style="text-align:left;color:var(--dim);font-size:12px"><b style="color:var(--gold)">Negative space.</b><br><br>
+     Rows that exist in a side table but are <b>not</b> checks. Every wrong claim this project has
+     produced lived here — "~126 invisible lots" was really 98 already-checks / 32 flagless / 0 new.<br><br>
+     A blank reason means <b>nobody recorded one</b>. That is an honest unknown, not an invitation
+     to guess.</div>`;
+}
+
+/* ---------- permalink: encode the QUERY, not the ANSWER ---------- */
+function writeHash(){
+  const p=[];
+  if(query) p.push('q='+encodeURIComponent(query));
+  FACETS.forEach(f=>{ if(active[f.key].size) p.push(f.key+'='+[...active[f.key]].map(encodeURIComponent).join('|')); });
+  if(sortKey!=='r'||sortDir!==1) p.push('sort='+sortKey+(sortDir<0?':d':''));
+  if(showResiduals) p.push('view=residuals');
+  if(selected) p.push('sel='+selected);
+  const h = p.join('&');
+  if(location.hash.slice(1)!==h) history.replaceState(null,'',h?('#'+h):location.pathname);
+}
+function readHash(){
+  const h=location.hash.slice(1); if(!h) return;
+  const miss=[];
+  h.split('&').forEach(kv=>{
+    const i=kv.indexOf('='); if(i<0) return;
+    const k=kv.slice(0,i), v=decodeURIComponent(kv.slice(i+1));
+    if(k==='q'){ query=v.toLowerCase(); document.getElementById('q').value=v; }
+    else if(k==='sort'){ const [s,d]=v.split(':'); sortKey=s; sortDir=d==='d'?-1:1; }
+    else if(k==='view'){ showResiduals = v==='residuals'; }
+    else if(k==='sel'){ selected=+v; }
+    else if(active[k]){
+      v.split('|').map(decodeURIComponent).forEach(val=>{
+        active[k].add(val);
+        // a renamed tag would silently empty a filter and read as "0 results" -- say so LOUDLY
+        if(!CHECKS.some(c=>FACETS.find(f=>f.key===k).get(c).includes(val))) miss.push(k+'='+val);
+      });
+    }
+  });
+  if(miss.length){
+    const b=document.createElement('div');
+    b.style.cssText='background:#3a2020;border-bottom:1px solid #7a3a3a;color:#e8b0b0;padding:7px 14px;font:12px/1.4 monospace';
+    b.innerHTML='⚠ This link filters on <b>'+miss.map(esc).join(', ')+'</b>, which matches nothing '
+      +'in the current build. The data moved — the empty result below is NOT a finding.';
+    document.body.insertBefore(b, document.body.firstChild);
+  }
+}
+
 /* ---------- wiring ---------- */
-function render(){ apply(); renderCap=300; buildFacets(); renderRows(); }
+function render(){
+  apply(); renderCap=300; buildFacets();
+  if(showResiduals) renderResiduals(); else renderRows();
+  writeHash();
+}
 document.getElementById('q').addEventListener('input',e=>{
   query=e.target.value.trim().toLowerCase(); render();
 });
 document.getElementById('clear').addEventListener('click',()=>{
   FACETS.forEach(f=>active[f.key].clear());
-  query=''; document.getElementById('q').value=''; render();
+  query=''; selected=null; document.getElementById('q').value=''; render();
+});
+document.getElementById('resid').addEventListener('click',()=>{
+  showResiduals=!showResiduals;
+  document.getElementById('resid').classList.toggle('hot',showResiduals);
+  document.getElementById('resid').textContent = showResiduals?'← back to checks':`negative space (${RESIDUALS.length})`;
+  render();
+});
+document.getElementById('perma').addEventListener('click',()=>{
+  writeHash();
+  navigator.clipboard?.writeText(location.href).then(
+    ()=>{ const b=document.getElementById('perma'); b.textContent='copied ✓'; setTimeout(()=>b.textContent='copy permalink',1400); },
+    ()=>prompt('Copy this link:', location.href));
 });
 document.getElementById('csv').addEventListener('click',()=>{
   const esc2=s=>`"${String(s).replace(/"/g,'""')}"`;
@@ -276,10 +394,19 @@ document.getElementById('csv').addEventListener('click',()=>{
   a.href=URL.createObjectURL(b); a.download='er_checks_filtered.csv'; a.click();
 });
 document.querySelectorAll('thead th').forEach(th=>th.addEventListener('click',()=>{
+  if(showResiduals) return;
   const k=th.dataset.s;
   if(sortKey===k) sortDir*=-1; else {sortKey=k;sortDir=1;}
   render();
 }));
+/* caveat blocks are collapsed by default but ONE click away, never hidden */
+document.getElementById('detail').addEventListener('click',e=>{
+  const t=e.target.closest('.cav'); if(!t) return;
+  const box=document.getElementById('cav-'+t.dataset.k);
+  const open = box.style.display==='none';
+  box.style.display = open?'block':'none';
+  t.textContent = open?'why this can be misread ▴':'why this can be misread ▾';
+});
 document.addEventListener('keydown',e=>{
   if(e.key==='/'&&document.activeElement.id!=='q'){e.preventDefault();document.getElementById('q').focus();}
   if(e.key==='Escape'){document.getElementById('q').blur();}
@@ -290,11 +417,16 @@ document.getElementById('foot').innerHTML = [
   `<span>${META.total.toLocaleString()} checks</span>`,
   `<span>${META.with_map.toLocaleString()} with a map position (${(100*META.with_map/META.total).toFixed(1)}%)</span>`,
   `<span>${META.with_grace.toLocaleString()} with a nearest grace</span>`,
-  `<span>${META.with_gate.toLocaleString()} with a known lot gate</span>`,
+  `<span title="lot_gates ${META.gate_lot} · enablers ${META.gate_enabler} · ESD gift ${META.gate_gift} · ESD shop ${META.gate_eshop} — corpora OVERLAP, so this is the union, not a sum">`
+    + `${META.gate_any.toLocaleString()} with gate evidence <span style="color:var(--dim)">(${META.gate_lot} lot_gates alone)</span></span>`,
   `<span>${META.missable.toLocaleString()} missable</span>`,
+  `<span>${META.residuals.toLocaleString()} residual rows</span>`,
   `<span style="margin-left:auto">generated from repo data — no game files</span>`
 ].join('');
+document.getElementById('resid').textContent = `negative space (${RESIDUALS.length})`;
+readHash();
 render();
+if(selected){ const c=CHECKS.find(x=>x.id===selected); if(c) showDetail(c); }
 </script>
 </body>
 </html>

@@ -368,6 +368,23 @@ are absent in CI). Know which tier your change is in:
   non-empty diff, and `tests/test_gf_check_browser.py` gates totality/agreement/determinism.
   It is a **reader**, not an oracle: it shows what the world already declares, and any number it
   displays is a join over the same tsvs the generators use.
+- **Gate evidence is PLURAL.** The browser joins all four corpora that document gating and counts
+  them separately: `lot_gates` 110 · `treasure_enablers` 136 · `esd_gifts` 48 · `esd_gates` 405 —
+  **union 684**, not 110. Each is rendered beside its own tsv header VERBATIM, one click away,
+  because those headers carry the polarity rules: `EndIf` has INVERTED sense, `self_set_flags` is a
+  MEMO not a prerequisite, and `NO_ENTITY_HANDLE` is *proof of no gating*, not mystery. 🛑 Never
+  flatten a verdict to "gated: yes/no" — a test fails if you normalise the strings away. A check
+  with nothing in all four is labelled **"absence of evidence across four tables"**, not "ungated"
+  (the 5 Edgar checks read exactly this way — see the ObjAct third gate class).
+- **Negative space.** The same page carries the join RESIDUALS — 450 rows that exist in a side
+  table but are not checks (268 itemlot flags, 80 shop rows, 51 flagless ESD gift lots, 51 phantom
+  verdicts). Search there before announcing a "missing check": that residual is where
+  "~126 invisible lots" and "27 phantoms" both came from. A blank reason means **nobody recorded
+  one** — an honest unknown, not an invitation to guess.
+- **Permalinks.** Facets, query, sort and selection serialise into `location.hash`, so a handoff
+  can cite `…#gate=enabler:%20NO_ENABLER&r=Limgrave` instead of pasting a list that rots. Reopening
+  an old link against a newer build re-derives the number; if a filter term no longer matches
+  anything the page shows a red banner saying so, rather than a quiet zero.
 
 ### DESC-TRIAGE — authoring `location_descriptions.tsv`
 

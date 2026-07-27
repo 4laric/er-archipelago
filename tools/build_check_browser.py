@@ -21,6 +21,23 @@ INPUTS (all committed; none are game files):
   greenfield/map_names.tsv                  map tile -> dungeon name
   greenfield/location_descriptions.tsv      hand-authored descriptions
   greenfield/shop_rows.tsv                  ShopLineupParam row detail
+  greenfield/treasure_enablers.tsv          StartDisabled enabler verdicts
+  greenfield/msb_gated_treasures.tsv        StartDisabled=1 MSB records
+  greenfield/esd_gifts.tsv                  NPC dialogue gift gate paths
+  greenfield/esd_gates.tsv                  merchant shop-range gate paths
+  greenfield/synthetic_flag_recovery.tsv    phantom-flag verdicts (negative space)
+
+GATE EVIDENCE IS PLURAL. lot_gates.tsv covers 110 checks and is the SMALLEST of four
+corpora that document gating; showing it alone taught the reader "110/4879 are gated",
+which is the partial-read this project keeps getting burned by. All four are joined, each
+counted separately, and each rendered beside its own tsv header VERBATIM -- because those
+headers carry the polarity rules (EndIf has INVERTED sense; self_set_flags is a MEMO, not a
+prerequisite; NO_ENTITY_HANDLE is PROOF OF NO GATING, not mystery) and a UI that flattened
+them to "gated: yes/no" would invert their meaning.
+
+NEGATIVE SPACE. The page also carries the join RESIDUALS -- rows in those side tables that
+are NOT checks -- with the recorded reason where one exists and an honest blank where none
+does. That population is where every wrong claim here has come from.
 
 DETERMINISM: the output is a pure function of those inputs -- every set is emitted sorted and
 the page is stamped with data.py's _GEN_STAMP.inputs_hash, NOT with the git commit. This is
@@ -143,6 +160,86 @@ def main():
     desc_by_flag = {int(r["flag"]): r["description"]
                     for r in read_tsv(os.path.join(gf, "location_descriptions.tsv"))}
 
+    # --- the OTHER gate corpora ------------------------------------------------------
+    # lot_gates.tsv is only one of FOUR tables that document gating, and it is the
+    # smallest. A panel that showed only it would teach the reader that 110/4879 checks
+    # are gated -- the exact partial-read that has produced wrong claims here before.
+    # Every corpus below carries polarity/semantic caveats in its own header; those
+    # headers are lifted VERBATIM into the UI (see tsv_caveats) rather than paraphrased,
+    # because flattening e.g. NO_ENTITY_HANDLE to "gated: no" inverts its meaning.
+    enablers_by_flag = defaultdict(list)
+    for r in read_tsv(os.path.join(gf, "treasure_enablers.tsv")):
+        try:
+            f = int(r["flag"])
+        except (KeyError, ValueError):
+            continue
+        enablers_by_flag[f].append({
+            "verdict": r.get("verdict", ""), "kind": r.get("gate_kind", ""),
+            "self": r.get("self_set_flags", ""), "ext": r.get("external_gate_flags", ""),
+            "extin": r.get("external_flag_set_in", ""), "verbatim": r.get("gate_verbatim", ""),
+            "ev": r.get("enabler_event", ""), "map": r.get("map_id", ""),
+            "chest": r.get("in_chest", ""),
+        })
+
+    startdisabled = set()
+    for r in read_tsv(os.path.join(gf, "msb_gated_treasures.tsv")):
+        try:
+            startdisabled.add(int(r["flag"]))
+        except (KeyError, ValueError):
+            continue
+
+    # esd_gifts: NPC dialogue hands over an ItemLotParam lot. Join lot -> flag through
+    # flag_lots so a gift row lands on the check it actually feeds.
+    flag_of_lot = {}
+    for r in read_tsv(os.path.join(gf, "flag_lots.tsv")):
+        try:
+            flag_of_lot.setdefault(r["lot"], int(r["flag"]))
+        except (KeyError, ValueError):
+            continue
+    gifts_by_flag = defaultdict(list)
+    gift_unjoined = []
+    for r in read_tsv(os.path.join(gf, "esd_gifts.tsv")):
+        lot = r.get("item_lot", "")
+        row = {"talk": r.get("talk_id", ""), "gate": r.get("gate_flag", ""),
+               "sense": r.get("gate_sense", ""), "lot": lot}
+        f = flag_of_lot.get(lot)
+        if f is None:
+            gift_unjoined.append(row)
+        else:
+            gifts_by_flag[f].append(row)
+
+    # esd_gates: a merchant TALK gates a ShopLineupParam RANGE. Expand the range onto
+    # the shop rows inside it, then onto those rows' stock flags.
+    shop_flag_of_row = {}
+    for r in read_tsv(os.path.join(gf, "shop_rows.tsv")):
+        try:
+            shop_flag_of_row[int(r["row_id"])] = int(r["stock_flag"])
+        except (KeyError, ValueError):
+            continue
+    esd_shop_by_flag = defaultdict(list)
+    for r in read_tsv(os.path.join(gf, "esd_gates.tsv")):
+        try:
+            lo, hi = int(r["shop_begin"]), int(r["shop_end"])
+        except (KeyError, ValueError):
+            continue
+        for row_id, f in shop_flag_of_row.items():
+            if lo <= row_id <= hi:
+                esd_shop_by_flag[f].append({"talk": r.get("talk_id", ""),
+                                            "gate": r.get("gate_flag", ""),
+                                            "sense": r.get("gate_sense", ""),
+                                            "range": f"{lo}-{hi}"})
+
+    def tsv_caveats(name):
+        """The '#' header of a generated tsv, VERBATIM. These headers carry the polarity
+        and 'this is not a risk list' warnings; the UI shows them next to the data."""
+        out = []
+        with open(os.path.join(gf, name), encoding="utf-8") as fh:
+            for line in fh:
+                if not line.startswith("#"):
+                    break
+                out.append(line[1:].rstrip())
+        return "\n".join(out).strip()
+
     shop_by_flag = defaultdict(list)
     for r in read_tsv(os.path.join(gf, "shop_rows.tsv")):
         try:
@@ -178,6 +275,11 @@ def main():
                 "lots": lots_by_flag.get(flag, []),
                 "shop": shop_by_flag.get(flag, []),
                 "desc": desc_by_flag.get(flag, ""),
+                # gate evidence from the OTHER three corpora
+                "enab": enablers_by_flag.get(flag, []),
+                "gift": gifts_by_flag.get(flag, []),
+                "eshop": esd_shop_by_flag.get(flag, []),
+                "sd": flag in startdisabled,
             }
             if ap_id in MISSABLE:
                 rec["miss"] = MISSABLE[ap_id]
@@ -192,6 +294,55 @@ def main():
 
     checks.sort(key=lambda c: (c["r"], c["n"]))
 
+    # --- NEGATIVE SPACE ---------------------------------------------------------------
+    # Every wrong claim this project has produced lived in a JOIN RESIDUAL: rows that
+    # exist in a side table but are not checks. "~126 invisible lots" was 98 already-
+    # checks / 32 flagless / 0 new; "27 phantoms" was the wrong table entirely. Making
+    # the residual queryable is the difference between a lost day and one search.
+    # An unexplained residual is emitted with reason "" -- honestly unknown, NOT guessed.
+    check_flags = {c["f"] for c in checks}
+    residuals = []
+
+    for lot_flag, rows in sorted(lots_by_flag.items()):
+        if lot_flag in check_flags:
+            continue
+        residuals.append({
+            "k": "itemlot flag, not a check", "f": lot_flag,
+            "what": ", ".join(sorted({r["name"] for r in rows if r["name"]})) or "(unnamed item)",
+            "detail": ", ".join(sorted({f'{r["table"]} {r["lot"]}' for r in rows})[:4]),
+            "reason": "",
+        })
+
+    for row_id, f in sorted(shop_flag_of_row.items()):
+        if f in check_flags:
+            continue
+        residuals.append({"k": "shop row, not a check", "f": f,
+                          "what": f"ShopLineupParam row {row_id}", "detail": "",
+                          "reason": "stock flag is not a live AP check"})
+
+    for row in gift_unjoined:
+        residuals.append({
+            "k": "ESD gift lot, no flag", "f": 0,
+            "what": f'lot {row["lot"]} from talk {row["talk"]}',
+            "detail": f'gate f{row["gate"]} sense {row["sense"]}',
+            # esd_gifts.tsv's own header states this population and why it is not new work
+            "reason": "no acquisition flag -> invisible to the flag poll (esd_gifts header)",
+        })
+
+    for r in read_tsv(os.path.join(gf, "synthetic_flag_recovery.tsv")):
+        try:
+            f = int(r["synthetic_flag"])
+        except (KeyError, ValueError):
+            continue
+        ev = r.get("evidence", "")
+        residuals.append({
+            "k": "phantom flag: " + r.get("verdict", "?"), "f": f,
+            "what": r.get("item", ""), "detail": r.get("annotation", ""),
+            "reason": (ev[:400] + "…") if len(ev) > 400 else ev,
+        })
+
+    residuals.sort(key=lambda x: (x["k"], x["f"]))
+
     meta = {
         "total": len(checks),
         "regions": sorted({c["r"] for c in checks}),
@@ -200,6 +351,17 @@ def main():
         "with_grace": sum(1 for c in checks if c["g"]),
         "with_gate": sum(1 for c in checks if c["gates"]),
         "missable": sum(1 for c in checks if "miss" in c),
+        # gate evidence, counted per corpus so nobody reads one number as "the" answer
+        "gate_lot": sum(1 for c in checks if c["gates"]),
+        "gate_enabler": sum(1 for c in checks if c["enab"]),
+        "gate_gift": sum(1 for c in checks if c["gift"]),
+        "gate_eshop": sum(1 for c in checks if c["eshop"]),
+        "gate_any": sum(1 for c in checks
+                        if c["gates"] or c["enab"] or c["gift"] or c["eshop"]),
+        "residuals": len(residuals),
+        "caveats": {n: tsv_caveats(n + ".tsv") for n in
+                    ("treasure_enablers", "esd_gates", "esd_gifts",
+                     "msb_gated_treasures", "lot_gates")},
         # NOT the git commit -- see DETERMINISM in the module docstring.
         "stamp": data_stamp(os.path.join(er, "data.py")),
     }
@@ -208,7 +370,7 @@ def main():
                             "check_browser_template.html")
     with open(tpl_path, encoding="utf-8") as fh:
         tpl = fh.read()
-    payload = json.dumps({"meta": meta, "checks": checks},
+    payload = json.dumps({"meta": meta, "checks": checks, "residuals": residuals},
                          separators=(",", ":"), sort_keys=True, ensure_ascii=False)
     html = tpl.replace("/*__DATA__*/null", payload)
     # newline='\n' so a Windows regen and a Linux regen produce the SAME bytes; the CI
@@ -216,7 +378,8 @@ def main():
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(html)
 
-    print(json.dumps({k: v for k, v in meta.items() if k not in ("regions", "tags")}, indent=2))
+    print(json.dumps({k: v for k, v in meta.items()
+                      if k not in ("regions", "tags", "caveats")}, indent=2))
     print(f"wrote {out_path} ({os.path.getsize(out_path)/1e6:.1f} MB)")
 
 
