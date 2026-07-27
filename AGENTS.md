@@ -264,6 +264,58 @@ commit are whatever the last real regen produced. Say "needs a `-Greenfield` on 
 > `datamine_grace_ground.py`), its `--emit` is a **manual step you run FIRST**, then `-All`. Do not
 > fold it into "just run -All" — see §5a.
 
+### 5b. Standing up the AP env IN THE AGENT SANDBOX -- the recipe that actually works
+
+`greenfield/provision-linux-env.sh` is the supported path and it is what to use on WSL2 or a real
+box. **In the Cowork agent sandbox it does not finish**, for reasons that all look like something
+else, so here is the working sequence and the trap behind each step. (Derived 2026-07-27; it ends
+with `16 passed, 9766 subtests` on the AP-dependent half, so the whole pytest suite -- not just the
+AP-free tier -- runs in-sandbox.)
+
+```bash
+O=/sessions/<session>/mnt/outputs          # the ONLY volume with room; / and /sessions run 100% full
+# 1. Python 3.11 -- 3.10 IS NOT ENOUGH (AP 0.6.7 uses typing.Self in worlds/AutoWorld.py)
+curl -sSL -C - -o $O/py311.tar.gz \
+  "https://releases.astral.sh/github/python-build-standalone/releases/download/20260602/cpython-3.11.15%2B20260602-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
+mkdir -p $O/py311 && tar -xzf $O/py311.tar.gz -C $O/py311 --skip-old-files   # RE-RUN until complete
+PY=$O/py311/python/bin/python3.11
+# 2. deps, in CHUNKS (the harness caps a bash call at 45s and pip is slow on the mount)
+$PY -m pip install -q --no-cache-dir pyyaml typing-extensions platformdirs certifi colorama
+$PY -m pip install -q --no-cache-dir schema jsonschema pathspec pytest
+# 3. Archipelago at the pin, SPARSE (a full checkout will not finish inside one call)
+git clone --depth 1 --branch "$(tr -d '[:space:]' < .ap-version)" --single-branch \
+  https://github.com/ArchipelagoMW/Archipelago.git $O/gfci/ap
+cd $O/gfci/ap && git sparse-checkout init --cone && git sparse-checkout set worlds/generic test
+# 4. install the world (AGENTS §5) and run
+rm -rf worlds/eldenring && cp -r <repo>/greenfield/eldenring worlds/eldenring
+cp <repo>/greenfield/region_map.csv worlds/eldenring/region_map.csv
+TMPDIR=/tmp AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
+  $PY -m pytest -q -p no:cacheprovider worlds/eldenring/tests/
+```
+
+**The four traps, each of which reads as a different problem than it is:**
+
+- 🛑 **`TMPDIR` must be `/tmp` for pytest, and NOT on the outputs mount.** pytest's capture tmpfile
+  vanishes there and you get `FileNotFoundError ... _pytest/capture.py:592 res = self.tmpfile.read()`
+  at the END of a run -- which reads like a broken test, not a broken environment. (`HOME` and the
+  pip/uv caches, by contrast, MUST be off `/sessions`, which is routinely 100% full -- same finding
+  as the rustup `TMPDIR` note in §4. The two want opposite volumes; set them separately.)
+- 🛑 **`uv python install 3.11` will not finish.** It downloads fine but then unpacks ~120 MB of
+  small files onto the slow mount, and the per-call timeout kills it mid-extract leaving nothing
+  behind. This looks like a network failure and is not one. Fetch the tarball with `curl -C -`
+  (resumable across calls) and extract it yourself with `--skip-old-files`, which makes re-running
+  effectively resumable too.
+- 🛑 **A full AP checkout will not finish either** (~3500 files). Sparse-checkout `worlds/generic`
+  + `test`; cone mode keeps the root `.py` files, which is all the core needs. Some unrelated worlds
+  then fail to import (`worlds.sm` wants `variaRandomizer`); AP logs it and carries on with the rest
+  registered. Harmless -- do not chase it.
+- ⚠️ Python **3.10 is present and will get you a long way in** before dying on `typing.Self`. Check
+  `python3 -V` before assuming the sandbox python is usable.
+
+With this up you can run the AP-dependent tests, `tools/fill_regression.py`, and -- once
+`tools/gen_inputs.py --extract` has put the inputs in place -- `gen_data.py` itself. That is the
+difference between handing Alaric a tool to run and handing him a result.
+
 ### 5a. TWO regen tiers — do not conflate them (the spurious-regen trap)
 
 More than one agent has "fixed" a datamine, told Alaric to "just run `-All`", and shipped nothing —

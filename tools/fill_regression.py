@@ -148,6 +148,18 @@ _AP_KEYS = {"accessibility", "progression_balancing", "death_link", "local_items
             "name", "game", "description", "requires"}
 
 
+def frozen_option_names():
+    """Options deliberately REMOVED from the yaml surface (defaults.FROZEN_OPTIONS): they are the
+    behaviour now, not a knob. A yaml that still sets one is stale but HARMLESS -- the value is
+    ignored and the frozen constant applies. Reporting those alongside genuinely dead names would
+    send someone editing yamls that are fine, so they are a WARNING, never the refusal."""
+    try:
+        from worlds.eldenring.defaults import FROZEN_OPTIONS  # type: ignore
+        return set(FROZEN_OPTIONS)
+    except Exception:
+        return set()
+
+
 def live_option_names():
     """Every option name a yaml may legally set, taken from the WORLD, not from a hand list.
 
@@ -169,8 +181,17 @@ def live_option_names():
             return None
 
 
-def check_yamls(suite, live):
-    """[(file, [dead keys])]. Empty list of dead keys == clean."""
+def check_yamls(suite, live, frozen=frozenset()):
+    """[(file, dead, stale_frozen)] per yaml.
+
+    dead         -- names that exist NOWHERE in the world. The refusal.
+    stale_frozen -- names in defaults.FROZEN_OPTIONS: ignored, not broken. A note.
+
+    🛑 A yaml's TOP-LEVEL keys are not options. They are `name`, `description`, and the GAME
+    SECTION ("Elden Ring" / "EldenRing"), whose value is the dict of real options. The first version
+    unioned the top level into the option set and duly reported `EldenRing` as a dead option name in
+    all nine files -- a confident wrong answer in the very check written to catch confident wrong
+    answers. Only the game block's keys are options."""
     import yaml as _yaml
     out = []
     for fn in sorted(os.listdir(suite)):
@@ -180,11 +201,14 @@ def check_yamls(suite, live):
             docs = [d for d in _yaml.safe_load_all(fh) if isinstance(d, dict)]
         keys = set()
         for doc in docs:
-            for game, block in doc.items():
-                if isinstance(block, dict) and game not in _AP_KEYS:
+            for section, block in doc.items():
+                # a game section is a top-level key whose value is a dict of options; the AP-level
+                # keys (name, description, triggers, ...) are not, and neither is the game NAME.
+                if isinstance(block, dict) and section not in _AP_KEYS:
                     keys |= {k for k in block if isinstance(k, str)}
-            keys |= {k for k in doc if isinstance(k, str)}
-        out.append((fn, sorted(k for k in keys if k not in live and k not in _AP_KEYS)))
+        dead = sorted(k for k in keys if k not in live and k not in _AP_KEYS and k not in frozen)
+        stale = sorted(k for k in keys if k in frozen)
+        out.append((fn, dead, stale))
     return out
 
 
@@ -293,6 +317,27 @@ def selftest():
     # b.yaml is the 2026-07-26 shape: it did not regress, it never ran.
     check("broken config is CONFIGERROR, not REGRESSED", v["b.yaml"]["verdict"], "CONFIGERROR")
     check("healthy config is ok", v["c.yaml"]["verdict"], "ok")
+    # ---- check_yamls: the two bugs the FIRST REAL RUN exposed (2026-07-27) -------------------
+    import tempfile
+    import shutil
+    d = tempfile.mkdtemp(prefix="fillreg_selftest_")
+    try:
+        open(os.path.join(d, "x.yaml"), "w", encoding="utf-8").write(
+            "name: Tester\ndescription: fixture\n"
+            "EldenRing:\n  num_regions: 5\n  pool_builder: true\n  region_access: open\n")
+        res = check_yamls(d, {"num_regions"}, frozen={"pool_builder"})
+        fn, dead, stale = res[0]
+        # bug 1: the GAME SECTION NAME was being reported as a dead option in all nine files
+        check("game section name is not an option", "EldenRing" in dead, False)
+        check("top-level name/description are not options",
+              bool({"name", "description"} & set(dead)), False)
+        # bug 2: a FROZEN option is stale, not dead -- it is ignored on purpose
+        check("frozen option is not dead", "pool_builder" in dead, False)
+        check("frozen option is reported stale", stale, ["pool_builder"])
+        check("genuinely absent option IS dead", dead, ["region_access"])
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
     print("selftest:", "OK" if ok else "FAILED")
     return 0 if ok else 1
 
@@ -334,12 +379,20 @@ def main():
                   "option surface is unknown. Not guessing it -- run with AP on sys.path "
                   "(GF_AP_DIR) for the check.")
         else:
-            bad = [(f, dead) for f, dead in check_yamls(args.suite, live) if dead]
+            checked = check_yamls(args.suite, live, frozen_option_names())
+            stale = {f: st for f, _d, st in checked if st}
+            if stale:
+                allst = sorted({k for v in stale.values() for k in v})
+                print(f"  note: {len(stale)} yaml(s) still set FROZEN options {allst} -- ignored, "
+                      f"not broken (defaults.FROZEN_OPTIONS: they are the behaviour now). Tidy when "
+                      f"convenient; this is not the gate.")
+            bad = [(f, d) for f, d, _st in checked if d]
             if bad:
-                print("FATAL: suite yamls set option names that DO NOT EXIST in this world. Each "
-                      "one is silently doing nothing, so these configs no longer pin the bug they "
-                      "are named after -- a reproducer that cannot reproduce launders a regression "
-                      "into a pass. Fix the yamls (or --skip-yaml-check to run anyway):")
+                print("FATAL: suite yamls set option names that DO NOT EXIST in this world -- not "
+                      "frozen, not renamed, simply absent. Each is silently doing nothing, so these "
+                      "configs no longer pin the bug they are named after, and a reproducer that "
+                      "cannot reproduce launders a regression into a pass. Fix the yamls (or "
+                      "--skip-yaml-check to run anyway):")
                 for f, dead in bad:
                     print(f"  {f}: {', '.join(dead)}")
                 return 2
