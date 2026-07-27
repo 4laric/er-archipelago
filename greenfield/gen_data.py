@@ -3188,12 +3188,21 @@ QUEST_GATED_FLAGS |= set(_esd_gesture_flags) | set(_npc_gesture_flags)
 # ---- EVERY gesture check is barred from carrying progression (Alaric 2026-07-26) ---------------
 # "they're no progression surface. but belt and suspenders let's tag em all missable."
 #
-# ⭐ His premise is right and the belt is still load-bearing, which is worth writing down because
-# the two are easy to conflate. `progression_surface` governs where THIS world puts ITS OWN
-# progression (region Locks, gate Great Runes), and a gesture check carries no surface tag, so it
-# was already off that. It says NOTHING about a MULTIWORLD: AP's own fill can hand a gesture
-# location another player's progression item, and nothing in this world objected. The missable
-# item_rule is what forbids that, so this closes a real gap rather than gilding a closed one.
+# ⭐ CORRECTED 2026-07-26 -- the first version of this comment justified the change with "AP's fill
+# can hand a gesture location another player's progression item and nothing objected". THAT IS
+# FALSE, and it is the exact failure this repo keeps paying for: a confident claim about a guard
+# nobody looked at. `features/progression_surface.confine_foreign_progression` is a DefaultOnToggle
+# and core._add_locations already bars FOREIGN advancement on every non-surface check. MEASURED on
+# b18972e: 0 of the 32 gesture checks carry ANY location tag, so none is on the 198-location default
+# surface, so foreign progression was already refused there.
+#
+# The tag is still worth having, for THREE reasons that are actually true:
+#   1. That bar explicitly EXEMPTS our own advancement -- progression_surface's ladder must be able
+#      to SPILL an unplaceable region Lock back into the normal pool, so a spilled Lock can land on
+#      a gesture check. `protect_missable_locations` bars advancement from ANY player and closes it.
+#   2. `confine_foreign_progression` is player-settable and not frozen; someone can turn it off.
+#   3. An EMPTY progression surface makes `confined_surface_ids` return None = no foreign bar at all.
+# So: belt and suspenders, with the suspenders doing real work on the own-progression spill path.
 #
 # The NPC/dialogue awards above are genuinely questline-gated and keep that label. The remaining
 # gesture checks are the WORLD pickups -- ground interactions, not missable at all -- so they get
