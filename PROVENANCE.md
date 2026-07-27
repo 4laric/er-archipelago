@@ -56,7 +56,9 @@ against files that never enter this repo.
 `greenfield/gen_data.py` reads exactly (enumerated from its read sites, and pinned by
 `tools/gen_inputs.py`):
 
-- **13 param CSVs** — `BonfireWarpParam`, `EquipMtrlSetParam`, `EquipParamAccessory`,
+- **13 param CSVs** (the bundle carries every `*.csv` in the params dir; these 13 are the ones
+  `gen_data` reads, and a missing one refuses the build) — `BonfireWarpParam`, `EquipMtrlSetParam`,
+  `EquipParamAccessory`,
   `EquipParamGoods`, `EquipParamProtector`, `EquipParamWeapon`, `GestureParam`,
   `ItemLotParam_enemy`, `ItemLotParam_map`, `NpcParam`, `PlayRegionParam`, `ShopLineupParam`,
   `ShopLineupParam_Recipe`
