@@ -198,8 +198,50 @@ class ProvenanceGateTest(unittest.TestCase):
         with open(os.path.join(REPO, "README.md"), encoding="utf-8") as fh:
             readme = fh.read()
         self.assertIn("PROVENANCE.md", readme)
-        # the old pointer went to a file that was never tracked
-        self.assertNotIn("release-v0.2/ATTRIBUTION.md", readme)
+
+    def test_provenance_and_attribution_cross_references_resolve(self):
+        """Both docs point at each other; a dangling pointer between them is exactly the defect
+        this suite was written to clear.
+
+        🛑 I asserted on 2026-07-27 that release-v0.2/ATTRIBUTION.md 'has never existed'. It has
+        existed at every commit in this history. The check that told me otherwise ran inside a
+        clone whose checkout had TIMED OUT, so `git ls-files` under-reported -- and README.md was
+        pointing at the file, which I read as the README being wrong rather than my clone being
+        broken. This test exists so the claim is checked by something other than my memory.
+        """
+        attribution = os.path.join(REPO, "release-v0.2", "ATTRIBUTION.md")
+        if not os.path.exists(attribution):
+            self.skipTest("release-v0.2/ATTRIBUTION.md not present in this checkout")
+        with open(attribution, encoding="utf-8") as fh:
+            attr = fh.read()
+        with open(PROVENANCE, encoding="utf-8") as fh:
+            prov = fh.read()
+        self.assertIn("PROVENANCE.md", attr,
+                      "ATTRIBUTION.md no longer points at the repo provenance doc")
+        self.assertIn("ATTRIBUTION.md", prov,
+                      "PROVENANCE.md no longer points back at the release attribution doc")
+        # ATTRIBUTION.md promises this doc spells out five non-negotiables + how CI enforces them
+        if "five non-negotiables" in attr:
+            self.assertIn("five non-negotiables", prov,
+                          "ATTRIBUTION.md promises a 'five non-negotiables' section that "
+                          "PROVENANCE.md does not have -- a dangling forward reference")
+
+    def test_referenced_repo_paths_actually_exist(self):
+        """Any repo-relative path PROVENANCE.md names must resolve. The whole reason this file
+        was written was a README pointing at something; a provenance doc that itself dangles is
+        worse than none."""
+        import re as _re
+        with open(PROVENANCE, encoding="utf-8") as fh:
+            prov = fh.read()
+        missing = []
+        for m in _re.finditer(r"`(tools/[\w./-]+|greenfield/[\w./-]+|release-v0\.2/[\w./-]+|"
+                              r"\.github/[\w./-]+|[A-Z][A-Z-]+\.md)`", prov):
+            rel = m.group(1)
+            if any(ch in rel for ch in "*<>") or rel.endswith("/"):
+                continue
+            if not os.path.exists(os.path.join(REPO, rel)):
+                missing.append(rel)
+        self.assertFalse(missing, f"PROVENANCE.md references non-existent path(s): {sorted(set(missing))}")
 
     def test_no_matt_lineage_world_is_tracked(self):
         out = subprocess.run(["git", "ls-files", "worlds/"], cwd=REPO,

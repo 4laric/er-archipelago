@@ -8,6 +8,31 @@ where a claim has a command that proves it, the command is given.
 
 ---
 
+**Two documents, two audiences.** This file is the *repo* rule: what a contributor may and may not
+put in the tree, and which gate enforces it. `release-v0.2/ATTRIBUTION.md` is the *release* document
+that ships to players — licence, credits, and the link to thefifthmatt's randomizer we point at
+rather than redistribute. They cross-reference; neither replaces the other.
+
+---
+
+## The five non-negotiables, and the gate that enforces each
+
+Referenced from `release-v0.2/ATTRIBUTION.md`. Each is a machine check, not an intention — the
+point of the list is that none of them relies on anyone remembering.
+
+| # | Non-negotiable | Enforced by |
+|---|---|---|
+| 1 | **No game assets or licensed game data in the tree.** No `regulation.bin`, no `.dcx`, no MSB/FMG/EMEVD, no `elden_ring_artifacts/`. | `.gitignore` (`/elden_ring_artifacts/`, `game-files/`, `/applied_patches/`); `tools/check_integrity.py` as the pre-commit hook |
+| 2 | **No data or code from another randomizer.** Reading to cross-check is fine; committing it — or copying flags out of it — is not. | `check_integrity.py`'s foreign-list signatures + `test_gf_provenance_gate.py` (13 tests); `tools/diff_foreign_list.py` cannot print a foreign id |
+| 3 | **Every table is DERIVED, never typed.** Each generated module carries a `_GEN_STAMP` naming the `inputs_hash` it came from. | CI `generators` job: regenerates and fails on a non-empty `git diff`; `test_gf_gen_stamp.py` |
+| 4 | **A hand list only where the derivation genuinely cannot reach**, and it must say why. | `CONTRIBUTING.md` review bar; the coverage gate (`coverage.py`) fails generation on an unclassified location |
+| 5 | **Generated output is reproducible.** A regen on Windows and a regen in Linux CI produce identical bytes. | determinism tests (sorted sets, `sort_keys`, `newline="\n"`, `eol=lf` in `.gitattributes`), proven by the same CI diff as #3 |
+
+If you are adding something and cannot point at the row that covers it, that is the interesting
+case — raise it rather than guessing.
+
+---
+
 ## What ships here
 
 | | |

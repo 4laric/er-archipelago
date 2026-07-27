@@ -19,6 +19,7 @@ from worlds.eldenring.region_play_ids import REGION_PLAY_IDS  # noqa: E402
 from worlds.eldenring.location_tags import (  # noqa: E402
     ERDTREE_BURN_APS, DEFAULTED_REGION_APS, SHOP_RELEASE_GATED_APS)
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -93,9 +94,20 @@ class CapitalOnSeed(WorldTestBase):
                                             [101518, 9116, 118], [101519, 9116, 118]]
 
     def _royal_plain_location(self):
-        """A created m11_00 check barred ONLY by the burn strand (not defaulted, not shop-gated),
-        so its item_rule isolates the carve-out."""
-        plain = set(ERDTREE_BURN_APS) - set(DEFAULTED_REGION_APS) - set(SHOP_RELEASE_GATED_APS)
+        """A created m11_00 check barred ONLY by the burn strand, so its item_rule isolates the
+        carve-out.
+
+        🛑 MISSABLE must be subtracted too, and forgetting it is why this test went red on
+        2026-07-27. The predicate excluded defaulted and shop-gated locations but not missable
+        ones; when the ESD talk-award corpus scoped in 18 more gesture checks, four of them landed
+        in ERDTREE_BURN_APS as `questline` missables (f60805 My Lord, f60830, f60841, f60848) and
+        iteration order handed this test one of them. It then asserted the BURN carve-out against a
+        location barred by the MISSABLE rule and failed -- a true statement about the wrong
+        location. 6 of the 145 burn candidates are missable; 139 remain, so the premise is in no
+        danger of running out.
+        """
+        plain = (set(ERDTREE_BURN_APS) - set(DEFAULTED_REGION_APS)
+                 - set(SHOP_RELEASE_GATED_APS) - set(MISSABLE_LOCATIONS))
         for loc in self.multiworld.get_locations(self.player):
             if getattr(loc, "address", None) in plain:
                 return loc
@@ -126,7 +138,12 @@ class CapitalOffSeed(WorldTestBase):
             assert key not in sd, f"{key} emitted with the reconciler off"
 
     def test_royal_capital_progression_bar_restored(self):
-        plain = set(ERDTREE_BURN_APS) - set(DEFAULTED_REGION_APS) - set(SHOP_RELEASE_GATED_APS)
+        # Same subtraction as CapitalOnSeed._royal_plain_location, and for a sharper reason: this
+        # test asserts the bar IS up, so a missable location would satisfy it via the MISSABLE
+        # rule and pass while the burn strand was broken. Excluding them keeps the assertion about
+        # the burn strand and nothing else.
+        plain = (set(ERDTREE_BURN_APS) - set(DEFAULTED_REGION_APS)
+                 - set(SHOP_RELEASE_GATED_APS) - set(MISSABLE_LOCATIONS))
         locs = [l for l in self.multiworld.get_locations(self.player)
                 if getattr(l, "address", None) in plain]
         assert locs, "premise broken: no plain ERDTREE_BURN location created"

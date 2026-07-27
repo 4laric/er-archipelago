@@ -1,7 +1,8 @@
 """GESTURE PICKUPS: the detect-only checks that never existed (gen_data._gesture_derive).
 
-TWO populations, 14 checks. Both are EMEVD awards, so the whole class is DETECT-ONLY: the flag poll
-sees it, nothing can suppress the vanilla gesture, and the coverage gate classifies it
+THREE populations: 14 hand-verified EMEVD checks (a + b below) and the ESD talk-award corpus (c),
+which an EMEVD-only derivation is structurally blind to. The whole class is DETECT-ONLY: the flag
+poll sees it, nothing can suppress the vanilla gesture, and the coverage gate classifies it
 'event_award_unsuppressable' -- explicitly, never folded into "no ware".
 
 (a) WORLD PICKUPS -- 7 checks (ground truth 2026-07-14). common_func $Event(90005570) /
@@ -42,7 +43,56 @@ EXPECTED_WORLD = {60809, 60822, 60824, 60833, 60836, 60861, 60864}
 #   60826 m60_42_36 ev 1042363703 g60 | 60801 m60_51_36 ev 1051360734 g1 |
 #   60829 m60_51_56 ev 1051563701 g72
 EXPECTED_NPC = {60801, 60802, 60819, 60826, 60829, 60832, 60843}
-EXPECTED = EXPECTED_WORLD | EXPECTED_NPC
+# (c) ESD TALK AWARDS -- the THIRD corpus, scoped in after tools/probe_esd_gestures.py ran on
+# Windows. _gesture_derive is EMEVD-only and is structurally blind to gestures an NPC TEACHES IN
+# DIALOGUE (ESDLang `AcquireGesture`); greenfield/esd_gestures.tsv is how it sees them. 20 distinct
+# flags, 18 of them new -- 60801/60802 were already reachable via EMEVD and appear in (b).
+#
+# 🛑 This population is NOT re-pinned as a literal set, and that is deliberate. The old test pinned
+# 14 magic numbers and went red the moment the corpus legitimately widened -- it failed the change
+# rather than checking it. Pinning 32 numbers would just reschedule that. What must not drift is
+# the PARTITION: every gesture flag comes from a corpus we can name, the EMEVD ground truth is
+# never lost, and nothing is minted from thin air. The ESD half is cross-checked against the tsv
+# below, and its own invariants (live check, flag is real) are asserted separately.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+# 🛑 TWO locations, because the world moves. In the repo the tsv is greenfield/esd_gestures.tsv
+# (../../ from tests/); gf_test.py copies every greenfield *.tsv INTO the installed world dir, so
+# under the harness it is ../ instead. Resolving only one of them is the same positional-path
+# assumption that errored 45 tests on 2026-07-27 -- check both, take the first that exists.
+_ESD_TSV_CANDIDATES = (
+    os.path.join(_HERE, "..", "esd_gestures.tsv"),                   # installed world dir
+    os.path.join(_HERE, "..", "..", "esd_gestures.tsv"),             # repo greenfield/
+)
+
+
+def _esd_tsv_path():
+    for p in _ESD_TSV_CANDIDATES:
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def _esd_taught_flags():
+    """Distinct acquisition flags in greenfield/esd_gestures.tsv, or an empty set when the tsv is
+    not reachable -- in which case the partition assertion falls back to the EMEVD 14 and says so
+    rather than silently passing on a corpus it could not read."""
+    out = set()
+    path = _esd_tsv_path()
+    if path is None:
+        return out
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            if line.startswith("#") or line.startswith("gesture_id"):
+                continue
+            parts = line.rstrip("\n").split("\t")
+            if len(parts) > 1 and parts[1].isdigit():
+                out.add(int(parts[1]))
+    return out
+
+
+EXPECTED_EMEVD = EXPECTED_WORLD | EXPECTED_NPC        # the 14 hand-verified EMEVD checks
+EXPECTED_ESD = _esd_taught_flags()
+EXPECTED = EXPECTED_EMEVD | EXPECTED_ESD
 # flags the derivation must REFUSE: nothing in any corpus sets them (see the module docstring)
 REFUSED_DEAD_FLAGS = {10007490, 18007090}
 
@@ -54,13 +104,30 @@ def _gesture_locs():
 
 
 class TestGestureData:
-    def test_the_fourteen_pickups_exist_once_each(self):
-        # The SET is the pin; the count follows from it. 7 world + 7 NPC/quest, disjoint.
-        assert EXPECTED_WORLD & EXPECTED_NPC == set(), "the two populations must not overlap"
-        assert set(GESTURE_AWARD_FLAGS) == EXPECTED
+    def test_the_pickups_exist_once_each(self):
+        # The PARTITION is the pin: 7 world + 7 NPC/quest (EMEVD, hand-verified and disjoint),
+        # plus whatever the ESD talk corpus documents. A flag in none of those is invented.
+        assert EXPECTED_WORLD & EXPECTED_NPC == set(), "the two EMEVD populations must not overlap"
+        got = set(GESTURE_AWARD_FLAGS)
+        assert EXPECTED_EMEVD <= got, \
+            f"EMEVD ground truth lost: {sorted(EXPECTED_EMEVD - got)}"
+        assert got - EXPECTED == set(), \
+            ("gesture flags belonging to NO corpus (not the 14 EMEVD checks, not esd_gestures.tsv) "
+             f"-- invented from nowhere: {sorted(got - EXPECTED)}")
+        if EXPECTED_ESD:
+            assert EXPECTED_ESD <= got, \
+                f"esd_gestures.tsv rows never scoped in: {sorted(EXPECTED_ESD - got)}"
+
+    def test_each_gesture_flag_is_exactly_one_live_check(self):
+        """A gesture award that is not a location is a derivation that ran and produced nothing;
+        one that is TWO locations puts two checks on one interaction. Counted, not pinned to a
+        literal -- the population grows when a corpus is added, and that is not a regression."""
+        live = {f for locs in LOCATIONS.values() for (_n, _a, f) in locs}
+        orphans = sorted(set(GESTURE_AWARD_FLAGS) - live)
+        assert not orphans, f"{len(orphans)} gesture flag(s) are not live checks: {orphans[:6]}"
         locs = _gesture_locs()
-        assert len(locs) == len(EXPECTED) == 14, \
-            f"each gesture flag must be exactly one location, got {locs}"
+        assert len(locs) == len(EXPECTED), \
+            f"each gesture flag must be exactly ONE location: {len(locs)} locs for {len(EXPECTED)} flags"
         assert {f for (_r, _n, _a, f) in locs} == EXPECTED
 
     def test_the_dead_flag_awards_stay_refused(self):
