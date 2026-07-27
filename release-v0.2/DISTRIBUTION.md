@@ -9,7 +9,7 @@ enforced. The apworld stamps a contract hash into `slot_data`; the client has on
 on connect it compares them:
 
 ```
-VERSION MISMATCH -- apworld sent [apworld/0.2.0 contract/36013f63 data/...] but this client
+VERSION MISMATCH -- apworld sent [apworld/0.2.12 contract/36013f63 data/...] but this client
 was BUILT against contract/<other>. The apworld and the client .dll are from different builds.
 ```
 

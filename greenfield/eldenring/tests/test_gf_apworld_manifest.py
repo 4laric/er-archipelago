@@ -67,3 +67,28 @@ class TestApworldManifest(unittest.TestCase):
             self.assertIn(key, manifest, f"manifest is missing {key!r}, which AP reads")
         self.assertRegex(str(manifest["world_version"]), r"^\d+\.\d+\.\d+$",
                          "world_version must be tuplize_version-able (X.Y.Z)")
+
+    def test_the_three_version_numbers_are_one_number(self):
+        """archipelago.json, contract.py, and the client crate must all say the same thing.
+
+        They did not: the client sat at 0.1.0-beta.4 against apworld 0.2.0 for months. The semver
+        BAND gate that used to force them together was retired 2026-07-11 (`versions` became a
+        descriptive string and the handshake compares the CONTRACT HASH), and nothing replaced the
+        pressure -- so the number stopped moving and its comment went on describing a dead mechanism.
+
+        Nothing in production reads these, so this protects the BUG REPORT rather than a behaviour:
+        `versions` is the string every report carries, and three disagreeing numbers make triage
+        guesswork. The client half is asserted in core.rs
+        (client_version_matches_the_apworld_it_was_built_against) against the generated
+        contract_gen.rs, which closes the loop.
+        """
+        import json as _json
+        import os as _os
+        from .. import contract as _contract
+        here = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+        with open(_os.path.join(here, "archipelago.json"), encoding="utf-8") as fh:
+            manifest = _json.load(fh)
+        self.assertEqual(
+            str(manifest["world_version"]), _contract.APWORLD_VERSION,
+            "archipelago.json world_version and contract.APWORLD_VERSION disagree -- the apworld "
+            "would announce one version to Archipelago and a different one to the client.")
