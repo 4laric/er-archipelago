@@ -12,6 +12,13 @@
 > are tagged (0 untagged), and the Queelign pair is among them. Both claims on this page are now
 > checked against shipped data: **24 / 5 / 3 / 16** landmarks, **+28** newly un-requirable checks.
 >
+> 🛑 **PULLED 2026-07-27, after this page was drafted.** It claimed the Siofra / Eternal Cities crash
+> was "fixed at the root". That fix was a filter on the game's per-character load state, and it was
+> WRONG — it rejected ~99.5% of entries, so no enemy was ever scaled and a rolled Mohgwyn start met
+> full-strength endgame enemies (client `70f9ccc` reverts it; ShadowTL reported the same on Nexus for
+> a Snowfield start). The crash is still guarded the way it always was, by the 2.5s settle window.
+> Both mentions are removed below. **Do not re-add the claim without a live run.**
+>
 > Nothing below needs another regen. The two remaining items are playtest questions, not builds.
 
 ---
@@ -35,9 +42,8 @@ strength vanilla reserves for its endgame — where it previously stopped at 3.7
 rises with it. **This changes the default experience**, so if you liked v0.2.11's curve, set
 `maximum_enemy_difficulty: 50`.
 
-Also: enemies get scaled noticeably sooner after a fast travel, a long-standing crash around Siofra
-and the Eternal Cities has been fixed at the root, and **24 checks now tell you where they are** —
-including five that previously said nothing at all.
+Also: enemies get scaled noticeably sooner after a fast travel, and **24 checks now tell you where
+they are** — including five that previously said nothing at all.
 
 **Update both halves.** The apworld and the client `.dll` ship as a matched pair and now carry the
 same version number for the first time.
@@ -82,11 +88,6 @@ That is a deliberate balance change, not a side effect. If you preferred the old
 
 ### Fixes
 
-- **A crash around Siofra River and the Eternal Cities is fixed at the root.** The client used to
-  wait a fixed 2.5 seconds after any map change before touching enemies, because touching one
-  mid-load could crash the game. It turns out the game publishes a per-character "am I finished
-  loading" state that we were never reading. We read it now, so the wait is no longer doing the
-  dangerous work — and the guard it replaced can eventually come down.
 - **Enemies get scaled sooner after a fast travel.** The window dropped from roughly 3 seconds to
   2.5 in the ordinary case, and from about 8 seconds to 3.5 when the game reported an unstable region
   on arrival. If you have ever been jumped immediately after a warp and thought the enemies felt
@@ -157,10 +158,11 @@ needed to be. They ship as a matched pair; they now say so.
 
 Items I could not settle from here:
 
-1. **The in-game crash check is not done.** The Siofra fix is verified by inspection and by the
-   Windows build, but nobody has run the game with it. It needs a Siofra well descent and a warp to
-   Beside the Rampart Gaol before the "fixed" claim above is honest. Either confirm it, or soften the
-   wording to "should be fixed — please report if you still see it".
+1. ✅ **RESOLVED, badly.** This said the Siofra crash fix needed a live run before the "fixed at the
+   root" claim was honest. It got one: the fix was wrong and is reverted (client `70f9ccc`). The
+   claim is pulled from this page. The crash remains guarded by the 2.5s settle window, as before —
+   which is to say the CTD is neither fixed nor newly worse. Worth its own line in a later release,
+   not this one.
 2. **The doubled ceiling has not been playtested.** The number is derived from the game's own data
    and is certainly *correct*; whether the new default curve is *fun* is a different question, and
    this is the change most likely to generate feedback. Consider a short seed at defaults before
