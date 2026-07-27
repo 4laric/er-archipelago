@@ -9,6 +9,20 @@ Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client.
 names changed in this release, so an in-flight seed will not match a new tracker — finish
 old seeds before updating, or reroll.
 
+### Fixed — apworld
+
+- **27 checks that can be picked up in two different regions can no longer be required.** A
+  check is filed in one region, and the reachability model treats it as available once that
+  region opens. Some event-awarded pickups are obtainable in more than one place, and *which*
+  place is decided by the order you happen to do things. Fire Knight Queelign is the clearest
+  case: he can be fought at the Church of the Crusade **or** in Belurat, and drops the Crusade
+  Insignia first and the Prayer Room Key second wherever those two fights land — so half of all
+  players get each item in the "wrong" region. A seed could put a required item on one and
+  strand a player whose route went the other way. They stay randomised and stay yours; they
+  just cannot hold anything the seed *needs* any more. Found by a screen that also re-derived
+  seven checks earlier audits had already caught by hand, which is what makes the other 27
+  credible.
+
 ### Changed — apworld
 
 - **24 checks now name a landmark, and five of them said nothing at all before.** A check's

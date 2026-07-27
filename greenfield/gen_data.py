@@ -2289,6 +2289,51 @@ _NPC_STATE_GATED = frozenset({
     1033447000, 1033447010, 1033447020, 1033447030, 1033447040,   # Edgar / Revenger's Shack
     31007010, 31007030,                                            # Patches / Murkwater Cave pair
 })
+
+
+# MULTI-SITE checks -- a THIRD independent derivation (2026-07-27), read from the committed
+# greenfield/multisite_checks.tsv (tools/datamine_multisite_checks.py).
+#
+# A check is filed in ONE region and the region-lock model treats it as reachable when that region
+# opens. Some event-awarded checks are obtainable in SEVERAL places, and which one you get it at is
+# decided by the ORDER you do things -- nothing in the data decides it. File it in region A, let a
+# seed put a required item on it, and a player routed through region B (still locked) is stranded.
+#
+# Fire Knight Queelign is the case that exposed it (Alaric, from the wiki; msb_flag_region agrees):
+# fightable at the Church of the Crusade OR in Belurat, dropping the Crusade Insignia first and the
+# Prayer Room Key second wherever those land -- so f400694 is filed Belurat and f400696 Scadu Altus,
+# and for half of all players those are the wrong way round.
+#
+# ⭐ The derivation re-finds SEVEN flags that two earlier audits had already hand-tagged missable one
+# at a time (Lord of Blood's Favor, Shabriri Grape, Sword of Milos, Freyja's Greatsword, Falx,
+# Moore's Bell Bearing, Verdigris Greatshield). Recovering a hand-audited set by derivation is what
+# makes the 27 new members credible -- and is exactly the "derive the datum, don't pin the symptom"
+# the hand lists above were waiting for.
+#
+# 🛑 It can OVER-tag: a flag SET by several maps' EMEVD is not proof the item is obtainable in all
+# of them. That is why the disposition is MISSABLE and never an access rule -- the check stays
+# randomised and obtainable and loses only the right to host REQUIRED progression. Same standing
+# call as the Patches pair: tagging costs a filler slot, assuming wrong costs an unwinnable seed.
+#
+# 🛑 Kept SEPARATE from the two sets above for the same reason they are separate from each other:
+# each set's provenance is its own screen, and folding them would make any of them unfalsifiable by
+# its own test.
+def _load_multisite_flags():
+    _p = os.path.join(HERE, "multisite_checks.tsv")
+    if not os.path.isfile(_p):
+        return frozenset()
+    _out = set()
+    with open(_p, encoding="utf-8-sig", newline="") as _fh:
+        for _ln in _fh:
+            if not _ln.strip() or _ln.lstrip().startswith("#"):
+                continue
+            _p0 = _ln.split("\t")[0].strip()
+            if _p0.isdigit():
+                _out.add(int(_p0))
+    return frozenset(_out)
+
+
+_MULTI_SITE = _load_multisite_flags()
 # ⭐ Fold in the CROSS-REGION-gated set derived above (_QUESTLINE_GATED). Alaric 2026-07-26: randomised
 # + missable BEATS excluded -- the pickup stays in the pool and only loses the right to host REQUIRED
 # progression, which is the one thing that could strand a seed.
@@ -2297,11 +2342,22 @@ _NPC_STATE_GATED = frozenset({
 # either the corroboration or a set that has stopped contributing anything.
 _QG_NEW = _QUESTLINE_GATED - QUEST_GATED_FLAGS
 _NS_NEW = _NPC_STATE_GATED - QUEST_GATED_FLAGS - _QUESTLINE_GATED
+_MS_NEW = _MULTI_SITE - QUEST_GATED_FLAGS - _QUESTLINE_GATED - _NPC_STATE_GATED
+_MS_BOTH = len(_MULTI_SITE) - len(_MS_NEW)
 print("quest_gated: %d hand-audited flag(s); cross-region screen adds %d NEW %s (%d covered by BOTH); "
       "NPC-state/asset-disable scan adds %d NEW %s"
       % (len(QUEST_GATED_FLAGS), len(_QG_NEW), sorted(_QG_NEW),
          len(_QUESTLINE_GATED) - len(_QG_NEW), len(_NS_NEW), sorted(_NS_NEW)))
-QUEST_GATED_FLAGS |= _QUESTLINE_GATED | _NPC_STATE_GATED
+# The multi-site screen's OVERLAP with the hand audits is the point, not a footnote: it is the only
+# evidence that its NEW members are real. A run where _MS_BOTH collapses to 0 means the screen has
+# stopped agreeing with anything hand-verified and should be distrusted, not silently unioned.
+print("multi_site (obtainable in >1 region, order-decided): %d flag(s); %d ALREADY tagged by an "
+      "earlier audit (corroboration), %d NEW %s"
+      % (len(_MULTI_SITE), _MS_BOTH, len(_MS_NEW), sorted(_MS_NEW)))
+if _MULTI_SITE and not _MS_BOTH:
+    print("[gen_data] WARNING: the multi-site screen now corroborates NOTHING previously "
+          "hand-audited. Its new members are unsupported -- check the screen before trusting it.")
+QUEST_GATED_FLAGS |= _QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE
 
 
 # Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in

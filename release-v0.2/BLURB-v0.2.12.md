@@ -1,12 +1,17 @@
 # v0.2.12 — release blurb (draft)
 
-> Drafted 2026-07-27. **Three things to settle before this ships** — see "Before you post" at the
+> Drafted 2026-07-27. **Two things to settle before this ships** — see "Before you post" at the
 > bottom. Everything above it is verified; nothing there is a guess.
 >
-> 🛑 **ONE OF THEM IS A REGEN.** The landmark section below describes the world AFTER a second
-> `gen_data` run. The regen already pushed contains one descriptor I have since withdrawn
-> (*Crusade Insignia — near Theatre of the Divine Beast*, wrong for half of players — see the
-> Queelign note). Ship the blurb only after regenerating, or that line goes out with it.
+> ✅ **The landmark regen is in** (`c6c635d`). Every number and named example below was re-checked
+> against the shipped `data.py` afterwards: 24 landmark changes — 5 that said nothing, 3 that
+> showed a raw map id, 16 sharpened — and all eight items named by title verified individually.
+> The withdrawn *Crusade Insignia* line is gone; it reads "around Belurat, Tower Settlement" again.
+>
+> 🛑 **ONE MORE REGEN IS NEEDED**, for the two-region missable fix below (`multisite_checks.tsv` +
+> the `gen_data` hook landed after `c6c635d`). Until it runs, those 27 checks can still be handed
+> required progression. That is a seed-safety fix, so it should ship with the release rather than
+> after it.
 
 ---
 
@@ -114,6 +119,19 @@ Queelign can be fought at the Church of the Crusade *or* in Belurat, and drops t
 first and the Prayer Room Key second — wherever those two fights happen to be for you. There is no
 fact in the game data about which site your key came from, so naming one would be wrong for half of
 you. Those checks say nothing instead.
+
+### 27 two-region checks can no longer be required
+
+Chasing that Queelign oddity turned up a seed-safety problem behind it. A check is filed in one
+region, and the logic treats it as available once that region opens — but a pickup obtainable in
+**two** regions, with the order deciding which, breaks that assumption. Put a required item on one
+and a player routed the other way is stranded behind a region they have not unlocked yet.
+
+27 checks now refuse required progression for that reason. They are still randomised and still
+yours; they simply cannot hold anything the seed *needs*. The screen that found them also
+re-derived seven that earlier hand audits had already caught one at a time — Lord of Blood's
+Favor, Shabriri Grape, Sword of Milos and friends — which is the reason to trust it about the
+rest.
 
 ### Renamed options
 
