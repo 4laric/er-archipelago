@@ -31,8 +31,13 @@ class MissableDataTests(unittest.TestCase):
         # family and must fail.
         self.assertGreaterEqual(len(alt), 19,
                                 "alt-currency missables SHRANK -- a currency family stopped matching")
+        # 2026-07-26: 'gesture_award' joined the label set. EVERY gesture check now bars
+        # progression (Alaric: "they're no progression surface. but belt and suspenders let's tag
+        # em all missable"). The NPC/dialogue awards are questline-labelled; the WORLD pickups are
+        # not questline-gated at all, so they carry their own label rather than a reason that is
+        # false of them. The identity below is the real assertion: every entry has a known source.
         self.assertEqual(len(MISSABLE_LOCATIONS),
-                         10 + len(alt) + vals.count("questline"))
+                         10 + len(alt) + vals.count("questline") + vals.count("gesture_award"))
 
     def test_both_dragon_communion_currencies_are_tagged(self):
         """The bug this guards: ONE altar can mix cost types. Caelid's shelf is costType 1, the DLC
@@ -45,7 +50,8 @@ class MissableDataTests(unittest.TestCase):
 
     def test_only_known_sources(self):
         for v in set(MISSABLE_LOCATIONS.values()):
-            self.assertTrue(v in ("deathroot", "questline") or v.startswith("alt_currency:"),
+            self.assertTrue(v in ("deathroot", "questline", "gesture_award")
+                            or v.startswith("alt_currency:"),
                             "unknown missable source label %r" % v)
 
     def test_ap_ids_are_ints(self):

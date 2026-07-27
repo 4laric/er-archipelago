@@ -3161,11 +3161,11 @@ def _gesture_derive():
                        "region": _region[_fl8], "method": "gesture"})
         _table[_fl8] = (_gid8, 0x40000000 | _good8, _nm8)
     return (_rows8, _region, _table, len(_sites), len(_npc), len(_npc_riders),
-            sorted(_esd_new), _corroborated)
+            sorted(_esd_new), _corroborated, sorted(_npc_by_flag))
 
 (_gesture_rows, _gesture_region, GESTURE_AWARD_FLAGS,
  _gesture_sites, _gesture_npc, _gesture_riders,
- _esd_gesture_flags, _esd_gesture_corroborated) = _gesture_derive()
+ _esd_gesture_flags, _esd_gesture_corroborated, _npc_gesture_flags) = _gesture_derive()
 GESTURE_REGION.update(_gesture_region)
 rows = rows + _gesture_rows
 print(f"gesture: +{len(_gesture_rows)} DERIVED gesture-pickup checks "
@@ -3181,10 +3181,33 @@ print(f"gesture: of those, {len(_esd_gesture_flags)} are ESD-TAUGHT (AcquireGest
 # the questline is skipped -- exactly the class QUEST_GATED_FLAGS exists for, and exactly Alaric's
 # standing call (2026-07-26: randomised + missable BEATS excluded). They stay ordinary collectable
 # checks and merely lose the right to host REQUIRED progression.
-# ⚠️ NOT extended to the 7 EMEVD NPC/quest gestures scoped in by 89b7d8a (60801/60802/60819/60826/
-# 60829/60832/60843) -- several of those look missable too and NONE is tagged today, but that would
-# move existing checks on a judgement nobody has made yet. Flagged, deliberately not folded in.
-QUEST_GATED_FLAGS |= set(_esd_gesture_flags)
+# The 7 EMEVD NPC/quest gestures scoped in by 89b7d8a (60801/60802/60819/60826/60829/60832/60843)
+# are folded in HERE rather than in _QUESTLINE_GATED: same reasoning, different derivation. (f40cc9a
+# deliberately left them out as "a judgement nobody has made"; Alaric made it the same day.)
+QUEST_GATED_FLAGS |= set(_esd_gesture_flags) | set(_npc_gesture_flags)
+# ---- EVERY gesture check is barred from carrying progression (Alaric 2026-07-26) ---------------
+# "they're no progression surface. but belt and suspenders let's tag em all missable."
+#
+# ⭐ His premise is right and the belt is still load-bearing, which is worth writing down because
+# the two are easy to conflate. `progression_surface` governs where THIS world puts ITS OWN
+# progression (region Locks, gate Great Runes), and a gesture check carries no surface tag, so it
+# was already off that. It says NOTHING about a MULTIWORLD: AP's own fill can hand a gesture
+# location another player's progression item, and nothing in this world objected. The missable
+# item_rule is what forbids that, so this closes a real gap rather than gilding a closed one.
+#
+# The NPC/dialogue awards above are genuinely questline-gated and keep that label. The remaining
+# gesture checks are the WORLD pickups -- ground interactions, not missable at all -- so they get
+# their own label instead of being filed under a reason that is not true of them. A missable label
+# is a claim about WHY, and "questline" on a rock in the Cave of Knowledge would be a lie of exactly
+# the kind CONTRIBUTING's docstring rule is about. Their real reason is that the whole class is
+# DETECT-ONLY: the award is an EMEVD instruction, the client cannot suppress the vanilla gesture and
+# has no verified grant path for the goods, so the location pays filler and defending it from
+# progression costs nothing.
+GESTURE_AWARD_MISSABLE = frozenset(set(GESTURE_AWARD_FLAGS) - QUEST_GATED_FLAGS)
+print("gesture: all %d gesture checks now bar progression -- %d questline-labelled (NPC/dialogue "
+      "awards), %d 'gesture_award' (world pickups; detect-only, not questline)"
+      % (len(GESTURE_AWARD_FLAGS), len(set(GESTURE_AWARD_FLAGS) & QUEST_GATED_FLAGS),
+         len(GESTURE_AWARD_MISSABLE)))
 # region_map.csv must NOT also carry these flags -- if the upstream pipeline ever grows a row for
 # one, two sources would mint two locations for one flag. Reconcile by hand if this ever fires.
 _gest_clash = sorted(set(GESTURE_AWARD_FLAGS)
@@ -4719,6 +4742,8 @@ for _i, _r in enumerate(rows):
         _MISSABLE[BASE_AP + _i] = _alt_currency_label(_mf)
     elif _mf in QUEST_GATED_FLAGS:
         _MISSABLE[BASE_AP + _i] = "questline"
+    elif _mf in GESTURE_AWARD_MISSABLE:
+        _MISSABLE[BASE_AP + _i] = "gesture_award"
 # CO-CHECK members inherit their flag's missability (same physical acquisition -- a group must never
 # mix "missable" and "not": AP could then require the un-missable member of a pickup the player can
 # no longer perform). None of the seeded four qualifies; kept general for the allowlist widening.
@@ -4729,6 +4754,8 @@ for _ap9, (_cfl9, _tb9x, _lot9x, _fu9x, _nm9x) in CO_CHECK_EMITTED.items():
         _MISSABLE[_ap9] = _alt_currency_label(_cfl9)
     elif _cfl9 in QUEST_GATED_FLAGS:
         _MISSABLE[_ap9] = "questline"
+    elif _cfl9 in GESTURE_AWARD_MISSABLE:
+        _MISSABLE[_ap9] = "gesture_award"
 OUT_MISS = os.path.join(HERE, "eldenring", "missable_locations.py")
 with open(OUT_MISS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). ap_ids of MISSABLE checks -- gated behind a limited\n')
