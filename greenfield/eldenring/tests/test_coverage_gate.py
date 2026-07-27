@@ -41,7 +41,27 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4860   # 4853 + 7 (gesture scope-in 2026-07-26, 89b7d8a): the literal
+BASELINE_TOTAL_LOCATIONS = 4879   # 4860 + 19 (ESD talk-award corpus, 2026-07-26, f40cc9a+1c258e5):
+                                  # 18 gestures NPCs TEACH IN DIALOGUE (`AcquireGesture` in the talk
+                                  # ESD -- a THIRD award corpus _gesture_derive was structurally blind
+                                  # to, since it reads EMEVD only) + 1 recovered global, Roderika's
+                                  # Spirit Jellyfish Ashes f400190, whose 4xxxxx flag decodes to no map
+                                  # so _recover_tile dropped it. Both were Alaric's in-game report:
+                                  # she handed over the vanilla ashes AND taught the vanilla Sitting
+                                  # Sideways, and neither fired.
+                                  # PREDICTED +19 BEFORE the regen and CONFIRMED at 4879 after it --
+                                  # the number was checked against a prediction rather than copied off
+                                  # a red run, which is the whole point of this constant. The other 10
+                                  # static-half assertions stayed GREEN across the regen, so all 19 new
+                                  # locations are detected, suppressed-or-explained, and
+                                  # region-consistent: award/detection/region/suppression/quarantine
+                                  # remain at ZERO violations. A count that grows because a predicate
+                                  # got looser is a bug; this one grew because the input CORPUS grew.
+                                  # 2 further ESD gesture flags (60819, 60832 -- Patches) were NOT
+                                  # minted: they are already EMEVD checks, one interaction with two
+                                  # script sources, and they serve as the ESD pairing rule's positive
+                                  # control instead.
+                                  # Prior: 4853 + 7 (gesture scope-in 2026-07-26, 89b7d8a): the literal
                                   # AwardGesture sites in map EMEVDs -- NPC/quest awards _gesture_derive
                                   # used to COUNT and discard -- are checks now that questline content is
                                   # randomised + MISSABLE rather than excluded. 9 sites -> 7 with an
