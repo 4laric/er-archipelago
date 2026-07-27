@@ -12,15 +12,15 @@ NOT the whole game -- enumerated from its read sites (2026-07-27):
                     ItemLotParam_map, NpcParam, PlayRegionParam, ShopLineupParam,
                     ShopLineupParam_Recipe
     15 FMG XMLs     {Weapon,Protector,Accessory,Goods,Gem}Name x {base, dlc01, dlc02}
-
-⭐ PARAMS ARE NOW TAKEN BY GLOB (2026-07-27): the bundle carries EVERY *.csv in the params dir,
-not just the 13 above. The 13 (+SpEffectParam) are the REQUIRED FLOOR -- missing one is still a
-hard refusal -- but anything else the box has rides along, so "carry one more param to answer a
-question" stops being a code change plus a regen. The build prints the extras and their sizes,
-because with a glob the bundle's WEIGHT becomes the thing to watch and this .db is committed to a
-public repo.
        event/       the decompiled EMEVD (*.emevd.dcx.js)
        talk|esd_py/ the decompiled talk ESD (optional; the esd_* datamines)
+
+⭐ PARAMS AND MSG ARE NOW TAKEN BY GLOB (2026-07-27): the bundle carries EVERY *.csv in the params
+dir and EVERY *.fmg.xml under msg/, not just the lists above. Those lists are now the REQUIRED
+FLOOR -- missing one is still a hard refusal -- but anything else the box has rides along, so
+"carry one more input to answer a question" stops being a code change plus a regen. The build
+prints the extras and their sizes, because with a glob the bundle's WEIGHT is the thing to watch
+and this .db is committed to a public repo.
 
 That is text, and it compresses hard. The MSBs (mapstudio/, map/) are deliberately NOT here: they
 are the unwieldy half, and only the Tier-2 MSB datamines need them -- those stay on the box with
@@ -107,9 +107,17 @@ FMG_XMLS = [f"{stem}Name{suf}.fmg.xml"
 #   BOTH             -> take everything matching the glob, and REQUIRE the named ones (params)
 SPEC = [
     (os.path.join("vanilla_er", "vanilla_er"), REQUIRED_PARAM_CSVS, "*.csv"),
-    (os.path.join("msg", "item-msgbnd-dcx"), [f for f in FMG_XMLS if "dlc" not in f], None),
-    (os.path.join("msg", "item_dlc01-msgbnd-dcx"), [f for f in FMG_XMLS if "dlc01" in f], None),
-    (os.path.join("msg", "item_dlc02-msgbnd-dcx"), [f for f in FMG_XMLS if "dlc02" in f], None),
+    # msg/ is now ONE RECURSIVE GLOB over every *.fmg.xml, whatever msgbnd dirs are present --
+    # same reasoning as the params glob. The 15 item-NAME FMGs stay the required floor (gen_data
+    # reads them); everything else rides along.
+    #
+    # WHAT THIS UNLOCKS (2026-07-27): the bundle carried only the 15 item-name FMGs, which is the
+    # naming half of several things we can now derive but not LABEL -- GameAreaParam gives boss
+    # flags and arena coords but boss names live in NpcName; WorldMapPointParam gives 472 map
+    # markers with textIds but the strings live in PlaceName; the 365-file talk ESD corpus is
+    # unreadable without TalkMsg. Those FMGs are in menu.msgbnd / other msgbnds, which this glob
+    # picks up without anyone having to enumerate them.
+    ("msg", FMG_XMLS, "*.fmg.xml"),
     ("event", None, "*.emevd.dcx.js"),
     ("talk", None, "*.py"),
     ("esd_py", None, "*.py"),
@@ -157,24 +165,30 @@ def _walk(src, report=None):
             # GLOB FOR BREADTH, NAMES FOR THE FLOOR. Take everything matching, then check the
             # required set separately -- a glob cannot fail, and a params dir quietly missing
             # ItemLotParam_map would otherwise build a smaller bundle and report success.
+            #
+            # RECURSIVE, and required names match on BASENAME. params/ is flat but msg/ is not
+            # (msg/item-msgbnd-dcx/WeaponName.fmg.xml), and the flat-listdir version of this is
+            # the same bug that once packed the ESD corpus as zero files and called it success.
             n_before = len(out)
-            found = set()
-            for n in sorted(os.listdir(d)):
-                if not fnmatch.fnmatch(n, glob) or not os.path.isfile(os.path.join(d, n)):
-                    continue
-                found.add(n)
-                out.append((os.path.join(rel, n).replace("\\", "/"), os.path.join(d, n)))
+            found = {}
+            for dirpath, _dirs, fnames in os.walk(d):
+                for n in sorted(fnames):
+                    if not fnmatch.fnmatch(n, glob):
+                        continue
+                    ap = os.path.join(dirpath, n)
+                    found.setdefault(n, os.path.relpath(ap, d).replace("\\", "/"))
+                    out.append((os.path.relpath(ap, src).replace("\\", "/"), ap))
             for n in names:
                 if n not in found:
                     missing.append(os.path.join(rel, n) + "  (REQUIRED)")
-            extra = sorted(found - set(names))
+            extra = sorted(set(found) - set(names))
             notes.append(f"{rel}/: {len(out) - n_before} file(s) matching {glob} "
                          f"({len(names)} required, {len(extra)} extra)")
             if extra:
                 # Report SIZES for the extras. Globbing makes bundle weight the new failure mode --
                 # this repo is public and the .db is committed -- so the cost of each ride-along has
                 # to be visible at build time, not discovered in a git push.
-                sized = sorted(((os.path.getsize(os.path.join(d, n)), n) for n in extra),
+                sized = sorted(((os.path.getsize(os.path.join(d, found[n])), n) for n in extra),
                                reverse=True)
                 tot = sum(s for s, _ in sized)
                 notes.append(f"  extra (carried, not read by gen_data): {len(extra)} file(s), "
@@ -390,7 +404,7 @@ def selftest():
     try:
         src = os.path.join(root, "art")
         made = []
-        extra_param = "ZZUnlistedParam.csv"      # a param NOT in the required floor
+        extras_made = []      # (relpath, label) -- one unlisted file per names+glob entry
         for rel, names, glob in SPEC:
             d = os.path.join(src, rel)
             # NEST the glob-only dirs one level down -- that nesting is the bug this fixture
@@ -400,7 +414,11 @@ def selftest():
             os.makedirs(os.path.join(d, sub) if sub else d, exist_ok=True)
             fixture = list(names) if names else [f"m10_00_00_00{glob[1:]}"]
             if names and glob:
-                fixture.append(extra_param)      # must be picked up WITHOUT being listed
+                # The unlisted file must MATCH THIS ENTRY'S GLOB. Planting a .csv in msg/ (which
+                # globs *.fmg.xml) makes the fixture, not the packer, the thing that is broken.
+                unlisted = "ZZUnlisted" + glob.lstrip("*")
+                fixture.append(unlisted)
+                extras_made.append(os.path.join(rel, unlisted).replace("\\", "/"))
             for n in fixture:
                 rp = os.path.join(rel, sub, n) if sub else os.path.join(rel, n)
                 open(os.path.join(src, rp), "w", encoding="utf-8").write(f"synthetic {n}\n" * 50)
@@ -426,12 +444,14 @@ def selftest():
         if len(made) != want:
             ok = False
             print(f"  FAIL fixture built {len(made)} files, expected {want} (one per SPEC entry)")
-        # THE POINT OF THE GLOB: an unlisted param must ride along without a code change.
-        if not os.path.isfile(os.path.join(dest, "vanilla_er", "vanilla_er", extra_param)):
-            ok = False
-            print(f"  FAIL unlisted {extra_param} was NOT bundled -- the params glob is not working")
-        else:
-            print("  ok   an unlisted param is picked up by the glob")
+        # THE POINT OF THE GLOB: an unlisted file must ride along without a code change,
+        # in EVERY globbed dir (params and msg), not just the one I happened to test.
+        for rp in extras_made:
+            if not os.path.isfile(os.path.join(dest, rp)):
+                ok = False
+                print(f"  FAIL unlisted {rp} was NOT bundled -- that dir's glob is not working")
+            else:
+                print(f"  ok   unlisted {rp} picked up by the glob")
         # a REQUIRED file going missing must be a hard refusal, not a smaller bundle
         os.remove(os.path.join(src, "vanilla_er", "vanilla_er", "ItemLotParam_map.csv"))
         try:
