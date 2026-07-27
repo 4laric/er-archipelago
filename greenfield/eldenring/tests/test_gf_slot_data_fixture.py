@@ -97,8 +97,13 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # The split exists because the two param tables can hold the SAME row id -- a merged dict loses the
 # table, the client has to guess, it guessed map-first, and every enemy lot colliding with a map id was
 # therefore never blanked: the boss handed out its vanilla drop and no check fired.
+# requiresClientFeatures is emitted ONLY by a seed that uses a client-gated option (today: a
+# maximum_enemy_difficulty below 100). That conditionality is the whole point -- a default seed must
+# connect to any client -- so it belongs here with the other conditional keys, NOT in
+# _CONTRACT_NOT_EMITTED, which would stop anything from checking it is ever emitted at all.
 ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
-                              "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy"}
+                              "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy",
+                              "requiresClientFeatures"}
 
 
 class SlotDataFixtureRich(WorldTestBase):
@@ -116,6 +121,10 @@ class SlotDataFixtureRich(WorldTestBase):
         "pool_builder": True,
         "ending_condition": "great_runes",
         "goal_great_runes": 2,
+        # Below 100 so the seed actually CAPS, which is what makes it emit
+        # requiresClientFeatures. RICH exists to exercise every key, so the honest fix for a new
+        # conditional key is to satisfy its condition here -- not to list it as never-emitted.
+        "maximum_enemy_difficulty": 50,
     }
 
     def test_exact_keyset(self):
