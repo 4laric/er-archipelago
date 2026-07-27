@@ -823,7 +823,7 @@ LOCATIONS = {
         ('Ancient Ruins :: Smithing Stone [7] - near Ancient Ruins Base [f2047477050]', 7774777, 2047477050),
     ],
     'Belurat': [
-        ('Belurat :: Crusade Insignia - near Theatre of the Divine Beast [f400694]', 7770745, 400694),
+        ('Belurat :: Crusade Insignia - around Belurat, Tower Settlement [f400694]', 7770745, 400694),
         ('Belurat :: Scorpion Stew - around Belurat, Tower Settlement [f400720]', 7770747, 400720),
         ('Belurat :: [Sorcery] Watchful Spirit - around Belurat, Tower Settlement [f400721]', 7770748, 400721),
         ('Belurat :: Gourmet Scorpion Stew - near Theatre of the Divine Beast [f400723]', 7770750, 400723),
@@ -1411,7 +1411,7 @@ LOCATIONS = {
     'Enir Ilim': [
         ("Enir Ilim :: Leda's Armor - near Gate of Divinity [f400598]", 7770731, 400598),
         ("Enir Ilim :: Freyja's Greatsword - near Three-Path Cross [f400602]", 7770732, 400602),
-        ('Enir Ilim :: Falx - near Gate of Divinity [f400614]', 7770733, 400614),
+        ('Enir Ilim :: Falx - around Gate of Divinity [f400614]', 7770733, 400614),
         ("Enir Ilim :: Wise Man's Mask - near Gate of Divinity [f400624]", 7770737, 400624),
         ("Enir Ilim :: Thiollier's Hidden Needle - near Gate of Divinity [f400634]", 7770740, 400634),
         ("Enir Ilim :: Moore's Bell Bearing - near Main Gate Cross [f400644]", 7770741, 400644),
@@ -5187,4 +5187,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:1b2a347b226d0696a84e494222e6710422bd6da6109eb5b9975d8f672bfcfde6', 'module': 'data.py', 'body_sha256': 'sha256:8095754572bab88b3889452e06dcd2b8346f4e834258d92fc862c4df3ed0e88d'}
+_GEN_STAMP = {'inputs_hash': 'sha256:91daaec74c9c2b0974155ee9bbfd05c2e0efe2aff45734b65f6b673d10f91b51', 'module': 'data.py', 'body_sha256': 'sha256:e39851543efa26b86ffbe71d93c5bdffd60bb31135b70c6a7ffbd498569ae7d4'}
