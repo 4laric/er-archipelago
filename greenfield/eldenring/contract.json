@@ -170,6 +170,17 @@
           "doc": "minimum enemy-scaling tier, as the HP MULTIPLIER of that tier's ladder rung -- NOT the option's percent. 0 = no floor; 1.141..3.703 spans the ladder. The client picks the first tier whose hp >= this value, so sending the raw percent would floor at the TOP tier. The player-facing percent rides in the top-level legacy copy."
         },
         {
+          "name": "completion_scaling_ceiling",
+          "shape": "NUMBER",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (unit-converted by scaling_ladder.ceiling_multiplier)",
+          "consumer": "er-logic/scaling.rs ceiling_tier_from_multiplier",
+          "doc": "maximum enemy-scaling tier, as the HP MULTIPLIER of that tier's ladder rung -- the MIRROR of completion_scaling_floor (last rung NO STRONGER than this, vs the floor's first rung at least this strong). The top rung (7.422) means uncapped, which is the default. NOT required: an older client simply never reads it and scales uncapped, which is why a seed that actually caps also sends requiresClientFeatures."
+        },
+        {
           "name": "global_scadutree_blessing",
           "shape": "INT",
           "required": true,
@@ -236,6 +247,17 @@
       "producer": "features/scaling.py",
       "consumer": "eldenring-archipelago/upgrades.rs floor_for_region (mode 2)",
       "doc": "[[lo,hi,floor], ...] play_region/100 sub-id ranges -> Scadutree-blessing FLOOR level (0..20) per DLC region. Emitted ONLY when global_scadutree_blessing==2 and >=1 DLC region is kept. Client mode-2 writes max(held-fragment level, region floor) so DLC enemies' blessing assumption is met on arrival. \ud83d\uded1 This key is NOT a DLC-region marker -- use dlcRegionBuckets. The client used to infer DLC-ness from its presence, which is false on every default seed (blessing has defaulted to `off` since 2026-07-18). (The old claim that 'the enemy 70xx sphere scaler is capped in these buckets' was also stale: DLC_ENEMY_TIER_CAP was removed 2026-07-15 and DLC now scales by sphere exactly like base game.)"
+    },
+    {
+      "name": "requiresClientFeatures",
+      "shape": "STR_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/*.slot_data (only when a feature is actually USED)",
+      "consumer": "er-logic/client_features.rs unsupported() -> core.rs connect refusal",
+      "doc": "feature tags this SEED depends on the client understanding. Absent/[] = connects to anything. THE GAP IT CLOSES: the `versions` contract-hash check folds in CONTRACT but NOT OPTIONS_SUBKEYS, so adding a client-consumed OPTION does not move the hash -- an older client reports 'VERSION: OK' and then silently cannot see the key, and a setting the player chose evaporates. Hashing the options sub-dict instead would fire on every harmless addition and train people to ignore it, so a seed declares only what it USES. Add a tag to er-logic SUPPORTED in the same change as the behaviour, never before."
     },
     {
       "name": "dlcRegionBuckets",

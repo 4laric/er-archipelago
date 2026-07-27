@@ -788,7 +788,8 @@ class GreenfieldEldenRingWorld(World):
         -> HP multiplier) because the client parses it as a multiplier; its top-level legacy copy
         keeps the percent. Same name, two units, one deliberate conversion -- see
         features/scaling.floor_multiplier and tests/test_gf_scaling_floor_units.py."""
-        from .scaling_ladder import floor_multiplier as scaling_floor_multiplier
+        from .scaling_ladder import (ceiling_multiplier as scaling_ceiling_multiplier,
+                                     floor_multiplier as scaling_floor_multiplier)
 
         def _opt(name: str, default: int = 0) -> int:
             o = getattr(self.options, name, None)
@@ -814,6 +815,11 @@ class GreenfieldEldenRingWorld(World):
             # key is a client release plus every seed already rolled.
             contract.COMPLETION_SCALING_FLOOR: scaling_floor_multiplier(
                 _opt("minimum_enemy_difficulty")),
+            # The MIRROR of the floor: an HP multiplier capping the tier. 100 (default) resolves to
+            # the top rung, i.e. no cap -- emitted as a constant like the rest of this echo rather
+            # than appearing only when set, so the key's presence never itself carries meaning.
+            contract.COMPLETION_SCALING_CEILING: scaling_ceiling_multiplier(
+                _opt("maximum_enemy_difficulty", 100)),
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level

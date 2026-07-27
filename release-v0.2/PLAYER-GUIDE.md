@@ -105,13 +105,15 @@ enemy is worth exactly what it was worth before.
 
 #### Making it harder (or gentler early)
 
-Two yaml knobs. Both are `0`-`100`, both default to `0`, and on both,
-**higher is harder**:
+Three yaml knobs, all `0`-`100`, and on all three **higher is harder**:
 
 ```yaml
-minimum_enemy_difficulty: 0   # how hard the EASIEST enemies are
-difficulty_ramp_speed: 0      # how QUICKLY you reach the hardest ones
+minimum_enemy_difficulty: 0     # how hard the EASIEST enemies are
+maximum_enemy_difficulty: 100   # how hard the TOUGHEST ones get
+difficulty_ramp_speed: 0        # how QUICKLY you reach them
 ```
+
+Leave all three alone for the standard experience.
 
 **`minimum_enemy_difficulty`** raises the floor. At `0` your first region is
 about as weak as vanilla. At `50` nothing in the game sits below roughly 4x
@@ -131,9 +133,23 @@ Use it if you like the peak but want to get there sooner. Note it **compresses**
 the curve rather than steepening it: the back half of your run flattens out at
 full difficulty instead of continuing to climb.
 
-The two stack. `minimum_enemy_difficulty: 40` with `difficulty_ramp_speed: 60`
+**`maximum_enemy_difficulty`** lowers the top. At `100` your deepest region
+reaches the game's own maximum -- roughly 7.4x enemy HP, the strength vanilla
+reserves for its endgame. At `50` nothing in the run goes above about 4x.
+
+This one is worth a thought on a **short seed**. With `num_regions: 4`, your
+deepest region arrives fast, but it's still "the end of your run" and gets
+scaled like one -- so you can meet endgame-strength enemies holding a +6 weapon.
+Capping keeps the curve's shape and just lowers its top.
+
+> Setting this below `100` needs an up-to-date client. An older one will refuse
+> the seed and tell you why, rather than quietly ignoring your cap.
+
+All three stack. `minimum_enemy_difficulty: 40` with `difficulty_ramp_speed: 60`
 is a run that starts genuinely dangerous and is at full strength before the
-midpoint. Both at `0` is the standard experience.
+midpoint; add `maximum_enemy_difficulty: 60` and it's a flatter, consistently
+tough run rather than an escalating one. All at their defaults is the standard
+experience.
 
 > **Renamed in this build.** These were `completion_scaling_floor` and
 > `completion_scaling_ramp`. If you have an older yaml using those names,

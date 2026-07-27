@@ -190,6 +190,20 @@ Elden Ring:
   #   100   everything at maximum, everywhere, immediately
   minimum_enemy_difficulty: 0
 
+  # How hard the TOUGHEST enemies get. 100 lets your deepest region reach the
+  # game's own maximum -- roughly 7.4x enemy HP, what vanilla saves for its
+  # endgame. Lower it to cap the whole run below that.
+  #   100   no cap                                        (default)
+  #    75   nothing above about 5.5x enemy HP
+  #    50   nothing above about 4x
+  #    25   nothing above about 2x
+  # Worth a look on a SHORT seed: with few regions, the deepest one arrives fast
+  # but is still "the end of your run", so it is scaled like one -- endgame
+  # enemies on a +6 weapon. Must be >= minimum_enemy_difficulty.
+  # NOTE: setting this below 100 needs an up-to-date client. An older one will
+  # refuse the seed and say so, rather than quietly ignoring the cap.
+  maximum_enemy_difficulty: 100
+
   # How QUICKLY you reach the hardest enemies. This does not change how hard the
   # hardest enemies are -- it changes how much of the run is spent below them.
   #     0   spread evenly across the run                  (default)

@@ -353,6 +353,14 @@ OPTIONS_SUBKEYS = (
                 "the option's percent. 0 = no floor; 1.141..3.703 spans the ladder. The client picks "
                 "the first tier whose hp >= this value, so sending the raw percent would floor at the "
                 "TOP tier. The player-facing percent rides in the top-level legacy copy."),
+    ContractKey("completion_scaling_ceiling", "NUMBER", False, (GREENFIELD,),
+                "core._options_echo (unit-converted by scaling_ladder.ceiling_multiplier)",
+                "er-logic/scaling.rs ceiling_tier_from_multiplier",
+                "maximum enemy-scaling tier, as the HP MULTIPLIER of that tier's ladder rung -- the "
+                "MIRROR of completion_scaling_floor (last rung NO STRONGER than this, vs the floor's "
+                "first rung at least this strong). The top rung (7.422) means uncapped, which is the "
+                "default. NOT required: an older client simply never reads it and scales uncapped, "
+                "which is why a seed that actually caps also sends requiresClientFeatures."),
     ContractKey("global_scadutree_blessing", "INT", True, (GREENFIELD,),
                 "core._options_echo", "scaling.rs scadutree scope",
                 "DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled)."),
@@ -416,6 +424,17 @@ CONTRACT = (
                 "defaulted to `off` since 2026-07-18). (The old claim that 'the enemy 70xx sphere "
                 "scaler is capped in these buckets' was also stale: DLC_ENEMY_TIER_CAP was removed "
                 "2026-07-15 and DLC now scales by sphere exactly like base game.)"),
+    ContractKey("requiresClientFeatures", "STR_LIST", False, (GREENFIELD,),
+                "features/*.slot_data (only when a feature is actually USED)",
+                "er-logic/client_features.rs unsupported() -> core.rs connect refusal",
+                "feature tags this SEED depends on the client understanding. Absent/[] = connects to "
+                "anything. THE GAP IT CLOSES: the `versions` contract-hash check folds in CONTRACT "
+                "but NOT OPTIONS_SUBKEYS, so adding a client-consumed OPTION does not move the hash "
+                "-- an older client reports 'VERSION: OK' and then silently cannot see the key, and a "
+                "setting the player chose evaporates. Hashing the options sub-dict instead would "
+                "fire on every harmless addition and train people to ignore it, so a seed declares "
+                "only what it USES. Add a tag to er-logic SUPPORTED in the same change as the "
+                "behaviour, never before."),
     ContractKey("dlcRegionBuckets", "INT_LIST", False, (GREENFIELD,),
                 "features/scaling.dlc_region_buckets", "er-logic/scaling.rs is_dlc_bucket",
                 "sorted play_region/100 sub-ids belonging to KEPT DLC regions -- a pure membership "

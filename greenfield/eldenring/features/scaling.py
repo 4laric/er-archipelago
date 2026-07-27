@@ -31,12 +31,12 @@ raises on duplicate keys).
 """
 import random
 
-from Options import Range, Choice, Removed
+from Options import Range, Choice, Removed, OptionError
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from .. import contract
-from ..scaling_ladder import (SCALING_HP_LADDER, floor_multiplier,  # noqa: F401 (re-export)
-                              ramped_target)
+from ..scaling_ladder import (SCALING_HP_LADDER, ceiling_multiplier,  # noqa: F401 (re-export)
+                              floor_multiplier, ramped_target)
 from .area_locks import REGION_PLAY_IDS
 
 # Wire normalization ceiling. The client normalizes by the max emitted target (scaling.rs
@@ -293,6 +293,31 @@ class CompletionScalingRamp(Removed):
     """Renamed to `difficulty_ramp_speed` -- and INVERTED: higher is now harder."""
 
 
+class MaximumEnemyDifficulty(Range):
+    """How hard the TOUGHEST enemies get. 100 (default) lets the deepest region of your run reach the
+    game's own maximum -- about 7.4x enemy HP, the strength vanilla reserves for its endgame. Lower
+    it to cap the whole run below that.
+
+      100  no cap -- the deepest region hits maximum          (default)
+       75  nothing above about 5.5x enemy HP
+       50  nothing above about 4x
+       25  nothing above about 2x
+
+    Worth considering on a SHORT seed: with few regions in play, the deepest one is reached quickly
+    but still counts as "the end of your run", so it is scaled as such -- you can meet endgame-
+    strength enemies on a +6 weapon. Capping here keeps the curve's shape and just lowers its top.
+
+    Must be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than
+    quietly picking one.
+
+    ⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at
+    connect, and an older client refuses with a message rather than ignoring the cap."""
+    display_name = "Maximum Enemy Difficulty"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
 class DifficultyRampSpeed(Range):
     """How quickly enemies get harder as you progress. 0 (default) spreads the climb evenly across
     the whole run; higher values front-load it, so you hit the hardest enemies sooner and the rest of
@@ -346,12 +371,29 @@ class Scaling(Feature):
     name = "scaling"
     OPTIONS = {
         "minimum_enemy_difficulty": MinimumEnemyDifficulty,
+        "maximum_enemy_difficulty": MaximumEnemyDifficulty,
         "difficulty_ramp_speed": DifficultyRampSpeed,
         "global_scadutree_blessing": GlobalScadutreeBlessing,
         # Renamed 2026-07-27; these raise on a stale yaml rather than being ignored.
         "completion_scaling_floor": CompletionScalingFloor,
         "completion_scaling_ramp": CompletionScalingRamp,
     }
+
+    def generate_early(self, world):
+        """Reject an inverted floor/ceiling here rather than letting it reach the client.
+
+        CONTRIBUTING's headline gate: an incompatible combination fails at options-validation time
+        with a message naming BOTH options, not as a FillError and not as a config that generates but
+        plays wrong. `tier_for_target` also resolves the contradiction defensively (the floor wins),
+        because it is a pure fn reachable from foreign slot_data -- but a player who typed these two
+        numbers deserves to be told, not silently corrected."""
+        lo = int(world.options.minimum_enemy_difficulty.value)
+        hi = int(world.options.maximum_enemy_difficulty.value)
+        if lo > hi:
+            raise OptionError(
+                f"minimum_enemy_difficulty ({lo}) is above maximum_enemy_difficulty ({hi}) -- the "
+                f"weakest enemies would be stronger than the strongest. Set the minimum at or below "
+                f"the maximum (both are 0-100, higher = harder).")
 
     def slot_data(self, world):
         # ORDER RAMP (2026-07-15): the fill spheres (TRUE per-seed reachability, 2026-07-07) are
@@ -385,6 +427,12 @@ class Scaling(Feature):
         # actually depends on. Emitted whenever a DLC region is kept; absent (inert) otherwise, so a
         # base-game seed's slot_data is unchanged. See dlc_region_buckets for why the client could
         # not previously ask this without accidentally asking about Scadutree blessing instead.
+        # CLIENT FEATURE HANDSHAKE. Only a seed that actually CAPS declares the dependency: at 100
+        # the ceiling is the top rung, which is what tier_for_target clamped to anyway, so a default
+        # seed connects to any client. See er_logic::client_features for why the contract hash does
+        # not cover this (it folds in CONTRACT, not OPTIONS_SUBKEYS).
+        if int(world.options.maximum_enemy_difficulty.value) < 100:
+            out[contract.REQUIRES_CLIENT_FEATURES] = ["scaling_ceiling"]
         if set(kept_regions) & DLC_REGIONS:
             buckets = dlc_region_buckets(kept_regions)
             if buckets:

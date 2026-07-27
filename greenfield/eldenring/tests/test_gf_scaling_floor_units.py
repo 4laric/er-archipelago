@@ -107,6 +107,35 @@ def test_emitted_multiplier_resolves_to_a_sane_tier(pct, expect_top):
                                                           else "must NOT reach"))
 
 
+def _ceiling_tier(mult, ladder=scaling_ladder.SCALING_HP_LADDER):
+    """The client's ceiling search, restated (er-logic ceiling_tier_from_multiplier): the LAST rung
+    no stronger than `mult`. Deliberately the mirror of _floor_tier, not a reuse."""
+    hits = [i for i, hp in enumerate(ladder) if hp <= mult]
+    return hits[-1] if hits else 0
+
+
+def test_ceiling_option_is_reachable_and_defaults_to_uncapped():
+    assert "maximum_enemy_difficulty" not in defaults.FROZEN_OPTIONS
+    assert sc.Scaling.OPTIONS["maximum_enemy_difficulty"] is sc.MaximumEnemyDifficulty
+    assert sc.MaximumEnemyDifficulty.default == 100, "default must be no cap"
+    assert sc.MaximumEnemyDifficulty.range_start == 0
+
+
+@pytest.mark.parametrize("pct", [0, 25, 50, 75, 100])
+def test_ceiling_percent_round_trips_through_the_clients_search(pct):
+    top = len(scaling_ladder.SCALING_HP_LADDER) - 1
+    assert _ceiling_tier(scaling_ladder.ceiling_multiplier(pct)) == round(pct / 100 * top)
+
+
+def test_ceiling_and_floor_round_the_OPPOSITE_way():
+    """The two conversions are mirrors, and reusing one for both would cap a rung high. Pin it on a
+    value strictly BETWEEN two rungs, which is the only place the difference shows."""
+    lad = scaling_ladder.SCALING_HP_LADDER
+    mid = (lad[5] + lad[6]) / 2
+    assert _ceiling_tier(mid) == 5, "a ceiling takes the last rung NO STRONGER than the value"
+    assert _floor_tier(mid) == 6, "a floor takes the first rung AT LEAST as strong"
+
+
 class TestSlotDataUnits:
     """END TO END on a generated world -- the composition, not the pieces. CONTRIBUTING rule 11: a
     pipeline of individually correct stages can still drop the exact case it was built for, so the
@@ -153,6 +182,55 @@ class TestSlotDataUnits:
         nested = sd["options"]["completion_scaling_floor"]
         assert nested == 0 and isinstance(nested, int), (
             "default seed emitted %r -- default slot_data must not change" % (nested,))
+
+    def test_a_cap_reaches_the_wire_and_flags_the_client_requirement(self):
+        WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+        from worlds.eldenring import contract
+
+        class _T(WorldTestBase):
+            game = GAME
+            options = {"maximum_enemy_difficulty": 50}
+
+        t = _T()
+        t.setUp()
+        try:
+            sd = t.world.fill_slot_data()
+        finally:
+            t.tearDown()
+        top = len(scaling_ladder.SCALING_HP_LADDER) - 1
+        nested = sd["options"]["completion_scaling_ceiling"]
+        assert nested == scaling_ladder.ceiling_multiplier(50)
+        assert _ceiling_tier(nested) == round(50 / 100 * top) < top, "the cap must actually cap"
+        # ...and the seed must TELL the client, or an old one would ignore the cap in silence.
+        assert sd.get(contract.REQUIRES_CLIENT_FEATURES) == ["scaling_ceiling"]
+
+    def test_an_uncapped_seed_demands_nothing_of_the_client(self):
+        """Default seeds must connect to ANY client. The handshake is a cost you pay only when you
+        opt into the thing that costs it -- otherwise it is a compatibility break for everyone."""
+        from worlds.eldenring import contract
+        sd = self._slot_data(0)
+        assert contract.REQUIRES_CLIENT_FEATURES not in sd, (
+            "an uncapped seed declared a client requirement it does not have")
+        assert sd["options"]["completion_scaling_ceiling"] == scaling_ladder.SCALING_HP_LADDER[-1], (
+            "uncapped must still EMIT the key, as the top rung -- presence must not carry meaning")
+
+    def test_an_inverted_floor_and_ceiling_is_refused_at_generation(self):
+        """CONTRIBUTING's headline gate: an incompatible combination fails at options-validation with
+        a message naming BOTH options -- not a FillError, not a config that generates and plays
+        wrong."""
+        WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+
+        class _T(WorldTestBase):
+            game = GAME
+            options = {"minimum_enemy_difficulty": 80, "maximum_enemy_difficulty": 20}
+
+        t = _T()
+        with pytest.raises(Exception) as ei:
+            t.setUp()
+            t.world.fill_slot_data()
+        msg = str(ei.value)
+        assert "minimum_enemy_difficulty" in msg and "maximum_enemy_difficulty" in msg, (
+            f"the error must name BOTH options, got: {msg}")
 
     def test_max_floor_reaches_the_top_of_the_ladder(self):
         sd = self._slot_data(100)

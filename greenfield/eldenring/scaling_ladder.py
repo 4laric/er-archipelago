@@ -56,6 +56,22 @@ SCALING_HP_LADDER = (1.141, 1.281, 1.656, 1.813, 1.953, 2.266, 2.406, 2.688, 3.2
 # lives in the client. What gen CAN choose is how fast a seed climbs to it: see `ramped_target`.
 
 
+def ceiling_multiplier(pct):
+    """`maximum_enemy_difficulty` PERCENT (0..100) -> the HP MULTIPLIER capping the scaling tier.
+
+    The MIRROR of `floor_multiplier`, and deliberately not a reuse of it. A floor asks "the first
+    rung at least this strong"; a ceiling asks "the last rung no stronger than this". Same ladder,
+    opposite search, and conflating them would cap one rung high.
+
+    100 (the default) returns the top rung, i.e. no cap -- the client's `ceiling_tier_from_multiplier`
+    maps it to the last tier, which is what `tier_for_target` already clamps to. So a default seed's
+    behaviour is unchanged, and the key is emitted regardless (a constant, like the rest of the
+    options echo) rather than appearing and disappearing.
+    """
+    pct = max(0, min(100, int(pct)))
+    return SCALING_HP_LADDER[round(pct / 100 * (len(SCALING_HP_LADDER) - 1))]
+
+
 def ramped_target(position, span, target_max, ramp_pct=100):
     """Order POSITION (0..span) -> scaling target (0..target_max), given a ramp speed.
 

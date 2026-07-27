@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "119232ebd6429ebede62074be1479d34306e595aad191d69a826209a5e621cd1",
+ "source_sha256": "d7fc324cc91d155aaaaee2add3778d03df7c7603c821d140708bb178212b47f2",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -143,6 +143,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "progression_surface",
   "confine_foreign_progression",
   "minimum_enemy_difficulty",
+  "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
   "reroll_infinite_shop_stock",
   "merchant_bell_logic",
@@ -174,6 +175,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "progression_surface",
   "confine_foreign_progression",
   "minimum_enemy_difficulty",
+  "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
   "reroll_infinite_shop_stock",
   "merchant_bell_logic",
@@ -620,6 +622,24 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "kind": "range",
    "base": "Range",
    "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "maximum_enemy_difficulty",
+   "class": "MaximumEnemyDifficulty",
+   "display_name": "Maximum Enemy Difficulty",
+   "description": "How hard the TOUGHEST enemies get. 100 (default) lets the deepest region of your run reach the\ngame's own maximum -- about 7.4x enemy HP, the strength vanilla reserves for its endgame. Lower\nit to cap the whole run below that.\n\n  100  no cap -- the deepest region hits maximum          (default)\n   75  nothing above about 5.5x enemy HP\n   50  nothing above about 4x\n   25  nothing above about 2x\n\nWorth considering on a SHORT seed: with few regions in play, the deepest one is reached quickly\nbut still counts as \"the end of your run\", so it is scaled as such -- you can meet endgame-\nstrength enemies on a +6 weapon. Capping here keeps the curve's shape and just lowers its top.\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
+   "kind": "range",
+   "base": "Range",
+   "default": 100,
    "choices": null,
    "range": {
     "start": 0,
