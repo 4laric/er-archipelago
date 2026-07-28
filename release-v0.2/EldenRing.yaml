@@ -54,6 +54,23 @@ Elden Ring:
   # always winnable.
   num_regions_order: spine
 
+  # Prefer the vanilla shape to the Shattering? Turn this on.
+  #   Regions are gated by REAL vanilla keys and boss remembrances (still
+  #   SHUFFLED, so they can be anywhere) in vanilla's own dependency shape --
+  #   no synthetic Region Locks, and the whole eligible map is in play.
+  #   num_regions is ignored when this is on.
+  # This is the answer to "can I turn the Shattering off": you keep the
+  # randomizer and lose the region-lock structure.
+  natural_progression: false
+
+  # Which dungeons hand you their whole loot table when you kill their boss.
+  #   all          -- minidungeons + legacy dungeons + castles (default)
+  #   minidungeons -- minidungeons only
+  #   bosses       -- adds field bosses
+  #   none         -- no sweeps; every check is picked up where it lies
+  # (Unfrozen 2026-07-28 by player request. `none` is the fully manual mode.)
+  dungeon_sweep: all
+
   # What the goal requires.
   #   region_locks  -- hold every Region Lock that is in play (default).
   #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the
@@ -234,7 +251,6 @@ Elden Ring:
 #    pool_builder              ON
 #    pool_builder_intensity    max  -- (not "high")
 #    varied_filler             ON
-#    dungeon_sweep             all  -- clearing a dungeon's boss sweeps its checks
 #    boss_lock_placement       own_region
 #    start_with_region_lock    ON   -- you start with one region already open
 #    start_with_lantern        ON   -- hands-free pouch light (replaces the old start Torch)

@@ -103,7 +103,12 @@ FROZEN_OPTIONS = {
     # self-heal. Proven by the er-logic reconcile suite (consumed_tier_grants_once_and_stays_spent_
     # after_consumption and friends). The option is now a REAL yaml toggle, default ON, declared on
     # features/progressive.ProgressiveFlasks -- the intended flask economy for v0.2.
-    "dungeon_sweep": (2, "all"),
+    # UNFROZEN 2026-07-28 (player request, Nexus/ShadowTL: "is it possible to disable dungeon_sweep").
+    # It was frozen as part of the v0.2 option slim, not because the other values were unfinished:
+    # `none` was already handled (`boss_locks.py:267` gates every sweep emit on `value != 0`) and
+    # already covered by test_gf_boss_locks ("a fresh world with dungeon_sweep=none emits no sweep
+    # keys"). A knob that works and is hidden is a different thing from a knob that is not ready.
+    # "dungeon_sweep": (2, "all"),
     # OFF (fully vanilla) as of 2026-07-18 (Alaric balance call): with the DLC enemy scaling handled
     # separately, the per-DLC-region blessing FLOOR made the DLC "way too easy" -- you arrived at each
     # area already at its expected blessing without collecting a single Scadutree Fragment. Off = the
