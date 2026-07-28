@@ -134,8 +134,15 @@ def _mermaid(members, world):
             else:
                 kind = ("check" if world.is_check(flag)
                         else ("npc" if flag in _NPC else "world"))
-                label = ("%s (f%d)" % (_short(world.flag_name.get(flag, "")), flag)
-                         if kind == "check" else "f%d" % flag)
+                if kind == "check":
+                    label = "%s (f%d)" % (_short(world.flag_name.get(flag, "")), flag)
+                else:
+                    # FromSoft's own name for the event that SETS this flag (flag_names.tsv). It is
+                    # an ATTRIBUTION, not a definition -- one event setting five flags labels all
+                    # five the same -- so the flag id STAYS in the box. A pretty label that hid the
+                    # id would make two different flags look like one thing.
+                    label = ("%s (f%d)" % (_short(_LABEL.get(flag, ""), 40), flag)
+                             if _LABEL.get(flag) else "f%d" % flag)
                 shape = 'F%d(["%s"])' % (flag, label)
                 cls = {"check": "chk", "npc": "npc", "world": "wld"}[kind]
             nodes.append((flag, shape, cls))
@@ -177,13 +184,18 @@ def _short(name, width=46):
 
 
 _NPC = set()
+_LABEL = {}
 
 
 def build_page():
-    global _NPC
+    global _NPC, _LABEL
     edges, tally, notes = dag.build()
     world = notes["world"]
     _NPC = {e["source_flag"] for e in edges if e["source_kind"] == "npc_state"}
+    # Prefer the ENGLISH gloss in a diagram box (it is what a reader can scan) but fall back to the
+    # Japanese, which is the actual datum -- never show nothing when a name exists.
+    _LABEL = {e["source_flag"]: (e["source_label"] or e["source_label_ja"])
+              for e in edges if (e["source_label"] or e["source_label_ja"])}
     groups = _clusters(edges)
     summary = dag.summarise(edges, tally, notes)
     acceptance = dag._acceptance(edges)
@@ -207,12 +219,16 @@ def build_page():
             "search": " ".join(sorted({
                 str(e["target_flag"]) for e in members} | {
                 str(e["source_flag"]) for e in members} | {
-                (world.flag_name.get(e["target_flag"]) or "") for e in members} | set(regions))).lower(),
+                (world.flag_name.get(e["target_flag"]) or "") for e in members} | {
+                (e["source_label"] or "") for e in members} | {
+                (e["source_label_ja"] or "") for e in members} | set(regions))).lower(),
             "rows": [{
                 "s": e["source_flag"], "t": e["target_flag"], "sense": e["sense"],
                 "basis": e["basis"], "tool": e["tool"], "sreg": e["source_region"],
                 "treg": e["target_region"], "loc": e["source_locator"],
                 "kind": e["source_kind"], "sem": e["group_semantics"],
+                "lab": e["source_label"], "lab_ja": e["source_label_ja"],
+                "lab_src": e["label_source"], "lab_n": e["label_setters"],
                 "name": world.flag_name.get(e["target_flag"], ""),
                 "tag": world.flag_ap.get(e["target_flag"]) in world.missable,
                 "ev": e["evidence"],
@@ -338,7 +354,10 @@ function esc(s){var d=document.createElement('div'); d.textContent=s==null?'':s;
 function show(){
   var c=CL[cur], p=document.getElementById('pane');
   var rows=c.rows.map(function(r){
-    return '<tr><td><code>f'+r.s+'</code><div class="m">'+esc(r.kind)+(r.sreg?' &middot; '+esc(r.sreg):'')+'</div></td>'
+    var lab = r.lab||r.lab_ja ? '<div class="m" style="margin-top:3px"><b>'+esc(r.lab||r.lab_ja)+'</b>'
+      +(r.lab_ja&&r.lab?'<br>'+esc(r.lab_ja):'')
+      +'<br><span style="opacity:.7">'+esc(r.lab_src)+(r.lab_n>1?' &middot; one of '+r.lab_n+' named setters':'')+'</span></div>' : '';
+    return '<tr><td><code>f'+r.s+'</code>'+lab+'<div class="m">'+esc(r.kind)+(r.sreg?' &middot; '+esc(r.sreg):'')+'</div></td>'
       +'<td><b>'+(r.sense==='set'?'must be SET':r.sense==='clear'?'must be CLEAR':'UNKNOWN')+'</b>'
       +'<div class="m"><code>'+esc(r.basis)+'</code></div></td>'
       +'<td><code>f'+r.t+'</code> '+esc(r.name)+'<div class="m">'+esc(r.treg)

@@ -179,6 +179,7 @@ PKG = os.path.join(GF, "eldenring")
 OUT = os.path.join(GF, "questline_dag.tsv")
 
 COLUMNS = ["source_flag", "target_flag", "sense", "evidence", "tool",
+           "source_label", "source_label_ja", "label_source", "label_setters",
            "basis", "alt_group", "group_semantics", "source_kind", "source_region",
            "source_locator",
            "target_region", "cross_region", "target_ap_id", "target_name"]
@@ -435,6 +436,20 @@ def build(verbose=True):
     if not lot_to_flag:
         sys.exit("FATAL: flag_lots.tsv gave no map lot->flag join; every ESD gift would drop out.")
 
+    # --- flag LABELS (tools/datamine_flag_names.py) ------------------------------------------
+    # Joined at read time rather than baked, because the labels are useful well beyond this graph
+    # and a second copy would be a second thing to keep fresh. ABSENT-OK: the table is a TIER-2
+    # hand emit that CI cannot produce (the EMEVD is licensing-restricted), so the DAG must build
+    # without it -- and must SAY that it did, rather than emitting blank labels that read as
+    # "unnamed" when the truth is "the table was not there".
+    flag_labels = {}
+    for r in _rows("flag_names.tsv", tally):
+        fl = _int(r.get("flag"))
+        if fl is not None:
+            flag_labels[fl] = (r.get("name_en") or "", r.get("name_ja") or "",
+                               r.get("source") or "", r.get("setters") or "")
+    tally["flag_names:absent" if not flag_labels else "flag_names:rows"] += len(flag_labels) or 1
+
     def source_kind(flag):
         if world.is_check(flag):
             return "check"
@@ -462,7 +477,10 @@ def build(verbose=True):
         loc = locator
         if sreg is None:
             sreg, loc = None, ""
+        label_en, label_ja, label_src, label_n = flag_labels.get(source, ("", "", "", ""))
         edges.append({
+            "source_label": label_en, "source_label_ja": label_ja,
+            "label_source": label_src, "label_setters": label_n,
             "source_flag": source, "target_flag": target, "sense": sense, "basis": basis,
             "evidence": " ".join((evidence or "").split())[:180], "tool": tool,
             "alt_group": alt_group, "group_semantics": group_hint,
@@ -780,6 +798,21 @@ def summarise(edges, tally, notes):
     lines.append("edges DEGRADED to unusable by a guard (each is a refusal, not a loss): %s"
                  % (", ".join("%s %d" % kv for kv in sorted(collections.Counter(
                      e["basis"] for e in edges if e["sense"] == "unknown").items())) or "none"))
+    labelled = sum(1 for e in edges if e["source_label"] or e["source_label_ja"])
+    if tally.get("flag_names:absent"):
+        # 🛑 SAY WHY IT IS ZERO. A blank label column reads as "this flag is unnamed"; the truth here
+        # is "the table was not there". flag_names.tsv is a TIER-2 hand emit that CI cannot produce,
+        # so this is a state a real tree can be in.
+        lines.append("source flag labels: greenfield/flag_names.tsv IS ABSENT -- every "
+                     "source_label is blank FOR THAT REASON, not because the flags are unnamed. "
+                     "Re-emit with `python tools/datamine_flag_names.py --emit` (needs the EMEVD).")
+    else:
+        lines.append("source flags LABELLED from FromSoft's own event names: %d of %d edge(s) "
+                     "(%d%%); by %s"
+                     % (labelled, len(edges), round(100.0 * labelled / max(1, len(edges))),
+                        ", ".join("%s %d" % kv for kv in sorted(collections.Counter(
+                            e["label_source"] for e in edges if e["label_source"]).items()))
+                        or "none"))
     lines.append("source region located by: %s"
                  % ", ".join("%s %d" % (k or "none", v) for k, v in sorted(weak.items())))
     drops = sorted((k, v) for k, v in tally.items() if k.startswith("drop:"))
