@@ -48,12 +48,13 @@ happens here, once, in the open:
                                  (`EndIf(EventFlag(p))`, `if (p) {... EndEvent()}` -- a completion
                                  test whose polarity is inverted). What survives is a positive
                                  requirement BY CONSTRUCTION, not by this tool's reading.
-                                 ⚠️ Two residual holes, both in the SAFE (over-constraining)
-                                 direction and neither checkable from the sandbox: an `||` with a
-                                 NON-flag term inside the WaitFor still yields `set`, and a group
-                                 negation `!(... EventFlag(p) ...)` would evade the local negation
-                                 test. Settling them is one grep of `common_func.emevd.dcx.js`,
-                                 which is a Windows artifact.
+                                 ✅ AND NOW MEASURED, 2026-07-28, against the real corpus (see
+                                 `--verify-commonarg`). Two holes were argued to be safe but
+                                 unchecked: a group negation `!(... EventFlag(p) ...)` evading the
+                                 local negation test, and an `||` inside the WaitFor. Both are
+                                 EMPTY: of the 6 gate params `_common_sigs()` selects, 0 sit in a
+                                 group negation and 0 sit in a disjunction -- all six are pure
+                                 conjunctions. So this row is verified, not merely reasoned.
     WaitFor             set      `WaitFor(... EventFlag(X) ...)` blocks until X is set.
     !WaitFor            clear    the test is negated inside the WaitFor.
     EndIf               clear    `EndIf(EventFlag(X))` TERMINATES the event when X is set, so the
@@ -149,6 +150,19 @@ USAGE:
     python tools/build_questline_dag.py            # write greenfield/questline_dag.tsv
     python tools/build_questline_dag.py --check    # re-emit to memory, diff against the committed
                                                    # file, exit 1 on drift (the CI shape)
+    python tools/build_questline_dag.py --verify-commonarg
+                                                   # NEEDS the decompiled EMEVD (ER_EVENT_DIR or
+                                                   # elden_ring_artifacts/event). Re-measures the
+                                                   # two holes in the `commonarg/WaitFor -> set`
+                                                   # argument against the real corpus and exits 1
+                                                   # if either has become non-empty. Cannot run in
+                                                   # CI (the artifacts are licensing-restricted and
+                                                   # Windows-only), which is exactly why it is a
+                                                   # COMMAND and not a sentence in a comment: the
+                                                   # claim it backs is the polarity of 123 of the
+                                                   # 173 lot_gates edges, and a claim with no way
+                                                   # to re-run it is folklore with syntax
+                                                   # highlighting (CONTRIBUTING rule 10).
 """
 import argparse
 import collections
@@ -846,12 +860,110 @@ def _guard(edges, tally, notes):
                  "was built for. Fix the derivation, not the fixture." % "; ".join(bad))
 
 
+def verify_commonarg():
+    """Re-measure the two holes in `commonarg/WaitFor -> set`. -> exit code.
+
+    THE CLAIM UNDER TEST. `_CONTEXT_SENSE` maps `commonarg/WaitFor` to `set` on the grounds that
+    `datamine_lot_gates._common_sigs()` has already reduced those params to positive requirements:
+    it drops acquisition-RANGE params (`AllBatchEventFlags` -- "already taken") and BAIL-OUT params
+    (`EndIf(EventFlag(p))`, `if (p) {... EndEvent()}` -- completion tests with inverted polarity),
+    and requires a non-negated occurrence inside a local `WaitFor`. That is 123 of the 173
+    `lot_gates` edges, so it is the single largest polarity claim in the table.
+
+    THE TWO HOLES it does not close by construction, both argued to be safe:
+      1. the negation test is LOCAL (`!` immediately before `EventFlag(p)`), so a GROUP negation
+         `WaitFor(!( ... EventFlag(p) ... ))` would read as positive when it is the opposite;
+      2. a `||` inside the WaitFor makes the flag one of several ways in, not a requirement --
+         over-constraining, which is the safe direction, but still not what the row claims.
+
+    Both were UNCHECKED until the corpus was linked (2026-07-28), and both measured EMPTY: 0 of 6
+    selected gate params in either shape. This re-runs that measurement rather than leaving a
+    number in a comment to rot. It is opt-in because the EMEVD is licensing-restricted and absent
+    from CI -- the same `ER_ARTIFACTS_VV` precedent AGENTS §5 sets for staged artifact work.
+    """
+    sys.path.insert(0, HERE)
+    try:
+        import datamine_lot_gates as lot_gates                       # noqa: PLC0415
+    except ImportError as exc:
+        print("cannot import datamine_lot_gates: %s" % exc, file=sys.stderr)
+        return 1
+    common = os.path.join(lot_gates.EVT, "common_func.emevd.dcx.js")
+    if not os.path.isfile(common):
+        print("NO CORPUS: %s absent. Set ER_EVENT_DIR to the decompiled EMEVD, or run this on a "
+              "tree with elden_ring_artifacts/event/. REFUSING to report a clean run over nothing "
+              "-- an empty check is a failure, not a pass." % common, file=sys.stderr)
+        return 1
+    text = open(common, encoding="utf-8", errors="replace").read()
+    # A truncated mount read would silently shrink the corpus and print two reassuring zeroes.
+    if text.count("{") != text.count("}"):
+        print("REFUSING: %s has unbalanced braces (%d/%d) -- a truncated read, not a corpus. Every "
+              "count below would be a false negative."
+              % (common, text.count("{"), text.count("}")), file=sys.stderr)
+        return 1
+    sigs = lot_gates._common_sigs()
+    marks = list(lot_gates.EVENT_RE.finditer(text))
+    bodies = {int(m.group(1)): text[m.end(): marks[i + 1].start() if i + 1 < len(marks) else len(text)]
+              for i, m in enumerate(marks)}
+    negated, disjunctive, examined = [], [], 0
+    for eid, (params, _lot_idx, flag_idx, _batch) in sorted(sigs.items()):
+        body = bodies.get(eid, "")
+        for idx in flag_idx:
+            param = params[idx]
+            pattern = r"\bEventFlag\(\s*%s\s*\)" % re.escape(param)
+            for wm in re.finditer(r"\bWaitFor\(([^;]{0,300}?)\)\s*;", body, re.S):
+                clause = wm.group(1)
+                if not re.search(pattern, clause):
+                    continue
+                examined += 1
+                if "||" in clause:
+                    disjunctive.append((eid, param, " ".join(clause.split())[:160]))
+                for gm in re.finditer(r"!\s*\(", clause):
+                    depth, k = 0, gm.end() - 1
+                    while k < len(clause):
+                        if clause[k] == "(":
+                            depth += 1
+                        elif clause[k] == ")":
+                            depth -= 1
+                            if depth == 0:
+                                break
+                        k += 1
+                    if re.search(pattern, clause[gm.end():k]):
+                        negated.append((eid, param, " ".join(clause.split())[:160]))
+    if not sigs or not examined:
+        print("REFUSING: %d common event(s) with a gate param, %d WaitFor site(s) examined. Nothing "
+              "was checked, which is not the same as nothing being wrong." % (len(sigs), examined),
+              file=sys.stderr)
+        return 1
+    print("commonarg gate params: %d common event(s), %d param(s), %d WaitFor site(s) examined"
+          % (len(sigs), sum(len(f) for _p, _l, f, _b in sigs.values()), examined))
+    for label, hits in (("inside a GROUP negation `!( ... )`", negated),
+                        ("inside a DISJUNCTION `||`", disjunctive)):
+        print("  %-38s %d" % (label, len(hits)))
+        for eid, param, clause in hits:
+            print("      event %d param %s: %s" % (eid, param, clause))
+    if negated or disjunctive:
+        print("\nFAIL: the `commonarg/WaitFor -> set` argument no longer holds for every selected "
+              "param. A group-negated one is a polarity INVERSION (a false prerequisite -- an "
+              "unwinnable seed); a disjunctive one is an over-constraint. Re-triage those params "
+              "before trusting the 123 edges that rest on this rule.", file=sys.stderr)
+        return 1
+    print("\nOK: every selected gate param is a pure, non-negated conjunct of its WaitFor. The "
+          "`commonarg/WaitFor -> set` mapping is MEASURED, not just reasoned.")
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--probe", action="store_true", help="print the tallies, write nothing")
     ap.add_argument("--check", action="store_true",
                     help="re-emit to memory and diff against the committed file; exit 1 on drift")
+    ap.add_argument("--verify-commonarg", action="store_true",
+                    help="re-measure the commonarg polarity argument against the decompiled EMEVD "
+                         "(needs ER_EVENT_DIR / elden_ring_artifacts/event)")
     args = ap.parse_args(argv)
+
+    if args.verify_commonarg:
+        return verify_commonarg()
 
     edges, tally, notes = build()
     for line in summarise(edges, tally, notes):

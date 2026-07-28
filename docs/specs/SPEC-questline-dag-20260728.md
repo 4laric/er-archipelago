@@ -295,6 +295,37 @@ asserting it only through the emitted table is not asserting it at all. It is no
 corpus does not yet contain. Generalise: **a guard whose triggering condition is absent from the
 corpus needs a direct call, not a table to look at.**
 
-**Still unverifiable from the sandbox, and it needs Alaric:** whether a group negation
-`!(... EventFlag(p) ...)` appears in `common_func.emevd.dcx.js` (one grep — it is the last hole in
-"positive by construction"), and the live-game verdict on the three cross-region candidates above.
+### ✅ The last hole in "positive by construction" is CLOSED — measured, 2026-07-28
+
+Alaric linked the decompiled EMEVD the same day, so the two holes that had been *argued* safe were
+measured instead. `commonarg/WaitFor → set` covers 123 of the 173 `lot_gates` edges, which makes it
+the single largest polarity claim in the table, and it rested on `_common_sigs()` having already
+dropped acquisition-range and bail-out params. Two things it does not close by construction:
+
+1. the negation test is LOCAL (`!` immediately before `EventFlag(p)`), so a GROUP negation
+   `WaitFor(!( … EventFlag(p) … ))` would read as positive when it means the opposite — a polarity
+   **inversion**, i.e. a false prerequisite, i.e. an unwinnable seed;
+2. a `||` inside the WaitFor makes the flag one of several ways in rather than a requirement —
+   over-constraining, the safe direction, but still not what the row claims.
+
+**Both are empty.** Of the 6 gate params `_common_sigs()` selects across 6 common events, **0** sit
+in a group negation and **0** sit in a disjunction; all six are pure conjuncts. The Golden Seed's
+own handler reads `WaitFor(EventFlag(eventFlagId3) && !AllBatchEventFlags(eventFlagId,
+eventFlagId2))` — a positive requirement AND'd with "not already taken", exactly as claimed.
+
+It is a **command, not a sentence in a comment**: `build_questline_dag.py --verify-commonarg`
+re-runs the measurement. It cannot live in CI (the EMEVD is licensing-restricted and Windows-only),
+so it is opt-in on `ER_EVENT_DIR`, on the `ER_ARTIFACTS_VV` precedent in AGENTS §5. It refuses
+rather than reports clean when the corpus is absent, when nothing was examined, or when the file's
+braces do not balance — a truncated mount read would otherwise print two reassuring zeroes. Verified
+by breaking it: a synthetic group-negated param in event 90005750 turns it red and names the param.
+
+**Still needs Alaric and the live game:** the verdict on the three cross-region candidates above —
+`f580600 ← f9146` (believed real, and the first thing that should graduate) and the Gelmir pair
+(believed a tile-straddle artifact).
+
+**Now newly possible, and the obvious next increment:** with the EMEVD linked, the 28
+`treasure-verb-crossproduct` edges are no longer structurally unresolvable. Reading which BRANCH of
+the enabling event each gate governs would convert the largest remaining `unknown` population into
+real polarity — and it is the same call-site resolution that took `lot_gates` from ~1% of the corpus
+to 617 pairs.
