@@ -196,6 +196,18 @@ if ($Greenfield) {
     & python (Join-Path $Repo "tools\gen_region_locks.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_region_locks.py FAILED -- region_locks.rs not regenerated (see output above)." }
 
+    # The two OFFLINE HTML pages are generated artifacts too, and CI diffs them exactly like the
+    # client tables -- `test_gf_check_browser` / `test_gf_desc_triage` fail on a non-empty diff. They
+    # were not wired here, so every regen left them stale and the red arrived from a runner minutes
+    # later -- for a change of ONE line, because both pages embed the gen-input stamp and a gen_data.py
+    # edit alone re-hashes them even when no check changed. That is not a thing to remember; it is a
+    # thing to run. (AP-free, seconds, no artifacts -- they join committed greenfield data only.)
+    Step "  regenerate the offline pages (check browser, description triage)"
+    & python (Join-Path $Repo "tools\build_check_browser.py")
+    if ($LASTEXITCODE -ne 0) { throw "build_check_browser.py FAILED -- er-archipelago-check-browser.html not regenerated (see output above)." }
+    & python (Join-Path $Repo "tools\build_desc_triage.py")
+    if ($LASTEXITCODE -ne 0) { throw "build_desc_triage.py FAILED -- er-archipelago-desc-triage.html not regenerated (see output above)." }
+
     # A regen that lands only in your working tree is HALF a fix: the apworld's CI checks the client
     # out at its DEFAULT BRANCH (main) and diffs, so the gate passes only when the regen is committed
     # to client main AND the submodule pointer equals it. Say so loudly rather than let a green local
