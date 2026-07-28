@@ -5151,7 +5151,17 @@ print(f"filler_pool: {len(FILLER_POOL)} junk goods -> item_ids.py FILLER_POOL")
 # measurement -- if it reports a number far larger than the ~40 gate/travel/quest keys you expect,
 # goodsType 1 is broader than assumed (cookbooks and bell bearings live in the same inventory tab)
 # and the right response is to narrow the DERIVATION, not to reinstate a hand list.
+# 🛑 COOKBOOKS ARE NOT KEY ITEMS FOR THIS PURPOSE (Alaric, 2026-07-28). goodsType 1 is an inventory
+# TAB, and 96 of its 204 members are crafting cookbooks -- one slot each, 96 of the 366 slots this
+# protection covers. They unlock recipes; nothing in the world's model routes through them, and
+# holding 96 vanilla cookbooks in the pool instead of curated filler is a texture change nobody asked
+# for. Dropped by NAME, and by name is the honest way to say it: the param does not separate them, so
+# this is OUR judgement about OUR pool and it should read like one rather than hide inside a filter.
+# (Prayerbooks/Scrolls -- 11 names -- and Bell Bearings -- 35 -- are the same "unlocks shop stock"
+# family and are KEPT for now: they are few, and a missing bell bearing is felt. Revisit as a set.)
+_KEY_ITEM_NAME_DROP = ("Cookbook",)
 KEY_ITEM_GOODS = []
+_KEY_ITEM_DROPPED = 0
 if os.path.isfile(_GOODS_CSV):
     _keyitem_ids = set()
     for _row in csv.DictReader(open(_GOODS_CSV, newline="", encoding="utf-8", errors="replace")):
@@ -5164,8 +5174,12 @@ if os.path.isfile(_GOODS_CSV):
         _full = ITEM_CATALOG[_nm]
         if (_full & 0xF0000000) != 0x40000000:      # GOODS nibble only
             continue
-        if (_full & 0x0FFFFFFF) in _keyitem_ids:
-            KEY_ITEM_GOODS.append(_nm)
+        if (_full & 0x0FFFFFFF) not in _keyitem_ids:
+            continue
+        if any(_d in _nm for _d in _KEY_ITEM_NAME_DROP):
+            _KEY_ITEM_DROPPED += 1
+            continue
+        KEY_ITEM_GOODS.append(_nm)
 else:
     print("[gen_data] WARNING: EquipParamGoods.csv absent -- KEY_ITEM_GOODS is EMPTY and "
           "features/filler_curation will treat key items as displaceable junk again.")
@@ -5176,7 +5190,7 @@ with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
         f.write(f"    {ascii(_nm)},\n")
     f.write("]\n")
 print(f"key_item_goods: {len(KEY_ITEM_GOODS)} key items -> item_ids.py KEY_ITEM_GOODS "
-      f"(protected from the filler tail)")
+      f"(protected from the filler tail); {_KEY_ITEM_DROPPED} dropped by name {_KEY_ITEM_NAME_DROP}")
 
 
 # ---- AMMO_ITEM_NAMES: arrows & bolts (matt-free, param-derived). features/filler_curation grants
