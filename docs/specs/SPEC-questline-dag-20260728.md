@@ -320,9 +320,38 @@ rather than reports clean when the corpus is absent, when nothing was examined, 
 braces do not balance — a truncated mount read would otherwise print two reassuring zeroes. Verified
 by breaking it: a synthetic group-negated param in event 90005750 turns it red and names the param.
 
-**Still needs Alaric and the live game:** the verdict on the three cross-region candidates above —
-`f580600 ← f9146` (believed real, and the first thing that should graduate) and the Gelmir pair
-(believed a tile-straddle artifact).
+### ✅ Both cross-region candidates ADJUDICATED — Alaric, in-game, 2026-07-28
+
+The whole point of emitting candidates rather than verdicts was that only a human playing the game
+can tell a gate from a border. Both calls came back the same day, and both are now **wired, not
+just recorded** — a note in a handoff is not a gate, which is exactly how `f580600` survived two
+handoffs unprotected.
+
+**`f580600 ← f9146` is REAL.** *"message from leda requires defeating messmer".* The Message from
+Leda does not exist until Messmer is dead, and a region Lock lights Belurat's graces — so the player
+warps to the pickup and finds nothing. Fill could put required progression there. Tagged via
+`gen_data._ENABLER_CROSS_REGION`, with `tests/test_gf_enabler_cross_region.py` as its keeper. That
+keeper asserts the **population**, re-derived from the tsv each run, not the flag: a fixture cannot
+catch the next one.
+
+**The Gelmir pair is NOT a gate.** *"unseen blade: this is a classic rise puzzle where you have to
+interact with three objects near the rise to open the door"*, and *"slumbering egg is probably in
+the same rise"*. So the AND-group is **real** — the DAG reads those three flags as `semantics=all`,
+correctly, and an OR reading would have been the under-constrained rule §9b warns about — but all
+three objects stand at the rise. The cross-region reading is `1040530655` decoding to tile
+`m60_40_53` (Altus) while the rise sits **on** the Gelmir/Altus boundary: a BORDER, not a gate,
+which is the tile→region arity trap. Independently corroborated by the flag's own EMEVD setter event
+name, `Magician's Tower_Stopping the gimmick device` — a mechanism, not a quest.
+
+That second one is a hand entry, which this repo permits only where the derivation genuinely cannot
+reach — and "gate or border" is a question about the *game*. So it carries a date, a source and a
+reason, and a third test asserts every adjudication is still REACHED by the derivation: an exemption
+that has stopped protecting anything gets deleted, not kept as belt-and-braces.
+
+**What this says about tier 1's shape.** Two candidates, one real defect and one artifact, both
+resolved in a day by a human reading a table that refused to guess. That is the tier working: had
+the tool adjudicated either one itself, it would have been right once and wrong once, and nobody
+would have known which.
 
 **Now newly possible, and the obvious next increment:** with the EMEVD linked, the 28
 `treasure-verb-crossproduct` edges are no longer structurally unresolvable. Reading which BRANCH of
