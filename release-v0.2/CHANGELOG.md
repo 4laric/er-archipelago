@@ -3,6 +3,66 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.14 — 2026-07-28
+
+Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Location
+names last changed in v0.2.12, so an in-flight seed from v0.2.11 or earlier still will not
+match a new tracker.
+
+### Fixed — apworld
+
+- **A region lock could land behind Lichdragon Fortissax, and nothing could open that fight.**
+  Fortissax is fought inside Fia's Deathbed Dream, which does not exist until she is handed the
+  Cursemark of Death. The generator treated his Remembrance as an ordinary boss reward — and
+  because it carries the major-boss tag, it was one of the *preferred* places to put a region
+  lock. Reported by Nova71288, from three players' spoiler logs. That check can no longer hold
+  anything a seed requires. The rest of Fia's chain was already protected; the boss reward at
+  the end of it was not, because every screen we have for finding quest-gated checks inspects
+  how an ITEM is awarded, and what a questline gates here is whether the FIGHT exists.
+
+- **Key items were being deleted from the item pool.** The filler allocator decided what it
+  could overwrite by asking whether an item was a *Goods* item — and in Elden Ring every key
+  item is a Goods item, so it could overwrite them, and with the shipped recipe it essentially
+  always did. Bell bearings, whetblades, the crafting kit, maps, prayerbooks and scrolls, the
+  Dectus and Haligtree medallion halves, the Rold Medallion, Pureblood Knight's Medal and the
+  Cursemark of Death were all being removed from seeds. The set is now read from the game's own
+  key-item flag (`EquipParamGoods.goodsType`): **108 item names across 270 checks** keep their
+  real item. This is a pool-shape change as well as a bug fix — a seed holds more real key items
+  and correspondingly less curated filler.
+
+- **35 more checks can no longer be required.** 34 are NPC dialogue handovers — derived from the
+  game's own talk scripts rather than found one at a time, and 14 of the 48 the screen lands on
+  were already tagged by earlier hand audits, which is the reason to trust it about the rest. The
+  ones most likely to be noticed: **Rold Medallion** (Melina, after Morgott), **Drawing-Room
+  Key** (Tanith), **Haligtree Secret Medallion (Right)**. Plus the Fortissax reward above.
+  Missable checks went 179 → 214. All of them remain randomised and obtainable; they simply
+  cannot hold something the seed needs.
+
+### Changed
+
+- **More smithing stones in the filler pool** (`stones` 27 → 29, paid for out of `juice` 44 → 42).
+  Every check barred from holding progression displaces the progression that remains into earlier
+  slots, and protecting key items shrank the pool that share is measured against. Both squeeze the
+  early upgrade economy, which is held to a stated bar — a player who has cleared a realistic
+  fraction of what is open to them can afford a **+3 weapon**. At the old share three of nine test
+  seeds fell under it.
+
+- **Crafting cookbooks are deliberately NOT protected.** They are key items by the game's
+  reckoning, all 96 of them, and holding 96 vanilla cookbooks in the pool instead of curated
+  filler is a change to how a seed feels that nobody asked for. Prayerbooks, scrolls and bell
+  bearings ARE kept: same family, far fewer, and a missing bell bearing is felt.
+
+- **The progression surface counts only checks that can actually hold progression.** It had been
+  counting checks the fill rules already refused. Harmless until the Fortissax reward was tagged,
+  at which point Deeproot Depths claimed a place to put a lock while having none — that reward was
+  its only surface member.
+
+### Fixed — client
+
+- **The tracker's location table was regenerated** for the 35 newly-unrequirable checks (214
+  missable, was 179). Client-side data only; replace the `.dll` so the tracker agrees with the
+  apworld.
+
 ## v0.2.13 — 2026-07-27
 
 Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Location
