@@ -204,7 +204,16 @@ class CuratedFiller(OptionDict):
     # placed across spheres 0-1 where 24 are needed to afford +3 at a 25% clear rate. The floor exists to
     # stop a player being stuck at +0 deep into a seed, so the right move is to feed the economy, not to
     # weaken the softlock guard -- a check the player can destroy must not be REQUIRED, full stop.
-    default = {"juice": 44, "stones": 27, "somber_stones": 6, "runes": 10,
+    #
+    # stones 27 -> 29 (2026-07-28), the SAME mechanism a second time and taken from the same direction.
+    # Two changes landed together: KEY_ITEM_GOODS took the key items out of the displaceable tail (so the
+    # budget the stone weight is a share OF got smaller), and the NPC-handover corpus + the Fortissax
+    # boss-arena tag barred ~35 more checks from carrying progression (so what remains is displaced
+    # earlier). Either alone still cleared the floor; together they did not. MEASURED under the fix, 9
+    # seeds each: stones 27 -> [22, 23, 23, 29, 34, ...] median 34, THREE under the 24 floor; stones 28 ->
+    # clears; stones 29 -> clears with a point of margin, which is what ships. The juice weight pays for
+    # it (44 -> 42): gear injection is the thing that can afford to give, the upgrade curve is not.
+    default = {"juice": 42, "stones": 29, "somber_stones": 6, "runes": 10,
                "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1}
 
 

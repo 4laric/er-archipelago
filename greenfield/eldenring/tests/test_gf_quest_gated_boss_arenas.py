@@ -28,6 +28,8 @@ restricted params are not in CI or the sandbox. Until `build.ps1 -Greenfield` ru
 and KEY_ITEM_GOODS are absent and these tests fail by design. They are written to fail on the ABSENT
 DATUM with that message rather than to skip, because a skip here reads exactly like a pass.
 """
+import csv
+import os
 import unittest
 
 import pytest
@@ -191,3 +193,103 @@ class FortissaxRejectsProgression(WorldTestBase):
                          "the Fortissax reward accepts a progression item -- the 2026-07-27 softlock")
         if loc.item is not None and loc.item.player == self.world.player:
             self.assertFalse(loc.item.advancement, "progression was PLACED on the Fortissax reward")
+
+
+_PKG = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _rows(name):
+    """A committed greenfield tsv, installed beside the package by tools/gf_test.py. Skips loudly if
+    it is absent -- an oracle with no input asserts nothing, which reads exactly like a pass."""
+    path = os.path.join(_PKG, name)
+    if not os.path.isfile(path):
+        pytest.skip("%s not installed beside the package -- this oracle would run BLIND" % name)
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        yield from csv.DictReader(
+            (ln for ln in fh if not ln.lstrip().startswith("#")), delimiter="\t")
+
+
+class EsdGiftHandovers(unittest.TestCase):
+    """The keeper for gen_data._ESD_GIFT_GATED: re-derive the join here, so the set cannot rot into a
+    frozen list. An NPC dialogue handover exists only while that NPC is alive and in that state; the
+    region-lock model calls the check reachable the moment its region opens."""
+
+    def _gift_check_aps(self):
+        lot2flag = {}
+        for r in _rows("flag_lots.tsv"):
+            if (r.get("table") or "").strip() != "map":
+                continue
+            try:
+                lot2flag.setdefault(int(r["lot"]), int(r["flag"]))
+            except (KeyError, TypeError, ValueError):
+                continue
+        f2a = _flag_to_ap()
+        out = {}
+        for r in _rows("esd_gifts.tsv"):
+            try:
+                lot = int((r.get("item_lot") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            ap = f2a.get(lot2flag.get(lot))
+            if ap is not None:
+                out[ap] = lot
+        return out
+
+    def test_the_join_still_lands_on_checks(self):
+        """A join that silently yields nothing is the failure mode here (the tsvs open with a comment
+        block, so a DictReader over the raw handle reads a `#` line as its header and returns zero
+        rows). A FLOOR, not a pin: more is fine, a collapse is the bug."""
+        self.assertGreaterEqual(len(self._gift_check_aps()), 40,
+                                "the esd_gifts lot->flag->check join collapsed -- it landed on 48 "
+                                "live checks when it was written")
+
+    def test_every_dialogue_handover_is_missable(self):
+        untagged = sorted(ap for ap in self._gift_check_aps() if ap not in MISSABLE_LOCATIONS)
+        self.assertFalse(untagged,
+                         "%d NPC-handover check(s) can host REQUIRED progression: %s\n(gen_data is "
+                         "fixed and the generated table is stale: run build.ps1 -Greenfield)"
+                         % (len(untagged), untagged[:12]))
+
+
+class SurfaceCountsOnlyHostableChecks(WorldTestBase):
+    """A missable check cannot accept an advancement item, so it is not surface. It was counted
+    anyway until 2026-07-28, and Deeproot Depths is where that stopped being cosmetic: its ONLY
+    surface member is the Fortissax reward."""
+    game = GAME
+    options = {"item_shuffle": True}
+
+    def test_missable_is_barred_from_the_surface(self):
+        from worlds.eldenring.features.progression_surface import (
+            _world_barred_aps, missable_barred_aps, allowed_ap_ids)
+        barred = _world_barred_aps(self.world)
+        self.assertTrue(missable_barred_aps(self.world),
+                        "the missable guard is on by default -- its set should be non-empty")
+        surface = allowed_ap_ids(LOCATION_TAGS, SURFACE_DEFAULT_CLASSES, defaulted=barred)
+        leaked = sorted(set(surface) & set(MISSABLE_LOCATIONS))
+        self.assertFalse(leaked, f"missable checks counted as surface: {leaked}")
+
+    def test_a_region_is_not_anchor_eligible_on_an_unhostable_boss(self):
+        """regions_with_major_boss decides strict-mode sphere-0 anchor eligibility. Deeproot Depths'
+        only MajorBoss check is the Fortissax reward; once that is tagged the region hosts nothing,
+        and saying otherwise is how a claim outlives the check it was built on."""
+        from worlds.eldenring.features.progression_surface import (
+            _world_barred_aps, regions_with_major_boss)
+        from worlds.eldenring.data import LOCATIONS as _LOCS
+        barred = _world_barred_aps(self.world)
+        eligible = regions_with_major_boss(list(_LOCS), barred=barred)
+        f2a = _flag_to_ap()
+        if f2a.get(510110) not in MISSABLE_LOCATIONS:
+            self.skipTest("pre-regen table: the Fortissax reward is not tagged yet")
+        self.assertNotIn("Deeproot Depths", eligible,
+                         "Deeproot Depths is still anchor-eligible on a check no Lock can land on")
+
+    def test_turning_the_guard_off_gives_the_surface_back(self):
+        """The option means what it says: `protect_missable_locations` off is a deliberate 'I accept
+        questline requirements', and then these checks really can host progression."""
+        from worlds.eldenring.features.progression_surface import missable_barred_aps
+
+        class _Off:
+            class options:
+                class protect_missable_locations:
+                    value = 0
+        self.assertFalse(missable_barred_aps(_Off()))

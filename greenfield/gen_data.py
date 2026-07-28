@@ -2375,6 +2375,57 @@ def _load_multisite_flags():
 
 
 _MULTI_SITE = _load_multisite_flags()
+
+
+# NPC DIALOGUE HANDOVERS -- a FIFTH derivation (2026-07-28), read from the committed
+# greenfield/esd_gifts.tsv (tools/datamine_esd_gates.py) and joined lot -> flag through FLAG_LOTS.
+#
+# A gift is an `AwardItemLot` inside an NPC's talk ESD: it exists only while that NPC is alive, in
+# that dialogue state, at that point in their questline. The region-lock model sees the check's
+# region open and calls it reachable. Same disposition as every set above -- randomised and MISSABLE,
+# never excluded (Alaric 2026-07-26: "it's fine for all the quest stuff to be randomized and
+# missable").
+#
+# ⭐ THE OVERLAP IS THE EVIDENCE, exactly as for _MULTI_SITE: the join lands on 48 live checks and 14
+# of them were ALREADY hand-tagged above, which is what makes the ~34 new ones credible rather than a
+# corpus dumped into a bar. Among them are the strand risks you would name by hand if asked --
+# f400430 Rold Medallion ("talk to Melina after killing Morgott"), f400072 Drawing-Room Key ("talk to
+# Tanith"), f400130 Haligtree Secret Medallion (Right) -- and those three are also on the
+# progression surface, which is where a missing tag costs a seed rather than an item.
+#
+# 🛑 IT DOES NOT REACH THE BOSS-ARENA CLASS. Fortissax has no AwardItemLot row anywhere: the dream is
+# not a handover. A blanket over award sites -- which is what this is -- cannot catch a gate on the
+# EXISTENCE OF A FIGHT, which is why _BOSS_ARENA_QUEST_GATED is a separate set and not folded here.
+# 🛑 The 31 gift lots with no acquisition flag and the region_map-PENDING rows are not checks; they
+# drop out of the join rather than being tagged blind.
+def _load_esd_gift_flags():
+    _p = os.path.join(HERE, "esd_gifts.tsv")
+    if not os.path.isfile(_p) or not FLAG_LOTS:
+        return frozenset()
+    _lot2flag = {}
+    for _fl, _fam in FLAG_LOTS.items():
+        for (_tb, _lot, *_rest) in _fam:
+            if _tb == "map":
+                _lot2flag.setdefault(_lot, _fl)
+    _out = set()
+    with open(_p, encoding="utf-8-sig", newline="") as _fh:
+        # The header is the first NON-comment line (the file opens with a provenance block), and a
+        # DictReader handed the raw handle would take a `#` line as its header and silently yield
+        # nothing -- a filter with no tally, which is the failure this repo names by hand.
+        _rows = csv.DictReader((_ln for _ln in _fh if not _ln.lstrip().startswith("#")),
+                               delimiter="\t")
+        for _r in _rows:
+            try:
+                _lot = int((_r.get("item_lot") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            _fl = _lot2flag.get(_lot)
+            if _fl is not None:
+                _out.add(_fl)
+    return frozenset(_out)
+
+
+_ESD_GIFT_GATED = _load_esd_gift_flags()
 # ⭐ Fold in the CROSS-REGION-gated set derived above (_QUESTLINE_GATED). Alaric 2026-07-26: randomised
 # + missable BEATS excluded -- the pickup stays in the pool and only loses the right to host REQUIRED
 # progression, which is the one thing that could strand a seed.
@@ -2403,7 +2454,20 @@ if _MULTI_SITE and not _MS_BOTH:
 _BA_NEW = _BOSS_ARENA_QUEST_GATED - QUEST_GATED_FLAGS - _QUESTLINE_GATED - _NPC_STATE_GATED - _MULTI_SITE
 print("boss_arena_gated (the FIGHT is quest-gated, not the award): %d flag(s); %d NEW %s"
       % (len(_BOSS_ARENA_QUEST_GATED), len(_BA_NEW), sorted(_BA_NEW)))
-QUEST_GATED_FLAGS |= _QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE | _BOSS_ARENA_QUEST_GATED
+_EG_KNOWN = QUEST_GATED_FLAGS | _QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE
+_EG_NEW = _ESD_GIFT_GATED - _EG_KNOWN
+_EG_BOTH = len(_ESD_GIFT_GATED) - len(_EG_NEW)
+# FLAGS here, not checks: the join yields every gift flag, and only the ones that are emitted checks
+# become missable ("extra/absent flags are inert", as for every set above). Measured 2026-07-28 on
+# the committed tsvs: 95 flags -> 48 live checks -> 14 already tagged, 34 new. The live number is the
+# one the `missable_locations:` line below reports.
+print("esd_gift (NPC dialogue handover): %d flag(s) joined; %d ALREADY tagged by an earlier audit "
+      "(corroboration), %d NEW" % (len(_ESD_GIFT_GATED), _EG_BOTH, len(_EG_NEW)))
+if _ESD_GIFT_GATED and not _EG_BOTH:
+    print("[gen_data] WARNING: the esd_gift join now corroborates NOTHING previously hand-audited -- "
+          "the lot->flag join is probably broken, not the game. Check it before trusting the new tags.")
+QUEST_GATED_FLAGS |= (_QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE | _BOSS_ARENA_QUEST_GATED
+                      | _ESD_GIFT_GATED)
 
 
 # Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in

@@ -414,14 +414,23 @@ class GreenfieldEldenRingWorld(World):
         # Deterministic via self.random.
         _slr = getattr(self.options, "start_with_region_lock", None)
         if _slr is not None and _slr.value and lock_items and not _natural:
-            from .features.progression_surface import regions_with_major_boss, lock_region_name
+            from .features.progression_surface import (regions_with_major_boss, lock_region_name,
+                                                       missable_barred_aps as _ps_missable)
             from .features.start_grace import pick_anchor_region
             _psm = getattr(self.options, "progression_surface_mode", None)
             _strict = _psm is not None and int(_psm.value) == 2
             _counts = {r: len(LOCATIONS.get(r, [])) for r in kept}
             _region, _rule, _pool_n = pick_anchor_region(
                 kept, self.random, _counts, DLC_REGIONS,
-                major=regions_with_major_boss(kept) if _strict else None,
+                # `barred` = the MISSABLE set only, not the whole surface bar. A region whose
+                # only MajorBoss check is questline-missable cannot host a Lock on the strength
+                # of it (Deeproot Depths: its sole MajorBoss is the Fortissax reward). The
+                # wider set was tried and REVERTED the same day: handing this the defaulted /
+                # burn-stranded aps too moves the anchor pick in seeds that have nothing to do
+                # with this fix, and test_gf_filler_economy_floor::FillerEconomyFloor -- which
+                # sits one seed off its floor -- went red on the shift. Narrow instrument.
+                major=regions_with_major_boss(
+                    kept, barred=_ps_missable(self)) if _strict else None,
                 gated=frozenset(REGION_PARENT))
             _by_region = {lock_region_name(it.name): it for it in lock_items}
             _anchor = _by_region[_region]

@@ -214,10 +214,15 @@ def lock_region_name(item_name):
     return s[:-len(" Lock")] if s.endswith(" Lock") else None
 
 
-def regions_with_major_boss(region_names, tags_map=None, locations=None):
+def regions_with_major_boss(region_names, tags_map=None, locations=None, barred=None):
     """Subset of `region_names` that HOST at least one MajorBoss location -- the regions eligible to be
     the strict sphere-0 anchor. Pure over the generated LOCATION_TAGS + LOCATIONS maps (defaults to the
-    module globals). Empty if tags aren't generated yet (caller then falls back to any region)."""
+    module globals). Empty if tags aren't generated yet (caller then falls back to any region).
+
+    `barred` (the caller's _world_barred_aps) is subtracted, because HOSTING is the question being
+    asked and a barred check cannot host. Deeproot Depths is the case that made this matter: its only
+    MajorBoss check is the Fortissax reward, which is questline-missable, so counting it made the
+    region look eligible on the strength of a check no Lock can ever land on."""
     tm = LOCATION_TAGS if tags_map is None else tags_map
     if locations is None:
         try:
@@ -225,10 +230,11 @@ def regions_with_major_boss(region_names, tags_map=None, locations=None):
         except Exception:
             locations = {}
     locs = locations
+    bar = frozenset(barred or ())
     out = set()
     for r in region_names:
         for (_n, ap, _f) in locs.get(r, []):
-            if "MajorBoss" in (tm.get(ap) or ()):
+            if ap not in bar and "MajorBoss" in (tm.get(ap) or ()):
                 out.add(r)
                 break
     return out
@@ -269,23 +275,49 @@ def _restricted_items(world):
             if is_restricted_progression(it, world.player)]
 
 
+def missable_barred_aps(world):
+    """The missable checks that may not host progression, or empty when the guard is off.
+
+    WHY THIS JOINED THE SURFACE MATH (2026-07-28). features/missable_locations enforces its bar with
+    an item_rule, and the surface never knew about it -- so `allowed_ap_ids` counted checks that
+    cannot accept an advancement item, and the surface SIZE was a claim about tags rather than about
+    hosting. Mostly that is a cosmetic overcount. It stopped being cosmetic when the Fortissax reward
+    was tagged: `Deeproot Depths` has exactly ONE surface member and that is it, so the surface said
+    the region could host a Lock while the true count was zero -- and `regions_with_major_boss`, which
+    decides strict-mode sphere-0 anchor eligibility, said the same thing off the same tags.
+
+    Gated on the option, because turning `protect_missable_locations` OFF is a deliberate choice to
+    accept questline requirements ("expert / guaranteed-access play") -- and then these checks really
+    can host progression, so the surface should count them again."""
+    opt = getattr(getattr(world, "options", None), "protect_missable_locations", None)
+    if opt is not None and not opt.value:
+        return frozenset()
+    try:
+        from ..missable_locations import MISSABLE_LOCATIONS
+    except Exception:
+        return frozenset()
+    return frozenset(MISSABLE_LOCATIONS)
+
+
 def _world_barred_aps(world):
-    """The per-world no-progression set for surface math: DEFAULTED_REGION_APS always; the
-    ERDTREE_BURN_APS burn-strand bar only while the capital reconciler is NOT armed (armed = the
-    client restores m11_00, so the strand those APs were barred for cannot happen -- SPEC-capital-
-    reconciler.md). Mirrors core._add_locations' item_rule carve-out; the two must agree or the
-    surface would star checks the item_rule forbids (or vice versa)."""
+    """The per-world no-progression set for surface math: DEFAULTED_REGION_APS always; the missable
+    set while its guard is armed (missable_barred_aps); the ERDTREE_BURN_APS burn-strand bar only
+    while the capital reconciler is NOT armed (armed = the client restores m11_00, so the strand those
+    APs were barred for cannot happen -- SPEC-capital-reconciler.md). Mirrors core._add_locations'
+    item_rule carve-out; the two must agree or the surface would star checks the item_rule forbids
+    (or vice versa) -- which is exactly what it did for every missable check until 2026-07-28."""
     try:
         from ..location_tags import DEFAULTED_REGION_APS as _d
     except Exception:
         _d = frozenset()
+    _m = missable_barred_aps(world)
     if getattr(world, "gf_capital_reconciler", False):
-        return frozenset(_d)
+        return frozenset(_d) | _m
     try:
         from ..location_tags import ERDTREE_BURN_APS as _b
     except Exception:
         _b = frozenset()
-    return frozenset(_d) | frozenset(_b)
+    return frozenset(_d) | frozenset(_b) | _m
 
 
 def _open_allowed(world, classes):
