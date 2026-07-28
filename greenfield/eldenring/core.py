@@ -16,7 +16,7 @@ from BaseClasses import Region, Location, Item, ItemClassification
 from worlds.AutoWorld import World, WebWorld
 from Options import PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle
 
-from .data import HUB, REGIONS, LOCATIONS, FINALE_REGION
+from .data import HUB, REGIONS, LOCATIONS, FINALE_REGION, FINALE_HOST_REGION
 try:
     from .location_tags import DEFAULTED_REGION_APS   # checks whose region is a GUESS -> filler only
 except ImportError:                                    # pre-regen data: fail OPEN, guard is inert
@@ -893,18 +893,48 @@ class GreenfieldEldenRingWorld(World):
             ids = [int(ap_id) for (_n, ap_id, _f) in LOCATIONS.get(rn, [])]
             if ids:
                 loc_regions[rn] = ids
-        for ap_id, rn in getattr(self, "gf_extra_location_regions", {}).items():
-            loc_regions.setdefault(str(rn), []).append(int(ap_id))
+        # FEATURE-OWNED LOCATIONS, the same seam loc_flags uses above -- and the reason this is a
+        # REVERSE LOOKUP rather than a second `gf_extra_location_*` attribute: the finale
+        # (features/finale.py) publishes Ashen Capital's checks through gf_extra_location_flags, and
+        # Ashen Capital is deliberately NOT in data.REGIONS (it is conditional, never rollable). So
+        # the `[HUB] + kept` walk above cannot see it, and an attribute only this code reads would
+        # have to be populated by every future feature that mints a location -- i.e. it would be
+        # forgotten exactly once and then be wrong forever.
+        # SHIPPED WRONG ONCE (2026-07-28, caught by a smoke-test log): loc_flags carried 4879 ids
+        # while loc_regions carried 4869, so the finale's 10 checks had a flag and no region. The
+        # tracker cannot group them, and core.rs uses `region_table.contains_key` as its "is this
+        # location ours?" test, so a hint for one of them from another player was dropped.
+        _ap_region = {int(ap): rn for rn, rows in LOCATIONS.items() for (_n, ap, _f) in rows}
+        _regioned = {i for ids in loc_regions.values() for i in ids}
+        _unplaced = []
+        for ap_id in loc_flags:
+            ap_id = int(ap_id)
+            if ap_id in _regioned:
+                continue
+            rn = _ap_region.get(ap_id)
+            if rn is None:
+                _unplaced.append(ap_id)
+                continue
+            loc_regions.setdefault(rn, []).append(ap_id)
+        if _unplaced:
+            # Refuse rather than ship a location the tracker cannot place. An id in locationFlags
+            # with no home in LOCATIONS is a feature minting a check out of nothing.
+            raise Exception(
+                "locationFlags carries %d ap id(s) with no region in data.LOCATIONS: %s. Every "
+                "emitted location must be placeable, or the client cannot group it and treats it "
+                "as another world's." % (len(_unplaced), sorted(_unplaced)[:10]))
         for _rn in loc_regions:
             loc_regions[_rn] = sorted(set(loc_regions[_rn]))
         # COARSE key per fine region: which region's lock decides in-logic. "" = always accessible.
         # A region with locations but NO lock and no host mapping would silently become its own
         # coarse key and then find no lock item, reading as "open" forever -- so it is a hard error
         # here rather than a quiet permissive default in the client.
-        _lockless_host = {}
-        _finale = globals().get("FINALE_REGION")
-        if _finale is not None and globals().get("FINALE_HOST_REGION") is not None:
-            _lockless_host[_finale] = FINALE_HOST_REGION
+        # The finale is the one region with locations and NO lock of its own -- its space is gated
+        # by the host's. Imported outright rather than probed through globals(): FINALE_HOST_REGION
+        # was NOT imported here, so the probe silently returned None, _lockless_host stayed empty,
+        # and the moment Ashen Capital entered loc_regions (the fix above) every seed would have hit
+        # the raise below. A getattr-guard that hides a missing import is not a guard.
+        _lockless_host = {FINALE_REGION: FINALE_HOST_REGION}
         coarse_keys: Dict[str, str] = {}
         for rn in loc_regions:
             if rn == HUB:

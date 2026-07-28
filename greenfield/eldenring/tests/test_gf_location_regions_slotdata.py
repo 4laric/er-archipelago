@@ -71,10 +71,27 @@ class LocationRegionsSlotData(unittest.TestCase):
                 loc_regions[rn] = sorted(ids)
             for (_n, a, f) in data.LOCATIONS.get(rn, []):
                 loc_flags[str(a)] = f
-        lockless_host = {}
-        finale = getattr(data, "FINALE_REGION", None)
-        if finale is not None and getattr(data, "FINALE_HOST_REGION", None) is not None:
-            lockless_host[finale] = data.FINALE_HOST_REGION
+        # THE FEATURE SEAM, and the reason this mirror grew it. features/finale.py publishes Ashen
+        # Capital's checks through `gf_extra_location_flags`, which core merges into locationFlags --
+        # and Ashen Capital is deliberately NOT in data.REGIONS, so the `[HUB] + kept` walk above
+        # cannot see it. The FIRST version of this suite mirrored only that walk, so BOTH sides of
+        # `test_every_location_flag_has_a_region_and_vice_versa` had the same 10-location hole and it
+        # passed while the emit shipped 4869 regions against 4879 flags. A mirror that reproduces the
+        # bug faithfully proves nothing; it has to mirror what core ACTUALLY emits.
+        # ...and the seam is CONDITIONAL: features/finale.py arms only when every FINALE_REQUIRES
+        # region is kept (`finale_active`). Mirroring it unconditionally made the reduced-seed test
+        # fail on a finale the real emit would never have produced -- the mirror lying in the other
+        # direction.
+        if set(data.FINALE_REQUIRES) <= set(kept):
+            for (_n, a, f) in data.LOCATIONS.get(data.FINALE_REGION, ()):
+                loc_flags[str(a)] = f
+        ap_region = {int(a): rn for rn, rows in data.LOCATIONS.items() for (_n, a, _f) in rows}
+        regioned = {i for ids in loc_regions.values() for i in ids}
+        for ap in loc_flags:
+            ap = int(ap)
+            if ap not in regioned:
+                loc_regions.setdefault(ap_region[ap], []).append(ap)
+        lockless_host = {data.FINALE_REGION: data.FINALE_HOST_REGION}
         coarse = {}
         for rn in loc_regions:
             if rn == data.HUB:
@@ -139,7 +156,7 @@ class LocationRegionsSlotData(unittest.TestCase):
         full = list(self.data.REGIONS)
         kept = full[:3]
         loc_regions, coarse, loc_flags, region_open = self.emit(kept)
-        allowed = set(kept) | {self.data.HUB}
+        allowed = set(kept) | {self.data.HUB, self.data.FINALE_REGION}
         self.assertTrue(set(loc_regions) <= allowed,
                         "a reduced seed emitted regions it did not keep: %s"
                         % sorted(set(loc_regions) - allowed))
@@ -156,6 +173,43 @@ class LocationRegionsSlotData(unittest.TestCase):
                               "on a REDUCED seed, region %r keys off coarse %r whose lock was not "
                               "sent -- the client would call it permanently open" % (region, key))
 
+    def test_the_finale_region_is_regioned_and_not_just_flagged(self):
+        """END TO END, BY NAME. The case that shipped wrong on 2026-07-28.
+
+        Ashen Capital is conditional and never rollable, so it is NOT in `data.REGIONS`. Its checks
+        reach slot_data through `features/finale.py` -> `gf_extra_location_flags` -> locationFlags.
+        The first cut of `locationRegions` walked `[HUB] + kept` only, so those 10 got a flag and no
+        region: the client's tracker could not group them, and `region_table.contains_key` is its
+        "is this location ours?" test, so a hint for one of them from another player was DROPPED.
+        Caught by reading a smoke-test log -- 4869 locations across 31 regions, against 4879 flags.
+        """
+        # Full-region seed, so FINALE_REQUIRES is satisfied and the feature ARMS.
+        loc_regions, coarse, loc_flags, region_open = self.emit(list(self.data.REGIONS))
+        finale = self.data.FINALE_REGION
+        expected = {int(a) for (_n, a, _f) in self.data.LOCATIONS[finale]}
+        self.assertTrue(expected, "the finale region has no locations -- this fixture is vacuous")
+        self.assertIn(finale, loc_regions,
+                      "%r is absent from locationRegions; its checks would have a flag and no "
+                      "region" % finale)
+        self.assertEqual(set(loc_regions[finale]), expected)
+        self.assertEqual(
+            coarse.get(finale), self.data.FINALE_HOST_REGION,
+            "the finale is lockless -- its coarse key must be its HOST, or the client finds no "
+            "lock item and calls the finale permanently open")
+        self.assertIn("%s Lock" % self.data.FINALE_HOST_REGION, region_open)
+
+    def test_locationRegions_and_locationFlags_cover_the_same_ids_including_feature_seams(self):
+        """The totality check, stated against data.LOCATIONS rather than against the mirror itself."""
+        loc_regions, _c, loc_flags, _ro = self.emit(list(self.data.REGIONS))
+        regioned = {i for ids in loc_regions.values() for i in ids}
+        flagged = {int(k) for k in loc_flags}
+        self.assertEqual(len(regioned), len(flagged),
+                         "%d regioned vs %d flagged -- the shipped bug was exactly this gap"
+                         % (len(regioned), len(flagged)))
+        every = {int(a) for rows in self.data.LOCATIONS.values() for (_n, a, _f) in rows}
+        self.assertEqual(regioned, every,
+                         "a full-region seed must region EVERY location in data.LOCATIONS")
+
     # -- the mirror is the risk --------------------------------------------
     def test_the_mirror_matches_core_py(self):
         """This suite REBUILDS the emit (core.py needs AP). Pin the source it mirrors, so a change
@@ -164,7 +218,9 @@ class LocationRegionsSlotData(unittest.TestCase):
         for needle in ("contract.LOCATION_REGIONS: loc_regions",
                        "contract.REGION_COARSE_KEYS: coarse_keys",
                        "for rn in [HUB] + kept:",
-                       "coarse_keys[rn] = \"\""):
+                       "coarse_keys[rn] = \"\"",
+                       "_ap_region = {int(ap): rn for rn, rows in LOCATIONS.items()",
+                       "_lockless_host = {FINALE_REGION: FINALE_HOST_REGION}"):
             self.assertIn(needle, src,
                           "core._base_slot_data no longer contains %r -- this mirror is stale and "
                           "is now testing something the world does not do." % needle)
