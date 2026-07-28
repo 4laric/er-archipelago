@@ -110,6 +110,14 @@ const COLUMNS = [
 
 const CARDS = [
   {
+    "id": "split-sweep-options",
+    "col": "backlog",
+    "pri": "P3",
+    "cat": "Options",
+    "title": "Split dungeon_sweep into two yaml options -- dungeon sweeps and field-boss sweeps are one knob for two axes",
+    "desc": "Alaric, 2026-07-28, off the v0.2.15 unfreeze. `dungeon_sweep` is a Choice (none/minidungeons/all/bosses) that conflates TWO independent questions: WHICH dungeons sweep (none / minidungeons / all = minidungeons+legacy+castles) and WHETHER FIELD BOSSES sweep too -- `bosses` is just `all` PLUS field bosses, so you cannot have field-boss sweeps without full dungeon sweeps, or dungeon sweeps at `minidungeons` with field bosses on. Four values cover six real combinations badly. SPLIT into `dungeon_sweep` (none/minidungeons/all) + a separate field-boss toggle. WHY IT SURFACED: the client labels every sweep toast 'Boss sweep (<region>)' because sweeps are keyed on boss-defeat flags, so 'dungeon sweep' and 'boss sweep' read as two features to a player and are one option underneath -- Alaric asked whether turning one off turns off the other. It does; the naming is what made that unclear. MEASURED while answering that: 242 sweep groups / 3197 member checks; ZERO of the 27 boss own-reward checks are sweep members and all 27 are ordinary locations, so no sweep setting can ever cost a player an item -- only the convenience. That is what makes this a pure UX split rather than a logic change. CARE: dungeon_sweep is the gate on emitting dungeonSweepFlags / dungeonSweeps / sweepLockGates (features/boss_locks.py ~267), so the split needs a contract decision -- one key with a filtered membership, or two keys. Keep it count-neutral and default to today's behaviour (all + no field bosses) so an existing yaml generates identically. Options live in features/boss_locks.py, and test_gf_options.py must cover the new combinations."
+  },
+  {
     "id": "lot-gates-second-handle",
     "col": "blocked",
     "pri": "P1",
