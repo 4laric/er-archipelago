@@ -368,11 +368,23 @@ class QuestlineDagGate(unittest.TestCase):
                 if r["tool"] != "lot_gates" and r["cross_region"] == "yes"
                 and r["sense"] == "set"
                 and world.flag_ap.get(int(r["target_flag"])) not in world.missable]
+        # ADJUDICATED 2026-07-28 by the live-game oracle (Alaric), which is the only thing that can
+        # tell these apart. Both verdicts are now WIRED, not just recorded:
+        #   f580600 <- f9146   REAL. "message from leda requires defeating messmer" -> tagged via
+        #                      gen_data._ENABLER_CROSS_REGION; keeper test_gf_enabler_cross_region.
+        #   f1039537050/60     NOT a gate. "a classic rise puzzle where you have to interact with
+        #                      three objects near the rise to open the door" -- the AND-group is
+        #                      real, but all three objects are AT the rise; the cross-region reading
+        #                      is the Gelmir/Altus TILE BORDER. Adjudicated in that same keeper.
+        # The warning below stays anyway: it reports the POPULATION, and its job is to be loud when
+        # a NEW member appears. A screen that goes quiet once its known members are handled is a
+        # screen that has stopped screening.
         if news:
             warnings.warn(
                 "[questline-dag] %d unprotected cross-region PREREQUISITE candidate(s) from corpora "
-                "the lot_gates screen does not read. Each needs a human verdict -- a tile-straddle "
-                "border and a real gate are indistinguishable here:\n  %s"
+                "the lot_gates screen does not read. f580600 and the f10395370xx pair were "
+                "adjudicated 2026-07-28 (see test_gf_enabler_cross_region); ANY OTHER member is "
+                "unruled -- a tile-straddle border and a real gate are indistinguishable here:\n  %s"
                 % (len(news), "\n  ".join(
                     "f%s [%s] <- f%s [%s] via %s (%s)"
                     % (r["target_flag"], r["target_region"], r["source_flag"],

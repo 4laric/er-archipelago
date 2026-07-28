@@ -2426,6 +2426,40 @@ def _load_esd_gift_flags():
 
 
 _ESD_GIFT_GATED = _load_esd_gift_flags()
+
+
+# TREASURE-ENABLER CROSS-REGION prerequisites -- a SIXTH derivation (2026-07-28), read from the
+# committed greenfield/treasure_enablers.tsv via greenfield/questline_dag.tsv
+# (tools/build_questline_dag.py).
+#
+# `test_gf_lot_gates_cross_region` reads ONLY lot_gates.tsv and holds unprotected cross-region gates
+# there at zero. treasure_enablers is a DIFFERENT corpus and that screen has never read it: it
+# records what enables a StartDisabled=1 treasure, including `external_gate_flags` -- flags tested by
+# the enabling event that the check's own map never sets. The questline-DAG builder screens those the
+# same way, and it found one that nothing protected.
+#
+#   580600  Belurat :: Message from Leda - near Scaduview Cross
+#           The enabler is `WaitFor(EventFlag(580600) || EventFlag(9146))`. The alternation is with
+#           the check's OWN acquisition flag ("already taken"), so 9146 is a real requirement -- and
+#           9146 is MESSMER's reward flag (m21_01). The message does not exist until he is dead.
+#           ✅ CONFIRMED IN-GAME by Alaric, 2026-07-28: "message from leda requires defeating
+#           messmer". Named as "the one real cross-region prerequisite, still unwired" in the
+#           2026-07-26 AND 2026-07-27 handoffs; this is it finally wired.
+#           A region Lock lights Belurat's graces, so the player warps to the pickup and finds
+#           NOTHING there -- the warp bypasses the route, not the prerequisite.
+#
+# 🛑 TAGGED, NOT EXCLUDED, and not an access rule either. Same standing call as every set above
+# (Alaric 2026-07-26: "it's fine for all the quest stuff to be randomized and missable"): the check
+# stays in the pool and loses only the right to host REQUIRED progression, which is the one thing
+# that could strand a seed. An access rule here would need Messmer's kill to be expressible in the
+# region graph, which is a bigger change than the hazard warrants.
+#
+# 🛑 KEPT SEPARATE from the five sets above for the reason they are separate from each other: each
+# set's provenance is its own screen, and folding this into _QUESTLINE_GATED would make THAT set
+# unfalsifiable by its own keeper test (which re-derives the lot_gates population, not this one).
+# Its keeper is tests/test_gf_enabler_cross_region.py, which RE-DERIVES the population from the
+# committed tsv every run -- so a new unprotected enabler gate turns it red instead of shipping.
+_ENABLER_CROSS_REGION = frozenset({580600})
 # ⭐ Fold in the CROSS-REGION-gated set derived above (_QUESTLINE_GATED). Alaric 2026-07-26: randomised
 # + missable BEATS excluded -- the pickup stays in the pool and only loses the right to host REQUIRED
 # progression, which is the one thing that could strand a seed.
@@ -2466,8 +2500,13 @@ print("esd_gift (NPC dialogue handover): %d flag(s) joined; %d ALREADY tagged by
 if _ESD_GIFT_GATED and not _EG_BOTH:
     print("[gen_data] WARNING: the esd_gift join now corroborates NOTHING previously hand-audited -- "
           "the lot->flag join is probably broken, not the game. Check it before trusting the new tags.")
+_EC_NEW = _ENABLER_CROSS_REGION - QUEST_GATED_FLAGS - _QUESTLINE_GATED - _NPC_STATE_GATED \
+    - _MULTI_SITE - _ESD_GIFT_GATED
+print("enabler_cross_region (StartDisabled treasure gated from ANOTHER region; a corpus the "
+      "lot_gates screen does not read): %d flag(s); %d NEW %s"
+      % (len(_ENABLER_CROSS_REGION), len(_EC_NEW), sorted(_EC_NEW)))
 QUEST_GATED_FLAGS |= (_QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE | _BOSS_ARENA_QUEST_GATED
-                      | _ESD_GIFT_GATED)
+                      | _ESD_GIFT_GATED | _ENABLER_CROSS_REGION)
 
 
 # Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in

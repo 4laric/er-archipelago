@@ -25,8 +25,8 @@
 #   by tool: esd_gifts 95, lot_gates 173, treasure_enablers 12
 #   source kind: check 5, npc_state 88, world 187
 #   targets: 115 with a PREREQUISITE (sense=set), 14 with an EXCLUSION (sense=clear)
-#   CORROBORATION: 99 of 154 target check(s) are ALREADY missable-tagged (64%); the tag set holds 214 checks in total
-#   cross-region edges: 48 (3 whose target is NOT missable-tagged)
+#   CORROBORATION: 100 of 154 target check(s) are ALREADY missable-tagged (65%); the tag set holds 215 checks in total
+#   cross-region edges: 48 (2 whose target is NOT missable-tagged)
 #   alt_group semantics: all 2, any 11, single 151, unknown 35 (a group claims OR/AND only where the DATA proves it)
 #   edges DEGRADED to unusable by a guard (each is a refusal, not a loss): context-branch-unresolved 7, enabler-not-an-eventflag-test-above-the-enable 2, esd-paths-disagree 3, esd-received-memo 66, lot_gates-senses-disagree 2, treasure-verb-crossproduct 28
 #   source region located by: none 117, esd_talk_map 33, flag_decode 75, setter_map 40, test_map 15
