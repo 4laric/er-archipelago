@@ -48,6 +48,12 @@ happens here, once, in the open:
                                  (`EndIf(EventFlag(p))`, `if (p) {... EndEvent()}` -- a completion
                                  test whose polarity is inverted). What survives is a positive
                                  requirement BY CONSTRUCTION, not by this tool's reading.
+                                 ⚠️ Two residual holes, both in the SAFE (over-constraining)
+                                 direction and neither checkable from the sandbox: an `||` with a
+                                 NON-flag term inside the WaitFor still yields `set`, and a group
+                                 negation `!(... EventFlag(p) ...)` would evade the local negation
+                                 test. Settling them is one grep of `common_func.emevd.dcx.js`,
+                                 which is a Windows artifact.
     WaitFor             set      `WaitFor(... EventFlag(X) ...)` blocks until X is set.
     !WaitFor            clear    the test is negated inside the WaitFor.
     EndIf               clear    `EndIf(EventFlag(X))` TERMINATES the event when X is set, so the
@@ -60,9 +66,11 @@ happens here, once, in the open:
     /DisableAssetTreasure        pair, so the SAME (check, gate) appears under both
     /EnableObjAct                `if/EnableAssetTreasure` AND `if/DisableAssetTreasure` when the
     /DisableObjAct               event does both on different branches. Which branch that gate
-                                 governs is not in the table. Measured: 12 such pairs carry both
-                                 verbs today. Guessing either way is a coin flip on an unwinnable
-                                 seed, so they are `unknown`.
+                                 governs is not in the table. Measured 2026-07-28: 20 (check, gate)
+                                 pairs carry both verbs. Guessing either way is a coin flip on an
+                                 unwinnable seed, so they are `unknown`. (This read "12" until it
+                                 was RECOMPUTED in review -- a number in a comment is a claim, and
+                                 claims rot.)
     ? / EventFlag /     unknown  accumulator (`flag &= EventFlag(X)`) and branch forms. The flag
     if / GotoIf / SkipIf         feeds a variable or a jump whose consuming branch is not recorded.
     WaitForEventFlag             (arg 1 carries ON/OFF, but it only ever co-occurs with a treasure
@@ -80,18 +88,39 @@ the flag appears non-negated inside a `WaitFor(... && ...)` conjunction or an en
 target's own acquisition flag. Everything else is `unknown`. Nine rows do not justify a parser; they
 do justify saying which nine.
 
-ALTERNATIVES ARE OR'd, NOT AND'd (`alt_group`)
------------------------------------------------
+SIBLING EDGES: `alt_group` GROUPS THEM, `group_semantics` SAYS WHAT THE GROUPING MEANS
+--------------------------------------------------------------------------------------
 SPEC §7 names the trap: the Stormhill Shack Golden Seed `f400191` has THREE ways to trigger it
 (3708 / 3709 / 1041389414) and "a DAG with a single edge here is wrong". Three AND-edges is equally
-wrong. Every edge therefore carries an `alt_group` key, and edges sharing a key are ALTERNATIVES:
-the target needs ANY ONE of them. The key is the site the alternatives were read at
-(tool + target + event/talk), because that is what makes them siblings in the data rather than in
-our opinion.
+wrong. So sibling edges are grouped by the SITE they were read at (`alt_group` = tool + target +
+event/talk) -- that is what makes them siblings in the data rather than in our opinion.
 
-A consumer that ANDs an alt_group together over-constrains fill. A consumer that picks one member
-asserts a route the game does not require. Neither is this tool's business yet -- tier 1 emits the
-grouping so tier 3 cannot lose it.
+🛑 GROUPING IS NOT SEMANTICS, AND THE FIRST VERSION OF THIS FILE CONFLATED THEM. It documented
+`alt_group` as "the target needs ANY ONE of them" -- flatly, for every group. That is false on rows
+this tool itself emits: the `treasure_enablers` group for f1039537050 holds three flags whose own
+`gate_verbatim` is `WaitFor(EventFlag(a) && EventFlag(b) && EventFlag(c))`, a CONJUNCTION, and 16 of
+41 multi-edge groups mixed `set` with `clear`, under which "any one" is not even coherent. An OR
+read of that group licenses an UNDER-constrained rule -- one flag standing in for three, which is
+the unwinnable-seed direction. It was a constraint WE owned, undocumented, written down as if the
+game owned it: exactly the laundering CONTRIBUTING's "Constraint ownership" section is about.
+(Found in review, 2026-07-28, before anything consumed it.)
+
+So the meaning is a COLUMN now, per group, and it claims nothing unless the DATA proves otherwise:
+
+    any       PROVEN alternatives: the group is `commonarg` rows for one common event, and each row
+              is a SEPARATE `$InitializeCommonEvent` CALL SITE (`_common_arg_gates` iterates call
+              sites and emits one row each). N independent instances of the same handler, each
+              awaiting its own flag and each awarding the same lot, so whichever fires first pays
+              out. f400191 is exactly this, and it is asserted by name.
+    all       PROVEN conjunction: `treasure_enablers` rows whose external gates are the `&&`
+              conjuncts of ONE condition above the enable call, none of them in an alternation.
+    unknown   everything else, and it is the majority. Several flag tests in one EMEVD event body
+              (`lot_gates` non-commonarg) have a control flow this corpus does not record; ESD gift
+              rows are "one row PER GATE PATH" but the tsv carries no path id, so AND-within-a-path
+              and OR-across-paths are indistinguishable once they land in one group.
+
+A group is downgraded to `unknown` if its members disagree about which of those they are, if it
+mixes senses, or if any member's sense is `unknown`. A consumer may only act on `any` / `all`.
 
 SOURCE ATTRIBUTION -- what KIND of thing the prerequisite is
 -------------------------------------------------------------
@@ -136,7 +165,8 @@ PKG = os.path.join(GF, "eldenring")
 OUT = os.path.join(GF, "questline_dag.tsv")
 
 COLUMNS = ["source_flag", "target_flag", "sense", "evidence", "tool",
-           "basis", "alt_group", "source_kind", "source_region", "source_locator",
+           "basis", "alt_group", "group_semantics", "source_kind", "source_region",
+           "source_locator",
            "target_region", "cross_region", "target_ap_id", "target_name"]
 
 
@@ -274,29 +304,80 @@ class World(object):
         return flag in self.flag_ap
 
 
-def _enabler_sense(flag, target_flag, verbatim):
-    """Polarity for a `treasure_enablers.tsv` external gate -- deliberately narrow. See docstring.
+# `gate_verbatim` splices the enabling event's condition text, and
+# `datamine_treasure_enablers.py` marks anything BELOW the enable call with a leading `> ` (its own
+# tsv header says so; it writes the marker around line 291). A condition below the enable is not a
+# precondition of it -- it is what the event does next -- so everything from the first marker on is
+# cut before polarity is read. Without the cut, f15007990 took
+# `WaitFor(EventFlag(15002805) && InArea(...))`, text BELOW its enabler, as a prerequisite: an
+# invented requirement, in the direction that looks safe.
+_BELOW_ENABLE = "> "
+# 🛑 Operands carry their OWN parentheses, so a clause regex written `\(([^()]*\|\|[^()]*)\)` can
+# NEVER match `WaitFor(EventFlag(a) || EventFlag(b))` -- `EventFlag(` violates `[^()]`. The first
+# version of this function shipped exactly that, so the alternation refusal below was DEAD CODE
+# reading as a protection to anyone auditing the file, and "conjunctive" was minted as the basis for
+# disjunctive input. Flag tests are TOKENISED before the clause match now, and
+# `test_the_enabler_alternation_guard_actually_fires` calls the function on a disjunction so the
+# guard cannot go dead again silently.
+_FLAG_TEST = re.compile(r"\b(!?)\s*EventFlag\(\s*(\d+)\s*\)")
 
-    Returns (sense, basis). `set` is only returned for a flag that (a) appears NON-negated, and
-    (b) is not inside a `||` alternation with anything but the target's own acquisition flag.
-    f580600's `WaitFor(EventFlag(580600) || EventFlag(9146))` is the reason for that exception: the
-    alternation is with the check's OWN flag, i.e. "already taken", so 9146 is a real requirement.
+
+def _resolve_group_semantics(members):
+    """-> (semantics, was_downgraded) for one alt_group. A module-level function ON PURPOSE.
+
+    It was inline in `build()`, and a mutation test proved that made it untestable in the way that
+    matters: DISABLING the downgrade rule entirely left the whole suite green, because no group in
+    today's data happens to exercise it. A rule the data does not currently reach is exactly the
+    rule that rots -- so it lives here and `test_group_downgrade_rule_is_exercised_directly` feeds
+    it the synthetic groups the corpus does not yet contain.
+
+    The producers HINT (`any` for separate call sites of one common event, `all` for the `&&`
+    conjuncts of one enabler condition); this decides whether the hint survives contact with the
+    group. It does not if the members disagree about the hint, if any member's sense is unknown, or
+    if the senses differ -- "any one of these" and "all of these" are both incoherent over a group
+    holding a prerequisite AND an exclusion.
+    """
+    if len(members) == 1:
+        return "single", False
+    hints = {m["group_semantics"] for m in members}
+    senses = {m["sense"] for m in members}
+    if len(hints) > 1 or hints == {"unknown"} or "unknown" in senses or len(senses) > 1:
+        return "unknown", hints != {"unknown"}
+    return hints.pop(), False
+
+
+def _enabler_sense(flag, target_flag, verbatim):
+    """Polarity for a `treasure_enablers.tsv` external gate -- deliberately narrow. See above.
+
+    Returns (sense, basis). `set` only for a flag that
+      (a) appears NON-negated and ABOVE the enable call, and
+      (b) is not in a `||` alternation with anything but the target's own acquisition flag.
+    f580600's `WaitFor(EventFlag(580600) || EventFlag(9146))` is why (b) has an exception at all:
+    the alternation is with the CHECK'S OWN flag ("already taken"), so 9146 is a requirement rather
+    than one of two ways in.
     """
     text = " ".join((verbatim or "").split())
     if not text:
         return "unknown", "enabler-no-verbatim"
-    if re.search(r"!\s*EventFlag\(\s*%d\s*\)" % flag, text):
+    text = text.split(_BELOW_ENABLE)[0]
+    if not text.strip():
+        return "unknown", "enabler-condition-is-below-the-enable-call"
+    tests = [(neg, int(fid)) for neg, fid in _FLAG_TEST.findall(text)]
+    if not any(fid == flag for _neg, fid in tests):
+        # Either an ObjAct/asset id and not an EventFlag test at all (a DIFFERENT ID SPACE; reading
+        # one as the other is CONTRIBUTING rule 3), or its only occurrence was below the enable.
+        return "unknown", "enabler-not-an-eventflag-test-above-the-enable"
+    if any(neg and fid == flag for neg, fid in tests):
         return "unknown", "enabler-negated-occurrence"
-    if not re.search(r"\bEventFlag\(\s*%d\s*\)" % flag, text):
-        # The flag is an ObjAct/asset id, not an EventFlag test (e.g. ObjActEventFlag). A different
-        # id space; reading it as a flag test is the class of bug CONTRIBUTING rule 3 is about.
-        return "unknown", "enabler-not-an-eventflag-test"
-    for clause in re.findall(r"\(([^()]*\|\|[^()]*)\)", text):
-        if re.search(r"\bEventFlag\(\s*%d\s*\)" % flag, clause):
-            others = {int(x) for x in re.findall(r"EventFlag\(\s*(\d+)\s*\)", clause)}
-            others.discard(flag)
+    tokenised = _FLAG_TEST.sub(lambda m: "%sF%s" % (m.group(1), m.group(2)), text)
+    for clause in re.findall(r"\(([^()]*\|\|[^()]*)\)", tokenised):
+        if re.search(r"\bF%d\b" % flag, clause):
+            others = {int(x) for x in re.findall(r"\bF(\d+)\b", clause)} - {flag}
+            # Anything OR'd with our flag other than the target's own acquisition flag means the
+            # game offers a SECOND WAY IN, and a second way in is not a requirement.
             if others - {target_flag}:
                 return "unknown", "enabler-alternation-not-a-requirement"
+            return "set", "enabler-alternation-with-the-checks-own-flag"
     return "set", "enabler-conjunctive-eventflag-test"
 
 
@@ -316,14 +397,27 @@ def build(verbose=True):
     if not npc_state:
         sys.exit("FATAL: esd_flags.tsv yielded no NPC-state vocabulary -- source attribution would "
                  "silently label every questline flag 'world'.")
+    # talk_id -> the flags THAT talk sets. Used only for the received-memo guard in producer 2.
+    npc_state_by_talk = collections.defaultdict(set)
+    for r in esd_flags:
+        flag = _int(r.get("flag"))
+        if flag is not None:
+            npc_state_by_talk[(r.get("talk_id") or "").strip()].add(flag)
 
     lot_to_flag = {}
     for r in _rows("flag_lots.tsv", tally):
         if (r.get("table") or "").strip() != "map":
             continue
         lot, flag = _int(r.get("lot")), _int(r.get("flag"))
-        if lot is not None and flag is not None:
-            lot_to_flag.setdefault(lot, flag)
+        if lot is None or flag is None:
+            continue
+        # First-wins, but COUNTED. Zero collisions today; if a map lot ever gains a second flag this
+        # join starts silently picking one, and a first-wins rule with no tally is the shape of
+        # every silent wrong answer in this repo.
+        if lot in lot_to_flag and lot_to_flag[lot] != flag:
+            tally["flag_lots:map-lot-with-a-SECOND-flag"] += 1
+            continue
+        lot_to_flag.setdefault(lot, flag)
     if not lot_to_flag:
         sys.exit("FATAL: flag_lots.tsv gave no map lot->flag join; every ESD gift would drop out.")
 
@@ -337,7 +431,7 @@ def build(verbose=True):
     edges = []
 
     def add(source, target, sense, basis, evidence, tool, alt_group,
-            locator="", source_region=None):
+            locator="", source_region=None, group_hint="unknown"):
         # Every rejection is TALLIED BY TOOL. A filter with no tally is a lie (CONTRIBUTING rule 4),
         # and an aggregate tally hides WHICH corpus went blind.
         if source == target:
@@ -357,7 +451,8 @@ def build(verbose=True):
         edges.append({
             "source_flag": source, "target_flag": target, "sense": sense, "basis": basis,
             "evidence": " ".join((evidence or "").split())[:180], "tool": tool,
-            "alt_group": alt_group, "source_kind": source_kind(source),
+            "alt_group": alt_group, "group_semantics": group_hint,
+            "source_kind": source_kind(source),
             "source_region": sreg or "", "source_locator": loc,
             "target_region": treg or "", "target_ap_id": world.flag_ap.get(target, ""),
             "target_name": world.flag_name.get(target, ""),
@@ -415,9 +510,14 @@ def build(verbose=True):
         # SIBLINGS ARE THE CALL SITE. f400191's three triggers all arrive as arg5 of the same
         # $InitializeCommonEvent(90005750) at the same event; grouping by (target, event) is what
         # makes them alternatives in the DATA rather than in our opinion.
+        # Each `commonarg` row is a DISTINCT $InitializeCommonEvent call site (`_common_arg_gates`
+        # iterates call sites), so N of them for one lot are N independent handler instances --
+        # genuine alternatives. Every other lot_gates context is several tests inside ONE event body
+        # whose control flow this corpus does not record, so it claims nothing.
         add(source, target, sense, basis, row.get("evidence"), "lot_gates",
             "lot_gates:%s:%s" % (target, (row.get("event_id") or "").strip()),
-            locator=locator, source_region=region)
+            locator=locator, source_region=region,
+            group_hint="any" if context.startswith("commonarg/") else "unknown")
 
     # --- producer 2: esd_gifts.tsv (NPC dialogue handovers) --------------------------------------
     # `datamine_esd_gates.py` emits gate_sense ITSELF, per path, from an environment-carrying descent
@@ -445,20 +545,34 @@ def build(verbose=True):
         basis = "esd-walk-gate-sense"
         if (source, target) in contradictory:
             sense, basis = "unknown", "esd-paths-disagree"
+        elif source in npc_state_by_talk.get((row.get("talk_id") or "").strip(), ()):
+            # 🛑 A MEMO, NOT AN EXCLUSION. `esd_gifts.tsv`'s own header: "gate_flag with
+            # gate_sense==0 is the 'not yet received' acquisition flag". Measured 2026-07-28: 39 of
+            # the 48 `clear` edges had a source that the AWARDING TALK ITSELF sets -- so the flag is
+            # that talk's bookkeeping ("already handed this over"), not a questline step whose
+            # firing costs you the check. Counting those as exclusions inflates the exclusion
+            # population with rows that say nothing about reachability. Producer 3 already drops the
+            # identical class via `self_set_flags`; this is that rule applied to the corpus that
+            # carries it implicitly. The row is KEPT (it is real provenance) and made UNUSABLE.
+            sense, basis = "unknown", "esd-received-memo"
+            tally["esd_gifts:received-memo-not-a-gate"] += 1
         talks = npc_state.get(source, set())
         maps = "|".join(sorted({m for (_t, m) in talks if m}))
         region = resolve(source) or (resolve.by_map(maps) if maps else None)
         locator = "flag_decode" if resolve(source) else ("esd_talk_map" if region else "")
+        # "One row PER GATE PATH" (tsv header) -- but the table carries no path id, so a group is
+        # AND-within-a-path and OR-across-paths mixed together, indistinguishable. Claims nothing.
         add(source, target, sense, basis,
             "talk %s gate_sense=%s lot %s" % (row.get("talk_id"), row.get("gate_sense"),
                                               row.get("item_lot")),
             "esd_gifts", "esd_gifts:%s:%s" % (target, (row.get("talk_id") or "").strip()),
-            locator=locator, source_region=region)
+            locator=locator, source_region=region, group_hint="unknown")
 
     # --- producer 3: treasure_enablers.tsv (external gates on a disabled treasure) ---------------
     for row in _rows("treasure_enablers.tsv", tally):
         target = _int(row.get("flag"))
         if target is None:
+            tally["drop:treasure_enablers:unparsable-flag"] += 1
             continue
         if (row.get("verdict") or "").strip() == "NO_ENTITY_HANDLE":
             tally["drop:treasure_enablers:no-entity-handle"] += 1
@@ -467,20 +581,61 @@ def build(verbose=True):
         # `self_set_flags` is a MEMO ("this event already ran"), NOT a prerequisite -- the tsv header
         # says so in its own words. An edge built on one inverts the graph.
         selfset = {x.strip() for x in (row.get("self_set_flags") or "").split(",") if x.strip()}
+        verdicts = {}
         for raw in external:
             source = _int(raw)
             if source is None:
+                tally["drop:treasure_enablers:unparsable-gate-flag"] += 1
                 continue
             if raw in selfset:
                 tally["drop:treasure_enablers:self-set-memo"] += 1
                 continue
-            sense, basis = _enabler_sense(source, target, row.get("gate_verbatim"))
+            verdicts[source] = _enabler_sense(source, target, row.get("gate_verbatim"))
+        # The datamine lists this row's external gates as the operands of ONE condition above the
+        # enable call. When EVERY one came back a plain conjunct -- non-negated, above the enable, in
+        # no alternation -- the group is an AND and says so. One alternation or one refusal anywhere
+        # in the row and the whole group claims nothing.
+        hint = ("all" if len(verdicts) > 1
+                and all(b == "enabler-conjunctive-eventflag-test" for _s, b in verdicts.values())
+                else "unknown")
+        for source, (sense, basis) in sorted(verdicts.items()):
             region = resolve(source) or resolve.by_map((row.get("external_flag_set_in") or "").strip())
             locator = "flag_decode" if resolve(source) else ("setter_map" if region else "")
             add(source, target, sense, basis,
                 (row.get("gate_verbatim") or "")[:180], "treasure_enablers",
                 "treasure_enablers:%s:%s" % (target, (row.get("enabler_event") or "").strip()),
-                locator=locator, source_region=region)
+                locator=locator, source_region=region, group_hint=hint)
+
+    # --- post-pass 1: a pair that disagrees with ITSELF is not evidence of anything ---------------
+    # Producer 2 applied this per-path for the ESD walk; the other corpora were left without it,
+    # so (3383 -> 400033) stood as set AND clear and (31000800 -> 400183) as all three -- the same
+    # situation, contradicting verdicts, and no stated reason for the asymmetry (found in review,
+    # 2026-07-28). One rule now, every producer: if one corpus says both things about one pair, that
+    # corpus does not know.
+    verdicts = collections.defaultdict(set)
+    for e in edges:
+        if e["sense"] != "unknown":
+            verdicts[(e["tool"], e["source_flag"], e["target_flag"])].add(e["sense"])
+    for e in edges:
+        key = (e["tool"], e["source_flag"], e["target_flag"])
+        if len(verdicts.get(key, ())) > 1 and e["sense"] != "unknown":
+            e["sense"], e["basis"] = "unknown", "%s-senses-disagree" % e["tool"]
+            tally["%s:senses-disagree-within-one-corpus" % e["tool"]] += 1
+
+    # --- post-pass 2: resolve group semantics -----------------------------------------------------
+    # `alt_group` groups siblings; this decides what the grouping MEANS, and defaults to claiming
+    # nothing. A group keeps its producer's hint only when every member agrees on that hint, every
+    # member's sense is known, and those senses are all the same -- "any one of these" and "all of
+    # these" are both incoherent over a group mixing a prerequisite with an exclusion.
+    grouped = collections.defaultdict(list)
+    for e in edges:
+        grouped[e["alt_group"]].append(e)
+    for _key, members in grouped.items():
+        resolved, downgraded = _resolve_group_semantics(members)
+        if downgraded:
+            tally["group-downgraded-to-unknown"] += 1
+        for m in members:
+            m["group_semantics"] = resolved
 
     edges.sort(key=lambda e: (e["target_flag"], e["tool"], e["source_flag"], e["sense"]))
     seen, deduped = set(), []
@@ -508,18 +663,50 @@ def _acceptance(edges):
     seed = [e for e in by_target.get(400191, []) if e["tool"] == "lot_gates"]
     gates = {e["source_flag"] for e in seed}
     groups = {e["alt_group"] for e in seed}
-    out.append(({3708, 3709, 1041389414} <= gates and len(groups) == 1,
+    semantics = {e.get("group_semantics") for e in seed}
+    out.append(({3708, 3709, 1041389414} <= gates and len(groups) == 1 and semantics == {"any"},
                 "f400191 Golden Seed / Stormhill Shack",
-                "3 alternative triggers in ONE alt_group; found gates %s in %d group(s)"
-                % (sorted(gates), len(groups))))
+                "3 triggers in ONE alt_group with semantics=any (separate call sites of one common "
+                "event); found gates %s in %d group(s), semantics %s"
+                % (sorted(gates), len(groups), sorted(x for x in semantics if x))))
     out.append((all(e["sense"] == "set" for e in seed) and bool(seed),
                 "f400191 polarity",
                 "every trigger is a POSITIVE prerequisite (commonarg/WaitFor); senses %s"
                 % sorted({e["sense"] for e in seed})))
 
+    # 🛑 THE COUNTER-FIXTURE to the one above, and the reason `group_semantics` exists at all. The
+    # Gelmir enabler's three gates are `&&` conjuncts of ONE WaitFor. Documented as "alternatives"
+    # -- which is what the first version of this file said of EVERY group -- they would license an
+    # UNDER-constrained rule, one flag standing in for three.
+    gelmir = [e for e in by_target.get(1039537050, []) if e["tool"] == "treasure_enablers"]
+    out.append((bool(gelmir) and {e.get("group_semantics") for e in gelmir} == {"all"},
+                "f1039537050 Gelmir enabler -- a CONJUNCTION, not alternatives",
+                "three `&&` conjuncts of one WaitFor must read semantics=all; got %s"
+                % sorted({e.get("group_semantics") for e in gelmir})))
+
     rold = [e for e in by_target.get(400001, []) if e["tool"] == "esd_gifts"]
     out.append((bool(rold), "f400001 Rold Medallion (Melina handover)",
                 "the easy end of the graph: %d ESD-gift edge(s)" % len(rold)))
+
+    # 🛑 THE TWO SENSE FIXTURES, and why they had to be added. Reviewed 2026-07-28: with only the
+    # EXISTENCE fixtures above, inverting an entire dialect's polarity left this tool at exit 0 with
+    # every case green -- the ESD 1/0 mapping flipped (92 edges), and `EndIf` flipped to `set`,
+    # minting exactly the false prerequisites the docstring warns about. Nothing noticed, because
+    # nothing asserted a SENSE outside f400191, and every other guard is sense-blind: the
+    # corroboration ratio, the edge-count floors, the unknown-nonempty check. One fixture per
+    # dialect, each pinned to the CONSTRUCT it depends on so the failure names the rule that broke.
+    endif = [e for e in by_target.get(65660, []) if e["source_flag"] == 11007992]
+    out.append((bool(endif) and all(e["sense"] == "clear" for e in endif),
+                "f65660 <- 11007992 -- the EndIf INVERSION",
+                "`EndIf(EventFlag(X))` ends the event when X is SET, so the award below needs X "
+                "CLEAR; reading it the naive way mints a false prerequisite. senses %s"
+                % sorted({e["sense"] for e in endif})))
+    esd_set = [e for e in by_target.get(400470, []) if e["source_flag"] == 1047419201]
+    out.append((bool(esd_set) and all(e["sense"] == "set" for e in esd_set),
+                "f400470 <- 1047419201 -- the ESD gate_sense=1 mapping",
+                "Great-Jar's Arsenal is handed over behind a SET flag; if the 1/0 mapping inverts, "
+                "this is the fixture that says so. senses %s"
+                % sorted({e["sense"] for e in esd_set})))
 
     f580 = [e for e in by_target.get(580600, []) if e["source_flag"] == 9146]
     out.append((bool(f580) and all(e["sense"] == "set" for e in f580),
@@ -568,6 +755,17 @@ def summarise(edges, tally, notes):
                     round(100.0 * len(tagged) / max(1, len(targets))), len(world.missable)))
     lines.append("cross-region edges: %d (%d whose target is NOT missable-tagged)"
                  % (len(cross), len(cross_untagged)))
+    groups = {}
+    for e in edges:
+        groups[e["alt_group"]] = e["group_semantics"]
+    lines.append("alt_group semantics: %s (a group claims OR/AND only where the DATA proves it)"
+                 % ", ".join("%s %d" % kv
+                             for kv in sorted(collections.Counter(groups.values()).items())))
+    # Counted off the EMITTED edges, not off `tally`: the tally counts input ROWS, which are deduped
+    # afterwards, so quoting it here would claim more degraded edges than the table holds.
+    lines.append("edges DEGRADED to unusable by a guard (each is a refusal, not a loss): %s"
+                 % (", ".join("%s %d" % kv for kv in sorted(collections.Counter(
+                     e["basis"] for e in edges if e["sense"] == "unknown").items())) or "none"))
     lines.append("source region located by: %s"
                  % ", ".join("%s %d" % (k or "none", v) for k, v in sorted(weak.items())))
     drops = sorted((k, v) for k, v in tally.items() if k.startswith("drop:"))
@@ -595,9 +793,12 @@ _HEADER = """\
 # 🛑 ABSENCE IS NOT SAFETY. Every corpus below reads an AWARD SITE. A questline that gates whether a
 #   FIGHT EXISTS leaves no award-site trace -- f510110 (Fortissax), the case this spec was written
 #   from, is absent BY CONSTRUCTION and the tool asserts that absence out loud.
-# alt_group: edges sharing a key are ALTERNATIVES (need ANY one), read at one site. f400191 has
-#   three triggers in one group; ANDing them over-constrains fill, picking one asserts a route the
-#   game does not require.
+# alt_group groups edges READ AT ONE SITE; `group_semantics` says what that grouping MEANS, and it
+#   is `unknown` unless the data proves otherwise -- `any` only for separate call sites of one
+#   common event (f400191's three triggers), `all` only for the `&&` conjuncts of one enabler
+#   condition (f1039537050's three). 🛑 An earlier version called EVERY group "alternatives"; that
+#   was OUR claim wearing the game's clothes, and an OR read of a conjunction is an
+#   UNDER-constrained rule. A consumer may act on `any` / `all` only.
 # source_locator: how the source's region was placed -- flag_decode > setter_map > common_map >
 #   test_map (WEAKEST: where the flag MATTERS, not where it lives -- good enough for a missable tag,
 #   never for an access rule). Empty = unplaced.

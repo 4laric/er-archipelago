@@ -44,6 +44,7 @@ No Archipelago on sys.path, so this runs in the bare sandbox.
 Run:  python -m pytest greenfield/eldenring/tests/test_gf_questline_dag.py
   or: python greenfield/eldenring/tests/test_gf_questline_dag.py
 """
+import collections
 import csv
 import importlib.util
 import os
@@ -135,6 +136,108 @@ class QuestlineDagGate(unittest.TestCase):
             "polarity is NOT encoded -- treasure-verb cross products (the same (check, gate) pair "
             "under both Enable and Disable) and accumulator forms. If none survive, _CONTEXT_SENSE "
             "has acquired a default and every one of those is now a coin-flip prerequisite.")
+
+    def test_the_enabler_alternation_guard_actually_fires(self):
+        """The guard `_enabler_sense` documents must EXIST, not merely be written down.
+
+        It did not. The clause regex was `\\(([^()]*\\|\\|[^()]*)\\)`, and `EventFlag(` contains
+        parentheses, so it could never match `WaitFor(EventFlag(a) || EventFlag(b))` -- the
+        refusal was dead code, and the basis string "conjunctive" was being minted for disjunctive
+        input. Nothing caught it: every fixture asserted an OUTCOME the fall-through happened to
+        produce. So this calls the function directly on the shape the guard is FOR, which is the
+        only kind of test that can tell a live guard from a decorative one (CONTRIBUTING rule 8:
+        "what would make this pass while the bug is present?").
+        """
+        sense, basis = self.tool._enabler_sense(
+            111, 999, "WaitFor(EventFlag(111) || EventFlag(222));")
+        self.assertEqual((sense, basis), ("unknown", "enabler-alternation-not-a-requirement"),
+                         "a flag OR'd with an unrelated flag is a SECOND WAY IN, not a requirement, "
+                         "and must not be minted as `set`. Got %r/%r." % (sense, basis))
+        # ...and the documented EXCEPTION must still work: an alternation with the check's OWN
+        # acquisition flag is "already taken", so the other operand IS a requirement (f580600<-9146).
+        sense, basis = self.tool._enabler_sense(
+            9146, 580600, "WaitFor(EventFlag(580600) || EventFlag(9146));")
+        self.assertEqual(sense, "set",
+                         "the own-flag alternation exception stopped working; f580600 <- 9146 "
+                         "depends on it. Got %r/%r." % (sense, basis))
+        # A condition BELOW the enable call is not a precondition of it.
+        sense, _b = self.tool._enabler_sense(
+            15002805, 15007990, "if (EventFlag(15000800)) { ;; > WaitFor(EventFlag(15002805));")
+        self.assertEqual(sense, "unknown",
+                         "text after the `> ` marker sits BELOW the enable call and cannot be a "
+                         "prerequisite; reading it as one invents a requirement.")
+
+    def test_group_semantics_never_claims_more_than_the_data(self):
+        """`any` and `all` are verdicts; `unknown` is the default and must stay the majority.
+
+        The first version of this table documented EVERY alt_group as "alternatives -- need any
+        one". A `treasure_enablers` group whose members are the `&&` conjuncts of one WaitFor read
+        that way is an UNDER-constrained rule. So: no group may claim a semantics while its members
+        disagree about sense, and the claiming groups must stay a minority of the multi-edge ones.
+        """
+        groups = collections.defaultdict(list)
+        for r in self.rows:
+            groups[r["alt_group"]].append(r)
+        for key, members in groups.items():
+            sem = {m["group_semantics"] for m in members}
+            self.assertEqual(len(sem), 1, "group %s carries mixed semantics %s" % (key, sorted(sem)))
+            sem = sem.pop()
+            self.assertIn(sem, ("any", "all", "single", "unknown"), "group %s: %r" % (key, sem))
+            if sem in ("any", "all"):
+                senses = {m["sense"] for m in members}
+                self.assertEqual(
+                    len(senses), 1, "group %s claims semantics=%s while mixing senses %s. 'Any one "
+                    "of these' and 'all of these' are both incoherent over a group holding a "
+                    "prerequisite AND an exclusion." % (key, sem, sorted(senses)))
+                self.assertNotIn("unknown", senses,
+                                 "group %s claims semantics=%s with an unknown-sense member" % (key, sem))
+        multi = {k: v for k, v in groups.items() if len(v) > 1}
+        claiming = {k for k, v in multi.items() if v[0]["group_semantics"] in ("any", "all")}
+        self.assertTrue(claiming, "NO multi-edge group claims a semantics -- f400191 (any) and "
+                                  "f1039537050 (all) are both supposed to. The resolver has gone "
+                                  "blind, not conservative.")
+        self.assertLess(len(claiming), len(multi),
+                        "EVERY multi-edge group claims a semantics. That is what the original bug "
+                        "looked like: a default dressed as a verdict.")
+
+    def test_group_downgrade_rule_is_exercised_directly(self):
+        """The downgrade rule, fed the groups the corpus does not currently contain.
+
+        Mutation-tested 2026-07-28: disabling the rule outright -- every group keeps its producer's
+        hint, which is the original blocker restored -- left the ENTIRE suite green, because no
+        group in today's data mixes senses or hints. A rule the data does not reach is a rule that
+        rots, and asserting it only through the emitted table is asserting it not at all. So it is
+        called here with synthetic groups.
+        """
+        def group(*pairs):
+            return [{"group_semantics": h, "sense": s} for h, s in pairs]
+
+        cases = [
+            (group(("any", "set")), "single", "a one-member group is not a group"),
+            (group(("any", "set"), ("any", "set")), "any", "uniform hint + uniform known sense"),
+            (group(("all", "set"), ("all", "set")), "all", "same, for a conjunction"),
+            (group(("any", "set"), ("any", "clear")), "unknown",
+             "MIXED SENSES: 'any one of these' is incoherent when one member is a prerequisite and "
+             "the other an exclusion"),
+            (group(("any", "set"), ("any", "unknown")), "unknown",
+             "a member with no known polarity cannot be part of a claimed group"),
+            (group(("any", "set"), ("all", "set")), "unknown",
+             "producers disagree about what the grouping IS"),
+            (group(("unknown", "set"), ("unknown", "set")), "unknown",
+             "no producer claimed anything, so neither does the group"),
+        ]
+        for members, expected, why in cases:
+            got, _downgraded = self.tool._resolve_group_semantics(members)
+            self.assertEqual(got, expected,
+                             "group %s resolved to %r, expected %r -- %s"
+                             % ([(m["group_semantics"], m["sense"]) for m in members],
+                                got, expected, why))
+        # The downgrade must also REPORT itself: a silent one is invisible in the emit header.
+        _sem, downgraded = self.tool._resolve_group_semantics(group(("any", "set"), ("any", "clear")))
+        self.assertTrue(downgraded, "a hint was discarded and the tool did not count it")
+        _sem, downgraded = self.tool._resolve_group_semantics(
+            group(("unknown", "set"), ("unknown", "set")))
+        self.assertFalse(downgraded, "nothing was claimed, so nothing was downgraded")
 
     # -- B. corroboration (SPEC §6 tier 2) ---------------------------------
     def test_the_graph_refinds_what_the_hand_audits_found(self):

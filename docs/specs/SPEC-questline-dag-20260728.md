@@ -62,7 +62,7 @@ Nothing in the game data knows what a "questline" is. What exists:
 | `msb_gated_treasures.tsv` | 186 | MSB-side disable/enable | 🛑 `StartDisabled=1` is THE CHEST, not an access gate — see the memory of that name before using it |
 | `esd_gifts.tsv` | 48 checks | NPC hands item behind flag | 31 gift lots have no acquisition flag |
 | `esd_gates.tsv` | 192 | which flag opens which shop range | shops only |
-| `esd_flags.tsv` | 5219 | every flag an ESD tests, per path | says a flag MATTERS, not that it is a prerequisite |
+| `esd_flags.tsv` | 5219 | every flag an ESD **SETS**, per talk (⚠️ corrected — this row said *tests*) | polarity of the test that CONSUMES it; nothing here records what an ESD tests |
 | boss arenas | 1 known | a fight that does not exist until a quest creates it | **no screen covers this class at all** — see §5 |
 
 `tools/datamine_esd_gates.py` already implements the hard part of reading ESD: an
@@ -157,13 +157,21 @@ committed table is diff-gated; `test_gf_questline_dag.py` holds the corroboratio
 acceptance cases and a freshness/determinism check.
 
 ```
-edges 283 over 154 target check(s) | sense: set 182, clear 62, unknown 39
-by tool: lot_gates 176, esd_gifts 95, treasure_enablers 12
-source kind: world 190, npc_state 88, check 5
+edges 280 over 154 target check(s) | sense: set 152, clear 20, unknown 108
+by tool: lot_gates 173, esd_gifts 95, treasure_enablers 12
+source kind: world 187, npc_state 88, check 5
 CORROBORATION: 99 of 154 target checks (64%) are ALREADY missable-tagged
 cross-region edges 48 (3 whose target is NOT missable-tagged)
-source region located by: flag_decode 75, setter_map 43, esd_talk_map 33, test_map 15, none 117
+alt_group semantics: single 151, any 11, unknown 35, all 2
+edges DEGRADED to unusable by a guard: esd-received-memo 66, treasure-verb-crossproduct 28,
+  context-branch-unresolved 7, esd-paths-disagree 3, lot_gates-senses-disagree 2, enabler 2
+source region located by: flag_decode 75, setter_map 40, esd_talk_map 33, test_map 15, none 117
 ```
+
+⚠️ **These are the POST-REVIEW numbers, and the review moved them a long way** — `set` 182→152,
+`clear` 62→20, `unknown` 39→108. Nothing about the game changed; three guards were added that
+should have been there, and each one converts a confident edge into an admitted refusal. §9b has
+the accounting.
 
 **1. The two senses are different animals, and only one of them is a candidate access rule.**
 `sense=set` (182 edges, 122 targets) is a PREREQUISITE. `sense=clear` (62 edges, 38 targets) is an
@@ -171,10 +179,17 @@ EXCLUSION — the check is LOST once the source fires, which is an argument FOR 
 can never become an access rule. §1 treats the tag as one blunt instrument; it is actually covering
 two populations, and only the first is what tier 3 can graduate.
 
-**2. `alt_group` is not optional.** §7 already warns that "a DAG with a single edge here is wrong"
-for the Golden Seed. Three AND-edges is equally wrong, so every edge carries an alt_group key and
-edges sharing one are ALTERNATIVES. f400191's three triggers (3708 / 3709 / 1041389414) land in one
-group; the tool asserts that by name and refuses to write the table if they stop doing so.
+**2. Grouping siblings is not optional — and saying what the grouping MEANS is a separate job.**
+§7 warns that "a DAG with a single edge here is wrong" for the Golden Seed; three AND-edges is
+equally wrong. So edges carry an `alt_group` key for the site they were read at, AND a
+`group_semantics` column that claims nothing unless the data proves it: `any` only where the members
+are separate call sites of one common event (f400191's three triggers — asserted by name), `all`
+only where they are the `&&` conjuncts of one enabler condition (f1039537050's three — asserted as
+the counter-fixture). Everything else is `unknown`, which is 35 of the 48 multi-edge groups.
+🛑 The first cut of this file documented **every** group as "need ANY ONE of them", which is false
+on rows the tool itself emits and would have licensed an under-constrained rule. It was our claim
+wearing the game's clothes — the exact laundering CONTRIBUTING's "Constraint ownership" section
+describes.
 
 **3. Polarity resolved better than §4a feared, but only because the datamine had already done the
 hard half.** 123 of the 228 `lot_gates` rows are `commonarg/WaitFor`, and `_common_sigs()` in
@@ -183,9 +198,9 @@ survives is a positive requirement **by construction**, not by this tool's readi
 resolvable is the treasure-verb population: `datamine_lot_gates` emits one row per
 (gate-context × verb), so the same `(check, gate)` pair appears under BOTH
 `if/EnableAssetTreasure` and `if/DisableAssetTreasure` when the event does both on different
-branches. Which branch the gate governs is not in the table. Those 39 rows are `sense=unknown` and
-a test fails if that population ever empties (a polarity table with no refusals has grown a
-default).
+branches. Which branch the gate governs is not in the table — 20 (check, gate) pairs carry both
+verbs. Those 28 rows are `sense=unknown`, part of a 108-edge unknown population, and a test fails if
+the lot_gates half of it ever empties (a polarity table with no refusals has grown a default).
 
 **4. Check → check edges barely exist: 5 of 283.** Almost every prerequisite is a world or NPC-state
 flag, not an item. So tier 3 is not "AND these locations together" — it is "can_reach the region
@@ -224,3 +239,62 @@ a tile-straddle border and a real gate are indistinguishable from here:
 - The arena-existence class (§5) is untouched, and `f510110` is asserted **ABSENT** from the table
   so that a populated graph is never read as a covered one. If a future widening makes it appear,
   the test goes red on purpose: read the edge, do not delete the assertion.
+
+## 9b. What an adversarial review of tier 1 found (same day, before anything consumed it)
+
+Tier 1 was reviewed by a second agent briefed to attack it rather than summarise it. It found two
+blockers, and both were the *shape* of failure this repo documents rather than anything exotic —
+worth recording, because the next tier will be written by someone who did not watch it happen.
+
+**BLOCKER 1 — a constraint we owned, written down as if the game owned it.** `alt_group` was
+documented, in four places, as "edges sharing a key are ALTERNATIVES: the target needs ANY ONE of
+them". That is false on rows the tool itself emits: the f1039537050 group holds the three `&&`
+conjuncts of one `WaitFor`. Read as an OR, one flag stands in for three — an **under-constrained**
+rule, which is the unwinnable-seed direction. Nothing had consumed it yet, so the cost was a
+column (`group_semantics`) and a counter-fixture; had tier 3 shipped first, the cost would have
+been a seed. CONTRIBUTING's "Constraint ownership" says to name the owner — GAME / ARCHIPELAGO /
+US — before designing around a constraint. This one was US, and it never said so.
+
+**BLOCKER 2 — a documented guard that was dead code.** `_enabler_sense` refused to call a flag a
+prerequisite when it sat in a `||` alternation. The clause regex was `\(([^()]*\|\|[^()]*)\)`, and
+`EventFlag(` contains parentheses, so it could **never** match `WaitFor(EventFlag(a) || EventFlag(b))`.
+The refusal had never once fired; f580600 ← 9146 was reaching `set` by fall-through while the basis
+string said `conjunctive`, and every fixture passed because the fall-through produced the answer the
+fixture expected. Now tokenised, and `test_the_enabler_alternation_guard_actually_fires` calls the
+function on a disjunction directly — the only kind of test that separates a live guard from a
+decorative one.
+
+**The tests were sense-blind, and a mutation proved it.** Inverting the ESD `1/0` mapping (92 edges)
+and flipping `EndIf` to `set` (minting exactly the false prerequisites the docstring warns about)
+both left the tool at exit 0 with every acceptance case green. Nothing asserted a *sense* outside
+f400191; the corroboration ratio, the edge-count floors and the unknown-nonempty check are all
+blind to polarity, and the byte-diff gate only notices a *change*, never a from-birth bug. Fixed
+with one fixture per dialect — f65660 ← 11007992 (the `EndIf` inversion) and f400470 ← 1047419201
+(the ESD `gate_sense=1` mapping) — each pinned to the construct it depends on, so the failure names
+the rule that broke rather than a number that moved. Both mutations now hard-fail.
+
+**39 of 48 `clear` edges were bookkeeping, not exclusions.** `esd_gifts.tsv` says in its own header
+that `gate_sense==0` marks the "not yet received" acquisition flag, and measurement confirmed the
+majority of `clear` sources are set by the *awarding talk itself*. Those are memos, not questline
+steps whose firing costs you the check — producer 3 already dropped the identical class via
+`self_set_flags`, and producer 2 now degrades them to `unknown` with a tally. This is why the
+exclusion count fell 62 → 20: **the drop is the fix, not a regression.**
+
+Also corrected: a comment claiming "12 pairs carry both verbs" (recomputed: 20), a §9a claim that
+all 39 unknowns were treasure-verb rows (28 of 108), and the §3 *table row* for `esd_flags.tsv` —
+the first pass corrected the prose bullet and left the table saying "tests", which is precisely the
+half-applied edit CONTRIBUTING rule 9 is about. A lot_gates pair contradicting itself now degrades
+the same way an ESD one does; there had been no reason for the asymmetry, only an oversight.
+
+**One more hole, found by mutation-testing the fix itself.** With the group resolver written inline
+in `build()`, *disabling the downgrade rule outright* — every group keeps its producer's hint, i.e.
+the original blocker restored — left the entire suite green, because no group in today's data
+happens to mix senses or hints. A rule the data does not currently reach is a rule that rots, and
+asserting it only through the emitted table is not asserting it at all. It is now
+`_resolve_group_semantics()` at module level, with a test that feeds it the synthetic groups the
+corpus does not yet contain. Generalise: **a guard whose triggering condition is absent from the
+corpus needs a direct call, not a table to look at.**
+
+**Still unverifiable from the sandbox, and it needs Alaric:** whether a group negation
+`!(... EventFlag(p) ...)` appears in `common_func.emevd.dcx.js` (one grep — it is the last hole in
+"positive by construction"), and the live-game verdict on the three cross-region candidates above.
