@@ -212,6 +212,8 @@ if ($Greenfield) {
     # diff gate would arrive red minutes later. Nothing in the world reads it yet (SPEC tier 1).
     & python (Join-Path $Repo "tools\build_questline_dag.py")
     if ($LASTEXITCODE -ne 0) { throw "build_questline_dag.py FAILED -- greenfield/questline_dag.tsv not regenerated (see output above)." }
+    & python (Join-Path $Repo "tools\build_questline_dag_page.py")
+    if ($LASTEXITCODE -ne 0) { throw "build_questline_dag_page.py FAILED -- er-archipelago-questline-dag.html not regenerated (see output above)." }
 
     # A regen that lands only in your working tree is HALF a fix: the apworld's CI checks the client
     # out at its DEFAULT BRANCH (main) and diffs, so the gate passes only when the regen is committed

@@ -163,6 +163,9 @@ jobs:
           # greenfield/questline_dag.tsv (SPEC-questline-dag tier 1). Nothing in the world reads
           # it yet; the diff below is what stops it going stale while it is being read by humans.
           python tools/build_questline_dag.py
+          # ...and its reading surface. Mermaid is fetched from a CDN at VIEW time, never at
+          # build time, so this step is offline-safe and byte-deterministic like the others.
+          python tools/build_questline_dag_page.py
 
           # These suites test REPO TOOLING (tools/ + the committed pages), so they only run
           # from a repo checkout -- gf_test.py installs the world into _ap/worlds/eldenring with no
