@@ -174,3 +174,25 @@ which appears in the same column.
 **The one thing left for the live oracle** is no longer a discovery but a confirmation: that
 rewriting `bonusSoul_single` at runtime actually changes the payout, and whether it must be written
 before the arena loads. That is a shipping check, not a question about where the number lives.
+
+---
+
+## 7. Branch
+
+The build lands on **`feat/rune-scaling`**, not main (Alaric, 2026-07-28: "split the rune scaling
+onto its own branch and ship the rest").
+
+Nothing rune-related has ever been on main except this spec and the playtest sheet — no option, no
+slot_data key, no client code — so v0.2.15 ships unaffected by whatever happens here. The branch
+exists so the *implementation* has a home while the §4 design call is open, and so a half-built
+curve can never ride along in a release.
+
+**Before writing code, in this order:**
+1. Alaric's §4 call — scale UP with tier, or NORMALISE toward it. The report wants the second.
+2. The `PLAYTEST-rune-scaling-20260728.md` §2 confirmations (Adula 12,000 / 120,000). If those do
+   not match, §6's model is wrong and none of the implementation notes survive.
+3. Only then §5 — and put the curve in `er-logic`, host-tested, with `eldenring-archipelago` as
+   thin wiring. `eldenring-archipelago` does not build off Windows; a curve written there is
+   unverifiable until CI.
+
+Rebase on main before starting: this branch was cut at `da1f7cb` (v0.2.15).
