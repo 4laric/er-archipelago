@@ -159,8 +159,12 @@ jobs:
           # regen here is byte-identical to a Windows regen and the diff below is meaningful.
           python tools/build_check_browser.py
           python tools/build_desc_triage.py
+          # Same shape, same reason: a pure join over committed greenfield data ->
+          # greenfield/questline_dag.tsv (SPEC-questline-dag tier 1). Nothing in the world reads
+          # it yet; the diff below is what stops it going stale while it is being read by humans.
+          python tools/build_questline_dag.py
 
-          # These three suites test REPO TOOLING (tools/ + the committed pages), so they only run
+          # These suites test REPO TOOLING (tools/ + the committed pages), so they only run
           # from a repo checkout -- gf_test.py installs the world into _ap/worlds/eldenring with no
           # tools/ alongside, where they correctly SKIP. This is the job that has the real tree, so
           # this is where they must actually execute. Without these three lines they would skip in
@@ -168,7 +172,7 @@ jobs:
           # Run as SCRIPTS, not `-m greenfield.eldenring.tests.X`: the package __init__ imports
           # core -> BaseClasses, and this job has no Archipelago. The suites are AP-free by design
           # (they read the generated modules with ast) and each has a __main__ entry point.
-          for t in check_browser desc_triage provenance_gate; do
+          for t in check_browser desc_triage provenance_gate questline_dag; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
             # `python x.py` exits nonzero on failure; pipefail-less bash would swallow it

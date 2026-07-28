@@ -1,8 +1,12 @@
 # SPEC — model the questlines as a DAG
 
-**Status:** design brief, nothing built. Written 2026-07-28 by the session that shipped the Fortissax
-softlock fix (`6df0a22` → `2a13b6d`), while that context was still warm. Alaric's ask, verbatim:
-*"I want to model all the questlines as a dag."*
+**Status:** ✅ **TIER 1 SHIPPED 2026-07-28** — `tools/build_questline_dag.py` →
+`greenfield/questline_dag.tsv` (283 edges over 154 checks), gated by
+`greenfield/eldenring/tests/test_gf_questline_dag.py`. **No world behaviour changed; every check
+named in the table still carries its missable tag.** Tiers 2-4 are open; §9a records what tier 1
+measured and what it changed about the plan below. Originally written 2026-07-28 by the session that
+shipped the Fortissax softlock fix (`6df0a22` → `2a13b6d`), while that context was still warm.
+Alaric's ask, verbatim: *"I want to model all the questlines as a dag."*
 
 **Read first:** `greenfield/gen_data.py` around `QUEST_GATED_FLAGS` — every set folded into it is a
 piece of this graph discovered one screen at a time, and its comments carry the provenance rules that
@@ -38,8 +42,16 @@ Nothing in the game data knows what a "questline" is. What exists:
   it are free once the band is parsed. See `_NPC_STATE_GATED` in gen_data for the two that were read
   by hand.
 - **Item handovers** — `esd_gifts.tsv` (48 live checks): NPC gives item X behind acquisition flag Y.
-- **Talk conditions** — `esd_flags.tsv` (5219 rows) is the raw material: which flags an ESD state
-  machine TESTS, per path. This is the biggest untapped input in the repo.
+- **NPC-state vocabulary** — `esd_flags.tsv` (5219 rows). ⚠️ **CORRECTED 2026-07-28.** This line
+  used to read "which flags an ESD state machine TESTS, per path". It is the other way round: the
+  table records every flag an NPC talk ESD **SETS**, with its sense, talk id and map
+  (`tools/datamine_esd_flags.py` says so in its own docstring, and the file header repeats it). The
+  distinction is the whole value of the table — SETS is what ATTRIBUTES a bare 4-digit questline
+  flag to an NPC on a map, which is how `source_kind=npc_state` is derived. Nothing in the repo
+  currently records which flags an ESD tests; that would be a new datamine.
+  🛑 And it does NOT contain the NPC-state BANDS named above: 3405-3417 (Edgar) and 3685-3699
+  (Patches) appear NOWHERE in `esd_flags.tsv` — they were read out of EMEVD
+  `$Event(3419)`/`$Event(3699)` by hand. Deriving bands needs the EMEVD corpus, not this table.
 
 ## 3. Inputs, and what each can actually prove
 
@@ -133,3 +145,82 @@ real audit finding, not a hypothetical:
 - **The live-game oracle is Alaric.** Two corrections in one afternoon on this exact topic: Fia's
   Mist is NOT in the chain (it drops from Fia's Champions, whom you warp to and hit), and Ash of War:
   Golden Land is an ordinary pickup. "Quest-adjacent" is not the test.
+
+---
+
+## 9a. What TIER 1 actually measured (2026-07-28) — and the four things it changes about §1-8
+
+`tools/build_questline_dag.py` is AP-free and artifact-free: it joins only committed
+`greenfield/*.tsv` plus the generated `data.py` / `missable_locations.py`, so it runs in the agent
+sandbox and in the CI `generators` job, and `build.ps1` re-emits it beside the check browser. The
+committed table is diff-gated; `test_gf_questline_dag.py` holds the corroboration floor, the
+acceptance cases and a freshness/determinism check.
+
+```
+edges 283 over 154 target check(s) | sense: set 182, clear 62, unknown 39
+by tool: lot_gates 176, esd_gifts 95, treasure_enablers 12
+source kind: world 190, npc_state 88, check 5
+CORROBORATION: 99 of 154 target checks (64%) are ALREADY missable-tagged
+cross-region edges 48 (3 whose target is NOT missable-tagged)
+source region located by: flag_decode 75, setter_map 43, esd_talk_map 33, test_map 15, none 117
+```
+
+**1. The two senses are different animals, and only one of them is a candidate access rule.**
+`sense=set` (182 edges, 122 targets) is a PREREQUISITE. `sense=clear` (62 edges, 38 targets) is an
+EXCLUSION — the check is LOST once the source fires, which is an argument FOR the missable tag and
+can never become an access rule. §1 treats the tag as one blunt instrument; it is actually covering
+two populations, and only the first is what tier 3 can graduate.
+
+**2. `alt_group` is not optional.** §7 already warns that "a DAG with a single edge here is wrong"
+for the Golden Seed. Three AND-edges is equally wrong, so every edge carries an alt_group key and
+edges sharing one are ALTERNATIVES. f400191's three triggers (3708 / 3709 / 1041389414) land in one
+group; the tool asserts that by name and refuses to write the table if they stop doing so.
+
+**3. Polarity resolved better than §4a feared, but only because the datamine had already done the
+hard half.** 123 of the 228 `lot_gates` rows are `commonarg/WaitFor`, and `_common_sigs()` in
+`datamine_lot_gates.py` *already* drops acquisition-range params and bail-out params — so what
+survives is a positive requirement **by construction**, not by this tool's reading. What is NOT
+resolvable is the treasure-verb population: `datamine_lot_gates` emits one row per
+(gate-context × verb), so the same `(check, gate)` pair appears under BOTH
+`if/EnableAssetTreasure` and `if/DisableAssetTreasure` when the event does both on different
+branches. Which branch the gate governs is not in the table. Those 39 rows are `sense=unknown` and
+a test fails if that population ever empties (a polarity table with no refusals has grown a
+default).
+
+**4. Check → check edges barely exist: 5 of 283.** Almost every prerequisite is a world or NPC-state
+flag, not an item. So tier 3 is not "AND these locations together" — it is "can_reach the region
+that SETS the source flag", which is the same shape `test_gf_lot_gates_cross_region` already
+screens for, upgraded from a tag to a rule. That also means **`source_locator` is load-bearing**:
+117 of 283 edges place their source nowhere at all, and the weakest locator (`test_map`, 15 edges)
+says where a flag MATTERS, not where it lives — good enough for a missable tag, never for a rule.
+
+### The three candidates tier 1 surfaced, and why NONE of them is a finding yet
+
+`test_gf_lot_gates_cross_region` reads **only** `lot_gates.tsv` and holds unprotected cross-region
+gates there at zero — the new table agrees (0 for that corpus, over 20 cross-region target checks).
+The other two corpora have never been screened this way, and they produce three unprotected
+cross-region prerequisites. The test WARNS on a green run rather than asserting either way, because
+a tile-straddle border and a real gate are indistinguishable from here:
+
+- **`f580600` ← `f9146`** (Leda's message ← Messmer, `m21_01`). ⭐ **Not new, and that is the point:
+  it is named as "the one real cross-region prerequisite, still unwired" in the 07-26 AND 07-27
+  handoffs, and tier 1 re-derives it automatically instead of it needing a human to remember.**
+  `WaitFor(EventFlag(580600) || EventFlag(9146))` — the alternation is with the check's OWN
+  acquisition flag ("already taken"), so 9146 is a genuine requirement. This is the first case that
+  should graduate, and it is one line either way (tag it, or give it the rule).
+- **`f1039537050` / `f1039537060` ← `f1040530655`** (Mt. Gelmir ← Altus, near Bower of Bounty).
+  🛑 **Suspect the geometry before the gate.** The enabler waits on THREE flags
+  (`1039520655 && 1039530655 && 1040530655`) whose numbers decode to three ADJACENT overworld tiles
+  — m60_39_52, m60_39_53, m60_40_53 — none of which appears in `msb_flag_region.tsv` or
+  `flag_lots.tsv`. That is the signature of one encounter replicated per tile across a region
+  border, which is exactly the "tiles LEGITIMATELY span regions" trap, not a questline. Needs the
+  live-game oracle before anyone tags anything.
+
+### What tier 1 deliberately did NOT do
+
+- No world module reads `questline_dag.tsv`. Not one tag changed, not one rule was written.
+- The NPC-state **bands** (§2) are not derived — see the §3 correction: they are not in
+  `esd_flags.tsv` and need the EMEVD corpus, which the sandbox does not have.
+- The arena-existence class (§5) is untouched, and `f510110` is asserted **ABSENT** from the table
+  so that a populated graph is never read as a covered one. If a future widening makes it appear,
+  the test goes red on purpose: read the edge, do not delete the assertion.

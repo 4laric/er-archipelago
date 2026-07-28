@@ -202,11 +202,16 @@ if ($Greenfield) {
     # later -- for a change of ONE line, because both pages embed the gen-input stamp and a gen_data.py
     # edit alone re-hashes them even when no check changed. That is not a thing to remember; it is a
     # thing to run. (AP-free, seconds, no artifacts -- they join committed greenfield data only.)
-    Step "  regenerate the offline pages (check browser, description triage)"
+    Step "  regenerate the offline pages (check browser, description triage) + the questline DAG"
     & python (Join-Path $Repo "tools\build_check_browser.py")
     if ($LASTEXITCODE -ne 0) { throw "build_check_browser.py FAILED -- er-archipelago-check-browser.html not regenerated (see output above)." }
     & python (Join-Path $Repo "tools\build_desc_triage.py")
     if ($LASTEXITCODE -ne 0) { throw "build_desc_triage.py FAILED -- er-archipelago-desc-triage.html not regenerated (see output above)." }
+    # greenfield/questline_dag.tsv rides here for the same reason: it is a pure join over committed
+    # greenfield data + the generated modules, so a gen_data.py edit alone can change it and the CI
+    # diff gate would arrive red minutes later. Nothing in the world reads it yet (SPEC tier 1).
+    & python (Join-Path $Repo "tools\build_questline_dag.py")
+    if ($LASTEXITCODE -ne 0) { throw "build_questline_dag.py FAILED -- greenfield/questline_dag.tsv not regenerated (see output above)." }
 
     # A regen that lands only in your working tree is HALF a fix: the apworld's CI checks the client
     # out at its DEFAULT BRANCH (main) and diffs, so the gate passes only when the regen is committed
