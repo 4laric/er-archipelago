@@ -77,7 +77,15 @@ Write-Host "  changelog: newest entry is v$chgVer, matches the build" -Foregroun
 #
 # These are the sites that must all equal -Version. Strict three-component semver, because Cargo's
 # version field will not parse "0.2.12.1" (the Nexus LABEL is free text; the number is not).
+# !! THE SITE LIST IS THE TEST'S, NOT A SECOND ONE. test_gf_apworld_manifest.py
+# ::test_the_three_version_numbers_are_one_number already names the sites (archipelago.json,
+# contract.py, the client crate). On 2026-07-28 this gate was first written with a hand-made list
+# that MISSED archipelago.json, reported "all sites agree", and the suite caught the third site --
+# a readiness check that derives its own definition of ready is the confident wrong answer this repo
+# is full of. Keep these in sync with that test; if they drift, the test is right.
 $verSites = @(
+    @{ Path = (Join-Path $Repo "greenfield\eldenring\archipelago.json");
+       Rx   = '"world_version"\s*:\s*"([0-9]+(?:\.[0-9]+)+)"'; What = "archipelago.json world_version" },
     @{ Path = (Join-Path $Repo "greenfield\eldenring\contract.py");
        Rx   = '^APWORLD_VERSION\s*=\s*"([0-9]+(?:\.[0-9]+)+)"'; What = "contract.py APWORLD_VERSION" },
     @{ Path = (Join-Path $Repo "from-software-archipelago-clients\crates\eldenring-archipelago\Cargo.toml");
