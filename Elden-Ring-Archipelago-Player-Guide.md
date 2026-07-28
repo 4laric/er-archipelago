@@ -115,6 +115,15 @@ run rather than tune it.
 - **`num_regions`** -- the size of the Shattering. The one option that turns
   Elden Ring into an Archipelago game. 4 for an evening, 0 (the shipped
   default) for everything.
+- **`natural_progression`** -- the Shattering's opposite. Off (default) you get
+  Region Locks. On, the whole map is in play from the start and regions open on
+  their *real* vanilla keys -- Dectus halves, the Haligtree medallion, boss
+  remembrances -- still shuffled into the multiworld, so they can be anywhere
+  and anyone's. A few chokepoints are kept (the DLC behind Mohg, Mt. Gelmir
+  behind Liurnia and the Academy, Rauh behind Shadow Keep, the capital behind
+  Altus and two Great Runes). `num_regions` is ignored when this is on. Pick it
+  if you want vanilla's shape with Archipelago's item flow rather than a
+  region-lock progression graph.
 - **`ending_condition`** -- hold every kept Region Lock (default), or chase
   `goal_great_runes` Great Runes instead.
 - **`progression_surface`** -- which categories of location are allowed to
@@ -124,6 +133,12 @@ run rather than tune it.
   pool. The recipe weights which consumables fill it; the percentages trade
   part of it for real gear (weapons, armor, talismans, spells, Ashes of War),
   best-first by community tier list. Your junk checks are less junky.
+- **`dungeon_sweep`** -- what killing a dungeon boss hands you. `all` (default)
+  sweeps that dungeon's remaining checks so you never crawl back for two chests
+  you missed; `bosses` extends it to field bosses; `minidungeons` narrows it;
+  `none` turns it off entirely and you collect every check where it lies. The
+  boss's *own* reward is a normal check either way -- it is never part of a
+  sweep -- so turning this off never costs you an item, only the convenience.
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock`** (both on) -- reroll
   what farmable enemies drop and what unlimited-stock merchants sell. One-time
   drops -- the actual checks -- are untouched; this randomizes the repeatable
@@ -184,10 +199,9 @@ of an escalating one.
 > `difficulty_ramp_speed: 75`.
 
 A lot of what you might expect to toggle here is simply how v0.2 plays --
-fixed, not configurable. Checks pay out real shuffled Elden Ring items.
-Killing a dungeon's boss sweeps its remaining checks, so there's no crawling
-back through a catacomb for two chests you missed. You start with a Torch,
-Torrent, flasks, all map fragments, immediate leveling, and buyable
+fixed, not configurable. Checks pay out real shuffled Elden Ring items. You
+start with a Lantern, Torrent, flasks, all map fragments, immediate leveling,
+and buyable
 Stonesword Keys, because region-hopping out of order breaks the vanilla
 drip-feed of those things. And smithing upgrades climb a uniform 2-stone
 ladder instead of vanilla's 2/4/6, so leveling a fresh weapon stays cheap;
