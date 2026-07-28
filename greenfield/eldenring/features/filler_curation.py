@@ -31,7 +31,29 @@ try:
     from ..item_ids import KEY_ITEM_GOODS
 except Exception:
     KEY_ITEM_GOODS = []
-_KEY_ITEM_GOODS = frozenset(KEY_ITEM_GOODS)
+
+
+def _gate_key_items():
+    """The vanilla items of checks the world tags `KeyItem` -- ITS OWN statement of "gate/travel key",
+    the same curated set features/progression_surface builds the surface from.
+
+    WHY THE PARAM IS NOT ENOUGH (CI, 2026-07-28). goodsType == 1 emits 204 names -- cookbooks,
+    prayerbooks, bell bearings, whetblades, the real gate keys -- and does NOT include
+    `Pureblood Knight's Medal`, because the game files it as a single-use travel CONSUMABLE, not a key
+    item. Our model disagrees: it is a travel key, it is KeyItem-tagged, and under the id-nibble
+    predicate it was displaceable. Two sources, both already generated, and the union is what the junk
+    predicate subtracts -- not a hand list bolted on, and not one source pretending to be complete.
+    """
+    try:
+        from ..location_tags import LOCATION_TAGS
+        from ..item_ids import LOCATION_ITEM
+    except Exception:
+        return frozenset()
+    return frozenset(nm for ap, tags in LOCATION_TAGS.items()
+                     if "KeyItem" in tags and (nm := LOCATION_ITEM.get(ap)))
+
+
+_KEY_ITEM_GOODS = frozenset(KEY_ITEM_GOODS) | _gate_key_items()
 try:
     from ..item_ids import AMMO_ITEM_NAMES   # param-derived (EquipParamWeapon.wepType); see gen_data.py
 except Exception:                            # pre-regen item_ids.py lacks it -> category empty, stacks inert
@@ -243,9 +265,11 @@ def _is_junk_consumable(name):
     `displaceable_filler`'s classification check, the rest by nothing.
 
     The game ships the datum and gen_data already reads this param for FILLER_POOL:
-    EquipParamGoods.goodsType (1 = KEY ITEM, 3 = remembrance, ...). So KEY_ITEM_GOODS is derived, not
-    curated, and the name lists above stay as a SECOND layer for what the param cannot separate
-    (funny junk, the presence-floor roster) rather than as the only layer.
+    EquipParamGoods.goodsType (1 = KEY ITEM, 3 = remembrance, ...) -- unioned with the vanilla items of
+    our own KeyItem-tagged checks, because the param does not file single-use travel items as key
+    items and our model does (see _gate_key_items). Both sources are generated; the name lists above
+    stay as a SECOND layer for what neither can separate (funny junk, the presence-floor roster)
+    rather than as the only layer.
 
     🛑 INERT WITHOUT A REGEN. A pre-regen item_ids.py has no KEY_ITEM_GOODS, the set is empty, and
     this predicate is exactly the old one -- key items displaceable again. That is why
