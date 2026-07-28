@@ -183,37 +183,29 @@ if (-not $SkipGreenfield) {
     }
 }
 
-# ----- 2c2) TRACKER DRIFT: the client's tracker_regions.rs is generated FROM this repo's data ------
-# It is a CROSS-REPO generated artifact -- rendered by tools\gen_location_regions.py from
-# greenfield/eldenring/location_tags.py + contract.has_class, and written INTO the client submodule.
-# Nothing watched it, so it could rot against its own source of truth. On 2026-07-12 it did:
-# contract.is_big_ticket was renamed to has_class, the generator (which calls it) was never re-run,
-# and the star column went stale while build.ps1 -Rust died on an AttributeError -- all while the
-# CLIENT's own CI stayed green, because the client's CI does not run this generator. A green signal
-# that is structurally blind to the break is worse than no signal at all.
-#   exit 0 = fresh | 1 = STALE (regenerate + commit the submodule) | 4 = submodule absent -> SKIP.
+# ----- 2c2) ARTIFACT-DERIVED TABLE DRIFT: the gates only a box with elden_ring_artifacts can run --
+# check_lots_table.json is the STATIC vanilla-suppression table, derived from ItemLotParam. It needs
+# elden_ring_artifacts, so the GitHub runner CANNOT gate it -- this is the sighted gate, and the only
+# one that can see it go stale.
+#
+# !! THE TRACKER HALF OF THIS STEP IS GONE (2026-07-28), and deliberately so. It used to run
+# tools\gen_location_regions.py --check against the client's tracker_regions.rs, a cross-repo
+# generated table. That table is DELETED: the tracker's region model now ships in slot_data
+# (locationRegions / regionCoarseKeys), because a table generated from the full data.LOCATIONS
+# described the DEFAULT seed and was quietly wrong for every num_regions seed -- a corpus fact
+# standing in for a seed fact. There is nothing left to drift, so the gate is removed rather than
+# left to fail looking for a file that no longer exists.
 if (-not $SkipGreenfield) {
-    Invoke-CiStep "TRACKER DRIFT (client tracker_regions.rs vs greenfield data)" {
-        # check_lots_table.json -- the STATIC vanilla-suppression table. Derived from ItemLotParam,
-        # so it needs elden_ring_artifacts and CANNOT be gated on the GitHub runner (no artifacts
-        # there). This is the sighted gate, and it is the only one that can see it go stale.
+    Invoke-CiStep "ARTIFACT TABLE DRIFT (check_lots_table.json vs the params)" {
         $lotGen = Join-Path $Repo "tools\gen_check_lots_table.py"
         if (Test-Path $lotGen) {
             & python $lotGen --check
             if ($LASTEXITCODE -ne 0) {
                 throw "CHECK-LOTS TABLE: check_lots_table.json is STALE vs the params. Regenerate and commit: python tools\gen_check_lots_table.py"
             }
-        }
-        $gen = Join-Path $Repo "tools\gen_location_regions.py"
-        if (-not (Test-Path $gen)) { throw "TRACKER: tools\gen_location_regions.py not found" }
-        python $gen --check
-        $trkExit = $LASTEXITCODE
-        if ($trkExit -eq 4) {
-            Write-Host "  SKIP: client submodule not checked out (git submodule update --init)." -ForegroundColor Yellow
-        } elseif ($trkExit -ne 0) {
-            throw ("TRACKER: the client's tracker_regions.rs no longer matches the greenfield data it is generated FROM (exit {0}). Regenerate and commit the submodule: python tools\gen_location_regions.py" -f $trkExit)
+            Write-Host "  check_lots_table.json FRESH -- the vanilla-suppression table matches the params." -ForegroundColor Green
         } else {
-            Write-Host "  tracker_regions.rs FRESH -- the client's star/region table matches the apworld." -ForegroundColor Green
+            Write-Host "  SKIP: tools\gen_check_lots_table.py not found." -ForegroundColor Yellow
         }
         $global:LASTEXITCODE = 0
     }

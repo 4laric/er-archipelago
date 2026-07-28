@@ -171,7 +171,7 @@ if ($Greenfield) {
     if ($LASTEXITCODE -ne 0) { throw "gen-greenfield.ps1 FAILED (exit $LASTEXITCODE) -- see output above." }
 
     # ----- CROSS-REPO GENERATED TABLES ---------------------------------------------------------
-    # tracker_regions.rs (and contract_gen.rs) are generated FROM the greenfield data but LIVE IN
+    # contract_gen.rs and region_locks.rs are generated FROM the greenfield data but LIVE IN
     # THE CLIENT repo. They were only regenerated under -Rust, so regenerating the world WITHOUT
     # building the client left the client's tables silently stale -- and ap-ids are POSITIONAL, so
     # "stale" means the tracker maps ids to the WRONG checks. Anything that adds or drops a check

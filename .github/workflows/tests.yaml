@@ -137,9 +137,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Check the CLIENT out directly rather than via `submodules:`. gen_location_regions writes into
-      # it, and a direct checkout keeps this job independent of the superproject's gitlink (which points
-      # at a pinned commit, not necessarily client main).
+      # Check the CLIENT out directly rather than via `submodules:`. gen_contract / gen_region_locks
+      # write into it, and a direct checkout keeps this job independent of the superproject's gitlink
+      # (which points at a pinned commit, not necessarily client main).
       - uses: actions/checkout@v4
         with:
           repository: 4laric/from-software-archipelago-clients
