@@ -172,10 +172,11 @@ Info "+ eldenring.apworld"
 # 3b. CROSS-REPO DATA AGREEMENT -- the apworld and the client must be built from the
 #     SAME world data.
 # ---------------------------------------------------------------------------
-# Three generated tables are emitted BY the world INTO the client: tracker_regions.rs,
-# contract_gen.rs and region_locks.rs. They ship COMPILED INTO the .dll while the data they were
-# derived from ships in the .apworld -- two halves of one bundle, from two repos, with nothing
-# tying them together at package time.
+# TWO generated tables are emitted BY the world INTO the client: contract_gen.rs and region_locks.rs.
+# (There were three; tracker_regions.rs was retired 2026-07-28 when the tracker's region model moved
+# into slot_data, which removes a whole class of cross-repo drift rather than gating it.) They ship
+# COMPILED INTO the .dll while the data they were derived from ships in the .apworld -- two halves of
+# one bundle, from two repos, with nothing tying them together at package time.
 #
 # 2026-07-24, the release that prompted this gate: world main and client main disagreed by 465 lines
 # of tracker_regions.rs (the client's copy had been generated from a feature branch's data -- 4853
@@ -192,8 +193,21 @@ if (-not $SkipCrossRepoCheck) {
         Warn "client submodule not checked out -- cross-repo data agreement UNVERIFIED"
     } else {
         Info "Cross-repo: re-deriving the client's generated tables from this world tree ..."
-        foreach ($t in @("tools\gen_location_regions.py", "tools\gen_region_locks.py")) {
-            & python (Join-Path $Repo $t) --check
+        # tools\gen_location_regions.py was RETIRED 2026-07-28 along with tracker_regions.rs: the
+        # tracker's region model ships in slot_data now (locationRegions / regionCoarseKeys), so
+        # there is no generated table left to drift. It is off this list rather than left to fail.
+        foreach ($t in @("tools\gen_region_locks.py")) {
+            $tPath = Join-Path $Repo $t
+            # A MISSING GENERATOR IS NOT A STALE TABLE. python exits nonzero on "No such file", and
+            # this loop read every nonzero as STALE -- so deleting a generator produced "the client's
+            # generated table is STALE. Regenerate (build.ps1 -All)", advice that cannot work because
+            # the tool it names does not exist. Separate the two before running it.
+            if (-not (Test-Path $tPath)) {
+                Die ("$t does not exist, so this check cannot run. It was NOT reporting a stale " +
+                     "table -- a missing generator exits nonzero exactly like a stale one. Either " +
+                     "restore the tool or remove it from this list, whichever matches why it went.")
+            }
+            & python $tPath --check
             if ($LASTEXITCODE -eq 4) { Warn "$t --check: no client tree; UNVERIFIED" }
             elseif ($LASTEXITCODE -ne 0) {
                 Die ("$t reports the client's generated table is STALE. The .apworld and the .dll " +
@@ -205,7 +219,6 @@ if (-not $SkipCrossRepoCheck) {
         & python (Join-Path $Repo "greenfield\gen_contract.py")
         if ($LASTEXITCODE -ne 0) { Die "gen_contract.py FAILED -- cannot verify the client contract table." }
         $dirty = & git -C $Client status --porcelain -- `
-                    "crates/er-logic/src/tracker_regions.rs" `
                     "crates/er-logic/src/region_locks.rs" `
                     "crates/eldenring-archipelago/src/contract_gen.rs"
         if ($dirty) {
@@ -235,8 +248,10 @@ if (-not $SkipCrossRepoCheck) {
         } else {
             $xrStamp = Get-Content -LiteralPath $xrStampPath -Raw | ConvertFrom-Json
             $xrMismatch = @()
-            foreach ($xrRel in @("crates/er-logic/src/tracker_regions.rs",
-                               "crates/er-logic/src/region_locks.rs",
+            # tracker_regions.rs was here until 2026-07-28. It is DELETED, and `Test-Path ... continue`
+            # below would have skipped it forever -- a list entry that always skips is dead weight
+            # that reads like coverage.
+            foreach ($xrRel in @("crates/er-logic/src/region_locks.rs",
                                "crates/eldenring-archipelago/src/contract_gen.rs")) {
                 $xrFile = Join-Path $Client ($xrRel -replace "/", "\")
                 if (-not (Test-Path $xrFile)) { continue }

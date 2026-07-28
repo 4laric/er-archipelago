@@ -236,10 +236,11 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # asserts the contract no longer carries them. The name is gone too: it is what let a SECOND selection
 # masquerade as a second mechanism.) ONE definition, both sides:
 # features/curated_fill.py routes region Locks onto these, and the client's F6 tracker highlights /
-# filters them -- via tools/gen_location_regions.py, which imports THIS set to bake the
-# er_logic::tracker_regions LOCATION_META on_surface column. So "where the locks go" == "what the
-# tracker flags" by construction. Per-location membership is generated from location_tags.py (a
-# seed-invariant ~4k-row static table, not slot_data); the DEFINITION lives here in the contract.
+# filters them -- via slot_data `progressionSurfaceLocations`, emitted from THIS set. So "where the
+# locks go" == "what the tracker flags" by construction, and it is now true PER SEED rather than per
+# corpus. (Until 2026-07-28 the client half came from tools/gen_location_regions.py baking an
+# on_surface column into er_logic::tracker_regions -- both the tool and that table are retired; the
+# tracker's region model ships in slot_data.) The DEFINITION lives here in the contract.
 # Class vocabulary shared with important_locations (features/important_locations.py imports this).
 # (There is no `big_ticket_locations` option; the surface is selected by ProgressionSurface.)
 # "EniaShop" is INTERNAL (gen_data tags the remembrance store) and is never user-selectable.
@@ -287,7 +288,8 @@ SURFACE_EXCLUDE_TAGS = frozenset({"EniaShop"})
 # The DEFAULT progression surface. It lives HERE, beside has_class, because it has two consumers that
 # cannot import each other:
 #   * features/progression_surface.ProgressionSurface.default -- the AP option (needs the AP env)
-#   * tools/gen_location_regions.py                           -- the tracker's static column (AP-FREE)
+#   * [RETIRED 2026-07-28] tools/gen_location_regions.py      -- baked the tracker's static column;
+#     the surface now reaches the client as slot_data progressionSurfaceLocations instead
 # Retiring `is_big_ticket` (20bc529) renamed the predicate but left the SELECTION inlined in the option
 # class, where the AP-free generator could not reach it. So the generator kept calling the old name and
 # the Windows build died at the tracker-table step. Single-sourcing a predicate is only half the job:
