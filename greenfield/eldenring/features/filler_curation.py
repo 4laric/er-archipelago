@@ -25,6 +25,14 @@ try:
 except Exception:
     ITEM_CATALOG = {}
 try:
+    # KEY ITEMS, param-derived (gen_data.py: EquipParamGoods.goodsType == 1). The game's own answer to
+    # "is this a key item"; `_is_junk_consumable` subtracts it. Empty on a pre-regen item_ids.py --
+    # which is INERT, not safe: see that predicate's docstring.
+    from ..item_ids import KEY_ITEM_GOODS
+except Exception:
+    KEY_ITEM_GOODS = []
+_KEY_ITEM_GOODS = frozenset(KEY_ITEM_GOODS)
+try:
     from ..item_ids import AMMO_ITEM_NAMES   # param-derived (EquipParamWeapon.wepType); see gen_data.py
 except Exception:                            # pre-regen item_ids.py lacks it -> category empty, stacks inert
     AMMO_ITEM_NAMES = []
@@ -209,8 +217,35 @@ class FillerCurationFeature(Feature):
 
 
 def _is_junk_consumable(name):
-    """A filler good that is throwaway junk -- NOT the tuned economy and NOT protected funny junk."""
+    """A filler good that is throwaway junk -- NOT the tuned economy, NOT protected funny junk, and
+    (2026-07-28) NOT A KEY ITEM.
+
+    THE BUG THIS CLOSES. The predicate was "carries the GOODS FullID nibble (0x4)", which is a claim
+    about an ID RANGE, not about junk -- and in Elden Ring every key item is a Goods item. So the
+    allocator was free to overwrite key items, and it did: `pool_builder_scope` is FROZEN to
+    `all_filler`, the default curated_filler recipe carries no `junk` weight, and therefore a
+    displaceable slot is overwritten except for rounding residue. Measured on main 2026-07-28: BOTH
+    `Cursemark of Death` copies are gone from the pool in essentially every seed -- and that item is
+    what Fia's Deathbed Dream (i.e. the Lichdragon Fortissax fight) is gated on. A player reported
+    exactly that on 2026-07-27: no Cursemark anywhere in a three-world spoiler log, and a region Lock
+    stranded behind Fortissax. Rusty Key, Storeroom Key, Well Depths Key, Drawing-Room Key, Prayer
+    Room Key, Pureblood Knight's Medal and the Dectus/Rold/Haligtree medallion halves were in the
+    same position; the ones features/legacy_key_gates promotes to progression were saved by
+    `displaceable_filler`'s classification check, the rest by nothing.
+
+    The game ships the datum and gen_data already reads this param for FILLER_POOL:
+    EquipParamGoods.goodsType (1 = KEY ITEM, 3 = remembrance, ...). So KEY_ITEM_GOODS is derived, not
+    curated, and the name lists above stay as a SECOND layer for what the param cannot separate
+    (funny junk, the presence-floor roster) rather than as the only layer.
+
+    🛑 INERT WITHOUT A REGEN. A pre-regen item_ids.py has no KEY_ITEM_GOODS, the set is empty, and
+    this predicate is exactly the old one -- key items displaceable again. That is why
+    tests/test_gf_quest_gated_boss_arenas.py asserts the set is PRESENT and non-empty instead of
+    asserting a behaviour that silently degrades to the bug.
+    """
     if name in FUNNY_JUNK or name in PRESENCE_FLOOR_ITEMS or any(s in name for s in _ECONOMY_SUBSTR):
+        return False
+    if name in _KEY_ITEM_GOODS:
         return False
     full = ITEM_CATALOG.get(name)
     return name == "Rune" or (full is not None and (full & 0xF0000000) == 0x40000000)

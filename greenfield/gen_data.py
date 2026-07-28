@@ -2291,6 +2291,47 @@ _NPC_STATE_GATED = frozenset({
 })
 
 
+# BOSS-ARENA QUESTLINE GATES -- a FOURTH class (2026-07-28), and the one every screen above is
+# structurally blind to.
+#
+# All three screens above read an AWARD SITE: the item lot's own gate (datamine_lot_gates), the
+# treasure asset's enabler (datamine_treasure_enablers / msb_gated_treasures), or the NPC state that
+# disables it (_NPC_STATE_GATED). A REMEMBRANCE has none of those: it is paid by the common boss-drop
+# handler, and what a questline gates is not the award -- it is THE EXISTENCE OF THE FIGHT. Nothing
+# that looks at award sites can see that.
+#
+# MEASURED, so the blindness is a fact and not a worry: flag 510110 appears in NONE of the four
+# committed gate corpora (lot_gates.tsv, treasure_enablers.tsv, esd_gates.tsv, esd_gifts.tsv).
+# Absence there is not evidence of safety; it is evidence that the screens cannot see this class.
+#
+#   510110  Deeproot Depths :: Remembrance of the Lichdragon (Fortissax)
+#           Fightable ONLY inside Fia's Deathbed Dream, which does not exist until she is handed the
+#           Cursemark of Death. Every other member of that cluster is ALREADY tagged here -- f400392
+#           (the Cursemark itself), f400339 (Fia's Hood), f400348 (Inseparable Sword), f9502 (Mending
+#           Rune of the Death-Prince). The boss reward was the one that was not, and it is the only
+#           one carrying MajorBoss + Remembrance -- i.e. features/progression_surface STEERS this
+#           world's region Locks onto it (165-check default surface, and this is one of them).
+#           REPORTED IN-GAME 2026-07-27 (Nova71288, 3-player multiworld): a region Lock landed here
+#           and the run could not be finished.
+#
+# 🛑 WHY FORTISSAX AND NOT EVERY QUEST-ADJACENT BOSS. A region Lock lights that region's grace
+# bundle (features/graces), so the player WARPS past the physical route -- Ranni's chain into Lake of
+# Rot / Astel, the medallion lifts, the Pureblood Medal, all bypassed. What a warp cannot bypass is a
+# fight that has not been CREATED yet, and Fortissax's arena is entered through an NPC-owned dream
+# portal with no grace of its own. That is the discriminator for this class, and it is why the class
+# is small rather than empty.
+#
+# 🛑 HAND-VERIFIED, NOT DERIVED -- and it stays its own named set until it is derived, exactly as
+# _NPC_STATE_GATED and _MULTI_SITE stay separate from _QUESTLINE_GATED: a set folded into another
+# set's name becomes unfalsifiable by that set's test. The screen that WOULD derive it: resolve each
+# boss's spawn/enable event in its arena map's EMEVD through the $InitializeEvent CALL SITES (the
+# same resolution that took lot_gates from ~1% of the corpus to 617 pairs) and report every boss
+# whose enable condition tests a flag its own map never sets. Until that tool exists the honest claim
+# is "one KNOWN member", never "the class is closed" -- see tests/test_gf_quest_gated_boss_arenas.py,
+# which pins the reasoning rather than the number.
+_BOSS_ARENA_QUEST_GATED = frozenset({510110})
+
+
 # MULTI-SITE checks -- a THIRD independent derivation (2026-07-27), read from the committed
 # greenfield/multisite_checks.tsv (tools/datamine_multisite_checks.py).
 #
@@ -2357,7 +2398,12 @@ print("multi_site (obtainable in >1 region, order-decided): %d flag(s); %d ALREA
 if _MULTI_SITE and not _MS_BOTH:
     print("[gen_data] WARNING: the multi-site screen now corroborates NOTHING previously "
           "hand-audited. Its new members are unsupported -- check the screen before trusting it.")
-QUEST_GATED_FLAGS |= _QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE
+# The boss-arena class (above) is the fourth contributor. It is printed separately for the same
+# reason the others are: a set that stops contributing must SAY so rather than vanish into a union.
+_BA_NEW = _BOSS_ARENA_QUEST_GATED - QUEST_GATED_FLAGS - _QUESTLINE_GATED - _NPC_STATE_GATED - _MULTI_SITE
+print("boss_arena_gated (the FIGHT is quest-gated, not the award): %d flag(s); %d NEW %s"
+      % (len(_BOSS_ARENA_QUEST_GATED), len(_BA_NEW), sorted(_BA_NEW)))
+QUEST_GATED_FLAGS |= _QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE | _BOSS_ARENA_QUEST_GATED
 
 
 # Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in
@@ -5021,6 +5067,52 @@ with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
         f.write(f"    {ascii(_nm)},\n")
     f.write("]\n")
 print(f"filler_pool: {len(FILLER_POOL)} junk goods -> item_ids.py FILLER_POOL")
+
+
+# ---- KEY_ITEM_GOODS: the KEY ITEMS, straight off EquipParamGoods.goodsType == 1 (the same param
+# FILLER_POOL above is filtered from; `1 = KEY ITEM` is documented at tools/datamine_flag_lots.py
+# and is the type tools/find_spare_goods.py matches on). features/filler_curation subtracts this set
+# from its junk predicate.
+#
+# WHY THIS EXISTS. That predicate used to ask the ITEM ID NIBBLE -- "is this a Goods item?" -- and
+# call everything it found junk. Every key item in the game is a Goods item, so the filler allocator
+# could overwrite them, and with `pool_builder_scope` frozen to all_filler and no `junk` weight in the
+# default recipe it overwrote nearly all of them. That is how BOTH `Cursemark of Death` copies came to
+# be absent from every default seed -- the item Fia's Deathbed Dream, and therefore the Lichdragon
+# Fortissax fight, is gated on (player report 2026-07-27; see _BOSS_ARENA_QUEST_GATED above, which
+# fixes the other half: the CHECK behind that fight was free to host progression).
+#
+# 🛑 This is a POOL-SHAPE change, not just a softlock fix: every key item that used to be displaced
+# now survives as itself, so the filler budget shrinks by that many slots. The print below is the
+# measurement -- if it reports a number far larger than the ~40 gate/travel/quest keys you expect,
+# goodsType 1 is broader than assumed (cookbooks and bell bearings live in the same inventory tab)
+# and the right response is to narrow the DERIVATION, not to reinstate a hand list.
+KEY_ITEM_GOODS = []
+if os.path.isfile(_GOODS_CSV):
+    _keyitem_ids = set()
+    for _row in csv.DictReader(open(_GOODS_CSV, newline="", encoding="utf-8", errors="replace")):
+        try:
+            if (_row.get("goodsType") or "").strip() == "1":
+                _keyitem_ids.add(int(_row["ID"]))
+        except (KeyError, ValueError):
+            continue
+    for _nm in sorted(ITEM_CATALOG):
+        _full = ITEM_CATALOG[_nm]
+        if (_full & 0xF0000000) != 0x40000000:      # GOODS nibble only
+            continue
+        if (_full & 0x0FFFFFFF) in _keyitem_ids:
+            KEY_ITEM_GOODS.append(_nm)
+else:
+    print("[gen_data] WARNING: EquipParamGoods.csv absent -- KEY_ITEM_GOODS is EMPTY and "
+          "features/filler_curation will treat key items as displaceable junk again.")
+with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
+    f.write("\n# Key items (EquipParamGoods.goodsType == 1); features/filler_curation never displaces these.\n")
+    f.write("KEY_ITEM_GOODS = [\n")
+    for _nm in KEY_ITEM_GOODS:
+        f.write(f"    {ascii(_nm)},\n")
+    f.write("]\n")
+print(f"key_item_goods: {len(KEY_ITEM_GOODS)} key items -> item_ids.py KEY_ITEM_GOODS "
+      f"(protected from the filler tail)")
 
 
 # ---- AMMO_ITEM_NAMES: arrows & bolts (matt-free, param-derived). features/filler_curation grants
