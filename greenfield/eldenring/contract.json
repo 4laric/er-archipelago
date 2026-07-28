@@ -101,7 +101,29 @@
       ],
       "producer": "core._base_slot_data",
       "consumer": "region.rs:111 str_to_u32 (absent => empty => no locks)",
-      "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names."
+      "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the coarse lock-item names the client derives from regionCoarseKeys."
+    },
+    {
+      "name": "locationRegions",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "er-logic tracker_tables::location_region_table",
+      "doc": "fine region NAME -> [AP location ids in it]. The tracker's grouping. Scoped to THIS seed's kept regions + the hub, exactly like locationFlags -- a location absent here is not in this seed. Sent region->ids rather than id->region because the id list is the bulk and the names repeat (~43 KB vs ~180 KB)."
+    },
+    {
+      "name": "regionCoarseKeys",
+      "shape": "STR_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "er-logic tracker_tables::coarse_table",
+      "doc": "fine region NAME -> COARSE key: the region whose lock decides in-logic. \"\" means ALWAYS ACCESSIBLE (the hub). Usually the region itself; it differs only for a LOCKLESS region whose physical space is gated by another region's lock (the finale -> its host). \ud83d\uded1 SENT, not derived client-side: which region hosts a lockless one is OUR design decision, and re-deriving it in Rust would be a second copy of a convention free to drift from this one."
     },
     {
       "name": "options",

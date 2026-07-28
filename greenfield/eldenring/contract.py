@@ -396,7 +396,32 @@ CONTRACT = (
     ContractKey("regionOpenFlags", "SCALAR_INT_MAP", True, (GREENFIELD,),
                 "core._base_slot_data", "region.rs:111 str_to_u32 (absent => empty => no locks)",
                 "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys "
-                "MUST be exactly '<Region> Lock' matching the client's COARSE_LOCK_ITEMS names."),
+                "MUST be exactly '<Region> Lock' matching the coarse lock-item names the client "
+                "derives from regionCoarseKeys."),
+    # --- the tracker's region model, SENT rather than BAKED (2026-07-28) -------------------------
+    # These two replace er-logic's generated `tracker_regions.rs`, and the reason is correctness
+    # before convenience. That table was built from data.LOCATIONS at GENERATOR time, so it
+    # described the DEFAULT seed -- but `_base_slot_data` scopes locationFlags and regionOpenFlags
+    # to `kept`, and under num_regions the kept set is a per-seed subset. A baked table is a CORPUS
+    # fact standing in for a SEED fact, which is the same shape as the num_regions bug that voided
+    # "the item exists" claims. Sent, it is right for every seed; baked, it was right for one.
+    # (It also retires a class of client commit: every apworld region/tag change used to require a
+    # regenerated .rs pushed to the client repo, and the world CI's cross-repo diff gate to notice
+    # when it had not been.)
+    ContractKey("locationRegions", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "core._base_slot_data", "er-logic tracker_tables::location_region_table",
+                "fine region NAME -> [AP location ids in it]. The tracker's grouping. Scoped to "
+                "THIS seed's kept regions + the hub, exactly like locationFlags -- a location "
+                "absent here is not in this seed. Sent region->ids rather than id->region because "
+                "the id list is the bulk and the names repeat (~43 KB vs ~180 KB)."),
+    ContractKey("regionCoarseKeys", "STR_MAP", False, (GREENFIELD,),
+                "core._base_slot_data", "er-logic tracker_tables::coarse_table",
+                "fine region NAME -> COARSE key: the region whose lock decides in-logic. \"\" means "
+                "ALWAYS ACCESSIBLE (the hub). Usually the region itself; it differs only for a "
+                "LOCKLESS region whose physical space is gated by another region's lock (the finale "
+                "-> its host). 🛑 SENT, not derived client-side: which region hosts a lockless one "
+                "is OUR design decision, and re-deriving it in Rust would be a second copy of a "
+                "convention free to drift from this one."),
     # --- runtime options echo (F1 fix; the client reads options ONLY through this sub-dict) ---
     ContractKey("options", "OPTIONS_DICT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_bool_option et al.",

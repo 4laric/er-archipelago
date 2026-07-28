@@ -884,6 +884,40 @@ class GreenfieldEldenRingWorld(World):
         for ap_id, flag in getattr(self, "gf_extra_location_flags", {}).items():
             loc_flags[str(ap_id)] = int(flag)
         region_open = {f"{r} Lock": REGION_OPEN_FLAGS[r] for r in kept if r in REGION_OPEN_FLAGS}
+        # THE TRACKER'S REGION MODEL, per seed. Built from the SAME `[HUB] + kept` walk as loc_flags
+        # above, so a location can never be in one and missing from the other -- which is exactly
+        # what a separately-generated client table could not promise. Feature-owned locations ride
+        # along through `gf_extra_location_regions` for the same reason loc_flags has that seam.
+        loc_regions: Dict[str, List[int]] = {}
+        for rn in [HUB] + kept:
+            ids = [int(ap_id) for (_n, ap_id, _f) in LOCATIONS.get(rn, [])]
+            if ids:
+                loc_regions[rn] = ids
+        for ap_id, rn in getattr(self, "gf_extra_location_regions", {}).items():
+            loc_regions.setdefault(str(rn), []).append(int(ap_id))
+        for _rn in loc_regions:
+            loc_regions[_rn] = sorted(set(loc_regions[_rn]))
+        # COARSE key per fine region: which region's lock decides in-logic. "" = always accessible.
+        # A region with locations but NO lock and no host mapping would silently become its own
+        # coarse key and then find no lock item, reading as "open" forever -- so it is a hard error
+        # here rather than a quiet permissive default in the client.
+        _lockless_host = {}
+        _finale = globals().get("FINALE_REGION")
+        if _finale is not None and globals().get("FINALE_HOST_REGION") is not None:
+            _lockless_host[_finale] = FINALE_HOST_REGION
+        coarse_keys: Dict[str, str] = {}
+        for rn in loc_regions:
+            if rn == HUB:
+                coarse_keys[rn] = ""
+            elif rn in REGION_OPEN_FLAGS:
+                coarse_keys[rn] = rn
+            elif rn in _lockless_host:
+                coarse_keys[rn] = _lockless_host[rn]
+            else:
+                raise Exception(
+                    f"region {rn!r} has locations but no region-open flag and no lockless-host "
+                    f"mapping: the client would treat it as permanently accessible. Give it a lock "
+                    f"or a host.")
         versions = contract.version_string(self._data_inputs_hash())
         required = self._required_runes()
         return {
@@ -893,6 +927,8 @@ class GreenfieldEldenRingWorld(World):
             contract.AP_IDS_TO_ITEM_IDS: _AP_IDS_TO_ITEM_IDS,
             contract.ITEM_COUNTS: self._item_counts(),
             contract.REGION_OPEN_FLAGS: region_open,
+            contract.LOCATION_REGIONS: loc_regions,
+            contract.REGION_COARSE_KEYS: coarse_keys,
             contract.OPTIONS: self._options_echo(),
             "region_count": len(kept),
             "completionScalingBasis": 1,

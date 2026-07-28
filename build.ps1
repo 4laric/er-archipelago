@@ -184,9 +184,7 @@ if ($Greenfield) {
         throw ("Client submodule missing at {0} -- the generated tracker/contract tables cannot be " +
                "refreshed and would ship STALE against renumbered ap-ids. Run: git submodule update --init" -f $RustDir)
     }
-    Step "  regenerate the client's generated tables (tracker_regions.rs, contract_gen.rs, region_locks.rs)"
-    & python (Join-Path $Repo "tools\gen_location_regions.py")
-    if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
+    Step "  regenerate the client's generated tables (contract_gen.rs, region_locks.rs)"
     & python (Join-Path $Repo "greenfield\gen_contract.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_contract.py FAILED -- contract_gen.rs not regenerated (see output above)." }
     # region_locks.rs is the THIRD cross-repo generated table (baked from region_play_ids.py /
@@ -363,9 +361,7 @@ if ($Rust) {
     if ($LASTEXITCODE -ne 0) { throw "datamine_boss_drops.py FAILED (see output above)." }
     & python (Join-Path $Repo "greenfield\gen_data.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_data.py FAILED (see output above)." }
-    Step "  regenerate generated tables (tracker_regions.rs, region_locks.rs) from greenfield data"
-    & python (Join-Path $Repo "tools\gen_location_regions.py")
-    if ($LASTEXITCODE -ne 0) { throw "gen_location_regions.py FAILED -- tracker_regions.rs not regenerated (see output above)." }
+    Step "  regenerate generated tables (region_locks.rs) from greenfield data"
     & python (Join-Path $Repo "tools\gen_region_locks.py")
     if ($LASTEXITCODE -ne 0) { throw "gen_region_locks.py FAILED -- region_locks.rs not regenerated (see output above)." }
     if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
@@ -395,7 +391,7 @@ if ($Rust) {
     # content) and not the commit time either (you necessarily COMMIT the regenerated tables AFTER
     # you build, so the table always post-dates the binary and the gate can never pass). Only the
     # content can answer it. Written beside the DLL, copied along with it by -Me3Deploy.
-    $xrTbl = @("crates\er-logic\src\tracker_regions.rs",
+    $xrTbl = @(
                 "crates\er-logic\src\region_locks.rs",
                 "crates\eldenring-archipelago\src\contract_gen.rs")
     $xrStamp = [ordered]@{}

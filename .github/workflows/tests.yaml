@@ -151,7 +151,6 @@ jobs:
 
       - name: Generators run, and their committed output is not stale
         run: |
-          python tools/gen_location_regions.py
           python tools/gen_region_locks.py
           python greenfield/gen_contract.py
           # Pure join over committed greenfield data -> er-archipelago-check-browser.html.
@@ -193,7 +192,10 @@ jobs:
             git --no-pager diff --stat -- . ':(exclude)from-software-archipelago-clients'
             fail=1
           fi
-          # The CROSS-REPO artifacts (tracker_regions.rs, contract_gen.rs) are written INTO the client.
+          # The CROSS-REPO artifacts (contract_gen.rs, region_locks.rs) are written INTO the client.
+          # tracker_regions.rs is GONE (2026-07-28): the tracker's region model is sent in slot_data
+          # (locationRegions / regionCoarseKeys), so an apworld region change no longer needs a
+          # regenerated table pushed to the client repo at all.
           # This is the check that catches an apworld change that never reached the client.
           if ! git -C from-software-archipelago-clients diff --quiet; then
             echo "::error::client-side generated output is STALE -- regen and push the CLIENT too:"
