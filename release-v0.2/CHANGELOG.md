@@ -3,6 +3,51 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.15 — 2026-07-28
+
+Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client — the two must be
+updated together this time (the client reads its region list from the seed now; see below).
+Location names last changed in v0.2.12.
+
+### Changed — options
+
+- **`dungeon_sweep` is settable again.** It was pinned to `all` in the v0.2 option slim. `none`
+  turns sweeps off entirely — every check is picked up where it lies — and `minidungeons` /
+  `bosses` are the two middles. Requested by **ShadowTL**.
+
+- **"Can I turn the Shattering off?" — yes, and the option already existed.** `natural_progression:
+  true` plays the whole map gated by REAL vanilla keys and boss remembrances (still shuffled, so
+  they can be anywhere) in vanilla's own dependency shape, with no synthetic Region Locks;
+  `num_regions` is ignored. It has worked since v0.2.9 and was simply never written into the yaml
+  template, so the one place a player actually reads never mentioned it. It is documented next to
+  `num_regions` now. Also requested by **ShadowTL**.
+
+### Fixed — apworld
+
+- **The Message from Leda could hold something your seed required, and it does not exist until
+  Messmer is dead.** It sits near Scaduview Cross, but its container is only enabled after Messmer
+  falls — and a region lock lights Belurat's graces, so you warp to the spot and find nothing. It
+  can no longer hold required progression. Confirmed in game by Alaric. Found by screening a corpus
+  (`treasure_enablers`) that the existing cross-region check had never read; that screen is now
+  permanent, so the next one of these fails a test instead of reaching a player.
+
+### Changed — client
+
+- **The tracker's region list now comes from the seed instead of being baked into the `.dll`.**
+  It used to be a generated table built from the full region list, which meant that on a
+  `num_regions` seed the tracker grouped checks into regions that seed does not contain and marked
+  them in logic. It is now read from the seed itself, so it is right for whatever regions you
+  actually rolled. **This is why the client and apworld must be updated together** — an old client
+  with a new seed is fine, but a new client with an old seed will say so in the log and group
+  nothing rather than guess.
+
+### Fixed — release process
+
+- **v0.2.14 shipped stamped `0.2.13`.** The packager checked that the changelog named the right
+  version but not that the code did, so every v0.2.14 seed reported itself as v0.2.13 and a bug
+  report could not tell the two apart. The packager now refuses to build unless every version site
+  agrees with the build.
+
 ## v0.2.14 — 2026-07-28
 
 Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client. Location

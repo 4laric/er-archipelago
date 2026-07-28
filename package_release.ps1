@@ -69,6 +69,47 @@ if ($chgVer -ne $Version) {
 }
 Write-Host "  changelog: newest entry is v$chgVer, matches the build" -ForegroundColor DarkGray
 
+# ---- VERSION LOCKSTEP -------------------------------------------------------------------------
+# The changelog gate above covers ONE site. It did not cover the others, and on 2026-07-28 v0.2.14
+# shipped with APWORLD_VERSION still reading "0.2.13": the tag said one thing and every seed built
+# from it reported another, so a bug report could not tell the two releases apart. A gate that
+# checks one of four places is why that was invisible.
+#
+# These are the sites that must all equal -Version. Strict three-component semver, because Cargo's
+# version field will not parse "0.2.12.1" (the Nexus LABEL is free text; the number is not).
+$verSites = @(
+    @{ Path = (Join-Path $Repo "greenfield\eldenring\contract.py");
+       Rx   = '^APWORLD_VERSION\s*=\s*"([0-9]+(?:\.[0-9]+)+)"'; What = "contract.py APWORLD_VERSION" },
+    @{ Path = (Join-Path $Repo "from-software-archipelago-clients\crates\eldenring-archipelago\Cargo.toml");
+       Rx   = '^version\s*=\s*"([0-9]+(?:\.[0-9]+)+)"'; What = "client Cargo.toml version"; Optional = $true }
+)
+foreach ($site in $verSites) {
+    if (-not (Test-Path $site.Path)) {
+        if ($site.Optional) {
+            # The client is a submodule: legitimately absent in a world-only checkout. SKIP LOUDLY --
+            # a silent skip is the same unchecked site by another route.
+            Write-Host ("  version:   SKIP " + $site.What + " -- not checked out at " + $site.Path) -ForegroundColor Yellow
+            continue
+        }
+        throw ("package_release: version site missing -- " + $site.What + " at " + $site.Path +
+               ". Fix the path rather than dropping the check; an unchecked site is how v0.2.14 " +
+               "shipped stamped 0.2.13.")
+    }
+    $m = (Select-String -Path $site.Path -Pattern $site.Rx | Select-Object -First 1)
+    if (-not $m) {
+        throw ("package_release: could not read a version out of " + $site.What +
+               ". The pattern no longer matches -- a silently unmatched regex is an unchecked site.")
+    }
+    $siteVer = $m.Matches[0].Groups[1].Value
+    if ($siteVer -ne $Version) {
+        throw ("package_release: " + $site.What + " is v$siteVer but this build is v$Version. " +
+               "Every seed would report v$siteVer, so a bug report could not tell this release " +
+               "from that one -- exactly how v0.2.14 shipped stamped 0.2.13. Bump it, or pass " +
+               "-Version $siteVer if that is the build you meant.")
+    }
+    Write-Host ("  version:   " + $site.What + " is v$siteVer, matches the build") -ForegroundColor DarkGray
+}
+
 $Warnings = New-Object System.Collections.Generic.List[string]
 
 function Info($m) { Write-Host "[pkg]  $m" }
