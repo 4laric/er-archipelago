@@ -1,7 +1,8 @@
 # SPEC — make rune yield track enemy scaling
 
-**Status:** root cause MEASURED, implementation path clear, **one design call outstanding and it is
-Alaric's.** Written 2026-07-28 from a player report.
+**Status:** root cause MEASURED and the reported number located EXACTLY. **Two levers, not one** -- see §6, which SUPERSEDES §2-§5's single-lever reading. One design call outstanding and it is
+Alaric's. Written 2026-07-28 from a player report; §6 added the same day after exhausting the
+static sources.
 
 > **ShadowTL, Nexus, 2026-07-28:** *"Is it also possible to adjust the amount of runes that you get
 > from enemies so that it fit the scaling. Its a bit odd that u get 120.000 runes from Adula when
@@ -25,7 +26,10 @@ out of `SpEffectParam.csv` (now in `gen_inputs.db`, so this is checkable in the 
 has never touched rune yield. That is the whole defect — nothing is overriding rune values, they are
 simply never in scope.
 
-## 2. Which field — `haveSoulRate`, and the data says so
+## 2. Which field for ORDINARY ENEMIES — `haveSoulRate`
+
+🛑 This section is right about trash mobs and WRONG about the reported case. Bosses do not pay
+from this field at all — §6.
 
 Both candidate columns exist, and they are not interchangeable:
 
@@ -110,3 +114,63 @@ Small, and on a trodden path:
    Alaric's.
 3. Rune economy touches the early-game knife edge ([`gf-early-economy-floor-knife-edge`]). Any change
    here wants the same-seed A/B probe that memory already prescribes.
+
+---
+
+## 6. ⭐ CORRECTION — boss runes are a DIFFERENT table, and the reported number is in it
+
+Everything above concerns `NpcParam.getSoul`, which `haveSoulRate` multiplies. **Bosses do not use
+it.** Measured:
+
+- **315 `NpcParam` rows carry `isSoulGetByBoss` with `getSoul = 0`.** A boss's runes are paid by the
+  boss-reward path, not by the carried-runes field.
+- The largest `getSoul` in the entire param is **50,000** — no enemy row can pay 120,000.
+
+Boss runes live in **`GameAreaParam`**, keyed by BOSS ENTITY ID, in `bonusSoul_single` /
+`bonusSoul_multi`. 216 rows — the same 216 boss arenas `game_areas.tsv` already knows.
+
+**The reported number is there, exactly:**
+
+| entity id | greenfield's name for it | bonusSoul_single |
+|---|---|---|
+| `1034420800` | **Glintstone Dragon Adula** | **120000** |
+| `1034500800` | Glintstone Dragon Adula (2nd) | 12000 |
+
+Not a coincidental match — the join is general. 195 of the 244 ids in `boss_healthbars.py` resolve
+to a `GameAreaParam` row, and the values read exactly as you would expect: Elden Beast 500,000,
+Radahn (Consort) 500,000, Bayle 490,000, Malenia 480,000, Mohg 420,000, Godfrey 300,000.
+(The 49 non-joining ids want a look before anyone relies on totality — likely shared arenas and
+multi-phase entries.)
+
+### What this changes
+
+**There are two levers and they cover disjoint populations:**
+
+| population | lever | reaches the report? |
+|---|---|---|
+| ordinary enemies | `haveSoulRate` on the applied `70xx` scaling SpEffect (multiplies `getSoul`) | no |
+| **bosses** | **`GameAreaParam.bonusSoul_single` / `_multi`, per entity id** | **yes — this is Adula's 120,000** |
+
+So a `haveSoulRate`-only implementation would ship, log green, and leave the exact complaint that
+prompted it untouched. Worth stating plainly because it is the shape of bug this repo keeps
+catching: the fix works, on a population nobody was complaining about.
+
+### Why the boss lever is the easier one
+
+- It is keyed by **entity id**, which the client already handles (`boss_felled`, the sweep payout).
+- It is a **direct value**, not a multiplier — so "what should this boss pay in a tier-2 region" is
+  expressible without inventing a curve, and it can go DOWN, which is what normalising an
+  early-met late-game boss actually requires (§4's option B).
+- Same param-rewrite path as everything else (`SoloParamRepository::instance_mut`).
+
+### Static sources now exhausted
+
+Nothing above needed an in-game probe, and the two claims that would have are settled from data:
+`soulRate` is player-side (Gold Scarab, +20% runes, is `soulRate` 1.2), and the `74xx` family is
+vanilla's NG+ enemy scaling (`NpcParam.GameClearSpEffectID` references all 21 rows — "GameClear",
+applied per-NPC, HP and rune yield raised together). The DLC equivalent is the `20007xxx` ladder,
+which appears in the same column.
+
+**The one thing left for the live oracle** is no longer a discovery but a confirmation: that
+rewriting `bonusSoul_single` at runtime actually changes the payout, and whether it must be written
+before the arena loads. That is a shipping check, not a question about where the number lives.
