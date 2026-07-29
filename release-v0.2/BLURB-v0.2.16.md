@@ -15,6 +15,8 @@
   checks pay out — gear, upgrade stones, runes, throwables. Edit the weights, or delete the block to
   follow the default. It was hidden because a stale copy had once shipped an old economy; there is a
   test holding it to the code now, which is what makes showing it safe.
+  📖 **Full documentation: [What fills your junk checks](https://github.com/4laric/er-archipelago/blob/main/Elden-Ring-Archipelago-Player-Guide.md#what-fills-your-junk-checks)** — every weight, what the upgrade
+  economy reserves, and how to steer which gear you get.
 - **`pool_builder_intensity` works again.** It sets how good a piece of gear has to be to count as
   "juice": `max` (default), `high`, `normal`.
   ⚠️ **A higher floor means LESS gear, not better gear** — it is a smaller catalog and the surplus
@@ -32,6 +34,11 @@
 ## Long version (release notes)
 
 ### The dial you could not see
+
+> 📖 Player documentation for all of this lives in the Player Guide, under
+> **[What fills your junk checks](https://github.com/4laric/er-archipelago/blob/main/Elden-Ring-Archipelago-Player-Guide.md#what-fills-your-junk-checks)** — it covers the full recipe, the upgrade-economy
+> reservation, `pool_builder_intensity`, and the `pool_builder_pct_*` category steering.
+> The guide ships in the release zip as `Elden-Ring-Archipelago-Player-Guide.md`.
 
 `curated_filler` is the single most useful thing in the yaml and it was not in the yaml. It sets the
 weights for what fills every check that is not holding something important: `juice` (real gear),
@@ -66,6 +73,7 @@ list means the generator runs out and the leftover slots become ordinary junk. O
 put 1518 catalog-grade items in the pool, `high` 872, `normal` 230. `normal` is the connoisseur
 setting and you pay for it in quantity everywhere else. If you want *more* gear, raise the `juice`
 weight in `curated_filler`; that is the knob for volume.
+(Written up in full in the guide: [What fills your junk checks](https://github.com/4laric/er-archipelago/blob/main/Elden-Ring-Archipelago-Player-Guide.md#what-fills-your-junk-checks).)
 
 ### Four options that described a machine that is gone
 

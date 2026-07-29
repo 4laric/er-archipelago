@@ -129,6 +129,8 @@ run rather than tune it.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Shrink the list for a tighter, more predictable
   hunt; widen it to scatter key items further afield.
+- **`pool_builder_intensity`** -- how good gear must be to count as juice.
+  A HIGHER floor means LESS gear, not better. See "What fills your junk checks".
 - **`curated_filler`** -- what fills your junk checks. See "What fills your
   junk checks" below; the short version is that about two fifths of your
   filler is already real gear, and this recipe is the dial.
@@ -232,7 +234,7 @@ seeds also place a batch of low-tier smithing stones within reach of the start,
 enough for an early +3 (it is clamped to what the pool can spare, so a recipe
 with no stones in it has none to place).
 
-Two ways to change the mix:
+Three ways to change the mix:
 
 - **Reweight the recipe.** More gear: raise `juice` -- up to a point, since the
   curated list holds about 1013 items good enough to qualify and the default
@@ -250,6 +252,21 @@ Two ways to change the mix:
   best-first from every category and yields the *most* gear;
   `{weapons: 3, spells: 1}` yields about a quarter less. The generation log
   names any shortfall.
+- **Raise the bar with `pool_builder_intensity`.** This decides how GOOD a piece
+  of gear has to be before it counts as `juice` at all:
+
+      max     (default)  legendary, rare and the tier below -- 1013 items
+      high               legendary and rare -- 536 items
+      normal             legendary only -- 149 items
+
+  **Read the direction carefully, because the name points the wrong way: a
+  higher floor gives you LESS gear, not better gear.** It shortens the list
+  without changing how many gear slots the recipe asks for, so the generator
+  runs out and the leftover slots become ordinary junk -- the log says so by
+  name when it happens. Measured on one seed: `max` put 1518 catalog-grade
+  items in the pool, `high` 872, `normal` 230. `normal` is the connoisseur
+  setting and you pay for it in volume everywhere else. If what you want is
+  *more* gear, raise `juice` in the recipe; that is the dial for quantity.
 
 Filler gear is marked useful, not progression, and none of these dials can put
 a progression item into the tail or take one out of it -- so no amount of recipe

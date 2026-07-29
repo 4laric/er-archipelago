@@ -7,6 +7,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### The filler pool is yours to tune
 
+> 📖 Player documentation: [What fills your junk checks](https://github.com/4laric/er-archipelago/blob/main/Elden-Ring-Archipelago-Player-Guide.md#what-fills-your-junk-checks) in the Player Guide.
+
 `curated_filler` is back in the shipped `EldenRing.yaml`, written out with the real default weights
 so you can see and edit them. It is the game's main dial for what fills your junk checks — how much
 gear (`juice`), how many upgrade stones, how many runes — and a template that hides it hides the
