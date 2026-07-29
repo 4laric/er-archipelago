@@ -3,6 +3,55 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.17 — 2026-07-29
+
+### How much of a region an unlock opens
+
+`region_grace_unlock` decides how many Sites of Grace a region unlock lights.
+
+| value | what it lights | total across the map |
+|---|---|---|
+| `all` (default) | every warp point in the region — Liurnia is 59 at once | 338 |
+| `landmarks` | one per sub-area, using the warp menu's own grouping | 47 |
+| `entrance` | the region's front door only | 27 |
+
+`landmarks` resolves Liurnia to Lake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and
+Ruin-Strewn Precipice — its four real chunks. The partition is the **game's own**
+(`BonfireWarpParam.bonfireSubCategoryId`), not a hand list, so it is uneven on purpose: a few
+regions (Gravesite, Scadu Altus, Weeping) have a single sub-area and behave the same as `entrance`.
+
+Nothing here can strand you or move an item. Region unlocks are still the only progression, every
+check stays where it was, and a grace you were not handed is still reachable on foot and still
+unlocks by touching it. Regions behind a wall the game itself enforces — the Academy seal, the
+capital's Great Rune gate, the sewer — hand out nothing under any value.
+
+Requested by **dafranky67**.
+
+### Fixed: the tutorial Grafted Scion paid out 36 Stormveil checks
+
+The game buckets `m10_01` — the ruined Chapel of Anticipation intro — under Stormveil, so the
+generator counted the intro Grafted Scion as one of Stormveil's legacy bosses and handed it a
+round-robin slice of the region's sweep pool. Killing an optional tutorial boss in the first few
+minutes therefore paid out three dozen Stormveil Castle checks.
+
+**Scope, honestly: those 36 are all ordinary filler.** Sweep pools are filler-only by construction —
+Remembrances, key items, Great Runes, boss rewards, legendaries and shop slots are cut before a sweep
+is ever built, and all 36 of these carried no important tag at all. So this was an early dump of junk
+and consumables, not a progression break. Stormveil's pool is unchanged in total; it now divides
+between its two real bosses (Godrick and Margit) instead of three.
+
+The Scion's own drop, the Ornamental Straight Sword, is a normal check and is untouched.
+
+### Also
+
+- **The AP flower icon can be built again.** `build_ap_icon.py` was lost in July 2026 and the
+  placeholder has worn a vanilla Telescope ever since. The generator is rewritten, the flower art is
+  in the repo, `build.ps1` builds the override instead of printing a command, and `package_release`
+  now refuses to ship a bundle without it. (No visual change until a build stages the texture.)
+- The client re-applies the AP icon after a load. It writes an icon param that loads revert, and it
+  was the only such writer that never re-armed — so flowered shop slots fell back to a telescope
+  after the first load of a session.
+
 ## v0.2.16 — 2026-07-28
 
 ### The filler pool is yours to tune
