@@ -129,6 +129,9 @@ run rather than tune it.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Shrink the list for a tighter, more predictable
   hunt; widen it to scatter key items further afield.
+- **`region_grace_unlock`** -- how many Sites of Grace a region unlock hands
+  you. `all` (default) lights every warp point in the region; `entrance` lights
+  only the way in and you walk to the rest.
 - **`pool_builder_intensity`** -- how good gear must be to count as juice.
   A HIGHER floor means LESS gear, not better. See "What fills your junk checks".
 - **`curated_filler`** -- what fills your junk checks. See "What fills your
@@ -198,6 +201,25 @@ of an escalating one.
 > with a message -- it won't silently ignore them. The ramp also **flipped
 > direction**: the old `completion_scaling_ramp: 25` is the new
 > `difficulty_ramp_speed: 75`.
+
+## How much of a region an unlock opens
+
+When a region unlocks, it lights that region's Sites of Grace so you can fast
+travel into it. By default it lights **all** of them -- which for Liurnia means
+59 warp points at once, Caelid 38, Limgrave 28. That is convenient, and it also
+makes a region you have never walked read as already explored.
+
+`region_grace_unlock: entrance` lights only the region's front door instead --
+Lake-Facing Cliffs for Liurnia, Church of Elleh for Limgrave, Gateside Chamber
+for Stormveil. Every other grace is still there and still yours the moment you
+touch it, the vanilla way.
+
+This cannot strand you and cannot cost you an item. Region unlocks are still the
+only progression, every check stays exactly where it was, and a grace you have
+not been handed is reachable on foot. It is purely about pacing. Regions that
+sit behind a wall the game itself enforces -- the Academy seal, the capital's
+Great Rune gate, the sewer -- hand out nothing under either setting; you walk in
+the way the game intends.
 
 ## What fills your junk checks
 

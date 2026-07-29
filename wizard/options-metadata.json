@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "07a1778a6fe283e3197e268d3677be4bc007f98f3e4f038dd74aec2e209313d2",
+ "source_sha256": "3f066ad28af622c96bafbed22d3ab771525bd39919b779a3f9232af08078ca3d",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -22,6 +22,7 @@
   "pool_builder_pct_talismans",
   "pool_builder_pct_ashes_of_war",
   "filler_foreign_pct",
+  "region_grace_unlock",
   "leyndell_runes_required",
   "progressive_flasks",
   "local_item_only",
@@ -56,6 +57,7 @@
   "pool_builder_pct_talismans",
   "pool_builder_pct_ashes_of_war",
   "filler_foreign_pct",
+  "region_grace_unlock",
   "leyndell_runes_required",
   "progressive_flasks",
   "local_item_only",
@@ -291,10 +293,10 @@
    "key": "pool_builder_intensity",
    "class": "PoolBuilderIntensity",
    "display_name": "Pool Builder Intensity",
-   "description": "How good a piece of gear has to be before it counts as `juice`.\n\nnormal -- legendary only.  high -- legendary + rare.  max (default) -- also B-tier.\n\n🛑 A HIGHER FLOOR MEANS LESS GEAR, NOT BETTER GEAR. Each level is a strictly smaller catalog, and\nthe `juice` weight in curated_filler is unchanged -- so raising the floor asks for the same number\nof items out of a smaller list and the surplus spills to junk, exactly like over-weighting one\ncategory. `max` yields the most; `normal` is the connoisseur setting and costs you filler quality\neverywhere else.\n\n(Frozen and inert from the filler_budget refactor until 2026-07-28: it had become a constant,\nJUICE_FLOOR, because the option could not move. It is read again by filler_budget.juice_floor.)",
+   "description": "How good a piece of gear has to be before it counts as `juice`.\n\nnormal -- legendary only (~149 items).  high -- legendary + rare (~536).  max (default) -- also\nB-tier (~1013).\n\nA HIGHER FLOOR MEANS LESS GEAR, NOT BETTER GEAR. Each level is a strictly smaller catalog while\nthe `juice` weight in curated_filler is unchanged, so raising it asks for the same number of items\nout of a shorter list and the surplus spills to junk. Measured on one seed: max 1518 gear in the\npool, high 872, normal 230. It buys quality by paying quantity, which is the trade worth exposing.\n\n(Inert from the filler_budget refactor until 2026-07-28: it had become the constant JUICE_FLOOR\nbecause the option was frozen and could not move. filler_budget.juice_floor reads it again.)",
    "kind": "choice",
    "base": "Choice",
-   "default": "high",
+   "default": "max",
    "choices": [
     {
      "name": "normal",
@@ -418,6 +420,30 @@
     "start": 0,
     "end": 100
    },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "region_grace_unlock",
+   "class": "RegionGraceUnlock",
+   "display_name": "Region Grace Unlock",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla\nway. Liurnia lights 59 graces at once on `all`, Caelid 38, Limgrave 28, which is what makes the\nmap read as already-explored.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "all",
+   "choices": [
+    {
+     "name": "all",
+     "value": 0
+    },
+    {
+     "name": "entrance",
+     "value": 1
+    }
+   ],
+   "range": null,
    "valid_keys": null,
    "casefold": false,
    "group": null,

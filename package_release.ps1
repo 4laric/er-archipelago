@@ -394,6 +394,33 @@ foreach ($d in $Docs) {
 }
 
 # ---------------------------------------------------------------------------
+# 6b. Third-party binary gate -- we ship OUR binaries and nobody else's
+# ---------------------------------------------------------------------------
+# We point players at thefifthmatt's randomizer rather than redistribute it (PROVENANCE.md), and
+# his terms forbid shipping a modified fork. Players commonly run our DLL alongside third-party
+# ones -- RandomizerCrashFix.dll, RandomizerHelper.dll -- by dropping them in the same me3 natives
+# list. That is THEIR machine and entirely their business. The hazard is that a dev staging a
+# release from a working game folder sweeps those DLLs into our zip and we redistribute someone
+# else's binary without a licence to do it.
+#
+# ALLOWLIST, not a denylist. A list of known-bad names would pass the next third-party DLL nobody
+# thought of, which is the failure this gate exists to prevent. Anything binary in the stage that
+# is not ours stops the build; add it here deliberately, with a reason, or do not ship it.
+$OurBinaries = @(
+    "eldenring_archipelago.dll"   # our client, built from the sibling client repo
+)
+$Foreign = @()
+Get-ChildItem -Path $Stage -Recurse -File -Include *.dll,*.exe,*.asi | ForEach-Object {
+    if ($OurBinaries -notcontains $_.Name) {
+        $Foreign += $_.FullName.Substring($Stage.Length + 1)
+    }
+}
+if ($Foreign.Count -gt 0) {
+    Die ("refusing to package third-party binaries: " + ($Foreign -join ", ") + ". We redistribute only our own DLL (PROVENANCE.md); point players at the upstream download instead. If one of these is genuinely ours, add it to `$OurBinaries in package_release.ps1 with a reason.")
+}
+Info ("third-party binary gate: OK -- " + $OurBinaries.Count + " allowed binary name(s), 0 foreign.")
+
+# ---------------------------------------------------------------------------
 # 7. Manifest + zip
 # ---------------------------------------------------------------------------
 Info "----- bundle contents -----"

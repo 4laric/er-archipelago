@@ -132,6 +132,13 @@ Elden Ring:
     foods: 2
     boluses: 1
 
+  # How many Sites of Grace a region unlock lights.
+  #   all      (default) every warp point in the region -- Liurnia is 59 at once
+  #   entrance only the way in; you walk to and touch the rest, the vanilla way
+  # Cannot strand you and moves no item: unlocks are still the only progression
+  # and every check stays put. Purely pacing.
+  region_grace_unlock: all
+
   # How good a piece of gear has to be to count as `juice`.
   #   max (default) -- legendary, rare and B-tier: about 1013 items
   #   high          -- legendary and rare: about 536

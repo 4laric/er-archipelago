@@ -141,3 +141,74 @@ def test_scaling_floor_combinations_generate_clean(floor, label, extra):
                     "arm enemy scaling and leave every enemy vanilla." % (label, floor))
     assert all(len(t3) == 3 and t3[0] == t3[1] for t3 in ranges), (
         "%s @ floor=%d: malformed [lo, hi, target] triples" % (label, floor))
+
+
+# ---------------------------------------------------------------------------------------------
+# region_grace_unlock -- the combination sweep for single-grace mode (added 2026-07-29).
+#
+# CONTRIBUTING's headline gate: a new option must generate cleanly in combination with the ones it
+# can interact with. This one touches the grace BUNDLE, so what matters is what changes which
+# regions exist and which bundles are withheld -- num_regions and natural_progression. It moves no
+# item and gates nothing, so these assert exactly that rather than just "it genned".
+# ---------------------------------------------------------------------------------------------
+_GRACE_COMBOS = (
+    ("default",         "all",      {}),
+    ("entrance",        "entrance", {}),
+    ("entrance_small",  "entrance", {"num_regions": 6}),
+    ("entrance_natural","entrance", {"natural_progression": True}),
+)
+
+
+def _grace_world(mode, extra, seed=4242):
+    """A world at a PINNED seed.
+
+    The seed is not decoration. `setUp()` leaves the seed unset, so AP picks a fresh random one per
+    instantiation -- and the item-pool comparison below then diffs two different SEEDS and blames
+    the option. It failed exactly that way when first written ('Black Blade' != 'Bewitching Branch'
+    at index 329, pure filler RNG). Any cross-world comparison has to hold the seed fixed or it is
+    measuring noise."""
+    class _T(WorldTestBase):
+        game = GAME
+        options = dict(extra, region_grace_unlock=mode)
+    t = _T("runTest")
+    t.options = dict(extra, region_grace_unlock=mode)
+    t.world_setup(seed)
+    return t
+
+
+@pytest.mark.parametrize("label,mode,extra", _GRACE_COMBOS, ids=[c[0] for c in _GRACE_COMBOS])
+def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
+    from worlds.eldenring.features.graces import bundle_withheld
+    t = _grace_world(mode, extra)
+    try:
+        sd = t.world.fill_slot_data()
+        rg = sd["regionGraces"]
+        assert rg, "%s: no regionGraces emitted at all" % label
+        if mode == "entrance":
+            over = {k: len(v) for k, v in rg.items() if len(v) > 1}
+            assert not over, (
+                "%s: entrance mode granted more than one grace for %s -- the bundle is supposed to "
+                "be exactly the region's front door." % (label, over))
+        else:
+            assert sum(len(v) for v in rg.values()) > len(rg), (
+                "%s: `all` should grant many graces per region; the default changed" % label)
+        # The half that matters: entrance mode must never become a way past a wall.
+        leaked = [k for k in rg if rg[k] and bundle_withheld(t.world, k[: -len(" Lock")])]
+        assert not leaked, (
+            "%s: a gated child behind an armed wall was granted a grace anyway (%s). Entrance mode "
+            "must not open a door the `all` bundle deliberately withholds." % (label, leaked))
+    finally:
+        pass
+
+
+def test_entrance_mode_moves_no_item_and_no_check():
+    """A convenience setting: same checks, same pool, only the warp bundle differs."""
+    a = _grace_world("all", {}, seed=4242)
+    sd_a = a.world.fill_slot_data()
+    pool_a = sorted(i.name for i in a.multiworld.itempool if i.player == a.player)
+    e = _grace_world("entrance", {}, seed=4242)   # SAME seed -- see _grace_world
+    sd_e = e.world.fill_slot_data()
+    pool_e = sorted(i.name for i in e.multiworld.itempool if i.player == e.player)
+    assert sd_a["locationFlags"] == sd_e["locationFlags"], (
+        "region_grace_unlock changed the CHECK set -- it must only change which graces a lock lights")
+    assert pool_a == pool_e, "region_grace_unlock changed the ITEM POOL; it must not"

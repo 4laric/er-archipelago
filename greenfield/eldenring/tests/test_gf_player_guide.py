@@ -64,6 +64,8 @@ _NOT_OPTIONS = {
     # VALUES of pool_builder_intensity ("max" doubles as a dungeon_sweep-adjacent word, but all
     # three are option VALUES the guide has to name to explain the rarity floor).
     "normal", "high", "max",
+    # VALUES of region_grace_unlock ("all" is already above as a dungeon_sweep value)
+    "entrance",
 }
 
 

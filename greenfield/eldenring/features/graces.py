@@ -46,6 +46,8 @@ This RETIRES the two half-shipped grace gates that used to live here:
 Client contract: regionGraces (region.rs) {item_name: [grace_flag,...]} -- light on receipt of ANY
 keyed item. Keys are region Locks; a gated child's Lock maps to [] while its wall is armed.
 """
+from Options import Choice
+
 from ..registry import Feature, register
 from .. import contract
 from ..region_spine import REGION_PARENT
@@ -70,6 +72,12 @@ WALL_ARMED = {
 }
 
 
+def _entrance_only(world):
+    """True when this seed grants only each region's entrance grace."""
+    opt = getattr(getattr(world, "options", None), "region_grace_unlock", None)
+    return getattr(opt, "current_key", None) == "entrance"
+
+
 def bundle_withheld(world, region):
     """True when `region`'s grace bundle must NOT be granted on region-open this seed. Only gated
     children (REGION_PARENT) can be withheld; a child with no WALL_ARMED entry is withheld
@@ -81,9 +89,60 @@ def bundle_withheld(world, region):
     return True if armed is None else bool(armed(world))
 
 
+# ---- entrance-grace derivation -----------------------------------------------------------------
+# Warp-grace flags fall in blocks the game itself assigns: 71xxx legacy dungeon, 72xxx DLC legacy,
+# 73xxx cave/catacomb/tunnel, 76xxx OVERWORLD site-of-grace. The overworld block is numbered in
+# designer order per region (Limgrave 761xx, Liurnia 762xx, Altus 763xx, Caelid 764xx...), so its
+# lowest member is the region's front door. An interior-only region (Stormveil, Leyndell, Haligtree,
+# the rivers) has no 76xxx member at all, and there its lowest flag IS the entrance.
+#
+# 🛑 WHY NOT THE OBVIOUS TABLES. Two nearby ones look right and are not:
+#   * `region_open_flags.REGION_OPEN_FLAGS` is one flag per region and equals REGION_GRACE_POINTS[r][0]
+#     for all 30 -- but it is a region-OPEN DETECTION anchor, and it resolves to cave interiors
+#     (Limgrave -> Murkwater Cave, Liurnia -> Raya Lucaria Crystal Tunnel, Caelid -> Gael Tunnel).
+#     Granting those as "the grace at the start of the region" is worse than granting all of them.
+#   * `BonfireWarpParam.bonfireSubCategorySortId` is a real ordering, but it sorts within the WARP
+#     MENU's 55 subcategories, not our 30 regions -- a region spans several, so the minimum TIES in
+#     12 of 30 regions. Wrong arity, the same trap as [tiles span regions].
+# Verified by NAME over all 30 regions (BonfireWarpParam.textId1 -> PlaceName, 351/351 resolve):
+# Liurnia -> Lake-Facing Cliffs, Weeping -> Church of Pilgrimage, Limgrave -> Church of Elleh,
+# Stormveil -> Gateside Chamber, Leyndell -> East Capital Rampart. test_gf_grace_entrance pins them.
+_OVERWORLD_LO, _OVERWORLD_HI = 76000, 77000
+
+
+def entrance_grace(flags):
+    """The one warp grace that IS the way into a region. `flags` must be non-empty."""
+    if not flags:
+        raise ValueError("entrance_grace() on an empty grace set -- callers must skip empty regions")
+    overworld = [f for f in flags if _OVERWORLD_LO <= f < _OVERWORLD_HI]
+    return min(overworld) if overworld else min(flags)
+
+
+class RegionGraceUnlock(Choice):
+    """How many of a region's Sites of Grace a region unlock hands you.
+
+    all (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.
+    entrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla
+    way. Liurnia lights 59 graces at once on `all`, Caelid 38, Limgrave 28, which is what makes the
+    map read as already-explored.
+
+    🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only
+    progression, every check stays exactly where it was, and a grace you have not been handed is
+    still reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.
+    A region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under
+    either value -- entrance mode must never become a way past a wall.
+    """
+    display_name = "Region Grace Unlock"
+    option_all = 0
+    option_entrance = 1
+    default = 0                      # vanilla-to-this-apworld behaviour: no change
+
+
 @register
 class RegionGracesFeature(Feature):
     name = "region_graces"
+
+    OPTIONS = {"region_grace_unlock": RegionGraceUnlock}
 
     def slot_data(self, world):
         kept = set(world._kept())
@@ -95,5 +154,11 @@ class RegionGracesFeature(Feature):
             # child with its wall armed, whose bundle is withheld (module docstring). [] and not
             # key-absence: the client warns about a genuine lock with NO regionGraces entry, and
             # this one is intended.
-            region_graces[f"{r} Lock"] = [] if bundle_withheld(world, r) else list(fs)
+            if bundle_withheld(world, r):
+                bundle = []                       # gated child behind an armed wall: grant nothing
+            elif _entrance_only(world):
+                bundle = [entrance_grace(fs)]     # the front door only; walk to the rest
+            else:
+                bundle = list(fs)
+            region_graces[f"{r} Lock"] = bundle
         return {contract.REGION_GRACES: region_graces}
