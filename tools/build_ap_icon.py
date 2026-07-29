@@ -39,11 +39,43 @@ def die(msg):
     raise SystemExit("build_ap_icon: FATAL: " + msg)
 
 
-def need_tool(name, hint):
-    exe = shutil.which(name)
-    if not exe:
-        die("%s not on PATH. %s" % (name, hint))
-    return exe
+def find_witchy(explicit=None):
+    """Locate WitchyBND without requiring anyone to edit PATH.
+
+    It already ships inside this project: elden_ring_artifacts\\WitchyBND.exe, with
+    oo2core_6_win64.dll beside it -- that dll IS the Oodle codec these KRAK atlases need, and
+    tools/datamine_merchant_shops.py already documents invoking it from there. So look in the
+    obvious places before demanding a PATH entry.
+    """
+    tried = []
+    cands = []
+    if explicit:
+        cands.append(explicit)
+    if os.environ.get("WITCHYBND"):
+        cands.append(os.environ["WITCHYBND"])
+    for name in ("WitchyBND.exe", "witchybnd.exe", "WitchyBND", "witchybnd"):
+        cands.append(os.path.join(REPO, "elden_ring_artifacts", name))
+    for name in ("witchybnd", "WitchyBND", "witchybnd.exe", "WitchyBND.exe"):
+        found = shutil.which(name)
+        if found:
+            cands.append(found)
+    for c in cands:
+        tried.append(c)
+        if c and os.path.isfile(c):
+            _warn_if_no_oodle(c)
+            return c
+    die("WitchyBND not found. It supplies the Oodle/KRAK codec these atlases need; this script "
+        "deliberately does not implement DCX. Looked at:\n  " + "\n  ".join(tried) +
+        "\nPass --witchy <path>, set WITCHYBND, or drop it in elden_ring_artifacts\\.")
+
+
+def _warn_if_no_oodle(witchy_exe):
+    """KRAK needs oo2core beside witchy. Absent, the unpack fails with a confusing error -- say so
+    up front rather than letting it surface as 'witchybnd -u failed'."""
+    d = os.path.dirname(os.path.abspath(witchy_exe))
+    if not any(f.lower().startswith("oo2core") for f in os.listdir(d) if os.path.isfile(os.path.join(d, f))):
+        print("build_ap_icon: WARNING no oo2core*.dll beside %s -- these atlases are DCX/KRAK "
+              "(Oodle) and the unpack will fail without it." % witchy_exe, file=sys.stderr)
 
 
 def unpack(witchy, src, workdir):
@@ -162,6 +194,7 @@ def main():
     ap.add_argument("--cell-index", type=int, help="0-based cell index within --sheet")
     ap.add_argument("--out", default=os.path.join(REPO, "build", "ap_icon01", "menu"))
     ap.add_argument("--work", default=os.path.join(REPO, "build", "ap_icon01", "_work"))
+    ap.add_argument("--witchy", help="path to WitchyBND.exe (default: elden_ring_artifacts, then PATH)")
     ap.add_argument("--probe", action="store_true", help="report the atlas layout, write nothing")
     ap.add_argument("--icon01", action="store_true", help="accepted for the inherited command line")
     ap.add_argument("--black-to-alpha", action="store_true",
@@ -174,8 +207,8 @@ def main():
         die("no menu directory at %s" % a.menu)
     if not os.path.isfile(a.art):
         die("no art at %s (expected the committed flower; see tools/ap_icon_src/README.md)" % a.art)
-    witchy = need_tool("witchybnd", "It supplies the Oodle/KRAK codec these atlases need; this "
-                                    "script deliberately does not implement DCX.")
+    witchy = find_witchy(a.witchy)
+    print("build_ap_icon: using witchy at %s" % witchy, file=sys.stderr)
     if a.black_to_alpha and not a.force_black_to_alpha:
         print("build_ap_icon: NOTE --black-to-alpha ignored (art already has an alpha channel). "
               "Pass --force-black-to-alpha to override.", file=sys.stderr)
