@@ -124,6 +124,20 @@ jobs:
           python tools/fill_regression.py --selftest
           python tools/fill_regression.py --count 8 --seed-base 20260727 --jobs 4
 
+      # MULTIWORLD. Everything above generates ONE world, so every claim about how Elden Ring
+      # behaves BESIDE another game had only ever been argued. On 2026-07-28 that cost a real
+      # answer: a review reported that natural_progression keys never leave their own world, which
+      # is true in a single-player harness and false in a multiworld -- and nothing here could tell
+      # the two apart. Two ER slots beside two Hollow Knight slots (ships with AP, pure Python, no
+      # ROM). Exits 4 = SKIP when the partner world is absent; this job checks out stock upstream in
+      # full, so it runs.
+      - name: Multiworld smoke (2x Elden Ring + 2x Hollow Knight)
+        run: |
+          python tools/gf_multiworld_smoke.py --ap-dir _ap
+          rc=$?
+          if [ "$rc" = "4" ]; then echo "::warning::multiworld smoke SKIPPED -- partner world absent"; fi
+          test "$rc" = "0" -o "$rc" = "4"
+
   # ---------------------------------------------------------------------------------------------
   # 2. The AP-FREE generators. These need no Archipelago and no game artifacts -- only committed
   #    greenfield data -- so CI can run them, and they are precisely what broke the Windows build.
