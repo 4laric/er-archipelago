@@ -59,7 +59,19 @@ _GOODS_NIBBLE = 0x40000000
 # the shop_preview display override exactly like a foreign item, and therefore needs a spare of its
 # own. This MIRRORS the client's scout_proof `er_sell_id` filter; the client half is the one that
 # decides, so keep this in step with it (crates/eldenring-archipelago/src/scout_proof.rs).
-_SELLABLE_NIBBLES = frozenset((0x00000000, 0x10000000, 0x20000000, _GOODS_NIBBLE))
+_GEM_NIBBLE = 0x80000000
+# GEMS (Ashes of War) ARE natively sellable -- added 2026-07-29. This set excluded them on the
+# premise that ShopLineupParam has "no equipType" for a gem. That premise is false: vanilla ships
+# 135 rows with equipType=4, i.e. merchants sell Ashes of War in the base game.
+#
+# The cost of the mistake was not one wasted spare. A gem fell through to the preview override, so
+# every own-world Ash of War wore the AP flower and drew a spare row -- and only 25 of the 65 spares
+# carry GoodsInfo/GoodsCaption, so those slots rendered `?GoodsInfo?` too. Measured on a SOLO seed
+# (no foreign items at all): 65 slots repointed to spares, the entire pool exhausted, essentially
+# all of it gems. Alaric, in game: "no reason to be doing AP Flower on an ash of war".
+# Selling them natively gives the real name, icon and description and returns the pool to the
+# slots that genuinely need it.
+_SELLABLE_NIBBLES = frozenset((0x00000000, 0x10000000, 0x20000000, _GOODS_NIBBLE, _GEM_NIBBLE))
 # Synthetic goods rows (the AP-injected band) are excluded by the client's filter too.
 _SYNTHETIC_GOODS_MIN_ID = 3_780_000
 
@@ -77,9 +89,22 @@ def _client_can_sell(item_name):
     full = ITEM_CATALOG.get(item_name)
     if full is None:
         return False
-    if (full & 0x0FFFFFFF) >= _SYNTHETIC_GOODS_MIN_ID:
+    nibble = full & 0xF0000000
+    # 🛑 THE SYNTHETIC FLOOR IS GOODS-ONLY. This applied it to EVERY category, and weapon/protector
+    # row ids routinely sit above it -- Sacrificial Axe is row 14,110,000 and Oathseeker Knight
+    # Greaves 5,000,300 against a floor of 3,780,000. So essentially every weapon and armour piece
+    # was reported unsellable, fell through to the shop_preview override, and drew a spare row:
+    # measured on a solo seed, 64 weapons + 11 protectors doing exactly that, exhausting the pool.
+    # That is why an item the client WAS selling natively still wore the AP flower, and why the
+    # spare pool was so oversubscribed that most slots got a row with no GoodsInfo/GoodsCaption.
+    #
+    # The client has always had it right -- er_codec::is_synthetic_goods is
+    # `category == GOODS && row > MIN`, and its comment says so: "a real item in any other category
+    # is never synthetic, regardless of how large its id is". This function's own docstring claims
+    # to MIRROR that filter. It had drifted, and nothing compared the two.
+    if nibble == _GOODS_NIBBLE and (full & 0x0FFFFFFF) >= _SYNTHETIC_GOODS_MIN_ID:
         return False
-    return (full & 0xF0000000) in _SELLABLE_NIBBLES
+    return nibble in _SELLABLE_NIBBLES
 
 # Dedicated spare EquipParamGoods rows for REGION-LOCK and FOREIGN-item shop previews. Each is a row
 # that EXISTS (so the client can write its FMG/icon), has the [ERROR] placeholder name (no real name to
@@ -146,7 +171,24 @@ class Shops(Feature):
         # the client names/flowers it without touching any real good. Locks are unique items, so one
         # spare per lock NAME (sorted for determinism) suffices; lock names are built exactly as in
         # core.set_rules (`f"{r} Lock"` over _kept()), so they match the placed item names.
-        lock_names = sorted(f"{r} Lock" for r in world._kept())
+        # 🛑 RESERVE FOR LOCKS THAT ACTUALLY LAND ON A SHOP SLOT, NOT FOR EVERY KEPT REGION.
+        # This used to enumerate `f"{r} Lock" for r in world._kept()` -- ~30 names -- and hand each a
+        # spare up front, so `_free` began at index ~30. Only the first 25 pool rows carry
+        # GoodsInfo/GoodsCaption (spare_goods.tsv orders them first), so every FOREIGN slot drew an
+        # undescribable row and rendered `?GoodsInfo?`, while ~28 describable rows sat reserved for
+        # locks that were never on a shelf. Seen in the wild 2026-07-29: names=10 infos=2, and the
+        # 2 was exactly the number of locks that DID land on shop slots.
+        # So: find the lock names really sitting on shop checks first, and reserve only those.
+        _shop_lock_names = set()
+        for _loc in world.multiworld.get_locations(world.player):
+            _aid = getattr(_loc, "address", None)
+            if _aid is None or str(_aid) not in preview:
+                continue
+            _it = getattr(_loc, "item", None)
+            if _it is not None and getattr(_it, "player", None) == world.player \
+                    and _it.name.endswith(" Lock"):
+                _shop_lock_names.add(_it.name)
+        lock_names = sorted(_shop_lock_names)
         name_to_preview = {nm: (_LOCK_PREVIEW_SPARE_GOODS[i] | _GOODS_NIBBLE)
                            for i, nm in enumerate(lock_names)
                            if i < len(_LOCK_PREVIEW_SPARE_GOODS)}
