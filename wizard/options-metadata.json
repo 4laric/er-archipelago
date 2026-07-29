@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d7fc324cc91d155aaaaee2add3778d03df7c7603c821d140708bb178212b47f2",
+ "source_sha256": "21759ca676f1f49184c713d0ad82a2bf42d083332114fba8dbf4d3d655c80337",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -10,6 +10,7 @@
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "dungeon_sweep",
   "capital_reconciler",
   "death_link",
   "reroll_enemy_drops",
@@ -42,6 +43,7 @@
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "dungeon_sweep",
   "capital_reconciler",
   "death_link",
   "reroll_enemy_drops",
@@ -182,6 +184,38 @@
    "group_collapsed": false
   },
   {
+   "key": "dungeon_sweep",
+   "class": "DungeonSweep",
+   "display_name": "Dungeon Sweep",
+   "description": "Which dungeons grant their loot in a sweep when their boss is killed. none disables sweeps;\nall covers minidungeons + legacy dungeons + castles; bosses adds field bosses. (Sweep triggers\npending EMEVD enrichment -- see module docstring.)",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "all",
+   "choices": [
+    {
+     "name": "none",
+     "value": 0
+    },
+    {
+     "name": "minidungeons",
+     "value": 1
+    },
+    {
+     "name": "all",
+     "value": 2
+    },
+    {
+     "name": "bosses",
+     "value": 3
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
    "key": "capital_reconciler",
    "class": "CapitalReconciler",
    "display_name": "Capital Version Reconciler",
@@ -234,8 +268,8 @@
    "kind": "dict",
    "base": "OptionDict",
    "default": {
-    "juice": 44,
-    "stones": 27,
+    "juice": 42,
+    "stones": 29,
     "somber_stones": 6,
     "runes": 10,
     "throwables": 6,
@@ -255,7 +289,7 @@
    "key": "pool_builder_pct_weapons",
    "class": "PoolBuilderPctWeapons",
    "display_name": "Pool Builder % Weapons",
-   "description": "Share of the Rune tail Pool Builder fills with weapon juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for weapon gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -273,7 +307,7 @@
    "key": "pool_builder_pct_armor",
    "class": "PoolBuilderPctArmor",
    "display_name": "Pool Builder % Armor",
-   "description": "Share of the Rune tail Pool Builder fills with armor juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for armor gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -291,7 +325,7 @@
    "key": "pool_builder_pct_spells",
    "class": "PoolBuilderPctSpells",
    "display_name": "Pool Builder % Spells & Incantations",
-   "description": "Share of the Rune tail filled with sorcery + incantation juice (the community tier list rates\nboth under one SPELL category). See the per-category percent notes on the other % options.",
+   "description": "Relative weight for spell gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk. Spells have the SMALLEST catalog, so weighting them spills the most.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -309,7 +343,7 @@
    "key": "pool_builder_pct_talismans",
    "class": "PoolBuilderPctTalismans",
    "display_name": "Pool Builder % Talismans",
-   "description": "Share of the Rune tail Pool Builder fills with talisman juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for talisman gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -327,7 +361,7 @@
    "key": "pool_builder_pct_ashes_of_war",
    "class": "PoolBuilderPctAshesOfWar",
    "display_name": "Pool Builder % Ashes of War",
-   "description": "Share of the Rune tail Pool Builder fills with ash-of-war juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for Ash of War gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,

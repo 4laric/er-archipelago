@@ -129,10 +129,9 @@ run rather than tune it.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Shrink the list for a tighter, more predictable
   hunt; widen it to scatter key items further afield.
-- **`curated_filler` / `pool_builder_pct_*`** -- shape the junk end of the
-  pool. The recipe weights which consumables fill it; the percentages trade
-  part of it for real gear (weapons, armor, talismans, spells, Ashes of War),
-  best-first by community tier list. Your junk checks are less junky.
+- **`curated_filler`** -- what fills your junk checks. See "What fills your
+  junk checks" below; the short version is that about two fifths of your
+  filler is already real gear, and this recipe is the dial.
 - **`dungeon_sweep`** -- what killing a dungeon boss hands you. `all` (default)
   sweeps that dungeon's remaining checks so you never crawl back for two chests
   you missed; `bosses` extends it to field bosses; `minidungeons` narrows it;
@@ -197,6 +196,61 @@ of an escalating one.
 > with a message -- it won't silently ignore them. The ramp also **flipped
 > direction**: the old `completion_scaling_ramp: 25` is the new
 > `difficulty_ramp_speed: 75`.
+
+## What fills your junk checks
+
+Most checks in a seed hand out something forgettable. This is the system that
+decides what kind of forgettable -- and by default, a decent chunk of it isn't
+forgettable at all.
+
+Every check that would otherwise pay a Rune, plus every check holding a junk
+consumable, goes into one pool called the filler tail. One recipe spends that
+whole pool: `curated_filler`. The shipped weights:
+
+    juice: 44          # rare & legendary gear -- weapons, armor, spells,
+                       # talismans, Ashes of War
+    stones: 27         # Smithing Stones
+    somber_stones: 6   # Somber Smithing Stones
+    runes: 10          # Golden / Lord's / Hero's / Numen's Runes
+    throwables: 6
+    pots: 4
+    greases: 3
+    foods: 2
+    boluses: 1
+
+Weights are relative, not percentages -- they need not sum to anything. On the
+shipped recipe roughly **two fifths of your filler tail is real gear**, drawn
+best-first from a curated PvE tier list. That is the default. You do not turn
+it on.
+
+The upgrade economy is paid first. `stones`, `somber_stones` and `runes` are a
+reservation taken off the top and never scaled down; everything else splits
+what is left. A seed too small to afford its own reservation fails at
+generation with a message rather than shipping you a run where you cannot
+upgrade a weapon. Every seed also guarantees a batch of low-tier smithing
+stones reachable from the start -- enough for an early +3.
+
+Two ways to change the mix:
+
+- **Reweight the recipe.** More gear: raise `juice`. More upgrade materials:
+  raise `stones`. Want your junk to stay junk? Weight `junk`, which means
+  "keep whatever the check already paid". An empty recipe is honoured -- and
+  warns loudly, because it means no gear and no upgrade economy at all.
+- **Steer the gear with `pool_builder_pct_*`.** These decide WHICH gear, never
+  how much. They are proportions relative to each other, so
+  `{weapons: 3, spells: 1}` and `{weapons: 75, spells: 25}` are the same
+  request. ⚠️ **They can only cost you gear, never add any.** Each category is
+  drawn from a curated list with a limited number of items good enough to
+  qualify -- spells have the fewest -- and asking for more than a category has
+  turns the shortfall into junk. Leaving them all at 0 (the default) fills
+  best-first from every category and yields the *most* gear;
+  `{weapons: 3, spells: 1}` yields about a quarter less. The generation log
+  names any shortfall.
+
+Gear that arrives this way is marked useful, never progression. Region Locks
+remain the only progression items, so no amount of recipe tinkering can make a
+seed unwinnable.
+
 
 A lot of what you might expect to toggle here is simply how v0.2 plays --
 fixed, not configurable. Checks pay out real shuffled Elden Ring items. You

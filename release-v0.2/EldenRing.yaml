@@ -126,9 +126,24 @@ Elden Ring:
     foods: 2
     boluses: 1
 
-  # Pool Builder replaces part of the boring Rune filler tail with real gear,
-  # best-first by community tier list. These are PERCENTAGES of that tail.
-  # All 0 = leave the filler alone. They stack, so keep the total sane.
+  # These STEER WHICH GEAR you get. They do NOT decide how much -- that is the
+  # `juice` weight in curated_filler above, and at the shipped recipe roughly
+  # two fifths of your filler is already real gear. Leaving these at 0 does NOT
+  # mean "no gear".
+  #
+  # They are relative proportions, not percentages of anything: {weapons: 3,
+  # spells: 1} and {weapons: 75, spells: 25} are the same request. There is no
+  # total to keep under 100.
+  #
+  # They can only COST you gear, never add any. Each category is drawn from a
+  # curated list with a limited number of items good enough to qualify, and
+  # spells have the fewest. Ask a category for more than it has and the
+  # shortfall becomes junk (the generation log names it). Measured on one seed:
+  #   all 0 (default)      1518 gear in the pool   <- the most you can get
+  #   weapons 3, spells 1  1138  (-25%)
+  #   weapons 100          1085  (-29%)
+  # So set these only when you want a particular FLAVOUR of run and are willing
+  # to pay for it.
   pool_builder_pct_weapons: 0
   pool_builder_pct_armor: 0
   pool_builder_pct_talismans: 0

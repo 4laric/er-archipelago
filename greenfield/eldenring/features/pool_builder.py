@@ -115,7 +115,12 @@ class PoolBuilder(Toggle):
     """Off (default): the shuffled vanilla pool is used as-is (with a long tail of Rune fillers when
     item_shuffle is on). On: curate the pool -- replace the Rune tail with high-tier juice (rare +
     legendary weapons, armor, and talismans), count-neutral. Has no effect unless Shuffle Vanilla
-    Items is also on (there is no vanilla pool to curate otherwise)."""
+    Items is also on (there is no vanilla pool to curate otherwise).    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
+    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
+    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
+    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
+    knob."""
     display_name = "Pool Builder"
 
 
@@ -126,7 +131,12 @@ class PoolBuilderIntensity(Choice):
     historical behavior); 'max' = also include common/B-tier equippables (rarity 1). Only the
     candidate SET changes -- the count added stays the Rune tail (clamped by the juice cap), so a
     higher intensity changes *which* equippables you get, not how many. Ignored unless Pool Builder
-    and Shuffle Vanilla Items are both on."""
+    and Shuffle Vanilla Items are both on.    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
+    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
+    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
+    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
+    knob."""
     display_name = "Pool Builder Intensity"
     option_normal = 0
     option_high = 1
@@ -137,7 +147,12 @@ class PoolBuilderIntensity(Choice):
 class PoolBuilderJuiceCap(Range):
     """Maximum number of high-tier juice items Pool Builder adds (when on). Bounded so juice only
     ever displaces the Rune fallback tail, never real vanilla items. 0 lets Pool Builder auto-size
-    to the whole available Rune tail (still clamped to the number of juice items in the catalog)."""
+    to the whole available Rune tail (still clamped to the number of juice items in the catalog).    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
+    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
+    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
+    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
+    knob."""
     display_name = "Pool Builder Juice Cap"
     range_start = 0
     range_end = 400
@@ -150,7 +165,12 @@ class PoolBuilderJuicePct(Range):
     (leaving the rest as Rune fillers); 0 = replace none (Pool Builder becomes a no-op even when on).
     Applied to the *true* remaining Rune tail (fallback checks minus what region Locks / grace scatter
     already consume), then still clamped by the Juice Cap and the number of juice items in the
-    catalog. Ignored unless Pool Builder and Shuffle Vanilla Items are both on."""
+    catalog. Ignored unless Pool Builder and Shuffle Vanilla Items are both on.    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
+    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
+    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
+    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
+    knob."""
     display_name = "Pool Builder Juice Percent"
     range_start = 0
     range_end = 100
@@ -165,11 +185,17 @@ class PoolBuilderScope(Choice):
     greases, boluses, and the like. This is economy-SAFE: the tuned economy (Golden/Lord's/Hero's/
     Numen's Runes, Smithing/Somber stones, Golden Seed, Sacred Tear, Glovewort, Great Rune), the funny
     junk, all real gear, and anything the seed treats as progression (e.g. the Academy Glintstone Key
-    gate) are never displaced. Vastly raises the juice ceiling, so it is mostly meaningful with a
-    raised or 0 (auto) Juice Cap; an aggressive setting can thin the stone/rune economy that
-    stone_injection / stone_ramp draw from. Juice Percent and the per-category percents then read as a
+    gate) are never displaced. (The old warning that an aggressive setting "can thin the stone/rune economy that
+    stone_injection / stone_ramp draw from" described the THREE-PASS design filler_budget replaced --
+    the economy is now a reservation taken off the top and cannot be thinned by juice. The warning
+    outlived both the mechanism and the pass it warned about.) Juice Percent and the per-category percents then read as a
     share of this wider juice-eligible set. Ignored unless Pool Builder and Shuffle Vanilla Items are
-    both on."""
+    both on.    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
+    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
+    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
+    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
+    knob."""
     display_name = "Pool Builder Scope"
     option_rune_tail = 0
     option_all_filler = 1
@@ -177,54 +203,72 @@ class PoolBuilderScope(Choice):
 
 
 class _PoolBuilderPctCategory(Range):
-    """Base for the per-category juice percents. Each is the SHARE of the Rune fallback tail Pool
-    Builder fills with THIS gear category's juice, as a percent, drawn best-first (highest tier first)
-    within the category and still floored by Pool Builder Intensity (S / S+A / S+A+B). Default 0.
+    """Base for the per-category gear percents: they steer WHICH gear you get, not how much.
 
-    These are OPT-IN and OVERRIDE the single global Juice Percent: while every per-category percent is
-    0 (the default), Pool Builder behaves exactly as before -- Juice Percent of the tail, filled
-    best-first across ALL categories combined. As soon as ANY per-category percent is >0, the global
-    Juice Percent is ignored and the tail is filled per category by these percents instead (a category
-    left at 0 then contributes no juice). The percents need not sum to 100 -- the total is still
-    clamped to the available Rune tail and the Juice Cap, so setting them >100 in aggregate just fills
-    the whole tail in the given proportions. Ignored unless Pool Builder and Shuffle Vanilla Items are
-    both on."""
+    These are RELATIVE PROPORTIONS, not percentages of anything. features/filler_budget.plan()
+    normalises them against each other (`want = (n * pct) // tot`, `tot = sum(pcts)`), where `n` is
+    the size of the `juice` allocation the curated_filler recipe already decided. So
+    {weapons: 10, armor: 10} and {weapons: 90, armor: 90} are the SAME request and produce identical
+    pools -- MEASURED 2026-07-28, byte-identical item pools on one seed.
+
+    ⚠️ THEY CAN ONLY COST YOU GEAR, NEVER ADD ANY. Each category is drawn best-first from a curated
+    list with a finite number of items at the rarity floor. Ask a category for more slots than it can
+    supply and the shortfall SPILLS TO JUNK (logged). Spells are the smallest catalog (~56 items at
+    the floor), so any real spell weighting spills. Measured on one seed:
+        all 0 (default)          1518 gear in pool, 0 spilled   <- the MAXIMUM
+        weapons 1, armor 1       1432,  88 spilled
+        weapons 3, spells 1      1138, 405 spilled  (-25% gear)
+        weapons 100             1085, 461 spilled  (-29% gear)
+    Leaving every category at 0 fills the whole juice allocation best-first across ALL categories and
+    is the setting that yields the most gear.
+
+    🛑 The old text here said each was "the SHARE of the Rune fallback tail" and that ">0 makes the
+    global Juice Percent ignored". Both are dead: pool_builder no longer owns a budget (its
+    create_items returns []), the budget is the curated_filler `juice` category, and
+    pool_builder_juice_pct is not consulted by plan() at all. This docstring is the generation source
+    for wizard/options-metadata.json, so a stale claim here becomes a stale claim in the web UI."""
     range_start = 0
     range_end = 100
     default = 0
 
 
 class PoolBuilderPctWeapons(_PoolBuilderPctCategory):
-    """Share of the Rune tail Pool Builder fills with weapon juice (best-first by community tier,
-    floored by Intensity). Opt-in per-category percent -- see the other % options for how these
-    override the global Juice Percent. Default 0."""
+    """Relative weight for weapon gear within the juice allocation -- steers the MIX, never the
+    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
+    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
+    junk."""
     display_name = "Pool Builder % Weapons"
 
 
 class PoolBuilderPctArmor(_PoolBuilderPctCategory):
-    """Share of the Rune tail Pool Builder fills with armor juice (best-first by community tier,
-    floored by Intensity). Opt-in per-category percent -- see the other % options for how these
-    override the global Juice Percent. Default 0."""
+    """Relative weight for armor gear within the juice allocation -- steers the MIX, never the
+    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
+    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
+    junk."""
     display_name = "Pool Builder % Armor"
 
 
 class PoolBuilderPctSpells(_PoolBuilderPctCategory):
-    """Share of the Rune tail filled with sorcery + incantation juice (the community tier list rates
-    both under one SPELL category). See the per-category percent notes on the other % options."""
+    """Relative weight for spell gear within the juice allocation -- steers the MIX, never the
+    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
+    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
+    junk. Spells have the SMALLEST catalog, so weighting them spills the most."""
     display_name = "Pool Builder % Spells & Incantations"
 
 
 class PoolBuilderPctTalismans(_PoolBuilderPctCategory):
-    """Share of the Rune tail Pool Builder fills with talisman juice (best-first by community tier,
-    floored by Intensity). Opt-in per-category percent -- see the other % options for how these
-    override the global Juice Percent. Default 0."""
+    """Relative weight for talisman gear within the juice allocation -- steers the MIX, never the
+    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
+    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
+    junk."""
     display_name = "Pool Builder % Talismans"
 
 
 class PoolBuilderPctAshesOfWar(_PoolBuilderPctCategory):
-    """Share of the Rune tail Pool Builder fills with ash-of-war juice (best-first by community tier,
-    floored by Intensity). Opt-in per-category percent -- see the other % options for how these
-    override the global Juice Percent. Default 0."""
+    """Relative weight for Ash of War gear within the juice allocation -- steers the MIX, never the
+    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
+    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
+    junk."""
     display_name = "Pool Builder % Ashes of War"
 
 
