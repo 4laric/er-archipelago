@@ -87,8 +87,23 @@ class Finale(Feature):
             return
         region = Region(FINALE_REGION, world.player, world.multiworld)
         world.multiworld.regions.append(region)
+        # 🛑 THE FOREIGN BAR HAS TO BE APPLIED HERE TOO. These locations are built directly rather
+        # than through core._add_locations, which is where confine_foreign_progression installs its
+        # item_rule -- so until 2026-07-28 the finale's 10 checks were the ONE hole in that
+        # confinement, and another world's advancement could land on them. Invisible in a solo seed
+        # (the option is a no-op there) and invisible at the shipped num_regions default (the finale
+        # is INERT unless every FINALE_REQUIRES region is kept), which is why it survived: the first
+        # multiworld CI run found it immediately, under natural_progression, 7 leaked placements
+        # across two slots.
+        _fsurf = getattr(world, "_foreign_confine_surface", None)
+        _fbf = getattr(world, "_foreign_barred_fn", None)
         for (name, ap_id, _flag) in finale_entries():
-            region.locations.append(FinaleLocation(world.player, name, ap_id, region))
+            loc = FinaleLocation(world.player, name, ap_id, region)
+            if _fsurf is not None and _fbf is not None and ap_id not in _fsurf:
+                _prev = loc.item_rule
+                loc.item_rule = lambda item, _p=_prev, _pl=world.player, _f=_fbf: (
+                    not _f(item, _pl)) and _p(item)
+            region.locations.append(loc)
         host = world.multiworld.get_region(FINALE_HOST_REGION, world.player)
         # Entrance rule: EVERY prerequisite Lock (the host's own Lock is re-required for
         # robustness; its entrance already enforces it). This is what makes fill unable to strand

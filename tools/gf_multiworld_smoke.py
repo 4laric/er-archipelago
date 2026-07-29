@@ -52,6 +52,7 @@ import tempfile
 import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+_AP_DIR = []   # set in main(); multidata() needs the AP root importable for Utils
 ROOT = os.path.dirname(HERE)
 PARTNER_DIR = "hk"
 PARTNER_GAME = "Hollow Knight"
@@ -110,6 +111,69 @@ def generate(ap_dir, players_dir, out_dir):
     if not zips:
         sys.exit("FAIL: generation reported success but wrote no archive.")
     return zips[0]
+
+
+# AP location flags bitfield: bit 0 = advancement (progression). Read from the multidata rather than
+# guessed from item names -- a name heuristic would silently mis-class every partner game.
+_FLAG_ADVANCEMENT = 0b001
+
+
+def multidata(zip_path):
+    """(slot_info, slot_data, locations) out of the .archipelago payload.
+
+    The SPOILER cannot answer the confinement question: it names items but does not say which are
+    advancement, and it does not carry slot_data. The multidata carries both, so the check below is
+    made of the same facts the server runs on.
+    """
+    import zlib
+    import Utils  # noqa: PLC0415  -- importable because main() put the AP root on sys.path
+    z = zipfile.ZipFile(zip_path)
+    names = [n for n in z.namelist() if n.endswith(".archipelago")]
+    if not names:
+        sys.exit("FAIL: the archive carries no .archipelago multidata.")
+    raw = z.read(names[0])
+    md = Utils.restricted_loads(zlib.decompress(raw[1:]))
+    return md["slot_info"], md.get("slot_data", {}), md["locations"]
+
+
+def check_foreign_confinement(slot_info, slot_data, locations, report):
+    """`confine_foreign_progression` (default ON): another world's ADVANCEMENT items may land only on
+    THIS world's progression surface, never on its filler checks.
+
+    🛑 THE OPTION'S OWN DOCSTRING SAYS "No effect in a solo seed". So until there was a multiworld in
+    CI this promise had never been executed even once -- it is the single most multiworld-shaped
+    property the apworld has, and it was also the least tested.
+    """
+    bad = []
+    for player, info in sorted(slot_info.items()):
+        if info.game != "Elden Ring":
+            continue
+        sd = slot_data.get(player) or {}
+        surface = set(sd.get("progressionSurfaceLocations") or ())
+        if not surface:
+            bad.append("slot %d (Elden Ring) emitted an EMPTY progressionSurfaceLocations, so this "
+                       "check would pass over nothing." % player)
+            continue
+        rows = locations.get(player) or {}
+        foreign = [(lid, ip) for lid, (_iid, ip, fl) in rows.items()
+                   if ip != player and (fl & _FLAG_ADVANCEMENT)]
+        offsurface = [lid for lid, _ip in foreign if lid not in surface]
+        donors = sorted({slot_info[ip].game for _l, ip in foreign})
+        report("slot %d: surface %d, foreign progression placed here %d (from %s), off-surface %d"
+               % (player, len(surface), len(foreign), ", ".join(donors) or "-", len(offsurface)))
+        if not foreign:
+            bad.append(
+                "slot %d received NO foreign progression at all, so confine_foreign_progression was "
+                "not exercised. Either fill placed none this seed (re-check the partner's pool) or "
+                "the surface is barring everything -- a vacuous pass either way." % player)
+        if offsurface:
+            bad.append(
+                "slot %d: %d foreign progression item(s) landed OFF the progression surface, e.g. "
+                "location %s. confine_foreign_progression is default-ON and promises another world's "
+                "advancement items only ever sit on your surface checks -- a player who took that "
+                "promise would be hunting a key on a Smithing Stone pickup."
+                % (player, len(offsurface), offsurface[0]))
+    return bad
 
 
 def placements(zip_path):
@@ -194,6 +258,8 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     ap_dir = os.path.abspath(args.ap_dir)
+    _AP_DIR.append(os.path.join(ap_dir, "_"))   # multidata() needs the AP root importable for Utils
+    sys.path.insert(0, ap_dir)
     if not os.path.isdir(os.path.join(ap_dir, "worlds", "eldenring")):
         sys.exit("FAIL: %s has no worlds/eldenring -- install the world first "
                  "(python tools/gf_test.py --install-only --ap-dir %s)." % (ap_dir, ap_dir))
@@ -224,6 +290,10 @@ def main(argv=None):
             print("  generated %s -- %d placements" % (os.path.basename(zip_path), len(rows)))
             failures += ["[%s] %s" % (label, f)
                          for f in check(rows, natural, lambda m: print("  " + m))]
+            si, sd, locs = multidata(zip_path)
+            failures += ["[%s] %s" % (label, f)
+                         for f in check_foreign_confinement(si, sd, locs,
+                                                            lambda m: print("  " + m))]
         finally:
             if args.keep:
                 print("  kept: %s" % work)
@@ -237,7 +307,7 @@ def main(argv=None):
             print("  * %s" % f)
         return 1
     print("MULTIWORLD SMOKE: PASS -- cross-world flow works in both directions, ER reaches a foreign "
-          "game, and natural_progression keys are placeable in other players' worlds.")
+          "game, natural_progression keys are placeable in other players' worlds, and foreign\n      progression lands only on the progression surface.")
     return 0
 
 
