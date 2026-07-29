@@ -163,6 +163,13 @@ jobs:
         with:
           python-version: "3.12"
 
+      # PyYAML ONLY. This job deliberately has no Archipelago -- the suites below are AP-free by
+      # design. But test_gf_shipping_yaml_recipe reads release-v0.2/EldenRing.yaml, and it SKIPS
+      # when yaml is missing: without this line it would be added to the loop below and still gate
+      # nothing, which is the exact failure mode the loop's comment warns about.
+      - name: Install PyYAML (the shipping-yaml gate reads the template)
+        run: pip install pyyaml
+
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_region_locks.py
@@ -188,7 +195,7 @@ jobs:
           # Run as SCRIPTS, not `-m greenfield.eldenring.tests.X`: the package __init__ imports
           # core -> BaseClasses, and this job has no Archipelago. The suites are AP-free by design
           # (they read the generated modules with ast) and each has a __main__ entry point.
-          for t in check_browser desc_triage provenance_gate questline_dag; do
+          for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
             # `python x.py` exits nonzero on failure; pipefail-less bash would swallow it
