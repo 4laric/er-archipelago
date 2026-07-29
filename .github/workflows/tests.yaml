@@ -202,7 +202,8 @@ jobs:
           # nothing to say so") and the dark-feature gate. Its first real run found TEN undeclared
           # client reads.
           for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe \
-                   scaling_ladder_mirror client_contract_paths client_can_sell_mirror; do
+                   scaling_ladder_mirror client_contract_paths client_can_sell_mirror \
+                   client_resets_are_called; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
             # `python x.py` exits nonzero on failure; pipefail-less bash would swallow it

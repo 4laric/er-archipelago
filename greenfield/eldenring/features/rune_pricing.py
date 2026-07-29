@@ -50,8 +50,20 @@ _ROW_MASK = 0x0FFFFFFF
 # "Rune Arc" or "Great Rune" never matches -- those are not money and must keep their price.
 _RUNE_RE = re.compile(r"^(?:Golden|Hero's|Lord's|Numen's) Rune(?: \[\d+\])?$")
 
-# The roll is [0, PRICE_MULT x worth]. 2 = "up to double", Alaric 2026-07-25.
-PRICE_MULT = 2
+# The roll is [0, PRICE_MULT x worth].
+#
+# 2 = "up to double" (Alaric 2026-07-25) -- a rune could be a bargain or a rip-off, which is what
+# "randomized" should mean. Changed to 1 on 2026-07-29 at Alaric's call, as a DIAGNOSTIC as much as a
+# tuning: at 1x every rune is priced at or below its payout, so buying one is never a loss. If a rune
+# still shows above its payout in game after this, the displayed price is provably not the one we
+# wrote, and the fault is downstream of the generator.
+#
+# Context: the world was cleared of the reported bug by reading his own seed -- 117 rune slots,
+# 38% below worth, min 0.003x, and four BELOW-value runes at the very merchant in the screenshot
+# (Golden Rune [4] paying 1200 for 378). The two prices he photographed, 419 and 1011, matched rows
+# 101863 and 101867 exactly, which also proves the client applies what we send. At 1x there is no
+# above-value case left to mistake for one.
+PRICE_MULT = 1
 
 # ⭐ WORTH IS THE PAYOUT, NOT THE SHOP PRICE. GOODS_PRICE is what a MERCHANT charges, and for runes
 # that is a 10x markup over what the rune actually gives you. Priced off it, a Golden Rune [10] --

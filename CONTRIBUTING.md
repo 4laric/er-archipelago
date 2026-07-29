@@ -292,6 +292,10 @@ Run through this before a change lands (PR or direct):
 - [ ] Sequencing/timing/reconcile bugs land with a host-tested `*_replay` harness:
       a pure decision fn plus a timeline that reproduces the bug
       failing-without-fix / passing-with-fix, named after the bug mechanism.
+- [ ] Any `reset()` / re-arm added to the client is CALLED on the in-world edge (or exempt with a
+      reason) -- `test_gf_client_resets_are_called` enforces it. A load reverts param writes.
+- [ ] For a player-reported bug, the claim states the LAST stage actually observed ("slot_data is
+      correct" is not "the player sees it"), and every unchecked stage downstream is named.
 - [ ] Every fix predicate has a production caller — the client calls the pure fn,
       no inline copy; a green replay with no caller is a spec, not a fix.
 - [ ] In-game confirmations record the environment (vanilla/baked, mods, build)
@@ -427,6 +431,45 @@ assertion message, committed. Nobody drew the conclusion. **A self-reported cove
 safeguard unless something ACTS on it.** If a screen knows it is partial, it must say so on a GREEN
 run (`warnings.warn`, not `print` -- stdout is captured), and a coverage floor should be a ratchet
 that you are made to justify, not a number that only fires when it gets worse.
+
+**12. A CORRECT WIRE IS NOT A CORRECT FEATURE. Measuring upstream of the game measures nothing.**
+The 2026-07-29 lesson, and the most humbling on this list because the data was *good* the whole way
+down.
+
+> A player reported, three separate times, that no rune in any shop was ever priced below its value.
+> I checked the generator: the roll is `randint(0, 2 x worth)` and measured over three seeds it was a
+> clean uniform -- median 1.03, 50% below worth, minimum 0.002x. I extracted his ACTUAL seed and read
+> the slot_data out of the multidata: 117 rune slots, 38% below worth, and a Golden Rune [5] priced at
+> **4 runes**. I matched two prices from his screenshot to their exact ShopLineupParam rows, proving
+> the client applied what we sent. Every measurement I could take said the feature worked.
+>
+> I told him it was a sampling artifact. He said it again. I found a second pricing path with a real
+> 10x bug, fixed it, and told him again. He said it a third time.
+>
+> The client's `shop_stock::reset()` was never called. A map load streams the param back in and
+> reverts our writes; the module latches `DONE` after one pass, so the 455 rerolled rows applied once
+> on connect and were gone for the rest of the session. Every below-value price in the seed lived in
+> that table. His observation was not noisy -- it was **exact**.
+
+**The generator being right is not the feature being right, and a seed file is not a screen.** Every
+number I produced was true and none of them were evidence about the thing being reported. Between the
+last place I could measure and the player's eyes there were two more stages, and the bug was in one of
+them.
+
+- **When a report survives your explanation, the report wins.** A second identical report should
+  move your prior off your own analysis; a third should end it. The person watching the game is the
+  only one seeing the output ([[contributor-live-game-oracle]] in memory, *Verification* above).
+  "Unlucky sample" is the hypothesis to reach for LAST, because it is unfalsifiable from where you
+  are standing.
+- **Trace to the last stage you can observe, then say which stages you did not check.** I could have
+  written "slot_data is correct; I have not verified the client applies it per load" at any point on
+  day one. That sentence is the whole bug.
+- **A `reset()` with no caller is a predicate with no caller.** Rule: *"a green predicate with no
+  production caller is not a fix -- it is a spec"* (see *Regression by replay*). Same shape one level
+  down, and it has now cost three separate features: `shop_sell` (2026-07-24, found in playtest),
+  `shop_icon` and `shop_stock` (2026-07-29). `test_gf_client_resets_are_called` makes it mechanical --
+  every client module defining `reset()` must be called on the in-world edge or be exempt with a
+  written reason. Three times is a class, not a coincidence, and a class gets a gate.
 
 ### The tell
 

@@ -56,7 +56,7 @@ try:
                                PRICE_MULT as _PRICE_MULT)
 except ImportError:                      # rune_pricing absent -> vanilla price, i.e. today's behaviour
     _is_rune_item = _rune_worth = None
-    _PRICE_MULT = 2
+    _PRICE_MULT = 1   # keep in step with rune_pricing.PRICE_MULT
 
 try:
     from ..item_ids import ITEM_CATALOG

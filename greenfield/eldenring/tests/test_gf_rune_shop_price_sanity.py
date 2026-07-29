@@ -71,11 +71,19 @@ def test_the_roll_actually_reaches_the_cheap_end():
     A uniform [0, 2x] should put ~half below worth. Asserting the SHAPE catches a future change that
     keeps the cap but skews the distribution -- which would still read as 'runes are never a deal'."""
     ratios = sorted(r for s in (4242, 777, 31337) for r in _infinite_stock_rune_ratios(s))
-    below = sum(1 for r in ratios if r < 1.0)
-    assert 0.30 <= below / len(ratios) <= 0.70, (
-        "only %.0f%% of infinite-stock runes are priced below their payout (n=%d). A uniform "
-        "[0, 2x worth] roll should be near 50%%; a skew here means runes are never worth buying, "
-        "which is the complaint that started this." % (100 * below / len(ratios), len(ratios)))
+    below = sum(1 for r in ratios if r <= 1.0)
+    # PRICE_MULT is 1 as of 2026-07-29: every rune must be at or BELOW its payout, so buying one is
+    # never a loss. Written as a function of PRICE_MULT rather than a hardcoded fraction, so raising
+    # the cap back to 2 relaxes this instead of breaking it.
+    if PRICE_MULT <= 1:
+        assert below == len(ratios), (
+            "%d of %d infinite-stock runes cost MORE than they pay out, with PRICE_MULT=%d. At a 1x "
+            "cap that is impossible from the roll -- suspect the worth derivation."
+            % (len(ratios) - below, len(ratios), PRICE_MULT))
+    else:
+        assert 0.30 <= below / len(ratios) <= 0.70, (
+            "only %.0f%% of infinite-stock runes are priced at or below payout (n=%d); a uniform "
+            "[0, %dx] roll should be near 50%%." % (100 * below / len(ratios), len(ratios), PRICE_MULT))
     assert min(ratios) < 0.25, (
         "the cheapest rune across three seeds is %.2fx its payout -- the roll never reaches the "
         "cheap end, so it is not really a gamble." % min(ratios))
