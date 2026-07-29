@@ -63,13 +63,17 @@ Elden Ring:
   # randomizer and lose the region-lock structure.
   natural_progression: false
 
-  # Which dungeons hand you their whole loot table when you kill their boss.
-  #   all          -- minidungeons + legacy dungeons + castles (default)
-  #   minidungeons -- minidungeons only
-  #   bosses       -- adds field bosses
+  # Which bosses hand you their area's loot when you kill them. A ladder:
   #   none         -- no sweeps; every check is picked up where it lies
-  # (Unfrozen 2026-07-28 by player request. `none` is the fully manual mode.)
-  dungeon_sweep: all
+  #   minidungeons -- catacombs, caves, tunnels, minor dungeons   (~515 checks)
+  #   all          -- + legacy dungeons and castles               (~1971)
+  #   bosses       -- + field bosses (default; the whole set)     (~3184)
+  # `all` is the "sweep dungeons, leave the field alone" setting.
+  # 2026-07-29: the three non-none values used to be IDENTICAL -- the class
+  # filter was never implemented. They differ now; the default is renamed to
+  # `bosses` because that is what all three already granted, so seeds are
+  # unchanged.
+  dungeon_sweep: bosses
 
   # What the goal requires.
   #   region_locks  -- hold every Region Lock that is in play (default).

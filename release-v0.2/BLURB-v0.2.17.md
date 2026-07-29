@@ -16,8 +16,11 @@
   It cannot strand you: unlocks are still the only progression, every check stays where it was, and
   any grace you were not handed is still reachable on foot.
 - **Fixed:** killing the tutorial Grafted Scion paid out 36 Stormveil Castle checks. All 36 were
-  ordinary filler — sweeps never contain key items, Great Runes, Remembrances or boss rewards — so
-  it was an early pile of junk, not a broken seed.
+  ordinary filler — legacy-dungeon sweep pools exclude key items, Great Runes, Remembrances and boss
+  rewards by construction — so it was an early pile of junk, not a broken seed.
+- **`dungeon_sweep`'s middle settings work now.** `minidungeons`, `all` and `bosses` were doing the
+  same thing; they are a real ladder — 515 / 1971 / 3184 checks. Your seeds are unaffected: the
+  default is renamed to `bosses`, which is what every non-`none` value already gave you.
 - ✅ **No client update required.**
 
 ---
@@ -67,6 +70,26 @@ is untouched.
 
 There is a second Grafted Scion inside Stormveil Castle proper. It is a different fight, it was never
 involved, and it is unaffected.
+
+### The sweep settings in the middle were doing nothing
+
+`dungeon_sweep` offers `none`, `minidungeons`, `all` and `bosses`. Only `none` ever behaved
+differently — the other three granted the identical, complete sweep set, because the generator asked
+"are sweeps on?" and never looked at what kind of boss it was. The values mean what they say now:
+
+| value | sweeps | checks |
+|---|---|---|
+| `none` | nothing | 0 |
+| `minidungeons` | catacombs, caves, tunnels, minor dungeons | 515 |
+| `all` | + legacy dungeons and castles | 1971 |
+| `bosses` (default) | + field bosses | 3184 |
+
+**Your seeds do not change.** The full set is what every non-`none` value already produced, so the
+default is renamed from `all` to `bosses` to describe what has actually been shipping. Had the
+default stayed on `all`, this "fix" would have silently deleted field-boss sweeps from everyone's
+games.
+
+If you want dungeons swept but field bosses left alone, `all` is now that setting.
 
 ### Behind the scenes
 

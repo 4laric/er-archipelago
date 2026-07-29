@@ -27,6 +27,10 @@ try:
 except Exception:
     DUNGEON_SWEEPS, SWEEP_REGION = {}, {}
 try:
+    from ..boss_healthbars import BOSS_HEALTHBARS   # flag -> (map, tile, CLASS, name)
+except Exception:
+    BOSS_HEALTHBARS = {}
+try:
     from ..boss_healthbars import BOSS_HEALTHBARS
 except Exception:
     BOSS_HEALTHBARS = {}
@@ -58,16 +62,44 @@ def _boss_label(reward: str) -> str:
     return s.strip()
 
 
+# Which boss CLASSES each rung sweeps. boss_healthbars classifies every boss as one of
+# catacomb/cave/tunnel/dungeon (the minidungeons), legacy (legacy dungeons + castles) or field.
+_SWEEP_MINI = frozenset({"catacomb", "cave", "tunnel", "dungeon"})
+_SWEEP_RUNGS = {
+    "none": frozenset(),
+    "minidungeons": _SWEEP_MINI,
+    "all": _SWEEP_MINI | {"legacy"},
+    "bosses": _SWEEP_MINI | {"legacy", "field"},
+}
+
+
 class DungeonSweep(Choice):
-    """Which dungeons grant their loot in a sweep when their boss is killed. none disables sweeps;
-    all covers minidungeons + legacy dungeons + castles; bosses adds field bosses. (Sweep triggers
-    pending EMEVD enrichment -- see module docstring.)"""
+    """Which bosses hand you their area's loot in a sweep when you kill them.
+
+    none -- no sweeps; every check is picked up where it lies.
+    minidungeons -- catacombs, caves, tunnels and minor dungeons only (~515 checks).
+    all -- those plus legacy dungeons and castles (~1984).
+    bosses (default) -- those plus FIELD bosses, i.e. everything (~3197).
+
+    🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never
+    filtered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this
+    docstring described behaviour that had never been implemented, and the player guide and the
+    v0.2.15 release notes repeated it. The rungs are real now.
+
+    The DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the
+    full set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the
+    default at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed
+    under the banner of a bug fix.
+
+    Sweeps are FILLER-ONLY by construction -- Remembrances, key items, Great Runes, boss rewards,
+    legendaries and shop slots are cut before a sweep is built -- so no rung can gate progression.
+    """
     display_name = "Dungeon Sweep"
     option_none = 0
     option_minidungeons = 1
     option_all = 2
     option_bosses = 3
-    default = 2
+    default = 3
 
 
 class BossLockPlacement(Choice):
@@ -111,6 +143,38 @@ def _boss_key_names():
         for (_aid, _fl, reward) in lst:
             names["Boss Key: " + _boss_label(reward)] = None
     return list(names)
+
+
+def enabled_sweeps(world):
+    """The sweeps this seed actually grants: {boss flag: [member ap ids]} at the chosen rung.
+
+    ONE definition, used by the slot_data emit AND by the boss-key gating below. They used to be
+    written separately and would have silently disagreed the moment the rungs became real -- gating
+    a member behind a boss key whose sweep is not emitted strands it behind a trigger that never
+    fires."""
+    opt = getattr(getattr(world, "options", None), "dungeon_sweep", None)
+    key = getattr(opt, "current_key", None) or "bosses"
+    allowed = _SWEEP_RUNGS.get(key, _SWEEP_RUNGS["bosses"])
+    if not allowed:
+        return {}
+    out, unjoined = {}, []
+    for fl, members in DUNGEON_SWEEPS.items():
+        info = BOSS_HEALTHBARS.get(fl)
+        if info is None:
+            # A sweep whose boss is not in boss_healthbars cannot be classified. Count it, say so,
+            # and keep it only at the widest rung -- a filter with no tally is a lie.
+            unjoined.append(fl)
+            if key == "bosses":
+                out[fl] = members
+            continue
+        if info[2] in allowed:
+            out[fl] = members
+    if unjoined:
+        import warnings
+        warnings.warn("dungeon_sweep: %d sweep(s) have no boss_healthbars class and were %s: %s"
+                      % (len(unjoined), "kept (rung=bosses)" if key == "bosses" else "dropped",
+                         sorted(unjoined)[:5]))
+    return out
 
 
 def _sweep_lock_gates(kept, region_bosses=None, dungeon_sweeps=None, sweep_region=None):
@@ -183,8 +247,9 @@ def key_gate_map(world):
     if _ds is not None and _ds.value != 0:
         # Sweep MEMBERS defer behind their boss key too (their real trigger is the key-gated sweep, not
         # their own pickup flag). setdefault so the boss's own-check gate wins on overlap.
+        _live = enabled_sweeps(world)
         for _fl_str, _key in _sweep_lock_gates(kept).items():
-            for _member in DUNGEON_SWEEPS.get(int(_fl_str), ()):
+            for _member in _live.get(int(_fl_str), ()):
                 gate.setdefault(_member, _key)
     return gate
 
@@ -268,8 +333,9 @@ class BossLocks(Feature):
             # FLAG-KEYED sweeps (boss-defeat flag -> member ap-ids), scoped to kept regions. Derived
             # from DarkScript EMEVD (boss_sweeps.py). A small client handler that watches the
             # boss-defeat flag and grants the members activates these in-game (P3b-client).
-            sd[contract.DUNGEON_SWEEP_FLAGS] = {str(fl): DUNGEON_SWEEPS[fl]
-                                       for fl in DUNGEON_SWEEPS if SWEEP_REGION.get(fl) in kept}
+            _live = enabled_sweeps(world)
+            sd[contract.DUNGEON_SWEEP_FLAGS] = {str(fl): _live[fl]
+                                       for fl in _live if SWEEP_REGION.get(fl) in kept}
             sd[contract.DUNGEON_SWEEPS] = {}     # location-keyed variant (needs boss-reward-location join)
             # sweepLockGates: non-empty under boss_keys, base + DLC. Per-boss PRECISE where the sweep
             # trigger flag is itself a boss-defeat flag, else the region-representative fallback (the

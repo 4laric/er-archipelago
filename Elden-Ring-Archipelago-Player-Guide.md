@@ -137,12 +137,16 @@ run rather than tune it.
 - **`curated_filler`** -- what fills your junk checks. See "What fills your
   junk checks" below; the short version is that about two fifths of your
   filler is already real gear, and this recipe is the dial.
-- **`dungeon_sweep`** -- what killing a dungeon boss hands you. `all` (default)
-  sweeps that dungeon's remaining checks so you never crawl back for two chests
-  you missed; `bosses` extends it to field bosses; `minidungeons` narrows it;
-  `none` turns it off entirely and you collect every check where it lies. The
-  boss's *own* reward is a normal check either way -- it is never part of a
-  sweep -- so turning this off never costs you an item, only the convenience.
+- **`dungeon_sweep`** -- what killing a boss hands you, as a ladder:
+  `none` sweeps nothing and you collect every check where it lies;
+  `minidungeons` sweeps catacombs, caves, tunnels and minor dungeons (~515
+  checks); `all` adds legacy dungeons and castles (~1971); `bosses` (default)
+  adds field bosses too (~3184). So `all` is the setting for "sweep the
+  dungeons, leave the field alone". The boss's *own* reward is a normal check at
+  every setting -- never part of a sweep -- so turning this down costs you
+  convenience, not items.
+  (Before 2026-07-29 the three non-`none` values were identical; the default is
+  named `bosses` now because that is what they all did.)
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock`** (both on) -- reroll
   what farmable enemies drop and what unlimited-stock merchants sell. One-time
   drops -- the actual checks -- are untouched; this randomizes the repeatable

@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "935483bc6bdc2fbbbf8a26bc5a377aa277a448dff16ea0a11c93f82112fde108",
+ "source_sha256": "238cc34534a69ac4d535bcd65bf3ccfcd747484f985a9d71e8c653111dc154d8",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -191,10 +191,10 @@
    "key": "dungeon_sweep",
    "class": "DungeonSweep",
    "display_name": "Dungeon Sweep",
-   "description": "Which dungeons grant their loot in a sweep when their boss is killed. none disables sweeps;\nall covers minidungeons + legacy dungeons + castles; bosses adds field bosses. (Sweep triggers\npending EMEVD enrichment -- see module docstring.)",
+   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~515 checks).\nall -- those plus legacy dungeons and castles (~1984).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3197).\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nSweeps are FILLER-ONLY by construction -- Remembrances, key items, Great Runes, boss rewards,\nlegendaries and shop slots are cut before a sweep is built -- so no rung can gate progression.",
    "kind": "choice",
    "base": "Choice",
-   "default": "all",
+   "default": "bosses",
    "choices": [
     {
      "name": "none",

@@ -34,13 +34,32 @@ generator counted the intro Grafted Scion as one of Stormveil's legacy bosses an
 round-robin slice of the region's sweep pool. Killing an optional tutorial boss in the first few
 minutes therefore paid out three dozen Stormveil Castle checks.
 
-**Scope, honestly: those 36 are all ordinary filler.** Sweep pools are filler-only by construction —
-Remembrances, key items, Great Runes, boss rewards, legendaries and shop slots are cut before a sweep
-is ever built, and all 36 of these carried no important tag at all. So this was an early dump of junk
-and consumables, not a progression break. Stormveil's pool is unchanged in total; it now divides
+**Scope, honestly: those 36 are all ordinary filler.** Legacy-dungeon sweep pools — which is what
+the Scion was wrongly counted into — are filler-only by construction: Remembrances, key items, Great
+Runes, boss rewards, legendaries and shop slots are cut before the pool is built, and all 36 of these
+carried no important tag at all. So this was an early dump of junk and consumables, not a progression
+break. Stormveil's pool is unchanged in total; it now divides
 between its two real bosses (Godrick and Margit) instead of three.
 
 The Scion's own drop, the Ornamental Straight Sword, is a normal check and is untouched.
+
+### `dungeon_sweep`'s middle settings now do something
+
+`minidungeons`, `all` and `bosses` were **identical** — the emit checked only "is it off?" and never
+filtered by boss class, so all three granted the whole sweep set. The values are real now:
+
+| value | sweeps | checks |
+|---|---|---|
+| `none` | nothing | 0 |
+| `minidungeons` | catacombs, caves, tunnels, minor dungeons | 515 |
+| `all` | + legacy dungeons and castles | 1971 |
+| `bosses` (default) | + field bosses | 3184 |
+
+**The default moved from `all` to `bosses`, and that is not a change to your seeds** — the full set
+is what every non-`none` value already granted, so `bosses` is simply the correct name for what has
+been shipping. Leaving it at `all` would have quietly removed field-boss sweeps from every seed.
+
+`all` is now genuinely "dungeons without field bosses", which is the split that was asked for.
 
 ### Also
 
