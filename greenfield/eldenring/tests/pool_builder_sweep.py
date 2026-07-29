@@ -231,7 +231,7 @@ def main():
     }
     on_opts = dict(base_opts, pool_builder=True,
                    pool_builder_intensity=intensity,
-                   pool_builder_juice_cap=args.juice_cap)
+                   )  # juice_cap retired 2026-07-28; --juice-cap is now a no-op
     off_opts = dict(base_opts, pool_builder=False)
 
     seeds = sample_seeds(max_n, args.seed_base)

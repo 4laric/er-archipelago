@@ -115,17 +115,32 @@ Elden Ring:
   # stones (regular and somber, enough for an early +3) placed within reach
   # of your starting area. Zero these weights out and that economy is gone --
   # the generator will warn you.
-  # LEFT UNSET ON PURPOSE -- do not paste the numbers back in unless you mean to
-  # pin them. A literal recipe here OVERRIDES the shipped default, so this block
-  # silently froze the economy at an older tuning: it still said `stones: 27`
-  # after that was measured BELOW the +3 affordability floor (3 of 9 seeds) and
-  # raised to 29. Unset, you always get the current tuning.
-  # The shipped default today, for reference only:
-  #   juice: 42   stones: 29   somber_stones: 6   runes: 10
-  #   throwables: 6   pots: 4   greases: 3   foods: 2   boluses: 1
-  # curated_filler:
-  #   juice: 42
-  #   stones: 29
+  # This IS the shipped default, written out so you can see and edit it. It is
+  # kept in step with the code by test_gf_shipping_yaml_recipe -- if the default
+  # is retuned and this block is not, CI fails. (It froze at `stones: 27` once,
+  # after that was measured BELOW the +3 affordability floor on 3 of 9 seeds;
+  # the gate exists so that cannot happen twice.) Delete the block entirely to
+  # follow the default automatically.
+  curated_filler:
+    juice: 42
+    stones: 29
+    somber_stones: 6
+    runes: 10
+    throwables: 6
+    pots: 4
+    greases: 3
+    foods: 2
+    boluses: 1
+
+  # How good a piece of gear has to be to count as `juice`.
+  #   max (default) -- legendary, rare and B-tier: about 1013 items
+  #   high          -- legendary and rare: about 536
+  #   normal        -- legendary only: about 149
+  # A HIGHER floor is a SMALLER list, and the `juice` weight above does not
+  # change -- so raising it asks for the same number of items out of a shorter
+  # list and the surplus becomes junk. Measured on one seed: max 1518 gear,
+  # high 872, normal 230. It buys quality by paying quantity.
+  pool_builder_intensity: max
 
   # These STEER WHICH GEAR you get. They can never ADD gear -- how much is the
   # `juice` weight in curated_filler above, and at the shipped recipe roughly

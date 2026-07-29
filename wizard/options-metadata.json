@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "21759ca676f1f49184c713d0ad82a2bf42d083332114fba8dbf4d3d655c80337",
+ "source_sha256": "07a1778a6fe283e3197e268d3677be4bc007f98f3e4f038dd74aec2e209313d2",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -15,6 +15,7 @@
   "death_link",
   "reroll_enemy_drops",
   "curated_filler",
+  "pool_builder_intensity",
   "pool_builder_pct_weapons",
   "pool_builder_pct_armor",
   "pool_builder_pct_spells",
@@ -48,6 +49,7 @@
   "death_link",
   "reroll_enemy_drops",
   "curated_filler",
+  "pool_builder_intensity",
   "pool_builder_pct_weapons",
   "pool_builder_pct_armor",
   "pool_builder_pct_spells",
@@ -281,6 +283,34 @@
    "choices": null,
    "range": null,
    "valid_keys": [],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "pool_builder_intensity",
+   "class": "PoolBuilderIntensity",
+   "display_name": "Pool Builder Intensity",
+   "description": "How good a piece of gear has to be before it counts as `juice`.\n\nnormal -- legendary only.  high -- legendary + rare.  max (default) -- also B-tier.\n\n🛑 A HIGHER FLOOR MEANS LESS GEAR, NOT BETTER GEAR. Each level is a strictly smaller catalog, and\nthe `juice` weight in curated_filler is unchanged -- so raising the floor asks for the same number\nof items out of a smaller list and the surplus spills to junk, exactly like over-weighting one\ncategory. `max` yields the most; `normal` is the connoisseur setting and costs you filler quality\neverywhere else.\n\n(Frozen and inert from the filler_budget refactor until 2026-07-28: it had become a constant,\nJUICE_FLOOR, because the option could not move. It is read again by filler_budget.juice_floor.)",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "high",
+   "choices": [
+    {
+     "name": "normal",
+     "value": 0
+    },
+    {
+     "name": "high",
+     "value": 1
+    },
+    {
+     "name": "max",
+     "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
    "casefold": false,
    "group": null,
    "group_collapsed": false

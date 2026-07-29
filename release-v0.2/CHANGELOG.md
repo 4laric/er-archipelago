@@ -3,6 +3,50 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.16 — 2026-07-28
+
+### The filler pool is yours to tune
+
+`curated_filler` is back in the shipped `EldenRing.yaml`, written out with the real default weights
+so you can see and edit them. It is the game's main dial for what fills your junk checks — how much
+gear (`juice`), how many upgrade stones, how many runes — and a template that hides it hides the
+dial. A new gate (`test_gf_shipping_yaml_recipe`) keeps the template's numbers identical to the
+code's default, so it can never quietly ship an old economy again. Delete the block to follow the
+default automatically.
+
+`pool_builder_intensity` works again. It sets how good a piece of gear has to be to count as `juice`:
+
+| setting | counts as juice | catalog | gear placed (one seed) |
+|---|---|---|---|
+| `normal` | legendary only | ~149 | 230 |
+| `high` | legendary + rare | ~536 | 872 |
+| `max` (default) | + B-tier | ~1013 | 1518 |
+
+🛑 **A higher floor means LESS gear, not better gear.** Each level is a strictly smaller catalog while
+the `juice` weight is unchanged — so raising the floor asks for the same number of items out of a
+shorter list, and the surplus becomes junk. It buys quality by paying quantity. The option had been
+frozen and inert since the filler-budget rework; it is a live knob again and the generator now warns
+when the catalog cannot fill the allocation.
+
+### Four options retired
+
+`pool_builder`, `pool_builder_scope`, `pool_builder_juice_cap` and `pool_builder_juice_pct` described
+a private juice budget that no longer exists — the filler tail has one budget and the `juice` weight
+in `curated_filler` is the cap, the share and the on/off switch. They are now `Removed` stubs, so a
+yaml naming them **raises** instead of being silently ignored. For no gear at all, set `juice: 0`.
+
+Nothing about a default seed changed: `CONTRACT_HASH` is untouched, so an already-installed client
+still pairs with this apworld.
+
+### Also
+
+- Multiworld coverage in CI: two Elden Rings and two Hollow Knights, asserting items flow both ways
+  and that foreign progression lands only on the progression surface. Its first run found a real
+  leak — the finale's 10 locations bypassed the location-creation seam and never got the
+  confinement rule, so 7 foreign progression items had been placed off-surface. Fixed.
+- The player guide now documents `natural_progression`, `dungeon_sweep` and what fills your junk
+  checks.
+
 ## v0.2.15 — 2026-07-28
 
 Requires **Archipelago 0.6.7**. Regenerate your seed **and** refresh the client — the two must be

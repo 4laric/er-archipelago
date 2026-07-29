@@ -37,7 +37,6 @@ _DLC = frozenset(DLC_ITEM_NAMES)
 _LEAKY_DLC_OFF = {
     "enable_dlc": False,
     "item_shuffle": True,
-    "pool_builder": True,
     "pool_builder_intensity": "max",
     "varied_filler": True,
 }
@@ -103,8 +102,8 @@ class DLCOffNoPoolLeak(WorldTestBase):
 class DLCOnGateInert(WorldTestBase):
     """DLC on (default): the exclusion set is empty, so the gate is a no-op (no behavior change)."""
     game = GAME
-    options = {"item_shuffle": True, "pool_builder": True,
-               "pool_builder_intensity": "max", "varied_filler": True}
+    # `pool_builder` retired 2026-07-28 (Options.Removed) -- naming it here would raise.
+    options = {"item_shuffle": True, "pool_builder_intensity": "max", "varied_filler": True}
 
     def test_gate_empty_when_dlc_on(self):
         self.assertEqual(self.world.gf_dlc_excluded, frozenset(),

@@ -54,14 +54,21 @@ FROZEN_OPTIONS = {
     # of the filler tail. `scope` is meaningless (there is one budget: rune tail + displaceable junk),
     # `intensity` is the allocator's JUICE_FLOOR, and `juice_cap` is gone -- juice is a recipe weight
     # competing with stones on the same budget instead of a private allocation that ate them.
-    "pool_builder": (1, None),
-    "pool_builder_scope": (1, "all_filler"),
-    "pool_builder_intensity": (2, "max"),
-    "pool_builder_juice_cap": (0, None),
+    # RETIRED 2026-07-28 -- these four are now Options.Removed stubs (features/pool_builder.py), so a
+    # stale yaml naming them RAISES rather than being silently dropped. A Removed option cannot be
+    # frozen: there is no value to freeze.
+    #   "pool_builder"            -> say `juice: 0` in curated_filler
+    #   "pool_builder_scope"      -> filler_budget.budget_slots defines the tail
+    #   "pool_builder_juice_cap"  -> the `juice` weight IS the cap
+    # UNFROZEN 2026-07-28: `pool_builder_intensity` is a live knob again (filler_budget.juice_floor).
+    # It was frozen because the refactor left it inert; it is not inert any more, and "how good does
+    # gear have to be to count" is a real choice with a real cost (a higher floor is a SMALLER
+    # catalog, so it yields LESS gear, not better gear).
+    #   "pool_builder_intensity": (2, "max"),
     # SUPERSEDED and frozen so it cannot be set: "what share of the tail is juice?" is now simply the
     # `juice` weight in the curated_filler recipe. Left settable, it would be a silent no-op -- and a
     # knob that quietly does nothing is the exact failure class this whole change exists to kill.
-    "pool_builder_juice_pct": (100, None),
+    #   "pool_builder_juice_pct"  -> the `juice` weight IS the share (Removed stub)
 
     # 2, not the playtest yaml's 3: at 2 the starting upgrade level still REQUIRES stones, which keeps
     # smithing stones meaningful as checks. It errs generous. (3 made regular weapons so cheap to bring

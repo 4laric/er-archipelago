@@ -65,8 +65,26 @@ VALID = frozenset(_VALID_CATS) | {JUICE}
 # quietly ship. (This is the whole lesson of the bug this module exists to kill.)
 ECONOMY = ("stones", "somber_stones", "runes")
 
-# Juice rarity floor. Was pool_builder_intensity; frozen at `max` since v0.2, so it is a constant now.
+# Juice rarity floor -- the DEFAULT. Live again as `pool_builder_intensity` (2026-07-28): it was a
+# constant only because the option was frozen, and "how good does a piece of gear have to be to count
+# as gear" is a real question a player can have an opinion about. `juice_floor(world)` below resolves
+# it per seed; this constant remains the fallback for callers with no world (the module-level
+# _JUICE_NAMES set, and anything computing a catalog outside a generation).
 JUICE_FLOOR = INTENSITY_FLOOR["max"]
+
+
+def juice_floor(world) -> int:
+    """This seed's juice rarity floor, from `pool_builder_intensity`.
+
+    normal=3 legendary only | high=2 legendary+rare | max=1 also B-tier (the shipped default).
+    A HIGHER floor is a strictly SMALLER catalog, so raising it does not get you better gear -- it
+    gets you LESS gear, and the surplus spills to junk exactly like an over-weighted category. That
+    is the whole reason it is worth exposing rather than leaving frozen: it is a real trade, not a
+    quality dial.
+    """
+    o = getattr(getattr(world, "options", None), "pool_builder_intensity", None)
+    key = getattr(o, "current_key", None)
+    return INTENSITY_FLOOR.get(key, JUICE_FLOOR)
 
 # Regular smithing stones are drawn tier-weighted, not uniformly. Two facts drive it:
 #   * the ladder: reaching +N costs `stones_per_tier` of each tier it passes through;
@@ -427,7 +445,7 @@ def plan(world, total: int) -> List[Optional[str]]:
         elif cat == "somber_stones":
             out += _draw_stones(world, n, somber=True)
         elif cat == JUICE:
-            order = [nm for nm in juice_order_for_floor(JUICE_FLOOR)
+            order = [nm for nm in juice_order_for_floor(juice_floor(world))
                      if nm not in set(getattr(world, "gf_dlc_excluded", ()))]
             # PER-CATEGORY juice (pool_builder_pct_weapons / _spells / ...) still works: those percents
             # now split the JUICE allocation rather than carving a second private slice out of the

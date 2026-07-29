@@ -17,7 +17,8 @@ Design (matches the other greenfield WorldTestBase suites):
   * option keys/values mirror the feature option classes in core.py + features/*.py:
       - item_shuffle (Toggle)               -> True
       - dungeon_sweep (Choice)              -> "all"   (emits dungeonSweepFlags/dungeonSweeps/sweepLockGates)
-      - pool_builder (Toggle)               -> True    (needs item_shuffle on to have effect)
+      - pool_builder_intensity (Choice)     -> max     (widest juice catalog; the option was
+                                                       unfrozen 2026-07-28, `pool_builder` itself is retired)
       - ending_condition (Choice)           -> "great_runes" + great_runes_required=2
 
 Run (from the Archipelago dir, world installed):
@@ -118,7 +119,7 @@ class SlotDataFixtureRich(WorldTestBase):
     options = {
         "item_shuffle": True,
         "dungeon_sweep": "all",
-        "pool_builder": True,
+        "pool_builder_intensity": "max",
         "ending_condition": "great_runes",
         "goal_great_runes": 2,
         # Below 100 so the seed actually CAPS, which is what makes it emit

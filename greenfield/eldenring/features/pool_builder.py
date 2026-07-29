@@ -59,7 +59,7 @@ which changes which ones).
 """
 from typing import List
 
-from Options import Toggle, Range, Choice
+from Options import Choice, Range, Removed, Toggle
 from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from ..data import HUB, LOCATIONS
@@ -111,34 +111,25 @@ JUICE_ORDER = juice_order_for_floor(JUICE_MIN_RARITY)
 
 
 
-class PoolBuilder(Toggle):
-    """Off (default): the shuffled vanilla pool is used as-is (with a long tail of Rune fillers when
-    item_shuffle is on). On: curate the pool -- replace the Rune tail with high-tier juice (rare +
-    legendary weapons, armor, and talismans), count-neutral. Has no effect unless Shuffle Vanilla
-    Items is also on (there is no vanilla pool to curate otherwise).    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
-    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
-    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
-    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
-    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
-    knob."""
-    display_name = "Pool Builder"
+class PoolBuilder(Removed):
+    """Retired 2026-07-28. There is no separate pool builder to switch off -- gear
+    injection is the `juice` weight in `curated_filler`. Set `juice: 0` (or omit it) for no gear; the
+    generator warns on a recipe with no juice, so it cannot happen silently."""
 
 
 class PoolBuilderIntensity(Choice):
-    """How wide a net Pool Builder casts when picking juice (the equippables it turns the Rune tail
-    into). Sets the minimum param rarity a vanilla equippable needs to qualify:
-    'normal' = legendary only (rarity 3); 'high' = rare + legendary (rarity 2, the DEFAULT and
-    historical behavior); 'max' = also include common/B-tier equippables (rarity 1). Only the
-    candidate SET changes -- the count added stays the Rune tail (clamped by the juice cap), so a
-    higher intensity changes *which* equippables you get, not how many. Ignored unless Pool Builder
-    and Shuffle Vanilla Items are both on.
+    """How good a piece of gear has to be before it counts as `juice`.
 
-    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
-    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
-    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
-    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
-    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
-    knob."""
+    normal -- legendary only (~149 items).  high -- legendary + rare (~536).  max (default) -- also
+    B-tier (~1013).
+
+    A HIGHER FLOOR MEANS LESS GEAR, NOT BETTER GEAR. Each level is a strictly smaller catalog while
+    the `juice` weight in curated_filler is unchanged, so raising it asks for the same number of items
+    out of a shorter list and the surplus spills to junk. Measured on one seed: max 1518 gear in the
+    pool, high 872, normal 230. It buys quality by paying quantity, which is the trade worth exposing.
+
+    (Inert from the filler_budget refactor until 2026-07-28: it had become the constant JUICE_FLOOR
+    because the option was frozen and could not move. filler_budget.juice_floor reads it again.)"""
     display_name = "Pool Builder Intensity"
     option_normal = 0
     option_high = 1
@@ -146,66 +137,19 @@ class PoolBuilderIntensity(Choice):
     default = 1  # high -> rarity floor 2 == the original JUICE_MIN_RARITY (no change)
 
 
-class PoolBuilderJuiceCap(Range):
-    """Maximum number of high-tier juice items Pool Builder adds (when on). Bounded so juice only
-    ever displaces the Rune fallback tail, never real vanilla items. 0 lets Pool Builder auto-size
-    to the whole available Rune tail (still clamped to the number of juice items in the catalog).    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
-    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
-    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
-    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
-    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
-    knob."""
-    display_name = "Pool Builder Juice Cap"
-    range_start = 0
-    range_end = 400
-    default = 120
+class PoolBuilderJuiceCap(Removed):
+    """Retired 2026-07-28. It capped juice's PRIVATE budget. The filler tail has one
+    budget now and the `juice` weight in `curated_filler` IS the cap."""
 
 
-class PoolBuilderJuicePct(Range):
-    """What SHARE of the Rune fallback tail Pool Builder replaces with juice, as a percent.
-    100 (DEFAULT) = replace the whole available tail (historical behavior); 50 = replace about half
-    (leaving the rest as Rune fillers); 0 = replace none (Pool Builder becomes a no-op even when on).
-    Applied to the *true* remaining Rune tail (fallback checks minus what region Locks / grace scatter
-    already consume), then still clamped by the Juice Cap and the number of juice items in the
-    catalog. Ignored unless Pool Builder and Shuffle Vanilla Items are both on.
-
-    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
-    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
-    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
-    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
-    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
-    knob."""
-    display_name = "Pool Builder Juice Percent"
-    range_start = 0
-    range_end = 100
-    default = 100
+class PoolBuilderJuicePct(Removed):
+    """Retired 2026-07-28. It was juice's share of the tail -- that is the `juice`
+    weight in `curated_filler`."""
 
 
-class PoolBuilderScope(Choice):
-    """What Pool Builder juice is allowed to DISPLACE.
-    'rune_tail' (DEFAULT): only the Rune fallback tail -- checks with no real vanilla item (historical
-    behavior). The juice ceiling is the size of that tail.
-    'all_filler': ALSO the junk-consumable vanilla filler in the shuffled pool -- throwables, pots,
-    greases, boluses, and the like. This is economy-SAFE: the tuned economy (Golden/Lord's/Hero's/
-    Numen's Runes, Smithing/Somber stones, Golden Seed, Sacred Tear, Glovewort, Great Rune), the funny
-    junk, all real gear, and anything the seed treats as progression (e.g. the Academy Glintstone Key
-    gate) are never displaced. (The old warning that an aggressive setting "can thin the stone/rune economy that
-    stone_injection / stone_ramp draw from" described the THREE-PASS design filler_budget replaced --
-    the economy is now a reservation taken off the top and cannot be thinned by juice. The warning
-    outlived both the mechanism and the pass it warned about.) Juice Percent and the per-category percents then read as a
-    share of this wider juice-eligible set. Ignored unless Pool Builder and Shuffle Vanilla Items are
-    both on.
-
-    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
-    feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
-    slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
-    It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
-    diagnostic and for whoever revives the mechanism -- do not describe it to players as a
-    knob."""
-    display_name = "Pool Builder Scope"
-    option_rune_tail = 0
-    option_all_filler = 1
-    default = 0
+class PoolBuilderScope(Removed):
+    """Retired 2026-07-28. It chose what juice could displace; `filler_budget.budget_slots`
+    defines the tail now and juice competes inside it like every other category."""
 
 
 class _PoolBuilderPctCategory(Range):
@@ -296,11 +240,6 @@ class PoolBuilderFeature(Feature):
     }
 
     # ---- helpers ----------------------------------------------------------------
-    def _enabled(self, world) -> bool:
-        pb = getattr(world.options, "pool_builder", None)
-        sh = getattr(world.options, "item_shuffle", None)
-        return bool(pb and pb.value) and bool(sh and sh.value)
-
     def _floor(self, world) -> int:
         """Resolved juice rarity floor for this world from pool_builder_intensity (default high)."""
         opt = getattr(world.options, "pool_builder_intensity", None)
@@ -312,13 +251,6 @@ class PoolBuilderFeature(Feature):
                 key = DEFAULT_INTENSITY
         return INTENSITY_FLOOR.get(key, INTENSITY_FLOOR[DEFAULT_INTENSITY])
 
-    def _pct(self, world) -> int:
-        """Resolved share of the Rune tail to replace (0..100, default 100 = whole tail)."""
-        opt = getattr(world.options, "pool_builder_juice_pct", None)
-        if opt is None:
-            return 100
-        return max(0, min(100, int(opt.value)))
-
     def _juice_order(self, world) -> List[str]:
         """Per-world juice candidate list (best-first) at this world's intensity floor.
         DLC-only catalog items are dropped when this world has DLC off (see core.gf_dlc_excluded)."""
@@ -326,104 +258,6 @@ class PoolBuilderFeature(Feature):
         _order = juice_order_for_floor(self._floor(world))
         return [n for n in _order if n not in _excl] if _excl else _order
 
-    def _rune_fallback_locations(self, world) -> int:
-        """Kept-region checks with no real vanilla item -> Rune under item_shuffle."""
-        rune = 0
-        for rn in [HUB] + list(world._kept()):
-            for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
-                nm = LOCATION_ITEM.get(ap_id)
-                if not (nm and nm in ITEM_CATALOG):
-                    rune += 1
-        return rune
-
-    def _reserved_slots(self, world) -> int:
-        """Slots the OTHER pool contributors consume, which shrink the true Rune tail below the raw
-        Rune-fallback-location count. core.create_items runs pool_builder LAST and records the exact
-        count (locks minus any precollect, boss keys, progressive copies, ...) on the world; fall back
-        to the kept-region Lock count only if that hook is absent (older core). The old
-        len(kept)-only estimate undercounted boss_keys/progressive and over-provisioned juice."""
-        r = getattr(world, "_gf_reserved_slots", None)
-        return int(r) if r is not None else len(world._kept())
-
-    def _cap(self, world) -> int:
-        cap_opt = getattr(world.options, "pool_builder_juice_cap", None)
-        return int(cap_opt.value) if cap_opt is not None else 0
-
-    def _scope_all_filler(self, world) -> bool:
-        opt = getattr(world.options, "pool_builder_scope", None)
-        if opt is None:
-            return False
-        try:
-            return opt.current_key == "all_filler"
-        except Exception:
-            return False
-
-    def _rune_tail(self, world) -> int:
-        """Displaceable-slot budget = juice-eligible checks minus slots other contributors eat.
-
-        scope=rune_tail (default): only Rune-fallback checks (byte-identical to the historical count).
-        scope=all_filler: ALSO the junk-consumable vanilla filler (displaceable_filler -- the SAME
-        predicate core's extras-sort uses to rank those items to the drop tail, so the budget and the
-        drop order cannot drift). Conservative: DLC-excluded-but-in-catalog items are counted as
-        neither (core turns them into FILLER, so this only under-counts -> juice never over-runs into a
-        protected slot)."""
-        base = self._rune_fallback_locations(world)
-        if self._scope_all_filler(world):
-            from ..features.filler_curation import displaceable_filler
-            excl = getattr(world, "gf_dlc_excluded", ())
-            for rn in [HUB] + list(world._kept()):
-                for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
-                    nm = LOCATION_ITEM.get(ap_id)
-                    if (nm and nm in ITEM_CATALOG and not (excl and nm in excl)
-                            and displaceable_filler(world, nm)):
-                        base += 1
-        return max(0, base - self._reserved_slots(world))
-
-    def _category_pcts(self, world) -> dict:
-        """{gear category -> percent} for every per-category percent set >0 ({} = global mode)."""
-        out = {}
-        for opt, cat in CATEGORY_OPTION.items():
-            o = getattr(world.options, opt, None)
-            v = max(0, min(100, int(o.value))) if o is not None else 0
-            if v > 0:
-                out[cat] = v
-        return out
-
-    def _juice_list(self, world) -> List[str]:
-        """The ordered catalog item names to inject as juice, handling both modes.
-
-        GLOBAL (every per-category percent 0, the default): Juice Percent of the Rune tail, best-first
-        across ALL categories combined (historical behavior). PER-CATEGORY (any percent >0): each
-        category fills its OWN percent of the tail, best-first WITHIN the category, and the global
-        Juice Percent is ignored. Both modes are clamped to the available tail and the Juice Cap."""
-        if not self._enabled(world):
-            return []
-        order = self._juice_order(world)                 # best-first, floor + DLC filtered
-        if not order:
-            return []
-        rune_tail = self._rune_tail(world)
-        cats = self._category_pcts(world)
-        if not cats:                                     # GLOBAL mode
-            picks = order[: (rune_tail * self._pct(world)) // 100]
-        else:                                            # PER-CATEGORY mode
-            picks = []
-            for cat, pct in cats.items():
-                budget = (rune_tail * pct) // 100
-                if budget > 0:
-                    cat_items = [n for n in order if ITEM_TIER_CATEGORY.get(n) == cat]
-                    picks.extend(cat_items[:budget])
-        # count-safety: never exceed the true Rune tail (percents may aggregate >100), then the cap.
-        picks = picks[:rune_tail]
-        cap = self._cap(world)
-        if cap > 0:
-            picks = picks[:cap]
-        return picks
-
-    def _juice_budget(self, world) -> int:
-        """Count of juice items injected (both modes) -- for diagnostics / back-compat."""
-        return len(self._juice_list(world))
-
-    # ---- hooks ------------------------------------------------------------------
     def create_items(self, world):
         # RETIRED. pool_builder no longer owns a private slice of the filler tail: `juice` is a recipe
         # category inside features/filler_budget, which is the single owner of that budget. Owning a
@@ -433,12 +267,41 @@ class PoolBuilderFeature(Feature):
         return []
 
     def slot_data(self, world):
-        # pure pool curation -> no client contract needed; expose the resolved knobs for diagnostics.
+        """Diagnostics only -- no client reads these (contract.py tags each one as such).
+
+        RE-DERIVED 2026-07-28 rather than removed. Three of these five described the retired private
+        juice budget, and the obvious move was to delete them -- but a contract key is not free to
+        drop: removing any key moves CONTRACT_HASH, and a moved hash means every already-released
+        client stops pairing with this apworld. Paying a forced client update to delete a diagnostic
+        nothing reads is a bad trade. So the keys stay and now report the CURRENT mechanism:
+
+          pool_builder      -- is any gear being injected at all (recipe juice weight > 0)
+          pool_builder_juice_pct -- juice's share of the filler recipe, which is what the retired
+                                   option used to set by hand
+          pool_builder_juice_added -- how much juice the catalog can actually supply, i.e. the
+                                   allocation AFTER the rarity floor clamps it (the spill this
+                                   reports is the whole point of exposing the intensity knob)
+
+        🛑 The old readers called `int()` on options that are now Options.Removed stubs, whose value
+        is the EMPTY STRING -- `int("")` raised inside fill_slot_data and surfaced as a CoverageError
+        that never mentioned pool_builder. None of these read an option any more.
+        """
+        from .filler_budget import recipe_of, budget_slots
+
         floor = self._floor(world)
+        catalog = len(juice_order_for_floor(floor))
+        recipe = recipe_of(world) or {}
+        juice_w = int(recipe.get("juice", 0) or 0)
+        total_w = sum(int(v or 0) for v in recipe.values())
+        pct = (juice_w * 100) // total_w if total_w else 0
+        try:
+            tail = int(budget_slots(world))
+        except Exception:                      # a diagnostic must never be the thing that fails
+            tail = 0
         return {
-            "pool_builder": bool(self._enabled(world)),
-            "pool_builder_juice_added": self._juice_budget(world),
+            "pool_builder": juice_w > 0,
+            "pool_builder_juice_added": min((tail * juice_w) // total_w if total_w else 0, catalog),
             "pool_builder_intensity_floor": floor,
-            "pool_builder_juice_candidates": len(self._juice_order(world)),
-            "pool_builder_juice_pct": self._pct(world),
+            "pool_builder_juice_candidates": catalog,
+            "pool_builder_juice_pct": pct,
         }

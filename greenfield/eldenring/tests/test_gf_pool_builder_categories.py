@@ -15,17 +15,25 @@ from worlds.eldenring.item_tiers import ITEM_TIER_CATEGORY  # noqa: E402
 
 GAME = "Elden Ring"
 
-_BASE = {"item_shuffle": True, "pool_builder": True, "pool_builder_intensity": "max",
-         "pool_builder_juice_cap": 0}  # max floor (S/A/B) + no cap -> widest per-category room
+# `pool_builder` and `pool_builder_juice_cap` retired 2026-07-28 (Options.Removed): naming
+# either one here would raise. max floor = S/A/B = the widest per-category room.
+_BASE = {"item_shuffle": True, "pool_builder_intensity": "max"}
 
 
 def _injected_categories(world):
-    """category -> count, for the juice items pool_builder.create_items would add this world."""
-    from worlds.eldenring.features.pool_builder import PoolBuilderFeature
-    names = PoolBuilderFeature()._juice_list(world)
+    """category -> count, for the gear this world's filler recipe actually places.
+
+    Re-pointed 2026-07-28 from `PoolBuilderFeature._juice_list` to `filler_budget.plan`. The private
+    juice list was deleted with the rest of the retired budget machine; the per-category percents are
+    still live and are now read inside `plan()` (via CATEGORY_OPTION), so this asks the code that
+    really decides. Reading the composed itempool instead would NOT work: with item_shuffle on the
+    pool already holds every vanilla weapon and robe, so "gear in the pool" is not "gear injected".
+    """
+    from worlds.eldenring.features.filler_budget import plan, budget_slots
+    names = [n for n in plan(world, budget_slots(world)) if n and n in ITEM_TIER_CATEGORY]
     out = {}
     for n in names:
-        out[ITEM_TIER_CATEGORY.get(n, "OTHER")] = out.get(ITEM_TIER_CATEGORY.get(n, "OTHER"), 0) + 1
+        out[ITEM_TIER_CATEGORY[n]] = out.get(ITEM_TIER_CATEGORY[n], 0) + 1
     return out, len(names)
 
 

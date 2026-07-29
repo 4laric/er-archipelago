@@ -53,6 +53,14 @@ _NOT_OPTIONS = {
     "spine",        # a VALUE of num_regions_order ("`spine` order"), not a key
     "rolled",       # ditto
     "region_locks", "great_runes",  # values of ending_condition
+    # CATEGORY WEIGHTS INSIDE `curated_filler` -- sub-keys of one option, not options themselves.
+    # The guide has to name them (they are what a player actually edits), and each is checked for
+    # real by test_gf_shipping_yaml_recipe against filler_curation.CuratedFiller.default, which is a
+    # stronger gate than name-existence: it compares the shipped numbers to the code's.
+    "juice", "stones", "somber_stones", "runes", "throwables", "pots", "greases", "foods", "boluses",
+    "junk",         # the drop target when a category over-allocates; prose, not a key
+    # VALUES of dungeon_sweep
+    "bosses", "minidungeons", "none",
 }
 
 
