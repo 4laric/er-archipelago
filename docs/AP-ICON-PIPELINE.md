@@ -15,7 +15,7 @@ define it are two halves of one feature.**
 | artifact | whose | in git? | why |
 |---|---|---|---|
 | `tools/build_ap_icon.py` | **ours** | YES | project source. It was referenced by `build.ps1` in four places while living only on one dev box -- which is the whole reason the flower has never shipped from a clean clone. |
-| the flower **source artwork** (the PNG/DDS we drew) | **ours** | YES | original art, small, and the only input that is not derivable. Without it the tool cannot reproduce the sheet on another machine. |
+| the flower **source artwork** | Archipelago's logo | YES -- **landed 2026-07-29** at `tools/ap_icon_src/` | not game data, so rule 1 does not apply. The only input that is not derivable: without it the tool cannot reproduce the sheet on another machine. |
 | `menu\hi\|low\01_common.tpf.dcx` (the built sheet) | **FromSoft's**, repainted | **NO** | the game's SB_Icon sprite sheet with one cell replaced. Game data -- **PROVENANCE.md rule 1**. Gitignored (`/build/`, `/me3/`). Built per machine from the local install. |
 
 The split is the one the rest of this repo already uses: **commit the derivation, never the derived
@@ -54,7 +54,11 @@ still ship telescopes.
 
 ## Open item
 
-`tools/build_ap_icon.py` and the flower source art are **not yet in the tree** -- they exist only on
-the dev box. Until they are committed, `build.ps1` throws with instructions and `package_release.ps1`
-refuses to package. That is deliberate: the gap was previously invisible, and a build that quietly
-skipped the icon is how it stayed invisible.
+The **source art has landed** (`tools/ap_icon_src/`, 2026-07-29). What is still missing is
+`tools/build_ap_icon.py` itself -- it exists only on the dev box. Until it is committed, `build.ps1`
+throws with instructions and `package_release.ps1` refuses to package. That is deliberate: the gap
+was previously invisible, and a build that quietly skipped the icon is how it stayed invisible.
+
+Two notes for whoever commits the tool, both recorded in `tools/ap_icon_src/README.md`: the art is
+not square (2034x2112) while SB_Icon cells are, and the documented `--black-to-alpha` flag looks
+wrong for this source, which already carries a real alpha channel.
