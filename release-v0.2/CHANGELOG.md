@@ -16,11 +16,15 @@ default automatically.
 
 `pool_builder_intensity` works again. It sets how good a piece of gear has to be to count as `juice`:
 
-| setting | counts as juice | catalog | gear placed (one seed) |
+| setting | counts as juice | catalog size | gear in the finished pool* |
 |---|---|---|---|
-| `normal` | legendary only | ~149 | 230 |
-| `high` | legendary + rare | ~536 | 872 |
-| `max` (default) | + B-tier | ~1013 | 1518 |
+| `normal` | legendary only | 149 | 230 |
+| `high` | legendary + rare | 536 | 872 |
+| `max` (default) | + B-tier | 1013 | 1518 |
+
+\* one seed, and it counts every catalog-grade item in the pool — the vanilla gear that was always
+there plus what the recipe injected — not injected gear alone. Injected juice can never exceed the
+catalog size in the column to its left.
 
 🛑 **A higher floor means LESS gear, not better gear.** Each level is a strictly smaller catalog while
 the `juice` weight is unchanged — so raising the floor asks for the same number of items out of a
@@ -35,8 +39,10 @@ a private juice budget that no longer exists — the filler tail has one budget 
 in `curated_filler` is the cap, the share and the on/off switch. They are now `Removed` stubs, so a
 yaml naming them **raises** instead of being silently ignored. For no gear at all, set `juice: 0`.
 
-Nothing about a default seed changed: `CONTRACT_HASH` is untouched, so an already-installed client
-still pairs with this apworld.
+`CONTRACT_HASH` is untouched, so an already-installed client still pairs with this apworld. A default
+seed rolls the same juice catalog it did in v0.2.15 — the option's own default was corrected to `max`
+in review, because unfreezing it while the class default underneath still said `high` would have
+quietly halved the catalog for anyone not using the shipped template.
 
 ### Also
 

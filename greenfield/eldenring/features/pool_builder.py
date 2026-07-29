@@ -9,12 +9,9 @@ param `rarity` filling any gap the TSV doesn't cover. See gen_data.py -> item_ti
 Only meaningful when item_shuffle is ON (there is a shuffled vanilla pool to curate). When item_shuffle
 is OFF every check pays a Rune and there is nothing to curate -> the feature is a no-op.
 
-SCOPE (pool_builder_scope). By default juice displaces ONLY the Rune-fallback tail. Set to 'all_filler'
-and it may ALSO displace junk-consumable vanilla filler (throwables/pots/greases/...), economy-safe:
-the tuned economy (runes, smithing/somber stones, seeds/tears/glovewort/great runes), funny junk, real
-gear, and progression (e.g. promoted key gates) are never touched. This widens the juice ceiling far
-past the small Rune tail; the drop order lives in core.create_items' extras-sort, which ranks exactly
-the same displaceable_filler set to the tail so the budget here and the drop there cannot drift.
+SCOPE. Retired 2026-07-28 along with pool_builder_scope. There is one filler budget now
+(features/filler_budget.budget_slots) and juice competes inside it against every other category by
+its `curated_filler` weight -- it no longer has a private tail of its own to displace.
 
 Count-neutral by construction. core.create_items builds `pool` (locks + every feature's
 create_items()), then computes `slots = total_locations - len(pool)` and fills those slots from the
@@ -43,8 +40,8 @@ gap the tier list doesn't cover) is at or above a FLOOR. The tier list rates all
 categories -- weapons, armor, spells/incantations, talismans, and ashes of war. The floor is chosen
 per-world from this Choice:
   * normal -> tier >= 3 (S only)
-  * high   -> tier >= 2 (S + A)  [DEFAULT -- the historical behavior]
-  * max    -> tier >= 1 (S + A + B)
+  * high   -> tier >= 2 (S + A)
+  * max    -> tier >= 1 (S + A + B)  [DEFAULT]
 The juice list is computed PER-WORLD from the floor (juice_order_for_floor), sorted best-first
 (highest tier, then name) so it stays deterministic and count-neutral, and it is still bounded by
 the Rune tail and the juice cap. A higher intensity only widens the CANDIDATE set; the count actually
@@ -88,12 +85,17 @@ except Exception:
     ITEM_CATALOG, LOCATION_ITEM = {}, {}
 
 # ER param `rarity`: 0 = trivial/ammo, 1 = common, 2 = rare, 3 = legendary.
-# Intensity -> juice rarity FLOOR. high == the historical JUICE_MIN_RARITY of 2 (DEFAULT).
+# Intensity -> juice rarity FLOOR.
+# 🛑 DEFAULT_INTENSITY is the FALLBACK for a world with no resolvable option, and it must agree with
+# PoolBuilderIntensity.default and with filler_budget.juice_floor's fallback. It said "high" while
+# both of those said max, so an unresolvable option quietly composed from the 536-item catalog
+# instead of the 1013-item one -- three fallbacks, two answers, no test.
 INTENSITY_FLOOR = {"normal": 3, "high": 2, "max": 1}
-DEFAULT_INTENSITY = "high"
+DEFAULT_INTENSITY = "max"
 
 # Back-compat module-level aliases (the default 'high' intensity == the historical behavior).
-# JUICE_MIN_RARITY was the old fixed floor (2 == high); JUICE_ORDER was the default juice list.
+# JUICE_MIN_RARITY / JUICE_ORDER are the historical names, kept for importers; both now track
+# DEFAULT_INTENSITY rather than a frozen literal.
 JUICE_MIN_RARITY = INTENSITY_FLOOR[DEFAULT_INTENSITY]
 
 
@@ -134,7 +136,12 @@ class PoolBuilderIntensity(Choice):
     option_normal = 0
     option_high = 1
     option_max = 2
-    default = 1  # high -> rarity floor 2 == the original JUICE_MIN_RARITY (no change)
+    # 🛑 default = max, NOT high. While this option was FROZEN, defaults.FROZEN_OPTIONS pinned it at
+    # ("max"), so every seed generated at floor 1 -- the class default underneath was stale and
+    # unreachable. Unfreezing it without moving the class default would have silently reverted every
+    # default seed from the 1013-item catalog to the 536-item one, which is a behaviour change
+    # wearing a docs-and-yaml release's clothes. Caught in review; the freeze value IS the default.
+    default = 2  # max -> rarity floor 1, matching the frozen value this option shipped with
 
 
 class PoolBuilderJuiceCap(Removed):
@@ -271,37 +278,35 @@ class PoolBuilderFeature(Feature):
 
         RE-DERIVED 2026-07-28 rather than removed. Three of these five described the retired private
         juice budget, and the obvious move was to delete them -- but a contract key is not free to
-        drop: removing any key moves CONTRACT_HASH, and a moved hash means every already-released
-        client stops pairing with this apworld. Paying a forced client update to delete a diagnostic
-        nothing reads is a bad trade. So the keys stay and now report the CURRENT mechanism:
+        drop: removing any key moves CONTRACT_HASH, and a moved hash stops every already-released
+        client pairing with this apworld. Paying a forced client update to delete a diagnostic
+        nothing reads is a bad trade, so the keys stay and report the CURRENT mechanism.
 
-          pool_builder      -- is any gear being injected at all (recipe juice weight > 0)
-          pool_builder_juice_pct -- juice's share of the filler recipe, which is what the retired
-                                   option used to set by hand
-          pool_builder_juice_added -- how much juice the catalog can actually supply, i.e. the
-                                   allocation AFTER the rarity floor clamps it (the spill this
-                                   reports is the whole point of exposing the intensity knob)
-
-        🛑 The old readers called `int()` on options that are now Options.Removed stubs, whose value
-        is the EMPTY STRING -- `int("")` raised inside fill_slot_data and surfaced as a CoverageError
-        that never mentioned pool_builder. None of these read an option any more.
+        🛑 REPORT THE MEASUREMENT, DO NOT RE-DERIVE IT. The first version of this recomputed juice
+        from the recipe as `min((tail * juice_w) // total_w, catalog)` -- a plausible formula that
+        was never checked against a real generation. Measured, it said 536 where `plan()` had placed
+        423: it used the UN-filtered catalog on a DLC-off seed and ignored the econ-first two-stage
+        split inside `allocate()`. A diagnostic that recomputes its subject will drift from it; this
+        one now reads what plan() actually recorded (`world.gf_filler_alloc`, set during
+        create_items, before fill_slot_data runs) and the same DLC-filtered order `create_items`
+        drew from. See CONTRIBUTING, "the silent wrong answer".
         """
-        from .filler_budget import recipe_of, budget_slots
+        from .filler_budget import recipe_of
 
         floor = self._floor(world)
-        catalog = len(juice_order_for_floor(floor))
+        order = self._juice_order(world)          # DLC-filtered, exactly what create_items used
+        alloc = getattr(world, "gf_filler_alloc", None)
+        if alloc is None:                         # slot_data before create_items: say so, don't guess
+            added = -1
+        else:
+            added = min(int(alloc.get("juice", 0) or 0), len(order))
         recipe = recipe_of(world) or {}
-        juice_w = int(recipe.get("juice", 0) or 0)
         total_w = sum(int(v or 0) for v in recipe.values())
-        pct = (juice_w * 100) // total_w if total_w else 0
-        try:
-            tail = int(budget_slots(world))
-        except Exception:                      # a diagnostic must never be the thing that fails
-            tail = 0
+        juice_w = int(recipe.get("juice", 0) or 0)
         return {
             "pool_builder": juice_w > 0,
-            "pool_builder_juice_added": min((tail * juice_w) // total_w if total_w else 0, catalog),
+            "pool_builder_juice_added": added,
             "pool_builder_intensity_floor": floor,
-            "pool_builder_juice_candidates": catalog,
-            "pool_builder_juice_pct": pct,
+            "pool_builder_juice_candidates": len(order),
+            "pool_builder_juice_pct": (juice_w * 100) // total_w if total_w else 0,
         }

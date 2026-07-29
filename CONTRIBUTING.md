@@ -44,10 +44,15 @@ with a message that names both options and says why — don't let it reach fill.
 
 ## Options hygiene
 
-- **Options live in `options.py`, not `__init__.py`.** Accessibility settings,
-  option definitions, and validation belong in `options.py`. `__init__.py`
-  consumes them; it does not define them. Factor any option logic that has crept
-  into `__init__.py` back out as part of your change.
+- **Options are declared where they are owned, and assembled once.** A core option
+  is a class in `core.py`, listed in `_CORE_OPTION_FIELDS`. A feature's option is a
+  class in that feature's own `features/<name>.py`, listed in its `OPTIONS` dict.
+  `core.GFOptions` is then assembled from both by `registry.collect_option_fields`,
+  minus anything in `defaults.FROZEN_OPTIONS`. Nothing else defines options — a new
+  option goes in exactly one of those two places, never a third.
+  (This bullet named a central `options.py` until 2026-07-28. No such file exists in
+  the greenfield world, and the stale name had already leaked into a spec written
+  from this document.)
 - **New options default to vanilla / no-change.** Default to `OFF`, `0`, or
   otherwise "the game behaves as it did before this option existed." A fresh yaml
   that doesn't mention your option must generate identically to before.

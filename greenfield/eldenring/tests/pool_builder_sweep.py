@@ -229,10 +229,12 @@ def main():
         "enable_dlc": not args.no_dlc,
         "num_regions": args.num_regions,
     }
-    on_opts = dict(base_opts, pool_builder=True,
+    on_opts = dict(base_opts,
                    pool_builder_intensity=intensity,
                    )  # juice_cap retired 2026-07-28; --juice-cap is now a no-op
-    off_opts = dict(base_opts, pool_builder=False)
+    # `pool_builder` is an Options.Removed stub: str(False) == "False" is non-empty, so BOTH
+    # arms raised, not just the on-arm. "No gear" is now a recipe with no juice weight.
+    off_opts = dict(base_opts, curated_filler={"runes": 100})
 
     seeds = sample_seeds(max_n, args.seed_base)
     ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
