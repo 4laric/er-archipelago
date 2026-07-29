@@ -5,7 +5,7 @@ WHAT
 455 ShopLineupParam rows have no `eventFlag_forStock`, and every one is `sellQuantity == -1`
 (unlimited). No flag means no way to observe a purchase, so they can never be AP checks. That is not a
 bug -- nothing touches them today, they simply sell their vanilla ware forever, which is why a merchant
-still stocks a vanilla Flail in a randomised seed.
+still stocks a vanilla Flail in a randomized seed.
 
 Alaric's idea (2026-07-11): don't make them checks. REROLL them. Each seed, every infinite row is
 rewritten to a random high-impact consumable, so merchants stock an infinite supply of *something
