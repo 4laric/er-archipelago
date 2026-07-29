@@ -47,7 +47,16 @@ class ShippingYamlRecipe(unittest.TestCase):
             raise unittest.SkipTest("release-v0.2/EldenRing.yaml not present")
         with open(YAML, encoding="utf-8") as fh:
             doc = yaml.safe_load(fh)
-        cls.opts = doc.get("Elden Ring", doc)
+        # 🛑 ASSERT the game key, do not fall back to the whole document. `doc.get("Elden Ring", doc)`
+        # looks defensive and is the opposite: rename or typo that key and every lookup below returns
+        # None, `curated_filler` is absent, and the equality test DISARMS ITSELF into a skip -- a
+        # green run that checked nothing. The fallback has to be an error, because the thing it would
+        # be tolerating (no Elden Ring section in the Elden Ring template) is never acceptable.
+        assert "Elden Ring" in doc, (
+            "release-v0.2/EldenRing.yaml has no 'Elden Ring' section -- either the game key was "
+            "renamed or the template is malformed. Refusing to fall back to the whole document, "
+            "because that turns every assertion below into a vacuous pass.")
+        cls.opts = doc["Elden Ring"]
 
         # Read the default WITHOUT importing: filler_curation uses package-relative imports and
         # needs the AP env, and this gate is a two-numbers-in-two-files check that should not depend
