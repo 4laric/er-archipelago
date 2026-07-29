@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "3f066ad28af622c96bafbed22d3ab771525bd39919b779a3f9232af08078ca3d",
+ "source_sha256": "935483bc6bdc2fbbbf8a26bc5a377aa277a448dff16ea0a11c93f82112fde108",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -429,7 +429,7 @@
    "key": "region_grace_unlock",
    "class": "RegionGraceUnlock",
    "display_name": "Region Grace Unlock",
-   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla\nway. Liurnia lights 59 graces at once on `all`, Caelid 38, Limgrave 28, which is what makes the\nmap read as already-explored.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
    "kind": "choice",
    "base": "Choice",
    "default": "all",
@@ -439,8 +439,12 @@
      "value": 0
     },
     {
-     "name": "entrance",
+     "name": "landmarks",
      "value": 1
+    },
+    {
+     "name": "entrance",
+     "value": 2
     }
    ],
    "range": null,

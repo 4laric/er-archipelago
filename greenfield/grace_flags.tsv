@@ -1,422 +1,422 @@
-warpUnlockFlag	mapTile
-71000	m10_00
-71001	m10_00
-71002	m10_00
-71003	m10_00
-71004	m10_00
-71005	m10_00
-71006	m10_00
-71007	m10_00
-71008	m10_00
-71100	m11_00
-71101	m11_00
-71102	m11_00
-71103	m11_00
-71104	m11_00
-71105	m11_00
-71107	m11_00
-71108	m11_00
-71109	m11_00
-71120	m11_05
-71121	m11_05
-71122	m11_05
-71123	m11_05
-71124	m11_05
-71125	m11_05
-71190	m11_10
-71210	m12_01
-71211	m12_01
-71212	m12_01
-71213	m12_01
-71214	m12_01
-71215	m12_01
-71216	m12_01
-71218	m12_01
-71219	m12_01
-71220	m12_02
-71221	m12_02
-71222	m12_02
-71223	m12_02
-71224	m12_02
-71225	m12_02
-71226	m12_02
-71227	m12_02
-71230	m12_03
-71231	m12_03
-71232	m12_03
-71233	m12_03
-71234	m12_03
-71235	m12_03
-71240	m12_04
-71250	m12_05
-71251	m12_05
-71252	m12_05
-71253	m12_05
-71260	m12_06
-71261	m12_06
-71270	m12_07
-71271	m12_07
-71300	m13_00
-71301	m13_00
-71302	m13_00
-71303	m13_00
-71304	m13_00
-71305	m13_00
-71306	m13_00
-71307	m13_00
-71308	m13_00
-71309	m13_00
-71310	m13_00
-71400	m14_00
-71401	m14_00
-71402	m14_00
-71403	m14_00
-71500	m15_00
-71501	m15_00
-71502	m15_00
-71503	m15_00
-71504	m15_00
-71505	m15_00
-71506	m15_00
-71507	m15_00
-71508	m15_00
-71600	m16_00
-71601	m16_00
-71602	m16_00
-71603	m16_00
-71604	m16_00
-71605	m16_00
-71606	m16_00
-71607	m16_00
-71800	m18_00
-71801	m18_00
-71900	m19_00
-72000	m20_00
-72001	m20_00
-72002	m20_00
-72003	m20_00
-72010	m20_01
-72012	m20_01
-72013	m20_01
-72014	m20_01
-72015	m20_01
-72016	m20_01
-72101	m21_00
-72102	m21_00
-72106	m21_00
-72107	m21_00
-72108	m21_00
-72109	m21_00
-72110	m21_01
-72111	m21_01
-72112	m21_01
-72113	m21_01
-72114	m21_01
-72116	m21_01
-72117	m21_01
-72120	m21_02
-72200	m22_00
-72201	m22_00
-72202	m22_00
-72203	m22_00
-72204	m22_00
-72500	m25_00
-72800	m28_00
-72801	m28_00
-72802	m28_00
-72803	m28_00
-73000	m30_00
-73001	m30_01
-73002	m30_02
-73003	m30_03
-73004	m30_04
-73005	m30_05
-73006	m30_06
-73007	m30_07
-73008	m30_08
-73009	m30_09
-73010	m30_10
-73011	m30_11
-73012	m30_12
-73013	m30_13
-73014	m30_14
-73015	m30_15
-73016	m30_16
-73017	m60_50_53
-73018	m60_50_53
-73019	m60_50_55
-73020	m30_20
-73100	m60_43_37
-73101	m31_01
-73102	m60_42_33
-73103	m31_03
-73104	m31_04
-73105	m31_05
-73106	m31_06
-73107	m31_07
-73109	m31_09
-73110	m31_10
-73111	m31_11
-73112	m31_12
-73115	m31_15
-73117	m31_17
-73118	m31_18
-73119	m31_19
-73120	m31_20
-73121	m31_21
-73122	m60_53_56
-73200	m32_00
-73201	m60_43_37
-73202	m60_37_47
-73204	m60_38_53
-73205	m32_05
-73207	m60_46_39
-73208	m32_08
-73211	m60_47_55
-73257	m32_07
-73410	m34_10
-73412	m34_10
-73420	m34_11
-73421	m34_11
-73422	m34_11
-73430	m34_12
-73431	m60_43_50
-73432	m34_12
-73440	m34_13
-73441	m34_13
-73450	m34_14
-73451	m34_14
-73460	m34_15
-73500	m35_00
-73501	m35_00
-73502	m35_00
-73503	m35_00
-73504	m35_00
-73900	m39_20
-73901	m39_20
-73902	m39_20
-74000	m40_00
-74001	m40_01
-74002	m40_02
-74100	m41_00
-74101	m41_01
-74102	m41_02
-74200	m42_00
-74202	m42_02
-74203	m42_03
-74300	m43_00
-74301	m43_01
-74351	m43_01
-76100	m60_42_36
-76101	m60_42_36
-76102	m60_41_38
-76103	m60_44_38
-76104	m60_46_38
-76105	m60_45_36
-76106	m60_44_35
-76108	m60_43_37
-76110	m60_41_35
-76111	m60_42_37
-76113	m60_43_35
-76114	m60_44_37
-76116	m60_43_38
-76117	m60_43_39
-76118	m60_42_38
-76119	m60_44_39
-76120	m60_44_36
-76150	m60_43_34
-76151	m60_44_33
-76152	m60_42_33
-76153	m60_44_33
-76154	m60_44_33
-76155	m60_45_33
-76156	m60_41_32
-76157	m60_44_34
-76158	m60_43_31
-76159	m60_43_31
-76160	m60_43_31
-76161	m60_43_30
-76162	m60_41_33
-76200	m60_39_40
-76201	m60_38_40
-76202	m60_38_41
-76203	m60_37_42
-76204	m60_37_44
-76205	m60_35_45
-76206	m60_35_46
-76207	m60_36_48
-76208	m60_36_49
-76209	m60_38_50
-76210	m60_33_46
-76211	m60_34_47
-76212	m60_34_48
-76213	m60_34_49
-76214	m60_35_50
-76215	m60_36_41
-76216	m60_36_43
-76217	m60_38_45
-76218	m60_33_44
-76219	m60_35_43
-76220	m60_34_42
-76221	m60_39_42
-76222	m60_38_43
-76223	m60_38_45
-76224	m60_37_46
-76225	m60_38_47
-76226	m60_37_48
-76227	m60_33_47
-76228	m60_34_50
-76229	m60_38_50
-76230	m60_35_50
-76231	m60_35_50
-76232	m60_35_50
-76233	m60_36_45
-76234	m60_38_46
-76235	m60_36_49
-76236	m60_36_43
-76237	m60_34_43
-76238	m60_36_50
-76239	m60_38_48
-76240	m60_37_49
-76241	m60_34_44
-76242	m60_35_47
-76243	m60_34_46
-76244	m60_39_41
-76245	m60_39_44
-76247	m60_34_50
-76250	m60_34_41
-76251	m60_35_42
-76252	m60_33_40
-76300	m60_37_51
-76301	m60_38_50
-76302	m60_38_51
-76303	m60_39_51
-76304	m60_40_52
-76305	m60_41_52
-76306	m60_40_53
-76307	m60_40_54
-76308	m60_41_54
-76309	m60_42_51
-76310	m60_43_50
-76311	m60_43_53
-76312	m60_43_53
-76313	m60_42_55
-76314	m60_45_52
-76320	m60_39_54
-76321	m60_39_54
-76322	m60_39_54
-76350	m60_39_53
-76351	m60_38_54
-76352	m60_36_54
-76353	m60_36_54
-76354	m60_37_52
-76355	m60_35_53
-76356	m60_36_52
-76357	m60_37_53
-76400	m60_46_40
-76401	m60_46_40
-76402	m60_47_39
-76403	m60_47_40
-76404	m60_48_36
-76405	m60_48_37
-76406	m60_48_38
-76407	m60_48_38
-76409	m60_48_39
-76410	m60_48_40
-76411	m60_49_37
-76412	m60_49_38
-76413	m60_49_38
-76414	m60_49_39
-76415	m60_49_39
-76416	m60_49_39
-76417	m60_50_36
-76418	m60_50_38
-76419	m60_51_36
-76420	m60_51_36
-76422	m60_52_38
-76450	m60_48_40
-76451	m60_48_41
-76452	m60_50_40
-76453	m60_51_39
-76454	m60_51_43
-76455	m60_52_41
-76456	m60_52_42
-76500	m60_47_51
-76501	m60_49_53
-76502	m60_49_53
-76503	m60_51_56
-76504	m60_52_57
-76505	m60_54_55
-76506	m60_52_54
-76507	m60_51_53
-76508	m60_52_53
-76509	m60_53_52
-76510	m60_54_53
-76520	m60_52_56
-76521	m60_51_57
-76522	m60_51_57
-76523	m60_51_57
-76524	m60_51_57
-76550	m60_49_54
-76551	m60_49_55
-76652	m60_48_57
-76653	m60_47_58
-76800	m61_46_40
-76801	m61_47_41
-76802	m61_46_42
-76803	m61_45_42
-76804	m61_45_41
-76805	m61_46_44
-76810	m61_48_43
-76811	m61_48_42
-76812	m61_47_43
-76813	m61_47_44
-76821	m61_47_44
-76822	m61_48_44
-76823	m61_48_44
-76830	m61_47_41
-76831	m61_48_39
-76832	m61_46_39
-76833	m61_47_35
-76834	m61_50_38
-76835	m61_48_37
-76840	m61_49_39
-76841	m61_48_39
-76850	m61_52_40
-76851	m61_53_39
-76852	m61_54_39
-76853	m61_55_39
-76860	m61_50_42
-76861	m61_48_43
-76862	m61_52_43
-76863	m61_51_42
-76864	m61_53_41
-76900	m61_48_45
-76902	m61_49_44
-76903	m61_49_44
-76904	m61_51_44
-76905	m61_51_47
-76906	m61_51_45
-76907	m61_47_45
-76908	m61_49_43
-76909	m61_49_43
-76910	m61_49_43
-76911	m61_50_43
-76912	m61_48_47
-76913	m61_45_46
-76914	m61_45_47
-76916	m61_49_47
-76917	m61_50_45
-76918	m61_50_44
-76930	m61_49_48
-76931	m61_49_48
-76935	m61_50_48
-76936	m61_51_48
-76937	m61_51_48
-76940	m61_47_47
-76941	m61_46_47
-76942	m61_45_45
-76943	m61_44_46
-76944	m61_44_45
-76945	m61_44_45
-76960	m61_50_48
+warpUnlockFlag	mapTile	subCategory	placeName
+71000	m10_00	10000	Godrick the Grafted
+71001	m10_00	61001	Margit, the Fell Omen
+71002	m10_00	61001	Castleward Tunnel
+71003	m10_00	10000	Gateside Chamber
+71004	m10_00	10000	Stormveil Cliffside
+71005	m10_00	10000	Rampart Tower
+71006	m10_00	10000	Liftside Chamber
+71007	m10_00	10000	Secluded Cell
+71008	m10_00	10000	Stormveil Main Gate
+71100	m11_00	11000	Elden Throne
+71101	m11_00	11000	Erdtree Sanctuary
+71102	m11_00	11000	East Capital Rampart
+71103	m11_00	11000	Lower Capital Church
+71104	m11_00	11000	Avenue Balcony
+71105	m11_00	11000	West Capital Rampart
+71107	m11_00	11000	Queen's Bedchamber
+71108	m11_00	11000	Fortified Manor, First Floor
+71109	m11_00	11000	Divine Bridge
+71120	m11_05	11050	Elden Throne
+71121	m11_05	11050	Erdtree Sanctuary
+71122	m11_05	11050	East Capital Rampart
+71123	m11_05	11050	Leyndell, Capital of Ash
+71124	m11_05	11050	Queen's Bedchamber
+71125	m11_05	11050	Divine Bridge
+71190	m11_10	11100	Table of Lost Grace
+71210	m12_01	12012	Dragonkin Soldier of Nokstella
+71211	m12_01	12012	Ainsel River Well Depths
+71212	m12_01	12012	Ainsel River Sluice Gate
+71213	m12_01	12012	Ainsel River Downstream
+71214	m12_01	12010	Ainsel River Main
+71215	m12_01	12010	Nokstella, Eternal City
+71216	m12_01	12011	Lake of Rot Shoreside
+71218	m12_01	12011	Grand Cloister
+71219	m12_01	12010	Nokstella Waterfall Basin
+71220	m12_02	12020	Great Waterfall Basin
+71221	m12_02	12020	Mimic Tear
+71222	m12_02	12070	Siofra River Bank
+71223	m12_02	12070	Worshippers' Woods
+71224	m12_02	12020	Ancestral Woods
+71225	m12_02	12020	Aqueduct-Facing Cliffs
+71226	m12_02	12020	Night's Sacred Ground
+71227	m12_02	12070	Below the Well
+71230	m12_03	12030	Prince of Death's Throne
+71231	m12_03	12030	Root-Facing Cliffs
+71232	m12_03	12030	Great Waterfall Crest
+71233	m12_03	12030	Deeproot Depths
+71234	m12_03	12030	The Nameless Eternal City
+71235	m12_03	12030	Across the Roots
+71240	m12_04	12012	Astel, Naturalborn of the Void
+71250	m12_05	12050	Cocoon of the Empyrean
+71251	m12_05	12050	Palace Approach Ledge-Road
+71252	m12_05	12050	Dynasty Mausoleum Entrance
+71253	m12_05	12050	Dynasty Mausoleum Midpoint
+71260	m12_06	0	
+71261	m12_06	0	
+71270	m12_07	12070	Siofra River Well Depths
+71271	m12_07	12020	Nokron, Eternal City
+71300	m13_00	13000	Maliketh, the Black Blade
+71301	m13_00	13000	Dragonlord Placidusax
+71302	m13_00	13000	Dragon Temple Altar
+71303	m13_00	13000	Crumbling Beast Grave
+71304	m13_00	13000	Crumbling Beast Grave Depths
+71305	m13_00	13000	Tempest-Facing Balcony
+71306	m13_00	13000	Dragon Temple
+71307	m13_00	13000	Dragon Temple Transept
+71308	m13_00	13000	Dragon Temple Lift
+71309	m13_00	13000	Dragon Temple Rooftop
+71310	m13_00	13000	Beside the Great Bridge
+71400	m14_00	14000	Raya Lucaria Grand Library
+71401	m14_00	14000	Debate Parlor
+71402	m14_00	14000	Church of the Cuckoo
+71403	m14_00	14000	Schoolhouse Classroom
+71500	m15_00	15000	Malenia, Goddess of Rot
+71501	m15_00	15000	Prayer Room
+71502	m15_00	15000	Elphael Inner Wall
+71503	m15_00	15000	Drainage Channel
+71504	m15_00	15000	Haligtree Roots
+71505	m15_00	15001	Haligtree Promenade
+71506	m15_00	15001	Haligtree Canopy
+71507	m15_00	15001	Haligtree Town
+71508	m15_00	15001	Haligtree Town Plaza
+71600	m16_00	16000	Rykard, Lord of Blasphemy
+71601	m16_00	16000	Temple of Eiglay
+71602	m16_00	16000	Volcano Manor
+71603	m16_00	16000	Prison Town Church
+71604	m16_00	16000	Guest Hall
+71605	m16_00	16000	Audience Pathway
+71606	m16_00	16000	Abductor Virgin
+71607	m16_00	16000	Subterranean Inquisition Chamber
+71800	m18_00	18000	Cave of Knowledge
+71801	m18_00	18000	Stranded Graveyard
+71900	m19_00	19000	Fractured Marika
+72000	m20_00	20000	Theatre of the Divine Beast
+72001	m20_00	20000	Belurat, Tower Settlement
+72002	m20_00	20000	Small Private Altar
+72003	m20_00	20000	Stagefront
+72010	m20_01	20010	Gate of Divinity
+72012	m20_01	20010	Enir-Ilim: Outer Wall
+72013	m20_01	20010	First Rise
+72014	m20_01	20010	Spiral Rise
+72015	m20_01	20010	Cleansing Chamber Anteroom
+72016	m20_01	20010	Divine Gate Front Staircase
+72101	m21_00	21000	Main Gate Plaza
+72102	m21_00	21000	Shadow Keep Main Gate
+72106	m21_00	21001	Church District Entrance
+72107	m21_00	21001	Sunken Chapel
+72108	m21_00	21001	Tree-Worship Passage
+72109	m21_00	21001	Tree-Worship Sanctum
+72110	m21_01	21010	Messmer's Dark Chamber
+72111	m21_01	21010	Storehouse, First Floor
+72112	m21_01	21010	Storehouse, Fourth Floor
+72113	m21_01	21010	Storehouse, Seventh Floor
+72114	m21_01	21010	Dark Chamber Entrance
+72116	m21_01	21010	Storehouse, Back Section
+72117	m21_01	21010	Storehouse, Loft
+72120	m21_02	21010	West Rampart
+72200	m22_00	22000	Garden of Deep Purple
+72201	m22_00	22000	Stone Coffin Fissure
+72202	m22_00	22000	Fissure Cross
+72203	m22_00	22000	Fissure Waypoint
+72204	m22_00	22000	Fissure Depths
+72500	m25_00	6900	Finger Birthing Grounds
+72800	m28_00	28000	Discussion Chamber
+72801	m28_00	28000	Manse Hall
+72802	m28_00	28000	Midra's Library
+72803	m28_00	28000	Second Floor Chamber
+73000	m30_00	61002	Tombsward Catacombs
+73001	m30_01	61002	Impaler's Catacombs
+73002	m30_02	61000	Stormfoot Catacombs
+73003	m30_03	62000	Road's End Catacombs
+73004	m30_04	61000	Murkwater Catacombs
+73005	m30_05	62000	Black Knife Catacombs
+73006	m30_06	62000	Cliffbottom Catacombs
+73007	m30_07	63001	Wyndham Catacombs
+73008	m30_08	63000	Sainted Hero's Grave
+73009	m30_09	63001	Gelmir Hero's Grave
+73010	m30_10	63002	Auriza Hero's Grave
+73011	m30_11	61001	Deathtouched Catacombs
+73012	m30_12	63000	Unsightly Catacombs
+73013	m30_13	63002	Auriza Side Tomb
+73014	m30_14	64000	Minor Erdtree Catacombs
+73015	m30_15	64000	Caelid Catacombs
+73016	m30_16	64000	War-Dead Catacombs
+73017	m60_50_53	65001	Giant-Conquering Hero's Grave
+73018	m60_50_53	65001	Giants' Mountaintop Catacombs
+73019	m60_50_55	65002	Consecrated Snowfield Catacombs
+73020	m30_20	63003	Hidden Path to the Haligtree
+73100	m60_43_37	61000	Murkwater Cave
+73101	m31_01	61002	Earthbore Cave
+73102	m60_42_33	61002	Tombsward Cave
+73103	m31_03	61000	Groveside Cave
+73104	m31_04	62000	Stillwater Cave
+73105	m31_05	62000	Lakeside Crystal Cave
+73106	m31_06	62000	Academy Crystal Cave
+73107	m31_07	63001	Seethewater Cave
+73109	m31_09	63001	Volcano Cave
+73110	m31_10	64001	Dragonbarrow Cave
+73111	m31_11	64001	Sellia Hideaway
+73112	m31_12	65002	Cave of the Forlorn
+73115	m31_15	61000	Coastal Cave
+73117	m31_17	61000	Highroad Cave
+73118	m31_18	63000	Perfumer's Grotto
+73119	m31_19	63000	Sage's Cave
+73120	m31_20	64000	Abandoned Cave
+73121	m31_21	64000	Gaol Cave
+73122	m60_53_56	65000	Spiritcaller Cave
+73200	m32_00	61002	Morne Tunnel
+73201	m60_43_37	61000	Limgrave Tunnels
+73202	m60_37_47	62000	Raya Lucaria Crystal Tunnel
+73204	m60_38_53	63000	Old Altus Tunnel
+73205	m32_05	63000	Altus Tunnel
+73207	m60_46_39	64000	Gael Tunnel
+73208	m32_08	64000	Sellia Crystal Tunnel
+73211	m60_47_55	65002	Yelough Anix Tunnel
+73257	m32_07	64000	Rear Gael Tunnel Entrance
+73410	m34_10	61001	Limgrave Tower Bridge
+73412	m34_10	61001	Divine Tower of Limgrave
+73420	m34_11	62000	Study Hall Entrance
+73421	m34_11	62000	Liurnia Tower Bridge
+73422	m34_11	62000	Divine Tower of Liurnia
+73430	m34_12	63002	Divine Tower of West Altus
+73431	m60_43_50	63002	Sealed Tunnel
+73432	m34_12	63002	Divine Tower of West Altus: Gate
+73440	m34_13	64001	Divine Tower of Caelid: Basement
+73441	m34_13	64001	Divine Tower of Caelid: Center
+73450	m34_14	63003	Divine Tower of East Altus: Gate
+73451	m34_14	63003	Divine Tower of East Altus
+73460	m34_15	64001	Isolated Divine Tower
+73500	m35_00	35000	Cathedral of the Forsaken
+73501	m35_00	35000	Underground Roadside
+73502	m35_00	35000	Forsaken Depths
+73503	m35_00	35000	Leyndell Catacombs
+73504	m35_00	35000	Frenzied Flame Proscription
+73900	m39_20	39200	Magma Wyrm Makar
+73901	m39_20	39200	Ruin-Strewn Precipice
+73902	m39_20	39200	Ruin-Strewn Precipice Overlook
+74000	m40_00	6800	Fog Rift Catacombs
+74001	m40_01	6950	Scorpion River Catacombs
+74002	m40_02	6900	Darklight Catacombs
+74100	m41_00	6800	Belurat Gaol
+74101	m41_01	6900	Bonny Gaol
+74102	m41_02	6840	Lamenter's Gaol
+74200	m42_00	6800	Ruined Forge Lava Intake
+74202	m42_02	6900	Ruined Forge of Starfall Past
+74203	m42_03	6950	Taylew's Ruined Forge
+74300	m43_00	6800	Rivermouth Cave
+74301	m43_01	6800	Dragon's Pit
+74351	m43_01	6800	Dragon's Pit Terminus
+76100	m60_42_36	61000	Church of Elleh
+76101	m60_42_36	61000	The First Step
+76102	m60_41_38	61001	Stormhill Shack
+76103	m60_44_38	61000	Artist's Shack
+76104	m60_46_38	61000	Third Church of Marika
+76105	m60_45_36	61000	Fort Haight West
+76106	m60_44_35	61000	Agheel Lake South
+76108	m60_43_37	61000	Agheel Lake North
+76110	m60_41_35	61000	Church of Dragon Communion
+76111	m60_42_37	61000	Gatefront
+76113	m60_43_35	61000	Seaside Ruins
+76114	m60_44_37	61000	Mistwood Outskirts
+76116	m60_43_38	61000	Murkwater Coast
+76117	m60_43_39	61001	Saintsbridge
+76118	m60_42_38	61001	Warmaster's Shack
+76119	m60_44_39	61000	Summonwater Village Outskirts
+76120	m60_44_36	61000	Waypoint Ruins Cellar
+76150	m60_43_34	61002	Church of Pilgrimage
+76151	m60_44_33	61002	Castle Morne Rampart
+76152	m60_42_33	61002	Tombsward
+76153	m60_44_33	61002	South of the Lookout Tower
+76154	m60_44_33	61002	Ailing Village Outskirts
+76155	m60_45_33	61002	Beside the Crater-Pocked Glade
+76156	m60_41_32	61002	Isolated Merchant's Shack
+76157	m60_44_34	61002	Bridge of Sacrifice
+76158	m60_43_31	61002	Castle Morne Lift
+76159	m60_43_31	61002	Behind the Castle
+76160	m60_43_31	61002	Beside the Rampart Gaol
+76161	m60_43_30	61002	Morne Moangrave
+76162	m60_41_33	61002	Fourth Church of Marika
+76200	m60_39_40	62000	Lake-Facing Cliffs
+76201	m60_38_40	62000	Liurnia Lake Shore
+76202	m60_38_41	62000	Laskyar Ruins
+76203	m60_37_42	62000	Scenic Isle
+76204	m60_37_44	62000	Academy Gate Town
+76205	m60_35_45	62000	South Raya Lucaria Gate
+76206	m60_35_46	62000	Main Academy Gate
+76207	m60_36_48	62001	East Raya Lucaria Gate
+76208	m60_36_49	62001	Bellum Church
+76209	m60_38_50	62001	Grand Lift of Dectus
+76210	m60_33_46	62000	Foot of the Four Belfries
+76211	m60_34_47	62000	Sorcerer's Isle
+76212	m60_34_48	62000	Northern Liurnia Lake Shore
+76213	m60_34_49	62000	Road to the Manor
+76214	m60_35_50	62000	Main Caria Manor Gate
+76215	m60_36_41	62000	Slumbering Wolf's Shack
+76216	m60_36_43	62000	Boilprawn Shack
+76217	m60_38_45	62000	Artist's Shack
+76218	m60_33_44	62000	Revenger's Shack
+76219	m60_35_43	62000	Folly on the Lake
+76220	m60_34_42	62000	Village of the Albinaurics
+76221	m60_39_42	62000	Liurnia Highway North
+76222	m60_38_43	62000	Gate Town Bridge
+76223	m60_38_45	62000	Eastern Liurnia Lake Shore
+76224	m60_37_46	62000	Church of Vows
+76225	m60_38_47	62000	Ruined Labyrinth
+76226	m60_37_48	62000	Mausoleum Compound
+76227	m60_33_47	62000	The Four Belfries
+76228	m60_34_50	62000	Ranni's Rise
+76229	m60_38_50	62000	Ravine-Veiled Village
+76230	m60_35_50	62000	Manor Upper Level
+76231	m60_35_50	62000	Manor Lower Level
+76232	m60_35_50	62000	Royal Moongazing Grounds
+76233	m60_36_45	62000	Gate Town North
+76234	m60_38_46	62000	Eastern Tableland
+76235	m60_36_49	62000	The Ravine
+76236	m60_36_43	62000	Fallen Ruins of the Lake
+76237	m60_34_43	62000	Converted Tower
+76238	m60_36_50	62000	Behind Caria Manor
+76239	m60_38_48	62001	Frenzied Flame Village Outskirts
+76240	m60_37_49	62001	Church of Inhibition
+76241	m60_34_44	62000	Temple Quarter
+76242	m60_35_47	62000	East Gate Bridge Trestle
+76243	m60_34_46	62000	Crystalline Woods
+76244	m60_39_41	62000	Liurnia Highway South
+76245	m60_39_44	62000	Jarburg
+76247	m60_34_50	62000	Ranni's Chamber
+76250	m60_34_41	62002	Moonlight Altar
+76251	m60_35_42	62002	Cathedral of Manus Celes
+76252	m60_33_40	62002	Altar South
+76300	m60_37_51	63000	Abandoned Coffin
+76301	m60_38_50	63000	Altus Plateau
+76302	m60_38_51	63000	Erdtree-Gazing Hill
+76303	m60_39_51	63000	Altus Highway Junction
+76304	m60_40_52	63000	Forest-Spanning Greatbridge
+76305	m60_41_52	63000	Rampartside Path
+76306	m60_40_53	63000	Bower of Bounty
+76307	m60_40_54	63000	Road of Iniquity Side Path
+76308	m60_41_54	63000	Windmill Village
+76309	m60_42_51	63002	Outer Wall Phantom Tree
+76310	m60_43_50	63002	Minor Erdtree Church
+76311	m60_43_53	63002	Hermit Merchant's Shack
+76312	m60_43_53	63002	Outer Wall Battleground
+76313	m60_42_55	63000	Windmill Heights
+76314	m60_45_52	63002	Capital Rampart
+76320	m60_39_54	63000	Shaded Castle Ramparts
+76321	m60_39_54	63000	Shaded Castle Inner Gate
+76322	m60_39_54	63000	Castellan's Hall
+76350	m60_39_53	63001	Bridge of Iniquity
+76351	m60_38_54	63001	First Mt. Gelmir Campsite
+76352	m60_36_54	63001	Ninth Mt. Gelmir Campsite
+76353	m60_36_54	63001	Road of Iniquity
+76354	m60_37_52	63001	Seethewater River
+76355	m60_35_53	63001	Seethewater Terminus
+76356	m60_36_52	63001	Craftsman's Shack
+76357	m60_37_53	63001	Primeval Sorcerer Azur
+76400	m60_46_40	64000	Smoldering Church
+76401	m60_46_40	64000	Rotview Balcony
+76402	m60_47_39	64000	Fort Gael North
+76403	m60_47_40	64000	Caelem Ruins
+76404	m60_48_36	64000	Cathedral of Dragon Communion
+76405	m60_48_37	64000	Caelid Highway South
+76406	m60_48_38	64002	Aeonia Swamp Shore
+76407	m60_48_38	64002	Astray from Caelid Highway North
+76409	m60_48_39	64000	Smoldering Wall
+76410	m60_48_40	64000	Deep Siofra Well
+76411	m60_49_37	64000	Southern Aeonia Swamp Bank
+76412	m60_49_38	64002	Heart of Aeonia
+76413	m60_49_38	64002	Inner Aeonia
+76414	m60_49_39	64000	Sellia Backstreets
+76415	m60_49_39	64000	Chair-Crypt of Sellia
+76416	m60_49_39	64000	Sellia Under-Stair
+76417	m60_50_36	64000	Impassable Greatbridge
+76418	m60_50_38	64000	Church of the Plague
+76419	m60_51_36	64000	Redmane Castle Plaza
+76420	m60_51_36	64000	Chamber Outside the Plaza
+76422	m60_52_38	64000	Starscourge Radahn
+76450	m60_48_40	64001	Dragonbarrow West
+76451	m60_48_41	64001	Isolated Merchant's Shack
+76452	m60_50_40	64001	Dragonbarrow Fork
+76453	m60_51_39	64001	Fort Faroth
+76454	m60_51_43	64001	Bestial Sanctum
+76455	m60_52_41	64001	Lenne's Rise
+76456	m60_52_42	64001	Farum Greatbridge
+76500	m60_47_51	63003	Forbidden Lands
+76501	m60_49_53	65000	Zamor Ruins
+76502	m60_49_53	63003	Grand Lift of Rold
+76503	m60_51_56	65000	Ancient Snow Valley Ruins
+76504	m60_52_57	65000	Freezing Lake
+76505	m60_54_55	65000	First Church of Marika
+76506	m60_52_54	65001	Giants' Gravepost
+76507	m60_51_53	65001	Church of Repose
+76508	m60_52_53	65001	Foot of the Forge
+76509	m60_53_52	65001	Fire Giant
+76510	m60_54_53	65001	Forge of the Giants
+76520	m60_52_56	65000	Whiteridge Road
+76521	m60_51_57	65000	Snow Valley Ruins Overlook
+76522	m60_51_57	65000	Castle Sol Main Gate
+76523	m60_51_57	65000	Church of the Eclipse
+76524	m60_51_57	65000	Castle Sol Rooftop
+76550	m60_49_54	65002	Consecrated Snowfield
+76551	m60_49_55	65002	Inner Consecrated Snowfield
+76652	m60_48_57	65002	Ordina, Liturgical Town
+76653	m60_47_58	65002	Apostate Derelict
+76800	m61_46_40	6800	Gravesite Plain
+76801	m61_47_41	6800	Scorched Ruins
+76802	m61_46_42	6800	Three-Path Cross
+76803	m61_45_42	6800	Main Gate Cross
+76804	m61_45_41	6800	Cliffroad Terminus
+76805	m61_46_44	6800	Greatbridge, North
+76810	m61_48_43	6800	Pillar Path Cross
+76811	m61_48_42	6800	Pillar Path Waypoint
+76812	m61_47_43	6800	Ellac River Cave
+76813	m61_47_44	6800	Castle Front
+76821	m61_47_44	6820	Castle Ensis Checkpoint
+76822	m61_48_44	6820	Castle-Lord's Chamber
+76823	m61_48_44	6820	Ensis Moongazing Grounds
+76830	m61_47_41	6800	Ellac River Downstream
+76831	m61_48_39	6830	Cerulean Coast
+76832	m61_46_39	6830	Cerulean Coast West
+76833	m61_47_35	6830	The Fissure
+76834	m61_50_38	6830	Finger Ruins of Rhia
+76835	m61_48_37	6830	Cerulean Coast Cross
+76840	m61_49_39	6851	Grand Altar of Dragon Communion
+76841	m61_48_39	6840	Charo's Hidden Grave
+76850	m61_52_40	6851	Foot of the Jagged Peak
+76851	m61_53_39	6850	Jagged Peak Mountainside
+76852	m61_54_39	6850	Jagged Peak Summit
+76853	m61_55_39	6850	Rest of the Dread Dragon
+76860	m61_50_42	6860	Abyssal Woods
+76861	m61_48_43	6860	Divided Falls
+76862	m61_52_43	6860	Forsaken Graveyard
+76863	m61_51_42	6860	Woodland Trail
+76864	m61_53_41	6860	Church Ruins
+76900	m61_48_45	6900	Highroad Cross
+76902	m61_49_44	6900	Moorth Ruins
+76903	m61_49_44	6900	Bonny Village
+76904	m61_51_44	6900	Bridge Leading to the Village
+76905	m61_51_47	6900	Church District Highroad
+76906	m61_51_45	6900	Cathedral of Manus Metyr
+76907	m61_47_45	6900	Scadu Altus, West
+76908	m61_49_43	6900	Moorth Highway, South
+76909	m61_49_43	6900	Fort of Reprimand
+76910	m61_49_43	6900	Behind the Fort of Reprimand
+76911	m61_50_43	6900	Scaduview Cross
+76912	m61_48_47	6950	Ancient Ruins Base
+76913	m61_45_46	6950	Temple Town Ruins
+76914	m61_45_47	6950	Ravine North
+76916	m61_49_47	6900	Castle Watering Hole
+76917	m61_50_45	6900	Recluses' River Upstream
+76918	m61_50_44	6900	Recluses' River Downstream
+76930	m61_49_48	6920	Scaduview
+76931	m61_49_48	6920	Shadow Keep, Back Gate
+76935	m61_50_48	6920	Hinterland
+76936	m61_51_48	6920	Fingerstone Hill
+76937	m61_51_48	6920	Hinterland Bridge
+76940	m61_47_47	6940	Viaduct Minor Tower
+76941	m61_46_47	6940	Rauh Ancient Ruins, East
+76942	m61_45_45	6940	Rauh Ancient Ruins, West
+76943	m61_44_46	6940	Church of the Bud, Main Entrance
+76944	m61_44_45	6940	Ancient Ruins, Grand Stairway
+76945	m61_44_45	6940	Church of the Bud
+76960	m61_50_48	6920	Scadutree Base

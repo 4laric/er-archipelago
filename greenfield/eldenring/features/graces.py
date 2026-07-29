@@ -56,6 +56,10 @@ try:
     from ..region_graces import REGION_GRACE_POINTS
 except Exception:  # not yet generated
     REGION_GRACE_POINTS = {}
+try:
+    from ..region_graces import REGION_GRACE_LANDMARKS
+except ImportError:      # table predates the landmarks tier -- see _bundle_for()
+    REGION_GRACE_LANDMARKS = {}
 
 # Gated child -> "is its wall armed in logic this seed?". Reads the state the gate features publish
 # in generate_early (leyndell_gate.gf_leyndell_runes, legacy_key_gates.gf_legacy_keys), so the
@@ -72,10 +76,24 @@ WALL_ARMED = {
 }
 
 
-def _entrance_only(world):
-    """True when this seed grants only each region's entrance grace."""
+def _grace_tier(world):
+    """This seed's grace tier: "all" | "landmarks" | "entrance"."""
     opt = getattr(getattr(world, "options", None), "region_grace_unlock", None)
-    return getattr(opt, "current_key", None) == "entrance"
+    return getattr(opt, "current_key", None) or "all"
+
+
+def _bundle_for(region, flags, tier):
+    """The warp graces a region's unlock lights, at `tier`. `flags` is the full set, non-empty."""
+    if tier == "entrance":
+        return [entrance_grace(flags)]
+    if tier == "landmarks":
+        picks = [f for f in REGION_GRACE_LANDMARKS.get(region, ()) if f in flags]
+        # An absent/stale landmarks table must not silently degrade to a thinner OR fatter bundle:
+        # fall back to the entrance (the one answer we can always derive here) and say so.
+        if not picks:
+            return [entrance_grace(flags)]
+        return sorted(picks)
+    return list(flags)
 
 
 def bundle_withheld(world, region):
@@ -122,9 +140,12 @@ class RegionGraceUnlock(Choice):
     """How many of a region's Sites of Grace a region unlock hands you.
 
     all (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.
-    entrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla
-    way. Liurnia lights 59 graces at once on `all`, Caelid 38, Limgrave 28, which is what makes the
-    map read as already-explored.
+    Liurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never
+    walked read as already-explored.
+    landmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to
+    Lake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across
+    the map. A middle setting: you can still cross a big region in a couple of hops.
+    entrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.
 
     🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only
     progression, every check stays exactly where it was, and a grace you have not been handed is
@@ -134,7 +155,8 @@ class RegionGraceUnlock(Choice):
     """
     display_name = "Region Grace Unlock"
     option_all = 0
-    option_entrance = 1
+    option_landmarks = 1
+    option_entrance = 2
     default = 0                      # vanilla-to-this-apworld behaviour: no change
 
 
@@ -146,6 +168,7 @@ class RegionGracesFeature(Feature):
 
     def slot_data(self, world):
         kept = set(world._kept())
+        tier = _grace_tier(world)
         region_graces = {}
         for r, fs in REGION_GRACE_POINTS.items():
             if r not in kept or not fs:
@@ -154,11 +177,7 @@ class RegionGracesFeature(Feature):
             # child with its wall armed, whose bundle is withheld (module docstring). [] and not
             # key-absence: the client warns about a genuine lock with NO regionGraces entry, and
             # this one is intended.
-            if bundle_withheld(world, r):
-                bundle = []                       # gated child behind an armed wall: grant nothing
-            elif _entrance_only(world):
-                bundle = [entrance_grace(fs)]     # the front door only; walk to the rest
-            else:
-                bundle = list(fs)
+            # gated child behind an armed wall: grant nothing, at every tier
+            bundle = [] if bundle_withheld(world, r) else _bundle_for(r, fs, tier)
             region_graces[f"{r} Lock"] = bundle
         return {contract.REGION_GRACES: region_graces}

@@ -9,6 +9,11 @@ comes from BonfireWarpParam, so losing them is annoying, not fatal.
 
   grace_flags.tsv          warpUnlockFlag <- eventflagId
                            mapTile        <- bonfireEntityId, decoded
+                           subCategory    <- bonfireSubCategoryId (the WARP MENU's own grouping:
+                                             55 groups over our 30 regions, i.e. the game's sub-area
+                                             partition -- what `region_grace_unlock: landmarks` uses)
+                           placeName      <- textId1 -> PlaceName FMG (label only, never a key; it
+                                             is what makes a derived grace set reviewable by a human)
   grace_region_map_*.tsv   grace_flag     <- eventflagId
                            play_region_id <- bonfireSubCategoryId   (the KICK area id)
 
@@ -28,6 +33,7 @@ import csv, os, argparse, datetime
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
 AR   = os.path.join(REPO, "elden_ring_artifacts")
+GF_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "greenfield")
 BWP  = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
 
 
@@ -49,6 +55,30 @@ def decode_tile(entity_id, area_no, grid_x, grid_z):
     return None
 
 
+def _place_names():
+    """textId -> the label the game shows for a warp point (PlaceName FMG, base + both DLCs).
+
+    Labels only. A name is never a join key -- the flag is. This exists because a derived grace set
+    that a human cannot READ cannot be reviewed, and an unreviewable derivation is how you ship
+    Murkwater Cave as the front door of Limgrave."""
+    import glob, xml.etree.ElementTree as ET
+    out = {}
+    for path in glob.glob(os.path.join(AR, "msg", "**", "PlaceName*.xml"), recursive=True):
+        try:
+            tree = ET.parse(path)
+        except Exception:
+            continue
+        for e in tree.iter():
+            if e.tag.lower().endswith("text") and e.get("id"):
+                v = (e.text or "").strip()
+                if v and v != "%null%":
+                    out.setdefault(int(e.get("id")), v)
+    if not out:
+        raise SystemExit("FATAL: resolved 0 PlaceName strings -- refusing to write an unreadable "
+                         "grace table (an empty result is a FAILURE, not a clean run)")
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry", action="store_true", help="print counts, write nothing")
@@ -56,6 +86,7 @@ def main():
     if not os.path.isfile(BWP):
         raise SystemExit("FATAL: %s missing -- restore elden_ring_artifacts from your ER install" % BWP)
 
+    place = _place_names()
     graces, regions = [], []
     with open(BWP, newline="", encoding="utf-8-sig") as fh:
         for r in csv.DictReader(fh):
@@ -72,22 +103,26 @@ def main():
                 continue
             tile = decode_tile(ent, area, gx, gz)
             if tile:
-                graces.append((flag, tile))
+                graces.append((flag, tile, pr, place.get(int(r.get("textId1") or -1), "")))
             regions.append((flag, pr))
 
     # gen_data rejects anything outside the 71000-76999 region/grace group at ingest; keep the
     # table faithful (emit everything) and let it do its own filtering, as it did before.
     print("BonfireWarpParam rows -> %d grace flags with a decodable tile, %d play_region rows"
           % (len(graces), len(regions)))
-    print("  in the real-grace group (71000-76999): %d" % sum(1 for f, _t in graces if 71000 <= f <= 76999))
+    print("  in the real-grace group (71000-76999): %d" % sum(1 for g in graces if 71000 <= g[0] <= 76999))
     if a.dry:
         return
 
-    gp = os.path.join(AR, "grace_flags.tsv")
+    # Write the TRACKED copy (greenfield/), not the gitignored artifacts fallback. gen_data's
+    # _grace_table() prefers greenfield/ and only falls back to elden_ring_artifacts/, so writing to
+    # AR alone left the regen invisible: the tool reported success and gen_data kept reading the old
+    # table. Silent input loss, one directory over.
+    gp = os.path.join(GF_DIR, "grace_flags.tsv")
     with open(gp, "w", encoding="utf-8", newline="\n") as f:
-        f.write("warpUnlockFlag\tmapTile\n")
-        for flag, tile in sorted(graces):
-            f.write("%d\t%s\n" % (flag, tile))
+        f.write("warpUnlockFlag\tmapTile\tsubCategory\tplaceName\n")
+        for flag, tile, sub, name in sorted(graces):
+            f.write("%d\t%s\t%d\t%s\n" % (flag, tile, sub, name))
     print("wrote %s (%d rows)" % (gp, len(graces)))
 
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")

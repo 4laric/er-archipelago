@@ -32,4 +32,39 @@ REGION_GRACE_POINTS = {
     'Weeping': [73102, 73000, 73001, 73101, 73200, 76150, 76151, 76152, 76153, 76154, 76155, 76156, 76157, 76158, 76159, 76160, 76162],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:de2f70c8516e66390b7f1ed38725bac9a5791b934609192342b7927944369c85', 'module': 'region_graces.py', 'body_sha256': 'sha256:64281cfafd7bf5abcd1d5df12c6457efa60e469966d2ef1d56784a44d2c53b11'}
+# region -> one warp grace per warp-menu sub-area (see gen_data.py). Between the full
+# bundle and the single entrance grace; `region_grace_unlock: landmarks` uses this.
+REGION_GRACE_LANDMARKS = {
+    'Abyssal': [72801, 76860],  # Manse Hall, Abyssal Woods
+    'Ainsel River': [71211, 71214, 71216],  # Ainsel River Well Depths, Ainsel River Main, Lake of Rot Shoreside
+    'Altus': [76300, 76309, 76500],  # Abandoned Coffin, Outer Wall Phantom Tree, Forbidden Lands
+    'Ancient Ruins': [76940],  # Viaduct Minor Tower
+    'Belurat': [72001],  # Belurat, Tower Settlement
+    'Caelid': [76400, 76406, 76450],  # Smoldering Church, Aeonia Swamp Shore, Dragonbarrow West
+    'Cerulean': [76831],  # Cerulean Coast
+    "Charo's": [76841],  # Charo's Hidden Grave
+    'Deeproot Depths': [71231],  # Root-Facing Cliffs
+    'Enir Ilim': [72012],  # Enir-Ilim: Outer Wall
+    'Ensis': [76821],  # Castle Ensis Checkpoint
+    'Farum Azula': [71303],  # Crumbling Beast Grave
+    'Gravesite': [76800],  # Gravesite Plain
+    'Haligtree': [71501, 71506],  # Prayer Room, Haligtree Canopy
+    'Jagged Peak': [76840, 76851],  # Grand Altar of Dragon Communion, Jagged Peak Mountainside
+    'Leyndell': [71102],  # East Capital Rampart
+    'Limgrave': [71800, 76100, 76102],  # Cave of Knowledge, Church of Elleh, Stormhill Shack
+    'Liurnia': [73901, 76200, 76207, 76250],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar
+    'Mohgwyn': [71251],  # Palace Approach Ledge-Road
+    'Mountaintops of the Giants': [76501, 76506, 76550],  # Zamor Ruins, Giants' Gravepost, Consecrated Snowfield
+    'Mt. Gelmir': [71602, 76350],  # Volcano Manor, Bridge of Iniquity
+    'Rauh Base': [76912],  # Ancient Ruins Base
+    'Raya Lucaria Academy': [71402],  # Church of the Cuckoo
+    'Scadu Altus': [76900],  # Highroad Cross
+    'Sewer': [73501],  # Underground Roadside
+    'Shadow Keep': [72106, 72111, 76935],  # Church District Entrance, Storehouse, First Floor, Hinterland
+    'Siofra River': [71222, 71224],  # Siofra River Bank, Ancestral Woods
+    'Stone Coffin': [72201],  # Stone Coffin Fissure
+    'Stormveil': [71003],  # Gateside Chamber
+    'Weeping': [76150],  # Church of Pilgrimage
+}
+
+_GEN_STAMP = {'inputs_hash': 'sha256:bd71b02cd479ea99ff9e9097da5c2c80ca83b37d08bbdcee7faa4696bca5cf64', 'module': 'region_graces.py', 'body_sha256': 'sha256:91cbefa774eae9d86b1f70652b072bf5c2a7f6ab8edc1cf49df583bec288e516'}

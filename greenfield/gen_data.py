@@ -164,9 +164,16 @@ def _grace_table(prefix):
         "FATAL: %s*.tsv not found in greenfield/ or elden_ring_artifacts/. It is DERIVED -- rebuild "
         "it: python tools/regen_grace_tables.py" % prefix)
 
+gsub={}   # warp flag -> bonfireSubCategoryId (the warp MENU's own sub-area grouping)
+gname={}  # warp flag -> PlaceName label (for review only; never a key)
 for row in csv.DictReader(open(_grace_table("grace_flags"),encoding="utf-8-sig"),delimiter="\t"):
     if not (71000 <= int(row["warpUnlockFlag"]) <= 76999): continue
     gf[row["warpUnlockFlag"]]=row["mapTile"]
+    # subCategory/placeName were added to the table 2026-07-29; tolerate an older table (the
+    # landmarks tier then derives to empty and its assertion below fails LOUDLY rather than
+    # silently shipping a thinner set).
+    if row.get("subCategory"): gsub[int(row["warpUnlockFlag"])]=int(row["subCategory"])
+    if row.get("placeName"): gname[int(row["warpUnlockFlag"])]=row["placeName"]
 greg={}
 for row in csv.DictReader(open(_grace_table("grace_region_map"),encoding="utf-8-sig"),delimiter="\t"): greg[row["grace_flag"]]=row["play_region_id"]
 _acc=defaultdict(Counter)
@@ -4378,7 +4385,42 @@ with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
         if REGION_GRACE_POINTS.get(r):
             f.write(f"    {r!r}: {REGION_GRACE_POINTS[r]},\n")
     f.write("}\n")
+
+    # ---- LANDMARKS tier: one grace per warp-menu SUB-AREA -------------------------------------
+    # `region_grace_unlock: landmarks` -- between `all` (every warp point) and `entrance` (one per
+    # region). The partition is the GAME'S: BonfireWarpParam.bonfireSubCategoryId is the warp menu's
+    # own sub-area grouping, ~55 groups over our 30 regions, so a region resolves to its real chunks
+    # (Liurnia -> Lake-Facing Cliffs / East Raya Lucaria Gate / Moonlight Altar / Ruin-Strewn
+    # Precipice). Within each group we take the same front door the `entrance` tier uses: the lowest
+    # 76xxx (overworld band, numbered in designer order) else the lowest flag.
+    # 🛑 Derived, never transcribed. Another project's curated grace set may be READ to cross-check
+    # this (PROVENANCE.md: "let the other project be the bug report; keep our datamine as the
+    # source") but never ingested -- a copied flag cannot be regenerated or stamped.
+    def _landmarks(_fs):
+        _by = {}
+        for _f in _fs:
+            _by.setdefault(gsub.get(_f, -1), []).append(_f)
+        _out = []
+        for _grp in _by.values():
+            _ow = [x for x in _grp if 76000 <= x < 77000]
+            _out.append(min(_ow) if _ow else min(_grp))
+        return sorted(_out)
+    REGION_GRACE_LANDMARKS = {r: _landmarks(v) for r, v in REGION_GRACE_POINTS.items()}
+    _lm = sum(len(v) for v in REGION_GRACE_LANDMARKS.values())
+    assert _lm >= len(REGION_GRACE_LANDMARKS), (
+        "landmarks tier derived %d graces for %d regions -- the subCategory column is missing from "
+        "grace_flags.tsv. Rebuild it: python tools/regen_grace_tables.py" % (
+            _lm, len(REGION_GRACE_LANDMARKS)))
+    f.write("\n# region -> one warp grace per warp-menu sub-area (see gen_data.py). Between the full\n")
+    f.write("# bundle and the single entrance grace; `region_grace_unlock: landmarks` uses this.\n")
+    f.write("REGION_GRACE_LANDMARKS = {\n")
+    for r in spokes:
+        if REGION_GRACE_LANDMARKS.get(r):
+            _lbl = ", ".join(gname.get(x, "?") for x in REGION_GRACE_LANDMARKS[r])
+            f.write(f"    {r!r}: {REGION_GRACE_LANDMARKS[r]},  # {_lbl}\n")
+    f.write("}\n")
 print(f"region_graces: {sum(len(v) for v in REGION_GRACE_POINTS.values())} graces across {len(REGION_GRACE_POINTS)} regions")
+print(f"region_grace_landmarks: {sum(len(v) for v in REGION_GRACE_LANDMARKS.values())} sub-area graces")
 
 
 

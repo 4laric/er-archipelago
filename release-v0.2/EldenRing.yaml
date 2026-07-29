@@ -133,8 +133,11 @@ Elden Ring:
     boluses: 1
 
   # How many Sites of Grace a region unlock lights.
-  #   all      (default) every warp point in the region -- Liurnia is 59 at once
-  #   entrance only the way in; you walk to and touch the rest, the vanilla way
+  #   all       (default) every warp point in the region -- Liurnia is 59 at once
+  #   landmarks one per sub-area (the warp menu's own grouping) -- Liurnia gets 4,
+  #             about 50 across the map. Uneven on purpose: it follows the menu,
+  #             not region size, so a few regions have one sub-area
+  #   entrance  only the way in; you walk to and touch the rest, the vanilla way
   # Cannot strand you and moves no item: unlocks are still the only progression
   # and every check stays put. Purely pacing.
   region_grace_unlock: all

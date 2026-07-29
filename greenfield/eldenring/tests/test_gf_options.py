@@ -152,10 +152,17 @@ def test_scaling_floor_combinations_generate_clean(floor, label, extra):
 # item and gates nothing, so these assert exactly that rather than just "it genned".
 # ---------------------------------------------------------------------------------------------
 _GRACE_COMBOS = (
-    ("default",         "all",      {}),
-    ("entrance",        "entrance", {}),
-    ("entrance_small",  "entrance", {"num_regions": 6}),
-    ("entrance_natural","entrance", {"natural_progression": True}),
+    ("default",           "all",       {}),
+    ("landmarks",         "landmarks", {}),
+    ("landmarks_small",   "landmarks", {"num_regions": 6}),
+    ("landmarks_natural", "landmarks", {"natural_progression": True}),
+    # DLC on purpose: the landmarks partition follows the WARP MENU, not region size, and the DLC is
+    # where that bites -- Gravesite 17 graces -> 1, Scadu Altus 17 -> 1. Accepted, but a seed that
+    # generates DLC regions must still emit a well-formed bundle for them.
+    ("landmarks_dlc",     "landmarks", {"enable_dlc": True}),
+    ("entrance",          "entrance",  {}),
+    ("entrance_small",    "entrance",  {"num_regions": 6}),
+    ("entrance_natural",  "entrance",  {"natural_progression": True}),
 )
 
 
@@ -189,6 +196,19 @@ def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
             assert not over, (
                 "%s: entrance mode granted more than one grace for %s -- the bundle is supposed to "
                 "be exactly the region's front door." % (label, over))
+        elif mode == "landmarks":
+            from worlds.eldenring.region_graces import (
+                REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS)
+            for k, got in rg.items():
+                if not got:
+                    continue                       # withheld; asserted separately below
+                region = k[: -len(" Lock")]
+                want = sorted(f for f in REGION_GRACE_LANDMARKS.get(region, ())
+                              if f in REGION_GRACE_POINTS.get(region, ()))
+                assert got == (want or [min(got)]), (
+                    "%s: %s got %s, expected the generated landmarks set %s. The tier must come "
+                    "from REGION_GRACE_LANDMARKS, not be recomputed at runtime -- a second "
+                    "derivation is a second thing to drift." % (label, region, got, want))
         else:
             assert sum(len(v) for v in rg.values()) > len(rg), (
                 "%s: `all` should grant many graces per region; the default changed" % label)
@@ -212,3 +232,51 @@ def test_entrance_mode_moves_no_item_and_no_check():
     assert sd_a["locationFlags"] == sd_e["locationFlags"], (
         "region_grace_unlock changed the CHECK set -- it must only change which graces a lock lights")
     assert pool_a == pool_e, "region_grace_unlock changed the ITEM POOL; it must not"
+
+
+def test_the_three_tiers_are_nested_and_strictly_ordered():
+    """entrance subset-of landmarks subset-of all, per region -- and strictly smaller overall.
+
+    This is the invariant that makes the option legible: a coarser tier can only ever REMOVE warp
+    points, never swap them for different ones. If landmarks ever picked a grace `all` does not
+    grant, or entrance picked one outside landmarks, the tiers would not be a ladder and a player
+    moving one notch could LOSE a grace they expected to keep and gain one they did not ask for.
+    """
+    seen = {}
+    for tier in ("all", "landmarks", "entrance"):
+        w = _grace_world(tier, {}, seed=4242)
+        seen[tier] = w.world.fill_slot_data()["regionGraces"]
+
+    for lock, wide in seen["all"].items():
+        mid, narrow = seen["landmarks"].get(lock, []), seen["entrance"].get(lock, [])
+        assert set(mid) <= set(wide), (
+            "%s: landmarks granted %s which `all` does not -- the tiers are not nested"
+            % (lock, sorted(set(mid) - set(wide))))
+        assert set(narrow) <= set(mid), (
+            "%s: entrance granted %s which landmarks does not -- the tiers are not nested"
+            % (lock, sorted(set(narrow) - set(mid))))
+
+    totals = {t: sum(len(v) for v in rg.values()) for t, rg in seen.items()}
+    assert totals["all"] > totals["landmarks"] > totals["entrance"], (
+        "the three tiers must be strictly decreasing in size; got %s. If landmarks has collapsed "
+        "onto entrance the middle setting is pointless, and if it has collapsed onto `all` it is "
+        "not doing anything." % totals)
+
+
+def test_landmarks_is_the_middle_setting_where_it_matters():
+    """Regions the warp menu genuinely splits must get more than one grace at `landmarks`.
+
+    The tier is UNEVEN by construction (it follows the menu, not region size) and three regions
+    legitimately reduce to a single grace -- Gravesite, Scadu Altus and Weeping, accepted 2026-07-29.
+    So this does not demand a floor everywhere; it demands that the big base-game regions the menu
+    DOES split still come out split, which is the whole point of offering a middle setting."""
+    w = _grace_world("landmarks", {}, seed=4242)
+    rg = w.world.fill_slot_data()["regionGraces"]
+    for region in ("Liurnia", "Caelid", "Limgrave", "Altus"):
+        got = rg.get("%s Lock" % region)
+        if got is None:
+            continue                               # not kept in this seed
+        assert len(got) > 1, (
+            "%s reduced to %d grace(s) at `landmarks`. That region's sub-areas are exactly what the "
+            "middle tier exists to expose; if the partition changed, re-verify it BY NAME before "
+            "re-baselining this." % (region, len(got)))

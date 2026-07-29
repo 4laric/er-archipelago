@@ -65,7 +65,7 @@ _NOT_OPTIONS = {
     # three are option VALUES the guide has to name to explain the rarity floor).
     "normal", "high", "max",
     # VALUES of region_grace_unlock ("all" is already above as a dungeon_sweep value)
-    "entrance",
+    "entrance", "landmarks",
 }
 
 

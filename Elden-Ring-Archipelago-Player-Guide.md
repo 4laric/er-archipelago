@@ -209,10 +209,20 @@ travel into it. By default it lights **all** of them -- which for Liurnia means
 59 warp points at once, Caelid 38, Limgrave 28. That is convenient, and it also
 makes a region you have never walked read as already explored.
 
-`region_grace_unlock: entrance` lights only the region's front door instead --
-Lake-Facing Cliffs for Liurnia, Church of Elleh for Limgrave, Gateside Chamber
-for Stormveil. Every other grace is still there and still yours the moment you
-touch it, the vanilla way.
+Two smaller settings:
+
+- **`landmarks`** -- one grace per sub-area, using the warp menu's own grouping.
+  Liurnia comes out as Lake-Facing Cliffs, East Raya Lucaria Gate, Moonlight
+  Altar and Ruin-Strewn Precipice: you can still cross a big region in a couple
+  of hops without it being handed to you whole. About 50 graces across the map.
+  It follows the menu rather than region size, so it is uneven on purpose -- a
+  few regions (Gravesite, Scadu Altus, Weeping) have one sub-area and behave the
+  same as `entrance`.
+- **`entrance`** -- only the region's front door. Lake-Facing Cliffs for Liurnia,
+  Church of Elleh for Limgrave, Gateside Chamber for Stormveil.
+
+Every other grace is still there and still yours the moment you touch it, the
+vanilla way.
 
 This cannot strand you and cannot cost you an item. Region unlocks are still the
 only progression, every check stays exactly where it was, and a grace you have
