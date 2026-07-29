@@ -104,6 +104,7 @@ class RunePricing(Feature):
         player = world.player
         out = {}
         priced = unpriced = 0
+        _ratios = []          # price/worth per slot, for the distribution line below
         for loc in world.multiworld.get_locations(player):
             aid = getattr(loc, "address", None)
             if aid is None or str(aid) not in SHOP_ROW_FLAGS:
@@ -123,13 +124,36 @@ class RunePricing(Feature):
                 unpriced += 1
                 continue
             price = world.random.randint(0, PRICE_MULT * int(worth))
+            _ratios.append(price / float(worth))
             for row_id in SHOP_ROW_IDS.get(str(aid), []):
                 out[str(int(row_id))] = price
             priced += 1
         if priced or unpriced:
             import logging
-            logging.getLogger("Greenfield").info(
-                "[eldenring:%s] rune pricing: %d rune shop slot(s) repriced into [0, %dx worth], "
-                "%d left at the slot's own price (no derived worth)",
-                player, priced, PRICE_MULT, unpriced)
+            log = logging.getLogger("Greenfield")
+            # 🛑 REPORT THE DISTRIBUTION, NOT JUST THE COUNT. "repriced N slots" is true whether the
+            # roll lands where it should or piles every rune above its value -- which is exactly what
+            # was reported in game 2026-07-29 ("i have never seen a single rune priced below its
+            # value") while this code was, measurably, correct. A count with no shape cannot tell the
+            # two apart, so the generate log now carries the shape and any future report is one
+            # grep from an answer instead of a session of guessing.
+            if _ratios:
+                _r = sorted(_ratios)
+                _below = sum(1 for x in _r if x < 1.0)
+                log.info(
+                    "[eldenring:%s] rune pricing: %d slot(s) into [0, %dx worth] -- price/worth "
+                    "min %.2f median %.2f max %.2f, %d of %d BELOW worth (%.0f%%); %d left at the "
+                    "slot's own price (no derived worth)",
+                    player, priced, PRICE_MULT, _r[0], _r[len(_r) // 2], _r[-1],
+                    _below, len(_r), 100.0 * _below / len(_r), unpriced)
+                if _below == 0:
+                    log.warning(
+                        "[eldenring:%s] rune pricing: NOT ONE of %d rune slots is priced below its "
+                        "worth. A uniform [0, %dx] roll should put about half of them there -- "
+                        "suspect the worth derivation before the roll.", player, len(_r), PRICE_MULT)
+            else:
+                log.info(
+                    "[eldenring:%s] rune pricing: %d rune shop slot(s) repriced into [0, %dx worth], "
+                    "%d left at the slot's own price (no derived worth)",
+                    player, priced, PRICE_MULT, unpriced)
         return {contract.SHOP_RUNE_PRICES: out}
