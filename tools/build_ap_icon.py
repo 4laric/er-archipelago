@@ -79,6 +79,7 @@ def _warn_if_no_oodle(witchy_exe):
 
 
 _PROMPTPLUS = "requires a terminal"
+_NEEDS_CONSOLE = [False]   # latched on first refusal: witchy 3.0.1.0 refuses even with -s
 
 
 def run_witchy(witchy, args, what):
@@ -94,13 +95,20 @@ def run_witchy(witchy, args, what):
     INHERITING the console: no capture, so PromptPlus is happy. We only need the exit code and the
     directory it produced, never its stdout, so inheriting costs nothing but noise.
     """
+    if _NEEDS_CONSOLE[0]:
+        r0 = subprocess.run([witchy] + args)      # learned already; skip the wasted attempt
+        if r0.returncode != 0:
+            die("%s failed (exit %d)" % (what, r0.returncode))
+        return r0
     r = subprocess.run([witchy, "-s"] + args, capture_output=True, text=True)
     if r.returncode == 0:
         return r
     blob = (r.stdout or "") + (r.stderr or "")
     if _PROMPTPLUS in blob or "redirection" in blob:
-        print("build_ap_icon: witchy refused redirected stdio even with -s; re-running attached to "
-              "this console.", file=sys.stderr)
+        if not _NEEDS_CONSOLE[0]:
+            print("build_ap_icon: witchy refused redirected stdio even with -s; attaching to this "
+                  "console for the rest of the run.", file=sys.stderr)
+        _NEEDS_CONSOLE[0] = True
         r2 = subprocess.run([witchy] + args)
         if r2.returncode == 0:
             return r2
@@ -182,9 +190,17 @@ def find_sprite(unpacked_layout, icon_id):
                 h = a.get("height") or a.get("h")
                 if not (w and h):
                     continue
-                label = " ".join(str(v) for v in a.values())
-                if re.search(r"(?<!\d)0*%d(?!\d)" % icon_id, label):
-                    hits.append((os.path.basename(path), el.tag, dict(a)))
+                # MATCH THE NAME, NOT EVERY ATTRIBUTE. The first real run matched
+                # MENU_MAP_DropSoul and MENU_FL_SlotBase_Shop because their HEIGHT is 92, and in
+                # the low bundle a dozen SB_BigRunes sprites (height 92) crowded the real entry
+                # past the print truncation. An id lives in the sprite NAME; a dimension that
+                # happens to equal it is noise -- the wrong-id-space trap, one field over.
+                name = a.get("name") or ""
+                if re.search(r"ItemIcon_0*%d(?!\d)" % icon_id, name):
+                    hits.append((os.path.basename(path), el.tag, dict(a), True))
+                elif re.search(r"(?<!\d)0*%d(?!\d)" % icon_id, name):
+                    hits.append((os.path.basename(path), el.tag, dict(a), False))
+    hits.sort(key=lambda h: not h[3])   # exact ItemIcon matches first
     return hits
 
 
@@ -203,11 +219,18 @@ def probe(menu, bundles, icon_id, cell, witchy, workdir):
             print("[%s] %s" % (b, lay))
             if hits:
                 print("  sprite entries mentioning %d -- CHECK these name the right item:" % icon_id)
-                for fn, tag, attrs in hits[:12]:
-                    print("    %-28s <%s %s>" % (fn, tag, " ".join(
-                        "%s=%r" % (k, v) for k, v in sorted(attrs.items()))))
-                if len(hits) > 12:
-                    print("    ... %d more" % (len(hits) - 12))
+                exact = [h for h in hits if h[3]]
+                for fn, tag, attrs, is_exact in (exact or hits)[:12]:
+                    print("    %-26s %s <%s %s>" % (
+                        fn, "ITEMICON" if is_exact else "loose   ", tag,
+                        " ".join("%s=%r" % (k, v) for k, v in sorted(attrs.items()))))
+                if exact:
+                    fn, _t, attrs, _e = exact[0]
+                    print("  => TARGET  atlas=%-20s x=%s y=%s w=%s h=%s" % (
+                        os.path.splitext(fn)[0] + ".dds", attrs["x"], attrs["y"],
+                        attrs.get("width"), attrs.get("height")))
+                elif len(hits) > 12:
+                    print("    ... %d more (all loose; none is an ItemIcon)" % (len(hits) - 12))
             else:
                 print("  no sprite entry matched %d. Dumping the layout's shape so the parse can be"
                       " fixed rather than guessed:" % icon_id)

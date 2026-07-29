@@ -116,24 +116,50 @@ class SpriteLookup(unittest.TestCase):
         self.d = tempfile.mkdtemp()
         with open(os.path.join(self.d, "01_common.layout"), "w") as fh:
             fh.write('<?xml version="1.0"?><Layout>'
-                     '<Sprite name="ICON_00092" textureName="SB_Icon_00" x="256" y="512" width="128" height="128"/>'
-                     '<Sprite name="ICON_00920" textureName="SB_Icon_01" x="0" y="0" width="128" height="128"/>'
-                     '<Sprite name="ICON_00192" textureName="SB_Icon_01" x="64" y="0" width="128" height="128"/>'
-                     '<Sprite name="ICON_00093" textureName="SB_Icon_00" x="384" y="512" width="128" height="128"/>'
+                     '<SubTexture name="MENU_ItemIcon_00092.png" x="2132" y="1148" width="160" height="160"/>'
+                     '<SubTexture name="MENU_ItemIcon_00920.png" x="0" y="0" width="160" height="160"/>'
+                     '<SubTexture name="MENU_ItemIcon_00192.png" x="64" y="0" width="160" height="160"/>'
+                     '<SubTexture name="MENU_ItemIcon_00093.png" x="384" y="512" width="160" height="160"/>'
                      '</Layout>')
 
     def test_it_finds_the_zero_padded_id(self):
         hits = bai.find_sprite(self.d, 92)
         self.assertEqual(len(hits), 1, "expected exactly one sprite for icon 92, got %r" % (hits,))
-        attrs = hits[0][2]
-        self.assertEqual(attrs["textureName"], "SB_Icon_00")
-        self.assertEqual((attrs["x"], attrs["y"]), ("256", "512"))
+        self.assertEqual(hits[0][2]["name"], "MENU_ItemIcon_00092.png")
+
+    def test_a_dimension_equal_to_the_id_is_not_a_match(self):
+        """REAL DATA, real false positives. The first probe against the game matched
+        MENU_MAP_DropSoul and MENU_FL_SlotBase_Shop -- because their HEIGHT is 92 -- and in the low
+        bundle a dozen SB_BigRunes sprites (height 92) crowded the true entry past the truncation.
+        An id lives in the NAME; a dimension that happens to equal it is noise."""
+        d = tempfile.mkdtemp()
+        with open(os.path.join(d, "SB_MapCursor_02.layout"), "w") as fh:
+            fh.write('<T><SubTexture half="0" height="92" name="MENU_MAP_DropSoul.png" '
+                     'width="86" x="800" y="1921"/></T>')
+        with open(os.path.join(d, "SB_Icon_00.layout"), "w") as fh:
+            fh.write('<T><SubTexture half="0" height="160" name="MENU_ItemIcon_00092.png" '
+                     'width="160" x="2132" y="1148"/></T>')
+        hits = bai.find_sprite(d, 92)
+        self.assertEqual([h[2]["name"] for h in hits], ["MENU_ItemIcon_00092.png"])
+        self.assertTrue(hits[0][3], "the ItemIcon match must be flagged exact")
+
+    def test_the_real_rect_from_the_game_is_parsed(self):
+        """Pinned from the actual sblytbnd (hi bundle, 2026-07-29). If a future parse change stops
+        producing THIS, the tool would silently target a different rect."""
+        d = tempfile.mkdtemp()
+        with open(os.path.join(d, "SB_Icon_00.layout"), "w") as fh:
+            fh.write('<T><SubTexture half="0" height="160" name="MENU_ItemIcon_00092.png" '
+                     'width="160" x="2132" y="1148"/></T>')
+        fn, _tag, a, exact = bai.find_sprite(d, 92)[0]
+        self.assertEqual(fn, "SB_Icon_00.layout")
+        self.assertEqual((a["x"], a["y"], a["width"], a["height"]), ("2132", "1148", "160", "160"))
+        self.assertTrue(exact)
 
     def test_neighbouring_ids_do_not_false_match(self):
         """92 must not match 920, 192 or 093. A substring match here paints the flower over an
         unrelated item and nothing errors -- the exact silent-wrong-answer shape."""
         names = {h[2].get("name") for h in bai.find_sprite(self.d, 92)}
-        for near in ("ICON_00920", "ICON_00192", "ICON_00093"):
+        for near in ("MENU_ItemIcon_00920.png", "MENU_ItemIcon_00192.png", "MENU_ItemIcon_00093.png"):
             self.assertNotIn(near, names, "%s false-matched icon 92" % near)
 
     def test_an_absent_id_returns_nothing_rather_than_the_nearest(self):
