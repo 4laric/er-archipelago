@@ -127,3 +127,98 @@ def test_the_legacy_pool_specifically_is_clean():
     assert not leaked, (
         "the LEGACY sweep pool is supposed to be filler-only by construction (_filler_only), and %d "
         "important check(s) got in: %s" % (len(leaked), leaked[:5]))
+
+
+# ---------------------------------------------------------------------------------------------
+# THE GENERAL PROPERTY: a sweep must not hand you a check whose gate its TRIGGER does not satisfy.
+#
+# A sweep grants its members the moment its boss dies. If a member sits behind a key the boss does
+# NOT sit behind, the sweep is a way past that key -- you get the gated check without ever holding
+# what gates it. That is the softlock shape from the 2026-07-16 playtest, arriving through a
+# different door.
+#
+# The six important-tagged checks currently in sweeps are NOT this bug, and it is worth writing down
+# why so the next reader does not re-raise it:
+#   * 3 legendaries -- no gate, no logic meaning.
+#   * Gaol Upper/Lower Level Key -- gated, but so is the sweep's trigger: legacy_key_gates requires
+#     BOTH keys for every gaol check AND for the Lamenter's own reward (its `extra`, f520770). You
+#     cannot fire that sweep without already satisfying the gate. Consistent, not a hole.
+#   * Dragon Heart -- the thing needing protection is not the Heart but the 25 places you SPEND it,
+#     and those are exactly what the missable alt_currency guard bars from carrying advancement.
+# ---------------------------------------------------------------------------------------------
+def _key_requirements():
+    """ap_id -> frozenset of key names that gate it, with every key active (the worst case)."""
+    from worlds.eldenring.features import legacy_key_gates as lkg
+    req = {}
+    for ap, key in lkg._gated_location_ids(list(lkg._LEGACY_KEYS)).items():
+        req.setdefault(ap, set()).add(key)
+    for ap, keys in lkg._multi_gated_location_ids(lkg._MULTI_KEY_GATES).items():
+        req.setdefault(ap, set()).update(keys)
+    return {ap: frozenset(v) for ap, v in req.items()}
+
+
+def _trigger_keys(defeat_flag):
+    """Keys that gate the BOSS whose defeat flag this is.
+
+    Apply the gate's OWN predicate to the trigger. A key gate is a flag WINDOW -- the Academy key
+    covers [14000000, 15000000), the gaol gate covers [41020000, 41030000) -- and boss defeat flags
+    live in the same space as the checks they sit among. So the question "is this boss behind the
+    key?" is the same range test the gate already runs on every check.
+
+    An earlier version of this test demanded a defeat-flag -> reward-location join instead, which
+    resolved only 103 of 241 triggers and reported the Academy and gaol sweeps as violations. They
+    were not: 14000800/801/850 fall inside the Academy window and 41020800 inside the gaol's. The
+    join was too narrow, not the logic wrong -- and the range test resolves ALL of them.
+    """
+    from worlds.eldenring.features import legacy_key_gates as lkg
+    keys = set()
+    for key, (_parent, (lo, hi)) in lkg._LEGACY_KEYS.items():
+        if (lo <= defeat_flag < hi) or defeat_flag in lkg._LEGACY_EXTRA.get(key, frozenset()):
+            keys.add(key)
+    for g in lkg._MULTI_KEY_GATES:
+        if any(lo <= defeat_flag < hi for (lo, hi) in g["ranges"]) or defeat_flag in g["extra"]:
+            keys.update(g["keys"])
+    return frozenset(keys)
+
+
+def test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind():
+    """THE GENERAL PROPERTY: a swept check's gate must be implied by its sweep trigger's gate.
+
+    A sweep grants its members the moment its boss dies. If a member sits behind a key the boss does
+    NOT sit behind, the sweep is a way past that key -- you receive the gated check without ever
+    holding what gates it. That is the 2026-07-16 gaol softlock arriving through a different door,
+    and nothing asserted it until now.
+
+    It currently holds because the two gated dungeons gate their boss too: the Academy window covers
+    Red Wolf and Rennala, the gaol window covers the Lamenter. This test is what stops a future
+    sweep -- a widened pool, a new gate, a re-region -- from quietly breaking that.
+
+    🛑 WHAT IT CANNOT CATCH, established by mutating it rather than assumed. Member requirements and
+    trigger requirements are BOTH derived from the same flag window, so narrowing a gate's window
+    shrinks both together and this test stays green -- it cannot tell you a window is mis-scoped.
+    What it DOES catch is contamination: a sweep containing a check gated by a key its own trigger is
+    not behind. Verified by injecting an Academy-gated ap into a Stormveil sweep, which reds it with
+    "trigger has []". Mis-scoped windows need a different instrument; do not read a green here as
+    "the gates are right", only as "the sweeps do not cross them".
+    """
+    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+
+    req = _key_requirements()
+    bad, gated_sweeps = [], 0
+    for defeat, members in DUNGEON_SWEEPS.items():
+        needed = frozenset().union(*(req.get(ap, frozenset()) for ap in members)) if members else frozenset()
+        if not needed:
+            continue
+        gated_sweeps += 1
+        have = _trigger_keys(defeat)
+        if not needed <= have:
+            bad.append("%s: members need %s, trigger has %s"
+                       % (defeat, sorted(needed), sorted(have)))
+
+    assert not bad, (
+        "%d sweep(s) hand out a check their trigger is not gated behind -- the sweep is a way past "
+        "that key:\n  %s" % (len(bad), "\n  ".join(bad[:8])))
+    # An assertion that never examined a gated sweep proves nothing: a filter with no tally is a lie.
+    assert gated_sweeps > 0, (
+        "no sweep contained a key-gated member, so this property was never actually exercised. "
+        "If the gates moved, re-derive them rather than deleting this.")
