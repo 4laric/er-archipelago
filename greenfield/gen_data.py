@@ -4933,8 +4933,15 @@ if os.path.isfile(_spare_path):
         for _ln in _sfh:
             _ln = _ln.strip()
             if _ln[:1].isdigit():
-                _SPARE_GOODS.append(int(_ln))
-    _SPARE_GOODS = sorted(set(_SPARE_GOODS))
+                # tab-separated since 2026-07-29 (goods_id, fmg_full); tolerate the old 1-column form
+                _SPARE_GOODS.append(int(_ln.split("\t")[0]))
+    # 🛑 PRESERVE THE FILE'S ORDER. This used to be `sorted(set(...))`, and that numeric sort would
+    # now silently undo the whole point of the datamine's ordering: rows carrying
+    # GoodsName+Info+Caption are emitted FIRST so shops.py -- which indexes this pool positionally --
+    # spends the describable rows before the name-only ones. Sorting by id re-interleaves them and
+    # the item panel goes back to `?GoodsInfo?`. De-dupe only, order-preserving.
+    _seen = set()
+    _SPARE_GOODS = [g for g in _SPARE_GOODS if not (g in _seen or _seen.add(g))]
 print(f"spare_goods: {len(_SPARE_GOODS)} safe preview-good rows (greenfield/spare_goods.tsv)")
 
 OUT_SHOP = os.path.join(HERE, "eldenring", "shop_data.py")
