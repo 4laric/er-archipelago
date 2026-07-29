@@ -74,9 +74,16 @@ _dg_tmp.py
 .write_test_xyz
 
 # --- large build / deploy outputs (regenerable) ---
-/build/                     # ap_icon build output (~3 GB)
-/me3/                       # deployed mod runtime: eldenring_archipelago.dll, apconfig.json, package
-/applied_patches/           # applied-patch output incl. regulation.bin (game data)
+# A trailing '#' does NOT start a comment in .gitignore -- only a '#' at the START of a line does.
+# These three carried inline comments, so the patterns were literally "/build/   # ap_icon build
+# output (~3 GB)" and matched NOTHING. All three were inert, including /applied_patches/, whose own
+# comment says it holds regulation.bin. In a PUBLIC repo. Comments go on their own line.
+# ap_icon build output (~3 GB)
+/build/
+# deployed mod runtime: eldenring_archipelago.dll, apconfig.json, ap-package (repainted textures)
+/me3/
+# applied-patch output incl. regulation.bin (game data)
+/applied_patches/
 
 # --- diag dumps / bake snapshots (regenerable) ---
 ap_uncovered_flags_*.txt

@@ -494,8 +494,44 @@ if ($Me3Deploy) {
         }
     }
     if (-not $copiedIcon) {
-        Write-Warning "  no 01_common.tpf.dcx at $IconMenu01 -- build it first:"
-        Write-Warning '    python build_ap_icon.py --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu "<game>\menu"'
+        # BUILD IT, do not just complain about it. The icon is not optional: the client points the
+        # placeholder and every repointed shop slot at iconId 92 and relies on this override to
+        # repaint cell 92, so a bundle without it renders literal telescopes (Nexus, 2026-07-29).
+        # package_release.ps1 now HARD FAILS without the sheet, so a silent skip here just moves the
+        # failure later. Try to produce it from the local install instead.
+        $IconTool = Join-Path $Repo "tools\build_ap_icon.py"
+        $GameMenu = Join-Path $GameDir "menu"
+        if (-not (Test-Path $IconTool)) {
+            # NOT a warning. The tool is OURS and belongs in the tree; it was referenced here in
+            # four places while living only on one dev box, which is why the flower has never
+            # shipped from a clean clone. See docs/AP-ICON-PIPELINE.md.
+            throw ("build.ps1: $IconTool is missing. The AP flower icon cannot be built, and " +
+                   "package_release will refuse to ship without it. The script is project source " +
+                   "-- commit it to tools\ (the sprite sheet it OUTPUTS must stay out of git: it " +
+                   "is a repainted FromSoft texture, PROVENANCE.md rule 1).")
+        }
+        if (-not (Test-Path $GameMenu)) {
+            throw ("build.ps1: no menu directory at $GameMenu, so the AP flower icon cannot be " +
+                   "built from this machine's install. Point `$GameDir at a real Elden Ring Game " +
+                   "folder, or build the sheet elsewhere and drop it at $IconMenu01.")
+        }
+        Write-Host "  icon override: not staged -- building it from $GameMenu"
+        python $IconTool --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu $GameMenu
+        if ($LASTEXITCODE -ne 0) {
+            throw "build.ps1: build_ap_icon.py failed (exit $LASTEXITCODE) -- cannot stage the AP flower icon."
+        }
+        foreach ($sub in "hi", "low") {
+            $sheet = Join-Path $IconMenu01 "$sub\01_common.tpf.dcx"
+            if (Test-Path $sheet) {
+                Copy-Item $sheet (Join-Path $Me3Package "menu\$sub") -Force
+                Write-Host "  icon override: menu\$sub\01_common.tpf.dcx  (freshly built)"
+                $copiedIcon = $true
+            }
+        }
+        if (-not $copiedIcon) {
+            throw ("build.ps1: build_ap_icon.py reported success but produced no 01_common.tpf.dcx " +
+                   "under $IconMenu01. An empty result is a failure, not a clean run.")
+        }
     }
 
     # apconfig.json next to the staged DLL (url + slot; the flag-poll table travels in slot_data now).
