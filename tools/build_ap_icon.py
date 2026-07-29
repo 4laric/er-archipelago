@@ -328,9 +328,12 @@ def main():
     ap.add_argument("--art", default=DEFAULT_ART)
     ap.add_argument("--icon-id", type=int, default=92)
     ap.add_argument("--bundles", default="hi,low")
-    ap.add_argument("--cell", type=int, default=160, help="icon cell size in px (VERIFY with --probe)")
-    ap.add_argument("--sheet", help="dds file name inside the tpf that holds the target cell")
-    ap.add_argument("--cell-index", type=int, help="0-based cell index within --sheet")
+    # --cell survives ONLY for the no-layout fallback report. The rect comes from the sblytbnd.
+    # --sheet/--cell-index are GONE: they were the grid model, and the game's own layout replaced
+    # it. A flag that no longer decides anything is worse than no flag -- it tells the next reader
+    # a grid exists.
+    ap.add_argument("--cell", type=int, default=160,
+                    help="fallback grid report only, when no sblytbnd is present")
     ap.add_argument("--out", default=os.path.join(REPO, "build", "ap_icon01", "menu"))
     ap.add_argument("--work", default=os.path.join(REPO, "build", "ap_icon01", "_work"))
     ap.add_argument("--witchy", help="path to WitchyBND.exe (default: elden_ring_artifacts, then PATH)")
@@ -353,10 +356,7 @@ def main():
         print("build_ap_icon: NOTE --black-to-alpha ignored (art already has an alpha channel). "
               "Pass --force-black-to-alpha to override.", file=sys.stderr)
 
-    if a.probe or a.sheet is None or a.cell_index is None:
-        if not a.probe:
-            print("build_ap_icon: --sheet/--cell-index not given; probing instead of guessing.\n",
-                  file=sys.stderr)
+    if a.probe:
         probe(a.menu, bundles, a.icon_id, a.cell, witchy, a.work)
         return 0
 
