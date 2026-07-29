@@ -36,7 +36,7 @@ class Composite(unittest.TestCase):
 
     def _run(self, col, row):
         out = os.path.join(self.tmp, "out%d%d.png" % (col, row))
-        bai.composite(ART, self.sheet, CELL, col, row, out, False)
+        bai.composite_rect(ART, self.sheet, col * CELL, row * CELL, CELL, CELL, out, False)
         return Image.open(out).convert("RGBA")
 
     def test_the_cell_is_cleared_so_the_vanilla_icon_cannot_bleed_through(self):
@@ -83,7 +83,51 @@ class Composite(unittest.TestCase):
 
     def test_out_of_range_refuses_instead_of_clipping(self):
         with self.assertRaises(SystemExit):
-            bai.composite(ART, self.sheet, CELL, 9, 9, os.path.join(self.tmp, "bad.png"), False)
+            bai.composite_rect(ART, self.sheet, 9 * CELL, 9 * CELL, CELL, CELL,
+                               os.path.join(self.tmp, "bad.png"), False)
+
+    def test_the_real_atlas_geometry_from_the_game(self):
+        """The rect the game actually gave us: SB_Icon_00, 4096x2048, sprite at 2132,1148 160x160.
+
+        2132 is NOT a multiple of 160 -- the atlas is arbitrarily packed. Any grid model is wrong
+        here however the cell size is chosen, which is why the layout is read instead."""
+        big = os.path.join(self.tmp, "atlas.png")
+        Image.new("RGBA", (4096, 2048), (9, 9, 9, 255)).save(big)
+        bai.composite_rect(ART, big, 2132, 1148, 160, 160, big, False)
+        px = Image.open(big).convert("RGBA").load()
+        petals = {(218, 160, 125), (202, 149, 194), (118, 126, 189),
+                  (117, 193, 117), (237, 228, 145), (202, 118, 130)}
+        inside = {px[x, y][:3] for y in range(1148, 1308, 3) for x in range(2132, 2292, 3)
+                  if px[x, y][3] > 200}
+        self.assertTrue(inside & petals, "flower did not land in the real rect")
+        self.assertNotIn((9, 9, 9), inside, "vanilla icon bleeds through between the petals")
+        self.assertEqual(px[2131, 1148][:3], (9, 9, 9), "wrote one pixel left of the rect")
+        self.assertEqual(px[2292, 1307][:3], (9, 9, 9), "wrote past the rect")
+
+
+class DdsFormat(unittest.TestCase):
+    """Re-encoding to the wrong format still LOADS and still looks nearly right -- so a wrong guess
+    here silently degrades every icon on a 4096x2048 sheet and nothing flags it."""
+
+    def test_known_formats_round_trip_to_texconv_names(self):
+        self.assertEqual(bai._texconv_format("DX10", 98), "BC7_UNORM")
+        self.assertEqual(bai._texconv_format("DXT5", None), "BC3_UNORM")
+
+    def test_an_unknown_format_refuses_rather_than_defaulting(self):
+        with self.assertRaises(SystemExit):
+            bai._texconv_format("DX10", 12345)
+
+    def test_it_reads_a_dx10_header(self):
+        import struct
+        d = tempfile.mkdtemp()
+        p = os.path.join(d, "t.dds")
+        h = bytearray(b"DDS " + b"\0" * 144)
+        struct.pack_into("<I", h, 28, 11)
+        h[84:88] = b"DX10"
+        struct.pack_into("<I", h, 128, 98)
+        with open(p, "wb") as fh:
+            fh.write(bytes(h))
+        self.assertEqual(bai.dds_format(p), ("DX10", 98, 11))
 
 
 class DdsHeader(unittest.TestCase):

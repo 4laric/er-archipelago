@@ -11,9 +11,19 @@ WHY THIS IS A WITCHYBND WRAPPER AND NOT A FORMAT IMPLEMENTATION
     magic DCX\\0 ... DCP\\0 KRAK. Oodle is proprietary and Windows-side; WitchyBND already carries it.
     So witchy does the (de)compression and this script does only the pixels.
 
-🛑 THIS SCRIPT HAS NEVER BEEN RUN. It was written in a Linux sandbox with no Oodle, no witchy, no
-texconv and no way to open the input. Every path here is UNVERIFIED. That is exactly why --probe
-exists and why it is the default: run it FIRST, read what it found, and only then let it write.
+PROBE FIRST -- it is what established the geometry rather than guessing it. Two real runs against
+the game gave, for BOTH bundles:
+
+    SB_Icon_00.layout  MENU_ItemIcon_00092.png  x=2132 y=1148 w=160 h=160   (atlas 4096x2048)
+
+Note 2132 is NOT a multiple of 160: the atlas is arbitrarily packed, so a grid model is wrong here
+whatever cell size is chosen. The rect comes from the layout, per bundle, every run.
+
+🛑 THE WRITE PATH HAS NEVER BEEN RUN. The probe path has (witchy 3.0.1.0, Windows). Everything
+downstream of texconv is UNVERIFIED -- there is no texconv, no Oodle and no game in the sandbox
+where this was written. What IS covered by tools/test_build_ap_icon.py: the rect paste at the real
+coordinates, the clear-before-paste, the refusal to write outside the atlas, DDS header parsing and
+format preservation.
 
     python tools/build_ap_icon.py --probe --menu "<game>\\menu"
     python tools/build_ap_icon.py --icon01 --icon-id 92 --bundles hi,low --menu "<game>\\menu"
@@ -259,32 +269,54 @@ def probe(menu, bundles, icon_id, cell, witchy, workdir):
         print()
 
 
-def composite(art, sheet_png, cell, col, row, out_png, force_black_alpha):
+def dds_format(path):
+    """(fourcc, dxgi_format, mip_count) -- so a re-encode can preserve what the game shipped.
+
+    A DDS re-encoded to the wrong format still LOADS and still looks fine in a viewer, so getting
+    this wrong is another silent-wrong-answer: it would ship a bloated or subtly wrong atlas that
+    nothing flags. Read it, echo it, pass it back to texconv.
+    """
+    import struct
+    with open(path, "rb") as fh:
+        head = fh.read(148)
+    if len(head) < 128 or head[:4] != b"DDS ":
+        return (None, None, None)
+    mips = struct.unpack_from("<I", head, 28)[0]
+    fourcc = head[84:88]
+    dxgi = None
+    if fourcc == b"DX10" and len(head) >= 132:
+        dxgi = struct.unpack_from("<I", head, 128)[0]
+    return (fourcc.decode("ascii", "replace"), dxgi, mips)
+
+
+def composite_rect(art, sheet_png, x, y, w, h, out_png, force_black_alpha):
+    """Paste the flower into the sprite's EXACT rect from the layout.
+
+    Not a grid cell: the real entry is x=2132 y=1148 w=160 h=160 in SB_Icon_00, and 2132 is not a
+    multiple of 160. The atlas is arbitrarily packed, so any grid model is wrong however the cell
+    size is chosen.
+    """
     from PIL import Image
     src = Image.open(art).convert("RGBA")
     if force_black_alpha:
         px = src.load()
-        for y in range(src.height):
-            for x in range(src.width):
-                r, g, b, a = px[x, y]
+        for yy in range(src.height):
+            for xx in range(src.width):
+                r, g, b, a = px[xx, yy]
                 if r < 8 and g < 8 and b < 8:
-                    px[x, y] = (r, g, b, 0)
-    # letterbox, never non-uniform scale: the art is 2034x2112 and cells are square
+                    px[xx, yy] = (r, g, b, 0)
     box = src.copy()
-    box.thumbnail((cell, cell), Image.LANCZOS)
-    tile = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
-    tile.paste(box, ((cell - box.width) // 2, (cell - box.height) // 2), box)
+    box.thumbnail((w, h), Image.LANCZOS)        # uniform scale: the art is 2034x2112, the rect square
+    tile = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    tile.paste(box, ((w - box.width) // 2, (h - box.height) // 2), box)
 
     sheet = Image.open(sheet_png).convert("RGBA")
-    x, y = col * cell, row * cell
-    if x + cell > sheet.width or y + cell > sheet.height:
-        die("cell (%d,%d) at size %d falls outside the %dx%d sheet -- refusing to write outside the "
-            "atlas." % (col, row, cell, sheet.width, sheet.height))
-    # CLEAR the cell first. The flower is mostly transparent between its petals, so a plain
-    # alpha-composite would leave the VANILLA icon (the Telescope) showing through the gaps -- a
-    # flower with a telescope behind it, which is worse than either. Caught by running this against
-    # a synthetic sheet: the target cell still read as background colour between the petals.
-    sheet.paste((0, 0, 0, 0), (x, y, x + cell, y + cell))
+    if x < 0 or y < 0 or x + w > sheet.width or y + h > sheet.height:
+        die("rect (%d,%d %dx%d) falls outside the %dx%d atlas -- refusing to write outside it."
+            % (x, y, w, h, sheet.width, sheet.height))
+    # CLEAR first: the flower is mostly transparent between its petals, so a plain composite would
+    # leave the VANILLA icon (the Telescope) showing through the gaps.
+    sheet.paste((0, 0, 0, 0), (x, y, x + w, y + h))
     sheet.paste(tile, (x, y), tile)
     sheet.save(out_png, "PNG")
     return out_png
@@ -307,6 +339,7 @@ def main():
     ap.add_argument("--black-to-alpha", action="store_true",
                     help="ACCEPTED AND IGNORED -- the committed art already has alpha (see module docstring)")
     ap.add_argument("--force-black-to-alpha", action="store_true", help="really do the black->alpha keying")
+    ap.add_argument("--format", help="texconv -f value; default preserves the shipped DDS format")
     a = ap.parse_args()
 
     bundles = [b.strip() for b in a.bundles.split(",") if b.strip()]
@@ -327,11 +360,97 @@ def main():
         probe(a.menu, bundles, a.icon_id, a.cell, witchy, a.work)
         return 0
 
-    die("the write path is not implemented yet ON PURPOSE. --probe first and report the atlas "
-        "layout; the compositing half (texconv DDS<->PNG round trip, then witchy repack) gets "
-        "written against a KNOWN layout rather than a guessed one. composite() above is ready and "
-        "unit-testable; what is missing is only the DDS codec call, which needs the real sheet "
-        "names and cell geometry that --probe prints.")
+    texconv = shutil.which("texconv") or shutil.which("texconv.exe")
+    if not texconv:
+        die("texconv not found. Pillow cannot WRITE the block-compressed DDS these atlases use, so "
+            "the round trip needs DirectXTex's texconv.exe on PATH (or beside WitchyBND). Get it "
+            "from https://github.com/microsoft/DirectXTex/releases -- it is a single exe.")
+
+    os.makedirs(a.out, exist_ok=True)
+    for b in bundles:
+        src = os.path.join(a.menu, b, SHEET)
+        lay = os.path.join(a.menu, b, LAYOUT)
+        if not os.path.isfile(lay):
+            die("no %s -- the sprite rect comes from the layout, never from arithmetic." % lay)
+
+        # 1. rect, from the layout, for THIS bundle (never assume hi and low agree)
+        up_lay = unpack(witchy, lay, os.path.join(a.work, b, "layout"))
+        hits = [h for h in find_sprite(up_lay, a.icon_id) if h[3]]
+        if len(hits) != 1:
+            die("expected exactly ONE ItemIcon sprite for icon %d in %s, found %d. Run --probe and "
+                "resolve it; picking one would be guessing." % (a.icon_id, lay, len(hits)))
+        lay_fn, _tag, at, _e = hits[0]
+        atlas = os.path.splitext(lay_fn)[0] + ".dds"
+        x, y = int(at["x"]), int(at["y"])
+        w, h = int(at.get("width") or at.get("w")), int(at.get("height") or at.get("h"))
+        print("[%s] %s -> %s rect %d,%d %dx%d" % (b, at.get("name"), atlas, x, y, w, h))
+
+        # 2. unpack the atlas and find that dds
+        up_tpf = unpack(witchy, src, os.path.join(a.work, b))
+        target = [p for p in dds_files(up_tpf) if os.path.basename(p).lower() == atlas.lower()]
+        if len(target) != 1:
+            die("the layout names %s but the tpf yielded %d file(s) by that name." % (atlas, len(target)))
+        dds = target[0]
+        fourcc, dxgi, mips = dds_format(dds)
+        size = dds_size(dds)
+        print("    %s %s  fourcc=%s dxgi=%s mips=%s" % (atlas, size, fourcc, dxgi, mips))
+        if not size:
+            die("could not read a DDS header from %s" % dds)
+
+        # 3. dds -> png, edit, png -> dds in the SAME format
+        stage = os.path.join(a.work, b, "_edit")
+        os.makedirs(stage, exist_ok=True)
+        run_tool([texconv, "-nologo", "-y", "-ft", "png", "-o", stage, dds],
+                 "texconv dds->png on %s" % atlas)
+        png = os.path.join(stage, os.path.splitext(os.path.basename(dds))[0] + ".png")
+        if not os.path.isfile(png):
+            die("texconv reported success but produced no %s. An empty result is a FAILURE." % png)
+        composite_rect(a.art, png, x, y, w, h, png, a.force_black_to_alpha)
+
+        fmt = a.format or _texconv_format(fourcc, dxgi)
+        cmd = [texconv, "-nologo", "-y", "-f", fmt, "-o", os.path.dirname(dds), png]
+        if mips:
+            cmd[1:1] = ["-m", str(mips)]
+        run_tool(cmd, "texconv png->dds (%s) on %s" % (fmt, atlas))
+
+        # 4. repack and stage
+        run_witchy(witchy, [up_tpf], "witchybnd repack of %s" % up_tpf)
+        built = os.path.join(os.path.dirname(up_tpf), SHEET)
+        if not os.path.isfile(built):
+            die("witchy repack produced no %s next to %s" % (SHEET, up_tpf))
+        dst_dir = os.path.join(a.out, b)
+        os.makedirs(dst_dir, exist_ok=True)
+        shutil.copy2(built, os.path.join(dst_dir, SHEET))
+        print("    wrote %s" % os.path.join(dst_dir, SHEET))
+
+    print("\nDone. build.ps1 stages these into me3\\ap-package; package_release refuses to ship "
+          "without them.")
+    return 0
+
+
+def run_tool(cmd, what):
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        die("%s failed (exit %d)\n%s%s" % (what, r.returncode, r.stdout, r.stderr))
+    return r
+
+
+def _texconv_format(fourcc, dxgi):
+    """Preserve the shipped format. DXGI numbers per the DDS DX10 header.
+
+    🛑 Only the formats actually seen are mapped. An unknown one DIES rather than defaulting to
+    something plausible -- re-encoding BC7 as BC3 still loads, still looks nearly right, and
+    silently degrades every icon on the sheet.
+    """
+    known = {77: "BC3_UNORM", 78: "BC3_UNORM_SRGB", 80: "BC4_UNORM", 83: "BC5_UNORM",
+             98: "BC7_UNORM", 99: "BC7_UNORM_SRGB", 71: "BC1_UNORM", 72: "BC1_UNORM_SRGB"}
+    if dxgi in known:
+        return known[dxgi]
+    if fourcc in ("DXT1", "DXT3", "DXT5"):
+        return {"DXT1": "BC1_UNORM", "DXT3": "BC2_UNORM", "DXT5": "BC3_UNORM"}[fourcc]
+    die("unrecognised DDS format (fourcc=%r dxgi=%r). Refusing to guess an encoding -- re-encoding "
+        "to the wrong one still loads and silently degrades the whole atlas. Pass --format "
+        "explicitly (a texconv -f value) once you have confirmed it." % (fourcc, dxgi))
 
 
 if __name__ == "__main__":
