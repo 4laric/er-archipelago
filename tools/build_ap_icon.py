@@ -78,14 +78,43 @@ def _warn_if_no_oodle(witchy_exe):
               "(Oodle) and the unpack will fail without it." % witchy_exe, file=sys.stderr)
 
 
+_PROMPTPLUS = "requires a terminal"
+
+
+def run_witchy(witchy, args, what):
+    """Run WitchyBND, coping with its interactive console layer.
+
+    🛑 WitchyBND draws its UI with PromptPlus, which REFUSES to start when stdio is redirected --
+    and capture_output=True redirects stdio. First run of this script died with
+    "PromptPlus requires a terminal/console without redirection!" and exit 1, which reads like a
+    witchy failure rather than a plumbing one.
+
+    `-s` (silent) exists precisely for "an environment that does not support its console output", so
+    try that first and still capture. If a witchy build predates or ignores the flag, fall back to
+    INHERITING the console: no capture, so PromptPlus is happy. We only need the exit code and the
+    directory it produced, never its stdout, so inheriting costs nothing but noise.
+    """
+    r = subprocess.run([witchy, "-s"] + args, capture_output=True, text=True)
+    if r.returncode == 0:
+        return r
+    blob = (r.stdout or "") + (r.stderr or "")
+    if _PROMPTPLUS in blob or "redirection" in blob:
+        print("build_ap_icon: witchy refused redirected stdio even with -s; re-running attached to "
+              "this console.", file=sys.stderr)
+        r2 = subprocess.run([witchy] + args)
+        if r2.returncode == 0:
+            return r2
+        die("%s failed (exit %d) with witchy attached to the console -- this is a real witchy "
+            "error, not the PromptPlus redirection problem." % (what, r2.returncode))
+    die("%s failed (exit %d)\n%s" % (what, r.returncode, blob))
+
+
 def unpack(witchy, src, workdir):
     """witchy -u <file> -> a sibling directory. Returns the unpacked dir."""
     os.makedirs(workdir, exist_ok=True)
     local = os.path.join(workdir, os.path.basename(src))
     shutil.copy2(src, local)
-    r = subprocess.run([witchy, "-u", local], capture_output=True, text=True)
-    if r.returncode != 0:
-        die("witchybnd -u failed on %s (exit %d)\n%s%s" % (local, r.returncode, r.stdout, r.stderr))
+    run_witchy(witchy, ["-u", local], "witchybnd -u on %s" % local)
     # witchy names the output after the file with dots -> dashes (AGENTS.md documents this shape
     # for MSBs: <name>-msb-dcx/). Do not guess it -- find the directory it actually created.
     made = [d for d in os.listdir(workdir)
