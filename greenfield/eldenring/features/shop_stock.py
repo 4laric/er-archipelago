@@ -52,9 +52,19 @@ except ImportError:                      # pre-regen: feature is simply inert
     INFINITE_SHOP_ROWS, GOODS_PRICE = [], {}
 
 try:
+    from .rune_pricing import (is_rune_item as _is_rune_item, rune_worth as _rune_worth,
+                               PRICE_MULT as _PRICE_MULT)
+except ImportError:                      # rune_pricing absent -> vanilla price, i.e. today's behaviour
+    _is_rune_item = _rune_worth = None
+    _PRICE_MULT = 2
+
+try:
     from ..item_ids import ITEM_CATALOG
 except ImportError:
     ITEM_CATALOG = {}
+
+# name lookup for the rune check: ITEM_CATALOG is name -> FullID, we need the reverse.
+_NAME_OF = {v: k for k, v in (ITEM_CATALOG or {}).items()}
 
 try:
     from ..repeatable_goods import REPEATABLE_GOODS
@@ -95,6 +105,31 @@ def pool():
     return out
 
 
+
+# ---- pricing ------------------------------------------------------------------------------------
+# 🛑 GOODS_PRICE IS NOT A PRICE FOR A RUNE. For a consumable it is the vanilla shop price and
+# "sell it for what it is worth" is exactly right. For a rune it is `sellValue * 10`, and a rune's
+# sellValue IS its payout -- so pricing a Golden Rune [5] at GOODS_PRICE charges 16,000 for 1,600
+# runes. TEN TIMES its value, on every rune, in every seed.
+#
+# Reported by Alaric 2026-07-29: "rune pricing is bugged, i have never seen a single rune priced
+# below its value ... nothing remotely close to the 0 end." The randomizer in features/rune_pricing
+# was innocent -- measured over 3 seeds / 350 slots it is a clean uniform [0, 2x worth]: median
+# ratio 1.03, 50% below worth, 5% below 0.10x, minimum 0.002x. It just never touched THIS path, and
+# this one rerolls ~455 slots against its ~113, at the merchants a player stands in front of most.
+#
+# So route runes through the same roll. `rune_worth` already divides out the 10x and its ladder is
+# pinned by test_gf_rune_pricing (200/400/800/... for [1]..[13], 13 independent confirmations).
+def _price_for(gid, rng):
+    """What an infinite-stock slot charges for `gid`: vanilla price, or a rolled price for a rune."""
+    full = gid | _GOODS_CATEGORY
+    if _is_rune_item and _rune_worth and _is_rune_item(_NAME_OF.get(full, "")):
+        worth = _rune_worth(full)
+        if worth:
+            return rng.randint(0, _PRICE_MULT * int(worth))
+    return GOODS_PRICE[gid]
+
+
 @register
 class ShopStockFeature(Feature):
     name = "shop_stock"
@@ -118,5 +153,5 @@ class ShopStockFeature(Feature):
         roll = {}
         for row in INFINITE_SHOP_ROWS:        # already sorted by gen_data
             gid = rng.choice(rids)
-            roll[str(row)] = [gid, _EQUIP_TYPE_GOODS, GOODS_PRICE[gid]]
+            roll[str(row)] = [gid, _EQUIP_TYPE_GOODS, _price_for(gid, rng)]
         return {contract.SHOP_INFINITE_STOCK: roll}
