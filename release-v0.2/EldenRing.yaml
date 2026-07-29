@@ -109,24 +109,25 @@ Elden Ring:
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.
   # The stones / somber_stones / runes weights are an upgrade-economy
-  # RESERVATION: they are paid in full before anything else, and a seed that
-  # cannot afford them fails at generation instead of shipping a broken
-  # upgrade curve. Every seed also guarantees a batch of low-tier smithing
+  # RESERVATION: they are paid in full before anything else, and a seed whose
+  # tail is too small for them to matter says so by name in the generation log
+  # (it does not refuse to build -- you get a lean run and a warning). Every seed also guarantees a batch of low-tier smithing
   # stones (regular and somber, enough for an early +3) placed within reach
   # of your starting area. Zero these weights out and that economy is gone --
   # the generator will warn you.
-  curated_filler:
-    juice: 44
-    stones: 27
-    somber_stones: 6
-    runes: 10
-    throwables: 6
-    pots: 4
-    greases: 3
-    foods: 2
-    boluses: 1
+  # LEFT UNSET ON PURPOSE -- do not paste the numbers back in unless you mean to
+  # pin them. A literal recipe here OVERRIDES the shipped default, so this block
+  # silently froze the economy at an older tuning: it still said `stones: 27`
+  # after that was measured BELOW the +3 affordability floor (3 of 9 seeds) and
+  # raised to 29. Unset, you always get the current tuning.
+  # The shipped default today, for reference only:
+  #   juice: 42   stones: 29   somber_stones: 6   runes: 10
+  #   throwables: 6   pots: 4   greases: 3   foods: 2   boluses: 1
+  # curated_filler:
+  #   juice: 42
+  #   stones: 29
 
-  # These STEER WHICH GEAR you get. They do NOT decide how much -- that is the
+  # These STEER WHICH GEAR you get. They can never ADD gear -- how much is the
   # `juice` weight in curated_filler above, and at the shipped recipe roughly
   # two fifths of your filler is already real gear. Leaving these at 0 does NOT
   # mean "no gear".

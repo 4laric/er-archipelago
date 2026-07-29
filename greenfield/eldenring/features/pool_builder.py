@@ -131,7 +131,9 @@ class PoolBuilderIntensity(Choice):
     historical behavior); 'max' = also include common/B-tier equippables (rarity 1). Only the
     candidate SET changes -- the count added stays the Rune tail (clamped by the juice cap), so a
     higher intensity changes *which* equippables you get, not how many. Ignored unless Pool Builder
-    and Shuffle Vanilla Items are both on.    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    and Shuffle Vanilla Items are both on.
+
+    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
     feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
     slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
     It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
@@ -165,7 +167,9 @@ class PoolBuilderJuicePct(Range):
     (leaving the rest as Rune fillers); 0 = replace none (Pool Builder becomes a no-op even when on).
     Applied to the *true* remaining Rune tail (fallback checks minus what region Locks / grace scatter
     already consume), then still clamped by the Juice Cap and the number of juice items in the
-    catalog. Ignored unless Pool Builder and Shuffle Vanilla Items are both on.    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    catalog. Ignored unless Pool Builder and Shuffle Vanilla Items are both on.
+
+    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
     feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
     slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
     It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the
@@ -190,7 +194,9 @@ class PoolBuilderScope(Choice):
     the economy is now a reservation taken off the top and cannot be thinned by juice. The warning
     outlived both the mechanism and the pass it warned about.) Juice Percent and the per-category percents then read as a
     share of this wider juice-eligible set. Ignored unless Pool Builder and Shuffle Vanilla Items are
-    both on.    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
+    both on.
+
+    🛑 INERT AS OF THE filler_budget REFACTOR (verified by grep, 2026-07-28): nothing outside this
     feature reads it. `plan()` consults ONLY the per-category percents; this value reaches
     slot_data as a diagnostic and contract.py already tags it "(diagnostic -- no client read)".
     It is also FROZEN in defaults.FROZEN_OPTIONS, so no yaml can move it. Kept for the

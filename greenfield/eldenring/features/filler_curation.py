@@ -196,17 +196,30 @@ def stack_qty_by_name():
 
 
 class CuratedFiller(OptionDict):
-    """Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are
-    split across the categories by weight. Categories: throwables, pots, firepots, greases, ammunition,
-    foods, boluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep
-    that share as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,
-    firepots x2, greases x2, ammunition x20.
+    """Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the
+    categories in proportion to their weights -- they are relative, not percentages, and need not sum
+    to anything. Categories: juice, stones, somber_stones, runes, throwables, pots, firepots, greases,
+    ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to keep that share as
+    whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,
+    ammunition x20.
+    NOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /
+    throwables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's
+    filler tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --
+    it warns loudly rather than silently reverting to vanilla junk.
+    'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier
+    from ~1013 qualifying items). It competes on the same budget as everything else; raising it past
+    what the catalog can supply spills the surplus to junk, with a warning naming the shortfall.
+    'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top
+    proportionally. A tail too small for that reservation to buy a useful number of stones warns by
+    name; it does not refuse to generate.
     'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace
     Golems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.
     'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed
     leveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.
-    Example: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,
-    stones: 15, runes: 15}."""
+    Example (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,
+    somber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,
+    perfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the
+    empty-recipe warning is about."""
     display_name = "Curated Filler recipe (category -> weight)"
     # v0.2: this recipe owns the ENTIRE filler tail (features/filler_budget), so its default IS the
     # pool economy -- {} would mean a seed with no upgrade materials and no gear injection at all.

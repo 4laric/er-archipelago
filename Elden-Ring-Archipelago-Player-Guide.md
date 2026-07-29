@@ -207,9 +207,9 @@ Every check that would otherwise pay a Rune, plus every check holding a junk
 consumable, goes into one pool called the filler tail. One recipe spends that
 whole pool: `curated_filler`. The shipped weights:
 
-    juice: 44          # rare & legendary gear -- weapons, armor, spells,
-                       # talismans, Ashes of War
-    stones: 27         # Smithing Stones
+    juice: 42          # real gear -- weapons, armor, spells, talismans,
+                       # Ashes of War, best-first by curated tier
+    stones: 29         # Smithing Stones
     somber_stones: 6   # Somber Smithing Stones
     runes: 10          # Golden / Lord's / Hero's / Numen's Runes
     throwables: 6
@@ -225,21 +225,25 @@ it on.
 
 The upgrade economy is paid first. `stones`, `somber_stones` and `runes` are a
 reservation taken off the top and never scaled down; everything else splits
-what is left. A seed too small to afford its own reservation fails at
-generation with a message rather than shipping you a run where you cannot
-upgrade a weapon. Every seed also guarantees a batch of low-tier smithing
-stones reachable from the start -- enough for an early +3.
+what is left. If your seed's tail is too small for that reservation to buy a
+useful number of stones, the generation log says so by name -- it does not
+refuse to build, so a very small seed ships lean rather than not at all. Most
+seeds also place a batch of low-tier smithing stones within reach of the start,
+enough for an early +3 (it is clamped to what the pool can spare, so a recipe
+with no stones in it has none to place).
 
 Two ways to change the mix:
 
-- **Reweight the recipe.** More gear: raise `juice`. More upgrade materials:
-  raise `stones`. Want your junk to stay junk? Weight `junk`, which means
+- **Reweight the recipe.** More gear: raise `juice` -- up to a point, since the
+  curated list holds about 1013 items good enough to qualify and the default
+  already draws 858 of them; past that the extra slots become junk and the log
+  says so. More upgrade materials: raise `stones`. Want your junk to stay junk? Weight `junk`, which means
   "keep whatever the check already paid". An empty recipe is honoured -- and
   warns loudly, because it means no gear and no upgrade economy at all.
-- **Steer the gear with `pool_builder_pct_*`.** These decide WHICH gear, never
-  how much. They are proportions relative to each other, so
-  `{weapons: 3, spells: 1}` and `{weapons: 75, spells: 25}` are the same
-  request. ⚠️ **They can only cost you gear, never add any.** Each category is
+- **Steer the gear with `pool_builder_pct_*`.** These decide WHICH gear. They
+  are proportions relative to each other, so `{weapons: 3, spells: 1}` and
+  `{weapons: 75, spells: 25}` are the same request. **They can never add gear,
+  only cost it.** Each category is
   drawn from a curated list with a limited number of items good enough to
   qualify -- spells have the fewest -- and asking for more than a category has
   turns the shortfall into junk. Leaving them all at 0 (the default) fills
@@ -247,9 +251,11 @@ Two ways to change the mix:
   `{weapons: 3, spells: 1}` yields about a quarter less. The generation log
   names any shortfall.
 
-Gear that arrives this way is marked useful, never progression. Region Locks
-remain the only progression items, so no amount of recipe tinkering can make a
-seed unwinnable.
+Filler gear is marked useful, not progression, and none of these dials can put
+a progression item into the tail or take one out of it -- so no amount of recipe
+tinkering can make a seed unwinnable. (On a default seed the Region Locks are
+the progression items. Under `natural_progression` the real vanilla keys are
+instead, and they are placed as progression outside this system.)
 
 
 A lot of what you might expect to toggle here is simply how v0.2 plays --
