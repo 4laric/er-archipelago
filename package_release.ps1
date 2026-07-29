@@ -333,18 +333,35 @@ Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 # unreproducible baker-era file that only ever existed on the dev box. Nothing stages it, so
 # there is nothing to check for here.
 
-# AP-icon override = me3\ap-package\menu textures. Warn loudly if empty so a
-# bundle without the flower-icon swap never ships silently.
+# AP-icon override = me3\ap-package\menu textures. HARD FAIL if absent.
+#
+# This used to Info "cosmetic nicety, not a feature" and ship anyway. That rationale was wrong, and
+# it is why the flower has never actually shipped from this tree. The CLIENT unconditionally points
+# the placeholder AND every repointed shop slot at iconId 92 (check_lots.rs dress_placeholder,
+# shop_icon.rs), on the assumption that ap-package repaints cell 92 into the AP flower. Without the
+# package, that assumption is false and every one of those slots renders a literal TELESCOPE --
+# which is exactly what a player reported on Nexus 2026-07-29 ("with ... telescope icon but i dont
+# know what ap item it is"). A client that writes an icon id and a bundle that does not define it
+# are two halves of one feature; shipping half of it silently is the failure mode this whole
+# repo's gates exist to stop.
+#
+# !! THE TEXTURE ITSELF IS NOT AND MUST NOT BE COMMITTED -- it is a repainted FromSoft sprite sheet
+# (menu\hi|low\01_common.tpf.dcx), i.e. game data, barred by PROVENANCE.md rule 1. It is BUILT per
+# machine from the local install. What must be committed is the TOOL that builds it.
 $IconMenu = Join-Path $Me3Dst "ap-package\menu"
 $IconFiles = @()
 if (Test-Path $IconMenu) {
     $IconFiles = @(Get-ChildItem -Path $IconMenu -Recurse -File -ErrorAction SilentlyContinue)
 }
-if ($IconFiles.Count -eq 0) {
-    Info "  (no AP flower-icon texture staged -- shipping with the vanilla goods icon. This is a cosmetic nicety, not a feature: the placeholder is NAMED (Archipelago Item) and suppressed either way.)"
-} else {
-    Info "+ AP-icon override ($($IconFiles.Count) texture file(s) in ap-package\menu)"
+$IconSheets = @($IconFiles | Where-Object { $_.Name -ieq "01_common.tpf.dcx" })
+if ($IconSheets.Count -eq 0) {
+    Die ("no AP flower-icon sprite sheet staged at $IconMenu (need menu\hi and/or menu\low " +
+         "01_common.tpf.dcx). The client points the placeholder and every repointed shop slot at " +
+         "iconId 92 and RELIES on this override to repaint it; without it players see a literal " +
+         "telescope. Build it, then re-run: " +
+         "python build_ap_icon.py --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu ""<game>\menu""")
 }
+Info "+ AP-icon override ($($IconSheets.Count) sprite sheet(s), $($IconFiles.Count) file(s) in ap-package\menu)"
 
 # Ship a GENERIC apconfig so a personal slot name never leaks into the release.
 $ApConfig = Join-Path $Me3Dst "apconfig.json"
