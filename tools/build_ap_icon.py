@@ -145,40 +145,95 @@ def dds_size(path):
     return (width, height)
 
 
-def probe(menu, bundles, icon_id, cell, witchy, workdir):
-    """Report what is actually in the atlas. WRITES NOTHING.
+LAYOUT = "01_common.sblytbnd.dcx"
 
-    The layout is the one thing this script must not assume: which SB_Icon sheet holds icon N, and
-    at what cell size. Getting it wrong paints the flower over some unrelated item's icon and
-    nothing errors. So: unpack, list every sheet with its real dimensions, and show the arithmetic.
+
+def find_sprite(unpacked_layout, icon_id):
+    """iconId -> (texture, x, y, w, h) from the sprite LAYOUT, not from grid arithmetic.
+
+    🛑 THIS IS THE WHOLE POINT. The first probe run falsified the grid model outright: the atlases
+    are 4096x2048 and no sensible cell size was even a divisor of the default 160. Worse, the sheets
+    are irregular -- SB_Icon_02, _02_A, _02_B, _03, _03_A, _07_dlc, _07_dlc_A -- so "icon N lives at
+    sheet N//per_sheet" cannot be right either, and a wrong answer here paints over an unrelated
+    item's icon and errors nothing.
+
+    The game does not do arithmetic: 01_common.sblytbnd.dcx sits beside the atlas and names, per
+    sprite, its texture and rect. So read it. Schema is parsed defensively -- ANY element carrying
+    x/y/width/height and mentioning the id -- and --probe dumps what it matched so a wrong parse is
+    visible rather than silent.
     """
+    import re
+    import xml.etree.ElementTree as ET
+    hits = []
+    for root, _d, files in os.walk(unpacked_layout):
+        for fn in files:
+            if not fn.lower().endswith((".xml", ".layout")):
+                continue
+            path = os.path.join(root, fn)
+            try:
+                tree = ET.parse(path)
+            except Exception:
+                continue
+            for el in tree.iter():
+                a = el.attrib
+                if not all(k in a for k in ("x", "y")):
+                    continue
+                w = a.get("width") or a.get("w")
+                h = a.get("height") or a.get("h")
+                if not (w and h):
+                    continue
+                label = " ".join(str(v) for v in a.values())
+                if re.search(r"(?<!\d)0*%d(?!\d)" % icon_id, label):
+                    hits.append((os.path.basename(path), el.tag, dict(a)))
+    return hits
+
+
+def probe(menu, bundles, icon_id, cell, witchy, workdir):
+    """Report where icon `icon_id` actually lives. WRITES NOTHING."""
     print("PROBE -- no files will be written.\n")
     for b in bundles:
         src = os.path.join(menu, b, SHEET)
+        lay = os.path.join(menu, b, LAYOUT)
         if not os.path.isfile(src):
             die("no %s (looked for the atlas this tool edits)" % src)
+
+        if os.path.isfile(lay):
+            up = unpack(witchy, lay, os.path.join(workdir, b, "layout"))
+            hits = find_sprite(up, icon_id)
+            print("[%s] %s" % (b, lay))
+            if hits:
+                print("  sprite entries mentioning %d -- CHECK these name the right item:" % icon_id)
+                for fn, tag, attrs in hits[:12]:
+                    print("    %-28s <%s %s>" % (fn, tag, " ".join(
+                        "%s=%r" % (k, v) for k, v in sorted(attrs.items()))))
+                if len(hits) > 12:
+                    print("    ... %d more" % (len(hits) - 12))
+            else:
+                print("  no sprite entry matched %d. Dumping the layout's shape so the parse can be"
+                      " fixed rather than guessed:" % icon_id)
+                shown = 0
+                for r, _d, fs in os.walk(up):
+                    for fn in sorted(fs):
+                        print("    %s" % os.path.join(os.path.relpath(r, up), fn))
+                        shown += 1
+                        if shown >= 15:
+                            break
+                    if shown >= 15:
+                        break
+        else:
+            print("[%s] NO %s beside the atlas -- falling back to the grid report." % (b, LAYOUT))
+
         up = unpack(witchy, src, os.path.join(workdir, b))
-        sheets = dds_files(up)
+        sheets = [p for p in dds_files(up) if "sb_icon" in os.path.basename(p).lower()]
         if not sheets:
-            die("unpacked %s but found no .dds inside. An empty result is a FAILURE, not a clean "
-                "run -- witchy's output layout is not what this expects." % src)
-        print("[%s] %s -> %d dds" % (b, src, len(sheets)))
+            die("unpacked %s but found no SB_Icon*.dds inside. An empty result is a FAILURE, not a "
+                "clean run." % src)
+        print("  SB_Icon atlases (%d):" % len(sheets))
         for p in sheets:
             wh = dds_size(p)
-            name = os.path.basename(p)
-            if not wh:
-                print("    %-28s (no readable DDS header)" % name)
-                continue
-            w, h = wh
-            fits = (w % cell == 0 and h % cell == 0)
-            per = (w // cell) * (h // cell) if fits else 0
-            print("    %-28s %5dx%-5d  cell %d -> %s" % (
-                name, w, h, cell,
-                ("%d icons/sheet (%dx%d grid)" % (per, w // cell, h // cell)) if fits
-                else "NOT divisible by cell size"))
-        print("\n  For --icon-id %d you now need to say which sheet and which cell. Read the grid\n"
-              "  above, confirm against the game, and pass --sheet/--cell-index explicitly.\n"
-              % icon_id)
+            print("    %-24s %s" % (os.path.basename(p),
+                                    ("%dx%d" % wh) if wh else "(no readable DDS header)"))
+        print()
 
 
 def composite(art, sheet_png, cell, col, row, out_png, force_black_alpha):

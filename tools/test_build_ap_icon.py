@@ -103,5 +103,42 @@ class DdsHeader(unittest.TestCase):
         self.assertIsNone(bai.dds_size(p))
 
 
+class SpriteLookup(unittest.TestCase):
+    """iconId -> texture+rect from the sprite layout, not from grid arithmetic.
+
+    The first --probe run against the real game falsified the grid model: the atlases are 4096x2048,
+    the default cell 160 divided neither axis, and the sheets are irregular (SB_Icon_02, _02_A,
+    _02_B, _03, _03_A, _07_dlc, _07_dlc_A) so "icon N is at sheet N//per_sheet" cannot hold either.
+    01_common.sblytbnd.dcx names each sprite's texture and rect, so we read it.
+    """
+
+    def setUp(self):
+        self.d = tempfile.mkdtemp()
+        with open(os.path.join(self.d, "01_common.layout"), "w") as fh:
+            fh.write('<?xml version="1.0"?><Layout>'
+                     '<Sprite name="ICON_00092" textureName="SB_Icon_00" x="256" y="512" width="128" height="128"/>'
+                     '<Sprite name="ICON_00920" textureName="SB_Icon_01" x="0" y="0" width="128" height="128"/>'
+                     '<Sprite name="ICON_00192" textureName="SB_Icon_01" x="64" y="0" width="128" height="128"/>'
+                     '<Sprite name="ICON_00093" textureName="SB_Icon_00" x="384" y="512" width="128" height="128"/>'
+                     '</Layout>')
+
+    def test_it_finds_the_zero_padded_id(self):
+        hits = bai.find_sprite(self.d, 92)
+        self.assertEqual(len(hits), 1, "expected exactly one sprite for icon 92, got %r" % (hits,))
+        attrs = hits[0][2]
+        self.assertEqual(attrs["textureName"], "SB_Icon_00")
+        self.assertEqual((attrs["x"], attrs["y"]), ("256", "512"))
+
+    def test_neighbouring_ids_do_not_false_match(self):
+        """92 must not match 920, 192 or 093. A substring match here paints the flower over an
+        unrelated item and nothing errors -- the exact silent-wrong-answer shape."""
+        names = {h[2].get("name") for h in bai.find_sprite(self.d, 92)}
+        for near in ("ICON_00920", "ICON_00192", "ICON_00093"):
+            self.assertNotIn(near, names, "%s false-matched icon 92" % near)
+
+    def test_an_absent_id_returns_nothing_rather_than_the_nearest(self):
+        self.assertEqual(bai.find_sprite(self.d, 4242), [])
+
+
 if __name__ == "__main__":
     unittest.main()
