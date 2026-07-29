@@ -6066,13 +6066,33 @@ def _filler_only(_aps):
 # is how Leyndell's own bosses (11000800/11000850) ended up sweeping Roundtable Hold.
 _mreg = {_mp: _c.most_common(1)[0][0] for _mp, _c in _mreg_votes.items()}
 
+# Boss maps that must NEVER carry a sweep, however the game buckets them.
+#   m10_01 -- the fresh-character intro (ruined Chapel of Anticipation), where you fight or flee the
+#             Grafted Scion. The game buckets m10_01 under Stormveil (m10), and the legacy DIVVY
+#             below then counts the Scion as one of Stormveil's legacy bosses and hands it a
+#             round-robin slice of the region's filler: 36 Stormveil Castle checks -- Ash of War:
+#             Storm Assault, Misericorde, smithing stones by Rampart Tower -- paid out for killing an
+#             OPTIONAL TUTORIAL BOSS in the first few minutes, for a legacy dungeon gated behind
+#             Margit. Reported by dafranky67 on Nexus 2026-07-29 ("when i killed grafted scion in the
+#             start it gave me like 30 items?").
+#             🛑 region_groups.py ALREADY excludes this exact fold (bucket 10010) from kick-watch
+#             geometry, for the same reason and after a CTD. One consumer of the fold was fixed and
+#             the other was not -- when a fold needs an exception, grep for every consumer of it.
+#             The Scion's OWN drop (Ornamental Straight Sword, f510030 -> ap 7773886) is a normal
+#             check and is untouched; only the sweep goes.
+_SWEEP_EXCLUDED_BMAPS = {"m10_01"}
+
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
+_sweep_excluded_hits = []
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
     _field_bosses = []                      # (trigger flag, (xx, yy)) -- field pass below
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
+        if _bmap in _SWEEP_EXCLUDED_BMAPS:
+            _sweep_excluded_hits.append((_ent, _bmap, _name))
+            continue
         if _cls == "field":
             # Field sweeps are assigned in the NEIGHBORHOOD pass after this loop (nearest-boss,
             # disjoint). A field entry without a decodable m60_XX_YY tile (the two 12-prefix
@@ -6186,6 +6206,14 @@ if BOSS_HEALTHBARS:
             if _slices[_e]:
                 DUNGEON_SWEEPS[_e] = _slices[_e]
                 SWEEP_REGION[_e] = _ap_region.get(_slices[_e][0], _reg)
+    # An exclusion that matches nothing is a lie -- it reads as protection while protecting
+    # nothing (the boss_healthbars map string could drift and this would silently stop applying).
+    assert _sweep_excluded_hits, (
+        "_SWEEP_EXCLUDED_BMAPS matched no boss. It exists to stop the tutorial Grafted Scion "
+        "(m10_01) sweeping Stormveil; if boss_healthbars no longer reports that map, re-derive the "
+        "exclusion rather than deleting it.")
+    print("boss_sweeps: excluded %d boss(es) from sweeping by map: %s" % (
+        len(_sweep_excluded_hits), ", ".join("%s/%s" % (m, n) for _e, m, n in _sweep_excluded_hits)))
 else:
     # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
     import re as _re2
