@@ -58,10 +58,38 @@ CLIENT_SRC_DIRS = [
 EXCLUDE_FILES = {"contract_gen.rs"}
 
 # ALLOW: client read-paths that are legitimately WITHOUT a contract.py declaration yet known-safe.
-# EMPTY today -- contract.py already declares every path the client reads (bedrock swap-target keys
-# included, under the bedrock profile). Add an entry ONLY with a one-line justification, e.g. a
-# diagnostic-only key never meant to ship. Format: top-level key name, or "/options/<sub>".
-ALLOW = set()
+# Add an entry ONLY with a one-line justification. Format: top-level key name, or "/options/<sub>".
+#
+# 🛑 This said "EMPTY today -- contract.py already declares every path the client reads". That was
+# never checked, because this gate had never RUN: it skips unless the client is checked out beside
+# the repo, and no CI job did that. The first real run found TEN. The comment was folklore.
+ALLOW = {
+    # ---------------------------------------------------------------------------------------------
+    # BEDROCK-LINEAGE READS, INERT UNDER GREENFIELD (catalogued 2026-07-29, when this gate was armed).
+    #
+    # Every one of these was verified absent on the world side: zero mentions in contract.py, zero
+    # emitters anywhere in greenfield/eldenring/, and for the options, no Option class defines them.
+    # So the client reads them and the apworld never sends them -- the features are simply inert,
+    # not broken. They are the bedrock world's vocabulary, still compiled into a shared client.
+    #
+    # 🛑 THIS IS A RATCHET, NOT AN AMNESTY. The gate had never RUN (it skipped unless the client was
+    # checked out beside the repo, which no CI job did), so these ten accumulated unseen. Listing
+    # them arms the gate: a NEW undeclared read fails immediately. Deleting an entry when its
+    # feature is wired is the intended direction of travel.
+    #
+    # Of note: `auto_equip` is a client capability our apworld never turns on -- players reach for
+    # third-party helpers for exactly that.
+    "goal",                    # goal.rs -- greenfield sends the goal via its own keys, not this one
+    "graceItems",              # region.rs
+    "locationIdsToTargets",    # key_resolver.rs (matt-key path; greenfield resolves from slot_data)
+    "locationIdsToTargets ",   # the same read, with the scraper's trailing space
+    "regionAttunement",        # core.rs
+    "/options/auto_equip",
+    "/options/no_equip_load",
+    "/options/no_fall_damage",
+    "/options/reduce_non_somber_upgrade_cost",
+    "/options/remove_weapon_and_spell_requirements",
+}
 
 _SLOT = r"(?:sd|slot_data)"
 _RE_GETPTR = re.compile(_SLOT + r"\s*\.\s*(?:get|pointer)\s*\(\s*\"([^\"]+)\"")

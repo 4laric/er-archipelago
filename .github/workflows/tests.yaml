@@ -195,7 +195,14 @@ jobs:
           # Run as SCRIPTS, not `-m greenfield.eldenring.tests.X`: the package __init__ imports
           # core -> BaseClasses, and this job has no Archipelago. The suites are AP-free by design
           # (they read the generated modules with ast) and each has a __main__ entry point.
-          for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe; do
+          # scaling_ladder_mirror + client_contract_paths added 2026-07-29. Both are CROSS-SIDE
+          # gates that skip unless the client is checked out beside the repo -- which only THIS job
+          # does. They were never in any loop, so both had never run once: the mirror (Python vs Rust
+          # SCALING_TIERS, "a drifted rung would move every player's difficulty floor by a tier with
+          # nothing to say so") and the dark-feature gate. Its first real run found TEN undeclared
+          # client reads.
+          for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe \
+                   scaling_ladder_mirror client_contract_paths; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
             # `python x.py` exits nonzero on failure; pipefail-less bash would swallow it
