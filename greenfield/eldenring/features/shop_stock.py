@@ -262,6 +262,18 @@ class ShopStockFeature(Feature):
         if not p:
             return {}
         rids = sorted(p.values())             # sorted list => a stable draw order
+        # no_runes_in_shops: the shelf half. A shelf stocking a rune is "runes in shops" as surely
+        # as a check reward is -- and a rune shelf is priced by the same [0, worth] roll
+        # (_price_for), so it sits squarely in the render trap that option exists to sidestep.
+        # Filter the DRAW LIST, not filler_curation.CATEGORIES (shared -- the received-filler roster
+        # must keep its runes): with the option OFF the list is untouched and every roll is
+        # bit-identical to before the option existed. Pins are handled at options time
+        # (features/no_runes_in_shops.generate_early rejects a rune pin), not here.
+        if _is_rune is not None and int(getattr(
+                getattr(world.options, "no_runes_in_shops", None), "value", 0) or 0):
+            rids = [r for r in rids if not _is_rune(r | _GOODS_CATEGORY)]
+            if not rids:                      # a pool that was ALL runes: nothing left to stock
+                return {}
         # A DEDICATED RNG, not world.random. fill_slot_data may be called more than once (the AP world
         # tests call it twice and assert the result is identical), and drawing from the shared stream
         # both advances it -- perturbing every later consumer -- and makes the second call return a
