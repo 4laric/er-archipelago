@@ -87,10 +87,18 @@ _START_RITUAL_POTS = 4     # ritual-pot capacity (Rancor Pot etc.)
 # Perfume Bottle = GOODS 9510: the vessel that holds the DLC perfume/spraymist/aromatic consumables the
 # curated_filler 'perfumes' category hands out (same vessel role Cracked Pot plays for thrown pots).
 _PERFUME_BOTTLE_FULL_ID = 0x40000000 | 9510
-_START_PERFUME_BOTTLES = 10
+# 🛑 9, NOT 10 -- the CLIENT caps this row (see `POT_DELIVERY_CAPS` in the client's `detour.rs`).
+# A pot's held count reaching 20/10/10 fires a vanilla pot-relief event (1460/1461/1462 -> flags
+# 6902/6903/6904) that force-sets every 66xxx pot lot flag at once, i.e. a burst of phantom checks
+# into the multiworld. The client therefore refuses the grant past the cap -- and, until 2026-07-30,
+# refused it SILENTLY while reporting success, so the 10th bottle was simply never delivered and read
+# absent forever. Asking for more than the cap can never work; it only produces an undeliverable item.
+_START_PERFUME_BOTTLES = 9
 # Hefty Cracked Pot = GOODS 2009500 (DLC): the larger vessel for the DLC 'Hefty ...' throwing pots.
 _HEFTY_CRACKED_POT_FULL_ID = 0x40000000 | 2009500
-_START_HEFTY_CRACKED_POTS = 10
+# 🛑 9, NOT 10 -- same client cap as the perfume bottle above. Found in Eldakin's 2026-07-29 log:
+# `start-item backfill: ... 10/37 startItems absent -> granting [0x401ea99c x10]`, all ten swallowed.
+_START_HEFTY_CRACKED_POTS = 9
 # Whetblades (GOODS 8970..8974 = item_ids.py FullIDs 1073750794..798, 0x40000000 | 897x): Iron,
 # Red-Hot, Sanctified, Glintstone, Black. Each unlocks its affinity family in the grace "Ashes of War"
 # menu. Granted via the plain startItems path -- ITEM ONLY, NO flag: a whetblade's only vanilla event
