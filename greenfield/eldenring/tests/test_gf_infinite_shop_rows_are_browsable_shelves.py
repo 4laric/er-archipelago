@@ -18,17 +18,44 @@ never worth buying and was right for a reason nobody had found (CONTRIBUTING rul
 checked ware by ware. Predicate drift in gen_data AND a vanilla-param refresh both turn this red, and
 both deserve a human look -- do not re-baseline it to whatever the generator currently emits.
 
-NO SKIPS. The CSV this reads is committed to the repo, so an absent file is a FAILURE, not a skip: a
-gate that skips is the dormant-gate class this project keeps getting bitten by.
+WHERE THIS RUNS, AND WHY IT IS NOT A DORMANT GATE. The first version of this file said "the CSV is
+committed to the repo, so an absent file is a FAILURE, not a skip". That claim was FALSE and I had
+not checked it: `elden_ring_artifacts/` is gitignored (.gitignore:151). So the hard failure fired in
+the `tests` CI job, which installs the world into a pinned Archipelago and has no artifacts at all.
+
+The input IS available everywhere the repo is, just not unpacked: `gen_inputs.db` is committed at the
+repo root and carries the 982 files gen_data reads. So this file MATERIALIZES ITS OWN INPUT from that
+bundle rather than skipping when it happens to be missing -- deriving the datum instead of pinning the
+symptom. It skips in exactly one situation, the one where it genuinely cannot run: installed under
+`_ap/worlds/eldenring/`, where there is no repo, no bundle and no tools/. It is wired into the
+`generators` CI job's script loop, which has the real tree, so it executes there for real.
 """
 import csv
 import os
+import sys
 import unittest
 
+try:
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:  # run as a script, the way the generators job runs it
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-GF = os.path.dirname(os.path.dirname(HERE))            # .../greenfield
-REPO = os.path.dirname(GF)
-SLP = os.path.join(REPO, "elden_ring_artifacts", "vanilla_er", "vanilla_er", "ShopLineupParam.csv")
+REPO = find_repo_root(HERE)
+GF = os.path.join(REPO, "greenfield") if REPO else None
+SLP = (os.path.join(REPO, "elden_ring_artifacts", "vanilla_er", "vanilla_er", "ShopLineupParam.csv")
+       if REPO else None)
+
+
+def _materialize():
+    """Unpack the committed gen_inputs bundle, so an un-extracted checkout still gates."""
+    bundle = os.path.join(REPO, "gen_inputs.db")
+    if not os.path.isfile(bundle):
+        return
+    sys.path.insert(0, os.path.join(REPO, "tools"))
+    import gen_inputs
+    gen_inputs.ensure(bundle, os.path.join(REPO, "elden_ring_artifacts"))
 
 # The 14 browsable unlimited goods shelves, with the ware each sells in vanilla.
 #   600017/600020/600021/600022 -- seller UNIDENTIFIED (stock flags 220670-220720, no name in
@@ -55,9 +82,12 @@ EXPECTED = {
 
 def _rows():
     if not os.path.isfile(SLP):
+        _materialize()
+    if not os.path.isfile(SLP):
         raise AssertionError(
-            "ShopLineupParam.csv missing at %s. It is committed to this repo, so this is a real "
-            "failure -- a skip here would make the gate dormant." % SLP)
+            "ShopLineupParam.csv missing at %s, and gen_inputs.db could not produce it. Both are "
+            "reachable from any repo checkout, so this is a real failure -- and a skip here would "
+            "make the gate dormant." % SLP)
     with open(SLP, encoding="utf-8-sig") as fh:
         return list(csv.DictReader(fh))
 
@@ -78,6 +108,7 @@ def _emitted():
     return [int(x) for x in mod.INFINITE_SHOP_ROWS]
 
 
+@unittest.skipUnless(REPO, REPO_ONLY_REASON)
 class InfiniteShopRows(unittest.TestCase):
 
     def test_the_emitted_set_is_the_reviewed_fourteen(self):

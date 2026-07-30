@@ -184,6 +184,13 @@ jobs:
       - name: Install PyYAML (the shipping-yaml gate reads the template)
         run: pip install pyyaml
 
+      # infinite_shop_rows re-derives the 14 shelves from the vanilla ShopLineupParam, and
+      # elden_ring_artifacts/ is gitignored -- so without this the test would skip here and gate
+      # nothing. It can extract the bundle itself, but doing it as its own step keeps the ~60 MB
+      # and its runtime visible in the log instead of hidden inside a test.
+      - name: Materialise the param inputs from the committed bundle
+        run: python tools/gen_inputs.py --ensure elden_ring_artifacts
+
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_region_locks.py
@@ -221,7 +228,8 @@ jobs:
           # against the docstrings -- that is --check's job, over in `tests`.
           for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe \
                    scaling_ladder_mirror client_contract_paths client_can_sell_mirror \
-                   client_resets_are_called wizard_blob_sync; do
+                   client_resets_are_called wizard_blob_sync \
+                   infinite_shop_rows_are_browsable_shelves; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
             # `python x.py` exits nonzero on failure; pipefail-less bash would swallow it
