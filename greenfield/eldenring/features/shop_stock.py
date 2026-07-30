@@ -53,7 +53,7 @@ Deterministic: rolled from world.random, so a seed always produces the same stoc
 """
 import random as _random
 
-from Options import DefaultOnToggle
+from Options import DefaultOnToggle, OptionError, OptionSet
 
 from ..registry import Feature, register
 from .. import contract
@@ -64,10 +64,10 @@ except ImportError:                      # pre-regen: feature is simply inert
     INFINITE_SHOP_ROWS, GOODS_PRICE = [], {}
 
 try:
-    from .rune_pricing import (is_rune_item as _is_rune_item, rune_worth as _rune_worth,
+    from .rune_pricing import (is_rune as _is_rune, rune_worth as _rune_worth,
                                PRICE_MULT as _PRICE_MULT)
 except ImportError:                      # rune_pricing absent -> vanilla price, i.e. today's behaviour
-    _is_rune_item = _rune_worth = None
+    _is_rune = _rune_worth = None
     _PRICE_MULT = 1   # keep in step with rune_pricing.PRICE_MULT
 
 try:
@@ -86,6 +86,50 @@ except ImportError:
 _GOODS_CATEGORY = 0x40000000
 _ROW_ID_MASK = 0x0FFFFFFF
 _EQUIP_TYPE_GOODS = 3
+
+
+# ---- GUARANTEED HUB SHELVES --------------------------------------------------------------------
+# Requested on Nexus (CrazzyMatthew21, 2026-07-29): an option for the Twin Maiden Husk merchants to
+# sell infinite Rune Arcs and Larval Tears. Both wares are ALREADY in the reroll pool -- a seed can
+# hand you an infinite Rune Arc shelf today -- so the ask is determinism, not a new capability.
+#
+# WHY THESE ROWS. Four of the fourteen browsable shelves bracket to Roundtable Hold, i.e. the hub,
+# which is sphere 0 in every seed. They are the cheapest possible target by three measures:
+#   * already `sellQuantity -1`, so the existing shopInfiniteStock wire carries them with NO client
+#     change and NO new contract key (a new key moves CONTRACT_HASH, forcing a client update on
+#     every player -- a steep toll for a QoL shelf);
+#   * NOT AP checks (the check derivation needs flag > 0 AND qty >= 1; these are qty -1), so the
+#     location pool is untouched;
+#   * ORDERED LEAST-VALUABLE FIRST, the same discipline as spending describable spare-goods rows
+#     first: 600020 and 600022 sell goods 15390/15210, unnamed crafting materials absent from
+#     ITEM_CATALOG, so one ware costs the player nothing at all. Only a fourth request reaches
+#     Miranda Powder or String.
+#
+# 🛑 THEIR SELLER IS INFERRED, NOT CONFIRMED IN GAME. All four bracket to "Roundtable Hold" via the
+# named checks on the flags either side, and their wares match the Twin Maiden Husks' vanilla stock.
+# But ShopLineupParam has no seller column, the bracket straddles a region boundary ~13% of the time,
+# and these are exactly the rows test_gf_infinite_shop_rows_are_browsable_shelves calls "seller
+# UNIDENTIFIED". Player-facing text therefore says "the hub", never "the Twin Maiden Husks", until
+# someone has looked.
+HUB_SHELF_ROWS = (600020, 600022, 600021, 600017)
+
+
+class InfiniteHubWares(OptionSet):
+    """Wares the hub merchant always stocks, unlimited, instead of leaving the shelf to the reroll.
+
+    Give item names exactly as the randomiser knows them, e.g.
+
+        infinite_hub_wares: ["Rune Arc", "Larval Tear"]
+
+    Up to FOUR: that is how many browsable unlimited shelves the hub has, and asking for more is
+    rejected at generation with a message rather than silently dropping the extras. Each ware is sold
+    at its own derived price, so a shelf never becomes a free dispenser.
+
+    Empty by default -- a fresh yaml generates exactly as it did before this option existed. Worth a
+    thought before filling it: unlimited Larval Tears is unlimited respec, and unlimited Rune Arcs is
+    a permanent great-rune buff. Both are real changes to how a run plays."""
+    display_name = "Infinite Hub Wares"
+    default = frozenset()
 
 
 class RerollInfiniteShopStock(DefaultOnToggle):
@@ -141,10 +185,55 @@ def pool():
 #
 # So route runes through the same roll. `rune_worth` already divides out the 10x and its ladder is
 # pinned by test_gf_rune_pricing (200/400/800/... for [1]..[13], 13 independent confirmations).
+def _resolved_pins(world):
+    """{shelf row -> goods row id} for `infinite_hub_wares`. Empty by default.
+
+    Every rejection below names the option and the offending value, because the alternative is a
+    player quietly not getting the ware they asked for -- and a shelf that silently stayed random is
+    indistinguishable from the option not working.
+
+    🛑 A PIN ON A ROW THAT IS NOT A SHELF IS A SILENT NO-OP -- the dormant class this project keeps
+    getting bitten by -- so a hub row missing from INFINITE_SHOP_ROWS raises rather than shrugs.
+    """
+    opt = getattr(world.options, "infinite_hub_wares", None)
+    wares = sorted(str(w) for w in getattr(opt, "value", ()) or ())   # sorted => deterministic rows
+    if not wares:
+        return {}
+    if len(wares) > len(HUB_SHELF_ROWS):
+        raise OptionError(
+            "infinite_hub_wares lists %d wares (%s) but the hub has only %d unlimited shelves. "
+            "Remove %d, or sell the rest somewhere else."
+            % (len(wares), ", ".join(wares), len(HUB_SHELF_ROWS), len(wares) - len(HUB_SHELF_ROWS)))
+    out = {}
+    for row, ware in zip(HUB_SHELF_ROWS, wares):
+        full = ITEM_CATALOG.get(ware)
+        if full is None:
+            raise OptionError(
+                "infinite_hub_wares names %r, which is not an item this randomiser knows. Use the "
+                "exact in-game name, e.g. \"Rune Arc\"." % ware)
+        if (full & ~_ROW_ID_MASK) != _GOODS_CATEGORY:
+            raise OptionError(
+                "infinite_hub_wares names %r, which is not a GOODS item. These shelves are goods "
+                "shelves -- a weapon or an armour piece cannot be stocked on one." % ware)
+        gid = full & _ROW_ID_MASK
+        if gid not in GOODS_PRICE:
+            raise OptionError(
+                "infinite_hub_wares names %r, which has no derived price, so the shelf would inherit "
+                "the row's own (near-free) one -- the exact failure PRICE IS LOAD-BEARING is about. "
+                "Pick a ware the game sells somewhere." % ware)
+        if row not in INFINITE_SHOP_ROWS:
+            raise OptionError(
+                "hub shelf row %d is no longer one of the %d browsable unlimited shelves, so "
+                "infinite_hub_wares would silently do nothing. Re-derive HUB_SHELF_ROWS rather than "
+                "dropping this guard." % (row, len(INFINITE_SHOP_ROWS)))
+        out[row] = gid
+    return out
+
+
 def _price_for(gid, rng):
     """What an infinite-stock slot charges for `gid`: vanilla price, or a rolled price for a rune."""
     full = gid | _GOODS_CATEGORY
-    if _is_rune_item and _rune_worth and _is_rune_item(_NAME_OF.get(full, "")):
+    if _is_rune and _rune_worth and _is_rune(full):
         worth = _rune_worth(full)
         if worth:
             return rng.randint(0, _PRICE_MULT * int(worth))
@@ -154,7 +243,16 @@ def _price_for(gid, rng):
 @register
 class ShopStockFeature(Feature):
     name = "shop_stock"
-    OPTIONS = {"reroll_infinite_shop_stock": RerollInfiniteShopStock}
+    OPTIONS = {
+        "reroll_infinite_shop_stock": RerollInfiniteShopStock,
+        "infinite_hub_wares": InfiniteHubWares,
+    }
+
+    def generate_early(self, world):
+        """Validate the ware list HERE, so an impossible request is a clear rejection at
+        options-validation time rather than a FillError, a KeyError, or -- worst -- a silent drop.
+        CONTRIBUTING's headline gate: name the option, say the number, say what to do."""
+        _resolved_pins(world)
 
     def slot_data(self, world):
         opt = getattr(world.options, "reroll_infinite_shop_stock", None)
@@ -171,8 +269,17 @@ class ShopStockFeature(Feature):
         # seed: idempotent across calls, still different across seeds, and it consumes none of the
         # shared entropy.
         rng = _random.Random(f"{world.multiworld.seed}:shop_stock:{world.player}")
+        pins = _resolved_pins(world)
         roll = {}
         for row in INFINITE_SHOP_ROWS:        # already sorted by gen_data
+            # THE DRAW HAPPENS EITHER WAY, then a pin overrides it. Skipping the draw for a pinned
+            # row would shift the rng stream and re-roll the OTHER shelves, so adding one ware would
+            # quietly change shelves it has nothing to do with. Consuming it keeps each ware's effect
+            # to exactly the row it lands on.
             gid = rng.choice(rids)
-            roll[str(row)] = [gid, _EQUIP_TYPE_GOODS, _price_for(gid, rng)]
+            price = _price_for(gid, rng)
+            if row in pins:
+                gid = pins[row]
+                price = _price_for(gid, rng)
+            roll[str(row)] = [gid, _EQUIP_TYPE_GOODS, price]
         return {contract.SHOP_INFINITE_STOCK: roll}

@@ -45,18 +45,14 @@ def _direct_rune_ratios(seed, draws=50):
     """
     import random
     from worlds.eldenring.features import shop_stock
-    from worlds.eldenring.shop_stock_data import GOODS_PRICE
+    from worlds.eldenring.shop_stock_data import RUNE_PAYOUT
     rng = random.Random(seed)
     out = []
-    for name, full in ITEM_CATALOG.items():
-        if not is_rune_item(name) or (full & 0xF0000000) != _GOODS:
-            continue
-        row = full & 0x0FFFFFFF
-        if row not in GOODS_PRICE:
-            continue
-        w = rune_worth(full)
-        if not w:
-            continue
+    # 🛑 ITERATE THE DATUM, NOT THE PREDICATE. This loop used to walk ITEM_CATALOG and `continue` on
+    # `not is_rune_item(name)` -- so it measured only the runes the predicate already accepted and
+    # was blind, by construction, to the eleven it rejected. Those eleven were the bug. A test that
+    # asks the suspect to select its own evidence is green for the same reason the bug survived.
+    for row, w in sorted(RUNE_PAYOUT.items()):
         for _ in range(draws):
             out.append(shop_stock._price_for(row, rng) / w)
     return out
