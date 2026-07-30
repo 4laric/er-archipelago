@@ -147,6 +147,12 @@ def describe(key, cls):
         "description": doc, "kind": None, "base": cls.__mro__[1].__name__,
         "default": None, "choices": None, "range": None, "valid_keys": None,
         "casefold": False, "group": None, "group_collapsed": False,
+        # NamedRange's named values (e.g. `auto`). Emitted for EVERY range so the key's presence
+        # never itself carries meaning, and so the wizard can render a name instead of the bare
+        # sentinel int -- a NamedRange default sits OUTSIDE range_start..range_end by design, and a
+        # UI that only knows the numeric range would show it as an out-of-bounds slider and write the
+        # raw number into the yaml. AP accepts the raw int, so that is legible-only, not broken.
+        "special_values": None,
     }
     # Order matters: Range before Choice (NamedRange is a Range), Toggle before Choice
     # (a Toggle is a Choice subclass in AP).
@@ -154,6 +160,8 @@ def describe(key, cls):
         d["kind"] = "range"
         d["range"] = {"start": int(cls.range_start), "end": int(cls.range_end)}
         d["default"] = int(cls.default) if isinstance(cls.default, int) else cls.default
+        d["special_values"] = [{"name": nm, "value": int(v)} for nm, v in
+                               sorted(getattr(cls, "special_range_names", {}).items())] or None
     elif issubclass(cls, Toggle):  # incl. DefaultOnToggle
         d["kind"] = "toggle"
         d["default"] = bool(cls.default)

@@ -798,7 +798,8 @@ class GreenfieldEldenRingWorld(World):
         keeps the percent. Same name, two units, one deliberate conversion -- see
         features/scaling.floor_multiplier and tests/test_gf_scaling_floor_units.py."""
         from .scaling_ladder import (ceiling_multiplier as scaling_ceiling_multiplier,
-                                     floor_multiplier as scaling_floor_multiplier)
+                                     floor_multiplier as scaling_floor_multiplier,
+                                     resolve_max_difficulty_pct as scaling_resolve_max_pct)
 
         def _opt(name: str, default: int = 0) -> int:
             o = getattr(self.options, name, None)
@@ -827,8 +828,12 @@ class GreenfieldEldenRingWorld(World):
             # The MIRROR of the floor: an HP multiplier capping the tier. 100 (default) resolves to
             # the top rung, i.e. no cap -- emitted as a constant like the rest of this echo rather
             # than appearing only when set, so the key's presence never itself carries meaning.
+            # `auto` (the default) is resolved HERE, through the same fn generate_early validates
+            # with, so the cap the client reads is the cap that was checked. num_regions 0 = all.
             contract.COMPLETION_SCALING_CEILING: scaling_ceiling_multiplier(
-                _opt("maximum_enemy_difficulty", 100)),
+                scaling_resolve_max_pct(_opt("maximum_enemy_difficulty", 100),
+                                        _opt("num_regions"), len(REGIONS),
+                                        _opt("minimum_enemy_difficulty"))),
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level

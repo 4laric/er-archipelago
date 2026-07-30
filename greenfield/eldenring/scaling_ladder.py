@@ -92,6 +92,66 @@ def ceiling_multiplier(pct):
     return SCALING_HP_LADDER[round(pct / 100 * (len(SCALING_HP_LADDER) - 1))]
 
 
+# `maximum_enemy_difficulty: auto` -- the DEFAULT. Not a percent, and deliberately outside 0..100 so
+# it can never be mistaken for one.
+AUTO_CEILING = -1
+
+
+def auto_ceiling_pct(num_regions, total_regions):
+    """`auto` -> the `maximum_enemy_difficulty` PERCENT for a seed of this size.
+
+    WHY AT ALL. The scaling target is a region's POSITION in the seed's unlock order, normalized so
+    the deepest kept region reaches the top. That is RELATIVE; player power is ABSOLUTE (Somber +10
+    needs a Somber [9], a fixed rung). So a 5-region seed reaches "the end of the run" in 2-3 hours
+    against endgame-strength enemies with mid-game gear, and fewer regions makes the ramp STEEPER --
+    backwards for a short seed. This lowers the top of the curve with the length of the run.
+
+    THE CURVE, and where its single calibration point comes from. Alaric playtested the pre-2026-07-27
+    ladder, which topped out at 3.703x, and at num_regions 5 that "felt pretty close, if it was a bit
+    harder we get there". The DLC rungs were then found and the ladder grew from 10 rungs to 20
+    (top 7.422x). So, a cube root in LADDER-INDEX space:
+
+        pct = round(100 * (n / total) ** (1/3))
+
+    n=5 of 30 -> 55% -> rung 10 -> 4.125x: his datum plus exactly one rung, which is what "a bit
+    harder" asked for. n=total -> 100% -> the top rung, so a FULL map is unchanged from before.
+
+    🛑 INDEX SPACE, NOT MULTIPLIER SPACE, and that is not a preference. `ceiling_multiplier` is
+    `LADDER[round(pct/100 * (N-1))]`, and the client's search takes the last rung NO STRONGER than
+    the value. Target 4.084x -- the multiplier-space answer for n=5 -- therefore resolves DOWN to rung
+    9, which is 3.703x, the old cap. That version of this function would have shipped a change that
+    did nothing whatsoever and looked correct in review.
+
+    ⚠️ ONE PLAYTESTED POINT. Only ~3.7x at 5 regions has actually been played; everything above is
+    extrapolation over rungs nobody has fought. Note also that the ladder's top 7 rungs
+    (6.563..7.422) sit within 13% of each other, so up there the curve moves the NUMBER more than it
+    moves the fight.
+
+    num_regions 0 means ALL regions (core.NumRegions: "0 = all regions (full Shattering)"), NOT zero
+    -- read as zero this would return pct 0 and cap every enemy at the bottom rung, making the
+    DEFAULT seed trivial. Hence an explicit branch instead of arithmetic on the raw value.
+    """
+    total = int(total_regions)
+    if total <= 0:
+        raise ValueError("total_regions must be positive; got %r" % (total_regions,))
+    n = int(num_regions)
+    n = total if n <= 0 else min(n, total)          # 0 == all regions
+    return int(round(100.0 * (float(n) / total) ** (1.0 / 3.0)))
+
+
+def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0):
+    """The ONE place `auto` becomes a number. Both callers -- features/scaling.generate_early and
+    core._options_echo -- come through here, so what is validated is what the client is told.
+
+    A derived ceiling is never placed below an EXPLICIT floor: the player typed the floor and did not
+    type the ceiling, so the floor wins and generation proceeds. Raising here would fail a seed over a
+    value nobody chose.
+    """
+    if int(raw) != AUTO_CEILING:
+        return int(raw)
+    return max(int(floor_pct), auto_ceiling_pct(num_regions, total_regions))
+
+
 def ramped_target(position, span, target_max, ramp_pct=100):
     """Order POSITION (0..span) -> scaling target (0..target_max), given a ramp speed.
 
