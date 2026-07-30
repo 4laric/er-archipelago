@@ -30,6 +30,10 @@
   item's sell value rather than raising the price, so the bargain survives.
 - **New: `no_runes_in_shops`** — keeps your own money runes out of merchant stock entirely, if you
   would rather not shop for them. Off by default.
+- **Whetblades no longer collect their own location.** Receiving one from the multiworld was quietly
+  marking its vanilla location as found and making that treasure disappear — so the item placed there
+  went out to whoever owned it without anyone visiting, and the chest was gone. The location is now
+  yours to actually go and open, and every affinity still unlocks on receipt.
 - **`maximum_enemy_difficulty` now defaults to `auto`**, which lowers the top of the difficulty curve
   to match the LENGTH of your run. A 5-region seed tops out around 4.1x enemy HP instead of 7.4x.
   Long seeds are unchanged. Set a number to override.
@@ -107,6 +111,28 @@ you ask for it.
 It began life as an escape hatch while the bug above was resisting diagnosis. That is fixed, so this
 is now a preference rather than a workaround — but it costs nothing to keep, and some people would
 rather spend their merchant slots on anything else.
+
+### The whetblade that opened its own chest
+
+Receiving any of the five whetblades from the multiworld silently collected the location where that
+whetblade sits in the world. The item the seed had placed there was sent out as though you had found
+it, and the treasure itself stopped spawning — so a location you had never visited was simply gone,
+with nothing announcing it.
+
+**Why, and it is a nice piece of Elden Ring trivia.** Each whetblade unlocks several Ash-of-War
+affinities, and the game tracks them one flag apiece — Iron carries Heavy, Keen and Quality; Black
+carries Poison, Blood and Occult. The catch is that the *first* affinity's flag is the same flag the
+game uses to record "this whetblade has been picked up". One flag, two jobs. The randomiser reads
+that flag to know a location was found, and the client was setting it to unlock the affinity — so
+unlocking Heavy and collecting the Stormveil chest were, to the game, the same act.
+
+Skipping the flag would have cost an affinity instead, which is a worse trade and just as invisible.
+So the two jobs are now separated: the affinity keeps the flag it has always used, and the
+randomiser watches a different one for the pickup. Both work, and neither can trigger the other.
+
+Nothing about your seed changes and no item moves. If you already received a whetblade on an earlier
+build, its location was collected then and stays collected — the server has that recorded and it
+cannot be undone from here.
 
 ### Short seeds were being scaled like long ones
 
