@@ -274,8 +274,9 @@ you a feature is present; the replay tier tells you it is *correct*.
 
 Run through this before a change lands (PR or direct):
 
-- [ ] New/changed options live in `options.py`, default to no-change, and have
-      accurate docstrings.
+- [ ] New/changed options live in `core.py` (listed in `_CORE_OPTION_FIELDS`) or in the
+      owning `features/<name>.py` (listed in its `OPTIONS`) -- never a third place --
+      default to no-change, and have accurate docstrings.
 - [ ] The option matrix (`test_gf_options.py`) covers the new option and its
       combinations.
 - [ ] `gen_sweep.ps1` passes; `run_fill_regression.ps1` passes for
