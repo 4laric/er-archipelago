@@ -295,6 +295,27 @@ class CompletionScalingRamp(Removed):
     """Renamed to `difficulty_ramp_speed` -- and INVERTED: higher is now harder."""
 
 
+def resolved_max_difficulty(world):
+    """`maximum_enemy_difficulty` as a PERCENT, with `auto` resolved. THE single call site.
+
+    🛑 THREE consumers compare this value and every one of them was a separate bug when they read the
+    RAW option instead: generate_early's floor/ceiling validation (a -1 sentinel is below every floor,
+    so it raised OptionError on every default seed), slot_data's client-feature handshake (-1 < 100,
+    so every default seed demanded a client that understands capping -- a compatibility break for
+    everyone, caught by test_an_uncapped_seed_demands_nothing_of_the_client), and core._options_echo's
+    emitted cap. They now all route here, so the validated value, the declared dependency and the
+    wire cannot disagree.
+    """
+    nr = getattr(world.options, "num_regions", None)
+    # total comes off the option's own bound: NumRegions.range_end == len(REGIONS), so it cannot
+    # drift from the region list the way a literal would.
+    return resolve_max_difficulty_pct(
+        int(world.options.maximum_enemy_difficulty.value),
+        int(nr.value) if nr is not None else 0,
+        int(nr.range_end) if nr is not None else 30,
+        int(world.options.minimum_enemy_difficulty.value))
+
+
 class MaximumEnemyDifficulty(NamedRange):
     """How hard the TOUGHEST enemies get.
 
@@ -402,9 +423,7 @@ class Scaling(Feature):
         # sentinel (-1) against a floor would raise on EVERY DEFAULT SEED, since every floor exceeds
         # -1. total_regions comes off the option's own bound (NumRegions.range_end == len(REGIONS)),
         # which cannot drift from it.
-        nr = getattr(world.options, "num_regions", None)
-        hi = resolve_max_difficulty_pct(raw, int(nr.value) if nr is not None else 0,
-                                        nr.range_end if nr is not None else 30, lo)
+        hi = resolved_max_difficulty(world)
         if raw != AUTO_CEILING and lo > hi:
             raise OptionError(
                 f"minimum_enemy_difficulty ({lo}) is above maximum_enemy_difficulty ({hi}) -- the "
@@ -447,7 +466,9 @@ class Scaling(Feature):
         # the ceiling is the top rung, which is what tier_for_target clamped to anyway, so a default
         # seed connects to any client. See er_logic::client_features for why the contract hash does
         # not cover this (it folds in CONTRACT, not OPTIONS_SUBKEYS).
-        if int(world.options.maximum_enemy_difficulty.value) < 100:
+        # RESOLVED, not raw: `auto` is -1, and -1 < 100, so reading the raw value here declared the
+        # dependency on EVERY default seed. `auto` on a full map resolves to 100 and demands nothing.
+        if resolved_max_difficulty(world) < 100:
             out[contract.REQUIRES_CLIENT_FEATURES] = ["scaling_ceiling"]
         if set(kept_regions) & DLC_REGIONS:
             buckets = dlc_region_buckets(kept_regions)
