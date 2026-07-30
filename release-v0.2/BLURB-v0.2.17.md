@@ -1,14 +1,24 @@
 # v0.2.17 — release blurb (draft)
 
-> Drafted 2026-07-29. One new setting and one fix, both from **dafranky67**'s reports. Your existing
-> client keeps working: the slot-data contract did not move.
+> Drafted 2026-07-29, rewritten 2026-07-30 around a save-destroying softlock reported overnight by
+> **dalekin31** and **dafranky67**. That fix is now the reason to ship this build, so it leads.
+> **This one needs the new client** — the fix is client-side. The slot-data contract itself did not
+> move, so a v0.2.16 client still connects; it just will not have the fix.
 
 ---
 
 ## Short version (Discord / Nexus changelog box)
 
-**Elden Ring for Archipelago v0.2.17 — choose how much of a region an unlock opens**
+**Elden Ring for Archipelago v0.2.17 — the infinite-item softlock is fixed, and you can choose how much of a region an unlock opens**
 
+- **Fixed: an item the game refused could be re-sent forever.** If Elden Ring would not accept an
+  item — inventory at its cap — the client had no way to tell, so it kept re-sending, several times a
+  second, for the rest of the session. You got an endless stream of dropped items and
+  "exceeds the maximum storage", could not move, warp or open a menu, and restarting did not help.
+  **Update the client to get this.**
+- **Already stuck in one?** You do not need to wait for a build: start the client with the
+  environment variable `RECONCILE_APPLY=none`. That falls back to the older delivery path, which has
+  no re-send loop, and your save becomes playable again.
 - **`region_grace_unlock`** decides how many Sites of Grace a region unlock lights.
   `all` (default) lights every warp point — Liurnia is 59 at once. `landmarks` lights one per
   sub-area, so Liurnia becomes Lake-Facing Cliffs / East Raya Lucaria Gate / Moonlight Altar /
@@ -21,11 +31,51 @@
 - **`dungeon_sweep`'s middle settings work now.** `minidungeons`, `all` and `bosses` were doing the
   same thing; they are a real ladder — 515 / 1971 / 3184 checks. Your seeds are unaffected: the
   default is renamed to `bosses`, which is what every non-`none` value already gave you.
-- ✅ **No client update required.**
+- ⚠️ **Client update required** for the softlock fix. The seed format is unchanged, so an old client
+  still connects to a new seed — it simply keeps the bug.
 
 ---
 
 ## Long version (release notes)
+
+### The item that would not stop arriving
+
+Two players hit this on the same night. An item — Mohg's Great Rune in both reports — began arriving
+over and over, dropping on the ground because there was nowhere to put it, with the "exceeds the
+maximum storage" box reappearing faster than it could be dismissed. The camera locked up, warping and
+menus stopped responding, and reconnecting or restarting the game resumed the flood immediately. One
+of them lost two saves to it.
+
+**What was actually wrong.** Item delivery is built to be self-correcting: the client checks whether
+you are holding what the server says you own, and re-sends anything missing. That is a good design —
+it is why an item lost to a crash comes back on its own. But it rested on an assumption nobody had
+tested: that a delivery the game *accepts* is a delivery that *arrives*.
+
+It is not. When your inventory cannot take another copy, Elden Ring refuses the add and drops the
+item at your feet — and the function we call to hand you an item reports nothing at all about whether
+it worked. So the client saw "delivered", looked in your bag, did not find it, and concluded the
+delivery had been lost. Which it re-sent. Which was refused again. Several times a second, forever,
+while the log cheerfully reported success.
+
+**What changed.** Delivery is now verified rather than assumed: the client reads your inventory back
+immediately after handing you an item. If an item is accepted but still cannot be found three times
+running, it stops re-sending, and writes one line to the log naming the item and everything the game
+knows about why — how full each part of your inventory is, and whether the item ended up somewhere it
+was not looking. It tries again on your next load, so a temporary problem still resolves itself.
+
+**Nothing is lost when this triggers.** The server still knows the item is yours, and every reload is
+a fresh attempt. The worst case is now a few refused-item popups per load, with a note in the log
+that says which item and why — instead of a run you cannot play.
+
+**Being straight about the scope of this fix.** This bounds the damage; it does not yet explain what
+made your inventory refuse a Great Rune in the first place. That is still open, and it is why the new
+log line records so much — the next person it happens to will hand us the answer in a single report,
+instead of another round of guesswork. If you see a line beginning `[reconcile] INERT:`, that is this
+guard doing its job, and it is worth sending our way.
+
+Two earlier bugs in this same family were fixed in July, each by removing one specific cause. This
+one bounds the loop itself, so the next cause we have not thought of costs you a few popups rather
+than a save.
 
 ### How much of the map an unlock hands you
 
@@ -106,4 +156,10 @@ telescope after the first load of a session.
 ### Compatibility
 
 The slot-data contract is unchanged, so an installed v0.2.16 client pairs with a v0.2.17 seed and
-logs a version-skew line. Updating both halves is tidier; nothing here forces it.
+logs a version-skew line — nothing in the seed format forces an update.
+
+**The softlock fix is a different matter: it lives entirely in the client.** A v0.2.16 client on a
+v0.2.17 seed will generate and play, and will still be able to lock up the way described above. If
+you take one thing from this release, take the client.
+
+You can confirm you have it: the log prints `grant-stall guard ARMED` shortly after you load in.
