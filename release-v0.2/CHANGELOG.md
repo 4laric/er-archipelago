@@ -3,6 +3,144 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.2.18 — 2026-07-30
+
+### Fixed: a shop row priced below the item's own value was dropped from the menu
+
+Elden Ring excludes a `ShopLineupParam` row whose `value` is under the ware's `sellValue`. Money
+runes hit that **by construction** — a rune's `sellValue` equals its payout, and the price roll is
+`[0, worth]` — so every rune priced as a bargain, which is the entire point of the feature, made
+itself invisible. Never rune-specific: a stray Veteran's Helm discounted below its sell value
+vanished the same way.
+
+Fixed by **lowering the ware's `sellValue`**, not raising the row's price. Raising it renders the row
+and destroys the feature (a rune could never again be a bargain). On a rune `sellValue` is redundant
+data — the payout is read from `SpEffectParam.soul`, verified across all 35 rune rows — so lowering
+it costs nothing. Sell-back is capped just under what you paid, so there is no money pump; other
+merchants selling the same ware keep their own prices.
+
+`ER_SHOP_VALUE_CLAMP=raise` restores the old behaviour with no rebuild.
+
+Reported three times by **Alaric**; the third report is what ended the wrong explanation.
+
+### Fixed: money-rune pricing missed every DLC rune
+
+Rune-ness was an anchored name whitelist — `Golden`, `Hero's`, `Lord's`, `Numen's`. It matched all 21
+base-game money runes and **none of the 11 DLC ones** (Shadow Realm [1]-[7], Rune of an Unsung Hero,
+Marika's, Leda's, Broken Rune). A miss was not a skip: an unmatched rune fell through to the generic
+price path, which for a rune is `sellValue * 10` — *exactly* the 10x bug the code existed to remove,
+re-introduced on every DLC rune through two prior "fixed" releases.
+
+Rune-ness now derives from `RUNE_PAYOUT` (`EquipParamGoods.refId_default -> SpEffectParam.soul`), so
+a future DLC needs no edit. The retired regex survives as a cross-check in the tests: everything it
+used to match must still be priced.
+
+### Fixed: the infinite shop shelves were pointed at menus, not shelves
+
+`reroll_infinite_shop_stock` selected on `eventFlag_forStock == 0` — the exact **inverse** of what
+marks a shop check, which reads as "rows that can never be checks" and is not. It collected 455 rows
+belonging to the Alter-Garments menu, the Ash-of-War duplication menu and debug entries. No player
+can browse those, so the reroll changed nothing buyable and corrupted the menus it did touch.
+
+The predicate now derives a browsable shelf from what one is (real `equipId`, no material cost, no
+release gate, unlimited quantity, `eventFlag_forStock > 0`). **Fourteen rows qualify** — Kalé's glass
+shards, Iji's somber smithing stones, the throwing-knife and poison-dart racks and their neighbours.
+Ammo shelves stay excluded deliberately.
+
+### Fixed: receiving a whetblade collected its own location
+
+Each whetblade unlocks several Ash-of-War affinities and the game tracks them one flag apiece (Iron:
+Heavy 65610, Keen 65620, Quality 65630). The **first** affinity's flag is also the lot's
+`getItemFlagId` — this world's check flag for that location. One flag, two jobs. The client set it to
+unlock the affinity, which simultaneously marked the location found and despawned its treasure: the
+item placed there went out as though you had found it, and the chest stopped spawning.
+
+Not fixable by choosing a side — skipping the flag costs an affinity instead. The two jobs are split:
+the affinity keeps the vanilla flag, and the check moves to a client-owned adjacent flag
+(65611/65641/65661/65681/65721 — same allocated block, unreferenced across the EMEVD corpus,
+`flag_lots`, `check_maps`, `region_map` and `esd_flags`). The lot repoint and the poll repoint come
+from one table, so writer and watcher cannot drift.
+
+Ground truth for the per-affinity flag map came from the Hexinton CE table. **A whetblade received on
+an earlier build already collected its location; that is recorded server-side and cannot be undone.**
+
+Bell Bearing / Whetstone Knife / Rold Medallion / Drawing-Room Key share the collision but have no
+lot to repoint (their flags are ESD/EMEVD-set), so their false-collect stands — tracked separately.
+
+### `maximum_enemy_difficulty` defaults to `auto`
+
+Enemy scaling targets a region's **position in your unlock order**, normalised so the deepest kept
+region tops out. Right for a long seed, wrong for a short one: with five regions the deepest is
+reached quickly and still scaled as "the end of the run", while weapon upgrades sit on a fixed
+ladder a short seed does not accelerate — endgame enemies on mid-game gear.
+
+`auto` lowers the ceiling with the length of the run, `pct = round(100 * (n/30) ** (1/3))`, resolved
+in **ladder-index space** (multiplier space resolves down a rung and silently changes nothing):
+
+| regions | ceiling |
+|---|---|
+| 5 | 4.125x |
+| 8 | 5.484x |
+| 12 | 6.688x |
+| 30 / `num_regions: 0` | 7.422x — unchanged |
+
+⚠️ **Behaviour change by default.** Set `maximum_enemy_difficulty: 100` for the old uncapped curve.
+Only ~3.7x at five regions has been played; everything above is extrapolation, and the option
+docstring says so.
+
+Prompted by **Alaric**'s Patches fight and **CrazzyMatthew21**'s "unclear at which points im supposed
+to be in which areas".
+
+### New: `infinite_hub_wares`
+
+Name up to four items the hub merchant always stocks, unlimited:
+
+    infinite_hub_wares: ["Rune Arc", "Larval Tear"]
+
+Four is how many browsable unlimited shelves the hub has; a fifth is rejected at generation with a
+message. Each ware sells at its own derived price. Empty by default. Worth a thought before filling:
+unlimited Larval Tears is unlimited respec, unlimited Rune Arcs a permanent great-rune buff.
+
+### New: `no_runes_in_shops`
+
+Keeps your own money runes off every shop check and out of the rerolled shelves. Off by default.
+Scoped by `SHOP_ROW_FLAGS` membership (561 rows), not by tag; rune-ness from `RUNE_PAYOUT`, so all 31
+catalog money runes are covered including every DLC one. Great Runes are not in `RUNE_PAYOUT`, so no
+progression item is ever forbidden. Skips enforcement with a logged reason rather than risking a
+`FillError` if the pool cannot supply.
+
+### Gems, weapons and armour sell again
+
+Gems sell natively (135 vanilla `equipType 4` rows support it). The floor deciding what was sellable
+had been goods-only, so weapons and armour read as worthless.
+
+### Stability
+
+Three guards, two of them generalising fixes that previously covered a single caller each — patching
+the instance and leaving the mechanism is what put the same crash in front of players more than once.
+
+- **The inventory pointer is retired at warp REQUEST**, not only on arrival. A warp tears the origin
+  map down first and `in_world()` still reads true through it, so grants ran against memory the
+  engine was freeing. The static-slot primer is held 3000 ms so it cannot recapture the dying object.
+- **Enemy scaling stops during the death-cam.** Three other features already skip work while
+  `hp <= 0` because mutating those structures mid-teardown crashes; the scaling sweep touches the
+  same structures on every enemy in the area and had no such check.
+- **Event-flag writes are bounded like item grants.** A flag the game silently discards was rewritten
+  every frame forever (unpaced, ~60/s); it now parks after three unobservable attempts and says so.
+  A flag vanilla merely **contests** reads back fine and is never parked, so nothing legitimate stops
+  being re-asserted.
+
+Also: the overlay title now shows the build SHA. `0.2.17` named two different client builds — the
+version bump landed before the grant-guard fix — so "I'm on the new version" was true and useless.
+Start-of-run Perfume Bottles and Hefty Cracked Pots asked for 10 where the delivery cap is 9; the
+tenth silently vanished, and a capped pot grant now warns once instead of reporting success.
+
+### Compatibility
+
+`CONTRACT_HASH` is unmoved (`d970dd88`), so a v0.2.17 apworld and a v0.2.18 client still handshake.
+⚠️ **Client update required** — most of the above is client-side, and an old client connects happily
+without any of it. Confirm with the overlay title or the `ER-AP client` line in the log.
+
 ## v0.2.17 — 2026-07-29
 
 ### How much of a region an unlock opens
