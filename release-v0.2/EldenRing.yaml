@@ -234,6 +234,16 @@ Elden Ring:
   # observe a purchase on them -- so nothing is lost by rerolling.)
   reroll_infinite_shop_stock: true
 
+  # Wares the HUB merchant always stocks, unlimited, instead of leaving those
+  # shelves to the reroll above. Up to FOUR -- that is how many unlimited
+  # shelves the hub has, and asking for more is rejected with a message rather
+  # than quietly dropping the extras. Each is sold at its own derived price, so
+  # a shelf never becomes a free dispenser. Empty = unchanged.
+  #   infinite_hub_wares: ["Rune Arc", "Larval Tear"]
+  # Worth a thought before filling it in: unlimited Larval Tears is unlimited
+  # respec, and unlimited Rune Arcs is a permanent great-rune buff.
+  infinite_hub_wares: []
+
   # ---- Difficulty -----------------------------------------------------------
 
   # Enemies get stronger the FURTHER INTO YOUR RUN a region is -- not by where it
