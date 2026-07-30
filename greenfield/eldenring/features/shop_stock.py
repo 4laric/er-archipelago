@@ -64,10 +64,10 @@ except ImportError:                      # pre-regen: feature is simply inert
     INFINITE_SHOP_ROWS, GOODS_PRICE = [], {}
 
 try:
-    from .rune_pricing import (is_rune_item as _is_rune_item, rune_worth as _rune_worth,
+    from .rune_pricing import (is_rune as _is_rune, rune_worth as _rune_worth,
                                PRICE_MULT as _PRICE_MULT)
 except ImportError:                      # rune_pricing absent -> vanilla price, i.e. today's behaviour
-    _is_rune_item = _rune_worth = None
+    _is_rune = _rune_worth = None
     _PRICE_MULT = 1   # keep in step with rune_pricing.PRICE_MULT
 
 try:
@@ -233,7 +233,7 @@ def _resolved_pins(world):
 def _price_for(gid, rng):
     """What an infinite-stock slot charges for `gid`: vanilla price, or a rolled price for a rune."""
     full = gid | _GOODS_CATEGORY
-    if _is_rune_item and _rune_worth and _is_rune_item(_NAME_OF.get(full, "")):
+    if _is_rune and _rune_worth and _is_rune(full):
         worth = _rune_worth(full)
         if worth:
             return rng.randint(0, _PRICE_MULT * int(worth))

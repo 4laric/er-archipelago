@@ -4556,6 +4556,8 @@ for _i, _r in enumerate(rows):
 #     3. sellValue * 10                            (median vanilla buy/sell ratio, n=149)
 INFINITE_SHOP_ROWS = []
 GOODS_PRICE = {}                  # goods row id -> rune price
+RUNE_PAYOUT = {}                  # goods row id -> the runes it PAYS OUT (SpEffectParam.soul)
+_RUNE_SORT_GROUP = 100            # the goods sort group the rune family sits in; see below
 if _slp_present:
     _vanilla_price = {}           # (equipType, equipId) -> cheapest vanilla shop price > 0
     _check_stock_flags = set()    # stock flags that back a real shop CHECK (flag > 0 AND qty >= 1)
@@ -4602,7 +4604,75 @@ if _slp_present:
                     _p = 0
             if _p > 0:
                 GOODS_PRICE[_gid] = _p
+    # ---- RUNE_PAYOUT: what a money rune is WORTH, straight out of the game ----------------------
+    # A MONEY RUNE IS NOT A NAME. features/rune_pricing decided rune-ness with an anchored name
+    # whitelist over Golden/Hero's/Lord's/Numen's, and a name that misses is NOT a skip: _price_for
+    # falls through to GOODS_PRICE, which for a rune IS sellValue*10. So a miss re-prices the rune at
+    # exactly the 10x bug the module exists to fix, silently and with no tally. It missed all eleven
+    # DLC money runes -- Shadow Realm Rune [1..7], Rune of an Unsung Hero, Marika's, Leda's, Broken
+    # Rune -- which is why "runes are too expensive" was fixed twice (c8151c8, b46a2a0) and still
+    # reported a third time.
+    #
+    # THE GAME SHIPS THE ANSWER: EquipParamGoods.refId_default -> SpEffectParam.soul IS the payout.
+    # It reproduces the published Golden ladder exactly (200 .. 10000) and covers the next DLC for
+    # free, so there is no list to maintain and no name to mis-spell.
+    #
+    # sortGroupId == 100 IS LOAD-BEARING, not a belt. Remembrances are soul-granting too
+    # (20000-50000) and must NOT be repriced: a Remembrance is worth the weapon you trade it for,
+    # not its rune value. sortGroupId separates them cleanly, and it also drops goods 91 and 98 --
+    # the ONLY two soul-granting rows where soul and GOODS_PRICE//10 disagree, because both have a
+    # real vanilla shop row so //10 was never their payout. That disagreement is the argument
+    # against the old divisor, and it is why worth now comes from soul rather than from the price.
+    _sp_csv = os.path.join(_SLP_DIR, "SpEffectParam.csv")
+    if os.path.isfile(_goods_csv) and os.path.isfile(_sp_csv):
+        _soul_of_eff = {}
+        for _sp in csv.DictReader(open(_sp_csv, encoding="utf-8-sig")):
+            try:
+                _soul_of_eff[int(_sp["ID"])] = int(_sp.get("soul", 0) or 0)
+            except (KeyError, ValueError):
+                continue
+        _rune_skipped = 0
+        for _gr in csv.DictReader(open(_goods_csv, encoding="utf-8-sig")):
+            try:
+                _gid = int(list(_gr.values())[0])
+                _ref = int(_gr.get("refId_default", -1) or -1)
+                _grp = int(_gr.get("sortGroupId", -1) or -1)
+            except (ValueError, IndexError):
+                _rune_skipped += 1          # a filter with no tally is a lie
+                continue
+            _pay = _soul_of_eff.get(_ref, 0)
+            if _pay > 0 and _grp == _RUNE_SORT_GROUP:
+                RUNE_PAYOUT[_gid] = _pay
+        if _rune_skipped:
+            print("[gen_data] RUNE_PAYOUT: %d goods row(s) unparseable, skipped" % _rune_skipped)
+    else:
+        print("[gen_data] WARNING: SpEffectParam.csv or EquipParamGoods.csv absent -- RUNE_PAYOUT is "
+              "EMPTY, so every rune shop slot keeps its inherited (10x) price.")
 INFINITE_SHOP_ROWS.sort()
+if _slp_present and os.path.isfile(_sp_csv):
+    # AN EMPTY RESULT IS A FAILURE, NOT A CLEAN RUN. Gating these asserts on `RUNE_PAYOUT`
+    # being non-empty -- which is what this said first -- would have made the whole block
+    # dormant in exactly the case it exists to catch: the join finding nothing.
+    assert RUNE_PAYOUT, (
+        "RUNE_PAYOUT is EMPTY although SpEffectParam.csv and EquipParamGoods.csv were both "
+        "read. The soul/sortGroupId join matched nothing, so every rune would silently keep "
+        "GOODS_PRICE -- ten times its payout.")
+    # THE MOTIVATING CASE IS THE ACCEPTANCE TEST (CONTRIBUTING rule 11). Golden Rune [1] is the one
+    # that always worked; the other three are the ones the name whitelist silently dropped.
+    for _row, _want in ((2900, 200), (2919, 50000), (2002952, 7500), (2002960, 80000)):
+        assert RUNE_PAYOUT.get(_row) == _want, (
+            "goods %d should pay out %d runes, got %r -- the soul/sortGroupId join has drifted"
+            % (_row, _want, RUNE_PAYOUT.get(_row)))
+    # Remembrances are soul-granting and must stay OUT: pricing one at its rune value would sell a
+    # boss weapon for pocket change. Ids are the vanilla + DLC Remembrance bands.
+    _remembrances = [r for r in RUNE_PAYOUT if 2950 <= r <= 2964 or 2002900 <= r <= 2002910]
+    assert not _remembrances, (
+        "Remembrances leaked into RUNE_PAYOUT (%r) -- sortGroupId no longer separates them"
+        % _remembrances[:5])
+    assert len(RUNE_PAYOUT) >= 32, (
+        "RUNE_PAYOUT has %d entries, below the 32 derived on 2026-07-30 (21 base-game + 11 DLC "
+        "money runes + goods 2990). A SHRINKING derived set takes real coverage with it -- if an "
+        "input got better, raise this floor deliberately; do not lower it." % len(RUNE_PAYOUT))
 # ---- guards. One MIRROR per clause, so dropping a single clause dies here instead of shipping the
 # Alter-Garments set again. Plus three structural checks. An empty result is a FAILURE, not a clean run.
 if _slp_present:
@@ -4974,8 +5044,14 @@ with open(OUT_STOCK, "w", newline="\n", encoding="utf-8") as f:
     f.write('checks, rerolled per seed to a consumable. GOODS_PRICE: derived rune price per goods id\n')
     f.write('(vanilla shop price -> basicPrice -> sellValue*10), so a reroll costs what it is WORTH."""\n')
     f.write("INFINITE_SHOP_ROWS = " + repr(INFINITE_SHOP_ROWS) + "\n\n")
-    f.write("GOODS_PRICE = " + repr(dict(sorted(GOODS_PRICE.items()))) + "\n")
-print(f"shop_stock: {len(INFINITE_SHOP_ROWS)} infinite rows; {len(GOODS_PRICE)} goods priced")
+    f.write("GOODS_PRICE = " + repr(dict(sorted(GOODS_PRICE.items()))) + "\n\n")
+    f.write("# RUNE_PAYOUT: goods row -> the runes it PAYS OUT. EquipParamGoods.refId_default ->\n")
+    f.write("# SpEffectParam.soul, narrowed to sortGroupId 100. THIS is what makes an item a money\n")
+    f.write("# rune -- a name is not, and a name whitelist silently missed every DLC rune. Note that\n")
+    f.write("# Remembrances are soul-granting and are deliberately NOT in here.\n")
+    f.write("RUNE_PAYOUT = " + repr(dict(sorted(RUNE_PAYOUT.items()))) + "\n")
+print(f"shop_stock: {len(INFINITE_SHOP_ROWS)} infinite rows; {len(GOODS_PRICE)} goods priced; "
+      f"{len(RUNE_PAYOUT)} money runes")
 
 # SPARE PREVIEW GOODS -- the safe-to-clobber EquipParamGoods rows features/shops repoints region-lock
 # and foreign-item shop slots onto (exists, no real name, referenced by nothing; tools/datamine_spare_goods.py

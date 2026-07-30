@@ -23,8 +23,6 @@ Cosmetic-adjacent but NOT cosmetic: the price is the only thing standing between
 player. It does not touch reachability -- fill sees the same locations either way -- so this feature
 never gates progression and needs no logic rules.
 """
-import re
-
 from Options import Toggle
 
 from ..registry import Feature, register
@@ -35,9 +33,9 @@ try:
 except Exception:  # not yet generated
     SHOP_ROW_FLAGS, SHOP_ROW_IDS = {}, {}
 try:
-    from ..shop_stock_data import GOODS_PRICE
+    from ..shop_stock_data import GOODS_PRICE, RUNE_PAYOUT
 except Exception:  # not yet generated
-    GOODS_PRICE = {}
+    GOODS_PRICE, RUNE_PAYOUT = {}, {}
 try:
     from ..item_ids import ITEM_CATALOG
 except Exception:  # not yet generated
@@ -46,9 +44,27 @@ except Exception:  # not yet generated
 _GOODS_NIBBLE = 0x40000000
 _ROW_MASK = 0x0FFFFFFF
 
+if GOODS_PRICE and not RUNE_PAYOUT:
+    # TOLERANCE REQUIRES TELEMETRY. Without RUNE_PAYOUT every rune keeps GOODS_PRICE = 10x its
+    # payout, which is indistinguishable from "the feature is off" until a player says so -- three
+    # times. warnings.warn, not print: pytest captures stdout into a void.
+    import warnings
+    warnings.warn("rune_pricing: RUNE_PAYOUT is EMPTY while GOODS_PRICE is populated -- the world "
+                  "needs a -Greenfield regen. Until then every rune shop slot keeps its inherited "
+                  "10x price.", RuntimeWarning)
+
 # `Golden Rune [7]`, `Hero's Rune [3]`, `Lord's Rune`, `Numen's Rune`. Anchored so a hypothetical
 # "Rune Arc" or "Great Rune" never matches -- those are not money and must keep their price.
-_RUNE_RE = re.compile(r"^(?:Golden|Hero's|Lord's|Numen's) Rune(?: \[\d+\])?$")
+# RETIRED 2026-07-30 -- kept only as this note. Rune-ness used to be
+#     _RUNE_RE = ^(?:Golden|Hero's|Lord's|Numen's) Rune(?: \[\d+\])?$
+# an anchored name whitelist. It matched all 21 base-game money runes and MISSED all eleven DLC ones
+# (Shadow Realm Rune [1..7], Rune of an Unsung Hero, Marika's, Leda's, Broken Rune). A miss is not a
+# skip: the caller falls through to GOODS_PRICE, which for a rune is sellValue*10, so the whitelist
+# was re-pricing every DLC rune at EXACTLY the 10x bug this module exists to remove -- through two
+# separate "10x fixed" commits and three player reports. The predicate now comes from
+# RUNE_PAYOUT (gen_data: refId_default -> SpEffectParam.soul, sortGroupId 100), so the next DLC
+# needs no edit here. The old regex survives as a CROSS-CHECK in test_gf_rune_pricing: everything it
+# matched must still be priced.
 
 # The roll is [0, PRICE_MULT x worth].
 #
@@ -77,21 +93,36 @@ PRICE_MULT = 1
 # gen_data's own chain: a rune has no vanilla shop row, so its GOODS_PRICE falls through to
 # sellValue*10, and for a rune sellValue IS the payout.
 #
-# test_gf_rune_pricing pins that ladder, so if the GOODS_PRICE derivation ever changes this
-# assumption fails LOUDLY instead of quietly repricing every rune slot by 10x.
+# NO LONGER THE SOURCE OF WORTH, as of 2026-07-30 -- `rune_worth` reads RUNE_PAYOUT
+# (SpEffectParam.soul), the payout the game itself ships. This constant is retained as the
+# CROSS-CHECK: test_gf_rune_pricing asserts soul == GOODS_PRICE // 10 for every money rune, so the
+# two independent derivations must keep agreeing or the test says which one moved. Measured
+# 2026-07-30: they agree on all 32, and the only two soul-granting goods where they DISAGREE (91,
+# 98) are excluded by sortGroupId because both have a real vanilla shop row -- i.e. the divisor was
+# always an inference about how GOODS_PRICE was derived, and soul is not.
 GOODS_PRICE_MARKUP = 10
 
 
 def rune_worth(full_id):
     """What the rune is WORTH to the player (its rune payout), or None if it cannot be derived."""
-    price = GOODS_PRICE.get(full_id & _ROW_MASK)
-    if not price:
-        return None
-    return max(1, int(price) // GOODS_PRICE_MARKUP)
+    return RUNE_PAYOUT.get(full_id & _ROW_MASK) or None
+
+
+def is_rune(full_id):
+    """Is this FullID a money rune? Answered from the game's own datum -- see RUNE_PAYOUT."""
+    if not full_id or (full_id & 0xF0000000) != _GOODS_NIBBLE:
+        return False
+    return (full_id & _ROW_MASK) in RUNE_PAYOUT
 
 
 def is_rune_item(name):
-    return bool(_RUNE_RE.match(name or ""))
+    """Name-keyed shim over `is_rune`, for callers that only hold a display name.
+
+    It resolves through ITEM_CATALOG rather than matching the name itself. A name that is not in the
+    catalog is not a rune we can price, which is the same answer the old regex gave for junk input.
+    """
+    full = ITEM_CATALOG.get(name or "")
+    return bool(full) and is_rune(full)
 
 
 class RuneShopPricing(Toggle):
