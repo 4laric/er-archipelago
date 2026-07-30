@@ -12,14 +12,34 @@ Three populations, three different correct answers:
   * OWN-WORLD, SELLABLE  -> keep the TRUE vanilla preview. `shop_sell` rewrites the row to sell the
                             real item, so it needs no override at all, and handing it a spare would
                             make the client repoint a row shop_sell owns.
-  * OWN-WORLD, UNSELLABLE (gem / Ash of War / custom) -> a spare, exactly like a foreign item.
-                            shop_sell cannot sell these (no ShopLineupParam equipType), so they fall
-                            through to the display override -- and with a VANILLA preview good that
-                            override hits the client's real-good guard and the slot silently reads as
-                            its vanilla ware. That is the defect Alaric hit in-game on 2026-07-25:
-                            a slot reading "Armorer's Cookbook [2]" that paid out an Ash of War.
+  * OWN-WORLD, UNSELLABLE (synthetic-band good, or a custom item with no real param row)
+                         -> a spare, exactly like a foreign item. shop_sell cannot vend these, so
+                            they fall through to the display override -- and with a VANILLA preview
+                            good that override hits the client's real-good guard and the slot
+                            silently reads as its vanilla ware. That is the defect Alaric hit
+                            in-game on 2026-07-25: a slot reading "Armorer's Cookbook [2]" that paid
+                            out an Ash of War.
 
 The last one is the bug this file exists to keep fixed.
+
+🛑 GEMS LEFT THE UNSELLABLE POPULATION ON 2026-07-29 (`f76e125`), AND THIS FILE WAS THE STALE
+SIDE FOR THREE COMMITS. The old premise was "shop_sell cannot sell a gem, there is no
+ShopLineupParam equipType for one". That premise is false. Vanilla `ShopLineupParam` ships **135
+rows with equipType 4**, and all **116** distinct equipIds on them resolve to real `EquipParamGem`
+rows -- zero unresolved. The game vends Ashes of War from merchant shelves itself.
+
+Mind the DIRECTION, because getting it backwards is how this stayed wrong: `_client_can_sell`
+mirrors `scout_proof::er_sell_id`, which decides whether the client may rewrite a shop row to VEND
+the item TO THE PLAYER. It is not about the player selling anything to a merchant. (`EquipParamGem`
+does carry a nonzero `sellValue` for 228 of 242 gems, but that is the other direction and is not
+the deciding field.) The pinned client `b1d0ae6` has both arms --
+`shop_sell::equip_type_for` maps `CATEGORY_GEM -> Some(4)` and `scout_proof`'s `er_sell_id` filter
+includes `CATEGORY_GEM`. Alaric in-game, 2026-07-29: "no reason to be doing AP Flower on an ash of
+war."
+
+So the 2026-07-25 story above is still real and still worth a gate -- but its ORIGINAL EXEMPLAR has
+been reclassified. The regression is therefore re-pinned below on a population that is still
+genuinely unsellable (the synthetic band), not deleted along with the ash.
 """
 import pytest
 
@@ -65,10 +85,19 @@ class ClientCanSell(WorldTestBase):
         self.assertEqual(got, {k: True for k in got},
                          "shop_sell natively sells all four of these -- they must NOT draw a spare")
 
-    def test_a_gem_reward_is_not_sellable(self):
-        # An Ash of War. equipType has no gem value, so shop_sell bails and the slot needs a spare.
+    def test_a_gem_reward_is_sellable(self):
+        """An Ash of War IS natively vendable, so the client owns this row and must keep it.
+
+        Reversed 2026-07-29 (`f76e125`); this test asserted the opposite until then. The evidence,
+        re-derived rather than taken on trust: vanilla ShopLineupParam ships 135 rows with
+        equipType 4, whose 116 distinct equipIds ALL resolve in EquipParamGem (0 unresolved); the
+        pinned client b1d0ae6 maps CATEGORY_GEM -> equipType 4 in shop_sell and admits it in
+        scout_proof's er_sell_id filter; and Alaric confirmed in-game. See the module docstring for
+        why the old "no equipType for a gem" premise was wrong, and mind the direction: this is
+        about vending TO the player, not selling to a merchant.
+        """
         got = self._with_catalog({"An Ash of War": _GEM | 10000})
-        self.assertFalse(got["An Ash of War"])
+        self.assertTrue(got["An Ash of War"])
 
     def test_synthetic_goods_are_not_sellable(self):
         # The AP-injected synthetic band is excluded by the client's filter too.
@@ -133,10 +162,18 @@ class PreviewRepointBranches(WorldTestBase):
         self.assertGreaterEqual(len(ids), 2, "need at least two in-scope shop checks to test with")
         return ids[0], ids[1], spg
 
-    def test_an_own_world_gem_reward_draws_a_spare(self):
-        """THE REGRESSION. An own-world Ash of War is not natively sellable, so leaving it on its
-        vanilla preview good is what made a slot read "Armorer's Cookbook [2]" while paying an Ash
-        of War (Alaric, in-game 2026-07-25)."""
+    def test_an_own_world_gem_reward_keeps_its_vanilla_preview(self):
+        """A gem is vendable, so it belongs to the SELLABLE arm -- reversed 2026-07-29 (`f76e125`).
+
+        Handing it a spare would make the client repoint a row `shop_sell` owns, which is the same
+        mistake as the 2026-07-25 defect wearing the other face. Evidence for the reclassification
+        is in the module docstring (135 vanilla equipType-4 rows, all equipIds resolving in
+        EquipParamGem, both client arms at b1d0ae6, Alaric in-game).
+
+        The 2026-07-25 regression itself is NOT dropped -- it moved to
+        `test_an_own_world_synthetic_reward_draws_a_spare` below, which pins it on a population that
+        is still genuinely unsellable.
+        """
         aid, _, vanilla_map = self._two_shop_ap_ids()
         gem_name = "-- test gem --"
         orig = shops_feature.ITEM_CATALOG
@@ -144,6 +181,31 @@ class PreviewRepointBranches(WorldTestBase):
         shops_feature.ITEM_CATALOG[gem_name] = _GEM | 10000
         try:
             preview = self._preview_for({aid: (gem_name, self.world.player)})
+        finally:
+            shops_feature.ITEM_CATALOG = orig
+        self.assertEqual(preview[aid], vanilla_map[aid],
+                         "a natively vendable own-world reward must keep its TRUE preview -- a spare "
+                         "here makes the client repoint a row shop_sell already owns")
+
+    def test_an_own_world_synthetic_reward_draws_a_spare(self):
+        """THE 2026-07-25 REGRESSION, re-pinned on a population that is still unsellable.
+
+        A slot read "Armorer's Cookbook [2]" while paying out an Ash of War, because an own-world
+        item the client could not vend kept its vanilla preview good, which then hit the client's
+        real-good guard and left the slot reading as its vanilla ware. The ash was reclassified as
+        vendable on 2026-07-29, but the BRANCH and the hazard are unchanged -- so the gate now uses
+        the synthetic band, which the client's goods-only floor (`er_codec::is_synthetic_goods`,
+        3_780_000) genuinely refuses.
+
+        Delete the own-world-unsellable arm in `shops.slot_data` and this must go red.
+        """
+        aid, _, vanilla_map = self._two_shop_ap_ids()
+        syn_name = "-- test synthetic --"
+        orig = shops_feature.ITEM_CATALOG
+        shops_feature.ITEM_CATALOG = dict(orig)
+        shops_feature.ITEM_CATALOG[syn_name] = _GOODS | 3_800_000
+        try:
+            preview = self._preview_for({aid: (syn_name, self.world.player)})
         finally:
             shops_feature.ITEM_CATALOG = orig
         spares = {g | _GOODS for g in shops_feature._LOCK_PREVIEW_SPARE_GOODS}
@@ -175,15 +237,28 @@ class PreviewRepointBranches(WorldTestBase):
         self.assertIn(preview[aid], spares)
 
     def test_a_region_lock_takes_its_own_dedicated_spare(self):
+        """A lock and a foreign item in the SAME emission must not be handed the same spare.
+
+        🛑 ONE `_preview_for` CALL, DELIBERATELY. This test used to make two calls and compare across
+        them, and it started failing on 2026-07-29 for a reason that was not a bug: `f76e125` made
+        lock-spare reservation PLACEMENT-DRIVEN, so only locks actually placed on a shelf reserve a
+        row. Across two separate emissions the lock gets pool index 0 in one and the foreign item
+        gets pool index 0 in the other, so they collide by construction -- a fact about the stub, not
+        about the feature. The real invariant is intra-emission disjointness: `_free` starts at
+        `_LOCK_PREVIEW_SPARE_GOODS[len(name_to_preview):]`, past the reserved lock names.
+        """
         aid, other, _ = self._two_shop_ap_ids()
         lock = sorted(f"{r} Lock" for r in self.world._kept())[0]
-        preview = self._preview_for({aid: (lock, self.world.player)})
+        preview = self._preview_for({
+            aid: (lock, self.world.player),
+            other: ("Someone Else's Thing", self.world.player + 1),
+        })
         spares = {g | _GOODS for g in shops_feature._LOCK_PREVIEW_SPARE_GOODS}
         self.assertIn(preview[aid], spares)
-        # Lock spares are allotted per NAME from the head of the pool; foreign/unsellable draw from
-        # the tail. The two allotments must not collide, or a lock and a foreign item share a name.
-        foreign = self._preview_for({other: ("Someone Else's Thing", self.world.player + 1)})
-        self.assertNotEqual(preview[aid], foreign[other])
+        self.assertIn(preview[other], spares)
+        self.assertNotEqual(preview[aid], preview[other],
+                            "a lock and a foreign item drew the same spare, so both slots would "
+                            "display the same name")
 
 
 class SparePoolSafety(WorldTestBase):
