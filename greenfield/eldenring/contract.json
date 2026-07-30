@@ -598,7 +598,7 @@
       ],
       "producer": "features/shop_stock.py",
       "consumer": "shop_stock.rs configure/run",
-      "doc": "ShopLineupParam row id (str) -> [goodsId, equipType, price]. The 455 UNLIMITED rows carry no stock flag so they can never be checks; rerolled per seed to a consumable. The PRICE rides along because those rows inherit the old ware's cost (gem slots = 1 rune, 166 armor slots free) -- without it every seed is a free-consumable dispenser."
+      "doc": "ShopLineupParam row id (str) -> [goodsId, equipType(=3), price]. The browsable UNLIMITED goods shelves (mtrlId -1, costType 0, sellQuantity -1, ungated, stock-flagged) -- 14 rows since 2026-07-29, rerolled per seed to a consumable. The previous 455-row set was the Alter-Garments / AoW-duplication / debug rows, which are MENUS, not shelves, and rerolling them corrupted those menus. The PRICE rides along, derived from the item itself, or a cheap shelf becomes an infinite dispenser. Absent/empty = shelves stay vanilla."
     },
     {
       "name": "shopRunePrices",
