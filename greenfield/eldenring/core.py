@@ -810,6 +810,7 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         return {
             contract.DEATH_LINK: _opt("death_link"),
+            contract.NO_RUNE_LOSS: _opt("no_rune_loss"),
             contract.ENABLE_DLC: int(dlc_only or enable_dlc),
             contract.NO_WEAPON_REQUIREMENTS: _opt("no_weapon_requirements"),
             contract.COMPLETION_SCALING: 4,  # smoothstep curve id (nonzero = on; matches features/scaling.py)

@@ -85,6 +85,15 @@ def merge_slot_data(base: Dict[str, Any], feats, world) -> Dict[str, Any]:
     for f in feats:
         contrib = f.slot_data(world)
         for k, v in contrib.items():
+            # requiresClientFeatures is the ONE key that is legitimately multi-producer: it is a SET
+            # of "this seed needs a client that understands X" tags, and any number of features can
+            # contribute one. The duplicate-key guard below is right for every other key (two
+            # producers = one silently wins), but here it would red the gen for any seed that turned
+            # on two tagged features at once -- a failure that only appears in combination, i.e. the
+            # worst kind. Union, sorted, de-duplicated so the wire value is stable across gens.
+            if k == _contract.REQUIRES_CLIENT_FEATURES:
+                sd[k] = sorted(set(sd.get(k, [])) | set(v))
+                continue
             if k in sd:
                 raise ValueError(f"slot_data key '{k}' emitted by core and feature {f.name or type(f).__name__!r}")
             if k not in _contract.BY_NAME:

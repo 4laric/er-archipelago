@@ -148,6 +148,17 @@
           "doc": "shared deaths across the multiworld (world.options.death_link)."
         },
         {
+          "name": "no_rune_loss",
+          "shape": "BOOL_OR_INT",
+          "required": true,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_no_rune_loss",
+          "doc": "keep held runes on EVERY death (not just DeathLink kills). Rides the same KeepRunes latch as the DeathLink keep-runes behaviour, so the two compose; independent of options.death_link. Seeds that enable it declare the 'no_rune_loss' tag in requiresClientFeatures."
+        },
+        {
           "name": "enable_dlc",
           "shape": "BOOL_OR_INT",
           "required": true,

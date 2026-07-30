@@ -339,6 +339,12 @@ OPTIONS_SUBKEYS = (
     ContractKey("death_link", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_death_link",
                 "shared deaths across the multiworld (world.options.death_link)."),
+    ContractKey("no_rune_loss", "BOOL_OR_INT", True, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_no_rune_loss",
+                "keep held runes on EVERY death (not just DeathLink kills). Rides the same "
+                "KeepRunes latch as the DeathLink keep-runes behaviour, so the two compose; "
+                "independent of options.death_link. Seeds that enable it declare the "
+                "'no_rune_loss' tag in requiresClientFeatures."),
     ContractKey("enable_dlc", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_dlc",
                 "RESOLVED DLC bool (dlc_only implies on); gates DLC map-reveal flags."),
