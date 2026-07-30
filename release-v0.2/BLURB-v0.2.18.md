@@ -7,10 +7,6 @@
 >
 > ⚠️ **Client update required.** ⚠️ **`maximum_enemy_difficulty` behaves differently by default** —
 > see Compatibility.
->
-> 🔴 **DRAFT NOTE, DELETE BEFORE PUBLISHING:** the section *"Runes you can actually buy"* assumes the
-> shop-rune visibility fix lands. It is still being traced at time of writing (client `e33a1b8`,
-> `5e09828`). If it does not land, delete that section — the pricing fix below it stands on its own.
 
 ---
 
@@ -26,8 +22,14 @@
 - **The infinite shop shelves were pointed at the wrong rows for their entire life** — 455 of them,
   and they were the Alter-Garments menu, the Ash-of-War duplication menu and debug rows. Not shelves.
   No player could browse them. The randomiser now finds the **14 real shelves** by what a shelf
-  actually is. This is also why runes never seemed to show up for sale below their worth: they were
-  being priced into rows nobody could reach.
+  actually is. This was one of two reasons runes never seemed to show up for sale below their worth
+  — some were priced into rows nobody could reach; the rest hid themselves, see below.
+- **Shop rows that were invisible now render.** A shop row whose price sat below the item's own
+  sell value was silently dropped from the purchase menu — so a rune priced at a bargain became a
+  rune you could not see, and the same thing could hide *any* discounted ware. Fixed by lowering the
+  item's sell value rather than raising the price, so the bargain survives.
+- **New: `no_runes_in_shops`** — keeps your own money runes out of merchant stock entirely, if you
+  would rather not shop for them. Off by default.
 - **`maximum_enemy_difficulty` now defaults to `auto`**, which lowers the top of the difficulty curve
   to match the LENGTH of your run. A 5-region seed tops out around 4.1x enemy HP instead of 7.4x.
   Long seeds are unchanged. Set a number to override.
@@ -73,13 +75,38 @@ Pricing now reads the payout the game itself stores for each rune. No list of na
 DLC blind spot — and the retired pattern survives as a cross-check in the tests: everything it used
 to match must still be priced. A future DLC needs no edit here.
 
-### Runes you can actually buy
+### The bargain that hid itself
 
-<!-- 🔴 DRAFT: assumes the visibility fix lands. Delete this whole section if it does not. -->
-Rune rows were being written correctly and then not appearing on the shelf. The rows held what we
-wrote — that was proven by reading them back — so the fault was downstream of the write, in what the
-purchase menu was willing to show. That is fixed, so a rune priced below its worth is now a rune you
-can walk up to and buy.
+A rune priced below its worth would not appear in the merchant's menu at all. Rune rows were being
+written correctly — proven by reading them back out of the game — so the fault lay downstream of the
+write, in what the purchase menu was willing to display.
+
+**It was the discount itself.** Elden Ring drops a shop row from the list when the row's price is
+below the item's own sell value. Money runes hit that by construction: a rune's sell value equals its
+payout exactly, and the randomiser rolls the price anywhere from zero up to that payout — so
+*every* rune priced as a bargain, which is the whole point of the feature, made itself invisible.
+This was never rune-specific either; the same rule could hide any ware discounted below its sell
+value, which is what had happened to a stray Veteran's Helm.
+
+The obvious repair — raise the price until the row renders — would have traded the feature away: a
+rune could then never be a bargain again. So the fix goes the other way and **lowers the item's sell
+value** instead. On a rune that is redundant data: the payout is read from somewhere else entirely,
+verified across all 35 rune rows, so nothing that matters changes. The row renders, and the discount
+survives.
+
+Selling a ware back is capped at just under what you paid for it for the rest of the session, so
+there is no money pump. Other merchants selling the same item keep their own prices. And the Veteran's
+Helm keeps its 600-rune price instead of being inflated to 1001 to make it visible.
+
+### Keeping runes out of shops entirely
+
+If you would simply rather not buy runes from merchants, `no_runes_in_shops` keeps your own money
+runes off every shop check and out of the rerolled shelves. Off by default, so nothing changes unless
+you ask for it.
+
+It began life as an escape hatch while the bug above was resisting diagnosis. That is fixed, so this
+is now a preference rather than a workaround — but it costs nothing to keep, and some people would
+rather spend their merchant slots on anything else.
 
 ### Short seeds were being scaled like long ones
 
