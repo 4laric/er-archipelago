@@ -280,3 +280,47 @@ def test_landmarks_is_the_middle_setting_where_it_matters():
             "%s reduced to %d grace(s) at `landmarks`. That region's sub-areas are exactly what the "
             "middle tier exists to expose; if the partition changed, re-verify it BY NAME before "
             "re-baselining this." % (region, len(got)))
+
+
+# ---------------------------------------------------------------------------------------------
+# no_runes_in_shops -- the combination sweep (added 2026-07-30).
+#
+# CONTRIBUTING's headline gate: a new option must generate cleanly in combination with the options
+# it can interact with. This one constrains FILL (rune items x shop locations), so what matters is
+# what changes the shop-row/location ratio and the rune supply: num_regions (the hub is 185 shop
+# rows out of 221 locations, so a small seed is the shop-heaviest shape there is) and the DLC pair
+# (a different kept set, the DLC rune family in the pool). The assertion is the MOTIVATING CASE per
+# combo -- no own rune behind a purchase menu after a real fill -- not just "it genned".
+# ---------------------------------------------------------------------------------------------
+_NRIS_COMBOS = (
+    ("on_base",         {"no_runes_in_shops": True}),
+    ("on_one_region",   {"no_runes_in_shops": True, "num_regions": 1}),
+    ("on_small_rolled", {"no_runes_in_shops": True, "num_regions": 4, "num_regions_order": "rolled"}),
+    ("on_dlc",          {"no_runes_in_shops": True, "enable_dlc": True}),
+    ("on_dlc_only",     {"no_runes_in_shops": True, "dlc_only": True}),
+)
+
+
+@pytest.mark.parametrize("label,opts", _NRIS_COMBOS, ids=[c[0] for c in _NRIS_COMBOS])
+def test_no_runes_in_shops_combinations_fill_clean(label, opts):
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
+    from worlds.eldenring.features.rune_pricing import is_rune_item
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = dict(opts)
+
+    t = _T("runTest")
+    t.options = dict(opts)
+    t.world_setup(20260730)                      # pinned seed: a red run must be reproducible
+    distribute_items_restrictive(t.multiworld)
+    player = t.world.player
+    offenders = [l for l in t.multiworld.get_locations(player)
+                 if getattr(l, "address", None) is not None
+                 and str(l.address) in SHOP_ROW_FLAGS
+                 and l.item is not None and l.item.player == player
+                 and is_rune_item(l.item.name)]
+    assert not offenders, (
+        "%s: own money runes landed on %d shop checks (first: %s)"
+        % (label, len(offenders), offenders[0].name if offenders else ""))
