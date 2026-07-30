@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d7fc324cc91d155aaaaee2add3778d03df7c7603c821d140708bb178212b47f2",
+ "source_sha256": "238cc34534a69ac4d535bcd65bf3ccfcd747484f985a9d71e8c653111dc154d8",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -125,16 +125,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "dungeon_sweep",
   "capital_reconciler",
   "death_link",
   "reroll_enemy_drops",
   "curated_filler",
+  "pool_builder_intensity",
   "pool_builder_pct_weapons",
   "pool_builder_pct_armor",
   "pool_builder_pct_spells",
   "pool_builder_pct_talismans",
   "pool_builder_pct_ashes_of_war",
   "filler_foreign_pct",
+  "region_grace_unlock",
   "leyndell_runes_required",
   "progressive_flasks",
   "local_item_only",
@@ -157,16 +160,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "dungeon_sweep",
   "capital_reconciler",
   "death_link",
   "reroll_enemy_drops",
   "curated_filler",
+  "pool_builder_intensity",
   "pool_builder_pct_weapons",
   "pool_builder_pct_armor",
   "pool_builder_pct_spells",
   "pool_builder_pct_talismans",
   "pool_builder_pct_ashes_of_war",
   "filler_foreign_pct",
+  "region_grace_unlock",
   "leyndell_runes_required",
   "progressive_flasks",
   "local_item_only",
@@ -297,6 +303,38 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false
   },
   {
+   "key": "dungeon_sweep",
+   "class": "DungeonSweep",
+   "display_name": "Dungeon Sweep",
+   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~515 checks).\nall -- those plus legacy dungeons and castles (~1984).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3197).\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nSweeps are FILLER-ONLY by construction -- Remembrances, key items, Great Runes, boss rewards,\nlegendaries and shop slots are cut before a sweep is built -- so no rung can gate progression.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "bosses",
+   "choices": [
+    {
+     "name": "none",
+     "value": 0
+    },
+    {
+     "name": "minidungeons",
+     "value": 1
+    },
+    {
+     "name": "all",
+     "value": 2
+    },
+    {
+     "name": "bosses",
+     "value": 3
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
    "key": "capital_reconciler",
    "class": "CapitalReconciler",
    "display_name": "Capital Version Reconciler",
@@ -345,12 +383,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "curated_filler",
    "class": "CuratedFiller",
    "display_name": "Curated Filler recipe (category -> weight)",
-   "description": "Recipe for replacing junk-consumable filler: a table of {category: weight}. The junk slots are\nsplit across the categories by weight. Categories: throwables, pots, firepots, greases, ammunition,\nfoods, boluses, perfumes, utility, rare, funny, stones, somber_stones, runes -- plus 'junk' to keep\nthat share as vanilla junk. Empty (default) = off (vanilla junk). Stacks: throwables x5, pots x2,\nfirepots x2, greases x2, ammunition x20.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample: {throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5, perfumes: 8, rare: 1,\nstones: 15, runes: 15}.",
+   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, stones, somber_stones, runes, throwables, pots, firepots, greases,\nammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to keep that share as\nwhatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,\nammunition x20.\nNOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
    "kind": "dict",
    "base": "OptionDict",
    "default": {
-    "juice": 44,
-    "stones": 27,
+    "juice": 42,
+    "stones": 29,
     "somber_stones": 6,
     "runes": 10,
     "throwables": 6,
@@ -367,10 +405,38 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false
   },
   {
+   "key": "pool_builder_intensity",
+   "class": "PoolBuilderIntensity",
+   "display_name": "Pool Builder Intensity",
+   "description": "How good a piece of gear has to be before it counts as `juice`.\n\nnormal -- legendary only (~149 items).  high -- legendary + rare (~536).  max (default) -- also\nB-tier (~1013).\n\nA HIGHER FLOOR MEANS LESS GEAR, NOT BETTER GEAR. Each level is a strictly smaller catalog while\nthe `juice` weight in curated_filler is unchanged, so raising it asks for the same number of items\nout of a shorter list and the surplus spills to junk. Measured on one seed: max 1518 gear in the\npool, high 872, normal 230. It buys quality by paying quantity, which is the trade worth exposing.\n\n(Inert from the filler_budget refactor until 2026-07-28: it had become the constant JUICE_FLOOR\nbecause the option was frozen and could not move. filler_budget.juice_floor reads it again.)",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "max",
+   "choices": [
+    {
+     "name": "normal",
+     "value": 0
+    },
+    {
+     "name": "high",
+     "value": 1
+    },
+    {
+     "name": "max",
+     "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
    "key": "pool_builder_pct_weapons",
    "class": "PoolBuilderPctWeapons",
    "display_name": "Pool Builder % Weapons",
-   "description": "Share of the Rune tail Pool Builder fills with weapon juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for weapon gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -388,7 +454,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "pool_builder_pct_armor",
    "class": "PoolBuilderPctArmor",
    "display_name": "Pool Builder % Armor",
-   "description": "Share of the Rune tail Pool Builder fills with armor juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for armor gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -406,7 +472,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "pool_builder_pct_spells",
    "class": "PoolBuilderPctSpells",
    "display_name": "Pool Builder % Spells & Incantations",
-   "description": "Share of the Rune tail filled with sorcery + incantation juice (the community tier list rates\nboth under one SPELL category). See the per-category percent notes on the other % options.",
+   "description": "Relative weight for spell gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk. Spells have the SMALLEST catalog, so weighting them spills the most.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -424,7 +490,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "pool_builder_pct_talismans",
    "class": "PoolBuilderPctTalismans",
    "display_name": "Pool Builder % Talismans",
-   "description": "Share of the Rune tail Pool Builder fills with talisman juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for talisman gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -442,7 +508,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "pool_builder_pct_ashes_of_war",
    "class": "PoolBuilderPctAshesOfWar",
    "display_name": "Pool Builder % Ashes of War",
-   "description": "Share of the Rune tail Pool Builder fills with ash-of-war juice (best-first by community tier,\nfloored by Intensity). Opt-in per-category percent -- see the other % options for how these\noverride the global Juice Percent. Default 0.",
+   "description": "Relative weight for Ash of War gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
    "base": "_PoolBuilderPctCategory",
    "default": 0,
@@ -469,6 +535,34 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "start": 0,
     "end": 100
    },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "region_grace_unlock",
+   "class": "RegionGraceUnlock",
+   "display_name": "Region Grace Unlock",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "all",
+   "choices": [
+    {
+     "name": "all",
+     "value": 0
+    },
+    {
+     "name": "landmarks",
+     "value": 1
+    },
+    {
+     "name": "entrance",
+     "value": 2
+    }
+   ],
+   "range": null,
    "valid_keys": null,
    "casefold": false,
    "group": null,
@@ -672,7 +766,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "reroll_infinite_shop_stock",
    "class": "RerollInfiniteShopStock",
    "display_name": "Reroll Infinite Shop Stock",
-   "description": "Reroll every unlimited-stock merchant slot to a random high-impact consumable, priced at what it\nis worth. Those slots can never be AP checks (no stock flag = no way to see a purchase), so without\nthis they sell their vanilla ware forever.",
+   "description": "Reroll the merchants' unlimited consumable shelves to a random high-impact consumable.\n\nKale's Glass Shards, Iji's Somber Smithing Stones, the throwing-knife and poison-dart shelves --\n14 of them. Each is rerolled per seed and PRICED at what the new item is worth, so a shelf never\nbecomes an infinite cheap source of something economy-breaking.\n\nAmmo shelves (arrows, bolts) are untouched. These shelves are never AP checks, so nothing here\nmoves an item or a location.",
    "kind": "toggle",
    "base": "DefaultOnToggle",
    "default": true,

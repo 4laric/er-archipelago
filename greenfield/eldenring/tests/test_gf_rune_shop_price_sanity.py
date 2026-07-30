@@ -33,6 +33,35 @@ _GOODS = 0x40000000
 _NAME_OF = {v: k for k, v in ITEM_CATALOG.items()}
 
 
+def _direct_rune_ratios(seed, draws=50):
+    """Call `shop_stock._price_for` DIRECTLY over every rune in the catalog.
+
+    🛑 WHY NOT VIA A GENERATED SEED. The shelf set went from 455 rows to 14 on 2026-07-29, so a pinned
+    seed can easily draw ZERO runes -- and then the e2e assertions below would pass while testing
+    nothing, which is the dormant-gate class this project keeps getting bitten by. Calling the guard
+    directly with synthetic input is the house rule for exactly this
+    ([[guard-absent-from-corpus-needs-a-direct-call]]): it exercises the rune BRANCH regardless of
+    what any seed happens to roll.
+    """
+    import random
+    from worlds.eldenring.features import shop_stock
+    from worlds.eldenring.shop_stock_data import GOODS_PRICE
+    rng = random.Random(seed)
+    out = []
+    for name, full in ITEM_CATALOG.items():
+        if not is_rune_item(name) or (full & 0xF0000000) != _GOODS:
+            continue
+        row = full & 0x0FFFFFFF
+        if row not in GOODS_PRICE:
+            continue
+        w = rune_worth(full)
+        if not w:
+            continue
+        for _ in range(draws):
+            out.append(shop_stock._price_for(row, rng) / w)
+    return out
+
+
 def _infinite_stock_rune_ratios(seed):
     class _T(WorldTestBase):
         game = GAME
@@ -56,9 +85,9 @@ def _infinite_stock_rune_ratios(seed):
 
 def test_infinite_stock_runes_are_not_priced_at_ten_times_value():
     """THE regression. A flat 10.0x on every rune is what shipped."""
-    ratios = sorted(r for s in (4242, 777) for r in _infinite_stock_rune_ratios(s))
-    assert ratios, ("no rune landed in an infinite-stock slot across two seeds -- this test then "
-                    "proves nothing. If the roster changed, re-derive it rather than deleting this.")
+    ratios = sorted(_direct_rune_ratios(4242) + _direct_rune_ratios(777))
+    assert ratios, ("no rune in ITEM_CATALOG has a GOODS_PRICE entry -- the join broke and this test "
+                    "proves nothing. Re-derive it rather than deleting this.")
     assert max(ratios) <= PRICE_MULT + 0.01, (
         "an infinite-stock rune costs %.2fx its payout; the roll is capped at %dx. A flat 10.0x here "
         "is the GOODS_PRICE bug returning -- GOODS_PRICE is sellValue*10 and for a rune sellValue IS "
@@ -70,7 +99,7 @@ def test_the_roll_actually_reaches_the_cheap_end():
 
     A uniform [0, 2x] should put ~half below worth. Asserting the SHAPE catches a future change that
     keeps the cap but skews the distribution -- which would still read as 'runes are never a deal'."""
-    ratios = sorted(r for s in (4242, 777, 31337) for r in _infinite_stock_rune_ratios(s))
+    ratios = sorted(_direct_rune_ratios(4242) + _direct_rune_ratios(777) + _direct_rune_ratios(31337))
     below = sum(1 for r in ratios if r <= 1.0)
     # PRICE_MULT is 1 as of 2026-07-29: every rune must be at or BELOW its payout, so buying one is
     # never a loss. Written as a function of PRICE_MULT rather than a hardcoded fraction, so raising

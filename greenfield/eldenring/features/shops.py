@@ -227,11 +227,17 @@ class Shops(Feature):
                     continue
                 if _client_can_sell(it.name):
                     continue
-                # OWN-WORLD BUT UNSELLABLE (gem / Ash of War / custom). shop_sell bails on it (no
-                # equipType), so the slot falls through to the shop_preview override -- and with its
-                # VANILLA preview good that override hits the real-good guard and leaves the slot
-                # reading as the vanilla ware. Same wall as a foreign item, so: same fix, draw a
-                # spare. (Alaric, in-game 2026-07-25: "Armorer's Cookbook [2]" paying an Ash of War.)
+                # OWN-WORLD BUT UNSELLABLE -- a synthetic-band good, or a custom item with no real
+                # param row behind it. shop_sell cannot vend those, so the slot falls through to the
+                # shop_preview override -- and with its VANILLA preview good that override hits the
+                # real-good guard and leaves the slot reading as the vanilla ware. Same wall as a
+                # foreign item, so: same fix, draw a spare. (Alaric, in-game 2026-07-25: "Armorer's
+                # Cookbook [2]" paying an Ash of War.)
+                #
+                # That exemplar has SINCE BEEN RECLASSIFIED: gems are natively vendable and left this
+                # branch on 2026-07-29 -- see _SELLABLE_NIBBLES for the datum (135 vanilla
+                # ShopLineupParam rows carry equipType 4). The branch and the hazard are unchanged;
+                # only the population reaching it shrank.
                 if _fi < len(_free):
                     preview[key] = _free[_fi]
                     _fi += 1

@@ -133,12 +133,18 @@ if (-not $SkipZipGen) {
     }
 }
 
-# ----- 1b) options wizard metadata drift -- TEMPORARILY REMOVED (2026-07-04, Alaric) --
-# The WIZARD step (tools\check_options_metadata.ps1) is disabled for now. Restore by
-# un-commenting when the options-metadata surface stabilizes.
-# Invoke-CiStep "WIZARD (options metadata drift)" {
-#     & (Join-Path $Repo "tools\check_options_metadata.ps1")
-# }
+# ----- 1b) options wizard metadata drift ---------------------------------------
+# RE-ARMED 2026-07-29. This step was commented out 2026-07-04 "until the options-metadata surface
+# stabilizes", and the surface then did the opposite: the disable window ate a four-commit drift
+# (3381174..9ce2476) in which the JSON was regenerated but the copy inlined in wizard/wizard.html
+# was not, so the wizard page silently lost dungeon_sweep, pool_builder_intensity and
+# region_grace_unlock. Nothing released was affected -- wizard/ is not staged into the zip -- but
+# the reason nobody noticed for 36 hours is that the only instrument was switched off. Churn is
+# exactly when this gate pays. The half-applying default that caused it is fixed at the source
+# (dump_options_metadata.py now emits all three artifacts on a plain run).
+Invoke-CiStep "WIZARD (options metadata drift)" {
+    & (Join-Path $Repo "tools\check_options_metadata.ps1")
+}
 
 # ----- 2) fill regression (fixed reproducer seeds vs baseline floors) ----------
 if (-not $SkipFill) {

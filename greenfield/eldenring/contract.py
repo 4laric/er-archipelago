@@ -625,10 +625,13 @@ CONTRACT = (
                 "rerolled; lotItemBasePoint (drop weight) is untouched, so drop RATES stay vanilla."),
     ContractKey("shopInfiniteStock", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/shop_stock.py", "shop_stock.rs configure/run",
-                "ShopLineupParam row id (str) -> [goodsId, equipType, price]. The 455 UNLIMITED rows "
-                "carry no stock flag so they can never be checks; rerolled per seed to a consumable. "
-                "The PRICE rides along because those rows inherit the old ware's cost (gem slots = 1 "
-                "rune, 166 armor slots free) -- without it every seed is a free-consumable dispenser."),
+                "ShopLineupParam row id (str) -> [goodsId, equipType(=3), price]. The browsable "
+                "UNLIMITED goods shelves (mtrlId -1, costType 0, sellQuantity -1, ungated, "
+                "stock-flagged) -- 14 rows since 2026-07-29, rerolled per seed to a consumable. The "
+                "previous 455-row set was the Alter-Garments / AoW-duplication / debug rows, which are "
+                "MENUS, not shelves, and rerolling them corrupted those menus. The PRICE rides along, "
+                "derived from the item itself, or a cheap shelf becomes an infinite dispenser. "
+                "Absent/empty = shelves stay vanilla."),
     ContractKey("shopRunePrices", "SCALAR_INT_MAP", False, (GREENFIELD,),
                 "features/rune_pricing.py", "shop_prices.rs configure/run",
                 "ShopLineupParam row id (str) -> rune price, for CHECK rows whose reward is a rune "
