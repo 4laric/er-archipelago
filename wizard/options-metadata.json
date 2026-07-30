@@ -651,7 +651,7 @@
    "key": "reroll_infinite_shop_stock",
    "class": "RerollInfiniteShopStock",
    "display_name": "Reroll Infinite Shop Stock",
-   "description": "Reroll every unlimited-stock merchant slot to a random high-impact consumable, priced at what it\nis worth. Those slots can never be AP checks (no stock flag = no way to see a purchase), so without\nthis they sell their vanilla ware forever.",
+   "description": "Reroll the merchants' unlimited consumable shelves to a random high-impact consumable.\n\nKale's Glass Shards, Iji's Somber Smithing Stones, the throwing-knife and poison-dart shelves --\n14 of them. Each is rerolled per seed and PRICED at what the new item is worth, so a shelf never\nbecomes an infinite cheap source of something economy-breaking.\n\nAmmo shelves (arrows, bolts) are untouched. These shelves are never AP checks, so nothing here\nmoves an item or a location.",
    "kind": "toggle",
    "base": "DefaultOnToggle",
    "default": true,

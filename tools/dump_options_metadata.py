@@ -21,11 +21,18 @@ Emitted per option: yaml key (canonical dataclass order), class name, kind
 range bounds, valid_keys.
 
 Usage (needs the pinned AP env; --ap-dir defaults to .ap-test/, bootstrapped on demand):
-    python tools/dump_options_metadata.py              # write wizard/options-metadata.json
-    python tools/dump_options_metadata.py --presets    # also write presets/*.yaml
-    python tools/dump_options_metadata.py --inject     # also inline the JSON into wizard/wizard.html
-    python tools/dump_options_metadata.py --check      # exit 1 if committed JSON is stale (CI drift gate)
+    python tools/dump_options_metadata.py              # write ALL THREE artifacts
+    python tools/dump_options_metadata.py --check      # exit 1 if any artifact is stale (CI drift gate)
     python tools/dump_options_metadata.py --ap-dir DIR # reuse an existing upstream AP checkout
+
+🛑 THE PLAIN RUN EMITS ALL THREE ARTIFACTS, AND THAT IS DELIBERATE. There are three copies of
+this surface -- wizard/options-metadata.json, the same blob inlined in wizard/wizard.html, and
+presets/*.yaml -- and until 2026-07-29 the inject and preset writes were opt-in flags. So the
+obvious command wrote ONE of the three and silently left the other two behind: four regen commits
+on 2026-07-28/29 moved the JSON without re-injecting, and the wizard page lost `dungeon_sweep`,
+`pool_builder_intensity` and `region_grace_unlock` outright. A tool whose default leaves the tree
+half-applied will half-apply it (CONTRIBUTING rule 9). `--presets` and `--inject` are still
+ACCEPTED so old muscle memory and old docs keep working -- they are now no-ops.
 
 Round-trip guarantee: every field appears in the JSON with a non-empty description
 (enforced here AND by worlds/eldenring/tests/test_options_descriptions.py).
@@ -342,7 +349,7 @@ def main(argv):
                 stale.append("wizard/wizard.html inlined metadata differs from a fresh dump")
         if stale:
             print("[STALE] " + "; ".join(stale))
-            print("        fix: python tools/dump_options_metadata.py --presets --inject")
+            print("        fix: python tools/dump_options_metadata.py")
             return 1
         print("[ok] wizard metadata is current (%d options)" % len(meta["options"]))
         return 0
@@ -351,10 +358,10 @@ def main(argv):
     with open(OUT_JSON, "w", encoding="utf-8", newline="\n") as f:
         f.write(fresh)
     print("[ok] wrote %s (%d options)" % (os.path.relpath(OUT_JSON, ROOT), len(meta["options"])))
-    if "--presets" in argv:
-        write_presets(meta)
-    if "--inject" in argv:
-        inject(meta)
+    # ALWAYS all three. `--presets` / `--inject` are kept as accepted no-ops -- see the module
+    # docstring for the drift they used to cause when they were opt-in.
+    write_presets(meta)
+    inject(meta)
     return 0
 
 

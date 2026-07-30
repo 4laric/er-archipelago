@@ -64,6 +64,20 @@ jobs:
       - name: pytest (tools/gf_test.py -- pinned upstream AP)
         run: python tools/gf_test.py --ap-dir _ap
 
+      # Wizard metadata drift, against the LIVE GFOptions -- the only instrument that can tell the
+      # three committed artifacts (wizard/options-metadata.json, the blob inlined in
+      # wizard/wizard.html, presets/*.yaml) apart from the option docstrings they are supposed to
+      # mirror. It needs an AP import, so it can only live in a job that has one.
+      #
+      # MOTIVATING CASE (CONTRIBUTING rule 11): run_ci.ps1 had this gate commented out from
+      # 2026-07-04, and it was the ONLY copy. Between 3381174 and 9ce2476 four commits regenerated
+      # the JSON without re-injecting, and the wizard page lost dungeon_sweep,
+      # pool_builder_intensity and region_grace_unlock -- 6197 bytes of missing options that no
+      # test, no gate and no human caught for 36 hours. run_ci.ps1 is Alaric's box only; THIS runs
+      # on every push, which is the point.
+      - name: Wizard metadata drift (--check against the pinned AP)
+        run: python tools/dump_options_metadata.py --check --ap-dir _ap
+
   # ---------------------------------------------------------------------------------------------
   # 1b. REGEN FROM THE BUNDLE + the fill-regression gate.
   #
@@ -201,9 +215,13 @@ jobs:
           # SCALING_TIERS, "a drifted rung would move every player's difficulty floor by a tier with
           # nothing to say so") and the dark-feature gate. Its first real run found TEN undeclared
           # client reads.
+          # wizard_blob_sync added 2026-07-29: the AP-free half of the wizard gate. It proves the
+          # two committed wizard artifacts agree with EACH OTHER (pure text, no AP import), so it
+          # runs in this job as well as `tests`. It deliberately cannot tell you both are stale
+          # against the docstrings -- that is --check's job, over in `tests`.
           for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe \
                    scaling_ladder_mirror client_contract_paths client_can_sell_mirror \
-                   client_resets_are_called; do
+                   client_resets_are_called wizard_blob_sync; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
             # `python x.py` exits nonzero on failure; pipefail-less bash would swallow it
