@@ -77,12 +77,24 @@ EXPECTED = {
     # and data.py already names the AP shop check sitting on the adjacent flags. So bracket the
     # shelf's flag with its named neighbours and read the seller off those -- checkable from
     # committed files, unlike a prefix.
+    #
+    # 🛑 IT IS STILL A NEAREST-NEIGHBOUR INFERENCE, AND ITS PREMISE IS OURS. ShopLineupParam has no
+    # seller column, so "flags run sequentially within a merchant" is our reading of the game's
+    # numbering, not a cited datum (CONTRIBUTING, Constraint ownership: the owner here is US).
+    # MEASURED 2026-07-30 over data.py's 519 "- from <seller>" checks: 100 of 518 adjacent
+    # named-flag pairs CHANGE seller, so a bracket straddles a merchant boundary about 19% of the
+    # time. f110040 brackets cleanly (f110030/f110050 agree); f190840 and f220670 straddle, which is
+    # why they stay unattributed below. Treat a one-sided bracket as UNVERIFIED, not as a name.
     100104: "Glass Shard",                # Patches/Thiollier, Roundtable Hold: flag 110040 is
                                           # bracketed by f110030 and f110050, both named
                                           # "from Patches or Thiollier" in data.py
-    100225: "Somber Smithing Stone [1]",  # Smithing Master Iji, Liurnia: flags 120250/120260 sit
-    100226: "Somber Smithing Stone [2]",  # directly below f120270/f120280, both named
-                                          # "from Smithing Master Iji" in data.py
+    100225: "Somber Smithing Stone [1]",  # Smithing Master Iji, Liurnia -- CONFIRMED in-game
+    100226: "Somber Smithing Stone [2]",  # 2026-07-30: Alaric's screenshots show both rows in Iji's
+                                          # menu. That screenshot is the warrant, NOT the flag
+                                          # bracket: f120270/f120280 name Iji ABOVE these two, but
+                                          # the nearest named flag BELOW is f120020, Sorcerer Rogier,
+                                          # 230 flags away. One-sided, so it would not have carried
+                                          # this on its own.
     100507: "Throwing Dagger",          # Kale -- CONFIRMED in-game 2026-07-29: this slot showed the
                                         # seed's reroll (Fire Grease, 1000) in his shop screenshot.
     100601: "Kukri",
