@@ -63,10 +63,18 @@ def _materialize():
 #   comment that they are reachable. 600020/600022 sell goods 15390/15210, which are non-AP crafting
 #   materials absent from ITEM_CATALOG -- a name lookup on them returns nothing, which is not a bug.
 EXPECTED = {
-    100104: "Glass Shard (Kale)",
-    100225: "Somber Smithing Stone [1] (Iji)",
-    100226: "Somber Smithing Stone [2] (Iji)",
-    100507: "Throwing Dagger",
+    # 🛑 THE WARE NAME IS DERIVED (equipId -> ITEM_CATALOG) AND IS THE THING UNDER TEST. Any
+    # merchant attribution in a comment is NOT derived -- ShopLineupParam has no seller column, and
+    # a 100Nxx block is not one merchant (block 1001xx holds Patches' Margit's Shackle AND night
+    # sorceries). I guessed two of these from the block prefix on 2026-07-29 and got both wrong:
+    # called 100104 "Kale" and 1002xx "Iji", then sent Alaric to Kale's shop to look for a rune that
+    # was never routed there. Kale is 100507. Attributions below are marked with their basis.
+    100104: "Glass Shard",              # block also holds Margit's Shackle / Rya's Necklace / Boiled
+                                        # Crab -> Patches' inventory. INFERRED, not verified in-game.
+    100225: "Somber Smithing Stone [1]",  # unlimited Somber [1]/[2] behind a bell-bearing stock flag
+    100226: "Somber Smithing Stone [2]",  # = Twin Maiden Husks (Alaric named these rows himself)
+    100507: "Throwing Dagger",          # Kale -- CONFIRMED in-game 2026-07-29: this slot showed the
+                                        # seed's reroll (Fire Grease, 1000) in his shop screenshot.
     100601: "Kukri",
     100742: "Festering Bloody Finger",
     100801: "Poisonbone Dart",
