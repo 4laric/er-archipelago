@@ -131,6 +131,18 @@ git config core.hooksPath tools/hooks                                    # enabl
 
 Repo is ~83M; `--no-recurse-submodules` keeps it light.
 
+**If you only need to READ or edit a file or two, do not clone 83M.** The sandbox `/` is disk-capped
+and usually >95% full, and a second full clone can fail mid-way and leave an unremovable tree owned
+by `nobody`. A blobless sparse clone is ~300K and pushes normally:
+
+```bash
+git clone --depth 1 --single-branch -b main --filter=blob:none --no-checkout \
+    https://github.com/4laric/er-archipelago.git ~/work/er-doc
+cd ~/work/er-doc && git sparse-checkout init --no-cone && git sparse-checkout set AGENTS.md
+git checkout main
+```
+(2026-07-30: used exactly this to edit AGENTS.md when a full clone would not fit.)
+
 ## 4. The Rust client is a separate repo
 
 The client lives in submodule `from-software-archipelago-clients` (crate
@@ -145,7 +157,14 @@ This section used to say flatly "`cargo build`/`test` runs on Windows". **That i
 2026-07-11 it cost **three** build round-trips on nothing but wrong symbol names. Two ways to get a
 compile check without touching the Windows box:
 
-**1. CI is the cheap one — it gates `push` to `main`.**
+**1. CI is the cheap one — but ONLY on `main` or a PR. A side-branch push runs NOTHING.**
+
+> ⚠️ **Corrected 2026-07-30.** The heading below used to read "it gates `push` to `main`" and the
+> paragraph promised "a `.rs` push buys a full Windows build + test + fmt + clippy for free". True
+> for `main`; **false for every other branch**, and the difference is invisible — a side-branch push
+> succeeds, no run appears, and nothing says why. The triggers are `pull_request`, `push: [main]`,
+> and `workflow_dispatch`, so for work on a branch **open the PR** and the `pull_request` trigger
+> gives you the same four gates. Cost when missed: a green-looking push with no compile check at all.
 `from-software-archipelago-clients/.github/workflows/test.yaml` runs on `windows-latest` on every
 **push to `main`** (and `workflow_dispatch`), in this order: `cargo build`, then
 `cargo test -p er-codec -p er-semver -p er-logic -p eldenring-archipelago`, then `cargo fmt -- --check`,
@@ -155,7 +174,18 @@ trigger on `pull_request` **only**, so pushes straight to `main` sailed past it;
 format nit, or a clippy lint all come back red.
 ✅ **You CAN read that run from the agent sandbox — so READ IT.** (Corrected 2026-07-25; this block
 used to say `api.github.com` "is not reachable here — it 502s through the egress proxy". It is
-reachable, and for these PUBLIC repos it needs **no token at all**.)
+reachable, and for these PUBLIC repos an occasional read needs **no token**.)
+
+⚠️ **Two API facts added 2026-07-30, both learned the expensive way:**
+- **Unauthenticated reads RATE-LIMIT to 403 after roughly ten calls**, and a 403 here looks exactly
+  like the "access not enabled" refusal below. Poll a run's status with
+  `-H "Authorization: Bearer $PAT"` from the start and the ambiguity never arises.
+- ⭐ **REST WRITES WORK with a PAT.** `POST /repos/<owner>/<repo>/pulls` returned **HTTP 201** and
+  opened a real PR from the sandbox. A 2026-07-23 note claimed every `api.github.com` write was
+  403-gated by the egress proxy "REGARDLESS of the PAT", and that claim had already bought one
+  hand-built PowerShell workaround. **Try the call before you build the workaround** (see rule 5,
+  *RUN the tool, do not read it* — it applies to claims about the environment too, including the
+  ones written in this file).
 
 ```bash
 curl -s "https://api.github.com/repos/4laric/from-software-archipelago-clients/actions/runs?branch=main&per_page=3" \
