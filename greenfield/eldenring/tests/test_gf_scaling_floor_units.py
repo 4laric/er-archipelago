@@ -114,11 +114,24 @@ def _ceiling_tier(mult, ladder=scaling_ladder.SCALING_HP_LADDER):
     return hits[-1] if hits else 0
 
 
-def test_ceiling_option_is_reachable_and_defaults_to_uncapped():
+def test_ceiling_option_is_reachable_and_defaults_to_auto():
+    """Default changed 100 -> `auto` on 2026-07-30 (cap the curve to the LENGTH of the run). The
+    guarantee the old assertion was protecting is NOT the literal 100 -- it is that a seed nobody
+    configured stays uncapped, and that is pinned below and in
+    test_an_uncapped_seed_demands_nothing_of_the_client."""
     assert "maximum_enemy_difficulty" not in defaults.FROZEN_OPTIONS
     assert sc.Scaling.OPTIONS["maximum_enemy_difficulty"] is sc.MaximumEnemyDifficulty
-    assert sc.MaximumEnemyDifficulty.default == 100, "default must be no cap"
+    assert sc.MaximumEnemyDifficulty.default == scaling_ladder.AUTO_CEILING, "default must be auto"
+    assert sc.MaximumEnemyDifficulty.special_range_names == {"auto": scaling_ladder.AUTO_CEILING}
     assert sc.MaximumEnemyDifficulty.range_start == 0
+
+
+def test_auto_on_a_full_map_is_still_uncapped():
+    """The compatibility promise, at the unit level: num_regions 0 means ALL regions, so a yaml that
+    configures nothing resolves to 100 -- no cap, and therefore no client-feature handshake."""
+    assert scaling_ladder.auto_ceiling_pct(0, 30) == 100
+    assert scaling_ladder.resolve_max_difficulty_pct(
+        scaling_ladder.AUTO_CEILING, 0, 30, 0) == 100
 
 
 @pytest.mark.parametrize("pct", [0, 25, 50, 75, 100])
