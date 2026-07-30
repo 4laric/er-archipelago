@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "238cc34534a69ac4d535bcd65bf3ccfcd747484f985a9d71e8c653111dc154d8",
+ "source_sha256": "748b6c02cfbc916fdbcb017054a6ef7b969acdaca2891ea0b7e05c8410b17e0a",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -149,6 +149,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
   "reroll_infinite_shop_stock",
+  "infinite_hub_wares",
   "merchant_bell_logic",
   "start_with_whetblades"
  ],
@@ -184,6 +185,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
   "reroll_infinite_shop_stock",
+  "infinite_hub_wares",
   "merchant_bell_logic",
   "start_with_whetblades"
  ],
@@ -773,6 +775,21 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": null,
    "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false
+  },
+  {
+   "key": "infinite_hub_wares",
+   "class": "InfiniteHubWares",
+   "display_name": "Infinite Hub Wares",
+   "description": "Wares the hub merchant always stocks, unlimited, instead of leaving the shelf to the reroll.\n\nGive item names exactly as the randomiser knows them, e.g.\n\n    infinite_hub_wares: [\"Rune Arc\", \"Larval Tear\"]\n\nUp to FOUR: that is how many browsable unlimited shelves the hub has, and asking for more is\nrejected at generation with a message rather than silently dropping the extras. Each ware is sold\nat its own derived price, so a shelf never becomes a free dispenser.\n\nEmpty by default -- a fresh yaml generates exactly as it did before this option existed. Worth a\nthought before filling it: unlimited Larval Tears is unlimited respec, and unlimited Rune Arcs is\na permanent great-rune buff. Both are real changes to how a run plays.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [],
    "casefold": false,
    "group": null,
    "group_collapsed": false
