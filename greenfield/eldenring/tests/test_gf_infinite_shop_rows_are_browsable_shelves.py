@@ -64,15 +64,25 @@ def _materialize():
 #   materials absent from ITEM_CATALOG -- a name lookup on them returns nothing, which is not a bug.
 EXPECTED = {
     # 🛑 THE WARE NAME IS DERIVED (equipId -> ITEM_CATALOG) AND IS THE THING UNDER TEST. Any
-    # merchant attribution in a comment is NOT derived -- ShopLineupParam has no seller column, and
-    # a 100Nxx block is not one merchant (block 1001xx holds Patches' Margit's Shackle AND night
-    # sorceries). I guessed two of these from the block prefix on 2026-07-29 and got both wrong:
-    # called 100104 "Kale" and 1002xx "Iji", then sent Alaric to Kale's shop to look for a rune that
-    # was never routed there. Kale is 100507. Attributions below are marked with their basis.
-    100104: "Glass Shard",              # block also holds Margit's Shackle / Rya's Necklace / Boiled
-                                        # Crab -> Patches' inventory. INFERRED, not verified in-game.
-    100225: "Somber Smithing Stone [1]",  # unlimited Somber [1]/[2] behind a bell-bearing stock flag
-    100226: "Somber Smithing Stone [2]",  # = Twin Maiden Husks (Alaric named these rows himself)
+    # merchant attribution must be DERIVED too. ShopLineupParam has no seller column, and a 100Nxx
+    # block is not one merchant -- 1001xx holds Patches' Margit's Shackle AND Sage Gowry's night
+    # sorceries.
+    #
+    # I got this wrong TWICE on 2026-07-29 by reading the seller off the row prefix. First I called
+    # 100104 "Kale" (it is Patches) and sent Alaric to the wrong shop. Then, correcting that, I
+    # called 1002xx "Twin Maiden Husks" when the original "Iji" had been RIGHT, and sent him to a
+    # second wrong shop. A confident correction is still a guess if its BASIS has not changed.
+    #
+    # THE DERIVATION these now rest on: within a merchant block the stock flag runs sequentially,
+    # and data.py already names the AP shop check sitting on the adjacent flags. So bracket the
+    # shelf's flag with its named neighbours and read the seller off those -- checkable from
+    # committed files, unlike a prefix.
+    100104: "Glass Shard",                # Patches/Thiollier, Roundtable Hold: flag 110040 is
+                                          # bracketed by f110030 and f110050, both named
+                                          # "from Patches or Thiollier" in data.py
+    100225: "Somber Smithing Stone [1]",  # Smithing Master Iji, Liurnia: flags 120250/120260 sit
+    100226: "Somber Smithing Stone [2]",  # directly below f120270/f120280, both named
+                                          # "from Smithing Master Iji" in data.py
     100507: "Throwing Dagger",          # Kale -- CONFIRMED in-game 2026-07-29: this slot showed the
                                         # seed's reroll (Fire Grease, 1000) in his shop screenshot.
     100601: "Kukri",
