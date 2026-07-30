@@ -37,6 +37,31 @@ They are different filesystems. `Edit` writes the mount; `bash` sees the sandbox
 > against a mount path will invent corruption that isn't there (see §6). Read git blobs instead:
 > `git show origin/main:<path>`.
 
+> ### 🛑 SUBAGENTS DO NOT INHERIT THIS BAN. Restate it in every brief.
+>
+> A subagent gets your prompt, not this file. If you do not name the ban, it will find the mount by
+> `find`/`ls` and read it — the mount path is discoverable and looks like a normal checkout.
+>
+> **This happened on 2026-07-30.** A survey agent was asked to audit the client for unguarded
+> pointer derefs, read the tree through
+> `/sessions/<session>/mnt/er-archipelago/from-software-archipelago-clients`, and reported it as
+> *"identical tree"* to the sandbox clone. Two of its findings were **false**: it reported the
+> boss-sweep flag flush as having no read-back (it calls `sweep_flush::retire`, which is exactly a
+> read-back) and `marker::commit` as issuing 66 flag writes per frame (it is idempotent once
+> committed). Both were caught only because the findings were re-verified against the clean clone
+> before anything was built on them. Guards against non-problems would otherwise have shipped.
+>
+> So, two rules:
+>
+> 1. **Put the ban in the brief, with the path**, e.g. *"🛑 Never read `/sessions/*/mnt/er-archipelago`
+>    — that is Alaric's live Windows tree and it serves silently TRUNCATED files. Work only in
+>    `<your sandbox clone>`."* Also give the agent the clone path it SHOULD use, or it will go
+>    looking.
+> 2. **Re-verify anything load-bearing a subagent returns**, against the clone, before you act on
+>    it — the same standard §7 sets for your own claims. A subagent's citation is a lead, not a
+>    fact; a truncated read produces confident, well-formatted, wrong file:line evidence, which is
+>    the exact failure mode CONTRIBUTING's "silent wrong answer" section is about.
+
 ## 2. Which branch is live CHANGES — verify it, never trust this line
 
 **`main` is the trunk on both repos.** But feature work does not always live there, and *this section

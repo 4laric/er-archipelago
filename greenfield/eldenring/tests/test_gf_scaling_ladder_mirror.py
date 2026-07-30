@@ -202,5 +202,97 @@ class ScalingLadderMirror(unittest.TestCase):
         self.assertEqual(rt(5, 10, 10000, 500), rt(5, 10, 10000, 100), "ramp >100 clamps to 100")
 
 
+class AutoDifficultyCeiling(unittest.TestCase):
+    """`maximum_enemy_difficulty: auto` -- the cap derived from the LENGTH of the run.
+
+    Enemy scaling is RELATIVE (a region's position in the unlock order, normalized so the deepest
+    kept region tops out) while player power is ABSOLUTE (Somber +10 needs a Somber [9]). So a short
+    seed reaches "the end of the run" against endgame-strength enemies with mid-game gear, and
+    FEWER regions makes the ramp steeper. `auto` lowers the top of the curve instead.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_ladder()
+
+    def test_five_regions_is_the_old_cap_plus_exactly_one_rung(self):
+        """THE MOTIVATING CASE, by name (CONTRIBUTING rule 11). Alaric playtested the pre-2026-07-27
+        ladder -- which topped out at 3.703x -- and said of num_regions 5: "felt pretty close, if it
+        was a bit harder we get there". So `auto` at 5 regions must land ONE rung above 3.703x."""
+        m = self.mod
+        ladder = m.SCALING_HP_LADDER
+        old_top = 3.703
+        self.assertIn(old_top, ladder, "the old ladder's top rung is gone from the ladder")
+        old_rung = ladder.index(old_top)
+        pct = m.auto_ceiling_pct(5, 30)
+        got = m.ceiling_multiplier(pct)
+        self.assertEqual(ladder.index(got), old_rung + 1,
+                         "auto at 5 regions gave %.3fx (rung %d); the old cap was %.3fx (rung %d) "
+                         "and 'a bit harder' means exactly one rung above it"
+                         % (got, ladder.index(got), old_top, old_rung))
+
+    def test_num_regions_zero_means_ALL_regions_not_none(self):
+        """THE TRAP. core.NumRegions: "0 = all regions (full Shattering)". Read as zero, the cube root
+        returns pct 0 -- the BOTTOM rung -- which would cap every enemy in a default seed at 1.141x
+        and make the whole game trivial while looking like a tuning change."""
+        m = self.mod
+        self.assertEqual(m.auto_ceiling_pct(0, 30), 100,
+                         "num_regions 0 must mean ALL regions, i.e. an uncapped run")
+        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(0, 30)), m.SCALING_HP_LADDER[-1])
+
+    def test_a_full_map_is_unchanged(self):
+        """No silent behaviour change for the seeds people already play: 30 of 30 is still uncapped."""
+        m = self.mod
+        self.assertEqual(m.auto_ceiling_pct(30, 30), 100)
+        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(30, 30)), m.SCALING_HP_LADDER[-1])
+
+    def test_the_curve_is_monotonic_in_run_length(self):
+        """A longer run may never be capped lower than a shorter one."""
+        m = self.mod
+        pcts = [m.auto_ceiling_pct(n, 30) for n in range(1, 31)]
+        for a, b in zip(pcts, pcts[1:]):
+            self.assertLessEqual(a, b, "auto is not monotonic: %r" % pcts)
+
+    def test_multiplier_space_would_have_been_a_NO_OP(self):
+        """WHY THE CURVE IS IN INDEX SPACE, pinned so nobody 'simplifies' it back.
+
+        The client's search takes the last rung NO STRONGER than the value. The multiplier-space
+        answer for 5 regions is 7.422 * (5/30)**(1/3) = 4.084x, which resolves DOWN to rung 9 --
+        3.703x, the OLD cap. That version of this function would have shipped a change that did
+        nothing at all and looked correct in review."""
+        m = self.mod
+        naive = m.SCALING_HP_LADDER[-1] * (5.0 / 30.0) ** (1.0 / 3.0)
+        self.assertEqual(m.tier_for_ceiling_multiplier(naive),
+                         m.SCALING_HP_LADDER.index(3.703),
+                         "the multiplier-space target no longer collapses onto the old cap; if the "
+                         "ladder changed, re-derive the curve rather than deleting this test")
+        self.assertNotEqual(m.ceiling_multiplier(m.auto_ceiling_pct(5, 30)),
+                            m.SCALING_HP_LADDER[m.tier_for_ceiling_multiplier(naive)])
+
+    def test_auto_never_lands_below_an_explicit_floor(self):
+        """The player typed the floor and did NOT type the ceiling, so the floor wins and generation
+        proceeds. Failing a seed over a value nobody chose would be the wrong call."""
+        m = self.mod
+        self.assertEqual(m.resolve_max_difficulty_pct(m.AUTO_CEILING, 5, 30, 80), 80)
+        self.assertEqual(m.resolve_max_difficulty_pct(m.AUTO_CEILING, 5, 30, 0),
+                         m.auto_ceiling_pct(5, 30))
+
+    def test_explicit_values_pass_straight_through(self):
+        m = self.mod
+        for pct in (0, 25, 50, 75, 100):
+            self.assertEqual(m.resolve_max_difficulty_pct(pct, 5, 30, 0), pct)
+
+    def test_the_sentinel_can_never_be_read_as_a_percent(self):
+        m = self.mod
+        self.assertTrue(m.AUTO_CEILING < 0, "auto must sit outside 0..100")
+
+    def test_a_nonsense_total_raises_instead_of_answering(self):
+        """A derivation that cannot answer must FAIL, not answer (CONTRIBUTING rule 1)."""
+        m = self.mod
+        for bad in (0, -3):
+            with self.assertRaises(ValueError):
+                m.auto_ceiling_pct(5, bad)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

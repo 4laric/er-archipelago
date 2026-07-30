@@ -262,19 +262,25 @@ Elden Ring:
   #   100   everything at maximum, everywhere, immediately
   minimum_enemy_difficulty: 0
 
-  # How hard the TOUGHEST enemies get. 100 lets your deepest region reach the
-  # game's own maximum -- roughly 7.4x enemy HP, what vanilla saves for its
-  # endgame. Lower it to cap the whole run below that.
-  #   100   no cap                                        (default)
+  # How hard the TOUGHEST enemies get.
+  #  auto   scale the cap to the LENGTH of your run        (default)
+  #   100   no cap -- your deepest region reaches the game's own maximum,
+  #         roughly 7.4x enemy HP, what vanilla saves for its endgame
   #    75   nothing above about 5.5x enemy HP
   #    50   nothing above about 4x
   #    25   nothing above about 2x
-  # Worth a look on a SHORT seed: with few regions, the deepest one arrives fast
-  # but is still "the end of your run", so it is scaled like one -- endgame
-  # enemies on a +6 weapon. Must be >= minimum_enemy_difficulty.
-  # NOTE: setting this below 100 needs an up-to-date client. An older one will
-  # refuse the seed and say so, rather than quietly ignoring the cap.
-  maximum_enemy_difficulty: 100
+  # `auto` is here because the curve is relative and your gear is not. Scaling
+  # ramps over the ORDER your regions unlock, so the deepest one is "the end of
+  # the run" whether that is 30 regions or 5 -- but Somber +10 still needs a
+  # Somber [9]. On a short seed you meet endgame enemies on a mid-game weapon,
+  # and FEWER regions makes the ramp steeper, not gentler. auto lowers the top
+  # of the curve with the length of the run: about 4.1x at 5 regions, the full
+  # 7.4x at 30. Give a number instead to choose the cap yourself.
+  # Must be >= minimum_enemy_difficulty (auto is raised to it rather than
+  # failing the seed, since you did not choose the cap).
+  # NOTE: a cap below 100 needs an up-to-date client. An older one refuses the
+  # seed and says so, rather than quietly ignoring the cap.
+  maximum_enemy_difficulty: auto
 
   # How QUICKLY you reach the hardest enemies. This does not change how hard the
   # hardest enemies are -- it changes how much of the run is spent below them.

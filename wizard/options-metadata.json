@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "748b6c02cfbc916fdbcb017054a6ef7b969acdaca2891ea0b7e05c8410b17e0a",
+ "source_sha256": "df181dd0074abb3dbcd97b9872dc3c17fe7397d4aa8bf13b7eb037295a86d6cb",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -91,7 +91,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "num_regions_order",
@@ -115,7 +116,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "ending_condition",
@@ -139,7 +141,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "goal_great_runes",
@@ -157,7 +160,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "enable_dlc",
@@ -172,7 +176,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "dlc_only",
@@ -187,7 +192,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "dungeon_sweep",
@@ -219,7 +225,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "capital_reconciler",
@@ -234,7 +241,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "death_link",
@@ -249,7 +257,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "reroll_enemy_drops",
@@ -264,7 +273,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "curated_filler",
@@ -289,7 +299,8 @@
    "valid_keys": [],
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "pool_builder_intensity",
@@ -317,7 +328,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "pool_builder_pct_weapons",
@@ -335,7 +347,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "pool_builder_pct_armor",
@@ -353,7 +366,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "pool_builder_pct_spells",
@@ -371,7 +385,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "pool_builder_pct_talismans",
@@ -389,7 +404,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "pool_builder_pct_ashes_of_war",
@@ -407,7 +423,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "filler_foreign_pct",
@@ -425,7 +442,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "region_grace_unlock",
@@ -453,7 +471,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "leyndell_runes_required",
@@ -471,7 +490,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "progressive_flasks",
@@ -486,7 +506,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "local_item_only",
@@ -501,7 +522,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "exclude_local_item_only",
@@ -523,7 +545,8 @@
    ],
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "natural_progression",
@@ -538,7 +561,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "progression_surface",
@@ -578,7 +602,8 @@
    ],
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "confine_foreign_progression",
@@ -593,7 +618,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "minimum_enemy_difficulty",
@@ -611,16 +637,17 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "maximum_enemy_difficulty",
    "class": "MaximumEnemyDifficulty",
    "display_name": "Maximum Enemy Difficulty",
-   "description": "How hard the TOUGHEST enemies get. 100 (default) lets the deepest region of your run reach the\ngame's own maximum -- about 7.4x enemy HP, the strength vanilla reserves for its endgame. Lower\nit to cap the whole run below that.\n\n  100  no cap -- the deepest region hits maximum          (default)\n   75  nothing above about 5.5x enemy HP\n   50  nothing above about 4x\n   25  nothing above about 2x\n\nWorth considering on a SHORT seed: with few regions in play, the deepest one is reached quickly\nbut still counts as \"the end of your run\", so it is scaled as such -- you can meet endgame-\nstrength enemies on a +6 weapon. Capping here keeps the curve's shape and just lowers its top.\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
+   "description": "How hard the TOUGHEST enemies get.\n\n  auto  scale the cap to the LENGTH of your run        (default)\n   100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP\n    75  nothing above about 5.5x enemy HP\n    50  nothing above about 4x\n    25  nothing above about 2x\n\n`auto` exists because the curve is relative and your gear is not. Scaling ramps over the ORDER\nyour regions unlock, so the deepest one is \"the end of the run\" whether that is 30 regions or 5 --\nbut Somber +10 still needs a Somber [9]. On a short seed you therefore meet endgame-strength\nenemies on a mid-game weapon, and fewer regions makes the ramp steeper rather than gentler.\n`auto` lowers the top of the curve with the length of the run: about 4.1x at 5 regions, the full\n7.4x at 30. Give a number instead to pick the cap yourself.\n\n⚠️ The `auto` curve has ONE playtested point -- about 3.7x at 5 regions, where the ladder used to\ntop out. Above that it is extrapolation, so treat the high end as untested.\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
    "kind": "range",
-   "base": "Range",
-   "default": 100,
+   "base": "NamedRange",
+   "default": -1,
    "choices": null,
    "range": {
     "start": 0,
@@ -629,7 +656,13 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": [
+    {
+     "name": "auto",
+     "value": -1
+    }
+   ]
   },
   {
    "key": "difficulty_ramp_speed",
@@ -647,7 +680,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "reroll_infinite_shop_stock",
@@ -662,7 +696,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "infinite_hub_wares",
@@ -677,7 +712,8 @@
    "valid_keys": [],
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "merchant_bell_logic",
@@ -701,7 +737,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "start_with_whetblades",
@@ -716,7 +753,8 @@
    "valid_keys": null,
    "casefold": false,
    "group": null,
-   "group_collapsed": false
+   "group_collapsed": false,
+   "special_values": null
   }
  ],
  "presets": [

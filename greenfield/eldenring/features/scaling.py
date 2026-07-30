@@ -31,12 +31,13 @@ raises on duplicate keys).
 """
 import random
 
-from Options import Range, Choice, Removed, OptionError
+from Options import Range, Choice, Removed, OptionError, NamedRange
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from .. import contract
-from ..scaling_ladder import (SCALING_HP_LADDER, ceiling_multiplier,  # noqa: F401 (re-export)
+from ..scaling_ladder import (AUTO_CEILING, SCALING_HP_LADDER, ceiling_multiplier,  # noqa: F401 (re-export)
                               floor_multiplier, ramped_target,
+                              resolve_max_difficulty_pct,
                               tier_for_ceiling_multiplier, tier_for_floor_multiplier)
 from .area_locks import REGION_PLAY_IDS
 
@@ -294,19 +295,45 @@ class CompletionScalingRamp(Removed):
     """Renamed to `difficulty_ramp_speed` -- and INVERTED: higher is now harder."""
 
 
-class MaximumEnemyDifficulty(Range):
-    """How hard the TOUGHEST enemies get. 100 (default) lets the deepest region of your run reach the
-    game's own maximum -- about 7.4x enemy HP, the strength vanilla reserves for its endgame. Lower
-    it to cap the whole run below that.
+def resolved_max_difficulty(world):
+    """`maximum_enemy_difficulty` as a PERCENT, with `auto` resolved. THE single call site.
 
-      100  no cap -- the deepest region hits maximum          (default)
-       75  nothing above about 5.5x enemy HP
-       50  nothing above about 4x
-       25  nothing above about 2x
+    🛑 THREE consumers compare this value and every one of them was a separate bug when they read the
+    RAW option instead: generate_early's floor/ceiling validation (a -1 sentinel is below every floor,
+    so it raised OptionError on every default seed), slot_data's client-feature handshake (-1 < 100,
+    so every default seed demanded a client that understands capping -- a compatibility break for
+    everyone, caught by test_an_uncapped_seed_demands_nothing_of_the_client), and core._options_echo's
+    emitted cap. They now all route here, so the validated value, the declared dependency and the
+    wire cannot disagree.
+    """
+    nr = getattr(world.options, "num_regions", None)
+    # total comes off the option's own bound: NumRegions.range_end == len(REGIONS), so it cannot
+    # drift from the region list the way a literal would.
+    return resolve_max_difficulty_pct(
+        int(world.options.maximum_enemy_difficulty.value),
+        int(nr.value) if nr is not None else 0,
+        int(nr.range_end) if nr is not None else 30,
+        int(world.options.minimum_enemy_difficulty.value))
 
-    Worth considering on a SHORT seed: with few regions in play, the deepest one is reached quickly
-    but still counts as "the end of your run", so it is scaled as such -- you can meet endgame-
-    strength enemies on a +6 weapon. Capping here keeps the curve's shape and just lowers its top.
+
+class MaximumEnemyDifficulty(NamedRange):
+    """How hard the TOUGHEST enemies get.
+
+      auto  scale the cap to the LENGTH of your run        (default)
+       100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP
+        75  nothing above about 5.5x enemy HP
+        50  nothing above about 4x
+        25  nothing above about 2x
+
+    `auto` exists because the curve is relative and your gear is not. Scaling ramps over the ORDER
+    your regions unlock, so the deepest one is "the end of the run" whether that is 30 regions or 5 --
+    but Somber +10 still needs a Somber [9]. On a short seed you therefore meet endgame-strength
+    enemies on a mid-game weapon, and fewer regions makes the ramp steeper rather than gentler.
+    `auto` lowers the top of the curve with the length of the run: about 4.1x at 5 regions, the full
+    7.4x at 30. Give a number instead to pick the cap yourself.
+
+    ⚠️ The `auto` curve has ONE playtested point -- about 3.7x at 5 regions, where the ladder used to
+    top out. Above that it is extrapolation, so treat the high end as untested.
 
     Must be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than
     quietly picking one.
@@ -316,7 +343,8 @@ class MaximumEnemyDifficulty(Range):
     display_name = "Maximum Enemy Difficulty"
     range_start = 0
     range_end = 100
-    default = 100
+    special_range_names = {"auto": AUTO_CEILING}
+    default = AUTO_CEILING
 
 
 class DifficultyRampSpeed(Range):
@@ -389,8 +417,14 @@ class Scaling(Feature):
         because it is a pure fn reachable from foreign slot_data -- but a player who typed these two
         numbers deserves to be told, not silently corrected."""
         lo = int(world.options.minimum_enemy_difficulty.value)
-        hi = int(world.options.maximum_enemy_difficulty.value)
-        if lo > hi:
+        raw = int(world.options.maximum_enemy_difficulty.value)
+        # Resolved through the SAME function core._options_echo uses, so validation and the emitted
+        # cap cannot disagree. It also matters for correctness, not tidiness: comparing the raw `auto`
+        # sentinel (-1) against a floor would raise on EVERY DEFAULT SEED, since every floor exceeds
+        # -1. total_regions comes off the option's own bound (NumRegions.range_end == len(REGIONS)),
+        # which cannot drift from it.
+        hi = resolved_max_difficulty(world)
+        if raw != AUTO_CEILING and lo > hi:
             raise OptionError(
                 f"minimum_enemy_difficulty ({lo}) is above maximum_enemy_difficulty ({hi}) -- the "
                 f"weakest enemies would be stronger than the strongest. Set the minimum at or below "
@@ -432,7 +466,9 @@ class Scaling(Feature):
         # the ceiling is the top rung, which is what tier_for_target clamped to anyway, so a default
         # seed connects to any client. See er_logic::client_features for why the contract hash does
         # not cover this (it folds in CONTRACT, not OPTIONS_SUBKEYS).
-        if int(world.options.maximum_enemy_difficulty.value) < 100:
+        # RESOLVED, not raw: `auto` is -1, and -1 < 100, so reading the raw value here declared the
+        # dependency on EVERY default seed. `auto` on a full map resolves to 100 and demands nothing.
+        if resolved_max_difficulty(world) < 100:
             out[contract.REQUIRES_CLIENT_FEATURES] = ["scaling_ceiling"]
         if set(kept_regions) & DLC_REGIONS:
             buckets = dlc_region_buckets(kept_regions)
