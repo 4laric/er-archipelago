@@ -4521,40 +4521,67 @@ for _i, _r in enumerate(rows):
         _eid, _et = _goods[0]
         SHOP_PREVIEW_GOODS[str(_aid)] = _eid | _CAT_NIB.get(_et, 0x40000000)
 # ---- INFINITE-STOCK SHOP ROWS + a DERIVED price for every good ------------------------------------
-# 455 ShopLineupParam rows have NO eventFlag_forStock, and every one of them is sellQuantity == -1
-# (unlimited). No flag means no way to observe a purchase, so they can never be AP CHECKS -- but they are
-# not a bug either: nothing touches them today and they just sell their vanilla ware forever (this is why
-# Kale still sells you a vanilla Flail). Alaric's idea (2026-07-11): don't make them checks -- REROLL them
-# per seed to a high-impact consumable, so each seed a merchant stocks an INFINITE supply of some good.
-# Goods only, deliberately: infinite stock is only interesting for things you CONSUME ("I don't need 30
-# flails").
+# THE DATUM. A browsable, unlimited-stock merchant shelf is a ShopLineupParam row with:
+#     equipType == 3 (goods) | mtrlId == -1 (consumes no material) | costType == 0 (priced in RUNES)
+#     sellQuantity == -1 (unlimited) | eventFlag_forRelease == 0 (present without a release flag)
+#     eventFlag_forStock > 0 | equipId > 0
+# There are 14. Alaric's idea (2026-07-11): reroll them per seed to a high-impact consumable, so each
+# seed a merchant stocks an infinite supply of something worth having. Goods only, deliberately --
+# infinite stock is only interesting for what you CONSUME ("I don't need 30 flails").
 #
-# PRICE IS LOad-BEARING, not a nicety. Those 455 rows carry the price of the item they USED to sell:
-#     116 Gem (Ash of War) rows cost 1 rune;  166 of the 332 armor rows are FREE.
-# Reroll a good into one of those at the inherited price and every seed ships an infinite free Rune Arc /
-# Stonesword Key / Golden Rune dispenser -- not a lucky find, a guaranteed dominant strategy. So the
-# client also rewrites `value`, and we derive the price from the item ITSELF, in this order:
+# 🛑 RETARGETED 2026-07-29, AND THE OLD TARGET WAS NOT MERELY WRONG, IT WAS DESTRUCTIVE. The predicate
+# used to be `eventFlag_forStock == 0`, which is the exact INVERSE of a shelf and selected 455 rows:
+#     332  ids 110000-111999, every one mtrlId != -1  -> the ALTER GARMENTS armour-conversion menu
+#     116  ids 112000-112999, every one costType == 4  -> ASH OF WAR DUPLICATION, priced in
+#                                                         **Lost Ashes of War**, not runes
+#       7  debug rows (value 100000, stock flag 0)
+# None is a shelf, and two of them back menus a player CAN open -- so rerolling them wrote consumables
+# into Boc's alteration list and the Roundtable duplication list, and wrote rune-derived prices onto
+# rows denominated in Lost Ashes. It also meant every below-value rune price a seed produced lived
+# somewhere unreachable, which is why a player reported three times over that shop runes were never a
+# good deal and was right for a reason nobody had found. See CONTRIBUTING rule 12.
+#
+# WHY THESE ROWS ARE STILL NEVER AP CHECKS -- file-truth only: the shop-check derivation requires
+# `eventFlag_forStock > 0 AND sellQuantity >= 1` (see the check-row block above), and these are
+# qty == -1. That is a statement about OUR derivation, not about the game: whether the game arms a
+# stock flag on an unlimited-stock purchase is unverified, which is what the disjointness assert
+# below is for.
+#
+# PRICE IS LOAD-BEARING, not a nicety. A shelf carries the price of the ware it USED to sell, so a
+# rolled consumable inheriting it would ship an infinite cheap Rune Arc / Stonesword Key dispenser --
+# not a lucky find, a guaranteed dominant strategy. So the client also rewrites `value`, derived from
+# the item ITSELF, in this order:
 #     1. what a VANILLA shop row charges for it   (the game's own answer; best source)
 #     2. EquipParamGoods.basicPrice
 #     3. sellValue * 10                            (median vanilla buy/sell ratio, n=149)
-# With the price written, cross-type rerolls are economically neutral by construction and no roster item
-# needs excluding on economy grounds.
 INFINITE_SHOP_ROWS = []
 GOODS_PRICE = {}                  # goods row id -> rune price
 if _slp_present:
     _vanilla_price = {}           # (equipType, equipId) -> cheapest vanilla shop price > 0
+    _check_stock_flags = set()    # stock flags that back a real shop CHECK (flag > 0 AND qty >= 1)
+    _infinite_stock_flags = set() # stock flags of the shelves we reroll
+    _infinite_rows_meta = {}      # row -> the six clause values, for the mirror asserts below
     for _sr in csv.DictReader(open(_SLP, encoding="utf-8-sig")):
         try:
             _et, _ei, _v = int(_sr.get("equipType", 3)), int(_sr["equipId"]), int(_sr["value"])
             _rid, _flag = int(_sr["ID"]), int(_sr["eventFlag_forStock"])
+            _mtrl = int(_sr.get("mtrlId", -1) or -1)
+            _cost = int(_sr.get("costType", 0) or 0)
+            _qty = int(_sr.get("sellQuantity", -1) or -1)
+            _rel = int(_sr.get("eventFlag_forRelease", 0) or 0)
         except (KeyError, ValueError):
             continue
         if _v > 0:
             _k = (_et, _ei)
             if _k not in _vanilla_price or _v < _vanilla_price[_k]:
                 _vanilla_price[_k] = _v
-        if _flag == 0:
+        if _flag > 0 and _qty >= 1:
+            _check_stock_flags.add(_flag)          # a shop CHECK, by the derivation above
+        if (_et == 3 and _mtrl == -1 and _cost == 0 and _qty == -1
+                and _rel == 0 and _flag > 0 and _ei > 0):
             INFINITE_SHOP_ROWS.append(_rid)
+            _infinite_stock_flags.add(_flag)
+            _infinite_rows_meta[_rid] = (_et, _mtrl, _cost, _qty, _rel, _flag)
     _goods_csv = os.path.join(_SLP_DIR, "EquipParamGoods.csv")
     if os.path.isfile(_goods_csv):
         for _gr in csv.DictReader(open(_goods_csv, encoding="utf-8-sig")):
@@ -4576,6 +4603,34 @@ if _slp_present:
             if _p > 0:
                 GOODS_PRICE[_gid] = _p
 INFINITE_SHOP_ROWS.sort()
+# ---- guards. One MIRROR per clause, so dropping a single clause dies here instead of shipping the
+# Alter-Garments set again. Plus three structural checks. An empty result is a FAILURE, not a clean run.
+if _slp_present:
+    for _r, (_et, _mtrl, _cost, _qty, _rel, _flag) in sorted(_infinite_rows_meta.items()):
+        assert _et == 3, "infinite shelf %d is equipType %d, not goods" % (_r, _et)
+        assert _mtrl == -1, ("infinite shelf %d has mtrlId %d -- it consumes a material, so it is an "
+                             "Alter-Garments/craft menu row, not a shelf" % (_r, _mtrl))
+        assert _cost == 0, ("infinite shelf %d has costType %d -- not priced in runes, so a "
+                            "rune-derived price would be the wrong UNIT (this is how 116 Lost-Ashes "
+                            "rows got in)" % (_r, _cost))
+        assert _qty == -1, "infinite shelf %d has sellQuantity %d, not unlimited" % (_r, _qty)
+        assert _rel == 0, "infinite shelf %d is release-gated (%d) -- absent until flagged" % (_r, _rel)
+        assert _flag > 0, "infinite shelf %d has no stock flag -- that is the OLD inverted predicate" % _r
+    assert 101801 not in INFINITE_SHOP_ROWS, (
+        "row 101801 is the minibaker's reserved Stonesword Key vendor slot (flag 60290); rerolling it "
+        "would fight that feature")
+    assert _infinite_stock_flags.isdisjoint(_check_stock_flags), (
+        "a shelf shares a stock flag with a shop CHECK: %s. Our derivation says qty==-1 cannot be a "
+        "check, but whether the GAME arms the flag on an unlimited purchase is unverified -- if these "
+        "ever overlap, a reroll could fire someone's check." % sorted(
+            _infinite_stock_flags & _check_stock_flags)[:5])
+    assert not [_r for _r in INFINITE_SHOP_ROWS if 110000 <= _r < 113000], (
+        "the Alter-Garments / AoW-duplication band (110000-112999) is back in the shelf set")
+    assert INFINITE_SHOP_ROWS and len(INFINITE_SHOP_ROWS) < 40, (
+        "expected a small browsable shelf set, got %d rows -- the predicate has loosened"
+        % len(INFINITE_SHOP_ROWS))
+    print("infinite_shop_rows: %d browsable goods shelves %s"
+          % (len(INFINITE_SHOP_ROWS), INFINITE_SHOP_ROWS))
 # ---- REROLLABLE ENEMY DROPS -----------------------------------------------------------------------
 # Same predicate as the infinite shop rows, on the other table: A LOT WITH NO FLAG CANNOT BE A CHECK, so
 # it is free to reroll. ItemLotParam_enemy splits cleanly:

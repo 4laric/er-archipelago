@@ -150,7 +150,12 @@ run rather than tune it.
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock`** (both on) -- reroll
   what farmable enemies drop and what unlimited-stock merchants sell. One-time
   drops -- the actual checks -- are untouched; this randomizes the repeatable
-  economy around them.
+  economy around them. The shop half covers the 14 unlimited *consumable*
+  shelves -- Kale's Glass Shards, Iji's Somber Smithing Stones, the
+  throwing-knife and poison-dart racks -- and prices each roll at what the new
+  item is worth, so a cheap shelf never becomes an infinite supply of something
+  game-breaking. **Arrow and bolt shelves are left alone**, so ammo builds keep
+  their supply line.
 - **`filler_foreign_pct` / `local_item_only`** -- multiworld manners: how much
   of your filler other worlds may draw from, and whether your real vanilla
   items always stay in your own world.
