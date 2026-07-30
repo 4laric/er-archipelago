@@ -9,6 +9,8 @@ Elden Ring:
   enable_dlc: true              # BASE GAME ONLY
   dlc_only: false
 
+  num_regions: 5                # number of regions to randomize (spine = Limgrave-first)
+
   # --- multiplayer / feel ---
   death_link: false               # co-op: you both die together. Flip to false if it gets too punishing.
   progressive_flasks: true       # Golden Seed/Sacred Tear checks -> auto charge upgrades + granted tears
