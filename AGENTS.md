@@ -183,10 +183,44 @@ change to those by inspection plus, if the risk is a type or symbol name, a thro
 typechecks the call against the real dependency version (e.g. `windows 0.62.2`). Do not report an
 un-built `eldenring-archipelago` change as "verified" — push it and let the Windows CI say so.
 
-**3. If you still cannot compile, ASK rather than guess.** The `eldenring` crate is **not vendored in the
-sandbox**, so its type and method names are unknowable from there. Guessing them is what burned the three
-round-trips. Ask Alaric to paste the relevant names once. Known-settled naming lives in the module doc
-comments of `check_lots.rs` / `enemy_drops.rs`:
+**3. READ THE PINNED CRATE SOURCE. It is right here, and this section used to say it wasn't.**
+
+⚠️ **Corrected 2026-07-30.** This point read: *"The `eldenring` crate is **not vendored in the
+sandbox**, so its type and method names are unknowable from there."* The second half is **false**, and
+believing it meant guessing (or asking Alaric to paste) names that were sitting on disk the whole time.
+
+Any `cargo build`/`test` in the client workspace populates `$CARGO_HOME/git/checkouts/`. With the §2a
+env (`CARGO_HOME=/tmp/cargo`):
+
+```bash
+grep -A3 'name = "eldenring"' Cargo.lock          # get the pinned rev -- do NOT guess it
+ls /tmp/cargo/git/checkouts/fromsoftware-rs-*/    # >1 rev can be present; pick the LOCKED one
+sed -n '1,80p' /tmp/cargo/git/checkouts/fromsoftware-rs-*/<rev>/crates/eldenring/src/cs/item_id.rs
+```
+
+On 2026-07-30 this settled, in one session, four things that had been open, guessed, or wrong:
+
+* `param_id_raw, set_param_id_raw: 27, 0` (`cs/item_id.rs:56`) — the CATEGORY-STRIPPED row. That
+  discharged a `NOTE(windows-verify)` in `reconcile_io.rs` which had parked a double-mask alternative
+  in a comment as "MUST CONFIRM ON WINDOWS with a set->readback". No Windows run was ever needed.
+* `is_normal_items_full()` / `is_key_items_full()` / `is_multiplay_key_items_full()`, plus per-list
+  `_len`/`_capacity` and `global_capacity` (`cs/player_game_data.rs:424-618`) — the game keeps its own
+  inventory-fullness bookkeeping. Read it rather than inferring capacity from a scan.
+* `key_items_accessor` vs `key_items_head` (`:444`, `:485`) — comparing the two pointers tells you at
+  runtime whether the accessor has switched to the multiplay key list.
+* `pub storage: Option<OwnedPtr<EquipInventoryData>>` (`:138`) — the storage box is reachable; the
+  client just never reads it.
+
+🛑 **Source-verified is NOT compiled, and the two are different words** (same rule as §5's
+"static-validated" vs "regenerated"). A throwaway `cargo check` crate depending on `eldenring` still
+FAILS on Linux — `windows-future 0.2.1` does not typecheck against the resolved `windows-core`, and
+copying the client `Cargo.lock` does not fix it because the root package differs. So: source-verify
+every field and method name you use (cheap, and strictly better than guessing), then let the Windows
+CI be the compile gate, and **say which of the two you did.**
+
+**3b. Only if the name genuinely is not in the pinned source, ASK rather than guess.** Guessing is what
+burned the three round-trips. Known-settled naming also lives in the module doc comments of
+`check_lots.rs` / `enemy_drops.rs`:
 
 ```
 eldenring::cs::ItemLotParam_map / ItemLotParam_enemy   (snake_case, not CamelCase)
