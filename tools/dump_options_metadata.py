@@ -85,7 +85,9 @@ PRESETS = [
         "tagline": "A polite footprint for playing with friends.",
         "description": "Base game with six regions -- a moderate check pool that keeps your "
                        "slice of a shared multiworld reasonable while still being a real run.",
-        "values": {"enable_dlc": False, "num_regions": 6},
+        # num_regions 6 is now the DEFAULT, and presets carry deviations only (the gate below
+        # enforces this) -- the preset still yields six regions, it just stops restating it.
+        "values": {"enable_dlc": False},
     },
     {
         "id": "base_shattering",
@@ -93,7 +95,10 @@ PRESETS = [
         "tagline": "The whole base game: all 17 regions.",
         "description": "The full base-game Shattering -- every base region in play "
                        "(num_regions 0), DLC off. The balanced default marathon.",
-        "values": {"enable_dlc": False},
+        # MUST pin num_regions:0 -- the title promises all 17 base regions, and this preset used
+        # to get them from the old default. With the default at 6 an omission silently makes this
+        # a six-region seed and the tagline a lie.
+        "values": {"enable_dlc": False, "num_regions": 0},
     },
     {
         "id": "dlc_only",
@@ -102,7 +107,8 @@ PRESETS = [
         "description": "Every base-game region is sealed; only the 14 DLC regions are in "
                        "play, and the goal becomes holding every kept DLC Lock. DLC is "
                        "experimental in v0.2.",
-        "values": {"dlc_only": True},
+        # Same reason as base_shattering: "every DLC region in play" needs num_regions:0 stated.
+        "values": {"dlc_only": True, "num_regions": 0},
     },
 ]
 
