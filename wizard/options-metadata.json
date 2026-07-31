@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "65b62debd4795b63b5ba29c1a3ea189b0d7a72f5836d4d35b1d9310cb5b88b58",
+ "source_sha256": "33b25335b7917a923b9e77a60d30e02e5d64c458c9945cbd83e61e1d7397ea26",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -83,10 +83,10 @@
    "key": "num_regions",
    "class": "NumRegions",
    "display_name": "Number of Regions",
-   "description": "How many regions are in play this seed. 0 = all regions (full Shattering). N > 0 seals the\nrest: only kept regions get locks, checks, and goal requirement, for a shorter run.",
+   "description": "How many regions are in play this seed. 0 = all regions (full Shattering). N > 0 seals the\nrest: only kept regions get locks, checks, and goal requirement, for a shorter run.\n\nDefault 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is\nthe length most players actually finish. Set 0 for the full map.",
    "kind": "range",
    "base": "Range",
-   "default": 0,
+   "default": 6,
    "choices": null,
    "range": {
     "start": 0,
@@ -102,10 +102,10 @@
    "key": "num_regions_order",
    "class": "NumRegionsOrder",
    "display_name": "Region Selection",
-   "description": "How kept regions are chosen when num_regions > 0. 'spine' keeps the first N of a fixed\nprogression path (Limgrave first); 'rolled' keeps N random regions. The goal region (Leyndell)\nis always kept, so the seed is always winnable.",
+   "description": "How kept regions are chosen when num_regions > 0. 'rolled' (default) keeps N random regions;\n'spine' keeps the first N of a fixed progression path (Limgrave first). The goal region (Leyndell)\nis always kept, so the seed is always winnable.",
    "kind": "choice",
    "base": "Choice",
-   "default": "spine",
+   "default": "rolled",
    "choices": [
     {
      "name": "spine",
@@ -833,8 +833,7 @@
    "tagline": "A polite footprint for playing with friends.",
    "description": "Base game with six regions -- a moderate check pool that keeps your slice of a shared multiworld reasonable while still being a real run.",
    "values": {
-    "enable_dlc": false,
-    "num_regions": 6
+    "enable_dlc": false
    }
   },
   {
@@ -843,7 +842,8 @@
    "tagline": "The whole base game: all 17 regions.",
    "description": "The full base-game Shattering -- every base region in play (num_regions 0), DLC off. The balanced default marathon.",
    "values": {
-    "enable_dlc": false
+    "enable_dlc": false,
+    "num_regions": 0
    }
   },
   {
@@ -852,7 +852,8 @@
    "tagline": "Only the Shadow of the Erdtree regions.",
    "description": "Every base-game region is sealed; only the 14 DLC regions are in play, and the goal becomes holding every kept DLC Lock. DLC is experimental in v0.2.",
    "values": {
-    "dlc_only": true
+    "dlc_only": true,
+    "num_regions": 0
    }
   }
  ]

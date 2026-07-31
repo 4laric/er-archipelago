@@ -7,5 +7,7 @@ description: ER options wizard preset - DLC Only (experimental)
 game: Elden Ring
 
 Elden Ring:
+  num_regions: 0
+  # ^ Number of Regions (default: 6)
   dlc_only: true
   # ^ DLC Only (default: False)

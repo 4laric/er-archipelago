@@ -7,5 +7,7 @@ description: ER options wizard preset - Base Shattering
 game: Elden Ring
 
 Elden Ring:
+  num_regions: 0
+  # ^ Number of Regions (default: 6)
   enable_dlc: false
   # ^ Enable DLC (default: True)
