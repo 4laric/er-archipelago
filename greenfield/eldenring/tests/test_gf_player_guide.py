@@ -66,6 +66,8 @@ _NOT_OPTIONS = {
     "normal", "high", "max",
     # VALUES of region_grace_unlock ("all" is already above as a dungeon_sweep value)
     "entrance", "landmarks",
+    # VALUES of goal
+    "auto", "elden_beast", "promised_consort",
 }
 
 

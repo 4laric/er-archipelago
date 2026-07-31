@@ -74,6 +74,15 @@ The goal region -- Leyndell -- is always among the kept ones, so a seed is
 always winnable. The alternative, `ending_condition: great_runes`, asks you
 to collect a set number of Great Runes instead.
 
+**Which boss actually ends it** is a separate knob, `goal`. Left on `auto` it
+works itself out: if your seed keeps both Farum Azula and Leyndell you finish
+at the real ending -- Godfrey/Hoarah Loux, then the Elden Beast. Otherwise it
+is the major bosses of the deepest region you kept. Set `goal:
+promised_consort` and the run ends on Promised Consort Radahn instead, and
+Enir Ilim is forced into your seed to guarantee he is there -- worth knowing,
+because on a full base+DLC seed `auto` always stops at the Elden Beast and
+leaves the entire DLC optional.
+
 ## Things that will confuse you the first time
 
 **You got kicked out of a region.** You wandered (or warped) into a region you
@@ -125,8 +134,13 @@ run rather than tune it.
   Altus and two Great Runes). `num_regions` is ignored when this is on. Pick it
   if you want vanilla's shape with Archipelago's item flow rather than a
   region-lock progression graph.
+- **`goal`** -- which boss ends the run. `auto` (default) derives it;
+  `elden_beast` pins the real ending and forces Farum Azula + Leyndell kept;
+  `promised_consort` ends on PCR and forces Enir Ilim kept. A goal your other
+  options make unreachable fails generation instead of silently downgrading.
 - **`ending_condition`** -- hold every kept Region Lock (default), or chase
-  `goal_great_runes` Great Runes instead.
+  `goal_great_runes` Great Runes instead. Composes with `goal`: you would need
+  the runes AND the boss.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Shrink the list for a tighter, more predictable
   hunt; widen it to scatter key items further afield.

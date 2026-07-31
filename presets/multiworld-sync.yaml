@@ -7,7 +7,5 @@ description: ER options wizard preset - Multiworld Sync
 game: Elden Ring
 
 Elden Ring:
-  num_regions: 6
-  # ^ Number of Regions (default: 0)
   enable_dlc: false
   # ^ Enable DLC (default: True)

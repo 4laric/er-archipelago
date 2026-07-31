@@ -24,6 +24,18 @@ collapsed to Morgott and the client sent Goal the moment he died -- the 2026-07-
 An older docstring promised Hoarah Loux and the Elden Beast as goal locations while neither was a
 location at all; as of the finale revival that promise is finally TRUE, and conditional.)
 
+EXPLICIT CHOICE (option `goal`, 2026-07-30). Everything below describes `goal: auto`, which is
+the default and is unchanged. When the player NAMES a goal, GOAL_CHOICES pins the terminal region
+outright and core force-keeps that region's prerequisites through compute_kept(forced=...), so the
+chosen goal is reachable BY CONSTRUCTION rather than by fallback -- there is no silent degradation
+to the ladder, which is the "I set my goal and the game ignored it" failure this project has been
+burned by. An explicit choice OUTRANKS tier 0: `goal: promised_consort` on a seed that also keeps
+Farum Azula + Leyndell still goals on Enir Ilim, and the Ashen Capital's ten checks remain ordinary
+locations (features/finale.py creates the region on its own prerequisites, never on the goal). The
+consequence, stated plainly because this docstring has lied before: with an explicit choice the
+goal ids are NOT necessarily in the deepest kept region by SPINE rank -- that invariant holds for
+`auto` only.
+
 Resolution ladder (each tier total, deterministic, and derived -- no hand list):
   0. THE FINALE's major bosses, iff features/finale.py created the finale region this seed.
   1. MAJOR BOSSES OF THE DEEPEST KEPT REGION THAT HAS ANY, walking down from the deepest kept
@@ -40,17 +52,38 @@ Resolution ladder (each tier total, deterministic, and derived -- no hand list):
      unwinnable and must die at generation, not at the connect log.
 
 great_runes ending: the rune requirement rides `great_rune_items` (core._base_slot_data), which the
-client's goal.rs reads; this feature emits ONLY goalLocations (merge_slot_data raises on duplicate
-top-level keys).
+client's goal.rs reads; this feature does NOT emit it (merge_slot_data raises on duplicate top-level
+keys).
+
+goalRequiredItems -- ALIGNING THE TWO TERMINAL CONDITIONS (2026-07-30). core.set_rules tells
+Archipelago the slot completes on `has_all(kept Region Locks)`, but goal.rs `is_met()` checked the
+goal BOSS FLAGS ALONE, and the client's Goal-send is what actually ends the run. Because
+region_access is warp, every kept region sits at sphere ~1 and fill may legitimately place the
+terminal region's Lock in sphere 0: MEASURED over generated seeds, 25% of rolled draws made the goal
+region the SECOND region opened, ending the run while the world still claimed every lock was
+required. So this feature also emits `goalRequiredItems` = core.goal_required_lock_names() (the kept
+locks minus the precollected start anchor), which goal.rs folds into its existing `item_goals`. Both
+sides now read ONE list, single-sourced at core.kept_lock_names().
+  * Emitted ONLY when there are locks to require. natural_progression mints NO Lock items -- its
+    regionOpenFlags keys are "<Region> Lock" NAMES with nothing behind them, so requiring them would
+    deadlock the seed; core.kept_lock_names() returns [] there and the key is omitted.
+  * This does NOT change WHICH boss is the goal, and it does not move fill: the lock is still
+    placed wherever fill wants it. The client just waits until the player holds it.
 
 Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_gf_finale.py:
   * goalLocations is never empty;
   * when the finale is active, goalLocations is exactly the finale's MajorBoss set;
-  * otherwise every goalLocations id lives in the DEEPEST kept region carrying them (never
-    Leyndell-by-preference: a seed keeping a region deeper than Leyndell must not goal on Morgott);
+  * under `goal: auto` (and only then) every goalLocations id lives in the DEEPEST kept region
+    carrying them (never Leyndell-by-preference: a seed keeping a region deeper than Leyndell must
+    not goal on Morgott); under an explicit choice they live in the CHOSEN region, which
+    compute_kept(forced=...) guarantees is kept;
   * every id belongs to a location set that exists this seed (a kept region's, or the active
-    finale region's).
+    finale region's);
+  * goalRequiredItems, when present, is EXACTLY core.goal_required_lock_names() -- the same list
+    set_rules closes its has_all over, minus the precollected anchor.
 """
+import logging
+
 from ..registry import Feature, register
 from .. import contract
 from ..region_spine import SPINE
@@ -77,6 +110,25 @@ except Exception:
 # Spine rank for ordering kept regions; regions off the spine sort last (defensive, never expected).
 _SPINE_RANK = {r: i for i, r in enumerate(SPINE)}
 
+# THE EXPLICIT GOAL TABLE: option value -> (terminal region, regions that must be KEPT for it).
+# One line per value; adding e.g. 'dragonlord' (Farum Azula: Placidusax + Maliketh) is a one-line
+# change. The option selects a REGION, not a boss -- tiers 0/1 mean "clear ALL majors of the
+# terminal region" and that invariant does not bend. The values are NAMED for bosses because that
+# is how players ask for them; 'elden_beast' resolves to the Ashen Capital's pair (Hoarah Loux is
+# physically on the way -- the Elden Throne is behind his arena -- so the pair adds no detour).
+GOAL_CHOICES = {
+    "elden_beast":      (FINALE_REGION, ("Farum Azula", "Leyndell")),
+    "promised_consort": ("Enir Ilim",   ("Enir Ilim",)),
+}
+
+
+def forced_regions(chosen):
+    """Regions core must force-keep for `chosen` (empty for auto / unknown). Single-sourced here so
+    core, the yaml validator and the tests cannot drift from the table."""
+    if not chosen or chosen == "auto":
+        return ()
+    return GOAL_CHOICES.get(chosen, ((), ()))[1]
+
 
 def _major_boss_ids(region):
     """AP location ids of the MajorBoss-tagged checks in `region` (LOCATION_TAGS = REGION_BOSSES
@@ -95,11 +147,21 @@ def _by_depth(kept):
     return sorted(kept, key=lambda r: (-_SPINE_RANK.get(r, len(SPINE)), r))
 
 
-def terminal_goal_ids(kept):
+def terminal_goal_ids(kept, chosen=None):
     """(region, ids) for the goal: tier 0 = the finale's majors iff the finale exists for `kept`
     (see module docstring); tier 1 = majors of the deepest kept region that has any; tier 2 = the
     deepest kept region's non-missable checks. ids may be empty only if tier 2 is too (caller
-    raises)."""
+    raises).
+
+    `chosen` is the explicit `goal` option value; when it names a GOAL_CHOICES entry it PINS the
+    region and returns before the ladder runs -- outranking tier 0. Empty majors fall through to
+    the ladder rather than returning nothing (defensive against a partial regen), and a wholly
+    empty result still reaches the caller's ContractError."""
+    if chosen and chosen != "auto" and chosen in GOAL_CHOICES:
+        region = GOAL_CHOICES[chosen][0]
+        ids = _major_boss_ids(region)
+        if ids:
+            return region, ids
     if finale_active(kept):
         ids = _major_boss_ids(FINALE_REGION)
         if ids:                       # defensive: a finale with no majors falls to the spine walk
@@ -123,9 +185,20 @@ class GoalLocations(Feature):
 
     def slot_data(self, world):
         kept = list(world._kept())
-        region, ids = terminal_goal_ids(kept)
+        region, ids = terminal_goal_ids(kept, getattr(world, "gf_goal_choice", None))
         if not ids:
             raise contract.ContractError(
                 "goal_locations: no achievable goal location exists in the kept set %r -- the seed "
                 "would be unwinnable (goalLocations may never be empty)" % (sorted(kept),))
-        return {contract.GOAL_LOCATIONS: sorted(ids)}
+        out = {contract.GOAL_LOCATIONS: sorted(ids)}
+        required = list(world.goal_required_lock_names())
+        if required:
+            out[contract.GOAL_REQUIRED_ITEMS] = sorted(required)
+            logging.getLogger("Greenfield").info(
+                "[eldenring:%s] goal = %s (%d location(s)) AND %d held Region Lock(s)",
+                world.player, region, len(ids), len(required))
+        else:
+            logging.getLogger("Greenfield").info(
+                "[eldenring:%s] goal = %s (%d location(s)); no held-item requirement "
+                "(natural_progression mints no Locks)", world.player, region, len(ids))
+        return out

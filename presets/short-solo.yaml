@@ -8,6 +8,6 @@ game: Elden Ring
 
 Elden Ring:
   num_regions: 4
-  # ^ Number of Regions (default: 0)
+  # ^ Number of Regions (default: 6)
   enable_dlc: false
   # ^ Enable DLC (default: True)

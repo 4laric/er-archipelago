@@ -569,6 +569,19 @@ CONTRACT = (
     ContractKey("goalLocations", "INT_LIST", True, (BOTH,),
                 "features/goal_locations.py", "goal.rs parse",
                 "AP location ids whose completion == victory; client sends Goal when all are done."),
+    ContractKey("goalRequiredItems", "STR_LIST", False, (GREENFIELD,),
+                "features/goal_locations.py", "goal.rs parse -> item_goals",
+                "Item names the player must HOLD before Goal may be sent -- this seed's kept Region "
+                "Locks, minus the precollected start anchor. THE POINT: core.set_rules already tells "
+                "Archipelago the slot completes on has_all(kept locks), but goal.rs is_met() used to "
+                "check the goal BOSS FLAGS ALONE, and the client's send is what actually ends the "
+                "run. Because region_access is warp (every kept region sits at sphere ~1), fill may "
+                "legitimately place the terminal region's Lock in sphere 0 -- measured 2026-07-30: on "
+                "25% of rolled draws the goal region was the SECOND region opened, so the run ended "
+                "there while the world still claimed every lock was required. This key makes the two "
+                "terminal conditions ONE. Absent under natural_progression, which mints no Lock items "
+                "at all (its regionOpenFlags keys are '<Region> Lock' NAMES with no item behind them "
+                "-- deriving this client-side from those keys would deadlock np seeds)."),
 
     # --- vanilla suppression + shops ---
     ContractKey("checkItemFlags", "LISTVAL_INT_MAP", False, (BOTH,),
@@ -1066,7 +1079,7 @@ pub fn validate(sd: &Value) -> Vec<String> {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.2.18"
+APWORLD_VERSION = "0.2.19"
 
 def _contract_hash() -> str:
     _mat = "\n".join(
