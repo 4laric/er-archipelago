@@ -90,7 +90,7 @@ def dlc_regions():
     return [r for r in REGIONS if r in DLC_REGIONS]
 
 
-def compute_kept(n, order, rng, eligible=None):
+def compute_kept(n, order, rng, eligible=None, forced=()):
     """Kept-region list, drawn from `eligible` (defaults to all of REGIONS).
 
     `eligible` is the already-filtered pool of regions in play this seed (e.g. base-only when
@@ -102,7 +102,15 @@ def compute_kept(n, order, rng, eligible=None):
     order 'spine' -> the first N eligible regions in SPINE order; anything else -> N random eligible
     regions (rng.sample). The goal region is appended only when it is itself eligible -- under
     DLCOnly the base-game goal (Leyndell) is not eligible, and the goal collapses to "hold every kept
-    lock" over the eligible set (still winnable; see core.set_rules)."""
+    lock" over the eligible set (still winnable; see core.set_rules).
+
+    `forced` is the explicit-goal force-keep set (features/goal_locations.GOAL_CHOICES): when the
+    player NAMES a goal, the kept set is BUILT to contain its region instead of the goal being
+    derived from whatever the draw happened to keep. It is appended in exactly the same place as
+    GOAL_REGION -- AFTER the rng.sample -- so the rng stream, and therefore every default rolled
+    seed, is byte-identical to before this parameter existed. Callers guarantee eligibility (core
+    raises OptionError on an ineligible choice); a forced region outside the pool is dropped here
+    rather than smuggled past the scope filter."""
     regions = list(REGIONS) if eligible is None else [r for r in REGIONS if r in set(eligible)]
     if not regions:
         return regions
@@ -113,8 +121,13 @@ def compute_kept(n, order, rng, eligible=None):
     else:  # rolled
         base = rng.sample(regions, n)
     kept = list(dict.fromkeys(base))
+    # 🛑 Both appends MUST stay here, after the draw: moving either above rng.sample changes every
+    # rolled seed in existence (the economy floor is one seed thick).
     if GOAL_REGION in regions and GOAL_REGION not in kept:
         kept.append(GOAL_REGION)
+    for r in forced:
+        if r in regions and r not in kept:
+            kept.append(r)
     return _close_over_parents(kept, regions)
 
 

@@ -75,6 +75,21 @@ Elden Ring:
   # unchanged.
   dungeon_sweep: bosses
 
+  # WHICH BOSS ENDS THE RUN.
+  #   auto             -- derived (default). The game's real terminus when this
+  #                       seed has one: Godfrey/Hoarah Loux + the Elden Beast,
+  #                       whenever Farum Azula AND Leyndell are both kept.
+  #                       Otherwise the major bosses of the deepest kept region.
+  #   elden_beast      -- pin that pair, and FORCE Farum Azula + Leyndell kept.
+  #   promised_consort -- Promised Consort Radahn, the DLC's final boss, and
+  #                       FORCE Enir Ilim kept.
+  # Why you'd set it: on a full base+DLC seed `auto` ends at the Elden Beast and
+  # the whole DLC is optional, so PCR can never become the goal by luck.
+  # A choice your other options make impossible FAILS GENERATION rather than
+  # quietly falling back (promised_consort needs the DLC in play; elden_beast
+  # needs the base game).
+  goal: auto
+
   # What the goal requires.
   #   region_locks  -- hold every Region Lock that is in play (default).
   #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the

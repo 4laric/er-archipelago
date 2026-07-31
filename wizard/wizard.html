@@ -117,10 +117,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "f9a2705e2d70b32c875492435f443522884ece534a31b932bb4a5238cdfa4770",
+ "source_sha256": "65b62debd4795b63b5ba29c1a3ea189b0d7a72f5836d4d35b1d9310cb5b88b58",
  "field_order": [
   "num_regions",
   "num_regions_order",
+  "goal",
   "ending_condition",
   "goal_great_runes",
   "enable_dlc",
@@ -158,6 +159,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "ungrouped": [
   "num_regions",
   "num_regions_order",
+  "goal",
   "ending_condition",
   "goal_great_runes",
   "enable_dlc",
@@ -227,6 +229,35 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     {
      "name": "rolled",
      "value": 1
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "goal",
+   "class": "Goal",
+   "display_name": "Goal",
+   "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: the game's real terminus when this\nseed has one (Godfrey/Hoarah Loux + the Elden Beast, whenever both Farum Azula and Leyndell are\nkept), otherwise the major bosses of the deepest kept region.\n\n'elden_beast' pins the Ashen Capital and FORCES Farum Azula + Leyndell to be kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. This is the point of the option: on a full base+DLC seed 'auto'\nends at the Elden Beast and the whole DLC is optional, so PCR can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off), 'elden_beast' needs\nbase-game content (fails with DLC Only on). A goal that quietly evaporates is worse than a\nyaml that refuses to roll.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "auto",
+   "choices": [
+    {
+     "name": "auto",
+     "value": 0
+    },
+    {
+     "name": "elden_beast",
+     "value": 1
+    },
+    {
+     "name": "promised_consort",
+     "value": 2
     }
    ],
    "range": null,
