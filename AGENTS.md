@@ -192,6 +192,28 @@ curl -s "https://api.github.com/repos/4laric/from-software-archipelago-clients/a
   | python3 -c "import sys,json;[print(r['head_sha'][:7],r['status'],r['conclusion']) for r in json.load(sys.stdin)['workflow_runs']]"
 ```
 
+⭐⭐ **Read the LOG BODY, not just the conclusion. It needs the PAT and nothing else** (2026-07-31):
+
+```bash
+# job id comes from /actions/runs/<run>/jobs
+curl -sL -H "Authorization: Bearer $PAT" \
+  "https://api.github.com/repos/4laric/er-archipelago/actions/jobs/<JOB_ID>/logs" -o run.log
+```
+
+🛑 **A 403 here means UNAUTHENTICATED, not "forbidden".** The endpoint 302s to a blob store, and an
+anonymous fetch of either hop 403s — which reads like a permission wall and is only a missing token.
+Same ambiguity as the rate-limit 403 above; add the header before concluding anything.
+
+> ⚠️ **Folklore killed 2026-07-31, having nearly been written into this file as gospel.** A note in
+> agent memory claimed the log body *"needs a redirect handler that DROPS the Authorization header,
+> or the blob store rejects it"*, with a `urllib` snippet. **It is false.** `curl -L` carrying the
+> header returns **200** and the full log. What happened is that an unauthenticated `curl` 403'd, the
+> hand-rolled handler was then tried *with* a PAT, it worked, and the success was credited to the
+> redirect trick instead of to the token that had just been added. One variable changed per
+> experiment, or you will enshrine the wrong one — and this section is exactly where that gets
+> enshrined. (Rule 5 again: RUN the tool. Including when the tool is one line of `curl` and you
+> already "know" the answer.)
+
 That false claim has already cost a real bug: on 2026-07-25 `cargo fmt --check` was RED on client
 `main` across four commits (`c128ba0`…`a32f685`) while the agent told Alaric "CI is the gate" and never
 looked. Hand him the Actions link as well
@@ -409,6 +431,45 @@ TMPDIR=/tmp AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
 With this up you can run the AP-dependent tests, `tools/fill_regression.py`, and -- once
 `tools/gen_inputs.py --extract` has put the inputs in place -- `gen_data.py` itself. That is the
 difference between handing Alaric a tool to run and handing him a result.
+
+### 5c. The `generators` CI job REPRODUCES IN-SANDBOX, in about 75 seconds
+
+⭐⭐⭐ Added 2026-07-31, after a red `generators` was diagnosed by reading the step NAME and guessing.
+Do not do that. This job is AP-free by design, so **all of it runs here**, and running it is the
+difference between "something in generators is red" and the actual assertion with its actual values.
+
+```bash
+cd <your world clone>
+# 1. The job checks the client out BESIDE the repo, at the client's OWN main (NOT the pinned
+#    gitlink). The four cross-side gates SKIP without this, so skipping this step turns the whole
+#    exercise green and proves nothing.
+rm -rf from-software-archipelago-clients
+git clone --depth 1 --no-recurse-submodules \
+  https://github.com/4laric/from-software-archipelago-clients.git from-software-archipelago-clients
+pip install pyyaml                                          # the shipping-yaml gate reads the template
+python tools/gen_inputs.py --ensure elden_ring_artifacts    # ~60 MB out of the committed bundle
+# 2. Then the generator scripts (~4 s), the 11 suites, and the two staleness diffs. COPY the exact
+#    list out of .github/workflows/tests.yaml rather than retyping it -- it has grown three times.
+```
+
+Measured 2026-07-31: generator scripts 4 s, the ten fast suites 18 s, `infinite_shop_rows` ~50 s.
+
+**Three traps, each of which will mislead you before the job even runs:**
+
+- 🛑 **The suite loop exits on the FIRST failure.** A red `generators` names ONE gate and hides every
+  later one, so never report "the failure" from a CI log — run the whole list locally and collect all
+  of them. Corollary that cost real confusion: **a PR fixing a LATE gate cannot be validated by its
+  own CI while an EARLIER gate is red on its base.** (2026-07-31: `main` failed at
+  `client_contract_paths`, PR #236 failed at `client_resets_are_called`. Two unrelated breaks, each
+  PR fixing the one the other tripped over, neither green alone. The badge tells you none of this.)
+- ⚠️ **The cross-side gates read the client's `main`, not the gitlink.** A CLIENT push can therefore
+  redden a WORLD PR that changed nothing relevant, and the world author has done nothing wrong. That
+  is the gate doing its job — it is catching a cross-repo ordering desync — but say so, instead of
+  hunting the world diff for a cause that is not in it.
+- ⚠️ `test_gf_infinite_shop_rows_are_browsable_shelves` alone exceeds the 45 s bash cap. Own call.
+
+Sandbox python is **3.10**, CI uses **3.12**. Nothing in this job has been version-sensitive so far;
+say which one you ran rather than implying CI's.
 
 ### 5a. TWO regen tiers — do not conflate them (the spurious-regen trap)
 
