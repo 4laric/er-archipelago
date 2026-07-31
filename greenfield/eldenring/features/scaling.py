@@ -380,12 +380,20 @@ def ramp_pct_from_speed(speed):
 
 # Ceiling for the blessing curve, sent as `scaduBlessingCap`.
 #
-# 🟠 OPEN (SPEC-global-scadutree-blessing-20260729 §9.2, Alaric's call): 20 is the full vanilla
-# ladder (A = 2.05 attack, x0.4878 damage taken; the compounded budget is A^2 ~ 4.2x) and costs
-# SCADU_CUM[20] = 50 injected fragments in a base-game seed. 12 is the smaller option -- A = 1.85,
-# ~3.4x budget, 26 fragments -- and displaces far less filler. Kept as ONE named constant so the
-# answer is a one-line change and not a hunt.
-SCADU_BLESSING_CAP = 20
+# 12, DECIDED 2026-07-31 (Alaric, SPEC-global-scadutree-blessing-20260729 §9.2) -- provisional, to be
+# judged on FEEL in a playtest rather than on the arithmetic below.
+#
+# The arithmetic is what ruled out 20. Levels 13..20 cost 24 more fragments -- HALF the entire budget,
+# SCADU_CUM[20]=50 vs SCADU_CUM[12]=26 -- and buy +11% attack (1.85 -> 2.05) and 10% less damage taken
+# (0.5405 -> 0.4878). In a base-game seed every one of those fragments is a forced-`useful` item
+# displacing filler, against an early economy that is one seed thick
+# (gf-early-economy-floor-knife-edge). Paying half the budget for the last 11% is the worst trade on
+# the ladder.
+#
+# 12 still yields a compounded budget of A^2 ~ 3.4x, which is not a timid number. If the playtest says
+# it feels weak, raise this ONE constant -- but re-check the filler displacement at the same time,
+# because that is the cost the number is really trading against.
+SCADU_BLESSING_CAP = 12
 
 
 class GlobalScadutreeBlessing(Choice):

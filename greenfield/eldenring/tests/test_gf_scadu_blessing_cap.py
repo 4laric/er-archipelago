@@ -85,36 +85,46 @@ def test_the_legacy_top_level_duplicate_is_gone():
 
 
 def test_an_off_seed_emits_nothing_new():
-    """THE COMPATIBILITY HALF, and the one that is actually reachable today. The option is frozen
-    OFF (defaults.FROZEN_OPTIONS), so every seed anyone can generate right now is mode 0 — and a
-    mode-0 seed must be byte-identical to one generated before this key existed, so no
-    already-released client can trip over it. Asserted against the shipped fixture keyset rather
-    than a fresh generation, because that fixture IS the definition of "what a seed emits"."""
+    """THE COMPATIBILITY HALF. A mode-0 seed must be byte-identical to one generated before this key
+    existed, so no already-released client can trip over it. The default is `off`, so this is what
+    almost every real seed looks like.
+
+    Asserted against the fixture's own keyset bookkeeping rather than by generating a fourth world:
+    `SlotDataFixtureDefault::test_always_keys_present` already generates a default seed and checks
+    ALWAYS_KEYS against it, so the honest statement here is that the cap is NOT in that set."""
     from worlds.eldenring.tests import test_gf_slot_data_fixture as fx
-    assert KEY in fx._CONTRACT_NOT_EMITTED, (
-        f"{KEY} must be listed as not-emitted while global_scadutree_blessing is frozen OFF — "
-        "otherwise the fixture's keyset check fails on a key no reachable seed can produce")
-    assert KEY not in fx.ALWAYS_KEYS
+    assert KEY not in fx.ALWAYS_KEYS, (
+        f"{KEY} is being demanded of every seed, but it is emitted only when the mode is on — a "
+        "default (off) seed cannot produce it")
+    assert KEY in fx.EXPECTED_KEYS, (
+        f"{KEY} must still be an EXPECTED key: it is emitted by the RICH fixture, and dropping it "
+        "out of the expected set would stop anything from checking it is ever emitted at all")
 
 
-def test_unfreezing_the_option_forces_this_file_to_be_revisited():
-    """🛑 THE TRIPWIRE. `dlcScadutreeFloorRanges` sat in the not-emitted list for weeks; nothing
-    checked it was ever emitted at all, which is how the floor wire spent 5 days inert without a
-    test noticing. When `global_scadutree_blessing` is unfrozen — the four-site edit in SPEC §4 —
-    the honest fix is to satisfy the condition in the RICH fixture, not to leave the key parked in
-    the never-emitted list. This test goes red at exactly that moment and says so.
+def test_the_option_is_reachable_from_yaml():
+    """UNFROZEN 2026-07-31, default still `off`. The freeze had an effect nobody intended: the option
+    could not be set from yaml at all, so the feature could never be playtested, so the fact that it
+    did nothing outside the DLC went unnoticed for its entire life. A knob that cannot be turned on
+    cannot be tested.
 
-    Guard-absent-from-corpus rule: the emitted branch has no corpus that reaches it, so rather than
-    pretend it is covered, this pins WHO must cover it and WHEN."""
+    🛑 Re-freezing this makes the whole game-wide blessing unreachable again. If that is ever the
+    right call, it should be a deliberate one that also decides what happens to the client's applier
+    — hence this test, and hence the failure message."""
     from worlds.eldenring import defaults
-    from worlds.eldenring.tests import test_gf_slot_data_fixture as fx
-    if "global_scadutree_blessing" in defaults.FROZEN_OPTIONS:
-        pytest.skip("option still frozen OFF — the emitted branch is unreachable from yaml")
-    assert KEY not in fx._CONTRACT_NOT_EMITTED, (
-        "global_scadutree_blessing has been unfrozen, so a seed CAN now emit scaduBlessingCap. "
-        "Set global_scadutree_blessing in SlotDataFixtureRich.options and drop the key from "
-        "_CONTRACT_NOT_EMITTED — a conditional key parked in the never-emitted list is a key "
-        "nothing checks (see dlcScadutreeFloorRanges, inert for 5 days)")
+    assert "global_scadutree_blessing" not in defaults.FROZEN_OPTIONS, (
+        "re-freezing global_scadutree_blessing makes the game-wide blessing unreachable from yaml "
+        "and untestable in-game — the exact condition that hid the DLC-only bug")
+    assert sc.Scaling.OPTIONS["global_scadutree_blessing"] is sc.GlobalScadutreeBlessing
+
+
+def test_the_default_is_still_off():
+    """Unfreezing is NOT a balance change. The 2026-07-18 call (the DLC floor made the DLC too easy)
+    stands as the default; unfreezing only makes the other values reachable.
+
+    🛑 `er-unfreezing-an-option-needs-the-class-default`: a shipped yaml that pins the value MASKS a
+    rotted class default, so this pins the DEFAULT rather than the template."""
+    assert sc.GlobalScadutreeBlessing.default == 0
+    assert sc.GlobalScadutreeBlessing.option_off == 0
 
 
 def test_the_emitter_is_gated_on_the_mode_and_not_on_dlc():
