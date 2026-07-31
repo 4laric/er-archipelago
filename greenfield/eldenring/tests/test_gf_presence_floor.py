@@ -97,7 +97,7 @@ class PresenceFloorDLCOnly(WorldTestBase):
     get injected; the few that also live in a kept DLC region are present and are NOT injected. Guards
     cases (a), (b), (c), (d)."""
     game = GAME
-    options = {"dlc_only": True}
+    options = {"num_regions": 0, "dlc_only": True}
 
     def test_full_presence_floor_reached(self):
         # (d) every roster item ends up in the pool exactly once through the floor: present OR injected.
@@ -140,7 +140,7 @@ class PresenceFloorDLCOff(WorldTestBase):
     GOODS. The floor must NOT inject them -- doing so would leak DLC content into a DLC-off pool (the
     class test_gf_dlc_pool_leak guards). With DLC off they are simply not part of the floor."""
     game = GAME
-    options = {"enable_dlc": False}
+    options = {"num_regions": 0, "enable_dlc": False}
 
     def test_dlc_roster_items_not_injected(self):
         w = self.world

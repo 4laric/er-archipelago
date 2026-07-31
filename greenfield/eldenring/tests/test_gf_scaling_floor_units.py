@@ -160,7 +160,7 @@ class TestSlotDataUnits:
 
         class _T(WorldTestBase):
             game = GAME
-            options = {"minimum_enemy_difficulty": pct}
+            options = {"num_regions": 0, "minimum_enemy_difficulty": pct}
 
         t = _T()
         t.setUp()
@@ -202,7 +202,7 @@ class TestSlotDataUnits:
 
         class _T(WorldTestBase):
             game = GAME
-            options = {"maximum_enemy_difficulty": 50}
+            options = {"num_regions": 0, "maximum_enemy_difficulty": 50}
 
         t = _T()
         t.setUp()
@@ -235,7 +235,7 @@ class TestSlotDataUnits:
 
         class _T(WorldTestBase):
             game = GAME
-            options = {"minimum_enemy_difficulty": 80, "maximum_enemy_difficulty": 20}
+            options = {"num_regions": 0, "minimum_enemy_difficulty": 80, "maximum_enemy_difficulty": 20}
 
         t = _T()
         with pytest.raises(Exception) as ei:

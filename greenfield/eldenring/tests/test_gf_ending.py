@@ -34,7 +34,7 @@ def _held_runes(world, itempool):
 class RegionLocksGoalDefault(WorldTestBase):
     """Default ending goal is unchanged: all kept locks, zero Great Runes required."""
     game = GAME
-    options = {}  # ending_condition defaults to region_locks
+    options = {"num_regions": 0, }  # ending_condition defaults to region_locks
 
     def test_no_runes_required_by_default(self):
         world = self.multiworld.worlds[self.player]
@@ -55,7 +55,7 @@ class RegionLocksGoalDefault(WorldTestBase):
 class GreatRunesGoalShuffleOn(WorldTestBase):
     """great_runes goal with item_shuffle on: beatable (base test_fill) AND the runes gate it."""
     game = GAME
-    options = {
+    options = {"num_regions": 0, 
         "item_shuffle": True,
         "ending_condition": "great_runes",
         "goal_great_runes": 2,

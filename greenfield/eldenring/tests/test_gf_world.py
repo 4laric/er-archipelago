@@ -28,6 +28,9 @@ FILLER = "Rune"
 
 class GreenfieldWorldTest(WorldTestBase):
     game = GAME
+    # Full map: every assertion here counts the WHOLE location set (4879) and every region
+    # lock. num_regions defaults to 6 now, which would seal this into a six-region seed.
+    options = {"num_regions": 0}
 
     # --- item pool -----------------------------------------------------------------
     def test_one_progression_lock_per_region(self):

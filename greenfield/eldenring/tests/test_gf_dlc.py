@@ -53,7 +53,7 @@ def _lock_region_names(mw, player):
 class DLCDefaultOn(WorldTestBase):
     """Default: Enable DLC on, DLC Only off, num_regions 0 -> full Shattering, all regions kept."""
     game = GAME
-    options = {}
+    options = {"num_regions": 0}
 
     def test_all_regions_kept_including_dlc(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -69,7 +69,7 @@ class DLCDefaultOn(WorldTestBase):
 class DLCDisabled(WorldTestBase):
     """Enable DLC off -> DLC regions sealed; base-game goal still kept; beatable."""
     game = GAME
-    options = {"enable_dlc": False}
+    options = {"num_regions": 0, "enable_dlc": False}
 
     def test_no_dlc_region_kept(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -90,7 +90,7 @@ class DLCDisabled(WorldTestBase):
 class DLCOnlyMode(WorldTestBase):
     """DLC Only on -> only DLC regions eligible; base goal sealed; still beatable."""
     game = GAME
-    options = {"dlc_only": True}
+    options = {"num_regions": 0, "dlc_only": True}
 
     def test_only_dlc_regions_kept(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -116,7 +116,7 @@ class DLCOnlyMode(WorldTestBase):
 class DLCOnlyImpliesEnabled(WorldTestBase):
     """DLC Only on WITH Enable DLC off: DLC Only wins (implies enabled) -- DLC regions still kept."""
     game = GAME
-    options = {"dlc_only": True, "enable_dlc": False}
+    options = {"num_regions": 0, "dlc_only": True, "enable_dlc": False}
 
     def test_dlc_only_overrides_disable(self):
         kept = _lock_region_names(self.multiworld, self.player)
@@ -175,7 +175,7 @@ class DLCOnlyGreatRunesGoal(WorldTestBase):
     to 0 rather than making the seed unbeatable. Winnability is guarded by test_beatable. (A standalone
     Great Runes goal under DLC Only -- placing runes in Land of Shadow -- is scoped out of v0.2.)"""
     game = GAME
-    options = {
+    options = {"num_regions": 0, 
         "dlc_only": True,
         "item_shuffle": True,
         "ending_condition": "great_runes",

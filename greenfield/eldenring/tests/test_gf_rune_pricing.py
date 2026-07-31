@@ -22,7 +22,7 @@ _ROW_MASK = 0x0FFFFFFF
 
 class RuneNameTests(WorldTestBase):
     game = GAME
-    options = {}
+    options = {"num_regions": 0, }
 
     def test_the_rune_family_matches(self):
         for n in ("Golden Rune [1]", "Golden Rune [13]", "Hero's Rune [3]",
@@ -80,7 +80,7 @@ class RuneDatumTests(WorldTestBase):
     """
 
     game = GAME
-    options = {}
+    options = {"num_regions": 0, }
 
     # The retired predicate, kept HERE so it can never silently become production again.
     _LEGACY_RUNE_RE = re.compile(r"^(?:Golden|Hero's|Lord's|Numen's) Rune(?: \[\d+\])?$")
