@@ -52,8 +52,23 @@ Resolution ladder (each tier total, deterministic, and derived -- no hand list):
      unwinnable and must die at generation, not at the connect log.
 
 great_runes ending: the rune requirement rides `great_rune_items` (core._base_slot_data), which the
-client's goal.rs reads; this feature emits ONLY goalLocations (merge_slot_data raises on duplicate
-top-level keys).
+client's goal.rs reads; this feature does NOT emit it (merge_slot_data raises on duplicate top-level
+keys).
+
+goalRequiredItems -- ALIGNING THE TWO TERMINAL CONDITIONS (2026-07-30). core.set_rules tells
+Archipelago the slot completes on `has_all(kept Region Locks)`, but goal.rs `is_met()` checked the
+goal BOSS FLAGS ALONE, and the client's Goal-send is what actually ends the run. Because
+region_access is warp, every kept region sits at sphere ~1 and fill may legitimately place the
+terminal region's Lock in sphere 0: MEASURED over generated seeds, 25% of rolled draws made the goal
+region the SECOND region opened, ending the run while the world still claimed every lock was
+required. So this feature also emits `goalRequiredItems` = core.goal_required_lock_names() (the kept
+locks minus the precollected start anchor), which goal.rs folds into its existing `item_goals`. Both
+sides now read ONE list, single-sourced at core.kept_lock_names().
+  * Emitted ONLY when there are locks to require. natural_progression mints NO Lock items -- its
+    regionOpenFlags keys are "<Region> Lock" NAMES with nothing behind them, so requiring them would
+    deadlock the seed; core.kept_lock_names() returns [] there and the key is omitted.
+  * This does NOT change WHICH boss is the goal, and it does not move fill: the lock is still
+    placed wherever fill wants it. The client just waits until the player holds it.
 
 Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_gf_finale.py:
   * goalLocations is never empty;
@@ -63,8 +78,12 @@ Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_g
     not goal on Morgott); under an explicit choice they live in the CHOSEN region, which
     compute_kept(forced=...) guarantees is kept;
   * every id belongs to a location set that exists this seed (a kept region's, or the active
-    finale region's).
+    finale region's);
+  * goalRequiredItems, when present, is EXACTLY core.goal_required_lock_names() -- the same list
+    set_rules closes its has_all over, minus the precollected anchor.
 """
+import logging
+
 from ..registry import Feature, register
 from .. import contract
 from ..region_spine import SPINE
@@ -171,4 +190,15 @@ class GoalLocations(Feature):
             raise contract.ContractError(
                 "goal_locations: no achievable goal location exists in the kept set %r -- the seed "
                 "would be unwinnable (goalLocations may never be empty)" % (sorted(kept),))
-        return {contract.GOAL_LOCATIONS: sorted(ids)}
+        out = {contract.GOAL_LOCATIONS: sorted(ids)}
+        required = list(world.goal_required_lock_names())
+        if required:
+            out[contract.GOAL_REQUIRED_ITEMS] = sorted(required)
+            logging.getLogger("Greenfield").info(
+                "[eldenring:%s] goal = %s (%d location(s)) AND %d held Region Lock(s)",
+                world.player, region, len(ids), len(required))
+        else:
+            logging.getLogger("Greenfield").info(
+                "[eldenring:%s] goal = %s (%d location(s)); no held-item requirement "
+                "(natural_progression mints no Locks)", world.player, region, len(ids))
+        return out

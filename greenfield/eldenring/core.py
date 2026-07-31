@@ -340,6 +340,27 @@ class GreenfieldEldenRingWorld(World):
         for f in _FEATURES:
             f.generate_early(self)
 
+    def kept_lock_names(self) -> List[str]:
+        """The Region Lock item names this seed's completion requires -- THE single source.
+
+        `set_rules` closes its `has_all` over exactly this list and `features/goal_locations`
+        emits `goalRequiredItems` from it, so the AP-side completion condition and the client-side
+        Goal gate can never drift apart again. Empty under natural_progression, which mints no
+        Lock items."""
+        if _np.is_on(self):
+            return []
+        return [f"{r} Lock" for r in self._kept()]
+
+    def goal_required_lock_names(self) -> List[str]:
+        """`kept_lock_names` MINUS the precollected start anchor.
+
+        The anchor lock is pushed via `push_precollected` and leaves the pool, so requiring the
+        player to "hold" it would be requiring an item that is never sent. Excluding it here also
+        makes the emission robust to the one thing I could not verify from the sandbox -- whether a
+        precollected item shows up in ReceivedItems -- because the answer no longer matters."""
+        free = {i.name for i in self.multiworld.precollected_items.get(self.player, ())}
+        return [n for n in self.kept_lock_names() if n not in free]
+
     def _resolve_goal_choice(self) -> str:
         """The `goal` option value, VALIDATED against this seed's eligible region pool.
 
@@ -826,7 +847,7 @@ class GreenfieldEldenRingWorld(World):
                 self.multiworld.completion_condition[player] = \
                     lambda state, g=goal, p=player: state.can_reach(g, "Region", p)
         else:
-            locks = [f"{r} Lock" for r in self._kept()]
+            locks = self.kept_lock_names()
             if required:
                 need = len(required)
                 self.multiworld.completion_condition[player] = \
