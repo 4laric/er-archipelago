@@ -52,7 +52,9 @@ INFORMATIONAL_EXTRAS = {
     "completionScalingBasis",     # int  : 1
     "completion_scaling",         # int  : client curve id
     "completion_scaling_floor",   # int
-    "global_scadutree_blessing",  # int
+    # global_scadutree_blessing: RETIRED as a top-level key 2026-07-31. It was declared in the
+    # contract AND echoed here, and nothing ever read the top-level copy -- the client goes
+    # through /options/global_scadutree_blessing, which is unaffected.
     "ending_condition",           # str  : "region_locks" | "great_runes"
     "great_runes_required",       # int  : effective (clamped) rune requirement
     "bossLocations",              # dict[str region] -> list[int]
@@ -83,7 +85,13 @@ INFORMATIONAL_EXTRAS = {
 # exists to name. A gated child's grace bundle is now withheld outright (features/graces.py) and
 # both keys are tagged CONTRACT: DEAD in contract.py.
 _CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds",
-                         "dlcScadutreeFloorRanges"}   # blessing frozen OFF 2026-07-18 -- see above; `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
+                         "dlcScadutreeFloorRanges",
+                         # scaduBlessingCap: emitted when global_scadutree_blessing != 0, which is
+                         # unreachable from yaml while that option is frozen OFF -- same reason as
+                         # dlcScadutreeFloorRanges above. test_gf_scadu_blessing_cap carries a
+                         # TRIPWIRE that reddens the moment the option is unfrozen, so this entry
+                         # cannot quietly outlive its justification the way that one nearly did.
+                         "scaduBlessingCap"}   # blessing frozen OFF 2026-07-18 -- see above; `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).

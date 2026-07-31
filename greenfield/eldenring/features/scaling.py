@@ -378,16 +378,32 @@ def ramp_pct_from_speed(speed):
     return max(1, 100 - max(0, min(100, int(speed))))
 
 
+# Ceiling for the blessing curve, sent as `scaduBlessingCap`.
+#
+# 🟠 OPEN (SPEC-global-scadutree-blessing-20260729 §9.2, Alaric's call): 20 is the full vanilla
+# ladder (A = 2.05 attack, x0.4878 damage taken; the compounded budget is A^2 ~ 4.2x) and costs
+# SCADU_CUM[20] = 50 injected fragments in a base-game seed. 12 is the smaller option -- A = 1.85,
+# ~3.4x budget, 26 fragments -- and displaces far less filler. Kept as ONE named constant so the
+# answer is a one-line change and not a hunt.
+SCADU_BLESSING_CAP = 20
+
+
 class GlobalScadutreeBlessing(Choice):
-    """How Scadutree Blessing (the DLC-only combat multiplier) is delivered. The stored blessing byte
-    is DLC-area-gated by the engine, so NONE of these modes touch base-game balance. off = vanilla
-    (blessing only from fragments you hold, applied by the game). player_only = the client raises your
-    blessing from held Scadutree Fragments via the vanilla curve (same effect, applied eagerly).
-    scaled = player_only PLUS a per-DLC-region blessing FLOOR, so a DLC region you unlock without
-    fragments still meets that area's expected blessing and its enemies aren't insane; collected
-    fragments still count above the floor (max). Default OFF (2026-07-18 balance call): the floor made
-    the DLC too easy -- you started every area already blessed -- so blessing is fully vanilla by
-    default (earn it from fragments). scaled/player_only remain available if you want the safety net."""
+    """How Scadutree Blessing is delivered. off = vanilla (blessing only from the fragments you hold,
+    applied by the game, DLC only). player_only = the blessing becomes a GAME-WIDE power curve driven
+    by the fragments you hold -- it works in Limgrave, not just the Land of Shadow. Enemies are
+    untouched, so this is explicitly a power fantasy. scaled = player_only PLUS the enemy-side
+    counterweight: a per-DLC-region blessing FLOOR, so a DLC region you unlock without fragments still
+    meets that area's expected blessing; collected fragments still count above the floor (max).
+
+    HISTORY, because the help text used to lie. Until 2026-07-31 this option only wrote the game's
+    STORED blessing byte, and the engine refuses to apply that byte's effect outside the Land of
+    Shadow -- measured in-game 2026-07-29. So both live modes were silently inert in the base game
+    while this docstring claimed that was intentional. The client now applies the blessing itself
+    (see the client's `scadu_blessing` module and docs/specs/SPEC-global-scadutree-blessing-20260729.md).
+
+    Default OFF (2026-07-18 balance call): the floor made the DLC too easy -- you started every area
+    already blessed -- so blessing is fully vanilla by default (earn it from fragments)."""
     display_name = "Global Scadutree Blessing"
     option_off = 0
     option_player_only = 1
@@ -455,9 +471,13 @@ class Scaling(Feature):
             # (CONTRIBUTING rule 3: name the space wherever two components exchange a value), and
             # asserted in tests/test_gf_scaling_floor_units.py so the pair cannot silently converge.
             "completion_scaling_floor": int(world.options.minimum_enemy_difficulty.value),
-            "global_scadutree_blessing": blessing,
             contract.REGION_SPHERE_TARGET_RANGES: ranges,
         }
+        # The blessing CEILING. Emitted only when the feature is on, so an `off` seed's slot_data is
+        # byte-identical to before. Absent => the client uses the ladder ceiling (see the contract
+        # entry: absent must never mean 0).
+        if blessing != 0:
+            out["scaduBlessingCap"] = SCADU_BLESSING_CAP
         # WHICH BUCKETS ARE DLC -- independent of every option, because that is what the question
         # actually depends on. Emitted whenever a DLC region is kept; absent (inert) otherwise, so a
         # base-game seed's slot_data is unchanged. See dlc_region_buckets for why the client could

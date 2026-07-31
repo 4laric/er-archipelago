@@ -440,6 +440,13 @@ CONTRACT = (
                 "features/scaling.py (I2)", "er-logic/scaling.rs:150-165 range parse",
                 "[[lo,hi,target], ...] play_region/100 sub-id ranges -> scaling target; the live "
                 "completion-scaling wire (SCALING_WIRE)."),
+    ContractKey("scaduBlessingCap", "INT", False, (GREENFIELD,),
+                "features/scaling.py", "er-logic/upgrades.rs apply_blessing_cap",
+                "Ceiling (0..20) for the Scadutree-blessing curve. Emitted only when "
+                "global_scadutree_blessing != 0. 🛑 ABSENT MEANS 'no extra cap' -> the client falls "
+                "back to the ladder ceiling (20), NOT to 0: a key that read as the floor when absent "
+                "would ship the whole feature inert, which is the exact bug this option already had "
+                "once. Exists so the client never has to re-derive the seed's tier model."),
     ContractKey("dlcScadutreeFloorRanges", "TRIPLE_LIST", False, (GREENFIELD,),
                 "features/scaling.py", "eldenring-archipelago/upgrades.rs floor_for_region (mode 2)",
                 "[[lo,hi,floor], ...] play_region/100 sub-id ranges -> Scadutree-blessing FLOOR level "
@@ -721,10 +728,12 @@ CONTRACT = (
                 "same-named options.* key, which carries the HP multiplier the client parses. "
                 "Informational / spoiler-side only. Do not 'unify' the two without reading "
                 "features/scaling.floor_multiplier first."),
-    ContractKey("global_scadutree_blessing", "INT", False, (GREENFIELD,),
-                "features/scaling.py (legacy duplicate of options.global_scadutree_blessing)",
-                "(client reads options.global_scadutree_blessing)",
-                "legacy top-level copy of the Scadutree blessing scope."),
+    # RETIRED 2026-07-31: the top-level `global_scadutree_blessing` duplicate. Nothing ever read it
+    # -- the only consumer, client core.rs, goes through `/options/global_scadutree_blessing` -- and
+    # a second key with the same name in a different scope is exactly the trap the two
+    # `completion_scaling_floor` keys above are annotated to avoid. Removed here, in scaling.py's
+    # emitter, and from the client's slot_data fixture in the same change. CONTRACT_HASH moves; it
+    # was moving anyway for scaduBlessingCap, so the removal rides along for free.
     # --- version handshake ---
     # GREENFIELD-only: core.rs logs a warning and continues when a foreign apworld sends no
     # `versions` ("it predates the version handshake"). Requiring it of everyone was a lie.
