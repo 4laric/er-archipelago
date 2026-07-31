@@ -39,7 +39,7 @@ def test_filler_names_always_include_rune():
 
 class FillerForeignDefault(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True}
+    options = {"num_regions": 0, "item_shuffle": True}
 
     def test_default_localizes_nothing(self):
         feat = FillerForeignFeature()
@@ -49,7 +49,7 @@ class FillerForeignDefault(WorldTestBase):
 
 class FillerForeignAllLocal(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "filler_foreign_pct": 0}
+    options = {"num_regions": 0, "item_shuffle": True, "filler_foreign_pct": 0}
 
     def test_zero_pct_localizes_all_filler_names(self):
         feat = FillerForeignFeature()
@@ -63,7 +63,7 @@ class FillerForeignAllLocal(WorldTestBase):
 
 class FillerForeignHalf(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "filler_foreign_pct": 50}
+    options = {"num_regions": 0, "item_shuffle": True, "filler_foreign_pct": 50}
 
     def test_half_localizes_partial(self):
         feat = FillerForeignFeature()

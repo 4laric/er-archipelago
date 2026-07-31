@@ -116,7 +116,7 @@ class SlotDataFixtureRich(WorldTestBase):
     Shape/required validation is delegated to contract.validate_slot_data so it cannot go stale.
     """
     game = GAME
-    options = {
+    options = {"num_regions": 0, 
         "item_shuffle": True,
         "dungeon_sweep": "all",
         "pool_builder_intensity": "max",
@@ -207,7 +207,7 @@ class SlotDataFixtureDefault(WorldTestBase):
     ALWAYS_KEYS (>=), not an exact match -- the exact-keyset contract guard lives in the rich class.
     """
     game = GAME
-    options = {}
+    options = {"num_regions": 0, }
 
     def test_always_keys_present(self):
         sd = self.world.fill_slot_data()

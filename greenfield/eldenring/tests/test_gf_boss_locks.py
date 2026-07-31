@@ -39,7 +39,7 @@ class BossLocationsSealed(WorldTestBase):
 
 class DungeonSweepFlags(WorldTestBase):
     game = GAME
-    options = {"dungeon_sweep": "all"}
+    options = {"num_regions": 0, "dungeon_sweep": "all"}
 
     def test_sweep_flags_present_and_scoped(self):
         from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS

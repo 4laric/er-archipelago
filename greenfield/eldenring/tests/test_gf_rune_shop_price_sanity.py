@@ -61,7 +61,7 @@ def _direct_rune_ratios(seed, draws=50):
 def _infinite_stock_rune_ratios(seed):
     class _T(WorldTestBase):
         game = GAME
-        options = {"reroll_infinite_shop_stock": True}
+        options = {"num_regions": 0, "reroll_infinite_shop_stock": True}
     t = _T("runTest")
     t.options = {"reroll_infinite_shop_stock": True}
     t.world_setup(seed)

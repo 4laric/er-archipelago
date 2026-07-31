@@ -88,21 +88,24 @@ GREAT_RUNES: List[str] = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great 
 # ---- core options ----------------------------------------------------------------------------
 class NumRegions(Range):
     """How many regions are in play this seed. 0 = all regions (full Shattering). N > 0 seals the
-    rest: only kept regions get locks, checks, and goal requirement, for a shorter run."""
+    rest: only kept regions get locks, checks, and goal requirement, for a shorter run.
+
+    Default 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is
+    the length most players actually finish. Set 0 for the full map."""
     display_name = "Number of Regions"
     range_start = 0
     range_end = len(REGIONS)
-    default = 0
+    default = 6
 
 
 class NumRegionsOrder(Choice):
-    """How kept regions are chosen when num_regions > 0. 'spine' keeps the first N of a fixed
-    progression path (Limgrave first); 'rolled' keeps N random regions. The goal region (Leyndell)
+    """How kept regions are chosen when num_regions > 0. 'rolled' (default) keeps N random regions;
+    'spine' keeps the first N of a fixed progression path (Limgrave first). The goal region (Leyndell)
     is always kept, so the seed is always winnable."""
     display_name = "Region Selection"
     option_spine = 0
     option_rolled = 1
-    default = 0
+    default = 1
 
 
 class ItemShuffle(Toggle):

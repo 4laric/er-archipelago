@@ -16,7 +16,7 @@ _KEYS = ("completion_scaling", "dungeonSweeps", "sweepLockGates", "shopRowFlags"
 
 class FeaturesSmoke(WorldTestBase):
     game = GAME
-    options = {"dungeon_sweep": "all"}
+    options = {"num_regions": 0, "dungeon_sweep": "all"}
 
     def test_feature_options_present(self):
         """Every declared feature option must be ACCOUNTED FOR: either yaml-exposed in GFOptions, or

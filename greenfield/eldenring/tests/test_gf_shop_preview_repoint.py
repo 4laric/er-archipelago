@@ -63,7 +63,7 @@ class ClientCanSell(WorldTestBase):
     vanilla when it did (the bug). The asymmetry is why UNKNOWN must answer False."""
 
     game = GAME
-    options = {}
+    options = {"num_regions": 0, }
 
     def _with_catalog(self, catalog):
         """Swap ITEM_CATALOG for the duration of one assertion -- the predicate reads it at call

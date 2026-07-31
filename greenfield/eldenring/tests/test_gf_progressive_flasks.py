@@ -152,7 +152,7 @@ class ProgressiveFlaskLadderDLCOnly(WorldTestBase):
     ladder: charges max (14) via the escalating schedule and potency maxes (12) via one tear/copy, so
     BOTH axes fully max exactly at copy 12."""
     game = GAME
-    options = {"dlc_only": True, "progressive_flasks": True}
+    options = {"num_regions": 0, "dlc_only": True, "progressive_flasks": True}
 
     def test_dlc_only_injects_twelve_rung_ladder(self):
         w = self.world

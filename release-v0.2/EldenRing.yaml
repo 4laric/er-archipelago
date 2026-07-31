@@ -45,14 +45,14 @@ Elden Ring:
   # opens when its Region Lock item arrives -- its graces light and you warp
   # in. This is the marquee mode: it turns the open world into an Archipelago
   # progression graph. Try 4 for a tight evening run.
-  num_regions: 0
+  num_regions: 6
 
   # How the kept regions are chosen when num_regions > 0.
   #   spine  -- the first N of a fixed path (Limgrave first). Predictable.
   #   rolled -- a random N. Wilder.
   # Either way the goal region (Leyndell) is always kept, so the seed is
   # always winnable.
-  num_regions_order: spine
+  num_regions_order: rolled
 
   # Prefer the vanilla shape to the Shattering? Turn this on.
   #   Regions are gated by REAL vanilla keys and boss remembrances (still

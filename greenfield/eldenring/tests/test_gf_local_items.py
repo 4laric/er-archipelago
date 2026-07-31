@@ -24,7 +24,7 @@ def _local_set(tb):
 
 class LocalItemsOn(WorldTestBase):
     game = GAME
-    options = {"local_item_only": True, "item_shuffle": True}
+    options = {"num_regions": 0, "local_item_only": True, "item_shuffle": True}
 
     def test_catalog_items_forced_local(self):
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated for this test to be meaningful")
@@ -46,7 +46,7 @@ class LocalItemsOn(WorldTestBase):
 
 class LocalItemsOff(WorldTestBase):
     game = GAME
-    options = {"local_item_only": False, "item_shuffle": True}
+    options = {"num_regions": 0, "local_item_only": False, "item_shuffle": True}
 
     def test_catalog_items_not_force_added(self):
         # toggle off -> feature leaves local_items alone. With no hand-authored local_items in the
@@ -58,7 +58,7 @@ class LocalItemsOff(WorldTestBase):
 
 class LocalItemsWithExclusion(WorldTestBase):
     game = GAME
-    options = {
+    options = {"num_regions": 0, 
         "local_item_only": True,
         "item_shuffle": True,
         "exclude_local_item_only": {"goods"},

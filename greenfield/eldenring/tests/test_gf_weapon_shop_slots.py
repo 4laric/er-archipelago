@@ -67,7 +67,7 @@ class TheFeatureIsGone(unittest.TestCase):
 
 class WeaponSlotsAcceptAnything(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True}  # the pool that USED to trigger enforcement
+    options = {"num_regions": 0, "item_shuffle": True}  # the pool that USED to trigger enforcement
 
     def _weapon_slots_in_play(self):
         return [l for l in self.multiworld.get_locations(self.world.player)
@@ -99,7 +99,7 @@ class WeaponSlotsAcceptAnything(WorldTestBase):
 
 class DegeneratePoolStillGenerates(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False}  # the pool whose fill-safety gate used to matter
+    options = {"num_regions": 0, "item_shuffle": False}  # the pool whose fill-safety gate used to matter
 
     def test_generates_without_overconstraint(self):
         # Kept from the old file: the degenerate pool was the case the deleted feature had to skip
