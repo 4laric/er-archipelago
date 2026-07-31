@@ -116,14 +116,17 @@ FROZEN_OPTIONS = {
     # already covered by test_gf_boss_locks ("a fresh world with dungeon_sweep=none emits no sweep
     # keys"). A knob that works and is hidden is a different thing from a knob that is not ready.
     # "dungeon_sweep": (2, "all"),
-    # OFF (fully vanilla) as of 2026-07-18 (Alaric balance call): with the DLC enemy scaling handled
-    # separately, the per-DLC-region blessing FLOOR made the DLC "way too easy" -- you arrived at each
-    # area already at its expected blessing without collecting a single Scadutree Fragment. Off = the
-    # game grants blessing ONLY from fragments you actually hold, applied on rest, exactly as vanilla.
-    # The mechanism + client consumer (er-logic scaling.rs floor path; DLC_BLESSING_FLOORS; the
-    # `scaled` option value) are RETAINED, just not the shipped default -- so no default seed emits
-    # dlcScadutreeFloorRanges (justified in test_gf_slot_data_fixture._CONTRACT_NOT_EMITTED).
-    "global_scadutree_blessing": (0, "off"),
+    # UNFROZEN 2026-07-31, default still OFF. The 2026-07-18 balance call below stands as the DEFAULT
+    # -- it is not a reason to keep the knob unreachable. The freeze had a second, unintended effect:
+    # the option could not be set from yaml at all, so the feature could never be playtested, so the
+    # bug that it did nothing outside the DLC went unnoticed for its entire life. A knob that cannot
+    # be turned on cannot be tested (the same reasoning that unfroze dungeon_sweep on 2026-07-28).
+    #
+    # The original call, still the default: with the DLC enemy scaling handled separately, the
+    # per-DLC-region blessing FLOOR made the DLC "way too easy" -- you arrived at each area already at
+    # its expected blessing without collecting a single Scadutree Fragment. off = the game grants
+    # blessing ONLY from fragments you actually hold, exactly as vanilla.
+    # "global_scadutree_blessing": (0, "off"),
     "progression_surface_mode": (2, "strict"),
     # NB: `progression_surface` is deliberately NOT frozen -- it is the one genuinely interesting
     # player-facing lever (WHICH locations may hold progression), it is finished, and its categories are

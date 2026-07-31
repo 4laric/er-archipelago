@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "33b25335b7917a923b9e77a60d30e02e5d64c458c9945cbd83e61e1d7397ea26",
+ "source_sha256": "d419c1e634be491301174badc2164fee060362b16706e346e5b0f783caf7bf8a",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -35,6 +35,7 @@
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
+  "global_scadutree_blessing",
   "reroll_infinite_shop_stock",
   "infinite_hub_wares",
   "merchant_bell_logic",
@@ -73,6 +74,7 @@
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
+  "global_scadutree_blessing",
   "reroll_infinite_shop_stock",
   "infinite_hub_wares",
   "merchant_bell_logic",
@@ -726,6 +728,35 @@
     "start": 0,
     "end": 100
    },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "global_scadutree_blessing",
+   "class": "GlobalScadutreeBlessing",
+   "display_name": "Global Scadutree Blessing",
+   "description": "How Scadutree Blessing is delivered. off = vanilla (blessing only from the fragments you hold,\napplied by the game, DLC only). player_only = the blessing becomes a GAME-WIDE power curve driven\nby the fragments you hold -- it works in Limgrave, not just the Land of Shadow. Enemies are\nuntouched, so this is explicitly a power fantasy. scaled = player_only PLUS the enemy-side\ncounterweight: a per-DLC-region blessing FLOOR, so a DLC region you unlock without fragments still\nmeets that area's expected blessing; collected fragments still count above the floor (max).\n\nHISTORY, because the help text used to lie. Until 2026-07-31 this option only wrote the game's\nSTORED blessing byte, and the engine refuses to apply that byte's effect outside the Land of\nShadow -- measured in-game 2026-07-29. So both live modes were silently inert in the base game\nwhile this docstring claimed that was intentional. The client now applies the blessing itself\n(see the client's `scadu_blessing` module and docs/specs/SPEC-global-scadutree-blessing-20260729.md).\n\nDefault OFF (2026-07-18 balance call): the floor made the DLC too easy -- you started every area\nalready blessed -- so blessing is fully vanilla by default (earn it from fragments).",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "off",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "player_only",
+     "value": 1
+    },
+    {
+     "name": "scaled",
+     "value": 2
+    }
+   ],
+   "range": null,
    "valid_keys": null,
    "casefold": false,
    "group": null,

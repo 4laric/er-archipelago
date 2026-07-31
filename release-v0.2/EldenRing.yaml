@@ -90,6 +90,20 @@ Elden Ring:
   # needs the base game).
   goal: auto
 
+  # SCADUTREE BLESSING AS A GAME-WIDE POWER CURVE.
+  #   off         -- vanilla (default). Blessing comes only from the Scadutree
+  #                  Fragments you hold, and only inside the DLC.
+  #   player_only -- the blessing works EVERYWHERE, Limgrave included. Enemies
+  #                  are untouched, so this is a straight power boost.
+  #   scaled      -- player_only PLUS the per-DLC-region blessing floor.
+  # Until 2026-07-31 this option did nothing outside the DLC no matter what you
+  # set: the game refuses to apply the blessing's effect outside the Land of
+  # Shadow, and the option only wrote the stored value. The client now applies
+  # the blessing itself, so the setting finally means what it says.
+  # Capped at blessing level 12 (~3.4x combat budget) rather than the full 20 --
+  # the last 8 levels cost half the fragment budget for +11% attack.
+  global_scadutree_blessing: off
+
   # What the goal requires.
   #   region_locks  -- hold every Region Lock that is in play (default).
   #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the
@@ -338,8 +352,9 @@ Elden Ring:
 #    no_weapon_requirements    ON   -- any gear the multiworld sends you is usable
 #    buyable_stonesword_keys   ON
 #    flatten_regular_upgrades  2    -- a UNIFORM 2-stone ladder, NOT the vanilla 2/4/6
-#    global_scadutree_blessing off    -- fully vanilla: DLC blessing is earned from Scadutree
-#                                          Fragments only (the per-area floor was removed 2026-07-18)
+#    global_scadutree_blessing off    -- fully vanilla by DEFAULT, but the knob is now
+#                                          reachable (unfrozen 2026-07-31) and the blessing
+#                                          is game-wide when you turn it on
 #
 #  `grace_rando` no longer exists at all.
 # ============================================================================

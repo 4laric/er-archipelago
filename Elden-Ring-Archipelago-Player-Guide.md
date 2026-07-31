@@ -226,6 +226,32 @@ of an escalating one.
 > direction**: the old `completion_scaling_ramp: 25` is the new
 > `difficulty_ramp_speed: 75`.
 
+### Making yourself stronger instead of the enemies weaker
+
+The difficulty sliders above move the *enemies*. `global_scadutree_blessing`
+moves *you*.
+
+```yaml
+global_scadutree_blessing: off   # off | player_only | scaled
+```
+
+Scadutree Blessing is the Shadow of the Erdtree upgrade track: collect Scadutree
+Fragments, rest at a grace, hit harder and take less. In vanilla it works only
+inside the Land of Shadow.
+
+- **`player_only`** makes it work **everywhere**, Limgrave included, driven by
+  the fragments you're holding. Enemies are untouched, so this is a plain power
+  boost -- at the cap you deal about 1.85x and take about 0.54x.
+- **`scaled`** adds the per-DLC-region blessing floor on top, so a DLC region you
+  unlock without any fragments still meets that area's expected blessing.
+
+The curve is capped at blessing level 12 rather than the full 20: the last eight
+levels cost half the total fragments for roughly 11% more damage.
+
+> **This option used to do nothing outside the DLC**, whatever you set
+> it to -- the game declines to apply the blessing's effect outside the Land of
+> Shadow, and the option only wrote the stored number. It now works as described.
+
 ## How much of a region an unlock opens
 
 When a region unlocks, it lights that region's Sites of Grace so you can fast

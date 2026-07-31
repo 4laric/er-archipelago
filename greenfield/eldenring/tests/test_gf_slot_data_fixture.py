@@ -52,7 +52,9 @@ INFORMATIONAL_EXTRAS = {
     "completionScalingBasis",     # int  : 1
     "completion_scaling",         # int  : client curve id
     "completion_scaling_floor",   # int
-    "global_scadutree_blessing",  # int
+    # global_scadutree_blessing: RETIRED as a top-level key 2026-07-31. It was declared in the
+    # contract AND echoed here, and nothing ever read the top-level copy -- the client goes
+    # through /options/global_scadutree_blessing, which is unaffected.
     "ending_condition",           # str  : "region_locks" | "great_runes"
     "great_runes_required",       # int  : effective (clamped) rune requirement
     "bossLocations",              # dict[str region] -> list[int]
@@ -104,7 +106,13 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # _CONTRACT_NOT_EMITTED, which would stop anything from checking it is ever emitted at all.
 ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
                               "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy",
-                              "requiresClientFeatures"}
+                              "requiresClientFeatures",
+                              # scaduBlessingCap rides the same rule as requiresClientFeatures: it is
+                              # CONDITIONAL (emitted only when global_scadutree_blessing != 0), and a
+                              # default seed leaves that option off. Excluded here, and satisfied in
+                              # RICH above, so it is checked where it can be checked rather than
+                              # demanded where it cannot.
+                              "scaduBlessingCap"}
 
 
 class SlotDataFixtureRich(WorldTestBase):
@@ -126,6 +134,13 @@ class SlotDataFixtureRich(WorldTestBase):
         # requiresClientFeatures. RICH exists to exercise every key, so the honest fix for a new
         # conditional key is to satisfy its condition here -- not to list it as never-emitted.
         "maximum_enemy_difficulty": 50,
+        # UNFROZEN 2026-07-31. RICH exists to exercise every key, and `scaduBlessingCap` is emitted
+        # when this is non-zero -- so the honest fix for the new conditional key is to satisfy its
+        # condition here, exactly as the comment above demands, rather than park it in
+        # _CONTRACT_NOT_EMITTED. `player_only` (1) rather than `scaled` (2): 2 would ALSO pull in
+        # dlcScadutreeFloorRanges, which needs a kept DLC region and is a separate not-emitted entry
+        # with its own justification. One new key at a time.
+        "global_scadutree_blessing": "player_only",
     }
 
     def test_exact_keyset(self):
