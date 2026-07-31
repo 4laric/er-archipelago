@@ -54,7 +54,7 @@ class DefaultOffIsNoChange(WorldTestBase):
 
 class OnScopesExactlyTheShops(WorldTestBase):
     game = GAME
-    options = {"no_runes_in_shops": True}
+    options = {"num_regions": 0, "no_runes_in_shops": True}
 
     def test_shop_checks_reject_own_runes_and_nothing_else(self):
         rune = self.world.create_item(_PROBE_RUNE)
@@ -195,7 +195,7 @@ def test_banned_and_unbanned_rolls_differ_only_when_the_ban_bites():
 def test_a_rune_hub_pin_with_the_ban_is_an_OptionError_naming_both():
     class _T(WorldTestBase):
         game = GAME
-        options = {"no_runes_in_shops": True, "infinite_hub_wares": {"Golden Rune [5]"}}
+        options = {"num_regions": 0, "no_runes_in_shops": True, "infinite_hub_wares": {"Golden Rune [5]"}}
 
     t = _T("runTest")
     t.options = dict(_T.options)

@@ -64,7 +64,7 @@ def _juice_names(world):
 
 class IntensityNormalIsWired(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "pool_builder_intensity": "normal"}
+    options = {"num_regions": 0, "item_shuffle": True, "pool_builder_intensity": "normal"}
 
     def test_the_strictest_floor_reaches_the_composer(self):
         names = set(_juice_names(self.world))
@@ -83,7 +83,7 @@ class IntensityNormalIsWired(WorldTestBase):
 
 class IntensityMaxIsWider(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "pool_builder_intensity": "max"}
+    options = {"num_regions": 0, "item_shuffle": True, "pool_builder_intensity": "max"}
 
     def test_max_composes_from_the_wide_catalog(self):
         """Verified by DIFFERENCE, not by an absolute count: same seed, same everything but the

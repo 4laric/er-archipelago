@@ -57,8 +57,9 @@ client; remove the client and Elden Ring is exactly as you left it.
 
 ## A run, start to finish
 
-You wake up at Roundtable Hold. One region is open (Limgrave, on the default
-`spine` order; set `num_regions_order: rolled` if you'd rather it be random).
+You wake up at Roundtable Hold. One region is open, and which one is random on
+the default `rolled` order. Set `num_regions_order: spine` if you'd rather the
+kept regions follow vanilla progression order, Limgrave first.
 Warp in and play Elden Ring: fight, loot, buy things. Every pickup fires off
 a check.
 
@@ -113,8 +114,8 @@ The yaml's comments document every option; these are the ones that reshape the
 run rather than tune it.
 
 - **`num_regions`** -- the size of the Shattering. The one option that turns
-  Elden Ring into an Archipelago game. 4 for an evening, 0 (the shipped
-  default) for everything.
+  Elden Ring into an Archipelago game. 4 for an evening, 6 (the shipped
+  default) for a full run you will actually finish, 0 for everything.
 - **`natural_progression`** -- the Shattering's opposite. Off (default) you get
   Region Locks. On, the whole map is in play from the start and regions open on
   their *real* vanilla keys -- Dectus halves, the Haligtree medallion, boss

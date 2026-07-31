@@ -175,7 +175,7 @@ class KeyItemsSurviveTheFillerTail(unittest.TestCase):
 class FortissaxRejectsProgression(WorldTestBase):
     """The acceptance test, at fill level: the reported seed placed a region Lock here."""
     game = GAME
-    options = {"item_shuffle": True}
+    options = {"num_regions": 0, "item_shuffle": True}
 
     def test_location_rejects_advancement(self):
         f2a = _flag_to_ap()
@@ -256,7 +256,7 @@ class SurfaceCountsOnlyHostableChecks(WorldTestBase):
     anyway until 2026-07-28, and Deeproot Depths is where that stopped being cosmetic: its ONLY
     surface member is the Fortissax reward."""
     game = GAME
-    options = {"item_shuffle": True}
+    options = {"num_regions": 0, "item_shuffle": True}
 
     def test_missable_is_barred_from_the_surface(self):
         from worlds.eldenring.features.progression_surface import (

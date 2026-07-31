@@ -62,7 +62,7 @@ class ProgressiveOff(WorldTestBase):
 
 class ProgressiveStoneswordKeysOn(WorldTestBase):
     game = GAME
-    options = {"progressive_stonesword_keys": True}
+    options = {"num_regions": 0, "progressive_stonesword_keys": True}
 
     def test_key_grant_shape(self):
         grants = self.world.fill_slot_data()["progressiveGrants"]
@@ -80,7 +80,7 @@ class ProgressiveStoneswordKeysOn(WorldTestBase):
 
 class ProgressiveStoneBellsOn(WorldTestBase):
     game = GAME
-    options = {"progressive_stone_bells": True}
+    options = {"num_regions": 0, "progressive_stone_bells": True}
 
     def test_bell_grant_shape_and_flags(self):
         grants = self.world.fill_slot_data()["progressiveGrants"]

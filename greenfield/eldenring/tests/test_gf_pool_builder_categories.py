@@ -39,7 +39,7 @@ def _injected_categories(world):
 
 class WeaponsOnly(WorldTestBase):
     game = GAME
-    options = {**_BASE, "pool_builder_pct_weapons": 100}
+    options = {"num_regions": 0, **_BASE, "pool_builder_pct_weapons": 100}
 
     def test_only_weapons_injected(self):
         cats, total = _injected_categories(self.world)
@@ -50,7 +50,7 @@ class WeaponsOnly(WorldTestBase):
 
 class SpellsAndTalismans(WorldTestBase):
     game = GAME
-    options = {**_BASE, "pool_builder_pct_spells": 50, "pool_builder_pct_talismans": 50}
+    options = {"num_regions": 0, **_BASE, "pool_builder_pct_spells": 50, "pool_builder_pct_talismans": 50}
 
     def test_only_the_two_set_categories(self):
         cats, total = _injected_categories(self.world)
@@ -63,7 +63,7 @@ class SpellsAndTalismans(WorldTestBase):
 
 class DefaultIsGlobal(WorldTestBase):
     game = GAME
-    options = {**_BASE}  # no per-category percents -> global mode (multiple categories)
+    options = {"num_regions": 0, **_BASE}  # no per-category percents -> global mode (multiple categories)
 
     def test_global_mode_spans_categories(self):
         cats, total = _injected_categories(self.world)

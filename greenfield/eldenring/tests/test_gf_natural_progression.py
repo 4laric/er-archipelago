@@ -23,7 +23,7 @@ class NaturalProgressionTest(WorldTestBase):
     # default accessibility (all locations reachable) -- the stronger guarantee: the whole real-key
     # DAG must be satisfiable with no stranded region. The cycle-breaker in the feature's set_rules is
     # what makes this hold even under accessibility:minimal.
-    options = {"natural_progression": True, "enable_dlc": True}
+    options = {"num_regions": 0, "natural_progression": True, "enable_dlc": True}
 
     def _names(self):
         return [i.name for i in world_items(self)]

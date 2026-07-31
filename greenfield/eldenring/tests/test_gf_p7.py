@@ -79,7 +79,7 @@ class Phase7Defaults(WorldTestBase):
 
 class Phase7DeathLinkOn(WorldTestBase):
     game = GAME
-    options = {"death_link": True}
+    options = {"num_regions": 0, "death_link": True}
 
     def test_death_link_flag_true(self):
         self.assertIs(self.world.fill_slot_data()["death_link"], True)
@@ -87,7 +87,7 @@ class Phase7DeathLinkOn(WorldTestBase):
 
 class Phase7RegionLockOn(WorldTestBase):
     game = GAME
-    options = {"start_with_region_lock": True}
+    options = {"num_regions": 0, "start_with_region_lock": True}
 
     def test_exactly_one_region_lock_precollected(self):
         pre = [i.name for i in self.multiworld.precollected_items[self.player] if i.name.endswith(" Lock")]

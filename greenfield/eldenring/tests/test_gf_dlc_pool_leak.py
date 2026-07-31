@@ -103,7 +103,7 @@ class DLCOnGateInert(WorldTestBase):
     """DLC on (default): the exclusion set is empty, so the gate is a no-op (no behavior change)."""
     game = GAME
     # `pool_builder` retired 2026-07-28 (Options.Removed) -- naming it here would raise.
-    options = {"item_shuffle": True, "pool_builder_intensity": "max", "varied_filler": True}
+    options = {"num_regions": 0, "item_shuffle": True, "pool_builder_intensity": "max", "varied_filler": True}
 
     def test_gate_empty_when_dlc_on(self):
         self.assertEqual(self.world.gf_dlc_excluded, frozenset(),

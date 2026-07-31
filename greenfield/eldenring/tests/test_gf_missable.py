@@ -66,7 +66,7 @@ def _missable_in_play(world, mw):
 
 class MissableGuardOn(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True}  # real-item pool so there is progression to reject
+    options = {"num_regions": 0, "item_shuffle": True}  # real-item pool so there is progression to reject
 
     def _an_advancement_item(self):
         for i in world_items(self):
@@ -96,7 +96,7 @@ class MissableGuardOn(WorldTestBase):
 
 class MissableDegenerateSafe(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False}  # degenerate pool -> gate skips, gen must not FillError
+    options = {"num_regions": 0, "item_shuffle": False}  # degenerate pool -> gate skips, gen must not FillError
 
     def test_generates(self):
         self.assertTrue(self.multiworld.get_locations(self.world.player))

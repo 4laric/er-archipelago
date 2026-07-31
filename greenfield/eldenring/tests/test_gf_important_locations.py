@@ -251,7 +251,7 @@ def _tagged_in_play(world, mw):
 
 class ImportantLocEnforced(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True}  # real-item pool -> enough non-filler to enforce
+    options = {"num_regions": 0, "item_shuffle": True}  # real-item pool -> enough non-filler to enforce
 
     def test_tagged_reject_filler(self):
         tagged = _tagged_in_play(self.world, self.multiworld)
@@ -271,7 +271,7 @@ class ImportantLocEnforced(WorldTestBase):
 
 class ImportantLocDegenerateSafe(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": False}  # degenerate pool -> gate must SKIP, gen must not FillError
+    options = {"num_regions": 0, "item_shuffle": False}  # degenerate pool -> gate must SKIP, gen must not FillError
 
     def test_generates_without_overconstraint(self):
         # reaching setUp without a FillError is the assertion; confirm the world built.

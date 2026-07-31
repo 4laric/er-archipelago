@@ -7,7 +7,7 @@ GAME = "Elden Ring"
 
 class AutoUpgradeOn(WorldTestBase):
     game = GAME
-    options = {"auto_upgrade": True}
+    options = {"num_regions": 0, "auto_upgrade": True}
     def test_echo_on(self):
         sd = self.world.fill_slot_data()
         assert sd["options"]["auto_upgrade"] == 1, sd["options"]["auto_upgrade"]

@@ -28,7 +28,7 @@ def _members(mode):
     """Total swept checks at a rung, at a PINNED seed (kept regions vary per seed)."""
     class _T(WorldTestBase):
         game = GAME
-        options = {} if mode is None else {"dungeon_sweep": mode}
+        options = {"num_regions": 0, } if mode is None else {"dungeon_sweep": mode}
     t = _T("runTest")
     t.options = {} if mode is None else {"dungeon_sweep": mode}
     t.world_setup(SEED)

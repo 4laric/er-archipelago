@@ -10,7 +10,7 @@ GAME = "Elden Ring"
 
 class ItemShuffleOn(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True}
+    options = {"num_regions": 0, "item_shuffle": True}
 
     def test_real_items_in_pool(self):
         # Feature-registered items are NOT vanilla catalog items and legitimately ride the shuffled
