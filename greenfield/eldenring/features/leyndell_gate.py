@@ -8,9 +8,23 @@ region now, gated by its own Lock and not by runes.
 
 Winnability by construction: the N runes that satisfy the gate are marked PROGRESSION (core._class_for
 reads world.gf_leyndell_runes), so AP fill guarantees N Great Runes are reachable and -- because the
-Leyndell checks require them -- places them OUTSIDE Leyndell. N is CLAMPED to the number of Great Runes
-actually in the pool this seed (world._available_runes()), so sealing rune regions (num_regions) or
-DLC Only simply lowers the requirement (to 0 = no gate) rather than making a seed unbeatable.
+Leyndell checks require them -- places them OUTSIDE Leyndell.
+
+🛑 N IS FLOORED, NOT CLAMPED, AND THE FLOOR IS VANILLA'S (2026-08-01, issue from a player report).
+The old code did `want = min(want, len(available))` on the theory that lowering the requirement is
+always safe. It is not: OUR N is data-driven, but the game's capital gate is a FIXED
+VANILLA_CAPITAL_GATE_RUNES=2 possession wall that does not clamp with us, and while the wall is
+ARMED features/graces.py WITHHOLDS the capital grace bundle -- so the physical gate is the only way
+in. At N=1 logic believes one rune opens Leyndell, the game still wants two, and fill may place a
+region Lock behind a door the player cannot open. Two ways to land there: num_regions (default 6)
+keeping exactly one Great-Rune region, or the player simply setting `leyndell_runes_required: 1`.
+
+So an ARMED wall requires at least the vanilla constant, and when the pool cannot supply that many
+runes we DISARM instead of arming low -- gf_leyndell_runes goes empty, WALL_ARMED["Leyndell"] reads
+False, the capital bundle is granted on the Leyndell Lock and the player warps in past the physical
+gate. That is the already-sound N=0 path, reused. Disarming is the only safe direction: arming below
+vanilla strands, and "fixing" it by loosening the grace withhold instead would re-open the
+past-the-wall grant graces.py deliberately retired.
 
 Option `leyndell_runes_required` (Range 0..6, default 2). 0 -> no gate (and world.gf_leyndell_runes is
 empty, so nothing is marked progression and default fill is unchanged). Base-game only: under DLC Only
@@ -39,6 +53,10 @@ except Exception:
 
 # Great Rune item names (matt-free: read from the greenfield catalog, same rule as core.GREAT_RUNES).
 GREAT_RUNES = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
+# The VANILLA capital main gate is a fixed two-Great-Rune possession wall. It is not ours and it does
+# not scale with our options, so it is the FLOOR on any armed rune wall (see the module docstring).
+VANILLA_CAPITAL_GATE_RUNES = 2
+
 # Capital map prefixes: m11 = Leyndell Royal + Ashen Capital, m19 = Fractured Marika / final
 # arena. The acquisition flag encodes the map (mAA -> AA......), so an m11/m19 flag in the goal
 # region is a capital check. Restricting to GOAL_REGION keeps HUB-overridden m11_10 Roundtable
@@ -88,8 +106,12 @@ def _leyndell_location_ids():
 
 class LeyndellRunesRequired(Range):
     """Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the
-    Leyndell Lock. 0 disables the gate. Clamped down to the Great Runes actually in the pool, so it
-    can never make a seed unbeatable."""
+    Leyndell Lock. 0 disables the gate.
+
+    Values 1..2 all mean 2: the vanilla capital gate is a fixed two-rune wall, so a gate weaker than
+    vanilla cannot be expressed -- asking for one either arms at 2 or, if the pool has fewer than
+    two Great Runes this seed, disables the gate entirely (the capital's graces are then granted on
+    the Leyndell Lock, so the seed stays winnable). Never clamped DOWN to an armed value below 2."""
     display_name = "Leyndell Great Runes Required"
     range_start = 0
     range_end = 6
@@ -102,8 +124,9 @@ class LeyndellGate(Feature):
     OPTIONS = {"leyndell_runes_required": LeyndellRunesRequired}
 
     def generate_early(self, world) -> None:
-        # Pick the concrete runes that satisfy the gate (clamped to what's in the pool); core marks
-        # these progression so fill guarantees them reachable OUTSIDE Leyndell. Empty -> gate off.
+        # Pick the concrete runes that satisfy the gate (floored at vanilla's 2, disarmed if the
+        # pool cannot supply that many); core marks these progression so fill guarantees them
+        # reachable OUTSIDE Leyndell. Empty -> gate off, capital bundle granted on the Lock.
         world.gf_leyndell_runes = []
         opt = getattr(world.options, "leyndell_runes_required", None)
         want = int(opt.value) if opt is not None else 0
@@ -113,8 +136,14 @@ class LeyndellGate(Feature):
             return  # runes only enter the pool when vanilla items are shuffled
         if GOAL_REGION not in world._kept():
             return  # DLC Only / sealed goal region -> no Leyndell to gate
+        # FLOOR, not clamp. The vanilla wall is fixed at 2 and the capital bundle is withheld while
+        # ours is armed, so an armed wall must be at least as strict as the game's -- and when the
+        # pool cannot supply that many runes the only sound move is to DISARM (empty list -> the
+        # bundle is granted on the Lock and the player warps in). See the module docstring.
+        want = max(want, VANILLA_CAPITAL_GATE_RUNES)
         avail = world._available_runes()             # Great Runes actually in the pool this seed
-        want = min(want, len(avail))
+        if len(avail) < want:
+            return                                   # gf_leyndell_runes stays [] -> wall disarmed
         world.gf_leyndell_runes = sorted(avail)[:want]
 
     def set_rules(self, world) -> None:
