@@ -400,3 +400,63 @@ def test_the_scaling_TELEMETRY_reports_the_resolved_ceiling_not_the_raw_sentinel
 
     tier_hi = int(m.group(3))
     assert tier_hi > 0, f"reported tiers {m.group(2)}..{m.group(3)} -- a flat curve on a default seed"
+
+
+# ---- global_scadutree_blessing x seed shape -----------------------------------------------------
+# ADDED 2026-08-01 with features/scadu_supply. This option was NOT in the matrix -- 40 tests here and
+# not one touched it -- which is how its injection half shipped missing for a month (#260). The
+# combination that matters is mode x DLC: the fragment is a DLC good, so mode-on + DLC-off must
+# degrade to a stated no-op rather than leak a DLC item into a base pool or raise.
+_SCADU_MODES = (0, 1, 2)
+_SCADU_SHAPES = (
+    ("rolled_default_dlc", {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": True}),
+    ("all_regions_dlc", {"enable_dlc": True}),
+    ("dlc_off", {"enable_dlc": False}),
+    ("one_region_dlc", {"num_regions": 1, "num_regions_order": "rolled", "enable_dlc": True}),
+)
+
+
+@pytest.mark.parametrize("mode", _SCADU_MODES)
+@pytest.mark.parametrize("label,extra", _SCADU_SHAPES, ids=[c[0] for c in _SCADU_SHAPES])
+def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
+    """Every mode x seed-shape gens clean, stays count-neutral, and -- when the fragment is
+    obtainable -- carries enough fragments to reach the cap it advertises."""
+    from worlds.eldenring.features import scadu_supply as ss
+    try:
+        from ._util import world_items
+    except ImportError:  # direct/unittest fallback
+        from _util import world_items
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = dict(extra, global_scadutree_blessing=mode)
+
+    t = _T()
+    t.setUp()
+    try:
+        m, cap, natural, want, injected = ss.plan(t.world)
+        assert m == mode
+        frags = sum(1 for i in world_items(t) if i.name == ss.FRAGMENT)
+        if mode == 0:
+            assert injected == 0, f"{label}: mode off must inject nothing, got {injected}"
+        elif not extra.get("enable_dlc", False):
+            # DLC off: the fragment is excluded, so the honest answer is zero -- never a leak.
+            assert injected == 0 and frags == 0, (
+                f"{label}: DLC is off, so no Scadutree Fragment may enter the pool "
+                f"(injected={injected}, in pool={frags})")
+        else:
+            assert frags >= ss.SCADU_CUM[cap], (
+                f"{label} mode {mode}: cap {cap} needs {ss.SCADU_CUM[cap]} fragments, pool has "
+                f"{frags} ({natural} natural + {injected} injected)")
+        # Count-neutrality. `world_items` counts everything this world CREATED, including the
+        # PRECOLLECTED region-lock anchor, which occupies no location -- so the invariant is
+        # items == locations + precollected, not items == locations. Measured delta is exactly 1
+        # (the anchor) at every mode and seed shape; asserting the raw equality fails at mode 0,
+        # where this feature does nothing, which is how this assertion was caught being wrong.
+        pre = len(t.multiworld.precollected_items[t.player])
+        assert len(world_items(t)) == len(t.multiworld.get_locations(t.player)) + pre, (
+            f"{label} mode {mode}: pool is not count-neutral "
+            f"(items {len(world_items(t))}, locations {len(t.multiworld.get_locations(t.player))}, "
+            f"precollected {pre})")
+    finally:
+        t.tearDown()
