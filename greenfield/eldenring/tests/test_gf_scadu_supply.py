@@ -65,6 +65,69 @@ class TestFragmentsToInject:
         assert ss.fragments_to_inject(1, 12, 0, 0, False) == 0
 
 
+# ---- the rejection (SPEC §7 bullet 4) ----------------------------------------------------------
+class TestShortfallRejection:
+    """🛑 THIS GUARD CANNOT FIRE ON REAL DATA and is expected never to. Elden Ring's filler tail is
+    enormous: the smallest measured seed is 727 locations and the cap of 12 needs 26 fragments,
+    3.6%. Alaric's judgement, and the measurement agrees.
+
+    That is precisely why every case below is a DIRECT call with synthetic totals. A guard with no
+    corpus case is untested; one that is *guaranteed* to have no corpus case is untested forever
+    unless someone calls it on purpose. It is here because both inputs are movable -- the cap is an
+    explicit tunable, and a reclassification that turns filler into protected checks shrinks the
+    payable tail -- and either could cross the line without anyone connecting the two."""
+
+    def test_a_normal_seed_has_no_shortfall(self):
+        assert ss.shortfall(2, 12, 0, 2000, False) == 0
+        assert ss.shortfall(1, 12, 3, 727, False) == 0, "the SMALLEST real seed must still pay"
+
+    def test_a_degenerate_pool_cannot_pay_and_says_by_how_much(self):
+        # 100 locations -> ceiling 10, want 26 -> 16 short.
+        assert ss.shortfall(1, 12, 0, 100, False) == 16
+
+    def test_no_shortfall_when_the_feature_is_off_or_unavailable(self):
+        assert ss.shortfall(0, 12, 0, 100, False) == 0, "mode off asks for nothing"
+        assert ss.shortfall(2, 12, 0, 100, True) == 0, "DLC-excluded asks for nothing"
+        assert ss.shortfall(2, 12, 46, 100, False) == 0, "a full-DLC seed needs no injection"
+
+    def test_generation_actually_raises_when_the_pool_cannot_pay(self, monkeypatch):
+        """END TO END, not the predicate in isolation (rule 11).
+
+        No real seed can reach this, so the only way to exercise the finished path is to move the
+        ceiling: squeezing MAX_POOL_SHARE to ~0 makes every seed unable to pay. That drives the real
+        `generate_early` on a real world and proves the raise happens THERE -- a source-inspection
+        assertion would pass even if the hook were never wired into the lifecycle."""
+        from Options import OptionError
+        monkeypatch.setattr(ss, "MAX_POOL_SHARE", 0.0001)
+
+        class _T(WorldTestBase):
+            game = GAME
+            options = {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": 1,
+                       "global_scadutree_blessing": 2}
+
+        t = _T()
+        with pytest.raises(OptionError) as ei:
+            t.setUp()
+        msg = str(ei.value)
+        assert "global_scadutree_blessing" in msg, msg
+        assert "num_regions" in msg, f"must name the lever that FIXES it, not just the culprit: {msg}"
+        assert "Scadutree Fragment" in msg and "cap" in msg, msg
+
+    def test_the_shipped_ceiling_rejects_nothing(self, monkeypatch):
+        """The other half of the guard (rule 8): what would make this fire when it should not?
+        At the SHIPPED MAX_POOL_SHARE a normal seed must generate cleanly."""
+        class _T(WorldTestBase):
+            game = GAME
+            options = {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": 1,
+                       "global_scadutree_blessing": 2}
+        t = _T()
+        t.setUp()          # must NOT raise
+        try:
+            assert ss.shortfall(*ss.plan(t.world)[:3], ss._total_locations(t.world), False) == 0
+        finally:
+            t.tearDown()
+
+
 # ---- the cross-repo constant -------------------------------------------------------------------
 @pytest.mark.skipif(_ROOT is None, reason=REPO_ONLY_REASON)
 def test_scadu_cum_matches_the_client_rung_for_rung():

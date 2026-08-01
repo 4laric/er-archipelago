@@ -60,6 +60,7 @@ no-op. Flagged for a ruling rather than silently picked.
 from typing import List
 
 from BaseClasses import ItemClassification
+from Options import OptionError
 from ..registry import Feature, register
 
 try:
@@ -112,6 +113,31 @@ def fragments_to_inject(mode: int, cap: int, natural: int, total_locations: int,
         return 0
     ceiling = int(max(0, total_locations) * MAX_POOL_SHARE)
     return min(want, ceiling)
+
+
+def shortfall(mode: int, cap: int, natural: int, total_locations: int, excluded: bool) -> int:
+    """Fragments the blessing needs that this seed CANNOT pay for. PURE. 0 = the seed can pay.
+
+    ⚠️ THIS DOES NOT BIND TODAY, and is expected not to. Elden Ring's filler tail is enormous -- the
+    smallest measured seed is 727 locations (`num_regions: 1`) and the cap of 12 needs 26 fragments,
+    3.6% of it. It exists because both numbers that decide it are movable: the cap is explicitly a
+    tunable ("if the playtest says it feels weak, raise this ONE constant", `scaling.py`), and a
+    reclassification that turns filler into protected checks shrinks the payable tail. Either could
+    cross the line without anyone connecting the two.
+
+    🛑 Which is exactly why it is called DIRECTLY in the tests with synthetic totals. A guard the
+    corpus never triggers is untested (`guard-absent-from-corpus-needs-a-direct-call`), and this one
+    is guaranteed never to fire on real data -- so the direct call is the ONLY thing standing
+    between it and rotting silently.
+    """
+    if mode not in (1, 2) or excluded:
+        return 0
+    if cap <= 0 or cap >= len(SCADU_CUM):
+        return 0
+    want = SCADU_CUM[cap] - max(0, natural)
+    if want <= 0:
+        return 0
+    return want - fragments_to_inject(mode, cap, natural, total_locations, excluded)
 
 
 def natural_fragments(world) -> int:
@@ -168,6 +194,27 @@ class ScaduSupply(Feature):
     # would mint a fresh feature id and DROP that mapping -- same reasoning as presence_floor.
     ITEMS = {}
 
+    def generate_early(self, world) -> None:
+        """Reject at OPTIONS time, not at fill.
+
+        SPEC §7: "mode != 0 on a seed with no displaceable filler raises naming both options." The
+        headline gate is that any option combination either gens clean or rejects with a message a
+        player can act on; silently under-delivering the fragments is the third outcome, and it is
+        the one that looks exactly like the bug this feature exists to fix.
+        """
+        mode, cap, natural, _want, injected = plan(world)
+        total = _total_locations(world)
+        excluded = FRAGMENT in getattr(world, "gf_dlc_excluded", frozenset())
+        if shortfall(mode, cap, natural, total, excluded) <= 0:
+            return
+        raise OptionError(
+            "global_scadutree_blessing is on (mode %d) and needs %d Scadutree Fragment(s) to reach "
+            "its cap of %d, but this seed can only place %d: it has %d location(s), the injection "
+            "may claim at most %.0f%% of them, and %d fragment(s) come from kept regions. Raise "
+            "num_regions so the seed has more locations to spend, or turn "
+            "global_scadutree_blessing off."
+            % (mode, SCADU_CUM[cap], cap, injected, total, MAX_POOL_SHARE * 100, natural))
+
     def create_items(self, world) -> List:
         import logging
         mode, cap, natural, want, injected = plan(world)
@@ -183,6 +230,9 @@ class ScaduSupply(Feature):
                 "this seed (DLC-excluded or item_shuffle off); the blessing has no fragments",
                 world.game, world.player, mode)
         elif injected < want:
+            # UNREACHABLE BY DESIGN: generate_early rejects such a seed before create_items runs.
+            # Kept as a backstop against a lifecycle reorder -- a silent under-delivery must never
+            # be the outcome, whichever hook notices first.
             log.warning(
                 "[%s:%d] scadu_supply: cap %d needs %d fragment(s), seed has %d natural, but only "
                 "%d could be injected (clamped to %.0f%% of %d locations) -- the blessing cannot "
