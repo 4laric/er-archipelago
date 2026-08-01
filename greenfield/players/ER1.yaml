@@ -1,20 +1,40 @@
-# Elden Ring Archipelago -- 2-player co-op playtest (Alaric)
-# Base game only, num_regions 5 (spine = Limgrave-first), region-locks goal.
+# Elden Ring Archipelago -- v0.3.0 2-player co-op playtest -- SLOT 1 (Alaric)
+#
+# This slot is the blocker-burner: it is the only one of the two that can clear
+# the DLC playtest v0.3.0 is waiting on. Measured on release/v0.3.0, seed 20260731:
+#   2090 checks | progression 10 | foreign filler 412 | foreign useful 312
+#   goal = Enir Ilim (1 location) AND 7 held Region Locks
+#   enemy scaling: tiers 0..11 of 19, median 11, ramp 50
 name: Alaric
 game: Elden Ring
-description: ER 2-player co-op playtest -- Alaric
+description: ER v0.3.0 co-op playtest -- Alaric (DLC slot)
 
 Elden Ring:
   # --- scope ---
-  enable_dlc: true              # BASE GAME ONLY
+  enable_dlc: true              # DLC IS ON, and here it actually enters play -- see `goal` below
   dlc_only: false
 
-  num_regions: 5                # number of regions to randomize (spine = Limgrave-first)
+  num_regions: 5                # 5 DRAWN. You will hold 7 locks: the goal region is appended
+                                # after the draw and parents are closed over (region_spine.py:126)
+  num_regions_order: spine      # Limgrave-first. MUST be stated -- v0.3 defaults this to `rolled`.
+                                # Keeping Limgrave is also the repro condition for issue #239.
 
-  # --- multiplayer / feel ---
-  death_link: false               # co-op: you both die together. Flip to false if it gets too punishing.
-  progressive_flasks: true       # Golden Seed/Sacred Tear checks -> auto charge upgrades + granted tears
+  # --- the reason this slot exists ---
+  goal: promised_consort        # force-keeps Enir Ilim, which is what drags a DLC region into a
+                                # SPINE seed. Without this, spine+5 is all base game and
+                                # `enable_dlc: true` changes literally nothing (verified: identical
+                                # 2005-check output with the flag on and off).
+  global_scadutree_blessing: scaled   # THE OWED PLAYTEST. Needs a DLC region in play, hence above.
+                                      # Watch: does the blessing hold after revering at a DLC grace?
+                                      # (client PR #10 says it collapses to 0 -- this is that test)
+  start_with_whetblades: true   # issue #240 claims this is inert AND leaks 4 checks. One run settles it.
+
+  # --- feel ---
+  maximum_enemy_difficulty: 60  # WITHOUT THIS the run is completely unscaled: the default (-1/auto)
+  difficulty_ramp_speed: 50     # produced `tiers 0..0 of 19, median 0` -- no scaling at all.
+  death_link: true              # you both die together (your original comment; the value said false)
+  progressive_flasks: true
 
   # --- standard AP ---
-  accessibility: minimal         # region-lock model: goal always reachable (not every check need be)
+  accessibility: minimal
   progression_balancing: 50
