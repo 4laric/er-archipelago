@@ -3005,7 +3005,7 @@ LOCATIONS = {
         ('Liurnia :: Smoldering Butterfly - m60_35_44 (region unconfirmed) [f1035447990]', 7774347, 1035447990),
         ('Liurnia :: Strip of White Flesh - near South Raya Lucaria Gate [f1035457030]', 7774348, 1035457030),
         ('Liurnia :: Stonesword Key - near Main Academy Gate [f1035467020]', 7774349, 1035467020),
-        ('Liurnia :: Golden Seed - near East Gate Bridge Trestle [f1035467100]', 7774350, 1035467100),
+        ('Liurnia :: Golden Seed - near Academy Gate Town [f1035467100]', 7774350, 1035467100),
         ('Liurnia :: Somber Smithing Stone [4] - near The Ravine (region unconfirmed) [f1035497020]', 7774351, 1035497020),
         ('Liurnia :: Somber Smithing Stone [2] - near Main Caria Manor Gate (region unconfirmed) [f1035497990]', 7774352, 1035497990),
         ('Liurnia :: Golden Rune [4] - near Main Caria Manor Gate [f1035507010]', 7774353, 1035507010),
@@ -5187,4 +5187,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:9d25db8497ef2730ceeb596eaf9d4bc66b6b84bc1879f5c3aba633ae31be346c', 'module': 'data.py', 'body_sha256': 'sha256:a1ad7d11be5e73333db20544007ba85a0449146dc3e1354d36d8d05cf3b0deb4'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fe348efa248d240a74a38588160034ca661f597a5ac4ae0b982eebcb4b5c891d', 'module': 'data.py', 'body_sha256': 'sha256:47866fe6c6366839b629431889882322e8366ddb4135b19bd4520ff818bb933b'}
