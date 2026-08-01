@@ -1,0 +1,65 @@
+# HAND-MAINTAINED. For every item our own logic treats as the key to a VANILLA PHYSICAL DOOR, this
+# records WHAT THE GAME READS when the player tries that door -- an "obtained" event flag, or plain
+# inventory possession -- and the evidence for the claim.
+#
+# WHY IT EXISTS. The client grants goods into the inventory. Some vanilla gates do not read the
+# inventory: they read a dedicated "obtained" event flag that a raw grant never trips. When that
+# happens the player holds the key, the door stays shut, and NOTHING tells anyone -- not the player,
+# not us. That has now happened three times (Rold Medallion 400001, 2026-06-19, proven in game;
+# the whetblade affinity flags, #240; and -- reported by a player on 0.2.18 and still open --
+# Leyndell's Great Runes and the Academy Glintstone Key). Each was found by a person walking into a
+# wall, because the client's table (crates/eldenring-archipelago/src/keyitems.rs) is a WHITELIST
+# whose failure mode is silence.
+#
+# This file makes the silence loud. `tests/test_gf_key_item_gate_classification.py` DERIVES the
+# population from the features themselves -- natural_progression.GATE_CLAUSES, legacy_key_gates
+# (_LEGACY_KEYS + the multi-key gaol), leyndell_gate.GREAT_RUNES, legible_keys.CAPSTONE_VANILLA_KEYS
+# -- and fails if any member is missing a row here. You cannot add a gate and forget this file.
+#
+# mechanism:
+#   obtained_flag      the gate reads an event flag. The client MUST set it on receipt. flags = the ids.
+#   possession         the gate reads the inventory. A plain grant is enough. flags = "-".
+#   not_a_vanilla_gate our logic uses the item as a region token; the game has no door for it. flags = "-".
+#   UNVERIFIED         we have not established which. Counted by the ratchet below; not safe, just honest.
+#
+# evidence_tier:
+#   in_game    someone walked it, in our client. The only tier that closes the question.
+#   datamine   read out of params/EMEVD/ESD or itemevents.txt. Strong; not proof of our grant path.
+#   assumed    reasoning only. LEGAL ONLY ON `UNVERIFIED` -- a confident row must cite something.
+#
+# 🛑 UNVERIFIED IS DEBT, NOT A RESTING PLACE. The test pins the count and lets it only go DOWN.
+# Do not reclassify a row to make the number smaller; move it by measuring it.
+#
+# item	mechanism	flags	evidence_tier	evidence
+Rold Medallion	obtained_flag	400001	in_game	Grand Lift of Rold stayed sealed with the medallion (goods 8107) in inventory and Morgott dead, seed 45997544150175068277, 2026-06-19; /setflag 400001 1 unblocked it. SoulsRandomizers/diste/Base/itemevents.txt f15(400001) "checks for Rold Medallion for Melina purposes". Shipped in keyitems.rs.
+Drawing-Room Key	obtained_flag	400072	datamine	itemevents.txt dedicated-flag family; Volcano Manor drawing-room transition. Shipped in keyitems.rs, but NEVER walked in game -- demote to UNVERIFIED if that ever looks load-bearing.
+Dectus Medallion (Left)	possession	-	datamine	No dedicated grant-flag and not tested as a flag in events; the lift checks INVENTORY, so an AP grant already works. Deliberately absent from keyitems.rs (2026-06-19).
+Dectus Medallion (Right)	possession	-	datamine	As (Left): lift reads inventory, no dedicated flag, deliberately absent from keyitems.rs.
+Haligtree Secret Medallion (Left)	possession	-	datamine	No dedicated grant-flag, not tested as a flag in events; the Rold/Haligtree gate reads inventory (2026-06-19).
+Haligtree Secret Medallion (Right)	possession	-	datamine	As (Left). NB legible_keys also maps this half to the Fire Giant capstone via Castle Sol.
+Godrick's Great Rune	UNVERIFIED	-	assumed	Client writes 191 (RESTORED, Divine-Tower common event 90005110) so the rune is usable at an altar. What the CAPITAL MAIN GATE reads is unmeasured, and 191-196 have no row in flag_names.tsv. Player report 0.2.18: two runes held, gate shut.
+Radahn's Great Rune	UNVERIFIED	-	assumed	As Godrick's -- client writes 192 (restored); capital-gate predicate unmeasured.
+Morgott's Great Rune	UNVERIFIED	-	assumed	As Godrick's -- client writes 193 (restored); capital-gate predicate unmeasured.
+Rykard's Great Rune	UNVERIFIED	-	assumed	As Godrick's -- client writes 194 (restored); capital-gate predicate unmeasured.
+Mohg's Great Rune	UNVERIFIED	-	assumed	As Godrick's -- client writes 195 (restored); capital-gate predicate unmeasured.
+Malenia's Great Rune	UNVERIFIED	-	assumed	As Godrick's -- client writes 196 (restored); capital-gate predicate unmeasured.
+Academy Glintstone Key	UNVERIFIED	-	assumed	Gates Raya Lucaria entry in legacy_key_gates AND names the Rennala capstone in legible_keys, but appears in the client ONLY as a display string (tracker.rs, boss_felled.rs) -- no row in keyitems.rs. Player report 0.2.18: key held, Academy still shut. Do NOT add a guessed flag; measure the seal's ObjAct first.
+Hole-Laden Necklace	UNVERIFIED	-	assumed	Gates Metyr's remembrance check (legacy_key_gates, (0,0) range = a check, not a door). Predicate unmeasured.
+Gaol Upper Level Key	UNVERIFIED	-	assumed	Lamenter's Gaol nested cells (m41_02). Both vanilla sources sit INSIDE the gaol, so a silent gate here strands hard. Predicate unmeasured.
+Gaol Lower Level Key	UNVERIFIED	-	assumed	As Upper. Predicate unmeasured.
+Rusty Key	UNVERIFIED	-	assumed	Stormveil side-door in GATE_CLAUSES. Predicate unmeasured.
+Rya's Necklace	UNVERIFIED	-	assumed	Mt. Gelmir / Volcano Manor invitation route in GATE_CLAUSES. Predicate unmeasured.
+Pureblood Knight's Medal	UNVERIFIED	-	assumed	Mohgwyn portal route; 400032 is in the itemevents 4000xx family, which is a REASON to measure it, not a classification. Injected via gen_data.GLOBAL_RECOVER.
+Messmer's Kindling	UNVERIFIED	-	assumed	Enir-Ilim finale gate (spec S4) and the Promised Consort capstone in legible_keys. Predicate unmeasured.
+Fingerslayer Blade	UNVERIFIED	-	assumed	Astel / Ainsel capstone in legible_keys (Nokron chest -> Ranni's questline). Predicate unmeasured.
+Deathroot	UNVERIFIED	-	assumed	Maliketh capstone in legible_keys; vanilla path is Gurranq CONSUMING N deathroot, which is a count, not a door. Predicate unmeasured.
+Barbed Staff-Spear	UNVERIFIED	-	assumed	Abyssal Woods token in GATE_CLAUSES (Jori's signature drop). Predicate unmeasured.
+Aspects of the Crucible: Thorns	UNVERIFIED	-	assumed	Shadow Keep token in GATE_CLAUSES. Predicate unmeasured.
+Dragon-Hunter's Great Katana	UNVERIFIED	-	assumed	Jagged Peak token in GATE_CLAUSES. Predicate unmeasured.
+Inquisitor's Girandole	UNVERIFIED	-	assumed	Altus via the Ruin-Strewn Precipice route in GATE_CLAUSES. Predicate unmeasured.
+Magma Wyrm's Scalesword	UNVERIFIED	-	assumed	Altus via the Ruin-Strewn Precipice route in GATE_CLAUSES. Predicate unmeasured.
+Remembrance of the Grafted	UNVERIFIED	-	assumed	Liurnia token in GATE_CLAUSES. Vanilla almost certainly has no door keyed on a remembrance -- but "almost certainly" is what we said about the whetblades' zero EMEVD sites, twice, and were wrong both times.
+Remembrance of the Starscourge	UNVERIFIED	-	assumed	Underworld bloc token in GATE_CLAUSES. As Grafted.
+Remembrance of the Fire Giant	UNVERIFIED	-	assumed	Farum Azula token in GATE_CLAUSES. As Grafted.
+Remembrance of the Blood Lord	UNVERIFIED	-	assumed	DLC entry token in GATE_CLAUSES. As Grafted.
+Remembrance of the Twin Moon Knight	UNVERIFIED	-	assumed	Scadu Altus token in GATE_CLAUSES. As Grafted.
