@@ -3,7 +3,7 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.3.0 — 2026-07-31
+## v0.3.0 — 2026-08-01
 
 **Client update required.** The slot_data contract moved from `d970dd88` to `5e8b11c9`
 (`goalRequiredItems` and `scaduBlessingCap` were added). A v0.2.x DLL will report a version
@@ -27,6 +27,26 @@ only ever applied inside the Shadow Realm. The client now clones the rung onto `
 `20012081`, which the base game reads too. The curve is capped at **12**, and the option is
 `global_scadutree_blessing`, which until now could not be set from a yaml at all (the class default
 was frozen). Default is still off.
+
+### New: Scadutree Fragments are actually put in the pool
+
+The blessing cap exists to bound an *injection* — and the injection had never been built. Until now
+the only mention of the fragment curve anywhere in generation was inside the comment explaining the
+cap, so the ceiling sat over a supply that arrived purely by luck of the DLC draw. Measured across
+40 seeds a row on the shipped default of six regions: **one seed in forty** could reach the cap.
+Fragments are now injected to meet it, and a DLC seed injects none because it already has them.
+
+### New: a region unlocking says so on screen
+
+Receiving a Region Lock — the most consequential item in the seed — produced nothing in game. The
+line existed, but only in the AP console. There is now a toast, and it announces the *effect*
+rather than the receipt: "Region unlocked: Liurnia", not "you received Liurnia Lock", which is a
+receipt you have to translate. It reuses the console line's exact wording so there is one phrasing
+to learn.
+
+One deliberate gap: AP replays your entire received stream when you connect, so the first pass
+after connecting cannot tell a real arrival from a replay. A lock that lands in that window is
+logged but not toasted. Silence there beats six false toasts every time you reconnect.
 
 ### New: region-lock hints you can afford
 
@@ -65,6 +85,109 @@ An em-dash rendered as `?` in-game (the FMG path is ASCII-only; there is now a t
 and the scaling-tier fraction described the vanilla ladder rather than the seed's own band. The
 region-scaling toast also gained a production caller — the strings shipped in v0.2.18 with none.
 
+### Fixed: items could stop arriving forever, and nothing said so
+
+Reported on v0.2.18: a multiworld's room changed port, the client reconnected cleanly and kept
+*sending* checks — and never received another item again, from anyone, including itself. A fresh
+character got no starting lock either, and reinstalling changed nothing.
+
+The client decides who delivers an item from *configuration*, then stands down so the two grant
+paths can't both fire. It never checked whether the owner it stood down for actually existed. If
+the reconciler never armed — which happens when the inventory pointer is never captured, and
+another mod hooking the game's item-pickup function will do exactly that — the client skipped its
+own grant, skipped the guard that holds the cursor on a failed placement, advanced the
+received-item cursor anyway, and wrote that to disk. Every item after that point was consumed
+silently and permanently.
+
+Ownership now requires an armed, un-refused reconciler. Anything else falls back to the old grant
+path, which holds its cursor and retries, so the failure mode is a stall you can see instead of a
+loss you can't. Two supporting changes: a session that is not going to deliver now says so on
+screen rather than looking healthy, and the log carries a single `[reattach]` block stating every
+fact behind the decision — identity, marker verdict, both cursors, armed, refused, inventory.
+
+### Fixed: skipping the opening cutscene made you confirm every map
+
+If you sat through the opening cutscene your maps appeared silently. If you skipped it, you had to
+click OK on every single map the first time you opened the map screen. One player had learned to
+wait in the cutscene until the item ticker moved.
+
+Map reveals are event flags, and they were gated behind an eight-second settle timer. That timer
+exists to distrust the *inventory pointer* after a save load. Flags never touch the inventory. The
+timer was landing them after you regained control, and the game announces a map revealed while you
+hold control. Flags now apply on the first in-world tick; item grants keep the settle, which is
+what it was written for. Map reveals that arrive mid-run — from a region lock — still prompt.
+
+### Fixed: a new character on a used save slot got no starting items
+
+"Start items already granted" was stored per seed and slot, with nothing in the key identifying the
+character. Roll a new character into a slot you had played and it inherited "already granted" and
+started with nothing.
+
+The client now decides by **possession**: it grants whatever is not in your bag. That is
+per-character for free, because the bag is, and it cannot go stale the way the old flag did — it
+also survives a reload, and re-delivers a start item that a save load wiped. This works because
+every start item is durable (flasks, pot vessels, lantern, whetblades); a test now enforces that,
+so a consumable can't be added to that path and silently refill every launch.
+
+### Fixed: the start-item backfill reported items it never delivered
+
+The backstop that grants missing start items was measured in one session declaring 32 of 35 absent
+off a scan that saw only 17 items, hard-failing 10 of them, quietly capping about 18 to zero and
+recording those as delivered. Its summary line claimed 22 of 32 granted. None of those numbers were
+true.
+
+Two causes, each correct somewhere else. A pot grant that hits the delivery cap reports success —
+right for the item ledger, since the item is as delivered as it will ever be, and wrong for anything
+checking the bag. And the scan could run against an inventory that was still filling, so items you
+were holding read as missing. It now never reports an item delivered unless a later scan actually
+sees it, waits for two consecutive matching scans before trusting one, keeps retrying until nothing
+is missing, and names the exact items in the log if it genuinely cannot deliver them.
+
+### Fixed: the game-wide blessing switched itself off when you used it
+
+The blessing level was read by counting Scadutree Fragments **in your bag**. Revering at a DLC grace
+consumes them. So a player using the blessing the way the game intends drained their held count to
+zero, the derived level collapsed with it, and the game-wide blessing turned itself off mid-run —
+and nothing clamped it to raise-only, so the applied rung genuinely fell.
+
+It is now driven by fragments *received*, which AP replays in full on every connect, so the count
+survives reconnects, save loads, and anything the game does to your inventory. Matched by item id
+rather than name, so a foreign apworld that calls its fragments something else still counts.
+
+### Fixed: quitting with Alt-F4 was reported as a crash
+
+Elden Ring executes a breakpoint instruction on its Alt-F4 teardown path. With no debugger attached
+nothing handles it, so it reached the crash handler and was written out as a native CTD, complete
+with a backtrace at a stable address. In one playtest log that made **five ordinary sessions look
+like four crashes** and produced a confident wrong verdict about an open crash bug. Breakpoints are
+now classified separately. The record is still written — a breakpoint inside our own DLL still
+matters — only the "process dying" banner is gone.
+
+### Fixed: a crash during generation was reported as a hang
+
+Stock `Generate.py` ends by waiting on "Press enter to close". A generation that *crashed* then sat
+on inherited stdin until the tooling timed out, so a real failure surfaced as a 900-second hang with
+no diagnosis. Every invoker now closes stdin, and the set of invokers is derived rather than
+maintained by hand — the original audit found five by reading twelve files, and a hand-kept list
+goes stale silently on the sixth.
+
+### Fixed: two Liurnia checks can no longer be required
+
+Two checks were barred from *hosting* progression on suspicion: a Sacred Tear "around Ruin-Strewn
+Precipice" and a Golden Seed "near East Gate Bridge Trestle". The Sacred Tear is our
+lowest-confidence placement of the thirteen on three independent signals, and it could not be found
+in game at the named grace. The checks themselves are real and stay collectable; only their ability
+to hold something you *need* is removed. Being wrong this way costs a filler item somewhere
+awkward; being wrong the other way strands a run. The Pilgrimage tear was also re-regioned.
+
+### Also fixed
+
+- A death-cam crash guard was present at four of **five** sites — the fifth walked the player's
+  effect list every frame while the engine was tearing it down, which is a native crash. All five
+  now call one implementation.
+- Region-scaling telemetry read the raw difficulty option rather than the seed's own band, so every
+  default seed logged a flat curve in the client log.
+
 ### Migration — read this before reusing a v0.2 yaml
 
 - 🛑 **`num_regions` now defaults to 6, not 0.** A yaml that omits `num_regions` used to roll the
@@ -77,6 +200,8 @@ region-scaling toast also gained a production caller — the strings shipped in 
 - The unused top-level `global_scadutree_blessing` slot_data key was removed. Nothing read it.
 - No option was renamed or removed. A seed generated on v0.2.19 and already in progress is
   unaffected: the absent `goalRequiredItems` key reads as an empty requirement, exactly as before.
+- The client's save file no longer records "start items already granted"; possession replaces it.
+  A v0.2 file is read normally and the stale key is ignored, so there is nothing to delete.
 
 ## v0.2.18 — 2026-07-30
 
