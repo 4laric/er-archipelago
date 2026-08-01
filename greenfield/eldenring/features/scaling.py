@@ -522,8 +522,15 @@ class Scaling(Feature):
         _n = len(SCALING_HP_LADDER)
         _floor_t = tier_for_floor_multiplier(floor_multiplier(
             int(world.options.minimum_enemy_difficulty.value)))
+        # 🛑 RESOLVED, not raw. `auto` is -1, and ceiling_multiplier clamps to 0..100 -- so the raw
+        # sentinel became the BOTTOM rung and this line reported `ceiling 0 / tiers 0..0` on every
+        # default seed from 55bafb2 (the auto default) onward. That is the fourth consumer to make
+        # this exact mistake; 81c90b0 routed the other three through resolved_max_difficulty and
+        # missed this one because it is a log line rather than a consumer. It is not merely a log
+        # line: tools/fill_regression.py parses it (_SCALING_RE) as its ONLY scaling telemetry, so a
+        # wrong ceiling here fired the harness's "🛑 a FLAT run" alarm on every default-curve run.
         _ceil_t = tier_for_ceiling_multiplier(ceiling_multiplier(
-            int(world.options.maximum_enemy_difficulty.value)))
+            resolved_max_difficulty(world)))
         _targets = [t for _lo, _hi, t in ranges]
         _mx = max(_targets) if _targets else 0
         _tiers = sorted(

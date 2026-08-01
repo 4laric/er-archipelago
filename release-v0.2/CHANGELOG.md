@@ -3,6 +3,81 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.0 — 2026-07-31
+
+**Client update required.** The slot_data contract moved from `d970dd88` to `5e8b11c9`
+(`goalRequiredItems` and `scaduBlessingCap` were added). A v0.2.x DLL will report a version
+mismatch against a v0.3.0 apworld, and it is right to: it cannot enforce the new goal condition.
+Ship the apworld and the DLL together.
+
+**Two defaults changed and they change what an old yaml does.** See "Migration" at the end of this
+entry before you reuse a v0.2 yaml.
+
+### New: a `goal` option
+
+`goal` picks what ends the run — `auto`, `elden_beast`, or `promised_consort`. A *named* goal
+force-keeps its own region, so you can no longer roll a seed whose ending is not in the seed.
+`auto` is the previous behaviour and is rng-stream-identical to v0.2.19; an impossible combination
+now raises an `OptionError` at generation time instead of producing an unwinnable seed.
+
+### New: the Scadutree Blessing is finally game-wide
+
+Both shipped blessing modes were **inert outside the DLC for their entire life** — the blessing rung
+only ever applied inside the Shadow Realm. The client now clones the rung onto `SpEffectParam` row
+`20012081`, which the base game reads too. The curve is capped at **12**, and the option is
+`global_scadutree_blessing`, which until now could not be set from a yaml at all (the class default
+was frozen). Default is still off.
+
+### New: region-lock hints you can afford
+
+Hint pricing was denominated over the whole location table, which made a region lock cost more than
+anyone accumulates. It is now denominated over the ~158-check progression surface and tracks the
+host's own `hint_cost`, with a ledger in AP data storage so a hint bought once stays bought across a
+reconnect. There is a tracker button for it.
+
+### Fixed: the crash on fast travel
+
+Instrumented across six crashes from one player's session, all six faulted **8 bytes below** our FMG
+block — the allocator header of a 64 KB-aligned `VirtualAlloc` region that was never mapped, because
+`VirtualAlloc` rounds a reservation to the allocation granularity and we had asked for exactly the
+payload. Six hits, zero misses, one allocation site. The block is now padded by a page.
+
+### Fixed: reconnecting to a different room leaked 229 checks into it
+
+The seed-marker guard was asked once, at connect, and never again. Change rooms mid-session and the
+client kept sending the previous seed's checks — 229 of them, measured. The guard is now re-asked
+mid-session and fails closed.
+
+### Fixed: a REFUSED session looked identical to a working one
+
+When the client refused to attach it did so silently. A player spent 55 minutes assuming the mod was
+broken. REFUSED now raises a toast that says so.
+
+### Fixed: the goal could fire two regions in
+
+Completion was inferred from boss flags alone, so on a rolled seed the goal region could be the
+*second* region you reach — measured at **25% of seeds**. The kept Region Locks must now be held
+before Goal is sent.
+
+### Fixed: two toast defects
+
+An em-dash rendered as `?` in-game (the FMG path is ASCII-only; there is now a test that says so),
+and the scaling-tier fraction described the vanilla ladder rather than the seed's own band. The
+region-scaling toast also gained a production caller — the strings shipped in v0.2.18 with none.
+
+### Migration — read this before reusing a v0.2 yaml
+
+- 🛑 **`num_regions` now defaults to 6, not 0.** A yaml that omits `num_regions` used to roll the
+  full 30-region spine; it now rolls a **6-region seed**. If you want the whole map, say
+  `num_regions: 0` explicitly.
+- 🛑 **`num_regions_order` now defaults to `rolled`, not the spine.** Omitting it gives you a random
+  start region rather than Limgrave.
+- The three shipped presets were re-derived against the new defaults; two of the five were silently
+  reinterpreted by the flip and are corrected here.
+- The unused top-level `global_scadutree_blessing` slot_data key was removed. Nothing read it.
+- No option was renamed or removed. A seed generated on v0.2.19 and already in progress is
+  unaffected: the absent `goalRequiredItems` key reads as an empty requirement, exactly as before.
+
 ## v0.2.18 — 2026-07-30
 
 ### Fixed: a shop row priced below the item's own value was dropped from the menu
