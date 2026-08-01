@@ -1330,12 +1330,35 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
                 # (cross-checked 2026-07-31, NOT ingested) has no entry for it -- our params do say
                 # lot 39200170 holds goods 10020, so the check is real; it is the LOCATION claim
                 # that is weak. Alaric could not find it in game at the named grace.
-    1035467100, # Liurnia :: Golden Seed -- "near East Gate Bridge Trestle". Suspected to sit behind
-                # the Raya Lucaria Academy key: Fextralife places the Phantom-Tree seed at the broken
-                # bridge NORTH of the Main Academy Gate grace, which is a different anchor from the
-                # one we name. If the key gates it, a Liurnia Lock placed here strands until the
-                # Academy opens -- the same shape as 510030 above. UNVERIFIED either way; excluded
-                # until someone walks it.
+    # 1035467100 (Liurnia :: Golden Seed) WAS here, excluded 2026-07-31 on suspicion of sitting
+    # behind the Raya Lucaria Academy key. WALKED AND CLEARED 2026-08-01 (Alaric, in game): it is
+    # reachable Liurnia, so it hosts progression like any other check. Its anchor was also wrong --
+    # the descriptor is now "near Academy Gate Town" (location_descriptions.tsv), which is what the
+    # suspicion was really about: a bad ANCHOR reading as a bad REGION.
+    # 🛑 The exclusion did its job -- cheap to be wrong, reversed the moment someone looked. Do not
+    # re-add it without new evidence; "someone walked it" is the strongest signal available here.
+    # --- 2026-08-01: the LIURNIA ISOLATED MERCHANT's entire stock (#252, reported by a player and
+    # confirmed by Alaric: "not accessible without the raya lucaria key").
+    #
+    # DERIVED, not hand-picked: all 16 are shop checks whose ShopLineupParam row is opened by the
+    # merchant instance on tile m60_35_45 (merchant_shops.tsv). The gate is on the MERCHANT, so
+    # barring only the reported flag (68220) would be a hand pin wearing an algorithm's clothes --
+    # the other 15 sit behind the same door. test_gf_surface_exclude_isolated_merchant re-derives
+    # the population and fails if this list and the tsv disagree.
+    #
+    # 🛑 WHY THE MULTI-SELLER SIGNAL DOES NOT EXONERATE THEM. Every one of the 16 lists TWO sellers
+    # -- the Isolated Merchant AND the Twin Maiden Husks (m11_10, the HUB) -- which reads like an
+    # independent, always-reachable path and is not one: the Twin Maidens only stock a merchant's
+    # inventory once you hand them that merchant's BELL BEARING, which drops from the merchant, back
+    # behind the same door. merchant_shops.tsv attributes at BLOCK level (#220), so it records who
+    # CAN open the row, never whether their stock is unlocked. Reading "2 sellers" as "reachable"
+    # is exactly the wrong-arity trap.
+    #
+    # As with the two entries above: they stay ordinary collectable checks and are barred only from
+    # HOSTING progression. Cost of being wrong here is a filler item behind a key; cost of being
+    # wrong the other way is the stranded run #252 reported.
+    68220, 69710, 69750, 69910, 160760, 160780, 160800, 160810,
+    160820, 160880, 160890, 160910, 160920, 160930, 160940, 160950,
 })
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
