@@ -309,7 +309,7 @@ if ($Generate) {
             Push-Location $ApDir
             try {
                 $env:AP_NONINTERACTIVE = "1"   # suppress Generate.py's atexit "Press enter to close." pause
-                cmd /c "python Generate.py > `"$genLog`" 2>&1"
+                cmd /c "python Generate.py < NUL > `"$genLog`" 2>&1"
                 $genExit = $LASTEXITCODE
             } finally { Pop-Location }
             if (Test-Path (Join-Path $Repo "dlcdiag.py")) {

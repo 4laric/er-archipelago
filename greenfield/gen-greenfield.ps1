@@ -50,7 +50,7 @@ Write-Host "[greenfield] generating (isolated player files: $Players)" -Foregrou
 Push-Location $ApDir
 try {
     $env:AP_NONINTERACTIVE = "1"
-    cmd /c "python Generate.py --player_files_path `"$Players`" > `"$genLog`" 2>&1"
+    cmd /c "python Generate.py --player_files_path `"$Players`" < NUL > `"$genLog`" 2>&1"
     $genExit = $LASTEXITCODE
 } finally { Pop-Location }
 

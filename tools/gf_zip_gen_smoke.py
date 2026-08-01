@@ -131,8 +131,20 @@ def main() -> int:
         (players / "ZipSmoke.yaml").write_text(BASE_YAML, encoding="utf-8")
         runner.write_text(RUNNER, encoding="utf-8")
 
+        # 🛑 NONINTERACTIVE GUARD (#193). Stock `Generate.py`'s exit path calls
+        # `input("Press enter to close.")`, so a CRASHED gen blocks on inherited stdin and the
+        # failure reports as a HANG -- here, as a 900 s TimeoutExpired traceback rather than the
+        # diagnosis this tool exists to print. This was the last of the five real Generate.py
+        # invokers left unguarded: the RUNNER above neuters ModuleUpdate's pip prompt, which looks
+        # like the same thing and is not.
+        #
+        # BOTH halves, for the reason greenfield/ci-linux.sh:127 gives: `AP_NONINTERACTIVE` is a
+        # LOCAL patch that an AP re-checkout silently drops, so closing stdin is the half that
+        # cannot rot. `input()` on a closed stdin raises instantly instead of waiting.
+        env = dict(os.environ, AP_NONINTERACTIVE="1", SKIP_REQUIREMENTS_UPDATE="1")
         r = subprocess.run([sys.executable, str(runner)], cwd=str(ap),
-                           capture_output=True, text=True, timeout=900)
+                           capture_output=True, text=True, timeout=900,
+                           stdin=subprocess.DEVNULL, env=env)
         out = r.stdout + r.stderr
         if "Done. Enjoy" in out and r.returncode == 0:
             print("zip-smoke: OK -- generation from the zipped apworld completed cleanly.")
