@@ -1,5 +1,5 @@
 # ============================================================================
-#  ELDEN RING -- Archipelago player config (v0.2)
+#  ELDEN RING -- Archipelago player config (v0.3)
 #
 #  Drop this in your Archipelago  Players/  folder and generate.
 #
@@ -33,7 +33,7 @@
 
 name: Player1
 game: Elden Ring
-description: Elden Ring -- Archipelago v0.2
+description: Elden Ring -- Archipelago v0.3
 
 Elden Ring:
 
@@ -102,6 +102,12 @@ Elden Ring:
   # the blessing itself, so the setting finally means what it says.
   # Capped at blessing level 12 (~3.4x combat budget) rather than the full 20 --
   # the last 8 levels cost half the fragment budget for +11% attack.
+  # v0.3 also puts the FRAGMENTS to reach that cap in the pool. Before, the cap
+  # bounded an injection that was never built, so on a base-game seed the supply
+  # arrived purely by luck of the DLC draw -- measured at the default 6 regions,
+  # 1 seed in 40 could reach it. Turning this on now gets you the fragments too.
+  # Left OFF by default: it is a real power boost, and the DLC combination has
+  # not been playtested yet. On a base-game seed it is safe to try.
   global_scadutree_blessing: off
 
   # What the goal requires.
@@ -128,13 +134,38 @@ Elden Ring:
   # Shadow of the Erdtree. When on, the 14 DLC regions join the pool and
   # behave EXACTLY like base regions: receive the Lock, graces light, warp
   # in. You never fight Mohg or touch the cocoon to get there. Off here
-  # because base game only is the recommended v0.2 setup (DLC is
-  # experimental).
+  # because base game only is the recommended default; the DLC path has had
+  # far less play.
   enable_dlc: false
 
   # ONLY the DLC regions are in play. Implies enable_dlc. The whole base
   # game is sealed, and the goal becomes holding every kept DLC Lock.
   dlc_only: false
+
+  # ---- PLAYING WITH THE DLC -------------------------------------------------
+  #
+  #  Uncomment this block AS A SET and delete the two `false` lines above. It is
+  #  written as one block because the DLC changes more than one number: with it
+  #  on there are 31 regions rather than 17, so a `num_regions` tuned for the
+  #  base game samples a much thinner slice of a much bigger map.
+  #
+  #  enable_dlc: true
+  #  dlc_only: false          # true = DLC only, base game sealed
+  #  num_regions: 10          # 6 of 31 is a very thin seed; 10 keeps the run
+  #                           # recognisable. 0 = the whole thing.
+  #  goal: auto               # `promised_consort` ends the run in the DLC and
+  #                           # force-keeps its region. With `auto` on a
+  #                           # base+DLC seed the ending is the Elden Beast and
+  #                           # the entire DLC is optional -- which is usually
+  #                           # not what someone enabling the DLC wants.
+  #
+  #  Two things happen on their own and need no keys. Hefty vessels are added to
+  #  your starting kit so DLC throwing pots are usable, and the Land of Shadow
+  #  map layer is unlocked so the map paints (it silently did not, before v0.3).
+  #
+  #  🛑 `global_scadutree_blessing` above is the one combination with no playtest
+  #  behind it: the blessing is native to the DLC, so turning it on there stacks
+  #  with what the DLC already gives you. Base-game-only is the tested path.
 
   # ---- Item pool ------------------------------------------------------------
 
