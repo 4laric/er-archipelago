@@ -324,3 +324,79 @@ def test_no_runes_in_shops_combinations_fill_clean(label, opts):
     assert not offenders, (
         "%s: own money runes landed on %d shop checks (first: %s)"
         % (label, len(offenders), offenders[0].name if offenders else ""))
+
+
+def test_the_scaling_TELEMETRY_reports_the_resolved_ceiling_not_the_raw_sentinel():
+    """The telemetry line is MACHINE-READ, and nothing was asserting on it.
+
+    `tools/fill_regression.py::_SCALING_RE` parses this exact line and it is the suite's only
+    scaling measurement -- `flat_runs` drives the "🛑 a FLAT run means the curve did nothing" alarm.
+    So a wrong ceiling here is not a cosmetic log defect: it makes the harness cry wolf on every
+    default-curve run (ER-fill-12 is literally the default-curve fixture), and a gate that cries
+    wolf is a gate people stop reading.
+
+    THE BUG THIS PINS. `maximum_enemy_difficulty` defaults to `auto` == -1. `ceiling_multiplier`
+    clamps its argument to 0..100, so the raw sentinel resolved to the BOTTOM rung and every default
+    seed logged `(floor 0, ceiling 0), tiers 0..0`. Live from 55bafb2 (2026-07-30, the auto default)
+    until this test.
+
+    WHY THE EXISTING COVERAGE COULD NOT SEE IT. test_a_default_all_regions_seed_spans_the_WHOLE_
+    ladder computes its tiers straight off REGION_SPHERE_TARGET_RANGES with no floor/ceiling clamp
+    -- it never calls ceiling_multiplier at all. The clamp is applied in exactly one place, the
+    telemetry, which is the one place that read the raw option. The suite was green throughout.
+    """
+    import logging
+    import re
+
+    from worlds.eldenring import scaling_ladder
+    from worlds.eldenring.features.scaling import resolved_max_difficulty
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 5}          # a SHORT seed: auto resolves well below the top rung,
+                                              # so a raw-vs-resolved mistake cannot hide behind 100%
+
+    records = []
+
+    class _Grab(logging.Handler):
+        def emit(self, record):
+            records.append(record.getMessage())
+
+    lg = logging.getLogger("Greenfield")
+    h = _Grab()
+    lg.addHandler(h)
+    prev = lg.level
+    lg.setLevel(logging.INFO)
+    t = _T()
+    t.setUp()
+    try:
+        t.world.fill_slot_data()
+        expected_pct = resolved_max_difficulty(t.world)
+    finally:
+        t.tearDown()
+        lg.removeHandler(h)
+        lg.setLevel(prev)
+
+    line = next((m for m in records if "enemy scaling:" in m), None)
+    assert line is not None, "no enemy-scaling telemetry emitted at all -- fill_regression would " \
+                             "report NOT MEASURED and the sweep would silently stop covering this"
+
+    # The SAME shape tools/fill_regression.py::_SCALING_RE expects. If this stops matching, the
+    # harness degrades to NOT MEASURED without failing, so pin the format here too.
+    m = re.search(r"enemy scaling: (\d+) buckets, tiers (\d+)\.\.(\d+) of (\d+) "
+                  r"\(floor (\d+), ceiling (\d+)\), (\d+) at ceiling, median (\d+); ramp (\d+)", line)
+    assert m, f"telemetry no longer matches fill_regression's parser: {line!r}"
+
+    ceiling = int(m.group(6))
+    want = scaling_ladder.tier_for_ceiling_multiplier(
+        scaling_ladder.ceiling_multiplier(expected_pct))
+    assert ceiling == want, (
+        f"telemetry reported ceiling {ceiling}, expected {want} for a resolved "
+        f"maximum_enemy_difficulty of {expected_pct}%. A ceiling of 0 here is the raw `auto` "
+        f"sentinel (-1) reaching ceiling_multiplier, which clamps it to the bottom rung.")
+    assert ceiling > 0, (
+        "ceiling resolved to the bottom rung on a DEFAULT seed -- every region clamps to tier 0 and "
+        "the line reports a flat curve that the player is not actually getting.")
+
+    tier_hi = int(m.group(3))
+    assert tier_hi > 0, f"reported tiers {m.group(2)}..{m.group(3)} -- a flat curve on a default seed"
