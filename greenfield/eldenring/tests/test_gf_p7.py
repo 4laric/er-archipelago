@@ -1,6 +1,6 @@
 """Phase 7 tests -- deathlink + start_items + start-region-lock surfaces (WorldTestBase).
 
-Defaults: startItems == [Torch, Flask of Crimson Tears, Flask of Cerulean Tears] + pot vessels --
+Defaults: startItems == [Lantern, Flask of Crimson Tears, Flask of Cerulean Tears] + pot vessels --
 the REPEATED (duplicate-harmless) path. The UNIQUE key items (Spectral Steed Whistle, Spirit
 Calling Bell, Flask of Wondrous Physick) ride uniqueStartGrants as [FullID, obtainedFlag] pairs
 instead: the client grants them only if the obtained-flag (60100/60110/60020) is unset, then sets
@@ -28,6 +28,7 @@ UNIQUES = {STEED: 60100, BELL: 60110, PHYSICK: 60020, WHETSTONE: 60130}
 # re-hardcoding, so a new vessel can't silently drift this test.
 from worlds.eldenring.features.start_items import (  # noqa: E402
     _CRACKED_POT_FULL_ID, _RITUAL_POT_FULL_ID, _PERFUME_BOTTLE_FULL_ID, _HEFTY_CRACKED_POT_FULL_ID,
+    _WHETBLADE_FULL_IDS, DURABLE_START_ITEMS,
 )
 VESSELS = (_CRACKED_POT_FULL_ID, _RITUAL_POT_FULL_ID, _PERFUME_BOTTLE_FULL_ID,
            _HEFTY_CRACKED_POT_FULL_ID)
@@ -57,6 +58,24 @@ class Phase7Defaults(WorldTestBase):
         sd = self.world.fill_slot_data()
         self.assertEqual(sd["uniqueStartGrants"],
                          [[STEED, 60100], [BELL, 60110], [PHYSICK, 60020], [WHETSTONE, 60130]])
+
+    def test_every_plain_start_item_is_durable(self):
+        # DURABLE-ONLY INVARIANT (#268). The client dedups plain startItems by POSSESSION -- it scans
+        # the bag and grants whatever is absent. That is what let us delete the character-less
+        # `start_items_granted` boolean (client #267), and it is valid ONLY for items that stay in
+        # the bag once granted. A stackable CONSUMABLE the player used up reads exactly like one
+        # that was never granted, so the client would refill it every single launch.
+        #
+        # This reads the REAL slot_data, so it cannot be satisfied by editing the allowlist alone.
+        si = self.world.fill_slot_data()["startItems"]
+        self.assertTrue(si, "defaults must grant SOMETHING, else this test proves nothing")
+        for full_id in si:
+            self.assertIn(
+                full_id, DURABLE_START_ITEMS,
+                f"startItems contains {full_id:#010x}, which is not declared DURABLE.\n"
+                "The client dedups this path by possession, so a consumable here refills every "
+                "launch. Either add it to start_items.DURABLE_START_ITEMS with a truthful reason, "
+                "or move it to uniqueStartGrants (flag-keyed) / a ledger-only delivery.")
 
     def test_unique_fullids_never_ride_the_repeated_path(self):
         # A unique FullID in plain startItems would be granted UNCONDITIONALLY next to the
@@ -97,3 +116,37 @@ class Phase7RegionLockOn(WorldTestBase):
                       if n.endswith(" Lock") and n not in pre]
         kept = self.world._kept()
         self.assertEqual(sorted(pool_locks + pre), sorted(f"{r} Lock" for r in kept))
+
+
+class Phase7Whetblades(WorldTestBase):
+    """Whetblades are the one OPT-IN plain-path grant, so the durable invariant has to hold with
+    them on too -- they are the most likely place a future non-durable start item lands."""
+    game = GAME
+    options = {"num_regions": 0, "start_with_whetblades": True}
+
+    def test_whetblades_present_and_durable(self):
+        si = self.world.fill_slot_data()["startItems"]
+        for full_id in _WHETBLADE_FULL_IDS:
+            self.assertIn(full_id, si, f"whetblade {full_id:#010x} missing when opted in")
+        for full_id in si:
+            self.assertIn(full_id, DURABLE_START_ITEMS,
+                          f"startItems contains {full_id:#010x}, not declared DURABLE (see #268)")
+
+
+def test_durable_allowlist_is_a_filter_not_a_rubber_stamp():
+    """DIRECT CALL (guard-absent-from-corpus rule). The invariant tests above only ever see items
+    that already PASS, so on today's corpus they would also pass if `DURABLE_START_ITEMS` were
+    accidentally permissive. Prove the allowlist actually excludes things by naming consumables it
+    must reject -- otherwise the guard is untested and we would not know until a refill bug shipped.
+    """
+    # Stackable consumables the player can use up. Possession CANNOT tell "never granted" from
+    # "granted and consumed" for any of these, so none may ever ride the plain startItems path.
+    furlcalling_finger_remedy = 0x40000000 | 2000
+    rune_arc = 0x40000000 | 2010
+    throwing_dagger = 0x40000000 | 8000
+    for full_id in (furlcalling_finger_remedy, rune_arc, throwing_dagger):
+        assert full_id not in DURABLE_START_ITEMS, (
+            f"{full_id:#010x} is a stackable consumable and must NOT be declared durable -- "
+            "the client would refill it on every launch")
+    # ...and the allowlist is non-empty, so "rejects everything" is not how it passes.
+    assert DURABLE_START_ITEMS, "an empty allowlist would reject everything and prove nothing"

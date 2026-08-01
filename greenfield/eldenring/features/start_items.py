@@ -14,8 +14,9 @@ Grants starting items the client hands the player at game start. TWO wire paths:
 
 Matt-free (single vanilla item ids, no derivation):
 
-  Torch -- WEAPON param id 24000000; FullID = 24000000 | WEAPON_NIBBLE(0x00000000) = 24000000. So dark
-      caves/catacombs are navigable before you reach a grace. (repeatable path)
+  Lantern -- GOODS id 2070; FullID = 0x40000000 | 2070. So dark caves/catacombs are navigable before
+      you reach a grace, HANDS-FREE (pouch slot, no weapon slot burned). Replaced the old start Torch
+      (WEAPON 24000000). (repeatable path)
   Spectral Steed Whistle -- GOODS id 130; FullID = 130 | GOODS_NIBBLE(0x40000000) = 1073741954 (the
       client RE'd Torrent = 0x40000000 | 130). In the shattered/region-lock game Melina's mount
       hand-off is bypassed (rolled/num_regions starts), so grant the whistle directly so the player
@@ -108,6 +109,43 @@ _START_HEFTY_CRACKED_POTS = 9
 # flag turns out to exist, move these to uniqueStartGrants paired with it.
 _WHETBLADE_FULL_IDS = [0x40000000 | g for g in (8970, 8971, 8972, 8973, 8974)]
 
+
+# ==================================================================================================
+# DURABLE-ONLY INVARIANT (#268) -- do not add to this list without reading this.
+# ==================================================================================================
+#
+# The CLIENT deduplicates plain `startItems` by POSSESSION: it scans the bag and grants whatever is
+# absent (client `start_item_backfill.rs` / `er_logic::start_backfill`). That is what retired the old
+# `start_items_granted` boolean, which was keyed (room seed, AP slot) with no character component and
+# so denied a NEW character its start items (client #267).
+#
+# Possession is a valid "already delivered" signal ONLY for a DURABLE item -- one that, once granted,
+# stays visible in the bag. For a stackable CONSUMABLE the player used up, the bag cannot tell "never
+# granted" from "granted and consumed", so the client would cheerfully refill it every launch.
+#
+# Every entry below is durable, with the reason. A new `startItems` entry MUST be added here with its
+# own reason -- and if you cannot write a truthful one, the item does not belong on this path. Use
+# `uniqueStartGrants` (flag-keyed) or design a ledger-only delivery instead.
+#
+# 🛑 This is asserted by `tests/test_gf_p7.py::test_every_plain_start_item_is_durable`, which reads the
+# REAL `slot_data()` output across option permutations -- so the check cannot be satisfied by editing
+# this list alone.
+DURABLE_START_ITEMS = {
+    _LANTERN_FULL_ID: "tool -- occupies a pouch slot, never consumed",
+    # Flasks are refilled at graces, never spent out of the bag. The client additionally treats each
+    # flask FAMILY (Crimson 1000..=1025, Cerulean 1050..=1075, every empty/charged x upgrade pair) as
+    # satisfied by ANY member, so a drained or +N flask still reads present and is not re-granted.
+    _CRIMSON_FLASK_FULL_ID: "flask -- refilled at grace; family-matched client-side",
+    _CERULEAN_FLASK_FULL_ID: "flask -- refilled at grace; family-matched client-side",
+    # Vessels are CAPACITY, not ammunition: throwing a pot consumes the crafted pot, not the vessel.
+    # Their held count only ever rises.
+    _CRACKED_POT_FULL_ID: "vessel -- permanent reusable container, count only rises",
+    _RITUAL_POT_FULL_ID: "vessel -- permanent reusable container, count only rises",
+    _PERFUME_BOTTLE_FULL_ID: "vessel -- permanent reusable container, count only rises",
+    _HEFTY_CRACKED_POT_FULL_ID: "vessel -- permanent reusable container, count only rises",
+    **{f: "tool -- whetblades unlock an affinity family by possession; never consumed"
+       for f in _WHETBLADE_FULL_IDS},
+}
 
 class StartWithLantern(DefaultOnToggle):
     """Start with a Lantern so dark caves and catacombs are navigable before you reach a grace --
