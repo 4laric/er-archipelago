@@ -18,6 +18,18 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA_PY = os.path.join(os.path.dirname(HERE), "data.py")
 
+try:  # package import (pytest from the repo)
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:  # direct/unittest fallback
+    sys.path.insert(0, HERE)
+    from _util import find_repo_root, REPO_ONLY_REASON
+
+# 🛑 Derived by SEARCHING UPWARD for a marker, never positionally. `_util.find_repo_root`'s
+# docstring spells out why: under `tools/gf_test.py` the world is copied to `_ap/worlds/eldenring/`,
+# so `dirname(dirname(dirname(HERE)))` yields `_ap` rather than the repo. Returns None when there is
+# no checkout, and the tests below skip on None instead of resolving to a wrong path.
+_ROOT = find_repo_root(HERE)
+
 # ap-id space the client contract depends on (see __init__.py _ITEM_BASE=7780000 / gen_data
 # BASE_AP=7770000). A shift here silently remaps every check.
 BASE_AP = 7770000
@@ -283,9 +295,12 @@ class GreenfieldAreaLockGeometry(unittest.TestCase):
     Consecrated Snowfield -> Mountaintops fold). Skips cleanly if the client source is not
     checked out beside the apworld."""
 
+    @unittest.skipUnless(_ROOT is not None, REPO_ONLY_REASON)
+    def setUp(self):
+        pass
+
     def _client_path(self, *parts):
-        repo = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-        return os.path.join(repo, "from-software-archipelago-clients", *parts)
+        return os.path.join(_ROOT or "", "from-software-archipelago-clients", *parts)
 
     def test_client_has_no_hand_written_region_play_ids_mirror(self):
         rs = self._client_path("crates", "eldenring-archipelago", "src", "region.rs")
@@ -307,8 +322,11 @@ class GreenfieldAreaLockGeometry(unittest.TestCase):
         if not os.path.exists(out_rs):
             self.skipTest("client region_locks.rs not present")
         import importlib.util
-        repo = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-        tool = os.path.join(repo, "tools", "gen_region_locks.py")
+        tool = os.path.join(_ROOT or "", "tools", "gen_region_locks.py")
+        if not os.path.exists(tool):
+            # Arming the gate by putting the client beside the AP checkout used to get this far
+            # and then die on FileNotFoundError, because the client existed and `tools/` did not.
+            self.skipTest(REPO_ONLY_REASON)
         spec = importlib.util.spec_from_file_location("gen_region_locks", tool)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
@@ -319,6 +337,54 @@ class GreenfieldAreaLockGeometry(unittest.TestCase):
             current, expected,
             "region_locks.rs is STALE against region_open_flags.py/area_locks.py -- "
             "run: python tools/gen_region_locks.py (then commit the client)")
+
+
+class RepoRootIsNeverDerivedPositionally(unittest.TestCase):
+    """RATCHET for the idiom `_util.find_repo_root` exists to kill.
+
+    A positional walk (`dirname(dirname(dirname(HERE)))`, `Path(__file__).parents[3]`) is correct
+    in the repo and WRONG under `tools/gf_test.py`, which copies `greenfield/eldenring` into
+    `_ap/worlds/eldenring/` and copies no `tools/`. It does not fail loudly there -- it resolves to
+    `_ap` and dies on FileNotFoundError, or worse, finds something.
+
+    That cost 45 tests going green locally and red in CI on 2026-07-27, and then cost this very
+    file again: `test_generated_client_table_matches_the_source_tables` (#245) skipped for so long
+    that nobody noticed, and the moment the cross-side gate was ARMED by putting the client beside
+    the AP checkout, the client path resolved, the `tools/` path did not, and it errored.
+
+    Scans the tests directory itself, so it runs under the harness too -- where the bug lives.
+    """
+
+    _BANNED = (
+        ("dirname(os.path.dirname(os.path.dirname(", "positional dirname walk"),
+        (").parents[", "positional pathlib walk"),
+    )
+
+    def test_no_test_module_walks_up_a_fixed_number_of_directories(self):
+        scanned, offenders = 0, []
+        for name in sorted(os.listdir(HERE)):
+            if not name.endswith(".py"):
+                continue
+            path = os.path.join(HERE, name)
+            with open(path, encoding="utf-8") as f:
+                text = f.read()
+            scanned += 1
+            if name == os.path.basename(__file__):
+                # this module: skip the literals in _BANNED / this docstring, not the code
+                text = text.split("class RepoRootIsNeverDerivedPositionally")[0]
+            for needle, why in self._BANNED:
+                if needle in text:
+                    offenders.append(f"{name}: {why} ({needle!r})")
+        # Rule 2 -- an empty result is a failure, not a clean run. A scan that matched no files
+        # would report success while checking nothing.
+        self.assertGreater(
+            scanned, 50,
+            f"only {scanned} test modules scanned -- the sweep is not seeing the suite")
+        self.assertEqual(
+            offenders, [],
+            "derive the repo root with _util.find_repo_root(HERE) and skip on None; "
+            "a fixed-depth walk resolves to the AP checkout under tools/gf_test.py:\n  "
+            + "\n  ".join(offenders))
 
 
 if __name__ == "__main__":
