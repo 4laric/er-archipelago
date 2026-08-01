@@ -41,10 +41,16 @@ MECHANISMS = {"obtained_flag", "possession", "not_a_vanilla_gate", "UNVERIFIED"}
 TIERS = {"in_game", "datamine", "assumed"}
 
 # The ratchet. Opened 2026-08-01 at 26 (6 classified: Rold, Drawing-Room, the two Dectus halves,
-# the two Haligtree halves). Lowered to 25 the same day when the EMEVD probe settled the Academy
-# Glintstone Key as possession-gated. LOWER THIS when you measure something. Never raise it -- a new
-# gate arrives UNVERIFIED and pushes the count over the ceiling, which is the whole point.
-UNVERIFIED_CEILING = 25
+# the two Haligtree halves). Same day: -1 when the EMEVD probe settled the Academy Glintstone Key as
+# possession-gated, then -6 when it settled all six Great Runes as flag-gated on 191-196. 26 -> 19 in
+# one afternoon, which is what the ratchet is FOR. LOWER THIS when you measure something. Never raise
+# it -- a new gate arrives UNVERIFIED and pushes the count over the ceiling, which is the whole point.
+UNVERIFIED_CEILING = 19
+
+# Measured 2026-08-01 (tools/probe_vanilla_gate_predicates.py, 589 files / 4893 events). Pinned here
+# because it is the answer to the report that produced this file, and a silent change to it would
+# mean somebody edited the table without re-measuring.
+GREAT_RUNE_FLAGS = {191, 192, 193, 194, 195, 196}
 
 
 def _table_path():
@@ -223,3 +229,20 @@ class TestTheKnownCasesAreRecorded:
         from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
         rows = {r["item"] for r in _rows()}
         assert set(GREAT_RUNES) <= rows, sorted(set(GREAT_RUNES) - rows)
+
+    def test_great_runes_are_flag_gated_on_the_measured_band(self):
+        """The capital gate is `CountEventFlags(EventFlag, 190, 199) >= 2` (common $Event(720)), and
+        the six flags come from the Divine-Tower altar initializers. Nothing gates on possession of
+        a rune's goods. If this row set ever drifts, the client's writes stop matching the count."""
+        from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
+        seen = set()
+        for name in GREAT_RUNES:
+            r = self._row(name)
+            assert r["mechanism"] == "obtained_flag", (
+                f"{name} is flag-gated (measured); {r['mechanism']!r} would mean we owe no flag write")
+            flags = {int(f) for f in r["flags"].split(",") if f.strip()}
+            assert len(flags) == 1, f"{name}: expected exactly one restored flag, got {flags}"
+            seen |= flags
+        assert seen == GREAT_RUNE_FLAGS, (
+            f"the six rune flags must be exactly {sorted(GREAT_RUNE_FLAGS)} -- got {sorted(seen)}. "
+            f"They are counted as a BAND (190-199), so a stray id outside it is silently uncounted.")
