@@ -316,16 +316,19 @@ Run through this before a change lands (PR or direct):
 - [ ] Every constraint the change designs around names its owner — GAME / ARCHIPELAGO / US — with a
       citation for the first two; anything handed to a subagent or a future session is labelled
       assumption-vs-invariant, never silently hardened into a brief.
+- [ ] A merged spec's acceptance list is pasted into a tracking issue, one checkbox per line, each
+      marked shipped / partial / absent with the command or file that proves it. Prose in
+      `docs/specs/` is not a gate. Build the bullets that need a NEW test tier first — those are the
+      ones whose absence nothing else will reveal.
 
 ---
 
 ## The silent wrong answer
 
-Read the bug list in this file. Almost none of them are crashes. **Every one is a derivation that
-returned a confident, complete, WRONG answer instead of failing.** That is the disease. Everything below
-is one prescription: *make not-knowing louder than knowing.*
-
-A crash costs you an hour. A confident wrong answer costs you three months and a playtest.
+Read the bug list in this file. Almost none are crashes. **Every one is a derivation that returned a
+confident, complete, WRONG answer instead of failing.** Everything below is one prescription: *make
+not-knowing louder than knowing.* A crash costs an hour; a confident wrong answer costs three months
+and a playtest.
 
 ### The canonical shape
 
@@ -333,10 +336,10 @@ A crash costs you an hour. A confident wrong answer costs you three months and a
 > *"equals the runtime play_region_id — verified against every empirically captured id."*
 >
 > True, and **vacuous**: no DLC id had ever been captured, because nobody had played the DLC. The kick
-> compares `play_region_id / 100`, so 27 of 53 buckets could never match. The kick is **permissive on an
-> unknown bucket** — a miss is not a crash, it is a shrug. So the DLC region locks never fired, and
-> **Weeping's lock had never enforced anything, in any seed, ever.** Same table fed the Scadutree floor
-> and DLC enemy scaling: both silently inert.
+> compares `play_region_id / 100`, so 27 of 53 buckets could never match — and it is **permissive on an
+> unknown bucket**, so a miss is a shrug, not a crash. The DLC region locks never fired, **Weeping's
+> lock had never enforced anything in any seed, ever**, and the same table silently inerted the
+> Scadutree floor and DLC enemy scaling.
 >
 > Nothing errored. Nothing logged. For months.
 
@@ -401,76 +404,87 @@ comment states an invariant, **there must be a test that fails when it stops bei
 is folklore with syntax highlighting.
 
 **11. The case that motivated the work is the acceptance test. Assert the screen SEES it.**
-The 2026-07-26 lesson, and the most expensive kind because every part looked green.
+The 2026-07-26 lesson, expensive because every part looked green.
 
-> We spent a day on `f400191` -- the Stormhill Shack Golden Seed, which does not exist until you have
-> progressed past the Roundtable. We found its gate. We wrote `datamine_lot_gates.py`, confirmed the
+> A day on `f400191` -- the Stormhill Shack Golden Seed, which does not exist until you have
+> progressed past the Roundtable. We found its gate, wrote `datamine_lot_gates.py`, confirmed the
 > vocabulary with `--vocab`, resolved common-event ARGUMENTS to see past a blind spot, emitted the
 > table, and built `test_gf_lot_gates_cross_region` to screen exactly this class.
 >
-> The next build shipped `f400191` **still miscategorised** -- an unprotected Limgrave check that fill
-> could put required progression on.
+> The next build shipped `f400191` **still miscategorised**.
 >
-> Nothing was broken. The datamine FOUND the gate and wrote all three of its flags to `lot_gates.tsv`.
-> The screen READ that table. But the screen resolved a gate flag's region by decoding its NUMBER,
-> which only works for map-encoded flags, and `continue`d past every pair it could not decode. The
-> flags gating `f400191` are bare 4-digit NPC state ids. So the finding was produced, stored, and then
-> silently dropped by its own consumer, and the suite went green.
+> Nothing was broken. The datamine FOUND the gate and wrote all three flags. The screen READ the
+> table -- then resolved a gate flag's region by decoding its NUMBER, which only works for
+> map-encoded flags, and `continue`d past every pair it could not decode. The flags gating `f400191`
+> are bare 4-digit NPC state ids. The finding was produced, stored, and silently dropped by its own
+> consumer, and the suite went green.
 
-**A pipeline whose stages are each individually correct can still drop the exact input that caused it
-to be built.** The producer's coverage and the consumer's coverage are different numbers, and nobody
-checks the composition.
-
-So: **when you build a tool or a gate because of a specific case, add that case as a fixture and
-assert the finished pipeline still reports it.** Not the datamine in isolation, not the screen in
-isolation -- end to end, by name. If the exemplar cannot be a fixture, say in the test how you would
-know it was still covered.
+**A pipeline whose stages are each individually correct can still drop the exact input that caused
+it to be built.** Producer coverage and consumer coverage are different numbers and nobody checks
+the composition. So: **when you build a tool or a gate because of a specific case, add that case as
+a fixture and assert the finished pipeline still reports it** -- end to end, by name. If the
+exemplar cannot be a fixture, say in the test how you would know it was still covered.
 
 Corollary, and the part that stings: **the coverage number was already written down and stated
-honestly.** The screen's own floor read *"17 of 104 decode today"* -- 84% blind, in a comment, in the
-assertion message, committed. Nobody drew the conclusion. **A self-reported coverage number is not a
-safeguard unless something ACTS on it.** If a screen knows it is partial, it must say so on a GREEN
-run (`warnings.warn`, not `print` -- stdout is captured), and a coverage floor should be a ratchet
-that you are made to justify, not a number that only fires when it gets worse.
+honestly.** The screen's own floor read *"17 of 104 decode today"* -- 84% blind, in a comment, in
+the assertion message, committed. Nobody drew the conclusion. **A self-reported coverage number is
+not a safeguard unless something ACTS on it.** A screen that knows it is partial must say so on a
+GREEN run (`warnings.warn`, not `print` -- stdout is captured), and a coverage floor should be a
+ratchet you are made to justify, not a number that only fires when it gets worse.
 
 **12. A CORRECT WIRE IS NOT A CORRECT FEATURE. Measuring upstream of the game measures nothing.**
-The 2026-07-29 lesson, and the most humbling on this list because the data was *good* the whole way
-down.
+The 2026-07-29 lesson, and the most humbling here because the data was *good* the whole way down.
 
-> A player reported, three separate times, that no rune in any shop was ever priced below its value.
-> I checked the generator: the roll is `randint(0, 2 x worth)` and measured over three seeds it was a
-> clean uniform -- median 1.03, 50% below worth, minimum 0.002x. I extracted his ACTUAL seed and read
-> the slot_data out of the multidata: 117 rune slots, 38% below worth, and a Golden Rune [5] priced at
-> **4 runes**. I matched two prices from his screenshot to their exact ShopLineupParam rows, proving
-> the client applied what we sent. Every measurement I could take said the feature worked.
+> A player reported three times that no rune in any shop was ever priced below its value. The
+> generator's roll is `randint(0, 2 x worth)`; measured over three seeds it was a clean uniform --
+> median 1.03, 50% below worth, minimum 0.002x. I extracted his ACTUAL seed and read the slot_data
+> out of the multidata: 117 rune slots, 38% below worth, a Golden Rune [5] priced at **4 runes**. I
+> matched two prices from his screenshot to their exact ShopLineupParam rows, proving the client
+> applied what we sent. Every measurement I could take said the feature worked.
 >
 > I told him it was a sampling artifact. He said it again. I found a second pricing path with a real
-> 10x bug, fixed it, and told him again. He said it a third time.
+> 10x bug, fixed it, told him again. He said it a third time.
 >
 > The client's `shop_stock::reset()` was never called. A map load streams the param back in and
-> reverts our writes; the module latches `DONE` after one pass, so the 455 rerolled rows applied once
-> on connect and were gone for the rest of the session. Every below-value price in the seed lived in
-> that table. His observation was not noisy -- it was **exact**.
+> reverts our writes; the module latches `DONE` after one pass, so the 455 rerolled rows applied
+> once on connect and were gone for the session. Every below-value price in the seed lived in that
+> table. His observation was not noisy -- it was **exact**.
 
 **The generator being right is not the feature being right, and a seed file is not a screen.** Every
-number I produced was true and none of them were evidence about the thing being reported. Between the
-last place I could measure and the player's eyes there were two more stages, and the bug was in one of
-them.
+number I produced was true and none of them were evidence about the thing being reported.
 
 - **When a report survives your explanation, the report wins.** A second identical report should
   move your prior off your own analysis; a third should end it. The person watching the game is the
-  only one seeing the output ([[contributor-live-game-oracle]] in memory, *Verification* above).
-  "Unlucky sample" is the hypothesis to reach for LAST, because it is unfalsifiable from where you
-  are standing.
-- **Trace to the last stage you can observe, then say which stages you did not check.** I could have
-  written "slot_data is correct; I have not verified the client applies it per load" at any point on
-  day one. That sentence is the whole bug.
-- **A `reset()` with no caller is a predicate with no caller.** Rule: *"a green predicate with no
-  production caller is not a fix -- it is a spec"* (see *Regression by replay*). Same shape one level
-  down, and it has now cost three separate features: `shop_sell` (2026-07-24, found in playtest),
-  `shop_icon` and `shop_stock` (2026-07-29). `test_gf_client_resets_are_called` makes it mechanical --
-  every client module defining `reset()` must be called on the in-world edge or be exempt with a
-  written reason. Three times is a class, not a coincidence, and a class gets a gate.
+  only one seeing the output. "Unlucky sample" is the hypothesis to reach for LAST, because it is
+  unfalsifiable from where you are standing.
+- **Trace to the last stage you can observe, then say which stages you did not check.** "slot_data
+  is correct; I have not verified the client applies it per load" was writable on day one. That
+  sentence is the whole bug.
+- **A `reset()` with no caller is a predicate with no caller** (see *Regression by replay*). Same
+  shape one level down, and it has cost three features: `shop_sell` (2026-07-24, found in playtest),
+  `shop_icon` and `shop_stock` (2026-07-29). `test_gf_client_resets_are_called` makes it mechanical.
+  Three times is a class, and a class gets a gate.
+
+**13. A spec's acceptance list is a TO-DO LIST until something checks it.**
+The 2026-08-01 lesson, and the cheapest to prevent.
+
+> `SPEC-global-scadutree-blessing` shipped with ten acceptance criteria, five automated and five
+> in-game. A month later, an audit found **five of the ten missing or partial**. One had never been
+> built at all: the fragment INJECTION the whole feature's cap exists to bound. The cap shipped, the
+> injection did not, and nothing noticed -- so at the shipped default only **1 seed in 40** could
+> reach the cap the option advertises.
+
+Note the shape, because it was the same in every case: **the half of each bullet that needed a NEW
+test tier is the half that did not land.** The contract key shipped (an existing pattern). The
+options rejection did not (nothing to copy). The floor Policy shipped; the cap Policy, which needed
+a new term in the replay model, did not.
+
+- **A merged spec's acceptance list belongs in a tracking issue, pasted verbatim, one checkbox per
+  line.** Prose in `docs/specs/` is not a gate; nothing reads it and nothing goes red.
+- **State shipped / partial / absent per line, with the command or file that proves it.** "Partial"
+  is the answer that matters -- it is what "shipped" degrades into when the easy half lands first.
+- **The bullets that need a new test tier are the ones to build FIRST**, precisely because there is
+  no existing pattern to copy and therefore nothing to make their absence obvious.
 
 ### The tell
 
@@ -485,15 +499,15 @@ messages straight.
 
 ## Provenance — derive the datum, don't pin the symptom
 
-A bug report is a *symptom*. The fix is not to add the symptom to a list; it is to find the **datum the
-game already knows** and derive the answer from it. The game ships the truth in its own params, EMEVD,
-MSBs and FMGs. If we are guessing, we have not looked hard enough.
+A bug report is a *symptom*. The fix is not to add the symptom to a list; it is to find the **datum
+the game already knows** and derive the answer from it. The game ships the truth in its params,
+EMEVD, MSBs and FMGs. If we are guessing, we have not looked hard enough.
 
 **A guess wearing the costume of a fact is the failure mode.** Two shipped bugs, same shape:
 
-* `tile_pr()` is a nearest-neighbour — it **never fails**. Hand it a coarse LOD tile index and it returns
-  a confident, *wrong* region. Six checks landed in the wrong region; one was culled with a sealed region
-  and the player picked it up in Limgrave and got the vanilla item, with the client logging nothing.
+* `tile_pr()` is a nearest-neighbour -- it **never fails**. Hand it a coarse LOD tile and it returns
+  a confident, *wrong* region. Six checks landed in the wrong region; one was culled with a sealed
+  region and the player picked up the vanilla item in Limgrave, with the client logging nothing.
 * HUB-quarantining a check whose region we couldn't resolve was justified as *"reachable-from-start,
   never a false gate."* It is the opposite: it asserts a reachability we do not have, and fill put a
   region Lock on it. Unwinnable seed.
@@ -503,36 +517,32 @@ MSBs and FMGs. If we are guessing, we have not looked hard enough.
 
 ### When the data contradicts the model, the MODEL changes
 
-The 2026-07-24 lesson, and the sharpest version of this section so far.
+**Messmer's Kindling went missing from the pool.** The generator modelled checks as **one event
+flag, one check**. The game does not work that way: a flag can award **several** item lots, so a
+flag with N meaningful items is N checks. Under a 1:1 model every sibling but one is silently
+dropped, and a key item is one unlucky draw from vanishing. Nothing errored -- the seed genned and
+the item simply was not there (Rule 6).
 
-**Messmer's Kindling went missing from the pool.** The generator modelled checks as **one event flag,
-one check** — a 1:1 map. The game does not work that way: an event flag can award **several** item
-lots, so a flag with N meaningful items is N checks. Under a 1:1 model every sibling but one is
-silently dropped, and a key item is one unlucky draw away from vanishing. Nothing errored — the seed
-genned, and the item was simply not there (*"Check the output for what is MISSING"* — Rule 6).
-
-The proposed fix was **"rank key-item drops higher"** so the surviving sibling would be the Kindling.
-It would have worked. On that flag. That is the entire problem:
+The proposed fix was **"rank key-item drops higher"** so the survivor would be the Kindling. It
+would have worked. On that flag. That is the entire problem:
 
 > **A fix that re-ranks, prioritises, or special-cases the item that happened to break is a hand pin
-> wearing an algorithm's clothes.** It buys back the one symptom you know about and leaves the wrong
-> model in place, still silently dropping every sibling you *haven't* noticed yet — and now with a
-> heuristic standing on top of it that looks like a deliberate design decision.
+> wearing an algorithm's clothes.** It buys back the one symptom you know about, leaves the wrong
+> model in place still dropping every sibling you *haven't* noticed, and now with a heuristic on top
+> that looks like a deliberate design decision.
 
-The real fix is to change the shape of the model to the shape of the data: **N co-firing checks per
-shared flag**, with the meaningful/junk partition taken from a param the game already ships
-(`EquipParamGoods.isDiscard`), not from a curated list of item names. Bigger diff, no whack-a-mole,
-and it fixes the siblings nobody reported.
+The real fix changes the shape of the model to the shape of the data: **N co-firing checks per
+shared flag**, with the meaningful/junk split taken from a param the game already ships
+(`EquipParamGoods.isDiscard`), not a curated list of item names. Bigger diff, no whack-a-mole, and
+it fixes the siblings nobody reported.
 
 So when a check, a count, or an item comes out wrong, ask **in this order**:
 
-1. **What does the game datum actually look like?** Not "what value should I set" — what is the
-   *cardinality and shape* of the thing? (one flag → many lots; one lot → many items; two id spaces;
-   two map versions.) Most of this file's worst bugs were a model with the wrong arity, not a wrong
-   constant.
-2. **Does my model have that shape?** If not, changing the model IS the fix. Re-ranking inside a
-   wrong-arity model is not.
-3. **Only if the derivation genuinely cannot reach** the datum may a hand entry exist — under the
+1. **What does the game datum actually look like?** Not "what value should I set" -- what is the
+   *cardinality and shape*? (one flag → many lots; one lot → many items; two id spaces; two map
+   versions.) Most of this file's worst bugs were a model with the wrong arity, not a wrong constant.
+2. **Does my model have that shape?** If not, changing the model IS the fix.
+3. **Only if the derivation genuinely cannot reach** the datum may a hand entry exist -- under the
    redundancy hard-error below.
 
 ### Constraint ownership — say who owns it before you obey it
@@ -540,55 +550,51 @@ So when a check, a count, or an item comes out wrong, ask **in this order**:
 The same incident produced a worse artefact than the bad fix. Working from the 1:1 model, the agent
 **handed the task to a subagent with "checks must stay one-to-one" as a HARD CONSTRAINT.**
 
-The 1:1 rule was never a constraint. It wasn't the game (the game shares flags across lots), it
-wasn't Archipelago (AP is happy with N locations per trigger) — **it was ours**, undocumented, and
-probably accidental. Promoting it to a requirement in a handoff makes the actual fix *unreachable*
-for the next worker, who now has to violate their brief to be right, and who has no way to tell an
-inherited guess from a real invariant.
+That rule was never a constraint. Not the game (it shares flags across lots), not Archipelago (happy
+with N locations per trigger) -- **ours**, undocumented, probably accidental. Promoting it to a
+requirement in a handoff makes the actual fix *unreachable* for the next worker, who must violate
+their brief to be right and cannot tell an inherited guess from a real invariant.
 
 - **Before you design around a constraint, name its owner: the GAME, ARCHIPELAGO, or US.** Only the
-  first two are non-negotiable, and both are checkable — cite the param/EMEVD row or the AP API. If
-  the answer is "us", it is a design choice on the table, and the right move may be to delete it.
+  first two are non-negotiable, and both are checkable -- cite the param/EMEVD row or the AP API. If
+  the answer is "us", it is a design choice on the table and the right move may be to delete it.
 - **Never hand an unowned assumption to another agent (or a future session) as a constraint.** Write
-  it as what it is: *"current code assumes 1:1 flag→check; I have not verified that this is required
-  — check it before building on it."* A handoff is where assumptions get laundered into requirements,
-  and a subagent cannot audit a premise it was told to hold fixed.
-- **A constraint that makes the bug unfixable is evidence the constraint is the bug.** If honouring
-  it forces you into a special-case, stop and re-check who owns it.
+  it as what it is: *"current code assumes 1:1 flag→check; I have not verified that this is
+  required."* A handoff is where assumptions get laundered into requirements, and a subagent cannot
+  audit a premise it was told to hold fixed.
+- **A constraint that makes the bug unfixable is evidence the constraint is the bug.**
 
 ### A REDUNDANT MANUAL OVERRIDE IS A FAILURE
 
-Hand lists are allowed **only** where the derivation genuinely cannot reach. The moment the derivation
-catches up, the hand entry must be **deleted** — and the only way that reliably happens is if leaving it
-in **fails the build**.
+Hand lists are allowed **only** where the derivation genuinely cannot reach. The moment the
+derivation catches up the hand entry must be **deleted** -- and the only way that reliably happens
+is if leaving it in **fails the build**.
 
-A redundant override is not harmless belt-and-braces. It is a **lie about why the code works**: the next
-reader cannot tell which entries are load-bearing, so nobody dares delete any of them, and the crutch
+A redundant override is not harmless belt-and-braces. It is a **lie about why the code works**: the
+next reader cannot tell which entries are load-bearing, so nobody dares delete any, and the crutch
 calcifies into permanent scar tissue.
 
-So `gen_data` **hard-errors** on overlap between a hand list and the set that derives it. This has already
-fired for real: re-mining the boss drops against all 589 EMEVD (54 → 88 flags) made 4 of the 7
-`_BOSS_DROP_EXTRAS` redundant — and they were exactly the drops we had hand-added *because the scan, then
-reading only 380 EMEVD, couldn't see them*. Deleted. `TAG_COUNTS["Boss"]` stayed 93, which is the proof.
+So `gen_data` **hard-errors** on overlap between a hand list and the set that derives it. This has
+fired for real: re-mining boss drops against all 589 EMEVD (54 → 88 flags) made 4 of the 7
+`_BOSS_DROP_EXTRAS` redundant -- exactly the drops hand-added *because the scan, then reading only
+380 EMEVD, could not see them*. Deleted. `TAG_COUNTS["Boss"]` stayed 93, which is the proof.
 
-**But only delete where the derivation is COMPLETE.** Know the difference:
+**But only delete where the derivation is COMPLETE:**
 
 | derivation | complete? | hand list |
 |---|---|---|
-| boss drops (all 589 EMEVD, no other dependency) | ✅ | must be empty of redundancy — **hard error** |
-| arena graces (needs an unpacked MSB; 66 of 118 boss maps have one) | ❌ **lower bound** | a real safety net — **keep**, and guard the floor |
+| boss drops (all 589 EMEVD, no other dependency) | ✅ | must be empty of redundancy -- **hard error** |
+| arena graces (needs an unpacked MSB; 66 of 118 boss maps have one) | ❌ **lower bound** | a real safety net -- **keep**, and guard the floor |
 
-For an incomplete derivation the hazard runs the other way: re-run the tool without its inputs and the
-derived set silently *shrinks*, taking real coverage with it. Guard that too (`_ARENA_FLOOR`) — a
-shrinking oracle must fail loudly, not quietly stop protecting you.
+For an incomplete derivation the hazard runs the other way: re-run the tool without its inputs and
+the derived set silently *shrinks*, taking real coverage with it. Guard that too (`_ARENA_FLOOR`) --
+a shrinking oracle must fail loudly, not quietly stop protecting you.
 
 ### Stale inputs are the same bug wearing a different hat
 
-A derivation is only as good as what it read. `boss_drops` and `boss_healthbars` were mined when **380 of
-589** EMEVD were decompiled — ~35% of the game's award sites were invisible, and nobody noticed for weeks
-because the numbers *looked* plausible. When a derived count moves, the first question is **"did an input
-get better?"**, not "what should I set the constant to."
-
-A count that grows because the ground truth improved is fine. A count that grows because a predicate got
-looser is a bug. **Rebaselining without answering which one it is, is how you launder a regression into a
-test.**
+A derivation is only as good as what it read. `boss_drops` and `boss_healthbars` were mined when
+**380 of 589** EMEVD were decompiled -- ~35% of the game's award sites invisible, unnoticed for
+weeks because the numbers *looked* plausible. When a derived count moves, the first question is
+**"did an input get better?"**, not "what should I set the constant to." A count that grows because
+ground truth improved is fine; a count that grows because a predicate got looser is a bug.
+**Rebaselining without answering which one it is, is how you launder a regression into a test.**
