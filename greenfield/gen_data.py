@@ -1951,6 +1951,22 @@ FLAG_REGION_OVERRIDE = {
     # load-bearing (see the _BOSS_DROP_EXTRAS philosophy up top; the _redundant_shop_pins guard below
     # enforces it for shop flags now). Patches (67600) stays: he relocates across regions (multi-tile),
     # so the derivation leaves him to the legacy path and the hand pin is genuinely load-bearing.
+    # ---- Church of Pilgrimage Sacred Tear: Weeping, not Limgrave (Alaric, ground truth
+    # 2026-07-31). Surfaced by cross-checking our 13 Sacred Tears against Fextralife's 12
+    # (cross-check only, NOT ingested -- PROVENANCE.md): they put Church of Pilgrimage in Weeping
+    # Peninsula, and it is south of the Bridge of Sacrifice, so they are right.
+    #
+    # 🛑 PINNED ALONE, and that is the finding. Its tile m60_43_35_00 carries four checks, and the
+    # first cut of this pin moved all four -- Alaric's call, on my description of them as "Crab Eggs,
+    # Golden Rune [1], Slumbering Egg". The regen then NAMED them: all three are "near Seaside
+    # Ruins", and Seaside Ruins is Limgrave (8 other checks named for it are Limgrave, including the
+    # Twinblade). So this tile genuinely STRADDLES the Limgrave/Weeping boundary -- it is the
+    # er-tiles-legitimately-span-regions case, where tile -> region is the wrong arity and a
+    # whole-tile pin is wrong for whichever half it does not mean.
+    #
+    # A per-check pin is the narrow instrument the straddle demands. The other three stay Limgrave
+    # until someone walks them.
+    1043357100: "Weeping",   # Sacred Tear -- Church of Pilgrimage
 }
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------

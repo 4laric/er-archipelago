@@ -2377,7 +2377,6 @@ LOCATIONS = {
         ('Limgrave :: Crab Eggs - near Seaside Ruins [f1043357000]', 7773016, 1043357000),
         ('Limgrave :: Golden Rune [1] - near Seaside Ruins [f1043357010]', 7773017, 1043357010),
         ('Limgrave :: Slumbering Egg - near Seaside Ruins [f1043357030]', 7773018, 1043357030),
-        ('Limgrave :: Sacred Tear - near Church of Pilgrimage [f1043357100]', 7773019, 1043357100),
         ('Limgrave :: Stonesword Key - near Seaside Ruins (region unconfirmed) [f1043367010]', 7773020, 1043367010),
         ('Limgrave :: Golden Rune [2] - near Seaside Ruins (region unconfirmed) [f1043367020]', 7773021, 1043367020),
         ('Limgrave :: Crab Eggs - near Seaside Ruins (region unconfirmed) [f1043367040]', 7773022, 1043367040),
@@ -4916,6 +4915,7 @@ LOCATIONS = {
         ('Weeping :: String - near Ailing Village Outskirts [f1043347050]', 7773013, 1043347050),
         ('Weeping :: Shield of the Guilty - near Church of Pilgrimage [f1043347100]', 7773014, 1043347100),
         ("Weeping :: Demi-Human Queen's Staff - around Church of Pilgrimage [f1043347400]", 7773015, 1043347400),
+        ('Weeping :: Sacred Tear - near Church of Pilgrimage [f1043357100]', 7773019, 1043357100),
         ('Weeping :: Golden Rune [4] - near Castle Morne Lift (region unconfirmed) [f1044317010]', 7773040, 1044317010),
         ('Weeping :: Arteria Leaf - near Castle Morne Lift (region unconfirmed) [f1044317020]', 7773041, 1044317020),
         ('Weeping :: Somber Smithing Stone [2] - near Castle Morne Lift (region unconfirmed) [f1044317030]', 7773042, 1044317030),
@@ -5187,4 +5187,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:5f6476baa3ccf4a689218a06d0288ed115d6bd54f0183563e3dab0642f33f0b3', 'module': 'data.py', 'body_sha256': 'sha256:e39851543efa26b86ffbe71d93c5bdffd60bb31135b70c6a7ffbd498569ae7d4'}
+_GEN_STAMP = {'inputs_hash': 'sha256:82e9c80591e9326033f4e2ab28c4444f704346ae9f740016f3852032df25c2c9', 'module': 'data.py', 'body_sha256': 'sha256:a1ad7d11be5e73333db20544007ba85a0449146dc3e1354d36d8d05cf3b0deb4'}
