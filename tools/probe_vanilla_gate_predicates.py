@@ -112,6 +112,21 @@ SET_RE = re.compile(r"\b(?:SetEventFlagID|SetNetworkconnectedEventFlagID)\s*\(\s
 # corpus where 191 is only ever written.
 READ_RE = re.compile(r"\b(?!(?:Batch)?Set)(\w*EventFlag\w*)\s*\(\s*([^)]*)\)")
 CALL_RE = re.compile(r"\b([A-Z]\w+)\s*\(\s*([^)]*)\)")
+# 🛑 RANGE READS. The first run of this probe (2026-08-01) reported ZERO sites for flags 191-196 in a
+# 589-file corpus and I nearly read that as "the client writes bits nothing consults". It is not what
+# it means. The corpus reads great-rune flags by BAND --
+#     CountEventFlags(TargetEventFlagType.EventFlag, 190, 199)
+# -- so the only literals on the line are the ENDPOINTS, and an id strictly inside the band appears
+# nowhere. datamine_flag_names.py already knew this and expands BatchSetEventFlags; this probe did
+# not, and a scan that cannot see the read cannot answer "does anything read it".
+RANGE_CALL_RE = re.compile(r"Batch|Range|Count", re.I)
+# Wider than this is a bulk sweep, and expanding it would manufacture hundreds of confident hits off
+# one line. Same reasoning and same posture as datamine_flag_names.MAX_BATCH.
+MAX_BAND = 256
+# Common-event INITIALIZERS. $Event(90005110) sets `SetEventFlagID(eventFlagId, ON)` -- a PARAMETER.
+# The concrete per-rune flag ids are the literal arguments at the call sites, which carry no
+# "EventFlag" in the name and so are invisible to both SET_RE and READ_RE.
+INIT_RE = re.compile(r"\b(Initiali[sz]e\w*Event\w*)\s*\(\s*([^)]*)\)")
 MAP_RE = re.compile(r"^(m\d\d_\d\d_\d\d_\d\d|common(?:_func)?)\.emevd")
 # The vocabulary question: what is a possession check CALLED here? Cast wide on purpose.
 ITEMISH = re.compile(r"item|inventory|goods|possess|have|own|count", re.I)
@@ -172,6 +187,8 @@ def scan(events, ids):
     vocab = collections.Counter()
     vocab_sample = {}
     read_spellings = collections.Counter()
+    st_ranges = collections.Counter()      # (verb, lo, hi) -> sites. The bands, named.
+    inits = collections.defaultdict(list)  # common-event id -> [(Site, [literal args])]
     for map_id, eid, name, body in events:
         for lineno, line in _lines(body):
             site = lambda: Site(map_id, eid, name, lineno, line)
@@ -180,10 +197,24 @@ def scan(events, ids):
                 if f in ids:
                     as_set[f].append(site())
             for rm in READ_RE.finditer(line):
-                read_spellings[rm.group(1)] += 1
-                for tok in INT_RE.findall(rm.group(2)):
-                    if int(tok) in ids:
-                        as_read[int(tok)].append(site())
+                fn, args = rm.group(1), rm.group(2)
+                read_spellings[fn] += 1
+                toks = [int(t) for t in INT_RE.findall(args)]
+                for tok in toks:
+                    if tok in ids:
+                        as_read[tok].append(site())
+                # A BAND read covers every id between its endpoints, not just the endpoints.
+                if RANGE_CALL_RE.search(fn) and len(toks) >= 2:
+                    lo, hi = toks[-2], toks[-1]
+                    if lo <= hi and hi - lo <= MAX_BAND:
+                        st_ranges[(fn, lo, hi)] += 1
+                        for i in range(lo, hi + 1):
+                            if i in ids and lo < i < hi:      # endpoints already counted above
+                                as_read[i].append(site())
+            for im in INIT_RE.finditer(line):
+                toks = [int(t) for t in INT_RE.findall(im.group(2))]
+                for t in toks:
+                    inits[t].append((site(), toks))
             for cm in CALL_RE.finditer(line):
                 fn, args = cm.group(1), cm.group(2)
                 if not ITEMISH.search(fn):
@@ -193,7 +224,7 @@ def scan(events, ids):
                 for tok in INT_RE.findall(args):
                     if int(tok) in ids:
                         as_item[int(tok)].append(site())
-    return as_set, as_read, as_item, vocab, vocab_sample, read_spellings
+    return as_set, as_read, as_item, vocab, vocab_sample, read_spellings, st_ranges, inits
 
 
 def show(title, ids, as_set, as_read, as_item, max_sites):
@@ -229,6 +260,44 @@ def dump_event(events, want, context):
             print("      %s" % l)
         if 0 < context < len(lines):
             print("      ... %d more lines (raise --context, 0 = whole body)" % (len(lines) - context))
+
+
+def show_bands(st_ranges, ids, max_rows=25):
+    """Every BAND read in the corpus, and which ids under test fall inside one.
+
+    This section exists because its absence produced a wrong reading on the first run: a band read
+    puts no literal on the line for the ids it covers, so "0 READ sites" meant "nobody looked in the
+    right shape", not "nobody reads this flag"."""
+    print("\n3e. BAND READS -- flag ranges the corpus counts/tests wholesale")
+    if not st_ranges:
+        print("  (none seen -- if that is a surprise, check RANGE_CALL_RE against the verb list in 2)")
+        return
+    rows = sorted(st_ranges.items(), key=lambda kv: -kv[1])
+    for (fn, lo, hi), n in rows[:max_rows]:
+        covered = sorted(i for i in ids if lo <= i <= hi)
+        mark = ("  <-- COVERS ids under test: %s" % covered) if covered else ""
+        print("  %-34s %5d-%-8d %5d site(s)%s" % (fn, lo, hi, n, mark))
+    if len(rows) > max_rows:
+        print("  ... %d more" % (len(rows) - max_rows))
+
+
+def show_inits(inits, want, max_rows=20):
+    """Literal arguments at every call site that initializes the cited common event.
+
+    $Event(90005110) writes `SetEventFlagID(eventFlagId, ON)` -- a PARAMETER. The concrete per-rune
+    flag id is here, at the caller, and nowhere else."""
+    print("\n4b. INITIALIZER ARGUMENTS for common event %d -- where the parameter gets its value" % want)
+    hits = inits.get(want) or []
+    if not hits:
+        print("  🛑 no initializer call mentions %d. Either the corpus spells it differently (check\n"
+              "  INIT_RE against the verb list) or the event is invoked some other way. Do NOT read\n"
+              "  this as 'the flags do not exist'." % want)
+        return
+    print("  %d call site(s). Each row is the literal arg list; the flag id is one of these." % len(hits))
+    for site, toks in hits[:max_rows]:
+        print("%s\n        args=%s" % (site, toks))
+    if len(hits) > max_rows:
+        print("  ... %d more (raise the cap)" % (len(hits) - max_rows))
 
 
 def scan_esd(pydir, ids):
@@ -272,8 +341,14 @@ $Event(90005110, Restart, function(X0_4) {
 });
 // 王都大門 -- Capital main gate
 $Event(11005500, Default, function() {
-    IfPlayerHasItem(MAIN, ItemType.Goods, 191, 1);
-    IfEventFlag(AND_01, ON, TargetEventFlagType.EventFlag, 400001);
+    PlayerHasItem(ItemType.Goods, 191);
+    flag = EventFlag(400001);
+    SetEventFlagID(400072, ON);
+    WaitFor(CountEventFlags(TargetEventFlagType.EventFlag, 190, 199) >= 2);
+});
+// 大ルーン初期化 -- Great rune init
+$Event(0, Default, function() {
+    InitializeCommonEvent(0, 90005110, 195, 8151, 100, 60210);
 });
 """
 
@@ -292,20 +367,27 @@ def selftest():
         open(p, "w", encoding="utf-8").write(SELFTEST_CORPUS)
         events, nfiles = load_events(d)
         checks = [
-            ("2 events parsed", len(events) == 2),
-            ("event ids read", sorted(e[1] for e in events) == [11005500, 90005110]),
+            ("3 events parsed", len(events) == 3),
+            ("event ids read", sorted(e[1] for e in events) == [0, 11005500, 90005110]),
             ("comment captured", any("Capital main gate" in (e[2] or "") for e in events)),
         ]
-        as_set, as_read, as_item, vocab, _sample, spellings = scan(
-            events, set(GREAT_RUNE_IDS) | {ROLD_FLAG})
+        as_set, as_read, as_item, vocab, _sample, spellings, bands, inits = scan(
+            events, set(GREAT_RUNE_IDS) | {ROLD_FLAG, 400072})
         checks += [
             ("flag WRITE found (191)", len(as_set[191]) == 1),
             ("flag READ found (400001)", len(as_read[ROLD_FLAG]) == 1),
-            ("a WRITE is not counted as a READ", len(as_read[191]) == 0),
-            ("write/read separated for 192", len(as_set[192]) == 1 and len(as_read[192]) == 0),
+            # 400072 is WRITTEN once and sits outside every band, so it isolates the one thing a
+            # naive \\w*EventFlag\\w* gets wrong: counting SetEventFlagID as a read.
+            ("a WRITE is not counted as a READ", len(as_set[400072]) == 1 and len(as_read[400072]) == 0),
+            ("band does not double-count a write", len(as_set[191]) == 1 and len(as_read[191]) == 1),
             ("item-arg found (191)", len(as_item[191]) == 1),
             ("191 counted in BOTH spaces", len(as_set[191]) == 1 and len(as_item[191]) == 1),
-            ("item-ish verb discovered", "IfPlayerHasItem" in vocab),
+            ("item-ish verb discovered", "PlayerHasItem" in vocab),
+            # The two regressions from the first live run. 193 appears NOWHERE as a literal; it is
+            # only reachable by expanding the 190-199 band and by reading the initializer args.
+            ("band read reaches an interior id", len(as_read[193]) == 1),
+            ("band recorded with its endpoints", ("CountEventFlags", 190, 199) in bands),
+            ("initializer args captured", any(195 in toks for _s, toks in inits.get(90005110, []))),
             ("read spelling recorded", any("EventFlag" in s for s in spellings)),
         ]
     for label, good in checks:
@@ -320,6 +402,8 @@ def main(argv=None):
     ap.add_argument("--eventdir", default=EVT_DEFAULT, help="decompiled EMEVD (*.emevd.dcx.js)")
     ap.add_argument("--pydir", default=PYDIR_DEFAULT, help="ESDLang-decompiled talk scripts (*.py)")
     ap.add_argument("--rune-event", type=int, default=RUNE_EVENT_DEFAULT)
+    ap.add_argument("--init-of", type=int, default=None,
+                    help="dump initializer args for this common event (default: --rune-event)")
     ap.add_argument("--context", type=int, default=40, help="lines of the cited event to dump (0=all)")
     ap.add_argument("--max-sites", type=int, default=8)
     ap.add_argument("--selftest", action="store_true", help="check the grammar; no corpus needed")
@@ -330,7 +414,7 @@ def main(argv=None):
     events, nfiles = load_events(a.eventdir)
     ids = set(GREAT_RUNE_IDS) | {ACADEMY_KEY_GOODS, ROLD_GOODS, ROLD_FLAG}
     ids |= set(range(*OBTAINED_BAND))
-    as_set, as_read, as_item, vocab, sample, spellings = scan(events, ids)
+    as_set, as_read, as_item, vocab, sample, spellings, bands, inits = scan(events, ids)
 
     print("1. CORPUS")
     print("  files %d   events %d   dir %s" % (nfiles, len(events), a.eventdir))
@@ -351,7 +435,9 @@ def main(argv=None):
           "     a bit nothing consults. ITEM-ARG>0 with READ=0 means the gate is possession-based and\n"
           "     the flag writes are beside the point.")
 
+    show_bands(bands, ids)
     dump_event(events, a.rune_event, a.context)
+    show_inits(inits, a.init_of if a.init_of is not None else a.rune_event)
 
     show("3b. ACADEMY GLINTSTONE KEY (goods %d)" % ACADEMY_KEY_GOODS,
          [ACADEMY_KEY_GOODS], as_set, as_read, as_item, a.max_sites)

@@ -40,11 +40,11 @@ TABLE = "key_item_gates.tsv"
 MECHANISMS = {"obtained_flag", "possession", "not_a_vanilla_gate", "UNVERIFIED"}
 TIERS = {"in_game", "datamine", "assumed"}
 
-# The ratchet. Set 2026-08-01 from the state of the world on that day: 6 classified (Rold,
-# Drawing-Room, the two Dectus halves, the two Haligtree halves), the rest unmeasured. LOWER THIS
-# when you measure something. Never raise it -- a new gate arrives UNVERIFIED and pushes the count
-# over the ceiling, which is the whole point.
-UNVERIFIED_CEILING = 26
+# The ratchet. Opened 2026-08-01 at 26 (6 classified: Rold, Drawing-Room, the two Dectus halves,
+# the two Haligtree halves). Lowered to 25 the same day when the EMEVD probe settled the Academy
+# Glintstone Key as possession-gated. LOWER THIS when you measure something. Never raise it -- a new
+# gate arrives UNVERIFIED and pushes the count over the ceiling, which is the whole point.
+UNVERIFIED_CEILING = 25
 
 
 def _table_path():
@@ -209,10 +209,15 @@ class TestTheKnownCasesAreRecorded:
         assert r["tier"] == "in_game"
 
     def test_academy_glintstone_key_is_not_quietly_assumed_safe(self):
+        """Measured 2026-08-01: possession, on three `PlayerHasItem(ItemType.Goods, 8109)` sites in
+        the Crest-warp events and no flag site anywhere. The assertion stays as written -- it is the
+        RULE that matters (a reported-shut door may not be classified possession on reasoning
+        alone), and it now passes because someone measured it rather than because it was weakened."""
         r = self._row("Academy Glintstone Key")
         assert r["mechanism"] != "possession" or r["tier"] in ("in_game", "datamine"), (
             "the Academy key was reported shut by a player while held; it may not be classified "
             "possession on reasoning alone")
+        assert "8109" in r["evidence"], "the possession claim must cite the goods id it was read from"
 
     def test_great_runes_are_all_present(self):
         from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
