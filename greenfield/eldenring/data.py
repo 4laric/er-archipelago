@@ -2776,8 +2776,8 @@ LOCATIONS = {
         ('Liurnia :: Smithing Stone [2] - Lake statue [f1034447010]', 7772628, 1034447010),
         ('Liurnia :: Icerind Hatchet - near Temple Quarter [f1034447900]', 7772629, 1034447900),
         ('Liurnia :: Dragonwound Grease - near Crystalline Woods (region unconfirmed) [f1034457010]', 7772630, 1034457010),
-        ('Liurnia :: Kukri - near Crystalline Woods (region unconfirmed) [f1034457020]', 7772631, 1034457020),
-        ('Liurnia :: Academy Glintstone Key - behind the sleepy dragon, on a corpse (region unconfirmed) [f1034457100]', 7772632, 1034457100),
+        ('Liurnia :: Kukri - near Crystalline Woods [f1034457020]', 7772631, 1034457020),
+        ('Liurnia :: Academy Glintstone Key - behind the sleepy dragon, on a corpse [f1034457100]', 7772632, 1034457100),
         ('Liurnia :: Smithing Stone [3] - Lake statue, behind the snake [f1034467100]', 7772633, 1034467100),
         ('Liurnia :: Throwing Dagger - near The Four Belfries [f1034477000]', 7772634, 1034477000),
         ("Liurnia :: Golden Rune [1] - near Sorcerer's Isle (1) [f1034477110]", 7772635, 1034477110),
@@ -5187,4 +5187,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:9881604584ecc93fb3b08fcdd417a511a5e91fb9b89b0051211948cce5264aa0', 'module': 'data.py', 'body_sha256': 'sha256:47866fe6c6366839b629431889882322e8366ddb4135b19bd4520ff818bb933b'}
+_GEN_STAMP = {'inputs_hash': 'sha256:7fbb05be67137fcacfe4c753d140a94ade94c60bbbc30f86d7f066289a42d20b', 'module': 'data.py', 'body_sha256': 'sha256:4a30cdd0436344c5ec8a74dd2f57c26f18498b66b9d46df7d6682f8fdf87d555'}

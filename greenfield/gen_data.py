@@ -1312,6 +1312,32 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 #                reachable until you have Enir Ilim; off surface so a Belurat Lock can't strand on it
 #                (Alaric 2026-07-23). Its sibling 20007620 ("Stagefront (1)") IS Belurat-reachable and
 #                stays on surface (hand-described in location_descriptions.tsv).
+# CONFIRMED IN GAME by Alaric, so the tile guess stops hedging. The counterpart to
+# _SURFACE_EXCLUDE_FLAGS: that list DEMOTES a check we doubt, this one PROMOTES one we checked.
+#
+# A check on a fine tile that is not an ANCHOR gets its region from tile_pr -- a majority vote over
+# the tile's other labelled checks. That is a guess, so the check is barred from hosting progression
+# (DEFAULTED_REGION_APS) and its name carries REGION_UNCONFIRMED. Correct as a default: tiles
+# LEGITIMATELY span regions, so the vote is wrong for real checks, not just theoretically.
+#
+# But a guess that has been VERIFIED in game is not a guess any more, and leaving the hedge on costs
+# us twice -- the label tells the player we do not know something we do, and the progression surface
+# stays smaller than the map really is. Adding a flag here asserts: someone stood at this check, in
+# this region, and looked.
+#
+# 🛑 PER-FLAG, never per-tile. Confirming the tile would confirm every check on it, which is exactly
+# the wrong arity (er-tiles-legitimately-span-regions) -- these two share tile m60_34_45 with checks
+# nobody has stood in front of.
+_REGION_CONFIRMED_FLAGS = frozenset({
+    # --- 2026-08-01, Alaric, CONFIRMED IN GAME from the in-client check feed. Both read
+    # "Liurnia :: ... (region unconfirmed)" on screen; both are Liurnia.
+    1034457020,   # Liurnia :: Kukri -- "near Crystalline Woods"
+    1034457100,   # Liurnia :: Academy Glintstone Key -- "behind the sleepy dragon, on a corpse".
+                  # This is the SINGLETON overworld key pickup (the 14007930 "second key" was
+                  # dropped as a phantom on the 2026-07-17 surface review), so a Liurnia region
+                  # that can host progression here is worth having.
+})
+
 _SURFACE_EXCLUDE_FLAGS = frozenset({
     21017340, 2046457040, 2046457720, 2047397070,
     2049447500, 2050437010, 2050437720, 2051447500, 2051447510,
@@ -3567,6 +3593,7 @@ for r in rows:
     if _gt:
         _gx, _gy = int(_gt.group(1)), int(_gt.group(2))
         if (_is_fine_tile(_gx, _gy) and (_gx, _gy) not in ANCHOR
+                and flag not in _REGION_CONFIRMED_FLAGS
                 and (not defaulted_aps or defaulted_aps[-1] != apid)):
             defaulted_aps.append(apid)
             tile_guessed_aps.append(apid)
