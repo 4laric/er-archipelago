@@ -55,6 +55,25 @@ anyone accumulates. It is now denominated over the ~158-check progression surfac
 host's own `hint_cost`, with a ledger in AP data storage so a hint bought once stays bought across a
 reconnect. There is a tracker button for it.
 
+### The client repairs your save after a crash
+
+Archipelago and Elden Ring disagree about whether the past can change. A check, once sent, is on the
+server forever. A save can move backwards — Alt-F4, a crash, a restored backup. Left alone that
+combination is pure loss: the checks stay spent and whatever they gave you is gone, silently.
+
+The reconnect record lives *inside* the save, so it rewinds with it. On reconnect the client
+compares what the save remembers against what the server already delivered and re-delivers the
+difference — items and world state both, so a region that had opened re-opens.
+
+Verified in the field on 2026-08-01: a hard Alt-F4 seconds after three pickups came back to a save
+25 seconds behind where it was left. All three items were re-delivered on reconnect. Picking the
+locations up again gives the ordinary item and does **not** send the check twice or grant a second
+copy.
+
+Two honest limits. It only restores what Archipelago delivered — runes, ordinary pickups, boss
+progress and your position still go back with the save. And it is not a licence to save-scum: the
+checks you already sent stay sent.
+
 ### Fixed: the crash on fast travel
 
 Instrumented across six crashes from one player's session, all six faulted **8 bytes below** our FMG
