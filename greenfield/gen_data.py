@@ -1319,6 +1319,23 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
     2044467950, 2046477950,
     510030,   # Ornamental Straight Sword (tutorial Grafted Scion drop) -- missable hard fight,
               # obtainable only at the very start; a Limgrave Lock must never strand on it (2026-07-23).
+    # --- 2026-07-31, Alaric, ON SUSPICION. Both stay ordinary collectable checks; they are barred
+    # only from HOSTING progression, which is the cheap direction: the cost of being wrong here is a
+    # filler item somewhere awkward, the cost of being wrong the other way is a stranded run.
+    39207170,   # Liurnia :: Sacred Tear -- "around Ruin-Strewn Precipice". Our LOWEST-confidence
+                # placement of the 13 Sacred Tears, on three independent signals: it is the only one
+                # on an INTERIOR lot flag (the other 12 are 10xxxxxxx overworld tiles); check_maps
+                # gives its map as "decoded from the flag id" (inferred, never observed); and it is
+                # named with the coarse preposition "around", not "near". Fextralife's list of 12
+                # (cross-checked 2026-07-31, NOT ingested) has no entry for it -- our params do say
+                # lot 39200170 holds goods 10020, so the check is real; it is the LOCATION claim
+                # that is weak. Alaric could not find it in game at the named grace.
+    1035467100, # Liurnia :: Golden Seed -- "near East Gate Bridge Trestle". Suspected to sit behind
+                # the Raya Lucaria Academy key: Fextralife places the Phantom-Tree seed at the broken
+                # bridge NORTH of the Main Academy Gate grace, which is a different anchor from the
+                # one we name. If the key gates it, a Liurnia Lock placed here strands until the
+                # Academy opens -- the same shape as 510030 above. UNVERIFIED either way; excluded
+                # until someone walks it.
 })
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
