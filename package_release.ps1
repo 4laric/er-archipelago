@@ -18,7 +18,28 @@
 #   .\package_release.ps1 -Version 0.1    # version tag used in the zip name
 #   .\package_release.ps1 -DryRun         # stage + report only; do not zip
 #
+#   .\package_release.ps1 -Unofficial -Stamp auto-equip-preview
+#                                         # cut a build that is NOT a release
+#
 # Exit codes: 0 = clean, 2 = staged but with warnings (review before shipping).
+#
+# ---- UNOFFICIAL BUILDS -------------------------------------------------------------------------
+# -Unofficial cuts a bundle for one person: a preview, a repro build, a "try this and tell me if
+# it still happens". It is NOT a way to skip the gates. The split is deliberate:
+#
+#   RELAXED to warnings (so the run exits 2, never 0)   -- the IDENTITY gates. The changelog match
+#   and the version-lockstep sites both exist to stop a build CLAIMING to be a release it is not.
+#   An unofficial build claims nothing, so mismatches there are expected, not dangerous.
+#
+#   STILL HARD FAILURES  -- every CORRECTNESS gate. The zip-gen gate, the apworld<->client data
+#   agreement, the third-party binary gate. These matter MORE here, not less: a preview build goes
+#   to somebody who will play it, and a mispaired apworld/client does not fail at the door -- it
+#   boots, connects, and misbehaves quietly.
+#
+# -Stamp is REQUIRED with -Unofficial, and lands in the zip name and in UNOFFICIAL-BUILD.txt along
+# with the world and client SHAs. That file is the whole point. v0.2.17 named two different builds
+# and a VERSION: OK check passed on a 0.2.15 dll; if somebody reports a bug against a build cut
+# here, the SHAs have to be recoverable from the artifact itself.
 
 [CmdletBinding()]
 param(
@@ -26,18 +47,54 @@ param(
     [switch]$SkipApworld,
     [switch]$SkipGenSmoke,   # skip the zipped-apworld generation gate (NOT recommended for a real release)
     [switch]$SkipCrossRepoCheck, # skip the apworld<->client data-agreement gate (NOT recommended)
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$Unofficial,     # cut a NON-RELEASE build: identity gates warn, correctness gates still fail
+    [string]$Stamp = ""      # REQUIRED with -Unofficial: free-text label, e.g. auto-equip-preview
 )
 
 $ErrorActionPreference = "Stop"
 # Normalize the version: accept -Version 0.1.1 OR v0.1.1; the zip name prepends its own "v".
 $Version = $Version -replace '^[vV]', ''
-$Repo  = $PSScriptRoot
-$Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$Name  = "ER-Archipelago-v$Version"
-$Dist  = Join-Path $Repo "dist"
+$Repo      = $PSScriptRoot
+$TimeStamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$Dist      = Join-Path $Repo "dist"
+$Rel       = Join-Path $Repo "release-v0.2"
+
+# Helpers are declared HERE, above the gates, not below them. They used to sit at the top of
+# section 1, which put them after the changelog and version checks -- so those two gates had no
+# way to warn even when warning was the right answer, and the only tool they had was throw.
+$Warnings = New-Object System.Collections.Generic.List[string]
+
+function Info($m) { Write-Host "[pkg]  $m" }
+function Warn($m) { Write-Host "[warn] $m" -ForegroundColor Yellow; $Warnings.Add($m) | Out-Null }
+function Die($m)  { throw "[pkg] $m" }
+
+# ---- UNOFFICIAL MODE --------------------------------------------------------------------------
+if ($Unofficial) {
+    if ([string]::IsNullOrWhiteSpace($Stamp)) {
+        throw ("package_release: -Unofficial requires -Stamp <label>. An unlabelled one-off is " +
+               "the identification problem this whole script exists to prevent -- name it for " +
+               "what it is, e.g. -Stamp auto-equip-preview.")
+    }
+    # Keep the label filename-safe; it goes straight into the zip name.
+    $Stamp = ($Stamp -replace '[^A-Za-z0-9._-]', '-') -replace '-{2,}', '-'
+    $Stamp = $Stamp.Trim('-')
+    if ([string]::IsNullOrWhiteSpace($Stamp)) {
+        throw "package_release: -Stamp contained no usable characters after sanitising."
+    }
+    $Name = "ER-Archipelago-v$Version-UNOFFICIAL-$Stamp"
+    Write-Host ""
+    Write-Host "  *** UNOFFICIAL BUILD -- '$Stamp' ***" -ForegroundColor Magenta
+    Write-Host "  Identity gates will WARN instead of failing; correctness gates still fail hard." -ForegroundColor Magenta
+    Write-Host "  This run can never exit 0. Do not publish this artifact as a release." -ForegroundColor Magenta
+    Write-Host ""
+} else {
+    if (-not [string]::IsNullOrWhiteSpace($Stamp)) {
+        throw "package_release: -Stamp is only meaningful with -Unofficial."
+    }
+    $Name = "ER-Archipelago-v$Version"
+}
 $Stage = Join-Path $Dist $Name
-$Rel   = Join-Path $Repo "release-v0.2"
 
 # ---- THE CHANGELOG MUST DESCRIBE THE VERSION BEING PACKAGED -----------------------------------
 # v0.2.10 shipped to GitHub and Nexus with NO changelog entry at all (issue #216), and v0.2.11 was
@@ -61,7 +118,11 @@ if (-not $chgTop) {
           "build is documented. Fix the changelog rather than removing this check."
 }
 $chgVer = $chgTop.Matches[0].Groups[1].Value
-if ($chgVer -ne $Version) {
+if ($chgVer -ne $Version -and $Unofficial) {
+    Warn ("changelog's newest entry is v$chgVer, this build is v$Version -- expected for an " +
+          "unofficial cut, but the bundled CHANGELOG will NOT describe what you are handing over. " +
+          "Say so when you send it.")
+} elseif ($chgVer -ne $Version) {
     throw ("package_release: CHANGELOG.md's newest entry is v$chgVer but this build is v$Version. " +
            "Players get whatever is in that file, so shipping it would describe the wrong release " +
            "(this is exactly how v0.2.10 shipped undocumented). Write the v$Version entry FIRST, " +
@@ -109,7 +170,11 @@ foreach ($site in $verSites) {
                ". The pattern no longer matches -- a silently unmatched regex is an unchecked site.")
     }
     $siteVer = $m.Matches[0].Groups[1].Value
-    if ($siteVer -ne $Version) {
+    if ($siteVer -ne $Version -and $Unofficial) {
+        Warn ($site.What + " is v$siteVer but this build is labelled v$Version -- seeds will " +
+              "report v$siteVer. Fine for an unofficial cut; the SHAs in UNOFFICIAL-BUILD.txt are " +
+              "what identifies it, not the version number.")
+    } elseif ($siteVer -ne $Version) {
         throw ("package_release: " + $site.What + " is v$siteVer but this build is v$Version. " +
                "Every seed would report v$siteVer, so a bug report could not tell this release " +
                "from that one -- exactly how v0.2.14 shipped stamped 0.2.13. Bump it, or pass " +
@@ -117,12 +182,6 @@ foreach ($site in $verSites) {
     }
     Write-Host ("  version:   " + $site.What + " is v$siteVer, matches the build") -ForegroundColor DarkGray
 }
-
-$Warnings = New-Object System.Collections.Generic.List[string]
-
-function Info($m) { Write-Host "[pkg]  $m" }
-function Warn($m) { Write-Host "[warn] $m" -ForegroundColor Yellow; $Warnings.Add($m) | Out-Null }
-function Die($m)  { throw "[pkg] $m" }
 
 # ---------------------------------------------------------------------------
 # 1. Fresh apworld
@@ -438,6 +497,61 @@ if ($Foreign.Count -gt 0) {
 Info ("third-party binary gate: OK -- " + $OurBinaries.Count + " allowed binary name(s), 0 foreign.")
 
 # ---------------------------------------------------------------------------
+# 6c. UNOFFICIAL-BUILD.txt -- so the artifact can identify itself
+#
+# A version number cannot identify an unofficial cut: by construction the version sites still say
+# whatever main says. The SHAs can. Both of them -- the world alone is not enough, because CI
+# checks the client out from ITS main and the gitlink is what a local build actually compiled.
+# ---------------------------------------------------------------------------
+if ($Unofficial) {
+    function GitAt($dir, $args) {
+        if (-not (Test-Path $dir)) { return "(not checked out)" }
+        try   { $o = (& git -C $dir $args 2>$null); if ($LASTEXITCODE -eq 0 -and $o) { return ($o | Select-Object -First 1).ToString().Trim() } }
+        catch { }
+        return "(unavailable)"
+    }
+    $clientDir = Join-Path $Repo "from-software-archipelago-clients"
+    $worldSha  = GitAt $Repo       @("rev-parse","HEAD")
+    $worldBr   = GitAt $Repo       @("rev-parse","--abbrev-ref","HEAD")
+    $worldDty  = GitAt $Repo       @("status","--porcelain")
+    $cliSha    = GitAt $clientDir  @("rev-parse","HEAD")
+    $cliBr     = GitAt $clientDir  @("rev-parse","--abbrev-ref","HEAD")
+    $cliDty    = GitAt $clientDir  @("status","--porcelain")
+
+    $lines = @(
+        "UNOFFICIAL BUILD -- NOT A RELEASE",
+        "",
+        "label:        $Stamp",
+        "built:        $TimeStamp",
+        "version label: v$Version  (the version SITES may disagree -- see warnings below)",
+        "",
+        "world  commit: $worldSha  branch: $worldBr",
+        "client commit: $cliSha  branch: $cliBr",
+        ""
+    )
+    if ($worldDty -and $worldDty -ne "(unavailable)" -and $worldDty -ne "(not checked out)") {
+        $lines += "WARNING: the world tree had UNCOMMITTED CHANGES at build time."
+        $lines += "         The commit above does not fully describe this artifact."
+        $lines += ""
+    }
+    if ($cliDty -and $cliDty -ne "(unavailable)" -and $cliDty -ne "(not checked out)") {
+        $lines += "WARNING: the client tree had UNCOMMITTED CHANGES at build time."
+        $lines += "         The commit above does not fully describe this artifact."
+        $lines += ""
+    }
+    $lines += "If you are reporting a bug against this build, quote the two commits above."
+    $lines += "A version number alone cannot identify it."
+    if ($Warnings.Count -gt 0) {
+        $lines += ""
+        $lines += "Packaging warnings:"
+        foreach ($w in $Warnings) { $lines += "  - $w" }
+    }
+    $infoPath = Join-Path $Stage "UNOFFICIAL-BUILD.txt"
+    Set-Content -Path $infoPath -Value $lines -Encoding ascii
+    Info "unofficial: wrote UNOFFICIAL-BUILD.txt (world $worldSha / client $cliSha)"
+}
+
+# ---------------------------------------------------------------------------
 # 7. Manifest + zip
 # ---------------------------------------------------------------------------
 Info "----- bundle contents -----"
@@ -452,7 +566,7 @@ Info "total staged size: $totalMB MB"
 if ($DryRun) {
     Info "DryRun: staged at $Stage (no zip written)."
 } else {
-    $Zip = Join-Path $Dist ("{0}-{1}.zip" -f $Name, $Stamp)
+    $Zip = Join-Path $Dist ("{0}-{1}.zip" -f $Name, $TimeStamp)
     if (Test-Path $Zip) { Remove-Item $Zip -Force }
     Compress-Archive -Path (Join-Path $Stage "*") -DestinationPath $Zip -Force
     Info "zip written: $Zip"
@@ -467,7 +581,7 @@ if ($DryRun) {
     # HASH-MATCHED PAIR (the client compares the apworld's contract hash on connect and errors on
     # skew), and a mismatched pair does not fail at the door -- it boots, connects, and misbehaves
     # quietly. Same tag, or nothing. See DISTRIBUTION.md.
-    $BareApworld = Join-Path $Dist ("{0}-{1}.apworld" -f $Name, $Stamp)
+    $BareApworld = Join-Path $Dist ("{0}-{1}.apworld" -f $Name, $TimeStamp)
     Copy-Item $Apworld $BareApworld -Force
     Info "bare apworld: $BareApworld  (upload this ALONGSIDE the zip, same release tag)"
 }
@@ -479,6 +593,12 @@ if ($Warnings.Count -gt 0) {
     Write-Host ""
     Write-Host "[pkg] DONE with $($Warnings.Count) warning(s):" -ForegroundColor Yellow
     foreach ($w in $Warnings) { Write-Host "        - $w" -ForegroundColor Yellow }
+    exit 2
+} elseif ($Unofficial) {
+    # No warnings fired, but this still is not a release. Exit 2 so nothing downstream can mistake
+    # an unofficial cut for a green release build.
+    Write-Host ""
+    Write-Host "[pkg] DONE -- UNOFFICIAL build '$Stamp'. Not a release; see UNOFFICIAL-BUILD.txt." -ForegroundColor Magenta
     exit 2
 } else {
     Info "DONE clean -- bundle ready."

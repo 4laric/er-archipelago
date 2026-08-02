@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ER-Archipelago — project recall quiz</title>
+<style>
+  :root{
+    --bg:#14120f; --panel:#1d1a16; --panel2:#252119; --line:#3a332a;
+    --ink:#ece5d8; --dim:#9b9284; --gold:#c9a227; --gold2:#e8c85a;
+    --ok:#5fa363; --okbg:#1b2a1c; --bad:#c2564b; --badbg:#2c1a18;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding:24px 16px 64px;}
+  .wrap{max-width:820px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 4px;letter-spacing:.2px}
+  h1 span{color:var(--gold)}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+  .chip{border:1px solid var(--line);background:var(--panel2);color:var(--dim);
+    padding:7px 12px;border-radius:99px;cursor:pointer;font-size:13px;user-select:none;transition:.12s}
+  .chip:hover{border-color:var(--gold)}
+  .chip.on{background:var(--gold);border-color:var(--gold);color:#191510;font-weight:600}
+  .chip .n{opacity:.65;font-size:11px;margin-left:5px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+  button.go{background:var(--gold);color:#191510;border:0;border-radius:7px;
+    padding:10px 20px;font-size:15px;font-weight:650;cursor:pointer}
+  button.go:hover{background:var(--gold2)}
+  button.ghost{background:transparent;color:var(--dim);border:1px solid var(--line);
+    border-radius:7px;padding:10px 16px;cursor:pointer;font-size:14px}
+  button.ghost:hover{color:var(--ink);border-color:var(--gold)}
+  label.mini{color:var(--dim);font-size:13px;display:flex;align-items:center;gap:7px;cursor:pointer}
+  .bar{height:4px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-bottom:16px}
+  .bar i{display:block;height:100%;background:var(--gold);transition:width .25s}
+  .meta{display:flex;justify-content:space-between;color:var(--dim);font-size:12px;
+    margin-bottom:10px;letter-spacing:.3px}
+  .tag{color:var(--gold);text-transform:uppercase;font-size:11px;letter-spacing:1px}
+  .q{font-size:17px;line-height:1.5;margin:6px 0 18px;font-weight:500}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:12px 14px;cursor:pointer;font-size:14.5px;line-height:1.45;
+    display:flex;gap:11px;align-items:flex-start;transition:.1s}
+  .opt:hover:not(:disabled){border-color:var(--gold);background:#2b261d}
+  .opt kbd{background:#100e0b;border:1px solid var(--line);border-radius:4px;
+    padding:1px 6px;font-size:11px;color:var(--dim);flex:none;margin-top:1px}
+  .opt.correct{border-color:var(--ok);background:var(--okbg)}
+  .opt.wrong{border-color:var(--bad);background:var(--badbg)}
+  .opt.faded{opacity:.5}
+  .exp{margin-top:16px;border-left:3px solid var(--gold);background:#201c15;
+    padding:12px 14px;border-radius:0 8px 8px 0;font-size:14px}
+  .verdict{font-weight:700;margin-bottom:6px;font-size:13px;letter-spacing:.5px;text-transform:uppercase}
+  .verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+  code{background:#100e0b;border:1px solid #2c261e;border-radius:4px;padding:1px 5px;
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;color:#d9c98f}
+  .score{font-size:44px;font-weight:700;color:var(--gold);line-height:1}
+  .bd{margin-top:18px}
+  .bd .r{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .bd .r span:last-child{color:var(--dim);font-variant-numeric:tabular-nums}
+  .miss{margin-top:20px}
+  .miss h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:0 0 10px}
+  .miss .m{border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin-bottom:9px;font-size:13.5px}
+  .miss .m .qq{margin-bottom:5px}
+  .miss .m .aa{color:var(--ok)}
+  .hint{color:var(--dim);font-size:12px;margin-top:14px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ER-Archipelago — <span>recall quiz</span></h1>
+  <div class="sub">76 questions drawn from the project's hard-won facts: the ones that cost a wrong claim, a bad build, or a player's save. Every wrong answer here is a mistake actually made at least once. <b>Round 2</b> — includes the 2026-08-01 PR pass.</div>
+
+  <div id="setup" class="card">
+    <div style="font-weight:600;margin-bottom:2px">Pick your topics</div>
+    <div style="color:var(--dim);font-size:13px">Tap to toggle. All on by default.</div>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <label class="mini"><input type="checkbox" id="shuffleOpts" checked> shuffle answer order</label>
+      <label class="mini"><input type="checkbox" id="requeue" checked> re-ask what I miss</label>
+      <label class="mini">length
+        <select id="len" style="background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 8px">
+          <option value="10">10 questions</option>
+          <option value="20" selected>20 questions</option>
+          <option value="0">everything</option>
+        </select>
+      </label>
+      <label class="mini"><input type="checkbox" id="newestFirst"> newest material only (2026-08-01)</label>
+    </div>
+    <div class="row"><button class="go" id="start">Start</button></div>
+    <div class="hint">Keyboard: <b>1-4</b> to answer, <b>Enter</b> for next question.</div>
+  </div>
+
+  <div id="quiz" class="card hidden">
+    <div class="bar"><i id="prog" style="width:0%"></i></div>
+    <div class="meta"><span id="counter"></span><span id="running"></span></div>
+    <div class="tag" id="cat"></div>
+    <div class="q" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div id="exp"></div>
+    <div class="row hidden" id="nextrow"><button class="go" id="next">Next</button><button class="ghost" id="quit">End &amp; score</button></div>
+  </div>
+
+  <div id="results" class="card hidden">
+    <div style="color:var(--dim);font-size:13px;letter-spacing:1px;text-transform:uppercase">Score</div>
+    <div class="score" id="finalScore"></div>
+    <div id="verdictLine" style="color:var(--dim);margin-top:8px"></div>
+    <div class="bd" id="breakdown"></div>
+    <div class="miss hidden" id="missBox"><h3>Worth a second look</h3><div id="missList"></div></div>
+    <div class="row">
+      <button class="go" id="again">New round</button>
+      <button class="ghost" id="drillMissed">Drill just the misses</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  geo:   "Id-space & geometry",
+  shop:  "Shops, runes & the menu",
+  client:"Client: crashes & guards",
+  opts:  "Options, goals & hints",
+  ci:    "Tests, CI & the contract",
+  tools: "Tooling & corpora",
+  proc:  "Process & release"
+};
+
+const Q = [
+/* ---------------- GEO ---------------- */
+{c:"geo",q:"In MSB Treasure records, what does <code>StartDisabled=1</code> actually mean?",
+ o:["The item sits inside a container — 162 of 163 such rows are also <code>InChest&gt;=1</code>",
+    "The item is gated behind an event flag and needs an enabler",
+    "The item is DLC-only and absent from a base-game seed",
+    "The spawn is disabled until its region is opened by the randomizer"],
+ a:0,
+ e:"It is a <b>chest</b>, not a gate. The phantom risk list of '135 checks with no known enabler' came from reading the flag as event-gating. Of 136 distinct live checks, an enabler is locatable for only 18 — and only <code>f580600</code> (Message from Leda, flag 9146, set by Messmer's banner in <code>m21_01</code>) is a genuine cross-region prerequisite."},
+
+{c:"geo",q:"How many genuine cross-region prerequisites survived the StartDisabled hunt?",
+ o:["Exactly one — <code>f580600</code>, Leda's message, waiting on Messmer",
+    "135, all still unwired",
+    "Eighteen, one per locatable enabler",
+    "None — the whole class was falsified"],
+ a:0,
+ e:"One. Building access rules for the other 134 would have been work against hazards that do not exist; missing this one would have been a genuinely unreachable check."},
+
+{c:"geo",q:"<code>greenfield/region_groups.py</code> holds two tables. What is each keyed by?",
+ o:["<code>PLAY_REGION_GROUPS</code> by <code>PlayRegionParam.ID // 100</code>; <code>REGION_GROUPS</code> by <code>BonfireWarpParam.bonfireSubCategoryId</code>",
+    "Both by <code>bonfireSubCategoryId</code> — one is just a filtered view of the other",
+    "<code>PLAY_REGION_GROUPS</code> by map id; <code>REGION_GROUPS</code> by AP region name",
+    "<code>PLAY_REGION_GROUPS</code> by <code>bonfireEntityId</code>; <code>REGION_GROUPS</code> by grace flag"],
+ a:0,
+ e:"<b>Two tables, two id spaces.</b> The first drives the client kick / <code>areaLockFlags</code>; the second drives <code>PLAY2AP</code> and check regioning. <code>datamine_play_regions.py</code> measured one and audited the other, producing a bogus '89 missing, 27 phantom'. Pasting its proposed table would have keyed <code>PLAY2AP</code> wrong and sent the whole overworld to the Roundtable — <i>while still passing the bucket gate</i>."},
+
+{c:"geo",q:"Gravesite is warp subcategory 6800 and play-region bucket 68000. Does the &times;10 relation generalize?",
+ o:["No — the real set contains 68410, 69010 and 69030, and there is no 68510 or 69500",
+    "Yes, it is a stable derivation and safe to compute",
+    "Yes for the base game, no for the DLC",
+    "No, but only because Weeping Peninsula collapses into Limgrave"],
+ a:0,
+ e:"It looks like a rule and is not. Worse, <code>kick_decision</code> does <code>sub = pr/100</code> and is <b>permissive on unknown buckets</b> — so the conflation was a silent shrug, not a crash, and left the DLC overworld, Weeping and every mini-dungeon freely lootable behind locks that never fired."},
+
+{c:"geo",q:"Anchored (grace-trusted) tiles vs graceless (guessed) tiles — which straddle more than one region more often?",
+ o:["Anchored: 15 of 168 = 9%, versus graceless at 7 of 144 = 5%",
+    "Graceless, roughly 2:1 — which is how you find misregions",
+    "They straddle at identical rates, so the axis carries no signal",
+    "Neither — a 256 m tile cannot occupy two regions"],
+ a:0,
+ e:"Trusted tiles straddle <b>more</b> often. Multi-region is ordinary geography, not a symptom of guessing — a 256 m tile is a box that can hold several regions, and the <i>check</i> is what has a region. The 'provably wrong tiles' list was built on an invented axiom; tile&rarr;region is simply the wrong arity."},
+
+{c:"geo",q:"An overworld map id looks like <code>m60_TX_TZ_VL</code>. What is that fourth field, and what does the coordinate fold need?",
+ o:["<code>[version][lod]</code> — and the fold needs a <code>(pitch-256)/2</code> centring term on top of <code>tile*pitch + local</code>",
+    "A single LOD number — <code>world = tile*256 + local</code> holds at every level",
+    "A chunk revision; coordinates are already world-space",
+    "<code>[lod][version]</code>, and <code>_01</code> tiles are 4x coarser"],
+ a:0,
+ e:"<code>pitch = 256 &lt;&lt; lod</code>, and the centring term is <b>inferred and undocumented</b>. Without it all 18 LOD2 rows land 244-463 m outside their own tile. With it, five coarse merchant tiles land 50-122 m from a real named grace. The mis-fold silently denied a nearest grace to 17 LOD2 flags and all 570 merchant-only flags — missing-never-wrong, so it got tuned around with a 2000 m cap instead of diagnosed."},
+
+{c:"geo",q:"How much coordinate coverage is still recoverable from MSB scans?",
+ o:["Almost none — only 9 live checks have an MSB <code>treasure</code> record and no coordinate",
+    "About 537 rows, once the two datamines read the same record type",
+    "Roughly 900 checks, the full unplaced set",
+    "1665 checks, the entire coord gap"],
+ a:0,
+ e:"<code>source=event</code> means <b>EMEVD provenance — no MSB presence at all</b>, per <code>datamine_msb_item_regions.py</code>'s own docstring. The ~900 unplaced checks are script-awarded, merchant-sold or enemy-dropped by nature. The tool that produced a column defines the column: read its docstring before interpreting values."},
+
+{c:"geo",q:"What is the correct arity of a check's position?",
+ o:["One-to-many: <code>check -&gt; {(map_id, x, y, z, availability_condition)}</code> — 269 checks that already have coords carry more than one map",
+    "One-to-one, with 1665 checks simply missing theirs",
+    "One-to-one per region, many per world",
+    "Shop rows are aspatial; everything else is one-to-one"],
+ a:0,
+ e:"The coord gap is 1665 of 4857 = 34.3% (re-measured 2026-07-26 — do not quote the stale 34.2%/4849/1657). Merchants are not aspatial, they are <b>multi</b>-spatial: 52 identities, 12 relocating. And no column here is a merchant identity — <code>nameId</code> both splits and merges (Scribe Corhyn and Brother Corhyn are one man)."},
+
+{c:"geo",q:"<code>grace_place_names_dump.txt</code> — how do you join it correctly?",
+ o:["By warp/event flag: <code>bonfireEntityId</code> <code>AABBxxxx</code> &rarr; map <code>mAA_BB</code>, then the event flag &rarr; name",
+    "By map id, read straight off the dump's first column",
+    "By reading the flag number as a map id — <code>73412</code> &rarr; <code>m34_12</code>",
+    "By <code>bonfireSubCategorySortId</code>, which orders the warp menu"],
+ a:0,
+ e:"The dump is keyed by flag, not map id. The wrong read produces names that look right and aren't — it gave 'Divine Tower of Limgrave' for what is actually Divine Tower of West Altus / Sealed Tunnel. The grace place name is the strongest cheap region oracle for interiors, so keying it wrong is expensive.<br><br><b>Still unreconciled:</b> the memory index says the key is <code>BonfireWarpParam.textId1</code> while the topic file's code uses <code>eventflagId</code>."},
+
+{c:"geo",q:"For an ordinary region the open flag <i>is</i> the front-door grace. Why is that a bug for a gated child?",
+ o:["<code>core.py</code> shipped the same flag through <code>regionOpenFlags</code> and the client sets it directly — so receiving the Lock lit a grace on the <b>far side of the vanilla wall</b>, handing the player a fast-travel target past it",
+    "The gated child has no front door, so the derivation returns null",
+    "The flag collides with the kick latch's own id space",
+    "Graces behind a wall are never allocated, so the flag no-ops"],
+ a:0,
+ e:"For an ordinary region the derivation is exactly right — receiving the Lock lights the way in. <code>features/graces.py</code> withholds those bundles while the wall is armed, but the same flag went out through a second door the fix never watched, lighting East Capital Rampart (71102), Church of the Cuckoo (71402) and 73501. That is the 2026-07-14 'walked straight in and ended the run at Morgott' bug returning <b>with all four of its folds green the whole time</b>.<br><br>One bit could not do both jobs — the #240 shape, <i>the flag IS the function</i> — so the kick latch gets its own: Leyndell <b>76980</b>, Raya Lucaria <b>76981</b>, Sewer <b>76982</b>. <code>core.py</code> and <code>area_locks.py</code> change <b>zero lines</b>, which is the point of fixing the table rather than adding a runtime override four consumers would half-apply.<br><br>🛑 <b>Do not tag unprobed.</b> An unallocated flag silently no-ops, and here it fails in the <i>stranding</i> direction — worse than the permissive bug it replaces."},
+
+/* ---------------- SHOP ---------------- */
+{c:"shop",q:"What makes the purchase menu drop a <code>ShopLineupParam</code> row entirely?",
+ o:["The row's <code>value</code> is <i>below the ware's own</i> <code>sellValue</code> — a relation, not a constant",
+    "The row's <code>value</code> is exactly 0",
+    "<code>sortGroupId</code> is 100, which the menu filters",
+    "<code>eventFlag_forStock</code> is set on the row"],
+ a:0,
+ e:"16 of 16 row-level predictions across two Corhyn seeds, zero misses. Of 710 costType-0 non-material merchant rows, <b>zero</b> vanilla rows ship <code>value &lt; sellValue</code> — so the game never has to handle it. <code>shop_sell</code> alone can therefore hide <i>any</i> check: this is a check-availability bug, not a cosmetic one."},
+
+{c:"shop",q:"Which observation proves the hidden-row bug is not a rune bug?",
+ o:["Veteran's Helm (protector 780000, <code>sellValue</code> 1000) on a 600 slot is hidden, while protector 201100 (<code>sellValue</code> 100) on a 1000 slot renders two rows away",
+    "All 15 runes were hidden but no other item type was",
+    "The rune rows were greyed out rather than absent",
+    "Runes have <code>sortGroupId</code> 100 and protectors have no group at all"],
+ a:0,
+ e:"Runes are 15/15 hidden <i>by construction</i> — <code>rune_worth = GOODS_PRICE // 10</code> is <b>exactly</b> <code>sellValue</code>, and <code>rune_pricing</code> rolls <code>randint(0, PRICE_MULT * worth)</code> with <code>PRICE_MULT = 1</code>. So runes always trip the relation. The helm is what shows the rule is general. And the cells are not selectable — the entry is never built."},
+
+{c:"shop",q:"Which direction did the shipped fix move, and why?",
+ o:["It <b>lowers</b> <code>sellValue</code> — verified across all 35 rune goods that payout comes from <code>SpEffectParam.soul</code> and <code>soul == sellValue</code> exactly, so <code>sellValue</code> is redundant on a rune",
+    "It raises <code>value</code> to <code>sellValue + 1</code>",
+    "It clears <code>sortGroupId</code> on the affected rows",
+    "It rewrites the row's <code>equipType</code> so the menu treats it as goods"],
+ a:0,
+ e:"Raising <code>value</code> was the earlier attempt and was superseded — it makes a bargain impossible, which defeats the point of a randomized price. 🛑 Synthetic goods are <b>refused</b> by the fix: <code>er_codec</code> repurposes <code>EquipParamGoods.sellValue</code> as the local-quantity carrier above <code>SYNTHETIC_GOODS_MIN_ID</code> = 3,780,000."},
+
+{c:"shop",q:"Rows 100350 / 100354 / 100355 flipped visibility between two seeds with the same merchant and the same client. What does that settle?",
+ o:["The absence follows the <b>item</b>, not the row — so stop instrumenting the writer",
+    "The writer is nondeterministic and drops writes under load",
+    "The discriminator is per-write, so the write order matters",
+    "Cross-type rewriting corrupts the row"],
+ a:0,
+ e:"Read-back confirmed all 588 written rows hold the <code>equipId</code> and <code>equipType</code> we wrote. Four-plus hypotheses died to direct measurement here. The trap: 'runes don't render' was the wrong <i>class</i> of statement — same shape as Messmer's Kindling. And before treating a 'none visible' report as evidence, <b>count how many were expected visible</b>: Corhyn had exactly one ungated Golden Rune that seed."},
+
+{c:"shop",q:"<code>_RUNE_RE</code> in <code>features/rune_pricing.py</code> is an anchored name whitelist. What does that cost?",
+ o:["11 DLC money-runes still priced at exactly 10x their payout, because every DLC rune name falls through to <code>GOODS_PRICE</code>",
+    "Nothing — the whitelist covers every rune in the game",
+    "Golden Rune [4] is mispriced, which is the bug Alaric reported",
+    "The regex over-matches, pricing non-runes as runes"],
+ a:0,
+ e:"Shadow Realm Rune [1]-[7], Rune of an Unsung Hero, Marika's Rune, Leda's Rune, Broken Rune. Nine slots hold a Shadow Realm Rune and are absent from <code>shopRunePrices</code>. 🛑 The fix is <b>not</b> adding 'Shadow Realm' to the regex — PR #227 derives rune-ness from a datum (<code>refId_default</code> &rarr; <code>SpEffectParam.soul</code>, narrowed by <code>sortGroupId == 100</code>)."},
+
+{c:"shop",q:"Why was <code>test_gf_rune_shop_price_sanity</code> green while 11 runes were mispriced?",
+ o:["It <code>continue</code>s on <code>not is_rune_item(name)</code> — it asks the suspect to select its own evidence",
+    "It was skipped in CI for lack of artifacts",
+    "It only samples 10 rows at random",
+    "It asserts on <code>shopRunePrices</code>, which is written correctly"],
+ a:0,
+ e:"Green by construction. The same shape as calling the golden-rune report 'closed' off <code>shopRunePrices</code> and 'rolled rune price written to 130 rows' — both <b>upstream of the merchant menu</b>. 'Written to N rows' is the exact line that lied last time; CONTRIBUTING rule 12 exists for it."},
+
+{c:"shop",q:"Why were the Twin Maiden Husks listed as a co-seller on 377 wares they don't stock?",
+ o:["Every bell bearing routes a merchant's stock to them, and <code>merchant_shops.tsv</code> over-attributes at BLOCK level",
+    "They were hand-added to a curated seller list",
+    "Their shop rows share an id space with Kalé's",
+    "The datamine deduplicates sellers by name and they sort first"],
+ a:0,
+ e:"The Husks were the <i>symptom</i>. Block 1000 also claims Gostoc, Sellen and three name-states of Bernahl; block 1005 lists Kalé, 'Nomadic Merchant' and an empty name. Filed as #220. And the principled fix — drop a seller whose row is release-gated — <b>measured as changing 0 of 548 lists</b> because the Husks mirror the same <code>row_id</code> at <code>release_flag 0</code>. An empty result is a failure, not a clean run."},
+
+{c:"shop",q:"A player was stranded on the Liurnia Isolated Merchant's stock. Every one of those checks lists two sellers. Why is that not an all-clear?",
+ o:["The second seller is the Twin Maiden Husks at the hub — but they only stock a merchant's inventory once you hand them that merchant's <b>bell bearing</b>, which drops from the merchant, behind the same door",
+    "The second seller is a duplicate row for the same merchant",
+    "The Husks are themselves gated behind the Academy key",
+    "Two sellers means the row is release-gated, so it never appears"],
+ a:0,
+ e:"<i>'I nearly closed this as a non-issue on that basis.'</i> <code>merchant_shops.tsv</code> attributes at BLOCK level (#220) — it records who <b>can open</b> a row, never whether their stock is unlocked. The fix bars all <b>sixteen</b> of the merchant's checks, not the one reported: <b>the gate is on the merchant</b>, and fixing only the reported id is the hand pin wearing an algorithm's clothes. Identity is derived from name + tile (m60_35_45) because 'Isolated Merchant' alone is ambiguous — the game reuses it on three tiles.<br><br>Also released in the same commit: a Golden Seed excluded on suspicion of the same gate, walked and cleared in game. The exclusion did its job — <b>cheap to be wrong, reversed the moment someone looked.</b>"},
+
+/* ---------------- CLIENT ---------------- */
+{c:"client",q:"All 14 of boblerrr's crashes fault at the same relative address. What is the pattern in the fault addresses themselves?",
+ o:["Each is exactly <code>X - 8</code>, where X is 64 KB-aligned — every address ends <code>fff8</code>",
+    "Each is exactly <code>X + 8</code> above a 64 KB-aligned block",
+    "Each lands on the block base itself",
+    "They are scattered; only the instruction pointer is constant"],
+ a:0,
+ e:"64 KB is the VirtualAlloc allocation granularity, and the read is a FromSoft <code>DLKR::DLAllocator</code> header read <i>below</i> the pointer. <code>fmg_inject.rs::valloc</code> is the client's only VirtualAlloc. Proven on client 0.2.18: 6 crashes, 6 <code>foreign-blocks: HIT</code>, 0 misses."},
+
+{c:"client",q:"What is the shipped guard, and why that size?",
+ o:["<code>GUARD_BELOW = 0x1000</code> — a full page, because nothing proves -8 is the deepest reach",
+    "8 bytes, matching the observed read exactly",
+    "64 KB, one full allocation granule",
+    "No guard — the allocation was moved to <code>HeapAlloc</code>"],
+ a:0,
+ e:"Allocate <code>size + 0x1000</code>, hand out <code>p + 0x1000</code>. Sizing the guard to the observed symptom would be pinning the symptom rather than the datum. Note this fixes the <b>read</b>, not ownership. The transferable method: <b>ship the instrument alone, never bundled with the fix</b> — a stopped crash teaches nothing."},
+
+{c:"client",q:"What single defect enabled both CTD classes (stale pointer and null deref)?",
+ o:["<code>try_set_event_flag</code> returns <code>true</code> when the <i>singleton resolved</i>, discarding <code>set_flag</code>'s outcome",
+    "The reconciler paced writes too slowly to observe a failure",
+    "<code>on_world_edge</code> fired before the map was torn down",
+    "The flag write and the goods write shared a lock"],
+ a:0,
+ e:"Structurally identical to <code>grant_item</code> discarding <code>AddItemFunc</code>'s result. The flag path was also <b>unpaced at 32/frame</b> (~60/s — ten times the 6/s grant flood that cost two saves) while cheerfully logging <code>converged=true</code>. Every guard shipped before this was scoped to the <i>instance</i> that crashed, leaving the mechanism's other doors open."},
+
+{c:"client",q:"A contested flag — the 9116 shape — reads back fine but keeps being contested. What does the guard do with it?",
+ o:["Never parks it: only a write that does not stick at all is parked",
+    "Parks it after 3 attempts, like a refused grant",
+    "Parks it after the pacing gate reports non-convergence",
+    "Escalates to a REFUSED toast and halts reconciliation"],
+ a:0,
+ e:"🛑 Parking a contested flag would abandon state the player legitimately owns. The read-back is the discriminator: a contested flag reads back correct, a broken write does not."},
+
+{c:"client",q:"A refused unique grant re-fired forever and cost two players their saves. What was the actual precondition?",
+ o:["A Great Rune in <code>desired.unique_goods</code>, then the next world edge — nine Roundtable warps were all clean",
+    "Warping to the Roundtable Hold",
+    "Merchant bell bearings entering the item pool",
+    "A save load with a stale marker"],
+ a:0,
+ e:"The Roundtable trigger was <b>falsified by counting the negative cases</b>. The flood starts live, ~50s after arriving, no world edge — the suspected action is <i>equipping</i> the rune. Eldakin's log: 4525 ticks at 397/min, one grant per 150 ms (the pacing gate's own interval) for ~17 minutes, then a native CTD. This was the third instance of one class."},
+
+{c:"client",q:"What is <code>MAX_GRANT_ATTEMPTS = 3</code> paired with, and what unblocks a player with no rebuild?",
+ o:["The grant is read back <b>in the same tick</b>; interim unblock is <code>RECONCILE_APPLY=none</code>",
+    "Read back on the next snapshot; unblock by deleting the save marker",
+    "A 150 ms pacing gate; unblock by reconnecting to a fresh room",
+    "A REFUSED toast; unblock by rolling back to 0.2.17"],
+ a:0,
+ e:"Reading back on the <i>next snapshot</i> was tried and parked an item the player was still owed after three ordinary save-scum losses. Same tick is what makes three attempts safe."},
+
+{c:"client",q:"229 checks crossed seeds in boblerrr's session 12. Why didn't the save-marker guard stop it?",
+ o:["The guard runs only on the reconciler-init path; the 'seed change detected' path rebuilt per-seed state without re-running it",
+    "The guard fired and the client ignored it",
+    "A Hollow Knight test slot polluted the room roster",
+    "The marker was written before the room was generated"],
+ a:0,
+ e:"Zero checks were sent before the change and 229 after — starting with the old character's start-grant flags. The guard's own comment calls this outcome 'strictly worse than a double-grant'. <b>A guard evaluated once at startup cannot see the one event it exists to catch</b>: it must be a function of (room seed, slot, save marker), re-evaluated whenever any changes."},
+
+{c:"client",q:"A scaling toast rendered as <code>Altus ? enemy scaling 1.14x</code>. What broke?",
+ o:["A U+2014 em-dash in the string — the game's font has no glyph for it, so anything a player reads in-game must be ASCII",
+    "The toast system dropped a frame mid-render",
+    "The region name was truncated by a fixed-width buffer",
+    "The multiplier formatter emitted a NaN placeholder"],
+ a:0,
+ e:"The toast system worked perfectly; the <i>string</i> was unrenderable. Four pre-existing tests passed because the defect lived in the <b>constant part of the format</b> — they were asserting the broken text. The guard, <code>every_toast_is_ascii</code>, sweeps the whole tier range and both <code>RegionScaling</code> variants rather than asserting one string. Log messages are exempt."},
+
+{c:"client",q:"Why can't the version number identify a build?",
+ o:["<code>0.2.17</code> names two different builds — the bump landed before the grant stall guard, so a build in that window reports 0.2.17, matches <code>CONTRACT_HASH d970dd88</code>, prints <code>VERSION: OK</code> and has no guard",
+    "The Nexus label and the internal version are allowed to differ",
+    "The contract hash moves independently, so the pair is ambiguous",
+    "Cargo rewrites the patch component on release builds"],
+ a:0,
+ e:"The contract hash is a <i>compatibility</i> check, deliberately unmoved for client-only fixes — least useful exactly when a client-only fix is what moved. The fix is a defaulted trait const <code>CLIENT_BUILD</code> putting the git SHA on the overlay title: <b>put the build id on the surface the player photographs.</b>"},
+
+{c:"client",q:"The whetblade fix moved which flags, and why?",
+ o:["The check moved to client-owned adjacent flags 65611/65641/65661/65681/65721, because 65610/65640/... are also the lots' <code>getItemFlagId</code>",
+    "It moved the lots to 65611+ and left the check where it was",
+    "It added 65600 to the affinity group",
+    "It cleared <code>getItemFlagId</code> on the five lots"],
+ a:0,
+ e:"The bolded per-affinity flags do double duty, so checking them was reading a value the game owns. <code>65600</code> is <i>not</i> in the group — common event 700 sets it at game start. And the first attempt was incomplete: it skipped the first affinity, so every pool-received whetblade lost exactly one affinity."},
+
+{c:"client",q:"The crash handler reported five ordinary play sessions as four CTDs. What was it actually catching?",
+ o:["An <code>int3</code> Elden Ring executes on its <b>Alt-F4 teardown</b> path — with no debugger attached nothing handles it, so it reached the top-level filter",
+    "A genuine CTD that only reproduces on quit",
+    "A stack overflow in the overlay's render loop",
+    "The FMG VirtualAlloc fault, misattributed"],
+ a:0,
+ e:"The knowledge was already in the file, on a path that never consulted it: <code>first_chance_handler</code> gated on <code>is_fatal_class</code>, whose own doc comment called breakpoints <i>'normal control flow somewhere and none of our business'</i> — while the unhandled filter banner-ed every exception. It produced a confident wrong verdict about #198, the exact bug the module exists to diagnose. The one tell: <code>code_name</code> didn't know <code>0x80000003</code> either, so every report read <code>exception 0x80000003 ?</code>.<br><br><b>Reclassify, do not silence.</b> <code>classify()</code> now returns Fatal / Breakpoint / Benign and still writes the record in all three cases — returning early would have traded a false positive for a false negative in the same instrument. Also caught: <code>shared</code> was BUILT by CI and never TESTED, so its 7 <code>foreign_blocks.rs</code> tests — the ones the FMG diagnosis rests on — ran nowhere."},
+
+{c:"client",q:"The #248 start-item backfill scanned 17 ids and declared 32 of 35 absent. Where was the defect?",
+ o:["Two layers, each correct in its own place — <code>grant_full_id</code> returns <code>true</code> for a pot grant capped to zero, and the settle gate admits a partially populated inventory",
+    "An off-by-one in the id scan loop",
+    "The verifier read the wrong FullID space",
+    "The ledger and the bag disagreed because of a stale inventory pointer"],
+ a:0,
+ e:"Not a counting bug. <i>'At/over the cap we report success'</i> is <b>correct for the LEDGER</b> — the item is as delivered as it will ever be — and catastrophic for a <b>verifier</b>, which must not count it. Meanwhile absences were being read off a bag that was still filling, and the caller latched DONE unconditionally so hard failures were never retried in-session. The property now enforced: <b>the backfill never reports an item delivered unless a SUBSEQUENT snapshot contains it.</b> <code>GrantOutcome {Placed, Capped, NotReady}</code> carries the distinction a bool cannot."},
+
+{c:"client",q:"Ten Cracked Pots burned the backfill's entire retry budget inside one tick. Why?",
+ o:["<code>record()</code> is called once per <b>copy</b>, and repetition in <code>startItems</code> encodes quantity — while <code>MAX_ATTEMPTS</code> bounds <b>ticks</b>",
+    "The pacing gate counted each copy as a separate round",
+    "Capped grants were being retried without a bound",
+    "The convergence loop re-entered before the snapshot settled"],
+ a:0,
+ e:"Found in a smoke log one outcome away from biting. It survived only because all forty grants were <code>NotReady</code>, which deliberately burns nothing, while the inventory pointer re-primed after a world edge. Had they been <code>Capped</code>, the pots would have been declared permanently undeliverable three rounds early — <b>the #248 failure mode wearing the opposite mask: crying failure instead of crying success.</b> Now one attempt per fid per <i>round</i>, however many copies were asked for."},
+
+{c:"client",q:"<code>owns_goods()</code> / <code>owns_ledger()</code> / <code>owns_flags()</code> were pure config reads. What did that cost?",
+ o:["Config says who <i>should</i> deliver but cannot say whether that owner exists — so with no Driver ever built, <code>core.rs</code> skipped its own grant <b>and</b> the H3 watermark hold, and the receive cursor advanced on faith",
+    "Nothing functional — it only mislabelled the mode in the overlay",
+    "Double grants, because both paths ran",
+    "The reconciler applied classes it did not own"],
+ a:0,
+ e:"The Driver is only built at the first stable in-world tick, which never arrives if the inventory pointer is never captured — which is exactly what a foreign <code>AddItemFunc</code> hook does. Reported on v0.2.18 as <i>checks still SENT, nothing ever arrived again</i>: the report paths are gated only on <code>is_refused</code>, and <code>write_save()</code> made the loss durable. The fix is a pure seam: <b>owns := configured &amp;&amp; !dry_run &amp;&amp; armed &amp;&amp; !refused</b>, with <code>armed()</code> = <code>DRIVER.get().is_some()</code>. The never-armed state previously had <b>no symptom at all</b>."},
+
+{c:"client",q:"Why can the FLAGS class now apply before <code>SETTLE_MS</code> (8s) has elapsed?",
+ o:["<code>SETTLE_MS</code> exists to distrust the <b>inventory pointer</b>, and flags never touch the inventory — so <code>flags_ready() = in_game &amp;&amp; player_valid</code>, no dwell",
+    "The settle window was measured as too conservative and shortened",
+    "Flags are now applied optimistically and rolled back if the save clobbers them",
+    "The map-reveal flags were moved into the ledger class"],
+ a:0,
+ e:"Motivating case, from playtesting: <i>'I sit in the opening cutscene until the ticker delivers its first batch, because if you skip immediately you have to click OK for every map.'</i> The wait was also obsolete on its own terms — a prophylactic against save-load clobber, added before the detector that replaced it. <b>Every flag is its own sentinel:</b> the class reads back every <code>SetFlag</code> in the same tick, re-observes every desired flag every frame, parks at <code>MAX_FLAG_ATTEMPTS</code> and un-parks on observed-at-desired. Between <code>flags_ready()</code> and <code>stable()</code>, goods and ledger stay parked and <code>snapshot()</code> never reads the inventory."},
+
+{c:"client",q:"<code>auto_equip</code> shipped inert since 2026-07-18 on the finding that resolving the gaitem handle was 'a further RE target'. What was actually true?",
+ o:["The handle is a struct field on the inventory entry the tick loop was <b>already iterating</b> — <code>EquipInventoryDataListEntry.gaitem_handle</code>. There was nothing to reverse",
+    "The handle required a pointer chase through CSMenuMan",
+    "The handle only exists once the equipment menu has been opened",
+    "The finding was right; the feature shipped via a different mechanism"],
+ a:0,
+ e:"An equip is <b>four coupled representations</b>, established by diffing the whole <code>EquipGameData</code> header across a real menu equip — exactly four dwords moved, no others. Two go through <code>ChrAsm::operator=</code>; two are direct.<br><br>🛑 <b>Writing the handle directly never ACQUIRES a reference</b>, so the next menu unequip releases it to zero and the gaitem is destroyed — the item vanishes one interaction after the cause. Observed live; cost a Lordsworn's Greatsword. And rep 4, the inventory index living in <code>unk8: [u32; 22]</code>, is the difference between a working item and one that behaves correctly in hand while <b>every equipment-menu slot renders empty</b>."},
+
+{c:"client",q:"A commit documented 'ONE RULE, FOUR SITES' for the death guard. What was wrong with that?",
+ o:["The real number was five — <code>no_fall_damage.rs</code> carries the identical guard with an identical comment",
+    "There were three; one had already been unified",
+    "The rule was not one rule — two of the sites test different things",
+    "The count was right but two sites had drifted apart"],
+ a:0,
+ e:"<b>'A miscount in a comment is folklore with syntax highlighting'</b> — so the fix replaces the count with something that counts: <code>er_logic::death_guard::lists_unsafe_to_touch(player_hp)</code>. The rule itself: at the death-cam transition the engine tears down <code>chr_ins</code> and its <code>special_effect</code> list, and iterating either there is a native CTD. <code>hp &lt;= 0</code> is the signal because it is observable immediately — the respawn's world edge only fires <i>after</i> teardown.<br><br>🛑 DeathLink is deliberately NOT unified: its two <code>hp &lt;= 0</code> tests are different rules wearing the same expression (an outgoing broadcast observation, and an idempotence guard)."},
+
+{c:"client",q:"Why was deleting <code>start_items_granted</code> better than re-keying it per character?",
+ o:["Possession lives in the character's own save — so there is nothing to key and nothing to inherit, and every shipped startItem is <b>durable</b>",
+    "Re-keying would have broken same-seed reconnects",
+    "The boolean was never read, so deletion was free",
+    "Possession is cheaper to compute than a keyed lookup"],
+ a:0,
+ e:"The boolean was persisted keyed to (room seed, AP slot) with <b>no character component</b>, so a new character on a used slot inherited 'already granted' and got nothing. Re-keying was a real option; deletion is better because possession <i>cannot go stale, cannot be inherited, and survives a reload for free</i>. Flask family ranges cover the empty/charged pairs, so even a drained flask reads present. Note the deleted replays were <b>migrated, not orphaned</b> — deleting a test file is not deleting a mechanism."},
+
+/* ---------------- OPTS ---------------- */
+{c:"opts",q:"What values does the <code>Goal</code> option ship, and how does a named goal interact with the derivation ladder?",
+ o:["<code>auto</code> (default) / <code>elden_beast</code> / <code>promised_consort</code> — a named goal returns before the ladder, outranking tier 0",
+    "<code>auto</code> / <code>morgott</code> / <code>radagon</code> — the ladder can still override",
+    "Per-boss selection, resolved after the ladder runs",
+    "<code>auto</code> / <code>capital</code> / <code>dlc</code>, with the ladder breaking ties"],
+ a:0,
+ e:"Enir Ilim's sole major is 7770770; Ashen Capital's pair is {7770755, 7770764}. <code>REGION_PARENT</code> has exactly three entries and <b>no DLC region has a parent</b> — so forcing a DLC region does not drag parents in."},
+
+{c:"opts",q:"How does the client learn what the goal actually requires?",
+ o:["A new optional slot_data key <code>goalRequiredItems</code> (STR_LIST) — kept Region Locks minus the precollected anchor, folded into <code>goal.rs</code>'s existing <code>item_goals</code>",
+    "It reuses <code>goalLocations</code>",
+    "Lock names are smuggled into <code>great_rune_items</code>",
+    "It derives them client-side from the keys of <code>regionOpenFlags</code>"],
+ a:0,
+ e:"<code>goalLocations</code> can't carry it — that's an INT_LIST of location ids. Deriving from <code>regionOpenFlags</code> <b>deadlocks natural_progression seeds</b>. <code>CONTRACT_HASH</code> moved <code>d970dd88</code> &rarr; <code>00a04676</code>. Note the version-bump list has a fifth site the 4-site note omits: the client's tracked <code>Cargo.lock</code>."},
+
+{c:"opts",q:"On rolled seeds, how often is the goal region the <i>second</i> region opened?",
+ o:["25%, measured over 12 seeds each at <code>num_regions</code> 6 and 10 — the same at both sizes",
+    "About 5%, and only at small <code>num_regions</code>",
+    "25%, but only on <code>num_regions: 6</code>",
+    "It varies with fill depth and was reasoned, not measured"],
+ a:0,
+ e:"One lock found and the goal region opens. The cause is that the two terminal conditions genuinely disagree: <code>core.set_rules</code> sets <code>completion_condition = has_all(kept Locks)</code>, while the client's <code>goal.rs::is_met()</code> checks the goal <b>boss flags alone</b>. Don't blame short seeds."},
+
+{c:"opts",q:"How is a lock hint priced?",
+ o:["<code>ceil(surface_total * points_per_hint / total_locations)</code> — dividing out <code>points_per_hint()</code> so the price tracks the <b>host's</b> <code>hint_cost</code>; 16 at AP defaults",
+    "A flat 16, chosen to feel right at typical seed sizes",
+    "10% of the surface, matching AP's default hint cost",
+    "Free for your own region, priced for foreign regions"],
+ a:0,
+ e:"The percentage constant was <b>eliminated</b> — hardcoding it opts the host out of a knob they set. An underivable price returns <code>None</code> and renders <b>Unknown, never free</b>: 'free on failure' is the one mode that hands out unlimited hints."},
+
+{c:"opts",q:"Why are ordinary AP hints dead letter for Elden Ring?",
+ o:["<code>get_hint_cost = max(1, int(hint_cost * 0.01 * len(locations[slot])))</code> and an all-region seed has 4879 locations — so 10% is 487 points",
+    "The host has hints disabled by default for ER",
+    "Client-created hints burn points and there's no budget",
+    "ER's location ids fall outside the hint index range"],
+ a:0,
+ e:"The cost is <b>structural</b> — ER carries roughly ten times a normal game's location count, at 1 point per check. So the fix has to be an in-client economy, not a host setting. Client-created hints are free by design."},
+
+{c:"opts",q:"Appending to the AP data-storage ledger <code>er_lockhints_&lt;slot&gt;</code> requires which operation?",
+ o:["<code>Appends(Vec&lt;Value&gt;)</code>",
+    "<code>Add(f64)</code>",
+    "<code>Push(Value)</code>",
+    "<code>Replace(Vec&lt;Value&gt;)</code> after a read"],
+ a:0,
+ e:"<code>Add</code> is <b>numeric addition</b> — it would have been a runtime type error against an array."},
+
+{c:"opts",q:"What is the state of a shop-open hook for auto-hints?",
+ o:["It already exists — <code>cs_ez_state_talk_event_vmt</code> is a pinned RVA in the already-linked <code>eldenring</code> crate, and <code>OPEN_REGULAR_SHOP = 22</code> is the ESD command id",
+    "Unresolved RE work — no hook has been found",
+    "It needs an upstream port before it can be reached",
+    "It exists but the id is <code>RegularShop = 5</code>"],
+ a:0,
+ e:"'No hook exists' was a false claim, falsified by Fable. <code>RegularShop = 5</code> is a menu-<i>type</i> id in <code>menu_type.rs</code>, a different id space from an ESD command id."},
+
+{c:"opts",q:"Global Scadutree blessing — what are the cap and the contract hash?",
+ o:["Cap 12, wired as <code>scaduBlessingCap</code>; <code>CONTRACT_HASH</code> <code>00a04676</code> &rarr; <code>5e8b11c9</code>",
+    "Cap 20, hash unchanged at <code>00a04676</code>",
+    "Cap 12, hash <code>d970dd88</code>",
+    "Cap 20, hash <code>5e8b11c9</code>"],
+ a:0,
+ e:"The two sides only work together at <code>5e8b11c9</code>. Claimed speffect row is <b>20012081</b> (not 20012080, which is <code>no_equip_load</code>). The param table is <code>GAME_SYSTEM_COMMON_PARAM_ST</code> at <code>SoloParam</code> index <b>141</b> — not the ParamDef index 35. An absent cap must mean the ladder ceiling, not 0."},
+
+{c:"opts",q:"Every Scadutree blessing rung carries <code>effectEndurance = 0.05</code>. What follows?",
+ o:["It is a per-tick refresh (~3 frames), so outside the DLC the effect simply <b>expires</b> — the clone must set <code>effectEndurance = -1</code>",
+    "The engine strips the effect outside the DLC, so Lever B is impossible",
+    "It stacks 20 times per second and must be rate-limited",
+    "It is a display-only field and can be ignored"],
+ a:0,
+ e:"'The engine strips it' is the wrong mechanism and would kill Lever B for the wrong reason. Chain: <code>SpEffect = GameSystemCommonParam[0].baseScaduBlessingSpEffectId + level</code>, base <b>20000100</b>, stride 1, to 20000120. Clone the 18 rate fields only — <b>not</b> <code>stateInfo</code>."},
+
+{c:"opts",q:"<code>SCADU_BLESSING_CAP</code> exists to bound an injection. What was wrong with that at the shipped default?",
+ o:["The injection was never built — the only occurrence of <code>SCADU_CUM</code> in <code>greenfield/</code> was inside the comment explaining the cap, so at <code>num_regions=6</code> only <b>1 seed in 40</b> could reach it",
+    "The cap was set to 20 rather than 12",
+    "The injection ran but placed fragments as progression",
+    "Fragments were injected only on no-DLC seeds"],
+ a:0,
+ e:"The ceiling sat over a supply that arrived purely by luck of the DLC draw; the median seed topped out at blessing <b>3 of 12</b>. And the spec's own acceptance rule — <i>'a DLC seed injects none'</i> — would not have fixed the reported seed, which <b>is</b> a DLC seed and was 23 fragments short. <b>The trigger is a count, not a boolean:</b> <code>inject = max(0, SCADU_CUM[cap] - natural)</code>, from which no-DLC (26), one-DLC-region (23) and full-DLC (0) all fall out, and the boolean becomes a consequence rather than a condition. Count-neutral by construction — each fragment displaces one filler slot."},
+
+{c:"opts",q:"Where do boss rune payouts actually come from?",
+ o:["<code>GameAreaParam.bonusSoul_single</code>/<code>_multi</code>, keyed by <b>arena</b>",
+    "<code>NpcParam.getSoul</code> on the boss row",
+    "<code>haveSoulRate</code> on the <code>70xx</code> scaling SpEffect",
+    "The boss-healthbar entity id, joined to the drop table"],
+ a:0,
+ e:"Arena 1034420800 (Glintstone Dragon Adula) pays 120000 exactly; the second Adula pays 12000. The max <code>getSoul</code> anywhere is 50,000, and 315 NpcParam rows have <code>isSoulGetByBoss</code> with <code>getSoul = 0</code>. Keying on the entity is the <b>wrong arity</b> (216 arenas vs 244 entities, only 195 join)."},
+
+{c:"opts",q:"<code>completion_scaling_floor</code> was emitted as a raw percent while the client read an HP multiplier. What is true after the fix and rename?",
+ o:["The yaml key is now <code>minimum_enemy_difficulty</code>, but the <b>slot_data wire key is still</b> <code>completion_scaling_floor</code>",
+    "Both the option name and the wire key were renamed together",
+    "The wire key was renamed and the old one aliased for one release",
+    "The rename was reverted; only the units changed"],
+ a:0,
+ e:"On purpose — a released client still reads the old key. <code>completion_scaling_ramp</code> became <code>difficulty_ramp_speed</code> and <b>inverted</b> (old <code>ramp: 25</code> == new <code>speed: 75</code>). The fix itself was world-only. Trivia that has bitten: FromSoft spells it <code>physicsDiffenceRate</code>."},
+
+{c:"opts",q:"<code>region_grace_unlock</code>'s three tiers grant how many graces, and what derives the landmark?",
+ o:["all 338 / landmarks 47 / entrance 27; the landmark is the lowest flag in the <code>76xxx</code> overworld block, else the lowest flag",
+    "all 338 / landmarks 47 / entrance 27; derived from <code>REGION_OPEN_FLAGS</code>",
+    "all 168 / landmarks 55 / entrance 30; derived from <code>bonfireSubCategorySortId</code>",
+    "all 338 / landmarks 59 / entrance 27; derived from the region's first grace by map id"],
+ a:0,
+ e:"Both 'obvious' tables are wrong: <code>REGION_OPEN_FLAGS</code> is a region-<i>open detection</i> anchor and resolves Limgrave to <b>Murkwater Cave</b>; <code>bonfireSubCategorySortId</code> ties in 12 of 30. Default stays <code>all</code>, where Liurnia alone lights 59 warp points."},
+
+{c:"opts",q:"When thousands of reachability tests failed after <code>num_regions</code> became the default, what was the ruling?",
+ o:["Change the tests, not the defaults",
+    "Revert the defaults and reintroduce them behind a flag",
+    "Quarantine the failing tests until the fill is fixed",
+    "Raise the floor to 3 so the stock tests pass"],
+ a:0,
+ e:"<code>num_regions</code> is the marquee mode — 'The Shattering', rolled regions are shards. The true floor is <b>2</b> (Altus plus one rolled shard, Roundtable as hub); the '3 with Limgrave as hub' line is a stale docstring."},
+
+{c:"opts",q:"<code>generate_early</code> did <code>want = min(want, len(_available_runes()))</code>, on the theory that lowering a requirement is always safe. Why isn't it?",
+ o:["Our N is data-driven but the game's capital gate is a <b>fixed two-Great-Rune wall that does not clamp with us</b> — at N=1 logic believes one rune opens Leyndell while the game still wants two",
+    "Lowering N below 2 makes the rune items unplaceable",
+    "The clamp silently disabled the wall entirely",
+    "It is safe — the bug was in the grace bundle, not the clamp"],
+ a:0,
+ e:"And while our wall is armed, <code>features/graces.WALL_ARMED</code> withholds the capital grace bundle, so the physical gate is <b>the only way in</b> — fill may place a region Lock behind a door the player cannot open. Two ways to land there with no warning: <code>num_regions</code> (default 6) keeping exactly one Great-Rune region, or a player writing <code>leyndell_runes_required: 1</code>, which is selectable on a <code>Range(0, 6)</code>. The fix floors an armed wall at <code>VANILLA_CAPITAL_GATE_RUNES</code>, and <b>disarms rather than arming low</b> when the pool cannot supply that many."},
+
+{c:"opts",q:"What does the game actually read at the Leyndell capital gate?",
+ o:["A flag <b>count</b> over a band: <code>CountEventFlags(EventFlag, 190, 199) &gt;= countThreshold</code> — it does not read possession of anything",
+    "Possession of two Great Rune goods, via ITEM-ARG",
+    "The restored-rune goods ids 8148-8153 directly",
+    "A per-tower boolean AND-ed across the six Divine Towers"],
+ a:0,
+ e:"<code>ITEM-ARG</code> is <code>0/6</code> for the rune goods — settled by a second probe run. The six concrete flags come from the Divine-Tower altar initializers, one per tower, where common event <code>90005110</code> removes the unrestored rune, awards the restored lot and sets the parameterized flag. So <b>191-196 are genuinely both the restored-goods ids and the restored-flag ids</b> — FromSoft's parallel numbering, not our error — and <code>keyitems.rs</code> had been writing the right flags all along.<br><br>The band is pinned in the test because a stray flag id outside 190-199 would be <b>silently uncounted</b>: the one way this can rot with nothing failing. Note this rules out the predicate; it does not explain the player report."},
+
+/* ---------------- CI ---------------- */
+{c:"ci",q:"Where is <code>assert_coverage(world)</code> called from, and what does it do on failure?",
+ o:["From <code>core.post_fill</code>, and it <b>raises</b>",
+    "From <code>generate_output</code>, and it warns",
+    "From <code>fill_slot_data</code>, and it raises",
+    "From a pytest fixture, report-only"],
+ a:0,
+ e:"The baseline soaked to <b>0</b> across all categories over 4844 emitted locations. It asserts three properties per location — detectable, suppressed, region-consistent — with exactly three suppression mechanisms: lot blank (GOODS), id-keyed (by FullID), and shop. <code>BASELINE_SUPPRESSION_APS</code> is <code>{}</code> and must stay <code>{}</code>."},
+
+{c:"ci",q:"Why does <code>print</code> in a passing pytest not help you?",
+ o:["It goes into a void — use <code>warnings.warn</code> under a custom category, since the warnings summary is the one channel pytest prints on a pass",
+    "It is captured but truncated to 200 chars",
+    "It only appears with <code>-s</code>, which CI sets",
+    "It appears, but after the summary where nobody reads it"],
+ a:0,
+ e:"This is how you avoid claiming a green CI log printed numbers it never printed."},
+
+{c:"ci",q:"The sphere-shape gate <code>test_gf_sphere_shape.py</code> runs at which size, and why not smaller?",
+ o:["<code>num_regions: 12</code>, with <code>MIN_SPHERES = 4</code> and <code>MAX_SPHERE0_SHARE = 0.50</code> — at 4 regions, spheres 0-1 are ~80% of the seed and the shape carries no information",
+    "<code>num_regions: 4</code>, the common case, with <code>MAX_SPHERE0_SHARE = 0.25</code>",
+    "<code>num_regions: 6</code>, matching the default",
+    "Full-map, since sphere shape is only meaningful with every region present"],
+ a:0,
+ e:"<code>run_fill_regression.ps1</code> is <code>run_ci.ps1</code> <b>step 2</b> — not a separate invocation — and drives <code>gen_sweep.ps1</code> over 8 fixed reproducer seeds against floors in <code>baseline.json</code>."},
+
+{c:"ci",q:"Which file is the contract's single source of truth?",
+ o:["<code>greenfield/eldenring_gf/contract.py</code> — <code>gen_contract.py</code> regenerates three mirrors: <code>CONTRACT.md</code>, <code>contract.json</code>, <code>contract_gen.rs</code>",
+    "<code>contract_gen.rs</code>, which the Python side mirrors",
+    "<code>contract.json</code>, with both language bindings generated from it",
+    "<code>CONTRACT.md</code>, with the rest parsed out of it"],
+ a:0,
+ e:"Mirrors must not be hand-edited. Asymmetry worth knowing: <code>core.fill_slot_data</code> runs <code>validate_slot_data(strict=True)</code> so <b>generation fails</b> on drift, while the Rust side only <b>warns</b> on connect."},
+
+{c:"ci",q:"'26 passed, 4 skipped' on the cross-side client gate. What is actually happening?",
+ o:["All four tests read the client's <code>.rs</code> source and skip because the world CI checkout has no <code>submodules:</code> — run locally, one FAILS with 10 orphans",
+    "The four are Windows-only and skip on Linux runners",
+    "The four skip because the contract hash moved",
+    "Four tests were quarantined during the 0.2.13 bump"],
+ a:0,
+ e:"The gate has never passed in CI — it has never <i>run</i>. <b>Reading the skip reasons is the check; a green count is not.</b> Not all 10 orphans are real: one is a scanner bug (a trailing space in <code>'locationIdsToTargets '</code>) and five are the FROZEN_OPTIONS family."},
+
+{c:"ci",q:"Removing <code>_GEM_NIBBLE</code> from <code>shops._SELLABLE_NIBBLES</code> left <code>test_gf_client_can_sell_mirror.py</code> green. What does that tell you?",
+ o:["The mirror only asserts the synthetic floor is goods-only — neither of its tests compares the nibble set against the Rust <code>er_sell_id</code> category list",
+    "The test was skipped in that run",
+    "The two sets really are equal, so the removal was a no-op",
+    "The mutation was reverted before CI ran"],
+ a:0,
+ e:"Found by <b>mutation, not by reading</b>. 'There is a mirror gate for X' is not 'X is mirrored' — a mirror proves only the field it compares."},
+
+{c:"ci",q:"<code>region_bloom_settled</code> had a green test and the front-door-latch bug was still live. What rule came out of that?",
+ o:["A fix is a predicate, and <b>production must call it</b> — the predicate had zero production callers",
+    "Every predicate needs a replay test as well as a unit test",
+    "Replay modules must share <code>FakeGame</code> so timelines stay consistent",
+    "A predicate must be asserted at both ends of the timeline"],
+ a:0,
+ e:"Codified in CONTRIBUTING. Verify wiring with <code>git show HEAD:path | grep</code> — do not infer it from a plausibly-named commit. The replay tier shipped as 10 modules / 47 tests, each defining its own timeline model."},
+
+{c:"ci",q:"CONTRIBUTING rule 13 came from an audit of a shipped spec. What did the audit find, and what was the pattern?",
+ o:["Five of ten acceptance criteria missing or partial — and in every case <b>the half of each bullet needing a NEW test tier is the half that did not land</b>",
+    "The spec was implemented but never playtested",
+    "Ten of ten shipped, but none were re-verified after a refactor",
+    "The acceptance list contradicted the contract"],
+ a:0,
+ e:"The contract key shipped (an existing pattern to copy). The options rejection did not (nothing to copy). The floor Policy shipped; the cap Policy, which needed a new term in the replay model, did not. <b>Prose in <code>docs/specs/</code> is not a gate: nothing reads it and nothing goes red.</b> So the rule is to paste a merged spec's acceptance list into a tracking issue verbatim, one checkbox per line, with the command or file that proves each — and to <b>build the bullets needing a new tier first</b>, because those are exactly the ones whose absence nothing else will reveal."},
+
+{c:"ci",q:"Possession is now the start-item dedup. What invariant did the world side have to add, and why couldn't the existing tests carry it?",
+ o:["Every plain <code>startItems</code> entry must be <b>durable</b> — and the invariant tests only ever see items that already pass, so a direct-call test names three consumables the allowlist must reject",
+    "Every entry must be unique, since possession cannot count copies",
+    "Every entry must be progression, so fill cannot displace it",
+    "Nothing new — the client-side read-back covers it"],
+ a:0,
+ e:"For a stackable consumable the player used up, the bag cannot tell 'never granted' from 'granted and consumed', and the client would refill it every launch. Today's corpus happens to be entirely durable — lantern, flasks, vessels, whetblades — so the design is sound, but <b>nothing enforced that it stays that way.</b> <code>DURABLE_START_ITEMS</code> demands a written reason per entry, and the test reads the <b>real slot_data output</b> so it cannot be satisfied by editing the allowlist alone. Verified by breaking it: a stackable consumable was temporarily appended and both invariant tests failed with the intended message."},
+
+{c:"ci",q:"A crashed generation was being reported as a hang. What is the mechanism, and why isn't <code>AP_NONINTERACTIVE</code> the fix?",
+ o:["Stock <code>Generate.py</code> ends with <code>input('Press enter to close.')</code>, so a crash blocks on inherited stdin — and <code>AP_NONINTERACTIVE</code> is a <b>local patch an AP re-checkout drops</b>, while closing stdin cannot rot",
+    "The generator deadlocks on a multiprocessing pool; the env var only masks it",
+    "The timeout is set too high, so a crash looks like a hang until it expires",
+    "It is the fix — the gap was that two scripts never set it"],
+ a:0,
+ e:"In the zip smoke tool it meant a 900 s <code>TimeoutExpired</code> traceback instead of the zip-safety diagnosis the tool exists to print. The gate <b>derives</b> the invoker set rather than trusting a list, because the original was found by hand-auditing 12 files down to 5 — and a hand list goes stale silently on the sixth. Deriving it paid immediately in both directions: two scripts relied on the env var alone, and <b>the detector itself lied twice</b> (a <code>\\s</code> that let a shebang join across a newline, and an omitted <code>&lt; NUL</code> that under-credited two correct files).<br><br>Also worth keeping: <code>_invokers()</code> returns flags, not file text, because the first version printed a 144,000-character container on failure. <b>A gate whose red output cannot be read in CI is barely a gate.</b>"},
+
+/* ---------------- TOOLS ---------------- */
+{c:"tools",q:"<code>tools/gen_inputs.py</code> now globs the params dir. What happened to the old hand-lists?",
+ o:["Kept as a <b>required floor</b>, because a glob cannot fail — the bundle went 14 &rarr; 239 param CSVs",
+    "Deleted, since the glob supersedes them",
+    "Kept as documentation only, not asserted",
+    "Replaced by a checksum of the params directory"],
+ a:0,
+ e:"A glob that silently loses <code>ItemLotParam_map</code> would report success and regenerate a <b>smaller world</b>. (239 is the total; 225 is the number added.)"},
+
+{c:"tools",q:"ItemLotParam category &rarr; EquipParam table. Which mapping is right?",
+ o:["1 Goods · 2 Weapon · 3 Protector · 4 Accessory · 5 Gem · 6 CustomWeapon",
+    "1 Weapon · 2 Protector · 3 Accessory · 4 Goods · 5 Gem · 6 CustomWeapon",
+    "1 Goods · 2 Protector · 3 Weapon · 4 Gem · 5 Accessory · 6 CustomWeapon",
+    "It varies by lot table; the category is advisory"],
+ a:0,
+ e:"It is <b>membership</b>, not a naming convention. Both wrong answers here were produced once — one by name-matching, one by voting only over already-named rows."},
+
+{c:"tools",q:"The check browser reports gate evidence across four corpora. What is the honest total?",
+ o:["Union <b>684</b> — lot_gates 110, treasure_enablers 136, esd_gifts 48, esd_gates 405 (sum 699; they overlap)",
+    "110, the lot_gates figure",
+    "699, the straight sum",
+    "405, since esd_gates subsumes the others"],
+ a:0,
+ e:"Citing one table's count understates gating by roughly 6x. The browser is a <b>reader, not an oracle</b>, stamped with <code>_GEN_STAMP.inputs_hash</code>, not the git commit — a commit hash would make the committed file stale by construction."},
+
+{c:"tools",q:"In the treasure-enabler corpus, what does <code>NO_ENTITY_HANDLE</code> mean?",
+ o:["Proof of <b>no gating</b> — 66 of 136",
+    "Unknown; the enabler wasn't located",
+    "The check has no MSB record",
+    "The entity was resolved but has no region"],
+ a:0,
+ e:"Reading a proof as an unknown inflates the risk surface — the same error shape as the StartDisabled phantom list."},
+
+{c:"tools",q:"The place-name descriptor idea was killed by measurement. What killed it?",
+ o:["Of 982 weak-descriptor checks, only 80 (8%) have any coordinate and 17 (2%) land within 300 m of a named place",
+    "The PlaceName FMG has no stable ids across map versions",
+    "Collision ordinals already resolve every family",
+    "The tool would have to write into <code>location_descriptions.tsv</code>, which is generated"],
+ a:0,
+ e:"One measurement script killed a whole build — <b>measure the addressable set before datamining</b>. The ceiling here is the <i>checks</i>, not the corpus: 902 of 982 have no position at all."},
+
+{c:"tools",q:"Why is a datamine for NPC-taught gestures on the EMEVD verb name a trap?",
+ o:["The ESD verb is <code>AcquireGesture</code>, not <code>AwardGesture</code> — the EMEVD spelling returns a confident <b>empty</b> table",
+    "ESD awards are a subset of EMEVD awards, so the scan double-counts",
+    "The gestures are in ItemLotParam and neither scan reaches them",
+    "<code>AwardGesture</code> works but only in the DLC's talkesdbnd"],
+ a:0,
+ e:"NPC talk-ESD awards are a <b>third corpus</b>, invisible to every EMEVD and ItemLotParam scan — 58 sites. A confident empty table reads as 'no NPC teaches a gesture'. Also false: the arithmetic pairing <code>flag == 60800 + gesture</code>."},
+
+{c:"tools",q:"What is the provenance rule on another randomizer's data?",
+ o:["Reading it to cross-check is fine; <b>ingesting</b> it is not",
+    "Neither reading nor ingesting is permitted — the project is closed source",
+    "Ingesting is fine for bare flag numbers, which are facts",
+    "Ingesting is fine with attribution in PROVENANCE.md"],
+ a:0,
+ e:"matt's rando is not closed source; the terms forbid redistributing a modified fork. The stronger argument is non-legal: <b>a copied flag can't be regenerated, stamped with <code>inputs_hash</code>, or defended</b>. The guard keys on a narrow signature, not bare flag numbers, because a false-positive gate gets <code>--no-verify</code>'d into disarmament."},
+
+/* ---------------- PROC ---------------- */
+{c:"proc",q:"How many sites carry the version, and where do they live?",
+ o:["Four in the note (<code>contract.py</code>, <code>archipelago.json</code>, client <code>Cargo.toml</code>, client <code>contract_gen.rs</code>) plus a fifth the note omits: the client's tracked <code>Cargo.lock</code>",
+    "Three, evenly split across the repos",
+    "Two — one per repo",
+    "Four, all in the world repo"],
+ a:0,
+ e:"Two of them are in the <b>client</b> repo, and a world-only bump reds <code>generators</code>. <code>0.2.12.1</code> does not parse — Cargo's version is strict semver. <code>0.2.12-1</code> is not the workaround either: a hyphen makes it a <i>pre</i>-release, sorting below 0.2.12."},
+
+{c:"proc",q:"What is the current branching and release model?",
+ o:["Develop into <b>main</b>, cut a release on demand — the version bump belongs to the <b>cut</b>, not the feature",
+    "Feature branches queue behind a named release train",
+    "Each feature bumps the version as it merges, as 0.2.19 did",
+    "Hotfix branches are the integration line; main lags"],
+ a:0,
+ e:"It supersedes the 'wait for the next release' clause in both the shop-auto-hints and region-lock-hints rulings. Build identity is the SHA on the overlay, not the version number — and what gates a merge is the quality bar, not the calendar."},
+
+{c:"proc",q:"What is CONTRIBUTING rule 11?",
+ o:["The case that motivated the work is the acceptance test — assert the finished pipeline still reports it, <b>by name</b>",
+    "Every fix needs a mutation test alongside its unit test",
+    "No fix may ship without an in-game confirmation",
+    "Derive the datum; never pin the symptom"],
+ a:0,
+ e:"It came from shipping <code>f400191</code> (Stormhill Shack Golden Seed) miscategorised the day <i>after</i> spending a day on that exact check. Coverage went 17/227 to 126/227 once three locators landed; <b>91 pairs still have no handle</b>, so absence from <code>_QUESTLINE_GATED</code> is not evidence of safety."},
+
+{c:"proc",q:"Godrick's Great Rune and Remembrance of the Grafted — what is their relationship?",
+ o:["Siblings. The tags are on <b>drops</b>, so one boss can carry several checks with different tags",
+    "Nested: great-rune check ⊆ remembrance check ⊆ major ⊆ boss",
+    "The same check, recovered by two methods",
+    "Mutually exclusive — a seed rolls one or the other"],
+ a:0,
+ e:"The nesting is right about <b>bosses</b> and does not hold for <b>checks</b>. <code>MajorBoss</code> was keyed on <code>method == 'boss_arena'</code>, but <code>method</code> records how we recovered the row, not what the drop is — which split five bosses down the middle. Same shape as Messmer's Kindling: one boss, several checks."},
+
+{c:"proc",q:"<code>important_locations: [Boss]</code> returned 95 checks with every major boss absent. Whose filter was that?",
+ o:["Ours — <code>datamine_boss_drops.py</code> discards any reward whose item NAME contains 'remembrance' or 'great rune'",
+    "The game's — <code>HandleBossDefeatAndDisplayBanner</code> doesn't fire for majors",
+    "AP's — the option value maps to a narrower category upstream",
+    "Nobody's — the majors genuinely have no drop rows"],
+ a:0,
+ e:"The banner <i>does</i> fire for the majors and the tool finds them before throwing them away. The filter is also leaky — Agheel, Magma Wyrm Makkar and Big Red Bear kept the tag purely because their drop is named something else, which is the tell that <b>a name match was the wrong instrument</b>. Fixed as two definitional closures (Boss 95&rarr;134, MajorBoss 37&rarr;42)."},
+
+{c:"proc",q:"Is 'item X is in the pool' a seed-independent claim?",
+ o:["No — under <code>num_regions</code> the seed keeps a subset of regions, so the check that pays X may not exist, and then neither does X",
+    "Yes — the pool is fixed and only placement varies",
+    "Yes for progression items, no for filler",
+    "Only false on <code>num_regions: 2</code> seeds"],
+ a:0,
+ e:"Protecting <code>Cursemark of Death</code> from the filler tail does <b>not</b> make Fia's questline completable. A protection improves odds, never guarantees — which is exactly why rewards behind such questlines stay <b>missable</b>."},
+
+{c:"proc",q:"Which of these is the pattern the project keeps re-learning the hard way?",
+ o:["A green result upstream of the surface you care about is not evidence about that surface",
+    "Datamines are less reliable than runtime reads",
+    "Player reports are usually misdiagnosed and should be re-derived from scratch",
+    "Options should be frozen until the contract stabilizes"],
+ a:0,
+ e:"'Written to N rows', 'converged=true', '26 passed, 4 skipped', <code>shopRunePrices</code>, a predicate with no caller, a mirror test that compares the wrong field, a spec's acceptance list nothing reads. Each was read as confirmation of something one layer further downstream. The counters that work: measure at the surface, count the negative cases, mutate the fix, and ship the instrument before the patch."}
+];
+
+/* questions added in the 2026-08-01 PR pass, by index range */
+const NEWEST = new Set([
+  "The crash handler reported five ordinary play sessions as four CTDs. What was it actually catching?",
+  "The #248 start-item backfill scanned 17 ids and declared 32 of 35 absent. Where was the defect?",
+  "Ten Cracked Pots burned the backfill's entire retry budget inside one tick. Why?",
+  "<code>owns_goods()</code> / <code>owns_ledger()</code> / <code>owns_flags()</code> were pure config reads. What did that cost?",
+  "Why can the FLAGS class now apply before <code>SETTLE_MS</code> (8s) has elapsed?",
+  "<code>auto_equip</code> shipped inert since 2026-07-18 on the finding that resolving the gaitem handle was 'a further RE target'. What was actually true?",
+  "A commit documented 'ONE RULE, FOUR SITES' for the death guard. What was wrong with that?",
+  "Why was deleting <code>start_items_granted</code> better than re-keying it per character?",
+  "<code>generate_early</code> did <code>want = min(want, len(_available_runes()))</code>, on the theory that lowering a requirement is always safe. Why isn't it?",
+  "What does the game actually read at the Leyndell capital gate?",
+  "For an ordinary region the open flag <i>is</i> the front-door grace. Why is that a bug for a gated child?",
+  "A player was stranded on the Liurnia Isolated Merchant's stock. Every one of those checks lists two sellers. Why is that not an all-clear?",
+  "<code>SCADU_BLESSING_CAP</code> exists to bound an injection. What was wrong with that at the shipped default?",
+  "CONTRIBUTING rule 13 came from an audit of a shipped spec. What did the audit find, and what was the pattern?",
+  "Possession is now the start-item dedup. What invariant did the world side have to add, and why couldn't the existing tests carry it?",
+  "A crashed generation was being reported as a hang. What is the mechanism, and why isn't <code>AP_NONINTERACTIVE</code> the fix?"
+]);
+
+/* ============ engine ============ */
+const $ = id => document.getElementById(id);
+let active = new Set(Object.keys(CATS));
+let deck = [], idx = 0, answered = false, log = [], missQueue = [], forcedDeck = null;
+
+function renderChips(){
+  const counts = {};
+  Q.forEach(q => counts[q.c] = (counts[q.c]||0)+1);
+  $("chips").innerHTML = Object.keys(CATS).map(k =>
+    `<div class="chip on" data-k="${k}">${CATS[k]}<span class="n">${counts[k]||0}</span></div>`).join("");
+  document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
+    const k = c.dataset.k;
+    if(active.has(k)){ if(active.size===1) return; active.delete(k); c.classList.remove("on"); }
+    else { active.add(k); c.classList.add("on"); }
+  });
+}
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+function build(){
+  if(forcedDeck){ deck = forcedDeck; forcedDeck = null; }
+  else {
+    let pool = Q.filter(q => active.has(q.c));
+    if($("newestFirst").checked) pool = pool.filter(q => NEWEST.has(q.q));
+    shuffle(pool);
+    const n = parseInt($("len").value,10);
+    deck = n ? pool.slice(0, Math.min(n, pool.length)) : pool;
+  }
+  deck = deck.map(q => {
+    const opts = q.o.map((t,i)=>({t, ok:i===q.a}));
+    if($("shuffleOpts").checked) shuffle(opts);
+    return {...q, opts};
+  });
+  idx = 0; log = []; missQueue = [];
+}
+
+function show(){
+  answered = false;
+  const q = deck[idx];
+  $("cat").textContent = CATS[q.c];
+  $("qtext").innerHTML = q.q;
+  $("exp").innerHTML = "";
+  $("nextrow").classList.add("hidden");
+  $("counter").textContent = `Question ${idx+1} of ${deck.length}`;
+  const right = log.filter(x=>x.ok).length;
+  $("running").textContent = log.length ? `${right}/${log.length} correct` : "";
+  $("prog").style.width = (idx/deck.length*100) + "%";
+  $("opts").innerHTML = q.opts.map((o,i) =>
+    `<button class="opt" data-i="${i}"><kbd>${i+1}</kbd><span>${o.t}</span></button>`).join("");
+  document.querySelectorAll(".opt").forEach(b => b.onclick = () => pick(+b.dataset.i));
+}
+
+function pick(i){
+  if(answered) return;
+  answered = true;
+  const q = deck[idx], ok = q.opts[i].ok;
+  document.querySelectorAll(".opt").forEach((b,j) => {
+    b.disabled = true;
+    if(q.opts[j].ok) b.classList.add("correct");
+    else if(j===i) b.classList.add("wrong");
+    else b.classList.add("faded");
+  });
+  log.push({q, ok});
+  if(!ok && $("requeue").checked && !q._requeued) missQueue.push({...q, _requeued:true});
+  $("exp").innerHTML =
+    `<div class="exp"><div class="verdict ${ok?'ok':'bad'}">${ok?'Correct':'Not quite'}</div>${q.e}</div>`;
+  $("nextrow").classList.remove("hidden");
+  $("next").focus();
+}
+
+function next(){
+  idx++;
+  if(idx >= deck.length){
+    if(missQueue.length){ deck = deck.concat(missQueue.splice(0)); show(); return; }
+    return finish();
+  }
+  show();
+}
+
+function finish(){
+  $("quiz").classList.add("hidden");
+  $("results").classList.remove("hidden");
+  const first = {};
+  log.forEach(e => { if(!(e.q.q in first)) first[e.q.q] = e; });
+  const entries = Object.values(first);
+  const right = entries.filter(e=>e.ok).length;
+  const pct = entries.length ? Math.round(right/entries.length*100) : 0;
+  $("finalScore").textContent = `${right} / ${entries.length}  ·  ${pct}%`;
+  $("verdictLine").textContent =
+    pct >= 90 ? "You have not lost the thread." :
+    pct >= 70 ? "Solid. The gaps below are the ones worth closing." :
+    pct >= 45 ? "Reasonable shape, but a few load-bearing facts have gone soft." :
+                "Worth a slower pass — several of these are the ones that cost a wrong claim.";
+  const by = {};
+  entries.forEach(e => { by[e.q.c] = by[e.q.c] || [0,0]; by[e.q.c][1]++; if(e.ok) by[e.q.c][0]++; });
+  $("breakdown").innerHTML = Object.keys(by).map(k =>
+    `<div class="r"><span>${CATS[k]}</span><span>${by[k][0]}/${by[k][1]}</span></div>`).join("");
+  const missed = entries.filter(e=>!e.ok);
+  if(missed.length){
+    $("missBox").classList.remove("hidden");
+    $("missList").innerHTML = missed.map(e => {
+      const correct = e.q.opts.find(o=>o.ok).t;
+      return `<div class="m"><div class="qq">${e.q.q}</div><div class="aa">&rarr; ${correct}</div></div>`;
+    }).join("");
+    window._missed = missed.map(e => Q.find(q=>q.q===e.q.q));
+    $("drillMissed").style.display = "";
+  } else {
+    $("missBox").classList.add("hidden");
+    window._missed = [];
+    $("drillMissed").style.display = "none";
+  }
+}
+
+$("start").onclick = () => { build(); if(!deck.length){ alert("No questions match that filter."); return; } $("setup").classList.add("hidden"); $("results").classList.add("hidden"); $("quiz").classList.remove("hidden"); show(); };
+$("next").onclick = next;
+$("quit").onclick = finish;
+$("again").onclick = () => { $("results").classList.add("hidden"); $("setup").classList.remove("hidden"); };
+$("drillMissed").onclick = () => { forcedDeck = (window._missed||[]).slice(); if(!forcedDeck.length) return; build(); $("results").classList.add("hidden"); $("quiz").classList.remove("hidden"); show(); };
+
+document.addEventListener("keydown", e => {
+  if($("quiz").classList.contains("hidden")) return;
+  if(!answered && e.key >= "1" && e.key <= "4"){ const b = document.querySelector(`.opt[data-i="${+e.key-1}"]`); if(b) b.click(); }
+  else if(answered && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); next(); }
+});
+
+renderChips();
+</script>
+</body>
+</html>
