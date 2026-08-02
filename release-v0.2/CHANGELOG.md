@@ -180,6 +180,23 @@ one that does not**, naming the feature. That refusal is deliberate: adding an o
 run your seed with the setting quietly ignored — exactly the failure above, one release later.
 Leave it off and nothing changes; any client still connects.
 
+**Validation, stated plainly.** The memory mechanism is verified, and verified thoroughly: on a live
+game with Cheat Engine, writing all four representations Elden Ring keeps for an equipped item
+equips it, renders it correctly in the equipment menu, and survives being unequipped by hand — on a
+character that had never held the item. That is the half that could have silently destroyed your
+gear. A naive handle write never acquires the refcount, so the next menu unequip drops it to zero
+and the item disappears from your inventory an interaction later, far from the cause; going through
+the game's own refcounted commit is what avoids that, and it was proven before a line of the
+shipping code was written.
+
+🛑 **What has NOT had a full playtest is the mod's decision-making on top of that mechanism** — the
+probe is told which slot and which item, and the client works both out for itself. Untested in a
+real run: weapon-versus-armour routing, shields (they should go to the left hand and that is
+explicitly unconfirmed), what happens when gear arrives mid-fight, the retry when an item is
+received before the game has finished granting it, and whether an auto-equipped item survives a
+save-and-reload. Default is off. If you turn it on, treat it as new — and not on a character you
+would mind losing.
+
 ### Compatibility
 
 `CONTRACT_HASH` is **unmoved** from v0.3.0 — 87 keys, identical names, shapes, required-ness and

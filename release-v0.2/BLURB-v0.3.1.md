@@ -38,7 +38,9 @@
 - **New: `auto_equip` — wear whatever you are sent.** Off by default. Turn it on and every weapon or
   armour piece the multiworld hands you goes straight on, replacing whatever was in that slot,
   mid-boss-fight included. The client has had this working for weeks; the apworld had never sent the
-  setting, so it was off for everyone and nothing said so.
+  setting, so it was off for everyone and nothing said so. The equip mechanism itself is verified
+  against a live game with Cheat Engine, but the feature has **not** had a full playtest — see below
+  before you switch it on.
 - ⚠️ **Client update recommended.**
 
 ---
@@ -194,6 +196,23 @@ A seed with `auto_equip: true` **requires a v0.3.1 client and will refuse to con
 one**, saying which feature it needs. That refusal is the point: adding an option does not move the
 contract hash, so without it an old DLL would report `VERSION: OK`, never see the key, and run your
 seed with the setting silently ignored — the same failure again, one release later.
+
+**Where this has and has not been tested, plainly.** The memory mechanism is verified, and verified
+carefully: on a live game with Cheat Engine, writing all four representations Elden Ring keeps for an
+equipped item equips it, renders it correctly in the equipment menu, and survives being unequipped by
+hand — on a character that had never held that item. That is the half with teeth. A naive handle
+write never acquires the item's refcount, so the next time you unequip through the menu the count
+hits zero and the item is **destroyed** — gone from your inventory, one interaction after the thing
+that caused it. Going through the game's own refcounted commit is what avoids that, and it was proven
+on a throwaway character before any of the shipping code existed.
+
+🛑 **What has not had a full playtest is the mod's decision-making on top.** The probe is handed a
+slot and an item id; the client has to work both out for itself, and none of that is exercised by a
+memory test. Untested in a real run: weapon-versus-armour routing, shields (they should go to the
+left hand, and that is explicitly unconfirmed), gear arriving in the middle of a fight, the retry
+path when an item is received before the game has finished granting it, and whether an auto-equipped
+item survives a save-and-reload. It is off by default. If you turn it on, treat it as new — and not
+on a character you would be upset to lose.
 
 ---
 
