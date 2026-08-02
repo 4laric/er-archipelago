@@ -585,6 +585,9 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
 - Stage explicitly — **never `git add -A`** (the repo is public and game-data-purged; don't
   leak the artifacts symlink). `git diff --cached --stat` before committing.
 - The pre-commit hook runs `check_integrity --staged` automatically.
+- Player-visible change? The `release-v0.2/CHANGELOG.md` line goes in **this** commit and the
+  version's `BLURB-v<version>.md` grows with it -- `python tools/check_release_notes.py`
+  (CONTRIBUTING rule 14). Do not leave it for tag time; that is how the blurb series died.
 - `git fetch` + rebase onto **the branch you verified in §2** before pushing (Alaric pushes
   concurrently, often mid-session — re-fetch late, not once at the start); resolve/regen if the rebase
   touched generated files, then `git push origin HEAD:<that branch>`.

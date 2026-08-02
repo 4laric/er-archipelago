@@ -51,6 +51,19 @@ else
   echo "  SKIP: tools/check_integrity.py absent"; record INTEGRITY SKIP
 fi
 
+step "RELEASE NOTES (changelog + blurb for APWORLD_VERSION)"
+# CONTRIBUTING rule 14. The other cheap repo-level gate: no AP, no artifacts, no imports -- it
+# parses APWORLD_VERSION out of greenfield/eldenring/contract.py textually. FAILs when the open
+# version has no changelog section, an EMPTY one (rule 2), or no blurb. v0.3.0 shipped with a full
+# changelog entry and no blurb at all; that single exemption is a documented ratchet inside the
+# tool, not a widening knob.
+if [ -f "$REPO/tools/check_release_notes.py" ]; then
+  if ( cd "$REPO" && "$PY" tools/check_release_notes.py ); then
+    record RELNOTES PASS; else record RELNOTES FAIL; fi
+else
+  echo "  SKIP: tools/check_release_notes.py absent"; record RELNOTES SKIP
+fi
+
 step "GREENFIELD (a0) GEN-INPUT STAMP FRESHNESS"
 # SPEC-gen-input-hash-gate-20260710.md: tools/gen_manifest.py is the ONE definition of the hash. It
 # re-hashes the gen inputs (region_map.csv, item_tiers.tsv, the datamined artifacts + intermediates,

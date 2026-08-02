@@ -316,6 +316,9 @@ Run through this before a change lands (PR or direct):
 - [ ] Every constraint the change designs around names its owner — GAME / ARCHIPELAGO / US — with a
       citation for the first two; anything handed to a subagent or a future session is labelled
       assumption-vs-invariant, never silently hardened into a brief.
+- [ ] Player-visible change? Its `release-v0.2/CHANGELOG.md` line is in THIS commit, under the
+      current `## v<version> — <date>` heading, and `BLURB-v<version>.md` grew with it --
+      `python tools/check_release_notes.py` is green (rule 14).
 - [ ] A merged spec's acceptance list is pasted into a tracking issue, one checkbox per line, each
       marked shipped / partial / absent with the command or file that proves it. Prose in
       `docs/specs/` is not a gate. Build the bullets that need a NEW test tier first — those are the
@@ -485,6 +488,38 @@ a new term in the replay model, did not.
   is the answer that matters -- it is what "shipped" degrades into when the easy half lands first.
 - **The bullets that need a new test tier are the ones to build FIRST**, precisely because there is
   no existing pattern to copy and therefore nothing to make their absence obvious.
+
+**14. The release notes are part of the CHANGE, not part of the release.**
+The 2026-08-02 lesson, and the only one here that destroys its own evidence as it happens.
+
+> v0.3.0 shipped 2026-08-01. By the next morning `main` carried five more player-visible fixes --
+> two of them straight off Nexus bug reports -- with **no v0.3.1 changelog section and no blurb**.
+> There was no `BLURB-v0.3.0.md` either: the blurb series had quietly stopped at v0.2.18, five
+> releases back, and nothing anywhere said so because nothing anywhere was looking.
+>
+> Reconstructing the notes took a walk of `v0.3.0..main` plus four commit bodies. A commit body
+> answers *what I changed*. A release note answers *why it mattered to you*, and that answer existed
+> exactly once -- in the head of the person who landed the fix, on the day they landed it.
+
+**The moment a fix lands is the only moment anyone knows why it mattered.** Everything after that is
+reconstruction from a diff: lossy, expensive, and paid for by whoever is least able to pay -- someone
+reading four commit bodies at tag time to guess at a sentence the author could have written in
+fifteen seconds. That reconstruction cost is what killed the blurb series. Nobody decided to stop
+writing blurbs; the price of starting one just kept going up until it was always tomorrow's job.
+
+- **Every player-visible change lands its CHANGELOG line in the SAME commit.**
+  `release-v0.2/CHANGELOG.md` (historical directory name -- it holds v0.3.x too), under the current
+  `## v<version> — <date>` heading. Not "before the tag", not "when the window closes": the same
+  commit, because that is the only commit whose author has both the change and the reason.
+- **The blurb is drafted as the window FILLS, not at tag time.**
+  `release-v0.2/BLURB-v<version>.md` opens on the first change of a version and grows with it. A
+  blurb written from scratch afterwards is the reconstruction above, wearing a deadline.
+- **Per rule 13's own logic, the two bullets above are a to-do list until something checks them.**
+  `tools/check_release_notes.py` is that something: AP-free, wired into CI and `run_ci.ps1`, red the
+  moment `APWORLD_VERSION` names a version with no changelog section, an EMPTY one (rule 2), or no
+  blurb. It carries a documented ratchet of pre-gate exemptions -- currently v0.3.0's missing blurb,
+  and only its blurb. Nothing may be added to that set: an exemption you can extend is a gate you
+  have switched off.
 
 ### The tell
 

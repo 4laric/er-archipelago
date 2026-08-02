@@ -146,6 +146,18 @@ Invoke-CiStep "WIZARD (options metadata drift)" {
     & (Join-Path $Repo "tools\check_options_metadata.ps1")
 }
 
+# ----- 1c) release notes for the open version ----------------------------------
+# CONTRIBUTING rule 14. v0.3.0 shipped 2026-08-01; by the next morning main carried five more
+# player-visible fixes (two off Nexus bug reports) with no v0.3.1 changelog section and no blurb,
+# and no BLURB-v0.3.0.md either -- the blurb series had stopped at v0.2.18 and nothing said so.
+# AP-free and import-free (APWORLD_VERSION is parsed out of contract.py textually), so it costs
+# nothing and runs anywhere. Carries a documented ratchet: v0.3.0 is exempt from the BLURB check
+# only. Nothing may be added to that set.
+Invoke-CiStep "RELEASE-NOTES (changelog + blurb for APWORLD_VERSION)" {
+    python (Join-Path $Repo "tools\check_release_notes.py")
+    if ($LASTEXITCODE -ne 0) { throw "RELEASE-NOTES: the open version has no changelog section and/or no blurb (CONTRIBUTING rule 14)" }
+}
+
 # ----- 2) fill regression (fixed reproducer seeds vs baseline floors) ----------
 if (-not $SkipFill) {
     Invoke-CiStep "FILL (run_fill_regression.ps1)" {
