@@ -225,6 +225,17 @@
           "doc": "auto-upgrade received weapons: 0 = off; nonzero = raise each received weapon to the player's highest held level on its smithing track (raise-only, cap +25 normal / +10 somber)."
         },
         {
+          "name": "auto_equip",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/auto_equip.py)",
+          "consumer": "er-logic/options.rs parse_auto_equip",
+          "doc": "\"use what you get\": nonzero = the client equips every RECEIVED weapon / armour piece the moment it lands in the bag, clobbering the slot (auto_equip.rs enqueue + tick). NOT required: this key is younger than the released clients that read it, and an absent key parses false, which is exactly the off default. That silence is also why a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then never see this key at all."
+        },
+        {
           "name": "flatten_regular_upgrades",
           "shape": "INT",
           "required": true,

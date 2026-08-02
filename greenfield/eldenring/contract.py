@@ -370,6 +370,15 @@ OPTIONS_SUBKEYS = (
                 "core._options_echo (features/upgrades.py)", "upgrades.rs set_auto_upgrade / apply_auto_upgrade",
                 "auto-upgrade received weapons: 0 = off; nonzero = raise each received weapon to the "
                 "player's highest held level on its smithing track (raise-only, cap +25 normal / +10 somber)."),
+    ContractKey("auto_equip", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/auto_equip.py)", "er-logic/options.rs parse_auto_equip",
+                "\"use what you get\": nonzero = the client equips every RECEIVED weapon / armour piece "
+                "the moment it lands in the bag, clobbering the slot (auto_equip.rs enqueue + tick). "
+                "NOT required: this key is younger than the released clients that read it, and an "
+                "absent key parses false, which is exactly the off default. That silence is also why "
+                "a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is "
+                "not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then "
+                "never see this key at all."),
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades client path",
                 "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),

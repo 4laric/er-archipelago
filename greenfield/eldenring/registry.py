@@ -80,13 +80,25 @@ def allocate_item_ids(base_ids: Dict[str, int], start: int, feats) -> Dict[str, 
     return ids
 
 
+# Keys that are a SET OF CONTRIBUTIONS rather than one owner's value, so two features emitting them
+# is normal and must UNION, not collide.
+#
+# `requiresClientFeatures` is the whole list: it is per-SEED ("what does this seed need the client to
+# understand?"), and the only component that knows whether a given dependency applies is the feature
+# that owns the option. Before this, the first feature to emit it won and the second raised
+# ValueError -- so the moment a second feature learned to declare a tag, any seed that turned BOTH
+# options on died at fill_slot_data with a message about a duplicate key. That is a generation crash
+# on a legal option combination, produced by the exact mechanism that exists to stop silent
+# breakage, and it would have been found by a player rather than by us (CONTRIBUTING's headline
+# gate: every option combination gens clean).
+UNION_KEYS = frozenset({_contract.REQUIRES_CLIENT_FEATURES})
+
+
 def merge_slot_data(base: Dict[str, Any], feats, world) -> Dict[str, Any]:
     sd = dict(base)
     for f in feats:
         contrib = f.slot_data(world)
         for k, v in contrib.items():
-            if k in sd:
-                raise ValueError(f"slot_data key '{k}' emitted by core and feature {f.name or type(f).__name__!r}")
             if k not in _contract.BY_NAME:
                 # F2 fix: an UNDECLARED emission is exactly how a feature goes silently dark (the
                 # client never reads a key the contract doesn't know). Fail at the merge, at gen.
@@ -94,5 +106,13 @@ def merge_slot_data(base: Dict[str, Any], feats, world) -> Dict[str, Any]:
                     f"slot_data key '{k}' from feature {f.name or type(f).__name__!r} is not "
                     f"declared in contract.py -- add a ContractKey (name/shape/profile/producer) "
                     f"before emitting it")
+            if k in UNION_KEYS:
+                # SORTED so the wire is a function of WHICH features contributed, not of the
+                # registry's import order -- two seeds with the same options must produce the same
+                # slot_data byte for byte.
+                sd[k] = sorted(set(sd.get(k, ())) | set(v))
+                continue
+            if k in sd:
+                raise ValueError(f"slot_data key '{k}' emitted by core and feature {f.name or type(f).__name__!r}")
             sd[k] = v
     return sd

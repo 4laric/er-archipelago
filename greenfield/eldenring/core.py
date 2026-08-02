@@ -913,6 +913,11 @@ class GreenfieldEldenRingWorld(World):
                 scaling_resolved_max_difficulty(self)),
             contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
+            # 0 off; nonzero = the client equips each received weapon / armour piece on arrival
+            # (features/auto_equip.py -> auto_equip.rs). The VALUE rides here like every other
+            # runtime toggle; the client-feature TAG that stops an older client silently ignoring it
+            # is emitted by the feature, because only the feature knows the seed actually uses it.
+            contract.AUTO_EQUIP: _opt("auto_equip"),
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
         }
 
