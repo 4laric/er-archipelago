@@ -99,6 +99,34 @@ function Invoke-CiStep([string]$name, [scriptblock]$body) {
     $steps.Add([pscustomobject]@{ step=$name; result=$(if ($ok) {"PASS"} else {"FAIL"}); seconds=[math]::Round($sw.Elapsed.TotalSeconds,0); exit=$code })
 }
 
+# ----- 0) WHICH CLIENT ARE WE GATING AGAINST? -----------------------------------
+# A THIRD answer, and it is deliberate -- say it out loud rather than let a reader assume this matches
+# CI. Three resolutions exist in this repo and they differ:
+#   * tests.yaml `generators`        -> the PINNED gitlink (the pairing a release bundle ships).
+#   * tests.yaml `client-main-drift` -> client `main` (has the client run ahead of the pin?).
+#   * this script and greenfield\ci-linux.sh -> WHATEVER IS ON DISK in $Client, working-tree edits and
+#     all. Correct for a dev box (you are usually editing both halves at once, and a script that
+#     checked anything out would clobber that), but it means PASS here says nothing about the pin.
+# Neither local script runs gen_contract / gen_region_locks, so neither can produce the cross-repo
+# staleness signal at all; only the `generators` job can. What this block does is stop the ambiguity
+# being silent. It never fails -- it prints, so the number is on the transcript.
+Step "CLIENT PIN (which client this run is gating against)"
+if (Test-Path (Join-Path $Client ".git")) {
+    $cHead = (& git -C $Client rev-parse HEAD 2>$null)
+    $cPin  = (& git -C $Repo ls-tree HEAD from-software-archipelago-clients 2>$null)
+    if ($cPin) { $cPin = ($cPin -split '\s+')[2] }
+    $cDirty = (& git -C $Client status --porcelain 2>$null)
+    Write-Host ("  on disk : {0}{1}" -f $cHead, $(if ($cDirty) { "  (DIRTY working tree)" } else { "" }))
+    Write-Host ("  gitlink : {0}" -f $(if ($cPin) { $cPin } else { "<none>" }))
+    if ($cPin -and ($cHead -ne $cPin)) {
+        Write-Host "  NOTE: on-disk client != the gitlink. The cross-side gates and the PURE/CARGO steps read" -ForegroundColor Yellow
+        Write-Host "        the ON-DISK tree; CI's generators job reads the gitlink. Not a failure here." -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  submodule not checked out -- the cross-side gates will SKIP and gate NOTHING." -ForegroundColor Yellow
+}
+$global:LASTEXITCODE = 0
+
 # ----- 1) apworld unit tests (cheapest, most specific) -------------------------
 # THE HARNESS IS tools\gf_test.py, and it is the SAME one CI runs. This step used to Push-Location into
 # $ApDir -- i.e. <repo>\Archipelago, whatever that happened to be -- and pytest there. On 2026-07-13 that

@@ -11,6 +11,14 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # For `client-main-drift` (job 3) ONLY -- every other job opts out with
+  # `if: github.event_name != 'schedule'`. That job compares world main against the CLIENT's main,
+  # which moves without any world commit, so it is the one gate here that needs a trigger no world
+  # commit provides. GitHub silently disables cron on a repo with 60 days of no pushes; this repo is
+  # nowhere near that, but a disabled schedule would make the job dark rather than red, so the job
+  # also runs on push-to-main and can be fired by hand.
+  schedule:
+    - cron: "17 6 * * *"
 
 env:
   # AP pins its own deps at import time and will try to self-update mid-test without this.
@@ -23,6 +31,7 @@ jobs:
   # ---------------------------------------------------------------------------------------------
   tests:
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     steps:
       - uses: actions/checkout@v4
 
@@ -96,6 +105,7 @@ jobs:
   # ---------------------------------------------------------------------------------------------
   regen-and-fill:
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -162,16 +172,70 @@ jobs:
   # ---------------------------------------------------------------------------------------------
   generators:
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     steps:
       - uses: actions/checkout@v4
 
-      # Check the CLIENT out directly rather than via `submodules:`. gen_contract / gen_region_locks
-      # write into it, and a direct checkout keeps this job independent of the superproject's gitlink
-      # (which points at a pinned commit, not necessarily client main).
+      # THE CLIENT IS CHECKED OUT AT THE GITLINK -- the commit this repo actually pins -- and NOT at
+      # client `main`. Until 2026-08-02 it was the other way round, under a comment arguing that a
+      # gitlink diff would be "a permanent red herring". It is the exact opposite: the gitlink diff is
+      # the only signal in this job that describes something this repo SHIPS.
+      #
+      # Checking out client main asserted "client main already contains output generated from world
+      # main" -- a claim about two independently-moving branches. It failed in both directions:
+      #   a) FALSE RED. Any world PR touching a cross-repo generated artifact violates it by
+      #      construction and stays red until the client side merges. #290 and #291 were both merged
+      #      red for precisely this, which trains everyone to merge past this job.
+      #   b) FALSE GREEN, which is worse, because nothing ever looked at the pin -- so it could rot
+      #      arbitrarily far behind while every gate stayed green.
+      #
+      # MOTIVATING CASE for (b) (CONTRIBUTING rule 11). On 2026-08-02 world main was 0ff714c, the
+      # gitlink was c2fc8ed, and client main was f2ef85d. Regenerating against client main produced
+      # NO diff -- green. Regenerating against the PIN produced:
+      #     crates/eldenring-archipelago/src/contract_gen.rs | 3 ++-
+      #     +    ContractKey { name: "auto_equip", shape: Shape::BoolOrInt, required: false, ... }
+      #     -pub const APWORLD_VERSION_EXPECTED: &str = "0.3.0";
+      #     +pub const APWORLD_VERSION_EXPECTED: &str = "0.3.1";
+      # A bundle cut from main that day would have shipped a v0.3.1 apworld against a v0.3.0 DLL that
+      # had never heard of auto_equip, and no gate in this file could see it. The same shape nearly
+      # cost the v0.3 cut: that pin's CONTRACT_HASH was stale while its APWORLD_VERSION_EXPECTED was
+      # correct, so the runtime version handshake could not catch it either.
+      #
+      # What the client-main checkout WAS buying -- "has the client drifted ahead of us?" -- is not
+      # lost. It moved to `client-main-drift` (job 3), off the pull_request trigger, where it cannot
+      # deadlock a PR.
+      - name: Resolve the PINNED client commit (the gitlink, not client main)
+        id: pin
+        run: |
+          sha="$(git ls-tree HEAD from-software-archipelago-clients | awk '$2 == "commit" { print $3 }')"
+          test -n "$sha" || { echo "::error::no gitlink at from-software-archipelago-clients"; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "pinned client commit: $sha"
+
+      # A separate checkout rather than `submodules: true` on the one above, for three reasons: it
+      # keeps `repository:` readable without opening .gitmodules; it leaves the superproject a plain
+      # non-submodule tree, so the apworld staleness diff below keeps exactly its current semantics;
+      # and it is line-for-line the block `client-main-drift` uses with `ref: main`, so the two jobs
+      # stay diffable against each other. gen_region_locks / gen_contract WRITE INTO this path,
+      # exactly as before -- only the commit underneath them changed.
       - uses: actions/checkout@v4
         with:
           repository: 4laric/from-software-archipelago-clients
+          ref: ${{ steps.pin.outputs.sha }}
           path: from-software-archipelago-clients
+
+      # Four suites in the loop below (client_contract_paths, client_can_sell_mirror,
+      # client_resets_are_called, scaling_ladder_mirror) SKIP when this directory is absent, and they
+      # sat dark for weeks for exactly that reason. A checkout that lands the wrong tree -- or no tree
+      # -- must be louder than a green run, so assert it instead of inferring it from a passing loop.
+      - name: The client checkout is real, and is the pin
+        run: |
+          test -d from-software-archipelago-clients/crates \
+            || { echo "::error::client checkout has no crates/ -- the cross-side gates would SKIP and gate nothing"; exit 1; }
+          have="$(git -C from-software-archipelago-clients rev-parse HEAD)"
+          test "$have" = "${{ steps.pin.outputs.sha }}" \
+            || { echo "::error::client HEAD $have is not the pinned ${{ steps.pin.outputs.sha }}"; exit 1; }
+          echo "client at the pin: $have"
 
       - uses: actions/setup-python@v5
         with:
@@ -253,23 +317,108 @@ jobs:
 
           # Check the two things that are actually GENERATED OUTPUT, in the two places they live.
           #
-          # Do NOT just `git diff` the superproject: we check the client out at its OWN main (above),
-          # not at the pinned gitlink, so the gitlink ALWAYS shows as modified. Failing on that would
-          # be a permanent red herring that says "stale generator" when it means "gitlink not bumped".
+          # The superproject diff below still EXCLUDES the client path, but ONLY so the two failures
+          # keep separate messages -- "regenerate the apworld" and "land the client half" have
+          # different fixes and pointing at both at once helps nobody. The exclusion is no longer
+          # hiding anything: since 2026-08-02 the client is checked out AT the gitlink, so that path
+          # is clean unless a generator dirtied it, and the check immediately below is what looks.
           fail=0
           if ! git diff --quiet -- . ':(exclude)from-software-archipelago-clients'; then
             echo "::error::apworld generated output is STALE -- regenerate and commit:"
             git --no-pager diff --stat -- . ':(exclude)from-software-archipelago-clients'
             fail=1
           fi
-          # The CROSS-REPO artifacts (contract_gen.rs, region_locks.rs) are written INTO the client.
+          # The CROSS-REPO artifacts (contract_gen.rs, region_locks.rs) are written INTO the client,
+          # at the PINNED commit. A diff here means one thing and it is unambiguous: the client commit
+          # this repo ships against does not contain the output this repo generates, so a bundle cut
+          # from this tree would pair an apworld with a DLL that disagrees with it.
+          #
+          # THE FIX IS AN ORDERING, and it is not optional (AGENTS.md section 7): land the CLIENT PR
+          # first, then bump the gitlink in the SAME world commit that changes the generated artifact.
+          # A follow-up "bump the submodule" commit is not equivalent -- it leaves a window in which
+          # main is red here and a tag cut from it ships the mismatch.
+          #
           # tracker_regions.rs is GONE (2026-07-28): the tracker's region model is sent in slot_data
           # (locationRegions / regionCoarseKeys), so an apworld region change no longer needs a
           # regenerated table pushed to the client repo at all.
-          # This is the check that catches an apworld change that never reached the client.
           if ! git -C from-software-archipelago-clients diff --quiet; then
-            echo "::error::client-side generated output is STALE -- regen and push the CLIENT too:"
+            echo "::error::the PINNED client commit does not contain the output this repo generates -- land the client half, then bump the gitlink in THIS commit (AGENTS.md section 7):"
             git -C from-software-archipelago-clients --no-pager diff --stat
             fail=1
           fi
           exit $fail
+
+  # ---------------------------------------------------------------------------------------------
+  # 3. CLIENT-MAIN DRIFT -- the half of the old bypass that was worth keeping.
+  #
+  #    `generators` above tests the pairing this repo SHIPS (the gitlink). This job answers the other
+  #    question: has client main moved out from under the pin in a way that matters? That is what the
+  #    old client-main checkout was buying, minus its ability to deadlock a PR.
+  #
+  #    NOT on `pull_request`, deliberately. A world PR cannot fix client main, so reddening a PR over
+  #    it only teaches people to merge red -- which is how #290 and #291 landed.
+  #
+  #    BLOCKING, not advisory, and that is a decision worth stating. The doctrine here is that main
+  #    stays green, and a job that can only ever emit `::warning::` is a dormant oracle: it
+  #    manufactures the appearance of coverage while nobody reads it (#244's grace-skip oracle, and
+  #    the four cross-side gates that skipped silently for weeks, are the local precedent). So it
+  #    FAILS -- but only on the one case a human must act on, and it never fails for a reason the
+  #    world repo cannot address:
+  #      * pin == client main                     -> silent pass.
+  #      * pin BEHIND main, generators clean      -> ::notice::, PASS. Client-only work (Rust fixes,
+  #                                                  refactors) is allowed to run ahead of the pin;
+  #                                                  bumping is optional now and the release
+  #                                                  checklist requires it before a tag.
+  #      * generators DIRTY against client main   -> FAIL. Either a client PR landed the client half
+  #                                                  of a cross-repo change whose world half has not
+  #                                                  merged (the red is ACCURATE -- main really is
+  #                                                  mid-landing -- and the world PR that clears it is
+  #                                                  already in flight), or a generated file was
+  #                                                  hand-edited, which CONTRIBUTING forbids.
+  # ---------------------------------------------------------------------------------------------
+  client-main-drift:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      # Same block as `generators`, with `ref: main` instead of the gitlink. Keeping them
+      # textually parallel is the point: the ONLY difference between the two jobs is which client
+      # commit the generators are pointed at.
+      - uses: actions/checkout@v4
+        with:
+          repository: 4laric/from-software-archipelago-clients
+          ref: main
+          path: from-software-archipelago-clients
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # gen_region_locks and gen_contract are AP-free and need no game artifacts -- they read
+      # committed greenfield data only -- so this job installs nothing.
+      - name: Regenerate the cross-repo artifacts against client MAIN
+        run: |
+          pin="$(git ls-tree HEAD from-software-archipelago-clients | awk '$2 == "commit" { print $3 }')"
+          head="$(git -C from-software-archipelago-clients rev-parse HEAD)"
+          test -d from-software-archipelago-clients/crates \
+            || { echo "::error::client checkout has no crates/ -- this job would report clean while testing nothing"; exit 1; }
+          echo "pinned gitlink : $pin"
+          echo "client main    : $head"
+
+          python tools/gen_region_locks.py
+          python greenfield/gen_contract.py
+
+          if ! git -C from-software-archipelago-clients diff --quiet; then
+            echo "::error::client main does NOT contain the output world main generates -- a cross-repo change is half-landed:"
+            git -C from-software-archipelago-clients --no-pager diff --stat
+            git -C from-software-archipelago-clients --no-pager diff
+            echo "Fix: land the missing half, then bump the gitlink in the SAME world commit as the generated-output change (AGENTS.md section 7)."
+            exit 1
+          fi
+
+          if [ "$pin" != "$head" ]; then
+            echo "::notice::gitlink $pin is BEHIND client main $head, but the generated artifacts agree -- client-only work. A bump is optional now and REQUIRED before a tag (RELEASE-CHECKLIST)."
+          else
+            echo "gitlink == client main; nothing has drifted."
+          fi

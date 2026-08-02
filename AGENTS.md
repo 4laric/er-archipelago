@@ -585,6 +585,19 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
 - Stage explicitly — **never `git add -A`** (the repo is public and game-data-purged; don't
   leak the artifacts symlink). `git diff --cached --stat` before committing.
 - The pre-commit hook runs `check_integrity --staged` automatically.
+- **CROSS-REPO CHANGE? The ORDER is fixed, and the gitlink bump is part of the change, not a follow-up.**
+  Anything that moves `contract_gen.rs` or `region_locks.rs` (a new slot_data key, a new option subkey, a
+  version bump, a region-spine edit) has a client half and a world half:
+  1. Land the **client** PR first, so the generated file exists on client `main`.
+  2. In the **world** PR, bump the gitlink **in the same commit as the generated-output change**:
+     `git update-index --cacheinfo 160000,<client-sha>,from-software-archipelago-clients`, then confirm with
+     `git ls-tree HEAD | grep 160000`.
+  CI's `generators` job regenerates INTO a checkout of the pinned commit and fails on a non-empty diff, so a
+  bump left for a separate follow-up commit leaves a window where main is red and a tag cut from it ships an
+  apworld against a DLL that disagrees with it. (Before 2026-08-02 that job read client `main` instead and
+  the window was invisible: world main `0ff714c` pinned `c2fc8ed`, which announced
+  `APWORLD_VERSION_EXPECTED = "0.3.0"` while the world was already 0.3.1, and every gate was green.)
+  The `client-main-drift` job — push-to-main and nightly, never on a PR — watches the other direction.
 - Player-visible change? The `release-v0.2/CHANGELOG.md` line goes in **this** commit and the
   version's `BLURB-v<version>.md` grows with it -- `python tools/check_release_notes.py`
   (CONTRIBUTING rule 14). Do not leave it for tag time; that is how the blurb series died.
@@ -599,8 +612,11 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
   - **"needs a submodule bump"** — VERIFY before saying it. `git ls-tree origin/main from-software-archipelago-clients`
     (the pinned gitlink) vs `git ls-remote https://github.com/4laric/from-software-archipelago-clients.git refs/heads/main`
     (client HEAD). Equal ⇒ already current, say nothing. `build.ps1 -Rust`/`-All` AUTO-bumps the gitlink
-    (guarded; see §4), so even when it is behind, Alaric's next build fixes it — mention it only if it is
-    behind AND he has not re-run the build. The world CI tests against client main regardless, so a bump
-    is never required for green CI. (Corrected 2026-07-20: this line used to demand a bump unconditionally.)
+    (guarded; see §4), so a pin that is merely BEHIND on client-only work gets fixed by Alaric's next build
+    — mention that case only if he has not re-run the build.
+    ⚠️ **Re-corrected 2026-08-02: this bullet used to end "the world CI tests against client main regardless,
+    so a bump is never required for green CI." That is no longer true, and the sentence it replaced was the
+    reason the pin could rot.** The `generators` job now checks the client out AT THE GITLINK, so a bump IS
+    required for green CI whenever the change moves a cross-repo generated artifact — see the next bullet.
   - **"needs a Windows cargo build"** — only when you actually pushed a client `.rs` change (the push-to-`main`
     CI does that build; hand over the Actions link, don't claim you read the run).
