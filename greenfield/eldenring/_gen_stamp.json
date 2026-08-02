@@ -4,12 +4,12 @@
     "item_catalog": 2058,
     "locations": 4879,
     "regions": 30,
-    "sweeps": 241
+    "sweeps": 240
   },
-  "inputs_hash": "sha256:f833bfa67ffbd37c10c32f5d4d6384d7391588f922a48d04e1ae62b45a85bab1",
+  "inputs_hash": "sha256:e1402cd51c885c20a934271fc0ce6284893b396752f2af0b2af9381ec631c289",
   "modules": {
     "boss_data.py": "sha256:8369996ed26555336bd24ef1de360ed19057862b86e86e6b30b76078dd389a35",
-    "boss_sweeps.py": "sha256:caa986c184427a9f1bcf54c7a93d55ae16b34e8b4104049c640e473356d0ab51",
+    "boss_sweeps.py": "sha256:00dc4910538340587b965aeabecfa7b3381c075bfce42e748346aa56ddb834b7",
     "data.py": "sha256:4a30cdd0436344c5ec8a74dd2f57c26f18498b66b9d46df7d6682f8fdf87d555",
     "item_ids.py": "sha256:21ec6fa42c0a02ed9b51199c657ac043b1b08ed84069c2ef1d0e49367c588e6c",
     "item_tiers.py": "sha256:fc42992f85f8786b2266d890ad8ee74562e43b429e63db33b8e36f171f8ee3e2",

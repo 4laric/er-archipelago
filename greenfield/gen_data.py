@@ -6209,7 +6209,37 @@ def _m61_boss_region(_ent):
 # gets no _mreg vote and would divvy HUB. m25 = Cathedral of Manus Metyr -> Scadu Altus: m25_00's own
 # grace 72500 -> play_region 6900 = Scadu Altus (NOT Scaduview 6920), which also matches Metyr's
 # remembrance 510550. Corrected 2026-07-13 from the earlier Scaduview pin (matt-diff, grace-verified).
-_LEGACY_BMAP_REGION = {"m25_00": "Scadu Altus"}
+_LEGACY_BMAP_REGION = {"m25_00": "Scadu Altus",
+                       # THE FINALE MAPS ARE A VOTE TIE, AND THE TIE WAS BREAKING WRONG (Alaric, 2026-08-01).
+                       # m11_05 (Leyndell, Ashen Capital) and m19_00 (Elden Throne) host the three finale
+                       # fights -- Gideon, Godfrey/Hoarah Loux, Radagon/Elden Beast. region_of already routes
+                       # their CHECKS to _FINALE_REGION ("Ashen Capital", see :1023) and boss_data already
+                       # lists Hoarah Loux + the Elden Remembrance under Ashen Capital -- but the sweep pass
+                       # never got that routing, so it fell through to the _mreg check-majority vote, and the
+                       # vote is a TIE: m11_05 = {Leyndell 3, Ashen Capital 3, Limgrave 1} and m19_00 =
+                       # {Leyndell 1, Liurnia 1}. Counter insertion order, not evidence, picked Leyndell.
+                       # Consequence in the wild: 42 of Leyndell's 64 divvied checks hung off the four
+                       # post-burn triggers -- and the Erdtree burn warps you into m11_05 PERMANENTLY (see
+                       # :6108), so base Leyndell is gone by the time they can fire. Those 42 grants were
+                       # dead on arrival. Pin both maps; the pool below re-divvies them onto Morgott and the
+                       # Godfrey shade, who are fightable in base Leyndell.
+                       "m11_05": "Ashen Capital", "m19_00": "Ashen Capital",
+                       # THE ETERNAL CITIES SET, same audit (2026-08-01). These three get NO _mreg
+                       # vote at all -- their maps host no vote-eligible check -- so they fell through
+                       # `or HUB` and their bosses were paying out ROUNDTABLE HOLD, which in region_lock
+                       # mode is open from turn one. boss_data.REGION_BOSSES["Roundtable Hold"] is None:
+                       # the hub has no bosses and never did. Region taken from the repo, not from
+                       # memory of the game -- each is corroborated twice:
+                       #   m12_04 Astel           -> dungeon_regions.tsv "Ainsel River" (grace join,
+                       #                            map_region_oracle); its remembrance f510080 is
+                       #                            regioned Ainsel River in data.LOCATIONS.
+                       #   m12_08 Ancestor Spirit -> its drop f510320 (Ancestral Follower Ashes) is
+                       #                            regioned Siofra River, and check_maps.tsv puts
+                       #                            f510320 on m12_08. No dungeon_regions row: the
+                       #                            grace oracle does not reach m12_08/m12_09.
+                       #   m12_09 Regal Ancestor  -> its remembrance f510330 is regioned Siofra River
+                       #                            and boss_data lists it under Siofra River.
+                       "m12_04": "Ainsel River", "m12_08": "Siofra River", "m12_09": "Siofra River"}
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 # RECOVERED-GLOBAL sweep eligibility (2026-07-24, "killed Tibia Mariner, no boss sweep"): the ~1k
@@ -6354,6 +6384,7 @@ if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
     _field_bosses = []                      # (trigger flag, (xx, yy)) -- field pass below
+    _unregioned_legacy = []                 # legacy bosses with no vote AND no curated pin -- FATAL below
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
         if _bmap in _SWEEP_EXCLUDED_BMAPS:
@@ -6373,7 +6404,18 @@ if BOSS_HEALTHBARS:
             # m61 overworld boss -> its own tile-region; else the map's check-majority region; else a
             # curated pin for a legacy map that hosts NO filler-swept checks so it gets no _mreg vote
             # (m25 Cathedral of Manus Metyr = shop + remembrance only, so Metyr fell to HUB -> Scaduview).
-            _lreg = _m61_boss_region(_ent) or _mreg.get(_bmap) or _LEGACY_BMAP_REGION.get(_bmap) or HUB
+            # CURATED PIN BEATS THE VOTE. It used to be consulted only after _mreg, which made it
+            # reachable only for a map with NO votes at all (m25_00). A map whose votes are WRONG or
+            # TIED could not be corrected. m25_00 still has no vote, so this reorder is a no-op for it.
+            # NO SILENT `or HUB`. That default is what put Astel and both Ancestor Spirits in the
+            # Roundtable, and it swallowed the mistake for as long as it existed -- a region major
+            # paying out the always-open hub is never the intended reading, so there is no case where
+            # falling back to HUB is right. Collect and fail at the end of the pass with every
+            # offender named, rather than one assert per boss.
+            _lreg = _m61_boss_region(_ent) or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap)
+            if not _lreg:
+                _unregioned_legacy.append((_ent, _bmap, _name))
+                continue
             _legacy_by_region[_lreg].append(_ent)
             continue
         _members = sorted(set(_members))
@@ -6474,6 +6516,11 @@ if BOSS_HEALTHBARS:
                 SWEEP_REGION[_e] = _ap_region.get(_slices[_e][0], _reg)
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).
+    assert not _unregioned_legacy, (
+        "legacy boss(es) resolved to NO region: %s. A region major must land in a real region -- add a "
+        "_LEGACY_BMAP_REGION pin backed by dungeon_regions.tsv, check_maps.tsv, or the boss's own drop "
+        "region. Do NOT reinstate the HUB fallback: it is what hid this for as long as it existed."
+        % (_unregioned_legacy,))
     assert _sweep_excluded_hits, (
         "_SWEEP_EXCLUDED_BMAPS matched no boss. It exists to stop the tutorial Grafted Scion "
         "(m10_01) sweeping Stormveil; if boss_healthbars no longer reports that map, re-derive the "
