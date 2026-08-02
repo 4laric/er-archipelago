@@ -49,7 +49,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.data import LOCATIONS, HUB  # noqa: E402
-from worlds.eldenring.item_ids import LOCATION_ITEM  # noqa: E402
+from worlds.eldenring.item_ids import ITEM_CATALOG, LOCATION_ITEM  # noqa: E402
 from worlds.eldenring.features import filler_curation as fc  # noqa: E402
 from worlds.eldenring.features import filler_budget as fb  # noqa: E402
 
@@ -442,3 +442,225 @@ class EarlyGuarantee(WorldTestBase):
             % ("\n  ".join(shortfalls), len(start_reachable),
                len([l for l in self.multiworld.get_locations(player) if l.item is not None])))
 
+
+# ---- THE SOMBER LADDER IS PRESENCE, NOT DENSITY -------------------------------------------------
+# How many draws of the somber reservation the presence claim is sampled over. A one-shot assertion
+# here would be worse than useless: the defect this class exists for is that the draw is an i.i.d.
+# weighted SAMPLE, so any single draw is a coin flip and a green one proves nothing at all. The
+# per-draw absence probabilities on the pre-fix code at num_regions=1 are [3] ~4% and [9] ~65%, so
+# 200 draws makes "the floor is missing" a certainty rather than a hope, while still costing under a
+# second (no fill, no world rebuild -- just the allocator, reseeded).
+SOMBER_PRESENCE_DRAWS = 200
+
+
+class SomberTierPresenceFloor(WorldTestBase):
+    """THE MOTIVATING CASE, AT THE SIZE IT WAS REPORTED (CONTRIBUTING rule 11).
+
+    2026-08-02, a player on a 1-region seed: "zero Somber Smithing Stone [3] in the game". A somber
+    weapon costs ONE stone per level and the tier IS the level, so an absent tier is not a thin
+    economy -- it is a WALL at that exact weapon level, for the whole seed. Density floors cannot see
+    that; only PRESENCE can.
+
+    Two holes let it ship, and this class closes both:
+
+      * `filler_budget._draw_stones` did `if somber: return out` BEFORE the deepest-first top-up, so
+        the guarantee the module advertises was regular-[1]-only and no somber tier had any floor.
+      * `_assert_low_somber_early` -- the only somber gate there was -- checks tiers (1, 2) at
+        num_regions=4. Tier 3, the tier the spec promises and the player reported, is exactly the one
+        it does not look at, and 4 regions is exactly the size at which the bug is rarest.
+
+    So: num_regions=1 (the reported size, and the worst case -- the smaller the seed the smaller the
+    reservation), every tier 1..9, sampled over SOMBER_PRESENCE_DRAWS reseeded draws of the real
+    allocator.
+
+    THE ORACLE IS THE POOL, NOT THE RESERVATION. Vanilla somber stones on kept checks are PROTECTED
+    from displacement (`_ECONOMY_SUBSTR` catches "Smithing Stone"), so they are genuinely in the
+    seed and a tier they already cover does not need to spend a reservation slot on itself. The
+    vanilla half is re-derived here from LOCATIONS + LOCATION_ITEM rather than imported from the
+    code under test.
+    """
+
+    game = GAME
+    options = {"num_regions": 1, "num_regions_order": "rolled", "enable_dlc": True}
+
+    def _vanilla_somber(self):
+        """{tier} of somber stone the kept vanilla checks already pay -- derived, not imported."""
+        seen = set()
+        for rn in [HUB] + list(self.world._kept()):
+            for (_n, ap_id, _f) in LOCATIONS.get(rn, []):
+                m = _SOMBER_RE.match(LOCATION_ITEM.get(ap_id) or "")
+                if m:
+                    seen.add(int(m.group(1)))
+        return seen
+
+    def test_every_somber_tier_is_present_on_a_one_region_seed(self):
+        import logging
+        import random as _random
+
+        world = self.world
+        total = fb.budget_slots(world)
+        self.assertGreater(total, 0, "a 1-region seed has no filler budget -- the oracle is broken")
+        alloc = fb.allocate(world, total)
+        self.assertGreater(
+            alloc.get("somber_stones", 0), 0,
+            "the shipped default recipe must still RESERVE somber stones at num_regions=1 -- "
+            "without a reservation there is nothing for a presence floor to be a floor OVER")
+
+        vanilla = self._vanilla_somber()
+        tiers = tuple(range(1, fb.SOMBER_TIERS + 1))
+        absent = Counter()
+        saved = world.random
+        # A 1-region seed legitimately trips allocate()'s thin-stone-reservation warning on EVERY
+        # call, and 200 identical copies of it would bury this test's own failure message when it
+        # fires. That warning has its own gate (LeanSeedWarnsRatherThanShipsQuietly), so muting the
+        # logger for the sampling loop hides nothing that is not asserted elsewhere.
+        gf_log = logging.getLogger("Greenfield")
+        was = gf_log.level
+        try:
+            gf_log.setLevel(logging.ERROR)
+            for i in range(SOMBER_PRESENCE_DRAWS):
+                world.random = _random.Random(0xB0553 + i)
+                seen = set(vanilla)
+                for nm in fb.plan(world, total):
+                    m = _SOMBER_RE.match(nm or "")
+                    if m:
+                        seen.add(int(m.group(1)))
+                for t in tiers:
+                    if t not in seen:
+                        absent[t] += 1
+        finally:
+            gf_log.setLevel(was)
+            world.random = saved
+
+        self.assertFalse(
+            dict(absent),
+            "somber tier(s) absent from the POOL on a 1-region seed -- a somber weapon in those seeds "
+            "cannot pass the level below the missing tier, ever:\n  %s\n"
+            "(%d draws of a %d-slot budget; reservation=%d somber stones; vanilla kept checks already "
+            "cover tiers %s. The draw is an i.i.d. weighted sample, so this is not bad luck -- it is "
+            "the absence of a coverage floor.)"
+            % ("\n  ".join(f"Somber Smithing Stone [{t}]: missing in {n}/{SOMBER_PRESENCE_DRAWS} draws"
+                           for t, n in sorted(absent.items())),
+               SOMBER_PRESENCE_DRAWS, total, alloc.get("somber_stones", 0), sorted(vanilla) or "none"))
+
+    def test_regular_stone_draw_is_untouched_by_the_somber_floor(self):
+        """The somber floor must not move ONE regular stone.
+
+        `_draw_stones` is one function serving two ladders, so a change to the somber branch is a
+        change to a shared code path. This restates the PRE-2026-08-02 regular algorithm -- draw by
+        the taper, then top up Smithing Stone [1] to `early_stone_supply` by converting the deepest
+        stones drawn -- and asserts prod still emits it item-for-item from the same RNG state. If the
+        somber work ever perturbs the regular draw (an extra random call, a reordered top-up), this
+        fails with the exact sequence that changed rather than as a distant density regression.
+        """
+        import random as _random
+
+        world = self.world
+        label = "Smithing Stone"
+        weights = fb._regular_stone_weights(int(world.options.flatten_regular_upgrades.value))
+        tiers = [t for t in weights if f"{label} [{t}]" in ITEM_CATALOG]
+        w = [weights[t] for t in tiers]
+        floor_supply = fb.early_stone_supply(world)
+        t1 = f"{label} [1]"
+
+        saved = world.random
+        try:
+            for n in (1, 5, 40, 200):
+                for seed in range(15):
+                    world.random = _random.Random(0xC0FFEE + seed)
+                    got = fb._draw_stones(world, n, somber=False)
+
+                    rng = _random.Random(0xC0FFEE + seed)
+                    ref = [f"{label} [{t}]" for t in rng.choices(tiers, weights=w, k=n)]
+                    floor = min(floor_supply, n)
+                    have = sum(1 for s in ref if s == t1)
+                    if have < floor:
+                        deepest = sorted(
+                            (i for i, s in enumerate(ref) if s != t1),
+                            key=lambda i: -int(ref[i].rsplit("[", 1)[1].rstrip("]")))
+                        for i in deepest[: floor - have]:
+                            ref[i] = t1
+                    self.assertEqual(
+                        got, ref,
+                        f"the regular smithing-stone draw changed (n={n}, rng seed offset {seed}). "
+                        f"The somber presence floor is only allowed to touch the somber branch.")
+        finally:
+            world.random = saved
+
+    def test_a_reservation_smaller_than_the_ladder_degrades_shallow_first_and_says_so(self):
+        """n < 9 cannot hold nine tiers. That is ALLOWED -- the floor never grows the reservation --
+        but the module's rule is that a degraded pass ANNOUNCES ITSELF, and the degradation has to be
+        the sensible one: cover the SHALLOW tiers, because a missing Somber [1] walls a somber weapon
+        at +0 while a missing [9] costs only the last rung of a ladder most runs never reach.
+
+        Called DIRECTLY with the vanilla contribution stubbed empty, because that is the only way to
+        reach the guard on purpose: how many tiers a real 1-region seed's kept checks already cover
+        depends on which regions rolled, so on some seeds a 4-stone reservation IS enough and the
+        branch never runs. A guard the fixture only sometimes triggers is a guard that is only
+        sometimes tested (and it would fail as a flake, not as a finding).
+        """
+        import logging
+        import random as _random
+        from unittest.mock import patch
+
+        world = self.world
+        n = 4
+        saved = world.random
+        try:
+            world.random = _random.Random(0xDEEDBEE)
+            with patch.object(fb, "_vanilla_somber_tiers", lambda _w: set()):
+                with self.assertLogs("Greenfield", level=logging.WARNING) as cm:
+                    out = fb._draw_stones(world, n, somber=True)
+        finally:
+            world.random = saved
+
+        self.assertEqual(len(out), n, "the floor must never grow the reservation")
+        msg = "\n".join(cm.output)
+        self.assertIn("somber reservation", msg)
+        self.assertIn("cannot pass", msg)
+
+        covered = set(int(_SOMBER_RE.match(nm).group(1)) for nm in out)
+        uncovered = [t for t in range(1, fb.SOMBER_TIERS + 1) if t not in covered]
+        self.assertTrue(uncovered, "n=4 cannot cover 9 tiers -- the fixture is wrong, not the code")
+        # SHALLOW-FIRST, stated as one property: every tier below the first hole is covered. (The
+        # reservation may legitimately also hold tiers ABOVE the hole -- those are stones the taper
+        # happened to draw and the floor had no reason to spend.)
+        first_hole = min(uncovered)
+        self.assertEqual(
+            sorted(t for t in covered if t < first_hole), list(range(1, first_hole)),
+            f"the degradation must cover the SHALLOW tiers first: covered={sorted(covered)}, "
+            f"first missing tier={first_hole}. A missing low tier walls a somber weapon at its base; "
+            f"a missing high one costs the last rung of a ladder most runs never reach.")
+
+    def test_a_tier_the_vanilla_pool_already_covers_does_not_spend_a_reservation_slot(self):
+        """The floor's second half: it leans on what the seed ALREADY holds.
+
+        Somber stones are protected from displacement, so a vanilla one on a kept check is really in
+        the pool. Spending a reservation slot to duplicate a tier that is already there would take
+        that slot from a tier that is not -- which is the whole reason the accounting exists rather
+        than a blanket "one of each, always". Stub the vanilla contribution to a known set and assert
+        the floor spends the reservation on that set's COMPLEMENT. (The taper may still draw a
+        vanilla-covered tier of its own accord -- that is a draw, not a floor conversion.)
+        """
+        import random as _random
+        from unittest.mock import patch
+
+        world = self.world
+        vanilla = {5, 6, 7, 8, 9}
+        saved = world.random
+        try:
+            world.random = _random.Random(0x5EEDED)
+            with patch.object(fb, "_vanilla_somber_tiers", lambda _w: set(vanilla)):
+                out = fb._draw_stones(world, fb.SOMBER_TIERS, somber=True)
+        finally:
+            world.random = saved
+
+        drawn = set(int(_SOMBER_RE.match(nm).group(1)) for nm in out)
+        self.assertEqual(len(out), fb.SOMBER_TIERS, "the floor must never grow the reservation")
+        self.assertEqual(
+            sorted(drawn | vanilla), list(range(1, fb.SOMBER_TIERS + 1)),
+            f"pool coverage is incomplete: reservation drew {sorted(drawn)}, vanilla covers "
+            f"{sorted(vanilla)}")
+        self.assertTrue(
+            {1, 2, 3, 4} <= drawn,
+            f"the reservation must cover the tiers vanilla does NOT: drew {sorted(drawn)}")
