@@ -156,7 +156,24 @@ class LeyndellGate(Feature):
         # "To Leyndell" edge itself. core.create_regions parents gated children (REGION_PARENT), so
         # Leyndell hangs off Altus and the SEWER hangs off Leyndell -- gating the entrance makes the
         # rune wall transitive exactly like the physical one (the m35 well is inside the capital;
-        # you cannot reach it runeless). The per-location rules below stay: they carry the
+        # you cannot reach it runeless).
+        #
+        # THAT PARENTHESIS IS LOAD-BEARING AND WAS UNCITED. With #278 fixed, the Lock disarms our
+        # kick (synthetic flag 76980) and the withheld bundle denies the warp -- so the vanilla
+        # fogwall is the ONLY thing left denying physical entry to the capital. A backdoor would
+        # mean Leyndell is unenforceable without a client-side wall we deliberately never built.
+        # CONFIRMED by Alaric in game, 2026-08-01: "there's one way into the capital and it's the
+        # fogwall, the sewer is not a backdoor."
+        #
+        # 🛑 AND IT DOES NOT GENERALISE. Same source, same day: the capital fogwall "is the exception
+        # and not the rule -- it's like the only boundary of sphere 0 in vanilla logic." Almost every
+        # other vanilla "gate" in this game is soft: skippable on a horse, walkable around, or
+        # reachable by a route the designers did not mean as an entrance. Leyndell is the one place
+        # where letting the GAME hold the wall is sound. So features/natural_progression.GAME_NATIVE_GATE
+        # is not a pattern to extend -- a second region added to it would be a region with no wall at
+        # all, and the failure is silent (logic believes a door is shut that the player walks past).
+        #
+        # The per-location rules below stay: they carry the
         # item_rule cycle-breaker and cover the capital checks directly.
         try:
             entrance = world.multiworld.get_entrance(f"To {GOAL_REGION}", player)

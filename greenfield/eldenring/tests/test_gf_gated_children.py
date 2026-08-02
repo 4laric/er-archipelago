@@ -14,6 +14,15 @@ straight in and ended the run at Morgott. The fix is fourfold, and each fold get
   4. REACHABILITY + ANCHOR: a child's checks require the parent's Lock chain in logic -- and the
      rune wall rides the "To Leyndell" ENTRANCE, so it is transitive to the Sewer -- and the start
      anchor is never a gated child.
+  5. THE OPEN FLAG IS NOT A GRACE (#278, added 2026-08-01). Folds 1-4 shipped in 2026-07 and the
+     playtest bug came BACK anyway, through a door none of them watched. `regionGraces` is emptied
+     while the wall is armed -- but `regionOpenFlags` shipped the SAME flag, because for every
+     ordinary region the open flag IS the front-door grace by derivation (gen_data._front_door), and
+     the client's `open_on_received_name` sets it directly on Lock receipt. So the Lock lit East
+     Capital Rampart (71102) / Church of the Cuckoo (71402) / 73501 regardless, handing the player a
+     fast-travel target past the wall. Folds 1-4 all passed while it did (35 green). One bit cannot
+     be both the kick latch and a warp unlock (#240's shape), so gated children now carry a
+     SYNTHETIC open flag and this fold is what keeps it synthetic.
 """
 import random
 
@@ -27,6 +36,8 @@ from worlds.eldenring.data import REGIONS, LOCATIONS  # noqa: E402
 from worlds.eldenring.region_spine import (  # noqa: E402
     REGION_PARENT, GOAL_REGION, SPINE, DLC_REGIONS, compute_kept, parent_chain, base_regions)
 from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
+from worlds.eldenring.region_play_ids import REGION_PLAY_IDS  # noqa: E402
 from worlds.eldenring.features.graces import WALL_ARMED  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import _LEGACY_KEYS  # noqa: E402
 from worlds.eldenring.features.start_grace import pick_anchor_region  # noqa: E402
@@ -229,6 +240,78 @@ class GatedChildrenLiveSeed(WorldTestBase):
                     f"progression {l.item.name} stranded on unreachable {l.name}")
 
 
+    # ---- 5. the open flag must not BE a grace (#278) ---------------------------------------------
+    def test_gated_child_open_flag_is_never_a_grace_flag(self):
+        """The regression. Stated over EVERY grace flag in the seed, not just the child's own
+        bundle: a warp target anywhere is a warp target, and pinning only the three known values
+        would pass the day someone re-derives a fourth child onto a different grace."""
+        all_graces = {f for fs in REGION_GRACE_POINTS.values() for f in fs}
+        sd = self._sd()
+        open_flags = sd["regionOpenFlags"]
+        kept = set(self.world._kept())
+        checked = 0
+        for child in REGION_PARENT:
+            if child not in kept:
+                continue
+            key = f"{child} Lock"
+            flag = open_flags.get(key)
+            assert flag is not None, f"{key} must ship an open flag (coarse_keys requires it)"
+            assert flag not in all_graces, (
+                f"{child}'s open flag {flag} IS a grace flag -- `open_on_received_name` sets it on "
+                f"Lock receipt, so receiving the Lock lights a warp target on the far side of the "
+                f"wall and the withheld bundle is bypassed (#278)")
+            checked += 1
+        assert checked >= 3, f"expected the base trio at least, checked {checked}"
+
+    def test_area_lock_ranges_use_that_same_non_grace_flag(self):
+        """The kick must latch on the SAME synthetic bit. If areaLockFlags kept the grace id, the
+        kick would still be watching a flag the Lock no longer sets -- sealed forever."""
+        all_graces = {f for fs in REGION_GRACE_POINTS.values() for f in fs}
+        sd = self._sd()
+        triples = sd.get("areaLockFlags") or []
+        kept = set(self.world._kept())
+        for child in REGION_PARENT:
+            if child not in kept:
+                continue
+            want = sd["regionOpenFlags"][f"{child} Lock"]
+            pids = set(REGION_PLAY_IDS.get(child, ()))
+            assert pids, f"{child} has no play-region geometry -- kick-watch would be silently off"
+            covering = [t for t in triples if t[0] in pids or t[1] in pids]
+            assert covering, f"{child}: no areaLockFlags range covers {sorted(pids)[:4]}"
+            for t in covering:
+                assert t[2] == want, (
+                    f"{child}: areaLockFlags range {t} latches on {t[2]} but the Lock sets {want} "
+                    f"-- the kick would never disarm")
+                assert t[2] not in all_graces, f"{child}: kick range {t} latches on a grace flag"
+
+
+class TestGatedChildFlagBand:
+    """Static pin on the synthetic ids. No world build -- this is about the ALLOCATION, which is the
+    part we cannot verify from here: an unallocated flag silently no-ops, and here that fails in the
+    STRANDING direction (Lock received, kick never disarms). The band is the evidence we have --
+    coverage.REGION_FLAG_LO/HI make 71000-76999 valid, and inside it the baked-era reactors on 76970
+    (KICK) and 76996 (deathlink) demonstrably fired, which is why [76970, 76996] is where a new
+    client-owned flag goes. 🛑 The band is not a probe; each id still needs one in game (#278)."""
+    LO, HI = 76970, 76999
+    RESERVED = {76970, 76996, 76971, 76972}   # KICK, deathlink, er-logic test fixtures
+
+    def _synthetic(self):
+        return {c: REGION_OPEN_FLAGS[c] for c in REGION_PARENT if c in REGION_OPEN_FLAGS}
+
+    def test_every_gated_child_flag_sits_in_the_probed_band(self):
+        for child, flag in self._synthetic().items():
+            assert self.LO <= flag <= self.HI, (
+                f"{child}'s open flag {flag} is outside the client-owned band "
+                f"[{self.LO}, {self.HI}] -- either it is still a grace id, or it is an id nobody "
+                f"has evidence the game allocates")
+
+    def test_flags_are_distinct_and_avoid_reserved_ids(self):
+        flags = list(self._synthetic().values())
+        assert len(flags) == len(set(flags)), f"gated children share an open flag: {flags}"
+        clash = sorted(set(flags) & self.RESERVED)
+        assert not clash, f"gated-child open flag(s) collide with reserved ids: {clash}"
+
+
 class ScaduviewFoldedIntoKeep(WorldTestBase):
     """Scaduview (the Hinterland) FOLDED into Shadow Keep 2026-07-19 (Alaric). As its own region it
     held no self-contained content -- Commander Gaius + his five-fragment reward, the Scadutree Avatar,
@@ -290,6 +373,15 @@ class LeyndellWallDisarmed(WorldTestBase):
             "disarmed rune gate must grant the capital bundle or the capital is unwinnable")
         assert rg.get("Sewer Lock") == []
         assert rg.get("Raya Lucaria Academy Lock") == []
+
+    def test_open_flag_stays_synthetic_even_when_the_wall_is_disarmed(self):
+        """#278 is UNCONDITIONAL. Disarming the wall restores the bundle, so the warp arrives
+        through regionGraces where it belongs -- the open flag's only remaining job is the kick
+        latch, and making it grace-valued again for this one case would put the seam back."""
+        all_graces = {f for fs in REGION_GRACE_POINTS.values() for f in fs}
+        of = self.world.fill_slot_data()["regionOpenFlags"]
+        for child in ("Leyndell", "Sewer", "Raya Lucaria Academy"):
+            assert of[f"{child} Lock"] not in all_graces
 
 
 class SewerRuneRegressionSeed(WorldTestBase):
