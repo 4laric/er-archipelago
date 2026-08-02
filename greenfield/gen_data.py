@@ -590,6 +590,12 @@ def _maplot_map(_lot):
 # So: where the datamine proves an UNAMBIGUOUS map, trust it over the row's scanned map. This is a
 # DERIVATION fix -- it retires per-flag hand patches instead of adding more (SPEC-provenance-oracle).
 MSB_TRUTH_MAP = {}
+# WHICH flags region_of() actually ANSWERED with an MSB tile, and which tile. MSB_TRUTH_MAP alone
+# does not tell you that: six higher-precedence branches (finale, gesture, FLAG_REGION_OVERRIDE, the
+# merchant ESD, the shop block, the boss arena) can win first, and _gt_region() can decline. Only a
+# check whose shipped region came THROUGH this tile may be judged as a tile guess -- see the guard
+# that consumes this at the "THIRD STATE" block below.
+MSB_TILE_PROVENANCE = {}
 _mfr = os.path.join(HERE, "msb_flag_region.tsv")
 if os.path.isfile(_mfr):
     _t = defaultdict(set)
@@ -2816,6 +2822,7 @@ def region_of(r):
     if _gtm:
         _gtr = _gt_region(_gtm)
         if _gtr:
+            MSB_TILE_PROVENANCE[_ovfl] = _gtm     # this tile IS the region's derivation -- record it
             return _gtr
     _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))
     if _dov:
@@ -3527,6 +3534,7 @@ tile_guessed_aps=[]     # region came from an UNANCHORED tile -> kept, but barre
 erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
 shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
 surface_excluded_aps=[] # _SURFACE_EXCLUDE_FLAGS -> surface-tagged but BARRED from progression (Alaric's call)
+region_confirmed_aps=[]  # flag in _REGION_CONFIRMED_FLAGS -> a tile guess a HUMAN cleared in game
 # HONEST LABEL for a GUESSED region. A check whose region we defaulted or tile-guessed is already
 # barred from progression (DEFAULTED_REGION_APS), but its NAME still asserted the region flatly --
 # "Caelid :: Deathroot - m60_45_39" reads as a fact when internally we do not believe it. Alaric hit
@@ -3589,14 +3597,41 @@ for r in rows:
     #
     # LOD tiles are NOT included: their (10, 09)-style indices are not fine coords at all and the
     # LOD guard above already refuses them. Only real fine tiles are judged here.
-    _gt = re.match(r"m60_(\d\d)_(\d\d)", _mtile or "")
-    if _gt:
+    #
+    # 🛑 TWO PATHS DERIVE A REGION FROM A TILE, and until 2026-08-02 this guard watched only one.
+    # `_mtile` is the DESCRIPTOR tile (the row's `map` column, else the flag decode). But region_of()
+    # ranks the MSB datamine ABOVE both, so for 2467 of 4875 checks the region actually shipped is
+    # tile_pr() of a tile this guard never looked at. f530505 (Gargoyle's Black Blades) is the case
+    # that cost a seed: its descriptor tile m60_39_53 IS anchored, so the guard waved it through --
+    # while the tile that PRODUCED its "Mountaintops of the Giants", MSB m60_49_52, is graceless
+    # Forbidden-Lands ground BELOW the Grand Lift of Rold, one nearest-neighbour hop from the
+    # m60_49_53 seam that carries graces for BOTH regions (region_groups.py names that seam in prose).
+    # Rold is deliberately NOT in logic (README: "You never need the Rold Medallion to reach the
+    # Mountaintops of the Giants"), so a Mountaintops-anchored player cannot stand there -- and a
+    # region Lock or a required Great Rune placed there is an unwinnable seed. Two checks on the very
+    # same ground (f1049527000, f1049527800) were already barred; the boss check was not. A guard that
+    # sees one of two derivation paths is a guard with a hole.
+    #
+    # UNION, not precedence. Judging the MSB tile INSTEAD of `_mtile` would UN-bar two checks that are
+    # barred today (f520300 Viridian Amber Medallion, f400299 Bernahl's Bell Bearing, whose two tiles
+    # disagree about which side of the map they are on). A guard change must never hand progression
+    # back to ground we have not seen, so either tile being a guess is enough to bar.
+    # MEASURED 2026-08-02: +11 barred (5 Mountaintops, 4 Caelid, 1 Altus, 1 Mt. Gelmir), 0 un-barred.
+    #
+    # MSB_TILE_PROVENANCE, not MSB_TRUTH_MAP: a check pinned by FLAG_REGION_OVERRIDE, the merchant
+    # ESD or the boss arena did not get its region from a tile at all, and must not be judged as if
+    # it had. Only the flags region_of() answered THROUGH the MSB tile are in there.
+    for _cand in (_mtile, MSB_TILE_PROVENANCE.get(flag, "")):
+        _gt = re.match(r"m60_(\d\d)_(\d\d)", _cand or "")
+        if not _gt:
+            continue
         _gx, _gy = int(_gt.group(1)), int(_gt.group(2))
         if (_is_fine_tile(_gx, _gy) and (_gx, _gy) not in ANCHOR
                 and flag not in _REGION_CONFIRMED_FLAGS
                 and (not defaulted_aps or defaulted_aps[-1] != apid)):
             defaulted_aps.append(apid)
             tile_guessed_aps.append(apid)
+            break
     # Mark the NAME the moment the guess is known (both paths above land here: HUB-defaulted and
     # tile-guessed). Done before the ordinal pass so collision_ordinals sees the final base names.
     if defaulted_aps and defaulted_aps[-1] == apid and _name_pending and _name_pending[-1][2] == apid:
@@ -3618,6 +3653,8 @@ for r in rows:
         shop_gated_aps.append(apid)
     if flag in _SURFACE_EXCLUDE_FLAGS:
         surface_excluded_aps.append(apid)
+    if flag in _REGION_CONFIRMED_FLAGS:
+        region_confirmed_aps.append(apid)
     apid+=1
 
 # ---- collision ordinals (desc_sources "layer 6"): guarantee every location NAME is unique ---------
@@ -6115,6 +6152,14 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# in gen_data; Alaric\'s call). They stay ordinary checks but never host this world\'s\n')
     f.write('# progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.\n')
     f.write('SURFACE_EXCLUDE_APS = frozenset(' + repr(_surfexcl) + ')\n')
+    _regconf = sorted(set(region_confirmed_aps))
+    f.write('\n# The tile-guess bar\'s ONLY exception: _REGION_CONFIRMED_FLAGS in gen_data -- a check on a\n')
+    f.write('# graceless tile that a HUMAN stood in front of and confirmed the region of, in game. It keeps\n')
+    f.write('# its region AND its progression eligibility. Emitted so the guard\'s invariant can be stated\n')
+    f.write('# without a test re-typing the list: every check whose region derives from a graceless tile is\n')
+    f.write('# barred, EXCEPT these. PER-FLAG by construction -- confirming a tile would confirm every check\n')
+    f.write('# on it, which is the wrong arity.\n')
+    f.write('REGION_CONFIRMED_APS = frozenset(' + repr(_regconf) + ')\n')
     _shopgate = sorted(set(shop_gated_aps))
     f.write('\n# Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an\n')
     f.write('# unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a\n')
