@@ -17,16 +17,16 @@ REGION_OPEN_FLAGS = {
     'Gravesite': 76800,
     'Haligtree': 71501,
     'Jagged Peak': 76840,
-    'Leyndell': 71102,
+    'Leyndell': 76980,
     'Limgrave': 73100,
     'Liurnia': 73202,
     'Mohgwyn': 71251,
     'Mountaintops of the Giants': 73017,
     'Mt. Gelmir': 76350,
     'Rauh Base': 76912,
-    'Raya Lucaria Academy': 71402,
+    'Raya Lucaria Academy': 76981,
     'Scadu Altus': 76900,
-    'Sewer': 73501,
+    'Sewer': 76982,
     'Shadow Keep': 76935,
     'Siofra River': 71222,
     'Stone Coffin': 72201,
@@ -37,4 +37,4 @@ REGION_OPEN_FLAGS = {
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7fbb05be67137fcacfe4c753d140a94ade94c60bbbc30f86d7f066289a42d20b', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:defaee057fa8e89cd922e78d8d7352096656cfdd6fd479c9084acd8f7fbd13ac'}
+_GEN_STAMP = {'inputs_hash': 'sha256:7586513871dbdbe202f4180e428a6297f8da3ca945f4cb55031ac776c8ba5511', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:10682b5f34e29e198367883dcc4bb2b2df8b767f03079751af2cf46b1bcfcfd6'}

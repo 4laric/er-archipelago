@@ -101,7 +101,7 @@
       ],
       "producer": "core._base_slot_data",
       "consumer": "region.rs:111 str_to_u32 (absent => empty => no locks)",
-      "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the coarse lock-item names the client derives from regionCoarseKeys."
+      "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the coarse lock-item names the client derives from regionCoarseKeys. Usually the region's front-door GRACE, so the Lock lights the way in; for a gated child (region_spine.REGION_PARENT) it is a SYNTHETIC client-owned flag instead, because there the same write must disarm the kick WITHOUT lighting a warp target past the vanilla wall (#278)."
     },
     {
       "name": "locationRegions",

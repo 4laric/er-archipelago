@@ -4230,7 +4230,49 @@ def _front_door(r):
         return _pin
     return min(_open_cand_ow[r]) if _open_cand_ow.get(r) else min(_open_cand[r])
 REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
+
+# ---- GATED CHILDREN GET A SYNTHETIC OPEN FLAG (#278, Fable ruling 2026-08-01) -----------------
+# THE RULE: a gated child's open flag must never BE a grace flag. Setting it has to disarm the
+# kick WITHOUT lighting a warp target.
+#
+# Why it must be pinned rather than derived. For every ordinary region the front door is exactly
+# right: the open flag IS the region's entrance grace, so receiving the Lock lights the way in.
+# For a region behind a vanilla wall (region_spine.REGION_PARENT -- Leyndell behind the capital's
+# 2-Great-Rune gate, Raya Lucaria behind the Academy seal, the Sewer behind the capital itself)
+# that identity is a bug. features/graces.py withholds those bundles while the wall is armed, but
+# `core.py`'s regionOpenFlags shipped the SAME flag through the adjacent key, and the client's
+# `open_on_received_name` sets it directly -- so the Lock lit East Capital Rampart (71102) /
+# Church of the Cuckoo (71402) / 73501 anyway, handing the player a fast-travel target on the far
+# side of the wall. That is the 2026-07-14 gated-children playtest bug ("walked straight in and
+# ended the run at Morgott") returning through a door the fix did not close.
+#
+# One bit could not do both jobs (the #240 shape: the flag IS the function, no third option), so
+# the kick latch gets its own bit and the grace keeps being a grace.
+#
+# UNCONDITIONAL, not WALL_ARMED-gated: when the wall is disarmed graces.py grants the full bundle
+# and the warp arrives through regionGraces, where it belongs. One static rule beats a per-seed
+# seam that has to agree with WALL_ARMED.
+#
+# THE IDS. coverage.REGION_FLAG_LO/HI make 71000-76999 the validity band; within it the bracket
+# [76970, 76996] is the strongest evidence we have that a group is CSEventFlagMan-allocated -- the
+# baked-era reactors on 76970 (KICK) and 76996 (deathlink) demonstrably fired. These sit inside
+# that bracket, clear of both and of the er-logic test fixtures 76971/76972. A future gated child
+# allocates upward from 76983; stop at 76995.
+# 🛑 UNPROBED IDS MUST NOT SHIP. An unallocated flag silently no-ops, and here that fails in the
+# STRANDING direction (Lock received, kick never disarms) -- worse than the permissive bug it
+# replaces. Alaric probes each id in game (read false -> set -> read true) before the tag.
+_GATED_CHILD_OPEN_FLAGS = {
+    "Leyndell": 76980,               # was 71102 East Capital Rampart
+    "Raya Lucaria Academy": 76981,   # was 71402 Church of the Cuckoo
+    "Sewer": 76982,                  # was 73501
+}
+for _r, _syn in _GATED_CHILD_OPEN_FLAGS.items():
+    if _r in REGION_OPEN_FLAGS:
+        REGION_OPEN_FLAGS[_r] = _syn
+
 for _r, _fd in REGION_OPEN_FLAGS.items():
+    if _r in _GATED_CHILD_OPEN_FLAGS:
+        continue    # synthetic: stands on no ground by design, so the ground gate cannot judge it
     if _gg_foreign(_fd, _r):
         raise SystemExit(f"gen_data: GRACE-GROUND GATE -- {_r!r}'s front-door grace {_fd} stands on "
                          f"foreign ground {_GRACE_GROUND.get(_fd)}. Fix region_groups.PLAY_REGION_GROUPS.")
@@ -4238,7 +4280,10 @@ for _r, _fd in REGION_OPEN_FLAGS.items():
 # volume and no tile row, the gate read 'not provably foreign' and force-lit it, and the ground
 # turned out to be Shadow Keep's 21000. Every such region is a named WATCH item in the gen log --
 # the first in-game kick line at that grace belongs in datamine_grace_ground.MEASURED_GROUND.
-_gg_watch = sorted(_r for _r, _fd in REGION_OPEN_FLAGS.items() if _fd not in _GRACE_GROUND)
+# Gated children are exempt: their flag is synthetic, so "underivable ground" is the intended
+# state rather than the Scaduview class of accident.
+_gg_watch = sorted(_r for _r, _fd in REGION_OPEN_FLAGS.items()
+                   if _fd not in _GRACE_GROUND and _r not in _GATED_CHILD_OPEN_FLAGS)
 if _gg_watch:
     print("grace-ground gate: WATCH -- front-door ground UNDERIVABLE (permissive, the Scaduview "
           "class) for: " + ", ".join(f"{_r} ({REGION_OPEN_FLAGS[_r]})" for _r in _gg_watch)

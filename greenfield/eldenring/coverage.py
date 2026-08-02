@@ -407,8 +407,11 @@ def build_coverage(world=None, kept=None, _static_table=None):
         emitted_blank_lots_enemy = {int(k) for k in getattr(cld, "CHECK_LOT_SLOTS_ENEMY", {})} if cld else set()
         flags_src, cif_src = "data.py", "features/check_item_flags.py (derived)"
 
-    # system flags: everything the CLIENT itself writes. Region-open flags ARE front-door grace
-    # flags, so fold the whole grace group in (region.rs lights them on Lock receipt).
+    # system flags: everything the CLIENT itself writes. Region-open flags are front-door grace
+    # flags for 27 of the 30 regions, so fold the whole grace group in (region.rs lights them on
+    # Lock receipt). The three gated children carry SYNTHETIC 7698x open flags instead (#278) --
+    # `REGION_OPEN_FLAGS.values()` picks those up on its own, and they are client-written too, so
+    # the union below is right either way.
     system_flags = set(REGION_OPEN_FLAGS.values()) | set(MAP_REVEAL_FLAGS) \
         | {DEATHLINK_KILL_FLAG, UNDERGROUND_VIEW_FLAG}
     for _r, _fls in REGION_GRACE_POINTS.items():

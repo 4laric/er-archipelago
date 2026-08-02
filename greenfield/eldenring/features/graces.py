@@ -116,7 +116,10 @@ def bundle_withheld(world, region):
 #
 # 🛑 WHY NOT THE OBVIOUS TABLES. Two nearby ones look right and are not:
 #   * `region_open_flags.REGION_OPEN_FLAGS` is one flag per region and equals REGION_GRACE_POINTS[r][0]
-#     for all 30 -- but it is a region-OPEN DETECTION anchor, and it resolves to cave interiors
+#     for 27 of the 30 -- the three gated children (Leyndell, Raya Lucaria Academy, Sewer) carry a
+#     SYNTHETIC 7698x flag instead, precisely so that setting it cannot light a warp target past the
+#     wall this module withholds the bundle for (#278; gen_data._GATED_CHILD_OPEN_FLAGS) --
+#     but it is a region-OPEN DETECTION anchor, and it resolves to cave interiors
 #     (Limgrave -> Murkwater Cave, Liurnia -> Raya Lucaria Crystal Tunnel, Caelid -> Gael Tunnel).
 #     Granting those as "the grace at the start of the region" is worse than granting all of them.
 #   * `BonfireWarpParam.bonfireSubCategorySortId` is a real ordering, but it sorts within the WARP

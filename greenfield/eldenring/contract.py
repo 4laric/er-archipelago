@@ -399,7 +399,10 @@ CONTRACT = (
                 "core._base_slot_data", "region.rs:111 str_to_u32 (absent => empty => no locks)",
                 "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys "
                 "MUST be exactly '<Region> Lock' matching the coarse lock-item names the client "
-                "derives from regionCoarseKeys."),
+                "derives from regionCoarseKeys. Usually the region's front-door GRACE, so the Lock "
+                "lights the way in; for a gated child (region_spine.REGION_PARENT) it is a SYNTHETIC "
+                "client-owned flag instead, because there the same write must disarm the kick "
+                "WITHOUT lighting a warp target past the vanilla wall (#278)."),
     # --- the tracker's region model, SENT rather than BAKED (2026-07-28) -------------------------
     # These two replace er-logic's generated `tracker_regions.rs`, and the reason is correctness
     # before convenience. That table was built from data.LOCATIONS at GENERATOR time, so it
