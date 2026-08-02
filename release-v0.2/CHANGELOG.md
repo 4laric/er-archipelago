@@ -3,6 +3,175 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.1 — 2026-08-02
+
+A bugfix release. Every entry is a way a seed could quietly become unwinnable or trivially winnable
+without saying so. `CONTRACT_HASH` is unmoved from v0.3.0.
+
+### Fixed: the Lock lit a grace on the far side of the wall it was gating
+
+For an ordinary region the "region is open" flag is *derived* to be the region's front-door grace
+(`gen_data._front_door`), which is right — receiving the Lock should light the way in. For a region
+behind a vanilla wall it is a bug, because the front door is **inside**: Leyndell's is East Capital
+Rampart (71102), Raya Lucaria's is Church of the Cuckoo (71402), and the Sewer's is 73501.
+
+`features/graces.py` already withheld those grace bundles while the wall was armed, and did so
+correctly. But `core.py:968` shipped the same flag through `regionOpenFlags`, and the client's
+`open_on_received_name` sets it directly — so receiving the Leyndell Lock lit East Capital Rampart as
+a fast-travel target and you could warp in past the two-rune gate. That is the 2026-07-14
+gated-children playtest bug ("walked straight in and ended the run at Morgott") returning through a
+door the original fix never watched, with all four of its test folds green throughout.
+
+One bit could not do both jobs — the same shape as the whetblade collision in v0.2.18. The kick latch
+gets its own bit: `gen_data._GATED_CHILD_OPEN_FLAGS` pins Leyndell **76980**, Raya Lucaria Academy
+**76981**, Sewer **76982**, and `region_open_flags.py` is re-emitted. `core.py` and
+`features/area_locks.py` changed **zero lines** — fixing the generated table means all four world
+consumers, the test corpus and the client's fallback generator inherit atomically, where a runtime
+override would half-apply.
+
+All three flags were probed in game before release: read-false, set, rest at a grace, Alt+F4,
+relaunch, read-true — with the flag block's base pointer moving between runs (`24927E70080` ->
+`2F1A6ED0080`), which is what proves the bits came off disk rather than surviving in memory. A
+quit-to-menu is **not** sufficient for this class of test.
+
+⚠️ **New seeds only.** A seed already rolled carries 71102/71402/73501 in its slot_data forever.
+
+### Fixed: the capital's rune wall could be armed below vanilla's two
+
+`generate_early` did `want = min(want, len(_available_runes()))`, on the theory that lowering a
+requirement is always safe. It is not: our N is data-driven, the game's capital gate is a fixed
+two-Great-Rune wall that does not clamp with us, and while our wall is armed `features/graces`
+withholds the capital bundle so the physical gate is the only way in. At N=1 logic believes one rune
+opens Leyndell, the game still wants two, and fill may place a region Lock behind a door the player
+cannot open.
+
+Two ways in with no warning: `num_regions` keeping exactly one Great-Rune region, or writing
+`leyndell_runes_required: 1`, which the `Range(0, 6)` allows. An armed wall is now floored at
+`VANILLA_CAPITAL_GATE_RUNES`; when the pool cannot supply two we **disarm** — empty bundle list, the
+bundle is granted on the Lock, the player warps in past the physical gate — reusing the already-sound
+N=0 path rather than arming low. No change on the shipped default.
+
+Settled while chasing it: the capital gate reads no possession at all. It counts a band —
+`CountEventFlags(EventFlag, 190, 199) >= threshold` in common `$Event(720)` — and 191-196 are set by
+the Divine-Tower altar initializers through common event `90005110`, which removes the unrestored
+rune (goods 8148-8153) and awards the restored lot. So the restored-goods ids and the restored-flag
+ids genuinely coincide, that resemblance is FromSoft's parallel numbering rather than our error, and
+`keyitems.rs` has been writing the right flags all along. Six rows classified obtained_flag/datamine;
+the unknown ceiling drops 25 -> 19. The band is pinned in the test, because a stray flag outside
+190-199 would be silently uncounted — the one way this can rot with nothing failing.
+
+### Fixed: legacy boss kills paid out in the wrong region
+
+`_lreg` had two silent failure modes, both found by pulling on **Alaric**'s observation that "Ashen
+capital should have 3 bosses: Gideon, Godfrey/Hoarah Loux, Radagon/Elden Beast" and it had none.
+
+- **A tie broken by `Counter` insertion order.** `m11_05` votes {Leyndell 3, Ashen Capital 3,
+  Limgrave 1}; `m19_00` votes {Leyndell 1, Liurnia 1}. Nothing decided Leyndell — `most_common()`
+  did. Consequence: 42 of Leyndell's 64 divvied checks hung off the four post-burn triggers, and the
+  Erdtree burn warps you into `m11_05` **permanently**, so those grants could never fire from base
+  Leyndell. Dead on arrival.
+- **`or HUB` swallowed the no-vote case.** `m12_04` (Astel), `m12_08` (Ancestor Spirit) and `m12_09`
+  (Regal Ancestor Spirit) get no `_mreg` vote at all, so all three paid out **Roundtable Hold** — 13
+  checks in a region open from turn one, for kills in the Eternal Cities.
+  `boss_data.REGION_BOSSES["Roundtable Hold"]` is `None`; the hub has no bosses and never did.
+
+The curated pin was also consulted *after* the vote, so it could only rescue a map with no votes. The
+pin now beats the vote, and `or HUB` is deleted in favour of a generation-time assert naming every
+unrouted map. Roundtable Hold 13 swept checks -> **0**; Ashen Capital 0 -> **3**; corpus 3197 ->
+3187; cross-region leak 0 before and after. Triggers 241 -> 240, because the Ashen Capital's 3 checks
+across 4 triggers leave Radagon (`19000810`) an empty slice — harmless, since Radagon and the Elden
+Beast are one fight and `19000800` carries it, but it is why `SWEEP_REGION` is not a boss roster.
+
+Every region came from committed tables — `dungeon_regions.tsv`'s grace join, `check_maps.tsv`, and
+each boss's own drop region — not from memory of the game. `boss_data` already disagreed with
+`boss_sweeps` in both cases; that disagreement *was* the bug report.
+
+### Fixed: no somber smithing stone tier had a presence floor
+
+`_draw_stones` did `if somber: return out` immediately after the weighted draw and **before** the
+deepest-first top-up, so the guarantee that module advertises was regular-Smithing-Stone-[1]-only.
+The draw is an i.i.d. weighted sample with replacement, so at `num_regions: 1` (~19 draws, taper
+share 1/9 for the deepest tier) the per-seed probability a tier is simply absent measures **[3] ~6%,
+[8] ~42%, [9] ~73%**.
+
+A somber weapon costs one stone per level and the tier *is* the level, so an absent tier is not a
+thin economy — it is a permanent wall at that exact rung. Tiers 1-9 are now each guaranteed present,
+paid for by converting the deepest **surplus** stones already drawn (a tier never donates its last
+copy); the reservation is never grown. Stones already on kept locations count toward the floor, so
+the guarantee does not spend a slot covering a tier the seed has. Below 9 donors the floor covers the
+shallowest tiers first and warns by name with the level a somber weapon cannot pass.
+
+Reported by **Lonelyguy89** on a 1-region seed: "zero Somber Smithing Stone [3] in the game."
+
+Note `fuzz_gf.py` skips `curated_filler` ("no finite domain"), so the fuzz gate never varied the
+`somber_stones` weight and could not have found this.
+
+### Fixed: a boss below the Grand Lift of Rold could hold progression
+
+`f530505`, Gargoyle's Black Blades — the Black Blade Kindred below the lift — is filed "Mountaintops
+of the Giants" and was progression-eligible. Rold is deliberately not in logic (README: "You never
+need the Rold Medallion to reach the Mountaintops of the Giants"), so a Mountaintops-anchored player
+cannot stand on that ground: the Rold Medallion is a **Leyndell** check. Fill was free to put a
+region Lock or a required Great Rune there. The seed is unwinnable; the character is not, since the
+Roundtable warp always works.
+
+The class, not the instance. Two derivations produce a region from a tile and the bar watched one:
+`_mtile`, the descriptor tile, and `MSB_TRUTH_MAP`, which `region_of()` ranks **above** it and which
+actually produced the region for 2467 of 4875 checks. f530505's descriptor tile `m60_39_53` is
+anchored, so the guard waved it through, while the tile that produced its region — MSB `m60_49_52` —
+is graceless Forbidden-Lands ground nearest-neighbouring onto the `m60_49_53` seam that carries
+graces for **both** regions. Two checks on that same ground were already barred and the boss check
+was not.
+
+`region_of()` now records `MSB_TILE_PROVENANCE` — only flags whose region it actually *answered*
+through an MSB tile — and the bar judges both tiles. **Union, not precedence, and that is measured:**
+judging the MSB tile *instead* would un-bar two checks barred today (f520300 Viridian Amber
+Medallion, f400299 Bernahl's Bell Bearing, whose tiles disagree about which side of the map they are
+on). `DEFAULTED_REGION_APS` 504 -> **515** of 4875: +11 barred, 0 un-barred, across Mountaintops (5),
+Caelid (4), Altus (1) and Mt. Gelmir (1). No key item, Great Rune, medallion or Seedtree is in the
+set.
+
+Reported by **Lonelyguy89** on a 2-region seed, softlocked in the Forbidden Lands with the medallion
+in Leyndell.
+
+⚠️ **Known cosmetic residue:** for 13 checks the descriptor tile and the MSB tile disagree, and the
+descriptor still wins the *name* while MSB wins the region — so f530505 reads "Mountaintops of the
+Giants :: Gargoyle's Black Blades - around Bridge of Iniquity", and Bridge of Iniquity is Mt. Gelmir.
+The region is safe either way (all 13 are barred); only the label is wrong.
+
+### Fixed (client): an equipped Great Rune was re-granted forever
+
+`inventory_has_goods` decided possession by walking the three inventory backing lists. An equipped
+Great Rune is not in any of them — the game holds it in `equipment.equip_item_data.great_rune` — so
+the readback reported absent, the reconciler re-granted, the game refused because you *do* have it,
+and the refusal is a modal popup that reappears the instant you close it.
+
+Possession is now **the three bag lists ∪ the great-rune equip slot ∪ the storage box**. The handle
+is resolved off the pinned crate source rather than guessed: goods are never `is_indexed`, so the
+gaitem table is a dead end and `selector()` carries the bare param row, guarded on
+`GaitemCategory::Goods` (3 — a different enum from the `ItemCategory::Goods` (4) the bag walk uses).
+
+Honest framing: the underlying mechanism is still unconfirmed in game. This makes the readback
+strictly more permissive — it can suppress a wrongly-repeated grant, never cause one — so if the true
+cause is elsewhere it masks rather than fixes, and the forensics line that would identify it is kept
+deliberately. The `MAX_GRANT_ATTEMPTS = 3` guard from v0.2.17 remains the backstop, so even an
+unfixed cause degrades to three popups rather than a wall.
+
+⚠️ **An item in your storage box now counts as owned and will not be re-delivered.** Withdraw it and
+lose it and the next tick delivers it again, as before.
+
+### Compatibility
+
+`CONTRACT_HASH` is **unmoved** from v0.3.0 — 87 keys, identical names, shapes, required-ness and
+profiles — so a v0.3.0 client and a v0.3.1 apworld still handshake.
+
+⚠️ **Client update recommended.** The re-grant fix is client-side and an old client connects happily
+without it.
+
+No option changed its default or its meaning, and nothing here moves an item or a check in a seed
+already in progress. A v0.3.0 yaml generates a v0.3.1 seed with no edits. The gated-child, somber and
+Rold-seam fixes are all generation-time and reach **new seeds only**.
+
 ## v0.3.0 — 2026-08-01
 
 **Client update required.** The slot_data contract moved from `d970dd88` to `5e8b11c9`
