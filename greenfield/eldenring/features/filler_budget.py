@@ -41,7 +41,7 @@ Guarded by tests/test_gf_filler_economy_floor.py, which asserts against the COMP
 test_gf_pool_builder_*.py files and a filler_curation suite were all green while the seed was broken.
 """
 import logging
-from collections import defaultdict
+from collections import Counter, defaultdict
 from typing import Dict, List, Optional
 
 from BaseClasses import ItemClassification
@@ -387,7 +387,7 @@ def _draw_stones(world, n: int, somber: bool) -> List[str]:
     w = [weights[t] for t in tiers]
     out = [f"{label} [{t}]" for t in world.random.choices(tiers, weights=w, k=n)]
     if somber:
-        return out
+        return _somber_coverage_floor(world, out, tiers, label)
 
     # THE EARLY FLOOR IS A GUARANTEE, NOT A HOPE (2026-07-13).
     #
@@ -416,6 +416,99 @@ def _draw_stones(world, n: int, somber: bool) -> List[str]:
     )
     for i in deepest[: floor - have]:
         out[i] = t1
+    return out
+
+
+def _vanilla_somber_tiers(world) -> set:
+    """{tier} of Somber Smithing Stone this seed's KEPT vanilla checks already pay for.
+
+    This IS visible at this layer, and it is exact rather than a guess. Every somber stone matches
+    `filler_curation._ECONOMY_SUBSTR` ("Smithing Stone"), so `_is_junk_consumable` -- and therefore
+    `displaceable_filler` -- is False for all of them: core.create_items ranks them PROTECTED
+    (rank 1), never lists them among the budget slots this module plans over, and never overwrites
+    one. A tier the vanilla pool already covers is already in the seed, so it must not spend a
+    reservation slot covering itself a second time.
+
+    The walk is deliberately the SAME walk `budget_slots` does -- [HUB] + world._kept() over
+    LOCATION_ITEM, DLC exclusion applied -- because a floor sized against a pool the world does not
+    actually build is precisely the composed-pipeline bug this module exists to kill.
+
+    The one way it can over-report: core trims `extras` down to the number of slots. That trim eats
+    rank 3 (the Rune sentinel) then rank 2 (displaceable junk) first and only reaches a protected
+    item on a seed with fewer locations than protected items -- a seed with no upgrade economy to
+    speak of either way.
+    """
+    excl = set(getattr(world, "gf_dlc_excluded", ()))
+    out = set()
+    for rn in [HUB] + list(world._kept()):
+        for (_name, ap_id, _flag) in LOCATIONS.get(rn, []):
+            nm = LOCATION_ITEM.get(ap_id)
+            if (nm and nm.startswith("Somber Smithing Stone [")
+                    and nm in ITEM_CATALOG and nm not in excl):
+                out.add(_tier_of(nm))
+    return out
+
+
+def _somber_coverage_floor(world, out: List[str], tiers: List[int], label: str) -> List[str]:
+    """THE SOMBER FLOOR IS COVERAGE, NOT A COUNT (2026-08-02).
+
+    The regular ladder's failure mode is DENSITY -- +3 costs six Smithing Stone [1] -- so the floor
+    above it is a COUNT. The somber ladder's failure mode is a different thing entirely. A somber
+    weapon costs exactly ONE stone per level and the tier IS the level, so a tier is never scarce or
+    plentiful: it is present, or it is a WALL. No Somber [7] in the seed means every somber weapon
+    stops at +6, permanently, however many [1]s are lying about.
+
+    And absence is ROUTINE, because the draw is an i.i.d. weighted sample WITH REPLACEMENT: at
+    num_regions=1 the reservation is ~19 draws over a taper that gives [9] a 1/9 share, so
+    P(no [9] drawn) ~= 0.65 and P(no [3] drawn) ~= 0.04. A player reported exactly the [3] case
+    ("zero Somber Smithing Stone [3] in the game") on 2026-08-02.
+
+    Until that date `_draw_stones` RETURNED here, before the regular top-up, so NO somber tier had
+    any guarantee at all -- the module's tier-1 guarantee was regular-only and the somber ladder was
+    pure luck. It now gets the floor that matches the failure mode it actually has, paid exactly the
+    way the regular one is: by converting the DEEPEST stones already drawn. It never grows the
+    reservation, so `allocate`'s count is untouched and a seed cannot buy coverage it cannot afford.
+    """
+    if not out:
+        return out
+    covered = _vanilla_somber_tiers(world)
+    counts = Counter(_tier_of(s) for s in out)
+    missing = sorted(t for t in tiers if not counts[t] and t not in covered)
+    if not missing:
+        return out
+
+    # DONORS, DEEPEST FIRST -- the same "cheapest correction" rule the regular floor uses and for the
+    # same reason: the taper already says a deep stone serves the smallest slice of runs. A tier never
+    # donates its LAST copy (that would only move the hole), so the donor supply is
+    # n - (distinct tiers drawn), and therefore n >= SOMBER_TIERS always pays the floor in full.
+    spare = Counter(counts)
+    donors: List[int] = []
+    for i in sorted(range(len(out)), key=lambda k: (-_tier_of(out[k]), k)):
+        t = _tier_of(out[i])
+        if spare[t] > 1:
+            spare[t] -= 1
+            donors.append(i)
+
+    # SHALLOWEST FIRST when it cannot be paid in full. `missing` is ascending, so a reservation too
+    # small to cover every tier buys the LOW ones. That is the right way round: Somber [1] gates a
+    # somber weapon at +0 and hence every level after it, while a missing [9] costs only the last
+    # rung of a ladder most runs never reach. It is also the direction the taper already weights the
+    # draw, so the degradation agrees with the design rather than fighting it.
+    paid = min(len(missing), len(donors))
+    for tier, i in zip(missing[:paid], donors):
+        out[i] = f"{label} [{tier}]"
+
+    if paid < len(missing):
+        # A DEGRADED PASS MUST ANNOUNCE ITSELF -- this module's rule, and the whole reason the old
+        # three-pass design shipped broken. Reachable only when the reservation holds fewer stones
+        # than there are tiers to cover, i.e. a tiny seed or a tiny `somber_stones` weight.
+        unpaid = missing[paid:]
+        logging.getLogger("Greenfield").warning(
+            "[eldenring:%s] filler_budget: the somber reservation (%d stones) is too small to hold "
+            "one of every tier -- %s absent, so a somber weapon in this seed cannot pass +%d. The "
+            "shallow tiers were covered first (a missing low tier walls the ladder at its base). "
+            "Raise `somber_stones` in curated_filler, or keep more regions.",
+            world.player, len(out), ", ".join(f"{label} [{t}]" for t in unpaid), min(unpaid) - 1)
     return out
 
 
