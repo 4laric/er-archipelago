@@ -590,6 +590,12 @@ def _maplot_map(_lot):
 # So: where the datamine proves an UNAMBIGUOUS map, trust it over the row's scanned map. This is a
 # DERIVATION fix -- it retires per-flag hand patches instead of adding more (SPEC-provenance-oracle).
 MSB_TRUTH_MAP = {}
+# WHICH flags region_of() actually ANSWERED with an MSB tile, and which tile. MSB_TRUTH_MAP alone
+# does not tell you that: six higher-precedence branches (finale, gesture, FLAG_REGION_OVERRIDE, the
+# merchant ESD, the shop block, the boss arena) can win first, and _gt_region() can decline. Only a
+# check whose shipped region came THROUGH this tile may be judged as a tile guess -- see the guard
+# that consumes this at the "THIRD STATE" block below.
+MSB_TILE_PROVENANCE = {}
 _mfr = os.path.join(HERE, "msb_flag_region.tsv")
 if os.path.isfile(_mfr):
     _t = defaultdict(set)
@@ -2816,6 +2822,7 @@ def region_of(r):
     if _gtm:
         _gtr = _gt_region(_gtm)
         if _gtr:
+            MSB_TILE_PROVENANCE[_ovfl] = _gtm     # this tile IS the region's derivation -- record it
             return _gtr
     _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))
     if _dov:
@@ -3527,6 +3534,7 @@ tile_guessed_aps=[]     # region came from an UNANCHORED tile -> kept, but barre
 erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never carry progression
 shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
 surface_excluded_aps=[] # _SURFACE_EXCLUDE_FLAGS -> surface-tagged but BARRED from progression (Alaric's call)
+region_confirmed_aps=[]  # flag in _REGION_CONFIRMED_FLAGS -> a tile guess a HUMAN cleared in game
 # HONEST LABEL for a GUESSED region. A check whose region we defaulted or tile-guessed is already
 # barred from progression (DEFAULTED_REGION_APS), but its NAME still asserted the region flatly --
 # "Caelid :: Deathroot - m60_45_39" reads as a fact when internally we do not believe it. Alaric hit
@@ -3589,14 +3597,41 @@ for r in rows:
     #
     # LOD tiles are NOT included: their (10, 09)-style indices are not fine coords at all and the
     # LOD guard above already refuses them. Only real fine tiles are judged here.
-    _gt = re.match(r"m60_(\d\d)_(\d\d)", _mtile or "")
-    if _gt:
+    #
+    # 🛑 TWO PATHS DERIVE A REGION FROM A TILE, and until 2026-08-02 this guard watched only one.
+    # `_mtile` is the DESCRIPTOR tile (the row's `map` column, else the flag decode). But region_of()
+    # ranks the MSB datamine ABOVE both, so for 2467 of 4875 checks the region actually shipped is
+    # tile_pr() of a tile this guard never looked at. f530505 (Gargoyle's Black Blades) is the case
+    # that cost a seed: its descriptor tile m60_39_53 IS anchored, so the guard waved it through --
+    # while the tile that PRODUCED its "Mountaintops of the Giants", MSB m60_49_52, is graceless
+    # Forbidden-Lands ground BELOW the Grand Lift of Rold, one nearest-neighbour hop from the
+    # m60_49_53 seam that carries graces for BOTH regions (region_groups.py names that seam in prose).
+    # Rold is deliberately NOT in logic (README: "You never need the Rold Medallion to reach the
+    # Mountaintops of the Giants"), so a Mountaintops-anchored player cannot stand there -- and a
+    # region Lock or a required Great Rune placed there is an unwinnable seed. Two checks on the very
+    # same ground (f1049527000, f1049527800) were already barred; the boss check was not. A guard that
+    # sees one of two derivation paths is a guard with a hole.
+    #
+    # UNION, not precedence. Judging the MSB tile INSTEAD of `_mtile` would UN-bar two checks that are
+    # barred today (f520300 Viridian Amber Medallion, f400299 Bernahl's Bell Bearing, whose two tiles
+    # disagree about which side of the map they are on). A guard change must never hand progression
+    # back to ground we have not seen, so either tile being a guess is enough to bar.
+    # MEASURED 2026-08-02: +11 barred (5 Mountaintops, 4 Caelid, 1 Altus, 1 Mt. Gelmir), 0 un-barred.
+    #
+    # MSB_TILE_PROVENANCE, not MSB_TRUTH_MAP: a check pinned by FLAG_REGION_OVERRIDE, the merchant
+    # ESD or the boss arena did not get its region from a tile at all, and must not be judged as if
+    # it had. Only the flags region_of() answered THROUGH the MSB tile are in there.
+    for _cand in (_mtile, MSB_TILE_PROVENANCE.get(flag, "")):
+        _gt = re.match(r"m60_(\d\d)_(\d\d)", _cand or "")
+        if not _gt:
+            continue
         _gx, _gy = int(_gt.group(1)), int(_gt.group(2))
         if (_is_fine_tile(_gx, _gy) and (_gx, _gy) not in ANCHOR
                 and flag not in _REGION_CONFIRMED_FLAGS
                 and (not defaulted_aps or defaulted_aps[-1] != apid)):
             defaulted_aps.append(apid)
             tile_guessed_aps.append(apid)
+            break
     # Mark the NAME the moment the guess is known (both paths above land here: HUB-defaulted and
     # tile-guessed). Done before the ordinal pass so collision_ordinals sees the final base names.
     if defaulted_aps and defaulted_aps[-1] == apid and _name_pending and _name_pending[-1][2] == apid:
@@ -3618,6 +3653,8 @@ for r in rows:
         shop_gated_aps.append(apid)
     if flag in _SURFACE_EXCLUDE_FLAGS:
         surface_excluded_aps.append(apid)
+    if flag in _REGION_CONFIRMED_FLAGS:
+        region_confirmed_aps.append(apid)
     apid+=1
 
 # ---- collision ordinals (desc_sources "layer 6"): guarantee every location NAME is unique ---------
@@ -6115,6 +6152,14 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# in gen_data; Alaric\'s call). They stay ordinary checks but never host this world\'s\n')
     f.write('# progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.\n')
     f.write('SURFACE_EXCLUDE_APS = frozenset(' + repr(_surfexcl) + ')\n')
+    _regconf = sorted(set(region_confirmed_aps))
+    f.write('\n# The tile-guess bar\'s ONLY exception: _REGION_CONFIRMED_FLAGS in gen_data -- a check on a\n')
+    f.write('# graceless tile that a HUMAN stood in front of and confirmed the region of, in game. It keeps\n')
+    f.write('# its region AND its progression eligibility. Emitted so the guard\'s invariant can be stated\n')
+    f.write('# without a test re-typing the list: every check whose region derives from a graceless tile is\n')
+    f.write('# barred, EXCEPT these. PER-FLAG by construction -- confirming a tile would confirm every check\n')
+    f.write('# on it, which is the wrong arity.\n')
+    f.write('REGION_CONFIRMED_APS = frozenset(' + repr(_regconf) + ')\n')
     _shopgate = sorted(set(shop_gated_aps))
     f.write('\n# Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an\n')
     f.write('# unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a\n')
@@ -6209,7 +6254,37 @@ def _m61_boss_region(_ent):
 # gets no _mreg vote and would divvy HUB. m25 = Cathedral of Manus Metyr -> Scadu Altus: m25_00's own
 # grace 72500 -> play_region 6900 = Scadu Altus (NOT Scaduview 6920), which also matches Metyr's
 # remembrance 510550. Corrected 2026-07-13 from the earlier Scaduview pin (matt-diff, grace-verified).
-_LEGACY_BMAP_REGION = {"m25_00": "Scadu Altus"}
+_LEGACY_BMAP_REGION = {"m25_00": "Scadu Altus",
+                       # THE FINALE MAPS ARE A VOTE TIE, AND THE TIE WAS BREAKING WRONG (Alaric, 2026-08-01).
+                       # m11_05 (Leyndell, Ashen Capital) and m19_00 (Elden Throne) host the three finale
+                       # fights -- Gideon, Godfrey/Hoarah Loux, Radagon/Elden Beast. region_of already routes
+                       # their CHECKS to _FINALE_REGION ("Ashen Capital", see :1023) and boss_data already
+                       # lists Hoarah Loux + the Elden Remembrance under Ashen Capital -- but the sweep pass
+                       # never got that routing, so it fell through to the _mreg check-majority vote, and the
+                       # vote is a TIE: m11_05 = {Leyndell 3, Ashen Capital 3, Limgrave 1} and m19_00 =
+                       # {Leyndell 1, Liurnia 1}. Counter insertion order, not evidence, picked Leyndell.
+                       # Consequence in the wild: 42 of Leyndell's 64 divvied checks hung off the four
+                       # post-burn triggers -- and the Erdtree burn warps you into m11_05 PERMANENTLY (see
+                       # :6108), so base Leyndell is gone by the time they can fire. Those 42 grants were
+                       # dead on arrival. Pin both maps; the pool below re-divvies them onto Morgott and the
+                       # Godfrey shade, who are fightable in base Leyndell.
+                       "m11_05": "Ashen Capital", "m19_00": "Ashen Capital",
+                       # THE ETERNAL CITIES SET, same audit (2026-08-01). These three get NO _mreg
+                       # vote at all -- their maps host no vote-eligible check -- so they fell through
+                       # `or HUB` and their bosses were paying out ROUNDTABLE HOLD, which in region_lock
+                       # mode is open from turn one. boss_data.REGION_BOSSES["Roundtable Hold"] is None:
+                       # the hub has no bosses and never did. Region taken from the repo, not from
+                       # memory of the game -- each is corroborated twice:
+                       #   m12_04 Astel           -> dungeon_regions.tsv "Ainsel River" (grace join,
+                       #                            map_region_oracle); its remembrance f510080 is
+                       #                            regioned Ainsel River in data.LOCATIONS.
+                       #   m12_08 Ancestor Spirit -> its drop f510320 (Ancestral Follower Ashes) is
+                       #                            regioned Siofra River, and check_maps.tsv puts
+                       #                            f510320 on m12_08. No dungeon_regions row: the
+                       #                            grace oracle does not reach m12_08/m12_09.
+                       #   m12_09 Regal Ancestor  -> its remembrance f510330 is regioned Siofra River
+                       #                            and boss_data lists it under Siofra River.
+                       "m12_04": "Ainsel River", "m12_08": "Siofra River", "m12_09": "Siofra River"}
 _mem_region = defaultdict(list); _mem_map = defaultdict(list); _mem_tile = defaultdict(list)
 _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 # RECOVERED-GLOBAL sweep eligibility (2026-07-24, "killed Tibia Mariner, no boss sweep"): the ~1k
@@ -6354,6 +6429,7 @@ if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
     _field_bosses = []                      # (trigger flag, (xx, yy)) -- field pass below
+    _unregioned_legacy = []                 # legacy bosses with no vote AND no curated pin -- FATAL below
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
         if _bmap in _SWEEP_EXCLUDED_BMAPS:
@@ -6373,7 +6449,18 @@ if BOSS_HEALTHBARS:
             # m61 overworld boss -> its own tile-region; else the map's check-majority region; else a
             # curated pin for a legacy map that hosts NO filler-swept checks so it gets no _mreg vote
             # (m25 Cathedral of Manus Metyr = shop + remembrance only, so Metyr fell to HUB -> Scaduview).
-            _lreg = _m61_boss_region(_ent) or _mreg.get(_bmap) or _LEGACY_BMAP_REGION.get(_bmap) or HUB
+            # CURATED PIN BEATS THE VOTE. It used to be consulted only after _mreg, which made it
+            # reachable only for a map with NO votes at all (m25_00). A map whose votes are WRONG or
+            # TIED could not be corrected. m25_00 still has no vote, so this reorder is a no-op for it.
+            # NO SILENT `or HUB`. That default is what put Astel and both Ancestor Spirits in the
+            # Roundtable, and it swallowed the mistake for as long as it existed -- a region major
+            # paying out the always-open hub is never the intended reading, so there is no case where
+            # falling back to HUB is right. Collect and fail at the end of the pass with every
+            # offender named, rather than one assert per boss.
+            _lreg = _m61_boss_region(_ent) or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap)
+            if not _lreg:
+                _unregioned_legacy.append((_ent, _bmap, _name))
+                continue
             _legacy_by_region[_lreg].append(_ent)
             continue
         _members = sorted(set(_members))
@@ -6474,6 +6561,11 @@ if BOSS_HEALTHBARS:
                 SWEEP_REGION[_e] = _ap_region.get(_slices[_e][0], _reg)
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).
+    assert not _unregioned_legacy, (
+        "legacy boss(es) resolved to NO region: %s. A region major must land in a real region -- add a "
+        "_LEGACY_BMAP_REGION pin backed by dungeon_regions.tsv, check_maps.tsv, or the boss's own drop "
+        "region. Do NOT reinstate the HUB fallback: it is what hid this for as long as it existed."
+        % (_unregioned_legacy,))
     assert _sweep_excluded_hits, (
         "_SWEEP_EXCLUDED_BMAPS matched no boss. It exists to stop the tutorial Grafted Scion "
         "(m10_01) sweeping Stormveil; if boss_healthbars no longer reports that map, re-derive the "
