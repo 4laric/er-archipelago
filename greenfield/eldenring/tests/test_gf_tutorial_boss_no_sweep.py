@@ -71,8 +71,34 @@ def test_the_sweep_corpus_did_not_shrink():
 
     A fix that quietly drops coverage is the same bug pointed the other way -- the pool is
     partitioned round-robin, so losing a boss means bigger slices for the real ones, not fewer
-    checks. 3197 is the count with the exclusion in place."""
+    checks. 3197 was the count when the Scion exclusion landed.
+
+    3197 -> 3187 (2026-08-01, legacy region-major routing audit). WHY, as this docstring demands --
+    two fixes in one pass, net -10:
+
+    +3  THE FINALE MAPS. Gideon, Godfrey/Hoarah Loux and Radagon/Elden Beast live on m11_05 and
+        m19_00, whose _mreg vote was a TIE -- {Leyndell 3, Ashen Capital 3, Limgrave 1} and
+        {Leyndell 1, Liurnia 1} -- broken to Leyndell by Counter insertion order. Now pinned to Ashen
+        Capital, whose three checks (ap 7771132/7771133/7771134) previously belonged to NO sweep.
+        Leyndell's pool is unchanged at 64; it re-divvies across 2 triggers instead of 6. That is the
+        point: 42 of those 64 hung off post-burn bosses, and the burn warps you into m11_05
+        PERMANENTLY, so they could never fire from base Leyndell.
+
+    -13 THE HUB LEAK. m12_04 (Astel), m12_08 (Ancestor Spirit) and m12_09 (Regal Ancestor Spirit) got
+        no vote at all and fell through `or HUB`, so those three were paying out ROUNDTABLE HOLD --
+        13 checks in a region that is open from turn one, for kills in the Eternal Cities. Pinned to
+        Ainsel River / Siofra River / Siofra River from the repo's own tables. Those regions' pools
+        are unchanged (101 and 147); they simply gained triggers. The 13 hub checks are still
+        obtainable by normal pickup -- a sweep is a convenience auto-grant, not the only source.
+
+    The `or HUB` fallback is GONE, replaced by a gen-time assert naming every offender, so the next
+    unregioned region major fails the build instead of quietly banking itself in the hub.
+
+    Trigger count 241 -> 240: Ashen Capital's pool is 3 checks across 4 triggers, so the 4th
+    (19000810 Radagon) gets an empty slice and is dropped. Harmless -- Radagon and the Elden Beast
+    are ONE fight and 19000800 still carries it -- but it is why SWEEP_REGION is not a boss ROSTER.
+    Anything needing "every boss in region R" must read BOSS_HEALTHBARS."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
-    assert total == 3197, (
-        "sweep corpus is %d, expected 3197. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3187, (
+        "sweep corpus is %d, expected 3187. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
