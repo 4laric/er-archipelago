@@ -191,6 +191,21 @@ jobs:
       - name: Materialise the param inputs from the committed bundle
         run: python tools/gen_inputs.py --ensure elden_ring_artifacts
 
+      # CONTRIBUTING rule 14, and deliberately in THIS job: check_release_notes.py imports
+      # nothing and parses APWORLD_VERSION out of contract.py textually, so it does not need the
+      # Archipelago checkout the `tests` job pays for. It goes red when the open version has no
+      # `## v<version> — <date>` section in release-v0.2/CHANGELOG.md, when that section is EMPTY
+      # (rule 2 -- a heading with nothing under it is not a release note), or when
+      # release-v0.2/BLURB-v<version>.md is missing, a stub, or headed with another version.
+      #
+      # MOTIVATING CASE (rule 11): v0.3.0 shipped 2026-08-01 and by 2026-08-02 main carried five
+      # more player-visible fixes -- two straight off Nexus bug reports -- with no v0.3.1 section
+      # and no blurb, and no BLURB-v0.3.0.md either. The blurb series had stopped at v0.2.18 and
+      # nothing was looking. Reconstructing the notes cost a `v0.3.0..main` walk plus four commit
+      # bodies, which answer "what changed", not "why it mattered".
+      - name: Release notes exist for the open version (rule 14)
+        run: python tools/check_release_notes.py
+
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_region_locks.py

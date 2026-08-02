@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+"""
+check_release_notes.py -- the release-notes gate (CONTRIBUTING rule 14).
+
+Every player-visible change lands its CHANGELOG line in the SAME commit, and the
+blurb for the open version is drafted as the window fills. This gate is the thing
+that checks it, because a bullet list nobody checks is a to-do list (rule 13).
+
+MOTIVATING CASE (rule 11): v0.3.0 shipped 2026-08-01. By 2026-08-02 main carried five
+more player-visible fixes -- two of them straight off Nexus bug reports -- with no
+v0.3.1 changelog section and no blurb, and no BLURB-v0.3.0.md either: the blurb series
+had stopped dead at v0.2.18 and nothing said so. Rebuilding the notes took a walk of
+`v0.3.0..main` plus four commit bodies, and the "why it mattered" in those bodies is
+not the "why it mattered" a player needs.
+
+Deliberately AP-FREE and import-FREE: APWORLD_VERSION is parsed out of
+greenfield/eldenring/contract.py textually, so this runs in the cheap CI job, in the
+Linux sandbox, and on a box with no Archipelago checkout.
+
+Usage:
+    python3 tools/check_release_notes.py           # gate the current APWORLD_VERSION
+    python3 tools/check_release_notes.py --check   # identical (alias; see below)
+    python3 tools/check_release_notes.py --version 0.3.1   # gate some other version
+
+`--check` is a no-op alias. Every neighbouring repo-level gate is invoked as
+`tools/<x>.py --check` (dump_options_metadata, gen_region_locks, build_questline_dag),
+where it means "verify, do not write". This tool never writes, so the flag is
+redundant -- but a CI step that passes it should not die on argparse.
+
+Exit 0 = clean, 1 = >=1 ERROR, 2 = bad invocation / cannot find what it must read.
+
+CI step:  python3 tools/check_release_notes.py
+"""
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONTRACT = os.path.join(REPO, "greenfield", "eldenring", "contract.py")
+NOTES_DIR = "release-v0.2"          # historical name; it holds v0.3.x too
+CHANGELOG = os.path.join(REPO, NOTES_DIR, "CHANGELOG.md")
+
+# A changelog section shorter than this is a heading with nothing under it. Rule 2:
+# an empty result is a FAILURE, not a clean run -- a gate that accepts `## v0.3.1 —`
+# followed by whitespace has been talked into passing by the thing it exists to catch.
+# The thinnest section ever shipped (v0.2.10) is 1246 non-whitespace chars, so this
+# floor is not a style opinion, it is a liveness check.
+MIN_CHANGELOG_CHARS = 120
+MIN_CHANGELOG_LINES = 2
+# Likewise for the blurb: the thinnest shipped one is ~4.5k non-whitespace chars.
+MIN_BLURB_CHARS = 400
+
+# ---- RATCHET ---------------------------------------------------------------------
+# Versions that predate this gate and cannot be made green retroactively without
+# inventing release prose after the fact -- which is precisely the lossy
+# reconstruction rule 14 exists to stop. 0.3.0 shipped with a full changelog entry
+# and no blurb; it is exempt from the BLURB check only, never the changelog one.
+#
+# 🛑 THIS SET IS A RATCHET. Nothing may be added to it. If your version is missing a
+# blurb, the fix is to write the blurb, not to widen the exemption -- an exemption you
+# can extend is a gate you have switched off.
+BLURB_EXEMPT = {"0.3.0"}
+
+RED = "\033[31m"
+GRN = "\033[32m"
+OFF = "\033[0m"
+if not sys.stdout.isatty() or os.environ.get("NO_COLOR"):
+    RED = GRN = OFF = ""
+
+
+def read_version():
+    """APWORLD_VERSION, read TEXTUALLY. Importing contract.py would drag in the world
+    (and Archipelago behind it) and confine this gate to a job that has one."""
+    if not os.path.isfile(CONTRACT):
+        sys.stderr.write("check_release_notes: cannot find %s\n" % CONTRACT)
+        sys.exit(2)
+    with open(CONTRACT, encoding="utf-8") as fh:
+        src = fh.read()
+    m = re.search(r'(?m)^APWORLD_VERSION\s*=\s*["\']([^"\']+)["\']', src)
+    if not m:
+        # Rule 1: a derivation that cannot answer must FAIL, not answer. Guessing a
+        # version here would make the gate report on a release that does not exist.
+        sys.stderr.write(
+            "check_release_notes: no top-level `APWORLD_VERSION = \"...\"` in\n"
+            "  greenfield/eldenring/contract.py -- the assignment moved or was renamed.\n"
+            "  Fix this parser; do not let the gate guess.\n")
+        sys.exit(2)
+    return m.group(1)
+
+
+def nonws(text):
+    return len(re.sub(r"\s", "", text))
+
+
+def changelog_section(version):
+    """Return (heading_line, body) for `## v<version> ...`, or (None, None)."""
+    with open(CHANGELOG, encoding="utf-8") as fh:
+        text = fh.read()
+    parts = re.split(r"(?m)^(##[^\n]*)$", text)
+    for i in range(1, len(parts), 2):
+        head = parts[i]
+        if re.match(r"^##\s+v%s(\s|$)" % re.escape(version), head):
+            return head, parts[i + 1]
+    return None, None
+
+
+def check_changelog(version, errs):
+    today = "YYYY-MM-DD"
+    want = "## v%s — %s" % (version, today)
+    if not os.path.isfile(CHANGELOG):
+        errs.append("%s is MISSING. Create it and add the heading: %s" % (NOTES_DIR + "/CHANGELOG.md", want))
+        return
+    head, body = changelog_section(version)
+    if head is None:
+        errs.append(
+            "no changelog section for v%s.\n"
+            "    CREATE: add this heading to %s/CHANGELOG.md, directly under the intro\n"
+            "            paragraph and ABOVE the previous version's section:\n"
+            "                %s\n"
+            "    ...then write the line for the change you are landing right now, in the\n"
+            "    same commit. That is rule 14. Reconstructing it at tag time is the failure."
+            % (version, NOTES_DIR, want))
+        return
+    if not re.match(r"^##\s+v%s\s+—\s+\d{4}-\d{2}-\d{2}\s*$" % re.escape(version), head):
+        errs.append(
+            "changelog heading for v%s is malformed: %r\n"
+            "    EDIT %s/CHANGELOG.md -- the house shape is `## v<version> — <YYYY-MM-DD>`\n"
+            "    with an em dash, e.g. %s"
+            % (version, head, NOTES_DIR, want))
+        return
+    lines = [ln for ln in body.splitlines() if ln.strip()]
+    if nonws(body) < MIN_CHANGELOG_CHARS or len(lines) < MIN_CHANGELOG_LINES:
+        errs.append(
+            "the v%s changelog section is EMPTY (%d non-whitespace chars, %d non-blank lines;\n"
+            "    floor is %d/%d). A heading with nothing under it is not a release note --\n"
+            "    rule 2, an empty result is a failure, not a clean run.\n"
+            "    EDIT %s/CHANGELOG.md under `%s` and say what changed and why it mattered."
+            % (version, nonws(body), len(lines), MIN_CHANGELOG_CHARS, MIN_CHANGELOG_LINES,
+               NOTES_DIR, head))
+
+
+def check_blurb(version, errs):
+    rel = "%s/BLURB-v%s.md" % (NOTES_DIR, version)
+    path = os.path.join(REPO, NOTES_DIR, "BLURB-v%s.md" % version)
+    if version in BLURB_EXEMPT:
+        print("  blurb: EXEMPT (%s predates this gate; ratchet set, do not extend)" % version)
+        return
+    if not os.path.isfile(path):
+        errs.append(
+            "no release blurb for v%s.\n"
+            "    CREATE: %s\n"
+            "    Its first heading must be:  # v%s — release blurb (draft)\n"
+            "    Draft it as the release window FILLS, not at tag time -- the moment a fix\n"
+            "    lands is the only moment anyone knows why it mattered. Copy the shape from\n"
+            "    %s/BLURB-v0.3.1.md." % (version, rel, version, NOTES_DIR))
+        return
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    if nonws(text) < MIN_BLURB_CHARS:
+        errs.append(
+            "%s is a STUB (%d non-whitespace chars, floor %d). An empty file passing for a\n"
+            "    blurb is the same failure as an empty changelog section, one file over."
+            % (rel, nonws(text), MIN_BLURB_CHARS))
+    first = next((ln for ln in text.splitlines() if ln.startswith("#")), "")
+    if ("v%s" % version) not in first:
+        errs.append(
+            "%s does not name v%s in its first heading (found: %r).\n"
+            "    EDIT it to start:  # v%s — release blurb (draft)\n"
+            "    A blurb filed under one version and headed with another is how you ship the\n"
+            "    wrong notes -- the filename is not evidence about the contents."
+            % (rel, version, first, version))
+
+
+def main(argv):
+    args = [a for a in argv[1:] if a != "--check"]   # --check: accepted, no-op (see docstring)
+    version = None
+    if args and args[0] == "--version":
+        if len(args) < 2:
+            sys.stderr.write("check_release_notes: --version needs a value\n")
+            return 2
+        version = args[1]
+        args = args[2:]
+    if args:
+        sys.stderr.write(__doc__)
+        return 2
+    if version is None:
+        version = read_version()
+
+    print("check_release_notes: APWORLD_VERSION = %s" % version)
+    errs = []
+    check_changelog(version, errs)
+    check_blurb(version, errs)
+
+    for m in errs:
+        print("%sERROR%s %s" % (RED, OFF, m))
+    if errs:
+        print("check_release_notes: %d error(s). The release notes are part of the CHANGE, not\n"
+              "part of the release (CONTRIBUTING rule 14)." % len(errs))
+        return 1
+    print("%sOK%s check_release_notes: v%s has a changelog section%s"
+          % (GRN, OFF, version, "" if version in BLURB_EXEMPT else " and a blurb"))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
