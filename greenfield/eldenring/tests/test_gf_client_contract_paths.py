@@ -77,14 +77,18 @@ ALLOW = {
     # them arms the gate: a NEW undeclared read fails immediately. Deleting an entry when its
     # feature is wired is the intended direction of travel.
     #
-    # Of note: `auto_equip` is a client capability our apworld never turns on -- players reach for
-    # third-party helpers for exactly that.
+    # 2026-08-02: DOWN TO NINE. `/options/auto_equip` was the first entry to leave by that route --
+    # the client had implemented the whole of auto-equip against a key the apworld never sent, so it
+    # was inert for every ER seed ever rolled. It is now a real option (features/auto_equip.py), a
+    # real OPTIONS_SUBKEYS declaration, and a real echo, so the gate finds its producer and the ALLOW
+    # entry is gone. This comment used to say auto_equip was "a client capability our apworld never
+    # turns on -- players reach for third-party helpers for exactly that"; that is no longer true,
+    # and it is the shape of thing to delete rather than widen.
     "goal",                    # goal.rs -- greenfield sends the goal via its own keys, not this one
     "graceItems",              # region.rs
     "locationIdsToTargets",    # key_resolver.rs (matt-key path; greenfield resolves from slot_data)
     "locationIdsToTargets ",   # the same read, with the scraper's trailing space
     "regionAttunement",        # core.rs
-    "/options/auto_equip",
     "/options/no_equip_load",
     "/options/no_fall_damage",
     "/options/reduce_non_somber_upgrade_cost",

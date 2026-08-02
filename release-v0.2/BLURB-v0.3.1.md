@@ -35,6 +35,10 @@
 - **An equipped Great Rune no longer causes an endless "maximum allowed in inventory" popup.** The
   client decided you owned something by walking your bags — and an equipped rune is not in your bags,
   so it re-granted it forever. Possession now also reads the great-rune slot and the storage box.
+- **New: `auto_equip` — wear whatever you are sent.** Off by default. Turn it on and every weapon or
+  armour piece the multiworld hands you goes straight on, replacing whatever was in that slot,
+  mid-boss-fight included. The client has had this working for weeks; the apworld had never sent the
+  setting, so it was off for everyone and nothing said so.
 - ⚠️ **Client update recommended.**
 
 ---
@@ -170,6 +174,27 @@ it cannot cause one. The diagnostic logging that would identify the true cause i
 One consequence to know: an item sitting in your storage box now counts as owned and will not be
 re-delivered. Take it out and lose it and the next tick delivers it again as before.
 
+### New: wear whatever you are sent
+
+`auto_equip`, off by default. Turn it on and every weapon or armour piece the multiworld sends you is
+put on the moment it lands in your bag, replacing whatever was in that slot — in the middle of a boss
+fight, and whether or not your build can hold it. You do not choose your kit; the item order does.
+That is the "use what you get" challenge format, and with region locks and a goal already here, a
+French Challenge run (Wretch start, randomizer, use-what-you-get, permadeath) is now a yaml rather
+than a stack of third-party helpers.
+
+**The awkward part is that the client could already do all of this.** `auto_equip.rs` has been
+reading `slot_data["options"]["auto_equip"]` for weeks, and the apworld had never once sent that key.
+An absent key reads as `false`, so the feature was off for every Elden Ring seed ever generated, and
+there was no symptom to notice — no warning, no log line, nothing in the wire that looked wrong. It
+surfaced from a cross-side gate that lists every setting the client reads and the world never
+produces. This release is the missing half.
+
+A seed with `auto_equip: true` **requires a v0.3.1 client and will refuse to connect to an older
+one**, saying which feature it needs. That refusal is the point: adding an option does not move the
+contract hash, so without it an old DLL would report `VERSION: OK`, never see the key, and run your
+seed with the setting silently ignored — the same failure again, one release later.
+
 ---
 
 ## Compatibility
@@ -185,8 +210,13 @@ the capital to actually be gated, you need to re-roll.
 ⚠️ **The somber floor and the Rold-seam bar are generation-time**, so they also apply to new seeds
 only. An existing seed missing a somber tier stays missing it.
 
-**Nothing here moves an item or a check in a seed already in progress**, and no option changed its
-default or its meaning. A v0.3.0 yaml generates a v0.3.1 seed with no edits.
+⚠️ **One seed shape does require the new client: `auto_equip: true`.** That seed declares the feature
+in `requiresClientFeatures` and a v0.3.0 DLL will refuse it by name rather than connect and ignore
+the setting. Leave the option off — the default — and nothing changes.
+
+**Nothing here moves an item or a check in a seed already in progress**, and no existing option
+changed its default or its meaning (`auto_equip` is new, and off). A v0.3.0 yaml generates a v0.3.1
+seed with no edits.
 
 ---
 

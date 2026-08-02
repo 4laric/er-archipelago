@@ -460,3 +460,70 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
             f"precollected {pre})")
     finally:
         t.tearDown()
+
+
+# ---------------------------------------------------------------------------------------------
+# auto_equip -- the combination sweep for "use what you get" (added 2026-08-02).
+#
+# CONTRIBUTING's headline gate and the landing checklist: a new option must gen cleanly in
+# combination with the ones it can interact with. auto_equip moves no item, gates nothing and
+# creates no region, so what it can actually interact with is the SLOT_DATA SHAPE around it -- and
+# there it has one real neighbour: `requiresClientFeatures`, which features/scaling.py also emits
+# when the difficulty ceiling is capped. That pair used to be a generation CRASH (two features, one
+# slot_data key, registry.merge_slot_data raising on the duplicate), so it is the combination worth
+# sweeping rather than a re-run of "does the world still build".
+#
+# The single-option assertions live in test_gf_auto_equip.py; this is the matrix, not a third copy.
+# ---------------------------------------------------------------------------------------------
+_AUTO_EQUIP_COMBOS = (
+    ("off_default",       {}),
+    ("on_all_regions",    {"auto_equip": True}),
+    ("on_one_region",     {"auto_equip": True, "num_regions": 1}),
+    # The seed shape that already emits requiresClientFeatures for its OWN reason. Both on -> the
+    # union; only the ceiling on -> auto_equip must be absent from the list, not just falsey.
+    ("on_with_ceiling",   {"auto_equip": True, "maximum_enemy_difficulty": 50}),
+    ("off_with_ceiling",  {"maximum_enemy_difficulty": 50}),
+    ("on_dlc",            {"auto_equip": True, "enable_dlc": True}),
+    # Everything else the client does to a RECEIVED weapon, on at the same time. These three are
+    # independent client passes over the same item (upgrade level, stat requirements, equip), and
+    # "they are independent" is a claim worth a seed rather than an argument.
+    ("on_with_the_other_received_item_knobs",
+     {"auto_equip": True, "auto_upgrade": True, "no_weapon_requirements": True}),
+)
+
+
+@pytest.mark.parametrize("label,extra", _AUTO_EQUIP_COMBOS, ids=[c[0] for c in _AUTO_EQUIP_COMBOS])
+def test_auto_equip_combinations_generate_clean(label, extra):
+    from worlds.eldenring import contract
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = dict(extra)
+
+    t = _T()
+    t.setUp()
+    try:
+        sd = t.world.fill_slot_data()
+    finally:
+        t.tearDown()
+
+    want_on = bool(extra.get("auto_equip", False))
+    assert "auto_equip" in sd["options"], (
+        "%s: options.auto_equip is absent. It is emitted unconditionally by core._options_echo, so "
+        "an absence is the echo having been dropped -- and the client would read the feature as "
+        "off with nothing anywhere saying so." % label)
+    assert bool(sd["options"]["auto_equip"]) is want_on, (
+        "%s: options.auto_equip is %r, expected %s" % (label, sd["options"]["auto_equip"], want_on))
+
+    required = sd.get(contract.REQUIRES_CLIENT_FEATURES, [])
+    assert ("auto_equip" in required) is want_on, (
+        "%s: requiresClientFeatures is %r. The tag must appear exactly when the option is on: "
+        "missing when on = an old client silently ignores the setting; present when off = every "
+        "old client is refused a seed that does not need the feature." % (label, required))
+    if extra.get("maximum_enemy_difficulty") is not None:
+        assert "scaling_ceiling" in required, (
+            "%s: the scaling ceiling's own tag was lost from %r -- a union that drops a "
+            "contributor is worse than the collision it replaced." % (label, required))
+    assert required == sorted(required), (
+        "%s: requiresClientFeatures %r is not sorted; the wire would depend on feature import "
+        "order rather than on the options." % (label, required))

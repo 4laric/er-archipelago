@@ -160,10 +160,34 @@ unfixed cause degrades to three popups rather than a wall.
 ⚠️ **An item in your storage box now counts as owned and will not be re-delivered.** Withdraw it and
 lose it and the next tick delivers it again, as before.
 
+### New: `auto_equip` — wear whatever you are sent
+
+Off by default. Turn it on and every weapon or armour piece the multiworld hands you is put on the
+moment it lands in your bag, replacing whatever was in that slot — mid-boss-fight included, and
+regardless of whether your build can use it. You do not pick your kit; the item order does. This is
+the "use what you get" challenge format (the French Challenge run: Wretch start, randomizer,
+use-what-you-get, permadeath), and with the region locks and goal this apworld already ships, it is
+now a setting rather than a stack of third-party helpers.
+
+⚠️ **The client has had this working for weeks and nobody could use it.** `auto_equip.rs` reads
+`slot_data["options"]["auto_equip"]`, and the apworld had never sent that key — an absent key parses
+as `false`, so the feature was off for every Elden Ring seed ever generated, silently. This release
+is the apworld half.
+
+**A seed with `auto_equip: true` requires a client that supports it and will refuse to connect to
+one that does not**, naming the feature. That refusal is deliberate: adding an option does not move
+`CONTRACT_HASH`, so without it an older client would report `VERSION: OK`, never see the key, and
+run your seed with the setting quietly ignored — exactly the failure above, one release later.
+Leave it off and nothing changes; any client still connects.
+
 ### Compatibility
 
 `CONTRACT_HASH` is **unmoved** from v0.3.0 — 87 keys, identical names, shapes, required-ness and
 profiles — so a v0.3.0 client and a v0.3.1 apworld still handshake.
+
+The one exception is a seed that turns `auto_equip` on: that seed declares the feature in
+`requiresClientFeatures` and needs a v0.3.1 client. A seed that leaves it off (the default) declares
+nothing and is unaffected.
 
 ⚠️ **Client update recommended.** The re-grant fix is client-side and an old client connects happily
 without it.
