@@ -308,6 +308,11 @@ Run through this before a change lands (PR or direct):
 - [ ] Every slot_data key is declared in `contract.py` and validated both sides;
       the generated mirrors (`contract_gen.rs`, `CONTRACT.md`, handoff spec) are
       regenerated from it, not hand-edited.
+- [ ] Cross-repo change (anything that moves `contract_gen.rs` or `region_locks.rs`)? The CLIENT PR
+      landed FIRST, and this world commit bumps the submodule gitlink to that client commit **in the
+      same commit as the regenerated artifact** -- `git ls-tree HEAD | grep 160000` names it. CI
+      regenerates into a checkout of the PIN, so a bump deferred to a follow-up commit is a window in
+      which main is red and a tag cut from it ships an apworld against a DLL that disagrees with it.
 - [ ] No game data or build outputs staged; `git diff --cached --stat` reviewed.
 - [ ] Item-pool changes are count-neutral.
 - [ ] No fix re-ranks, prioritises, or special-cases the item/class that happened to break: if the

@@ -39,6 +39,34 @@ step(){ printf '\n==== %s\n' "$1"; }
 record(){ RESULTS+=("$1|$2"); [ "$2" = PASS ] || [ "$2" = SKIP ] || fail=1; }
 nhash(){ [ -f "$1" ] && tr -d '\r' < "$1" | sha256sum | cut -d' ' -f1 || echo NONE; }
 
+# WHICH CLIENT ARE WE GATING AGAINST? A THIRD ANSWER, and it is deliberate -- say it out loud rather
+# than let a reader assume it matches CI. There are three resolutions in this repo and they differ:
+#   * tests.yaml `generators`        -> the PINNED gitlink (what a release bundle ships).
+#   * tests.yaml `client-main-drift` -> client `main` (has the client run ahead of the pin?).
+#   * this script and run_ci.ps1     -> WHATEVER IS ON DISK at $REPO/from-software-archipelago-clients,
+#                                       working-tree state and all.
+# The third is correct for a dev box -- you are usually editing both halves at once and a script that
+# checked anything out would clobber that -- but it means a green run here says nothing about the pin.
+# Neither local script runs gen_contract / gen_region_locks at all, so neither can produce the
+# cross-repo staleness signal; only `generators` can. What this block CAN do is stop the ambiguity
+# being silent, so it prints the commit the run is about to gate against.
+step "CLIENT PIN (which client this run is gating against)"
+if [ -d "$REPO/from-software-archipelago-clients/.git" ] || [ -f "$REPO/from-software-archipelago-clients/.git" ]; then
+  chead="$(git -C "$REPO/from-software-archipelago-clients" rev-parse HEAD 2>/dev/null || echo UNKNOWN)"
+  cdirty="$(git -C "$REPO/from-software-archipelago-clients" status --porcelain 2>/dev/null | head -c1)"
+  cpin="$(git -C "$REPO" ls-tree HEAD from-software-archipelago-clients 2>/dev/null | awk '$2 == "commit" { print $3 }')"
+  echo "  on disk : $chead${cdirty:+  (DIRTY working tree)}"
+  echo "  gitlink : ${cpin:-<none>}"
+  # An `if`, not a `[ ] && echo` chain: a false chain exits 1, and this block runs before the gates
+  # under `set -uo pipefail`, so a stray nonzero here is a booby trap for whatever reads $? next.
+  if [ -n "$cpin" ] && [ "$chead" != "$cpin" ]; then
+    echo "  NOTE: on-disk client != the gitlink. The cross-side gates below and the RUST step read"
+    echo "        the ON-DISK tree; CI's generators job reads the gitlink. Not a failure here."
+  fi
+else
+  echo "  submodule not checked out -- the cross-side gates below will SKIP and gate NOTHING."
+fi
+
 step "INTEGRITY (mount-truncation gate)"
 # Cheapest gate, runs first: catch silent mount-write truncation, NUL injection, or
 # zero-byte files in any tracked source before the heavier gates. ERROR -> FAIL;
