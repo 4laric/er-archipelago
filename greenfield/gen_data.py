@@ -6316,7 +6316,8 @@ def _is_dungeon(_mp):
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                                  "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",
-                                 "ShopSlot", "MajorBoss"})
+                                 "ShopSlot", "MajorBoss",
+                                 "LegacyBoss", "FieldBoss"})
 # ItemLotParam_map flags self-encode their map: XXYY7NNN -> mXX_YY (AGENTS.md datamine join). When a
 # swept row's map COLUMN was mis-scanned, that stale column makes the wrong map vote for a region. The
 # worst case: 8 DLC minor-dungeon lots (40007000/41027000/42007000/... = m40/m41/m42/m43) were tagged
