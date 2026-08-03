@@ -270,6 +270,18 @@ jobs:
       - name: Release notes exist for the open version (rule 14)
         run: python tools/check_release_notes.py
 
+      # CONTRIBUTING rule 15, same job and for the same reason: check_contract_version.py loads
+      # greenfield/eldenring/contract.py by PATH (it is AP-free) and needs no Archipelago checkout.
+      # Red when CONTRACT_HASH disagrees with the release-v0.2/CONTRACT-VERSIONS.tsv row for the
+      # open APWORLD_VERSION, or when that version has no row at all.
+      #
+      # MOTIVATING CASE (rule 11), measured from this repo's own tags: APWORLD_VERSION "0.2.0"
+      # shipped FIVE distinct contract shapes (36013f63 -> 03c58b40 -> 54514b10 -> 84dd6ab8 ->
+      # b3739fdf). The handshake DOES detect a mismatch -- what was lost is the ability to say
+      # which 0.2.0 a player had. Reproduce with `check_contract_version.py --derive-history`.
+      - name: Contract changes carry a version bump (rule 15)
+        run: python tools/check_contract_version.py
+
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_region_locks.py
