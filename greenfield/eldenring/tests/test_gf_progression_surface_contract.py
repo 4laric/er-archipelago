@@ -4,7 +4,7 @@ WHY THIS FILE EXISTS
 --------------------
 There used to be two definitions of "an important check", and they disagreed:
 
-    progression surface (important_locations) : Remembrance, Seedtree, Church, Boss, Fragment, Revered
+    progression surface                       : Remembrance, Seedtree, Church, Boss, Fragment, Revered
     big-ticket          (bigTicketLocations)  : MajorBoss, Remembrance, GreatRune
 
 Intersection: **Remembrance alone.** So the client's tracker starred MajorBoss and GreatRune checks --

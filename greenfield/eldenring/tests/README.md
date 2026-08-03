@@ -34,7 +34,7 @@ well-formed, fresh, and true to the game):
 region may not carry progression), `test_gf_lod_tile_regions.py` (coarse LOD
 tiles are not fine tiles), `test_gf_play_region_buckets.py` (lock-enforcement
 buckets vs the game's real play_region universe), `test_gf_missable.py` and
-`test_gf_important_locations.py` (location tagging), `test_gf_gestures.py`
+`test_gf_location_tags.py` (location tagging), `test_gf_gestures.py`
 (gesture-pickup derivation).
 
 **Region & grace oracles** (independent, artifact-derived ground truth for the

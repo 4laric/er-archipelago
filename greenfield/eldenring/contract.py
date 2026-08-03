@@ -241,9 +241,15 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # corpus. (Until 2026-07-28 the client half came from tools/gen_location_regions.py baking an
 # on_surface column into er_logic::tracker_regions -- both the tool and that table are retired; the
 # tracker's region model ships in slot_data.) The DEFINITION lives here in the contract.
-# Class vocabulary shared with important_locations (features/important_locations.py imports this).
+# The location-CLASS vocabulary. Consumed by features/progression_surface (valid_keys + the widen
+# ladder) and coverage.py.
 # (There is no `big_ticket_locations` option; the surface is selected by ProgressionSurface.)
 # "EniaShop" is INTERNAL (gen_data tags the remembrance store) and is never user-selectable.
+# NAME OUTLIVED ITS OPTION. features/important_locations was deleted 2026-08-02; this list is now
+# purely the PROGRESSION SURFACE vocabulary (features/progression_surface.valid_keys + the widen
+# ladder, coverage.py). Renaming it to SURFACE_CLASSES is a clean follow-up -- deliberately NOT
+# done in the deletion commit, so that diff stays reviewable. It is not in contract.json, so a
+# rename costs no client churn.
 IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                             "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
                             "KeyItem", "MajorBoss"]
@@ -268,7 +274,7 @@ IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragme
 # to them by default. MajorBoss is a SUBSET of Remembrance/GreatRune (for the boss_arena majors) plus
 # Boss/Legendary (for the extras); it is its own tag so the surface can target JUST the majors.
 # BIG-TICKET IS RETIRED (2026-07-12, Alaric). It was a SECOND list claiming to define "the important
-# checks", and it disagreed with the first: the progression surface (important_locations) is
+# checks", and it disagreed with the first: the progression surface is
 # {Remembrance, Seedtree, Church, Boss, Fragment, Revered}, while big-ticket targeted {MajorBoss,
 # Remembrance, GreatRune}. Their intersection was Remembrance ALONE -- so the client's tracker starred
 # MajorBoss/GreatRune checks that progression_surface FORBIDS progression from ever reaching. The
@@ -304,7 +310,7 @@ def has_class(tags, selected) -> bool:
     """Does this location carry one of `selected` classes (and none of SURFACE_EXCLUDE_TAGS)?
 
     The single tag predicate, used by features/progression_surface (the surface = where this world's
-    own progression may go) and features/important_locations. It used to be called `is_big_ticket`,
+    own progression may go). It used to be called `is_big_ticket`,
     which mis-sold it: it was never a concept, just "tags intersect a selection" -- and that name let a
     SECOND selection masquerade as a second mechanism.
     """

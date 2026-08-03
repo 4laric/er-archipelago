@@ -24,7 +24,6 @@ game: "Elden Ring"
   # ---- Real item shuffle ---------------------------------------------------
   item_shuffle: true
   curated_fill: true              # progression concentrates on big-ticket checks
-  important_locations: [Remembrance, Seedtree, Church, Boss, Fragment, Revered]
   pool_builder: true
   pool_builder_intensity: high    # richer juice for a full-length run
 
