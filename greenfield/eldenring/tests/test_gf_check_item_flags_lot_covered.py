@@ -94,3 +94,32 @@ class CheckItemFlagsLotCoverage(WorldTestBase):
         assert len(CHECK_LOT_FLAGS) > 1000, \
             "CHECK_LOT_FLAGS has %d entries -- expected the full check-lot flag set (~4290); a " \
             "stale or pre-#321 check_lots_data.py makes the drop rule a no-op" % len(CHECK_LOT_FLAGS)
+
+    def test_no_emitted_flag_is_mapped_by_two_ids(self):
+        # ⭐ THE ENFORCING GATE for the client-side FLAG-SET DISARM.
+        #
+        # The client may release an armed id once the check's OWN acquisition flag fires, instead of
+        # waiting for the server to report it collected. That is only sound while no flag is mapped
+        # by TWO ids: if it were, picking up one id's check would set a flag that releases the OTHER
+        # id whose check has not fired -- which is exactly the Traveler's Clothes leak (item
+        # 0x100f90c4 / flag 15007980, playtest 2026-07-03) that forced collected-set keying in the
+        # first place.
+        #
+        # Measured 2026-08-03: every such pair lives inside the 1078 ids the lot-coverage drop above
+        # removes, so the emitted residue is shared-flag-free. That is a PROPERTY OF THE DATA, not of
+        # the code, so it needs a gate -- otherwise a future regen can quietly reintroduce the leak
+        # into a client that has already stopped waiting for the collected-set.
+        #
+        # 🛑 If this ever fires, the client disarm is UNSOUND for this seed. Do not weaken this test;
+        # either keep the offending ids out of the emitted table, or turn the disarm off.
+        sd = self.world.fill_slot_data()
+        owners = {}
+        for full, flags in sd.get("checkItemFlags", {}).items():
+            for f in _flagset(flags):
+                owners.setdefault(f, []).append(full)
+        shared = {f: ids for f, ids in owners.items() if len(ids) > 1}
+        assert not shared, (
+            "%d acquisition flag(s) are mapped by more than one emitted FullID, so setting one "
+            "id's flag would release another id whose check has not fired -- the flag-set disarm "
+            "is unsound here. Sample: %s"
+            % (len(shared), {f: ids for f, ids in list(shared.items())[:4]}))
