@@ -1366,6 +1366,22 @@ _REGION_CONFIRMED_FLAGS = frozenset({
     1036447300,   # Liurnia :: Golden Seed -- collected in Liurnia this session. Its descriptor was
                   # re-anchored to "near Academy Gate Town" in the SAME commit
                   # (location_descriptions.tsv) on the same walk.
+    # --- 2026-08-03, Alaric, CONFIRMED IN GAME from the in-client check feed (#336).
+    1042507020,   # Altus :: Golden Seed -- "it's altus, Ulcerated tree spirit south of Outer Wall
+                  # Phantom Tree". Coherent with the tables independently: Outer Wall Phantom Tree
+                  # is grace 76309, an Altus landmark, and Altus already owns the tiles either side
+                  # of this one (m60_43_50 and m60_42_51 flank m60_42_50). Its descriptor named the
+                  # TILE and is re-anchored to the boss in the SAME commit -- two separate defects
+                  # in one label, and only this half is the region.
+    1046367010,   # Limgrave :: Bloodrose -- near Fort Haight West. "these are confirmed limgrave".
+    1046367500,   # Limgrave :: Dectus Medallion (Left) -- the Fort Haight chest, up the ladder.
+                  # ⭐ The one worth having: a treasure chest in the STARTING region that has never
+                  # been able to host progression, because the hedge bars it via DEFAULTED_REGION_APS.
+                  # 🛑 The check feed renders this flag small enough to misread as 1046375000; it is
+                  # 1046367500, verified against data.py. A slip here confirms the wrong check and
+                  # nothing would ever notice.
+                  # PER-FLAG, not per-tile: m60_46_36 carries four more hedged checks (1046367000,
+                  # 1046367030, 1046367100) that nobody has stood in front of. They stay hedged.
 })
 
 _SURFACE_EXCLUDE_FLAGS = frozenset({

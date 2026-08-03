@@ -129,3 +129,8 @@ flag	description
 # human navigates by; this override loses 47 m on the metric and wins on the ground. Oracle: Alaric,
 # in game, 2026-08-02.
 1036447300	near Academy Gate Town
+# 2026-08-03 (#336). The auto-descriptor fell through to the MAP TILE id ("m60_42_50"), which is
+# not a place a player can walk toward. Alaric named the real anchor in game, and it is a BOSS,
+# not a grace. Worth asking why the boss layer did not fire here -- if it knows this Ulcerated
+# Tree Spirit and did not use it, that is a generator bug affecting every boss-adjacent check.
+1042507020	from the Ulcerated Tree Spirit south of Outer Wall Phantom Tree
