@@ -99,9 +99,12 @@ BOSS_DROP_FLAGS = frozenset({
 # boss. That join is what LegacyBoss/Underground/FieldBoss need, and it could not be
 # recovered downstream: DUNGEON_SWEEPS is filler-only by construction, so a boss reward
 # check is never inside its own sweep (measured: legacy sweeps x Boss-tagged aps = 0).
-# CLASS is by containing emevd map, via datamine_boss_healthbars._class -- ONE definition,
-# imported, not restated: m30=catacomb m31=cave m32=tunnel m60=field,
-# m34/m39/m40/m41/m42/m43=dungeon (minor), everything else=legacy.
+# GEOGRAPHY is WHERE THE BOSS STANDS, via datamine_boss_healthbars._geography --
+# field (m60 + m61, both overworlds) / underground (catacomb, cave, tunnel, minor
+# dungeon) / legacy. ONE definition, imported, not restated.
+# 🛑 NOT the same question as _class, which answers "how should this boss SWEEP?" and
+# must keep calling m61 legacy so its sweeps survive (see _class docstring). Using the
+# sweep class for geography labelled 15 DLC OVERWORLD boss checks legacy-dungeon.
 BOSS_DROP_ENTITY = {
     530620: 12020830,  # m12_02_00_00 Dragon Halberd
     530600: 12010850,  # m12_01_00_00 Dragonscale Blade
@@ -192,17 +195,17 @@ BOSS_DROP_ENTITY = {
     530400: 1048370800,  # m60_48_37_00 Dragon Heart
     1048417800: 1048410800,  # m60_48_41_00 Gravity Stone Peddler's Bell Bearing
 }
-BOSS_DROP_CLASS = {
+BOSS_DROP_GEOGRAPHY = {
     530620: 'legacy',
     530600: 'legacy',
     12037950: 'legacy',
     65060: 'field',
-    530965: 'legacy',
+    530965: 'field',
     1052417100: 'field',
-    530855: 'legacy',
+    530855: 'field',
     1049377100: 'field',
     1049397850: 'field',
-    530955: 'legacy',
+    530955: 'field',
     65050: 'field',
     65250: 'field',
     530405: 'field',
@@ -213,11 +216,11 @@ BOSS_DROP_CLASS = {
     530550: 'field',
     530420: 'field',
     530510: 'field',
-    530860: 'legacy',
-    530840: 'legacy',
-    530850: 'legacy',
-    530945: 'legacy',
-    530800: 'legacy',
+    530860: 'field',
+    530840: 'field',
+    530850: 'field',
+    530945: 'field',
+    530800: 'field',
     65280: 'field',
     530505: 'field',
     530425: 'field',
@@ -225,19 +228,19 @@ BOSS_DROP_CLASS = {
     65300: 'field',
     65080: 'field',
     65110: 'field',
-    530930: 'legacy',
+    530930: 'field',
     65160: 'field',
     65170: 'field',
-    530845: 'legacy',
+    530845: 'field',
     65260: 'field',
     65130: 'field',
-    530940: 'legacy',
-    530905: 'legacy',
+    530940: 'field',
+    530905: 'field',
     530515: 'field',
     1048577700: 'field',
-    530960: 'legacy',
-    530805: 'legacy',
-    530861: 'legacy',
+    530960: 'field',
+    530805: 'field',
+    530861: 'field',
     530130: 'field',
     530120: 'field',
     530265: 'field',

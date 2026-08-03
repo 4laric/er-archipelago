@@ -6117,6 +6117,61 @@ for _ap in sorted(_MAJOR_AIDS):
     if "Boss" not in _cur:
         _cur.append("Boss")
 
+# ---- LegacyBoss / FieldBoss: WHERE the boss stands -------------------------------------------
+# Derived from the boss's GEOGRAPHY (datamine_boss_healthbars._geography), joined to the check two
+# ways -- BOSS_DROP_GEOGRAPHY (the common boss-handler's own args) and BOSS_REWARD_TILE (the scripted
+# / mini-dungeon reward lots). Both are needed: neither covers the other's half.
+#
+# 🛑 GEOGRAPHY, NOT _class. _class answers "how should this boss SWEEP?" and must keep calling the
+# m61 DLC overworld "legacy" or its 28 bosses lose their sweeps entirely (measured: 240 -> 212
+# triggers). Tagging off it labelled 15 DLC OVERWORLD boss checks -- Ghostflame Dragon, Dancer of
+# Ranah, Rugalea -- as legacy-DUNGEON checks, which is just false. One question per function.
+#
+# NO `Underground` TAG, deliberately. 81 catacomb/cave/tunnel/minor-dungeon BOSSES exist, but only
+# THREE of them drop an AP-tracked check: minidungeon rewards are chests in the arena, not the
+# boss's own drop, so `Boss` (= boss-healthbar enemy DROP) barely reaches them. A 3-member
+# player-facing class is noise, and "exclude the catacombs" is not a thing this data can express.
+try:
+    _BOSS_GEO = dict(_bmod.BOSS_DROP_GEOGRAPHY)
+except Exception:
+    _BOSS_GEO = {}
+try:
+    _brlspec = _ilu.spec_from_file_location("_brl", os.path.join(HERE, "eldenring", "boss_reward_lots.py"))
+    _brlmod = _ilu.module_from_spec(_brlspec); _brlspec.loader.exec_module(_brlmod)
+    _REWARD_TILE = dict(_brlmod.BOSS_REWARD_TILE)
+except Exception as _e:
+    _REWARD_TILE = {}
+    print(f"[gen_data] boss_reward_lots.py unavailable ({_e!r}); LegacyBoss/FieldBoss lose their "
+          f"scripted-reward half -- run tools/datamine_boss_reward_lots.py")
+
+def _geography_of_map(_m):
+    _p = (_m or "")[:3]
+    if _p in ("m60", "m61"):
+        return "field"
+    if _p in ("m30", "m31", "m32") or _p in {"m34", "m39", "m40", "m41", "m42", "m43"}:
+        return "underground"
+    return "legacy" if _m else None
+
+_GEO_TAG = {"legacy": "LegacyBoss", "field": "FieldBoss"}
+_geo_counts = Counter(); _geo_unresolved = 0
+for _ap, _tg in sorted(loc_tags.items()):
+    if "Boss" not in _tg:
+        continue
+    _fl = _ap2flag.get(_ap)
+    _g = _BOSS_GEO.get(_fl) or _geography_of_map(_REWARD_TILE.get(_fl))
+    if not _g:
+        _geo_unresolved += 1
+        continue
+    _geo_counts[_g] += 1
+    _tag = _GEO_TAG.get(_g)
+    if _tag and _tag not in _tg:
+        _tg.append(_tag)
+print(f"boss geography: {dict(_geo_counts)}; {_geo_unresolved} Boss check(s) unresolved "
+      f"(majors already covered by MajorBoss/GreatRune, plus the dragon-heart name special-case)")
+if not _geo_counts:
+    raise SystemExit("FATAL: LegacyBoss/FieldBoss tagged ZERO checks -- the boss<->check join "
+                     "collapsed (rule 2: an empty result is a FAILURE, not a clean run).")
+
 # Regen-time HARD GATE on both closures. These are definitional, so a violation means someone edited
 # the tagging above -- fail the regen rather than ship a silently narrower player-facing "Boss".
 _sub_bad = sorted(_ap for _ap, _tg in loc_tags.items()

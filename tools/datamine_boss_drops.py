@@ -28,6 +28,7 @@ _hbspec = _ilu.spec_from_file_location("_dm_hb", os.path.join(os.path.dirname(os
                                                              "datamine_boss_healthbars.py"))
 _hb = _ilu.module_from_spec(_hbspec); _hbspec.loader.exec_module(_hb)
 _class = _hb._class
+_geography = _hb._geography
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
@@ -125,7 +126,7 @@ def main():
     print(f"Boss-drop AP locations: {len(rows)}  (distinct flags {len(flags)}, items {len({r[3] for r in rows})})")
     if a.list:
         for ent, lot, fl, item, region, method, emap in rows:
-            print(f"  ent {ent:<11} flag {fl:<9} {_class(emap):9} {emap:11} "
+            print(f"  ent {ent:<11} flag {fl:<9} {_geography(emap):11} {emap:11} "
                   f"{item[:30]:30} | {region[:22]} | {method}")
         return 0
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
@@ -143,16 +144,19 @@ def main():
         f.write('# boss. That join is what LegacyBoss/Underground/FieldBoss need, and it could not be\n')
         f.write('# recovered downstream: DUNGEON_SWEEPS is filler-only by construction, so a boss reward\n')
         f.write('# check is never inside its own sweep (measured: legacy sweeps x Boss-tagged aps = 0).\n')
-        f.write('# CLASS is by containing emevd map, via datamine_boss_healthbars._class -- ONE definition,\n')
-        f.write('# imported, not restated: m30=catacomb m31=cave m32=tunnel m60=field,\n')
-        f.write('# m34/m39/m40/m41/m42/m43=dungeon (minor), everything else=legacy.\n')
+        f.write('# GEOGRAPHY is WHERE THE BOSS STANDS, via datamine_boss_healthbars._geography --\n')
+        f.write('# field (m60 + m61, both overworlds) / underground (catacomb, cave, tunnel, minor\n')
+        f.write('# dungeon) / legacy. ONE definition, imported, not restated.\n')
+        f.write('# 🛑 NOT the same question as _class, which answers "how should this boss SWEEP?" and\n')
+        f.write('# must keep calling m61 legacy so its sweeps survive (see _class docstring). Using the\n')
+        f.write('# sweep class for geography labelled 15 DLC OVERWORLD boss checks legacy-dungeon.\n')
         f.write("BOSS_DROP_ENTITY = {\n")
         for ent, _l, fl, item, _r, _m, _mp in rows:
             f.write(f"    {fl}: {ent},  # {_mp} {item}\n")
         f.write("}\n")
-        f.write("BOSS_DROP_CLASS = {\n")
+        f.write("BOSS_DROP_GEOGRAPHY = {\n")
         for _e, _l, fl, _item, _r, _m, mp in rows:
-            f.write(f"    {fl}: {_class(mp)!r},\n")
+            f.write(f"    {fl}: {_geography(mp)!r},\n")
         f.write("}\n")
     print(f"wrote {OUT}: {len(flags)} boss-drop flags")
     return 0

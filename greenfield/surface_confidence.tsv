@@ -18,7 +18,7 @@
 #    and the one the surface depends on. See the Seedtree row.
 #
 # MEASURED THIS RUN (recomputed on every emit):
-#   vocabulary 14 class(es) | default surface 9 class(es)
+#   vocabulary 16 class(es) | default surface 9 class(es)
 #   checks 4879 total, 883 carry any tag
 #   DEFAULT SURFACE: tag union 197 | hosting 156 | hosting w/ reconciler armed 158 | hosting if missable guard OFF 163
 #
@@ -37,3 +37,5 @@ Legendary	66	8	8	3	0	0	48	73
 GreatRune	6	0	0	0	0	0	6	100	yes
 KeyItem	15	1	5	0	2	0	7	47	yes
 MajorBoss	42	3	1	0	0	0	38	90	yes
+LegacyBoss	30	0	1	0	0	0	29	97	
+FieldBoss	84	20	0	0	0	0	64	76	

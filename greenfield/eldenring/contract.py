@@ -252,7 +252,11 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # rename costs no client churn.
 IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                             "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
-                            "KeyItem", "MajorBoss"]
+                            "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss"]
+# LegacyBoss / FieldBoss (2026-08-02) split the 134-strong `Boss` class by WHERE the boss stands:
+# 30 legacy-dungeon drops, 84 overworld. Both are SUBSETS of Boss, so selecting Boss still selects
+# everything. There is no `Underground`: 81 catacomb/cave/tunnel/minor-dungeon bosses exist but only
+# THREE drop an AP-tracked check, so the class would be noise (see gen_data's note).
 # ShopNonSpell = every Shop check EXCEPT those sold by a dedicated spell vendor (a ShopLineupParam
 # 100-block whose stock is >=50% sorceries/incantations -- measured, not curated, so a general
 # merchant who happens to stock a spell stays in). 395 of the 479 shop checks. NOT in the default
