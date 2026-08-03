@@ -47,6 +47,21 @@ told him so three times. A correct wire is not a correct feature.
 
 A `reset()` WITH NO CALLER IS THE SAME BUG AS A PREDICATE WITH NO CALLER, and a WRITER WITH NO
 `reset()` IS THE SAME BUG WITH THE EVIDENCE REMOVED.
+
+THE LEDGER IS DISCHARGED (2026-08-04, client PR "Re-arm every latched game-state writer on the
+in_world edge"). Alaric ruled "resets for everything should be handled in the same way", so the seven
+modules that were merely UNRULED got the same edge re-arm as their siblings and their rows are gone.
+RE-MEASURED against that branch: still 18 writers, now 16 accepted (the 9 above plus shop_flags,
+upgrade_cost, notif_ticker, no_weapon_reqs, no_equip_load, no_fall_damage, scadu_blessing) and 2 in
+_EDGE_EXEMPT (shop_value the pure helper, fmg_inject the measured-inert one). `_UNRULED_WRITERS` is
+now EMPTY and stays a live list: the ratchet still refuses a fixed row, and the next writer that
+lands without an edge re-arm turns this file RED on the day it lands rather than joining a backlog.
+
+The eighth, fmg_inject, is the one entry that did NOT become a reset. It is RULED, not deleted:
+`test_fmg_inject_is_still_inert` re-derives the three facts its exemption rests on every run, so the
+prose below is checked rather than believed. That distinction is the whole point -- on 2026-07-31 an
+exemption for shop_preview was DELETED because someone noticed it had gone stale, and the deletion
+silenced the alarm instead of raising it.
 """
 import os
 import re
@@ -116,6 +131,30 @@ _WRITE_SIGNALS = [
 # entry naming it would be permanently stale. Its method-shaped `self.lock_hints.reset()` is still
 # pinned, as a probe of the DIAGNOSTIC, by test_the_method_shape_is_still_detected.)
 _EDGE_EXEMPT = {
+    "fmg_inject": (
+        "MEASURED INERT, 2026-08-04, and this is a RULING on the old _UNRULED_WRITERS row rather "
+        "than a deletion of it -- `test_fmg_inject_is_still_inert` re-derives every clause below on "
+        "each run, so it cannot rot into prose the way the 2026-07-31 shop_preview exemption did. "
+        "CLAIMED: fmg_inject's MODE_INJECT path names SYNTHETIC goods rows (category-stripped id > "
+        "er_codec::SYNTHETIC_GOODS_MIN_ID = 3,780,000, carrying the AP location id in the two "
+        "`vagrant*` fields), `params::synthetic_goods_ids()` only ever SCANS for them, and NOTHING "
+        "in the client creates one: `.set_vagrant_*(` is called nowhere, the baker that used to "
+        "bake such rows retired 2026-07-01, and the client README calls itself pure-runtime. "
+        "Vanilla supplies none either -- gen_inputs.db's `vanilla_er/EquipParamGoods.csv` (2326 "
+        "rows) tops out at the real id 2,220,010, exactly the bound SYNTHETIC_GOODS_MIN_ID's own "
+        "comment claims, plus the sentinel row 999999999, which `is_synthetic_goods` rejects "
+        "because `CATEGORY_GOODS | 999999999` = 0x7B9AC9FF carries a 0x7 category nibble, not 0x4. "
+        "So `injects` is always empty and the block this module swaps in is an IDENTITY rebuild, "
+        "validated against the game's own lookup on CHECK_IDS before the swap. A load reverting an "
+        "identity swap costs nothing, and every FMG write the player can SEE is published by "
+        "check_lots::dress_placeholder and shop_preview through extend_swap_overrides -- both of "
+        "which ARE re-armed on the edge. Re-arming this module would leak one VirtualAlloc'd "
+        "GoodsName block (4302 entries) per map load for no behavioural change. "
+        "WHAT WOULD INVALIDATE IT: anything that starts creating synthetic goods rows. The client "
+        "now logs `FMG-inject: INERT -- 0 synthetic goods ids` at WARN on every session that finds "
+        "none, so the DISAPPEARANCE of that line is the signal -- at which point the swap stops "
+        "being an identity swap and this module needs a reset() and an edge call like the rest."
+    ),
     "shop_value": (
         "pure helper: every write is through a `&mut SoloParamRepository` its CALLER borrowed "
         "(shop_sell / shop_repoint), and it holds no static latch of any kind -- grep it for "
@@ -125,13 +164,17 @@ _EDGE_EXEMPT = {
 }
 
 # ---------------------------------------------------------------------------------------------
-# THE DEBT LEDGER, frozen 2026-08-03 when the scan was re-keyed from reset()-definers to writers.
+# THE DEBT LEDGER. Frozen at EIGHT on 2026-08-03 when the scan was re-keyed from reset()-definers to
+# writers; DISCHARGED to zero on 2026-08-04. Seven of the eight (shop_flags, upgrade_cost,
+# notif_ticker, no_weapon_reqs, no_equip_load, no_fall_damage, scadu_blessing) were given the same
+# edge re-arm as their siblings, per Alaric's ruling that "resets for everything should be handled in
+# the same way"; the eighth (fmg_inject) was measured INERT and moved to _EDGE_EXEMPT, where
+# test_fmg_inject_is_still_inert checks its reason instead of trusting it.
 #
-# These EIGHT modules write game state, latch, and have no re-arm on the in-world edge. They are not
-# exemptions -- nobody has ruled that a load cannot break them, and for several the honest answer is
-# that we do not know. They are here so that the backlog is ENUMERATED rather than invisible, and so
-# that the gate can be hard-red for anything NEW from the day it lands. Turning the gate red on all
-# eight at once would only teach everyone to switch it off, which is worse than the hole.
+# KEEP THIS DICT. An empty ledger is not a dead one: a row here is how a NEW writer whose ruling is
+# genuinely unknown gets enumerated rather than either turning the gate red on landing (which teaches
+# people to switch it off) or hiding in _EDGE_EXEMPT next to modules that were actually measured.
+# Anything that lands here must say what is CLAIMED and what is UNKNOWN, separately.
 #
 # THIS LIST IS A RATCHET. `test_the_debt_ledger_only_shrinks` FAILS when an entry gains an edge
 # re-arm and is not deleted, so it cannot silently become an exemption list. Adding a row is a
@@ -139,55 +182,7 @@ _EDGE_EXEMPT = {
 #
 # Each reason states what is CLAIMED and what is UNKNOWN, separately. Alaric rules; the gate does not.
 # ---------------------------------------------------------------------------------------------
-_UNRULED_WRITERS = {
-    "fmg_inject": (
-        "UNRULED. Latches DONE in 8 places and clears it NOWHERE -- no reset(), no re-arm anywhere. "
-        "Writes via swap_category, the same primitive as shop_preview, whose block a load DID "
-        "revert (measured 2026-08-03). UNKNOWN: whether the category-pointer swap fmg_inject "
-        "installs survives a load, or whether check_lots' own correct re-dress republishes over it "
-        "the way it discarded shop_preview's. If it does not survive, every injected item name and "
-        "description in the game reverts to vanilla after the first load. Needs a ruling."
-    ),
-    "shop_flags": (
-        "UNRULED. `set_sell_quantity(1)` on ShopLineupParam rows through instance_mut, with a DONE "
-        "latch per pass (run / run_capital_release) cleared only by configure() at connect. "
-        "ShopLineupParam is the param whose revert cost shop_sell, shop_repoint and shop_stock, so "
-        "the prior here is bad. UNKNOWN: whether sellQuantity specifically is re-streamed, and "
-        "whether the row-flag pass is idempotent enough that a re-arm is free. Needs a ruling."
-    ),
-    "notif_ticker": (
-        "UNRULED. Sets showDialogCondType=0 game-wide, then latches APPLIED with no clearer. If a "
-        "load reverts it, every AP grant from the first load onward shows the BLOCKING 'NEW Y:OK' "
-        "modal instead of the ticker -- a loud, player-visible symptom that would be easy to "
-        "mis-attribute. UNKNOWN: nobody has reported it, which is weak evidence either way."
-    ),
-    "no_weapon_reqs": (
-        "UNRULED. Zeroes EquipParamWeapon.proper_* and Magic.requirement_* through instance_mut, "
-        "latches APPLIED, never clears. Opt-in option, so a post-load revert would be quiet and "
-        "would read to the player as the option simply not working."
-    ),
-    "no_fall_damage": (
-        "UNRULED. SpEffectParam.fall_damage_rate = 0.0, latches PARAM_PATCHED, never clears. "
-        "Same shape as no_equip_load, and the pair should be ruled on together."
-    ),
-    "no_equip_load": (
-        "UNRULED. SpEffectParam.all_item_weight_change_rate = 0.0, latches PARAM_PATCHED, never "
-        "clears. Same shape as no_fall_damage, and the pair should be ruled on together."
-    ),
-    "upgrade_cost": (
-        "UNRULED. Rewrites EquipMtrlSetParam rows and latches APPLIED to the cap it applied; the "
-        "only clearer is set_flatten() at slot_data parse. A load that reverts the rows leaves "
-        "APPLIED == cap, so maybe_apply() short-circuits forever and the flattened curve is gone."
-    ),
-    "scadu_blessing": (
-        "UNRULED, AND THE REASON THE EDGE-BLOCK SCOPING EXISTS. It DOES define reset() and core.rs "
-        "DOES call it -- from the slot_data parse (a seed change), not from the in_world edge. The "
-        "old whole-file substring match therefore passed it green. Its LAST_TARGET / LAST_ACTIVE "
-        "memo is a latch by another name: after a load reverts the cloned SpEffectParam row, the "
-        "memo still equals the target and drive() skips. UNKNOWN: whether the character-side "
-        "SpEffect application re-runs on its own and papers over it."
-    ),
-}
+_UNRULED_WRITERS = {}  # module -> reason. EMPTY since 2026-08-04; see the note above.
 
 
 @unittest.skipUnless(_ROOT is not None, REPO_ONLY_REASON)
@@ -362,7 +357,8 @@ class ClientResetsAreCalled(unittest.TestCase):
         """THE RATCHET. _UNRULED_WRITERS is a backlog, not a second exemption list.
 
         It was frozen at 8 entries on 2026-08-03, the day the scan was re-keyed from
-        reset()-definers to writers. A row that has been FIXED must be deleted, or the list stops
+        reset()-definers to writers, and emptied on 2026-08-04 when Alaric ruled that every latched
+        writer gets the same edge re-arm. A row that has been FIXED must be deleted, or the list stops
         describing the debt and starts hiding it -- which is precisely what happened to the old
         _EDGE_EXEMPT on 2026-07-31, when noticing that shop_preview had lost its reset() led to
         deleting the entry instead of raising the alarm.
@@ -379,12 +375,16 @@ class ClientResetsAreCalled(unittest.TestCase):
             gone,
             "%s no longer match any write signal (module deleted, or rewritten to stop writing) -- "
             "delete their _UNRULED_WRITERS rows." % gone)
-        # Not a failure: the point of the ledger is that someone READS it.
-        import warnings
-        warnings.warn(
-            "%d client writer(s) still have NO in-world-edge re-arm and NO ruling: %s. Each is a "
-            "candidate for the shop_sell/shop_icon/shop_stock/shop_preview bug. See the reasons in "
-            "_UNRULED_WRITERS." % (len(_UNRULED_WRITERS), sorted(_UNRULED_WRITERS)))
+        # Not a failure: the point of the ledger is that someone READS it. Guarded, because an
+        # unconditional "0 client writer(s) still have NO ruling: []" is noise that trains the
+        # reader to skip the one line that will matter on the day the list is non-empty again.
+        if _UNRULED_WRITERS:
+            import warnings
+            warnings.warn(
+                "%d client writer(s) still have NO in-world-edge re-arm and NO ruling: %s. Each is "
+                "a candidate for the shop_sell/shop_icon/shop_stock/shop_preview bug. See the "
+                "reasons in _UNRULED_WRITERS."
+                % (len(_UNRULED_WRITERS), sorted(_UNRULED_WRITERS)))
 
     # -- the scan itself is pinned -------------------------------------------------------------
 
@@ -437,6 +437,62 @@ class ClientResetsAreCalled(unittest.TestCase):
             "shop_preview::reset() is not called from core.rs's in_world edge block. That is the "
             "FOURTH instance of this bug (client PR #29); if it has been reverted, revert the "
             "revert. (assertTrue, not assertIn: assertIn would dump the whole ~4 KB edge block.)")
+
+    def test_fmg_inject_is_still_inert(self):
+        """THE EXEMPTION'S EVIDENCE, re-derived every run instead of believed.
+
+        fmg_inject is the one former _UNRULED_WRITERS row that did NOT become a reset. The ruling is
+        that its MODE_INJECT path can never inject, so the block it swaps in is an IDENTITY rebuild
+        and a map load reverting it costs nothing. That is a claim about the CLIENT, and a claim
+        about the client parked in a comment is exactly what went stale on 2026-07-31 -- so pin the
+        three facts it rests on. If any of them changes, this fails and the exemption must be
+        re-argued or replaced with a reset() + an edge call.
+        """
+        self.assertIn("fmg_inject", self.writers,
+                      "fmg_inject no longer matches any write signal -- it has stopped writing "
+                      "game state entirely, so prune its _EDGE_EXEMPT row rather than leaving a "
+                      "reason for a hazard that is gone")
+
+        # 1. NOTHING CREATES A SYNTHETIC ROW. `set_vagrant_*` are the setters that would write an AP
+        #    location id into a goods row's two carrier fields, which is what makes a row synthetic.
+        #    Matched as a METHOD CALL (`.set_vagrant_x(`) on purpose: the module doc and the reason
+        #    above both mention the name in prose, and a bare-name match would find those and read
+        #    as coverage. The getters (`row.vagrant_item_lot_id()`) are reads and are expected.
+        callers = sorted(m for m, body in self.bodies.items()
+                         if re.search(r"\.set_vagrant_\w+\s*\(", body))
+        self.assertFalse(
+            callers,
+            "%s call a `set_vagrant_*` setter, so the client can now CREATE synthetic goods rows. "
+            "fmg_inject's MODE_INJECT path is no longer inert and its swap is no longer an identity "
+            "rebuild: give it `pub fn reset()` clearing DONE and call `crate::fmg_inject::reset()` "
+            "from core.rs's in_world edge block, and move it out of _EDGE_EXEMPT." % callers)
+
+        # 2. THE ID SOURCE IS SCAN-ONLY. `params.rs` supplies `synthetic_goods_ids()` and matches no
+        #    write signal at all (it borrows `SoloParamRepository::instance()`, immutable), so it
+        #    reports rows the game already has -- it never adds one.
+        self.assertIn("params", self.bodies, "params.rs is gone; re-point this check")
+        self.assertNotIn(
+            "params", self.writers,
+            "params.rs now matches a write signal. It is fmg_inject's only source of synthetic ids "
+            "and was scan-only; if it writes, re-derive the inertness ruling from scratch.")
+
+        # 3. THE CLIENT SAYS SO OUT LOUD. Tolerance requires telemetry: a permanently-zero path that
+        #    reports success is the failure mode this project keeps paying for, so the module warns
+        #    when it finds no synthetic ids. The DISAPPEARANCE of that line is the in-game signal
+        #    that this exemption has expired, which only works if the line is actually there.
+        # assertTrue, NOT assertIn: fmg_inject.rs is ~1100 lines and assertIn embeds the whole
+        # haystack in the failure, burying the one sentence that matters. Same reason as the notes
+        # on self.edge and self.core elsewhere in this file. Found by running the mutation.
+        body = self.bodies["fmg_inject"]
+        self.assertTrue(
+            "FMG-inject: INERT" in body,
+            "fmg_inject no longer logs its INERT condition. The exemption above tells the reader to "
+            "watch for that line going missing from a session log; without it in the source, a "
+            "missing line means nothing and the ruling has no in-game check behind it.")
+        self.assertTrue(
+            re.search(r'log::warn!\(\s*\n?\s*"FMG-inject: INERT', body),
+            "the INERT line is no longer a `log::warn!` -- at info level it scrolls past in a "
+            "612k-line session log, which is the same as not logging it")
 
     def test_the_method_shape_is_still_detected(self):
         """`lock_hints` is the module that exposed the LYING DIAGNOSTIC -- reset() defined as a
