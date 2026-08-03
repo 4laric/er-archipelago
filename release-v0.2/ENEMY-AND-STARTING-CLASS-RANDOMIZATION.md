@@ -11,9 +11,15 @@ starting-class randomization are its territory, and it does them better
 than we would by duplicating them. So instead of an apology, here is the
 recipe.
 
-One rule before anything else, because it is the only way to get this
-wrong: **in matt's randomizer, ITEM randomization must be OFF.** Items are
-this project's job. Enemies and starting class are matt's.
+Two rules before anything else, because they are the only ways to get this
+wrong:
+
+1. **In matt's randomizer, ITEM randomization must be OFF.** Items are this
+   project's job. Enemies and starting class are matt's.
+2. **Do NOT load `RandomizerHelper.dll`.** It breaks item RECEIVING outright --
+   see [When receiving is dead](#when-receiving-is-dead-randomizerhelperdll)
+   below. Its auto-equip and auto-upgrade are things we already ship as yaml
+   settings, so you are not giving anything up.
 
 ## Get it from the author
 
@@ -116,6 +122,52 @@ launch the game with both active.
 
 The game starts with matt's enemy randomization baked into the files, and our client running in
 memory on top of it. Connect to your Archipelago room as usual.
+
+> ### Add our client to that list and NOTHING ELSE that touches items
+>
+> The **Dll mods** dialog will happily take more than one entry, and the obvious thing to add
+> next is `RandomizerHelper.dll`. Do not. It is the single most common way to end up with a
+> connected client that cannot give you anything.
+
+
+## When receiving is dead: RandomizerHelper.dll
+
+**Symptom fingerprint.** All of these at once, and the combination is diagnostic:
+
+- you connect to the room fine, and **sending works** -- your friends receive your checks;
+- **you receive nothing** -- neither from friends nor from your own world;
+- a check you open in the world hands you a literal item called **"Archipelago Item"**
+  (it looks like a spyglass), and the game says you cannot hold more than one of it and it
+  cannot go to storage;
+- **you do not start with Torrent**, or with any of your other start items.
+
+If that is what you are seeing, `RandomizerHelper.dll` is loaded. Turning off its auto-equip and
+auto-upgrade options is not enough on some versions -- unload the dll.
+
+**Why it happens.** Both mods want the same function. The game has one routine that puts an item
+in your inventory, and our client installs a hook on it to deliver everything you receive. That
+hook is **fail-closed on purpose**: if the routine's first bytes are not what we expect, we refuse
+to install rather than patch something we do not recognise, because guessing wrong in the one
+function that grants items is how saves get corrupted. When another dll hooks that routine first,
+it overwrites exactly those bytes -- so our install refuses, and every grant afterwards fails.
+
+Checks keep working because they do not use that hook at all: we detect them by watching your
+inventory. **That is why the failure is one-directional, and why sending-but-not-receiving is the
+fingerprint rather than a coincidence.** The "Archipelago Item" spyglass is the placeholder the
+check pays out; normally the client swaps it for your real item, and with the hook refused it just
+stays in your hands.
+
+**This is not a bug we can fix from our side**, and it is not matt's fault either -- it is two
+mods reaching for one function. Supporting it would mean chaining our hook through a foreign one,
+in the routine where a mistake costs you your save. We are not doing that on a guess.
+
+**You are not losing features.** `auto_upgrade` is already a yaml setting on our side, and
+`auto_equip` is in progress -- both delivered by the client that is actually aware of your
+Archipelago items, which is the part `RandomizerHelper.dll` cannot know about.
+
+**Reporting it.** If you think you have hit this without `RandomizerHelper.dll` loaded, that is
+worth a bug report -- send the client log. The line to look for is
+`AddItemFunc detour install deferred: ... signature mismatch`.
 
 
 ## Why this composes at all
