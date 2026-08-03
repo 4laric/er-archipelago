@@ -264,6 +264,32 @@ class BossSweepScoping(unittest.TestCase):
         self.assertEqual([self.ap_region.get(ap) for ap in deathroot], ["Limgrave"] * len(deathroot),
                          "the Tibia Mariner's Deathroot (f530170) is not a Limgrave check")
 
+    def test_fort_gael_checks_are_caelid(self):
+        """The MIRROR of the Summonwater case, and the reason that one is not a one-off.
+
+        Tile m60_47_38 is Fort Gael. Like m60_45_39 it holds no grace of its own, so tile_pr()
+        nearest-neighboured it; like m60_45_39 the squared distance TIED at 1 -- (46, 38) Third
+        Church of Marika [61000] west against (47, 39) Fort Gael North [64000] east -- and like
+        m60_45_39 the tie was settled by table order. It fell the OTHER way, so 15 checks shipped as
+        LIMGRAVE while twelve of them are named after Caelid graces (Fort Gael North, Caelid Highway
+        South, Astray from Caelid Highway North).
+
+        CONFIRMED IN GAME by Alaric 2026-08-03: "Fort Gael is in Caelid", naming
+        [Incantation] Flame, Grant Me Strength (f1047387120) and Ash of War: Lion's Claw
+        (f1047387700, "drops from killing the lion"). He first answered the two separately and they
+        disagreed -- which is itself the finding: region is a TILE property, so two checks on one
+        tile cannot have different answers, and a form that lets them is a form that hides this.
+
+        🛑 Two tiles is not the class either. Both were found by a player noticing, not by a gate."""
+        fg = sorted(ap for ap, flag in self.ap_flag.items()
+                    if 1047387000 <= flag <= 1047387999)
+        self.assertTrue(fg, "no m60_47_38 lots in data.py at all")
+        off = sorted((ap, self.ap_region.get(ap)) for ap in fg
+                     if self.ap_region.get(ap) != "Caelid")
+        self.assertEqual(off, [], str(len(off)) + " of " + str(len(fg)) + " Fort Gael (m60_47_38) "
+                         "check(s) are not in Caelid -- the tile curation regressed "
+                         "(gen_data.M60_TILE_CURATED). Sample: " + repr(off[:5]))
+
     def test_recovered_catacombs_have_members(self):
         """The 9 catacombs whose checks were unplaced (flag_prefix/PENDING) must sweep them after the
         grace-derived map recovery -- guards the 'catacomb boss sweeps its whole catacomb' fix."""

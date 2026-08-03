@@ -67,4 +67,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:69e97609f0d88be4c701414f35423331d2b724b8c4e8d9444a9a61ed3877e67c', 'module': 'region_graces.py', 'body_sha256': 'sha256:91cbefa774eae9d86b1f70652b072bf5c2a7f6ab8edc1cf49df583bec288e516'}
+_GEN_STAMP = {'inputs_hash': 'sha256:93b92dc165cde7db4be3830ec484d454515947757fb3faaa698be867914fe577', 'module': 'region_graces.py', 'body_sha256': 'sha256:91cbefa774eae9d86b1f70652b072bf5c2a7f6ab8edc1cf49df583bec288e516'}

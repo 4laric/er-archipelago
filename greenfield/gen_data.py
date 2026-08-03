@@ -219,6 +219,15 @@ M60_TILE_CURATED = {
     # CONFIRMED IN GAME: Alaric (own playtest) and independently boblerrr (v0.3.2 playtest,
     # 2026-08-03 -- "killed the boss in Summonwater Village, got no loot on a Limgrave seed").
     (45, 39): '61000',
+    # (47, 38) -- Fort Gael. The MIRROR of the row above, and the same coin: no grace of its own,
+    # one step from (46, 38) Third Church of Marika [61000] to the west and (47, 39) Fort Gael North
+    # [64000] to the east, tied at distance 1. This one fell WEST, so 15 checks -- twelve of them
+    # anchored to Fort Gael North, Caelid Highway South or Astray from Caelid Highway North, i.e.
+    # named after Caelid graces -- shipped as LIMGRAVE.
+    # CONFIRMED IN GAME by Alaric, 2026-08-03: "Fort Gael is in Caelid", naming both
+    # [Incantation] Flame, Grant Me Strength (f1047387120) and Ash of War: Lion's Claw
+    # (f1047387700, "drops from killing the lion") as Caelid.
+    (47, 38): '64000',
 }
 for _xy60, _cpr60 in M60_TILE_CURATED.items():
     _ev60 = ANCHOR.get(_xy60)
