@@ -15,6 +15,19 @@ csv.field_size_limit(10**7)
 HERE=os.path.dirname(os.path.abspath(__file__))
 REPO=os.path.abspath(os.path.join(HERE,".."))
 AR=os.path.join(REPO,"elden_ring_artifacts")
+# 🛑 INPUT COMPLETENESS IS CHECKED HERE, BEFORE ANY OUTPUT IS WRITTEN. The stamp at the bottom of
+# this file computes the same manifest, but that is far too late -- by then the modules are already
+# on disk, generated from whatever subset happened to be present. A missing DECLARED input is a
+# hard stop, never a quieter run (CONTRIBUTING rule 4).
+import sys as _sys0
+_sys0.path.insert(0, REPO)
+try:
+    from tools.gen_manifest import require_complete_inputs as _rci
+except Exception as _e0:                       # no manifest module -> cannot verify, say so LOUDLY
+    print(f"[gen_data] WARNING: tools/gen_manifest unavailable ({_e0!r}) -- input completeness NOT "
+          f"checked. A partial checkout will generate a smaller, wrong dataset silently.")
+else:
+    _rci(REPO, who="gen_data")
 OUT=os.path.join(HERE,"eldenring","data.py")
 HUB="Roundtable Hold"
 # Boss-drop flags: boss-healthbar enemy DROPS, datamined from EMEVD common boss-handlers (matt-free).
