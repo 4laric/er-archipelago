@@ -142,8 +142,44 @@ def compute_manifest(repo_root):
 
 
 def compute_inputs_hash(repo_root):
-    """Convenience: just the inputs_hash string."""
+    """Convenience: just the inputs_hash string.
+
+    🛑 This DISCARDS `missing`. If you are about to GENERATE from these inputs, call
+    require_complete_inputs() instead -- see the incident in its docstring."""
     return compute_manifest(repo_root)["inputs_hash"]
+
+
+def require_complete_inputs(repo_root, who="gen_data"):
+    """Refuse to generate from an incomplete input set. Returns the manifest; raises SystemExit.
+
+    MOTIVATING CASE (CONTRIBUTING rule 4, 2026-08-02). `item_tiers.tsv` is a DECLARED input that
+    lives at the repo ROOT. It was absent from a sparse checkout, and gen_data read it as
+
+        if os.path.isfile(_tier_tsv):        # ...and no else
+
+    so the tier-list catalog augmentation (+334 gear items) simply did not happen. gen_data ran
+    GREEN and emitted item_catalog 1724 instead of 2058, which moved Legendary/EniaShop tags in
+    location_tags.py. The drift was blamed on the gen_inputs bundle and cost a wrong hand-off
+    ("this needs a regen on your box") before the real cause was found by diffing a local regen log
+    against a CI one -- the tell was one ABSENT log line.
+
+    compute_manifest() already knew: it returns `missing`, and even folds ABSENT entries into the
+    hash so a partial-input machine cannot collide with a full one. gen_data just called
+    compute_inputs_hash(), which throws that list away. The information existed one function call
+    from where it was needed.
+
+    Optional inputs (OPTIONAL) are exempt by construction -- they are not in `missing`."""
+    man = compute_manifest(repo_root)
+    if man["missing"]:
+        raise SystemExit(
+            "%s: REFUSING TO GENERATE -- %d DECLARED input(s) are missing from this checkout:\n"
+            "  %s\n"
+            "Generating anyway would silently produce a SMALLER, wrong dataset (that is exactly how\n"
+            "item_catalog came out 1724 instead of 2058 on 2026-08-02). If this is a sparse or\n"
+            "partial clone, fetch the missing paths; if an input was renamed, update FILE_INPUTS/\n"
+            "GLOB_INPUTS in tools/gen_manifest.py; if it is genuinely optional, add it to OPTIONAL."
+            % (who, len(man["missing"]), "\n  ".join(man["missing"])))
+    return man
 
 
 def _find_repo_root(start=None):

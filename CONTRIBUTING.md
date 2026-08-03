@@ -388,6 +388,23 @@ said `vanilla suppressor ARMED for 865 check item ids`.
 `if not m.startswith("m"): continue` quietly discarded **40% of the input rows** and the tool ran green.
 If you skip rows, COUNT them and print the count. A filter with no tally is a lie.
 
+**A FILE-EXISTENCE CHECK IS A FILTER TOO — and it is the one with no rows to count.**
+`if os.path.isfile(x):` with no `else` is the same lie at whole-file scale, and worse, because the
+tally that would expose it is structurally zero. `item_tiers.tsv` is a DECLARED input that lives at
+the repo ROOT; it was absent from a sparse checkout, so the tier-list catalog augmentation (**+334
+gear items**) simply did not happen. `gen_data.py` exited **0** and emitted `item_catalog` 1724
+instead of 2058, which moved `Legendary`/`EniaShop` tags in `location_tags.py`. The drift was blamed
+on the `gen_inputs` bundle — which was fine — and cost a wrong hand-off ("this needs a regen on your
+box") before a diff of the local regen log against a CI one found it. The tell was one **absent** log
+line. `compute_manifest()` had returned a `missing` list the whole time; `compute_inputs_hash()`
+threw it away, and that was the one being called. **The information existed one function call from
+where it was needed.**
+**If an input is declared, its absence is a hard stop — and the stop happens BEFORE you write
+output.** (`gen_manifest.require_complete_inputs()`, called at the top of `gen_data.py`: a
+completeness check at stamp time is decoration, because by then the wrong data is already on disk.)
+If an input is genuinely optional, say so in ONE place (`gen_manifest.OPTIONAL`), not in an `if` at
+the use site.
+
 **5. RUN the tool. Do not read it.**
 One derivation tool in this repo produced **eight** separate confident-wrong outputs — imported the wrong
 package, joined on a drifted key, parsed a table inside-out, mangled `Charo's` into `'s`, used the wrong
