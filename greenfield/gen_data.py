@@ -5057,6 +5057,12 @@ CHECK_LOT_SLOTS_ENEMY = {}   # ItemLotParam_enemy lot id -> same (boss / enemy o
 # farmable, so zeroing it can't eat a legitimate repeatable source (same guarantee the goods blank uses).
 CHECK_LOT_ZERO_MAP = {}
 CHECK_LOT_ZERO_ENEMY = {}
+# Acquisition flags whose check ware is neutralised AT THE LOT (goods-repointed or non-goods-
+# repointed). features/check_item_flags.py drops any FullID whose EVERY backing check is in here:
+# such an id can no longer be handed out at a check, so id-keyed suppression is pure downside.
+# See #321 -- `check_lots.py`'s "a weapon is essentially never farmable" is false (enemy_drops.rs
+# rerolls GOODS slots only, so 4891 unflagged enemy lots keep their vanilla weapon/armour wares).
+CHECK_LOT_FLAGS = set()
 _ENEMY_LOT_FLAGS = {}        # lot -> flag, for the audit below
 for _fn, _dst, _zdst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP, CHECK_LOT_ZERO_MAP),
                          ("ItemLotParam_enemy.csv", CHECK_LOT_SLOTS_ENEMY, CHECK_LOT_ZERO_ENEMY)):
@@ -5103,6 +5109,11 @@ for _fn, _dst, _zdst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP, CHECK_LOT
                 _dst[_lot] = _sl
             if _zsl:
                 _zdst[_lot] = _zsl
+            if _sl or _zsl:
+                # #321: the acquisition flag of every check whose ware is NEUTRALISED AT ITS SOURCE.
+                # The client can no longer hand that ware out at this check, so arming the id-keyed
+                # suppressor for it buys nothing and costs every copy from every OTHER source.
+                CHECK_LOT_FLAGS.add(_flag)
             if (_sl or _zsl) and _dst is CHECK_LOT_SLOTS_ENEMY:
                 _ENEMY_LOT_FLAGS[_lot] = _flag
 
@@ -5166,7 +5177,11 @@ with open(OUT_CHECKLOTS, "w", newline="\n", encoding="utf-8") as f:
     f.write("# (primary + siblings) of an allowlisted shared-flag family. The coverage gate uses this\n")
     f.write("# to legalize a shared detect flag (distinct lots per member) and to demand each member's\n")
     f.write("# suppression at its OWN lot. Empty when CO_CHECK_FLAGS is empty.\n")
-    f.write("LOCATION_LOT = " + repr(dict(sorted(CO_CHECK_LOCATION_LOT.items()))) + "\n")
+    f.write("LOCATION_LOT = " + repr(dict(sorted(CO_CHECK_LOCATION_LOT.items()))) + "\n\n")
+    f.write("# #321 -- acquisition flags whose ware is neutralised AT THE LOT (repointed above), so\n")
+    f.write("# the id-keyed suppressor has nothing left to suppress for them. check_item_flags.py\n")
+    f.write("# drops any FullID whose EVERY backing check is in here.\n")
+    f.write("CHECK_LOT_FLAGS = frozenset(" + repr(sorted(CHECK_LOT_FLAGS)) + ")\n")
 print(f"check_lots: {len(CHECK_LOT_SLOTS_MAP)} MAP + {len(CHECK_LOT_SLOTS_ENEMY)} ENEMY check lots to "
       f"blank ({sum(len(v) for v in CHECK_LOT_SLOTS_MAP.values()) + sum(len(v) for v in CHECK_LOT_SLOTS_ENEMY.values())} "
       f"goods slots) -> placeholder {AP_PLACEHOLDER_GOODS}; "
