@@ -35,6 +35,9 @@ Elden Ring:
   death_link: true              # you both die together (your original comment; the value said false)
   progressive_flasks: true
 
+  auto_equip: true              # auto-equip new weapons and armor (client PR #11)
+  auto_upgrade: true            # auto-upgrade weapons and armor (client PR #11)
+
   # --- standard AP ---
   accessibility: minimal
   progression_balancing: 50
