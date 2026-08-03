@@ -97,8 +97,28 @@ def test_the_sweep_corpus_did_not_shrink():
     Trigger count 241 -> 240: Ashen Capital's pool is 3 checks across 4 triggers, so the 4th
     (19000810 Radagon) gets an empty slice and is dropped. Harmless -- Radagon and the Elden Beast
     are ONE fight and 19000800 still carries it -- but it is why SWEEP_REGION is not a boss ROSTER.
-    Anything needing "every boss in region R" must read BOSS_HEALTHBARS."""
+    Anything needing "every boss in region R" must read BOSS_HEALTHBARS.
+
+    3187 -> 3189 (2026-08-03, the m60_45_39 tile curation -- gen_data.M60_TILE_CURATED). Trigger
+    count unchanged at 240, no member LOST, two GAINED, nine sweeps re-partitioned. WHY:
+
+    +2  ap 7774636 / 7774637 ("Smoldering Butterfly", m60_47_38) were already Limgrave checks that
+        belonged to NO sweep, because the nearest field boss inside Chebyshev 2 of them was the
+        Summonwater Tibia Mariner (1045390800) and that trigger was regioned CAELID -- the
+        nearest-boss pass is same-region, so it could not see them. Curating tile (45, 39) to
+        Limgrave makes it their boss and they gain coverage. Nothing else entered the corpus.
+
+     0  net redistribution across nine sweeps. 1045390800 flips Caelid -> Limgrave and grows 19 -> 37
+        (it now takes the Limgrave filler in its neighbourhood); seven neighbouring Limgrave field
+        bosses shed exactly the members that are now nearer to it; and 1047400800 (Caelid) grows
+        20 -> 27, picking up the Caelid checks Summonwater was wrongly holding. Every one of those
+        moves is a check changing WHICH boss grants it, not whether.
+
+    The bug this fixes: those 12 m60_45_39 checks, the Tibia Mariner's Deathroot (f530170) and the
+    whole trigger shipped as Caelid, so on any seed without Caelid they did not exist and felling the
+    boss paid nothing. Reported twice -- 2026-07-24 (Alaric) and 2026-08-03 (boblerrr). See
+    test_gf_boss_sweeps.test_summonwater_killsite_checks_are_limgrave."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
-    assert total == 3187, (
-        "sweep corpus is %d, expected 3187. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3189, (
+        "sweep corpus is %d, expected 3189. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)

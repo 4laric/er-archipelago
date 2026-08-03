@@ -194,6 +194,40 @@ for flag,tile in gf.items():
     pr=greg.get(flag); m=re.match(r"m60_(\d\d)_(\d\d)",tile)
     if pr and pr!="0" and m: _acc[(int(m.group(1)),int(m.group(2)))][pr]+=1
 ANCHOR={xy:c.most_common(1)[0][0] for xy,c in _acc.items()}
+
+# ---- CURATED base-overworld tiles (the m60 twin of M61_TILE_CURATED, section 5a) --------------
+# ANCHOR only holds tiles that CONTAIN a grace, so tile_pr() nearest-neighbours the other 99. When a
+# tile is EQUIDISTANT between two regions' anchors, that fallback is settled by ANCHOR's ITERATION
+# ORDER -- i.e. by the row order of grace_flags.tsv -- and not by any evidence at all. These entries
+# pin the tiles where that coin came down wrong and a human has since stood on the ground.
+#
+# Values are play_region ids (str), the type tile_pr returns, so EVERY caller that goes on through
+# PLAY2AP picks the curation up. There is deliberately no second regioning path to keep in sync.
+#
+# The guard below is STRICTER than M61_TILE_CURATED's: a curated m60 tile exists precisely because
+# the tile has no grace of its own, so gaining ANY own-tile anchor -- agreeing or not -- retires the
+# override or turns it into a claim against first-hand evidence. Either way a human must look again.
+M60_TILE_CURATED = {
+    # (45, 39) -- Summonwater Village / Third Church of Marika. Holds no grace of its own and sits
+    # one step from four anchors: (44, 39) Summonwater Village Outskirts and (46, 38) Third Church
+    # of Marika, both play_region 61000 (Limgrave), to its west; (46, 39) Gael Tunnel and (46, 40)
+    # Rotview Balcony, both 64000 (Caelid), to its east. The squared-distance tie broke east, so 12
+    # checks, the Tibia Mariner's Deathroot (f530170) and the whole 1045390800 field sweep shipped
+    # as CAELID -- and are therefore unobtainable on any seed that does not keep Caelid.
+    # tile_pr's own docstring has named these "Summonwater's phantom Caelid checks" since the
+    # 2026-07-25 oracle measurement; this is that measurement being acted on.
+    # CONFIRMED IN GAME: Alaric (own playtest) and independently boblerrr (v0.3.2 playtest,
+    # 2026-08-03 -- "killed the boss in Summonwater Village, got no loot on a Limgrave seed").
+    (45, 39): '61000',
+}
+for _xy60, _cpr60 in M60_TILE_CURATED.items():
+    _ev60 = ANCHOR.get(_xy60)
+    if _ev60 is not None:
+        raise SystemExit(
+            f"gen_data: M60_TILE_CURATED[{_xy60}] = {_cpr60!r} is STALE -- the tile now has its own "
+            f"grace anchor ({_ev60!r}). Re-derive and delete the override, or justify overriding "
+            "first-hand evidence in the entry (CONTRIBUTING: a redundant manual override is a "
+            "failure).")
 def _is_fine_tile(x, y):
     """Is (x, y) a REAL fine overworld tile, or a coarse LOD index masquerading as one?
 
@@ -219,7 +253,12 @@ def tile_pr(x,y):
     seen. Measured 2026-07-25 against the independent per-check nearest-grace oracle: on an ANCHORED
     tile the two agree 98.1% of the time (749 checks); one tile away they agree **84.8%** (429 checks,
     65 disagreements). That 15% is not noise -- it is the Church of Pilgrimage bug (a Weeping Sacred
-    Tear reading Limgrave) and all seven of Summonwater's phantom "Caelid" checks."""
+    Tear reading Limgrave) and all seven of Summonwater's phantom "Caelid" checks.
+
+    Summonwater is no longer among them: tile (45, 39) is pinned in M60_TILE_CURATED above. The
+    measurement stands as written -- the curation removes ONE tile from it, not the class."""
+    _cur = M60_TILE_CURATED.get((x,y))
+    if _cur is not None: return _cur
     if (x,y) in ANCHOR: return ANCHOR[(x,y)]
     best,bd=None,1e18
     for (ax,ay),pr in ANCHOR.items():
@@ -1366,6 +1405,22 @@ _REGION_CONFIRMED_FLAGS = frozenset({
     1036447300,   # Liurnia :: Golden Seed -- collected in Liurnia this session. Its descriptor was
                   # re-anchored to "near Academy Gate Town" in the SAME commit
                   # (location_descriptions.tsv) on the same walk.
+    # --- 2026-08-03, Alaric, CONFIRMED IN GAME from the in-client check feed (#336).
+    1042507020,   # Altus :: Golden Seed -- "it's altus, Ulcerated tree spirit south of Outer Wall
+                  # Phantom Tree". Coherent with the tables independently: Outer Wall Phantom Tree
+                  # is grace 76309, an Altus landmark, and Altus already owns the tiles either side
+                  # of this one (m60_43_50 and m60_42_51 flank m60_42_50). Its descriptor named the
+                  # TILE and is re-anchored to the boss in the SAME commit -- two separate defects
+                  # in one label, and only this half is the region.
+    1046367010,   # Limgrave :: Bloodrose -- near Fort Haight West. "these are confirmed limgrave".
+    1046367500,   # Limgrave :: Dectus Medallion (Left) -- the Fort Haight chest, up the ladder.
+                  # ⭐ The one worth having: a treasure chest in the STARTING region that has never
+                  # been able to host progression, because the hedge bars it via DEFAULTED_REGION_APS.
+                  # 🛑 The check feed renders this flag small enough to misread as 1046375000; it is
+                  # 1046367500, verified against data.py. A slip here confirms the wrong check and
+                  # nothing would ever notice.
+                  # PER-FLAG, not per-tile: m60_46_36 carries four more hedged checks (1046367000,
+                  # 1046367030, 1046367100) that nobody has stood in front of. They stay hedged.
 })
 
 _SURFACE_EXCLUDE_FLAGS = frozenset({
