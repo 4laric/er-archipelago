@@ -612,7 +612,7 @@ LOCATIONS = {
         ('Altus :: Lump of Flesh - near Forest-Spanning Greatbridge [f1041527070]', 7772935, 1041527070),
         ('Altus :: Land Octopus Ovary - near Rampartside Path [f1041527080]', 7772936, 1041527080),
         ('Altus :: Stonesword Key - near Rampartside Path [f1041527090]', 7772937, 1041527090),
-        ('Altus :: Golden Seed - m60_42_50 (region unconfirmed) [f1042507020]', 7772983, 1042507020),
+        ('Altus :: Golden Seed - from the Ulcerated Tree Spirit south of Outer Wall Phantom Tree [f1042507020]', 7772983, 1042507020),
         ('Altus :: Holy Grease - near Outer Wall Phantom Tree [f1042517000]', 7772984, 1042517000),
         ('Altus :: Golden Seed - near Outer Wall Phantom Tree (1) [f1042517400]', 7772985, 1042517400),
         ('Altus :: Golden Seed - near Outer Wall Phantom Tree (2) [f1042517410]', 7772986, 1042517410),
@@ -2408,10 +2408,10 @@ LOCATIONS = {
         ('Limgrave :: Poisonbloom - near Murkwater Coast [f1044387040]', 7773076, 1044387040),
         ('Limgrave :: Golden Rune [1] - near Murkwater Coast [f1044387100]', 7773077, 1044387100),
         ('Limgrave :: Smithing Stone [1] - near Fort Haight West (region unconfirmed) [f1046367000]', 7773088, 1046367000),
-        ('Limgrave :: Bloodrose - near Fort Haight West (region unconfirmed) (1) [f1046367010]', 7773089, 1046367010),
-        ('Limgrave :: Bloodrose - near Fort Haight West (region unconfirmed) (2) [f1046367030]', 7773090, 1046367030),
+        ('Limgrave :: Bloodrose - near Fort Haight West [f1046367010]', 7773089, 1046367010),
+        ('Limgrave :: Bloodrose - near Fort Haight West (region unconfirmed) [f1046367030]', 7773090, 1046367030),
         ('Limgrave :: Golden Seed - near Fort Haight West (region unconfirmed) [f1046367100]', 7773091, 1046367100),
-        ('Limgrave :: Dectus Medallion (Left) - Fort Haight chest, up ladder (region unconfirmed) [f1046367500]', 7773092, 1046367500),
+        ('Limgrave :: Dectus Medallion (Left) - Fort Haight chest, up ladder [f1046367500]', 7773092, 1046367500),
         ('Limgrave :: Ash of War: Bloody Slash - m60_46_36 (region unconfirmed) [f1046367700]', 7773093, 1046367700),
         ('Limgrave :: Strip of White Flesh - near Third Church of Marika (region unconfirmed) [f1046377000]', 7773094, 1046377000),
         ('Limgrave :: Neutralizing Boluses - near Fort Gael North [f1046387010]', 7773095, 1046387010),
@@ -5187,4 +5187,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b1f6171c3eea0330c0536e0be6f11e24b076523e0a406818360507ad880fd5ac', 'module': 'data.py', 'body_sha256': 'sha256:f358a4d01ccda89df547172caf6508255e3da5df19e8537fdb7ef6c85dd3b0bf'}
+_GEN_STAMP = {'inputs_hash': 'sha256:8870a4bccb705febeb1f21b295d6aba425d708a9a19ec4c59a514e9507e696a2', 'module': 'data.py', 'body_sha256': 'sha256:75e6cc9ab131ae69a77585ea95b4666c672b849107638aac2c463c5fcd6c1d33'}
