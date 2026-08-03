@@ -23,10 +23,31 @@ WHAT IT ASSERTS, and none of it is "it generated":
   2. ER REACHES A NON-ER GAME specifically. ER-to-ER traffic alone would satisfy (1) while the world
      was in fact unable to place into a foreign game.
   3. THE MOTIVATING CASE, BY NAME (CONTRIBUTING rule 11): under `natural_progression`, real vanilla
-     keys land in OTHER players' worlds. Measured when this was written: 42 key/remembrance items
-     placed, 12 of them foreign, including a Cursemark of Death in a Hollow Knight slot. If that
-     ever stops being true the guide's promise is false and this goes red.
-  4. NO AP-ID COLLISION between the two ER slots -- each slot's ids are its own.
+     keys land in OTHER players' worlds. Measured 2026-07-28: 42 placed, 12 foreign, including a
+     Cursemark of Death in a Hollow Knight slot; re-measured 2026-08-03 on the same pinned seed:
+     42 placed, 8 foreign. The floor asserted is `> 0`, not either number -- the counts move with
+     fill and the guide's promise is only that they CAN travel.
+  4. THE SLOT_DATA A SECOND SLOT ACTUALLY GETS. Three properties that a solo harness cannot even
+     pose, all read off the multidata:
+       a) `checkItemFlags` flags are a SUBSET of that slot's own `locationFlags` values. A flag
+          outside it can never enter the client's collected-set, so its id is suppressed for the
+          whole run FROM EVERY SOURCE and no amount of play releases it (#321's family).
+       b) NO flag is mapped by TWO item ids -- the precondition the client checks at connect before
+          enabling the flag-set disarm (er_logic::vanilla_suppress::flags_are_unshared). The world
+          gate for this runs at `num_regions: 0` in the unit suite; here it runs on the SHIPPED
+          yaml, twice, beside a foreign game.
+       c) PER-SLOT INDEPENDENCE: two ER slots that kept DIFFERENT regions must emit DIFFERENT
+          tables, and two that kept the same must emit the same. The world module is imported once
+          for the whole generation, so any cross-slot cache hands slot 2 slot 1's tables -- and
+          that is invisible to every single-slot gate we have.
+
+  🛑 WHAT USED TO BE HERE. Item 4 was "NO AP-ID COLLISION between the two ER slots -- each slot's
+  ids are its own." The code behind it parsed `[f12345]` out of location NAMES -- those are EVENT
+  FLAGS, not AP ids -- and then, if the two sets were equal, printed `note: ... (expected)` and
+  never touched `bad`. It could not fail. It was also unfalsifiable as posed: two slots of the same
+  game share a datapackage, so their location ids ARE identical by construction, and the property
+  that matters (placements are keyed by (slot, location)) is an AP structural guarantee, not ours.
+  Deleted rather than repaired -- a green predicate that cannot go red is a comment with a runtime.
 
 🛑 IT IS A SMOKE TEST, NOT A FILL REGRESSION. One seed, one option set. It answers "do the
 cross-world properties hold at all", not "do they hold across the option matrix" -- `fuzz_gf.py` and
@@ -176,6 +197,85 @@ def check_foreign_confinement(slot_info, slot_data, locations, report):
     return bad
 
 
+def check_slot_data_tables(slot_info, slot_data, report):
+    """The three slot_data properties a SOLO harness cannot pose. Reads the multidata, so these are
+    the same bytes the client parses at connect -- not the world object's in-process view."""
+    bad = []
+    er = [(p, slot_data.get(p) or {}) for p, i in sorted(slot_info.items()) if i.game == "Elden Ring"]
+    if len(er) < 2:
+        return ["expected at least 2 Elden Ring slots in the multidata; saw %d" % len(er)]
+
+    for player, sd in er:
+        cif = sd.get("checkItemFlags") or {}
+        locflags = sd.get("locationFlags") or {}
+        if not cif:
+            bad.append(
+                "slot %d emitted an EMPTY checkItemFlags. The client logs `vanilla suppressor "
+                "INERT` and every lot-less check hands out its vanilla ware alongside the AP item. "
+                "An empty table also makes (a) and (b) below pass over nothing." % player)
+            continue
+        if not locflags:
+            bad.append("slot %d emitted an EMPTY locationFlags -- the flag poll is blind and no "
+                       "check can register." % player)
+            continue
+
+        # (a) every armed flag must be reachable by the client's collected-set.
+        loc_values = {int(v) for v in locflags.values()}
+        armed = {int(f) for flags in cif.values() for f in flags}
+        orphan = sorted(armed - loc_values)
+        # (b) the flag-set disarm precondition.
+        owners = collections.defaultdict(set)
+        for full, flags in cif.items():
+            for f in flags:
+                owners[int(f)].add(str(full))
+        shared = {f: sorted(ids) for f, ids in owners.items() if len(ids) > 1}
+
+        report("slot %d: checkItemFlags %d id(s) / %d flag(s), locationFlags %d | orphan flags %d | "
+               "flags mapped by 2+ ids %d" % (player, len(cif), len(armed), len(locflags),
+                                              len(orphan), len(shared)))
+        if orphan:
+            bad.append(
+                "slot %d: %d armed flag(s) are NOT values in that slot's own locationFlags, e.g. "
+                "%s. Such a flag can never enter the client's collected-set, so `should_suppress` "
+                "stays true for its item id for the WHOLE RUN, from every source -- including its "
+                "own check, which then never delivers either."
+                % (player, len(orphan), orphan[:5]))
+        if shared:
+            f0 = next(iter(shared))
+            bad.append(
+                "slot %d: %d acquisition flag(s) are mapped by MORE THAN ONE item id, e.g. flag %s "
+                "-> ids %s. The client checks exactly this at connect (flags_are_unshared) before "
+                "enabling the flag-set disarm, because setting one id's flag would otherwise "
+                "release a neighbour whose check never fired -- the Traveler's Clothes leak. This "
+                "seed would silently fall back to collected-set-only."
+                % (player, len(shared), f0, shared[f0][:4]))
+
+    # (c) PER-SLOT INDEPENDENCE. The world module is imported once for the whole generation.
+    (pa, a), (pb, b) = er[0], er[1]
+    locks_a = set((a.get("regionOpenFlags") or {}))
+    locks_b = set((b.get("regionOpenFlags") or {}))
+    same_regions = locks_a == locks_b
+    lf_a, lf_b = set((a.get("locationFlags") or {})), set((b.get("locationFlags") or {}))
+    cif_a, cif_b = set((a.get("checkItemFlags") or {})), set((b.get("checkItemFlags") or {}))
+    report("slots %d vs %d: same kept regions=%s | locationFlags identical=%s (sym-diff %d) | "
+           "checkItemFlags identical=%s (sym-diff %d)"
+           % (pa, pb, same_regions, lf_a == lf_b, len(lf_a ^ lf_b),
+              cif_a == cif_b, len(cif_a ^ cif_b)))
+    if not same_regions and lf_a == lf_b:
+        bad.append(
+            "slots %d and %d kept DIFFERENT regions (%s vs %s) but emitted IDENTICAL locationFlags. "
+            "The tables are scoped to `[HUB] + world._kept()`, so identical output from different "
+            "region sets means one slot is reading the other's state -- the cross-slot cache class "
+            "that no single-slot gate can see."
+            % (pa, pb, sorted(locks_a - locks_b)[:3], sorted(locks_b - locks_a)[:3]))
+    if same_regions and lf_a != lf_b:
+        bad.append(
+            "slots %d and %d kept the SAME regions but emitted DIFFERENT locationFlags (%d ids "
+            "differ). The table is a pure function of the kept set, so this is non-determinism in "
+            "a structure the client trusts to be stable." % (pa, pb, len(lf_a ^ lf_b)))
+    return bad
+
+
 def placements(zip_path):
     z = zipfile.ZipFile(zip_path)
     names = [n for n in z.namelist() if "Spoiler" in n]
@@ -217,18 +317,6 @@ def check(rows, natural, report):
                    "a naive cross-world check while the world was unable to place into a foreign "
                    "GAME." % PARTNER_GAME)
 
-    # 4. Two slots of the same game must not share ap ids.
-    ids = collections.defaultdict(set)
-    for loc, lp, _i, _ip in rows:
-        if lp in er:
-            m = re.search(r"\[f(\d+)\]", loc)
-            if m:
-                ids[lp].add(m.group(1))
-    if len(ids) == 2:
-        a, b = list(ids.values())
-        if a and b and a == b and len(a) > 10:
-            report("note: both ER slots expose the same flag set (expected -- same game, same map)")
-
     # 3. THE MOTIVATING CASE.
     if natural:
         keys = [(l, lp, i, ip) for l, lp, i, ip in rows
@@ -251,11 +339,95 @@ def check(rows, natural, report):
     return bad
 
 
+def self_test():
+    """Fire every branch of `check_slot_data_tables` DELIBERATELY.
+
+    🛑 WHY THIS EXISTS. The three properties this file added are all currently TRUE, so a green
+    smoke run proves the checks were reached -- not that they can go red. CONTRIBUTING: "an unfired
+    guard is UNTESTED". Every case below is a hand-built slot_data that must FAIL, plus one that
+    must PASS, so a future refactor that silently defangs a branch is caught here instead of the
+    next time the property actually breaks.
+
+    Costs no generation and no Archipelago -- runs in milliseconds, so CI can run it before the
+    expensive half and fail fast.
+    """
+    class _Info:
+        def __init__(self, game):
+            self.game = game
+
+    ER = {1: _Info("Elden Ring"), 2: _Info("Elden Ring"), 3: _Info("Hollow Knight")}
+
+    def sd(cif, locflags, locks):
+        return {"checkItemFlags": cif, "locationFlags": locflags, "regionOpenFlags": locks}
+
+    # A clean pair: two slots, different kept regions, different tables, every flag collectable
+    # and owned by exactly one id.
+    good_a = sd({"100": [11], "200": [12]}, {"7770001": 11, "7770002": 12}, {"Limgrave Lock": 1})
+    good_b = sd({"300": [21]}, {"7770003": 21}, {"Caelid Lock": 2})
+
+    cases = [
+        ("clean pair passes", {1: good_a, 2: good_b}, None),
+        ("orphan flag",
+         {1: sd({"100": [11], "200": [99]}, {"7770001": 11}, {"Limgrave Lock": 1}), 2: good_b},
+         "NOT values in that slot's own locationFlags"),
+        ("flag mapped by two ids",
+         {1: sd({"100": [11], "200": [11]}, {"7770001": 11}, {"Limgrave Lock": 1}), 2: good_b},
+         "mapped by MORE THAN ONE item id"),
+        ("different regions, identical tables (cross-slot cache)",
+         {1: good_a, 2: sd(good_a["checkItemFlags"], good_a["locationFlags"], {"Caelid Lock": 2})},
+         "emitted IDENTICAL locationFlags"),
+        ("same regions, different tables (non-determinism)",
+         {1: good_a, 2: sd({"300": [21]}, {"7770009": 21}, {"Limgrave Lock": 1})},
+         "emitted DIFFERENT locationFlags"),
+        ("empty checkItemFlags",
+         {1: sd({}, {"7770001": 11}, {"Limgrave Lock": 1}), 2: good_b},
+         "EMPTY checkItemFlags"),
+        ("empty locationFlags",
+         {1: sd({"100": [11]}, {}, {"Limgrave Lock": 1}), 2: good_b},
+         "EMPTY locationFlags"),
+        ("only one ER slot", {1: good_a}, "expected at least 2 Elden Ring slots"),
+    ]
+
+    print("=== self-test: every guard must fire on its own fault ===")
+    problems = []
+    for name, slots, want in cases:
+        info = {p: ER[p] for p in slots} if len(slots) > 1 else {1: ER[1]}
+        got = check_slot_data_tables(info, slots, lambda _m: None)
+        if want is None:
+            if got:
+                problems.append("%-52s expected PASS, got: %s" % (name, got[0][:90]))
+            else:
+                print("  ok    %-52s passes" % name)
+        elif not got:
+            problems.append("%-52s expected a FAILURE, got a clean pass -- this guard is INERT"
+                            % name)
+        elif not any(want in f for f in got):
+            problems.append("%-52s failed for the WRONG reason: %s" % (name, got[0][:90]))
+        else:
+            print("  ok    %-52s fails as designed" % name)
+    if problems:
+        print("SELF-TEST: FAIL")
+        for pr in problems:
+            print("  * %s" % pr)
+        return 1
+    print("SELF-TEST: PASS -- %d guard(s) proven able to go red\n" % (len(cases) - 1))
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--ap-dir", required=True, help="an Archipelago checkout with the world installed")
+    ap.add_argument("--ap-dir", help="an Archipelago checkout with the world installed "
+                                     "(not needed with --self-test)")
     ap.add_argument("--keep", action="store_true", help="leave the generated output on disk")
+    ap.add_argument("--self-test", action="store_true",
+                    help="fire every slot_data guard on a hand-built fault and exit. Needs no "
+                         "Archipelago and no generation; proves the guards can go RED.")
     args = ap.parse_args(argv)
+
+    if args.self_test:
+        return self_test()
+    if not args.ap_dir:
+        ap.error("--ap-dir is required unless --self-test is given")
 
     ap_dir = os.path.abspath(args.ap_dir)
     _AP_DIR.append(os.path.join(ap_dir, "_"))   # multidata() needs the AP root importable for Utils
@@ -294,6 +466,8 @@ def main(argv=None):
             failures += ["[%s] %s" % (label, f)
                          for f in check_foreign_confinement(si, sd, locs,
                                                             lambda m: print("  " + m))]
+            failures += ["[%s] %s" % (label, f)
+                         for f in check_slot_data_tables(si, sd, lambda m: print("  " + m))]
         finally:
             if args.keep:
                 print("  kept: %s" % work)
@@ -307,7 +481,9 @@ def main(argv=None):
             print("  * %s" % f)
         return 1
     print("MULTIWORLD SMOKE: PASS -- cross-world flow works in both directions, ER reaches a foreign "
-          "game, natural_progression keys are placeable in other players' worlds, and foreign\n      progression lands only on the progression surface.")
+          "game, natural_progression keys are placeable in other players' worlds, foreign\n"
+          "      progression lands only on the progression surface, and each slot's checkItemFlags "
+          "is collectable,\n      unshared, and its own.")
     return 0
 
 

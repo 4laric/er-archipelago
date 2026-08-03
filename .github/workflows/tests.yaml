@@ -155,6 +155,12 @@ jobs:
       # the two apart. Two ER slots beside two Hollow Knight slots (ships with AP, pure Python, no
       # ROM). Exits 4 = SKIP when the partner world is absent; this job checks out stock upstream in
       # full, so it runs.
+      # The guards below are all currently TRUE, so a green smoke proves they were REACHED, not
+      # that they can go red. --self-test fires each one on a hand-built fault. No Archipelago, no
+      # generation, milliseconds -- so it runs FIRST and fails fast.
+      - name: Multiworld smoke -- guards can go red (--self-test)
+        run: python tools/gf_multiworld_smoke.py --self-test
+
       - name: Multiworld smoke (2x Elden Ring + 2x Hollow Knight)
         run: |
           python tools/gf_multiworld_smoke.py --ap-dir _ap
