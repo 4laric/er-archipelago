@@ -38,7 +38,12 @@ REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
 # test_field_exclude_matches_contract below (drift guard).
 FIELD_EXCLUDE = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                            "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",
-                           "ShopSlot", "MajorBoss"})
+                           "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss"})
+# LegacyBoss/FieldBoss (2026-08-02) are SUBSETS of Boss, which is already here, so adding them cuts
+# nothing new -- every check they name was excluded already. They are listed because this set is a
+# deliberate mirror of contract.IMPORTANT_LOCATION_TYPES and test_field_exclude_matches_contract
+# demands exact parity: the guard exists so a new premium class cannot be added to the vocabulary
+# while quietly staying eligible for a filler sweep.
 
 
 def _mod(name):

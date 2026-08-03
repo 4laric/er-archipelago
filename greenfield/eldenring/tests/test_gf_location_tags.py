@@ -241,6 +241,32 @@ class TagDataTests(unittest.TestCase):
         closure picks those up automatically, which is why this is a closure and not a hand list."""
         self.assertEqual(TAG_COUNTS["MajorBoss"], 42)
 
+    def test_boss_geography_counts(self):
+        """LegacyBoss / FieldBoss split `Boss` by WHERE the boss stands. Drift guard on both."""
+        self.assertEqual(TAG_COUNTS["LegacyBoss"], 30)
+        self.assertEqual(TAG_COUNTS["FieldBoss"], 84)
+
+    def test_geography_tags_are_subsets_of_boss_and_disjoint(self):
+        """Definitional, so these are gates, not preferences: a legacy/field boss IS a boss, and no
+        boss stands in two places."""
+        leg = {ap for ap, t in LOCATION_TAGS.items() if "LegacyBoss" in t}
+        fld = {ap for ap, t in LOCATION_TAGS.items() if "FieldBoss" in t}
+        boss = {ap for ap, t in LOCATION_TAGS.items() if "Boss" in t}
+        self.assertTrue(leg <= boss, sorted(leg - boss)[:8])
+        self.assertTrue(fld <= boss, sorted(fld - boss)[:8])
+        self.assertEqual(leg & fld, set(), "a check cannot be both legacy and field")
+        self.assertLess(len(leg | fld), len(boss),
+                        "some Boss checks are legitimately unclassified (majors + the dragon-heart "
+                        "special-case); if this ever equals Boss, the join started guessing")
+
+    def test_no_underground_class(self):
+        """81 catacomb/cave/tunnel/minor-dungeon BOSSES exist; only THREE drop an AP-tracked check,
+        because minidungeon rewards are arena chests, not the boss's own drop. So there is no
+        `Underground` class and "exclude the catacombs" is not expressible. If this ever fails, the
+        data changed and the decision is worth revisiting -- it is not a lint."""
+        self.assertNotIn("Underground", IMPORTANT_LOCATION_TYPES)
+        self.assertNotIn("Underground", TAG_COUNTS)
+
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
         # surface-selectable TYPES; those live in contract.SURFACE_EXCLUDE_TAGS. Valid == either.

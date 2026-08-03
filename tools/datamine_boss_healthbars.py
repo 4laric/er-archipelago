@@ -53,11 +53,43 @@ _INITC   = re.compile(r"\$InitializeCommonEvent\(\s*\d+\s*,\s*(\d+)\s*,\s*([^)]*
 # Marika, m20 Belurat, m21 Shadow Keep, m35 Shunning-Grounds, ...) stay region-wide.
 _MINOR_DUNGEON_MAPS = {"m34", "m39", "m40", "m41", "m42", "m43"}
 def _class(map_ab):
+    """SWEEP SCOPING class. Answers "how should this boss's sweep be built?", NOT "where does this
+    boss stand?" -- see _geography below, and do not use one for the other's question.
+
+    🛑 m61 (the DLC overworld) is deliberately NOT "field" here. Geographically it is exactly m60:
+    open-world tiles, field bosses, tile-encoding entity ids. But the field pass builds a Chebyshev
+    neighbourhood out of `^m60_(\d\d)_(\d\d)$` tiles ONLY (gen_data), so an m61 boss classed
+    "field" finds no neighbourhood and gets NO SWEEP AT ALL. Measured 2026-08-02: making it field
+    took sweeps from 240 triggers / 3187 member links across 31 regions to 212 / 3040 / 27 -- all 28
+    DLC overworld bosses lost their sweep, 0 gained one. Falling through to "legacy" hands them the
+    region-divvy path instead, which gen_data explicitly accommodates ("m61 overworld boss -> its own
+    tile-region"). A region-divvied sweep is less legible than a spatial one and far better than none.
+    Remove this fallback only together with a map-AWARE field pass (key the tile grid by (map, x, y)
+    so a neighbourhood can never span m60/m61)."""
     p = map_ab[:3]
     named = {"m30": "catacomb", "m31": "cave", "m32": "tunnel", "m60": "field"}
     if p in named:
         return named[p]
     return "dungeon" if p in _MINOR_DUNGEON_MAPS else "legacy"
+
+
+def _geography(map_ab):
+    """WHERE THE BOSS STANDS -- field / underground / legacy. The honest terrain answer, with no
+    sweep-machinery caveats folded in, for consumers that are asking about the PLACE.
+
+    Differs from _class in exactly one way, and it is the whole reason this exists: **m61 is field**
+    (the Land of Shadow overworld). _class has to call it "legacy" to keep its sweeps working; a
+    location TAG that did the same would tell the player Ghostflame Dragon and Dancer of Ranah are
+    legacy-dungeon bosses, which is simply false.
+
+    One question per function. Reusing _class for geography is what made 15 DLC overworld boss checks
+    look like legacy-dungeon checks in the first pass of this work."""
+    p = map_ab[:3]
+    if p in ("m60", "m61"):
+        return "field"
+    if p in ("m30", "m31", "m32") or p in _MINOR_DUNGEON_MAPS:
+        return "underground"
+    return "legacy"
 
 
 def hb_handlers():
