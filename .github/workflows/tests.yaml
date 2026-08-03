@@ -282,6 +282,15 @@ jobs:
       - name: Contract changes carry a version bump (rule 15)
         run: python tools/check_contract_version.py
 
+      # The ledger RATCHET, run here and nowhere else. gf_test.py copies the world into _ap/ without
+      # tools/ or release-v0.2/, so this suite skips under the `tests` job (find_repo_root -> None).
+      # _util.REPO_ONLY_REASON claims such suites "are run by the generators CI job instead"; that was
+      # not true -- this job ran no pytest at all, so a repo-only suite relied on a runner that did not
+      # exist. Stdlib unittest, invoked as a FILE (as a module it would import the world, which needs
+      # Archipelago). Guards the gate's one bypass: editing a shipped ledger row instead of bumping.
+      - name: The contract-version ledger is a ratchet (rule 15)
+        run: python greenfield/eldenring/tests/test_gf_contract_versions.py
+
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_region_locks.py
