@@ -3,6 +3,68 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.2 — 2026-08-03
+
+A bugfix release, and mostly a client one. `CONTRACT_HASH` is unmoved from v0.3.0, so seeds rolled
+on 0.3.1 still connect — but the client and the apworld must still match.
+
+### Fixed: the id-keyed suppressor was eating vanilla items from every source
+
+`detour.rs` sees only `raw_id` off the AddItemFunc buffer and cannot answer "where did this come
+from?", so `checkItemFlags` suppressed a check's vanilla ware **by item id, from everywhere**. Goods
+were taken off that mechanism in July by repointing each check's lot at the placeholder;
+weapons/armour were left on it under the header note in `features/check_lots.py`:
+
+> "a weapon is essentially never farmable, so it lives in the check-only set and cannot eat a
+> legitimate source"
+
+`enemy_drops.rs` refutes that in the client tree — 4891 enemy lots carry no flag (farmable) and its
+reroll rewrites *"only the GOODS slots; weapon/armor/talisman drop slots keep their vanilla
+contents."* So a farmable enemy can drop a vanilla weapon that backs a check, and every such copy was
+eaten. This is the 2026-07-11 Golden Rune [1] incident surviving on the non-goods side.
+
+Since `CAN_WRITE_SLOT_CATEGORY` was wired, non-goods check lots are repointed too — so for any item
+id whose **every** backing check is lot-covered there is nothing left to suppress. Those ids are
+dropped: **1289 armed ids -> 211**, including all 475 goods and 285 of 367 weapons. 13 partially
+covered ids stay armed (`should_suppress` needs every mapped flag collected, so an uncovered backing
+check still has something to protect) and 198 lot-less ones stay armed because an EMEVD award has no
+source to neutralise.
+
+🛑 **This is a cap, not a cure.** For those 211, a vanilla copy picked up *before* that check's award
+fires is still withheld. Closing it needs a source discriminator the detour does not have (#321).
+
+### Fixed: auto_equip never equipped a weapon when auto_upgrade was on
+
+The receive loop queued the **pre**-upgrade FullID while `apply_auto_upgrade` put `base + N` in the
+bag, and `auto_equip::tick` looks the queued id up by exact FullID. It missed, went back on
+`still_pending`, and retried for the session. Protectors are identity under `apply_auto_upgrade`,
+which is exactly the reported asymmetry — armour equipped, weapons never did. The upgrade now runs
+inside `enqueue`, so there is one enqueue path and a future caller cannot reintroduce the mismatch.
+(#296, #302, #303)
+
+### Also
+
+* Ammunition is no longer a held weapon, so bolts stop replacing your main hand (#294).
+* Shields, staves, seals, bows and crossbows auto-equip to the **left** hand, per the French
+  Challenge ruleset, instead of disarming you (#301).
+* The Hefty Cracked Pot cap was 9 against a DLC that ships 10, so the tenth was reported delivered
+  and never arrived (#308). There is no EMEVD threshold for it; the old cap was extrapolated from
+  the base-game pots.
+* Missing FMG entries are created rather than dropped, so items stop rendering as `?GoodsName?`
+  (#300).
+* A minimised window wrote 612,842 `[ERROR]` lines in one session; repeats collapse.
+* The sealed-region kick names the region, the Lock that opens it, and why your vanilla key did not.
+* Four more latched game-state writers re-arm on the in-world edge instead of lapsing after a warp.
+* `important_locations` is deleted. It forced 256 checks to reject plain filler from **every** world
+  in the multiworld, not just this one — it was frozen, unchosen, and taxing everyone else's fill.
+
+### Gates
+
+Rule 15 (a contract change forces a version change) now has a ledger and a gate. The multiworld
+smoke asserts three slot_data properties a solo harness cannot pose — armed flags are collectable,
+no flag is owned by two item ids, and two slots emit their own tables — and a `--self-test` proves
+each of those guards can go red.
+
 ## v0.3.1 — 2026-08-02
 
 A bugfix release. Every entry is a way a seed could quietly become unwinnable or trivially winnable

@@ -24,3 +24,4 @@
 0.2.18	d970dd88	v0.2.18
 0.3.0	5e8b11c9	v0.3.0
 0.3.1	5e8b11c9	v0.3.1 -- contract UNCHANGED from 0.3.0; the bump was version-lockstep, not a contract move
+0.3.2	5e8b11c9	v0.3.2 -- contract UNCHANGED from 0.3.0/0.3.1; the bump is version-lockstep for a client-heavy bugfix release, not a contract move
