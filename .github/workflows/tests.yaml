@@ -324,9 +324,17 @@ jobs:
           # two committed wizard artifacts agree with EACH OTHER (pure text, no AP import), so it
           # runs in this job as well as `tests`. It deliberately cannot tell you both are stale
           # against the docstrings -- that is --check's job, over in `tests`.
+          # region_grace_disagreement added 2026-08-03: it needs greenfield/nearest_grace.tsv, and the
+          # `tests` job installs the world with a bare `cp -r greenfield/eldenring` plus region_map.csv
+          # (line ~146), so that file is NOT beside the package there and the suite SKIPS. NOTE the
+          # asymmetry: ci-linux.sh installs via tools/gf_test.py --install-only, which DOES carry the
+          # beside-package inputs, so it runs locally and would have looked covered. Without this line
+          # it would skip in `tests`, skip here, and gate nothing on GitHub -- the exact failure the
+          # paragraph above this loop was written about.
           for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe \
                    scaling_ladder_mirror client_contract_paths client_can_sell_mirror \
                    client_resets_are_called contract_versions wizard_blob_sync \
+                   region_grace_disagreement \
                    infinite_shop_rows_are_browsable_shelves; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
