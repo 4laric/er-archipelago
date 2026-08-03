@@ -1332,8 +1332,8 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # this region, and looked.
 #
 # 🛑 PER-FLAG, never per-tile. Confirming the tile would confirm every check on it, which is exactly
-# the wrong arity (er-tiles-legitimately-span-regions) -- these two share tile m60_34_45 with checks
-# nobody has stood in front of.
+# the wrong arity (er-tiles-legitimately-span-regions) -- the first two share tile m60_34_45 with
+# checks nobody has stood in front of.
 _REGION_CONFIRMED_FLAGS = frozenset({
     # --- 2026-08-01, Alaric, CONFIRMED IN GAME from the in-client check feed. Both read
     # "Liurnia :: ... (region unconfirmed)" on screen; both are Liurnia.
@@ -1342,6 +1342,15 @@ _REGION_CONFIRMED_FLAGS = frozenset({
                   # This is the SINGLETON overworld key pickup (the 14007930 "second key" was
                   # dropped as a phantom on the 2026-07-17 surface review), so a Liurnia region
                   # that can host progression here is worth having.
+    # --- 2026-08-02, Alaric, CONFIRMED IN GAME during a live playtest session. Both read
+    # "(region unconfirmed)" on screen; he collected each one and named the region he was standing in.
+    1044327020,   # Weeping :: Golden Seed -- "near Castle Morne Rampart". "this one's in weeping".
+                  # Castle Morne is Weeping Peninsula, and its nearest six graces are all Castle
+                  # Morne / Ailing Village ones (231-417 m), so the tile vote was already right --
+                  # the hedge was costing us a Weeping progression slot for nothing.
+    1036447300,   # Liurnia :: Golden Seed -- collected in Liurnia this session. Its descriptor was
+                  # re-anchored to "near Academy Gate Town" in the SAME commit
+                  # (location_descriptions.tsv) on the same walk.
 })
 
 _SURFACE_EXCLUDE_FLAGS = frozenset({

@@ -41,6 +41,10 @@
   setting, so it was off for everyone and nothing said so. The equip mechanism itself is verified
   against a live game with Cheat Engine, but the feature has **not** had a full playtest — see below
   before you switch it on.
+- **Two Golden Seeds in Liurnia were signposted to the wrong Site of Grace**, one of them to a
+  grace 872 m away at the far end of the lake. Both now name the grace you would actually walk
+  from. Two more checks stop reading *(region unconfirmed)* -- someone collected them in game, so
+  they can hold progression again like any other check.
 - ⚠️ **Client update recommended.**
 
 ---

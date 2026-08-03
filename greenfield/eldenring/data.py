@@ -3005,7 +3005,7 @@ LOCATIONS = {
         ('Liurnia :: Smoldering Butterfly - m60_35_44 (region unconfirmed) [f1035447990]', 7774347, 1035447990),
         ('Liurnia :: Strip of White Flesh - near South Raya Lucaria Gate [f1035457030]', 7774348, 1035457030),
         ('Liurnia :: Stonesword Key - near Main Academy Gate [f1035467020]', 7774349, 1035467020),
-        ('Liurnia :: Golden Seed - near Academy Gate Town [f1035467100]', 7774350, 1035467100),
+        ('Liurnia :: Golden Seed - near Main Academy Gate [f1035467100]', 7774350, 1035467100),
         ('Liurnia :: Somber Smithing Stone [4] - near The Ravine (region unconfirmed) [f1035497020]', 7774351, 1035497020),
         ('Liurnia :: Somber Smithing Stone [2] - near Main Caria Manor Gate (region unconfirmed) [f1035497990]', 7774352, 1035497990),
         ('Liurnia :: Golden Rune [4] - near Main Caria Manor Gate [f1035507010]', 7774353, 1035507010),
@@ -3059,7 +3059,7 @@ LOCATIONS = {
         ('Liurnia :: Smithing Stone [2] - near Fallen Ruins of the Lake (region unconfirmed) [f1036447040]', 7774407, 1036447040),
         ('Liurnia :: Shattershard Arrow (Fletched) - near South Raya Lucaria Gate (region unconfirmed) [f1036447050]', 7774408, 1036447050),
         ('Liurnia :: Glintstone Firefly - near South Raya Lucaria Gate (region unconfirmed) [f1036447060]', 7774409, 1036447060),
-        ('Liurnia :: Golden Seed - near Fallen Ruins of the Lake (region unconfirmed) [f1036447300]', 7774410, 1036447300),
+        ('Liurnia :: Golden Seed - near Academy Gate Town [f1036447300]', 7774410, 1036447300),
         ('Liurnia :: Crystal Cave Moss - near South Raya Lucaria Gate [f1036457020]', 7774411, 1036457020),
         ('Liurnia :: Stonesword Key - near South Raya Lucaria Gate [f1036457110]', 7774412, 1036457110),
         ('Liurnia :: Somber Smithing Stone [3] - near East Raya Lucaria Gate (region unconfirmed) [f1036477000]', 7774413, 1036477000),
@@ -4920,7 +4920,7 @@ LOCATIONS = {
         ('Weeping :: Arteria Leaf - near Castle Morne Lift (region unconfirmed) [f1044317020]', 7773041, 1044317020),
         ('Weeping :: Somber Smithing Stone [2] - near Castle Morne Lift (region unconfirmed) [f1044317030]', 7773042, 1044317030),
         ('Weeping :: Smithing Stone [1] - near Castle Morne Rampart (region unconfirmed) [f1044327010]', 7773043, 1044327010),
-        ('Weeping :: Golden Seed - near Castle Morne Rampart (region unconfirmed) [f1044327020]', 7773044, 1044327020),
+        ('Weeping :: Golden Seed - near Castle Morne Rampart [f1044327020]', 7773044, 1044327020),
         ('Weeping :: Warming Stone - near Castle Morne Rampart (region unconfirmed) [f1044327030]', 7773045, 1044327030),
         ('Weeping :: Great Turtle Shell - near Castle Morne Rampart (region unconfirmed) [f1044327040]', 7773046, 1044327040),
         ('Weeping :: Sacrificial Axe - m60_44_32 (region unconfirmed) [f1044327400]', 7773047, 1044327400),
@@ -5187,4 +5187,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:e2eee9c46d786242a6318329469ee076b058fb3a1ea0652b0facc08cfae8afa9', 'module': 'data.py', 'body_sha256': 'sha256:00c47b1d8cfc26294675ecae9e538112e971d5d38a2a9031cb7da359690d6270'}
+_GEN_STAMP = {'inputs_hash': 'sha256:82881579da0ea727f427809c9e8d738d51af18c7cce2bde2ec6a7121009abd7d', 'module': 'data.py', 'body_sha256': 'sha256:f358a4d01ccda89df547172caf6508255e3da5df19e8537fdb7ef6c85dd3b0bf'}
