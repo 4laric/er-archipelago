@@ -201,6 +201,26 @@ class TagDataTests(unittest.TestCase):
         check carrying a surface class is one the progression surface cannot use.
         greenfield/surface_confidence.tsv prices exactly this in its `missable` column.
 
+        BOUND REBASELINED 5 -> 7 (2026-08-02) WHEN THE MEASURED SET WIDENED. 🛑 Not data movement --
+        NOTHING became missable. The old bound counted important_locations' six classes, which today
+        catch 2; re-pointing the guard at SURFACE_DEFAULT_CLASSES added KeyItem, MajorBoss, GreatRune
+        and ShopSlot, and those bring 5 more. Naming them, because a bare number is what let the old
+        one drift past its own meaning -- all seven are `questline`-missable:
+
+            7770656  KeyItem                Rold Medallion (Melina, after Morgott)
+            7770665  KeyItem                Drawing-Room Key (Tanith)
+            7770683  Seedtree               Golden Seed, Stormhill Shack (f400191, the original case)
+            7770758  MajorBoss+Remembrance  Remembrance of the Lichdragon -- Fortissax
+            7773838  KeyItem                Pureblood Knight's Medal
+            7773839  KeyItem                Haligtree Secret Medallion (Right)
+            7900000  KeyItem                Prayer Room Key (Queelign)
+
+        FIVE OF THE SEVEN ARE KeyItem, which is why that class prices out at 47% eligible in
+        surface_confidence.tsv -- the worst in the vocabulary, and it is in the shipped default
+        surface. Cross-check: the artifact's missable column reads Remembrance 1 + Seedtree 1 +
+        KeyItem 5 + MajorBoss 1 = 8, and Fortissax carries two of those classes -> 7 distinct. If
+        those two ever disagree, one of them is lying.
+
         Not asserting the clash is EMPTY -- it legitimately is not, and pretending otherwise would
         re-hide it. Asserting it is KNOWN and small, so a jump gets looked at.
         """
@@ -209,7 +229,7 @@ class TagDataTests(unittest.TestCase):
                        if set(SURFACE_DEFAULT_CLASSES) & set(LOCATION_TAGS.get(a, ())))
         # Not asserting the clash is EMPTY -- it legitimately is not, and pretending otherwise
         # would just re-hide it. Asserting it is KNOWN and small, so a jump gets looked at.
-        self.assertLessEqual(len(clash), 5,
+        self.assertLessEqual(len(clash), 7,
                              f"{len(clash)} missable locations now carry a DEFAULT SURFACE class "
                              f"({clash[:5]}). Each is barred from hosting progression, which is correct, "
                              f"but a jump means the hosting surface just shrank -- "
