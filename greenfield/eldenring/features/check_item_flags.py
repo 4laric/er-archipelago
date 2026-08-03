@@ -50,6 +50,11 @@ try:
 except Exception:  # not yet generated -> old (over-broad) behaviour
     REPEATABLE_GOODS = frozenset()
 
+try:
+    from ..check_lots_data import CHECK_LOT_FLAGS
+except ImportError:  # check_lots_data predates the flag set -> arm everything, as before
+    CHECK_LOT_FLAGS = frozenset()
+
 _GOODS_CATEGORY = 0x40000000
 _ROW_ID_MASK = 0x0FFFFFFF
 
@@ -96,6 +101,34 @@ class CheckItemFlags(Feature):
                         and (full_id & _ROW_ID_MASK) in REPEATABLE_GOODS:
                     continue
                 by_full[full_id].add(int(flag))
+        # #321 -- DROP EVERY ID WHOSE CHECKS ARE ALREADY NEUTRALISED AT THEIR LOT.
+        #
+        # `check_lots` repoints a check's own item lot at the placeholder, so that check can no
+        # longer hand out its vanilla ware AT ALL -- for GOODS since 2026-07-14 and, since
+        # CAN_WRITE_SLOT_CATEGORY was wired, for weapons/armour/talismans/gems too. For any FullID
+        # whose EVERY backing check is lot-covered there is therefore nothing left to suppress, and
+        # arming it can only ever eat a copy from some OTHER source.
+        #
+        # That is not hypothetical. `check_lots.py`'s header licensed the non-goods half of this
+        # table on "a weapon is essentially never farmable, so it lives in the check-only set and
+        # cannot eat a legitimate source." `enemy_drops.rs` refutes it in the client tree: 4891
+        # enemy lots carry no flag (farmable) and its reroll rewrites "only the GOODS slots --
+        # weapon/armor/talisman drop slots keep their vanilla contents." So a farmable enemy CAN
+        # drop a vanilla weapon that backs a check, and every such drop was eaten -- the exact
+        # 2026-07-11 Golden Rune [1] incident, surviving on the non-goods side.
+        #
+        # Measured on the full-region scope, 2026-08-03: 1289 armed ids -> 1078 fully lot-covered
+        # (ALL 475 goods and 285 of 367 weapons), 13 partial, 198 lot-less. This drop leaves 211.
+        #
+        # ⚠️ PARTIAL COVERAGE STAYS ARMED. `should_suppress` needs EVERY mapped flag collected, so
+        # an id with one uncovered backing check still has a check to protect. Only a FULL subset is
+        # safe to drop.
+        #
+        # 🛑 What this does NOT fix: the 211-id residue is the LOT-LESS checks (EMEVD awards), which
+        # have no source to neutralise. They keep eating non-check copies. Weapon 0x6acfc0 -- the id
+        # in boblerrr's 2026-08-03 log -- is one of them, so #321 is NOT closed by this change.
+        by_full = {full: flags for full, flags in by_full.items()
+                   if not flags <= CHECK_LOT_FLAGS}
         # str(FullID) -> sorted [flag, ...]; matches core.rs:369 (k.parse::<u32>, v.as_array of u32).
         check_item_flags = {str(full): sorted(flags) for full, flags in by_full.items()}
         return {contract.CHECK_ITEM_FLAGS: check_item_flags}
