@@ -293,8 +293,15 @@ Run through this before a change lands (PR or direct):
 - [ ] Sequencing/timing/reconcile bugs land with a host-tested `*_replay` harness:
       a pure decision fn plus a timeline that reproduces the bug
       failing-without-fix / passing-with-fix, named after the bug mechanism.
-- [ ] Any `reset()` / re-arm added to the client is CALLED on the in-world edge (or exempt with a
-      reason) -- `test_gf_client_resets_are_called` enforces it. A load reverts param writes.
+- [ ] Any client module that WRITES GAME STATE (a `SoloParamRepository::instance_mut()` borrow, or
+      an FMG `swap_category` / `extend_swap_overrides`) is re-armed by `crate::<mod>::reset()` from
+      core.rs's `if now_in_world && !self.was_in_world` block -- or exempt WITH A REASON.
+      `test_gf_client_resets_are_called` enforces it. A load reverts param and FMG writes.
+      🛑 The rule is keyed on the WRITE, not on having a `reset()`. It said "any reset() added to
+      the client is CALLED on the in-world edge" until 2026-08-03, and so did the gate -- which is
+      why `shop_preview` (a writer that never defined one) shipped the bug for the FOURTH time
+      while both the checklist and the gate read as satisfied. Somewhere-in-core.rs is not enough
+      either: a connect- or seed-scoped reset does not survive a map load.
 - [ ] For a player-reported bug, the claim states the LAST stage actually observed ("slot_data is
       correct" is not "the player sees it"), and every unchecked stage downstream is named.
 - [ ] Every fix predicate has a production caller — the client calls the pure fn,
