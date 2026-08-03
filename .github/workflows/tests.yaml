@@ -282,14 +282,6 @@ jobs:
       - name: Contract changes carry a version bump (rule 15)
         run: python tools/check_contract_version.py
 
-      # The ledger RATCHET, run here and nowhere else. gf_test.py copies the world into _ap/ without
-      # tools/ or release-v0.2/, so this suite skips under the `tests` job (find_repo_root -> None).
-      # _util.REPO_ONLY_REASON claims such suites "are run by the generators CI job instead"; that was
-      # not true -- this job ran no pytest at all, so a repo-only suite relied on a runner that did not
-      # exist. Stdlib unittest, invoked as a FILE (as a module it would import the world, which needs
-      # Archipelago). Guards the gate's one bypass: editing a shipped ledger row instead of bumping.
-      - name: The contract-version ledger is a ratchet (rule 15)
-        run: python greenfield/eldenring/tests/test_gf_contract_versions.py
 
       - name: Generators run, and their committed output is not stale
         run: |
@@ -328,7 +320,7 @@ jobs:
           # against the docstrings -- that is --check's job, over in `tests`.
           for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe \
                    scaling_ladder_mirror client_contract_paths client_can_sell_mirror \
-                   client_resets_are_called wizard_blob_sync \
+                   client_resets_are_called contract_versions wizard_blob_sync \
                    infinite_shop_rows_are_browsable_shelves; do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5

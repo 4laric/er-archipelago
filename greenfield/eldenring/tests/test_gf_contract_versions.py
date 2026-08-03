@@ -11,14 +11,18 @@ pass while the bug is present? Only a change that edits BOTH the ledger and this
 fixture in the same commit -- which is no longer a slip, it is a decision with a diff
 a reviewer can see.
 
-🛑 REPO-ONLY, AND IT NEEDED ITS OWN RUNNER. These need `tools/` and `release-v0.2/`,
-which `gf_test.py` does NOT copy into the AP world dir, so under the `tests` job they
-skip (`find_repo_root` returns None). `_util.REPO_ONLY_REASON` says such suites "are
-run by the `generators` CI job instead" -- as of 2026-08-03 that is FALSE for pytest:
-the generators job runs no pytest at all, so a repo-only suite relying on it ran
-NOWHERE. Hence stdlib `unittest` and a direct invocation in tests.yaml:
+🛑 REPO-ONLY. These need `tools/` and `release-v0.2/`, which `gf_test.py` does NOT copy
+into the AP world dir, so under the `tests` job they skip (`find_repo_root` returns None).
+The `generators` job is where they actually execute -- it has the real tree -- and it runs
+them from the `for t in ...` loop alongside the other repo-tooling suites.
 
-    python greenfield/eldenring/tests/test_gf_contract_versions.py
+⚠️ CORRECTION 2026-08-03. This docstring briefly claimed the generators job "runs no
+pytest at all, so a repo-only suite relying on it ran NOWHERE". **That was false**, and it
+is the exact failure mode rule 10 names: a comment asserting a fact. The claim came from
+grepping the workflow for `pytest` / `gf_test` and missing the multi-line shell loop, which
+spells it `test_gf_$t.py`. The loop has run `client_resets_are_called` and friends since
+2026-07-29. Re-derive before citing a CI fact -- `python3 -c "import yaml"` over the whole
+`run:` block, not a substring search.
 
 Run as a FILE, never as `-m greenfield.eldenring.tests...`: the package `__init__`
 imports the world, which needs Archipelago, which the generators job does not have.
