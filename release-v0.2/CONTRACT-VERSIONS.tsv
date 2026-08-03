@@ -1,0 +1,26 @@
+# CONTRACT-VERSIONS.tsv -- the version <-> contract-shape ledger (CONTRIBUTING rule 15).
+#
+# One row per APWORLD_VERSION, recording the CONTRACT_HASH that version ships.
+# `tools/check_contract_version.py` reads this and goes RED when the contract has
+# moved under a version number that did not.
+#
+# DERIVED, not hand-maintained. Every historical row below was computed by loading
+# greenfield/eldenring/contract.py at that git tag and reading CONTRACT_HASH[:8]:
+#
+#   python3 tools/check_contract_version.py --derive-history
+#
+# 🛑 DO NOT EDIT AN EXISTING ROW TO MAKE THE GATE GREEN. That is falsifying history,
+# and it is the one bypass this gate has. A contract change needs a NEW version and a
+# NEW row. tests/test_gf_contract_versions.py pins these rows as a literal fixture, so
+# editing one here reddens the suite as well.
+#
+# version	contract_hash	note
+0.2.0	b3739fdf	🛑 THE MOTIVATING CASE. Five distinct contract shapes shipped under this one version string: 36013f63 (v0.2) -> 03c58b40 (v0.2.1-v0.2.3) -> 54514b10 (v0.2.4-v0.2.7) -> 84dd6ab8 (v0.2.8-v0.2.9) -> b3739fdf (v0.2.10-v0.2.11). Recorded here as its FINAL shape. A bug report saying "apworld/0.2.0" could mean any of the five.
+0.2.12	8550ab05	v0.2.12
+0.2.13	8550ab05	v0.2.13, v0.2.14 (two tags, one version -- see version-lockstep, a separate defect)
+0.2.15	d970dd88	v0.2.15
+0.2.16	d970dd88	v0.2.16
+0.2.17	d970dd88	v0.2.17, and the pre-revert-20260730 tag
+0.2.18	d970dd88	v0.2.18
+0.3.0	5e8b11c9	v0.3.0
+0.3.1	5e8b11c9	v0.3.1 -- contract UNCHANGED from 0.3.0; the bump was version-lockstep, not a contract move

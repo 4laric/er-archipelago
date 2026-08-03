@@ -324,6 +324,9 @@ Run through this before a change lands (PR or direct):
 - [ ] Player-visible change? Its `release-v0.2/CHANGELOG.md` line is in THIS commit, under the
       current `## v<version> — <date>` heading, and `BLURB-v<version>.md` grew with it --
       `python tools/check_release_notes.py` is green (rule 14).
+- [ ] Contract change (a key added/removed/reshaped, or required-ness flipped)? `APWORLD_VERSION`
+      bumped in the SAME commit, a new row appended to `release-v0.2/CONTRACT-VERSIONS.tsv`, and the
+      client bumped in lockstep -- `python tools/check_contract_version.py` is green (rule 15).
 - [ ] A merged spec's acceptance list is pasted into a tracking issue, one checkbox per line, each
       marked shipped / partial / absent with the command or file that proves it. Prose in
       `docs/specs/` is not a gate. Build the bullets that need a NEW test tier first — those are the
@@ -525,6 +528,43 @@ writing blurbs; the price of starting one just kept going up until it was always
   blurb. It carries a documented ratchet of pre-gate exemptions -- currently v0.3.0's missing blurb,
   and only its blurb. Nothing may be added to that set: an exemption you can extend is a gate you
   have switched off.
+
+**15. If the CONTRACT changes, the RELEASE version changes with it.**
+The 2026-08-03 rule, and the one with the most evidence already sitting in the repo.
+
+> `CONTRACT_HASH` is *derived* from the contract keys, so it moves the instant a key is
+> added, removed, reshaped, or flips required-ness. `APWORLD_VERSION` is hand-held, so it
+> moves only when somebody remembers. Loading `contract.py` at every tag shows what happens
+> when nobody does: **`APWORLD_VERSION = "0.2.0"` shipped FIVE distinct contract shapes** --
+> `36013f63` (v0.2), `03c58b40` (v0.2.1-3), `54514b10` (v0.2.4-7), `84dd6ab8` (v0.2.8-9),
+> `b3739fdf` (v0.2.10-11). The handshake keys on the hash, so those five are mutually
+> incompatible, and every one of them introduces itself to the log -- and to a bug report --
+> as `apworld/0.2.0`.
+
+Note the shape, because it is *not* the usual one: the mismatch is **detected** correctly.
+`core.rs` compares contract hashes and says `VERSION MISMATCH` when they differ. What is lost
+is the ability to say *which* build the player had. A version string that cannot identify a
+build turns every report into a re-derivation, and the person paying for it is whoever is
+triaging, months later, from a log line.
+
+- **A contract change and a version bump land in the SAME commit** -- with the client half
+  (`crates/eldenring-archipelago/Cargo.toml` + the regenerated `contract_gen.rs`) in lockstep,
+  per the cross-repo ordering in the landing checklist.
+- **`release-v0.2/CONTRACT-VERSIONS.tsv` is the ledger**: one row per version, recording the
+  hash that version ships. It is append-only history. Editing an existing row to make a gate
+  green does not make two builds compatible -- it deletes the only evidence that they differ.
+- **Per rule 13's own logic, the two bullets above are a to-do list until something checks
+  them.** `tools/check_contract_version.py` is that something: AP-free, wired into CI, red the
+  moment the computed hash disagrees with the ledger row for the open version, or the open
+  version has no row at all. `tests/test_gf_contract_versions.py` pins the shipped rows as a
+  fixture so the ledger cannot be quietly rewritten, and asserts the gate still goes red when
+  the contract moves (rule 7).
+- **Know what it does NOT see.** `OPTIONS_SUBKEYS` is deliberately excluded from
+  `CONTRACT_HASH` (an absent subkey parses false on an older client, which is the off
+  default), so a change confined to the five subkeys with no top-level twin moves neither the
+  hash nor this gate. That blind spot is inherited on purpose and documented in the gate; do
+  not close it casually, because widening the hash invalidates the handshake of every
+  released client.
 
 ### The tell
 

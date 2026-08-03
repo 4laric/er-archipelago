@@ -270,6 +270,27 @@ jobs:
       - name: Release notes exist for the open version (rule 14)
         run: python tools/check_release_notes.py
 
+      # CONTRIBUTING rule 15, same job and for the same reason: check_contract_version.py loads
+      # greenfield/eldenring/contract.py by PATH (it is AP-free) and needs no Archipelago checkout.
+      # Red when CONTRACT_HASH disagrees with the release-v0.2/CONTRACT-VERSIONS.tsv row for the
+      # open APWORLD_VERSION, or when that version has no row at all.
+      #
+      # MOTIVATING CASE (rule 11), measured from this repo's own tags: APWORLD_VERSION "0.2.0"
+      # shipped FIVE distinct contract shapes (36013f63 -> 03c58b40 -> 54514b10 -> 84dd6ab8 ->
+      # b3739fdf). The handshake DOES detect a mismatch -- what was lost is the ability to say
+      # which 0.2.0 a player had. Reproduce with `check_contract_version.py --derive-history`.
+      - name: Contract changes carry a version bump (rule 15)
+        run: python tools/check_contract_version.py
+
+      # The ledger RATCHET, run here and nowhere else. gf_test.py copies the world into _ap/ without
+      # tools/ or release-v0.2/, so this suite skips under the `tests` job (find_repo_root -> None).
+      # _util.REPO_ONLY_REASON claims such suites "are run by the generators CI job instead"; that was
+      # not true -- this job ran no pytest at all, so a repo-only suite relied on a runner that did not
+      # exist. Stdlib unittest, invoked as a FILE (as a module it would import the world, which needs
+      # Archipelago). Guards the gate's one bypass: editing a shipped ledger row instead of bumping.
+      - name: The contract-version ledger is a ratchet (rule 15)
+        run: python greenfield/eldenring/tests/test_gf_contract_versions.py
+
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_region_locks.py
