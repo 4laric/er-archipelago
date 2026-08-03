@@ -115,4 +115,17 @@ flag	description
 2047397070	At Fissure Cross
 2049457510	Statue at the north tip of the pond north of Moorth Ruins
 20007620	Cross, jump over the rubble to the right of the entrance to the room with two big Spider Scorpions. Down the hall
-1035467100	near Academy Gate Town
+# --- 2026-08-02, live playtest (Alaric, in game). Two Liurnia Golden Seeds whose anchors read
+# wrong on screen. Measured from item_grace_coords.tsv, overworld tiles folded world = tile*256
+# + local (tools/build_nearest_grace.py._normalize). ---
+# f1035467100 -- world (8972, 313, 11897). The 2026-08-01 override said "near Academy Gate Town";
+# that grace is 872 m away and 27th-nearest, so the override was simply wrong. The algorithmic
+# winner, East Gate Bridge Trestle, is 86 m -- but 75 m BELOW, at lake level, while the seed sits
+# up on the raised causeway at gate height. Main Academy Gate (184 m, dy +9 m) is the nearest grace
+# you can actually walk from, so the override stays and names it.
+1035467100	near Main Academy Gate
+# f1036447300 -- world (9233, 238, 11278). The algorithm picks Fallen Ruins of the Lake (190 m) over
+# Academy Gate Town (237 m). Alaric WALKED IT 2026-08-02 and says the Gate Town is the landmark a
+# human navigates by; this override loses 47 m on the metric and wins on the ground. Oracle: Alaric,
+# in game, 2026-08-02.
+1036447300	near Academy Gate Town

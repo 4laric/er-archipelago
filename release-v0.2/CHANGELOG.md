@@ -197,6 +197,27 @@ received before the game has finished granting it, and whether an auto-equipped 
 save-and-reload. Default is off. If you turn it on, treat it as new — and not on a character you
 would mind losing.
 
+### Fixed: two Golden Seeds pointed at the wrong grace, and two more said "region unconfirmed"
+
+From a live playtest (Alaric, in game, 2026-08-02).
+
+A Liurnia Golden Seed read *"near Academy Gate Town"*. That grace is **872 m** away and 27th-nearest;
+a player following the descriptor walks to the wrong end of the lake. It now reads **"near Main
+Academy Gate"** (184 m). The nearest grace in raw 3D is actually East Gate Bridge Trestle at 86 m --
+but 75 m straight down at lake level, while the seed sits up on the raised causeway, so the closest
+answer is the one you cannot walk to. A second Liurnia Golden Seed now reads **"near Academy Gate
+Town"** instead of "near Fallen Ruins of the Lake": the Fallen Ruins grace is 47 m closer on the tape
+measure and the Gate Town is the landmark you actually navigate by. Someone walked both.
+
+Two checks also stop hedging. `Weeping :: Golden Seed - near Castle Morne Rampart` and the Liurnia
+seed above were labelled **(region unconfirmed)** and barred from *hosting* progression, because
+their region came from a tile-neighbour vote rather than from ground anyone had seen. Both were
+collected in game this session, in the region we had guessed. The hedge costs twice when it is wrong
+-- the name tells you we do not know something we do, and the progression surface stays smaller than
+the map -- so the label is gone and each is an ordinary progression-eligible check again. This is the
+mirror of v0.3.0's "two Liurnia checks can no longer be required": the same list, run the other
+direction, and only ever per check, never per tile.
+
 ### Compatibility
 
 `CONTRACT_HASH` is **unmoved** from v0.3.0 — 87 keys, identical names, shapes, required-ness and
@@ -210,8 +231,9 @@ nothing and is unaffected.
 without it.
 
 No option changed its default or its meaning, and nothing here moves an item or a check in a seed
-already in progress. A v0.3.0 yaml generates a v0.3.1 seed with no edits. The gated-child, somber and
-Rold-seam fixes are all generation-time and reach **new seeds only**.
+already in progress. A v0.3.0 yaml generates a v0.3.1 seed with no edits. The gated-child, somber,
+Rold-seam and descriptor / region-confirmation fixes are all generation-time and reach **new seeds
+only**.
 
 ## v0.3.0 — 2026-08-01
 
