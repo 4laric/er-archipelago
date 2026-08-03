@@ -3,6 +3,39 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.3 — unreleased
+
+Window opened by the change below (rule 14: the note ships WITH the change, not with the tag).
+`CONTRACT_HASH` is unmoved from v0.3.0, so the client needs no work — `region_locks.rs` regenerates
+byte-identical. The `data/` hash HAS moved, so a seed rolled here is not the seed v0.3.2 rolled,
+and `APWORLD_VERSION` should move when this window is cut.
+
+### Fixed: the Summonwater Village boss paid nothing on any seed without Caelid
+
+Reported twice — once from Alaric's own playtest, then again by boblerrr on 0.3.2: *"killed the boss
+in Summonwater Village, got no loot on a Limgrave seed."*
+
+Overworld tile **m60_45_39** — Summonwater Village and the Third Church of Marika — holds no site of
+grace of its own, so its region was inferred from the nearest tile that does. The squared distance
+**tied**: Summonwater Village Outskirts and Third Church of Marika sit one step west (both Limgrave),
+Gael Tunnel and Rotview Balcony one step east (both Caelid). The tie was settled by the row order of
+an input table, and it fell east. Twelve checks, the Tibia Mariner's own Deathroot and the entire
+field sweep that fires when you kill him were filed under **Caelid** — so on a seed that does not
+keep Caelid they were never created, and felling the boss did nothing at all.
+
+The tile is now pinned to Limgrave. Felling the Tibia Mariner pays out its 37-member Limgrave sweep,
+and the two "Smoldering Butterfly" checks east of it, which belonged to no sweep at all because the
+only boss near enough to grant them was on the wrong side of the mistake, now have one.
+
+**Also fixed by the same pin:** D, Hunter of the Dead stands at *two* points on that border, and a
+merchant whose positions land in two different regions has his stock quarantined in the hub and
+barred from carrying progression. Both his incantations — Litany of Proper Death and Order's Blade —
+are ordinary Limgrave shop checks again.
+
+🛑 **This is one tile, not the class.** The inference that produced it still guesses for 99 of the
+231 overworld tiles that hold checks, and still breaks ties by table order. The measurement that
+named this case is from 2026-07-25 and named others.
+
 ## v0.3.2 — 2026-08-03
 
 A bugfix release, and mostly a client one. `CONTRACT_HASH` is unmoved from v0.3.0, so seeds rolled

@@ -207,7 +207,11 @@ class BossSweepScoping(unittest.TestCase):
         were invisible to every sweep pass, so felling the boss granted only far-side treasure rows
         and read in-game as nothing happening. Summonwater Village is the reported case: the twelve
         m60_45_39 lots below (flags 1045397000-1045397140, self-encoded tile) must each belong to a
-        field sweep. Absence is the bug -- and absence is invisible unless something goes looking."""
+        field sweep. Absence is the bug -- and absence is invisible unless something goes looking.
+
+        MEMBERSHIP IS ONLY HALF OF IT -- see test_summonwater_killsite_checks_are_limgrave below.
+        This test stayed green for ten days while the same checks were unobtainable, because it never
+        asked which REGION the sweep it found them in belonged to."""
         in_field = set()
         for _ent, _info, members in self._members_by_class("field"):
             in_field.update(members)
@@ -223,6 +227,42 @@ class BossSweepScoping(unittest.TestCase):
         self.assertEqual(missing, [], str(len(missing)) + " of " + str(len(cands)) + " Summonwater "
                          "kill-site check(s) belong to NO field sweep -- the recovered-global "
                          "admission gate regressed. Sample: " + repr(missing[:5]))
+
+    def test_summonwater_killsite_checks_are_limgrave(self):
+        """The OTHER half of the same report (boblerrr, v0.3.2, 2026-08-03: "killed the boss in
+        Summonwater Village -- got no loot on a Limgrave seed"; Alaric hit it first in his own
+        playtest). The twelve m60_45_39 lots WERE swept -- the test above proves that much -- by a
+        sweep regioned CAELID. On any seed that does not keep Caelid the trigger, its members and the
+        Tibia Mariner's own Deathroot (f530170) are never created, so felling the boss pays nothing.
+
+        Tile m60_45_39 holds no grace of its own, so gen_data.tile_pr() nearest-neighboured it. The
+        squared distance TIED between the Limgrave anchors to its west -- (44, 39) Summonwater
+        Village Outskirts and (46, 38) Third Church of Marika, both play_region 61000 -- and the
+        Caelid anchors to its east, and the tie was settled by the row order of grace_flags.tsv.
+        gen_data.M60_TILE_CURATED pins the tile; this asserts the part a player can actually feel.
+
+        Region, not membership: a check swept into the wrong region is exactly as unobtainable as a
+        check swept into no sweep at all, and only one of those two had a test."""
+        killsite = sorted(ap for ap, flag in self.ap_flag.items()
+                          if 1045397000 <= flag <= 1045397140)
+        self.assertTrue(killsite, "no Summonwater m60_45_39 lots in data.py at all")
+        off = sorted((ap, self.ap_region.get(ap)) for ap in killsite
+                     if self.ap_region.get(ap) != "Limgrave")
+        self.assertEqual(off, [], str(len(off)) + " of " + str(len(killsite)) + " Summonwater "
+                         "kill-site check(s) are not in Limgrave -- the m60_45_39 tile curation "
+                         "regressed (gen_data.M60_TILE_CURATED). Sample: " + repr(off[:5]))
+        # ... and the sweeps that grant them must be Limgrave sweeps, or a Limgrave-only seed still
+        # drops the whole group: dungeonSweepFlags is emitted per sweep, keyed on SWEEP_REGION.
+        owning = {ent for ent, members in self.DS.items() if set(members) & set(killsite)}
+        self.assertTrue(owning, "the Summonwater kill-site checks belong to no sweep at all")
+        wrong = sorted((ent, self.sw.SWEEP_REGION.get(ent)) for ent in owning
+                       if self.sw.SWEEP_REGION.get(ent) != "Limgrave")
+        self.assertEqual(wrong, [], "sweep(s) granting Summonwater kill-site checks are not regioned "
+                         "Limgrave, so a Limgrave seed never emits them: " + repr(wrong))
+        # The boss's OWN reward rides the same tile and the same mistake.
+        deathroot = [ap for ap, flag in self.ap_flag.items() if flag == 530170]
+        self.assertEqual([self.ap_region.get(ap) for ap in deathroot], ["Limgrave"] * len(deathroot),
+                         "the Tibia Mariner's Deathroot (f530170) is not a Limgrave check")
 
     def test_recovered_catacombs_have_members(self):
         """The 9 catacombs whose checks were unplaced (flag_prefix/PENDING) must sweep them after the
