@@ -55,17 +55,31 @@ class ProgressionSurface(OptionSet):
     progression (region Locks, any required/gate Great Runes, legacy keys) -- and, in a multiworld,
     the classes where OTHER players' progression can land in your world.
 
-    Default (193 locations): the major bosses and remembrances, the great runes, the key items, and the
-    collectathon lines -- Sacred Tears (Church), Golden Seeds (Seedtree), Scadutree Fragments and
-    Revered Spirit Ashes for the DLC -- plus ShopSlot.
+    Default: the major bosses and remembrances, the great runes, the key items, and the collectathon
+    lines -- Sacred Tears (Church), Golden Seeds (Seedtree), Scadutree Fragments and Revered Spirit
+    Ashes for the DLC -- plus ShopSlot.
+
+    🛑 NO COUNT HERE ON PURPOSE. This said "193 locations" until 2026-08-02, when the surface that
+    could actually HOST an item was 156. 193 was a TAG count: it never subtracted the checks barred
+    from carrying progression (guessed region, missable, erdtree-burn, surface-excluded, hub
+    merchant). That is the same mistake missable_barred_aps was written to fix for the missable set,
+    and it came back because the number lived in prose. It also MOVES -- every in-game region
+    confirmation changes it (re-anchoring two Liurnia Golden Seeds shifted the default 154 -> 156 in
+    a single commit). So the count lives in ONE place, regenerated and drift-gated:
+
+        greenfield/surface_confidence.tsv   (tools/build_surface_confidence.py)
+
+    which prices every class: tagged, how many each bar costs it, and how many can host. Quote that
+    file, never a number typed into a docstring.
 
     ShopSlot is AT MOST one slot per merchant, never every shop row: a merchant enters the pool once,
     so however large their stock they can hold at most one progression item and cannot dominate the
     surface by breadth. The pinned slot is a ware that merchant ALONE sells (one stock flag game-wide,
     so the location is unambiguous), stocked from the start and with a resolved region; merchants with
     no such ware are skipped at regen (location_tags.SHOP_SLOT_SKIPS lists them with reasons). Use
-    `Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed -- be aware that is ~70%
-    of the surface and the game becomes "farm runes, buy your progression".
+    `Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed -- be aware that is
+    roughly three quarters of the surface (see surface_confidence.tsv) and the game becomes "farm
+    runes, buy your progression".
 
     Narrowing is safe: the feasibility ladder widens automatically rather than failing to generate, and
     an EMPTY set turns the confinement off entirely (progression scatters as vanilla AP fill decides).

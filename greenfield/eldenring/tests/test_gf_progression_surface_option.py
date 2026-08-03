@@ -44,8 +44,18 @@ class ProgressionSurfaceOption(unittest.TestCase):
 
     def test_default_is_the_audited_v0_2_surface(self):
         self.assertEqual(set(ProgressionSurface.default), V0_2_DEFAULT)
-        hosts = {ap for ap, tags in LOCATION_TAGS.items() if V0_2_DEFAULT & set(tags)}
-        self.assertGreater(len(hosts), 150, "the default surface should host ~193 locations")
+        # 🛑 THIS IS A TAG COUNT, NOT A HOSTING COUNT, and the variable used to be called `hosts`
+        # with a comment claiming "~193 locations" -- the exact conflation that also lived in the
+        # ProgressionSurface docstring. This union applies NO bars (guessed region, missable,
+        # erdtree-burn, surface-excluded, hub merchant) and not even contract.has_class's EniaShop
+        # exclusion, so it is ~197. The number of checks that can actually HOST progression is 156.
+        # Keep this as the cheap floor it is; the real figure is priced, per class, in
+        # greenfield/surface_confidence.tsv and asserted against the live allowed_ap_ids in
+        # test_gf_surface_confidence.py.
+        tagged = {ap for ap, tags in LOCATION_TAGS.items() if V0_2_DEFAULT & set(tags)}
+        self.assertGreater(len(tagged), 150,
+                           "the default surface's TAG union collapsed (~197 expected); a real drop "
+                           "here means classes stopped being derived, not that the surface shrank")
 
     def test_every_default_class_is_in_the_shared_vocabulary(self):
         for c in ProgressionSurface.default:
