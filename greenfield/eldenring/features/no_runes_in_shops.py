@@ -44,7 +44,7 @@ can hurt is capacity: more own rune items than non-shop slots to hold them. Meas
 data: 744 vanilla money-rune checks (item_shuffle is frozen ON) + the filler-tail reservation,
 against ~4300 non-shop locations full-world; the worst small seed (the hub is 185 shop rows out of
 221 locations, plus one region) still clears it by hundreds. But the GATE is the model, not the
-measurement (features/important_locations is the named precedent): count, and if the pool holds
+measurement (progression_surface's feasibility ladder is the live precedent): count, and if the pool holds
 more own runes than non-shop capacity, SKIP enforcement loudly rather than hand fill an
 unsatisfiable constraint.
 """

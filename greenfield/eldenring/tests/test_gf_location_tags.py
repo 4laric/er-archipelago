@@ -1,29 +1,33 @@
-"""important_locations tests -- matt-free location-type tagging + non-filler enforcement.
+"""Location TYPE tag facts -- the derived vocabulary the progression surface is built from.
 
-Pure-data: the tags derive from item_name/method (Remembrance excludes shop duplicates -> ~25, not 50).
-World: with item_shuffle ON, every tagged+selected in-play location must reject a filler item; with a
-degenerate pool (no real items) the fill-safety gate skips enforcement instead of FillError-ing.
+Pure-data: every tag comes from item_name/method in gen_data._loc_tags (Remembrance excludes shop
+duplicates -> ~25, not 50; Boss is closed under MajorBoss). These are DRIFT GUARDS on committed
+counts and definitional relationships, not preferences -- gen_data cites
+`test_gf_location_tags::test_f510280_is_the_fringefolk_seed_not_stormhill` as the guard on a region
+claim it makes in a comment.
+
+RENAMED from test_gf_important_locations.py (2026-08-02), when features/important_locations was
+deleted. 🛑 The FEATURE went; these tests did NOT go with it. They were never about the enforcement
+-- they are about the TAGS, which now serve features/progression_surface and the tracker. Deleting a
+test file along with the feature that happened to live next to it is how a guard on unrelated data
+disappears silently ([[deleting-a-test-file-is-not-deleting-a-mechanism]]). What WAS removed here is
+only the two WorldTestBase suites that exercised the deleted item_rule.
 """
 import unittest
-import pytest
 
-from BaseClasses import ItemClassification
 from worlds.eldenring.data import LOCATIONS
 from worlds.eldenring.location_tags import LOCATION_TAGS, TAG_COUNTS, DEFAULTED_REGION_APS
-from worlds.eldenring.features.important_locations import _DEFAULT, _VALID, _is_important
-from worlds.eldenring.contract import SURFACE_EXCLUDE_TAGS
+from worlds.eldenring.contract import (SURFACE_EXCLUDE_TAGS, IMPORTANT_LOCATION_TYPES,
+                                       SURFACE_DEFAULT_CLASSES)
 
-WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
-pytest.importorskip("worlds.eldenring")
-GAME = "Elden Ring"
+# The classes these data guards are about. Was features/important_locations._DEFAULT; kept as a
+# local constant so the tag assertions survive the option that used to name them.
+_TAGGED = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"]
 
 
 class TagDataTests(unittest.TestCase):
-    def test_default_is_the_six(self):
-        self.assertEqual(_DEFAULT, ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"])
-
     def test_all_default_tags_present(self):
-        for t in _DEFAULT:
+        for t in _TAGGED:
             self.assertIn(t, TAG_COUNTS, f"{t} not derived from the data")
             self.assertGreater(TAG_COUNTS[t], 0)
 
@@ -78,7 +82,7 @@ class TagDataTests(unittest.TestCase):
         tools/datamine_boss_drops.py step (4) drops any reward whose ITEM NAME contains "remembrance"
         or "great rune" -- a filter we own, not one the game imposes (its own
         HandleBossDefeatAndDisplayBanner fires for the majors; the tool finds them and discards them).
-        The effect was player-visible: important_locations=["Boss"] is a PLAYER option value, and it
+        The effect was player-visible: `Boss` is a PLAYER-selectable location class, and it
         returned 95 checks with Godrick, Rennala, Radahn, Rykard, Mohg and Malenia all missing.
         gen_data now closes MajorBoss under Boss, so the delta is exactly the 39 majors that were
         outside it (34 already tagged MajorBoss + the 5 the arity fix newly tags). Post-closure, Boss
@@ -187,27 +191,48 @@ class TagDataTests(unittest.TestCase):
                          "the two Golden Seeds now share a position -- the conflation this test "
                          "exists to prevent has come back")
 
-    def test_missable_locations_are_never_forced_to_hold_juice(self):
-        """A missable check can be lost forever, so it must not be FORCED to hold something good.
+    def test_missable_checks_carrying_a_premium_tag_stay_few(self):
+        """A missable check cannot host progression, so every premium-tagged one SHRINKS the surface.
 
-        important_locations says "reject filler"; missable_locations says "reject progression".
-        Applied to the same location that is a contradiction -- it accepts NOTHING, and
-        test_gf_missable::test_reject_progression_accept_filler goes red. It surfaced 2026-07-26
-        when f400191 (Golden Seed, Stormhill Shack) became missable: Seedtree-tagged, and Seedtree
-        is in this option's DEFAULT set. The clash was always latent; missable now wins.
+        This began life as an important_locations guard: that feature said "reject filler" while
+        missable_locations says "reject progression", and a check under both accepted NOTHING
+        (f400191, the Stormhill Shack Golden Seed, 2026-07-26). important_locations is gone and that
+        contradiction with it -- but the count still matters, for the opposite reason: a missable
+        check carrying a surface class is one the progression surface cannot use.
+        greenfield/surface_confidence.tsv prices exactly this in its `missable` column.
 
-        This asserts the DATA precondition the feature relies on. The behavioural half lives in
-        features/important_locations.set_rules, which filters MISSABLE_LOCATIONS out of `tagged`.
+        BOUND REBASELINED 5 -> 7 (2026-08-02) WHEN THE MEASURED SET WIDENED. 🛑 Not data movement --
+        NOTHING became missable. The old bound counted important_locations' six classes, which today
+        catch 2; re-pointing the guard at SURFACE_DEFAULT_CLASSES added KeyItem, MajorBoss, GreatRune
+        and ShopSlot, and those bring 5 more. Naming them, because a bare number is what let the old
+        one drift past its own meaning -- all seven are `questline`-missable:
+
+            7770656  KeyItem                Rold Medallion (Melina, after Morgott)
+            7770665  KeyItem                Drawing-Room Key (Tanith)
+            7770683  Seedtree               Golden Seed, Stormhill Shack (f400191, the original case)
+            7770758  MajorBoss+Remembrance  Remembrance of the Lichdragon -- Fortissax
+            7773838  KeyItem                Pureblood Knight's Medal
+            7773839  KeyItem                Haligtree Secret Medallion (Right)
+            7900000  KeyItem                Prayer Room Key (Queelign)
+
+        FIVE OF THE SEVEN ARE KeyItem, which is why that class prices out at 47% eligible in
+        surface_confidence.tsv -- the worst in the vocabulary, and it is in the shipped default
+        surface. Cross-check: the artifact's missable column reads Remembrance 1 + Seedtree 1 +
+        KeyItem 5 + MajorBoss 1 = 8, and Fortissax carries two of those classes -> 7 distinct. If
+        those two ever disagree, one of them is lying.
+
+        Not asserting the clash is EMPTY -- it legitimately is not, and pretending otherwise would
+        re-hide it. Asserting it is KNOWN and small, so a jump gets looked at.
         """
         from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
         clash = sorted(a for a in MISSABLE_LOCATIONS
-                       if set(_DEFAULT) & set(LOCATION_TAGS.get(a, ())))
+                       if set(SURFACE_DEFAULT_CLASSES) & set(LOCATION_TAGS.get(a, ())))
         # Not asserting the clash is EMPTY -- it legitimately is not, and pretending otherwise
         # would just re-hide it. Asserting it is KNOWN and small, so a jump gets looked at.
-        self.assertLessEqual(len(clash), 5,
-                             f"{len(clash)} missable locations now carry a DEFAULT important tag "
-                             f"({clash[:5]}). Each is excluded from enforcement, which is correct, "
-                             f"but a jump means a lot of juice-worthy checks just became losable -- "
+        self.assertLessEqual(len(clash), 7,
+                             f"{len(clash)} missable locations now carry a DEFAULT SURFACE class "
+                             f"({clash[:5]}). Each is barred from hosting progression, which is correct, "
+                             f"but a jump means the hosting surface just shrank -- "
                              f"explain it before raising this bound.")
 
     def test_major_boss_count(self):
@@ -218,63 +243,12 @@ class TagDataTests(unittest.TestCase):
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
-        # important_location TYPES; those live in contract.SURFACE_EXCLUDE_TAGS. Valid == either.
-        valid = set(_VALID) | SURFACE_EXCLUDE_TAGS
+        # surface-selectable TYPES; those live in contract.SURFACE_EXCLUDE_TAGS. Valid == either.
+        valid = set(IMPORTANT_LOCATION_TYPES) | SURFACE_EXCLUDE_TAGS
         for tags in LOCATION_TAGS.values():
             for t in tags:
                 self.assertIn(t, valid)
 
 
-def _tagged_in_play(world, mw):
-    """Tagged locations the feature actually ENFORCES on.
-
-    MISSABLE is excluded, and must be: important says "reject filler", missable says "reject
-    progression", and a location under both accepts NOTHING. Missable wins, because a check that can
-    be lost permanently must not be forced to hold something good -- that just guarantees the player
-    loses it. Mirrors the filter in features/important_locations.set_rules; if this helper and that
-    filter drift, one of these tests goes red, which is the intent.
-
-    (Added 2026-07-26. f400191, the Stormhill Shack Golden Seed, is Seedtree-tagged AND became
-    missable when the widened cross-region screen found its Roundtable gate -- the first location to
-    sit under both rules. The old helper made test_tagged_reject_filler demand the contradiction.)
-    """
-    sel = set(world.options.important_locations.value) & set(_VALID)
-    try:
-        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS as _miss
-    except ImportError:                                          # pragma: no cover - partial tree
-        _miss = {}
-    return [l for l in mw.get_locations(world.player)
-            if LOCATION_TAGS.get(getattr(l, "address", None))
-            and sel.intersection(LOCATION_TAGS[l.address])
-            and l.address not in _miss]
-
-
-class ImportantLocEnforced(WorldTestBase):
-    game = GAME
-    options = {"num_regions": 0, "item_shuffle": True}  # real-item pool -> enough non-filler to enforce
-
-    def test_tagged_reject_filler(self):
-        tagged = _tagged_in_play(self.world, self.multiworld)
-        self.assertGreater(len(tagged), 0, "expected tagged in-play locations with the real-item pool")
-        filler = self.world.create_item(self.world.get_filler_item_name())
-        self.assertFalse(_is_important(filler))
-        bad = [l for l in tagged if l.item_rule(filler)]
-        self.assertFalse(bad, f"{len(bad)} tagged locations accept a filler item")
-
-    def test_placed_items_non_filler(self):
-        # post-fill: nothing filler landed on a tagged location.
-        for l in _tagged_in_play(self.world, self.multiworld):
-            if l.item is not None and l.item.player == self.world.player:
-                self.assertTrue(_is_important(l.item),
-                                f"filler landed on tagged location {l.name}")
-
-
-class ImportantLocDegenerateSafe(WorldTestBase):
-    game = GAME
-    options = {"num_regions": 0, "item_shuffle": False}  # degenerate pool -> gate must SKIP, gen must not FillError
-
-    def test_generates_without_overconstraint(self):
-        # reaching setUp without a FillError is the assertion; confirm the world built.
-        self.assertTrue(self.multiworld.get_locations(self.world.player))
-
-
+if __name__ == "__main__":
+    unittest.main()

@@ -33,7 +33,6 @@ game: "Elden Ring"
   # ---- Real item shuffle (what makes the multiworld matter) ---------------
   item_shuffle: true              # each check pays its real vanilla ER item, shuffled
   curated_fill: true              # concentrate region Locks onto big-ticket checks
-  important_locations: [Remembrance, Seedtree, Church, Boss, Fragment, Revered]
                                   # ^ these check TYPES must hold a useful/progression item (never plain filler)
   pool_builder: true              # scrub the Rune tail, inject rare/legendary juice
   pool_builder_intensity: normal  # keep juice modest for a short run (normal | high | max)

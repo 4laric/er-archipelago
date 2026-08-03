@@ -467,8 +467,10 @@ def _region_is_derived(r):
     if meth=='shop_multi': return False
     return reg in REGION_MAP
 
-# ---- important_locations tags (matt-free): classify each check by TYPE from item_name + method,
-# NOT names. Used by features/important_locations.py to force those checks to hold non-filler items.
+# ---- location TYPE tags (matt-free): classify each check by TYPE from item_name + method, NOT
+# names. Consumed by features/progression_surface (which classes may host progression) and by the
+# tracker. Until 2026-08-02 features/important_locations also used them to force non-filler onto
+# tagged checks; that feature is gone, the tags are not.
 # Remembrance/Seedtree/Church/Basin exclude shop rows (buying a duplicate is not the meaningful check).
 def _loc_tags(r):
     nm = (r['item_name'] or '').lower(); meth = r['method']; shop = meth.startswith('shop')
@@ -2234,7 +2236,7 @@ GLOBAL_RECOVER = {
     # note for play_region 18000 reads "m18_00, the OVERWORLD Stranded Graveyard cliff / Fringefolk
     # Hero's Grave", which is exactly the far side of that imp-statue door. So the Limgrave pin is
     # CORRECT and stays -- 18000 rides Limgrave's bundle -- only its stated reason was a fabrication.
-    # Guarded by test_gf_important_locations::test_f510280_is_the_fringefolk_seed_not_stormhill so
+    # Guarded by test_gf_location_tags::test_f510280_is_the_fringefolk_seed_not_stormhill so
     # the claim cannot rot again (CONTRIBUTING rule 10).
     # ⚠️ STILL UNVERIFIED: the old comment also called lot 10281 (item 201000) "Banished Knight Oleg
     # ash". 201000 does not appear in item_ids.py and no location is named Oleg, so that half is
@@ -5717,7 +5719,7 @@ print(f"item_tiers: {len(ITEM_TIERS)} equippables tiered "
       f"(legendary={_td.get(3,0)}, rare={_td.get(2,0)}, common={_td.get(1,0)}, trivial={_td.get(0,0)})")
 
 
-# ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (important_locations source, matt-free) ----
+# ---- location_tags.py: {ap_id: [type,...]} + TAG_COUNTS (surface-class source, matt-free) ----
 # Written HERE (after ITEM_TIERS) so tag types that need the greenfield catalog / param rarity
 # can be added on top of the name/method tags _loc_tags collected inline (Boss/Remembrance/Church/
 # Seedtree/Basin/Fragment/Revered/Shop): GreatRune + KeyItem from LOCATION_ITEM (greenfield catalog
@@ -6079,7 +6081,7 @@ for _ap in sorted(_MAJOR_AIDS):
         _cur.append("MajorBoss")
 
 # CLOSURE 2 -- a major boss is a boss. MajorBoss must be a SUBSET of Boss (Alaric, 2026-07-26).
-# It was not: 34 of 37 majors carried no Boss tag, so `important_locations = ["Boss"]` -- a PLAYER
+# It was not: 34 of 37 majors carried no Boss tag, so selecting `Boss` as a location class -- a PLAYER
 # option value -- yielded 95 checks with Godrick, Rennala, Radahn, Rykard, Mohg and Malenia all
 # absent. The cause is upstream, in tools/datamine_boss_drops.py step (4): it discards any reward
 # whose ITEM NAME contains "remembrance" or "great rune". That filter is OURS, not the game's -- the

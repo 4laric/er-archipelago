@@ -8,7 +8,7 @@ it; see features/no_runes_in_shops for the full account).
 Properties pinned here:
   1. DEFAULT OFF changes nothing: shop checks accept a rune (no rule is installed).
   2. ON: every purchase-menu check (SHOP_ROW_FLAGS scope) rejects an own money rune, still accepts
-     ordinary junk (the rule must not smuggle in important_locations), and NON-shop locations still
+     ordinary junk (the rule must not smuggle in surface classes), and NON-shop locations still
      accept runes (the rule is scoped, not global).
   3. ON, after a FULL fill: no own rune on any shop check, while runes still landed elsewhere (the
      constraint moved them, it did not delete them).
@@ -83,7 +83,7 @@ class OnScopesExactlyTheShops(WorldTestBase):
                   and str(l.address) not in SHOP_ROW_FLAGS and l.item is None]
         assert others, "no non-shop locations in play"
         accepting = sum(1 for l in others if l.item_rule(rune))
-        # important_locations etc. legitimately refuse filler on their own tagged rows; the bulk
+        # other features legitimately refuse filler on their own rows; the bulk
         # must still take a rune or the option leaked past its scope.
         assert accepting > len(others) // 2, (
             "only %d of %d non-shop locations accept a rune -- the ban leaked out of the shop scope"

@@ -133,7 +133,12 @@ FROZEN_OPTIONS = {
     # ground-truth audited. It lives in features/progression_surface.py as an OptionSet with the v0.2
     # default baked in, so a yaml that never mentions it generates exactly as before. Narrowing it is
     # safe: the feasibility ladder widens rather than failing, and an empty set turns confinement off.
-    "important_locations": (["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered"], None),
+    # important_locations was here. DELETED 2026-08-02 (Alaric): it forced 256 checks to reject
+    # plain filler purely so a "meaningful" check paid out something good. No winnability role --
+    # progression_surface owns that -- and 5 of its 6 classes were already surface classes, so its
+    # only unique reach was `Boss` (91 checks off-surface). Its item_rule took no player argument,
+    # so those 256 checks refused EVERY world's plain filler: a pure multiworld tax for flavour.
+    # The `Boss` tag stays a valid surface class; it just no longer forces juice onto anything.
 
     # ---- half-built / superseded -> frozen OFF (finish later, then re-expose) --------------------
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)

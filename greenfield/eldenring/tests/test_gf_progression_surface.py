@@ -85,7 +85,7 @@ def _apid_region():
 # ---- vocabulary ---------------------------------------------------------------------------------
 def test_majorboss_in_vocabulary():
     assert "MajorBoss" in contract.IMPORTANT_LOCATION_TYPES
-    # selectable by both the surface and the important_locations option (shared vocab)
+    # the surface vocabulary (contract.IMPORTANT_LOCATION_TYPES -- name outlived the deleted option)
     assert "MajorBoss" in ps.ProgressionSurface.valid_keys
 
 
