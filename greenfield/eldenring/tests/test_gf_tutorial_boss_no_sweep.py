@@ -99,24 +99,30 @@ def test_the_sweep_corpus_did_not_shrink():
     are ONE fight and 19000800 still carries it -- but it is why SWEEP_REGION is not a boss ROSTER.
     Anything needing "every boss in region R" must read BOSS_HEALTHBARS.
 
-    3187 -> 3189 (2026-08-03, the m60_45_39 tile curation -- gen_data.M60_TILE_CURATED). Trigger
-    count unchanged at 240, no member LOST, two GAINED, nine sweeps re-partitioned. WHY:
+    3187 -> 3189 (2026-08-03, TWO tile curations -- gen_data.M60_TILE_CURATED). Trigger count
+    unchanged at 240, no member LOST, two GAINED, ten sweeps re-partitioned. WHY:
 
-    +2  ap 7774636 / 7774637 ("Smoldering Butterfly", m60_47_38) were already Limgrave checks that
-        belonged to NO sweep, because the nearest field boss inside Chebyshev 2 of them was the
-        Summonwater Tibia Mariner (1045390800) and that trigger was regioned CAELID -- the
-        nearest-boss pass is same-region, so it could not see them. Curating tile (45, 39) to
-        Limgrave makes it their boss and they gain coverage. Nothing else entered the corpus.
+    Both tiles hold no grace of their own, so tile_pr() nearest-neighboured them; both TIED at
+    distance 1 between a Limgrave anchor and a Caelid one; both ties were settled by the row order
+    of grace_flags.tsv. They fell OPPOSITE ways and both were wrong.
 
-     0  net redistribution across nine sweeps. 1045390800 flips Caelid -> Limgrave and grows 19 -> 37
-        (it now takes the Limgrave filler in its neighbourhood); seven neighbouring Limgrave field
-        bosses shed exactly the members that are now nearer to it; and 1047400800 (Caelid) grows
-        20 -> 27, picking up the Caelid checks Summonwater was wrongly holding. Every one of those
-        moves is a check changing WHICH boss grants it, not whether.
+      m60_45_39  Summonwater Village / Third Church of Marika   Caelid   -> Limgrave  (12 checks)
+      m60_47_38  Fort Gael                                      Limgrave -> Caelid    (15 checks)
 
-    The bug this fixes: those 12 m60_45_39 checks, the Tibia Mariner's Deathroot (f530170) and the
-    whole trigger shipped as Caelid, so on any seed without Caelid they did not exist and felling the
-    boss paid nothing. Reported twice -- 2026-07-24 (Alaric) and 2026-08-03 (boblerrr). See
+    +2  ap 7774636 / 7774637 ("Smoldering Butterfly", m60_47_38) belonged to NO sweep, because the
+        nearest field boss inside Chebyshev 2 of them was regioned across the seam from them and the
+        nearest-boss pass is same-region. With m60_47_38 in Caelid they join the Caelid sweep
+        1048370800 (13 -> 26). Nothing else entered the corpus.
+
+     0  net redistribution across ten sweeps. 1045390800 (Summonwater) flips Caelid -> Limgrave,
+        19 -> 24; seven neighbouring Limgrave field bosses shed what is now nearer to it; the Caelid
+        pair 1047400800 (20 -> 27) and 1048370800 (13 -> 26) take back the Caelid ground. Every one
+        of those moves is a check changing WHICH boss grants it, not whether.
+
+    The bug: on a seed without Caelid the Summonwater trigger, its members and the Tibia Mariner's
+    Deathroot (f530170) did not exist, so felling him paid nothing -- reported 2026-07-24 (Alaric)
+    and again 2026-08-03 (boblerrr). Fort Gael is the same defect pointed the other way, found when
+    Alaric answered a region-confirmation form and gave two different answers for one tile. See
     test_gf_boss_sweeps.test_summonwater_killsite_checks_are_limgrave."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     assert total == 3189, (
