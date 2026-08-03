@@ -5988,6 +5988,7 @@ def _talk_regions(_t):
 
 _SHOP_SLOTS = {}
 _SHOP_SLOT_SKIPS = {}
+_SHOP_SLOT_CANDS = {}   # merchant -> EVERY vetted slot, not just the pinned one (see below)
 for _t, _aps2 in sorted(_talk_checks.items()):
     _aps2 = sorted(set(_aps2))
     if _t in _ALT_CURRENCY_TALKS:
@@ -6019,6 +6020,14 @@ for _t, _aps2 in sorted(_talk_checks.items()):
                                 % (sorted(_mregs) or "(unresolved)", len(_conf),
                                    sorted({_ap_region2.get(a) for a in _conf})))
         continue
+    # EVERY vetted candidate, not just the pin. `_cons` has already cleared the whole certainty
+    # funnel (merchant-exclusive -> start-stocked -> region-confident -> the row's filed region
+    # matches where the merchant physically stands), so its SIZE is the honest ceiling on "how many
+    # progression items may this merchant hold" -- the input to a per-merchant cap. It used to be
+    # computed and thrown away on the next line, so the question could not be answered without
+    # re-deriving the whole funnel. Emitting it costs nothing and the pin is unchanged:
+    # SHOP_SLOT_PINS[t] == min(SHOP_SLOT_CANDIDATES[t]).
+    _SHOP_SLOT_CANDS[_t] = sorted(_cons)
     _rep = min(_cons)
     _SHOP_SLOTS[_t] = _rep
     _tags = loc_tags.setdefault(_rep, [])
@@ -6187,6 +6196,14 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('# is INTENDED; an empty PINS dict is a gen_data FATAL.\n')
     f.write('# Was keyed by ShopLineupParam block until 2026-07-24; the block is not a merchant.\n')
     f.write('SHOP_SLOT_PINS = ' + repr(dict(sorted(_SHOP_SLOTS.items()))) + '\n')
+    f.write('\n# EVERY slot that cleared the same funnel, not just the pinned one. SHOP_SLOT_PINS[t]\n')
+    f.write('# is min(SHOP_SLOT_CANDIDATES[t]) -- the pin is one member of this list, and the list is\n')
+    f.write('# the CEILING on a per-merchant progression cap. Every member is merchant-exclusive,\n')
+    f.write('# start-stocked, region-confident and region-consistent, i.e. individually as trustworthy\n')
+    f.write('# as the pin. Only the pin carries the ShopSlot TAG today; widening the tag is a separate\n')
+    f.write('# decision (it would take the default surface 156 -> 265), which is why this is DATA and\n')
+    f.write('# not a tag. Measured 2026-08-02: 139 slots across 15 merchants, median 9, max 16.\n')
+    f.write('SHOP_SLOT_CANDIDATES = ' + repr(dict(sorted(_SHOP_SLOT_CANDS.items()))) + '\n')
     f.write('SHOP_SLOT_SKIPS = ' + repr(dict(sorted(_SHOP_SLOT_SKIPS.items()))) + '\n')
 print(f'location_tags: {len(loc_tags)} tagged locations; counts ' + repr(dict(sorted(_tagcount.items()))))
 print(f'location_tags: {len(_defaulted)} check(s) with a DEFAULTED region -> barred from progression')
