@@ -13,7 +13,7 @@
     "data.py": "sha256:f358a4d01ccda89df547172caf6508255e3da5df19e8537fdb7ef6c85dd3b0bf",
     "item_ids.py": "sha256:21ec6fa42c0a02ed9b51199c657ac043b1b08ed84069c2ef1d0e49367c588e6c",
     "item_tiers.py": "sha256:fc42992f85f8786b2266d890ad8ee74562e43b429e63db33b8e36f171f8ee3e2",
-    "location_tags.py": "sha256:47c6400ed80163f7b9dbdef1e21fcb9f4885121632aecad2ee6265307af3f767",
+    "location_tags.py": "sha256:e5d821347e7e0313b0d7edc58ef57f2375276bf58bfdf452f401a903f24937f0",
     "missable_locations.py": "sha256:2a313af8ed8d99d73e12a9a2ea27b2efe5f66304d8fa049af22747c2eed3a317",
     "region_graces.py": "sha256:91cbefa774eae9d86b1f70652b072bf5c2a7f6ab8edc1cf49df583bec288e516",
     "region_open_flags.py": "sha256:10682b5f34e29e198367883dcc4bb2b2df8b767f03079751af2cf46b1bcfcfd6",
