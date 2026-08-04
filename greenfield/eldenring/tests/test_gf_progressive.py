@@ -7,14 +7,38 @@ progression, so the seed stays winnable in every case.
 """
 import pytest
 
-# progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py) and are
-# not yaml-exposed, so these cases cannot be constructed. Un-skip when they are re-exposed.
+import dataclasses
+
 # progressive_flasks is NO LONGER here: it is finished, frozen ON, and covered live by
 # tests/test_gf_progressive_flasks.py (the unified "Progressive Flask Upgrade" ladder).
-pytestmark = pytest.mark.skip(reason="progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py) -- not yaml-exposed. Un-skip when re-exposed. Flasks: see test_gf_progressive_flasks.py.")
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
+from worlds.eldenring.core import GFOptions  # noqa: E402
+
+# SELF-EXPIRING FREEZE (2026-08-04) -- same construction as test_gf_boss_keys.py, see the comment
+# there. progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py),
+# so these cases cannot be constructed from yaml. The skip holds only while BOTH options are still
+# absent from the live yaml surface (GFOptions fields = the surface, defaults.FROZEN_OPTIONS
+# filtered out): re-exposing EITHER one wakes the whole suite and reds the tripwire below, instead
+# of leaving 20 tests dark behind an "un-skip when re-exposed" comment nobody re-reads.
+_SURFACE = {f.name for f in dataclasses.fields(GFOptions)}
+_FROZEN = ("progressive_stone_bells" not in _SURFACE
+           and "progressive_stonesword_keys" not in _SURFACE)
+
+pytestmark = pytest.mark.skipif(
+    _FROZEN,
+    reason="progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 "
+           "(defaults.py) -- not yaml-exposed. Self-expiring: re-exposing either option wakes this "
+           "suite and reds the freeze tripwire. Flasks: see test_gf_progressive_flasks.py.")
+
+
+def test_the_freeze_tripwire_progressives_are_still_off_the_yaml_surface():
+    """Never green while un-frozen, by design -- red the commit that re-exposes either option."""
+    assert _FROZEN, (
+        "progressive_stone_bells and/or progressive_stonesword_keys are back on the yaml surface, "
+        "but this suite froze with them on 2026-07-11 and has not tracked the features since. "
+        "Revalidate every test in this file, then delete this tripwire and the module skipif.")
 from worlds.eldenring.features.progressive import (  # noqa: E402
     PROG_STONESWORD_KEY,
     PROG_SMITHING_BELL, PROG_SOMBER_BELL,

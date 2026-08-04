@@ -65,9 +65,26 @@ def _major_boss_extras():
     the whole data pipeline / need elden_ring_artifacts)."""
     _gd = os.path.join(GREENFIELD, "gen_data.py")
     if not os.path.isfile(_gd):
+        # Installed world (_ap/worlds/eldenring): greenfield/ is not installed, but the repo
+        # checkout the AP dir sits inside has it -- walk UP (the find_repo_root idiom) instead of
+        # skipping. Resolved positionally, this oracle had never run in ANY CI job: every CI
+        # checkout contains greenfield/gen_data.py, and the positional GREENFIELD ("two dirs up")
+        # points at _ap/worlds there (2026-08-04 inert-test audit, section 2).
+        d = HERE
+        for _ in range(8):
+            cand = os.path.join(d, "greenfield", "gen_data.py")
+            if os.path.isfile(cand):
+                _gd = cand
+                break
+            nd = os.path.dirname(d)
+            if nd == d:
+                break
+            d = nd
+    if not os.path.isfile(_gd):
         import pytest
-        pytest.skip("gen_data.py absent in the installed-world layout -- this MAJOR_BOSS_EXTRAS oracle "
-                    "runs only from the greenfield source tree (like RegionCorrectness' CSV gate).")
+        pytest.skip("greenfield/gen_data.py not found in any parent -- this MAJOR_BOSS_EXTRAS oracle "
+                    "needs a repo checkout somewhere above the tests dir (every CI job has one; a "
+                    "bare world install outside a repo genuinely cannot run it).")
     src = open(_gd, encoding="utf-8").read()
     tree = ast.parse(src)
     for node in ast.walk(tree):

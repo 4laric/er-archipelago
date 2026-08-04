@@ -14,9 +14,12 @@ resolved (99.0%)`. A number printed at gen time is not a gate.
 
 CROSS-VALIDATED: Bedrock's independently-built (matt-lineage) table contains ZERO of the 13.
 
-SIGHTED-ONLY: needs elden_ring_artifacts (params + the item-name FMGs), so it SKIPS on the GitHub
-runner and RUNS in run_ci.ps1. That is the same shape as the provenance oracle, and it is why the
-Windows gate is the one that matters.
+INPUTS: elden_ring_artifacts (params + the item-name FMGs). Since 2026-07-27 every file this oracle
+reads ships in the committed gen_inputs bundle, so `tools/gen_inputs.py --ensure elden_ring_artifacts`
+makes it runnable from ANY checkout -- the CI `tests` job materialises the bundle before pytest and
+this gate runs there. (Its old skip message claimed "the GitHub runner cannot" run it; that predated
+the bundle and sat false for a week while the test stayed dark -- an audit finding, not a code change,
+was what noticed. The dev box still runs it against the full Windows artifact dump; same inputs.)
 """
 import csv
 import glob
@@ -30,10 +33,20 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _artifacts():
-    for up in (HERE, os.path.dirname(HERE), os.path.dirname(os.path.dirname(HERE))):
-        p = os.path.join(up, "elden_ring_artifacts")
+    # Walk UP with a real loop (the find_repo_root idiom from _util.py), not a fixed 3-candidate
+    # list: from the INSTALLED world (_ap/worlds/eldenring/tests) the repo checkout that holds
+    # elden_ring_artifacts/ is 4 parents up, so the old 3-up walk could never see it and this
+    # oracle stayed dark in CI for a week AFTER its inputs became available there (2026-08-04
+    # inert-test audit, section 2).
+    d = HERE
+    for _ in range(8):
+        p = os.path.join(d, "elden_ring_artifacts")
         if os.path.isdir(p):
             return p
+        nd = os.path.dirname(d)
+        if nd == d:
+            break
+        d = nd
     return None
 
 
@@ -49,8 +62,10 @@ class TestEveryCheckItemExists(unittest.TestCase):
     def test_no_check_points_at_an_item_that_does_not_exist(self):
         art = _artifacts()
         if not art:
-            self.skipTest("elden_ring_artifacts absent -- item-existence oracle cannot run (it is "
-                          "SIGHTED-only; run_ci.ps1 runs it, the GitHub runner cannot)")
+            self.skipTest("elden_ring_artifacts absent -- run `python tools/gen_inputs.py --ensure "
+                          "elden_ring_artifacts` first; the committed bundle carries every input this "
+                          "oracle reads, so a skip here means an un-extracted checkout, not a machine "
+                          "that cannot run it")
         msg = os.path.join(art, "msg")
         vv = os.path.join(art, "vanilla_er", "vanilla_er")
         if not (os.path.isdir(msg) and os.path.isdir(vv)):

@@ -42,10 +42,29 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)                    # .../greenfield/eldenring
-REPO_ROOT = os.path.dirname(os.path.dirname(GF_PKG))
 LADDER_PY = os.path.join(GF_PKG, "scaling_ladder.py")
-ER_LOGIC_SCALING_RS = os.path.join(
-    REPO_ROOT, "from-software-archipelago-clients", "crates", "er-logic", "src", "scaling.rs")
+
+
+def _find_up(rel, start):
+    """Walk UP for `rel` (the find_repo_root idiom, _util.py). Resolved POSITIONALLY ("N dirs up")
+    this path pointed into _ap/worlds under the installed-world harness, so the gate skipped there
+    forever -- in the CI `tests` job too, where the thing it needs sits a directory higher
+    (2026-08-04 inert-test audit, finding #3)."""
+    d = os.path.abspath(start)
+    for _ in range(8):
+        cand = os.path.join(d, rel)
+        if os.path.exists(cand):
+            return cand
+        nd = os.path.dirname(d)
+        if nd == d:
+            break
+        d = nd
+    return None
+
+
+_SCALING_RS_REL = os.path.join(
+    "from-software-archipelago-clients", "crates", "er-logic", "src", "scaling.rs")
+ER_LOGIC_SCALING_RS = _find_up(_SCALING_RS_REL, HERE) or _SCALING_RS_REL
 
 
 def _load_ladder():

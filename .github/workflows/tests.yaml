@@ -63,6 +63,45 @@ jobs:
           pip install -r _ap/requirements.txt
           pip install pytest
 
+      # THE BUNDLE, EXPLICITLY (2026-08-04, inert-test audit finding #3). Everything the
+      # item-existence oracle and gen_stamp's freshness gate (test_D) read has shipped in the
+      # committed gen_inputs bundle since 2026-07-27 -- but this job never ran --ensure, so both
+      # sat dark here while their skip messages claimed the runner could not run them. Worse, the
+      # extraction DID happen anyway: test_gf_infinite_shop_rows ensures the bundle for itself
+      # mid-run, so whether a suite saw elden_ring_artifacts/ depended on pytest COLLECTION ORDER
+      # (g < i alphabetically: gen_stamp skipped, item_exists ran after extraction and skipped
+      # only because of its own path bug). Explicit beats incidental.
+      - name: Materialise gen_data's inputs from the committed bundle
+        run: python tools/gen_inputs.py --ensure elden_ring_artifacts
+
+      # THE CLIENT, AT THE GITLINK -- same three steps as the `generators` job, same reason to
+      # keep them textually parallel. Three pytest gates in THIS job read the client checkout and
+      # skipped silently without it, forever: test_gf_scadu_supply's rung-for-rung SCADU_CUM
+      # mirror ("a drifted rung moves every player's difficulty floor with nothing to say so" --
+      # the exact failure mode its sibling scaling_ladder_mirror was added for), and
+      # test_gf_data's two client-table gates (the hand-mirror ban on REGION_PLAY_IDS and the
+      # region_locks.rs staleness check). The census below pins them RUNNING from now on.
+      - name: Resolve the PINNED client commit (the gitlink, not client main)
+        id: pin
+        run: |
+          sha="$(git ls-tree HEAD from-software-archipelago-clients | awk '$2 == "commit" { print $3 }')"
+          test -n "$sha" || { echo "::error::no gitlink at from-software-archipelago-clients"; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "pinned client commit: $sha"
+      - uses: actions/checkout@v4
+        with:
+          repository: 4laric/from-software-archipelago-clients
+          ref: ${{ steps.pin.outputs.sha }}
+          path: from-software-archipelago-clients
+      - name: The client checkout is real, and is the pin
+        run: |
+          test -d from-software-archipelago-clients/crates \
+            || { echo "::error::client checkout has no crates/ -- the cross-side gates would SKIP and gate nothing"; exit 1; }
+          have="$(git -C from-software-archipelago-clients rev-parse HEAD)"
+          test "$have" = "${{ steps.pin.outputs.sha }}" \
+            || { echo "::error::client HEAD $have is not the pinned ${{ steps.pin.outputs.sha }}"; exit 1; }
+          echo "client at the pin: $have"
+
       # ONE HARNESS, used here and by run_ci.ps1 on the dev box. It used to be two: CI installed the
       # world into a freshly-checked-out upstream AP, while run_ci.ps1 installed it into <repo>\Archipelago
       # -- whatever that happened to be. On 2026-07-13 that directory was a clone of fswap/Archipelago
@@ -70,8 +109,12 @@ jobs:
       # different Archipelago than CI: 661 tests collected vs 686, a different Fill.py, different spheres,
       # and a test that is green here failed there. tools/gf_test.py is now the only definition of the
       # harness -- it pins .ap-version, REFUSES to run against a fork, and installs (never symlinks).
+      # --skip-census: the observed skip inventory must match the committed census exactly
+      # (greenfield/eldenring/tests/expected_skips_ci.json). "Deliberately dev-box-only" and
+      # "dark by accident" look identical in a green run; the census is the instrument that can
+      # tell them apart, and it turns any skip-family or count change into a reviewed diff.
       - name: pytest (tools/gf_test.py -- pinned upstream AP)
-        run: python tools/gf_test.py --ap-dir _ap
+        run: python tools/gf_test.py --ap-dir _ap --skip-census greenfield/eldenring/tests/expected_skips_ci.json
 
       # Wizard metadata drift, against the LIVE GFOptions -- the only instrument that can tell the
       # three committed artifacts (wizard/options-metadata.json, the blob inlined in
@@ -296,6 +339,11 @@ jobs:
         run: python tools/check_contract_version.py
 
 
+      # The ledger BEFORE the loop: the loop below is generated from it, so an unledgered
+      # repo-only suite must fail the job before a green loop can imply "everything ran".
+      - name: Every repo-only suite is in a CI job or explicitly ledgered
+        run: python tools/gf_suite_ledger.py --check
+
       - name: Generators run, and their committed output is not stale
         run: |
           python tools/gen_region_locks.py
@@ -316,25 +364,19 @@ jobs:
           # These suites test REPO TOOLING (tools/ + the committed pages), so they only run
           # from a repo checkout -- gf_test.py installs the world into _ap/worlds/eldenring with no
           # tools/ alongside, where they correctly SKIP. This is the job that has the real tree, so
-          # this is where they must actually execute. Without these three lines they would skip in
-          # `tests`, skip here, and gate nothing anywhere.
+          # this is where they must actually execute.
           # Run as SCRIPTS, not `-m greenfield.eldenring.tests.X`: the package __init__ imports
           # core -> BaseClasses, and this job has no Archipelago. The suites are AP-free by design
           # (they read the generated modules with ast) and each has a __main__ entry point.
-          # scaling_ladder_mirror + client_contract_paths added 2026-07-29. Both are CROSS-SIDE
-          # gates that skip unless the client is checked out beside the repo -- which only THIS job
-          # does. They were never in any loop, so both had never run once: the mirror (Python vs Rust
-          # SCALING_TIERS, "a drifted rung would move every player's difficulty floor by a tier with
-          # nothing to say so") and the dark-feature gate. Its first real run found TEN undeclared
-          # client reads.
-          # wizard_blob_sync added 2026-07-29: the AP-free half of the wizard gate. It proves the
-          # two committed wizard artifacts agree with EACH OTHER (pure text, no AP import), so it
-          # runs in this job as well as `tests`. It deliberately cannot tell you both are stale
-          # against the docstrings -- that is --check's job, over in `tests`.
-          for t in check_browser desc_triage provenance_gate questline_dag shipping_yaml_recipe \
-                   scaling_ladder_mirror client_contract_paths client_can_sell_mirror \
-                   client_resets_are_called contract_versions wizard_blob_sync \
-                   infinite_shop_rows_are_browsable_shelves; do
+          #
+          # THE LIST IS DERIVED, NOT TYPED (2026-08-04, inert-test audit finding #3). It was 12
+          # hand-typed names, and that hand-maintenance is exactly how test_gf_scadu_supply's
+          # client-rung mirror and test_gf_data's client-table gates fell dark: their sibling
+          # scaling_ladder_mirror was typed in, they were not, and nothing could tell. The names
+          # now come from tools/gf_suite_ledger.py, whose --check (previous step) fails RED on any
+          # repo-only suite that is neither in this loop nor explicitly ledgered -- a new suite
+          # cannot be silently dark, its author must file it somewhere on purpose.
+          for t in $(python tools/gf_suite_ledger.py --generators-list); do
             echo "--- test_gf_$t.py"
             python "greenfield/eldenring/tests/test_gf_$t.py" -v 2>&1 | tail -5
             # `python x.py` exits nonzero on failure; pipefail-less bash would swallow it

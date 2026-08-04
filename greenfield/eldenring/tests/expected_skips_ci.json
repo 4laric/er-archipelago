@@ -1,0 +1,64 @@
+{
+  "comment": [
+    "THE SKIP CENSUS for the CI `tests` job (inert-test audit finding #3, 2026-08-04).",
+    "A green run cannot tell 'deliberately dev-box-only' from 'dark by accident' -- this file can.",
+    "tools/gf_test.py --skip-census asserts the observed skip inventory against these families:",
+    "every observed skip reason must regex-match exactly one family, and every family's count is",
+    "EXACT. A new skip family, a vanished one, or a count change all fail the job, so waking or",
+    "darkening a test is always a reviewed diff to this file, never an accident.",
+    "Counts were MEASURED in the CI-equivalent layout (upstream AP inside the repo checkout,",
+    "bundle ensured, client at the gitlink) on 2026-08-04: 1491 passed, 82 skipped.",
+    "The bucket story per suite lives in tools/gf_suite_ledger.py; this file pins the numbers.",
+    "If you make a skip go away on purpose: celebrate, then lower the count here in the same PR."
+  ],
+  "families": [
+    {
+      "family": "frozen-boss-keys",
+      "why": "self-expiring freeze: 33 suite tests + 1 tripwire, all skipped while boss_keys is off the yaml surface (test_gf_boss_keys.py). Re-exposing the option wakes the suite and reds the tripwire, and this count going to 0 reds the census too.",
+      "pattern": "^boss_keys is FROZEN OFF",
+      "count": 34
+    },
+    {
+      "family": "frozen-progressive-bells-and-keys",
+      "why": "self-expiring freeze, same construction (test_gf_progressive.py): 20 suite tests + 1 tripwire.",
+      "pattern": "^progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF",
+      "count": 21
+    },
+    {
+      "family": "grace-region-dumps-windows-only",
+      "why": "test_gf_grace_region_correctness.py needs grace_region_map_*.tsv + grace_flags.tsv, Windows-side dumps NOT in the gen_inputs bundle. Dev-box coverage (run_ci.ps1).",
+      "pattern": "grace_region_map_\\*\\.tsv / grace_flags\\.tsv absent",
+      "count": 6
+    },
+    {
+      "family": "boss-arena-skip-list-documented-stub",
+      "why": "test_gf_grace_region_correctness.py's tracked no-independent-oracle stub -- a documented gap, kept visible on purpose.",
+      "pattern": "no independent boss-arena/fog grace source",
+      "count": 1
+    },
+    {
+      "family": "grace-flags-tsv-windows-only",
+      "why": "test_gf_grace_skip_classes.py gates all 12 tests on grace_flags.tsv (Windows dump, not bundled) even though event/ + BonfireWarpParam.csv are; splitting the suite is noted follow-up in tools/gf_suite_ledger.py.",
+      "pattern": "event/ decompiles, BonfireWarpParam\\.csv, grace_flags\\.tsv\\) absent",
+      "count": 12
+    },
+    {
+      "family": "grace-skip-oracle-known-red-244",
+      "why": "test_gf_grace_skip_oracle.py COULD run here (its inputs are bundled; only its positional REPO stops it) but wakes RED on the known #244 defect -- 12 EMEVD boss-gated flags absent from gen's skip set, 76412 emitted grantable (measured 2026-08-04). Deliberately left skipping until #244 lands; then wake it and delete this family.",
+      "pattern": "decompiled EMEVD \\(event/\\) or BonfireWarpParam\\.csv absent",
+      "count": 5
+    },
+    {
+      "family": "region-id-map-windows-only",
+      "why": "test_gf_region_artifact_oracle.py needs REGION_ID_MAP.md + the grace dump TSVs; neither ships in the bundle. Dev-box coverage (run_ci.ps1).",
+      "pattern": "artifact map->region source absent",
+      "count": 2
+    },
+    {
+      "family": "recipe-reserves-no-somber-stones",
+      "why": "test_gf_filler_economy_floor.py: the shipped playtest recipe reserves no somber_stones, so the reservation assertion has nothing to hold -- content-dependent, not layout-dependent.",
+      "pattern": "playtest recipe reserves no somber_stones",
+      "count": 1
+    }
+  ]
+}
