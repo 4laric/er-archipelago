@@ -197,6 +197,59 @@ class StartWithFlasks(DefaultOnToggle):
 
 
 @register
+# ==================================================================================================
+# THE PLAIN startItems LIST, BUILT ONCE (#308).
+# ==================================================================================================
+#
+# `slot_data` emits this list; `create_items` needs to know its per-item COUNTS, because the start
+# loadout and the shuffled pool draw on the SAME finite stack ceiling and neither one alone can see
+# the total. Two copies of these conditionals would drift the moment an option is added -- and the
+# drift would be silent, because a start loadout the pool clamp under-counts simply reintroduces the
+# bug it exists to prevent. So there is one builder, and `test_gf_goods_hold_cap` asserts the two
+# consumers agree.
+def plain_start_ids(world):
+    """The plain `startItems` FullID list (repeats = quantity), for the given world's options."""
+    items = []
+    if world.options.start_with_lantern.value:
+        items.append(_LANTERN_FULL_ID)
+    if world.options.start_with_flasks.value:
+        items.append(_CRIMSON_FLASK_FULL_ID)
+        items.append(_CERULEAN_FLASK_FULL_ID)
+    if getattr(world.options, "start_with_whetblades", None) and world.options.start_with_whetblades.value:
+        items += list(_WHETBLADE_FULL_IDS)
+    _shuf = getattr(world.options, "item_shuffle", None)
+    if _shuf is not None and _shuf.value:
+        items += [_CRACKED_POT_FULL_ID] * _START_CRACKED_POTS
+        items += [_RITUAL_POT_FULL_ID] * _START_RITUAL_POTS
+        items += [_PERFUME_BOTTLE_FULL_ID] * _START_PERFUME_BOTTLES
+        if getattr(world, "gf_dlc_on", False):
+            items += [_HEFTY_CRACKED_POT_FULL_ID] * _START_HEFTY_CRACKED_POTS
+    return items
+
+
+def start_hold_counts(world):
+    """Vanilla item NAME -> how many copies the start loadout grants.
+
+    Only names present in `ITEM_CATALOG` can be counted, which is exactly the set `create_items`
+    draws its pool copies from, so the two are measuring the same thing. `uniqueStartGrants` is
+    deliberately EXCLUDED: those are flag-keyed one-offs, never repeated, and none of them is a
+    stackable good with a ceiling.
+    """
+    try:
+        from ..item_ids import ITEM_CATALOG
+    except Exception:                                   # pragma: no cover - generated module absent
+        return {}
+    by_id = {}
+    for _nm, _full in ITEM_CATALOG.items():
+        by_id.setdefault(_full, _nm)
+    counts = {}
+    for _full in plain_start_ids(world):
+        _nm = by_id.get(_full)
+        if _nm is not None:
+            counts[_nm] = counts.get(_nm, 0) + 1
+    return counts
+
+
 class StartItems(Feature):
     name = "start_items"
     OPTIONS = {"start_with_lantern": StartWithLantern, "start_with_steed": StartWithSteed,
@@ -205,21 +258,7 @@ class StartItems(Feature):
                "start_with_whetblades": StartWithWhetblades}
 
     def slot_data(self, world):
-        items = []
-        if world.options.start_with_lantern.value:
-            items.append(_LANTERN_FULL_ID)
-        if world.options.start_with_flasks.value:
-            items.append(_CRIMSON_FLASK_FULL_ID)
-            items.append(_CERULEAN_FLASK_FULL_ID)
-        if getattr(world.options, "start_with_whetblades", None) and world.options.start_with_whetblades.value:
-            items += list(_WHETBLADE_FULL_IDS)
-        _shuf = getattr(world.options, "item_shuffle", None)
-        if _shuf is not None and _shuf.value:
-            items += [_CRACKED_POT_FULL_ID] * _START_CRACKED_POTS
-            items += [_RITUAL_POT_FULL_ID] * _START_RITUAL_POTS
-            items += [_PERFUME_BOTTLE_FULL_ID] * _START_PERFUME_BOTTLES
-            if getattr(world, "gf_dlc_on", False):
-                items += [_HEFTY_CRACKED_POT_FULL_ID] * _START_HEFTY_CRACKED_POTS
+        items = plain_start_ids(world)
         # UNIQUE start grants: [FullID, obtainedFlag] pairs. The client grants the goods ONLY if
         # the flag is unset, then sets the flag with the grant (er-logic unique_grant_action) --
         # idempotent across reload/reconnect/pool-pickup by construction. These FullIDs must NOT

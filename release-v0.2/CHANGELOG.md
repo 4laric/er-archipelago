@@ -40,6 +40,32 @@ Academy Glintstone Staff. Its flag's lots are named by no talk ESD and no map EM
 have can say where it is — it is one of 45 in that position. Another 19 are named by two or three
 maps because the NPC relocates, and guessing one would assert a reachability we do not have. Those
 64 stay unplaced, counted and printed by the tool rather than quietly dropped.
+### Fixed: 21 pot items per seed were being placed, delivered, and then destroyed
+
+The game has a per-item stack ceiling (`EquipParamGoods.maxNum`), and for an item you cannot drop,
+sell, or put in the storage box, a copy past that ceiling is not late -- it is gone. The game
+refuses it, the client's grant still reports success, and the multiworld has spent the item. On a
+default seed the pool plus the start loadout came to 27 Cracked Pots against a ceiling of 19, 12
+Ritual Pots against 9, 16 Perfume Bottles against 9, and 13 Hefty Cracked Pots against 10 -- 21
+items placed that no player could ever receive.
+
+The generator now knows the ceiling and stops creating those copies; each one pays curated filler
+instead, so the seed keeps exactly the same number of items and you get something usable in place
+of something that would have evaporated.
+
+Thirteen other goods were in the same trap and had no telemetry at all, because only the pot rows
+were capped client-side: a second Whetstone Knife, Cursemark of Death, Lord of Blood's Favor,
+Unalloyed Gold Needle, Dragon Cult Prayerbook, three Crystal Tears, three `Note:` items, a Letter
+from Volcano Manor, and a ninth Memory Stone against a ceiling of eight.
+
+Consumables are deliberately untouched -- Golden Rune [1] ships 161 copies against a ceiling of 99,
+but you spend them, so the stack drains and the surplus is merely early. Weapons, armour, talismans
+and spells are untouched too; their duplicates are there on purpose.
+
+The client's existing pot cap is unchanged and stays as the backstop. It could never have fixed
+this: for the three rows a vanilla event watches, `maxNum` is exactly the held count that fires the
+event, so capping one below it is the only safe state available and there is nowhere for a surplus
+pot to go.
 
 ### Fixed: 421 checks had lost their nearest Site of Grace to a join that could never match
 
