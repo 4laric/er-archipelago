@@ -1414,6 +1414,10 @@ _REGION_CONFIRMED_FLAGS = frozenset({
     1036447300,   # Liurnia :: Golden Seed -- collected in Liurnia this session. Its descriptor was
                   # re-anchored to "near Academy Gate Town" in the SAME commit
                   # (location_descriptions.tsv) on the same walk.
+                  # 🛑 THIS collection is the walk that the 2026-08-01 note misread as clearing
+                  # 1035467100 ("near Academy Gate Town" was 1035467100's descriptor that day, and it
+                  # was wrong by 872 m). The clearance belongs HERE and only here; 1035467100 is
+                  # key-gated Raya Lucaria ground (FLAG_REGION_OVERRIDE).
     # --- 2026-08-03, Alaric, CONFIRMED IN GAME from the in-client check feed (#336).
     1042507020,   # Altus :: Golden Seed -- "it's altus, Ulcerated tree spirit south of Outer Wall
                   # Phantom Tree". Coherent with the tables independently: Outer Wall Phantom Tree
@@ -1496,13 +1500,19 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
                 # (cross-checked 2026-07-31, NOT ingested) has no entry for it -- our params do say
                 # lot 39200170 holds goods 10020, so the check is real; it is the LOCATION claim
                 # that is weak. Alaric could not find it in game at the named grace.
-    # 1035467100 (Liurnia :: Golden Seed) WAS here, excluded 2026-07-31 on suspicion of sitting
-    # behind the Raya Lucaria Academy key. WALKED AND CLEARED 2026-08-01 (Alaric, in game): it is
-    # reachable Liurnia, so it hosts progression like any other check. Its anchor was also wrong --
-    # the descriptor is now "near Academy Gate Town" (location_descriptions.tsv), which is what the
-    # suspicion was really about: a bad ANCHOR reading as a bad REGION.
-    # 🛑 The exclusion did its job -- cheap to be wrong, reversed the moment someone looked. Do not
-    # re-add it without new evidence; "someone walked it" is the strongest signal available here.
+    # 1035467100 (Golden Seed - near Main Academy Gate) WAS here, excluded 2026-07-31 on suspicion
+    # of sitting behind the Raya Lucaria Academy key. The 2026-08-01 "WALKED AND CLEARED" that
+    # released it was a MISATTRIBUTION: that day's descriptor for it read "near Academy Gate Town"
+    # -- an anchor 872 m away and 27th-nearest (see the 2026-08-02 correction pass in
+    # location_descriptions.tsv) -- and the seed actually collected on that walk was 1036447300,
+    # the Gate Town seed at lake level (its _REGION_CONFIRMED_FLAGS entry, same commit, same
+    # descriptor). Nobody has ever stood at 1035467100 without the key: it sits at deck height on
+    # the broken bridge INSIDE the Academy crest-warp pocket, and Alaric ruled it key-gated in game
+    # 2026-08-04 ("you can't access without academy key"). The 07-31 suspicion was CORRECT.
+    # 🛑 The fix is NOT re-adding it here: SURFACE_EXCLUDE only trims the advertised surface and is
+    # absent from core._NO_PROGRESSION_APS, so fill would still place progression on it (#350).
+    # The binding lever is the REGION -- FLAG_REGION_OVERRIDE pins it (and 1035467700, same pocket)
+    # to Raya Lucaria Academy, so logic demands the Academy lock. Gate: test_gf_academy_key_pocket.
     # --- 2026-08-01: the LIURNIA ISOLATED MERCHANT's entire stock (#252, reported by a player and
     # confirmed by Alaric: "not accessible without the raya lucaria key").
     #
@@ -2043,6 +2053,29 @@ FLAG_REGION_OVERRIDE = {
     530100: "Limgrave",                        # Golden Halberd = the Tree Sentinel's drop at the Limgrave
                                                #   start (Church of Elleh / First Step). EMEVD tile
                                                #   m60_35_45 mis-resolved to Liurnia (Alaric 2026-07-09).
+    # --- THE ACADEMY KEY POCKET (2026-08-04, #252's overworld sibling). The Main Academy Gate
+    # courtyard and the broken east-bridge span running out of it are RAYA LUCARIA ground, not
+    # Liurnia: the grace anchoring their tile (76206, m60_35_46) STANDS on play-region volume 14000
+    # (grace_ground.tsv, volume "purei-ryoiki Monsen mae kaidan 02" = the academy forecourt stairs),
+    # and every route in is a crest-warp that reads Academy Glintstone Key POSSESSION
+    # (key_item_gates.tsv: $Event(1035452600)/(1035462600)/(1036472600) -- the game's only three
+    # goods-8109 checks). The tile decode said Liurnia because grace_region_map.tsv files 76206
+    # under 62000: that is the WARP-MENU bucket, not the ground the player stands on
+    # (er-play-region-two-tables-not-one). Vanilla routes agree: every guide reaches this span
+    # "after you've obtained the Glintstone Key" (the East Gate Bridge Trestle below is the one-way
+    # exit DOWN, not a way up). Region move, NOT a surface bar: SURFACE_EXCLUDE is absent from
+    # core._NO_PROGRESSION_APS, so only the region binds fill (#350 lesson).
+    1035467100: "Raya Lucaria Academy",        # Golden Seed on the broken span NE of the gate (world
+                                               #   (8972, 313, 11897), deck height, 75 m ABOVE the
+                                               #   trestle grace). Reported sphere-1-while-key-gated by
+                                               #   a player (lavakoala6, Nexus 2026-08-04) and ruled
+                                               #   key-gated by Alaric in game the same day. Its
+                                               #   2026-08-01 "WALKED AND CLEARED" was a MISATTRIBUTION
+                                               #   -- see the note at _SURFACE_EXCLUDE_FLAGS.
+    1035467700: "Raya Lucaria Academy",        # Ash of War: Raptor of the Mists -- Yura's invasion
+                                               #   step; the summon sign stands in the same courtyard
+                                               #   pocket (common 90005774, entity 1035460700,
+                                               #   m60_35_46). Same ground, same key.
     # Ensha of the Royal Remains: invades AT the Roundtable Hold, so his drops belong in the HUB, not
     # Altus (they mis-pin to m11 Leyndell -> folded into Altus). Alaric-identified 2026-07-09.
     9800: "Roundtable Hold",                   # Ensha reward (m11_00; item name unresolved in region_map)

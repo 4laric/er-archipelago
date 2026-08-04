@@ -6,11 +6,11 @@
     "regions": 30,
     "sweeps": 225
   },
-  "inputs_hash": "sha256:46dfd217b2d4147a9be6d9ab2239d934dc3c4f11b0701a44084071044bfa2808",
+  "inputs_hash": "sha256:bac5c8a69c836c221c946e7101aec09f790a8d7e476600ca5f29804873adc211",
   "modules": {
     "boss_data.py": "sha256:71365e19d7229203f80e0c313abbb1bd2c0f98bc0a41de5730b76cbfd1dd436f",
-    "boss_sweeps.py": "sha256:2daa86feb162272b6b8a0ae0e95304f34073584617017734a45fa7f034b42c2a",
-    "data.py": "sha256:cd67427fbb18c4d62d4d50da082a20c09a281b2f8ce3a2d86e24b99c08d052b2",
+    "boss_sweeps.py": "sha256:80fe1ac15dd9c79cf3dd0fdd844769fc3d9f5228f177297da3e67162a657a1c5",
+    "data.py": "sha256:ca1c62c32f4a70b4f13d2115d9d1bfe4e419cbbd9292249ed7d00eafc08525a3",
     "item_ids.py": "sha256:2f548bc56a0c88cb84999e7ec802003a83d82057952177c88699f0805196451e",
     "item_tiers.py": "sha256:bfc7d9b199542816597df93d3e8742bf39a1a978792544032c8be9c5508ac73e",
     "location_tags.py": "sha256:db490b46b84ad61363982229f64eef3424f1e9c28fbef666afdaaefbeca31937",

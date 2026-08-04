@@ -111,8 +111,16 @@ def test_the_reported_check_is_covered_end_to_end():
     assert 68220 in _excluded(), "f68220 -- the reported check -- is not barred"
 
 
-def test_the_walked_golden_seed_is_no_longer_barred():
-    """1035467100 was excluded on SUSPICION of the same Academy gate and walked clear 2026-08-01.
-    Pinned so it is not re-added by pattern-matching on 'Liurnia + Academy'."""
+def test_the_academy_seed_is_regioned_not_barred():
+    """1035467100 was excluded HERE 2026-07-31 on suspicion of the same Academy gate, released
+    2026-08-01 on a "WALKED AND CLEARED" that was a MISATTRIBUTION (that day its descriptor read
+    "near Academy Gate Town", 872 m off; the seed actually collected was 1036447300 -- see the note
+    at gen_data._SURFACE_EXCLUDE_FLAGS), then ruled key-gated by Alaric in game 2026-08-04. The
+    suspicion was RIGHT and this bar is still the WRONG TOOL for it: SURFACE_EXCLUDE trims the
+    advertised surface but is absent from core._NO_PROGRESSION_APS, so it never stopped fill
+    (#350). The binding fix is the REGION -- FLAG_REGION_OVERRIDE -> Raya Lucaria Academy, gated by
+    test_gf_academy_key_pocket.py. Keeping the flag OUT of this set is load-bearing: present here
+    it would read as "handled" while binding nothing."""
     assert 1035467100 not in _excluded(), (
-        "the Liurnia Golden Seed was confirmed reachable in game; it must host progression again")
+        "f1035467100 is region-gated (Raya Lucaria Academy, test_gf_academy_key_pocket); a surface "
+        "bar on top would double-book the check and bind nothing fill obeys")
