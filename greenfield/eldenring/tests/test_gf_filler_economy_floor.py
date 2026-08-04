@@ -293,11 +293,11 @@ def _assert_low_somber_early(test):
             m = _SOMBER_RE.match(loc.item.name)
             if m:
                 seen.add(int(m.group(1)))
-    missing = [t for t in (1, 2) if t not in seen]
+    missing = [t for t in range(1, fb.EARLY_TARGET_LEVEL + 1) if t not in seen]
     test.assertFalse(
         missing,
-        f"somber tiers {missing} absent from spheres 0-1: a somber weapon cannot leave +0. "
-        f"Present low tiers: {sorted(seen)}")
+        f"somber tiers {missing} absent from spheres 0-1: the early somber ladder is walled at its "
+        f"first hole (the spec promises +{fb.EARLY_TARGET_LEVEL}). Present low tiers: {sorted(seen)}")
 
 
 class DefaultRecipeEconomyFloor(WorldTestBase):
@@ -543,6 +543,106 @@ class SomberTierPresenceFloor(WorldTestBase):
                            for t, n in sorted(absent.items())),
                SOMBER_PRESENCE_DRAWS, total, alloc.get("somber_stones", 0), sorted(vanilla) or "none"))
 
+    def test_the_early_margin_is_stocked_on_a_one_region_seed(self):
+        """THE 2026-08-04 REPORT (boblerrr's playtest): the Somber [1]/[2] sphere-0 floors "may not
+        be getting restricted" on small num_regions seeds. Measured on pre-fix HEAD over 54 full
+        generations at num_regions=1: the POOL held fewer than EARLY_GUARANTEE_MARGIN copies of
+        Somber [1] in 8 seeds, [2] in 5, [3] in 11 -- and sphere 0 tracked the pool EXACTLY, seed
+        for seed. So the restriction was never the broken half: `local_early_items` placed every
+        copy the pool could pay, `declare_early_items` clamped the rest away and warned. A
+        guarantee that clamps to supply is a hope, and the supply has to be created where the
+        reservation is drawn: the coverage floor now stocks the early tiers to the guarantee's own
+        count.
+
+        Same sampling shape as the presence test above, for the same reason: the draw is an i.i.d.
+        weighted sample, so a one-shot green is a coin flip, not a finding (per-draw shortfall on
+        pre-fix HEAD is ~10-20% per tier; over SOMBER_PRESENCE_DRAWS reseeded draws the pre-fix
+        failure is a certainty).
+        """
+        import logging
+        import random as _random
+
+        world = self.world
+        total = fb.budget_slots(world)
+        alloc = fb.allocate(world, total)
+        self.assertGreaterEqual(
+            alloc.get("somber_stones", 0), fb.SOMBER_TIERS + fb.EARLY_TARGET_LEVEL,
+            "the default reservation cannot even hold coverage + the early margin -- the fixture "
+            "is broken, not the code")
+
+        vanilla = Counter()
+        for rn in [HUB] + list(world._kept()):
+            for (_n, ap_id, _f) in LOCATIONS.get(rn, []):
+                m = _SOMBER_RE.match(LOCATION_ITEM.get(ap_id) or "")
+                if m:
+                    vanilla[int(m.group(1))] += 1
+
+        low = tuple(range(1, fb.EARLY_TARGET_LEVEL + 1))
+        short = Counter()
+        saved = world.random
+        gf_log = logging.getLogger("Greenfield")
+        was = gf_log.level
+        try:
+            gf_log.setLevel(logging.ERROR)
+            for i in range(SOMBER_PRESENCE_DRAWS):
+                world.random = _random.Random(0xEA51E + i)
+                got = Counter(vanilla)
+                for nm in fb.plan(world, total):
+                    m = _SOMBER_RE.match(nm or "")
+                    if m:
+                        got[int(m.group(1))] += 1
+                for t in low:
+                    if got[t] < fb.EARLY_GUARANTEE_MARGIN:
+                        short[t] += 1
+        finally:
+            gf_log.setLevel(was)
+            world.random = saved
+
+        self.assertFalse(
+            dict(short),
+            "the pool holds fewer low somber stones than `early_guarantee` promises early, so "
+            "`declare_early_items` clamps the early floor away with only a warning:\n  %s\n"
+            "(%d draws of a %d-slot budget; reservation=%d; vanilla kept checks hold %s; the "
+            "guarantee wants %dx of each of Somber [1..%d].)"
+            % ("\n  ".join(
+                   f"Somber Smithing Stone [{t}]: short in {n}/{SOMBER_PRESENCE_DRAWS} draws"
+                   for t, n in sorted(short.items())),
+               SOMBER_PRESENCE_DRAWS, total, alloc.get("somber_stones", 0),
+               dict(sorted(vanilla.items())) or "none",
+               fb.EARLY_GUARANTEE_MARGIN, fb.EARLY_TARGET_LEVEL))
+
+    def test_the_early_somber_floor_survives_a_one_region_fill(self):
+        """END TO END, at the reported size: the sphere-0 half of the same report. EarlyGuarantee
+        below runs the identical assertion at num_regions=12, where the reservation is large and
+        the margin is nearly always drawn by luck -- exactly the accident that class exists to
+        distrust, one size down. The seed is pinned to one whose somber draw holds a single [1]
+        and a single [2] on pre-fix HEAD (probe, 2026-08-04), so pre-fix this fails
+        deterministically: fill restricted perfectly, delivered the one copy sphere 0 could be
+        paid, and the promise was short by construction, not by placement.
+        """
+        from Fill import distribute_items_restrictive
+
+        self.world_setup(seed=1044)
+        distribute_items_restrictive(self.multiworld)
+        world = self.world
+
+        want = {nm: n for nm, n in fb.early_guarantee(world).items() if nm.startswith("Somber")}
+        self.assertTrue(want, "the somber early guarantee is empty -- the oracle is broken")
+
+        spheres = list(self.multiworld.get_spheres())
+        self.assertTrue(spheres, "no fill spheres -- cannot evaluate reachability")
+        got = Counter()
+        for loc in spheres[0]:
+            if loc.item is not None and loc.item.player == world.player:
+                got[loc.item.name] += 1
+
+        shortfalls = [f"{nm}: guaranteed {n} reachable from the start, found {got[nm]}"
+                      for nm, n in sorted(want.items()) if got[nm] < n]
+        self.assertFalse(
+            shortfalls,
+            "the somber early floor did not survive a 1-region seed -- the supply clamped below "
+            "the guarantee and fill had nothing left to restrict:\n  " + "\n  ".join(shortfalls))
+
     def test_regular_stone_draw_is_untouched_by_the_somber_floor(self):
         """The somber floor must not move ONE regular stone.
 
@@ -608,7 +708,7 @@ class SomberTierPresenceFloor(WorldTestBase):
         saved = world.random
         try:
             world.random = _random.Random(0xDEEDBEE)
-            with patch.object(fb, "_vanilla_somber_tiers", lambda _w: set()):
+            with patch.object(fb, "_vanilla_somber_counts", lambda _w: Counter()):
                 with self.assertLogs("Greenfield", level=logging.WARNING) as cm:
                     out = fb._draw_stones(world, n, somber=True)
         finally:
@@ -650,7 +750,7 @@ class SomberTierPresenceFloor(WorldTestBase):
         saved = world.random
         try:
             world.random = _random.Random(0x5EEDED)
-            with patch.object(fb, "_vanilla_somber_tiers", lambda _w: set(vanilla)):
+            with patch.object(fb, "_vanilla_somber_counts", lambda _w: Counter({t: 1 for t in vanilla})):
                 out = fb._draw_stones(world, fb.SOMBER_TIERS, somber=True)
         finally:
             world.random = saved

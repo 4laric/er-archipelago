@@ -113,6 +113,52 @@ the Forbidden Lands and the Grand Lift of Rold stays hedged even though its regi
 sits on ground a Mountaintops-anchored player cannot reach without a Leyndell item, which is a
 reachability problem rather than a region one.
 
+### Fixed: a region unlock could warp you into Commander O'Neil's arena, onto a grace that is not there (#244)
+
+The Heart of Aeonia grace does not exist until Commander O'Neil dies -- the game hides its asset
+behind his defeat flag and reveals it on the kill. The Caelid region bundle force-lit it anyway, so
+warping to it dropped you into the middle of his boss arena on a disabled bonfire: the exact
+soft-lock the boss-gated skip list exists to prevent. It is withheld now, and lights normally the
+moment you beat him. Caelid keeps its other 37 graces, so nothing is lost the other way.
+
+The mechanism behind it: the skip list was derived from the game's event scripts in July, when only
+the 380 legacy-dungeon scripts were decompiled -- and it was COMPLETE for that corpus (37 flags).
+The overworld tile scripts landed in the input bundle later, carrying 12 more boss-hidden graces
+(Radahn, Fire Giant, Bayle, Rellana, Romina, Gaius and friends). Eleven of the twelve were already
+withheld for a different reason (they sit inside boss arenas); Heart of Aeonia was the one that
+slipped through, because it is far enough from O'Neil to clear the arena-distance screen while still
+being flag-hidden. All twelve are now classified by their real mechanism, with the per-flag evidence
+written next to the data, and the independent EMEVD oracle that caught this (dormant and red since
+it was written) now runs green in CI on every push -- a corpus regen that grows the true set again
+cannot go unnoticed a second time.
+
+### Fixed: the early somber-stone guarantee could quietly under-deliver on small seeds
+
+`early_guarantee` promises TWO copies of Somber Smithing Stone [1], [2] and [3] reachable from the
+start -- the same 2x find-rate margin the regular stones get. But `declare_early_items` is an AP
+placement HINT: it can only declare what the pool already holds, and the somber coverage floor
+(added 2026-08-02) stocked exactly ONE copy of each missing tier. On a small `num_regions` seed the
+somber reservation is ~15-25 draws, so the pool held a single copy of a low tier in ~10-20% of
+1-region seeds per tier (measured, 54 generations); the hint clamped to one with a warning nobody
+sees at gen time, and sphere 0 dutifully received exactly the one copy. That is the shape of
+boblerrr's playtest report -- the Somber [1]/[2] sphere-0 floors "may not be getting restricted" at
+small num_regions. Measured, the RESTRICTION was never the broken half: sphere-0 counts tracked the
+pool exactly, seed for seed, across 116 generations at num_regions 1-3. The supply was short, and a
+guarantee that can only clamp to supply is a hope.
+
+The coverage floor now pays the early margin too: the low tiers' floor is the early guarantee's own
+count, created where the reservation is drawn, so the hint downstream has nothing left to clamp. The
+donor rule was also wrong for small reservations -- "a tier never donates its last copy" protected
+the last drawn copy of tiers whose wall vanilla already holds up, which starved the margin at a
+~14-stone reservation. Surplus is now computed against the requirement (vanilla copies included), so
+the affordable part of the floor is paid in full, deterministically, and anything genuinely
+unaffordable warns by name -- absent tiers separately from a thin early margin. After the fix: 0
+shortfalls in 36 fresh 1-region generations (pool, declaration, and sphere 0 all hold the 2x margin
+for tiers [1..3]; tail-tier presence [4..9] unchanged at 100%).
+
+Deep-tier EARLY placement is explicitly not promised: a Somber [8]/[9] still lands past sphere 1 in
+some seeds. Their POOL presence (the 2026-08-02 wall fix) is what matters and is untouched.
+
 ## v0.3.3 — 2026-08-03
 
 Window opened 2026-08-03 (rule 14: the note ships WITH the change, not with the tag).
@@ -192,6 +238,78 @@ not by a gate.
 
 A bugfix release, and mostly a client one. `CONTRACT_HASH` is unmoved from v0.3.0, so seeds rolled
 on 0.3.1 still connect — but the client and the apworld must still match.
+
+### Fixed: a two-boss dungeon paid out its whole sweep when the first boss died
+
+Reported by bobler, 2026-08-04, within seconds of it happening: *"i just got a bunch of checks
+entering a boss room without killing anything, in altus tunnel [...] oh it just gave me the loot for
+the boss i killed after anyways, so the client thought the boss died -- the boss itself gave no
+loot."*
+
+Altus Tunnel holds the Crystalian **duo**, and a duo is two health bars. A dungeon's sweep members
+were collected per MAP and then handed out per ENTITY, so both Crystalians carried the same seven
+checks and whichever died first paid for the whole tunnel. The log has the client contradicting
+itself about it: the sweep fired at 17:57:11 and the fast-travel gate still read that arena as
+boss-alive until 17:58:20, 69 seconds later.
+
+Worse in practice than "checks arrive early". If the arena's second head is not the boss standing in
+it -- which is what Matt's randomizer does when it swaps a single boss into a duo arena -- that
+head's kill flag is already set when the map loads, and the sweep fires **on entry**. bobler
+confirmed exactly that twice, the second time walking into the Fell Twins' arena to find Placidusax
+in it. Many players run Matt's alongside this, so it is not an edge case.
+
+The game already answers which head reports a fight: its defeat banner. `GameAreaParam` names a
+primary arena for three of them, and for the rest the map's own event script says it outright --
+Altus Tunnel waits for **both** Crystalians to fall and then fires one banner, under 32050800. So
+only the head that fires the banner may trigger a sweep. Fifteen heads across thirteen dungeons lose
+theirs, and **79 checks stop being payable by a boss you have not fought**:
+
+| dungeon | the fight | checks |
+|---|---|---|
+| Altus Tunnel | Crystalian, Ringblade + Spear | 7 |
+| Auriza Hero's Grave | Crucible Knight x2 | 8 |
+| Unsightly Catacombs | Misbegotten Warrior + Perfumer Tricia | 3 |
+| Minor Erdtree Catacombs | Erdtree Burial Watchdog, Sword + Scepter | 4 |
+| Academy Crystal Cave | Crystalian, Staff + Spear | 2 |
+| Seethewater Cave | Kindred of Rot x2 | 7 |
+| Dragonbarrow Cave | Beastman of Farum Azula x2 | 5 |
+| Sellia Hideaway | Putrid Crystalian x3 | 12 |
+| Coastal Cave | Demi-Human Chief x2 | 3 |
+| Perfumer's Grotto | Miranda the Blighted Bloom + Omenkiller | 8 |
+| Abandoned Cave | Cleanrot Knight, Spear + Sickle | 4 |
+| Spiritcaller Cave | Spiritcaller Snail + the two Godskins it summons | 9 |
+| Divine Tower of East Altus: Gate | the Fell Twins | 7 |
+
+No check left the corpus: every list a suppressed head was holding is still held in full by its
+arena's primary, so these bosses drop exactly what they always did -- when you actually kill them.
+
+**Not Sage's Cave.** Black Knife Assassin and Necromancer Garris are two separate fights that happen
+to share a cave, and its script fires two banners saying so, so both keep their trigger. Four
+dungeons are like that, and they are fixed the other way round -- see below.
+
+### Fixed: two bosses in one dungeon each paid out the other's checks
+
+Four dungeons hold two genuinely separate fights, and each boss was granting the whole dungeon's
+sweep -- so killing either paid out both bosses' checks, and the second kill then found nothing
+left. Suppressing a trigger is the wrong fix here: both bosses are real, and each fires its own
+defeat banner. They now split the dungeon between them.
+
+| dungeon | the two fights | was | now |
+|---|---|---|---|
+| Black Knife Catacombs | Cemetery Shade / Black Knife Assassin | 4 each | 2 + 2 |
+| Auriza Side Tomb | Grave Warden Duelist / (a second head) | 10 each | 5 + 5 |
+| Murkwater Cave | Patches / Patches | 4 each | 2 + 2 |
+| Sage's Cave | Black Knife Assassin / Necromancer Garris | 14 each | 7 + 7 |
+
+Nothing is lost -- every check is still granted by one of the two, and the totals per dungeon are
+unchanged. Each of these eight bosses now grants about half what it did, which is the correction:
+granting all of it was the bug.
+
+The split is the same round-robin the legacy dungeons have used since v0.2, and for the same reason:
+these are ordinary cave pickups -- boluses, a shield, two Golden Runes -- not boss rewards, so
+neither boss owns them. *(Assigning each check to the nearer boss was tried and rejected: in Sage's
+Cave all 14 are nearer Garris, so it would have handed him everything and left the Black Knife
+Assassin dropping nothing.)*
 
 ### Fixed: the id-keyed suppressor was eating vanilla items from every source
 

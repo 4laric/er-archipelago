@@ -19,6 +19,7 @@ Run:  python greenfield/eldenring/tests/test_gf_boss_sweeps.py
 """
 import csv
 import importlib.util
+from collections import defaultdict
 import os
 import re
 import unittest
@@ -44,6 +45,12 @@ FIELD_EXCLUDE = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragmen
 # deliberate mirror of contract.IMPORTANT_LOCATION_TYPES and test_field_exclude_matches_contract
 # demands exact parity: the guard exists so a new premium class cannot be added to the vocabulary
 # while quietly staying eligible for a filler sweep.
+
+
+# gen_data's sweep SCOPE for the multi-head-arena suppression. Legacy bosses are excluded on
+# purpose: their members come from the round-robin DIVVY, which is a partition, so two legacy heads
+# never shared a list in the first place.
+DUNGEON_CLASSES = ("catacomb", "cave", "tunnel", "dungeon")
 
 
 def _mod(name):
@@ -344,6 +351,258 @@ class BossSweepScoping(unittest.TestCase):
         self.assertEqual(overlaps, [], str(len(overlaps)) + " pair(s) of same-region legacy sweeps SHARE "
                          "members -- must be partitioned (disjoint), not region-wide. Sample: "
                          + repr(overlaps[:5]))
+
+    # ---- MULTI-HEAD ARENAS (#363, bobler 2026-08-04) -------------------------------------------
+    def _game_areas(self):
+        """`area_id -> defeat_flag` straight from game_areas.tsv. Read here rather than imported
+        from gen_data so this stays an INDEPENDENT oracle.
+
+        Located the same way as REGION_MAP_CSV above: beside the package in the INSTALLED world,
+        or in greenfield/ in the source tree. It is a gen INPUT, not emitted output, so the
+        installed world only has it if the install step copied it -- skip loudly rather than
+        pass blind, exactly as the region_map.csv gate does."""
+        path = next((q for q in (os.path.join(GF_PKG, "game_areas.tsv"),
+                                 os.path.join(GREENFIELD, "game_areas.tsv")) if os.path.isfile(q)),
+                    None)
+        if path is None:
+            raise unittest.SkipTest(
+                "game_areas.tsv not found beside the package or in greenfield/ -- it is a gen INPUT, "
+                "so the installed world needs the install step to copy it. Skipping rather than "
+                "reporting a multi-head arena clean on a table we could not read.")
+        out = {}
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                if line[:1] == "#" or line.startswith("area_id"):
+                    continue
+                p = line.rstrip("\n").split("\t")
+                if len(p) > 2 and p[0].isdigit() and p[1].isdigit():
+                    out[int(p[0])] = int(p[1])
+        return out
+
+    def _arena_pairs(self):
+        """`secondary -> (primary, evidence)` straight from boss_arena_pairs.tsv.
+
+        The second source #363 needed. GameAreaParam is "A PARTITION, not every boss" by its own
+        header, so it has NO ROW for m34_14's second Fell Twin and the check below could not see it;
+        the EMEVD defeat banner covers the rest. Read from the file, never imported from gen_data,
+        so this stays an INDEPENDENT oracle. Located and skipped exactly like _game_areas."""
+        path = next((q for q in (os.path.join(GF_PKG, "boss_arena_pairs.tsv"),
+                                 os.path.join(GREENFIELD, "boss_arena_pairs.tsv"))
+                     if os.path.isfile(q)), None)
+        if path is None:
+            raise unittest.SkipTest(
+                "boss_arena_pairs.tsv not found beside the package or in greenfield/ -- it is a gen "
+                "INPUT, so the installed world needs the install step to copy it. Skipping rather "
+                "than reporting a multi-head arena clean on a table we could not read.")
+        out = {}
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                if line[:1] == "#" or line.startswith("secondary"):
+                    continue
+                q = line.rstrip("\n").split("\t")
+                if len(q) > 4 and q[0].isdigit() and q[1].isdigit():
+                    out[int(q[0])] = (int(q[1]), q[4])
+        return out
+
+    def _secondary(self, ent, bmap, areas, pairs):
+        """Both sources, under the SAME same-map guard gen_data applies. -> primary id or None."""
+        df = areas.get(ent)
+        if df is not None and df != 0 and df != ent:
+            primary = self.BH.get(df)
+            if primary is not None and primary[0] == bmap:
+                return df
+        pair = pairs.get(ent)
+        if pair is not None:
+            primary = self.BH.get(pair[0])
+            if primary is not None and primary[0] == bmap:
+                return pair[0]
+        return None
+
+    def test_no_secondary_arena_head_carries_a_sweep(self):
+        """THE MOTIVATING CASE (#363). A boss ARENA can hold several healthbar entities -- m32_05 is
+        the Crystalian duo, 32050800 Ringblade + 32050801 Spear. Dungeon members are keyed on the
+        MAP, so assigning them per ENTITY handed both heads the SAME seven checks, and the sweep paid
+        out the whole dungeon when EITHER flipped.
+
+        bobler, 2026-08-04: 7 Altus Tunnel checks granted on ENTERING the boss room, 69s before the
+        fight ended, after which the Crystalian he killed dropped nothing. If the second head is not
+        present in the arena its flag reads set at map load, so a secondary head's flag is not a
+        statement about the fight at all.
+
+        GameAreaParam says which head reports the fight: 32050801 -> defeat_flag 32050800,
+        bonus_soul 0. A head whose defeat flag is ANOTHER entity on the SAME map must not trigger.
+
+        SECOND SOURCE (the residual #364 could not reach). GameAreaParam covers 3 of the 15. It has
+        NO ROW AT ALL for 34140851, the second Fell Twin -- and bobler confirmed that arena paying
+        out on ENTRY the same day -- so the EMEVD defeat banner answers the rest:
+        `HandleBossDefeatAndDisplayBanner(P)` names what reports a fight, and the condition guarding
+        it names every head the fight waits on. Both sources are checked here under one guard,
+        because a head suppressed by either must not carry a sweep.
+
+        SCOPED TO THE DUNGEON CLASSES, matching gen_data. `boss_arena_pairs.tsv` also adjudicates
+        LEGACY maps -- m12_02's Valiant Gargoyle duo, Maliketh/Beast Clergyman, the Deeproot invader
+        pile -- because they are the same question and the answers are wanted by the region-capstone
+        work, which has to count ARENAS rather than healthbar entities. But legacy bosses take the
+        round-robin DIVVY, which PARTITIONS a region's filler instead of handing each boss the same
+        list, so they never had this defect and suppressing one would silently reshape shares that
+        are correct today. Asserting over them would be asserting gen_data does something it
+        deliberately does not do."""
+        areas, pairs = self._game_areas(), self._arena_pairs()
+        offenders = []
+        for ent in self.DS:
+            info = self.BH.get(ent)
+            if info is None or info[2] not in DUNGEON_CLASSES:
+                continue
+            primary = self._secondary(ent, info[0], areas, pairs)
+            if primary is not None:
+                offenders.append((ent, primary, info[0], info[3]))
+        self.assertEqual(offenders, [], str(len(offenders)) + " secondary arena head(s) still carry a "
+                         "sweep -- their fight is reported by another flag on the same map, so they "
+                         "pay the dungeon out early (#363). Offenders (entity, primary, map, "
+                         "name): " + repr(offenders))
+
+    def test_the_fell_twins_are_suppressed_by_the_banner_table(self):
+        """THE GAP #364 SHIPPED WITH, pinned so it cannot reopen (bobler, 2026-08-04).
+
+        `game_areas.tsv` has a row for 34140850 and NONE for 34140851, so `defeat_flag` returned no
+        answer for the second Fell Twin and the Divine Tower of East Altus kept paying its whole
+        7-check sweep on the first head. bobler got those checks on ENTERING the arena -- with
+        Placidusax standing in it, because Matt's randomizer had swapped the occupant and SET one
+        twin's kill flag, so the head read dead at map load.
+
+        This asserts the fix comes from the EMEVD table specifically: a row must exist AND
+        GameAreaParam must still not know the entity. If someone later adds a game_areas row for
+        34140851 the assertion on `areas` fails loudly rather than letting the banner table quietly
+        stop being exercised on the case it was built for."""
+        pairs = self._arena_pairs()
+        self.assertIn(34140851, pairs, "boss_arena_pairs.tsv has no row for the second Fell Twin "
+                      "(34140851) -- the #363 residual is back and m34_14 pays out on entry again.")
+        self.assertEqual(pairs[34140851][0], 34140850, "34140851's fight is reported by 34140850 "
+                         "(one banner, over `Dead(34140850) && Dead(34140851)`).")
+        self.assertNotIn(34140851, self._game_areas(), "GameAreaParam has gained a row for 34140851. "
+                         "That is fine, but this test exists to prove the BANNER table carries the "
+                         "case game_areas cannot -- re-point it at another uncovered head.")
+        self.assertNotIn(34140851, self.DS, "the second Fell Twin still carries a sweep.")
+
+    def test_sages_cave_retains_BOTH_triggers(self):
+        """THE NEGATIVE CONTROL. m31_19 Sage's Cave is Black Knife Assassin (31190800) AND
+        Necromancer Garris (31190850) -- two SEPARATE fights that happen to share a dungeon, and its
+        EMEVD proves it by firing TWO defeat banners, one per head.
+
+        Any discriminator that suppresses one of them is wrong however good it looks elsewhere: it
+        would delete a real boss's reward rather than a duplicate. The 14 checks these two share are
+        a PARTITIONING problem (still open on #363), and partitioning is not what suppression does.
+
+        The rule that keeps this safe is that a head firing its OWN banner is never eligible to be a
+        secondary. This test is what stops a future threshold quietly collapsing two real fights."""
+        for ent in (31190800, 31190850):
+            self.assertIn(ent, self.DS, "m31_19 head %d lost its sweep trigger -- Sage's Cave holds "
+                          "TWO separate fights and must keep BOTH (#363 negative control)." % ent)
+        pairs = self._arena_pairs()
+        self.assertFalse({31190800, 31190850} & set(pairs), "a Sage's Cave head was classified as a "
+                         "secondary arena head. Both fire their own defeat banner, so both are "
+                         "fights in their own right: " + repr(pairs))
+
+    def test_dungeon_sweeps_on_one_map_are_DISJOINT(self):
+        """THE LAST FORM OF #363. A dungeon can hold two genuinely separate fights -- m31_19 Sage's
+        Cave is Black Knife Assassin AND Necromancer Garris, and its EMEVD fires a banner for each.
+        Members are keyed on the MAP, so both triggers held the SAME list and killing either paid
+        out all 14 of the cave's checks, including the other boss's.
+
+        Suppression cannot fix it: both are real fights, so removing a trigger deletes a real
+        reward. Geometry cannot either -- measured 2026-08-04, all 14 checks are nearer Garris by
+        20-30m, so nearest-boss gives him all 14 and the Assassin zero. And there is no owner to
+        recover: none of the 32 residual checks carries an EMEVD arena association and every one is
+        untagged filler.
+
+        So they are PARTITIONED, exactly as the legacy region pools are. This asserts the property
+        that matters and not the mechanism: no two triggers on one map may share a member."""
+        by_map = defaultdict(list)
+        for ent in self.DS:
+            info = self.BH.get(ent)
+            if info and info[2] in DUNGEON_CLASSES:
+                by_map[info[0]].append(ent)
+        overlaps = []
+        for bmap, ents in sorted(by_map.items()):
+            ents = sorted(ents)
+            for i in range(len(ents)):
+                for j in range(i + 1, len(ents)):
+                    shared = set(self.DS[ents[i]]) & set(self.DS[ents[j]])
+                    if shared:
+                        overlaps.append((bmap, ents[i], ents[j], len(shared)))
+        self.assertEqual(overlaps, [], str(len(overlaps)) + " pair(s) of triggers on ONE dungeon map "
+                         "share members -- killing either boss pays out both their checks (#363). "
+                         "They must be partitioned, never duplicated: " + repr(overlaps))
+
+    def test_the_multi_fight_dungeons_still_PARTITION_their_whole_pool(self):
+        """The other half of the invariant: disjoint is cheap if you drop checks.
+
+        A partition must lose NOTHING -- the union over a map's triggers is still every check that
+        map ever swept. Pinned on the four maps that have two defeat banners each, with the counts,
+        so both a shrunken pool and a vanished trigger fail here rather than looking like a tidier
+        sweep. 🛑 m31_19 in particular must stay 7/7: 14/0 is what nearest-boss geometry produced,
+        and it reads as a working partition until you notice a boss drops nothing."""
+        EXPECTED = {"m30_05": ((30050800, 30050850), 4),
+                    "m30_13": ((30130800, 30130810), 10),
+                    "m31_00": ((31000800, 31000850), 4),
+                    "m31_19": ((31190800, 31190850), 14)}
+        for bmap, (heads, total) in sorted(EXPECTED.items()):
+            slices = [sorted(self.DS.get(h, [])) for h in heads]
+            for h, sl in zip(heads, slices):
+                self.assertTrue(sl, "%s head %d has NO sweep -- a partition may not delete a "
+                                    "trigger that fires its own defeat banner (#363)." % (bmap, h))
+            union = set().union(*(set(sl) for sl in slices))
+            self.assertEqual(len(union), total, "%s partitions %d check(s), expected %d -- a "
+                             "partition must lose nothing. If the map's pool legitimately moved, "
+                             "say WHY here." % (bmap, len(union), total))
+            # No head may be starved: with 2 heads and >=2 checks every slice is non-trivial, and a
+            # lopsided split is the geometry failure mode this test exists to catch.
+            self.assertLessEqual(max(len(sl) for sl in slices) - min(len(sl) for sl in slices), 1,
+                                 "%s split is lopsided (%s) -- round-robin gives slices within 1 of "
+                                 "each other; a skewed split means something ordered by position, "
+                                 "which is the nearest-boss failure (%s)." % (
+                                     bmap, [len(x) for x in slices], heads))
+
+    def test_no_head_is_both_a_primary_and_a_secondary(self):
+        """A head cannot both report a fight and be reported by one.
+
+        If it could, suppression order would decide the outcome and two triggers could vanish
+        together -- which is the m30_20 shape (a map losing its last reporter) reached by a different
+        route. Cheap, and it fails on the exact table corruption that would be hardest to see."""
+        pairs = self._arena_pairs()
+        both = sorted(set(pairs) & {p for p, _e in pairs.values()})
+        self.assertEqual(both, [], "head(s) appear as BOTH secondary and primary in "
+                         "boss_arena_pairs.tsv: " + repr(both))
+
+    def test_suppression_never_takes_a_maps_LAST_head(self):
+        """THE REGRESSION THE FIRST DRAFT SHIPPED. `defeat_flag != area_id` is NOT "secondary":
+        m30_20's Stray Mimic Tear (30200800) is that map's ONLY healthbar entity and its row points
+        at 30200810, a flag no entity carries. Suppressing on the mismatch alone deleted m30_20's
+        sweep outright and stranded aps 7772247/7772248.
+
+        The invariant that catches it without over-reaching: a dungeon map may never have ALL of its
+        heads classified secondary. A secondary head means "another head on THIS map reports the
+        fight", so at least one head must always remain to be that reporter. (A map with a boss but
+        no swept members legitimately has no trigger -- m34_15 -- which is why this asks about heads
+        rather than about triggers.)"""
+        areas, pairs = self._game_areas(), self._arena_pairs()
+
+        def secondary(ent, bmap):
+            # BOTH sources. A derived table is not exempt from the guard the hand path needed -- if
+            # anything it needs it more, since a re-emit can add rows without anyone reading them.
+            return self._secondary(ent, bmap, areas, pairs) is not None
+
+        by_map = {}
+        for ent, info in self.BH.items():
+            bmap, _tile, cls, _name = info
+            if cls in DUNGEON_CLASSES:
+                by_map.setdefault(bmap, []).append(ent)
+        eaten = [(bmap, ents) for bmap, ents in sorted(by_map.items())
+                 if ents and all(secondary(e, bmap) for e in ents)]
+        self.assertEqual(eaten, [], str(len(eaten)) + " dungeon map(s) would have EVERY head "
+                         "suppressed as secondary, leaving nothing to report the fight -- the "
+                         "#363 first-draft regression (m30_20 lost its whole sweep this way): "
+                         + repr(eaten))
 
 
 if __name__ == "__main__":

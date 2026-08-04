@@ -74,7 +74,17 @@ TESTS_JOB = {
     "data": "client tables read from the gitlink checkout the tests job now makes",
     "finale": "committed data only",
     "gen_inputs_diff": "reads the committed gen_inputs.db + repo tree found by walk-up",
+    "goods_hold_cap": "committed item_ids/hold_cap tables; its find_repo_root sentinel walks up "
+                      "to the repo tree the tests job checks out. NOT a GENERATORS suite despite "
+                      "its own 'deliberately AP-free' note: run as `python x.py` it dies on its "
+                      "unconditional `from ..item_ids import`, and under pytest the package "
+                      "__init__ chain pulls in BaseClasses -- so it needs the installed world",
     "gen_stamp": "freshness (test_D) recomputes over the bundle-materialised inputs",
+    "grace_skip_oracle": "event/ decompiles + BonfireWarpParam.csv ship in the bundle; REPO is "
+                         "resolved by find_repo_root walk-up since the #244 fix (its positional "
+                         "REPO was what kept it dark). Woken 2026-08-04 with the #244 world-data "
+                         "fix -- the 12 overworld 9005810 flags are now in gen's skip set and "
+                         "76412 is withheld, so it runs GREEN, permanently, in CI.",
     "input_completeness": "reads the committed bundle manifest",
     "item_exists": "msg/ FMGs + vanilla_er params ship in the bundle (2026-07-27)",
     "location_desc": "committed data; FMG-dependent parts covered by the bundle",
@@ -88,7 +98,10 @@ TESTS_JOB = {
     "scadu_supply": "client rung mirror reads the gitlink checkout the tests job now makes",
     "spare_goods_order": "committed data only",
     "surface_confidence": "committed surface_confidence.tsv",
-    "surface_exclude_isolated_merchant": "committed data only",
+    "academy_key_pocket": "committed gen_data.py/data.py read by walk-up; the fill-binding half "
+                          "needs the installed world (module-level try-import, no skip)",
+    "isolated_merchant_region": "committed gen_data.py/data.py/location_tags.py read by walk-up; "
+                                "the fill-binding half needs the installed world (tests job has it)",
     "unplaced_globals": "bundle-covered EMEVD corpus",
 }
 
@@ -105,13 +118,6 @@ DEV_BOX_ONLY = {
         "setUpClass gates all 12 tests on the full source set even though event/ + "
         "BonfireWarpParam.csv ARE bundled -- splitting the suite so the bundled half runs in CI "
         "is possible follow-up work, noted in the 2026-08-04 audit, not done silently here.",
-    "grace_skip_oracle":
-        "its inputs (event/ decompiles + BonfireWarpParam.csv) DO ship in the bundle, but its "
-        "positional REPO resolves to _ap/worlds under the harness so it skips -- and a walk-up "
-        "fix (tried 2026-08-04) wakes it RED: the EMEVD 9005810 oracle finds 12 boss-gated grace "
-        "flags absent from gen_data's _BOSS_GATED_GRACE_FLAGS and one (76412) emitted grantable. "
-        "That is the KNOWN-red dormant oracle of issue #244; waking it in CI is blocked on the "
-        "#244 world-data fix, not on artifacts. Do not 'fix' this entry without running it.",
     "region_artifact_oracle":
         "needs REGION_ID_MAP.md + the grace dump TSVs -- neither is in the bundle. Runs in "
         "run_ci.ps1.",
