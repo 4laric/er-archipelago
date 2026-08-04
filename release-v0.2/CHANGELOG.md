@@ -238,11 +238,32 @@ No check left the corpus: every list a suppressed head was holding is still held
 arena's primary, so these bosses drop exactly what they always did -- when you actually kill them.
 
 **Not Sage's Cave.** Black Knife Assassin and Necromancer Garris are two separate fights that happen
-to share a cave, and its script fires two banners saying so, so both keep their trigger. Killing
-either still pays out all 14 of that cave's checks -- but that is a different defect: those members
-want SPLITTING between the two bosses, which is not what suppressing a head does. It stays open,
-with the same shape in Black Knife Catacombs, Auriza Side Tomb and Murkwater Cave. 32 checks,
-tracked on #363.
+to share a cave, and its script fires two banners saying so, so both keep their trigger. Four
+dungeons are like that, and they are fixed the other way round -- see below.
+
+### Fixed: two bosses in one dungeon each paid out the other's checks
+
+Four dungeons hold two genuinely separate fights, and each boss was granting the whole dungeon's
+sweep -- so killing either paid out both bosses' checks, and the second kill then found nothing
+left. Suppressing a trigger is the wrong fix here: both bosses are real, and each fires its own
+defeat banner. They now split the dungeon between them.
+
+| dungeon | the two fights | was | now |
+|---|---|---|---|
+| Black Knife Catacombs | Cemetery Shade / Black Knife Assassin | 4 each | 2 + 2 |
+| Auriza Side Tomb | Grave Warden Duelist / (a second head) | 10 each | 5 + 5 |
+| Murkwater Cave | Patches / Patches | 4 each | 2 + 2 |
+| Sage's Cave | Black Knife Assassin / Necromancer Garris | 14 each | 7 + 7 |
+
+Nothing is lost -- every check is still granted by one of the two, and the totals per dungeon are
+unchanged. Each of these eight bosses now grants about half what it did, which is the correction:
+granting all of it was the bug.
+
+The split is the same round-robin the legacy dungeons have used since v0.2, and for the same reason:
+these are ordinary cave pickups -- boluses, a shield, two Golden Runes -- not boss rewards, so
+neither boss owns them. *(Assigning each check to the nearer boss was tried and rejected: in Sage's
+Cave all 14 are nearer Garris, so it would have handed him everything and left the Black Knife
+Assassin dropping nothing.)*
 
 ### Fixed: the id-keyed suppressor was eating vanilla items from every source
 

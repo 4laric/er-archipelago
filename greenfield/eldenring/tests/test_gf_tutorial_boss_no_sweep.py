@@ -165,8 +165,33 @@ def test_the_sweep_corpus_did_not_shrink():
         STILL SHARED, deliberately: m30_05, m30_13, m31_00 and m31_19 (32 checks). Each fires TWO
         banners, so each is genuinely two fights -- they need PARTITIONING and must NOT be
         suppressed. m31_19 Sage's Cave is pinned as the negative control in
-        test_gf_boss_sweeps.test_sages_cave_retains_BOTH_triggers."""
+        test_gf_boss_sweeps.test_sages_cave_retains_BOTH_triggers.
+
+    -32  (2026-08-04, #363 part three -- the PER-MAP DIVVY) those four maps now PARTITION their
+        filler between their two bosses instead of each holding the whole list. Trigger count is
+        UNCHANGED at 225: both heads keep their trigger, because both fire their own defeat banner
+        and suppressing either would delete a real boss's reward.
+
+          m30_05  Black Knife Catacombs   4 checks -> 2 / 2
+          m30_13  Auriza Side Tomb       10        -> 5 / 5
+          m31_00  Murkwater Cave          4        -> 2 / 2
+          m31_19  Sage's Cave            14        -> 7 / 7
+                                        ---- 32 duplicate member links removed
+
+        NO CHECK LEFT THE CORPUS AGAIN -- the -32 is exactly the duplicate second copy of each pool.
+        Every check is still granted by exactly one of the map's two bosses, and the union per map
+        is unchanged (test_the_multi_fight_dungeons_still_PARTITION_their_whole_pool pins it).
+
+        WHY a round-robin and not an ownership rule: there is no owner to find. None of the 32
+        carries an EMEVD arena association, and every one is untagged FILLER -- cave pickups, not
+        boss rewards. Nearest-boss geometry was measured and REJECTED: all 14 Sage's Cave checks are
+        nearer Necromancer Garris by 20-30m (the arenas are 39.8m apart while the checks sit 33-72m
+        from both), so it would hand Garris 14 and the Black Knife Assassin 0. This is the same
+        shape the LEGACY divvy has solved since 2026-07-11, so it uses the same partition.
+
+        Player-visible: each of these eight bosses now grants about half what it did. That is the
+        correction -- granting all of it was the bug."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
-    assert total == 3089, (
-        "sweep corpus is %d, expected 3089. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3057, (
+        "sweep corpus is %d, expected 3057. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)

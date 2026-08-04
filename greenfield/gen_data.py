@@ -6925,6 +6925,8 @@ def _arena_secondary(_ent, _bmap):
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 _sweep_excluded_hits = []
 _sweep_secondary_hits = []
+_dungeon_by_map = defaultdict(list)   # map -> [surviving dungeon trigger,...] for the per-map DIVVY
+_dungeon_divvied = []
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
@@ -6984,7 +6986,57 @@ if BOSS_HEALTHBARS:
             continue
         DUNGEON_SWEEPS[_ent] = _members
         SWEEP_REGION[_ent] = _sreg
+        _dungeon_by_map[_bmap].append(_ent)
         _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
+    # ---- PER-MAP DIVVY: a dungeon holding TWO REAL FIGHTS partitions its filler between them -----
+    # After the suppression above, a map with several surviving triggers is a map whose EMEVD fires
+    # several defeat banners -- i.e. genuinely separate fights sharing one dungeon. Four of them:
+    #     m30_05 Black Knife Catacombs  Cemetery Shade / Black Knife Assassin        4 checks
+    #     m30_13 Auriza Side Tomb       Grave Warden Duelist / 30130810 (unnamed)   10
+    #     m31_00 Murkwater Cave         Patches / Patches                            4
+    #     m31_19 Sage's Cave            Black Knife Assassin / Necromancer Garris   14
+    # `_mem_map` is keyed on the MAP, so today each of the pair holds the SAME list and killing
+    # either pays out both bosses' checks -- the #363 defect, in its last form.
+    #
+    # 🛑 SUPPRESSION IS THE WRONG INSTRUMENT HERE and would be a REGRESSION. Each of these heads
+    # fires its own banner, so each is a fight in its own right; removing one deletes a real boss's
+    # reward. That is why _arena_secondary refuses to touch a head that is a banner primary.
+    #
+    # 🛑 SO IS GEOMETRY -- measured 2026-08-04, and it fails its own control. All 14 Sage's Cave
+    # checks are NEARER Necromancer Garris than the Black Knife Assassin, by 20-30m, so nearest-boss
+    # would hand Garris all 14 and the Assassin ZERO. It is structural, not a threshold: the arenas
+    # are 39.8m apart while the checks sit 33-72m from BOTH, strung along the cave's corridors with
+    # both arenas off one end. Distance there measures which END OF THE CAVE you are in, not who owns
+    # the loot.
+    #
+    # And there IS no owner to find. None of the 32 carries an EMEVD arena association
+    # (boss_reward_coords), and every one is UNTAGGED FILLER -- Rejuvenating Boluses, Lost Ashes of
+    # War, a Candletree Wooden Shield, two Golden Runes. Cave pickups. The sweep is filler-only by
+    # construction. No datamine can say who owns them because the game does not say.
+    #
+    # Which is exactly the situation the LEGACY DIVVY below already solves: a filler pool, several
+    # bosses, no ownership relation -> PARTITION it round-robin. Same determinism (triggers sorted by
+    # entity id, members sorted, member j -> trigger j % N), same reasoning about un-killed slices
+    # staying obtainable by physical pickup. A sweep is a convenience auto-grant, not the only source.
+    for _bmap, _ents in sorted(_dungeon_by_map.items()):
+        if len(_ents) < 2:
+            continue
+        _ents = sorted(_ents)
+        # Every trigger on the map holds the SAME list here (that is the defect); take it once. Union
+        # rather than [0] so this stays correct if the members ever stop being identical.
+        _pool = sorted(set().union(*(DUNGEON_SWEEPS[_e] for _e in _ents)))
+        _slices = defaultdict(list)
+        for _j, _ap in enumerate(_pool):
+            _slices[_ents[_j % len(_ents)]].append(_ap)
+        for _e in _ents:
+            if _slices[_e]:
+                DUNGEON_SWEEPS[_e] = _slices[_e]
+            else:
+                # Fewer checks than bosses: a trigger with an empty slice grants nothing, so it is
+                # not a trigger. Its checks are still picked up normally.
+                DUNGEON_SWEEPS.pop(_e, None)
+                SWEEP_REGION.pop(_e, None)
+        _dungeon_divvied.append((_bmap, _ents, len(_pool)))
     # FIELD NEIGHBORHOOD pass (2026-07-15): a field boss used to sweep ONLY its own m60 tile's
     # filler -- 18/85 field bosses got EMPTY sweeps (their tile has no non-important check) and the
     # median sweep was 4 members, so in-game a field-boss kill felt like nothing. Now every
@@ -7100,28 +7152,29 @@ if BOSS_HEALTHBARS:
         "an empty set means the table went missing or its columns moved, and those arenas are back "
         "to paying their whole sweep on the FIRST head. Re-emit tools/datamine_boss_arenas.py "
         "rather than deleting this assert.")
-    # RESIDUAL DUPLICATES -- and as of the EMEVD banner table these are a KNOWN set, not a remainder.
-    # Four maps are left, and every one of them fires TWO banners, which is the game stating outright
-    # that they are two fights:
-    #     m30_05  Cemetery Shade / Black Knife Assassin        4 checks
-    #     m30_13  Grave Warden Duelist / 30130810 (unnamed)   10 checks
-    #     m31_00  Patches / Patches                            4 checks
-    #     m31_19  Black Knife Assassin / Necromancer Garris   14 checks
-    # So this is no longer "the half we cannot arbitrate". It is a DIFFERENT DEFECT with a different
-    # fix: these heads must have `_mem_map`'s list PARTITIONED between them (or pinned to one), never
-    # suppressed -- suppressing a head that fires its own banner would delete a real boss's reward.
-    # 32 checks are still payable by the wrong boss of the pair. Reported, never guessed at; silence
-    # would let the remaining quarter look fixed.
+    # THE PER-MAP DIVVY MUST ANNOUNCE ITSELF, and the shared-list count must now be ZERO.
+    assert _dungeon_divvied, (
+        "gen_data: the per-map DIVVY partitioned NOTHING. Four dungeons have held two real fights "
+        "(two defeat banners each) since 2026-08-04 -- m30_05, m30_13, m31_00, m31_19 -- so an empty "
+        "set means their second trigger vanished, which is the #363 first-draft regression wearing a "
+        "different hat: suppression must never take a head that fires its own banner.")
+    print("boss_sweeps: DIVVIED %d multi-fight dungeon(s) -- separate fights sharing a map partition "
+          "their filler instead of each paying it in full: %s" % (
+              len(_dungeon_divvied),
+              ", ".join("%s %s over %d check(s)" % (m, e, n) for m, e, n in _dungeon_divvied)))
     _dupe_members = defaultdict(list)
     for _e, _mem in DUNGEON_SWEEPS.items():
         _dupe_members[tuple(_mem)].append(_e)
     _residual = sorted((sorted(_es), len(_k)) for _k, _es in _dupe_members.items() if len(_es) > 1)
-    if _residual:
-        print("boss_sweeps: %d member-list(s) are STILL shared by >1 trigger (%d checks payable by "
-              "either boss) -- each of these maps fires TWO defeat banners, so they are genuinely "
-              "separate fights; they need PARTITIONING, and must NOT be suppressed: %s" % (
-                  len(_residual), sum(n for _es, n in _residual),
-                  ", ".join("%s(x%d)" % (_es, n) for _es, n in _residual[:12])))
+    # A SHARED MEMBER LIST IS NOW A BUG, NOT A KNOWN REMAINDER. Every route into one is closed: a
+    # duo arena loses its secondary head (game_areas / the defeat banner), and a map with two real
+    # fights partitions. If this fires, one of those two passes stopped running.
+    assert not _residual, (
+        "%d sweep member-list(s) are STILL shared by >1 trigger (%d checks payable by either boss) "
+        "-- #363 in full. Either the secondary-arena suppression or the per-map DIVVY above stopped "
+        "applying; find which, do not relax this assert: %s" % (
+            len(_residual), sum(n for _es, n in _residual),
+            ", ".join("%s(x%d)" % (_es, n) for _es, n in _residual[:12])))
 else:
     # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
     import re as _re2
