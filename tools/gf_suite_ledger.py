@@ -80,6 +80,11 @@ TESTS_JOB = {
                       "unconditional `from ..item_ids import`, and under pytest the package "
                       "__init__ chain pulls in BaseClasses -- so it needs the installed world",
     "gen_stamp": "freshness (test_D) recomputes over the bundle-materialised inputs",
+    "grace_skip_oracle": "event/ decompiles + BonfireWarpParam.csv ship in the bundle; REPO is "
+                         "resolved by find_repo_root walk-up since the #244 fix (its positional "
+                         "REPO was what kept it dark). Woken 2026-08-04 with the #244 world-data "
+                         "fix -- the 12 overworld 9005810 flags are now in gen's skip set and "
+                         "76412 is withheld, so it runs GREEN, permanently, in CI.",
     "input_completeness": "reads the committed bundle manifest",
     "item_exists": "msg/ FMGs + vanilla_er params ship in the bundle (2026-07-27)",
     "location_desc": "committed data; FMG-dependent parts covered by the bundle",
@@ -112,13 +117,6 @@ DEV_BOX_ONLY = {
         "setUpClass gates all 12 tests on the full source set even though event/ + "
         "BonfireWarpParam.csv ARE bundled -- splitting the suite so the bundled half runs in CI "
         "is possible follow-up work, noted in the 2026-08-04 audit, not done silently here.",
-    "grace_skip_oracle":
-        "its inputs (event/ decompiles + BonfireWarpParam.csv) DO ship in the bundle, but its "
-        "positional REPO resolves to _ap/worlds under the harness so it skips -- and a walk-up "
-        "fix (tried 2026-08-04) wakes it RED: the EMEVD 9005810 oracle finds 12 boss-gated grace "
-        "flags absent from gen_data's _BOSS_GATED_GRACE_FLAGS and one (76412) emitted grantable. "
-        "That is the KNOWN-red dormant oracle of issue #244; waking it in CI is blocked on the "
-        "#244 world-data fix, not on artifacts. Do not 'fix' this entry without running it.",
     "region_artifact_oracle":
         "needs REGION_ID_MAP.md + the grace dump TSVs -- neither is in the bundle. Runs in "
         "run_ci.ps1.",

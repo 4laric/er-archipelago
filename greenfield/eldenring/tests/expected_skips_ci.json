@@ -7,7 +7,9 @@
     "EXACT. A new skip family, a vanished one, or a count change all fail the job, so waking or",
     "darkening a test is always a reviewed diff to this file, never an accident.",
     "Counts were MEASURED in the CI-equivalent layout (upstream AP inside the repo checkout,",
-    "bundle ensured, client at the gitlink) on 2026-08-04: 1491 passed, 82 skipped.",
+    "bundle ensured, client at the gitlink) on 2026-08-04 post-#244: 1555 passed, 77 skipped.",
+    "(The 2026-08-04 #244 fix woke grace_skip_oracle: its known-red family, 5 skips, is GONE --",
+    "the oracle now runs green in this job, plus two artifact-free Regression244 pins.)",
     "The bucket story per suite lives in tools/gf_suite_ledger.py; this file pins the numbers.",
     "If you make a skip go away on purpose: celebrate, then lower the count here in the same PR."
   ],
@@ -41,12 +43,6 @@
       "why": "test_gf_grace_skip_classes.py gates all 12 tests on grace_flags.tsv (Windows dump, not bundled) even though event/ + BonfireWarpParam.csv are; splitting the suite is noted follow-up in tools/gf_suite_ledger.py.",
       "pattern": "event/ decompiles, BonfireWarpParam\\.csv, grace_flags\\.tsv\\) absent",
       "count": 12
-    },
-    {
-      "family": "grace-skip-oracle-known-red-244",
-      "why": "test_gf_grace_skip_oracle.py COULD run here (its inputs are bundled; only its positional REPO stops it) but wakes RED on the known #244 defect -- 12 EMEVD boss-gated flags absent from gen's skip set, 76412 emitted grantable (measured 2026-08-04). Deliberately left skipping until #244 lands; then wake it and delete this family.",
-      "pattern": "decompiled EMEVD \\(event/\\) or BonfireWarpParam\\.csv absent",
-      "count": 5
     },
     {
       "family": "region-id-map-windows-only",
