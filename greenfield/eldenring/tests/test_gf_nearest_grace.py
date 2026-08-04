@@ -3,6 +3,7 @@
 Synthetic coordinates, no artifacts. Run: python3 eldenring/tests/test_gf_nearest_grace.py"""
 import importlib.util
 import os
+import re
 
 import pytest
 
@@ -168,3 +169,114 @@ if __name__ == "__main__":
         fn(); print("ok", fn.__name__)
     print(f"\n{len(fns)} tests passed")
     sys.exit(0)
+
+# ---------------------------------------------------------------------------------------------
+# ISSUE #338 -- ONE OVERWORLD FOLD, AND ONE KEY SPACE
+#
+# For months there were TWO folds. `build_check_browser.world_xz` honoured LOD and accepted a
+# 3-field map id; `build_nearest_grace._normalize` folded at *256 regardless of LOD and its regex
+# required a trailing '_'. So every one of the 725 three-field ITEM rows in item_grace_coords.tsv
+# kept its raw map id as the join key while all 225 overworld GRACE rows folded to 'm60' -- the two
+# sides could never share a key, `graces_by_map.get()` returned empty before any distance was
+# computed, and 421 checks lost their nearest grace with nothing in the run output to say so.
+#
+# world_xz's own docstring NAMED the other fold as wrong. A comment is not a gate (CONTRIBUTING
+# rule 10), so these are.
+# ---------------------------------------------------------------------------------------------
+
+def _tools_dir():
+    return os.path.dirname(TOOL)
+
+
+def _load_sibling(name):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(_tools_dir(), name + ".py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def test_there_is_exactly_one_overworld_fold():
+    """Not "the two agree" -- the two are the SAME OBJECT. Agreement is a property that can lapse
+    between commits; identity cannot. Re-introducing a private fold in either module fails here."""
+    fold = _load_sibling("overworld_fold")
+    browser = _load_sibling("build_check_browser")
+    assert bng.world_xz.__module__ == fold.world_xz.__module__ == browser.world_xz.__module__
+    assert bng.world_xz.__qualname__ == "world_xz"
+    src = open(TOOL, encoding="utf-8").read()
+    assert "_OVERWORLD_RE" not in src and "_TILE_M" not in src, \
+        "build_nearest_grace has grown its own overworld fold again -- that is issue #338"
+
+
+def test_the_three_field_and_four_field_id_are_the_same_tile():
+    """The premise the whole fix rests on, stated as an assertion instead of an assumption.
+    item_grace_coords.tsv carries BOTH shapes for the overworld; if they did not denote the same
+    tile, folding them into one key space would be an id-space error (CONTRIBUTING rule 3), not a
+    repair. Above the fine-grid floor (tile 33) the 3-field form is just the 4-field form with a
+    _00 that got dropped; below it, it is a truncated LOD2 id and is NOT the same tile."""
+    fold = _load_sibling("overworld_fold")
+    assert fold.world_xz("m60_34_50", 1.0, 2.0) == fold.world_xz("m60_34_50_00", 1.0, 2.0)
+    assert fold.world_xz("m60_44_36", 0.0, 0.0) == fold.world_xz("m60_44_36_00", 0.0, 0.0)
+    # ...and the low-tile form is deliberately NOT equal to its _00 reading.
+    assert fold.world_xz("m60_08_11", 0.0, 0.0) != fold.world_xz("m60_08_11_00", 0.0, 0.0)
+    assert fold.world_xz("m60_08_11", 0.0, 0.0) == fold.world_xz("m60_08_11_02", 0.0, 0.0)
+
+
+def test_no_overworld_row_survives_the_fold_unnormalised():
+    """THE REGRESSION GATE, over the REAL committed coords rather than a fixture.
+
+    The defect was invisible per-row: every id was well-formed and every coordinate was real. It
+    only shows when you ask whether the two SIDES of the join can ever meet. So: after parsing, no
+    key in graces_by_map and no item key may still look like a raw overworld tile id."""
+    coords = _find_up(os.path.join("greenfield", "item_grace_coords.tsv"))
+    if coords is None:
+        pytest.skip("item_grace_coords.tsv not beside the package")
+    with open(coords, encoding="utf-8-sig") as fh:
+        items, graces_by_map = bng.parse_coords(fh.readlines())
+    raw = re.compile(r"^m6[01]_\d\d")
+    bad_g = sorted(k for k in graces_by_map if raw.match(k))
+    bad_i = sorted({m for _f, m, _x in items if raw.match(m)})
+    assert bad_g == [], f"grace keys left unfolded: {bad_g[:5]}"
+    assert bad_i == [], f"item keys left unfolded: {bad_i[:5]}"
+    # And both sides really do land in the shared frame, or the assertion above is vacuous.
+    assert "m60" in graces_by_map, "no overworld graces folded at all -- this gate has gone vacuous"
+    assert any(m == "m60" for _f, m, _x in items), "no overworld items folded at all"
+
+
+def test_the_committed_table_has_not_shrunk_and_keeps_its_derived_rows():
+    """A shrinking oracle must fail loudly (AGENTS.md, the _ARENA_FLOOR rule).
+
+    The floor is a tripwire, not a target. The `via=boss_arena` half is here because re-emitting
+    WITHOUT `--extra-coords greenfield/boss_reward_coords.tsv` silently drops 24 rows and the run
+    still says "wrote ... 3856 checks" -- which is exactly what happened while fixing #338, and
+    nothing but a diff caught it. The correct invocation is in the module docstring."""
+    tsv = _find_up(os.path.join("greenfield", "nearest_grace.tsv"))
+    if tsv is None:
+        pytest.skip("nearest_grace.tsv not beside the package")
+    rows = [ln.rstrip("\n").split("\t") for ln in open(tsv, encoding="utf-8")
+            if ln.strip() and not ln.startswith("#") and not ln.startswith("flag\t")]
+    assert len(rows) >= 3880, (
+        f"nearest_grace.tsv has {len(rows)} rows, below the 3880 measured on 2026-08-04. A re-emit "
+        f"that STRANDS checks must be explained, not rebaselined -- did the coords regress, or was "
+        f"--extra-coords omitted?")
+    derived = [r for r in rows if len(r) > 3 and r[3] == "boss_arena"]
+    assert len(derived) >= 24, (
+        f"only {len(derived)} via=boss_arena row(s): re-emit with "
+        f"`--extra-coords greenfield/boss_reward_coords.tsv`")
+
+
+def test_the_graceless_map_case_is_counted():
+    """The blind spot that hid #338. The drop tally only fires when a same-map grace exists and is
+    too far; with ZERO same-map graces nothing was recorded -- and zero same-map graces is precisely
+    what a broken join key produces. Counted now, on an opt-in third return value so no existing
+    caller changed shape."""
+    coords = [
+        "grace\t1\tmA\t0\t0\t0\tNamed Grace",
+        "item\t500\tmA\t10\t0\t0\t",      # resolves
+        "item\t501\tmB\t0\t0\t0\t",       # map with no grace at all -> unmatched, not a drop
+    ]
+    mapping, dropped, unmatched = bng.build_keyed_map_reporting(coords, with_unmatched=True)
+    assert mapping == {500: ("Named Grace", "1")}
+    assert dropped == []
+    assert unmatched == [(501, "mB")], unmatched
+    # the 2-tuple contract is untouched for every existing caller
+    assert len(bng.build_keyed_map_reporting(coords)) == 2

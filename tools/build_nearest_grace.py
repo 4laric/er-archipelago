@@ -20,33 +20,51 @@ For each item we pick the nearest grace IN THE SAME (normalized) map. Interior m
 map-local. Overworld tiles are first folded into a single 'm60'/'m61' global frame
 (world = tile*256 + local) so a graceless tile can still anchor to a neighbouring tile's grace.
 
-This module is import-safe and side-effect-free (tests call build_map()/nearest() directly). Run:
-    python3 tools/build_nearest_grace.py [coords.tsv] [--out greenfield/nearest_grace.tsv] [--max-dist M]
+This module is import-safe and side-effect-free (tests call build_map()/nearest() directly).
+
+🛑 THE EMIT INVOCATION, in full -- `--extra-coords` is NOT optional if you intend to reproduce the
+committed table. Without it the 24 `via=boss_arena` rows are silently dropped and the run still
+prints a cheerful "wrote ... checks matched", which is exactly what happened on 2026-08-04 and was
+caught only by a diff. `test_the_committed_table_has_not_shrunk_and_keeps_its_derived_rows` now
+catches it:
+
+    python3 tools/build_nearest_grace.py --extra-coords greenfield/boss_reward_coords.tsv
+
+Optional: [coords.tsv] [--out greenfield/nearest_grace.tsv] [--max-dist M]
 """
 import argparse
 import math
 import os
-import re
 import sys
 
-# Overworld maps (m60=base Lands Between, m61=DLC Shadow Realm) are stored as a grid of
-# per-tile MSB frames: m60_TX_TZ_00, each tile a 256m square with MAP-LOCAL coordinates. A
-# graceless tile's checks would come up blind even when a neighbouring tile's grace is metres
-# away, because the raw builder only compares WITHIN a map_id. Merge every overworld tile into
-# one global frame (world = tile*256 + local) so nearest-grace spans tile borders. This is the
-# same transform used by tools/datamine_grace_ground.py. Only x/z are gridded; y is height.
-_TILE_M = 256.0
-_OVERWORLD_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)_")
+# `tools/` is not necessarily on sys.path: the test suites load this file BY PATH with importlib,
+# which does not add its directory. Without this the sibling import below raises ModuleNotFoundError
+# and the whole suite errors at collection.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Overworld maps (m60/m61) are a grid of per-tile MSB frames with MAP-LOCAL coordinates. A graceless
+# tile's checks would come up blind even when a neighbouring tile's grace is metres away, so every
+# overworld tile is folded into ONE global frame before the join.
+#
+# 🛑 THE FOLD IS NOT DEFINED HERE. It is tools/overworld_fold.world_xz, shared with the check browser
+# and the desc-triage page. This module used to own a second copy that folded at *256 regardless of
+# LOD and whose regex required a trailing '_' -- so 725 three-field item rows (m60_34_50) never
+# normalised at all while every one of the 225 overworld grace rows did, and the two sides could
+# never share a key. MEASURED on 2026-08-04 (issue #338): +421 checks resolve under the shared fold,
+# with ZERO existing matches moved, re-graced, or lost, and the 18 that the distance cap was
+# catching at 8.7-10.4 km -- the "Altar South spans four regions" phantom -- now land 30-356 m from
+# a grace that makes sense.
+from overworld_fold import world_xz
 
 
 def _normalize(map_id, xyz):
     """Overworld tile (map-local) -> ('m60'/'m61', global xyz). Non-overworld passes through."""
-    m = _OVERWORLD_RE.match(map_id)
-    if not m:
+    w = world_xz(map_id, xyz[0], xyz[2])
+    if w is None:
         return map_id, xyz
-    base, tx, tz = m.group(1), int(m.group(2)), int(m.group(3))
-    x, y, z = xyz
-    return base, (tx * _TILE_M + x, y, tz * _TILE_M + z)
+    base, gx, gz = w
+    return base, (gx, xyz[1], gz)
+
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -152,16 +170,24 @@ def build_keyed_map(lines, max_dist=DEFAULT_MAX_DIST):
     return build_keyed_map_reporting(lines, max_dist=max_dist)[0]
 
 
-def build_keyed_map_reporting(lines, max_dist=DEFAULT_MAX_DIST):
+def build_keyed_map_reporting(lines, max_dist=DEFAULT_MAX_DIST, with_unmatched=False):
     """As `build_keyed_map`, plus the DROPPED matches: (mapping, [(flag, name, dist), ...]).
 
     A filter with no tally is a lie (CONTRIBUTING rule 4). The caller prints the drops so a coord
     regen that suddenly strands a hundred checks is visible in the run, not discovered months later
     by a player reading "near <somewhere 10 km away>".
+
+    ⭐ `with_unmatched=True` adds a THIRD element, [(flag, map_id), ...]: the checks whose map holds
+    no named grace at all. Those are not distance drops and must not be reported as ones -- but
+    until 2026-08-04 they were not reported as ANYTHING, and that is the blind spot that hid issue
+    #338 for months. The tally above only fires when a same-map grace exists and is too far; with
+    ZERO same-map graces `far_name` is None and nothing was recorded, which is exactly the shape a
+    broken join key produces. The default stays a 2-tuple so every existing caller is untouched.
     """
     items, graces_by_map = parse_coords(lines)
     out = {}
     dropped = []
+    unmatched = []
     for flag, map_id, xyz in items:
         graces = graces_by_map.get(map_id, ())
         name, key, dist = nearest_keyed(xyz, graces, max_dist=max_dist)
@@ -173,6 +199,15 @@ def build_keyed_map_reporting(lines, max_dist=DEFAULT_MAX_DIST):
         far_name, _far_key, far_dist = nearest_keyed(xyz, graces, max_dist=None)
         if far_name:
             dropped.append((flag, far_name, far_dist))
+        else:
+            unmatched.append((flag, map_id))
+    # DISTINCT FLAGS, not rows, and only flags that matched NOWHERE. A flag can have several coord
+    # rows (map-version duplicates), so a row count here would be a "resolved.len() counted
+    # locations, not flags" repeat -- the exact miscount CONTRIBUTING's "the tell" section is about.
+    # Measured 2026-08-04: 776 rows collapse to 230 checks, 166 of them m11_10 (the hub) alone.
+    unmatched = sorted({(f, m) for f, m in unmatched if f not in out})
+    if with_unmatched:
+        return out, dropped, unmatched
     return out, dropped
 
 
@@ -221,7 +256,7 @@ def main(argv=None):
                     n += 1
         lines.extend(elines)
         print(f"  +{n} derived position(s) from {os.path.basename(extra)}")
-    mapping, dropped = build_keyed_map_reporting(lines, max_dist=cap)
+    mapping, dropped, unmatched = build_keyed_map_reporting(lines, max_dist=cap, with_unmatched=True)
     with open(args.out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("# nearest_grace.tsv -- AUTO-GENERATED by tools/build_nearest_grace.py. DO NOT hand-edit;\n")
         fh.write("# manual fixes go in greenfield/location_descriptions.tsv (layer 1, wins). See\n")
@@ -249,6 +284,20 @@ def main(argv=None):
             print(f"    flag={flag} would have said 'near {name}' at {dist:.0f} m")
         if len(dropped) > 25:
             print(f"    ... and {len(dropped) - 25} more")
+    # The OTHER half of the tally, and the one whose absence hid #338: a check whose map holds no
+    # named grace at all. Not a distance drop -- an unanswerable question -- but it must be a NUMBER
+    # in the run, because a broken join key looks exactly like this and looks like nothing else.
+    if unmatched:
+        by_map = {}
+        for _flag, _map in unmatched:
+            by_map[_map] = by_map.get(_map, 0) + 1
+        print(f"  UNMATCHED {len({f for f, _ in unmatched})} check(s) ({len(unmatched)} coord row(s)) "
+              f"across {len(by_map)} map(s) with NO named grace at all (not a distance drop -- there "
+              f"was nothing to measure against):")
+        for _map, _n in sorted(by_map.items(), key=lambda kv: -kv[1])[:10]:
+            print(f"    {_map}: {_n}")
+        if len(by_map) > 10:
+            print(f"    ... and {len(by_map) - 10} more map(s)")
     return 0
 
 

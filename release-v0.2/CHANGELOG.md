@@ -18,6 +18,30 @@ rolled on 0.3.1+ still connect. The `data/` hash HAS moved, so a seed rolled her
 v0.3.3 rolled. The client moves only its version string, so an older DLL still connects -- but the
 version it reports will not match what you are running, which is the whole point of rule 15.
 
+### Fixed: 421 checks had lost their nearest Site of Grace to a join that could never match
+
+`build_nearest_grace.py` kept its own copy of the overworld tile fold, and it disagreed with the one
+the check browser and the desc-triage map use: it folded every tile at 256 m regardless of LOD, and
+its pattern required a trailing `_`. Overworld coordinates are recorded in two id shapes -- 725 item
+rows are three-field (`m60_34_50`) and every one of the 225 overworld grace rows is four-field -- so
+the item side kept its raw map id as the join key while the grace side folded, and the two could
+never meet. No distance was ever computed; the lookup returned empty first.
+
+There is now one fold, in `tools/overworld_fold.py`, shared by all three consumers, and a test that
+asserts they are the same object rather than merely agreeing.
+
+Seventeen checks say something better to the player as a result -- thirteen move from a whole-map
+"around X" to an exact "near X", three from a raw map id like `m60_42_50`, and one from a locale.
+The other 404 recovered rows belong to checks that already had a better descriptor from an earlier
+layer; they matter because other tools read the table.
+
+Also fixed by the same change: eighteen checks were matching a grace 8.7-10.4 km away and being
+discarded by the distance cap, which is why the grace-straddle screen reported "Altar South"
+spanning four regions. They now land 30-356 m from a grace that makes sense.
+
+**Not fixed:** the 134 checks whose descriptor is a bare map id. Zero of them have a coordinate at
+all, so no join can reach them -- that half of the report needs the MSB datamine, not this.
+
 ### Changed: every Golden Seed and Sacred Tear now has a hand-written location
 
 All 56 flags that award a Golden Seed (43) or a Sacred Tear (13) were walked in game and described

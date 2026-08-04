@@ -438,7 +438,7 @@ are absent in CI). Know which tier your change is in:
   | `item_grace_coords.tsv` | `tools/datamine_item_grace_coords.py` | MSBs / params |
   | `dungeon_regions.tsv` | `tools/datamine_dungeon_regions.py` | committed grace tsvs |
   | `msb_flag_region.tsv` | `tools/datamine_msb_item_regions.py` | witchy'd MSBs |
-  | `nearest_grace.tsv`, `tile_grace.tsv` | `tools/build_nearest_grace.py`, `tools/build_tile_grace.py` | committed grace tsvs (sandbox-runnable) |
+  | `nearest_grace.tsv`, `tile_grace.tsv` | `tools/build_nearest_grace.py --extra-coords greenfield/boss_reward_coords.tsv`, `tools/build_tile_grace.py` | committed grace tsvs (sandbox-runnable) |
   | `shop_rows.tsv` | `tools/datamine_shop_rows.py` | params |
   | `synthetic_flag_recovery.tsv` | `tools/recover_synthetic_flags.py` | committed tsvs |
 
@@ -563,11 +563,17 @@ merchant. `TalkMsg` and the 365-file talk ESD are both bundled now, which makes 
 `elden_ring_artifacts/{mapstudio,map}/<map_id>-msb-dcx/` with witchy's per-record XML underneath
 (`Event/Treasure/*.xml`, `Part/Enemy/*.xml`, `Region/Other/*.xml`). Tools search both roots.
 
-🛑 Related, NOT fixed here: `tools/build_nearest_grace.py::_normalize` folds every overworld tile at
-`*256` regardless of LOD and its regex requires a trailing `_`, so (a) 17 LOD2 check flags and
-(b) **all 570 merchant-only flags** get no nearest grace at all. Both are missing-never-wrong under
-the default 2000 m cap, and layer 3b (sellers) covers shop checks anyway — but the claim at
-`desc_sources.py:244-247` that a shop check "CAN reach a nearest grace" is currently false.
+✅ FIXED 2026-08-04 (issue #338). `tools/build_nearest_grace.py` no longer has its own fold: the
+one in `tools/overworld_fold.py` is now shared by the nearest-grace builder, the check browser and
+the desc-triage page, and `test_gf_nearest_grace.py::test_there_is_exactly_one_overworld_fold`
+asserts they are the SAME OBJECT rather than merely agreeing. The old copy folded at *256 regardless
+of LOD and its regex required a trailing `_`, so all 725 three-field overworld item rows failed to
+normalise while all 225 grace rows did -- the two sides of the join could never share a key.
+Recovered 421 checks; 17 of them reach the player as a descriptor (the rest already had a better
+layer). It also retired the 18 matches the 2000 m cap was catching at 8.7-10.4 km, which were the
+"Altar South spans four regions" straddle phantom -- those now land 30-356 m from a sensible grace.
+🛑 Still true and NOT fixed: the 134 checks that render a bare map id are starved of COORDINATES,
+not of a join -- zero of them have a `nearest_grace` row even now. That half of #338 stands.
 
 ## 6. The truncation gate (why edits are safe)
 
