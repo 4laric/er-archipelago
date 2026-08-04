@@ -117,6 +117,15 @@ but you might miss a filler item. Details in `KNOWN-ISSUES.md`.
 lists checks by region with done/total counts, dims locked regions, and names
 the item that opens each one.
 
+**The overlay is in the way.** Press **F5** to hide the client window, and
+again to bring it back (**F6** does the same for the tracker). Both are on the
+overlay's menu bar too, as `Hide (F5)` and `Tracker (F6)`. Hiding is only
+hiding: the client keeps sending checks and granting items while it is off
+screen. Grant notices still appear, deliberately -- for a few items the game
+itself cannot announce, such as flask upgrades, that notice is the only sign
+you got anything. And F5 does nothing while you are disconnected, so you can
+never hide the connect form away from yourself.
+
 ## The options that change how it plays
 
 The yaml's comments document every option; these are the ones that reshape the
