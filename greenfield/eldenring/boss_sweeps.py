@@ -486,4 +486,4 @@ SWEEP_REGION = {
     2054390850: 'Jagged Peak',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:93b92dc165cde7db4be3830ec484d454515947757fb3faaa698be867914fe577', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:243c0f8cf7ea730f0a6e43296988183028561fbddd4668586395c621917f4057'}
+_GEN_STAMP = {'inputs_hash': 'sha256:1826546084c5f8e52b5d0d136a83ee6a6d2e21a1a086177109c9621c29872208', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:243c0f8cf7ea730f0a6e43296988183028561fbddd4668586395c621917f4057'}
