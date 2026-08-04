@@ -74,6 +74,11 @@ TESTS_JOB = {
     "data": "client tables read from the gitlink checkout the tests job now makes",
     "finale": "committed data only",
     "gen_inputs_diff": "reads the committed gen_inputs.db + repo tree found by walk-up",
+    "goods_hold_cap": "committed item_ids/hold_cap tables; its find_repo_root sentinel walks up "
+                      "to the repo tree the tests job checks out. NOT a GENERATORS suite despite "
+                      "its own 'deliberately AP-free' note: run as `python x.py` it dies on its "
+                      "unconditional `from ..item_ids import`, and under pytest the package "
+                      "__init__ chain pulls in BaseClasses -- so it needs the installed world",
     "gen_stamp": "freshness (test_D) recomputes over the bundle-materialised inputs",
     "input_completeness": "reads the committed bundle manifest",
     "item_exists": "msg/ FMGs + vanilla_er params ship in the bundle (2026-07-27)",
