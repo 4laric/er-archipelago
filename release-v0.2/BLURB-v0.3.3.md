@@ -43,6 +43,11 @@ other direction.
   to the Roundtable; the churches are named as churches. Nine of them stopped saying "(region
   unconfirmed)" and can now hold progression.
 
+- **Some checks now name the grace they are actually next to.** A coordinate-matching bug meant 421
+  checks silently failed to find their nearest Site of Grace, and a handful of others were matched to
+  one on the far side of the map. Seventeen location names improve directly -- mostly from "around
+  <whole area>" to "near <the grace you can actually walk to>".
+
 ## Upgrading
 
 **This one needs the new DLL** — the auto-equip fixes are client-side. (The window opened as an
