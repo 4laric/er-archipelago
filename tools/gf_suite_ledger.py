@@ -93,7 +93,8 @@ TESTS_JOB = {
     "scadu_supply": "client rung mirror reads the gitlink checkout the tests job now makes",
     "spare_goods_order": "committed data only",
     "surface_confidence": "committed surface_confidence.tsv",
-    "surface_exclude_isolated_merchant": "committed data only",
+    "isolated_merchant_region": "committed gen_data.py/data.py/location_tags.py read by walk-up; "
+                                "the fill-binding half needs the installed world (tests job has it)",
     "unplaced_globals": "bundle-covered EMEVD corpus",
 }
 

@@ -83,7 +83,19 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 #   FALSE. It moved 3.00% -> 3.89% here, because the newly located population straddles at a higher
 #   rate than the existing one. It is still the better quantity to defend -- it cannot be moved by
 #   volume ALONE -- but it is not immune, and the ceiling has 0.11 points of headroom left.
-MAX_STRADDLING_GRACES = 52
+# --- 2026-08-04 (#252, the Isolated Merchant region move): 52 -> 53 straddles, 153 -> 169
+#   minority. THE CONTROL WAS RUN: recomputing with ONLY the 16 merchant flags forced back to
+#   Liurnia gives 52 / 153 -- exactly main. The whole delta is one deliberate move: all 16 anchor
+#   to grace 76205 (South Raya Lucaria Gate), which now straddles Liurnia 20 / Raya Lucaria
+#   Academy 16. This straddle is the ORACLE'S blind spot, not a defect: 76205 stands ON the
+#   academy island ring (a crest-warp destination behind the Academy Glintstone Key,
+#   key_item_gates.tsv), while its catchment includes 20 lake-level lots below the cliffs. A
+#   crest-warp pocket breaks this file's premise that grace adjacency implies region identity --
+#   the same vertical/warp boundary #373 documented at grace 76242. The 16 checks are the
+#   merchant's stock at msb y=284.6 (~46 m above the lake); the 20 Liurnia neighbours are ground
+#   lots. If one of THOSE ever proves ring-side (f1035467020, the SE-slope Stonesword Key, is the
+#   open walk question), it moves region and these pins move again -- with this control re-run.
+MAX_STRADDLING_GRACES = 53
 #
 # --- 2026-08-04 (#249): 150 -> 153, and the SAME control was run. Restricting the screen to the
 #   flags that were checks BEFORE this change gives 52 graces / 150 minority -- exactly main. The
@@ -91,10 +103,14 @@ MAX_STRADDLING_GRACES = 52
 #   straddled. No derivation moved; the population grew, which this file has now recorded three
 #   times. Run the control before touching this number again -- it is three lines and it answers
 #   the question outright.
-MAX_MINORITY_CHECKS = 153
+MAX_MINORITY_CHECKS = 169
 # The share cannot be inflated by locating more checks, so it is the quantity to defend.
 # Observed: 98/3205 = 3.1%, then 116/3435 = 3.4%, now 150/3856 = 3.9% (see the #338 note above).
-MAX_MINORITY_SHARE = 0.040
+# 4.38% after the #252 merchant move (169/3856) -- the move is a region derivation getting MORE
+# correct while the grace side of this oracle cannot see the crest-warp pocket; see the control
+# note above. Ceiling set to the measured value + headroom of one more small pocket move, NOT a
+# round number to grow into.
+MAX_MINORITY_SHARE = 0.044
 
 
 def _nearest_grace(column=1):
