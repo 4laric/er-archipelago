@@ -345,6 +345,80 @@ class BossSweepScoping(unittest.TestCase):
                          "members -- must be partitioned (disjoint), not region-wide. Sample: "
                          + repr(overlaps[:5]))
 
+    # ---- MULTI-HEAD ARENAS (#363, bobler 2026-08-04) -------------------------------------------
+    def _game_areas(self):
+        """`area_id -> defeat_flag` straight from greenfield/game_areas.tsv. Read here rather than
+        imported from gen_data so this stays an INDEPENDENT oracle."""
+        out = {}
+        path = os.path.join(os.path.dirname(GF_PKG), "game_areas.tsv")
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                if line[:1] == "#" or line.startswith("area_id"):
+                    continue
+                p = line.rstrip("\n").split("\t")
+                if len(p) > 2 and p[0].isdigit() and p[1].isdigit():
+                    out[int(p[0])] = int(p[1])
+        return out
+
+    def test_no_secondary_arena_head_carries_a_sweep(self):
+        """THE MOTIVATING CASE (#363). A boss ARENA can hold several healthbar entities -- m32_05 is
+        the Crystalian duo, 32050800 Ringblade + 32050801 Spear. Dungeon members are keyed on the
+        MAP, so assigning them per ENTITY handed both heads the SAME seven checks, and the sweep paid
+        out the whole dungeon when EITHER flipped.
+
+        bobler, 2026-08-04: 7 Altus Tunnel checks granted on ENTERING the boss room, 69s before the
+        fight ended, after which the Crystalian he killed dropped nothing. If the second head is not
+        present in the arena its flag reads set at map load, so a secondary head's flag is not a
+        statement about the fight at all.
+
+        GameAreaParam says which head reports the fight: 32050801 -> defeat_flag 32050800,
+        bonus_soul 0. A head whose defeat flag is ANOTHER entity on the SAME map must not trigger."""
+        areas = self._game_areas()
+        offenders = []
+        for ent in self.DS:
+            df = areas.get(ent)
+            if df is None or df == 0 or df == ent:
+                continue
+            primary = self.BH.get(df)
+            if primary is not None and primary[0] == self.BH.get(ent, (None,))[0]:
+                offenders.append((ent, df, primary[0], self.BH[ent][3]))
+        self.assertEqual(offenders, [], str(len(offenders)) + " secondary arena head(s) still carry a "
+                         "sweep -- their fight is reported by another flag on the same map, so they "
+                         "pay the dungeon out early (#363). Offenders (entity, defeat_flag, map, "
+                         "name): " + repr(offenders))
+
+    def test_suppression_never_takes_a_maps_LAST_head(self):
+        """THE REGRESSION THE FIRST DRAFT SHIPPED. `defeat_flag != area_id` is NOT "secondary":
+        m30_20's Stray Mimic Tear (30200800) is that map's ONLY healthbar entity and its row points
+        at 30200810, a flag no entity carries. Suppressing on the mismatch alone deleted m30_20's
+        sweep outright and stranded aps 7772247/7772248.
+
+        The invariant that catches it without over-reaching: a dungeon map may never have ALL of its
+        heads classified secondary. A secondary head means "another head on THIS map reports the
+        fight", so at least one head must always remain to be that reporter. (A map with a boss but
+        no swept members legitimately has no trigger -- m34_15 -- which is why this asks about heads
+        rather than about triggers.)"""
+        areas = self._game_areas()
+
+        def secondary(ent, bmap):
+            df = areas.get(ent)
+            if df is None or df == 0 or df == ent:
+                return False
+            primary = self.BH.get(df)
+            return primary is not None and primary[0] == bmap
+
+        by_map = {}
+        for ent, info in self.BH.items():
+            bmap, _tile, cls, _name = info
+            if cls in ("catacomb", "cave", "tunnel", "dungeon"):
+                by_map.setdefault(bmap, []).append(ent)
+        eaten = [(bmap, ents) for bmap, ents in sorted(by_map.items())
+                 if ents and all(secondary(e, bmap) for e in ents)]
+        self.assertEqual(eaten, [], str(len(eaten)) + " dungeon map(s) would have EVERY head "
+                         "suppressed as secondary, leaving nothing to report the fight -- the "
+                         "#363 first-draft regression (m30_20 lost its whole sweep this way): "
+                         + repr(eaten))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

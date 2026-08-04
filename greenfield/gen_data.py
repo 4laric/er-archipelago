@@ -6797,8 +6797,73 @@ _mreg = {_mp: _c.most_common(1)[0][0] for _mp, _c in _mreg_votes.items()}
 #             check and is untouched; only the sweep goes.
 _SWEEP_EXCLUDED_BMAPS = {"m10_01"}
 
+# ---- SECONDARY ARENA ENTITIES (greenfield/game_areas.tsv) --------------------------------------
+# A boss ARENA can hold several healthbar entities: m32_05 is the Crystalian DUO (32050800
+# Ringblade + 32050801 Spear), m31_11 is three Putrid Crystalians, m34_14 is the Fell Twins.
+# `_mem_map` is keyed on the MAP, so assigning it per ENTITY handed every one of them the SAME
+# member list, and the sweep then paid out the whole dungeon when ANY of them flipped.
+#
+# Reported by bobler on Discord 2026-08-04: 7 Altus Tunnel checks granted on ENTERING the boss room,
+# 69 seconds before the fight ended -- the client's own fast-travel gate still read `field 32050800`
+# as blocked at 17:57:13, and the sweep had fired at 17:57:11 -- after which the Crystalian he DID
+# kill dropped nothing, because its checks were already collected. Same family as the Grafted Scion
+# above: a sweep paying out for something the player has not done.
+#
+# His reading is why the trigger has to GO rather than merely be de-duplicated: if the second
+# Crystalian is not present in the arena, its defeat flag reads set at map load, so the entity is
+# not "the first of two to die" -- its flag is not a statement about the fight at all.
+#
+# GameAreaParam answers this from the game's own data, with no hand list:
+#     area_id    defeat_flag  flag_equals_id  bonus_soul
+#     32050800   32050800     yes             9000
+#     32050801   32050800     no              0        <- same fight, same flag, no rune award
+# An entity whose row points at ANOTHER area's defeat flag is not a boss whose death ends a fight;
+# it is one head of an arena that a different flag reports, and the zero rune award is the game
+# saying so. Only the primary may trigger a sweep.
+#
+# SCOPE: the dungeon classes only. Legacy bosses take the round-robin DIVVY below, which PARTITIONS
+# a region's filler instead of handing each boss the same list, so it never had this defect -- and
+# narrowing an entity out of the divvy would silently reshape shares that are correct today.
+_ARENA_DEFEAT_FLAG = {}
+try:
+    with open(os.path.join(HERE, "game_areas.tsv"), encoding="utf-8") as _gfh:
+        for _line in _gfh:
+            if _line[:1] == "#" or _line.startswith("area_id"):
+                continue
+            _p = _line.rstrip("\n").split("\t")
+            if len(_p) > 2 and _p[0].isdigit() and _p[1].isdigit():
+                _ARENA_DEFEAT_FLAG[int(_p[0])] = int(_p[1])
+except OSError as _e:
+    print(f"[gen_data] game_areas.tsv unavailable ({_e!r}); secondary-arena sweep suppression OFF "
+          f"-- multi-head arenas will pay their whole sweep on the FIRST head (run "
+          f"tools/datamine_game_areas.py --emit)")
+
+
+def _arena_secondary(_ent, _bmap):
+    """Is `_ent` a non-primary head of an arena that ANOTHER SWEEP TRIGGER already reports?
+
+    `defeat_flag != area_id` alone is NOT the test, and getting that wrong deletes sweeps. m30_20's
+    Stray Mimic Tear (30200800) is the map's ONLY healthbar entity and its row points at 30200810 --
+    a flag no entity carries -- so the mismatch there means "this boss's defeat flag is simply not
+    its entity id", not "some other head reports this fight". Suppressing it cost m30_20 its whole
+    sweep (aps 7772247/7772248 lost all coverage) before this guard was added.
+
+    So the primary must EXIST as a healthbar entity ON THE SAME MAP. That is exactly the condition
+    under which the duplicate arises -- two entities, one `_mem_map` list -- and it cannot fire for a
+    map whose only reporter is the entity in hand.
+
+    `defeat_flag == 0` / no row is "GameAreaParam does not cover this boss" (its header: a PARTITION,
+    not every boss), never "secondary"."""
+    _df = _ARENA_DEFEAT_FLAG.get(_ent)
+    if _df is None or _df == 0 or _df == _ent:
+        return False
+    _primary = BOSS_HEALTHBARS.get(_df)
+    return _primary is not None and _primary[0] == _bmap
+
+
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 _sweep_excluded_hits = []
+_sweep_secondary_hits = []
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
@@ -6818,6 +6883,9 @@ if BOSS_HEALTHBARS:
                 _field_bosses.append((_ent, (int(_ftm.group(1)), int(_ftm.group(2)))))
             continue
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
+            if _arena_secondary(_ent, _bmap):
+                _sweep_secondary_hits.append((_ent, _bmap, _name, _ARENA_DEFEAT_FLAG[_ent]))
+                continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
             # m61 overworld boss -> its own tile-region; else the map's check-majority region; else a
@@ -6946,6 +7014,33 @@ if BOSS_HEALTHBARS:
         "exclusion rather than deleting it.")
     print("boss_sweeps: excluded %d boss(es) from sweeping by map: %s" % (
         len(_sweep_excluded_hits), ", ".join("%s/%s" % (m, n) for _e, m, n in _sweep_excluded_hits)))
+    # A SUPPRESSION MUST ANNOUNCE ITSELF, and so must the part of the problem it does NOT reach.
+    assert _sweep_secondary_hits, (
+        "gen_data: ZERO secondary arena heads suppressed. game_areas.tsv has always carried at least "
+        "the m32_05 Crystalian duo (32050801 -> defeat_flag 32050800), so an empty set means the "
+        "table went missing or its columns moved -- and every multi-head arena is back to paying its "
+        "whole sweep on the first head (the 2026-08-04 Altus Tunnel report). Re-emit "
+        "tools/datamine_game_areas.py rather than deleting this assert.")
+    print("boss_sweeps: suppressed %d secondary arena head(s) -- their fight is reported by another "
+          "flag, so they may not trigger a sweep: %s" % (
+              len(_sweep_secondary_hits),
+              ", ".join("%s %s/%s -> %s" % (e, m, n or "?", df)
+                        for e, m, n, df in _sweep_secondary_hits)))
+    # RESIDUAL DUPLICATES (the half GameAreaParam cannot arbitrate). Two GENUINELY separate bosses
+    # in one dungeon -- m31_19 Sage's Cave is Black Knife Assassin AND Necromancer Garris, two
+    # different fights -- still share `_mem_map`'s list, so killing either pays out both. There is no
+    # datum here to partition them with (game_areas.tsv is "A PARTITION, not every boss": Garris has
+    # no row), so this is REPORTED, not guessed at. Silence would let the remaining half look fixed.
+    _dupe_members = defaultdict(list)
+    for _e, _mem in DUNGEON_SWEEPS.items():
+        _dupe_members[tuple(_mem)].append(_e)
+    _residual = sorted((sorted(_es), len(_k)) for _k, _es in _dupe_members.items() if len(_es) > 1)
+    if _residual:
+        print("boss_sweeps: %d member-list(s) are STILL shared by >1 trigger (%d checks payable by "
+              "either boss) -- separate fights in one dungeon, which GameAreaParam cannot arbitrate; "
+              "they need PARTITIONING, not de-duplication: %s" % (
+                  len(_residual), sum(n for _es, n in _residual),
+                  ", ".join("%s(x%d)" % (_es, n) for _es, n in _residual[:12])))
 else:
     # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
     import re as _re2
