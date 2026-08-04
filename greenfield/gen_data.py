@@ -4171,10 +4171,56 @@ _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
 # player to a grace that isn't there yet / into a sealed boss arena -> soft-lock. Filtered from
 # _open_cand below (feeds both the region-open front-door flag AND the grant bundle).
 #   FLAG-GATED: EMEVD common event 9005810 hides the grace asset until a gate/boss-defeat flag is
-#     set. COMPLETE (exhaustive sweep of all 90058xx grace-control commons x BonfireWarpParam).
-#   ARENA: overworld remembrance arenas, MSB-placed grace behind a fog/summon trigger. No EMEVD
-#     signal -> known/playtest set, NOT provably complete; expand if a playtest finds more.
-_BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601, 71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120, 71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401})
+#     set. COMPLETE against the decompiled corpus (exhaustive sweep of all 90058xx grace-control
+#     commons x BonfireWarpParam) -- but the corpus GREW: the 2026-07-06 sweep ran over 380
+#     legacy/underground decompiles and found 37; the gen_inputs bundle now carries the m60_/m61_
+#     OVERWORLD tile decompiles too (587 event .js) and the same sweep finds 49 (#244). The old
+#     claim "overworld remembrance arenas have zero EMEVD footprint" was an artifact of the
+#     missing decompiles, not a fact about the game. test_gf_grace_skip_oracle.py re-derives this
+#     set independently (EMEVD x BonfireWarpParam, zero shared code) and fails on any gap.
+#   ARENA: arenas with no 9005810 signal in the decompiled corpus -- MSB-placed grace behind a
+#     fog/summon trigger. Playtest/measured set, NOT provably complete.
+_BOSS_GATED_GRACE_FLAGS = frozenset({
+    # Legacy dungeons / underground -- the 2026-07-06 sweep's 37, oracle-verified both directions.
+    76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601,
+    71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120,
+    71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401,
+    # m60_/m61_ overworld tiles (#244, adjudicated 2026-08-04). Same 9005810 mechanism, visible
+    # once the tile decompiles landed in the bundle. Evidence per flag: the tile EMEVD's
+    # InitializeCommonEvent(slot, 9005810, <gate>, ...) row joined asset-entity ->
+    # BonfireWarpParam.eventflagId; each gate below is that tile's GameAreaParam boss-arena
+    # defeat flag (game_areas.tsv) except 76422's, which is the Radahn-defeated global 310.
+    76412,  # Heart of Aeonia, m60_49_38, gate 1049380800 (Commander O'Neil's arena row,
+            # game_areas.tsv). THE #244 leak: the only one of the 12 that was actually EMITTED --
+            # the Caelid lock force-lit a bonfire the EMEVD hides until O'Neil dies, warping the
+            # player onto a disabled grace in his swamp arena. Vanilla lights it on his death,
+            # so withholding it here cannot strand anyone; Caelid keeps 37 grantable graces.
+    76415,  # Chair-Crypt of Sellia, m60_49_39, gate 1049390800 (the crypt duo's arena row;
+            # arena_graces.tsv already withheld it at 9.4m). Classification only, no emission
+            # change. NB grace_names.tsv says Chair-Crypt of Sellia -- the "Redmane" label some
+            # older notes attach to 76415 is wrong; Redmane's tile is m60_51_36.
+    76419,  # Redmane Castle Plaza, m60_51_36, gate 1051360800 (plaza duo / festival arena row;
+            # arena_graces.tsv already withheld it at 13.3m). Classification only.
+    76422,  # Starscourge Radahn, m60_52_38, gate 310 (Radahn-defeated global -- the WaitFor the
+            # 2026-07-06 notes dismissed WAS load-bearing). Moved from the _ARENA hand list.
+    76509,  # Fire Giant, m60_53_52, gate 1252520800 ("Giant defeat event", flag_names.tsv).
+            # Moved from the _ARENA hand list.
+    76524,  # Castle Sol Rooftop, m60_51_57, gate 1051570800 (Commander Niall's arena row;
+            # arena_graces.tsv already withheld it at 13.6m). Classification only.
+    76823,  # Ensis Moongazing Grounds, m61_48_44, gate 2048440800 (Rellana's arena row;
+            # arena_graces.tsv already withheld it at 7.6m). Classification only.
+    76853,  # Rest of the Dread Dragon, m61_55_39, gate 2054390800 (Bayle, Jagged Peak).
+            # Moved from the _ARENA hand list.
+    76862,  # Forsaken Graveyard, m61_52_43, gate 2052430800 (that tile's arena row;
+            # arena_graces.tsv already withheld it at 5.5m). Classification only.
+    76930,  # Scaduview, m61_49_48, gate 2049480800 (Commander Gaius's arena row). Moved from
+            # the _ARENA hand list.
+    76945,  # Church of the Bud, m61_44_45, gate 2044450800 (Romina's arena row;
+            # arena_graces.tsv already withheld it at 1.6m). Classification only.
+    76960,  # Scadutree Base, m61_50_48, gate 2050480800 (Scadutree Avatar's arena row). Moved
+            # from the _ARENA hand list; its 2026-07-21 playtest is corroboration, the EMEVD
+            # gate is the classification.
+})
 # HAND list -- graces the DERIVED oracle cannot reach. Kept SMALL and each entry must earn its place:
 # a redundant manual override FAILS (see the _BOSS_DROP_EXTRAS guard). 2026-07-11, once ALL the MSBs were
 # found (they live in elden_ring_artifacts/**map**, 1347 unpacked -- NOT mapstudio/, which has 1034 and is
@@ -4187,18 +4233,17 @@ _BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 7
 #                                           (the real one), 76414 is 46.6m and 76416 is 119.8m. I had been
 #                                           silently costing the player two legitimate graces. Guessing
 #                                           CONSERVATIVELY is still guessing -- go and measure.
-# The 7 that remain are on the 7 boss maps the oracle can NEVER adjudicate: their boss entity is not an
-# MSB Part at all (script-spawned), so no position exists to measure against. Those are load-bearing.
+# 2026-08-04 (#244): five more entries died the same way -- 76422, 76509, 76853, 76930, 76960
+# turned out to be 9005810 FLAG-GATED once the m60_/m61_ tile decompiles landed in the bundle
+# (their gating was never MSB-side "no signal"; the signal was in files we had not decompiled).
+# They moved to _BOSS_GATED_GRACE_FLAGS above with their per-flag evidence; the union is
+# UNCHANGED for all five (test_gf_grace_skip_oracle.Regression244 pins them withheld). The 3
+# that remain have no 9005810 row in the full 587-file corpus AND sit on maps the arena oracle
+# cannot adjudicate (boss not an MSB Part / no unpacked MSB), so they stay hand-held.
 _ARENA_GRACE_FLAGS = frozenset({
-    76422,                 # Radahn arena (m60_52_38) -- boss 1052380800 is not an MSB Part
-    76508, 76509,          # unadjudicable map
-    76852, 76853,          # unadjudicable map
-    76930, 76931,          # unadjudicable map
-    76960,                 # Scadutree Base (m61_50_48) -- sits INSIDE the Scadutree Avatar arena
-                           # (Rem. of the Shadow Sunflower 510620, tile 50,48; see the gen_data map at
-                           # 510620). Force-lighting it with the Shadow Keep lock (Scaduview folded in)
-                           # warps you into the Avatar fight (playtest 2026-07-21, Alaric). DLC boss,
-                           # oracle-unadjudicated -> hand entry.
+    76508,                 # unadjudicable map, no 9005810 row in the decompiled corpus
+    76852,                 # unadjudicable map, no 9005810 row in the decompiled corpus
+    76931,                 # unadjudicable map, no 9005810 row in the decompiled corpus
 })  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
                     # Warrior + Crucible Knight duo arena (bosses 1049390800/1049390801) -- granting it
                     # warps you into the middle of a live duo fight (playtest 2026-07-11, Alaric).
@@ -4252,7 +4297,7 @@ _DERIVED_ARENA_GRACE_FLAGS = _derived_arena_graces()
 # COVERAGE FLOOR. Unlike the boss-drop datamine (which reads all 589 EMEVD and is COMPLETE), the
 # arena-grace oracle needs an unpacked MSB per map and only 66 of the 118 boss maps have one -- so its
 # output is a LOWER BOUND, and the hand lists above are a genuine safety net that must NOT be deleted
-# even where the derived set overlaps them (22 of 37 _BOSS_GATED + 1 of 11 _ARENA today).
+# even where the derived set overlaps them (37 of 49 _BOSS_GATED + 0 of 3 _ARENA today).
 # The hazard is the reverse: re-running the tool on a box WITHOUT the MSBs silently shrinks
 # arena_graces.tsv, and the graces it used to catch quietly start being force-lit again. Fail instead.
 _ARENA_FLOOR = 41   # what the tool derives with the COMPLETE MSB set (map/, 108/118 maps). Raise, never lower.
@@ -4282,7 +4327,16 @@ if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR
 #     the Draconic Tree Sentinel; the Sentinel needs no seed key, so on-foot reachability from Altus's
 #     other graces holds. (The Leyndell-side East/West Capital Rampart 71102/71105 are the entry graces
 #     once the Leyndell bundle opens -- handled by graces.bundle_withheld, not skipped here.)
-_STATE_GATED_GRACE_FLAGS = frozenset({72107, 76314})
+#   71107 Queen's Bedchamber (m11_00, Leyndell): reachable only THROUGH the Erdtree Sanctuary, i.e.
+#     past Morgott. Our own table already agrees with that reading and then contradicts itself --
+#     71100 Elden Throne and 71101 Erdtree Sanctuary are both withheld (9005810 asset-hidden), so we
+#     were withholding the grace AT the door and granting the one BEYOND it. A region lock therefore
+#     handed a warp straight into the far side of the capital's last fight. Alaric's call,
+#     2026-08-04. Like 76314 it is NOT 9005810 asset-hidden -- the EMEVD oracle does not see it, so
+#     it does not belong in _BOSS_GATED_GRACE_FLAGS -- it is a physically-present grace sealed by a
+#     boss-defeat state, which is exactly this set. Leyndell keeps its other six; its front door
+#     (71102 East Capital Rampart) and REGION_GRACE_LANDMARKS entry are untouched.
+_STATE_GATED_GRACE_FLAGS = frozenset({71107, 72107, 76314})
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS
                      | _STATE_GATED_GRACE_FLAGS)
