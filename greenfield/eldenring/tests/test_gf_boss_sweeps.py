@@ -19,6 +19,7 @@ Run:  python greenfield/eldenring/tests/test_gf_boss_sweeps.py
 """
 import csv
 import importlib.util
+from collections import defaultdict
 import os
 import re
 import unittest
@@ -501,6 +502,66 @@ class BossSweepScoping(unittest.TestCase):
         self.assertFalse({31190800, 31190850} & set(pairs), "a Sage's Cave head was classified as a "
                          "secondary arena head. Both fire their own defeat banner, so both are "
                          "fights in their own right: " + repr(pairs))
+
+    def test_dungeon_sweeps_on_one_map_are_DISJOINT(self):
+        """THE LAST FORM OF #363. A dungeon can hold two genuinely separate fights -- m31_19 Sage's
+        Cave is Black Knife Assassin AND Necromancer Garris, and its EMEVD fires a banner for each.
+        Members are keyed on the MAP, so both triggers held the SAME list and killing either paid
+        out all 14 of the cave's checks, including the other boss's.
+
+        Suppression cannot fix it: both are real fights, so removing a trigger deletes a real
+        reward. Geometry cannot either -- measured 2026-08-04, all 14 checks are nearer Garris by
+        20-30m, so nearest-boss gives him all 14 and the Assassin zero. And there is no owner to
+        recover: none of the 32 residual checks carries an EMEVD arena association and every one is
+        untagged filler.
+
+        So they are PARTITIONED, exactly as the legacy region pools are. This asserts the property
+        that matters and not the mechanism: no two triggers on one map may share a member."""
+        by_map = defaultdict(list)
+        for ent in self.DS:
+            info = self.BH.get(ent)
+            if info and info[2] in DUNGEON_CLASSES:
+                by_map[info[0]].append(ent)
+        overlaps = []
+        for bmap, ents in sorted(by_map.items()):
+            ents = sorted(ents)
+            for i in range(len(ents)):
+                for j in range(i + 1, len(ents)):
+                    shared = set(self.DS[ents[i]]) & set(self.DS[ents[j]])
+                    if shared:
+                        overlaps.append((bmap, ents[i], ents[j], len(shared)))
+        self.assertEqual(overlaps, [], str(len(overlaps)) + " pair(s) of triggers on ONE dungeon map "
+                         "share members -- killing either boss pays out both their checks (#363). "
+                         "They must be partitioned, never duplicated: " + repr(overlaps))
+
+    def test_the_multi_fight_dungeons_still_PARTITION_their_whole_pool(self):
+        """The other half of the invariant: disjoint is cheap if you drop checks.
+
+        A partition must lose NOTHING -- the union over a map's triggers is still every check that
+        map ever swept. Pinned on the four maps that have two defeat banners each, with the counts,
+        so both a shrunken pool and a vanished trigger fail here rather than looking like a tidier
+        sweep. 🛑 m31_19 in particular must stay 7/7: 14/0 is what nearest-boss geometry produced,
+        and it reads as a working partition until you notice a boss drops nothing."""
+        EXPECTED = {"m30_05": ((30050800, 30050850), 4),
+                    "m30_13": ((30130800, 30130810), 10),
+                    "m31_00": ((31000800, 31000850), 4),
+                    "m31_19": ((31190800, 31190850), 14)}
+        for bmap, (heads, total) in sorted(EXPECTED.items()):
+            slices = [sorted(self.DS.get(h, [])) for h in heads]
+            for h, sl in zip(heads, slices):
+                self.assertTrue(sl, "%s head %d has NO sweep -- a partition may not delete a "
+                                    "trigger that fires its own defeat banner (#363)." % (bmap, h))
+            union = set().union(*(set(sl) for sl in slices))
+            self.assertEqual(len(union), total, "%s partitions %d check(s), expected %d -- a "
+                             "partition must lose nothing. If the map's pool legitimately moved, "
+                             "say WHY here." % (bmap, len(union), total))
+            # No head may be starved: with 2 heads and >=2 checks every slice is non-trivial, and a
+            # lopsided split is the geometry failure mode this test exists to catch.
+            self.assertLessEqual(max(len(sl) for sl in slices) - min(len(sl) for sl in slices), 1,
+                                 "%s split is lopsided (%s) -- round-robin gives slices within 1 of "
+                                 "each other; a skewed split means something ordered by position, "
+                                 "which is the nearest-boss failure (%s)." % (
+                                     bmap, [len(x) for x in slices], heads))
 
     def test_no_head_is_both_a_primary_and_a_secondary(self):
         """A head cannot both report a fight and be reported by one.
