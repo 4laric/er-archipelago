@@ -37,12 +37,6 @@ other direction.
   and a merchant straddling two regions has his stock quarantined. Litany of Proper Death and
   Order's Blade are ordinary Limgrave shop checks.
 
-- **Every Golden Seed and Sacred Tear now tells you where it actually is.** All 56 were walked and
-  described by hand. "Golden Seed - around War-Dead Catacombs" is now "Putrid Tree-Spirit drop in
-  War-Dead Catacombs"; the Stormhill Shack seed says it is what Roderika leaves behind when she moves
-  to the Roundtable; the churches are named as churches. Nine of them stopped saying "(region
-  unconfirmed)" and can now hold progression.
-
 ## Upgrading
 
 **This one needs the new DLL** — the auto-equip fixes are client-side. (The window opened as an

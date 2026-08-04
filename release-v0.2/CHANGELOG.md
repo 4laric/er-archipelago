@@ -3,6 +3,43 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.4 — 2026-08-04
+
+Window opened 2026-08-04 (rule 14), and opened LATE -- which is the first thing to record.
+`v0.3.3` was tagged on 2026-08-03 while `APWORLD_VERSION` still read `0.3.3`, so three commits
+landed on main writing their notes into a section that had already shipped. One of them was
+player-visible and is moved down into this window below. `tools/check_release_notes.py` stayed
+GREEN through all of it, because it asks whether the version named by `APWORLD_VERSION` has a
+dated section -- never whether that version already went out. Rule 13 applies to the gate itself:
+that blind spot is a to-do list until something checks it.
+
+`CONTRACT_HASH` is unmoved from v0.3.0 (`5e8b11c9`), so the handshake is unchanged and seeds
+rolled on 0.3.1+ still connect. The `data/` hash HAS moved, so a seed rolled here is not the seed
+v0.3.3 rolled. The client moves only its version string, so an older DLL still connects -- but the
+version it reports will not match what you are running, which is the whole point of rule 15.
+
+### Changed: every Golden Seed and Sacred Tear now has a hand-written location
+
+All 56 flags that award a Golden Seed (43) or a Sacred Tear (13) were walked in game and described
+by hand. Before this, 43 of them were named after the nearest Site of Grace, 9 after a whole map
+tile, one after a machine locale, and one after nothing at all -- so the tracker said things like
+"Golden Seed - around War-Dead Catacombs" for an item that is a Putrid Tree-Spirit drop, and the two
+seeds above Outer Wall Phantom Tree were distinguishable only by a "(1)"/"(2)" the generator appended
+because it could not tell them apart. 50 hand descriptions land here; 48 of them move a name.
+
+Nine of those checks also had their REGION confirmed on the same walk and are no longer hedged, so
+they can host progression for the first time: three Altus seeds, one each in Caelid, Limgrave,
+Liurnia and Mountaintops, and the Sacred Tears at Church of Irith, Second Church of Marika and
+Stormcaller Church. They previously read "(region unconfirmed)" on screen and were barred from
+carrying anything required.
+
+Two checks were deliberately left alone. The Mohgwyn seed near Dynasty Mausoleum Midpoint keeps its
+automatic name and is now barred from hosting progression -- Mohgwyn is reached by a one-way
+teleport, so its route is awkward in a way the region model does not capture. The Golden Seed between
+the Forbidden Lands and the Grand Lift of Rold stays hedged even though its region IS now known: it
+sits on ground a Mountaintops-anchored player cannot reach without a Leyndell item, which is a
+reachability problem rather than a region one.
+
 ## v0.3.3 — 2026-08-03
 
 Window opened 2026-08-03 (rule 14: the note ships WITH the change, not with the tag).
@@ -47,28 +84,6 @@ the log instead of silently papering over it.
 🛑 **Confirmed by test, not yet on a screen.** The freeze is reproduced as a
 failing-without-the-fix replay test in `er-logic`, and the whole client builds green. What no host
 test can answer is whether the rotation *feels* right while playing; that is outstanding for both.
-
-### Changed: every Golden Seed and Sacred Tear now has a hand-written location
-
-All 56 flags that award a Golden Seed (43) or a Sacred Tear (13) were walked in game and described
-by hand. Before this, 43 of them were named after the nearest Site of Grace, 9 after a whole map
-tile, one after a machine locale, and one after nothing at all -- so the tracker said things like
-"Golden Seed - around War-Dead Catacombs" for an item that is a Putrid Tree-Spirit drop, and the two
-seeds above Outer Wall Phantom Tree were distinguishable only by a "(1)"/"(2)" the generator appended
-because it could not tell them apart. 50 hand descriptions land here; 48 of them move a name.
-
-Nine of those checks also had their REGION confirmed on the same walk and are no longer hedged, so
-they can host progression for the first time: three Altus seeds, one each in Caelid, Limgrave,
-Liurnia and Mountaintops, and the Sacred Tears at Church of Irith, Second Church of Marika and
-Stormcaller Church. They previously read "(region unconfirmed)" on screen and were barred from
-carrying anything required.
-
-Two checks were deliberately left alone. The Mohgwyn seed near Dynasty Mausoleum Midpoint keeps its
-automatic name and is now barred from hosting progression -- Mohgwyn is reached by a one-way
-teleport, so its route is awkward in a way the region model does not capture. The Golden Seed between
-the Forbidden Lands and the Grand Lift of Rold stays hedged even though its region IS now known: it
-sits on ground a Mountaintops-anchored player cannot reach without a Leyndell item, which is a
-reachability problem rather than a region one.
 
 ### Fixed: two overworld tiles were filed under the wrong region, one in each direction
 

@@ -33,6 +33,7 @@ CI step:  python3 tools/check_release_notes.py
 """
 import os
 import re
+import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -171,6 +172,63 @@ def check_blurb(version, errs):
             % (rel, version, first, version))
 
 
+
+def check_version_is_still_open(version, errs):
+    """🛑 THE BLIND SPOT THIS GATE HAD UNTIL 2026-08-04.
+
+    Everything above asks whether the version named by APWORLD_VERSION has a changelog section and a
+    blurb. It never asked whether that version ALREADY SHIPPED -- and a released version has both, so
+    the gate is at its greenest exactly when it is least useful.
+
+    MOTIVATING CASE, and it is this repo, not a hypothetical: v0.3.3 was tagged on 2026-08-03 while
+    APWORLD_VERSION still read "0.3.3". Three commits then landed on main writing their notes into
+    the v0.3.3 section, which was already inside the tag. A player reading v0.3.3's notes would see a
+    feature that was not in v0.3.3, and v0.3.4's notes would be missing it. Every gate stayed green.
+    That is the same shape as the v0.3.0 -> v0.3.1 gap rule 14 was written for, one level up: the
+    rule got a gate, and the gate got the same blind spot the rule had.
+
+    The signal is the git tag. `git tag --list v<version>` plus "does main have commits past it".
+
+    ⚠️ A SKIP HERE IS LOUD, NOT SILENT. If git is absent, or the tags were not fetched (a shallow
+    `actions/checkout` does not fetch them by default), this check cannot answer -- and a check that
+    cannot answer must say so rather than pass quietly (CONTRIBUTING rule 2). It warns and returns;
+    it never adds an error it did not verify.
+    """
+    try:
+        tagged = subprocess.run(["git", "tag", "--list", "v%s" % version],
+                                cwd=REPO, capture_output=True, text=True, timeout=20)
+        anytag = subprocess.run(["git", "tag", "--list", "v*"],
+                                cwd=REPO, capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError) as exc:
+        print("  window: UNCHECKED -- git unavailable (%s). This gate cannot tell a shipped "
+              "version from an open one without tags." % exc)
+        return
+    if anytag.returncode != 0 or not anytag.stdout.strip():
+        print("  window: UNCHECKED -- no v* tags in this checkout (a shallow clone does not fetch "
+              "them; use fetch-depth: 0 or `git fetch --tags`). The shipped-version check did NOT "
+              "run, so a green result here says nothing about it.")
+        return
+    if not tagged.stdout.strip():
+        print("  window: v%s is not tagged -- the window is OPEN, which is the state notes are "
+              "written in." % version)
+        return
+    past = subprocess.run(["git", "rev-list", "--count", "v%s..HEAD" % version],
+                          cwd=REPO, capture_output=True, text=True, timeout=20)
+    n = past.stdout.strip() if past.returncode == 0 else "?"
+    if n in ("0", "?"):
+        print("  window: v%s is tagged and HEAD is at it -- nothing has landed since." % version)
+        return
+    errs.append(
+        "APWORLD_VERSION names v%s, which is ALREADY TAGGED, and %s commit(s) have landed since.\n"
+        "    Every one of them has been writing release notes into a section that already SHIPPED.\n"
+        "    A player reading v%s's notes will see changes that were not in v%s, and the next\n"
+        "    version's notes will be missing them.\n"
+        "    FIX: open the next window -- bump APWORLD_VERSION (and the other version sites;\n"
+        "    `python tools/check_version_sites.py` lists them), append a CONTRACT-VERSIONS.tsv row,\n"
+        "    add the `## v<next> — <today>` heading, and MOVE the post-tag entries into it."
+        % (version, n, version, version))
+
+
 def main(argv):
     args = [a for a in argv[1:] if a != "--check"]   # --check: accepted, no-op (see docstring)
     version = None
@@ -190,6 +248,7 @@ def main(argv):
     errs = []
     check_changelog(version, errs)
     check_blurb(version, errs)
+    check_version_is_still_open(version, errs)
 
     for m in errs:
         print("%sERROR%s %s" % (RED, OFF, m))

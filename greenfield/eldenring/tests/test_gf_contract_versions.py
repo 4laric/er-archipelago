@@ -60,6 +60,11 @@ SHIPPED = {
     "0.3.0": "5e8b11c9",
     "0.3.1": "5e8b11c9",
     "0.3.2": "5e8b11c9",
+    # Added 2026-08-04, LATE: v0.3.3 was tagged on 08-03 and this row was not written, which is
+    # the same missed release step as APWORLD_VERSION not moving off it. Both are now gated --
+    # see test_every_tagged_version_is_recorded_as_shipped below and
+    # check_release_notes.check_version_is_still_open.
+    "0.3.3": "5e8b11c9",
 }
 
 
@@ -164,6 +169,38 @@ class ContractVersionLedger(unittest.TestCase):
         with open(GATE, encoding="utf-8") as fh:
             self.assertIn("OPTIONS_SUBKEYS is deliberately NOT folded", fh.read(),
                           "the gate stopped documenting its own blind spot")
+
+    def test_every_tagged_version_is_recorded_as_shipped(self):
+        """SHIPPED is a record of history, and history is written by the TAGS -- so ask them.
+
+        v0.3.3 was tagged on 2026-08-03 and nobody added its row; it was noticed a day later only
+        because someone happened to read this file. A ledger that depends on remembering to append
+        to it is the thing rule 13 is about: it is a to-do list until something checks it.
+
+        ⚠️ LOUD SKIP. Tags are not present in a shallow checkout, and a check that cannot answer must
+        say so rather than pass quietly (rule 2). It warns; it never asserts on evidence it does not
+        have.
+        """
+        import warnings
+        if not _ROOT:
+            self.skipTest(REPO_ONLY_REASON)
+        try:
+            out = subprocess.run(["git", "tag", "--list", "v*"], cwd=_ROOT,
+                                 capture_output=True, text=True, timeout=20)
+        except (OSError, subprocess.SubprocessError) as exc:
+            warnings.warn("[contract-versions] UNCHECKED: git unavailable (%s)" % exc)
+            return
+        tags = [t.strip().lstrip("v") for t in out.stdout.splitlines() if t.strip()]
+        if not tags:
+            warnings.warn("[contract-versions] UNCHECKED: no v* tags in this checkout (shallow "
+                          "clone?) -- the tagged-version screen did NOT run")
+            return
+        ledger = _ledger()
+        missing = sorted(t for t in tags if t in ledger and t not in SHIPPED)
+        self.assertEqual([], missing,
+                         "these versions are TAGGED (so they shipped) and carry a ledger row, but "
+                         "have no SHIPPED entry: %s. Add each with the hash its ledger row records "
+                         "-- that is what makes the ledger un-rewritable." % missing)
 
 
 if __name__ == "__main__":
