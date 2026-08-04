@@ -187,6 +187,9 @@ def declare_early_items(world, pool_names: List[str]) -> Dict[str, int]:
     there are none. So a recipe with no `somber_stones` weight would get a somber guarantee that reads
     fine in the code and delivers nothing in the seed. That is the exact failure mode this module
     exists to make impossible, so: clamp to what the pool holds, and WARN by name on any shortfall.
+    (With any recipe that reserves somber stones, `_somber_coverage_floor` stocks the somber half of
+    this guarantee up to its count, so for the shipped default this clamp is a backstop, not the
+    mechanism -- the 2026-08-04 lesson: a guarantee that can only clamp is a hope.)
 
     Only ever ADDS to local_early_items, so it composes with anything else wanting an early item.
     Returns what it actually declared (diagnostics / tests)."""
@@ -419,8 +422,13 @@ def _draw_stones(world, n: int, somber: bool) -> List[str]:
     return out
 
 
-def _vanilla_somber_tiers(world) -> set:
-    """{tier} of Somber Smithing Stone this seed's KEPT vanilla checks already pay for.
+def _vanilla_somber_counts(world) -> Counter:
+    """{tier: copies} of Somber Smithing Stone this seed's KEPT vanilla checks already pay for.
+
+    COUNTS, not a presence set, because the floor below now pays two different promises: presence
+    needs to know a tier is covered AT ALL, while the early margin needs to know HOW MANY copies the
+    pool already holds (`declare_early_items` counts the vanilla copies too -- they are protected
+    pool items like any other).
 
     This IS visible at this layer, and it is exact rather than a guess. Every somber stone matches
     `filler_curation._ECONOMY_SUBSTR` ("Smithing Stone"), so `_is_junk_consumable` -- and therefore
@@ -439,13 +447,13 @@ def _vanilla_somber_tiers(world) -> set:
     speak of either way.
     """
     excl = set(getattr(world, "gf_dlc_excluded", ()))
-    out = set()
+    out: Counter = Counter()
     for rn in [HUB] + list(world._kept()):
         for (_name, ap_id, _flag) in LOCATIONS.get(rn, []):
             nm = LOCATION_ITEM.get(ap_id)
             if (nm and nm.startswith("Somber Smithing Stone [")
                     and nm in ITEM_CATALOG and nm not in excl):
-                out.add(_tier_of(nm))
+                out[_tier_of(nm)] += 1
     return out
 
 
@@ -468,47 +476,96 @@ def _somber_coverage_floor(world, out: List[str], tiers: List[int], label: str) 
     pure luck. It now gets the floor that matches the failure mode it actually has, paid exactly the
     way the regular one is: by converting the DEEPEST stones already drawn. It never grows the
     reservation, so `allocate`'s count is untouched and a seed cannot buy coverage it cannot afford.
+
+    AND THE EARLY MARGIN (2026-08-04; boblerrr's playtest: the Somber [1]/[2] sphere-0 floors "may
+    not be getting restricted" on small num_regions seeds). `early_guarantee` promises
+    EARLY_GUARANTEE_MARGIN copies of Somber [1..EARLY_TARGET_LEVEL] reachable from the start, but
+    `declare_early_items` is an AP placement HINT -- it can only declare what the pool already
+    holds, and it clamps and warns on a shortfall. A ONE-copy presence floor therefore left the
+    TWO-copy early promise a coin flip: at num_regions=1 the reservation is ~20 draws, the pool
+    held a single copy of a low tier in ~10-20% of seeds per tier (measured over 54 full
+    generations, 2026-08-04), and fill then delivered exactly the one copy it was declared --
+    sphere 0 tracked the pool seed for seed, so the RESTRICTION was never the broken half, the
+    SUPPLY was. A guarantee that clamps to supply is a hope. Supply is created here, where the
+    reservation is drawn: the low tiers' floor is the early guarantee's own count, so the hint
+    downstream has nothing left to clamp.
     """
     if not out:
         return out
-    covered = _vanilla_somber_tiers(world)
+    covered = _vanilla_somber_counts(world)
     counts = Counter(_tier_of(s) for s in out)
-    missing = sorted(t for t in tiers if not counts[t] and t not in covered)
-    if not missing:
-        return out
 
-    # DONORS, DEEPEST FIRST -- the same "cheapest correction" rule the regular floor uses and for the
-    # same reason: the taper already says a deep stone serves the smallest slice of runs. A tier never
-    # donates its LAST copy (that would only move the hole), so the donor supply is
-    # n - (distinct tiers drawn), and therefore n >= SOMBER_TIERS always pays the floor in full.
-    spare = Counter(counts)
+    # The floor's two promises, as one REQUIREMENT multiset over this draw. PRESENCE: one of every
+    # tier, or a somber weapon walls at the hole. THE EARLY MARGIN: `early_guarantee`'s own count of
+    # the tiers it declares. Vanilla copies on kept checks pay toward both (they are protected pool
+    # items, and `declare_early_items` counts them like any other), so the reservation only buys
+    # what the seed does not already hold. Priority when the reservation cannot afford everything:
+    # every uncovered tier's FIRST copy (ascending), then the margin copies (ascending) -- presence
+    # strictly outranks margin, because a hole is a permanent wall at that level while a thin margin
+    # only costs find-rate in the start region.
+    need = {t: (EARLY_GUARANTEE_MARGIN if t <= EARLY_TARGET_LEVEL else 1) for t in tiers}
+    first_copies = [t for t in sorted(tiers) if covered[t] == 0]
+    margin: List[int] = []
+    for t in sorted(tiers):
+        extra = need[t] - covered[t] - (1 if covered[t] == 0 else 0)
+        margin += [t] * max(0, extra)
+    units = first_copies + margin
+    kept = units[: len(out)]        # a requirement past the reservation's size is unpayable by
+    req = Counter(kept)             # construction; it is warned below, never silently dropped
+
+    # DEFICITS in priority order: a kept unit the draw did not already pay.
+    have = Counter(counts)
+    deficit: List[int] = []
+    for t in kept:
+        if have[t] > 0:
+            have[t] -= 1
+        else:
+            deficit.append(t)
+
+    # CONVERT SURPLUS, DEEPEST FIRST -- the same "cheapest correction" rule the regular floor uses,
+    # and for the same reason: the taper already says a deep stone serves the smallest slice of
+    # runs. A stone is SURPLUS exactly when its tier already meets its requirement -- which includes
+    # the last drawn copy of a vanilla-covered tier, because the vanilla copy is the one holding
+    # that wall up. (The earlier rule, "a tier never donates its last copy", protected those for no
+    # one, and at a ~14-stone reservation that starved the margin.) `req` never exceeds the
+    # reservation, so surplus always covers the deficit and the affordable part of the floor is
+    # paid IN FULL, deterministically.
+    surplus = {t: counts[t] - req[t] for t in counts}
     donors: List[int] = []
     for i in sorted(range(len(out)), key=lambda k: (-_tier_of(out[k]), k)):
         t = _tier_of(out[i])
-        if spare[t] > 1:
-            spare[t] -= 1
+        if surplus.get(t, 0) > 0:
+            surplus[t] -= 1
             donors.append(i)
-
-    # SHALLOWEST FIRST when it cannot be paid in full. `missing` is ascending, so a reservation too
-    # small to cover every tier buys the LOW ones. That is the right way round: Somber [1] gates a
-    # somber weapon at +0 and hence every level after it, while a missing [9] costs only the last
-    # rung of a ladder most runs never reach. It is also the direction the taper already weights the
-    # draw, so the degradation agrees with the design rather than fighting it.
-    paid = min(len(missing), len(donors))
-    for tier, i in zip(missing[:paid], donors):
+    for tier, i in zip(deficit, donors):
         out[i] = f"{label} [{tier}]"
 
-    if paid < len(missing):
-        # A DEGRADED PASS MUST ANNOUNCE ITSELF -- this module's rule, and the whole reason the old
-        # three-pass design shipped broken. Reachable only when the reservation holds fewer stones
-        # than there are tiers to cover, i.e. a tiny seed or a tiny `somber_stones` weight.
-        unpaid = missing[paid:]
+    # A DEGRADED PASS MUST ANNOUNCE ITSELF -- this module's rule, and the whole reason the old
+    # three-pass design shipped broken. Only a reservation smaller than the requirement list can
+    # leave units unpaid; the draw may still cover a trimmed unit by luck, so warn only on tiers
+    # that actually end up short.
+    n_kept = len(kept)
+    unpaid_presence = [t for t in first_copies[n_kept:] if counts[t] == 0]
+    if unpaid_presence:
         logging.getLogger("Greenfield").warning(
             "[eldenring:%s] filler_budget: the somber reservation (%d stones) is too small to hold "
             "one of every tier -- %s absent, so a somber weapon in this seed cannot pass +%d. The "
             "shallow tiers were covered first (a missing low tier walls the ladder at its base). "
             "Raise `somber_stones` in curated_filler, or keep more regions.",
-            world.player, len(out), ", ".join(f"{label} [{t}]" for t in unpaid), min(unpaid) - 1)
+            world.player, len(out), ", ".join(f"{label} [{t}]" for t in unpaid_presence),
+            min(unpaid_presence) - 1)
+    unpaid_margin = sorted(set(
+        t for t in margin[max(0, n_kept - len(first_copies)):]
+        if counts[t] + covered[t] < need[t]))
+    if unpaid_margin:
+        # Same rule, milder promise: the ladder itself is intact (or warned above), but the early
+        # guarantee will clamp below its margin downstream.
+        logging.getLogger("Greenfield").warning(
+            "[eldenring:%s] filler_budget: the somber reservation (%d stones) cannot also stock the "
+            "early guarantee (%dx %s [1..%d]) -- short: %s. declare_early_items will clamp to what "
+            "the pool holds. Raise `somber_stones` in curated_filler, or keep more regions.",
+            world.player, len(out), EARLY_GUARANTEE_MARGIN, label, EARLY_TARGET_LEVEL,
+            ", ".join(f"{label} [{t}]" for t in unpaid_margin))
     return out
 
 

@@ -56,6 +56,15 @@ something you can use.
 Consumables are untouched on purpose. You will still be sent far more Golden Runes than you can hold
 at once, because you spend them and the stack drains -- those arrive late, not never.
 
+## Your first somber weapon, on small seeds
+
+On seeds with few regions, the promise that you can take a somber weapon to +3 early -- two copies
+each of Somber Smithing Stone [1], [2] and [3] within reach of the start -- was quietly coming up
+short: in roughly one small seed in three, at least one of those tiers had only a single early copy,
+and the generator's only reaction was a log line. The stones you were owed now actually exist in the
+pool, so the early placement always has them to place. If the seed is genuinely too tiny to afford
+them, generation now says so out loud instead of shipping thin.
+
 ## Upgrading
 
 **No new DLL needed for the data half.** The client's version string moves in lockstep so it reports
