@@ -132,6 +132,33 @@ written next to the data, and the independent EMEVD oracle that caught this (dor
 it was written) now runs green in CI on every push -- a corpus regen that grows the true set again
 cannot go unnoticed a second time.
 
+### Fixed: the early somber-stone guarantee could quietly under-deliver on small seeds
+
+`early_guarantee` promises TWO copies of Somber Smithing Stone [1], [2] and [3] reachable from the
+start -- the same 2x find-rate margin the regular stones get. But `declare_early_items` is an AP
+placement HINT: it can only declare what the pool already holds, and the somber coverage floor
+(added 2026-08-02) stocked exactly ONE copy of each missing tier. On a small `num_regions` seed the
+somber reservation is ~15-25 draws, so the pool held a single copy of a low tier in ~10-20% of
+1-region seeds per tier (measured, 54 generations); the hint clamped to one with a warning nobody
+sees at gen time, and sphere 0 dutifully received exactly the one copy. That is the shape of
+boblerrr's playtest report -- the Somber [1]/[2] sphere-0 floors "may not be getting restricted" at
+small num_regions. Measured, the RESTRICTION was never the broken half: sphere-0 counts tracked the
+pool exactly, seed for seed, across 116 generations at num_regions 1-3. The supply was short, and a
+guarantee that can only clamp to supply is a hope.
+
+The coverage floor now pays the early margin too: the low tiers' floor is the early guarantee's own
+count, created where the reservation is drawn, so the hint downstream has nothing left to clamp. The
+donor rule was also wrong for small reservations -- "a tier never donates its last copy" protected
+the last drawn copy of tiers whose wall vanilla already holds up, which starved the margin at a
+~14-stone reservation. Surplus is now computed against the requirement (vanilla copies included), so
+the affordable part of the floor is paid in full, deterministically, and anything genuinely
+unaffordable warns by name -- absent tiers separately from a thin early margin. After the fix: 0
+shortfalls in 36 fresh 1-region generations (pool, declaration, and sphere 0 all hold the 2x margin
+for tiers [1..3]; tail-tier presence [4..9] unchanged at 100%).
+
+Deep-tier EARLY placement is explicitly not promised: a Somber [8]/[9] still lands past sphere 1 in
+some seeds. Their POOL presence (the 2026-08-02 wall fix) is what matters and is untouched.
+
 ## v0.3.3 — 2026-08-03
 
 Window opened 2026-08-03 (rule 14: the note ships WITH the change, not with the tag).
