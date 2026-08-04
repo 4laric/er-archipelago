@@ -38,6 +38,24 @@ There are still 134 checks whose description is a raw map id like `m60_42_50` ra
 Those are not a matching problem — the game data has no recorded position for them at all, so
 nothing spatial can reach them. They need a different source, and that work has not started.
 
+## Items that were being thrown away
+
+If you have ever wondered why a pot you were clearly sent never showed up, this is why. Elden Ring
+caps how many of an item you can hold, and once you are at the cap the game quietly refuses the next
+one -- but the multiworld has already marked it delivered. Nobody sees an error. The item is just
+gone.
+
+A default seed was placing 21 of them: Cracked Pots, Ritual Pots, Perfume Bottles and Hefty Cracked
+Pots, counted together with the ones you start with. Thirteen other items had the same problem more
+quietly -- a duplicate Whetstone Knife, a second Cursemark of Death, a ninth Memory Stone.
+
+The generator now knows the game's own limits and does not place items you could not receive. Those
+slots become curated filler instead, so seeds hold exactly as many items as before and you get
+something you can use.
+
+Consumables are untouched on purpose. You will still be sent far more Golden Runes than you can hold
+at once, because you spend them and the stack drains -- those arrive late, not never.
+
 ## Upgrading
 
 **No new DLL needed for the data half.** The client's version string moves in lockstep so it reports

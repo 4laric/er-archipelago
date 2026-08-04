@@ -2262,4 +2262,4 @@ SPARE_PREVIEW_GOODS = (
     9443, 9444, 9445, 9446, 9447, 9448, 9449, 9450, 51760,
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:96955b2f4ef77b1aeae32c95db8426c178aacde6621e415e10f1558ee554d98d', 'module': 'shop_data.py', 'body_sha256': 'sha256:9e2aab4117c498558cb667d37437b89c2b3dc91e8c2da3a4d94350f357882b74'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bae7e2b6eda99499085aac1172c948a7a6d868148d23312b98e32c1226ea9b42', 'module': 'shop_data.py', 'body_sha256': 'sha256:9e2aab4117c498558cb667d37437b89c2b3dc91e8c2da3a4d94350f357882b74'}

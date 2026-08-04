@@ -5809,6 +5809,123 @@ with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
 print(f"ammo_items: {len(AMMO_ITEM_NAMES)} arrow/bolt catalog items -> item_ids.py AMMO_ITEM_NAMES (x20 stack)")
 
 
+# ---- GOODS_HOLD_CAP: how many copies of a goods row the GAME will physically accept. ------------
+#
+# THE BUG THIS EXISTS FOR (#308). The pool models goods as unbounded: with item_shuffle on,
+# core.create_items appends ONE item per location straight off LOCATION_ITEM, with no notion that
+# the game has a stack ceiling. It does -- `EquipParamGoods.maxNum` -- and for an item that cannot
+# be discarded, deposited or consumed, a copy past that ceiling is not "late", it is DESTROYED:
+# AddItemFunc silently drops it, the client's grant returns success, and the AP stream has spent
+# the item. Alaric's 2026-08-03 log caught it on the pots because those are the only rows the
+# client caps and therefore the only ones with any telemetry at all:
+#
+#     pot-cap: goods 0x401ea99c grant of 1 CAPPED to 0 (held 10, cap 10)
+#              -- the remainder is reported delivered but never enters the inventory.
+#
+# Measured on a default seed (all regions, DLC on, item_shuffle on), start loadout included:
+#
+#     Cracked Pot        start 10 + pool 17 = 27  vs ceiling 19   ->  8 undeliverable
+#     Ritual Pot         start  4 + pool  8 = 12  vs ceiling  9   ->  3 undeliverable
+#     Perfume Bottle     start  9 + pool  7 = 16  vs ceiling  9   ->  7 undeliverable
+#     Hefty Cracked Pot  start  9 + pool  4 = 13  vs ceiling 10   ->  3 undeliverable
+#
+# 🛑 THE FIX IS NOT IN THE CLIENT, and this comment is where that ruling is written down.
+# `maxNum` for the three EMEVD-tracked pot rows EQUALS the threshold that fires the mass
+# phantom-check relief event, so the client's cap at `maxNum - 1` is not a conservative choice --
+# it is the ONLY reachable safe state. You cannot step over the threshold (the game will not let
+# you hold that many) and you cannot defer past it (isDiscard=0, isDeposit=0, maxRepositoryNum=0,
+# so the held count only ever RISES toward it). No client-side change can deliver these items.
+# The generator must stop creating them.
+#
+# ---- what is IN, and why each exclusion is derived rather than chosen --------------------------
+#
+#  * GOODS nibble only. Weapons / armour / talismans / spells carry INTENTIONAL duplicates for pool
+#    quality (Alaric, 2026-08-04) and must not be touched. Spells ARE goods (goodsType 5/16/18) and
+#    so are in this filter's blast radius -- but every spell row ships maxNum 99, so the 38 with
+#    more than one pool copy all clear the ceiling by a wide margin and none are capped. That is
+#    measured by `test_gf_goods_hold_cap`, not assumed, because it is the one way this table could
+#    quietly start eating a deliberate design decision.
+#  * `isDiscard == 1` or `isDeposit == 1` -> EXCLUDED. The stack can drain (dropped, sold, put in
+#    the storage box), so a surplus copy is merely EARLY, not lost. This is what keeps Golden
+#    Rune [1] (161 copies vs maxNum 99), Starlight Shards and every grease out of the table -- a
+#    ceiling on those would delete 60+ real items from the pool to solve a problem they do not have.
+#  * `maxNum <= 0` -> EXCLUDED (no meaningful ceiling recorded).
+#
+# ---- the EMEVD threshold rows -----------------------------------------------------------------
+#
+# Three goods rows are watched by a common.emevd counter that force-sets EVERY pot-location flag at
+# once when the held count hits an EXACT value -- a burst of phantom checks into the multiworld:
+#
+#     $Event(1460) StoreItemAmountHeldInEventValue(ItemType.Goods, 9500, ...) != 20 -> flag 6902
+#     $Event(1461)                                             9501       != 10 -> flag 6903
+#     $Event(1462)                                             9510       != 10 -> flag 6904
+#
+# So for those three the ceiling is one BELOW maxNum. That is DERIVED here by scanning the
+# decompiled EMEVD rather than hand-listed, so it cannot rot: if FromSoft ever adds a fourth
+# counter (the DLC's Hefty Cracked Pot has none today -- searched, absent), this picks it up.
+_GOODS_HOLD_EMEVD_THRESHOLDS = {}
+_gh_common = os.path.join(_EV_DIR_F, "common.emevd.dcx.js")
+if os.path.isfile(_gh_common):
+    _gh_src = open(_gh_common, encoding="utf-8", errors="replace").read()
+    # StoreItemAmountHeldInEventValue(ItemType.Goods, <row>, <ev>, <slot>);  ... EventValue(<ev>, <slot>) != <N>
+    for _m in re.finditer(
+        r"StoreItemAmountHeldInEventValue\(\s*ItemType\.Goods\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)"
+        r"(?:.(?!StoreItemAmountHeldInEventValue))*?EventValue\(\s*\2\s*,\s*\3\s*\)\s*!=\s*(\d+)",
+        _gh_src, re.S):
+        _GOODS_HOLD_EMEVD_THRESHOLDS[int(_m.group(1))] = int(_m.group(4))
+if not _GOODS_HOLD_EMEVD_THRESHOLDS:
+    # Rule 2: an empty result is a FAILURE, not a clean run. These three counters are in the vanilla
+    # corpus; finding none means the scan broke, and shipping a table without the -1 would let a
+    # seed put a player one pot away from a 19-check phantom burst.
+    print("[gen_data] WARNING: no pot-relief counters found in common.emevd -- GOODS_HOLD_CAP loses "
+          "its EMEVD -1 margin. Expected rows 9500/9501/9510.")
+
+GOODS_HOLD_CAP = {}
+_GH_EMEVD_APPLIED = []
+if os.path.isfile(_GOODS_CSV):
+    _gh_rows = {}
+    for _row in csv.DictReader(open(_GOODS_CSV, newline="", encoding="utf-8", errors="replace")):
+        try:
+            _gh_rows[int(_row["ID"])] = (int(_row["maxNum"]), int(_row["isDiscard"]), int(_row["isDeposit"]))
+        except (KeyError, ValueError):
+            continue
+    for _nm in sorted(ITEM_CATALOG):
+        _full = ITEM_CATALOG[_nm]
+        if (_full & 0xF0000000) != 0x40000000:      # GOODS nibble only
+            continue
+        _r = _gh_rows.get(_full & 0x0FFFFFFF)
+        if _r is None:
+            continue
+        _maxnum, _disc, _dep = _r
+        if _maxnum <= 0 or _disc or _dep:
+            continue                                 # no ceiling, or the stack can drain
+        _cap = _maxnum
+        _thr = _GOODS_HOLD_EMEVD_THRESHOLDS.get(_full & 0x0FFFFFFF)
+        if _thr is not None:
+            # Rule 10: the claim "maxNum equals the threshold" is asserted in the comment above, so
+            # it is CHECKED here rather than trusted. min() means a future divergence degrades to
+            # the safe side instead of silently widening the cap.
+            _cap = min(_maxnum, _thr - 1)
+            _GH_EMEVD_APPLIED.append((_nm, _maxnum, _thr, _cap))
+        GOODS_HOLD_CAP[_nm] = _cap
+else:
+    print("[gen_data] WARNING: EquipParamGoods.csv absent -- GOODS_HOLD_CAP is EMPTY and the item "
+          "pool will again create goods copies the game cannot accept (#308).")
+with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
+    f.write("\n# GOODS_HOLD_CAP: item name -> the most copies the GAME will physically hold, for goods\n"
+            "# that CANNOT leave the bag (isDiscard=0 and isDeposit=0). EquipParamGoods.maxNum, minus one\n"
+            "# for the three rows a common.emevd counter watches at an EXACT value (see gen_data.py).\n"
+            "# core.create_items clamps pool copies (plus the start loadout) to this; the surplus pays\n"
+            "# filler instead, count-neutrally. Absent from this dict = no ceiling to enforce.\n")
+    f.write("GOODS_HOLD_CAP = {\n")
+    for _nm in sorted(GOODS_HOLD_CAP):
+        f.write(f"    {ascii(_nm)}: {GOODS_HOLD_CAP[_nm]},\n")
+    f.write("}\n")
+print(f"goods_hold_cap: {len(GOODS_HOLD_CAP)} goods rows with an enforceable hold ceiling -> "
+      f"item_ids.py GOODS_HOLD_CAP; {len(_GH_EMEVD_APPLIED)} carry the EMEVD -1 margin "
+      f"{[(n, t) for n, _mx, t, _c in _GH_EMEVD_APPLIED]}")
+
+
 # ---- Phase 5 pool-builder tiers: vanilla item quality from the ER param `rarity` column
 # (matt-free -- param-derived, no curation). Joins each ITEM_CATALOG FullID back to its EquipParam
 # row (weapon/protector/accessory) and reads `rarity` (0=trivial/ammo, 1=common, 2=rare,
