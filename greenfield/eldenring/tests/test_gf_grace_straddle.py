@@ -83,7 +83,18 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 #   FALSE. It moved 3.00% -> 3.89% here, because the newly located population straddles at a higher
 #   rate than the existing one. It is still the better quantity to defend -- it cannot be moved by
 #   volume ALONE -- but it is not immune, and the ceiling has 0.11 points of headroom left.
-MAX_STRADDLING_GRACES = 52
+# --- 2026-08-04, the Academy key pocket (FLAG_REGION_OVERRIDE: f1035467100 -> Raya Lucaria
+#   Academy; test_gf_academy_key_pocket.py): 52 -> 53 graces, 153 -> 154 minority. The control:
+#   the delta is exactly ONE check, moved DELIBERATELY -- East Gate Bridge Trestle (76242) now
+#   reads {Raya Lucaria Academy: 1, Liurnia: 1}; no other grace changed sides. And this straddle
+#   is one this file's premise cannot express: "a Site of Grace sits in ONE region" assumes the
+#   region boundary is horizontal. At 76242 it is VERTICAL -- the trestle grace stands on Liurnia
+#   lake ground (y 238) while the Golden Seed 43 m away horizontally sits 75 m ABOVE it on the
+#   broken bridge deck (y 313), inside the Academy crest-warp pocket (key_item_gates.tsv: entry is
+#   by goods-8109 possession warp only). Nearest-grace is a 3D metric; regions here are not.
+#   NEITHER side is wrong, and the minority check must NOT be "fixed" back: a Liurnia region on
+#   f1035467100 is the sphere-1 strand lavakoala6 reported (2026-08-04).
+MAX_STRADDLING_GRACES = 53
 #
 # --- 2026-08-04 (#249): 150 -> 153, and the SAME control was run. Restricting the screen to the
 #   flags that were checks BEFORE this change gives 52 graces / 150 minority -- exactly main. The
@@ -91,7 +102,8 @@ MAX_STRADDLING_GRACES = 52
 #   straddled. No derivation moved; the population grew, which this file has now recorded three
 #   times. Run the control before touching this number again -- it is three lines and it answers
 #   the question outright.
-MAX_MINORITY_CHECKS = 153
+# +1 2026-08-04: f1035467100, the deliberate Academy-pocket move documented above.
+MAX_MINORITY_CHECKS = 154
 # The share cannot be inflated by locating more checks, so it is the quantity to defend.
 # Observed: 98/3205 = 3.1%, then 116/3435 = 3.4%, now 150/3856 = 3.9% (see the #338 note above).
 MAX_MINORITY_SHARE = 0.040
