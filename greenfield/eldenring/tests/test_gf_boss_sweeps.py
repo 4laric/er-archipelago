@@ -347,10 +347,22 @@ class BossSweepScoping(unittest.TestCase):
 
     # ---- MULTI-HEAD ARENAS (#363, bobler 2026-08-04) -------------------------------------------
     def _game_areas(self):
-        """`area_id -> defeat_flag` straight from greenfield/game_areas.tsv. Read here rather than
-        imported from gen_data so this stays an INDEPENDENT oracle."""
+        """`area_id -> defeat_flag` straight from game_areas.tsv. Read here rather than imported
+        from gen_data so this stays an INDEPENDENT oracle.
+
+        Located the same way as REGION_MAP_CSV above: beside the package in the INSTALLED world,
+        or in greenfield/ in the source tree. It is a gen INPUT, not emitted output, so the
+        installed world only has it if the install step copied it -- skip loudly rather than
+        pass blind, exactly as the region_map.csv gate does."""
+        path = next((q for q in (os.path.join(GF_PKG, "game_areas.tsv"),
+                                 os.path.join(GREENFIELD, "game_areas.tsv")) if os.path.isfile(q)),
+                    None)
+        if path is None:
+            raise unittest.SkipTest(
+                "game_areas.tsv not found beside the package or in greenfield/ -- it is a gen INPUT, "
+                "so the installed world needs the install step to copy it. Skipping rather than "
+                "reporting a multi-head arena clean on a table we could not read.")
         out = {}
-        path = os.path.join(os.path.dirname(GF_PKG), "game_areas.tsv")
         with open(path, encoding="utf-8") as fh:
             for line in fh:
                 if line[:1] == "#" or line.startswith("area_id"):
