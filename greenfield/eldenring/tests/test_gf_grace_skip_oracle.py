@@ -42,8 +42,12 @@ no code or data with gen's frozenset:
      71000), so the asset-entity join is the reliable one and is what this oracle uses.
 
 The resulting flag set is derived with ZERO reference to gen_data's frozenset -- it is a true oracle.
-Empirically it reproduces gen's `_BOSS_GATED_GRACE_FLAGS` exactly (37/37, both directions), which is
-the completeness proof gen's own comment could only assert. (gen ALSO carries a separate
+Empirically it reproduces gen's `_BOSS_GATED_GRACE_FLAGS` exactly (49/49, both directions). The
+count is a fact about the DECOMPILED CORPUS, not just the game: over the 380 legacy/underground
+decompiles of 2026-07-06 the same sweep found 37, and when the m60_/m61_ overworld tile decompiles
+landed in the gen_inputs bundle it found 12 more (#244) -- 11 already withheld by the arena sets,
+one (76412 Heart of Aeonia) emitted grantable. This is why the oracle must keep RUNNING: a corpus
+regen can grow the true set while every committed table stays byte-identical. (gen ALSO carries a separate
 `_ARENA_GRACE_FLAGS` set of MSB-placed remembrance-arena graces that emit NO 9005810 signal -- those
 are out of scope for this EMEVD oracle by construction, and this gate does not adjudicate them.)
 
@@ -66,17 +70,32 @@ import glob
 import importlib.util
 import os
 import re
+import sys
 import unittest
 
+try:
+    from ._util import find_repo_root
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-GF_PKG = os.path.dirname(HERE)                     # .../greenfield/eldenring
-GREENFIELD = os.path.dirname(GF_PKG)               # .../greenfield
-REPO = os.path.dirname(GREENFIELD)                 # .../er-archipelago
+GF_PKG = os.path.dirname(HERE)                     # .../greenfield/eldenring OR <ap>/worlds/eldenring
+GREENFIELD = os.path.dirname(GF_PKG)               # .../greenfield OR <ap>/worlds
+# The repo checkout, by WALK-UP (marker: tools/check_integrity.py) -- never positionally. The
+# positional dirname chain is what kept this oracle dark (#244): under the harness (gf_test.py
+# installs the world into <ap>/worlds/eldenring) two dirnames up is <ap>/worlds, so ARTIFACTS
+# pointed nowhere and every test here SKIPPED -- while the CI `tests` job was materialising the
+# bundle (event/ decompiles + BonfireWarpParam.csv) one walk-up away. In every CI layout the AP
+# checkout sits INSIDE the repo, so the walk-up succeeds; installed somewhere with no repo above
+# it, _REPO_FOUND is None and setUpClass skips honestly.
+_REPO_FOUND = find_repo_root(HERE)
+REPO = _REPO_FOUND or os.path.dirname(GREENFIELD)
 ARTIFACTS = os.path.join(REPO, "elden_ring_artifacts")
 EVENT_DIR = os.path.join(ARTIFACTS, "event")
 BONFIRE_CSV = os.path.join(ARTIFACTS, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
 REGION_GRACES_PY = os.path.join(GF_PKG, "region_graces.py")
-GEN_DATA_PY = os.path.join(GREENFIELD, "gen_data.py")
+GEN_DATA_PY = os.path.join(REPO, "greenfield", "gen_data.py")   # repo tree, via the walk-up
 
 # The boss-bonfire common event verified above. $InitializeCommonEvent(slot, 9005810, gate, ef2, chr,
 # assetEntityId, dist): capture gate(arg1) and assetEntityId(arg4). arg4 joins to BonfireWarpParam.
@@ -213,6 +232,73 @@ class BossGatedGraceSkipOracle(unittest.TestCase):
             sample, self.oracle & injected,
             "guard failed to catch an injected boss-gated grace -- the intersection check is broken",
         )
+
+
+# ---------------------------------------------------------------------------------------------
+# The #244 red list, adjudicated 2026-08-04. Every flag verified against its own tile EMEVD:
+# an InitializeCommonEvent(slot, 9005810, <gate>, ...) row whose asset entity joins to this
+# warpUnlockFlag in BonfireWarpParam, with <gate> = that tile's GameAreaParam boss-arena defeat
+# flag (game_areas.tsv) -- except 76422, whose gate is the Radahn-defeated global 310. The full
+# per-flag evidence lives beside the entries in gen_data.py `_BOSS_GATED_GRACE_FLAGS`.
+_244_OVERWORLD_BOSS_GATED = {
+    76412: "Heart of Aeonia, m60_49_38, gate 1049380800 (Commander O'Neil) -- the one that was "
+           "actually EMITTED: the Caelid lock force-lit a bonfire the game hides until O'Neil "
+           "dies, warping the player onto a disabled grace inside his arena",
+    76415: "Chair-Crypt of Sellia, m60_49_39, gate 1049390800",
+    76419: "Redmane Castle Plaza, m60_51_36, gate 1051360800",
+    76422: "Starscourge Radahn, m60_52_38, gate 310 (Radahn-defeated global)",
+    76509: "Fire Giant, m60_53_52, gate 1252520800 ('Giant defeat event', flag_names.tsv)",
+    76524: "Castle Sol Rooftop, m60_51_57, gate 1051570800 (Commander Niall)",
+    76823: "Ensis Moongazing Grounds, m61_48_44, gate 2048440800 (Rellana)",
+    76853: "Rest of the Dread Dragon, m61_55_39, gate 2054390800 (Bayle)",
+    76862: "Forsaken Graveyard, m61_52_43, gate 2052430800",
+    76930: "Scaduview, m61_49_48, gate 2049480800 (Commander Gaius)",
+    76945: "Church of the Bud, m61_44_45, gate 2044450800 (Romina)",
+    76960: "Scadutree Base, m61_50_48, gate 2050480800 (Scadutree Avatar)",
+}
+
+
+class Regression244(unittest.TestCase):
+    """CONTRIBUTING rule 11 for #244: the motivating case as a pinned test, ARTIFACT-FREE, so it
+    runs in EVERY layout -- the oracle class above needs elden_ring_artifacts/ and skips without
+    it, and a guard that only fires where the bundle happens to be extracted is half a guard.
+
+    Direction of error, stated once: WRONGLY GRANTABLE (a 9005810-hidden grace in a bundle) is a
+    grace skip -- num_regions force-lights it on lock receipt and warps the player onto a grace
+    asset that does not exist yet, behind boss fog. WRONGLY WITHHELD would be worse (stranding),
+    but withholding these twelve cannot strand: each one is lit BY THE GAME when its gate flag
+    sets (that is what 9005810 does), every host region keeps its natural front door and a
+    multi-grace bundle (Caelid: 37 graces after 76412 leaves), and gen_data hard-fails a regen
+    whose front door lands in the skip set."""
+
+    def test_the_12_overworld_boss_gated_graces_are_never_emitted(self):
+        """Fails if any of the twelve is reclassified back to grantable and region_graces.py is
+        regenerated -- the player-facing half of the #244 pin."""
+        rg = _load_region_graces()
+        for region, flags in rg.REGION_GRACE_POINTS.items():
+            leaked = sorted(set(int(f) for f in flags) & set(_244_OVERWORLD_BOSS_GATED))
+            self.assertEqual(
+                leaked, [],
+                "#244 regression: boss-gated grace(s) emitted grantable in region %r: %s"
+                % (region, "; ".join("%d = %s" % (f, _244_OVERWORLD_BOSS_GATED[f])
+                                     for f in leaked)))
+
+    def test_the_12_are_classified_boss_gated_in_gen(self):
+        """Fails on the frozenset revert ITSELF, before any regen -- the classification half.
+        Needs gen_data.py, i.e. a repo checkout above the installed world; the emission pin above
+        covers layouts without one."""
+        if not os.path.isfile(GEN_DATA_PY):
+            self.skipTest(
+                "gen_data.py not reachable (no repo checkout above the installed world) -- the "
+                "emission pin still ran; classification is asserted in repo/CI layouts")
+        gen = _gen_boss_gated_frozenset()
+        self.assertIsNotNone(
+            gen, "could not parse _BOSS_GATED_GRACE_FLAGS from gen_data.py (shape changed?)")
+        missing = sorted(set(_244_OVERWORLD_BOSS_GATED) - gen)
+        self.assertEqual(
+            missing, [],
+            "#244 regression: flag(s) reclassified OUT of _BOSS_GATED_GRACE_FLAGS despite the "
+            "9005810 evidence beside their entries: " + repr(missing))
 
 
 if __name__ == "__main__":

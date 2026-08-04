@@ -2833,7 +2833,6 @@ LOCATIONS = {
         ('Liurnia :: Blue-White Wooden Shield - near South Raya Lucaria Gate (region unconfirmed) [f1035447120]', 7772685, 1035447120),
         ('Liurnia :: Celestial Dew - near South Raya Lucaria Gate [f1035457000]', 7772686, 1035457000),
         ('Liurnia :: Meeting Place Map - near South Raya Lucaria Gate [f1035457100]', 7772687, 1035457100),
-        ('Liurnia :: Ash of War: Raptor of the Mists - around Main Academy Gate [f1035467700]', 7772688, 1035467700),
         ('Liurnia :: Golden Rune [1] - around East Gate Bridge Trestle [f1035477000]', 7772689, 1035477000),
         ('Liurnia :: Smithing Stone [2] - near East Gate Bridge Trestle [f1035477010]', 7772690, 1035477010),
         ("Liurnia :: Old Fang - near Sorcerer's Isle (region unconfirmed) [f1035487010]", 7772691, 1035487010),
@@ -3008,7 +3007,6 @@ LOCATIONS = {
         ('Liurnia :: Smoldering Butterfly - m60_35_44 (region unconfirmed) [f1035447990]', 7774383, 1035447990),
         ('Liurnia :: Strip of White Flesh - near South Raya Lucaria Gate [f1035457030]', 7774384, 1035457030),
         ('Liurnia :: Stonesword Key - near Main Academy Gate [f1035467020]', 7774385, 1035467020),
-        ('Liurnia :: Golden Seed - near Main Academy Gate [f1035467100]', 7774386, 1035467100),
         ('Liurnia :: Somber Smithing Stone [4] - near The Ravine (region unconfirmed) [f1035497020]', 7774387, 1035497020),
         ('Liurnia :: Somber Smithing Stone [2] - near Main Caria Manor Gate (region unconfirmed) [f1035497990]', 7774388, 1035497990),
         ('Liurnia :: Golden Rune [4] - near Main Caria Manor Gate [f1035507010]', 7774389, 1035507010),
@@ -3899,9 +3897,11 @@ LOCATIONS = {
         ("Raya Lucaria Academy :: Carian Knight's Shield - around Church of the Cuckoo [f14007980]", 7771653, 14007980),
         ('Raya Lucaria Academy :: Golden Seed - near Schoolhouse Classroom [f14007990]', 7771654, 14007990),
         ('Raya Lucaria Academy :: [Sorcery] Gravity Well - near Schoolhouse Classroom [f14007995]', 7771655, 14007995),
+        ('Raya Lucaria Academy :: Ash of War: Raptor of the Mists - around Main Academy Gate [f1035467700]', 7772688, 1035467700),
         ('Raya Lucaria Academy :: Memory Stone - around Church of the Cuckoo [f60440]', 7773811, 60440),
         ('Raya Lucaria Academy :: Glintstone Kris - around Church of the Cuckoo [f400101]', 7773842, 400101),
         ('Raya Lucaria Academy :: Living Jar Shard - around Church of the Cuckoo [f14007997]', 7774091, 14007997),
+        ('Raya Lucaria Academy :: Golden Seed - near Main Academy Gate [f1035467100]', 7774386, 1035467100),
         ('Raya Lucaria Academy :: Sacrificial Twig - from Isolated Merchant [f160820]', 7774841, 160820),
     ],
     'Scadu Altus': [
@@ -5223,4 +5223,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:866ab861450b2fd12003996c7c5c4712da95ab2994eb1af81adc5fa82b613334', 'module': 'data.py', 'body_sha256': 'sha256:4b0d3cbb856c5bb2ccc884d490d6d983a0a0f880c8c366a401ba341fc2bfbdf9'}
+_GEN_STAMP = {'inputs_hash': 'sha256:f4f70e61ae711596d3a120f0b0b696cae1f18830e480900e57052fe95b100e1e', 'module': 'data.py', 'body_sha256': 'sha256:e9799f1555cd0fed3d13e6c9cf3007cbcf8e8932b5bf45ef9b55967c210d3895'}

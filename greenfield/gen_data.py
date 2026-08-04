@@ -1414,6 +1414,10 @@ _REGION_CONFIRMED_FLAGS = frozenset({
     1036447300,   # Liurnia :: Golden Seed -- collected in Liurnia this session. Its descriptor was
                   # re-anchored to "near Academy Gate Town" in the SAME commit
                   # (location_descriptions.tsv) on the same walk.
+                  # 🛑 THIS collection is the walk that the 2026-08-01 note misread as clearing
+                  # 1035467100 ("near Academy Gate Town" was 1035467100's descriptor that day, and it
+                  # was wrong by 872 m). The clearance belongs HERE and only here; 1035467100 is
+                  # key-gated Raya Lucaria ground (FLAG_REGION_OVERRIDE).
     # --- 2026-08-03, Alaric, CONFIRMED IN GAME from the in-client check feed (#336).
     1042507020,   # Altus :: Golden Seed -- "it's altus, Ulcerated tree spirit south of Outer Wall
                   # Phantom Tree". Coherent with the tables independently: Outer Wall Phantom Tree
@@ -1496,13 +1500,19 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
                 # (cross-checked 2026-07-31, NOT ingested) has no entry for it -- our params do say
                 # lot 39200170 holds goods 10020, so the check is real; it is the LOCATION claim
                 # that is weak. Alaric could not find it in game at the named grace.
-    # 1035467100 (Liurnia :: Golden Seed) WAS here, excluded 2026-07-31 on suspicion of sitting
-    # behind the Raya Lucaria Academy key. WALKED AND CLEARED 2026-08-01 (Alaric, in game): it is
-    # reachable Liurnia, so it hosts progression like any other check. Its anchor was also wrong --
-    # the descriptor is now "near Academy Gate Town" (location_descriptions.tsv), which is what the
-    # suspicion was really about: a bad ANCHOR reading as a bad REGION.
-    # 🛑 The exclusion did its job -- cheap to be wrong, reversed the moment someone looked. Do not
-    # re-add it without new evidence; "someone walked it" is the strongest signal available here.
+    # 1035467100 (Golden Seed - near Main Academy Gate) WAS here, excluded 2026-07-31 on suspicion
+    # of sitting behind the Raya Lucaria Academy key. The 2026-08-01 "WALKED AND CLEARED" that
+    # released it was a MISATTRIBUTION: that day's descriptor for it read "near Academy Gate Town"
+    # -- an anchor 872 m away and 27th-nearest (see the 2026-08-02 correction pass in
+    # location_descriptions.tsv) -- and the seed actually collected on that walk was 1036447300,
+    # the Gate Town seed at lake level (its _REGION_CONFIRMED_FLAGS entry, same commit, same
+    # descriptor). Nobody has ever stood at 1035467100 without the key: it sits at deck height on
+    # the broken bridge INSIDE the Academy crest-warp pocket, and Alaric ruled it key-gated in game
+    # 2026-08-04 ("you can't access without academy key"). The 07-31 suspicion was CORRECT.
+    # 🛑 The fix is NOT re-adding it here: SURFACE_EXCLUDE only trims the advertised surface and is
+    # absent from core._NO_PROGRESSION_APS, so fill would still place progression on it (#350).
+    # The binding lever is the REGION -- FLAG_REGION_OVERRIDE pins it (and 1035467700, same pocket)
+    # to Raya Lucaria Academy, so logic demands the Academy lock. Gate: test_gf_academy_key_pocket.
     # --- The LIURNIA ISOLATED MERCHANT's 16 checks (#252) sat here 2026-08-01..2026-08-04 and
     # were MOVED to FLAG_REGION_OVERRIDE -> "Raya Lucaria Academy" (the merchant stands on the
     # academy island ring behind the crest warps; see the full note at the pins). This list was
@@ -2029,6 +2039,29 @@ FLAG_REGION_OVERRIDE = {
     530100: "Limgrave",                        # Golden Halberd = the Tree Sentinel's drop at the Limgrave
                                                #   start (Church of Elleh / First Step). EMEVD tile
                                                #   m60_35_45 mis-resolved to Liurnia (Alaric 2026-07-09).
+    # --- THE ACADEMY KEY POCKET (2026-08-04, #252's overworld sibling). The Main Academy Gate
+    # courtyard and the broken east-bridge span running out of it are RAYA LUCARIA ground, not
+    # Liurnia: the grace anchoring their tile (76206, m60_35_46) STANDS on play-region volume 14000
+    # (grace_ground.tsv, volume "purei-ryoiki Monsen mae kaidan 02" = the academy forecourt stairs),
+    # and every route in is a crest-warp that reads Academy Glintstone Key POSSESSION
+    # (key_item_gates.tsv: $Event(1035452600)/(1035462600)/(1036472600) -- the game's only three
+    # goods-8109 checks). The tile decode said Liurnia because grace_region_map.tsv files 76206
+    # under 62000: that is the WARP-MENU bucket, not the ground the player stands on
+    # (er-play-region-two-tables-not-one). Vanilla routes agree: every guide reaches this span
+    # "after you've obtained the Glintstone Key" (the East Gate Bridge Trestle below is the one-way
+    # exit DOWN, not a way up). Region move, NOT a surface bar: SURFACE_EXCLUDE is absent from
+    # core._NO_PROGRESSION_APS, so only the region binds fill (#350 lesson).
+    1035467100: "Raya Lucaria Academy",        # Golden Seed on the broken span NE of the gate (world
+                                               #   (8972, 313, 11897), deck height, 75 m ABOVE the
+                                               #   trestle grace). Reported sphere-1-while-key-gated by
+                                               #   a player (lavakoala6, Nexus 2026-08-04) and ruled
+                                               #   key-gated by Alaric in game the same day. Its
+                                               #   2026-08-01 "WALKED AND CLEARED" was a MISATTRIBUTION
+                                               #   -- see the note at _SURFACE_EXCLUDE_FLAGS.
+    1035467700: "Raya Lucaria Academy",        # Ash of War: Raptor of the Mists -- Yura's invasion
+                                               #   step; the summon sign stands in the same courtyard
+                                               #   pocket (common 90005774, entity 1035460700,
+                                               #   m60_35_46). Same ground, same key.
     # Ensha of the Royal Remains: invades AT the Roundtable Hold, so his drops belong in the HUB, not
     # Altus (they mis-pin to m11 Leyndell -> folded into Altus). Alaric-identified 2026-07-09.
     9800: "Roundtable Hold",                   # Ensha reward (m11_00; item name unresolved in region_map)
@@ -4199,10 +4232,56 @@ _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
 # player to a grace that isn't there yet / into a sealed boss arena -> soft-lock. Filtered from
 # _open_cand below (feeds both the region-open front-door flag AND the grant bundle).
 #   FLAG-GATED: EMEVD common event 9005810 hides the grace asset until a gate/boss-defeat flag is
-#     set. COMPLETE (exhaustive sweep of all 90058xx grace-control commons x BonfireWarpParam).
-#   ARENA: overworld remembrance arenas, MSB-placed grace behind a fog/summon trigger. No EMEVD
-#     signal -> known/playtest set, NOT provably complete; expand if a playtest finds more.
-_BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601, 71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120, 71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401})
+#     set. COMPLETE against the decompiled corpus (exhaustive sweep of all 90058xx grace-control
+#     commons x BonfireWarpParam) -- but the corpus GREW: the 2026-07-06 sweep ran over 380
+#     legacy/underground decompiles and found 37; the gen_inputs bundle now carries the m60_/m61_
+#     OVERWORLD tile decompiles too (587 event .js) and the same sweep finds 49 (#244). The old
+#     claim "overworld remembrance arenas have zero EMEVD footprint" was an artifact of the
+#     missing decompiles, not a fact about the game. test_gf_grace_skip_oracle.py re-derives this
+#     set independently (EMEVD x BonfireWarpParam, zero shared code) and fails on any gap.
+#   ARENA: arenas with no 9005810 signal in the decompiled corpus -- MSB-placed grace behind a
+#     fog/summon trigger. Playtest/measured set, NOT provably complete.
+_BOSS_GATED_GRACE_FLAGS = frozenset({
+    # Legacy dungeons / underground -- the 2026-07-06 sweep's 37, oracle-verified both directions.
+    76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601,
+    71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120,
+    71121, 71250, 71505, 76247, 71000, 71001, 76120, 71900, 72800, 71400, 71401,
+    # m60_/m61_ overworld tiles (#244, adjudicated 2026-08-04). Same 9005810 mechanism, visible
+    # once the tile decompiles landed in the bundle. Evidence per flag: the tile EMEVD's
+    # InitializeCommonEvent(slot, 9005810, <gate>, ...) row joined asset-entity ->
+    # BonfireWarpParam.eventflagId; each gate below is that tile's GameAreaParam boss-arena
+    # defeat flag (game_areas.tsv) except 76422's, which is the Radahn-defeated global 310.
+    76412,  # Heart of Aeonia, m60_49_38, gate 1049380800 (Commander O'Neil's arena row,
+            # game_areas.tsv). THE #244 leak: the only one of the 12 that was actually EMITTED --
+            # the Caelid lock force-lit a bonfire the EMEVD hides until O'Neil dies, warping the
+            # player onto a disabled grace in his swamp arena. Vanilla lights it on his death,
+            # so withholding it here cannot strand anyone; Caelid keeps 37 grantable graces.
+    76415,  # Chair-Crypt of Sellia, m60_49_39, gate 1049390800 (the crypt duo's arena row;
+            # arena_graces.tsv already withheld it at 9.4m). Classification only, no emission
+            # change. NB grace_names.tsv says Chair-Crypt of Sellia -- the "Redmane" label some
+            # older notes attach to 76415 is wrong; Redmane's tile is m60_51_36.
+    76419,  # Redmane Castle Plaza, m60_51_36, gate 1051360800 (plaza duo / festival arena row;
+            # arena_graces.tsv already withheld it at 13.3m). Classification only.
+    76422,  # Starscourge Radahn, m60_52_38, gate 310 (Radahn-defeated global -- the WaitFor the
+            # 2026-07-06 notes dismissed WAS load-bearing). Moved from the _ARENA hand list.
+    76509,  # Fire Giant, m60_53_52, gate 1252520800 ("Giant defeat event", flag_names.tsv).
+            # Moved from the _ARENA hand list.
+    76524,  # Castle Sol Rooftop, m60_51_57, gate 1051570800 (Commander Niall's arena row;
+            # arena_graces.tsv already withheld it at 13.6m). Classification only.
+    76823,  # Ensis Moongazing Grounds, m61_48_44, gate 2048440800 (Rellana's arena row;
+            # arena_graces.tsv already withheld it at 7.6m). Classification only.
+    76853,  # Rest of the Dread Dragon, m61_55_39, gate 2054390800 (Bayle, Jagged Peak).
+            # Moved from the _ARENA hand list.
+    76862,  # Forsaken Graveyard, m61_52_43, gate 2052430800 (that tile's arena row;
+            # arena_graces.tsv already withheld it at 5.5m). Classification only.
+    76930,  # Scaduview, m61_49_48, gate 2049480800 (Commander Gaius's arena row). Moved from
+            # the _ARENA hand list.
+    76945,  # Church of the Bud, m61_44_45, gate 2044450800 (Romina's arena row;
+            # arena_graces.tsv already withheld it at 1.6m). Classification only.
+    76960,  # Scadutree Base, m61_50_48, gate 2050480800 (Scadutree Avatar's arena row). Moved
+            # from the _ARENA hand list; its 2026-07-21 playtest is corroboration, the EMEVD
+            # gate is the classification.
+})
 # HAND list -- graces the DERIVED oracle cannot reach. Kept SMALL and each entry must earn its place:
 # a redundant manual override FAILS (see the _BOSS_DROP_EXTRAS guard). 2026-07-11, once ALL the MSBs were
 # found (they live in elden_ring_artifacts/**map**, 1347 unpacked -- NOT mapstudio/, which has 1034 and is
@@ -4215,18 +4294,17 @@ _BOSS_GATED_GRACE_FLAGS = frozenset({76161, 71301, 71302, 72200, 76313, 73500, 7
 #                                           (the real one), 76414 is 46.6m and 76416 is 119.8m. I had been
 #                                           silently costing the player two legitimate graces. Guessing
 #                                           CONSERVATIVELY is still guessing -- go and measure.
-# The 7 that remain are on the 7 boss maps the oracle can NEVER adjudicate: their boss entity is not an
-# MSB Part at all (script-spawned), so no position exists to measure against. Those are load-bearing.
+# 2026-08-04 (#244): five more entries died the same way -- 76422, 76509, 76853, 76930, 76960
+# turned out to be 9005810 FLAG-GATED once the m60_/m61_ tile decompiles landed in the bundle
+# (their gating was never MSB-side "no signal"; the signal was in files we had not decompiled).
+# They moved to _BOSS_GATED_GRACE_FLAGS above with their per-flag evidence; the union is
+# UNCHANGED for all five (test_gf_grace_skip_oracle.Regression244 pins them withheld). The 3
+# that remain have no 9005810 row in the full 587-file corpus AND sit on maps the arena oracle
+# cannot adjudicate (boss not an MSB Part / no unpacked MSB), so they stay hand-held.
 _ARENA_GRACE_FLAGS = frozenset({
-    76422,                 # Radahn arena (m60_52_38) -- boss 1052380800 is not an MSB Part
-    76508, 76509,          # unadjudicable map
-    76852, 76853,          # unadjudicable map
-    76930, 76931,          # unadjudicable map
-    76960,                 # Scadutree Base (m61_50_48) -- sits INSIDE the Scadutree Avatar arena
-                           # (Rem. of the Shadow Sunflower 510620, tile 50,48; see the gen_data map at
-                           # 510620). Force-lighting it with the Shadow Keep lock (Scaduview folded in)
-                           # warps you into the Avatar fight (playtest 2026-07-21, Alaric). DLC boss,
-                           # oracle-unadjudicated -> hand entry.
+    76508,                 # unadjudicable map, no 9005810 row in the decompiled corpus
+    76852,                 # unadjudicable map, no 9005810 row in the decompiled corpus
+    76931,                 # unadjudicable map, no 9005810 row in the decompiled corpus
 })  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
                     # Warrior + Crucible Knight duo arena (bosses 1049390800/1049390801) -- granting it
                     # warps you into the middle of a live duo fight (playtest 2026-07-11, Alaric).
@@ -4280,7 +4358,7 @@ _DERIVED_ARENA_GRACE_FLAGS = _derived_arena_graces()
 # COVERAGE FLOOR. Unlike the boss-drop datamine (which reads all 589 EMEVD and is COMPLETE), the
 # arena-grace oracle needs an unpacked MSB per map and only 66 of the 118 boss maps have one -- so its
 # output is a LOWER BOUND, and the hand lists above are a genuine safety net that must NOT be deleted
-# even where the derived set overlaps them (22 of 37 _BOSS_GATED + 1 of 11 _ARENA today).
+# even where the derived set overlaps them (37 of 49 _BOSS_GATED + 0 of 3 _ARENA today).
 # The hazard is the reverse: re-running the tool on a box WITHOUT the MSBs silently shrinks
 # arena_graces.tsv, and the graces it used to catch quietly start being force-lit again. Fail instead.
 _ARENA_FLOOR = 41   # what the tool derives with the COMPLETE MSB set (map/, 108/118 maps). Raise, never lower.
@@ -4310,7 +4388,16 @@ if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR
 #     the Draconic Tree Sentinel; the Sentinel needs no seed key, so on-foot reachability from Altus's
 #     other graces holds. (The Leyndell-side East/West Capital Rampart 71102/71105 are the entry graces
 #     once the Leyndell bundle opens -- handled by graces.bundle_withheld, not skipped here.)
-_STATE_GATED_GRACE_FLAGS = frozenset({72107, 76314})
+#   71107 Queen's Bedchamber (m11_00, Leyndell): reachable only THROUGH the Erdtree Sanctuary, i.e.
+#     past Morgott. Our own table already agrees with that reading and then contradicts itself --
+#     71100 Elden Throne and 71101 Erdtree Sanctuary are both withheld (9005810 asset-hidden), so we
+#     were withholding the grace AT the door and granting the one BEYOND it. A region lock therefore
+#     handed a warp straight into the far side of the capital's last fight. Alaric's call,
+#     2026-08-04. Like 76314 it is NOT 9005810 asset-hidden -- the EMEVD oracle does not see it, so
+#     it does not belong in _BOSS_GATED_GRACE_FLAGS -- it is a physically-present grace sealed by a
+#     boss-defeat state, which is exactly this set. Leyndell keeps its other six; its front door
+#     (71102 East Capital Rampart) and REGION_GRACE_LANDMARKS entry are untouched.
+_STATE_GATED_GRACE_FLAGS = frozenset({71107, 72107, 76314})
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS
                      | _STATE_GATED_GRACE_FLAGS)
@@ -6866,6 +6953,50 @@ except OSError as _e:
           f"-- multi-head arenas will pay their whole sweep on the FIRST head (run "
           f"tools/datamine_game_areas.py --emit)")
 
+# ---- THE OTHER 14 HEADS (greenfield/boss_arena_pairs.tsv) --------------------------------------
+# GameAreaParam answers only the heads it COVERS, and it is "A PARTITION, not every boss" by its own
+# header. m34_14's second Fell Twin (34140851) has NO ROW AT ALL, so the check above returns False
+# for it and the Divine Tower of East Altus kept paying its whole sweep on the first head -- bobler
+# got the checks on ENTERING that arena, 2026-08-04, with Placidusax standing in it.
+#
+# 🛑 The obvious next move -- `bonus_soul == 0` marks the secondary -- CANNOT WORK, for exactly the
+# reason above: there is no row to read a rune award off. An absent row is "not covered", never "not
+# a boss".
+#
+# So the second source is the EMEVD, which ships in the input bundle and states the answer outright:
+# `HandleBossDefeatAndDisplayBanner(P, EnemyFelled)` is the game naming what reports a fight, and the
+# condition guarding it names every head the fight waits on.
+#
+#     m32_05  WaitFor(HPValue(32050800) <= 0 && HPValue(32050801) <= 0); Banner(32050800)
+#               -> ONE fight, two bars; 32050800 reports it, 32050801 may not trigger a sweep
+#     m31_19  WaitFor(Dead(31190800)); Banner(31190800)
+#             WaitFor(Dead(31190850)); Banner(31190850)
+#               -> TWO fights (Black Knife Assassin AND Necromancer Garris). BOTH keep their trigger.
+#
+# 🛑 The handoff on #363 proposed MSB spawn geometry instead. It cannot run where this has to run:
+# `gen_inputs.py --ensure` materialises 1452 files and not one is an MSB (its own docstring: "the
+# bundle carries what gen_data READS, not the MSBs"), so a geometry rule would be dead in CI and in
+# any sandbox. It also needed a distance THRESHOLD; the banner needs none.
+#
+# ⚠️ TWO of the handoff's expectations were overturned by the game's own data, and the data wins:
+#   * m31_18 Perfumer's Grotto (Miranda the Blighted Bloom + Omenkiller) was guessed SEPARATE. It is
+#     ONE banner over `Dead(31180800) && Dead(31180801)` -- one fight.
+#   * m31_22 Spiritcaller Cave's Godskins are not waited on at all; the snail's own flag force-kills
+#     them (evidence=subordinate). Killing the snail ends the fight, which is why it reads as one.
+_ARENA_PAIR_PRIMARY = {}
+try:
+    with open(os.path.join(HERE, "boss_arena_pairs.tsv"), encoding="utf-8") as _pfh:
+        for _line in _pfh:
+            if _line[:1] == "#" or _line.startswith("secondary"):
+                continue
+            _p = _line.rstrip("\n").split("\t")
+            if len(_p) > 4 and _p[0].isdigit() and _p[1].isdigit():
+                _ARENA_PAIR_PRIMARY[int(_p[0])] = (int(_p[1]), _p[4])
+except OSError as _e:
+    print(f"[gen_data] boss_arena_pairs.tsv unavailable ({_e!r}); only the heads GameAreaParam "
+          f"covers are suppressed -- the Fell Twins and 11 more multi-head arenas will pay their "
+          f"whole sweep on the FIRST head (run tools/datamine_boss_arenas.py)")
+
 
 def _arena_secondary(_ent, _bmap):
     """Is `_ent` a non-primary head of an arena that ANOTHER SWEEP TRIGGER already reports?
@@ -6881,17 +7012,36 @@ def _arena_secondary(_ent, _bmap):
     map whose only reporter is the entity in hand.
 
     `defeat_flag == 0` / no row is "GameAreaParam does not cover this boss" (its header: a PARTITION,
-    not every boss), never "secondary"."""
+    not every boss), never "secondary" -- so a head it does not list falls through to the EMEVD
+    banner table, which is the only thing that can speak for the arenas GameAreaParam omits.
+
+    Returns the primary's entity id and the source that named it, or None. GameAreaParam is
+    consulted FIRST: where it has a row it is the game's own arena partition, and the EMEVD read is
+    a derivation over it."""
     _df = _ARENA_DEFEAT_FLAG.get(_ent)
-    if _df is None or _df == 0 or _df == _ent:
-        return False
-    _primary = BOSS_HEALTHBARS.get(_df)
-    return _primary is not None and _primary[0] == _bmap
+    if _df is not None and _df != 0 and _df != _ent:
+        _primary = BOSS_HEALTHBARS.get(_df)
+        if _primary is not None and _primary[0] == _bmap:
+            return _df, "game_areas"
+    _pair = _ARENA_PAIR_PRIMARY.get(_ent)
+    if _pair is not None:
+        _pent, _evidence = _pair
+        # THE SAME GUARD, AGAIN, ON THE SECOND SOURCE. It is not enough that the table names a
+        # primary: that primary must be a healthbar head on THIS map, or the suppression removes the
+        # only trigger that could ever grant this map's checks. m30_20's Stray Mimic Tear is the
+        # standing proof -- it lost aps 7772247/7772248 outright when a mismatch alone was treated as
+        # an answer. A derived table is not exempt from a guard the hand path needed.
+        _primary = BOSS_HEALTHBARS.get(_pent)
+        if _primary is not None and _primary[0] == _bmap:
+            return _pent, _evidence
+    return None
 
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 _sweep_excluded_hits = []
 _sweep_secondary_hits = []
+_dungeon_by_map = defaultdict(list)   # map -> [surviving dungeon trigger,...] for the per-map DIVVY
+_dungeon_divvied = []
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
@@ -6911,8 +7061,9 @@ if BOSS_HEALTHBARS:
                 _field_bosses.append((_ent, (int(_ftm.group(1)), int(_ftm.group(2)))))
             continue
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
-            if _arena_secondary(_ent, _bmap):
-                _sweep_secondary_hits.append((_ent, _bmap, _name, _ARENA_DEFEAT_FLAG[_ent]))
+            _sec = _arena_secondary(_ent, _bmap)
+            if _sec:
+                _sweep_secondary_hits.append((_ent, _bmap, _name, _sec[0], _sec[1]))
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
@@ -6950,7 +7101,57 @@ if BOSS_HEALTHBARS:
             continue
         DUNGEON_SWEEPS[_ent] = _members
         SWEEP_REGION[_ent] = _sreg
+        _dungeon_by_map[_bmap].append(_ent)
         _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
+    # ---- PER-MAP DIVVY: a dungeon holding TWO REAL FIGHTS partitions its filler between them -----
+    # After the suppression above, a map with several surviving triggers is a map whose EMEVD fires
+    # several defeat banners -- i.e. genuinely separate fights sharing one dungeon. Four of them:
+    #     m30_05 Black Knife Catacombs  Cemetery Shade / Black Knife Assassin        4 checks
+    #     m30_13 Auriza Side Tomb       Grave Warden Duelist / 30130810 (unnamed)   10
+    #     m31_00 Murkwater Cave         Patches / Patches                            4
+    #     m31_19 Sage's Cave            Black Knife Assassin / Necromancer Garris   14
+    # `_mem_map` is keyed on the MAP, so today each of the pair holds the SAME list and killing
+    # either pays out both bosses' checks -- the #363 defect, in its last form.
+    #
+    # 🛑 SUPPRESSION IS THE WRONG INSTRUMENT HERE and would be a REGRESSION. Each of these heads
+    # fires its own banner, so each is a fight in its own right; removing one deletes a real boss's
+    # reward. That is why _arena_secondary refuses to touch a head that is a banner primary.
+    #
+    # 🛑 SO IS GEOMETRY -- measured 2026-08-04, and it fails its own control. All 14 Sage's Cave
+    # checks are NEARER Necromancer Garris than the Black Knife Assassin, by 20-30m, so nearest-boss
+    # would hand Garris all 14 and the Assassin ZERO. It is structural, not a threshold: the arenas
+    # are 39.8m apart while the checks sit 33-72m from BOTH, strung along the cave's corridors with
+    # both arenas off one end. Distance there measures which END OF THE CAVE you are in, not who owns
+    # the loot.
+    #
+    # And there IS no owner to find. None of the 32 carries an EMEVD arena association
+    # (boss_reward_coords), and every one is UNTAGGED FILLER -- Rejuvenating Boluses, Lost Ashes of
+    # War, a Candletree Wooden Shield, two Golden Runes. Cave pickups. The sweep is filler-only by
+    # construction. No datamine can say who owns them because the game does not say.
+    #
+    # Which is exactly the situation the LEGACY DIVVY below already solves: a filler pool, several
+    # bosses, no ownership relation -> PARTITION it round-robin. Same determinism (triggers sorted by
+    # entity id, members sorted, member j -> trigger j % N), same reasoning about un-killed slices
+    # staying obtainable by physical pickup. A sweep is a convenience auto-grant, not the only source.
+    for _bmap, _ents in sorted(_dungeon_by_map.items()):
+        if len(_ents) < 2:
+            continue
+        _ents = sorted(_ents)
+        # Every trigger on the map holds the SAME list here (that is the defect); take it once. Union
+        # rather than [0] so this stays correct if the members ever stop being identical.
+        _pool = sorted(set().union(*(DUNGEON_SWEEPS[_e] for _e in _ents)))
+        _slices = defaultdict(list)
+        for _j, _ap in enumerate(_pool):
+            _slices[_ents[_j % len(_ents)]].append(_ap)
+        for _e in _ents:
+            if _slices[_e]:
+                DUNGEON_SWEEPS[_e] = _slices[_e]
+            else:
+                # Fewer checks than bosses: a trigger with an empty slice grants nothing, so it is
+                # not a trigger. Its checks are still picked up normally.
+                DUNGEON_SWEEPS.pop(_e, None)
+                SWEEP_REGION.pop(_e, None)
+        _dungeon_divvied.append((_bmap, _ents, len(_pool)))
     # FIELD NEIGHBORHOOD pass (2026-07-15): a field boss used to sweep ONLY its own m60 tile's
     # filler -- 18/85 field bosses got EMPTY sweeps (their tile has no non-important check) and the
     # median sweep was 4 members, so in-game a field-boss kill felt like nothing. Now every
@@ -7052,23 +7253,43 @@ if BOSS_HEALTHBARS:
     print("boss_sweeps: suppressed %d secondary arena head(s) -- their fight is reported by another "
           "flag, so they may not trigger a sweep: %s" % (
               len(_sweep_secondary_hits),
-              ", ".join("%s %s/%s -> %s" % (e, m, n or "?", df)
-                        for e, m, n, df in _sweep_secondary_hits)))
-    # RESIDUAL DUPLICATES (the half GameAreaParam cannot arbitrate). Two GENUINELY separate bosses
-    # in one dungeon -- m31_19 Sage's Cave is Black Knife Assassin AND Necromancer Garris, two
-    # different fights -- still share `_mem_map`'s list, so killing either pays out both. There is no
-    # datum here to partition them with (game_areas.tsv is "A PARTITION, not every boss": Garris has
-    # no row), so this is REPORTED, not guessed at. Silence would let the remaining half look fixed.
+              ", ".join("%s %s/%s -> %s [%s]" % (e, m, n or "?", df, src)
+                        for e, m, n, df, src in _sweep_secondary_hits)))
+    _by_src = Counter(src for _e, _m, _n, _df, src in _sweep_secondary_hits)
+    print("boss_sweeps:   by source: %s" % (dict(sorted(_by_src.items())),))
+    assert _by_src.get("game_areas"), (
+        "gen_data: the GameAreaParam path suppressed NOTHING. It has always covered at least the "
+        "m32_05 Crystalian duo (32050801 -> defeat_flag 32050800); an empty set means game_areas.tsv "
+        "moved or its columns did. Re-emit tools/datamine_game_areas.py.")
+    assert _by_src.get("conjunct"), (
+        "gen_data: the EMEVD banner path suppressed NOTHING. boss_arena_pairs.tsv has always carried "
+        "the m34_14 Fell Twins (34140851 -> 34140850) and 11 more heads GameAreaParam does not list; "
+        "an empty set means the table went missing or its columns moved, and those arenas are back "
+        "to paying their whole sweep on the FIRST head. Re-emit tools/datamine_boss_arenas.py "
+        "rather than deleting this assert.")
+    # THE PER-MAP DIVVY MUST ANNOUNCE ITSELF, and the shared-list count must now be ZERO.
+    assert _dungeon_divvied, (
+        "gen_data: the per-map DIVVY partitioned NOTHING. Four dungeons have held two real fights "
+        "(two defeat banners each) since 2026-08-04 -- m30_05, m30_13, m31_00, m31_19 -- so an empty "
+        "set means their second trigger vanished, which is the #363 first-draft regression wearing a "
+        "different hat: suppression must never take a head that fires its own banner.")
+    print("boss_sweeps: DIVVIED %d multi-fight dungeon(s) -- separate fights sharing a map partition "
+          "their filler instead of each paying it in full: %s" % (
+              len(_dungeon_divvied),
+              ", ".join("%s %s over %d check(s)" % (m, e, n) for m, e, n in _dungeon_divvied)))
     _dupe_members = defaultdict(list)
     for _e, _mem in DUNGEON_SWEEPS.items():
         _dupe_members[tuple(_mem)].append(_e)
     _residual = sorted((sorted(_es), len(_k)) for _k, _es in _dupe_members.items() if len(_es) > 1)
-    if _residual:
-        print("boss_sweeps: %d member-list(s) are STILL shared by >1 trigger (%d checks payable by "
-              "either boss) -- separate fights in one dungeon, which GameAreaParam cannot arbitrate; "
-              "they need PARTITIONING, not de-duplication: %s" % (
-                  len(_residual), sum(n for _es, n in _residual),
-                  ", ".join("%s(x%d)" % (_es, n) for _es, n in _residual[:12])))
+    # A SHARED MEMBER LIST IS NOW A BUG, NOT A KNOWN REMAINDER. Every route into one is closed: a
+    # duo arena loses its secondary head (game_areas / the defeat banner), and a map with two real
+    # fights partitions. If this fires, one of those two passes stopped running.
+    assert not _residual, (
+        "%d sweep member-list(s) are STILL shared by >1 trigger (%d checks payable by either boss) "
+        "-- #363 in full. Either the secondary-arena suppression or the per-map DIVVY above stopped "
+        "applying; find which, do not relax this assert: %s" % (
+            len(_residual), sum(n for _es, n in _residual),
+            ", ".join("%s(x%d)" % (_es, n) for _es, n in _residual[:12])))
 else:
     # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
     import re as _re2

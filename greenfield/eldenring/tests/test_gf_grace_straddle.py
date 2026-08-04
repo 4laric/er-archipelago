@@ -83,6 +83,18 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 #   FALSE. It moved 3.00% -> 3.89% here, because the newly located population straddles at a higher
 #   rate than the existing one. It is still the better quantity to defend -- it cannot be moved by
 #   volume ALONE -- but it is not immune, and the ceiling has 0.11 points of headroom left.
+# --- 2026-08-04, the Academy key pocket (FLAG_REGION_OVERRIDE: f1035467100 -> Raya Lucaria
+#   Academy; test_gf_academy_key_pocket.py): 52 -> 53 graces, 153 -> 154 minority. The control:
+#   the delta is exactly ONE check, moved DELIBERATELY -- East Gate Bridge Trestle (76242) now
+#   reads {Raya Lucaria Academy: 1, Liurnia: 1}; no other grace changed sides. And this straddle
+#   is one this file's premise cannot express: "a Site of Grace sits in ONE region" assumes the
+#   region boundary is horizontal. At 76242 it is VERTICAL -- the trestle grace stands on Liurnia
+#   lake ground (y 238) while the Golden Seed 43 m away horizontally sits 75 m ABOVE it on the
+#   broken bridge deck (y 313), inside the Academy crest-warp pocket (key_item_gates.tsv: entry is
+#   by goods-8109 possession warp only). Nearest-grace is a 3D metric; regions here are not.
+#   NEITHER side is wrong, and the minority check must NOT be "fixed" back: a Liurnia region on
+#   f1035467100 is the sphere-1 strand lavakoala6 reported (2026-08-04).
+#
 # --- 2026-08-04 (#252, the Isolated Merchant region move): 52 -> 53 straddles, 153 -> 169
 #   minority. THE CONTROL WAS RUN: recomputing with ONLY the 16 merchant flags forced back to
 #   Liurnia gives 52 / 153 -- exactly main. The whole delta is one deliberate move: all 16 anchor
@@ -95,7 +107,10 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 #   merchant's stock at msb y=284.6 (~46 m above the lake); the 20 Liurnia neighbours are ground
 #   lots. If one of THOSE ever proves ring-side (f1035467020, the SE-slope Stonesword Key, is the
 #   open walk question), it moves region and these pins move again -- with this control re-run.
-MAX_STRADDLING_GRACES = 53
+# 53 -> 54 (2026-08-04): grace 76205 South Raya Lucaria Gate begins straddling when the merchant's
+# 16 move to Raya Lucaria Academy. #373's f1035467100 move did NOT add a grace (76242 already
+# straddled), which is why main reads 53 and this reads 54 -- the two moves are not interchangeable.
+MAX_STRADDLING_GRACES = 54
 #
 # --- 2026-08-04 (#249): 150 -> 153, and the SAME control was run. Restricting the screen to the
 #   flags that were checks BEFORE this change gives 52 graces / 150 minority -- exactly main. The
@@ -103,14 +118,18 @@ MAX_STRADDLING_GRACES = 53
 #   straddled. No derivation moved; the population grew, which this file has now recorded three
 #   times. Run the control before touching this number again -- it is three lines and it answers
 #   the question outright.
-MAX_MINORITY_CHECKS = 169
+# 🛑 THE TWO 2026-08-04 MOVES ARE CUMULATIVE. #373 moved f1035467100 and #374 moved the
+#   merchant's 16, so NEITHER side's pin is the merged number. Re-measured here rather
+#   than picked; each move's own control is in its note above.
+MAX_MINORITY_CHECKS = 170   # 153 + 1 (#373 f1035467100) + 16 (#374 merchant stock) -- MEASURED
 # The share cannot be inflated by locating more checks, so it is the quantity to defend.
 # Observed: 98/3205 = 3.1%, then 116/3435 = 3.4%, now 150/3856 = 3.9% (see the #338 note above).
 # 4.38% after the #252 merchant move (169/3856) -- the move is a region derivation getting MORE
 # correct while the grace side of this oracle cannot see the crest-warp pocket; see the control
 # note above. Ceiling set to the measured value + headroom of one more small pocket move, NOT a
 # round number to grow into.
-MAX_MINORITY_SHARE = 0.044
+# 4.41% once BOTH 2026-08-04 moves are in (170/3856). Measured, not rounded up to grow into.
+MAX_MINORITY_SHARE = 0.0441
 
 
 def _nearest_grace(column=1):
