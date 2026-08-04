@@ -32,9 +32,26 @@ class BossLocationsSealed(WorldTestBase):
     options = {"num_regions": 1, "num_regions_order": "spine"}
 
     def test_sealed_boss_regions_excluded(self):
+        # AUDIT 2026-08-04 (finding P2): this used to be `all(r in kept for r in bl)` -- a
+        # quantifier over the OUTPUT of the function under test, vacuously true when the feature
+        # is deleted (`boss_locs = {}` left all 35 referencing tests green). Assert keyset
+        # EQUALITY against the INPUT table instead: the expectation is derived from REGION_BOSSES
+        # + the region cut, never from slot_data, so an emptied or over-emitted bossLocations
+        # cannot satisfy it. bossLocations carries the "Felled:" trophy map and, under boss_keys
+        # mode-B, the per-boss `gate` deferral hint -- it emptying out is player-visible.
         bl = self.world.fill_slot_data()["bossLocations"]
         kept = set(self.world._kept())
-        self.assertTrue(all(r in kept for r in bl), "sealed-region bosses must be excluded")
+        expected = {r for r in REGION_BOSSES if r in kept}
+        sealed = set(REGION_BOSSES) - kept
+        self.assertTrue(sealed,
+                        "num_regions=1 kept every boss region -- the exclusion under test is not "
+                        "being exercised at all (fixture rot)")
+        self.assertTrue(expected,
+                        "num_regions=1/spine should still keep a region with bosses (Limgrave); "
+                        "an empty expectation would let an empty emission pass vacuously")
+        self.assertEqual(set(bl), expected,
+                         "bossLocations must be EXACTLY the kept rows of REGION_BOSSES -- "
+                         "sealed regions out, every kept boss region in")
 
 
 class DungeonSweepFlags(WorldTestBase):
@@ -53,6 +70,30 @@ class DungeonSweepFlags(WorldTestBase):
             for aid in members:
                 self.assertIn(aid, catalog, "sweep member must be a real location")
 
+
+class DungeonSweepOffSeed(WorldTestBase):
+    """dungeon_sweep = "none" -- off must mean OFF: the sweep keys ABSENT, not present-and-empty.
+
+    AUDIT 2026-08-04 (finding P1): the previous version of this test lived in DungeonSweepFlags
+    (a dungeon_sweep="all" class) with a body of literally `pass`; replacing the emission gate in
+    features/boss_locks.py::slot_data with `if True:` left all 57 tests across the four
+    option-referencing files green, because nothing anywhere generated an OFF world and asked.
+    Absent-not-empty is the contract (test_gf_slot_data_fixture.ALWAYS_KEYS excludes the sweep
+    keys for exactly this reason): the client treats a missing key as feature-off, so a key that
+    appears under dungeon_sweep=none re-arms whole-dungeon auto-grants for a player who explicitly
+    disabled them -- silently, since the keys are required=False and validate_slot_data does not
+    police unexpected OPTIONAL keys. Paired in test_gf_off_means_off.OFF_LEDGER.
+    """
+    game = GAME
+    options = {"num_regions": 0, "dungeon_sweep": "none"}
+
     def test_sweeps_off_when_disabled(self):
-        # a fresh world with dungeon_sweep=none emits no sweep keys
-        pass
+        sd = self.world.fill_slot_data()
+        # membership list, not assertNotIn: on failure assertNotIn dumps the ENTIRE slot_data
+        # (hundreds of KB); the leaked-key list says everything that matters.
+        leaked = [k for k in ("dungeonSweepFlags", "dungeonSweeps", "sweepLockGates") if k in sd]
+        self.assertEqual(leaked, [],
+                         "sweep keys emitted with dungeon_sweep=none -- the gate in "
+                         "features/boss_locks.py::slot_data is not honoring the option; a player "
+                         "who disabled sweeps would still get whole-dungeon auto-grants on boss "
+                         "kills")

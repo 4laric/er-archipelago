@@ -49,9 +49,15 @@ REGIONS = 6
 
 
 class AutoEquipOff(WorldTestBase):
-    """THE DEFAULT SEED. Off is the default, and an old client must still be able to connect."""
+    """THE DEFAULT SEED. Off is the default, and an old client must still be able to connect.
+
+    auto_equip is PINNED False rather than left to the class default: the off state is what this
+    class exists to test, and a default that drifts ON would silently turn every assertion below
+    into an on-seed reading (memory: er-unfreezing-an-option-needs-the-class-default). The pin is
+    also what lets test_gf_off_means_off verify AllClientFeatureGatesOffSeed-style rows against
+    a class that really sets its option."""
     game = GAME
-    options = {"num_regions": REGIONS}
+    options = {"num_regions": REGIONS, "auto_equip": False}
 
     def test_off_seed_sends_a_falsey_value(self):
         sd = self.world.fill_slot_data()
@@ -72,6 +78,10 @@ class AutoEquipOff(WorldTestBase):
         a compatibility break paid by people who never turned the feature on.
         """
         sd = self.world.fill_slot_data()
+        # NB this asserts the TAG, not full key absence: on this 2-region seed
+        # maximum_enemy_difficulty=auto resolves below 100, so features/scaling.py legitimately
+        # declares "scaling_ceiling" here. The FULL absent-when-every-producer-is-off state is
+        # owned by test_gf_off_means_off.AllClientFeatureGatesOffSeed (2026-08-04 sweep).
         required = sd.get(contract.REQUIRES_CLIENT_FEATURES, [])
         self.assertNotIn(TAG, required,
                          "a DEFAULT seed declared requiresClientFeatures %r. Every client without "

@@ -197,3 +197,22 @@ class SphereScalingRolled(WorldTestBase):
             any_diverged_from_spine,
             "no rolled seed produced an order that diverged from SPINE order -- the test is not "
             "actually exercising reachability-driven scaling (or scaling reverted to spine).")
+
+
+class DlcOffSeed(WorldTestBase):
+    """enable_dlc = False -- the DLC scaling wires must be ABSENT, not present-and-empty.
+
+    `dlcRegionBuckets` is gated on the KEPT REGION SET intersecting the DLC regions
+    (features/scaling.py), not on an option read -- which is exactly the gate shape a per-option
+    audit misses. Off-state coverage added with the 2026-08-04 "off means off" sweep (audit
+    finding P1 generalized); paired in test_gf_off_means_off.OFF_LEDGER."""
+    game = GAME
+    options = {"num_regions": 0, "enable_dlc": False}
+
+    def test_dlc_buckets_absent_without_dlc(self):
+        sd = self.world.fill_slot_data()
+        leaked = [k for k in ("dlcRegionBuckets", "dlcScadutreeFloorRanges") if k in sd]
+        assert leaked == [], (
+            "DLC scaling wires %r emitted on a no-DLC seed: the client would carry scaling "
+            "buckets/floors for play regions this seed can never enter -- the kept-region gate "
+            "in features/scaling.py is not doing its job" % (leaked,))
