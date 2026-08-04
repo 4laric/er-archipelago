@@ -18,6 +18,29 @@ rolled on 0.3.1+ still connect. The `data/` hash HAS moved, so a seed rolled her
 v0.3.3 rolled. The client moves only its version string, so an older DLL still connects -- but the
 version it reports will not match what you are running, which is the whole point of rule 15.
 
+### Fixed: 36 items were never checks at all, so they dropped their vanilla version
+
+A `region_map.csv` row filed `Global / Common-event (unplaced)` is one whose flag nothing could
+decode a map from. gen_data emits no location for it, so the client never blanks the vanilla item
+lot, and you pick up the vanilla item with the randomizer none the wiser. Nothing errors; the item
+simply is not a check.
+
+Thirty-six of them now are, placed from what the game already records — an observed MSB map for the
+flag, or the flag's item lot named by exactly one map's talk ESD. Among them: Kalé's and Gostoc's
+Bell Bearings, eleven merchant Bell Bearings, the Glintstone Kris, the Royal Greatsword, Iron Kasa,
+nine Ashes of War, two paintings' rewards, and the Sewer-Gaol Key. Three of those are field-boss
+drops (Vyke's Dragonbolt, Death Ritual Spear, Star-Lined Sword), so three bosses that carried nothing
+now carry a check.
+
+**This adds locations, so a seed rolled here differs from one rolled on v0.3.3** — which is why it
+lands at the top of a version window rather than mid-release.
+
+**What is NOT fixed, and it is the case that prompted the work.** Thops still drops the vanilla
+Academy Glintstone Staff. Its flag's lots are named by no talk ESD and no map EMEVD, so no corpus we
+have can say where it is — it is one of 45 in that position. Another 19 are named by two or three
+maps because the NPC relocates, and guessing one would assert a reachability we do not have. Those
+64 stay unplaced, counted and printed by the tool rather than quietly dropped.
+
 ### Fixed: 421 checks had lost their nearest Site of Grace to a join that could never match
 
 `build_nearest_grace.py` kept its own copy of the overworld tile fold, and it disagreed with the one

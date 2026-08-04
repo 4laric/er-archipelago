@@ -1,23 +1,23 @@
 {
   "counts": {
     "filler_pool": 228,
-    "item_catalog": 2058,
-    "locations": 4879,
+    "item_catalog": 2083,
+    "locations": 4915,
     "regions": 30,
     "sweeps": 240
   },
-  "inputs_hash": "sha256:dd0f4b019cbd17aeeb0b1e80a088cc595177c0ee05d89f6822634508d068ae02",
+  "inputs_hash": "sha256:96955b2f4ef77b1aeae32c95db8426c178aacde6621e415e10f1558ee554d98d",
   "modules": {
-    "boss_data.py": "sha256:8369996ed26555336bd24ef1de360ed19057862b86e86e6b30b76078dd389a35",
-    "boss_sweeps.py": "sha256:243c0f8cf7ea730f0a6e43296988183028561fbddd4668586395c621917f4057",
-    "data.py": "sha256:00b1c6386f0836211280986f3c1c2fa8a2a86565dd7daad3f067b5bfcbea3609",
-    "item_ids.py": "sha256:21ec6fa42c0a02ed9b51199c657ac043b1b08ed84069c2ef1d0e49367c588e6c",
-    "item_tiers.py": "sha256:fc42992f85f8786b2266d890ad8ee74562e43b429e63db33b8e36f171f8ee3e2",
-    "location_tags.py": "sha256:86367e7172cb9da150a49e25c957b34ff8dee1c8330e955540ee5ce6355a6221",
-    "missable_locations.py": "sha256:2a313af8ed8d99d73e12a9a2ea27b2efe5f66304d8fa049af22747c2eed3a317",
+    "boss_data.py": "sha256:71365e19d7229203f80e0c313abbb1bd2c0f98bc0a41de5730b76cbfd1dd436f",
+    "boss_sweeps.py": "sha256:7cb33ff266765667b9043adbc50d937212f5a7488b40afc37438dedf90a8b661",
+    "data.py": "sha256:cd67427fbb18c4d62d4d50da082a20c09a281b2f8ce3a2d86e24b99c08d052b2",
+    "item_ids.py": "sha256:793c68b8ee3ae247494f848ab90ee942aae054aaa66345f53d1ef0f2738527fb",
+    "item_tiers.py": "sha256:bfc7d9b199542816597df93d3e8742bf39a1a978792544032c8be9c5508ac73e",
+    "location_tags.py": "sha256:db490b46b84ad61363982229f64eef3424f1e9c28fbef666afdaaefbeca31937",
+    "missable_locations.py": "sha256:c7c638e28a1e95aeda82b0ec33e73215785ba117eb9a372da834b621a0c520ca",
     "region_graces.py": "sha256:91cbefa774eae9d86b1f70652b072bf5c2a7f6ab8edc1cf49df583bec288e516",
     "region_open_flags.py": "sha256:10682b5f34e29e198367883dcc4bb2b2df8b767f03079751af2cf46b1bcfcfd6",
     "region_play_ids.py": "sha256:b4e23c447de34e5418cdaaf35fb81d07cb43fe1f6164d283d9e703824c4d2392",
-    "shop_data.py": "sha256:89807d83b3f7a6a4c48188ad124039968cef6e705eb0c22a8a841e156531d94d"
+    "shop_data.py": "sha256:9e2aab4117c498558cb667d37437b89c2b3dc91e8c2da3a4d94350f357882b74"
   }
 }

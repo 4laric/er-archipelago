@@ -84,7 +84,14 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 #   rate than the existing one. It is still the better quantity to defend -- it cannot be moved by
 #   volume ALONE -- but it is not immune, and the ceiling has 0.11 points of headroom left.
 MAX_STRADDLING_GRACES = 52
-MAX_MINORITY_CHECKS = 150
+#
+# --- 2026-08-04 (#249): 150 -> 153, and the SAME control was run. Restricting the screen to the
+#   flags that were checks BEFORE this change gives 52 graces / 150 minority -- exactly main. The
+#   +3 are three of the 36 newly-placed common-event checks landing on graces that already
+#   straddled. No derivation moved; the population grew, which this file has now recorded three
+#   times. Run the control before touching this number again -- it is three lines and it answers
+#   the question outright.
+MAX_MINORITY_CHECKS = 153
 # The share cannot be inflated by locating more checks, so it is the quantity to defend.
 # Observed: 98/3205 = 3.1%, then 116/3435 = 3.4%, now 150/3856 = 3.9% (see the #338 note above).
 MAX_MINORITY_SHARE = 0.040

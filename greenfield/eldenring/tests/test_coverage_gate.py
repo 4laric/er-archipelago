@@ -41,7 +41,15 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4879   # 4860 + 19 (ESD talk-award corpus, 2026-07-26, f40cc9a+1c258e5):
+BASELINE_TOTAL_LOCATIONS = 4915   # 4879 + 36 (unplaced common-event rows placed, 2026-08-04,
+                                  # issue #249): rows filed `Global / Common-event (unplaced)` that
+                                  # were never checks at all, so their item dropped VANILLA. Placed
+                                  # from an observed MSB/check_maps map or a single-map talk-ESD
+                                  # join by tools/datamine_unplaced_globals.py; 64 more are refused
+                                  # and counted, including f400361 (Thops). Covered: they are
+                                  # ordinary map_lot checks in real regions, tagged by the same
+                                  # waterfall as their neighbours -- 3 gained a FieldBoss tag.
+                                  # PREVIOUS: 4879 # 4860 + 19 (ESD talk-award corpus, 2026-07-26, f40cc9a+1c258e5):
                                   # 18 gestures NPCs TEACH IN DIALOGUE (`AcquireGesture` in the talk
                                   # ESD -- a THIRD award corpus _gesture_derive was structurally blind
                                   # to, since it reads EMEVD only) + 1 recovered global, Roderika's
