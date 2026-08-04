@@ -108,10 +108,16 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
         "item makes the rung a progression decision. Either filter them out or justify each one "
         "here." % (len(new), new))
     gone = sorted(_KNOWN_IMPORTANT_IN_SWEEPS - found)
-    if gone:
-        import warnings
-        warnings.warn("%d known important-in-sweep check(s) are gone (%s) -- if that was the "
-                      "_filler_only fix, shrink _KNOWN_IMPORTANT_IN_SWEEPS to match." % (len(gone), gone))
+    # AUDIT 2026-08-04: this branch used to `warnings.warn` and pass -- ledger decay was silent,
+    # the same species as the stale-_EDGE_EXEMPT hole in test_gf_client_resets_are_called (finding
+    # P3). A ratchet whose rows outlive the debt stops being read, and staleness is a fact about
+    # THIS tree, checkable right here -- so it fails here. The fix is one deleted line, named below.
+    assert not gone, (
+        "%d known important-in-sweep check(s) are no longer in any sweep pool: %s. Shrink "
+        "_KNOWN_IMPORTANT_IN_SWEEPS to match. If this was the _filler_only fix finally landing, "
+        "deleting the row(s) is how the ratchet TIGHTENS and this failure is the reminder; if it "
+        "was not, a sweep pool changed shape underneath the ledger and needs looking at -- either "
+        "way a stale row must not sit here reading as live debt." % (len(gone), gone))
 
 
 def test_the_legacy_pool_specifically_is_clean():

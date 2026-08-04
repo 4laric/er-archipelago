@@ -334,22 +334,58 @@ class ClientResetsAreCalled(unittest.TestCase):
     # -- the lists stay honest -----------------------------------------------------------------
 
     def test_the_exemptions_still_exist(self):
-        """An exemption for a module that is gone hides the next real omission behind stale prose."""
+        """An exemption for a module that is gone hides the next real omission behind stale prose.
+
+        AUDIT 2026-08-04 (inert-test finding P3): this body used to `warnings.warn` and pass.
+        Injecting a bogus module into _EDGE_EXEMPT gave "1 passed" with the warning scrolled off
+        the log -- the decay mode of the one list that keeps the reset gate honest was itself
+        silent, and the __main__ note at the bottom of this file had already said so out loud.
+        Staleness is a fact about THIS tree, checkable right here, so it FAILS here. (Contrast the
+        ledger warn in test_the_debt_ledger_only_shrinks: a non-empty ledger is a legal state by
+        design and warning is the chosen severity there; a stale exemption never is.)
+        """
         stale = sorted(m for m in _EDGE_EXEMPT if m not in self.writers)
-        if stale:
-            import warnings
-            warnings.warn("_EDGE_EXEMPT names %s, which the write scan no longer classifies as "
-                          "writers -- prune them so the list keeps meaning something." % stale)
+        self.assertFalse(
+            stale,
+            "_EDGE_EXEMPT names %s, which the write scan no longer classifies as game-state "
+            "writers. DELETE the row(s): an exemption for a module that is gone is prose wearing "
+            "a safeguard's name, and the next real omission hides behind it -- exactly how the "
+            "2026-07-31 shop_preview deletion silenced an alarm. (If the module still exists and "
+            "still writes, it is the WRITE SIGNALS that regressed -- re-point those instead, and "
+            "test_every_write_signal_matches_something should be red beside this.)" % stale)
 
     def test_every_exemption_and_ledger_row_carries_a_reason(self):
-        """A bare module name is an assertion with no evidence. Both lists are {module: reason}."""
+        """A bare module name is an assertion with no evidence. Both lists are {module: reason}.
+
+        AUDIT 2026-08-04: the old check asserted the reason was >= 12 words -- prose LENGTH as a
+        proxy for truth, which a paragraph of filler satisfies. The length floor stays (a
+        one-liner cannot state a claim AND its limits), but the load-bearing check is now an
+        ANCHOR: the reason must name at least one thing this file can verify exists -- another
+        client module (so the claim rots DETECTABLY when that module changes or goes away), or a
+        test in this class that re-derives the claim (fmg_inject's shape, and the gold standard).
+        Truth still cannot be asserted from here; checkability can, and an anchored reason is one
+        a reader can start checking without a scavenger hunt.
+        """
+        # Anchor universe: every client module the scan read, plus this class's own test names.
+        # The entry's OWN module name does not count -- naming yourself is not evidence.
+        anchors = set(self.bodies) | {n for n in dir(type(self)) if n.startswith("test")}
         for name, table in (("_EDGE_EXEMPT", _EDGE_EXEMPT), ("_UNRULED_WRITERS", _UNRULED_WRITERS)):
             for mod, reason in table.items():
                 self.assertIsInstance(reason, str, "%s[%r] must be a reason string" % (name, mod))
                 self.assertGreaterEqual(
                     len(reason.split()), 12,
-                    "%s[%r] reason is %d words -- too short to be checkable. Say what is CLAIMED "
-                    "and, if you do not know, what is UNKNOWN." % (name, mod, len(reason.split())))
+                    "%s[%r] reason is %d words -- too short to state a claim and its limits. Say "
+                    "what is CLAIMED and, if you do not know, what is UNKNOWN."
+                    % (name, mod, len(reason.split())))
+                live = (set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", reason)) & anchors) - {mod}
+                self.assertTrue(
+                    live,
+                    "%s[%r] reason names no verifiable anchor: no existing client module, no test "
+                    "in this class. Length is not evidence -- cite the module the claim leans on "
+                    "(e.g. the callers, for a pure helper) or the test that re-derives it (e.g. "
+                    "test_fmg_inject_is_still_inert). If every module it cited is gone, the "
+                    "reason is stale and needs re-arguing, which is exactly why this fails."
+                    % (name, mod))
         overlap = sorted(set(_EDGE_EXEMPT) & set(_UNRULED_WRITERS))
         self.assertFalse(overlap, "%s are both exempt and unruled -- pick one" % overlap)
 
@@ -375,9 +411,13 @@ class ClientResetsAreCalled(unittest.TestCase):
             gone,
             "%s no longer match any write signal (module deleted, or rewritten to stop writing) -- "
             "delete their _UNRULED_WRITERS rows." % gone)
-        # Not a failure: the point of the ledger is that someone READS it. Guarded, because an
-        # unconditional "0 client writer(s) still have NO ruling: []" is noise that trains the
-        # reader to skip the one line that will matter on the day the list is non-empty again.
+        # Not a failure, DELIBERATELY (audit 2026-08-04 kept it): a non-empty ledger is a legal
+        # state by design -- turning it red on landing teaches people to switch the gate off, per
+        # the header. The warn is informational and the two asserts above are what keep the list
+        # honest, which is why the warn-only lint (test_gf_test_hygiene.py) does not flag this
+        # test: it HAS an assert path. Guarded, because an unconditional "0 client writer(s)
+        # still have NO ruling: []" is noise that trains the reader to skip the one line that
+        # will matter on the day the list is non-empty again.
         if _UNRULED_WRITERS:
             import warnings
             warnings.warn(
