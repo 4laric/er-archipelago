@@ -1961,6 +1961,10 @@ def _recover_tile(_flag):
     # but NOT the exclusion sets above, and not GLOBAL_RECOVER (enforced by the callers).
     if _fl in _BOSS_REWARD_TILE:
         return _BOSS_REWARD_TILE[_fl]
+    # DERIVED unplaced-global tiles (issue #249). Same standing as the boss-reward family: the flag
+    # has no self-encoded tile, so a derived one outranks the digit heuristics below.
+    if _fl in _UNPLACED_TILE:
+        return _UNPLACED_TILE[_fl]
     _s = str(_fl); _tile = None
     if len(_s) == 10 and _s[0] == '1' and _s[1] in '01':
         _tile = "m" + ("60" if _s[1] == '0' else "61") + "_" + _s[2:4] + "_" + _s[4:6]
@@ -1976,6 +1980,37 @@ def _recover_tile(_flag):
         return _tile
     _key = _tile if _tile[:3] == "m60" else "_".join(_tile.split("_")[:2])
     return _tile if _key in _VALID_TILE_PREFIXES else None
+
+
+# ---- DERIVED tiles for the UNPLACED common-event rows (issue #249) ------------------------------
+# A row filed `Global / Common-event (unplaced)` gets no location, so `check_lots` never blanks its
+# vanilla lot and the player picks up the vanilla item. Nothing errors -- the item is simply not a
+# check. `tools/datamine_unplaced_globals.py --emit` derives a map for the ones the data can reach
+# (an observed MSB/check_maps map, or the flag's item lot named by exactly ONE map's talk ESD) and
+# REFUSES the rest, counted and printed.
+#
+# This is a DERIVATION, not a hand list: GLOBAL_RECOVER above is the hand list, and this is meant to
+# shrink it, never to grow it. It ranks BELOW GLOBAL_RECOVER (a human who walked there wins) and
+# below _BOSS_REWARD_TILE, and above the digit heuristics, which by construction cannot decode these
+# flags at all.
+_UNPLACED_TILE = {}
+_upl = os.path.join(os.path.dirname(os.path.abspath(__file__)), "unplaced_global_tiles.tsv")
+if os.path.isfile(_upl):
+    for _ln in open(_upl, encoding="utf-8"):
+        if _ln.startswith("#") or not _ln.strip() or _ln.startswith("flag\t"):
+            continue
+        _c = _ln.rstrip("\n").split("\t")
+        if len(_c) < 2 or not _c[0].isdigit():
+            continue
+        _m = _c[1].strip()
+        # Normalise to the shape _recover_tile returns: overworld keeps its tile (m60_XX_YY),
+        # everything else collapses to the map prefix (m11_10_00_00 -> m11_10).
+        _UNPLACED_TILE[int(_c[0])] = _m if _m[:3] in ("m60", "m61") else "_".join(_m.split("_")[:2])
+    print("unplaced globals: %d flag(s) carry a DERIVED tile (tools/datamine_unplaced_globals.py)"
+          % len(_UNPLACED_TILE))
+else:
+    print("unplaced globals: greenfield/unplaced_global_tiles.tsv ABSENT -- every common-event row "
+          "stays unplaced and its item stays vanilla. Run tools/datamine_unplaced_globals.py --emit")
 
 # ---- Per-FLAG region override (matt-free, playtest-verified) ----------------------------------
 # A few overworld pickups resolve to the wrong region: their source event/scan tile lands on a

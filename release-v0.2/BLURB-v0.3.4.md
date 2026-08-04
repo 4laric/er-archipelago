@@ -23,7 +23,16 @@ is. One was fixed by hand and one by finding the bug underneath it.
   Seventeen location names improve directly, mostly from naming a whole region ("around the Altus
   Plateau") to naming somewhere you can actually walk to.
 
+- **36 items that were quietly never randomized now are.** Some pickups were never registered as
+  checks at all, so you would walk up, grab them, and get the vanilla item while the tracker showed
+  nothing — Kalé's and Gostoc's Bell Bearings, most of the merchant Bell Bearings, the Glintstone
+  Kris, the Royal Greatsword, a handful of Ashes of War. Three field bosses that dropped nothing of
+  interest now have a check on them.
+
 ## What is NOT fixed
+
+Thops still drops his vanilla Academy Glintstone Staff, and 63 other items like it are still not
+checks: nothing in the game data we can read says where they are, so placing them would be a guess.
 
 There are still 134 checks whose description is a raw map id like `m60_42_50` rather than a place.
 Those are not a matching problem — the game data has no recorded position for them at all, so
