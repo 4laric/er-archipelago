@@ -6892,6 +6892,50 @@ except OSError as _e:
           f"-- multi-head arenas will pay their whole sweep on the FIRST head (run "
           f"tools/datamine_game_areas.py --emit)")
 
+# ---- THE OTHER 14 HEADS (greenfield/boss_arena_pairs.tsv) --------------------------------------
+# GameAreaParam answers only the heads it COVERS, and it is "A PARTITION, not every boss" by its own
+# header. m34_14's second Fell Twin (34140851) has NO ROW AT ALL, so the check above returns False
+# for it and the Divine Tower of East Altus kept paying its whole sweep on the first head -- bobler
+# got the checks on ENTERING that arena, 2026-08-04, with Placidusax standing in it.
+#
+# 🛑 The obvious next move -- `bonus_soul == 0` marks the secondary -- CANNOT WORK, for exactly the
+# reason above: there is no row to read a rune award off. An absent row is "not covered", never "not
+# a boss".
+#
+# So the second source is the EMEVD, which ships in the input bundle and states the answer outright:
+# `HandleBossDefeatAndDisplayBanner(P, EnemyFelled)` is the game naming what reports a fight, and the
+# condition guarding it names every head the fight waits on.
+#
+#     m32_05  WaitFor(HPValue(32050800) <= 0 && HPValue(32050801) <= 0); Banner(32050800)
+#               -> ONE fight, two bars; 32050800 reports it, 32050801 may not trigger a sweep
+#     m31_19  WaitFor(Dead(31190800)); Banner(31190800)
+#             WaitFor(Dead(31190850)); Banner(31190850)
+#               -> TWO fights (Black Knife Assassin AND Necromancer Garris). BOTH keep their trigger.
+#
+# 🛑 The handoff on #363 proposed MSB spawn geometry instead. It cannot run where this has to run:
+# `gen_inputs.py --ensure` materialises 1452 files and not one is an MSB (its own docstring: "the
+# bundle carries what gen_data READS, not the MSBs"), so a geometry rule would be dead in CI and in
+# any sandbox. It also needed a distance THRESHOLD; the banner needs none.
+#
+# ⚠️ TWO of the handoff's expectations were overturned by the game's own data, and the data wins:
+#   * m31_18 Perfumer's Grotto (Miranda the Blighted Bloom + Omenkiller) was guessed SEPARATE. It is
+#     ONE banner over `Dead(31180800) && Dead(31180801)` -- one fight.
+#   * m31_22 Spiritcaller Cave's Godskins are not waited on at all; the snail's own flag force-kills
+#     them (evidence=subordinate). Killing the snail ends the fight, which is why it reads as one.
+_ARENA_PAIR_PRIMARY = {}
+try:
+    with open(os.path.join(HERE, "boss_arena_pairs.tsv"), encoding="utf-8") as _pfh:
+        for _line in _pfh:
+            if _line[:1] == "#" or _line.startswith("secondary"):
+                continue
+            _p = _line.rstrip("\n").split("\t")
+            if len(_p) > 4 and _p[0].isdigit() and _p[1].isdigit():
+                _ARENA_PAIR_PRIMARY[int(_p[0])] = (int(_p[1]), _p[4])
+except OSError as _e:
+    print(f"[gen_data] boss_arena_pairs.tsv unavailable ({_e!r}); only the heads GameAreaParam "
+          f"covers are suppressed -- the Fell Twins and 11 more multi-head arenas will pay their "
+          f"whole sweep on the FIRST head (run tools/datamine_boss_arenas.py)")
+
 
 def _arena_secondary(_ent, _bmap):
     """Is `_ent` a non-primary head of an arena that ANOTHER SWEEP TRIGGER already reports?
@@ -6907,17 +6951,36 @@ def _arena_secondary(_ent, _bmap):
     map whose only reporter is the entity in hand.
 
     `defeat_flag == 0` / no row is "GameAreaParam does not cover this boss" (its header: a PARTITION,
-    not every boss), never "secondary"."""
+    not every boss), never "secondary" -- so a head it does not list falls through to the EMEVD
+    banner table, which is the only thing that can speak for the arenas GameAreaParam omits.
+
+    Returns the primary's entity id and the source that named it, or None. GameAreaParam is
+    consulted FIRST: where it has a row it is the game's own arena partition, and the EMEVD read is
+    a derivation over it."""
     _df = _ARENA_DEFEAT_FLAG.get(_ent)
-    if _df is None or _df == 0 or _df == _ent:
-        return False
-    _primary = BOSS_HEALTHBARS.get(_df)
-    return _primary is not None and _primary[0] == _bmap
+    if _df is not None and _df != 0 and _df != _ent:
+        _primary = BOSS_HEALTHBARS.get(_df)
+        if _primary is not None and _primary[0] == _bmap:
+            return _df, "game_areas"
+    _pair = _ARENA_PAIR_PRIMARY.get(_ent)
+    if _pair is not None:
+        _pent, _evidence = _pair
+        # THE SAME GUARD, AGAIN, ON THE SECOND SOURCE. It is not enough that the table names a
+        # primary: that primary must be a healthbar head on THIS map, or the suppression removes the
+        # only trigger that could ever grant this map's checks. m30_20's Stray Mimic Tear is the
+        # standing proof -- it lost aps 7772247/7772248 outright when a mismatch alone was treated as
+        # an answer. A derived table is not exempt from a guard the hand path needed.
+        _primary = BOSS_HEALTHBARS.get(_pent)
+        if _primary is not None and _primary[0] == _bmap:
+            return _pent, _evidence
+    return None
 
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 _sweep_excluded_hits = []
 _sweep_secondary_hits = []
+_dungeon_by_map = defaultdict(list)   # map -> [surviving dungeon trigger,...] for the per-map DIVVY
+_dungeon_divvied = []
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
@@ -6937,8 +7000,9 @@ if BOSS_HEALTHBARS:
                 _field_bosses.append((_ent, (int(_ftm.group(1)), int(_ftm.group(2)))))
             continue
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
-            if _arena_secondary(_ent, _bmap):
-                _sweep_secondary_hits.append((_ent, _bmap, _name, _ARENA_DEFEAT_FLAG[_ent]))
+            _sec = _arena_secondary(_ent, _bmap)
+            if _sec:
+                _sweep_secondary_hits.append((_ent, _bmap, _name, _sec[0], _sec[1]))
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
@@ -6976,7 +7040,57 @@ if BOSS_HEALTHBARS:
             continue
         DUNGEON_SWEEPS[_ent] = _members
         SWEEP_REGION[_ent] = _sreg
+        _dungeon_by_map[_bmap].append(_ent)
         _covered.update(_members)  # dedup: legacy pool below excludes anything a field/dungeon boss grants
+    # ---- PER-MAP DIVVY: a dungeon holding TWO REAL FIGHTS partitions its filler between them -----
+    # After the suppression above, a map with several surviving triggers is a map whose EMEVD fires
+    # several defeat banners -- i.e. genuinely separate fights sharing one dungeon. Four of them:
+    #     m30_05 Black Knife Catacombs  Cemetery Shade / Black Knife Assassin        4 checks
+    #     m30_13 Auriza Side Tomb       Grave Warden Duelist / 30130810 (unnamed)   10
+    #     m31_00 Murkwater Cave         Patches / Patches                            4
+    #     m31_19 Sage's Cave            Black Knife Assassin / Necromancer Garris   14
+    # `_mem_map` is keyed on the MAP, so today each of the pair holds the SAME list and killing
+    # either pays out both bosses' checks -- the #363 defect, in its last form.
+    #
+    # 🛑 SUPPRESSION IS THE WRONG INSTRUMENT HERE and would be a REGRESSION. Each of these heads
+    # fires its own banner, so each is a fight in its own right; removing one deletes a real boss's
+    # reward. That is why _arena_secondary refuses to touch a head that is a banner primary.
+    #
+    # 🛑 SO IS GEOMETRY -- measured 2026-08-04, and it fails its own control. All 14 Sage's Cave
+    # checks are NEARER Necromancer Garris than the Black Knife Assassin, by 20-30m, so nearest-boss
+    # would hand Garris all 14 and the Assassin ZERO. It is structural, not a threshold: the arenas
+    # are 39.8m apart while the checks sit 33-72m from BOTH, strung along the cave's corridors with
+    # both arenas off one end. Distance there measures which END OF THE CAVE you are in, not who owns
+    # the loot.
+    #
+    # And there IS no owner to find. None of the 32 carries an EMEVD arena association
+    # (boss_reward_coords), and every one is UNTAGGED FILLER -- Rejuvenating Boluses, Lost Ashes of
+    # War, a Candletree Wooden Shield, two Golden Runes. Cave pickups. The sweep is filler-only by
+    # construction. No datamine can say who owns them because the game does not say.
+    #
+    # Which is exactly the situation the LEGACY DIVVY below already solves: a filler pool, several
+    # bosses, no ownership relation -> PARTITION it round-robin. Same determinism (triggers sorted by
+    # entity id, members sorted, member j -> trigger j % N), same reasoning about un-killed slices
+    # staying obtainable by physical pickup. A sweep is a convenience auto-grant, not the only source.
+    for _bmap, _ents in sorted(_dungeon_by_map.items()):
+        if len(_ents) < 2:
+            continue
+        _ents = sorted(_ents)
+        # Every trigger on the map holds the SAME list here (that is the defect); take it once. Union
+        # rather than [0] so this stays correct if the members ever stop being identical.
+        _pool = sorted(set().union(*(DUNGEON_SWEEPS[_e] for _e in _ents)))
+        _slices = defaultdict(list)
+        for _j, _ap in enumerate(_pool):
+            _slices[_ents[_j % len(_ents)]].append(_ap)
+        for _e in _ents:
+            if _slices[_e]:
+                DUNGEON_SWEEPS[_e] = _slices[_e]
+            else:
+                # Fewer checks than bosses: a trigger with an empty slice grants nothing, so it is
+                # not a trigger. Its checks are still picked up normally.
+                DUNGEON_SWEEPS.pop(_e, None)
+                SWEEP_REGION.pop(_e, None)
+        _dungeon_divvied.append((_bmap, _ents, len(_pool)))
     # FIELD NEIGHBORHOOD pass (2026-07-15): a field boss used to sweep ONLY its own m60 tile's
     # filler -- 18/85 field bosses got EMPTY sweeps (their tile has no non-important check) and the
     # median sweep was 4 members, so in-game a field-boss kill felt like nothing. Now every
@@ -7078,23 +7192,43 @@ if BOSS_HEALTHBARS:
     print("boss_sweeps: suppressed %d secondary arena head(s) -- their fight is reported by another "
           "flag, so they may not trigger a sweep: %s" % (
               len(_sweep_secondary_hits),
-              ", ".join("%s %s/%s -> %s" % (e, m, n or "?", df)
-                        for e, m, n, df in _sweep_secondary_hits)))
-    # RESIDUAL DUPLICATES (the half GameAreaParam cannot arbitrate). Two GENUINELY separate bosses
-    # in one dungeon -- m31_19 Sage's Cave is Black Knife Assassin AND Necromancer Garris, two
-    # different fights -- still share `_mem_map`'s list, so killing either pays out both. There is no
-    # datum here to partition them with (game_areas.tsv is "A PARTITION, not every boss": Garris has
-    # no row), so this is REPORTED, not guessed at. Silence would let the remaining half look fixed.
+              ", ".join("%s %s/%s -> %s [%s]" % (e, m, n or "?", df, src)
+                        for e, m, n, df, src in _sweep_secondary_hits)))
+    _by_src = Counter(src for _e, _m, _n, _df, src in _sweep_secondary_hits)
+    print("boss_sweeps:   by source: %s" % (dict(sorted(_by_src.items())),))
+    assert _by_src.get("game_areas"), (
+        "gen_data: the GameAreaParam path suppressed NOTHING. It has always covered at least the "
+        "m32_05 Crystalian duo (32050801 -> defeat_flag 32050800); an empty set means game_areas.tsv "
+        "moved or its columns did. Re-emit tools/datamine_game_areas.py.")
+    assert _by_src.get("conjunct"), (
+        "gen_data: the EMEVD banner path suppressed NOTHING. boss_arena_pairs.tsv has always carried "
+        "the m34_14 Fell Twins (34140851 -> 34140850) and 11 more heads GameAreaParam does not list; "
+        "an empty set means the table went missing or its columns moved, and those arenas are back "
+        "to paying their whole sweep on the FIRST head. Re-emit tools/datamine_boss_arenas.py "
+        "rather than deleting this assert.")
+    # THE PER-MAP DIVVY MUST ANNOUNCE ITSELF, and the shared-list count must now be ZERO.
+    assert _dungeon_divvied, (
+        "gen_data: the per-map DIVVY partitioned NOTHING. Four dungeons have held two real fights "
+        "(two defeat banners each) since 2026-08-04 -- m30_05, m30_13, m31_00, m31_19 -- so an empty "
+        "set means their second trigger vanished, which is the #363 first-draft regression wearing a "
+        "different hat: suppression must never take a head that fires its own banner.")
+    print("boss_sweeps: DIVVIED %d multi-fight dungeon(s) -- separate fights sharing a map partition "
+          "their filler instead of each paying it in full: %s" % (
+              len(_dungeon_divvied),
+              ", ".join("%s %s over %d check(s)" % (m, e, n) for m, e, n in _dungeon_divvied)))
     _dupe_members = defaultdict(list)
     for _e, _mem in DUNGEON_SWEEPS.items():
         _dupe_members[tuple(_mem)].append(_e)
     _residual = sorted((sorted(_es), len(_k)) for _k, _es in _dupe_members.items() if len(_es) > 1)
-    if _residual:
-        print("boss_sweeps: %d member-list(s) are STILL shared by >1 trigger (%d checks payable by "
-              "either boss) -- separate fights in one dungeon, which GameAreaParam cannot arbitrate; "
-              "they need PARTITIONING, not de-duplication: %s" % (
-                  len(_residual), sum(n for _es, n in _residual),
-                  ", ".join("%s(x%d)" % (_es, n) for _es, n in _residual[:12])))
+    # A SHARED MEMBER LIST IS NOW A BUG, NOT A KNOWN REMAINDER. Every route into one is closed: a
+    # duo arena loses its secondary head (game_areas / the defeat banner), and a map with two real
+    # fights partitions. If this fires, one of those two passes stopped running.
+    assert not _residual, (
+        "%d sweep member-list(s) are STILL shared by >1 trigger (%d checks payable by either boss) "
+        "-- #363 in full. Either the secondary-arena suppression or the per-map DIVVY above stopped "
+        "applying; find which, do not relax this assert: %s" % (
+            len(_residual), sum(n for _es, n in _residual),
+            ", ".join("%s(x%d)" % (_es, n) for _es, n in _residual[:12])))
 else:
     # FALLBACK (module absent): pre-rework region-wide sweep keyed by the EMEVD felled-banner scan.
     import re as _re2
