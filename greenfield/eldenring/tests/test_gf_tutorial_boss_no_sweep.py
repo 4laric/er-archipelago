@@ -123,8 +123,19 @@ def test_the_sweep_corpus_did_not_shrink():
     Deathroot (f530170) did not exist, so felling him paid nothing -- reported 2026-07-24 (Alaric)
     and again 2026-08-03 (boblerrr). Fort Gael is the same defect pointed the other way, found when
     Alaric answered a region-confirmation form and gave two different answers for one tile. See
-    test_gf_boss_sweeps.test_summonwater_killsite_checks_are_limgrave."""
+    test_gf_boss_sweeps.test_summonwater_killsite_checks_are_limgrave.
+
+    -18  (2026-08-04, #363) THREE SECONDARY ARENA HEADS lost their sweep: 30100801 Crucible Knight
+        (m30_10, 8 members), 30120801 Perfumer Tricia (m30_12, 3) and 32050801 Crystalian (Spear)
+        (m32_05, 7). Each is one head of an arena that ANOTHER head on the SAME map reports --
+        GameAreaParam gives each of them defeat_flag != its own id and bonus_soul 0 -- while dungeon
+        members are keyed on the MAP, so every head held the SAME list and the sweep paid the whole
+        dungeon out when any one of them flipped. bobler got 7 Altus Tunnel checks on ENTERING the
+        boss room, 69 seconds before the fight ended, after which the Crystalian he killed dropped
+        nothing. The three PRIMARY triggers keep those members in full, so NO check left the corpus
+        -- only the duplicate copies did (3189 -> 3171). See
+        test_gf_boss_sweeps.test_no_secondary_arena_head_carries_a_sweep."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
-    assert total == 3189, (
-        "sweep corpus is %d, expected 3189. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3171, (
+        "sweep corpus is %d, expected 3171. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
