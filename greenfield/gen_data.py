@@ -1513,28 +1513,14 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
     # absent from core._NO_PROGRESSION_APS, so fill would still place progression on it (#350).
     # The binding lever is the REGION -- FLAG_REGION_OVERRIDE pins it (and 1035467700, same pocket)
     # to Raya Lucaria Academy, so logic demands the Academy lock. Gate: test_gf_academy_key_pocket.
-    # --- 2026-08-01: the LIURNIA ISOLATED MERCHANT's entire stock (#252, reported by a player and
-    # confirmed by Alaric: "not accessible without the raya lucaria key").
-    #
-    # DERIVED, not hand-picked: all 16 are shop checks whose ShopLineupParam row is opened by the
-    # merchant instance on tile m60_35_45 (merchant_shops.tsv). The gate is on the MERCHANT, so
-    # barring only the reported flag (68220) would be a hand pin wearing an algorithm's clothes --
-    # the other 15 sit behind the same door. test_gf_surface_exclude_isolated_merchant re-derives
-    # the population and fails if this list and the tsv disagree.
-    #
-    # 🛑 WHY THE MULTI-SELLER SIGNAL DOES NOT EXONERATE THEM. Every one of the 16 lists TWO sellers
-    # -- the Isolated Merchant AND the Twin Maiden Husks (m11_10, the HUB) -- which reads like an
-    # independent, always-reachable path and is not one: the Twin Maidens only stock a merchant's
-    # inventory once you hand them that merchant's BELL BEARING, which drops from the merchant, back
-    # behind the same door. merchant_shops.tsv attributes at BLOCK level (#220), so it records who
-    # CAN open the row, never whether their stock is unlocked. Reading "2 sellers" as "reachable"
-    # is exactly the wrong-arity trap.
-    #
-    # As with the two entries above: they stay ordinary collectable checks and are barred only from
-    # HOSTING progression. Cost of being wrong here is a filler item behind a key; cost of being
-    # wrong the other way is the stranded run #252 reported.
-    68220, 69710, 69750, 69910, 160760, 160780, 160800, 160810,
-    160820, 160880, 160890, 160910, 160920, 160930, 160940, 160950,
+    # --- The LIURNIA ISOLATED MERCHANT's 16 checks (#252) sat here 2026-08-01..2026-08-04 and
+    # were MOVED to FLAG_REGION_OVERRIDE -> "Raya Lucaria Academy" (the merchant stands on the
+    # academy island ring behind the crest warps; see the full note at the pins). This list was
+    # the wrong instrument for them: it trims the advertised surface but is absent from
+    # core._NO_PROGRESSION_APS, so fill kept placing our own Locks on the stock -- the exact
+    # stranding #252 reported (#350). Do NOT re-add them here "as well": a bar on a check whose
+    # region already gates it reads as a second source of truth and hides which lever binds
+    # (test_gf_isolated_merchant_region asserts the double-booking stays gone).
 })
 # Walking Mausoleum remembrance DUPLICATES: every remembrance is also stocked by the Walking
 # Mausoleum duplication menu, which is a ShopLineupParam -> method 'shop_multi'. That gave a SECOND
@@ -2146,6 +2132,48 @@ FLAG_REGION_OVERRIDE = {
     # family already patched for 530130 and 60500. Found by the MSB/EMEVD provenance oracle
     # (test_gf_region_provenance_oracle), 2026-07-10 -- confirm in-game.
     400106: "Raya Lucaria Academy",
+    # --- THE LIURNIA ISOLATED MERCHANT'S STOCK (#252) IS ACADEMY-KEY-POCKET GROUND (2026-08-04).
+    # His only physical instance stands on the academy island ring: merchant_shops.tsv pins talk
+    # 801176000 / entity 32001720 to m60_35_45, msb (96.3, 284.6, 46.7) ~ world (9056, 285, 11567)
+    # -- ~46 m above the lake, on the tile whose anchor grace is South Raya Lucaria Gate (76205,
+    # tile_grace.tsv), itself a crest-warp destination. Every route onto the ring is a crest warp
+    # reading Academy Glintstone Key POSSESSION (key_item_gates.tsv: the game's only three
+    # goods-8109 checks -- and one of them, $Event(1035452600), is in m60_35_45_00, THIS tile).
+    # Alaric, in game, twice: 2026-08-01 "not accessible without the raya lucaria key" (#252) and
+    # 2026-08-04 "same deal for that merchant ... he's only accessible once you have academy".
+    #
+    # WHY 16 PINS AND NOT THE MERCHANT DERIVATION: MERCHANT_SHOP_REGION resolves the merchant's
+    # tile through _gt_region, and m60_35_45 genuinely decodes to Liurnia -- the pocket is a
+    # CONNECTIVITY fact (a warp-only ledge ring) that no tile->region table can express. Pins the
+    # derivation DISAGREES with are the documented load-bearing case; the _redundant_shop_pins
+    # guard fails the gen the moment the derivation starts agreeing, so these cannot silently rot.
+    # WHY THE REGION AND NOT _SURFACE_EXCLUDE_FLAGS (where these 16 sat 2026-08-01..08-04):
+    # SURFACE_EXCLUDE_APS is absent from core._NO_PROGRESSION_APS, so that bar trimmed the
+    # advertised surface while fill stayed free to place OUR OWN Locks on the checks -- measured
+    # 2026-08-04 on main: item_rule accepted a Lock and f68220 was reachable with the Liurnia Lock
+    # alone (#350, the exact shape #252 reported). In the Raya Lucaria Academy region they demand
+    # the Academy lock chain like every in-academy check, and may host progression again -- behind
+    # the right door. DERIVED population, not hand-picked: the 16 = every ShopLineupParam row the
+    # m60_35_45 instance opens (test_gf_isolated_merchant_region re-derives the set from
+    # merchant_shops.tsv + shop_rows.tsv and fails if pins and tsv disagree either way). The
+    # Twin-Maiden re-sell does NOT exonerate them: the Husks stock a merchant's inventory only
+    # after his BELL BEARING, which drops from the merchant, behind the same door.
+    68220: "Raya Lucaria Academy",
+    69710: "Raya Lucaria Academy",
+    69750: "Raya Lucaria Academy",
+    69910: "Raya Lucaria Academy",
+    160760: "Raya Lucaria Academy",
+    160780: "Raya Lucaria Academy",
+    160800: "Raya Lucaria Academy",
+    160810: "Raya Lucaria Academy",
+    160820: "Raya Lucaria Academy",
+    160880: "Raya Lucaria Academy",
+    160890: "Raya Lucaria Academy",
+    160910: "Raya Lucaria Academy",
+    160920: "Raya Lucaria Academy",
+    160930: "Raya Lucaria Academy",
+    160940: "Raya Lucaria Academy",
+    160950: "Raya Lucaria Academy",
     # Whetstone Knife: region_map's scan drops it into m30_19 (Giants' Mountaintop Catacombs, whose
     # boss is the Putrid Grave Warden Duelist), but it is the Gatefront Ruins chest in LIMGRAVE. The
     # old hand-curation pinned the whole MAP m30_19 -> Limgrave to make this one check right, which
