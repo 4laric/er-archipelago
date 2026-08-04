@@ -134,3 +134,71 @@ flag	description
 # not a grace. Worth asking why the boss layer did not fire here -- if it knows this Ulcerated
 # Tree Spirit and did not use it, that is a generator bug affecting every boss-adjacent check.
 1042507020	from the Ulcerated Tree Spirit south of Outer Wall Phantom Tree
+# 2026-08-04. Golden Seeds and Sacred Tears -- the whole population (43 seeds, 13 tears over 56
+# flags) hand-described by Alaric in one pass, from the in-game locations. Every one of these was
+# previously rendered by the auto-descriptor waterfall: 43 by nearest-grace, 9 by tile-grace, 1 by
+# machine locale, and f400220 by nothing at all. 10 of them ALSO had their region confirmed in the
+# same pass -- see _REGION_CONFIRMED_FLAGS in gen_data.py, same commit.
+#
+# Two flags in that pass got a note rather than a description and are deliberately absent here:
+#   f12057010 (Mohgwyn seed)   -- "bar this from progression, this one's complicated" -> now in
+#                                 _SURFACE_EXCLUDE_FLAGS. Its auto descriptor is left alone.
+#   f39207170 (Liurnia tear)   -- "seemingly not a real check". It was ALREADY excluded on
+#                                 suspicion 2026-07-31; this is a second independent in-game
+#                                 report that it is not where we say it is. Still not a location
+#                                 claim we can write down, so it keeps its hedged auto name.
+# f400220 (Roundtable Hold seed) is untouched -- it was left blank in the pass.
+# 🛑 THREE of his 53 rows are NOT here, and were dropped deliberately: f1041387100 "near Stormhill
+# Shack", f1049557800 "near Consecrated Snowfield", f14007990 "near Schoolhouse Classroom". Each
+# reproduced the nearest-grace layer BYTE FOR BYTE -- measured, by regenerating with them in and
+# diffing data.py: 48 of the 51 names moved, those 3 did not. A layer-1 entry that only repeats
+# layer 4 is the redundant override CONTRIBUTING forbids: it cannot be told apart from a
+# load-bearing one, so nobody dares delete it and the crutch calcifies. The derivation already
+# reaches these three; if the grace join ever drifts, that is a bug to fix there, not to pin here.
+12017997	Ulcerated Tree Spirit drop in a rot river
+12017100	on a tree near an elevator, near nokstella waterfall basin grace
+1039517400	On a tree near the road
+1038517400	Tree, north of Lux Ruins
+1043527400	On tree, follow the path up from Outer Wall Phantom Tree and keep going past the paved section (1)
+1043527410	On tree, follow the path up from Outer Wall Phantom Tree and keep going past the paved section (2)
+1042517400	On the tree near Outer Wall Phantom Tree, by the Tree Sentinel Duo fight (1)
+1042517410	On the tree near Outer Wall Phantom Tree, by the Tree Sentinel Duo fight (2)
+1041547400	North of Wormface. Tree on a hill
+1042547400	East of Windmill Village grace
+520160	Putrid Tree-Spirit drop in War-Dead Catacombs
+1051437020	South of Bestial Sanctum
+1050397100	On a tree right by a grace
+1049377020	Roadside Phantom Tree
+13007980	Among pillars on a hill near Dragon Temple Rooftop
+13007990	South of plaza fountain
+15001200	Ulcerated Tree Spirit drop
+11007993	near East Capital Rampart
+11007990	Ulcerated Tree Spirit drop
+510280	Ulcerated Tree Spirit in Fringefolk Hero's Grave
+400191	Roderika leaves this behind after she goes to Roundtable, which is triggered by entering Liurnia
+1046367100	near Fort Haight West
+1035507300	on a tree between Manor Upper Level and Loretta
+1037507100	Southwest of Ravine-Veiled Village
+520180	Ulcerated Tree Spirit, Giant's Mountaintop Catacombs
+1052537800	near Foot of the Forge, by two snow trolls
+1049527800	between Forbidden Lands and Grand Lift of Rold
+1048577800	West of Ordina, Liturgical Town
+1052577800	In the valley Northeast of the minor erdtree
+1037537400	North of Seethewater
+1036547400	Northwest of Volcano Manor
+12027040	North of Worshipper's Woods, across the bridge
+10007195	Ulcerated Tree spirit, lower level of Stormveil
+10007730	Tree in the courtyear on the way to Godrick
+1044327020	near Castle Morne Rampart, between the Merchant and the castle on a hill off the road
+1040517400	Stormcaller Church
+1039527400	Second Church of Marika
+1050387020	Church of the Plague
+1046387100	Third Church of Marika
+1036497000	Bellum Church
+1037497100	Church of Inhibition
+1039397000	Church of Irith
+1051537800	Church of Repose
+1054557800	First Church of Marika
+1044337100	Callu Baptismal Church
+1043357100	Church of Pilgrimmage
+1041337200	Fourth Church of Marika

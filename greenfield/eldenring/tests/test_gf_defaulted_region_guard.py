@@ -165,6 +165,13 @@ class TestDefaultedRegionGuard(unittest.TestCase):
                           f"ap {ap} ({what}) is progression-eligible -- fill may place a region Lock "
                           f"or a required Great Rune below the Rold lift, which a Mountaintops-"
                           f"anchored player cannot reach without a Leyndell check")
+        # 2026-08-04: f1049527800's REGION was confirmed in game and it still belongs here. This
+        # bar is about REACHABILITY, not region confidence -- different questions, and only one of
+        # them has a lever. An in-game confirmation is NOT grounds to add it to
+        # _REGION_CONFIRMED_FLAGS; this assertion is what stopped exactly that. Nor is
+        # _SURFACE_EXCLUDE_FLAGS a substitute: it is absent from core._NO_PROGRESSION_APS, so it
+        # would drop the check from the advertised surface while fill could still place
+        # progression on it.
 
     def test_no_msb_derived_graceless_tile_is_progression_eligible(self):
         """THE STRUCTURAL FORM of the case above, so the next one cannot arrive quietly.
@@ -216,7 +223,12 @@ class TestDefaultedRegionGuard(unittest.TestCase):
         """The bar's only escape hatch. It exists so an in-game confirmation can BUY BACK a check the
         tile geometry cannot vouch for -- which means every entry is a claim someone made with their
         eyes. Keep it visible and keep it tiny; a growing list is the guard being negotiated away."""
-        self.assertLessEqual(len(REGION_CONFIRMED_APS), 12,
+        # 2026-08-04: 12 -> 16. Alaric hand-described the whole Golden Seed / Sacred Tear
+        # population in one sitting and confirmed the region for each; 10 of them were hedged, and
+        # 9 landed (see the Rold-seam note below for the one that did not). That is one walk, not
+        # nine negotiations -- but the pin is a RATCHET, so it sits exactly at the new count and
+        # the next entry has to move it again on purpose.
+        self.assertLessEqual(len(REGION_CONFIRMED_APS), 16,
                              "REGION_CONFIRMED_APS is growing -- each entry un-bars a check on ground "
                              "the derivation cannot see. If these are real in-game confirmations, "
                              "raise the pin WITH who confirmed them and when (gen_data "

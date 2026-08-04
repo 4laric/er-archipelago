@@ -1430,6 +1430,45 @@ _REGION_CONFIRMED_FLAGS = frozenset({
                   # nothing would ever notice.
                   # PER-FLAG, not per-tile: m60_46_36 carries four more hedged checks (1046367000,
                   # 1046367030, 1046367100) that nobody has stood in front of. They stay hedged.
+    # --- 2026-08-04, Alaric, CONFIRMED IN GAME. He hand-described the ENTIRE Golden Seed / Sacred
+    # Tear population in one pass (50 rows into location_descriptions.tsv, same commit) and named the
+    # region he was standing in for every one of them. These 10 are the subset that was still hedged;
+    # the other 42 already derived a region the guard accepts, so confirming them changed nothing.
+    # 🛑 Per-flag, as always -- none of these confirms a TILE.
+    1043527400,   # Altus :: Golden Seed -- "On tree, follow the path up from Outer Wall Phantom Tree
+    1043527410,   # and keep going past the paved section". The two share tile m60_43_52 and were the
+                  # "(1)/(2)" pair the descriptor could not separate; he walked both.
+    1042547400,   # Altus :: Golden Seed -- "East of Windmill Village grace".
+    1050397100,   # Caelid :: Golden Seed -- "On a tree right by a grace".
+    1046367100,   # Limgrave :: Golden Seed -- "near Fort Haight West". ⭐ Named BY THIS FILE on
+                  # 2026-08-03 as one of the four m60_46_36 checks "nobody has stood in front of",
+                  # when 1046367500 was cleared. Somebody has now.
+    1037507100,   # Liurnia :: Golden Seed -- "Southwest of Ravine-Veiled Village".
+    # 🛑 1049527800 (Mountaintops :: Golden Seed, "between Forbidden Lands and Grand Lift of Rold")
+    # WAS in this list for about ten minutes and is deliberately NOT. Alaric confirmed its region and
+    # the confirmation is CORRECT -- but its bar was never about the region. It sits on m60_49_52,
+    # Forbidden-Lands ground UNDER the Rold lift, beside f530505 and f1049527000 which are barred for
+    # the same reason: Rold is not in logic, so a Mountaintops-anchored player cannot stand there, and
+    # a region Lock or required Great Rune placed here is an unwinnable seed
+    # (test_the_rold_seam_boss_check_is_barred, which is what caught this).
+    # 🛑 AND DO NOT "FIX" IT BY MOVING IT TO _SURFACE_EXCLUDE_FLAGS. That looks equivalent and is not:
+    # SURFACE_EXCLUDE_APS is consumed by allowed_ap_ids (the surface SELECTION) but is absent from
+    # core._NO_PROGRESSION_APS, which is the item_rule fill actually obeys. Swapping the levers would
+    # keep the check off the advertised surface while letting fill place progression on it anyway.
+    # The cost is real -- the player keeps reading "(region unconfirmed)" on a check we can place --
+    # and it is the cheap direction. Expressing "known region, unreachable from its own anchor" needs
+    # a lever this world does not have yet.
+    1039397000,   # Liurnia :: Sacred Tear -- "Church of Irith".
+    # The two Altus tears. Their labels are the only ones in the pass the TABLES cannot corroborate,
+    # because neither church holds a Site of Grace, so there is no grace_names row to tile-match
+    # against. (7 of the other church labels match their grace's tile exactly and 1 is one tile off.)
+    # These two rest on the human alone -- which is what this set is for, and worth saying out loud.
+    1039527400,   # Altus :: Sacred Tear -- "Second Church of Marika" (flag tile m60_39_52).
+    1040517400,   # Altus :: Sacred Tear -- "Stormcaller Church" (flag tile m60_40_51). Queried on
+                  # 2026-08-04 precisely because it lands one tile from the Second Church of Marika
+                  # seed and the auto-descriptor had read "near Altus Highway Junction"; Alaric
+                  # re-confirmed it. Recorded here so the next reader sees the question was ASKED,
+                  # not overlooked.
 })
 
 _SURFACE_EXCLUDE_FLAGS = frozenset({
@@ -1439,6 +1478,13 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
     2044467950, 2046477950,
     510030,   # Ornamental Straight Sword (tutorial Grafted Scion drop) -- missable hard fight,
               # obtainable only at the very start; a Limgrave Lock must never strand on it (2026-07-23).
+    # --- 2026-08-04, Alaric, ON HIS OWN REQUEST during the Golden Seed / Sacred Tear description
+    # pass: "bar this from progression, this one's complicated". Same cheap direction as the two
+    # below -- it stays an ordinary collectable check, it just may not HOST progression.
+    12057010,   # Mohgwyn :: Golden Seed -- "near Dynasty Mausoleum Midpoint". Mohgwyn is reached by
+                # a one-way teleport (or the late Consecrated Snowfield portal), so what is
+                # "complicated" here is the ROUTE, not the placement: the region is derived, not
+                # guessed, and the check is real. Its auto descriptor is deliberately left in place.
     # --- 2026-07-31, Alaric, ON SUSPICION. Both stay ordinary collectable checks; they are barred
     # only from HOSTING progression, which is the cheap direction: the cost of being wrong here is a
     # filler item somewhere awkward, the cost of being wrong the other way is a stranded run.
