@@ -22,6 +22,7 @@ docs/specs/IMPL-global-scadutree-blessing-20260729.md.
 """
 import pytest
 
+WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
@@ -142,3 +143,30 @@ def test_the_emitter_is_gated_on_the_mode_and_not_on_dlc():
     assert guard == "if blessing != 0:", (
         f"{KEY} must be gated on the MODE alone, got: {guard!r}. Gating it on DLC regions would "
         "make it absent on base-game seeds — the whole point of the rewrite")
+
+
+class ScaduBlessingOffSeed(WorldTestBase):
+    """A REAL mode-0 world. `test_an_off_seed_emits_nothing_new` above argues from the fixture's
+    bookkeeping sets (ALWAYS_KEYS / EXPECTED_KEYS), which pins the CLASSIFICATION of the key but
+    never generates an off world -- so a broken gate in features/scaling.py (emit the cap
+    unconditionally) would sail past it AND past the fixture: the key is in EXPECTED_KEYS, so a
+    default seed emitting it is not "extra". That is the same hole the 2026-08-04 audit proved for
+    the dungeon-sweep keys (finding P1). This class closes it the only way that counts: roll a
+    seed with the mode pinned off and assert the keys are ABSENT. Paired in
+    test_gf_off_means_off.OFF_LEDGER."""
+    game = "Elden Ring"
+    options = {"num_regions": 0, "global_scadutree_blessing": "off"}
+
+    def test_the_cap_is_absent_when_the_mode_is_off(self):
+        leaked = KEY in self.world.fill_slot_data()
+        assert not leaked, (
+            "scaduBlessingCap emitted on a mode-0 seed. The compatibility contract is absent-"
+            "means-off: every seed would now carry a key its own options say cannot exist -- the "
+            "`blessing != 0` gate in features/scaling.py is broken.")
+
+    def test_the_floor_ranges_are_absent_when_the_mode_is_off(self):
+        leaked = "dlcScadutreeFloorRanges" in self.world.fill_slot_data()
+        assert not leaked, (
+            "dlcScadutreeFloorRanges emitted with the blessing off -- its gate is "
+            "`blessing == 2 and kept DLC regions` (features/scaling.py) and this seed satisfies "
+            "neither conjunct.")
