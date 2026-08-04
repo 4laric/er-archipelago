@@ -56,10 +56,37 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 # the question outright:
 #   restrict `keys` to the flags present in the PREVIOUS nearest_grace.tsv (git show <sha>:...) and
 #   recompute. Unchanged => new checks. Changed => a derivation moved, and THAT is the bug.
+#
+# --- 2026-08-04, issue #338: 103 -> 150 minority, 49 -> 52 straddling graces (measured rows
+# 3435 -> 3856). THE CONTROL THIS FILE PRESCRIBES WAS RUN, and it is unambiguous:
+#       new table, OLD flags only:  49 graces / 103 minority   <-- EXACTLY the old measurement
+#       old table                :  49 graces / 103 minority
+#   0 checks changed grace, 0 lost one. No region derivation moved. The whole delta is checks the
+#   oracle could not see before, because build_nearest_grace could not join 3-field overworld ids.
+#
+# ⭐ AND A MECHANISM THIS FILE DID NOT KNOW ABOUT, which is most of the delta: "minority" is
+#   defined relative to a MUTABLE MAJORITY, so adding correctly-located checks to a grace can FLIP
+#   which region is the majority and convert previously-majority checks into minority ones with
+#   nothing having moved. Three graces flipped here -- Ancient Snow Valley Ruins (Mountaintops ->
+#   Liurnia), Ancient Ruins Base (Scadu Altus -> Gravesite), Ranni's Chamber (Raya Lucaria ->
+#   Limgrave) -- converting 27 checks on their own. The metric is NOT monotone under improvement.
+#
+# 🛑 Ranni's Chamber was checked by hand because "13 Limgrave checks nearest Ranni's Chamber" reads
+#   like a region bug. It is not: they are Sorceress Sellen's 13 sorceries, all at one coordinate
+#   (her LATE-questline position), and every one renders "from Sorceress Sellen" off the seller
+#   layer -- the nearest-grace row is never shown. A merchant's endgame position is not evidence
+#   about where their stock is regioned, which is the same objection this file already raises
+#   against `via` rows. Worth excluding one day; recorded here rather than acted on, because it
+#   changes what the screen MEASURES and that deserves its own change.
+#
+# ⚠️ CORRECTION to the line below it: "The share cannot be inflated by locating more checks" is
+#   FALSE. It moved 3.00% -> 3.89% here, because the newly located population straddles at a higher
+#   rate than the existing one. It is still the better quantity to defend -- it cannot be moved by
+#   volume ALONE -- but it is not immune, and the ceiling has 0.11 points of headroom left.
 MAX_STRADDLING_GRACES = 52
-MAX_MINORITY_CHECKS = 116
+MAX_MINORITY_CHECKS = 150
 # The share cannot be inflated by locating more checks, so it is the quantity to defend.
-# Observed: 98/3205 = 3.1% before, 116/3435 = 3.4% now.
+# Observed: 98/3205 = 3.1%, then 116/3435 = 3.4%, now 150/3856 = 3.9% (see the #338 note above).
 MAX_MINORITY_SHARE = 0.040
 
 

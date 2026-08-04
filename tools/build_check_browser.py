@@ -97,37 +97,16 @@ def read_tsv(path):
     return rows
 
 
-OW_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)(?:_(\d)(\d))?$")
+# `tools/` is not necessarily on sys.path: the test suites load this file BY PATH with
+# importlib, which does not add its directory. Without this the sibling import below raises
+# ModuleNotFoundError and the whole suite errors at collection.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-
-def world_xz(map_id, x, z):
-    """Overworld map-local coords -> (base, gx, gz) in the single folded frame that
-    poptracker/maps/map_calibration*.json is authored in. None for interiors.
-
-    The 4th map-id field is [version][lod]. LOD is DOCUMENTED (see
-    greenfield/eldenring/tests/test_gf_lod_tile_regions.py and gen_data.py:177): _00 is the
-    fine grid, _01 2x coarser, _02 4x coarser, so pitch = 256 << lod.
-
-    Two parts are INFERRED and documented nowhere -- both pinned by
-    tests/test_gf_desc_triage.py so they fail loudly rather than drift:
-      * the (pitch-256)/2 centring term. Without it all 18 LOD2 rows sit 244-463 m outside
-        the tile their own flag encodes; with it, five coarse merchant tiles land 50-122 m
-        from a real named grace. See the DESC-TRIAGE section of AGENTS.md to falsify.
-      * "3-field id + low tile = truncated LOD2" -- tools/datamine_merchant_shops.py::_map_id
-        builds `area_x_y` and drops both digits, and the fine grid starts at tile 33.
-
-    🛑 This is NOT the same transform as tools/build_nearest_grace.py::_normalize, which
-    folds at *256 regardless of LOD and whose regex needs a trailing '_'. That one is wrong
-    for LOD2 and for 3-field merchant ids (missing-never-wrong under its distance cap).
-    """
-    m = OW_RE.match(map_id)
-    if not m:
-        return None
-    base, tx, tz, _ver, lod = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4), m.group(5)
-    lod = int(lod) if lod is not None else (2 if tx < 30 else 0)
-    pitch = 256 << lod
-    off = (pitch - 256) / 2.0
-    return base, tx * pitch + x + off, tz * pitch + z + off
+# THE overworld fold now lives in tools/overworld_fold.py and is re-exported here so every
+# existing `from build_check_browser import world_xz` keeps working. It moved on 2026-08-04
+# (issue #338) because build_nearest_grace needed the SAME transform and importing it from here
+# would have been a cycle -- build_check_browser already imports build_nearest_grace.
+from overworld_fold import OW_RE, world_xz  # noqa: F401  (re-exported for build_desc_triage)
 
 
 def data_stamp(path):

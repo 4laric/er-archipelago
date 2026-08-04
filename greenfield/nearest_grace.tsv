@@ -11,6 +11,7 @@ flag	grace_name	grace_key	via
 114	Raya Lucaria Grand Library	71400	
 9502	Prince of Death's Throne	71230	
 60020	Third Church of Marika	76104	
+60120	Church of Elleh	76100	
 60130	Gatefront	76111	
 60220	Stranded Graveyard	71801	
 60240	Warmaster's Shack	76118	
@@ -61,6 +62,9 @@ flag	grace_name	grace_key	via
 66000	Groveside Cave	73103	
 66010	Liftside Chamber	71006	
 66020	Liftside Chamber	71006	
+66030	Church of Elleh	76100	
+66060	Saintsbridge	76117	
+66070	Castle Morne Rampart	76151	
 66080	Jarburg	76245	
 66090	Jarburg	76245	
 66100	Jarburg	76245	
@@ -71,11 +75,14 @@ flag	grace_name	grace_key	via
 66150	Auriza Side Tomb	73013	
 66160	Auriza Side Tomb	73013	
 66170	Auriza Side Tomb	73013	
+66180	Southern Aeonia Swamp Bank	76411	
 66190	Rotview Balcony	76401	
 66410	Debate Parlor	71401	
 66420	Laskyar Ruins	76202	
 66430	Jarburg	76245	
 66440	Jarburg	76245	
+66450	Manor Lower Level	76231	
+66460	Isolated Merchant's Shack	76451	
 66470	Auriza Side Tomb	73013	
 66480	Auriza Side Tomb	73013	
 66490	Underground Roadside	73501	
@@ -84,6 +91,7 @@ flag	grace_name	grace_key	via
 66720	Queen's Bedchamber	71107	
 66730	Craftsman's Shack	76356	
 66740	Craftsman's Shack	76356	
+66750	Hermit Merchant's Shack	76311	
 66760	Altus Highway Junction	76303	
 66770	Shaded Castle Ramparts	76320	
 66780	Perfumer's Grotto	73118	
@@ -97,17 +105,25 @@ flag	grace_name	grace_key	via
 66960	Bonny Village	76903	
 66970	Recluses' River Downstream	76918	
 66980	West Rampart	72120	
+67000	Church of Elleh	76100	
+67010	Saintsbridge	76117	
 67020	Fort Haight West	76105	
 67030	Liftside Chamber	71006	
 67050	Stormhill Shack	76102	
 67060	Fallen Ruins of the Lake	76236	
 67070	Forest-Spanning Greatbridge	76304	
+67080	Bellum Church	76208	
 67090	Consecrated Snowfield	76550	
+67110	Church of Elleh	76100	
 67120	Volcano Manor	71602	
 67130	Temple of Eiglay	71601	
 67200	Murkwater Cave	73100	
+67210	The First Step	76101	
+67220	Liurnia Lake Shore	76201	
+67230	Ninth Mt. Gelmir Campsite	76352	
 67250	Seethewater Terminus	76355	
 67260	Chamber Outside the Plaza	76420	
+67280	Fort Haight West	76105	
 67300	Siofra River Bank	71222	
 67310	Chamber Outside the Plaza	76420	
 67400	Academy Gate Town	76204	
@@ -117,21 +133,29 @@ flag	grace_name	grace_key	via
 67440	Inner Consecrated Snowfield	76551	
 67450	Laskyar Ruins	76202	
 67460	Main Caria Manor Gate	76214	
+67470	Manor Lower Level	76231	
 67480	Gate Town Bridge	76222	
+67600	Castellan's Hall	76322	
+67610	Church of Elleh	76100	
 67630	Aqueduct-Facing Cliffs	71225	
 67640	Minor Erdtree Church	76310	
 67650	Smoldering Church	76400	
 67800	Mistwood Outskirts	76114	
+67830	Fort Haight West	76105	
 67840	Craftsman's Shack	76356	
 67850	Castellan's Hall	76322	
 67860	Auriza Side Tomb	73013	
 67870	Smoldering Church	76400	
 67890	Grand Cloister	71218	
+67900	Southern Aeonia Swamp Bank	76411	
 67910	Palace Approach Ledge-Road	71251	
 68000	Wyndham Catacombs	73007	
+68010	Forest-Spanning Greatbridge	76304	
 68020	Tempest-Facing Balcony	71305	
 68030	Cathedral of Dragon Communion	76404	
 68200	Summonwater Village Outskirts	76119	
+68220	South Raya Lucaria Gate	76205	
+68230	Ancient Snow Valley Ruins	76503	
 68400	Frenzied Flame Village Outskirts	76239	
 68410	Cathedral of the Forsaken	73500	
 68570	Jagged Peak Mountainside	76851	
@@ -169,8 +193,388 @@ flag	grace_name	grace_key	via
 68930	West Rampart	72120	
 68940	Cerulean Coast West	76832	
 68950	The Fissure	76833	
+69600	Isolated Merchant's Shack	76451	
+69610	Forest-Spanning Greatbridge	76304	
+69620	Church of Elleh	76100	
+69630	The First Step	76101	
+69640	Isolated Merchant's Shack	76156	
+69650	Forest-Spanning Greatbridge	76304	
+69670	Saintsbridge	76117	
+69680	Castle Morne Rampart	76151	
+69690	The First Step	76101	
+69700	Southern Aeonia Swamp Bank	76411	
+69710	South Raya Lucaria Gate	76205	
+69720	Church of Elleh	76100	
+69730	Isolated Merchant's Shack	76451	
 69740	Frenzied Flame Proscription	73504	
+69750	South Raya Lucaria Gate	76205	
 69760	Frenzied Flame Village Outskirts	76239	
+69770	Hermit Merchant's Shack	76311	
+69900	Manor Lower Level	76231	
+69910	South Raya Lucaria Gate	76205	
+100500	Ranni's Chamber	76247	
+100510	Ranni's Chamber	76247	
+100520	Ranni's Chamber	76247	
+100530	Ranni's Chamber	76247	
+100540	Ranni's Chamber	76247	
+100550	Ranni's Chamber	76247	
+100560	Ranni's Chamber	76247	
+100570	Ranni's Chamber	76247	
+100580	Ranni's Chamber	76247	
+100590	Ranni's Chamber	76247	
+100600	Ranni's Chamber	76247	
+100610	Ranni's Chamber	76247	
+100620	Ranni's Chamber	76247	
+100750	Warmaster's Shack	76118	
+100760	Warmaster's Shack	76118	
+100770	Warmaster's Shack	76118	
+100780	Warmaster's Shack	76118	
+100790	Warmaster's Shack	76118	
+100800	Warmaster's Shack	76118	
+100810	Warmaster's Shack	76118	
+100820	Warmaster's Shack	76118	
+100830	Warmaster's Shack	76118	
+100840	Warmaster's Shack	76118	
+100850	Warmaster's Shack	76118	
+100860	Warmaster's Shack	76118	
+110000	Castellan's Hall	76322	
+110020	Castellan's Hall	76322	
+110030	Castellan's Hall	76322	
+110050	Castellan's Hall	76322	
+110080	Castellan's Hall	76322	
+110110	Castellan's Hall	76322	
+110120	Castellan's Hall	76322	
+110130	Castellan's Hall	76322	
+110140	Castellan's Hall	76322	
+110150	Castellan's Hall	76322	
+110160	Castellan's Hall	76322	
+110170	Castellan's Hall	76322	
+110190	Castellan's Hall	76322	
+110200	Castellan's Hall	76322	
+110210	Castellan's Hall	76322	
+110220	Castellan's Hall	76322	
+110260	Summonwater Village Outskirts	76119	
+110270	Summonwater Village Outskirts	76119	
+110750	Church of the Plague	76418	
+110760	Church of the Plague	76418	
+110770	Church of the Plague	76418	
+110850	Church of the Plague	76418	
+120270	Road to the Manor	76213	
+120280	Road to the Manor	76213	
+120290	Road to the Manor	76213	
+120500	Lake-Facing Cliffs	76200	
+120510	Lake-Facing Cliffs	76200	
+120520	Lake-Facing Cliffs	76200	
+120750	Manor Lower Level	76231	
+120760	Manor Lower Level	76231	
+120770	Manor Lower Level	76231	
+120780	Manor Lower Level	76231	
+120790	Manor Lower Level	76231	
+120800	Manor Lower Level	76231	
+120810	Manor Lower Level	76231	
+120820	Manor Lower Level	76231	
+120830	Manor Lower Level	76231	
+120840	Manor Lower Level	76231	
+130000	Manor Lower Level	76231	
+130010	Manor Lower Level	76231	
+130020	Manor Lower Level	76231	
+130100	Manor Lower Level	76231	
+130290	Manor Lower Level	76231	
+130300	Manor Lower Level	76231	
+130340	Manor Lower Level	76231	
+130350	Manor Lower Level	76231	
+130360	Manor Lower Level	76231	
+130370	Manor Lower Level	76231	
+130380	Manor Lower Level	76231	
+130390	Manor Lower Level	76231	
+130500	Ancient Snow Valley Ruins	76503	
+130510	Ancient Snow Valley Ruins	76503	
+130520	Ancient Snow Valley Ruins	76503	
+130530	Ancient Snow Valley Ruins	76503	
+130540	Ancient Snow Valley Ruins	76503	
+130550	Ancient Snow Valley Ruins	76503	
+130560	Ancient Snow Valley Ruins	76503	
+130570	Ancient Snow Valley Ruins	76503	
+130580	Ancient Snow Valley Ruins	76503	
+130590	Ancient Snow Valley Ruins	76503	
+130600	Ancient Snow Valley Ruins	76503	
+130610	Ancient Snow Valley Ruins	76503	
+130620	Ancient Snow Valley Ruins	76503	
+130630	Ancient Snow Valley Ruins	76503	
+130640	Ancient Snow Valley Ruins	76503	
+130650	Ancient Snow Valley Ruins	76503	
+130660	Ancient Snow Valley Ruins	76503	
+130670	Ancient Snow Valley Ruins	76503	
+130680	Ancient Snow Valley Ruins	76503	
+130690	Ancient Snow Valley Ruins	76503	
+130700	Ancient Snow Valley Ruins	76503	
+130710	Ancient Snow Valley Ruins	76503	
+130720	Ancient Snow Valley Ruins	76503	
+130730	Ancient Snow Valley Ruins	76503	
+130740	Ancient Snow Valley Ruins	76503	
+130750	Ancient Snow Valley Ruins	76503	
+130760	Ancient Snow Valley Ruins	76503	
+130770	Ancient Snow Valley Ruins	76503	
+130780	Ancient Snow Valley Ruins	76503	
+140000	Church of Vows	76224	
+140010	Church of Vows	76224	
+140020	Church of Vows	76224	
+140030	Church of Vows	76224	
+140040	Church of Vows	76224	
+140050	Church of Vows	76224	
+140060	Church of Vows	76224	
+140070	Church of Vows	76224	
+140250	Church of Vows	76224	
+140260	Church of Vows	76224	
+140280	Church of Vows	76224	
+140290	Church of Vows	76224	
+140300	Church of Vows	76224	
+140310	Church of Vows	76224	
+140320	Church of Vows	76224	
+140330	Church of Vows	76224	
+140340	Church of Vows	76224	
+140350	Church of Vows	76224	
+140360	Church of Vows	76224	
+140370	Church of Vows	76224	
+140380	Church of Vows	76224	
+140390	Church of Vows	76224	
+140400	Church of Vows	76224	
+140410	Church of Vows	76224	
+140420	Church of Vows	76224	
+140430	Church of Vows	76224	
+150050	Church of Elleh	76100	
+150100	Church of Elleh	76100	
+150110	Church of Elleh	76100	
+150130	Church of Elleh	76100	
+150150	Church of Elleh	76100	
+150160	Church of Elleh	76100	
+150170	Church of Elleh	76100	
+150180	Church of Elleh	76100	
+150410	Saintsbridge	76117	
+150420	Saintsbridge	76117	
+150430	Saintsbridge	76117	
+150460	Saintsbridge	76117	
+150470	Saintsbridge	76117	
+150520	Fort Haight West	76105	
+150530	Fort Haight West	76105	
+150540	Fort Haight West	76105	
+150610	Fort Haight West	76105	
+150620	Fort Haight West	76105	
+150630	Fort Haight West	76105	
+150640	Fort Haight West	76105	
+150650	Fort Haight West	76105	
+150660	Fort Haight West	76105	
+150670	Fort Haight West	76105	
+150860	The First Step	76101	
+150870	The First Step	76101	
+150880	The First Step	76101	
+150890	The First Step	76101	
+150920	The First Step	76101	
+150930	The First Step	76101	
+150940	The First Step	76101	
+150950	The First Step	76101	
+160000	Castle Morne Rampart	76151	
+160130	Castle Morne Rampart	76151	
+160140	Castle Morne Rampart	76151	
+160160	Castle Morne Rampart	76151	
+160190	Castle Morne Rampart	76151	
+160200	Castle Morne Rampart	76151	
+160230	Castle Morne Rampart	76151	
+160240	Castle Morne Rampart	76151	
+160330	Liurnia Lake Shore	76201	
+160340	Liurnia Lake Shore	76201	
+160410	Liurnia Lake Shore	76201	
+160420	Liurnia Lake Shore	76201	
+160430	Liurnia Lake Shore	76201	
+160440	Liurnia Lake Shore	76201	
+160450	Liurnia Lake Shore	76201	
+160460	Liurnia Lake Shore	76201	
+160490	Liurnia Lake Shore	76201	
+160520	Isolated Merchant's Shack	76156	
+160540	Isolated Merchant's Shack	76156	
+160560	Isolated Merchant's Shack	76156	
+160570	Isolated Merchant's Shack	76156	
+160580	Isolated Merchant's Shack	76156	
+160590	Isolated Merchant's Shack	76156	
+160600	Isolated Merchant's Shack	76156	
+160630	Isolated Merchant's Shack	76156	
+160640	Isolated Merchant's Shack	76156	
+160650	Isolated Merchant's Shack	76156	
+160760	South Raya Lucaria Gate	76205	
+160780	South Raya Lucaria Gate	76205	
+160800	South Raya Lucaria Gate	76205	
+160810	South Raya Lucaria Gate	76205	
+160820	South Raya Lucaria Gate	76205	
+160880	South Raya Lucaria Gate	76205	
+160890	South Raya Lucaria Gate	76205	
+160910	South Raya Lucaria Gate	76205	
+160920	South Raya Lucaria Gate	76205	
+160930	South Raya Lucaria Gate	76205	
+160940	South Raya Lucaria Gate	76205	
+160950	South Raya Lucaria Gate	76205	
+170040	Bellum Church	76208	
+170050	Bellum Church	76208	
+170060	Bellum Church	76208	
+170140	Bellum Church	76208	
+170150	Bellum Church	76208	
+170180	Bellum Church	76208	
+170190	Bellum Church	76208	
+170200	Bellum Church	76208	
+170350	Hermit Merchant's Shack	76311	
+170360	Hermit Merchant's Shack	76311	
+170370	Hermit Merchant's Shack	76311	
+170380	Hermit Merchant's Shack	76311	
+170450	Hermit Merchant's Shack	76311	
+170460	Hermit Merchant's Shack	76311	
+170470	Hermit Merchant's Shack	76311	
+170480	Hermit Merchant's Shack	76311	
+170490	Hermit Merchant's Shack	76311	
+170530	Forest-Spanning Greatbridge	76304	
+170640	Forest-Spanning Greatbridge	76304	
+170650	Forest-Spanning Greatbridge	76304	
+170660	Forest-Spanning Greatbridge	76304	
+170670	Forest-Spanning Greatbridge	76304	
+170700	Forest-Spanning Greatbridge	76304	
+170710	Forest-Spanning Greatbridge	76304	
+170770	Ninth Mt. Gelmir Campsite	76352	
+170940	Ninth Mt. Gelmir Campsite	76352	
+170950	Ninth Mt. Gelmir Campsite	76352	
+170960	Ninth Mt. Gelmir Campsite	76352	
+170970	Ninth Mt. Gelmir Campsite	76352	
+170980	Ninth Mt. Gelmir Campsite	76352	
+180130	Aeonia Swamp Shore	76406	
+180140	Aeonia Swamp Shore	76406	
+180260	Southern Aeonia Swamp Bank	76411	
+180410	Southern Aeonia Swamp Bank	76411	
+180420	Southern Aeonia Swamp Bank	76411	
+180430	Southern Aeonia Swamp Bank	76411	
+180440	Southern Aeonia Swamp Bank	76411	
+180450	Southern Aeonia Swamp Bank	76411	
+180500	Castle Morne Rampart	76151	
+180510	Castle Morne Rampart	76151	
+180520	Castle Morne Rampart	76151	
+180530	Castle Morne Rampart	76151	
+180540	Castle Morne Rampart	76151	
+180550	Castle Morne Rampart	76151	
+180770	Isolated Merchant's Shack	76451	
+180780	Isolated Merchant's Shack	76451	
+180800	Isolated Merchant's Shack	76451	
+180820	Isolated Merchant's Shack	76451	
+180830	Isolated Merchant's Shack	76451	
+180840	Isolated Merchant's Shack	76451	
+180850	Isolated Merchant's Shack	76451	
+180870	Isolated Merchant's Shack	76451	
+180880	Isolated Merchant's Shack	76451	
+180890	Isolated Merchant's Shack	76451	
+180930	Isolated Merchant's Shack	76451	
+190010	Ancient Snow Valley Ruins	76503	
+190030	Ancient Snow Valley Ruins	76503	
+190090	Ancient Snow Valley Ruins	76503	
+190150	Ancient Snow Valley Ruins	76503	
+190160	Ancient Snow Valley Ruins	76503	
+190170	Ancient Snow Valley Ruins	76503	
+190180	Ancient Snow Valley Ruins	76503	
+200250	Liurnia Lake Shore	76201	
+290500	Church of Dragon Communion	76110	
+290510	Cathedral of Dragon Communion	76404	
+290520	Cathedral of Dragon Communion	76404	
+290530	Cathedral of Dragon Communion	76404	
+290540	Cathedral of Dragon Communion	76404	
+290550	Cathedral of Dragon Communion	76404	
+290560	Cathedral of Dragon Communion	76404	
+290570	Cathedral of Dragon Communion	76404	
+290650	Grand Altar of Dragon Communion	76840	
+290660	Grand Altar of Dragon Communion	76840	
+290670	Grand Altar of Dragon Communion	76840	
+290750	Church of Dragon Communion	76110	
+290760	Church of Dragon Communion	76110	
+290770	Cathedral of Dragon Communion	76404	
+290780	Cathedral of Dragon Communion	76404	
+290790	Cathedral of Dragon Communion	76404	
+320500	Ancient Ruins Base	76912	
+320550	Ancient Ruins Base	76912	
+320560	Ancient Ruins Base	76912	
+320570	Ancient Ruins Base	76912	
+320580	Ancient Ruins Base	76912	
+320590	Ancient Ruins Base	76912	
+320600	Ancient Ruins Base	76912	
+320610	Ancient Ruins Base	76912	
+320620	Ancient Ruins Base	76912	
+320630	Ancient Ruins Base	76912	
+320640	Ancient Ruins Base	76912	
+320650	Ancient Ruins Base	76912	
+320660	Ancient Ruins Base	76912	
+320700	Pillar Path Cross	76810	
+320710	Pillar Path Cross	76810	
+320720	Pillar Path Cross	76810	
+320730	Pillar Path Cross	76810	
+320740	Pillar Path Cross	76810	
+320750	Pillar Path Cross	76810	
+320760	Pillar Path Cross	76810	
+320770	Pillar Path Cross	76810	
+320780	Pillar Path Cross	76810	
+320790	Pillar Path Cross	76810	
+320800	Pillar Path Cross	76810	
+320810	Pillar Path Cross	76810	
+330000	Cathedral of Manus Metyr	76906	
+330010	Cathedral of Manus Metyr	76906	
+330020	Cathedral of Manus Metyr	76906	
+330030	Cathedral of Manus Metyr	76906	
+330040	Cathedral of Manus Metyr	76906	
+330050	Cathedral of Manus Metyr	76906	
+330060	Cathedral of Manus Metyr	76906	
+330070	Cathedral of Manus Metyr	76906	
+330080	Cathedral of Manus Metyr	76906	
+370000	Apostate Derelict	76653	
+370010	Apostate Derelict	76653	
+370020	Apostate Derelict	76653	
+370030	Apostate Derelict	76653	
+370040	Apostate Derelict	76653	
+370050	Apostate Derelict	76653	
+370060	Apostate Derelict	76653	
+370070	Apostate Derelict	76653	
+370080	Apostate Derelict	76653	
+370100	Mausoleum Compound	76226	
+370110	Mausoleum Compound	76226	
+370120	Mausoleum Compound	76226	
+370130	Mausoleum Compound	76226	
+370140	Mausoleum Compound	76226	
+370150	Mausoleum Compound	76226	
+370160	Mausoleum Compound	76226	
+370170	Mausoleum Compound	76226	
+370180	Mausoleum Compound	76226	
+370200	Mausoleum Compound	76226	
+370210	Mausoleum Compound	76226	
+370220	Mausoleum Compound	76226	
+370230	Mausoleum Compound	76226	
+370240	Mausoleum Compound	76226	
+370250	Mausoleum Compound	76226	
+370260	Mausoleum Compound	76226	
+380000	Finger Ruins of Rhia	76834	
+380010	Finger Ruins of Rhia	76834	
+380020	Finger Ruins of Rhia	76834	
+380030	Finger Ruins of Rhia	76834	
+380040	Finger Ruins of Rhia	76834	
+380050	Finger Ruins of Rhia	76834	
+380060	Finger Ruins of Rhia	76834	
+380070	Finger Ruins of Rhia	76834	
+380080	Finger Ruins of Rhia	76834	
+380100	Finger Ruins of Rhia	76834	
+380110	Finger Ruins of Rhia	76834	
+380120	Finger Ruins of Rhia	76834	
+380130	Finger Ruins of Rhia	76834	
+380140	Finger Ruins of Rhia	76834	
+380150	Finger Ruins of Rhia	76834	
+380160	Finger Ruins of Rhia	76834	
+380170	Finger Ruins of Rhia	76834	
+380180	Finger Ruins of Rhia	76834	
+380200	Finger Ruins of Rhia	76834	
+380210	Finger Ruins of Rhia	76834	
+380220	Finger Ruins of Rhia	76834	
+380230	Finger Ruins of Rhia	76834	
+380240	Finger Ruins of Rhia	76834	
+380250	Finger Ruins of Rhia	76834	
+380260	Finger Ruins of Rhia	76834	
 400036	The First Step	76101	
 400037	Dynasty Mausoleum Midpoint	71253	
 400049	Church of Elleh	76100	
@@ -2005,6 +2409,7 @@ flag	grace_name	grace_key	via
 1033477010	The Four Belfries	76227	
 1033477020	The Four Belfries	76227	
 1033477030	The Four Belfries	76227	
+1033477200	The Four Belfries	76227	
 1033477900	The Four Belfries	76227	
 1033477910	The Four Belfries	76227	
 1034417000	Moonlight Altar	76250	
@@ -2148,6 +2553,7 @@ flag	grace_name	grace_key	via
 1035527040	Craftsman's Shack	76356	
 1035537000	Seethewater Terminus	76355	
 1035537010	Seethewater Terminus	76355	
+1035537020	Seethewater Terminus	76355	
 1035537030	Seethewater Terminus	76355	
 1035537040	Seethewater Terminus	76355	
 1035537050	Seethewater Terminus	76355	
@@ -2294,11 +2700,13 @@ flag	grace_name	grace_key	via
 1038517000	Erdtree-Gazing Hill	76302	
 1038517010	Altus Plateau	76301	
 1038517020	Altus Plateau	76301	
+1038517030	Erdtree-Gazing Hill	76302	
 1038517040	Erdtree-Gazing Hill	76302	
 1038517050	Erdtree-Gazing Hill	76302	
 1038517060	Erdtree-Gazing Hill	76302	
 1038517070	Erdtree-Gazing Hill	76302	
 1038517080	Erdtree-Gazing Hill	76302	
+1038517090	Erdtree-Gazing Hill	76302	
 1038517400	Erdtree-Gazing Hill	76302	
 1038527000	Seethewater River	76354	
 1038527010	Seethewater River	76354	
@@ -2399,6 +2807,7 @@ flag	grace_name	grace_key	via
 1039547350	Shaded Castle Inner Gate	76321	
 1039570000	Shaded Castle Inner Gate	76321	
 1040387000	Stormhill Shack	76102	
+1040407000	Lake-Facing Cliffs	76200	
 1040507000	Altus Highway Junction	76303	
 1040517000	Rampartside Path	76305	
 1040517010	Altus Highway Junction	76303	
@@ -2419,8 +2828,10 @@ flag	grace_name	grace_key	via
 1040537040	Forest-Spanning Greatbridge	76304	
 1040537050	Bower of Bounty	76306	
 1040537060	Bower of Bounty	76306	
+1040547000	Road of Iniquity Side Path	76307	
 1040547010	Shaded Castle Ramparts	76320	
 1040547030	Road of Iniquity Side Path	76307	
+1040547050	Road of Iniquity Side Path	76307	
 1040547090	Road of Iniquity Side Path	76307	
 1040557000	Road of Iniquity Side Path	76307	
 1041327000	Isolated Merchant's Shack	76156	
@@ -2490,6 +2901,8 @@ flag	grace_name	grace_key	via
 1042367060	Church of Elleh	76100	
 1042377000	Gatefront	76111	
 1042377010	Limgrave Tunnels	73201	
+1042377060	Agheel Lake North	76108	
+1042377070	Gatefront	76111	
 1042377300	Gatefront	76111	
 1042377700	Murkwater Cave	73100	boss_arena
 1042387000	Warmaster's Shack	76118	
@@ -2509,6 +2922,7 @@ flag	grace_name	grace_key	via
 1042387600	Warmaster's Shack	76118	
 1042397010	Warmaster's Shack	76118	
 1042397900	Warmaster's Shack	76118	
+1042507000	Outer Wall Phantom Tree	76309	
 1042517000	Outer Wall Phantom Tree	76309	
 1042517400	Outer Wall Phantom Tree	76309	
 1042517410	Outer Wall Phantom Tree	76309	
@@ -2635,6 +3049,7 @@ flag	grace_name	grace_key	via
 1044337080	Ailing Village Outskirts	76154	
 1044337100	Ailing Village Outskirts	76154	
 1044337200	South of the Lookout Tower	76153	
+1044337210	South of the Lookout Tower	76153	
 1044347000	Bridge of Sacrifice	76157	
 1044347010	Bridge of Sacrifice	76157	
 1044347040	South of the Lookout Tower	76153	
@@ -2657,6 +3072,7 @@ flag	grace_name	grace_key	via
 1044367030	Waypoint Ruins Cellar	76120	
 1044367040	Waypoint Ruins Cellar	76120	
 1044367100	Waypoint Ruins Cellar	76120	
+1044367200	Waypoint Ruins Cellar	76120	
 1044367300	Waypoint Ruins Cellar	76120	
 1044367310	Waypoint Ruins Cellar	76120	
 1044367320	Waypoint Ruins Cellar	76120	
@@ -2711,6 +3127,7 @@ flag	grace_name	grace_key	via
 1045397110	Third Church of Marika	76104	
 1045397120	Summonwater Village Outskirts	76119	
 1045397140	Summonwater Village Outskirts	76119	
+1045527000	Capital Rampart	76314	
 1045527010	Capital Rampart	76314	
 1045527020	Capital Rampart	76314	
 1045527030	Capital Rampart	76314	
@@ -2761,6 +3178,7 @@ flag	grace_name	grace_key	via
 1047407080	Caelem Ruins	76403	
 1047407900	Caelem Ruins	76403	
 1047407910	Rotview Balcony	76401	
+1047407920	Caelem Ruins	76403	
 1047517000	Forbidden Lands	76500	
 1047517010	Forbidden Lands	76500	
 1047517300	Forbidden Lands	76500	
@@ -2771,6 +3189,7 @@ flag	grace_name	grace_key	via
 1047557900	Yelough Anix Tunnel	73211	
 1047567300	Yelough Anix Tunnel	73211	
 1047567310	Yelough Anix Tunnel	73211	
+1047567320	Ordina, Liturgical Town	76652	
 1047567330	Yelough Anix Tunnel	73211	
 1047577300	Apostate Derelict	76653	
 1047577310	Apostate Derelict	76653	
@@ -2804,6 +3223,7 @@ flag	grace_name	grace_key	via
 1048547990	Consecrated Snowfield	76550	
 1048557300	Yelough Anix Tunnel	73211	
 1048557600	Yelough Anix Tunnel	73211	
+1048557900	Inner Consecrated Snowfield	76551	
 1048567300	Inner Consecrated Snowfield	76551	
 1048577000	Ordina, Liturgical Town	76652	
 1048577010	Ordina, Liturgical Town	76652	
@@ -2863,6 +3283,7 @@ flag	grace_name	grace_key	via
 1049537900	Zamor Ruins	76501	
 1049547300	Consecrated Snowfield	76550	
 1049547310	Consecrated Snowfield	76550	
+1049547900	Consecrated Snowfield	76550	
 1049557300	Inner Consecrated Snowfield	76551	
 1049557310	Consecrated Snowfield Catacombs	73019	
 1049557320	Consecrated Snowfield Catacombs	73019	
