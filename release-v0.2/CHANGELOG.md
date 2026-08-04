@@ -48,6 +48,28 @@ the log instead of silently papering over it.
 failing-without-the-fix replay test in `er-logic`, and the whole client builds green. What no host
 test can answer is whether the rotation *feels* right while playing; that is outstanding for both.
 
+### Changed: every Golden Seed and Sacred Tear now has a hand-written location
+
+All 56 flags that award a Golden Seed (43) or a Sacred Tear (13) were walked in game and described
+by hand. Before this, 43 of them were named after the nearest Site of Grace, 9 after a whole map
+tile, one after a machine locale, and one after nothing at all -- so the tracker said things like
+"Golden Seed - around War-Dead Catacombs" for an item that is a Putrid Tree-Spirit drop, and the two
+seeds above Outer Wall Phantom Tree were distinguishable only by a "(1)"/"(2)" the generator appended
+because it could not tell them apart. 50 hand descriptions land here; 48 of them move a name.
+
+Nine of those checks also had their REGION confirmed on the same walk and are no longer hedged, so
+they can host progression for the first time: three Altus seeds, one each in Caelid, Limgrave,
+Liurnia and Mountaintops, and the Sacred Tears at Church of Irith, Second Church of Marika and
+Stormcaller Church. They previously read "(region unconfirmed)" on screen and were barred from
+carrying anything required.
+
+Two checks were deliberately left alone. The Mohgwyn seed near Dynasty Mausoleum Midpoint keeps its
+automatic name and is now barred from hosting progression -- Mohgwyn is reached by a one-way
+teleport, so its route is awkward in a way the region model does not capture. The Golden Seed between
+the Forbidden Lands and the Grand Lift of Rold stays hedged even though its region IS now known: it
+sits on ground a Mountaintops-anchored player cannot reach without a Leyndell item, which is a
+reachability problem rather than a region one.
+
 ### Fixed: two overworld tiles were filed under the wrong region, one in each direction
 
 Both tiles sit on the Limgrave/Caelid border, hold no site of grace of their own, and had their

@@ -20,12 +20,12 @@
 # MEASURED THIS RUN (recomputed on every emit):
 #   vocabulary 16 class(es) | default surface 9 class(es)
 #   checks 4879 total, 883 carry any tag
-#   DEFAULT SURFACE: tag union 198 | hosting 159 | hosting w/ reconciler armed 161 | hosting if missable guard OFF 166
+#   DEFAULT SURFACE: tag union 198 | hosting 167 | hosting w/ reconciler armed 169 | hosting if missable guard OFF 174
 #
 class	total	guessed_region	missable	erdtree_burn	surface_excluded	hub_merchant	eligible	eligible_pct	in_default
 Remembrance	25	1	1	0	0	0	23	92	yes
-Seedtree	43	8	1	2	0	0	32	74	yes
-Church	13	3	0	0	1	0	9	69	yes
+Seedtree	43	2	1	2	1	0	37	86	yes
+Church	13	0	0	0	1	0	12	92	yes
 Boss	134	24	1	0	0	0	109	81	
 Fragment	46	0	0	0	7	0	39	85	yes
 Revered	23	0	0	0	5	0	18	78	yes
