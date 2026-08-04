@@ -1398,6 +1398,9 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # the wrong arity (er-tiles-legitimately-span-regions) -- the first two share tile m60_34_45 with
 # checks nobody has stood in front of.
 _REGION_CONFIRMED_FLAGS = frozenset({
+    # --- 2026-08-04, Alaric, ground truth. Read "Altus :: ... (region unconfirmed)" and is neither
+    # Altus nor a guess: see FLAG_REGION_OVERRIDE[400300] for why the map join was wrong.
+    400300,       # Liurnia :: Rya's Necklace -- from Blackguard Big Boggart, Boilprawn Shack.
     # --- 2026-08-01, Alaric, CONFIRMED IN GAME from the in-client check feed. Both read
     # "Liurnia :: ... (region unconfirmed)" on screen; both are Liurnia.
     1034457020,   # Liurnia :: Kukri -- "near Crystalline Woods"
@@ -2015,6 +2018,12 @@ else:
 # Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
 # tracker report 2026-07-08 (Godfrey Icon talisman + Haligtree medallion mis-shown under Liurnia).
 FLAG_REGION_OVERRIDE = {
+    400300: "Liurnia",               # Rya's Necklace. region_map.csv joins f400300 to map lot
+                                               #   m30_09_00_00 (Gelmir Hero's Grave) -> Altus, which is a
+                                               #   bad join: the necklace is handed over at Boilprawn Shack
+                                               #   in LIURNIA (the "from Blackguard" in its own name is
+                                               #   Blackguard Big Boggart, who stands there). Alaric,
+                                               #   ground truth 2026-08-04: "confirmed Liurnia".
     1039507100: "Altus",               # Godfrey Icon = Godefroy the Grafted's drop at the
                                                #   Golden Lineage Evergaol (NW Altus). Its EMEVD tile
                                                #   m60_39_50 NN-ties Liurnia(38,50)/Altus(39,51) -> Liurnia.
@@ -2562,6 +2571,23 @@ GLOBAL_RECOVER = {
 #     fold into MISSABLE_FLAGS.
 # (Stonesword-key / Shabriri / Seedbed deferred -- questline-avoidance covers the latter two.)
 DEATHROOT_FLAGS = set(range(400230, 400240))
+# QUESTLINE-INGREDIENT KEY ITEMS (Alaric, 2026-08-04): a key item whose CHECK is an ordinary
+# world pickup -- so none of the sets below is true of it -- but whose ITEM is consumed by a
+# questline, which is reason enough not to let progression sit on it.
+#
+# 🛑 IT GETS ITS OWN LABEL ON PURPOSE. A missable label is a claim about WHY (see the gesture split
+# below, where the world pickups were pulled OUT of "questline" for exactly this reason). The
+# Fingerslayer Blade is a CHEST in Nokron (map lot f12027080), not a handover: nobody can lose it
+# and no NPC gates it, so "questline" would be a lie about the mechanism while "questline_item" is
+# the truth about the decision. Rya's Necklace is NOT here -- it is a genuine NPC handover and goes
+# into QUEST_GATED_FLAGS with the rest of them.
+QUESTLINE_ITEM_FLAGS = frozenset({
+    12027080,     # Fingerslayer Blade -- Nokron chest; handed to Ranni to advance her questline.
+                  # NB gen_data used to name this item as the example of a free pickup EXCLUDED from
+                  # QUEST_GATED_FLAGS (see that set's docstring). That exclusion still holds for the
+                  # reason it was written -- the check is not quest-gated -- and this is a second,
+                  # separate decision about the same item.
+})
 # NPC-QUESTLINE-GATED rewards (Alaric 2026-07-09, audited against ER quest acquisition). These fire
 # only on NPC handover / quest-progress events, so the coarse region-lock reachability model wrongly
 # treats them as reachable-when-the-region-opens -> a Lock placed there strands. Tag them MISSABLE so
@@ -2714,7 +2740,7 @@ _MULTI_SITE = _load_multisite_flags()
 # ⭐ THE OVERLAP IS THE EVIDENCE, exactly as for _MULTI_SITE: the join lands on 48 live checks and 14
 # of them were ALREADY hand-tagged above, which is what makes the ~34 new ones credible rather than a
 # corpus dumped into a bar. Among them are the strand risks you would name by hand if asked --
-# f400430 Rold Medallion ("talk to Melina after killing Morgott"), f400072 Drawing-Room Key ("talk to
+# f400001 Rold Medallion ("talk to Melina after killing Morgott"), f400072 Drawing-Room Key ("talk to
 # Tanith"), f400130 Haligtree Secret Medallion (Right) -- and those three are also on the
 # progression surface, which is where a missing tag costs a seed rather than an item.
 #
@@ -2750,7 +2776,66 @@ def _load_esd_gift_flags():
     return frozenset(_out)
 
 
-_ESD_GIFT_GATED = _load_esd_gift_flags()
+def _load_esd_gift_latch_only():
+    """The ESD-gift flags whose ONLY gate path is the `gate_sense == 0` "not yet received" latch.
+
+    A gift row carries one row PER GATE PATH. A path with `gate_sense != 0` is a QUEST-STATE
+    precondition (the NPC hands it over only once some other flag is set); a gift with no such path
+    is handed over the first time you talk, which is the shape a player coming from matt's
+    randomizer expects to be able to rely on.
+
+    ⭐ WHY THIS EXISTS (Alaric, 2026-08-04). `_ESD_GIFT_GATED` is a BLANKET over award sites: it bars
+    every NPC handover on the theory that the award exists only while that NPC is alive in that
+    dialogue state. Measured on the committed tsvs, that blanket is 52 live checks -- 30 latch-only,
+    22 quest-state -- so it was filing first-talk gifts under a reason that is true of the other
+    half. The cost lands exactly where it hurts: FOUR of the un-barred checks are the KeyItem-tagged
+    gate/travel keys (Rold Medallion, Drawing-Room Key, Pureblood Knight's Medal, Haligtree Secret
+    Medallion (Right)), i.e. the entire non-`guessed_region` half of the key-item progression surface.
+
+    🛑 THE SCREEN CANNOT SEE AN EMEVD PRECONDITION. Two latch-only checks state a prerequisite in
+    their own location name -- f400001 Rold Medallion ("talk to Melina after killing Morgott") and
+    f400130 Haligtree Secret Medallion (Right) ("kill albinauric disguised as pot (or, talk to
+    him)"). Both are DELIBERATELY un-barred anyway (Alaric, 2026-08-04): Morgott's own drop is
+    already a hosting surface member, so barring a check for "kill Morgott" while allowing the check
+    that IS Morgott's reward was incoherent, and matt's important-locations model is major-bosses
+    first. The albinauric has an "or talk to him" path and was never kill-gated. If a THIRD such
+    check ever appears, it needs a hand decision here -- the gate_sense column will not raise it.
+    """
+    _p = os.path.join(HERE, "esd_gifts.tsv")
+    if not os.path.isfile(_p) or not FLAG_LOTS:
+        return frozenset()
+    _lot2flag = {}
+    for _fl, _fam in FLAG_LOTS.items():
+        for (_tb, _lot, *_rest) in _fam:
+            if _tb == "map":
+                _lot2flag.setdefault(_lot, _fl)
+    _paths = {}
+    with open(_p, encoding="utf-8-sig", newline="") as _fh:
+        _rows = csv.DictReader((_ln for _ln in _fh if not _ln.lstrip().startswith("#")),
+                               delimiter="\t")
+        for _r in _rows:
+            try:
+                _lot = int((_r.get("item_lot") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            _fl = _lot2flag.get(_lot)
+            if _fl is None:
+                continue
+            _paths.setdefault(_fl, []).append((_r.get("gate_sense") or "").strip())
+    # A flag is latch-only when EVERY path it has is the acquisition latch. One quest-state path
+    # anywhere disqualifies it -- the union of paths is what the player has to satisfy.
+    return frozenset(_fl for _fl, _senses in _paths.items() if all(_s == "0" for _s in _senses))
+
+
+_ESD_GIFT_ALL = _load_esd_gift_flags()
+_ESD_GIFT_LATCH_ONLY = _load_esd_gift_latch_only()
+_ESD_GIFT_GATED = frozenset(_ESD_GIFT_ALL - _ESD_GIFT_LATCH_ONLY)
+print("esd_gift latch-only screen: %d gift flag(s) total, %d latch-only (first-talk -> NOT barred), "
+      "%d keep the questline bar" % (len(_ESD_GIFT_ALL), len(_ESD_GIFT_LATCH_ONLY),
+                                     len(_ESD_GIFT_GATED)))
+if _ESD_GIFT_ALL and not _ESD_GIFT_GATED:
+    print("[gen_data] WARNING: the latch-only screen just un-barred EVERY esd gift. That means the "
+          "gate_sense column stopped distinguishing anything -- check the tsv before trusting it.")
 
 
 # TREASURE-ENABLER CROSS-REGION prerequisites -- a SIXTH derivation (2026-07-28), read from the
@@ -2830,6 +2915,9 @@ _EC_NEW = _ENABLER_CROSS_REGION - QUEST_GATED_FLAGS - _QUESTLINE_GATED - _NPC_ST
 print("enabler_cross_region (StartDisabled treasure gated from ANOTHER region; a corpus the "
       "lot_gates screen does not read): %d flag(s); %d NEW %s"
       % (len(_ENABLER_CROSS_REGION), len(_EC_NEW), sorted(_EC_NEW)))
+# Rya's Necklace (f400300): a genuine NPC handover you can hand back / trade away, and Rya's own
+# questline moves her out of Liurnia. Alaric's call 2026-08-04, alongside the region fix above.
+QUEST_GATED_FLAGS = QUEST_GATED_FLAGS | {400300}
 QUEST_GATED_FLAGS |= (_QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE | _BOSS_ARENA_QUEST_GATED
                       | _ESD_GIFT_GATED | _ENABLER_CROSS_REGION)
 
@@ -5602,6 +5690,8 @@ for _i, _r in enumerate(rows):
         _MISSABLE[BASE_AP + _i] = "questline"
     elif _mf in GESTURE_AWARD_MISSABLE:
         _MISSABLE[BASE_AP + _i] = "gesture_award"
+    elif _mf in QUESTLINE_ITEM_FLAGS:
+        _MISSABLE[BASE_AP + _i] = "questline_item"
 # CO-CHECK members inherit their flag's missability (same physical acquisition -- a group must never
 # mix "missable" and "not": AP could then require the un-missable member of a pickup the player can
 # no longer perform). None of the seeded four qualifies; kept general for the allowlist widening.
@@ -5614,6 +5704,8 @@ for _ap9, (_cfl9, _tb9x, _lot9x, _fu9x, _nm9x) in CO_CHECK_EMITTED.items():
         _MISSABLE[_ap9] = "questline"
     elif _cfl9 in GESTURE_AWARD_MISSABLE:
         _MISSABLE[_ap9] = "gesture_award"
+    elif _cfl9 in QUESTLINE_ITEM_FLAGS:
+        _MISSABLE[_ap9] = "questline_item"
 OUT_MISS = os.path.join(HERE, "eldenring", "missable_locations.py")
 with open(OUT_MISS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). ap_ids of MISSABLE checks -- gated behind a limited\n')
@@ -6136,19 +6228,34 @@ OUT_TAGS = os.path.join(HERE, "eldenring", "location_tags.py")
 # items). Kept: the two lift medallions (Dectus L/R via the split-name match), Haligtree Secret
 # Medallion (L/R), Rusty/Drawing-Room/Discarded Palace keys, Academy Glintstone Key, Pureblood Medal.
 # NOTE: "Rold Medallion" is kept but is effectively a Morgott drop behind dialogue (low diversity).
+# 2026-08-04 (Alaric): FOUR ADDED, matt-parity pass. The bar is unchanged -- "gate/travel key, not
+# quest item" -- but three were kept out by a rationale that no longer holds and one was never revisited:
+#   * Messmer's Kindling -- the Enir-Ilim finale key. A real vanilla key item (goods 2008021) that
+#     features/natural_progression gates Enir-Ilim on; it became pooled once its CO-CHECK landed
+#     (f510460's sibling lot), so there is now a check to tag.
+#   * Hole-Laden Necklace -- was listed just below as DELIBERATELY EXCLUDED, "quest item, not a gate".
+#     Already false when written: features/legacy_key_gates uses it as THE key to Metyr's remembrance
+#     check. It is a gate in our own logic, so it is tagged like one.
+#   * Fingerslayer Blade, Rya's Necklace -- key items by the game's goodsType and by ours. BOTH ARE
+#     BARRED FROM HOSTING PROGRESSION (QUESTLINE_ITEM_FLAGS / QUEST_GATED_FLAGS respectively);
+#     tagging and barring are different questions and this list answers only the first.
+# 🛑 DEATHROOT was considered and REJECTED (Alaric): 8 checks, already Boss/FieldBoss-tagged, and
+# Gurranq CONSUMES N of them -- a collectathon currency, not a gate/travel key.
 # DLC gate keys added 2026-07-13 (same "gate/travel key, not quest item" bar): the Belurat pair
 # (Storeroom/Well Depths), the Belurat Gaol pair (Gaol Upper/Lower Level), the Shadow Keep Secret Rite
 # Scroll, and the Prayer Room Key (its own CO-CHECK location since 2026-07-24 -- flag 400696's
-# sibling lot 106931; the tag flows from LOCATION_ITEM like any location). DELIBERATELY EXCLUDED: Hole-Laden
-# Necklace (Ymir/St. Trina quest item, not a gate -- like the cut Carian Inverted Statue) and "O Mother"
+# sibling lot 106931; the tag flows from LOCATION_ITEM like any location). DELIBERATELY EXCLUDED: "O Mother"
 # (a gesture, not a key -- debatable since it opens the Shadow Keep back door; left for review).
+# (Hole-Laden Necklace was excluded here too until 2026-08-04 -- reversed, see the note above.)
 _KEYITEMS = ("Dectus Medallion", "Rold Medallion", "Haligtree Secret Medallion",
              "Rusty Key", "Discarded Palace Key",
              "Academy Glintstone Key", "Pureblood Knight's Medal",
              "Drawing-Room Key", "Rusty Anchor",
              "Storeroom Key", "Well Depths Key",
              "Gaol Upper Level Key", "Gaol Lower Level Key",
-             "Secret Rite Scroll", "Prayer Room Key")
+             "Secret Rite Scroll", "Prayer Room Key",
+             "Messmer's Kindling", "Hole-Laden Necklace",
+             "Fingerslayer Blade", "Rya's Necklace")
 for _ap, _inm in LOCATION_ITEM.items():
     _extra = []
     if "Great Rune" in _inm and "Unborn" not in _inm:

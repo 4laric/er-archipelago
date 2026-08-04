@@ -25,8 +25,8 @@
 #   by tool: esd_gifts 98, lot_gates 174, treasure_enablers 12
 #   source kind: check 5, npc_state 91, world 188
 #   targets: 115 with a PREREQUISITE (sense=set), 15 with an EXCLUSION (sense=clear)
-#   CORROBORATION: 102 of 157 target check(s) are ALREADY missable-tagged (65%); the tag set holds 218 checks in total
-#   cross-region edges: 48 (2 whose target is NOT missable-tagged)
+#   CORROBORATION: 81 of 157 target check(s) are ALREADY missable-tagged (52%); the tag set holds 199 checks in total
+#   cross-region edges: 48 (8 whose target is NOT missable-tagged)
 #   alt_group semantics: all 2, any 11, single 154, unknown 36 (a group claims OR/AND only where the DATA proves it)
 #   edges DEGRADED to unusable by a guard (each is a refusal, not a loss): context-branch-unresolved 7, enabler-not-an-eventflag-test-above-the-enable 2, esd-paths-disagree 3, esd-received-memo 69, lot_gates-senses-disagree 2, treasure-verb-crossproduct 28
 #   source flags LABELLED from FromSoft's own event names: 185 of 284 edge(s) (65%); by emevd_batch 1, emevd_event 93, esd_talk 91
