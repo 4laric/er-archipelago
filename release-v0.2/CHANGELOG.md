@@ -3,7 +3,7 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.3.3 — unreleased
+## v0.3.3 — 2026-08-03
 
 Window opened 2026-08-03 (rule 14: the note ships WITH the change, not with the tag).
 `CONTRACT_HASH` is unmoved from v0.3.0, so the handshake is unchanged and seeds rolled on 0.3.1+
