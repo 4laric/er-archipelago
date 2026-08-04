@@ -181,6 +181,13 @@ jobs:
     if: github.event_name != 'schedule'
     steps:
       - uses: actions/checkout@v4
+        with:
+          # TAGS. `check_release_notes.py` cannot tell a SHIPPED version from an open window
+          # without them, and actions/checkout fetches none by default -- it would print
+          # "window: UNCHECKED" and the job would stay green, which is a gate that is switched
+          # off while looking on. Verified by cloning shallow and watching it skip.
+          fetch-tags: true
+          fetch-depth: 0
 
       # THE CLIENT IS CHECKED OUT AT THE GITLINK -- the commit this repo actually pins -- and NOT at
       # client `main`. Until 2026-08-02 it was the other way round, under a comment arguing that a
