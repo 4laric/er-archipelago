@@ -4327,7 +4327,16 @@ if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR
 #     the Draconic Tree Sentinel; the Sentinel needs no seed key, so on-foot reachability from Altus's
 #     other graces holds. (The Leyndell-side East/West Capital Rampart 71102/71105 are the entry graces
 #     once the Leyndell bundle opens -- handled by graces.bundle_withheld, not skipped here.)
-_STATE_GATED_GRACE_FLAGS = frozenset({72107, 76314})
+#   71107 Queen's Bedchamber (m11_00, Leyndell): reachable only THROUGH the Erdtree Sanctuary, i.e.
+#     past Morgott. Our own table already agrees with that reading and then contradicts itself --
+#     71100 Elden Throne and 71101 Erdtree Sanctuary are both withheld (9005810 asset-hidden), so we
+#     were withholding the grace AT the door and granting the one BEYOND it. A region lock therefore
+#     handed a warp straight into the far side of the capital's last fight. Alaric's call,
+#     2026-08-04. Like 76314 it is NOT 9005810 asset-hidden -- the EMEVD oracle does not see it, so
+#     it does not belong in _BOSS_GATED_GRACE_FLAGS -- it is a physically-present grace sealed by a
+#     boss-defeat state, which is exactly this set. Leyndell keeps its other six; its front door
+#     (71102 East Capital Rampart) and REGION_GRACE_LANDMARKS entry are untouched.
+_STATE_GATED_GRACE_FLAGS = frozenset({71107, 72107, 76314})
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS
                      | _STATE_GATED_GRACE_FLAGS)
