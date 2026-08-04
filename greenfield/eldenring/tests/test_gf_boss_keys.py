@@ -19,10 +19,34 @@ from collections import Counter
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="boss_keys is FROZEN OFF in v0.2 (defaults.py) -- boss locks are half-built and no longer yaml-exposed. Un-skip when the feature is finished and re-exposed.")
+import dataclasses
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
+from worlds.eldenring.core import GFOptions  # noqa: E402
+
+# SELF-EXPIRING FREEZE (2026-08-04). This was an unconditional pytest.mark.skip whose "un-skip when
+# re-exposed" lived only in the reason string -- re-exposing boss_keys without touching this file
+# would have left all 33 tests dark forever (inert-test audit finding #3: a comment is not a
+# tripwire). The skip now asserts its own precondition against the LIVE yaml surface: GFOptions is
+# built by filtering defaults.FROZEN_OPTIONS out of the option fields, so "boss_keys not a GFOptions
+# field" IS "boss_keys is not yaml-settable" -- the surface itself, not a mirror of defaults.py.
+_FROZEN = "boss_keys" not in {f.name for f in dataclasses.fields(GFOptions)}
+
+pytestmark = pytest.mark.skipif(
+    _FROZEN,
+    reason="boss_keys is FROZEN OFF in v0.2 (defaults.py) -- boss locks are half-built and not "
+           "yaml-exposed. Self-expiring: the moment boss_keys reappears in GFOptions this suite "
+           "wakes and the freeze tripwire goes red.")
+
+
+def test_the_freeze_tripwire_boss_keys_is_still_off_the_yaml_surface():
+    """Never green while un-frozen, by design: it either skips with the suite or goes RED the
+    commit that re-exposes the option, so the wake is a review decision instead of an accident."""
+    assert _FROZEN, (
+        "boss_keys is back on the yaml surface, but this suite froze with the feature on 2026-07-11 "
+        "and has not tracked it since. Revalidate every test in this file against the finished "
+        "feature, then delete this tripwire and the module skipif.")
 from worlds.eldenring import contract  # noqa: E402
 from ._util import world_items, world_pool_items  # noqa: E402
 from worlds.eldenring.boss_data import REGION_BOSSES  # noqa: E402

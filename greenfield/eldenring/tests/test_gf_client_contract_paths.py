@@ -44,10 +44,28 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)                    # .../greenfield/eldenring
-GREENFIELD = os.path.dirname(GF_PKG)              # .../greenfield
-REPO_ROOT = os.path.dirname(GREENFIELD)           # repo root
 CONTRACT_PY = os.path.join(GF_PKG, "contract.py")
-CRATES = os.path.join(REPO_ROOT, "from-software-archipelago-clients", "crates")
+
+
+def _find_up(rel, start):
+    """Walk UP for `rel` (the find_repo_root idiom, _util.py). Resolved POSITIONALLY ("N dirs up")
+    this path pointed into _ap/worlds under the installed-world harness, so the gate skipped there
+    forever -- in the CI `tests` job too, where the thing it needs sits a directory higher
+    (2026-08-04 inert-test audit, finding #3)."""
+    d = os.path.abspath(start)
+    for _ in range(8):
+        cand = os.path.join(d, rel)
+        if os.path.exists(cand):
+            return cand
+        nd = os.path.dirname(d)
+        if nd == d:
+            break
+        d = nd
+    return None
+
+
+_CRATES_REL = os.path.join("from-software-archipelago-clients", "crates")
+CRATES = _find_up(_CRATES_REL, HERE) or _CRATES_REL
 CLIENT_SRC_DIRS = [
     os.path.join(CRATES, "eldenring-archipelago", "src"),
     os.path.join(CRATES, "er-logic", "src"),

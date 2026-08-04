@@ -32,6 +32,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -120,10 +121,74 @@ def install_world(ap):
     print("gf_test: installed greenfield/eldenring -> %s" % dst)
 
 
+def check_skip_census(expected_path: Path, observed_path: Path) -> int:
+    """Compare the skips pytest just recorded (tests/conftest.py, one JSON line per skip) against
+    the committed expected census. Returns 0 on agreement, 1 on ANY drift.
+
+    WHY (inert-test audit finding #3, 2026-08-04): the difference between "deliberately
+    dev-box-only" and "dark by accident" is invisible in a green run. The `tests` job carried ~114
+    skips, several of them accidents nobody could see -- item_exists' skip message had been false
+    for a week (its inputs shipped in the gen_inputs bundle on 2026-07-27), and the
+    MAJOR_BOSS_EXTRAS oracle had never run in ANY job. So the skip inventory is now a committed,
+    asserted artifact: every observed skip reason must match a ledgered family, and every family's
+    count must be exact. A new skip family, a vanished one, or a count change all go RED -- waking
+    or darkening a test is then a reviewed diff to expected_skips_ci.json, never an accident.
+
+    The census is only meaningful for the FULL suite in the CI layout (artifacts ensured, client at
+    the gitlink beside the repo); that is why it is opt-in via --skip-census rather than always-on.
+    """
+    import re
+    exp = json.loads(expected_path.read_text(encoding="utf-8"))
+    observed = []
+    if observed_path.is_file():
+        with observed_path.open(encoding="utf-8") as fh:
+            observed = [json.loads(line) for line in fh if line.strip()]
+
+    counts = {f["family"]: 0 for f in exp["families"]}
+    unledgered = []
+    for rec in observed:
+        for fam in exp["families"]:
+            if re.search(fam["pattern"], rec["reason"]):
+                counts[fam["family"]] += 1
+                break
+        else:
+            unledgered.append(rec)
+
+    errors = []
+    for fam in exp["families"]:
+        got, want = counts[fam["family"]], fam["count"]
+        if got != want:
+            errors.append("family %r: expected %d skip(s), observed %d -- %s"
+                          % (fam["family"], want, got,
+                             "a ledgered skip has WOKEN or its reason string changed; if the wake "
+                             "is real, celebrate and update expected_skips_ci.json" if got < want
+                             else "something new is skipping under a known reason; find it before "
+                                  "it goes dark"))
+    for rec in unledgered:
+        errors.append("UNLEDGERED skip (no census family matches): %s\n    reason: %s"
+                      % (rec["nodeid"], rec["reason"]))
+
+    if errors:
+        print("\ngf_test: SKIP CENSUS FAILED (%d observed skips, %d ledgered families):"
+              % (len(observed), len(exp["families"])))
+        for e in errors:
+            print("  * " + e)
+        print("  The committed census is %s -- a skip-inventory change must be a reviewed diff "
+              "there, not scenery in a green run." % expected_path)
+        return 1
+    print("gf_test: skip census OK -- %d skips, all in %d ledgered families"
+          % (len(observed), len(exp["families"])))
+    return 0
+
+
 def main():
     p = argparse.ArgumentParser(add_help=True)
     p.add_argument("--ap-dir", default=str(REPO / ".ap-test"),
                    help="Archipelago checkout to test in (default: .ap-test/, bootstrapped on demand)")
+    p.add_argument("--skip-census", metavar="EXPECTED_JSON", default=None,
+                   help="After the run, assert the observed skip inventory matches this committed "
+                        "census (CI passes greenfield/eldenring/tests/expected_skips_ci.json). Only "
+                        "meaningful for a FULL-suite run in the CI layout.")
     p.add_argument("--install-only", action="store_true",
                    help="Install the world into --ap-dir and exit -- no bootstrap, no fork check, no "
                         "pytest. This makes install_world() the ONE definition of 'the installed "
@@ -145,8 +210,18 @@ def main():
     print("gf_test: pytest worlds/eldenring/tests  (Archipelago %s, %s)" % (pin, ap))
     env = dict(os.environ)
     env["AP_NONINTERACTIVE"] = "1"
+    census_out = None
+    if args.skip_census:
+        census_out = ap / "_gf_skip_census.jsonl"
+        if census_out.exists():
+            census_out.unlink()
+        env["GF_SKIP_CENSUS_OUT"] = str(census_out)
     r = subprocess.run([sys.executable, "-m", "pytest", "worlds/eldenring/tests", "-q", *pytest_args],
                        cwd=str(ap), env=env)
+    if args.skip_census:
+        census_rc = check_skip_census(Path(args.skip_census).resolve(), census_out)
+        if r.returncode == 0:
+            return census_rc
     return r.returncode
 
 
