@@ -56,6 +56,15 @@ something you can use.
 Consumables are untouched on purpose. You will still be sent far more Golden Runes than you can hold
 at once, because you spend them and the stack drains -- those arrive late, not never.
 
+**Unlocking Caelid can no longer warp you into a boss fight that has not happened.** The Heart of
+Aeonia site of grace does not exist until Commander O'Neil is dead -- the game hides it behind his
+defeat flag. Region unlocks were lighting it anyway, so warping there put you in the middle of his
+swamp arena on a grace you could not rest at. It is withheld now and appears the moment you beat
+him, exactly as in vanilla. Eleven other boss-revealed graces (Radahn's, Fire Giant's, Bayle's,
+Rellana's and friends) were checked in the same pass; all of them were already safe, and the test
+that watches this class of bug now runs on every change instead of never. This fix reaches NEW
+seeds -- a seed already rolled keeps its old grace list.
+
 ## Upgrading
 
 **No new DLL needed for the data half.** The client's version string moves in lockstep so it reports

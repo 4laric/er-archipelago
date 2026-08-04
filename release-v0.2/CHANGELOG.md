@@ -113,6 +113,25 @@ the Forbidden Lands and the Grand Lift of Rold stays hedged even though its regi
 sits on ground a Mountaintops-anchored player cannot reach without a Leyndell item, which is a
 reachability problem rather than a region one.
 
+### Fixed: a region unlock could warp you into Commander O'Neil's arena, onto a grace that is not there (#244)
+
+The Heart of Aeonia grace does not exist until Commander O'Neil dies -- the game hides its asset
+behind his defeat flag and reveals it on the kill. The Caelid region bundle force-lit it anyway, so
+warping to it dropped you into the middle of his boss arena on a disabled bonfire: the exact
+soft-lock the boss-gated skip list exists to prevent. It is withheld now, and lights normally the
+moment you beat him. Caelid keeps its other 37 graces, so nothing is lost the other way.
+
+The mechanism behind it: the skip list was derived from the game's event scripts in July, when only
+the 380 legacy-dungeon scripts were decompiled -- and it was COMPLETE for that corpus (37 flags).
+The overworld tile scripts landed in the input bundle later, carrying 12 more boss-hidden graces
+(Radahn, Fire Giant, Bayle, Rellana, Romina, Gaius and friends). Eleven of the twelve were already
+withheld for a different reason (they sit inside boss arenas); Heart of Aeonia was the one that
+slipped through, because it is far enough from O'Neil to clear the arena-distance screen while still
+being flag-hidden. All twelve are now classified by their real mechanism, with the per-flag evidence
+written next to the data, and the independent EMEVD oracle that caught this (dormant and red since
+it was written) now runs green in CI on every push -- a corpus regen that grows the true set again
+cannot go unnoticed a second time.
+
 ## v0.3.3 — 2026-08-03
 
 Window opened 2026-08-03 (rule 14: the note ships WITH the change, not with the tag).
