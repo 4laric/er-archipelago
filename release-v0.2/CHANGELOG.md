@@ -5,10 +5,48 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.3.3 — unreleased
 
-Window opened by the change below (rule 14: the note ships WITH the change, not with the tag).
-`CONTRACT_HASH` is unmoved from v0.3.0, so the client needs no work — `region_locks.rs` regenerates
-byte-identical. The `data/` hash HAS moved, so a seed rolled here is not the seed v0.3.2 rolled,
-and `APWORLD_VERSION` should move when this window is cut.
+Window opened 2026-08-03 (rule 14: the note ships WITH the change, not with the tag).
+`CONTRACT_HASH` is unmoved from v0.3.0, so the handshake is unchanged and seeds rolled on 0.3.1+
+still connect — `region_locks.rs` regenerates byte-identical. The `data/` hash HAS moved, so a seed
+rolled here is not the seed v0.3.2 rolled, and `APWORLD_VERSION` should move when this window is cut.
+
+⚠️ **This window now carries CLIENT changes too**, so it needs a new DLL — the "no client work"
+line above is about the CONTRACT, not about the build. (It read "the client needs no work" until the
+auto_equip fixes landed underneath it. Corrected here rather than at tag time, which is the whole
+point of rule 14.)
+
+### Fixed: auto-equipped gear froze once every slot was full
+
+`auto_equip`'s answer to a full loadout was *clobber the lowest slot*, in three separate places. That
+is fine the first time and wrong every time after: the lowest slot becomes the only one that ever
+changes again, and every other slot sticks on whatever happened to arrive early.
+
+**Talismans (client #49, issue #342).** With all four slots filled, slots 2, 3 and 4 froze on the
+2nd, 3rd and 4th talismans you were ever sent — for the rest of the run. The policy's own stated
+rationale was *"a player who has never touched the menu ends up with the four most recent talismans
+rather than one"*, which held during the fill and inverted the moment the slots were full, leaving
+exactly one recent talisman and three stale ones. New talismans now walk the slots in turn.
+
+**Physick tears (client #48, issue #334).** The same bug two slots wide, and the one that exposed it:
+the 3rd tear took mixture slot A, and so did the 4th, so slot B froze on whatever arrived second.
+
+The interesting part is why the talisman half was nearly ruled unfixable. The rotation has to survive
+a reconnect — the reconciler replays your **whole** received item set every time you connect, so any
+policy that is not a pure function of that replayed stream will silently rearrange your loadout
+behind you. Tears alternate on the item's position in the received stream, which replays identically.
+Talismans could not do the same, because the number of slots to rotate through *grows* from one to
+four as you find Talisman Pouches, so the same stream was being divided by a different number live
+than on replay. Measured across 329,760 timelines, that form fails to settle in 8.9% of them.
+
+The fix is that the Talisman Pouch **is itself an Archipelago item**, so how many slots you had
+earned at any point is readable from the stream rather than from live state. Same 329,760 timelines,
+0 failures. The game's own slot count still bounds what may be written, so a slot you have not earned
+can never be targeted; when the two disagree — a pouch sent but never granted — the client says so in
+the log instead of silently papering over it.
+
+🛑 **Confirmed by test, not yet on a screen.** The freeze is reproduced as a
+failing-without-the-fix replay test in `er-logic`, and the whole client builds green. What no host
+test can answer is whether the rotation *feels* right while playing; that is outstanding for both.
 
 ### Fixed: two overworld tiles were filed under the wrong region, one in each direction
 
