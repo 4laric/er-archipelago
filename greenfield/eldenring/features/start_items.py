@@ -196,7 +196,6 @@ class StartWithFlasks(DefaultOnToggle):
     display_name = "Start With Flasks"
 
 
-@register
 # ==================================================================================================
 # THE PLAIN startItems LIST, BUILT ONCE (#308).
 # ==================================================================================================
@@ -250,6 +249,7 @@ def start_hold_counts(world):
     return counts
 
 
+@register
 class StartItems(Feature):
     name = "start_items"
     OPTIONS = {"start_with_lantern": StartWithLantern, "start_with_steed": StartWithSteed,
