@@ -134,8 +134,39 @@ def test_the_sweep_corpus_did_not_shrink():
         boss room, 69 seconds before the fight ended, after which the Crystalian he killed dropped
         nothing. The three PRIMARY triggers keep those members in full, so NO check left the corpus
         -- only the duplicate copies did (3189 -> 3171). See
-        test_gf_boss_sweeps.test_no_secondary_arena_head_carries_a_sweep."""
+        test_gf_boss_sweeps.test_no_secondary_arena_head_carries_a_sweep.
+
+    -82  (2026-08-04, #363 part two) TWELVE MORE SECONDARY HEADS, from the EMEVD defeat banner
+        rather than GameAreaParam. Trigger count 240 -> 225. Again NO CHECK LEFT THE CORPUS: every
+        one of these is a duplicate copy of a list its arena's PRIMARY still holds in full, which is
+        why the arithmetic is exactly the suppressed heads' own member counts --
+
+          m30_14  30140801  Erdtree Burial Watchdog (Scepter)         4
+          m31_06  31060801  Crystalian (Spear)                        2
+          m31_07  31070801  Kindred of Rot                            7
+          m31_10  31100801  Beastman of Farum Azula (Throwing Knife)  5
+          m31_11  31110801 + 31110802  Putrid Crystalian x2          24  (12 each)
+          m31_15  31150801  Demi-Human Chief                          3
+          m31_18  31180801  Omenkiller                                8
+          m31_20  31200801  Cleanrot Knight (Sickle)                  4
+          m31_22  31220801 + 31220802  Godskin Apostle / Noble       18  (9 each)
+          m34_14  34140851  Fell Twin                                 7
+                                                                  ---- 82
+
+        61 DISTINCT checks stop being payable by a boss the player has not fought. m34_14 is the one
+        bobler confirmed live: he got its 7 checks on ENTERING the arena. GameAreaParam could not
+        reach any of these -- it has no row for 34140851 at all -- so the discriminator is the game's
+        own `HandleBossDefeatAndDisplayBanner`, which names ONE reporter per fight.
+
+        Two of these contradict the guesses on #363's handoff, and the EMEVD wins: m31_18 (Miranda
+        the Blighted Bloom + Omenkiller) was guessed SEPARATE and is one banner over both deaths;
+        m31_22's Godskins are SUMMONS the snail's flag force-kills, not co-required heads.
+
+        STILL SHARED, deliberately: m30_05, m30_13, m31_00 and m31_19 (32 checks). Each fires TWO
+        banners, so each is genuinely two fights -- they need PARTITIONING and must NOT be
+        suppressed. m31_19 Sage's Cave is pinned as the negative control in
+        test_gf_boss_sweeps.test_sages_cave_retains_BOTH_triggers."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
-    assert total == 3171, (
-        "sweep corpus is %d, expected 3171. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3089, (
+        "sweep corpus is %d, expected 3089. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)

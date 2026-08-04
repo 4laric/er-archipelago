@@ -193,6 +193,57 @@ not by a gate.
 A bugfix release, and mostly a client one. `CONTRACT_HASH` is unmoved from v0.3.0, so seeds rolled
 on 0.3.1 still connect — but the client and the apworld must still match.
 
+### Fixed: a two-boss dungeon paid out its whole sweep when the first boss died
+
+Reported by bobler, 2026-08-04, within seconds of it happening: *"i just got a bunch of checks
+entering a boss room without killing anything, in altus tunnel [...] oh it just gave me the loot for
+the boss i killed after anyways, so the client thought the boss died -- the boss itself gave no
+loot."*
+
+Altus Tunnel holds the Crystalian **duo**, and a duo is two health bars. A dungeon's sweep members
+were collected per MAP and then handed out per ENTITY, so both Crystalians carried the same seven
+checks and whichever died first paid for the whole tunnel. The log has the client contradicting
+itself about it: the sweep fired at 17:57:11 and the fast-travel gate still read that arena as
+boss-alive until 17:58:20, 69 seconds later.
+
+Worse in practice than "checks arrive early". If the arena's second head is not the boss standing in
+it -- which is what Matt's randomizer does when it swaps a single boss into a duo arena -- that
+head's kill flag is already set when the map loads, and the sweep fires **on entry**. bobler
+confirmed exactly that twice, the second time walking into the Fell Twins' arena to find Placidusax
+in it. Many players run Matt's alongside this, so it is not an edge case.
+
+The game already answers which head reports a fight: its defeat banner. `GameAreaParam` names a
+primary arena for three of them, and for the rest the map's own event script says it outright --
+Altus Tunnel waits for **both** Crystalians to fall and then fires one banner, under 32050800. So
+only the head that fires the banner may trigger a sweep. Fifteen heads across thirteen dungeons lose
+theirs, and **79 checks stop being payable by a boss you have not fought**:
+
+| dungeon | the fight | checks |
+|---|---|---|
+| Altus Tunnel | Crystalian, Ringblade + Spear | 7 |
+| Auriza Hero's Grave | Crucible Knight x2 | 8 |
+| Unsightly Catacombs | Misbegotten Warrior + Perfumer Tricia | 3 |
+| Minor Erdtree Catacombs | Erdtree Burial Watchdog, Sword + Scepter | 4 |
+| Academy Crystal Cave | Crystalian, Staff + Spear | 2 |
+| Seethewater Cave | Kindred of Rot x2 | 7 |
+| Dragonbarrow Cave | Beastman of Farum Azula x2 | 5 |
+| Sellia Hideaway | Putrid Crystalian x3 | 12 |
+| Coastal Cave | Demi-Human Chief x2 | 3 |
+| Perfumer's Grotto | Miranda the Blighted Bloom + Omenkiller | 8 |
+| Abandoned Cave | Cleanrot Knight, Spear + Sickle | 4 |
+| Spiritcaller Cave | Spiritcaller Snail + the two Godskins it summons | 9 |
+| Divine Tower of East Altus: Gate | the Fell Twins | 7 |
+
+No check left the corpus: every list a suppressed head was holding is still held in full by its
+arena's primary, so these bosses drop exactly what they always did -- when you actually kill them.
+
+**Not Sage's Cave.** Black Knife Assassin and Necromancer Garris are two separate fights that happen
+to share a cave, and its script fires two banners saying so, so both keep their trigger. Killing
+either still pays out all 14 of that cave's checks -- but that is a different defect: those members
+want SPLITTING between the two bosses, which is not what suppressing a head does. It stays open,
+with the same shape in Black Knife Catacombs, Auriza Side Tomb and Murkwater Cave. 32 checks,
+tracked on #363.
+
 ### Fixed: the id-keyed suppressor was eating vanilla items from every source
 
 `detour.rs` sees only `raw_id` off the AddItemFunc buffer and cannot answer "where did this come

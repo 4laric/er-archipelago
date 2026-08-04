@@ -57,6 +57,12 @@ FILE_INPUTS = [
                                                    # until 2026-07-25, meaning a stale (or newly
                                                    # re-emitted) copy did not invalidate the stamp
                                                    # and the drift gate could not see it
+    # THREE DERIVED TABLES gen_data READS AND THIS LIST DID NOT DECLARE. Exactly the nearest_grace
+    # hole above, found again while wiring #363: gen_data opens all three by name, their contents
+    # change generated output, and a stale or re-emitted copy did not invalidate the stamp.
+    "greenfield/game_areas.tsv",                   # GameAreaParam arenas; drives sweep suppression
+    "greenfield/boss_arena_pairs.tsv",             # EMEVD defeat-banner heads; drives it too (#363)
+    "greenfield/arena_graces.tsv",                 # graces inside a boss arena (floor-guarded)
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",
 ]
