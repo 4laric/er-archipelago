@@ -3,6 +3,22 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.5 — 2026-08-04
+
+Window opened 2026-08-04, at the moment v0.3.4 was tagged — which is the whole point of rule 14.
+Tagging does not open the next window; a person does, and the two previous windows were both
+opened late because everyone assumed otherwise.
+
+Opening it also surfaced a gate that cannot see its own subject.
+`test_gf_contract_versions::test_every_tagged_version_is_recorded_as_shipped` asks the git tags
+which versions shipped — and the CI checkout does not fetch tags, so it finds none and passes.
+v0.3.4 was tagged with no `SHIPPED` row and nothing said so; it only went red in a clone that had
+the tags. The row is written here. The gate needs `fetch-depth`/tags before it is worth anything,
+which is a to-do, not a fix.
+
+`CONTRACT_HASH` is unmoved from v0.3.0 (`5e8b11c9`), so the handshake is unchanged and seeds
+rolled on 0.3.1+ still connect. The bump is version-lockstep across both repos.
+
 ## v0.3.4 — 2026-08-04
 
 Window opened 2026-08-04 (rule 14), and opened LATE -- which is the first thing to record.
