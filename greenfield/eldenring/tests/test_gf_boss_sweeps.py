@@ -230,6 +230,65 @@ class BossSweepScoping(unittest.TestCase):
                          "sweep region regressed -- the tile's own checks are 'near Yelough Anix "
                          "Tunnel' and one of them is the Night's Cavalry Helm (flag 1048557710)")
 
+    _GRID_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)")
+
+    def test_overworld_sweeps_never_mix_GRIDS(self):
+        r"""m60 and m61 are two coordinate systems, not one (SPEC-broaden-sweeps piece A, 2026-08-05).
+
+        The DLC overworld pass reuses the base game's nearest-boss machinery, which was written when
+        `_tile_xy` held a bare `(x, y)`. An m60 tile at (44,45) and an m61 tile at (44,45) are
+        different places on different continents; comparing them yields a distance that means
+        nothing, and a SMALL one -- so the failure mode is a DLC boss quietly claiming base-game
+        checks, or the reverse. gen_data now carries the grid label and guards every comparison
+        (`_near`); this states that independently.
+
+        🛑 GRID ONLY, and the CAP is deliberately NOT asserted here -- I tried and it was wrong.
+        A DLC overworld boss is `legacy`: it holds a NEIGHBOURHOOD slice (within Chebyshev 2) AND a
+        region-divvy slice, and a divvy member is region-correct at ANY distance. Romina (m61_44_45)
+        legitimately holds Ancient Ruins checks on m61_46_48, distance 3. Nothing in the output
+        distinguishes the two pools, so an over-cap member is indistinguishable from a divvy member
+        and a cap assertion here can only produce false failures. The cap is enforced by `_near` and
+        covered for class-`field` bosses by test_field_sweeps_are_local; for m61 the reachable claim
+        is the population one in test_the_dlc_overworld_has_neighbourhood_sweeps."""
+        bad = []
+        for ent, members in self.DS.items():
+            info = self.BH.get(ent)
+            if not info:
+                continue
+            bt = self._GRID_RE.match(info[1] or "")
+            if not bt:
+                continue
+            for ap in members:
+                mt = self._GRID_RE.match(self._eff_map(ap) or "")
+                if mt and mt.group(1) != bt.group(1):
+                    bad.append((ent, info[1], ap, mt.group(0)))
+        self.assertEqual(bad, [], str(len(bad)) + " overworld sweep member(s) on the OTHER GRID -- "
+                         "an m60 boss holding m61 checks or vice versa. Sample: " + repr(bad[:5]))
+
+    def test_the_dlc_overworld_has_neighbourhood_sweeps(self):
+        """MOTIVATING CASE for piece A: the DLC overworld granted nothing spatial at all.
+
+        Its 28 bosses are classed `legacy` -- and must STAY that way, they are their regions' divvy
+        hosts and five regions have no other one -- but `DisplayBossHealthBar` only carries the
+        coarse `m61_XX` BAND, so gen_data's field pass could never place them. Their id encodes the
+        real tile (20XXYYLLLL, the DLC sibling of 10/12), which gen_data already trusted for the
+        divvy; now it reaches the boss table too.
+
+        Pinned on Black Knight Edredd (m61_49_43, Scadu Altus), the largest gainer, plus the
+        population-level claim so a single retuned boss cannot hide a dead pass."""
+        EDREDD = 2049430850
+        self.assertIn(EDREDD, self.DS, "Black Knight Edredd has no sweep -- the m61 tile decode or "
+                                       "the DLC field pass regressed")
+        self.assertGreaterEqual(len(self.DS[EDREDD]), 20,
+                                "Edredd holds %d members; it gained 30 when the DLC field pass "
+                                "landed, so this is a regression" % len(self.DS[EDREDD]))
+        m61 = [ent for ent, info in self.BH.items()
+               if (info[0] or "").startswith("m61") and ent in self.DS]
+        self.assertGreaterEqual(len(m61), 20, "only %d DLC overworld bosses sweep anything" % len(m61))
+        total = sum(len(self.DS[e]) for e in m61)
+        self.assertGreaterEqual(total, 400, "DLC overworld bosses hold %d members between them; the "
+                                            "field pass was worth ~225 on top of ~250 divvied" % total)
+
     def test_field_sweeps_are_disjoint(self):
         """Nearest-boss assignment gives each overworld check to exactly ONE field boss -- no two
         field sweeps may share a member (own-tile pairs used to double-sweep their shared tile)."""
