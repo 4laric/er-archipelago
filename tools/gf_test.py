@@ -185,6 +185,11 @@ def main():
     p = argparse.ArgumentParser(add_help=True)
     p.add_argument("--ap-dir", default=str(REPO / ".ap-test"),
                    help="Archipelago checkout to test in (default: .ap-test/, bootstrapped on demand)")
+    p.add_argument("--quantifier-spy", action="store_true",
+                   help="wrap all()/any() during the run and FAIL if any is called on an empty "
+                        "iterable -- an assertion that passed without examining anything. Opt-in "
+                        "for the same reason as --skip-census: a plain pytest run in any layout "
+                        "must be unaffected. See tests/test_gf_vacuous_pass.py.")
     p.add_argument("--skip-census", metavar="EXPECTED_JSON", default=None,
                    help="After the run, assert the observed skip inventory matches this committed "
                         "census (CI passes greenfield/eldenring/tests/expected_skips_ci.json). Only "
@@ -210,6 +215,8 @@ def main():
     print("gf_test: pytest worlds/eldenring/tests  (Archipelago %s, %s)" % (pin, ap))
     env = dict(os.environ)
     env["AP_NONINTERACTIVE"] = "1"
+    if args.quantifier_spy:
+        env["GF_QUANTIFIER_SPY"] = "1"
     census_out = None
     if args.skip_census:
         census_out = ap / "_gf_skip_census.jsonl"
