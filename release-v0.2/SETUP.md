@@ -229,5 +229,14 @@ sure the game files are in a state you expect. A vanilla install always works;
 matt's randomizer alongside it is supported (items OFF). Other mods that rewrite
 item lots or params are not.
 
+**Checks send fine, but nothing ever arrives.**
+`RandomizerHelper.dll` is loaded. It and our client both hook the routine that
+puts an item in your inventory, and ours fails closed when it finds that routine
+already patched -- so receiving dies, while sending, which does not use that
+hook, carries on looking perfectly healthy. Unload the dll; turning off its
+auto-equip and auto-upgrade options is not enough on some versions. The Player
+Guide and `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` both cover this, and the
+client log line is `AddItemFunc detour install deferred`.
+
 Still stuck, or a seed looks broken? Bring your yaml and the spoiler log when
 you ask for help.
