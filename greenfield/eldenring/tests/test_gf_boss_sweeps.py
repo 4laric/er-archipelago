@@ -34,6 +34,17 @@ REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
                                    os.path.join(GREENFIELD, "region_map.csv")) if os.path.isfile(p)),
                       os.path.join(GF_PKG, "region_map.csv"))
 
+# Minor-dungeon map prefixes, in the X0SS7000 flag convention (flag -> map mXX_SS). MUST match
+# gen_data._is_dungeon: this oracle re-derives a member's true map from its flag, and a prefix
+# missing here reads as "map unknown" and reports a FALSE map-local violation.
+# 🛑 It drifted (found 2026-08-05, SPEC-broaden-sweeps piece B): the list was missing "34" and "39",
+# so when Ruin-Strewn Precipice (m39_20, Magma Wyrm Makar) legitimately gained its 21 dungeon
+# pickups, this oracle called all 21 non-local because it decoded their map as PENDING. Confirmed
+# against a THIRD table before touching this list -- check_maps.tsv has 39207010 -> m39_20
+# "decoded from the flag id" -- because widening a test's vocabulary to make a failure go away is
+# how a carve-out gets written.
+DUNGEON_LOT_PREFIXES = ("30", "31", "32", "34", "39", "40", "41", "42", "43")
+
 # = contract.IMPORTANT_LOCATION_TYPES. A field sweep must contain
 # none of these -- felling a field boss hands out filler only. Kept in sync with contract by
 # test_field_exclude_matches_contract below (drift guard).
@@ -94,9 +105,11 @@ class BossSweepScoping(unittest.TestCase):
                 "greenfield/region_map.csv into the world (the install step does this) to run the "
                 "sweep-scoping oracle")
         cls.flag_map = {}
+        cls.flag_method = {}
         for r in csv.DictReader(open(REGION_MAP_CSV, encoding="utf-8")):
             if str(r["flag"]).lstrip("-").isdigit():
                 cls.flag_map[int(r["flag"])] = r["map"] or ""
+                cls.flag_method[int(r["flag"])] = r.get("method") or ""
 
     def _eff_map(self, ap):
         """A member's effective map: region_map's map, or -- for an unplaced dungeon check whose flag
@@ -109,7 +122,7 @@ class BossSweepScoping(unittest.TestCase):
         # Stranded Graveyard), a mis-scan gen_data._swept_map_prefix now corrects by trusting the flag.
         # Mirror that here (flag wins for dungeon-lot flags) so this independent oracle re-derives the
         # SAME true map instead of trusting the stale column -- exactly what the docstring promises.
-        if len(fs) >= 8 and fs[4] == "7" and fs[:2] in ("30", "31", "32", "40", "41", "42", "43"):
+        if len(fs) >= 8 and fs[4] == "7" and fs[:2] in DUNGEON_LOT_PREFIXES:
             return f"m{fs[:2]}_{fs[2:4]}_00_00"
         raw = self.flag_map.get(self.ap_flag.get(ap, -1), "")
         if raw and raw != "PENDING":
@@ -239,6 +252,51 @@ class BossSweepScoping(unittest.TestCase):
                         bad.append((cls_name, ent, info[3], bmap, ap, self._eff_map(ap)))
         self.assertEqual(bad, [], str(len(bad)) + " catacomb/cave/tunnel sweep member(s) are outside the "
                          "boss's own dungeon map (should be map-local). Sample: " + repr(bad[:5]))
+
+    def test_ruin_strewn_precipice_is_swept(self):
+        """MOTIVATING CASE (SPEC-broaden-sweeps piece B, 2026-08-05).
+
+        Ruin-Strewn Precipice (m39_20) is a real dungeon you fight your way DOWN, and Magma Wyrm
+        Makar granted NONE of its 21 loot pickups. They were excluded because `_swept` keyed its
+        dungeon branch on `method == "flag_prefix"`, and these rows are `global`/`global_filler` --
+        a statement about an item's DISTRIBUTION ("scattered by design"), not about whether this
+        particular pickup has a known place. It has one: the flag self-encodes m39_20.
+
+        Pinned by FLAG, not ap id, so a location-table renumber does not silently retarget it."""
+        FLAGS = (39207010, 39207020, 39207030)   # Smithing Stone [5] / Rune Arc / Somber [3]
+        members = set(self.DS.get(39200800, ()))
+        self.assertTrue(members, "Magma Wyrm Makar (39200800) has no sweep at all")
+        missing = [f for f in FLAGS
+                   if not any(self.ap_flag.get(ap) == f for ap in members)]
+        self.assertEqual(missing, [], "Ruin-Strewn Precipice pickups not swept by its boss: "
+                         + repr(missing))
+
+    def test_no_dungeon_mapped_filler_is_left_unswept(self):
+        """The general invariant piece B establishes: on a minor-dungeon map whose boss ALREADY has
+        a working sweep, no filler check may sit outside that sweep merely because of its `method`.
+
+        Scoped to maps that host a sweeping boss -- a dungeon with no boss has nothing to attach to
+        and is out of scope here (and out of reach of any boss-attached sweep; see the spec)."""
+        swept = {ap for members in self.DS.values() for ap in members}
+        bossmaps = {info[0] for ent, info in self.BH.items() if ent in self.DS}
+        bad = []
+        for region, locs in self.d.LOCATIONS.items():
+            if region == "Roundtable Hold":
+                continue
+            for (_name, ap, flag) in locs:
+                if ap in swept:
+                    continue
+                if FIELD_EXCLUDE & set(self.lt.get(ap, ())):
+                    continue
+                # _eff_map, NOT flag_map: the raw region_map column is "PENDING" for exactly
+                # this population (global/global_filler rows), so reading it made this guard INERT
+                # over the very checks it exists to protect. Caught by mutation -- deleting Makar's
+                # 21 members left this test green until it was pointed at the flag decode.
+                mp = _mp2(self._eff_map(ap))
+                if mp and mp[1:3] in DUNGEON_LOT_PREFIXES and mp in bossmaps:
+                    bad.append((ap, mp, _name[:60]))
+        self.assertEqual(bad, [], str(len(bad)) + " filler check(s) on a minor-dungeon map whose "
+                         "boss sweeps are left ungranted. Sample: " + repr(bad[:5]))
 
     def test_all_members_in_sweep_region(self):
         bad = []
@@ -585,7 +643,12 @@ class BossSweepScoping(unittest.TestCase):
         sweep. 🛑 m31_19 in particular must stay 7/7: 14/0 is what nearest-boss geometry produced,
         and it reads as a working partition until you notice a boss drops nothing."""
         EXPECTED = {"m30_05": ((30050800, 30050850), 4),
-                    "m30_13": ((30130800, 30130810), 10),
+                    # 10 -> 14 (2026-08-05, SPEC-broaden-sweeps piece B). WHY, as this test
+                    # demands: Auriza Side Tomb's four Living Jar Shards (f30137960/70/80/90) are
+                    # `global_filler` rows on m30_13. They were never excluded for an ownership or
+                    # geometry reason -- only because `_swept` keyed its dungeon branch on
+                    # method == flag_prefix. The pool GREW; nothing left it, and the split stays 7/7.
+                    "m30_13": ((30130800, 30130810), 14),
                     "m31_00": ((31000800, 31000850), 4),
                     "m31_19": ((31190800, 31190850), 14)}
         for bmap, (heads, total) in sorted(EXPECTED.items()):
