@@ -1,15 +1,16 @@
 """num_regions region-diversity gate -- WorldTestBase (the marquee mode).
 
-Two contracts, both derived from the greenfield region spine:
+ONE contract, since the fixed spine draw was removed 2026-08-05: the kept set is randomised per
+seed. Across a handful of fixed seeds the selections must actually DIFFER (real diversity, not a
+stuck RNG) while ALWAYS keeping the goal region so the seed stays winnable. Deterministic (fixed
+seeds) and fast (no extra generation beyond world_setup).
 
-  * order='spine': the kept set is deterministic -- the first N of SPINE, plus the always-kept
-    goal region -- and slot_data.region_count matches. The base WorldTestBase suite (test_fill)
-    already proves the sealed seed stays beatable; here we pin the exact scope for a few N.
-
-  * order='rolled': the kept set is randomised per seed. Across a handful of fixed seeds the rolled
-    selections must actually DIFFER (real diversity, not a stuck RNG) while ALWAYS keeping the goal
-    region so the seed stays winnable. Deterministic (fixed seeds) and fast (no extra generation
-    beyond world_setup).
+The SpineScope1/3/5 classes that used to sit here asserted the kept set by IDENTITY -- first-N of
+SPINE plus the goal -- which was only ever possible because the draw was not random. They are gone;
+the invariants they were standing in for (draw size, parent closure, goal presence, every region
+reachable) are properties over a 400-seed sweep in test_gf_region_selection.py. The slot-data half
+they also covered (region_count == the kept count) survives here in
+RolledDiversity.test_rolled_slot_data_region_count_tracks_kept.
 
 importorskips when AP isn't importable (source-tree sandbox) -> no-op there; runs once installed.
 
@@ -20,60 +21,9 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.region_spine import GOAL_REGION, SPINE, parent_chain  # noqa: E402
+from worlds.eldenring.region_spine import GOAL_REGION, parent_chain  # noqa: E402
 
 GAME = "Elden Ring"
-
-
-def _expected_spine(n):
-    """Deterministic spine kept set for num_regions=n: first-N of SPINE + goal + REGION_PARENT
-    closure (a gated child pulls its ancestors in -- the always-kept capital pulls Altus; derived
-    from parent_chain, never re-pinned)."""
-    base = list(SPINE[:n])
-    if GOAL_REGION not in base:
-        base.append(GOAL_REGION)
-    for r in list(base):
-        for anc in parent_chain(r):
-            if anc not in base:
-                base.append(anc)
-    return set(base)
-
-
-def _assert_spine_scope(tc, n):
-    """Shared assertions for a spine-ordered num_regions=n world already built by setUp."""
-    kept = set(tc.world._kept())
-    tc.assertEqual(kept, _expected_spine(n),
-                   f"spine num_regions={n} must keep first-{n} of SPINE + goal")
-    tc.assertIn(GOAL_REGION, kept, "goal region must always be kept")
-    tc.assertEqual(len(kept), len(_expected_spine(n)),
-                   "kept count must be N + goal + parent-closure additions (all derived)")
-    sd = tc.world.fill_slot_data()
-    tc.assertEqual(sd["region_count"], len(kept),
-                   "slot_data.region_count must equal the kept count")
-
-
-class SpineScope1(WorldTestBase):
-    game = GAME
-    options = {"num_regions": 1, "num_regions_order": "spine"}
-
-    def test_spine_scope(self):
-        _assert_spine_scope(self, 1)
-
-
-class SpineScope3(WorldTestBase):
-    game = GAME
-    options = {"num_regions": 3, "num_regions_order": "spine"}
-
-    def test_spine_scope(self):
-        _assert_spine_scope(self, 3)
-
-
-class SpineScope5(WorldTestBase):
-    game = GAME
-    options = {"num_regions": 5, "num_regions_order": "spine"}
-
-    def test_spine_scope(self):
-        _assert_spine_scope(self, 5)
 
 
 class RolledDiversity(WorldTestBase):

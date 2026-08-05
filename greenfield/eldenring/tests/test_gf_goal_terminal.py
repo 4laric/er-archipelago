@@ -112,12 +112,41 @@ class GoalDeepSpineSeed(WorldTestBase):
 
 
 class GoalCapitalRunSeed(WorldTestBase):
-    """spine num_regions=3: kept = Limgrave/Weeping/Stormveil + goal closure (Leyndell+Altus); the
-    capital IS the terminal region, so Morgott is the right goal here -- by depth, not preference."""
+    """The capital IS a legitimate goal when it is the DEEPEST kept region -- by depth, not by
+    preference. This is the other half of the 2026-07-14 bug: the fix must not overcorrect into
+    never goaling on Morgott.
+
+    RE-PREMISED 2026-08-05. `spine num_regions=3` made the capital terminal by construction. With a
+    random draw nothing can, short of naming regions, so the fixture searches a fixed seed sequence
+    for a draw where the pure ladder says the capital is terminal and asserts the SLOT DATA on it.
+
+    The OPTIONS are chosen to condition that search, not to pin an answer: base-only at N=1 keeps
+    one drawn region plus the capital and its parent, and nine of the seventeen base regions rank
+    shallower than the capital -- so it is terminal in ~64% of draws (measured), versus ~12% at the
+    full-pool N=3 this class used to use. First hit lands on the first or second seed.
+
+    Exhausting the sequence FAILS rather than skips: a guard that never fires is an untested guard.
+    """
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 3, "num_regions_order": "spine"}
+    options = {"enable_dlc": False, "num_regions": 1}
+    SEEDS = tuple(range(12))
 
     def test_goal_is_morgott_because_terminal(self):
-        sd = self.world.fill_slot_data()
-        assert set(sd["goalLocations"]) == MORGOTT_IDS
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            kept = set(self.world._kept())
+            if finale_active(kept):
+                continue          # tier 0 owns the goal; that is GoalDeepSpineSeed's case
+            if terminal_goal_ids(kept)[0] != GOAL_REGION:
+                continue          # something deeper than the capital was drawn
+            sd = self.world.fill_slot_data()
+            assert set(sd["goalLocations"]) == MORGOTT_IDS, (
+                "seed %d keeps the capital as its deepest region, so the goal must be Morgott's "
+                "checks; slot data said %s" % (seed, sorted(sd["goalLocations"])))
+            assert GOAL_REGION in kept and len(kept) >= 1
+            return
+        self.fail("no seed in range(%d) produced a draw whose TERMINAL region is the capital, so "
+                  "the Morgott-by-depth case went UNTESTED. Widen SEEDS, or the draw/ladder has "
+                  "changed such that the capital can no longer be terminal -- which would be a "
+                  "real regression of the 2026-07-14 ruling." % len(self.SEEDS))

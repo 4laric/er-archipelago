@@ -184,15 +184,36 @@ class FinaleEntranceLockMatrix(WorldTestBase):
 
 
 class FinaleInertSeed(WorldTestBase):
-    """spine num_regions=3 keeps Limgrave/Weeping/Stormveil (+ goal closure Leyndell/Altus) but NOT
-    Farum Azula -> the finale must NOT exist and the goal falls back to the terminal region."""
+    """A draw missing a FINALE_REQUIRES region -> the finale must NOT exist and the goal falls back
+    to the terminal region.
+
+    RE-PREMISED 2026-08-05. `num_regions_order: spine` used to GUARANTEE this premise: the spine's
+    first three regions were Limgrave/Weeping/Stormveil, so Farum Azula could not be kept at N=3.
+    With the draw randomised it is kept about one seed in nine -- and the default fixture seed is
+    one of those, which is exactly how this test broke. The premise is now VERIFIED per run instead
+    of assumed: walk a fixed seed sequence until the draw is genuinely inert, and fail loudly if
+    none of them is. That is deliberately not "pin a seed that happens to work" -- a data change
+    that shifts the pool moves the search, not the test.
+    """
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 3, "num_regions_order": "spine"}
+    options = {"num_regions": 3}
+    SEEDS = tuple(range(12))
+
+    def _setup_inert_seed(self):
+        """Build a world whose draw leaves the finale inert. Returns the seed used."""
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            if not finale_active(set(self.world._kept())):
+                return seed
+        self.fail("no seed in %r produced a draw missing a FINALE_REQUIRES region, so the inert "
+                  "case went UNTESTED -- widen SEEDS, or FINALE_REQUIRES has become unavoidable "
+                  "at num_regions=3 (a real change worth noticing)" % (self.SEEDS,))
 
     def test_finale_absent_and_goal_falls_back(self):
+        self._setup_inert_seed()
         kept = set(self.world._kept())
-        assert not finale_active(kept), "test premise: Farum Azula must not be kept here"
+        assert not finale_active(kept), "test premise: a FINALE_REQUIRES region must not be kept"
         names = {loc.name for loc in self.multiworld.get_locations(self.player)}
         finale_names = {n for (n, _a, _f) in finale_entries()}
         assert not (finale_names & names), "finale locations leaked into a seed missing a prerequisite"
@@ -204,6 +225,11 @@ class FinaleInertSeed(WorldTestBase):
         assert not any(r.name == FINALE_REGION for r in self.multiworld.get_regions(self.player))
 
     def test_count_neutral_when_inert(self):
+        # Also re-premised: this asserted count-neutrality on a seed it BELIEVED was inert. It
+        # passed under the random draw regardless, because neutrality holds either way -- so the
+        # name was the only thing that was wrong, and a passing test with a lying name is worse
+        # than a red one. Now it really is the inert seed.
+        self._setup_inert_seed()
         locs = [l for l in self.multiworld.get_locations(self.player) if l.address is not None]
         pool = [i for i in self.multiworld.itempool if i.player == self.player]
         empty = [l for l in locs if l.item is None]
