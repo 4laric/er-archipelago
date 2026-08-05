@@ -6431,6 +6431,10 @@ _ap_is_spell = {_a: bool(_SPELL_RE.match(_ap_rawitem.get(_a, ""))) for _a in _ap
 #   4. REGION-CONSISTENT (NEW) -- the region the check is FILED under must be one the seller actually
 #      stands in. This is what block 1001 failed. A pin whose seller is nowhere near its region is a
 #      lie fill will believe.
+#   5. REACHABLE UNGATED (2026-08-05) -- the merchant's talk ESD must have at least one gate_flag
+#      -1 path. A merchant you must first make APPEAR (Moore, Pidia, Iji) is not a place fill may
+#      be required to reach. See the _esd_gate_paths note below for why the MERCHANT-level question
+#      is answerable when the ROW-level one (criterion 2) still is not.
 # Representative = lowest ap among the survivors (pure, deterministic). No clearing row -> SKIP,
 # loudly, with the reason. Zero pins overall is still FATAL.
 def _shop_flag_openers():
@@ -6479,6 +6483,56 @@ def _field_openers(_fl):
     """Talk ESDs selling this flag OUTSIDE the hub."""
     return {_t for _t in _FLAG_OPENERS.get(_fl, ())
             if any(_m != _HUB_SHOP_TILE for _m in _TALK_MAPS.get(_t, ()))}
+
+
+# ---- Criterion 5: the MERCHANT must be reachable UNGATED -----------------------------------------
+# MOTIVATING CASE (rule 11, 2026-08-05). The same report that produced the spell-vendor re-key had a
+# residue the re-key could not reach: `Gravesite :: Note: Sealed Spiritsprings - from Moore`
+# (415006100) sells notes, not spells, and Moore only becomes a merchant after you progress him.
+# Pidia (307106000) and Iji (224006000) are the same shape. Alaric 2026-08-05: "I don't want any
+# merchant where you have to do that much to make them appear."
+#
+# The predicate: a merchant may hold a progression slot only if its talk ESD has at least ONE path
+# with gate_flag == -1 -- an unconditional way to open the shop. MEASURED over the 44 non-spell
+# merchants: 22 ungated, 21 gated-only (Gostoc, Patches, Bernahl, Thiollier, Blackguard, Rogier,
+# Moore, Pidia, Iji ...), 1 with no esd_gates row at all. Of the 15 pins it drops exactly three --
+# Moore, Pidia, Iji -- leaving 12.
+#
+# 🛑 WHY THIS IS AVAILABLE WHEN gen_data's OWN NOTE SAYS THE ESD GATE IS "NOT USABLE YET". That note
+# (criterion 2) is about using esd_gates at ROW granularity to decide START-STOCKED, where joining
+# ungated ranges collapses to 31 rows at a single merchant -- a degenerate result. This asks the
+# coarser MERCHANT-level question, "does this NPC have any unconditional path at all", and that is
+# not degenerate: 22 of 44 pass and every one that fails is independently an NPC you must first
+# advance. Different question, different answer; the earlier objection does not transfer.
+#
+# NO esd_gates ROW => NOT ungated. Absence of evidence is not evidence of reachability, and this
+# mirrors DEFAULTED_REGION_APS' rule: a check we cannot ASSERT is reachable may not be REQUIRED.
+# It binds nothing today (the single row-less merchant, Seluvis' 307036000, is already skipped as
+# alt-currency) -- the choice is recorded because it will bind the first time the tsv thins out.
+def _esd_gate_paths():
+    """(talks with an ungated path, talk -> its gate flags). None,None if the input is absent."""
+    _p = os.path.join(HERE, "esd_gates.tsv")
+    if not os.path.isfile(_p):
+        return None, {}
+    _ung, _flags = set(), defaultdict(set)
+    with open(_p, encoding="utf-8-sig") as _fh:
+        for _ln in _fh:
+            if _ln.startswith("#") or not _ln.strip():
+                continue
+            _q = _ln.rstrip("\n").split("\t")
+            if len(_q) < 2 or not _q[0].isdigit():
+                continue
+            _flags[_q[0]].add(_q[1].strip())
+            if _q[1].strip() == "-1":
+                _ung.add(_q[0])
+    return (_ung or set()), _flags
+
+
+_UNGATED_TALKS, _ESD_GATE_FLAGS = _esd_gate_paths()
+if _UNGATED_TALKS is None:
+    print("[gen_data] WARNING: esd_gates.tsv absent -- the ungated-merchant criterion is INERT and "
+          "questline-gated merchants may hold progression slots.")
+
 _ap_region2 = {aid: _reg9 for _reg9, _locs9 in buckets.items() for (_nm9, aid, _fl9) in _locs9}
 _gated_ap = set(shop_gated_aps)
 _def_ap = set(defaulted_aps)
@@ -6544,6 +6598,12 @@ for _t, _aps2 in sorted(_talk_checks.items()):
         _SHOP_SLOT_SKIPS[_t] = ("alt-currency merchant (Dragon Communion altar): its wares are paid "
                                 "in a limited consumable, so ALL %d of its slots are missable and "
                                 "none may carry progression" % len(_aps2))
+        continue
+    if _UNGATED_TALKS is not None and _t not in _UNGATED_TALKS:
+        _SHOP_SLOT_SKIPS[_t] = ("not reachable ungated: every ESD path onto this shop is gated (%s), "
+                                "so the player must first make the merchant appear -- a slot we "
+                                "cannot ASSERT is reachable may not be REQUIRED"
+                                % (", ".join(sorted(_ESD_GATE_FLAGS.get(_t, ()))) or "no esd_gates row"))
         continue
     _excl = [a for a in _aps2 if len(_field_openers(_ap2flag.get(a))) == 1]
     if not _excl:
