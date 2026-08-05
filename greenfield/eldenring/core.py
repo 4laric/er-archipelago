@@ -1132,8 +1132,16 @@ class GreenfieldEldenRingWorld(World):
             # the same computation the wire uses: fill spheres -> total topological order with
             # seed-deterministic tie-breaks -> position ramp (features/scaling.py, ORDER RAMP).
             order = _sc._order_from_spheres(region_sphere, _sc._order_rng(self))
-            region_target = _sc._targets_from_order(order)
-            basis = "fill-sphere order ramp"
+            # 🛑 THE RAMP HAS TO BE PASSED. `_targets_from_order` defaults to ramp_pct=100 (the even
+            # ramp), and the WIRE calls it with ramp_pct_from_speed(difficulty_ramp_speed) -- so
+            # omitting it here printed a table that was not the seed being played. Measured
+            # 2026-08-05 on a difficulty_ramp_speed: 50 seed: this table said Altus 2857 while the
+            # client resolved 5714 and applied tier 11, and every region above position 3 was
+            # actually pinned at TARGET_MAX. The spoiler is the only place a player can see the
+            # curve, so a spoiler that silently prints a DIFFERENT curve is worse than none.
+            ramp = _sc.ramp_pct_from_speed(self.options.difficulty_ramp_speed.value)
+            region_target = _sc._targets_from_order(order, ramp)
+            basis = f"fill-sphere order ramp, difficulty_ramp_speed {self.options.difficulty_ramp_speed.value} (ramp_pct {ramp})"
         else:
             triples = _sc.sphere_target_ranges(kept)
             pid_target = {lo: t for (lo, _hi, t) in triples}
