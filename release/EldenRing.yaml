@@ -322,6 +322,14 @@ Elden Ring:
   #   100   everything at maximum, everywhere, immediately
   minimum_enemy_difficulty: 0
 
+  # Whether enemy difficulty follows your PROGRESSION instead of the map.
+  # Off = VANILLA: every enemy keeps exactly the strength the base game gave it,
+  # the client stops touching enemies entirely, and the three sliders here stop
+  # meaning anything. Choose it if you want the item randomizer without the
+  # difficulty curve. Not the same as "easier" -- it is the game's own curve,
+  # which in a randomized world can mean a late-game area at level 20.
+  enemy_scaling: true
+
   # How hard the TOUGHEST enemies get.
   #  auto   scale the cap to the LENGTH of your run        (default)
   #   100   no cap -- your deepest region reaches the game's own maximum,
