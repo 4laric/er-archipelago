@@ -102,12 +102,12 @@ if (Test-Path (Join-Path $pkg "menu")) {
     Write-Host "  ap-package\ absent -- shipping without the AP icon override (cosmetic only)" -ForegroundColor Yellow
 }
 
-$readme = Join-Path $Repo "release-v0.2\CLIENT-BUNDLE-README.md"
+$readme = Join-Path $Repo "release\CLIENT-BUNDLE-README.md"
 if (Test-Path $readme) {
     Copy-Item $readme (Join-Path $bundle "README.md") -Force
     Write-Host "  README.md"
 } else {
-    Write-Warning "  release-v0.2\CLIENT-BUNDLE-README.md missing -- bundle ships with no instructions"
+    Write-Warning "  release\CLIENT-BUNDLE-README.md missing -- bundle ships with no instructions"
 }
 
 $zip = Join-Path $OutDir "$name.zip"

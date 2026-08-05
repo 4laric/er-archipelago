@@ -49,7 +49,7 @@ greenfield/
   Archipelago into `.ap-test/`, installs the world, runs the suite; refuses to
   run against a fork. `run_ci.ps1` runs every automated gate.
 - **Run a seed**: copy a preset from `presets/` into `players/` and
-  `.\build.ps1 -Greenfield`; players start from `release-v0.2/EldenRing.yaml`
+  `.\build.ps1 -Greenfield`; players start from `release/EldenRing.yaml`
   instead (see the root README).
 
 ## Curated presets

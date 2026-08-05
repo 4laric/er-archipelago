@@ -235,7 +235,7 @@ if ($Greenfield) {
 # ----- package apworld ------------------------------------------------------------------------
 
 # ----- package GREENFIELD apworld (the v0.2 shipping artifact) --------------------------------
-# release-v0.2/SETUP.md tells the player to install eldenring.apworld -- THIS is the step that
+# release/SETUP.md tells the player to install eldenring.apworld -- THIS is the step that
 # builds it. Zips greenfield\eldenring (the SOURCE of truth; -Greenfield installs a copy of the
 # same tree into Archipelago\worlds\eldenring) under an eldenring/ prefix.
 # Gated: the generated modules in that tree must match a hash of the gen inputs on disk, so a stale

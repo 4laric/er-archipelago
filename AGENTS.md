@@ -604,7 +604,7 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
   the window was invisible: world main `0ff714c` pinned `c2fc8ed`, which announced
   `APWORLD_VERSION_EXPECTED = "0.3.0"` while the world was already 0.3.1, and every gate was green.)
   The `client-main-drift` job — push-to-main and nightly, never on a PR — watches the other direction.
-- Player-visible change? The `release-v0.2/CHANGELOG.md` line goes in **this** commit and the
+- Player-visible change? The `release/CHANGELOG.md` line goes in **this** commit and the
   version's `BLURB-v<version>.md` grows with it -- `python tools/check_release_notes.py`
   (CONTRIBUTING rule 14). Do not leave it for tag time; that is how the blurb series died.
 - `git fetch` + rebase onto **the branch you verified in §2** before pushing (Alaric pushes

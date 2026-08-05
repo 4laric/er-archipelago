@@ -60,7 +60,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTRACT = os.path.join(REPO, "greenfield", "eldenring", "contract.py")
-NOTES_DIR = "release-v0.2"          # historical name; it holds v0.3.x too
+NOTES_DIR = "release"
 LEDGER = os.path.join(REPO, NOTES_DIR, "CONTRACT-VERSIONS.tsv")
 LEDGER_REL = NOTES_DIR + "/CONTRACT-VERSIONS.tsv"
 

@@ -50,7 +50,7 @@ The DLC's [b]14 regions[/b] join the region pool with one option, and they behav
 
 [size=4][b]Want randomized enemies and a random starting class too?[/b][/size]
 
-This project doesn't randomize enemies or starting classes — because [url=https://www.nexusmods.com/eldenring/mods/428]thefifthmatt's Elden Ring Item and Enemy Randomizer[/url] already does both superbly, and the two tools [b]stack cleanly[/b]. Matt's rewrites the game's files before you play; this project touches none of them at runtime. Run his enemy shuffle and starting-class randomization on top of your Archipelago seed, with one rule: [b]item randomization must be OFF in matt's[/b] — items are this project's job. A full illustrated walkthrough (including launching the Archipelago client through matt's own launcher) is in the [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md]enemy randomization guide[/url].
+This project doesn't randomize enemies or starting classes — because [url=https://www.nexusmods.com/eldenring/mods/428]thefifthmatt's Elden Ring Item and Enemy Randomizer[/url] already does both superbly, and the two tools [b]stack cleanly[/b]. Matt's rewrites the game's files before you play; this project touches none of them at runtime. Run his enemy shuffle and starting-class randomization on top of your Archipelago seed, with one rule: [b]item randomization must be OFF in matt's[/b] — items are this project's job. A full illustrated walkthrough (including launching the Archipelago client through matt's own launcher) is in the [url=https://github.com/4laric/er-archipelago/blob/main/release/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md]enemy randomization guide[/url].
 
 [size=4][b]What you need[/b][/size]
 [list]
@@ -58,11 +58,11 @@ This project doesn't randomize enemies or starting classes — because [url=http
 [*][b]Archipelago 0.6.7[/b] — from [url=https://archipelago.gg]archipelago.gg[/url]. This release requires 0.6.7 specifically.
 [*][b]ModEngine3 (me3)[/b] — the mod loader that loads the client DLL into the game.
 [/list]
-Install is a two-file drop plus the shipped YAML — nothing to a running seed in about 15 minutes. Follow the [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/SETUP.md]setup guide[/url], then read the [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/PLAYER-GUIDE.md]player guide[/url] for how a run actually plays. One rule worth repeating: the apworld and the client DLL are a hash-matched pair — [b]always install both from the same release[/b].
+Install is a two-file drop plus the shipped YAML — nothing to a running seed in about 15 minutes. Follow the [url=https://github.com/4laric/er-archipelago/blob/main/release/SETUP.md]setup guide[/url], then read the [url=https://github.com/4laric/er-archipelago/blob/main/release/PLAYER-GUIDE.md]player guide[/url] for how a run actually plays. One rule worth repeating: the apworld and the client DLL are a hash-matched pair — [b]always install both from the same release[/b].
 
 [size=4][b]Beta honesty[/b][/size]
 
-This is v0.2 and in active development. Nothing on the known-issues list can strand a run on the base game — the headline issue is that a small class of enemy-drop checks can currently pay out the vanilla item instead of the Archipelago one (those spots never hold progression, so the worst case is a missed filler item). DLC seeds work but have rough edges. The full, honest list — including the by-design behaviors that get reported as bugs — is in [url=https://github.com/4laric/er-archipelago/blob/main/release-v0.2/KNOWN-ISSUES.md]Known Issues[/url]. If something looks wrong and isn't on that list, we want to hear about it: bring your YAML and the spoiler log.
+This is v0.2 and in active development. Nothing on the known-issues list can strand a run on the base game — the headline issue is that a small class of enemy-drop checks can currently pay out the vanilla item instead of the Archipelago one (those spots never hold progression, so the worst case is a missed filler item). DLC seeds work but have rough edges. The full, honest list — including the by-design behaviors that get reported as bugs — is in [url=https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md]Known Issues[/url]. If something looks wrong and isn't on that list, we want to hear about it: bring your YAML and the spoiler log.
 
 [size=4][b]Credits & provenance[/b][/size]
 

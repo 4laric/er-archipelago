@@ -38,7 +38,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTRACT = os.path.join(REPO, "greenfield", "eldenring", "contract.py")
-NOTES_DIR = "release-v0.2"          # historical name; it holds v0.3.x too
+NOTES_DIR = "release"
 CHANGELOG = os.path.join(REPO, NOTES_DIR, "CHANGELOG.md")
 
 # A changelog section shorter than this is a heading with nothing under it. Rule 2:

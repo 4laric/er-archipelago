@@ -1,6 +1,6 @@
 """The shipped yaml's `curated_filler` must equal the code's default -- or it silently pins an old one.
 
-THE BUG THIS EXISTS FOR, and it shipped. `release-v0.2/EldenRing.yaml` carried a literal recipe of
+THE BUG THIS EXISTS FOR, and it shipped. `release/EldenRing.yaml` carried a literal recipe of
 `juice: 44 / stones: 27`. The default in `features/filler_curation.py` had moved to `juice: 42 /
 stones: 29` -- a MEASURED change: at stones 27, three of nine seeds fell under the 24-stone +3
 affordability floor, and 29 "clears with a point of margin, which is what ships".
@@ -31,7 +31,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _FOUND = find_repo_root(HERE)
 REPO = _FOUND or os.path.dirname(os.path.dirname(HERE))
 GF = os.path.join(REPO, "greenfield") if _FOUND else os.path.dirname(os.path.dirname(HERE))
-YAML = os.path.join(REPO, "release-v0.2", "EldenRing.yaml")
+YAML = os.path.join(REPO, "release", "EldenRing.yaml")
 
 
 @unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)
@@ -44,7 +44,7 @@ class ShippingYamlRecipe(unittest.TestCase):
         except ImportError:
             raise unittest.SkipTest("PyYAML absent; the shipping-yaml gates need it")
         if not os.path.isfile(YAML):
-            raise unittest.SkipTest("release-v0.2/EldenRing.yaml not present")
+            raise unittest.SkipTest("release/EldenRing.yaml not present")
         with open(YAML, encoding="utf-8") as fh:
             doc = yaml.safe_load(fh)
         # 🛑 ASSERT the game key, do not fall back to the whole document. `doc.get("Elden Ring", doc)`
@@ -53,7 +53,7 @@ class ShippingYamlRecipe(unittest.TestCase):
         # green run that checked nothing. The fallback has to be an error, because the thing it would
         # be tolerating (no Elden Ring section in the Elden Ring template) is never acceptable.
         assert "Elden Ring" in doc, (
-            "release-v0.2/EldenRing.yaml has no 'Elden Ring' section -- either the game key was "
+            "release/EldenRing.yaml has no 'Elden Ring' section -- either the game key was "
             "renamed or the template is malformed. Refusing to fall back to the whole document, "
             "because that turns every assertion below into a vacuous pass.")
         cls.opts = doc["Elden Ring"]
@@ -84,7 +84,7 @@ class ShippingYamlRecipe(unittest.TestCase):
             self.skipTest("the template does not pin a recipe, so it follows the default -- also fine")
         self.assertEqual(
             dict(shipped), self.default,
-            "release-v0.2/EldenRing.yaml pins a curated_filler recipe that is NOT the code's default. "
+            "release/EldenRing.yaml pins a curated_filler recipe that is NOT the code's default. "
             "An explicit yaml value OVERRIDES the default, so every player generating from this "
             "template gets the pinned one -- which is how the stones-27 economy kept shipping after "
             "it was measured below the +3 affordability floor and fixed. Update the yaml block to "

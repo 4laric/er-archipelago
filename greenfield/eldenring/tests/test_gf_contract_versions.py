@@ -11,7 +11,7 @@ pass while the bug is present? Only a change that edits BOTH the ledger and this
 fixture in the same commit -- which is no longer a slip, it is a decision with a diff
 a reviewer can see.
 
-🛑 REPO-ONLY. These need `tools/` and `release-v0.2/`, which `gf_test.py` does NOT copy
+🛑 REPO-ONLY. These need `tools/` and `release/`, which `gf_test.py` does NOT copy
 into the AP world dir, so under the `tests` job they skip (`find_repo_root` returns None).
 The `generators` job is where they actually execute -- it has the real tree -- and it runs
 them from the `for t in ...` loop alongside the other repo-tooling suites.
@@ -42,7 +42,7 @@ except ImportError:  # invoked as a plain path, not as a package
     from _util import find_repo_root, REPO_ONLY_REASON
 
 _ROOT = find_repo_root(os.path.dirname(os.path.abspath(__file__)))
-LEDGER = os.path.join(_ROOT or "", "release-v0.2", "CONTRACT-VERSIONS.tsv")
+LEDGER = os.path.join(_ROOT or "", "release", "CONTRACT-VERSIONS.tsv")
 GATE = os.path.join(_ROOT or "", "tools", "check_contract_version.py")
 CONTRACT_PY = os.path.join(_ROOT or "", "greenfield", "eldenring", "contract.py")
 
@@ -116,7 +116,7 @@ class ContractVersionLedger(unittest.TestCase):
         version, chash = mod.APWORLD_VERSION, mod.CONTRACT_HASH[:8]
         self.assertIn(version, rows,
             "APWORLD_VERSION is %s and the ledger has no row for it. Add "
-            "`%s\t%s\t<why>` to release-v0.2/CONTRACT-VERSIONS.tsv in the same commit as the bump."
+            "`%s\t%s\t<why>` to release/CONTRACT-VERSIONS.tsv in the same commit as the bump."
             % (version, version, chash))
         self.assertEqual(rows[version], chash,
             "the contract moved under version %s: contract.py computes %s, the ledger says %s. "
@@ -129,7 +129,7 @@ class ContractVersionLedger(unittest.TestCase):
         bump, and asserts a NON-ZERO exit. If this ever passes, the gate has been talked into
         accepting the thing it exists to catch."""
         with tempfile.TemporaryDirectory() as td:
-            for rel in ("tools", "release-v0.2", os.path.join("greenfield", "eldenring")):
+            for rel in ("tools", "release", os.path.join("greenfield", "eldenring")):
                 dst = os.path.join(td, rel)
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copytree(os.path.join(_ROOT, rel), dst, dirs_exist_ok=True,

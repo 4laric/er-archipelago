@@ -59,7 +59,7 @@ with a message that names both options and says why — don't let it reach fill.
 - **Docstrings match behavior.** Every option's docstring describes what it
   actually does. A docstring that lies is a bug, and it feeds the yaml
   comprehension/reference layer (`wizard/options-metadata.json`,
-  `release-v0.2/EldenRing.yaml`) — keep those in sync.
+  `release/EldenRing.yaml`) — keep those in sync.
 - **Item-pool edits stay count-neutral.** The items-equals-locations invariant
   must hold. If you add items, remove or convert an equal number; if you
   replace, replace 1:1. `filler_replacement`-style changes are the model:
@@ -328,11 +328,11 @@ Run through this before a change lands (PR or direct):
 - [ ] Every constraint the change designs around names its owner — GAME / ARCHIPELAGO / US — with a
       citation for the first two; anything handed to a subagent or a future session is labelled
       assumption-vs-invariant, never silently hardened into a brief.
-- [ ] Player-visible change? Its `release-v0.2/CHANGELOG.md` line is in THIS commit, under the
+- [ ] Player-visible change? Its `release/CHANGELOG.md` line is in THIS commit, under the
       current `## v<version> — <date>` heading, and `BLURB-v<version>.md` grew with it --
       `python tools/check_release_notes.py` is green (rule 14).
 - [ ] Contract change (a key added/removed/reshaped, or required-ness flipped)? `APWORLD_VERSION`
-      bumped in the SAME commit, a new row appended to `release-v0.2/CONTRACT-VERSIONS.tsv`, and the
+      bumped in the SAME commit, a new row appended to `release/CONTRACT-VERSIONS.tsv`, and the
       client bumped in lockstep -- `python tools/check_contract_version.py` is green (rule 15).
 - [ ] A merged spec's acceptance list is pasted into a tracking issue, one checkbox per line, each
       marked shipped / partial / absent with the command or file that proves it. Prose in
@@ -540,11 +540,11 @@ fifteen seconds. That reconstruction cost is what killed the blurb series. Nobod
 writing blurbs; the price of starting one just kept going up until it was always tomorrow's job.
 
 - **Every player-visible change lands its CHANGELOG line in the SAME commit.**
-  `release-v0.2/CHANGELOG.md` (historical directory name -- it holds v0.3.x too), under the current
+  `release/CHANGELOG.md`, under the current
   `## v<version> — <date>` heading. Not "before the tag", not "when the window closes": the same
   commit, because that is the only commit whose author has both the change and the reason.
 - **The blurb is drafted as the window FILLS, not at tag time.**
-  `release-v0.2/BLURB-v<version>.md` opens on the first change of a version and grows with it. A
+  `release/BLURB-v<version>.md` opens on the first change of a version and grows with it. A
   blurb written from scratch afterwards is the reconstruction above, wearing a deadline.
 - **Per rule 13's own logic, the two bullets above are a to-do list until something checks them.**
   `tools/check_release_notes.py` is that something: AP-free, wired into CI and `run_ci.ps1`, red the
@@ -574,7 +574,7 @@ triaging, months later, from a log line.
 - **A contract change and a version bump land in the SAME commit** -- with the client half
   (`crates/eldenring-archipelago/Cargo.toml` + the regenerated `contract_gen.rs`) in lockstep,
   per the cross-repo ordering in the landing checklist.
-- **`release-v0.2/CONTRACT-VERSIONS.tsv` is the ledger**: one row per version, recording the
+- **`release/CONTRACT-VERSIONS.tsv` is the ledger**: one row per version, recording the
   hash that version ships. It is append-only history. Editing an existing row to make a gate
   green does not make two builds compatible -- it deletes the only evidence that they differ.
 - **Per rule 13's own logic, the two bullets above are a to-do list until something checks

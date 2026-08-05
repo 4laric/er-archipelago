@@ -252,6 +252,6 @@ seed with no edits.
       seed, on the grounds that the contract hash has not moved. If the client compares
       `APWORLD_VERSION` for exact equality rather than comparing the contract, that claim is wrong and
       the warning above must become **Client update required**. Worth settling before this goes out.
-- [ ] **Changelog entry.** `release-v0.2/CHANGELOG.md` has no v0.3.1 section yet.
+- [ ] **Changelog entry.** `release/CHANGELOG.md` has no v0.3.1 section yet.
 - [ ] There is no `BLURB-v0.3.0.md` — the blurb series stops at v0.2.18. If v0.3.0 shipped its notes
       straight from the changelog, this file may want to follow that instead.
