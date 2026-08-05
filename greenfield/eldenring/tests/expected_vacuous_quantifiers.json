@@ -1,0 +1,4 @@
+{
+  "test_gf_off_means_off.py::survey any()": "EMPTY IS THE CORRECT READING HERE. `any(key not in ks for ks in rec['cond_ret_keys'])` asks 'does a conditional return-dict gate this key?'. A function with no conditional-return sites has no such gate, and any([]) is False, which is exactly that answer. Found by the spy on its first full run, 2026-08-05, and adjudicated as correct rather than fixed -- the waiver exists so the site stays visible if its meaning ever changes.",
+  "test_gf_test_hygiene.py::has_assert_path any()": "EMPTY IS THE CORRECT READING HERE. The generator walks a function's calls to LOCAL helpers looking for a delegated assert path; a function that calls no local helper has no such path, and any([]) is False, which is exactly that answer. Found by the spy in CI on 2026-08-05, adjudicated as correct rather than fixed."
+}
