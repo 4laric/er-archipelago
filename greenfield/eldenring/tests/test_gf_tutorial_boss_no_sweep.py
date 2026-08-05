@@ -306,13 +306,26 @@ def test_the_sweep_corpus_did_not_shrink():
           an overworld tile is now admitted on that basis.
 
         The +225 (vs ~217 predicted) is the m61 population plus a handful of m60-tiled rows the same
-        admission rule legitimately picks up."""
+        admission rule legitimately picks up.
+
+    -13 (2026-08-05, spell-vendor MERCHANT re-key) 3701 -> 3688. NOTHING was removed from a sweep by
+        geometry; 13 checks became INELIGIBLE for sweeps because they were finally tagged.
+
+        `_FIELD_EXCLUDE_TAGS` holds the shop tags, and these 13 carried NO shop tag at all: the
+        spell-vendor classifier was keyed on the ShopLineupParam 100-block, so a check whose block
+        was spell-heavy was passed over entirely and never got `ShopNonSpell`. Untagged, they read
+        as ordinary overworld filler and were being GRANTED BY KILLING A BOSS despite being merchant
+        stock. Re-keying the classifier onto the talk ESD tags them, and the tag excludes them.
+
+        Verified as exactly the tag-changed set, by set-difference rather than inferred from the
+        total moving: 0 checks were ADDED to any sweep, 13 were removed, and (added | removed) is a
+        subset of the checks whose LOCATION_TAGS changed in the same regen."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
     # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
     # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
-    assert total == 3701, (
-        "sweep corpus is %d, expected 3701. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3688, (
+        "sweep corpus is %d, expected 3688. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
