@@ -169,6 +169,59 @@ def test_ceiling_and_floor_round_the_OPPOSITE_way():
     assert _floor_tier(mid) == 6, "a floor takes the first rung AT LEAST as strong"
 
 
+def test_enemy_scaling_is_reachable_and_defaults_to_on():
+    """The vanilla switch is a real yaml option, not a frozen constant, and the default is unchanged
+    behaviour -- a seed that never mentions it scales exactly as before."""
+    assert "enemy_scaling" not in defaults.FROZEN_OPTIONS
+    assert sc.Scaling.OPTIONS["enemy_scaling"] is sc.EnemyScaling
+    assert sc.EnemyScaling.default == 1
+
+
+class TestVanillaScaling:
+    """`enemy_scaling: false` must reach the client's own arm/disarm switch.
+
+    CONTRIBUTING rule 11: the motivating case is "I want the item randomizer without the difficulty
+    curve", and the only thing that delivers it is the ONE key er-logic `parse_scaling_config` reads
+    before anything else. Assert that key by name through the real `fill_slot_data` path -- a feature
+    that computed a correct curve and forgot to flip this would look entirely correct in review.
+    """
+
+    @staticmethod
+    def _slot_data(on):
+        WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+
+        class _T(WorldTestBase):
+            game = GAME
+            options = {"num_regions": 0, "enemy_scaling": on}
+
+        t = _T()
+        t.setUp()
+        try:
+            return t.world.fill_slot_data()
+        finally:
+            t.tearDown()
+
+    def test_off_disarms_the_client(self):
+        sd = self._slot_data(False)
+        assert sd["completion_scaling"] == 0, (
+            "er-logic parse_scaling_config returns None on a falsey completion_scaling, which is "
+            "what leaves every enemy vanilla. Any other value arms the sweep.")
+
+    def test_on_is_the_shipped_curve(self):
+        assert self._slot_data(True)["completion_scaling"] == 4, "4 = smoothstep, the shipped curve"
+
+    def test_off_changes_nothing_else_on_the_wire(self):
+        """One switch, read in one place. The client short-circuits on `completion_scaling` before
+        reading the ranges, so withholding them would buy nothing and would make an off-seed a second
+        slot_data shape to reason about -- and a shape that only exists for one option value is a
+        shape nobody tests."""
+        off, on = self._slot_data(False), self._slot_data(True)
+        assert off.keys() == on.keys(), "an off-seed must not be a different wire SHAPE"
+        differing = [k for k in on if off[k] != on[k]]
+        assert differing == ["completion_scaling"], (
+            f"turning scaling off changed {differing} -- it must change exactly one key")
+
+
 class TestSlotDataUnits:
     """END TO END on a generated world -- the composition, not the pieces. CONTRIBUTING rule 11: a
     pipeline of individually correct stages can still drop the exact case it was built for, so the
