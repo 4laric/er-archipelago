@@ -201,6 +201,41 @@ progression -- a region you unlock late is tuned tougher, even "early"
 territory. That is scaling, not randomization; the enemies are still
 whatever your game (vanilla or matt-shuffled) puts there.
 
+## If you run matt's randomizer, leave his scaling boxes UNCHECKED
+
+matt's randomizer has its own enemy scaling, and it exists for a good
+reason: when it moves an enemy somewhere new, it adjusts that enemy for
+where it now stands. Ours does something different -- it re-tiers every
+enemy by how deep its region sits in *your unlock order*.
+
+**Run both and they compound.** We measured this directly, per enemy, in
+one session with his scaling off and one with it on:
+
+- his scaling **off**: every enemy's health was exactly what our tier
+  predicts from the game's own base values -- we are the only thing
+  scaling them, and the numbers land on the unit digit.
+- his scaling **on**: health no longer matched that prediction, by a
+  factor that differed from enemy to enemy -- around half on the median,
+  and much further out at the edges.
+
+His adjustments are written into the game's data before the game starts,
+so our client cannot see them or undo them. It applies your progression
+tier on top of whatever is already there. Neither tool is wrong; they are
+just both doing the job, to the same enemies, without knowing about each
+other. The result is difficulty that is hard for anyone to predict --
+including us, which is why we tune against the un-checked configuration.
+
+**So: pick one.** If you want his enemy placement with our progression
+curve -- the combination this project is built and tested around -- turn
+his scaling options off and leave ours alone. If you would rather have his
+scaling, that is a legitimate way to play; just know that the difficulty
+you get is not the one this project's difficulty options describe, and
+reports from that setup are hard for us to act on.
+
+If you have already been playing with both on and the difficulty has felt
+erratic -- two enemies side by side wildly apart, an ordinary NPC tougher
+than a boss -- this is the most likely reason.
+
 ## What this project randomizes instead
 
 - **The item and check layer.** Every item pickup -- corpse loot, chests,
