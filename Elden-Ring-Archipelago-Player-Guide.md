@@ -399,9 +399,9 @@ detected a different way entirely, which is exactly why the failure is
 one-directional.
 
 **Unload the dll.** Turning off its auto-equip and auto-upgrade options is not
-enough on some versions. You are not losing a feature: `auto_upgrade` is a yaml
-option on our side, delivered by the client that actually knows which of your
-items came from Archipelago.
+enough on some versions. You are not losing a feature: our side has its own
+auto-upgrade, delivered by the client that actually knows which of your items
+came from Archipelago.
 
 `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` has the long version, including what
 does compose safely. If you are seeing this fingerprint *without* that dll
