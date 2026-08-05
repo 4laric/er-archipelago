@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "aef4ce416bbde96fd8135f6309ae8ce7109948bbc522c8a66ba44bd9c9f39976",
+ "source_sha256": "cd182eb6753bc3f04fb34d99b184ad4139d8bbba1a8f8528c358e56645b77e28",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -811,10 +811,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "minimum_enemy_difficulty",
    "class": "MinimumEnemyDifficulty",
    "display_name": "Minimum Enemy Difficulty",
-   "description": "How hard the EASIEST enemies in your run are. 0 (default) leaves the early game at its normal\nstrength; higher values lift the whole floor, so nowhere stays trivial once you have outgrown it.\n\n  0    normal -- your first region is as weak as vanilla-ish   (default)\n  25   nothing below about 2x enemy HP\n  50   nothing below about 4x\n  100  everything at maximum, everywhere, from your first region on\n\nUseful because progression here is not geography: a region you unlock late can be an \"early\"\none, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting.",
+   "description": "How hard the EASIEST enemies in your run are. Lifting the floor stops anywhere staying trivial\nonce you have outgrown it.\n\n  0    as weak as this mod can make anything -- well below vanilla's own floor\n  25   nothing below about 2.3x enemy HP   (default)\n  50   nothing below about 4x\n  100  everything at maximum, everywhere, from your first region on\n\nUseful because progression here is not geography: a region you unlock late can be an \"early\"\none, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting.\n\nWHY THE DEFAULT IS NOT 0 (changed 2026-08-05, measured -- see below). Vanilla applies TWO scaling\neffects to an enemy, not one: a rung off the ladder we mirror, AND a second row at the same index\n400 ids higher. Its effective multiplier is the PRODUCT, and the second family DESCENDS as the\nfirst ascends -- it is a compensator, and it flattens vanilla's real curve to a 2.1x spread\nbetween its weakest and strongest enemies. We only ever applied the first family, so at floor 0\nwe put enemies at 1.14x where vanilla never goes below 3.56x: roughly a THIRD of the weakest\nthing the base game ships anywhere, not merely weak \"for that area\".\n\nA floor of 25 lands on 2.27x -- deliberately still under vanilla's floor, because in a randomized\nworld your first region can hold an endgame MOVESET, and undershooting the stats is the honest\ncompensation for that. Set 0 if you want the old behaviour; it remains fully expressible.",
    "kind": "range",
    "base": "Range",
-   "default": 0,
+   "default": 25,
    "choices": null,
    "range": {
     "start": 0,
