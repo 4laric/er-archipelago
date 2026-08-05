@@ -124,6 +124,10 @@ def test_d_hunter_of_the_dead_is_also_a_spell_vendor():
 def test_no_pinned_merchant_sells_any_spell():
     """The general invariant -- zero tolerance, not a ratio. This is the rule; Gowry is one case."""
     names, stock, lt = _names(), _merchant_stock(), _tags()
+    # WITNESS (test_gf_vacuous_pass): assert the scan SAW candidates in this function, not just in
+    # the helper -- an empty pin set would otherwise satisfy the emptiness assertion below for
+    # exactly the reason a correct implementation would.
+    assert lt.SHOP_SLOT_PINS, "no ShopSlot pins at all -- this invariant would pass vacuously"
     offenders = {}
     for talk in lt.SHOP_SLOT_PINS:
         spells = sorted(a for a in stock.get(talk, set()) if _SPELL.search(names.get(a, "")))
