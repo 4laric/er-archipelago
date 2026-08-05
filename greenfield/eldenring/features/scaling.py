@@ -31,7 +31,7 @@ raises on duplicate keys).
 """
 import random
 
-from Options import Range, Choice, Removed, OptionError, NamedRange
+from Options import Range, Choice, Removed, OptionError, NamedRange, Toggle
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from .. import contract
@@ -261,6 +261,25 @@ def blessing_floor_ranges(kept):
     return triples
 
 
+class EnemyScaling(Toggle):
+    """Whether enemy difficulty follows your PROGRESSION instead of the map.
+
+    On (default), a region's enemies are re-tiered by how deep it sits in your unlock order, so a
+    zone you reach late is dangerous even if it is early on the map, and one you open first is not a
+    walkover just because it is late. `minimum_enemy_difficulty`, `maximum_enemy_difficulty` and
+    `difficulty_ramp_speed` shape that curve.
+
+    Off = VANILLA. Every enemy keeps exactly the strength the base game gave it, everywhere. The
+    client does not touch a single enemy: no re-tiering, no floor, no ceiling, and the three sliders
+    above stop meaning anything. Worth choosing if you want the randomizer's item placement without
+    its difficulty curve, or if you are playing a route where the vanilla curve already suits you.
+
+    🛑 A seed rolled with this off is not "easier" -- it is the game's own difficulty, which in a
+    randomized world can mean meeting a late-game area's enemies at level 20."""
+    display_name = "Enemy Scaling"
+    default = 1
+
+
 class MinimumEnemyDifficulty(Range):
     """How hard the EASIEST enemies in your run are. Lifting the floor stops anywhere staying trivial
     once you have outgrown it.
@@ -435,6 +454,7 @@ class GlobalScadutreeBlessing(Choice):
 class Scaling(Feature):
     name = "scaling"
     OPTIONS = {
+        "enemy_scaling": EnemyScaling,
         "minimum_enemy_difficulty": MinimumEnemyDifficulty,
         "maximum_enemy_difficulty": MaximumEnemyDifficulty,
         "difficulty_ramp_speed": DifficultyRampSpeed,
@@ -482,8 +502,20 @@ class Scaling(Feature):
             ranges = sphere_target_ranges(world._kept(), ramp)
         blessing = int(world.options.global_scadutree_blessing.value)
         kept_regions = world._kept()
+        # VANILLA MODE. `completion_scaling` is the client's own arm/disarm switch: er-logic
+        # `parse_scaling_config` returns None on a falsey value, so `CONFIG` stays empty, `tick()`
+        # returns immediately, and the sweep never runs -- no clear, no apply, every enemy exactly as
+        # the base game shipped it. That path already existed and is already the documented degrade;
+        # nothing here is new client behaviour, and no client release is needed.
+        #
+        # The rest of the payload is emitted UNCHANGED either way, deliberately. The client
+        # short-circuits on this key before reading any of it, so withholding the ranges would buy
+        # nothing and would make an off-seed's slot_data a second shape to reason about. One switch,
+        # read in one place.
+        scaling_on = bool(world.options.enemy_scaling.value)
         out = {
-            "completion_scaling": 4,  # smoothstep (client curve id; SPEC-PARITY P2)
+            # smoothstep (client curve id; SPEC-PARITY P2), or 0 = OFF -> vanilla.
+            "completion_scaling": 4 if scaling_on else 0,
             # UNIT SPACE: this legacy TOP-LEVEL copy is the raw player-facing PERCENT (0..100). The
             # key the client actually reads is sd["options"]["completion_scaling_floor"], emitted by
             # core._options_echo as the HP MULTIPLIER (see floor_multiplier). Two keys, same name,

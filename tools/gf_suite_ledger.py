@@ -100,6 +100,9 @@ TESTS_JOB = {
     "surface_confidence": "committed surface_confidence.tsv",
     "academy_key_pocket": "committed gen_data.py/data.py read by walk-up; the fill-binding half "
                           "needs the installed world (module-level try-import, no skip)",
+    "spell_vendor_merchants": "committed merchant_shops.tsv + generated shop_data/location_tags/"
+                              "data.py, all read by walk-up; no AP import, but the tests job is "
+                              "where the repo tree is guaranteed present",
     "isolated_merchant_region": "committed gen_data.py/data.py/location_tags.py read by walk-up; "
                                 "the fill-binding half needs the installed world (tests job has it)",
     "unplaced_globals": "bundle-covered EMEVD corpus",

@@ -6321,37 +6321,52 @@ if LOT_ITEMS:
 else:
     print("[gen_data] WARNING: ItemLotParam absent -- category tags left as NAME-derived")
 
-# ---- ShopNonSpell: shop checks NOT sold by a dedicated spell vendor -------------------------------
+# ---- Spell vendors + ShopNonSpell: keyed on the MERCHANT, not the 100-block ----------------------
 # Shops are randomized checks but are NOT progression-eligible by default (Alaric 2026-07-11): a seed
 # where most progression is bought from a merchant plays as "farm runes, buy the game". The tag exists
 # so shops CAN be opted into the progression surface -- minus the dedicated spell vendors (Sellen,
-# Miriel, ...), whose stock is ~all sorceries/incantations. "Dedicated" is measured, not curated: a
-# ShopLineupParam 100-block whose stock is >=50% spells. (General merchants who happen to stock a spell
-# or two -- Kale, the Twin Maidens -- stay eligible.)
+# Miriel, Corhyn, Gowry, ...), whose stock is sorceries/incantations.
+#
+# MOTIVATING CASE (rule 11, 2026-08-05). A player reported a Limgrave Lock sitting on
+# `Caelid :: [Sorcery] Night Shard - from Sage Gowry [f110750]` (ap 7770249) -- our own progression,
+# behind a questline: Gowry's talk ESD gates his whole shop range on flag 4167, "NPC349 Corrupt
+# Elder_Character state transition" (esd_gates.tsv; check_maps.tsv already carries 4167 on this very
+# flag). Gowry sells FOUR checks and all four are spells, so he is as dedicated a spell vendor as the
+# game has -- yet he was tagged ShopNonSpell AND pinned as a ShopSlot.
+#
+# WHY. "Dedicated" was measured over the ShopLineupParam 100-BLOCK, and a check's block is
+# SHOP_ROW_IDS[ap][0] // 100. Gowry's rows are 1001xx, so his four spells were scored against block
+# 1001 -- the Twin Maiden Husks HUB block, 6/24 spells = 25% -- and a 100%-spell merchant inherited a
+# general store's ratio. That is exactly the unit the 2026-07-24 ShopSlot rework retired:
+# merchant_shops.tsv exists "precisely because 'block = one merchant' is false", and the funnel below
+# has iterated talk ESDs ever since. The classification feeding it never followed, so the code said
+# MERCHANT while the data still said BLOCK. Both are talk-keyed now.
+#
+# ZERO TOLERANCE, NOT A RATIO (Alaric 2026-08-05): a merchant is a spell vendor if ANY of its checks
+# is a spell. The old >=50% bar existed to stop a general store that stocks a spell or two (Kale, the
+# Twin Maidens) being condemned by its BLOCK's ratio; at merchant granularity there is nothing left
+# for it to protect. MEASURED: it moves exactly ONE merchant (801266000, 1/8 spells -- already
+# skipped as an alt-currency Dragon Communion shelf) and ZERO pins. A threshold also drifts -- block
+# 1019 sat at 48%, two checks from flipping the classification of 62 rows -- and a rule with no
+# constant in it cannot cross a line the data moved.
+#
+# BOUND ON "ENTIRE INVENTORY": this is measured over a merchant's AP CHECKS, not its true
+# ShopLineupParam stock. Unlimited rows (sellQuantity -1) are excluded from checks by design (see
+# shop_rows.tsv's header), so a merchant whose ONLY spell is an infinite-stock row still reads as
+# spell-free. Under a ratio that was noise; under zero tolerance it is the one remaining way a spell
+# seller stays eligible. Widening to full stock needs those rows plumbed in -- deliberately not done
+# here, so the rule is only ever as strict as its input.
+#
 # Detect a spell from the RAW region_map item_name, which carries the "[Sorcery]" / "[Incantation]"
 # prefix. Two things that do NOT work: LOCATION_ITEM (the canonical name -- _resolve_item strips that
 # prefix), and ITEM_TIER_CATEGORY (item_tiers.tsv only TIERS 57 spells; shops sell ~129 spell slots,
 # so most carry no tier at all). The raw name is the only complete signal.
+# The classification needs _field_openers/_ap2flag (merchant_shops.tsv), built with the ShopSlot
+# funnel below -- so it lives THERE, beside the loop it gates.
 _SPELL_RE = re.compile(r"^\s*\[(Sorcery|Incantation)\]", re.I)
 _ap_rawitem = {BASE_AP + _i: (_r.get("item_name") or "") for _i, _r in enumerate(rows)}
-_blk_tot = Counter(); _blk_spell = Counter(); _ap_blk = {}
-for _aps, _rows2 in SHOP_ROW_IDS.items():
-    if not _rows2:
-        continue
-    _b = _rows2[0] // 100
-    _ap_blk[int(_aps)] = _b
-    _blk_tot[_b] += 1
-    if _SPELL_RE.match(_ap_rawitem.get(int(_aps), "")):
-        _blk_spell[_b] += 1
-_SPELL_VENDOR_BLOCKS = {_b for _b in _blk_tot if _blk_tot[_b] and _blk_spell[_b] / _blk_tot[_b] >= 0.5}
-_nonspell = 0
-for _ap2, _b in _ap_blk.items():
-    if _b in _SPELL_VENDOR_BLOCKS:
-        continue
-    _tags = loc_tags.setdefault(_ap2, [])
-    if "ShopNonSpell" not in _tags:
-        _tags.append("ShopNonSpell"); _nonspell += 1
-_SPELL_SHOP_CHECKS = sum(_blk_tot[_b] for _b in _SPELL_VENDOR_BLOCKS)
+_ap_blk = {int(_aps): _rows2[0] // 100 for _aps, _rows2 in SHOP_ROW_IDS.items() if _rows2}
+_ap_is_spell = {_a: bool(_SPELL_RE.match(_ap_rawitem.get(_a, ""))) for _a in _ap_blk}
 
 # ---- ShopSlot: at most ONE progression slot per MERCHANT, pinned to a MERCHANT-UNIQUE ware --------
 # Tagging all non-spell shop rows progression-eligible lets merchants DOMINATE BY BREADTH (~70% of the
@@ -6480,12 +6495,32 @@ _ap2flag = {aid: fl for _reg, _locs in buckets.items() for (_nm, aid, fl) in _lo
 # so missed the DLC Grand Altar entirely (Bayle's Tyranny is costType 5). Widened to "not runes" --
 # see the note on DRAGONHEART_FLAGS. Alaric spotted it because a Bayle incantation turned up as a
 # candidate PIN, which is the only reason anyone was looking at that shelf.
-_talk_checks = defaultdict(list)               # talk_id -> its non-spell check ap-ids
-for _ap2, _b in _ap_blk.items():
-    if _b in _SPELL_VENDOR_BLOCKS:
-        continue
+# A merchant's STOCK is every check it opens outside the hub: the Twin Maidens' bell-bearing mirror
+# is that merchant's own stock relocated after the fact, never a second seller (_field_openers).
+_talk_stock = defaultdict(set)
+for _ap2 in _ap_blk:
     for _t in _field_openers(_ap2flag.get(_ap2)):
-        _talk_checks[_t].append(_ap2)
+        _talk_stock[_t].add(_ap2)
+_SPELL_VENDOR_TALKS = {_t for _t, _aps1 in _talk_stock.items()
+                       if any(_ap_is_spell.get(_a1) for _a1 in _aps1)}
+_talk_checks = defaultdict(list)               # NON-SPELL merchant -> the checks it opens
+for _t, _aps1 in _talk_stock.items():
+    if _t not in _SPELL_VENDOR_TALKS:
+        _talk_checks[_t] = sorted(_aps1)
+
+# ShopNonSpell keeps a check when at least one NON-SPELL merchant sells it. A check whose every field
+# seller is a dedicated caster IS that caster's stock, whoever mirrors it at the hub. A hub-ONLY check
+# has no field seller to condemn it, so it keeps the tag (its seller is the Twin Maidens, a general
+# store) -- it is barred from progression on other grounds anyway.
+_nonspell = 0
+for _ap2 in _ap_blk:
+    _fo = _field_openers(_ap2flag.get(_ap2))
+    if _fo and _fo <= _SPELL_VENDOR_TALKS:
+        continue
+    _tags = loc_tags.setdefault(_ap2, [])
+    if "ShopNonSpell" not in _tags:
+        _tags.append("ShopNonSpell"); _nonspell += 1
+_SPELL_SHOP_CHECKS = len(_ap_blk) - _nonspell
 
 
 _ALT_CURRENCY_TALKS = {_t for _t, _aps0 in _talk_checks.items()
@@ -6547,11 +6582,20 @@ for _t, _aps2 in sorted(_talk_checks.items()):
     _tags = loc_tags.setdefault(_rep, [])
     if "ShopSlot" not in _tags:
         _tags.append("ShopSlot")
+# Spell vendors never enter the funnel, but a merchant that silently vanishes is exactly the failure
+# mode SHOP_SLOT_SKIPS exists to prevent -- so they are recorded with their reason like every other
+# skip (CONTRIBUTING: skipping is INTENDED here, but it is never quiet).
+for _t in sorted(_SPELL_VENDOR_TALKS):
+    _st = _talk_stock[_t]
+    _SHOP_SLOT_SKIPS[_t] = ("dedicated spell vendor: %d of its %d check(s) are sorceries/"
+                            "incantations, so none of its slots may carry progression"
+                            % (sum(1 for _a1 in _st if _ap_is_spell.get(_a1)), len(_st)))
+
 _merch_rows = _talk_checks                     # name kept for the summary print below
 print(f"ShopSlot: {len(_SHOP_SLOTS)} of {len(_merch_rows)} non-spell MERCHANT(s) (talk ESD) pinned -- ONE "
       f"merchant-unique, start-stocked, region-confident progression slot each; "
       f"{len(_SHOP_SLOT_SKIPS)} block(s) SKIPPED; "
-      f"{len(_SPELL_VENDOR_BLOCKS)} spell vendor(s) excluded upstream")
+      f"{len(_SPELL_VENDOR_TALKS)} spell vendor(s) excluded upstream")
 for _b in sorted(_SHOP_SLOTS):
     print(f"  ShopSlot pinned block {_b}: ap {_SHOP_SLOTS[_b]} = {_ap_rawitem.get(_SHOP_SLOTS[_b], '?')!r}")
 for _b in sorted(_SHOP_SLOT_SKIPS):
@@ -6560,8 +6604,8 @@ if not _SHOP_SLOTS:
     raise SystemExit("FATAL: ShopSlot pinned ZERO merchants -- the whole shop class fell off the "
                      "progression surface; the uniqueness/region inputs must have collapsed "
                      "(rule 2: an empty result is a FAILURE, not a clean run)")
-print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_BLOCKS)} dedicated "
-      f"spell-vendor block(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchant blocks: {len(_blk_tot)}")
+print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VENDOR_TALKS)} dedicated "
+      f"spell-vendor merchant(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchants with stock: {len(_talk_stock)}")
 
 
 # ---- MajorBoss tag: the REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked) ----
