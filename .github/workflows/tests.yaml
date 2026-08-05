@@ -109,12 +109,17 @@ jobs:
       # different Archipelago than CI: 661 tests collected vs 686, a different Fill.py, different spheres,
       # and a test that is green here failed there. tools/gf_test.py is now the only definition of the
       # harness -- it pins .ap-version, REFUSES to run against a fork, and installs (never symlinks).
+      # --quantifier-spy: fail the run if any all()/any() in the suite was called on an EMPTY
+      # iterable. `all([])` is True and `any([])` is False -- both the answer the test wanted -- so a
+      # quantifier whose subject set has silently become empty passes for exactly the same reason it
+      # would pass if the mechanism worked. Measured zero on 2026-08-04 and again on 08-05; the
+      # guard exists for the day a table is renamed or a filter stops matching.
       # --skip-census: the observed skip inventory must match the committed census exactly
       # (greenfield/eldenring/tests/expected_skips_ci.json). "Deliberately dev-box-only" and
       # "dark by accident" look identical in a green run; the census is the instrument that can
       # tell them apart, and it turns any skip-family or count change into a reviewed diff.
       - name: pytest (tools/gf_test.py -- pinned upstream AP)
-        run: python tools/gf_test.py --ap-dir _ap --skip-census greenfield/eldenring/tests/expected_skips_ci.json
+        run: python tools/gf_test.py --ap-dir _ap --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json
 
       # Wizard metadata drift, against the LIVE GFOptions -- the only instrument that can tell the
       # three committed artifacts (wizard/options-metadata.json, the blob inlined in

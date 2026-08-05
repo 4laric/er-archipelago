@@ -422,6 +422,24 @@ A passing test proves nothing until you have seen it fail. Disable your fix, con
 re-enable. If you cannot make it fail, you have not tested anything. *(The `EarlyGuarantee` gate was only
 trustworthy once the guarantee was switched off and it reported `guaranteed 12, found 7`.)*
 
+**AND THE MIRROR: prove the feature DOES something. State the delta before you touch the pin.**
+Breaking the fix catches a test that cannot fail. It does not catch a *feature* that does nothing --
+for that, every gate is honestly green, because nothing is wrong except that nothing happened.
+
+> `SPEC-broaden-sweeps` piece A widened the sweep corpus to the DLC overworld. Its first cut claimed
+> **exactly 0 checks**: `_mem_tile` is fed from rows that passed `_swept`, and a `global_filler` on
+> `m61_46_46` passed none of its branches, so the pass ran over an EMPTY GRID. The regen log printed
+> a healthy line, the full suite was green, and `test_the_sweep_corpus_did_not_shrink` -- the very
+> ledger built to police this number -- passed too, because its pin was still correct. A feature that
+> does nothing disturbs nothing.
+
+**A corpus ledger is a REGRESSION ratchet, not an INERTNESS one.** You update the pin *after*
+measuring, so the pin can never tell you the measurement was zero. Therefore: before editing a pinned
+total, diff the artifact against the previous commit and say what moved and why -- how many entered,
+how many left, which triggers changed. If the answer is "nothing entered", the feature is not
+finished, however green the run. *(Piece B's ledger entry does this in full: 150 in, 0 out, 126
+map-local, 24 to the region divvy, 2 refused and why.)*
+
 **8. Guard the right thing.**
 A guard is a derivation too, and it will lie to you just as happily. One written here asserted "the ids
 should exist in `ITEM_CATALOG`" — but the catalog only holds what the world can *grant*, so it measured
