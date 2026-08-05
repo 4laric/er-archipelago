@@ -19,6 +19,30 @@ which is a to-do, not a fix.
 `CONTRACT_HASH` is unmoved from v0.3.0 (`5e8b11c9`), so the handshake is unchanged and seeds
 rolled on 0.3.1+ still connect. The bump is version-lockstep across both repos.
 
+### Key items behave more like matt's randomizer
+
+The missable bar used to cover every item an NPC hands you, on the reasoning that an NPC can die.
+More than half of those are handed over the first time you talk, with no questline state behind
+them — so they now count as places progression can live. In practice the **Rold Medallion**, the
+**Drawing-Room Key** and the **right Haligtree Secret Medallion** stop being dead ends for the fill,
+and four more items are recognised as key items at all: Messmer's Kindling, the Hole-Laden Necklace,
+the Fingerslayer Blade and Rya's Necklace.
+
+The distinction kept is the one that actually bites: an item you can lose by advancing a questline
+still cannot hold anything required. Rya's Necklace is barred for that reason, and the Fingerslayer
+Blade for a related one — you hand it to Ranni.
+
+The key-item share of the progression surface goes from 8 of 15 checks able to host, to 13 of 19.
+
+### Rya's Necklace was in the wrong region
+
+It was filed under Altus because of a bad map join. It is handed to you at Boilprawn Shack, in
+**Liurnia**, which is where it now lives.
+
+_(These landed in #375, which merged before this window was open — the notes belong here, in the
+version that will actually ship them, not in the tagged v0.3.4 section they would otherwise have
+gone into.)_
+
 ## v0.3.4 — 2026-08-04
 
 Window opened 2026-08-04 (rule 14), and opened LATE -- which is the first thing to record.
