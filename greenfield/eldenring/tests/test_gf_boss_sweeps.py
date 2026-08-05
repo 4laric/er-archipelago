@@ -230,6 +230,65 @@ class BossSweepScoping(unittest.TestCase):
                          "sweep region regressed -- the tile's own checks are 'near Yelough Anix "
                          "Tunnel' and one of them is the Night's Cavalry Helm (flag 1048557710)")
 
+    _GRID_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)")
+
+    def test_overworld_sweeps_never_mix_GRIDS(self):
+        r"""m60 and m61 are two coordinate systems, not one (SPEC-broaden-sweeps piece A, 2026-08-05).
+
+        The DLC overworld pass reuses the base game's nearest-boss machinery, which was written when
+        `_tile_xy` held a bare `(x, y)`. An m60 tile at (44,45) and an m61 tile at (44,45) are
+        different places on different continents; comparing them yields a distance that means
+        nothing, and a SMALL one -- so the failure mode is a DLC boss quietly claiming base-game
+        checks, or the reverse. gen_data now carries the grid label and guards every comparison
+        (`_near`); this states that independently.
+
+        🛑 GRID ONLY, and the CAP is deliberately NOT asserted here -- I tried and it was wrong.
+        A DLC overworld boss is `legacy`: it holds a NEIGHBOURHOOD slice (within Chebyshev 2) AND a
+        region-divvy slice, and a divvy member is region-correct at ANY distance. Romina (m61_44_45)
+        legitimately holds Ancient Ruins checks on m61_46_48, distance 3. Nothing in the output
+        distinguishes the two pools, so an over-cap member is indistinguishable from a divvy member
+        and a cap assertion here can only produce false failures. The cap is enforced by `_near` and
+        covered for class-`field` bosses by test_field_sweeps_are_local; for m61 the reachable claim
+        is the population one in test_the_dlc_overworld_has_neighbourhood_sweeps."""
+        bad = []
+        for ent, members in self.DS.items():
+            info = self.BH.get(ent)
+            if not info:
+                continue
+            bt = self._GRID_RE.match(info[1] or "")
+            if not bt:
+                continue
+            for ap in members:
+                mt = self._GRID_RE.match(self._eff_map(ap) or "")
+                if mt and mt.group(1) != bt.group(1):
+                    bad.append((ent, info[1], ap, mt.group(0)))
+        self.assertEqual(bad, [], str(len(bad)) + " overworld sweep member(s) on the OTHER GRID -- "
+                         "an m60 boss holding m61 checks or vice versa. Sample: " + repr(bad[:5]))
+
+    def test_the_dlc_overworld_has_neighbourhood_sweeps(self):
+        """MOTIVATING CASE for piece A: the DLC overworld granted nothing spatial at all.
+
+        Its 28 bosses are classed `legacy` -- and must STAY that way, they are their regions' divvy
+        hosts and five regions have no other one -- but `DisplayBossHealthBar` only carries the
+        coarse `m61_XX` BAND, so gen_data's field pass could never place them. Their id encodes the
+        real tile (20XXYYLLLL, the DLC sibling of 10/12), which gen_data already trusted for the
+        divvy; now it reaches the boss table too.
+
+        Pinned on Black Knight Edredd (m61_49_43, Scadu Altus), the largest gainer, plus the
+        population-level claim so a single retuned boss cannot hide a dead pass."""
+        EDREDD = 2049430850
+        self.assertIn(EDREDD, self.DS, "Black Knight Edredd has no sweep -- the m61 tile decode or "
+                                       "the DLC field pass regressed")
+        self.assertGreaterEqual(len(self.DS[EDREDD]), 20,
+                                "Edredd holds %d members; it gained 30 when the DLC field pass "
+                                "landed, so this is a regression" % len(self.DS[EDREDD]))
+        m61 = [ent for ent, info in self.BH.items()
+               if (info[0] or "").startswith("m61") and ent in self.DS]
+        self.assertGreaterEqual(len(m61), 20, "only %d DLC overworld bosses sweep anything" % len(m61))
+        total = sum(len(self.DS[e]) for e in m61)
+        self.assertGreaterEqual(total, 400, "DLC overworld bosses hold %d members between them; the "
+                                            "field pass was worth ~225 on top of ~250 divvied" % total)
+
     def test_field_sweeps_are_disjoint(self):
         """Nearest-boss assignment gives each overworld check to exactly ONE field boss -- no two
         field sweeps may share a member (own-tile pairs used to double-sweep their shared tile)."""
@@ -270,6 +329,88 @@ class BossSweepScoping(unittest.TestCase):
                    if not any(self.ap_flag.get(ap) == f for ap in members)]
         self.assertEqual(missing, [], "Ruin-Strewn Precipice pickups not swept by its boss: "
                          + repr(missing))
+
+    def test_a_legacy_map_is_swept_by_a_boss_STANDING_ON_IT(self):
+        """The invariant piece C establishes (SPEC-broaden-sweeps, 2026-08-05).
+
+        A legacy boss used to grant a round-robin slice of its whole REGION and nothing else, so the
+        Shadow Keep's own pickups could be handed to you by a boss in a different building. Now a
+        check on a legacy map that hosts a boss is granted by a boss ON THAT MAP.
+
+        Directional on purpose: a legacy boss also keeps a region-divvy slice, and those members
+        legitimately live elsewhere. What must not happen is the reverse -- someone else's boss
+        paying out this building."""
+        on_map = {}
+        for ent, members in self.DS.items():
+            info = self.BH.get(ent)
+            if info:
+                on_map[ent] = info[0]
+        legacy_maps = {info[0] for ent, info in self.BH.items()
+                       if info[2] == "legacy" and not info[0].startswith(("m60", "m61"))
+                       and info[0] != "m10_01"}
+        # A map is only "claimed" for a region if a boss of THAT region stands on it. m11_00's
+        # Leyndell bosses legitimately hold Leyndell-regioned checks that sit on m11_05 (the Ashen
+        # Capital map) via the region divvy -- the check is region-correct, it is just physically in
+        # a building whose own bosses answer to a different region. Requiring a same-region host is
+        # what makes this a map-locality claim rather than a map-adjacency one.
+        host = defaultdict(set)
+        for ent, mp in on_map.items():
+            host[mp].add(self.sw.SWEEP_REGION.get(ent))
+        # THE ONE DELIBERATE EXCEPTION: a clawback recipient. Astel's arena m12_04 holds no filler,
+        # so once the map-local pass gave the Eternal Cities' loot to the bosses standing in m12_01
+        # and m12_02, Astel was dealt nothing at all (33 -> 0). It claws back a share from the
+        # largest holder in its region, which means it necessarily holds checks from someone else's
+        # map -- see test_astel_still_grants_something and the pass in gen_data. Listed rather than
+        # inferred: a SECOND boss appearing here is a new starvation, which is exactly what this
+        # test should make you look at.
+        CLAWBACK_RECIPIENTS = {12040800}          # Astel, Naturalborn of the Void
+        bad = []
+        for ent, members in self.DS.items():
+            if ent in CLAWBACK_RECIPIENTS:
+                continue
+            reg = self.sw.SWEEP_REGION.get(ent)
+            for ap in members:
+                mp = _mp2(self._eff_map(ap))
+                if mp in legacy_maps and mp != on_map.get(ent) and reg in host.get(mp, ()):
+                    bad.append((ent, on_map.get(ent), ap, mp))
+        # "An exclusion that matches nothing is a lie" -- if the clawback ever stops firing, this
+        # carve-out must fail loudly rather than sit here reading like protection.
+        self.assertTrue(all(self.DS.get(e) for e in CLAWBACK_RECIPIENTS),
+                        "a CLAWBACK_RECIPIENT grants nothing -- the clawback stopped firing and "
+                        "this exemption is now protecting a boss that no longer needs it")
+        self.assertEqual(bad, [], str(len(bad)) + " legacy-map check(s) granted by a boss standing "
+                         "somewhere else. Sample: " + repr(bad[:5]))
+
+    def test_astel_still_grants_something(self):
+        """THE CLAWBACK, and the case that forced it (piece C, 2026-08-05).
+
+        Astel's arena (m12_04) is a bare boss room -- no chests, no pickups, nothing map-local can
+        hold. Every check a player calls "the Eternal Cities" physically lives in m12_01 (Ancestral
+        Woods) and m12_02 (Nokstella), which now belong to the bosses standing in them. So the
+        map-local pass emptied Ainsel River's leftover pool and Astel, which used to take a
+        consolation slice of it, was dealt 33 -> 0. Dealing the remainder to the emptiest bosses
+        first cannot help: the remainder is genuinely EMPTY.
+
+        A boss that granted 33 checks yesterday granting zero today is a regression however
+        defensible the bookkeeping, so a starved region major claws back a share from the largest
+        holder in its OWN region, re-dealt round-robin. Balanced within one, like every other
+        partition here -- an unbalanced clawback would just move the starvation to the donor."""
+        ASTEL, DONOR_REGION = 12040800, "Ainsel River"
+        members = self.DS.get(ASTEL, [])
+        self.assertTrue(members, "Astel (12040800) grants NOTHING. The clawback is gone or its "
+                                 "region no longer has a donor -- see the pass in gen_data.")
+        off = [ap for ap in members if self.ap_region.get(ap) != DONOR_REGION]
+        self.assertEqual(off, [], "Astel's clawback pulled checks from outside %s: %r"
+                         % (DONOR_REGION, off[:5]))
+        donors = [len(m) for e, m in self.DS.items()
+                  if e != ASTEL and self.sw.SWEEP_REGION.get(e) == DONOR_REGION and len(m) >= 2]
+        self.assertTrue(donors, "no donor left in %s to compare against" % DONOR_REGION)
+        # Balanced against its DONOR, not against every holder in the region: the re-deal splits one
+        # boss's list, so the other holders are untouched and may legitimately be larger.
+        self.assertTrue(any(abs(n - len(members)) <= 1 for n in donors),
+                        "clawback is lopsided: Astel holds %d and no %s holder is within one of "
+                        "that (%r). A round-robin re-deal leaves the donor and the starved boss "
+                        "within one of each other." % (len(members), DONOR_REGION, sorted(donors)))
 
     def test_no_dungeon_mapped_filler_is_left_unswept(self):
         """The general invariant piece B establishes: on a minor-dungeon map whose boss ALREADY has

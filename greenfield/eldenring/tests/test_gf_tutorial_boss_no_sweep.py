@@ -243,13 +243,76 @@ def test_the_sweep_corpus_did_not_shrink():
 
         Scoped to _is_dungeon deliberately: legacy interiors are the same defect and worth ~280 more,
         but they need a map-local legacy pass that does not exist yet (piece C), and admitting them
-        here would silently route them into the coarser region divvy instead."""
+        here would silently route them into the coarser region divvy instead.
+
+    +270 (2026-08-05, SPEC-broaden-sweeps PIECE C) 3206 -> 3476. A legacy boss now sweeps its OWN
+        MAP's filler before the region divvy sees the pool -- "this boss's building" instead of
+        "1/Nth of the region". Shadow Keep 129, Leyndell 77, Mohgwyn 25 lead it. Nothing left the
+        corpus, no check is granted twice, no sweep region flipped.
+
+        THREE things this pass had to get right, each measured rather than assumed:
+
+        * INTERIORS ONLY. `_class` calls the m61 DLC OVERWORLD "legacy", so an unfiltered
+          legacy-map set pulls in m61_XX BANDS -- and a band spans several fine-regions, which is
+          exactly why those bosses needed tile recovery for the divvy. 209 DLC checks walked in
+          before this was scoped out. The overworld wants a neighbourhood (piece A), not a map.
+        * GROUPED BY THE BOSS'S REGION, not the map's majority. A trigger carries ONE SWEEP_REGION
+          and a legacy boss also holds a region slice, so filtering by map-majority could mis-region
+          the trigger -- m10_00 is Stormveil 3 / Weeping 2 and m12_05 is Mohgwyn 25 / Liurnia 1.
+        * `_filler_only`, which the dungeon map path has never applied. Without it this pass swept
+          282 important-tagged checks the region divvy had always been filtering out. A new pass does
+          not inherit an old pass's hole.
+
+        THE CLAWBACK, and why Astel needs it. The map-local pass is deliberately greedy (a specific
+        boss beats the region major, as the field/dungeon dedup has always done), so a region's
+        leftover pool can empty. Astel's arena m12_04 is a bare boss room; every "Eternal Cities"
+        check physically lives in m12_01 and m12_02, which now belong to the bosses standing in them.
+        Astel went 33 -> 0 -- not losing a claim to anything of its own, losing a consolation slice
+        of a pool that no longer exists. Dealing the remainder to the emptiest bosses first (also
+        added here) rescued two Shadow Keep bosses 9 -> 1 but cannot help Astel: Ainsel River's
+        remainder is genuinely EMPTY. So a starved region major claws back a share from the largest
+        holder in its own region, re-dealt round-robin: Astel 26, its donor 27.
+
+        m19_00 is EXEMPT BY MAP: Radagon and the Elden Beast are one fight on a map with no filler,
+        and a convenience grant at the end of the run is not a convenience. Keyed on the MAP because
+        the first cut exempted only 19000800 and 19000810 promptly clawed back instead -- an
+        entity-keyed exemption on a two-head arena protects exactly half of it. Elden Beast 1 -> 0 is
+        therefore the ONE trigger this change removes, deliberately.
+
+    +225 (2026-08-05, SPEC-broaden-sweeps PIECE A -- the DLC overworld) 3476 -> 3701. NOTHING lost,
+        no trigger removed, no sweep region flipped, and -- the thing this piece could have got
+        wrong -- NO REGION SHRANK. The 28 m61 bosses hold 247 -> 476 members.
+
+        They are classed `legacy` and STAY that way. A reclass to `field` was the obvious move and is
+        a NET LOSS: they are their regions' divvy hosts, 268 members hang off them, and Gravesite,
+        Ensis, Rauh Base, Cerulean and Jagged Peak have no other host at all. So the neighbourhood is
+        ADDITIVE -- the field pass runs first, `_covered` takes what it claims out of the divvy pool,
+        and the two never double-grant.
+
+        Three things had to be true, and each was verified rather than assumed:
+
+        * THE TILE. `DisplayBossHealthBar` carries only the coarse `m61_XX` BAND, so the field pass
+          could never place these bosses. Their id encodes the real one (20XXYYLLLL, the DLC sibling
+          of the base game's 10/12 forms) -- the same decode gen_data already trusted for the divvy
+          (`_M61_BOSS_RE`), now recorded on the boss table and guarded by the same second derivation:
+          all 28 land on a tile that HAS an m61 emevd, 28/28.
+        * THE GRID. `_tile_xy` held a bare (x, y). m60 (44,45) and m61 (44,45) are different places
+          on different continents, and comparing them yields a small, meaningless distance -- a DLC
+          boss quietly claiming base-game checks. Every comparison is now grid-guarded (`_near`) and
+          test_overworld_sweeps_never_mix_GRIDS states it independently.
+        * THE ADMISSION. `_mem_tile` is fed from rows that passed `_swept`, and a `global_filler` on
+          m61_46_46 passed none of its branches -- so the first cut of this pass ran over an EMPTY
+          grid and claimed exactly 0 checks while looking perfectly healthy. A row that already names
+          an overworld tile is now admitted on that basis.
+
+        The +225 (vs ~217 predicted) is the m61 population plus a handful of m60-tiled rows the same
+        admission rule legitimately picks up."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
     # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
     # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
-    assert total == 3206, (
-        "sweep corpus is %d, expected 3206. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3701, (
+        "sweep corpus is %d, expected 3701. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
