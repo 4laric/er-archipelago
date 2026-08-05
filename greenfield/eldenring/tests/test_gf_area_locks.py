@@ -16,7 +16,7 @@ GAME = "Elden Ring"
 
 class AreaLocksSealed(WorldTestBase):
     game = GAME
-    options = {"item_shuffle": True, "num_regions": 4, "num_regions_order": "rolled"}
+    options = {"item_shuffle": True, "num_regions": 4}
 
     def test_sealed_and_kept_both_get_ranges(self):
         alf = self.world.fill_slot_data().get("areaLockFlags", [])

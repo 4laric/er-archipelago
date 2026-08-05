@@ -58,7 +58,7 @@ class TestTerminalGoalPure:
         for _ in range(600):
             pool = pools[rng.randrange(3)]
             n = rng.randrange(1, len(pool) + 1)
-            kept = compute_kept(n, "rolled", rng, pool)
+            kept = compute_kept(n, rng, pool)
             region, ids = terminal_goal_ids(set(kept))
             assert ids, f"empty goal for kept {sorted(kept)}"
             if finale_active(kept):

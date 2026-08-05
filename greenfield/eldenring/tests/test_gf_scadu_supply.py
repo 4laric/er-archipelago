@@ -97,7 +97,7 @@ class ScaduSupplyRolledDefault(WorldTestBase):
     """The measured failure: a rolled seed at the SHIPPED default."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": 1,
+    options = {"num_regions": 6, "enable_dlc": 1,
                "global_scadutree_blessing": 2}
 
     def _pool_fragments(self):
@@ -131,7 +131,7 @@ class ScaduSupplyOff(WorldTestBase):
     """Mode off must be byte-identical to before this feature existed."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": 1,
+    options = {"num_regions": 6, "enable_dlc": 1,
                "global_scadutree_blessing": 0}
 
     def test_mode_off_injects_nothing(self):

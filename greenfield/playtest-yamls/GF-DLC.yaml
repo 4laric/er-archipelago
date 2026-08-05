@@ -6,7 +6,6 @@ description: Greenfield DLC-only
 game: "Elden Ring"
 "Elden Ring":
   num_regions: 3
-  num_regions_order: spine
   item_shuffle: true
   enable_dlc: true
   dlc_only: true

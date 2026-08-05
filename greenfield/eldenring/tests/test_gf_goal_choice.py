@@ -104,7 +104,7 @@ class TestChoiceOutranksFinale:
         pool = list(REGIONS)
         for _ in range(200):
             n = rng.randint(1, len(pool) - 1)
-            kept = compute_kept(n, "rolled", rng, pool, forced=forced_regions("promised_consort"))
+            kept = compute_kept(n, rng, pool, forced=forced_regions("promised_consort"))
             assert PCR_REGION in kept, "force-keep failed: the chosen goal region was not kept"
             region, ids = terminal_goal_ids(kept, "promised_consort")
             assert region == PCR_REGION and set(ids) == PCR_IDS
@@ -116,8 +116,8 @@ class TestChoiceOutranksFinale:
         pool = list(REGIONS)
         for n in (1, 3, 8, 17, 25):
             r_plain, r_forced = random.Random(4242), random.Random(4242)
-            plain = compute_kept(n, "rolled", r_plain, pool)
-            forced = compute_kept(n, "rolled", r_forced, pool,
+            plain = compute_kept(n, r_plain, pool)
+            forced = compute_kept(n, r_forced, pool,
                                   forced=forced_regions("promised_consort"))
             # (1) the rng is left in the SAME state -- no extra draws were taken.
             assert r_plain.random() == r_forced.random(), \

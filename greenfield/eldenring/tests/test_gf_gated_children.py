@@ -80,7 +80,7 @@ class TestKeptClosure:
         for _ in range(400):
             pool = pools[rng.randrange(len(pools))]
             n = rng.randrange(1, len(pool) + 1)
-            kept = compute_kept(n, "rolled", rng, pool)
+            kept = compute_kept(n, rng, pool)
             for r in kept:
                 for anc in parent_chain(r):
                     assert anc in kept, f"kept child {r} without ancestor {anc}: {kept}"
@@ -88,7 +88,7 @@ class TestKeptClosure:
     def test_spine_prefix_closes_too(self):
         rng = random.Random(1)
         for n in range(1, len(SPINE) + 1):
-            kept = compute_kept(n, "spine", rng, list(REGIONS))
+            kept = compute_kept(n, rng, list(REGIONS))
             for r in kept:
                 for anc in parent_chain(r):
                     assert anc in kept
@@ -96,7 +96,7 @@ class TestKeptClosure:
     def test_goal_region_always_pulls_its_ancestors(self):
         # Leyndell is always kept on a base seed; its whole chain must ride along (Altus).
         rng = random.Random(2)
-        kept = compute_kept(1, "rolled", rng, base_regions())
+        kept = compute_kept(1, rng, base_regions())
         assert GOAL_REGION in kept
         for anc in parent_chain(GOAL_REGION):
             assert anc in kept
@@ -107,7 +107,7 @@ class TestKeptClosure:
         # path, including the n >= len(pool) full-pool return.
         rng = random.Random(3)
         with pytest.raises(ValueError):
-            compute_kept(1, "rolled", rng, ["Sewer"])
+            compute_kept(1, rng, ["Sewer"])
 
 
 # ---- 4a. the anchor is never a gated child ---------------------------------------------------------

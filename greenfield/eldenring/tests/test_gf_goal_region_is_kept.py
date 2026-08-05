@@ -52,7 +52,7 @@ class GoalRegionIsAlwaysKept(unittest.TestCase):
         bad = []
         for n in range(1, len(REGIONS) + 1):
             for order in ("spine", "rolled"):
-                kept = compute_kept(n, order, random.Random(n), list(REGIONS))
+                kept = compute_kept(n, random.Random(n), list(REGIONS))
                 goal, _ids = terminal_goal_ids(kept)
                 if goal is not None and goal not in _created(kept):
                     bad.append((n, order, goal))

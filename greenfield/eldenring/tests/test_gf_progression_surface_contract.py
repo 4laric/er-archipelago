@@ -51,7 +51,7 @@ def test_big_ticket_is_gone():
 
 class SurfaceContract(WorldTestBase):
     game = GAME
-    options = {"num_regions": 4, "num_regions_order": "rolled"}
+    options = {"num_regions": 4}
 
     def test_wire_is_nonempty_and_is_this_world(self):
         sd = self.world.fill_slot_data()

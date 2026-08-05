@@ -18,7 +18,6 @@ game: "Elden Ring"
 
 "Elden Ring":
   num_regions: 0                 # 0 = every base region in play (no sealing)
-  num_regions_order: spine
   ending_condition: region_locks
   leyndell_runes_required: 2
 

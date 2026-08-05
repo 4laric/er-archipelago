@@ -78,7 +78,7 @@ class SpineScope5(WorldTestBase):
 
 class RolledDiversity(WorldTestBase):
     game = GAME
-    options = {"num_regions": 4, "num_regions_order": "rolled"}
+    options = {"num_regions": 4}
 
     # A spread of fixed seeds keeps this deterministic while giving the RNG room to diverge.
     SEEDS = (1, 2, 7, 13, 101, 5551212)

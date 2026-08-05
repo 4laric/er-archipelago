@@ -85,7 +85,7 @@ SEED_B = 0xA11CE      # the item-side test uses a DIFFERENT seed, so the pair sa
 class SphereShape(WorldTestBase):
     game = GAME
     # A real seed with real locks: the gradient is only observable where regions actually gate.
-    options = {"num_regions": 12, "num_regions_order": "rolled", "item_shuffle": True}
+    options = {"num_regions": 12, "item_shuffle": True}
 
     def test_the_seed_has_a_midgame(self):
         from Fill import distribute_items_restrictive

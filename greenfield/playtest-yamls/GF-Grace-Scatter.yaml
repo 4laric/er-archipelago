@@ -5,7 +5,6 @@ description: Greenfield grace freebie + scatter
 game: "Elden Ring"
 "Elden Ring":
   num_regions: 5
-  num_regions_order: spine
   item_shuffle: true
   grace_rando: true
   dungeon_sweep: all

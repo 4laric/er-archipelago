@@ -163,7 +163,7 @@ class CapitalRolledSeed(WorldTestBase):
     player can still burn on open-world configs, and the sets are static geometry)."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 4, "num_regions_order": "rolled"}
+    options = {"num_regions": 4}
 
     def test_wire_present_on_rolled_seed(self):
         sd = self.world.fill_slot_data()

@@ -21,7 +21,6 @@ game: "Elden Ring"
 
   # ---- Scope: everything, base + DLC (PIN num_regions) --------------------
   num_regions: 0                  # 0 = all regions incl. DLC. Pinned explicitly.
-  num_regions_order: spine
   ending_condition: great_runes   # ALSO collect Great Runes (needs item_shuffle; auto-clamps to reachable)
   goal_great_runes: 2         # 1..7; clamped down to the runes actually reachable this seed
   start_with_region_lock: true

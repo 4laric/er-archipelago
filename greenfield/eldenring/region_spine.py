@@ -90,7 +90,7 @@ def dlc_regions():
     return [r for r in REGIONS if r in DLC_REGIONS]
 
 
-def compute_kept(n, order, rng, eligible=None, forced=()):
+def compute_kept(n, rng, eligible=None, forced=()):
     """Kept-region list, drawn from `eligible` (defaults to all of REGIONS).
 
     `eligible` is the already-filtered pool of regions in play this seed (e.g. base-only when
@@ -99,10 +99,26 @@ def compute_kept(n, order, rng, eligible=None, forced=()):
     sealed region.
 
     n<=0 or n>=len(eligible) -> the whole eligible pool (full Shattering of what's in play).
-    order 'spine' -> the first N eligible regions in SPINE order; anything else -> N random eligible
-    regions (rng.sample). The goal region is appended only when it is itself eligible -- under
-    DLCOnly the base-game goal (Leyndell) is not eligible, and the goal collapses to "hold every kept
-    lock" over the eligible set (still winnable; see core.set_rules).
+    Otherwise N regions are drawn at RANDOM (rng.sample). The fixed SPINE-order draw was removed
+    2026-08-05: it made every default seed keep the same eight regions and left nine base regions
+    unreachable. SPINE itself SURVIVES as an ORDERING (poptracker display, test reference) -- it is
+    simply no longer a selection mode.
+
+    THE GOAL REGION IS GOAL-SENSITIVE (2026-08-05, Alaric). GOAL_REGION is force-kept only when the
+    seed has NO explicitly named goal -- i.e. only under `auto`, where the goal is DERIVED from
+    whatever the draw kept, so the base-game terminus has to be there for that derivation to find
+    it. When the player NAMES a goal, `forced` already carries exactly the regions that goal needs,
+    and appending Leyndell on top kept the capital -- and Altus, its REGION_PARENT -- in 100% of
+    seeds with no use for either. A `promised_consort` seed needs Enir Ilim, not the capital.
+    `elden_beast` is unaffected: its own forced set names Leyndell.
+
+    Seeds under `auto` are byte-identical to before this change: `forced` is empty there, so the
+    append fires exactly as it always did.
+
+    The goal region is appended only when it is itself eligible -- under DLCOnly the base-game goal
+    (Leyndell) is not eligible, and the goal collapses to "hold every kept lock" over the eligible
+    set (still winnable; see core.set_rules). That no-Leyndell shape is neither new nor untested:
+    DLCOnly has always produced it.
 
     `forced` is the explicit-goal force-keep set (features/goal_locations.GOAL_CHOICES): when the
     player NAMES a goal, the kept set is BUILT to contain its region instead of the goal being
@@ -116,14 +132,11 @@ def compute_kept(n, order, rng, eligible=None, forced=()):
         return regions
     if n <= 0 or n >= len(regions):
         return _close_over_parents(regions, regions)
-    if order == "spine":
-        base = [r for r in SPINE if r in regions][:n]
-    else:  # rolled
-        base = rng.sample(regions, n)
+    base = rng.sample(regions, n)
     kept = list(dict.fromkeys(base))
     # 🛑 Both appends MUST stay here, after the draw: moving either above rng.sample changes every
     # rolled seed in existence (the economy floor is one seed thick).
-    if GOAL_REGION in regions and GOAL_REGION not in kept:
+    if not forced and GOAL_REGION in regions and GOAL_REGION not in kept:
         kept.append(GOAL_REGION)
     for r in forced:
         if r in regions and r not in kept:

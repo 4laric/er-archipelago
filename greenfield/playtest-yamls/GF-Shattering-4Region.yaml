@@ -22,7 +22,6 @@ game: "Elden Ring"
 
   # ---- The Shattering (the headline) --------------------------------------
   num_regions: 4               # majors in play (+ Roundtable hub always kept); rest sealed. 0 = all 22.
-  num_regions_order: rolled    # spine = Limgrave-first fixed path; rolled = N random majors.
   ending_condition: region_locks   # goal = hold every kept region's lock. (great_runes = also require N Great Runes)
 
   # ---- Real item randomizer -----------------------------------------------

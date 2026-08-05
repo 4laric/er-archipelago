@@ -87,7 +87,7 @@ class GoalRequiredItemsRolledSeed(WorldTestBase):
     """A rolled sub-draw -- the shape the measurement was taken on."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 6, "num_regions_order": "rolled"}
+    options = {"num_regions": 6}
 
     def test_emitted_and_consistent_on_a_rolled_draw(self):
         sd = self.world.fill_slot_data()
@@ -123,7 +123,7 @@ class GoalRequiredItemsWithAnExplicitGoal(WorldTestBase):
     hand the player a shorter run than `auto`."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 6, "num_regions_order": "rolled", "goal": "promised_consort"}
+    options = {"num_regions": 6, "goal": "promised_consort"}
 
     def test_the_forced_region_lock_is_required(self):
         sd = self.world.fill_slot_data()
