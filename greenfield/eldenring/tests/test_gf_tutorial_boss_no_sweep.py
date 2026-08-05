@@ -67,7 +67,7 @@ def test_the_scions_own_drop_is_untouched():
 
 
 def test_the_sweep_corpus_did_not_shrink():
-    """Removing the Scion redistributes Stormveil's pool; it must not DELETE checks from it.
+    r"""Removing the Scion redistributes Stormveil's pool; it must not DELETE checks from it.
 
     A fix that quietly drops coverage is the same bug pointed the other way -- the pool is
     partitioned round-robin, so losing a boss means bigger slices for the real ones, not fewer
@@ -190,7 +190,28 @@ def test_the_sweep_corpus_did_not_shrink():
         shape the LEGACY divvy has solved since 2026-07-11, so it uses the same partition.
 
         Player-visible: each of these eight bosses now grants about half what it did. That is the
-        correction -- granting all of it was the bug."""
+        correction -- granting all of it was the bug.
+
+      0 (2026-08-05, the m60 TILE DECODE fix) trigger count 225 -> 226, corpus UNCHANGED at 3056.
+        NOTHING entered or left; 29 member links moved between Mountaintops field bosses.
+
+        1248550800 -- the Night's Cavalry duo by Yelough Anix Tunnel -- had tile 'm60_48' instead of
+        'm60_48_55', because datamine_boss_healthbars decoded overworld tiles only for ids starting
+        "10". Overworld ids also come in a 12-form; Radahn, the Fire Giant and Borealis survived the
+        "10"-only rule because for THEM the 12-form is the flag over a 10-form entity, while this
+        arena's entity IS its flag (game_areas.tsv flag_equals_id=yes). gen_data's field pass matches
+        `^m60_(\d\d)_(\d\d)$`, so the bare map was rejected and the boss granted NOTHING.
+
+        Now it holds 29 members and five neighbours shed exactly those, the nearest-boss partition
+        being disjoint -- 1048570800 41->30, 1050560800 39->28, 1049520800 17->14, 1050570850 8->6,
+        1050570800 7->5, plus a same-size swap on the Fire Giant 1252520800. Every move is a check
+        changing WHICH boss grants it, never whether.
+
+        The decode is now guarded by a SECOND DERIVATION rather than a longer prefix allowlist: the
+        decoded tile must be one an emevd actually exists for. Measured over the corpus, all 79 field
+        bosses agree with the emevd file they are defined in, 0 disagreements, one entry changed.
+        See test_gf_boss_sweeps.test_every_field_boss_tile_decodes (which also removes a `continue`
+        in test_field_sweeps_are_local that had been excusing exactly this boss)."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
     # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
@@ -198,5 +219,5 @@ def test_the_sweep_corpus_did_not_shrink():
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
     assert total == 3056, (
-        "sweep corpus is %d, expected 3057. If a sweep was legitimately added or removed, say WHY "
+        "sweep corpus is %d, expected 3056. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)

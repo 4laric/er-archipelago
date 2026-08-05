@@ -165,7 +165,12 @@ class BossSweepScoping(unittest.TestCase):
         for ent, info, members in self._members_by_class("field"):
             bt = self._TILE_RE.match(info[1] or "")
             if not bt:
-                continue   # undecodable boss tile (the m60_48_55 DLC pair) -> gets no sweep anyway
+                # WAS `continue  # undecodable boss tile (the m60_48_55 DLC pair)`. That carve-out
+                # skipped the one boss the tile decode was actually LOSING (1248550800, and it is
+                # Mountaintops, not DLC) -- a test that excuses the defect it would otherwise catch.
+                # Fixed in datamine_boss_healthbars 2026-08-05; this is now a failure, not a skip.
+                bad.append((ent, info[3], info[1], None, "boss tile does not decode"))
+                continue
             bx, by = int(bt.group(1)), int(bt.group(2))
             for ap in members:
                 mt = self._TILE_RE.match(self._eff_map(ap) or "")
@@ -174,6 +179,43 @@ class BossSweepScoping(unittest.TestCase):
         self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) beyond Chebyshev "
                          "distance 2 of the boss's tile (or not on an m60 tile at all). Sample: "
                          + repr(bad[:5]))
+
+    def test_every_field_boss_tile_decodes(self):
+        r"""A field boss whose tile does not decode is invisible TWICE OVER: gen_data's field pass
+        matches `^m60_(\d\d)_(\d\d)$`, so it gets no neighbourhood and no sweep, and it also drops
+        out of SWEEP_REGION, which is what anything counting arenas per region reads.
+
+        MOTIVATING CASE (2026-08-05, #363 follow-on). 1248550800 -- the Night's Cavalry duo by
+        Yelough Anix Tunnel -- sat at tile 'm60_48'. datamine_boss_healthbars decoded a tile only
+        for ids starting "10"; overworld ids also come in a 12-form, and Radahn / Fire Giant /
+        Borealis survived only because for them the 12-form is the FLAG over a 10-form ENTITY. This
+        one has no 10-form at all (game_areas.tsv flag_equals_id=yes), so it fell through to the
+        bare map and granted nothing. The decode is now guarded by a second derivation instead of a
+        prefix allowlist: the tile must be one an emevd exists for."""
+        bad = [(ent, info[1], info[3]) for ent, info in self.BH.items()
+               if info[2] == "field" and not re.fullmatch(r"m60_\d\d_\d\d", info[1] or "")]
+        self.assertEqual(bad, [], str(len(bad)) + " field boss(es) have a tile that does not decode "
+                         "to m60_XX_YY, so they can never sweep and never count as an arena: "
+                         + repr(bad[:5]))
+
+    def test_the_yelough_anix_cavalry_is_a_mountaintops_arena(self):
+        """The motivating case above, pinned end to end: tile, sweep, region.
+
+        Its 29 members are a REDISTRIBUTION, not a widening -- the field pass is a disjoint
+        nearest-boss partition, so five neighbouring Mountaintops bosses shed exactly what is now
+        nearer this arena and the corpus total is unchanged. test_field_sweeps_are_local is the
+        check that the tile is the RIGHT one: a wrong tile puts those 29 members outside Chebyshev
+        distance 2 and reddens it."""
+        ENT = 1248550800
+        self.assertIn(ENT, self.BH, "the Yelough Anix Night's Cavalry left boss_healthbars")
+        self.assertEqual(self.BH[ENT][1], "m60_48_55",
+                         "tile regressed -- its emevd is event/m60_48_55_00.emevd.dcx.js")
+        self.assertTrue(self.DS.get(ENT),
+                        "1248550800 has no sweep members; the tile decode regressed and this boss "
+                        "grants nothing again")
+        self.assertEqual(self.sw.SWEEP_REGION.get(ENT), "Mountaintops of the Giants",
+                         "sweep region regressed -- the tile's own checks are 'near Yelough Anix "
+                         "Tunnel' and one of them is the Night's Cavalry Helm (flag 1048557710)")
 
     def test_field_sweeps_are_disjoint(self):
         """Nearest-boss assignment gives each overworld check to exactly ONE field boss -- no two

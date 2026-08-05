@@ -216,7 +216,7 @@ BOSS_HEALTHBARS = {
     1052410800: ('m60_52', 'm60_52_41', 'field', 'Flying Dragon Greyll'),
     1052410850: ('m60_52', 'm60_52_41', 'field', "Night's Cavalry"),
     1053560800: ('m60_53', 'm60_53_56', 'field', 'Roundtable Knight Vyke'),
-    1248550800: ('m60_48', 'm60_48', 'field', "Night's Cavalry (Glaive)"),
+    1248550800: ('m60_48', 'm60_48_55', 'field', "Night's Cavalry (Glaive)"),
     1252380800: ('m60_52', 'm60_52_38', 'field', 'Starscourge Radahn'),
     1252520800: ('m60_52', 'm60_52_52', 'field', 'Fire Giant'),
     1254560800: ('m60_54', 'm60_54_56', 'field', 'Borealis the Freezing Fog'),
