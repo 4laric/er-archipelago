@@ -3,6 +3,46 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.5 — 2026-08-04
+
+Window opened 2026-08-04, at the moment v0.3.4 was tagged — which is the whole point of rule 14.
+Tagging does not open the next window; a person does, and the two previous windows were both
+opened late because everyone assumed otherwise.
+
+Opening it also surfaced a gate that cannot see its own subject.
+`test_gf_contract_versions::test_every_tagged_version_is_recorded_as_shipped` asks the git tags
+which versions shipped — and the CI checkout does not fetch tags, so it finds none and passes.
+v0.3.4 was tagged with no `SHIPPED` row and nothing said so; it only went red in a clone that had
+the tags. The row is written here. The gate needs `fetch-depth`/tags before it is worth anything,
+which is a to-do, not a fix.
+
+`CONTRACT_HASH` is unmoved from v0.3.0 (`5e8b11c9`), so the handshake is unchanged and seeds
+rolled on 0.3.1+ still connect. The bump is version-lockstep across both repos.
+
+### Key items behave more like matt's randomizer
+
+The missable bar used to cover every item an NPC hands you, on the reasoning that an NPC can die.
+More than half of those are handed over the first time you talk, with no questline state behind
+them — so they now count as places progression can live. In practice the **Rold Medallion**, the
+**Drawing-Room Key** and the **right Haligtree Secret Medallion** stop being dead ends for the fill,
+and four more items are recognised as key items at all: Messmer's Kindling, the Hole-Laden Necklace,
+the Fingerslayer Blade and Rya's Necklace.
+
+The distinction kept is the one that actually bites: an item you can lose by advancing a questline
+still cannot hold anything required. Rya's Necklace is barred for that reason, and the Fingerslayer
+Blade for a related one — you hand it to Ranni.
+
+The key-item share of the progression surface goes from 8 of 15 checks able to host, to 13 of 19.
+
+### Rya's Necklace was in the wrong region
+
+It was filed under Altus because of a bad map join. It is handed to you at Boilprawn Shack, in
+**Liurnia**, which is where it now lives.
+
+_(These landed in #375, which merged before this window was open — the notes belong here, in the
+version that will actually ship them, not in the tagged v0.3.4 section they would otherwise have
+gone into.)_
+
 ## v0.3.4 — 2026-08-04
 
 Window opened 2026-08-04 (rule 14), and opened LATE -- which is the first thing to record.

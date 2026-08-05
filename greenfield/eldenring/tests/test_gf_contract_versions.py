@@ -65,6 +65,12 @@ SHIPPED = {
     # see test_every_tagged_version_is_recorded_as_shipped below and
     # check_release_notes.check_version_is_still_open.
     "0.3.3": "5e8b11c9",
+    # Added 2026-08-04 when the v0.3.5 window was opened. v0.3.4 was tagged the same day and this
+    # row was missed AGAIN -- the second time running. 🛑 CI CANNOT SEE THIS: the test asks the git
+    # TAGS, and the workflow's checkout does not fetch them, so it silently finds no tags and
+    # passes. It only went red in a local/sandbox clone that has them. Fetch-depth/tags is the
+    # real fix; until then this row is written by hand at window-open, not at tag time.
+    "0.3.4": "5e8b11c9",
 }
 
 
