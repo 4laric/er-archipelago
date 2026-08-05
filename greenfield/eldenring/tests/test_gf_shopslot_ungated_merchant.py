@@ -86,6 +86,9 @@ def test_gated_merchants_hold_no_progression_slot():
 def test_every_pinned_merchant_has_an_ungated_path():
     """The invariant. The three above are cases of it, not the rule itself."""
     flags, lt = _gate_flags(), _tags()
+    # WITNESS (test_gf_vacuous_pass): say out loud that this function SAW candidates. With no pins
+    # the comprehension below is empty and the invariant passes for the wrong reason.
+    assert lt.SHOP_SLOT_PINS, "no ShopSlot pins at all -- this invariant would pass vacuously"
     offenders = {t: sorted(flags.get(t, ())) for t in lt.SHOP_SLOT_PINS
                  if UNGATED not in flags.get(t, set())}
     assert not offenders, (
