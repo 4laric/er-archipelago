@@ -38,8 +38,9 @@ goal ids are NOT necessarily in the deepest kept region by SPINE rank -- that in
 
 Resolution ladder (each tier total, deterministic, and derived -- no hand list):
   0. THE FINALE's major bosses, iff features/finale.py created the finale region this seed.
-  1. MAJOR BOSSES OF THE DEEPEST KEPT REGION THAT HAS ANY, walking down from the deepest kept
-     region by SPINE rank. MajorBoss membership is LOCATION_TAGS (= REGION_BOSSES arena majors
+  1. MAJOR BOSSES OF THE DEEPEST TERMINAL KEPT REGION -- terminal meaning one of its majors is
+     tagged LegacyBoss, Remembrance or GreatRune (see _is_terminus), so an optional FieldBoss like
+     Bayle can never end a run. Walks those deepest-first by SPINE rank, then the plain walk. MajorBoss membership is LOCATION_TAGS (= REGION_BOSSES arena majors
      UNION the curated MAJOR_BOSS_EXTRAS field majors -- so a Sewer-terminal seed ends on Mohg the
      Omen, not on a shallower region's arena). The spine is a total order, so "the terminal
      regions" collapse to the single deepest region that has majors; ALL of its majors are the
@@ -142,9 +143,48 @@ def _major_boss_ids(region):
     return sorted(aid for (aid, _flag, _name) in REGION_BOSSES.get(region, ()))
 
 
+# A major that ENDS a run: a legacy-dungeon boss, or a demigod the game itself marks with a
+# Remembrance or a Great Rune. Deliberately a UNION -- see _is_terminus.
+_TERMINAL_TAGS = ("LegacyBoss", "Remembrance", "GreatRune")
+
+
 def _by_depth(kept):
     """Kept regions, deepest spine rank first (stable for equal/off-spine ranks by name)."""
     return sorted(kept, key=lambda r: (-_SPINE_RANK.get(r, len(SPINE)), r))
+
+
+def _is_terminus(region):
+    """Does this region END a run? True when one of its MajorBoss checks also carries a terminal tag
+    (LegacyBoss, Remembrance or GreatRune) -- i.e. it is NOT merely a FieldBoss standing outdoors.
+
+    MOTIVATING CASE (rule 11, 2026-08-05). A player's DLC seed ended on BAYLE. Tier 1 read "deepest
+    kept region by SPINE rank" as a proxy for "terminal", and the DLC breaks that proxy: Jagged Peak
+    sits near the end of SPINE but Bayle is an optional dragon on a mountainside, and Rauh Base --
+    deeper still -- ends the run on Rugalea, a bear. MEASURED over 3000 DLC seeds at num_regions=6,
+    only 38% ended on an actual final boss; Bayle took 10.9% and Rugalea 9.3%.
+
+    WHY A UNION, stated because I tried both halves alone and each is wrong:
+
+      * Remembrance/GreatRune ALONE demotes the Sewer, whose major is Mohg the Omen and whose drop is
+        an incantation -- but the Shunning-Grounds are a legacy dungeon that should be able to end a
+        run, and test_deeper_kept_region_beats_leyndell says exactly that. It also promoted the
+        capital over a deeper Sewer (Morgott carries a Great Rune), walking back into the 2026-07-14
+        playtest bug where the goal is a boss who may already be dead when the lock arrives.
+      * LegacyBoss ALONE demotes Astel, Fortissax and the Fire Giant -- Remembrance demigods who do
+        not stand at the end of a legacy dungeon.
+
+    Their union is exactly the set of bosses a run can credibly end on, and it needs no exception for
+    GOAL_REGION: Morgott qualifies, so the capital wins when it is genuinely the deepest thing kept
+    and loses to a deeper Sewer. Both goal_terminal tests state those two halves independently.
+
+    It also excludes the curated MAJOR_BOSS_EXTRAS, which exist to give a region a PROGRESSION
+    SURFACE rather than an ending -- Agheel, Makar, Leonine, Godefroy, Blackgaol are FieldBoss or
+    plain Boss. A future region earns terminus status the moment its major gains one of these tags.
+
+    MEASURED after this change: ZERO seeds end on a FieldBoss-only region, base-only or DLC."""
+    return any(any(t in LOCATION_TAGS.get(aid, ()) for t in _TERMINAL_TAGS)
+               for (_name, aid, _flag) in LOCATIONS.get(region, ())
+               if "MajorBoss" in LOCATION_TAGS.get(aid, ()))
 
 
 def terminal_goal_ids(kept, chosen=None):
@@ -166,8 +206,12 @@ def terminal_goal_ids(kept, chosen=None):
         ids = _major_boss_ids(FINALE_REGION)
         if ids:                       # defensive: a finale with no majors falls to the spine walk
             return FINALE_REGION, ids
+    # Tier 1, TERMINUS-FIRST: walk the terminus-bearing regions deepest-first, then everything else
+    # deepest-first. The second pass is the pre-2026-08-05 behaviour and still guards draws where
+    # nothing kept has a terminal major, so this narrows WHICH region ends the run without ever
+    # narrowing the result to nothing.
     ordered = _by_depth(kept)
-    for region in ordered:
+    for region in [r for r in ordered if _is_terminus(r)] + ordered:
         ids = _major_boss_ids(region)
         if ids:
             return region, ids
