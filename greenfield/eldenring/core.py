@@ -117,10 +117,16 @@ class NumRegionsOrder(Choice):
     was not) and said it controlled where you START (it did not -- the opening region is an
     independent size-weighted draw in features/start_grace.pick_anchor_region)."""
     display_name = "Region Selection"
-    option_random = 0
-    alias_rolled = 0
-    option_spine = 1          # DEPRECATED -- same behaviour as random; warned about at gen time
+    option_rolled = 0
+    option_spine = 1          # DEPRECATED -- same behaviour as rolled; warned about at gen time
     default = 0
+
+    # 🛑 `random` CANNOT be an option name here. Archipelago reserves it -- Options.py's metaclass
+    # asserts "Choice option 'random' cannot be manually assigned", because `random` is already the
+    # yaml-level magic that makes AP pick a value for you. Not a loss: with both remaining values
+    # behaving identically, a yaml saying `num_regions_order: random` gets AP's own randomisation
+    # and lands on the same draw either way. So `random`, `rolled` and `spine` all do the same
+    # thing; `rolled` is simply the one AP will let us name.
 
 
 class ItemShuffle(Toggle):
@@ -348,7 +354,7 @@ class GreenfieldEldenRingWorld(World):
         self.gf_goal_choice: str = self._resolve_goal_choice()
         if self.options.num_regions_order.current_key == "spine":
             logging.warning(
-                "[eldenring] num_regions_order: spine is DEPRECATED and now behaves as `random` -- "
+                "[eldenring] num_regions_order: spine is DEPRECATED and now behaves exactly as `rolled` -- "
                 "the fixed Limgrave-first path is gone (it made every seed keep the same eight "
                 "regions). Drop the key from your yaml; it will be removed after this release.")
         self.gf_kept: List[str] = compute_kept(
