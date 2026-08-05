@@ -186,7 +186,10 @@ def floor_multiplier(pct):
     the client reads at `sd["options"]["completion_scaling_floor"]`.
 
     Returns the exact ladder rung, so the client's search inverts this precisely:
-    `floor_tier_from_multiplier(floor_multiplier(pct)) == round(pct/100 * 9)`. That exactness rests
+    `floor_tier_from_multiplier(floor_multiplier(pct)) == round(pct/100 * (len(LADDER) - 1))`, i.e.
+    `* 19` for today's 20-rung ladder. (This said `* 9` until 2026-08-05 -- correct for the 10-rung
+    subset, stale from the moment the ladder was extended to `7200`. Written as the expression rather
+    than a literal so it cannot rot again.) That exactness rests
     on the ladder being STRICTLY ASCENDING (a `hp >= rung` search only recovers that rung's index if
     no earlier rung is also >= it) -- asserted, along with the round-trip in both directions, in
     tests/test_gf_scaling_ladder_mirror.py.
