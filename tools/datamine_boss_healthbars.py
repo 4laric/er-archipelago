@@ -213,15 +213,15 @@ def load_names():
 def datamine():
     handlers = hb_handlers()
     bosses = {}   # entity -> {"map": mAA_BB, "class": ..., "nameId": int|None}
-    overworld_tiles = set()   # every m60_XX_YY that HAS an emevd -- the tile decode's cross-check
+    overworld_tiles = set()   # every m60/m61_XX_YY that HAS an emevd -- the decode's cross-check
     for f in sorted(glob.glob(os.path.join(EVT, "m*.js"))):
         fn = os.path.basename(f)
         mm = _MAPFILE.match(fn)
         if not mm:
             continue
         map_ab = f"{mm.group(1)}_{mm.group(2)}"
-        if mm.group(1) == "m60":
-            overworld_tiles.add(f"m60_{mm.group(2)}_{mm.group(3)}")
+        if mm.group(1) in ("m60", "m61"):
+            overworld_tiles.add(f"{mm.group(1)}_{mm.group(2)}_{mm.group(3)}")
         t = open(f, encoding="utf-8").read()
         for m in _LIT.finditer(t):
             ent, nid = int(m.group(1)), int(m.group(2))
@@ -261,6 +261,21 @@ def datamine():
             # 0 disagreements -- and this changes exactly one entry.
             s = str(ent)
             dec = f"m60_{s[2:4]}_{s[4:6]}" if len(s) == 10 and s[0] == "1" else None
+            b["tile"] = dec if dec in overworld_tiles else b["map"]
+        elif b["class"] == "legacy" and b["map"].startswith("m61"):
+            # THE DLC OVERWORLD (SPEC-broaden-sweeps piece A). These 28 are classed `legacy` and must
+            # STAY that way -- they are their regions' divvy hosts, and five regions (Gravesite,
+            # Ensis, Rauh Base, Cerulean, Jagged Peak) have no other one -- but the DisplayBossHealthBar
+            # datamine only carries the coarse `m61_XX` band, so gen_data's field pass could never
+            # give them a neighbourhood. A band is not a place: it spans several fine-regions, which
+            # is exactly why gen_data already recovers their true tile from the id for the DIVVY
+            # (`_M61_BOSS_RE`). Same decode, now recorded on the boss, so the field pass can use it.
+            #
+            # 20XXYYLLLL -> m61_XX_YY, the DLC sibling of the base game's 10/12 forms, and guarded by
+            # the SAME second derivation: the tile must be one an emevd exists for. Measured
+            # 2026-08-05 -- all 28 land on a real m61 emevd tile, 28/28.
+            s = str(ent)
+            dec = f"m61_{s[2:4]}_{s[4:6]}" if len(s) == 10 and s[:2] == "20" else None
             b["tile"] = dec if dec in overworld_tiles else b["map"]
         else:
             b["tile"] = b["map"]
