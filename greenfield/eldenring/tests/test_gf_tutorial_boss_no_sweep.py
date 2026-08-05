@@ -308,8 +308,8 @@ def test_the_sweep_corpus_did_not_shrink():
         The +225 (vs ~217 predicted) is the m61 population plus a handful of m60-tiled rows the same
         admission rule legitimately picks up.
 
-    -13 (2026-08-05, spell-vendor MERCHANT re-key, #391) 3701 -> 3688. NOTHING was removed from a
-        sweep by geometry; 13 checks became INELIGIBLE for sweeps because they were finally tagged.
+    -13 (2026-08-05, spell-vendor MERCHANT re-key) 3701 -> 3688. NOTHING was removed from a sweep by
+        geometry; 13 checks became INELIGIBLE for sweeps because they were finally tagged.
 
         `_FIELD_EXCLUDE_TAGS` holds the shop tags, and these 13 carried NO shop tag at all: the
         spell-vendor classifier was keyed on the ShopLineupParam 100-block, so a check whose block
