@@ -36,8 +36,15 @@ class MissableDataTests(unittest.TestCase):
         # em all missable"). The NPC/dialogue awards are questline-labelled; the WORLD pickups are
         # not questline-gated at all, so they carry their own label rather than a reason that is
         # false of them. The identity below is the real assertion: every entry has a known source.
+        # 2026-08-04: 'questline_item' joined the label set -- a key item whose CHECK is an
+        # ordinary world pickup (so none of the other sources is true of it) but whose ITEM feeds a
+        # questline. Same reason gesture_award exists: the label is a claim about WHY, and calling
+        # the Fingerslayer Blade's Nokron CHEST "questline" would be false about the mechanism.
+        # This identity is the assertion that matters -- it fails the moment a label is minted
+        # without being registered here, which is exactly how it caught this one.
         self.assertEqual(len(MISSABLE_LOCATIONS),
-                         10 + len(alt) + vals.count("questline") + vals.count("gesture_award"))
+                         10 + len(alt) + vals.count("questline") + vals.count("gesture_award")
+                         + vals.count("questline_item"))
 
     def test_both_dragon_communion_currencies_are_tagged(self):
         """The bug this guards: ONE altar can mix cost types. Caelid's shelf is costType 1, the DLC
@@ -50,7 +57,7 @@ class MissableDataTests(unittest.TestCase):
 
     def test_only_known_sources(self):
         for v in set(MISSABLE_LOCATIONS.values()):
-            self.assertTrue(v in ("deathroot", "questline", "gesture_award")
+            self.assertTrue(v in ("deathroot", "questline", "gesture_award", "questline_item")
                             or v.startswith("alt_currency:"),
                             "unknown missable source label %r" % v)
 

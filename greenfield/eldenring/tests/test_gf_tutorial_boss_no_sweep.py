@@ -192,6 +192,11 @@ def test_the_sweep_corpus_did_not_shrink():
         Player-visible: each of these eight bosses now grants about half what it did. That is the
         correction -- granting all of it was the bug."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
-    assert total == 3057, (
+    # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
+    # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
+    # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
+    # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
+    # from the total moving by one.
+    assert total == 3056, (
         "sweep corpus is %d, expected 3057. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
