@@ -51,6 +51,18 @@ def test_the_spy_records_an_empty_quantifier():
     assert "all()" in m._QSPY_HITS[0], m._QSPY_HITS
 
 
+def test_the_spy_refuses_to_DOUBLE_WRAP():
+    """RED CASE, and a bug the spy found in itself during its first CI run.
+
+    Wrapping an already-wrapped `all` makes the inner copy observe the outer copy's own `fn(())` and
+    report `conftest.py::wrapper all()` -- the diagnostic reporting its own plumbing. It matters
+    because the red cases below deliberately wrap the GLOBAL builtin, which is already patched when
+    the spy is active."""
+    m = _conftest()
+    once = m._qspy_wrap(all, "all")
+    assert m._qspy_wrap(once, "all") is once, "double-wrapping was not refused"
+
+
 def test_the_spy_is_quiet_on_a_real_quantifier():
     """...and a lint that fires on legitimate shapes is a lint people learn to ignore."""
     m = _conftest()

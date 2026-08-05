@@ -81,6 +81,13 @@ def _qspy_note(bucket, name):
 
 
 def _qspy_wrap(fn, name):
+    # 🛑 NEVER DOUBLE-WRAP. Found by the spy on itself, in CI: `test_gf_vacuous_pass`'s red case
+    # wraps the GLOBAL `all`, which by then is already this wrapper -- so the inner one saw the outer
+    # one's `fn(())` and reported `conftest.py::wrapper all()`. A diagnostic that reports its own
+    # plumbing trains people to ignore it. Also makes a second pytest_configure a no-op.
+    if getattr(fn, "_qspy", False):
+        return fn
+
     def wrapper(*args):
         if len(args) != 1:
             return fn(*args)
@@ -93,6 +100,7 @@ def _qspy_wrap(fn, name):
         _qspy_note(_QSPY_SEEN, name)
         return fn(itertools.chain((first,), it))
     wrapper.__name__ = name
+    wrapper._qspy = True
     return wrapper
 
 
