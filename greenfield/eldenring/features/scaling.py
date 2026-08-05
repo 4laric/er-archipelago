@@ -281,32 +281,32 @@ class EnemyScaling(Toggle):
 
 
 class MinimumEnemyDifficulty(Range):
-    """How hard the EASIEST enemies in your run are. Lifting the floor stops anywhere staying trivial
-    once you have outgrown it.
+    """How hard the EASIEST enemies in your run are. 0 (default) leaves the early game at its normal
+    strength; higher values lift the whole floor, so nowhere stays trivial once you have outgrown it.
 
-      0    as weak as this mod can make anything -- well below vanilla's own floor
-      25   nothing below about 2.3x enemy HP   (default)
+      0    normal -- your first region is as weak as vanilla-ish   (default)
+      25   nothing below about 2.3x enemy HP
       50   nothing below about 4x
       100  everything at maximum, everywhere, from your first region on
 
     Useful because progression here is not geography: a region you unlock late can be an "early"
     one, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting.
 
-    WHY THE DEFAULT IS NOT 0 (changed 2026-08-05, measured -- see below). Vanilla applies TWO scaling
-    effects to an enemy, not one: a rung off the ladder we mirror, AND a second row at the same index
-    400 ids higher. Its effective multiplier is the PRODUCT, and the second family DESCENDS as the
-    first ascends -- it is a compensator, and it flattens vanilla's real curve to a 2.1x spread
-    between its weakest and strongest enemies. We only ever applied the first family, so at floor 0
-    we put enemies at 1.14x where vanilla never goes below 3.56x: roughly a THIRD of the weakest
-    thing the base game ships anywhere, not merely weak "for that area".
+    🛑 THE DEFAULT WAS BRIEFLY 25 AND IS BACK TO 0 (2026-08-05, same day, unreleased). The case for
+    raising it was that vanilla applies TWO scaling rows per enemy -- a ladder rung and a second row
+    at the same index +400 -- so its effective HP floor was 3.56x against our 1.141x. **That was
+    arithmetic, not measurement, and per-enemy measurement disproved it.** Observed `max_hp` is
+    vanilla base x the RUNG rate exactly, with the second row contributing nothing:
+    base 755 with `[7020, 7420]` measures 967, and 755 x 1.281 = 967. Six enemies, plus eleven
+    reading residual 1.000 against a rung-only model.
 
-    A floor of 25 lands on 2.27x -- deliberately still under vanilla's floor, because in a randomized
-    world your first region can hold an endgame MOVESET, and undershooting the stats is the honest
-    compensation for that. Set 0 if you want the old behaviour; it remains fully expressible."""
+    So vanilla's HP floor IS 1.141x, 0 IS the vanilla-equivalent default, and it never needed
+    changing. Do not raise this default again without a measurement rather than a product.
+    """
     display_name = "Minimum Enemy Difficulty"
     range_start = 0
     range_end = 100
-    default = 25
+    default = 0
 
 
 # ---- RENAMED 2026-07-27 -- stale yamls must FAIL, not be silently ignored ----------------------

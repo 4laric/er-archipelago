@@ -46,29 +46,33 @@ def test_option_is_reachable_from_yaml():
     assert sc.Scaling.OPTIONS["minimum_enemy_difficulty"] is sc.MinimumEnemyDifficulty
 
 
-def test_range_spans_the_whole_ladder_and_the_default_clears_vanillas_shape():
+def test_range_spans_the_whole_ladder_and_defaults_to_the_vanilla_floor():
     # The old range_end of 50 was written against the percent reading and never revisited; under the
     # real (multiplier) semantics it could not express "floor at the top tier" meaningfully at all.
     assert sc.MinimumEnemyDifficulty.range_end == 100
     assert sc.MinimumEnemyDifficulty.range_start == 0
 
-    # THE MOTIVATING CASE (2026-08-05). The default was 0, on the "new options default to no-change"
-    # rule -- but 0 was never a no-change value, it was a MEASUREMENT ARTEFACT.
+    # 🛑 THE MOTIVATING CASE, AND IT IS A RETRACTION (2026-08-05, same day, unreleased). This test
+    # briefly asserted 25, on the argument that vanilla applies TWO scaling rows per enemy -- a rung
+    # and a second row at the same index +400 -- making its effective HP floor 3.56x against our
+    # 1.141x. That was a PRODUCT COMPUTED FROM PARAM COLUMNS, and per-enemy measurement disproved it:
     #
-    # Vanilla applies TWO scaling rows to an enemy: a rung off the ladder we mirror, and a second row
-    # at the SAME index, 400 ids higher. A live census (client PR #65) caught the pair on every
-    # scaled enemy -- (7080, 7480), (7090, 7490), (7100, 7500), (7120, 7520), (7060, 7460) -- so
-    # vanilla's effective multiplier is the PRODUCT, and the second family DESCENDS as the first
-    # ascends. Vanilla's real floor is 1.141 x 3.122 = 3.56x; ours at floor 0 was 1.141x. We were
-    # putting the weakest enemies at under a THIRD of the weakest thing the base game ships anywhere.
+    #     npc 36000012, carried [7020, 7420], vanilla base hp 755  ->  observed max_hp 967
+    #     755 x 1.281 (the RUNG rate) = 967.  The 7420 row contributes NOTHING.
     #
-    # 25 resolves to ladder index 5 (2.266x): deliberately still UNDER vanilla's floor, because a
-    # randomized first region can hold an endgame moveset and undershooting the stats pays for that.
-    assert sc.MinimumEnemyDifficulty.default == 25
-    assert scaling_ladder.floor_multiplier(sc.MinimumEnemyDifficulty.default) == 2.266
+    # Six enemies reconstruct to the unit digit on rung-only, and eleven carrying just our applied
+    # rung read residual 1.000. The band's `effectTargetSelf` is 1, identical to the ladder, so the
+    # target flags do not explain it -- the column is simply not read on this path.
+    #
+    # So 0 IS the vanilla-equivalent floor. Raising this default again needs a MEASUREMENT, not an
+    # arithmetic argument from param columns.
+    assert sc.MinimumEnemyDifficulty.default == 0
+    assert scaling_ladder.floor_multiplier(sc.MinimumEnemyDifficulty.default) == 0, (
+        "the int 0 is load-bearing: a yaml that never mentions this option must generate "
+        "byte-identically to one from before the option was reachable")
+    # ...and the whole ladder is still expressible for anyone who wants a harder floor.
+    assert scaling_ladder.floor_multiplier(25) == 2.266
     assert scaling_ladder.tier_for_floor_multiplier(2.266) == 5
-    # Floor 0 must remain fully expressible -- this is a default change, not a removal.
-    assert scaling_ladder.floor_multiplier(0) == 0
 
 
 def test_docstring_describes_the_real_scale():
