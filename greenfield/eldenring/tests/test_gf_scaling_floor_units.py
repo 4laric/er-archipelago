@@ -96,10 +96,11 @@ def test_both_difficulty_sliders_point_the_same_way():
     harder is a bug players hit before they hit any of ours. `minimum_enemy_difficulty` rises with
     difficulty, so `difficulty_ramp_speed` is INVERTED against the internal ramp_pct to match."""
     assert sc.DifficultyRampSpeed.default == 0, "the ramp still defaults to the even curve"
-    # The floor no longer defaults to 0 (see
-    # test_range_spans_the_whole_ladder_and_the_default_clears_vanillas_shape); the DIRECTION rule
-    # this test exists for is unaffected -- both knobs still get harder as they rise.
-    assert sc.MinimumEnemyDifficulty.default > 0
+    # 🛑 THE FLOOR'S DEFAULT IS NOT THIS TEST'S BUSINESS, and asserting it here is what broke main.
+    # The value lived in two places: `test_range_spans_the_whole_ladder_...` (which owns it) and a
+    # second copy here, added alongside the floor-25 default. The revert (#395) updated the owner to
+    # `== 0` and could not see this one, so a correct revert turned main red. A DIRECTION rule holds
+    # at every value the option can take -- including 0 -- so it must not name one.
     # higher speed -> lower ramp_pct -> the top tier is reached EARLIER -> harder
     pcts = [sc.ramp_pct_from_speed(v) for v in (0, 25, 50, 75, 100)]
     assert pcts == sorted(pcts, reverse=True), f"speed must invert monotonically, got {pcts}"
