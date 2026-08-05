@@ -6,7 +6,7 @@
     "regions": 30,
     "sweeps": 226
   },
-  "inputs_hash": "sha256:468654967adfbe2e5118d222d9cdbec5aa5f1c7aa375233d1215eeb827cd1e07",
+  "inputs_hash": "sha256:274f7a72b457a01ba127bc1794b65a49adc3ba013a51bc706f0627af17e0ff74",
   "modules": {
     "boss_data.py": "sha256:71365e19d7229203f80e0c313abbb1bd2c0f98bc0a41de5730b76cbfd1dd436f",
     "boss_sweeps.py": "sha256:5d8c7e4f28df893ff7528ee8853af9c93750424dd6abd8713075ccc396eba357",
