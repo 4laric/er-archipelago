@@ -228,7 +228,12 @@ class TestDefaultedRegionGuard(unittest.TestCase):
         # 9 landed (see the Rold-seam note below for the one that did not). That is one walk, not
         # nine negotiations -- but the pin is a RATCHET, so it sits exactly at the new count and
         # the next entry has to move it again on purpose.
-        self.assertLessEqual(len(REGION_CONFIRMED_APS), 16,
+        # 2026-08-04: 16 -> 17. f400300 (Rya's Necklace), Alaric, ground truth: "confirmed
+        # Liurnia". NOT a tile-guess clearance like the others -- this check's region came from a
+        # BAD MAP JOIN (region_map.csv ties f400300 to lot m30_09_00_00, Gelmir Hero's Grave), and
+        # the item is handed over at Boilprawn Shack by the Blackguard the check's own name already
+        # cites. Paired with FLAG_REGION_OVERRIDE[400300] in gen_data.
+        self.assertLessEqual(len(REGION_CONFIRMED_APS), 17,
                              "REGION_CONFIRMED_APS is growing -- each entry un-bars a check on ground "
                              "the derivation cannot see. If these are real in-game confirmations, "
                              "raise the pin WITH who confirmed them and when (gen_data "

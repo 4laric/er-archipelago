@@ -110,7 +110,7 @@ from worlds.eldenring.data import LOCATIONS  # noqa: E402
 # 53 -> 54 (2026-08-04): grace 76205 South Raya Lucaria Gate begins straddling when the merchant's
 # 16 move to Raya Lucaria Academy. #373's f1035467100 move did NOT add a grace (76242 already
 # straddled), which is why main reads 53 and this reads 54 -- the two moves are not interchangeable.
-MAX_STRADDLING_GRACES = 54
+MAX_STRADDLING_GRACES = 55
 #
 # --- 2026-08-04 (#249): 150 -> 153, and the SAME control was run. Restricting the screen to the
 #   flags that were checks BEFORE this change gives 52 graces / 150 minority -- exactly main. The
@@ -121,7 +121,8 @@ MAX_STRADDLING_GRACES = 54
 # 🛑 THE TWO 2026-08-04 MOVES ARE CUMULATIVE. #373 moved f1035467100 and #374 moved the
 #   merchant's 16, so NEITHER side's pin is the merged number. Re-measured here rather
 #   than picked; each move's own control is in its note above.
-MAX_MINORITY_CHECKS = 170   # 153 + 1 (#373 f1035467100) + 16 (#374 merchant stock) -- MEASURED
+MAX_MINORITY_CHECKS = 171   # 153 + 1 (#373 f1035467100) + 16 (#374 merchant stock)
+                            # + 1 (2026-08-04 f400300, Rya's Necklace) -- MEASURED
 # The share cannot be inflated by locating more checks, so it is the quantity to defend.
 # Observed: 98/3205 = 3.1%, then 116/3435 = 3.4%, now 150/3856 = 3.9% (see the #338 note above).
 # 4.38% after the #252 merchant move (169/3856) -- the move is a region derivation getting MORE
@@ -129,7 +130,20 @@ MAX_MINORITY_CHECKS = 170   # 153 + 1 (#373 f1035467100) + 16 (#374 merchant sto
 # note above. Ceiling set to the measured value + headroom of one more small pocket move, NOT a
 # round number to grow into.
 # 4.41% once BOTH 2026-08-04 moves are in (170/3856). Measured, not rounded up to grow into.
-MAX_MINORITY_SHARE = 0.0441
+# 4.4346% once f400300 moves (171/3856). THE CONTROL THIS FILE PRESCRIBES WAS RUN and the delta is
+# exactly one deliberately-moved check:
+#       branch                       : 55 graces / 171 minority
+#       control, f400300 forced Altus: 54 graces / 170 minority   <-- EXACTLY main
+# Rya's Necklace anchors to grace 76314 "Capital Rampart", which now reads {Liurnia: 1, Altus: 6}.
+# 🛑 AND THE GRACE IS THE WRONG ONE, not the region -- this file's own advice ("when a straddle looks
+# geographically impossible, suspect the GRACE first") applies to it. The necklace is handed over at
+# Boilprawn Shack in Liurnia; its coordinate comes from the same bad m30_09 map join the region
+# override exists to correct, so it is measured from a position the item was never at. That is the
+# `Altar South` failure one check wide, and the 2000 m cap cannot catch it because the bogus position
+# is close to a real grace. The honest fix is to drop the coordinate rather than re-anchor it, which
+# changes what this screen MEASURES -- so it is recorded here and NOT done in a key-items PR, the
+# same disposition this file gave Sorceress Sellen's 13 sorceries.
+MAX_MINORITY_SHARE = 0.0444
 
 
 def _nearest_grace(column=1):

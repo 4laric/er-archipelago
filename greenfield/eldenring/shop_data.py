@@ -1641,7 +1641,7 @@ SHOP_LOC_REGION = {
     7770653: 'Scadu Altus',
     7770654: 'Scadu Altus',
     7770655: 'Scadu Altus',
-    7770695: 'Altus',
+    7770695: 'Liurnia',
     7774830: 'Roundtable Hold',
     7774831: 'Roundtable Hold',
     7774832: 'Roundtable Hold',
@@ -2262,4 +2262,4 @@ SPARE_PREVIEW_GOODS = (
     9443, 9444, 9445, 9446, 9447, 9448, 9449, 9450, 51760,
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:5592d73f7bb33940f92843e7944ea49fb94511f0a2d077b1d0ce829685cfb58e', 'module': 'shop_data.py', 'body_sha256': 'sha256:358e1063f5b6818269cb68aff8ae5c6175266f4954526212f707e128effef58e'}
+_GEN_STAMP = {'inputs_hash': 'sha256:b1908d6524a427c5bd519b85ed8678a6e3c154aa0552478c9f77d12143f1724b', 'module': 'shop_data.py', 'body_sha256': 'sha256:b96dc5417ccb1c6ab674177b2fa006cb79bb323436a9cbe8815176f0a0bc82a0'}

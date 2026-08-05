@@ -451,7 +451,6 @@ LOCATIONS = {
         ('Altus :: Festering Bloody Finger - from Nomadic Merchant [f170710]', 7770424, 170710),
         ('Altus :: Tonic of Forgetfulness - around Road of Iniquity Side Path [f400070]', 7770663, 400070),
         ("Altus :: [Sorcery] Tibia's Summons - near Murkwater Coast (region unconfirmed) [f400163]", 7770678, 400163),
-        ("Altus :: Rya's Necklace - from Blackguard (region unconfirmed) [f400300]", 7770695, 400300),
         ('Altus :: Seedbed Curse - m60_44_52 (region unconfirmed) [f400308]', 7770696, 400308),
         ('Altus :: Great Stars - around Bower of Bounty [f400510]', 7770728, 400510),
         ('Altus :: Omenkiller Rollo - around Divine Tower of East Altus: Gate [f510740]', 7770779, 510740),
@@ -2657,6 +2656,7 @@ LOCATIONS = {
         ("Liurnia :: Pidia's Bell Bearing - near Royal Moongazing Grounds [f400149]", 7770677, 400149),
         ("Liurnia :: Iji's Bell Bearing - around Road to the Manor [f400240]", 7770685, 400240),
         ("Liurnia :: Iji's Mirrorhelm - around Road to the Manor [f400241]", 7770686, 400241),
+        ("Liurnia :: Rya's Necklace - from Blackguard [f400300]", 7770695, 400300),
         ('Liurnia :: Dark Moon Greatsword - near Cathedral of Manus Celes [f400393]', 7770716, 400393),
         ("Liurnia :: Latenna the Albinauric - around Slumbering Wolf's Shack [f400410]", 7770719, 400410),
         ('Liurnia :: Companion Jar - near Jarburg [f400460]', 7770723, 400460),
@@ -5223,4 +5223,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:5592d73f7bb33940f92843e7944ea49fb94511f0a2d077b1d0ce829685cfb58e', 'module': 'data.py', 'body_sha256': 'sha256:e9799f1555cd0fed3d13e6c9cf3007cbcf8e8932b5bf45ef9b55967c210d3895'}
+_GEN_STAMP = {'inputs_hash': 'sha256:b1908d6524a427c5bd519b85ed8678a6e3c154aa0552478c9f77d12143f1724b', 'module': 'data.py', 'body_sha256': 'sha256:4a901b910c46504976610c3b90fa944ba295d23cbee7e021a90cb35ce6b3f3e2'}

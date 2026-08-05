@@ -243,12 +243,64 @@ class EsdGiftHandovers(unittest.TestCase):
                                 "the esd_gifts lot->flag->check join collapsed -- it landed on 48 "
                                 "live checks when it was written")
 
-    def test_every_dialogue_handover_is_missable(self):
-        untagged = sorted(ap for ap in self._gift_check_aps() if ap not in MISSABLE_LOCATIONS)
+    def _gift_paths(self):
+        """{ap: [gate_sense, ...]} -- one entry per GATE PATH the join landed on a check."""
+        lot2flag = {}
+        for r in _rows("flag_lots.tsv"):
+            if (r.get("table") or "").strip() != "map":
+                continue
+            try:
+                lot2flag.setdefault(int(r["lot"]), int(r["flag"]))
+            except (KeyError, TypeError, ValueError):
+                continue
+        f2a = _flag_to_ap()
+        out = {}
+        for r in _rows("esd_gifts.tsv"):
+            try:
+                lot = int((r.get("item_lot") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            ap = f2a.get(lot2flag.get(lot))
+            if ap is not None:
+                out.setdefault(ap, []).append((r.get("gate_sense") or "").strip())
+        return out
+
+    def test_every_QUEST_STATE_dialogue_handover_is_missable(self):
+        """2026-08-04: this used to demand that EVERY dialogue handover be missable. That was the
+        blanket `_ESD_GIFT_GATED` policy written down, and the policy changed -- so the test does
+        too, deliberately and with the reason, rather than being deleted or exempted.
+
+        A gift row exists per GATE PATH. `gate_sense != 0` is a QUEST-STATE precondition; a gift with
+        no such path is handed over the first time you talk. Only the first kind can be lost by
+        playing on, so only the first kind is barred from progression. The second kind is what a
+        player coming from matt's randomizer expects to be able to rely on -- Rold Medallion,
+        Drawing-Room Key, Pureblood Knight's Medal, Haligtree Secret Medallion (Right).
+
+        🛑 THE SCREEN CANNOT SEE AN EMEVD PRECONDITION, so this cannot be the only guard on that
+        question: f400001 ("talk to Melina after killing Morgott") is latch-only and is deliberately
+        un-barred anyway, because Morgott's own drop is already a hosting surface member.
+        """
+        paths = self._gift_paths()
+        quest_state = {ap for ap, senses in paths.items() if any(s != "0" for s in senses)}
+        untagged = sorted(ap for ap in quest_state if ap not in MISSABLE_LOCATIONS)
         self.assertFalse(untagged,
-                         "%d NPC-handover check(s) can host REQUIRED progression: %s\n(gen_data is "
-                         "fixed and the generated table is stale: run build.ps1 -Greenfield)"
-                         % (len(untagged), untagged[:12]))
+                         "%d quest-state NPC-handover check(s) can host REQUIRED progression: %s\n"
+                         "(gen_data is fixed and the generated table is stale: run "
+                         "build.ps1 -Greenfield)" % (len(untagged), untagged[:12]))
+
+    def test_the_latch_only_split_actually_splits(self):
+        """The partition must stay a partition. If `gate_sense` ever stops distinguishing anything,
+        one side collapses to zero and the test above passes vacuously -- which is the failure this
+        repo names by hand: a filter with no tally. Floors on BOTH sides, not a pin on either."""
+        paths = self._gift_paths()
+        latch = {ap for ap, s in paths.items() if all(x == "0" for x in s)}
+        quest = set(paths) - latch
+        self.assertGreaterEqual(len(latch), 20,
+                                "the latch-only side collapsed (%d) -- gate_sense stopped "
+                                "distinguishing first-talk gifts" % len(latch))
+        self.assertGreaterEqual(len(quest), 15,
+                                "the quest-state side collapsed (%d) -- every handover now reads as "
+                                "first-talk, which would un-bar the whole corpus" % len(quest))
 
 
 class SurfaceCountsOnlyHostableChecks(WorldTestBase):
