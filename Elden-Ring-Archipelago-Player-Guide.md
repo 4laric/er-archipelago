@@ -211,6 +211,11 @@ shallowest is roughly vanilla; the deepest is about **7.4x enemy HP**, the
 strength vanilla saves for its endgame. Rune rewards never change, at any
 setting -- a scaled-up enemy is worth exactly what it was worth before.
 
+- **`enemy_scaling: false`** turns the whole thing off. Every enemy keeps its
+  vanilla strength and the sliders below stop applying -- the item randomizer
+  without the difficulty curve. Note this is not "easy mode": it is the base
+  game's own curve, which in a randomized world can put a late-game area in
+  front of you at level 20.
 - **`minimum_enemy_difficulty`** raises the floor, so nowhere stays a walkover.
   At `50`, nothing in the game sits below roughly 4x enemy HP however early you
   got there. Use it if the opening hours feel like a formality.
