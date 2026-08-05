@@ -12,7 +12,7 @@ out first for a solo seed):
 | yaml | what it validates | checklist tier |
 |------|-------------------|----------------|
 | GF-Boot.yaml       | boot contract in isolation (locks light graces, filler grants, checks send) | T0 |
-| GF-Shattering-4Region.yaml | flagship Shattering: item-shuffle + num_regions 4 (spine) + region-lock goal | T1/T2/T3 |
+| GF-Shattering-4Region.yaml | flagship Shattering: item-shuffle + num_regions 4 + region-lock goal | T1/T2/T3 |
 | Alaric_shattering.yaml | the same Shattering with 4 *rolled* regions | T1/T2/T3 |
 | GF-Grace-Scatter.yaml | grace freebie + scatter items                                  | T3.1 |
 | GF-GreatRunes.yaml | great-rune goal (all regions kept, 2 runes required)               | T3.4 |

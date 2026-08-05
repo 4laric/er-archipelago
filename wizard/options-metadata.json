@@ -2,7 +2,7 @@
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "31cb65af861135cf8594462c79d69cbc30499d9f94958e1ab4c9dd1510a8be77",
+ "source_sha256": "54ee2db5cbc5b8258235ee0b1bead54ffefc49fb4a2ec8224676cdc5bc5d95d7",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -108,17 +108,17 @@
    "key": "num_regions_order",
    "class": "NumRegionsOrder",
    "display_name": "Region Selection",
-   "description": "How kept regions are chosen when num_regions > 0. 'rolled' (default) keeps N random regions;\n'spine' keeps the first N of a fixed progression path (Limgrave first). The goal region (Leyndell)\nis always kept, so the seed is always winnable.",
+   "description": "How kept regions are chosen when num_regions > 0. There is only one behaviour: N regions drawn\nat RANDOM from the eligible pool. `spine` is DEPRECATED, does the same thing, and warns -- it is\naccepted for one release so yamls in the wild keep rolling.",
    "kind": "choice",
    "base": "Choice",
    "default": "rolled",
    "choices": [
     {
-     "name": "spine",
+     "name": "rolled",
      "value": 0
     },
     {
-     "name": "rolled",
+     "name": "spine",
      "value": 1
     }
    ],
