@@ -1237,15 +1237,11 @@ const ERW = (() => {
     if (nr > 0){
       if (goal !== "capital") warn("num_regions", "Only takes effect with ending_condition: capital.");
       if (!lockBased) warn("num_regions", "Only takes effect with a lock-based World Logic.");
-      if (has("num_regions_order") && v("num_regions_order") === "spine" &&
-          has("num_regions_rune_source") && v("num_regions_rune_source") === "pool")
         warn("num_regions_rune_source", "Ignored under spine ordering (pool rolls a random set).");
       if (nr < 3) info("num_regions", "Below the structural floor — raised to 3 at generation (Limgrave + Leyndell + Altus).");
       if (has("great_runes_required") && v("great_runes_required") > 4)
         err("great_runes_required", "num_regions runs can satisfy at most 4 great runes — generation rejects this.");
     } else {
-      if (has("num_regions_order") && v("num_regions_order") === "spine")
-        warn("num_regions_order", "Spine ordering set but num_regions is 0 (nothing to keep).");
       if (has("num_regions_rune_source") && v("num_regions_rune_source") === "pool")
         warn("num_regions_rune_source", "Inert unless num_regions > 0.");
       if (has("num_regions_chain") && v("num_regions_chain"))

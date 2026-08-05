@@ -182,8 +182,9 @@ The defaults are the recommended run. If you want to stray:
 - **Shorter runs:** the shipped `num_regions: 0` keeps every eligible region
   in play (the full Shattering: 17 base-game regions as shipped, 31 with the
   DLC on); set a small number like `4` for a tight evening run.
-- **Fixed vs random path:** `num_regions_order: spine` (default) keeps a fixed
-  early path (Limgrave first); `rolled` keeps random regions.
+- **Which regions:** the kept set is drawn at random. (`num_regions_order` is
+  vestigial -- `random`/`rolled` are the same thing and `spine`, the old fixed
+  Limgrave-first path, is deprecated and now behaves identically. Omit the key.)
 - **Great-Rune goal:** `ending_condition: great_runes` +
   `goal_great_runes: N`.
 - **DeathLink:** `death_link: true` -- shared deaths in a multiworld, both

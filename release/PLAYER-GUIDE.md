@@ -33,9 +33,9 @@ vanilla game plus a runtime client.
 
 ## Your first ten minutes
 
-You wake up at Roundtable Hold with one region open -- Limgrave on the default
-`spine` order, or somewhere random if you set `num_regions_order: rolled`.
-Its graces are lit on your map. Warp in.
+You wake up at Roundtable Hold with one region open. Which one is random, and it
+is drawn weighted by size, so the big regions (Liurnia, Altus, Caelid, Limgrave)
+come up most often. Its graces are lit on your map. Warp in.
 
 You start with more than a vanilla Tarnished, on purpose -- region-hopping out
 of order breaks the vanilla drip-feed of these things, so v0.2 just hands them
