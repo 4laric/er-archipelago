@@ -192,7 +192,20 @@ class TestVanillaScaling:
     """
 
     @staticmethod
-    def _slot_data(on):
+    def _slot_data(on, seed=1):
+        """slot_data for `enemy_scaling: on`, generated AT A FIXED SEED.
+
+        🛑 THE SEED IS THE POINT. `setUp()` alone generates at a random seed, so two calls are two
+        different worlds and every seed-derived key differs -- test_gf_world documents five of them
+        (`_SEED_VARYING`) and fill-dependent keys like goalRequiredItems behave the same way.
+        Comparing those two dicts and demanding exactly one key change is a comparison that can only
+        pass by luck; it did until #390 perturbed the random stream.
+
+        Holding the seed makes the two worlds differ by exactly the option under test, which is the
+        only way `test_off_changes_nothing_else_on_the_wire` can mean what its name says. Excluding
+        the noisy keys instead would have been filtering the gate's output: a real leak from the
+        scaling feature into goalRequiredItems would look identical to stream drift, and be silenced.
+        """
         WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 
         class _T(WorldTestBase):
@@ -202,6 +215,7 @@ class TestVanillaScaling:
         t = _T()
         t.setUp()
         try:
+            t.world_setup(seed=seed)      # same pattern as test_gf_world's determinism tests
             return t.world.fill_slot_data()
         finally:
             t.tearDown()
@@ -224,7 +238,9 @@ class TestVanillaScaling:
         assert off.keys() == on.keys(), "an off-seed must not be a different wire SHAPE"
         differing = [k for k in on if off[k] != on[k]]
         assert differing == ["completion_scaling"], (
-            f"turning scaling off changed {differing} -- it must change exactly one key")
+            f"turning scaling off changed {differing} -- it must change exactly one key. Both "
+            "worlds are generated at the SAME seed, so anything listed here is a real leak from "
+            "the scaling feature, not fill noise -- do NOT fix this by excluding the key.")
 
 
 class TestSlotDataUnits:
