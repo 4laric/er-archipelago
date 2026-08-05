@@ -243,13 +243,47 @@ def test_the_sweep_corpus_did_not_shrink():
 
         Scoped to _is_dungeon deliberately: legacy interiors are the same defect and worth ~280 more,
         but they need a map-local legacy pass that does not exist yet (piece C), and admitting them
-        here would silently route them into the coarser region divvy instead."""
+        here would silently route them into the coarser region divvy instead.
+
+    +270 (2026-08-05, SPEC-broaden-sweeps PIECE C) 3206 -> 3476. A legacy boss now sweeps its OWN
+        MAP's filler before the region divvy sees the pool -- "this boss's building" instead of
+        "1/Nth of the region". Shadow Keep 129, Leyndell 77, Mohgwyn 25 lead it. Nothing left the
+        corpus, no check is granted twice, no sweep region flipped.
+
+        THREE things this pass had to get right, each measured rather than assumed:
+
+        * INTERIORS ONLY. `_class` calls the m61 DLC OVERWORLD "legacy", so an unfiltered
+          legacy-map set pulls in m61_XX BANDS -- and a band spans several fine-regions, which is
+          exactly why those bosses needed tile recovery for the divvy. 209 DLC checks walked in
+          before this was scoped out. The overworld wants a neighbourhood (piece A), not a map.
+        * GROUPED BY THE BOSS'S REGION, not the map's majority. A trigger carries ONE SWEEP_REGION
+          and a legacy boss also holds a region slice, so filtering by map-majority could mis-region
+          the trigger -- m10_00 is Stormveil 3 / Weeping 2 and m12_05 is Mohgwyn 25 / Liurnia 1.
+        * `_filler_only`, which the dungeon map path has never applied. Without it this pass swept
+          282 important-tagged checks the region divvy had always been filtering out. A new pass does
+          not inherit an old pass's hole.
+
+        THE CLAWBACK, and why Astel needs it. The map-local pass is deliberately greedy (a specific
+        boss beats the region major, as the field/dungeon dedup has always done), so a region's
+        leftover pool can empty. Astel's arena m12_04 is a bare boss room; every "Eternal Cities"
+        check physically lives in m12_01 and m12_02, which now belong to the bosses standing in them.
+        Astel went 33 -> 0 -- not losing a claim to anything of its own, losing a consolation slice
+        of a pool that no longer exists. Dealing the remainder to the emptiest bosses first (also
+        added here) rescued two Shadow Keep bosses 9 -> 1 but cannot help Astel: Ainsel River's
+        remainder is genuinely EMPTY. So a starved region major claws back a share from the largest
+        holder in its own region, re-dealt round-robin: Astel 26, its donor 27.
+
+        m19_00 is EXEMPT BY MAP: Radagon and the Elden Beast are one fight on a map with no filler,
+        and a convenience grant at the end of the run is not a convenience. Keyed on the MAP because
+        the first cut exempted only 19000800 and 19000810 promptly clawed back instead -- an
+        entity-keyed exemption on a two-head arena protects exactly half of it. Elden Beast 1 -> 0 is
+        therefore the ONE trigger this change removes, deliberately."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
     # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
     # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
-    assert total == 3206, (
-        "sweep corpus is %d, expected 3206. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3476, (
+        "sweep corpus is %d, expected 3476. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)

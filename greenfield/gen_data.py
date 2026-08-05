@@ -6809,6 +6809,38 @@ def _mp2(m):
     if not m or m == "PENDING":
         return None
     return "_".join(m.split("_")[:2])
+# Boss maps that must NEVER carry a sweep, however the game buckets them.
+#   m10_01 -- the fresh-character intro (ruined Chapel of Anticipation), where you fight or flee the
+#             Grafted Scion. The game buckets m10_01 under Stormveil (m10), and the legacy DIVVY
+#             below then counts the Scion as one of Stormveil's legacy bosses and hands it a
+#             round-robin slice of the region's filler: 36 Stormveil Castle checks -- Ash of War:
+#             Storm Assault, Misericorde, smithing stones by Rampart Tower -- paid out for killing an
+#             OPTIONAL TUTORIAL BOSS in the first few minutes, for a legacy dungeon gated behind
+#             Margit. Reported by dafranky67 on Nexus 2026-07-29 ("when i killed grafted scion in the
+#             start it gave me like 30 items?").
+#             🛑 region_groups.py ALREADY excludes this exact fold (bucket 10010) from kick-watch
+#             geometry, for the same reason and after a CTD. One consumer of the fold was fixed and
+#             the other was not -- when a fold needs an exception, grep for every consumer of it.
+#             The Scion's OWN drop (Ornamental Straight Sword, f510030 -> ap 7773886) is a normal
+#             check and is untouched; only the sweep goes.
+_SWEEP_EXCLUDED_BMAPS = {"m10_01"}
+
+# Maps that host a LEGACY-class boss, i.e. the castles and interior region majors. Derived from
+# BOSS_HEALTHBARS rather than hand-listed, and with the exclusion above already applied, so there is
+# exactly ONE definition of "a map a sweep may fire on" (SPEC-broaden-sweeps piece C).
+# 🛑 INTERIORS ONLY -- m60/m61 are excluded. `_class` calls the m61 DLC OVERWORLD "legacy" (it must,
+# or those 28 bosses lose their sweeps entirely), so an unfiltered set here pulls in m61_XX bands --
+# and an m61_XX "map" is a whole BAND of tiles spanning several fine-regions, which is exactly why
+# those bosses had to have their true tile recovered for the divvy in the first place. Granting one
+# map-wide is far too coarse. Measured when this was missing: 209 m61 checks walked in on top of the
+# 280 interior ones. The DLC overworld wants a NEIGHBOURHOOD (SPEC-broaden-sweeps piece A), not this.
+_LEGACY_SWEEP_MAPS = {_i[0] for _i in BOSS_HEALTHBARS.values()
+                      if _i[2] == "legacy" and not _i[0].startswith(("m60", "m61"))
+                      } - _SWEEP_EXCLUDED_BMAPS
+def _is_legacy_map(_mp):
+    return bool(_mp) and _mp in _LEGACY_SWEEP_MAPS
+
+
 def _is_dungeon(_mp):
     return bool(_mp) and _mp[:3] in ("m30", "m31", "m32", "m34", "m39", "m40", "m41", "m42", "m43")
 # = contract.IMPORTANT_LOCATION_TYPES; guarded vs drift by
@@ -6984,7 +7016,8 @@ for _i, _r in enumerate(rows):
         # [Incantation] Knight's Lightning Spear at Scorpion River Catacombs (7774285, Legendary)
         # both walked in. A sweep that hands you a flask upgrade or a legendary incantation is a
         # progression decision, not a convenience.
-        _r["method"] in ("global", "global_filler") and _is_dungeon(_mp2(_r["map"]))
+        _r["method"] in ("flag_prefix", "global", "global_filler")
+        and (_is_dungeon(_mp2(_r["map"])) or _is_legacy_map(_mp2(_r["map"])))
         and not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(BASE_AP + _i, ()))))
     if not _swept:
         continue
@@ -7025,21 +7058,6 @@ def _filler_only(_aps):
 # is how Leyndell's own bosses (11000800/11000850) ended up sweeping Roundtable Hold.
 _mreg = {_mp: _c.most_common(1)[0][0] for _mp, _c in _mreg_votes.items()}
 
-# Boss maps that must NEVER carry a sweep, however the game buckets them.
-#   m10_01 -- the fresh-character intro (ruined Chapel of Anticipation), where you fight or flee the
-#             Grafted Scion. The game buckets m10_01 under Stormveil (m10), and the legacy DIVVY
-#             below then counts the Scion as one of Stormveil's legacy bosses and hands it a
-#             round-robin slice of the region's filler: 36 Stormveil Castle checks -- Ash of War:
-#             Storm Assault, Misericorde, smithing stones by Rampart Tower -- paid out for killing an
-#             OPTIONAL TUTORIAL BOSS in the first few minutes, for a legacy dungeon gated behind
-#             Margit. Reported by dafranky67 on Nexus 2026-07-29 ("when i killed grafted scion in the
-#             start it gave me like 30 items?").
-#             🛑 region_groups.py ALREADY excludes this exact fold (bucket 10010) from kick-watch
-#             geometry, for the same reason and after a CTD. One consumer of the fold was fixed and
-#             the other was not -- when a fold needs an exception, grep for every consumer of it.
-#             The Scion's OWN drop (Ornamental Straight Sword, f510030 -> ap 7773886) is a normal
-#             check and is untouched; only the sweep goes.
-_SWEEP_EXCLUDED_BMAPS = {"m10_01"}
 
 # ---- SECONDARY ARENA ENTITIES (greenfield/game_areas.tsv) --------------------------------------
 # A boss ARENA can hold several healthbar entities: m32_05 is the Crystalian DUO (32050800
@@ -7171,6 +7189,9 @@ _sweep_excluded_hits = []
 _sweep_secondary_hits = []
 _dungeon_by_map = defaultdict(list)   # map -> [surviving dungeon trigger,...] for the per-map DIVVY
 _dungeon_divvied = []
+_legacy_by_map = defaultdict(list)   # map -> [legacy trigger,...] for the map-local pass (piece C)
+_legacy_map_divvied = []
+_legacy_region_of = {}               # legacy trigger -> the region it was pinned to (piece C)
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
@@ -7212,6 +7233,15 @@ if BOSS_HEALTHBARS:
                 _unregioned_legacy.append((_ent, _bmap, _name))
                 continue
             _legacy_by_region[_lreg].append(_ent)
+            # ...and, SPEC-broaden-sweeps piece C, it also sweeps its OWN MAP's filler. A legacy
+            # boss used to grant a round-robin slice of the whole REGION and nothing else, so the
+            # Shadow Keep's own 129 pickups and Leyndell's 77 were granted by nobody. "This boss's
+            # building" is a far more legible answer than "1/Nth of the region", and it is the same
+            # shape the dungeon branch above already has. The region divvy still runs, over what is
+            # left after `_covered` -- the two are complementary, not alternatives.
+            if _mem_map.get(_bmap):
+                _legacy_by_map[_bmap].append(_ent)
+                _legacy_region_of[_ent] = _lreg
             continue
         _members = sorted(set(_members))
         if not _members:
@@ -7336,6 +7366,52 @@ if BOSS_HEALTHBARS:
         DUNGEON_SWEEPS[_trig] = _mem
         SWEEP_REGION[_trig] = _freg[_trig]
         _covered.update(_mem)
+    # ---- LEGACY MAP-LOCAL (2026-08-05, SPEC-broaden-sweeps piece C) -------------------------------
+    # A legacy boss sweeps the filler on its OWN map, before the region divvy below sees the pool.
+    # "This boss's building" is a far more legible grant than "1/Nth of the region", and it is the
+    # same shape the dungeon branch already has.
+    #
+    # 🛑 GROUPED BY THE BOSS'S OWN REGION, not the map's majority. A trigger carries ONE
+    # SWEEP_REGION, and a legacy boss also holds a region-divvy slice below, so if the map-local pool
+    # were filtered to the map's majority the two halves could disagree and the trigger would be
+    # mis-regioned -- checks granted in a region the player has not opened. m10_00 is the standing
+    # case (Stormveil 3 / Weeping 2 on one map) and m12_05 (Mohgwyn 25 / Liurnia 1). Each boss takes
+    # only its OWN region's share, so SWEEP_REGION stays exactly _lreg.
+    #
+    # 🛑 _filler_only, unlike the dungeon branch. The map path has never applied it -- that is the
+    # pre-existing wart test_gf_dungeon_sweep_rungs ratchets -- and without it here this pass swept
+    # 282 important-tagged checks the region divvy had always been filtering out. A new pass does not
+    # get to inherit an old pass's hole.
+    #
+    # Several legacy bosses in one region on one map DIVVY it round-robin (m11_00 Leyndell has 2,
+    # m21_01 has 2, m12_03 has 7) for the #363 reason: keyed on the MAP, every boss would otherwise
+    # hold the SAME list and the first kill would pay the whole building out. Same determinism as the
+    # other divvies. SEPARATE from `_dungeon_by_map`, which answers a different question.
+    for _bmap, _ents in sorted(_legacy_by_map.items()):
+        _by_reg = defaultdict(list)
+        for _e in sorted(_ents):
+            _by_reg[_legacy_region_of[_e]].append(_e)
+        for _lsreg, _grp in sorted(_by_reg.items()):
+            if _lsreg == HUB:
+                continue
+            _pool = sorted(set(_filler_only(_mem_map.get(_bmap, []))) - _covered)
+            _pool = [_a for _a in _pool if _ap_region.get(_a) == _lsreg]
+            if not _pool:
+                continue
+            _lslices = defaultdict(list)
+            for _j, _ap in enumerate(_pool):
+                _lslices[_grp[_j % len(_grp)]].append(_ap)
+            for _e in _grp:
+                if _lslices[_e]:
+                    DUNGEON_SWEEPS[_e] = sorted(set(DUNGEON_SWEEPS.get(_e, [])) | set(_lslices[_e]))
+                    SWEEP_REGION.setdefault(_e, _lsreg)
+            _covered.update(_pool)
+            _legacy_map_divvied.append((_bmap, _lsreg, _grp, len(_pool)))
+    print("boss_sweeps: legacy map-local: %d (map, region) group(s), %d member(s) -- %s"
+          % (len(_legacy_map_divvied), sum(_n for _m, _r, _e, _n in _legacy_map_divvied),
+             ", ".join("%s/%s x%d -> %d" % (_m, _r, len(_e), _n)
+                       for _m, _r, _e, _n in sorted(_legacy_map_divvied, key=lambda _t: -_t[3])[:5])))
+
     # Legacy DIVVY (2026-07-11): PARTITION a legacy region's filler round-robin among its legacy bosses
     # so no single boss kill dumps the whole region. Previously EVERY legacy boss swept the ENTIRE
     # region filler -- Farum's 91 checks granted in full by each of Godskin Duo / Placidusax / Maliketh
@@ -7348,7 +7424,16 @@ if BOSS_HEALTHBARS:
     # slices). Un-killed bosses' slices stay obtainable by physical pickup (a sweep is a convenience
     # auto-grant, not the only source), so nothing is stranded.
     for _reg, _ents in _legacy_by_region.items():
-        _ents = sorted(_ents)
+        # DEAL TO THE EMPTIEST FIRST (2026-08-05, piece C). Plain `sorted(_ents)` deals by entity id,
+        # which was fine while this was the only pool a legacy boss drew from. It is not any more:
+        # the map-local pass above takes a region's filler for the buildings it sits in, and the
+        # remainder can be smaller than the region's boss count -- at which point an id-ordered deal
+        # gives the tail nothing and they are DROPPED as empty. Measured: Astel went 33 members -> 0,
+        # the Elden Beast 1 -> 0, and two Shadow Keep bosses 9 -> 0. A boss that granted something
+        # yesterday must not grant nothing today because a NEIGHBOUR got more specific.
+        # So the region remainder is dealt to the bosses holding the FEWEST members first; ties by
+        # entity id keep it deterministic.
+        _ents = sorted(_ents, key=lambda _e: (len(DUNGEON_SWEEPS.get(_e, ())), _e))
         _pool = sorted(set(_filler_only(_mem_region.get(_reg, []))) - _covered)
         if not _pool or not _ents:
             continue
@@ -7357,8 +7442,71 @@ if BOSS_HEALTHBARS:
             _slices[_ents[_j % len(_ents)]].append(_ap)
         for _e in _ents:
             if _slices[_e]:
-                DUNGEON_SWEEPS[_e] = _slices[_e]
-                SWEEP_REGION[_e] = _ap_region.get(_slices[_e][0], _reg)
+                # UNION, not assignment: since piece C a legacy boss may already hold its own map's
+                # filler, and a bare `=` here would silently DELETE it. The two pools are disjoint by
+                # construction (`_covered`), so the union is exactly "this building, plus my slice of
+                # what is left in the region".
+                DUNGEON_SWEEPS[_e] = sorted(set(DUNGEON_SWEEPS.get(_e, [])) | set(_slices[_e]))
+                SWEEP_REGION.setdefault(_e, _ap_region.get(_slices[_e][0], _reg))
+    # ---- CLAWBACK: no region major may be left granting NOTHING (2026-08-05, piece C) -------------
+    # 🛑 WHY THIS EXISTS, AND WHY ASTEL IS THE CASE THAT FORCED IT.
+    #
+    # The map-local pass above is deliberately greedy: it runs BEFORE the region divvy because a
+    # more specific boss should beat the region major (the same rule the field/dungeon dedup has
+    # always followed). The side effect is that the region's leftover pool can be emptied, and a
+    # legacy boss whose OWN map holds no filler is then dealt nothing at all.
+    #
+    # ASTEL, NATURALBORN OF THE VOID is that boss, and it is not a quirk -- it is structural. Astel's
+    # arena is m12_04, a bare boss room: no chests, no pickups, nothing `_mem_map` can hold. Every
+    # check a player associates with "the Eternal Cities" physically lives in m12_01 (Ancestral
+    # Woods, 105) and m12_02 (Nokstella, 105), which now belong to the bosses standing IN them. So
+    # Astel went 33 members -> 0: it did not lose a claim to anything of its own, it lost a
+    # consolation slice of a region pool that no longer exists. Dealing the remainder to the emptiest
+    # bosses first (above) cannot help -- Ainsel River's remainder is genuinely EMPTY.
+    #
+    # A boss that granted 33 checks yesterday granting zero today is a regression however defensible
+    # the bookkeeping, so a starved region major CLAWS BACK a share from the largest holder in its
+    # OWN region (region-consistency is preserved by construction, and the donor keeps at least
+    # half). Re-dealt round-robin, the same instrument every other partition here uses, so the
+    # slices land within one of each other and the result is deterministic.
+    #
+    # m19_00, THE ELDEN THRONE, is exempt deliberately -- by MAP, not by entity. Radagon (19000810)
+    # and the Elden Beast (19000800) are ONE fight on one map that holds no filler of its own, so a
+    # clawback there would hand out a convenience grant at the very end of the run AND give a second
+    # head its own copy. Keyed on the map because the first cut of this exempted only 19000800 and
+    # 19000810 promptly clawed back instead -- an entity-keyed exemption on a two-head arena protects
+    # exactly half of it.
+    _CLAWBACK_EXEMPT_MAPS = {"m19_00"}
+    _clawed = []
+    _majors_by_region = defaultdict(list)
+    for _reg, _ents in _legacy_by_region.items():
+        for _e in _ents:
+            _majors_by_region[_reg].append(_e)
+    for _reg, _ents in sorted(_majors_by_region.items()):
+        _starved = sorted(_e for _e in _ents
+                          if not DUNGEON_SWEEPS.get(_e)
+                          and BOSS_HEALTHBARS.get(_e, ("",))[0] not in _CLAWBACK_EXEMPT_MAPS)
+        if not _starved:
+            continue
+        _donor = max((_e for _e in _ents if len(DUNGEON_SWEEPS.get(_e, ())) >= 2),
+                     key=lambda _e: (len(DUNGEON_SWEEPS[_e]), -_e), default=None)
+        if _donor is None:
+            continue                        # nothing in this region can spare anything
+        _share = sorted(DUNGEON_SWEEPS[_donor])
+        _takers = [_donor] + _starved
+        _redeal = defaultdict(list)
+        for _j, _ap in enumerate(_share):
+            _redeal[_takers[_j % len(_takers)]].append(_ap)
+        if not all(_redeal[_t] for _t in _takers):
+            continue                        # too few to go round -- leave it rather than starve the donor
+        for _t in _takers:
+            DUNGEON_SWEEPS[_t] = sorted(_redeal[_t])
+            SWEEP_REGION.setdefault(_t, _reg)
+        _clawed.append((_reg, _donor, _starved, len(_share)))
+    for _reg, _donor, _starved, _n in _clawed:
+        print("boss_sweeps: clawback in %s -- %d re-dealt from %d to %s (a region major may not "
+              "grant nothing)" % (_reg, _n, _donor, _starved))
+
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).
     assert not _unregioned_legacy, (
