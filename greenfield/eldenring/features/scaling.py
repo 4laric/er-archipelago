@@ -262,20 +262,32 @@ def blessing_floor_ranges(kept):
 
 
 class MinimumEnemyDifficulty(Range):
-    """How hard the EASIEST enemies in your run are. 0 (default) leaves the early game at its normal
-    strength; higher values lift the whole floor, so nowhere stays trivial once you have outgrown it.
+    """How hard the EASIEST enemies in your run are. Lifting the floor stops anywhere staying trivial
+    once you have outgrown it.
 
-      0    normal -- your first region is as weak as vanilla-ish   (default)
-      25   nothing below about 2x enemy HP
+      0    as weak as this mod can make anything -- well below vanilla's own floor
+      25   nothing below about 2.3x enemy HP   (default)
       50   nothing below about 4x
       100  everything at maximum, everywhere, from your first region on
 
     Useful because progression here is not geography: a region you unlock late can be an "early"
-    one, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting."""
+    one, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting.
+
+    WHY THE DEFAULT IS NOT 0 (changed 2026-08-05, measured -- see below). Vanilla applies TWO scaling
+    effects to an enemy, not one: a rung off the ladder we mirror, AND a second row at the same index
+    400 ids higher. Its effective multiplier is the PRODUCT, and the second family DESCENDS as the
+    first ascends -- it is a compensator, and it flattens vanilla's real curve to a 2.1x spread
+    between its weakest and strongest enemies. We only ever applied the first family, so at floor 0
+    we put enemies at 1.14x where vanilla never goes below 3.56x: roughly a THIRD of the weakest
+    thing the base game ships anywhere, not merely weak "for that area".
+
+    A floor of 25 lands on 2.27x -- deliberately still under vanilla's floor, because in a randomized
+    world your first region can hold an endgame MOVESET, and undershooting the stats is the honest
+    compensation for that. Set 0 if you want the old behaviour; it remains fully expressible."""
     display_name = "Minimum Enemy Difficulty"
     range_start = 0
     range_end = 100
-    default = 0
+    default = 25
 
 
 # ---- RENAMED 2026-07-27 -- stale yamls must FAIL, not be silently ignored ----------------------
