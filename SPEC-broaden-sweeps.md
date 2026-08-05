@@ -18,7 +18,7 @@ Design 1 reaches **624 of the 940**, in three INDEPENDENT pieces that can ship s
 
 | | piece | worth | blocked by |
 |---|---|---|---|
-| **A** | m61 DLC overworld field pass | **217** | the tile decode + the field pass's `m60`-only regex |
+| **A** | m61 DLC overworld field pass | **225** ✅ SHIPPED | the tile decode + the field pass's `m60`-only regex |
 | **B** | minor-dungeon map-local admission | **150** ✅ SHIPPED | the `_swept` METHOD gate, nothing else |
 | **C** | legacy-interior map-local | **270** ✅ SHIPPED | the `_swept` method gate + no legacy map-local pass |
 
@@ -84,6 +84,29 @@ field pass before the legacy divvy, so a check claimed by a neighbourhood leaves
 **Acceptance test (rule 11):** Gravesite, Ensis, Rauh Base, Cerulean and Jagged Peak each keep >= as
 many total swept members as before, AND the m61 payload drops by 217. A test that only checks the
 gain would pass while five regions lost their sweeps.
+
+### ✅ SHIPPED 2026-08-05
+
+**+225**, corpus 3476 -> 3701. Nothing lost, no trigger removed, no region flipped, and -- the thing
+this piece could have got wrong -- **no region shrank**. The 28 m61 bosses hold 247 -> 476 members.
+They stay `legacy` and stay divvy hosts; the neighbourhood is purely ADDITIVE, with `_covered`
+keeping the two pools disjoint.
+
+Three things had to be true, and two of them only showed up when the delta was measured:
+
+* **The tile.** All 28 decode `20XXYYLLLL` -> a tile that HAS an m61 emevd, 28/28, guarded by the
+  same second derivation as #378.
+* **The grid.** `_tile_xy` held a bare `(x, y)`. m60 (44,45) and m61 (44,45) are different places on
+  different continents and the distance between them is small and meaningless -- a DLC boss quietly
+  claiming base-game checks. Now grid-labelled and guarded by `_near`.
+* **The admission.** `_mem_tile` is fed from rows that passed `_swept`, and a `global_filler` on
+  m61_46_46 passed none of its branches -- so the first cut of the pass ran over an EMPTY grid and
+  claimed **exactly 0 checks while looking perfectly healthy**. Only the delta showed it.
+
+🛑 One test I wrote had to be walked back: asserting the Chebyshev cap for m61 bosses produces FALSE
+failures, because a DLC overworld boss holds a neighbourhood slice AND a region-divvy slice and
+nothing in the output distinguishes them -- Romina (m61_44_45) legitimately holds Ancient Ruins
+checks at distance 3. The grid invariant IS separable and is what the test asserts.
 
 ---
 

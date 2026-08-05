@@ -6837,6 +6837,7 @@ _SWEEP_EXCLUDED_BMAPS = {"m10_01"}
 _LEGACY_SWEEP_MAPS = {_i[0] for _i in BOSS_HEALTHBARS.values()
                       if _i[2] == "legacy" and not _i[0].startswith(("m60", "m61"))
                       } - _SWEEP_EXCLUDED_BMAPS
+_OVERWORLD_TILE_RE = re.compile(r"^m6[01]_\d\d_\d\d")
 def _is_legacy_map(_mp):
     return bool(_mp) and _mp in _LEGACY_SWEEP_MAPS
 
@@ -7017,7 +7018,12 @@ for _i, _r in enumerate(rows):
         # both walked in. A sweep that hands you a flask upgrade or a legendary incantation is a
         # progression decision, not a convenience.
         _r["method"] in ("flag_prefix", "global", "global_filler")
-        and (_is_dungeon(_mp2(_r["map"])) or _is_legacy_map(_mp2(_r["map"])))
+        and (_is_dungeon(_mp2(_r["map"])) or _is_legacy_map(_mp2(_r["map"]))
+             # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
+             # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed
+             # this gate, and a `global_filler` on m61_46_46 passed none of the branches above, so
+             # the DLC field pass ran over an empty grid and claimed exactly 0 checks.
+             or _OVERWORLD_TILE_RE.match(_r["map"] or ""))
         and not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(BASE_AP + _i, ()))))
     if not _swept:
         continue
@@ -7033,7 +7039,9 @@ for _i, _r in enumerate(rows):
         _mem_map[_mp].append(_ap)
         if _reg != HUB:                     # HUB = "region unknown": must not claim the map
             _mreg_votes[_mp][_reg] += 1
-    _mt = re.match(r"(m60_\d\d_\d\d)", _r["map"] or "")
+    # m6[01]: the DLC overworld is a second grid, admitted with piece A. Grids are kept APART below
+    # -- an m60 tile at (44,45) and an m61 tile at (44,45) are different places.
+    _mt = re.match(r"(m6[01]_\d\d_\d\d)", _r["map"] or "")
     if _mt:
         _mem_tile[_mt.group(1)].append(_ap)
 # Rule 4 ("a filter with no tally is a lie") + Rule 2 ("an empty result is a FAILURE"): say out loud
@@ -7195,7 +7203,8 @@ _legacy_region_of = {}               # legacy trigger -> the region it was pinne
 if BOSS_HEALTHBARS:
     _legacy_by_region = defaultdict(list)   # region -> [entity,...] for the round-robin partition below
     _covered = set()                        # every ap already swept by a field/dungeon boss (dedup)
-    _field_bosses = []                      # (trigger flag, (xx, yy)) -- field pass below
+    _field_bosses = []                      # (trigger flag, (grid, xx, yy)) -- field pass below
+    _m61_field_region = {}                  # DLC overworld boss -> its pinned region (piece A)
     _unregioned_legacy = []                 # legacy bosses with no vote AND no curated pin -- FATAL below
     for _ent, _info in sorted(BOSS_HEALTHBARS.items()):
         _bmap, _tile, _cls, _name = _info
@@ -7208,7 +7217,7 @@ if BOSS_HEALTHBARS:
             # Night's Cavalry entities datamined out of m60_48_55) gets no sweep -- same as before.
             _ftm = re.match(r"^m60_(\d\d)_(\d\d)$", _tile or "")
             if _ftm:
-                _field_bosses.append((_ent, (int(_ftm.group(1)), int(_ftm.group(2)))))
+                _field_bosses.append((_ent, ("m60", int(_ftm.group(1)), int(_ftm.group(2)))))
             continue
         elif _cls in ("catacomb", "cave", "tunnel", "dungeon"):
             _sec = _arena_secondary(_ent, _bmap)
@@ -7233,6 +7242,15 @@ if BOSS_HEALTHBARS:
                 _unregioned_legacy.append((_ent, _bmap, _name))
                 continue
             _legacy_by_region[_lreg].append(_ent)
+            # ...AND, piece A, the DLC overworld ones also get a NEIGHBOURHOOD. They stay legacy and
+            # stay divvy hosts -- five regions (Gravesite, Ensis, Rauh Base, Cerulean, Jagged Peak)
+            # have no other host, and a reclass would have taken 268 members off a cliff. This is
+            # additive: the field pass runs first and `_covered` removes what it claims from the
+            # divvy pool, so the two never double-grant.
+            _m61t = re.match(r"^m61_(\d\d)_(\d\d)$", _tile or "")
+            if _m61t:
+                _field_bosses.append((_ent, ("m61", int(_m61t.group(1)), int(_m61t.group(2)))))
+                _m61_field_region[_ent] = _lreg
             # ...and, SPEC-broaden-sweeps piece C, it also sweeps its OWN MAP's filler. A legacy
             # boss used to grant a round-robin slice of the whole REGION and nothing else, so the
             # Shadow Keep's own 129 pickups and Leyndell's 77 were granted by nobody. "This boss's
@@ -7323,17 +7341,25 @@ if BOSS_HEALTHBARS:
     # tile (test_field_sweeps_are_local). A boss's sweep REGION = the majority region of the filler
     # in the nearest non-empty ring around its tile (r=0, then 1, then 2) -- its own ground truth,
     # so a boss on a region border sweeps only the side it actually stands in.
+    # (grid, x, y) -- NOT (x, y). m60 and m61 are separate coordinate systems and a Chebyshev
+    # distance between them is meaningless, so every comparison below is grid-guarded by `_near`.
     _tile_xy = {}
     for _t in _mem_tile:
-        _txm = re.match(r"^m60_(\d\d)_(\d\d)$", _t)
+        _txm = re.match(r"^(m6[01])_(\d\d)_(\d\d)$", _t)
         if _txm:
-            _tile_xy[_t] = (int(_txm.group(1)), int(_txm.group(2)))
+            _tile_xy[_t] = (_txm.group(1), int(_txm.group(2)), int(_txm.group(3)))
+    def _near(_a, _b, _cap=2):
+        """Chebyshev distance if the two are on the SAME grid, else None (never comparable)."""
+        if _a[0] != _b[0]:
+            return None
+        _d = max(abs(_a[1] - _b[1]), abs(_a[2] - _b[2]))
+        return _d if _d <= _cap else None
     _freg = {}
-    for _trig, (_bx, _by) in _field_bosses:
+    for _trig, _bxy in _field_bosses:
         for _ring in (0, 1, 2):
             _votes = Counter()
-            for _t, (_x, _y) in _tile_xy.items():
-                if max(abs(_x - _bx), abs(_y - _by)) == _ring:
+            for _t, _txy in _tile_xy.items():
+                if _near(_txy, _bxy) == _ring:
                     for _a in _filler_only(_mem_tile[_t]):
                         _r2 = _ap_region.get(_a)
                         if _r2 and _r2 != HUB:
@@ -7341,19 +7367,22 @@ if BOSS_HEALTHBARS:
             if _votes:
                 _freg[_trig] = _votes.most_common(1)[0][0]
                 break
+    # A DLC overworld boss's region is DERIVED FROM ITS TILE (`_m61_boss_region`), which is the same
+    # authority the divvy uses -- so pin it rather than let a neighbourhood vote re-decide it. A
+    # boss whose sweep region disagreed with its divvy region would hold one trigger claiming two.
+    _freg.update(_m61_field_region)
     _fassign = defaultdict(list)
     for _t in sorted(_tile_xy):
-        _x, _y = _tile_xy[_t]
+        _txy = _tile_xy[_t]
         for _a in _filler_only(_mem_tile[_t]):
             if _a in _covered:
                 continue
             _r2 = _ap_region.get(_a)
             if not _r2 or _r2 == HUB:
                 continue
-            _cand = sorted((max(abs(_bx - _x), abs(_by - _y)), _trig)
-                           for _trig, (_bx, _by) in _field_bosses
-                           if _freg.get(_trig) == _r2
-                           and max(abs(_bx - _x), abs(_by - _y)) <= 2)
+            _cand = sorted((_near(_bxy, _txy), _trig)
+                           for _trig, _bxy in _field_bosses
+                           if _freg.get(_trig) == _r2 and _near(_bxy, _txy) is not None)
             if not _cand:
                 continue
             # All bosses TIED at the minimal distance split the tile round-robin (ap % n). Without
