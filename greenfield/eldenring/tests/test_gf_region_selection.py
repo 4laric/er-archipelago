@@ -116,6 +116,10 @@ class RegionSelection(unittest.TestCase):
         seen = set()
         for seed in range(self.SEEDS):
             seen |= set(self._kept(6, seed, pool=self.base))
+        # WITNESS (test_gf_vacuous_pass): the assertion below says a set is EMPTY, which is also
+        # what it would say if the sweep had kept nothing at all. Prove the sweep saw something.
+        self.assertTrue(seen, "the sweep kept NO regions across %d seeds -- `missing` would be the "
+                              "whole pool and the assertion below could not fail" % self.SEEDS)
         missing = sorted(set(self.base) - seen)
         self.assertFalse(missing, "these base regions were NEVER kept in %d seeds: %r"
                          % (self.SEEDS, missing))
