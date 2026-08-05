@@ -58,7 +58,7 @@ $Version = $Version -replace '^[vV]', ''
 $Repo      = $PSScriptRoot
 $TimeStamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Dist      = Join-Path $Repo "dist"
-$Rel       = Join-Path $Repo "release-v0.2"
+$Rel       = Join-Path $Repo "release"
 
 # Helpers are declared HERE, above the gates, not below them. They used to sit at the top of
 # section 1, which put them after the changelog and version checks -- so those two gates had no

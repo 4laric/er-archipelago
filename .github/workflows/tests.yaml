@@ -298,7 +298,7 @@ jobs:
           python-version: "3.12"
 
       # PyYAML ONLY. This job deliberately has no Archipelago -- the suites below are AP-free by
-      # design. But test_gf_shipping_yaml_recipe reads release-v0.2/EldenRing.yaml, and it SKIPS
+      # design. But test_gf_shipping_yaml_recipe reads release/EldenRing.yaml, and it SKIPS
       # when yaml is missing: without this line it would be added to the loop below and still gate
       # nothing, which is the exact failure mode the loop's comment warns about.
       - name: Install PyYAML (the shipping-yaml gate reads the template)
@@ -314,9 +314,9 @@ jobs:
       # CONTRIBUTING rule 14, and deliberately in THIS job: check_release_notes.py imports
       # nothing and parses APWORLD_VERSION out of contract.py textually, so it does not need the
       # Archipelago checkout the `tests` job pays for. It goes red when the open version has no
-      # `## v<version> — <date>` section in release-v0.2/CHANGELOG.md, when that section is EMPTY
+      # `## v<version> — <date>` section in release/CHANGELOG.md, when that section is EMPTY
       # (rule 2 -- a heading with nothing under it is not a release note), or when
-      # release-v0.2/BLURB-v<version>.md is missing, a stub, or headed with another version.
+      # release/BLURB-v<version>.md is missing, a stub, or headed with another version.
       #
       # MOTIVATING CASE (rule 11): v0.3.0 shipped 2026-08-01 and by 2026-08-02 main carried five
       # more player-visible fixes -- two straight off Nexus bug reports -- with no v0.3.1 section
@@ -328,7 +328,7 @@ jobs:
 
       # CONTRIBUTING rule 15, same job and for the same reason: check_contract_version.py loads
       # greenfield/eldenring/contract.py by PATH (it is AP-free) and needs no Archipelago checkout.
-      # Red when CONTRACT_HASH disagrees with the release-v0.2/CONTRACT-VERSIONS.tsv row for the
+      # Red when CONTRACT_HASH disagrees with the release/CONTRACT-VERSIONS.tsv row for the
       # open APWORLD_VERSION, or when that version has no row at all.
       #
       # MOTIVATING CASE (rule 11), measured from this repo's own tags: APWORLD_VERSION "0.2.0"

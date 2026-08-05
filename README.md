@@ -41,7 +41,7 @@ region's own Lock, never in place of it:
   vanilla capital gate; auto-clamped to what is reachable this seed).
 
 The headline dials, all documented inline in the shipped
-`release-v0.2/EldenRing.yaml`:
+`release/EldenRing.yaml`:
 
 - **`num_regions`** -- how many regions are in play. `0` = the full Shattering;
   `N > 0` seals the rest for a shorter run. This is the marquee mode: it turns
@@ -56,11 +56,11 @@ The headline dials, all documented inline in the shipped
 
 ## Playing it
 
-Start with **`release-v0.2/SETUP.md`** -- nothing to a running seed in about 15
+Start with **`release/SETUP.md`** -- nothing to a running seed in about 15
 minutes (Archipelago 0.6.7 + the apworld + the client DLL + ModEngine3). Then
 read **`Elden-Ring-Archipelago-Player-Guide.md`** for how a run actually plays.
 Every real option is explained in a comment next to it in
-`release-v0.2/EldenRing.yaml`; rough edges live in `release-v0.2/KNOWN-ISSUES.md`.
+`release/EldenRing.yaml`; rough edges live in `release/KNOWN-ISSUES.md`.
 
 You need Elden Ring on PC (Steam). The DLC is only needed if you enable the DLC
 regions.
@@ -68,7 +68,7 @@ regions.
 One rule worth repeating from the setup guide: the apworld and the client DLL
 are a **hash-matched pair** -- the client checks a contract hash on connect and
 loudly reports a mismatched apworld in its log. Always install both halves from
-the same release (`release-v0.2/DISTRIBUTION.md` explains why).
+the same release (`release/DISTRIBUTION.md` explains why).
 
 ---
 
@@ -81,7 +81,7 @@ the same release (`release-v0.2/DISTRIBUTION.md` explains why).
   repo's one git submodule. Builds `eldenring_archipelago.dll`.
 - **`tools/`** -- datamining and generation tools, plus `gf_test.py` (the test
   harness).
-- **`release-v0.2/`** -- everything player-facing: setup guide, shipped yaml,
+- **`release/`** -- everything player-facing: setup guide, shipped yaml,
   known issues, attribution, changelog.
 - **`me3/`** -- the local ModEngine3 staging dir `build.ps1 -Me3Deploy` writes.
 - **`greenfield/`** (above `eldenring/`) -- generation inputs, region curation
@@ -143,7 +143,7 @@ generated data carries a freshness stamp (`tools/gen_manifest.py`) that CI and
 ```
 
 Player yamls for local generation go in `Archipelago\Players\`; start from
-`release-v0.2/EldenRing.yaml`.
+`release/EldenRing.yaml`.
 
 ### 4. Test
 

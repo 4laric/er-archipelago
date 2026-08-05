@@ -1,6 +1,6 @@
 # Screenshots
 
-Images live in `release-v0.2/screenshots/`.
+Images live in `release/screenshots/`.
 
 ## The compose-with-matt's walkthrough (9)
 

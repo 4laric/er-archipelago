@@ -6,7 +6,7 @@ There are TWO files called "Player Guide (v0.2)":
 
     Elden-Ring-Archipelago-Player-Guide.md   repo root -- SHIPPED (package_release.ps1,
                                              required = $true), linked from README and SETUP.md
-    release-v0.2/PLAYER-GUIDE.md             referenced by NOTHING, packaged by NOTHING
+    release/PLAYER-GUIDE.md             referenced by NOTHING, packaged by NOTHING
 
 They are forked copies that have diverged. I wrote the whole player-facing writeup of the new
 difficulty options into the SECOND one -- the one no player ever receives -- and only found out by
@@ -116,14 +116,14 @@ def test_the_difficulty_options_are_documented_where_players_will_read_them():
         assert opt in text, (
             f"{opt} is a player-facing option and is not mentioned in the SHIPPED player guide "
             f"({os.path.basename(_GUIDE)}). Note there is a second, UNSHIPPED guide at "
-            f"release-v0.2/PLAYER-GUIDE.md -- documenting it there does not reach players.")
+            f"release/PLAYER-GUIDE.md -- documenting it there does not reach players.")
 
 
 def test_the_receiving_is_dead_fingerprint_is_documented_where_players_will_read_it():
     """CONTRIBUTING rule 11, and the same mistake as the one above wearing different clothes.
 
     The `RandomizerHelper.dll` hook conflict has been written up in full since v0.2 -- in
-    release-v0.2/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md, a document whose title advertises a
+    release/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md, a document whose title advertises a
     feature the affected player is not using and will therefore never open. On 2026-08-05 a report
     of exactly this ("the item stays in my inventory instead of being sent anywhere") took a
     multi-step investigation across two logs and the client source to reach an answer we already
@@ -137,5 +137,5 @@ def test_the_receiving_is_dead_fingerprint_is_documented_where_players_will_read
     assert "RandomizerHelper.dll" in text, (
         "the shipped player guide does not name RandomizerHelper.dll. It is the most common cause "
         "of 'my checks send but I never receive anything', and documenting it only in "
-        "release-v0.2/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md does not reach a player who does "
+        "release/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md does not reach a player who does "
         "not already know that is what they are hitting.")

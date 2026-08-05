@@ -206,15 +206,15 @@ class ProvenanceGateTest(unittest.TestCase):
         """Both docs point at each other; a dangling pointer between them is exactly the defect
         this suite was written to clear.
 
-        🛑 I asserted on 2026-07-27 that release-v0.2/ATTRIBUTION.md 'has never existed'. It has
+        🛑 I asserted on 2026-07-27 that release/ATTRIBUTION.md 'has never existed'. It has
         existed at every commit in this history. The check that told me otherwise ran inside a
         clone whose checkout had TIMED OUT, so `git ls-files` under-reported -- and README.md was
         pointing at the file, which I read as the README being wrong rather than my clone being
         broken. This test exists so the claim is checked by something other than my memory.
         """
-        attribution = os.path.join(REPO, "release-v0.2", "ATTRIBUTION.md")
+        attribution = os.path.join(REPO, "release", "ATTRIBUTION.md")
         if not os.path.exists(attribution):
-            self.skipTest("release-v0.2/ATTRIBUTION.md not present in this checkout")
+            self.skipTest("release/ATTRIBUTION.md not present in this checkout")
         with open(attribution, encoding="utf-8") as fh:
             attr = fh.read()
         with open(PROVENANCE, encoding="utf-8") as fh:

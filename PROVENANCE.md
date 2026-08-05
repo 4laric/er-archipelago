@@ -9,7 +9,7 @@ where a claim has a command that proves it, the command is given.
 ---
 
 **Two documents, two audiences.** This file is the *repo* rule: what a contributor may and may not
-put in the tree, and which gate enforces it. `release-v0.2/ATTRIBUTION.md` is the *release* document
+put in the tree, and which gate enforces it. `release/ATTRIBUTION.md` is the *release* document
 that ships to players — licence, credits, and the link to thefifthmatt's randomizer we point at
 rather than redistribute. They cross-reference; neither replaces the other.
 
@@ -17,7 +17,7 @@ rather than redistribute. They cross-reference; neither replaces the other.
 
 ## The five non-negotiables, and the gate that enforces each
 
-Referenced from `release-v0.2/ATTRIBUTION.md`. Each is a machine check, not an intention — the
+Referenced from `release/ATTRIBUTION.md`. Each is a machine check, not an intention — the
 point of the list is that none of them relies on anyone remembering.
 
 | # | Non-negotiable | Enforced by |

@@ -30,4 +30,4 @@ Core keys: num_regions(0-31, 0 = all in play) num_regions_order(spine|rolled)
 ending_condition(region_locks|great_runes) goal_great_runes(1-7) enable_dlc
 dlc_only. The feature options ride on top (the frozen v0.2 behaviours are no
 longer yaml-settable); the full surface is documented inline, option by option,
-in `release-v0.2/EldenRing.yaml`.
+in `release/EldenRing.yaml`.

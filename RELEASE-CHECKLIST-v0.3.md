@@ -154,7 +154,7 @@ Say "did not run", never "passed":
    see blocker 1.
 1. `git tag -a v0.3.0` on the apworld, and on the client at the pinned gitlink. They must match.
 2. Attach `eldenring.apworld` + the client `.dll` from a clean `build.ps1`.
-3. Release notes from `release-v0.2/CHANGELOG.md`, v0.3.0 entry. **Two defaults changed** —
+3. Release notes from `release/CHANGELOG.md`, v0.3.0 entry. **Two defaults changed** —
    `num_regions` and `num_regions_order` — and that is the single most likely support question.
 
 ## The one-line answer

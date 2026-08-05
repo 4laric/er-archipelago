@@ -1,6 +1,6 @@
 """The yaml we SHIP must name the game we ship.
 
-Found 2026-07-12 while clearing the release checklist: `release-v0.2/EldenRing.yaml` -- the flagship
+Found 2026-07-12 while clearing the release checklist: `release/EldenRing.yaml` -- the flagship
 template, the one SETUP.md tells a player to drop into `Players/` -- declared:
 
     game: EldenRing
@@ -31,13 +31,13 @@ _GF_PKG = os.path.dirname(_HERE)
 _GREENFIELD = os.path.dirname(_GF_PKG)
 _REPO = os.path.dirname(_GREENFIELD)
 
-# In the SOURCE tree the release bundle sits at <repo>/release-v0.2/. In an INSTALLED world (which is
+# In the SOURCE tree the release bundle sits at <repo>/release/. In an INSTALLED world (which is
 # what CI runs) the package has been copied into Archipelago/worlds/, so <repo> is the AP checkout and
 # the bundle is nowhere near it -- the test would SKIP, i.e. assert nothing, which is how the yaml rotted
 # through a rename in the first place. So the install step copies the template in beside the package,
 # and we resolve from either. First existing wins -- same convention as region_map.csv / shop_rows.tsv.
 _YAML = next((p for p in (os.path.join(_GF_PKG, "EldenRing.yaml"),
-                          os.path.join(_REPO, "release-v0.2", "EldenRing.yaml")) if os.path.isfile(p)),
+                          os.path.join(_REPO, "release", "EldenRing.yaml")) if os.path.isfile(p)),
              "")
 
 
@@ -45,7 +45,7 @@ class TestShippingYaml(unittest.TestCase):
 
     def test_the_template_is_actually_present(self):
         """If the template goes missing, the two tests below would pass VACUOUSLY. Fail loudly."""
-        self.assertTrue(_YAML, "EldenRing.yaml not found in the package dir OR release-v0.2/ -- the "
+        self.assertTrue(_YAML, "EldenRing.yaml not found in the package dir OR release/ -- the "
                                "install step must copy it in, or this whole gate asserts nothing.")
 
     def setUp(self):

@@ -238,7 +238,7 @@ that and is the right place to extend, not to rewrite.
      freeze removes it from `GFOptions`, so unfreezing without this ships a knob the wizard can't set.
 
   Do this only after §8/A1 passes. Default stays `off` either way; a template that pins the value
-  hides the default's drift, so test the default, not `release-v0.2/EldenRing.yaml`.
+  hides the default's drift, so test the default, not `release/EldenRing.yaml`.
 - Emit `dlcScadutreeFloorRanges` when mode == 2 (unchanged).
 - **New:** emit `scaduBlessingCap` (INT) — the tier-aware cap, or 20 for `player_only`. Lets the
   client clamp without re-deriving the tier model.

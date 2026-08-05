@@ -106,7 +106,7 @@ Hollow Knight:
 
 def _er_yaml(name, natural):
     """The SHIPPED template, edited minimally -- so this tests what players actually generate."""
-    src = os.path.join(ROOT, "release-v0.2", "EldenRing.yaml")
+    src = os.path.join(ROOT, "release", "EldenRing.yaml")
     s = open(src, encoding="utf-8").read()
     s = re.sub(r"^name:.*$", "name: %s" % name, s, count=1, flags=re.M)
     # Small map: the cross-world properties do not need 31 regions, and CI time is not free.
