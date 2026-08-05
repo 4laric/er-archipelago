@@ -44,11 +44,25 @@ def test_the_spy_records_an_empty_quantifier():
     m = _conftest()
     m._QSPY_HITS.clear()
     m._QSPY_DIR = HERE                       # this file counts as suite code for the test
-    spied = m._qspy_wrap(all, "all")
+    spied = m._qspy_wrap(_raw_all, "all")
     assert spied([]) is True, "the spy must not change what all() returns"
     assert m._QSPY_HITS, "an all() over an empty iterable was NOT recorded -- the spy is inert"
     assert m._QSPY_HITS[0].startswith("test_gf_vacuous_pass.py::"), m._QSPY_HITS
     assert "all()" in m._QSPY_HITS[0], m._QSPY_HITS
+
+
+def _raw_all(iterable):
+    """A pristine `all`, for the red cases below.
+
+    🛑 They must NOT wrap the global builtin. When the spy is ACTIVE -- which it is in CI -- the
+    global is already the wrapper, so `_qspy_wrap` correctly refuses to wrap it again and the test
+    ends up asserting against a wrapper that writes into the INSTALLED conftest's lists rather than
+    the freshly-exec'd module's. Both behaviours are right; wrapping the global was the mistake, and
+    it made these three tests fail in CI while passing locally with the spy off."""
+    for v in iterable:
+        if not v:
+            return False
+    return True
 
 
 def test_the_spy_refuses_to_DOUBLE_WRAP():
@@ -59,7 +73,7 @@ def test_the_spy_refuses_to_DOUBLE_WRAP():
     because the red cases below deliberately wrap the GLOBAL builtin, which is already patched when
     the spy is active."""
     m = _conftest()
-    once = m._qspy_wrap(all, "all")
+    once = m._qspy_wrap(_raw_all, "all")
     assert m._qspy_wrap(once, "all") is once, "double-wrapping was not refused"
 
 
@@ -68,7 +82,7 @@ def test_the_spy_is_quiet_on_a_real_quantifier():
     m = _conftest()
     m._QSPY_HITS.clear()
     m._QSPY_DIR = HERE
-    spied = m._qspy_wrap(all, "all")
+    spied = m._qspy_wrap(_raw_all, "all")
     m._QSPY_SEEN.clear()
     assert spied([True, True]) is True
     assert spied([True, False]) is False
@@ -92,7 +106,7 @@ def test_the_spy_preserves_laziness_and_short_circuit():
             pulled.append(v)
             yield v
 
-    assert m._qspy_wrap(all, "all")(gen()) is False
+    assert m._qspy_wrap(_raw_all, "all")(gen()) is False
     assert pulled == [True, False], ("all() consumed %r -- it must stop at the first False, exactly "
                                      "as the unwrapped builtin does" % (pulled,))
 
