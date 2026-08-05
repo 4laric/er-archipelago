@@ -382,8 +382,34 @@ the option you thought you set simply would not exist.
 
 ## When something looks wrong
 
-Check `KNOWN-ISSUES.md` first -- it lists both the active bugs and the
-by-design behaviors that get reported as bugs. If it's not there, it's worth
+**Your checks send, but you never receive anything.** Sending works -- your
+friends get your checks, the server shows them arriving -- and yet nothing ever
+comes back to you. That one-directional shape is a fingerprint, not a
+coincidence, and the rest of it is distinctive too: a check hands you a literal
+item called "Archipelago Item" that looks like a spyglass, the game tells you
+that you cannot hold more than one of it and that it cannot go to storage, and
+you never got Torrent or the rest of your start items.
+
+That is `RandomizerHelper.dll` loaded alongside our client. Both mods want the
+same routine -- the one the game uses to put an item in your inventory -- and
+whichever gets there first wins. Ours refuses to install rather than patch a
+routine it no longer recognises, because guessing wrong in the function that
+grants items is how saves get corrupted. Checks keep working because they are
+detected a different way entirely, which is exactly why the failure is
+one-directional.
+
+**Unload the dll.** Turning off its auto-equip and auto-upgrade options is not
+enough on some versions. You are not losing a feature: our side has its own
+auto-upgrade, delivered by the client that actually knows which of your items
+came from Archipelago.
+
+`ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` has the long version, including what
+does compose safely. If you are seeing this fingerprint *without* that dll
+loaded, that is worth a report -- send the client log, and the line to look for
+is `AddItemFunc detour install deferred`.
+
+Check `KNOWN-ISSUES.md` for anything else -- it lists both the active bugs and
+the by-design behaviors that get reported as bugs. If it's not there, it's worth
 reporting: bring your yaml and the spoiler log.
 
 Now go find out which region the seed decided you deserve first.
