@@ -6960,10 +6960,32 @@ def _recovered_m60_tile(_row):
         return None
     _REC_SWEEP_TALLY["admitted (self-encoded, agreed)"] += 1
     return _se
+# ADMIT DUNGEON-MAPPED GLOBALS (2026-08-05, SPEC-broaden-sweeps piece B). `global`/`global_filler`
+# is a statement about an item's DISTRIBUTION -- "scattered by design", the raw region column reads
+# `Global / Filler (scattered by design)` -- NOT about whether this particular pickup has a known
+# place. 127 such rows sit on a minor-dungeon map that ALREADY hosts a boss with a working map-local
+# sweep; they were excluded only because `_swept` keyed the dungeon branch on method == flag_prefix.
+# Their map is known, the sweep that should hold them exists, and the map-local invariant
+# (tests/test_gf_boss_sweeps.test_dungeon_sweeps_are_map_local) is exactly what makes admitting them
+# safe: a member may only be granted by a boss standing on its own map.
+# 🛑 Scoped to _is_dungeon ON PURPOSE. Legacy interiors are the SAME defect, but they need a
+# map-local legacy pass that does not exist yet (piece C) -- admitting them here would silently route
+# them into the legacy REGION divvy instead, which is the coarser answer we decided against.
 for _i, _r in enumerate(rows):
     _rec_tile = _recovered_m60_tile(_r)
     _swept = _r["method"] in ("treasure", "emevd") or (
-        _r["method"] == "flag_prefix" and _is_dungeon(_mp2(_r["map"]))) or bool(_rec_tile)
+        _r["method"] == "flag_prefix" and _is_dungeon(_mp2(_r["map"]))) or bool(_rec_tile) or (
+        # ...and the new branch carries a FILLER CUT the older ones do not, deliberately. The map
+        # path has never applied `_filler_only` -- test_gf_dungeon_sweep_rungs records six
+        # pre-existing important-tagged members as a RATCHET, and says fixing the map path wholesale
+        # "means a deliberate change with its own balance argument, not something to slip in under a
+        # test". Agreed, so this does not touch those six -- but it must not GROW them either, and
+        # unfiltered it did: a Sacred Tear at Ruin-Strewn Precipice (ap 7774260, Church) and
+        # [Incantation] Knight's Lightning Spear at Scorpion River Catacombs (7774285, Legendary)
+        # both walked in. A sweep that hands you a flask upgrade or a legendary incantation is a
+        # progression decision, not a convenience.
+        _r["method"] in ("global", "global_filler") and _is_dungeon(_mp2(_r["map"]))
+        and not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(BASE_AP + _i, ()))))
     if not _swept:
         continue
     _ap = BASE_AP + _i; _reg = region_of(_r); _mp = _swept_map_prefix(_r)

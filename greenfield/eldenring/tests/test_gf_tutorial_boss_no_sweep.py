@@ -211,13 +211,45 @@ def test_the_sweep_corpus_did_not_shrink():
         decoded tile must be one an emevd actually exists for. Measured over the corpus, all 79 field
         bosses agree with the emevd file they are defined in, 0 disagreements, one entry changed.
         See test_gf_boss_sweeps.test_every_field_boss_tile_decodes (which also removes a `continue`
-        in test_field_sweeps_are_local that had been excusing exactly this boss)."""
+        in test_field_sweeps_are_local that had been excusing exactly this boss).
+
+    +150 (2026-08-05, SPEC-broaden-sweeps PIECE B) 3056 -> 3206. Trigger count UNCHANGED at 226 and
+        NOTHING left the corpus -- 150 checks entered it, and every one already had a known map.
+
+        `_swept` admitted a minor-dungeon row only when its method was `flag_prefix`. But
+        `global`/`global_filler` is a statement about an item's DISTRIBUTION -- region_map's own
+        column reads `Global / Filler (scattered by design)` -- not about whether THIS pickup has a
+        place. 127 of them sat on a minor-dungeon map that ALREADY hosted a boss with a working
+        map-local sweep. Motivating case: Ruin-Strewn Precipice (m39_20), where Magma Wyrm Makar
+        granted NONE of the 21 pickups you fight past on the way down.
+
+        Where the 150 landed:
+          dungeon 87 · catacomb 30 · cave 9  = 126 map-local, the intended target
+          legacy  24                         = rows on a minor-dungeon map with NO boss on it, which
+                                               fall through to the region divvy. A side effect of
+                                               admitting them to _mem_region -- measured rather than
+                                               assumed, and kept: they are region-correct and were
+                                               granted by nobody before.
+
+        No sweep-region flips; no trigger added or removed. m30_13's partition pool grows 10 -> 14
+        (four Living Jar Shards around Auriza Side Tomb) and stays a 7/7 split.
+
+        TWO were REFUSED, and this branch carries a filler cut the older ones do not because of them:
+        a Sacred Tear at Ruin-Strewn Precipice (7774260, Church) and [Incantation] Knight's Lightning
+        Spear at Scorpion River Catacombs (7774285, Legendary). The map path has never applied
+        `_filler_only` -- test_gf_dungeon_sweep_rungs ratchets six pre-existing important members and
+        says fixing that wholesale needs its own balance argument. This change does not touch those
+        six; it just refuses to grow them.
+
+        Scoped to _is_dungeon deliberately: legacy interiors are the same defect and worth ~280 more,
+        but they need a map-local legacy pass that does not exist yet (piece C), and admitting them
+        here would silently route them into the coarser region divvy instead."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
     # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
     # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
-    assert total == 3056, (
-        "sweep corpus is %d, expected 3056. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3206, (
+        "sweep corpus is %d, expected 3206. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
