@@ -41,7 +41,7 @@ MSG  = os.path.join(AR, "msg")
 GF   = os.path.join(REPO, "greenfield")
 OUT  = os.path.join(GF, "eldenring", "boss_healthbars.py")
 
-_MAPFILE = re.compile(r"(m\d\d)_(\d\d)_\d\d_\d\d\.emevd\.dcx\.js$")   # mAA_BB from a map emevd filename
+_MAPFILE = re.compile(r"(m\d\d)_(\d\d)_(\d\d)_\d\d\.emevd\.dcx\.js$")  # mAA_BB (+CC) from a map emevd filename
 _LIT     = re.compile(r"DisplayBossHealthBar\(\s*(?:Enabled|1)\s*,\s*(\d+)\s*,\s*\d+\s*,\s*(\d+)")
 _INITC   = re.compile(r"\$InitializeCommonEvent\(\s*\d+\s*,\s*(\d+)\s*,\s*([^)]*)\)")
 
@@ -213,12 +213,15 @@ def load_names():
 def datamine():
     handlers = hb_handlers()
     bosses = {}   # entity -> {"map": mAA_BB, "class": ..., "nameId": int|None}
+    overworld_tiles = set()   # every m60_XX_YY that HAS an emevd -- the tile decode's cross-check
     for f in sorted(glob.glob(os.path.join(EVT, "m*.js"))):
         fn = os.path.basename(f)
         mm = _MAPFILE.match(fn)
         if not mm:
             continue
         map_ab = f"{mm.group(1)}_{mm.group(2)}"
+        if mm.group(1) == "m60":
+            overworld_tiles.add(f"m60_{mm.group(2)}_{mm.group(3)}")
         t = open(f, encoding="utf-8").read()
         for m in _LIT.finditer(t):
             ent, nid = int(m.group(1)), int(m.group(2))
@@ -240,9 +243,25 @@ def datamine():
     names = load_names()
     for ent, b in bosses.items():
         b["name"] = names.get(b["nameId"] or -1, "")
-        if b["class"] == "field":                      # overworld entity 10.XX.YY.LLLL -> tile
+        if b["class"] == "field":                      # overworld entity 1?.XX.YY.LLLL -> tile
+            # 🛑 The prefix is 1?, NOT "10". Overworld ids come in a second form whose second
+            # digit is 2 (10XXYYLLLL / 12XXYYLLLL over the same tile). Radahn, the Fire Giant and
+            # Borealis only survived a "10"-only rule because for them the 12-form is the FLAG over a
+            # 10-form ENTITY (banner(1052380800) ... SetEventFlagID(1252380800, ON)) and this loop is
+            # still entity-keyed -- the re-key by defeat flag happens below. 1248550800, the Night's
+            # Cavalry duo by Yelough Anix Tunnel, has no 10-form at all (game_areas.tsv
+            # flag_equals_id=yes), so it fell through to b["map"] = "m60_48" -- which gen_data's field
+            # pass then REJECTS on `^m60_(\d\d)_(\d\d)$`: no tile, no neighbourhood, no sweep, and
+            # invisible to anything that counts arenas per region.
+            #
+            # Widened to s[0] == "1" and GUARDED BY A SECOND DERIVATION rather than a longer prefix
+            # allowlist: the decoded tile must be one an emevd actually exists for, so a coincidental
+            # 10-digit id cannot invent a phantom tile. Measured over the whole corpus 2026-08-05 --
+            # for all 79 field bosses the decode agrees with the emevd FILE the boss is defined in,
+            # 0 disagreements -- and this changes exactly one entry.
             s = str(ent)
-            b["tile"] = f"m60_{s[2:4]}_{s[4:6]}" if len(s) == 10 and s.startswith("10") else b["map"]
+            dec = f"m60_{s[2:4]}_{s[4:6]}" if len(s) == 10 and s[0] == "1" else None
+            b["tile"] = dec if dec in overworld_tiles else b["map"]
         else:
             b["tile"] = b["map"]
     # RE-KEY field entries by their EMEVD-derived defeat flag (the only flag that actually fires;
