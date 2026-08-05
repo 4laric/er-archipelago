@@ -20,7 +20,7 @@ Design 1 reaches **624 of the 940**, in three INDEPENDENT pieces that can ship s
 |---|---|---|---|
 | **A** | m61 DLC overworld field pass | **217** | the tile decode + the field pass's `m60`-only regex |
 | **B** | minor-dungeon map-local admission | **150** ✅ SHIPPED | the `_swept` METHOD gate, nothing else |
-| **C** | legacy-interior admission | **280** | the `_swept` method gate + no legacy map-local pass |
+| **C** | legacy-interior map-local | **270** ✅ SHIPPED | the `_swept` method gate + no legacy map-local pass |
 
 **316 stay out of reach of any boss-attached sweep** (§5). That is the honest ceiling for design 1,
 and it is the number to weigh design 2 against -- not zero.
@@ -154,6 +154,36 @@ Two possible shapes, and this is a real design choice, not a detail:
 
 Recommend map-local, because 129 of the 280 are Shadow Keep and 77 are Leyndell -- both are single
 coherent areas where "this boss's building" is a meaningful answer and "1/9th of the region" is not.
+
+### ✅ SHIPPED 2026-08-05 -- map-local, per Alaric's call
+
+**+270**, corpus 3206 -> 3476. Nothing left, nothing granted twice, no sweep region flipped.
+
+Three things the pass had to get right, each caught by measuring the delta rather than by a test:
+
+* **INTERIORS ONLY.** `_class` calls the m61 DLC overworld "legacy", so an unfiltered legacy-map set
+  pulls in `m61_XX` BANDS -- and a band spans several fine-regions, which is exactly why those bosses
+  needed tile recovery for the divvy. **209 DLC checks walked in** before this was scoped out.
+* **GROUPED BY THE BOSS'S REGION**, not the map's majority: a trigger carries one `SWEEP_REGION` and
+  a legacy boss also holds a region slice, so map-majority filtering could mis-region the trigger.
+  m10_00 is Stormveil 3 / Weeping 2; m12_05 is Mohgwyn 25 / Liurnia 1.
+* **`_filler_only`**, which the dungeon map path has never applied. Without it the pass swept **282
+  important-tagged checks** the region divvy had always filtered out.
+
+**THE CLAWBACK.** Map-local runs first (a specific boss beats the region major -- the rule the
+field/dungeon dedup has always followed), so a region's leftover pool can empty. **Astel** is the
+case that forced it: its arena m12_04 is a bare boss room, every "Eternal Cities" check physically
+lives in m12_01 and m12_02, and Astel went **33 -> 0**. It did not lose a claim to anything of its
+own; it lost a consolation slice of a pool that no longer exists. Dealing the remainder to the
+emptiest bosses first (also added) rescued two Shadow Keep bosses 9 -> 1, but Ainsel River's
+remainder is genuinely EMPTY. So a starved region major claws back a share from the largest holder in
+its own region, re-dealt round-robin: **Astel 26, its donor 27**.
+
+`m19_00` is exempt **by MAP**: Radagon and the Elden Beast are one fight on a map with no filler, and
+a convenience grant at the end of the run is not a convenience. Keyed on the map because the first
+cut exempted only `19000800` and `19000810` promptly clawed back instead -- an entity-keyed exemption
+on a two-head arena protects exactly half of it. Elden Beast 1 -> 0 is the one trigger this removes,
+deliberately.
 
 ---
 
