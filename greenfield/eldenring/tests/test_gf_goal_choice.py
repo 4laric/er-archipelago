@@ -27,8 +27,8 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from Options import OptionError  # noqa: E402
 from worlds.eldenring.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
-from worlds.eldenring.region_spine import (SPINE, REGIONS, compute_kept, base_regions,  # noqa: E402
-                                           dlc_regions)
+from worlds.eldenring.region_spine import (SPINE, REGIONS, GOAL_REGION, compute_kept,  # noqa: E402
+                                           base_regions, dlc_regions, parent_chain)
 from worlds.eldenring.features.finale import finale_active, finale_entries  # noqa: E402
 from worlds.eldenring.features.goal_locations import (GOAL_CHOICES, forced_regions,  # noqa: E402
                                                       terminal_goal_ids, _major_boss_ids)
@@ -104,29 +104,51 @@ class TestChoiceOutranksFinale:
         pool = list(REGIONS)
         for _ in range(200):
             n = rng.randint(1, len(pool) - 1)
-            kept = compute_kept(n, "rolled", rng, pool, forced=forced_regions("promised_consort"))
+            kept = compute_kept(n, rng, pool, forced=forced_regions("promised_consort"))
             assert PCR_REGION in kept, "force-keep failed: the chosen goal region was not kept"
             region, ids = terminal_goal_ids(kept, "promised_consort")
             assert region == PCR_REGION and set(ids) == PCR_IDS
 
     def test_forced_append_does_not_disturb_the_rng_stream(self):
         # 🛑 THE one implementation detail that could silently rewrite every existing rolled seed:
-        # the forced append must happen AFTER rng.sample and must not consume randomness. Checked
-        # two ways, because "the kept sets look similar" is not the claim being made.
+        # the forced append must happen AFTER rng.sample and must not consume randomness.
+        #
+        # RESTATED 2026-08-05 -- the PREMISE changed, not the numbers. This used to assert
+        # `set(plain) <= set(forced)`: the kept set only ever GREW, because GOAL_REGION was appended
+        # unconditionally and a named goal's region piled on top. GOAL_REGION is now force-kept ONLY
+        # under `auto`, so naming a goal legitimately DROPS the capital (and Altus, its only parent)
+        # from the draw. Subset in either direction is now the wrong shape; what survives is that
+        # both draws sampled the SAME regions and differ ONLY inside their two force-keep closures.
         pool = list(REGIONS)
+        capital_dropped = False
         for n in (1, 3, 8, 17, 25):
             r_plain, r_forced = random.Random(4242), random.Random(4242)
-            plain = compute_kept(n, "rolled", r_plain, pool)
-            forced = compute_kept(n, "rolled", r_forced, pool,
+            plain = compute_kept(n, r_plain, pool)
+            forced = compute_kept(n, r_forced, pool,
                                   forced=forced_regions("promised_consort"))
-            # (1) the rng is left in the SAME state -- no extra draws were taken.
+            # (1) the rng is left in the SAME state -- no extra draws were taken. UNCHANGED: this is
+            # still the assertion that protects every rolled seed in existence.
             assert r_plain.random() == r_forced.random(), \
                 "the forced append consumed randomness -- every rolled seed just changed"
-            # (2) the kept set only GREW, and only by the forced region (Enir Ilim has no
-            # REGION_PARENT, so its closure adds nothing else).
-            assert set(plain) <= set(forced), "forced regions displaced part of the draw"
-            assert set(forced) - set(plain) <= {PCR_REGION}
+            # (2) same seed, same n, same pool -> rng.sample drew the SAME base in both. So the two
+            # kept sets may differ only by what each one FORCED, plus that region's REGION_PARENT
+            # chain (derived from parent_chain, never re-pinned: Leyndell pulls Altus, Enir Ilim
+            # pulls nothing). Anything else means the sample itself moved.
+            goal_closure = {GOAL_REGION, *parent_chain(GOAL_REGION)}
+            pcr_closure = {PCR_REGION, *parent_chain(PCR_REGION)}
+            assert set(plain) - set(forced) <= goal_closure, \
+                "the auto draw kept something the named-goal draw did not, outside the capital's " \
+                "closure -- rng.sample no longer drew the same base"
+            assert set(forced) - set(plain) <= pcr_closure, \
+                "the named-goal draw kept something neither sampled nor forced"
             assert PCR_REGION in forced
+            capital_dropped |= GOAL_REGION not in forced
+        # (3) ⭐ THE NEGATIVE THAT MAKES (2) MEAN SOMETHING. Every assertion above is satisfied by
+        # the OLD unconditional-append code, which kept the capital in 100% of seeds. At least one
+        # of these draws must actually be free of it, or this test has stopped testing the change.
+        assert capital_dropped, \
+            "the capital was kept in EVERY named-goal draw -- the unconditional GOAL_REGION append " \
+            "is back, and legs (1) and (2) cannot see it"
 
 
 class GoalPCRFullSeed(WorldTestBase):

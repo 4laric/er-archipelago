@@ -119,7 +119,7 @@ class SphereScalingRolled(WorldTestBase):
     game = GAME
     # rolled + a mid num_regions so the kept set is a random (non-prefix) slice -> fill order and
     # SPINE order genuinely differ, which is exactly the property under test.
-    options = {"num_regions": 6, "num_regions_order": "rolled"}
+    options = {"num_regions": 6}
 
     def _fill(self, seed):
         from Fill import distribute_items_restrictive

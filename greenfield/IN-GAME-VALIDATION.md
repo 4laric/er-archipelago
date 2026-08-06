@@ -58,11 +58,12 @@ item_shuffle OFF and dungeon_sweep none to isolate boot):
 **T1.2 — num_regions sealing.**
 ```yaml
   num_regions: 3
-  num_regions_order: spine
 ```
-- **PASS:** only Limgrave / Weeping Peninsula / Stormveil Castle + Leyndell are "in play" (their locks
-  gate them); the goal completes on collecting those 4 locks; seed is winnable end-to-end.
-- Try `num_regions_order: rolled` too — a different random 3(+goal) set, still winnable.
+- **PASS:** exactly 3 drawn regions + Leyndell (the `auto` goal region) + any REGION_PARENT
+  ancestors they pull in are "in play" (their locks gate them); the goal completes on collecting
+  those locks; seed is winnable end-to-end. WHICH three is random -- read them off the spoiler
+  rather than expecting Limgrave / Weeping / Stormveil, which is what the old `spine` order gave.
+- Re-roll a couple of seeds: a different 3(+goal) set each time, still winnable.
 
 ---
 

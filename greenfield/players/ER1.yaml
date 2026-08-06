@@ -16,7 +16,6 @@ Elden Ring:
 
   num_regions: 5                # 5 DRAWN. You will hold 7 locks: the goal region is appended
                                 # after the draw and parents are closed over (region_spine.py:126)
-  num_regions_order: spine      # Limgrave-first. MUST be stated -- v0.3 defaults this to `rolled`.
                                 # Keeping Limgrave is also the repro condition for issue #239.
 
   # --- the reason this slot exists ---

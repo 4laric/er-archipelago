@@ -194,7 +194,7 @@ class CoverageGateStatic(unittest.TestCase, _BaselineAssertions):
         }
         for pool_name, pool in pools.items():
             for n in (0, 3, 5):  # num_regions PINNED -- never the default
-                kept = self.spine.compute_kept(n, "spine", rng, eligible=pool)
+                kept = self.spine.compute_kept(n, rng, eligible=pool)
                 label = f"scoped:{pool_name}-nr{n}"
                 with self.subTest(config=label):
                     records, ctx, byname = self.cov.report_coverage(kept=kept, printer=None)

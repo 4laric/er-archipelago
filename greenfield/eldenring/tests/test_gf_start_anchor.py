@@ -204,7 +204,7 @@ class AnchorRolledSweep(WorldTestBase):
     """rolled num_regions: across seeds the anchor must always be a kept BASE region (the goal region
     is base and always kept, so a base region always exists), and the pool stays count-neutral."""
     game = GAME
-    options = {"num_regions": 6, "num_regions_order": "rolled"}
+    options = {"num_regions": 6}
     SEEDS = (1, 2, 3, 5, 7, 11, 13, 22222, 101, 5551212)
 
     def test_anchor_never_dlc_and_count_neutral_across_seeds(self):
@@ -247,7 +247,7 @@ class AnchorDistributionSweep(WorldTestBase):
     not just that the predicate exists. (The heavy statistics live in PickAnchorPure; this sweep is
     sized to stay fast while still going red under a uniform pick.)"""
     game = GAME
-    options = {"num_regions": 6, "num_regions_order": "rolled"}
+    options = {"num_regions": 6}
     SEEDS = tuple(range(201, 221))  # 20 seeds
 
     def test_mean_anchor_size_beats_uniform_expectation(self):
@@ -269,7 +269,7 @@ class AnchorDlcOnly(WorldTestBase):
     """dlc_only: no base region is ever kept, so the anchor comes from the DLC fallback -- weighted,
     deterministic, never a crash, never None."""
     game = GAME
-    options = {"dlc_only": True, "num_regions": 5, "num_regions_order": "rolled"}
+    options = {"dlc_only": True, "num_regions": 5}
     SEEDS = (3, 11, 29, 404)
 
     def test_anchor_is_kept_dlc_and_deterministic(self):
@@ -294,7 +294,7 @@ class AnchorStrictSurfaceIntersect(WorldTestBase):
     throw). Note mode 2 is also the DEFAULT, so the other sweeps exercise it too; this class pins it
     explicitly so a default flip can't silently drop the coverage."""
     game = GAME
-    options = {"progression_surface_mode": 2, "num_regions": 6, "num_regions_order": "rolled"}
+    options = {"progression_surface_mode": 2, "num_regions": 6}
     SEEDS = (1, 4, 9, 16, 25)
 
     def test_anchor_in_major_cap_base_when_nonempty(self):

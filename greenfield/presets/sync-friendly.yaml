@@ -26,7 +26,6 @@ game: "Elden Ring"
   # regions / full Shattering", which is a long run). 4 spine regions gives a
   # Limgrave-first difficulty gradient and a ~4-8h pace.
   num_regions: 4
-  num_regions_order: spine        # spine = fixed Limgrave-first path (predictable for co-op)
   ending_condition: region_locks  # win = reach the goal region holding every kept region's lock
   start_with_region_lock: true    # spawn at Roundtable with one kept region already open
 

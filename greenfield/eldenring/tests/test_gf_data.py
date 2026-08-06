@@ -212,18 +212,18 @@ class GreenfieldSpine(unittest.TestCase):
 
     def test_compute_kept_zero_is_all(self):
         import random
-        self.assertEqual(len(self.rs.compute_kept(0, "spine", random.Random(1))), len(self.d.REGIONS))
-        self.assertEqual(len(self.rs.compute_kept(999, "spine", random.Random(1))), len(self.d.REGIONS))
+        self.assertEqual(len(self.rs.compute_kept(0, random.Random(1))), len(self.d.REGIONS))
+        self.assertEqual(len(self.rs.compute_kept(999, random.Random(1))), len(self.d.REGIONS))
 
-    def test_compute_kept_spine_prefix_plus_goal(self):
-        import random
-        k = self.rs.compute_kept(3, "spine", random.Random(1))
-        self.assertEqual(k[:3], self.rs.SPINE[:3])
-        self.assertIn(self.rs.GOAL_REGION, k)
+    # test_compute_kept_spine_prefix_plus_goal was DELETED 2026-08-05 with the spine draw. It
+    # asserted the kept set by IDENTITY (k[:3] == SPINE[:3]), which a random draw cannot satisfy.
+    # What it was really guarding -- n regions drawn from the pool, the goal region present, the
+    # parent closure held -- is now stated as properties over a 400-seed sweep in
+    # test_gf_region_selection.py, which runs in this same AP-free generators job.
 
     def test_compute_kept_rolled_has_goal_unique(self):
         import random
-        k = self.rs.compute_kept(5, "rolled", random.Random(7))
+        k = self.rs.compute_kept(5, random.Random(7))
         self.assertIn(self.rs.GOAL_REGION, k)
         self.assertEqual(len(k), len(set(k)))
         # N or N+goal, plus REGION_PARENT closure (a kept gated child pulls its ancestors in;

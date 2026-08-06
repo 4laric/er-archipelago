@@ -18,7 +18,6 @@ game: "Elden Ring"
 
 "Elden Ring":
   num_regions: 6                 # mixed base + DLC majors
-  num_regions_order: rolled
   ending_condition: region_locks
   leyndell_runes_required: 2
 

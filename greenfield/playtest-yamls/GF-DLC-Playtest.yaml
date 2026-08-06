@@ -31,7 +31,6 @@ game: "Elden Ring"
 
   # ---- The Shattering (full world so DLC is guaranteed in play) ------------
   num_regions: 0               # 0 = ALL 21 regions kept (base + 6 DLC); reach DLC via its Lock.
-  num_regions_order: spine     # moot at num_regions:0 (all kept); spine = Limgrave-first when < 22.
   ending_condition: region_locks
 
   # ---- DLC ----------------------------------------------------------------

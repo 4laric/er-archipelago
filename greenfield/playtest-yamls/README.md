@@ -12,7 +12,7 @@ out first for a solo seed):
 | yaml | what it validates | checklist tier |
 |------|-------------------|----------------|
 | GF-Boot.yaml       | boot contract in isolation (locks light graces, filler grants, checks send) | T0 |
-| GF-Shattering-4Region.yaml | flagship Shattering: item-shuffle + num_regions 4 (spine) + region-lock goal | T1/T2/T3 |
+| GF-Shattering-4Region.yaml | flagship Shattering: item-shuffle + num_regions 4 + region-lock goal | T1/T2/T3 |
 | Alaric_shattering.yaml | the same Shattering with 4 *rolled* regions | T1/T2/T3 |
 | GF-Grace-Scatter.yaml | grace freebie + scatter items                                  | T3.1 |
 | GF-GreatRunes.yaml | great-rune goal (all regions kept, 2 runes required)               | T3.4 |
@@ -26,7 +26,7 @@ the `from-software-archipelago-clients` submodule (`.\build.ps1 -Rust` builds
 it), and `-Greenfield` regenerates the data files itself.
 
 Reminder -- these are GREENFIELD options, NOT the release EldenRing apworld's.
-Core keys: num_regions(0-31, 0 = all in play) num_regions_order(spine|rolled)
+Core keys: num_regions(0-31, 0 = all in play)
 ending_condition(region_locks|great_runes) goal_great_runes(1-7) enable_dlc
 dlc_only. The feature options ride on top (the frozen v0.2 behaviours are no
 longer yaml-settable); the full surface is documented inline, option by option,

@@ -17,7 +17,6 @@ game: "Elden Ring"
 
   # ---- Scope: full base game (PIN num_regions even for "all") --------------
   num_regions: 0                  # 0 = all base regions in play (full Shattering). Pinned explicitly.
-  num_regions_order: spine        # irrelevant at 0 (all kept); pinned for determinism
   ending_condition: region_locks  # win = hold every kept region's lock
   start_with_region_lock: true    # one region open from the Roundtable start
 

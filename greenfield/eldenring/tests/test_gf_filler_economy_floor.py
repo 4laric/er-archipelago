@@ -215,7 +215,7 @@ class FillerEconomyFloor(WorldTestBase):
     """The seed that broke, reproduced under the shipped frozen defaults."""
 
     game = GAME
-    options = {"num_regions": 4, "num_regions_order": "rolled", "enable_dlc": True,
+    options = {"num_regions": 4, "enable_dlc": True,
                "curated_filler": PLAYTEST_RECIPE}
 
     # ---- entitlement: the recipe must actually receive its share of the larder ------------------
@@ -311,7 +311,7 @@ class DefaultRecipeEconomyFloor(WorldTestBase):
     """
 
     game = GAME
-    options = {"num_regions": 4, "num_regions_order": "rolled", "enable_dlc": True}
+    options = {"num_regions": 4, "enable_dlc": True}
 
     def test_default_recipe_reserves_the_economy(self):
         from worlds.eldenring.features.filler_curation import CuratedFiller
@@ -410,7 +410,7 @@ class EarlyGuarantee(WorldTestBase):
     game = GAME
     # Somber weight added on purpose: the shipped playtest recipe has none, so a somber guarantee would
     # be unpayable and filler_budget would (correctly) warn and clamp. Here we want both ladders live.
-    options = {"num_regions": 12, "num_regions_order": "rolled", "enable_dlc": True,
+    options = {"num_regions": 12, "enable_dlc": True,
                "curated_filler": {**PLAYTEST_RECIPE, "somber_stones": 12}}
 
     def test_early_stones_are_reachable_from_the_start(self):
@@ -481,7 +481,7 @@ class SomberTierPresenceFloor(WorldTestBase):
     """
 
     game = GAME
-    options = {"num_regions": 1, "num_regions_order": "rolled", "enable_dlc": True}
+    options = {"num_regions": 1, "enable_dlc": True}
 
     def _vanilla_somber(self):
         """{tier} of somber stone the kept vanilla checks already pay -- derived, not imported."""

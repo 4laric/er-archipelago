@@ -102,7 +102,7 @@ _FLOORS = (0, 25, 100)
 _COMBOS = (
     ("base_all_regions", {}),
     ("one_region", {"num_regions": 1}),
-    ("small_rolled", {"num_regions": 4, "num_regions_order": "rolled"}),
+    ("small_rolled", {"num_regions": 4}),
     ("dlc", {"enable_dlc": True}),
     ("dlc_only", {"dlc_only": True}),
 )
@@ -295,7 +295,7 @@ def test_landmarks_is_the_middle_setting_where_it_matters():
 _NRIS_COMBOS = (
     ("on_base",         {"no_runes_in_shops": True}),
     ("on_one_region",   {"no_runes_in_shops": True, "num_regions": 1}),
-    ("on_small_rolled", {"no_runes_in_shops": True, "num_regions": 4, "num_regions_order": "rolled"}),
+    ("on_small_rolled", {"no_runes_in_shops": True, "num_regions": 4}),
     ("on_dlc",          {"no_runes_in_shops": True, "enable_dlc": True}),
     ("on_dlc_only",     {"no_runes_in_shops": True, "dlc_only": True}),
 )
@@ -409,10 +409,10 @@ def test_the_scaling_TELEMETRY_reports_the_resolved_ceiling_not_the_raw_sentinel
 # degrade to a stated no-op rather than leak a DLC item into a base pool or raise.
 _SCADU_MODES = (0, 1, 2)
 _SCADU_SHAPES = (
-    ("rolled_default_dlc", {"num_regions": 6, "num_regions_order": "rolled", "enable_dlc": True}),
+    ("rolled_default_dlc", {"num_regions": 6, "enable_dlc": True}),
     ("all_regions_dlc", {"enable_dlc": True}),
     ("dlc_off", {"enable_dlc": False}),
-    ("one_region_dlc", {"num_regions": 1, "num_regions_order": "rolled", "enable_dlc": True}),
+    ("one_region_dlc", {"num_regions": 1, "enable_dlc": True}),
 )
 
 

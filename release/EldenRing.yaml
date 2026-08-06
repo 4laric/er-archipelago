@@ -52,7 +52,6 @@ Elden Ring:
   #   rolled -- a random N. Wilder.
   # Either way the goal region (Leyndell) is always kept, so the seed is
   # always winnable.
-  num_regions_order: rolled
 
   # Prefer the vanilla shape to the Shattering? Turn this on.
   #   Regions are gated by REAL vanilla keys and boss remembrances (still

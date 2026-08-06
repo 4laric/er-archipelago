@@ -6,8 +6,9 @@ Covers the DLC filter wired into core.py + region_spine.py:
     kept; seed beatable.
   * DLC Only on: ONLY DLC regions eligible -- every kept region is a DLC region, the base-game goal
     region is NOT kept, yet the seed is still beatable (goal = hold every kept lock).
-  * combined with num_regions=3: each mode keeps exactly N-from-its-pool (+goal when the goal region
-    is eligible) and stays beatable and filter-respecting.
+  * combined with num_regions=3: each mode keeps N-from-its-pool (+goal when the goal region is
+    eligible, + the parent closure) and stays beatable and filter-respecting. WHICH regions is a
+    per-seed draw since 2026-08-05, so these assert the pool boundary, never the membership.
   * DLC Only + great_runes: no Great Rune sits in a DLC region, so a great_runes goal collapses to region_locks
   (requirement shrinks to 0) and the seed stays winnable (v0.2; runes-in-Land-of-Shadow deferred)
 
@@ -23,7 +24,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import (  # noqa: E402
-    GOAL_REGION, DLC_REGIONS, SPINE, base_regions, dlc_regions,
+    GOAL_REGION, DLC_REGIONS, base_regions, dlc_regions,
 )
 from worlds.eldenring.core import GREAT_RUNES  # noqa: E402
 
@@ -129,23 +130,26 @@ class DLCOnlyImpliesEnabled(WorldTestBase):
 
 
 class DLCDisabledNumRegions3(WorldTestBase):
-    """Enable DLC off + num_regions 3 spine -> 3 base-game spine regions + goal, no DLC, beatable."""
+    """Enable DLC off + num_regions 3 -> 3 base-game regions + goal + closure, no DLC, beatable."""
     game = GAME
-    options = {"enable_dlc": False,
-               "num_regions": 3, "num_regions_order": "spine"}
+    options = {"enable_dlc": False, "num_regions": 3}
 
     def test_kept_is_base_only_and_counts(self):
-        kept = _lock_region_names(self.multiworld, self.player)
-        self.assertEqual(kept & DLC, set(), "no DLC region under Enable DLC off")
-        self.assertIn(GOAL_REGION, kept, "goal region always kept")
-        # first 3 base spine regions are Limgrave/Weeping/Stormveil (all base), + Leyndell + the
-        # REGION_PARENT closure (the capital pulls Altus in -- it has no other way in).
         from worlds.eldenring.region_spine import parent_chain
-        expected = {r for r in list(SPINE[:3]) + [GOAL_REGION]}
-        for r in list(expected):
-            expected.update(parent_chain(r))
-        self.assertEqual(kept, expected)
-        self.assertTrue(kept <= set(base_regions()))
+        kept = _lock_region_names(self.multiworld, self.player)
+        # SCOPING is this test's claim, and scoping is unaffected by the draw becoming random
+        # (2026-08-05). It used to also assert WHICH three regions -- first-3 of SPINE -- which was
+        # never what "Enable DLC off" is about, and is now unassertable.
+        self.assertEqual(kept & DLC, set(), "no DLC region under Enable DLC off")
+        self.assertTrue(kept <= set(base_regions()),
+                        "draw escaped the base pool: %s" % sorted(kept - set(base_regions())))
+        self.assertIn(GOAL_REGION, kept, "goal region always kept")
+        # The COUNT survives identity removal: 3 drawn, plus the goal, plus the parent closure of
+        # whatever was kept (the capital pulls Altus in -- it has no other way in).
+        self.assertGreaterEqual(len(kept), 3, "kept fewer regions than num_regions asked for")
+        for r in kept:
+            for anc in parent_chain(r):
+                self.assertIn(anc, kept, "kept child %s without ancestor %s" % (r, anc))
 
     def test_beatable(self):
         state = self.multiworld.get_all_state(False)
@@ -153,10 +157,9 @@ class DLCDisabledNumRegions3(WorldTestBase):
 
 
 class DLCOnlyNumRegions3(WorldTestBase):
-    """DLC Only + num_regions 3 spine -> exactly 3 DLC regions, no base, no goal forced, beatable."""
+    """DLC Only + num_regions 3 -> exactly 3 DLC regions, no base, no goal forced, beatable."""
     game = GAME
-    options = {"dlc_only": True,
-               "num_regions": 3, "num_regions_order": "spine"}
+    options = {"dlc_only": True, "num_regions": 3}
 
     def test_exactly_three_dlc_regions(self):
         kept = _lock_region_names(self.multiworld, self.player)

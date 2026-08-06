@@ -105,13 +105,33 @@ class NumRegions(Range):
 
 
 class NumRegionsOrder(Choice):
-    """How kept regions are chosen when num_regions > 0. 'rolled' (default) keeps N random regions;
-    'spine' keeps the first N of a fixed progression path (Limgrave first). The goal region (Leyndell)
-    is always kept, so the seed is always winnable."""
+    """How kept regions are chosen when num_regions > 0. There is only one behaviour: N regions drawn
+    at RANDOM from the eligible pool. `spine` is DEPRECATED, does the same thing, and warns -- it is
+    accepted for one release so yamls in the wild keep rolling."""
+    # 🛑 THIS DOCSTRING IS THE PLAYER-FACING TEXT. tools/dump_options_metadata.py dumps it
+    # verbatim into wizard/options-metadata.json and inlines it in wizard.html, and AP shows it as
+    # the option tooltip -- so the rationale below is a COMMENT on purpose. It was briefly in the
+    # docstring and shipped an internal changelog entry to players in the wizard.
+    #
+    # WHY SPINE WENT (Alaric, 2026-08-05). It kept the first N of a fixed Limgrave-first path, so
+    # every seed at the default num_regions=6 kept the SAME eight regions -- Limgrave, Weeping,
+    # Stormveil, Liurnia, Raya Lucaria Academy, Caelid, plus Leyndell and Altus by goal closure --
+    # and nine base regions could never appear at all. Measured over 3000 seeds, the random draw
+    # puts every base region in the 34-37% band and excludes none. Two shipped docs also called
+    # spine the DEFAULT (it was not) and said it controlled where you START (it did not -- the
+    # opening region is an independent size-weighted draw in
+    # features/start_grace.pick_anchor_region).
     display_name = "Region Selection"
-    option_spine = 0
-    option_rolled = 1
-    default = 1
+    option_rolled = 0
+    option_spine = 1          # DEPRECATED -- same behaviour as rolled; warned about at gen time
+    default = 0
+
+    # 🛑 `random` CANNOT be an option name here. Archipelago reserves it -- Options.py's metaclass
+    # asserts "Choice option 'random' cannot be manually assigned", because `random` is already the
+    # yaml-level magic that makes AP pick a value for you. Not a loss: with both remaining values
+    # behaving identically, a yaml saying `num_regions_order: random` gets AP's own randomisation
+    # and lands on the same draw either way. So `random`, `rolled` and `spine` all do the same
+    # thing; `rolled` is simply the one AP will let us name.
 
 
 class ItemShuffle(Toggle):
@@ -337,9 +357,13 @@ class GreenfieldEldenRingWorld(World):
         # by real vanilla keys), so it forces the full eligible pool -- num_regions is ignored here.
         _nr = 0 if _np.is_on(self) else int(self.options.num_regions.value)
         self.gf_goal_choice: str = self._resolve_goal_choice()
+        if self.options.num_regions_order.current_key == "spine":
+            logging.warning(
+                "[eldenring] num_regions_order: spine is DEPRECATED and now behaves exactly as `rolled` -- "
+                "the fixed Limgrave-first path is gone (it made every seed keep the same eight "
+                "regions). Drop the key from your yaml; it will be removed after this release.")
         self.gf_kept: List[str] = compute_kept(
             _nr,
-            self.options.num_regions_order.current_key,
             self.random,
             self.gf_eligible,
             forced=_gl.forced_regions(self.gf_goal_choice),

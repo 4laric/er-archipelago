@@ -57,9 +57,11 @@ client; remove the client and Elden Ring is exactly as you left it.
 
 ## A run, start to finish
 
-You wake up at Roundtable Hold. One region is open, and which one is random on
-the default `rolled` order. Set `num_regions_order: spine` if you'd rather the
-kept regions follow vanilla progression order, Limgrave first.
+You wake up at Roundtable Hold. One region is open to start, and which one it is
+is random -- as is the set of regions your seed keeps. Those are two independent
+draws: the opening region is picked on its own, not as "the first" of the kept
+set. There is no fixed-order alternative any more; `num_regions_order` is
+deprecated and every value rolls at random.
 Warp in and play Elden Ring: fight, loot, buy things. Every pickup fires off
 a check.
 
