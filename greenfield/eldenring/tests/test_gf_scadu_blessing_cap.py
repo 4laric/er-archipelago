@@ -59,12 +59,22 @@ def test_the_contract_entry_names_the_absent_fallback():
     assert "20" in doc or "ceiling" in doc, "…and that it falls back to the ladder ceiling, not 0"
 
 
-def test_cap_is_within_the_real_ladder():
-    """The vanilla ladder is `20000100..=20000120` — levels 0..20 at stride 1, confirmed against
-    SpEffectParam. A cap outside that range is either a no-op or a request for a row that does not
-    exist."""
-    assert 1 <= sc.SCADU_BLESSING_CAP <= 20, (
-        f"SCADU_BLESSING_CAP={sc.SCADU_BLESSING_CAP} is outside the vanilla blessing ladder (1..20)")
+def test_there_is_no_ceiling_but_the_game_s_own():
+    """CEILING REMOVED 2026-08-06 (Alaric). A cap the base game does not have is a rule the player
+    has to be told about, and no seed was telling them. The vanilla ladder is
+    `20000100..=20000120` — levels 0..20 at stride 1, confirmed against SpEffectParam — and 20 is
+    what an ABSENT `scaduBlessingCap` has always meant on the client side.
+
+    🛑 The 12 that used to live in `scaling.SCADU_BLESSING_CAP` was never a ceiling argument. It was
+    a POOL-PRESSURE argument (SCADU_CUM[20]=50 vs [12]=26, all forced-`useful`), so it moved to
+    `scadu_supply.SCADU_INJECTION_TARGET`, beside the code it governs. Re-adding a ceiling here
+    means re-deciding that, not just restoring a constant."""
+    assert not hasattr(sc, "SCADU_BLESSING_CAP"), (
+        "SCADU_BLESSING_CAP is back in features/scaling. If a ceiling is genuinely wanted again, it "
+        "is a player-visible rule and belongs in the player guide as well as here")
+    from worlds.eldenring.features import scadu_supply as ss
+    assert 1 <= ss.SCADU_INJECTION_TARGET < len(ss.SCADU_CUM), (
+        f"SCADU_INJECTION_TARGET={ss.SCADU_INJECTION_TARGET} is outside the vanilla ladder")
 
 
 def test_the_legacy_top_level_duplicate_is_gone():
@@ -94,12 +104,14 @@ def test_an_off_seed_emits_nothing_new():
     `SlotDataFixtureDefault::test_always_keys_present` already generates a default seed and checks
     ALWAYS_KEYS against it, so the honest statement here is that the cap is NOT in that set."""
     from worlds.eldenring.tests import test_gf_slot_data_fixture as fx
-    assert KEY not in fx.ALWAYS_KEYS, (
-        f"{KEY} is being demanded of every seed, but it is emitted only when the mode is on — a "
-        "default (off) seed cannot produce it")
-    assert KEY in fx.EXPECTED_KEYS, (
-        f"{KEY} must still be an EXPECTED key: it is emitted by the RICH fixture, and dropping it "
-        "out of the expected set would stop anything from checking it is ever emitted at all")
+    assert KEY not in fx.ALWAYS_KEYS, f"{KEY} is being demanded of every seed and nothing emits it"
+    # 2026-08-06: this used to assert the OPPOSITE — that the key must stay EXPECTED because RICH
+    # emitted it. The ceiling was removed, so no mode emits it at all, and the honest statement
+    # flipped with the behaviour. The contract entry stays declared (the client still honours a cap
+    # from any seed that sends one); what changed is that this world never sends one.
+    assert KEY not in fx.EXPECTED_KEYS, (
+        f"{KEY} is in EXPECTED_KEYS, but no seed emits a blessing ceiling any more — it belongs in "
+        "_CONTRACT_NOT_EMITTED with its justification")
 
 
 def test_the_option_is_reachable_from_yaml():
@@ -112,10 +124,13 @@ def test_the_option_is_reachable_from_yaml():
     right call, it should be a deliberate one that also decides what happens to the client's applier
     — hence this test, and hence the failure message."""
     from worlds.eldenring import defaults
-    assert "global_scadutree_blessing" not in defaults.FROZEN_OPTIONS, (
-        "re-freezing global_scadutree_blessing makes the game-wide blessing unreachable from yaml "
-        "and untestable in-game — the exact condition that hid the DLC-only bug")
+    for name in ("global_scadutree_blessing", "scadutree_blessing_scope", "dlc_blessing_catchup"):
+        assert name not in defaults.FROZEN_OPTIONS, (
+            f"re-freezing {name} makes the game-wide blessing unreachable from yaml and untestable "
+            "in-game — the exact condition that hid the DLC-only bug")
     assert sc.Scaling.OPTIONS["global_scadutree_blessing"] is sc.GlobalScadutreeBlessing
+    assert sc.Scaling.OPTIONS["scadutree_blessing_scope"] is sc.ScadutreeBlessingScope
+    assert sc.Scaling.OPTIONS["dlc_blessing_catchup"] is sc.DlcBlessingCatchup
 
 
 def test_the_default_is_still_off():
@@ -126,6 +141,10 @@ def test_the_default_is_still_off():
     rotted class default, so this pins the DEFAULT rather than the template."""
     assert sc.GlobalScadutreeBlessing.default == 0
     assert sc.GlobalScadutreeBlessing.option_off == 0
+    # ...and the replacements default to the same behaviour, so the split is not a balance change
+    # smuggled in as a rename.
+    assert sc.ScadutreeBlessingScope.default == sc.ScadutreeBlessingScope.option_dlc_only == 0
+    assert sc.DlcBlessingCatchup.default == 0
 
 
 def test_the_emitter_is_gated_on_the_mode_and_not_on_dlc():

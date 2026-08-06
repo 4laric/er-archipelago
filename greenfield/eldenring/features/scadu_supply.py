@@ -2,8 +2,9 @@
 
 WHY THIS EXISTS
 ---------------
-`global_scadutree_blessing` ships a cap (`scaling.SCADU_BLESSING_CAP`, 12) whose entire purpose is
-to bound an INJECTION -- SPEC-global-scadutree-blessing-20260729 §9.2 put it to Alaric as
+The blessing ships an injection budget (`SCADU_INJECTION_TARGET`, 12 -- it lived in
+`scaling.SCADU_BLESSING_CAP` until 2026-08-06, where it also served as a ceiling that no longer
+exists) whose entire purpose is to bound an INJECTION -- SPEC-global-scadutree-blessing-20260729 §9.2 put it to Alaric as
 *"Injection budget. SCADU_CUM[20] = 50 fragments is a lot of filler to displace in a base seed. Cap
 at 12 (26 fragments) instead?"*, and its acceptance criteria read:
 
@@ -63,9 +64,9 @@ from BaseClasses import ItemClassification
 from ..registry import Feature, register
 
 try:
-    from ..item_ids import LOCATION_ITEM
+    from ..item_ids import ITEM_CATALOG, LOCATION_ITEM
 except Exception:  # pre-regen: no catalog -> nothing resolves, feature is inert
-    LOCATION_ITEM = {}
+    ITEM_CATALOG, LOCATION_ITEM = {}, {}
 try:
     from ..data import HUB, LOCATIONS
 except Exception:
@@ -73,6 +74,18 @@ except Exception:
 
 
 FRAGMENT = "Scadutree Fragment"
+
+# The x2 stack, a SECOND AP item resolving to the SAME game item.
+#
+# WHY A NEW ID RATHER THAN itemCounts ON THE EXISTING ONE. `itemCounts` is keyed by AP item id, and
+# every copy of "Scadutree Fragment" shares one -- so stacking it there is all-or-nothing and would
+# silently double the VANILLA-placed fragments too, doubling a DLC seed's natural supply. A separate
+# id keeps the two independent: vanilla placements stay x1 and only the injection stacks.
+#
+# The client needs NOTHING for this. `er_logic::upgrades::fragment_units_for` resolves through
+# apIdsToItemIds and multiplies by itemCounts (`unwrap_or(1).max(1)`), so it counts this as two
+# fragments without knowing the item is new -- and the grant path uses the same pair.
+FRAGMENT_X2 = "Scadutree Fragment x2"
 
 # Cumulative Scadutree Fragments required for blessing level 0..20 (vanilla curve).
 #
@@ -94,24 +107,91 @@ SCADU_CUM = (0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 20, 23, 26, 29, 32, 35, 38, 41, 4
 MAX_POOL_SHARE = 0.10
 
 
-def fragments_to_inject(mode: int, cap: int, natural: int, total_locations: int,
+# ---- THE INJECTION BUDGET (moved here 2026-08-06) ----------------------------------------------
+# Was `scaling.SCADU_BLESSING_CAP`, where it doubled as a ceiling on the applied blessing. The
+# ceiling is gone -- the vanilla ladder's 20 is the only one now -- but the number it was actually
+# reasoned about survives, because that reasoning was always about POOL PRESSURE and never about
+# where to stop:
+#
+#   SCADU_CUM[20] = 50 fragments vs SCADU_CUM[12] = 26, for +11% attack. In a base-game seed every
+#   one of those 24 extra fragments is a forced-`useful` item displacing filler.
+#
+# So this is what the seed GUARANTEES is reachable, not what it permits. A lucky region draw can
+# still carry a player past level 12; nothing clamps them.
+SCADU_INJECTION_TARGET = 20
+
+# ⭐ WHY 20 AND NOT A CHOSEN NUMBER (2026-08-06). Datamined from gen_inputs.db, ItemLotParam_map +
+# ItemLotParam_enemy, goods 2010000: vanilla hand-places 46 fragment lot slots -- 42 of them x1 and
+# 4 of them x2 -- for exactly **50 units**, which is exactly SCADU_CUM[20]. FromSoft budgeted the
+# base game to reach the top of the ladder on a complete sweep. So the target is not a balance pick
+# at all; it is the game's own supply, restated. (The 12 that used to live here was a POOL-PRESSURE
+# argument, and the stack below is what answers that instead.)
+
+# Share of injected UNITS delivered as x2 stacks, as a divisor: one x2 per this many units.
+#
+# 4 => half the units arrive stacked (each x2 is 2 units). 50 units becomes 12 x2 + 26 x1 = 38 pool
+# items instead of 50 -- so raising the target from 12 to 20 costs ~12 more item slots, not 24.
+#
+# 🛑 NOT VANILLA'S OWN RATIO, DELIBERATELY. Vanilla's mix is 4 stacks in 46 drops; mirroring it
+# would need ~46 items for the same 50 units and would buy nothing, and calling that "authentic"
+# would borrow authority the number does not have -- where FromSoft hand-placed a x2 is a fact about
+# level design, not a rule about pool budgets. Alaric's call 2026-08-06: a visible MIX, weighted for
+# the pool, rather than either extreme (all-x1 is 50 items; all-x2 is 25 and no mix at all).
+UNITS_PER_STACK_ITEM = 4
+
+
+def split_injection(units: int):
+    """`units` of blessing supply -> `(singles, stacks)` pool ITEMS. PURE.
+
+    Each stack is worth 2 units, so `stacks = units // UNITS_PER_STACK_ITEM` puts about half the
+    units in stacks and the remainder in singles. Integer division means small injections are all
+    singles (a 3-unit top-up is 3 x1, not 1 x2 + 1 x1) -- the mix appears when there is enough
+    supply for it to be a mix rather than a rounding artefact.
+    """
+    units = max(0, units)
+    stacks = units // UNITS_PER_STACK_ITEM
+    return units - 2 * stacks, stacks
+
+
+def items_for_units(units: int) -> int:
+    """Pool ITEM count for `units` of supply -- what the pool-share ceiling actually has to bound.
+
+    The ceiling exists to stop the injection eating the filler pool, and the pool is charged per
+    ITEM, not per unit. Bounding units instead (which is what this did while every fragment was a
+    single) would under-count a stacked injection by half and let it overrun the share it was given.
+    """
+    singles, stacks = split_injection(units)
+    return singles + stacks
+
+
+def fragments_to_inject(mode: int, target: int, natural: int, total_locations: int,
                         excluded: bool) -> int:
     """How many Scadutree Fragments this seed must inject. PURE -- no world, no AP.
 
-    `mode` is `global_scadutree_blessing` (0 off / 1 player_only / 2 scaled); `cap` is
-    `scaduBlessingCap`; `natural` is the fragments already in the pool from kept regions;
-    `excluded` is True when the fragment is DLC-excluded this seed.
+    `mode` is the derived blessing mode (0 off / 1 anywhere / 2 anywhere+catch-up /
+    3 dlc_only+catch-up); `target` is SCADU_INJECTION_TARGET, the level the seed GUARANTEES is
+    reachable; `natural` is the fragments already in the pool from kept regions; `excluded` is True
+    when the fragment is DLC-excluded this seed.
+
+    🛑 MODES 1 AND 2 ONLY, and mode 3 is not an oversight. Mode 3 is vanilla SCOPE -- the game still
+    runs its own fragment ladder and the catch-up floor does the work inside the DLC -- so injecting
+    fragments would be paying pool pressure for a curve the player deliberately declined.
     """
     if mode not in (1, 2) or excluded:
         return 0
-    if cap <= 0 or cap >= len(SCADU_CUM):
-        # An out-of-range cap is a bug upstream, not something to guess a budget for.
+    if target <= 0 or target >= len(SCADU_CUM):
+        # An out-of-range target is a bug upstream, not something to guess a budget for.
         return 0
-    want = SCADU_CUM[cap] - max(0, natural)
+    want = SCADU_CUM[target] - max(0, natural)
     if want <= 0:
         return 0
     ceiling = int(max(0, total_locations) * MAX_POOL_SHARE)
-    return min(want, ceiling)
+    # Shed UNITS until the ITEMS they become fit the share. A closed form exists (items = w - w//4)
+    # but the loop is bounded by SCADU_CUM[20] = 50 and says what it means; a seed this small is
+    # already being told, loudly, that it cannot reach the target.
+    while want > 0 and items_for_units(want) > ceiling:
+        want -= 1
+    return want
 
 
 def natural_fragments(world) -> int:
@@ -121,6 +201,13 @@ def natural_fragments(world) -> int:
     `[HUB] + kept` -- because that is what `core.create_items` actually draws the vanilla extras
     from. Zero when `item_shuffle` is off: no vanilla item enters the pool at all then, so every
     fragment is absent rather than present.
+
+    ⚠️ COUNTS PLACEMENTS, NOT UNITS -- a known, BOUNDED overshoot. Four of vanilla's 46 fragment lot
+    slots drop x2 (datamined 2026-08-06), and the generated data carries no per-lot quantity, so a
+    seed keeping all four reads its natural supply as 4 units low and injects up to 4 more than it
+    needs. Overshoot, never shortfall, and capped at 4 out of 50. Fixing it properly means teaching
+    gen_data.py to carry lot quantities and regenerating, which is a data change and does not belong
+    in an options PR.
     """
     o = getattr(world.options, "item_shuffle", None)
     if not (o is not None and o.value) or not LOCATION_ITEM:
@@ -145,18 +232,22 @@ def _total_locations(world) -> int:
 
 
 def plan(world):
-    """-> (mode, cap, natural, want, injected). The numbers the log line reports."""
+    """-> (mode, target, natural, want, injected). The numbers the log line reports."""
     from . import scaling
-    o = getattr(world.options, "global_scadutree_blessing", None)
-    mode = int(o.value) if o is not None else 0
-    cap = int(getattr(scaling, "SCADU_BLESSING_CAP", 0))
+    # 🛑 THE DERIVED MODE, never the deprecated `global_scadutree_blessing` option. It was split on
+    # 2026-08-06 into scadutree_blessing_scope + dlc_blessing_catchup; reading the old key here
+    # would see 0 for every player who used the new names and this seed would inject nothing while
+    # the blessing was on -- silently reproducing the exact supply bug this whole file exists to fix.
+    mode = scaling.blessing_mode(world)
+    target = SCADU_INJECTION_TARGET
     excluded = FRAGMENT in getattr(world, "gf_dlc_excluded", frozenset())
     natural = natural_fragments(world)
     total = _total_locations(world)
-    injected = fragments_to_inject(mode, cap, natural, total, excluded)
-    bad_cap = cap <= 0 or cap >= len(SCADU_CUM)
-    want = 0 if (mode not in (1, 2) or excluded or bad_cap) else max(0, SCADU_CUM[cap] - natural)
-    return mode, cap, natural, want, injected
+    injected = fragments_to_inject(mode, target, natural, total, excluded)
+    bad_target = target <= 0 or target >= len(SCADU_CUM)
+    want = 0 if (mode not in (1, 2) or excluded or bad_target) else max(
+        0, SCADU_CUM[target] - natural)
+    return mode, target, natural, want, injected
 
 
 @register
@@ -166,11 +257,16 @@ class ScaduSupply(Feature):
     # FullID in _AP_IDS_TO_ITEM_IDS, so the client grants it unchanged and the blessing's
     # received-stream counter (er-logic `SCADU_FRAGMENT_GOODS`) recognises it. Declaring it in ITEMS
     # would mint a fresh feature id and DROP that mapping -- same reasoning as presence_floor.
-    ITEMS = {}
+    # The x2 stack IS a minted feature item (the x1 is not -- it is already an ITEM_CATALOG good
+    # whose id and FullID mapping core builds). Minting alone would leave it ungrantable, which is
+    # what the note above warns about, so ITEM_GRANTS carries the two things core cannot infer: the
+    # game FullID it resolves to, and the quantity the client hands over.
+    ITEMS = {FRAGMENT_X2: ItemClassification.useful}
+    ITEM_GRANTS = {FRAGMENT_X2: (ITEM_CATALOG.get(FRAGMENT, 0), 2)} if ITEM_CATALOG else {}
 
     def create_items(self, world) -> List:
         import logging
-        mode, cap, natural, want, injected = plan(world)
+        mode, target, natural, want, injected = plan(world)
         log = logging.getLogger("Greenfield")
         if mode not in (1, 2):
             return []
@@ -184,18 +280,25 @@ class ScaduSupply(Feature):
                 world.game, world.player, mode)
         elif injected < want:
             log.warning(
-                "[%s:%d] scadu_supply: cap %d needs %d fragment(s), seed has %d natural, but only "
-                "%d could be injected (clamped to %.0f%% of %d locations) -- the blessing cannot "
-                "reach its cap this seed",
-                world.game, world.player, cap, SCADU_CUM[cap], natural, injected,
-                MAX_POOL_SHARE * 100, _total_locations(world))
+                "[%s:%d] scadu_supply: target %d needs %d fragment unit(s), seed has %d natural, "
+                "but only %d could be injected (%d pool item(s), clamped to %.0f%% of %d "
+                "locations) -- the blessing cannot reach its target this seed",
+                world.game, world.player, target, SCADU_CUM[target], natural, injected,
+                items_for_units(injected), MAX_POOL_SHARE * 100, _total_locations(world))
         else:
             log.info(
-                "[%s:%d] scadu_supply: %d fragment(s) in pool for cap %d (%d natural + %d injected)",
-                world.game, world.player, natural + injected, cap, natural, injected)
+                "[%s:%d] scadu_supply: %d fragment unit(s) in pool for target %d (%d natural + %d "
+                "injected as %d x1 + %d x2 = %d item(s))",
+                world.game, world.player, natural + injected, target, natural, injected,
+                *split_injection(injected), items_for_units(injected))
+        singles, stacks = split_injection(injected)
         out: List = []
-        for _ in range(injected):
-            it = world.create_item(FRAGMENT)
-            it.classification = ItemClassification.useful
-            out.append(it)
+        for name, n in ((FRAGMENT, singles), (FRAGMENT_X2, stacks)):
+            for _ in range(n):
+                it = world.create_item(name)
+                # 🛑 useful, NEVER progression. Nothing in the logic may require a blessing level:
+                # the whole feature is an optional power curve, and a progression fragment would put
+                # the fill under a constraint the vanilla game does not have.
+                it.classification = ItemClassification.useful
+                out.append(it)
         return out

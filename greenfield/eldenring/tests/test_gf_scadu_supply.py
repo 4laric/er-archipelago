@@ -1,6 +1,6 @@
 """scadu_supply -- the blessing's fragment supply must match the cap that was budgeted for it.
 
-THE BUG THIS PINS. `SCADU_BLESSING_CAP` exists to bound an INJECTION (SPEC §9.2: *"Injection
+THE BUG THIS PINS. `SCADU_INJECTION_TARGET` (was `scaling.SCADU_BLESSING_CAP`) exists to bound an INJECTION (SPEC §9.2: *"Injection
 budget. SCADU_CUM[20] = 50 fragments is a lot of filler to displace in a base seed. Cap at 12 (26
 fragments) instead?"*). The cap shipped; the injection did not. Measured 2026-08-01 over 40 rolled
 seeds at the shipped default `num_regions: 6`, only ONE could reach the cap; the median seed topped
@@ -98,21 +98,25 @@ class ScaduSupplyRolledDefault(WorldTestBase):
     game = GAME
     run_default_tests = False
     options = {"num_regions": 6, "enable_dlc": 1,
-               "global_scadutree_blessing": 2}
+               "scadutree_blessing_scope": "anywhere", "dlc_blessing_catchup": True}
 
     def _pool_fragments(self):
         try:
             from ._util import world_items
         except ImportError:
             from _util import world_items
-        return sum(1 for i in world_items(self) if i.name == ss.FRAGMENT)
+        # UNITS: a `Scadutree Fragment x2` is one pool item worth two fragments. See the same note
+        # in test_gf_options -- the blessing counts what was handed over, not how many items it
+        # arrived in, and so must this.
+        return sum(2 if i.name == ss.FRAGMENT_X2 else 1 for i in world_items(self)
+                   if i.name in (ss.FRAGMENT, ss.FRAGMENT_X2))
 
-    def test_a_rolled_default_seed_reaches_the_cap(self):
-        cap = sc.SCADU_BLESSING_CAP
-        need = ss.SCADU_CUM[cap]
+    def test_a_rolled_default_seed_reaches_the_target(self):
+        target = ss.SCADU_INJECTION_TARGET
+        need = ss.SCADU_CUM[target]
         got = self._pool_fragments()
         assert got >= need, (
-            f"blessing cap {cap} needs {need} fragments; this seed's pool has {got}. "
+            f"injection target {target} needs {need} fragment units; this seed's pool has {got}. "
             "Before scadu_supply only 1 rolled seed in 40 cleared this.")
 
     def test_injected_fragments_are_useful_never_progression(self):
