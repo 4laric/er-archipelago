@@ -8130,4 +8130,4 @@ GOODS_HOLD_CAP = {
     "Zorayas's Letter": 1,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ce694ac47b3aa9b1cc911b2a040246d9a6869fabaaae326fb2387e1118d5d8e6', 'module': 'item_ids.py', 'body_sha256': 'sha256:e591b6681c5979f3c49828e6726351b0ff093561eb1bfa55cd5b73b1c2e8b9d9'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ad5f47c34d981e370f5a1669324ef1610c636bf66fca9216720aa8ae796604f1', 'module': 'item_ids.py', 'body_sha256': 'sha256:e591b6681c5979f3c49828e6726351b0ff093561eb1bfa55cd5b73b1c2e8b9d9'}

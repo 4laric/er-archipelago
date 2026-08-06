@@ -97,7 +97,8 @@ class TagDataTests(unittest.TestCase):
         # Ritual Spear), f530845 (Star-Lined Sword). Same shape as the GLOBAL_RECOVER entries
         # above them, reached by derivation instead of by hand. NOT a rebaseline: the three are
         # named, and each is a Boss tag that follows a NEW check, not a re-tag of an old one.
-        self.assertEqual(TAG_COUNTS["Boss"], 137)
+        # 137 -> 138 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
+        self.assertEqual(TAG_COUNTS["Boss"], 138)
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -246,11 +247,13 @@ class TagDataTests(unittest.TestCase):
         """37 -> 42: the five sibling drops the boss_arena keying had split off. Moves only when a
         major boss's drop set changes, or when a new Remembrance/GreatRune check appears -- the
         closure picks those up automatically, which is why this is a closure and not a hand list."""
-        self.assertEqual(TAG_COUNTS["MajorBoss"], 42)
+        # 42 -> 43 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
+        self.assertEqual(TAG_COUNTS["MajorBoss"], 43)
 
     def test_boss_geography_counts(self):
         """LegacyBoss / FieldBoss split `Boss` by WHERE the boss stands. Drift guard on both."""
-        self.assertEqual(TAG_COUNTS["LegacyBoss"], 30)
+        # 30 -> 31 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
+        self.assertEqual(TAG_COUNTS["LegacyBoss"], 31)
 
         # 2026-08-04 (#249): +3. Placing the unplaced common-event rows gave THREE field
         # bosses a check for the first time -- their unique drop had no tile, so it was never a
