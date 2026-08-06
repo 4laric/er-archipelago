@@ -439,45 +439,145 @@ def ramp_pct_from_speed(speed):
     return max(1, 100 - max(0, min(100, int(speed))))
 
 
-# Ceiling for the blessing curve, sent as `scaduBlessingCap`.
+# ---- NO CEILING BUT THE GAME'S OWN (2026-08-06, Alaric) ----------------------------------------
+# `SCADU_BLESSING_CAP = 12` lived here and was sent as `scaduBlessingCap`. It is GONE: the only
+# ceiling is now the vanilla ladder's, level 20, which is what the client already falls back to when
+# the key is absent. A ceiling the base game does not have is a rule the player has to be told
+# about, and no seed was telling them.
 #
-# 12, DECIDED 2026-07-31 (Alaric, SPEC-global-scadutree-blessing-20260729 §9.2) -- provisional, to be
-# judged on FEEL in a playtest rather than on the arithmetic below.
+# 🛑 THE 12 HAS NOT VANISHED -- IT MOVED, because one constant was doing two unrelated jobs. The
+# arithmetic that chose it was never about a ceiling: levels 13..20 cost 24 more fragments (half the
+# whole budget, SCADU_CUM[20]=50 vs SCADU_CUM[12]=26) to buy +11% attack, and in a base-game seed
+# every one of those is a forced-`useful` item displacing filler against an economy that is one seed
+# thick (gf-early-economy-floor-knife-edge). That is an argument about how many fragments to PUT IN
+# THE POOL, not about where to stop applying them. It now lives beside the code it governs, as
+# scadu_supply.SCADU_INJECTION_TARGET, and it is still 12: this change removes a ceiling, it does
+# not double anyone's filler displacement.
 #
-# The arithmetic is what ruled out 20. Levels 13..20 cost 24 more fragments -- HALF the entire budget,
-# SCADU_CUM[20]=50 vs SCADU_CUM[12]=26 -- and buy +11% attack (1.85 -> 2.05) and 10% less damage taken
-# (0.5405 -> 0.4878). In a base-game seed every one of those fragments is a forced-`useful` item
-# displacing filler, against an early economy that is one seed thick
-# (gf-early-economy-floor-knife-edge). Paying half the budget for the last 11% is the worst trade on
-# the ladder.
+# So a seed GUARANTEES the fragments for level 12 and lets the region draw carry you past it if it
+# happens to. Nothing clamps the top any more.
+
+
+class ScadutreeBlessingScope(Choice):
+    """WHERE the Scadutree blessing applies. dlc_only = vanilla: the blessing is a Land of Shadow
+    mechanic and does nothing in Limgrave, exactly as FromSoft shipped it. anywhere = the blessing
+    becomes a GAME-WIDE power curve driven by the fragments the multiworld has sent you, so it works
+    everywhere. Enemies are untouched either way, so `anywhere` is explicitly a power fantasy.
+
+    HOW `anywhere` IS POSSIBLE AT ALL. Every vanilla rung 20000100+level carries
+    effectEndurance = 0.05 -- 50ms. It is not a persistent buff; a refresher loop that only runs in
+    the Land of Shadow re-applies it every tick. The client clones the rung onto a row of its own
+    with effectEndurance = -1 and applies that (see the client's `scadu_blessing` module and
+    docs/specs/SPEC-global-scadutree-blessing-20260729.md). Measured in-game 2026-07-29."""
+    display_name = "Scadutree Blessing Scope"
+    option_dlc_only = 0
+    option_anywhere = 1
+    default = 0
+
+
+class DlcBlessingCatchup(Toggle):
+    """Guarantee each DLC region's expected Scadutree Blessing while you are standing in it.
+
+    WHY IT EXISTS, AND WHY IT IS NOT A DIFFICULTY KNOB. DLC enemies are tuned around a per-AREA
+    blessing level. In this rando the fragments that raise blessing are scattered multiworld checks,
+    so the fill can hand you Shadow Keep while your blessing is 0 -- through no decision of yours.
+    This lifts you to that area's floor (DLC_BLESSING_FLOORS, ~3-4 under vanilla expectation) so
+    collected fragments still buy visible power above it. Compose is MAX, never a replacement.
+
+    🛑 IT IS SCOPED TO WHERE YOU STAND, NOT TO WHAT YOU UNLOCKED. The client re-reads your current
+    play_region every tick; leave the region and the floor goes with you. Nothing is granted.
+
+    Inert outside the DLC: base-game buckets have no floor, so a base-only seed emits no wire at all.
+    """
+    display_name = "DLC Blessing Catch-up"
+
+
+# ---- the legacy key -----------------------------------------------------------------------------
+# `global_scadutree_blessing` asked TWO questions with one Choice: `off -> player_only` moves SCOPE,
+# `player_only -> scaled` adds the FLOOR. That is why value 2 had to be called `scaled`, a word this
+# codebase already spends on enemy scaling, and why the combination a lot of players actually want --
+# vanilla scope, but the DLC does not brutalise you for the fill's choices -- COULD NOT BE EXPRESSED.
 #
-# 12 still yields a compounded budget of A^2 ~ 3.4x, which is not a timid number. If the playtest says
-# it feels weak, raise this ONE constant -- but re-check the filler displacement at the same time,
-# because that is the cost the number is really trading against.
-SCADU_BLESSING_CAP = 12
+# Kept as a live, translating option rather than an `Options.Removed` stub (the 2026-07-27 rename
+# pattern): a Removed option RAISES, and the point here is that old yamls keep working. Translation
+# happens in Scaling.generate_early; every consumer reads the two new options via blessing_mode().
+LEGACY_BLESSING_MAP = {
+    0: (0, 0),   # off         -> dlc_only,  no catchup
+    1: (1, 0),   # player_only -> anywhere,  no catchup
+    2: (1, 1),   # scaled      -> anywhere + catchup
+}
 
 
 class GlobalScadutreeBlessing(Choice):
-    """How Scadutree Blessing is delivered. off = vanilla (blessing only from the fragments you hold,
-    applied by the game, DLC only). player_only = the blessing becomes a GAME-WIDE power curve driven
-    by the fragments you hold -- it works in Limgrave, not just the Land of Shadow. Enemies are
-    untouched, so this is explicitly a power fantasy. scaled = player_only PLUS the enemy-side
-    counterweight: a per-DLC-region blessing FLOOR, so a DLC region you unlock without fragments still
-    meets that area's expected blessing; collected fragments still count above the floor (max).
+    """DEPRECATED 2026-08-06 -- split into `scadutree_blessing_scope` + `dlc_blessing_catchup`.
 
-    HISTORY, because the help text used to lie. Until 2026-07-31 this option only wrote the game's
-    STORED blessing byte, and the engine refuses to apply that byte's effect outside the Land of
-    Shadow -- measured in-game 2026-07-29. So both live modes were silently inert in the base game
-    while this docstring claimed that was intentional. The client now applies the blessing itself
-    (see the client's `scadu_blessing` module and docs/specs/SPEC-global-scadutree-blessing-20260729.md).
+    Still honoured, so an existing yaml keeps generating the same seed: off -> (dlc_only, off),
+    player_only -> (anywhere, off), scaled -> (anywhere, on). Setting this AND either replacement to
+    values that disagree is an OptionError rather than a silent winner -- see Scaling.generate_early.
 
-    Default OFF (2026-07-18 balance call): the floor made the DLC too easy -- you started every area
-    already blessed -- so blessing is fully vanilla by default (earn it from fragments)."""
-    display_name = "Global Scadutree Blessing"
+    Prefer the replacements: they can also express (dlc_only, on), which this key cannot say."""
+    display_name = "Global Scadutree Blessing (deprecated)"
     option_off = 0
     option_player_only = 1
     option_scaled = 2
     default = 0
+
+
+def resolve_legacy_blessing(world) -> None:
+    """Translate the deprecated `global_scadutree_blessing` into the two options that replaced it.
+
+    Called from Scaling.generate_early, BEFORE anything reads the pair, so every consumer sees one
+    resolved truth instead of each deciding for itself which key wins.
+
+    CONTRADICTION IS AN ERROR, NOT A PRECEDENCE RULE. A yaml naming both the old key and a new one
+    with different intent has no correct reading -- picking a winner means a player's stated setting
+    is silently dropped, which is the failure the 2026-07-27 renames were made loud to avoid. Name
+    both keys in the message so the fix is obvious from the traceback alone.
+
+    🛑 THE ONE CASE THIS CANNOT SEE. Archipelago does not record whether a value was typed or
+    defaulted, so an explicit `global_scadutree_blessing: off` is indistinguishable from not naming
+    it at all. A yaml with an explicit `off` next to `scadutree_blessing_scope: anywhere` therefore
+    resolves to `anywhere` rather than raising. That is the right way round -- the new key wins and
+    the deprecated one is the one being ignored -- but it is a real limit, not an oversight.
+    """
+    legacy = int(world.options.global_scadutree_blessing.value)
+    if legacy == 0:
+        return
+    want = LEGACY_BLESSING_MAP[legacy]
+    have = (int(world.options.scadutree_blessing_scope.value),
+            int(world.options.dlc_blessing_catchup.value))
+    legacy_name = world.options.global_scadutree_blessing.current_key
+    if have != (0, 0) and have != want:
+        raise OptionError(
+            f"global_scadutree_blessing ({legacy_name}) contradicts the options that replaced it. "
+            f"It means scadutree_blessing_scope="
+            f"{'anywhere' if want[0] else 'dlc_only'}, dlc_blessing_catchup="
+            f"{'on' if want[1] else 'off'}, but this yaml also sets scadutree_blessing_scope="
+            f"{'anywhere' if have[0] else 'dlc_only'}, dlc_blessing_catchup="
+            f"{'on' if have[1] else 'off'}. Drop global_scadutree_blessing -- it is deprecated and "
+            f"the two replacements can say everything it could, plus dlc_only + catchup, which it "
+            f"could not.")
+    world.options.scadutree_blessing_scope.value = want[0]
+    world.options.dlc_blessing_catchup.value = want[1]
+
+
+def blessing_mode(world) -> int:
+    """The WIRE value the client reads, derived from the two live options.
+
+    0 off | 1 anywhere | 2 anywhere+catchup | 3 dlc_only+catchup (NEW 2026-08-06).
+
+    🛑 THIS, not `world.options.global_scadutree_blessing.value`, is what every consumer must call --
+    including core._options_echo, which is the copy the client actually reads. A consumer that keeps
+    reading the legacy option sees 0 for every player who used the new names, and the setting
+    evaporates with slot_data reporting OK. That is #408's exact shape.
+
+    Mode 3 is the whole reason the split was worth a compat surface: vanilla scope + the floor.
+    """
+    scope = int(world.options.scadutree_blessing_scope.value)
+    catchup = int(world.options.dlc_blessing_catchup.value)
+    if scope == 0:
+        return 3 if catchup else 0
+    return 2 if catchup else 1
 
 
 @register
@@ -488,6 +588,9 @@ class Scaling(Feature):
         "minimum_enemy_difficulty": MinimumEnemyDifficulty,
         "maximum_enemy_difficulty": MaximumEnemyDifficulty,
         "difficulty_ramp_speed": DifficultyRampSpeed,
+        "scadutree_blessing_scope": ScadutreeBlessingScope,
+        "dlc_blessing_catchup": DlcBlessingCatchup,
+        # DEPRECATED alias for the two above; translated in generate_early.
         "global_scadutree_blessing": GlobalScadutreeBlessing,
         # Renamed 2026-07-27; these raise on a stale yaml rather than being ignored.
         "completion_scaling_floor": CompletionScalingFloor,
@@ -515,6 +618,9 @@ class Scaling(Feature):
                 f"minimum_enemy_difficulty ({lo}) is above maximum_enemy_difficulty ({hi}) -- the "
                 f"weakest enemies would be stronger than the strongest. Set the minimum at or below "
                 f"the maximum (both are 0-100, higher = harder).")
+        # The deprecated blessing key becomes the two live ones here -- before slot_data,
+        # _options_echo or any test reads either. See resolve_legacy_blessing.
+        resolve_legacy_blessing(world)
 
     def slot_data(self, world):
         # ORDER RAMP (2026-07-15): the fill spheres (TRUE per-seed reachability, 2026-07-07) are
@@ -530,7 +636,7 @@ class Scaling(Feature):
             ranges = _ranges_from_targets(_targets_from_order(order, ramp))
         else:
             ranges = sphere_target_ranges(world._kept(), ramp)
-        blessing = int(world.options.global_scadutree_blessing.value)
+        blessing = blessing_mode(world)
         kept_regions = world._kept()
         # VANILLA MODE. `completion_scaling` is the client's own arm/disarm switch: er-logic
         # `parse_scaling_config` returns None on a falsey value, so `CONFIG` stays empty, `tick()`
@@ -556,11 +662,9 @@ class Scaling(Feature):
             "completion_scaling_floor": int(world.options.minimum_enemy_difficulty.value),
             contract.REGION_SPHERE_TARGET_RANGES: ranges,
         }
-        # The blessing CEILING. Emitted only when the feature is on, so an `off` seed's slot_data is
-        # byte-identical to before. Absent => the client uses the ladder ceiling (see the contract
-        # entry: absent must never mean 0).
-        if blessing != 0:
-            out["scaduBlessingCap"] = SCADU_BLESSING_CAP
+        # NO `scaduBlessingCap`. Absent has always meant "no extra cap -> the ladder ceiling", it is
+        # pinned on both sides, and that is now the only answer any greenfield seed gives. Emitting a
+        # constant 20 instead would be a bare literal saying exactly what absence already says.
         # WHICH BUCKETS ARE DLC -- independent of every option, because that is what the question
         # actually depends on. Emitted whenever a DLC region is kept; absent (inert) otherwise, so a
         # base-game seed's slot_data is unchanged. See dlc_region_buckets for why the client could
@@ -571,15 +675,30 @@ class Scaling(Feature):
         # not cover this (it folds in CONTRACT, not OPTIONS_SUBKEYS).
         # RESOLVED, not raw: `auto` is -1, and -1 < 100, so reading the raw value here declared the
         # dependency on EVERY default seed. `auto` on a full map resolves to 100 and demands nothing.
+        # 🛑 ONE ASSIGNMENT, MANY TAGS. This used to be a bare `= ["scaling_ceiling"]`, which was
+        # correct only while exactly one feature could ever declare a dependency. The blessing split
+        # made that two, and a second bare assignment would have silently dropped whichever ran
+        # first -- a handshake key that loses half its content is worse than no handshake.
+        _needs = []
         if resolved_max_difficulty(world) < 100:
-            out[contract.REQUIRES_CLIENT_FEATURES] = ["scaling_ceiling"]
+            _needs.append("scaling_ceiling")
+        # MODE 3 IS THE ONLY NEW WIRE VALUE (dlc_only scope + catch-up). Modes 0/1/2 mean exactly
+        # what they meant, so only a mode-3 seed declares anything: an older client reads
+        # `global_scadutree_blessing` as a number it does not recognise, falls through
+        # `mode != 1 && mode != 2`, and writes nothing -- the player's catch-up would evaporate with
+        # "VERSION: OK", because the contract hash folds CONTRACT and not OPTIONS_SUBKEYS. This is
+        # exactly the gap requiresClientFeatures exists to close.
+        if blessing == 3:
+            _needs.append("dlc_blessing_catchup")
+        if _needs:
+            out[contract.REQUIRES_CLIENT_FEATURES] = _needs
         if set(kept_regions) & DLC_REGIONS:
             buckets = dlc_region_buckets(kept_regions)
             if buckets:
                 out[contract.DLC_REGION_BUCKETS] = buckets
         # mode 2 (scaled): emit the per-DLC-region blessing floor wire, but only when DLC regions are
         # actually kept (otherwise inert -- no key, so a base-game seed is byte-identical to mode 1).
-        if blessing == 2 and set(kept_regions) & DLC_REGIONS:
+        if blessing in (2, 3) and set(kept_regions) & DLC_REGIONS:
             floors = blessing_floor_ranges(kept_regions)
             if floors:
                 out[contract.DLC_SCADUTREE_FLOOR_RANGES] = floors

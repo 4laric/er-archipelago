@@ -375,7 +375,7 @@ OPTIONS_SUBKEYS = (
                 "which is why a seed that actually caps also sends requiresClientFeatures."),
     ContractKey("global_scadutree_blessing", "INT", True, (GREENFIELD,),
                 "core._options_echo", "scaling.rs scadutree scope",
-                "DLC Scadutree blessing scope Choice value (0 off / 1 player_only / 2 scaled)."),
+                "Scadutree blessing MODE, DERIVED from scadutree_blessing_scope + dlc_blessing_catchup (the single global_scadutree_blessing Choice was split 2026-08-06 and is now a deprecated alias). 0 = off. 1 = anywhere. 2 = anywhere + DLC catch-up floor. 3 = dlc_only + catch-up -- vanilla scope, but a DLC area never runs under its expected blessing. 3 is the ONLY new value; a client that predates it falls through `mode != 1 && mode != 2` and writes nothing, which is why a mode-3 seed declares requiresClientFeatures ['dlc_blessing_catchup']."),
     ContractKey("auto_upgrade", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades.rs set_auto_upgrade / apply_auto_upgrade",
                 "auto-upgrade received weapons: 0 = off; nonzero = raise each received weapon to the "
@@ -465,14 +465,14 @@ CONTRACT = (
     ContractKey("scaduBlessingCap", "INT", False, (GREENFIELD,),
                 "features/scaling.py", "er-logic/upgrades.rs apply_blessing_cap",
                 "Ceiling (0..20) for the Scadutree-blessing curve. Emitted only when "
-                "global_scadutree_blessing != 0. 🛑 ABSENT MEANS 'no extra cap' -> the client falls "
+                "the blessing mode != 0. 🛑 ABSENT MEANS 'no extra cap' -> the client falls "
                 "back to the ladder ceiling (20), NOT to 0: a key that read as the floor when absent "
                 "would ship the whole feature inert, which is the exact bug this option already had "
                 "once. Exists so the client never has to re-derive the seed's tier model."),
     ContractKey("dlcScadutreeFloorRanges", "TRIPLE_LIST", False, (GREENFIELD,),
                 "features/scaling.py", "eldenring-archipelago/upgrades.rs floor_for_region (mode 2)",
                 "[[lo,hi,floor], ...] play_region/100 sub-id ranges -> Scadutree-blessing FLOOR level "
-                "(0..20) per DLC region. Emitted ONLY when global_scadutree_blessing==2 and >=1 DLC "
+                "(0..20) per DLC region. Emitted ONLY when the blessing mode is 2 or 3 (dlc_blessing_catchup on) and >=1 DLC "
                 "region is kept. Client mode-2 writes max(held-fragment level, region floor) so DLC "
                 "enemies' blessing assumption is met on arrival. "
                 "🛑 This key is NOT a DLC-region marker -- use dlcRegionBuckets. The client used to "

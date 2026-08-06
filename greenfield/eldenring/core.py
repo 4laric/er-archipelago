@@ -275,6 +275,25 @@ for _idx, _nm in enumerate(sorted(ITEM_CATALOG)):
         _AP_IDS_TO_ITEM_IDS[str(_aid)] = ITEM_CATALOG[_nm]
         _item_class[_nm] = _classify_full(ITEM_CATALOG[_nm])
 
+# FEATURE-MINTED GRANTS. `registry.allocate_item_ids` gives a feature's ITEMS an AP id, but nothing
+# tells the client what one resolves to: `_AP_IDS_TO_ITEM_IDS` is built from ITEM_CATALOG above, so
+# a minted item is a name the game can never hand over. That is why scadu_supply's fragment stayed
+# out of ITEMS for so long. ITEM_GRANTS closes it: the feature names the FullID and the quantity,
+# which are the two things core cannot infer, and the item becomes grantable like any other.
+#
+# A SECOND AP ID MAY POINT AT THE SAME FullID -- that is the point of it. "Scadutree Fragment x2"
+# resolves to the same goods row as the x1 and rides itemCounts = 2, so the two exist independently
+# and a vanilla-placed fragment is untouched by a change to the injected stack.
+_FEATURE_ITEM_COUNTS: Dict[str, int] = {}
+for _f in _FEATURES:
+    for _nm, (_full, _qty) in getattr(_f, "ITEM_GRANTS", {}).items():
+        _aid = item_name_to_id.get(_nm)
+        if _aid is None or not _full:
+            continue
+        _AP_IDS_TO_ITEM_IDS[str(_aid)] = _full
+        if int(_qty) > 1:
+            _FEATURE_ITEM_COUNTS[str(_aid)] = int(_qty)
+
 
 class GFItem(Item):
     game = GAME
@@ -981,7 +1000,8 @@ class GreenfieldEldenRingWorld(World):
         `enemy_scaling: false` unreachable while the top-level copy read a correct 0."""
         from .scaling_ladder import (ceiling_multiplier as scaling_ceiling_multiplier,
                                      floor_multiplier as scaling_floor_multiplier)
-        from .features.scaling import (completion_scaling_id as scaling_completion_id,
+        from .features.scaling import (blessing_mode as scaling_blessing_mode,
+                                       completion_scaling_id as scaling_completion_id,
                                        resolved_max_difficulty as scaling_resolved_max_difficulty)
 
         def _opt(name: str, default: int = 0) -> int:
@@ -1021,7 +1041,12 @@ class GreenfieldEldenRingWorld(World):
             # with, so the cap the client reads is the cap that was checked. num_regions 0 = all.
             contract.COMPLETION_SCALING_CEILING: scaling_ceiling_multiplier(
                 scaling_resolved_max_difficulty(self)),
-            contract.GLOBAL_SCADUTREE_BLESSING: _opt("global_scadutree_blessing"),
+            # DERIVED, never the raw legacy option (0 off / 1 anywhere / 2 anywhere+catchup /
+            # 3 dlc_only+catchup). `global_scadutree_blessing` was split on 2026-08-06 into
+            # scadutree_blessing_scope + dlc_blessing_catchup; reading the deprecated key here would
+            # emit 0 for every player who used the new names and the setting would evaporate with
+            # slot_data reporting OK -- #408's exact shape, in the exact dict #408 was about.
+            contract.GLOBAL_SCADUTREE_BLESSING: scaling_blessing_mode(self),
             contract.AUTO_UPGRADE: _opt("auto_upgrade"),  # 0 off; nonzero = raise received weapons to your live held level (features/upgrades.py)
             # 0 off; nonzero = the client equips each received weapon / armour piece on arrival
             # (features/auto_equip.py -> auto_equip.rs). The VALUE rides here like every other
@@ -1036,8 +1061,18 @@ class GreenfieldEldenRingWorld(World):
         # pots x2, greases x2, ammunition x20) -> slot_data itemCounts
         # keyed by AP item id (the client grants full_id x qty). Sparse: only stacked items appear.
         from .features.filler_curation import stack_qty_by_name
-        return {str(item_name_to_id[_n]): _q for _n, _q in stack_qty_by_name().items()
-                if _n in item_name_to_id}
+        counts = {str(item_name_to_id[_n]): _q for _n, _q in stack_qty_by_name().items()
+                  if _n in item_name_to_id}
+        # Feature-minted stacks (today: the Scadutree Fragment x2) ride the same map. Merged rather
+        # than assigned so neither source can quietly drop the other's entries, and last-wins would
+        # be a silent contradiction if a name ever appeared in both.
+        for _k, _v in _FEATURE_ITEM_COUNTS.items():
+            if _k in counts and counts[_k] != _v:
+                raise ValueError(
+                    f"itemCounts disagreement for AP item {_k}: filler_curation says {counts[_k]}, "
+                    f"a feature's ITEM_GRANTS says {_v}")
+            counts[_k] = _v
+        return counts
 
     # The generated data's own identity (gen_data.py writes _gen_stamp.json beside the modules). It
     # rides in `versions` so a bug report says WHICH generated data the seed used -- the client and the

@@ -27,6 +27,11 @@ class Feature:
     name: str = ""
     OPTIONS: Dict[str, Any] = {}   # {yaml_field: Option class}      -> merged into GFOptions
     ITEMS: Dict[str, Any] = {}     # {item_name: ItemClassification} -> ids allocated + classified
+    # {item_name: (game FullID, grant qty)} for MINTED items that must be grantable. ITEMS alone
+    # gets an id and a classification; it does NOT reach apIdsToItemIds, so a minted item is inert
+    # in game until core is told what it resolves to. Only needed for items that are not already
+    # ITEM_CATALOG entries (core wires those itself).
+    ITEM_GRANTS: Dict[str, Any] = {}
 
     def generate_early(self, world) -> None: ...
     def create_items(self, world) -> List: return []
