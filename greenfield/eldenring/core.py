@@ -45,7 +45,7 @@ except ImportError:
 #                             row simply not on the shelf.
 _NO_PROGRESSION_APS = (frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
                        | frozenset(SHOP_RELEASE_GATED_APS))
-from .region_spine import (compute_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
+from .region_spine import (compute_kept, describe_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
                            base_regions, dlc_regions, REGION_PARENT)
 from . import registry
 from .defaults import FROZEN_OPTIONS, apply_frozen
@@ -93,8 +93,15 @@ GREAT_RUNES: List[str] = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great 
 
 # ---- core options ----------------------------------------------------------------------------
 class NumRegions(Range):
-    """How many regions are in play this seed. 0 = all regions (full Shattering). N > 0 seals the
-    rest: only kept regions get locks, checks, and goal requirement, for a shorter run.
+    """How many regions are DRAWN for this seed. 0 = all regions (full Shattering). Only kept
+    regions get locks and checks, for a shorter run.
+
+    N IS A DRAW SIZE, NOT A FINAL COUNT -- a seed can end up with more regions than N. Two things
+    add to the draw. A named `goal` force-keeps the regions that goal needs (goal: elden_beast keeps
+    Farum Azula and Leyndell), and any kept region also keeps the region you must pass through to
+    reach it (Leyndell keeps Altus). So `num_regions: 1` with `goal: elden_beast` can roll four
+    regions, and that is working correctly. The generation log states the breakdown for your seed.
+    0 keeps the whole map.
 
     Default 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is
     the length most players actually finish. Set 0 for the full map."""
@@ -362,12 +369,22 @@ class GreenfieldEldenRingWorld(World):
                 "[eldenring] num_regions_order: spine is DEPRECATED and now behaves exactly as `rolled` -- "
                 "the fixed Limgrave-first path is gone (it made every seed keep the same eight "
                 "regions). Drop the key from your yaml; it will be removed after this release.")
+        _draw_parts: Dict[str, List[str]] = {}
         self.gf_kept: List[str] = compute_kept(
             _nr,
             self.random,
             self.gf_eligible,
             forced=_gl.forced_regions(self.gf_goal_choice),
+            parts=_draw_parts,
         )
+        # #409: SAY WHAT THE NUMBER DID. `num_regions` is a DRAW SIZE -- a named goal force-keeps
+        # its own regions and every kept region pulls its parents in -- so the seed can contain more
+        # regions than the yaml asked for. That is correct and deliberate (#402), and it read as a
+        # bug to the player who hit it: `num_regions: 1` gave him four and he spent an hour asking
+        # why. One line in the gen log, naming all three contributions, is the whole fix.
+        logging.getLogger("Greenfield").info(
+            "[eldenring:%s] %s", self.player,
+            describe_kept(_nr, _draw_parts, self.gf_kept, self.gf_goal_choice))
         # Resolve the Great-Rune goal now (once), so create_item/set_rules/slot_data agree.
         self.gf_required_runes: List[str] = self._resolve_required_runes()
         for f in _FEATURES:
@@ -946,10 +963,16 @@ class GreenfieldEldenRingWorld(World):
         ⚠️ NOT every entry is a plain echo. `completion_scaling_floor` is UNIT-CONVERTED here (percent
         -> HP multiplier) because the client parses it as a multiplier; its top-level legacy copy
         keeps the percent. Same name, two units, one deliberate conversion -- see
-        features/scaling.floor_multiplier and tests/test_gf_scaling_floor_units.py."""
+        features/scaling.floor_multiplier and tests/test_gf_scaling_floor_units.py.
+
+        🛑 NO BARE LITERALS. Every value here must be READ or RESOLVED from an option. A
+        constant in this dict silently overrides the gated top-level copy the feature emits, and
+        the player has no way to see it: that is exactly #408, where `completion_scaling: 4` made
+        `enemy_scaling: false` unreachable while the top-level copy read a correct 0."""
         from .scaling_ladder import (ceiling_multiplier as scaling_ceiling_multiplier,
                                      floor_multiplier as scaling_floor_multiplier)
-        from .features.scaling import resolved_max_difficulty as scaling_resolved_max_difficulty
+        from .features.scaling import (completion_scaling_id as scaling_completion_id,
+                                       resolved_max_difficulty as scaling_resolved_max_difficulty)
 
         def _opt(name: str, default: int = 0) -> int:
             o = getattr(self.options, name, None)
@@ -962,7 +985,13 @@ class GreenfieldEldenRingWorld(World):
             contract.DEATH_LINK: _opt("death_link"),
             contract.ENABLE_DLC: int(dlc_only or enable_dlc),
             contract.NO_WEAPON_REQUIREMENTS: _opt("no_weapon_requirements"),
-            contract.COMPLETION_SCALING: 4,  # smoothstep curve id (nonzero = on; matches features/scaling.py)
+            # THE COPY THE CLIENT READS. er-logic parse_scaling_config short-circuits on this key
+            # (options::parse_bool_option), so it -- not the top-level legacy copy -- is what arms
+            # or disarms the whole sweep. It was a BARE LITERAL 4 until 2026-08-06 (#408): a seed
+            # with `enemy_scaling: false` emitted 0 top-level and 4 here, the client read the 4, and
+            # the option was unreachable from yaml. Resolved through the SAME function the feature's
+            # copy uses, so the two cannot drift apart again (nonzero = on; 4 = smoothstep).
+            contract.COMPLETION_SCALING: scaling_completion_id(self),
             # UNIT CONVERSION, NOT AN ECHO. The client reads this as an HP MULTIPLIER
             # (er-logic/scaling.rs floor_tier_from_multiplier); the option is a PERCENT. Emitting the
             # raw percent here -- as this line did until 2026-07-27 -- pinned every enemy to the top

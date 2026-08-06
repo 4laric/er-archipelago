@@ -90,7 +90,7 @@ def dlc_regions():
     return [r for r in REGIONS if r in DLC_REGIONS]
 
 
-def compute_kept(n, rng, eligible=None, forced=()):
+def compute_kept(n, rng, eligible=None, forced=(), parts=None):
     """Kept-region list, drawn from `eligible` (defaults to all of REGIONS).
 
     `eligible` is the already-filtered pool of regions in play this seed (e.g. base-only when
@@ -126,22 +126,83 @@ def compute_kept(n, rng, eligible=None, forced=()):
     GOAL_REGION -- AFTER the rng.sample -- so the rng stream, and therefore every default rolled
     seed, is byte-identical to before this parameter existed. Callers guarantee eligibility (core
     raises OptionError on an ineligible choice); a forced region outside the pool is dropped here
-    rather than smuggled past the scope filter."""
+    rather than smuggled past the scope filter.
+
+    `parts` is an OPTIONAL out-dict for telemetry (#409): pass a dict and it is filled with
+    {"drawn": [...], "forced": [...], "closure": [...]}, the three contributions that make up the
+    return value, in the order they were added. It is an out-param rather than a second return
+    value on purpose -- every existing caller keeps working unchanged, and nothing about the draw
+    (least of all the rng stream) may move for a telemetry feature. Purely observational: nothing
+    in here reads it back."""
+    def _record(drawn, forced_kept, final, full_pool=False):
+        if parts is None:
+            return
+        pre = set(drawn) | set(forced_kept)
+        parts["drawn"] = list(drawn)
+        parts["forced"] = list(forced_kept)
+        parts["closure"] = [r for r in final if r not in pre]
+        # WHICH BRANCH RAN, stated rather than re-derived. "n was 0" and "n happened to equal the
+        # kept count" are different facts that produce identical numbers, and describe_kept prints
+        # a different sentence for each -- inferring it from the counts would print the wrong one.
+        parts["full_pool"] = bool(full_pool)
+
     regions = list(REGIONS) if eligible is None else [r for r in REGIONS if r in set(eligible)]
     if not regions:
+        _record((), (), (), full_pool=True)
         return regions
     if n <= 0 or n >= len(regions):
-        return _close_over_parents(regions, regions)
+        full = _close_over_parents(regions, regions)
+        _record(regions, (), full, full_pool=True)
+        return full
     base = rng.sample(regions, n)
     kept = list(dict.fromkeys(base))
+    drawn = list(kept)
+    forced_kept = []
     # 🛑 Both appends MUST stay here, after the draw: moving either above rng.sample changes every
     # rolled seed in existence (the economy floor is one seed thick).
     if not forced and GOAL_REGION in regions and GOAL_REGION not in kept:
         kept.append(GOAL_REGION)
+        forced_kept.append(GOAL_REGION)
     for r in forced:
         if r in regions and r not in kept:
             kept.append(r)
-    return _close_over_parents(kept, regions)
+            forced_kept.append(r)
+    final = _close_over_parents(kept, regions)
+    _record(drawn, forced_kept, final)
+    return final
+
+
+def describe_kept(n, parts, kept, goal="auto"):
+    """ONE LINE naming every contribution to the kept set, for the gen log / spoiler (#409).
+
+    THE MOTIVATING CASE (CONTRIBUTING rule 11), and it is a player-support cost, not a crash.
+    bobler set `num_regions: 1` on 0.3.5 and got FOUR regions. He asked twice, an hour apart, still
+    unsure what had happened -- and every step was correct: the draw took Liurnia, `goal:
+    elden_beast` force-kept Farum Azula and Leyndell, and the parent closure pulled Altus in behind
+    Leyndell. Nothing anywhere said so. N IS A DRAW SIZE, NOT A REGION COUNT, and until this line
+    existed the only way to learn that was to read compute_kept.
+
+        num_regions: 1 drawn (Liurnia) + 2 forced by goal=elden_beast (Farum Azula, Leyndell)
+        + 1 parent closure (Altus) = 4 kept
+
+    Empty contributions are OMITTED rather than printed as "+ 0", so the common case (a plain draw
+    that needed nothing) stays one short clause. Pure and AP-free like the rest of this module, so
+    it is unit-testable without a world."""
+    total = len(kept)
+    drawn = list(parts.get("drawn", ()))
+    forced = list(parts.get("forced", ()))
+    closure = list(parts.get("closure", ()))
+    if parts.get("full_pool"):
+        # 0 (or an N at/above the eligible pool) is "the whole eligible map" -- there is no draw to
+        # explain, and listing thirty region names would bury the number the reader came for.
+        bits = ["num_regions: %d = the whole eligible map" % n]
+    else:
+        bits = ["num_regions: %d drawn (%s)" % (len(drawn), ", ".join(drawn) or "none")]
+    if forced:
+        bits.append("%d forced by goal=%s (%s)" % (len(forced), goal, ", ".join(forced)))
+    if closure:
+        bits.append("%d parent closure (%s)" % (len(closure), ", ".join(closure)))
+    return "%s = %d kept" % (" + ".join(bits), total)
 
 
 def _close_over_parents(kept, pool):
