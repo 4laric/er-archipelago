@@ -76,6 +76,14 @@ SHIPPED = {
     # sees the tags it asks about; it went RED on the first PR to land past the v0.3.5 tag,
     # which is exactly what it was written to do. The gate, not a person, caught this one.
     "0.3.5": "5e8b11c9",
+    # 0.3.6 was MISSED here when its window opened on 2026-08-06 -- the ledger row was written and
+    # this fixture was not, so the two drifted by one row. Backfilled 2026-08-06 alongside 0.3.7.
+    # The subset assertion in test_shipped_contract_hashes_are_never_rewritten is why nothing went
+    # red: a row missing from HERE is invisible, only a row missing from the LEDGER fails. That
+    # asymmetry is worth knowing before trusting this fixture as a count of anything.
+    "0.3.6": "5e8b11c9",
+    # Added 2026-08-06 at window-open, same day v0.3.6 was tagged, because #428 landed past the tag.
+    "0.3.7": "5e8b11c9",
 }
 
 
