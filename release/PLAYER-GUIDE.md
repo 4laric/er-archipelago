@@ -263,8 +263,13 @@ keys: Archipelago ignores unknown keys without an error, so the option you
 thought you set simply wouldn't exist.
 
 **Does this touch my saves or game files?**
-No files are modified, ever -- it's all runtime. The client uses its own save
-(`AP_me3.sl2`), so your normal characters are untouched. Remove the client and
-Elden Ring is exactly as you left it.
+No *game* files are modified -- no regulation, no maps, no scripts, nothing on
+disk that Elden Ring ships. It is all runtime. Two honest caveats about saves,
+though. The client does write a small identity marker into your character's
+save data; that is how a reconnect works out which character it is looking at.
+And the separate save file (`AP_me3.sl2`) is the `me3` profile's doing, not
+ours -- load our dll through another launcher and your Archipelago character is
+created in your ordinary save instead. Remove the client and Elden Ring plays
+exactly as you left it.
 
 Now go find out which region the seed decided you deserve first.

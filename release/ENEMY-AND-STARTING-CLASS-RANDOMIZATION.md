@@ -130,6 +130,51 @@ memory on top of it. Connect to your Archipelago room as usual.
 > connected client that cannot give you anything.
 
 
+## Your save: matt's launcher does not give you a separate one
+
+**What happens.** Our own setup docs tell you the Archipelago run uses its own save file,
+`AP_me3.sl2`. That is true, and it is nothing to do with the client -- it comes from one line in
+the `me3` profile, `savefile = "AP_me3.sl2"`. Launch through matt's randomizer and you never read
+that profile, so the redirection never happens: your Archipelago character is created in your
+ordinary Elden Ring save, in a slot next to your real characters.
+
+**Why this is worth acting on, and not just tidiness.** Two reasons.
+
+The first is co-tenancy: from then on your real characters and an Archipelago character share one
+file, one backup and one cloud sync, so anything that goes wrong for one goes wrong for all of
+them.
+
+The second is sharper. 🛑 **While the client is connected, do not load your ordinary characters.**
+The client marks the character it is playing by stamping an identity into that character's save
+data, and it uses the absence of a marker to recognise a brand-new Archipelago character. Your
+existing characters have no marker either -- they predate the client entirely -- so a connected
+client reads them as *fresh*, and a fresh character is owed every item the room has sent so far.
+That is the same mechanism that correctly re-grants your start items on a new character; it simply
+cannot tell your Limgrave main from a new save. The guard that does exist catches the *other* case:
+a character belonging to a **different** Archipelago run is refused outright.
+
+So the rule while you are set up this way is: in the modded launch, play the Archipelago character
+and nothing else.
+
+**How to check.** Open Elden Ring the normal way, without any mods, and look at the character
+list. If the Archipelago character is in it, you are sharing.
+
+**The fix a player found.** Reported by **boblerrr** (2026-08-03), who hit this and worked out the
+remedy himself: add the **alt_saves** dll to your dll folder and hook it in matt's randomizer the
+same way you added ours. He reports this worked.
+
+🛑 **We have not tested it.** One player's "it worked" is a strong lead, not a test result. If you
+try it, tell us how it went.
+
+**The other approach**, which boblerrr also suggests and thinks is the better one, is to declare
+each dll as a native in your own `me3` config and launch with me3 instead -- which puts you back on
+a profile that can carry a `savefile` line. Also untested by us.
+
+**If you would rather not bother:** back up your save first. It lives in
+`%APPDATA%\EldenRing\<steam id>\`. Copy the folder somewhere before your first Archipelago
+launch and the whole question becomes recoverable.
+
+
 ## When receiving is dead: RandomizerHelper.dll
 
 **Symptom fingerprint.** All of these at once, and the combination is diagnostic:
