@@ -77,11 +77,40 @@ Anticipation, and the moment at connect before the game has worked out where you
 get the bottom rung of the ladder applied to them on no evidence at all. Making no statement about a
 place the seed does not reach is the right answer, and it is now what happens.
 
+**Hints now point at a lock you can actually go and get.** Asking for a hint used to mean naming a
+specific region's lock — which is a guess about what comes next, and there is nothing to look up,
+because the order is different every seed. One player spent three hints, three minutes apart,
+working out an order rather than finding anything. Hints now offer the locks on your frontier: the
+ones whose region is still shut but whose item is sitting somewhere you can already walk to.
+
+**Check whether your Archipelago character is in your normal save.** If you launch through matt's
+randomizer — which is the setup we recommend for enemy randomization — you do **not** get a separate
+save file. The separate save comes from the me3 profile, one line in `ap.me3`, and matt's launcher
+never reads it. So your Archipelago character is created right alongside your real ones. A player
+found this the direct way: opened vanilla Elden Ring and there it was.
+
+Nothing of yours is overwritten by this, and the setup doc now covers how to separate them
+(including an `alt_saves` workaround a player verified himself — credited, and honestly marked as
+untested by us). But one rule matters while you are sharing: **play the Archipelago character and
+nothing else in the modded launch.** The client recognises a brand-new Archipelago character by the
+absence of its own marker, and your existing characters have no marker either — so loading one while
+connected can hand it everything the room has sent you.
+
+**Two numbers we told you were wrong.** If you set the great-rune goal to 7, no seed could ever
+satisfy it: Elden Ring has seven Great Runes in the story but only six you can be given, and the
+Great Rune of the Unborn is not an item. The maximum is six now. If your yaml says 7, it will be
+rejected rather than quietly meaning something else — change it to 6 or lower.
+
+And `num_regions` maxes at **30**, not 31. The docs said 31 in five places; typing it just failed
+generation. 17 base-game regions plus 13 in the DLC.
+
 ---
 
 ## Notes for the next pass
 
-- Region-lock hint work (#412) and the Moonlight Altar region fix (#410) are queued, not in yet.
+- Region-lock hint work (#412) LANDED this window — the frontier entry above. The Moonlight
+  Altar region fix (#410) is still queued, and #418 (the 132-grace placement census that came
+  out of it) has not started.
 - The scaling down-direction (#346 phase 1b) SHIPPED this window — the entry above. The attack
   rate it buckets on is still argued from the param rather than measured in game; the health half
   is measured exactly. Play validates the rest.
