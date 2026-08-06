@@ -39,12 +39,19 @@ Elden Ring:
 
   # ---- The shape of the run -------------------------------------------------
 
-  # How many regions are in play. 0 = all of them (the full Shattering:
-  # 17 base-game regions, or 31 with the DLC enabled). N > 0 seals the rest:
-  # a sealed region has no checks, no Lock, and no way in. Each KEPT region
-  # opens when its Region Lock item arrives -- its graces light and you warp
-  # in. This is the marquee mode: it turns the open world into an Archipelago
-  # progression graph. Try 4 for a tight evening run.
+  # How many regions are DRAWN. 0 = all of them (the full Shattering:
+  # 17 base-game regions, or 31 with the DLC enabled). A sealed region has no
+  # checks, no Lock, and no way in. Each KEPT region opens when its Region
+  # Lock item arrives -- its graces light and you warp in. This is the
+  # marquee mode: it turns the open world into an Archipelago progression
+  # graph. Try 4 for a tight evening run.
+  #
+  # N IS A DRAW SIZE, NOT A FINAL COUNT. Two things add to the draw: a named
+  # `goal` force-keeps the regions that goal needs (goal: elden_beast keeps
+  # Farum Azula and Leyndell), and any kept region also keeps the region you
+  # must pass through to reach it (Leyndell keeps Altus). So num_regions: 1
+  # with goal: elden_beast can roll four regions -- that is correct, not a
+  # bug. The generation log prints the breakdown for your seed.
   num_regions: 6
 
   # How the kept regions are chosen when num_regions > 0.

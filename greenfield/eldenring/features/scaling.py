@@ -326,6 +326,36 @@ class CompletionScalingRamp(Removed):
     """Renamed to `difficulty_ramp_speed` -- and INVERTED: higher is now harder."""
 
 
+# ---------------------------------------------------------------------------------------------
+# THE ARM/DISARM SWITCH, RESOLVED IN ONE PLACE (#408).
+# ---------------------------------------------------------------------------------------------
+# `completion_scaling` ships TWICE: the legacy top-level copy (this feature's slot_data) and
+# sd["options"]["completion_scaling"], which is THE COPY THE CLIENT READS
+# (er-logic/src/scaling.rs parse_scaling_config -> options::parse_bool_option). Until 2026-08-06
+# only the top-level copy consulted the option; core._options_echo emitted a BARE LITERAL 4. So
+# `enemy_scaling: false` produced a slot_data reading `completion_scaling: 0` top-level and
+# `"completion_scaling": 4` inside `options`, the client read the 4, and the option was
+# unreachable from yaml -- confirmed live on 0.3.5 (240 enemies scaled at 1.14x on an off seed).
+#
+# One resolver, both emitters. A switch that can only be armed from one place cannot be half-gated.
+SMOOTHSTEP_CURVE_ID = 4
+
+
+def completion_scaling_id(world) -> int:
+    """The client's scaling curve id for this seed: SMOOTHSTEP_CURVE_ID when on, 0 when off.
+
+    0 is not "curve zero" -- er-logic `parse_scaling_config` returns None on a falsey value, so
+    `CONFIG` stays empty and `tick()` returns before the sweep ever runs. That is the vanilla path.
+
+    Defensive `getattr`: `_options_echo` resolves every other key that way, and an ABSENT option
+    must mean the SHIPPED DEFAULT, which for EnemyScaling is ON -- so a harness that builds a
+    partial options object still gets the historical wire. Never truthiness on the option OBJECT: a
+    Toggle whose value is 0 is still a live object, which is how a `False` would read as `True`."""
+    opt = getattr(world.options, "enemy_scaling", None)
+    on = True if opt is None else bool(opt.value)
+    return SMOOTHSTEP_CURVE_ID if on else 0
+
+
 def resolved_max_difficulty(world):
     """`maximum_enemy_difficulty` as a PERCENT, with `auto` resolved. THE single call site.
 
@@ -512,10 +542,11 @@ class Scaling(Feature):
         # short-circuits on this key before reading any of it, so withholding the ranges would buy
         # nothing and would make an off-seed's slot_data a second shape to reason about. One switch,
         # read in one place.
-        scaling_on = bool(world.options.enemy_scaling.value)
         out = {
-            # smoothstep (client curve id; SPEC-PARITY P2), or 0 = OFF -> vanilla.
-            "completion_scaling": 4 if scaling_on else 0,
+            # smoothstep (client curve id; SPEC-PARITY P2), or 0 = OFF -> vanilla. Resolved through
+            # completion_scaling_id so this copy and the one core._options_echo emits into
+            # sd["options"] cannot disagree -- they did, and #408 is what that cost.
+            "completion_scaling": completion_scaling_id(world),
             # UNIT SPACE: this legacy TOP-LEVEL copy is the raw player-facing PERCENT (0..100). The
             # key the client actually reads is sd["options"]["completion_scaling_floor"], emitted by
             # core._options_echo as the HP MULTIPLIER (see floor_multiplier). Two keys, same name,

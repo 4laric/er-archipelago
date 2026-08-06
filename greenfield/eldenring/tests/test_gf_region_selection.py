@@ -136,6 +136,92 @@ class RegionSelection(unittest.TestCase):
             self.assertEqual(self._kept(6, seed), self._kept(6, seed),
                              "compute_kept is not deterministic for a fixed rng seed")
 
+    # ---- #409: the draw is EXPLAINED, not just correct -------------------------------------
+    #
+    # 🛑 THE MOTIVATING CASE (CONTRIBUTING rule 11) IS A SUPPORT COST, NOT A CRASH. bobler set
+    # `num_regions: 1` on 0.3.5 and got FOUR regions; he asked twice, an hour apart, and was still
+    # unsure. Every step was right -- the draw took Liurnia, `goal: elden_beast` force-kept Farum
+    # Azula and Leyndell (GOAL_CHOICES), and the parent closure pulled Altus in behind Leyndell --
+    # and NOTHING SAID SO. The acceptance test for "N is a draw size, not a region count" is
+    # therefore that the three contributions are recoverable and that the line names all three.
+
+    def test_the_three_contributions_partition_the_kept_set(self):
+        """`parts` must ACCOUNT FOR EVERY KEPT REGION, exactly once. A breakdown that does not add
+        up to the kept set is worse than none: it would state a wrong number with authority."""
+        for n in (1, 3, 6, 12):
+            for seed in range(60):
+                parts = {}
+                kept = self.rs.compute_kept(n, random.Random(seed), self.all,
+                                            forced=("Farum Azula", "Leyndell"), parts=parts)
+                got = parts["drawn"] + parts["forced"] + parts["closure"]
+                self.assertEqual(len(got), len(set(got)),
+                                 "a region is counted in two contributions: %r" % (parts,))
+                self.assertEqual(sorted(got), sorted(kept),
+                                 "the breakdown does not add up to the kept set (n=%d seed=%d): %r"
+                                 % (n, seed, parts))
+                self.assertEqual(len(parts["drawn"]), min(n, len(self.all)),
+                                 "`drawn` must be exactly the draw size, not the total")
+
+    def test_parts_is_observational_only(self):
+        """Telemetry may not move the draw. Passing `parts` must not change the rng stream or the
+        result -- a logging feature that perturbed every rolled seed would be a far worse bug than
+        the one it documents (the economy floor is one seed thick)."""
+        for seed in (0, 7, 99):
+            plain = self.rs.compute_kept(6, random.Random(seed), self.all)
+            observed = self.rs.compute_kept(6, random.Random(seed), self.all, parts={})
+            self.assertEqual(plain, observed, "passing parts= changed the kept set")
+
+    def test_the_line_names_all_three_contributions(self):
+        """bobler's line, rendered from his own breakdown. This is the sentence that would have
+        answered him in the spoiler instead of four hours later."""
+        line = self.rs.describe_kept(
+            1,
+            {"drawn": ["Liurnia"], "forced": ["Farum Azula", "Leyndell"], "closure": ["Altus"]},
+            ["Liurnia", "Farum Azula", "Leyndell", "Altus"],
+            goal="elden_beast")
+        self.assertEqual(
+            line,
+            "num_regions: 1 drawn (Liurnia) + 2 forced by goal=elden_beast (Farum Azula, Leyndell)"
+            " + 1 parent closure (Altus) = 4 kept")
+
+    def test_the_line_omits_contributions_that_did_not_happen(self):
+        """A draw that needed nothing must not print "+ 0 forced + 0 parent closure" -- noise in
+        every log line is how a line stops being read."""
+        line = self.rs.describe_kept(2, {"drawn": ["Limgrave", "Caelid"], "forced": [],
+                                         "closure": []},
+                                     ["Limgrave", "Caelid"])
+        self.assertEqual(line, "num_regions: 2 drawn (Limgrave, Caelid) = 2 kept")
+        self.assertNotIn("+", line)
+        full = self.rs.describe_kept(0, {"drawn": list(self.all), "forced": [], "closure": [],
+                                         "full_pool": True}, list(self.all))
+        self.assertEqual(full, "num_regions: 0 = the whole eligible map = %d kept" % len(self.all))
+
+    def test_a_real_draw_reproduces_the_report_shape(self):
+        """END TO END on a REAL draw, not a hand-built dict: somewhere in a seed sweep, `n=1` with
+        the elden_beast forced set must produce MORE than one kept region and a line whose total
+        matches. Stated as a SEED SEARCH rather than a magic seed -- the draw is random, so the
+        property is "this shape occurs and is described correctly", and the search FAILS LOUD if it
+        never occurs rather than passing vacuously."""
+        forced = ("Farum Azula", "Leyndell")
+        hits = 0
+        for seed in range(200):
+            parts = {}
+            kept = self.rs.compute_kept(1, random.Random(seed), self.all, forced=forced,
+                                        parts=parts)
+            if len(kept) <= 1:
+                continue
+            hits += 1
+            line = self.rs.describe_kept(1, parts, kept, goal="elden_beast")
+            self.assertTrue(line.endswith("= %d kept" % len(kept)),
+                            "the line's total disagrees with the kept set: %r vs %d" % (line,
+                                                                                        len(kept)))
+            self.assertIn("drawn", line)
+            self.assertIn("forced by goal=elden_beast", line)
+            for r in parts["closure"]:
+                self.assertIn(r, line, "a closure region is missing from the line")
+        self.assertGreater(hits, 0, "no seed in 200 produced a kept set larger than num_regions=1 "
+                                    "with a forced goal set -- this test proved nothing")
+
     def test_a_restricted_pool_is_never_escaped(self):
         """DLC-only / base-only draws may not smuggle in a region outside the eligible set."""
         for pool, label in ((self.base, "base-only"), (self.rs.dlc_regions(), "dlc-only")):

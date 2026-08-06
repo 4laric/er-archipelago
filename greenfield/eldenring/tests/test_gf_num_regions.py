@@ -12,6 +12,8 @@ slot-data COUNT, and the parent closure. None of that needs to know which region
 draw itself (size, closure, goal presence, reachability of every region) is covered as properties
 over a 400-seed sweep in test_gf_region_selection.py.
 """
+import logging
+
 import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
@@ -72,3 +74,43 @@ class NumRegions1(WorldTestBase):
 
     def test_every_view_of_the_kept_set_agrees(self):
         _assert_views_agree(self, 1)
+
+
+# ---- #409: the gen log EXPLAINS the draw ---------------------------------------------------------
+#
+# 🛑 THE MOTIVATING CASE (CONTRIBUTING rule 11). bobler set `num_regions: 1` on 0.3.5 and got FOUR
+# regions: the draw took Liurnia, `goal: elden_beast` force-kept Farum Azula + Leyndell, and the
+# parent closure pulled Altus in behind Leyndell. Every step correct; nothing said so. He asked
+# twice, an hour apart, and was still unsure -- so the deliverable is not a behaviour change (#402
+# ruled that the goal is NOT clamped to the kept set, and that stands) but a LINE.
+#
+# The rendering itself is unit-tested AP-free in test_gf_region_selection.py. What only a real world
+# can prove is that the line is actually EMITTED, on the seed shape that motivated it, with a total
+# that matches the kept set the rest of generation went on to use.
+def test_the_gen_log_states_the_breakdown_when_the_draw_grows(caplog):
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 1, "goal": "elden_beast"}
+
+    t = _T()
+    with caplog.at_level(logging.INFO, logger="Greenfield"):
+        t.setUp()
+    try:
+        kept = list(t.world._kept())
+        assert len(kept) > 1, (
+            "test basis broken: num_regions=1 with goal=elden_beast must force MORE than one "
+            "region (Farum Azula + Leyndell + their parents), got %r" % (kept,))
+        lines = [r.getMessage() for r in caplog.records if "num_regions:" in r.getMessage()]
+        assert lines, (
+            "generation logged NO num_regions breakdown. That silence is #409: the player is told "
+            "the number he typed and never the number he got.")
+        line = lines[-1]
+        assert line.endswith("= %d kept" % len(kept)), (
+            "the logged total disagrees with the kept set (%d regions): %r" % (len(kept), line))
+        assert "drawn" in line and "forced by goal=elden_beast" in line, (
+            "the line must name the draw AND the goal force-keep separately -- naming only the "
+            "total is the state that confused the reporter: %r" % (line,))
+        for r in kept:
+            assert r in line, "kept region %r is missing from the breakdown: %r" % (r, line)
+    finally:
+        t.tearDown()

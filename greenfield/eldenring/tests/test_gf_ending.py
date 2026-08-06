@@ -100,13 +100,15 @@ class GreatRunesGoalShuffleOn(WorldTestBase):
 
 
 class GreatRunesGoalHeavilySealed(WorldTestBase):
-    """num_regions=1 spine keeps only Limgrave (+ always-kept goal region). Limgrave has no Great
-    Rune, so the requirement auto-drops and the seed reverts to region_locks -- still beatable."""
+    """num_regions=1 keeps a single drawn region (+ the always-kept goal region). Most single
+    regions carry no Great Rune, so the requirement auto-drops and the seed reverts to
+    region_locks -- and either way it must stay beatable. The assertions below are premise-free:
+    they compare the requirement against whatever _available_runes() the draw actually produced,
+    so they hold for a draw that DOES land a rune region as well as one that does not."""
     game = GAME
     options = {
         "item_shuffle": True,
         "num_regions": 1,
-        "num_regions_order": "spine",
         "ending_condition": "great_runes",
         "goal_great_runes": 7,
     }
