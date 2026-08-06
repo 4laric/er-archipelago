@@ -362,13 +362,13 @@ if _HAVE_AP:
         __test__ = True
         options = {"num_regions": 0}
 
-    class LiveCovNR3Spine(_LiveCoverageBase):
+    class LiveCovNR3(_LiveCoverageBase):
         __test__ = True
-        options = {"num_regions": 3, "num_regions_order": "spine"}
+        options = {"num_regions": 3}
 
-    class LiveCovNR5Spine(_LiveCoverageBase):
+    class LiveCovNR5(_LiveCoverageBase):
         __test__ = True
-        options = {"num_regions": 5, "num_regions_order": "spine"}
+        options = {"num_regions": 5}
 
     class LiveCovDlcOff(_LiveCoverageBase):
         __test__ = True
@@ -380,7 +380,7 @@ if _HAVE_AP:
 
     class LiveCovNR3BaseOnly(_LiveCoverageBase):
         __test__ = True
-        options = {"num_regions": 3, "num_regions_order": "spine", "enable_dlc": False}
+        options = {"num_regions": 3, "enable_dlc": False}
 
 
 if __name__ == "__main__":

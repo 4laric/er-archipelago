@@ -142,7 +142,7 @@ class PreviewRepointBranches(WorldTestBase):
     """
 
     game = GAME
-    options = {"num_regions": 6, "num_regions_order": "spine"}
+    options = {"num_regions": 6}
 
     def _preview_for(self, placements):
         """placements: {ap_id (str) -> (item_name, owning_player)}. Returns the emitted preview map."""
@@ -265,7 +265,7 @@ class SparePoolSafety(WorldTestBase):
     """The spare pool's defining property, asserted where it can actually be seen."""
 
     game = GAME
-    options = {"num_regions": 6, "num_regions_order": "spine"}
+    options = {"num_regions": 6}
 
     def test_no_spare_is_a_good_the_seed_can_grant(self):
         # The client refuses to override a good the seed can GRANT (shop_preview's REAL_GOODS guard).

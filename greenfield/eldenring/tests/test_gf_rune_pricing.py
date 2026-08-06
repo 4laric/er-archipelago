@@ -150,7 +150,7 @@ class RunePricingRolls(WorldTestBase):
     fill_slot_data time, so a seed-driven assertion here would pass without entering the branch."""
 
     game = GAME
-    options = {"num_regions": 6, "num_regions_order": "spine"}
+    options = {"num_regions": 6}
 
     def _emit(self, placements):
         w = self.world
