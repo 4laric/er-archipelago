@@ -110,14 +110,35 @@ Worth being plain about what these hints are: a real Archipelago hint, in everyo
 your own world's Lock item and nothing else. Never a private reveal — a hint only you can see is
 indistinguishable from cheating — and it does not touch your Archipelago hint points.
 
+**Check whether your Archipelago character is in your normal save.** If you launch through matt's
+randomizer — which is the setup we recommend for enemy randomization — you do **not** get a separate
+save file. The separate save comes from the me3 profile, one line in `ap.me3`, and matt's launcher
+never reads it. So your Archipelago character is created right alongside your real ones. A player
+found this the direct way: opened vanilla Elden Ring and there it was.
+
+Nothing of yours is overwritten by this, and the setup doc now covers how to separate them
+(including an `alt_saves` workaround a player verified himself — credited, and honestly marked as
+untested by us). But one rule matters while you are sharing: **play the Archipelago character and
+nothing else in the modded launch.** The client recognises a brand-new Archipelago character by the
+absence of its own marker, and your existing characters have no marker either — so loading one while
+connected can hand it everything the room has sent you.
+
+**Two numbers we told you were wrong.** If you set the great-rune goal to 7, no seed could ever
+satisfy it: Elden Ring has seven Great Runes in the story but only six you can be given, and the
+Great Rune of the Unborn is not an item. The maximum is six now. If your yaml says 7, it will be
+rejected rather than quietly meaning something else — change it to 6 or lower.
+
+And `num_regions` maxes at **30**, not 31. The docs said 31 in five places; typing it just failed
+generation. 17 base-game regions plus 13 in the DLC.
+
 ---
 
 ## Notes for the next pass
 
-- Region-lock hint work (#412) is IN this window — the entry above. Still unproven in play: that
+- Region-lock hint work (#412) LANDED this window — the entry above. Still unproven in play: that
   `!hint` shows full hint points after a purchase, and the "your lock is in another player's world"
   fallback, which needs a seed where a lock actually spilled. The Moonlight Altar region fix (#410)
-  is still queued, not in yet.
+  is still queued, and #418 (the 132-grace placement census that came out of it) has not started.
 - The scaling down-direction (#346 phase 1b) SHIPPED this window — the entry above. The attack
   rate it buckets on is still argued from the param rather than measured in game; the health half
   is measured exactly. Play validates the rest.

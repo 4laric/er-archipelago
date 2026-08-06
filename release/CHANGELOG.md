@@ -139,15 +139,68 @@ Client-only. Still owed on Windows and not coverable by CI: the live `CreateHint
 data-storage read/write against a real server, and the claim the whole feature rests on — that
 `!hint` still shows full hint points afterwards.
 
+### Launching through matt's randomizer does not give you a separate save
+
+Our own setup docs said the Archipelago run uses its own save file, `AP_me3.sl2`, with no condition
+attached — and `release/SETUP.md` said it three lines above the paragraph telling you to launch
+through matt's randomizer instead.
+
+The separation is the **me3 profile's**, not the client's: it is one line, `savefile =
+"AP_me3.sl2"`, in `ap.me3`. Launch any other way and it does not apply, so your Archipelago
+character is created in your ordinary Elden Ring save, beside your real ones. A player found this
+himself by opening vanilla Elden Ring and seeing the character in the list.
+
+Every doc that made the promise now scopes it, the shipped guide covers it for the first time, and
+`ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` carries the setup — including the `alt_saves` workaround
+the reporter verified, credited and marked as **not tested by us**.
+
+🛑 **While you are set up that way, play the Archipelago character and nothing else.** A character
+carrying no Archipelago marker reads as a BRAND-NEW Archipelago character, and a new character is
+owed everything the room has sent — so loading one of your ordinary saves while connected can grant
+it the backlog. The guard that exists catches the other case (a character belonging to a *different*
+run is refused outright). Tracked as a code fix; documented here because it bites today.
+
+### The great-rune goal caps at six, and `num_regions` at 30
+
+Both were numbers typed by hand where they should have been counted.
+
+`goal_great_runes` advertised a maximum of **7**. Elden Ring has seven Great Runes in the fiction,
+but only six exist as items — the Great Rune of the Unborn is not one you can be given — so a player
+who set the advertised maximum got a goal no seed could satisfy and a hint for an item that does not
+exist. The cap is derived from the item list now.
+
+⚠️ **Compat:** an out-of-range value is a hard generation failure, not a clamp. A yaml carrying
+`goal_great_runes: 7` will now be rejected with `7 is higher than maximum 6` where it used to be
+accepted and quietly mean something else. Nothing we ship sets 7; this only affects yamls raised by
+hand — which our own advertised range invited.
+
+`num_regions` maxes at **30** (17 base + 13 DLC), and five files said 31, including three places in
+the shipped template. The code was always right — the cap is derived from the region list — so this
+was purely a documented number nobody could use: type 31 and generation fails.
+
 ### Internal
+
+The client now writes what else is loaded beside it into its log — the mod directory, the loader
+that brought it in, and any third-party data files sitting next to it. A data mod like matt's
+randomizer ships no DLL at all, so it can never appear in a crash backtrace or a module list, and a
+report that showed none was read for two sessions as evidence that none was present. It was a
+quantifier over an empty set. The log now answers the question without a round trip to the player.
 
 Ten test fixtures were still passing `num_regions_order: spine`, a no-op kept for one release so
 yamls in the wild keep rolling. They would all have failed at once, on an unrelated change, the
 moment the option is removed. Removed now, with three docstrings that were selling guarantees the
 option stopped providing.
 
+`main` was red for part of the window on `test_D_freshness_vs_disk`, whose message says "generated
+data lags the inputs". It did not: a full regen moved twelve lines and every module body hash was
+unchanged. Body hashes unchanged means the inputs diverged without reaching the outputs — the
+committed stamp was computed against a local artifact tree while CI, and every clone, recomputes
+from `gen_inputs.db`. Restamped to the bundle. The lasting fix is rebuilding the bundle from the
+artifacts, which only one machine has.
+
 ⚠️ `release/EldenRing.yaml` — the template players download — was corrected after v0.3.5 was tagged,
-so the tagged template and this one differ in the `num_regions` description. Nothing functional.
+so the tagged template and this one differ in the `num_regions` description and in its region
+counts. Nothing functional.
 
 ## v0.3.5 — 2026-08-04
 
