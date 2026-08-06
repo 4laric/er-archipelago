@@ -19,8 +19,15 @@
 #   510440 lot  10441 -> Scadutree Fragment (primary 10440 = Aspects of the Crucible: Thorns)
 #   510460 lot  10461 -> Messmer's Kindling (primary 10460 = Remembrance of the Impaler)
 #   520160 lot  20161 -> Golden Seed        (primary 20160 = Redmane Knight Ogha ash)
+#
+# 2026-08-06: 197 lot 10181 -> Great Rune of the Unborn (primary 10180 = Remembrance of the Full
+#   Moon Queen). Rennala. Added on the ruling that the game COUNTS this rune toward the Leyndell
+#   wall (#427) -- flag 197 is inside the counted 190-199 band. Until now the sibling was unmodelled,
+#   so check_lots blanked only the primary and every kill handed out a real vanilla rune on top of
+#   the AP item (#426).
 flag	table	lot	ap_id
 400696	map	106931	7900000
 510440	map	10441	7900001
 510460	map	10461	7900002
 520160	map	20161	7900003
+197	map	10181	7900004

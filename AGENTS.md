@@ -294,19 +294,42 @@ replacing the hand-run `git add from-software-archipelago-clients && git commit`
 to bump it as boilerplate — his next `build.ps1` does it. Verify (see §7) and only mention it if it is
 genuinely behind AND he has not re-run the build.
 
-## 5. What you can run in-sandbox: the TESTS, not the regen
+## 5. What you can run in-sandbox: the tests, and (since `gen_inputs.db`) the regen too
 
-⚠️ **Corrected 2026-07-24.** This section used to say "You CAN regenerate + test the apworld
-in-sandbox" and told you to `ln -sfn <MOUNT>/elden_ring_artifacts …` into the sandbox clone. **Both
-halves were wrong**: symlinking the mount violates the §1 ban outright (and a truncated mount read of
-a param CSV is a silent-wrong-answer machine), and a full `gen_data.py` regen needs the FMG/EMEVD/MSB
-side of `elden_ring_artifacts/` that the sandbox does not have.
+⚠️ **Re-corrected 2026-08-06 — the regen DOES run in-sandbox now, via `gen_inputs.db`.**
+`tools/gen_inputs.py` (2026-07-27) postdates the 2026-07-24 correction below and was built to end
+exactly this hand-off: the bundle carries every param CSV and FMG/EMEVD input `gen_data` reads,
+verbatim, and it is **committed** (~9 MB). So:
+
+```bash
+python tools/gen_inputs.py --extract elden_ring_artifacts   # ~1450 files, ~98 MB
+python greenfield/gen_data.py
+```
+
+**Prove it before you trust it: run that on an UNMODIFIED tree and require `git diff` to be empty.**
+It was, on `47df8f2` — byte-identical to the committed output, which is what makes a sandbox regen
+real rather than a fake one. If that diff is ever non-empty, your bundle and the committed modules
+disagree and you must stop, not "fix" the diff.
+
+Two things this does NOT change: the **MSBs are deliberately not in the bundle**, so the Tier-2 MSB
+datamines in §5a still need the box; and the §1 mount ban is untouched — extract into the sandbox
+clone, never symlink the mount.
+
+⚠️ **Corrected 2026-07-24, and now superseded in part by the note above.** This section used to say
+"You CAN regenerate + test the apworld in-sandbox" and told you to `ln -sfn <MOUNT>/elden_ring_artifacts …`
+into the sandbox clone. **That half was wrong and stays wrong**: symlinking the mount violates the §1
+ban outright (and a truncated mount read of a param CSV is a silent-wrong-answer machine). The other
+half — "a full `gen_data.py` regen needs the FMG/EMEVD/MSB side of `elden_ring_artifacts/` that the
+sandbox does not have" — was true when written and is no longer.
 
 **The licensing-restricted game data is Windows-only and stays there.** It is never copied, never
 symlinked, never committed (`.gitignore`d).
 
-- **Regen is Alaric's box.** `build.ps1 -Greenfield` / `-All` — see §5a for the two tiers. If your
-  change touches a generator, say once that it needs a regen; do not fake one here.
+- **Regen runs in the sandbox** off `gen_inputs.db` (above), and in CI. `build.ps1 -Greenfield` /
+  `-All` on Alaric's box remains the Windows path and the only one that covers §5a Tier 2. If you
+  regenerated here, say **"regenerated in-sandbox from `gen_inputs.db`, clean-tree diff verified
+  empty"** — that is a different claim from "static-validated" and from "needs a regen on your box",
+  and all three are still different words. Never fake one.
 - **A small param-CSV subset can be staged in the sandbox** for datamine-shaped static work; the tools
   that support it honour the `ER_ARTIFACTS_VV` env override (`tools/datamine_flag_lots.py`,
   `tools/gen_check_lots_table.py`). This is *opt-in staging for a specific investigation*, not a

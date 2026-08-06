@@ -968,6 +968,7 @@ ITEM_CATALOG = {
     'Great Mace': 12060000,
     'Great Omenkiller Cleaver': 15020000,
     'Great Oracular Bubble': 1073746934,
+    'Great Rune of the Unborn': 1073751904,
     'Great Stars': 12180000,
     'Great Turtle Shell': 31140000,
     'Great \xc9p\xe9e': 6020000,
@@ -6936,6 +6937,7 @@ LOCATION_ITEM = {
     7900001: 'Scadutree Fragment',
     7900002: "Messmer's Kindling",
     7900003: 'Golden Seed',
+    7900004: 'Great Rune of the Unborn',
 }
 
 DLC_ITEM_NAMES = {
@@ -7689,6 +7691,7 @@ KEY_ITEM_GOODS = [
     "Gostoc's Bell Bearing",
     "Gravity Stone Peddler's Bell Bearing",
     "Greasemonger's Bell Bearing",
+    'Great Rune of the Unborn',
     'Haligtree Secret Medallion (Left)',
     'Haligtree Secret Medallion (Right)',
     'Heart of Bayle',
@@ -7923,6 +7926,7 @@ GOODS_HOLD_CAP = {
     "Grave Keeper's Cookbook [2]": 1,
     "Gravity Stone Peddler's Bell Bearing": 1,
     "Greasemonger's Bell Bearing": 1,
+    'Great Rune of the Unborn': 1,
     "Greater Potentate's Cookbook [10]": 1,
     "Greater Potentate's Cookbook [11]": 1,
     "Greater Potentate's Cookbook [12]": 1,
@@ -8126,4 +8130,4 @@ GOODS_HOLD_CAP = {
     "Zorayas's Letter": 1,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:8ab31edde5333138b0accb831b501d9ae73fda7849f49ee790fdebbbddd20522', 'module': 'item_ids.py', 'body_sha256': 'sha256:2f548bc56a0c88cb84999e7ec802003a83d82057952177c88699f0805196451e'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ce694ac47b3aa9b1cc911b2a040246d9a6869fabaaae326fb2387e1118d5d8e6', 'module': 'item_ids.py', 'body_sha256': 'sha256:e591b6681c5979f3c49828e6726351b0ff093561eb1bfa55cd5b73b1c2e8b9d9'}
