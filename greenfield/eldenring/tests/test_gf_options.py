@@ -434,9 +434,14 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
     t = _T()
     t.setUp()
     try:
-        m, cap, natural, want, injected = ss.plan(t.world)
+        m, target, natural, want, injected = ss.plan(t.world)
         assert m == mode
-        frags = sum(1 for i in world_items(t) if i.name == ss.FRAGMENT)
+        # 🛑 UNITS, NOT ITEMS. Half the injected supply now arrives as `Scadutree Fragment x2`
+        # (one pool item, two fragments, itemCounts = 2), so counting name matches under-reads the
+        # supply by the size of the stacked half -- which is exactly how this assertion failed when
+        # the stack landed: 50 units of supply read as 28 items and looked like a shortfall.
+        frags = sum(2 if i.name == ss.FRAGMENT_X2 else 1 for i in world_items(t)
+                    if i.name in (ss.FRAGMENT, ss.FRAGMENT_X2))
         if mode == 0:
             assert injected == 0, f"{label}: mode off must inject nothing, got {injected}"
         elif not extra.get("enable_dlc", False):
@@ -445,9 +450,9 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
                 f"{label}: DLC is off, so no Scadutree Fragment may enter the pool "
                 f"(injected={injected}, in pool={frags})")
         else:
-            assert frags >= ss.SCADU_CUM[cap], (
-                f"{label} mode {mode}: cap {cap} needs {ss.SCADU_CUM[cap]} fragments, pool has "
-                f"{frags} ({natural} natural + {injected} injected)")
+            assert frags >= ss.SCADU_CUM[target], (
+                f"{label} mode {mode}: target {target} needs {ss.SCADU_CUM[target]} fragment "
+                f"unit(s), pool has {frags} ({natural} natural + {injected} injected)")
         # Count-neutrality. `world_items` counts everything this world CREATED, including the
         # PRECOLLECTED region-lock anchor, which occupies no location -- so the invariant is
         # items == locations + precollected, not items == locations. Measured delta is exactly 1

@@ -223,10 +223,9 @@ OFF_LEDGER = {
     "capitalRoyalPlayRegions": _CAPITAL_OFF,
     "capitalReleaseRows": _CAPITAL_OFF,
     # --- option-gated keys whose off-tests were ADDED with this file (they had none) ---
-    "scaduBlessingCap": ("off_test",
-                         "test_gf_scadu_blessing_cap.py::ScaduBlessingOffSeed"
-                         "::test_the_cap_is_absent_when_the_mode_is_off",
-                         {"global_scadutree_blessing": "off"}),
+    # scaduBlessingCap's row was DROPPED 2026-08-06, on this file's own instruction: the ceiling was
+    # removed, nothing emits the key at any mode, so survey() no longer classifies it as conditional
+    # and a row here would be stale. Its guarantee moved to the fixture's _CONTRACT_NOT_EMITTED.
     "dlcScadutreeFloorRanges": ("off_test",
                                 "test_gf_scadu_blessing_cap.py::ScaduBlessingOffSeed"
                                 "::test_the_floor_ranges_are_absent_when_the_mode_is_off",

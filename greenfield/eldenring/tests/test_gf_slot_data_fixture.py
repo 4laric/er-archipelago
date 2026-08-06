@@ -85,7 +85,13 @@ INFORMATIONAL_EXTRAS = {
 # exists to name. A gated child's grace bundle is now withheld outright (features/graces.py) and
 # both keys are tagged CONTRACT: DEAD in contract.py.
 _CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds",
-                         "dlcScadutreeFloorRanges"}   # blessing frozen OFF 2026-07-18 -- see above; `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
+                         "dlcScadutreeFloorRanges",
+                         # NO SEED EMITS A BLESSING CEILING any more (2026-08-06). The only ceiling
+                         # is the vanilla ladder's 20, which is what an ABSENT key has always meant
+                         # on the client side -- so absence is now the answer at every mode, not a
+                         # conditional. The contract key stays declared: the client still honours it
+                         # and removing it would move CONTRACT_HASH for a cosmetic tidy.
+                         "scaduBlessingCap"}   # blessing frozen OFF 2026-07-18 -- see above; `versions` IS emitted now (the client version gate)  # areaLockFlags was UN-FOLDED 2026-07-08 (dead-drop fix, area_locks.py) -> emitted again for ALL regions
 EXPECTED_KEYS = (_GF_CONTRACT_KEYS - _CONTRACT_NOT_EMITTED) | INFORMATIONAL_EXTRAS
 
 # REQUIRED greenfield contract keys (must always be present, per the contract).
@@ -106,13 +112,7 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # _CONTRACT_NOT_EMITTED, which would stop anything from checking it is ever emitted at all.
 ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
                               "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy",
-                              "requiresClientFeatures",
-                              # scaduBlessingCap rides the same rule as requiresClientFeatures: it is
-                              # CONDITIONAL (emitted only when global_scadutree_blessing != 0), and a
-                              # default seed leaves that option off. Excluded here, and satisfied in
-                              # RICH above, so it is checked where it can be checked rather than
-                              # demanded where it cannot.
-                              "scaduBlessingCap"}
+                              "requiresClientFeatures"}
 
 
 class SlotDataFixtureRich(WorldTestBase):
@@ -134,13 +134,12 @@ class SlotDataFixtureRich(WorldTestBase):
         # requiresClientFeatures. RICH exists to exercise every key, so the honest fix for a new
         # conditional key is to satisfy its condition here -- not to list it as never-emitted.
         "maximum_enemy_difficulty": 50,
-        # UNFROZEN 2026-07-31. RICH exists to exercise every key, and `scaduBlessingCap` is emitted
-        # when this is non-zero -- so the honest fix for the new conditional key is to satisfy its
-        # condition here, exactly as the comment above demands, rather than park it in
-        # _CONTRACT_NOT_EMITTED. `player_only` (1) rather than `scaled` (2): 2 would ALSO pull in
-        # dlcScadutreeFloorRanges, which needs a kept DLC region and is a separate not-emitted entry
-        # with its own justification. One new key at a time.
-        "global_scadutree_blessing": "player_only",
+        # The blessing, on, via the option that REPLACED `global_scadutree_blessing` (split
+        # 2026-08-06). It no longer pulls in a key of its own -- the ceiling is gone -- but RICH
+        # should still exercise the live path rather than the deprecated alias. `anywhere` without
+        # catch-up: catch-up would ALSO pull in dlcScadutreeFloorRanges, which needs a kept DLC
+        # region and is a separate not-emitted entry with its own justification.
+        "scadutree_blessing_scope": "anywhere",
     }
 
     def test_exact_keyset(self):
