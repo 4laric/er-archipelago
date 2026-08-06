@@ -1,124 +1,143 @@
-# Known Issues -- v0.2
+# Known Issues -- v0.3.7
 
-Current as of **v0.2.11** (2026-07-26).
+Current as of **v0.3.7** (2026-08-06).
 
 Everything we currently know about, what it looks like in play, and what (if
-anything) to do about it. The short version: nothing on this list can strand a
-run on the base game, which is the recommended, supported configuration.
+anything) to do about it.
 
-## Active issues
+The short version: **no open issue is known to make a seed unwinnable.** Where
+one could in principle, it says so. Most of what follows was reported by players
+on the Nexus page or in Discord -- that loop is the single most useful thing
+anyone does for this project, so if something looks wrong and is *not* on this
+list, we want to hear about it. Bring your YAML and the spoiler log.
 
-- **A rare crash when fast-travelling.** One crash-to-desktop is still open: it has
-  happened twice on a warp, both times after a long play session, and it does not
-  reproduce on demand (loading the same save and warping to the same grace is fine).
-  The crash that fired after boss sweeps is fixed in v0.2.9, and this one may turn out
-  to be the same root cause showing up late -- a stale pointer can damage memory that
-  faults somewhere else much later. What to do: if it happens, keep the
-  `crash-<pid>.txt` the client writes next to itself and attach it to a report. That
-  file is what identified the sweep crash.
+For what has been *fixed*, see [CHANGELOG.md](CHANGELOG.md); it is written for
+players, one section per fix, and it is the honest record.
 
-<!-- RESOLVED 2026-07-24 (client 1121d93): non-goods check slots are now REPOINTED at the
-     placeholder -- the slot's category is written alongside its item id, so the vanilla ware no
-     longer rides along. Confirmed in-game by Alaric the same day: a gear chest holds ONE item and
-     registers as a single check. Entry removed rather than edited; the fix is not a workaround.
-     NOT yet exercised in-game: a lotItemCategory 6 (sorcery) slot, and a boss drop. -->
+## Region locks and reachability
 
-- **A few checks can pay out the vanilla item instead of the Archipelago
-  one.** A small class of drops that arrive through the ordinary enemy-drop
-  channel can hand you the item the vanilla game would have given, rather than
-  the multiworld item. This is contained: those locations are never allowed to
-  hold progression items, so it cannot strand a run -- the worst case is that
-  you miss a filler item. What to do: nothing; keep playing. A fix is in
-  progress for a future release.
+- **Leyndell can open on one Great Rune** (#427). The capital's wall counts the
+  **Great Rune of the Unborn** toward its total and we do not, so the gate can
+  open one rune earlier than your `leyndell_runes_required` says -- typically
+  once Rennala is dead and you hold one other rune. The gate is *more* generous
+  than intended, never less, so it cannot lock you out. What to do: nothing. If
+  you want the stricter gate, set the requirement one higher.
 
-- **Some NPC gifts and quest pickups are not randomised yet.** A batch of
-  pickups never got a location built for them, so the game simply hands you the
-  vanilla item and nothing registers as a check. The one you are most likely to
-  notice is **Roderika at Stormhill Shack** -- neither her Spirit Jellyfish Ashes
-  nor the Sitting Sideways gesture is a check. Others in the same batch include
+- **The Mountaintops can be entered early, through two graces inside Leyndell**
+  (#323). Two of Leyndell's graces lead into Mountaintops territory without
+  passing the Lock check, so a region you do not hold can be reached mid-run.
+  This is a sequence break, not a soft-lock -- nothing is lost and the run stays
+  winnable. What to do: if you care about the intended progression, do not warp
+  onward from those two graces until the Lock arrives.
+
+- **Consecrated Snowfield rides the Mountaintops Lock** (#406), so its checks
+  count as in-logic as soon as you hold that Lock, without the Rold medallion
+  path vanilla would ask for. In practice the Lock lights the graces and you can
+  warp in, so the checks really are reachable; the logic is looser than the map.
+  What to do: nothing.
+
+- **Some region data is wrong.** East Divine Tower loot files under Altus, and
+  the Sage's Cave and Wyndham graces are missing (#324). The Moonlight Altar is
+  keyed to Liurnia (#410), which files Ranni's late checks under an early
+  region. What to do: nothing -- but it is why a check occasionally shows up
+  under a region that surprises you.
+
+- **A few out-of-region check lots pay out nothing** (#329). A lot that is not a
+  check in your seed can still be repointed, and then hands you neither the
+  Archipelago item nor the vanilla one. What to do: nothing; those lots are
+  never allowed to hold progression, so the cost is a missed pickup.
+
+## Items and checks
+
+- **Some NPC gifts and quest pickups are not randomised yet** (#217, #218). A
+  batch of pickups never got a location built for them, so the game hands you
+  the vanilla item and nothing registers as a check. The one you are most likely
+  to notice is **Roderika at Stormhill Shack** -- neither her Spirit Jellyfish
+  Ashes nor the Sitting Sideways gesture is a check. Others in the batch include
   the Flask of Wondrous Physick, the Tarnished's Furled Finger and the Tailoring
   Tools. What to do: nothing, and nothing is lost -- you still get the vanilla
-  item, there is just no multiworld check attached. Being worked on; the two
-  halves have different causes and are tracked as #217 and #218.
+  item, there is just no multiworld check attached.
 
-- **A check's region can be a guess, and now says so.** 506 checks read
-  `(region unconfirmed)` in their name. That is not a bug report -- it is the
-  label being honest. Those checks are usually near a border, where the closest
-  landmark we can name is across a region line. They are never allowed to hold
-  progression, so a wrong guess cannot strand a run; the tracker may just group
-  one under a neighbouring region. What to do: nothing.
+- **Evergaol boss rewards are withheld until you teleport out** (#296). The
+  reward lands when you leave the arena rather than when the boss dies, and
+  `auto_equip` can miss the weapon when it finally arrives. What to do: leave
+  the Evergaol; the item follows you out.
 
-- **DLC: the Shadow Keep church-basement grace can warp you in before the
-  water is drained.** With the DLC enabled, the region grace bundle can light
-  the church-basement grace (Church District Lower / Scadutree Base) before
-  the keep is drained, and fast-travelling there can drop you onto lethal
-  moving platforms. What to do: avoid warping to that grace until you have
-  drained Shadow Keep. The fix (gating the grace on the drain state) is
-  pending.
+- **Dropping an item and picking it back up does not return it** (#225).
+  What to do: do not drop multiworld items.
 
-## Wired but pending in-game confirmation
+- **Dragon Communion can ask an absurd number of Dragon Hearts** (#231) when a
+  Great Rune is rolled into one of its slots. What to do: skip that slot; no
+  progression is placed there.
 
-These fixes are in the code but have not yet been confirmed across a full
-save-load / reconnect cycle in-game. Each guards against a data-loss
-regression. What to do: nothing special -- but if you see either symptom
-below, please report it, since that is exactly the confirmation we need.
+- **A check's name can point at the wrong Site of Grace.** About 507 checks read
+  `(region unconfirmed)` in their name, and some DLC descriptors name a grace
+  nowhere near the check they describe (#330, #349, #418, #338). Names are
+  derived from the nearest grace we can prove, which near a border is sometimes
+  across the line. What to do: trust the region prefix over the landmark, and
+  use the tracker.
 
-- **Region front-door grace latch.** Previously, a region's graces could be
-  lost when the region-open bloom latched on the front-door open flag. The fix
-  is wired (`region_bloom_settled`); we are waiting to confirm that graces
-  survive a save-load.
+## Client and platform
 
-- **Flag-poll new-save baseline.** Previously, reconnecting could re-snapshot
-  the flags and eat checks you had already earned (the "picked up a Sacred
-  Tear and got nothing" symptom). A once-per-save baseline is now persisted;
-  we are waiting to confirm that reconnecting keeps earned checks.
+- **A crash on some AMD systems** (#411). An ACCESS_VIOLATION inside
+  `amdxc64.dll`, reached through the overlay's D3D12 present path. Seen in one
+  player's log across two startups. What to do: if it happens to you, keep the
+  `crash-<pid>.txt` the client writes next to itself and attach it to a report --
+  that file is what identifies these.
 
-## By-design non-features
+- **Linux is not supported** (#222). The client throws "Could not translate RVA
+  to VA" under Proton and the game can only be exited. What to do: play on
+  Windows for now.
 
-These are deliberate v0.2 decisions, not bugs -- listed here so you can tell
-them apart from the real thing. No report needed for anything below. (And if
-something is *not* on this list and looks wrong, we absolutely want to hear
-about it.)
+## Tracker
 
-- **Merchant-bell logic** (`merchant_bell_logic`) **is inert in v0.2.**
-  The bell-to-shop mapping lives in engine code, not in any param or EMEVD, so
-  it cannot be derived from game data. The option is registered so configs stay
-  forward-compatible, but no value you set does anything yet. What to do: leave
-  it off; you lose nothing.
+- **The tracker counts gated regions as in-logic** before you hold the Great
+  Runes or the Academy Glintstone Key (#297). The graces correctly do *not*
+  light -- the gate itself works -- the tracker is just optimistic about what
+  you can currently reach. What to do: nothing; believe the graces.
+
+## Shadow of the Erdtree
+
+DLC seeds work, and the DLC's 13 regions behave like any other region. It is
+still the less-travelled path: the base game is better tested and remains the
+smoother first run.
+
+- **The Shadow Keep church-basement grace can warp you in before the water is
+  drained** (#123). Fast-travelling to Church District Lower / Scadutree Base
+  before draining the keep can drop you onto lethal moving platforms. What to
+  do: avoid warping there until you have drained Shadow Keep.
+
+- **Jagged Peak grants 3 of its 5 graces** (#370), which may over-skip toward
+  the summit. What to do: nothing.
+
+## By-design behaviours
+
+These are deliberate, not bugs -- listed so you can tell them apart from the
+real thing. No report needed for anything below.
+
+- **`merchant_bell_logic` is RESERVED and inert.** The bell-to-shop mapping
+  lives in engine code rather than in any param or EMEVD, so it cannot be
+  derived from game data. The option exists so configs stay forward-compatible;
+  shop checks are assumed reachable regardless of what you set. Leave it off.
 
 - **Location-keyed sweeps and sweep-lock gates are empty on purpose.** Only
-  flag-keyed dungeon sweeps fire (kill the boss and the dungeon's other checks
-  register). Boss-lock sweep-gates are inert for now. What to do: nothing;
-  dungeon sweeps themselves work normally.
+  flag-keyed dungeon sweeps fire -- kill the boss and the dungeon's other checks
+  register. Dungeon sweeps themselves work normally.
 
+- **About 1% of checks pay a Rune instead of a real item.** A small set of
+  checks whose item names are not present in the game's text tables -- quest
+  notes, a source typo, non-item text -- fall back to a Rune in the shuffle.
 
-- **About 1% of checks give a Rune instead of a real item.** A small set of
-  checks (item names not present in the game's text tables -- quest notes, a
-  source typo, non-item text) fall back to a Rune in the item shuffle. What
-  to do: nothing; this is expected.
-
-- **Great Runes are "useful," not progression** -- unless
+- **Great Runes are "useful", not progression**, unless
   `ending_condition: great_runes` requires them, in which case they become
-  progression and are placed reachably. What to do: if you want Great Runes to
-  matter, set `ending_condition: great_runes`.
+  progression and are placed reachably.
 
-## DLC
+- **`(region unconfirmed)` in a check name is the label being honest**, not a
+  defect. Those checks are never allowed to hold progression, so a wrong guess
+  cannot strand a run.
 
-DLC (Shadow of the Erdtree) is **experimental** in v0.2. `enable_dlc` makes
-DLC regions eligible for `num_regions`; `dlc_only` runs only the
-Land-of-Shadow regions. What to do: for a smooth run, play the base game (DLC
-off) -- that is the recommended, supported configuration. DLC seeds work but
-expect rough edges (see the church-basement grace above).
+## Reporting
 
-## Fixed since the v0.2 draft (playtested 2026-07-12)
-
-These were on the active list and are now confirmed resolved -- kept here only
-so nobody chases them. What to do: nothing; enjoy.
-
-- **Spirit Calling Bell unusable** -- fixed; Spirit Ashes are callable from
-  the received item.
-- **Map-piece items granted on connect** -- fixed; the reveal fires without
-  minting item grants.
-- **Flask double-grant on tutorial-death reload** -- fixed.
-- **Torrent unavailable on a rolled start** -- fixed; a rolled start can no
-  longer leave you mountless.
+Useful reports include: your YAML, the spoiler log, the client log, and -- if
+the game crashed -- the `crash-<pid>.txt` written next to the client. The single
+most valuable thing you can say is what you did immediately before it happened.

@@ -74,7 +74,10 @@ You also need, separately:
   turned OFF in matt's**, since that part is our job. See
   `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
 - **Archipelago 0.6.7** -- download from [archipelago.gg](https://archipelago.gg).
-  This release requires 0.6.7 specifically.
+  0.6.7 is what this release is built and tested against, and it is what we
+  recommend. The apworld's declared minimum is 0.6.6 and players have reported
+  it working there, but 0.6.6 is not what we test, so if anything looks wrong,
+  move to 0.6.7 before reporting it.
 - **ModEngine3 (me3)** -- the mod loader that loads the client into the game.
 
 ---
@@ -229,7 +232,8 @@ ignored, and v0.2's option surface (19 tunable options) is much smaller than
 v0.1's. Regenerate from the shipped `EldenRing.yaml`.
 
 **Generation fails, or the apworld won't load, and it isn't the game-id message.**
-Check your Archipelago version: this release requires **0.6.7**. Also confirm
+Check your Archipelago version: this release is built and tested against
+**0.6.7**, and that is what we recommend running. Also confirm
 `eldenring.apworld` is in `Archipelago/custom_worlds/`.
 
 **The game launches but there's no overlay / nothing connects.**
