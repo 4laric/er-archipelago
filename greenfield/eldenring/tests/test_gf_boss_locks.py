@@ -29,7 +29,7 @@ class BossLocationsAll(WorldTestBase):
 
 class BossLocationsSealed(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1, "num_regions_order": "spine"}
+    options = {"num_regions": 1}
 
     def test_sealed_boss_regions_excluded(self):
         # AUDIT 2026-08-04 (finding P2): this used to be `all(r in kept for r in bl)` -- a
@@ -47,8 +47,8 @@ class BossLocationsSealed(WorldTestBase):
                         "num_regions=1 kept every boss region -- the exclusion under test is not "
                         "being exercised at all (fixture rot)")
         self.assertTrue(expected,
-                        "num_regions=1/spine should still keep a region with bosses (Limgrave); "
-                        "an empty expectation would let an empty emission pass vacuously")
+                        "num_regions=1 should still keep a region with bosses; an empty "
+                        "expectation would let an empty emission pass vacuously")
         self.assertEqual(set(bl), expected,
                          "bossLocations must be EXACTLY the kept rows of REGION_BOSSES -- "
                          "sealed regions out, every kept boss region in")

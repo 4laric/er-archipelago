@@ -84,7 +84,7 @@ class ShopDataAll(WorldTestBase):
 
 class ShopScopedSealed(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1, "num_regions_order": "spine"}
+    options = {"num_regions": 1}
 
     def test_scoped_to_kept_plus_hub(self):
         # hub is always in play; kept() is the spokes. Every emitted preview (ap-id keyed) must live

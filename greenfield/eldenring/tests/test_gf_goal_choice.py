@@ -188,11 +188,14 @@ class GoalAutoFullSeed(WorldTestBase):
 
 
 class GoalEldenBeastForcesTheFinale(WorldTestBase):
-    """A 3-region spine draw would normally strand the finale INERT (test_gf_finale's inert seed
-    uses exactly these options); the choice must force its prerequisites in."""
+    """A 3-region draw usually strands the finale INERT (test_gf_finale's inert seed searches
+    num_regions=3 draws for exactly that); the choice must force its prerequisites in.
+
+    The forcing is what is asserted, so this does not depend on the draw: whether or not the
+    unforced draw would have kept Farum Azula + Leyndell, `goal: elden_beast` must keep them."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 3, "num_regions_order": "spine", "goal": "elden_beast"}
+    options = {"num_regions": 3, "goal": "elden_beast"}
 
     def test_prerequisites_were_forced_kept(self):
         kept = set(self.world._kept())
