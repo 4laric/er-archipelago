@@ -71,6 +71,11 @@ SHIPPED = {
     # passes. It only went red in a local/sandbox clone that has them. Fetch-depth/tags is the
     # real fix; until then this row is written by hand at window-open, not at tag time.
     "0.3.4": "5e8b11c9",
+    # Added 2026-08-06 at window-open, ON TIME for the first time -- and not by anyone
+    # remembering. tests.yaml now sets fetch-tags/fetch-depth 0, so the test below finally
+    # sees the tags it asks about; it went RED on the first PR to land past the v0.3.5 tag,
+    # which is exactly what it was written to do. The gate, not a person, caught this one.
+    "0.3.5": "5e8b11c9",
 }
 
 

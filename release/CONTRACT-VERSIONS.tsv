@@ -28,3 +28,4 @@
 0.3.3	5e8b11c9	v0.3.3 -- contract UNCHANGED from 0.3.0/0.3.1/0.3.2; the bump is version-lockstep for a data + client bugfix release, not a contract move
 0.3.4	5e8b11c9	v0.3.4 -- contract UNCHANGED from 0.3.0-0.3.3; the bump is version-lockstep for a data release. Opened 2026-08-04 because v0.3.3 was ALREADY TAGGED while APWORLD_VERSION still named it, so three post-tag commits were writing release notes into a shipped section.
 0.3.5	5e8b11c9	v0.3.5 -- contract UNCHANGED from 0.3.0-0.3.4; the bump is version-lockstep for a data release. Window opened 2026-08-04 AT THE TAG of v0.3.4, which is the point: tagging does not open the next window, a person does.
+0.3.6	5e8b11c9	v0.3.6 -- contract UNCHANGED from 0.3.0-0.3.5; version-lockstep for a bugfix window. Opened 2026-08-06, the day after v0.3.5 was tagged, once two commits had landed past the tag and the release-notes gate went red -- the first time that gate has actually fired, because tests.yaml now fetches tags.
