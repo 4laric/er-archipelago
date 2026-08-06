@@ -89,7 +89,7 @@
    "key": "num_regions",
    "class": "NumRegions",
    "display_name": "Number of Regions",
-   "description": "How many regions are in play this seed. 0 = all regions (full Shattering). N > 0 seals the\nrest: only kept regions get locks, checks, and goal requirement, for a shorter run.\n\nDefault 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is\nthe length most players actually finish. Set 0 for the full map.",
+   "description": "How many regions are DRAWN for this seed. 0 = all regions (full Shattering). Only kept\nregions get locks and checks, for a shorter run.\n\nN IS A DRAW SIZE, NOT A FINAL COUNT -- a seed can end up with more regions than N. Two things\nadd to the draw. A named `goal` force-keeps the regions that goal needs (goal: elden_beast keeps\nFarum Azula and Leyndell), and any kept region also keeps the region you must pass through to\nreach it (Leyndell keeps Altus). So `num_regions: 1` with `goal: elden_beast` can roll four\nregions, and that is working correctly. The generation log states the breakdown for your seed.\n0 keeps the whole map.\n\nDefault 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is\nthe length most players actually finish. Set 0 for the full map.",
    "kind": "range",
    "base": "Range",
    "default": 6,

@@ -229,6 +229,72 @@ class TestVanillaScaling:
     def test_on_is_the_shipped_curve(self):
         assert self._slot_data(True)["completion_scaling"] == 4, "4 = smoothstep, the shipped curve"
 
+    # ---- #408: the two copies of the switch -------------------------------------------------
+    #
+    # 🛑 THE MOTIVATING CASE (CONTRIBUTING rule 11), AND IT SHIPPED. `completion_scaling` rides in
+    # slot_data TWICE -- the top-level legacy copy (features/scaling.slot_data) and
+    # sd["options"]["completion_scaling"] (core._options_echo). The client reads THE SECOND ONE:
+    # er-logic `parse_scaling_config` calls `options::parse_bool_option(sd, "completion_scaling")`,
+    # which resolves `/options/completion_scaling`, and short-circuits the entire sweep on it.
+    #
+    # The feature's copy was gated on the option from the day `enemy_scaling` was added. The echo's
+    # was a BARE LITERAL 4. So an `enemy_scaling: false` seed emitted:
+    #
+    #     "completion_scaling": 0,              <- correct, gated, and IGNORED
+    #     "options": { "completion_scaling": 4, ...}   <- the copy the client actually parses
+    #
+    # ...and the option was unreachable from yaml. Confirmed live on 0.3.5: a player's slot_data
+    # showed exactly that pair and his client scaled 240 enemies at 1.14x on a seed he had turned
+    # scaling off for. Every test above passed throughout -- test_off_disarms_the_client asserts the
+    # top-level copy, which was never the broken one. THE PAIR is the property.
+    #
+    # Parametrised over BOTH values on purpose: an equality that only holds where both sides are
+    # nonzero would have passed against the literal too (4 == 4 with scaling on).
+    @pytest.mark.parametrize("on,expect", [(False, 0), (True, 4)])
+    def test_both_copies_of_the_switch_agree(self, on, expect):
+        sd = self._slot_data(on)
+        top = sd["completion_scaling"]
+        nested = sd["options"]["completion_scaling"]
+        assert nested == top, (
+            "completion_scaling disagrees across its two slot_data copies: top-level %r vs "
+            "options.%r. The CLIENT reads options.completion_scaling (er-logic "
+            "parse_scaling_config), so the options copy is the one that decides whether the sweep "
+            "runs -- a gated top-level copy beside a hard-coded one is the option being unreachable "
+            "from yaml. Resolve both through features/scaling.completion_scaling_id." % (top, nested))
+        assert nested == expect, (
+            "enemy_scaling=%r must emit completion_scaling %d in BOTH copies, got %r"
+            % (on, expect, nested))
+
+    def test_the_switch_is_not_a_constant_in_the_options_echo(self):
+        """The SHAPE of the defect, pinned at the source (an unfired guard is untested, and the
+        end-to-end test above cannot say WHY it went red). `_options_echo` is the sub-dict the
+        client reads; a literal in it silently overrides a correctly gated feature copy. This asks
+        the AST whether the value for the switch is a constant, which is the thing that was wrong.
+        """
+        import ast
+        import inspect
+        import textwrap
+        from worlds.eldenring import core, contract
+
+        src = textwrap.dedent(inspect.getsource(core.GreenfieldEldenRingWorld._options_echo))
+        tree = ast.parse(src)
+        found = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Dict):
+                continue
+            for k, v in zip(node.keys, node.values):
+                # contract.COMPLETION_SCALING -- matched by attribute name, so a renamed wire key
+                # cannot slip past this.
+                if isinstance(k, ast.Attribute) and k.attr == "COMPLETION_SCALING":
+                    found.append(v)
+        assert len(found) == 1, (
+            "expected exactly one contract.COMPLETION_SCALING entry in _options_echo, found %d"
+            % len(found))
+        assert not isinstance(found[0], ast.Constant), (
+            "contract.COMPLETION_SCALING is a literal in _options_echo. That is #408: it overrides "
+            "the gated top-level copy and makes enemy_scaling unreachable. Read the option.")
+        assert contract.COMPLETION_SCALING == "completion_scaling"
+
     def test_off_changes_nothing_else_on_the_wire(self):
         """One switch, read in one place. The client short-circuits on `completion_scaling` before
         reading the ranges, so withholding them would buy nothing and would make an off-seed a second
@@ -236,11 +302,19 @@ class TestVanillaScaling:
         shape nobody tests."""
         off, on = self._slot_data(False), self._slot_data(True)
         assert off.keys() == on.keys(), "an off-seed must not be a different wire SHAPE"
-        differing = [k for k in on if off[k] != on[k]]
-        assert differing == ["completion_scaling"], (
-            f"turning scaling off changed {differing} -- it must change exactly one key. Both "
-            "worlds are generated at the SAME seed, so anything listed here is a real leak from "
-            "the scaling feature, not fill noise -- do NOT fix this by excluding the key.")
+        differing = sorted(k for k in on if off[k] != on[k])
+        # `options` joined this list on 2026-08-06 and that is the FIX, not noise: before #408 the
+        # options sub-dict did not move with the switch, which is precisely why the switch did not
+        # work. The assertion is DESCENDED INTO below rather than loosened -- "one key, plus the
+        # same key inside options" is still exactly one switch.
+        assert differing == ["completion_scaling", "options"], (
+            f"turning scaling off changed {differing} -- it must change the switch and nothing "
+            "else. Both worlds are generated at the SAME seed, so anything listed here is a real "
+            "leak from the scaling feature, not fill noise -- do NOT fix this by excluding a key.")
+        nested = sorted(k for k in on["options"] if off["options"][k] != on["options"][k])
+        assert nested == ["completion_scaling"], (
+            f"inside the options sub-dict, scaling off changed {nested} -- only the arm/disarm "
+            "switch may move. Every other options key is independent of it.")
 
 
 class TestSlotDataUnits:
