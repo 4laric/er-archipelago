@@ -44,11 +44,48 @@ One honest caveat: if a Talisman Pouch reaches you outside Archipelago — a cha
 another seed — the count under-reports and you get fewer slots than you have earned. The client
 warns when it notices.
 
+**Enemies can now be scaled DOWN, which they never could before.** Every complaint about scaling
+in the last two releases came from one gap: the mod's whole ladder starts at 1.14x and has no rung
+below it, so an enemy vanilla tuned for the endgame could be made stronger and never weaker. If your
+seed opened on Mountaintops, the things living there stayed exactly as strong as vanilla made them,
+and you met them with starting gear.
+
+Fixing it needed a tool the game does not ship. No single effect in Elden Ring's 11,325 scales both
+health and damage below normal — 20 rows lower health, 25 lower damage, none do both. What exists is
+a handful of leftover ally-tuning rows from the DLC that stack, so the down-states are composed:
+0.70x damage, 0.45x damage at three-quarter health, and so on down. The composition is measured, not
+assumed — one enemy's health went 1098 to 274 and another 1939 to 1454, both exact.
+
+How far an enemy comes down is the game's own step between the two difficulty rungs, not a number we
+picked. Where that step is under ten percent we leave the enemy alone, because the smallest tool we
+have is a thirty percent cut and firing it at a five percent problem is not a fix.
+
+**Named characters come down with everything else, and this one is a deliberate trade.** Invaders
+and duel NPCs carry no rune reward, so the mod cannot read their strength directly and has to infer
+it from the ground they stand on. It used to refuse to do that at all, because inferring *upward*
+once made Vyke come out crazy strong. But that reasoning only ever applied to making something
+stronger — going the other way the worst case is an enemy that dies too easily, which is a
+disappointment rather than a wall.
+
+So the rule is set on the fight that hurts: Okina in a Mountaintops you reached first, or Ancient
+Dragon Man on a Gravesite Plain start. The cost is that characters who were already reasonable get
+cut too. Vyke did not need it and gets it anyway. If that reads as mushy, say so — the fix is to
+move the whole curve, not to strand that class again.
+
+**Areas the seed does not cover are left completely alone.** Roundtable Hold, the Chapel of
+Anticipation, and the moment at connect before the game has worked out where you are. Those used to
+get the bottom rung of the ladder applied to them on no evidence at all. Making no statement about a
+place the seed does not reach is the right answer, and it is now what happens.
+
 ---
 
 ## Notes for the next pass
 
 - Region-lock hint work (#412) and the Moonlight Altar region fix (#410) are queued, not in yet.
-- The scaling down-direction (#346 phase 1b) is still blocked on an in-game attack measurement.
+- The scaling down-direction (#346 phase 1b) SHIPPED this window — the entry above. The attack
+  rate it buckets on is still argued from the param rather than measured in game; the health half
+  is measured exactly. Play validates the rest.
+- Still open and worth a line if it lands: the floor is doing nearly all the difficulty work,
+  because most kept regions sit at sphere 0. Tuning it matters more than the gradient does.
 - Do not write the "what's fixed for players" section from this file alone — check the merged PR
   bodies, which carry the player reports and the measured tables.
