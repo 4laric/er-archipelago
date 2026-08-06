@@ -77,11 +77,47 @@ Anticipation, and the moment at connect before the game has worked out where you
 get the bottom rung of the ladder applied to them on no evidence at all. Making no statement about a
 place the seed does not reach is the right answer, and it is now what happens.
 
+**You should not have had to guess which lock to hint — and you should not have had to find the
+feature at all.** Two things in one report.
+
+The client has been able to sell you a hint pointing at a Region Lock for a while now, priced in
+progression-surface checks rather than Archipelago's own hint points, because a hint that costs 487
+points on a 4879-location seed is not a feature anyone can use. The trouble was that it asked you
+*which* lock. Which region comes next is not written down anywhere — it is a consequence of where
+the fill put each Lock item, so "Altus is second" just means the Altus Lock landed in Liurnia. If you
+did not already know the chain, you had to buy hints for locks you could not reach to find the one
+you could. One player spent three, three minutes apart, working out
+Liurnia → Altus → Farum Azula → Leyndell.
+
+There is one button now: **Hint next lock**. It finds the lock you can actually go and get — still
+sealed, but with its item sitting somewhere you have already opened — and hints that. You are not
+told which region it turns out to be before you buy it, because that is the thing you are paying to
+find out. If you would rather aim at a specific region, that button is still there.
+
+The second half is the more embarrassing one. That same player's log shows the hint economy loading
+correctly on his seed and then never being touched — `0 hint(s) already bought` — while he went to
+Archipelago's own `!hint` three times. It was working perfectly somewhere he could not see it: the
+tracker window is hidden by default, its F6 was written down nowhere, and the price only ever
+appeared on a locked region's header, which you had to scroll to. A feature nobody can find is worth
+what an unshipped one is worth.
+
+Your balance now sits on the overlay menu bar, and clicking it opens the tracker. The tracker leads
+with it. The client tells you once when there is a lock worth saving for, and once when you can
+afford one, and then stops talking about it. The unit used to read `sp`, which was defined nowhere;
+it says "surface checks" now, and hovering explains where they come from.
+
+Worth being plain about what these hints are: a real Archipelago hint, in everyone's Hints tab, on
+your own world's Lock item and nothing else. Never a private reveal — a hint only you can see is
+indistinguishable from cheating — and it does not touch your Archipelago hint points.
+
 ---
 
 ## Notes for the next pass
 
-- Region-lock hint work (#412) and the Moonlight Altar region fix (#410) are queued, not in yet.
+- Region-lock hint work (#412) is IN this window — the entry above. Still unproven in play: that
+  `!hint` shows full hint points after a purchase, and the "your lock is in another player's world"
+  fallback, which needs a seed where a lock actually spilled. The Moonlight Altar region fix (#410)
+  is still queued, not in yet.
 - The scaling down-direction (#346 phase 1b) SHIPPED this window — the entry above. The attack
   rate it buckets on is still argued from the param rather than measured in game; the health half
   is measured exactly. Play validates the rest.
