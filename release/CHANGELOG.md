@@ -3,6 +3,71 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.6 — 2026-08-06
+
+Window opened 2026-08-06, one day after v0.3.5 was tagged — and this time a gate said so rather
+than a person remembering. `tests.yaml` now fetches tags, so
+`check_release_notes.check_version_is_still_open` and
+`test_gf_contract_versions::test_every_tagged_version_is_recorded_as_shipped` could finally see
+their own subject. Both went red on the first PRs to land past the tag. That is the third window in
+a row opened late, and the first one caught by the tooling instead of by hindsight.
+
+`CONTRACT_HASH` is unmoved from v0.3.0 (`5e8b11c9`). The bump is version-lockstep across both repos.
+
+### `enemy_scaling: false` now actually turns scaling off
+
+It never did. `completion_scaling` ships in slot_data twice — a top-level copy that was correctly
+gated on your option, and a copy inside `options` that was a hard-coded constant. The client reads
+the second one. So a seed rolled with enemy scaling turned off still armed the whole sweep: one
+player's log shows 240 enemies rescaled at 1.14x on a seed he had explicitly turned it off for.
+
+The curve id is now decided in one place that both copies call, so the switch cannot be half-gated
+again, and a test asserts the two copies agree for both settings of the option.
+
+If you rolled a seed with `enemy_scaling: false` on 0.3.5 or earlier, it was not vanilla.
+
+### `num_regions` is a draw size, not a total
+
+Set it to 1 and you can still get four regions. That is intended — a named goal force-keeps the
+regions it needs, and any kept region pulls its parents in — but nothing said so, and the option's
+own description claimed the opposite: that only kept regions get locks, checks and goal requirement.
+That stopped being true when the goal force-keep became goal-sensitive.
+
+The description is corrected, in the shipped template as well as in the wizard, and generation now
+logs the breakdown so the number is auditable at roll time rather than four hours in:
+
+    num_regions: 1 drawn (Liurnia) + 2 forced by goal=elden_beast (Farum Azula, Leyndell)
+                 + 1 parent closure (Altus) = 4 kept
+
+The goal is deliberately not clamped to the drawn set. A `goal: elden_beast` seed that cannot reach
+the Elden Beast is the failure this was built to prevent.
+
+### Talismans stop piling into one slot
+
+Received talismans rotated on a modulus read from the live character, so once your unlocked slots
+were full the lowest one was the only one that ever changed again — and at one unlocked slot, which
+is most players for the first several hours, that meant every talisman after the first replaced the
+last. One 0.3.5 log has 21 of 22 equips landing on the same slot.
+
+The rotation is now derived from Talisman Pouches in your received-item stream instead, which makes
+it a pure function of what you were sent — so a reconnect rebuilds the same loadout instead of
+quietly rearranging it. The clobbered talisman was always still in your bag; this is about which
+one is worn.
+
+One regression is priced in and worth stating: if a Talisman Pouch reaches you without passing
+through Archipelago — a character carried in from another seed — the derived count under-reports and
+you get fewer slots than you have earned. The client logs both counts and warns when they disagree.
+
+### Internal
+
+Ten test fixtures were still passing `num_regions_order: spine`, a no-op kept for one release so
+yamls in the wild keep rolling. They would all have failed at once, on an unrelated change, the
+moment the option is removed. Removed now, with three docstrings that were selling guarantees the
+option stopped providing.
+
+⚠️ `release/EldenRing.yaml` — the template players download — was corrected after v0.3.5 was tagged,
+so the tagged template and this one differ in the `num_regions` description. Nothing functional.
+
 ## v0.3.5 — 2026-08-04
 
 Window opened 2026-08-04, at the moment v0.3.4 was tagged — which is the whole point of rule 14.
