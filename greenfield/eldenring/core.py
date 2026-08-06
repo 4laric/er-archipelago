@@ -533,7 +533,8 @@ class GreenfieldEldenRingWorld(World):
         # precollected -- the start regions (Limgrave/Weeping) open off the hub with no key.
         _natural = _np.is_on(self)
         lock_items: List[Item] = [] if _natural else [self.create_item(f"{r} Lock") for r in kept]
-        # Start holding ONE region's lock (precollected) so a region is open from Roundtable at run
+        # Start holding a region's lock (precollected) so a region is open from Roundtable at run
+        # start -- `start_regions` many of them, default 1.
         # start. Count-neutral -- the precollected lock leaves the pool (its freed slot becomes filler),
         # so the remaining N-1 locks stay found progression and the goal (has_all locks) still requires
         # every one. WHICH lock is features/start_grace.pick_anchor_region: size-weighted by each
@@ -548,12 +549,28 @@ class GreenfieldEldenRingWorld(World):
         if _slr is not None and _slr.value and lock_items and not _natural:
             from .features.progression_surface import (regions_with_major_boss, lock_region_name,
                                                        missable_barred_aps as _ps_missable)
-            from .features.start_grace import pick_anchor_region
+            from .features.start_grace import pick_anchor_regions
             _psm = getattr(self.options, "progression_surface_mode", None)
             _strict = _psm is not None and int(_psm.value) == 2
             _counts = {r: len(LOCATIONS.get(r, [])) for r in kept}
-            _region, _rule, _pool_n = pick_anchor_region(
-                kept, self.random, _counts, DLC_REGIONS,
+            _n_start = 1
+            _sr = getattr(self.options, "start_regions", None)
+            if _sr is not None:
+                _n_start = max(1, int(_sr.value))
+            # THE CLAMP IS LOUD, AND IT IS CHECKED AGAINST THE KEPT COUNT, NOT THE YAML'S
+            # num_regions. The goal is has_all(kept locks); precollect every one and the seed is
+            # complete at connect, having been played zero times. num_regions is a DRAW SIZE
+            # (#409), so the ceiling is whatever this seed actually kept -- which can be higher
+            # than the yaml asked for, never lower. An unsatisfiable yaml dies here naming both
+            # numbers, the same way a goal its DLC toggles removed does.
+            if _n_start >= len(kept):
+                raise OptionError(
+                    "[eldenring] start_regions: %d starting regions were asked for, but this seed "
+                    "kept only %d region(s) and at least one Region Lock must stay in the pool or "
+                    "the goal is already complete at connect. Lower start_regions or raise "
+                    "num_regions." % (_n_start, len(kept)))
+            _regions, _rules, _pool_n = pick_anchor_regions(
+                kept, self.random, _counts, DLC_REGIONS, n=_n_start,
                 # `barred` = the MISSABLE set only, not the whole surface bar. A region whose
                 # only MajorBoss check is questline-missable cannot host a Lock on the strength
                 # of it (Deeproot Depths: its sole MajorBoss is the Fortissax reward). The
@@ -563,16 +580,31 @@ class GreenfieldEldenRingWorld(World):
                 # sits one seed off its floor -- went red on the shift. Narrow instrument.
                 major=regions_with_major_boss(
                     kept, barred=_ps_missable(self)) if _strict else None,
-                gated=frozenset(REGION_PARENT))
+                gated=frozenset(REGION_PARENT),
+                # The goal region may still win the FIRST draw -- that is the shipped behaviour and
+                # at one anchor it is rare -- but it never rides in as an EXTRA. At start_regions 3
+                # it would stop being rare, and a run that opens on the region it ends in is not a
+                # run (Alaric, 2026-08-06).
+                never_extra=frozenset({GOAL_REGION}))
             _by_region = {lock_region_name(it.name): it for it in lock_items}
-            _anchor = _by_region[_region]
-            lock_items.remove(_anchor)
-            self.multiworld.push_precollected(_anchor)
+            for _region in _regions:
+                _anchor = _by_region[_region]
+                lock_items.remove(_anchor)
+                self.multiworld.push_precollected(_anchor)
             # Telemetry (CONTRIBUTING: a feature is armed, or it says why not). The anchor decides the
             # whole run's opening -- a silent pick is a fail at review.
             logging.getLogger("Greenfield").info(
                 "[eldenring:%s] start anchor: %s (%d checks) via %s -- eligible %d of %d kept",
-                self.player, _region, _counts[_region], _rule, _pool_n, len(kept))
+                self.player, _regions[0], _counts[_regions[0]], _rules[0], _pool_n, len(kept))
+            # SAY WHAT THE NUMBER DID (#409's lesson, applied to this option too): the singular
+            # line above is unchanged so a one-anchor seed reads exactly as it always has, and the
+            # extras get their own line rather than being folded in silently.
+            if len(_regions) > 1:
+                logging.getLogger("Greenfield").info(
+                    "[eldenring:%s] start anchors: +%d extra (%s) = %d of %d kept regions open at "
+                    "start", self.player, len(_regions) - 1,
+                    ", ".join("%s (%d checks)" % (r, _counts[r]) for r in _regions[1:]),
+                    len(_regions), len(kept))
         pool: List[Item] = list(lock_items)
         # Run pool_builder (the juice contributor) LAST, and record how many slots the OTHER
         # contributors already consumed -- locks (minus any precollected one, already popped above),

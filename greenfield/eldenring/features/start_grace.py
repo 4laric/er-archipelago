@@ -14,7 +14,7 @@ rides here: 4680 (Level Up enable) + 951 (Melina first-meeting done) -- the two 
 confirmed in-game (set both, rest, Level Up works, no cutscene). The first entry (a real grace) is the
 client's clobber read-back sentinel. All ids are from prior in-game-verified work; none invented.
 """
-from Options import DefaultOnToggle, Toggle
+from Options import DefaultOnToggle, Range, Toggle
 from ..registry import Feature, register
 from .. import contract
 from ..data import HUB
@@ -72,6 +72,27 @@ class StartWithRegionLock(DefaultOnToggle):
     a Roundtable-reachable first lock), but a strict surface then widens one rung to the Roundtable
     Golden Seeds to bootstrap."""
     display_name = "Start With A Region Lock"
+
+
+class StartRegions(Range):
+    """How many regions are OPEN at run start. 1 (default) is the classic single opening region;
+    higher values precollect that many Region Locks, so the run begins with more of the map
+    reachable and fewer locks left to find.
+
+    Only consulted when Start With A Region Lock is on, and ignored under Natural Progression
+    (which mints no Lock items at all). It must stay BELOW the number of regions the seed actually
+    kept -- holding every kept Lock at connect would complete the goal before you play -- and
+    generation fails loudly, naming both numbers, if it does not. Remember that Number of Regions
+    is a DRAW SIZE: a seed can keep more regions than you asked for, but never fewer.
+
+    The first region is picked exactly as it always was (size-weighted over the kept base-game
+    regions, MajorBoss-biased under a strict Progression Surface). The extras are drawn the same
+    way from what is left, except that the goal region can never be one: a run that opens on the
+    region it ends in is over before it starts."""
+    display_name = "Starting Regions"
+    range_start = 1
+    range_end = 10
+    default = 1
 
 
 def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=frozenset()):
@@ -136,6 +157,56 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
     return rng.choices(eligible, weights=weights, k=1)[0], rule, len(eligible)
 
 
+def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
+                        gated=frozenset(), never_extra=frozenset()):
+    """The run's opening regionS: which kept regions' Locks core.create_items precollects.
+
+    ONE DRAW OR N, THE FIRST ONE IS THE SAME DRAW IT ALWAYS WAS. `n == 1` calls
+    `pick_anchor_region` once and consumes the rng stream exactly as before, so every existing
+    defaulted seed still rolls identically -- the same reason region_spine appends GOAL_REGION
+    AFTER its rng.sample. Extras are drawn from what is left by the same size-weighted rule, one
+    at a time, so a big region is still likelier to open than a corridor.
+
+    `never_extra` (core passes the goal region) may win the FIRST draw -- that is the behaviour
+    that already shipped, and at one anchor it is rare -- but can never be an extra. At
+    start_regions 3 it stops being rare, and a seed that opens on the region it ends in is a
+    non-run (Alaric, 2026-08-06).
+
+    The MajorBoss intersection applies to the FIRST draw only. Requiring all n anchors to host a
+    MajorBoss can empty the eligible set outright, and `pick_anchor_region` degrades rather than
+    raises precisely so a bias never becomes a hard filter.
+
+    Raises ValueError when the eligible pool cannot supply n regions -- an empty result is a
+    failure, not a clean run. The caller checks the cheaper `n < len(kept)` bound first and dies
+    with an OptionError naming the yaml; this is the backstop for the gated / goal / zero-weight
+    exclusions that bound cannot see.
+
+    Returns (regions, rules, eligible_count) -- `regions[0]` and `rules[0]` are exactly what
+    `pick_anchor_region` would have returned alone.
+    """
+    n = max(1, int(n))
+    first, rule, pool_n = pick_anchor_region(kept, rng, check_counts, dlc_regions,
+                                             major=major, gated=gated)
+    picks, rules = [first], [rule]
+    # The extras' pool, filtered ONCE up front so a shortfall is reported before anything is drawn:
+    # a partial answer would be a silently shorter start than the yaml asked for.
+    pool = [r for r in kept
+            if r != first and r not in never_extra and r not in gated
+            and int(check_counts.get(r, 0)) > 0]
+    if len(pool) < n - 1:
+        raise ValueError(
+            "start anchors: asked for %d starting regions, but only %d region(s) can open a run "
+            "in this seed (the goal region and gated children are excluded as extras, and a "
+            "region with zero emitted checks can never anchor) -- lower start_regions or raise "
+            "num_regions" % (n, len(pool) + 1))
+    while len(picks) < n:
+        r, rule_r, _ = pick_anchor_region(pool, rng, check_counts, dlc_regions, gated=gated)
+        picks.append(r)
+        rules.append("extra:" + rule_r)
+        pool = [x for x in pool if x != r]
+    return picks, rules, pool_n
+
+
 @register
 class StartGrace(Feature):
     name = "start_grace"
@@ -143,6 +214,7 @@ class StartGrace(Feature):
         "reveal_all_maps": RevealAllMaps,
         "early_leveling": EarlyLeveling,
         "start_with_region_lock": StartWithRegionLock,
+        "start_regions": StartRegions,
     }
 
     def slot_data(self, world):
