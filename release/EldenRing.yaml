@@ -387,7 +387,9 @@ Elden Ring:
 #    pool_builder_intensity    max  -- (not "high")
 #    varied_filler             ON
 #    boss_lock_placement       own_region
-#    start_with_region_lock    ON   -- you start with one region already open
+#    start_with_region_lock    ON   -- you start with a region already open
+#    start_regions             1    -- how many are open at start; must stay below
+#                                      the number of regions the seed KEPT
 #    start_with_lantern        ON   -- hands-free pouch light (replaces the old start Torch)
 #    start_with_steed          ON   -- Torrent from the start
 #    start_with_flasks         ON
