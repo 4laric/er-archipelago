@@ -26,7 +26,7 @@ goes out to whoever it belongs to in the multiworld, and your own items arrive
 in your inventory mid-session, from your checks or from someone else's game
 entirely. (Solo works the same; you're just both ends of the pipe.) On top of
 that, the world is **Shattered**: carved into major regions -- 17 in the base
-game, 31 with the DLC -- each sealed behind an Archipelago item called a
+game, 30 with the DLC -- each sealed behind an Archipelago item called a
 **Region Lock**. You start at Roundtable Hold with one region already open, and
 the map unfolds as Locks arrive. None of this touches your game files: it's the
 vanilla game plus a runtime client.

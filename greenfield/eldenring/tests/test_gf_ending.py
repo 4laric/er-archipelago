@@ -110,7 +110,7 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
         "item_shuffle": True,
         "num_regions": 1,
         "ending_condition": "great_runes",
-        "goal_great_runes": 7,
+        "goal_great_runes": len(GREAT_RUNES),   # the MAXIMUM, whatever it currently is
     }
 
     def test_requirement_auto_drops(self):
@@ -138,3 +138,22 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
         self.assertEqual(sd["ending_condition"], expected)
 
 
+def test_the_great_rune_cap_is_derived_not_typed():
+    """CONTRIBUTING rule 11: the reporter's case is the acceptance test.
+
+    > *"I cant goal my game. this is because Elden Ring has 7 great runes. And I set my goal
+    > condition to be having all 7 great runes. However, the archipelago mod. Doesn't count 'Great
+    > rune of the Unborn' as a great rune."*
+
+    He set the option to its own advertised maximum and it was unreachable. `range_end` was the
+    literal 7; `GREAT_RUNES` is a name-suffix match over ITEM_CATALOG and yields six. Gated as an
+    EQUALITY against the collection rather than `== 6`, so adding the Unborn rune (or removing one)
+    moves the cap by itself instead of re-opening this bug from the other side.
+    """
+    from worlds.eldenring.core import GreatRunesRequired
+
+    assert GreatRunesRequired.range_end == len(GREAT_RUNES), (
+        f"great-rune goal cap is {GreatRunesRequired.range_end} but only {len(GREAT_RUNES)} Great "
+        f"Rune items exist ({sorted(GREAT_RUNES)}). A player who sets the advertised maximum gets a "
+        f"goal no seed can satisfy.")
+    assert GreatRunesRequired.range_start <= GreatRunesRequired.default <= GreatRunesRequired.range_end

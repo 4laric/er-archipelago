@@ -5,8 +5,8 @@ item data is **derived from vanilla game files** (params + MSB + grace/BonfireWa
 anchors) — no code or data from any other randomizer — and rules are keyed by
 **region only**, so there is no location-name coupling to fight.
 
-The model in one line: the world is Shattered into **31 regions (17 base game +
-14 Shadow of the Erdtree)**, each sealed behind a **"\<Region\> Lock"** AP item;
+The model in one line: the world is Shattered into **30 regions (17 base game +
+13 Shadow of the Erdtree)**, each sealed behind a **"\<Region\> Lock"** AP item;
 you start at Roundtable Hold, and Leyndell is the goal region.
 
 **The data modules are GENERATED — never hand-edit them.** `eldenring/data.py`
@@ -21,7 +21,7 @@ stamp (`tools/gen_manifest.py`) gates stale data out of packaging and CI.
 greenfield/
   eldenring/              # the world package (ships as eldenring.apworld via build.ps1 -Apworld)
     core.py               # options, regions, rules, goal, slot_data
-    data.py               # GENERATED: HUB, REGIONS (31: 17 base + 14 DLC), LOCATIONS {region: [(name, ap_id, flag)]}
+    data.py               # GENERATED: HUB, REGIONS (30: 17 base + 13 DLC), LOCATIONS {region: [(name, ap_id, flag)]}
     region_spine.py       # SPINE progression order, GOAL_REGION (Leyndell), DLC_REGIONS
     features/             # feature modules (graces, boss locks, pool builder, scaling, upgrades, ...)
     tests/                # the test suite (see tests/README.md)

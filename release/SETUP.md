@@ -190,7 +190,7 @@ You also need, separately:
 The defaults are the recommended run. If you want to stray:
 
 - **Shorter runs:** the shipped `num_regions: 0` keeps every eligible region
-  in play (the full Shattering: 17 base-game regions as shipped, 31 with the
+  in play (the full Shattering: 17 base-game regions as shipped, 30 with the
   DLC on); set a small number like `4` for a tight evening run.
 - **Which regions:** the kept set is drawn at random. (`num_regions_order` is
   vestigial -- `random`/`rolled` are the same thing and `spine`, the old fixed
