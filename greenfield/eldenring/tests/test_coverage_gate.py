@@ -41,7 +41,8 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4915   # 4879 + 36 (unplaced common-event rows placed, 2026-08-04,
+BASELINE_TOTAL_LOCATIONS = 4916   # 4915 + 1: the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
+                                  # 4879 + 36 (unplaced common-event rows placed, 2026-08-04,
                                   # issue #249): rows filed `Global / Common-event (unplaced)` that
                                   # were never checks at all, so their item dropped VANILLA. Placed
                                   # from an observed MSB/check_maps map or a single-map talk-ESD

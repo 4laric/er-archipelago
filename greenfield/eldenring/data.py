@@ -3903,6 +3903,7 @@ LOCATIONS = {
         ('Raya Lucaria Academy :: Living Jar Shard - around Church of the Cuckoo [f14007997]', 7774091, 14007997),
         ('Raya Lucaria Academy :: Golden Seed - near Main Academy Gate [f1035467100]', 7774386, 1035467100),
         ('Raya Lucaria Academy :: Sacrificial Twig - from Isolated Merchant [f160820]', 7774841, 160820),
+        ('Raya Lucaria Academy :: Great Rune of the Unborn - Rennala [f197]', 7900004, 197),
     ],
     'Scadu Altus': [
         ('Scadu Altus :: Hefty Cracked Pot - near Bonny Village [f66960]', 7770079, 66960),
@@ -5223,4 +5224,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:8ab31edde5333138b0accb831b501d9ae73fda7849f49ee790fdebbbddd20522', 'module': 'data.py', 'body_sha256': 'sha256:4a901b910c46504976610c3b90fa944ba295d23cbee7e021a90cb35ce6b3f3e2'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ad5f47c34d981e370f5a1669324ef1610c636bf66fca9216720aa8ae796604f1', 'module': 'data.py', 'body_sha256': 'sha256:9ab5d0b5285326bccaf517f75ab93d56f0120c81ab05d676aeb3b8bd5187c698'}

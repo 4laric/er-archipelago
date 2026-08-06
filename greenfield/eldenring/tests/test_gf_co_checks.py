@@ -39,6 +39,7 @@ SEEDED_FLAGS = {
     510440: {("map", 10441)},        # Scadutree Fragment beside the Thorns primary
     520160: {("map", 20161)},        # Golden Seed beside the Ogha-ash primary
     400696: {("map", 106931)},       # Prayer Room Key beside the Flame-Skewer primary
+    197:    {("map", 10181)},        # Great Rune of the Unborn beside the Full-Moon-Queen primary
 }
 
 
@@ -307,6 +308,32 @@ class PostRegenProjection(unittest.TestCase):
                     self.assertIn(ap, LOCATION_ITEM,
                                   f"co-check ap {ap} (flag {fl}) has no pooled vanilla item -- "
                                   f"items==locations count-neutrality broken")
+
+    def test_the_unborn_rune_exists_in_the_seed(self):
+        """#426's motivating case, as the acceptance test.
+
+        `check_lots` blanks by FLAG, not by lot (`gen_data.py`: `_flag not in _CHECK_FLAGS_ALL:
+        continue`). Flag 197 is a check flag, so BOTH of Rennala's lots -- 10180 (Remembrance) and
+        10181 (Great Rune of the Unborn) -- were zeroed at source. With only the primary modelled,
+        nothing granted the rune back: it was blanked out of every seed and existed nowhere.
+
+        This asserts the rune is a real item at a real location bound to its OWN lot. It reddens by
+        removing 197 from CO_CHECK_FLAGS, which is the state it was written against."""
+        NAME = "Great Rune of the Unborn"
+        # assertIn against the catalog would dump all ~2000 entries into the failure message;
+        # this class of test has to fail READABLY or nobody reads it.
+        self.assertTrue(NAME in self.item_ids.ITEM_CATALOG,
+                        f"{NAME} is absent from ITEM_CATALOG -- the rune is blanked at source "
+                        f"(check_lots keys on the FLAG) and granted by nobody, i.e. deleted from "
+                        f"the seed entirely (#426). Allowlist flag 197 in CO_CHECK_FLAGS.")
+        aps = [ap for ap, nm in self.item_ids.LOCATION_ITEM.items() if nm == NAME]
+        self.assertEqual(len(aps), 1, f"expected exactly one {NAME} location, got {aps}")
+        ap = aps[0]
+        self.assertGreaterEqual(ap, COCHECK_BASE,
+                                f"{NAME} must hold a registry co-check id, not a positional one")
+        self.assertEqual(self.location_lot.get(ap), ("map", 10181),
+                         f"{NAME} must blank ITS OWN lot 10181, got {self.location_lot.get(ap)} -- "
+                         f"binding it to the primary's lot would delete the Remembrance instead")
 
     def test_missable_uniform_across_groups(self):
         miss = _path_load("missable_locations").MISSABLE_LOCATIONS

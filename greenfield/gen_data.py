@@ -968,6 +968,15 @@ CO_CHECK_FLAGS = frozenset({
               #          20161 Golden Seed (wiki #17); region via GLOBAL_RECOVER[520160]
     400696,   # DLC Prayer Room: 106930 Ash of War: Flame Skewer (primary) + 106931 Prayer Room Key
               #          (KEY ITEM, goods 2008036)
+    197,      # Rennala: 10180 Remembrance of the Full Moon Queen (primary) + 10181 Great Rune of
+              #          the Unborn (goods 10080). Added 2026-08-06 on Alaric's ruling that the game
+              #          COUNTS this rune toward the Leyndell wall (#427): flag 197 sits inside the
+              #          counted 190-199 band alongside the six restored-rune flags 191-196. Until
+              #          now lot 10181 was unmodelled, so check_lots blanked only the primary and
+              #          every Rennala kill handed out a real vanilla rune ON TOP of the AP item
+              #          (#426). NOTE the sibling is named from the FMG like any other -- goods
+              #          10080 resolves to "Great Rune of the Unborn" in GoodsName.fmg.xml; it was
+              #          missing from ITEM_CATALOG only because the catalog is CHECK-derived.
 })
 COCHECK_BASE = 7900000   # reserved ap_id band (positional BASE_AP space tops out ~7775300)
 
@@ -6258,7 +6267,7 @@ _KEYITEMS = ("Dectus Medallion", "Rold Medallion", "Haligtree Secret Medallion",
              "Fingerslayer Blade", "Rya's Necklace")
 for _ap, _inm in LOCATION_ITEM.items():
     _extra = []
-    if "Great Rune" in _inm and "Unborn" not in _inm:
+    if "Great Rune" in _inm and _inm != "Phantom Great Rune":
         _extra.append("GreatRune")
     if any(_k in _inm for _k in _KEYITEMS):
         _extra.append("KeyItem")

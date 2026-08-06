@@ -25,7 +25,7 @@ CHECK_LOT_SLOTS = {4900: [1], 4910: [1], 4920: [1], 10000: [1], 10010: [1], 1001
 # (primary + siblings) of an allowlisted shared-flag family. The coverage gate uses this
 # to legalize a shared detect flag (distinct lots per member) and to demand each member's
 # suppression at its OWN lot. Empty when CO_CHECK_FLAGS is empty.
-LOCATION_LOT = {7770746: ('map', 106930), 7770771: ('map', 10460), 7773918: ('map', 10440), 7773937: ('map', 20160), 7900000: ('map', 106931), 7900001: ('map', 10441), 7900002: ('map', 10461), 7900003: ('map', 20161)}
+LOCATION_LOT = {7770007: ('map', 10180), 7770746: ('map', 106930), 7770771: ('map', 10460), 7773918: ('map', 10440), 7773937: ('map', 20160), 7900000: ('map', 106931), 7900001: ('map', 10441), 7900002: ('map', 10461), 7900003: ('map', 20161), 7900004: ('map', 10181)}
 
 # #321 -- acquisition flags whose ware is neutralised AT THE LOT (repointed above), so
 # the id-keyed suppressor has nothing left to suppress for them. check_item_flags.py
