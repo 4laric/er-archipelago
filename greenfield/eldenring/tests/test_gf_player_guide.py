@@ -171,3 +171,26 @@ def test_the_separate_save_promise_is_never_unconditional():
             "path:\n\n" + para + "\n\nThe separation comes from `savefile` in the me3 profile, "
             "not from the client. Stated flat, this is false for every player following our own "
             "instructions to launch through matt's randomizer.")
+
+
+def test_the_dlc_region_count_the_guide_states_is_the_real_one():
+    """#404, and CONTRIBUTING rule 11 again -- the reporter typed the number we gave him.
+
+    > *"maximum listed regions in the yaml is stated to be 31. for me 31 led to generation failure,
+    > 30 works fine"*
+
+    `NumRegions.range_end` is `len(REGIONS)` and has been 30 (17 base + 13 DLC) the whole time; five
+    shipped files said 31, so the documented maximum was one past what Archipelago would accept. The
+    guide's number has to be checked against the collection, not against 30 -- a DLC region added
+    later must move the doc, and a gate written as `== 30` would be the same typed-literal mistake
+    this issue is about.
+    """
+    from worlds.eldenring.data import REGIONS
+
+    claims = [int(n) for n in re.findall(r"(\d+) with the DLC", _guide_text())]
+    assert claims, (
+        "the shipped guide no longer states a DLC-on region count. If that line moved, this gate "
+        "must move with it rather than pass vacuously -- which is how the wrong number survived.")
+    assert all(n == len(REGIONS) for n in claims), (
+        f"the shipped guide claims {claims} regions with the DLC on; there are {len(REGIONS)}. A "
+        f"player who types the documented maximum gets a generation failure.")

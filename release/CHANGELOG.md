@@ -42,6 +42,51 @@ logs the breakdown so the number is auditable at roll time rather than four hour
 The goal is deliberately not clamped to the drawn set. A `goal: elden_beast` seed that cannot reach
 the Elden Beast is the failure this was built to prevent.
 
+### Enemy scaling can go DOWN
+
+The ladder starts at 1.14x and has no rung below it, so until now an unrunged, hand-tuned enemy
+could be scaled up and never down. A region the seed put early kept whatever strength vanilla gave
+it, and `NoTouch` was the honest answer rather than a bug — there was nothing to apply.
+
+No single `SpEffectParam` row in the game scales both health and attack below 1.0: of 11,325, twenty
+are under on health, twenty-five under on attack, zero on both. The down primitive is therefore a
+COMPOSITION of four rows from the DLC ally-tuning block (`20018002/004/008/027`), which stack
+because they are `spCategory 0`. `20018004` is the only clean sub-1.0 `maxHpRate` row in the param —
+the other nineteen zero their targeting flags, carry an icon and an `addXStatus`, or are timed.
+`20018027`'s 3x health is not a defect but the canceller: 3.0 x 0.25 = 0.75.
+
+Which state an enemy gets is the ladder's own ratio between its presumed tier and the region's
+target, rounded down, with health as the tiebreak. Below a 0.90 deadband the step is smaller than
+the coarsest tool (0.70x) can express and the enemy is left alone.
+
+Measured live, exactly: `523340014` 1098 -> 274 (0.25x), `1000000` 1939 -> 1454 (0.75x). The attack
+rates resolve and are carried but have never been read off a live hit — the desk case is that
+`20018002` differs from the proven `20018004` only in the rate columns, and writes the same five
+columns the ladder itself writes. Shipped to let play validate the magnitude.
+
+### The area may vouch for a named enemy DOWNWARD, but still never upward
+
+`AREA_EXCLUDED` refuses to infer a named, unrewarded character's strength from its neighbours,
+because doing that upward made Vyke come out crazy strong. The carve-out was direction-blind and its
+justification is not: downward the failure is an enemy that dies too easily, which this file's axiom
+prices as a blemish against over-scaling's wall. 275 of its 411 rows have no `getSoul` tier either,
+so they were `NoTouch` in both directions — unreachable by every mechanism the client had.
+
+The guard is intact: upward attribution still goes through `presumed_native_tier`, and a test
+asserts the area can never up-scale an excluded row at any tier.
+
+### An unmapped region is no longer scaled at all
+
+`tier_for_region` returned the floor tier for a region absent from the wire, which was a guess
+wearing a number's clothes — true only while the floor was 0. One log swept 198 enemies at connect
+before the game had resolved a region, and 42 in the Chapel of Anticipation. It returns `Option` now
+and the sweep declines on `None`. Kept regions are unaffected: every one of their play_region
+buckets is wired, and sealed regions are kicked rather than walked.
+
+The region-entry toast moved with it. `RegionScaling::Defaulted` carried the floor tier so it could
+announce "using the floor, 1.14x"; once the sweep stopped applying that, the announcement was
+actively false. It carries no number at all now.
+
 ### Talismans stop piling into one slot
 
 Received talismans rotated on a modulus read from the live character, so once your unlocked slots

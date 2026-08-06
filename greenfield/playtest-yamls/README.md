@@ -27,7 +27,7 @@ it), and `-Greenfield` regenerates the data files itself.
 
 Reminder -- these are GREENFIELD options, NOT the release EldenRing apworld's.
 Core keys: num_regions(0-31, 0 = all in play)
-ending_condition(region_locks|great_runes) goal_great_runes(1-7) enable_dlc
+ending_condition(region_locks|great_runes) goal_great_runes(1-6) enable_dlc
 dlc_only. The feature options ride on top (the frozen v0.2 behaviours are no
 longer yaml-settable); the full surface is documented inline, option by option,
 in `release/EldenRing.yaml`.

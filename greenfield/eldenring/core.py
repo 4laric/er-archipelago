@@ -192,10 +192,20 @@ class GreatRunesRequired(Range):
     and nothing said so.
 
     The effective requirement is clamped down to the Great Runes reachable in the kept regions, so
-    sealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.""" 
+    sealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.
+
+    The maximum is six, not seven: Elden Ring has seven Great Runes in the fiction, but the Great
+    Rune of the Unborn is not an item you can be given, so no seed can require it.""" 
     display_name = "Great Runes Required"
     range_start = 1
-    range_end = 7
+    # DERIVED, not typed (#405). Was the literal 7, against six Great Rune items -- GREAT_RUNES is
+    # a name-suffix match over ITEM_CATALOG and "Great Rune of the Unborn" carries no such suffix
+    # (it is not in the catalog at all). The option therefore advertised a maximum no seed could
+    # satisfy; _resolve_required_runes clamps the effective value, so nothing BROKE, but a player
+    # who set the advertised max got an unreachable goal and a hint for an item that does not
+    # exist. Derived the way NumRegions.range_end is len(REGIONS): add the Unborn rune to the
+    # catalog and the cap moves by itself.
+    range_end = len(GREAT_RUNES)
     default = 2
 
 
