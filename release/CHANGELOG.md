@@ -103,6 +103,42 @@ One regression is priced in and worth stating: if a Talisman Pouch reaches you w
 through Archipelago — a character carried in from another seed — the derived count under-reports and
 you get fewer slots than you have earned. The client logs both counts and warns when they disagree.
 
+### Region-lock hints: hint the NEXT lock, and a balance you can actually see
+
+Two defects, one report (#412).
+
+**Naming a lock was a guess.** The in-game lock hint asked which region you wanted, but the order
+regions unlock in is not a property of the seed — it is a consequence of the fill. "Altus is second"
+only means the Altus Lock item happens to sit in Liurnia. So a player who did not already know the
+chain had to buy hints for locks he could not reach in order to find the one he could. One 0.3.5 log
+has three `!hint`s three minutes apart doing exactly that, to discover
+Liurnia → Altus → Farum Azula → Leyndell.
+
+There is now a single **Hint next lock** button with no target to name. It resolves the *frontier*:
+the lock whose own region is still sealed but whose item already lies in a region that is open. That
+is a join over three tables the client already had — `coarse_lock_items`, the live region-open flags,
+and the connect-time scout — so no new slot data and `CONTRACT_HASH` is unmoved. Reachability here is
+region reachability, deliberately: it is the same approximation the tracker's own `[locked]` tag
+makes, and two notions of "reachable" in one window would be worse than one imperfect one.
+
+Ties break on the lowest location id. The per-region button stays for players who do want to aim.
+
+**The economy was invisible, which is why nobody used it.** The same log reads `lock hints: ledger
+loaded from er_lockhints_2 -- 0 hint(s) already bought`. It loaded, priced itself correctly against
+his seed, and was never touched — because everything it had was behind three closed doors at once:
+`tracker_visible` defaults to **false**, its F6 toggle was in no guide, and the price rendered only
+on the header of a region that had to be both locked and scrolled into view.
+
+The balance is now on the overlay menu bar, which is drawn whenever the main window is, and clicking
+it opens the tracker. The tracker leads with the balance and the button, above the filters. Two
+latched notices fire — the first time there is a lock to spend on, and the first time the balance is
+enough — and neither can repeat. The unit `sp` is gone; it was defined in no file. It reads "surface
+checks", with a tooltip for how they are earned.
+
+Client-only. Still owed on Windows and not coverable by CI: the live `CreateHints` round trip, the
+data-storage read/write against a real server, and the claim the whole feature rests on — that
+`!hint` still shows full hint points afterwards.
+
 ### Internal
 
 Ten test fixtures were still passing `num_regions_order: spine`, a no-op kept for one release so
