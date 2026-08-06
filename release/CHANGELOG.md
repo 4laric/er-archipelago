@@ -3,6 +3,42 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.7 — 2026-08-06
+
+Window opened the same day v0.3.6 was tagged, and again because the gate went red rather than
+because anyone remembered. That is the fourth window in a row. The gate is doing its job; what has
+still never happened is a window being opened before something red asked for it.
+
+`CONTRACT_HASH` is unmoved from v0.3.0 (`5e8b11c9`). The bump is version-lockstep across both repos.
+
+### The Great Rune of the Unborn was missing from every seed
+
+Rennala's kill sets one acquisition flag that feeds two item lots: the Remembrance of the Full Moon
+Queen, and the Great Rune of the Unborn. Only the first was modelled as a check.
+
+That matters because the randomizer blanks a check's item lots by **flag**, so it was blanking both
+of them — and with nothing modelling the second, nothing handed the rune back. It was removed from
+the game and replaced by nothing, in every seed since the check model landed. Because the item had
+no name anywhere in our data, nothing noticed: it was absent from the spoiler, absent from hints,
+and absent from the item catalog.
+
+It is now its own check, in the same place, alongside the Remembrance. Both are shuffled
+independently and both are yours to find.
+
+⚠️ This does **not** yet make it count as a Great Rune. `goal_great_runes` still caps at six and the
+Leyndell gate still counts six, which is a separate change — see below.
+
+### Known: the capital gate counts a rune we do not
+
+Elden Ring opens the capital on a **count of flags**, and the flag Rennala sets is inside the range
+it counts. So the game already treats the Great Rune of the Unborn as one of the runes on that door,
+and we do not. In practice our logic is the stricter of the two, so nothing becomes unreachable and
+no seed can soft-lock on it — but you may find the capital physically open before the randomizer
+expects it.
+
+Tracked, with the fix scoped but not yet made, because it changes what "how many Great Runes" means
+and that is worth getting right rather than fast.
+
 ## v0.3.6 — 2026-08-06
 
 Window opened 2026-08-06, one day after v0.3.5 was tagged — and this time a gate said so rather
