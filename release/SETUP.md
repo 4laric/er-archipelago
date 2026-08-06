@@ -119,13 +119,23 @@ You also need, separately:
    the DLL, or checks double-pay the vanilla item and shop checks never fire. When
    the client is loaded, its overlay **menu bar** is visible in-game.
 
-   **Start a new character.** The client uses its own save (`AP_me3.sl2`); your
-   normal saves are untouched.
+   **Start a new character.** Launched this way -- with the `me3` profile --
+   the game writes to a separate save file (`AP_me3.sl2`), so your normal
+   characters are untouched. That separation is the profile's doing: it comes
+   from the `savefile = "AP_me3.sl2"` line in `ap.me3`, **not** from the client.
+   Launch our dll any other way and it does not apply. See the next step.
 
    **Also running matt's randomizer?** Then you do not launch twice. Add
    `eldenring_archipelago.dll` to matt's **Add dll mod** list and use his
    **Launch Elden Ring** button -- it loads our client for you. Full walkthrough,
    with pictures, in `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
+
+   **On that path you do NOT get a separate save.** matt's launcher never reads
+   `ap.me3`, so the `savefile` line above never applies: your Archipelago
+   character is created in your ordinary Elden Ring save, next to your real
+   ones. Nothing of yours is overwritten, but the two share one file and one
+   backup from then on. If you want them apart, set that up **before** you
+   start -- `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` has the options.
 
 3. **Connect.** Open the **Connection** entry in the overlay menu bar and
    enter your server address, slot name, and password. (Solo local game:

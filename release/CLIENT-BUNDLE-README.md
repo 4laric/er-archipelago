@@ -25,8 +25,10 @@ the contract is at the bottom of this file.
    me3 launch --profile "<path to this folder>\ap.me3"
    ```
 
-Start a **new character**. The client writes to its own save (`AP_me3.sl2`), so your normal saves are
-not touched.
+Start a **new character**. Launched with `ap.me3` as above, the game writes to a separate save file
+(`AP_me3.sl2`), so your normal saves are not touched. That comes from the profile's `savefile` line
+rather than from the client, so it only holds for this launch path -- load the dll through another
+loader (matt's randomizer, say) and your Archipelago character goes into your ordinary save.
 
 ## What is in the folder
 

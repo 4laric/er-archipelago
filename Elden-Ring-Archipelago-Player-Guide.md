@@ -87,6 +87,24 @@ leaves the entire DLC optional.
 
 ## Things that will confuse you the first time
 
+**Your Archipelago character turned up in your normal save.** Whether you get a
+separate save file depends on how you launched, not on the client. The shipped
+`me3` profile asks for one (`AP_me3.sl2`); other loaders do not -- including
+thefifthmatt's randomizer, which is a supported way to run us -- so on those the
+character is created in your ordinary Elden Ring save, next to your real ones.
+
+**If that has happened, do not load your ordinary characters while connected.**
+The client cannot tell one of your existing characters from a new Archipelago
+one: a character with no Archipelago marker in it reads as *fresh*, and a fresh
+character is owed every item the room has sent you so far. Load a real character
+with the client connected and it may be granted that backlog. Play the
+Archipelago character, and only that one, in the modded launch.
+
+To check whether you are sharing: open Elden Ring **normally**, with no mods,
+and look at the character list. To separate them -- and for a save backup that
+makes the whole question recoverable -- see
+`ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` in the release folder.
+
 **You got kicked out of a region.** You wandered (or warped) into a region you
 haven't unlocked, and the client warped you back out. This is the Shattering
 working as intended -- sealed means sealed, not honor-system. Come back when

@@ -139,3 +139,35 @@ def test_the_receiving_is_dead_fingerprint_is_documented_where_players_will_read
         "of 'my checks send but I never receive anything', and documenting it only in "
         "release/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md does not reach a player who does "
         "not already know that is what they are hitting.")
+
+
+def test_the_separate_save_promise_is_never_unconditional():
+    """CONTRIBUTING rule 11, and the third outing for this file's own lesson.
+
+    2026-08-03, boblerrr on the Nexus page: *"even though im using a custom save format it seems
+    like it still uses my sl2 save ... i keep seeing my ap file in my regular save so that's a bit
+    scary"*. He was right, and our docs had told him otherwise. Three of them promised a separate
+    save (`AP_me3.sl2`) with no condition attached, and release/SETUP.md did it **three lines
+    above** the paragraph telling him to launch through matt's randomizer instead -- which is the
+    one launch path where the promise does not hold, because the redirection lives in the `me3`
+    profile's `savefile` line and matt's launcher never reads it.
+
+    The SHIPPED guide said nothing about saves at all, so the player who went looking found
+    nothing. Hence this gate, on the shipped file: it must raise the subject, and it must not
+    raise it as an unconditional promise. Gated on the paragraph rather than the document, because
+    a warning three sections away from the reassurance is how this got shipped in the first place.
+    """
+    text = _guide_text()
+    assert "AP_me3.sl2" in text, (
+        "the shipped player guide never mentions the save file. Whether an Archipelago character "
+        "lands in the player's real save depends on how they launched, they have no way to guess "
+        "that, and the one who found out did so by opening vanilla Elden Ring and seeing it there.")
+
+    paragraphs = [p for p in text.split("\n\n") if "AP_me3.sl2" in p]
+    for para in paragraphs:
+        lowered = para.lower()
+        assert any(word in lowered for word in ("randomiz", "loader", "launch")), (
+            "a paragraph names AP_me3.sl2 without saying the separate save depends on the launch "
+            "path:\n\n" + para + "\n\nThe separation comes from `savefile` in the me3 profile, "
+            "not from the client. Stated flat, this is false for every player following our own "
+            "instructions to launch through matt's randomizer.")
