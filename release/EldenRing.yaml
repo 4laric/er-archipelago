@@ -40,7 +40,7 @@ Elden Ring:
   # ---- The shape of the run -------------------------------------------------
 
   # How many regions are DRAWN. 0 = all of them (the full Shattering:
-  # 17 base-game regions, or 31 with the DLC enabled). A sealed region has no
+  # 17 base-game regions, or 30 with the DLC enabled). A sealed region has no
   # checks, no Lock, and no way in. Each KEPT region opens when its Region
   # Lock item arrives -- its graces light and you warp in. This is the
   # marquee mode: it turns the open world into an Archipelago progression
@@ -152,12 +152,12 @@ Elden Ring:
   #
   #  Uncomment this block AS A SET and delete the two `false` lines above. It is
   #  written as one block because the DLC changes more than one number: with it
-  #  on there are 31 regions rather than 17, so a `num_regions` tuned for the
+  #  on there are 30 regions rather than 17, so a `num_regions` tuned for the
   #  base game samples a much thinner slice of a much bigger map.
   #
   #  enable_dlc: true
   #  dlc_only: false          # true = DLC only, base game sealed
-  #  num_regions: 10          # 6 of 31 is a very thin seed; 10 keeps the run
+  #  num_regions: 10          # 6 of 30 is a very thin seed; 10 keeps the run
   #                           # recognisable. 0 = the whole thing.
   #  goal: auto               # `promised_consort` ends the run in the DLC and
   #                           # force-keeps its region. With `auto` on a

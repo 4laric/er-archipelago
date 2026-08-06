@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "54ee2db5cbc5b8258235ee0b1bead54ffefc49fb4a2ec8224676cdc5bc5d95d7",
+ "source_sha256": "cf6863dcd592bc04be74f83f7ebfe8be44eb6eb06bc7fa107c905045655bfb4c",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -302,14 +302,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "goal_great_runes",
    "class": "GreatRunesRequired",
    "display_name": "Great Runes Required",
-   "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.",
+   "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.\n\nThe maximum is six, not seven: Elden Ring has seven Great Runes in the fiction, but the Great\nRune of the Unborn is not an item you can be given, so no seed can require it.",
    "kind": "range",
    "base": "Range",
    "default": 2,
    "choices": null,
    "range": {
     "start": 1,
-    "end": 7
+    "end": 6
    },
    "valid_keys": null,
    "casefold": false,
