@@ -276,7 +276,15 @@ def _finale_base_game_in_play(regions) -> bool:
     """Static mirror of features.finale.base_game_in_play, for the world-less callers.
 
     Imported lazily and defensively: coverage.py is also run as a standalone gate against a bare
-    checkout, where the features package may not import (it wants Options from Archipelago)."""
+    checkout, where the features package may not import (it wants Options from Archipelago).
+
+    🛑 A KEPT SET IS NOT THE SEED'S ANSWER, and passing one here is a GUESS. features/finale.py
+    asks this of the ELIGIBLE pool on purpose -- the Ashen Capital is never rolled, so whether it
+    exists must not depend on which regions the draw happened to take -- and a base-game seed whose
+    draw took only DLC regions is eligible-yes, kept-no. So this returns False on exactly the seeds
+    the live world builds a finale for. Callers that HAVE the seed's answer must pass
+    `build_coverage(..., finale=...)`; this fallback is for the ones that do not (the standalone
+    static gate over the full pool, where kept == REGIONS and the two agree)."""
     try:
         from .region_spine import DLC_REGIONS
     except Exception:
@@ -284,7 +292,7 @@ def _finale_base_game_in_play(regions) -> bool:
     return bool(set(regions) - set(DLC_REGIONS))
 
 
-def build_coverage(world=None, kept=None, _static_table=None):
+def build_coverage(world=None, kept=None, _static_table=None, finale=None):
     """Build the per-location coverage records for every EMITTED location this gen.
 
     world given  -> scope = HUB + world._kept(); the emitted tables (locationFlags /
@@ -296,6 +304,10 @@ def build_coverage(world=None, kept=None, _static_table=None):
                     test pin an explicit num_regions/DLC scope with no flaky fill.
     _static_table -> test hook: override the (map, enemy, items) triple from
                     check_lots_table.json so the tests can prove the join catches a real hole.
+    finale       -> the seed's OWN answer to "does the Ashen Capital exist here", for world-less
+                    callers that have one. Ignored when ``world`` is given (the world is asked
+                    directly). None = re-derive from ``kept``, which is a guess -- see
+                    _finale_base_game_in_play.
 
     Returns (records, ctx): records is {ap_id: LocationCoverage}; ctx carries the joined tables."""
     data = _load("data")
@@ -372,6 +384,10 @@ def build_coverage(world=None, kept=None, _static_table=None):
     if world is not None and hasattr(world, "gf_finale_active"):
         finale_on = bool(FINALE_REGION and LOCATIONS.get(FINALE_REGION)
                          and world.gf_finale_active)
+    elif finale is not None:
+        # TOLD, not re-derived. The kept set cannot answer this question (see
+        # _finale_base_game_in_play), so a caller that has the seed's answer hands it over.
+        finale_on = bool(FINALE_REGION and LOCATIONS.get(FINALE_REGION) and finale)
     else:
         finale_on = bool(FINALE_REGION and LOCATIONS.get(FINALE_REGION)
                          and _finale_base_game_in_play(scope_kept))
@@ -877,10 +893,11 @@ def _flatten(byname):
 # ---------------------------------------------------------------------------------------------------
 # REPORT MODE (no raise) + the raising variant
 # ---------------------------------------------------------------------------------------------------
-def report_coverage(world=None, kept=None, printer=print, _static_table=None):
+def report_coverage(world=None, kept=None, printer=print, _static_table=None, finale=None):
     """Build records, run all checks + the degradation ledger, return
     (records, ctx, violations_by_check). Prints a compact summary; NEVER raises."""
-    records, ctx = build_coverage(world, kept=kept, _static_table=_static_table)
+    records, ctx = build_coverage(world, kept=kept, _static_table=_static_table,
+                                 finale=finale)
     byname = all_checks(records, ctx)
     total = sum(len(v) for v in byname.values())
     if printer:
