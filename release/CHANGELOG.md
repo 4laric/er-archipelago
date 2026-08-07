@@ -3,6 +3,28 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.8 — 2026-08-07
+
+Window opened 2026-08-07, at the tag of v0.3.7 and because somebody remembered rather than because
+a gate went red. That is the first time in five windows, and the v0.3.7 notes had just finished
+saying it had never happened.
+
+`CONTRACT_HASH` is unmoved at `d7d3a58e`. The version bump is lockstep, not a contract change.
+
+### The client pin catches up with the client that shipped
+
+The world's gitlink sat at `b3045b4` -- the #101 merge -- through the whole of the v0.3.7 window,
+including at the tag. Five client merges landed past it and none were pinned: #102 (the equip queue
+asked for an upgrade level the bag had never held), #103 and #105 (the Serpent-Hunter's wave
+SpEffect, and the discovery that setting it on the weapon row is inert under a weapon already
+equipped), #104 (the ESD talk-event probe) and #106 (your own weapon handed back when Rykard dies).
+
+The shipped `.dll` is a local build artifact rather than something built from the submodule, so the
+v0.3.7 zip is not necessarily missing those fixes -- but the tag's RECORD of which client the world
+pairs with was wrong, and the cross-side `generators` gate had been proving agreement against a
+client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
+thing. This window starts by moving it.
+
 ## v0.3.7 — 2026-08-06
 
 Window opened the same day v0.3.6 was tagged, and again because the gate went red rather than

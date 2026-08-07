@@ -82,20 +82,23 @@ SHIPPED = {
     # red: a row missing from HERE is invisible, only a row missing from the LEDGER fails. That
     # asymmetry is worth knowing before trusting this fixture as a count of anything.
     "0.3.6": "5e8b11c9",
-    # 🛑 0.3.7 IS NOT HERE, AND THAT IS THE FIX (2026-08-06, SPEC-ashen-capital-lock).
+    # 0.3.7 IS BACK, AT TAG TIME, EXACTLY AS THE NOTE THAT USED TO SIT HERE SAID IT WOULD BE.
     #
-    # It was added at WINDOW-OPEN, one line above where this comment now sits, by the same habit
-    # that wrote the rows above it -- and window-open is not shipping. The row's own ledger entry
-    # says the window opened that day; no v0.3.7 tag exists. What that premature row did was make
-    # `test_shipped_contract_hashes_are_never_rewritten` guard the contract hash of a version
-    # nobody has received, so the FIRST contract change of the window went red claiming history
-    # had been rewritten. There was no history to rewrite.
+    # That note (2026-08-06, SPEC-ashen-capital-lock) removed this row because it had been written
+    # at WINDOW-OPEN, and window-open is not shipping: guarding the hash of a version nobody had
+    # received made the window's own first contract change go red claiming history had been
+    # rewritten. It ended "the row goes back at TAG time, carrying whatever hash it actually ships
+    # with (d7d3a58e as things stand)". v0.3.7 was tagged 2026-08-07 21:01Z at 0c05811b and shipped
+    # d7d3a58e. So: back, unchanged, as predicted.
     #
-    # This fixture records versions that have SHIPPED, and `test_every_tagged_version_is_recorded_
-    # _as_shipped` derives that list from the git TAGS rather than from anyone remembering -- so an
-    # untagged version belongs here exactly never. The row goes back at TAG time, carrying whatever
-    # hash it actually ships with (d7d3a58e as things stand, since this window moved the contract
-    # for the first time since 0.3.0).
+    # 🛑 AND THE GATE FOUND IT, not a person. `test_every_tagged_version_is_recorded_as_shipped`
+    # asks `git tag`, so it went red on the FIRST PR to land past the tag -- which happened to be
+    # the v0.3.8 window-open. Worth stating plainly because that window's changelog claims it was
+    # opened deliberately rather than by a red gate: the OPEN was, this row was not.
+    #
+    # 🛑 0.3.8 DOES NOT BELONG HERE. It is the open window, not a shipped version. Its row goes in
+    # when v0.3.8 is tagged, and this test is what will say so.
+    "0.3.7": "d7d3a58e",
 }
 
 
