@@ -77,6 +77,18 @@ independently and both are yours to find.
 ⚠️ This does **not** yet make it count as a Great Rune. `goal_great_runes` still caps at six and the
 Leyndell gate still counts six, which is a separate change — see below.
 
+### Three options never reached the wizard
+
+`start_regions`, `scadutree_blessing_scope` and `dlc_blessing_catchup` all landed this window and
+none of them appeared on the options wizard. The page's option list is generated from the option
+classes themselves, and three merges in a row changed those classes without re-running the
+generator -- so the wizard was still offering a single `global_scadutree_blessing` that had already
+been split in two, and offered no way at all to open a run on more than one region.
+
+Regenerated. All three are on the page now, and `capital_reconciler` and `natural_progression` sit
+back in their right places in the ordering. The yaml has always accepted these options; only the
+wizard was behind.
+
 ### Known: the capital gate counts a rune we do not
 
 Elden Ring opens the capital on a **count of flags**, and the flag Rennala sets is inside the range
