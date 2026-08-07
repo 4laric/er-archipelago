@@ -216,8 +216,20 @@ def plain_start_ids(world):
         items.append(_CERULEAN_FLASK_FULL_ID)
     if getattr(world.options, "start_with_whetblades", None) and world.options.start_with_whetblades.value:
         items += list(_WHETBLADE_FULL_IDS)
+    # 🛑 THE POT VESSELS ARE NOT AN OPTION, so vanilla_placement cannot turn them off the way it
+    # turns off the named start_with_* knobs -- they ride `item_shuffle`, which is frozen ON. They
+    # exist because a SHUFFLED pot lands on you with no vessel to throw it from; under vanilla
+    # placement every pot is already where the base game put it, right beside the vessels the base
+    # game gives you, so the premise is gone. Two reasons this is not merely cosmetic:
+    #   * 32 vessels at spawn is the single most visible non-vanilla thing in the bag;
+    #   * they EAT THE HOLD CEILING. start_hold_counts derives from this list, and core's clamp
+    #     pays FILLER for every pool copy past the ceiling -- on the 2026-08-07 smoke seed that was
+    #     21 real vanilla pot items (Cracked Pot x8, Perfume Bottle x7, Ritual Pot x3, Hefty x3)
+    #     replaced by Rune ON THEIR OWN VANILLA LOCATIONS. Dropping the start vessels hands them
+    #     back. A mode that pins items to their vanilla spots must not spend that ceiling first.
+    from . import vanilla_placement as _vp_local
     _shuf = getattr(world.options, "item_shuffle", None)
-    if _shuf is not None and _shuf.value:
+    if _shuf is not None and _shuf.value and not _vp_local.is_on(world):
         items += [_CRACKED_POT_FULL_ID] * _START_CRACKED_POTS
         items += [_RITUAL_POT_FULL_ID] * _START_RITUAL_POTS
         items += [_PERFUME_BOTTLE_FULL_ID] * _START_PERFUME_BOTTLES
