@@ -27,6 +27,10 @@ try:
 except Exception:
     DUNGEON_SWEEPS, SWEEP_REGION = {}, {}
 try:
+    from ..boss_sweeps import SWEEP_ARENA_REGION   # trigger -> region the BOSS is fought in (#445)
+except Exception:
+    SWEEP_ARENA_REGION = {}
+try:
     from ..boss_healthbars import BOSS_HEALTHBARS   # flag -> (map, tile, CLASS, name)
 except Exception:
     BOSS_HEALTHBARS = {}
@@ -93,6 +97,14 @@ class DungeonSweep(Choice):
 
     Sweeps are FILLER-ONLY by construction -- Remembrances, key items, Great Runes, boss rewards,
     legendaries and shop slots are cut before a sweep is built -- so no rung can gate progression.
+
+    A group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA
+    region has to be kept too, not just the region its members live in. Six groups are fought
+    somewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep
+    checks from Scadu Altus ground -- and a seed that keeps one region without the other used to
+    ship a sweep whose boss the region lock would not let the player reach. Those groups are dropped
+    instead. The checks are unaffected: every member is an ordinary pickup in its own region, so what
+    is lost is the convenience, not the loot.
     """
     display_name = "Dungeon Sweep"
     option_none = 0
@@ -143,6 +155,54 @@ def _boss_key_names():
         for (_aid, _fl, reward) in lst:
             names["Boss Key: " + _boss_label(reward)] = None
     return list(names)
+
+
+def sweep_trigger_reachable(fl, kept, sweep_region=None, arena_region=None):
+    """True iff this seed can ever FIRE sweep group `fl` -- issue #445.
+
+    A group has two regions, and until 2026-08-07 only one of them was checked:
+
+    * the MEMBERS' region (`SWEEP_REGION`) -- where the checks it grants live;
+    * the ARENA region (`SWEEP_ARENA_REGION`) -- where the player must STAND to kill the trigger
+      boss, read from PlayRegionParam's boss-area row.
+
+    They are the same region for 106 of the 112 audited triggers and this predicate changes nothing
+    there. For the other 6 they differ, and a seed that keeps the members' region WITHOUT the arena's
+    ships a group whose trigger can never fire: `er_logic::region_lock::kick_decision` ejects the
+    player from the arena's play_region bucket before the fight. The Golden Hippopotamus is the case
+    that found it (issue #445) -- arena bucket 69000 = m61_48_45 = Scadu Altus, 104 members in Shadow
+    Keep -- and boblerrr's 6-region seed kept Shadow Keep and not Scadu Altus.
+
+    🛑 AN UNKNOWN ARENA IS TREATED AS REACHABLE, and that is a documented LOWER BOUND, not a clean
+    bill. 113 of the 225 triggers have no `boss_area_regions.tsv` row, so this predicate cannot speak
+    for them; refusing them instead would silently delete 1686 member links on missing evidence.
+    `slot_data` logs the unaudited count on every seed and
+    test_gf_boss_sweeps.test_sweep_arena_coverage_floor ratchets it, because a self-reported coverage
+    number is not a safeguard unless something acts on it (CONTRIBUTING rule 11).
+
+    Pure over its inputs (module globals by default) so it unit-tests with synthetic data injected."""
+    sweep_region = SWEEP_REGION if sweep_region is None else sweep_region
+    arena_region = SWEEP_ARENA_REGION if arena_region is None else arena_region
+    kept = set(kept)
+    if sweep_region.get(fl) not in kept:
+        return False
+    arena = arena_region.get(fl)
+    return arena is None or arena in kept
+
+
+def unreachable_sweeps(live, kept, sweep_region=None, arena_region=None):
+    """The subset of `live` this seed keeps the members' region for but can never TRIGGER, as
+    {flag: (members_region, arena_region)}. Split out from the filter so the drop can be COUNTED and
+    named in the log rather than silently vanishing -- a filter with no tally is a lie
+    (CONTRIBUTING rule 4). Groups whose members' region is simply not kept are not in here: those
+    are ordinary out-of-scope groups, not a defect."""
+    sweep_region = SWEEP_REGION if sweep_region is None else sweep_region
+    arena_region = SWEEP_ARENA_REGION if arena_region is None else arena_region
+    kept = set(kept)
+    return {fl: (sweep_region.get(fl), arena_region.get(fl))
+            for fl in live
+            if sweep_region.get(fl) in kept
+            and not sweep_trigger_reachable(fl, kept, sweep_region, arena_region)}
 
 
 def enabled_sweeps(world):
@@ -214,6 +274,12 @@ def _sweep_lock_gates(kept, region_bosses=None, dungeon_sweeps=None, sweep_regio
     for fl in dungeon_sweeps:
         reg = sweep_region.get(fl)
         if reg not in kept:
+            continue
+        # ...and the group must be FIREABLE at all (#445): a gate on a trigger whose arena region is
+        # not kept holds a sweep that was never going to fire, so the client would render "waiting on
+        # <lock>" for a boss the seed cannot let the player reach. Same predicate as the emit, so the
+        # two can never disagree about which groups exist.
+        if not sweep_trigger_reachable(fl, kept, sweep_region):
             continue
         # Exempt minor-dungeon + field sweeps from boss-key deferral: killing a catacomb/cave/tunnel/
         # divine-tower/field boss releases its (map-local / own-tile) sweep IMMEDIATELY. Only region
@@ -334,8 +400,25 @@ class BossLocks(Feature):
             # from DarkScript EMEVD (boss_sweeps.py). A small client handler that watches the
             # boss-defeat flag and grants the members activates these in-game (P3b-client).
             _live = enabled_sweeps(world)
-            sd[contract.DUNGEON_SWEEP_FLAGS] = {str(fl): _live[fl]
-                                       for fl in _live if SWEEP_REGION.get(fl) in kept}
+            # #445: a group is emitted only when BOTH its members' region and its trigger's ARENA
+            # region are kept. Dropping it here is what stops the F6 tracker promising "0/104 checks
+            # -- waiting on the boss" for a boss this seed can never let the player fight. The
+            # members are unaffected: each is an ordinary location in `locationFlags` and is still
+            # collected by walking to it. What is lost is the convenience the sweep was, and saying
+            # so beats rendering a row that will never move.
+            _dropped = unreachable_sweeps(_live, kept)
+            sd[contract.DUNGEON_SWEEP_FLAGS] = {str(fl): _live[fl] for fl in _live
+                                                if sweep_trigger_reachable(fl, kept)}
+            _unaudited = [fl for fl in _live if fl not in SWEEP_ARENA_REGION]
+            print("[greenfield] dungeon sweeps: %d group(s) armed; %d dropped as UNFIREABLE "
+                  "(trigger's arena region not kept, #445)%s; %d group(s) UNAUDITED (no arena row -- "
+                  "not verified clean)"
+                  % (len(sd[contract.DUNGEON_SWEEP_FLAGS]), len(_dropped),
+                     (" -- " + ", ".join("%d %s members, arena %s (%d checks)"
+                                         % (fl, _dropped[fl][0], _dropped[fl][1], len(_live[fl]))
+                                         for fl in sorted(_dropped, key=lambda x: -len(_live[x]))))
+                     if _dropped else "",
+                     len(_unaudited)))
             sd[contract.DUNGEON_SWEEPS] = {}     # location-keyed variant (needs boss-reward-location join)
             # sweepLockGates: non-empty under boss_keys, base + DLC. Per-boss PRECISE where the sweep
             # trigger flag is itself a boss-defeat flag, else the region-representative fallback (the

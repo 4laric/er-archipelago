@@ -191,6 +191,12 @@ run rather than tune it.
   convenience, not items.
   (Before 2026-07-29 the three non-`none` values were identical; the default is
   named `bosses` now because that is what they all did.)
+  A handful of bosses are *fought* in a different region from the one their
+  loot lies in -- the Golden Hippopotamus hands over Shadow Keep checks from
+  Scadu Altus ground. If your seed keeps one of those regions and not the
+  other, that boss's sweep is left out rather than shipped as a payout you
+  could never trigger. You collect its checks on foot instead; nothing is
+  missing from the seed.
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock`** (both on) -- reroll
   what farmable enemies drop and what unlimited-stock merchants sell. One-time
   drops -- the actual checks -- are untouched; this randomizes the repeatable

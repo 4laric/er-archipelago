@@ -89,6 +89,36 @@ Regenerated. All three are on the page now, and `capital_reconciler` and `natura
 back in their right places in the ordering. The yaml has always accepted these options; only the
 wizard was behind.
 
+### A boss you cannot fight no longer holds a region's loot hostage
+
+A sweep group has two regions and we were only ever checking one of them: where its checks live, and
+where you have to stand to kill the boss that hands them over. For six groups those are different
+places, and the worst of them is the Golden Hippopotamus — it hands over 104 Shadow Keep checks, but
+the arena you fight it in is Scadu Altus ground. Keep Shadow Keep without Scadu Altus and the region
+lock throws you out before you reach the fight, so the sweep sat there forever, and the tracker
+cheerfully said "0/104 — waiting on the boss" about a boss the seed would never let you reach.
+
+Those groups are no longer sent to seeds that cannot fire them. **Nothing is lost that you could
+have collected**: every one of those checks is an ordinary pickup in its own region and always was —
+you walk to it like any other. What you lose is the convenience of being handed them, and what you
+gain is not being told to wait for something that is never coming.
+
+The other five: Margit's 55 Stormveil checks (arena is Limgrave), 24 Gravesite checks (arena is Rauh
+Base), 11 Abyssal checks (arena is Scadu Altus), and two small Ashen Capital groups that were always
+inert. At six kept regions, about half of all seeds had at least one of these.
+
+### Known: 20 checks may stand in a region other than the one we file them under
+
+Found while fixing the above. A check's region decides whether your seed creates it; your position
+decides whether the region lock lets you stand there. Those are two different derivations and they
+disagree about 20 checks — eleven Gravesite checks that sit on Rauh Base ground, four Cerulean
+checks on Charo's ground, and a handful of one-offs. If you keep the first region and not the
+second, those checks exist in your seed and you may not be able to walk to them.
+
+They are all filler and none of them can hold progression, so no seed becomes unwinnable. They are
+listed and pinned now, so no new ones can appear unnoticed, and each needs an in-game confirmation
+before we move it — a datamined coordinate is not a playtest. If you hit one, tell us which.
+
 ### Known: the capital gate counts a rune we do not
 
 Elden Ring opens the capital on a **count of flags**, and the flag Rennala sets is inside the range
