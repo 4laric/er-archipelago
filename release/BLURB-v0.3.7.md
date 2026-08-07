@@ -53,6 +53,28 @@ The part worth saying plainly: **this had been true in roughly half of all six-r
 sweeps shipped**, and no gate anywhere asked the question. There is one now, over all 225 sweep
 groups rather than over the one that got reported.
 
+## Two settings, one of them because somebody asked
+
+**You can open a run on more than one region.** bobler asked for it the day v0.3.6 shipped -- *"is
+there an option to start with more than 1 region unlocked?"* -- and the honest answer was no.
+`start_regions` is that option. Set it to 1 and nothing changes at all: not "equivalent to before",
+identical, down to the position in the random stream, so every seed anyone has rolled still rolls
+the same way.
+
+**The Scadutree blessing is two settings now, and it has lost its ceiling.** One option had been
+doing two jobs -- where the blessing applies, and whether the DLC gets a catch-up floor -- so they
+are separate, which makes a fourth combination sayable for the first time: vanilla scope *with* the
+floor, meaning the blessing behaves exactly as the base game intends while the DLC never runs under
+its expected level.
+
+The cap of 12 is gone, and it is worth saying why it was there, because it was never a balance
+opinion about the blessing. It was a statement about how much of the item pool fragments were
+allowed to eat. Those are different arguments and it had been standing in for both. The real ceiling
+is the game's own ladder at 20 -- the base game hand-places exactly fifty fragment units, which is
+exactly level 20 -- so that is the ceiling now, and the pool-pressure question is answered where it
+actually lives: half the injected fragments arrive as a **Scadutree Fragment x2**, so fifty units
+costs 38 items instead of 50.
+
 ## Rykard, and the spear he assumes you brought
 
 Rykard's second phase is built around one weapon. The base game leaves the Serpent-Hunter on the
