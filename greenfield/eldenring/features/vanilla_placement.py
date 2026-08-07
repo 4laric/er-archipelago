@@ -76,12 +76,18 @@ gated on enable_dlc, so the reveal still happens. See area_locks.py's own note o
 
 WHAT THIS MODE IS NOT
 ---------------------
-Vanilla PLACEMENT, not vanilla BALANCE. The frozen QoL behaviours (auto_upgrade,
-flatten_regular_upgrades, the start lantern/flasks/steed) are unaffected and still apply, and the
-vanilla-inherent missables are inherited as-is -- the Erdtree burn still strands Leyndell's checks
-exactly as the base game does. Both are documented in presets/vanilla-deathlink.yaml rather than
-guarded here: guarding vanilla against itself is out of scope for a mode whose entire premise is
-"change nothing".
+Vanilla PLACEMENT, not vanilla BALANCE -- with one exception. The frozen COMBAT/economy QoL
+(auto_upgrade, flatten_regular_upgrades, no_weapon_requirements) is unaffected and still applies.
+
+The START LOADOUT is not: see VANILLA_START below. It had to go because three of its grants are
+keyed to flags that ARE their locations' check flags, so the mode was collecting three Roundtable
+checks at connect -- a randomizer behaviour in a mode whose premise is that nothing moves, and one
+the player would have watched happen in the log.
+
+The vanilla-inherent missables ARE inherited as-is: the Erdtree burn still strands Leyndell's checks
+exactly as the base game does. Documented in presets/vanilla-deathlink.yaml rather than guarded --
+guarding vanilla against itself is out of scope for a mode whose entire premise is "change
+nothing".
 """
 import logging
 
@@ -110,14 +116,70 @@ class VanillaPlacement(Choice):
     Number of Regions is ignored -- the whole map is in play from the start, and the Leyndell wall,
     the Rold Medallion and every other door work as they always did.
 
-    This is vanilla PLACEMENT, not vanilla BALANCE: the quality-of-life behaviours this world always
-    applies (automatic weapon upgrades, the flattened upgrade curve, the starting lantern and flasks)
-    still apply. It also inherits the base game's own missables -- burning the Erdtree still strands
-    Leyndell's checks."""
+    The start is vanilla too. You begin with what your class begins with -- no lantern, no extra
+    flasks, no Torrent, no Spirit Calling Bell, no crafting pots, no revealed maps, and no levelling
+    until you meet Melina. Everything this world normally hands you at the start is somewhere in the
+    world instead, where the base game keeps it. (Three of those gifts also used to tick off their
+    own Roundtable checks the moment you connected, which is not how you want a vanilla run to open.)
+
+    The combat quality-of-life this world always applies is unchanged: weapons still upgrade
+    automatically and still ignore their stat requirements. So this is vanilla PLACEMENT and a
+    vanilla START, not vanilla BALANCE. It also inherits the base game's own missables -- burning the
+    Erdtree still strands Leyndell's checks."""
     display_name = "Vanilla Placement"
     option_off = 0
     option_all = 1
     default = 0
+
+
+# ---- THE START LOADOUT ------------------------------------------------------------------------
+# Every name here is FROZEN ON in defaults.py -- no yaml can turn any of them off -- so a mode that
+# wants a vanilla start has to neutralise them itself. They are the randomizer's opening
+# conveniences, and each one is a thing the base game makes you go and get:
+#
+#   start_with_bell / _physick / _whetstone  the Twin Maiden Husks hand these over in Roundtable.
+#     🛑 THESE THREE ARE THE REASON THIS EXISTS AT ALL. They are unique grants keyed to flags
+#     60110 / 60020 / 60130, and those flags ARE their locations' check flags -- so granting them at
+#     connect COLLECTS three checks before the player has moved. The 2026-08-07 smoke log shows
+#     exactly that: "[APS] Player found their Flask of Wondrous Physick ... from Twin Maiden Husks"
+#     at 13:53:01, seconds after loading in. In a vanilla run you walk to the Husks.
+#   start_with_steed    Torrent is Melina's gift, and she is the vanilla pacing gate.
+#   start_with_lantern  not a vanilla item in the start loadout at all.
+#   start_with_flasks   the base game starts you on 4+3, not the topped-up randomizer loadout.
+#   start_with_whetblades  already inert (the flags are the unlock, not the item) -- listed so the
+#     set is the complete frozen surface rather than the subset that happened to matter.
+#   early_leveling      vanilla will not let you level until Melina. That IS the early game.
+#   reveal_all_maps     vanilla makes you find or buy every map fragment.
+#
+# start_with_region_lock is NOT here: it is already inert under this mode because no lock exists to
+# precollect, and neutralising it twice would imply it did something.
+#
+# ⭐ FLIPPING ONE BACK IS A ONE-LINE CHANGE: delete it from this tuple. That is deliberate -- these
+# are taste, not correctness, and the taste may not be shared.
+VANILLA_START = (
+    "start_with_lantern", "start_with_flasks", "start_with_steed", "start_with_bell",
+    "start_with_physick", "start_with_whetstone", "start_with_whetblades",
+    "early_leveling", "reveal_all_maps",
+)
+
+
+def apply_vanilla_start(world) -> list:
+    """Neutralise the frozen start loadout, in core.generate_early, BEFORE any feature reads it.
+
+    Uses defaults.Frozen -- the same stand-in apply_frozen installs -- so every consumer
+    (start_items.plain_start_ids, its uniqueStartGrants, start_grace) reads a plain `.value == 0`
+    and takes its own off-branch. One seam instead of nine call sites, and nothing has to learn
+    about this mode.
+
+    Returns the names it actually turned off, for the log line."""
+    from ..defaults import Frozen
+    off = []
+    for nm in VANILLA_START:
+        opt = getattr(world.options, nm, None)
+        if opt is not None and int(getattr(opt, "value", 0)):
+            setattr(world.options, nm, Frozen(0, name=nm))
+            off.append(nm)
+    return off
 
 
 def is_on(world) -> bool:
@@ -178,6 +240,14 @@ class VanillaPlacementFeature(Feature):
         logging.getLogger("Greenfield").info(
             "[eldenring:%s] vanilla_placement: ON -- every check pays its own vanilla item, no "
             "region locks minted, no items exchanged with other worlds", world.player)
+        # The start loadout is neutralised in core.generate_early (BEFORE the feature loop, so no
+        # feature can have read it first); core publishes what it turned off and this says so.
+        # A frozen option going quiet without a line is the silent no-op CONTRIBUTING forbids.
+        _off = getattr(world, "gf_vanilla_start_off", None)
+        if _off:
+            logging.getLogger("Greenfield").info(
+                "[eldenring:%s] vanilla_placement: vanilla start -- %d frozen start-loadout "
+                "option(s) turned off: %s", world.player, len(_off), ", ".join(_off))
 
 
 def apply(world) -> None:

@@ -406,6 +406,12 @@ class GreenfieldEldenRingWorld(World):
     def generate_early(self) -> None:
         # Frozen behaviour first: features read the removed knobs exactly as before (defaults.py).
         apply_frozen(self.options)
+        # ...then vanilla_placement takes the start loadout back off, and it has to happen HERE:
+        # between apply_frozen (which installs the frozen ON values) and the feature loop at the end
+        # of this method (where start_items/start_grace first read them). A guard inside those
+        # features would work today and rot the moment a tenth consumer is added.
+        self.gf_vanilla_start_off = (
+            _vp.apply_vanilla_start(self) if _vp.is_on(self) else [])
         self.gf_eligible: List[str] = self._eligible_regions()
         # DLC-off seeds must not receive DLC items as juice/filler. Publish the exclusion set
         # once here so every pool-augmentation feature reads the same resolved decision.
