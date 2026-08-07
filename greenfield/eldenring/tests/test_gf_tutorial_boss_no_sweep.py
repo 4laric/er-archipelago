@@ -16,6 +16,8 @@ fold had two consumers; one was fixed and the other was not, and nothing connect
 data fold needs an exception, grep for every consumer of the fold -- an exception applied once is
 not an exception applied.
 """
+import hashlib
+
 import pytest
 
 pytest.importorskip("worlds.eldenring")
@@ -343,6 +345,44 @@ def test_the_sweep_corpus_did_not_shrink():
     # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
+    # 🛑 THE TOTAL CANNOT SEE A PERMUTATION -- see test_the_sweep_OWNERSHIP_did_not_churn below.
+    # The same +3 regen ALSO moved 133 existing members to a different boss.
     assert total == 3691, (
         "sweep corpus is %d, expected 3691. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
+
+
+def _sweep_digest():
+    """A stable fingerprint of WHICH BOSS OWNS WHICH CHECK -- keyed on the acquisition FLAG.
+
+    🛑 NEVER on the ap id. Positional ap ids renumber whenever a location is added or removed
+    earlier in the table, so an ap-keyed digest would fire on every unrelated change and be switched
+    off inside a month. The flag is the invariant."""
+    from worlds.eldenring.data import LOCATIONS
+    flag_of = {ap: fl for _r, v in LOCATIONS.items() for (_n, ap, fl) in v}
+    pairs = sorted((int(trig), int(flag_of[m])) for trig, ms in DUNGEON_SWEEPS.items()
+                   for m in ms if m in flag_of)
+    return hashlib.sha256(repr(pairs).encode()).hexdigest()[:16], len(pairs)
+
+
+def test_the_sweep_OWNERSHIP_did_not_churn():
+    """The companion to the total above, and the reason it needs one.
+
+    2026-08-07: the corpus total moved 3688 -> 3691 while **133 members changed which boss grants
+    them** -- 21010800 <-> 21010801 swapping 16 and 15 (the two Shadow Keep bosses trading half their
+    lists), plus overworld 3-cycles 1042550800 -> 1043530800 -> 1041530800, four members each. The
+    multi-boss divvy's PHASE depends on the member list's length, so inserting members re-phases
+    everything after them (#363's stable-modulus problem). Bumping the total went green through all
+    of it; the churn was found only because someone diffed by hand.
+
+    That churn was ACCEPTED on a measurement, not a shrug: of the 133, **ZERO crossed a region
+    boundary**. Every one stayed with a boss in the same region, so no check moved somewhere a
+    player might not have access to -- the softlock-shaped risk (#445) is not present.
+
+    WHEN THIS FAILS: diff DUNGEON_SWEEPS by (trigger, flag) across the regen and record ADDED,
+    REMOVED and RE-OWNED separately. For the re-owned, check SWEEP_REGION on both sides: staying
+    inside one region is a pacing change, leaving it is a reachability bug."""
+    digest, n = _sweep_digest()
+    assert (digest, n) == ("a50f6de2c7723bf6", 3691), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (a50f6de2c7723bf6, 3691). The total alone will "
+        "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

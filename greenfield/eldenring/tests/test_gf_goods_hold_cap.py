@@ -157,18 +157,16 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             "Note: Imp Shades": (2, 1), "Note: Stonedigger Trolls": (2, 1),
             "Unalloyed Gold Needle": (2, 1), "Whetstone Knife": (2, 1),
             "Memory Stone": (9, 8),
-            # +1 (2026-08-07, #249 de-dup re-key). NOT a spell, so the stop-condition above does
-            # not apply -- this is the same "unique-ish good the pool duplicates past a maxNum of
-            # 1" shape as its neighbours here, and the clamp removing the surplus is correct: the
-            # game will not hold two.
-            #
-            # The re-key off the ITEM NAME recovered a SECOND location carrying this item:
-            #     Liurnia :: Rya's Necklace - from Blackguard        [f400300]   (already present)
-            #     Sewer   :: Rya's Necklace - around Underground Roadside [f400081]  (recovered)
-            # `_pool_copies` counts one copy per location, so pool copies went 1 -> 2 against a
-            # ceiling of 1. Established by diffing LOCATION NAMES across the regen -- the same
-            # regen renumbered the ap ids, so an id-level diff of this data says nothing.
-            "Rya's Necklace": (2, 1),
+            # 🛑 "Rya's Necklace": (2, 1) WAS pinned here on 2026-08-07 and is now GONE, because
+            # the second copy was never a necklace. Diffing by LOCATION NAME said "the re-key
+            # recovered a second pickup"; diffing by ITEM ID says otherwise:
+            #     f400300 -> goods 8136  "Rya's Necklace"          sortId 204050   (the real one)
+            #     f400081 -> goods 8130  "[ERROR]Rya's Necklace"   sortId 0        (cut content)
+            # Two different items sharing a display name, because region_map carries the STRIPPED
+            # name. gen_data's item-existence guard now treats an "[ERROR]" PREFIX as unnamed, so
+            # f400081 is no longer a check and the pool holds one necklace again.
+            # ⭐ A NAME MATCH IS NOT AN ITEM MATCH -- the same lesson that made the #249 de-dup
+            # key on (table, lot) instead of item_name, one table over.
         }
         # 🛑 NOT ONE OF THE FOUR POT ROWS IS IN THIS LIST, and that is the finding, not an
         # omission: every one of them is UNDER its ceiling on pool copies alone (17<=19, 8<=9,

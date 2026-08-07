@@ -1675,6 +1675,22 @@ _NAME_FMGS = [
 # game (hit rates: 1->Goods 95%, 2->Weapon 99%, 3->Protector 99%, 4->Accessory 100%, 5->Gem 98%).
 _LOTCAT_NIBBLE = {1: 0x40000000, 2: 0x00000000, 3: 0x10000000, 4: 0x20000000, 5: 0x80000000}
 _PLACEHOLDER_NAMES = ("%null%", "[ERROR]")
+# 🛑 FromSoft writes the cut-content marker BOTH ways: a bare "[ERROR]" and "[ERROR]<real name>".
+# Testing only the bare form let `[ERROR]Rya's Necklace` (goods 8130, sortId 0) read as a NAMED item,
+# so f400081 shipped as a live check holding a thing that does not exist -- and because region_map
+# carries the STRIPPED name, the pool then held TWO "Rya's Necklace" against a maxNum of 1 and the
+# hold-cap clamp silently ate one. The real necklace is goods 8136 (f400300, Liurnia): a different
+# flag AND a different item, so this was never a duplicate to hand-pin.
+# MEASURED BEFORE LANDING, because the guard's own note above says "if this guard ever drops hundreds
+# of checks, THAT is the bug": 130 ids leave the named set and exactly ONE live check loses its last
+# named item -- f400081 itself. f400592 also awards 8130 but keeps another named slot, so the
+# "a mixed lot survives" rule holds.
+_PLACEHOLDER_PREFIXES = ("[ERROR]",)
+
+
+def _is_placeholder_name(_txt):
+    """True for FromSoft's cut-content name markers, in EITHER shape."""
+    return (not _txt) or _txt in _PLACEHOLDER_NAMES or _txt.startswith(_PLACEHOLDER_PREFIXES)
 
 def _named_item_ids():
     """{category nibble: set(named item ids)} from the FMGs. None if the name tables are absent."""
@@ -1688,7 +1704,7 @@ def _named_item_ids():
         except Exception: continue
         for _t in _root.iter("text"):
             _i, _txt = _t.get("id"), (_t.text or "").strip()
-            if _i and _txt and _txt not in _PLACEHOLDER_NAMES:
+            if _i and not _is_placeholder_name(_txt):
                 _out.setdefault(_nib, set()).add(int(_i))
     return _out if _seen_any else None
 
@@ -3659,7 +3675,7 @@ def _gesture_derive():
             continue
         for _t8 in _ET.parse(_p8).getroot().iter("text"):
             _i8, _tx8 = _t8.get("id"), (_t8.text or "").strip()
-            if _i8 and _tx8 and _tx8 not in _PLACEHOLDER_NAMES:
+            if _i8 and not _is_placeholder_name(_tx8):
                 _id2name.setdefault(int(_i8), _tx8)
     _rx = re.compile(r"\$InitializeCommonEvent\(\d+, (" + "|".join(_GESTURE_EVENTS)
                      + r"), (\d+), (\d+), (\d+)")

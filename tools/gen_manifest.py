@@ -62,7 +62,13 @@ FILE_INPUTS = [
     # change generated output, and a stale or re-emitted copy did not invalidate the stamp.
     "greenfield/game_areas.tsv",                   # GameAreaParam arenas; drives sweep suppression
     "greenfield/boss_arena_pairs.tsv",             # EMEVD defeat-banner heads; drives it too (#363)
-    "greenfield/arena_graces.tsv",                 # graces inside a boss arena (floor-guarded)
+    "greenfield/arena_graces.tsv",
+    # gen_data.py:2094 opens this BY NAME and its contents decide which common-event rows become
+    # locations -- but it was not declared, so `datamine_unplaced_globals.py --emit` changed
+    # generated output while leaving inputs_hash untouched and the freshness gate could not see it.
+    # FOURTH instance of the hole the nearest_grace / #363 comments above already confess to; the
+    # durable fix is to DERIVE this list from what gen_data actually opens, not to add a fifth entry.
+    "greenfield/unplaced_global_tiles.tsv",                 # graces inside a boss arena (floor-guarded)
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",
 ]
