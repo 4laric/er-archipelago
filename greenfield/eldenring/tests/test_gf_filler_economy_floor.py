@@ -353,8 +353,18 @@ class LeanSeedWarnsRatherThanShipsQuietly(WorldTestBase):
         with self.assertLogs("Greenfield", level=logging.WARNING) as cm:
             fb.allocate(self.world, fb.budget_slots(self.world))
         msg = "\n".join(cm.output)
-        self.assertIn("Smithing Stone [1]", msg)
-        self.assertIn("afford", msg)
+        # TWO warnings can fire here and BOTH honour this class's contract, so accept either. The
+        # second one only became reachable when `num_regions: 1` started keeping one region
+        # (SPEC-ashen-capital-lock): a genuinely one-region tail is small enough that `stones: 2`
+        # of 100 weights rounds to ZERO, and the allocator's zero-share path fires instead of its
+        # cannot-afford path. Pinning only the first made this class fail on the very seed shape
+        # its own fixture asks for -- and the fix is NOT to relax it to "some warning happened",
+        # because "it was quiet" is precisely the sin being guarded.
+        afforded = "Smithing Stone [1]" in msg and "afford" in msg
+        zeroed = "rounded its share to ZERO" in msg and "no smithing-stone economy" in msg
+        self.assertTrue(afforded or zeroed,
+                        "a thin stone reservation must announce itself as either 'cannot afford "
+                        "the ladder' or 'rounded to zero, no stone economy'. Got:\n" + msg)
 
 
 class AllocationIsExact(WorldTestBase):
