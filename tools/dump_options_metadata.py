@@ -108,11 +108,13 @@ PRESETS = [
                        "progression is gated the way the base game gates it. Checks still fire "
                        "and Death Link still works, so this is the setting for playing vanilla "
                        "Elden Ring alongside friends and sharing deaths. Nothing is sent to or "
-                       "received from other worlds. This is vanilla PLACEMENT, not vanilla "
-                       "BALANCE: the quality-of-life behaviours this world always applies "
-                       "(automatic upgrades, the starting lantern and flasks) still apply, and "
-                       "the base game's own missables are inherited as-is -- burning the Erdtree "
-                       "still strands Leyndell's checks.",
+                       "received from other worlds. The start is vanilla too -- no lantern, no "
+                       "Torrent, no Spirit Calling Bell, no crafting pots, no revealed maps and no "
+                       "levelling until Melina. Combat quality-of-life is unchanged (weapons still "
+                       "upgrade automatically and ignore their requirements), so this is vanilla "
+                       "PLACEMENT and a vanilla START, not vanilla BALANCE. The base game's own "
+                       "missables are inherited as-is -- burning the Erdtree still strands "
+                       "Leyndell's checks.",
         # death_link is the whole point of the preset, so it is stated even though a player could
         # set it themselves; num_regions is NOT stated because the mode ignores it (a pinned value
         # would read as though it did something).

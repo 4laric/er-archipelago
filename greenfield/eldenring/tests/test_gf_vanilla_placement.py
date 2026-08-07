@@ -126,6 +126,46 @@ class VanillaPlacementTest(WorldTestBase):
             assert l.item is not None and l.item.player == self.player, \
                 f"{l.name} is unfilled or foreign -- the pin walk missed the feature-owned locations"
 
+    # ---- THE START IS VANILLA TOO --------------------------------------------------------
+    def test_no_start_loadout(self):
+        """The 2026-08-07 smoke log showed three Roundtable checks collecting themselves at connect
+        -- start_with_bell / _physick / _whetstone are unique grants keyed to flags 60110 / 60020 /
+        60130, and those flags ARE their locations' check flags. Every name in VANILLA_START is
+        FROZEN ON in defaults.py, so no yaml can do this; the mode has to."""
+        world = self.multiworld.worlds[self.player]
+        # WITNESS (test_gf_vacuous_pass): every assertion here is "this is empty", which passes for
+        # free if the names go stale. Prove the options still EXIST before proving they are off --
+        # a renamed option would otherwise read as a passing test.
+        present = [nm for nm in _vp.VANILLA_START if getattr(world.options, nm, None) is not None]
+        assert present == list(_vp.VANILLA_START), (
+            f"VANILLA_START names no longer match the real options; missing "
+            f"{sorted(set(_vp.VANILLA_START) - set(present))}")
+        still_on = [nm for nm in _vp.VANILLA_START
+                    if int(getattr(getattr(world.options, nm, None), "value", 0))]
+        assert not still_on, f"start-loadout option(s) still on under vanilla placement: {still_on}"
+        sd = world.fill_slot_data()
+        assert "startItems" in sd and "uniqueStartGrants" in sd, \
+            "both keys must still be EMITTED (empty), not dropped -- the client reads them"
+        assert not sd["startItems"], f"startItems must be empty, got {len(sd['startItems'])}"
+        assert not sd["uniqueStartGrants"], \
+            f"uniqueStartGrants must be empty, got {sd['uniqueStartGrants']}"
+
+    def test_the_husks_checks_are_not_collected_at_connect(self):
+        """The motivating symptom, asserted at the location rather than the option: the three checks
+        whose flags the start grants would have set must still be sitting there unclaimed, holding
+        their own vanilla items."""
+        watch = {"Flask of Wondrous Physick", "Spirit Calling Bell", "Whetstone Knife"}
+        seen = set()
+        for loc in self.multiworld.get_locations(self.player):
+            if loc.address is None:
+                continue
+            vanilla = LOCATION_ITEM.get(loc.address)
+            if vanilla in watch and "Twin Maiden Husks" in loc.name:
+                seen.add(vanilla)
+                assert loc.item is not None and loc.item.name == vanilla, \
+                    f"{loc.name} should still hold its own {vanilla}"
+        assert seen == watch, f"expected all three Husks checks in the seed, saw {sorted(seen)}"
+
     # ---- THE CLIENT IS TOLD TO SEAL NOTHING ----------------------------------------------
     def test_slot_data_emits_no_seals(self):
         """The born-softlocked regression. area_locks emits kick-watch ranges for ALL regions
@@ -169,3 +209,11 @@ class VanillaPlacementOffIsUnchangedTest(WorldTestBase):
         receivable += [i.name for i in self.multiworld.precollected_items[self.player]]
         assert any(n.endswith(" Lock") for n in receivable), \
             "with the mode off the seed must still mint region locks"
+
+    def test_off_keeps_the_start_loadout(self):
+        world = self.multiworld.worlds[self.player]
+        on = [nm for nm in _vp.VANILLA_START
+              if int(getattr(getattr(world.options, nm, None), "value", 0))]
+        assert on, "with the mode off the frozen start loadout must be untouched"
+        assert world.fill_slot_data().get("uniqueStartGrants"), \
+            "an ordinary seed still grants the Husks items at connect"
