@@ -40,7 +40,9 @@ DATA = os.path.join(PKG, "data.py")
 # MEASURED 2026-08-04 on the emit that shipped with this file. A floor, not a target: the table may
 # grow when a corpus improves, and must not silently SHRINK (an oracle that quietly stops protecting
 # you is the arena-grace lesson, one table over).
-MIN_ROWS = 36
+# 36 -> 52 (2026-08-07): the de-dup re-key (see test_coverage_gate BASELINE_TOTAL_LOCATIONS)
+# unblocked 62 rows the name rule had been discarding; 16 of them had derivable tiles.
+MIN_ROWS = 52
 
 
 def _rows():

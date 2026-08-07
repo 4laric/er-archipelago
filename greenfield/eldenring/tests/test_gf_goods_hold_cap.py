@@ -69,10 +69,13 @@ def _pool_copies():
 class TestTheMotivatingCase(unittest.TestCase):
     def test_the_four_pot_rows_are_capped_and_the_numbers_are_the_logged_ones(self):
         expect = {          # name: (ceiling, start, pool-before-clamp)
-            "Cracked Pot": (19, 10, 17),
+            # pool-before-clamp moved 2026-08-07 (#249, de-dup re-key): 17->18, 8, 7->8, 4->5.
+            # These four are exactly the "common consumable, many sources" shape the old
+            # ITEM-NAME filter was discarding, so they are where the placed rows land.
+            "Cracked Pot": (19, 10, 18),
             "Ritual Pot": (9, 4, 8),
-            "Perfume Bottle": (9, 9, 7),
-            "Hefty Cracked Pot": (10, 9, 4),
+            "Perfume Bottle": (9, 9, 8),
+            "Hefty Cracked Pot": (10, 9, 5),
         }
         pool = _pool_copies()
         for nm, (ceiling, start, copies) in expect.items():
@@ -94,10 +97,13 @@ class TestTheMotivatingCase(unittest.TestCase):
                     clamped[nm] = clamped.get(nm, 0) + 1
                 elif nm in budget:
                     budget[nm] -= 1
-        self.assertEqual(clamped.get("Cracked Pot"), 8)
+        # 2026-08-07 (#249): each rises by exactly the pool copies added above -- 8->9, 3, 7->8,
+        # 3->4. The clamp is doing more work because the pool got bigger, not because a ceiling
+        # or a start loadout moved (both pinned unchanged in this file).
+        self.assertEqual(clamped.get("Cracked Pot"), 9)
         self.assertEqual(clamped.get("Ritual Pot"), 3)
-        self.assertEqual(clamped.get("Perfume Bottle"), 7)
-        self.assertEqual(clamped.get("Hefty Cracked Pot"), 3)
+        self.assertEqual(clamped.get("Perfume Bottle"), 8)
+        self.assertEqual(clamped.get("Hefty Cracked Pot"), 4)
 
     def test_after_the_clamp_nothing_is_undeliverable(self):
         """The invariant the whole change exists for: start + surviving pool copies <= ceiling."""
