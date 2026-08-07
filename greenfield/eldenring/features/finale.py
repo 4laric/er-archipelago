@@ -53,6 +53,7 @@ import logging
 from BaseClasses import Region, Location
 
 from ..registry import Feature, register
+from . import vanilla_placement as _vp
 from ..data import LOCATIONS, FINALE_REGION, FINALE_REQUIRES, FINALE_HOST_REGION
 from . import natural_progression as _np
 
@@ -101,7 +102,7 @@ def finale_requirement_locks(world) -> tuple:
     region that owns the map. core.set_rules places a `<Region> Lock` EVENT inside each kept
     region under that mode, so `has_all` over those two names is satisfiable there and means
     exactly "both regions are reachable"."""
-    if _np.is_on(world):
+    if _np.is_on(world) or _vp.is_on(world):
         return (f"{FINALE_BURN_REGION} Lock", f"{FINALE_KICK_OWNER} Lock")
     return (ASHEN_LOCK_ITEM,)
 
@@ -132,7 +133,15 @@ class Finale(Feature):
         # "is it in this seed" cannot depend on which regions the draw happened to take. Reading
         # _kept() here would make a base-game seed whose draw took only DLC regions build no
         # finale while core still minted its lock -- two answers to one question.
-        _natural = _np.is_on(world)
+        # vanilla_placement takes the SAME branch as natural_progression here, for the same reason
+        # and with the opposite history: that mode has no lock to give, this mode refuses to mint
+        # one. Either way the VANILLA chain stands -- kill Maliketh in Farum Azula, own the capital
+        # -- which is precisely how the base game reaches the Ashen Capital.
+        #
+        # 🛑 DISABLING THE FINALE HERE WAS A REAL BUG, caught by a Generate smoke run rather than by
+        # the suite: with the Ashen Capital gone, `goal: auto` derived the DLC finale instead and a
+        # base+DLC vanilla seed ended at Enir Ilim. A vanilla run ends at the Elden Beast.
+        _natural = _np.is_on(world) or _vp.is_on(world)
         scope = list(getattr(world, "gf_eligible", None) or world._kept())
         entries = finale_entries()
         world.gf_finale_active = bool(entries) and finale_active(

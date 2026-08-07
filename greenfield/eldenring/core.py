@@ -52,6 +52,7 @@ from .defaults import FROZEN_OPTIONS, apply_frozen
 from . import contract
 from . import features as _features  # noqa: F401  -- import triggers feature self-registration
 from .features import natural_progression as _np  # vanilla/natural-progression mode (zero synthetic locks)
+from .features import vanilla_placement as _vp  # every item back in its base-game spot (zero AP gating)
 from .features import goal_locations as _gl  # GOAL_CHOICES / forced_regions (the explicit `goal` option)
 from .features import finale as _finale  # ASHEN_LOCK_ITEM / finale_active (SPEC-ashen-capital-lock)
 try:
@@ -412,7 +413,9 @@ class GreenfieldEldenRingWorld(World):
         self.gf_dlc_excluded = frozenset() if self.gf_dlc_on else frozenset(DLC_ITEM_NAMES)
         # natural_progression is the INVERSE of num_regions (the whole eligible map is in play, gated
         # by real vanilla keys), so it forces the full eligible pool -- num_regions is ignored here.
-        _nr = 0 if _np.is_on(self) else int(self.options.num_regions.value)
+        # vanilla_placement also forces the full eligible pool: it lets the BASE GAME's doors do
+        # the gating, so a drawn subset would seal regions vanilla expects you to walk into.
+        _nr = 0 if (_np.is_on(self) or _vp.is_on(self)) else int(self.options.num_regions.value)
         self.gf_goal_choice: str = self._resolve_goal_choice()
         if self.options.num_regions_order.current_key == "spine":
             logging.warning(
@@ -447,7 +450,7 @@ class GreenfieldEldenRingWorld(World):
         emits `goalRequiredItems` from it, so the AP-side completion condition and the client-side
         Goal gate can never drift apart again. Empty under natural_progression, which mints no
         Lock items."""
-        if _np.is_on(self):
+        if _np.is_on(self) or _vp.is_on(self):
             return []
         # SPEC-ashen-capital-lock item 8: the Ashen lock rides this list too. Strictly REDUNDANT --
         # you cannot kill either goal boss without it, because its entrance is the only way in --
@@ -595,14 +598,18 @@ class GreenfieldEldenRingWorld(World):
         # in the pool via item_shuffle), so no "<Region> Lock" item is minted and no start anchor is
         # precollected -- the start regions (Limgrave/Weeping) open off the hub with no key.
         _natural = _np.is_on(self)
-        lock_items: List[Item] = [] if _natural else [self.create_item(f"{r} Lock") for r in kept]
+        # vanilla_placement mints no locks for the same reason natural_progression does not: the
+        # base game's own doors gate this seed, so a synthetic lock would gate it TWICE.
+        _vanilla = _vp.is_on(self)
+        _nolocks = _natural or _vanilla
+        lock_items: List[Item] = [] if _nolocks else [self.create_item(f"{r} Lock") for r in kept]
         # SPEC-ashen-capital-lock item 5: mint the burn item, unconditionally on any seed whose
         # finale exists, and mint it HERE -- before pool_builder -- so count-exactness holds by
         # construction (the builder fills whatever remains). It is progression. It is deliberately
         # NOT in `lock_items`: that list is what the start-anchor picker draws from, and the Ashen
         # Capital may never be the precollected anchor (it is not a place you play).
         _ashen_lock: List[Item] = ([self.create_item(ASHEN_LOCK)]
-                                   if getattr(self, "gf_finale_active", False) and not _natural
+                                   if getattr(self, "gf_finale_active", False) and not _nolocks
                                    else [])
         # Start holding a region's lock (precollected) so a region is open from Roundtable at run
         # start -- `start_regions` many of them, default 1.
@@ -617,7 +624,7 @@ class GreenfieldEldenRingWorld(World):
         # (mode 2) the MajorBoss bias INTERSECTS that eligibility (degrading, logged, never raising).
         # Deterministic via self.random.
         _slr = getattr(self.options, "start_with_region_lock", None)
-        if _slr is not None and _slr.value and lock_items and not _natural:
+        if _slr is not None and _slr.value and lock_items and not _nolocks:
             from .features.progression_surface import (regions_with_major_boss, lock_region_name,
                                                        missable_barred_aps as _ps_missable)
             from .features.start_grace import pick_anchor_regions
@@ -708,8 +715,9 @@ class GreenfieldEldenRingWorld(World):
         # its juice is a recipe category inside features/filler_budget, which is the single owner of
         # the filler tail. _gf_reserved_slots is what those contributors ate -- the allocator subtracts
         # it, exactly as pool_builder's private _rune_tail used to.
-        for f in _FEATURES:
-            pool += f.create_items(self)
+        if not _vanilla:
+            for f in _FEATURES:
+                pool += f.create_items(self)
         self._gf_reserved_slots = len(pool)
         total = len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
         # FEATURE-OWNED LOCATIONS (documented seam): a feature that creates locations beyond
@@ -728,7 +736,10 @@ class GreenfieldEldenRingWorld(World):
             # the pool count-exact and lets the ladder length follow the checks the seed actually
             # kept -- num_regions and DLC scale it for free. {} when the option is off.
             from .features.progressive import vanilla_substitutions as _flask_sub_of
-            _flask_sub = _flask_sub_of(self)
+            # Under vanilla_placement a Golden Seed must BE a Golden Seed: the progressive ladder
+            # replaces the vanilla item with a synthetic one, which is a randomizer behaviour in a
+            # mode whose premise is that nothing moves.
+            _flask_sub = {} if _vanilla else _flask_sub_of(self)
             # ---- THE GOODS HOLD CEILING (#308) --------------------------------------------------
             # The game has a stack ceiling per goods row (EquipParamGoods.maxNum), and for a good
             # that cannot be discarded, deposited or consumed a copy past it is not late -- it is
@@ -753,6 +764,11 @@ class GreenfieldEldenRingWorld(World):
             from .features.start_items import start_hold_counts as _start_holds
             _hold_left = hold_budget(GOODS_HOLD_CAP, _start_holds(self)) if GOODS_HOLD_CAP else {}
             _hold_clamped = {}
+            # The walk order below IS the pairing vanilla_placement.pins() reproduces; record the
+            # ap-ids as we go so pre_fill pins the RESOLVED name (post DLC-exclusion, post
+            # flask substitution, post hold-cap clamp), never a raw LOCATION_ITEM lookup that
+            # would disagree with the pool we actually built.
+            _pin_aps: List[int] = []
             for rn in [HUB] + kept:
                 for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
                     nm = LOCATION_ITEM.get(ap_id)
@@ -775,7 +791,19 @@ class GreenfieldEldenRingWorld(World):
                             nm = None
                         else:
                             _hold_left[nm] -= 1
+                    _pin_aps.append(ap_id)
                     extras.append(nm if nm and nm in item_name_to_id else FILLER)
+            if _vanilla:
+                # FEATURE-OWNED LOCATIONS (the finale's Ashen Capital checks) are counted in `total`
+                # below but are NOT in LOCATIONS[HUB + kept], so the walk above misses them and the
+                # pairing would come up short by exactly their length. They pin like any other
+                # location -- the Elden Beast's remembrance is a vanilla drop like the rest.
+                for (_n2, _ap2, _f2) in getattr(self, "gf_extra_locations", ()):
+                    _nm2 = LOCATION_ITEM.get(_ap2)
+                    if _nm2 and _excl and _nm2 in _excl:
+                        _nm2 = None
+                    _pin_aps.append(_ap2)
+                    extras.append(_nm2 if _nm2 and _nm2 in item_name_to_id else FILLER)
             # keep real items first; among reals, keep required Great Runes ahead of everything so
             # the over-provision trim (below) can never drop a rune the goal needs. FILLER (Rune)
             # sorts LAST, so growing `pool` (juice/locks) drops Rune off the tail.
@@ -806,13 +834,29 @@ class GreenfieldEldenRingWorld(World):
                 if x in required:
                     return 0
                 return 2 if _disp(self, x) else 1
-            extras.sort(key=_tail_rank)
+            # 🛑 THE SORT IS WHAT DESTROYS THE PAIRING. Under vanilla_placement `extras` IS the
+            # answer -- index k is the vanilla item of the k-th walked location -- so ranking it
+            # for the count-trim (which cannot fire here: pool is empty, slots == total) would
+            # throw away the only thing this mode computes.
+            if not _vanilla:
+                extras.sort(key=_tail_rank)
         _names: List[str] = [extras[k] if k < len(extras) else FILLER for k in range(slots)]
+        if _vanilla:
+            # slots == total and pool is empty (no locks, no feature contributors), so _names is
+            # extras unchanged and index k still means 'the k-th walked location'. Assert it
+            # rather than trust it: a future contributor that forgets the _vanilla guard would
+            # otherwise shift the pairing by its own length and pin silently-wrong items.
+            if len(_names) != len(_pin_aps):
+                raise AssertionError(
+                    '[eldenring] vanilla_placement: pool/location pairing broke -- %d pool slots '
+                    'for %d walked locations. A create_items contributor is running that should '
+                    'be skipped under this mode.' % (len(_names), len(_pin_aps)))
+            self.gf_vanilla_pins = list(zip(_pin_aps, _names))
         # THE FILLER TAIL, ALLOCATED ONCE. Every slot ranked 2 or 3 above is budget; features/
         # filler_budget decides what goes in all of them in a single pass -- economy reservation off
         # the top, then consumables and juice from the remainder. There is no second pass to undo it,
         # which is the entire point (see that module's docstring for the three-pass bug it replaces).
-        if shuffle:
+        if shuffle and not _vanilla:
             from .features import filler_budget as _fb
             _budget_ix = [k for k, nm in enumerate(_names)
                           if nm == FILLER or (nm not in required and _disp(self, nm))]
@@ -821,8 +865,13 @@ class GreenfieldEldenRingWorld(World):
                 if _pick is not None:      # None = keep what the check already paid (junk / Rune)
                     _names[_k] = _pick
         for _nm in _names:
-            _it = self.create_item(self._pick_filler() if _nm == FILLER else _nm)
-            if shuffle:
+            # Under vanilla_placement an unpinnable location (a gesture, an unnamed `check -` row:
+            # 67 of 4916) pays the MONOTONE Rune, not varied filler -- `_pick_filler` would put an
+            # item the base game never had there into a mode whose premise is that nothing moves.
+            if _nm == FILLER:
+                _nm = FILLER if _vanilla else self._pick_filler()
+            _it = self.create_item(_nm)
+            if shuffle and not _vanilla:
                 _fb.classify(self, _it)
             pool.append(_it)
         # ONE pass. No PASS-2. The old design ran additive contributors, then in-place SWAPS over
@@ -836,11 +885,19 @@ class GreenfieldEldenRingWorld(World):
         # the seed. At a large num_regions it does not, and the upgrade curve goes sparse in silence.
         # So declare the early stones to AP (`local_early_items`) and let FILL place them: intent, not
         # sphere coupling. Clamped to what this pool actually holds, and it warns if it cannot pay.
-        if shuffle:
+        if shuffle and not _vanilla:
             _fb.declare_early_items(self, [_it.name for _it in pool])
         self.multiworld.itempool += pool
 
     def pre_fill(self) -> None:
+        if _vp.is_on(self):
+            # EVERY location is locked to its own vanilla item, so there is no fill left to do --
+            # and nothing for progression_surface to confine (its whole job is choosing WHERE this
+            # world's progression lands, which vanilla already decided). Returning here is what
+            # makes the world hermetic: zero unfilled locations means AP can never place a foreign
+            # item in Elden Ring, which is the property the mode's safety argument rests on.
+            _vp.apply(self)
+            return
         # progression_surface (v0.2): CONFINE this world's own progression (region Locks + required/
         # gate runes + legacy keys) to a small high-confidence surface -- default MajorBoss -- via
         # fill_restrictive over the selected classes, with a feasibility ladder that widens (then spills
@@ -889,7 +946,7 @@ class GreenfieldEldenRingWorld(World):
         # soft-lock under accessibility:minimal, which AP does not self-check). Runs first so a doomed
         # seed dies before the cosmetic stone-ramp work below. Fail-open on internal audit error.
         _psm = getattr(self.options, "progression_surface_mode", None)
-        if _psm is not None and int(_psm.value) != 0:
+        if _psm is not None and int(_psm.value) != 0 and not _vp.is_on(self):
             from .features import progression_surface as _ps
             _ps.audit_reachable(self)
 
@@ -988,25 +1045,34 @@ class GreenfieldEldenRingWorld(World):
         # This is what lets fill never strand progression in a child whose parent is sealed/unfound.
         # compute_kept guarantees a kept child's parent is kept; a miss here is corrupt state.
         _natural = _np.is_on(self)
+        # vanilla_placement: the base game gates this seed, so AP gates nothing -- every region
+        # hangs off the hub with an always-true entrance. It still needs the EVENT LOCKS below
+        # for the same reason natural_progression does (many features ask has('<R> Lock')).
+        _vanilla = _vp.is_on(self)
         for r, reg in created.items():
             # In natural_progression the geography flattens (a lock warps you in), so most regions hang
             # off the hub and only the kept chokepoints keep a graph parent (natural_progression.
             # NATURAL_PARENT: Leyndell->Altus, Sewer->Leyndell); the entrance rule is the region's real
             # vanilla-key clause instead of has("<Region> Lock").
-            parent = _np.natural_parent(r) if _natural else REGION_PARENT.get(r)
+            if _vanilla:
+                parent = None
+            else:
+                parent = _np.natural_parent(r) if _natural else REGION_PARENT.get(r)
             if parent is not None and parent not in created:
                 raise RuntimeError(
                     f"create_regions: gated child {r!r} kept without its parent {parent!r} -- "
                     f"compute_kept must close over REGION_PARENT")
             src = created[parent] if parent is not None else hub
-            if _natural:
+            if _vanilla:
+                rule = lambda state: True
+            elif _natural:
                 _erule = _np.entrance_rule(self, r)
                 rule = _erule if _erule is not None else (lambda state: True)
             else:
                 lock = f"{r} Lock"
                 rule = lambda state, l=lock: state.has(l, self.player)
             src.connect(reg, f"To {r}", rule=rule)
-        if _natural:
+        if _natural or _vanilla:
             # ZERO synthetic locks, but MANY features still reason "region R is open" as
             # has("<R> Lock") (boss_locks, the finale's own Ashen Capital Lock, ...). Rather than teach each one about this mode, place "<R> Lock" as an
             # AP EVENT (code=None -> never in the item pool, never granted to the client, never a
@@ -1023,7 +1089,7 @@ class GreenfieldEldenRingWorld(World):
     def set_rules(self) -> None:
         required = self._required_runes()
         player = self.player
-        if _np.is_on(self):
+        if _np.is_on(self) or _vp.is_on(self):
             # natural_progression mints NO region locks, so has_all([]) would be vacuously true: the
             # goal is instead REACHING the goal region (Leyndell), whose entrance requires 2 Great
             # Runes (features/leyndell_gate) reached through the real-key gate graph -> a genuine spine.
@@ -1295,7 +1361,10 @@ class GreenfieldEldenRingWorld(World):
             contract.LOCATION_FLAGS: loc_flags,
             contract.AP_IDS_TO_ITEM_IDS: _AP_IDS_TO_ITEM_IDS,
             contract.ITEM_COUNTS: self._item_counts(),
-            contract.REGION_OPEN_FLAGS: region_open,
+            # vanilla_placement receives no "<Region> Lock", so every one of these flags would
+            # stay dark forever; the client treats a region absent from this map as UNLOCKED,
+            # which is the correct answer when the base game owns the gating.
+            contract.REGION_OPEN_FLAGS: {} if _vp.is_on(self) else region_open,
             contract.LOCATION_REGIONS: loc_regions,
             contract.REGION_COARSE_KEYS: coarse_keys,
             contract.OPTIONS: self._options_echo(),
