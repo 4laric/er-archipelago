@@ -41,7 +41,12 @@ GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
 
 # --- the encoded baseline (this tree) ---------------------------------------------------------
-BASELINE_TOTAL_LOCATIONS = 4916   # 4915 + 1: the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
+# 4916 -> 4932 (+16, 2026-08-07, #249): tools/datamine_unplaced_globals.py had its
+# double-count filter re-keyed from the ITEM NAME onto the (table, lot) pair. The old rule
+# dropped 62 unplaced rows as "a single in-game pickup"; 61 of them sat on lots DISTINCT
+# from every name-twin and none shared one. Proven in game: boblerrr collected f530950 (a
+# check) and f530935 (vanilla, no location) on one character, `!flag` true for both.
+BASELINE_TOTAL_LOCATIONS = 4932   # PREVIOUS: 4916 # 4915 + 1: the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
                                   # 4879 + 36 (unplaced common-event rows placed, 2026-08-04,
                                   # issue #249): rows filed `Global / Common-event (unplaced)` that
                                   # were never checks at all, so their item dropped VANILLA. Placed
@@ -94,7 +99,12 @@ BASELINE_TOTAL_LOCATIONS = 4916   # 4915 + 1: the Great Rune of the Unborn co-ch
                                   # new location covered; detection/award/region/suppression stayed at
                                   # ZERO violations. Prior lineage: 4833 (synthetic-award-guard regen)
                                   # + 10 finale (Ashen Capital, 2026-07-14) + 7 gesture pickups = 4848.
-BASELINE_SHOP_CHECKS = 561   # 562 -> 561 (2026-07-18): the shop-region/ShopSlot pass reclassified one
+BASELINE_SHOP_CHECKS = 562   # 561 -> 562 (2026-08-07): f400030 (Festering Bloody Finger), an
+                             # unplaced-global row placed by the lot-keyed de-dup, whose flag is a
+                             # ShopLineupParam eventFlag_forStock -- so it detects on the SHOP
+                             # channel, not as a map lot. Verified as that one row, not inferred
+                             # from the total moving.
+                             # PREVIOUS: 561 # 562 -> 561 (2026-07-18): the shop-region/ShopSlot pass reclassified one
                              # merchant check off the shop_stock_flag channel; unchanged by the co-check
                              # regen (the 5 new locations are key-item/collectible checks, not shop rows)
 # EMPTY, and it must stay that way. ap_id -> region (so scoped runs can subset).

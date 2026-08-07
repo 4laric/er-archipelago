@@ -98,7 +98,11 @@ class TagDataTests(unittest.TestCase):
         # above them, reached by derivation instead of by hand. NOT a rebaseline: the three are
         # named, and each is a Boss tag that follows a NEW check, not a re-tag of an old one.
         # 137 -> 138 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
-        self.assertEqual(TAG_COUNTS["Boss"], 138)
+        # 138 -> 143 (2026-08-07, #249): FIVE Dragon Hearts. The de-dup re-key placed f530420
+        # (Caelid), f530550 (Mountaintops), f530840 (Cerulean), f530860 (Gravesite) and f530945
+        # (Scadu Altus) -- distinct dragon-boss rewards the ITEM-NAME rule had been collapsing
+        # into one. Each is a Boss tag following a NEW check, not a re-tag of an old one.
+        self.assertEqual(TAG_COUNTS["Boss"], 143)
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -261,7 +265,8 @@ class TagDataTests(unittest.TestCase):
         # Ritual Spear), f530845 (Star-Lined Sword). Same shape as the GLOBAL_RECOVER entries
         # above them, reached by derivation instead of by hand. NOT a rebaseline: the three are
         # named, and each is a Boss tag that follows a NEW check, not a re-tag of an old one.
-        self.assertEqual(TAG_COUNTS["FieldBoss"], 87)
+        # 87 -> 92 (2026-08-07, #249): the same five Dragon Hearts as TAG_COUNTS["Boss"] above.
+        self.assertEqual(TAG_COUNTS["FieldBoss"], 92)
 
     def test_geography_tags_are_subsets_of_boss_and_disjoint(self):
         """Definitional, so these are gates, not preferences: a legacy/field boss IS a boss, and no

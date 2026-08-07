@@ -47,7 +47,10 @@ except ImportError:  # direct/unittest fallback
 _ROOT = find_repo_root(HERE)
 
 POCKET = {
-    1035467100: 7774386,   # Golden Seed - near Main Academy Gate (the reported check)
+    # 7774386 -> 7774402 (2026-08-07): +16 unplaced-global rows landed BEFORE this one, and ap ids
+    # are positional (BASE_AP + index). NOTE its sibling below did NOT move -- the shift applies
+    # only to locations after the insertion point, so do not blanket-add 16 to a pinned id.
+    1035467100: 7774402,   # Golden Seed - near Main Academy Gate (the reported check)
     1035467700: 7772688,   # Ash of War: Raptor of the Mists - around Main Academy Gate
 }
 ANCHOR_FLAG = 14007990     # Golden Seed - near Schoolhouse Classroom: undisputed academy ground
