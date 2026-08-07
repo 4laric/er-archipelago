@@ -31,6 +31,7 @@ from worlds.eldenring.data import (LOCATIONS, REGIONS, HUB, FINALE_REGION,  # no
                                    CAPITAL_BURN_FLAG, CAPITAL_BURN_DONE_FLAG,
                                    CAPITAL_BURN_SIDE_EFFECT_FLAGS,
                                    CAPITAL_WORLD_BURN_READER_MAPS)
+from worlds.eldenring.region_spine import parent_chain  # noqa: E402
 from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
 from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
 from worlds.eldenring.region_play_ids import REGION_PLAY_IDS  # noqa: E402
@@ -141,10 +142,28 @@ class OneRegionSeed(WorldTestBase):
     options = {"num_regions": 1}
 
     def test_one_region_is_kept_and_the_seed_generates(self):
+        """🛑 THE CLAIM IS "NOTHING IS FORCE-KEPT", AND `len(kept) == 1` IS NOT THAT.
+
+        The parent closure is a second, entirely legitimate way for the kept set to grow: a drawn
+        gated child PULLS ITS ANCESTORS IN, because it is entered through them. Draw Leyndell and
+        the seed correctly keeps {Leyndell, Altus}; draw the Sewer and it correctly keeps three.
+        Three of the thirty eligible regions are REGION_PARENT children, so the old assertion
+        failed on roughly one seed in ten -- under a message accusing the force-keep bobler
+        reported, which was not what had happened and had in fact been deleted.
+
+        Stated as the thing it means instead: the DRAWN set is one region, and every other kept
+        region is an ancestor of it. A force-keep puts back a region that is neither, and still
+        fails here."""
         kept = list(self.world._kept())
-        assert len(kept) == 1, (
-            "num_regions: 1 kept %d region(s) (%s) -- something is force-keeping again, which is "
-            "the bug bobler reported twice" % (len(kept), ", ".join(sorted(kept))))
+        ancestry = {a for r in kept for a in parent_chain(r)}
+        drawn = [r for r in kept if r not in ancestry]
+        assert len(drawn) == 1, (
+            "num_regions: 1 kept %d region(s) that are not an ancestor of another kept region "
+            "(%s; whole kept set %s) -- something is force-keeping again, which is the bug bobler "
+            "reported twice" % (len(drawn), ", ".join(sorted(drawn)), ", ".join(sorted(kept))))
+        assert set(kept) == set(drawn) | {a for r in drawn for a in parent_chain(r)}, (
+            "kept %s is not the one drawn region plus its ancestors -- something entered the kept "
+            "set by a third route" % (sorted(kept),))
 
     def test_the_ashen_lock_is_the_lock_that_stays_in_the_pool(self):
         """The clamp's real invariant: at least one progression lock is still findable. With one

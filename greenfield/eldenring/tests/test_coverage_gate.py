@@ -328,6 +328,45 @@ class CoverageGateStatic(unittest.TestCase, _BaselineAssertions):
                       "core.py no longer calls assert_coverage -- the coverage gate is DEAD. It is "
                       "not a report; it is the thing that makes a silent wrong answer loud.")
 
+    # ------------------------------------------------------ the finale is TOLD, never re-derived
+    def test_a_world_less_caller_can_be_TOLD_the_finale_exists(self):
+        """DIRECT CALL, because no scoped matrix row reaches this state
+        (guard-absent-from-corpus-needs-a-direct-call).
+
+        The Ashen Capital's existence is decided by the seed's ELIGIBLE pool and never by its draw
+        -- features/finale.Finale.generate_early is explicit about why: the Capital is not
+        rollable, so making it depend on which regions the draw took would give two answers to one
+        question. But build_coverage's world-less path had only `kept` to look at, so it answered
+        "is any KEPT region base-game", and on a base-game seed whose draw happened to take only
+        DLC regions the two joins disagreed by exactly the Capital's twelve checks.
+
+        That is not a hypothetical: it is the intermittent
+        `LiveCovNR5::test_live_coverage_baseline` failure on main -- "live and static joins
+        disagree on the emitted location set", 12 extra elements, at whatever rate `num_regions: 5`
+        draws five DLC regions. It looked like a flake because a rare draw is what fired it; it was
+        a real disagreement about a question the kept set cannot answer.
+
+        So the parameter exists, and this pins BOTH directions of it on the exact scope that
+        provoked it."""
+        data = _path_load("data")
+        dlc_kept = [r for r in self.spine.DLC_REGIONS if data.LOCATIONS.get(r)][:5]
+        self.assertTrue(dlc_kept, "no DLC regions with locations -- this test proves nothing")
+        finale_aps = {a for (_n, a, _f) in data.LOCATIONS[data.FINALE_REGION]}
+        self.assertTrue(finale_aps, "the finale region emits no checks -- nothing to disagree about")
+
+        told, ctx_told, _ = self.cov.report_coverage(kept=dlc_kept, finale=True, printer=None)
+        self.assertEqual(ctx_told["FINALE_REGION"], data.FINALE_REGION)
+        self.assertEqual(finale_aps & set(told), finale_aps,
+                         "told the finale exists, the static join still omitted its checks")
+
+        guess, ctx_guess, _ = self.cov.report_coverage(kept=dlc_kept, printer=None)
+        self.assertIsNone(ctx_guess["FINALE_REGION"],
+                          "the kept-only fallback must still answer NO here -- if it has learned "
+                          "to say yes, this parameter is redundant and should go")
+        self.assertEqual(finale_aps & set(guess), set())
+        # ...and the gap between them IS the twelve, which is the number the live failure reported.
+        self.assertEqual(set(told) - set(guess), finale_aps)
+
 
 # ===================================================================================================
 # LIVE half -- needs AP + installed worlds.eldenring (tools/gf_test.py)
@@ -354,8 +393,24 @@ if _HAVE_AP:
             records, ctx, byname = live_cov.report_coverage(world=self.world, printer=None)
             self.assert_baseline(live_cov, records, ctx, byname,
                                  f"live:{type(self).__name__}")
-            # the live join must agree with the static join on the same kept scope
-            s_records, s_ctx, s_byname = live_cov.report_coverage(kept=ctx["kept"], printer=None)
+            # The live join must agree with the static join ON THE SAME SCOPE -- and the scope
+            # is not the kept set alone.
+            #
+            # 🛑 WHY `finale=` IS PASSED. Whether the Ashen Capital exists is decided by the
+            # seed's ELIGIBLE pool, never by its draw (features/finale.Finale.generate_early says
+            # why: the Capital is not rollable, so its existence must not depend on which regions
+            # the draw took). Handed only `kept`, the static join re-derives it as "some kept
+            # region is base-game" and gets the opposite answer on a base-game seed whose draw
+            # happened to take only DLC regions -- the live side builds the finale's twelve
+            # checks, the static side does not, and the two lists differ by exactly twelve. That
+            # is a seed this config can roll, so before the parameter existed this test failed at
+            # whatever rate the draw produced one: a real disagreement, arriving as an unrelated
+            # flake in the middle of an otherwise green suite.
+            #
+            # ctx["FINALE_REGION"] is the live join's own verdict (None when off), so this asks
+            # the static join the same question the world already answered.
+            s_records, s_ctx, s_byname = live_cov.report_coverage(
+                kept=ctx["kept"], finale=ctx["FINALE_REGION"] is not None, printer=None)
             self.assertEqual(sorted(records), sorted(s_records),
                              "live and static joins disagree on the emitted location set")
 

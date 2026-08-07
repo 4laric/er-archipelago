@@ -9,8 +9,12 @@ What this guards, and why each one is here rather than assumed:
     in the wild must keep rolling identically, and an extra rng call inside the n == 1 path would
     silently reroll everything downstream of it. region_spine appends GOAL_REGION AFTER its
     rng.sample for exactly this reason; the same discipline applies here.
-  * the goal region may still win the FIRST draw (that behaviour shipped, and at one anchor it is
-    rare) but is NEVER an extra -- a run that opens on the region it ends in is not a run.
+  * never_extra bars a region from the EXTRAS only, never from the first draw -- filtering the
+    first draw would move the anchor of every seed already rolled. A run that opens on the region
+    it ends in is not a run, which is why the goal region is passed as never_extra; but the goal
+    region is ALSO a gated child today and so cannot anchor at all. The two rules are separate and
+    only one of them is testable through the goal region -- see
+    test_never_extra_does_not_leak_into_the_first_draw.
   * gated children (region_spine.REGION_PARENT) can never anchor at ANY n: their grace bundle is
     withheld by features/graces, so the player could not warp into one.
   * a pool that cannot supply n fails LOUDLY at both levels -- OptionError from core naming the
@@ -82,8 +86,9 @@ class PickAnchorRegionsPure(unittest.TestCase):
                              f"seed {seed}: n=1 consumed the rng stream differently")
 
     def test_extras_are_distinct_never_gated_and_never_the_goal_region(self):
-        goal_first = 0
+        seen = 0
         for seed in range(400):
+            seen += 1
             regs, rules, _ = pick_anchor_regions(REGIONS, random.Random(seed), COUNTS, DLC_REGIONS,
                                                  n=4, gated=self.GATED, never_extra=self.NEVER)
             self.assertEqual(len(set(regs)), 4, f"seed {seed}: duplicate anchor in {regs}")
@@ -92,12 +97,55 @@ class PickAnchorRegionsPure(unittest.TestCase):
             self.assertFalse(set(regs) & set(DLC_REGIONS),
                              f"seed {seed}: DLC anchor while base regions are kept: {regs}")
             self.assertTrue(all(r.startswith("extra:") for r in rules[1:]), rules)
-            goal_first += regs[0] == GOAL_REGION
-        # Not an assertion about the rate -- a guard that barring extras did NOT quietly bar the
-        # first draw too. That would be a behaviour change to every existing seed.
-        self.assertGreater(goal_first, 0,
-                           "the goal region can no longer win the FIRST draw -- never_extra leaked "
-                           "into the anchor pick, which changes seeds that shipped")
+        self.assertGreater(seen, 0, "the sweep matched nothing")
+
+    def test_the_goal_region_is_barred_by_the_GATED_rule_not_by_never_extra(self):
+        """WHY THE OBVIOUS GUARD IS NOT HERE, written down so it is not re-added.
+
+        This class used to end the sweep above by counting how often GOAL_REGION won the FIRST
+        draw and asserting that count was greater than zero -- "a guard that barring extras did NOT
+        quietly bar the first draw too". Good instinct, unwitnessable subject: GOAL_REGION is
+        Leyndell, Leyndell is a REGION_PARENT child (the capital's main gate is a vanilla wall),
+        and `pick_anchor_region` drops gated regions from eligibility before it weights anything.
+        The count is therefore 0 on every seed and was 0 on the day the guard was written -- an
+        assertion that could only ever fail, wearing a failure message blaming a mechanism
+        (`never_extra` leaked into the anchor pick) that had nothing to do with it.
+
+        So the invariant is split in two. This test pins the reason the goal region cannot anchor;
+        test_never_extra_does_not_leak_into_the_first_draw pins the rule the old guard was actually
+        aiming at, using a witness that CAN win a draw."""
+        self.assertIn(GOAL_REGION, REGION_PARENT,
+                      "GOAL_REGION is no longer a gated child, so the gated rule no longer bars it "
+                      "from anchoring -- and never_extra, which bars EXTRAS only, is now the only "
+                      "thing standing between a player and a run that opens where it ends. Decide "
+                      "whether the first draw should be filtered too before deleting this")
+        for seed in range(400):
+            regs, _, _ = pick_anchor_regions(REGIONS, random.Random(seed), COUNTS, DLC_REGIONS,
+                                             n=4, gated=self.GATED, never_extra=self.NEVER)
+            self.assertNotIn(GOAL_REGION, regs, f"seed {seed}: a gated child anchored: {regs}")
+
+    def test_never_extra_does_not_leak_into_the_first_draw(self):
+        """THE COMPATIBILITY RULE, on a subject that can actually witness it. `never_extra` must
+        bar its regions from the EXTRAS and leave the first draw exactly as it was: an extra filter
+        on the anchor would move the opening region of every seed already rolled.
+
+        The witness is the largest ELIGIBLE region (biggest weight -> it wins the size-weighted
+        first draw often enough for 400 seeds to prove the point), not the goal region, which the
+        gated rule bars from every draw -- see the test above."""
+        witness = max(BASE_KEPT, key=lambda r: COUNTS[r])
+        self.assertNotIn(witness, self.GATED, "the witness must be eligible or this proves nothing")
+        first = 0
+        for seed in range(400):
+            regs, _, _ = pick_anchor_regions(REGIONS, random.Random(seed), COUNTS, DLC_REGIONS,
+                                             n=4, gated=self.GATED,
+                                             never_extra=frozenset({witness}))
+            self.assertNotIn(witness, regs[1:], f"seed {seed}: never_extra region rode in as an "
+                                                f"extra: {regs}")
+            first += regs[0] == witness
+        self.assertGreater(first, 0,
+                           f"{witness!r} was barred as an extra and can no longer win the FIRST "
+                           "draw either -- never_extra has leaked into the anchor pick, which "
+                           "changes the opening region of every seed that shipped")
 
     def test_extras_stay_size_weighted(self):
         """A corridor must stay unlikely as an EXTRA too, not just as the opening region."""
@@ -172,7 +220,13 @@ class StartRegionsWired(WorldTestBase):
         spheres = _region_fill_spheres(self.world)
         if not spheres:
             self.skipTest("fill spheres uncomputable in this configuration")
-        for r in _precollected_locks(self):
+        # THE WITNESS (test_gf_vacuous_pass). Every assertion below is "this region's sphere is 0",
+        # and 0 is the empty value -- so with no opening regions to iterate, this test passed by
+        # looking at nothing. It is a three-anchor class; say so before believing the loop.
+        locks = _precollected_locks(self)
+        self.assertEqual(len(locks), 3,
+                         f"expected three opening regions to check, got {locks}")
+        for r in locks:
             self.assertEqual(spheres.get(r), 0,
                              f"{r} is open at start but not sphere 0 -- the scaling ramp would "
                              f"treat part of the opening as deeper than it is")

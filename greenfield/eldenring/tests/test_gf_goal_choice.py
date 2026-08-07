@@ -227,7 +227,34 @@ class GoalEldenBeastNeedsNoForcing(WorldTestBase):
         assert self.world.gf_finale_active, \
             "goal: elden_beast on a base-game seed must have a finale to end on"
         # ...and the draw is genuinely small, so this is not passing because everything was kept.
-        assert len(set(self.world._kept())) <= 5, sorted(self.world._kept())
+        #
+        # 🛑 THE BOUND IS DERIVED, NOT GUESSED, and that is a repair. This read
+        # `<= 5`, and 5 is not a fact about anything: `num_regions: 3` keeps three DRAWN regions
+        # plus the parent closure of those three, and REGION_PARENT holds a two-deep chain
+        # (Sewer -> Leyndell -> Altus). One draw that lands on the Sewer therefore keeps six
+        # legitimately, which is a real seed and not a bug -- so the assertion failed whenever the
+        # suite's random seed found one, roughly 1 run in 15, on a test nobody was editing. A
+        # magic-number bound over a random draw is a coin flip wearing an assertion.
+        #
+        # What it was defending is that the goal forces nothing extra in, and that is asserted
+        # exactly two lines above and again, deterministically over 120 seeds, in
+        # test_gf_region_selection.py::test_auto_keeps_only_its_draw_and_the_closure. What is left
+        # for this line is the weaker claim it actually makes -- the seed is SMALL -- so it is
+        # stated against the ceiling the data allows and the closure invariant that produced it.
+        kept = set(self.world._kept())
+        n = int(self.world.options.num_regions.value)
+        deepest = max(len(parent_chain(r)) for r in REGIONS)
+        assert len(kept) <= n * (1 + deepest), (
+            "kept %d regions from a %d-region draw, past the %d the parent closure can explain "
+            "(deepest REGION_PARENT chain is %d): %s"
+            % (len(kept), n, n * (1 + deepest), deepest, sorted(kept)))
+        # ...and every extra IS closure, never something kept for its own sake: a kept region's
+        # ancestors are kept too, which is the only rule allowed to grow the set past n.
+        for r in kept:
+            for ancestor in parent_chain(r):
+                assert ancestor in kept, (
+                    "%s is kept but its ancestor %s is not -- the closure is broken, and the size "
+                    "bound above is measuring something else" % (r, ancestor))
 
     def test_goal_is_the_pair(self):
         assert set(self.world.fill_slot_data()["goalLocations"]) == FINALE_IDS

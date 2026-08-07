@@ -665,10 +665,17 @@ class GreenfieldEldenRingWorld(World):
                 major=regions_with_major_boss(
                     kept, barred=_ps_missable(self)) if _strict else None,
                 gated=frozenset(REGION_PARENT),
-                # The goal region may still win the FIRST draw -- that is the shipped behaviour and
-                # at one anchor it is rare -- but it never rides in as an EXTRA. At start_regions 3
-                # it would stop being rare, and a run that opens on the region it ends in is not a
-                # run (Alaric, 2026-08-06).
+                # The goal region never rides in as an EXTRA: a run that opens on the region it
+                # ends in is not a run (Alaric, 2026-08-06), and at start_regions 3 that would stop
+                # being a rarity and become most seeds.
+                #
+                # 🛑 BELT-AND-BRACES TODAY, NOT THE LOAD-BEARING RULE. GOAL_REGION is Leyndell,
+                # which is a REGION_PARENT child (the capital's main gate is a vanilla wall), and
+                # `gated` above bars those from EVERY draw including the first -- so the goal
+                # region cannot anchor at all, by the gated rule, not by this one. The note that
+                # used to sit here said it "may still win the FIRST draw -- that is the shipped
+                # behaviour"; no seed has ever done that. This stays because it is the rule that
+                # survives GOAL_REGION moving off a vanilla wall.
                 never_extra=frozenset({GOAL_REGION}))
             _by_region = {lock_region_name(it.name): it for it in lock_items}
             for _region in _regions:
