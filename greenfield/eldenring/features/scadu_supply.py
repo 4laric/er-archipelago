@@ -98,13 +98,31 @@ SCADU_CUM = (0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 20, 23, 26, 29, 32, 35, 38, 41, 4
 
 # The injection may never claim more than this share of a seed's locations.
 #
-# It does not bind today -- the smallest measured seed is 727 locations (num_regions 1) and the cap
-# of 12 needs 26 fragments, 3.6%. It exists because the cap is explicitly a tunable ("if the
-# playtest says it feels weak, raise this ONE constant", scaling.py:393) and raising it to 20 costs
-# 50 fragments. A feature that can over-constrain the fill gates itself on what the pool can supply
-# (CONTRIBUTING, Feature architecture); a guard nobody can trigger is untested, so
-# `fragments_to_inject` is pure and the clamp path has a direct unit test.
+# ⭐ IT BINDS NOW, BY DESIGN (2026-08-06). When this landed it could not fire on a real seed -- the
+# smallest measured seed was 727 locations, because `goal: auto` force-kept GOAL_REGION and its
+# REGION_PARENT closure put a 3-region floor under `num_regions: 1`. SPEC-ashen-capital-lock
+# removed that force-keep (the burn is an item now), so a genuinely one-region seed exists for the
+# first time: hub + one region, 240-360 locations. On 16 of the 30 possible draws (measured
+# 2026-08-06, tests/test_gf_scadu_supply.py sweeps all of them) 50 units will not fit in a 10%
+# share; injection stops short of SCADU_INJECTION_TARGET, `create_items` WARNS with the numbers,
+# and the blessing tops out around level 14-18 instead of 20. That degrade is the RULING, not a
+# bug: the target is a difficulty knob (`useful`, gates nothing, no player-facing promise names
+# it), while the clamp is what keeps a tiny seed's pool from becoming a fragment pile -- the whole
+# reason it exists. The clamp wins; the loss is stated; CLAMP_FLOOR_LEVEL below bounds it.
 MAX_POOL_SHARE = 0.10
+
+# The blessing level the clamp must never starve a REAL seed below: the ORIGINAL shipped cap
+# (`scaling.SCADU_BLESSING_CAP` until 2026-08-06 -- the number the 12->20 target raise replaced).
+# When 12 WAS the target it was judged an acceptable whole-playthrough supply, so it is the line
+# between "tops out early" (fine, warned) and "starved" (a defect).
+#
+# 🛑 NOT enforced in code, deliberately. `fragments_to_inject` stays a pure clamp with no floor:
+# a floor that overrides the share ceiling would breach it exactly on the degenerate pools the
+# ceiling exists for (a 100-location pool owed 26 units is 20% fragments). It is a fact about the
+# REAL region geometry -- today the worst draw still injects 32 units, level 14 -- and the
+# one-region sweep in tests/test_gf_scadu_supply.py is the gate that holds it. If geometry ever
+# breaks that sweep, the answer is a ruling on the clamp/floor trade, not a bumped constant.
+CLAMP_FLOOR_LEVEL = 12
 
 
 # ---- THE INJECTION BUDGET (moved here 2026-08-06) ----------------------------------------------

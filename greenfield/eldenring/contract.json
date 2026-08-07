@@ -343,9 +343,9 @@
       "profiles": [
         "both"
       ],
-      "producer": "(unemitted today; client path LIVE)",
+      "producer": "features/area_locks.py",
       "consumer": "region.rs:121 str_to_u32vec",
-      "doc": "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt. The client consumer is LIVE (region.rs:121); greenfield does not emit it yet."
+      "doc": "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt, IN WIRE ORDER (both client application sites iterate the parsed Vec in order). Emitted for the DLC map pieces and, since SPEC-ashen-capital-lock, for the Ashen Capital Lock's Erdtree-burn world state -- where the ORDER IS LOAD-BEARING: the burn-done latch must be LAST, because it is common.emevd $Event(900)'s own entry check and setting it first makes the event skip the body that places the Elden Beast's arena. A partial grant must therefore leave it unset, so the reconnect replay can finish the job."
     },
     {
       "name": "capitalBurnFlag",
@@ -390,6 +390,28 @@
       "producer": "features/capital.py",
       "consumer": "er-logic capital.rs via region.rs tick_capital",
       "doc": "measured play_region buckets where 9116 must be held OFF (11000 Royal Capital)."
+    },
+    {
+      "name": "capitalWorldBurnFlag",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/capital.py",
+      "consumer": "er-logic capital.rs via region.rs tick_capital",
+      "doc": "the world's post-burn state flag, 300 -- common.emevd:1293 is its SOLE setter in all 589 EMEVD, and it is READ in five maps plus the Roundtable Hold. Measured in game 2026-08-06: without it the Elden Beast's arena in m19_00 is a VOID the player falls into and dies in; with it, the hub is in its burnt state. Held by POSITION alongside capitalBurnFlag (ON in the ashen buckets, OFF elsewhere) so the rest of the world stays vanilla -- it is reversible, measured, not one-way."
+    },
+    {
+      "name": "capitalPreBurnFlag",
+      "shape": "INT",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/capital.py",
+      "consumer": "er-logic capital.rs via region.rs tick_capital",
+      "doc": "the OPPOSITE world state, 302 -- set by $Event(901) (the Melina/Forge ceremony, alongside flag 110) and cleared by the burn's own body. Written OFF only where the burn state is written ON; never touched elsewhere."
     },
     {
       "name": "capitalReleaseRows",

@@ -11,6 +11,7 @@ REGION_PLAY_IDS = {
     'Ainsel River': [12010],
     'Altus': [30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 34140, 63000, 63010],
     'Ancient Ruins': [69400, 69410],
+    'Ashen Capital': [11050, 19000],
     'Belurat': [20000],
     'Caelid': [30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130, 64000, 64010, 64020],
     'Cerulean': [68300],
@@ -22,7 +23,7 @@ REGION_PLAY_IDS = {
     'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100],
     'Haligtree': [15000],
     'Jagged Peak': [68410, 68500],
-    'Leyndell': [11000, 11050, 19000],
+    'Leyndell': [11000],
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
@@ -44,4 +45,4 @@ REGION_PLAY_IDS = {
 # shipping a lock that does nothing is the bug the measured table exists to end.
 REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ad5f47c34d981e370f5a1669324ef1610c636bf66fca9216720aa8ae796604f1', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:b4e23c447de34e5418cdaaf35fb81d07cb43fe1f6164d283d9e703824c4d2392'}
+_GEN_STAMP = {'inputs_hash': 'sha256:aa6e32cdeabbb1d64c9a48c16d6395ebef9c73716858e3fc97e49c0a50d28a2f', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:c2e0ca3366d0b43980522fc066d22fb83ce5c0d96e822d5be285d6ebd231b820'}

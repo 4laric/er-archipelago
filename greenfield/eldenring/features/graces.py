@@ -51,6 +51,7 @@ from Options import Choice
 from ..registry import Feature, register
 from .. import contract
 from ..region_spine import REGION_PARENT
+from ..data import FINALE_REGION as _FINALE_REGION
 
 try:
     from ..region_graces import REGION_GRACE_POINTS
@@ -171,6 +172,13 @@ class RegionGracesFeature(Feature):
 
     def slot_data(self, world):
         kept = set(world._kept())
+        # SPEC-ashen-capital-lock: the Ashen Capital is never KEPT (never rolled) but it does carry
+        # a Lock, and its four graces ARE the way in -- the region has no walk-in entrance at all.
+        # Withholding them would ship a lock that opens nothing. They were force-SKIPPED in
+        # gen_data until 2026-08-06 for the opposite reason: while they rode LEYNDELL's lock,
+        # lighting them warped the player into a capital they had not burned.
+        if getattr(world, "gf_finale_active", False):
+            kept = kept | {_FINALE_REGION}
         tier = _grace_tier(world)
         region_graces = {}
         for r, fs in REGION_GRACE_POINTS.items():

@@ -82,8 +82,20 @@ SHIPPED = {
     # red: a row missing from HERE is invisible, only a row missing from the LEDGER fails. That
     # asymmetry is worth knowing before trusting this fixture as a count of anything.
     "0.3.6": "5e8b11c9",
-    # Added 2026-08-06 at window-open, same day v0.3.6 was tagged, because #428 landed past the tag.
-    "0.3.7": "5e8b11c9",
+    # 🛑 0.3.7 IS NOT HERE, AND THAT IS THE FIX (2026-08-06, SPEC-ashen-capital-lock).
+    #
+    # It was added at WINDOW-OPEN, one line above where this comment now sits, by the same habit
+    # that wrote the rows above it -- and window-open is not shipping. The row's own ledger entry
+    # says the window opened that day; no v0.3.7 tag exists. What that premature row did was make
+    # `test_shipped_contract_hashes_are_never_rewritten` guard the contract hash of a version
+    # nobody has received, so the FIRST contract change of the window went red claiming history
+    # had been rewritten. There was no history to rewrite.
+    #
+    # This fixture records versions that have SHIPPED, and `test_every_tagged_version_is_recorded_
+    # _as_shipped` derives that list from the git TAGS rather than from anyone remembering -- so an
+    # untagged version belongs here exactly never. The row goes back at TAG time, carrying whatever
+    # hash it actually ships with (d7d3a58e as things stand, since this window moved the contract
+    # for the first time since 0.3.0).
 }
 
 

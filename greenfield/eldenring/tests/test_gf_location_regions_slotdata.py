@@ -48,6 +48,24 @@ def _load(name):
     return mod
 
 
+def _load_pkg(name, data_mod):
+    """Same, for a module that uses RELATIVE imports (`from .data import REGIONS`): fake the
+    package so the import resolves. data.py and region_open_flags.py are standalone and do not
+    need this; region_spine.py does, and the mirror needs DLC_REGIONS from it to answer the same
+    "is the base game in play" question features/finale.py asks (SPEC-ashen-capital-lock)."""
+    import importlib.util
+    import types
+    pkg = types.ModuleType("_gf_pkg")
+    pkg.__path__ = [os.path.join(GF, "eldenring")]
+    sys.modules["_gf_pkg"] = pkg
+    sys.modules["_gf_pkg.data"] = data_mod
+    path = os.path.join(GF, "eldenring", name + ".py")
+    spec = importlib.util.spec_from_file_location("_gf_pkg." + name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class LocationRegionsSlotData(unittest.TestCase):
     """Rebuilds the emit from data.py, AP-free -- core.py imports BaseClasses, which is not here.
@@ -61,9 +79,15 @@ class LocationRegionsSlotData(unittest.TestCase):
     def setUpClass(cls):
         cls.data = _load("data")
         cls.open_flags = _load("region_open_flags").REGION_OPEN_FLAGS
+        cls.dlc_regions = frozenset(_load_pkg("region_spine", cls.data).DLC_REGIONS)
 
-    def emit(self, kept):
+    def emit(self, kept, eligible=None):
         data, open_flags = self.data, self.open_flags
+        # `eligible` is the seed's region POOL, which is what the finale's existence keys on since
+        # SPEC-ashen-capital-lock -- not the draw. Default is the full pool, i.e. an ordinary seed
+        # with the base game in play; pass a DLC-only pool to mirror `dlc_only`.
+        eligible = list(data.REGIONS) if eligible is None else list(eligible)
+        finale_built = bool(set(eligible) - self.dlc_regions)
         loc_regions, loc_flags = {}, {}
         for rn in [data.HUB] + list(kept):
             ids = [int(a) for (_n, a, _f) in data.LOCATIONS.get(rn, [])]
@@ -78,11 +102,14 @@ class LocationRegionsSlotData(unittest.TestCase):
         # `test_every_location_flag_has_a_region_and_vice_versa` had the same 10-location hole and it
         # passed while the emit shipped 4869 regions against 4879 flags. A mirror that reproduces the
         # bug faithfully proves nothing; it has to mirror what core ACTUALLY emits.
-        # ...and the seam is CONDITIONAL: features/finale.py arms only when every FINALE_REQUIRES
-        # region is kept (`finale_active`). Mirroring it unconditionally made the reduced-seed test
-        # fail on a finale the real emit would never have produced -- the mirror lying in the other
-        # direction.
-        if set(data.FINALE_REQUIRES) <= set(kept):
+        # ...and the seam is CONDITIONAL, but on a different question as of 2026-08-06
+        # (SPEC-ashen-capital-lock). It used to read `set(data.FINALE_REQUIRES) <= set(kept)`:
+        # features/finale.py armed only when Farum Azula and Leyndell were both kept. FINALE_REQUIRES
+        # is `()` now, so that expression is VACUOUSLY TRUE and would arm the seam on every pool --
+        # including a dlc_only one, where the real emit builds no finale at all. The live rule is
+        # `finale_active` = "is any base-game region in play", computed above from the POOL, and
+        # that is what is mirrored here.
+        if finale_built:
             for (_n, a, f) in data.LOCATIONS.get(data.FINALE_REGION, ()):
                 loc_flags[str(a)] = f
         ap_region = {int(a): rn for rn, rows in data.LOCATIONS.items() for (_n, a, _f) in rows}
@@ -91,19 +118,26 @@ class LocationRegionsSlotData(unittest.TestCase):
             ap = int(ap)
             if ap not in regioned:
                 loc_regions.setdefault(ap_region[ap], []).append(ap)
-        lockless_host = {data.FINALE_REGION: data.FINALE_HOST_REGION}
+        # THE LOCKLESS-HOST BRANCH IS GONE (SPEC-ashen-capital-lock). It read
+        # `lockless_host = {FINALE_REGION: FINALE_HOST_REGION}` and keyed the Ashen Capital's space
+        # off LEYNDELL's lock, because the finale had checks and no lock of its own. It has one
+        # now, plus a front-door open flag and its own kick buckets, so it takes the ordinary
+        # `rn in open_flags` branch and the raise below is the ONLY fallback -- which is the point:
+        # a region with checks and no gate of its own reads as permanently open to the client.
         coarse = {}
         for rn in loc_regions:
             if rn == data.HUB:
                 coarse[rn] = ""
             elif rn in open_flags:
                 coarse[rn] = rn
-            elif rn in lockless_host:
-                coarse[rn] = lockless_host[rn]
             else:
                 self.fail("region %r has locations but no lock and no host mapping -- the client "
                           "would treat it as permanently accessible" % rn)
         region_open = {"%s Lock" % r: open_flags[r] for r in kept if r in open_flags}
+        # ...plus the finale, which is never KEPT (never rolled) and so never appears in the walk
+        # above, but is LOCKED. Without this its coarse key would name an item with no open flag.
+        if finale_built and data.FINALE_REGION in open_flags:
+            region_open["%s Lock" % data.FINALE_REGION] = open_flags[data.FINALE_REGION]
         return loc_regions, coarse, loc_flags, region_open
 
     # -- A ------------------------------------------------------------------
@@ -183,7 +217,7 @@ class LocationRegionsSlotData(unittest.TestCase):
         "is this location ours?" test, so a hint for one of them from another player was DROPPED.
         Caught by reading a smoke-test log -- 4869 locations across 31 regions, against 4879 flags.
         """
-        # Full-region seed, so FINALE_REQUIRES is satisfied and the feature ARMS.
+        # Full-region pool, so the base game is in play and the feature ARMS.
         loc_regions, coarse, loc_flags, region_open = self.emit(list(self.data.REGIONS))
         finale = self.data.FINALE_REGION
         expected = {int(a) for (_n, a, _f) in self.data.LOCATIONS[finale]}
@@ -192,11 +226,35 @@ class LocationRegionsSlotData(unittest.TestCase):
                       "%r is absent from locationRegions; its checks would have a flag and no "
                       "region" % finale)
         self.assertEqual(set(loc_regions[finale]), expected)
+        # WAS: `coarse.get(finale) == FINALE_HOST_REGION` -- "the finale is lockless, so its coarse
+        # key must be its HOST". SPEC-ashen-capital-lock (2026-08-06) gave it a lock and an open
+        # flag of its own, so it is its OWN coarse key now and the host is the hub (which has no
+        # lock at all and could never have served as a key). The protection is identical and is the
+        # sentence below it: whatever the key is, `<key> Lock` must be in regionOpenFlags, or the
+        # client looks it up, finds nothing, and calls the finale permanently open.
         self.assertEqual(
-            coarse.get(finale), self.data.FINALE_HOST_REGION,
-            "the finale is lockless -- its coarse key must be its HOST, or the client finds no "
-            "lock item and calls the finale permanently open")
-        self.assertIn("%s Lock" % self.data.FINALE_HOST_REGION, region_open)
+            coarse.get(finale), finale,
+            "the finale owns its lock now -- its coarse key must be itself, not a host")
+        self.assertIn("%s Lock" % finale, region_open,
+                      "the finale's own lock must be sent, or the client finds no lock item for "
+                      "its coarse key and calls the finale permanently open")
+
+    def test_a_dlc_only_pool_builds_no_finale_at_all(self):
+        """The other side of the conditional seam, which FINALE_REQUIRES = () made unassertable.
+
+        `set(FINALE_REQUIRES) <= set(kept)` was the arming test until 2026-08-06 and is now
+        vacuously true for every pool, so a mirror that kept it would emit the finale's checks
+        under dlc_only -- where the real feature builds nothing, because the Ashen Capital is
+        base-game content. Nothing else in this file exercises an unarmed seam."""
+        dlc = sorted(self.dlc_regions)
+        self.assertTrue(dlc, "no DLC regions -- this fixture is vacuous")
+        loc_regions, coarse, loc_flags, region_open = self.emit(dlc, eligible=dlc)
+        finale = self.data.FINALE_REGION
+        self.assertNotIn(finale, loc_regions)
+        self.assertNotIn("%s Lock" % finale, region_open)
+        for (_n, ap_id, _f) in self.data.LOCATIONS[finale]:
+            self.assertNotIn(str(ap_id), loc_flags,
+                             "a dlc_only seed flagged finale check %d it can never reach" % ap_id)
 
     def test_locationRegions_and_locationFlags_cover_the_same_ids_including_feature_seams(self):
         """The totality check, stated against data.LOCATIONS rather than against the mirror itself."""
@@ -220,10 +278,24 @@ class LocationRegionsSlotData(unittest.TestCase):
                        "for rn in [HUB] + kept:",
                        "coarse_keys[rn] = \"\"",
                        "_ap_region = {int(ap): rn for rn, rows in LOCATIONS.items()",
-                       "_lockless_host = {FINALE_REGION: FINALE_HOST_REGION}"):
+                       # SPEC-ashen-capital-lock, 2026-08-06: the needle here WAS
+                       # "_lockless_host = {FINALE_REGION: FINALE_HOST_REGION}". That branch is
+                       # deleted -- the finale has its own open flag -- and these two lines are
+                       # what replaced it: the finale's lock is added to regionOpenFlags so its
+                       # ordinary `rn in REGION_OPEN_FLAGS` coarse key resolves.
+                       "elif rn in REGION_OPEN_FLAGS:",
+                       "region_open[ASHEN_LOCK] = REGION_OPEN_FLAGS[FINALE_REGION]"):
             self.assertIn(needle, src,
                           "core._base_slot_data no longer contains %r -- this mirror is stale and "
                           "is now testing something the world does not do." % needle)
+        # ...and the deleted branch must STAY deleted: if a lockless host ever comes back, this
+        # mirror's coarse-key walk (which now has only one fallback, `self.fail`) is wrong again.
+        # (matched on the BRANCH, not the name: core's comment still explains the deletion, and a
+        # bare-name check would trip on the explanation rather than on the code coming back)
+        self.assertNotIn(
+            "elif rn in _lockless_host:", src,
+            "core._base_slot_data grew a lockless-host branch back -- the mirror above dropped it "
+            "when the Ashen Capital got its own open flag, so it is stale again")
 
 
 if __name__ == "__main__":

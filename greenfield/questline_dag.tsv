@@ -26,7 +26,7 @@
 #   source kind: check 5, npc_state 91, world 188
 #   targets: 115 with a PREREQUISITE (sense=set), 15 with an EXCLUSION (sense=clear)
 #   CORROBORATION: 81 of 157 target check(s) are ALREADY missable-tagged (52%); the tag set holds 199 checks in total
-#   cross-region edges: 48 (8 whose target is NOT missable-tagged)
+#   cross-region edges: 50 (8 whose target is NOT missable-tagged)
 #   alt_group semantics: all 2, any 11, single 154, unknown 36 (a group claims OR/AND only where the DATA proves it)
 #   edges DEGRADED to unusable by a guard (each is a refusal, not a loss): context-branch-unresolved 7, enabler-not-an-eventflag-test-above-the-enable 2, esd-paths-disagree 3, esd-received-memo 69, lot_gates-senses-disagree 2, treasure-verb-crossproduct 28
 #   source flags LABELLED from FromSoft's own event names: 185 of 284 edge(s) (65%); by emevd_batch 1, emevd_event 93, esd_talk 91
@@ -43,7 +43,7 @@
 #   [ok] f580600 <- 9146 (treasure enabler) -- the one known real cross-region prerequisite; senses ['set']
 #   [ok] f510110 Fortissax -- ABSENT BY CONSTRUCTION -- no award-site corpus can see an arena-existence gate; absence here is the BLIND SPOT, never evidence of safety (SPEC §5)
 source_flag	target_flag	sense	evidence	tool	source_label	source_label_ja	label_source	label_setters	basis	alt_group	group_semantics	source_kind	source_region	source_locator	target_region	cross_region	target_ap_id	target_name
-11059206	9500	set	$InitializeCommonEvent(90005750) arg5	lot_gates	NPC112 Gold Masked Seeker_NPC initialization event	NPC112金仮面の探究者_NPC初期化イベント	emevd_event	1	commonarg-positive-by-construction	lot_gates:9500:90005750	single	world	Leyndell	setter_map	Leyndell	no	7770008	Leyndell :: Mending Rune of Perfect Order - around Elden Throne [f9500]
+11059206	9500	set	$InitializeCommonEvent(90005750) arg5	lot_gates	NPC112 Gold Masked Seeker_NPC initialization event	NPC112金仮面の探究者_NPC初期化イベント	emevd_event	1	commonarg-positive-by-construction	lot_gates:9500:90005750	single	world	Leyndell	setter_map	Ashen Capital	yes	7770008	Ashen Capital :: Mending Rune of Perfect Order - around Elden Throne [f9500]
 4131	9502	set	$InitializeCommonEvent(90005750) arg5	lot_gates	NPC322 Yuria_Character state transition	NPC322ユリア_キャラ状態遷移	emevd_event	4	commonarg-positive-by-construction	lot_gates:9502:90005750	single	world			Deeproot Depths	unknown	7770009	Deeproot Depths :: Mending Rune of the Death-Prince - near Prince of Death's Throne [f9502]
 1042369408	60110	unknown	talk 106006000 gate_sense=0 lot 103900	esd_gifts	set by NPC talk 106006000 on m60_00_00_00		esd_talk	1	esd-paths-disagree	esd_gifts:60110:106006000	unknown	npc_state	Limgrave	flag_decode	Limgrave	no	7770012	Limgrave :: Spirit Calling Bell - from Twin Maiden Husks [f60110]
 1042369413	60110	set	$InitializeCommonEvent(90005750) arg5	lot_gates	NPC106_Rani_Disappears from the church	NPC106_ラニ_教会から消える	emevd_event	2	commonarg-positive-by-construction	lot_gates:60110:90005750	single	world	Limgrave	flag_decode	Limgrave	no	7770012	Limgrave :: Spirit Calling Bell - from Twin Maiden Husks [f60110]
@@ -191,7 +191,7 @@ source_flag	target_flag	sense	evidence	tool	source_label	source_label_ja	label_s
 1047419201	400470	set	talk 221006000 gate_sense=1 lot 104700	esd_gifts	Giant pot event_raise event end flag	巨大壺イベント_イベント終了フラグを立たせる	emevd_event	1	esd-walk-gate-sense	esd_gifts:400470:221006000	single	world			Caelid	unknown	7770724	Caelid :: Great-Jar's Arsenal - m60_47_41 (region unconfirmed) [f400470]
 7610	400480	set	$InitializeCommonEvent(90005774) arg0	lot_gates					commonarg-positive-by-construction	lot_gates:400480:90005774	single	world			Haligtree	unknown	7770725	Haligtree :: Rotten Winged Sword Insignia - around Prayer Room [f400480]
 11109656	400490	set	$InitializeCommonEvent(90005750) arg5	lot_gates	Dark Round Table Space_Dark Hours	暗黒円卓空間_暗黒時	emevd_event	1	commonarg-positive-by-construction	lot_gates:400490:90005750	single	world	Roundtable Hold	setter_map	Roundtable Hold	no	7770726	Roundtable Hold :: Royal Remains Helm - around Table of Lost Grace [f400490]
-11059305	400500	set	$InitializeCommonEvent(90005750) arg5	lot_gates	NPC112 Golden Masked Seeker_Item Light_Revisited	NPC112金仮面の探究者_アイテム光_再訪	emevd_event	1	commonarg-positive-by-construction	lot_gates:400500:90005750	single	world	Leyndell	setter_map	Leyndell	no	7770727	Leyndell :: Goldmask's Rags - around Elden Throne [f400500]
+11059305	400500	set	$InitializeCommonEvent(90005750) arg5	lot_gates	NPC112 Golden Masked Seeker_Item Light_Revisited	NPC112金仮面の探究者_アイテム光_再訪	emevd_event	1	commonarg-positive-by-construction	lot_gates:400500:90005750	single	world	Leyndell	setter_map	Ashen Capital	yes	7770727	Ashen Capital :: Goldmask's Rags - around Elden Throne [f400500]
 7612	400510	set	$InitializeCommonEvent(90005774) arg0	lot_gates					commonarg-positive-by-construction	lot_gates:400510:90005774	single	world			Altus	unknown	7770728	Altus :: Great Stars - around Bower of Bounty [f400510]
 4927	400590	set	talk 418001205 gate_sense=1 lot 105900	esd_gifts					esd-walk-gate-sense	esd_gifts:400590:418001205	single	world			Scadu Altus	unknown	7773868	Scadu Altus :: Lacerating Crossed-Tree [f400590]
 4927	400590	set	talk 418006100 gate_sense=1 lot 105900	esd_gifts					esd-walk-gate-sense	esd_gifts:400590:418006100	single	world			Scadu Altus	unknown	7773868	Scadu Altus :: Lacerating Crossed-Tree [f400590]

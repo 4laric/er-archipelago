@@ -82,6 +82,55 @@ def test_scadu_cum_matches_the_client_rung_for_rung():
     assert rust == ss.SCADU_CUM, f"ladder drift: rust {rust} vs world {ss.SCADU_CUM}"
 
 
+# ---- every one-region seed, deterministically ---------------------------------------------------
+def test_every_one_region_draw_clears_the_original_cap_under_the_clamp():
+    """SPEC-ashen-capital-lock (2026-08-06) removed the `auto` force-keep of GOAL_REGION, so
+    `num_regions: 1` produces genuinely one-region seeds (hub + one region, 240-360 locations) for
+    the first time -- and on 16 of the 30 possible draws MAX_POOL_SHARE now BINDS: 50 units do not
+    fit a 10% share, injection stops short of SCADU_INJECTION_TARGET, and create_items warns. That
+    degrade is the design (the clamp's comment has said "a seed this small is already being told,
+    loudly, that it cannot reach the target" since it landed); what it must never become is a
+    STARVED blessing. This sweeps every possible draw -- deterministic where test_gf_options'
+    one_region_dlc fixture is one rolled sample -- and pins the floor: natural + injected always
+    reaches at least CLAMP_FLOOR_LEVEL (12, the original shipped cap the 12->20 target raise
+    replaced; worst draw today injects 32 units, level 14). Conservative on purpose: feature
+    extras (gf_extra_locations) only raise the ceiling, so they are counted as 0 here.
+
+    If this fails, region geometry shrank past the point where the clamp starves the blessing
+    below its original cap. That is a premise change -- take it back to a ruling on the
+    clamp-vs-floor trade (see CLAMP_FLOOR_LEVEL's note on why the floor is not in code) -- not a
+    number to relax."""
+    from worlds.eldenring import region_spine as rspine
+    from worlds.eldenring.data import HUB, LOCATIONS, REGIONS
+    from worlds.eldenring.item_ids import LOCATION_ITEM
+
+    hub = len(LOCATIONS.get(HUB, []))
+    target = ss.SCADU_INJECTION_TARGET
+    floor_units = ss.SCADU_CUM[ss.CLAMP_FLOOR_LEVEL]
+    clamped, unclamped = set(), set()
+    for region in REGIONS:
+        kept = [region] + rspine.parent_chain(region)
+        total = hub + sum(len(LOCATIONS.get(r, [])) for r in kept)
+        natural = sum(1 for r in kept for (_n, ap_id, _f) in LOCATIONS.get(r, [])
+                      if LOCATION_ITEM.get(ap_id) == ss.FRAGMENT)
+        want = max(0, ss.SCADU_CUM[target] - natural)
+        for mode in (1, 2):
+            injected = ss.fragments_to_inject(mode, target, natural, total, False)
+            (clamped if injected < want else unclamped).add(region)
+            assert natural + injected >= floor_units, (
+                f"{region} (mode {mode}): a one-region seed here carries {natural} natural + "
+                f"{injected} injected = {natural + injected} fragment unit(s), below "
+                f"SCADU_CUM[{ss.CLAMP_FLOOR_LEVEL}] = {floor_units} -- the clamp is starving the "
+                f"blessing below the original cap")
+    # Both arms must actually occur, or the quantifier above is vacuous on the side that matters
+    # (vacuous-quantifier discipline). Measured 2026-08-06: 16 draws clamp, 14 do not. Asserting
+    # the split EXISTS, not its census -- the census moves with geometry and is not the invariant.
+    assert clamped, ("no one-region draw binds the clamp any more -- this sweep has stopped "
+                     "testing the degrade path; if that is a deliberate geometry change, the "
+                     "one_region_dlc arm in test_gf_options is now dead code too")
+    assert unclamped, "every one-region draw clamps -- the full-guarantee path is untested here"
+
+
 # ---- full seeds ---------------------------------------------------------------------------------
 class _Seed(WorldTestBase):
     game = GAME

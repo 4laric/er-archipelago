@@ -128,6 +128,11 @@ def compute_kept(n, rng, eligible=None, forced=(), parts=None):
     raises OptionError on an ineligible choice); a forced region outside the pool is dropped here
     rather than smuggled past the scope filter.
 
+    ⭐ SUPERSEDED 2026-08-06 (SPEC-ashen-capital-lock): the paragraph above describes a force-keep
+    that NO LONGER EXISTS. `auto` force-keeps nothing now -- see the note at the append site. The
+    `forced` parameter is unchanged and still carries an explicit goal's needs; `elden_beast`'s
+    forced set is simply empty these days, because the finale no longer needs a region kept.
+
     `parts` is an OPTIONAL out-dict for telemetry (#409): pass a dict and it is filled with
     {"drawn": [...], "forced": [...], "closure": [...]}, the three contributions that make up the
     return value, in the order they were added. It is an out-param rather than a second return
@@ -158,11 +163,27 @@ def compute_kept(n, rng, eligible=None, forced=(), parts=None):
     kept = list(dict.fromkeys(base))
     drawn = list(kept)
     forced_kept = []
-    # 🛑 Both appends MUST stay here, after the draw: moving either above rng.sample changes every
+    # 🛑 The append MUST stay here, after the draw: moving it above rng.sample changes every
     # rolled seed in existence (the economy floor is one seed thick).
-    if not forced and GOAL_REGION in regions and GOAL_REGION not in kept:
-        kept.append(GOAL_REGION)
-        forced_kept.append(GOAL_REGION)
+    #
+    # ⭐ THE `auto` GOAL_REGION FORCE-KEEP IS GONE (SPEC-ashen-capital-lock, 2026-08-06). It used to
+    # sit right here: under `auto` the goal is DERIVED from whatever the draw kept, so the base
+    # game's terminus had to be present for that derivation to find one -- which meant Leyndell,
+    # and behind it Altus (its REGION_PARENT), in EVERY auto seed. That is the other half of
+    # bobler's "num_regions: 1 gave me four regions" (describe_kept below tells the goal: elden_beast
+    # half of the same story).
+    #
+    # It is dead weight now, not a judgement call: decision 3 of the spec makes `auto` resolve to
+    # the Elden Beast on every seed with the base game in play, and the Ashen Capital exists on
+    # every such seed WITHOUT being kept -- it is reached by warping to its own graces behind the
+    # Ashen Capital Lock. So the derivation can always find a terminus, and force-keeping the
+    # capital to guarantee one guarantees nothing that is not already true. Under dlc_only the
+    # append never fired anyway (Leyndell is not eligible), and that path -- the terminus-first
+    # spine walk -- is untouched.
+    #
+    # The rng stream does NOT move: the append was always after rng.sample, so `drawn` is
+    # byte-identical. What changes is that an auto seed now keeps what it drew, which is the
+    # entire point of calling num_regions a draw size.
     for r in forced:
         if r in regions and r not in kept:
             kept.append(r)

@@ -222,6 +222,14 @@ OFF_LEDGER = {
     "capitalAshenPlayRegions": _CAPITAL_OFF,
     "capitalRoyalPlayRegions": _CAPITAL_OFF,
     "capitalReleaseRows": _CAPITAL_OFF,
+    # SPEC-ashen-capital-lock (2026-08-06). These two ride the SAME off-wire as the five above --
+    # features/capital.slot_data returns {} outright when the reconciler is off, so the whole
+    # family goes absent together and _CAPITAL_OFF's class already asserts that. Their extra
+    # `is not None` guard is a PRE-REGEN guard (an absent generated value must not ship a
+    # placeholder: a wrong flag 300 costs the player the floor, not a feature), not a second
+    # option -- so there is no second off-state to pin.
+    "capitalWorldBurnFlag": _CAPITAL_OFF,
+    "capitalPreBurnFlag": _CAPITAL_OFF,
     # --- option-gated keys whose off-tests were ADDED with this file (they had none) ---
     # scaduBlessingCap's row was DROPPED 2026-08-06, on this file's own instruction: the ceiling was
     # removed, nothing emits the key at any mode, so survey() no longer classifies it as conditional

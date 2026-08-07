@@ -52,7 +52,23 @@ class TestGoalChoiceTable:
     def test_every_choice_names_a_region_with_majors(self):
         for value, (region, need) in GOAL_CHOICES.items():
             assert _major_boss_ids(region), f"goal {value!r} -> {region!r} has no MajorBoss checks"
-            assert need, f"goal {value!r} forces nothing -- it could not guarantee its own region"
+            # A named goal must be able to GUARANTEE its region is in the seed, and there are now
+            # exactly TWO ways to do that. This line read `assert need` until 2026-08-06, when
+            # force-keeping was the only way. SPEC-ashen-capital-lock gave the finale the other
+            # one: it is not a rollable region at all -- it is BUILT on every seed with the base
+            # game in play and entered through the Ashen Capital Lock -- so there is nothing to
+            # force, and forcing something would force a region the draw cannot even keep.
+            # Anything else still has to force, and the empty-forced-set exemption is spelt as an
+            # equality so a third choice cannot quietly inherit it.
+            if region == FINALE_REGION:
+                assert need == (), (
+                    f"goal {value!r} names the never-rollable finale; its forced set must be "
+                    f"empty, not {need!r}")
+                assert finale_active(base_regions()), (
+                    f"goal {value!r} is allowed to force nothing ONLY because its region exists "
+                    f"on every base-game seed -- that is no longer true, so it needs a forced set")
+            else:
+                assert need, f"goal {value!r} forces nothing -- it could not guarantee its own region"
 
     def test_forced_regions_are_rollable_and_auto_forces_nothing(self):
         assert forced_regions("auto") == () and forced_regions(None) == ()
@@ -238,8 +254,19 @@ class TestImpossibleChoicesDieAtGeneration:
             self._generate(num_regions=0, enable_dlc=False, goal="promised_consort")
 
     def test_elden_beast_under_dlc_only_raises(self):
-        with pytest.raises(OptionError, match="Farum Azula|Leyndell"):
+        # It used to match "Farum Azula|Leyndell": the forced set was those two regions, and the
+        # raise came from core's `missing = [r for r in need if r not in eligible]` quantifier.
+        # SPEC-ashen-capital-lock empties that set, so the quantifier now passes VACUOUSLY and
+        # would happily pin a region dlc_only cannot build; core._resolve_goal_choice replaced it
+        # with an explicit base-game-in-play test. Same protection, same reason it exists -- the
+        # raise must say WHICH region is impossible and WHICH knob caused it -- asserted against
+        # the new guard's message instead of the old one's.
+        with pytest.raises(OptionError) as excinfo:
             self._generate(num_regions=0, dlc_only=True, goal="elden_beast")
+        msg = str(excinfo.value)
+        assert FINALE_REGION in msg, msg     # which region is impossible
+        assert "base game" in msg, msg       # why it is impossible
+        assert "dlc_only" in msg, msg        # which knob to turn
 
     def test_the_legal_pairings_do_not_raise(self):
         # The mirror leg -- a guard that rejects everything is not a guard. These must generate.

@@ -47,6 +47,7 @@ from Options import DefaultOnToggle
 
 from ..registry import Feature, register
 from .. import contract
+from ..data import FINALE_REGION as _FINALE_REGION
 
 try:
     from ..region_play_ids import REGION_PLAY_IDS
@@ -63,6 +64,14 @@ try:
     from ..data import CAPITAL_RELEASE_ROWS as _GEN_RELEASE_ROWS
 except Exception:
     _GEN_BURN_FLAG = _GEN_BURN_DONE_FLAG = _GEN_RELEASE_ROWS = None
+# SPEC-ashen-capital-lock. No pinned fallback for these two ON PURPOSE: unlike 9116/118 they have
+# never shipped, so an absent value means "regenerate", not "assume". A hand fallback here would be
+# a hardcoded game id that nobody would ever notice had gone stale.
+try:
+    from ..data import CAPITAL_WORLD_BURN_FLAG as WORLD_BURN_FLAG
+    from ..data import CAPITAL_PRE_BURN_FLAG as PRE_BURN_FLAG
+except Exception:  # pragma: no cover -- pre-regen data
+    WORLD_BURN_FLAG = PRE_BURN_FLAG = None
 
 # Pinned ground truth (2026-07-14, elden_ring_artifacts):
 #   9116 -- m13_00_00_00.emevd:409 `SetEventFlagID(9116, ON)` (Maliketh dead; the only setter in
@@ -83,9 +92,23 @@ BURN_FLAG = _GEN_BURN_FLAG or _FALLBACK_BURN_FLAG
 BURN_DONE_FLAG = _GEN_BURN_DONE_FLAG or _FALLBACK_BURN_DONE_FLAG
 RELEASE_ROWS = tuple(tuple(r) for r in (_GEN_RELEASE_ROWS or _FALLBACK_RELEASE_ROWS))
 
-# The region that owns ALL capital play buckets (region_play_ids.py; the finale maps' kick
-# geometry rides Leyndell -- see features/finale.py).
+# The regions that own the capital play buckets. Until 2026-08-06 this was Leyndell alone, because
+# the finale maps' kick geometry rode the capital's lock; SPEC-ashen-capital-lock moved 11050 and
+# 19000 to the Ashen Capital's own entry in region_groups.py. The partition therefore reads the
+# UNION of the two, which leaves the reconciler's answer bit-for-bit unchanged (royal=[11000],
+# ashen=[11050, 19000]) while surviving the split -- and, more to the point, would HARD-FAIL if a
+# future regen moved a bucket to a third region instead of silently shipping a permissive latch.
 _CAPITAL_REGION = "Leyndell"
+_CAPITAL_REGIONS = (_CAPITAL_REGION, _FINALE_REGION)
+# The synthetic burn item's name, spelled once. features/area_locks.py keys the burn bundle on it.
+ASHEN_LOCK_NAME = f"{_FINALE_REGION} Lock"
+
+
+def _capital_buckets():
+    out = []
+    for _r in _CAPITAL_REGIONS:
+        out.extend(REGION_PLAY_IDS.get(_r, ()))
+    return sorted(set(out))
 
 
 def capital_partition(play_ids=None):
@@ -97,16 +120,56 @@ def capital_partition(play_ids=None):
     that silently dropped a bucket would leave the client's latch permissive exactly there --
     the play-region bucket-table lesson (CONTRIBUTING: a derivation that cannot answer must
     FAIL, not answer)."""
-    ids = REGION_PLAY_IDS.get(_CAPITAL_REGION, ()) if play_ids is None else play_ids
+    ids = _capital_buckets() if play_ids is None else play_ids
     royal = sorted(b for b in ids if b // 10 == 1100)
     ashen = sorted(b for b in ids if b // 10 == 1105 or b // 1000 == 19)
     leftover = sorted(set(ids) - set(royal) - set(ashen))
     if leftover or not royal or not ashen:
         raise contract.ContractError(
-            f"capital: cannot partition {_CAPITAL_REGION} play buckets {sorted(ids)} into "
+            f"capital: cannot partition {'+'.join(_CAPITAL_REGIONS)} play buckets {sorted(ids)} into "
             f"Royal/Ashen (royal={royal}, ashen={ashen}, unclaimed={leftover}) -- classify the "
             f"new bucket in features/capital.py before shipping the reconciler")
     return royal, ashen
+
+
+def burn_reveal_flags():
+    """The Erdtree burn's world-state set, IN WIRE ORDER, for lockRevealFlags['Ashen Capital Lock'].
+
+    This is `common.emevd $Event(900)`'s body replayed as a grant, minus the two things the spec
+    refuses to replay: the cutscene warp, and `BatchSetEventFlags(71100, 71110, OFF)` -- the wipe of
+    the Royal grace warp points, which is the whole reason the reconciler exists.
+
+    🛑 ORDER IS THE CONTRACT, and it is the one thing the 2026-08-06 probe got wrong the first time.
+    The done latch goes LAST because it is $Event(900)'s OWN entry check: set it first and the event
+    short-circuits to EndEvent(), the body never runs, flag 300 is never set, and the Elden Beast's
+    arena is a void the player falls into and dies in. Emitting it last also means a partial grant
+    (crash, disconnect mid-apply) leaves the latch UNSET, so the reconnect replay finishes the job
+    instead of permanently suppressing the event.
+
+    🛑 The map-version selector 9116 is NOT here, deliberately. It is held by POSITION by the
+    reconciler; setting it on receipt would be position-blind and would load the wrong Leyndell --
+    exactly the strand the reconciler exists to end. 300 IS here as well as being held, so a client
+    too old to know `capitalWorldBurnFlag` degrades to latching it (a burnt world everywhere) rather
+    than to a finale with no floor.
+
+    The 302-OFF half cannot ride this key at all: the client's reveal path writes ON only. It is
+    carried by `capitalPreBurnFlag` for the position-holding client and is simply absent otherwise.
+    """
+    if WORLD_BURN_FLAG is None:
+        return []
+    return [int(WORLD_BURN_FLAG)] + [int(f) for f in _BURN_SIDE_EFFECT_FLAGS] \
+        + [int(BURN_DONE_FLAG)]
+
+
+# The rest of $Event(900)'s Set-ON body: 301 (set alongside 300; ZERO readers anywhere in the 589
+# EMEVD -- param/engine state, replayed for fidelity, not for effect) and 71300. Both are DERIVED
+# into data.py by gen_data._capital_derive as "the body's Set-ONs that no map reads", so this is a
+# join over generated data rather than a hand list; the empty fallback keeps a pre-regen checkout
+# emitting the two flags that matter (300 and the latch) instead of raising.
+try:
+    from ..data import CAPITAL_BURN_SIDE_EFFECT_FLAGS as _BURN_SIDE_EFFECT_FLAGS
+except Exception:  # pragma: no cover -- pre-regen data
+    _BURN_SIDE_EFFECT_FLAGS = ()
 
 
 class CapitalReconciler(DefaultOnToggle):
@@ -129,7 +192,7 @@ class Capital(Feature):
     def generate_early(self, world) -> None:
         opt = getattr(world.options, "capital_reconciler", None)
         world.gf_capital_reconciler = bool(opt.value) if opt is not None else False
-        if world.gf_capital_reconciler and not REGION_PLAY_IDS.get(_CAPITAL_REGION):
+        if world.gf_capital_reconciler and not _capital_buckets():
             # No measured capital geometry (pre-regen data): the client latch would have nothing
             # to hold. Fail closed to vanilla behavior -- and SAY so (armed or why not).
             world.gf_capital_reconciler = False
@@ -142,10 +205,18 @@ class Capital(Feature):
         if not getattr(world, "gf_capital_reconciler", False):
             return {}  # absent keys ARE the off-wire: the client logs INERT and never writes 9116
         royal, ashen = capital_partition()
-        return {
+        out = {
             contract.CAPITAL_BURN_FLAG: int(BURN_FLAG),
             contract.CAPITAL_BURN_DONE_FLAG: int(BURN_DONE_FLAG),
             contract.CAPITAL_ASHEN_PLAY_REGIONS: [int(b) for b in ashen],
             contract.CAPITAL_ROYAL_PLAY_REGIONS: [int(b) for b in royal],
             contract.CAPITAL_RELEASE_ROWS: [[int(a), int(b), int(c)] for (a, b, c) in RELEASE_ROWS],
         }
+        # SPEC-ashen-capital-lock: the world-state half. Emitted only when the generated data
+        # carries it -- an absent key is the client's existing "INERT" wire, and shipping a
+        # placeholder would be worse than shipping nothing (a wrong 300 costs the player the floor).
+        if WORLD_BURN_FLAG is not None:
+            out[contract.CAPITAL_WORLD_BURN_FLAG] = int(WORLD_BURN_FLAG)
+        if PRE_BURN_FLAG is not None:
+            out[contract.CAPITAL_PRE_BURN_FLAG] = int(PRE_BURN_FLAG)
+        return out

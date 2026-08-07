@@ -169,13 +169,30 @@ class GreenfieldRegionOpenFlags(unittest.TestCase):
             m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
             cls.rof = m
 
+    # THE ONE NON-`REGIONS` OPEN-FLAG HOLDER (SPEC-ashen-capital-lock, 2026-08-06). Until then
+    # every open flag named a rollable region, because the Ashen Capital had no flag of its own
+    # and borrowed Leyndell's through `core._lockless_host`. It now owns flag 71122, its own grace
+    # bundle and its own kick buckets -- but it is still NEVER ROLLED (not in REGIONS, never drawn
+    # by num_regions, never the start anchor). So the table's key set is REGIONS plus exactly this
+    # one name, and the tests below say "plus exactly this one", not "plus anything".
+
     def test_open_flags_shape(self):
         if not self.present:
             self.skipTest("region_open_flags.py not generated yet (run gen_data.py)")
         regions = set(self.d.REGIONS)
+        allowed = regions | {self.d.FINALE_REGION}
+        # WITNESS the carve-out rather than widening blindly: the finale must really be outside
+        # REGIONS (never rollable) AND really be in the table (it has a front door of its own).
+        self.assertNotIn(self.d.FINALE_REGION, regions,
+                         "the finale must stay unrollable -- it is checks and a gauntlet, not a "
+                         "place the draw can hand you")
+        self.assertIn(self.d.FINALE_REGION, self.rof.REGION_OPEN_FLAGS,
+                      "the finale owns its own open flag since SPEC-ashen-capital-lock; without "
+                      "one its space would read as permanently open to the client")
         vals = list(self.rof.REGION_OPEN_FLAGS.values())
         for r, f in self.rof.REGION_OPEN_FLAGS.items():
-            self.assertIn(r, regions, f"open-flag region {r!r} not in REGIONS")
+            self.assertIn(r, allowed,
+                          f"open-flag region {r!r} is neither in REGIONS nor the finale")
             self.assertIsInstance(f, int)
             self.assertGreater(f, 0)
         self.assertEqual(len(vals), len(set(vals)), "duplicate open flags across regions")
@@ -186,8 +203,15 @@ class GreenfieldRegionOpenFlags(unittest.TestCase):
         resolved = set(self.rof.REGION_OPEN_FLAGS)
         pending = set(self.rof.REGION_OPEN_PENDING)
         self.assertEqual(resolved & pending, set(), "a region is both resolved and pending")
-        self.assertEqual(resolved | pending, set(self.d.REGIONS),
+        # The partition is over REGIONS, and the finale is the ONE key that is outside it (see
+        # the note above). Subtracting it by name -- rather than dropping the equality to a
+        # subset test -- keeps this an exact partition: a second unrollable flag holder appearing
+        # tomorrow still reds this test.
+        self.assertEqual((resolved | pending) - {self.d.FINALE_REGION}, set(self.d.REGIONS),
                          "every region must be either resolved or pending")
+        self.assertIn(self.d.FINALE_REGION, resolved,
+                      "the finale is RESOLVED, not pending -- a pending finale would ship a lock "
+                      "that opens nothing")
 
 
 
@@ -221,18 +245,39 @@ class GreenfieldSpine(unittest.TestCase):
     # parent closure held -- is now stated as properties over a 400-seed sweep in
     # test_gf_region_selection.py, which runs in this same AP-free generators job.
 
-    def test_compute_kept_rolled_has_goal_unique(self):
+    def test_compute_kept_rolled_is_exactly_the_draw_plus_its_closure(self):
+        # WAS test_compute_kept_rolled_has_goal_unique, which asserted GOAL_REGION was in the
+        # kept set of a rolled `auto` seed. That was true only because compute_kept force-kept
+        # GOAL_REGION after the draw -- the force-keep SPEC-ashen-capital-lock deleted, because
+        # the finale now hangs off the HUB behind an item and needs no region kept for the goal
+        # derivation to find a terminus. `num_regions` is a DRAW SIZE, so the honest statement is
+        # the stronger one: an auto seed keeps its draw and the parent closure of that draw, and
+        # NOTHING else. That is the assertion a force-keep creeping back in would fail.
+        # TWO seeds, because the two halves of the statement need different draws to be visible:
+        # seed 7 draws no gated child, so its closure is EMPTY and `kept == drawn` exactly -- that
+        # is the seed the deleted force-keep would have grown from 5 to 7 (goal + its parent).
+        # Seed 14 draws three gated children, so its closure is non-empty and the `| closure` half
+        # of the equality is doing real work rather than passing for free.
         import random
-        k = self.rs.compute_kept(5, random.Random(7))
-        self.assertIn(self.rs.GOAL_REGION, k)
-        self.assertEqual(len(k), len(set(k)))
-        # N or N+goal, plus REGION_PARENT closure (a kept gated child pulls its ancestors in;
-        # bound derived from parent_chain, never re-pinned).
-        extra = sum(len(self.rs.parent_chain(r)) for r in k)
-        self.assertTrue(5 <= len(k) <= 6 + extra)
-        for r in k:
-            for anc in self.rs.parent_chain(r):
-                self.assertIn(anc, k, f"kept child {r} without ancestor {anc}")
+        for seed, closure_is_empty in ((7, True), (14, False)):
+            with self.subTest(seed=seed):
+                parts = {}
+                k = self.rs.compute_kept(5, random.Random(seed), parts=parts)
+                self.assertEqual(len(k), len(set(k)))
+                self.assertEqual(len(parts["drawn"]), 5, "the draw is num_regions wide")
+                self.assertEqual(parts["forced"], [],
+                                 "`auto` passes no forced set and compute_kept adds none of its "
+                                 "own -- the GOAL_REGION append is gone")
+                closure = {a for r in parts["drawn"] for a in self.rs.parent_chain(r)}
+                closure -= set(parts["drawn"])
+                self.assertEqual(set(k), set(parts["drawn"]) | closure,
+                                 "kept must be EXACTLY the draw plus its REGION_PARENT closure")
+                self.assertEqual(not closure, closure_is_empty,
+                                 "seed picked for its closure shape; if the parent table moves, "
+                                 "re-pick the seed rather than dropping the witness")
+                for r in k:
+                    for anc in self.rs.parent_chain(r):
+                        self.assertIn(anc, k, f"kept child {r} without ancestor {anc}")
 
 
 

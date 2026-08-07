@@ -14,11 +14,22 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring import contract  # noqa: E402
 from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
 from worlds.eldenring.region_spine import REGION_PARENT  # noqa: E402
+from worlds.eldenring.data import FINALE_REGION  # noqa: E402
 
 GAME = "Elden Ring"
 _RAYA = range(71400, 71500)
 _LEYN = range(71100, 71200)
 _ROUNDTABLE = 71190
+# ⭐ THE 711xx BAND STOPPED BELONGING TO ONE REGION on 2026-08-06 (SPEC-ashen-capital-lock).
+# `_LEYN` is a deliberately blanket band -- it catches Royal warp flags that are not even in
+# Leyndell's own bundle (71100/71101/71106/71107), which is why it is a band and not a set. But the
+# Ashen Capital now owns a REAL bundle at 71122-71125, inside that band, and those graces are NOT
+# behind the capital's Great-Rune wall: they are behind the burn ITEM (`Ashen Capital Lock`), which
+# is the one key entitled to carry them. So the band keeps its breadth and the Ashen bundle is
+# carved out BY NAME, derived from the generated table rather than re-typed as a range -- and the
+# carve-out is paid for below by a positive test that exactly one key carries it.
+_ASHEN_BUNDLE = tuple(REGION_GRACE_POINTS.get(FINALE_REGION, ()))
+_ASHEN_KEY = f"{FINALE_REGION} Lock"
 
 
 class GatesArmed(WorldTestBase):
@@ -39,10 +50,35 @@ class GatesArmed(WorldTestBase):
 
     def test_no_bundle_carries_a_walled_grace(self):
         # no OTHER key may smuggle a capital/Academy grace either (the pre-v2 fold bug shape).
+        # The invariant is "no key smuggles a grace past a wall it does not own" -- see the
+        # _ASHEN_BUNDLE note at the top for why 71122-71125 is not such a grace.
         rg = self._rg()
         for key, fs in rg.items():
-            leaked = [g for g in fs if g in _RAYA or (g in _LEYN and g != _ROUNDTABLE)]
+            leaked = [g for g in fs if g in _RAYA
+                      or (g in _LEYN and g != _ROUNDTABLE and g not in _ASHEN_BUNDLE)]
             self.assertFalse(leaked, f"{key} carries walled graces {leaked}")
+
+    def test_the_ashen_bundle_rides_its_own_key_and_only_its_own_key(self):
+        """The price of the _ASHEN_BUNDLE carve-out above, paid in full.
+
+        The Ashen Capital has NO walk-in entrance -- warping to these four graces is the only way
+        in -- so its lock must carry the whole bundle or it opens nothing. And exactly because the
+        band above no longer flags them, some other key carrying them would go unnoticed: that is
+        the old capital-grace-smuggling bug shape at a new address (before 2026-08-06 the graces
+        were force-skipped in gen_data precisely because riding LEYNDELL's lock warped players
+        into a capital they had not burned)."""
+        self.assertTrue(_ASHEN_BUNDLE,
+                        "no Ashen grace bundle in the generated table -- the carve-out in "
+                        "test_no_bundle_carries_a_walled_grace is subtracting nothing and that "
+                        "test is weaker than it reads")
+        rg = self._rg()
+        self.assertEqual(rg.get(_ASHEN_KEY), list(_ASHEN_BUNDLE),
+                         f"{_ASHEN_KEY} must carry its bundle in full -- it is the only way in")
+        for key, fs in rg.items():
+            if key == _ASHEN_KEY:
+                continue
+            smuggled = [g for g in fs if g in _ASHEN_BUNDLE]
+            self.assertFalse(smuggled, f"{key} carries Ashen Capital graces {smuggled}")
 
     def test_hub_grace_is_a_start_grace_not_a_bundle_rider(self):
         sd = self.world.fill_slot_data()

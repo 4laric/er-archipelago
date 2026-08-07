@@ -511,9 +511,15 @@ CONTRACT = (
                 "kept-region coverage assert; test_gf_data.py guards table drift). A legacy seed that "
                 "still sends a non-empty areaLockFlags is honored by the client as-is."),
     ContractKey("lockRevealFlags", "LISTVAL_INT_MAP", False, (BOTH,),
-                "(unemitted today; client path LIVE)", "region.rs:121 str_to_u32vec",
-                "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt. The client "
-                "consumer is LIVE (region.rs:121); greenfield does not emit it yet."),
+                "features/area_locks.py", "region.rs:121 str_to_u32vec",
+                "'<Region> Lock' -> map-reveal/enforcement flags set on lock receipt, IN WIRE "
+                "ORDER (both client application sites iterate the parsed Vec in order). Emitted "
+                "for the DLC map pieces and, since SPEC-ashen-capital-lock, for the Ashen Capital "
+                "Lock's Erdtree-burn world state -- where the ORDER IS LOAD-BEARING: the burn-done "
+                "latch must be LAST, because it is common.emevd $Event(900)'s own entry check and "
+                "setting it first makes the event skip the body that places the Elden Beast's "
+                "arena. A partial grant must therefore leave it unset, so the reconnect replay "
+                "can finish the job."),
     # --- capital-version reconciler (SPEC-capital-reconciler.md; features/capital.py) ---
     # All five travel together, emitted only while `capital_reconciler` is ON -- absent keys are
     # the off-wire (the client logs "capital reconciler INERT" and never touches 9116).
@@ -534,6 +540,22 @@ CONTRACT = (
     ContractKey("capitalRoyalPlayRegions", "INT_LIST", False, (GREENFIELD,),
                 "features/capital.py", "er-logic capital.rs via region.rs tick_capital",
                 "measured play_region buckets where 9116 must be held OFF (11000 Royal Capital)."),
+    # SPEC-ashen-capital-lock (2026-08-06): the WORLD-STATE half of $Event(900). Independently
+    # optional -- a client that does not know these keys still gets the burn, because the same
+    # flags ride lockRevealFlags and simply latch instead of being held by position.
+    ContractKey("capitalWorldBurnFlag", "INT", False, (GREENFIELD,),
+                "features/capital.py", "er-logic capital.rs via region.rs tick_capital",
+                "the world's post-burn state flag, 300 -- common.emevd:1293 is its SOLE setter in "
+                "all 589 EMEVD, and it is READ in five maps plus the Roundtable Hold. Measured in "
+                "game 2026-08-06: without it the Elden Beast's arena in m19_00 is a VOID the "
+                "player falls into and dies in; with it, the hub is in its burnt state. Held by "
+                "POSITION alongside capitalBurnFlag (ON in the ashen buckets, OFF elsewhere) so "
+                "the rest of the world stays vanilla -- it is reversible, measured, not one-way."),
+    ContractKey("capitalPreBurnFlag", "INT", False, (GREENFIELD,),
+                "features/capital.py", "er-logic capital.rs via region.rs tick_capital",
+                "the OPPOSITE world state, 302 -- set by $Event(901) (the Melina/Forge ceremony, "
+                "alongside flag 110) and cleared by the burn's own body. Written OFF only where "
+                "the burn state is written ON; never touched elsewhere."),
     ContractKey("capitalReleaseRows", "TRIPLE_LIST", False, (GREENFIELD,),
                 "features/capital.py", "shop_flags.rs run_capital_release",
                 "[ShopLineupParam row, expected release flag, replacement] -- shop-check rows "
