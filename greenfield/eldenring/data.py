@@ -5152,7 +5152,6 @@ NOT_RANDOMIZED = {
     370240: 'mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss drop is the real check; the copy can strand once the drop is shuffled',
     370250: 'mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss drop is the real check; the copy can strand once the drop is shuffled',
     370260: 'mausoleum_remembrance_dupe: Walking Mausoleum duplication row for a remembrance whose boss drop is the real check; the copy can strand once the drop is shuffled',
-    400081: "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)",
     400122: 'phantom_flag: acquisition flag exists in NO game data (invented upstream); it can never fire, so it must not be a check (phantom-flag guard)',
     400280: 'obtained_flag_twin: Haligtree Secret Medallion (Left) obtained-flag twin of the placed Castle Sol pickup f1051587800; keeping both double-checks one medallion',
     400286: 'phantom_flag: acquisition flag exists in NO game data (invented upstream); it can never fire, so it must not be a check (phantom-flag guard)',
@@ -5257,4 +5256,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f679c33a28b95c4af2b7e4915dc7f584a0280a98641c7f040cd4e067a554c5ac', 'module': 'data.py', 'body_sha256': 'sha256:a66d3152ac94a48dc6dab5ee859ff2af13418284782376b56d9ba304ec4961f2'}
+_GEN_STAMP = {'inputs_hash': 'sha256:5b6981dec2eae1b42f6948727403d2670fb15ac37051e1575d7eeb03d3fe1daa', 'module': 'data.py', 'body_sha256': 'sha256:fef8f97a50f816557b3b04e382753ec6e415dc1453e3ea23380fa5fb120f5f32'}

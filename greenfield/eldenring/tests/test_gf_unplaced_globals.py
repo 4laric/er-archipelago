@@ -42,7 +42,17 @@ DATA = os.path.join(PKG, "data.py")
 # you is the arena-grace lesson, one table over).
 # 36 -> 52 (2026-08-07): the de-dup re-key (see test_coverage_gate BASELINE_TOTAL_LOCATIONS)
 # unblocked 62 rows the name rule had been discarding; 16 of them had derivable tiles.
-MIN_ROWS = 52
+# 52 -> 51 (2026-08-07, #451): the ONE sanctioned way this floor may drop -- a row was RETIRED as
+# cut content, not lost to a corpus going quiet. FromSoft writes the marker BOTH ways, bare
+# '[ERROR]' and '[ERROR]<real name>', and the guard tested only the bare form; goods 8130
+# ("[ERROR]Rya's Necklace", sortId 0) therefore read as a NAMED item and f400081 shipped as a live
+# check holding a thing that does not exist. It was never a duplicate of f400300 (goods 8136, the
+# real necklace, sortId 204050) -- it was never an item at all. Every corpus this emit reads is
+# intact and every other row is unchanged: 51 of 51 survive, and the only delta is
+#     -400081  m35_00_00_00  talk_esd  Rya's Necklace
+# 🛑 This is the shape the docstring above warns about, so the burden is discharged by SAYING WHICH
+# ROW and WHY it is not a real placement -- never by moving the number to whatever the emit printed.
+MIN_ROWS = 51
 
 
 def _rows():
