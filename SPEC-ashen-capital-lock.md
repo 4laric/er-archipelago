@@ -18,6 +18,34 @@ Written against world `main` @ `441e2cd`, client `main` @ `208df96`.
    Godfrey/Hoarah Loux into Radagon/Elden Beast — and that shape plays well as a capstone under
    rando no matter what the draw kept.
 
+## PROBE RESULTS — 2026-08-06 (Alaric, in game, ~2h)
+
+Run per `PROBE-PLAN-ashen-capital.md` on a fresh seed + locally hosted room, `goal: elden_beast`,
+`leyndell_runes_required: 0`, Leyndell Lock sent from the server console. Instrument was the shipped
+`!flag` / `!setflag` / `!warp` overlay commands (`core.rs:231`), NOT a debug build.
+
+| step | result |
+|---|---|
+| Leyndell Lock receipt: open flag 76980 + 6 graces | ✅ no kick in buckets 11050 / 19000 |
+| 118 alone → reconciler armed, no cutscene, Royal warps intact | ✅ |
+| Ashen graces map-selectable with 9116 OFF | ✅ (71120–71125 lit by hand) |
+| warp intercept sets 9116 ON from the target before load | ✅ `readback STUCK` |
+| m11_05 loads, Gideon (510060) spawns and fights | ✅ check 7773906 sent |
+| Godfrey / Hoarah Loux (510070) spawns, both phases | ✅ check 7770755 sent |
+| m19_00 reachable | ✅ `play_region 1900001` |
+| **Radagon / Elden Beast arena** | ❌ **VOID — fell in and died**, until flag 300 was set by hand |
+| flag 300 set → geometry present | ✅ |
+| flag 300 CLEARED → normal Roundtable returns | ✅ reversible, not one-way |
+| Royal round-trip: 9116 OFF → East Capital Rampart | ✅ m11_00 normal, Morgott live, 71100–71109 intact |
+
+**The decisive question is answered YES, with a correction, not a caveat:** the finale is fully
+playable from a synthetic burn state provided the world-state flags come with it. See the corrected
+mechanism above.
+
+STILL OPEN after this run: the Elden Beast kill itself (the void blocked it and the session ended on
+the Royal round-trip instead); the Shinmon-elevator reachability audit; and the NPC surface, which
+one session was never going to clear.
+
 ## What this changes, in one paragraph
 
 Today flag 9116 has exactly one setter in the whole game (Maliketh), so the finale can only exist
@@ -46,31 +74,86 @@ From `SPEC-capital-reconciler.md` (Alaric in-game + EMEVD, 2026-07-14) and this 
   `Remembrance, MajorBoss, Boss, LegacyBoss`. **Gideon (`7773906`) carries NO tags**, so
   `goalLocations` stays exactly the pair — verified, not assumed.
 
-## The mechanism: pre-latch 118, then let the reconciler own 9116
+## The mechanism (CORRECTED 2026-08-06 by the probe): replay `$Event(900)`'s body
 
-On **first receipt** of `Ashen Capital Lock` the client sets, in this order:
+The first draft of this section said "pre-latch 118, then let the reconciler own 9116." **That was
+wrong, and the probe proved it in the most literal way available: a void where the Elden Beast's
+arena should have been, and a death falling into it.**
 
-1. **118 ON.** This does three jobs at once: it arms the reconciler (`tick_capital` returns early
-   while `!armed`); it makes `$Event(900)` end itself on its own entry check, so the burn cutscene
-   never plays and **the Royal warp flags 71100-71110 are never wiped**; and it disarms m13's
-   `13002800`, so a later Maliketh kill can no longer fire a real burn behind the player's back.
-2. **The Ashen grace bundle** — 71120-71125 + 71900 (`regionGraces`). These are the warp targets,
-   and they are in no bundle today.
-3. **The region open flag** — a new synthetic. 76983 is the next free value after Leyndell 76980 /
-   Raya 76981 / Sewer 76982, but **let `gen_data`'s band allocator assign it**; do not hand-pick a
-   literal into the generated file.
-4. **9116 — deliberately NOT set here.** The reconciler owns it: `capital_warp_intercept` writes it
-   from the warp target before the load resolves, and `tick_capital` holds it by play_region
-   bucket. Setting it at receipt while the player stands in Limgrave would just be written back OFF
-   by the next warp anyway.
+`common.emevd $Event(900)` — 天変地異_世界樹炎上, "Natural disaster: World Tree in flames" — does far
+more than latch 118:
 
-**Order is load-bearing:** 118 first, or steps 2-3 land while the reconciler is still inert.
+```
+GotoIf(L0, !EventFlag(9116));   // 9116 off -> wait for it
+GotoIf(L1, !EventFlag(118));    // 118 off  -> run the body
+EndEvent();                     // BOTH already on -> do nothing at all
+L1:
+    SetEventFlagID(300, ON);    SetEventFlagID(301, ON);    SetEventFlagID(302, OFF);
+    SetEventFlagID(71300, ON);  BatchSetEventFlags(71100, 71110, OFF);
+    PlayCutsceneToPlayerAndWarp(13000050, ..., 11052010, 11050000, 10000, 13000, true);
+    SetEventFlagID(118, ON);
+```
 
-**Wire:** this is the existing lock-grant path — `region.rs` already sets `regionGraces` + the open
-flag + `lockRevealFlags` on receipt. 118 rides `lockRevealFlags` (a plain "set these flags on open"
-list) rather than `regionGraces`, which the bundle-reconcile loop walks and would mis-report. No new
-slot_data key is strictly needed; a dedicated `capitalArmFlags` key is one line if we want the log
-line to name what it is, which is probably worth it.
+**Flag 300 is the world's post-burn state, and `common.emevd:1293` is its SOLE setter in the game** —
+589 files checked, including every `BatchSetEventFlags` range that could have covered it. Readers sit
+in at least five maps: `m11_00:421/432/883` (Royal Leyndell's elevators, incl. 神門エレベータ封鎖
+"Shinmon elevator blocked" → `DisableObjAct(11001531)`), `m11_10:150`, `m12_03:187/204/230`,
+`m35_00:453`, `m60_42_32:92`. 301 is set alongside and has ZERO readers in the corpus (params or
+engine, not events). 302 is the *opposite* state — set by `$Event(901)` 天変地異_メリナ炎上, the
+Melina/Forge ceremony, alongside flag 110 — and the arrival clears it.
+
+Pre-latching 118 makes `$Event(900)` short-circuit to `EndEvent()`, so **300 never gets set and every
+map keeps its pre-burn geometry** — m19_00's Radagon arena included.
+
+So the lock's first-open grant IS the burn's side-effect set, in this order:
+
+1. `300 ON`, `301 ON`, `302 OFF`, `71300 ON` — the world state. Without 300 the finale is unplayable.
+2. The Ashen grace bundle 71120–71125 (NOT 71900: the Fractured Marika bonfire only spawns after the
+   Elden Beast dies, `m19_00:19002502` waiting on 9123, so it is warp-useless as an entry).
+3. The region open flag.
+4. `118 ON` **last** — it is the suppressor, and setting it first is exactly what skipped the body.
+5. 9116 — still left to the reconciler (warp intercept + per-tick latch), as before.
+
+Deliberately NOT replayed: `BatchSetEventFlags(71100, 71110, OFF)` (the Royal grace-warp wipe — the
+whole reason the reconciler exists) and the cutscene warp itself.
+
+**Wire:** the existing lock-grant path — `region.rs` sets `regionGraces` + the open flag +
+`lockRevealFlags` on receipt. The world-state flags ride `lockRevealFlags`; 118 needs to be ordered
+after them, which is the one thing the current client wiring does not guarantee and the client half
+must.
+
+## 🛑 Flag 300 is GLOBAL, MONOTONIC and IRREVERSIBLE — the open design question
+
+Confirmed in game 2026-08-06: with 300 set, **the Roundtable Hold is in its burnt state**. This is
+not a capital-local version swap like 9116 — it is a world-wide state change that no event clears,
+and under this spec it fires **the moment the Ashen Capital Lock is received**, which fill may place
+in sphere 0.
+
+⭐ **MEASURED THE SAME SESSION: writing `300 = 0` restores the normal Roundtable.** So the flag is
+monotonic only by *convention* — the maps re-read it, and the state is reversible from our side. That
+kills the worst version of this problem (an irreversible one-way world flip on lock receipt) and puts
+a reconciler-style hold-by-position squarely on the table.
+
+Known consequences, one measured and one derived:
+
+* **Royal Leyndell keeps its burnt-elevator state permanently.** `m11_00:431` disables ObjAct
+  11001531 and pops a dialog; `:883` skips that lift's common-event registration entirely. In vanilla
+  this never mattered because burning meant never returning to Royal. Under the lock model you do
+  return, so this is a NOVEL degradation of the ~152 Royal checks' on-foot reachability. Needs an
+  audit: does that lift gate any check that the granted grace bundle cannot otherwise reach?
+* **Melina is alive in a burnt world.** `$Event(901)` sets flag 110 at the Forge; we skip the whole
+  middle chapter, so 110 is never set. That is a state vanilla cannot produce, and it is a more
+  likely misbehaviour than the 9116-conditioned quest lines already on the risk list.
+
+🛑 **STILL NOT DECIDED HERE, but the empirical half is settled.** The choice is now purely a design
+one: does the lock LATCH 300 once (simple, and the whole world reads post-burn for the rest of the
+run), or does the reconciler HOLD it by position alongside 9116 (the world stays vanilla outside the
+capital and the finale, at the cost of extending a per-tick write to a flag whose readers span five
+maps plus the hub, and of a state — 300 off while standing in m19 — that would strand the player in a
+void if the timing ever slipped)? That ruling belongs to a Fable review with this section attached,
+not to the implementer. Note the asymmetry that should weigh on it: a mistimed 9116 costs you the
+wrong Leyndell, a mistimed 300 costs you the floor.
+
 
 ## World-side changes
 
@@ -136,23 +219,10 @@ game does. `kept_lock_names()` already returns `[]` there, so `goalRequiredItems
   most sphere-sensitive item in the pool, and `goalRequiredItems` (hold every kept lock) is the only
   thing stopping a one-lock seed from ending the moment it opens.
 
-## The probe that gates the build (CE, one save, ~10 minutes)
+## The probe that gated the build — RUN, see PROBE RESULTS above
 
-Everything above is worthless if #1 comes back wrong. Do it first.
-
-1. **On a save that has NEVER burned:** set 118, set 9116, warp to 11051950. Does `m11_05` load?
-   Do Gideon (510060), Godfrey (510070) and Radagon/the Elden Beast (510230) spawn and progress
-   normally with no burn in the save's history? ← **load-bearing**
-2. **Are the Ashen graces selectable on the map while 9116 is OFF?** This was wart #3 in
-   SPEC-capital-reconciler ("unknown, vanilla can never be in that state") and it was cosmetic
-   there because the burn drops you in. Here, warping to an Ashen grace is the ONLY way in, so it
-   is load-bearing. **If they are hidden:** fall back to a client-driven warp — `warp_to_grace`
-   with the entity id bypasses the map UI entirely, and the region kick already does exactly that.
-3. **With 118 pre-set and Maliketh never killed**, confirm `13002800` really is disarmed — no
-   surprise burn on a later Maliketh kill.
-4. **Royal survives:** warp away, warp back to a Royal grace, Morgott and the ~152 checks live,
-   71100-71109 never wiped.
-5. **The NPC surface** named in the reconciler spec — `common.emevd:5063, 7268, 7315, 7319, 7403` —
-   now has to hold with 9116 toggling *and no burn anywhere in the save's history*. This is a
-   widening of the existing unverified assumption, and it is the one item here that cannot be
-   cleared in ten minutes.
+Kept for the record. Item 1 ("do Gideon, Godfrey and the Elden Beast spawn in an m11_05 reached
+without the cutscene") is answered YES once flag 300 is part of the synthetic state. Item 2 (Ashen
+graces selectable at 9116 OFF) is answered YES, so no client-driven warp affordance is needed. The
+remaining items — 13002800's disarm on a real Maliketh kill, the NPC surface under long-lived
+118-without-burn, and now the Shinmon elevator — stay open and belong on the playtest list.
