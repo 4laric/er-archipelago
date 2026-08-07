@@ -109,6 +109,28 @@ def _flag_lots():
     return out
 
 
+def _itemless_flags():
+    """gen_data's ITEM-EXISTENCE GUARD verdict, READ from its own emit (greenfield/itemless_flags.tsv).
+
+    NOT a re-implementation. The guard is a predicate over lot item ids x the FMG name table, and
+    mirroring it producer-side was tried twice (item_name x ITEM_CATALOG, then blank names in
+    flag_lots.tsv) -- both over-dropped by 60-100 rows. gen_data now writes what it refuses, so this
+    side consults it. Absent file -> warn and honour nothing, the same failure mode
+    `_gen_data_excludes` announces, rather than silently dropping everything."""
+    p = os.path.join(GF, "itemless_flags.tsv")
+    if not os.path.isfile(p):
+        print("  WARNING: greenfield/itemless_flags.tsv is ABSENT -- gen_data's item-existence "
+              "guard is NOT being honoured here (regenerate to emit it), so this emit may contain "
+              "rows the world will drop.")
+        return set()
+    out = set()
+    for ln in open(p, encoding="utf-8"):
+        ln = ln.strip()
+        if ln.isdigit():
+            out.add(int(ln))
+    return out
+
+
 def _existing_table():
     """Rows of the table as it stands, so candidates() can subtract its own previous output."""
     if not os.path.isfile(OUT):
@@ -180,6 +202,7 @@ def candidates():
                 continue
             claimed_lots |= lot_of.get(str(_f), set())
     _EXCLUDED = _gen_data_excludes()
+    _ITEMLESS = _itemless_flags()
     tally = collections.Counter()
     out = []
     for r in rows:
@@ -204,6 +227,9 @@ def candidates():
             continue
         if int(r["flag"]) in _EXCLUDED:
             tally["  gen_data refuses it (named exclusion set) -- dead or a phantom dupe"] += 1
+            continue
+        if int(r["flag"]) in _ITEMLESS:
+            tally["  lot awards nothing NAMED (gen_data's item-existence guard)"] += 1
             continue
         tally["  CANDIDATE"] += 1
         out.append(r)
