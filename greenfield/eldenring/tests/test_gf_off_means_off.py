@@ -231,9 +231,24 @@ OFF_LEDGER = {
     "capitalWorldBurnFlag": _CAPITAL_OFF,
     "capitalPreBurnFlag": _CAPITAL_OFF,
     # --- option-gated keys whose off-tests were ADDED with this file (they had none) ---
-    # scaduBlessingCap's row was DROPPED 2026-08-06, on this file's own instruction: the ceiling was
-    # removed, nothing emits the key at any mode, so survey() no longer classifies it as conditional
-    # and a row here would be stale. Its guarantee moved to the fixture's _CONTRACT_NOT_EMITTED.
+    # scaduBlessingCap. The ceiling was REMOVED 2026-08-06 and nothing emits the key at any mode.
+    #
+    # 🛑 The comment that replaced its off_test row asserted that "survey() no longer classifies
+    # it as conditional". It does, and it must: "or no emission exists at all" is CONDITIONAL by
+    # this file's own definition (see the header, point 1), and that is the right answer — a key
+    # nothing emits is a key that is always absent, which is the strongest form of off. Dropping
+    # the row therefore did not silence the checker, it reddened it
+    # (`scaduBlessingCap: NO EMISSION SITE FOUND`) and took `test_the_checker_rejects_a_stale_row`
+    # down with it, since that test asserts on the FIRST failure the checker reports.
+    #
+    # So it is ledgered as `not_emitted` — the kind whose verification is the fixture's
+    # _CONTRACT_NOT_EMITTED entry rather than an off-world, which is exactly where the guarantee
+    # was said to have moved.
+    "scaduBlessingCap": ("not_emitted",
+                         "ceiling REMOVED 2026-08-06 (features/scaling.py): no mode emits a "
+                         "blessing cap, and an absent cap already means the ladder ceiling on the "
+                         "client side. The contract entry stays declared because the client still "
+                         "honours a cap from any apworld that sends one"),
     "dlcScadutreeFloorRanges": ("off_test",
                                 "test_gf_scadu_blessing_cap.py::ScaduBlessingOffSeed"
                                 "::test_the_floor_ranges_are_absent_when_the_mode_is_off",

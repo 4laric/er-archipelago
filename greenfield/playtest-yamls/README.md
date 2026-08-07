@@ -11,6 +11,7 @@ out first for a solo seed):
 
 | yaml | what it validates | checklist tier |
 |------|-------------------|----------------|
+| GF-AshenCapitalLock.yaml | ⭐ v0.3.7: `num_regions: 1` really keeps one region, and the Erdtree burn arrives as an ITEM. 🛑 The decisive check is whether the Elden Beast's arena has a FLOOR -- the 2026-08-06 probe fell into a void there. | T1/T5 |
 | GF-Boot.yaml       | boot contract in isolation (locks light graces, filler grants, checks send) | T0 |
 | GF-Shattering-4Region.yaml | flagship Shattering: item-shuffle + num_regions 4 + region-lock goal | T1/T2/T3 |
 | Alaric_shattering.yaml | the same Shattering with 4 *rolled* regions | T1/T2/T3 |

@@ -147,21 +147,38 @@ def test_the_default_is_still_off():
     assert sc.DlcBlessingCatchup.default == 0
 
 
-def test_the_emitter_is_gated_on_the_mode_and_not_on_dlc():
-    """The blessing floor (`dlcScadutreeFloorRanges`) is correctly DLC-gated — it describes DLC
-    regions. The CAP is not: after this change the curve is game-wide, so gating the cap on a kept
-    DLC region would make it absent on exactly the seeds this feature was rewritten for. Pinned by
-    reading the producer's own condition rather than by generating a DLC-free world, which the
-    freeze makes impossible to do with the mode on."""
+def test_no_mode_emits_a_ceiling_any_more():
+    """THE PRODUCER HALF OF THE 2026-08-06 REMOVAL.
+
+    🛑 THIS TEST USED TO ASSERT THE OPPOSITE, and that is the defect it now records. It
+    required EXACTLY ONE `out[KEY] = …` line in `Scaling.slot_data`, sitting under
+    `if blessing != 0:`. The commit that removed the ceiling deleted that line and left the
+    assertion standing, so from then on the suite demanded an emit site that the same change had
+    deliberately taken away — `expected exactly one emit site for scaduBlessingCap, found 0`, on a
+    file nobody was editing. The ruling was never in doubt (features/scaling.py argues it at
+    length, and `test_there_is_no_ceiling_but_the_game_s_own` above pins it); what was missing was
+    a test that agreed with it.
+
+    ABSENCE IS THE BEHAVIOUR, not the lack of one. The client's `apply_blessing_cap` falls back to
+    the ladder ceiling (20) when the key is missing, so a seed that emits nothing IS a seed saying
+    “no extra cap”. The contract entry stays declared — the client still honours a cap from any
+    apworld that sends one — which is why `test_the_key_is_declared_and_optional` survives this.
+
+    🛑 Re-adding a ceiling is not a matter of restoring this line. It is a player-visible rule
+    (player guide), it needs an OFF_LEDGER row in test_gf_off_means_off.py, and it must be gated on
+    the MODE and never on a kept DLC region — gating it on DLC would make it absent on exactly the
+    base-game seeds the game-wide blessing was rewritten for."""
     import inspect
     src = inspect.getsource(sc.Scaling.slot_data)
     emit = [ln for ln in src.splitlines() if KEY in ln and "out[" in ln]
-    assert len(emit) == 1, f"expected exactly one emit site for {KEY}, found {len(emit)}"
-    idx = src.splitlines().index(emit[0])
-    guard = src.splitlines()[idx - 1].strip()
-    assert guard == "if blessing != 0:", (
-        f"{KEY} must be gated on the MODE alone, got: {guard!r}. Gating it on DLC regions would "
-        "make it absent on base-game seeds — the whole point of the rewrite")
+    assert emit == [], (
+        f"{KEY} has an emit site again in Scaling.slot_data: {emit!r}. See the docstring — a "
+        "ceiling needs the player guide and an off-test, not just this line")
+    # …and the absence is RECORDED, not a deletion nobody noticed. An unexplained gap is how this
+    # key acquired a stale test in the first place (CONTRIBUTING rule 14: the note ships with it).
+    assert "NO `scaduBlessingCap`" in src, (
+        "features/scaling.py no longer says WHY no ceiling is emitted. Absence with no note reads "
+        "as an omission to the next reader, who will 'restore' it")
 
 
 class ScaduBlessingOffSeed(WorldTestBase):

@@ -97,12 +97,16 @@ class NumRegions(Range):
     """How many regions are DRAWN for this seed. 0 = all regions (full Shattering). Only kept
     regions get locks and checks, for a shorter run.
 
-    N IS A DRAW SIZE, NOT A FINAL COUNT -- a seed can end up with more regions than N. Two things
-    add to the draw. A named `goal` force-keeps the regions that goal needs (goal: elden_beast keeps
-    Farum Azula and Leyndell), and any kept region also keeps the region you must pass through to
-    reach it (Leyndell keeps Altus). So `num_regions: 1` with `goal: elden_beast` can roll four
-    regions, and that is working correctly. The generation log states the breakdown for your seed.
-    0 keeps the whole map.
+    N IS A DRAW SIZE. Exactly ONE thing can still add to it: a kept region also keeps the region
+    you must pass THROUGH to reach it (Leyndell keeps Altus). Nothing else -- `goal: auto` forces
+    nothing, and no named goal forces a base-game region any more. So `num_regions: 1` keeps one
+    region, or two if the one it drew sits behind another.
+
+    It did not, until v0.3.7. Burning the Erdtree required killing Maliketh in Crumbling Farum
+    Azula, so an ending only existed on seeds that kept that region AND Leyndell -- and the goal
+    force-kept both, with Leyndell dragging Altus in behind it. Asking for one region handed you
+    four. The burn is an item now (see Goal), so it forces nothing. The generation log states the
+    breakdown for your seed either way. 0 keeps the whole map.
 
     Default 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is
     the length most players actually finish. Set 0 for the full map."""
@@ -151,14 +155,23 @@ class ItemShuffle(Toggle):
 
 
 class Goal(Choice):
-    """WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: the game's real terminus when this
-    seed has one (Godfrey/Hoarah Loux + the Elden Beast, whenever both Farum Azula and Leyndell are
-    kept), otherwise the major bosses of the deepest kept region.
+    """WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in
+    play, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest
+    kept region.
 
-    'elden_beast' pins the Ashen Capital and FORCES Farum Azula + Leyndell to be kept.
+    HOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the
+    pool like any other progression item, and when it reaches you the Erdtree burns and the Ashen
+    Capital's graces light -- so you warp to the end of the game from wherever you are, and no
+    particular region has to be kept for the ending to exist. Before v0.3.7 the burn was the
+    game's own (Maliketh, in Farum Azula), which is why this option used to force two regions into
+    every draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and
+    never where you start.
+
+    'elden_beast' pins that pair explicitly and forces NO regions kept.
     'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and
-    FORCES Enir Ilim to be kept. This is the point of the option: on a full base+DLC seed 'auto'
-    ends at the Elden Beast and the whole DLC is optional, so PCR can never be the goal by luck.
+    FORCES Enir Ilim to be kept. It is the only choice that still forces anything, and that is the
+    point of the option: on a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC
+    is optional, so PCR can never be the goal by luck.
 
     A choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:
     'promised_consort' needs DLC content in play (fails with Enable DLC off), 'elden_beast' needs
@@ -652,10 +665,17 @@ class GreenfieldEldenRingWorld(World):
                 major=regions_with_major_boss(
                     kept, barred=_ps_missable(self)) if _strict else None,
                 gated=frozenset(REGION_PARENT),
-                # The goal region may still win the FIRST draw -- that is the shipped behaviour and
-                # at one anchor it is rare -- but it never rides in as an EXTRA. At start_regions 3
-                # it would stop being rare, and a run that opens on the region it ends in is not a
-                # run (Alaric, 2026-08-06).
+                # The goal region never rides in as an EXTRA: a run that opens on the region it
+                # ends in is not a run (Alaric, 2026-08-06), and at start_regions 3 that would stop
+                # being a rarity and become most seeds.
+                #
+                # 🛑 BELT-AND-BRACES TODAY, NOT THE LOAD-BEARING RULE. GOAL_REGION is Leyndell,
+                # which is a REGION_PARENT child (the capital's main gate is a vanilla wall), and
+                # `gated` above bars those from EVERY draw including the first -- so the goal
+                # region cannot anchor at all, by the gated rule, not by this one. The note that
+                # used to sit here said it "may still win the FIRST draw -- that is the shipped
+                # behaviour"; no seed has ever done that. This stays because it is the rule that
+                # survives GOAL_REGION moving off a vanilla wall.
                 never_extra=frozenset({GOAL_REGION}))
             _by_region = {lock_region_name(it.name): it for it in lock_items}
             for _region in _regions:

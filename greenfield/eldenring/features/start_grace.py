@@ -167,10 +167,15 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
     AFTER its rng.sample. Extras are drawn from what is left by the same size-weighted rule, one
     at a time, so a big region is still likelier to open than a corridor.
 
-    `never_extra` (core passes the goal region) may win the FIRST draw -- that is the behaviour
-    that already shipped, and at one anchor it is rare -- but can never be an extra. At
-    start_regions 3 it stops being rare, and a seed that opens on the region it ends in is a
-    non-run (Alaric, 2026-08-06).
+    `never_extra` (core passes the goal region) bars a region from the EXTRAS ONLY. The first
+    draw is left alone deliberately: filtering it there would move the anchor of every seed already
+    rolled. A seed that opens on the region it ends in is a non-run (Alaric, 2026-08-06), and at
+    start_regions 3 that would stop being a rarity.
+
+    🛑 Do NOT read that as "the goal region may still open a run". Core's goal region is a
+    REGION_PARENT child, and `gated` below bars gated regions from every draw INCLUDING the first,
+    so today the goal region cannot anchor at all -- by that rule, not by this one. `never_extra`
+    is the rule that survives the goal region moving off a vanilla wall.
 
     The MajorBoss intersection applies to the FIRST draw only. Requiring all n anchors to host a
     MajorBoss can empty the eligible set outright, and `pick_anchor_region` degrades rather than

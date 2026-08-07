@@ -60,8 +60,25 @@ class TestFragmentsToInject:
 
     def test_the_clamp_binds_on_a_degenerate_pool(self):
         """The guard has no corpus case -- the smallest real seed is 727 locations and needs 26 --
-        so it gets a DIRECT call, or it is untested (guard-absent-from-corpus-needs-a-direct-call)."""
-        assert ss.fragments_to_inject(1, 12, 0, 100, False) == 10   # 10% of 100
+        so it gets a DIRECT call, or it is untested (guard-absent-from-corpus-needs-a-direct-call).
+
+        UNITS IN, ITEMS OUT -- and this assertion did not survive the two being split. It read
+        `== 10   # 10% of 100` and was correct while every injected fragment was exactly one pool
+        item: the two spaces held the same number, so nothing had to name which one MAX_POOL_SHARE
+        bounds. The x2 stack (`UNITS_PER_STACK_ITEM`, 2026-08-06) separated them -- the return is
+        UNITS, the ceiling is on ITEMS -- and the assertion kept the old number, which is 13 units
+        short of nothing but three units short of the answer. It was right about the share and
+        wrong about the SPACE (CONTRIBUTING rule 3: name the space wherever two components exchange
+        a value), so this is written in both spaces now and neither is a bare literal."""
+        ceiling_items = int(100 * ss.MAX_POOL_SHARE)
+        self_units = ss.fragments_to_inject(1, 12, 0, 100, False)
+        assert self_units == 13, "13 units, not 26: the clamp bound"
+        assert ss.items_for_units(self_units) == ceiling_items == 10, (
+            "the injection must MEET the 10%% share, not overrun it: %d units -> %d items, "
+            "ceiling %d" % (self_units, ss.items_for_units(self_units), ceiling_items))
+        # ...and it is the LARGEST injection that fits -- the loop sheds units until it does, so a
+        # clamp that stopped one unit early would pass the line above and lose supply for nothing.
+        assert ss.items_for_units(self_units + 1) > ceiling_items
         assert ss.fragments_to_inject(1, 12, 0, 0, False) == 0
 
 
