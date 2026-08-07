@@ -80,8 +80,12 @@ class CuratedFillerRecipe(WorldTestBase):
     options = {"item_shuffle": True, "enable_dlc": True, "num_regions": 8,
                "curated_filler": {"throwables": 60, "pots": 30, "greases": 10}}
 
+    # PINNED DRAW -- see the funny-junk assertion at the end of the method for why.
+    SEED = 22
+
     def test_recipe_distribution_and_stacks(self):
         from collections import Counter
+        self.world_setup(seed=self.SEED)
         n = Counter(i.name for i in self.multiworld.itempool if i.player == self.world.player)
         thr = sum(n[x] for x in fc.CATEGORIES["throwables"])
         pot = sum(n[x] for x in fc.CATEGORIES["pots"])
@@ -92,8 +96,22 @@ class CuratedFillerRecipe(WorldTestBase):
         ic = self.world.fill_slot_data().get("itemCounts", {})
         self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri"])), 5)
         self.assertEqual(ic.get(str(self.world.item_name_to_id["Fire Pot"])), 2)
-        # funny junk survives
-        self.assertGreater(n["Raw Meat Dumpling"] + n["Gold-Tinged Excrement"], 0)
+        # FUNNY JUNK SURVIVES THE SEIZURE. `_is_junk_consumable` returns False for these two, so
+        # curated_filler may not displace them; the unit-level half of that promise is
+        # test_junk_predicate_protects_economy_and_funny, which needs no world at all.
+        #
+        # 🛑 WHY THE SEED IS PINNED. This recipe carries no `funny` weight, so nothing here
+        # INJECTS these items -- every copy is a vanilla placement from whichever regions the draw
+        # kept. Their count is therefore a property of the DRAW, and `num_regions: 8` can miss both
+        # items outright. Unpinned, this line asserted `> 0` against a random draw and failed on the
+        # rare seed that did, reading on main as a flake in an unrelated suite rather than as this
+        # assertion. Zero is not a curation bug; it is a seed with nothing to protect, and a test
+        # that cannot tell those apart is measuring the draw. Seed 22 places nine.
+        self.assertGreater(n["Raw Meat Dumpling"] + n["Gold-Tinged Excrement"], 0,
+                           "no protected funny junk in the pool on the PINNED seed %d -- either "
+                           "the junk seizure has stopped honouring _is_junk_consumable, or the "
+                           "region data moved these items out of this draw and the pin needs "
+                           "re-choosing (it is a witness, not a constant)" % self.SEED)
 
 
 class CuratedFillerOff(WorldTestBase):
