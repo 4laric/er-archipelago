@@ -54,6 +54,22 @@ def _rows():
     return out
 
 
+_TOOL = os.path.join(_ROOT, "tools", "datamine_unplaced_globals.py") if _ROOT else None
+
+
+def _dug():
+    """The PRODUCTION tool module, loaded by path.
+
+    🛑 Deliberately NOT a local re-implementation of `_flag_lots`. A test that builds its own copy
+    of the mechanism it is checking cannot catch a change to the real one -- re-key the de-dup back
+    onto item names and a private helper here would sail straight through."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_dug_under_test", _TOOL)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def _locations():
     txt = open(DATA, encoding="utf-8").read()
     m = re.search(r"^LOCATIONS\s*=\s*(\{.*?\n\})", txt, re.S | re.M)
@@ -83,28 +99,52 @@ class UnplacedGlobals(unittest.TestCase):
         bad = [c for c in _rows() if c[1] in ("m60_00_00_00", "m61_00_00_00", "m00_00_00_00")]
         self.assertEqual([], bad, "common ESD buckets placed as if they were locations: %s" % bad[:5])
 
-    def test_every_placed_item_is_not_already_a_check_elsewhere(self):
-        """The filter that keeps this from DOUBLE-COUNTING. 62 of the 181 unplaced-and-not-a-check
-        rows name an item that is already a check under a different flag (Cracked Pot, Perfume
-        Bottle -- common consumables with many sources). Placing those would invent a second pickup
-        for one in-game item."""
+    @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
+    def test_no_placed_flag_re_awards_an_existing_check_s_LOT(self):
+        """The DOUBLE-COUNT filter, keyed structurally. Two flags are the same in-game pickup iff
+        they share an ItemLotParam row; two flags on different lots are separately collectable.
+
+        This replaced a filter keyed on the ITEM NAME (2026-08-07). That rule dropped 62 rows on the
+        grounds that placing them "would double-count a single in-game pickup" -- but 61 of the 62
+        were on lots DISTINCT from every name-twin and none shared one, so it was discarding real
+        checks wherever two sites award the same common item."""
         loc = _locations()
-        seen = collections.Counter()
+        lot_of = _dug()._flag_lots()
+        placed = {c[0] for c in _rows()}
+        claimed = {}
         for _r, v in loc.items():
-            for (nm, _a, fl) in v:
-                body = nm.split(" :: ", 1)[1] if " :: " in nm else nm
-                seen[(re.sub(r"\s*\[f\d+\]$", "", body.split(" - ")[0]).strip(), fl)] += 1
-        by_item = collections.Counter(i for (i, _f) in seen)
-        placed = {int(c[0]) for c in _rows()}
+            for (_nm, _a, fl) in v:
+                if str(fl) in placed:
+                    continue
+                for key in lot_of.get(str(fl), ()):
+                    claimed[key] = fl
         dupes = []
         for c in _rows():
-            item = c[3] if len(c) > 3 else ""
-            others = [f for (i, f) in seen if i == item and f not in placed]
-            if item and others:
-                dupes.append((c[0], item, others[:2]))
+            for key in lot_of.get(c[0], ()):
+                if key in claimed:
+                    dupes.append((c[0], key, claimed[key]))
         self.assertEqual([], dupes,
-                         "these placed flags name an item that is ALREADY a check under another "
-                         "flag, so the world now has two pickups for one item: %s" % dupes[:5])
+                         "these placed flags re-award an ItemLotParam row that ALREADY backs a "
+                         "check, so the world now has two locations for ONE pickup: %s" % dupes[:5])
+
+    @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
+    def test_the_marika_pair_is_two_pickups_not_one(self):
+        """MOTIVATING CASE (rule 11) for the key change -- boblerrr, 2026-08-07, client 0.3.7.
+
+        `Blessing of Marika` is awarded by lot 30935 (flag 530935) and lot 30950 (flag 530950). The
+        old name-keyed filter called them one pickup and dropped 530935. In game he collected BOTH
+        on one character (`!flag` reads true for each): 530950 sent a check, 530935 handed over the
+        vanilla item and sent nothing.
+
+        The assertion is on the DATA, not on the tool's output, so it keeps holding after 530935 is
+        placed: these two flags must never be judged the same award."""
+        lot_of = _dug()._flag_lots()
+        a, b = lot_of.get("530935", set()), lot_of.get("530950", set())
+        self.assertTrue(a and b, "flag_lots.tsv lost the Blessing of Marika rows (530935/530950)")
+        self.assertEqual(set(), a & b,
+                         "530935 and 530950 now share a lot -- if that is real, the name rule was "
+                         "right about this pair and the motivating case needs re-deriving; got "
+                         "%s vs %s" % (sorted(a), sorted(b)))
 
     def test_every_placed_flag_became_a_real_check(self):
         """Producer coverage and consumer coverage are different numbers (rule 11). The table having
@@ -116,6 +156,21 @@ class UnplacedGlobals(unittest.TestCase):
                          "%d flag(s) carry a derived tile but produced NO location -- the table is "
                          "being written and dropped by its own consumer: %s"
                          % (len(missing), missing[:8]))
+
+    @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
+    def test_the_name_twin_survives_the_dedup(self):
+        """THE ACCEPTANCE TEST for the 2026-08-07 key change -- it asks PRODUCTION for its verdict.
+
+        The two tests above check DATA (lots differ) and OUTPUT (nothing placed re-awards a claimed
+        lot); neither would notice the de-dup being re-keyed onto `item_name`, because the committed
+        table would not move until the next emit. This one calls `candidates()` and fails the moment
+        530935 is judged a duplicate of its name-twin again."""
+        out, _tally = _dug().candidates()
+        flags = {r["flag"] for r in out}
+        self.assertIn("530935", flags,
+                      "f530935 (Blessing of Marika) is being dropped as a duplicate again -- the "
+                      "de-dup has been re-keyed onto the item name. It shares NO lot with f530950 "
+                      "and boblerrr collected both in one session (2026-08-07).")
 
     def test_the_motivating_case_is_still_unreached(self):
         """🛑 THE HONEST ONE. f400361 (Thops's Academy Glintstone Staff) is what #249 is about, and

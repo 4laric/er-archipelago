@@ -8,13 +8,22 @@
 # evidence at all -- 45 of them, including f400361, the Thops staff of issue #249.
 flag	map_id	source	item_name
 60140	m12_03_00_00	talk_esd	Tailoring Tools
+66990	m61_47_37	observed	Hefty Cracked Pot
+400030	m11_10_00_00	talk_esd	Festering Bloody Finger
 400049	m60_42_36	observed	Kalé's Bell Bearing
 400051	m10_00	observed	Gostoc's Bell Bearing
+400060	m11_10_00_00	talk_esd	Sacrificial Twig
+400069	m60_43_31	observed	[Sorcery] Rancorcall
+400081	m35_00_00_00	talk_esd	Rya's Necklace
 400101	m14_00_00_00	talk_esd	Glintstone Kris
+400103	m14_00_00_00	talk_esd	Starlight Shards
 400158	m60_34_50	observed	Royal Greatsword
 400164	m60_49_53	observed	Iron Kasa
+400209	m60_37_46	observed	Glowstone
+400221	m10_00_00_00	talk_esd	Erdsteel Dagger
 400380	m11_10_00_00	talk_esd	Sewer-Gaol Key
 400412	m60_36_41	observed	Blue Silver Mail Hood
+400612	m21_01_00_00	talk_esd	Furnace Visage
 400901	m60_44_39	observed	Nomadic Merchant's Bell Bearing [1]
 400904	m60_44_33	observed	Nomadic Merchant's Bell Bearing [4]
 400905	m60_38_41	observed	Nomadic Merchant's Bell Bearing [5]
@@ -26,11 +35,16 @@ flag	map_id	source	item_name
 400917	m12_02	observed	Abandoned Merchant's Bell Bearing
 400918	m12_01	observed	Hermit Merchant's Bell Bearing [3]
 400919	m12_05	observed	Imprisoned Merchant's Bell Bearing
+530420	m60_52_41	observed	Dragon Heart
 530515	m60_53_56	observed	[Incantation] Vyke's Dragonbolt
 530530	m60_50_57	observed	Death Ritual Spear
+530550	m60_50_56	observed	Dragon Heart
+530840	m61_48_38	observed	Dragon Heart
 530845	m61_46_40	observed	Star-Lined Sword
+530860	m61_45_44	observed	Dragon Heart
 530865	m61_47_44	observed	Moonrithyll's Knight Sword
 530900	m61_46_45	observed	Red Bear's Claw
+530945	m61_49_43	observed	Dragon Heart
 540408	m60_51_35	observed	Ash of War: Flaming Strike
 540416	m60_49_39	observed	[Incantation] Poison Armament
 540418	m60_49_39	observed	Ash of War: Double Slash
@@ -43,3 +57,6 @@ flag	map_id	source	item_name
 540916	m61_45_47	observed	Ash of War: The Poison Flower Blooms Twice
 580030	m60_51_57	observed	"Sorcerer" Painting
 580060	m60_50_39	observed	"Redmane" Painting
+99997020	m99_99	observed	Cracked Pot
+99997030	m99_99	observed	Perfume Bottle
+1038417100	m60_38_41	observed	Ash of War: Gravitas

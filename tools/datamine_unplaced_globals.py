@@ -70,12 +70,43 @@ def _gen_data_excludes():
     obtainable. The table gained a row, the world gained no location, and only the end-to-end test
     noticed. Refuse it HERE too, so the two sides agree by construction rather than by luck."""
     txt = open(os.path.join(GF, "gen_data.py"), encoding="utf-8").read()
-    m = re.search(r"_UNREACHABLE_DEAD\s*=\s*frozenset\(\{([^}]*)\}\)", txt, re.S)
-    if not m:
-        print("  WARNING: could not read _UNREACHABLE_DEAD out of gen_data.py -- its exclusions are "
-              "NOT being honoured here, so this emit may contain rows the world will drop.")
-        return set()
-    return {int(x) for x in re.findall(r"\d+", m.group(1))}
+    # 🛑 EVERY named refusal set, not just the first. 2026-08-07: this read only _UNREACHABLE_DEAD,
+    # so re-keying the de-dup onto lots proposed f1033477020 -- the PHANTOM 4th "Imbued Sword Key",
+    # which gen_data drops via _RECOVER_PHANTOM_DUPES to keep a singleton key singular. Exactly the
+    # Silver Scarab divergence this docstring already describes, one set over. Add new gen_data
+    # refusal sets HERE when they appear.
+    out, missing = set(), []
+    for _name in ("_UNREACHABLE_DEAD", "_RECOVER_PHANTOM_DUPES", "_SHEET_DROPS",
+                  "_UNPLACEABLE_DLC_COOKBOOKS"):
+        m = re.search(_name + r"\s*=\s*frozenset\(\{([^}]*)\}\)", txt, re.S)
+        if m:
+            out |= {int(x) for x in re.findall(r"\d+", m.group(1))}
+        else:
+            missing.append(_name)
+    if missing:
+        print(f"  WARNING: could not read {', '.join(missing)} out of gen_data.py -- those "
+              f"exclusions are NOT being honoured here, so this emit may contain rows the world "
+              f"will drop.")
+    return out
+
+
+def _flag_lots():
+    """flag(str) -> {(table, lot)} from greenfield/flag_lots.tsv -- the STRUCTURAL identity of an
+    award row. Two flags sharing a (table, lot) pair are the same in-game award; two flags on
+    different lots are separately collectable no matter how alike their item names look."""
+    out = collections.defaultdict(set)
+    p = os.path.join(GF, "flag_lots.tsv")
+    if not os.path.isfile(p):
+        return out
+    with open(p, encoding="utf-8") as fh:
+        rd = csv.DictReader(fh, delimiter="\t")
+        for row in rd:
+            f = (row.get("flag") or "").strip()
+            t = (row.get("table") or "").strip()
+            lot = (row.get("lot") or "").strip()
+            if f.isdigit() and t and lot:
+                out[f].add((t, lot))
+    return out
 
 
 def _existing_table():
@@ -93,11 +124,26 @@ def _existing_table():
 
 
 def candidates():
-    """Unplaced rows that are not a check AND whose item is nowhere else in the world.
+    """Unplaced rows that are not a check AND do not re-award an EXISTING check's ItemLotParam row.
 
-    Both filters matter and both are counted by the caller. 62 of the 181 name an item that IS
-    already a check under a different flag (Cracked Pot, Perfume Bottle -- common consumables with
-    many sources); placing those would DOUBLE-COUNT a single in-game pickup."""
+    Both filters matter and both are counted by the caller.
+
+    🛑 THE DE-DUP KEY IS THE LOT, NOT THE ITEM NAME (changed 2026-08-07). It used to drop any row
+    whose `item_name` already appeared as a check under some other flag -- 62 rows, on the stated
+    grounds that placing them "would DOUBLE-COUNT a single in-game pickup". That premise was false:
+    of those 62, **61 sit on ItemLotParam rows DISTINCT from every name-twin and 0 share a lot**, so
+    the rule was discarding real, separately-collectable checks whenever two sites happen to award
+    the same common item (Golden Rune [1], Glowstone, Smithing Stone [1], Dragon Heart, ...).
+
+    MOTIVATING CASE (rule 11): boblerrr, 2026-08-07, client 0.3.7. `Blessing of Marika` is awarded by
+    lot 30950 (flag 530950, a real check) and lot 30935 (flag 530935, dropped by the name rule). He
+    collected BOTH on one character -- `!flag` reads `true` for each -- and got a check from the
+    first and the vanilla item from the second. One item name, two award rows, two pickups.
+
+    A NAME match is not a SITE match. Two different lots are two different award events, so the only
+    thing that proves "this is the same pickup" is sharing a lot. Where flag_lots.tsv knows no lot
+    for a row we cannot prove distinctness, so those fall back to the old name rule and are counted
+    separately -- conservative exactly where the evidence runs out."""
     rows = list(csv.DictReader(open(os.path.join(GF, "region_map.csv"), encoding="utf-8")))
     data = open(os.path.join(GF, "eldenring", "data.py"), encoding="utf-8").read()
     loc = ast.literal_eval(re.search(r"^LOCATIONS\s*=\s*(\{.*?\n\})", data, re.S | re.M).group(1))
@@ -123,6 +169,16 @@ def candidates():
                 continue
             body = nm.split(" :: ", 1)[1] if " :: " in nm else nm
             item_seen[re.sub(r"\s*\[f\d+\]$", "", body.split(" - ")[0]).strip()] += 1
+
+    # flag -> {(table, lot)}: the STRUCTURAL identity of an award. Same subtraction of `_mine` as
+    # item_seen above, and for the same self-erasure reason.
+    lot_of = _flag_lots()
+    claimed_lots = set()
+    for _r, v in loc.items():
+        for (_nm, _a, _f) in v:
+            if str(_f) in _mine:
+                continue
+            claimed_lots |= lot_of.get(str(_f), set())
     _EXCLUDED = _gen_data_excludes()
     tally = collections.Counter()
     out = []
@@ -136,11 +192,18 @@ def candidates():
         if not r["item_name"]:
             tally["  no item name on the row"] += 1
             continue
-        if item_seen.get(r["item_name"]):
-            tally["  item is already a check under ANOTHER flag (would double-count)"] += 1
+        _mylots = lot_of.get(r["flag"], set())
+        if _mylots:
+            if _mylots & claimed_lots:
+                tally["  SAME ItemLotParam row as an existing check (genuinely one pickup)"] += 1
+                continue
+        elif item_seen.get(r["item_name"]):
+            # No lot data either side -> distinctness is unprovable, so keep the old, more
+            # conservative name rule for this row and COUNT it, so the blind spot stays visible.
+            tally["  no lot data; item name already a check (name-rule fallback)"] += 1
             continue
         if int(r["flag"]) in _EXCLUDED:
-            tally["  gen_data refuses it (_UNREACHABLE_DEAD) -- not obtainable in game"] += 1
+            tally["  gen_data refuses it (named exclusion set) -- dead or a phantom dupe"] += 1
             continue
         tally["  CANDIDATE"] += 1
         out.append(r)
