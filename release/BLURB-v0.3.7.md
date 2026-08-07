@@ -29,6 +29,30 @@ your inventory to offer rebirth. We have not yet confirmed whether the game asks
 just the flag, so we do not know whether respec has been quietly unavailable this whole time. If you
 have tried to respec in a recent seed, we would like to hear either way.
 
+## The Hippopotamus problem
+
+bobler's tracker said `Shadow Keep 124/270` and he said "all bosses dead except hippo which i can't
+fight". He was right on both counts, and the two facts were the same fact.
+
+Killing a boss hands you the loot from its area — that is what `dungeon_sweep` is. The Golden
+Hippopotamus's sweep is 104 Shadow Keep checks, 38% of the whole region. But the arena you fight it
+in is not Shadow Keep. Its reward is scripted in the Keep's map, so that is where we filed the
+sweep, while the ground under the fight belongs to Scadu Altus. His seed kept the Keep and not
+Scadu Altus, so the region lock ejected him every time he walked toward the fight.
+
+We knew half of this in July. The Hippo's *reward* was re-homed to Scadu Altus back then, with a
+note in our own data explaining the kick. The 104-check sweep was left in Shadow Keep and nobody
+asked whether that was the same problem wearing different clothes. It was.
+
+Six groups had this shape. They are no longer sent to seeds that cannot fire them, and the tracker
+no longer promises a payout that depends on a fight you are not allowed to have. Every check
+involved is still in your seed, still in its own region, still yours to walk to and pick up — the
+sweep was a convenience, and you keep the checks either way.
+
+The part worth saying plainly: **this had been true in roughly half of all six-region seeds since
+sweeps shipped**, and no gate anywhere asked the question. There is one now, over all 225 sweep
+groups rather than over the one that got reported.
+
 ## Known, and honest about it
 
 **The capital gate counts a rune we do not.** Elden Ring opens Leyndell on a count of flags rather

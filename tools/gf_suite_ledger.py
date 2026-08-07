@@ -64,6 +64,11 @@ GENERATORS = [
     "contract_versions",
     "wizard_blob_sync",
     "infinite_shop_rows_are_browsable_shelves",
+    # PlayRegion ground audit (#445): joins data.LOCATIONS x item_grace_coords.tsv x
+    # play_region_buckets.tsv x region_groups.PLAY_REGION_GROUPS. Every input is committed and
+    # none of them is installed beside the world, so it skips in the `tests` job and belongs
+    # here. AP-free, no artifacts, no client.
+    "check_ground_regions",
 ]
 
 # Suites that run in the `tests` job (installed world + ensured artifacts + client at the gitlink).
