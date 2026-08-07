@@ -203,21 +203,31 @@ class GoalAutoFullSeed(WorldTestBase):
         assert set(sd["goalLocations"]) == FINALE_IDS
 
 
-class GoalEldenBeastForcesTheFinale(WorldTestBase):
-    """A 3-region draw usually strands the finale INERT (test_gf_finale's inert seed searches
-    num_regions=3 draws for exactly that); the choice must force its prerequisites in.
+class GoalEldenBeastNeedsNoForcing(WorldTestBase):
+    """`goal: elden_beast` on a small draw, which used to be the case that PROVED the force-keep.
 
-    The forcing is what is asserted, so this does not depend on the draw: whether or not the
-    unforced draw would have kept Farum Azula + Leyndell, `goal: elden_beast` must keep them."""
+    It asserted that the choice dragged Farum Azula + Leyndell into a 3-region draw, because
+    before SPEC-ashen-capital-lock the finale could not exist without both. Now it forces nothing
+    and exists anyway, so the same protection -- "a named goal's region is really built" -- is
+    asserted directly instead of through the mechanism that used to guarantee it.
+
+    🛑 The old assertion could not simply be re-pointed at `finale_active(kept)`: the finale's
+    existence keys on the seed's ELIGIBLE pool, not on the draw, and a 3-region draw with the DLC
+    on can legitimately keep only DLC regions while the base game is very much in play. Asking
+    `kept` there gives the wrong answer -- which is exactly why core exposes ONE answer,
+    `world.gf_finale_active`, and why everything reads it."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 3, "goal": "elden_beast"}
 
-    def test_prerequisites_were_forced_kept(self):
-        kept = set(self.world._kept())
-        assert set(FINALE_REQUIRES) <= kept, \
-            "elden_beast must force Farum Azula + Leyndell, or its goal cannot exist"
-        assert finale_active(kept)
+    def test_the_finale_is_built_without_anything_being_forced(self):
+        from worlds.eldenring.features.goal_locations import forced_regions
+        assert forced_regions("elden_beast") == (), \
+            "elden_beast must force NOTHING -- a force-keep here is num_regions lying again"
+        assert self.world.gf_finale_active, \
+            "goal: elden_beast on a base-game seed must have a finale to end on"
+        # ...and the draw is genuinely small, so this is not passing because everything was kept.
+        assert len(set(self.world._kept())) <= 5, sorted(self.world._kept())
 
     def test_goal_is_the_pair(self):
         assert set(self.world.fill_slot_data()["goalLocations"]) == FINALE_IDS
