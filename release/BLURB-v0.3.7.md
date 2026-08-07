@@ -1,9 +1,9 @@
-# v0.3.7 — release blurb (draft)
+# v0.3.7 — release blurb
 
-_Draft. Written as the window fills, not at tag time — the moment a change lands is the only
+_Written as the window filled rather than at tag time — the moment a change lands is the only
 moment anyone remembers why it mattered._
 
-## What is in it so far
+## What is in it
 
 **One of Elden Ring's Great Runes has been missing from every seed, and nothing noticed.**
 
@@ -112,10 +112,70 @@ the one-shot grant, so it fired exactly once per character, ever -- reload, re-f
 weapons afterwards and the spear stayed in the bag while the fight it exists for happened without
 it. It now follows the fight rather than the grant.
 
-One thing this cannot do: if an enemy randomizer has moved Rykard out of Volcano Manor, whoever
+And then it still did not work, twice more, for two entirely different reasons. Both are worth
+telling, because both were invisible in exactly the way the first one was.
+
+**The spear went into a queue and never came out.** The next log had the line saying we were putting
+it in his hand — and nothing after it. That silence was the whole diagnosis: every equip this client
+performs writes a line naming the inventory handle it resolved, and his two successful ones from
+earlier that day both did. The one that mattered did not.
+
+With auto-upgrade on, an incoming weapon is queued at your current upgrade level, because the grant
+that is about to deposit it will deposit it upgraded — the queue and the bag have to agree. But this
+spear was not incoming. It was already in his bag, banked at +0 hours earlier when +0 was the
+target, and no grant was coming to raise it. So we asked the game for a Serpent-Hunter +3 that had
+never existed, missed, and retried in silence for the rest of the session. It now asks the bag what
+it has instead of predicting what a grant would have put there.
+
+**Then the spear was in his hand and still did nothing.** bobler: *"it equipped but weapon dont
+work"*. The waves.
+
+Those waves are not a property of the weapon. The Serpent-Hunter's own row ships empty in the field
+that would grant them; the game switches the moveset on during the fight and off again afterwards,
+which is why the spear is famously useless anywhere else. So we set the field ourselves — and
+shipped a probe alongside it, because we had been wrong twice already and did not intend to guess a
+third time.
+
+The probe answered on the first session, in one line, and it was not the answer we expected: the
+write had landed, read back clean, and the effect still was not on him. He had been holding the
+spear for thirty-three minutes. That field is read when a weapon is *equipped*, so editing it under
+a weapon already in your hands changes nothing at all until you re-equip. bobler confirmed it by
+swapping weapons and walking back in, at which point the waves worked. The effect is now applied to
+the character directly, so it survives being already equipped — and survives every area load, which
+would otherwise have quietly killed it and made the whole feature look intermittent.
+
+**Worth knowing before you notice it yourself: the Serpent-Hunter now throws its waves everywhere.**
+Not just at Rykard. Keeping it fight-only would have meant re-deriving, every session and after
+every load, a condition the game sets for its own reasons and does not tell us about — and on a
+randomizer where the spear can be found anywhere and an enemy randomizer can move Rykard into a DLC
+arena, "only in the vanilla arena" is not a rule worth protecting. It is a good great spear now.
+That is a deliberate change, not a side effect.
+
+**And you get your weapon back.** When Rykard's healthbar drops, whatever you were holding goes back
+into your hand. Two things outrank that: a weapon that arrived from another world during the fight
+(it is yours, you should be holding it), and a swap you made yourself mid-fight (it was your
+decision, and we already overrode one of those on the way in). Weapons that arrived while you were
+busy have always been held rather than dropped, and they still land the moment the fight ends.
+
+One thing none of this can do: if an enemy randomizer has moved Rykard out of Volcano Manor, whoever
 inherited his arena gets nothing. The spear is the answer to Rykard, so it goes where Rykard goes.
 
 ## Known, and honest about it
+
+**On a DLC-only seed, `goal: auto` does not necessarily end on Promised Consort Radahn.** A player
+finished one this week, saw the goal complete after a boss that was plainly not an ending, and
+reasonably concluded the ending was broken. It was not — but the shape is worth explaining, because
+anyone rolling DLC-only can meet it.
+
+The base game's finale is guaranteed: the Ashen Capital is never rolled, exists on every seed with
+the base game in play, and is where `auto` ends. The DLC has no equivalent. Enir Ilim is an ordinary
+region in the DLC pool, so a draw that does not happen to keep it ends your run on the deepest
+terminal region you did keep — for him, Romina in the Ancient Ruins of Rauh. That is a real
+Remembrance boss and a defensible capstone; it is just not the ending he was picturing.
+
+If you want Promised Consort Radahn, say so: **`goal: promised_consort`** forces Enir Ilim into your
+draw and ends the run there. Making `auto` do it by default is the obvious fix and is not in this
+window.
 
 **The capital gate counts a rune we do not.** Elden Ring opens Leyndell on a count of flags rather
 than on which runes you hold, and Rennala's flag falls inside the range it counts. So the game has

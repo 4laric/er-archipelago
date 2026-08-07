@@ -162,6 +162,18 @@ They are all filler and none of them can hold progression, so no seed becomes un
 listed and pinned now, so no new ones can appear unnoticed, and each needs an in-game confirmation
 before we move it — a datamined coordinate is not a playtest. If you hit one, tell us which.
 
+### Known: on a DLC-only seed, `goal: auto` need not end on Promised Consort Radahn
+
+The base game's finale is guaranteed -- the Ashen Capital is never rolled, exists on every seed with
+the base game in play, and is where `auto` ends. The DLC has no equivalent: Enir Ilim is an ordinary
+region in the DLC pool, so a draw that does not keep it ends the run on the deepest terminal region
+you did keep. A player finished one this week on Romina in the Ancient Ruins of Rauh and reasonably
+read the early goal as a broken ending. It is not -- Romina is a real Remembrance boss -- but it is
+not the ending he was picturing either.
+
+**`goal: promised_consort`** forces Enir Ilim into the draw and ends the run there. Making `auto` do
+it by default on DLC-only is the obvious fix and is not in this window.
+
 ### Known: the capital gate counts a rune we do not
 
 Elden Ring opens the capital on a **count of flags**, and the flag Rennala sets is inside the range
@@ -231,6 +243,28 @@ Two things about the timing, both of which took a round of playtesting to get ri
 * **Weapon auto-equips are held for the duration of that one fight**, so an incoming weapon from
   another world cannot take the spear out of your hands mid-fight. Armour and talismans keep
   flowing. Nothing is dropped -- a held weapon equips the moment the fight ends.
+
+It then took three more client fixes to actually work, all of them found in bobler's logs on
+2026-08-07 and all invisible without them:
+
+* **The equip rode on the one-shot grant**, so it fired once per character ever -- a reload, a
+  re-fight or a weapon swap afterwards left the spear in the bag while the fight it exists for
+  happened without it. It follows the FIGHT now.
+* **The queued id was raised to your auto-upgrade target.** That is right for an incoming weapon (a
+  grant is about to deposit it upgraded) and wrong for one already banked in your bag at a lower
+  level -- it named a row that had never existed, missed the bag lookup, and retried in silence for
+  the rest of the session. The queue now asks the bag what it holds.
+* **The wave moveset needed a SpEffect the weapon does not carry**, and setting it on the weapon row
+  was inert because that field is read when a weapon is EQUIPPED -- editing it under a spear already
+  in your hands does nothing until you re-equip. It is applied to the character directly now, so it
+  survives being already equipped and survives every area load.
+
+⚠️ **The Serpent-Hunter now throws its waves everywhere, not only at Rykard.** Deliberate: keeping it
+fight-only means re-deriving a condition the game sets for its own reasons and does not expose, every
+session and after every load. It is a good great spear now.
+
+**Your own weapon goes back into your hand when the fight ends.** An AP weapon that arrived during
+the fight outranks the restore, and so does a swap you made yourself.
 
 ⚠️ If an enemy randomizer has moved Rykard OUT of Volcano Manor, whoever inherited his arena gets
 nothing. That is deliberate: the spear is the answer to Rykard, so it goes where Rykard is, not
