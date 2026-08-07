@@ -101,6 +101,24 @@ PRESETS = [
         "values": {"enable_dlc": False, "num_regions": 0},
     },
     {
+        "id": "vanilla_deathlink",
+        "title": "Vanilla + Death Link",
+        "tagline": "The base game, untouched, with shared deaths.",
+        "description": "Nothing is randomized: every item is where the base game keeps it, and "
+                       "progression is gated the way the base game gates it. Checks still fire "
+                       "and Death Link still works, so this is the setting for playing vanilla "
+                       "Elden Ring alongside friends and sharing deaths. Nothing is sent to or "
+                       "received from other worlds. This is vanilla PLACEMENT, not vanilla "
+                       "BALANCE: the quality-of-life behaviours this world always applies "
+                       "(automatic upgrades, the starting lantern and flasks) still apply, and "
+                       "the base game's own missables are inherited as-is -- burning the Erdtree "
+                       "still strands Leyndell's checks.",
+        # death_link is the whole point of the preset, so it is stated even though a player could
+        # set it themselves; num_regions is NOT stated because the mode ignores it (a pinned value
+        # would read as though it did something).
+        "values": {"vanilla_placement": "all", "death_link": True},
+    },
+    {
         "id": "dlc_only",
         "title": "DLC Only (experimental)",
         "tagline": "Only the Shadow of the Erdtree regions.",

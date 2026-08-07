@@ -117,7 +117,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "4812f1d59c1f6c9466ffb37c9263fdd95d543eaecf0d1c064bcd9c47852f54c0",
+ "source_sha256": "31bdae03647886b2204dd778063b9f2d095ff73a72849d3afc3780e33bd23783",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -126,6 +126,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "vanilla_placement",
   "capital_reconciler",
   "auto_equip",
   "dungeon_sweep",
@@ -170,6 +171,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "vanilla_placement",
   "capital_reconciler",
   "auto_equip",
   "dungeon_sweep",
@@ -348,6 +350,31 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "base": "Toggle",
    "default": false,
    "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "vanilla_placement",
+   "class": "VanillaPlacement",
+   "display_name": "Vanilla Placement",
+   "description": "WHERE THE ITEMS ARE. 'off' (default) is the randomizer: every check's vanilla item is\nshuffled across the multiworld.\n\n'all' puts every item back exactly where the base game keeps it -- the Dectus halves in Fort\nHaight and Fort Faroth, the Academy Glintstone Key on its corpse, every Golden Seed on its\nsapling. Checks still fire, the tracker still works and Death Link still works, so this is the\nsetting for a group who want to play the base game together and share deaths rather than\nrandomize anything. Nothing is sent to or received from other worlds: the seed is self-contained\nby design.\n\nProgression is gated the way the base game gates it, so the region locks are not used at all and\nNumber of Regions is ignored -- the whole map is in play from the start, and the Leyndell wall,\nthe Rold Medallion and every other door work as they always did.\n\nThis is vanilla PLACEMENT, not vanilla BALANCE: the quality-of-life behaviours this world always\napplies (automatic weapon upgrades, the flattened upgrade curve, the starting lantern and flasks)\nstill apply. It also inherits the base game's own missables -- burning the Erdtree still strands\nLeyndell's checks.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "off",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "all",
+     "value": 1
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,
@@ -1094,6 +1121,16 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "values": {
     "enable_dlc": false,
     "num_regions": 0
+   }
+  },
+  {
+   "id": "vanilla_deathlink",
+   "title": "Vanilla + Death Link",
+   "tagline": "The base game, untouched, with shared deaths.",
+   "description": "Nothing is randomized: every item is where the base game keeps it, and progression is gated the way the base game gates it. Checks still fire and Death Link still works, so this is the setting for playing vanilla Elden Ring alongside friends and sharing deaths. Nothing is sent to or received from other worlds. This is vanilla PLACEMENT, not vanilla BALANCE: the quality-of-life behaviours this world always applies (automatic upgrades, the starting lantern and flasks) still apply, and the base game's own missables are inherited as-is -- burning the Erdtree still strands Leyndell's checks.",
+   "values": {
+    "vanilla_placement": "all",
+    "death_link": true
    }
   },
   {

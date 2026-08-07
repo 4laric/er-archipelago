@@ -49,6 +49,7 @@ keyed item. Keys are region Locks; a gated child's Lock maps to [] while its wal
 from Options import Choice
 
 from ..registry import Feature, register
+from . import vanilla_placement as _vp
 from .. import contract
 from ..region_spine import REGION_PARENT
 from ..data import FINALE_REGION as _FINALE_REGION
@@ -191,4 +192,8 @@ class RegionGracesFeature(Feature):
             # gated child behind an armed wall: grant nothing, at every tier
             bundle = [] if bundle_withheld(world, r) else _bundle_for(r, fs, tier)
             region_graces[f"{r} Lock"] = bundle
+        if _vp.is_on(world):
+            # No "<Region> Lock" is ever received in this mode, so a bundle keyed to one could
+            # never light. The player lights graces by walking to them, which is the point.
+            return {contract.REGION_GRACES: {}}
         return {contract.REGION_GRACES: region_graces}
