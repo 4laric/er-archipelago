@@ -118,11 +118,24 @@ to or received from other worlds -- your seed is self-contained on purpose.
 The new **Vanilla + Death Link** preset in the options wizard is this setting plus Death Link, which
 is the whole configuration for a co-op vanilla run.
 
-Two things it deliberately does not do. It is vanilla *placement*, not vanilla *balance*: the
-quality-of-life behaviours this world always applies -- automatic weapon upgrades, the flattened
-upgrade curve, the starting lantern and flasks -- still apply. And it inherits the base game's own
-missables, so burning the Erdtree still strands Leyndell's checks exactly as it does in an ordinary
-playthrough.
+The start is vanilla too. You begin with what your class begins with: no lantern, no extra flasks,
+no Torrent, no Spirit Calling Bell, no crafting pots, no revealed maps, and no levelling until you
+meet Melina. All of it is out in the world where the base game keeps it. Three of those gifts were
+also quietly ticking off their own Roundtable checks the instant you connected -- the Spirit Calling
+Bell, the Flask of Wondrous Physick and the Whetstone Knife are granted by setting the very flags
+that mark their checks collected -- so a vanilla run used to open by claiming three checks it had
+not been to. It does not any more.
+
+Dropping the 32 starting crafting vessels had a second effect worth knowing about: they were eating
+the game's own stack ceiling, and every pool copy past that ceiling pays a Rune instead. On a test
+seed that was 21 real items -- eight Cracked Pots, seven Perfume Bottles, three Ritual Pots, three
+Hefty Cracked Pots -- replaced by Runes *on their own vanilla locations*. They are back where they
+belong.
+
+What this mode still does not change: the combat quality-of-life this world always applies. Weapons
+upgrade automatically, the upgrade curve stays flattened, and weapons ignore their stat
+requirements. So it is vanilla *placement* and a vanilla *start*, not vanilla *balance*. It also
+inherits the base game's own missables -- burning the Erdtree still strands Leyndell's checks.
 
 ## v0.3.6 — 2026-08-06
 
