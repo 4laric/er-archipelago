@@ -30,6 +30,7 @@ is unchanged. LOGIC-only for now (no client hard-gate / kick), same status as fe
 """
 from Options import DefaultOnToggle
 from ..registry import Feature, register
+from . import vanilla_placement as _vp
 
 try:
     from ..data import LOCATIONS
@@ -156,6 +157,14 @@ class LegacyKeyGates(Feature):
         world.gf_legacy_keys = keys
 
     def set_rules(self, world) -> None:
+        if _vp.is_on(world):
+            # SAME SELF-GATING COLLAPSE AS THE natural_progression CLAUSES, found by this mode's
+            # acceptance test: the Gaol Upper Level Key's vanilla home is a chest INSIDE the gaol
+            # it opens, so gating those checks on it strands all 14 of Charo's Hidden Grave's
+            # Lamenter's Gaol locations. Every legacy key has that shape by construction -- a
+            # dungeon key lives near its dungeon -- and the AP gate is redundant here anyway,
+            # because the real door is still locked in game.
+            return
         active = getattr(world, "gf_legacy_keys", [])
         single = [k for k in active if k in _LEGACY_KEYS]
         multi = self._active_multi(world)

@@ -100,6 +100,30 @@ expects it.
 Tracked, with the fix scoped but not yet made, because it changes what "how many Great Runes" means
 and that is worth getting right rather than fast.
 
+### You can now play the base game together, with only deaths shared
+
+Some groups do not want a randomizer. They want to play Elden Ring with friends, share their deaths,
+and have the Dectus Medallion halves sit in Fort Haight and Fort Faroth where they have always been.
+Until now the only thing close to that was Natural Progression, which sounds like it and is the
+opposite: it keeps vanilla's *shape* while still shuffling the keys that open it, so the Dectus
+halves still ended up in someone else's world.
+
+**Vanilla Placement** is the missing setting. Turn it on and every item goes back where the base game
+keeps it -- every key, every Golden Seed, every talisman. Progression is gated the way the base game
+gates it, so the region locks are not used at all and Number of Regions is ignored: the whole map is
+open from the start and the Leyndell wall, the Rold Medallion and every other door work as they
+always did. Checks still fire, the tracker still works, and Death Link still works. Nothing is sent
+to or received from other worlds -- your seed is self-contained on purpose.
+
+The new **Vanilla + Death Link** preset in the options wizard is this setting plus Death Link, which
+is the whole configuration for a co-op vanilla run.
+
+Two things it deliberately does not do. It is vanilla *placement*, not vanilla *balance*: the
+quality-of-life behaviours this world always applies -- automatic weapon upgrades, the flattened
+upgrade curve, the starting lantern and flasks -- still apply. And it inherits the base game's own
+missables, so burning the Erdtree still strands Leyndell's checks exactly as it does in an ordinary
+playthrough.
+
 ## v0.3.6 — 2026-08-06
 
 Window opened 2026-08-06, one day after v0.3.5 was tagged — and this time a gate said so rather

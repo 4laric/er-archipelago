@@ -86,6 +86,7 @@ Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_g
 import logging
 
 from ..registry import Feature, register
+from . import vanilla_placement as _vp
 from .. import contract
 from ..region_spine import SPINE
 from ..data import FINALE_REGION
@@ -261,5 +262,6 @@ class GoalLocations(Feature):
         else:
             logging.getLogger("Greenfield").info(
                 "[eldenring:%s] goal = %s (%d location(s)); no held-item requirement "
-                "(natural_progression mints no Locks)", world.player, region, len(ids))
+                "(%s mints no Locks)", world.player, region, len(ids),
+                "vanilla_placement" if _vp.is_on(world) else "natural_progression")
         return out

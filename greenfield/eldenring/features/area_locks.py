@@ -27,6 +27,7 @@ it never appears here -- consistent with core.py's regionOpenFlags (kept-only). 
 locked until its "<Region> Lock" is received, exactly mirroring the hub->region access rule.
 """
 from ..registry import Feature, register
+from . import vanilla_placement as _vp
 from .. import contract
 from . import capital as _capital
 try:
@@ -96,6 +97,13 @@ class AreaLocks(Feature):
         # can walk into a sealed sub-area (e.g. Ruin-Strewn Precipice under a sealed Mt. Gelmir), where
         # vanilla-suppress fires by item-id but there's no active check to grant -> DEAD DROPS. The
         # client honors a non-empty areaLockFlags as-is (region.rs), so no client change is needed.
+        # 🛑 vanilla_placement: emit NO kick geometry. These ranges seal a region until its open
+        # flag is set, and that flag is set by RECEIVING a "<Region> Lock" -- which this mode never
+        # mints. Left as-is the player would be ejected from every region in the game on arrival:
+        # born-softlocked, and silently, because each individual range is correct. The base game
+        # gates this seed, so there is nothing for the kick-watch to enforce.
+        if _vp.is_on(world):
+            return {contract.AREA_LOCK_FLAGS: [], contract.LOCK_REVEAL_FLAGS: {}}
         ranges = []
         for _region, _ids in REGION_PLAY_IDS.items():
             _flag = REGION_OPEN_FLAGS.get(_region)
