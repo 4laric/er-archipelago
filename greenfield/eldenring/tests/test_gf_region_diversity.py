@@ -22,8 +22,13 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import GOAL_REGION, parent_chain  # noqa: E402
+from worlds.eldenring.data import FINALE_REGION  # noqa: E402
+from ._util import world_item_names  # noqa: E402
 
 GAME = "Elden Ring"
+# The synthetic Erdtree burn (SPEC-ashen-capital-lock): minted on every base-game seed, for a
+# region that is never kept and never rolled. It is what carries winnability now.
+_FINALE_LOCK = f"{FINALE_REGION} Lock"
 
 
 class RolledDiversity(WorldTestBase):
@@ -33,21 +38,30 @@ class RolledDiversity(WorldTestBase):
     # A spread of fixed seeds keeps this deterministic while giving the RNG room to diverge.
     SEEDS = (1, 2, 7, 13, 101, 5551212)
 
-    def test_rolled_kept_sets_diverge_and_keep_goal(self):
+    def test_rolled_kept_sets_diverge_and_stay_winnable(self):
         n = 4
         kept_sets = []
+        without_goal = 0
         for seed in self.SEEDS:
             self.world_setup(seed=seed)
             kept = frozenset(self.world._kept())
-            self.assertIn(GOAL_REGION, kept,
-                          f"rolled seed {seed}: goal region must always be kept (winnability)")
-            # rolled keeps N random regions; the goal is appended if the sample missed it, and
-            # the REGION_PARENT closure can add up to len(parent_chain(GOAL_REGION)) + the other
-            # children's ancestors -- so the count is a bounded range now, and every kept child
-            # must have its ancestors kept (the invariant that replaces the exact count).
+            # WAS `assertIn(GOAL_REGION, kept)` with the reason "(winnability)". The capital was
+            # force-kept under `auto` so the goal derivation had a terminus; SPEC-ashen-capital-lock
+            # (2026-08-06) deleted that force-keep and moved the terminus to the Ashen Capital,
+            # which exists on every base-game seed and is entered from the HUB with its own lock.
+            # Winnability is the same claim at its new carrier: the item that opens the goal is in
+            # this seed's pool.
+            self.assertIn(_FINALE_LOCK, world_item_names(self),
+                          f"rolled seed {seed}: the finale's lock is the only way into the goal "
+                          f"region -- without it the seed is unwinnable")
+            without_goal += GOAL_REGION not in kept
+            # rolled keeps N random regions plus the REGION_PARENT closure, and every kept child
+            # must have its ancestors kept (the invariant that replaces the exact count). The
+            # `+ 1` this bound used to carry was the goal append; it is gone with the force-keep,
+            # so the bound is one region TIGHTER than it was.
             self.assertGreaterEqual(len(kept), n,
                                     f"rolled seed {seed}: kept fewer than N regions")
-            self.assertLessEqual(len(kept), n + 1 + sum(len(parent_chain(r)) for r in kept),
+            self.assertLessEqual(len(kept), n + sum(len(parent_chain(r)) for r in kept),
                                  f"rolled seed {seed}: kept count {len(kept)} exceeds closure bound")
             for r in kept:
                 for anc in parent_chain(r):
@@ -58,6 +72,11 @@ class RolledDiversity(WorldTestBase):
         self.assertGreater(len(distinct), 1,
                            "rolled order must produce DIFFERENT kept sets across seeds (diversity); "
                            f"got a single set for all {len(self.SEEDS)} seeds")
+        # The other half of the deleted force-keep, stated so it cannot come back unnoticed: on a
+        # 4-wide draw over 31 regions, some of these seeds must MISS the capital entirely.
+        self.assertGreater(without_goal, 0,
+                           "every one of these seeds kept the goal region on a 4-wide draw -- the "
+                           "`auto` GOAL_REGION force-keep is back")
 
     def test_rolled_slot_data_region_count_tracks_kept(self):
         self.world_setup(seed=7)

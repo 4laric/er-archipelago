@@ -46,19 +46,21 @@ Elden Ring:
   # marquee mode: it turns the open world into an Archipelago progression
   # graph. Try 4 for a tight evening run.
   #
-  # N IS A DRAW SIZE, NOT A FINAL COUNT. Two things add to the draw: a named
-  # `goal` force-keeps the regions that goal needs (goal: elden_beast keeps
-  # Farum Azula and Leyndell), and any kept region also keeps the region you
-  # must pass through to reach it (Leyndell keeps Altus). So num_regions: 1
-  # with goal: elden_beast can roll four regions -- that is correct, not a
-  # bug. The generation log prints the breakdown for your seed.
+  # N IS A DRAW SIZE. As of v0.3.7 exactly ONE thing can still add to it: a
+  # kept region also keeps the region you must pass THROUGH to reach it
+  # (Leyndell keeps Altus). Nothing else. Until v0.3.7 the goal force-kept
+  # Farum Azula and Leyndell so the Erdtree could be burned, which is why
+  # num_regions: 1 used to hand you four regions; the burn is an item now
+  # (see `goal`), so it forces nothing. The generation log prints the
+  # breakdown for your seed either way.
   num_regions: 6
 
   # How the kept regions are chosen when num_regions > 0.
   #   spine  -- the first N of a fixed path (Limgrave first). Predictable.
   #   rolled -- a random N. Wilder.
-  # Either way the goal region (Leyndell) is always kept, so the seed is
-  # always winnable.
+  # Either way the seed is winnable: on any seed with the base game in play
+  # the run ends at the Elden Beast, which you reach from the Roundtable
+  # once the Ashen Capital Lock finds you -- no particular region required.
 
   # Prefer the vanilla shape to the Shattering? Turn this on.
   #   Regions are gated by REAL vanilla keys and boss remembrances (still
@@ -82,11 +84,10 @@ Elden Ring:
   dungeon_sweep: bosses
 
   # WHICH BOSS ENDS THE RUN.
-  #   auto             -- derived (default). The game's real terminus when this
-  #                       seed has one: Godfrey/Hoarah Loux + the Elden Beast,
-  #                       whenever Farum Azula AND Leyndell are both kept.
-  #                       Otherwise the major bosses of the deepest kept region.
-  #   elden_beast      -- pin that pair, and FORCE Farum Azula + Leyndell kept.
+  #   auto             -- derived (default). On ANY seed with the base game in
+  #                       play: Godfrey/Hoarah Loux + the Elden Beast. Under
+  #                       dlc_only, the major bosses of the deepest kept region.
+  #   elden_beast      -- pin that pair explicitly. Forces no regions kept.
   #   promised_consort -- Promised Consort Radahn, the DLC's final boss, and
   #                       FORCE Enir Ilim kept.
   # Why you'd set it: on a full base+DLC seed `auto` ends at the Elden Beast and
@@ -94,6 +95,15 @@ Elden Ring:
   # A choice your other options make impossible FAILS GENERATION rather than
   # quietly falling back (promised_consort needs the DLC in play; elden_beast
   # needs the base game).
+  #
+  # HOW YOU GET THERE (v0.3.7). Burning the Erdtree used to require killing
+  # Maliketh in Crumbling Farum Azula, so the ending only existed on seeds that
+  # kept both that region and Leyndell. It is now an ITEM: the ASHEN CAPITAL
+  # LOCK is shuffled into the pool like any other progression item, and when it
+  # reaches you the Erdtree burns and the Ashen Capital's graces light. Warp in
+  # from anywhere. The Ashen Capital is never rolled, never counted by
+  # num_regions and never where you start -- it is the gauntlet, not a region
+  # you play.
   goal: auto
 
   # SCADUTREE BLESSING AS A GAME-WIDE POWER CURVE.
@@ -160,7 +170,8 @@ Elden Ring:
   #  num_regions: 10          # 6 of 30 is a very thin seed; 10 keeps the run
   #                           # recognisable. 0 = the whole thing.
   #  goal: auto               # `promised_consort` ends the run in the DLC and
-  #                           # force-keeps its region. With `auto` on a
+  #                           # force-keeps Enir Ilim -- the only choice that
+  #                           # still forces anything. With `auto` on a
   #                           # base+DLC seed the ending is the Elden Beast and
   #                           # the entire DLC is optional -- which is usually
   #                           # not what someone enabling the DLC wants.

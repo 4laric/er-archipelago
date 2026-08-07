@@ -18,13 +18,16 @@ from worlds.eldenring.features.capital import (  # noqa: E402
 from worlds.eldenring.region_play_ids import REGION_PLAY_IDS  # noqa: E402
 from worlds.eldenring.location_tags import (  # noqa: E402
     ERDTREE_BURN_APS, DEFAULTED_REGION_APS, SHOP_RELEASE_GATED_APS)
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.data import LOCATIONS, FINALE_REGION  # noqa: E402
 from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 GAME = "Elden Ring"
 
 # The measured truth this feature partitions (region_play_ids.py). A change here is a change to
 # the capital's kick geometry and must be classified consciously in capital_partition.
+# NOTE the numbers did NOT move on 2026-08-06: SPEC-ashen-capital-lock re-homed 11050/19000 from
+# Leyndell to the Ashen Capital, but the reconciler's Royal/Ashen answer is bit-for-bit what it
+# always was -- which is the point of partitioning the union rather than one region's list.
 _EXPECTED_ROYAL = [11000]
 _EXPECTED_ASHEN = [11050, 19000]
 
@@ -33,8 +36,16 @@ class TestCapitalPartition:
     def test_live_table_partitions_exactly(self):
         royal, ashen = capital_partition()
         assert (royal, ashen) == (_EXPECTED_ROYAL, _EXPECTED_ASHEN)
-        # and the partition really is over Leyndell's generated buckets, not a copy
-        assert set(royal) | set(ashen) == set(REGION_PLAY_IDS["Leyndell"])
+        # ...and the partition really is over the GENERATED buckets, not a copy. It read
+        # REGION_PLAY_IDS["Leyndell"] alone until SPEC-ashen-capital-lock (2026-08-06) moved 11050
+        # and 19000 into the Ashen Capital's own entry, because the finale stopped borrowing the
+        # capital's lock for its kick geometry. capital_partition() reads the UNION of the two, so
+        # the source-of-truth assertion is the union -- and the two sides of the partition are
+        # exactly the two regions' bucket lists, which is the split itself, pinned:
+        assert set(royal) | set(ashen) == set(REGION_PLAY_IDS["Leyndell"]) | set(
+            REGION_PLAY_IDS[FINALE_REGION])
+        assert set(royal) == set(REGION_PLAY_IDS["Leyndell"])
+        assert set(ashen) == set(REGION_PLAY_IDS[FINALE_REGION])
 
     def test_unclaimed_bucket_fails_generation(self):
         # A future regen adding an m11 bucket the rule doesn't claim must DIE, not default --
@@ -133,8 +144,12 @@ class CapitalOffSeed(WorldTestBase):
 
     def test_no_wire(self):
         sd = self.world.fill_slot_data()
+        # All SEVEN. The two world-state keys joined the family on 2026-08-06
+        # (SPEC-ashen-capital-lock) and ride the same off-wire: features/capital.slot_data returns
+        # {} outright, so absence is a property of the option, not of each key.
         for key in ("capitalBurnFlag", "capitalBurnDoneFlag", "capitalAshenPlayRegions",
-                    "capitalRoyalPlayRegions", "capitalReleaseRows"):
+                    "capitalRoyalPlayRegions", "capitalReleaseRows",
+                    "capitalWorldBurnFlag", "capitalPreBurnFlag"):
             assert key not in sd, f"{key} emitted with the reconciler off"
 
     def test_royal_capital_progression_bar_restored(self):

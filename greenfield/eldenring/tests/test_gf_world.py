@@ -17,7 +17,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import HUB, REGIONS, LOCATIONS  # noqa: E402
+from worlds.eldenring.data import HUB, REGIONS, LOCATIONS, FINALE_REGION  # noqa: E402
 from worlds.eldenring import contract  # noqa: E402
 from BaseClasses import ItemClassification  # noqa: E402
 from ._util import world_items, world_pool_items  # noqa: E402
@@ -35,9 +35,16 @@ class GreenfieldWorldTest(WorldTestBase):
     # --- item pool -----------------------------------------------------------------
     def test_one_progression_lock_per_region(self):
         locks = [i for i in world_items(self) if i.name.endswith(" Lock")]
+        # One lock per region, PLUS the Ashen Capital's (SPEC-ashen-capital-lock, 2026-08-06: the
+        # Erdtree burn became a synthetic progression item on every base-game seed, for a region
+        # that is deliberately NOT in REGIONS because it can never be rolled). Named in the
+        # expected list rather than filtered out of the observed one, so an absent burn item --
+        # a seed whose goal has no way in -- still fails here.
         self.assertEqual(sorted(i.name for i in locks),
-                         sorted(f"{r} Lock" for r in REGIONS),
-                         "expected exactly one lock item per region")
+                         sorted([f"{r} Lock" for r in REGIONS] + [f"{FINALE_REGION} Lock"]),
+                         "expected exactly one lock item per region, plus the finale's")
+        self.assertNotIn(FINALE_REGION, REGIONS,
+                         "the finale must stay unrollable, or the line above double-counts it")
         for i in locks:
             self.assertEqual(i.classification, ItemClassification.progression,
                              f"{i.name} must be progression")
@@ -133,8 +140,17 @@ class GreenfieldWorldTest(WorldTestBase):
         ro = sd.get("regionOpenFlags")
         self.assertIsInstance(ro, dict)
         self.assertGreaterEqual(len(ro), 1, "at least one region must have an open flag")
+        # The finale's lock is the ONE key here whose region is not in REGIONS -- it is never
+        # rolled, but it does own a front-door open flag of its own since SPEC-ashen-capital-lock
+        # (before that its space borrowed Leyndell's, via core._lockless_host). Spelt as an
+        # explicit union plus a presence check, so it is a carve-out for exactly one name and not
+        # a hole any future lockless region could fall through.
+        self.assertIn(f"{FINALE_REGION} Lock", ro,
+                      "the finale's own open flag must be sent, or the client finds no flag for "
+                      "its coarse key and calls the region permanently open")
+        _named = set(REGIONS) | {FINALE_REGION}
         for k, v in ro.items():
             self.assertTrue(k.endswith(" Lock"), f"{k} is not a region-lock key")
-            self.assertIn(k[:-len(" Lock")], REGIONS)
+            self.assertIn(k[:-len(" Lock")], _named)
             self.assertIsInstance(v, int)   # SCALAR per region (client HashMap<String,u32>), not a list
             self.assertGreater(v, 0)

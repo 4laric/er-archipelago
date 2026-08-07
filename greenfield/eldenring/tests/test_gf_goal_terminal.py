@@ -30,25 +30,35 @@ MORGOTT_IDS = set(_major_boss_ids(GOAL_REGION))
 
 class TestTerminalGoalPure:
     def test_deeper_kept_region_beats_leyndell(self):
-        # every base spine suffix deeper than Leyndell must out-rank the capital as the terminal --
-        # EXCEPT when the kept set completes the finale prerequisites (Farum Azula + Leyndell),
-        # where tier 0 takes over and the goal is the game's real terminus (the Ashen Capital).
+        # every base spine suffix deeper than Leyndell must out-rank the capital as the terminal.
+        #
+        # ⭐ RE-PREMISED 2026-08-06 (SPEC-ashen-capital-lock). This is a TIER 1 test -- the spine
+        # ladder -- and tier 0 now outranks the ladder on EVERY base-game seed, because the finale
+        # is built unconditionally and entered by item rather than existing only when Farum Azula
+        # and Leyndell were both kept. The old body carried an `if finale_active(kept)` branch for
+        # that one kept set; with the finale always live, that branch would swallow every case here
+        # and the ladder would go entirely untested. So the ladder is exercised with
+        # finale_built=False -- the real `dlc_only` shape, and the exact keyword terminal_goal_ids
+        # grew for this -- and the precedence claim the deleted branch used to make for one region
+        # is asserted below for ALL of them, which is strictly more than it said.
         leyndell_rank = SPINE.index(GOAL_REGION)
         deeper = [r for r in base_regions() if SPINE.index(r) > leyndell_rank and _major_boss_ids(r)]
         assert deeper, "spine data lost its deeper-than-Leyndell majors; test basis broken"
         for r in deeper:
             kept = {GOAL_REGION, "Altus", r}
-            region, ids = terminal_goal_ids(kept)
-            if finale_active(kept):
-                assert r == "Farum Azula", f"finale unexpectedly active for kept {sorted(kept)}"
-                assert region == FINALE_REGION and set(ids) == FINALE_IDS
-            else:
-                assert region == r, f"terminal must be {r}, got {region}"
-                assert set(ids) == set(_major_boss_ids(r))
+            region, ids = terminal_goal_ids(kept, finale_built=False)
+            assert region == r, f"terminal must be {r}, got {region}"
+            assert set(ids) == set(_major_boss_ids(r))
             assert set(ids) != MORGOTT_IDS
+            # tier 0 outranks the ladder for the SAME kept set
+            region0, ids0 = terminal_goal_ids(kept, finale_built=True)
+            assert region0 == FINALE_REGION and set(ids0) == FINALE_IDS, (
+                f"tier 0 must beat the ladder for kept {sorted(kept)}, got {region0}")
 
     def test_leyndell_terminal_only_when_deepest(self):
-        region, ids = terminal_goal_ids({"Limgrave", "Altus", GOAL_REGION})
+        # finale_built=False for the same reason as above: this asserts TIER 1, and on a base-game
+        # kept set tier 0 (the Ashen Capital) would otherwise own the answer outright.
+        region, ids = terminal_goal_ids({"Limgrave", "Altus", GOAL_REGION}, finale_built=False)
         # Sewer outranks Leyndell in SPINE but is not kept here; the capital is genuinely terminal.
         assert region == GOAL_REGION and set(ids) == MORGOTT_IDS
 
@@ -93,9 +103,12 @@ class TestTerminalGoalPure:
 
 
 class GoalDeepSpineSeed(WorldTestBase):
-    """Full pool kept (num_regions 0): Farum Azula AND Leyndell are both kept, so THE FINALE exists
-    and IS the goal -- Godfrey/Hoarah Loux + the Elden Beast, the game's real terminus. NOT Morgott,
-    and NOT Farum Azula's majors (the ruling 2026-07-14: the Ashen Capital outranks the spine)."""
+    """Full pool kept (num_regions 0): the base game is in play, so THE FINALE exists and IS the
+    goal -- Godfrey/Hoarah Loux + the Elden Beast, the game's real terminus. NOT Morgott, and NOT
+    Farum Azula's majors (the ruling 2026-07-14: the Ashen Capital outranks the spine). The
+    existence rule moved on 2026-08-06 (SPEC-ashen-capital-lock) from "Farum Azula AND Leyndell are
+    both kept" to "any base-game region is in play"; a full-pool seed satisfied both, so what this
+    fixture asserts is unchanged."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0}
@@ -104,49 +117,62 @@ class GoalDeepSpineSeed(WorldTestBase):
         sd = self.world.fill_slot_data()
         got = set(sd["goalLocations"])
         kept = set(self.world._kept())
-        assert finale_active(kept), "num_regions 0 must keep every finale prerequisite"
+        assert finale_active(kept), "num_regions 0 keeps base-game regions, so the finale is built"
         assert got == FINALE_IDS, "with the finale active the goal must be its major bosses"
         assert got != MORGOTT_IDS, \
             "goal collapsed to Morgott on a seed keeping regions deeper than Leyndell"
         assert got, "goalLocations may never be empty"
 
 
-class GoalCapitalRunSeed(WorldTestBase):
-    """The capital IS a legitimate goal when it is the DEEPEST kept region -- by depth, not by
-    preference. This is the other half of the 2026-07-14 bug: the fix must not overcorrect into
-    never goaling on Morgott.
+class GoalLadderDecidesSeed(WorldTestBase):
+    """The goal is the DEEPEST KEPT region, decided by depth and not by any default -- asserted on
+    real slot data rather than on the pure function.
 
-    RE-PREMISED 2026-08-05. `spine num_regions=3` made the capital terminal by construction. With a
-    random draw nothing can, short of naming regions, so the fixture searches a fixed seed sequence
-    for a draw where the pure ladder says the capital is terminal and asserts the SLOT DATA on it.
+    ⭐ WAS GoalCapitalRunSeed, "the capital IS a legitimate goal when it is the deepest kept
+    region": the other half of the 2026-07-14 bug, whose fix must not overcorrect into never
+    goaling on Morgott. That FIXTURE is unbuildable as of SPEC-ashen-capital-lock (2026-08-06) --
+    the finale is built on every seed with the base game in play and tier 0 outranks the ladder, so
+    no base-game seed can produce a Morgott goal at all any more. The pure-function half of the old
+    claim survives verbatim in TestTerminalGoalPure.test_leyndell_terminal_only_when_deepest, which
+    now says it with finale_built=False.
 
-    The OPTIONS are chosen to condition that search, not to pin an answer: base-only at N=1 keeps
-    one drawn region plus the capital and its parent, and nine of the seventeen base regions rank
-    shallower than the capital -- so it is terminal in ~64% of draws (measured), versus ~12% at the
-    full-pool N=3 this class used to use. First hit lands on the first or second seed.
+    What is re-premised here is the SEED half, moved to `dlc_only` -- the one mode with no finale,
+    and therefore the one mode where the ladder still decides a real seed's goal. The protection is
+    the same one, restated without naming the capital: search a fixed seed sequence for a draw
+    whose terminal region is NOT the pool's globally deepest region (the case a "prefer region X"
+    default would get wrong), and assert the SLOT DATA names that drawn region's majors.
 
     Exhausting the sequence FAILS rather than skips: a guard that never fires is an untested guard.
     """
     game = GAME
     run_default_tests = False
-    options = {"enable_dlc": False, "num_regions": 1}
+    # N=2, not 1: `start_with_region_lock` is frozen ON and core's clamp needs at least one lock
+    # left in the pool, and a dlc_only seed mints no Ashen Capital Lock to make up the difference.
+    # 2 is the floor that generates, and it keeps the draw narrow enough that the deepest DLC
+    # region is usually NOT in it -- which is the case this fixture is hunting for.
+    options = {"dlc_only": True, "num_regions": 2}
     SEEDS = tuple(range(12))
 
-    def test_goal_is_morgott_because_terminal(self):
+    def test_goal_is_the_deepest_kept_region_not_a_default(self):
+        deepest_in_pool = max(dlc_regions(), key=SPINE.index)
         for seed in self.SEEDS:
             self.world_setup(seed=seed)
             kept = set(self.world._kept())
-            if finale_active(kept):
-                continue          # tier 0 owns the goal; that is GoalDeepSpineSeed's case
-            if terminal_goal_ids(kept)[0] != GOAL_REGION:
-                continue          # something deeper than the capital was drawn
+            assert not finale_active(kept), \
+                "dlc_only seals the base game, so the finale must be inert -- otherwise tier 0 " \
+                "owns this goal and the ladder is not what is under test"
+            region, ids = terminal_goal_ids(kept)
+            if region == deepest_in_pool:
+                continue          # uninformative: a fixed default and the ladder would agree here
             sd = self.world.fill_slot_data()
-            assert set(sd["goalLocations"]) == MORGOTT_IDS, (
-                "seed %d keeps the capital as its deepest region, so the goal must be Morgott's "
-                "checks; slot data said %s" % (seed, sorted(sd["goalLocations"])))
-            assert GOAL_REGION in kept and len(kept) >= 1
+            assert set(sd["goalLocations"]) == set(_major_boss_ids(region)), (
+                "seed %d keeps %s as its deepest region, so the goal must be its majors; slot "
+                "data said %s" % (seed, region, sorted(sd["goalLocations"])))
+            assert region in kept
+            assert region == max(kept, key=SPINE.index), (
+                "the goal region must be the deepest KEPT region by spine rank, not a preference")
             return
-        self.fail("no seed in range(%d) produced a draw whose TERMINAL region is the capital, so "
-                  "the Morgott-by-depth case went UNTESTED. Widen SEEDS, or the draw/ladder has "
-                  "changed such that the capital can no longer be terminal -- which would be a "
-                  "real regression of the 2026-07-14 ruling." % len(self.SEEDS))
+        self.fail("no seed in range(%d) produced a draw whose TERMINAL region is anything but the "
+                  "pool's deepest, so the decided-by-depth case went UNTESTED. Widen SEEDS, or the "
+                  "draw/ladder has changed such that only the deepest region can ever be terminal "
+                  "-- which would be a real regression of the 2026-07-14 ruling." % len(self.SEEDS))

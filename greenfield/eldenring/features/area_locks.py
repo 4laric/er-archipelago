@@ -28,6 +28,7 @@ locked until its "<Region> Lock" is received, exactly mirroring the hub->region 
 """
 from ..registry import Feature, register
 from .. import contract
+from . import capital as _capital
 try:
     from ..region_spine import DLC_REGIONS
 except Exception:  # pragma: no cover
@@ -110,4 +111,14 @@ class AreaLocks(Feature):
         # (region.rs lock_reveal_flags); this key was contract-declared but previously unemitted.
         reveal = {f"{r} Lock": list(_DLC_MAP_REVEAL_FLAGS)
                   for r in world._kept() if r in DLC_REGIONS}
+        # SPEC-ashen-capital-lock: the Erdtree burn's world state rides the SAME key, because it is
+        # the same mechanism -- flags set on lock receipt. This feature owns `lockRevealFlags` (two
+        # features emitting one key is a generation crash by design, registry.merge_slot_data), so
+        # the burn bundle is DEFINED next to the reconciler that also holds it, in
+        # features/capital.py, and only emitted here. The list ORDER is load-bearing; see that
+        # function's docstring and the contract key's own description.
+        if getattr(world, "gf_finale_active", False):
+            _burn = _capital.burn_reveal_flags()
+            if _burn:
+                reveal[_capital.ASHEN_LOCK_NAME] = _burn
         return {contract.AREA_LOCK_FLAGS: ranges, contract.LOCK_REVEAL_FLAGS: reveal}

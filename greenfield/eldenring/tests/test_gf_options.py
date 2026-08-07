@@ -420,7 +420,12 @@ _SCADU_SHAPES = (
 @pytest.mark.parametrize("label,extra", _SCADU_SHAPES, ids=[c[0] for c in _SCADU_SHAPES])
 def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
     """Every mode x seed-shape gens clean, stays count-neutral, and -- when the fragment is
-    obtainable -- carries enough fragments to reach the cap it advertises."""
+    obtainable -- carries enough fragments to reach the injection target, OR (a one-region seed,
+    possible since SPEC-ashen-capital-lock) is clamped by MAX_POOL_SHARE: tight against the share
+    ceiling, never below the original cap of 12, and WARNED in the generation log. Which arm a
+    one_region_dlc run lands in depends on the rolled region (16 of 30 draws clamp); the
+    deterministic all-draws version of the clamped arm is
+    test_gf_scadu_supply.py::test_every_one_region_draw_clears_the_original_cap_under_the_clamp."""
     from worlds.eldenring.features import scadu_supply as ss
     try:
         from ._util import world_items
@@ -431,6 +436,18 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
         game = GAME
         options = dict(extra, global_scadutree_blessing=mode)
 
+    # Log capture BEFORE setUp: generation happens inside it, and the clamped-injection arm below
+    # must see the WARNING scadu_supply emits while the pool is being built.
+    import logging
+    records = []
+
+    class _Grab(logging.Handler):
+        def emit(self, record):
+            records.append(record.getMessage())
+
+    lg = logging.getLogger("Greenfield")
+    h = _Grab()
+    lg.addHandler(h)
     t = _T()
     t.setUp()
     try:
@@ -450,9 +467,46 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
                 f"{label}: DLC is off, so no Scadutree Fragment may enter the pool "
                 f"(injected={injected}, in pool={frags})")
         else:
-            assert frags >= ss.SCADU_CUM[target], (
-                f"{label} mode {mode}: target {target} needs {ss.SCADU_CUM[target]} fragment "
-                f"unit(s), pool has {frags} ({natural} natural + {injected} injected)")
+            # The pool must carry exactly what the plan says: natural copies survive as themselves
+            # (COLLECTATHON protection) and every injected unit arrives, as an x1 or half an x2.
+            assert frags == natural + injected, (
+                f"{label} mode {mode}: plan says {natural} natural + {injected} injected but the "
+                f"pool carries {frags} unit(s) -- create_items and plan() disagree")
+            if injected == want:
+                assert frags >= ss.SCADU_CUM[target], (
+                    f"{label} mode {mode}: target {target} needs {ss.SCADU_CUM[target]} fragment "
+                    f"unit(s), pool has {frags} ({natural} natural + {injected} injected)")
+            else:
+                # THE DESIGNED DEGRADE (ruled 2026-08-06). Until SPEC-ashen-capital-lock removed
+                # the `auto` force-keep of GOAL_REGION, `num_regions: 1` could not produce a
+                # one-region seed (the closure floor was 3 regions / 727+ locations), so the
+                # unconditional assert above was really "the clamp never binds" -- a fact about
+                # the old world, not about this feature. On a genuinely one-region seed (240-360
+                # locations) 50 units do not fit MAX_POOL_SHARE and the clamp wins, exactly as
+                # its own comment always said. That is legal ONLY as stated-and-bounded:
+                assert injected < want  # this arm IS the clamp; anything else fails above
+                from worlds.eldenring.data import HUB, LOCATIONS
+                kept = list(t.world._kept())
+                total = (len(LOCATIONS.get(HUB, []))
+                         + sum(len(LOCATIONS.get(r, [])) for r in kept)
+                         + len(getattr(t.world, "gf_extra_locations", ())))
+                ceiling = int(total * ss.MAX_POOL_SHARE)
+                # 1) TIGHT: the share ceiling, recomputed from raw data, is what stopped it --
+                #    one more unit would not fit. A looser stop is an injection bug hiding here.
+                assert ss.items_for_units(injected) <= ceiling < ss.items_for_units(injected + 1), (
+                    f"{label} mode {mode}: injection stopped at {injected} unit(s) but the share "
+                    f"ceiling is {ceiling} item(s) of {total} locations -- the clamp is not what "
+                    f"stopped it, so this shortfall is a defect, not the designed degrade")
+                # 2) FLOORED: never below the ORIGINAL cap (12, the pre-2026-08-06 target).
+                assert frags >= ss.SCADU_CUM[ss.CLAMP_FLOOR_LEVEL], (
+                    f"{label} mode {mode}: clamped pool carries {frags} unit(s), below "
+                    f"SCADU_CUM[{ss.CLAMP_FLOOR_LEVEL}] = {ss.SCADU_CUM[ss.CLAMP_FLOOR_LEVEL]} "
+                    f"-- the blessing is starved below the original cap")
+                # 3) STATED: the degrade warned. A silent shortfall is the headline gate's
+                #    "silent no-op", whatever the numbers say.
+                assert any("cannot reach its target" in r for r in records), (
+                    f"{label} mode {mode}: injection was clamped short of the target but no "
+                    f"warning reached the Greenfield log -- a silent degrade")
         # Count-neutrality. `world_items` counts everything this world CREATED, including the
         # PRECOLLECTED region-lock anchor, which occupies no location -- so the invariant is
         # items == locations + precollected, not items == locations. Measured delta is exactly 1
@@ -465,6 +519,7 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
             f"precollected {pre})")
     finally:
         t.tearDown()
+        lg.removeHandler(h)
 
 
 # ---------------------------------------------------------------------------------------------

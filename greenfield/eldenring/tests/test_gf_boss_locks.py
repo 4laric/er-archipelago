@@ -30,8 +30,25 @@ class BossLocationsAll(WorldTestBase):
 class BossLocationsSealed(WorldTestBase):
     game = GAME
     options = {"num_regions": 1}
+    # SEEDS: `num_regions: 1` really keeps ONE region since SPEC-ashen-capital-lock removed the
+    # `auto` goal force-keep, and not every region has bosses -- so the fixture's own premise
+    # ("a kept region with bosses") is now a property of the draw. Verified per run by walking a
+    # fixed sequence, rather than pinned to a seed that happens to work: a data change that shifts
+    # the pool moves the search, not the test. This class went red on CI and green in the sandbox
+    # on the same commit, which is exactly what an unverified premise looks like.
+    SEEDS = tuple(range(16))
+
+    def _setup_seed_with_a_kept_boss_region(self):
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            if {r for r in REGION_BOSSES if r in set(self.world._kept())}:
+                return seed
+        self.fail("no seed in %r kept a region with bosses at num_regions=1, so the exclusion "
+                  "under test went UNEXERCISED -- widen SEEDS, or REGION_BOSSES has shrunk"
+                  % (self.SEEDS,))
 
     def test_sealed_boss_regions_excluded(self):
+        self._setup_seed_with_a_kept_boss_region()
         # AUDIT 2026-08-04 (finding P2): this used to be `all(r in kept for r in bl)` -- a
         # quantifier over the OUTPUT of the function under test, vacuously true when the feature
         # is deleted (`boss_locs = {}` left all 35 referencing tests green). Assert keyset

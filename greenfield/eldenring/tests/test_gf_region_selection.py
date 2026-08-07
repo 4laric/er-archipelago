@@ -89,11 +89,37 @@ class RegionSelection(unittest.TestCase):
             self.assertEqual(sorted(self._kept(n, 1)), sorted(self.all),
                              "n=%s must keep the whole eligible pool" % n)
 
-    def test_auto_keeps_the_goal_region(self):
-        """No named goal -> GOAL_REGION is force-kept, so `auto` can always derive a terminus."""
+    def test_auto_keeps_exactly_the_draw_and_its_closure(self):
+        """WAS test_auto_keeps_the_goal_region: "no named goal -> GOAL_REGION is force-kept, so
+        `auto` can always derive a terminus".
+
+        SPEC-ashen-capital-lock (2026-08-06) deleted that force-keep. `auto` resolves to the Elden
+        Beast on every base-game seed and the Ashen Capital is reached from the HUB behind an item,
+        so the derivation always has a terminus WITHOUT any region being kept for it -- and
+        `num_regions` finally means what it says (bobler: "num_regions: 1 gave me four regions").
+
+        What replaces it is strictly stronger than what it said: `auto` keeps EXACTLY its draw plus
+        the parent closure of that draw, and nothing else. The old assertion would pass under any
+        force-keep at all, including a new one; this one fails on the first extra region."""
         for seed in range(120):
-            self.assertIn(self.rs.GOAL_REGION, self._kept(6, seed),
-                          "auto seed lost the goal region")
+            parts = {}
+            kept = self.rs.compute_kept(6, random.Random(seed), self.all, parts=parts)
+            self.assertEqual(parts["forced"], [],
+                             "seed %d: `auto` passes no forced set and compute_kept must add none "
+                             "of its own" % seed)
+            closure = {a for r in parts["drawn"] for a in self.rs.parent_chain(r)}
+            self.assertEqual(set(kept), set(parts["drawn"]) | closure,
+                             "seed %d: auto kept something that is neither drawn nor an ancestor "
+                             "of a drawn region: %s"
+                             % (seed, sorted(set(kept) - set(parts["drawn"]) - closure)))
+        # WITNESS (test_gf_vacuous_pass): the equality above would also hold if the goal region
+        # simply always fell out of the draw, so state the fact the deleted force-keep guaranteed
+        # and which must now be FALSE -- some auto seed does not keep the capital at all.
+        without = sum(1 for seed in range(120)
+                      if self.rs.GOAL_REGION not in self._kept(6, seed))
+        self.assertGreater(without, 0,
+                           "every one of 120 auto seeds kept the goal region -- the `auto` "
+                           "force-keep is back")
 
     def test_a_named_goal_is_kept_and_does_not_drag_the_capital(self):
         """The 2026-08-05 fix: forcing Enir Ilim must not also force Leyndell. Stated as BOTH halves

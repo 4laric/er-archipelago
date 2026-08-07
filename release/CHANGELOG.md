@@ -9,7 +9,56 @@ Window opened the same day v0.3.6 was tagged, and again because the gate went re
 because anyone remembered. That is the fourth window in a row. The gate is doing its job; what has
 still never happened is a window being opened before something red asked for it.
 
-`CONTRACT_HASH` is unmoved from v0.3.0 (`5e8b11c9`). The bump is version-lockstep across both repos.
+`CONTRACT_HASH` MOVED this window, for the first time since v0.3.0: `5e8b11c9` -> `d7d3a58e`. Two
+new optional keys carry the Erdtree burn's world state to the client (below). Both are absent-able,
+so an older client still gets the burn.
+
+### You can now reach the end of the game on any seed
+
+Burning the Erdtree used to be something the game decided. It happened when Maliketh died, and
+Maliketh lives in Crumbling Farum Azula -- so the Ashen Capital, the Elden Throne, Godfrey, Radagon
+and the Elden Beast only existed on seeds that happened to keep both Farum Azula and Leyndell. To
+make the ending reachable at all, `goal: auto` quietly forced both of those regions into every draw,
+and Leyndell dragged Altus in behind it. That is why `num_regions: 1` gave you four regions: you
+asked for one, and three more arrived to make an ending possible.
+
+The burn is now an item. **Ashen Capital Lock** is shuffled into the pool like any other progression
+item; when it reaches you, the Erdtree burns, the Ashen Capital's graces light, and you can warp to
+the end of the game from wherever you happen to be.
+
+So `num_regions: 1` now means one region. Roll Mountaintops and you play Mountaintops, find the Ashen
+Capital Lock somewhere in it, and go and fight the Elden Beast. Nothing is forced into your draw any
+more, by the goal or by anything else -- and the line in the generation log that explains your kept
+set will say so.
+
+Consequences worth knowing before you roll one:
+
+* Every seed with the base game in play now ends on the Elden Beast. Terminal-region variety under
+  `goal: auto` is gone, deliberately: the finale is a fixed gauntlet (Gideon, then Godfrey/Hoarah
+  Loux, then Radagon/Elden Beast) and it plays well as a capstone no matter what your draw kept.
+* The Ashen Capital's checks -- twelve of them, including two that had been mis-attributed to
+  Leyndell all along -- now exist on every such seed instead of on the fraction that kept the right
+  two regions.
+* The Ashen Capital is not a region you can roll. It is never drawn, never counted toward
+  `num_regions`, and never where you start. It is a gauntlet, not a place you play.
+* `dlc_only` is unchanged: the base game is sealed there, so there is no burn, no lock, and the goal
+  is still the deepest region you kept.
+
+### Radahn's rewards no longer need Leyndell
+
+Radahn's Great Rune and the Remembrance of the Starscourge were gated behind the Leyndell lock, on
+the reasoning that the Radahn Festival only starts once you reach Altus. The client has force-set the
+festival flag at spawn for a month, so that gate was requiring a lock the game itself does not
+require -- and once the goal stopped forcing Leyndell into every draw, it started making those two
+checks unreachable. It is gone. Radahn is yours with the Caelid lock alone.
+
+### Small seeds keep their upgrade path
+
+A genuinely one-region seed is a new thing, and the first one found a gap: the filler budget shared
+out somber smithing stones proportionally, which on a small enough seed left whole tiers out of the
+pool. A missing somber tier is not thin supply, it is a wall -- a somber weapon can never pass the
+level below it, for the whole run. The somber reservation now has a floor that covers every tier plus
+the early guarantee, and says so in the log on the rare seed too small to pay it.
 
 ### The Great Rune of the Unborn was missing from every seed
 

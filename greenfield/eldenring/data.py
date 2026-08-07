@@ -2037,7 +2037,6 @@ LOCATIONS = {
     ],
     'Leyndell': [
         ("Leyndell :: Morgott's Great Rune - Morgott [f173]", 7770003, 173),
-        ('Leyndell :: Mending Rune of Perfect Order - around Elden Throne [f9500]', 7770008, 9500),
         ('Leyndell :: Talisman Pouch - around Divine Tower of Caelid: Basement [f60520]', 7770027, 60520),
         ('Leyndell :: Sanctified Whetblade - near Fortified Manor, First Floor [f65660]', 7770043, 65660),
         ('Leyndell :: Cracked Pot - near Avenue Balcony [f66130]', 7770056, 66130),
@@ -2048,7 +2047,6 @@ LOCATIONS = {
         ('Leyndell :: All-Knowing Gauntlets [f400284]', 7770690, 400284),
         ('Leyndell :: Black Knifeprint [f400357]', 7770707, 400357),
         ("Leyndell :: Corhyn's Bell Bearing - near Ancient Snow Valley Ruins [f400370]", 7770712, 400370),
-        ("Leyndell :: Goldmask's Rags - around Elden Throne [f400500]", 7770727, 400500),
         ('Leyndell :: Remembrance of the Omen King - Morgott [f510040]', 7770754, 510040),
         ('Leyndell :: [Incantation] Barrier of Gold - around East Capital Rampart [f540370]', 7770868, 540370),
         ('Leyndell :: Ash of War: Thunderbolt - around East Capital Rampart [f540372]', 7770869, 540372),
@@ -5003,6 +5001,8 @@ LOCATIONS = {
         ('Weeping :: Great Arrow - from Isolated Merchant or Merchant Kalé [f160630]', 7774840, 160630),
     ],
     'Ashen Capital': [
+        ('Ashen Capital :: Mending Rune of Perfect Order - around Elden Throne [f9500]', 7770008, 9500),
+        ("Ashen Capital :: Goldmask's Rags - around Elden Throne [f400500]", 7770727, 400500),
         ('Ashen Capital :: Remembrance of Hoarah Loux - Hoarah Loux [f510070]', 7770755, 510070),
         ('Ashen Capital :: Elden Remembrance - Elden Beast [f510230]', 7770764, 510230),
         ("Ashen Capital :: [Incantation] Erdtree Heal - near Queen's Bedchamber [f11057000]", 7771132, 11057000),
@@ -5165,15 +5165,21 @@ NOT_RANDOMIZED = {
     1050567820: 'unreachable_dead: physically gated behind mechanics a warp-grace region-lock shuffle cannot guarantee (Alaric 2026-07-09); a placed item would strand',
 }
 
-# THE FINALE (conditional; see gen_data._finale_derive). LOCATIONS[FINALE_REGION] is NOT
-# in REGIONS (never rollable, no Lock item): features/finale.py creates the region per-seed
-# iff every FINALE_REQUIRES member is kept, hangs it off FINALE_HOST_REGION (which owns the
-# measured kick geometry: play_regions 11050+19000 in region_groups PLAY_REGION_GROUPS), and
-# gates the entrance on every member's Lock. When it exists it IS the goal
-# (features/goal_locations.py).
+# THE FINALE (SPEC-ashen-capital-lock; see gen_data._finale_derive).
+# LOCATIONS[FINALE_REGION] is NOT in REGIONS: the Ashen Capital is never ROLLED (num_regions
+# never draws it, it is never the start anchor, it is never counted in the kept set) -- but
+# it does carry a Lock. features/finale.py builds it on every seed with the base game in
+# play, hangs it off FINALE_HOST_REGION (the HUB) and gates the entrance on the single
+# synthetic item 'Ashen Capital Lock', whose receipt arms the Erdtree burn in the client.
+# FINALE_REQUIRES is EMPTY and stays that way: nothing is force-kept for it.
+# FINALE_BURN_REGION is where the VANILLA burn trigger lives, which is all that is left of
+# the old rule and is what natural_progression (no Lock items at all) still rides.
+# When the finale exists it IS the goal (features/goal_locations.py).
 FINALE_REGION = 'Ashen Capital'
-FINALE_REQUIRES = ('Farum Azula', 'Leyndell')
-FINALE_HOST_REGION = 'Leyndell'
+FINALE_REQUIRES = ()
+FINALE_HOST_REGION = 'Roundtable Hold'
+FINALE_BURN_REGION = 'Farum Azula'
+FINALE_KICK_OWNER = 'Leyndell'
 
 # CAPITAL-VERSION RECONCILER (SPEC-capital-reconciler.md; gen_data._capital_derive):
 # burn flag = the m11_00<->m11_05 map-version selector $Event(900) waits on; done = its
@@ -5183,6 +5189,17 @@ FINALE_HOST_REGION = 'Leyndell'
 CAPITAL_BURN_FLAG = 9116
 CAPITAL_BURN_DONE_FLAG = 118
 CAPITAL_RELEASE_ROWS = ((101516, 9116, 118), (101517, 9116, 118), (101518, 9116, 118), (101519, 9116, 118))
+# The WORLD-STATE half of $Event(900) (SPEC-ashen-capital-lock). Without the burn flag
+# the m19_00 Elden Beast arena is a VOID -- measured in game 2026-08-06. Derived as the
+# body's only Set-ON that map EMEVD actually READ; the reader maps are recorded so a
+# future shrink is visible rather than silent. PRE_BURN is the body's Set-OFF target
+# (the opposite state, set by $Event(901), the Melina/Forge ceremony).
+CAPITAL_WORLD_BURN_FLAG = 300
+CAPITAL_WORLD_BURN_READER_MAPS = ('m11_00_00_00', 'm11_10_00_00', 'm12_03_00_00', 'm35_00_00_00', 'm60_42_32_00')
+CAPITAL_PRE_BURN_FLAG = 302
+# The body's remaining Set-ONs -- replayed for fidelity; NO map EMEVD reads either of
+# them (that is the very test that singled the world-burn flag out above).
+CAPITAL_BURN_SIDE_EFFECT_FLAGS = (301, 71300)
 
 # GESTURE PICKUPS (detect-only; see gen_data._gesture_derive): acquisition flag ->
 # (GestureParam id, goods FullID, FMG name). The award is EMEVD (AwardGesture +
@@ -5224,4 +5241,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ad5f47c34d981e370f5a1669324ef1610c636bf66fca9216720aa8ae796604f1', 'module': 'data.py', 'body_sha256': 'sha256:9ab5d0b5285326bccaf517f75ab93d56f0120c81ab05d676aeb3b8bd5187c698'}
+_GEN_STAMP = {'inputs_hash': 'sha256:aa6e32cdeabbb1d64c9a48c16d6395ebef9c73716858e3fc97e49c0a50d28a2f', 'module': 'data.py', 'body_sha256': 'sha256:4a82e4dd6d850a3f88362f247c0874616789d2b99f44f60a270e3d381c0a5cbe'}

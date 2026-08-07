@@ -92,7 +92,14 @@ REGION_GROUPS = {
     # --- base game legacy / interiors ---
     "Stormveil": (10000,),
     "Raya Lucaria Academy": (14000,),
-    "Leyndell": (11000, 11050, 19000),
+    "Leyndell": (11000,),
+    # SPEC-ashen-capital-lock: 11050 (m11_05) + 19000 (m19_00) left Leyndell 2026-08-06.
+    # They used to ride the capital because the Ashen Capital had no lock of its own -- the
+    # burn was game data, so its checks borrowed Leyndell's geometry and its graces were
+    # force-skipped (_ASHEN_LEYNDELL_GRACE_FLAGS) to stop the Leyndell lock warping players
+    # into a capital they had not burned. The Ashen Capital Lock ends that borrowing: the
+    # region owns its buckets, its graces ARE its bundle, and its lock arms the burn.
+    "Ashen Capital": (11050, 19000),
     "Sewer": (35000,),
     "Haligtree": (15000, 15001),
     "Farum Azula": (13000,),
@@ -230,7 +237,12 @@ PLAY_REGION_GROUPS = {
 
     # --- base interiors / legacy ---
     "Stormveil": (10000, 10010),
-    "Leyndell": (11000, 11050, 19000),
+    "Leyndell": (11000,),
+    # SPEC-ashen-capital-lock: the finale maps' MEASURED kick buckets. Split out of Leyndell
+    # 2026-08-06 so the kick enforces the Ashen Capital Lock in its own right instead of
+    # borrowing the capital's (core._lockless_host is gone with it). features/capital.py
+    # partitions the UNION of the two regions' buckets, so the reconciler is unmoved.
+    "Ashen Capital": (11050, 19000),
     "Raya Lucaria Academy": (14000,),
     "Haligtree": (15000,),
     "Farum Azula": (13000,),

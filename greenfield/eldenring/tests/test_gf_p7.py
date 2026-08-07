@@ -109,13 +109,23 @@ class Phase7RegionLockOn(WorldTestBase):
     options = {"num_regions": 0, "start_with_region_lock": True}
 
     def test_exactly_one_region_lock_precollected(self):
+        from worlds.eldenring.data import FINALE_REGION
         pre = [i.name for i in self.multiworld.precollected_items[self.player] if i.name.endswith(" Lock")]
         self.assertEqual(len(pre), 1, "exactly one region lock precollected when enabled")
+        self.assertNotIn(f"{FINALE_REGION} Lock", pre,
+                         "the Ashen Capital Lock may NEVER be the precollected anchor -- it is not "
+                         "a place you play, and starting holding it would open the game's ending "
+                         "at connect (SPEC-ashen-capital-lock decision 2)")
         from ._util import world_item_names
         pool_locks = [n for n in world_item_names(self)
                       if n.endswith(" Lock") and n not in pre]
         kept = self.world._kept()
-        self.assertEqual(sorted(pool_locks + pre), sorted(f"{r} Lock" for r in kept))
+        # ...+ the finale's lock, which is minted on every base-game seed and belongs to no kept
+        # region (SPEC-ashen-capital-lock, 2026-08-06: the Erdtree burn IS an item now). Named
+        # rather than filtered, so it has to be present -- an absent burn item is a seed with an
+        # unreachable goal.
+        self.assertEqual(sorted(pool_locks + pre),
+                         sorted([f"{r} Lock" for r in kept] + [f"{FINALE_REGION} Lock"]))
 
 
 class Phase7Whetblades(WorldTestBase):

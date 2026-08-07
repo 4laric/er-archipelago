@@ -1086,13 +1086,23 @@ _MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60
 #     arena) is entered exclusively through the burnt-Erdtree entrance INSIDE m11_05: the tie is a
 #     map-streaming link with no EMEVD flag, so it is CURATED below (asserted, cited), not scanned.
 #
-# So the finale checks exist exactly when their prerequisite REGIONS are kept: the region that can
-# fire the burn trigger (Farum Azula) and the region owning the finale maps' measured kick buckets
-# (Leyndell: play_regions 11050 + 19000, region_groups.py; graces 71120-71125 -> 11050, 71900 ->
-# 19000 in grace_region_map.tsv). features/finale.py creates the locations per-seed under that
-# rule; data.py carries FINALE_REGION / FINALE_REQUIRES / LOCATIONS[FINALE_REGION]. Everything
-# below is re-derived from the artifacts on every regen and HARD-FAILS on drift -- a scan that
-# suddenly returns a different number must die loudly, never re-baseline itself.
+# That made the finale checks exist exactly when their prerequisite REGIONS were kept -- the region
+# that can fire the burn (Farum Azula) and the region owning the finale maps' kick buckets
+# (Leyndell) -- which is why `num_regions: 1` used to produce four regions.
+#
+# ⭐ SPEC-ashen-capital-lock (2026-08-06) ENDS that conditionality. Pure-runtime means the burn is
+# ours to arm, so it became an ITEM: one synthetic 'Ashen Capital Lock', minted on every seed with
+# the base game in play, whose receipt replays $Event(900)'s side-effect set in the client. The
+# finale is therefore UNCONDITIONAL, FINALE_REQUIRES is empty, and the Ashen Capital owns its own
+# geometry -- play_regions 11050 + 19000 and graces 71120-71125 moved out of Leyndell in
+# region_groups.py the same day. The derivation below is UNCHANGED and still runs in full: it is
+# what proves the artifacts still say what the spec says they say, and it still supplies the
+# vanilla burn chain that natural_progression (no Lock items at all) rides.
+#
+# data.py carries FINALE_REGION / FINALE_REQUIRES / FINALE_HOST_REGION / FINALE_BURN_REGION /
+# FINALE_KICK_OWNER / LOCATIONS[FINALE_REGION]. Everything below is re-derived from the artifacts
+# on every regen and HARD-FAILS on drift -- a scan that suddenly returns a different number must
+# die loudly, never re-baseline itself.
 #
 # 190540/190550 ("LAC/LCA: Scepter of the All-Knowing / All-Knowing Helm - boss drop") leave the
 # set entirely: both are method=synthetic_areacode INVENTED flags with ZERO occurrences in the
@@ -1110,7 +1120,10 @@ def _finale_derive():
       * every ItemLotParam_map flag whose 8-digit id self-encodes the burn-warp map (1105xxxx =
         m11_05: 7 lots incl. [Incantation] Erdtree Heal 11057000 and Erdtree's Favor +2 11057100 --
         derived 2026-07-14: 5 of the 7 award items NO m11_00 lot carries, so they are REAL content,
-        not ashen duplicates of live checks)."""
+        not ashen duplicates of live checks);
+      * every flag the MSB/event PLACEMENT corpus (msb_flag_region.tsv) puts in a finale map and
+        that the two classes above do not already claim -- the Goldmask-corpse awards 9500 and
+        400500 (added 2026-08-06; see step 7)."""
     _pc = os.path.join(_EV_DIR_F, "common.emevd.dcx.js")
     if not (os.path.isfile(_pc) and _LOT_OF_FLAG):
         raise SystemExit("FATAL: finale derivation needs event/common.emevd.dcx.js + "
@@ -1183,16 +1196,43 @@ def _finale_derive():
     _pref9 = _burn_map.split("_")[0][1:] + _burn_map.split("_")[1]   # 'm11_05_00_00' -> '1105'
     _maplots = {_fl9 for _fl9 in _LOT_OF_FLAG
                 if len(str(_fl9)) == 8 and str(_fl9)[:4] == _pref9}
-    # (7) the count PIN (2026-07-14 artifacts): 3 boss rewards (510060 Gideon, 510070 Godfrey,
-    # 510230 Elden Beast) + 7 m11_05 map lots. A different number means the inputs or the scan
-    # changed -- investigate which (CONTRIBUTING: rebaselining without answering that question is
-    # how a regression gets laundered into a test).
-    if len(_rewards) != 3 or len(_maplots) != 7:
+    # (7) EVENT-AWARD flags the GROUND TRUTH corpus places in a finale map (Fable ruling
+    # 2026-08-06, SPEC-ashen-capital-lock). msb_flag_region.tsv is the same corpus
+    # test_gf_region_provenance_oracle proves placement with, and it named two flags this
+    # derivation had been missing: 9500 (Mending Rune of Perfect Order) and 400500 (Goldmask's
+    # Rags), both awarded off the Goldmask corpse (common90005750) which exists ONLY in the
+    # post-burn capital. They are neither boss rewards nor self-encoded 1105xxxx map lots, so they
+    # rode the "around Elden Throne" place-name join into base LEYNDELL -- which claimed, in
+    # logic, that the Leyndell Lock reaches them. It does not: only the Ashen Capital Lock does.
+    # Deriving them from the corpus the oracle checks against means data.py and the oracle cannot
+    # disagree about these flags again.
+    _msb = os.path.join(HERE, "msb_flag_region.tsv")
+    if not os.path.isfile(_msb):
+        raise SystemExit("FATAL: finale: msb_flag_region.tsv missing -- refusing to regen without "
+                         "the placement corpus (the event-award class would silently empty)")
+    _fin_short = {_m[:6] for _m in _fin_maps}          # 'm11_05_00_00' -> 'm11_05'
+    _events = set()
+    with open(_msb, encoding="utf-8") as _mf:
+        for _ln in _mf:
+            if _ln.startswith("#") or _ln.startswith("flag"):
+                continue
+            _c = _ln.rstrip("\n").split("\t")
+            if len(_c) >= 2 and _c[1] in _fin_short and _c[0].isdigit():
+                _events.add(int(_c[0]))
+    _events -= set(_rewards.values()) | _maplots
+    # (8) the count PIN (2026-07-14 artifacts + the 2026-08-06 event class): 3 boss rewards
+    # (510060 Gideon, 510070 Godfrey, 510230 Elden Beast) + 7 m11_05 map lots + 2 event awards
+    # = 12. A different number means the inputs or the scan changed -- investigate WHICH
+    # (CONTRIBUTING: rebaselining without answering that question is how a regression gets
+    # laundered into a test). The event class is pinned by IDENTITY as well as by count, because
+    # it is the one class defined by a corpus join rather than by a self-encoding rule.
+    if len(_rewards) != 3 or len(_maplots) != 7 or _events != {9500, 400500}:
         raise SystemExit(f"FATAL: finale scan drift: {len(_rewards)} boss rewards (expected 3: "
                          f"{sorted(_rewards.values())}) + {len(_maplots)} m11_05 map lots "
-                         f"(expected 7: {sorted(_maplots)})")
-    return (frozenset(_rewards.values()) | frozenset(_maplots), _burn, _burn_map,
-            next(iter(_burn_setters)), _fin_maps, _rewards)
+                         f"(expected 7: {sorted(_maplots)}) + event awards {sorted(_events)} "
+                         f"(expected [9500, 400500])")
+    return (frozenset(_rewards.values()) | frozenset(_maplots) | frozenset(_events), _burn,
+            _burn_map, next(iter(_burn_setters)), _fin_maps, _rewards)
 
 (FINALE_FLAGS, _BURN_FLAG, _BURN_MAP, _BURN_SETTER_MAP, _FINALE_MAPS,
  _FINALE_BOSS_REWARDS) = _finale_derive()
@@ -1243,6 +1283,47 @@ def _capital_derive():
                 continue  # value-0 trade (remembrance duplication) -- not a check, stays vanilla
             _rows.append((int(_p[0]), _BURN_FLAG, _done))
     _rows.sort()
+    # ---- THE WORLD-STATE FLAGS (SPEC-ashen-capital-lock, probe 2026-08-06) --------------------
+    # $Event(900) does far more than latch 118, and the probe found out the hard way: pre-latching
+    # 118 makes the event short-circuit to EndEvent(), the body never runs, and the Elden Beast's
+    # arena in m19_00 is a VOID that the player falls into and dies in. The body is where the
+    # world's post-burn state lives, so the Ashen Capital Lock has to replay it.
+    #
+    # Derived STRUCTURALLY, not pinned, because a hand constant here is exactly the class of thing
+    # that goes stale silently:
+    #   WORLD-BURN flag = the body's Set-ON target that OTHER MAPS actually READ. Of the body's
+    #     four Set-ONs, the done latch (118) is already claimed above, and of the remaining three
+    #     only ONE has readers anywhere in the corpus. That is the discriminator, and it is a real
+    #     one: 300 is read in m11_00 / m11_10 / m12_03 / m35_00 / m60_42_32, while 301 and 71300
+    #     have ZERO readers in all 589 files (they are param/engine state, not event state).
+    #   PRE-BURN flag = the body's single Set-OFF target, the opposite world state, set by
+    #     $Event(901) (the Melina/Forge ceremony) and cleared on arrival.
+    # Both are count-pinned to exactly one. A second reader-bearing Set-ON, or a second Set-OFF,
+    # means the event changed shape and a human must look -- it must not be guessed at.
+    _set_off = {int(x) for x in re.findall(r"SetEventFlagID\((\d+), OFF\)", _body)}
+    if len(_set_off) != 1:
+        raise SystemExit(f"FATAL: capital: $Event(900) Set-OFF targets {sorted(_set_off)!r} != "
+                         f"exactly one -- the pre-burn state flag is no longer unambiguous")
+    _pre_burn = sorted(_set_off)[0]
+    _readers = {}
+    for _fn in sorted(os.listdir(_EV_DIR_F)):
+        _mm = re.match(r"(m\d\d_\d\d_\d\d_\d\d)\.emevd\.dcx\.js$", _fn)
+        if not _mm:
+            continue      # MAP events only: common.emevd is the setter, it does not count as a reader
+        _t = open(os.path.join(_EV_DIR_F, _fn), encoding="utf-8", errors="replace").read()
+        for _cand in (_set - {_done}):
+            if re.search(r"EventFlag\(%d\)" % _cand, _t):
+                _readers.setdefault(_cand, []).append(_mm.group(1))
+    if len(_readers) != 1:
+        raise SystemExit(
+            f"FATAL: capital: $Event(900) body sets {sorted(_set - {_done})!r} and "
+            f"{len(_readers)} of them are read by map EMEVD ({ {k: v for k, v in _readers.items()} }) "
+            f"-- the world-burn state flag must be exactly one. Re-read the event before re-pinning.")
+    _world_burn = next(iter(_readers))
+    if len(_readers[_world_burn]) < 3:
+        raise SystemExit(f"FATAL: capital: world-burn flag {_world_burn} has only "
+                         f"{_readers[_world_burn]!r} reader map(s) -- the 2026-08-06 scan found 5 "
+                         f"(m11_00, m11_10, m12_03, m35_00, m60_42_32). A shrunken scan is a bad scan.")
     # COUNT PIN (2026-07-14 artifacts): 4 purchase checks release on the burn flag -- Enia's
     # Maliketh armor set, rows 101516-101519 (stock 250160/250170/250180/250190, checks
     # 7770500-7770503). A different number = the inputs or the predicate changed; answer WHICH
@@ -1250,12 +1331,20 @@ def _capital_derive():
     if len(_rows) != 4:
         raise SystemExit(f"FATAL: capital release-row drift: {len(_rows)} rows "
                          f"({[r[0] for r in _rows]}) != the 4 pinned Enia armor rows")
-    return _done, tuple(_rows)
+    # The rest of the body's Set-ONs: replayed for fidelity, but nothing in the corpus reads them,
+    # which is exactly why they are derived as a REMAINDER rather than listed. If one of them ever
+    # gains a reader the count pin above fires first and a human looks.
+    _side = tuple(sorted(_set - {_done, _world_burn}))
+    return _done, tuple(_rows), _world_burn, _pre_burn, sorted(_readers[_world_burn]), _side
 
-(_CAPITAL_BURN_DONE, _CAPITAL_RELEASE_ROWS) = _capital_derive()
+(_CAPITAL_BURN_DONE, _CAPITAL_RELEASE_ROWS, _CAPITAL_WORLD_BURN, _CAPITAL_PRE_BURN,
+ _CAPITAL_WORLD_BURN_READERS, _CAPITAL_BURN_SIDE_EFFECTS) = _capital_derive()
 print(f"capital: burn flag {_BURN_FLAG}, done latch {_CAPITAL_BURN_DONE}; "
       f"{len(_CAPITAL_RELEASE_ROWS)} release row(s) re-keyed "
       f"({[r[0] for r in _CAPITAL_RELEASE_ROWS]})")
+print(f"capital: burn side-effect flags {list(_CAPITAL_BURN_SIDE_EFFECTS)} (no readers)")
+print(f"capital: world-burn state flag {_CAPITAL_WORLD_BURN} (read by "
+      f"{_CAPITAL_WORLD_BURN_READERS}), pre-burn state flag {_CAPITAL_PRE_BURN}")
 # PHANTOM recovery duplicates: a common-event/unplaced `global` flag that names a UNIQUE key item
 # already fully placed elsewhere -- recovering it would inject an extra copy of a singleton key.
 #   1033477020 = a 4th "Imbued Sword Key" (decodes to m60_33_47/Liurnia) that sits in the unplaced
@@ -3383,10 +3472,30 @@ if len(_fin_host_regions) != 1:
     raise SystemExit(f"FATAL: finale: the finale maps span {sorted(_fin_host_regions)} -- the "
                      f"one-kick-owner model (features/finale.py) no longer holds; redesign, do "
                      f"not pick one")
-FINALE_HOST_REGION = next(iter(_fin_host_regions))     # owns the kick geometry; the AP entrance parent
-FINALE_REQUIRES = tuple(sorted({_fin_burn_region, FINALE_HOST_REGION}))
-print(f"finale: requires {FINALE_REQUIRES} (burn trigger in {_fin_burn_region!r}; kick owner "
-      f"{FINALE_HOST_REGION!r})")
+# SPEC-ashen-capital-lock (2026-08-06). The derivation above is UNCHANGED and still runs -- it is
+# what proves the artifacts still say what we think they say -- but its two answers no longer
+# decide the finale's per-seed existence, because the burn is no longer game data. It is an item.
+#
+#   FINALE_BURN_REGION -- the region whose boss fires the VANILLA burn (Maliketh, m13_00 -> Farum
+#       Azula). Still true, still emitted: features/natural_progression.py mints no Lock items at
+#       all, so under that mode the vanilla chain is the only burn there is.
+#   FINALE_KICK_OWNER  -- the region that USED to own the finale maps' kick geometry. Kept for
+#       provenance and for the test that pins why the split happened; region_groups.py has since
+#       moved buckets 11050 + 19000 to the Ashen Capital itself.
+#
+# FINALE_REQUIRES is now EMPTY and FINALE_HOST_REGION is the HUB: the finale exists on every seed
+# with the base game in play, entered from the Roundtable by warping to its own graces, gated in
+# logic on `has("Ashen Capital Lock")` and nothing else. Emitting () rather than deleting the name
+# keeps every consumer (coverage.py provenance, the tests) compiling and makes the emptiness the
+# thing they assert, which is how a quantifier over an empty tuple stops being able to hide
+# (a vacuous `all(...)` passing is the failure mode this spec calls out by name).
+FINALE_BURN_REGION = _fin_burn_region
+FINALE_KICK_OWNER = next(iter(_fin_host_regions))
+FINALE_HOST_REGION = HUB
+FINALE_REQUIRES = ()
+print(f"finale: UNCONDITIONAL on base-game seeds, hosted by {FINALE_HOST_REGION!r} behind "
+      f"{_FINALE_REGION!r} Lock (vanilla burn trigger stays in {FINALE_BURN_REGION!r}; "
+      f"pre-split kick owner was {FINALE_KICK_OWNER!r})")
 
 # ---- GESTURE PICKUPS (matt-free): the checks that never existed --------------------------------
 # The location universe used to be ItemLotParam + shops -- and NO gesture is awarded by any
@@ -4233,9 +4342,18 @@ if {int(_f3) for (_n3, _a3, _f3) in _fin_locs} != set(FINALE_FLAGS):
     raise SystemExit(f"FATAL: finale bucket holds {sorted(_f3 for (_n3, _a3, _f3) in _fin_locs)} "
                      f"but the derivation says {sorted(FINALE_FLAGS)} -- a row was lost/added "
                      f"between _finale_derive and the buckets loop")
-if not set(FINALE_REQUIRES) <= set(spokes):
-    raise SystemExit(f"FATAL: FINALE_REQUIRES {FINALE_REQUIRES} not all rollable regions "
-                     f"({sorted(set(FINALE_REQUIRES) - set(spokes))} missing from spokes)")
+# FINALE_REQUIRES is empty by design now, so a `set() <= spokes` check here would be VACUOUS --
+# green forever, testing nothing. What is still load-bearing is the vanilla burn region, which
+# natural_progression depends on being a real rollable region, and the finale's own bucket set.
+if FINALE_BURN_REGION not in set(spokes):
+    raise SystemExit(f"FATAL: FINALE_BURN_REGION {FINALE_BURN_REGION!r} is not a rollable region "
+                     f"-- natural_progression's vanilla burn chain has no home")
+if FINALE_REQUIRES:
+    raise SystemExit(f"FATAL: FINALE_REQUIRES is {FINALE_REQUIRES!r}, not empty -- the Ashen "
+                     f"Capital Lock model does not force-keep anything (SPEC-ashen-capital-lock)")
+if _FINALE_REGION not in PLAY_REGION_GROUPS:
+    raise SystemExit(f"FATAL: {_FINALE_REGION!r} has no play_region buckets in "
+                     f"region_groups.PLAY_REGION_GROUPS -- its lock could not be kicked-enforced")
 with open(OUT,"w",encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Greenfield ER data; data-derived, no external naming."""\n')
     f.write(f"HUB = {HUB!r}\n")
@@ -4254,15 +4372,21 @@ with open(OUT,"w",encoding="utf-8") as f:
     for _fl3 in sorted(NOT_RANDOMIZED):
         f.write(f"    {_fl3}: {ascii(NOT_RANDOMIZED[_fl3])},\n")
     f.write("}\n")
-    f.write("\n# THE FINALE (conditional; see gen_data._finale_derive). LOCATIONS[FINALE_REGION] is NOT\n")
-    f.write("# in REGIONS (never rollable, no Lock item): features/finale.py creates the region per-seed\n")
-    f.write("# iff every FINALE_REQUIRES member is kept, hangs it off FINALE_HOST_REGION (which owns the\n")
-    f.write("# measured kick geometry: play_regions 11050+19000 in region_groups PLAY_REGION_GROUPS), and\n")
-    f.write("# gates the entrance on every member's Lock. When it exists it IS the goal\n")
-    f.write("# (features/goal_locations.py).\n")
+    f.write("\n# THE FINALE (SPEC-ashen-capital-lock; see gen_data._finale_derive).\n")
+    f.write("# LOCATIONS[FINALE_REGION] is NOT in REGIONS: the Ashen Capital is never ROLLED (num_regions\n")
+    f.write("# never draws it, it is never the start anchor, it is never counted in the kept set) -- but\n")
+    f.write("# it does carry a Lock. features/finale.py builds it on every seed with the base game in\n")
+    f.write("# play, hangs it off FINALE_HOST_REGION (the HUB) and gates the entrance on the single\n")
+    f.write("# synthetic item 'Ashen Capital Lock', whose receipt arms the Erdtree burn in the client.\n")
+    f.write("# FINALE_REQUIRES is EMPTY and stays that way: nothing is force-kept for it.\n")
+    f.write("# FINALE_BURN_REGION is where the VANILLA burn trigger lives, which is all that is left of\n")
+    f.write("# the old rule and is what natural_progression (no Lock items at all) still rides.\n")
+    f.write("# When the finale exists it IS the goal (features/goal_locations.py).\n")
     f.write(f"FINALE_REGION = {_FINALE_REGION!r}\n")
     f.write(f"FINALE_REQUIRES = {FINALE_REQUIRES!r}\n")
     f.write(f"FINALE_HOST_REGION = {FINALE_HOST_REGION!r}\n")
+    f.write(f"FINALE_BURN_REGION = {FINALE_BURN_REGION!r}\n")
+    f.write(f"FINALE_KICK_OWNER = {FINALE_KICK_OWNER!r}\n")
     f.write("\n# CAPITAL-VERSION RECONCILER (SPEC-capital-reconciler.md; gen_data._capital_derive):\n")
     f.write("# burn flag = the m11_00<->m11_05 map-version selector $Event(900) waits on; done = its\n")
     f.write("# monotonic completion latch (client arming gate); release rows = [row, from, to]\n")
@@ -4271,6 +4395,17 @@ with open(OUT,"w",encoding="utf-8") as f:
     f.write(f"CAPITAL_BURN_FLAG = {_BURN_FLAG}\n")
     f.write(f"CAPITAL_BURN_DONE_FLAG = {_CAPITAL_BURN_DONE}\n")
     f.write(f"CAPITAL_RELEASE_ROWS = {_CAPITAL_RELEASE_ROWS!r}\n")
+    f.write("# The WORLD-STATE half of $Event(900) (SPEC-ashen-capital-lock). Without the burn flag\n")
+    f.write("# the m19_00 Elden Beast arena is a VOID -- measured in game 2026-08-06. Derived as the\n")
+    f.write("# body's only Set-ON that map EMEVD actually READ; the reader maps are recorded so a\n")
+    f.write("# future shrink is visible rather than silent. PRE_BURN is the body's Set-OFF target\n")
+    f.write("# (the opposite state, set by $Event(901), the Melina/Forge ceremony).\n")
+    f.write(f"CAPITAL_WORLD_BURN_FLAG = {_CAPITAL_WORLD_BURN}\n")
+    f.write(f"CAPITAL_WORLD_BURN_READER_MAPS = {tuple(_CAPITAL_WORLD_BURN_READERS)!r}\n")
+    f.write(f"CAPITAL_PRE_BURN_FLAG = {_CAPITAL_PRE_BURN}\n")
+    f.write("# The body's remaining Set-ONs -- replayed for fidelity; NO map EMEVD reads either of\n")
+    f.write("# them (that is the very test that singled the world-burn flag out above).\n")
+    f.write(f"CAPITAL_BURN_SIDE_EFFECT_FLAGS = {_CAPITAL_BURN_SIDE_EFFECTS!r}\n")
     f.write("\n# GESTURE PICKUPS (detect-only; see gen_data._gesture_derive): acquisition flag ->\n")
     f.write("# (GestureParam id, goods FullID, FMG name). The award is EMEVD (AwardGesture +\n")
     f.write("# SetEventFlagID), NOT an ItemLotParam row: the client detects via the flag poll but can\n")
@@ -4415,11 +4550,30 @@ _ARENA_GRACE_FLAGS = frozenset({
 # boss -- all 7 Stormveil graces sit on Godrick's tile). Deriving it needs boss ENEMY POSITIONS, which
 # live in the MSBs; only 7 maps are currently unpacked. Once the m60/m61 MSBs are witchy'd, replace this
 # frozenset with: distance(grace.pos, nearest boss enemy spawn) < R  -> skip. See TODO in CONTRIBUTING.
-# m11_05 = Leyndell, Ashen Capital: a POST-ERDTREE-BURN map variant that region_of folds into base
-# Leyndell. Vanilla lights these on the burn; force-lighting them with the Leyndell lock warps you
-# into the ashen capital before you've burned the Erdtree (playtest 2026-07-07: 71123 "Leyndell,
-# Capital of Ash" leaked). Skip -> they light naturally on burn. (State-variant gate: distinct from
-# the boss-bonfire (9005810) and remembrance-arena classes.)
+# m11_05 = Leyndell, Ashen Capital. These were SKIPPED from 2026-07-07 until 2026-08-06, and the
+# reason is worth keeping because it is exactly what the Ashen Capital Lock repeals: the ashen map
+# is a POST-ERDTREE-BURN variant that region_of folded into base Leyndell, so force-lighting its
+# graces with the LEYNDELL lock warped the player into a capital they had not burned (playtest
+# 2026-07-07: 71123 "Leyndell, Capital of Ash" leaked).
+#
+# SPEC-ashen-capital-lock (2026-08-06) gives the region its own lock and its own buckets
+# (region_groups: 11050 + 19000 left Leyndell), so the wrong-lock hazard is gone by construction:
+# PLAY2AP now routes these to 'Ashen Capital', they can only ever ride the ASHEN lock, and that
+# lock IS the burn. They are its grace bundle, so they are no longer skipped.
+#
+# 🛑 THREE of the finale's graces are still withheld -- by OTHER derivations, which outrank this
+# list and must keep doing so. The spec asked for "the bundle 71120-71125"; the generators answer
+# with a smaller set, and they are right, so this is a deliberate divergence and not a shortfall:
+#   * 71120 (Elden Throne) is in _BOSS_GATED_GRACE_FLAGS from the 2026-07-06 sweep -- that bonfire
+#     appears only once Godfrey/Hoarah Loux is dead. Force-lighting it hands out a warp to a grace
+#     that does not exist yet.
+#   * 71121 (Erdtree Sanctuary) is in arena_graces.tsv at distance 0.5 from boss 11050850 -- the
+#     arena-grace oracle's job. Granting it warps you into a live fight. Walk to it.
+#   * 71900 (Fractured Marika, m19_00) is boss-gated too, and independently useless as an entry:
+#     19002502 spawns that bonfire only after the Elden Beast dies (it waits on EventFlag 9123).
+# The bundle is therefore {71122, 71123, 71124, 71125} and the front door is 71122, the ashen East
+# Capital Rampart -- the map's actual doorway, which is a better entry than the throne room anyway.
+# All four are reachable-on-foot from each other, so the withheld three cost a walk, not a check.
 _ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
 # DERIVED arena graces (arena_graces.tsv, tools/datamine_arena_graces.py). THE predicate we actually
 # want, replacing the playtest-scar hand list above:
@@ -4495,8 +4649,12 @@ if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR
 #     boss-defeat state, which is exactly this set. Leyndell keeps its other six; its front door
 #     (71102 East Capital Rampart) and REGION_GRACE_LANDMARKS entry are untouched.
 _STATE_GATED_GRACE_FLAGS = frozenset({71107, 72107, 76314})
+# _ASHEN_LEYNDELL_GRACE_FLAGS is deliberately NOT in this union any more (see its note above): the
+# Ashen Capital owns them now. The set is kept as a named constant because features/capital.py and
+# test_gf_ashen_capital_lock assert the bundle against it -- a silent re-add here would hand the
+# finale's graces back to nobody and the region would be lockable but unreachable.
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
-                     | _ASHEN_LEYNDELL_GRACE_FLAGS | _DERIVED_ARENA_GRACE_FLAGS
+                     | _DERIVED_ARENA_GRACE_FLAGS
                      | _STATE_GATED_GRACE_FLAGS)
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
       f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
@@ -4647,7 +4805,11 @@ def _front_door(r):
                              f"{_GRACE_GROUND.get(_pin)} -- a pin cannot fix a foreign front door.")
         return _pin
     return min(_open_cand_ow[r]) if _open_cand_ow.get(r) else min(_open_cand[r])
-REGION_OPEN_FLAGS = {r: _front_door(r) for r in spokes if _open_cand.get(r)}
+# SPEC-ashen-capital-lock: the finale region is emitted alongside the spokes. It is still NOT
+# rollable (not in REGIONS, never drawn by num_regions) -- but it now carries a real Lock, so it
+# needs a real front door and a real kick-disarm flag of its own instead of borrowing Leyndell's.
+_OPEN_FLAG_REGIONS = spokes + [_FINALE_REGION]
+REGION_OPEN_FLAGS = {r: _front_door(r) for r in _OPEN_FLAG_REGIONS if _open_cand.get(r)}
 
 # ---- GATED CHILDREN GET A SYNTHETIC OPEN FLAG (#278, Fable ruling 2026-08-01) -----------------
 # THE RULE: a gated child's open flag must never BE a grace flag. Setting it has to disarm the
@@ -4717,7 +4879,7 @@ with open(OUT_OPEN, "w", encoding="utf-8") as _f:
     _f.write('contract; derived from grace anchors (matt-free). PENDING = DLC sub-area to resolve in\n')
     _f.write('the region audit (SPEC-PARITY.md 14.4); client treats an absent open flag as unlocked."""\n')
     _f.write("REGION_OPEN_FLAGS = {\n")
-    for _r in spokes:
+    for _r in _OPEN_FLAG_REGIONS:
         if _r in REGION_OPEN_FLAGS: _f.write(f"    {_r!r}: {REGION_OPEN_FLAGS[_r]},\n")
     _f.write("}\n\nREGION_OPEN_PENDING = [\n")
     for _r in REGION_OPEN_PENDING: _f.write(f"    {_r!r},\n")
@@ -4736,7 +4898,7 @@ if REGION_OPEN_PENDING:
 # here minus the kick-excluded buckets (the HUB and the tutorial spawn -- see region_groups).
 OUT_PIDS = os.path.join(HERE, "eldenring", "region_play_ids.py")
 _RPI = _region_play_ids()
-_rpi_unknown = sorted(set(_RPI) - set(spokes))
+_rpi_unknown = sorted(set(_RPI) - set(spokes) - {_FINALE_REGION})
 with open(OUT_PIDS, "w", newline="\n", encoding="utf-8") as _f:
     _f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py).\n')
     _f.write('Region -> play_region ids (kick-watch geometry), the inverse of\n')
@@ -4922,12 +5084,13 @@ MAJOR_BOSS_EXTRAS = {
 def _graces_frontdoor_first(r):
     _fs = sorted(_open_cand[r]); _fd = _front_door(r)
     return [_fd] + [f for f in _fs if f != _fd]
-REGION_GRACE_POINTS = {r: _graces_frontdoor_first(r) for r in spokes if _open_cand.get(r)}
+REGION_GRACE_POINTS = {r: _graces_frontdoor_first(r)
+                       for r in _OPEN_FLAG_REGIONS if _open_cand.get(r)}
 OUT_GRACES = os.path.join(HERE, "eldenring", "region_graces.py")
 with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). All warp graces per major region (grace_flags.tsv). Matt-free."""\n')
     f.write("REGION_GRACE_POINTS = {\n")
-    for r in spokes:
+    for r in _OPEN_FLAG_REGIONS:
         if REGION_GRACE_POINTS.get(r):
             f.write(f"    {r!r}: {REGION_GRACE_POINTS[r]},\n")
     f.write("}\n")

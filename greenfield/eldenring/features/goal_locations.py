@@ -117,8 +117,17 @@ _SPINE_RANK = {r: i for i, r in enumerate(SPINE)}
 # terminal region" and that invariant does not bend. The values are NAMED for bosses because that
 # is how players ask for them; 'elden_beast' resolves to the Ashen Capital's pair (Hoarah Loux is
 # physically on the way -- the Elden Throne is behind his arena -- so the pair adds no detour).
+# 🛑 `elden_beast` FORCES NOTHING as of 2026-08-06 (SPEC-ashen-capital-lock). It used to force-keep
+# ('Farum Azula', 'Leyndell') because the burn was game data and only those two regions could reach
+# it -- which is why `num_regions: 1` produced four regions. The Ashen Capital Lock made the finale
+# reachable from the HUB on any base-game seed, so the forced set is empty and stays empty.
+#
+# ⚠️ An EMPTY forced set makes `core._resolve_goal_choice`'s `all(r in eligible for r in need)`
+# check pass VACUOUSLY -- including under `dlc_only`, where the region it names cannot be built at
+# all. core carries an explicit base-game test for exactly that; do not re-derive the guard from
+# this tuple.
 GOAL_CHOICES = {
-    "elden_beast":      (FINALE_REGION, ("Farum Azula", "Leyndell")),
+    "elden_beast":      (FINALE_REGION, ()),
     "promised_consort": ("Enir Ilim",   ("Enir Ilim",)),
 }
 
@@ -187,7 +196,7 @@ def _is_terminus(region):
                if "MajorBoss" in LOCATION_TAGS.get(aid, ()))
 
 
-def terminal_goal_ids(kept, chosen=None):
+def terminal_goal_ids(kept, chosen=None, finale_built=None):
     """(region, ids) for the goal: tier 0 = the finale's majors iff the finale exists for `kept`
     (see module docstring); tier 1 = majors of the deepest kept region that has any; tier 2 = the
     deepest kept region's non-missable checks. ids may be empty only if tier 2 is too (caller
@@ -202,7 +211,13 @@ def terminal_goal_ids(kept, chosen=None):
         ids = _major_boss_ids(region)
         if ids:
             return region, ids
-    if finale_active(kept):
+    # `finale_built` is the world's own answer (`world.gf_finale_active`) and OUTRANKS the static
+    # re-derivation: features/finale.py decides existence from the seed's ELIGIBLE pool, not from
+    # the draw, so re-asking here with `kept` could disagree on a base-game seed whose draw happened
+    # to take only DLC regions -- two answers to one question, which is how tier 0 and the emitted
+    # region drift apart. The static path stays for the callers that have no world (tests, the yaml
+    # validator).
+    if finale_built if finale_built is not None else finale_active(kept):
         ids = _major_boss_ids(FINALE_REGION)
         if ids:                       # defensive: a finale with no majors falls to the spine walk
             return FINALE_REGION, ids
@@ -229,7 +244,9 @@ class GoalLocations(Feature):
 
     def slot_data(self, world):
         kept = list(world._kept())
-        region, ids = terminal_goal_ids(kept, getattr(world, "gf_goal_choice", None))
+        region, ids = terminal_goal_ids(
+            kept, getattr(world, "gf_goal_choice", None),
+            finale_built=getattr(world, "gf_finale_active", None))
         if not ids:
             raise contract.ContractError(
                 "goal_locations: no achievable goal location exists in the kept set %r -- the seed "

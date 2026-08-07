@@ -1,0 +1,83 @@
+# ============================================================================
+#  GREENFIELD ELDEN RING -- "Ashen Capital Lock" playtest  (v0.3.7)
+# ============================================================================
+#  WHAT THIS SEED IS FOR
+#
+#  The Erdtree burn used to be something the game decided: it happened when
+#  Maliketh died, and Maliketh lives in Crumbling Farum Azula. So the Ashen
+#  Capital, the Elden Throne and the Elden Beast only existed on seeds that
+#  kept BOTH Farum Azula and Leyndell -- and to make an ending possible at
+#  all, the goal quietly forced both of them into every draw. That is why
+#  `num_regions: 1` handed you FOUR regions.
+#
+#  The burn is an ITEM now. `Ashen Capital Lock` is shuffled into the pool
+#  like any other progression item, and when it reaches you the Erdtree burns
+#  and the Ashen Capital's graces light. You warp in from wherever you are.
+#
+#  So this yaml asks for ONE region and should give you exactly one. Play it,
+#  find the Ashen Capital Lock somewhere in it, warp to the Ashen Capital and
+#  go and kill the Elden Beast.
+#
+#  WHAT TO WATCH FOR -- this is a first run of a new mechanism, so the
+#  interesting failures are all in the same five minutes:
+#
+#   1. THE GEN LOG. It should say `num_regions: 1 drawn (<region>)` and, at
+#      most, `+ N parent closure`. If it says `forced by goal=` anything, the
+#      force-keep came back and the headline claim is false.
+#   2. THE LOCK ARRIVES. On receipt you should get four new warp targets in
+#      the Ashen Capital (East Capital Rampart, Leyndell Capital of Ash,
+#      Queen's Bedchamber, Divine Bridge). Elden Throne and Erdtree Sanctuary
+#      are deliberately NOT granted -- one is a bonfire that does not exist
+#      until Godfrey dies, the other stands inside a live boss arena. Walk.
+#   3. 🛑 THE ELDEN BEAST'S ARENA. This is the one that killed the probe on
+#      2026-08-06: with the world-state flag missing, m19_00 is a VOID and you
+#      fall through the floor and die. If the floor is there, the mechanism
+#      works. If it is not, say so immediately and do not keep going.
+#   4. THE ROUNDTABLE. Expect it in its BURNT state after the lock arrives.
+#      That is the current client behaviour and it is known; the follow-up
+#      client PR holds that state by position so the hub stays normal until
+#      you are actually in the capital.
+#   5. ROYAL LEYNDELL, if your draw happened to keep it. The burnt state
+#      disables the Shinmon lift. Nobody has audited whether that strands any
+#      of Royal's ~152 checks -- if a check looks unreachable on foot, that is
+#      the audit, not your imagination.
+#   6. MELINA is alive in a burnt world (we skip the Forge chapter entirely).
+#      Vanilla cannot produce that state. Anything odd from her is a finding.
+#
+#  ⚠️ A ONE-REGION SEED IS DELIBERATELY LEAN. The upgrade economy is at its
+#  floor by design -- every somber tier is present and the early guarantee is
+#  paid, but there is no surplus. If the gen log warns about the stone
+#  reservation, that warning is the feature working, not a bug.
+#
+#  Only ONE yaml in Players\ = a solo seed. Two or more = a multiworld.
+# ============================================================================
+name: bobler
+description: ER v0.3.7 -- one region + the Ashen Capital Lock (the burn as an item)
+game: "Elden Ring"
+
+"Elden Ring":
+
+  # ---- THE POINT OF THIS SEED ----------------------------------------------
+  # One region drawn. Since v0.3.7 the only thing that can add to this is the
+  # parent closure (a region you must pass THROUGH), so expect 1 or 2.
+  num_regions: 1
+  num_regions_order: rolled
+
+  # auto = the Elden Beast on any seed with the base game in play. Left on
+  # `auto` on purpose: the whole claim is that it needs no help.
+  goal: auto
+  ending_condition: region_locks
+
+  # ---- Everything else is the shipped default shape ------------------------
+  item_shuffle: true
+  natural_progression: false
+  dungeon_sweep: bosses
+  capital_reconciler: true        # 🛑 leave ON -- the burn's world state rides it
+
+  enable_dlc: false
+  dlc_only: false
+
+  # Start with one region open, as shipped.
+  start_regions: 1
+
+  deathlink: false

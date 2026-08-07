@@ -32,7 +32,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from Fill import distribute_items_restrictive  # noqa: E402
 from BaseClasses import CollectionState  # noqa: E402
-from worlds.eldenring.data import REGIONS, LOCATIONS  # noqa: E402
+from worlds.eldenring.data import REGIONS, LOCATIONS, HUB  # noqa: E402
 from worlds.eldenring.region_spine import (  # noqa: E402
     REGION_PARENT, GOAL_REGION, SPINE, DLC_REGIONS, compute_kept, parent_chain, base_regions)
 from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
@@ -93,13 +93,35 @@ class TestKeptClosure:
                 for anc in parent_chain(r):
                     assert anc in kept
 
-    def test_goal_region_always_pulls_its_ancestors(self):
-        # Leyndell is always kept on a base seed; its whole chain must ride along (Altus).
-        rng = random.Random(2)
-        kept = compute_kept(1, rng, base_regions())
+    def test_goal_region_pulls_its_ancestors_by_either_route(self):
+        # WAS test_goal_region_always_pulls_its_ancestors: `compute_kept(1, rng, base_regions())`
+        # then `assert GOAL_REGION in kept`. The "always" was true only because compute_kept
+        # force-kept GOAL_REGION under `auto` so the goal DERIVATION was guaranteed a terminus.
+        # SPEC-ashen-capital-lock (2026-08-06) deleted that force-keep -- the goal is the Ashen
+        # Capital now, reached from the HUB behind an item, and `num_regions: 1` has to be able to
+        # keep ONE region. So the capital enters the kept set by exactly two routes, and the
+        # CLOSURE claim (which is what this test is about) is asserted on both.
+        assert parent_chain(GOAL_REGION), (
+            "this test needs the goal region to BE a gated child; if REGION_PARENT ever drops it, "
+            "re-point the test at a child that still has a chain rather than letting it go vacuous")
+        # route 1: an explicit `goal` forces it (features/goal_locations.forced_regions)
+        kept = compute_kept(1, random.Random(2), base_regions(), forced=(GOAL_REGION,))
         assert GOAL_REGION in kept
         for anc in parent_chain(GOAL_REGION):
             assert anc in kept
+        # route 2: the draw happens to take it -- and, the other half of the same fact, sometimes
+        # it does NOT. A force-keep creeping back in would make `drew_it` 200 and red this.
+        drew_it = 0
+        for s in range(200):
+            k = compute_kept(1, random.Random(s), base_regions())
+            if GOAL_REGION in k:
+                drew_it += 1
+                for anc in parent_chain(GOAL_REGION):
+                    assert anc in k, f"drawn goal region without ancestor {anc}: {k}"
+        assert drew_it, "no n=1 draw in 200 seeds took the goal region -- route 2 went vacuous"
+        assert drew_it < 200, (
+            "EVERY n=1 draw kept the goal region: the `auto` force-keep is back, and with it "
+            "bobler's 'num_regions: 1 gave me four regions'")
 
     def test_child_eligible_without_parent_is_a_hard_error(self):
         # An eligible pool that contains a gated child but not its parent is a scope-filter bug;
@@ -396,8 +418,9 @@ class SewerRuneRegressionSeed(WorldTestBase):
     Bloodflame Talons, f510250) -- behind the very wall it opens -- an unrescuable strand that
     post_fill's audit rightly FillErrors. item_rule is the ONE rule can_fill honors even with the
     access check skipped, so the deterministic guard here is: every location in the walled
-    subtree -- the capital AND everything hanging off it (Sewer, Ashen Capital finale) -- must
-    REJECT every gating item outright."""
+    subtree -- the capital AND everything hanging off it (the Sewer) -- must REJECT every gating
+    item outright. (The Ashen Capital finale used to be named here too; it left the subtree on
+    2026-08-06 when SPEC-ashen-capital-lock re-hosted it on the hub. See the test body.)"""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0, "enable_dlc": True, "ending_condition": "region_locks",
@@ -410,7 +433,21 @@ class SewerRuneRegressionSeed(WorldTestBase):
         gated = _gated_region_names(self.world)
         # the derivation must span the KNOWN children -- a rename/reparent that drops one of
         # these must fail here, not resurface as a 1-in-N FillError in someone's overnight gen.
-        assert {"Leyndell", "Sewer", FINALE_REGION} <= set(gated), gated
+        assert {"Leyndell", "Sewer"} <= set(gated), gated
+        # FINALE_REGION was in that set until 2026-08-06, when SPEC-ashen-capital-lock re-hosted
+        # the Ashen Capital from Leyndell to the HUB: you no longer walk to it through the rune
+        # wall, you warp to its own graces once the Ashen Capital Lock arms the burn. It is
+        # therefore genuinely OUTSIDE the walled subtree, and a gating item placed there is
+        # reachable without the gate it opens -- no seed-36 strand. That is a claim about the
+        # region GRAPH, so assert the graph rather than just dropping the name: the finale's only
+        # way in must be the hub. If it is ever re-parented under the capital, this reds and the
+        # bar above has to grow the name back.
+        assert FINALE_REGION not in gated, (
+            f"{FINALE_REGION} is back inside the rune wall -- restore it to the bar above")
+        _fin = self.multiworld.get_region(FINALE_REGION, self.player)
+        assert {e.parent_region.name for e in _fin.entrances} == {HUB}, (
+            f"{FINALE_REGION} must hang off the hub alone; entrances = "
+            f"{[e.parent_region.name for e in _fin.entrances]}")
         gating = [self.world.create_item(nm) for nm in sorted(_GATING_ITEMS)
                   if nm in self.world.item_name_to_id]
         assert gating, "no gating items resolvable from the catalog"

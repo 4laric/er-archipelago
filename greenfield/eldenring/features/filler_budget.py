@@ -155,6 +155,27 @@ def early_stone_supply(world) -> int:
 # need to pick up half of them" -- is the honest number. 12 regular stones, not 24.
 EARLY_GUARANTEE_MARGIN = 2
 
+# ⭐ THE SOMBER RESERVATION FLOOR (Fable ruling 2026-08-06, SPEC-ashen-capital-lock fallout).
+#
+# The economy reservation is PROPORTIONAL (`total * weight // weights`), and nothing sized it
+# against the promise this module makes. That was invisible until `num_regions: 1` could finally
+# keep ONE region: before SPEC-ashen-capital-lock the auto goal force-kept Leyndell and its parent
+# closure added Altus, so the smallest real seed was three or four regions and the proportional
+# share always happened to clear the need. On a genuine one-region seed it does not, and
+# SomberTierPresenceFloor caught it: tiers absent from the pool entirely, and the early guarantee
+# short by one copy of Somber [1..3].
+#
+# A thin REGULAR-stone economy is a pacing problem and degrades with a warning, which is right. A
+# missing somber TIER is a WALL -- a somber weapon can never pass the level below it, in that seed,
+# ever -- and this module's own doctrine is that starvation should be unrepresentable and that the
+# cost is asymmetric, so round up. 12 slots out of a 46-130 slot one-region tail is affordable, so
+# the guarantee is kept rather than degraded.
+#
+# DERIVED, not chosen: one copy of every tier (coverage) plus the extra copies the early guarantee
+# owes on the tiers it covers. Exactly the size at which the in-draw mechanisms can pay BOTH
+# promises with zero slack when vanilla covers nothing.
+SOMBER_RESERVATION_FLOOR = SOMBER_TIERS + (EARLY_GUARANTEE_MARGIN - 1) * EARLY_TARGET_LEVEL
+
 
 def _somber_stone_need(level: int) -> Dict[int, int]:
     """{tier: stones} to take a SOMBER weapon to +level. Somber weapons cost ONE stone per level and
@@ -331,6 +352,27 @@ def allocate(world, total: int) -> Dict[str, int]:
         return alloc
 
     econ = {c: (total * recipe[c]) // weights for c in ECONOMY if c in recipe}
+    # Lift the somber share to SOMBER_RESERVATION_FLOOR when the proportional split lands under it
+    # (see the constant). Only when the recipe actually reserves somber stones -- a recipe with a
+    # zero weight promised nothing and must keep promising nothing -- and never DOWNWARD: a larger
+    # proportional share is a richer seed, not a violation.
+    if econ.get("somber_stones", 0) and econ["somber_stones"] < SOMBER_RESERVATION_FLOOR:
+        _room = total - sum(n for c, n in econ.items() if c != "somber_stones")
+        _want = min(SOMBER_RESERVATION_FLOOR, max(_room, 0))
+        if _want < SOMBER_RESERVATION_FLOOR:
+            # The budget cannot hold the floor at all. Say so BY NAME -- this is the one path where
+            # a somber tier can still be missing, and a silent clamp here is the wall arriving
+            # without a word (CONTRIBUTING: a feature is armed, or it says why not).
+            logging.getLogger("Greenfield").warning(
+                "[eldenring:%s] filler_budget: the somber reservation floor is %d (one copy of "
+                "each of the %d tiers + the early guarantee's extra copies of [1..%d]) but only %d "
+                "slot(s) are left after the other economy categories. Somber tiers may be ABSENT "
+                "from this seed's pool, which is a permanent upgrade wall, not thin supply. Keep "
+                "more regions, or lower the other %s weights.",
+                world.player, SOMBER_RESERVATION_FLOOR, SOMBER_TIERS, EARLY_TARGET_LEVEL,
+                max(_room, 0), "/".join(c for c in ECONOMY if c != "somber_stones"))
+        if _want > econ["somber_stones"]:
+            econ["somber_stones"] = _want
     econ_total = sum(econ.values())
     if econ_total > total:
         raise OptionError(

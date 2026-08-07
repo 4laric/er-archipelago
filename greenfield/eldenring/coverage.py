@@ -272,6 +272,18 @@ class CoverageError(Exception):
 # ---------------------------------------------------------------------------------------------------
 # the JOIN
 # ---------------------------------------------------------------------------------------------------
+def _finale_base_game_in_play(regions) -> bool:
+    """Static mirror of features.finale.base_game_in_play, for the world-less callers.
+
+    Imported lazily and defensively: coverage.py is also run as a standalone gate against a bare
+    checkout, where the features package may not import (it wants Options from Archipelago)."""
+    try:
+        from .region_spine import DLC_REGIONS
+    except Exception:
+        return True
+    return bool(set(regions) - set(DLC_REGIONS))
+
+
 def build_coverage(world=None, kept=None, _static_table=None):
     """Build the per-location coverage records for every EMITTED location this gen.
 
@@ -347,15 +359,22 @@ def build_coverage(world=None, kept=None, _static_table=None):
         scope_kept = list(kept) if kept is not None else list(data.REGIONS)
         placements = {}
     scope = [HUB] + [r for r in scope_kept if r != HUB]
-    # THE FINALE (data.FINALE_REGION): a conditional, never-rollable region features/finale.py
-    # creates iff every FINALE_REQUIRES member is kept. Same predicate here (mirrors
-    # features.finale.finale_active; test_gf_finale pins the two together) so the gate sees the
-    # finale checks exactly when the seed emits them -- a region the gate cannot see is a region
-    # the gate cannot protect.
+    # THE FINALE (data.FINALE_REGION): a never-ROLLABLE region features/finale.py builds on every
+    # seed with the base game in play, behind the synthetic Ashen Capital Lock
+    # (SPEC-ashen-capital-lock). A region the gate cannot see is a region the gate cannot protect,
+    # so the gate must agree with the seed about whether it exists -- and the way to guarantee that
+    # is to ASK THE SEED rather than re-derive. `world.gf_finale_active` is the world's own answer;
+    # the static re-derivation below is only for the callers that have no world (the static table,
+    # the tests), and it deliberately does NOT quantify over data.FINALE_REQUIRES, which is `()`
+    # now and would make this predicate vacuously true on every seed including dlc_only.
     FINALE_REGION = getattr(data, "FINALE_REGION", None)
     FINALE_REQUIRES = tuple(getattr(data, "FINALE_REQUIRES", ()))
-    finale_on = bool(FINALE_REGION and LOCATIONS.get(FINALE_REGION)
-                     and set(FINALE_REQUIRES) <= set(scope_kept))
+    if world is not None and hasattr(world, "gf_finale_active"):
+        finale_on = bool(FINALE_REGION and LOCATIONS.get(FINALE_REGION)
+                         and world.gf_finale_active)
+    else:
+        finale_on = bool(FINALE_REGION and LOCATIONS.get(FINALE_REGION)
+                         and _finale_base_game_in_play(scope_kept))
     if finale_on:
         scope.append(FINALE_REGION)
     GESTURE_AWARD_FLAGS = dict(getattr(data, "GESTURE_AWARD_FLAGS", {}))
@@ -745,30 +764,17 @@ def check_region_consistency(records, ctx):
                                  + repr(rec.region_claims), rec.provenance))
 
     # (2) every region with >=1 emitted location has a valid open flag AND measured kick geometry.
-    #     THE FINALE region has NEITHER of its own, BY DESIGN: it is never rollable, has no Lock
-    #     item, and its maps' kick buckets (11050 + 19000) are measured into Leyndell's
-    #     REGION_PLAY_IDS (region_groups.py). So its enforcement is DELEGATED: assert every
-    #     FINALE_REQUIRES member passes this same check instead -- a delegation to a region that
-    #     itself has no lock/geometry would be the Weeping bug wearing a new name.
+    #     ⭐ THE FINALE NO LONGER GETS AN EXEMPTION. It used to DELEGATE both to Leyndell, because
+    #     it had no Lock of its own and its kick buckets were measured into Leyndell's entry -- and
+    #     a delegation is a weaker promise than the thing it stands in for. SPEC-ashen-capital-lock
+    #     gave it a real Lock, a real front-door open flag and its own buckets (11050 + 19000 left
+    #     Leyndell in region_groups.py), so it goes through the SAME check as every other region.
+    #     Deleting the special case is most of the value of that change: the gate now protects the
+    #     finale directly instead of protecting two other regions and inferring.
     emitted_regions = {rec.region for rec in records.values()}
     hub = ctx["hub"]
-    finale_region = ctx.get("FINALE_REGION")
     for region in sorted(emitted_regions):
         if region == hub:
-            continue
-        if finale_region is not None and region == finale_region:
-            prov = {"delegation": "data.FINALE_REQUIRES", "geometry": "region_groups.py (11050+19000 in Leyndell)"}
-            for req in ctx.get("FINALE_REQUIRES", ()):
-                of = ROF.get(req)
-                if of is None or not region_open_flag_valid(of):
-                    out.append(Violation(None, f"<region {region}>", "region",
-                                         f"finale region {region!r} delegates its lock to {req!r}, "
-                                         f"whose open flag {of!r} is missing/invalid -- the finale "
-                                         f"would be unenforceable", prov))
-                if not RPI.get(req):
-                    out.append(Violation(None, f"<region {region}>", "region",
-                                         f"finale region {region!r} delegates its kick geometry to "
-                                         f"{req!r}, which has NO measured REGION_PLAY_IDS", prov))
             continue
         of = ROF.get(region)
         prov = {"region_open_flag": "region_open_flags.py", "geometry": "region_play_ids.py"}
