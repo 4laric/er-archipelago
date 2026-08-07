@@ -77,6 +77,49 @@ independently and both are yours to find.
 ⚠️ This does **not** yet make it count as a Great Rune. `goal_great_runes` still caps at six and the
 Leyndell gate still counts six, which is a separate change — see below.
 
+### You can open a run on more than one region
+
+bobler, the day v0.3.6 shipped: *"is there an option to start with more than 1 region unlocked?"*
+There was not. There is now -- **`start_regions`** opens N regions at run start instead of exactly
+one.
+
+Everything downstream was already plural-aware, so this changes less than it sounds: every opening
+region is sphere 0, the scaling ramp starts from the whole opening, and the goal subtracts the entire
+opening rather than just the first region.
+
+* **`start_regions: 1` is the old behaviour exactly.** Not "equivalent" -- identical. The first pick
+  is delegated to the untouched one-region draw and makes no further roll, so both the region and the
+  position in the random stream are unchanged and every existing seed still rolls the same way.
+* **The goal region can still win the first draw, but is never an extra.** Around 9% of seeds already
+  open on the region they end in; barring that would change seeds that exist. Handing it out as a
+  bonus region is different -- a run that opens on the region it ends in is not a run.
+* **The ceiling is what your seed actually KEPT**, not what you asked for, and asking for more than
+  that fails loudly with both numbers rather than quietly opening everything. `num_regions` is a draw
+  size, so precollecting every kept region would leave a `has_all` goal complete at connect on a seed
+  you have not played.
+
+### The Scadutree blessing is two settings, and the ceiling is gone
+
+`global_scadutree_blessing` was one option doing two jobs. It is now
+**`scadutree_blessing_scope`** (`dlc_only` or `anywhere`) and **`dlc_blessing_catchup`**. The old key
+still works and translates itself, so existing yamls generate the same seed; setting both the old and
+new keys to contradictory values is an error rather than a silent winner.
+
+The split makes a fourth combination expressible for the first time: **vanilla scope with the
+catch-up floor** -- the blessing behaves exactly as the base game intends, but the DLC never runs
+under its expected level. That one needs a client from this window; an older client would have
+clamped it to off without saying so.
+
+**The ceiling is removed.** The only limit now is the vanilla ladder's own 20. The old cap of 12 was
+never a ceiling argument -- it was a statement about how much of the item pool fragments should eat
+-- so it moved next to the code that actually governs supply, and it moved to 20, because the base
+game hand-places exactly 50 fragment units and 50 units is exactly ladder level 20.
+
+Paying for that without flooding the pool: half the injected fragments now arrive as a new
+**Scadutree Fragment x2**. Fifty units costs 38 items instead of 50. It is a separate item rather
+than a bigger stack on the existing one, because stacking in place would have doubled every
+hand-placed vanilla fragment as well.
+
 ### Three options never reached the wizard
 
 `start_regions`, `scadutree_blessing_scope` and `dlc_blessing_catchup` all landed this window and
@@ -217,6 +260,8 @@ Three small quality-of-life changes on the client:
   for the game to announce.
 * Warping to a grace re-announces the region you land in, so the scaling and lock state of where you
   now are is on screen without a reload.
+* The scaling line says so out loud when scaling is **off**, and prints the whole band rather than a
+  fragment of it -- so "is this region actually scaled" stops being a question you infer.
 
 ## v0.3.6 — 2026-08-06
 
