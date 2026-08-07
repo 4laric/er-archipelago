@@ -319,13 +319,30 @@ def test_the_sweep_corpus_did_not_shrink():
 
         Verified as exactly the tag-changed set, by set-difference rather than inferred from the
         total moving: 0 checks were ADDED to any sweep, 13 were removed, and (added | removed) is a
-        subset of the checks whose LOCATION_TAGS changed in the same regen."""
+        subset of the checks whose LOCATION_TAGS changed in the same regen.
+
+    +3 (2026-08-07, #249 de-dup re-key) 3688 -> 3691. The corpus GREW, and nothing was removed.
+
+        The #249 regen re-keyed the unplaced-global de-dup off the ITEM NAME, which recovered 16
+        locations that the old key had been silently dropping. Three of those 16 sit in
+        sweep-eligible dungeon geometry and are therefore sweep corpus by the same rule as their
+        neighbours -- no rule changed, the input did:
+
+            Raya Lucaria Academy :: Starlight Shards - around Church of the Cuckoo [f400103]
+            Shadow Keep :: Furnace Visage - around Storehouse, First Floor  [f400612]
+            Stormveil :: Erdsteel Dagger - around Castleward Tunnel         [f400221]
+
+        🛑🛑 VERIFIED BY NAME, NOT BY AP ID, AND THE DIFFERENCE IS THE WHOLE POINT. The same regen
+        RENUMBERED the ap id space, so an id-level set-difference reads 615 members added and 612
+        removed -- 1227 lines of pure noise that hide the three real ones. Keyed on the LOCATION
+        NAME it is exactly +3 / -0. An id that resolves is not a match; when a regen can move the
+        id space, only a structural key answers "what actually changed"."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
     # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
     # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
-    assert total == 3688, (
-        "sweep corpus is %d, expected 3688. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3691, (
+        "sweep corpus is %d, expected 3691. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)

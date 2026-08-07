@@ -157,6 +157,18 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             "Note: Imp Shades": (2, 1), "Note: Stonedigger Trolls": (2, 1),
             "Unalloyed Gold Needle": (2, 1), "Whetstone Knife": (2, 1),
             "Memory Stone": (9, 8),
+            # +1 (2026-08-07, #249 de-dup re-key). NOT a spell, so the stop-condition above does
+            # not apply -- this is the same "unique-ish good the pool duplicates past a maxNum of
+            # 1" shape as its neighbours here, and the clamp removing the surplus is correct: the
+            # game will not hold two.
+            #
+            # The re-key off the ITEM NAME recovered a SECOND location carrying this item:
+            #     Liurnia :: Rya's Necklace - from Blackguard        [f400300]   (already present)
+            #     Sewer   :: Rya's Necklace - around Underground Roadside [f400081]  (recovered)
+            # `_pool_copies` counts one copy per location, so pool copies went 1 -> 2 against a
+            # ceiling of 1. Established by diffing LOCATION NAMES across the regen -- the same
+            # regen renumbered the ap ids, so an id-level diff of this data says nothing.
+            "Rya's Necklace": (2, 1),
         }
         # 🛑 NOT ONE OF THE FOUR POT ROWS IS IN THIS LIST, and that is the finding, not an
         # omission: every one of them is UNDER its ceiling on pool copies alone (17<=19, 8<=9,
