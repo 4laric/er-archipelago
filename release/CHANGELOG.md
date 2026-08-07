@@ -167,6 +167,57 @@ upgrade automatically, the upgrade curve stays flattened, and weapons ignore the
 requirements. So it is vanilla *placement* and a vanilla *start*, not vanilla *balance*. It also
 inherits the base game's own missables -- burning the Erdtree still strands Leyndell's checks.
 
+### Rykard's fight now comes with the spear it was built around
+
+Rykard's second phase is designed around the Serpent-Hunter, a unique great spear the base game
+parks on the way to him. A randomizer scatters that spear into the multiworld, so the fight could
+demand a tool you had no way to hold. bobler put it best: *"rykard without serpent hunter is some
+bs"*.
+
+When Rykard loads, you are handed a copy. It is keyed on the CHARACTER, not on the room -- so if you
+are running an enemy randomizer that has moved him somewhere else entirely, the spear follows him
+there. It covers both phases, because the God-Devouring Serpent and Rykard are the same character
+underneath. The copy you are given never collects the check for the real Serpent-Hunter; that one is
+still out in the multiworld for someone to find.
+
+Two things about the timing, both of which took a round of playtesting to get right:
+
+* **The spear goes into your hand when the fight starts**, not when the area loads. It used to arrive
+  the moment you walked into the grace, which meant that under an enemy randomizer the toast
+  announced where Rykard had been swapped to before you could see him.
+* **Weapon auto-equips are held for the duration of that one fight**, so an incoming weapon from
+  another world cannot take the spear out of your hands mid-fight. Armour and talismans keep
+  flowing. Nothing is dropped -- a held weapon equips the moment the fight ends.
+
+⚠️ If an enemy randomizer has moved Rykard OUT of Volcano Manor, whoever inherited his arena gets
+nothing. That is deliberate: the spear is the answer to Rykard, so it goes where Rykard is, not
+where he used to live.
+
+### A check that held an item the game does not have
+
+FromSoft marks cut content by writing `[ERROR]` into the item's name, and it does it two ways: a
+bare `[ERROR]`, and `[ERROR]` followed by the real name. Our guard only knew the bare form.
+
+So goods 8130, `[ERROR]Rya's Necklace`, read as an ordinary named item, and flag f400081 shipped as
+a live check holding something that does not exist in the game. It was never a second copy of Rya's
+Necklace -- the real one is a different item entirely, on a different flag, and is unaffected.
+
+It had a second effect worth naming, because it is the kind that hides: our data strips the marker
+from the name, so the pool believed it held two items called "Rya's Necklace" against a game that
+will only let you carry one. The ceiling clamp then quietly deleted one of them. Both the phantom
+check and the deletion are gone.
+
+### The tracker tells you what a sweep is worth before you fire it
+
+Three small quality-of-life changes on the client:
+
+* The tracker now shows what each boss sweep will hand over, before you kill the boss -- so
+  "is this fight worth the detour" is a question you can answer.
+* "What is my scaling here" is now something you can ask the tracker, rather than something you wait
+  for the game to announce.
+* Warping to a grace re-announces the region you land in, so the scaling and lock state of where you
+  now are is on screen without a reload.
+
 ## v0.3.6 — 2026-08-06
 
 Window opened 2026-08-06, one day after v0.3.5 was tagged — and this time a gate said so rather

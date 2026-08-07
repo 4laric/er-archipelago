@@ -53,6 +53,46 @@ The part worth saying plainly: **this had been true in roughly half of all six-r
 sweeps shipped**, and no gate anywhere asked the question. There is one now, over all 225 sweep
 groups rather than over the one that got reported.
 
+## Rykard, and the spear he assumes you brought
+
+Rykard's second phase is built around one weapon. The base game leaves the Serpent-Hunter on the
+path to him so that you arrive holding it; a randomizer sends it to somebody else's world. bobler,
+who has been playing this build harder than anyone: *"rykard without serpent hunter is some bs"*.
+
+So the fight now brings its own. Walk into Rykard and, if you do not have one, you are handed a
+copy. It is keyed on the character rather than the room, which matters more than it sounds: bobler
+runs an enemy randomizer, and over two of his seeds Rykard turned up in Lamenter's Gaol and then in
+the Chapel of Anticipation. The spear found him both times. It covers the God-Devouring Serpent too
+-- same character underneath -- and it never claims the check for the real Serpent-Hunter, which is
+still out there for someone to find.
+
+Getting the timing right took three passes and we were wrong twice.
+
+The first version handed the spear over on area load, which under an enemy randomizer meant the
+toast told you where Rykard had been swapped to before you could see him. The second held your
+weapon slots from that same moment, so a foreign weapon was silently refused for minutes on the walk
+toward a fight that had not started. Both are fixed: the grant still fires early, because a
+field-spawned Rykard has no healthbar to wait for, but the hold is now keyed on the boss healthbar
+-- the game's own statement that the fight is happening.
+
+Then bobler said the fix was not working: *"no spear whatsoever"*. We could not tell him why, and
+that turned out to be the actual defect. A non-grant was completely silent -- "Rykard was never
+loaded", "you already own one", and "a read failed" all looked identical in the log, which is to say
+they all looked like nothing at all. His log was 13,160 lines and contained no evidence either way.
+
+So we shipped a diagnostic instead of a guess, and it answered in one line on his next session:
+
+    boss-grant: healthbar npc_param 47101038 = chr 4710, IS Rykard |
+    c4710 loaded = yes | already holds the spear = yes -> no grant
+
+The real Rykard, the real spear in his bag, and nothing in his hand. The equip had been riding on
+the one-shot grant, so it fired exactly once per character, ever -- reload, re-fight, or just swap
+weapons afterwards and the spear stayed in the bag while the fight it exists for happened without
+it. It now follows the fight rather than the grant.
+
+One thing this cannot do: if an enemy randomizer has moved Rykard out of Volcano Manor, whoever
+inherited his arena gets nothing. The spear is the answer to Rykard, so it goes where Rykard goes.
+
 ## Known, and honest about it
 
 **The capital gate counts a rune we do not.** Elden Ring opens Leyndell on a count of flags rather
