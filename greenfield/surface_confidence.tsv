@@ -31,14 +31,14 @@
 #
 # MEASURED THIS RUN (recomputed on every emit):
 #   vocabulary 16 class(es) | default surface 9 class(es)
-#   checks 4931 total, 916 carry any tag
+#   checks 4931 total, 978 carry any tag
 #   DEFAULT SURFACE: tag union 199 | hosting 170 | hosting w/ reconciler armed 172 | hosting if missable guard OFF 176
 #
 class	total	tag_excluded	guessed_region	missable	erdtree_burn	surface_excluded	hub_merchant	eligible	eligible_pct	in_default
 Remembrance	25	0	1	1	0	0	0	23	92	yes
 Seedtree	43	0	2	1	2	1	0	37	86	yes
 Church	13	0	0	0	0	1	0	12	92	yes
-Boss	143	0	26	1	0	0	0	116	81	
+Boss	214	0	27	3	0	1	0	184	86	
 Fragment	46	0	0	0	0	7	0	39	85	yes
 Revered	23	0	0	0	0	5	0	18	78	yes
 Basin	15	0	4	0	0	0	0	11	73	
@@ -49,5 +49,5 @@ Legendary	65	28	8	8	3	0	0	47	72
 GreatRune	7	0	0	0	0	0	0	7	100	yes
 KeyItem	19	0	0	4	0	2	0	13	68	yes
 MajorBoss	43	0	3	1	0	0	0	39	91	yes
-LegacyBoss	31	0	0	1	0	0	0	30	97	
-FieldBoss	92	0	22	0	0	0	0	70	76	
+LegacyBoss	42	0	0	2	0	1	0	40	95	
+FieldBoss	95	0	22	0	0	0	0	73	77	

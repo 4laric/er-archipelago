@@ -34,6 +34,13 @@ just says `adds nothing`.
 The count knows about the DLC, so a base-game seed is not offered Scadutree Fragments it cannot
 place.
 
+**Bosses now actually count as bosses.** The `Boss` location class knew about 143 checks; it should
+have known about 214. Bosses hand you their reward through more than one mechanism in the game's own
+scripts, and we were only reading one of them — so more than a hundred bosses whose drops we had
+already catalogued were being treated as ordinary loot. Among other things that means a filler
+"sweep" was handing out things like the Talisman Pouch from the Divine Tower of Caelid, which it
+should never have done, and roughly sixty catacomb and cave bosses now register as bosses at all.
+
 **And a merchant-shaped bug behind it.** `Shop` was quietly NARROWER than `ShopNonSpell`, so asking
 for "all merchants" got you fewer checks than asking for a subset of them. The same gap let a
 buy-only remembrance weapon at Enia sit on the progression surface, and made a Liurnia catacomb boss

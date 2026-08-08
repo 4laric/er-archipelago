@@ -90,6 +90,42 @@ allowed_ap_ids. The number a player chooses on is the number the fill obeys, and
 and the filter only lived in prose, which is enough to make two honest numbers on one page look like
 a defect -- it did, during this work.
 
+### `Boss` was reading one of two reward mechanisms, so it named 143 checks instead of 214
+
+A boss's reward reaches the player more than one way, and the `Boss` location class was derived from
+only the first. Measured over the 244 boss-healthbar rows: **65** award through the common handler that
+carries both the defeat banner and an `itemLotId`; **104** award off a reward flag the map's own event
+script flips; **75** through neither. The first two sets are **disjoint** — zero overlap — so 104
+bosses whose drops had already been datamined were never attributed to the class.
+
+Nothing new was extracted. The same table's `BOSS_REWARD_TILE` has been feeding the tile decoder and
+the LegacyBoss/FieldBoss geography join for weeks; only the tag predicate wasn't reading it.
+
+`Boss` **143 → 214**, `LegacyBoss` 31 → 42, `FieldBoss` 92 → 95, `MajorBoss` unchanged. 62 of the 71
+new checks were previously untagged filler. Location count is unchanged at 4931, so no check moved id.
+
+Three consequences worth stating plainly:
+
+**Eight checks left the filler sweeps, and that is the fix, not the cost.** Talisman Pouch at the
+Divine Tower of Caelid, the Gargoyle's Greatsword on the Underground Roadside, Noble Sorcerer Ashes at
+the Elden Throne and five more are boss drops; a filler sweep should never have been handing them out.
+Sweep corpus 3685 → 3677, with 60 checks re-owned between triggers and **none crossing a region**.
+
+**Three checks entered a dungeon sweep pool and were deliberately allowed.** Omenkiller Rollo's drop,
+the Flamedrake Talisman at Groveside Cave and the Sewing Needle at Coastal Cave are each swept by the
+trigger of the very boss that drops them. Filtering those would mean killing a boss no longer grants
+its own reward. The ratchet that guards this now derives the exemption from the reward table instead of
+listing ids, and all six pre-existing debt rows still fail it — so it got sharper, not looser.
+
+**The reason for having no `Underground` class has expired.** It was "only three catacomb bosses drop
+an AP-tracked check". It is now **60**, because the mechanism just attributed is the mini-dungeon
+reward family. "Exclude the catacombs" is expressible for the first time. Whether to offer it as a
+17th class is a separate, player-facing decision and is not taken here.
+
+Still not "every boss": the 75 rows covered by neither mechanism remain untagged. Dryleaf Dane is one
+of them — his gear is an asset pickup rather than a boss drop, and its check exists today with no tags
+and no item name.
+
 ## v0.3.8 — 2026-08-07
 
 Window opened 2026-08-07, at the tag of v0.3.7 and because somebody remembered rather than because
