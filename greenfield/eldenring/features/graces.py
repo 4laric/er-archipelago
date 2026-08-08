@@ -46,12 +46,13 @@ This RETIRES the two half-shipped grace gates that used to live here:
 Client contract: regionGraces (region.rs) {item_name: [grace_flag,...]} -- light on receipt of ANY
 keyed item. Keys are region Locks; a gated child's Lock maps to [] while its wall is armed.
 """
-from Options import Choice
+from Options import Choice, Range
 
 from ..registry import Feature, register
 from . import vanilla_placement as _vp
 from .. import contract
 from ..region_spine import REGION_PARENT
+from ..region_open_flags import REGION_OPEN_FLAGS
 from ..data import FINALE_REGION as _FINALE_REGION
 
 try:
@@ -165,11 +166,105 @@ class RegionGraceUnlock(Choice):
     default = 0                      # vanilla-to-this-apworld behaviour: no change
 
 
+class GraceAttunement(Range):
+    """Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites
+    of Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --
+    a region Lock lights every grace it has.
+
+    Regions with too few graces to reach the number are left alone entirely, so a two-grace region
+    never ends up with warps it can never open. Requires a client that supports grace attunement;
+    a seed using it refuses an older one rather than connecting and silently ignoring it."""
+    display_name = "Grace Attunement"
+    range_start = 0
+    range_end = 10
+    default = 0
+
+
+class GraceAttunementAnchor(Choice):
+    """Which Site of Grace a region hands you when it unlocks. `front_door` (default) is the
+    region's own entrance, so you always arrive somewhere sensible. `random_grace` picks one of the
+    region's graces instead, which can drop you deeper in and cuts more traversal -- every
+    candidate is a real, physically-present warp point, so it can never strand you in a sealed
+    arena. Only used when Grace Attunement is on."""
+    # 🛑 NOT `option_random`. Archipelago RESERVES "random" on every Choice as the built-in
+    # meta-value that rolls the option itself, and Options.py asserts at CLASS-CREATION time:
+    # "Choice option 'random' cannot be manually assigned." That is an import-time crash for the
+    # whole apworld, not a validation error on a seed -- so the collision is unmissable, but only
+    # once something imports the module.
+    display_name = "Grace Attunement Anchor"
+    option_front_door = 0
+    option_random_grace = 1
+    default = 0
+
+
+# The er-logic client_features SUPPORTED tag. Named once: a handshake whose two halves disagree
+# about the spelling is worse than no handshake.
+_CLIENT_FEATURE_TAG = "grace_attunement"
+
+
+def _attune_split(world, region, bundle):
+    """Split a region's grace bundle into (what the Lock lights now, the attunement gate).
+
+    Returns `(bundle, None)` unchanged whenever the gate does not apply, which is the off default
+    and every case below.
+
+    🛑 SKIPPED FOR SMALL REGIONS, DELIBERATELY. The test is `touchable <= threshold`, and the
+    boundary is `<=` rather than `<` for a reason: a region with EXACTLY `threshold` touchable
+    graces DOES attune, but only on the very last one, and then blooms NOTHING. A banner that fires
+    to grant an empty set is worse than no gate. Below the boundary it is worse still -- the region
+    could never attune at all and its remaining graces would stay dark for the whole run, which
+    reads as a bug rather than a setting. At threshold 4 this skips 12 of the 28 bundled regions
+    and gates 16. Traversal is not the problem in a two-grace region anyway.
+
+    🛑 A WITHHELD BUNDLE IS NEVER GATED. Gated children (REGION_PARENT: Raya Lucaria Academy,
+    Leyndell, Sewer) already emit [] while their vanilla wall is armed -- there is nothing to split,
+    and handing them an anchor would be the 2026-07-14 bug this module exists to prevent (a warp
+    target on the far side of a wall the game enforces).
+
+    THE ANCHOR is the region's own front door by default: REGION_OPEN_FLAGS[region], which is a
+    member of the region's grace points for all 28 bundled regions (the three where it is not are
+    exactly the gated children, which return above). `random_grace` picks any of them -- safe
+    because REGION_GRACE_POINTS already excludes boss-gated and arena graces, so every candidate is
+    a real, physically-present warp point.
+    """
+    threshold = int(getattr(world.options, "grace_attunement", None).value
+                    if getattr(world.options, "grace_attunement", None) is not None else 0)
+    if threshold <= 0 or not bundle:
+        return bundle, None
+    # touchable = everything except the one we are about to hand over
+    if len(bundle) - 1 <= threshold:
+        return bundle, None
+    front = REGION_OPEN_FLAGS.get(region)
+    use_random = bool(getattr(getattr(world.options, "grace_attunement_anchor", None), "value", 0))
+    # 🛑 THE DRAW ONLY HAPPENS WHEN THE OPTION IS ON. Pulling from world.random on a default seed
+    # would move the rng stream and change every rolled seed in existence -- the same rule
+    # region_spine.compute_kept's comment enforces about its rng.sample.
+    if use_random or front not in bundle:
+        # 🛑🛑 MEMOISED, because fill_slot_data() IS CALLED MORE THAN ONCE. Drawing here
+        # directly makes slot_data non-idempotent: the second call rolls a DIFFERENT anchor, so the
+        # bundle from one call and the gate from another disagree about which grace is the anchor
+        # -- one grace duplicated, one lost, and the region's warp network quietly wrong. Found by
+        # the conservation test on 2026-08-08 (it read `region_graces` and `grace_attunement` from
+        # two separate calls, which is exactly what a caller is entitled to do). The cache lives on
+        # the world, so it is per-seed and dies with it.
+        cache = getattr(world, "_grace_anchor_draw", None)
+        if cache is None:
+            cache = world._grace_anchor_draw = {}
+        if region not in cache:
+            cache[region] = world.random.choice(sorted(bundle))
+        anchor = cache[region]
+    else:
+        anchor = front
+    rest = [f for f in bundle if f != anchor]
+    return [anchor], {"threshold": threshold, "members": rest, "bloom": rest}
+
+
 @register
 class RegionGracesFeature(Feature):
     name = "region_graces"
-
-    OPTIONS = {"region_grace_unlock": RegionGraceUnlock}
+    OPTIONS = {"region_grace_unlock": RegionGraceUnlock,
+               "grace_attunement": GraceAttunement,
+               "grace_attunement_anchor": GraceAttunementAnchor}
 
     def slot_data(self, world):
         kept = set(world._kept())
@@ -182,6 +277,7 @@ class RegionGracesFeature(Feature):
             kept = kept | {_FINALE_REGION}
         tier = _grace_tier(world)
         region_graces = {}
+        grace_attunement = {}
         for r, fs in REGION_GRACE_POINTS.items():
             if r not in kept or not fs:
                 continue
@@ -191,9 +287,19 @@ class RegionGracesFeature(Feature):
             # this one is intended.
             # gated child behind an armed wall: grant nothing, at every tier
             bundle = [] if bundle_withheld(world, r) else _bundle_for(r, fs, tier)
+            bundle, gate = _attune_split(world, r, bundle)
+            if gate is not None:
+                grace_attunement[f"{r} Lock"] = gate
             region_graces[f"{r} Lock"] = bundle
         if _vp.is_on(world):
             # No "<Region> Lock" is ever received in this mode, so a bundle keyed to one could
-            # never light. The player lights graces by walking to them, which is the point.
+            # never light. The player lights graces by walking to them, which is the point --
+            # and attunement has nothing to gate for the same reason.
             return {contract.REGION_GRACES: {}}
-        return {contract.REGION_GRACES: region_graces}
+        out = {contract.REGION_GRACES: region_graces}
+        if grace_attunement:
+            out[contract.GRACE_ATTUNEMENT] = grace_attunement
+            # A client that cannot read the key would hand the player ONE grace per region and
+            # never light the rest -- indistinguishable from a broken seed. Refuse instead.
+            out[contract.REQUIRES_CLIENT_FEATURES] = [_CLIENT_FEATURE_TAG]
+        return out

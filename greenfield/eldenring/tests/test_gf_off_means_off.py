@@ -209,6 +209,10 @@ OFF_LEDGER = {
     "dungeonSweeps": _SWEEP_OFF,
     "sweepLockGates": _SWEEP_OFF,
     # --- option-gated keys that already had a real off-test (verified, now ratcheted) ---
+    "graceAttunement": ("off_test",
+                        "test_gf_grace_attunement.py::AttunementOff"
+                        "::test_key_is_absent_when_the_option_is_off",
+                        {"grace_attunement": 0}),
     "flaskLadder": ("off_test",
                     "test_gf_progressive_flasks.py::ProgressiveFlasksOff"
                     "::test_slot_data_emits_no_flask_ladder",
