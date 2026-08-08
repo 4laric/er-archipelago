@@ -61,7 +61,7 @@ def _ver(tag):
         return None
 
 
-def check(path=None):
+def check(path=None, tags=None):
     # 🛑 PATH IS A PARAMETER, NOT A MODULE GLOBAL READ AT DEF TIME. It started as
     # `def rows(path=LEDGER)`, which binds the default ONCE at import -- so the test that proves
     # this gate can fail monkey-patched the global, got the real ledger anyway, and passed while
@@ -70,9 +70,14 @@ def check(path=None):
     bad = []
     if not os.path.isfile(path):
         return ["%s is missing -- the channels have no pointer" % os.path.relpath(path, ROOT)]
-    tags = known_tags()
-    # A shallow clone has no tags at all. Say so and skip the existence check rather than fail every
-    # tag: a gate that reds on a CI checkout depth is a gate people learn to ignore.
+    tags = known_tags() if tags is None else set(tags)
+    # 🛑 A SHALLOW CLONE HAS NO TAGS, AND THE HALF THAT NEEDS THEM THEN DOES NOT RUN. Failing every
+    # row instead would make this red on a checkout depth, which is a gate people learn to ignore --
+    # but a gate that silently reports nothing is the worse of the two, so `main()` PRINTS that the
+    # tag half was skipped (the same shape as check_release_notes' "window: UNCHECKED"). The
+    # authoritative run is the `generators` job, which checks out fetch-depth: 0 + fetch-tags.
+    # `tags` is injectable so this branch is testable without re-cloning at a different depth --
+    # CI red on 2026-08-08: the negative test assumed tags were present and passed vacuously there.
     shallow = not tags
     current = {}
     last_date = {}
@@ -106,6 +111,10 @@ def check(path=None):
 
 
 def main():
+    tags = known_tags()
+    if not tags:
+        print("  tags: UNCHECKED -- no v* tags in this checkout (shallow clone). The "
+              "'is that a real tag' half did NOT run, so a green result here says nothing about it.")
     bad = check()
     if bad:
         print("[FAIL] release/CHANNELS.tsv:")
