@@ -25,6 +25,28 @@ pairs with was wrong, and the cross-side `generators` gate had been proving agre
 client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
 thing. This window starts by moving it.
 
+### Every yaml the wizard produced named a game that does not exist
+
+`buildYaml` carried the game name as a literal, `EldenRing`, while the world has been `Elden Ring`
+for months. So every yaml the wizard emitted -- Copy, Download, and the Generate & host button --
+named a game Archipelago does not have. Copy and Download handed people a file that cannot generate;
+the host button 422'd on every click.
+
+Nothing caught it because the option *keys* are metadata-driven and were correct; only the three
+strings carrying the game name were typed by hand, and no gate read them. The name now comes from
+the metadata, and `tools/check_wizard_census_js.py` runs `buildYaml` under node and fails if the
+emitted yaml names anything else.
+
+### The sidebar could cover the page
+
+Ticking every `progression_surface` class makes one yaml line about 200 characters long. The yaml
+preview is `white-space: pre`, so its min-content width is its longest line -- and the sidebar was a
+flex item without `min-width: 0`, which means it cannot shrink below that. It blew past its 420px
+width, shoved the main column aside and rendered as a panel over the page.
+
+Fixed with `min-width: 0` on the sidebar and wrapping in the preview. The wrapping cannot corrupt
+anything: Copy and Download both call `buildYaml()` rather than reading the element.
+
 ### The Seed size tab carries the options that change it
 
 The figures were on one tab and the knobs that move them on another, so seeing the effect of
