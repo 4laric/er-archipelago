@@ -1,7 +1,7 @@
 # SPEC: the publishing pipeline
 
-**Status:** problem measured, design proposed, ONE decision outstanding (§5). Nothing here is built
-except the version stamp in §4.1, which ships with this document.
+**Status:** problem measured (§1-3), labelling shipped (§4.1, PR #468), channel design proposed
+(§5, Alaric's beta/stable idea). Nothing in §4.2-4.5 or §5 is built. The decisions are in §6.
 
 ## 1. The thing that went wrong, in one paragraph
 
@@ -115,7 +115,7 @@ deny — is the one that is not. Note `DISTRIBUTION.md`'s own argument against m
 mirror produces exactly the mismatched pair the design is trying to prevent"*, and a Nexus upload
 sitting behind the tag is that, precisely.
 
-### 4.5 Gates worth adding once §5 is decided
+### 4.5 Gates worth adding once §6 is decided
 
 * **release job**: on a tag, build the wizard, publish it as a release asset, and (if 4.2 is taken)
   push it to the site — so "deploy" stops being a manual copy.
@@ -123,14 +123,88 @@ sitting behind the tag is that, precisely.
   option surface is behind. A window is *supposed* to be ahead of the tag; the number just has to be
   visible rather than discovered by a player in a comment thread.
 
-## 5. The decision that is not mine
+## 5. Beta stream / stable release
 
-**Does the public wizard track the tag (§4.2) or keep tracking `main`?**
+Alaric's proposal, 2026-08-08, and it subsumes §4.2: instead of one channel that is sometimes ahead
+of itself, run **two**, and say which is which.
 
-Tracking the tag is the honest default and it is what this spec recommends. But it has a real cost:
-a player asking on Nexus for a feature that is already merged would be told "next release", and the
-answer to a Discord ask stops being "it's live" and becomes "it's in the window". That is a
-product call about how this project wants to feel to the people using it, and it belongs to Alaric,
-not to a spec.
+### 5.1 🛑 The channel CANNOT live in the version number. Measured.
 
-Everything else in §4 is compatible with either answer.
+The obvious shape is `0.3.8-beta.1`. It does not work, and the reason is upstream's, not ours:
+
+```
+>>> Utils.tuplize_version('0.3.8')          Version(major=0, minor=3, build=8)
+>>> Utils.tuplize_version('0.3.8-beta.1')   ValueError: invalid literal for int() with base 10: '8-beta'
+>>> Utils.tuplize_version('0.4.0-rc1')      ValueError
+```
+
+`worlds/__init__.py:120` calls `tuplize_version(manifest["world_version"])` when it loads an apworld,
+so a prerelease string in `archipelago.json` is not a cosmetic choice — it is a load-time crash.
+This repo's own gate already says so (`test_gf_apworld_manifest.py`: `world_version` must match
+`^\d+\.\d+\.\d+$`), and `contract.APWORLD_VERSION` is asserted equal to it, so the internal
+number cannot carry a suffix either.
+
+There is history here too: that same test's docstring records the client sitting at **`0.1.0-beta.4`
+against apworld 0.2.0 for months**. A beta suffix has already cost this project a version drift once.
+
+### 5.2 So the channel is a POINTER, not a suffix
+
+Every published build keeps a strict `X.Y.Z` and a tag — which is what happens today. What changes is
+that **the channel names a tag**, and promotion moves the pointer rather than rebuilding anything:
+
+```
+release/CHANNELS.tsv      channel   tag       promoted_on   note
+                          beta      v0.3.9    2026-08-11    keep_local, the sent-out count
+                          stable    v0.3.7    2026-08-02
+```
+
+| | beta | stable |
+|---|---|---|
+| GitHub release | yes, `prerelease: true` (a GitHub flag — costs the version string nothing) | yes |
+| wizard | `/er/beta/`, bannered | `/er/` |
+| Nexus | no | yes |
+| cut when | whenever the window has something worth playing | when a beta has soaked |
+
+Both channels serve a wizard **built at a tag**, so within a channel the page and the download are
+the same build by construction. That is the actual fix from §4.2, and it survives either answer to
+"how often do we cut".
+
+### 5.3 What it costs, honestly
+
+**Cutting becomes the common operation, not the rare one.** A tag is a lockstep bump across four
+version sites in two repos (`contract.py`, `archipelago.json`, the client `Cargo.toml`, the generated
+`contract_gen.rs`), so "cut a beta" is the same ceremony as "cut a release" is today. Betas would
+have to get cheap or they will not get cut. That is the real work in this proposal and it is not in
+the packaging, it is in the bump.
+
+**It is also the fix for a defect we already have.** Right now every commit in an open window reports
+the same `APWORLD_VERSION`, which is exactly the disease `0.2.0 names five contract shapes` was
+filed under and exactly what stalled the dafranky67 diagnosis — a player says "I'm on the new
+version" and is telling the truth about a build nobody can identify. Cutting a numbered beta per
+playable state gives every build a name. CONTRIBUTING rule 15 (contract changes ⇒ version changes)
+already points this way; a beta stream is that rule applied to the window instead of only to the
+release.
+
+### 5.4 Two things found while measuring this
+
+* **The bare `eldenring.apworld` asset does not exist.** `DISTRIBUTION.md` promises two assets per
+  tag — the player bundle and a bare apworld for hosts, with the reasoning that making a host pull
+  "a 10 MB bundle with a game-mod DLL in it, to generate someone else's seed, is friction for
+  nothing". Every release from v0.3.2 to v0.3.7 has exactly **one** asset, and it is **123.7 MB**.
+  The scheme the doc argues for has never shipped, and the friction is twelve times what the
+  argument assumed.
+* **The audience is small** — 9 to 30 downloads per release. Worth knowing before building ceremony:
+  the channel split should cost less than the confusion it removes.
+
+## 6. The decision that is not mine
+
+**How often does stable move?** The channel machinery in §5 is the same either way; what it cannot
+decide is whether stable trails beta by days or by weeks, and that is a judgement about how much a
+stranger on Nexus should be protected from a build that has only been played by one person.
+
+The related one, if §5 is not taken: **does the single public wizard track the tag or `main`?**
+Tracking the tag is the honest default (§4.2). The cost is that someone asking on Nexus for a feature
+that is already merged gets told "next release" instead of "it's live" — a product call about how
+this project feels to use, not a spec's to make.
+
+Everything else in §4 works under any of these answers.
