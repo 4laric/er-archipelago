@@ -146,6 +146,13 @@ jobs:
       - name: Wizard seed-size JS vs Python (differential)
         run: python tools/check_wizard_census_js.py
 
+      # The wizard's option SURFACE cannot drift (it is generated). Its hand-written CONFLICT RULES
+      # could, and did: the shipped wizard warned about `ending_condition: capital`, `world_logic`
+      # and `num_regions_rune_source` -- 20 dead keys in all -- because a rule whose option vanishes
+      # just stops firing, which looks exactly like a rule with nothing to say.
+      - name: Wizard lint-rule currency (rules must name live options)
+        run: python tools/check_wizard_lint_currency.py
+
   # ---------------------------------------------------------------------------------------------
   # 1b. REGEN FROM THE BUNDLE + the fill-regression gate.
   #

@@ -25,6 +25,28 @@ pairs with was wrong, and the cross-side `generators` gate had been proving agre
 client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
 thing. This window starts by moving it.
 
+### The wizard's Checks panel was describing a randomizer that no longer exists
+
+A player reported one stale warning. An audit found **twenty**: the wizard's conflict rules were
+warning about `ending_condition: capital`, `world_logic`, `location_pool`, `random_start_region`,
+`num_regions_rune_source` and fifteen more options that were deleted or renamed months ago. Not one
+rule in the panel was fully valid.
+
+It survived because a rule whose option vanishes simply stops firing -- which looks exactly like a
+rule with nothing to say -- while a rule comparing against a deleted *value* keeps running and can
+never match. The option list itself never drifted, because it is generated; only the hand-written
+advice did, and nothing checked it.
+
+The panel is now a small set of rules that each cite the docstring or test defining the behaviour
+they describe: DLC Only forcing Enable DLC on, a `great_runes` ending collapsing to `region_locks`
+under DLC Only, Local Items Only making `filler_foreign_pct` a no-op, an empty Progression Surface
+turning confinement off, an enemy-difficulty minimum above its maximum, and a note that
+`num_regions` is a draw size pointing at the Seed size panel for the real range.
+
+`tools/check_wizard_lint_currency.py` fails CI when a rule names an option key or choice value that
+no longer exists, so this particular rot cannot return. It cannot tell whether a rule is *true* --
+that stays a human review, which is why each rule now carries its citation.
+
 ### The wizard can hand your seed straight to a host
 
 When the wizard is served from a host that runs the seed-generation endpoint (peliarch), it grows a
