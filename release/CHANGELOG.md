@@ -25,6 +25,22 @@ pairs with was wrong, and the cross-side `generators` gate had been proving agre
 client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
 thing. This window starts by moving it.
 
+### The wizard can hand your seed straight to a host
+
+When the wizard is served from a host that runs the seed-generation endpoint (peliarch), it grows a
+`Generate & host` button: it POSTs the yaml it just built, the host generates the seed and starts a
+room, and you get the room link and connect address back without ever installing Python,
+Archipelago or the apworld.
+
+Same-origin only, deliberately. The wizard also ships as a `file://` page in the release zip, and a
+`file://` page has a `null` origin -- a cross-origin POST from it either fails CORS or forces the
+host to run `Access-Control-Allow-Origin: *` on the one endpoint that spends CPU on a stranger's
+input. Opened from disk, the button is replaced by a line saying where to open it instead, and Copy
+/ Download work exactly as before.
+
+A failed generation shows the generator's own log tail rather than "generation failed" -- that tail
+is the only thing that names which option combination refused to fill.
+
 ### The options wizard tells you how big your seed is before you generate it
 
 Two players asked the same question from opposite ends in two days. bobler asked why
