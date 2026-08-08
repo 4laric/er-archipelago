@@ -80,14 +80,19 @@ GLOB_INPUTS = [
     # boss_reward_lots.py above: gen_data reads it, so omitting it means a stale copy would not
     # invalidate the stamp.
     #
-    # 🛑 IT IS CURRENTLY PARTIAL, AND THAT IS THE POINT OF DECLARING IT. 365 files, and gen_data's
-    # own gesture refusals say so out loud ("NOTHING in the 589-file EMEVD corpus, the decompiled
-    # talk ESD, or ItemLotParam_map sets or awards it ... Re-check when the ESD decompile is
-    # complete"). 2026-08-08 it cost a real answer: Ymir's script is not in the corpus, so the
-    # Metyr prerequisite flags could not be verified from the ESD and had to be traced through
-    # m61_51_45's EMEVD instead. When the decompile is extended on the box, this declaration is what
-    # makes the enlarged corpus move inputs_hash and force a regen, rather than silently widening
-    # what the datamines can see while every stamp still claims to be current.
+    # 🛑 IT IS PARTIAL (365 files), AND THAT IS THE POINT OF DECLARING IT: gen_data's own gesture
+    # refusals say so out loud -- "NOTHING in the 589-file EMEVD corpus, the decompiled talk ESD, or
+    # ItemLotParam_map sets or awards it ... Re-check when the ESD decompile is complete". When the
+    # decompile is extended, this declaration is what makes the enlarged corpus move inputs_hash and
+    # force a regen, rather than silently widening what the datamines can see while every stamp
+    # still claims to be current.
+    #
+    # ⚠️ CORRECTION to this declaration's original justification (2026-08-08): it claimed Metyr's
+    # prerequisite flags "could not be verified from the ESD" because Ymir's script is absent. That
+    # was wrong -- they were never an ESD question. 9440 is set by common.emevd and its two
+    # prerequisites and the door itself are all in m61_51_45's EMEVD, every one of which was already
+    # bundled. The gap was inferred from a failed search rather than established. This input is
+    # still worth declaring on its own merits; the Metyr case is not evidence for it.
     "elden_ring_artifacts/talk/**/*",
     "elden_ring_artifacts/msg/item-msgbnd-dcx/*Name*.fmg.xml",
     "elden_ring_artifacts/msg/item_dlc01-msgbnd-dcx/*Name*.fmg.xml",

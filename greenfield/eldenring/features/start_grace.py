@@ -41,6 +41,25 @@ _FINGERSLAYER_CHEST_GATE = 1034509410
 # a region Lock on them: a hard softlock. (Found in playtest 2026-07-11, seed 22222, Caelid rolled in.)
 # Force the festival on at spawn -- same NPC-prereq bypass as the Ranni chest gate above.
 _RADAHN_FESTIVAL = 9410
+# METYR'S DOOR. Metyr (boss 25000800, m25_00) is reached through an ObjAct on the Cathedral of Manus
+# Metyr's overworld tile, and m61_51_45 event 2051452600 only enables it once BOTH halves are on:
+#     WaitFor(EventFlag(9440) && EventFlag(2051450180));
+#     EnableObjAct(2051451600, 52407);          -- then using it warps you to 25002600 in m25
+# and common.emevd turns 9440 on only after a conjunction of two OTHER tiles' flags:
+#     $Event(9440): WaitFor(EventFlag(2053460600) && EventFlag(2050400600));
+#                   SetNetworkconnectedEventFlagID(9440, ON);
+# 🛑 THOSE TWO TILES ARE IN DIFFERENT REGIONS -- 2053460600 is m61_53_46 (Scadu Altus) and
+# 2050400600 is m61_50_40 (JAGGED PEAK). So a seed that keeps Scadu Altus and seals Jagged Peak can
+# never set 9440: the door never enables, and Metyr's remembrance (510550, tagged Remembrance +
+# MajorBoss) is UNREACHABLE while AP believes her region is open -- fill can strand a region Lock on
+# it. Identical shape to the Radahn festival above, except the dependency crosses a REGION boundary
+# rather than sitting outside one, which is if anything easier to hit.
+# Force it on at spawn, the same NPC/questline-prereq bypass as the three flags above.
+# 🛑 ONLY 9440. The other half, 2051450180, is Ymir's own state on the CATHEDRAL'S OWN TILE
+# (m61_51_45 -- it is the chrEntityId threaded through that map's 90005790..93 NPC lifecycle events),
+# so any seed that can reach the door at all sets it naturally. Forcing an NPC-lifecycle flag would
+# risk his presence and his shop for no reachability gain; the cross-region half is the whole defect.
+_METYR_DOOR = 9440
 # (60100, the Spectral Steed Whistle obtained-flag, used to be appended here unconditionally with
 # start_with_steed. It moved to features/start_items.py uniqueStartGrants: the flag is now set AS
 # PART OF the whistle grant and doubles as its idempotency latch -- see start_items module doc.)
@@ -228,6 +247,7 @@ class StartGrace(Feature):
             graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
         graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
         graces.append(_RADAHN_FESTIVAL)           # start the Radahn Festival so Radahn is fightable
+        graces.append(_METYR_DOOR)                # open Metyr's door (its prereqs cross into Jagged Peak)
         return {
             contract.START_REGION: HUB,
             contract.START_GRACES: graces,
