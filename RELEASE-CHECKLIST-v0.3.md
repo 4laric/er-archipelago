@@ -41,6 +41,9 @@ against it.
 | Fill regression | `fill_regression --selftest` ✅ · `--count 1` 11/11, spill `{0: 11}` |
 | Wizard not drifted | wizard `--check` over 36 options — clean |
 | Repo tooling suites | 11/11 rc=0 under the `generators`-job invocation |
+| **Gitlink == client main** | 🛑 **the row that was missing.** v0.3.7 tagged a pin 5 client merges old; v0.3.8 was 11 behind on the morning of the cut. `generators` cannot see staleness (it checks out the client AT the gitlink); `client-main-drift` sees it and says so with a `::notice::` on non-PR runs only. The tag job now REFUSES a stale pin (`ALLOW_STALE_PIN=1` to override) |
+| Channels ledger | `python tools/check_channels.py` — stable/beta both name real refs |
+| Wizard deployed from the tag | `ER_STATIC_DIR=... tools/deploy_wizard.sh` after promoting `stable` in `release/CHANNELS.tsv` |
 
 ### The one unit failure is a bug in the test, not in the data
 
