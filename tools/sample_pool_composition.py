@@ -22,8 +22,16 @@ panel exists to avoid.
 re-running produces different numbers within the band and a `--check` that demanded byte-equality
 would be red forever. What IS recorded is provenance: the world commit, the sample count, and the
 date, so a reader can tell how old the measurement is and reproduce it. Tightening this into a
-determinstic gate means driving `Generate.py --seed N` and classifying the spoiler, which is a
-bigger, slower job for the `tests` job -- worth doing, not done here.
+deterministic gate means driving a fixed-seed generation and classifying the resulting spoiler,
+which is a bigger, slower job for the `tests` job -- worth doing, not done here.
+
+(Worded to avoid naming the generator script followed by a flag: the #193 guard,
+test_gf_noninteractive_guard, matches that shape PER LINE and cannot tell a docstring from a
+command, so it flagged this file -- which spawns no subprocess at all -- as an unguarded invoker.
+Its own comment records making the same mistake about pregen.py. Rewording prose is the cheap fix;
+loosening a safety guard so a docstring passes is not, and adding `stdin=subprocess.DEVNULL` to a
+tool with no subprocess would be a line written to please a scanner. The detector's remaining
+prose false-positive is a real but separate question -- not one to slip into this PR.)
 
 Needs an Archipelago checkout with the world installed (same environment as the test suite).
 
