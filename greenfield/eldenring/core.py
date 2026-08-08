@@ -1197,6 +1197,12 @@ class GreenfieldEldenRingWorld(World):
             contract.DEATH_LINK: _opt("death_link"),
             contract.ENABLE_DLC: int(dlc_only or enable_dlc),
             contract.NO_WEAPON_REQUIREMENTS: _opt("no_weapon_requirements"),
+            # Two capabilities the client has implemented for months and no seed could turn on --
+            # the apworld never emitted either key, so `parse_bool_option` read false for every
+            # player. features/body_tuning.py declares the options; this is the copy the client
+            # actually reads (no_equip_load.rs / no_fall_damage.rs set_enabled).
+            contract.NO_EQUIP_LOAD: _opt("no_equip_load"),
+            contract.NO_FALL_DAMAGE: _opt("no_fall_damage"),
             # THE COPY THE CLIENT READS. er-logic parse_scaling_config short-circuits on this key
             # (options::parse_bool_option), so it -- not the top-level legacy copy -- is what arms
             # or disarms the whole sweep. It was a BARE LITERAL 4 until 2026-08-06 (#408): a seed

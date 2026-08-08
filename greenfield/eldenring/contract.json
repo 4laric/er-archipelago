@@ -236,6 +236,28 @@
           "doc": "\"use what you get\": nonzero = the client equips every RECEIVED weapon / armour piece the moment it lands in the bag, clobbering the slot (auto_equip.rs enqueue + tick). NOT required: this key is younger than the released clients that read it, and an absent key parses false, which is exactly the off default. That silence is also why a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then never see this key at all."
         },
         {
+          "name": "no_equip_load",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/body_tuning.py)",
+          "consumer": "no_equip_load.rs set_enabled",
+          "doc": "nonzero = equipment weighs nothing, so the player is permanently at light roll. The client zeroes the WEIGHT side with a silent permanent SpEffect because max equip load is recomputed every frame from Endurance. NOT required: the capability is OLDER than every released client that reads it, and an absent key parses false -- which is the off default. No requiresClientFeatures tag for that same reason: emitting one would refuse the connect on every client that already implements it."
+        },
+        {
+          "name": "no_fall_damage",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/body_tuning.py)",
+          "consumer": "no_fall_damage.rs set_enabled",
+          "doc": "nonzero = falling deals no damage (leaving the map still kills). Same age and same no-tag reasoning as no_equip_load above."
+        },
+        {
           "name": "flatten_regular_upgrades",
           "shape": "INT",
           "required": true,
