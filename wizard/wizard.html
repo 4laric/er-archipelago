@@ -2300,6 +2300,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     <h1>Elden Ring Archipelago — Options Wizard</h1>
     <div class="sub">Answer a few questions, get a ready-to-run player yaml. No install needed.</div>
     <div class="sub" id="verstamp"></div>
+    <div id="chanbanner" style="display:none;margin:10px 0;padding:10px 12px;border-radius:6px;
+         background:rgba(186,117,23,.14);border:1px solid rgba(186,117,23,.5);font-size:14px"></div>
   </header>
   <div class="cols">
     <div class="main" id="main"></div>
@@ -3208,6 +3210,32 @@ if (typeof module !== "undefined") module.exports = ERW;
         " draws of the " + size.eligible + " eligible regions.</div>");
   }
 
+  /* ---- WHICH CHANNEL AM I? ---------------------------------------------------------------------
+     The page decides from its own URL rather than being told at deploy time. The alternative was to
+     have the deploy script inject a banner into the HTML, which means a shell script editing markup
+     it did not write -- fragile in the ordinary case and silently wrong the first time the markup
+     moves. `location.pathname` is a fact the page already has.
+
+     `/er/beta/wizard.html` -> beta. Anything else (including `file://`, where a downloaded copy has
+     no channel at all) -> no banner, because a page that cannot tell should not claim. */
+  function currentChannel(){
+    try {
+      return /(^|\/)beta\//.test(location.pathname) ? "beta" : "stable";
+    } catch (e) { return "stable"; }
+  }
+
+  function paintChannelBanner(){
+    const box = $("#chanbanner");
+    if (!box) return;
+    if (currentChannel() !== "beta"){ box.innerHTML = ""; box.style.display = "none"; return; }
+    box.style.display = "";
+    box.innerHTML =
+      "<b>This is the beta wizard.</b> It describes the apworld being built right now, which is " +
+      "newer than the one on the releases page. <b>Options here that your installed apworld does " +
+      "not have are ignored when the seed is generated \u2014 silently, with no error.</b> " +
+      "If you are playing a released build, use <a href='../wizard.html'>the stable wizard</a>.";
+  }
+
   function paintVersionStamp(){
     const box = $("#verstamp");
     if (!box) return;
@@ -3228,6 +3256,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const devs = ERW.deviations(meta, state);
     $("#devcount").textContent = "· " + devs.length + " change" + (devs.length === 1 ? "" : "s") +
       " from defaults · preset: " + state.presetTitle;
+    paintChannelBanner();
     paintVersionStamp();
     renderSeedSize();
     renderHostCard();

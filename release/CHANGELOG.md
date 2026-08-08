@@ -11,6 +11,25 @@ saying it had never happened.
 
 `CONTRACT_HASH` is unmoved at `d7d3a58e`. The version bump is lockstep, not a contract change.
 
+### The wizard is deployed from a ref now, and says which channel it is
+
+`tools/deploy_wizard.sh` puts `wizard/wizard.html` at the **stable tag** on `/er/` and the one at
+`main` on `/er/beta/`, reading which tag is stable out of `release/CHANNELS.tsv` rather than taking
+it as an argument. It fetches rather than builds, so the host needs no checkout.
+
+Reading the host's own `app.py` first saved most of the work: `/er/<path:filename>` matches slashes,
+so `/er/beta/wizard.html` already worked the moment a file was put there. No web-app change.
+
+The page works out which channel it is from its own URL and banners itself in warning colours, with
+a link back to stable -- so the deploy script never edits the HTML, which is the thing that would
+have broken the first time the markup moved. A copy opened from `file://` shows no banner: a page
+that cannot tell should not claim.
+
+🛑 One honest gap, written down rather than papered over: `POST /generate` has a single `AP_ROOT`,
+so both wizards generate with whatever apworld is installed on the box. `generator.generate()`
+already takes the root as a parameter, so the fix is a few lines in `app.py` plus a second AP tree
+(they cannot share one -- both worlds answer to the game name `Elden Ring`).
+
 ### Beta and stable channels, and the bare apworld a host has never been able to download
 
 Stable is **daily** -- which turns out to be the cadence this project already had. Over the 30 tags
