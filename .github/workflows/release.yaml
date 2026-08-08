@@ -1,0 +1,94 @@
+# release.yaml -- on a tag, publish the assets a tag is supposed to carry.
+#
+# WHY THIS EXISTS. release/DISTRIBUTION.md promises TWO assets per tag: the player bundle, and a
+# bare `eldenring.apworld` for hosts -- on the reasoning that making someone who is generating a
+# multiworld download "a 10 MB bundle with a game-mod DLL in it" is "friction for nothing". Measured
+# 2026-08-08: every release from v0.3.2 to v0.3.7 carries ONE asset, the bundle, at 123.7 MB. The
+# scheme the doc argues for has never shipped, because the packer is PowerShell and lives on one
+# Windows box. The bare apworld is 1.3 MB.
+#
+# The bundle stays a Windows-built manual upload -- it contains the client .dll, which this runner
+# cannot build. What moves here is everything that CAN be built from the repo alone, so a tag stops
+# depending on someone remembering to attach it.
+#
+# 🛑 THIS JOB DOES NOT GATE THE TAG. `tests` / `generators` / `regen-and-fill` already ran on the
+# commit; re-running them here would only be able to tell us the tag was a mistake after it was
+# public. It packs and attaches, and it refuses to attach an apworld it could not generate from.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "existing tag to (re)attach assets to"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: The channel ledger names things that exist
+        run: python tools/check_channels.py
+
+      - name: Pack the bare apworld
+        run: |
+          python tools/build_apworld.py -o dist/eldenring.apworld
+          ls -l dist/
+
+      # THE GATE THAT MATTERS. A bare apworld that installs but cannot roll a seed is worse than no
+      # asset at all -- it fails for the host, in their generation, with our name on it. So the zip
+      # is installed into a stock pinned Archipelago and made to generate, exactly the way a host
+      # would use it. package_release.ps1 calls the same idea its "zip-gen gate".
+      - name: The packed apworld generates a seed
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch "$(cat .ap-version)" \
+            https://github.com/ArchipelagoMW/Archipelago.git /tmp/ap
+          python -m pip install --quiet pyyaml schema jsonschema platformdirs certifi colorama \
+            typing-extensions pathspec bsdiff4
+          mkdir -p /tmp/ap/custom_worlds /tmp/players /tmp/out
+          cp dist/eldenring.apworld /tmp/ap/custom_worlds/
+          # The game name comes from the metadata, never a literal -- the wizard shipped yamls
+          # naming "EldenRing" for months because three strings were typed by hand (#463).
+          GAME="$(python -c 'import json;print(json.load(open("wizard/options-metadata.json"))["game"])')"
+          printf 'name: ReleaseSmoke\ndescription: packed-apworld gate\ngame: %s\n\n%s:\n  num_regions: 2\n' \
+            "$GAME" "$GAME" > /tmp/players/smoke.yaml
+          cd /tmp/ap
+          # 🛑 stdin MUST be closed. Generate.py ends with `Press enter to close.` on ANY unhandled
+          # error, so a crash presents as a HANG and the job dies on the runner timeout with the
+          # traceback scrolled off. </dev/null turns the hang back into the crash it is.
+          AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
+            python Generate.py --player_files_path /tmp/players --outputpath /tmp/out \
+            --seed 20260808 --spoiler 3 </dev/null > /tmp/gen.log 2>&1 || {
+              echo "::error::the packed apworld could not generate a seed"; tail -60 /tmp/gen.log; exit 1; }
+          grep -E "^ *${GAME} +:" /tmp/gen.log || true
+          test -n "$(ls /tmp/out/*.zip 2>/dev/null)" || {
+            echo "::error::generation produced no output"; tail -60 /tmp/gen.log; exit 1; }
+          echo "generated: $(ls /tmp/out)"
+
+      - name: Build the wizard asset
+        run: cp wizard/wizard.html dist/er-options-wizard.html
+
+      - name: Attach to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          files: |
+            dist/eldenring.apworld
+            dist/er-options-wizard.html
+          fail_on_unmatched_files: true

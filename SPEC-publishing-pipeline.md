@@ -169,6 +169,53 @@ Both channels serve a wizard **built at a tag**, so within a channel the page an
 the same build by construction. That is the actual fix from §4.2, and it survives either answer to
 "how often do we cut".
 
+### 5.2b The cadence, measured -- daily is already what happens
+
+Alaric, 2026-08-08: *"daily stable is a reasonable cadence, it's kind of the one that i've fallen
+into."* He is right, and it is measurable. Over the 30 tags from `v0.1` (2026-07-04) to `v0.3.7`
+(2026-08-07) -- **34 days** -- the gap between consecutive tags is:
+
+| median | mean | max |
+|---|---|---|
+| **0.82 days** | 1.17 days | 7.4 days |
+
+Some days carry two (`v0.2.12`/`v0.2.13`, `v0.2.14`/`v0.2.15`, `v0.3.2`/`v0.3.3`).
+
+⭐⭐⭐ **This reframes the whole problem.** The release cadence was never the issue -- v0.3.7 was cut
+the day before the skew was noticed, not weeks before. What is missing is not tags, it is that
+**nothing ties the wizard deploy to them**. With stable = the newest tag, the worst-case skew a
+player can hit drops from unbounded to about a day, and beta covers the rest of it honestly.
+
+It also means §5.3's cost is largely already paid: cutting daily is the status quo, not a new
+burden. What has to get cheap is the *publishing*, which is what §5.5 builds.
+
+### 5.5 What ships with this document
+
+* **`release/CHANNELS.tsv`** -- the pointer, append-only, one row per promotion. Promotion is a new
+  row rather than an edit because "when did stable last move, and to what" is a question somebody
+  asks after a bad release, and an overwritten cell cannot answer it.
+* **`tools/check_channels.py`** -- the gate. Asserts every named tag is a real tag, that only `beta`
+  may name a moving ref, that `promoted_on` runs forwards, and that stable is not *ahead* of the
+  newest tag (a promotion cannot precede its cut). 🛑 It deliberately does NOT assert stable ==
+  newest: trailing is the point of a stable channel, and a gate forbidding the only behaviour the
+  channel is for would be worse than none.
+* **`tools/build_apworld.py`** -- packs `greenfield/eldenring` into `eldenring.apworld` in Python,
+  deterministically, so a Linux CI runner can produce the bare asset §5.4 says has never shipped.
+  **1.3 MB against the bundle's 123.7 MB.** Its exclusion list is ported verbatim from
+  `build.ps1 -Apworld` and `test_gf_publish_channels.py` asserts the two still agree by parsing the
+  PowerShell -- two builders of one artifact is two chances to disagree silently, and both would
+  produce a zip that installs.
+* **`.github/workflows/release.yaml`** -- on a tag push, build both, attach them to the release.
+
+Verified end to end rather than assumed: the built zip was dropped into a stock AP 0.6.7
+`custom_worlds/` with the source world removed, and it generated a real seed --
+`Elden Ring : v0.3.8 | Items: 2148 | Locations: 4931`, exit 0, with the new contribution line in the
+spoiler and no "not a valid option" complaints for `keep_local` / `keep_local_rune_cap`.
+
+🛑 **`build.ps1` is NOT repointed at the Python packer here.** It should be -- one builder is the
+end state -- but that is a Windows change and wants Alaric's box to verify, so it is filed rather
+than done blind.
+
 ### 5.3 What it costs, honestly
 
 **Cutting becomes the common operation, not the rare one.** A tag is a lockstep bump across four
@@ -196,15 +243,19 @@ release.
 * **The audience is small** — 9 to 30 downloads per release. Worth knowing before building ceremony:
   the channel split should cost less than the confusion it removes.
 
-## 6. The decision that is not mine
+## 6. Answered, and what is left
 
-**How often does stable move?** The channel machinery in §5 is the same either way; what it cannot
-decide is whether stable trails beta by days or by weeks, and that is a judgement about how much a
-stranger on Nexus should be protected from a build that has only been played by one person.
+**How often does stable move? — DAILY** (Alaric, 2026-08-08), which §5.2b shows is already the
+observed cadence rather than a new commitment. `release/CHANNELS.tsv` starts at
+`stable -> v0.3.7`, `beta -> main`.
 
-The related one, if §5 is not taken: **does the single public wizard track the tag or `main`?**
-Tracking the tag is the honest default (§4.2). The cost is that someone asking on Nexus for a feature
-that is already merged gets told "next release" instead of "it's live" — a product call about how
-this project feels to use, not a spec's to make.
+Left to do, in order of how much they are worth:
 
-Everything else in §4 works under any of these answers.
+1. **Point `/er/` at the stable tag's wizard and `/er/beta/` at `main`'s.** This is the change that
+   removes the skew instead of labelling it, and with a daily stable the trailing cost is a day.
+   Needs a deploy step on the peliarch side; the artifact half is built here.
+2. **`POST /generate` reports the `APWORLD_VERSION` it rolled with** (§4.3).
+3. **Nexus gets a defined role** (§4.4) and a checklist row, and `DISTRIBUTION.md` stops saying
+   "Not on Nexus" while the repo maintains a Nexus description.
+4. **`build.ps1 -Apworld` calls `tools/build_apworld.py`** so there is one packer, not two agreeing
+   by test.

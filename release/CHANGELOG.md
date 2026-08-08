@@ -11,6 +11,28 @@ saying it had never happened.
 
 `CONTRACT_HASH` is unmoved at `d7d3a58e`. The version bump is lockstep, not a contract change.
 
+### Beta and stable channels, and the bare apworld a host has never been able to download
+
+Stable is **daily** -- which turns out to be the cadence this project already had. Over the 30 tags
+from v0.1 to v0.3.7 (34 days) the median gap between tags is **0.82 days**. So the release cadence
+was never the problem; nothing tied the wizard deploy to it. With stable = the newest tag, the worst
+skew a player can hit drops from unbounded to about a day, and beta covers the rest honestly.
+
+Shipping now:
+
+* `release/CHANNELS.tsv` -- which tag each channel points at, append-only, plus
+  `tools/check_channels.py` to keep it honest (every named tag is real, only `beta` may name a
+  moving ref, promotions run forwards, and stable is never ahead of the newest tag). It deliberately
+  does NOT require stable to BE the newest tag: trailing is what a stable channel is for.
+* `tools/build_apworld.py` -- the bare `eldenring.apworld`, packed deterministically in Python so a
+  Linux runner can make it. **1.3 MB, against the player bundle's 123.7 MB.**
+* `.github/workflows/release.yaml` -- on a tag, pack it, PROVE IT GENERATES by installing the zip
+  into a stock pinned Archipelago and rolling a real seed, and attach it to the release along with
+  the wizard.
+
+That last gate is the point: an apworld that installs but cannot roll a seed fails for the host, in
+their generation, with our name on it.
+
 ### A beta/stable channel split, costed
 
 `SPEC-publishing-pipeline.md` gains the design for Alaric's proposal, and one measurement that rules
