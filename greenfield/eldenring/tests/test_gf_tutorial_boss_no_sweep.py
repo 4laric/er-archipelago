@@ -350,6 +350,25 @@ def test_the_sweep_corpus_did_not_shrink():
             Shadow Keep :: Furnace Visage - around Storehouse, First Floor  [f400612]
             Stormveil :: Erdsteel Dagger - around Castleward Tunnel         [f400221]
 
+    -8 (2026-08-08, the SECOND boss reward mechanism) 3685 -> 3677. Diffed by (trigger, flag) as
+        this file demands: **8 LOST, 0 GAINED, 60 RE-OWNED, and ZERO of the re-owned crossed a sweep
+        REGION** -- so the churn is pacing, not reachability (#445's shape is absent).
+
+        The 8 that left are the point of the change, not a cost of it. Each is now `Boss`-tagged
+        because `Boss` began reading the scripted-reward mechanism (BOSS_REWARD_DEFEAT) as well as
+        the handler-drop one, and gen_data's `_filler_only` cut keeps premium classes out of the
+        legacy sweep pool. They are boss drops, so a filler sweep should never have been handing them
+        out:
+
+          7770027 Talisman Pouch (Divine Tower of Caelid)   7770787 Assassin's Cerulean Dagger
+          7770757 Gargoyle's Greatsword (Underground Road)  7770788 Viridian Amber Medallion
+          7770783 Noble Sorcerer Ashes (Elden Throne)       7770791 Death Knight's Twin Axes
+          7770784 Assassin's Crimson Dagger                7770785 Banished Knight Engvall
+
+        The 60 re-owned are the multi-boss divvy re-phasing on its stable modulus -- adding members
+        to a map's pool shifts the phase for everything after them (#363). Every one stayed with a
+        boss in the same region.
+
         🛑🛑 VERIFIED BY NAME, NOT BY AP ID, AND THE DIFFERENCE IS THE WHOLE POINT. The same regen
         RENUMBERED the ap id space, so an id-level set-difference reads 615 members added and 612
         removed -- 1227 lines of pure noise that hide the three real ones. Keyed on the LOCATION
@@ -363,8 +382,8 @@ def test_the_sweep_corpus_did_not_shrink():
     # from the total moving by one.
     # 🛑 THE TOTAL CANNOT SEE A PERMUTATION -- see test_the_sweep_OWNERSHIP_did_not_churn below.
     # The same +3 regen ALSO moved 133 existing members to a different boss.
-    assert total == 3685, (
-        "sweep corpus is %d, expected 3685. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3677, (
+        "sweep corpus is %d, expected 3677. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -410,10 +429,18 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     and 19 in the added set for a change that drops six: the modulus moved, exactly as #363 warned.
     Two neighbours (12080800, 12090800) gained one member each for the same reason.
 
+    2026-08-08 (the second boss reward mechanism, STACKED ON #481): n 3685 -> 3677. 8 removed, 0 added, **60
+    RE-OWNED with zero region crossings** -- the largest re-ownership churn this pin has recorded,
+    and it is benign for the reason the 2026-08-07 entry established: the divvy's phase depends on
+    member-list length, so growing a map's pool re-phases the rest. Checked the way this docstring
+    says to, per-check on both sides of SWEEP_REGION. The digest is re-derived on THIS base rather
+    than carried over from the pre-#481 measurement -- two ownership changes compose, and a digest
+    copied across a rebase would be a number nobody measured.
+
     WHEN THIS FAILS: diff DUNGEON_SWEEPS by (trigger, flag) across the regen and record ADDED,
     REMOVED and RE-OWNED separately. For the re-owned, check SWEEP_REGION on both sides: staying
     inside one region is a pacing change, leaving it is a reachability bug."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("3a3b9d444229dd16", 3685), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (3a3b9d444229dd16, 3685). The total alone will "
+    assert (digest, n) == ("665d2e19fa4a1f16", 3677), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (665d2e19fa4a1f16, 3677). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

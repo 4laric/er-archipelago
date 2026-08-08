@@ -104,6 +104,41 @@ if _redundant:
         "is stale -- re-run it against the full EMEVD dump rather than re-adding the hand entries.)"
         % (len(_redundant), "y" if len(_redundant) == 1 else "ies", _redundant))
 _BOSS_DROP_FLAGS = _BOSS_DROP_FLAGS | _BOSS_DROP_EXTRAS
+
+# ---- THE SECOND REWARD MECHANISM. `Boss` was reading only the first ------------------------------
+# 🔥 A boss's reward reaches the player three different ways, and until 2026-08-08 the `Boss` TAG was
+# derived from ONE of them. Measured over BOSS_HEALTHBARS' 244 rows:
+#
+#   65   BOSS_DROP_FLAGS      the common boss-handler carries BOTH the banner and an `itemLotId`
+#                             (datamine_boss_drops) -- this drove the tag
+#   104  BOSS_REWARD_DEFEAT   common.emevd awards off a reward flag the MAP emevd flips
+#                             (datamine_boss_reward_lots) -- DISJOINT from the above; zero overlap
+#   75   neither              bespoke inline map events, incl. asset-PICKUP rewards
+#
+# So `Boss` described 143 checks when the bosses whose drops we have datamined already covered ~213.
+# `datamine_boss_drops` discovers handlers whose body calls HandleBossDefeatAndDisplayBanner AND whose
+# signature has an `itemLotId` -- only 3 of the 16 award-carrying common handlers do both, and 168 of
+# the 244 rows have no such initialisation at all. GODRICK is one of them: he is wired through the
+# arena-lifecycle handlers 9005800/9005801/9005810/9005811/9005822, which carry no lot.
+#
+# The data for the second mechanism was ALREADY HERE and already trusted -- BOSS_REWARD_TILE has been
+# feeding _recover_tile and the LegacyBoss/FieldBoss geography join for weeks. Only the tag predicate
+# was not reading it. This is attribution, not a datamine.
+#
+# 🛑 KEPT AS A SEPARATE SET, not folded into _BOSS_DROP_FLAGS. They answer different questions
+# ("which item-lot flag does the boss handler award" vs "which reward flag does the map emevd flip"),
+# they are datamined by different tools, and the redundancy guard above is about the HAND list versus
+# ONE derivation. Union them at the predicate; keep the provenance.
+# 🛑 STILL NOT COMPLETE, and the count says so out loud below: the 75 rows covered by neither remain
+# untagged. Dryleaf Dane is one -- his gear is an ASSET PICKUP (common event 90005750, lot 107300,
+# flag 400730), which is a live check carrying no tags at all. Do not read this change as "Boss is
+# now every boss".
+_BOSS_REWARD_FLAGS = frozenset(_BOSS_REWARD_DEFEAT)
+_boss_mech_overlap = _BOSS_DROP_FLAGS & _BOSS_REWARD_FLAGS
+_BOSS_TAG_FLAGS = _BOSS_DROP_FLAGS | _BOSS_REWARD_FLAGS
+print(f"boss reward mechanisms: {len(_BOSS_DROP_FLAGS)} handler-drop flag(s) + "
+      f"{len(_BOSS_REWARD_FLAGS)} scripted-reward flag(s) = {len(_BOSS_TAG_FLAGS)} "
+      f"({len(_boss_mech_overlap)} shared)")
 try:
     _hbspec = _ilu.spec_from_file_location("_boss_hb", os.path.join(HERE, "eldenring", "boss_healthbars.py"))
     _hbmod = _ilu.module_from_spec(_hbspec); _hbspec.loader.exec_module(_hbmod)
@@ -543,7 +578,9 @@ def _loc_tags(r):
     # entity+rewardLot; field/evergaol/dragon, remembrance/great-rune majors excluded). Replaces the
     # old method=='boss_arena' tagging -- those 23 majors were a subset of Remembrance/GreatRune.
     _fl = (r.get('flag') or '').strip()
-    if _fl.lstrip('-').isdigit() and int(_fl) in _BOSS_DROP_FLAGS: t.append('Boss')
+    # BOTH reward mechanisms -- see _BOSS_TAG_FLAGS. Reading only the handler-drop half is what
+    # made `Boss` 143 checks when the datamined bosses already covered ~213.
+    if _fl.lstrip('-').isdigit() and int(_fl) in _BOSS_TAG_FLAGS: t.append('Boss')
     # Dragon Hearts are all dragon-BOSS drops (Alaric 2026-07-09) but many dragons aren't in the
     # datamined boss-healthbar set, so tag the drop itself Boss.
     if 'dragon heart' in nm and not shop and 'Boss' not in t: t.append('Boss')
@@ -7055,10 +7092,18 @@ for _ap in sorted(_MAJOR_AIDS):
 # triggers). Tagging off it labelled 15 DLC OVERWORLD boss checks -- Ghostflame Dragon, Dancer of
 # Ranah, Rugalea -- as legacy-DUNGEON checks, which is just false. One question per function.
 #
-# NO `Underground` TAG, deliberately. 81 catacomb/cave/tunnel/minor-dungeon BOSSES exist, but only
-# THREE of them drop an AP-tracked check: minidungeon rewards are chests in the arena, not the
-# boss's own drop, so `Boss` (= boss-healthbar enemy DROP) barely reaches them. A 3-member
-# player-facing class is noise, and "exclude the catacombs" is not a thing this data can express.
+# 🛑 `Underground` HAS NO TAG, AND ITS JUSTIFICATION IS NOW FALSE. This comment used to read: "81
+# catacomb/cave/tunnel/minor-dungeon BOSSES exist, but only THREE of them drop an AP-tracked check
+# ... a 3-member player-facing class is noise, and 'exclude the catacombs' is not a thing this data
+# can express." That was true while `Boss` read only the handler-drop mechanism. Reading the
+# scripted-reward mechanism too (see _BOSS_TAG_FLAGS) took it from **3 to 60**, because
+# BOSS_REWARD_DEFEAT is precisely the MINI-DUNGEON reward family the old note was dismissing.
+#
+# So 60 underground boss checks now carry `Boss` and NO geography sub-class -- they are the bulk of
+# the 66 Boss-only checks. "Exclude the catacombs" IS expressible now. Whether to offer an
+# `Underground` class is a PLAYER-FACING decision (it would be the 17th, and every one of them costs
+# a wizard row and a surface-confidence row), so it is deliberately NOT taken here. What is taken
+# here is deleting the dead reason: nobody should re-derive "only three" from this file again.
 try:
     _BOSS_GEO = dict(_bmod.BOSS_DROP_GEOGRAPHY)
 except Exception:

@@ -98,16 +98,32 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
     Until then this stops the set GROWING, which is the part that would go unnoticed."""
     from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
     from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
+    from worlds.eldenring.data import LOCATIONS
     important = {"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered", "Basin",
                  "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell", "ShopSlot", "MajorBoss"}
+    # ⭐⭐⭐ THE BOSS'S OWN DROP IS NOT DEBT -- and it is DERIVED, not listed.
+    # 2026-08-08: attributing the second reward mechanism to `Boss` put three checks in this set --
+    # Omenkiller Rollo's drop, the Flamedrake Talisman at Groveside Cave, the Sewing Needle at
+    # Coastal Cave. Each is swept by the trigger of THE VERY BOSS THAT DROPS IT. That is not a sweep
+    # handing out someone else's key item; it is the sweep doing its job, and FILTERING it would mean
+    # killing the boss no longer grants the boss's own reward -- strictly worse than the debt this
+    # ratchet guards. So the exemption is a relation, computed from the same table that made them
+    # `Boss` in the first place: `BOSS_REWARD_DEFEAT[flag_of(ap)] == the trigger sweeping it`.
+    # It cannot be satisfied by adding an id, and a fourth such check needs no edit here.
+    # 🛑 It does NOT weaken the ratchet. All six pre-existing rows FAIL this relation (verified), so
+    # the hand list below is untouched and still carries exactly the real debt.
+    _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
+    own_reward = {ap for trig, members in DUNGEON_SWEEPS.items() for ap in members
+                  if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig}
     found = {ap for members in DUNGEON_SWEEPS.values() for ap in members
              if important & set(LOCATION_TAGS.get(ap, ()))}
-    new = sorted(found - _KNOWN_IMPORTANT_IN_SWEEPS)
+    new = sorted(found - _KNOWN_IMPORTANT_IN_SWEEPS - own_reward)
     assert not new, (
         "%d NEW important-tagged check(s) entered a sweep pool: %s. A sweep that hands out a key "
         "item makes the rung a progression decision. Either filter them out or justify each one "
         "here." % (len(new), new))
-    gone = sorted(_KNOWN_IMPORTANT_IN_SWEEPS - found)
+    gone = sorted(_KNOWN_IMPORTANT_IN_SWEEPS - found)   # own_reward NOT subtracted: a hand row that becomes an own-drop is still stale
     # AUDIT 2026-08-04: this branch used to `warnings.warn` and pass -- ledger decay was silent,
     # the same species as the stale-_EDGE_EXEMPT hole in test_gf_client_resets_are_called (finding
     # P3). A ratchet whose rows outlive the debt stops being read, and staleness is a fact about

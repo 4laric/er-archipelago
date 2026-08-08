@@ -102,7 +102,22 @@ class TagDataTests(unittest.TestCase):
         # (Caelid), f530550 (Mountaintops), f530840 (Cerulean), f530860 (Gravesite) and f530945
         # (Scadu Altus) -- distinct dragon-boss rewards the ITEM-NAME rule had been collapsing
         # into one. Each is a Boss tag following a NEW check, not a re-tag of an old one.
-        self.assertEqual(TAG_COUNTS["Boss"], 143)
+        # ⭐⭐⭐ REBASELINED 143 -> 214 (2026-08-08): `Boss` WAS READING ONE OF TWO REWARD
+        # MECHANISMS. Not a loosened predicate and not new datamining -- an attribution fix. A
+        # boss's reward reaches the player three ways; measured over BOSS_HEALTHBARS' 244 rows,
+        # 65 go through the common handler that carries both the banner and an `itemLotId`
+        # (BOSS_DROP_FLAGS, which drove this tag), 104 through a reward flag the map emevd flips
+        # (BOSS_REWARD_DEFEAT), and 75 through neither. The two sets are DISJOINT -- zero overlap --
+        # so 104 bosses whose drops we had already datamined were simply never attributed.
+        # BOSS_REWARD_TILE from that same table has been feeding _recover_tile and the
+        # LegacyBoss/FieldBoss join for weeks; only the tag predicate was not reading it.
+        # +71 checks, of which 62 were UNTAGGED FILLER before (5 Legendary, 3 Seedtree, 1 KeyItem
+        # keep their tags and add Boss). Alaric called the size: "that sounds more like the correct
+        # size, how many bosses there are".
+        # 🛑 STILL NOT "every boss": the 75 covered by neither mechanism remain untagged, Dryleaf
+        # Dane among them (his gear is an ASSET PICKUP -- common event 90005750, lot 107300, flag
+        # 400730 -- which is a live check carrying no tags at all).
+        self.assertEqual(TAG_COUNTS["Boss"], 214)
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -257,7 +272,10 @@ class TagDataTests(unittest.TestCase):
     def test_boss_geography_counts(self):
         """LegacyBoss / FieldBoss split `Boss` by WHERE the boss stands. Drift guard on both."""
         # 30 -> 31 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
-        self.assertEqual(TAG_COUNTS["LegacyBoss"], 31)
+        # 31 -> 42 (2026-08-08): the second reward mechanism (see TAG_COUNTS["Boss"] above). The
+        # geography pass already joined via BOSS_REWARD_TILE, so these followed the Boss tag with no
+        # further change -- which is the evidence the two halves were always meant to be one.
+        self.assertEqual(TAG_COUNTS["LegacyBoss"], 42)
 
         # 2026-08-04 (#249): +3. Placing the unplaced common-event rows gave THREE field
         # bosses a check for the first time -- their unique drop had no tile, so it was never a
@@ -266,7 +284,13 @@ class TagDataTests(unittest.TestCase):
         # above them, reached by derivation instead of by hand. NOT a rebaseline: the three are
         # named, and each is a Boss tag that follows a NEW check, not a re-tag of an old one.
         # 87 -> 92 (2026-08-07, #249): the same five Dragon Hearts as TAG_COUNTS["Boss"] above.
-        self.assertEqual(TAG_COUNTS["FieldBoss"], 92)
+        # 92 -> 95 (2026-08-08): same cause. Note the asymmetry -- +11 legacy, +3 field, and
+        # **+57 UNDERGROUND** (3 -> 60), which carries NO tag. BOSS_REWARD_DEFEAT is the
+        # MINI-DUNGEON reward family, so the bulk of it lands in catacombs/caves/tunnels. That
+        # retires the stated reason for having no `Underground` class ("only THREE of them drop an
+        # AP-tracked check"); gen_data's comment is corrected, and whether to OFFER the class is
+        # left as a player-facing decision.
+        self.assertEqual(TAG_COUNTS["FieldBoss"], 95)
 
     def test_geography_tags_are_subsets_of_boss_and_disjoint(self):
         """Definitional, so these are gates, not preferences: a legacy/field boss IS a boss, and no
