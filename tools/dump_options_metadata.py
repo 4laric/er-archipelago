@@ -159,7 +159,8 @@ def load_gfoptions(ap_dir):
     with open(os.devnull, "w") as devnull, \
             contextlib.redirect_stderr(devnull), contextlib.redirect_stdout(devnull):
         from worlds.eldenring.core import GFOptions
-    return GFOptions, pin
+        from worlds.eldenring.contract import APWORLD_VERSION
+    return GFOptions, pin, APWORLD_VERSION
 
 
 def describe(key, cls):
@@ -221,7 +222,7 @@ def describe(key, cls):
 
 def extract(ap_dir):
     import dataclasses
-    GFOptions, pin = load_gfoptions(ap_dir)
+    GFOptions, pin, apworld_version = load_gfoptions(ap_dir)
     from Options import PerGameCommonOptions
     # The yaml-tunable ER surface = the fields GFOptions ADDS on top of PerGameCommonOptions
     # (make_dataclass order = registry order, already minus FROZEN_OPTIONS).
@@ -257,6 +258,20 @@ def extract(ap_dir):
     return {
         "schema": 1,
         "game": GAME,
+        # WHICH APWORLD THIS OPTION SURFACE BELONGS TO. The wizard is a static page and gets
+        # deployed on its own schedule, so it is routinely AHEAD of the apworld a player has
+        # installed -- and Archipelago does not stop that: an option the installed world has never
+        # heard of prints ONE line ("<key> is not a valid option name for Elden Ring"), buried in
+        # the world-loader's noise, and the seed generates WITHOUT it. Measured on AP 0.6.7,
+        # 2026-08-08, exit 0. That is a silent wrong answer, which is the failure class this repo
+        # spends most of its gates on, arriving through the one surface that had no gate at all.
+        #
+        # It cannot be fixed from inside the page -- the page does not know what the player
+        # installed -- so the fix is to make the pairing VISIBLE at both ends: the version is shown
+        # in the wizard header, and it rides into the emitted yaml's `description`, which
+        # Archipelago prints in the generation log ("P1 Weights: x.yaml >> <description>") and
+        # stores in the multidata. A host debugging a seed can then read which wizard wrote it.
+        "apworld_version": apworld_version,
         "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP %s)" % pin,
         "source_sha256": hashlib.sha256(surface.encode("utf-8")).hexdigest(),
         "field_order": field_order,
