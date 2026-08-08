@@ -96,9 +96,20 @@ SHIPPED = {
     # the v0.3.8 window-open. Worth stating plainly because that window's changelog claims it was
     # opened deliberately rather than by a red gate: the OPEN was, this row was not.
     #
-    # 🛑 0.3.8 DOES NOT BELONG HERE. It is the open window, not a shipped version. Its row goes in
-    # when v0.3.8 is tagged, and this test is what will say so.
     "0.3.7": "d7d3a58e",
+    # v0.3.8 TAGGED 2026-08-08 at 0fc20b0, shipping d7d3a58e -- contract unmoved from 0.3.7, so the
+    # bump was version-lockstep for the pool-locality/wizard-channels window.
+    #
+    # 🛑 THE COMMENT THIS REPLACES SAID IT WOULD HAPPEN AND IT DID, AGAIN: "0.3.8 does not belong
+    # here. Its row goes in when v0.3.8 is tagged, and this test is what will say so." The row is
+    # owed the moment the tag exists, and `test_every_tagged_version_is_recorded_as_shipped` asks
+    # `git tag` -- so it reddens the FIRST job to run past the tag, whatever that job is about. The
+    # `tests` job cannot catch it (shallow checkout, no tags); `generators` can and does.
+    #
+    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.3.9 does NOT belong here while its window is open.
+    # Its row goes in when v0.3.9 is tagged. Adding an open version here is what 0.3.7's row was
+    # removed for.
+    "0.3.8": "d7d3a58e",
 }
 
 

@@ -3,6 +3,34 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.9 — 2026-08-08
+
+Window opened the same day v0.3.8 shipped, and opened by a RED GATE rather than by anyone
+remembering: `check_release_notes` refused the first commit to land past the tag, because
+`APWORLD_VERSION` still named a version that had already been published. That is the gate doing
+exactly its job -- v0.3.8's notes had two commits' worth of changes written into a section a player
+would read as shipped -- and it is worth recording next to the v0.3.8 entry, which had just finished
+celebrating the first window in five to be opened on purpose. One swallow.
+
+`CONTRACT_HASH` is unmoved at `d7d3a58e`. The bump is version-lockstep, not a contract change, so a
+v0.3.8 client still handshakes.
+
+### Two things the v0.3.8 tag broke on its way out
+
+**A regen on the Windows box cannot produce the input hash CI expects, and one got committed.**
+`test_D_freshness_vs_disk` recomputes the manifest from the repo tree; the box's answer and CI's
+differ by 593 declared inputs (the raw `.dcx` event binaries -- the committed bundle carries the
+decompiled form) plus `gen_data.py` itself differing in bytes at the same path, which on a Windows
+checkout is line endings. Neither is fixable by regenerating harder; they are two legitimate input
+sets. The generated CONTENT was byte-identical either way -- all eleven module `body_sha256` values
+and every count unchanged -- so the bundle-derived stamp was restored and nothing was lost. The rule
+this leaves behind: regenerate on the box if you like, but commit the bundle-derived stamp, and land
+it through a pull request so the gate runs before `main` sees it.
+
+**The shipped ledger owed the tag its row.** `"0.3.8": "d7d3a58e"`, added. The comment it replaced
+predicted it in as many words, and the fixture now says the same thing about 0.3.9, because it will
+be true again.
+
 ## v0.3.8 — 2026-08-07
 
 Window opened 2026-08-07, at the tag of v0.3.7 and because somebody remembered rather than because
