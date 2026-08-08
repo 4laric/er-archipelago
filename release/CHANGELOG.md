@@ -25,6 +25,17 @@ pairs with was wrong, and the cross-side `generators` gate had been proving agre
 client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
 thing. This window starts by moving it.
 
+### The Seed size tab carries the options that change it
+
+The figures were on one tab and the knobs that move them on another, so seeing the effect of
+narrowing your progression surface meant walking back and forth. `num_regions`, `enable_dlc`,
+`dlc_only`, `progression_surface` and `confine_foreign_progression` now render on the Seed size tab
+itself, and the numbers repaint as you change them.
+
+They are the same controls over the same state, not copies -- a change here is a change in its own
+section and in the yaml, immediately. The figures repaint on change; the controls deliberately do
+not, because rebuilding a checkbox mid-click drops focus.
+
 ### Seed size is now the wizard's second tab
 
 "How many checks is this, and how much of it is junk?" is the question people actually arrive with,
