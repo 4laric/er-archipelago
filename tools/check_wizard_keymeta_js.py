@@ -18,6 +18,23 @@ in ways every existing gate is blind to:
    lattice as a comment and the comment was BACKWARDS for months (it called MajorBoss a subset of
    Remembrance/GreatRune; it is their superset). A comment cannot be executed. This can.
 
+3. THE NUMBER ON THE BOX CAN DRIFT FROM THE NUMBER THE FILL OBEYS. The grid shows what each class
+   contributes to the surface (`ERW.surfaceMarginals`), computed in JS from the region census. That
+   is the figure a player chooses on. This gate closes the loop on it three ways: JS == an
+   independent Python evaluation; single-class totals == the `eligible` column of
+   greenfield/surface_confidence.tsv; and the default selection's total == that file's headline
+   hosting number. surface_confidence is itself pinned to `features/progression_surface
+   .allowed_ap_ids` by test_gf_surface_confidence, so the chain is
+   **wizard JS == Python == surface_confidence == allowed_ap_ids**, i.e. the number a player reads is
+   the number the fill obeys. Nothing else in the repo executes that JS.
+
+   NOT COVERED HERE, on purpose: whether the census's per-region `dlc` flags are right. The
+   cross-check runs DLC-on, so corrupting those flags does not move it -- verified by mutation.
+   `test_gf_region_census.test_check_count_identity_against_real_worlds` builds REAL worlds with
+   `enable_dlc: False` and `dlc_only: True` among its cases, which pins them harder than anything
+   this file could assert about a json blob. Duplicating it here would only add a second thing to
+   keep in step.
+
 WHY A DIFFERENTIAL, not an assertion: the Python side below re-derives coverage from `contains`
 independently, and the expectation for the load-bearing case is pinned to the LIVE tag data rather
 than typed -- `MajorBoss` really does contain `Remembrance`, and the gate asserts the pair from the
@@ -68,6 +85,67 @@ def _metadata(html):
 
 def _keymeta_options(meta):
     return [o for o in meta["options"] if o.get("key_meta")]
+
+
+def _census(html):
+    m = re.search(r'<script id="er-region-census" type="application/json">\n(.*?)</script>',
+                  html, re.S)
+    return json.loads(m.group(1)) if m else None
+
+
+def _tsv_eligible():
+    """{class: eligible} from the committed surface_confidence.tsv, plus its headline hosting total.
+
+    Read from the ARTIFACT rather than recomputed, on purpose: the artifact is what
+    test_gf_surface_confidence pins to allowed_ap_ids, so agreeing with it is agreeing with the
+    fill. Recomputing here would just be a third implementation to keep in step.
+    """
+    path = os.path.join(ROOT, "greenfield", "surface_confidence.tsv")
+    if not os.path.isfile(path):
+        return None, None
+    cols, out, hosting = None, {}, None
+    for line in open(path, encoding="utf-8"):
+        line = line.rstrip("\n")
+        if line.startswith("#"):
+            m = re.search(r"hosting (\d+) \|", line)
+            if m and hosting is None:
+                hosting = int(m.group(1))
+            continue
+        parts = line.split("\t")
+        if cols is None:
+            cols = parts
+            continue
+        row = dict(zip(cols, parts))
+        out[row["class"]] = int(row["eligible"])
+    return out, hosting
+
+
+def py_marginals(census, selected, enable_dlc=True, dlc_only=False):
+    """Reference implementation of ERW.surfaceMarginals. Exact set arithmetic over tag COMBINATIONS."""
+    R = census["regions"]
+    in_play = [n for n, r in R.items() if (r["dlc"] if dlc_only else (enable_dlc or not r["dlc"]))]
+
+    def hits(sel):
+        sel = set(sel)
+        n = 0
+        for name in in_play:
+            for combo, cnt in R[name]["combos"].items():
+                if sel & set(combo.split("|")):
+                    n += cnt
+        return n
+
+    cur = set(selected or ())
+    total = hits(cur)
+    marginal = {}
+    for cl in census.get("classes", ()):
+        probe = set(cur)
+        if cl in cur:
+            probe.discard(cl)
+            marginal[cl] = total - hits(probe)
+        else:
+            probe.add(cl)
+            marginal[cl] = hits(probe) - total
+    return {"total": total, "marginal": marginal, "regions": len(in_play)}
 
 
 def py_coverage(km, selected):
@@ -135,6 +213,21 @@ def lattice_faults(o):
     return faults
 
 
+def _run_node_marginals(core, census, cases):
+    harness = (core + "\nconst __census = " + json.dumps(census) + ";\n"
+               + "const __cases = " + json.dumps(cases) + ";\n"
+               + "console.log(JSON.stringify(__cases.map(c => ERW.surfaceMarginals("
+                 "__census, c.selected, {enableDlc: c.enableDlc, dlcOnly: c.dlcOnly}))));\n")
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "marginals.js")
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(harness)
+        out = subprocess.run(["node", path], capture_output=True, text=True)
+    if out.returncode != 0:
+        sys.exit("[FAIL] node marginals harness failed:\n" + (out.stderr or "")[-4000:])
+    return json.loads(out.stdout.strip().splitlines()[-1])
+
+
 def _run_node(core, cases):
     harness = (core + "\nconst __cases = " + json.dumps(cases) + ";\n"
                + "console.log(JSON.stringify(__cases.map(c => "
@@ -200,11 +293,66 @@ def main(argv=None):
     if not fired:
         bad.append("surfaceCoverage returned {} for every case -- the gate is vacuous")
 
+    # ---- the marginal counts: JS == Python == surface_confidence.tsv ----------------------------
+    census = _census(html)
+    mg_cases = 0
+    if census is None:
+        bad.append("wizard.html has no injected region census -- the surface grid cannot show what "
+                   "any box is worth, and this half of the gate would pass vacuously")
+    else:
+        classes = list(census.get("classes") or ())
+        default = list(census.get("default_classes") or ())
+        MG_CASES = [
+            {"selected": default, "enableDlc": True, "dlcOnly": False},
+            {"selected": default, "enableDlc": False, "dlcOnly": False},
+            {"selected": ["Boss"], "enableDlc": True, "dlcOnly": False},
+            {"selected": ["Boss", "MajorBoss", "FieldBoss"], "enableDlc": True, "dlcOnly": False},
+            {"selected": ["Shop", "ShopSlot"], "enableDlc": True, "dlcOnly": False},
+            {"selected": [], "enableDlc": True, "dlcOnly": False},
+            {"selected": classes, "enableDlc": True, "dlcOnly": False},
+            {"selected": default, "enableDlc": True, "dlcOnly": True},
+        ]
+        got = _run_node_marginals(_core(html), census, MG_CASES)
+        for case, g in zip(MG_CASES, got):
+            want = py_marginals(census, case["selected"], case["enableDlc"], case["dlcOnly"])
+            if g != want:
+                bad.append("surfaceMarginals %s: JS != Python\n         JS     %s\n         Python %s"
+                           % (case, g, want))
+        mg_cases = len(MG_CASES)
+
+        # 🛑 THE LOAD-BEARING CROSS-CHECK. A single-class selection's total must equal that class's
+        # `eligible` count in surface_confidence.tsv, which test_gf_surface_confidence pins to
+        # allowed_ap_ids. Two independent computations over two different generated artifacts.
+        elig, hosting = _tsv_eligible()
+        if not elig:
+            bad.append("greenfield/surface_confidence.tsv is missing -- the wizard's numbers would "
+                       "be ungated against the fill")
+        else:
+            singles = _run_node_marginals(
+                _core(html), census,
+                [{"selected": [c], "enableDlc": True, "dlcOnly": False} for c in classes])
+            for cl, g in zip(classes, singles):
+                if cl not in elig:
+                    bad.append("%s is in the census but not priced in surface_confidence.tsv" % cl)
+                elif g["total"] != elig[cl]:
+                    bad.append("%s: the wizard would show %d hosting locations, surface_confidence"
+                               ".tsv says %d eligible -- the number a player chooses on has drifted "
+                               "from the number the fill obeys" % (cl, g["total"], elig[cl]))
+            if hosting is not None:
+                dflt = _run_node_marginals(
+                    _core(html), census,
+                    [{"selected": default, "enableDlc": True, "dlcOnly": False}])[0]
+                if dflt["total"] != hosting:
+                    bad.append("default surface: wizard %d vs surface_confidence.tsv headline "
+                               "hosting %d" % (dflt["total"], hosting))
+
     if bad:
         print("[FAIL] " + "\n       ".join(bad))
         return 1
-    print("[ok] key_meta: %d option(s), %d case(s), %d with live coverage; JS == Python"
-          % (len(opts), len(cases), len(fired)))
+    print("[ok] key_meta: %d option(s), %d coverage case(s), %d with live coverage; "
+          "%d marginal case(s) + %d single-class cross-checks vs surface_confidence.tsv; "
+          "JS == Python throughout" % (len(opts), len(cases), len(fired), mg_cases,
+                                       len(census.get("classes") or ()) if census else 0))
     return 0
 
 
