@@ -98,6 +98,11 @@ TESTS_JOB = {
     "no_phantom_flags": "event flag corpus ships in the bundle",
     "noninteractive_guard": "committed data only",
     "progression_surface": "gen_data.py found by walk-up in every CI checkout",
+    "wizard_yaml_generates": "runs the wizard's OWN buildYaml under node, then Generate.py "
+                             "against the installed world -- so it needs BOTH the repo tree (for "
+                             "wizard.html) and an AP checkout. The tests job has both. It exists "
+                             "because every other wizard gate checks an INPUT; this is the only one "
+                             "that reads what the wizard hands the player.",
     "region_census": "tools/build_region_census.py + build_surface_confidence.py, both found by "
                      "walk-up in the tests job's checkout. Its first three claims are AP-free "
                      "(blob sync, staleness, and the union pinned to build_surface_confidence's "

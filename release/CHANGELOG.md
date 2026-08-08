@@ -59,6 +59,18 @@ pairs with was wrong, and the cross-side `generators` gate had been proving agre
 client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
 thing. This window starts by moving it.
 
+### CI now generates a seed from the wizard's own yaml
+
+The game-name bug shipped past four green gates, and the reason is the same for all four: every one
+of them checked an *input* to the wizard. None read what it hands the player.
+
+`test_gf_wizard_yaml_generates` closes that. It runs the wizard's own `buildYaml` under node -- the
+actual JavaScript a browser runs, not a Python port that would agree with itself about the same
+typo -- and feeds the result to a real `Generate.py` against the installed world, for the defaults
+and two presets. It catches the whole family the other gates cannot: a key the world stopped
+accepting, a value outside a live range, a preset that rolls into something that will not fill, or a
+yaml that is subtly malformed.
+
 ### Every yaml the wizard produced named a game that does not exist
 
 `buildYaml` carried the game name as a literal, `EldenRing`, while the world has been `Elden Ring`
