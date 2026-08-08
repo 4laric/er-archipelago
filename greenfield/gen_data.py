@@ -7655,6 +7655,45 @@ if BOSS_HEALTHBARS:
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
+            # ⭐⭐⭐ A PHASE-2 HEAD IS NOT A DEFEAT FLAG. `x801` beside an `x800` on the same map is
+            # the SECOND PHASE of one fight, and its flag is set when the phase BEGINS -- so a sweep
+            # keyed on it pays out for walking into the arena.
+            #
+            # boblerrr found it in play and narrowed it himself: "only on cutscene bosses". He is
+            # right, and the table agrees. 18 maps carry an x800/x801 pair; the dungeon branch above
+            # already suppresses 12 of them via the duo tables (Crystalians, Cleanrot Knights,
+            # Watchdogs). The SIX that reach here are exactly the mid-fight phase transitions:
+            #
+            #     20010800/801  Radahn, Consort of Miquella / Promised Consort Radahn   (cutscene)
+            #     21010800/801  Base Serpent Messmer / Messmer the Impaler              (cutscene)
+            #     16000800/801  Rykard / God-Devouring Serpent                          (cutscene)
+            #     13000800/801  Maliketh / Beast Clergyman                              (cutscene)
+            #     14000800/801  Rennala / Rennala               (both rows, identical name)
+            #     12020800/801  Valiant Gargoyle / (Twinblade)
+            #
+            # MEASURED, twice, in his 2026-08-08 Enir Ilim log -- not inferred:
+            #     18:09:22 kick-watch: play_region 2001007 -> 2001000 (sub 20010)
+            #     18:09:22 sweep-watch: trigger flag 20010801 -> SET     <- the SAME SECOND he arrives
+            #     19:42:38 sweep-watch: trigger flag 20010800 -> SET     <- ~3 min later, the kill
+            # 801 tracks entering, 800 tracks dying. He was handed all 15 Enir Ilim checks for
+            # walking through the fog gate having killed nothing.
+            #
+            # 🛑 THE NAME CANNOT BE THE KEY, which is why the duo tables cannot reach these: the two
+            # rows are named DIFFERENTLY for PCR and Messmer (the bar renames mid-fight) and
+            # IDENTICALLY for Rennala. Same-map adjacency is the only signal true of all six.
+            #
+            # 🛑 x800 IS ALWAYS THE DEFEAT FLAG, including where it reads like the earlier form:
+            # 13000800 is Maliketh (phase 2) and 13000801 the Beast Clergyman (phase 1). So the head
+            # to drop is always the x801, never its primary.
+            #
+            # Guarded like `_arena_secondary`'s two sources: the primary must be a healthbar head ON
+            # THIS MAP, or suppressing would delete the only trigger this map has.
+            if _ent % 100 == 1:
+                _phase_primary = BOSS_HEALTHBARS.get(_ent - 1)
+                if _phase_primary is not None and _phase_primary[0] == _bmap:
+                    _sweep_secondary_hits.append(
+                        (_ent, _bmap, _name, _ent - 1, "phase_pair"))
+                    continue
             # m61 overworld boss -> its own tile-region; else the map's check-majority region; else a
             # curated pin for a legacy map that hosts NO filler-swept checks so it gets no _mreg vote
             # (m25 Cathedral of Manus Metyr = shop + remembrance only, so Metyr fell to HUB -> Scaduview).
