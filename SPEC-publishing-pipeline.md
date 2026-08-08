@@ -243,6 +243,62 @@ release.
 * **The audience is small** — 9 to 30 downloads per release. Worth knowing before building ceremony:
   the channel split should cost less than the confusion it removes.
 
+### 5.6 Pointing the site at them (SHIPS WITH THIS DOCUMENT)
+
+Read `webgui/app.py` on the host before designing anything, and most of it turns out to exist:
+
+```python
+@app.route("/er/")
+@app.route("/er/<path:filename>")
+def er_static(filename: str = "wizard.html"):
+    return send_from_directory(ER_STATIC_DIR, filename)
+```
+
+`<path:filename>` matches slashes, so **`/er/beta/wizard.html` already works** the moment a file is
+at `$ER_STATIC_DIR/beta/wizard.html`. No Flask change is needed for the static half.
+
+* **`tools/deploy_wizard.sh`** fetches both from a REF and installs them:
+  `/er/wizard.html` <- `wizard/wizard.html` at the stable tag (read from `release/CHANNELS.tsv` at
+  `main`, so the promotion is a commit and not a tag typed on a box), `/er/beta/wizard.html` <-
+  `main`. It fetches rather than builds, so the box needs no checkout, no python and no node.
+  🛑 The install is **atomic** (`mktemp` + `mv`): the wizard is one file a browser can be mid-GET
+  on, and `curl -o` onto the served path serves a truncated page for the length of the download --
+  which renders as a blank panel, not an error anyone reports. 🛑 And it checks the fetched file
+  actually contains the options-metadata block: a proxy login page and a ref with no wizard both
+  arrive as HTTP 200, which `curl -f` cannot see.
+* **The page banners itself.** `currentChannel()` reads `location.pathname`; anything under a
+  `beta/` segment says so, in the colour of a warning, with a link back to stable. The deploy script
+  does not edit the HTML -- a shell script rewriting markup it did not write is wrong the first time
+  the markup moves, and silently. `file://` (a downloaded copy) shows no banner, because a page that
+  cannot tell should not claim.
+
+Measured on the real refs: stable `v0.3.7` = 85,204 bytes, **apworld version unstamped** (that tag
+predates §4.1); beta `main` = 131,363 bytes, apworld **0.3.8**. The unstamped stable copy is itself
+the argument for the stamp.
+
+Two things left on the host, both small and both stated rather than guessed:
+
+1. **`/er/beta/` with a trailing slash 404s.** `send_from_directory(dir, "beta/")` is not a file.
+   Either link the full `/er/beta/wizard.html`, or add
+   `@app.route("/er/<path:sub>/")` -> `er_static(sub + "/wizard.html")`.
+2. 🛑 **`POST /generate` has ONE `AP_ROOT`, so one of the two pages is lying.** Both wizards post to
+   the same endpoint, which generates with whatever apworld is installed on the box -- so a seed
+   rolled from the beta page silently uses the stable world, or vice versa. That is the same
+   silent-wrong-answer this whole document is about, one layer down.
+   The fix is small because `generator.generate(yamls, ap_root, ...)` **already takes the root as a
+   parameter**; only `app.py` hard-wires the single env var. Two trees, chosen by a `channel` field
+   the wizard already knows:
+
+   ```python
+   AP_ROOT_BY_CHANNEL = {"stable": os.environ.get("AP_ROOT_STABLE", AP_ROOT),
+                         "beta":   os.environ.get("AP_ROOT_BETA",   AP_ROOT)}
+   root = AP_ROOT_BY_CHANNEL.get(request.form.get("channel", "stable"), AP_ROOT)
+   ```
+
+   Two AP trees on the box, one apworld each. They cannot share one tree: both worlds answer to the
+   game name `Elden Ring`, so installing both collides. Until that lands, the honest options are to
+   point beta's Generate button at the stable root and say so, or disable it on beta.
+
 ## 6. Answered, and what is left
 
 **How often does stable move? — DAILY** (Alaric, 2026-08-08), which §5.2b shows is already the
@@ -251,10 +307,10 @@ observed cadence rather than a new commitment. `release/CHANNELS.tsv` starts at
 
 Left to do, in order of how much they are worth:
 
-1. **Point `/er/` at the stable tag's wizard and `/er/beta/` at `main`'s.** This is the change that
-   removes the skew instead of labelling it, and with a daily stable the trailing cost is a day.
-   Needs a deploy step on the peliarch side; the artifact half is built here.
-2. **`POST /generate` reports the `APWORLD_VERSION` it rolled with** (§4.3).
+1. ~~Point `/er/` at the stable tag and `/er/beta/` at `main`~~ -- **built** (§5.6). What is left is
+   running it on the box and cronning it.
+2. **`POST /generate` needs a root per channel** (§5.6 note 2) and should report the
+   `APWORLD_VERSION` it rolled with (§4.3). Until then beta's Generate button uses the stable world.
 3. **Nexus gets a defined role** (§4.4) and a checklist row, and `DISTRIBUTION.md` stops saying
    "Not on Nexus" while the repo maintains a Nexus description.
 4. **`build.ps1 -Apworld` calls `tools/build_apworld.py`** so there is one packer, not two agreeing
