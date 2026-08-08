@@ -45,6 +45,41 @@ jobs:
       - name: The channel ledger names things that exist
         run: python tools/check_channels.py
 
+      # 🛑 THE PIN IS THE ONE THING A TAG RECORDS THAT NOTHING ELSE CAN FIX AFTERWARDS.
+      #
+      # `generators` checks the gitlink's client agrees with the world -- it CANNOT see staleness,
+      # because it checks out the client AT the gitlink, so an ancient pin agrees with itself
+      # perfectly. `client-main-drift` does see it, and says so with `::notice::` -- on pushes to
+      # main and the nightly schedule only, never on a PR, and a notice is a line in a job log
+      # nobody opens. Its own message defers to "REQUIRED before a tag (RELEASE-CHECKLIST)", and
+      # the checklist had no such row.
+      #
+      # So it happened twice. v0.3.7 was tagged with a pin FIVE client merges old, and on
+      # 2026-08-08 the pin was ELEVEN behind again inside a single window. Both times the shipped
+      # .dll was built separately and was probably fine; what was wrong is the tag's RECORD of what
+      # pairs with what, which is the only thing anybody has to go on when a bug report arrives.
+      #
+      # A notice is right for main -- client-only work mid-window is normal. At a TAG it is a hard
+      # requirement, and this is the first moment it can be enforced rather than remembered.
+      # ALLOW_STALE_PIN=1 for the case where a tag deliberately trails client main; it has to be
+      # typed, which is the point.
+      - name: The pinned client is the client this tag ships
+        run: |
+          set -euo pipefail
+          pin="$(git ls-tree HEAD from-software-archipelago-clients | awk '$2 == "commit" { print $3 }')"
+          test -n "$pin" || { echo "::error::no gitlink at from-software-archipelago-clients"; exit 1; }
+          head="$(git ls-remote https://github.com/4laric/from-software-archipelago-clients.git main | cut -f1)"
+          echo "pinned gitlink : $pin"
+          echo "client main    : $head"
+          if [ "$pin" = "$head" ]; then echo "the pin is current."; exit 0; fi
+          if [ "${ALLOW_STALE_PIN:-0}" = "1" ]; then
+            echo "::warning::pin is behind client main, allowed by ALLOW_STALE_PIN"; exit 0
+          fi
+          echo "::error::this tag pins a client that is not the current one. The release would"
+          echo "::error::record the wrong pairing, and no later fix can recover which build shipped."
+          echo "::error::Bump the gitlink and re-tag, or set ALLOW_STALE_PIN=1 if it is deliberate."
+          exit 1
+
       - name: Pack the bare apworld
         run: |
           python tools/build_apworld.py -o dist/eldenring.apworld

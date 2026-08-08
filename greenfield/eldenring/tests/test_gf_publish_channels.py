@@ -111,6 +111,20 @@ class ChannelLedger(unittest.TestCase):
                            capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
+    def test_a_tag_independent_violation_is_caught_at_any_checkout_depth(self):
+        """The one rule that must hold even in a shallow checkout: `stable` may not name a moving
+        ref. Kept separate from the tag-existence case so at least one negative is depth-proof."""
+        cc = _load("check_channels")
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".tsv", delete=False, encoding="utf-8") as f:
+            f.write("stable\tmain\t2026-01-01\tbogus\nbeta\tmain\t2026-01-02\t\n")
+            path = f.name
+        try:
+            bad = cc.check(path, tags=set())
+            self.assertTrue(any("only `beta`" in b for b in bad), bad)
+        finally:
+            os.unlink(path)
+
     def test_the_gate_can_actually_fail(self):
         """⭐ A gate nobody has watched fail is a gate nobody knows the shape of. Feed it a ledger
         naming a tag that does not exist and require a finding -- the failure this file exists for
@@ -121,10 +135,19 @@ class ChannelLedger(unittest.TestCase):
             f.write("stable\tv9.9.9-not-a-tag\t2026-01-01\tbogus\nbeta\tmain\t2026-01-02\t\n")
             path = f.name
         try:
-            bad = cc.check(path)
+            # 🛑 TAGS ARE INJECTED, NOT TAKEN FROM THE CHECKOUT. This test passed locally and went
+            # RED IN CI on 2026-08-08 for the opposite reason to the obvious one: the `tests` job
+            # checks out shallow, so `git tag -l` returned nothing, the gate took its
+            # no-tags-so-skip branch, found no fault, and the NEGATIVE test failed. A negative case
+            # that depends on checkout depth is testing the runner, not the gate.
+            bad = cc.check(path, tags={"v0.3.7"})
+            self.assertTrue(bad, "the gate accepted a ledger pointing at a nonexistent tag")
+            # ...and the shallow branch must be a SKIP, not a pass-by-accident that looks the same.
+            self.assertFalse([b for b in cc.check(path, tags=set()) if "not a tag" in b],
+                             "with no tags available the existence check must stand down, not "
+                             "invent a verdict")
         finally:
             os.unlink(path)
-        self.assertTrue(bad, "the channel gate accepted a ledger pointing at a nonexistent tag")
 
     def test_channels_are_named_in_the_spec(self):
         spec = os.path.join(REPO, "SPEC-publishing-pipeline.md")
@@ -132,6 +155,60 @@ class ChannelLedger(unittest.TestCase):
         text = open(spec, encoding="utf-8").read()
         self.assertIn("CHANNELS.tsv", text,
                       "the ledger exists but nothing explains it -- CONTRIBUTING rule 14")
+
+
+
+
+@unittest.skipUnless(HAVE_REPO, REPO_ONLY)
+class WizardDeploy(unittest.TestCase):
+    """`tools/deploy_wizard.sh` + the page's own channel detection.
+
+    The script runs on a box nobody here can see, so what is testable is its SHAPE: that it reads
+    the ledger rather than taking a tag as an argument, that it installs atomically, and that it
+    refuses a fetch that is not a wizard.
+    """
+    def _script(self):
+        path = os.path.join(TOOLS, "deploy_wizard.sh")
+        self.assertTrue(os.path.isfile(path), "tools/deploy_wizard.sh is missing")
+        return path, open(path, encoding="utf-8").read()
+
+    def test_it_is_ascii_and_executable(self):
+        path, text = self._script()
+        self.assertTrue(os.access(path, os.X_OK), "deploy_wizard.sh is not executable")
+        bad = [(i + 1, ln) for i, ln in enumerate(text.splitlines()) if not ln.isascii()]
+        self.assertFalse(bad, f"non-ASCII in a shell script that runs on a strange box: {bad[:3]}")
+
+    def test_the_install_is_atomic(self):
+        """🛑 A wizard is one ~2 MB file a browser can be mid-GET on. `curl -o` straight onto the
+        served path serves a TRUNCATED page for the length of the download, and a half-parsed
+        wizard renders as a blank panel rather than an error anyone reports."""
+        _path, text = self._script()
+        self.assertIn("mktemp", text)
+        self.assertIn("mv -f", text)
+        self.assertNotIn('curl -fsSL "${RAW}/${ref}/wizard/wizard.html" -o "$dst"', text)
+
+    def test_the_stable_tag_comes_from_the_ledger(self):
+        """Not from an argument: a tag typed on the box is a second source of truth for which build
+        is stable, and the two would disagree the first time someone was in a hurry."""
+        _path, text = self._script()
+        self.assertIn("release/CHANNELS.tsv", text)
+        self.assertIn('$1=="stable"', text)
+
+    def test_it_refuses_a_fetch_that_is_not_a_wizard(self):
+        _path, text = self._script()
+        self.assertIn('id="er-options-metadata"', text,
+                      "the fetched file must be checked for the options blob -- a 200 from a proxy "
+                      "or a ref with no wizard is not an error curl can see")
+
+    def test_the_page_decides_its_own_channel(self):
+        """The deploy script must not edit the HTML. A shell script rewriting markup it did not
+        write is wrong the first time the markup moves, and silently."""
+        wiz = open(os.path.join(REPO, "wizard", "wizard.html"), encoding="utf-8").read()
+        self.assertIn("function currentChannel()", wiz)
+        self.assertIn('id="chanbanner"', wiz)
+        _path, text = self._script()
+        for edit in ("sed -i", "> \"$dst\" <<", "cat >> "):
+            self.assertNotIn(edit, text, f"the deploy script edits the page ({edit!r})")
 
 
 if __name__ == "__main__":
