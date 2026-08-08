@@ -1146,6 +1146,481 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  ]
 }
 </script>
+<script id="er-region-census" type="application/json">
+{
+ "classes": [
+  "Remembrance",
+  "Seedtree",
+  "Church",
+  "Boss",
+  "Fragment",
+  "Revered",
+  "Basin",
+  "Shop",
+  "ShopNonSpell",
+  "ShopSlot",
+  "Legendary",
+  "GreatRune",
+  "KeyItem",
+  "MajorBoss",
+  "LegacyBoss",
+  "FieldBoss"
+ ],
+ "default_classes": [
+  "Remembrance",
+  "Seedtree",
+  "Church",
+  "Fragment",
+  "Revered",
+  "ShopSlot",
+  "GreatRune",
+  "KeyItem",
+  "MajorBoss"
+ ],
+ "finale": {
+  "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
+  "region": "Ashen Capital"
+ },
+ "hub_region": "Roundtable Hold",
+ "parent": {
+  "Leyndell": "Altus",
+  "Raya Lucaria Academy": "Liurnia",
+  "Sewer": "Leyndell"
+ },
+ "regions": {
+  "Abyssal": {
+   "checks": 27,
+   "combos": {
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 1,
+    "Revered": 2
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Ainsel River": {
+   "checks": 122,
+   "combos": {
+    "Boss|LegacyBoss": 2,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Legendary": 2,
+    "Seedtree": 2,
+    "Shop|ShopNonSpell": 8,
+    "Shop|ShopNonSpell|ShopSlot": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Altus": {
+   "checks": 353,
+   "combos": {
+    "Basin|Boss|FieldBoss": 1,
+    "Boss|FieldBoss": 5,
+    "Church": 2,
+    "Legendary": 2,
+    "Seedtree": 9,
+    "Shop|ShopNonSpell": 19,
+    "Shop|ShopNonSpell|ShopSlot": 2
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Ancient Ruins": {
+   "checks": 55,
+   "combos": {
+    "Boss|FieldBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 3,
+    "Legendary": 1,
+    "Revered": 1
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Ashen Capital": {
+   "checks": 12,
+   "combos": {
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
+    "Legendary": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": false
+  },
+  "Belurat": {
+   "checks": 93,
+   "combos": {
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 1,
+    "KeyItem": 1,
+    "Revered": 4
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Caelid": {
+   "checks": 346,
+   "combos": {
+    "Basin": 1,
+    "Basin|Boss|FieldBoss": 1,
+    "Boss": 3,
+    "Boss|FieldBoss": 10,
+    "Boss|FieldBoss|Legendary": 1,
+    "Boss|FieldBoss|MajorBoss|Remembrance": 1,
+    "Boss|GreatRune|MajorBoss": 1,
+    "Church": 1,
+    "KeyItem": 1,
+    "Legendary": 4,
+    "Seedtree": 4,
+    "Shop": 3,
+    "ShopNonSpell|ShopSlot": 1,
+    "Shop|ShopNonSpell": 22,
+    "Shop|ShopNonSpell|ShopSlot": 2
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Cerulean": {
+   "checks": 50,
+   "combos": {
+    "Boss|FieldBoss": 2,
+    "Boss|Legendary|MajorBoss": 1,
+    "Fragment": 1
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Charo's": {
+   "checks": 20,
+   "combos": {
+    "Boss|MajorBoss": 1,
+    "KeyItem": 2
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Deeproot Depths": {
+   "checks": 79,
+   "combos": {
+    "Boss|LegacyBoss": 1,
+    "Legendary": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Enir Ilim": {
+   "checks": 85,
+   "combos": {
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 3,
+    "Legendary": 1,
+    "Revered": 3
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Ensis": {
+   "checks": 42,
+   "combos": {
+    "Boss|FieldBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 2,
+    "Legendary": 1
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Farum Azula": {
+   "checks": 97,
+   "combos": {
+    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
+    "Legendary": 1,
+    "Seedtree": 2
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Gravesite": {
+   "checks": 234,
+   "combos": {
+    "Basin": 1,
+    "Boss": 1,
+    "Boss|FieldBoss": 3,
+    "Boss|Legendary|MajorBoss": 1,
+    "Fragment": 7,
+    "Legendary": 5,
+    "Revered": 4,
+    "Shop|ShopNonSpell": 22
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Haligtree": {
+   "checks": 121,
+   "combos": {
+    "Boss|GreatRune|MajorBoss": 1,
+    "Boss|LegacyBoss|MajorBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Seedtree": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Jagged Peak": {
+   "checks": 29,
+   "combos": {
+    "Boss|FieldBoss": 1,
+    "Boss|FieldBoss|MajorBoss": 1,
+    "Fragment": 1
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Leyndell": {
+   "checks": 150,
+   "combos": {
+    "Boss|GreatRune|MajorBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "KeyItem": 1
+   },
+   "dlc": false,
+   "parent": "Altus",
+   "rollable": true
+  },
+  "Limgrave": {
+   "checks": 339,
+   "combos": {
+    "Basin": 3,
+    "Boss|FieldBoss": 5,
+    "Boss|FieldBoss|Legendary": 1,
+    "Church": 1,
+    "KeyItem": 1,
+    "Legendary": 5,
+    "Seedtree": 3,
+    "Shop": 14,
+    "ShopNonSpell": 4,
+    "Shop|ShopNonSpell": 70,
+    "Shop|ShopNonSpell|ShopSlot": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Liurnia": {
+   "checks": 574,
+   "combos": {
+    "Basin": 2,
+    "Basin|Boss|FieldBoss": 1,
+    "Boss": 1,
+    "Boss|FieldBoss": 12,
+    "Boss|MajorBoss": 1,
+    "Church": 3,
+    "KeyItem": 2,
+    "Legendary": 4,
+    "Seedtree": 3,
+    "Shop": 57,
+    "ShopNonSpell": 12,
+    "ShopNonSpell|ShopSlot": 1,
+    "Shop|ShopNonSpell": 14
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Mohgwyn": {
+   "checks": 89,
+   "combos": {
+    "Boss|GreatRune|MajorBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Shop|ShopNonSpell": 4,
+    "Shop|ShopNonSpell|ShopSlot": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Mountaintops of the Giants": {
+   "checks": 306,
+   "combos": {
+    "Boss|FieldBoss": 6,
+    "Church": 2,
+    "KeyItem": 1,
+    "Legendary": 2,
+    "Seedtree": 5,
+    "Shop": 6
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Mt. Gelmir": {
+   "checks": 222,
+   "combos": {
+    "Boss": 1,
+    "Boss|FieldBoss": 4,
+    "Boss|FieldBoss|Legendary": 1,
+    "Boss|GreatRune|MajorBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "KeyItem": 1,
+    "Legendary": 3,
+    "Seedtree": 2,
+    "Shop|ShopNonSpell": 6,
+    "Shop|ShopNonSpell|ShopSlot": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Rauh Base": {
+   "checks": 75,
+   "combos": {
+    "Boss|FieldBoss": 1,
+    "Boss|FieldBoss|MajorBoss": 1,
+    "Fragment": 1,
+    "Legendary": 1
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Raya Lucaria Academy": {
+   "checks": 100,
+   "combos": {
+    "Boss|GreatRune|LegacyBoss|MajorBoss": 1,
+    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Legendary": 3,
+    "Seedtree": 2,
+    "Shop|ShopNonSpell": 16
+   },
+   "dlc": false,
+   "parent": "Liurnia",
+   "rollable": true
+  },
+  "Roundtable Hold": {
+   "checks": 224,
+   "combos": {
+    "Legendary|ShopNonSpell": 1,
+    "ShopNonSpell": 2,
+    "Shop|ShopNonSpell": 119
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": false
+  },
+  "Scadu Altus": {
+   "checks": 249,
+   "combos": {
+    "Boss|FieldBoss": 4,
+    "Boss|Fragment|LegacyBoss": 1,
+    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 8,
+    "KeyItem": 1,
+    "Legendary": 1,
+    "Revered": 2,
+    "Shop": 8
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Sewer": {
+   "checks": 88,
+   "combos": {
+    "Boss|LegacyBoss|MajorBoss": 1,
+    "Legendary": 2
+   },
+   "dlc": false,
+   "parent": "Leyndell",
+   "rollable": true
+  },
+  "Shadow Keep": {
+   "checks": 271,
+   "combos": {
+    "Boss|FieldBoss": 1,
+    "Boss|FieldBoss|MajorBoss|Remembrance": 2,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 9,
+    "KeyItem": 1,
+    "Legendary": 1,
+    "Revered": 2
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Siofra River": {
+   "checks": 178,
+   "combos": {
+    "Boss|LegacyBoss": 2,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Legendary": 1,
+    "Seedtree": 1,
+    "ShopNonSpell|ShopSlot": 1,
+    "Shop|ShopNonSpell": 7
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Stone Coffin": {
+   "checks": 21,
+   "combos": {
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Fragment": 1
+   },
+   "dlc": true,
+   "parent": null,
+   "rollable": true
+  },
+  "Stormveil": {
+   "checks": 118,
+   "combos": {
+    "Boss|GreatRune|MajorBoss": 1,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "KeyItem": 1,
+    "Seedtree": 2
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  },
+  "Weeping": {
+   "checks": 162,
+   "combos": {
+    "Basin": 1,
+    "Boss|FieldBoss": 2,
+    "Boss|FieldBoss|MajorBoss": 1,
+    "Church": 3,
+    "Seedtree": 1,
+    "Shop|ShopNonSpell": 36,
+    "Shop|ShopNonSpell|ShopSlot": 1
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true
+  }
+ },
+ "schema": 1,
+ "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
+ "source_sha256": "e67358bf7c3cab932bfa0be00e177c583d951715a30ad617416b9593d73ada21"
+}
+</script>
 <div class="wrap">
   <header class="top">
     <h1>Elden Ring Archipelago — Options Wizard</h1>
@@ -1162,6 +1637,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
           <button class="bigbtn" id="dlbtn">Download</button>
         </div>
         <div class="small" id="copymsg" style="min-height:18px"></div>
+      </div>
+      <div class="card" style="margin:0" id="seedsizecard">
+        <h3 style="margin:0 0 4px">Seed size</h3>
+        <div id="seedsize"></div>
       </div>
       <div class="card findings" style="margin:0">
         <h3 style="margin:0 0 4px">Checks</h3>
@@ -1381,14 +1860,92 @@ const ERW = (() => {
     return out;
   }
 
+
+  /* ---- seed size (wizard/region-census.json; tools/build_region_census.py) --------------------
+     num_regions is a DRAW SIZE, not a final count: compute_kept = draw + explicit-goal force-keeps
+     + parent closure. So a single number would be wrong -- we sample the draw and report a spread.
+
+     DETERMINISTIC ON PURPOSE. A seeded PRNG (mulberry32, fixed seed), so the same option set always
+     shows the same figures. With Math.random the readout jittered on every unrelated keystroke and
+     looked broken; it also could not be asserted in a test.
+
+     Surface counting is a UNION over class COMBINATIONS, never a sum of per-class counts: surface
+     classes overlap (a check is routinely GreatRune + MajorBoss + Boss), so summing double-counts
+     exactly the checks that carry two selected classes. See the census tool's module docstring. */
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function comboHits(region, sel){
+    let n = 0;
+    for (const combo in region.combos){
+      const parts = combo.split("|");
+      for (let i = 0; i < parts.length; i++) if (sel.has(parts[i])){ n += region.combos[combo]; break; }
+    }
+    return n;
+  }
+  function seedSize(census, opts){
+    if (!census || !census.regions || !census.regions[census.hub_region]) return null;
+    const sel = new Set(opts.surfaceClasses || census.default_classes || []);
+    const R = census.regions;
+    const eligible = Object.keys(R).filter(n => R[n].rollable &&
+      (opts.dlcOnly ? R[n].dlc : (opts.enableDlc || !R[n].dlc)));
+    if (!eligible.length) return null;
+    const elig = new Set(eligible);
+    // The finale (Ashen Capital) is never rolled and never counted by num_regions; it exists iff the
+    // base game is in play. census.finale.present_when states the rule; this evaluates it.
+    const finaleName = census.finale && census.finale.region;
+    const finaleOn = !!(finaleName && R[finaleName]) && eligible.some(n => !R[n].dlc);
+    const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0);
+    const baseSurf = comboHits(R[census.hub_region], sel) + (finaleOn ? comboHits(R[finaleName], sel) : 0);
+
+    const n = opts.numRegions | 0;
+    const whole = (n <= 0 || n >= eligible.length);
+    const trials = whole ? 1 : Math.max(1, opts.trials || 4000);
+    const rnd = mulberry32(0x45524147);
+    const checks = [], surf = [], kept = [];
+    for (let t = 0; t < trials; t++){
+      let keptSet;
+      if (whole){ keptSet = new Set(eligible); }
+      else {
+        const pool = eligible.slice();
+        keptSet = new Set();
+        for (let i = 0; i < n; i++)
+          keptSet.add(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+        let grew = true;
+        while (grew){
+          grew = false;
+          for (const r of Array.from(keptSet)){
+            const p = census.parent[r];
+            if (p && elig.has(p) && !keptSet.has(p)){ keptSet.add(p); grew = true; }
+          }
+        }
+      }
+      let c = base, s = baseSurf;
+      for (const r of keptSet){ c += R[r].checks; s += comboHits(R[r], sel); }
+      checks.push(c); surf.push(s); kept.push(keptSet.size);
+    }
+    const q = (a, p) => { a = a.slice().sort((x, y) => x - y); return a[Math.floor(p * (a.length - 1))]; };
+    const band = a => ({ min: q(a, 0), p10: q(a, 0.10), median: q(a, 0.5), p90: q(a, 0.90), max: q(a, 1) });
+    return { whole, trials, eligible: eligible.length, finale: finaleOn,
+             checks: band(checks), surface: band(surf), kept: band(kept) };
+  }
+
   return { loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
-           buildYaml, findings, pretty, sanitizeName, AP_CORE };
+           buildYaml, findings, pretty, sanitizeName, seedSize, AP_CORE };
 })();
 if (typeof module !== "undefined") module.exports = ERW;
 </script>
 <script>
 (() => {
   const raw = JSON.parse(document.getElementById("er-options-metadata").textContent);
+  let census = null;
+  try { census = JSON.parse(document.getElementById("er-region-census").textContent); } catch (e) {}
+  if (census && !census.regions) census = null;
   if (!raw.options){ document.getElementById("main").innerHTML =
     "<div class='card'>Metadata not inlined yet — run <code>python tools/dump_options_metadata.py --inject</code>.</div>"; return; }
   const meta = ERW.loadMeta(raw);
@@ -1610,12 +2167,46 @@ if (typeof module !== "undefined") module.exports = ERW;
       .replace(/(#[^\n]*)/g, "<span class='yc'>$1</span>");
   }
 
+  function renderSeedSize(){
+    const box = $("#seedsize");
+    if (!box) return;
+    const v = k => ERW.getVal(meta, state, k);
+    const size = ERW.seedSize(census, {
+      numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"), dlcOnly: !!v("dlc_only"),
+      surfaceClasses: v("progression_surface") || []
+    });
+    if (!size){
+      box.innerHTML = "<div class='small'>No regions are eligible with these options.</div>";
+      return;
+    }
+    const num = x => x.toLocaleString();
+    const rows = [
+      ["checks", size.whole ? num(size.checks.median)
+                            : num(size.checks.p10) + "&ndash;" + num(size.checks.p90),
+       size.whole ? "every eligible region is in play" :
+       "typical " + num(size.checks.median) + " &middot; full range " +
+       num(size.checks.min) + "&ndash;" + num(size.checks.max)],
+      ["regions kept", size.kept.min === size.kept.max ? num(size.kept.median)
+                            : num(size.kept.p10) + "&ndash;" + num(size.kept.p90),
+       "num_regions is a draw size, not a final count"],
+      ["can hold progression", size.whole ? num(size.surface.median)
+                            : num(size.surface.p10) + "&ndash;" + num(size.surface.p90),
+       "checks on your progression surface"]
+    ];
+    box.innerHTML = rows.map(r =>
+      "<div style='margin:0 0 6px'><b>" + r[1] + "</b> " + r[0] +
+      "<div class='small'>" + r[2] + "</div></div>").join("") +
+      (size.whole ? "" : "<div class='small'>Sampled over " + num(size.trials) +
+        " draws of the " + size.eligible + " eligible regions.</div>");
+  }
+
   function refresh(){
     const y = ERW.buildYaml(meta, state);
     $("#yamlout").innerHTML = highlightYaml(y);
     const devs = ERW.deviations(meta, state);
     $("#devcount").textContent = "· " + devs.length + " change" + (devs.length === 1 ? "" : "s") +
       " from defaults · preset: " + state.presetTitle;
+    renderSeedSize();
     const fs = ERW.findings(meta, state);
     const box = $("#findings");
     box.innerHTML = fs.length ? "" : "<div class='allgood'>No conflicts found.</div>";

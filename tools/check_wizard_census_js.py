@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+"""check_wizard_census_js.py -- differential gate: the wizard's JS seed-size math vs Python's.
+
+The number a player actually reads is computed in JavaScript, inside `wizard/wizard.html`'s
+`wizard-core` block (`ERW.seedSize`). Every other gate in this repo proves things about the census
+DATA; none of them execute that function, so a JS-side mistake would ship silently behind four green
+Python gates.
+
+WHAT IT DOES. Extracts the `wizard-core` script and the injected census blob from wizard.html, runs
+`ERW.seedSize` under node for a fixed matrix of option sets, and compares each result against an
+independent Python evaluation of the SAME rule in this file. Two implementations, one expectation --
+a real differential test, not a restatement: the Python side here is the reference, and the Python
+side is itself pinned to REAL BUILT WORLDS by
+`worlds/eldenring/tests/test_gf_region_census.py::test_check_count_identity_against_real_worlds`.
+So the chain is JS == Python == a world Archipelago actually generated.
+
+DETERMINISM is what makes this comparable at all: `ERW.seedSize` draws from a seeded mulberry32 with
+a fixed seed, so a given option set has ONE answer. The Python side re-implements mulberry32 and the
+same draw order rather than sampling independently -- comparing two Monte Carlo runs would only ever
+prove they agree to within noise, which is not a gate.
+
+NEEDS NODE. Exits 4 (SKIP) when node is absent, so a box without it reports honestly instead of
+passing vacuously. `greenfield/ci-linux.sh` and `run_ci.ps1` treat exit 4 as SKIP; CI runners have
+node, so the gate is live there.
+"""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
+
+# The option sets the gate compares. Spans: the default; the two draw sizes players ask about; the
+# whole-map branch (n=0, a DIFFERENT code path -- no sampling); a base-game seed; a dlc_only seed
+# (the finale must drop out); and a narrowed + widened progression surface, which is the axis the
+# combination union exists for.
+CASES = [
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False},
+    {"numRegions": 1, "enableDlc": True, "dlcOnly": False},
+    {"numRegions": 12, "enableDlc": True, "dlcOnly": False},
+    {"numRegions": 0, "enableDlc": True, "dlcOnly": False},
+    {"numRegions": 6, "enableDlc": False, "dlcOnly": False},
+    {"numRegions": 4, "enableDlc": True, "dlcOnly": True},
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False, "surfaceClasses": ["MajorBoss"]},
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
+     "surfaceClasses": ["MajorBoss", "Remembrance", "GreatRune", "Boss", "Legendary"]},
+]
+
+
+def _extract():
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    core = re.search(r'<script id="wizard-core">(.*?)</script>', html, re.S)
+    if not core:
+        sys.exit("[FAIL] wizard-core block not found in wizard.html")
+    blob = re.search(r'<script id="er-region-census" type="application/json">\n(.*?)</script>',
+                     html, re.S)
+    if not blob:
+        sys.exit("[FAIL] er-region-census blob not found in wizard.html -- run "
+                 "`python tools/build_region_census.py`")
+    return core.group(1), json.loads(blob.group(1))
+
+
+def _mulberry32(a):
+    """Bit-exact port of the wizard's PRNG. int32 wrap and Math.imul are explicit."""
+    state = a & 0xFFFFFFFF
+
+    def _imul(x, y):
+        r = (x * y) & 0xFFFFFFFF
+        return r - 0x100000000 if r >= 0x80000000 else r
+
+    def nxt():
+        nonlocal state
+        state = (state + 0x6D2B79F5) & 0xFFFFFFFF
+        t = _imul(state ^ (state >> 15), 1 | state) & 0xFFFFFFFF
+        # `^` binds LOOSER than `+` in JS, so the wizard's
+        #     t = t + Math.imul(...) ^ t
+        # is `(t + imul) ^ t`, not `t + (imul ^ t)`. Dropping that trailing `^ t` on the first
+        # port produced a stream that agreed to within sampling noise -- medians within 1% --
+        # which is exactly the failure a differential gate exists to catch and eyeballing does not.
+        t = ((t + _imul(t ^ (t >> 7), 61 | t)) ^ t) & 0xFFFFFFFF
+        t = (t ^ (t >> 14)) & 0xFFFFFFFF
+        return t / 4294967296.0
+    return nxt
+
+
+def _combo_hits(region, sel):
+    n = 0
+    for combo, count in region["combos"].items():
+        if sel & set(combo.split("|")):
+            n += count
+    return n
+
+
+def seed_size(census, opts):
+    """The reference implementation. Mirrors ERW.seedSize step for step, including draw order."""
+    sel = set(opts.get("surfaceClasses") or census["default_classes"])
+    R = census["regions"]
+    eligible = [n for n in sorted(R)
+                if R[n]["rollable"] and (R[n]["dlc"] if opts["dlcOnly"]
+                                         else (opts["enableDlc"] or not R[n]["dlc"]))]
+    if not eligible:
+        return None
+    elig = set(eligible)
+    fin = (census.get("finale") or {}).get("region")
+    finale_on = bool(fin and fin in R) and any(not R[n]["dlc"] for n in eligible)
+    hub = census["hub_region"]
+    base = R[hub]["checks"] + (R[fin]["checks"] if finale_on else 0)
+    base_surf = _combo_hits(R[hub], sel) + (_combo_hits(R[fin], sel) if finale_on else 0)
+
+    n = int(opts["numRegions"])
+    whole = (n <= 0 or n >= len(eligible))
+    trials = 1 if whole else 4000
+    rnd = _mulberry32(0x45524147)
+    checks, surf, kept = [], [], []
+    for _ in range(trials):
+        if whole:
+            kept_set = set(eligible)
+        else:
+            pool = list(eligible)
+            kept_set = set()
+            for _i in range(n):
+                kept_set.add(pool.pop(int(rnd() * len(pool))))
+            grew = True
+            while grew:
+                grew = False
+                for r in sorted(kept_set):
+                    p = census["parent"].get(r)
+                    if p and p in elig and p not in kept_set:
+                        kept_set.add(p)
+                        grew = True
+        c, s = base, base_surf
+        for r in kept_set:
+            c += R[r]["checks"]
+            s += _combo_hits(R[r], sel)
+        checks.append(c)
+        surf.append(s)
+        kept.append(len(kept_set))
+
+    def band(a):
+        a = sorted(a)
+        q = lambda p: a[int(p * (len(a) - 1))]
+        return {"min": q(0), "p10": q(0.10), "median": q(0.5), "p90": q(0.90), "max": q(1)}
+    return {"whole": whole, "trials": trials, "eligible": len(eligible), "finale": finale_on,
+            "checks": band(checks), "surface": band(surf), "kept": band(kept)}
+
+
+def _run_node(core, census, cases):
+    harness = (core + "\nconst __census = " + json.dumps(census) + ";\n"
+               + "const __cases = " + json.dumps(cases) + ";\n"
+               + "console.log(JSON.stringify(__cases.map(c => ERW.seedSize(__census, c))));\n")
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "harness.js")
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(harness)
+        out = subprocess.run(["node", path], capture_output=True, text=True)
+    if out.returncode != 0:
+        sys.exit("[FAIL] node harness failed:\n" + (out.stderr or "")[-4000:])
+    return json.loads(out.stdout.strip().splitlines()[-1])
+
+
+def main():
+    if not shutil.which("node"):
+        print("[SKIP] node not on PATH -- the wizard's JS seed-size math is NOT gated on this box.")
+        return 4
+    core, census = _extract()
+    cases = [dict(c) for c in CASES]
+    js = _run_node(core, census, cases)
+    bad = []
+    for case, got in zip(cases, js):
+        want = seed_size(census, case)
+        if got != want:
+            bad.append("  case %s\n    js     %s\n    python %s" % (json.dumps(case), got, want))
+    if bad:
+        print("[FAIL] wizard JS seed-size disagrees with the Python reference:")
+        print("\n".join(bad))
+        return 1
+    print("[ok] wizard JS seed-size matches the Python reference on %d option set(s)" % len(cases))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
