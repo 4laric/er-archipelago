@@ -56,6 +56,12 @@ from collections import Counter, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_check_browser import load_module_consts, read_tsv, data_stamp  # noqa: E402
+# 🛑 THE RESOLVER MOVED OUT (2026-08-08). These three rules also name the checks a PLAYER reads, and
+# gen_data.py had no way to reach them -- so this tool resolved "Dryleaf Arts with Ash of War: Palm
+# Blast" for flag 400730 while the world shipped that check as `check`. One implementation now; a
+# fourth rule fixes the worklist and the world together.
+from item_naming import (FMG_FAMILIES, FMG_DIRS, PARAM_OF_FAMILY, load_fmgs,  # noqa: E402
+                         load_custom_weapons, load_param_ids, learn_category_families, resolve_name)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAME_RE = re.compile(r"^(?P<r>.*?) :: (?P<rest>.*?) \[f(?P<f>\d+)\]$")
@@ -72,53 +78,7 @@ PARAM_OF_FAMILY = {"Weapon": "EquipParamWeapon", "Goods": "EquipParamGoods",
                    "Gem": "EquipParamGem"}
 
 
-def load_fmgs(inputs):
-    """family -> {id: name}, merged across base/dlc01/dlc02 (later wins only if base is blank)."""
-    out = {}
-    for fam in FMG_FAMILIES:
-        ids = {}
-        for _tag, d, suf in FMG_DIRS:
-            p = os.path.join(inputs, "msg", d, f"{fam}Name{suf}.fmg.xml")
-            if not os.path.exists(p):
-                continue
-            with open(p, encoding="utf-8") as fh:
-                for m in re.finditer(r'<text id="(\d+)">(.*?)</text>', fh.read(), re.S):
-                    val = m.group(2)
-                    if val and val not in ("%null%", "[ERROR]"):
-                        ids.setdefault(int(m.group(1)), val)
-        out[fam] = ids
-    return out
 
-
-def load_custom_weapons(inputs):
-    """id -> (baseWepId, gemId) from EquipParamCustomWeapon: an ItemLotParam category-6 id is a
-    weapon+Ash-of-War PAIRING, not an item, so it appears in no FMG. This param only became
-    available when gen_inputs started globbing the params dir."""
-    p = os.path.join(inputs, "vanilla_er", "vanilla_er", "EquipParamCustomWeapon.csv")
-    if not os.path.exists(p):
-        return {}
-    out = {}
-    with open(p, encoding="utf-8", errors="replace") as fh:
-        for r in csv.DictReader(fh):
-            if r.get("ID", "").strip().isdigit():
-                try:
-                    out[int(r["ID"])] = (int(r.get("baseWepId") or 0), int(r.get("gemId") or 0))
-                except ValueError:
-                    continue
-    return out
-
-
-def load_param_ids(inputs, name):
-    p = os.path.join(inputs, "vanilla_er", "vanilla_er", name + ".csv")
-    if not os.path.exists(p):
-        return None                      # distinguish "absent corpus" from "searched, empty"
-    ids = set()
-    with open(p, encoding="utf-8", errors="replace") as fh:
-        rd = csv.reader(fh)
-        for row in rd:
-            if row and row[0].strip().lstrip("-").isdigit():
-                ids.add(int(row[0]))
-    return ids
 
 
 def grep_corpus(root, needles, exts):
@@ -299,6 +259,18 @@ def main():
         fh.write("#    box. That half is a NAMED GAP, not a silence.\n")
         fh.write("# data.py inputs_hash at sweep time: %s\n" % data_stamp(os.path.join(er, "data.py")))
         fh.write("# Re-run: python tools/gen_inputs.py --extract && python tools/sweep_unnamed_items.py\n")
+        # 🛑 AN EMPTY WORKLIST MUST SAY SO. This repo treats an empty result as a failure until
+        # proven otherwise (gen_data rule 2), and a tsv holding a comment block and nothing else
+        # reads exactly like a crashed emit. 2026-08-08 it legitimately went to zero -- gen_data
+        # started deriving these names through the shared tools/item_naming.py, so every row the
+        # sweep used to list is now a named check. Say that, in the file, so the next reader does
+        # not go looking for the bug.
+        if not rows:
+            fh.write("# ✅ ZERO unnamed item-lot rows remain. This is the SOLVED state, not a\n")
+            fh.write("#    failed emit: gen_data.py derives these names via tools/item_naming.py\n")
+            fh.write("#    (the same three rules this tool uses), so a lot that can be named is\n")
+            fh.write("#    named in the world and never reaches this worklist. If rows reappear,\n")
+            fh.write("#    a new lot shape has arrived that item_naming cannot resolve yet.\n")
         fh.write("\t".join(hdr) + "\n")
         for r in rows:
             fh.write("\t".join(str(r[h]) for h in hdr) + "\n")
