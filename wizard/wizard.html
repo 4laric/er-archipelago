@@ -1146,6 +1146,172 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  ]
 }
 </script>
+<script id="er-pool-composition" type="application/json">
+{
+ "schema": 1,
+ "sampled": true,
+ "samples_per_case": 10,
+ "world_commit": "b760d05d9c44",
+ "measured_on": "2026-08-07",
+ "note": "min/median/max over independent draws. num_regions is a draw size, so which regions a seed keeps moves these ratios -- render the spread, never the median alone.",
+ "cases": [
+  {
+   "label": "default",
+   "options": {},
+   "filler": [
+    50.4,
+    57.0,
+    58.3
+   ],
+   "useful": [
+    41.1,
+    42.4,
+    48.9
+   ],
+   "progression": [
+    0.4,
+    0.6,
+    1.0
+   ],
+   "checks": [
+    883,
+    1266,
+    2119
+   ]
+  },
+  {
+   "label": "num_regions=1",
+   "options": {
+    "num_regions": 1
+   },
+   "filler": [
+    25.3,
+    39.1,
+    53.7
+   ],
+   "useful": [
+    45.9,
+    60.0,
+    74.3
+   ],
+   "progression": [
+    0.2,
+    0.3,
+    0.4
+   ],
+   "checks": [
+    265,
+    354,
+    910
+   ]
+  },
+  {
+   "label": "num_regions=3",
+   "options": {
+    "num_regions": 3
+   },
+   "filler": [
+    37.9,
+    48.7,
+    57.2
+   ],
+   "useful": [
+    42.5,
+    47.5,
+    60.7
+   ],
+   "progression": [
+    0.2,
+    0.5,
+    1.3
+   ],
+   "checks": [
+    377,
+    656,
+    1238
+   ]
+  },
+  {
+   "label": "num_regions=12",
+   "options": {
+    "num_regions": 12
+   },
+   "filler": [
+    58.0,
+    59.1,
+    60.2
+   ],
+   "useful": [
+    39.2,
+    39.4,
+    41.4
+   ],
+   "progression": [
+    0.5,
+    0.6,
+    0.7
+   ],
+   "checks": [
+    2072,
+    2409,
+    2881
+   ]
+  },
+  {
+   "label": "whole map",
+   "options": {
+    "num_regions": 0
+   },
+   "filler": [
+    61.3,
+    61.4,
+    61.4
+   ],
+   "useful": [
+    37.9,
+    37.9,
+    37.9
+   ],
+   "progression": [
+    0.7,
+    0.7,
+    0.7
+   ],
+   "checks": [
+    4931,
+    4931,
+    4931
+   ]
+  },
+  {
+   "label": "base game",
+   "options": {
+    "enable_dlc": false
+   },
+   "filler": [
+    55.9,
+    58.8,
+    62.0
+   ],
+   "useful": [
+    37.7,
+    39.8,
+    43.4
+   ],
+   "progression": [
+    0.3,
+    0.5,
+    0.7
+   ],
+   "checks": [
+    1225,
+    1772,
+    2426
+   ]
+  }
+ ]
+}
+</script>
 <script id="er-region-census" type="application/json">
 {
  "classes": [
@@ -1923,6 +2089,9 @@ if (typeof module !== "undefined") module.exports = ERW;
   let census = null;
   try { census = JSON.parse(document.getElementById("er-region-census").textContent); } catch (e) {}
   if (census && !census.regions) census = null;
+  let composition = null;
+  try { composition = JSON.parse(document.getElementById("er-pool-composition").textContent); } catch (e) {}
+  if (composition && !composition.cases) composition = null;
   if (!raw.options){ document.getElementById("main").innerHTML =
     "<div class='card'>Metadata not inlined yet — run <code>python tools/dump_options_metadata.py --inject</code>.</div>"; return; }
   const meta = ERW.loadMeta(raw);
@@ -1936,7 +2105,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     meta.groups.filter(g => g.collapsed).map(g => ({name:g.name, options:g.options})),
     meta.ungrouped.length ? [{name:"Other Options", options:meta.ungrouped}] : [],
     [{name:"Archipelago Core", options:meta.apCore.map(o => o.key)}]);
-  const steps = [{id:"welcome", title:"Start"}]
+  const steps = [{id:"welcome", title:"Start"}, {id:"seedsize", title:"Seed size"}]
     .concat(openGroups.map(g => ({id:"g:"+g.name, title:g.name, options:g.options})))
     .concat([{id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}]);
   let cur = 0;
@@ -2041,6 +2210,109 @@ if (typeof module !== "undefined") module.exports = ERW;
     return row;
   }
 
+  /* ---- the Seed size tab -------------------------------------------------------------------
+     Foregrounded because it is the question people actually arrive with: "how many checks is this,
+     and how much of it is junk?" -- asked on Nexus on 2026-08-07 by someone sizing a six-player
+     multiworld, and by bobler the day before from the other end.
+
+     TWO SOURCES, AND THE DIFFERENCE MATTERS ENOUGH TO SHOW IT.
+       * Check count, regions kept, progression-capable slots: EXACT. Sums over the per-region
+         tables in wizard/region-census.json, recomputed here over the actual draw.
+       * The filler / useful / progression split: SAMPLED. features/filler_budget and the pool
+         builder reshape the tail at generation time, so it can only be known by building worlds.
+         wizard/pool-composition.json is min/median/max over N builds per option set.
+     The sampled half is labelled as such, with its sample size and the option set it was measured
+     at. Presenting a measured band as if it were computed would be the more comfortable lie. */
+  function nearestCase(nr, dlcOn){
+    if (!composition) return null;
+    const cases = composition.cases.filter(c => dlcOn || c.label === "base game" || !("enable_dlc" in c.options));
+    let best = null, bestD = Infinity;
+    for (const c of (cases.length ? cases : composition.cases)){
+      const cn = ("num_regions" in c.options) ? c.options.num_regions : 6;
+      const d = (cn === 0 ? 99 : Math.abs(cn - (nr === 0 ? 99 : nr)));
+      if (d < bestD){ bestD = d; best = c; }
+    }
+    return best;
+  }
+
+  function bandText(b){ return b[0] === b[2] ? String(b[1]) : b[0] + "\u2013" + b[2]; }
+
+  function renderSeedSizeTab(){
+    const wrap = el("div", "");
+    const v = k => ERW.getVal(meta, state, k);
+    const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
+    const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
+                                        surfaceClasses: v("progression_surface") || [] });
+    if (!size){
+      wrap.append(el("div", "card", "<h2>Seed size</h2><div class='desc'>No regions are eligible " +
+        "with these options.</div>"));
+      return wrap;
+    }
+    const n = x => Math.round(x).toLocaleString();
+    const c1 = el("div", "card");
+    c1.insertAdjacentHTML("beforeend",
+      "<h2>How big is this seed?</h2>" +
+      "<div class='desc'>Computed from the region tables, over your current options \u2014 exact, " +
+      "not an estimate.</div>" +
+      "<div style='display:flex;gap:28px;flex-wrap:wrap;margin:14px 0 4px'>" +
+      "<div><div style='font-size:26px'>" + (size.whole ? n(size.checks.median)
+        : n(size.checks.p10) + "\u2013" + n(size.checks.p90)) + "</div>" +
+      "<div class='desc'>checks" + (size.whole ? "" : " (typical " + n(size.checks.median) + ")") + "</div></div>" +
+      "<div><div style='font-size:26px'>" + (size.kept.p10 === size.kept.p90 ? n(size.kept.median)
+        : n(size.kept.p10) + "\u2013" + n(size.kept.p90)) + "</div>" +
+      "<div class='desc'>regions kept</div></div>" +
+      "<div><div style='font-size:26px'>" + (size.whole ? n(size.surface.median)
+        : n(size.surface.p10) + "\u2013" + n(size.surface.p90)) + "</div>" +
+      "<div class='desc'>checks that can hold progression</div></div>" +
+      "</div>" +
+      (size.whole ? "" :
+       "<div class='desc' style='margin-top:8px'><b>num_regions is a draw size, not a final " +
+       "count.</b> Which regions the draw takes moves everything above, which is why these are " +
+       "ranges. Full spread at this setting: " + n(size.checks.min) + "\u2013" + n(size.checks.max) +
+       " checks.</div>"));
+    wrap.append(c1);
+
+    const cs = nearestCase(nr, dlcOn && !only);
+    if (cs){
+      const bar = (label, band, colour) =>
+        "<div style='margin:6px 0'><div style='display:flex;justify-content:space-between'>" +
+        "<span>" + label + "</span><span>" + bandText(band) + "%</span></div>" +
+        "<div style='height:8px;background:rgba(128,128,128,.18);border-radius:4px;overflow:hidden'>" +
+        "<div style='height:100%;width:" + band[1] + "%;background:" + colour + "'></div></div></div>";
+      const c2 = el("div", "card");
+      c2.insertAdjacentHTML("beforeend",
+        "<h2>What is in those checks?</h2>" +
+        "<div class='desc'>Filler is real consumables and upgrade stones, not a placeholder \u2014 " +
+        "every check pays something. \u2018Useful\u2019 is weapons, armour, talismans, spells and " +
+        "ashes of war. Progression is the region Locks, and there are only ever a handful.</div>" +
+        "<div style='margin:14px 0 4px'>" +
+        bar("filler", cs.filler, "#BA7517") +
+        bar("useful", cs.useful, "#1D9E75") +
+        bar("progression", cs.progression, "#7F77DD") +
+        "</div>" +
+        "<div class='desc' style='margin-top:10px'>\u26a0 <b>Measured, not computed.</b> The split " +
+        "depends on the filler budget and pool builder at generation time, so it comes from " +
+        composition.samples_per_case + " sampled builds at <code>" + esc(cs.label) + "</code>" +
+        " (world " + esc(composition.world_commit) + ", " + esc(composition.measured_on) + "). " +
+        "Your seed will land near this, not on it.</div>" +
+        "<div class='desc'>Bigger seeds are proportionally more filler: a one-region draw is " +
+        "mostly real gear, the whole map is about 61% filler.</div>");
+      wrap.append(c2);
+    }
+
+    const c3 = el("div", "card");
+    c3.insertAdjacentHTML("beforeend",
+      "<h2>Playing this in a multiworld?</h2>" +
+      "<div class='desc'>Elden Ring items are only useful in Elden Ring, so most players want them " +
+      "kept at home. <code>local_item_only</code> does that \u2014 it holds back every real vanilla " +
+      "item and every progressive upgrade. <code>filler_foreign_pct</code> only covers the filler " +
+      "share above, so on its own it still lets the gear travel.</div>" +
+      "<div class='desc'>Your own progression never travels either way: the region Locks are placed " +
+      "in your world before the multiworld fill ever sees them.</div>");
+    wrap.append(c3);
+    return wrap;
+  }
+
   function renderStep(){
     const main = $("#main");
     main.innerHTML = "";
@@ -2052,6 +2324,15 @@ if (typeof module !== "undefined") module.exports = ERW;
     });
     main.append(nav);
     const step = steps[cur];
+
+    if (step.id === "seedsize"){
+      main.append(renderSeedSizeTab());
+      const btns0 = el("div", "navbtns");
+      const b0 = el("button", "", "\u2039 Back"); b0.addEventListener("click", () => { cur--; renderStep(); });
+      const n0 = el("button", "", "Next \u203a"); n0.addEventListener("click", () => { cur++; renderStep(); });
+      btns0.append(b0, n0); main.append(btns0); window.scrollTo({top:0});
+      return;
+    }
 
     if (step.id === "welcome"){
       const c1 = el("div", "card",

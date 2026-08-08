@@ -25,6 +25,28 @@ pairs with was wrong, and the cross-side `generators` gate had been proving agre
 client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
 thing. This window starts by moving it.
 
+### Seed size is now the wizard's second tab
+
+"How many checks is this, and how much of it is junk?" is the question people actually arrive with,
+so it is no longer a small card in the sidebar. The second tab answers it directly and updates as
+you change options.
+
+Two numbers, and the tab is explicit about which is which. **Check count, regions kept, and how many
+checks can hold progression are exact** -- sums over the region tables, computed over your actual
+draw. **The filler / useful / progression split is measured**, because the filler budget and pool
+builder reshape the tail at generation time and the only honest way to know the ratio is to build
+worlds and count. It comes from `wizard/pool-composition.json`, sampled by
+`tools/sample_pool_composition.py`, and the tab shows the sample size, the option set it was
+measured at, and the world commit rather than presenting a band as if it were computed.
+
+Roughly: a default seed is about 56% filler and 43% real gear, with under 1% progression. A
+one-region draw is mostly gear; the whole map is about 61% filler. Filler here means real
+consumables and upgrade stones -- every check pays something.
+
+The tab also says the thing multiworld players keep needing: Elden Ring gear is only useful in Elden
+Ring, `local_item_only` is what keeps it home, and `filler_foreign_pct` alone does not, because it
+only covers the filler share. Your own progression never travels either way.
+
 ### The wizard's Checks panel was describing a randomizer that no longer exists
 
 A player reported one stale warning. An audit found **twenty**: the wizard's conflict rules were

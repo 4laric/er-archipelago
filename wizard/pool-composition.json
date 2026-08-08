@@ -1,0 +1,164 @@
+{
+ "schema": 1,
+ "sampled": true,
+ "samples_per_case": 10,
+ "world_commit": "b760d05d9c44",
+ "measured_on": "2026-08-07",
+ "note": "min/median/max over independent draws. num_regions is a draw size, so which regions a seed keeps moves these ratios -- render the spread, never the median alone.",
+ "cases": [
+  {
+   "label": "default",
+   "options": {},
+   "filler": [
+    50.4,
+    57.0,
+    58.3
+   ],
+   "useful": [
+    41.1,
+    42.4,
+    48.9
+   ],
+   "progression": [
+    0.4,
+    0.6,
+    1.0
+   ],
+   "checks": [
+    883,
+    1266,
+    2119
+   ]
+  },
+  {
+   "label": "num_regions=1",
+   "options": {
+    "num_regions": 1
+   },
+   "filler": [
+    25.3,
+    39.1,
+    53.7
+   ],
+   "useful": [
+    45.9,
+    60.0,
+    74.3
+   ],
+   "progression": [
+    0.2,
+    0.3,
+    0.4
+   ],
+   "checks": [
+    265,
+    354,
+    910
+   ]
+  },
+  {
+   "label": "num_regions=3",
+   "options": {
+    "num_regions": 3
+   },
+   "filler": [
+    37.9,
+    48.7,
+    57.2
+   ],
+   "useful": [
+    42.5,
+    47.5,
+    60.7
+   ],
+   "progression": [
+    0.2,
+    0.5,
+    1.3
+   ],
+   "checks": [
+    377,
+    656,
+    1238
+   ]
+  },
+  {
+   "label": "num_regions=12",
+   "options": {
+    "num_regions": 12
+   },
+   "filler": [
+    58.0,
+    59.1,
+    60.2
+   ],
+   "useful": [
+    39.2,
+    39.4,
+    41.4
+   ],
+   "progression": [
+    0.5,
+    0.6,
+    0.7
+   ],
+   "checks": [
+    2072,
+    2409,
+    2881
+   ]
+  },
+  {
+   "label": "whole map",
+   "options": {
+    "num_regions": 0
+   },
+   "filler": [
+    61.3,
+    61.4,
+    61.4
+   ],
+   "useful": [
+    37.9,
+    37.9,
+    37.9
+   ],
+   "progression": [
+    0.7,
+    0.7,
+    0.7
+   ],
+   "checks": [
+    4931,
+    4931,
+    4931
+   ]
+  },
+  {
+   "label": "base game",
+   "options": {
+    "enable_dlc": false
+   },
+   "filler": [
+    55.9,
+    58.8,
+    62.0
+   ],
+   "useful": [
+    37.7,
+    39.8,
+    43.4
+   ],
+   "progression": [
+    0.3,
+    0.5,
+    0.7
+   ],
+   "checks": [
+    1225,
+    1772,
+    2426
+   ]
+  }
+ ]
+}
