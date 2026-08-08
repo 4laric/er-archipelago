@@ -2262,8 +2262,14 @@ if (typeof module !== "undefined") module.exports = ERW;
      `#ss-head` and `#ss-rest`. Anything stateful (focus, a half-typed value) has to stay outside
      those two containers -- which is exactly why the controls sit BETWEEN them rather than in
      them. */
-  const SEED_SIZE_OPTIONS = ["num_regions", "enable_dlc", "dlc_only",
-                             "progression_surface", "confine_foreign_progression"];
+  // ORDER IS THE POINT, not the contents. num_regions and progression_surface are the two knobs
+  // that move the headline figures most, so they come first and adjacent. confine_foreign_progression
+  // rides directly under progression_surface because it is meaningless apart from it -- it confines
+  // OTHER players' progression to that same surface, so a reader who meets it alone has no idea what
+  // "the surface" refers to. enable_dlc / dlc_only change which regions are eligible at all, which
+  // matters but is usually decided once and left.
+  const SEED_SIZE_OPTIONS = ["num_regions", "progression_surface", "confine_foreign_progression",
+                             "enable_dlc", "dlc_only"];
 
   function renderSeedSizeTab(){
     const wrap = el("div", "");
