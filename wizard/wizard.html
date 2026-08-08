@@ -2237,16 +2237,50 @@ if (typeof module !== "undefined") module.exports = ERW;
 
   function bandText(b){ return b[0] === b[2] ? String(b[1]) : b[0] + "\u2013" + b[2]; }
 
+  /* The options that MOVE these numbers, rendered on this tab so you can turn the knob and watch
+     the answer instead of walking back and forth between tabs. They still live in their own groups
+     too -- these are the same optRow controls over the same state, not copies, so a change here
+     shows up there and in the yaml immediately.
+
+     🛑 THE NUMBERS REPAINT, THE CONTROLS DO NOT. Re-rendering the whole tab on every keystroke
+     would rebuild the checkbox you are mid-click on and drop focus, so `refresh()` repaints only
+     `#ss-numbers`. Anything stateful (focus, a half-typed value) has to stay outside it. */
+  const SEED_SIZE_OPTIONS = ["num_regions", "enable_dlc", "dlc_only",
+                             "progression_surface", "confine_foreign_progression"];
+
   function renderSeedSizeTab(){
     const wrap = el("div", "");
+    const numbers = el("div", "");
+    numbers.id = "ss-numbers";
+    wrap.append(numbers);
+
+    const ctl = el("div", "card");
+    ctl.append(el("div", "grouphead", "<h2>Change the answer</h2>" +
+      "<span class='count'>" + SEED_SIZE_OPTIONS.length + " options</span>"));
+    ctl.insertAdjacentHTML("beforeend",
+      "<div class='desc' style='margin-bottom:6px'>These are the options the figures above depend " +
+      "on. They appear in their own sections too \u2014 this is the same control, not a copy.</div>");
+    for (const k of SEED_SIZE_OPTIONS){
+      const o = meta.byKey[k];
+      if (o) ctl.append(optRow(o));
+    }
+    wrap.append(ctl);
+    paintSeedSize(numbers);
+    return wrap;
+  }
+
+  function paintSeedSize(box){
+    box = box || $("#ss-numbers");
+    if (!box) return;
+    box.innerHTML = "";
     const v = k => ERW.getVal(meta, state, k);
     const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
     const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
                                         surfaceClasses: v("progression_surface") || [] });
     if (!size){
-      wrap.append(el("div", "card", "<h2>Seed size</h2><div class='desc'>No regions are eligible " +
+      box.append(el("div", "card", "<h2>Seed size</h2><div class='desc'>No regions are eligible " +
         "with these options.</div>"));
-      return wrap;
+      return;
     }
     const n = x => Math.round(x).toLocaleString();
     const c1 = el("div", "card");
@@ -2270,7 +2304,7 @@ if (typeof module !== "undefined") module.exports = ERW;
        "count.</b> Which regions the draw takes moves everything above, which is why these are " +
        "ranges. Full spread at this setting: " + n(size.checks.min) + "\u2013" + n(size.checks.max) +
        " checks.</div>"));
-    wrap.append(c1);
+    box.append(c1);
 
     const cs = nearestCase(nr, dlcOn && !only);
     if (cs){
@@ -2297,7 +2331,7 @@ if (typeof module !== "undefined") module.exports = ERW;
         "Your seed will land near this, not on it.</div>" +
         "<div class='desc'>Bigger seeds are proportionally more filler: a one-region draw is " +
         "mostly real gear, the whole map is about 61% filler.</div>");
-      wrap.append(c2);
+      box.append(c2);
     }
 
     const c3 = el("div", "card");
@@ -2309,8 +2343,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       "share above, so on its own it still lets the gear travel.</div>" +
       "<div class='desc'>Your own progression never travels either way: the region Locks are placed " +
       "in your world before the multiworld fill ever sees them.</div>");
-    wrap.append(c3);
-    return wrap;
+    box.append(c3);
   }
 
   function renderStep(){
@@ -2529,6 +2562,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       " from defaults · preset: " + state.presetTitle;
     renderSeedSize();
     renderHostCard();
+    paintSeedSize();   // no-op unless the Seed size tab is the one on screen
     const fs = ERW.findings(meta, state);
     const box = $("#findings");
     box.innerHTML = fs.length ? "" : "<div class='allgood'>No conflicts found.</div>";
