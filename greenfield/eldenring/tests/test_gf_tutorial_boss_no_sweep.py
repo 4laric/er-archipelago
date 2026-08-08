@@ -401,10 +401,19 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     they were ever in it. No re-phasing followed, because removing the TAIL of one member list
     cannot shift a modulus that no other sweep shares.
 
+    2026-08-08 (phase-2 heads are not defeat flags, #481): digest a8d14d12 -> 3a3b9d44, n 3685 ->
+    3685. **408 RE-OWNED, zero net added, zero net removed, and ZERO crossed a region boundary** --
+    the safe shape this docstring asks for. Six triggers were dropped (12020801, 13000801, 14000801,
+    16000801, 20010801, 21010801: the second health-bar head of a fight whose flag sets when that
+    bar appears, not when the boss dies), so their members return to the fight's own primary and the
+    per-map divvy re-phases around them. The re-phase is why 24 triggers appear in the removed set
+    and 19 in the added set for a change that drops six: the modulus moved, exactly as #363 warned.
+    Two neighbours (12080800, 12090800) gained one member each for the same reason.
+
     WHEN THIS FAILS: diff DUNGEON_SWEEPS by (trigger, flag) across the regen and record ADDED,
     REMOVED and RE-OWNED separately. For the re-owned, check SWEEP_REGION on both sides: staying
     inside one region is a pacing change, leaving it is a reachability bug."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("a8d14d12484e5bcd", 3685), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (a8d14d12484e5bcd, 3685). The total alone will "
+    assert (digest, n) == ("3a3b9d444229dd16", 3685), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (3a3b9d444229dd16, 3685). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

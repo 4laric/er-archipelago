@@ -7655,6 +7655,52 @@ if BOSS_HEALTHBARS:
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
+            # ⭐⭐⭐ AN x801 BESIDE AN x800 ON THE SAME MAP IS NOT THE FIGHT'S DEFEAT FLAG.
+            #
+            # WHAT IS MEASURED, from boblerrr's 2026-08-08 Enir Ilim log, twice:
+            #     18:09:22 kick-watch: play_region 2001007 -> 2001000 (sub 20010)
+            #     18:09:22 sweep-watch: trigger flag 20010801 -> SET   <- the SAME SECOND he arrives
+            #     19:42:38 sweep-watch: trigger flag 20010800 -> SET   <- ~3 min later, the kill
+            # 20010801 fires on ENTERING, 20010800 on DYING. He was handed all 15 Enir Ilim checks
+            # for walking through the fog gate having killed nothing. That is the entire basis for
+            # this rule, and it rests on no theory of why the pair exists.
+            #
+            # 🛑🛑 WHY SOME FIGHTS HAVE TWO ROWS IS NOT KNOWN HERE, AND THREE GUESSES WERE WRONG.
+            # "cutscene bosses" -- killed by FIRE GIANT and GODRICK, which have mid-fight cutscenes
+            # and one row each. "the bar renames" -- killed by RENNALA, whose two rows carry an
+            # IDENTICAL name. "two bodies" -- killed by Fire Giant again: its phase 2 is a different
+            # shape with a different moveset and still one row. Each guess fit the cases in hand and
+            # broke on the next one. The defensible statement is the table's own header: it holds
+            # one row per DisplayBossHealthBar, keyed on that head's defeat event flag, and some
+            # fights issue two such calls.
+            #
+            # So this rule is deliberately STRUCTURAL and claims nothing about the fiction: within
+            # one map, an x801 adjacent to an x800 is a second head of the same fight, and only the
+            # x800 has been OBSERVED to behave as that fight's defeat flag.
+            #
+            #     20010800/801  Radahn, Consort of Miquella / Promised Consort Radahn
+            #     21010800/801  Base Serpent Messmer / Messmer the Impaler
+            #     16000800/801  Rykard / God-Devouring Serpent
+            #     13000800/801  Maliketh / Beast Clergyman
+            #     14000800/801  Rennala / Rennala                 (identical name)
+            #     12020800/801  Valiant Gargoyle / (Twinblade)    (a genuine duo -- two of them)
+            #
+            # 18 maps carry such a pair; the dungeon branch above already suppresses 12 through the
+            # duo tables. These six reach here because the legacy branch had no equivalent.
+            #
+            # 🛑 THE NAME CANNOT BE THE KEY -- differently named for PCR/Messmer/Rykard/Maliketh and
+            # identical for Rennala. Same-map adjacency is the only signal true of all six.
+            # 🛑 x800 IS THE ONE TO KEEP even where it reads like the earlier form: 13000800 is
+            # Maliketh and 13000801 the Beast Clergyman.
+            #
+            # Guarded like `_arena_secondary`'s two sources: the primary must be a healthbar head ON
+            # THIS MAP, or suppressing would delete the only trigger this map has.
+            if _ent % 100 == 1:
+                _phase_primary = BOSS_HEALTHBARS.get(_ent - 1)
+                if _phase_primary is not None and _phase_primary[0] == _bmap:
+                    _sweep_secondary_hits.append(
+                        (_ent, _bmap, _name, _ent - 1, "phase_pair"))
+                    continue
             # m61 overworld boss -> its own tile-region; else the map's check-majority region; else a
             # curated pin for a legacy map that hosts NO filler-swept checks so it gets no _mreg vote
             # (m25 Cathedral of Manus Metyr = shop + remembrance only, so Metyr fell to HUB -> Scaduview).
