@@ -1047,6 +1047,60 @@ def _load_flag_lots():
 
 FLAG_LOTS = _load_flag_lots()
 
+# ---- DERIVED ITEM NAMES for the rows region_map leaves blank -------------------------------------
+# 🛑 A CHECK CALLED `check`. 38 live locations across 29 flags shipped with no item name -- and the
+# repo had ALREADY resolved every one of them. tools/sweep_unnamed_items.py wrote
+# "Dryleaf Arts with Ash of War: Palm Blast" into greenfield/unnamed_item_sweep.tsv on 2026-07-27
+# for flag 400730, while this generator emitted
+#     Scadu Altus :: check - around Liurnia Lake Shore [f400730]
+# -- no item, and a descriptor naming a lake in the wrong half of the world (the row is `PENDING`, so
+# the nearest-grace waterfall had nothing local to reach for). That is not missing data; it is a
+# resolver that lived in a tool and was needed in the generator.
+#
+# The rules now live in tools/item_naming.py and BOTH callers import them, so the worklist and the
+# world cannot disagree again. See that module for the evidence behind each rule -- category ->
+# EquipParam table by MEMBERSHIP, the weapon-upgrade digit strip, and category 6 as a weapon + Ash of
+# War pairing.
+#
+# 🛑 THE VOTE MUST SEE THE WHOLE CORPUS. Learning the category -> family map from a handful of rows
+# gets it WRONG in a way that still returns names: a 4-row probe voted category 3 -> Weapon and then
+# refused to name a Protector id, reporting "WRONG FAMILY". So it is trained on every (category,
+# item_id) pair in FLAG_LOTS, once, here.
+# 🛑 NEVER OVERRIDES A NAME region_map ALREADY HAS. This only fills blanks. region_map is the
+# curated input; a derivation that silently rewrote curated names would make the csv unreadable as a
+# source of truth.
+try:
+    _sys0.path.insert(0, os.path.join(REPO, "tools"))
+    from item_naming import Namer as _Namer
+    _NAMER = _Namer(AR)
+except Exception as _e:                                   # no artifacts -> blanks stay blank
+    _NAMER = None
+    print(f"[gen_data] item_naming unavailable ({_e!r}); blank item names stay `check`")
+_DERIVED_NAMES = {}
+if _NAMER is not None and _NAMER.available:
+    _NAMER.learn((_e3[3], _e3[4]) for _lst3 in FLAG_LOTS.values() for _e3 in _lst3)
+    _name_verdicts = Counter()
+    for _fl3, _lst3 in FLAG_LOTS.items():
+        _parts = []
+        for _e3 in _lst3:
+            _nm3, _vd3 = _NAMER.name(_e3[4], _e3[3])
+            _name_verdicts[_vd3.split(":")[0].split(" --")[0]] += 1
+            if _nm3 and _nm3 not in _parts:
+                _parts.append(_nm3)
+        if _parts:
+            # Multi-lot flags name after the first slot WE CAN NAME, not the first slot. Worked
+            # example: flag 400281 drives lot 102810 (item 8178, which resolves only in the
+            # Accessory table under a Goods category -- the tool's own "WRONG FAMILY, the category
+            # map is the open question") and lot 102860 ("Scepter of the All-Knowing", already named
+            # in flag_lots.tsv). It takes the Scepter. Guessing across families to put a
+            # confidently-wrong name in front of a player is worse than naming the sibling you are
+            # sure of, so the unnamed slot is SKIPPED rather than resolved on a maybe. This is why
+            # this generator and unnamed_item_sweep.tsv can legitimately print different names for
+            # one flag: the worklist reports every unnamed lot, the world names the check.
+            _DERIVED_NAMES[_fl3] = _parts[0]
+    print(f"item naming: learned {dict(sorted(_NAMER.families.items()))}; "
+          f"{len(_DERIVED_NAMES)} flag(s) nameable from lots; verdicts={dict(_name_verdicts)}")
+
 def _load_co_check_ids():
     """greenfield/co_check_ids.tsv -- the APPEND-ONLY sibling-lot ap_id registry
     -> {(flag, table, lot): ap_id}. Ids are allocated once in the COCHECK band and never reused or
@@ -4110,7 +4164,9 @@ region_confirmed_aps=[]  # flag in _REGION_CONFIRMED_FLAGS -> a tile guess a HUM
 REGION_UNCONFIRMED = " (region unconfirmed)"
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 for r in rows:
-    reg=region_of(r); flag=int(r['flag']); item=r['item_name'] or 'check'
+    reg=region_of(r); flag=int(r['flag'])
+    # region_map's name first, then the params-derived one, then the honest placeholder.
+    item=r['item_name'] or _DERIVED_NAMES.get(flag) or 'check'
     _t=_loc_tags(r)
     # human descriptor (desc_sources waterfall). KEEP [f{flag}] as the final tiebreaker; the descriptor
     # is the readable middle. Item substring + [f...] suffix stay intact so name-substring and
