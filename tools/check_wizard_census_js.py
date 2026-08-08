@@ -38,6 +38,11 @@ WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 # whole-map branch (n=0, a DIFFERENT code path -- no sampling); a base-game seed; a dlc_only seed
 # (the finale must drop out); and a narrowed + widened progression surface, which is the axis the
 # combination union exists for.
+# The yaml the wizard hands a player has to name a game Archipelago actually has. `buildYaml` carried
+# the game name as a LITERAL ("EldenRing") while the world has been "Elden Ring" for months, so every
+# emitted yaml named a game that does not exist -- Copy/Download produced a file that cannot
+# generate, and Generate & host 422'd on every click. The option KEYS were metadata-driven and fine;
+# only the three strings carrying the game name were typed, and nothing read them.
 CASES = [
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False},
     {"numRegions": 1, "enableDlc": True, "dlcOnly": False},
@@ -49,6 +54,14 @@ CASES = [
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
      "surfaceClasses": ["MajorBoss", "Remembrance", "GreatRune", "Boss", "Legendary"]},
 ]
+
+
+def _metadata(html):
+    m = re.search(r'<script id="er-options-metadata" type="application/json">\n(.*?)</script>',
+                  html, re.S)
+    if not m:
+        sys.exit("[FAIL] no er-options-metadata blob in wizard.html")
+    return json.loads(m.group(1))
 
 
 def _extract():
@@ -162,10 +175,36 @@ def _run_node(core, census, cases):
     return json.loads(out.stdout.strip().splitlines()[-1])
 
 
+def check_yaml_names_the_game(core, meta):
+    """buildYaml's `game:` line and its option section must both be meta.game."""
+    harness = (core + "\nconst __meta = " + json.dumps(meta) + ";\n"
+               + "const m = ERW.loadMeta(__meta);\n"
+               + "const st = { name:'Player', presetId:null, presetTitle:'Defaults', values:{} };\n"
+               + "console.log(JSON.stringify(ERW.buildYaml(m, st)));\n")
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "yaml.js")
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(harness)
+        out = subprocess.run(["node", path], capture_output=True, text=True)
+    if out.returncode != 0:
+        return ["buildYaml harness failed:\n" + (out.stderr or "")[-2000:]]
+    text = json.loads(out.stdout.strip().splitlines()[-1])
+    game = meta["game"]
+    bad = []
+    if ("game: %s" % game) not in text:
+        bad.append("emitted yaml does not say %r -- it says %r"
+                   % ("game: " + game,
+                      next((l for l in text.splitlines() if l.startswith("game:")), "<no game line>")))
+    if not any(l.startswith(game + ":") for l in text.splitlines()):
+        bad.append("emitted yaml has no %r option section" % (game + ":"))
+    return bad
+
+
 def main():
     if not shutil.which("node"):
         print("[SKIP] node not on PATH -- the wizard's JS seed-size math is NOT gated on this box.")
         return 4
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
     core, census = _extract()
     cases = [dict(c) for c in CASES]
     js = _run_node(core, census, cases)
@@ -174,6 +213,12 @@ def main():
         want = seed_size(census, case)
         if got != want:
             bad.append("  case %s\n    js     %s\n    python %s" % (json.dumps(case), got, want))
+    game_bad = check_yaml_names_the_game(core, _metadata(html))
+    if game_bad:
+        print("[FAIL] the yaml the wizard emits names the wrong game:")
+        for b in game_bad:
+            print("   ", b)
+        return 1
     if bad:
         print("[FAIL] wizard JS seed-size disagrees with the Python reference:")
         print("\n".join(bad))
