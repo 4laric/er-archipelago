@@ -1638,6 +1638,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
         </div>
         <div class="small" id="copymsg" style="min-height:18px"></div>
       </div>
+      <div class="card" style="margin:0" id="hostcard">
+        <h3 style="margin:0 0 4px">Generate &amp; host</h3>
+        <div id="hostbox"></div>
+      </div>
       <div class="card" style="margin:0" id="seedsizecard">
         <h3 style="margin:0 0 4px">Seed size</h3>
         <div id="seedsize"></div>
@@ -2167,6 +2171,69 @@ if (typeof module !== "undefined") module.exports = ERW;
       .replace(/(#[^\n]*)/g, "<span class='yc'>$1</span>");
   }
 
+  /* ---- generate & host -------------------------------------------------------------------
+     POSTs this page's yaml to the host's /generate, which generates the seed and starts a room in
+     one request (webgui/generator.py + POST /generate).
+
+     SAME-ORIGIN ONLY, and that is deliberate rather than a limitation we have not got to yet. The
+     wizard is also shipped as a file:// page you can open from the release zip, and a file:// page
+     has a `null` origin: a cross-origin POST from it either fails CORS or forces the host to run
+     `Access-Control-Allow-Origin: *` on the one endpoint that spends CPU on a stranger's input.
+     Neither is worth it. Served from the host, this is a plain same-origin form POST and no CORS
+     policy is involved at all; opened from disk, we say so and the Copy/Download path still works. */
+  function hostEndpoint(){
+    return (location.protocol === "http:" || location.protocol === "https:")
+      ? new URL("/generate", location.origin).href : null;
+  }
+
+  function renderHostCard(){
+    const box = $("#hostbox");
+    if (!box) return;
+    const url = hostEndpoint();
+    if (!url){
+      box.innerHTML = "<div class='small'>Open this page from your host (peliarch.ca) to generate " +
+        "and host a room from here. From a local file, use Copy or Download and upload the yaml " +
+        "yourself.</div>";
+      return;
+    }
+    box.innerHTML =
+      "<button class='bigbtn' id='hostbtn' style='width:100%'>Generate &amp; host</button>" +
+      "<div class='small' id='hostmsg' style='min-height:18px;margin-top:6px'></div>";
+    $("#hostbtn").addEventListener("click", doHost);
+  }
+
+  async function doHost(){
+    const btn = $("#hostbtn"), msg = $("#hostmsg");
+    btn.disabled = true;
+    msg.textContent = "Generating\u2026 this usually takes a few seconds.";
+    const body = new FormData();
+    body.append("yaml", ERW.buildYaml(meta, state));
+    body.append("name", ERW.sanitizeName(state.name || "Player") + " - Elden Ring");
+    let r, data;
+    try {
+      r = await fetch(hostEndpoint(), { method: "POST", body,
+                                        headers: { "Accept": "application/json" } });
+      data = await r.json();
+    } catch (e){
+      btn.disabled = false;
+      msg.textContent = "Could not reach the host: " + e;
+      return;
+    }
+    if (r.status === 201){
+      const c = data.connect || {};
+      const addr = c.host && c.port ? c.host + ":" + c.port : "";
+      msg.innerHTML = "Room is up. <a href='/room/" + encodeURIComponent(data.id) + "'>Open it</a>" +
+        (addr ? " \u00b7 connect <code>" + esc(addr) + "</code>" : "");
+      return;
+    }
+    btn.disabled = false;
+    // 422 carries the generator's own log tail: it is the only thing that says WHICH option
+    // combination refused to fill, so it is shown rather than flattened into "generation failed".
+    const detail = data && data.detail ? String(data.detail).split("\n").slice(-3).join(" ") : "";
+    msg.textContent = (data && data.error ? data.error : "Generation failed (" + r.status + ")") +
+      (detail ? " \u2014 " + detail : "");
+  }
+
   function renderSeedSize(){
     const box = $("#seedsize");
     if (!box) return;
@@ -2207,6 +2274,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     $("#devcount").textContent = "· " + devs.length + " change" + (devs.length === 1 ? "" : "s") +
       " from defaults · preset: " + state.presetTitle;
     renderSeedSize();
+    renderHostCard();
     const fs = ERW.findings(meta, state);
     const box = $("#findings");
     box.innerHTML = fs.length ? "" : "<div class='allgood'>No conflicts found.</div>";
