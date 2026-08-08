@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+"""check_wizard_keymeta_js.py -- differential gate: the wizard's key_meta rendering contract.
+
+`progression_surface` ships PER-KEY presentation into the wizard (`key_meta`: a label and hint for
+every class, a family to draw it under, and the subset lattice). Two things about that can be wrong
+in ways every existing gate is blind to:
+
+1. THE GRID CAN SILENTLY LOSE A CLASS. The renderer draws keys by walking `key_meta.families` and
+   then the keys claimed by each family -- so a class that no family claims, or a family with no
+   keys, is simply not drawn. The player then cannot select something the world offers, and the page
+   looks complete. `surface_class_meta()` raises on that gap in Python; this gate proves the SHIPPED
+   metadata (which is what the page actually reads) has no such gap, and that every drawn key is a
+   real `valid_keys` member -- a label for a key AP would reject is a trap, not a hint.
+
+2. THE REDUNDANCY HINT CAN INVERT. `ERW.surfaceCoverage` inverts the containment relation to tell a
+   player "you already have these". Get the direction wrong and it confidently says the opposite --
+   which is exactly the failure that already happened once, in prose: contract.py carried this
+   lattice as a comment and the comment was BACKWARDS for months (it called MajorBoss a subset of
+   Remembrance/GreatRune; it is their superset). A comment cannot be executed. This can.
+
+WHY A DIFFERENTIAL, not an assertion: the Python side below re-derives coverage from `contains`
+independently, and the expectation for the load-bearing case is pinned to the LIVE tag data rather
+than typed -- `MajorBoss` really does contain `Remembrance`, and the gate asserts the pair from the
+shipped lattice, so it cannot be satisfied by two implementations agreeing on a wrong table.
+
+NEEDS NODE. Exits 4 (SKIP) when node is absent, mirroring check_wizard_census_js.py, so a box
+without it reports honestly rather than passing vacuously.
+"""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
+
+# Selections spanning: the shipped default; a lone broad class; broad + its children (the redundancy
+# case the hint exists for); two nested shop classes; the empty set (feature off); and every class at
+# once, which maximises the number of covered pairs.
+CASES = [
+    None,                                              # = the option's own default
+    ["MajorBoss"],
+    ["MajorBoss", "Remembrance", "GreatRune"],
+    ["Boss", "MajorBoss", "LegacyBoss", "FieldBoss"],
+    ["Shop", "ShopNonSpell", "ShopSlot"],
+    [],
+    "ALL",
+]
+
+
+def _core(html):
+    m = re.search(r'<script id="wizard-core">\n(.*?)</script>', html, re.S)
+    if not m:
+        sys.exit("[FAIL] wizard.html has no <script id=\"wizard-core\"> block")
+    return m.group(1)
+
+
+def _metadata(html):
+    m = re.search(r'<script id="er-options-metadata" type="application/json">\n(.*?)</script>',
+                  html, re.S)
+    if not m:
+        sys.exit("[FAIL] wizard.html has no injected options metadata")
+    return json.loads(m.group(1))
+
+
+def _keymeta_options(meta):
+    return [o for o in meta["options"] if o.get("key_meta")]
+
+
+def py_coverage(km, selected):
+    """Reference implementation: {child: parent} over SELECTED pairs, first parent in key_meta order."""
+    contains = km.get("contains") or {}
+    sel = set(selected or ())
+    out = {}
+    for entry in km["keys"]:
+        if entry["key"] not in sel:
+            continue
+        for child in contains.get(entry["key"], ()):
+            if child in sel and child not in out:
+                out[child] = entry["key"]
+    return out
+
+
+def structural_faults(o):
+    """The grid must be able to draw every key exactly once, and only real keys."""
+    km = o["key_meta"]
+    faults = []
+    valid = set(o["valid_keys"] or ())
+    drawn = [e["key"] for e in km["keys"]]
+    fam_ids = [f["id"] for f in km["families"]]
+    if len(set(drawn)) != len(drawn):
+        faults.append("a key is drawn twice: %s" % sorted({k for k in drawn if drawn.count(k) > 1}))
+    missing = sorted(valid - set(drawn))
+    if missing:
+        faults.append("valid_keys the grid would NEVER draw (no family claims them): %s" % missing)
+    unknown = sorted(set(drawn) - valid)
+    if unknown:
+        faults.append("labelled keys that are not valid_keys, so AP would reject them: %s" % unknown)
+    for e in km["keys"]:
+        if e["family"] not in fam_ids:
+            faults.append("key %r sits in family %r, which is not in key_meta.families -- it would "
+                          "not be drawn" % (e["key"], e["family"]))
+        if not (e.get("label") or "").strip():
+            faults.append("key %r has an empty label and would render as a bare tag name" % e["key"])
+    for f in km["families"]:
+        if not any(e["family"] == f["id"] for e in km["keys"]):
+            faults.append("family %r claims no keys -- an empty heading" % f["id"])
+    # Containment must point at real keys in both directions, or the hint names something invisible.
+    for parent, kids in (km.get("contains") or {}).items():
+        if parent not in valid:
+            faults.append("contains names unknown parent %r" % parent)
+        for k in kids:
+            if k not in valid:
+                faults.append("contains[%r] names unknown child %r" % (parent, k))
+        if parent in kids:
+            faults.append("contains[%r] contains itself" % parent)
+    return faults
+
+
+def lattice_faults(o):
+    """The relation must be a strict partial order: no cycles, nothing containing itself.
+
+    A cycle would make the hint claim two classes each cover the other, and the renderer would
+    annotate whichever it saw first -- a coin flip presented as advice.
+    """
+    contains = {k: set(v) for k, v in (o["key_meta"].get("contains") or {}).items()}
+    faults = []
+    for a, kids in contains.items():
+        for b in kids:
+            if a in contains.get(b, ()):
+                faults.append("mutual containment %r <-> %r -- not a strict lattice" % (a, b))
+    return faults
+
+
+def _run_node(core, cases):
+    harness = (core + "\nconst __cases = " + json.dumps(cases) + ";\n"
+               + "console.log(JSON.stringify(__cases.map(c => "
+                 "ERW.surfaceCoverage(c.km, c.selected))));\n")
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "keymeta.js")
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(harness)
+        out = subprocess.run(["node", path], capture_output=True, text=True)
+    if out.returncode != 0:
+        sys.exit("[FAIL] node harness failed:\n" + (out.stderr or "")[-4000:])
+    return json.loads(out.stdout.strip().splitlines()[-1])
+
+
+def main(argv=None):
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    meta = _metadata(html)
+    opts = _keymeta_options(meta)
+    if not opts:
+        sys.exit("[FAIL] no option ships key_meta -- this gate would pass vacuously. If the hook was "
+                 "removed on purpose, remove this gate in the same commit.")
+
+    bad = []
+    for o in opts:
+        for f in structural_faults(o) + lattice_faults(o):
+            bad.append("%s: %s" % (o["key"], f))
+
+    # The load-bearing pair, read OUT OF the shipped lattice rather than typed here: whatever the
+    # data says contains what, the hint must point from the narrow class to the broad one.
+    for o in opts:
+        contains = o["key_meta"].get("contains") or {}
+        if not contains:
+            bad.append("%s: key_meta.contains is EMPTY -- the redundancy hint can never fire, and "
+                       "the derivation reads LOCATION_TAGS, so this means the dump ran without "
+                       "generated data" % o["key"])
+
+    if not shutil.which("node"):
+        print("[SKIP] node not on PATH -- the wizard's coverage inversion is NOT gated on this box.")
+        if bad:
+            print("[FAIL] " + "\n       ".join(bad))
+            return 1
+        print("[ok] key_meta structure is sound (%d option(s)); JS half skipped" % len(opts))
+        return 4
+
+    cases = []
+    for o in opts:
+        km = o["key_meta"]
+        for c in CASES:
+            sel = (o["default"] if c is None
+                   else [e["key"] for e in km["keys"]] if c == "ALL" else c)
+            sel = [k for k in sel if k in set(o["valid_keys"] or ())]
+            cases.append({"key": o["key"], "km": km, "selected": sel})
+
+    js = _run_node(_core(html), cases)
+    for case, got in zip(cases, js):
+        want = py_coverage(case["km"], case["selected"])
+        if got != want:
+            bad.append("%s selection %s: JS coverage %s != Python %s"
+                       % (case["key"], case["selected"], got, want))
+
+    # ...and the inversion must actually FIRE somewhere, or agreement is agreement about nothing.
+    fired = [c for c, g in zip(cases, js) if g]
+    if not fired:
+        bad.append("surfaceCoverage returned {} for every case -- the gate is vacuous")
+
+    if bad:
+        print("[FAIL] " + "\n       ".join(bad))
+        return 1
+    print("[ok] key_meta: %d option(s), %d case(s), %d with live coverage; JS == Python"
+          % (len(opts), len(cases), len(fired)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

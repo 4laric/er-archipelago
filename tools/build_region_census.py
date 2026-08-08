@@ -120,7 +120,7 @@ def measure(sc=None):
     bars = sc._bars(mods)
     barred = frozenset().union(*bars.values())
     exclude_tags = set(getattr(contract, "SURFACE_EXCLUDE_TAGS", ()) or ())
-    vocab = list(contract.IMPORTANT_LOCATION_TYPES)
+    vocab = list(contract.SURFACE_CLASSES)
     vocab_set = set(vocab)
     # ORDER COMES FROM THE VOCABULARY, NEVER FROM THE CONTAINER. SURFACE_DEFAULT_CLASSES is a
     # frozenset, and a Python set of strings has no stable iteration order across processes --

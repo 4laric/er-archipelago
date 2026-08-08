@@ -325,6 +325,22 @@ def test_the_sweep_corpus_did_not_shrink():
 
     +3 (2026-08-07, #249 de-dup re-key) 3688 -> 3691. The corpus GREW, and nothing was removed.
 
+    -6 (2026-08-08, the Shop umbrella fix) 3691 -> 3685. SIX MEMBERS LEFT ONE SWEEP AND NOTHING
+        ELSE MOVED -- diffed by (trigger, flag) against main, 6 removed, 0 added, 0 re-owned. All six
+        came off dungeon trigger 1034500800, and all six are PRECEPTOR SELUVIS'S SORCERY SHOP ROWS:
+
+          7770266 Glintstone Cometshard   7770269 Swift Glintstone Shard
+          7770267 Star Shower             7770270 Glintblade Phalanx
+          7770268 Great Glintstone Shard  7770271 Carian Slicer
+
+        Felling a Liurnia catacomb boss was auto-granting six of Seluvis's shop slots. Shop classes
+        are in gen_data._FIELD_EXCLUDE_TAGS precisely so merchant stock is never sweep filler, and
+        the exclusion was reading the `Shop` TAG -- which came from the region_map `method` column,
+        while ShopNonSpell/ShopSlot came from the stock FLAG. These six sit in the 35-row gap between
+        those two predicates, so the exclusion could not see them. One predicate now
+        (gen_data._is_shop_row), and the sweeps lose stock they should never have held. No check left
+        the sweep corpus for any other reason, and all six remain normal shop checks.
+
         The #249 regen re-keyed the unplaced-global de-dup off the ITEM NAME, which recovered 16
         locations that the old key had been silently dropping. Three of those 16 sit in
         sweep-eligible dungeon geometry and are therefore sweep corpus by the same rule as their
@@ -347,8 +363,8 @@ def test_the_sweep_corpus_did_not_shrink():
     # from the total moving by one.
     # 🛑 THE TOTAL CANNOT SEE A PERMUTATION -- see test_the_sweep_OWNERSHIP_did_not_churn below.
     # The same +3 regen ALSO moved 133 existing members to a different boss.
-    assert total == 3691, (
-        "sweep corpus is %d, expected 3691. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3685, (
+        "sweep corpus is %d, expected 3685. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -379,10 +395,16 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     boundary**. Every one stayed with a boss in the same region, so no check moved somewhere a
     player might not have access to -- the softlock-shaped risk (#445) is not present.
 
+    2026-08-08 (the Shop umbrella fix): digest a50f6de2 -> a8d14d12, n 3691 -> 3685. Six REMOVED,
+    zero added, zero RE-OWNED -- the cleanest shape this diff can have. All six are Preceptor
+    Seluvis shop rows leaving dungeon trigger 1034500800; see the sibling test's docstring for why
+    they were ever in it. No re-phasing followed, because removing the TAIL of one member list
+    cannot shift a modulus that no other sweep shares.
+
     WHEN THIS FAILS: diff DUNGEON_SWEEPS by (trigger, flag) across the regen and record ADDED,
     REMOVED and RE-OWNED separately. For the re-owned, check SWEEP_REGION on both sides: staying
     inside one region is a pacing change, leaving it is a reachability bug."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("a50f6de2c7723bf6", 3691), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (a50f6de2c7723bf6, 3691). The total alone will "
+    assert (digest, n) == ("a8d14d12484e5bcd", 3685), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (a8d14d12484e5bcd, 3685). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

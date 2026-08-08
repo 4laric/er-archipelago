@@ -31,6 +31,43 @@ it through a pull request so the gate runs before `main` sees it.
 predicted it in as many words, and the fixture now says the same thing about 0.3.9, because it will
 be true again.
 
+### The progression-surface option had two names for one thing, and one of them was narrower than its own members
+
+**`Shop` was not a superset of `ShopNonSpell` or `ShopSlot`.** Two predicates answered "is this check
+a shop row?" and they disagreed on 35 rows: `ShopNonSpell`/`ShopSlot` were derived from the
+detectable stock FLAG, while the `Shop` tag came from the `method` column of a csv. So selecting
+`Shop` in `progression_surface` -- expecting "every merchant" -- gave you 28 checks FEWER than
+selecting `ShopNonSpell`, and there is now one predicate for both.
+
+That gap was also a hole in an exclusion, and in a sweep. `Roundtable Hold :: Mohgwyn's Sacred Spear
+- from Finger Reader Enia` could host progression while all 26 of its neighbours in the same Enia
+stock list were correctly barred as buy-only. And felling a Liurnia catacomb boss auto-granted six
+of Preceptor Seluvis's sorcery shop slots, because the rule that keeps merchant stock out of dungeon
+sweeps was reading the narrower tag. The sweep corpus drops 3691 -> 3685: six of Seluvis's rows, and
+nothing else.
+
+**The surface grid in the options wizard now says what it selects.** The 16 classes are tag names,
+and several actively mislead: `Church` is the 13 Sacred Tears, not "church locations"; `Basin` is
+Crystal Tears; `Seedtree` is Golden Seeds. They rendered as raw keys in alphabetical order, which
+also scattered the four boss classes across the grid. They now render with player-facing labels and
+one-line hints, grouped by family, with the key still shown small beside the label for anyone
+hand-editing a yaml.
+
+The keys themselves are UNCHANGED, deliberately: Archipelago raises on an unknown option key, so
+renaming `Church` would hard-fail every yaml already in the wild rather than degrade. Renaming them
+with the old names kept as deprecated aliases is a separate change.
+
+**And the grid now tells you when a box adds nothing.** Most of these classes contain each other, so
+ticking `Boss` silently makes `MajorBoss`, `LegacyBoss` and `FieldBoss` no-ops, and `MajorBoss`
+already covers every `Remembrance` and `Great Rune` check. The lattice is derived from the location
+data on every build rather than written down -- because it HAD been written down, in a comment in
+`contract.py`, backwards, for months. It claimed `MajorBoss` was a subset of
+`Remembrance`/`GreatRune`; it is their superset.
+
+`greenfield/surface_confidence.tsv` gains a `tag_excluded` column. Its `total` was already filtered
+and the filter only lived in prose, which is enough to make two honest numbers on one page look like
+a defect -- it did, during this work.
+
 ## v0.3.8 — 2026-08-07
 
 Window opened 2026-08-07, at the tag of v0.3.7 and because somebody remembered rather than because

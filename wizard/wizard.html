@@ -88,6 +88,25 @@ header.top .sub{color:var(--dim);font-size:13px}
 .toggle input:checked::after{left:18px}
 .toggle .tv{font:13px var(--mono);color:var(--dim)}
 .setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:4px}
+/* Labelled/grouped variant of .setgrid, used when an option ships key_meta (see
+   features/progression_surface.wizard_key_meta). Wider cells: these carry a label AND a hint. */
+.famwrap{flex:1 1 100%;display:flex;flex-direction:column;gap:10px}
+.fam{display:flex;flex-direction:column;gap:4px}
+.fam>.famlab{color:var(--gold-dim);font:12.5px var(--mono);text-transform:uppercase;
+  letter-spacing:.06em;border-bottom:1px solid #3a342a;padding-bottom:2px}
+.famgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px}
+.ctl label.kchoice{display:flex;align-items:flex-start;gap:7px;background:var(--panel2);
+  border:1px solid #3a342a;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:14px}
+.ctl label.kchoice:has(input:checked){border-color:var(--gold)}
+.ctl label.kchoice .kbody{display:flex;flex-direction:column;gap:1px;min-width:0}
+.ctl label.kchoice .klab{color:var(--text)}
+.ctl label.kchoice:has(input:checked) .klab{color:var(--gold)}
+.ctl label.kchoice .kkey{font:11px var(--mono);color:var(--dim)}
+.ctl label.kchoice .khint{font-size:12px;color:var(--dim);line-height:1.35}
+/* "a broader box already covers this one" -- drawn, never disabled: the player may want the
+   narrow class ON so that UNticking the broad one later still leaves it selected. */
+.ctl label.kchoice.covered{opacity:.55}
+.ctl label.kchoice .kcov{font:11px var(--mono);color:var(--gold-dim)}
 .navbtns{display:flex;justify-content:space-between;margin-top:10px}
 .navbtns button,.bigbtn{background:var(--panel2);color:var(--gold);border:1px solid var(--gold-dim);
   border-radius:6px;padding:8px 20px;font:15px Georgia,serif;cursor:pointer}
@@ -900,7 +919,161 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "key_meta": {
+    "keys": [
+     {
+      "key": "Boss",
+      "label": "Any boss drop",
+      "hint": "Every enemy the game gives a boss healthbar. Contains all the boss classes below, so ticking this makes them redundant.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "MajorBoss",
+      "label": "Major bosses",
+      "hint": "Remembrance and great-rune arena bosses, plus curated majors for the regions that have none. Contains Remembrances and Great Runes.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "LegacyBoss",
+      "label": "Legacy dungeon bosses",
+      "hint": "Bosses standing inside a legacy dungeon.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "FieldBoss",
+      "label": "Overworld bosses",
+      "hint": "Field, evergaol and dragon bosses out in the open world. The least region-confident boss class -- 22 of them sit on a guessed region.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "Remembrance",
+      "label": "Remembrances",
+      "hint": "The Remembrance a great boss drops.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "GreatRune",
+      "label": "Great Runes",
+      "hint": "The seven Great Runes.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "Seedtree",
+      "label": "Golden Seeds",
+      "hint": "The 43 Golden Seed pickups.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Church",
+      "label": "Sacred Tears",
+      "hint": "The 13 Sacred Tears in the ruined churches -- NOT all church locations.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Basin",
+      "label": "Crystal Tears",
+      "hint": "Physick tears. The same items keep_local calls `crystal_tears`.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Fragment",
+      "label": "Scadutree Fragments",
+      "hint": "Shadow of the Erdtree. Ignored in a base-game seed.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Revered",
+      "label": "Revered Spirit Ashes",
+      "hint": "Shadow of the Erdtree. Ignored in a base-game seed.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "ShopSlot",
+      "label": "One slot per merchant",
+      "hint": "At most ONE ware per merchant, so no shop can dominate the surface by the size of its stock. 12 slots.",
+      "family": "merchants",
+      "family_label": "Merchants"
+     },
+     {
+      "key": "ShopNonSpell",
+      "label": "General merchants",
+      "hint": "Every merchant slot except a dedicated spell vendor's stock. 442 checks -- picking this makes the seed mostly 'farm runes, buy your progression'.",
+      "family": "merchants",
+      "family_label": "Merchants"
+     },
+     {
+      "key": "Shop",
+      "label": "Every merchant slot",
+      "hint": "All 562 shop rows, spell vendors included. Contains the two classes above.",
+      "family": "merchants",
+      "family_label": "Merchants"
+     },
+     {
+      "key": "KeyItem",
+      "label": "Key items",
+      "hint": "The hand-reviewed quest and door keys.",
+      "family": "items",
+      "family_label": "Items"
+     },
+     {
+      "key": "Legendary",
+      "label": "Legendary items",
+      "hint": "Everything the params rank rarity 3. Enia's buy-only remembrance store is excluded from the surface whatever you pick here.",
+      "family": "items",
+      "family_label": "Items"
+     }
+    ],
+    "families": [
+     {
+      "id": "bosses",
+      "label": "Bosses"
+     },
+     {
+      "id": "collectathon",
+      "label": "Collectathon lines"
+     },
+     {
+      "id": "merchants",
+      "label": "Merchants"
+     },
+     {
+      "id": "items",
+      "label": "Items"
+     }
+    ],
+    "contains": {
+     "Boss": [
+      "Remembrance",
+      "GreatRune",
+      "MajorBoss",
+      "LegacyBoss",
+      "FieldBoss"
+     ],
+     "Shop": [
+      "ShopNonSpell",
+      "ShopSlot"
+     ],
+     "ShopNonSpell": [
+      "ShopSlot"
+     ],
+     "MajorBoss": [
+      "Remembrance",
+      "GreatRune"
+     ]
+    }
+   }
   },
   {
    "key": "confine_foreign_progression",
@@ -1951,9 +2124,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Legendary": 4,
     "Seedtree": 4,
     "Shop": 3,
-    "ShopNonSpell|ShopSlot": 1,
     "Shop|ShopNonSpell": 22,
-    "Shop|ShopNonSpell|ShopSlot": 2
+    "Shop|ShopNonSpell|ShopSlot": 3
    },
    "dlc": false,
    "parent": null,
@@ -2086,8 +2258,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Legendary": 5,
     "Seedtree": 3,
     "Shop": 14,
-    "ShopNonSpell": 4,
-    "Shop|ShopNonSpell": 70,
+    "Shop|ShopNonSpell": 74,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
@@ -2106,10 +2277,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "KeyItem": 2,
     "Legendary": 4,
     "Seedtree": 3,
-    "Shop": 57,
-    "ShopNonSpell": 12,
-    "ShopNonSpell|ShopSlot": 1,
-    "Shop|ShopNonSpell": 14
+    "Shop": 64,
+    "Shop|ShopNonSpell": 26,
+    "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
    "parent": null,
@@ -2188,9 +2358,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Roundtable Hold": {
    "checks": 224,
    "combos": {
-    "Legendary|ShopNonSpell": 1,
-    "ShopNonSpell": 2,
-    "Shop|ShopNonSpell": 119
+    "Shop|ShopNonSpell": 121
    },
    "dlc": false,
    "parent": null,
@@ -2245,8 +2413,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Legendary": 1,
     "Seedtree": 1,
-    "ShopNonSpell|ShopSlot": 1,
-    "Shop|ShopNonSpell": 7
+    "Shop|ShopNonSpell": 7,
+    "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
    "parent": null,
@@ -2292,7 +2460,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "e67358bf7c3cab932bfa0be00e177c583d951715a30ad617416b9593d73ada21"
+ "source_sha256": "115d0dfaeb9c167a91c75f405c7995492ab99b472fe6eff7135239a135df36e7"
 }
 </script>
 <div class="wrap">
@@ -2605,8 +2773,35 @@ const ERW = (() => {
              checks: band(checks), surface: band(surf), kept: band(kept) };
   }
 
+  /* Which selected classes are already fully covered by a BROADER selected class.
+     -> { child: parent } for every selected child inside a selected parent.
+
+     Lives in wizard-core rather than in the renderer so it can be executed by
+     tools/check_wizard_keymeta_js.py under node. The renderer below is DOM-bound and nothing in
+     this repo can run it, so logic parked there is logic no gate can reach -- and this particular
+     logic is about the one lattice that has already been written down WRONG once (contract.py
+     carried it inverted as a comment for months).
+
+     `contains` arrives from the dump, which DERIVES it from the live location tags. This function
+     only inverts the relation; it must never grow its own idea of what contains what. When two
+     selected parents both cover a child, the FIRST in key_meta order wins -- deterministic, and
+     the message names one parent rather than a list nobody reads. */
+  function surfaceCoverage(keyMeta, selected){
+    const out = {};
+    if (!keyMeta || !keyMeta.keys) return out;
+    const contains = keyMeta.contains || {};
+    const sel = new Set(selected || []);
+    for (const km of keyMeta.keys){
+      if (!sel.has(km.key)) continue;
+      for (const child of (contains[km.key] || [])){
+        if (sel.has(child) && !out[child]) out[child] = km.key;
+      }
+    }
+    return out;
+  }
+
   return { loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
-           buildYaml, findings, pretty, sanitizeName, seedSize, AP_CORE };
+           buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage, AP_CORE };
 })();
 if (typeof module !== "undefined") module.exports = ERW;
 </script>
@@ -2696,21 +2891,85 @@ if (typeof module !== "undefined") module.exports = ERW;
       });
       wrap.append(sl, num, el("span", "bounds", start + "–" + end + " (default " + o.default + ")"));
     } else if (o.kind === "set" || o.kind === "list"){
-      const grid = el("div", "setgrid");
-      for (const k of o.valid_keys){
-        const lab = el("label", "choice");
-        const cb = Object.assign(document.createElement("input"),
-          {type:"checkbox", checked:v.includes(k)});
-        cb.addEventListener("change", () => {
-          const curv = new Set(ERW.getVal(meta, state, o.key));
-          cb.checked ? curv.add(k) : curv.delete(k);
-          commit(o.valid_keys.filter(x => curv.has(x)));
-        });
-        lab.append(cb, document.createTextNode(k));
-        grid.append(lab);
+      /* THE SELECTION IS ALWAYS COMMITTED IN valid_keys ORDER, in both branches below. That list
+         is sorted by the dumper and is the only stable order available -- the display order is a
+         presentation concern and must not leak into the yaml. */
+      const commitKeys = (curv) => commit(o.valid_keys.filter(x => curv.has(x)));
+      const onToggle = (cb, k) => cb.addEventListener("change", () => {
+        const curv = new Set(ERW.getVal(meta, state, o.key));
+        cb.checked ? curv.add(k) : curv.delete(k);
+        commitKeys(curv);
+      });
+
+      if (o.key_meta && o.key_meta.keys && o.key_meta.keys.length){
+        /* LABELLED + GROUPED. The keys are internal tag names ("Church" is the 13 Sacred Tears,
+           not "church locations"; "Basin" is Crystal Tears), so the label is what the player reads
+           and the key is shown small beside it -- they still need the key to hand-edit a yaml or
+           read a bug report. Grouped by family because alphabetical order scattered the four boss
+           classes across the grid.
+           The keys stay as they are: AP's VerifyKeys RAISES on an unknown key, so renaming one
+           hard-fails every yaml already in the wild. */
+        const meta_ = o.key_meta;
+        const contains = meta_.contains || {};
+        const sel = new Set(v);
+        /* Which boxes a BROADER checked class already covers -- whether or not the child is itself
+           checked, because both facts are worth drawing: a checked child is REDUNDANT, and an
+           unchecked one would ADD NOTHING if ticked. ERW.surfaceCoverage answers the selected-only
+           half and is the gated one (tools/check_wizard_keymeta_js.py); this widens it by the same
+           rule, in key_meta order so the parent named is deterministic. */
+        const coveredBy = {};
+        for (const km of meta_.keys){
+          if (!sel.has(km.key)) continue;
+          for (const child of (contains[km.key] || [])){
+            if (!coveredBy[child]) coveredBy[child] = km.key;
+          }
+        }
+        const labelOf = {};
+        for (const km of meta_.keys) labelOf[km.key] = km.label;
+        const byFam = {};
+        for (const km of meta_.keys) (byFam[km.family] = byFam[km.family] || []).push(km);
+        const famwrap = el("div", "famwrap");
+        for (const fam of (meta_.families || [])){
+          const kms = byFam[fam.id] || [];
+          if (!kms.length) continue;
+          const box = el("div", "fam");
+          box.append(el("div", "famlab", fam.label));
+          const grid = el("div", "famgrid");
+          for (const km of kms){
+            const cov = coveredBy[km.key];
+            const lab = el("label", "kchoice" + (cov ? " covered" : ""));
+            const cb = Object.assign(document.createElement("input"),
+              {type:"checkbox", checked:sel.has(km.key)});
+            onToggle(cb, km.key);
+            const body = el("div", "kbody");
+            const head = el("div", "klab");
+            head.append(document.createTextNode(km.label), el("span", "kkey", " " + km.key));
+            body.append(head);
+            if (km.hint) body.append(el("div", "khint", km.hint));
+            if (cov){
+              body.append(el("div", "kcov",
+                "already covered by " + (labelOf[cov] || cov)));
+            }
+            lab.append(cb, body);
+            grid.append(lab);
+          }
+          box.append(grid);
+          famwrap.append(box);
+        }
+        wrap.append(famwrap);
+      } else {
+        const grid = el("div", "setgrid");
+        for (const k of o.valid_keys){
+          const lab = el("label", "choice");
+          const cb = Object.assign(document.createElement("input"),
+            {type:"checkbox", checked:v.includes(k)});
+          onToggle(cb, k);
+          lab.append(cb, document.createTextNode(k));
+          grid.append(lab);
+        }
+        grid.style.flex = "1 1 100%";
+        wrap.append(grid);
       }
-      grid.style.flex = "1 1 100%";
-      wrap.append(grid);
     } else {
       const t = Object.assign(document.createElement("input"), {type:"text", value:v});
       t.addEventListener("change", () => commit(t.value));

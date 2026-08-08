@@ -189,6 +189,12 @@ Invoke-CiStep "WIZARD-CENSUS-JS (seed-size math: JS vs Python)" {
     elseif ($LASTEXITCODE -ne 0) { throw "WIZARD-CENSUS-JS: the wizard's JS seed-size math disagrees with the Python reference" }
 }
 
+Invoke-CiStep "WIZARD-KEYMETA (grid structure + coverage inversion)" {
+    python (Join-Path $Repo "tools\check_wizard_keymeta_js.py")
+    if ($LASTEXITCODE -eq 4) { Write-Host "  SKIP: node not on PATH -- the wizard's coverage inversion is ungated on this box." }
+    elseif ($LASTEXITCODE -ne 0) { throw "WIZARD-KEYMETA: the surface grid's key metadata is unsound, or the JS coverage inversion disagrees with Python" }
+}
+
 # ----- 1c) release notes for the open version ----------------------------------
 # CONTRIBUTING rule 14. v0.3.0 shipped 2026-08-01; by the next morning main carried five more
 # player-visible fixes (two off Nexus bug reports) with no v0.3.1 changelog section and no blurb,

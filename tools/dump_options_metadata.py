@@ -217,6 +217,20 @@ def describe(key, cls):
     else:
         d["kind"] = "text"
         d["default"] = getattr(cls, "default", "")
+
+    # PER-KEY PRESENTATION, when the option class offers it.
+    # A GENERIC HOOK on purpose. This function introspects AP option classes and must not learn the
+    # name of any particular option: the moment it does, the next set-valued option that wants
+    # labelled keys grows a second, divergent path. A class that has something to say about its own
+    # keys exposes `wizard_key_meta()`; everything else is unaffected and the key is simply absent.
+    #
+    # ADDITIVE, and deliberately not a replacement for `valid_keys`. That list stays the
+    # authoritative one and stays SORTED -- `valid_keys` is a frozenset, which has no stable
+    # iteration order, and sorting it is what makes this file byte-comparable by `--check`. Display
+    # order belongs to the metadata below; determinism belongs to the sorted list.
+    key_meta = getattr(cls, "wizard_key_meta", None)
+    if callable(key_meta):
+        d["key_meta"] = key_meta()
     return d
 
 

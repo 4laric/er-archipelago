@@ -11,7 +11,7 @@ Two escape hatches, both self-cleaning so a hole that becomes fixable forces the
 
   * ACCEPTED_LEAKS  -- a location that IS emitted and detectable but is KNOWINGLY unsuppressable
                        (its vanilla ware leaks / double-dips). Legal ONLY when the location is
-                       FILLER-classified (no contract IMPORTANT_LOCATION_TYPES / surface tag) -- an
+                       FILLER-classified (no contract SURFACE_CLASSES / surface tag) -- an
                        important location may never knowingly leak. If the location later gains a
                        suppression mechanism, or stops being filler, the gate reports it for removal.
 

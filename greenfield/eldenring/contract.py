@@ -243,16 +243,27 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # tracker's region model ships in slot_data.) The DEFINITION lives here in the contract.
 # The location-CLASS vocabulary. Consumed by features/progression_surface (valid_keys + the widen
 # ladder) and coverage.py.
+# 🛑 THIS ORDER IS A DETERMINISM HANDLE, NOT A DISPLAY ORDER. `selected_surface()` filters a
+# player's set THROUGH this list precisely because a Python set of strings has no stable iteration
+# order across processes, so reordering it would change the ladder -- and the fill behind it --
+# between two runs of the same seed. It reads as historical accretion because it IS: append here,
+# never rearrange. The wizard's grid is grouped by FAMILY instead, from a separate presentation
+# order in features/progression_surface.SURFACE_CLASS_FAMILIES.
 # (There is no `big_ticket_locations` option; the surface is selected by ProgressionSurface.)
 # "EniaShop" is INTERNAL (gen_data tags the remembrance store) and is never user-selectable.
-# NAME OUTLIVED ITS OPTION. features/important_locations was deleted 2026-08-02; this list is now
-# purely the PROGRESSION SURFACE vocabulary (features/progression_surface.valid_keys + the widen
-# ladder, coverage.py). Renaming it to SURFACE_CLASSES is a clean follow-up -- deliberately NOT
-# done in the deletion commit, so that diff stays reviewable. It is not in contract.json, so a
-# rename costs no client churn.
-IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                            "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
-                            "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss"]
+# RENAMED 2026-08-08: was `IMPORTANT_LOCATION_TYPES`, a name that outlived its option
+# (features/important_locations was deleted 2026-08-02). This list is purely the PROGRESSION
+# SURFACE vocabulary now -- features/progression_surface.valid_keys + the widen ladder, coverage.py
+# -- and it is not in contract.json, so the rename cost no client churn.
+# 🛑 The rename had one real hazard, and it was not the call sites that FAIL loudly: two readers
+# used `getattr(contract, "IMPORTANT_LOCATION_TYPES", ())` WITH A DEFAULT. coverage.py would have
+# silently classified every location as filler, and test_gf_boss_sweeps'
+# test_field_exclude_matches_contract would have compared FIELD_EXCLUDE against an EMPTY set and
+# passed VACUOUSLY -- a green parity gate over nothing. Both are direct attribute access now: if
+# this constant is ever renamed again, they must break.
+SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
+                   "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
+                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss"]
 # LegacyBoss / FieldBoss (2026-08-02) split the 134-strong `Boss` class by WHERE the boss stands:
 # 30 legacy-dungeon drops, 84 overworld. Both are SUBSETS of Boss, so selecting Boss still selects
 # everything. There is no `Underground`: 81 catacomb/cave/tunnel/minor-dungeon bosses exist but only
@@ -275,8 +286,18 @@ IMPORTANT_LOCATION_TYPES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragme
 # major-less regions (gen_data.py). These are the highest-confidence physical locations (boss-arena /
 # boss-defeat flags the client already ships as bossLocations), so the v0.2 progression_surface
 # restriction confines this world's own progression (region Locks + required/gate runes + legacy keys)
-# to them by default. MajorBoss is a SUBSET of Remembrance/GreatRune (for the boss_arena majors) plus
-# Boss/Legendary (for the extras); it is its own tag so the surface can target JUST the majors.
+# to them by default.
+# 🛑 CONTAINMENT, CORRECTED 2026-08-08 -- this comment had it BACKWARDS. It read "MajorBoss is a
+# SUBSET of Remembrance/GreatRune"; measured over LOCATION_TAGS the relation is the REVERSE, and it
+# matters for what the wizard can tell a player:
+#   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (43)  <- not the other way round
+#   MajorBoss is itself a SUBSET of Boss (143), as are LegacyBoss (31) and FieldBoss (92)
+#   MajorBoss n Legendary = 2 (the curated extras); neither contains the other
+# So ticking MajorBoss in the default surface already covers every Remembrance and GreatRune check:
+# those two boxes select NOTHING further, and ticking Boss makes all three redundant. The lattice is
+# DERIVED at wizard-build time (features/progression_surface.class_containment) rather than typed
+# here, because a typed copy is what let this comment sit inverted. It is its own tag so the surface
+# can target JUST the majors.
 # BIG-TICKET IS RETIRED (2026-07-12, Alaric). It was a SECOND list claiming to define "the important
 # checks", and it disagreed with the first: the progression surface is
 # {Remembrance, Seedtree, Church, Boss, Fragment, Revered}, while big-ticket targeted {MajorBoss,
