@@ -24,9 +24,15 @@ class now shows a real name and a one-line note about what picking it costs you,
 boss classes sit together instead of being scattered by the alphabet. Your existing yamls are
 untouched: the keys are exactly the same, on purpose.
 
-The grid also now tells you when a box you are about to tick would add nothing, because most of these
-classes contain each other -- `Boss` already includes every major, legacy and field boss, and
-`MajorBoss` already includes every Remembrance and Great Rune.
+**Every box now tells you what it is worth.** Next to each class is the number of locations ticking it
+would actually add -- or, if it is already ticked, what unticking it would cost -- over a running
+total of how many locations can hold progression. Most of these classes overlap each other, so a box
+frequently adds nothing at all: `Boss` already covers every major, legacy and field boss, and
+`MajorBoss` already covers every Remembrance and Great Rune. You no longer have to know that. The box
+just says `adds nothing`.
+
+The count knows about the DLC, so a base-game seed is not offered Scadutree Fragments it cannot
+place.
 
 **And a merchant-shaped bug behind it.** `Shop` was quietly NARROWER than `ShopNonSpell`, so asking
 for "all merchants" got you fewer checks than asking for a subset of them. The same gap let a

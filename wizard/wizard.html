@@ -107,6 +107,15 @@ header.top .sub{color:var(--dim);font-size:13px}
    narrow class ON so that UNticking the broad one later still leaves it selected. */
 .ctl label.kchoice.covered{opacity:.55}
 .ctl label.kchoice .kcov{font:11px var(--mono);color:var(--gold-dim)}
+/* What the box is worth. `.kadds` = it contributes; `.knil` = it is carrying nothing. */
+.ctl label.kchoice .kn{font:12px var(--mono);margin-left:auto;padding-left:8px;white-space:nowrap}
+.ctl label.kchoice .kn.kadds{color:var(--gold)}
+.ctl label.kchoice .kn.knil{color:var(--dim)}
+.surftot{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;
+  border:1px solid var(--gold-dim);border-radius:6px;padding:6px 10px;margin-bottom:8px}
+.surftot b{font:15px var(--mono);color:var(--gold);font-weight:400}
+.surftot .lab{font-size:13px;color:var(--text)}
+.surftot .note{font-size:12px;color:var(--dim)}
 .navbtns{display:flex;justify-content:space-between;margin-top:10px}
 .navbtns button,.bigbtn{background:var(--panel2);color:var(--gold);border:1px solid var(--gold-dim);
   border-radius:6px;padding:8px 20px;font:15px Georgia,serif;cursor:pointer}
@@ -2809,6 +2818,51 @@ const ERW = (() => {
              checks: band(checks), surface: band(surf), kept: band(kept) };
   }
 
+  /* WHAT EACH BOX IS ACTUALLY WORTH: {total, marginal:{class:n}, regions}.
+     For a SELECTED class, marginal = how many locations unticking it would COST.
+     For an UNSELECTED one, marginal = how many ticking it would ADD.
+     Same quantity either way -- this box's contribution to the surface -- so 0 always means
+     "carrying nothing", whichever side of the checkbox you are on.
+
+     WHY THIS AND NOT A TREE WIDGET. These classes are NOT a hierarchy. Measured over the live tags:
+     10 pairs nest, but SIXTEEN overlap without nesting -- MajorBoss and LegacyBoss share 22 checks
+     with neither containing the other, MajorBoss and FieldBoss share 10, and 9 Boss checks are in
+     none of its three sub-classes. Drawing that as an indented tree would be a picture of something
+     untrue. A marginal count is exact under overlap, nesting AND disjointness, because it is set
+     arithmetic rather than a claim about shape.
+
+     EXACT, not sampled. `region.combos` is keyed by the FULL tag COMBINATION each check carries, so
+     a check counted for `Boss` cannot be double-counted for `FieldBoss` -- which is the whole reason
+     overlap is safe here. Summed over every region in play rather than over a num_regions draw: this
+     answers "what does this class mean", not "what will this seed contain". The seed-size tab owns
+     the second question and says out loud that it is sampled.
+
+     The per-class numbers this produces are the `eligible` column of
+     greenfield/surface_confidence.tsv, which is itself pinned to features/progression_surface
+     .allowed_ap_ids by test_gf_surface_confidence. tools/check_wizard_keymeta_js.py asserts that
+     chain, so the number a player reads is tied to the number the fill obeys. */
+  function surfaceMarginals(census, selected, opts){
+    if (!census || !census.regions) return null;
+    opts = opts || {};
+    const R = census.regions;
+    const dlcOnly = !!opts.dlcOnly;
+    const enableDlc = opts.enableDlc !== false;
+    /* EVERY region in play, not just the rollable ones -- Roundtable Hold and Ashen Capital are
+       rollable:false and still hold checks. dlc_only drops the base game, which takes the finale
+       with it. */
+    const inPlay = Object.keys(R).filter(n => dlcOnly ? R[n].dlc : (enableDlc || !R[n].dlc));
+    const hits = set => { let n = 0; for (const r of inPlay) n += comboHits(R[r], set); return n; };
+    const cur = new Set(selected || []);
+    const total = hits(cur);
+    const marginal = {};
+    for (const cl of (census.classes || [])){
+      const probe = new Set(cur);
+      if (cur.has(cl)){ probe.delete(cl); marginal[cl] = total - hits(probe); }
+      else { probe.add(cl); marginal[cl] = hits(probe) - total; }
+    }
+    return { total: total, marginal: marginal, regions: inPlay.length };
+  }
+
   /* Which selected classes are already fully covered by a BROADER selected class.
      -> { child: parent } for every selected child inside a selected parent.
 
@@ -2837,7 +2891,8 @@ const ERW = (() => {
   }
 
   return { loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
-           buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage, AP_CORE };
+           buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage,
+           surfaceMarginals, AP_CORE };
 })();
 if (typeof module !== "undefined") module.exports = ERW;
 </script>
@@ -2962,9 +3017,28 @@ if (typeof module !== "undefined") module.exports = ERW;
         }
         const labelOf = {};
         for (const km of meta_.keys) labelOf[km.key] = km.label;
+        /* WHAT EACH BOX IS WORTH, recomputed on every render from the census. This is the part that
+           makes the grid legible without pretending the classes form a tree: a player does not need
+           to learn the lattice, they need to see that a box adds nothing. See ERW.surfaceMarginals.
+           DLC-aware, because offering "+39 Scadutree Fragments" on a base-game seed is a wrong
+           number, not a hint. */
+        const mg = (o.key === "progression_surface" && census)
+          ? ERW.surfaceMarginals(census, v, {
+              enableDlc: ERW.getVal(meta, state, "enable_dlc") !== false,
+              dlcOnly: ERW.getVal(meta, state, "dlc_only") === true })
+          : null;
         const byFam = {};
         for (const km of meta_.keys) (byFam[km.family] = byFam[km.family] || []).push(km);
         const famwrap = el("div", "famwrap");
+        if (mg){
+          const tot = el("div", "surftot");
+          tot.append(el("span", "lab", "Locations that can host progression:"),
+                     el("b", null, String(mg.total)));
+          tot.append(el("span", "note",
+            mg.total ? ("across " + mg.regions + " regions, before the num_regions draw")
+                     : "confinement OFF -- progression scatters as normal Archipelago fill decides"));
+          famwrap.append(tot);
+        }
         for (const fam of (meta_.families || [])){
           const kms = byFam[fam.id] || [];
           if (!kms.length) continue;
@@ -2982,11 +3056,23 @@ if (typeof module !== "undefined") module.exports = ERW;
             head.append(document.createTextNode(km.label), el("span", "kkey", " " + km.key));
             body.append(head);
             if (km.hint) body.append(el("div", "khint", km.hint));
+            /* The reason, when there is one to name. A bare 0 is correct but unhelpful; "covered by
+               Major bosses" tells the player which box to untick to make this one matter. Only ever
+               shown for a class a SELECTED broader class contains -- never as a guess at why. */
             if (cov){
               body.append(el("div", "kcov",
-                "already covered by " + (labelOf[cov] || cov)));
+                (sel.has(km.key) ? "covered by " : "already covered by ") + (labelOf[cov] || cov)));
             }
             lab.append(cb, body);
+            if (mg && (km.key in mg.marginal)){
+              const n = mg.marginal[km.key];
+              const on = sel.has(km.key);
+              /* Selected -> what unticking would COST. Unselected -> what ticking would ADD.
+                 0 means "carrying nothing" on both sides, which is the whole point. */
+              const txt = n === 0 ? (on ? "adds nothing" : "+0")
+                                  : (on ? String(n) : "+" + n);
+              lab.append(el("span", "kn " + (n === 0 ? "knil" : "kadds"), txt));
+            }
             grid.append(lab);
           }
           box.append(grid);

@@ -64,6 +64,28 @@ data on every build rather than written down -- because it HAD been written down
 `contract.py`, backwards, for months. It claimed `MajorBoss` was a subset of
 `Remembrance`/`GreatRune`; it is their superset.
 
+**And every box now shows what it is worth.** Alaric's read of the above was that it points at a
+hierarchical selector rather than a flat grid, which is the right instinct about the grid and the
+wrong shape for the data: measured over the live tags, 10 class pairs nest but **sixteen overlap
+without nesting** -- `MajorBoss` and `LegacyBoss` share 22 checks with neither containing the other,
+`MajorBoss` and `FieldBoss` share 10, and 9 `Boss` checks are in none of its three sub-classes. An
+indented tree would draw those as separate branches, which is a picture of something untrue.
+
+So the grid answers the question instead of teaching the topology. Each box carries its MARGINAL
+contribution -- what ticking it would add, or for a ticked box what unticking it would cost -- above a
+running "locations that can host progression" total. Zero means "carrying nothing" on either side of
+the checkbox, which is exact under overlap, nesting and disjointness alike, because it is set
+arithmetic rather than a claim about shape. It is DLC-aware: a base-game seed does not get offered
+"+39 Scadutree Fragments".
+
+Nothing new is shipped to compute it. `wizard/region-census.json` already carries per-region counts
+keyed by the FULL tag combination each check holds, which is exactly what makes overlap safe to add
+up. The numbers land on `greenfield/surface_confidence.tsv`'s `eligible` column for all 16 classes and
+on its headline hosting figure for the default -- and that file is pinned to
+`progression_surface.allowed_ap_ids`, so the chain is wizard JS == Python == surface_confidence ==
+allowed_ap_ids. The number a player chooses on is the number the fill obeys, and
+`check_wizard_keymeta_js.py` asserts every link.
+
 `greenfield/surface_confidence.tsv` gains a `tag_excluded` column. Its `total` was already filtered
 and the filter only lived in prose, which is enough to make two honest numbers on one page look like
 a defect -- it did, during this work.
