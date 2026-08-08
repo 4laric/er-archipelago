@@ -111,6 +111,20 @@ class ChannelLedger(unittest.TestCase):
                            capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
+    def test_a_tag_independent_violation_is_caught_at_any_checkout_depth(self):
+        """The one rule that must hold even in a shallow checkout: `stable` may not name a moving
+        ref. Kept separate from the tag-existence case so at least one negative is depth-proof."""
+        cc = _load("check_channels")
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".tsv", delete=False, encoding="utf-8") as f:
+            f.write("stable\tmain\t2026-01-01\tbogus\nbeta\tmain\t2026-01-02\t\n")
+            path = f.name
+        try:
+            bad = cc.check(path, tags=set())
+            self.assertTrue(any("only `beta`" in b for b in bad), bad)
+        finally:
+            os.unlink(path)
+
     def test_the_gate_can_actually_fail(self):
         """⭐ A gate nobody has watched fail is a gate nobody knows the shape of. Feed it a ledger
         naming a tag that does not exist and require a finding -- the failure this file exists for
@@ -121,10 +135,19 @@ class ChannelLedger(unittest.TestCase):
             f.write("stable\tv9.9.9-not-a-tag\t2026-01-01\tbogus\nbeta\tmain\t2026-01-02\t\n")
             path = f.name
         try:
-            bad = cc.check(path)
+            # 🛑 TAGS ARE INJECTED, NOT TAKEN FROM THE CHECKOUT. This test passed locally and went
+            # RED IN CI on 2026-08-08 for the opposite reason to the obvious one: the `tests` job
+            # checks out shallow, so `git tag -l` returned nothing, the gate took its
+            # no-tags-so-skip branch, found no fault, and the NEGATIVE test failed. A negative case
+            # that depends on checkout depth is testing the runner, not the gate.
+            bad = cc.check(path, tags={"v0.3.7"})
+            self.assertTrue(bad, "the gate accepted a ledger pointing at a nonexistent tag")
+            # ...and the shallow branch must be a SKIP, not a pass-by-accident that looks the same.
+            self.assertFalse([b for b in cc.check(path, tags=set()) if "not a tag" in b],
+                             "with no tags available the existence check must stand down, not "
+                             "invent a verdict")
         finally:
             os.unlink(path)
-        self.assertTrue(bad, "the channel gate accepted a ledger pointing at a nonexistent tag")
 
     def test_channels_are_named_in_the_spec(self):
         spec = os.path.join(REPO, "SPEC-publishing-pipeline.md")
