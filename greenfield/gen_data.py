@@ -6187,6 +6187,71 @@ print(f"key_item_goods: {len(KEY_ITEM_GOODS)} key items -> item_ids.py KEY_ITEM_
       f"(protected from the filler tail); {_KEY_ITEM_DROPPED} dropped by name {_KEY_ITEM_NAME_DROP}")
 
 
+# ---- GOODS_TYPE: EquipParamGoods.goodsType for every GOODS-nibble catalog item. ONE dict, straight
+# off the column, no judgement applied here -- the judgement lives in eldenring/item_categories.py,
+# which is where a category can be argued about without a regen.
+#
+# WHY THE WHOLE COLUMN AND NOT THE THREE SETS WE WANT TODAY. `goodsType` is the game's own answer to
+# "what kind of thing is this", and it is the ONLY answer we have that separates a crafting material
+# from a smithing stone from a throwing pot: all three are GOODS, all three are `filler`, and the id
+# nibble calls all three the same thing. Emitting only `crafting`/`reinforcement` would mean another
+# gen_data change plus another regen the first time someone asks about crystal tears or spirit ashes
+# -- which is exactly the failure tools/gen_inputs.py's "A MIRROR, NOT A DISTILLATION" section
+# refuses for the input bundle. Same argument, same answer: keep the column.
+#
+# The types, as witnessed on this catalog (counts are of catalog GOODS names, 2026-08-08):
+#     0  ordinary consumable         172    Bewitching Branch, Blood Grease, Fire Pot, Golden Rune [1]
+#     1  key item / inventory tab    220    Academy Glintstone Key, cookbooks, bell bearings
+#     2  crafting material            89    Aeonian Butterfly, Arteria Leaf, Beast Blood
+#     3  remembrance                  25    Elden Remembrance, Remembrance of the Blasphemous
+#     5  sorcery                      66  |
+#    16  incantation                  82  |  the four spell types; 17/18 are the buff/mist families
+#    17  spell (mist/utility)         13  |
+#    18  incantation (utility)        42  |
+#     7  spirit ash                   49    Albinauric Ashes, Archer Ashes
+#     8  spirit ash (named)           30    Black Knife Tiche, Banished Knight Engvall
+#     9  physick flask                 1    Flask of Wondrous Physick
+#    10  crystal tear                 37    Cerulean Crystal Tear, Crimson Bubbletear
+#    11  crafting vessel               4    Cracked Pot, Perfume Bottle, Ritual Pot
+#    12  info item / painting         54    "Prophecy" Painting, the map fragments
+#    14  reinforcement material       43    Smithing Stone [1-8], Somber [1-9], Ghost Glovewort [1-9]
+#    15  great rune                    6    Godrick's Great Rune, ...
+#
+# 🛑 A TYPE IS AN INVENTORY TAB, NOT A SEMANTIC CLASS, and type 1 is the standing proof: 96 of its
+# 220 members are crafting COOKBOOKS, which is why KEY_ITEM_GOODS above has to drop them BY NAME.
+# Read a type as "where the game files this", and expect to disagree with it sometimes -- in
+# item_categories.py, out loud, not in a filter here.
+GOODS_TYPE = {}
+if os.path.isfile(_GOODS_CSV):
+    _gt_by_id = {}
+    for _row in csv.DictReader(open(_GOODS_CSV, newline="", encoding="utf-8", errors="replace")):
+        try:
+            _gt_by_id[int(_row["ID"])] = int((_row.get("goodsType") or "").strip())
+        except (KeyError, ValueError):
+            continue
+    for _nm in sorted(ITEM_CATALOG):
+        _full = ITEM_CATALOG[_nm]
+        if (_full & 0xF0000000) != 0x40000000:      # GOODS nibble only -- every other nibble is
+            continue                                # already its own class (weapon/armor/talisman/ash)
+        _t = _gt_by_id.get(_full & 0x0FFFFFFF)
+        if _t is not None:
+            GOODS_TYPE[_nm] = _t
+else:
+    print("[gen_data] WARNING: EquipParamGoods.csv absent -- GOODS_TYPE is EMPTY and every goods "
+          "category in eldenring/item_categories.py collapses to 'goods'.")
+with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
+    f.write("\n# EquipParamGoods.goodsType per GOODS-nibble catalog item; eldenring/item_categories.py\n"
+            "# turns these into the player-facing categories. See gen_data.py for the type legend.\n")
+    f.write("GOODS_TYPE = {\n")
+    for _nm in sorted(GOODS_TYPE):
+        f.write(f"    {ascii(_nm)}: {GOODS_TYPE[_nm]},\n")
+    f.write("}\n")
+_gt_missing = sum(1 for _nm, _full in ITEM_CATALOG.items()
+                  if (_full & 0xF0000000) == 0x40000000 and _nm not in GOODS_TYPE)
+print(f"goods_type: {len(GOODS_TYPE)} goods typed -> item_ids.py GOODS_TYPE "
+      f"({_gt_missing} catalog goods have no EquipParamGoods row)")
+
+
 # ---- AMMO_ITEM_NAMES: arrows & bolts (matt-free, param-derived). features/filler_curation grants
 # ammunition in x20 STACKS (STACK_QTY_BY_CATEGORY["ammunition"] -> slot_data itemCounts), and that
 # needs the AMMO SET -- which a NAME predicate cannot produce: "Honed Bolt", "Vyke's Dragonbolt" and

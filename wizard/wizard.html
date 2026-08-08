@@ -126,7 +126,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "game": "Elden Ring",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "31bdae03647886b2204dd778063b9f2d095ff73a72849d3afc3780e33bd23783",
+ "source_sha256": "3279392edfc18e96120acdd53577d7ec2a49b6e4d9efa08b751e600538bd5457",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -155,6 +155,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "progressive_flasks",
   "local_item_only",
   "exclude_local_item_only",
+  "keep_local",
+  "keep_local_rune_cap",
   "no_runes_in_shops",
   "progression_surface",
   "confine_foreign_progression",
@@ -200,6 +202,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "progressive_flasks",
   "local_item_only",
   "exclude_local_item_only",
+  "keep_local",
+  "keep_local_rune_cap",
   "no_runes_in_shops",
   "progression_surface",
   "confine_foreign_progression",
@@ -757,7 +761,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "exclude_local_item_only",
    "class": "ExcludeLocalItemOnly",
    "display_name": "Exclude From Local Items Only",
-   "description": "When Local Items Only is on, categories listed here are STILL allowed to travel to other\nplayers' worlds (i.e. NOT forced local). Use it to share some of your ER loot while keeping the\nrest. Valid categories: weapons, armor, talismans, goods, ashes, progressive. Empty (default) =\nkeep everything local. Ignored unless Local Items Only is on.",
+   "description": "When Local Items Only is on, categories listed here are STILL allowed to travel to other\nplayers' worlds (i.e. NOT forced local). Use it to share some of your ER loot while keeping the\nrest. Empty (default) = keep everything local. Ignored unless Local Items Only is on.\n\nCategories: weapons, armor, talismans, ashes (ashes of WAR), spells, spirit_ashes, consumables,\ncrafting, upgrade_materials, runes, crystal_tears, key_items, other, progressive -- plus the two\numbrellas `goods` (every goods category at once, which is what this key meant before the split)\nand `everything`. eldenring/item_categories.py holds the table and the argument for it.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -766,11 +770,73 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "valid_keys": [
     "armor",
     "ashes",
+    "consumables",
+    "crafting",
+    "crystal_tears",
+    "everything",
     "goods",
+    "key_items",
+    "other",
     "progressive",
+    "runes",
+    "spells",
+    "spirit_ashes",
     "talismans",
+    "upgrade_materials",
     "weapons"
    ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "keep_local",
+   "class": "KeepLocal",
+   "display_name": "Keep Local",
+   "description": "Categories of item to hold in YOUR OWN world, listed one per line. Nothing else is affected,\nso this is the knob for \"keep my consumables and crafting mats, send the gear out\" without\nreaching for Local Items Only (which keeps everything) or Filler Open to Foreign (which picks\nwhich of your filler stays home at random and cannot be aimed at a category).\n\nSame categories as Exclude From Local Items Only, and they compose: this adds to whatever that\npair already localized, it never releases anything.\n\nExample, and the one this was written for:\n    keep_local: [consumables, crafting, upgrade_materials, runes]\n-- crafting materials, smithing stones and ghost gloveworts, every consumable and every rune\nstay yours; weapons, armour, talismans, spells, spirit ashes and ashes of war still travel.\nBell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "armor",
+    "ashes",
+    "consumables",
+    "crafting",
+    "crystal_tears",
+    "everything",
+    "goods",
+    "key_items",
+    "other",
+    "progressive",
+    "runes",
+    "spells",
+    "spirit_ashes",
+    "talismans",
+    "upgrade_materials",
+    "weapons"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "keep_local_rune_cap",
+   "class": "KeepLocalRuneCap",
+   "display_name": "Keep Local: Rune Cap",
+   "description": "Hold back rune items worth this many runes or fewer; larger ones may still travel. 0\n(default) is OFF -- no rune is held back by this option.\n\n\"Small rune amounts should not be sent out\" is the ask this answers, and the payout is a number\nthe game publishes (EquipParamGoods.refId_default -> SpEffectParam.soul), so it does not have to\nbe guessed from the item name. The ladder: Golden Rune [1] 200, [4] 1,600, [8] 3,800, [10] 6,250,\n[13] 12,500, Hero's Rune [1] 15,000, Lord's Rune 50,000, and the DLC's largest 80,000. A cap of\n3,000 keeps the small change and lets the big ones go.\n\nIndependent of Keep Local: setting `runes` there keeps every rune home whatever this says.",
+   "kind": "range",
+   "base": "Range",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 80000
+   },
+   "valid_keys": null,
    "casefold": false,
    "group": null,
    "group_collapsed": false,
@@ -1160,22 +1226,22 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "schema": 1,
  "sampled": true,
  "samples_per_case": 10,
- "world_commit": "b760d05d9c44",
- "measured_on": "2026-08-07",
+ "world_commit": "e9471342b50b",
+ "measured_on": "2026-08-08",
  "note": "min/median/max over independent draws. num_regions is a draw size, so which regions a seed keeps moves these ratios -- render the spread, never the median alone.",
  "cases": [
   {
    "label": "default",
    "options": {},
    "filler": [
-    50.4,
-    57.0,
-    58.3
+    51.2,
+    57.3,
+    59.2
    ],
    "useful": [
-    41.1,
-    42.4,
-    48.9
+    40.1,
+    42.0,
+    47.9
    ],
    "progression": [
     0.4,
@@ -1183,10 +1249,82 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     1.0
    ],
    "checks": [
-    883,
-    1266,
-    2119
-   ]
+    1110,
+    1318,
+    1882
+   ],
+   "categories": {
+    "armor": [
+     12.8,
+     13.5,
+     15.5
+    ],
+    "ashes": [
+     4.1,
+     4.4,
+     5.1
+    ],
+    "consumables": [
+     5.4,
+     6.5,
+     8.1
+    ],
+    "crafting": [
+     0.2,
+     0.3,
+     0.5
+    ],
+    "crystal_tears": [
+     1.0,
+     1.3,
+     1.6
+    ],
+    "key_items": [
+     4.0,
+     6.0,
+     7.2
+    ],
+    "other": [
+     0.1,
+     0.2,
+     0.5
+    ],
+    "progressive": [
+     0.7,
+     1.5,
+     2.4
+    ],
+    "runes": [
+     10.1,
+     16.9,
+     21.5
+    ],
+    "spells": [
+     1.4,
+     2.0,
+     2.7
+    ],
+    "spirit_ashes": [
+     0.2,
+     0.2,
+     0.3
+    ],
+    "talismans": [
+     4.0,
+     4.4,
+     5.0
+    ],
+    "upgrade_materials": [
+     23.4,
+     26.3,
+     31.2
+    ],
+    "weapons": [
+     14.3,
+     15.4,
+     18.3
+    ]
+   }
   },
   {
    "label": "num_regions=1",
@@ -1194,25 +1332,97 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "num_regions": 1
    },
    "filler": [
-    25.3,
-    39.1,
+    28.2,
+    35.6,
     53.7
    ],
    "useful": [
     45.9,
-    60.0,
-    74.3
+    58.6,
+    71.5
    ],
    "progression": [
-    0.2,
+    0.1,
     0.3,
     0.4
    ],
    "checks": [
-    265,
+    286,
     354,
     910
-   ]
+   ],
+   "categories": {
+    "armor": [
+     17.3,
+     22.5,
+     26.8
+    ],
+    "ashes": [
+     2.8,
+     4.0,
+     4.5
+    ],
+    "consumables": [
+     1.7,
+     3.1,
+     7.3
+    ],
+    "crafting": [
+     0.2,
+     0.6,
+     1.0
+    ],
+    "crystal_tears": [
+     2.0,
+     3.6,
+     6.3
+    ],
+    "key_items": [
+     4.3,
+     7.0,
+     8.5
+    ],
+    "other": [
+     0.2,
+     0.5,
+     1.0
+    ],
+    "progressive": [
+     1.1,
+     2.1,
+     4.5
+    ],
+    "runes": [
+     3.1,
+     7.9,
+     16.0
+    ],
+    "spells": [
+     1.3,
+     2.1,
+     2.4
+    ],
+    "spirit_ashes": [
+     0.0,
+     0.2,
+     0.4
+    ],
+    "talismans": [
+     2.8,
+     3.7,
+     4.6
+    ],
+    "upgrade_materials": [
+     15.5,
+     17.1,
+     23.7
+    ],
+    "weapons": [
+     15.8,
+     19.9,
+     24.0
+    ]
+   }
   },
   {
    "label": "num_regions=3",
@@ -1221,24 +1431,96 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "filler": [
     37.9,
-    48.7,
-    57.2
+    45.1,
+    55.2
    ],
    "useful": [
-    42.5,
-    47.5,
-    60.7
+    44.4,
+    50.3,
+    61.4
    ],
    "progression": [
-    0.2,
+    0.3,
     0.5,
-    1.3
+    0.9
    ],
    "checks": [
-    377,
-    656,
-    1238
-   ]
+    391,
+    618,
+    1321
+   ],
+   "categories": {
+    "armor": [
+     14.5,
+     19.0,
+     23.1
+    ],
+    "ashes": [
+     2.8,
+     3.1,
+     4.6
+    ],
+    "consumables": [
+     2.8,
+     5.0,
+     6.9
+    ],
+    "crafting": [
+     0.3,
+     0.4,
+     0.8
+    ],
+    "crystal_tears": [
+     1.4,
+     2.8,
+     4.6
+    ],
+    "key_items": [
+     5.6,
+     6.5,
+     7.4
+    ],
+    "other": [
+     0.2,
+     0.4,
+     0.8
+    ],
+    "progressive": [
+     1.0,
+     1.8,
+     3.8
+    ],
+    "runes": [
+     5.9,
+     12.5,
+     17.9
+    ],
+    "spells": [
+     1.3,
+     1.6,
+     2.1
+    ],
+    "spirit_ashes": [
+     0.2,
+     0.2,
+     0.4
+    ],
+    "talismans": [
+     3.4,
+     4.0,
+     4.7
+    ],
+    "upgrade_materials": [
+     17.3,
+     20.9,
+     25.6
+    ],
+    "weapons": [
+     15.9,
+     18.2,
+     23.5
+    ]
+   }
   },
   {
    "label": "num_regions=12",
@@ -1246,25 +1528,97 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "num_regions": 12
    },
    "filler": [
-    58.0,
-    59.1,
-    60.2
+    57.0,
+    58.8,
+    60.8
    ],
    "useful": [
-    39.2,
-    39.4,
-    41.4
+    38.6,
+    39.8,
+    42.4
    ],
    "progression": [
     0.5,
     0.6,
-    0.7
+    0.8
    ],
    "checks": [
-    2072,
-    2409,
-    2881
-   ]
+    2050,
+    2505,
+    2938
+   ],
+   "categories": {
+    "armor": [
+     11.3,
+     12.2,
+     13.1
+    ],
+    "ashes": [
+     3.1,
+     3.4,
+     4.4
+    ],
+    "consumables": [
+     5.8,
+     6.9,
+     7.3
+    ],
+    "crafting": [
+     0.1,
+     0.2,
+     0.3
+    ],
+    "crystal_tears": [
+     0.6,
+     0.7,
+     0.9
+    ],
+    "key_items": [
+     4.9,
+     5.7,
+     6.5
+    ],
+    "other": [
+     0.2,
+     0.2,
+     0.2
+    ],
+    "progressive": [
+     1.4,
+     1.7,
+     2.1
+    ],
+    "runes": [
+     14.8,
+     17.4,
+     20.7
+    ],
+    "spells": [
+     1.9,
+     2.1,
+     2.3
+    ],
+    "spirit_ashes": [
+     0.2,
+     0.2,
+     0.3
+    ],
+    "talismans": [
+     4.2,
+     4.4,
+     4.9
+    ],
+    "upgrade_materials": [
+     25.6,
+     27.9,
+     29.9
+    ],
+    "weapons": [
+     15.2,
+     15.8,
+     17.4
+    ]
+   }
   },
   {
    "label": "whole map",
@@ -1272,7 +1626,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "num_regions": 0
    },
    "filler": [
-    61.3,
+    61.4,
     61.4,
     61.4
    ],
@@ -1290,7 +1644,79 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     4931,
     4931,
     4931
-   ]
+   ],
+   "categories": {
+    "armor": [
+     11.0,
+     11.0,
+     11.0
+    ],
+    "ashes": [
+     3.7,
+     3.7,
+     3.7
+    ],
+    "consumables": [
+     6.8,
+     6.9,
+     6.9
+    ],
+    "crafting": [
+     0.1,
+     0.1,
+     0.2
+    ],
+    "crystal_tears": [
+     0.4,
+     0.4,
+     0.4
+    ],
+    "key_items": [
+     5.8,
+     5.8,
+     5.8
+    ],
+    "other": [
+     0.2,
+     0.2,
+     0.2
+    ],
+    "progressive": [
+     1.7,
+     1.7,
+     1.7
+    ],
+    "runes": [
+     18.8,
+     18.8,
+     18.8
+    ],
+    "spells": [
+     1.2,
+     1.2,
+     1.2
+    ],
+    "spirit_ashes": [
+     0.4,
+     0.4,
+     0.4
+    ],
+    "talismans": [
+     4.6,
+     4.6,
+     4.6
+    ],
+    "upgrade_materials": [
+     29.4,
+     29.4,
+     29.4
+    ],
+    "weapons": [
+     16.0,
+     16.0,
+     16.0
+    ]
+   }
   },
   {
    "label": "base game",
@@ -1298,25 +1724,97 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "enable_dlc": false
    },
    "filler": [
-    55.9,
-    58.8,
-    62.0
+    56.1,
+    58.3,
+    60.2
    ],
    "useful": [
-    37.7,
-    39.8,
-    43.4
+    39.4,
+    41.1,
+    43.3
    ],
    "progression": [
     0.3,
-    0.5,
-    0.7
+    0.6,
+    0.6
    ],
    "checks": [
-    1225,
-    1772,
-    2426
-   ]
+    1265,
+    1556,
+    1832
+   ],
+   "categories": {
+    "armor": [
+     11.3,
+     12.0,
+     12.9
+    ],
+    "ashes": [
+     3.5,
+     4.3,
+     4.9
+    ],
+    "consumables": [
+     5.3,
+     5.9,
+     6.5
+    ],
+    "crafting": [
+     0.1,
+     0.2,
+     0.5
+    ],
+    "crystal_tears": [
+     0.9,
+     1.0,
+     1.3
+    ],
+    "key_items": [
+     6.1,
+     6.6,
+     7.1
+    ],
+    "other": [
+     0.2,
+     0.3,
+     0.4
+    ],
+    "progressive": [
+     1.4,
+     1.9,
+     2.1
+    ],
+    "runes": [
+     18.9,
+     20.4,
+     22.8
+    ],
+    "spells": [
+     1.9,
+     2.0,
+     2.1
+    ],
+    "spirit_ashes": [
+     0.2,
+     0.2,
+     0.3
+    ],
+    "talismans": [
+     4.0,
+     4.6,
+     4.9
+    ],
+    "upgrade_materials": [
+     22.8,
+     24.1,
+     26.3
+    ],
+    "weapons": [
+     14.8,
+     15.8,
+     16.5
+    ]
+   }
   }
  ]
 }
@@ -2269,7 +2767,10 @@ if (typeof module !== "undefined") module.exports = ERW;
   // "the surface" refers to. enable_dlc / dlc_only change which regions are eligible at all, which
   // matters but is usually decided once and left.
   const SEED_SIZE_OPTIONS = ["num_regions", "progression_surface", "confine_foreign_progression",
-                             "enable_dlc", "dlc_only"];
+                             "enable_dlc", "dlc_only",
+                             // the locality knobs -- they move the "what you send out" card below
+                             "keep_local", "keep_local_rune_cap", "local_item_only",
+                             "exclude_local_item_only", "filler_foreign_pct", "item_shuffle"];
 
   function renderSeedSizeTab(){
     const wrap = el("div", "");
@@ -2296,6 +2797,126 @@ if (typeof module !== "undefined") module.exports = ERW;
     wrap.append(rest);
     paintSeedSize();
     return wrap;
+  }
+
+  /* ---- WHAT YOU PUT INTO OTHER PEOPLE'S GAMES ------------------------------------------------
+     The question this answers, asked on Nexus 2026-08-08 and unanswerable until now: "if I am
+     playing with 5 other people who have 200 checks each, 2/3 of the checks sent to others are from
+     me -- how many of mine are filler?" The seed-size figures above say how many CHECKS there are;
+     this says how many ITEMS leave, which the locality options move without touching the first
+     number at all.
+
+     🛑 IT IS A CEILING AND IT SAYS SO. "Free to travel" is what your options PERMIT to leave, not
+     what will leave: Archipelago's fill spreads a world's items over every world in proportion to
+     open locations, so a 1,300-check Elden Ring slot in a game with five 200-check slots keeps most
+     of its own pool no matter what these are set to. The exact number needs a completed fill and is
+     printed in the spoiler and the generation log (eldenring/pool_report.py).
+
+     The category shares come from `wizard/pool-composition.json` -- measured over sampled builds,
+     by COPY, because a share of the pool is not a share of the catalog: there are hundreds of
+     Smithing Stone copies and one Blasphemous Blade. */
+  function heldCategories(){
+    const v = k => ERW.getVal(meta, state, k);
+    const held = new Set();
+    const why = {};
+    const note = (cat, src) => { held.add(cat); (why[cat] = why[cat] || []).push(src); };
+    const catsOf = keys => {
+      const out = [];
+      for (const k of (keys || [])){
+        if (k === "everything") out.push(...GOODS_ALL, ...GEAR_ALL);
+        else if (k === "goods") out.push(...GOODS_ALL);
+        else out.push(k);
+      }
+      return out;
+    };
+    for (const c of catsOf(v("keep_local"))) note(c, "keep_local");
+    if (v("local_item_only")){
+      const excl = new Set(catsOf(v("exclude_local_item_only")));
+      for (const c of ALL_CATS) if (!excl.has(c)) note(c, "local_item_only");
+    }
+    return { held, why };
+  }
+
+  const GOODS_ALL = ["consumables", "crafting", "crystal_tears", "key_items", "other", "runes",
+                     "spells", "spirit_ashes", "upgrade_materials"];
+  const GEAR_ALL = ["weapons", "armor", "talismans", "ashes", "progressive"];
+  const ALL_CATS = GOODS_ALL.concat(GEAR_ALL);
+  const CAT_LABEL = { upgrade_materials: "upgrade materials", crystal_tears: "crystal tears",
+                      spirit_ashes: "spirit ashes", key_items: "key items", ashes: "ashes of war",
+                      other: "other goods", progressive: "progressive upgrades" };
+  const catLabel = c => CAT_LABEL[c] || c;
+
+  function renderContribution(cs, size){
+    const card = el("div", "card");
+    const v = k => ERW.getVal(meta, state, k);
+    const shuffle = !!v("item_shuffle");
+    const { held, why } = heldCategories();
+    const runeCap = Number(v("keep_local_rune_cap") || 0);
+    const fillerPct = Number(v("filler_foreign_pct"));
+    const cats = (cs && cs.categories) || null;
+
+    let html = "<h2>What are you putting into the multiworld?</h2>";
+    if (!shuffle){
+      card.insertAdjacentHTML("beforeend", html +
+        "<div class='desc'>Shuffle Vanilla Items is off, so there are no real items to send \u2014 " +
+        "every check pays a generic Rune and locality has nothing to hold back.</div>");
+      return card;
+    }
+    if (!cats){
+      card.insertAdjacentHTML("beforeend", html +
+        "<div class='desc'>No measured pool composition for these options.</div>");
+      return card;
+    }
+    // held share = the sum of the measured category bands, low/median/high summed independently.
+    // That is a wider band than reality (the categories do not all peak in the same seed) and it is
+    // the conservative direction for a ceiling, so it is left wide rather than quietly narrowed.
+    const sum = i => [...held].reduce((a, c) => a + ((cats[c] && cats[c][i]) || 0), 0);
+    const heldMid = Math.min(100, sum(1));
+    const freeMid = Math.max(0, 100 - heldMid);
+    const checksMid = size ? size.checks.median : 0;
+    const n = x => Math.round(x).toLocaleString();
+
+    html +=
+      "<div class='desc'>How much of your game can end up in other players\u2019 worlds. This is a " +
+      "<b>ceiling</b>, not a forecast \u2014 Archipelago spreads your items over every world in " +
+      "proportion to open locations, so a big Elden Ring slot keeps most of its own pool whatever " +
+      "you set here. The exact number is printed in the spoiler once a seed is generated.</div>" +
+      "<div style='display:flex;gap:28px;flex-wrap:wrap;margin:14px 0 4px'>" +
+      "<div><div style='font-size:26px'>" + n(checksMid * freeMid / 100) + "</div>" +
+      "<div class='desc'>items free to travel (of ~" + n(checksMid) + ")</div></div>" +
+      "<div><div style='font-size:26px'>" + Math.round(freeMid) + "%</div>" +
+      "<div class='desc'>of your pool</div></div>" +
+      "<div><div style='font-size:26px'>" + n(checksMid * heldMid / 100) + "</div>" +
+      "<div class='desc'>items held at home</div></div>" +
+      "</div>";
+
+    if (held.size){
+      const rows = [...held].filter(c => cats[c]).sort((a, b) => cats[b][1] - cats[a][1]);
+      html += "<div class='desc' style='margin-top:10px'>Held back, and what each is worth as a " +
+        "share of your pool:</div><div style='margin:6px 0'>" +
+        rows.map(c => "<div style='display:flex;justify-content:space-between'><span>" +
+          esc(catLabel(c)) + " <span class='desc'>\u00b7 " + esc(why[c].join(", ")) + "</span></span>" +
+          "<span>" + bandText(cats[c]) + "%</span></div>").join("") + "</div>";
+    } else {
+      html += "<div class='desc' style='margin-top:10px'><b>Nothing is held back.</b> Every item " +
+        "this seed produces may land in someone else\u2019s world. Elden Ring gear is only useful " +
+        "in Elden Ring, so if your slot is much larger than the others\u2019, this is what makes a " +
+        "multiworld feel like it is mostly about your game. <code>keep_local</code> is the knob.</div>";
+    }
+    if (runeCap > 0){
+      html += "<div class='desc'>Plus rune items worth " + runeCap.toLocaleString() + " runes or " +
+        "less \u2014 part of the <i>runes</i> share above, so it is not counted separately here.</div>";
+    }
+    if (fillerPct < 100){
+      html += "<div class='desc'><code>filler_foreign_pct</code> is holding a further " +
+        (100 - fillerPct) + "% of your distinct filler names, chosen at random per seed \u2014 " +
+        "not counted above, because which names it takes is not knowable in advance. " +
+        "<code>keep_local</code> is the aimable version of the same idea.</div>";
+    }
+    html += "<div class='desc' style='margin-top:10px'>Your own progression never travels either " +
+      "way: the region Locks are placed in your world before the multiworld fill ever sees them.</div>";
+    card.insertAdjacentHTML("beforeend", html);
+    return card;
   }
 
   function paintSeedSize(){
@@ -2364,16 +2985,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       rest.append(c2);
     }
 
-    const c3 = el("div", "card");
-    c3.insertAdjacentHTML("beforeend",
-      "<h2>Playing this in a multiworld?</h2>" +
-      "<div class='desc'>Elden Ring items are only useful in Elden Ring, so most players want them " +
-      "kept at home. <code>local_item_only</code> does that \u2014 it holds back every real vanilla " +
-      "item and every progressive upgrade. <code>filler_foreign_pct</code> only covers the filler " +
-      "share above, so on its own it still lets the gear travel.</div>" +
-      "<div class='desc'>Your own progression never travels either way: the region Locks are placed " +
-      "in your world before the multiworld fill ever sees them.</div>");
-    rest.append(c3);
+    rest.append(renderContribution(cs, size));
   }
 
   function renderStep(){

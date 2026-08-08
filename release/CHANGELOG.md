@@ -11,6 +11,40 @@ saying it had never happened.
 
 `CONTRACT_HASH` is unmoved at `d7d3a58e`. The version bump is lockstep, not a contract change.
 
+### You can finally see what you put into other people's games, and aim it
+
+Two players asked the same question the same morning, from opposite ends of it. On Nexus,
+LordChungle: *"if I am playing with 5 other people who have 200 checks each, then 2/3 of the checks
+sent to others are from me [...] I am wondering around how many of the checks are filler checks."*
+On Discord, boblerrr, with the answer he wanted instead: *"crafting materials should be local,
+upgrade materials other than bell bearing can be local prob, same with ghost gloveworts, every
+single consumable item should be local prob, small rune amounts should not be sent out."*
+
+Neither was answerable. There were two locality controls: `local_item_only`, which keeps
+*everything*, and `filler_foreign_pct`, which keeps a *percentage of randomly chosen filler names*
+and so means something different in every seed. Between "all of it" and "a coin toss" there was
+nothing, and no number anywhere said how much was leaving.
+
+- **`keep_local`** takes a list of categories -- `consumables`, `crafting`, `upgrade_materials`,
+  `runes`, `crystal_tears`, `spells`, `spirit_ashes`, `key_items`, `weapons`, `armor`, `talismans`,
+  `ashes`, `progressive`, `other`, plus the umbrellas `goods` and `everything`. boblerrr's whole ask
+  is `keep_local: [consumables, crafting, upgrade_materials, runes]`, and bell bearings are
+  `key_items` rather than `upgrade_materials`, so that line sends them out exactly as he wanted.
+- **`keep_local_rune_cap`** holds rune items worth N runes or fewer and lets the big ones travel.
+  "Small rune amounts" is a number the game publishes, so it is not guessed: the payout comes off
+  `EquipParamGoods.refId_default -> SpEffectParam.soul`.
+- **The count.** Every seed's generation log and spoiler now carry a line per slot: how many of your
+  items went into other worlds, split filler/useful/progression, how many came back, and how many
+  your options held at home. The wizard's *Seed size* tab shows the ceiling live as you move the
+  knobs, labelled as a ceiling -- Archipelago's fill spreads a world's items in proportion to open
+  locations, so a 1,300-check Elden Ring slot keeps most of its own pool whatever you set.
+
+Under it is a new param-derived taxonomy (`eldenring/item_categories.py`, off a new `GOODS_TYPE`
+emit): the id nibble called 933 different things "goods", so there was previously no matt-free way
+to tell a crafting material from a smithing stone from a throwing pot. `exclude_local_item_only:
+[goods]` in an existing yaml keeps meaning exactly what it meant, and there is a test that says so
+-- the first draft of the umbrella quietly dropped the runes out of it.
+
 ### The client pin catches up with the client that shipped
 
 The world's gitlink sat at `b3045b4` -- the #101 merge -- through the whole of the v0.3.7 window,
