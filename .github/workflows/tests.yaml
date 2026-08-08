@@ -135,6 +135,17 @@ jobs:
       - name: Wizard metadata drift (--check against the pinned AP)
         run: python tools/dump_options_metadata.py --check --ap-dir _ap
 
+      # The seed-size census the wizard shows a player WHILE they choose (wizard/region-census.json,
+      # tools/build_region_census.py). Its data is gated by test_gf_region_census, which runs in the
+      # pytest step above -- but no Python test executes ERW.seedSize, and that JS is what the player
+      # actually reads. This runs it under node against an independent Python evaluation of the same
+      # rule. It earned its place on its first run: the Python port had dropped the trailing `^ t`
+      # from mulberry32 (`^` binds looser than `+` in JS), and the two implementations still agreed
+      # to within 1% on every median -- close enough that no eyeball would have flagged it.
+      # Exits 4 = SKIP when node is absent; GitHub runners have node, so it is live here.
+      - name: Wizard seed-size JS vs Python (differential)
+        run: python tools/check_wizard_census_js.py
+
   # ---------------------------------------------------------------------------------------------
   # 1b. REGEN FROM THE BUNDLE + the fill-regression gate.
   #

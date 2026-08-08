@@ -174,6 +174,16 @@ Invoke-CiStep "WIZARD (options metadata drift)" {
     & (Join-Path $Repo "tools\check_options_metadata.ps1")
 }
 
+# ----- 1b2) the wizard's seed-size math, JS vs Python --------------------------
+# wizard/region-census.json is gated by test_gf_region_census; the JS that reads it is not gated by
+# any Python test, and the JS is what the player sees. Differential run under node. Exit 4 = node
+# absent = SKIP (reported, not silently passed).
+Invoke-CiStep "WIZARD-CENSUS-JS (seed-size math: JS vs Python)" {
+    python (Join-Path $Repo "tools\check_wizard_census_js.py")
+    if ($LASTEXITCODE -eq 4) { Write-Host "  SKIP: node not on PATH -- the wizard's JS math is ungated on this box." }
+    elseif ($LASTEXITCODE -ne 0) { throw "WIZARD-CENSUS-JS: the wizard's JS seed-size math disagrees with the Python reference" }
+}
+
 # ----- 1c) release notes for the open version ----------------------------------
 # CONTRIBUTING rule 14. v0.3.0 shipped 2026-08-01; by the next morning main carried five more
 # player-visible fixes (two off Nexus bug reports) with no v0.3.1 changelog section and no blurb,

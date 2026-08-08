@@ -25,6 +25,34 @@ pairs with was wrong, and the cross-side `generators` gate had been proving agre
 client five merges old. A stale pin cannot fail that gate; it can only make it prove the wrong
 thing. This window starts by moving it.
 
+### The options wizard tells you how big your seed is before you generate it
+
+Two players asked the same question from opposite ends in two days. bobler asked why
+`num_regions: 1` kept four regions; a Nexus commenter asked what fraction of "2000 checks for 6
+areas" is filler, before committing five friends to a multiworld. Both answers only existed after
+generating, and #409's gen-log line -- which does explain the kept set -- is read after the decision
+it would have informed.
+
+The wizard now carries a `Seed size` panel that recomputes as you move `num_regions`, `enable_dlc`,
+`dlc_only` and `progression_surface`: how many checks the seed will have, how many regions it will
+actually keep, and how many of those checks can hold progression.
+
+It shows a RANGE, not a number, and that is the feature. `num_regions` is a draw size, not a final
+count, so at the default 6 the real check count runs from about 1069 to 2279 depending purely on
+which regions the draw takes. A wizard printing one number would be teaching the wrong model of the
+option; a spread teaches the right one at a glance.
+
+The surface figure counts a UNION over class combinations rather than a sum of per-class counts.
+Progression-surface classes overlap -- a check is routinely `GreatRune` and `MajorBoss` and `Boss`
+at once -- so ticking two classes in a summed table would double-count exactly the checks that carry
+both.
+
+New: `wizard/region-census.json` (`tools/build_region_census.py`), which reuses
+`build_surface_confidence`'s bar stack rather than restating it, so "can host progression" still has
+one definition in the repo. Gated by `test_gf_region_census` -- including against worlds Archipelago
+actually builds -- and by `tools/check_wizard_census_js.py`, a differential run of the wizard's own
+JavaScript against a Python reference.
+
 ## v0.3.7 — 2026-08-06
 
 Window opened the same day v0.3.6 was tagged, and again because the gate went red rather than

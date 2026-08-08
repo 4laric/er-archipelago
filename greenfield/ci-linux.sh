@@ -197,6 +197,19 @@ else
   record RUST SKIP
 fi
 
+step "WIZARD CENSUS JS (seed-size math: JS vs Python)"
+# The census DATA is gated by test_gf_region_census in (d); this gates the JavaScript that turns it
+# into the number a player reads. Needs node -> exit 4 is a real SKIP, not a pass: a box without
+# node reports that the JS is ungated rather than staying quiet about it.
+if [ -f "$REPO/tools/check_wizard_census_js.py" ]; then
+  ( cd "$REPO" && "$PY" tools/check_wizard_census_js.py ); rc=$?
+  if [ "$rc" = 0 ]; then record WIZARD-CENSUS-JS PASS
+  elif [ "$rc" = 4 ]; then record WIZARD-CENSUS-JS SKIP
+  else record WIZARD-CENSUS-JS FAIL; fi
+else
+  echo "  SKIP: tools/check_wizard_census_js.py absent"; record WIZARD-CENSUS-JS SKIP
+fi
+
 step "GREENFIELD VERDICT"
 for r in "${RESULTS[@]}"; do printf '  %-6s %s\n' "${r%%|*}" "${r##*|}"; done
 if [ "$fail" -eq 0 ]; then echo "  GREENFIELD: PASS"; exit 0; else echo "  GREENFIELD: FAIL"; exit 1; fi
