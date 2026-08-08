@@ -155,7 +155,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.3.9",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "3c9f063d0024da74ef3c9c96e11b5186268dc6df662ad3f641e67b62852fcfe9",
+ "source_sha256": "4fde9647e3d25d843d13ad16f424fa155b764fa0aba1d2888a4107f7dcf750e7",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -182,6 +182,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "filler_foreign_pct",
   "natural_progression",
   "region_grace_unlock",
+  "grace_attunement",
+  "grace_attunement_anchor",
   "leyndell_runes_required",
   "progressive_flasks",
   "local_item_only",
@@ -231,6 +233,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "filler_foreign_pct",
   "natural_progression",
   "region_grace_unlock",
+  "grace_attunement",
+  "grace_attunement_anchor",
   "leyndell_runes_required",
   "progressive_flasks",
   "local_item_only",
@@ -762,6 +766,50 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     {
      "name": "entrance",
      "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "grace_attunement",
+   "class": "GraceAttunement",
+   "display_name": "Grace Attunement",
+   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.",
+   "kind": "range",
+   "base": "Range",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 10
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "grace_attunement_anchor",
+   "class": "GraceAttunementAnchor",
+   "display_name": "Grace Attunement Anchor",
+   "description": "Which Site of Grace a region hands you when it unlocks. `front_door` (default) is the\nregion's own entrance, so you always arrive somewhere sensible. `random_grace` picks one of the\nregion's graces instead, which can drop you deeper in and cuts more traversal -- every\ncandidate is a real, physically-present warp point, so it can never strand you in a sealed\narena. Only used when Grace Attunement is on.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "front_door",
+   "choices": [
+    {
+     "name": "front_door",
+     "value": 0
+    },
+    {
+     "name": "random_grace",
+     "value": 1
     }
    ],
    "range": null,

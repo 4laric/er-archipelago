@@ -110,9 +110,13 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # maximum_enemy_difficulty below 100). That conditionality is the whole point -- a default seed must
 # connect to any client -- so it belongs here with the other conditional keys, NOT in
 # _CONTRACT_NOT_EMITTED, which would stop anything from checking it is ever emitted at all.
+# graceAttunement is emitted only when `grace_attunement` > 0, and its default is 0 -- so a default
+# seed must NOT carry it. That is asserted positively over in
+# test_gf_grace_attunement.py::AttunementOff and ledgered in test_gf_off_means_off.py; here it just
+# has to stay out of the always-present set.
 ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
                               "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy",
-                              "requiresClientFeatures"}
+                              "requiresClientFeatures", "graceAttunement"}
 
 
 class SlotDataFixtureRich(WorldTestBase):
@@ -134,6 +138,11 @@ class SlotDataFixtureRich(WorldTestBase):
         # requiresClientFeatures. RICH exists to exercise every key, so the honest fix for a new
         # conditional key is to satisfy its condition here -- not to list it as never-emitted.
         "maximum_enemy_difficulty": 50,
+        # On, so RICH actually emits graceAttunement -- per this class's own rule that a new
+        # conditional key is satisfied here rather than declared never-emitted. 4 is the playtest
+        # value; anything above 0 would do, but it must leave at least one region above the
+        # small-region skip or the key would be an empty dict.
+        "grace_attunement": 4,
         # The blessing, on, via the option that REPLACED `global_scadutree_blessing` (split
         # 2026-08-06). It no longer pulls in a key of its own -- the ceiling is gone -- but RICH
         # should still exercise the live path rather than the deprecated alias. `anywhere` without

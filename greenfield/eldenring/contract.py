@@ -595,6 +595,16 @@ CONTRACT = (
                 "whose eventFlag_forRelease is 9116 itself (Enia's Maliketh armor set) re-key to "
                 "the monotonic 118 so the reconciler's OFF-default cannot de-stock them."),
     # --- graces ---
+    ContractKey("graceAttunement", "ANY", False, (GREENFIELD,),
+                "features/graces.py", "region.rs parse_grace_attunement / tick_grace_attunement",
+                "'<Region> Lock' -> {threshold, members, bloom}: touch `threshold` of `members` "
+                "(the region's grace warp flags minus the one its Lock already lit) and `bloom` "
+                "lights. ABSENT for every region the apworld chose not to gate -- the off default "
+                "(grace_attunement 0) and the small-region skip (members <= threshold), both of "
+                "which keep the whole-bundle behaviour regionGraces has always had. A seed that "
+                "emits this also emits requiresClientFeatures ['grace_attunement']: unread, the key "
+                "leaves the player ONE grace per region with the rest never lighting, which reads "
+                "as a broken seed rather than an ignored setting."),
     ContractKey("regionGraces", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/graces.py", "region.rs:122 str_to_u32vec",
                 "item_name -> grace warp flags lit when that item is RECEIVED. Keyed by "
