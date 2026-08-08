@@ -1775,91 +1775,64 @@ const ERW = (() => {
     const warn = (k,m) => out.push({sev:"warn", key:k,msg:m});
     const info = (k,m) => out.push({sev:"info", key:k,msg:m});
 
-    const goal = has("ending_condition") ? v("ending_condition") : null;
-    const wl = has("world_logic") ? v("world_logic") : null;
-    const lockBased = wl === "region_lock" || wl === "region_lock_bosses";
-    const nr = has("num_regions") ? v("num_regions") : 0;
-    const sealGoal = ["capital","messmer","godrick"].includes(goal) || nr > 0;
+    /* 🛑 EVERY RULE BELOW NAMES AN OPTION THAT EXISTS, AND SAYS SOMETHING THE WORLD ACTUALLY DOES.
+       That was not true until 2026-08-08: this function carried ~20 rules about `world_logic`,
+       `location_pool`, `random_start_region`, `ending_condition: capital` and other things deleted
+       months earlier, and shipped them to players as confident warnings. tools/
+       check_wizard_lint_currency.py now fails CI on a rule naming a dead key or a dead choice
+       value, so that specific rot cannot come back.
+
+       It CANNOT check that a rule is TRUE. So each rule here cites where the behaviour is defined,
+       and a new one should do the same -- if you cannot name the docstring or the test, the rule is
+       a guess and a guess in this panel is worse than silence. */
+
     const dlcOnly = has("dlc_only") && v("dlc_only");
 
-    if (goal === "messmer"){
-      if (has("dlc_only") && set("dlc_only") && !v("dlc_only"))
-        warn("dlc_only", "Ending Messmer FORCES DLC Only on — your 'false' is overridden.");
-      if (has("messmer_kindle") && v("messmer_kindle"))
-        warn("messmer_kindle", "Forced off under the Messmer ending (Enir Ilim is sealed).");
-    }
-    if (goal === "godrick"){
-      if (dlcOnly) warn("dlc_only", "Ending Godrick FORCES DLC Only off — your 'true' is overridden.");
-      if (wl === "open_world")
-        err("world_logic", "Ending Godrick needs a lock-based World Logic (region_lock / region_lock_bosses).");
-    }
+    // DLCOnly's docstring: "Implies Enable DLC (turning this on forces the DLC in even if Enable
+    // DLC is off)."
     if (dlcOnly && has("enable_dlc") && set("enable_dlc") && !v("enable_dlc"))
-      info("enable_dlc", "DLC Only forces Enable DLC on — your 'false' is overridden.");
+      info("enable_dlc", "DLC Only forces Enable DLC on \u2014 your 'false' is overridden.");
 
-    if (has("random_start_region") && v("random_start_region") !== "off"){
-      if (!lockBased)
-        err("random_start_region", "Requires a lock-based World Logic (you have " + wl + ").");
-      if (sealGoal)
-        warn("random_start_region", "Ignored under a region-seal goal (capital / messmer / godrick / num_regions) — you'll start at The First Step. For num_regions runs: num_regions_chain: true gives a rolled start instead.");
-      if (dlcOnly)
-        warn("random_start_region", "Inert under DLC Only — Gravesite is the fixed start hub.");
+    // Same docstring: "Under DLC Only no Great Rune region survives, so a great_runes ending
+    // collapses to region_locks (the requirement shrinks to 0)". Tested as
+    // test_runes_collapse_to_region_locks_under_dlc_only.
+    if (dlcOnly && has("ending_condition") && v("ending_condition") === "great_runes")
+      warn("ending_condition", "Under DLC Only no Great Rune region survives, so this collapses to " +
+           "region_locks. The seed still generates and is still winnable.");
+
+    // features/filler_foreign.py: it only ADDS names to local_items, so once Local Items Only has
+    // localized everything this is "a further no-op".
+    if (has("local_item_only") && v("local_item_only") &&
+        has("filler_foreign_pct") && set("filler_foreign_pct") &&
+        v("filler_foreign_pct") !== meta.byKey["filler_foreign_pct"].default)
+      info("filler_foreign_pct", "Local Items Only already keeps your items home, so this is a no-op.");
+
+    // ExcludeLocalItemOnly's docstring: "Ignored unless Local Items Only is on."
+    if (has("exclude_local_item_only") && (v("exclude_local_item_only") || []).length &&
+        has("local_item_only") && !v("local_item_only"))
+      warn("exclude_local_item_only", "Ignored unless Local Items Only is on.");
+
+    // ProgressionSurface's docstring: "an EMPTY set turns the confinement off entirely
+    // (progression scatters as vanilla AP fill decides)."
+    if (has("progression_surface") && !(v("progression_surface") || []).length){
+      warn("progression_surface", "Empty turns the confinement OFF \u2014 progression scatters " +
+           "wherever AP's fill puts it, including your filler checks.");
+      if (has("confine_foreign_progression") && v("confine_foreign_progression"))
+        info("confine_foreign_progression", "Nothing to confine other players' progression to " +
+             "while Progression Surface is empty.");
     }
 
-    if (!dlcOnly){
-      for (const k of ["quick_start","dlc_only_rune_catchup"])
-        if (has(k) && v(k)) warn(k, "Inert unless DLC Only is on.");
-    }
-    const dlcOn = (has("enable_dlc") && v("enable_dlc")) || dlcOnly || goal === "messmer";
-    if (!dlcOn){
-      if (has("scadu_frontload") && set("scadu_frontload") && v("scadu_frontload") !== meta.byKey["scadu_frontload"].default)
-        warn("scadu_frontload", "Only meaningful with the DLC on.");
-      if (has("dlc_timing") && set("dlc_timing"))
-        warn("dlc_timing", "Only meaningful with the DLC on.");
-    }
+    // features/scaling.py: the two sliders are a range, and min above max is not a range.
+    if (has("minimum_enemy_difficulty") && has("maximum_enemy_difficulty") &&
+        v("minimum_enemy_difficulty") > v("maximum_enemy_difficulty"))
+      err("minimum_enemy_difficulty", "Minimum enemy difficulty is above the maximum \u2014 that is " +
+          "not a range.");
 
-    if (has("extra_region_locks") && v("extra_region_locks").length && !lockBased)
-      warn("extra_region_locks", "Inert without a lock-based World Logic.");
-
-    if (nr > 0){
-      if (goal !== "capital") warn("num_regions", "Only takes effect with ending_condition: capital.");
-      if (!lockBased) warn("num_regions", "Only takes effect with a lock-based World Logic.");
-        warn("num_regions_rune_source", "Ignored under spine ordering (pool rolls a random set).");
-      if (nr < 3) info("num_regions", "Below the structural floor — raised to 3 at generation (Limgrave + Leyndell + Altus).");
-      if (has("great_runes_required") && v("great_runes_required") > 4)
-        err("great_runes_required", "num_regions runs can satisfy at most 4 great runes — generation rejects this.");
-    } else {
-      if (has("num_regions_rune_source") && v("num_regions_rune_source") === "pool")
-        warn("num_regions_rune_source", "Inert unless num_regions > 0.");
-      if (has("num_regions_chain") && v("num_regions_chain"))
-        warn("num_regions_chain", "Inert unless num_regions > 0.");
-    }
-    if (has("num_regions_chain") && v("num_regions_chain") && nr > 0 && goal !== "capital")
-      warn("num_regions_chain", "Only takes effect with ending_condition: capital.");
-
-    if (has("dlc_only_chain") && v("dlc_only_chain") && goal !== "messmer")
-      warn("dlc_only_chain", "Phase 1 only acts under ending_condition: messmer — plain DLC Only warns and no-ops.");
-
-    if (has("completion_scaling_floor") && v("completion_scaling_floor") > 0 &&
-        has("completion_scaling") && v("completion_scaling") === "off")
-      warn("completion_scaling_floor", "Inert without Completion Scaling on.");
-
-    if (has("soft_progression") && v("soft_progression") && v("accessibility") === "minimal")
-      warn("soft_progression", "No effect under accessibility: minimal.");
-
-    if (has("grace_rando") && v("grace_rando") && lockBased &&
-        has("graces_per_region") && set("graces_per_region") &&
-        v("graces_per_region") !== meta.byKey["graces_per_region"].default)
-      info("graces_per_region", "Grace Rando (on) overrides the graces_per_region bundle — set grace_rando: false to use it.");
-
-    if (has("location_pool") && v("location_pool") === "trimmed"){
-      for (const k of ["excluded_location_behavior","missable_location_behavior"])
-        if (has(k) && v(k) === "forbid_useful")
-          warn(k, "Known generation failure with the Trimmed pool: it can run out of pure filler for excluded/missable locations (FillError: 'not enough filler items'). Set this to allow_useful.");
-    }
-
-    if (v("accessibility") === "full" &&
-        (sealGoal || (has("extra_region_locks") && v("extra_region_locks").length)))
-      info("accessibility", "full can fail generation on tight / region-locked pools; minimal lets them spill.");
+    // region_spine.compute_kept: N is a DRAW SIZE. The Seed size panel shows the resulting spread,
+    // so this points at it rather than restating a number that is only true for one draw.
+    if (has("num_regions") && v("num_regions") > 0 && set("num_regions"))
+      info("num_regions", "A draw size, not a final count \u2014 goal force-keeps and parent " +
+           "closure can add more. See Seed size for the range your setting actually produces.");
 
     return out;
   }

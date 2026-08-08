@@ -197,6 +197,16 @@ else
   record RUST SKIP
 fi
 
+step "WIZARD LINT CURRENCY (rules must name live options)"
+# AP-free. A lint rule whose option vanished stops firing silently, which is indistinguishable from
+# a rule with nothing to say -- so the wizard shipped warnings about options deleted months earlier.
+if [ -f "$REPO/tools/check_wizard_lint_currency.py" ]; then
+  if ( cd "$REPO" && "$PY" tools/check_wizard_lint_currency.py ); then
+    record WIZARD-LINT PASS; else record WIZARD-LINT FAIL; fi
+else
+  echo "  SKIP: tools/check_wizard_lint_currency.py absent"; record WIZARD-LINT SKIP
+fi
+
 step "WIZARD CENSUS JS (seed-size math: JS vs Python)"
 # The census DATA is gated by test_gf_region_census in (d); this gates the JavaScript that turns it
 # into the number a player reads. Needs node -> exit 4 is a real SKIP, not a pass: a box without

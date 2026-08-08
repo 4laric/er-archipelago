@@ -178,6 +178,11 @@ Invoke-CiStep "WIZARD (options metadata drift)" {
 # wizard/region-census.json is gated by test_gf_region_census; the JS that reads it is not gated by
 # any Python test, and the JS is what the player sees. Differential run under node. Exit 4 = node
 # absent = SKIP (reported, not silently passed).
+Invoke-CiStep "WIZARD-LINT (rules must name live options)" {
+    python (Join-Path $Repo "tools\check_wizard_lint_currency.py")
+    if ($LASTEXITCODE -ne 0) { throw "WIZARD-LINT: a wizard conflict rule names an option or choice value that no longer exists" }
+}
+
 Invoke-CiStep "WIZARD-CENSUS-JS (seed-size math: JS vs Python)" {
     python (Join-Path $Repo "tools\check_wizard_census_js.py")
     if ($LASTEXITCODE -eq 4) { Write-Host "  SKIP: node not on PATH -- the wizard's JS math is ungated on this box." }
