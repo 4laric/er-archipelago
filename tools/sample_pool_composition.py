@@ -75,9 +75,12 @@ def measure(samples):
             return "useful"
         return "filler"
 
+    from worlds.eldenring import item_categories as ic
+
     rows = []
     for case in CASES:
         pcts = collections.defaultdict(list)
+        cat_pcts = collections.defaultdict(list)
         for _ in range(samples):
             class _T(WorldTestBase):
                 game = "Elden Ring"
@@ -94,11 +97,26 @@ def measure(samples):
             for k in ("filler", "useful", "progression"):
                 pcts[k].append(100.0 * c[k] / n)
             pcts["checks"].append(len(locs))
+            # PER-CATEGORY SHARE OF THE POOL, BY COPY. This is what lets the wizard answer "if I
+            # keep my consumables and crafting mats, how much of my game still goes out?" before
+            # anything is generated. It has to be measured for the same reason the filler split is:
+            # the categories are a property of the CATALOG, but their share of a POOL is decided by
+            # the filler budget at generation time -- there are hundreds of Smithing Stone copies
+            # and one Blasphemous Blade, and no static table knows that ratio.
+            cc = collections.Counter(ic.category_of(i.name) for i in items)
+            for k in ic.CATEGORIES:
+                cat_pcts[k].append(100.0 * cc.get(k, 0) / n)
         row = {"label": case["label"], "options": case["options"]}
-        for k, v in pcts.items():
+        def band(v):
             v = sorted(v)
             q = lambda p: v[int(p * (len(v) - 1))]
-            row[k] = [round(q(0), 1), round(q(0.5), 1), round(q(1), 1)]
+            return [round(q(0), 1), round(q(0.5), 1), round(q(1), 1)]
+        for k, v in pcts.items():
+            row[k] = band(v)
+        # Categories that never appear in any sample are omitted rather than written as zeros: a
+        # zero row in the artifact reads as "measured and absent", and the wizard would render a
+        # category the pool cannot contain.
+        row["categories"] = {k: band(v) for k, v in sorted(cat_pcts.items()) if max(v) > 0}
         rows.append(row)
         print("  %-16s filler %s  useful %s  prog %s"
               % (row["label"], row["filler"], row["useful"], row["progression"]))

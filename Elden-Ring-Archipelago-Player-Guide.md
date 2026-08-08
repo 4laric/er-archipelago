@@ -206,9 +206,33 @@ run rather than tune it.
   item is worth, so a cheap shelf never becomes an infinite supply of something
   game-breaking. **Arrow and bolt shelves are left alone**, so ammo builds keep
   their supply line.
-- **`filler_foreign_pct` / `local_item_only`** -- multiworld manners: how much
-  of your filler other worlds may draw from, and whether your real vanilla
-  items always stay in your own world.
+- **`keep_local`** -- multiworld manners, by category. List the kinds of item
+  you want to stay in your own world and everything else still travels:
+  `[consumables, crafting, upgrade_materials, runes]` keeps your crafting
+  materials, smithing stones, ghost gloveworts, every consumable and every
+  Golden Rune at home while your weapons, armour, talismans, spells, spirit
+  ashes and ashes of war go out to other players. Full list of categories in
+  the wizard. This matters most when your slot is much bigger than everyone
+  else's: an Elden Ring seed can run to a couple of thousand checks, and
+  without any of this a five-player game turns into four people opening Elden
+  Ring consumables.
+- **`keep_local_rune_cap`** -- hold back rune items worth this many runes or
+  fewer and let the big ones travel. `3000` keeps the small change. 0 (the
+  default) is off.
+- **`local_item_only`** -- the blunt version of `keep_local`: every real
+  vanilla item stays home. `exclude_local_item_only` lets categories back out
+  again.
+- **`filler_foreign_pct`** -- how much of your filler other worlds may draw
+  from. It picks *which* filler at random per seed, so it can't be aimed;
+  `keep_local` is the aimable version and they compose.
+
+**How much am I actually sending out?** The wizard's *Seed size* tab shows the
+ceiling as you move those options -- how many of your items are permitted to
+leave. The real number needs a finished seed, and it's in the spoiler and the
+generation log: `sent 431 of 1266 items into other worlds -- 388 filler, 43
+useful`. The two differ a lot, because Archipelago spreads your items over
+every world in proportion to open locations, so a big slot keeps most of its
+own pool no matter what you set.
 - **`enable_dlc`** -- the Shadow of the Erdtree regions join the region pool
   and behave like any other region: their Lock arrives, their graces light,
   you warp in. You never fight Mohg to get there. Off in the shipped yaml and

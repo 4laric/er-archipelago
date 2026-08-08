@@ -967,6 +967,13 @@ class GreenfieldEldenRingWorld(World):
         # features/filler_budget, which needs no sphere coupling to do it. Coupling a player-visible
         # economy to an invisible fill artifact is what made it both wrong and unfixable.
 
+        # MULTIWORLD CONTRIBUTION. How many of this slot's items actually went into other players'
+        # worlds, and how much of that was filler. post_fill is the earliest point the question has a
+        # true answer -- before it, all anyone can state is the ceiling the options permit. See
+        # pool_report.py for why the ceiling on its own is a misleading thing to print.
+        from . import pool_report as _pr
+        _pr.log(self)
+
     def _add_locations(self, region: Region, region_name: str) -> None:
         # A GUESSED REGION MAY NOT CARRY PROGRESSION.
         # DEFAULTED_REGION_APS = checks whose real region is unknown, so gen_data defaulted them to the
@@ -1444,6 +1451,8 @@ class GreenfieldEldenRingWorld(World):
                 f"\nElden Ring ({name}) progression surface: resolved rung {_psr} "
                 f"-- {_pl} progression items confined to surface, {_sp} spilled to pool"
                 + (f": {', '.join(_spn)}" if _spn else "") + ".\n")
+        from . import pool_report as _pr
+        _pr.write_spoiler(self, spoiler_handle)
         try:
             sd = self.fill_slot_data()
             spoiler_handle.write(f"\nElden Ring ({name}) slot_data ({len(sd)} keys) -- exactly what the client receives:\n")
