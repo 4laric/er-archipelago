@@ -11,76 +11,43 @@ saying it had never happened.
 
 `CONTRACT_HASH` is unmoved at `d7d3a58e`. The version bump is lockstep, not a contract change.
 
-### The wizard is deployed from a ref now, and says which channel it is
+### Beta and stable channels, so the page and the download agree
 
-`tools/deploy_wizard.sh` puts `wizard/wizard.html` at the **stable tag** on `/er/` and the one at
-`main` on `/er/beta/`, reading which tag is stable out of `release/CHANNELS.tsv` rather than taking
-it as an argument. It fetches rather than builds, so the host needs no checkout.
+Three places publish this project -- the GitHub tag, the wizard on peliarch.ca, and Nexus -- and
+only the first was pinned to anything. On the morning of 2026-08-08 all three were different builds,
+and the newest of them was the one strangers were being pointed at: the live wizard offered 44
+options, the newest tag had 42.
 
-Reading the host's own `app.py` first saved most of the work: `/er/<path:filename>` matches slashes,
-so `/er/beta/wizard.html` already worked the moment a file was put there. No web-app change.
+**That is worse than "the site is a bit ahead", because Archipelago does not refuse a yaml carrying
+an option your apworld has never heard of.** Measured on 0.6.7: it prints one line, in the middle of
+about fifty unrelated `Could not load world` lines, and generates the seed **without** the option.
+Exit 0. So a player on the released build sets `keep_local`, gets a seed, and their consumables
+travel to the multiworld anyway, with nothing anywhere to say why.
 
-The page works out which channel it is from its own URL and banners itself in warning colours, with
-a link back to stable -- so the deploy script never edits the HTML, which is the thing that would
-have broken the first time the markup moved. A copy opened from `file://` shows no banner: a page
-that cannot tell should not claim.
+**Stable is daily**, which turns out to be the cadence this project already had rather than a new
+promise: 30 tags from v0.1 to v0.3.7 over 34 days, median gap **0.82 days**. So the release cadence
+was never the problem -- v0.3.7 was cut the day *before* the skew was noticed. Nothing tied the
+wizard deploy to the tags.
 
-🛑 One honest gap, written down rather than papered over: `POST /generate` has a single `AP_ROOT`,
-so both wizards generate with whatever apworld is installed on the box. `generator.generate()`
-already takes the root as a parameter, so the fix is a few lines in `app.py` plus a second AP tree
-(they cannot share one -- both worlds answer to the game name `Elden Ring`).
+* **The channel is a POINTER, not a version suffix.** `0.3.8-beta.1` is not available to us:
+  Archipelago calls `tuplize_version()` on `archipelago.json`'s `world_version` when it loads an
+  apworld, and that raises on any prerelease form, so a suffix is a load-time crash rather than a
+  label. `release/CHANNELS.tsv` names which tag each channel is on; promotion is a new row.
+* **`/er/` now serves the wizard built at the stable tag, `/er/beta/` the one at `main`**, both via
+  `tools/deploy_wizard.sh`. The page works out which it is from its own URL and banners itself, so
+  nothing edits the HTML. A copy opened from `file://` shows no banner: a page that cannot tell
+  should not claim.
+* **Every wizard yaml carries the pairing** in `description:`, which is the one field that reaches
+  the generation log and the multidata -- a comment would reach nobody.
+* **The bare `eldenring.apworld` finally exists.** `DISTRIBUTION.md` has promised it since v0.2, on
+  the grounds that making a host download a game-mod DLL to generate someone else's seed is
+  "friction for nothing"; it never shipped, because the packer was PowerShell on one machine. It is
+  **1.3 MB** against the player bundle's 123.7 MB, and the release job proves it generates a real
+  seed before attaching it -- an apworld that installs but cannot roll a seed fails for the host, in
+  their generation, with our name on it.
 
-### Beta and stable channels, and the bare apworld a host has never been able to download
-
-Stable is **daily** -- which turns out to be the cadence this project already had. Over the 30 tags
-from v0.1 to v0.3.7 (34 days) the median gap between tags is **0.82 days**. So the release cadence
-was never the problem; nothing tied the wizard deploy to it. With stable = the newest tag, the worst
-skew a player can hit drops from unbounded to about a day, and beta covers the rest honestly.
-
-Shipping now:
-
-* `release/CHANNELS.tsv` -- which tag each channel points at, append-only, plus
-  `tools/check_channels.py` to keep it honest (every named tag is real, only `beta` may name a
-  moving ref, promotions run forwards, and stable is never ahead of the newest tag). It deliberately
-  does NOT require stable to BE the newest tag: trailing is what a stable channel is for.
-* `tools/build_apworld.py` -- the bare `eldenring.apworld`, packed deterministically in Python so a
-  Linux runner can make it. **1.3 MB, against the player bundle's 123.7 MB.**
-* `.github/workflows/release.yaml` -- on a tag, pack it, PROVE IT GENERATES by installing the zip
-  into a stock pinned Archipelago and rolling a real seed, and attach it to the release along with
-  the wizard.
-
-That last gate is the point: an apworld that installs but cannot roll a seed fails for the host, in
-their generation, with our name on it.
-
-### A beta/stable channel split, costed
-
-`SPEC-publishing-pipeline.md` gains the design for Alaric's proposal, and one measurement that rules
-out the obvious version of it: **the channel cannot live in the version number.** Archipelago calls
-`tuplize_version()` on `archipelago.json`'s `world_version` when it loads an apworld, and that raises
-on any prerelease form --
-
-    tuplize_version('0.3.8')        -> Version(0, 3, 8)
-    tuplize_version('0.3.8-beta.1') -> ValueError: invalid literal for int() with base 10: '8-beta'
-
--- so `0.3.8-beta.1` is a load-time crash, not a labelling choice. (This repo's own manifest gate
-already forbids it, and the same test's docstring records the client sitting at `0.1.0-beta.4`
-against apworld 0.2.0 for months. The suffix has cost us a drift once already.)
-
-So the channel is a **pointer**: every build keeps a strict `X.Y.Z` and a tag, `release/CHANNELS.tsv`
-names which tag each channel is on, and promotion moves the pointer instead of rebuilding anything.
-Betas ride GitHub's own `prerelease` flag, which costs the version string nothing. Both channels
-serve a wizard built AT a tag, so page and download agree by construction -- which is the fix the
-version stamp above can only label.
-
-The honest cost is in the bump, not the packaging: a tag is a lockstep move across four version sites
-in two repos, so betas have to get cheap or they will not get cut. The honest benefit is that it
-fixes a defect we already have -- every commit in an open window currently reports the SAME
-`APWORLD_VERSION`, which is the disease "0.2.0 names five contract shapes" was filed under.
-
-Also found while measuring: **the bare `eldenring.apworld` release asset does not exist.**
-`DISTRIBUTION.md` promises two assets per tag so a host generating someone else's seed need not pull
-a game-mod DLL -- "friction for nothing", it says, of a 10 MB bundle. Every release from v0.3.2 to
-v0.3.7 ships exactly one asset and it is **123.7 MB**.
+The one thing still open is on the host: `POST /generate` has a single `AP_ROOT`, so both wizards
+generate with whatever apworld is installed there. `SPEC-publishing-pipeline.md` carries the fix.
 
 ### Every wizard yaml now says which apworld it was written for
 
@@ -166,6 +133,23 @@ typo -- and feeds the result to a real `Generate.py` against the installed world
 and two presets. It catches the whole family the other gates cannot: a key the world stopped
 accepting, a value outside a live range, a preset that rolls into something that will not fill, or a
 yaml that is subtly malformed.
+
+**And then it went stale again inside the same window.** By the time this release was cut the pin
+was **eleven** client merges behind -- the ramp-saturation fix, the mod-stack scan, the downstate
+probe and the apconfig probe gates -- so the section above was describing a fix that did not hold
+for one day.
+
+That is not carelessness, it is a missing gate, and the shape of it is worth recording. `generators`
+cannot see staleness by construction: it checks out the client AT the gitlink, so an ancient pin
+agrees with itself perfectly. `client-main-drift` DOES see it and says so with `::notice::` -- on
+pushes to main and the nightly schedule only, never on a pull request, and a notice is a line in a
+job log nobody opens. Its own message defers to "REQUIRED before a tag (RELEASE-CHECKLIST)", and the
+checklist had no such row.
+
+So the tag job now refuses to publish a release whose gitlink is not the current client
+(`ALLOW_STALE_PIN=1` to override, deliberately awkward). A notice is the right severity on main --
+client-only work mid-window is normal -- but a tag is the one moment the pairing becomes a permanent
+record, and the first moment it can be enforced rather than remembered.
 
 ### Every yaml the wizard produced named a game that does not exist
 
