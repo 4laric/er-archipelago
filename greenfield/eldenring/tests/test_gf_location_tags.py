@@ -17,7 +17,7 @@ import unittest
 
 from worlds.eldenring.data import LOCATIONS
 from worlds.eldenring.location_tags import LOCATION_TAGS, TAG_COUNTS, DEFAULTED_REGION_APS
-from worlds.eldenring.contract import (SURFACE_EXCLUDE_TAGS, IMPORTANT_LOCATION_TYPES,
+from worlds.eldenring.contract import (SURFACE_EXCLUDE_TAGS, SURFACE_CLASSES,
                                        SURFACE_DEFAULT_CLASSES)
 
 # The classes these data guards are about. Was features/important_locations._DEFAULT; kept as a
@@ -286,13 +286,13 @@ class TagDataTests(unittest.TestCase):
         because minidungeon rewards are arena chests, not the boss's own drop. So there is no
         `Underground` class and "exclude the catacombs" is not expressible. If this ever fails, the
         data changed and the decision is worth revisiting -- it is not a lint."""
-        self.assertNotIn("Underground", IMPORTANT_LOCATION_TYPES)
+        self.assertNotIn("Underground", SURFACE_CLASSES)
         self.assertNotIn("Underground", TAG_COUNTS)
 
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
         # surface-selectable TYPES; those live in contract.SURFACE_EXCLUDE_TAGS. Valid == either.
-        valid = set(IMPORTANT_LOCATION_TYPES) | SURFACE_EXCLUDE_TAGS
+        valid = set(SURFACE_CLASSES) | SURFACE_EXCLUDE_TAGS
         for tags in LOCATION_TAGS.values():
             for t in tags:
                 self.assertIn(t, valid)

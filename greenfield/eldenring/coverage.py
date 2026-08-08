@@ -577,11 +577,16 @@ def _live_placements(world):
 def _is_filler_location(rec, contract):
     """Static filler classification: carries no important/surface tag. Gates ACCEPTED_LEAKS (a
     knowingly-leaking location must be filler). Grounded in contract.py's own class lists
-    (IMPORTANT_LOCATION_TYPES + SURFACE_DEFAULT_CLASSES) -- the sets the tracker/surface care about."""
+    (SURFACE_CLASSES + SURFACE_DEFAULT_CLASSES) -- the sets the tracker/surface care about.
+
+    🛑 DIRECT attribute access, deliberately. This was `getattr(contract, "...", ())`, and a
+    defaulted read of a constant that always exists is not defensive -- it converts a rename into
+    "every location is filler", which reads as a data problem miles from the cause. If contract.py
+    drops these names, this must raise."""
     important = set()
     if contract is not None:
-        important |= set(getattr(contract, "IMPORTANT_LOCATION_TYPES", ()))
-        important |= set(getattr(contract, "SURFACE_DEFAULT_CLASSES", frozenset()))
+        important |= set(contract.SURFACE_CLASSES)
+        important |= set(contract.SURFACE_DEFAULT_CLASSES)
     if rec.tags and (important & set(rec.tags)):
         return False
     return True

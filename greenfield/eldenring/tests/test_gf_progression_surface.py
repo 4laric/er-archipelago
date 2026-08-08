@@ -101,8 +101,8 @@ def _apid_region():
 
 # ---- vocabulary ---------------------------------------------------------------------------------
 def test_majorboss_in_vocabulary():
-    assert "MajorBoss" in contract.IMPORTANT_LOCATION_TYPES
-    # the surface vocabulary (contract.IMPORTANT_LOCATION_TYPES -- name outlived the deleted option)
+    assert "MajorBoss" in contract.SURFACE_CLASSES
+    # the surface vocabulary (contract.SURFACE_CLASSES -- name outlived the deleted option)
     assert "MajorBoss" in ps.ProgressionSurface.valid_keys
 
 
@@ -150,7 +150,7 @@ def test_selected_surface_filters_and_canonicalises_order():
     followed the caller's container, two runs of the SAME seed would build different ladders. So the
     order is canonical -- and this test asserts exactly that, where it used to assert the opposite
     ("order preserved"), which was only safe while the option was a list."""
-    vocab = contract.IMPORTANT_LOCATION_TYPES
+    vocab = contract.SURFACE_CLASSES
     got = ps.selected_surface(["MajorBoss", "Bogus", "Shop"])
     assert got == [c for c in vocab if c in {"MajorBoss", "Shop"}]
     # identical whatever container / order it arrives in

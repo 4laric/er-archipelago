@@ -3,7 +3,7 @@
 """build_surface_confidence.py -- how SURE are we where each surface class lives?
 
 WHAT THIS IS. One table, `greenfield/surface_confidence.tsv`: for every class in the
-progression-surface vocabulary (`contract.IMPORTANT_LOCATION_TYPES`), how many checks carry the tag
+progression-surface vocabulary (`contract.SURFACE_CLASSES`), how many checks carry the tag
 and how many of those may actually HOST progression once the bars are applied.
 
     class  total  guessed_region  missable  erdtree_burn  surface_excluded  hub_merchant  eligible
@@ -128,7 +128,7 @@ def measure(mods=None):
     barred_all = frozenset().union(*bars.values())
     exclude_tags = set(getattr(contract, "SURFACE_EXCLUDE_TAGS", ()) or ())
     default = set(contract.SURFACE_DEFAULT_CLASSES)
-    vocab = list(contract.IMPORTANT_LOCATION_TYPES)
+    vocab = list(contract.SURFACE_CLASSES)
 
     def tagged(classes):
         """ap-ids carrying any of `classes` and none of SURFACE_EXCLUDE_TAGS -- contract.has_class,
@@ -137,10 +137,19 @@ def measure(mods=None):
         return {ap for ap, ts in lt.items()
                 if (sel & set(ts or ())) and not (exclude_tags & set(ts or ()))}
 
+    def raw_tagged(classes):
+        """ap-ids carrying any of `classes`, WITHOUT the SURFACE_EXCLUDE_TAGS filter.
+
+        Only used to price the `tag_excluded` column. `total` deliberately stays the has_class
+        count -- see the emit() header for why this column exists at all."""
+        sel = set(classes)
+        return {ap for ap, ts in lt.items() if sel & set(ts or ())}
+
     rows = []
     for cls in vocab:
         aps = tagged([cls])
         row = {"class": cls, "total": len(aps),
+               "tag_excluded": len(raw_tagged([cls])) - len(aps),
                "eligible": len(aps - barred_all),
                "in_default": "yes" if cls in default else ""}
         for b in BAR_ORDER:
@@ -164,7 +173,7 @@ def measure(mods=None):
     return rows, totals
 
 
-_COLS = ("class", "total") + BAR_ORDER + ("eligible", "eligible_pct", "in_default")
+_COLS = ("class", "total", "tag_excluded") + BAR_ORDER + ("eligible", "eligible_pct", "in_default")
 
 
 def emit(rows, totals):
@@ -176,6 +185,18 @@ def emit(rows, totals):
     a("#")
     a("# 'eligible' = checks that may actually HOST progression: tagged, minus every bar below.")
     a("# A TAG COUNT IS NOT A HOSTING COUNT. Both are printed; quote the second one.")
+    a("#")
+    a("# 'total' IS ALREADY FILTERED, AND THAT USED TO BE INVISIBLE. It is contract.has_class:")
+    a("# checks carrying the tag MINUS checks carrying a SURFACE_EXCLUDE_TAG (EniaShop -- Enia's")
+    a("# buy-only remembrance store). The 'checks N carry any tag' line below is RAW. So the two")
+    a("# numbers on this page legitimately disagree, and nothing said so.")
+    a("#   raw tag count for a class  ==  total + tag_excluded")
+    a("# MOTIVATING CASE (rule 11): on 2026-08-08 an agent read `Shop 500` here, measured 527 raw")
+    a("# tags in location_tags.py, and reported the committed table as STALE in a design review.")
+    a("# It was not stale -- test_gf_surface_confidence::test_artifact_is_current diffs a fresh")
+    a("# emit on every CI run and was green. Two measures, one label, a fabricated defect. The")
+    a("# column makes the filter visible instead of leaving it in prose.")
+    a("#   tag_excluded      carries the tag but also a SURFACE_EXCLUDE_TAG -> never on the surface")
     a("#   guessed_region    region defaulted/tile-guessed -> AP thinks it is reachable at spawn")
     a("#   missable          can be lost permanently -> cannot be required")
     a("#   erdtree_burn      m11_00 destroyed when Maliketh dies (CONDITIONAL: not barred when the")
@@ -202,7 +223,7 @@ def emit(rows, totals):
     a("\t".join(_COLS))
     for r in rows:
         pct = (100.0 * r["eligible"] / r["total"]) if r["total"] else 0.0
-        a("\t".join([r["class"], str(r["total"])]
+        a("\t".join([r["class"], str(r["total"]), str(r["tag_excluded"])]
                     + [str(r[b]) for b in BAR_ORDER]
                     + [str(r["eligible"]), "%.0f" % pct, r["in_default"]]))
     return "\n".join(L) + "\n"
@@ -210,13 +231,15 @@ def emit(rows, totals):
 
 def summarise(rows, totals):
     w = max(len(r["class"]) for r in rows)
-    head = ("%-*s %6s %7s %7s %6s %6s %6s %9s %5s  %s"
-            % (w, "class", "total", "guessed", "missbl", "burn", "sxcl", "hub", "ELIGIBLE", "%", "default"))
+    head = ("%-*s %6s %6s %7s %7s %6s %6s %6s %9s %5s  %s"
+            % (w, "class", "total", "tagxc", "guessed", "missbl", "burn", "sxcl", "hub",
+               "ELIGIBLE", "%", "default"))
     out = [head, "-" * len(head)]
     for r in rows:
         pct = (100.0 * r["eligible"] / r["total"]) if r["total"] else 0.0
-        out.append("%-*s %6d %7d %7d %6d %6d %6d %9d %4.0f%%  %s"
-                   % (w, r["class"], r["total"], r["guessed_region"], r["missable"],
+        out.append("%-*s %6d %6d %7d %7d %6d %6d %6d %9d %4.0f%%  %s"
+                   % (w, r["class"], r["total"], r["tag_excluded"],
+                      r["guessed_region"], r["missable"],
                       r["erdtree_burn"], r["surface_excluded"], r["hub_merchant"],
                       r["eligible"], pct, r["in_default"]))
     out.append("")

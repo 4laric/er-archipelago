@@ -92,11 +92,57 @@ class SurfaceConfidenceArtifact(unittest.TestCase):
         mod = _load_tool()
         mods = mod._load()
         rows, _totals = mod.measure(mods)
-        vocab = list(mods["contract"].IMPORTANT_LOCATION_TYPES)
+        vocab = list(mods["contract"].SURFACE_CLASSES)
         self.assertEqual([r["class"] for r in rows], vocab,
                          "the table must price the vocabulary exactly, in vocabulary order")
         self.assertTrue(set(mods["contract"].SURFACE_DEFAULT_CLASSES) <= set(vocab),
                         "a default class outside the vocabulary would never be priced")
+
+    def test_total_plus_tag_excluded_is_the_raw_tag_count(self):
+        """`total` is has_class-FILTERED; the header's "carry any tag" line is RAW. Pin the bridge.
+
+        MOTIVATING CASE (rule 11), 2026-08-08: `Shop 500` in the committed table was compared
+        against 527 raw `Shop` tags in location_tags.py and the table was reported STALE in a
+        design review. It was not stale -- `test_artifact_is_current` above diffs a fresh emit on
+        every CI run and was green. The two numbers are different measures wearing one label:
+        `total` subtracts SURFACE_EXCLUDE_TAGS (EniaShop), the header line does not. That cost a
+        wrong claim about a green gate, which is worse than a red one.
+
+        So the filter is now a COLUMN, and this is the identity that keeps it honest. It cannot be
+        satisfied by re-typing a number: both sides are derived from LOCATION_TAGS here, the same
+        way the tool derives them, so a class whose exclusion count moves must move the column."""
+        mod = _load_tool()
+        mods = mod._load()
+        rows, _ = mod.measure(mods)
+        lt = mods["location_tags"].LOCATION_TAGS
+        for r in rows:
+            raw = sum(1 for ts in lt.values() if r["class"] in (ts or ()))
+            self.assertEqual(
+                r["total"] + r["tag_excluded"], raw,
+                "%s: total %d + tag_excluded %d != %d raw tags -- the table's filtered and raw "
+                "counts have come apart, which is exactly the confusion the column exists to end"
+                % (r["class"], r["total"], r["tag_excluded"], raw))
+
+    def test_surface_excluded_tags_are_what_tag_excluded_counts(self):
+        """The column must count the TAG exclusion, not the hand-excluded FLAG list.
+
+        `surface_excluded` (a bar column) and `tag_excluded` (this one) are different mechanisms
+        with confusingly similar names: the first is gen_data's `_SURFACE_EXCLUDE_FLAGS`, the
+        second is `contract.SURFACE_EXCLUDE_TAGS`. A class with no exclude-tagged member must
+        price zero here even when its bar column is large -- Fragment is the live witness (7
+        hand-excluded flags, 0 exclude-tagged)."""
+        mod = _load_tool()
+        mods = mod._load()
+        rows, _ = mod.measure(mods)
+        lt = mods["location_tags"].LOCATION_TAGS
+        xtags = set(getattr(mods["contract"], "SURFACE_EXCLUDE_TAGS", ()) or ())
+        self.assertTrue(xtags, "SURFACE_EXCLUDE_TAGS is empty -- this test would be vacuous")
+        for r in rows:
+            want = sum(1 for ts in lt.values()
+                       if r["class"] in (ts or ()) and (xtags & set(ts or ())))
+            self.assertEqual(r["tag_excluded"], want,
+                             "%s: tag_excluded %d != %d checks carrying both the class and a "
+                             "SURFACE_EXCLUDE_TAG" % (r["class"], r["tag_excluded"], want))
 
     def test_eligible_is_never_computed_by_subtracting_columns(self):
         """The bar columns OVERLAP, so `total - sum(bars)` is wrong and can even go negative.
@@ -123,13 +169,13 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
             from ..features.progression_surface import allowed_ap_ids
             from ..location_tags import LOCATION_TAGS
             from ..missable_locations import MISSABLE_LOCATIONS
-            from ..contract import IMPORTANT_LOCATION_TYPES, has_class
+            from ..contract import SURFACE_CLASSES, has_class
         except Exception as e:  # AP absent -> the feature module cannot import Options
             raise unittest.SkipTest("progression_surface needs Archipelago (%r)" % (e,))
         cls.allowed_ap_ids = staticmethod(allowed_ap_ids)
         cls.LT = LOCATION_TAGS
         cls.MISS = frozenset(MISSABLE_LOCATIONS)
-        cls.VOCAB = list(IMPORTANT_LOCATION_TYPES)
+        cls.VOCAB = list(SURFACE_CLASSES)
         cls.has_class = staticmethod(has_class)
         cls.mod = _load_tool()
 

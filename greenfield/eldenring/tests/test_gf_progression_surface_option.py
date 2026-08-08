@@ -26,6 +26,7 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring import contract                                    # noqa: E402
 from worlds.eldenring.features.progression_surface import (             # noqa: E402
     ProgressionSurface, selected_surface, build_ladder,
+    surface_class_meta, class_containment, SURFACE_CLASS_FAMILIES, SURFACE_CLASS_LABELS,
 )
 from worlds.eldenring.location_tags import LOCATION_TAGS                # noqa: E402
 
@@ -59,7 +60,7 @@ class ProgressionSurfaceOption(unittest.TestCase):
 
     def test_every_default_class_is_in_the_shared_vocabulary(self):
         for c in ProgressionSurface.default:
-            self.assertIn(c, contract.IMPORTANT_LOCATION_TYPES)
+            self.assertIn(c, contract.SURFACE_CLASSES)
         self.assertTrue(set(ProgressionSurface.default) <= set(ProgressionSurface.valid_keys))
 
     # ---- determinism -----------------------------------------------------------------------------
@@ -70,7 +71,7 @@ class ProgressionSurfaceOption(unittest.TestCase):
         as_rev = selected_surface(["ShopSlot", "Church", "MajorBoss"])
         self.assertEqual(as_set, as_list)
         self.assertEqual(as_set, as_rev)
-        vocab = [c for c in contract.IMPORTANT_LOCATION_TYPES if c in {"ShopSlot", "MajorBoss", "Church"}]
+        vocab = [c for c in contract.SURFACE_CLASSES if c in {"ShopSlot", "MajorBoss", "Church"}]
         self.assertEqual(as_set, vocab, "order must come from the vocabulary")
 
     def test_the_ladder_is_deterministic_for_a_set_input(self):
@@ -94,6 +95,145 @@ class ProgressionSurfaceOption(unittest.TestCase):
 
     def test_garbage_classes_are_filtered_not_fatal(self):
         self.assertEqual(selected_surface({"NotATag", "MajorBoss"}), ["MajorBoss"])
+
+    # ---- the wizard's per-key presentation -------------------------------------------------------
+    # These keys are TAG NAMES, and several of them do not say what they select: `Church` is the 13
+    # Sacred Tears (not "church locations"), `Basin` is Crystal Tears, `Seedtree` is Golden Seeds.
+    # The wizard rendered them raw and alphabetical, so the grid both mis-described the classes and
+    # scattered the four boss classes across it. The labels are the fix; the keys cannot move because
+    # AP's VerifyKeys RAISES on an unknown key and every yaml in the wild would hard-fail.
+    def test_every_vocabulary_class_has_a_label_and_a_family(self):
+        """A gap here is INVISIBLE in the page: an unclaimed class is simply never drawn."""
+        meta = surface_class_meta()
+        self.assertEqual({m["key"] for m in meta}, set(contract.SURFACE_CLASSES),
+                         "the grid must draw the vocabulary exactly")
+        self.assertEqual(len(meta), len(contract.SURFACE_CLASSES), "a class is drawn twice")
+        for m in meta:
+            self.assertTrue(m["label"].strip(), "%s has no label" % m["key"])
+            self.assertTrue(m["hint"].strip(), "%s has no hint" % m["key"])
+
+    def test_a_class_with_no_label_or_family_RAISES_rather_than_vanishing(self):
+        """The failure mode this guards is silence, so the helper must be loud.
+
+        Passing a vocabulary the tables do not cover stands in for adding a 17th class and
+        forgetting the presentation -- which would otherwise render as a bare tag name in a grid of
+        labelled ones, or not render at all."""
+        with self.assertRaises(ValueError):
+            surface_class_meta(list(contract.SURFACE_CLASSES) + ["Underground"])
+
+    def test_labels_do_not_silently_cover_a_retired_class(self):
+        """The tables may not name classes the vocabulary no longer has -- that is a dead label
+        nobody will notice, and it is how the 20 dead wizard lint rules happened."""
+        named = set(SURFACE_CLASS_LABELS)
+        for _fid, _lab, keys in SURFACE_CLASS_FAMILIES:
+            named |= set(keys)
+        self.assertEqual(named - set(contract.SURFACE_CLASSES), set(),
+                         "presentation tables name classes outside the vocabulary")
+
+    # ---- the containment lattice ----------------------------------------------------------------
+    def test_containment_is_derived_and_matches_the_live_tags(self):
+        """Recompute from LOCATION_TAGS independently. This is the relation contract.py carried as a
+        COMMENT, inverted, for months -- so it is asserted from the data, in the direction that
+        matters, rather than against a table that could be wrong the same way twice."""
+        cont = class_containment()
+        members = {c: {ap for ap, ts in LOCATION_TAGS.items() if c in (ts or ())}
+                   for c in contract.SURFACE_CLASSES}
+        for parent, kids in cont.items():
+            for kid in kids:
+                self.assertTrue(members[kid] < members[parent],
+                                "%s does not strictly contain %s" % (parent, kid))
+        # ...and nothing strictly contained is MISSING from the answer.
+        for a in contract.SURFACE_CLASSES:
+            for b in contract.SURFACE_CLASSES:
+                if a != b and members[b] and members[b] < members[a]:
+                    self.assertIn(b, cont.get(a, []),
+                                  "%s contains %s but the lattice does not say so" % (a, b))
+
+    def test_majorboss_contains_remembrance_and_greatrune_not_the_reverse(self):
+        """🛑 THE CORRECTED DIRECTION, pinned. contract.py read "MajorBoss is a SUBSET of
+        Remembrance/GreatRune". It is their SUPERSET, and the wizard now tells players so."""
+        cont = class_containment()
+        self.assertIn("Remembrance", cont.get("MajorBoss", []))
+        self.assertIn("GreatRune", cont.get("MajorBoss", []))
+        self.assertNotIn("MajorBoss", cont.get("Remembrance", []))
+        self.assertNotIn("MajorBoss", cont.get("GreatRune", []))
+
+    def test_the_shop_umbrella_contains_its_members(self):
+        """`Shop` used to be tagged from the region_map `method` column while ShopNonSpell/ShopSlot
+        were derived from the stock FLAG, so the umbrella was NARROWER than its members: 28
+        ShopNonSpell checks and 3 ShopSlot pins carried no `Shop` tag. One predicate now
+        (gen_data._is_shop_row), and this is the relation that proves it."""
+        cont = class_containment()
+        self.assertIn("ShopNonSpell", cont.get("Shop", []))
+        self.assertIn("ShopSlot", cont.get("Shop", []))
+        self.assertIn("ShopSlot", cont.get("ShopNonSpell", []))
+
+    def test_containment_is_a_strict_order(self):
+        cont = class_containment()
+        for parent, kids in cont.items():
+            self.assertNotIn(parent, kids, "%s contains itself" % parent)
+            for kid in kids:
+                self.assertNotIn(parent, cont.get(kid, []),
+                                 "mutual containment %s <-> %s" % (parent, kid))
+
+    def test_containment_takes_synthetic_tags_so_it_is_not_just_a_data_echo(self):
+        tags = {1: ["Big", "Small"], 2: ["Big"], 3: ["Other"]}
+        cont = class_containment(tags, ["Big", "Small", "Other"])
+        self.assertEqual(cont, {"Big": ["Small"]})
+
+    def test_wizard_key_meta_is_the_shape_the_page_reads(self):
+        km = ProgressionSurface.wizard_key_meta()
+        self.assertEqual({m["key"] for m in km["keys"]}, set(ProgressionSurface.valid_keys),
+                         "the page must be able to draw every key AP will accept")
+        fam_ids = {f["id"] for f in km["families"]}
+        for m in km["keys"]:
+            self.assertIn(m["family"], fam_ids, "%s sits in an undeclared family" % m["key"])
+        self.assertTrue(km["contains"], "the containment lattice is empty -- the redundancy hint "
+                                       "would never fire")
+
+    # ---- a consequence of the corrected direction, recorded rather than silently changed ---------
+    def test_the_remembrance_greatrune_ladder_rung_is_INERT_over_a_majorboss_base(self):
+        """🛑 NOT a claim that this is WRONG -- a pin so it cannot be rediscovered a third time.
+
+        `_WIDEN_GROUPS` opens with ["Remembrance", "GreatRune"], and the feature docstring gives the
+        ladder as `MajorBoss -> +Remembrance,GreatRune -> +KeyItem -> ...`. Both classes are SUBSETS
+        of MajorBoss, so over a MajorBoss base that first rung adds **zero** locations: a seed that
+        cannot host its locks spends a whole widening step standing still before +KeyItem does any
+        work. This was unfindable while contract.py described the containment backwards.
+
+        MEASURED, and deliberately narrow -- the SHIPPED DEFAULT is NOT affected: `build_ladder`
+        only appends a rung when it has something to add, and the default already contains
+        Remembrance, GreatRune and KeyItem, so its ladder goes straight to +Boss. The inert step
+        only exists for a base that has MajorBoss and lacks its two children, which is exactly the
+        docstring's own example.
+
+        Fixing it changes which locations a lock can reach, i.e. it changes generated seeds. That is
+        a decision, not a tidy-up, and it is not made here. If it IS made, delete this test in the
+        same commit and say so in the notes."""
+        from worlds.eldenring.features.progression_surface import allowed_ap_ids
+        ladder = build_ladder({"MajorBoss"})
+        self.assertEqual(ladder[1], ["MajorBoss", "Remembrance", "GreatRune"],
+                         "the ladder's shape moved; re-read this test before trusting it")
+        rung0 = set(allowed_ap_ids(LOCATION_TAGS, set(ladder[0])))
+        rung1 = set(allowed_ap_ids(LOCATION_TAGS, set(ladder[1])))
+        self.assertEqual(rung0, rung1,
+                         "+Remembrance,GreatRune now widens a MajorBoss base -- if that was done on "
+                         "purpose, delete this test in the same commit")
+        # ...and the rung AFTER it does real work, so the ladder is not simply broken.
+        self.assertGreater(len(set(allowed_ap_ids(LOCATION_TAGS, set(ladder[2])))), len(rung1))
+
+    def test_the_shipped_default_ladder_has_no_inert_rung(self):
+        """The counterpart to the test above: every rung of the DEFAULT ladder must add locations.
+
+        build_ladder skips a widen group with nothing new to add, which is what keeps the default's
+        ladder honest. A regression that stopped skipping would waste ladder steps on seeds that are
+        already struggling to place their locks."""
+        from worlds.eldenring.features.progression_surface import allowed_ap_ids
+        ladder = build_ladder(ProgressionSurface.default)
+        sizes = [len(set(allowed_ap_ids(LOCATION_TAGS, set(r)))) for r in ladder]
+        for i in range(1, len(sizes)):
+            self.assertGreater(sizes[i], sizes[i - 1],
+                               "default ladder rung %d (%s) adds no locations" % (i, ladder[i]))
 
 
 if __name__ == "__main__":

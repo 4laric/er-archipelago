@@ -17,4 +17,19 @@ are two legitimate but different input sets, and the generated content was ident
 the shipped-contract ledger owed v0.3.8 its row, exactly as the comment sitting above it had
 predicted.
 
-_Nothing player-facing yet. This section grows as the window does._
+**The progression-surface picker no longer describes itself in tag names.** If you have ever ticked
+`Church` in the options wizard believing you were opening up church locations, you were actually
+selecting the 13 Sacred Tears -- and `Basin` is Crystal Tears, and `Seedtree` is Golden Seeds. Every
+class now shows a real name and a one-line note about what picking it costs you, grouped so the four
+boss classes sit together instead of being scattered by the alphabet. Your existing yamls are
+untouched: the keys are exactly the same, on purpose.
+
+The grid also now tells you when a box you are about to tick would add nothing, because most of these
+classes contain each other -- `Boss` already includes every major, legacy and field boss, and
+`MajorBoss` already includes every Remembrance and Great Rune.
+
+**And a merchant-shaped bug behind it.** `Shop` was quietly NARROWER than `ShopNonSpell`, so asking
+for "all merchants" got you fewer checks than asking for a subset of them. The same gap let a
+buy-only remembrance weapon at Enia sit on the progression surface, and made a Liurnia catacomb boss
+pay out six of Preceptor Seluvis's spell-shop slots on death. All three came from one root cause and
+are fixed together.

@@ -534,7 +534,10 @@ def _region_is_derived(r):
 # tagged checks; that feature is gone, the tags are not.
 # Remembrance/Seedtree/Church/Basin exclude shop rows (buying a duplicate is not the meaningful check).
 def _loc_tags(r):
-    nm = (r['item_name'] or '').lower(); meth = r['method']; shop = meth.startswith('shop')
+    nm = (r['item_name'] or '').lower(); meth = r['method']
+    # NOT meth.startswith('shop') -- that is the weaker of two questions and it under-tagged 35
+    # rows that ShopNonSpell/ShopSlot accept. See _is_shop_row.
+    shop = _is_shop_row(r)
     t = []
     # Boss = boss-healthbar enemy DROP (datamined from EMEVD common boss-handlers 90005860/861/880 ->
     # entity+rewardLot; field/evergaol/dragon, remembrance/great-rune majors excluded). Replaces the
@@ -3501,6 +3504,46 @@ if os.path.isfile(_SHOP_ROWS_TSV):
 print(f"shop rows: +{len(_shop_new)} DERIVED shop checks region_map had lost "
       f"({len(DERIVED_SHOP_FLAGS)} detectable stock flags)")
 
+# ---- THE shop predicate. ONE definition, every caller -------------------------------------------
+# 🛑 THE UMBRELLA MUST DERIVE FROM THE SAME PREDICATE AS ITS MEMBERS. Until 2026-08-08 there were
+# TWO answers to "is this check a shop row?" and they disagreed on 35 rows:
+#   * the SHOP_ROW_IDS gate (far below) asked the DERIVED question -- is the flag a detectable stock
+#     flag -- which is what recovers the "class B" rows (a flag that IS a location via its world/NPC
+#     source, e.g. the Flask of Wondrous Physick, whose merchant slot was never rewritten so the
+#     shop ALSO handed you the vanilla item);
+#   * `_loc_tags` asked the WEAKER question -- does the region_map `method` column start with
+#     "shop" -- and so tagged `Shop` on only 527 of the 562 rows the first gate accepts.
+# `ShopNonSpell` and `ShopSlot` are computed over the DERIVED universe, so `Shop` was NOT a superset
+# of the classes it is documented to contain: 28 ShopNonSpell checks and 3 ShopSlot pins carried no
+# `Shop` tag at all. Selecting `Shop` in progression_surface expecting "every merchant row" silently
+# got you FEWER checks than selecting `ShopNonSpell`.
+# It also punched a hole in an EXCLUSION. `EniaShop` (a SURFACE_EXCLUDE_TAG) is applied to any shop
+# slot holding a rarity-3 item and it reads `"Shop" in loc_tags` -- so
+# `Roundtable Hold :: Mohgwyn's Sacred Spear - from Finger Reader Enia` (ap 7770567, ShopLineupParam
+# row 101910) was NOT excluded, while its 26 block-1019 neighbours -- the same Enia stock list,
+# including `Hand of Malenia` on row 101908 -- all were. A buy-only remembrance weapon was
+# surface-eligible because of a column in a csv.
+# Same disease as the `goods` umbrella in exclude_local_item_only (PR #467): a set rebuilt from the
+# NEW table instead of re-derived from the OLD predicate silently drops members. So there is ONE
+# function now and both callers use it; a third caller cannot re-invent a narrower question.
+_SHOP_METHODS = {"shop_merchant", "shop_multi"}
+
+
+def _is_shop_row(r):
+    """Is this region_map row a shop check? DERIVED from the stock flag when we have the param.
+
+    Falls back to the `method`/`flag_source` columns ONLY when ShopLineupParam is absent, i.e. when
+    there are no detectable stock flags to ask about -- never as a second opinion alongside them.
+    """
+    try:
+        _rf = int(r["flag"])
+    except (KeyError, TypeError, ValueError):
+        return False
+    if DERIVED_SHOP_FLAGS:
+        return _rf in DERIVED_SHOP_FLAGS
+    return r.get("method") in _SHOP_METHODS and r.get("flag_source") == "shop"
+
+
 # ---- FINALE_REQUIRES: the prerequisite REGIONS of the conditional finale checks -----------------
 # Derived, not asserted: (a) the region that can fire the burn trigger = the region of the burn
 # flag's unique setter map (m13_00 -> Farum Azula); (b) the region owning the finale maps' kick
@@ -5244,7 +5287,6 @@ if _slp_present:
                 _flag2goods[_fl].append((int(_sr["equipId"]), int(_sr.get("equipType", 3))))
             except (KeyError, ValueError):
                 pass
-_SHOP_METHODS = {"shop_merchant", "shop_multi"}
 SHOP_ROW_FLAGS = {}
 SHOP_ROW_IDS = {}
 SHOP_LOC_REGION = {}
@@ -5255,12 +5297,11 @@ for _i, _r in enumerate(rows):
     except (KeyError, ValueError):
         continue
     # DERIVED gate: any location whose flag is a DETECTABLE shop stock flag gets the shop mapping,
-    # whatever region_map called it. This recovers the 34 "class B" rows -- a flag that IS a location via
+    # whatever region_map called it. This recovers the 35 "class B" rows -- a flag that IS a location via
     # its world/NPC source (Spirit Calling Bell, Flask of Wondrous Physick) but whose merchant slot was
-    # never rewritten, so the shop ALSO handed you the vanilla item.
-    _is_shop = (_rf in DERIVED_SHOP_FLAGS) if DERIVED_SHOP_FLAGS else (
-        _r["method"] in _SHOP_METHODS and _r.get("flag_source") == "shop")
-    if not _is_shop:
+    # never rewritten, so the shop ALSO handed you the vanilla item. SAME predicate `_loc_tags` uses to
+    # tag `Shop`, so the umbrella cannot be narrower than ShopNonSpell/ShopSlot again.
+    if not _is_shop_row(_r):
         continue
     try:
         _fl = int(_r["flag"])
@@ -7232,7 +7273,7 @@ def _is_legacy_map(_mp):
 
 def _is_dungeon(_mp):
     return bool(_mp) and _mp[:3] in ("m30", "m31", "m32", "m34", "m39", "m40", "m41", "m42", "m43")
-# = contract.IMPORTANT_LOCATION_TYPES; guarded vs drift by
+# = contract.SURFACE_CLASSES; guarded vs drift by
 # tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
 _FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                                  "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",

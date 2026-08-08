@@ -45,7 +45,7 @@ REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
 # how a carve-out gets written.
 DUNGEON_LOT_PREFIXES = ("30", "31", "32", "34", "39", "40", "41", "42", "43")
 
-# = contract.IMPORTANT_LOCATION_TYPES. A field sweep must contain
+# = contract.SURFACE_CLASSES. A field sweep must contain
 # none of these -- felling a field boss hands out filler only. Kept in sync with contract by
 # test_field_exclude_matches_contract below (drift guard).
 FIELD_EXCLUDE = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
@@ -53,7 +53,7 @@ FIELD_EXCLUDE = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragmen
                            "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss"})
 # LegacyBoss/FieldBoss (2026-08-02) are SUBSETS of Boss, which is already here, so adding them cuts
 # nothing new -- every check they name was excluded already. They are listed because this set is a
-# deliberate mirror of contract.IMPORTANT_LOCATION_TYPES and test_field_exclude_matches_contract
+# deliberate mirror of contract.SURFACE_CLASSES and test_field_exclude_matches_contract
 # demands exact parity: the guard exists so a new premium class cannot be added to the vocabulary
 # while quietly staying eligible for a filler sweep.
 
@@ -153,10 +153,13 @@ class BossSweepScoping(unittest.TestCase):
         # BIG_TICKET_TYPES is RETIRED and the contract no longer carries it (a sibling test
         # asserts its absence), so the old `| getattr(ct, "BIG_TICKET_TYPES", [])` term was a
         # dead union with the empty set -- a phantom that made this gate LOOK wider than it is.
-        want = set(getattr(ct, "IMPORTANT_LOCATION_TYPES", []))
+        # DIRECT, not getattr-with-default: a defaulted read makes this parity gate pass
+        # VACUOUSLY (empty == empty) the moment the contract renames the constant, which is
+        # exactly what it is here to prevent. Let it raise.
+        want = set(ct.SURFACE_CLASSES)
         self.assertEqual(
             set(FIELD_EXCLUDE), want,
-            "FIELD_EXCLUDE drifted from contract.IMPORTANT_LOCATION_TYPES; "
+            "FIELD_EXCLUDE drifted from contract.SURFACE_CLASSES; "
             "sync the field filler-only cut. got=%s want=%s" % (sorted(FIELD_EXCLUDE), sorted(want)))
 
     def test_field_sweeps_are_filler_only(self):

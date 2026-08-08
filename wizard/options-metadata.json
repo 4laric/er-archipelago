@@ -812,7 +812,161 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "key_meta": {
+    "keys": [
+     {
+      "key": "Boss",
+      "label": "Any boss drop",
+      "hint": "Every enemy the game gives a boss healthbar. Contains all the boss classes below, so ticking this makes them redundant.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "MajorBoss",
+      "label": "Major bosses",
+      "hint": "Remembrance and great-rune arena bosses, plus curated majors for the regions that have none. Contains Remembrances and Great Runes.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "LegacyBoss",
+      "label": "Legacy dungeon bosses",
+      "hint": "Bosses standing inside a legacy dungeon.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "FieldBoss",
+      "label": "Overworld bosses",
+      "hint": "Field, evergaol and dragon bosses out in the open world. The least region-confident boss class -- 22 of them sit on a guessed region.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "Remembrance",
+      "label": "Remembrances",
+      "hint": "The Remembrance a great boss drops.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "GreatRune",
+      "label": "Great Runes",
+      "hint": "The seven Great Runes.",
+      "family": "bosses",
+      "family_label": "Bosses"
+     },
+     {
+      "key": "Seedtree",
+      "label": "Golden Seeds",
+      "hint": "The 43 Golden Seed pickups.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Church",
+      "label": "Sacred Tears",
+      "hint": "The 13 Sacred Tears in the ruined churches -- NOT all church locations.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Basin",
+      "label": "Crystal Tears",
+      "hint": "Physick tears. The same items keep_local calls `crystal_tears`.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Fragment",
+      "label": "Scadutree Fragments",
+      "hint": "Shadow of the Erdtree. Ignored in a base-game seed.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "Revered",
+      "label": "Revered Spirit Ashes",
+      "hint": "Shadow of the Erdtree. Ignored in a base-game seed.",
+      "family": "collectathon",
+      "family_label": "Collectathon lines"
+     },
+     {
+      "key": "ShopSlot",
+      "label": "One slot per merchant",
+      "hint": "At most ONE ware per merchant, so no shop can dominate the surface by the size of its stock. 12 slots.",
+      "family": "merchants",
+      "family_label": "Merchants"
+     },
+     {
+      "key": "ShopNonSpell",
+      "label": "General merchants",
+      "hint": "Every merchant slot except a dedicated spell vendor's stock. 442 checks -- picking this makes the seed mostly 'farm runes, buy your progression'.",
+      "family": "merchants",
+      "family_label": "Merchants"
+     },
+     {
+      "key": "Shop",
+      "label": "Every merchant slot",
+      "hint": "All 562 shop rows, spell vendors included. Contains the two classes above.",
+      "family": "merchants",
+      "family_label": "Merchants"
+     },
+     {
+      "key": "KeyItem",
+      "label": "Key items",
+      "hint": "The hand-reviewed quest and door keys.",
+      "family": "items",
+      "family_label": "Items"
+     },
+     {
+      "key": "Legendary",
+      "label": "Legendary items",
+      "hint": "Everything the params rank rarity 3. Enia's buy-only remembrance store is excluded from the surface whatever you pick here.",
+      "family": "items",
+      "family_label": "Items"
+     }
+    ],
+    "families": [
+     {
+      "id": "bosses",
+      "label": "Bosses"
+     },
+     {
+      "id": "collectathon",
+      "label": "Collectathon lines"
+     },
+     {
+      "id": "merchants",
+      "label": "Merchants"
+     },
+     {
+      "id": "items",
+      "label": "Items"
+     }
+    ],
+    "contains": {
+     "Boss": [
+      "Remembrance",
+      "GreatRune",
+      "MajorBoss",
+      "LegacyBoss",
+      "FieldBoss"
+     ],
+     "Shop": [
+      "ShopNonSpell",
+      "ShopSlot"
+     ],
+     "ShopNonSpell": [
+      "ShopSlot"
+     ],
+     "MajorBoss": [
+      "Remembrance",
+      "GreatRune"
+     ]
+    }
+   }
   },
   {
    "key": "confine_foreign_progression",

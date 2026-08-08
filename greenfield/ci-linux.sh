@@ -220,6 +220,19 @@ else
   echo "  SKIP: tools/check_wizard_census_js.py absent"; record WIZARD-CENSUS-JS SKIP
 fi
 
+step "WIZARD KEY_META (grid structure + coverage inversion)"
+# The surface grid is drawn from key_meta; a class no family claims is silently undrawable, and the
+# redundancy hint inverts the containment lattice. Same node contract as the census gate: exit 4 is
+# a reported SKIP, never a quiet pass.
+if [ -f "$REPO/tools/check_wizard_keymeta_js.py" ]; then
+  ( cd "$REPO" && "$PY" tools/check_wizard_keymeta_js.py ); rc=$?
+  if [ "$rc" = 0 ]; then record WIZARD-KEYMETA PASS
+  elif [ "$rc" = 4 ]; then record WIZARD-KEYMETA SKIP
+  else record WIZARD-KEYMETA FAIL; fi
+else
+  echo "  SKIP: tools/check_wizard_keymeta_js.py absent"; record WIZARD-KEYMETA SKIP
+fi
+
 step "GREENFIELD VERDICT"
 for r in "${RESULTS[@]}"; do printf '  %-6s %s\n' "${r%%|*}" "${r##*|}"; done
 if [ "$fail" -eq 0 ]; then echo "  GREENFIELD: PASS"; exit 0; else echo "  GREENFIELD: FAIL"; exit 1; fi

@@ -128,9 +128,8 @@
     "Legendary": 4,
     "Seedtree": 4,
     "Shop": 3,
-    "ShopNonSpell|ShopSlot": 1,
     "Shop|ShopNonSpell": 22,
-    "Shop|ShopNonSpell|ShopSlot": 2
+    "Shop|ShopNonSpell|ShopSlot": 3
    },
    "dlc": false,
    "parent": null,
@@ -263,8 +262,7 @@
     "Legendary": 5,
     "Seedtree": 3,
     "Shop": 14,
-    "ShopNonSpell": 4,
-    "Shop|ShopNonSpell": 70,
+    "Shop|ShopNonSpell": 74,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
@@ -283,10 +281,9 @@
     "KeyItem": 2,
     "Legendary": 4,
     "Seedtree": 3,
-    "Shop": 57,
-    "ShopNonSpell": 12,
-    "ShopNonSpell|ShopSlot": 1,
-    "Shop|ShopNonSpell": 14
+    "Shop": 64,
+    "Shop|ShopNonSpell": 26,
+    "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
    "parent": null,
@@ -365,9 +362,7 @@
   "Roundtable Hold": {
    "checks": 224,
    "combos": {
-    "Legendary|ShopNonSpell": 1,
-    "ShopNonSpell": 2,
-    "Shop|ShopNonSpell": 119
+    "Shop|ShopNonSpell": 121
    },
    "dlc": false,
    "parent": null,
@@ -422,8 +417,8 @@
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Legendary": 1,
     "Seedtree": 1,
-    "ShopNonSpell|ShopSlot": 1,
-    "Shop|ShopNonSpell": 7
+    "Shop|ShopNonSpell": 7,
+    "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
    "parent": null,
@@ -469,5 +464,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "e67358bf7c3cab932bfa0be00e177c583d951715a30ad617416b9593d73ada21"
+ "source_sha256": "115d0dfaeb9c167a91c75f405c7995492ab99b472fe6eff7135239a135df36e7"
 }

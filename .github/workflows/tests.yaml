@@ -146,6 +146,15 @@ jobs:
       - name: Wizard seed-size JS vs Python (differential)
         run: python tools/check_wizard_census_js.py
 
+      # The per-key presentation the progression-surface grid is drawn from (labels, families, and
+      # the DERIVED subset lattice). Two blind spots it closes: a class no family claims is simply
+      # not drawn, so the player cannot select something the world offers and the page still looks
+      # complete; and the redundancy hint inverts the containment relation, which is the one thing
+      # here that has already been written down backwards once -- as a comment in contract.py, for
+      # months. Exits 4 = SKIP when node is absent.
+      - name: Wizard key_meta structure + coverage inversion (differential)
+        run: python tools/check_wizard_keymeta_js.py
+
       # The wizard's option SURFACE cannot drift (it is generated). Its hand-written CONFLICT RULES
       # could, and did: the shipped wizard warned about `ending_condition: capital`, `world_logic`
       # and `num_regions_rune_source` -- 20 dead keys in all -- because a rule whose option vanishes

@@ -93,7 +93,26 @@ class ProgressionSurface(OptionSet):
     # Single-sourced in contract.py: the AP-free tracker generator needs this same selection and
     # cannot import an AP OptionSet. See contract.SURFACE_DEFAULT_CLASSES.
     default = contract.SURFACE_DEFAULT_CLASSES
-    valid_keys = frozenset(contract.IMPORTANT_LOCATION_TYPES)
+    valid_keys = frozenset(contract.SURFACE_CLASSES)
+
+    @staticmethod
+    def wizard_key_meta():
+        """Per-key presentation for the options wizard. Read by tools/dump_options_metadata.py.
+
+        A GENERIC hook (`wizard_key_meta` on any option class), so the dumper never learns this
+        option's name and the next set-valued option cannot grow a second, divergent way of doing
+        the same thing. `valid_keys` is untouched and stays the authoritative sorted list -- this is
+        additive, and a renderer that ignores it still works.
+
+        `contains` is DERIVED from LOCATION_TAGS on every dump, not carried here. The wizard draws
+        it to say "you already have these" -- and the one time this lattice was written down by hand
+        (a comment in contract.py) it sat INVERTED for months.
+        """
+        return {
+            "keys": surface_class_meta(),
+            "families": [{"id": fid, "label": lab} for fid, lab, _ in SURFACE_CLASS_FAMILIES],
+            "contains": class_containment(),
+        }
 
 
 class ProgressionSurfaceMode(Choice):
@@ -124,6 +143,144 @@ class ConfineForeignProgression(DefaultOnToggle):
     display_name = "Confine Foreign Progression"
 
 
+# ---- PRESENTATION: what the OPTIONS WIZARD shows for each class -----------------------------------
+# The wizard rendered `valid_keys` as RAW KEYS, SORTED ALPHABETICALLY, with no per-key text. Three
+# things were wrong with that and none of them are cosmetic:
+#
+#   1. THE KEYS DO NOT NAME WHAT THEY SELECT. `Church` is not "church locations", it is the 13 Sacred
+#      Tears; `Basin` is Crystal Tears; `Seedtree` is Golden Seeds. A player ticking `Church`
+#      reasonably believed they were opening up churches. Worse, the SAME concept had two names in two
+#      adjacent fields of the same page: Crystal Tears are `Basin` here and `crystal_tears` in
+#      keep_local / exclude_local_item_only.
+#   2. ALPHABETICAL SCATTERED THE FAMILIES. Boss / FieldBoss / LegacyBoss / MajorBoss landed in four
+#      separate places in the grid, and the three Shop classes in three.
+#   3. THE GRID HID THE LATTICE. Most of these classes CONTAIN each other (see class_containment),
+#      so ticking a broad class silently makes narrower boxes no-ops -- with no signal at all.
+#
+# Renaming the KEYS is a compat break: AP 0.6.7 Options.py `VerifyKeys.verify_keys` RAISES OptionError
+# on an unknown key, so every yaml in the wild saying `Church` would HARD-FAIL generation, not
+# silently drop. So the keys stay and the LABEL is the fix; renaming them (with the old names kept as
+# deprecated aliases) is a separate, deliberate change.
+#
+# DISPLAY ORDER LIVES HERE, not in contract.SURFACE_CLASSES -- that list's order is a determinism
+# handle for the ladder and must never be rearranged (see the comment on it).
+SURFACE_CLASS_FAMILIES = (
+    ("bosses", "Bosses", ("Boss", "MajorBoss", "LegacyBoss", "FieldBoss", "Remembrance", "GreatRune")),
+    ("collectathon", "Collectathon lines",
+     ("Seedtree", "Church", "Basin", "Fragment", "Revered")),
+    ("merchants", "Merchants", ("ShopSlot", "ShopNonSpell", "Shop")),
+    ("items", "Items", ("KeyItem", "Legendary")),
+)
+
+# key -> (label, hint). The label says what the class IS in the words the game uses; the hint says
+# what it costs you to pick it. Kept short on purpose: the option's own docstring carries the essay.
+SURFACE_CLASS_LABELS = {
+    "Boss":         ("Any boss drop",
+                     "Every enemy the game gives a boss healthbar. Contains all the boss classes "
+                     "below, so ticking this makes them redundant."),
+    "MajorBoss":    ("Major bosses",
+                     "Remembrance and great-rune arena bosses, plus curated majors for the regions "
+                     "that have none. Contains Remembrances and Great Runes."),
+    "LegacyBoss":   ("Legacy dungeon bosses",
+                     "Bosses standing inside a legacy dungeon."),
+    "FieldBoss":    ("Overworld bosses",
+                     "Field, evergaol and dragon bosses out in the open world. The least "
+                     "region-confident boss class -- 22 of them sit on a guessed region."),
+    "Remembrance":  ("Remembrances",
+                     "The Remembrance a great boss drops."),
+    "GreatRune":    ("Great Runes",
+                     "The seven Great Runes."),
+    "Seedtree":     ("Golden Seeds",
+                     "The 43 Golden Seed pickups."),
+    "Church":       ("Sacred Tears",
+                     "The 13 Sacred Tears in the ruined churches -- NOT all church locations."),
+    "Basin":        ("Crystal Tears",
+                     "Physick tears. The same items keep_local calls `crystal_tears`."),
+    "Fragment":     ("Scadutree Fragments",
+                     "Shadow of the Erdtree. Ignored in a base-game seed."),
+    "Revered":      ("Revered Spirit Ashes",
+                     "Shadow of the Erdtree. Ignored in a base-game seed."),
+    "ShopSlot":     ("One slot per merchant",
+                     "At most ONE ware per merchant, so no shop can dominate the surface by the "
+                     "size of its stock. 12 slots."),
+    "ShopNonSpell": ("General merchants",
+                     "Every merchant slot except a dedicated spell vendor's stock. 442 checks -- "
+                     "picking this makes the seed mostly 'farm runes, buy your progression'."),
+    "Shop":         ("Every merchant slot",
+                     "All 562 shop rows, spell vendors included. Contains the two classes above."),
+    "KeyItem":      ("Key items",
+                     "The hand-reviewed quest and door keys."),
+    "Legendary":    ("Legendary items",
+                     "Everything the params rank rarity 3. Enia's buy-only remembrance store is "
+                     "excluded from the surface whatever you pick here."),
+}
+
+
+def surface_class_meta(classes=None):
+    """Ordered [{key, label, hint, family, family_label}] for the wizard. RAISES on a gap.
+
+    🛑 LOUD, not defaulted. A class added to contract.SURFACE_CLASSES with no label would otherwise
+    render as a bare key in a grid of labelled ones -- the exact state this function exists to end,
+    reintroduced silently for the newest class. Same for a class that no family claims: it would
+    simply not be drawn, and the player would have no way to select something the world offers.
+    """
+    vocab = list(classes if classes is not None else contract.SURFACE_CLASSES)
+    placed = {}
+    for fam, fam_label, keys in SURFACE_CLASS_FAMILIES:
+        for k in keys:
+            if k in placed:
+                raise ValueError("surface class %r is in two families (%s, %s)"
+                                 % (k, placed[k][0], fam))
+            placed[k] = (fam, fam_label)
+    missing_family = [c for c in vocab if c not in placed]
+    if missing_family:
+        raise ValueError("surface classes with no family, so the wizard would never draw them: %s "
+                         "-- add them to SURFACE_CLASS_FAMILIES" % ", ".join(missing_family))
+    stray = [k for k in placed if k not in vocab]
+    if stray:
+        raise ValueError("SURFACE_CLASS_FAMILIES names classes outside the vocabulary: %s"
+                         % ", ".join(sorted(stray)))
+    missing_label = [c for c in vocab if c not in SURFACE_CLASS_LABELS]
+    if missing_label:
+        raise ValueError("surface classes with no label, which would render as a raw key: %s "
+                         "-- add them to SURFACE_CLASS_LABELS" % ", ".join(missing_label))
+    out = []
+    for fam, fam_label, keys in SURFACE_CLASS_FAMILIES:
+        for k in keys:
+            if k not in vocab:
+                continue
+            label, hint = SURFACE_CLASS_LABELS[k]
+            out.append({"key": k, "label": label, "hint": hint,
+                        "family": fam, "family_label": fam_label})
+    return out
+
+
+def class_containment(tags_map=None, classes=None):
+    """{class: [classes it strictly CONTAINS]}, DERIVED from the live tags. Never typed.
+
+    The wizard uses this to tell a player that a box they are about to tick adds nothing, or that
+    one they already ticked has swallowed another. Getting it from the data rather than a hand-kept
+    table is not a style preference: contract.py carried this lattice as a COMMENT and the comment
+    was BACKWARDS for months (it said MajorBoss was a subset of Remembrance/GreatRune; it is their
+    superset). A table can be wrong in a way a derivation cannot.
+
+    A class contains another when every tagged check of the narrower one also carries the broader
+    tag. Equal sets would contain each OTHER, which is not useful to draw, so only STRICT
+    containment is reported. An empty class contains nothing (it is vacuously inside everything --
+    true, and useless).
+    """
+    lt = LOCATION_TAGS if tags_map is None else tags_map
+    vocab = list(classes if classes is not None else contract.SURFACE_CLASSES)
+    members = {c: {ap for ap, ts in (lt or {}).items() if c in (ts or ())} for c in vocab}
+    out = {}
+    for outer in vocab:
+        inner = [c for c in vocab
+                 if c != outer and members[c] and members[c] < members[outer]]
+        if inner:
+            out[outer] = inner
+    return out
+
+
 # ---- pure, host-testable helpers (no AP import; unit-tested with synthetic tags) ------------------
 def selected_surface(sel):
     """Filter a raw selection to the valid vocabulary, in CANONICAL (vocabulary) order.
@@ -135,7 +292,7 @@ def selected_surface(sel):
     same class of bug as regionSphereTargetRanges being emitted in set-iteration order, 2026-07-11.)
     Accepts a list or a set; the result is identical either way."""
     chosen = set(sel or ())
-    return [c for c in contract.IMPORTANT_LOCATION_TYPES if c in chosen]
+    return [c for c in contract.SURFACE_CLASSES if c in chosen]
 
 
 def build_ladder(selection):
