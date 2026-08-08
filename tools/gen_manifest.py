@@ -74,6 +74,21 @@ FILE_INPUTS = [
 ]
 GLOB_INPUTS = [
     "elden_ring_artifacts/event/**/*",
+    # The decompiled talk ESD. CARRIED by the bundle since 2026-07-27 (gen_inputs.py's walk spec has
+    # ("talk", None, "*.py")) but never DECLARED here -- so a talk corpus that changed, or was only
+    # partially decompiled, could not invalidate the stamp. Same reasoning already written for
+    # boss_reward_lots.py above: gen_data reads it, so omitting it means a stale copy would not
+    # invalidate the stamp.
+    #
+    # 🛑 IT IS CURRENTLY PARTIAL, AND THAT IS THE POINT OF DECLARING IT. 365 files, and gen_data's
+    # own gesture refusals say so out loud ("NOTHING in the 589-file EMEVD corpus, the decompiled
+    # talk ESD, or ItemLotParam_map sets or awards it ... Re-check when the ESD decompile is
+    # complete"). 2026-08-08 it cost a real answer: Ymir's script is not in the corpus, so the
+    # Metyr prerequisite flags could not be verified from the ESD and had to be traced through
+    # m61_51_45's EMEVD instead. When the decompile is extended on the box, this declaration is what
+    # makes the enlarged corpus move inputs_hash and force a regen, rather than silently widening
+    # what the datamines can see while every stamp still claims to be current.
+    "elden_ring_artifacts/talk/**/*",
     "elden_ring_artifacts/msg/item-msgbnd-dcx/*Name*.fmg.xml",
     "elden_ring_artifacts/msg/item_dlc01-msgbnd-dcx/*Name*.fmg.xml",
     "elden_ring_artifacts/msg/item_dlc02-msgbnd-dcx/*Name*.fmg.xml",
