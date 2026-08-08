@@ -107,8 +107,6 @@ ALLOW = {
     "locationIdsToTargets",    # key_resolver.rs (matt-key path; greenfield resolves from slot_data)
     "locationIdsToTargets ",   # the same read, with the scraper's trailing space
     "regionAttunement",        # core.rs
-    "/options/no_equip_load",
-    "/options/no_fall_damage",
     "/options/reduce_non_somber_upgrade_cost",
     "/options/remove_weapon_and_spell_requirements",
 }

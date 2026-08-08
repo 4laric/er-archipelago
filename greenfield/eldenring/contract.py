@@ -389,6 +389,18 @@ OPTIONS_SUBKEYS = (
                 "a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is "
                 "not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then "
                 "never see this key at all."),
+    ContractKey("no_equip_load", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/body_tuning.py)", "no_equip_load.rs set_enabled",
+                "nonzero = equipment weighs nothing, so the player is permanently at light roll. "
+                "The client zeroes the WEIGHT side with a silent permanent SpEffect because max "
+                "equip load is recomputed every frame from Endurance. NOT required: the capability "
+                "is OLDER than every released client that reads it, and an absent key parses false "
+                "-- which is the off default. No requiresClientFeatures tag for that same reason: "
+                "emitting one would refuse the connect on every client that already implements it."),
+    ContractKey("no_fall_damage", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/body_tuning.py)", "no_fall_damage.rs set_enabled",
+                "nonzero = falling deals no damage (leaving the map still kills). Same age and same "
+                "no-tag reasoning as no_equip_load above."),
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades client path",
                 "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),
