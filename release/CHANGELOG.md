@@ -11,6 +11,58 @@ saying it had never happened.
 
 `CONTRACT_HASH` is unmoved at `d7d3a58e`. The version bump is lockstep, not a contract change.
 
+### Beta and stable channels, and the bare apworld a host has never been able to download
+
+Stable is **daily** -- which turns out to be the cadence this project already had. Over the 30 tags
+from v0.1 to v0.3.7 (34 days) the median gap between tags is **0.82 days**. So the release cadence
+was never the problem; nothing tied the wizard deploy to it. With stable = the newest tag, the worst
+skew a player can hit drops from unbounded to about a day, and beta covers the rest honestly.
+
+Shipping now:
+
+* `release/CHANNELS.tsv` -- which tag each channel points at, append-only, plus
+  `tools/check_channels.py` to keep it honest (every named tag is real, only `beta` may name a
+  moving ref, promotions run forwards, and stable is never ahead of the newest tag). It deliberately
+  does NOT require stable to BE the newest tag: trailing is what a stable channel is for.
+* `tools/build_apworld.py` -- the bare `eldenring.apworld`, packed deterministically in Python so a
+  Linux runner can make it. **1.3 MB, against the player bundle's 123.7 MB.**
+* `.github/workflows/release.yaml` -- on a tag, pack it, PROVE IT GENERATES by installing the zip
+  into a stock pinned Archipelago and rolling a real seed, and attach it to the release along with
+  the wizard.
+
+That last gate is the point: an apworld that installs but cannot roll a seed fails for the host, in
+their generation, with our name on it.
+
+### A beta/stable channel split, costed
+
+`SPEC-publishing-pipeline.md` gains the design for Alaric's proposal, and one measurement that rules
+out the obvious version of it: **the channel cannot live in the version number.** Archipelago calls
+`tuplize_version()` on `archipelago.json`'s `world_version` when it loads an apworld, and that raises
+on any prerelease form --
+
+    tuplize_version('0.3.8')        -> Version(0, 3, 8)
+    tuplize_version('0.3.8-beta.1') -> ValueError: invalid literal for int() with base 10: '8-beta'
+
+-- so `0.3.8-beta.1` is a load-time crash, not a labelling choice. (This repo's own manifest gate
+already forbids it, and the same test's docstring records the client sitting at `0.1.0-beta.4`
+against apworld 0.2.0 for months. The suffix has cost us a drift once already.)
+
+So the channel is a **pointer**: every build keeps a strict `X.Y.Z` and a tag, `release/CHANNELS.tsv`
+names which tag each channel is on, and promotion moves the pointer instead of rebuilding anything.
+Betas ride GitHub's own `prerelease` flag, which costs the version string nothing. Both channels
+serve a wizard built AT a tag, so page and download agree by construction -- which is the fix the
+version stamp above can only label.
+
+The honest cost is in the bump, not the packaging: a tag is a lockstep move across four version sites
+in two repos, so betas have to get cheap or they will not get cut. The honest benefit is that it
+fixes a defect we already have -- every commit in an open window currently reports the SAME
+`APWORLD_VERSION`, which is the disease "0.2.0 names five contract shapes" was filed under.
+
+Also found while measuring: **the bare `eldenring.apworld` release asset does not exist.**
+`DISTRIBUTION.md` promises two assets per tag so a host generating someone else's seed need not pull
+a game-mod DLL -- "friction for nothing", it says, of a 10 MB bundle. Every release from v0.3.2 to
+v0.3.7 ships exactly one asset and it is **123.7 MB**.
+
 ### Every wizard yaml now says which apworld it was written for
 
 The wizard is a static page on peliarch.ca; the apworld is published on a tag; the player bundle also

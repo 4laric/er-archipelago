@@ -1,0 +1,17 @@
+# CHANNELS.tsv -- which TAG each published channel currently points at. Append-only.
+#
+# THE CHANNEL IS A POINTER, NOT A VERSION SUFFIX, and that is forced rather than chosen:
+# Archipelago calls tuplize_version() on archipelago.json's world_version when it loads an apworld,
+# and that raises on any prerelease form ('0.3.8-beta.1' -> ValueError). A suffix is a load-time
+# crash, not a label. So every build keeps a strict X.Y.Z and a tag, and a channel names one.
+#
+# Promotion is a new ROW, never an edit: "when did stable last move, and to what" is a question
+# somebody will ask after a bad release, and an overwritten cell cannot answer it.
+#
+# Measured cadence 2026-08-08 over 30 tags (v0.1 .. v0.3.7, 34 days): MEDIAN GAP 0.82 DAYS.
+# Daily is not an aspiration here, it is what already happens -- which is why stable can be the
+# newest tag rather than a slow-moving one, and why the skew this file exists to bound is ~1 day.
+#
+# channel  tag      promoted_on  note
+stable	v0.3.7	2026-08-07	newest tag at the time this ledger was created
+beta	main	2026-08-08	the open v0.3.8 window; keep_local, the sent-out count, the version stamp
