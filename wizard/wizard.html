@@ -2259,15 +2259,20 @@ if (typeof module !== "undefined") module.exports = ERW;
 
      🛑 THE NUMBERS REPAINT, THE CONTROLS DO NOT. Re-rendering the whole tab on every keystroke
      would rebuild the checkbox you are mid-click on and drop focus, so `refresh()` repaints only
-     `#ss-numbers`. Anything stateful (focus, a half-typed value) has to stay outside it. */
+     `#ss-head` and `#ss-rest`. Anything stateful (focus, a half-typed value) has to stay outside
+     those two containers -- which is exactly why the controls sit BETWEEN them rather than in
+     them. */
   const SEED_SIZE_OPTIONS = ["num_regions", "enable_dlc", "dlc_only",
                              "progression_surface", "confine_foreign_progression"];
 
   function renderSeedSizeTab(){
     const wrap = el("div", "");
-    const numbers = el("div", "");
-    numbers.id = "ss-numbers";
-    wrap.append(numbers);
+    // TWO number containers with the controls BETWEEN them, so the knobs sit directly under the
+    // figures they move rather than below a screen of prose. Splitting the repaint is what allows
+    // that: `#ss-head` is the size figures, the controls persist, `#ss-rest` is everything after.
+    const head = el("div", "");
+    head.id = "ss-head";
+    wrap.append(head);
 
     const ctl = el("div", "card");
     ctl.append(el("div", "grouphead", "<h2>Change the answer</h2>" +
@@ -2280,14 +2285,18 @@ if (typeof module !== "undefined") module.exports = ERW;
       if (o) ctl.append(optRow(o));
     }
     wrap.append(ctl);
-    paintSeedSize(numbers);
+    const rest = el("div", "");
+    rest.id = "ss-rest";
+    wrap.append(rest);
+    paintSeedSize();
     return wrap;
   }
 
-  function paintSeedSize(box){
-    box = box || $("#ss-numbers");
-    if (!box) return;
+  function paintSeedSize(){
+    const box = $("#ss-head"), rest = $("#ss-rest");
+    if (!box || !rest) return;   // the Seed size tab is not the one on screen
     box.innerHTML = "";
+    rest.innerHTML = "";
     const v = k => ERW.getVal(meta, state, k);
     const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
     const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
@@ -2346,7 +2355,7 @@ if (typeof module !== "undefined") module.exports = ERW;
         "Your seed will land near this, not on it.</div>" +
         "<div class='desc'>Bigger seeds are proportionally more filler: a one-region draw is " +
         "mostly real gear, the whole map is about 61% filler.</div>");
-      box.append(c2);
+      rest.append(c2);
     }
 
     const c3 = el("div", "card");
@@ -2358,7 +2367,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       "share above, so on its own it still lets the gear travel.</div>" +
       "<div class='desc'>Your own progression never travels either way: the region Locks are placed " +
       "in your world before the multiworld fill ever sees them.</div>");
-    box.append(c3);
+    rest.append(c3);
   }
 
   function renderStep(){
