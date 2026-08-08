@@ -7655,21 +7655,33 @@ if BOSS_HEALTHBARS:
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
-            # ⭐⭐⭐ A PHASE-2 HEAD IS NOT A DEFEAT FLAG. `x801` beside an `x800` on the same map is
-            # the SECOND PHASE of one fight, and its flag is set when the phase BEGINS -- so a sweep
-            # keyed on it pays out for walking into the arena.
+            # ⭐⭐⭐ A SECOND HEAD ON THE SAME FIGHT IS NOT A DEFEAT FLAG. `x801` beside an `x800`
+            # on the same map is a SECOND HEALTH BAR for one fight, and its flag is set when that
+            # bar appears -- so a sweep keyed on it pays out for walking into the arena.
             #
-            # boblerrr found it in play and narrowed it himself: "only on cutscene bosses". He is
-            # right, and the table agrees. 18 maps carry an x800/x801 pair; the dungeon branch above
-            # already suppresses 12 of them via the duo tables (Crystalians, Cleanrot Knights,
-            # Watchdogs). The SIX that reach here are exactly the mid-fight phase transitions:
+            # boblerrr found it in play. His first read was "only on cutscene bosses", which is what
+            # he had HIT but is NOT the mechanism -- Alaric killed that framing with two
+            # counterexamples in one line: FIRE GIANT and GODRICK both have a mid-fight cutscene and
+            # neither has a second row (1252520800 and 10000800 stand alone), while the VALIANT
+            # GARGOYLES have no cutscene at all and do have one.
             #
-            #     20010800/801  Radahn, Consort of Miquella / Promised Consort Radahn   (cutscene)
-            #     21010800/801  Base Serpent Messmer / Messmer the Impaler              (cutscene)
-            #     16000800/801  Rykard / God-Devouring Serpent                          (cutscene)
-            #     13000800/801  Maliketh / Beast Clergyman                              (cutscene)
-            #     14000800/801  Rennala / Rennala               (both rows, identical name)
-            #     12020800/801  Valiant Gargoyle / (Twinblade)
+            # ⭐⭐⭐ THE ACTUAL SIGNAL IS THE BAR'S NAME. A row exists per NAMED health bar, so a
+            # second row appears exactly when the fight shows a differently-named bar -- either
+            # because it RENAMES at the phase change, or because there are TWO BODIES:
+            #
+            #     20010800/801  Radahn, Consort of Miquella / Promised Consort Radahn   (renames)
+            #     21010800/801  Base Serpent Messmer / Messmer the Impaler              (renames)
+            #     16000800/801  Rykard / God-Devouring Serpent                          (renames)
+            #     13000800/801  Maliketh / Beast Clergyman                              (renames)
+            #     14000800/801  Rennala / Rennala                        (two rows, one name)
+            #     12020800/801  Valiant Gargoyle / (Twinblade)           (a DUO, no cutscene)
+            #
+            # Godrick's bar says "Godrick the Grafted" from start to finish and Fire Giant's says
+            # "Fire Giant"; the cutscene changes the body, not the caption, so the datamine sees one
+            # bar and there was never a second trigger to suppress.
+            #
+            # 18 maps carry an x800/x801 pair; the dungeon branch above already suppresses 12 via
+            # the duo tables (Crystalians, Cleanrot Knights, Watchdogs). These SIX reach here.
             #
             # MEASURED, twice, in his 2026-08-08 Enir Ilim log -- not inferred:
             #     18:09:22 kick-watch: play_region 2001007 -> 2001000 (sub 20010)
