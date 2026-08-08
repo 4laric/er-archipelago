@@ -98,6 +98,13 @@ TESTS_JOB = {
     "no_phantom_flags": "event flag corpus ships in the bundle",
     "noninteractive_guard": "committed data only",
     "progression_surface": "gen_data.py found by walk-up in every CI checkout",
+    "region_census": "tools/build_region_census.py + build_surface_confidence.py, both found by "
+                     "walk-up in the tests job's checkout. Its first three claims are AP-free "
+                     "(blob sync, staleness, and the union pinned to build_surface_confidence's "
+                     "default_hosting) -- but the fourth builds REAL worlds through WorldTestBase "
+                     "to prove the census's check-count identity against seeds Archipelago "
+                     "actually generates, so the whole file needs the installed world and belongs "
+                     "here rather than in GENERATORS.",
     "progressive_flasks": "tools/upgrade_costs.py found by walk-up in every CI checkout",
     "region_correctness": "committed region_map.csv installed beside the world",
     "region_provenance_oracle": "bundle-covered where its sources ship; remainder is census-pinned",
