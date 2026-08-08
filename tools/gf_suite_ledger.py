@@ -69,6 +69,10 @@ GENERATORS = [
     # none of them is installed beside the world, so it skips in the `tests` job and belongs
     # here. AP-free, no artifacts, no client.
     "check_ground_regions",
+    # The publish surface: tools/build_apworld.py vs build.ps1 exclusion parity, and the
+    # release/CHANNELS.tsv gate. Reads build.ps1 and release/, neither of which is installed beside
+    # the world, so it can only run from a repo checkout.
+    "publish_channels",
 ]
 
 # Suites that run in the `tests` job (installed world + ensured artifacts + client at the gitlink).
