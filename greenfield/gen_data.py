@@ -7655,48 +7655,43 @@ if BOSS_HEALTHBARS:
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
-            # ⭐⭐⭐ A SECOND HEAD ON THE SAME FIGHT IS NOT A DEFEAT FLAG. `x801` beside an `x800`
-            # on the same map is a SECOND HEALTH BAR for one fight, and its flag is set when that
-            # bar appears -- so a sweep keyed on it pays out for walking into the arena.
+            # ⭐⭐⭐ AN x801 BESIDE AN x800 ON THE SAME MAP IS NOT THE FIGHT'S DEFEAT FLAG.
             #
-            # boblerrr found it in play. His first read was "only on cutscene bosses", which is what
-            # he had HIT but is NOT the mechanism -- Alaric killed that framing with two
-            # counterexamples in one line: FIRE GIANT and GODRICK both have a mid-fight cutscene and
-            # neither has a second row (1252520800 and 10000800 stand alone), while the VALIANT
-            # GARGOYLES have no cutscene at all and do have one.
-            #
-            # ⭐⭐⭐ THE ACTUAL SIGNAL IS THE BAR'S NAME. A row exists per NAMED health bar, so a
-            # second row appears exactly when the fight shows a differently-named bar -- either
-            # because it RENAMES at the phase change, or because there are TWO BODIES:
-            #
-            #     20010800/801  Radahn, Consort of Miquella / Promised Consort Radahn   (renames)
-            #     21010800/801  Base Serpent Messmer / Messmer the Impaler              (renames)
-            #     16000800/801  Rykard / God-Devouring Serpent                          (renames)
-            #     13000800/801  Maliketh / Beast Clergyman                              (renames)
-            #     14000800/801  Rennala / Rennala                        (two rows, one name)
-            #     12020800/801  Valiant Gargoyle / (Twinblade)           (a DUO, no cutscene)
-            #
-            # Godrick's bar says "Godrick the Grafted" from start to finish and Fire Giant's says
-            # "Fire Giant"; the cutscene changes the body, not the caption, so the datamine sees one
-            # bar and there was never a second trigger to suppress.
-            #
-            # 18 maps carry an x800/x801 pair; the dungeon branch above already suppresses 12 via
-            # the duo tables (Crystalians, Cleanrot Knights, Watchdogs). These SIX reach here.
-            #
-            # MEASURED, twice, in his 2026-08-08 Enir Ilim log -- not inferred:
+            # WHAT IS MEASURED, from boblerrr's 2026-08-08 Enir Ilim log, twice:
             #     18:09:22 kick-watch: play_region 2001007 -> 2001000 (sub 20010)
-            #     18:09:22 sweep-watch: trigger flag 20010801 -> SET     <- the SAME SECOND he arrives
-            #     19:42:38 sweep-watch: trigger flag 20010800 -> SET     <- ~3 min later, the kill
-            # 801 tracks entering, 800 tracks dying. He was handed all 15 Enir Ilim checks for
-            # walking through the fog gate having killed nothing.
+            #     18:09:22 sweep-watch: trigger flag 20010801 -> SET   <- the SAME SECOND he arrives
+            #     19:42:38 sweep-watch: trigger flag 20010800 -> SET   <- ~3 min later, the kill
+            # 20010801 fires on ENTERING, 20010800 on DYING. He was handed all 15 Enir Ilim checks
+            # for walking through the fog gate having killed nothing. That is the entire basis for
+            # this rule, and it rests on no theory of why the pair exists.
             #
-            # 🛑 THE NAME CANNOT BE THE KEY, which is why the duo tables cannot reach these: the two
-            # rows are named DIFFERENTLY for PCR and Messmer (the bar renames mid-fight) and
-            # IDENTICALLY for Rennala. Same-map adjacency is the only signal true of all six.
+            # 🛑🛑 WHY SOME FIGHTS HAVE TWO ROWS IS NOT KNOWN HERE, AND THREE GUESSES WERE WRONG.
+            # "cutscene bosses" -- killed by FIRE GIANT and GODRICK, which have mid-fight cutscenes
+            # and one row each. "the bar renames" -- killed by RENNALA, whose two rows carry an
+            # IDENTICAL name. "two bodies" -- killed by Fire Giant again: its phase 2 is a different
+            # shape with a different moveset and still one row. Each guess fit the cases in hand and
+            # broke on the next one. The defensible statement is the table's own header: it holds
+            # one row per DisplayBossHealthBar, keyed on that head's defeat event flag, and some
+            # fights issue two such calls.
             #
-            # 🛑 x800 IS ALWAYS THE DEFEAT FLAG, including where it reads like the earlier form:
-            # 13000800 is Maliketh (phase 2) and 13000801 the Beast Clergyman (phase 1). So the head
-            # to drop is always the x801, never its primary.
+            # So this rule is deliberately STRUCTURAL and claims nothing about the fiction: within
+            # one map, an x801 adjacent to an x800 is a second head of the same fight, and only the
+            # x800 has been OBSERVED to behave as that fight's defeat flag.
+            #
+            #     20010800/801  Radahn, Consort of Miquella / Promised Consort Radahn
+            #     21010800/801  Base Serpent Messmer / Messmer the Impaler
+            #     16000800/801  Rykard / God-Devouring Serpent
+            #     13000800/801  Maliketh / Beast Clergyman
+            #     14000800/801  Rennala / Rennala                 (identical name)
+            #     12020800/801  Valiant Gargoyle / (Twinblade)    (a genuine duo -- two of them)
+            #
+            # 18 maps carry such a pair; the dungeon branch above already suppresses 12 through the
+            # duo tables. These six reach here because the legacy branch had no equivalent.
+            #
+            # 🛑 THE NAME CANNOT BE THE KEY -- differently named for PCR/Messmer/Rykard/Maliketh and
+            # identical for Rennala. Same-map adjacency is the only signal true of all six.
+            # 🛑 x800 IS THE ONE TO KEEP even where it reads like the earlier form: 13000800 is
+            # Maliketh and 13000801 the Beast Clergyman.
             #
             # Guarded like `_arena_secondary`'s two sources: the primary must be a healthbar head ON
             # THIS MAP, or suppressing would delete the only trigger this map has.
