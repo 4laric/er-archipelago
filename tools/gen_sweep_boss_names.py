@@ -33,6 +33,7 @@ generator refuses rather than shipping a row that renders as a box.
 """
 import argparse
 import importlib.util
+import json
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -95,7 +96,12 @@ def render_rs(rows):
         f"pub const SWEEP_BOSS_NAMES: [(u32, &str); {len(rows)}] = [",
     ]
     for flag, name in rows:
-        out.append(f'    ({flag}, {name!r}),'.replace("'", '"'))
+        # 🛑 json.dumps, NOT repr()+quote-swap. Python's repr switches to DOUBLE quotes when the
+        # string contains an apostrophe, so swapping ' -> " turned `Rogier's Rapier` into
+        # `"Rogier"s Rapier"` and the crate would not parse ("prefix `Rogier` is unknown"). JSON
+        # string escaping is a subset of Rust's for this data (quotes and backslashes), and it is
+        # the escaping rule rather than a guess about quoting style.
+        out.append(f"    ({flag}, {json.dumps(name)}),")
     out += [
         "];",
         "",
