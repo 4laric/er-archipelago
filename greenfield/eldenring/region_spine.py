@@ -1,7 +1,7 @@
 """Greenfield num_regions spine (matt-free) -- SPEC-PARITY Phase 1.
 
-Progression order over the 31 greenfield regions + the always-kept goal region (region-spine v2). `num_regions`
-seals the world down to N regions; `compute_kept` decides which N. Pure (no AP import) so it runs
+Progression ORDER over the 30 greenfield regions (region-spine v2). `num_regions` seals the world
+down to N regions; `compute_kept` decides which N -- by random draw, never by this order. Pure (no AP import) so it runs
 in the data-invariant gate. Keyed by REGION name only (greenfield's own names), never an imported
 set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P1).
 """
@@ -55,8 +55,13 @@ def parent_chain(region):
         r = REGION_PARENT.get(r)
     return chain
 
-# Fixed progression path (Limgrave-first). num_regions_order='spine' keeps the first N of this;
-# 'rolled' keeps N random regions. Must be a permutation of REGIONS (guarded by test_gf_data).
+# Fixed progression path (Limgrave-first). AN ORDERING ONLY -- it is NOT a selection mode.
+# The spine-order draw was removed 2026-08-05 (see compute_kept) and `num_regions_order:
+# spine` is deprecated, behaving exactly as `rolled`. What SPINE still decides: poptracker
+# display order, the test reference, and `_SPINE_RANK` -- which features/goal_locations walks
+# deepest-first to pick the region that ENDS the run.
+# Must be a permutation of REGIONS, and its TAIL must be exactly DLC_REGIONS (both guarded
+# by test_gf_data).
 SPINE = [
     # base game, rough vanilla progression order
     "Limgrave", "Weeping", "Stormveil", "Liurnia", "Raya Lucaria Academy",

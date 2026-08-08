@@ -231,6 +231,30 @@ class GreenfieldSpine(unittest.TestCase):
         self.assertEqual(sorted(self.rs.SPINE), sorted(self.d.REGIONS),
                          "SPINE must be a permutation of REGIONS (no missing/extra region)")
 
+    def test_dlc_regions_is_the_spine_tail(self):
+        """DLC_REGIONS's own comment says "the last 13 entries of SPINE". It was asserted in prose
+        and nowhere else, and the two are separate literals -- so adding a DLC region to SPINE and
+        forgetting the frozenset would let the ORDERING and the base/DLC PARTITION disagree in
+        silence.
+
+        That matters because DLC_REGIONS is the canonical partition (features/boss_locks says so in
+        as many words) and it is what `dlc_only` / `enable_dlc` filter on: a region present in the
+        spine tail but missing from the frozenset would be treated as BASE GAME, so `dlc_only`
+        would seal it and `enable_dlc: false` would ship it.
+
+        Pinned as a tail slice rather than a hardcoded list of names so that adding a DLC region to
+        BOTH places still passes -- the invariant is the relationship, not the membership."""
+        tail = self.rs.SPINE[-len(self.rs.DLC_REGIONS):]
+        self.assertEqual(
+            set(tail), set(self.rs.DLC_REGIONS),
+            "DLC_REGIONS must be exactly the tail of SPINE -- add a DLC region to BOTH, and keep "
+            "the DLC block last in SPINE")
+        base = [r for r in self.rs.SPINE if r not in self.rs.DLC_REGIONS]
+        self.assertEqual(
+            base, self.rs.SPINE[:len(self.rs.SPINE) - len(self.rs.DLC_REGIONS)],
+            "the DLC block must be CONTIGUOUS at the end of SPINE -- a DLC region in the middle "
+            "would make the tail slice above pass while base_regions() interleaves them")
+
     def test_goal_region_valid(self):
         self.assertIn(self.rs.GOAL_REGION, self.d.REGIONS)
 
