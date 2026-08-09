@@ -110,6 +110,18 @@ SHIPPED = {
     # Its row goes in when v0.3.9 is tagged. Adding an open version here is what 0.3.7's row was
     # removed for.
     "0.3.8": "d7d3a58e",
+    # v0.3.9 TAGGED 2026-08-09 00:31Z at 500656d, shipping 5c2b9bf2 -- the FIRST 0.3.x row whose hash
+    # differs from the window it opened on. 0.3.9 opened version-lockstep on d7d3a58e and then took
+    # `graceAttunement` under the open window, which the ledger's own row for it explains and which
+    # test_shipped_contract_hashes_are_never_rewritten permits precisely because SHIPPED had no row
+    # for it yet.
+    #
+    # 🛑 AND IT WAS OWED AT THE MOMENT OF THE TAG, NOT AT WINDOW-OPEN. Between the v0.3.9 tag and
+    # this commit, `test_every_tagged_version_is_recorded_as_shipped` was RED on main: 0.3.9 was
+    # tagged, carried a ledger row, and had no entry here. That is the FOURTH window in a row where
+    # this row is the last thing anybody remembers -- 0.3.3, 0.3.4, 0.3.6 and now 0.3.9 -- and the
+    # only reason the streak is visible is that the test asks the tags instead of asking a person.
+    "0.3.9": "5c2b9bf2",
 }
 
 

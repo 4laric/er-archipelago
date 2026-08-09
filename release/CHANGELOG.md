@@ -3,6 +3,71 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.10 — 2026-08-09
+
+Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
+were opened by something going red. Nothing has landed past the tag yet, so this section starts empty
+of changes on purpose and fills as they arrive (rule 14).
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
+v0.3.9 client still handshakes -- including a seed with grace attunement on, which is the one setting
+v0.3.9 made version-sensitive.
+
+### The v0.3.9 SHIPPED row was owed, and main was red without it
+
+To be honest about the "deliberately" above: `test_every_tagged_version_is_recorded_as_shipped` had
+been RED on main since the tag. v0.3.9 was tagged, carried a `CONTRACT-VERSIONS.tsv` row, and had no
+`SHIPPED` entry in `test_gf_contract_versions.py` -- so something red WAS waiting either way. Added
+here with the hash it actually shipped, `5c2b9bf2`.
+
+That is the fourth window running where this one row is the last thing anybody remembers: 0.3.3,
+0.3.4, 0.3.6 and now 0.3.9. The streak is only visible because the test asks `git tag` rather than
+asking a person, and it is only red at the right moment because `tests.yaml` fetches tags. Both of
+those were fixes to earlier misses in the same series.
+
+⭐ 0.3.9 is also the first 0.3.x whose SHIPPED hash differs from the one its window opened on: it
+opened version-lockstep on `d7d3a58e` and then took `graceAttunement` while open, which is exactly
+what `test_shipped_contract_hashes_are_never_rewritten` allows -- it freezes SHIPPED rows, and a
+window has no SHIPPED row until it is tagged.
+
+### First double-digit patch component, and the ordering was checked rather than assumed
+
+`0.3.10` sorts BEFORE `0.3.9` as a string, so this is the release where a lexicographic comparison
+would start quietly answering backwards. Audited before the bump:
+
+* `tools/check_channels.py::_ver` parses to an int TUPLE and `max()`es tuples -- correct.
+* `check_contract_version`, `check_version_sites`, `check_release_notes` and `contract_gen.rs`'s
+  `APWORLD_VERSION_EXPECTED` all compare versions for EQUALITY, which is order-free.
+* The only string sorts left are cosmetic: the printed `--derive-history` table and a couple of
+  `sorted()` calls over dict items for stable output.
+* Archipelago's own `tuplize_version` (which is why `release/CHANNELS.tsv` exists in its current
+  shape) parses `0.3.10` fine -- it is a strict `X.Y.Z`, which is the only property that file needs.
+
+Nothing to fix, but it is worth having the answer written down BEFORE the first bug that would have
+come from it, rather than after.
+
+### The client half was one PR, not two
+
+The recipe on file says opening a window is a five-step serial chain across two repos with FOUR
+merges: client `Cargo.toml`/`Cargo.lock`, then the world bump, then `contract_gen.rs` regenerated
+against the merged world, then a second gitlink bump. The reason given for the split is that
+`APWORLD_VERSION_EXPECTED`'s value "does not exist until the world bump exists".
+
+That is true of the value's SOURCE and false of the value. `gen_contract.py` generates it from a
+WORKING TREE, and the client repo's CI has no gate that reads the world at all -- `test.yaml` builds
+and tests, and there is no `contract_gen`, `gen_contract` or `er-archipelago` reference anywhere in
+its workflows. So all three client files moved in one PR (clients#121) and this world commit pins the
+gitlink at its merge, which is what lets `generators` go green on the first attempt instead of the
+third.
+
+🛑 The drift window is unchanged in kind and shorter in practice: between the two merges a client
+built from `main` expects an apworld that is not tagged yet. Nothing ships from `main`.
+
+### Published
+
+`release/CHANNELS.tsv`: **stable -> v0.3.9**, beta -> main for the new window. Two appended rows, no
+edits, per the file's own rule.
+
 ## v0.3.9 — 2026-08-08
 
 Window opened the same day v0.3.8 shipped, and opened by a RED GATE rather than by anyone
