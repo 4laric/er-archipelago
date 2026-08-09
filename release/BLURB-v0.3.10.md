@@ -39,6 +39,37 @@ The region you end in should not be the region you open in. It could be: on the 
 fixed for `goal: promised_consort` as well as for the default -- whatever your goal keeps, your run
 will not begin there.
 
+### Merchants now tell the multiworld what is on their shelf
+
+Open a merchant's buy menu and every check on that shelf that belongs to **another player** is
+announced as a hint. You do not get hinted your own rewards -- you are looking at them. It means a
+shopkeeper you walk past is worth opening even when you cannot afford anything, because somebody else
+may be waiting on what is sitting there.
+
+This one has not been tested at a live merchant yet. If it misfires, the client log is the place to
+look.
+
+### Your tracker no longer spoils the region draw
+
+The F6 tracker used to list every kept region by name at connect, locked or not -- so the shape of
+your seed was readable before you started playing. A region you have not unlocked now shows as
+`Locked region`, with its check count hidden too: the DLC region sizes are all different, so `0/85`
+gave it away just as surely as the name did.
+
+Buying a lock hint is still how you find out what it is, which is the point of buying one.
+
+### Enemies in a region no longer split into "normalised" and "untouched"
+
+Bosses and hand-tuned characters have no difficulty rating of their own, so the mod works out how hard
+the game intended that patch of ground to be and scales them to match. It measured that live, from
+whatever was loaded -- and its own work destroyed the evidence it was reading, so after the first pass
+through an area it could no longer answer.
+
+In a big open area that never recovered: a couple of hundred enemies stayed at full vanilla strength
+beside neighbours the mod had turned down, for hours. The visible result was a region feeling harder
+than one the difficulty ramp had placed above it. That reading is now measured up front from the
+game's own data, so it is right the first time you walk in and after you reload a save.
+
 ## What just shipped, for context
 
 v0.3.9 is the release this window follows, and it is worth knowing what a player already has before
