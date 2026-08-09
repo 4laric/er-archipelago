@@ -13,6 +13,40 @@ of changes on purpose and fills as they arrive (rule 14).
 v0.3.9 client still handshakes -- including a seed with grace attunement on, which is the one setting
 v0.3.9 made version-sensitive.
 
+### A DLC-only run now ends on Promised Consort Radahn
+
+`goal: auto` on a `dlc_only` seed used to end on whatever terminal region your draw happened to
+keep. That was not a malfunction, it was an asymmetry: the base game's ending is guaranteed because
+the Ashen Capital is NOT a region you can roll -- it exists on every base-game seed and is reached
+by warping to its own graces -- while Enir Ilim is one of the thirteen ordinary DLC regions. Miss it
+in the draw and the run ended somewhere else. bobler finished one this week on Romina in the Ancient
+Ruins of Rauh and reasonably read the early goal as a broken ending.
+
+Enir Ilim now behaves the way the Ashen Capital does, in the two ways that decide an ending: it is
+**barred from the draw** and **always kept**. So `num_regions: 3` on a DLC-only seed means three
+regions to play plus the ending, rather than three regions and a lottery -- and the gen log says so
+in the line that already explains where your regions came from.
+
+It stays a real region with its own checks and its own Lock, because it is a place you play. The
+Ashen Capital is ten checks and a gauntlet; that is why it is not one.
+
+### Enir Ilim can no longer be the region your run OPENS on
+
+The same seed that ends in Enir Ilim could also start there. `goal: promised_consort` has force-kept
+it since v0.3.5, and nothing stopped the start-anchor draw from picking it: measured over 20,000
+draws on the previous build, **14.7%** of `num_regions: 6` seeds opened on the region they were
+supposed to end in, rising to **59.6%** at `num_regions: 1`.
+
+Two bars existed and neither covered it. One names the base-game goal region specifically
+(Leyndell), the other bars gated children like the capital, and Enir Ilim is neither. The rule is
+now the general one -- whatever regions your goal force-keeps, the run cannot open on them -- so
+`auto` and a named goal are covered by the same line.
+
+**Compatibility.** Seeds with the base game in play are byte-identical, including their rolls: the
+new force-keep and the new bar are both empty there. DLC-only seeds re-roll differently, because the
+draw is now made from a pool that no longer contains Enir Ilim. `CONTRACT_HASH` does not move and no
+client change is needed.
+
 ### The v0.3.9 SHIPPED row was owed, and main was red without it
 
 To be honest about the "deliberately" above: `test_every_tagged_version_is_recorded_as_shipped` had

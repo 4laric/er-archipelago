@@ -38,6 +38,10 @@ goal ids are NOT necessarily in the deepest kept region by SPINE rank -- that in
 
 Resolution ladder (each tier total, deterministic, and derived -- no hand list):
   0. THE FINALE's major bosses, iff features/finale.py created the finale region this seed.
+  0b. THE DLC'S TERMINUS -- Enir Ilim's majors (Promised Consort Radahn), iff the base game is NOT
+     in play. Mutually exclusive with tier 0. Core force-keeps Enir Ilim on those seeds and bars it
+     from the draw, so this tier is a guarantee rather than a preference: added 2026-08-09 after a
+     dlc_only seed ended on Romina because the draw never took Enir Ilim. See DLC_TERMINUS_REGION.
   1. MAJOR BOSSES OF THE DEEPEST TERMINAL KEPT REGION -- terminal meaning one of its majors is
      tagged LegacyBoss, Remembrance or GreatRune (see _is_terminus), so an optional FieldBoss like
      Bayle can never end a run. Walks those deepest-first by SPINE rank, then the plain walk. MajorBoss membership is LOCATION_TAGS (= REGION_BOSSES arena majors
@@ -74,6 +78,8 @@ sides now read ONE list, single-sourced at core.kept_lock_names().
 Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_gf_finale.py:
   * goalLocations is never empty;
   * when the finale is active, goalLocations is exactly the finale's MajorBoss set;
+  * when the base game is sealed, goalLocations is exactly Enir Ilim's MajorBoss set -- on EVERY
+    such seed, not on the ones whose draw happened to keep it;
   * under `goal: auto` (and only then) every goalLocations id lives in the DEEPEST kept region
     carrying them (never Leyndell-by-preference: a seed keeping a region deeper than Leyndell must
     not goal on Morgott); under an explicit choice they live in the CHOSEN region, which
@@ -90,7 +96,7 @@ from . import vanilla_placement as _vp
 from .. import contract
 from ..region_spine import SPINE
 from ..data import FINALE_REGION
-from .finale import finale_active
+from .finale import finale_active, base_game_in_play
 
 try:
     from ..boss_data import REGION_BOSSES
@@ -131,6 +137,48 @@ GOAL_CHOICES = {
     "elden_beast":      (FINALE_REGION, ()),
     "promised_consort": ("Enir Ilim",   ("Enir Ilim",)),
 }
+
+
+# ⭐⭐⭐ THE DLC'S TERMINUS, and the asymmetry it closes (2026-08-09).
+#
+# The Ashen Capital is NOT in `data.REGIONS`. It is never drawn, never counted by num_regions, and
+# features/finale.py builds it on every seed with the base game in play -- so `goal: auto` ends on
+# the Elden Beast whatever the draw did. Enir Ilim had NO equivalent: it is one of the thirteen
+# ordinary rollable DLC regions, so on a `dlc_only` seed Promised Consort Radahn was the ending BY
+# LOTTERY. bobler finished one on Romina in the Ancient Ruins of Rauh on 2026-08-07 and reasonably
+# read the early goal as a broken ending. Nothing had malfunctioned -- Romina carries a Remembrance
+# and his draw never kept Enir Ilim -- the DLC simply never got the guarantee the base game has.
+#
+# So under dlc_only Enir Ilim now behaves like the Ashen Capital in the two ways that matter: it is
+# NOT DRAWN (core bars it from the draw pool, so it never spends one of the player's N) and it is
+# ALWAYS KEPT (force-appended). It stays UNLIKE the Ashen Capital in the one way that matters too --
+# it remains a real region with its own checks and its own Lock, because it is a place you play,
+# where the Ashen Capital is ten checks and a gauntlet (Alaric, 2026-08-06).
+DLC_TERMINUS_REGION = "Enir Ilim"
+
+
+def dlc_terminus_active(regions) -> bool:
+    """Does this region pool end on the DLC's terminus?
+
+    True exactly when Enir Ilim is in play and the base game is not -- the MIRROR of
+    `finale.finale_active`, and mutually exclusive with it by construction, so tier 0 and tier 0b
+    below can never both claim the goal. Reads the resolved pool rather than the `dlc_only` yaml for
+    the same reason `base_game_in_play` does: a future scope option that empties the base game gets
+    the right answer without anyone remembering to teach this predicate about it."""
+    regions = list(regions)
+    return DLC_TERMINUS_REGION in regions and not base_game_in_play(regions)
+
+
+def auto_forced_regions(eligible) -> tuple:
+    """What `goal: auto` force-keeps, given this seed's ELIGIBLE pool. Single-sourced here so core,
+    the yaml validator and the tests cannot drift from it -- the same contract `forced_regions`
+    holds for a NAMED goal.
+
+    Base game in play -> NOTHING, and that emptiness is load-bearing: SPEC-ashen-capital-lock
+    deleted the old GOAL_REGION force-keep precisely so `num_regions: 1` really keeps one region.
+    dlc_only -> the DLC terminus, which is the guarantee the finale hands the base game for free by
+    not being a rollable region at all."""
+    return (DLC_TERMINUS_REGION,) if dlc_terminus_active(eligible) else ()
 
 
 def forced_regions(chosen):
@@ -197,7 +245,7 @@ def _is_terminus(region):
                if "MajorBoss" in LOCATION_TAGS.get(aid, ()))
 
 
-def terminal_goal_ids(kept, chosen=None, finale_built=None):
+def terminal_goal_ids(kept, chosen=None, finale_built=None, dlc_terminus=None):
     """(region, ids) for the goal: tier 0 = the finale's majors iff the finale exists for `kept`
     (see module docstring); tier 1 = majors of the deepest kept region that has any; tier 2 = the
     deepest kept region's non-missable checks. ids may be empty only if tier 2 is too (caller
@@ -222,6 +270,22 @@ def terminal_goal_ids(kept, chosen=None, finale_built=None):
         ids = _major_boss_ids(FINALE_REGION)
         if ids:                       # defensive: a finale with no majors falls to the spine walk
             return FINALE_REGION, ids
+    # TIER 0b, THE DLC'S TERMINUS -- the mirror of tier 0, and MUTUALLY EXCLUSIVE with it:
+    # `dlc_terminus_active` is false the moment any base region is in play, so the two can never
+    # contend for the same seed. Core force-keeps Enir Ilim on every dlc_only seed and the goal
+    # NAMES it here rather than trusting it to win the spine walk below. It would win that walk
+    # today -- it is SPINE-last -- and it would silently stop winning the day a deeper DLC region is
+    # added. An ending that depends on a sort order is the same bug class as an ending that depends
+    # on a draw, which is what this whole tier exists to retire.
+    #
+    # `dlc_terminus` is the world's own answer (`world.gf_dlc_terminus`) and OUTRANKS the static
+    # re-derivation for exactly the reason spelled out above tier 0: core decides from the ELIGIBLE
+    # pool, not from the draw, and re-asking here with `kept` can disagree. The static path stays
+    # for the callers that have no world (tests, the yaml validator).
+    if dlc_terminus if dlc_terminus is not None else dlc_terminus_active(kept):
+        ids = _major_boss_ids(DLC_TERMINUS_REGION)
+        if ids:                       # defensive: fall through to the spine walk, never to nothing
+            return DLC_TERMINUS_REGION, ids
     # Tier 1, TERMINUS-FIRST: walk the terminus-bearing regions deepest-first, then everything else
     # deepest-first. The second pass is the pre-2026-08-05 behaviour and still guards draws where
     # nothing kept has a terminal major, so this narrows WHICH region ends the run without ever
@@ -247,7 +311,8 @@ class GoalLocations(Feature):
         kept = list(world._kept())
         region, ids = terminal_goal_ids(
             kept, getattr(world, "gf_goal_choice", None),
-            finale_built=getattr(world, "gf_finale_active", None))
+            finale_built=getattr(world, "gf_finale_active", None),
+            dlc_terminus=getattr(world, "gf_dlc_terminus", None))
         if not ids:
             raise contract.ContractError(
                 "goal_locations: no achievable goal location exists in the kept set %r -- the seed "

@@ -114,7 +114,8 @@ class StartRegions(Range):
     default = 1
 
 
-def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=frozenset()):
+def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=frozenset(),
+                       never_anchor=frozenset()):
     """The run's opening region: which kept region's Lock core.create_items precollects.
 
     Size-weighted draw -- weight = the region's emitted check count, from `check_counts`, which the
@@ -138,6 +139,18 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
     child's opening grant is exactly the grace bundle features/graces.py withholds, so it can
     never be the run's opening region.
 
+    `never_anchor` is excluded from EVERY draw including the first -- which is exactly how it
+    differs from `pick_anchor_regions`' `never_extra`, whose whole point is to leave the first draw
+    alone. It carries the DLC terminus (Enir Ilim): on a dlc_only seed that is the region the run
+    ENDS in, and a run that opens where it ends is not a run. Unlike `gated` it DEGRADES rather
+    than raising if it would empty the pool -- the returned rule string says so -- because a seed
+    with nothing else to open on must still be playable, and the caller's own force-keep already
+    guarantees a second region in every case core can produce.
+
+    ⭐ Its blast radius is naturally tiny: the eligible pool is the kept BASE regions whenever any
+    are kept, and the DLC terminus is not one, so this filter can only ever bite on the
+    dlc-fallback branch. Base-game and mixed seeds are byte-identical.
+
     Pure + deterministic (rng = world.random; two runs of the same seed agree). Returns
     (region, rule, eligible_count); the rule string is the gen-log telemetry ("which rule fired").
     Raises ValueError on an empty kept set or an all-zero weight sum: an empty eligible pool is a
@@ -157,11 +170,24 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
         raise ValueError(
             "start anchor: every kept region is a gated child -- REGION_PARENT closure is broken "
             "(a child must always pull a non-child ancestor into the kept set)")
+    # NEVER THE OPENING REGION (2026-08-09). Applied before the base/DLC split so it cannot be
+    # smuggled back in by the fallback branch -- which is the only branch it can reach at all.
+    _bar_degraded = False
+    if never_anchor:
+        _left = [r for r in kept if r not in never_anchor]
+        if _left:
+            kept = _left
+        else:
+            _bar_degraded = True
     base = [r for r in kept if r not in dlc_regions]
     if base:
         eligible, rule = base, "base-weighted"
     else:
         eligible, rule = kept, "dlc-fallback-weighted"
+    if _bar_degraded:
+        # Say it. A seed that opens on its own ending is worth a line in the gen log, not a silent
+        # pick -- and if this ever fires, the force-keep upstream did not do its job.
+        rule += " (never_anchor EMPTIED the pool -> degraded; this seed opens on its goal region)"
     if major is not None:
         inter = [r for r in eligible if r in major]
         if inter:
@@ -177,7 +203,7 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
 
 
 def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
-                        gated=frozenset(), never_extra=frozenset()):
+                        gated=frozenset(), never_extra=frozenset(), never_anchor=frozenset()):
     """The run's opening regionS: which kept regions' Locks core.create_items precollects.
 
     ONE DRAW OR N, THE FIRST ONE IS THE SAME DRAW IT ALWAYS WAS. `n == 1` calls
@@ -210,12 +236,14 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
     """
     n = max(1, int(n))
     first, rule, pool_n = pick_anchor_region(kept, rng, check_counts, dlc_regions,
-                                             major=major, gated=gated)
+                                             major=major, gated=gated,
+                                             never_anchor=never_anchor)
     picks, rules = [first], [rule]
     # The extras' pool, filtered ONCE up front so a shortfall is reported before anything is drawn:
     # a partial answer would be a silently shorter start than the yaml asked for.
     pool = [r for r in kept
             if r != first and r not in never_extra and r not in gated
+            and r not in never_anchor
             and int(check_counts.get(r, 0)) > 0]
     if len(pool) < n - 1:
         raise ValueError(
@@ -224,7 +252,8 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
             "region with zero emitted checks can never anchor) -- lower start_regions or raise "
             "num_regions" % (n, len(pool) + 1))
     while len(picks) < n:
-        r, rule_r, _ = pick_anchor_region(pool, rng, check_counts, dlc_regions, gated=gated)
+        r, rule_r, _ = pick_anchor_region(pool, rng, check_counts, dlc_regions, gated=gated,
+                                          never_anchor=never_anchor)
         picks.append(r)
         rules.append("extra:" + rule_r)
         pool = [x for x in pool if x != r]
