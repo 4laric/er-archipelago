@@ -27,6 +27,7 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import (  # noqa: E402
     GOAL_REGION, DLC_REGIONS, base_regions, dlc_regions,
 )
+from worlds.eldenring.features.goal_locations import DLC_TERMINUS_REGION  # noqa: E402
 from worlds.eldenring.core import GREAT_RUNES  # noqa: E402
 from worlds.eldenring.data import FINALE_REGION  # noqa: E402
 
@@ -183,13 +184,28 @@ class DLCDisabledNumRegions3(WorldTestBase):
 
 
 class DLCOnlyNumRegions3(WorldTestBase):
-    """DLC Only + num_regions 3 -> exactly 3 DLC regions, no base, no goal forced, beatable."""
+    """DLC Only + num_regions 3 -> 3 DRAWN DLC regions plus the terminus, no base, beatable.
+
+    ⭐ RE-PREMISED 2026-08-09, and it is a premise change, not a number change. This asserted
+    "exactly 3 kept (no goal appended)" and that was right while `dlc_only` force-kept nothing: the
+    DLC had no guaranteed ending, so a draw of 3 was a seed of 3. features/goal_locations tier 0b
+    force-keeps Enir Ilim on every dlc_only seed -- the mirror of the guarantee the Ashen Capital
+    gives the base game by not being rollable -- so the shape is now 3 drawn + 1 forced.
+
+    The thing worth asserting did not change: `num_regions` is a DRAW SIZE (#409), the draw is 3,
+    and nothing BASE creeps in. So the count is checked as "3 drawn, and the only addition is the
+    terminus", which fails if a second region ever appears from somewhere unexplained.
+    """
     game = GAME
     options = {"dlc_only": True, "num_regions": 3}
 
-    def test_exactly_three_dlc_regions(self):
+    def test_three_drawn_dlc_regions_plus_the_terminus(self):
         kept = _lock_region_names(self.multiworld, self.player)
-        self.assertEqual(len(kept), 3, "num_regions=3 DLC Only -> exactly 3 kept (no goal appended)")
+        self.assertIn(DLC_TERMINUS_REGION, kept,
+                      "dlc_only must force-keep the terminus, or the run has no guaranteed ending")
+        drawn = kept - {DLC_TERMINUS_REGION}
+        self.assertEqual(len(drawn), 3,
+                         "num_regions=3 is a DRAW SIZE: 3 drawn + the forced terminus, nothing else")
         self.assertTrue(kept <= DLC, "every kept region must be DLC")
         self.assertNotIn(GOAL_REGION, kept, "base goal not forced in under DLC Only")
 

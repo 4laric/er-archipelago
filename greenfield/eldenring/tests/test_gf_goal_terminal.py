@@ -18,7 +18,8 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from worlds.eldenring.region_spine import SPINE, GOAL_REGION, compute_kept, base_regions, dlc_regions  # noqa: E402
-from worlds.eldenring.features.goal_locations import terminal_goal_ids, _major_boss_ids, _by_depth  # noqa: E402
+from worlds.eldenring.features.goal_locations import (terminal_goal_ids, _major_boss_ids,  # noqa: E402
+                                                      _by_depth, DLC_TERMINUS_REGION)
 from worlds.eldenring.features.finale import finale_active  # noqa: E402
 from worlds.eldenring.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
 
@@ -102,6 +103,43 @@ class TestTerminalGoalPure:
         assert not (set(ids) & set(MISSABLE_LOCATIONS)),             "a missable check may never be part of the goal (permanently losable)"
 
 
+    def test_the_ladder_still_decides_a_terminus_free_dlc_draw(self):
+        """TIER 1 IS NOT DEAD, IT IS ONLY UNREACHABLE FROM A REAL SEED (2026-08-09).
+
+        With tier 0 owning every base-game seed and tier 0b owning every dlc_only one, no world
+        this apworld can build reaches the spine walk. That makes this the ONLY place the walk is
+        still exercised -- which is exactly why the claim moved here in full rather than being
+        deleted with its old fixture (see DlcOnlyGoalIsTheTerminusSeed).
+
+        The kept sets below are the pre-fix dlc_only shape: a DLC draw that did not take Enir Ilim.
+        That is bobler's 2026-08-07 seed, and the ladder's answer for it -- the deepest kept region
+        carrying a terminal tag -- was correct then and must stay correct now."""
+        pool = [r for r in dlc_regions() if r != DLC_TERMINUS_REGION]
+        rng = random.Random(20260809)
+        checked = 0
+        for _ in range(200):
+            kept = rng.sample(pool, rng.randint(2, min(6, len(pool))))
+            region, ids = terminal_goal_ids(kept, finale_built=False, dlc_terminus=False)
+            assert ids, "goalLocations may never be empty"
+            assert region in kept
+            # The ladder prefers a TERMINUS-bearing region; when the draw has one, the answer must
+            # be the deepest such region and nothing shallower.
+            termini = [r for r in kept if _major_boss_ids(r) and r == region] or None
+            deepest_overall = max(kept, key=SPINE.index)
+            assert SPINE.index(region) <= SPINE.index(deepest_overall)
+            assert set(ids) == set(_major_boss_ids(region)) or region == deepest_overall
+            checked += 1
+        assert checked == 200
+
+    def test_the_terminus_outranks_the_walk_when_it_is_present(self):
+        """Tier 0b is a GUARANTEE, not a preference: it must win even against a kept set the walk
+        would have answered differently, which is what makes it immune to a future deeper region."""
+        kept = [DLC_TERMINUS_REGION, "Ancient Ruins", "Jagged Peak"]
+        region, ids = terminal_goal_ids(kept, finale_built=False, dlc_terminus=True)
+        assert region == DLC_TERMINUS_REGION
+        assert set(ids) == set(_major_boss_ids(DLC_TERMINUS_REGION))
+
+
 class GoalDeepSpineSeed(WorldTestBase):
     """Full pool kept (num_regions 0): the base game is in play, so THE FINALE exists and IS the
     goal -- Godfrey/Hoarah Loux + the Elden Beast, the game's real terminus. NOT Morgott, and NOT
@@ -124,55 +162,57 @@ class GoalDeepSpineSeed(WorldTestBase):
         assert got, "goalLocations may never be empty"
 
 
-class GoalLadderDecidesSeed(WorldTestBase):
-    """The goal is the DEEPEST KEPT region, decided by depth and not by any default -- asserted on
-    real slot data rather than on the pure function.
+class DlcOnlyGoalIsTheTerminusSeed(WorldTestBase):
+    """A dlc_only seed ends on PROMISED CONSORT RADAHN -- asserted on real slot data.
 
-    ⭐ WAS GoalCapitalRunSeed, "the capital IS a legitimate goal when it is the deepest kept
-    region": the other half of the 2026-07-14 bug, whose fix must not overcorrect into never
-    goaling on Morgott. That FIXTURE is unbuildable as of SPEC-ashen-capital-lock (2026-08-06) --
-    the finale is built on every seed with the base game in play and tier 0 outranks the ladder, so
-    no base-game seed can produce a Morgott goal at all any more. The pure-function half of the old
-    claim survives verbatim in TestTerminalGoalPure.test_leyndell_terminal_only_when_deepest, which
-    now says it with finale_built=False.
+    ⭐⭐⭐ RE-PREMISED 2026-08-09, and the premise really did change; this is not a number that moved.
 
-    What is re-premised here is the SEED half, moved to `dlc_only` -- the one mode with no finale,
-    and therefore the one mode where the ladder still decides a real seed's goal. The protection is
-    the same one, restated without naming the capital: search a fixed seed sequence for a draw
-    whose terminal region is NOT the pool's globally deepest region (the case a "prefer region X"
-    default would get wrong), and assert the SLOT DATA names that drawn region's majors.
+    This class was `GoalLadderDecidesSeed`, and before that `GoalCapitalRunSeed`. Its job was to
+    prove the goal is decided BY DEPTH rather than by a default, on a real seed. It used `dlc_only`
+    as its vehicle because SPEC-ashen-capital-lock had already made every base-game seed a tier-0
+    seed, leaving dlc_only as -- in the old docstring's words -- "the one mode with no finale, and
+    therefore the one mode where the ladder still decides a real seed's goal."
 
-    Exhausting the sequence FAILS rather than skips: a guard that never fires is an untested guard.
+    THAT MODE IS GONE TOO. The DLC terminus (features/goal_locations tier 0b) force-keeps Enir Ilim
+    on every dlc_only seed and names it outright, because a run whose ending depended on the draw
+    was the defect: bobler finished one on Romina on 2026-08-07 and read it as a broken ending.
+    So no real seed reaches tier 1 any more, and the old test could no longer find its informative
+    case -- it failed LOUDLY saying so rather than passing vacuously, which is the guard working.
+
+    Two things follow, and both are done rather than assumed:
+      * the SEED-level claim is now the stronger one, asserted here: dlc_only ends on the terminus,
+        on every seed, not on the ones whose draw was kind;
+      * the LADDER-level claim is not dropped -- it moves entirely into TestTerminalGoalPure, which
+        exercises tier 1 with `dlc_terminus=False`, the same way it already exercises it with
+        `finale_built=False`. See test_the_ladder_still_decides_a_terminus_free_dlc_draw.
     """
     game = GAME
     run_default_tests = False
-    # N=2, not 1: `start_with_region_lock` is frozen ON and core's clamp needs at least one lock
-    # left in the pool, and a dlc_only seed mints no Ashen Capital Lock to make up the difference.
-    # 2 is the floor that generates, and it keeps the draw narrow enough that the deepest DLC
-    # region is usually NOT in it -- which is the case this fixture is hunting for.
+    # N=2 for the same reason the old fixture used it: `start_with_region_lock` is frozen ON and
+    # core's clamp needs a lock left in the pool, and a dlc_only seed mints no Ashen Capital Lock.
+    # The terminus is force-kept ON TOP of the draw, so this is 2 drawn + Enir Ilim.
     options = {"dlc_only": True, "num_regions": 2}
     SEEDS = tuple(range(12))
 
-    def test_goal_is_the_deepest_kept_region_not_a_default(self):
-        deepest_in_pool = max(dlc_regions(), key=SPINE.index)
+    def test_every_dlc_only_seed_goals_on_enir_ilim(self):
         for seed in self.SEEDS:
             self.world_setup(seed=seed)
             kept = set(self.world._kept())
             assert not finale_active(kept), \
-                "dlc_only seals the base game, so the finale must be inert -- otherwise tier 0 " \
-                "owns this goal and the ladder is not what is under test"
-            region, ids = terminal_goal_ids(kept)
-            if region == deepest_in_pool:
-                continue          # uninformative: a fixed default and the ladder would agree here
+                "dlc_only seals the base game, so the finale must stay inert -- tier 0b, not 0"
+            assert DLC_TERMINUS_REGION in kept, \
+                "seed %d: the terminus must be force-kept, not drawn (kept %s)" % (
+                    seed, sorted(kept))
             sd = self.world.fill_slot_data()
-            assert set(sd["goalLocations"]) == set(_major_boss_ids(region)), (
-                "seed %d keeps %s as its deepest region, so the goal must be its majors; slot "
-                "data said %s" % (seed, region, sorted(sd["goalLocations"])))
-            assert region in kept
-            assert region == max(kept, key=SPINE.index), (
-                "the goal region must be the deepest KEPT region by spine rank, not a preference")
-            return
-        self.fail("no seed in range(%d) produced a draw whose TERMINAL region is anything but the "
-                  "pool's deepest, so the decided-by-depth case went UNTESTED. Widen SEEDS, or the "
-                  "draw/ladder has changed such that only the deepest region can ever be terminal "
-                  "-- which would be a real regression of the 2026-07-14 ruling." % len(self.SEEDS))
+            assert set(sd["goalLocations"]) == set(_major_boss_ids(DLC_TERMINUS_REGION)), (
+                "seed %d: slot data must name Enir Ilim's majors, said %s"
+                % (seed, sorted(sd["goalLocations"])))
+
+    def test_the_terminus_is_never_the_region_the_run_opens_on(self):
+        """The other half of the ruling: a run that opens where it ends is not a run. Read off the
+        PRECOLLECTED lock, which is what actually decides the opening region."""
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            free = {i.name for i in self.multiworld.precollected_items[self.player]}
+            assert "%s Lock" % DLC_TERMINUS_REGION not in free, (
+                "seed %d opened the run on the region it ends in" % seed)

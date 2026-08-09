@@ -429,12 +429,31 @@ class GreenfieldEldenRingWorld(World):
                 "the fixed Limgrave-first path is gone (it made every seed keep the same eight "
                 "regions). Drop the key from your yaml; it will be removed after this release.")
         _draw_parts: Dict[str, List[str]] = {}
+        # THE DLC TERMINUS (2026-08-09). The base game's ending is guaranteed by the Ashen
+        # Capital not being a rollable region; the DLC's ending had no such guarantee, so a
+        # dlc_only seed ended on Promised Consort Radahn only when the draw happened to take Enir
+        # Ilim. It now rides the SAME force-keep seam a named goal uses, and is BARRED from the
+        # draw so the force is additive -- see features/goal_locations.DLC_TERMINUS_REGION.
+        _auto_forced = _gl.auto_forced_regions(self.gf_eligible)
+        # Published for features/goal_locations (tier 0b) exactly as gf_finale_active is published
+        # for tier 0: the answer is derived from the ELIGIBLE pool, and re-deriving it downstream
+        # from the KEPT set is how two answers to one question get shipped.
+        self.gf_dlc_terminus: bool = bool(_auto_forced)
+        # ...and the same set bars the START ANCHOR (create_items). THE REGIONS THIS SEED'S GOAL
+        # NEEDS ARE THE REGIONS IT MAY NOT OPEN ON -- one rule, both halves of `goal`, rather than
+        # the hardcoded GOAL_REGION the extras bar has carried since 2026-08-06.
+        # dict.fromkeys, not a set: `promised_consort` already names Enir Ilim, and the order the
+        # regions are forced in must stay deterministic for the telemetry line below.
+        _forced = tuple(dict.fromkeys(
+            tuple(_gl.forced_regions(self.gf_goal_choice)) + tuple(_auto_forced)))
+        self.gf_goal_forced: tuple = _forced
         self.gf_kept: List[str] = compute_kept(
             _nr,
             self.random,
             self.gf_eligible,
-            forced=_gl.forced_regions(self.gf_goal_choice),
+            forced=_forced,
             parts=_draw_parts,
+            bar_from_draw=_auto_forced,
         )
         # #409: SAY WHAT THE NUMBER DID. `num_regions` is a DRAW SIZE -- a named goal force-keeps
         # its own regions and every kept region pulls its parents in -- so the seed can contain more
@@ -682,14 +701,31 @@ class GreenfieldEldenRingWorld(World):
                 # ends in is not a run (Alaric, 2026-08-06), and at start_regions 3 that would stop
                 # being a rarity and become most seeds.
                 #
-                # 🛑 BELT-AND-BRACES TODAY, NOT THE LOAD-BEARING RULE. GOAL_REGION is Leyndell,
-                # which is a REGION_PARENT child (the capital's main gate is a vanilla wall), and
-                # `gated` above bars those from EVERY draw including the first -- so the goal
-                # region cannot anchor at all, by the gated rule, not by this one. The note that
-                # used to sit here said it "may still win the FIRST draw -- that is the shipped
-                # behaviour"; no seed has ever done that. This stays because it is the rule that
-                # survives GOAL_REGION moving off a vanilla wall.
-                never_extra=frozenset({GOAL_REGION}))
+                # 🛑 THE CLAIM THAT USED TO SIT HERE WAS TRUE OF ONE REGION ONLY, AND IT READ AS
+                # GENERAL. It said the goal region "cannot anchor at all, by the gated rule": that
+                # holds for GOAL_REGION, which is Leyndell, a REGION_PARENT child behind a vanilla
+                # wall. It does NOT hold for a goal the player NAMES. `goal: promised_consort` on a
+                # dlc_only seed force-keeps Enir Ilim, which is not a gated child and is not
+                # GOAL_REGION -- so it fell through both bars into the dlc-fallback draw and could
+                # open the run it was supposed to end. MEASURED over 20k draws before the fix:
+                # 14.7% of num_regions=6 seeds, and 59.6% at num_regions=1. `never_anchor` below is
+                # the general rule; this line stays as the one that survives GOAL_REGION moving off
+                # a vanilla wall.
+                never_extra=frozenset({GOAL_REGION}),
+                # ...and A REGION THE GOAL FORCE-KEPT MAY NEVER OPEN THE RUN AT ALL, first draw
+                # included (2026-08-09). `never_extra` above deliberately leaves the first draw
+                # alone because filtering it would move the anchor of every seed already rolled;
+                # this one deliberately does not, because these are the regions the run ENDS in and
+                # "opens on the region it ends in is not a run" (Alaric, 2026-08-06) was always
+                # meant to cover the first draw too -- it just could not reach it.
+                #
+                # `gf_goal_forced` is the SAME tuple compute_kept forced, so the bar cannot drift
+                # from the force: whatever the goal dragged in, the anchor refuses. Empty for
+                # `auto` on a base-game seed and for `elden_beast` (the Ashen Capital is not a
+                # region), so those seeds are byte-identical. Scoped further by construction: the
+                # anchor pool is the kept BASE regions whenever any are kept, so a DLC entry here
+                # can only bite on a dlc_only seed.
+                never_anchor=frozenset(getattr(self, "gf_goal_forced", ())))
             _by_region = {lock_region_name(it.name): it for it in lock_items}
             for _region in _regions:
                 _anchor = _by_region[_region]

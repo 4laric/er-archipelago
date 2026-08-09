@@ -95,7 +95,7 @@ def dlc_regions():
     return [r for r in REGIONS if r in DLC_REGIONS]
 
 
-def compute_kept(n, rng, eligible=None, forced=(), parts=None):
+def compute_kept(n, rng, eligible=None, forced=(), parts=None, bar_from_draw=()):
     """Kept-region list, drawn from `eligible` (defaults to all of REGIONS).
 
     `eligible` is the already-filtered pool of regions in play this seed (e.g. base-only when
@@ -138,6 +138,11 @@ def compute_kept(n, rng, eligible=None, forced=(), parts=None):
     `forced` parameter is unchanged and still carries an explicit goal's needs; `elden_beast`'s
     forced set is simply empty these days, because the finale no longer needs a region kept.
 
+    `bar_from_draw` removes regions from the rng.sample POOL only -- see the note at the draw. It
+    is the DLC terminus today: a region core force-keeps, and which therefore must not also be able
+    to consume one of the player's N. It never removes a region from the SEED (the full-pool branch
+    ignores it), and it degrades to the unbarred pool rather than emptying it.
+
     `parts` is an OPTIONAL out-dict for telemetry (#409): pass a dict and it is filled with
     {"drawn": [...], "forced": [...], "closure": [...]}, the three contributions that make up the
     return value, in the order they were added. It is an out-param rather than a second return
@@ -164,7 +169,23 @@ def compute_kept(n, rng, eligible=None, forced=(), parts=None):
         full = _close_over_parents(regions, regions)
         _record(regions, (), full, full_pool=True)
         return full
-    base = rng.sample(regions, n)
+    # ⭐ BARRED FROM THE DRAW, NOT FROM THE SEED (2026-08-09, the DLC terminus).
+    # `bar_from_draw` names regions the CALLER is going to force-keep anyway. Removing them from
+    # the sample is what makes that force additive instead of a coin flip: left in the pool, the
+    # draw can spend one of the player's N on a region that was going to be kept regardless, and at
+    # `n == 1` it can return a seed whose ONLY region is the one the run ends in. Barred and then
+    # forced, `num_regions: 1` means "one region to play, plus the ending" -- which is exactly what
+    # the Ashen Capital gives a base-game seed by not being a rollable region at all.
+    #
+    # It is applied HERE and not to `regions` above on purpose: the full-pool branch (`n <= 0`, or
+    # an N at/above the pool) means "keep the whole eligible map", and a barred region is still IN
+    # that map -- barring it there would silently DELETE the seed's terminus from a Shattering.
+    #
+    # 🛑 THIS MOVES THE RNG STREAM for any seed whose pool contains a barred region: the sample is
+    # drawn from a shorter list. Unavoidable for a fix in this shape, and scoped -- core passes a
+    # non-empty bar only when the base game is sealed, so every base-game seed is byte-identical.
+    draw_pool = [r for r in regions if r not in set(bar_from_draw)] or regions
+    base = rng.sample(draw_pool, min(n, len(draw_pool)))
     kept = list(dict.fromkeys(base))
     drawn = list(kept)
     forced_kept = []
