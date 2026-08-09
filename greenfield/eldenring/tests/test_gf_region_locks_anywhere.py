@@ -27,7 +27,8 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
-    RegionLocksAnywhere, released_locks, lock_region_name,
+    RegionLocksAnywhere, RegionLocksShareSurface, released_locks, released_lock_barred,
+    lock_region_name,
 )
 
 
@@ -35,8 +36,10 @@ class _Item:
     """The minimum `released_locks` reads. Deliberately not a real AP Item: the function is pure over
     `.name`, and a test that needed a world would not be testing that."""
 
-    def __init__(self, name):
+    def __init__(self, name, player=1):
         self.name = name
+        self.player = player
+        self.advancement = True
 
     def __repr__(self):
         return f"_Item({self.name!r})"
@@ -148,6 +151,58 @@ class TestReleasedLocks(unittest.TestCase):
         out = released_locks(pool, 100, _Rng())
         for it in out:
             self.assertTrue(any(it is p for p in pool))
+
+
+class TestReleasedLockBarred(unittest.TestCase):
+    """`region_locks_share_surface` -- the predicate core's non-surface item_rule asks.
+
+    Why it exists: `core._add_locations` bars only FOREIGN advancement from a non-surface check, so a
+    released Lock of ours could occupy any of our ~4931 reachable locations while every other ER
+    world offered it ~172. Measured consequence: released Locks stayed home ~97% of the time. The
+    carve-out was written when `apply()` pre-placed every Lock and it only ever covered a SPILL;
+    `region_locks_anywhere` retired that premise without retiring the carve-out.
+    """
+
+    def test_off_by_default_bars_nothing(self):
+        """It is a measurement knob. Until a gen sweep says what it costs, it must be inert.
+
+        Each negative below is paired with the SAME inputs under the opposite condition. A bare
+        `assertFalse` on a predicate passes just as happily when the call matches nothing at all --
+        the witness is what tells "the rule said no" from "the rule never ran"."""
+        args = (_Item("Limgrave Lock"), 1, frozenset({"Limgrave Lock"}))
+        self.assertEqual(RegionLocksShareSurface.default, 0)
+        self.assertTrue(released_lock_barred(*args, True))    # WITNESS: these inputs DO bar
+        self.assertFalse(released_lock_barred(*args, False))
+
+    def test_a_released_lock_of_ours_is_barred(self):
+        self.assertTrue(released_lock_barred(_Item("Limgrave Lock"), 1,
+                                             frozenset({"Limgrave Lock"}), True))
+
+    def test_a_confined_lock_keeps_its_spill_valve(self):
+        """🛑 THE DANGEROUS CASE. A Lock the option chose to KEEP is pre-placed on the surface; if one
+        reaches the fill anyway it is a SPILL, and the whole reason the carve-out exists is that a
+        spilled Lock must have somewhere to land or it strands. Keying on the drawn NAME SET rather
+        than on "is it a Lock" is what preserves that."""
+        drawn = frozenset({"Limgrave Lock"})
+        # WITNESS: the released one IS barred against the same set, so the pass below is the name
+        # check answering rather than the predicate being dead.
+        self.assertTrue(released_lock_barred(_Item("Limgrave Lock"), 1, drawn, True))
+        self.assertFalse(released_lock_barred(_Item("Caelid Lock"), 1, drawn, True))
+
+    def test_another_players_item_is_not_ours_to_bar_here(self):
+        """The foreign bar is a separate rule on the same location; this predicate must not
+        double-answer for it, or a future change to one would silently change the other."""
+        drawn = frozenset({"Limgrave Lock"})
+        mine, theirs = _Item("Limgrave Lock"), _Item("Limgrave Lock", player=2)
+        self.assertTrue(released_lock_barred(mine, 1, drawn, True))   # WITNESS
+        self.assertFalse(released_lock_barred(theirs, 1, drawn, True))
+
+    def test_an_empty_release_set_is_inert(self):
+        """create_regions builds the rule long before pre_fill draws, so the set is legitimately
+        empty at rule-construction time. That must permit, not bar."""
+        it = _Item("Limgrave Lock")
+        self.assertTrue(released_lock_barred(it, 1, frozenset({"Limgrave Lock"}), True))  # WITNESS
+        self.assertFalse(released_lock_barred(it, 1, frozenset(), True))
 
 
 if __name__ == "__main__":

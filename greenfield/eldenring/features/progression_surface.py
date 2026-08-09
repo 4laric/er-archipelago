@@ -29,7 +29,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import OptionSet, Choice, DefaultOnToggle, Range
+from Options import OptionSet, Choice, DefaultOnToggle, Range, Toggle
 from ..registry import Feature, register
 from .. import contract
 
@@ -150,6 +150,31 @@ class RegionLocksAnywhere(Range):
     range_start = 0
     range_end = 100
     default = 100
+
+
+class RegionLocksShareSurface(Toggle):
+    """EXPERIMENTAL (er-archipelago#491). Off by default; measurement knob, not a shipping promise.
+
+    Region Locks Anywhere puts your Locks in the multiworld pool, but they land in your own world
+    ~97% of the time anyway. The reason is an ASYMMETRY, not a subtlety: `core._add_locations` bars
+    only FOREIGN advancement from your non-surface checks, so one of your released Locks may occupy
+    any of your ~4931 reachable locations while every other Elden Ring world offers it only the ~172
+    on its surface. 172/(4931+172) is 3.4%, and the measured rate is 1.4-3.1%. We contribute 172
+    progression slots to the shared pool and quietly reserve 4931 for ourselves.
+
+    That carve-out was correct when it was written: `apply()` pre-placed every Lock, so it only ever
+    covered the rare SPILL, and a spilled Lock had to be able to land somewhere or it would strand.
+    Region Locks Anywhere retires the premise without retiring the carve-out.
+
+    ON: play by our own rule. A RELEASED Lock is held to the same surface every other player's
+    progression is held to, so it competes for ~172 of yours against ~172 of each of theirs -- about
+    half in a two-slot Elden Ring multiworld -- and it still lands on a boss or a remembrance rather
+    than on a crafting material. The alternative way to get that travel rate is turning
+    Confine Foreign Progression off, which buys it by throwing the curation away for everyone.
+
+    🛑 It narrows where a released Lock may go, so it can only make fill HARDER. Left off until a
+    generation sweep says what it costs."""
+    display_name = "Region Locks Share The Surface"
 
 
 class ConfineForeignProgression(DefaultOnToggle):
@@ -398,6 +423,23 @@ def is_restricted_progression(item, player):
     return not str(getattr(item, "name", "")).startswith(_BOSS_KEY_PREFIX)
 
 
+def released_lock_barred(item, player, released, share_surface):
+    """True iff `item` is one of OUR OWN Locks that Region Locks Anywhere released AND the player
+    asked for released Locks to stay on the surface -- i.e. it may not sit on a non-surface check.
+
+    Pure over an item-like with `.player`/`.name`. `released` is the NAME SET `apply()` actually
+    drew, not "anything that looks like a Lock": a Lock the option chose to KEEP confined was
+    pre-placed on the surface already, and a CONFINED Lock that somehow reached the fill is a spill,
+    which must keep its safety valve or it strands. Only the released ones are held to the rule.
+
+    🛑 `released` is read LATE, at fill time, because the draw happens in pre_fill -- long after
+    core builds these item_rules in create_regions. An empty set (nothing released yet, or the
+    feature off) makes this inert, which is exactly right for both."""
+    if not share_surface or getattr(item, "player", None) != player:
+        return False
+    return str(getattr(item, "name", "")) in released
+
+
 def foreign_advancement_barred(item, player):
     """True iff `item` is ANOTHER player's advancement item -- the thing confine_foreign_progression
     keeps off this world's non-surface (filler) checks. Our OWN items (any classification) and any
@@ -637,6 +679,11 @@ def apply(world) -> None:
         _rel = {id(it) for it in released}
         to_place = [it for it in to_place if id(it) not in _rel]
     world.gf_locks_released = sorted(it.name for it in released)
+    # The two handles core's non-surface item_rule reads at FILL time (see released_lock_barred).
+    # A set because that rule is evaluated once per (location, item) candidate pair.
+    world.gf_locks_released_set = frozenset(world.gf_locks_released)
+    _share = getattr(getattr(world, "options", None), "region_locks_share_surface", None)
+    world.gf_locks_share_surface = bool(_share is not None and int(_share.value))
     n0 = len(to_place)
     for it in to_place:
         mw.itempool.remove(it)
@@ -808,6 +855,7 @@ class ProgressionSurfaceFeature(Feature):
     OPTIONS = {"progression_surface": ProgressionSurface,
                "progression_surface_mode": ProgressionSurfaceMode,
                "region_locks_anywhere": RegionLocksAnywhere,
+               "region_locks_share_surface": RegionLocksShareSurface,
                "confine_foreign_progression": ConfineForeignProgression}
     # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
     # The foreign-progression bar is set in core._add_locations (item_rule), using confined_surface_ids.
