@@ -12,8 +12,12 @@ exactly its job -- v0.3.8's notes had two commits' worth of changes written into
 would read as shipped -- and it is worth recording next to the v0.3.8 entry, which had just finished
 celebrating the first window in five to be opened on purpose. One swallow.
 
-`CONTRACT_HASH` is unmoved at `d7d3a58e`. The bump is version-lockstep, not a contract change, so a
-v0.3.8 client still handshakes.
+`CONTRACT_HASH` MOVED under this window: `d7d3a58e -> 5c2b9bf2`, added by grace attunement below.
+The window OPENED as a version-lockstep no-op and stopped being one, which is exactly what an open
+ledger row is for -- `test_shipped_contract_hashes_are_never_rewritten` freezes SHIPPED rows only, so
+a window may take on a contract change right up until it is tagged. A v0.3.8 client still handshakes
+with everything here EXCEPT a seed that turns grace attunement on: that seed refuses an old client
+rather than connecting and silently dropping the setting.
 
 ### Two things the v0.3.8 tag broke on its way out
 
@@ -125,6 +129,124 @@ reward family. "Exclude the catacombs" is expressible for the first time. Whethe
 Still not "every boss": the 75 rows covered by neither mechanism remain untagged. Dryleaf Dane is one
 of them — his gear is an asset pickup rather than a boss drop, and its check exists today with no tags
 and no item name.
+
+### The decompiled talk ESD was in the bundle but was never a declared input
+
+`gen_inputs.py`'s walk spec has carried `("talk", None, "*.py")` since 2026-07-27 -- 365 files, 9.4 MB
+of the db's 1452 -- but `gen_manifest` never DECLARED it, so a talk corpus that changed, or that was
+only partly decompiled, could not invalidate the stamp. Same reasoning already written one list up for
+`boss_reward_lots.py`: `gen_data` reads it, so omitting it means a stale copy passes.
+
+🛑 The corpus IS currently partial, and that is the point. `gen_data`'s own gesture refusals say so out
+loud. Declaring it is what makes an extended decompile move `inputs_hash` and force a regen, rather than
+silently widening what the datamines can see while every stamp still claims to be current.
+
+No data change: all 11 module `body_sha256` values unchanged, only `inputs_hash` moves (`27a5f697` ->
+`e17cf5d7`) plus the three HTML views that embed it. Regenerated in the order #481 taught -- source
+edits, then `gen_data.py`, then the HTML builders.
+
+⚠️ Its stated MOTIVATION was wrong and the next change corrected it. It claimed Metyr's prerequisites
+"could not be verified from the ESD" because Ymir's script is absent from the talk corpus. They were
+never an ESD question -- flag 9440, its two prerequisites and the door are all EMEVD, all already
+bundled. The gap was inferred from a failed search rather than established. Declaring `talk/` is right
+on its own merits; the Metyr case is not evidence for it.
+
+### Metyr's door waits on a flag that crosses a region boundary
+
+Metyr (`25000800`, `m25_00`) is reached through an ObjAct on the Cathedral of Manus Metyr's overworld
+tile, and `m61_51_45`'s event `2051452600` enables it only when both `EventFlag(9440)` and
+`EventFlag(2051450180)` are on. `common.emevd` sets 9440 only after a conjunction of two OTHER tiles --
+and 🛑 **those two tiles are in different regions**: `2053460600` is `m61_53_46` (Scadu Altus),
+`2050400600` is `m61_50_40` (**Jagged Peak**).
+
+So a seed that keeps Scadu Altus and seals Jagged Peak can never set 9440. The door never enables,
+Metyr's remembrance (`510550`, `Remembrance` + `MajorBoss`) is unreachable while AP believes her region
+is open, and fill can strand a region Lock on it. `start_grace` now forces 9440. Same shape as the
+Radahn festival beside it, except the dependency crosses a REGION boundary rather than merely sitting
+outside one -- if anything easier to hit, since Jagged Peak is separately keepable.
+
+🛑 Only 9440 is forced. The other half, `2051450180`, is Ymir's own state on the cathedral's own tile
+(the `chrEntityId` threaded through `m61_51_45`'s `90005790..93` NPC lifecycle events), so any seed that
+can reach the door sets it naturally. Forcing an NPC-lifecycle flag would risk his presence and his shop
+for no reachability gain; the cross-region half is the entire defect. Same reasoning the Radahn entry
+uses in forcing the festival rather than Blaidd's flag.
+
+### 29 checks shipped as `check`, and every one of them had already been resolved
+
+Second half of the Dryleaf Dane thread -- the first half attributed his KIND of boss, this one gives his
+drop a name. 38 live locations across 29 flags shipped with no item name, and `tools/sweep_unnamed_items.py`
+had already written "Dryleaf Arts with Ash of War: Palm Blast" for flag 400730 into
+`greenfield/unnamed_item_sweep.tsv` on 2026-07-27, while the world shipped that same check as
+`Scadu Altus :: check - around Liurnia Lake Shore [f400730]` -- no item, and a descriptor naming a lake in
+the wrong half of the map. That is not missing data. It is a resolver that lived in a tool and was needed
+in the generator.
+
+NEW `tools/item_naming.py` carries the three rules and BOTH callers import it, so the worklist and the
+world cannot disagree again. All three were settled by reading params, not by inference:
+
+1. category -> `EquipParam` table is MEMBERSHIP, not FMG name-matching (name-matching gets category 3
+   wrong on id collisions);
+2. weapon ids carry the upgrade level, so `id // 100 * 100` is a safe strip;
+3. category 6 is `EquipParamCustomWeapon` -- a weapon + Ash of War pairing, which is why those ids
+   resolve in no FMG at all.
+
+**29 checks named**, 4931 locations unchanged: Scepter of the All-Knowing, Igon's Greatbow with Ash of
+War: Igon's Drake Hunt, Dueling Shield with Ash of War: Shield Strike, ten Swords of Light, ten Swords of
+Darkness, Beast Claw with Ash of War: Savage Claws, and Dane's Dryleaf Arts. Two further renames are
+ordinal shifts, not overrides -- newly-named siblings now share an item name, so the disambiguator
+numbers them. ONE check is still `check` and stays honest about it.
+
+Four things made loud rather than convenient:
+
+* **It never overrides a curated name.** `region_map`'s own name wins; this only fills blanks. Of 31
+  renames, 29 were `check` and 2 are ordinals.
+* **The category vote must see the whole corpus.** A 4-row probe voted `3 -> Weapon` and then refused to
+  name a Protector id; it is trained on every `(category, item_id)` pair in `FLAG_LOTS`, once.
+* **Category 6 was mislabelled by the vote itself** (`6 -> Protector` on id collisions). Rule 3 runs
+  first so no name was corrupted, but the printed map was a false statement about the game. The custom
+  table now votes too and it reads `6 -> CustomWeapon`.
+* **Multi-lot flags name after the first slot we CAN name**, not the first slot. Flag 400281 takes
+  "Scepter of the All-Knowing" over a sibling that resolves only in the wrong family. A confidently-wrong
+  name in front of a player is worse than naming the sibling you are sure of -- which is why the worklist
+  and the world may legitimately print different names for one flag.
+
+The worklist emptied itself, 38 rows to 0, because the work got done. An empty tsv holding only a comment
+block reads exactly like a crashed emit, and this repo treats an empty result as a failure until proven
+otherwise, so the tool now writes the SOLVED state into the file.
+
+### Grace attunement -- a region hands over one grace, the rest bloom on touch
+
+Unlocking a region lit its ENTIRE grace bundle at once, so the warp network arrived fully built and
+traversal collapsed to a menu. Two new options:
+
+    grace_attunement         Range 0..10, default 0 (OFF -- byte-exact no-op)
+    grace_attunement_anchor  front_door (default) | random_grace
+
+On unlock the region hands over ONE grace and holds the rest until the player has physically touched
+`grace_attunement` of them, at which point the region blooms. The anchor is `REGION_OPEN_FLAGS[region]`
+-- the region's own front door, so the player always arrives somewhere sensible. `random_grace` picks any
+of the region's graces instead, which can drop you deeper in and cuts more traversal; `REGION_GRACE_POINTS`
+already excludes boss-gated and arena graces, so every candidate is a real, physically-present warp point.
+
+🛑 **SKIPPED for small regions**, and the boundary is `<=` on purpose. A region with exactly `threshold`
+touchable graces would attune only on its very last one and then bloom NOTHING; below that it could never
+attune at all and its remaining graces would stay dark for the whole run, which reads as a bug rather than
+a setting. At threshold 4 this gates 16 of the 28 bundled regions and skips 12.
+
+🛑 **A withheld bundle is never gated.** Gated children (`REGION_PARENT`) emit `[]` while their vanilla
+wall is armed, and handing one an anchor would put a warp target on the far side of a wall the game
+enforces.
+
+⭐ The random anchor is MEMOISED on the world, because `fill_slot_data()` is called more than once and an
+inline draw made slot_data non-idempotent: the second call rolled a different anchor, so a caller reading
+`region_graces` from one call and `grace_attunement` from another saw one grace duplicated and one lost.
+Caught by the conservation test, which did exactly that by accident. `test_slot_data_is_idempotent` now
+pins it in both anchor modes, and the draw only happens when the option is ON -- pulling from
+`world.random` on a default seed would move the rng stream and change every rolled seed in existence.
+
+`CONTRACT_HASH d7d3a58e -> 5c2b9bf2` (`graceAttunement`). The client half landed first (clients#119); a
+gitlink can only point at a commit that exists. Suite: 30 failed / 1708 passed / 174 skipped, the SAME 30
+as the branch point, so zero delta; the attunement file ran 5x green because the anchor is draw-dependent.
 
 ## v0.3.8 — 2026-08-07
 
