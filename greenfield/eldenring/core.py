@@ -919,6 +919,24 @@ class GreenfieldEldenRingWorld(World):
         # retired big-ticket concept (a SECOND list of "important checks" that disagreed with the
         # surface). One surface, one definition.
 
+    @classmethod
+    def stage_pre_fill(cls, multiworld) -> None:
+        """Place every Elden Ring world's RELEASED region Locks across every Elden Ring world's
+        progression surface, once, after all the per-world `pre_fill`s have run.
+
+        🛑 IT HAS TO BE A STAGE HOOK. `AutoWorld.call_all` walks `multiworld.player_ids` IN PLAYER
+        ORDER, so doing this from `pre_fill` would give player 1 first pick of everyone's surface and
+        player 2 the leftovers -- curation decided by slot number. It is also out of spec; TUNIC's
+        own `stage_pre_fill` raises specifically at worlds that fill other worlds' locations during
+        `pre_fill`. `stage_pre_fill` runs once for the whole multiworld, which is what makes the
+        placement symmetric, and TUNIC uses it for this same gather-across-slots shape.
+
+        The work is in features/progression_surface so the feature owns its own mechanism; core only
+        supplies the world list, because `get_game_worlds` needs the GAME constant and features may
+        not import core."""
+        from .features import progression_surface as _psf  # local, like pre_fill/post_fill do
+        _psf.place_released_locks(multiworld, list(multiworld.get_game_worlds(GAME)))
+
     def post_fill(self) -> None:
         # ---- COVERAGE GATE (RAISING as of 2026-07-14) ------------------------------------------
         # Every EMITTED location must be DETECTABLE (a real acquisition flag the client polls, not
@@ -997,10 +1015,6 @@ class GreenfieldEldenRingWorld(World):
         # player's advancement. None => feature off. Non-surface locations get a foreign-advancement bar
         # below. Computed once in create_regions (self._foreign_confine_surface).
         _fsurf = getattr(self, "_foreign_confine_surface", None)
-        # Local import for the same reason apply()/audit_reachable use one: features must not be
-        # imported at module scope here. The item_rule below closes over the MODULE, not a value,
-        # so the late read of gf_locks_released_set still works.
-        from .features import progression_surface as _ps
         for (name, ap_id, _flag) in LOCATIONS.get(region_name, []):
             _loc = GFLocation(self.player, name, ap_id, region)
             if ap_id in _barred:
@@ -1027,23 +1041,10 @@ class GreenfieldEldenRingWorld(World):
                 # here: apply() already confined it, and its ladder/spill safety valve must stay open, so
                 # a spilled own Lock is never stranded. Only foreign advancement is refused; foreign
                 # useful/filler and everything of ours still fits.
-                # ...and bar our OWN RELEASED Locks too (progression_bias).
-                # The line above bars only FOREIGN advancement, which made our own Locks a special
-                # case with ~4931 candidate homes against every other ER world's ~172 -- so a
-                # released Lock stayed home ~97% of the time. The carve-out was written for SPILLS
-                # (see the sibling comment: "apply() already confined it"), and progression_bias
-                # retired that premise. This puts our released Locks back under our own rule, which is
-                # what keeps a travelling Lock on a boss instead of on a crafting material.
-                # 🛑 `gf_locks_released` is read LATE, inside the lambda: the draw happens in
-                # pre_fill and this runs in create_regions, so reading it now would always see
-                # nothing. A CONFINED Lock is never in that set, so the spill valve is untouched.
                 _prev = _loc.item_rule
                 _fb = self._foreign_barred_fn
-                _loc.item_rule = lambda item, _p=_prev, _pl=self.player, _fbf=_fb, _w=self: (
-                    (not _fbf(item, _pl))
-                    and not _ps.released_lock_barred(
-                        item, _pl, getattr(_w, "gf_locks_released_set", frozenset()))
-                    and _p(item))
+                _loc.item_rule = lambda item, _p=_prev, _pl=self.player, _fbf=_fb: (
+                    not _fbf(item, _pl)) and _p(item)
             region.locations.append(_loc)
 
     def create_regions(self) -> None:

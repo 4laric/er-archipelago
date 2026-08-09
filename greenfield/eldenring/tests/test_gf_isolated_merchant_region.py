@@ -294,17 +294,6 @@ if _HAVE_AP:
             lock = f"{reported.parent_region.name} Lock"
             # The stock may host progression again -- the OLD bar (EXCLUDED-shaped item_rule) must
             # not have survived the move; the gate is the region now.
-            #
-            # 🛑 THE PROBE IS A REGION LOCK, AND SINCE progression_bias (#491) THAT IS TWO QUESTIONS.
-            # A RELEASED Lock is held to the progression surface, and the merchant stock is not on
-            # it -- so at the shipped default (bias 0, release everything) these locations refuse
-            # this probe for a reason that has nothing to do with the bar this test is about. The
-            # test message even asked the right question when it went red: "a second, stale bar?"
-            # It was a second bar, and it was not stale.
-            # Both classes therefore pin `progression_bias: 100`, which releases nothing and makes
-            # the bias rule inert, so the assertion below isolates the OLD bar exactly as written.
-            # The bias rule has its own coverage in test_gf_progression_bias and the
-            # capital-reconciler pair; it does not need re-asserting here.
             probe = self.world.create_item(lock)
             self.assertTrue(probe.advancement)
             for loc in stock:
@@ -331,15 +320,13 @@ if _HAVE_AP:
     class TestMerchantAllRegionsKept(_MerchantBindsMixin, WorldTestBase):
         # every base region kept -> the academy EXISTS and the bind is exercised, deterministically.
         game = "Elden Ring"
-        # progression_bias: 100 -- see the note on the probe in test_the_stock_demands_the_academy_lock.
-        options = {"num_regions": 30, "progression_bias": 100}
+        options = {"num_regions": 30}
 
     class TestMerchantDefaultShape(_MerchantBindsMixin, WorldTestBase):
         # the shipped default shape; the academy may roll sealed, in which case the co-seal branch
         # asserts instead (deterministic pass either way, no census skips).
         game = "Elden Ring"
-        # progression_bias: 100 -- see the note on the probe in test_the_stock_demands_the_academy_lock.
-        options = {"num_regions": 6, "progression_bias": 100}
+        options = {"num_regions": 6}
 
 
 if __name__ == "__main__":

@@ -124,63 +124,18 @@ class CapitalOnSeed(WorldTestBase):
                 return loc
         pytest.fail("no plain ERDTREE_BURN location created (premise broken: Leyndell not kept?)")
 
-    def _royal_plain_location_on_surface(self, on_surface):
-        """A plain burn location that IS / IS NOT on this seed's progression surface.
+    def test_royal_capital_may_carry_progression(self):
+        """THE BURN-STRAND CARVE-OUT, isolated.
 
-        The two rules that can refuse an own Region Lock here are independent, and this test exists
-        to isolate exactly one of them. Returns None if the seed has no such location, which the
-        caller must treat as "premise absent", not as a pass."""
-        plain = (set(ERDTREE_BURN_APS) - set(DEFAULTED_REGION_APS)
-                 - set(SHOP_RELEASE_GATED_APS) - set(MISSABLE_LOCATIONS))
-        surf = set(getattr(self.world, "_foreign_confine_surface", None) or ())
-        for loc in self.multiworld.get_locations(self.player):
-            ap = getattr(loc, "address", None)
-            if ap in plain and ((ap in surf) == on_surface):
-                return loc
-        return None
-
-    def test_royal_capital_may_carry_progression_where_the_surface_allows_it(self):
-        """The burn-strand carve-out, isolated.
-
-        🛑 NARROWED 2026-08-09 (er-archipelago#491). This used to probe ANY plain burn location with
-        a Region Lock and assert the rule permits. `progression_bias` made that false: a released
-        Lock is held to the progression surface, so a burn location OFF the surface now refuses it --
-        for a completely different reason than the burn strand. Alaric's ruling: the old invariant is
-        "false by design, only true when royal capital is in the progression surface, which it need
-        not be."
-
-        So the probe moves ONTO the surface, where the lock rule permits and only the burn bar could
-        still refuse. The companion below asserts the other half, so the pair states the whole
-        ruling instead of quietly dropping the case that changed."""
-        loc = self._royal_plain_location_on_surface(True)
-        if loc is None:
-            pytest.skip("this seed kept no plain ERDTREE_BURN location on the surface")
+        Briefly narrowed on 2026-08-09 while `progression_bias` barred released Locks from
+        non-surface checks with an item_rule -- a Lock probe was then two questions at once. That bar
+        is gone (the placement moved to `stage_pre_fill`, where it has a spill), so there is once
+        again exactly one rule that can refuse here and the original assertion is the right one."""
+        loc = self._royal_plain_location()
         prog = self.world.create_item("Farum Azula Lock")  # any own advancement item
         assert prog.advancement
         assert loc.item_rule(prog), \
             f"{loc.name}: reconciler ON must lift the burn-strand progression bar"
-
-    def test_a_released_lock_is_refused_off_the_surface_and_that_is_the_bias_not_the_burn(self):
-        """The other half of the ruling, and the reason the test above had to move.
-
-        A plain burn location OFF the surface refuses a RELEASED Lock. That refusal must come from
-        progression_bias, not from the burn strand -- so the same location is asserted to accept an
-        own advancement item the bias never touched. Without that second assertion this test would
-        pass just as happily if the reconciler had silently stopped lifting the burn bar."""
-        loc = self._royal_plain_location_on_surface(False)
-        if loc is None:
-            pytest.skip("this seed kept no plain ERDTREE_BURN location off the surface")
-        released = set(getattr(self.world, "gf_locks_released_set", ()) or ())
-        if not released:
-            pytest.skip("no Lock was released this seed (progression_bias 100?)")
-        lock = self.world.create_item(sorted(released)[0])
-        assert not loc.item_rule(lock), \
-            f"{loc.name}: a RELEASED Lock must be refused off the surface"
-        # WITNESS that the burn bar is still lifted -- otherwise the refusal above proves nothing
-        # about WHICH rule fired.
-        other = self.world.create_item("Rune")
-        assert loc.item_rule(other), \
-            f"{loc.name}: the burn-strand bar must still be lifted for everything else"
 
     def test_reconciler_flag_published_for_features(self):
         assert self.world.gf_capital_reconciler is True

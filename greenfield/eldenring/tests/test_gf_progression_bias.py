@@ -27,8 +27,7 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
-    ProgressionBias, released_locks, released_lock_barred, lock_region_name,
-    surface_can_hold_the_locks, SURFACE_HEADROOM,
+    ProgressionBias, released_locks, lock_region_name, place_released_locks,
 )
 
 
@@ -153,93 +152,54 @@ class TestReleasedLocks(unittest.TestCase):
             self.assertTrue(any(it is p for p in pool))
 
 
-class TestReleasedLockBarred(unittest.TestCase):
-    """`region_locks_share_surface` -- the predicate core's non-surface item_rule asks.
+class TestThePlacerContract(unittest.TestCase):
+    """`place_released_locks` -- the stage_pre_fill pass, and the two things about it that are not
+    obvious from reading it.
 
-    Why it exists: `core._add_locations` bars only FOREIGN advancement from a non-surface check, so a
-    released Lock of ours could occupy any of our ~4931 reachable locations while every other ER
-    world offered it ~172. Measured consequence: released Locks stayed home ~97% of the time. The
-    carve-out was written when `apply()` pre-placed every Lock and it only ever covered a SPILL;
-    `progression_bias` retired that premise without retiring the carve-out.
+    It REPLACED an item_rule bar (`released_lock_barred`) that worked and had no spill: `apply()` is
+    documented "Never FillErrors" because confined Locks get the ladder AND the return-to-pool valve,
+    and a bare rule had neither. Three configurations found that -- a narrowed surface,
+    `num_regions: 1`, and a shifted filler pool -- each missed by a different count-based threshold,
+    because capacity is not the constraint. Reachable capacity in sphere order is, and a real fill is
+    the only thing that can measure it.
     """
 
-    def test_a_released_lock_of_ours_is_barred(self):
-        self.assertTrue(released_lock_barred(_Item("Limgrave Lock"), 1,
-                                             frozenset({"Limgrave Lock"})))
+    def test_nothing_released_is_a_no_op_with_no_archipelago_needed(self):
+        """The hook runs on EVERY multiworld containing this game, including seeds that released
+        nothing (bias 100) and modes that mint no Locks at all. It must return before it touches a
+        pool, a state or a location -- which is exactly what makes this callable with a stub."""
+        class _W:
+            gf_released_lock_items = []
 
-    def test_a_confined_lock_keeps_its_spill_valve(self):
-        """🛑 THE DANGEROUS CASE. A Lock the option chose to KEEP is pre-placed on the surface; if one
-        reaches the fill anyway it is a SPILL, and the whole reason the carve-out exists is that a
-        spilled Lock must have somewhere to land or it strands. Keying on the drawn NAME SET rather
-        than on "is it a Lock" is what preserves that."""
-        drawn = frozenset({"Limgrave Lock"})
-        # WITNESS: the released one IS barred against the same set, so the pass below is the name
-        # check answering rather than the predicate being dead.
-        self.assertTrue(released_lock_barred(_Item("Limgrave Lock"), 1, drawn))
-        self.assertFalse(released_lock_barred(_Item("Caelid Lock"), 1, drawn))
+        class _MW:
+            def __init__(self):
+                self.itempool = ["untouched"]
 
-    def test_another_players_item_is_not_ours_to_bar_here(self):
-        """The foreign bar is a separate rule on the same location; this predicate must not
-        double-answer for it, or a future change to one would silently change the other."""
-        drawn = frozenset({"Limgrave Lock"})
-        mine, theirs = _Item("Limgrave Lock"), _Item("Limgrave Lock", player=2)
-        self.assertTrue(released_lock_barred(mine, 1, drawn))   # WITNESS
-        self.assertFalse(released_lock_barred(theirs, 1, drawn))
+        mw = _MW()
+        # WITNESS: the pool is non-empty going in, so "unchanged" is a fact about the hook rather
+        # than about there having been nothing to change.
+        self.assertTrue(mw.itempool)
+        place_released_locks(mw, [_W(), _W()])
+        self.assertEqual(mw.itempool, ["untouched"])
 
-    def test_an_empty_release_set_is_inert(self):
-        """create_regions builds the rule long before pre_fill draws, so the set is legitimately
-        empty at rule-construction time. That must permit, not bar."""
-        it = _Item("Limgrave Lock")
-        self.assertTrue(released_lock_barred(it, 1, frozenset({"Limgrave Lock"})))  # WITNESS
-        self.assertFalse(released_lock_barred(it, 1, frozenset()))
+    def test_a_world_that_never_ran_apply_is_skipped_not_crashed(self):
+        """`gf_released_lock_items` is set in `apply()`, which returns early in several modes
+        (vanilla placement, surface off, nothing restricted). A world that never reached it has no
+        such attribute at all, and a stage hook that assumed one would take the whole multiworld
+        down with an AttributeError."""
+        class _Bare:
+            pass
 
+        class _MW:
+            def __init__(self):
+                self.itempool = ["someone else's item"]
 
-class TestTheValve(unittest.TestCase):
-    """`surface_can_hold_the_locks` -- the safety valve released Locks did not have.
-
-    Confined Locks get the feasibility ladder and the spill, which is why `apply()` is documented as
-    "Never FillErrors". `released_lock_barred` is an unconditional item_rule, so until this existed a
-    seed whose surface was too small simply failed to generate. Found by fuzzing, twice, from
-    opposite directions -- and that pair is why the test is a RATIO rather than a floor on either
-    input on its own.
-    """
-
-    def test_a_normal_seed_keeps_the_bar_by_a_wide_margin(self):
-        """THE COMMON CASE, and the headroom is not marginal: ~170 hosting locations against a
-        ceiling of 36 Locks. The valve must be nowhere near tripping in a seed anyone actually
-        rolls, or it would quietly disable the feature everywhere."""
-        self.assertTrue(surface_can_hold_the_locks(36, 170))   # ~4.7x, the shipped shape
-        self.assertTrue(surface_can_hold_the_locks(30, 172))
-
-    def test_a_narrowed_surface_drops_the_bar(self):
-        """`progression_surface: ["Basin"]` on a full-size seed. Fuzz seed 1717 found this; both of
-        its failing yamls generate clean on `main`.
-
-        WITNESS: the same 30 Locks against a normal surface DO fit, so the False below is the
-        narrowing being detected rather than the call answering False for everything."""
-        self.assertTrue(surface_can_hold_the_locks(30, 170))
-        self.assertFalse(surface_can_hold_the_locks(30, 4))
-
-    def test_a_tiny_seed_drops_the_bar(self):
-        """`num_regions: 1` -- CI's `NumRegions1::test_fill`, where the one unplaceable item was
-        `Ashen Capital Lock`. The seed is small, not the surface selection, which is exactly why the
-        valve cannot key on the surface CLASSES alone."""
-        self.assertTrue(surface_can_hold_the_locks(2, 6))   # WITNESS: with headroom it fits
-        self.assertFalse(surface_can_hold_the_locks(2, 1))
-
-    def test_bare_sufficiency_is_NOT_enough_and_that_was_measured(self):
-        """🛑 The regression test for the second fuzz finding. The first version of this valve asked
-        `slots >= items`; fuzz case 1717/0012 released 6 Locks onto a surface that satisfied exactly
-        that and STILL FillErrored, because reachable-in-sphere-order capacity is the real
-        constraint and a count cannot see it. So room for one each is explicitly NOT enough."""
-        self.assertFalse(surface_can_hold_the_locks(5, 5))
-        self.assertTrue(surface_can_hold_the_locks(5, 5 * SURFACE_HEADROOM))
-
-    def test_a_seed_with_no_locks_never_trips_it(self):
-        """natural_progression and vanilla_placement mint no Locks. Zero of them fit anywhere,
-        including in a surface of zero -- the valve must not fire on a seed it has no opinion
-        about."""
-        self.assertTrue(surface_can_hold_the_locks(0, 0))
+        mw = _MW()
+        # WITNESS: a NON-empty pool, so "unchanged" is an observation about the hook and not about
+        # an empty container being trivially equal to another one.
+        self.assertTrue(mw.itempool)
+        place_released_locks(mw, [_Bare()])
+        self.assertEqual(mw.itempool, ["someone else's item"])
 
 
 if __name__ == "__main__":
