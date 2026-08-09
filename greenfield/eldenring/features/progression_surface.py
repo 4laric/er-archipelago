@@ -29,7 +29,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import OptionSet, Choice, DefaultOnToggle
+from Options import OptionSet, Choice, DefaultOnToggle, Range
 from ..registry import Feature, register
 from .. import contract
 
@@ -127,12 +127,43 @@ class ProgressionSurfaceMode(Choice):
     default = 2
 
 
+class ProgressionBias(Range):
+    """How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is no pull at all --
+    every Lock is an ordinary multiworld item and can end up in another player's game, so you may
+    well be waiting on somebody else to find your way into Liurnia. That is Archipelago working as
+    intended, and it is the default on purpose. 100 pins every Lock at home.
+
+    It is a share, not a mood: at 40, about 40% of your Locks are reserved for your own Progression
+    Surface and the other 60% go into the multiworld pool.
+
+    🛑 A LOCK IN THE POOL IS STILL CURATED. It is held to the same Progression Surface every other
+    player's progression is held to -- it just lands on SOMEBODY'S boss or remembrance rather than
+    necessarily yours. Lowering this trades away where your keys are, not whether they sit on
+    checks worth finding. The knob that trades the curation itself is Confine Foreign Progression,
+    and it is deliberately a separate one.
+
+    MEASURED at 0, over 740 generations: in a two-slot Elden Ring multiworld about 45% of Locks
+    leave their own world and ~90% of all placed Locks sit on a surface check; four slots pushes
+    travel to 60-70%. In a CROSS-GAME multiworld expect most of your travelling Locks to land in the
+    partner game rather than spread evenly -- a partner has no surface of its own to compete with
+    ours, so it absorbs what our surface will not hold.
+
+    No effect in a solo seed (there is nowhere else for a Lock to go), nor in the modes that mint no
+    Lock items at all (natural progression, vanilla placement)."""
+    display_name = "Progression Bias"
+    range_start = 0
+    range_end = 100
+    default = 0
+
+
 class ConfineForeignProgression(DefaultOnToggle):
     """Confine OTHER players' progression to your Progression Surface too, not just your own.
 
     ON (default): in a multiworld, another world's advancement items may only be placed on your
-    surface locations -- the same high-confidence checks your own region Locks use -- never on your
-    filler checks. So a foreign key spell lands on a major-boss/remembrance/key-item check of yours,
+    surface locations -- the same high-confidence checks your own progression is curated onto --
+    never on your filler checks. This is the option that trades the CURATION away; Progression Bias
+    only decides WHOSE surface your Locks land on. Turning this off is what lets progression scatter
+    onto crafting materials, in both directions. So a foreign key spell lands on a major-boss/remembrance/key-item check of yours,
     not on a random Smithing Stone pickup. OFF: foreign progression scatters across any reachable
     location of yours, which is standard Archipelago behaviour.
 
@@ -371,12 +402,121 @@ def is_restricted_progression(item, player):
     return not str(getattr(item, "name", "")).startswith(_BOSS_KEY_PREFIX)
 
 
+def place_released_locks(multiworld, worlds) -> None:
+    """`stage_pre_fill`: place every Elden Ring world's RELEASED Locks across every Elden Ring
+    world's surface, in ONE pass, and spill whatever does not fit back into the pool.
+
+    # Why this is not an item_rule (er-archipelago#491)
+
+    The first version barred a released Lock from our own non-surface checks and let the general
+    fill place it. It worked -- 42-48% travel in a two-slot multiworld with ~90% of Locks still on
+    curated checks -- and it had NO SPILL. `apply()` is documented "Never FillErrors" because
+    confined Locks get the feasibility ladder AND the return-to-pool valve; a bare item_rule has
+    neither, so a seed whose surface is too small simply fails. Three configurations found it --
+    a narrowed surface, `num_regions: 1`, and a shifted filler pool -- each missed by a different
+    threshold, because capacity is not the constraint: REACHABLE capacity in sphere order is, and no
+    count of open slots can see it. A real fill can, because it just tries.
+
+    # Why `stage_pre_fill` and not `pre_fill`
+
+    🛑 `AutoWorld.call_all` walks `multiworld.player_ids` IN PLAYER ORDER, so placing into another
+    player's locations from our own `pre_fill` would give player 1 first pick of everyone's surface
+    and player 2 the leftovers -- curation that depends on slot number. It is also out of spec:
+    TUNIC's own `stage_pre_fill` raises with "caused by another world filling TUNIC locations during
+    pre_fill... we cannot recover from this issue." `stage_pre_fill` is the sanctioned hook -- a
+    classmethod run ONCE for the whole multiworld, after every per-world `pre_fill` -- and TUNIC uses
+    it for this exact shape, gathering items and locations across every slot of its own game.
+
+    🛑 Unlike TUNIC's, our items are PROGRESSION, not filler, so this cannot be a `place_locked_item`
+    loop: it needs `fill_restrictive` with a real state, the way `_place` already does.
+
+    Cross-game is deliberately untouched. This hook only sees Elden Ring worlds, so a Lock bound for
+    a Hollow Knight slot is simply one this pass did not place -- it spills, and the general fill
+    takes it anywhere. Curated among ourselves, ordinary everywhere else.
+    """
+    import inspect
+    import logging
+    from Fill import fill_restrictive
+
+    items, locations, participants = [], [], []
+    for w in worlds:
+        pending = list(getattr(w, "gf_released_lock_items", ()) or ())
+        if not pending:
+            continue
+        participants.append(w)
+        items.extend(pending)
+        locations.extend(_open_allowed(w, selected_surface(_selection(w))))
+    if not items:
+        return
+
+    # Out of the pool for the duration: fill_restrictive places from the list we hand it, and an
+    # item left in `itempool` as well would be placed twice. Whatever survives goes back below.
+    for it in items:
+        multiworld.itempool.remove(it)
+    n0 = len(items)
+    multiworld.random.shuffle(locations)
+    state = multiworld.get_all_state(False)
+    kwargs = {"lock": True}
+    if "allow_partial" in inspect.signature(fill_restrictive).parameters:
+        kwargs["allow_partial"] = True
+    # Same access-check override `_place` documents at length: under accessibility:minimal
+    # fill_restrictive stops verifying reachability, which would lock a Lock behind its own gate.
+    # Forced on for every participating world, restored in `finally` so a raise cannot leak it.
+    saved = [(w, getattr(w.options, "accessibility", None)) for w in participants]
+    saved = [(w, acc, acc.value) for w, acc in saved if acc is not None]
+    try:
+        for _w, acc, _v in saved:
+            acc.value = 0
+        fill_restrictive(multiworld, state, locations, items, **kwargs)
+    finally:
+        for _w, acc, v in saved:
+            acc.value = v
+
+    # THE SPILL, and the whole reason this is a fill rather than a rule: anything the surfaces could
+    # not host goes back to the general fill unconstrained. A seed loses CURATION, never generation.
+    for it in items:
+        multiworld.itempool.append(it)
+    logging.getLogger("Greenfield").info(
+        "[greenfield] progression surface: placed %d/%d RELEASED Lock(s) across %d Elden Ring "
+        "world(s); %d SPILLED to the general fill%s",
+        n0 - len(items), n0, len(participants), len(items),
+        (" (curation only -- they still travel, just not onto a curated check): "
+         + ", ".join(sorted(it.name for it in items))) if items else "")
+
+
 def foreign_advancement_barred(item, player):
     """True iff `item` is ANOTHER player's advancement item -- the thing confine_foreign_progression
     keeps off this world's non-surface (filler) checks. Our OWN items (any classification) and any
     non-advancement item pass. Pure over an item-like with .player/.advancement. The core item_rule on
     a non-surface location is `not foreign_advancement_barred(item, self.player)`."""
     return bool(getattr(item, "advancement", False)) and getattr(item, "player", None) != player
+
+
+def released_locks(items, pct, rng):
+    """The Region Lock items that SKIP the surface and go to the normal multiworld fill.
+
+    Pure over item-likes with `.name` plus an `rng` with `.sample` (pass `world.random`, never the
+    module `random` -- a seed must reproduce). Only Locks are eligible: required Great Runes and
+    legacy keys keep the surface whatever the percentage says, because the ask this implements was
+    about Locks and widening it silently would be a different feature.
+
+    Rounding is `(n*pct + 50) // 100`, half up, in integers. Python's `round()` is banker's rounding
+    (`round(0.5) == 0`), so a 50% setting on a 1-Lock seed would release NOTHING and read as the
+    feature being broken on exactly the seeds small enough for a player to check by hand.
+
+    The endpoints are exact by construction, not by rounding: 0 releases none, 100 releases all.
+    """
+    locks = [it for it in items if lock_region_name(getattr(it, "name", "")) is not None]
+    if pct <= 0 or not locks:
+        return []
+    if pct >= 100:
+        return list(locks)
+    k = (len(locks) * pct + 50) // 100
+    if k <= 0:
+        return []
+    if k >= len(locks):
+        return list(locks)
+    return rng.sample(locks, k)
 
 
 def lock_region_name(item_name):
@@ -439,6 +579,19 @@ def confined_surface_ids(world):
     if not classes:
         return None
     return allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
+
+
+def _released_pct(world) -> int:
+    """What share of this world's Region Locks go into the multiworld pool, i.e. `100 - bias`.
+
+    Falls back to 0 (release nothing, the pre-option behaviour) when the option is absent -- an older
+    yaml or a stubbed world must not silently start releasing. Note that is the opposite endpoint
+    from the option's own default of 0 BIAS: absent means "behave as before", not "behave as default".
+    """
+    opt = getattr(getattr(world, "options", None), "progression_bias", None)
+    if opt is None:
+        return 0
+    return 100 - int(opt.value)
 
 
 def _restricted_items(world):
@@ -562,6 +715,24 @@ def apply(world) -> None:
         import Fill  # noqa: F401  -- ensure the fill API exists before we disturb the pool
     except Exception:
         return
+    # RELEASE (er-archipelago#491). A released Lock is simply never taken out of the itempool, so
+    # the normal multiworld fill places it -- which is the only way one can reach another player's
+    # world. Measured before this existed: 0 spill in 146 world-instances and 0 of 105 Locks foreign
+    # in 8 two-player seeds, because the surface hosts ~170 checks against a ceiling of 36 restricted
+    # items. The valve existed; nothing ever came through it.
+    #
+    # 🛑 The draw happens BEFORE the removal loop and ONCE, recorded on `world`. Drawing it later
+    # would mean re-deciding per caller, and an inline rng draw that runs a different number of times
+    # in different code paths splits the seed.
+    _restricted = list(to_place)   # before the split -- the valve counts EVERY Lock, not the released ones
+    released = released_locks(to_place, _released_pct(world), world.random)
+    if released:
+        _rel = {id(it) for it in released}
+        to_place = [it for it in to_place if id(it) not in _rel]
+    world.gf_locks_released = sorted(it.name for it in released)
+    # The handle `stage_pre_fill` reads. The ITEMS, not the names: it has to remove these exact
+    # objects from the pool and hand them to fill_restrictive.
+    world.gf_released_lock_items = list(released)
     n0 = len(to_place)
     for it in to_place:
         mw.itempool.remove(it)
@@ -600,6 +771,15 @@ def apply(world) -> None:
     # pattern (CONTRIBUTING, Runtime visibility): a feature states its status every run, and a ZERO
     # is a measurement, not a silence.
     import logging
+    # RELEASED is logged beside SPILLED and is NOT the same thing: released Locks were never offered
+    # to the surface (the player asked for that), spilled ones were offered and did not fit (the
+    # surface fell short). Folding them into one number would hide a starved surface behind an
+    # option, which is the failure the spill telemetry was added to prevent in the first place.
+    logging.getLogger("Greenfield").info(
+        "[greenfield] progression surface: %d Lock(s) RELEASED to the multiworld pool "
+        "(progression_bias %d)%s",
+        len(world.gf_locks_released), 100 - _released_pct(world),
+        (": " + ", ".join(world.gf_locks_released)) if world.gf_locks_released else "")
     logging.getLogger("Greenfield").info(
         "[greenfield] progression surface: rung %s placed %d/%d; %d SPILLED to normal fill%s",
         resolved, n0 - len(to_place), n0, len(to_place),
@@ -724,12 +904,24 @@ class ProgressionSurfaceFeature(Feature):
     name = "progression_surface"
     OPTIONS = {"progression_surface": ProgressionSurface,
                "progression_surface_mode": ProgressionSurfaceMode,
+               "progression_bias": ProgressionBias,
                "confine_foreign_progression": ConfineForeignProgression}
     # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
     # The foreign-progression bar is set in core._add_locations (item_rule), using confined_surface_ids.
 
     def slot_data(self, world):
         """Ship the surface to the CLIENT. This is the set the tracker stars.
+
+        🛑 WHAT A STAR MEANS, RELAXED 2026-08-09 (Alaric, er-archipelago#491). It used to mean
+        "your region Locks are somewhere in here", which `progression_bias` retires: at the default
+        of 0 none of your Locks are reserved for YOUR surface, so on a two-slot seed roughly half of
+        them are sitting on somebody else's.
+
+        It still confines real progression, so the honest reading is the weaker one:
+        **these are the locations that can host progression items -- yours or another world's.**
+        `confine_foreign_progression` (default ON) keeps every OTHER player's advancement on exactly
+        this set, and whatever share of your own Locks you chose to keep curated lands here too. A
+        star is "something important can be here", not "your key is here".
 
         It REPLACES `bigTicketLocations`, which was a second list of "important checks" naming a set
         progression could never reach: big-ticket targeted {MajorBoss, Remembrance, GreatRune} while
@@ -738,8 +930,8 @@ class ProgressionSurfaceFeature(Feature):
         a region Lock from ever occupying. A tracker pointing at checks the locks cannot be on is worse
         than no tracker: it teaches the player something false.
 
-        Emitting the surface itself makes that drift unrepresentable -- "where the locks may be" and
-        "what the client stars" are now one expression, evaluated once.
+        Emitting the surface itself makes that drift unrepresentable -- "where progression may be"
+        and "what the client stars" are now one expression, evaluated once.
         """
         if _mode(world) == 0:
             return {contract.PROGRESSION_SURFACE_LOCATIONS: []}

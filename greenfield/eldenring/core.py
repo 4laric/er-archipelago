@@ -955,6 +955,24 @@ class GreenfieldEldenRingWorld(World):
         # retired big-ticket concept (a SECOND list of "important checks" that disagreed with the
         # surface). One surface, one definition.
 
+    @classmethod
+    def stage_pre_fill(cls, multiworld) -> None:
+        """Place every Elden Ring world's RELEASED region Locks across every Elden Ring world's
+        progression surface, once, after all the per-world `pre_fill`s have run.
+
+        🛑 IT HAS TO BE A STAGE HOOK. `AutoWorld.call_all` walks `multiworld.player_ids` IN PLAYER
+        ORDER, so doing this from `pre_fill` would give player 1 first pick of everyone's surface and
+        player 2 the leftovers -- curation decided by slot number. It is also out of spec; TUNIC's
+        own `stage_pre_fill` raises specifically at worlds that fill other worlds' locations during
+        `pre_fill`. `stage_pre_fill` runs once for the whole multiworld, which is what makes the
+        placement symmetric, and TUNIC uses it for this same gather-across-slots shape.
+
+        The work is in features/progression_surface so the feature owns its own mechanism; core only
+        supplies the world list, because `get_game_worlds` needs the GAME constant and features may
+        not import core."""
+        from .features import progression_surface as _psf  # local, like pre_fill/post_fill do
+        _psf.place_released_locks(multiworld, list(multiworld.get_game_worlds(GAME)))
+
     def post_fill(self) -> None:
         # ---- COVERAGE GATE (RAISING as of 2026-07-14) ------------------------------------------
         # Every EMITTED location must be DETECTABLE (a real acquisition flag the client polls, not

@@ -125,6 +125,12 @@ class CapitalOnSeed(WorldTestBase):
         pytest.fail("no plain ERDTREE_BURN location created (premise broken: Leyndell not kept?)")
 
     def test_royal_capital_may_carry_progression(self):
+        """THE BURN-STRAND CARVE-OUT, isolated.
+
+        Briefly narrowed on 2026-08-09 while `progression_bias` barred released Locks from
+        non-surface checks with an item_rule -- a Lock probe was then two questions at once. That bar
+        is gone (the placement moved to `stage_pre_fill`, where it has a spill), so there is once
+        again exactly one rule that can refuse here and the original assertion is the right one."""
         loc = self._royal_plain_location()
         prog = self.world.create_item("Farum Azula Lock")  # any own advancement item
         assert prog.advancement
