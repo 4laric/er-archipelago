@@ -402,6 +402,51 @@ def is_restricted_progression(item, player):
     return not str(getattr(item, "name", "")).startswith(_BOSS_KEY_PREFIX)
 
 
+SURFACE_HEADROOM = 3
+"""How many open surface slots each restricted item needs before the released-Lock bar is kept.
+
+🛑 A HEURISTIC CALIBRATED ON MEASUREMENTS, NOT A PROOF, and it is 3 rather than 1 because bare
+sufficiency was tried and was NOT enough. Fuzz case 1717/0012 released 6 Locks onto a
+`["Basin", "KeyItem"]` surface that had slots for them and still FillErrored: capacity is not the
+whole constraint, REACHABLE capacity in sphere order is. A surface whose every slot sits deep behind
+the very lock chain being placed leaves the first Lock no home, and a count cannot see that.
+
+3x is what separates the pathological seeds from the real ones with room to spare: the shipped
+default measures ~170 hosting locations against a ceiling of 36 restricted items, which is ~4.7x, so
+every seed anyone actually rolls keeps the bar. Raise it if fuzzing finds another shape; the number
+is a dial, and the fuzz corpus is how it gets turned.
+"""
+
+
+def surface_can_hold_the_locks(n_restricted, open_surface_slots):
+    """May a released Lock be held to the surface, or must the bar yield for this seed?
+
+    THE VALVE. Confined Locks have two of these -- the feasibility ladder widens the class list, and
+    the spill returns anything unplaceable to the general pool -- which is why `apply()` is
+    documented as "Never FillErrors". A released Lock had NEITHER: `released_lock_barred` is an
+    unconditional item_rule, so on a seed whose surface is too small there is simply nowhere for the
+    Locks to go and generation fails.
+
+    🛑 FOUND BY FUZZING, TWICE, FROM OPPOSITE DIRECTIONS (er-archipelago#491, 2026-08-09), which is
+    why the test is a RATIO rather than a floor on either input:
+      * `greenfield/fuzz_gf.py` reached it by NARROWING the surface -- `progression_surface:
+        ["Basin"]` -- while leaving the seed full size. Both failing yamls generate clean on `main`.
+      * CI reached it by SHRINKING the seed -- `NumRegions1::test_fill`, one kept region, and the one
+        item it could not place was `Ashen Capital Lock`.
+
+    The rule: if this seed's surface cannot host every Lock the seed mints, it has no business
+    constraining where they go -- the curation promise is already broken at that point, and a
+    promise that cannot be kept must degrade rather than fail. In a normal seed this is nowhere near
+    close: ~170 hosting locations against a ceiling of 36 Locks, which is the ~4.7x headroom
+    measured before any of this existed.
+
+    Compares against EVERY restricted item, not just the released Locks: the confined Locks, the
+    required Great Runes and the legacy keys are all placed on the same surface first, so counting
+    only the released set would call a surface adequate that the rest is about to fill.
+    """
+    return open_surface_slots >= n_restricted * SURFACE_HEADROOM
+
+
 def released_lock_barred(item, player, released):
     """True iff `item` is one of OUR OWN Locks that Progression Bias put in the multiworld pool --
     so it may not sit on one of our NON-surface checks.
@@ -665,14 +710,36 @@ def apply(world) -> None:
     # 🛑 The draw happens BEFORE the removal loop and ONCE, recorded on `world`. Drawing it later
     # would mean re-deciding per caller, and an inline rng draw that runs a different number of times
     # in different code paths splits the seed.
+    _restricted = list(to_place)   # before the split -- the valve counts EVERY Lock, not the released ones
     released = released_locks(to_place, _released_pct(world), world.random)
     if released:
         _rel = {id(it) for it in released}
         to_place = [it for it in to_place if id(it) not in _rel]
     world.gf_locks_released = sorted(it.name for it in released)
-    # The two handles core's non-surface item_rule reads at FILL time (see released_lock_barred).
-    # A set because that rule is evaluated once per (location, item) candidate pair.
-    world.gf_locks_released_set = frozenset(world.gf_locks_released)
+    # THE VALVE (see surface_can_hold_the_locks). Capacity is measured over the WHOLE selected
+    # surface, not rung 0, because the ladder may widen into the rest of it -- using the narrow rung
+    # would trip this on seeds the ladder would have rescued.
+    _n_restricted = len(_restricted)
+    _capacity = len(_open_allowed(world, surface))
+    world.gf_locks_bar_kept = surface_can_hold_the_locks(_n_restricted, _capacity)
+    # The handle core's non-surface item_rule reads at FILL time (see released_lock_barred). A set
+    # because that rule is evaluated once per (location, item) candidate pair -- and EMPTY when the
+    # valve trips, which is what makes the bar inert without unpicking the release itself. The
+    # Locks still travel; they just stop being held to a surface that cannot hold them.
+    world.gf_locks_released_set = (frozenset(world.gf_locks_released)
+                                   if world.gf_locks_bar_kept else frozenset())
+    if not world.gf_locks_bar_kept and released:
+        # LOUD. A seed that quietly stopped curating looks exactly like one that never tried, and
+        # this is the single path that undoes the whole point of progression_bias.
+        import logging as _lg
+        _lg.getLogger("Greenfield").warning(
+            "[greenfield] progression surface: SURFACE TOO SMALL for this seed's %d restricted "
+            "item(s) (%d hosting location(s); %dx headroom wanted) -- the released-Lock bar is "
+            "DROPPED for this "
+            "seed. The %d released Lock(s) still enter the multiworld pool, but they may land on "
+            "ordinary checks rather than curated ones. Widen `progression_surface`, raise "
+            "`progression_bias`, or keep more regions to get the curation back.",
+            _n_restricted, _capacity, SURFACE_HEADROOM, len(released))
     n0 = len(to_place)
     for it in to_place:
         mw.itempool.remove(it)

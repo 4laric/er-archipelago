@@ -28,6 +28,7 @@ pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
     ProgressionBias, released_locks, released_lock_barred, lock_region_name,
+    surface_can_hold_the_locks, SURFACE_HEADROOM,
 )
 
 
@@ -191,6 +192,54 @@ class TestReleasedLockBarred(unittest.TestCase):
         it = _Item("Limgrave Lock")
         self.assertTrue(released_lock_barred(it, 1, frozenset({"Limgrave Lock"})))  # WITNESS
         self.assertFalse(released_lock_barred(it, 1, frozenset()))
+
+
+class TestTheValve(unittest.TestCase):
+    """`surface_can_hold_the_locks` -- the safety valve released Locks did not have.
+
+    Confined Locks get the feasibility ladder and the spill, which is why `apply()` is documented as
+    "Never FillErrors". `released_lock_barred` is an unconditional item_rule, so until this existed a
+    seed whose surface was too small simply failed to generate. Found by fuzzing, twice, from
+    opposite directions -- and that pair is why the test is a RATIO rather than a floor on either
+    input on its own.
+    """
+
+    def test_a_normal_seed_keeps_the_bar_by_a_wide_margin(self):
+        """THE COMMON CASE, and the headroom is not marginal: ~170 hosting locations against a
+        ceiling of 36 Locks. The valve must be nowhere near tripping in a seed anyone actually
+        rolls, or it would quietly disable the feature everywhere."""
+        self.assertTrue(surface_can_hold_the_locks(36, 170))   # ~4.7x, the shipped shape
+        self.assertTrue(surface_can_hold_the_locks(30, 172))
+
+    def test_a_narrowed_surface_drops_the_bar(self):
+        """`progression_surface: ["Basin"]` on a full-size seed. Fuzz seed 1717 found this; both of
+        its failing yamls generate clean on `main`.
+
+        WITNESS: the same 30 Locks against a normal surface DO fit, so the False below is the
+        narrowing being detected rather than the call answering False for everything."""
+        self.assertTrue(surface_can_hold_the_locks(30, 170))
+        self.assertFalse(surface_can_hold_the_locks(30, 4))
+
+    def test_a_tiny_seed_drops_the_bar(self):
+        """`num_regions: 1` -- CI's `NumRegions1::test_fill`, where the one unplaceable item was
+        `Ashen Capital Lock`. The seed is small, not the surface selection, which is exactly why the
+        valve cannot key on the surface CLASSES alone."""
+        self.assertTrue(surface_can_hold_the_locks(2, 6))   # WITNESS: with headroom it fits
+        self.assertFalse(surface_can_hold_the_locks(2, 1))
+
+    def test_bare_sufficiency_is_NOT_enough_and_that_was_measured(self):
+        """🛑 The regression test for the second fuzz finding. The first version of this valve asked
+        `slots >= items`; fuzz case 1717/0012 released 6 Locks onto a surface that satisfied exactly
+        that and STILL FillErrored, because reachable-in-sphere-order capacity is the real
+        constraint and a count cannot see it. So room for one each is explicitly NOT enough."""
+        self.assertFalse(surface_can_hold_the_locks(5, 5))
+        self.assertTrue(surface_can_hold_the_locks(5, 5 * SURFACE_HEADROOM))
+
+    def test_a_seed_with_no_locks_never_trips_it(self):
+        """natural_progression and vanilla_placement mint no Locks. Zero of them fit anywhere,
+        including in a surface of zero -- the valve must not fire on a seed it has no opinion
+        about."""
+        self.assertTrue(surface_can_hold_the_locks(0, 0))
 
 
 if __name__ == "__main__":
