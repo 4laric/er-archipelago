@@ -10,11 +10,28 @@ the multiworld ... anywhere and anyone's") reported the opposite: in a single-pl
 key came back placed locally and locked. That reading was right about what it saw and wrong about
 the game, and NOTHING IN CI COULD TELL THE TWO APART, because nothing in CI had ever run two slots.
 
-This runs two Elden Ring slots beside two Hollow Knight slots. Hollow Knight because it ships with
-Archipelago, is pure Python with no ROM or native dependency, and is a realistic partner rather than
-a stub -- a test world would not exercise a real foreign item pool.
+This runs two Elden Ring slots beside two slots of a PARTNER game, once per partner. The partners
+ship with Archipelago, are pure Python with no ROM and no extra pip dependency, and are realistic
+rather than stubs -- a test world would not exercise a real foreign item pool.
 
-WHAT IT ASSERTS, and none of it is "it generated":
+WHY MORE THAN ONE PARTNER (2026-08-09). With a single partner, "ER reaches a foreign GAME" and "ER
+reaches Hollow Knight" are the same sentence, and the difference is not academic: a sweep of
+`region_locks_anywhere` measured the share of released region Locks that reach the partner at
+0.30% (Terraria, 63 locations/slot), 0.46% (Hollow Knight, 203), 1.18% (TUNIC, 302), 1.80%
+(DOOM 1993, 348) and 3.50% (Stardew Valley, 472) -- monotone in the partner's SIZE, over 24 seeds a
+cell. Every cross-world number this apworld reports is therefore a number about the partner as much
+as about us, and one partner cannot show that. The list is deliberately spread: ~100, ~200 and ~350
+locations per slot.
+
+🛑 TWO PARTNERS WERE TRIED AND REJECTED, and not for generating badly. Meritous (104 locations, 9
+advancement) and Terraria (63 / 10) both generate clean and fast, but their advancement pools are so
+thin that in 4 of 24 and 2 of 24 seeds respectively ONE ER slot received no foreign progression at
+all -- which is precisely the vacuous pass `check_foreign_confinement` refuses to give. A partner
+must be big enough to keep that check loaded; sizes here were chosen against measured zero-counts,
+not reputation. (Bumper Stickers is small -- 100 locations -- but 63 of them are advancement, so it
+brackets the low end without starving the check.)
+
+WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PARTNER:
 
   1. CROSS-WORLD FLOW HAPPENS, BOTH WAYS. ER items reach foreign locations AND foreign items reach
      ER locations. A regression that quietly confined everything to its own world -- which is what a
@@ -49,16 +66,17 @@ WHAT IT ASSERTS, and none of it is "it generated":
   that matters (placements are keyed by (slot, location)) is an AP structural guarantee, not ours.
   Deleted rather than repaired -- a green predicate that cannot go red is a comment with a runtime.
 
-🛑 IT IS A SMOKE TEST, NOT A FILL REGRESSION. One seed, one option set. It answers "do the
-cross-world properties hold at all", not "do they hold across the option matrix" -- `fuzz_gf.py` and
-`run_fill_regression.ps1` own that, single-world. A green run here means the multiworld path is not
-BROKEN; it does not mean it is tuned.
+🛑 IT IS A SMOKE TEST, NOT A FILL REGRESSION. One seed, one option set, per partner. It answers "do
+the cross-world properties hold at all", not "do they hold across the option matrix" -- `fuzz_gf.py`
+and `run_fill_regression.ps1` own that, single-world. A green run here means the multiworld path is
+not BROKEN; it does not mean it is tuned.
 
 USAGE
     python tools/gf_multiworld_smoke.py --ap-dir <archipelago checkout>
-    python tools/gf_multiworld_smoke.py --ap-dir <ap> --keep   # leave the output for inspection
+    python tools/gf_multiworld_smoke.py --ap-dir <ap> --keep          # leave the output on disk
+    python tools/gf_multiworld_smoke.py --ap-dir <ap> --partner hk    # one partner, for triage
 
-Exit 0 pass, 1 fail, 4 SKIP (the partner world is absent from this Archipelago checkout -- a sparse
+Exit 0 pass, 1 fail, 4 SKIP (NO partner world is present in this Archipelago checkout -- a sparse
 clone; CI checks out stock upstream in full, so it runs there).
 """
 import argparse
@@ -75,8 +93,6 @@ import zipfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 _AP_DIR = []   # set in main(); multidata() needs the AP root importable for Utils
 ROOT = os.path.dirname(HERE)
-PARTNER_DIR = "hk"
-PARTNER_GAME = "Hollow Knight"
 SEED = "20260728"
 
 # A spoiler line in a MULTIWORLD is `Location (Owner): Item (Owner)`; in a solo seed it has no
@@ -89,11 +105,21 @@ _ROW = re.compile(r"^(.*?) \(([^)]+)\): (.*?) \(([^)]+)\)$", re.M)
 _KEYS = ("Dectus", "Haligtree Secret Medallion", "Rold Medallion", "Remembrance", "Great Rune",
          "Academy Glintstone Key", "Carian Inverted Statue", "Pureblood", "Cursemark")
 
-_HK_YAML = """name: Hallownest{n}
-game: Hollow Knight
-description: multiworld smoke partner
-Hollow Knight:
-  progression_balancing: 0
+_Partner = collections.namedtuple("_Partner", "dir game slot body")
+
+# THE PARTNER LIST. `dir` is the worlds/ package -- it is what decides SKIP, because a game NAME
+# tells you nothing about whether this checkout carries it. `slot` prefixes the two slot names, so a
+# spoiler and every message below still say which partner they are about. `body` is the game's own
+# option block: kept as short as the game allows, because a partner's job here is to be a real
+# foreign pool, not to be tuned.
+#
+# 🛑 EVERY ENTRY WAS GENERATED BEFORE IT WAS ADDED, headless, in a stock 0.6.7 checkout with the
+# curated requirement set -- no ROM, no extra pip install, no prompt. That matters more than it
+# sounds: only 49 of the 91 packages in worlds/ even IMPORT under those requirements (the rest want
+# jellyfish, zilliandomizer, ... ), and an unimportable game does not fail loudly here, it fails as
+# "unknown game" in yaml validation.
+PARTNERS = (
+    _Partner("hk", "Hollow Knight", "Hallownest", """  progression_balancing: 0
   accessibility: minimal
   RandomizeDreamers: true
   RandomizeSkills: true
@@ -101,7 +127,23 @@ Hollow Knight:
   RandomizeKeys: true
   RandomizeGeoChests: false
   RandomizeMaps: false
-"""
+"""),
+    # ~100 locations/slot, but 63 of them advancement -- the small end of the bracket that still
+    # keeps check_foreign_confinement loaded. See the rejected-partner note in the module docstring.
+    _Partner("bumpstik", "Bumper Stickers", "Bumpstik", """  progression_balancing: 0
+  accessibility: minimal
+"""),
+    # ~348 locations/slot, the large end. Measured 1.80% of released region Locks reaching it
+    # against 0.46% for Hollow Knight on the same ER options -- the spread this list exists for.
+    _Partner("doom_1993", "DOOM 1993", "Doomguy", """  progression_balancing: 0
+  accessibility: minimal
+"""),
+)
+
+
+def _partner_yaml(partner, n):
+    return ("name: %s%d\ngame: %s\ndescription: multiworld smoke partner\n%s:\n%s"
+            % (partner.slot, n, partner.game, partner.game, partner.body))
 
 
 def _er_yaml(name, natural):
@@ -288,21 +330,21 @@ def placements(zip_path):
     return rows
 
 
-def check(rows, natural, report):
+def check(rows, natural, report, partner):
     """-> list of failure strings. Every check names what a green would have hidden."""
     bad = []
     er = {p for _l, p, _i, _ip in rows if p.startswith("Erdtree")}
-    partner = {p for _l, p, _i, _ip in rows if p.startswith("Hallownest")}
-    if len(er) < 2 or len(partner) < 2:
+    foreign_slots = {p for _l, p, _i, _ip in rows if p.startswith(partner.slot)}
+    if len(er) < 2 or len(foreign_slots) < 2:
         bad.append("expected 2 Elden Ring and 2 %s slots; saw ER=%s partner=%s"
-                   % (PARTNER_GAME, sorted(er), sorted(partner)))
+                   % (partner.game, sorted(er), sorted(foreign_slots)))
         return bad
 
     out_of_er = [(l, lp, i, ip) for l, lp, i, ip in rows if ip in er and lp != ip]
     into_er = [(l, lp, i, ip) for l, lp, i, ip in rows if lp in er and ip != lp]
-    to_partner = [r for r in out_of_er if r[1] in partner]
+    to_partner = [r for r in out_of_er if r[1] in foreign_slots]
     report("cross-world: %d ER items placed abroad (%d of them in %s), %d foreign items placed in ER"
-           % (len(out_of_er), len(to_partner), PARTNER_GAME, len(into_er)))
+           % (len(out_of_er), len(to_partner), partner.game, len(into_er)))
 
     # 1 + 2. Floors are deliberately low: this asserts the PATH works, not a distribution.
     if not out_of_er:
@@ -315,7 +357,7 @@ def check(rows, natural, report):
     if not to_partner:
         bad.append("ER items reached other ER slots but NOT %s. ER-to-ER traffic alone would satisfy "
                    "a naive cross-world check while the world was unable to place into a foreign "
-                   "GAME." % PARTNER_GAME)
+                   "GAME." % partner.game)
 
     # 3. THE MOTIVATING CASE.
     if natural:
@@ -405,6 +447,22 @@ def self_test():
             problems.append("%-52s failed for the WRONG reason: %s" % (name, got[0][:90]))
         else:
             print("  ok    %-52s fails as designed" % name)
+
+    # THE PARTNER LIST ITSELF IS DATA, and a typo in it degrades this whole file to a SKIP rather
+    # than a failure -- so it is checked here, where no Archipelago is needed. Duplicate slot
+    # prefixes are the sharp one: `check()` selects the partner's slots by name prefix, so two
+    # partners sharing a prefix would silently mix pools if the list ever grew by copy-paste.
+    if len(PARTNERS) != len({p.dir for p in PARTNERS}):
+        problems.append("PARTNERS has a duplicate worlds/ dir")
+    if len(PARTNERS) != len({p.slot for p in PARTNERS}):
+        problems.append("PARTNERS has a duplicate slot prefix; check() picks slots by prefix")
+    for p in PARTNERS:
+        if p.slot.startswith("Erdtree"):
+            problems.append("partner %s uses an Erdtree* slot prefix, which check() reads as ER"
+                            % p.game)
+    print("  ok    %-52s %d partner(s), distinct dirs and prefixes"
+          % ("partner list is well-formed", len(PARTNERS)))
+
     if problems:
         print("SELF-TEST: FAIL")
         for pr in problems:
@@ -414,11 +472,49 @@ def self_test():
     return 0
 
 
+def run_partner(ap_dir, partner, keep):
+    """Both option sets against ONE partner. -> list of failure strings, already labelled."""
+    failures = []
+    for natural in (False, True):
+        mode = "natural_progression ON" if natural else "default (region locks)"
+        label = "%s / %s" % (partner.game, mode)   # every failure says WHICH partner produced it
+        print("\n=== multiworld: 2x Elden Ring + 2x %s -- %s ===" % (partner.game, mode))
+        work = tempfile.mkdtemp(prefix="gf_mw_")
+        players, out = os.path.join(work, "players"), os.path.join(work, "out")
+        os.makedirs(players); os.makedirs(out)
+        try:
+            for i, nm in enumerate(("ErdtreeOne", "ErdtreeTwo"), 1):
+                open(os.path.join(players, "ER_%d.yaml" % i), "w", encoding="utf-8").write(
+                    _er_yaml(nm, natural))
+            for n in (1, 2):
+                open(os.path.join(players, "P_%d.yaml" % n), "w", encoding="utf-8").write(
+                    _partner_yaml(partner, n))
+            zip_path = generate(ap_dir, players, out)
+            rows = placements(zip_path)
+            print("  generated %s -- %d placements" % (os.path.basename(zip_path), len(rows)))
+            failures += ["[%s] %s" % (label, f)
+                         for f in check(rows, natural, lambda m: print("  " + m), partner)]
+            si, sd, locs = multidata(zip_path)
+            failures += ["[%s] %s" % (label, f)
+                         for f in check_foreign_confinement(si, sd, locs,
+                                                            lambda m: print("  " + m))]
+            failures += ["[%s] %s" % (label, f)
+                         for f in check_slot_data_tables(si, sd, lambda m: print("  " + m))]
+        finally:
+            if keep:
+                print("  kept: %s" % work)
+            else:
+                shutil.rmtree(work, ignore_errors=True)
+    return failures
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ap-dir", help="an Archipelago checkout with the world installed "
                                      "(not needed with --self-test)")
     ap.add_argument("--keep", action="store_true", help="leave the generated output on disk")
+    ap.add_argument("--partner", help="run only this partner (its worlds/ dir, e.g. hk). For "
+                                      "triage -- CI runs the whole list.")
     ap.add_argument("--self-test", action="store_true",
                     help="fire every slot_data guard on a hand-built fault and exit. Needs no "
                          "Archipelago and no generation; proves the guards can go RED.")
@@ -435,44 +531,32 @@ def main(argv=None):
     if not os.path.isdir(os.path.join(ap_dir, "worlds", "eldenring")):
         sys.exit("FAIL: %s has no worlds/eldenring -- install the world first "
                  "(python tools/gf_test.py --install-only --ap-dir %s)." % (ap_dir, ap_dir))
-    if not os.path.isdir(os.path.join(ap_dir, "worlds", PARTNER_DIR)):
-        # SKIP, not fail: a sparse/partial checkout legitimately lacks it. CI checks out stock
+
+    wanted = PARTNERS
+    if args.partner:
+        wanted = tuple(p for p in PARTNERS if p.dir == args.partner)
+        if not wanted:
+            ap.error("--partner %s is not in PARTNERS (%s)"
+                     % (args.partner, ", ".join(p.dir for p in PARTNERS)))
+    present = [p for p in wanted if os.path.isdir(os.path.join(ap_dir, "worlds", p.dir))]
+    absent = [p for p in wanted if p not in present]
+    for p in absent:
+        # NOT a silent drop. A partner that vanishes from the checkout takes its coverage with it,
+        # and the one thing worse than losing coverage is losing it quietly -- so it is named here
+        # and the count is repeated in the PASS line.
+        print("note: worlds/%s absent -- %s not exercised in this checkout." % (p.dir, p.game))
+    if not present:
+        # SKIP, not fail: a sparse/partial checkout legitimately lacks them. CI checks out stock
         # upstream in full. Exit 4 so a harness can tell "not applicable" from "broken" -- the same
         # convention gen_region_locks uses.
-        print("SKIP (4): %s has no worlds/%s, so there is no partner game to generate beside. "
-              "This gate needs a full upstream checkout." % (ap_dir, PARTNER_DIR))
+        print("SKIP (4): %s carries NONE of the partner worlds (%s), so there is no partner game to "
+              "generate beside. This gate needs a full upstream checkout."
+              % (ap_dir, ", ".join(p.dir for p in wanted)))
         return 4
 
     failures = []
-    for natural in (False, True):
-        label = "natural_progression ON" if natural else "default (region locks)"
-        print("\n=== multiworld: 2x Elden Ring + 2x %s -- %s ===" % (PARTNER_GAME, label))
-        work = tempfile.mkdtemp(prefix="gf_mw_")
-        players, out = os.path.join(work, "players"), os.path.join(work, "out")
-        os.makedirs(players); os.makedirs(out)
-        try:
-            for i, nm in enumerate(("ErdtreeOne", "ErdtreeTwo"), 1):
-                open(os.path.join(players, "ER_%d.yaml" % i), "w", encoding="utf-8").write(
-                    _er_yaml(nm, natural))
-            for n in (1, 2):
-                open(os.path.join(players, "HK_%d.yaml" % n), "w", encoding="utf-8").write(
-                    _HK_YAML.format(n=n))
-            zip_path = generate(ap_dir, players, out)
-            rows = placements(zip_path)
-            print("  generated %s -- %d placements" % (os.path.basename(zip_path), len(rows)))
-            failures += ["[%s] %s" % (label, f)
-                         for f in check(rows, natural, lambda m: print("  " + m))]
-            si, sd, locs = multidata(zip_path)
-            failures += ["[%s] %s" % (label, f)
-                         for f in check_foreign_confinement(si, sd, locs,
-                                                            lambda m: print("  " + m))]
-            failures += ["[%s] %s" % (label, f)
-                         for f in check_slot_data_tables(si, sd, lambda m: print("  " + m))]
-        finally:
-            if args.keep:
-                print("  kept: %s" % work)
-            else:
-                shutil.rmtree(work, ignore_errors=True)
+    for partner in present:
+        failures += run_partner(ap_dir, partner, args.keep)
 
     print()
     if failures:
@@ -480,10 +564,12 @@ def main(argv=None):
         for f in failures:
             print("  * %s" % f)
         return 1
-    print("MULTIWORLD SMOKE: PASS -- cross-world flow works in both directions, ER reaches a foreign "
-          "game, natural_progression keys are placeable in other players' worlds, foreign\n"
-          "      progression lands only on the progression surface, and each slot's checkItemFlags "
-          "is collectable,\n      unshared, and its own.")
+    print("MULTIWORLD SMOKE: PASS over %d partner(s) -- %s.\n"
+          "      Cross-world flow works in both directions, ER reaches a foreign game, "
+          "natural_progression keys\n      are placeable in other players' worlds, foreign "
+          "progression lands only on the progression surface,\n      and each slot's "
+          "checkItemFlags is collectable, unshared, and its own."
+          % (len(present), ", ".join(p.game for p in present)))
     return 0
 
 
