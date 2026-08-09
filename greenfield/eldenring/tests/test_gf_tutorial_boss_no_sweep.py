@@ -381,9 +381,21 @@ def test_the_sweep_corpus_did_not_shrink():
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
     # 🛑 THE TOTAL CANNOT SEE A PERMUTATION -- see test_the_sweep_OWNERSHIP_did_not_churn below.
+    #
+    # +49 (2026-08-09, #495 -- a bossless map's checks reach their region's remainder pool) 3677 ->
+    # 3726. `_LEGACY_SWEEP_MAPS` is the set of maps that HOST a legacy boss, and the membership gate
+    # reused it to decide which checks MAY BE swept -- so m21_02 (West Rampart), which hosts no
+    # healthbar boss, was excluded from Shadow Keep's remainder pool BECAUSE it has no owner, when
+    # having no owner is that pool's whole qualification. Shadow Keep's remainder was 5 against 271
+    # locations; Commander Gaius, who owns a tile and no building, paid ONE check (bobler, 2026-08-09).
+    # Diffed by (trigger, flag), never by ap id: ADDED 52, REMOVED 3, RE-OWNED 3, net +49.
+    # Added by region: Shadow Keep 39, Siofra River 13. All three REMOVED are the same three that were
+    # RE-OWNED -- 21027050, 21027230, 21027250 moved between Shadow Keep triggers as the divvy modulus
+    # re-phased around a larger pool, exactly the #363 effect. SWEEP_REGION is 'Shadow Keep' on both
+    # sides for all three, so that is a pacing change and not a reachability one.
     # The same +3 regen ALSO moved 133 existing members to a different boss.
-    assert total == 3677, (
-        "sweep corpus is %d, expected 3677. If a sweep was legitimately added or removed, say WHY "
+    assert total == 3726, (
+        "sweep corpus is %d, expected 3726. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -437,10 +449,18 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     than carried over from the pre-#481 measurement -- two ownership changes compose, and a digest
     copied across a rebase would be a number nobody measured.
 
+
+    2026-08-09 (#495, the bossless-map remainder pool): n 3677 -> 3726. ADDED 52, REMOVED 3,
+    RE-OWNED 3. The three removed ARE the three re-owned -- 21027050, 21027230, 21027250 changed
+    trigger as the Shadow Keep divvy modulus re-phased around a pool that grew from 5 to 41. Checked
+    the way this docstring says to: SWEEP_REGION is 'Shadow Keep' for both the old and the new owner
+    of all three, so they stayed inside their region. Added by region: Shadow Keep 39, Siofra River
+    13.
+
     WHEN THIS FAILS: diff DUNGEON_SWEEPS by (trigger, flag) across the regen and record ADDED,
     REMOVED and RE-OWNED separately. For the re-owned, check SWEEP_REGION on both sides: staying
     inside one region is a pacing change, leaving it is a reachability bug."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("665d2e19fa4a1f16", 3677), (
+    assert (digest, n) == ("70d8236205692140", 3726), (
         "sweep OWNERSHIP changed: (%s, %d), expected (665d2e19fa4a1f16, 3677). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

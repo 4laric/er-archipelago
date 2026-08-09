@@ -205,6 +205,14 @@ class NoBosslessInteriorMapIsOrphaned(unittest.TestCase):
         """The regression guard proper: m21_02 was the largest single entry in that dict before this
         change (36 of 59), and it is gone because its rows DO carry a map."""
         self.assertNotIn((WEST_RAMPART_REGION, WEST_RAMPART), self.PENDING_MAP_REMAINDER)
+        # WITNESS FIRST. Asserting "no orphans on m21_02" passes just as happily when the scan stops
+        # finding m21_02 at all -- which is the failure mode test_gf_vacuous_pass exists to catch,
+        # and it caught this one.
+        on_rampart = [ap for (_n, ap, f) in data.LOCATIONS[WEST_RAMPART_REGION]
+                      if _map_of(f) == WEST_RAMPART]
+        self.assertTrue(on_rampart,
+                        "WITNESS: nothing decodes to %s any more -- the flag encoding or the region "
+                        "changed, and this test would have passed either way" % WEST_RAMPART)
         rampart_orphans = [o for o in _orphans() if WEST_RAMPART in o[1]]
         self.assertEqual(rampart_orphans, [],
                          "%s is orphaned again: %r" % (WEST_RAMPART, rampart_orphans[:3]))
