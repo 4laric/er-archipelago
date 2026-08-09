@@ -5,6 +5,20 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
+### Killing a boss grants more of what is around it
+
+One player killed Commander Gaius in the Shadow Keep and got a single check. Bosses hand you the
+loose items near them when they die, and Gaius stands on an open tile with almost nothing on it --
+so he was supposed to be topped up with a share of whatever else in the region no boss had claimed.
+He never was, because the Shadow Keep's West Rampart has no boss of its own, and a stretch of map
+with no boss was being left out of the pot for exactly that reason.
+
+Now it is in. The Shadow Keep's outdoor bosses hand over five to seven checks instead of one, the
+Siofra River gains a handful, and 49 checks across the game stop falling through.
+
+What this does not do is even out the big fights. Belurat still keeps 82 of its 93 checks behind the
+Divine Beast Dancing Lion, because Belurat has one boss and there is nobody else to share them with.
+
 ### Your DLC-only run ends on Promised Consort Radahn now
 
 If you play `dlc_only` and leave `goal` alone, the run used to end wherever your draw happened to

@@ -13,6 +13,30 @@ of changes on purpose and fills as they arrive (rule 14).
 v0.3.9 client still handshakes -- including a seed with grace attunement on, which is the one setting
 v0.3.9 made version-sensitive.
 
+### A bossless map's checks now reach their region's sweep pool
+
+bobler's Shadow Keep paid **one** check for Commander Gaius. His seed also kept 36 West Rampart
+checks that no boss sweep could ever grant, and the two facts were the same bug.
+
+A sweep group's members come from two pools: the boss's own map, then a round-robin share of what is
+left in the region. That second pool is the one meant to cover checks no particular boss owns -- and
+a map with no boss standing on it was excluded from it, *because* it had no boss. m21_02 (West
+Rampart) hosts no healthbar boss, so its filler never entered Shadow Keep's remainder, the remainder
+came out at 5 instead of 41, and the four DLC overworld bosses folded into Shadow Keep -- Gaius, the
+Scadutree Avatar, the Tree Sentinel, the Fallingstar Beast -- had nothing to be topped up with. They
+own a tile each and no building, so their own map pool is one or two checks. That is the 1.
+
+The membership gate now asks whether a check sits on an interior map, rather than whether some boss
+happens to live there. Shadow Keep's tile bosses go from 1-2 checks to 5-7, Siofra River picks up 13,
+and 49 checks stop being discarded. Group sizes elsewhere are unchanged and no group was gained or
+lost (219 triggers either way).
+
+**This is not a rebalance, and it should not be read as one.** The remainder is dealt in equal
+slices, so Messmer and the Golden Hippopotamus gain five each alongside Gaius; dealing to the emptiest
+boss first fixes the order, not the size. A DLC-only seed still ships most of a region behind one
+kill -- Belurat is 82 of 93 checks behind the Divine Beast Dancing Lion -- because that region has
+exactly one boss to hang them on. That is a separate argument.
+
 ### A DLC-only run now ends on Promised Consort Radahn
 
 `goal: auto` on a `dlc_only` seed used to end on whatever terminal region your draw happened to
