@@ -1,4 +1,4 @@
-"""`region_locks_anywhere` -- the knob that lets Region Locks be ordinary multiworld items.
+"""`progression_bias` -- the knob that lets Region Locks be ordinary multiworld items.
 
 WHY IT EXISTS (er-archipelago#491). The Progression Surface removes this world's own advancement
 items from the multiworld itempool in `pre_fill` and places them on THIS PLAYER'S OWN locations.
@@ -11,7 +11,7 @@ foreign** across 8 two-player seeds, while the same spoiler parser saw 49.2% of 
 worlds. The surface hosts ~170 checks against a ceiling of 36 restricted items -- ~4.7x headroom -- so
 the ladder never widened once and the valve never opened. Region Locks were effectively 100% local.
 
-Alaric's call, 2026-08-09: "default 100% i think it should be opt out. possibility of getting BK'ed
+Alaric's call, 2026-08-09: "default 100% [released] i think it should be opt out. possibility of getting BK'ed
 is part of the spirit of archipelago." So the default releases every Lock, and lowering the number
 buys curation back.
 
@@ -27,8 +27,7 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
-    RegionLocksAnywhere, RegionLocksShareSurface, released_locks, released_lock_barred,
-    lock_region_name,
+    ProgressionBias, released_locks, released_lock_barred, lock_region_name,
 )
 
 
@@ -75,9 +74,9 @@ class TestReleasedLocks(unittest.TestCase):
     def test_the_default_is_one_hundred_and_that_is_the_whole_feature(self):
         """THE MOTIVATING CASE. Alaric asked for opt-OUT: a yaml that never mentions this option
         must put every Lock in the multiworld pool."""
-        self.assertEqual(RegionLocksAnywhere.default, 100)
-        self.assertEqual(RegionLocksAnywhere.range_start, 0)
-        self.assertEqual(RegionLocksAnywhere.range_end, 100)
+        self.assertEqual(ProgressionBias.default, 0)      # 0 bias = no pull home = release all
+        self.assertEqual(ProgressionBias.range_start, 0)
+        self.assertEqual(ProgressionBias.range_end, 100)
 
     def test_one_hundred_releases_every_lock_and_nothing_else(self):
         pool = _pool()
@@ -160,23 +159,12 @@ class TestReleasedLockBarred(unittest.TestCase):
     released Lock of ours could occupy any of our ~4931 reachable locations while every other ER
     world offered it ~172. Measured consequence: released Locks stayed home ~97% of the time. The
     carve-out was written when `apply()` pre-placed every Lock and it only ever covered a SPILL;
-    `region_locks_anywhere` retired that premise without retiring the carve-out.
+    `progression_bias` retired that premise without retiring the carve-out.
     """
-
-    def test_off_by_default_bars_nothing(self):
-        """It is a measurement knob. Until a gen sweep says what it costs, it must be inert.
-
-        Each negative below is paired with the SAME inputs under the opposite condition. A bare
-        `assertFalse` on a predicate passes just as happily when the call matches nothing at all --
-        the witness is what tells "the rule said no" from "the rule never ran"."""
-        args = (_Item("Limgrave Lock"), 1, frozenset({"Limgrave Lock"}))
-        self.assertEqual(RegionLocksShareSurface.default, 0)
-        self.assertTrue(released_lock_barred(*args, True))    # WITNESS: these inputs DO bar
-        self.assertFalse(released_lock_barred(*args, False))
 
     def test_a_released_lock_of_ours_is_barred(self):
         self.assertTrue(released_lock_barred(_Item("Limgrave Lock"), 1,
-                                             frozenset({"Limgrave Lock"}), True))
+                                             frozenset({"Limgrave Lock"})))
 
     def test_a_confined_lock_keeps_its_spill_valve(self):
         """🛑 THE DANGEROUS CASE. A Lock the option chose to KEEP is pre-placed on the surface; if one
@@ -186,23 +174,23 @@ class TestReleasedLockBarred(unittest.TestCase):
         drawn = frozenset({"Limgrave Lock"})
         # WITNESS: the released one IS barred against the same set, so the pass below is the name
         # check answering rather than the predicate being dead.
-        self.assertTrue(released_lock_barred(_Item("Limgrave Lock"), 1, drawn, True))
-        self.assertFalse(released_lock_barred(_Item("Caelid Lock"), 1, drawn, True))
+        self.assertTrue(released_lock_barred(_Item("Limgrave Lock"), 1, drawn))
+        self.assertFalse(released_lock_barred(_Item("Caelid Lock"), 1, drawn))
 
     def test_another_players_item_is_not_ours_to_bar_here(self):
         """The foreign bar is a separate rule on the same location; this predicate must not
         double-answer for it, or a future change to one would silently change the other."""
         drawn = frozenset({"Limgrave Lock"})
         mine, theirs = _Item("Limgrave Lock"), _Item("Limgrave Lock", player=2)
-        self.assertTrue(released_lock_barred(mine, 1, drawn, True))   # WITNESS
-        self.assertFalse(released_lock_barred(theirs, 1, drawn, True))
+        self.assertTrue(released_lock_barred(mine, 1, drawn))   # WITNESS
+        self.assertFalse(released_lock_barred(theirs, 1, drawn))
 
     def test_an_empty_release_set_is_inert(self):
         """create_regions builds the rule long before pre_fill draws, so the set is legitimately
         empty at rule-construction time. That must permit, not bar."""
         it = _Item("Limgrave Lock")
-        self.assertTrue(released_lock_barred(it, 1, frozenset({"Limgrave Lock"}), True))  # WITNESS
-        self.assertFalse(released_lock_barred(it, 1, frozenset(), True))
+        self.assertTrue(released_lock_barred(it, 1, frozenset({"Limgrave Lock"})))  # WITNESS
+        self.assertFalse(released_lock_barred(it, 1, frozenset()))
 
 
 if __name__ == "__main__":

@@ -67,8 +67,8 @@ class SurfaceContract(WorldTestBase):
         the client was told to star. If this ever fails, the tracker is lying again -- which is
         precisely the failure that shipped, undetected, until a human read a spoiler.
 
-        🛑 NARROWED 2026-08-09 for `region_locks_anywhere` (er-archipelago#491), which defaults to
-        100 and therefore RELEASES every Lock into the normal multiworld fill. A released Lock can
+        🛑 NARROWED 2026-08-09 for `progression_bias` (er-archipelago#491), which defaults to
+        0 and therefore RELEASES every Lock into the normal multiworld fill. A released Lock can
         land anywhere -- that is the entire point of the option -- so asserting it sits on the
         surface would be asserting the feature does not work.
 
@@ -76,14 +76,14 @@ class SurfaceContract(WorldTestBase):
         drew, NOT on "is it a Lock". A Lock that was CONFINED must still obey the invariant, so a
         bug that released an item the option said to keep is still a failure here.
 
-        Run at a PARTIAL release (50) on purpose. At the shipped default of 100 this seed confines
+        Run at a PARTIAL bias (50) on purpose. At the shipped default of 0 this seed confines
         nothing of its own at all -- every restricted item in it is a Lock -- so the invariant would
         pass while examining zero items, and the witness below would (correctly) fail. 50 is the
         setting where both halves of the option are live at once: some Locks exempt, some still
         owed to the surface."""
         from Fill import distribute_items_restrictive
 
-        self.options = dict(self.options, region_locks_anywhere=50)
+        self.options = dict(self.options, progression_bias=50)
         self.world_setup(seed=22222)
         distribute_items_restrictive(self.multiworld)
         world = self.world
@@ -116,17 +116,17 @@ class SurfaceContract(WorldTestBase):
 
     def test_with_the_locks_confined_the_original_invariant_still_holds_in_full(self):
         """The guarantee the test above was written for, preserved rather than weakened: set
-        `region_locks_anywhere: 0` and EVERY restricted item -- Locks included -- is back on the
+        `progression_bias: 100` and EVERY restricted item -- Locks included -- is back on the
         surface. Without this, narrowing the invariant above would have quietly retired it."""
         from Fill import distribute_items_restrictive
 
-        self.options = dict(self.options, region_locks_anywhere=0)
+        self.options = dict(self.options, progression_bias=100)
         self.world_setup(seed=22222)
         distribute_items_restrictive(self.multiworld)
         world = self.world
         surface = set(world.fill_slot_data()[KEY])
         self.assertEqual(getattr(world, "gf_locks_released", []), [],
-                         "region_locks_anywhere=0 must release nothing")
+                         "progression_bias=100 must release nothing")
         restricted = [loc for loc in self.multiworld.get_locations(world.player)
                       if loc.item is not None and loc.address is not None
                       and ps.is_restricted_progression(loc.item, world.player)]

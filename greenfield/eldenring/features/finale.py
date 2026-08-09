@@ -179,7 +179,7 @@ class Finale(Feature):
         # is INERT unless every FINALE_REQUIRES region is kept), which is why it survived: the first
         # multiworld CI run found it immediately, under natural_progression, 7 leaked placements
         # across two slots.
-        # 🛑🛑 AND IT HAPPENED AGAIN, 2026-08-09. `region_locks_share_surface` (#491) adds a SECOND
+        # 🛑🛑 AND IT HAPPENED AGAIN, 2026-08-09. `progression_bias` (#491) adds a SECOND
         # bar to the same non-surface item_rule in core -- our own RELEASED region Locks -- and this
         # copy did not carry it, so the finale's checks were once more the ONE hole, in the same
         # file, for the same reason. Measured: under that option 12.36% of stay-home Locks sat off
@@ -198,8 +198,7 @@ class Finale(Feature):
                 loc.item_rule = lambda item, _p=_prev, _pl=world.player, _f=_fbf, _w=world: (
                     (not _f(item, _pl))
                     and not _ps.released_lock_barred(
-                        item, _pl, getattr(_w, "gf_locks_released_set", frozenset()),
-                        getattr(_w, "gf_locks_share_surface", False))
+                        item, _pl, getattr(_w, "gf_locks_released_set", frozenset()))
                     and _p(item))
             region.locations.append(loc)
         host = world.multiworld.get_region(FINALE_HOST_REGION, world.player)

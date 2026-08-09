@@ -175,13 +175,15 @@ run rather than tune it.
   "a progression item can be here" -- yours or another player's -- not "your
   key is here". Shrink the list for a tighter, more predictable hunt; widen it
   to scatter key items further afield.
-- **`region_locks_anywhere`** -- what percentage of your Region Locks go into
-  the normal multiworld fill instead of being curated onto that surface. 100
-  (default) means every Lock is an ordinary multiworld item and can end up in
-  someone else's game, so you may well be waiting on another player to find
-  your way into Liurnia. That is Archipelago working as intended. Lower it if
-  you would rather your Locks stayed on meaningful checks in your own world;
-  0 keeps every one of them home.
+- **`progression_bias`** -- how hard your Region Locks are pulled toward your
+  own world. 0 (default) is no pull: every Lock is an ordinary multiworld item
+  and can end up in someone else's game, so you may well be waiting on another
+  player to find your way into Liurnia. That is Archipelago working as intended.
+  100 pins every Lock at home; 40 reserves about 40% of them for you. A Lock in
+  the pool is still curated -- it is held to the same surface everyone's
+  progression is held to, so it lands on somebody's boss rather than on a random
+  crafting material. In a two-slot multiworld expect roughly half your Locks to
+  travel at bias 0; more slots, more travel.
 - **`region_grace_unlock`** -- how many Sites of Grace a region unlock hands
   you. `all` (default) lights every warp point in the region; `entrance` lights
   only the way in and you walk to the rest.

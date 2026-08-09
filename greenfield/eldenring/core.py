@@ -1027,12 +1027,13 @@ class GreenfieldEldenRingWorld(World):
                 # here: apply() already confined it, and its ladder/spill safety valve must stay open, so
                 # a spilled own Lock is never stranded. Only foreign advancement is refused; foreign
                 # useful/filler and everything of ours still fits.
-                # ...and, when region_locks_share_surface is on, bar our OWN RELEASED Locks too.
+                # ...and bar our OWN RELEASED Locks too (progression_bias).
                 # The line above bars only FOREIGN advancement, which made our own Locks a special
                 # case with ~4931 candidate homes against every other ER world's ~172 -- so a
                 # released Lock stayed home ~97% of the time. The carve-out was written for SPILLS
-                # (see the sibling comment: "apply() already confined it"), and region_locks_anywhere
-                # retired that premise. This puts our released Locks back under our own rule.
+                # (see the sibling comment: "apply() already confined it"), and progression_bias
+                # retired that premise. This puts our released Locks back under our own rule, which is
+                # what keeps a travelling Lock on a boss instead of on a crafting material.
                 # 🛑 `gf_locks_released` is read LATE, inside the lambda: the draw happens in
                 # pre_fill and this runs in create_regions, so reading it now would always see
                 # nothing. A CONFINED Lock is never in that set, so the spill valve is untouched.
@@ -1041,8 +1042,7 @@ class GreenfieldEldenRingWorld(World):
                 _loc.item_rule = lambda item, _p=_prev, _pl=self.player, _fbf=_fb, _w=self: (
                     (not _fbf(item, _pl))
                     and not _ps.released_lock_barred(
-                        item, _pl, getattr(_w, "gf_locks_released_set", frozenset()),
-                        getattr(_w, "gf_locks_share_surface", False))
+                        item, _pl, getattr(_w, "gf_locks_released_set", frozenset()))
                     and _p(item))
             region.locations.append(_loc)
 
