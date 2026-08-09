@@ -15,29 +15,50 @@ them. Removing the now-unreachable off-branches is a safe follow-up, not a prere
 """
 
 
-class Frozen:
-    """Stand-in for a removed yaml option. Mimics the only bits of an AP Option that features read:
-    `.value` (int / list / dict) and, for Choice-derived options, `.current_key` (str), which
-    features compare by name (e.g. pool_builder_scope.current_key == "all_filler")."""
+# `Options.Visibility.none`, inlined as a plain int so this module needs no Archipelago import.
+# AP's spoiler writer tests `res.visibility & Visibility.spoiler`; 0 makes that falsy and it moves on.
+_VISIBILITY_NONE = 0
 
-    __slots__ = ("value", "current_key", "_name")
+
+class Frozen:
+    """Stand-in for a removed yaml option. Mimics the only bits of an AP Option that get read:
+    `.value` (int / list / dict), for Choice-derived options `.current_key` (str), which features
+    compare by name (e.g. pool_builder_scope.current_key == "all_filler"), and `.visibility`.
+
+    🛑 `.visibility` is read by ARCHIPELAGO, not by us -- `BaseClasses.Spoiler.to_file` walks every
+    option on every world and does `res.visibility & Visibility.spoiler`. Without it a Frozen raised
+    the AttributeError below FROM INSIDE THE SPOILER WRITER, which is a crash at the very end of a
+    successful generation: the seed is filled, and then the write fails. Found by `fuzz_gf.py`
+    (2026-08-09) on `start_with_whetblades`; it predates progression_bias and reproduces on main.
+
+    It is `none` rather than `spoiler` because that is what a frozen option IS -- not a knob the
+    player has, so not a choice the spoiler should record as one. FROZEN_OPTIONS below is the record
+    of what the behaviour actually is, and it is versioned with the code that reads it.
+    ⚠️ Flipping this to `spoiler` would also need `current_option_name`, which the writer reads on
+    the next line. Don't change one without the other."""
+
+    __slots__ = ("value", "current_key", "visibility", "_name")
 
     def __init__(self, value, current_key=None, name="<unknown>"):
         self.value = value
         self.current_key = current_key
+        self.visibility = _VISIBILITY_NONE
         self._name = name
 
     def __getattr__(self, attr):
-        if attr in ("value", "current_key", "_name"):   # unset slot -> plain miss, never recurse
+        if attr in ("value", "current_key", "visibility", "_name"):  # unset slot -> plain miss
             raise AttributeError(attr)
-        # A Frozen stand-in only carries `.value` and `.current_key`. If a feature reads anything else
-        # off a frozen option (`.range_end`, `.options`, iteration, ...) it silently would have gotten
-        # an AttributeError that reads like a typo. Fail LOUDLY and say exactly what happened -- a
+        # A Frozen stand-in carries only `.value`, `.current_key` and `.visibility`. Anything else
+        # (`.range_end`, `.options`, `.current_option_name`, iteration, ...) would otherwise raise a
+        # bare AttributeError that reads like a typo. Fail LOUDLY and say exactly what happened -- a
         # degraded read must announce itself, not look like absence (CONTRIBUTING: runtime visibility).
+        # 🛑 The reader is not always a feature of ours: `.visibility` was reached by ARCHIPELAGO's
+        # own spoiler writer, so "check the feature" was the wrong first place to look. Say both.
         raise AttributeError(
-            f"frozen option {self._name!r}: a feature read attribute {attr!r}, which the Frozen "
-            f"stand-in does not carry (it has only .value and .current_key). Either the feature needs "
-            f"a real Option (un-freeze it in FROZEN_OPTIONS) or Frozen must grow that attribute.")
+            f"frozen option {self._name!r}: attribute {attr!r} was read -- by one of our features or "
+            f"by Archipelago itself -- and the Frozen stand-in does not carry it (only .value, "
+            f".current_key and .visibility). Either it needs a real Option (un-freeze it in "
+            f"FROZEN_OPTIONS) or Frozen must grow that attribute.")
 
 
 # name -> (value, current_key). current_key is REQUIRED for Choice-derived options.
