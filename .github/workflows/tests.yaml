@@ -227,20 +227,27 @@ jobs:
       # behaves BESIDE another game had only ever been argued. On 2026-07-28 that cost a real
       # answer: a review reported that natural_progression keys never leave their own world, which
       # is true in a single-player harness and false in a multiworld -- and nothing here could tell
-      # the two apart. Two ER slots beside two Hollow Knight slots (ships with AP, pure Python, no
-      # ROM). Exits 4 = SKIP when the partner world is absent; this job checks out stock upstream in
-      # full, so it runs.
+      # the two apart. Two ER slots beside two slots of each PARTNER game in the script's list
+      # (Hollow Knight, Bumper Stickers, DOOM 1993 -- all ship with AP, pure Python, no ROM, and
+      # deliberately spread across ~100/~200/~350 locations because every cross-world number is a
+      # number about the partner as much as about us). Exits 4 = SKIP when NO partner world is
+      # present; this job checks out stock upstream in full, so it runs.
       # The guards below are all currently TRUE, so a green smoke proves they were REACHED, not
       # that they can go red. --self-test fires each one on a hand-built fault. No Archipelago, no
       # generation, milliseconds -- so it runs FIRST and fails fast.
       - name: Multiworld smoke -- guards can go red (--self-test)
         run: python tools/gf_multiworld_smoke.py --self-test
 
-      - name: Multiworld smoke (2x Elden Ring + 2x Hollow Knight)
+      - name: Multiworld smoke (2x Elden Ring + 2x each partner game)
+        # rc is captured with `|| rc=$?`, NOT a bare `rc=$?` on the next line: GitHub runs `run:`
+        # blocks under `bash -e`, so a non-zero exit aborts the step BEFORE the assignment is
+        # reached. The exit-4 SKIP tolerance below was therefore dead code and had never once been
+        # reachable on Linux -- a SKIP was indistinguishable from a failure (#494). It has not bitten
+        # only because CI checks out stock upstream in full, so a partner world is always present.
         run: |
-          python tools/gf_multiworld_smoke.py --ap-dir _ap
-          rc=$?
-          if [ "$rc" = "4" ]; then echo "::warning::multiworld smoke SKIPPED -- partner world absent"; fi
+          rc=0
+          python tools/gf_multiworld_smoke.py --ap-dir _ap || rc=$?
+          if [ "$rc" = "4" ]; then echo "::warning::multiworld smoke SKIPPED -- no partner world present"; fi
           test "$rc" = "0" -o "$rc" = "4"
 
   # ---------------------------------------------------------------------------------------------
