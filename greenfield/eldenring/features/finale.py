@@ -179,14 +179,28 @@ class Finale(Feature):
         # is INERT unless every FINALE_REQUIRES region is kept), which is why it survived: the first
         # multiworld CI run found it immediately, under natural_progression, 7 leaked placements
         # across two slots.
+        # 🛑🛑 AND IT HAPPENED AGAIN, 2026-08-09. `region_locks_share_surface` (#491) adds a SECOND
+        # bar to the same non-surface item_rule in core -- our own RELEASED region Locks -- and this
+        # copy did not carry it, so the finale's checks were once more the ONE hole, in the same
+        # file, for the same reason. Measured: under that option 12.36% of stay-home Locks sat off
+        # the surface and a targeted probe found 31 of 31 of them on `Ashen Capital ::` checks,
+        # while Locks travelling to another ER world were 0.00% off-surface (the core rule is
+        # airtight; only this copy leaked).
+        # The real fix is for these locations to go through core._add_locations rather than for a
+        # third bar to be copied here on the next feature -- filed, not done in this change.
+        from . import progression_surface as _ps
         _fsurf = getattr(world, "_foreign_confine_surface", None)
         _fbf = getattr(world, "_foreign_barred_fn", None)
         for (name, ap_id, _flag) in finale_entries():
             loc = FinaleLocation(world.player, name, ap_id, region)
             if _fsurf is not None and _fbf is not None and ap_id not in _fsurf:
                 _prev = loc.item_rule
-                loc.item_rule = lambda item, _p=_prev, _pl=world.player, _f=_fbf: (
-                    not _f(item, _pl)) and _p(item)
+                loc.item_rule = lambda item, _p=_prev, _pl=world.player, _f=_fbf, _w=world: (
+                    (not _f(item, _pl))
+                    and not _ps.released_lock_barred(
+                        item, _pl, getattr(_w, "gf_locks_released_set", frozenset()),
+                        getattr(_w, "gf_locks_share_surface", False))
+                    and _p(item))
             region.locations.append(loc)
         host = world.multiworld.get_region(FINALE_HOST_REGION, world.player)
         # ENTRANCE: the HUB, gated on the burn item. You do not walk to the Ashen Capital -- you
