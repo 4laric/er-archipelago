@@ -244,7 +244,17 @@ class EveryMismatchedGroup(unittest.TestCase):
              2046450800: ("Gravesite", "Rauh Base"),
              2052430800: ("Abyssal", "Scadu Altus"),
              11050800: ("Ashen Capital", "Leyndell"),
-             11050850: ("Ashen Capital", "Leyndell")},
+             11050850: ("Ashen Capital", "Leyndell"),
+             # ENTERED 2026-08-09. Nothing measured got worse and no predicate got looser: this
+             # group was previously INVISIBLE to the question. Tree Sentinel 2050470800 is an
+             # open-field boss, so PlayRegionParam has no boss-alive overlay row for it and
+             # boss_area_regions.tsv -- a lower bound by construction -- had nothing to say; it sat
+             # among the UNAUDITED, where the mismatch could not be seen at all. Its arena is now
+             # pinned in gen_data.BOSS_AREA_REGION_CURATED from Alaric's in-game report that both
+             # Hinterland sentinels stand in the Hinterland, which folded into Shadow Keep on
+             # 2026-07-19. Its 28 members stay in Scadu Altus (m61_50_47 straddles the border).
+             # So: one group ENTERED, none left, and the arena coverage floor rose 112 -> 113.
+             2050470800: ("Scadu Altus", "Shadow Keep")},
             "the set of sweep groups whose arena region differs from their members' region MOVED. "
             "That is a finding, not a rebaseline: say which groups entered, which left, and whether "
             "an input got better or a predicate got looser.")

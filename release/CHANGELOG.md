@@ -13,6 +13,22 @@ of changes on purpose and fills as they arrive (rule 14).
 v0.3.9 client still handshakes -- including a seed with grace attunement on, which is the one setting
 v0.3.9 made version-sensitive.
 
+### Fixed: a Hinterland Tree Sentinel could strand 28 Scadu Altus checks
+
+The two Tree Sentinels standing beside each other in the Hinterland were being fought, as far as the
+generator was concerned, in two different regions. The Hinterland folded into Shadow Keep back in
+v0.3.x; the southern sentinel's tile has graces on it and followed the fold, but the northern one's
+tile (`m61_50_47`) holds none, so its region was decided by a three-way distance tie that fell to
+Scadu Altus on table row order rather than on anything measured.
+
+The visible consequence was on seeds that keep **Scadu Altus without Shadow Keep**: that boss's sweep
+carried 28 Scadu Altus checks, but reaching the boss means standing in the Hinterland, and the
+kick-watch ejects you before the fight. Those 28 checks could not be swept. The group is now dropped
+on such seeds instead, the same way the Golden Hippopotamus group already was.
+
+Nothing moves on a seed that keeps both regions, and no check changed region: the two item pickups
+sharing that tile stay in Scadu Altus, where the grace they sit next to says they belong.
+
 ### The v0.3.9 SHIPPED row was owed, and main was red without it
 
 To be honest about the "deliberately" above: `test_every_tagged_version_is_recorded_as_shipped` had

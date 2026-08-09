@@ -398,6 +398,46 @@ except OSError as _e:
     print(f"[gen_data] boss_area_regions.tsv unavailable ({_e!r}); boss-arena region corrections OFF "
           f"(run tools/datamine_boss_area_regions.py --emit)")
 
+# ---- CURATED boss arenas: where PlayRegionParam has NOTHING TO SAY ---------------------------
+# The table above is a LOWER BOUND by construction: it only carries a row where PlayRegionParam ties
+# a boss-area overlay to a DEFEAT flag. An OPEN-FIELD boss has no boss-alive overlay at all, so it
+# gets no row, and `SWEEP_ARENA_REGION` records it as UNAUDITED -- which is honest, but it also means
+# the arena/member mismatch drop in features/boss_locks cannot protect it. These entries are the
+# in-game measurements that close that gap for a named field boss, and they are held to the same
+# standard as every other curation here: FIRST-HAND evidence, and a hard failure the moment the
+# derivation can answer for itself (CONTRIBUTING: a redundant manual override is a failure).
+BOSS_AREA_REGION_CURATED = {
+    # Tree Sentinel, the northern half of the Hinterland pair. Its arena is on m61_50_47, a tile that
+    # holds NO grace, so _m61_tile_region nearest-neighbours it -- and three anchors tie at distance
+    # 1: (50,48)=6920 Shadow Keep [the Hinterland graces 76935/76960] south, (51,47)=6900 and
+    # (49,47)=6900 Scadu Altus east and west. min() settles that tie by ANCHOR61 iteration order --
+    # grace_flags.tsv ROW ORDER, not evidence -- so the boss reads Scadu Altus and its legacy divvy
+    # dealt it 28 Scadu Altus checks, while its twin 2050480860 one tile south sits on the anchored
+    # (50,48) and correctly reads Shadow Keep. Two sentinels within sight of each other, two regions.
+    # Scaduview (6920, the Hinterland) was FOLDED into Shadow Keep 2026-07-19 (region_groups.py).
+    # ALARIC, ground truth 2026-08-09: "the two tree sentinels in hinterlands ... they're both right
+    # next to each other in Hinterland which we absorbed into shadow keep."
+    # WHAT THIS FIXES: a seed that keeps Scadu Altus WITHOUT Shadow Keep ships a group whose trigger
+    # the player can never reach -- 28 Scadu Altus checks unobtainable by sweep. With the arena
+    # recorded, features/boss_locks drops the group, exactly as it already does for the Hippo.
+    # 🛑 The MEMBERS are deliberately left in Scadu Altus. m61_50_47 legitimately STRADDLES the
+    # border: its two item checks (2050477010 / 2050477020) are nearest to 76905 Church District
+    # Highroad, a Scadu Altus grace. Moving the whole tile via M61_TILE_CURATED was tried first and
+    # grew a 56th straddling grace (minority share 4.44% -> 4.49%), which
+    # test_gf_grace_straddle.py refuses -- "find which side is wrong, do NOT raise the pin". Only the
+    # ARENA is Hinterland; the ground it shares with the highroad is not.
+    2050470800: "Shadow Keep",
+}
+for _bf, _breg in BOSS_AREA_REGION_CURATED.items():
+    _bev = BOSS_AREA_REGION.get(_bf)
+    if _bev is not None:
+        raise SystemExit(
+            f"gen_data: BOSS_AREA_REGION_CURATED[{_bf}] = {_breg!r} is REDUNDANT -- "
+            f"boss_area_regions.tsv now derives {_bev!r} for it. Delete the override (CONTRIBUTING: "
+            "a redundant manual override is a failure), or, if the two disagree, say in the entry "
+            "why the measurement beats the param.")
+    BOSS_AREA_REGION[_bf] = _breg
+
 # region_map.csv's region-column LABEL -> region. Keys are the pipeline's raw labels (verbatim);
 # values are region_groups.py region names. UN-COLLAPSED 2026-07-12 (SPEC-region-spine-v2.md):
 # the fine places on the left used to fold into 20 coarse regions ('Castle Ensis (DLC)' ->

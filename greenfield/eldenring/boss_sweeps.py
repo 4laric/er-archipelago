@@ -556,9 +556,10 @@ SWEEP_ARENA_REGION = {
     2046450800: 'Rauh Base',
     2048440800: 'Ensis',
     2049480800: 'Shadow Keep',
+    2050470800: 'Shadow Keep',
     2051440800: 'Scadu Altus',
     2052430800: 'Scadu Altus',
     2054390800: 'Jagged Peak',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:9a95a94a640b533050b78d694b549f1b78ea205291995b86bf60e8d3883d0f8f', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:9a5dcd1982cbb26468afed8a0256c7c015d538608f492531998414020ed0ee9f'}
+_GEN_STAMP = {'inputs_hash': 'sha256:4494cd8b28bdda236b0755ace00b47a999b2baf76a2b5e0c4227f8f22142fb1c', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:a60db04ef1a9b0aa9b03dd9ab545b2d9342e6706ac80ea1fecee4c2f8c0a20cf'}
