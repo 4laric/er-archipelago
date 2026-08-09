@@ -171,8 +171,17 @@ run rather than tune it.
   `goal_great_runes` Great Runes instead. Composes with `goal`: you would need
   the runes AND the boss.
 - **`progression_surface`** -- which categories of location are allowed to
-  hold progression items. Shrink the list for a tighter, more predictable
-  hunt; widen it to scatter key items further afield.
+  hold progression items. Your in-game tracker stars these, and a star means
+  "a progression item can be here" -- yours or another player's -- not "your
+  key is here". Shrink the list for a tighter, more predictable hunt; widen it
+  to scatter key items further afield.
+- **`region_locks_anywhere`** -- what percentage of your Region Locks go into
+  the normal multiworld fill instead of being curated onto that surface. 100
+  (default) means every Lock is an ordinary multiworld item and can end up in
+  someone else's game, so you may well be waiting on another player to find
+  your way into Liurnia. That is Archipelago working as intended. Lower it if
+  you would rather your Locks stayed on meaningful checks in your own world;
+  0 keeps every one of them home.
 - **`region_grace_unlock`** -- how many Sites of Grace a region unlock hands
   you. `all` (default) lights every warp point in the region; `entrance` lights
   only the way in and you walk to the rest.

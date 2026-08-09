@@ -29,7 +29,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import OptionSet, Choice, DefaultOnToggle
+from Options import OptionSet, Choice, DefaultOnToggle, Range
 from ..registry import Feature, register
 from .. import contract
 
@@ -127,12 +127,39 @@ class ProgressionSurfaceMode(Choice):
     default = 2
 
 
+class RegionLocksAnywhere(Range):
+    """What percentage of your Region Locks are placed by the NORMAL multiworld fill instead of being
+    curated onto your own Progression Surface. 100 (the default) means every Lock is an ordinary
+    multiworld item: it can land on any reachable check, in your world or in someone else's.
+
+    This is the Archipelago default in spirit -- your progression lives in other people's games and
+    theirs lives in yours, and being stuck waiting on somebody is part of the deal. Lower it if you
+    would rather your Locks stayed on vetted, meaningful checks: 0 confines every Lock to the surface
+    (which is what this world did before this option existed), 50 releases about half.
+
+    It never blocks generation. A released Lock is still guaranteed reachable -- Archipelago's fill
+    places it in a winnable order, and the post-fill reachability audit rescues or fails loudly on any
+    of your advancement items that ends up stranded. What you give up by raising it is CURATION, not
+    winnability: a Lock may sit on an ordinary crafting-material pickup instead of on a boss.
+
+    Only Region Locks are affected. Required Great Runes and legacy key items keep the surface
+    whatever this says, and Boss Keys were never confined by it in the first place. No effect when
+    Progression Surface Mode is off, nor in the modes that mint no Lock items at all
+    (natural progression, vanilla placement)."""
+    display_name = "Region Locks Anywhere"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
 class ConfineForeignProgression(DefaultOnToggle):
     """Confine OTHER players' progression to your Progression Surface too, not just your own.
 
     ON (default): in a multiworld, another world's advancement items may only be placed on your
-    surface locations -- the same high-confidence checks your own region Locks use -- never on your
-    filler checks. So a foreign key spell lands on a major-boss/remembrance/key-item check of yours,
+    surface locations -- the same high-confidence checks your own progression is curated onto --
+    never on your filler checks. (With Region Locks Anywhere at its default of 100 your own Locks
+    are not curated at all, so in a typical seed this option is what keeps the surface meaning
+    anything: it becomes the set that hosts FOREIGN progression.) So a foreign key spell lands on a major-boss/remembrance/key-item check of yours,
     not on a random Smithing Stone pickup. OFF: foreign progression scatters across any reachable
     location of yours, which is standard Archipelago behaviour.
 
@@ -379,6 +406,33 @@ def foreign_advancement_barred(item, player):
     return bool(getattr(item, "advancement", False)) and getattr(item, "player", None) != player
 
 
+def released_locks(items, pct, rng):
+    """The Region Lock items that SKIP the surface and go to the normal multiworld fill.
+
+    Pure over item-likes with `.name` plus an `rng` with `.sample` (pass `world.random`, never the
+    module `random` -- a seed must reproduce). Only Locks are eligible: required Great Runes and
+    legacy keys keep the surface whatever the percentage says, because the ask this implements was
+    about Locks and widening it silently would be a different feature.
+
+    Rounding is `(n*pct + 50) // 100`, half up, in integers. Python's `round()` is banker's rounding
+    (`round(0.5) == 0`), so a 50% setting on a 1-Lock seed would release NOTHING and read as the
+    feature being broken on exactly the seeds small enough for a player to check by hand.
+
+    The endpoints are exact by construction, not by rounding: 0 releases none, 100 releases all.
+    """
+    locks = [it for it in items if lock_region_name(getattr(it, "name", "")) is not None]
+    if pct <= 0 or not locks:
+        return []
+    if pct >= 100:
+        return list(locks)
+    k = (len(locks) * pct + 50) // 100
+    if k <= 0:
+        return []
+    if k >= len(locks):
+        return list(locks)
+    return rng.sample(locks, k)
+
+
 def lock_region_name(item_name):
     """'Limgrave Lock' -> 'Limgrave'; None for a non-lock name. Pure."""
     s = str(item_name)
@@ -439,6 +493,13 @@ def confined_surface_ids(world):
     if not classes:
         return None
     return allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
+
+
+def _locks_anywhere_pct(world) -> int:
+    """`region_locks_anywhere` as an int, or the pre-option behaviour (0 = confine everything) when
+    the option is absent -- an older yaml or a stubbed world must not silently start releasing."""
+    opt = getattr(getattr(world, "options", None), "region_locks_anywhere", None)
+    return int(opt.value) if opt is not None else 0
 
 
 def _restricted_items(world):
@@ -562,6 +623,20 @@ def apply(world) -> None:
         import Fill  # noqa: F401  -- ensure the fill API exists before we disturb the pool
     except Exception:
         return
+    # RELEASE (er-archipelago#491). A released Lock is simply never taken out of the itempool, so
+    # the normal multiworld fill places it -- which is the only way one can reach another player's
+    # world. Measured before this existed: 0 spill in 146 world-instances and 0 of 105 Locks foreign
+    # in 8 two-player seeds, because the surface hosts ~170 checks against a ceiling of 36 restricted
+    # items. The valve existed; nothing ever came through it.
+    #
+    # 🛑 The draw happens BEFORE the removal loop and ONCE, recorded on `world`. Drawing it later
+    # would mean re-deciding per caller, and an inline rng draw that runs a different number of times
+    # in different code paths splits the seed.
+    released = released_locks(to_place, _locks_anywhere_pct(world), world.random)
+    if released:
+        _rel = {id(it) for it in released}
+        to_place = [it for it in to_place if id(it) not in _rel]
+    world.gf_locks_released = sorted(it.name for it in released)
     n0 = len(to_place)
     for it in to_place:
         mw.itempool.remove(it)
@@ -600,6 +675,14 @@ def apply(world) -> None:
     # pattern (CONTRIBUTING, Runtime visibility): a feature states its status every run, and a ZERO
     # is a measurement, not a silence.
     import logging
+    # RELEASED is logged beside SPILLED and is NOT the same thing: released Locks were never offered
+    # to the surface (the player asked for that), spilled ones were offered and did not fit (the
+    # surface fell short). Folding them into one number would hide a starved surface behind an
+    # option, which is the failure the spill telemetry was added to prevent in the first place.
+    logging.getLogger("Greenfield").info(
+        "[greenfield] progression surface: %d Lock(s) RELEASED to normal fill (%d%%)%s",
+        len(world.gf_locks_released), _locks_anywhere_pct(world),
+        (": " + ", ".join(world.gf_locks_released)) if world.gf_locks_released else "")
     logging.getLogger("Greenfield").info(
         "[greenfield] progression surface: rung %s placed %d/%d; %d SPILLED to normal fill%s",
         resolved, n0 - len(to_place), n0, len(to_place),
@@ -724,12 +807,24 @@ class ProgressionSurfaceFeature(Feature):
     name = "progression_surface"
     OPTIONS = {"progression_surface": ProgressionSurface,
                "progression_surface_mode": ProgressionSurfaceMode,
+               "region_locks_anywhere": RegionLocksAnywhere,
                "confine_foreign_progression": ConfineForeignProgression}
     # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
     # The foreign-progression bar is set in core._add_locations (item_rule), using confined_surface_ids.
 
     def slot_data(self, world):
         """Ship the surface to the CLIENT. This is the set the tracker stars.
+
+        🛑 WHAT A STAR MEANS, RELAXED 2026-08-09 (Alaric, er-archipelago#491). It used to mean
+        "your region Locks are somewhere in here", which `region_locks_anywhere` retires: at the
+        default of 100 none of your Locks are confined, and on a seed whose only restricted items
+        are Locks the surface then confines nothing of YOURS at all.
+
+        It still confines real progression, so the honest reading is the weaker one:
+        **these are the locations that can host progression items -- yours or another world's.**
+        `confine_foreign_progression` (default ON) keeps every OTHER player's advancement on exactly
+        this set, and whatever share of your own Locks you chose to keep curated lands here too. A
+        star is "something important can be here", not "your key is here".
 
         It REPLACES `bigTicketLocations`, which was a second list of "important checks" naming a set
         progression could never reach: big-ticket targeted {MajorBoss, Remembrance, GreatRune} while
@@ -738,8 +833,8 @@ class ProgressionSurfaceFeature(Feature):
         a region Lock from ever occupying. A tracker pointing at checks the locks cannot be on is worse
         than no tracker: it teaches the player something false.
 
-        Emitting the surface itself makes that drift unrepresentable -- "where the locks may be" and
-        "what the client stars" are now one expression, evaluated once.
+        Emitting the surface itself makes that drift unrepresentable -- "where progression may be"
+        and "what the client stars" are now one expression, evaluated once.
         """
         if _mode(world) == 0:
             return {contract.PROGRESSION_SURFACE_LOCATIONS: []}
