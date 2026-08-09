@@ -7355,21 +7355,50 @@ def _mp2(m):
 #             check and is untouched; only the sweep goes.
 _SWEEP_EXCLUDED_BMAPS = {"m10_01"}
 
-# Maps that host a LEGACY-class boss, i.e. the castles and interior region majors. Derived from
-# BOSS_HEALTHBARS rather than hand-listed, and with the exclusion above already applied, so there is
-# exactly ONE definition of "a map a sweep may fire on" (SPEC-broaden-sweeps piece C).
-# 🛑 INTERIORS ONLY -- m60/m61 are excluded. `_class` calls the m61 DLC OVERWORLD "legacy" (it must,
-# or those 28 bosses lose their sweeps entirely), so an unfiltered set here pulls in m61_XX bands --
-# and an m61_XX "map" is a whole BAND of tiles spanning several fine-regions, which is exactly why
-# those bosses had to have their true tile recovered for the divvy in the first place. Granting one
-# map-wide is far too coarse. Measured when this was missing: 209 m61 checks walked in on top of the
-# 280 interior ones. The DLC overworld wants a NEIGHBOURHOOD (SPEC-broaden-sweeps piece A), not this.
-_LEGACY_SWEEP_MAPS = {_i[0] for _i in BOSS_HEALTHBARS.values()
-                      if _i[2] == "legacy" and not _i[0].startswith(("m60", "m61"))
-                      } - _SWEEP_EXCLUDED_BMAPS
 _OVERWORLD_TILE_RE = re.compile(r"^m6[01]_\d\d_\d\d")
-def _is_legacy_map(_mp):
-    return bool(_mp) and _mp in _LEGACY_SWEEP_MAPS
+_INTERIOR_MAP_RE = re.compile(r"^m\d\d_\d\d$")
+
+
+def _is_interior_member_map(_mp):
+    """May a check ON this map BE swept? -- which is NOT "may a sweep FIRE on this map".
+
+    🛑🛑 THE BUG THIS FIXES, AND IT IS A ONE-SET-TWO-QUESTIONS BUG. Until 2026-08-09 the membership
+    gate below called `_mp in _LEGACY_SWEEP_MAPS`, and that set is derived from BOSS_HEALTHBARS --
+    it is the set of maps that HOST a legacy boss. So a map with no boss standing on it contributed
+    NOTHING to its region's remainder pool, and the region remainder is the exact mechanism meant to
+    cover the checks that no specific boss owns. A map is excluded from the pool *because* it has no
+    owner, when having no owner is the qualification.
+
+    MOTIVATING CASE (rule 11), and it is the fixture in
+    tests/test_gf_sweep_pool_admits_bossless_maps.py:
+
+        bobler, 2026-08-09, apworld 0.3.9, `num_regions: 3` + `dlc_only: true`:
+            [APC] Boss sweep (Shadow Keep) [trigger flag 2049480800] -- 1 check(s) granted.
+
+        Shadow Keep m21_02 (West Rampart) hosts no healthbar boss, so its 36 untagged filler checks
+        never entered `_mem_region`. Shadow Keep's region remainder was 5 instead of 41 across 8
+        hosts, and Commander Gaius -- who has a whole tile to himself and no building -- paid ONE
+        check. Instrumented: `mem=216 filler=213 remainder=5 ents=8`, and 216 of 271 locations.
+
+    MEASURED BLAST RADIUS, the whole of it: 59 checks over 6 (region, map) pairs --
+    Shadow Keep/m21_02 36, Siofra River/m12_07 13, Roundtable Hold 8 (HUB, dropped downstream),
+    Limgrave/m11_10 2. Triggers 219 -> 219 (none gained, none lost); member links 3677 -> 3726.
+
+    🛑 `_SWEEP_EXCLUDED_BMAPS` is honoured HERE TOO, not just for firing: m10_01 (the Chapel of
+    Anticipation) must not be paid out by Stormveil's majors either. dafranky67's Nexus report is
+    about the Scion GRANTING 36 checks; the reverse leak is the same fold and the same surprise.
+
+    🛑 This does NOT close that leak, and the test says so out loud. `Stormveil :: Stormhawk Deenh -
+    m10_01 [f10017900]` is ALREADY a member of Godrick's group on main -- it arrives through the
+    `method in ("treasure", "emevd")` branch, which has never consulted a map at all. So the fold now
+    has THREE consumers (region_groups.py kick geometry, the boss loop, this gate) and the exception
+    reaches two of them. Closing the third means gating the treasure/emevd branch on a map, which is
+    a wider change than this one. Named here so the next person greps the fold and finds the count.
+    """
+    return (bool(_mp) and _INTERIOR_MAP_RE.match(_mp) is not None
+            and not _mp.startswith(("m60", "m61"))
+            and not _is_dungeon(_mp)
+            and _mp not in _SWEEP_EXCLUDED_BMAPS)
 
 
 def _is_dungeon(_mp):
@@ -7548,7 +7577,7 @@ for _i, _r in enumerate(rows):
         # both walked in. A sweep that hands you a flask upgrade or a legendary incantation is a
         # progression decision, not a convenience.
         _r["method"] in ("flag_prefix", "global", "global_filler")
-        and (_is_dungeon(_mp2(_r["map"])) or _is_legacy_map(_mp2(_r["map"]))
+        and (_is_dungeon(_mp2(_r["map"])) or _is_interior_member_map(_mp2(_r["map"]))
              # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
              # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed
              # this gate, and a `global_filler` on m61_46_46 passed none of the branches above, so
