@@ -279,8 +279,12 @@ def lint_block(block: dict) -> list[Finding]:
     if nr == 1:
         info("num_regions", "1 rolls a single major on top of the force-kept Altus -> effective 2 "
              "(Altus + 1 rolled major, plus the uncounted Roundtable hub and Leyndell capstone)")
-    if nr > 0 and c.num("great_runes_required") > 4:
-        err("great_runes_required", "num_regions runs can satisfy at most 4 great runes "
+    # 2026-08-10: this guard read `great_runes_required` -- the pre-rename key. The option became
+    # `goal_great_runes` on 2026-07-14 (core._CORE_OPTION_FIELDS), so `c.num()` fell through to its
+    # default of 0 and the rule could not fire on any current yaml. Found via LordChungle's v0.3.9
+    # report (#504): he believed he had asked for six runes and the seed resolved to one.
+    if nr > 0 and c.num("goal_great_runes") > 4:
+        err("goal_great_runes", "num_regions runs can satisfy at most 4 great runes "
             "(Godrick/Rennala/Radahn/Rykard exist before the capital) -- gen rejects this (OptionError)")
 
     # 8) dlc_only_chain
