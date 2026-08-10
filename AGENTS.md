@@ -445,6 +445,28 @@ are absent in CI). Know which tier your change is in:
   `eldenring/*.py` modules from the committed tsvs + params. A change in `gen_data.py`, `region_groups.py`,
   a boss-drop/healthbar input, or any `eldenring/*.py` consumer → **`-All` covers it. Say it once.**
 
+  🛑🛑🛑 **AGENTS: THE TIER-1 REGEN IS A PRECONDITION OF YOUR PR, NOT A HANDOFF.** §5 above says the
+  regen runs in the sandbox off the committed `gen_inputs.db`; this is the rule that follows from it.
+  If your branch touches `gen_data.py`, `region_groups.py`, `region_spine.py`, or any
+  `gen_manifest.FILE_INPUTS` entry, **run the full chain and commit its output before opening the
+  PR.** A "source half" PR whose description asks Alaric to regen is not a deliverable — `.ps1` is a
+  convenience wrapper, not a platform requirement:
+
+  ```bash
+  python3 tools/gen_inputs.py --extract elden_ring_artifacts
+  python3 tools/datamine_boss_drops.py && python3 tools/datamine_boss_healthbars.py
+  python3 greenfield/gen_data.py
+  python3 tools/gen_manifest.py --verify greenfield/eldenring/_gen_stamp.json
+  ```
+
+  **Why this is a rule and not advice (PR #526, 2026-08-10).** A region merge shipped as a source
+  half, merged, and left `main` unable to regen. The regen was the only thing that would have found
+  the tail: `MAJOR_BOSS_EXTRAS` and `features/legacy_key_gates` were still keyed on the folded region
+  name, plus six test files. ⭐ **A region rename/merge has a source tail that grep does not find,**
+  because the references are data keys in tables you did not think to open — and since every one is a
+  `raise SystemExit`, **an aborting gate hides the next**, so they surface one per run. Budget 3–4
+  regen loops for a region change and spend them before pushing, not one per CI round-trip.
+
 - **Tier 2 — MANUAL, never in any `.ps1`.** The tracked `greenfield/*.tsv` tables are `gen_data`
   **inputs**, each emitted by its own datamine tool, run by hand — several need the unpacked witchy'd
   MSBs the build never touches. If your fix's root is one of these, run that tool's `--emit` yourself,
