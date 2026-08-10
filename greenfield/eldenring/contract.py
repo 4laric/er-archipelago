@@ -422,6 +422,21 @@ OPTIONS_SUBKEYS = (
                 "core._options_echo (features/body_tuning.py)", "no_fall_damage.rs set_enabled",
                 "nonzero = falling deals no damage (leaving the map still kills). Same age and same "
                 "no-tag reasoning as no_equip_load above."),
+    ContractKey("merchant_bells_on_talk", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/merchant_bells.py)",
+                "er-logic/options.rs parse_merchant_bells_on_talk -> merchant_bells.rs on_shop_open",
+                "nonzero = opening a merchant's regular buy menu sets the event flag the Twin "
+                "Maiden Husks would have set had you handed them that merchant's Bell Bearing, so "
+                "their wares are on sale at the hub from then on. The bell ITEM is untouched and "
+                "stays in the pool -- the range a shop-open reports is the merchant's OWN "
+                "ShopLineupParam block, and a hand-in adds a menu entry rather than releasing or "
+                "copying stock, so every shop check keeps its own eventFlag_forStock and fires "
+                "identically whichever counter it was bought at. The (range -> flag) table is "
+                "static game data baked into the client by tools/gen_merchant_bells.py, NOT sent. "
+                "NOT required: an absent key parses false, which is the off default. A seed with "
+                "it ON emits requiresClientFeatures [\"merchant_bells_on_talk\"] -- "
+                "OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so an older client would report "
+                "VERSION: OK and then never see this key at all."),
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades client path",
                 "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),
