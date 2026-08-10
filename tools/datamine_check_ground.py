@@ -30,9 +30,12 @@ ground and, with --triage, the DISAGREEMENTS against the shipped label. A disagr
 for a human, not a fix: a tile legitimately straddles regions, and `region_overrides.tsv` is where the
 human answer belongs (with its reason) so a later regen cannot silently delete it.
 
-🛑 UNRUN AT AUTHORING TIME. Written 2026-08-10 in a sandbox with no `elden_ring_artifacts/`, so it has
-never executed against real MSBs. MIN_DERIVED_FRAC below is a placeholder: the FIRST real run must
-replace it with the measured absolute count, the way grace_ground's MIN_DERIVED = 200 was pinned.
+FIRST REAL RUN, 2026-08-10 (Alaric, Windows, full artifacts):
+    PlayArea volumes: 497 (m60+m61)
+    checks: 5295 with coords, 3525 with a derived ground, 1770 underivable
+66.6% derived, which is in line with grace_ground's own 293/421 (69.6%) on the same volumes -- the
+underivable third is ground the MSBs simply do not carve, not a failure of the join. MIN_DERIVED
+below is pinned AT that measured count.
 
 Run:  python3 tools/datamine_check_ground.py                 # report
       python3 tools/datamine_check_ground.py --triage        # + disagreements vs the shipped label
@@ -58,9 +61,12 @@ from datamine_grace_ground import (                      # noqa: E402  the calib
     SEAM_SLACK, PRP, load_volumes, load_interior_volumes, _nearest_face,
 )
 
-# Placeholder floor -- see the docstring. Expressed as a FRACTION only because the absolute has never
-# been measured; pin the measured count on the first real run and delete this.
-MIN_DERIVED_FRAC = 0.50
+# COVERAGE FLOOR, same discipline as arena_graces._ARENA_FLOOR and grace_ground.MIN_DERIVED: the
+# derivation depends on the unpacked MSBs being PRESENT, so re-running without them must FAIL rather
+# than quietly write a thinner table that still looks like an answer. Pinned AT the measured count
+# from the 2026-08-10 full-artifact run (3525 of 5295). RAISE, NEVER LOWER -- a drop is a finding.
+# If a param or MSB change legitimately drops one, lower it CONSCIOUSLY and say why in the commit.
+MIN_DERIVED = 3525
 
 
 def _play_region_groups():
@@ -154,11 +160,11 @@ def main():
     derived = sum(1 for r in rows if r[1] != "-")
     print("checks: %d with coords, %d with a derived ground, %d underivable"
           % (len(rows), derived, len(rows) - derived))
-    if rows and derived < MIN_DERIVED_FRAC * len(rows):
+    if derived < MIN_DERIVED:
         raise SystemExit(
-            "FATAL: only %d of %d checks derived a ground (floor %.0f%%) -- the MSBs are missing or "
-            "truncated. Refusing to emit a table that would look like an answer."
-            % (derived, len(rows), 100 * MIN_DERIVED_FRAC))
+            "FATAL: only %d of %d checks derived a ground (floor %d, measured 2026-08-10) -- the "
+            "MSBs are missing or truncated. Refusing to emit a table that would look like an answer."
+            % (derived, len(rows), MIN_DERIVED))
 
     if args.triage:
         owner = _play_region_groups()
