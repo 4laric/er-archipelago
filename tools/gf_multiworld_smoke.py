@@ -39,6 +39,12 @@ WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PART
      passes every single-player gate we have.
   2. ER REACHES A NON-ER GAME specifically. ER-to-ER traffic alone would satisfy (1) while the world
      was in fact unable to place into a foreign game.
+  2b. AND THE GEAR DOES TOO -- of the ER items that reach the partner, at least one is
+     USEFUL-classified. Added 2026-08-10. Item 2 counts items and never reads what they are, and at
+     `confine_foreign_progression: 100` it was green while the partner received 498 items across
+     three seeds of which ZERO were useful: no weapon, no armour, no talisman, pure filler. A
+     player reported it before any gate did. The slot configuration exists to make this testable --
+     ER slot 2 runs PARTIAL_CONFINE so the lever is pulled somewhere in the seed.
   3. THE MOTIVATING CASE, BY NAME (CONTRIBUTING rule 11): under `natural_progression`, real vanilla
      keys land in OTHER players' worlds. Measured 2026-07-28: 42 placed, 12 foreign, including a
      Cursemark of Death in a Hollow Knight slot; re-measured 2026-08-03 on the same pinned seed:
@@ -146,11 +152,26 @@ def _partner_yaml(partner, n):
             % (partner.slot, n, partner.game, partner.game, partner.body))
 
 
-def _er_yaml(name, natural):
+# The confine share slot 2 runs at. Slot 1 keeps the SHIPPED default, so one generation carries both
+# configurations and check_foreign_confinement can assert the strict promise on one slot while
+# check_gear_reaches_the_partner exercises the lever on the other. 50 is far enough below 100 to be
+# unambiguous: measured 2026-08-10, a two-slot ER seed beside Hollow Knight sends the partner 0.0%
+# useful at 100 and 38.3% at 50.
+PARTIAL_CONFINE = 50
+
+
+def _er_yaml(name, natural, confine=None):
     """The SHIPPED template, edited minimally -- so this tests what players actually generate."""
     src = os.path.join(ROOT, "release", "EldenRing.yaml")
     s = open(src, encoding="utf-8").read()
     s = re.sub(r"^name:.*$", "name: %s" % name, s, count=1, flags=re.M)
+    if confine is not None:
+        s2 = re.sub(r"^(\s*)confine_foreign_progression:.*$",
+                    r"\g<1>confine_foreign_progression: %d" % confine, s, count=1, flags=re.M)
+        if s2 == s:
+            sys.exit("FAIL: release/EldenRing.yaml no longer carries a confine_foreign_progression "
+                     "line, so this test silently stopped setting the share it claims to test.")
+        s = s2
     # Small map: the cross-world properties do not need 31 regions, and CI time is not free.
     s = re.sub(r"^(\s*)num_regions:\s*\d+\s*$", r"\g<1>num_regions: 4", s, count=1, flags=re.M)
     if natural:
@@ -199,18 +220,32 @@ def multidata(zip_path):
     return md["slot_info"], md.get("slot_data", {}), md["locations"]
 
 
+# AP location-flags bitfield again: bit 1 = useful. Read from the multidata for the same reason
+# _FLAG_ADVANCEMENT is -- an item-name heuristic cannot tell a weapon from a crafting material, and
+# guessing is what let the defect below survive.
+_FLAG_USEFUL = 0b010
+
+
 def check_foreign_confinement(slot_info, slot_data, locations, report):
-    """`confine_foreign_progression` (default ON): another world's ADVANCEMENT items may land only on
-    THIS world's progression surface, never on its filler checks.
+    """`confine_foreign_progression`: the SHARE of another world's advancement that may land only on
+    this world's progression surface, never on its filler checks.
 
     🛑 THE OPTION'S OWN DOCSTRING SAYS "No effect in a solo seed". So until there was a multiworld in
     CI this promise had never been executed even once -- it is the single most multiworld-shaped
     property the apworld has, and it was also the least tested.
+
+    Two slots, two configurations, one generation. `ErdtreeOne` runs the SHIPPED default and must
+    keep the promise exactly: zero foreign advancement off its surface. `ErdtreeTwo` runs
+    PARTIAL_CONFINE and must BREAK it -- a partial share that never lets anything off-surface is
+    inert, and an inert share is precisely the bug this option was reshaped to fix.
     """
     bad = []
+    strict_seen = partial_seen = False
     for player, info in sorted(slot_info.items()):
         if info.game != "Elden Ring":
             continue
+        strict = info.name == "ErdtreeOne"
+        share = 100 if strict else PARTIAL_CONFINE
         sd = slot_data.get(player) or {}
         surface = set(sd.get("progressionSurfaceLocations") or ())
         if not surface:
@@ -222,20 +257,77 @@ def check_foreign_confinement(slot_info, slot_data, locations, report):
                    if ip != player and (fl & _FLAG_ADVANCEMENT)]
         offsurface = [lid for lid, _ip in foreign if lid not in surface]
         donors = sorted({slot_info[ip].game for _l, ip in foreign})
-        report("slot %d: surface %d, foreign progression placed here %d (from %s), off-surface %d"
-               % (player, len(surface), len(foreign), ", ".join(donors) or "-", len(offsurface)))
+        report("slot %d (%s, confine %d): surface %d, foreign progression placed here %d (from %s), "
+               "off-surface %d"
+               % (player, info.name, share, len(surface), len(foreign), ", ".join(donors) or "-",
+                  len(offsurface)))
         if not foreign:
             bad.append(
                 "slot %d received NO foreign progression at all, so confine_foreign_progression was "
                 "not exercised. Either fill placed none this seed (re-check the partner's pool) or "
                 "the surface is barring everything -- a vacuous pass either way." % player)
-        if offsurface:
-            bad.append(
-                "slot %d: %d foreign progression item(s) landed OFF the progression surface, e.g. "
-                "location %s. confine_foreign_progression is default-ON and promises another world's "
-                "advancement items only ever sit on your surface checks -- a player who took that "
-                "promise would be hunting a key on a Smithing Stone pickup."
-                % (player, len(offsurface), offsurface[0]))
+            continue
+        if strict:
+            strict_seen = True
+            if offsurface:
+                bad.append(
+                    "slot %d: %d foreign progression item(s) landed OFF the progression surface, "
+                    "e.g. location %s. At confine 100 the option promises another world's "
+                    "advancement items only ever sit on your surface checks -- a player who took "
+                    "that promise would be hunting a key on a Smithing Stone pickup."
+                    % (player, len(offsurface), offsurface[0]))
+        else:
+            partial_seen = True
+            if not offsurface:
+                bad.append(
+                    "slot %d ran confine_foreign_progression: %d and STILL took every foreign "
+                    "progression item onto its surface (%d of them). A partial share that never "
+                    "releases anything is an inert knob, which is what the option looked like "
+                    "before it was a share -- and an inert knob passes every count-based check."
+                    % (player, share, len(foreign)))
+    if not strict_seen or not partial_seen:
+        bad.append("expected one Elden Ring slot at the shipped default and one at "
+                   "confine_foreign_progression: %d; saw strict=%s partial=%s. Both arms have to "
+                   "run or this check is asserting half a property."
+                   % (PARTIAL_CONFINE, strict_seen, partial_seen))
+    return bad
+
+
+def check_gear_reaches_the_partner(slot_info, locations, report):
+    """THE MOTIVATING CASE (CONTRIBUTING rule 11), filed 2026-08-10 off a boblerrr report.
+
+    Elden Ring items DO leave for the partner game -- check 2 below has always said so -- but at
+    confine 100 every single one of them is FILLER. Measured before the share existed: 498 Elden
+    Ring items reached Hollow Knight across three seeds and ZERO were useful, no weapon, no armour,
+    no talisman, while the other Elden Ring slot received 43.1% useful. bobler: *"well it sends out
+    weapons and armors i assume, and talismans ... dont think ive seen any of those items being
+    global."* He was right, and check 2 was green through all of it, because it counts items and
+    not what they are.
+
+    🛑 THE ASSERTION IS GLOBAL, NOT PER-SLOT, and saying so matters. `confine_foreign_progression`
+    is a rule about the setting world's OWN locations; its effect on the partner is DISPLACEMENT --
+    the partner's progression is pushed back into the partner's own slots, saturating them before
+    Archipelago's `remaining_fill` gets to the useful tier. One slot lowering its share frees the
+    partner for everybody. So this asserts that gear reaches the partner AT ALL in a seed where the
+    lever is pulled; it cannot attribute the gear to a slot, and it should not pretend to.
+    """
+    bad = []
+    er = {p for p, i in slot_info.items() if i.game == "Elden Ring"}
+    to_partner = [(lid, holder, ip, fl)
+                  for holder, rows in locations.items() if holder not in er
+                  for lid, (_iid, ip, fl) in rows.items() if ip in er]
+    useful = [r for r in to_partner if r[3] & _FLAG_USEFUL]
+    by_game = collections.Counter(slot_info[h].game for _l, h, _i, _f in useful)
+    report("gear export: %d Elden Ring item(s) reached a non-ER game, %d of them USEFUL-classified "
+           "(%s)" % (len(to_partner), len(useful),
+                     ", ".join("%s %d" % kv for kv in sorted(by_game.items())) or "-"))
+    if to_partner and not useful:
+        bad.append(
+            "%d Elden Ring items reached a non-Elden-Ring game and NOT ONE was useful-classified -- "
+            "no weapon, no armour, no talisman, no ash. The partner got nothing but filler, which "
+            "is the exact defect confine_foreign_progression was reshaped into a share to fix, and "
+            "which check 2 (\"ER reaches a non-ER game\") passes over because it counts items "
+            "rather than reading their classification." % len(to_partner))
     return bad
 
 
@@ -485,7 +577,7 @@ def run_partner(ap_dir, partner, keep):
         try:
             for i, nm in enumerate(("ErdtreeOne", "ErdtreeTwo"), 1):
                 open(os.path.join(players, "ER_%d.yaml" % i), "w", encoding="utf-8").write(
-                    _er_yaml(nm, natural))
+                    _er_yaml(nm, natural, confine=None if i == 1 else PARTIAL_CONFINE))
             for n in (1, 2):
                 open(os.path.join(players, "P_%d.yaml" % n), "w", encoding="utf-8").write(
                     _partner_yaml(partner, n))
@@ -498,6 +590,9 @@ def run_partner(ap_dir, partner, keep):
             failures += ["[%s] %s" % (label, f)
                          for f in check_foreign_confinement(si, sd, locs,
                                                             lambda m: print("  " + m))]
+            failures += ["[%s] %s" % (label, f)
+                         for f in check_gear_reaches_the_partner(si, locs,
+                                                                 lambda m: print("  " + m))]
             failures += ["[%s] %s" % (label, f)
                          for f in check_slot_data_tables(si, sd, lambda m: print("  " + m))]
         finally:
@@ -565,11 +660,12 @@ def main(argv=None):
             print("  * %s" % f)
         return 1
     print("MULTIWORLD SMOKE: PASS over %d partner(s) -- %s.\n"
-          "      Cross-world flow works in both directions, ER reaches a foreign game, "
-          "natural_progression keys\n      are placeable in other players' worlds, foreign "
-          "progression lands only on the progression surface,\n      and each slot's "
-          "checkItemFlags is collectable, unshared, and its own."
-          % (len(present), ", ".join(p.game for p in present)))
+          "      Cross-world flow works in both directions, ER reaches a foreign game AND sends it "
+          "real gear,\n      natural_progression keys are placeable in other players' worlds, "
+          "foreign progression lands\n      only on the progression surface at confine 100 and is "
+          "genuinely released at %d,\n      and each slot's checkItemFlags is collectable, "
+          "unshared, and its own."
+          % (len(present), ", ".join(p.game for p in present), PARTIAL_CONFINE))
     return 0
 
 

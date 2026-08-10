@@ -123,6 +123,20 @@ Peninsula. If the Weeping Peninsula is wrecking you, you're probably not
 undergeared -- you just unlocked it late. See "Enemy difficulty" below if you
 want to reshape that.
 
+**You burned the Erdtree and Leyndell changed.** Elden Ring has two capitals
+on the same spot -- Leyndell, Royal Capital before the burn, the Ashen Capital
+and the Elden Throne after -- and vanilla only ever goes one way. Under region
+locks the Farum Azula Lock can reach Maliketh long before you are done with the
+Royal Capital, so this is easy to trip by accident.
+
+You have not lost it. `capital_reconciler` is on by default and keeps that
+switch matched to where you are standing, so the Royal Capital comes back. What
+the burn *does* take is Leyndell's grace warp points, which means right after it
+you cannot fast-travel in even holding the Leyndell Lock. Walk in from Altus
+through the main gate -- the Great Rune wall works exactly as before -- and
+touch a grace to get the warp back. Warping to an Ashen grace returns you to the
+finale whenever you want it.
+
 **A pickup showed someone else's item name.** That chest held "Progressive
 Sword" for a Hollow Knight player three worlds over. You sent it; something of
 yours is out there in return. That's the multiworld doing its thing.
@@ -248,6 +262,16 @@ run rather than tune it.
 - **`filler_foreign_pct`** -- how much of your filler other worlds may draw
   from. It picks *which* filler at random per seed, so it can't be aimed;
   `keep_local` is the aimable version and they compose.
+- **`confine_foreign_progression`** -- the one that decides whether your gear is
+  worth receiving, which is not what the name suggests. It is a percentage: how
+  much of *other* players' progression is held to your progression surface. At
+  the default of 100 it also, as a side effect, means a non-Elden-Ring partner
+  receives **nothing from you but filler** -- no weapon, no armour, no talisman.
+  The rule is about your own locations, but it pushes the other game's keys back
+  into that game's own slots, and Archipelago fills those before it gets to the
+  good stuff. Measured beside Hollow Knight: 0% of what we sent was useful at
+  100, 23% at 75, 38% at 50. Lower it if your friends should be opening your
+  weapons; the cost is that their keys stop landing on your interesting checks.
 
 **How much am I actually sending out?** The wizard's *Seed size* tab shows the
 ceiling as you move those options -- how many of your items are permitted to

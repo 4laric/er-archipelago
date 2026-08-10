@@ -29,7 +29,9 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import OptionSet, Choice, DefaultOnToggle, Range
+from Options import OptionSet, Choice, NamedRange, Range
+import hashlib
+
 from ..registry import Feature, register
 from .. import contract
 
@@ -156,22 +158,56 @@ class ProgressionBias(Range):
     default = 0
 
 
-class ConfineForeignProgression(DefaultOnToggle):
-    """Confine OTHER players' progression to your Progression Surface too, not just your own.
+class ConfineForeignProgression(NamedRange):
+    """What share of OTHER players' progression is confined to your Progression Surface, the way
+    your own is. A percentage, not a switch.
 
-    ON (default): in a multiworld, another world's advancement items may only be placed on your
-    surface locations -- the same high-confidence checks your own progression is curated onto --
-    never on your filler checks. This is the option that trades the CURATION away; Progression Bias
-    only decides WHOSE surface your Locks land on. Turning this off is what lets progression scatter
-    onto crafting materials, in both directions. So a foreign key spell lands on a major-boss/remembrance/key-item check of yours,
-    not on a random Smithing Stone pickup. OFF: foreign progression scatters across any reachable
-    location of yours, which is standard Archipelago behaviour.
+    100 (`true`) confines all of it: another world's advancement may only be placed on your surface
+    locations -- the same high-confidence checks your own progression is curated onto -- never on
+    your filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check
+    of yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign
+    progression scatters across any reachable location of yours, which is standard Archipelago
+    behaviour. In between, that share of the foreign advancement you see is held to the surface and
+    the rest is free.
+
+    🛑 IT IS NOT ONLY A CURATION KNOB, and this is the reason it stopped being a toggle. The rule is
+    about YOUR locations, but it displaces your NEIGHBOUR: barred from your ~3000 filler checks, a
+    partner game's progression has nowhere to go but its own locations, which saturates them early
+    in the fill -- and Archipelago places the whole `useful` tier before any filler, so by the time
+    it reaches what is left of the partner's world only filler remains. MEASURED at 100, three
+    seeds, two Elden Ring slots beside two Hollow Knight slots: of 498 Elden Ring items that reached
+    Hollow Knight, **zero** were useful -- no weapon, no armour, no talisman, 100% filler -- while
+    the other Elden Ring slot got a healthy 43.1% useful. At 0 the same seeds send Hollow Knight
+    40.7% useful, which is the pool's own mix. Lower this if you want your gear to be worth
+    receiving in a non-Elden-Ring game.
+
+    It is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item
+    name is fixed for the whole seed, so a name is either surface-only or free, never both.
 
     No effect in a solo seed, or when Progression Surface Mode is off. It never blocks generation:
     your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign progression
-    that will not fit your surface simply lands in its own world instead (only YOUR filler checks are
-    barred to it -- other worlds are untouched)."""
+    that will not fit your surface simply lands in its own world instead (only YOUR filler checks
+    are barred to it -- other worlds are untouched)."""
     display_name = "Confine Foreign Progression"
+    range_start = 0
+    range_end = 100
+    default = 100
+    # `true` / `false` are what every yaml in the wild says, and they must keep meaning what they
+    # meant. `on`/`off`/`all`/`none` are spelled out because a share reads naturally either way.
+    special_range_names = {"false": 0, "off": 0, "none": 0,
+                           "true": 100, "on": 100, "all": 100}
+
+    @classmethod
+    def from_any(cls, data):
+        """🛑 A yaml `true` arrives here as a Python **bool**, and `bool` is a subclass of `int`, so
+        AP's `Range.from_any` would fall through to `cls(int(data))` and read `true` as the integer
+        **1** -- i.e. 1%, which is indistinguishable from OFF and would silently invert this option
+        for every existing yaml. `from_text` never sees it, because the value is not a string.
+        Catch the bool BEFORE the int path. (`Toggle.from_any` had the same shape and did not need
+        this only because its range already was 0..1.)"""
+        if isinstance(data, bool):
+            return cls(cls.range_end if data else cls.range_start)
+        return super().from_any(data)
 
 
 # ---- PRESENTATION: what the OPTIONS WIZARD shows for each class -----------------------------------
@@ -492,6 +528,74 @@ def foreign_advancement_barred(item, player):
     return bool(getattr(item, "advancement", False)) and getattr(item, "player", None) != player
 
 
+def confine_pct(world) -> int:
+    """The share of foreign advancement this world confines to its surface, 0-100.
+
+    Absent option -> 100, i.e. the pre-share behaviour. That is the opposite convention from
+    `_released_pct`, and deliberately so: both mean "an older or stubbed world behaves exactly as it
+    did before the option existed", and before this option existed the bar was unconditional."""
+    o = getattr(getattr(world, "options", None), "confine_foreign_progression", None)
+    if o is None:
+        return 100
+    try:
+        return max(0, min(100, int(o.value)))
+    except (TypeError, ValueError):
+        return 100
+
+
+def _confine_draw(salt: str, item) -> int:
+    """A stable 0-99 for a foreign item, from a hash rather than an rng.
+
+    🛑 WHY A HASH AND NOT `world.random`. This is read from inside a LOCATION'S `item_rule`, which
+    Archipelago calls an unbounded number of times per item -- once per candidate location, again on
+    every swap in `remaining_fill`, again during accessibility corrections. An rng draw there would
+    return a different answer on each call (so a name would be confined for one location and free
+    for the next, which is not a share of anything), and it would consume the seed's rng stream a
+    different number of times depending on how hard fill had to work -- the exact failure
+    [[er-fill-slot-data-is-called-more-than-once]] describes. A hash is pure, so the answer is fixed
+    for the whole generation and the stream is untouched.
+
+    Keyed on (salt, owning player, item NAME): per-name, matching `filler_foreign_pct`'s documented
+    "propensity by distinct item name, not a per-copy rule". The salt carries the multiworld seed and
+    OUR player number, so two Elden Ring slots in the same seed confine different names -- otherwise
+    every ER world in a multiworld would agree, and a foreign item barred from one would be barred
+    from all of them, which is a much harder rule than the percentage claims."""
+    key = "%s|%s|%s" % (salt, getattr(item, "player", 0), getattr(item, "name", ""))
+    digest = hashlib.blake2b(key.encode("utf-8"), digest_size=8).digest()
+    return int.from_bytes(digest, "big") % 100
+
+
+def _confine_salt(world) -> str:
+    """Deterministic per (seed, player). Reads the seed rather than drawing from `world.random`, so
+    installing this predicate cannot shift the rng stream for anything downstream of it -- which is
+    what keeps the 100 default byte-identical to the toggle it replaced."""
+    mw = getattr(world, "multiworld", None)
+    return "%s|%s" % (getattr(mw, "seed", 0), getattr(world, "player", 0))
+
+
+def foreign_bar_for(world):
+    """The predicate `core._add_locations` (and the finale's hand-built copy) install on every
+    NON-surface location: `not foreign_bar_for(world)(item, player)`.
+
+    At 100 this is `foreign_advancement_barred` itself -- the same object, so the shipped default
+    runs the same code path it always did. Below 100 it is a share: still only ever foreign
+    advancement, and of that, only the names whose draw falls under the percentage."""
+    pct = confine_pct(world)
+    if pct >= 100:
+        return foreign_advancement_barred
+    if pct <= 0:
+        # Nothing is confined. Returning a constant-False predicate rather than None keeps core's
+        # call shape identical; core also stops installing the rule at all (see confined_surface_ids
+        # returning None), so this is belt and braces.
+        return lambda item, player: False
+    salt = _confine_salt(world)
+    def _barred(item, player, _salt=salt, _pct=pct):
+        if not foreign_advancement_barred(item, player):
+            return False
+        return _confine_draw(_salt, item) < _pct
+    return _barred
+
+
 def released_locks(items, pct, rng):
     """The Region Lock items that SKIP the surface and go to the normal multiworld fill.
 
@@ -572,8 +676,7 @@ def confined_surface_ids(world):
     Returns None when the feature is inactive (option off, surface mode off, empty surface, or tags not
     generated), meaning 'apply no foreign bar'. Uses the SAME surface resolution as apply()/slot_data(),
     so where foreign progression may land and where own progression is placed can never disagree."""
-    o = getattr(world.options, "confine_foreign_progression", None)
-    if o is None or not int(getattr(o, "value", 0)) or _mode(world) == 0 or not LOCATION_TAGS:
+    if confine_pct(world) <= 0 or _mode(world) == 0 or not LOCATION_TAGS:
         return None
     classes = selected_surface(_selection(world))
     if not classes:
@@ -919,9 +1022,11 @@ class ProgressionSurfaceFeature(Feature):
 
         It still confines real progression, so the honest reading is the weaker one:
         **these are the locations that can host progression items -- yours or another world's.**
-        `confine_foreign_progression` (default ON) keeps every OTHER player's advancement on exactly
-        this set, and whatever share of your own Locks you chose to keep curated lands here too. A
-        star is "something important can be here", not "your key is here".
+        `confine_foreign_progression` keeps that share of every OTHER player's advancement on
+        exactly this set, and whatever share of your own Locks you chose to keep curated lands here
+        too. A star is "something important can be here", not "your key is here". 🛑 At a confine
+        share below 100 the star weakens once more: the un-confined share of foreign progression can
+        sit on any reachable check of yours, starred or not.
 
         It REPLACES `bigTicketLocations`, which was a second list of "important checks" naming a set
         progression could never reach: big-ticket targeted {MajorBoss, Remembrance, GreatRune} while

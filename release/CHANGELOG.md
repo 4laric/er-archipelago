@@ -58,6 +58,72 @@ One refusal deliberately does NOT release: the one you get when the room changes
 session. That one has a reconciler already built for the old room, and re-arming it is not something
 the client can do safely, so its toast still says RESTART and it still means it.
 
+### The shipped yaml template was 17 options behind the game
+
+A player burned the Erdtree, found the capital stuck in its Ashen version with his Leyndell Lock
+suddenly useless, went looking for the setting that governs it, and got as far as
+`SPEC-capital-reconciler.md` on GitHub before reporting back that no such setting exists in the
+template, the player guide or the setup guide.
+
+He was right. `capital_reconciler` has been on by default since v0.2.13 and it decides whether
+burning the Erdtree permanently strands Royal Leyndell's ~152 checks -- and it had never appeared in
+any file a player receives. Nor had sixteen others, including `start_with_whetblades` and
+`progression_bias`: `release/EldenRing.yaml` carried 33 of the 50 player-facing options.
+
+The template had a gate, and the gate only ran one way. `test_gf_shipping_yaml` has checked since
+July that no key in the template is a fake option, because the template once went on declaring
+`game: EldenRing` through a rename. It never checked that a real option reaches the template -- and
+Archipelago ignores a missing option exactly as silently as an invented one, generating on the
+default either way. The wizard's list is generated from the option classes; the template is written
+by hand; so only the wizard moved when a feature landed, and when three options missed the wizard
+two windows ago the conclusion drawn was that the yaml had always accepted them and only the wizard
+was behind.
+
+The gate now runs both ways, live, with the remaining sixteen listed in `_TEMPLATE_DEBT` and checked
+for staleness so a drained entry cannot linger (#512). `capital_reconciler` is not among them: it is
+documented in the template, in the player guide and in `KNOWN-ISSUES.md` in the same commit.
+
+The player-facing half is worth stating on its own, because it is a thing the guide never said. The
+burn is the game's own event and it switches off Leyndell's grace warp points, so straight after
+burning you cannot fast-travel into the capital even holding its Lock. The reconciler still gives
+you the Royal Capital back -- the *warp shortcut* is what the burn takes. Walk in from Altus through
+the main gate, touch a grace, and it returns.
+
+It caught an eighteenth on its first run, which is the best argument for it anyone could have
+written: `merchant_bells_on_talk` landed earlier in this same window and had not reached the
+template either. Documented here rather than quarantined.
+
+`KNOWN-ISSUES.md` was also still titled v0.3.7 at three consecutive tags. Retitled.
+
+### `confine_foreign_progression` is a percentage now, and it was quietly deciding what your friends get
+
+It used to be a yes/no. It is now a share from 0 to 100 — `true` and `false` still work and still
+mean 100 and 0, so nothing you have written needs changing — and the reason is a defect nobody had
+measured.
+
+The option's job is curation: hold other players' keys to your progression surface so a foreign key
+item shows up on a major boss rather than on a Smithing Stone pickup. What it also does, and this was
+not in anyone's model, is **push the other game's progression back into the other game's own slots**.
+Archipelago places the entire `useful` tier before it places any filler, so by the time it reaches
+what is left of your partner's world, only filler is available. At 100 — the shipped default, then and
+now — a non-Elden-Ring partner receives *nothing from Elden Ring but filler*. Measured over three
+seeds beside Hollow Knight: 498 items sent, **zero** of them a weapon, an armour piece or a talisman,
+while a second Elden Ring slot in the same seeds received a healthy 43% useful. boblerrr reported it
+from a live game before any gate did — *"dont think ive seen any of those items being global"* — and
+he was right.
+
+The default has NOT moved in this release; 100 is still 100 and your seeds generate exactly as they
+did. What you have now is the ability to say something else. Beside Hollow Knight, the share buys
+gear back quickly: 0% useful at 100, 5% at 90, 23% at 75, 38% at 50, and it is flat below that. The
+price is the curation — the released share of foreign progression can land anywhere in your world, and
+because "anywhere" is about 3000 checks against a surface of ~170, even a small release means most
+incoming foreign keys are no longer on a starred check.
+
+The multiworld smoke test now runs its two Elden Ring slots at *different* shares and asserts that at
+least one of the items reaching the partner game is useful-classified. The old check counted items
+reaching the partner and never looked at what they were, which is why it was green for the whole life
+of the bug.
+
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
