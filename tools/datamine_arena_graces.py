@@ -59,8 +59,42 @@ OUT = os.path.join(ROOT, "greenfield", "arena_graces.tsv")
 DEFAULT_RADIUS = 40.0
 
 
+def _healthbar_bosses():
+    """{map_id: {entity}} from the GENERATED greenfield/eldenring/boss_healthbars.py.
+
+    🛑 WHY THIS EXISTS (2026-08-10). The literal sweep below matches
+    `DisplayBossHealthBar(Enabled, <id>, ...)` written out in the tile's own EMEVD. **72 of the 231
+    bosses are not written that way** -- they are raised through `$InitializeCommonEvent(0, 900058xx,
+    <entity>, ...)`, so the literal regex never sees them, and the 70 tiles that hold ONLY such
+    bosses never entered `adjudicated_tiles` at all. The Divine Beast Dancing Lion (2046460800,
+    m61_46_46) is one: `grep 2046460800` finds 74 EMEVD lines and not one is a literal
+    DisplayBossHealthBar, so its arena has never been checked for graces standing in it.
+
+    `datamine_boss_healthbars.py` already resolves BOTH forms; its output is the authoritative set
+    and is committed, so this needs no artifacts. Union, never replace -- the literal sweep stays as
+    the independent read of the corpus.
+    """
+    p = os.path.join(ROOT, "greenfield", "eldenring", "boss_healthbars.py")
+    out = defaultdict(set)
+    if not os.path.isfile(p):
+        return out
+    src = open(p, encoding="utf-8").read()
+    for ent, _grp, tile, _cls, _nm in re.findall(
+            r"(\d+):\s*\('([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)'\)", src):
+        # boss_healthbars tiles are 3-part overworld (m61_46_46) or 2-part interior (m12_01);
+        # EMEVD/MSB names are 4-part.
+        n = tile.count("_")
+        out[tile + ("_00" if n == 2 else "_00_00" if n == 1 else "")].add(int(ent))
+    return out
+
+
 def boss_ids_by_map():
-    """map_id -> {boss entity id}. From the authoritative DisplayBossHealthBar EMEVD sweep."""
+    """map_id -> {boss entity id}. The authoritative boss set.
+
+    UNION of two reads of the same EMEVD corpus: the literal `DisplayBossHealthBar` sweep, and the
+    common-event-aware set resolved by datamine_boss_healthbars. See _healthbar_bosses for why the
+    literal sweep alone is a 159-of-231 lower bound.
+    """
     out = defaultdict(set)
     for fp in glob.glob(os.path.join(EVENT, "*.emevd.dcx.js")):
         b = os.path.basename(fp).split(".")[0]
@@ -72,6 +106,14 @@ def boss_ids_by_map():
             continue
         for m in re.finditer(r"DisplayBossHealthBar\(Enabled,\s*(\d+)", t):
             out[b].add(int(m.group(1)))
+    _lit = sum(len(v) for v in out.values())
+    for mid, ents in _healthbar_bosses().items():
+        out[mid] |= ents
+    _tot = sum(len(v) for v in out.values())
+    if _tot > _lit:
+        print("  boss set: %d from the literal DisplayBossHealthBar sweep, %d after unioning "
+              "boss_healthbars (common-event-raised bosses the literal regex cannot see)"
+              % (_lit, _tot))
     return out
 
 
