@@ -57,6 +57,36 @@ def test_roster_resolves_and_is_nonempty():
         f"unexpected unresolved roster names: {pf.UNRESOLVED} -- confirm the catalog spelling")
 
 
+def test_bell_bearings_leave_the_floor_when_the_progressive_ladder_owns_them():
+    """#539. The floor injects one copy of every roster item whose home region was not kept -- which
+    made it the SECOND source of vanilla bell bearings, and the reason all eight were in the pool
+    even in a seed that kept four regions. With progressive_stone_bells on, injecting one hands the
+    player the ladder's top rung in a single pickup, so the bells drop out of the floor.
+
+    This is a hand-off, not a hole: features/progressive tops its copies up to the ladder length in
+    EVERY seed, including the dlc_only / zero-kept-region case this floor was written for. The
+    end-to-end proof is test_gf_progressive's ProgressiveStoneBellsOn* classes (zero vanilla
+    bearings in the built pool); this is the direct unit assertion on the predicate itself."""
+    class _Toggle:
+        def __init__(self, v):
+            self.value = v
+
+    class _Options:
+        def __init__(self, v):
+            self.progressive_stone_bells = _Toggle(v)
+
+    class _World:
+        def __init__(self, v):
+            self.options = _Options(v)
+
+    assert pf.BELL_BEARING_ITEMS, "the bell half of the roster is empty -- this test is vacuous"
+    assert pf.BELL_BEARING_ITEMS <= pf.PRESENCE_FLOOR_ITEMS
+    assert pf._toggle_dropped(_World(1)) == pf.BELL_BEARING_ITEMS
+    assert pf._toggle_dropped(_World(0)) == frozenset()
+    # The physick tears have no other owner and must never be dropped by this.
+    assert not (pf._toggle_dropped(_World(1)) & set(pf.PHYSICK_TEARS))
+
+
 def test_roster_items_are_goods_and_would_be_seized_without_protection():
     # The precondition for the protection to be load-bearing: every roster item is a GOODS, which the
     # junk predicate would seize as filler if it were not explicitly protected.

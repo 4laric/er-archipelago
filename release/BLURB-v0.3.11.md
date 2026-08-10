@@ -24,6 +24,13 @@ nothing the option takes what fits, skips what does not, and writes down which w
 weapons and armour on a one-region seed and you will get weapons kept out and a line in the log
 explaining that armour would not fit and by how much.
 
+**Progressive Stone Bells actually paces you now.** The setting collapses the Miner's Bell
+Bearings into two progressive items, so the Twin Maidens' smithing shop opens a tier at a time instead
+of all at once when you happen to find the right bearing. Except that the ordinary bell bearings were
+still in the pool alongside it -- and one of them is the top of the somber shop. boblerrr picked up
+`Somberstone Miner's Bell Bearing [5]` in Enir-Ilim and the ladder was simply over. Turn the option on
+now and there are no loose bell bearings to find; turn it off and everything is exactly where it was.
+
 ## What is queued for it
 
 A fix for something two players noticed independently -- items whose region label sends you to the

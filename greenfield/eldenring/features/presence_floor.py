@@ -30,6 +30,22 @@ never duplicated.
 
 The roster items are real vanilla GOODS (granted by their FullID, already in ITEM_CATALOG /
 _AP_IDS_TO_ITEM_IDS), so the client grants them with no client change -- this feature is pool-only.
+
+A ROSTER ITEM ANOTHER FEATURE HAS TAKEN OVER (#539)
+---------------------------------------------------
+`progressive_stone_bells` replaces every vanilla bell bearing with a progressive ladder and
+substitutes the vanilla names out of the item-shuffle pool (features/progressive.vanilla_
+substitutions). This floor is the OTHER source of those names, and it is the reason all eight showed
+up in a live seed even where only a few regions were kept: substitution only removes the bearings
+that were ON a kept check, and the floor injected every one that was not. Injecting a vanilla bearing
+under that toggle hands the player the ladder's TOP RUNG as a single pickup -- the ladder is then not
+degraded, it is BYPASSED (boblerrr, live playtest 2026-08-10). So when the toggle is on the bell
+bearings drop out of the floor (_toggle_dropped below).
+
+That is a HAND-OFF, not a hole: this floor exists so `dlc_only` / region-sealed seeds are not left
+with no bell bearing at all, and features/progressive keeps exactly that guarantee by topping its
+copies up to the ladder length in EVERY seed (bell_inject_count), including the ones with zero kept
+bell checks. The physick tears have no such owner and are untouched.
 """
 from typing import List
 
@@ -93,8 +109,18 @@ ROSTER: List[str] = [n for n in _RAW_ROSTER if n in ITEM_CATALOG] if ITEM_CATALO
 # shrink the roster to nothing (same failure shape as the collectathon-protection bug).
 UNRESOLVED: List[str] = [n for n in _RAW_ROSTER if ITEM_CATALOG and n not in ITEM_CATALOG]
 
-# The protection set filler_curation imports (frozen so a caller cannot mutate it).
+# The protection set filler_curation imports (frozen so a caller cannot mutate it). Deliberately the
+# WHOLE roster, toggle-independent: it only shields a roster item that is ALREADY in the pool from
+# junk seizure, and under progressive_stone_bells no vanilla bearing is in the pool to shield, so the
+# bell entries are simply inert there. Making it world-dependent would buy nothing and would give
+# filler_curation a second, differently-shaped answer to "what is protected".
 PRESENCE_FLOOR_ITEMS = frozenset(ROSTER)
+
+# The bell-bearing half of the ROSTER, as a set -- the names another feature can take over. Note the
+# intersection: BELL_BEARINGS is the REQUESTED nine and the roster is the eight that resolve
+# (Somberstone [1] is not in the name catalog), so taking the raw list would put a name in here that
+# the floor could never have injected anyway. Same arbiter as ROSTER, one filter, no second answer.
+BELL_BEARING_ITEMS = frozenset(BELL_BEARINGS) & PRESENCE_FLOOR_ITEMS
 
 
 def _shuffle_on(world) -> bool:
@@ -122,15 +148,27 @@ def present_roster(world) -> set:
     return present
 
 
+def _toggle_dropped(world) -> frozenset:
+    """Roster names another feature owns this seed, so this floor must NOT inject them (#539).
+
+    Only one so far: with `progressive_stone_bells` on, the bell bearings are the progressive
+    ladder's rungs and a loose vanilla copy is the top rung handed over in one pickup. See this
+    module's docstring -- the guarantee is kept, features/progressive just keeps it instead."""
+    o = getattr(world.options, "progressive_stone_bells", None)
+    return BELL_BEARING_ITEMS if (o is not None and o.value) else frozenset()
+
+
 def absent_roster(world) -> List[str]:
-    """Roster names to inject: resolvable, not present, AND not DLC-excluded. Preserves ROSTER order
+    """Roster names to inject: resolvable, not present, not DLC-excluded, AND not owned by another
+    feature this seed (_toggle_dropped -- #539). Preserves ROSTER order
     (deterministic). Dropping DLC-excluded names is what keeps a DLC-off seed clean: two roster physick
     tears (Bloodsucking Cracked Tear, Deflecting Hardtear) are DLC-only GOODS, so injecting them with
     DLC off would leak DLC content into the pool (the exact class test_gf_dlc_pool_leak guards). With
     DLC off they are simply not part of the floor; with DLC on the exclusion set is empty."""
     present = present_roster(world)
     excl = getattr(world, "gf_dlc_excluded", frozenset())
-    return [n for n in ROSTER if n not in present and n not in excl]
+    dropped = _toggle_dropped(world)
+    return [n for n in ROSTER if n not in present and n not in excl and n not in dropped]
 
 
 @register
