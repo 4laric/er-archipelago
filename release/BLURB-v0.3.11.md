@@ -5,9 +5,24 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened at the moment v0.3.10 was tagged, before anything landed in it,
-which is the point: a release note written weeks later is a reconstruction, and a reconstruction is
-where the interesting half goes missing.
+**Keep your gear out of the shops.** A new setting, off unless you ask for it:
+
+    keep_out_of_shops: [weapons, armor]
+
+and no merchant of yours will stock a weapon or a piece of armour again. They are still shuffled and
+still yours to find -- they are just out in the world, where finding one is a matter of going
+somewhere rather than of having enough runes. boblerrr asked for it looking at a shelf of weapons,
+gauntlets and helms priced up to 25,000 with 11,144 runes in his pocket, and he had a point: a fifth
+of every purchase-menu check in the game pays gear, and on a short seed the merchant more or less IS
+the world.
+
+It takes any category, not just gear -- `[consumables, crafting]`, `[spells]`, the same list Keep
+Local uses -- and it covers the unlimited shelves as well as the checks.
+
+On a very short seed there may simply be nowhere else to put it all, and rather than quietly doing
+nothing the option takes what fits, skips what does not, and writes down which was which. Ask for
+weapons and armour on a one-region seed and you will get weapons kept out and a line in the log
+explaining that armour would not fit and by how much.
 
 ## What is queued for it
 
