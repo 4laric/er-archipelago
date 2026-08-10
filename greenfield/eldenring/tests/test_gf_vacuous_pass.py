@@ -227,9 +227,15 @@ def _suite_files():
 
 # Measured by THIS scan, 2026-08-05: **152 on main**, and **154** on the tree that also carries
 # SPEC-broaden-sweeps pieces A and C (PR #386, two more invariant tests of the collect-and-assert-
-# empty shape). The ceiling is set to 154 so the ratchet does not go red the moment #386 lands --
+# empty shape). The ceiling was set to 154 so the ratchet would not go red the moment #386 landed --
 # stated rather than hidden, because a ceiling with undisclosed headroom is how a ratchet quietly
-# stops ratcheting. Drop it back to the measured value once #386 is on main.
+# stops ratcheting.
+#
+# 2026-08-10: #386 is on main and the headroom is now SPENT -- 154 is the measured value, with no
+# slack left in it. It earned that the same day: the trap-items suite (#515) landed two off-case
+# tests whose `trap_items(...) == []` would have passed just as happily if the minter were dead, the
+# count went to 156, and BOTH were fixed with real on-case witnesses rather than by moving this
+# number. That is the intended response to a red here.
 # GOING DOWN IS ALWAYS FINE -- lower it whenever you add a witness. Going UP means a new test was
 # written that passes without looking at anything, which is the whole point of this file.
 _WITNESSLESS_CEILING = 154

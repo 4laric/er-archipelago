@@ -91,10 +91,21 @@ class TrapItemsInTheWorld(unittest.TestCase):
 
     def test_no_traps_named_mints_nothing_however_high_the_count(self):
         """The OptionSet is the master switch: a count with nothing enabled is inert, so a player
-        who sets a count and forgets the set gets an unchanged seed rather than a silent surprise."""
+        who sets a count and forgets the set gets an unchanged seed rather than a silent surprise.
+
+        WITNESSED with the same count and the set NON-empty. `trap_items` returning [] for every
+        input satisfies the assertion below for free -- which is the whole shape test_gf_vacuous_pass
+        exists to catch -- so the off-case is only evidence next to a live on-case."""
+        self.assertTrue(_mod().trap_items(self._World(["rune_thief"], 40)),
+                        "count 40 with a trap named must mint something, or the OFF case below "
+                        "passes because the minter is dead rather than because the switch works")
         self.assertEqual(_mod().trap_items(self._World([], 40)), [])
 
     def test_zero_count_mints_nothing_however_many_are_named(self):
+        """Same shape, other axis: witnessed with the same SET and a non-zero count."""
+        self.assertTrue(_mod().trap_items(self._World(["rune_thief", "no_flask"], 4)),
+                        "the same two traps at count 4 must mint something, or count 0 minting "
+                        "nothing says nothing about the count")
         self.assertEqual(_mod().trap_items(self._World(["rune_thief", "no_flask"], 0)), [])
 
     def test_the_split_is_even_and_reproducible(self):
