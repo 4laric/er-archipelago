@@ -102,6 +102,9 @@ TESTS_JOB = {
     "no_phantom_flags": "event flag corpus ships in the bundle",
     "noninteractive_guard": "committed data only",
     "progression_surface": "gen_data.py found by walk-up in every CI checkout",
+    "traps": "the catalogue half needs only the installed world (features/traps.py); only the "
+             "dealing-rule class carries a repo sentinel, and it uses the same walk-up "
+             "progression_surface does. Skips where there is no repo tree, which is the point",
     "tile_row_region": "play_region_buckets.tsv and region_groups.py are installed beside the world "
                        "by tools/gf_test.py, and data.py IS the world -- so five of its six tests "
                        "run anywhere. Only the retired-pin ratchet reads greenfield/gen_data.py, "

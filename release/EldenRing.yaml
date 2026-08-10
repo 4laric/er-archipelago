@@ -275,6 +275,19 @@ Elden Ring:
   # area (reported by a player, 2026-08-10).
   progressive_stone_bells: false
 
+  # Items that make your run briefly worse. Empty (default) = none at all.
+  # A trap is FILLER: it never holds progression, and each one replaces a
+  # junk item, so your seed does not grow. In a multiworld somebody else may
+  # be the one who finds them.
+  #   rune_thief -- half your runes, gone.
+  #   no_flask   -- your flask heals nothing for 20s. You can still drink it;
+  #                 it just does nothing, and the charge is spent.
+  traps: []
+
+  # How many trap items to shuffle in, shared evenly between the traps you
+  # enabled above. Inert while `traps` is empty.
+  trap_count: 8
+
   # Share of YOUR filler that other players' worlds may draw from, in a
   # multiworld. 100 = fully shared. 0 = keep your filler to yourself.
   filler_foreign_pct: 100
