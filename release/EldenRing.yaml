@@ -314,6 +314,8 @@ Elden Ring:
   #   rune_thief -- half your runes, gone.
   #   no_flask   -- your flask heals nothing for 20s. You can still drink it;
   #                 it just does nothing, and the charge is spent.
+  #   runebear   -- a Runebear appears exactly where you are standing. Kill
+  #                 it and you keep the runes.
   traps: []
 
   # How many trap items to shuffle in, shared evenly between the traps you

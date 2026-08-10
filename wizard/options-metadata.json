@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.3.11",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "3e5f25696c986ce32afebabf03d71fb6b2fcf9dbc88bbec64230369d08e16c09",
+ "source_sha256": "72f0c328008852fa89e8b2454d904205d78f83a728dd3182a254733c64673490",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1337,7 +1337,7 @@
    "key": "traps",
    "class": "Traps",
    "display_name": "Traps",
-   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.",
+   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -1345,7 +1345,8 @@
    "range": null,
    "valid_keys": [
     "no_flask",
-    "rune_thief"
+    "rune_thief",
+    "runebear"
    ],
    "casefold": false,
    "group": null,
