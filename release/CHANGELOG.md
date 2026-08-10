@@ -17,6 +17,39 @@ the fifth window running that this has happened. It is recorded in `test_gf_cont
 rather than quietly fixed, because a step that five consecutive windows have missed is not something
 the next person will remember either.
 
+### The shipped yaml template was 17 options behind the game
+
+A player burned the Erdtree, found the capital stuck in its Ashen version with his Leyndell Lock
+suddenly useless, went looking for the setting that governs it, and got as far as
+`SPEC-capital-reconciler.md` on GitHub before reporting back that no such setting exists in the
+template, the player guide or the setup guide.
+
+He was right. `capital_reconciler` has been on by default since v0.2.13 and it decides whether
+burning the Erdtree permanently strands Royal Leyndell's ~152 checks -- and it had never appeared in
+any file a player receives. Nor had sixteen others, including `start_with_whetblades` and
+`progression_bias`: `release/EldenRing.yaml` carried 33 of the 50 player-facing options.
+
+The template had a gate, and the gate only ran one way. `test_gf_shipping_yaml` has checked since
+July that no key in the template is a fake option, because the template once went on declaring
+`game: EldenRing` through a rename. It never checked that a real option reaches the template -- and
+Archipelago ignores a missing option exactly as silently as an invented one, generating on the
+default either way. The wizard's list is generated from the option classes; the template is written
+by hand; so only the wizard moved when a feature landed, and when three options missed the wizard
+two windows ago the conclusion drawn was that the yaml had always accepted them and only the wizard
+was behind.
+
+The gate now runs both ways, live, with the remaining sixteen listed in `_TEMPLATE_DEBT` and checked
+for staleness so a drained entry cannot linger (#512). `capital_reconciler` is not among them: it is
+documented in the template, in the player guide and in `KNOWN-ISSUES.md` in the same commit.
+
+The player-facing half is worth stating on its own, because it is a thing the guide never said. The
+burn is the game's own event and it switches off Leyndell's grace warp points, so straight after
+burning you cannot fast-travel into the capital even holding its Lock. The reconciler still gives
+you the Royal Capital back -- the *warp shortcut* is what the burn takes. Walk in from Altus through
+the main gate, touch a grace, and it returns.
+
+`KNOWN-ISSUES.md` was also still titled v0.3.7 at three consecutive tags. Retitled.
+
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
