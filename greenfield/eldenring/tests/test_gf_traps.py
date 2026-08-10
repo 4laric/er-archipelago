@@ -29,6 +29,7 @@ REPO = find_repo_root(HERE)
 EXPECTED = {
     "rune_thief": "Trap: Rune Thief",
     "no_flask": "Trap: No Flask",
+    "runebear": "Trap: Runebear",
 }
 
 
@@ -42,14 +43,14 @@ class TrapCatalogue(unittest.TestCase):
 
     def test_the_catalogue_is_exactly_the_two_implemented_traps(self):
         """🛑 Rule 4: adding a name later is safe, REMOVING one is a compat break. So this asserts
-        equality, not containment -- a third name appearing here without a client that fires it is a
-        yaml value that promises something the game will not do."""
+        equality, not containment -- a name appearing here without a client that fires it is a yaml
+        value that promises something the game will not do."""
         self.assertEqual(_mod().TRAPS, EXPECTED)
 
     def test_every_name_carries_the_prefix_the_client_dispatches_on(self):
         t = _mod()
         # WITNESS: an empty catalogue would satisfy the loop below vacuously.
-        self.assertEqual(len(t.TRAPS), 2)
+        self.assertEqual(len(t.TRAPS), 3)
         for key, name in t.TRAPS.items():
             self.assertTrue(name.startswith(t.TRAP_PREFIX),
                             f"{key!r} -> {name!r} does not start with {t.TRAP_PREFIX!r}; the client "
@@ -101,6 +102,10 @@ class TrapItemsInTheWorld(unittest.TestCase):
         self.assertEqual(len(got), 8)
         self.assertEqual(got.count("Trap: Rune Thief"), 4)
         self.assertEqual(got.count("Trap: No Flask"), 4)
+        # three kinds over a multiple of three: still exactly even
+        three = _mod().trap_items(self._World(["rune_thief", "no_flask", "runebear"], 9))
+        self.assertEqual(sorted(set(three)), ["Trap: No Flask", "Trap: Rune Thief", "Trap: Runebear"])
+        self.assertTrue(all(three.count(n) == 3 for n in set(three)), three)
         # Reproducible: the same options must give the same list, or a seed is not rebuildable from
         # its yaml. An OptionSet is a frozenset and iterating one is not order-stable, which is the
         # trap this ordering rule exists to avoid.

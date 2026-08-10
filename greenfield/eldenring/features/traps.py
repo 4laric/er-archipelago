@@ -46,6 +46,7 @@ from ..registry import Feature, register
 TRAPS = {
     "rune_thief": "Trap: Rune Thief",
     "no_flask": "Trap: No Flask",
+    "runebear": "Trap: Runebear",
 }
 
 #: The prefix the client dispatches on. Kept as a constant so the test can assert every name
@@ -62,6 +63,8 @@ class Traps(OptionSet):
     - **rune_thief** -- half your runes, gone.
     - **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does
       nothing, and the charge is spent.
+    - **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the
+      runes.
 
     Traps are sent to YOU by your own world like any other item, so in a multiworld somebody else
     may be the one who finds them.
