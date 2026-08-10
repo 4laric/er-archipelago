@@ -7918,6 +7918,12 @@ _mreg = {_mp: _c.most_common(1)[0][0] for _mp, _c in _mreg_votes.items()}
 # a region's filler instead of handing each boss the same list, so it never had this defect -- and
 # narrowing an entity out of the divvy would silently reshape shares that are correct today.
 _ARENA_DEFEAT_FLAG = {}
+# Every map/tile GameAreaParam knows an ARENA on (the boss_map column, e.g. 'm60_38_54_00'). Read
+# here rather than in a second pass: the unspawned-boss detector below asks "does the game's own
+# arena table know of ANY fight on this boss's tile?", and a tile with no row at all is a different
+# statement from a boss with no row (the night-class bosses are rowed under their 03xx ENTITY id,
+# not under the 0800 defeat flag this table is keyed by -- see _unspawned_candidate).
+_ARENA_TILES = set()
 try:
     with open(os.path.join(HERE, "game_areas.tsv"), encoding="utf-8") as _gfh:
         for _line in _gfh:
@@ -7926,6 +7932,8 @@ try:
             _p = _line.rstrip("\n").split("\t")
             if len(_p) > 2 and _p[0].isdigit() and _p[1].isdigit():
                 _ARENA_DEFEAT_FLAG[int(_p[0])] = int(_p[1])
+            if len(_p) > 6 and _p[0].isdigit() and _p[6]:
+                _ARENA_TILES.add(_p[6])
 except OSError as _e:
     print(f"[gen_data] game_areas.tsv unavailable ({_e!r}); secondary-arena sweep suppression OFF "
           f"-- multi-head arenas will pay their whole sweep on the FIRST head (run "
@@ -8015,8 +8023,126 @@ def _arena_secondary(_ent, _bmap):
     return None
 
 
+
+# ---- UNSPAWNED, EMEVD-ONLY FIELD BOSSES (issue #540) -------------------------------------------
+# A COMPLETE BOSS SCRIPT FOR A CHARACTER THE MSB NEVER PLACES. `1038540800` "Fallingstar Beast"
+# (m60_38_54, Mt. Gelmir) has a healthbar, a defeat flag, a name and 23 sweep members -- and no
+# beast. Alaric warped to First Mt. Gelmir Campsite (grace 76351) on 2026-08-10 and there is
+# nothing there. The flag can never be set, so 23 of Mt. Gelmir's 222 checks -- 10.4% of the
+# region -- hung off a trigger that cannot fire. Same class as 34150800 (Isolated Divine Tower),
+# confirmed absent 2026-08-05.
+#
+# 🛑 THE TELLS THAT CAUGHT 34150800 DO NOT CATCH THIS ONE. That one had `DisplayBossHealthBar`
+# nameId 0 and sat on a map with zero checks. This one is NAMED and carries 23 checks. A detector
+# built on those would have been silent here, which is exactly why the id is not simply listed.
+#
+# THE SHAPE, from three committed tables and no hand list:
+#   (1) class == field and the tile decodes m60_XX_YY               -- an overworld encounter
+#   (2) game_areas.tsv (GameAreaParam) knows NO ARENA ON THAT TILE  -- no rune award, no arena row
+#   (3) arena_graces.tsv adjudicated_tiles CONTAINS the tile        -- the MSB *was* unpacked, so
+#                                                                      absence is a measurement
+#   (4) arena_graces.tsv unresolved_bosses CONTAINS the boss        -- and it is not an MSB Part
+#
+# 🛑🛑 (2) IS KEYED ON THE TILE, NOT ON THE FLAG, and that is the whole difference between a
+# detector and a coincidence. BOSS_HEALTHBARS is keyed by DEFEAT FLAG; GameAreaParam is keyed by
+# ENTITY id; for a night-class boss those differ (Death Rite Bird m60_36_45: entity 1036450340,
+# flag 1036450800 -- datamine_boss_healthbars.py:14). Ask "is this FLAG in game_areas?" and 13 of
+# the 79 field bosses answer no, twelve of them spuriously: Night's Cavalry x2, Deathbird x2,
+# Death Rite Bird, Tibia Mariner, Fire Giant, Borealis, the 12-prefix festival Radahn. Every one
+# of those has a GameAreaParam arena ON ITS TILE, under the 03xx/12-prefix id. Ask the tile and
+# the twelve fall away by themselves -- no roaming/night name list, no duplicate carve-out.
+#
+# (3) is what stops this being an absence argument. arena_graces.tsv says so in its own header:
+# adjudicated_tiles means the MSB was unpacked; a boss on an unpacked tile that still has no
+# position IS NOT AN MSB PART. On a tile that was never unpacked, absence measures nothing --
+# which is why Night's Cavalry m60_36_48 / m60_39_43 and Fire Giant m60_52_52 are not candidates
+# even though the flag-keyed reading calls them rowless.
+#
+# 🛑 A CANDIDATE IS NOT A VERDICT. `_UNSPAWNED_VERDICTS` is the reviewed classification and the
+# ONLY thing that drops a sweep. gen_data refuses to build if the shape catches an id this table
+# has not judged: an unreviewed drop would delete a real boss's reward, which is the mistake
+# `_arena_secondary` already carries two guards against ("an absent row is 'not covered', never
+# 'not a boss'"). Judging one costs one warp and one look.
+_ARENA_ADJUDICATED_TILES = set(); _ARENA_UNRESOLVED_BOSSES = set()
+try:
+    with open(os.path.join(HERE, "arena_graces.tsv"), encoding="utf-8") as _agh:
+        for _line in _agh:
+            if _line.startswith("# adjudicated_tiles:"):
+                _ARENA_ADJUDICATED_TILES |= {_t.strip() for _t in _line.split(":", 1)[1].split(",") if _t.strip()}
+            elif _line.startswith("# unresolved_bosses:"):
+                for _chunk in _line.split(":", 1)[1].split(","):
+                    _tile, _sep, _ents = _chunk.strip().partition(":")
+                    for _e in _ents.split("+"):
+                        if _e.strip().isdigit():
+                            _ARENA_UNRESOLVED_BOSSES.add(int(_e))
+except OSError as _e:
+    print(f"[gen_data] arena_graces.tsv unavailable ({_e!r}); the unspawned-boss detector is BLIND "
+          f"-- run tools/datamine_arena_graces.py")
+
+_M60_TILE_ONLY_RE = re.compile(r"^m60_\d\d_\d\d$")
+
+
+def _unspawned_candidate(_ent, _info):
+    """Does this boss have the "EMEVD script, no character" shape? See the block comment above."""
+    _bmap, _tile, _cls, _name = _info
+    if _cls != "field" or not _M60_TILE_ONLY_RE.match(_tile or ""):
+        return False
+    _t00 = (_tile or "") + "_00"
+    if _t00 in _ARENA_TILES:            # GameAreaParam knows an arena on this tile -> a fight is here
+        return False
+    if _t00 not in _ARENA_ADJUDICATED_TILES:   # the MSB was never unpacked -> absence measures nothing
+        return False
+    return _ent in _ARENA_UNRESOLVED_BOSSES    # unpacked, and this boss is not a Part on it
+
+
+# verdict -> "unspawned" (in-game confirmed absent; its sweep trigger is DROPPED and its members
+# re-home to the nearest other field boss in the same region) or "open" (the shape, not yet
+# falsified in game; its sweep is left ALONE -- deleting an unverified boss's reward is the worse
+# error of the two). Every verdict carries the evidence or the falsifier to run.
+_UNSPAWNED_VERDICTS = {
+    1038540800: ("unspawned",
+                 "Fallingstar Beast m60_38_54 (Mt. Gelmir) -- Alaric, in-game 2026-08-10: warped "
+                 "to First Mt. Gelmir Campsite (grace 76351) and THERE IS NO BEAST. EMEVD-only, "
+                 "like 34150800. Its 23 members were 10.4% of Mt. Gelmir behind a flag that "
+                 "cannot be set; they re-home to the region's other field bosses. Issue #540."),
+    1041330800: ("open",
+                 "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT "
+                 "yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to "
+                 "the Fourth Church of Marika and look, by day and at night (the tile's other "
+                 "candidate reading is a night-conditional spawn). Absent -> move it to "
+                 "'unspawned' here and regen; present -> the datamine owes it a GameAreaParam "
+                 "binding and an MSB position. Issue #540."),
+}
+_unspawned_shape = {_e for _e, _i in BOSS_HEALTHBARS.items() if _unspawned_candidate(_e, _i)}
+# A DETECTOR THAT MATCHES NOTHING IS A DETECTOR THAT IS BROKEN. Both inputs are committed tables;
+# an empty shape means one of them moved, not that the game changed.
+assert _unspawned_shape, (
+    "gen_data: the unspawned-field-boss detector matched NOTHING. It has always caught at least "
+    "1038540800 (Fallingstar Beast m60_38_54, confirmed absent in game 2026-08-10, issue #540). "
+    "An empty set means game_areas.tsv's boss_map column or arena_graces.tsv's adjudicated_tiles /"
+    " unresolved_bosses headers moved -- re-emit tools/datamine_game_areas.py / "
+    "tools/datamine_arena_graces.py rather than deleting this assert.")
+_unspawned_unjudged = sorted(_unspawned_shape - set(_UNSPAWNED_VERDICTS))
+assert not _unspawned_unjudged, (
+    "gen_data: field boss(es) %s have the UNSPAWNED shape -- a healthbar and a defeat flag, no "
+    "GameAreaParam arena anywhere on their tile, and no MSB Part on a tile whose MSB WAS unpacked "
+    "-- and no row in _UNSPAWNED_VERDICTS. Two of these have already been found by hand "
+    "(34150800, 1038540800); this is the third or later. Warp to the tile, look, and record the "
+    "verdict ('unspawned' if there is no boss there, 'open' if you have not looked yet). Do NOT "
+    "drop the sweep on the shape alone and do NOT widen the shape to make this go away."
+    % (_unspawned_unjudged,))
+_unspawned_stale = sorted(set(_UNSPAWNED_VERDICTS) - _unspawned_shape)
+assert not _unspawned_stale, (
+    "gen_data: _UNSPAWNED_VERDICTS judges %s, but the detector no longer catches them -- so either "
+    "the boss gained a GameAreaParam arena / an MSB position (it is REAL now: delete the row and "
+    "let it sweep again) or the detector's inputs moved. A verdict nothing selects is a verdict "
+    "nobody will notice going wrong." % (_unspawned_stale,))
+_SWEEP_UNSPAWNED = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v == "unspawned"}
+_SWEEP_UNSPAWNED_OPEN = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v != "unspawned"}
+
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 _sweep_excluded_hits = []
+_sweep_unspawned_hits = []
 _sweep_secondary_hits = []
 _dungeon_by_map = defaultdict(list)   # map -> [surviving dungeon trigger,...] for the per-map DIVVY
 _dungeon_divvied = []
@@ -8033,6 +8159,12 @@ if BOSS_HEALTHBARS:
         _bmap, _tile, _cls, _name = _info
         if _bmap in _SWEEP_EXCLUDED_BMAPS:
             _sweep_excluded_hits.append((_ent, _bmap, _name))
+            continue
+        if _ent in _SWEEP_UNSPAWNED:
+            # No character, so the flag can never be set. Dropping the trigger hands the tile's
+            # filler back to the FIELD NEIGHBORHOOD pass, which re-homes it to the nearest other
+            # same-region field boss -- the existing redistribution, not a second mechanism.
+            _sweep_unspawned_hits.append((_ent, _tile, _name))
             continue
         if _cls == "field":
             # Field sweeps are assigned in the NEIGHBORHOOD pass after this loop (nearest-boss,
@@ -8418,6 +8550,19 @@ if BOSS_HEALTHBARS:
         "exclusion rather than deleting it.")
     print("boss_sweeps: excluded %d boss(es) from sweeping by map: %s" % (
         len(_sweep_excluded_hits), ", ".join("%s/%s" % (m, n) for _e, m, n in _sweep_excluded_hits)))
+    assert len(_sweep_unspawned_hits) == len(_SWEEP_UNSPAWNED), (
+        "gen_data: %d of %d UNSPAWNED verdict(s) matched a boss in BOSS_HEALTHBARS. A verdict that "
+        "selects nothing reads as protection while protecting nothing -- re-derive it, do not "
+        "leave it." % (len(_sweep_unspawned_hits), len(_SWEEP_UNSPAWNED)))
+    print("boss_sweeps: dropped %d UNSPAWNED trigger(s) (EMEVD-only -- a boss script for a "
+          "character the MSB never places; their tiles' filler re-homes to the nearest other "
+          "field boss in the same region): %s" % (
+              len(_sweep_unspawned_hits),
+              ", ".join("%s %s/%s" % (e, t, n or "?") for e, t, n in _sweep_unspawned_hits)))
+    if _SWEEP_UNSPAWNED_OPEN:
+        print("boss_sweeps: %d field boss(es) share the unspawned SHAPE but are UNFALSIFIED in "
+              "game, so they KEEP their sweep: %s" % (
+                  len(_SWEEP_UNSPAWNED_OPEN), ", ".join(str(e) for e in sorted(_SWEEP_UNSPAWNED_OPEN))))
     # A SUPPRESSION MUST ANNOUNCE ITSELF, and so must the part of the problem it does NOT reach.
     assert _sweep_secondary_hits, (
         "gen_data: ZERO secondary arena heads suppressed. game_areas.tsv has always carried at least "
@@ -8533,6 +8678,23 @@ with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
     f.write("SWEEP_ARENA_REGION = {\n")
     for _fl in sorted(SWEEP_ARENA_REGION):
         f.write(f"    {_fl}: {SWEEP_ARENA_REGION[_fl]!r},\n")
+    f.write("}\n")
+    # Issue #540. SHIPPED so the gate can run against the installed world: a test that had to
+    # import gen_data could not run there at all (it needs elden_ring_artifacts), and one that
+    # hard-coded the ids would be the special-case this detector exists to replace.
+    f.write("\n# Field bosses with a healthbar, a defeat flag and NO CHARACTER -- a complete EMEVD\n")
+    f.write("# boss script the MSB never places, so the flag can never be set (issue #540). These\n")
+    f.write("# hold NO sweep group: id -> the evidence. See gen_data._unspawned_candidate for the\n")
+    f.write("# shape that selects them and _UNSPAWNED_VERDICTS for the review that drops them.\n")
+    f.write("SWEEP_UNSPAWNED = {\n")
+    for _fl in sorted(_SWEEP_UNSPAWNED):
+        f.write(f"    {_fl}: {_SWEEP_UNSPAWNED[_fl]!r},\n")
+    f.write("}\n")
+    f.write("\n# The SAME shape, NOT yet falsified in game -- these KEEP their sweep. Each names the\n")
+    f.write("# falsifier to run. Moving one here to SWEEP_UNSPAWNED is a one-line gen_data change.\n")
+    f.write("SWEEP_UNSPAWNED_OPEN = {\n")
+    for _fl in sorted(_SWEEP_UNSPAWNED_OPEN):
+        f.write(f"    {_fl}: {_SWEEP_UNSPAWNED_OPEN[_fl]!r},\n")
     f.write("}\n")
 print(f"boss_sweeps: {len(DUNGEON_SWEEPS)} triggers, {sum(len(v) for v in DUNGEON_SWEEPS.values())} member links across {len(set(SWEEP_REGION.values()))} regions "
       f"({'healthbar-classed' if BOSS_HEALTHBARS else 'FALLBACK region-wide banner scan'})")

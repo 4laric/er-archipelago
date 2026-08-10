@@ -268,4 +268,47 @@ One PR each -- generated conflicts regenerate, never merge, so only one is in fl
    to split the m61 overworld bosses into a distinct class that the field pass and the divvy BOTH
    consult, rather than special-casing.
 3. **Do the 76 boss-less interior maps deserve a look?** Some may be maps whose boss exists but is
-   missing from `BOSS_HEALTHBARS` -- the same shape as the m34_15 and 1248550800 findings.
+   missing from `BOSS_HEALTHBARS` -- the same shape as the m34_15 and 1248550800 findings. See §9:
+   the reverse case (a boss in `BOSS_HEALTHBARS` with no character behind it) turned out to be real.
+
+---
+
+## 9. Bosses that DO NOT EXIST -- the unspawned/EMEVD-only exception table
+
+🛑 **This table belongs in `SPEC-region-completion-release.md` §12 as well, and that file is NOT IN
+THIS REPO** (design 2 lives on Alaric's box; §0 above only references it). It is recorded here
+because this is the committed sweep spec, and because "every boss in region R" -- design 2's
+region-completion condition -- is UNSATISFIABLE for a region holding one of these. Mirror the rows
+across when design 2 is committed.
+
+A `DisplayBossHealthBar` call is a boss SCRIPT. It is not a boss. Twice now the EMEVD has carried a
+complete, named, flagged fight for a character the MSB never places, so the defeat flag can never be
+set: any sweep hung on it is dead, and any "clear the region" condition that counts it can never be
+met.
+
+| trigger | tile / map | region | found | evidence | disposition |
+|---|---|---|---|---|---|
+| `34150800` | `m34_15` (Isolated Divine Tower) | Ainsel River | 2026-08-05 | `DisplayBossHealthBar` nameId 0; the map holds zero checks; Alaric in-game: no boss | no sweep to lose (the map has no members) |
+| `1038540800` | `m60_38_54` (First Mt. Gelmir Campsite) | Mt. Gelmir | 2026-08-10, issue #540 | NAMED, 23 sweep members; no GameAreaParam arena anywhere on the tile; MSB unpacked and it is not a Part; Alaric warped to grace 76351 -- no beast | trigger DROPPED (`gen_data._UNSPAWNED_VERDICTS`); its 23 members re-home to Mt. Gelmir's other field bosses, 12 to `1037540810`, 11 to `1037530800` |
+
+**The tells do not transfer between the two rows** -- `34150800` was nameId 0 on an empty map;
+`1038540800` is named and carries 23 checks -- so the detector is a SHAPE, not a growing id list
+(`gen_data._unspawned_candidate`, gated by `test_gf_unspawned_field_boss.py`):
+
+* class `field`, tile decodes `m60_XX_YY`;
+* `game_areas.tsv` (GameAreaParam) knows **no arena on that tile** -- keyed on the TILE, because
+  BOSS_HEALTHBARS is keyed by defeat flag and GameAreaParam by entity id, and for a night-class boss
+  those differ (Death Rite Bird `m60_36_45`: entity `1036450340`, flag `1036450800`). The flag-keyed
+  reading false-positives on twelve roaming/night/duplicate bosses; the tile-keyed one on none;
+* the tile is in `arena_graces.tsv` `adjudicated_tiles` -- its MSB **was** unpacked, so absence is a
+  measurement rather than a gap;
+* the boss is in `unresolved_bosses` -- and is therefore not an MSB Part on it.
+
+A shape match is a QUESTION, never a verdict: gen_data refuses to build if it catches an id
+`_UNSPAWNED_VERDICTS` has not judged, and only a judgement of `unspawned` may drop a trigger.
+Deleting a real boss's reward is the worse of the two errors.
+
+**OPEN, unfalsified:** `1041330800` (unnamed, `m60_41_33` = Fourth Church of Marika, Weeping) has
+the same shape and 10 sweep members, and **keeps them**. FALSIFIER: warp there and look, by day and
+at night -- the competing reading is a night-conditional spawn. Absent -> move it to `unspawned`
+and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position.

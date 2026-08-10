@@ -500,8 +500,20 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     The verdicts split nine graces at region boundaries (53 -> 59 straddles, pin 55), so the nine
     were resolved to their MAJORITY side -- 20 checks, see issue #534 -- which moved ownership a
     third time. Straddles land at 51 and minority at 4.23%, both under the limits and better than
-    main. Still ADDED 0 / REMOVED 0: every movement today has been a permutation."""
+    main. Still ADDED 0 / REMOVED 0: every movement today has been a permutation.
+
+    2026-08-10 (#540, the unspawned Fallingstar Beast): digest 0f647980 -> ebbf592b, n 3732 ->
+    3732. **ADDED 0, REMOVED 0, 23 RE-OWNED, ZERO region crossings** -- the pacing shape, again,
+    and this time by construction. Trigger 1038540800 ("Fallingstar Beast", m60_38_54, Mt. Gelmir)
+    is EMEVD-only: a complete boss script for a character the MSB never places, so its defeat flag
+    can never be set and its 23 members -- 10.4% of Mt. Gelmir's 222 checks -- hung off a trigger
+    that cannot fire. Alaric warped to First Mt. Gelmir Campsite (grace 76351) on 2026-08-10 and
+    there is no beast. Dropping the trigger hands its tile's filler back to the FIELD NEIGHBOURHOOD
+    pass, which re-homed all 23 inside Mt. Gelmir: 12 to 1037540810 (Ulcerated Tree Spirit,
+    m60_37_54) and 11 to 1037530800 (Demi-Human Queen Maggie, m60_37_53). Trigger count 219 -> 218.
+    Checked the way this docstring says to, per-check on both sides of SWEEP_REGION: all 23 read
+    'Mt. Gelmir' before and after."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("0f647980f487ba0d", 3732), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (0f647980f487ba0d, 3732). The total alone will "
+    assert (digest, n) == ("ebbf592bfcbfd61e", 3732), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (ebbf592bfcbfd61e, 3732). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
