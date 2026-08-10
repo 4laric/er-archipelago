@@ -4,53 +4,64 @@
 # sources: EMEVD DisplayBossHealthBar + witchy'd MSB Part/Enemy <EntityID>/<Position>
 #          + grace_flags.tsv. tools/datamine_arena_graces.py
 #
-# MSBs live in TWO dirs and they are NOT the same set: elden_ring_artifacts/map is COMPLETE
-# (1347 unpacked); mapstudio/ is PARTIAL (1034). The tool searches map/ first.
-#
-# ADJUDICATED: 108 of 118 boss maps. The other 7 have boss entities that are NOT MSB
-# Parts at all (script-spawned), so they can never be adjudicated by this method -- the hand
-# lists in gen_data stay LOAD-BEARING for graces on those tiles. Listed below so gen_data can
-# tell 'derivation says safe' apart from 'derivation could not look'.
-# adjudicated_tiles: m10_00_00,m10_01_00,m11_00_00,m11_05_00,m12_01_00,m12_02_00,m12_03_00,m12_04_00,m12_05_00,m12_08_00,m12_09_00,m13_00_00,m14_00_00,m15_00_00,m16_00_00,m18_00_00,m19_00_00,m20_00_00,m20_01_00,m21_00_00,m21_01_00,m22_00_00,m25_00_00,m28_00_00,m30_00_00,m30_01_00,m30_02_00,m30_03_00,m30_04_00,m30_05_00,m30_06_00,m30_07_00,m30_08_00,m30_09_00,m30_10_00,m30_11_00,m30_12_00,m30_13_00,m30_14_00,m30_15_00,m30_16_00,m30_17_00,m30_18_00,m30_19_00,m30_20_00,m31_00_00,m31_01_00,m31_02_00,m31_03_00,m31_04_00,m31_05_00,m31_06_00,m31_07_00,m31_09_00,m31_10_00,m31_11_00,m31_12_00,m31_15_00,m31_17_00,m31_18_00,m31_19_00,m31_20_00,m31_21_00,m31_22_00,m32_00_00,m32_01_00,m32_02_00,m32_04_00,m32_05_00,m32_07_00,m32_08_00,m32_11_00,m34_12_00,m34_13_00,m34_14_00,m35_00_00,m39_20_00,m40_00_00,m40_01_00,m41_00_00,m41_01_00,m41_02_00,m43_00_00,m43_01_00,m60_34_48,m60_35_50,m60_38_51,m60_39_54,m60_40_53,m60_43_30,m60_44_36,m60_48_40,m60_49_39,m60_51_36,m60_51_57,m60_52_56,m61_44_45,m61_46_38,m61_46_41,m61_46_45,m61_48_44,m61_49_44,m61_49_48,m61_50_47,m61_50_48,m61_51_44,m61_52_43,m61_54_39
-grace_flag	map_tile	boss_entity	distance_m
-71000	m10_00_00	10000800	4.3
-71001	m10_00_00	10000850	10.0
-71100	m11_00_00	11000800	7.4
-71101	m11_00_00	11000850	0.5
-71121	m11_05_00	11050850	0.5
-71220	m12_02_00	12020801	37.8
-71221	m12_02_00	12020850	35.1
-71230	m12_03_00	12030812	8.8
-71250	m12_05_00	12050800	5.6
-71300	m13_00_00	13000801	29.1
-71301	m13_00_00	13000830	1.1
-71302	m13_00_00	13000850	22.1
-71400	m14_00_00	14000801	9.7
-71401	m14_00_00	14000850	5.6
-71500	m15_00_00	15000800	21.8
-71505	m15_00_00	15000850	10.1
-71600	m16_00_00	16000800	0.7
-71601	m16_00_00	16000850	3.9
-71606	m16_00_00	16000861	9.5
-71900	m19_00_00	19000810	25.0
-72000	m20_00_00	20000800	16.1
-72101	m21_00_00	21000850	29.8
-72110	m21_01_00	21010801	6.9
-72200	m22_00_00	22000800	31.1
-72500	m25_00_00	25000800	6.9
-72800	m28_00_00	28000800	13.9
-73109	m31_09_00	31090800	25.4
-73119	m31_19_00	31190850	30.3
-73500	m35_00_00	35000800	0.5
-73900	m39_20_00	39200800	21.6
-76120	m60_44_36	1044360800	2.8
-76161	m60_43_30	1043300800	5.2
-76232	m60_35_50	1035500800	0.1
-76321	m60_39_54	1039540800	34.6
-76322	m60_39_54	1039540800	6.8
-76415	m60_49_39	1049390800	9.4
-76419	m60_51_36	1051360801	13.3
-76524	m60_51_57	1051570800	13.6
-76823	m61_48_44	2048440800	7.6
-76862	m61_52_43	2052430800	5.5
-76945	m61_44_45	2044450800	1.6
+# 🛑 ABSENCE IS NEVER AN ANSWER, AND IT IS PER-BOSS.
+#   adjudicated_tiles: the map's MSB was unpacked. It does NOT mean every boss on it was
+#     located -- a DisplayBossHealthBar entity that is not an MSB Part has no position and
+#     is skipped. Reading 'tile adjudicated + grace absent' as 'measured safe' is the
+#     2026-08-10 mistake (76931 Shadow Keep Back Gate, in front of Commander Gaius).
+#   unresolved_bosses: the bosses that had NO position. A grace on one of these tiles is
+#     UNADJUDICATED for that boss; gen_data's hand list stays LOAD-BEARING for it.
+# adjudicated_tiles: m10_00_00_00,m11_00_00_00,m11_05_00_00,m12_01_00_00,m12_02_00_00,m12_03_00_00,m12_04_00_00,m12_05_00_00,m13_00_00_00,m14_00_00_00,m15_00_00_00,m16_00_00_00,m18_00_00_00,m19_00_00_00,m20_00_00_00,m20_01_00_00,m21_00_00_00,m21_01_00_00,m22_00_00_00,m25_00_00_00,m28_00_00_00,m30_00_00_00,m30_01_00_00,m30_02_00_00,m30_03_00_00,m30_04_00_00,m30_05_00_00,m30_06_00_00,m30_07_00_00,m30_08_00_00,m30_09_00_00,m30_10_00_00,m30_11_00_00,m30_12_00_00,m30_13_00_00,m30_14_00_00,m30_15_00_00,m30_16_00_00,m30_20_00_00,m31_01_00_00,m31_03_00_00,m31_04_00_00,m31_05_00_00,m31_06_00_00,m31_07_00_00,m31_09_00_00,m31_10_00_00,m31_11_00_00,m31_12_00_00,m31_15_00_00,m31_17_00_00,m31_18_00_00,m31_19_00_00,m31_20_00_00,m31_21_00_00,m32_00_00_00,m32_05_00_00,m32_07_00_00,m32_08_00_00,m34_10_00_00,m34_11_00_00,m34_12_00_00,m34_13_00_00,m34_14_00_00,m34_15_00_00,m35_00_00_00,m39_20_00_00,m40_00_00_00,m40_01_00_00,m41_00_00_00,m41_01_00_00,m41_02_00_00,m43_00_00_00,m43_01_00_00,m60_34_42_00,m60_34_48_00,m60_34_50_00,m60_35_42_00,m60_35_50_00,m60_35_53_00,m60_36_45_00,m60_36_50_00,m60_36_54_00,m60_37_42_00,m60_37_46_00,m60_37_51_00,m60_37_53_00,m60_38_41_00,m60_38_48_00,m60_38_51_00,m60_38_54_00,m60_39_44_00,m60_39_54_00,m60_40_52_00,m60_40_53_00,m60_41_33_00,m60_42_33_00,m60_42_36_00,m60_42_37_00,m60_42_38_00,m60_42_55_00,m60_43_30_00,m60_43_53_00,m60_44_35_00,m60_44_36_00,m60_44_36_10,m60_45_52_00,m60_47_40_00,m60_48_37_00,m60_48_40_00,m60_48_41_00,m60_48_57_00,m60_49_37_00,m60_49_39_00,m60_51_36_00,m60_51_43_00,m60_51_57_00,m60_52_38_00,m60_52_41_00,m60_52_56_00,m60_53_56_00,m61_44_45_00,m61_44_45_10,m61_46_40_00,m61_47_45_00,m61_48_44_00,m61_49_43_00,m61_49_44_00,m61_49_48_00,m61_50_43_00,m61_50_48_00,m61_51_44_00,m61_52_43_00,m61_54_39_00
+# unresolved_bosses: m20_01_00_00:20010850+20010851+20010852,m30_13_00_00:30130810,m34_10_00_00:34100800,m34_11_00_00:34110800,m34_15_00_00:34150800,m60_36_45_00:1036450800,m60_37_42_00:1037420800,m60_38_54_00:1038540800,m60_41_33_00:1041330800,m60_52_38_00:1052380800+1252380800,m61_44_45_10:2044450800,m61_50_43_00:2050430710
+# boss_class is carried so a human can adjudicate: a `field` boss may be a
+#   CONDITIONAL spawn (Bell Bearing Hunter is night-only) whose 'arena' is an
+#   ordinary, safe, permanently-useful grace. Distance alone cannot tell those
+#   from a real arena grace -- see the 2026-08-10 note in the tool docstring.
+grace_flag	map_tile	boss_entity	boss_class	boss_name	distance_m
+71000	m10_00	10000800	legacy	Godrick the Grafted	4.3
+71001	m10_00	10000850	legacy	Margit, the Fell Omen	10.0
+71100	m11_00	11000800	legacy	Morgott, the Omen King	7.4
+71101	m11_00	11000850	legacy	Godfrey, First Elden Lord	0.5
+71121	m11_05	11050850	legacy	Sir Gideon Ofnir, the All-Knowing	0.5
+71220	m12_02	12020801	legacy	Valiant Gargoyle (Twinblade)	37.8
+71221	m12_02	12020850	legacy	Mimic Tear	35.1
+71230	m12_03	12030812	?	?	8.8
+71250	m12_05	12050800	legacy	Mohg, Lord of Blood	5.6
+71300	m13_00	13000801	legacy	Beast Clergyman	29.1
+71301	m13_00	13000830	legacy	Dragonlord Placidusax	1.1
+71302	m13_00	13000850	legacy	Godskin Duo	22.1
+71400	m14_00	14000801	legacy	Rennala, Queen of the Full Moon	9.7
+71401	m14_00	14000850	legacy	Red Wolf of Radagon	5.6
+71500	m15_00	15000800	legacy	Malenia, Blade of Miquella	21.8
+71505	m15_00	15000850	legacy	Loretta, Knight of the Haligtree	10.1
+71600	m16_00	16000800	legacy	Rykard, Lord of Blasphemy	0.7
+71601	m16_00	16000850	legacy	Godskin Noble	3.9
+71606	m16_00	16000861	legacy	Abductor Virgin (Wheel)	9.5
+71900	m19_00	19000810	legacy	Radagon of the Golden Order	25.0
+72000	m20_00	20000800	legacy	Divine Beast Dancing Lion	16.1
+72101	m21_00	21000850	legacy	Golden Hippopotamus	29.8
+72110	m21_01	21010801	legacy	Messmer the Impaler	6.9
+72200	m22_00	22000800	legacy	Putrescent Knight	31.1
+72500	m25_00	25000800	legacy	Metyr, Mother of Fingers	6.9
+72800	m28_00	28000800	legacy	Midra, Lord of Frenzied Flame	13.9
+73109	m31_09	31090800	cave	Demi-Human Queen Margot	25.4
+73119	m31_19	31190850	cave	Necromancer Garris	30.3
+73500	m35_00	35000800	legacy	Mohg, the Omen	0.5
+73900	m39_20	39200800	dungeon	Magma Wyrm Makar	21.6
+76118	m60_42_38	1042380850	field	Bell Bearing Hunter	9.0
+76120	m60_44_36	1044360800	field	Mad Pumpkin Head	2.8
+76161	m60_43_30	1043300800	field	Leonine Misbegotten	5.2
+76232	m60_35_50	1035500800	field	Royal Knight Loretta	0.1
+76311	m60_43_53	1043530800	field	Bell Bearing Hunter	21.6
+76313	m60_42_55	1042550800	field	Godskin Apostle	4.0
+76321	m60_39_54	1039540800	field	Elemer of the Briar	34.6
+76322	m60_39_54	1039540800	field	Elemer of the Briar	6.8
+76357	m60_37_53	1037530800	field	Demi-Human Queen Maggie	36.8
+76415	m60_49_39	1049390800	field	Nox Monk	9.4
+76419	m60_51_36	1051360801	?	?	13.3
+76451	m60_48_41	1048410800	field	Bell Bearing Hunter	17.4
+76524	m60_51_57	1051570800	field	Commander Niall	13.6
+76823	m61_48_44	2048440800	legacy	Rellana, Twin Moon Knight	7.6
+76862	m61_52_43	2052430800	legacy	Jori, Elder Inquisitor	5.5
+76910	m61_49_43	2049430850	legacy	Black Knight Edredd	19.2
+76945	m61_44_45	2044450800	legacy	Romina, Saint of the Bud	1.6
