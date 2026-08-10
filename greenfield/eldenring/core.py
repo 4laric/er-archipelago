@@ -1089,9 +1089,12 @@ class GreenfieldEldenRingWorld(World):
         # location loop below.
         try:
             from .features.progression_surface import (confined_surface_ids as _confined_surface_ids,
-                                                       foreign_advancement_barred as _foreign_barred_fn)
+                                                       foreign_bar_for as _foreign_bar_for)
             self._foreign_confine_surface = _confined_surface_ids(self)
-            self._foreign_barred_fn = _foreign_barred_fn
+            # SHARE-AWARE. At the 100 default this IS `foreign_advancement_barred`, the same function
+            # object the toggle used, so the shipped seed runs the identical code path. Below 100 it
+            # is a per-item-name closure -- see features/progression_surface.foreign_bar_for.
+            self._foreign_barred_fn = _foreign_bar_for(self)
         except Exception:
             self._foreign_confine_surface = None
             self._foreign_barred_fn = None

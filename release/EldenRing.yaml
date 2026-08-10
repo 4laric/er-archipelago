@@ -310,12 +310,24 @@ Elden Ring:
     - Revered
     - ShopSlot
 
-  # In a MULTIWORLD, confine OTHER players' progression to your progression_surface
-  # too -- so a foreign key item lands on one of your major-boss / key-item / etc.
-  # checks, never on a random filler pickup. On by default. Off = foreign
-  # progression scatters across any reachable check of yours (standard AP). No
-  # effect in a solo seed. Never blocks generation.
-  confine_foreign_progression: true
+  # In a MULTIWORLD, what PERCENT of other players' progression is confined to your
+  # progression_surface, the way your own is. 100 confines all of it, so a foreign
+  # key item lands on one of your major-boss / key-item / etc. checks and never on a
+  # random filler pickup. 0 confines none and it scatters across any reachable check
+  # of yours (standard AP). `true` and `false` still work and still mean 100 and 0.
+  #
+  # 🛑 IT ALSO DECIDES WHETHER YOUR GEAR IS WORTH RECEIVING. The rule is about YOUR
+  # locations, but it pushes your NEIGHBOUR's progression back into the neighbour's
+  # own slots, which fills them before Archipelago places the `useful` tier -- so at
+  # 100 a non-Elden-Ring partner gets nothing from you but filler. Measured on a
+  # two-slot seed beside Hollow Knight: 0.0% of what the partner received from us was
+  # useful at 100, 5.2% at 90, 23.2% at 75, 38.3% at 50. Lower it if you want your
+  # weapons, armour and talismans to show up in your friends' games; the price is
+  # that their keys stop being curated onto your interesting checks. See the
+  # per-value table in the option's own help text.
+  #
+  # No effect in a solo seed. Never blocks generation.
+  confine_foreign_progression: 100
 
   # RESERVED. The option exists but is INERT in v0.2 -- shop checks are assumed
   # reachable regardless of what you set here. Left in place so seeds stay

@@ -58,6 +58,35 @@ One refusal deliberately does NOT release: the one you get when the room changes
 session. That one has a reconciler already built for the old room, and re-arming it is not something
 the client can do safely, so its toast still says RESTART and it still means it.
 
+### `confine_foreign_progression` is a percentage now, and it was quietly deciding what your friends get
+
+It used to be a yes/no. It is now a share from 0 to 100 — `true` and `false` still work and still
+mean 100 and 0, so nothing you have written needs changing — and the reason is a defect nobody had
+measured.
+
+The option's job is curation: hold other players' keys to your progression surface so a foreign key
+item shows up on a major boss rather than on a Smithing Stone pickup. What it also does, and this was
+not in anyone's model, is **push the other game's progression back into the other game's own slots**.
+Archipelago places the entire `useful` tier before it places any filler, so by the time it reaches
+what is left of your partner's world, only filler is available. At 100 — the shipped default, then and
+now — a non-Elden-Ring partner receives *nothing from Elden Ring but filler*. Measured over three
+seeds beside Hollow Knight: 498 items sent, **zero** of them a weapon, an armour piece or a talisman,
+while a second Elden Ring slot in the same seeds received a healthy 43% useful. boblerrr reported it
+from a live game before any gate did — *"dont think ive seen any of those items being global"* — and
+he was right.
+
+The default has NOT moved in this release; 100 is still 100 and your seeds generate exactly as they
+did. What you have now is the ability to say something else. Beside Hollow Knight, the share buys
+gear back quickly: 0% useful at 100, 5% at 90, 23% at 75, 38% at 50, and it is flat below that. The
+price is the curation — the released share of foreign progression can land anywhere in your world, and
+because "anywhere" is about 3000 checks against a surface of ~170, even a small release means most
+incoming foreign keys are no longer on a starred check.
+
+The multiworld smoke test now runs its two Elden Ring slots at *different* shares and asserts that at
+least one of the items reaching the partner game is useful-classified. The old check counted items
+reaching the partner and never looked at what they were, which is why it was green for the whole life
+of the bug.
+
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
