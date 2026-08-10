@@ -56,12 +56,41 @@ OUT = os.path.join(ROOT, "greenfield", "arena_graces.tsv")
 # A boss arena is small. Radahn's is the outlier (a whole beach), so a generous default still
 # under-reaches there rather than over-reaching into ordinary graces. Tuned so that the three
 # KNOWN-BAD graces (71300 Maliketh, 76414/76416 Redmane) are caught and the known-good ones are not.
+#
+# 🛑 THAT TUNING IS NOW OUT OF DATE (2026-08-10). It was fitted while the boss set was a
+# 159-of-231 lower bound that happened to exclude most FIELD bosses. Unioning boss_healthbars added
+# 72 of them and the radius immediately over-matched: 41 -> 48 hits, and FIVE of the six new ones
+# are graces that should NOT be withheld --
+#     76118 Warmaster's Shack        9.0m   Bell Bearing Hunter   (NIGHT-ONLY spawn)
+#     76311 Hermit Merchant's Shack 21.6m   Bell Bearing Hunter   (NIGHT-ONLY spawn)
+#     76451 Isolated Merchant's Shack 17.4m Bell Bearing Hunter   (NIGHT-ONLY spawn)
+#     76357 Primeval Sorcerer Azur  36.8m   Demi-Human Queen Maggie
+#     76910 Behind the Fort of Reprimand 19.2m Black Knight Edredd
+# Three are MERCHANT SHACKS whose "arena" is an ordinary safe place with a conditional night
+# invader. Withholding them costs the player three shops and two travel nodes -- the 76414/76416
+# over-skip again, which the note above already calls out as guessing conservatively.
+#
+# DISTANCE ALONE CANNOT DECIDE A CONDITIONAL SPAWN. Until the predicate can (spawn conditions are
+# EMEVD, not MSB), boss_class ships in the table so a human adjudicates rather than the radius.
 DEFAULT_RADIUS = 40.0
 
 # Floors. BonfireWarpParam carries 421 warp graces and the committed table holds 41 arena hits;
 # both are measured, not guessed. Raise, never lower -- a drop is a finding, not a rebaseline.
 MIN_GRACES = 400
 MIN_HITS = 41
+
+
+def _boss_meta():
+    """{entity: (class, name)} from the generated boss_healthbars module."""
+    p = os.path.join(ROOT, "greenfield", "eldenring", "boss_healthbars.py")
+    if not os.path.isfile(p):
+        return {}
+    return {int(e): (c, n) for e, _g, _t, c, n in re.findall(
+        r"(\d+):\s*\('([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)'\)",
+        open(p, encoding="utf-8").read())}
+
+
+_BOSS_META = _boss_meta()
 
 
 def _healthbar_bosses():
@@ -207,7 +236,7 @@ def main():
     _graces = graces()
     bosses = boss_ids_by_map()
     poscache = {}
-    hits, unresolved = [], set()
+    hits, unresolved, _seen = [], set(), {}
     adjudicated_tiles = set()      # map_id whose MSB WAS unpacked (the old, per-MAP notion)
     unresolved_bosses = {}         # map_id -> sorted[boss entity with NO MSB Part position]
 
@@ -235,7 +264,11 @@ def main():
                 continue
             d, b = min(near)
             if d < args.radius:
-                hits.append((flag, tile, map_id, b, round(d, 1)))
+                # dedupe: the _00 and _10 MSB variants of a tile are the SAME arena, and listing a
+                # grace twice (76120 did, 2026-08-10) inflates the count the FLOOR is measured on.
+                k = (flag, b)
+                if k not in _seen or d < _seen[k][4]:
+                    _seen[k] = (flag, tile, map_id, b, round(d, 1))
 
     # 🛑 ABSENCE IS NEVER AN ANSWER -- and this tool emitted a ZERO-ROW table on 2026-08-10 without
     # a word. graces() reads elden_ring_artifacts/grace_flags.tsv and swallows a column mismatch per
@@ -254,7 +287,7 @@ def main():
             "re-grants graces that stand in live boss arenas -- fail instead of emitting."
             % (len(hits), MIN_HITS))
 
-    hits.sort()
+    hits = sorted(_seen.values())
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
         f.write(f"# DERIVED arena graces: distance(grace spawn, nearest boss enemy spawn) < {args.radius}m\n")
         f.write("# A region lock force-lights every grace in its region so you can warp in. A grace INSIDE a\n")
@@ -273,13 +306,19 @@ def main():
         f.write("# unresolved_bosses: %s\n"
                 % ",".join("%s:%s" % (m, "+".join(str(b) for b in bs))
                            for m, bs in sorted(unresolved_bosses.items())))
-        f.write("grace_flag\tmap_tile\tboss_entity\tdistance_m\n")
+        f.write("# boss_class is carried so a human can adjudicate: a `field` boss may be a\n")
+        f.write("#   CONDITIONAL spawn (Bell Bearing Hunter is night-only) whose 'arena' is an\n")
+        f.write("#   ordinary, safe, permanently-useful grace. Distance alone cannot tell those\n")
+        f.write("#   from a real arena grace -- see the 2026-08-10 note in the tool docstring.\n")
+        f.write("grace_flag\tmap_tile\tboss_entity\tboss_class\tboss_name\tdistance_m\n")
         for flag, tile, map_id, b, d in hits:
-            f.write("%d\t%s\t%d\t%s\n" % (flag, tile, b, d))
+            _c, _n = _BOSS_META.get(b, ("?", "?"))
+            f.write("%d\t%s\t%d\t%s\t%s\t%s\n" % (flag, tile, b, _c, _n, d))
 
     print(f"arena_graces: {len(hits)} grace(s) inside a boss arena (<{args.radius}m) -> {args.out}")
     for flag, tile, map_id, b, d in hits:
-        print(f"  grace {flag:<7} {tile:<12} boss {b:<12} {d:>6.1f}m")
+        _c, _n = _BOSS_META.get(b, ("?", "?"))
+        print(f"  grace {flag:<7} {tile:<12} boss {b:<12} {d:>6.1f}m  {_c:<9} {_n}")
     if unresolved:
         print(f"\n  ! {len(unresolved)} map(s) with a boss have NO unpacked MSB -- not adjudicated:")
         print("    " + ", ".join(sorted(unresolved)[:12]) + (" ..." if len(unresolved) > 12 else ""))
