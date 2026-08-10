@@ -280,10 +280,15 @@ class GreenfieldSpine(unittest.TestCase):
         # TWO seeds, because the two halves of the statement need different draws to be visible:
         # seed 7 draws no gated child, so its closure is EMPTY and `kept == drawn` exactly -- that
         # is the seed the deleted force-keep would have grown from 5 to 7 (goal + its parent).
-        # Seed 14 draws three gated children, so its closure is non-empty and the `| closure` half
-        # of the equality is doing real work rather than passing for free.
+        # Seed 20 draws gated children, so its closure is non-empty and the `| closure` half of the
+        # equality is doing real work rather than passing for free.
+        # ⚠️ WAS seed 14 until 2026-08-10. The Cerulean merge took REGIONS 30 -> 28 (#526), which
+        # re-rolls every draw, and 14's closure went EMPTY -- the witness silently stopped
+        # witnessing. Re-picked per this test's own instruction rather than dropping the assertion:
+        # seed 20's closure is {Altus, Leyndell, Liurnia}, three deep, so it is a stronger witness
+        # than the one it replaces. If the parent table moves again, re-pick again.
         import random
-        for seed, closure_is_empty in ((7, True), (14, False)):
+        for seed, closure_is_empty in ((7, True), (20, False)):
             with self.subTest(seed=seed):
                 parts = {}
                 k = self.rs.compute_kept(5, random.Random(seed), parts=parts)
