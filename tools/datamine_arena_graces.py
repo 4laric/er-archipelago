@@ -90,7 +90,53 @@ def _boss_meta():
         open(p, encoding="utf-8").read())}
 
 
+def _npc_names():
+    """{entity: name} from the EMEVD's OWN nameId argument, resolved through NpcName.fmg.xml.
+
+    🛑 WHY NOT boss_healthbars ALONE (2026-08-10). That table is keyed by DEFEAT FLAG, not entity:
+    duo partners and extra healthbar slots fold into the primary's entry by design. So an entity
+    lookup misses them and the report printed '?' for two real bosses --
+        12030812   Fia's Champion       (m12_03, healthbar slot 2)
+        1051360801 Misbegotten Warrior  (m60_51_36, the Redmane plaza duo partner)
+    Neither is a gap in boss_healthbars; both are entities that share another boss's flag.
+
+    DisplayBossHealthBar's 4th argument IS the name id, and NpcName.fmg.xml is in the gen_inputs
+    bundle, so the corpus can name every entity itself. Read the EMEVD's own answer.
+    """
+    ids = {}
+    for fp in glob.glob(os.path.join(EVENT, "*.emevd.dcx.js")):
+        if os.path.basename(fp).startswith("common"):
+            continue
+        try:
+            t = open(fp, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        for m in re.finditer(r"DisplayBossHealthBar\(\s*(?:Enabled|1)\s*,\s*(\d+)\s*,\s*\d+\s*,\s*(\d+)", t):
+            ids.setdefault(int(m.group(1)), int(m.group(2)))
+    if not ids:
+        return {}
+    txt = {}
+    for fp in glob.glob(os.path.join(AR, "msg", "**", "NpcName*.fmg.xml"), recursive=True):
+        try:
+            body = open(fp, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        for m in re.finditer(r'<text id="(\d+)"[^>]*>(.*?)</text>', body, re.S):
+            v = m.group(2).strip()
+            if v and v not in ("%null%", "[ERROR]"):
+                txt.setdefault(int(m.group(1)), v)
+    return {e: txt[n] for e, n in ids.items() if n in txt}
+
+
 _BOSS_META = _boss_meta()
+_NPC_NAME = _npc_names()
+
+
+def _boss_label(ent):
+    """(class, name). Class from boss_healthbars where it keys the entity; name preferred from the
+    EMEVD's own nameId, which covers duo partners and extra slots that table folds away."""
+    c, n = _BOSS_META.get(ent, ("?", None))
+    return c, (_NPC_NAME.get(ent) or n or "?")
 
 
 def _healthbar_bosses():
@@ -314,12 +360,12 @@ def main():
         f.write("#   from a real arena grace -- see the 2026-08-10 note in the tool docstring.\n")
         f.write("grace_flag\tmap_tile\tboss_entity\tboss_class\tboss_name\tdistance_m\n")
         for flag, tile, map_id, b, d in hits:
-            _c, _n = _BOSS_META.get(b, ("?", "?"))
+            _c, _n = _boss_label(b)
             f.write("%d\t%s\t%d\t%s\t%s\t%s\n" % (flag, tile, b, _c, _n, d))
 
     print(f"arena_graces: {len(hits)} grace(s) inside a boss arena (<{args.radius}m) -> {args.out}")
     for flag, tile, map_id, b, d in hits:
-        _c, _n = _BOSS_META.get(b, ("?", "?"))
+        _c, _n = _boss_label(b)
         print(f"  grace {flag:<7} {tile:<12} boss {b:<12} {d:>6.1f}m  {_c:<9} {_n}")
     if unresolved:
         print(f"\n  ! {len(unresolved)} map(s) with a boss have NO unpacked MSB -- not adjudicated:")
