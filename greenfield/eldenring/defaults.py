@@ -165,7 +165,13 @@ FROZEN_OPTIONS = {
     "boss_keys": (0, None),                    # boss locks half-built (ref items never created)
     "boss_lock_placement": (1, "own_region"),  # inert while boss_keys is off
 
-    "progressive_stone_bells": (0, None),
+    # progressive_stone_bells UNFROZEN 2026-08-10 (issue #506). It was never half-built: the
+    # ladders, the Twin Maidens' shop-unlock flags, the pool counts and the sphere-0 forcing
+    # were all ported verbatim from the matt-based apworld and have sat here, complete and
+    # unreachable, since the v0.2 slim. A player asked for exactly this knob and could not
+    # find it. 🛑 The class default is Toggle 0 -- the SAME value it was frozen at -- so no
+    # existing seed moves; test_the_unfrozen_default_matches_the_freeze_value pins that, which
+    # is the check the PoolBuilderIntensity unfreeze went without.
     "progressive_stonesword_keys": (0, None),
     "stone_injection": (0, None),              # DELETED mechanism; the class is inert
     "filler_upgrade_weight": (1, None),        # inert under the always-on item_shuffle

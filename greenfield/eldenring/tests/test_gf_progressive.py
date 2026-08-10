@@ -16,29 +16,56 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.core import GFOptions  # noqa: E402
 
-# SELF-EXPIRING FREEZE (2026-08-04) -- same construction as test_gf_boss_keys.py, see the comment
-# there. progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 (defaults.py),
-# so these cases cannot be constructed from yaml. The skip holds only while BOTH options are still
-# absent from the live yaml surface (GFOptions fields = the surface, defaults.FROZEN_OPTIONS
-# filtered out): re-exposing EITHER one wakes the whole suite and reds the tripwire below, instead
-# of leaving 20 tests dark behind an "un-skip when re-exposed" comment nobody re-reads.
+# SELF-EXPIRING FREEZE (2026-08-04), now HALF EXPIRED -- and it expired the way it was built to.
+#
+# The module-level skip used to hold while BOTH options were off the yaml surface, so re-exposing
+# EITHER one woke all 20 tests and redded a tripwire, rather than leaving them dark behind an
+# "un-skip when re-exposed" comment nobody re-reads. On 2026-08-10 `progressive_stone_bells` was
+# unfrozen (issue #506) and that is exactly what happened: the tripwire went red, its instruction
+# was "revalidate every test in this file, then delete this tripwire and the module skipif", and
+# this is that.
+#
+# 🛑 THE GATE IS NOW PER-OPTION, not per-module. `progressive_stonesword_keys` is STILL frozen, so
+# its case still cannot be constructed from yaml and keeps its own skip and its own tripwire. A
+# single `and` over both options would have silently un-guarded the keys the moment the bells woke.
 _SURFACE = {f.name for f in dataclasses.fields(GFOptions)}
-_FROZEN = ("progressive_stone_bells" not in _SURFACE
-           and "progressive_stonesword_keys" not in _SURFACE)
+_BELLS_FROZEN = "progressive_stone_bells" not in _SURFACE
+_KEYS_FROZEN = "progressive_stonesword_keys" not in _SURFACE
 
-pytestmark = pytest.mark.skipif(
-    _FROZEN,
-    reason="progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF in v0.2 "
-           "(defaults.py) -- not yaml-exposed. Self-expiring: re-exposing either option wakes this "
-           "suite and reds the freeze tripwire. Flasks: see test_gf_progressive_flasks.py.")
+_keys_skip = pytest.mark.skipif(
+    _KEYS_FROZEN,
+    reason="progressive_stonesword_keys is FROZEN OFF in v0.2 (defaults.py) -- not yaml-exposed. "
+           "Self-expiring: re-exposing it wakes this class and reds the keys tripwire below.")
+_bells_skip = pytest.mark.skipif(
+    _BELLS_FROZEN,
+    reason="progressive_stone_bells is FROZEN OFF -- not yaml-exposed. It was UNFROZEN on "
+           "2026-08-10, so this skip firing again means a freeze was re-applied; say why.")
 
 
-def test_the_freeze_tripwire_progressives_are_still_off_the_yaml_surface():
-    """Never green while un-frozen, by design -- red the commit that re-exposes either option."""
-    assert _FROZEN, (
-        "progressive_stone_bells and/or progressive_stonesword_keys are back on the yaml surface, "
-        "but this suite froze with them on 2026-07-11 and has not tracked the features since. "
-        "Revalidate every test in this file, then delete this tripwire and the module skipif.")
+def test_the_freeze_tripwire_stonesword_keys_are_still_off_the_yaml_surface():
+    """Never green while un-frozen, by design -- red the commit that re-exposes the keys."""
+    assert _KEYS_FROZEN, (
+        "progressive_stonesword_keys is back on the yaml surface, but its cases froze with the "
+        "bells on 2026-07-11 and have not tracked the feature since. Revalidate "
+        "ProgressiveStoneswordKeysOn, then delete this tripwire and _keys_skip.")
+
+
+def test_the_unfrozen_default_matches_the_freeze_value():
+    """⭐ THE CHECK THE PoolBuilderIntensity UNFREEZE WENT WITHOUT.
+
+    `defaults.FROZEN_OPTIONS` pins a value AND removes the option from GFOptions, so while an option
+    is frozen its class `default` is unreachable and rots unobserved. Unfreezing then silently moves
+    every seed that does not name the option -- which is exactly how unfreezing pool_builder_intensity
+    reverted the juice catalog inside a release whose changelog said nothing had changed.
+
+    progressive_stone_bells was frozen at 0 and its class default is 0, so no seed moves. That is a
+    fact worth an assertion rather than a sentence: the freeze value IS the default."""
+    from worlds.eldenring.features.progressive import ProgressiveStoneBells
+    assert ProgressiveStoneBells.default == 0, (
+        "ProgressiveStoneBells.default is %r, but the option was FROZEN AT 0 until 2026-08-10 -- so "
+        "unfreezing it just changed the behaviour of every seed that does not name it. Either move "
+        "the default back to the freeze value or say, in the changelog, what moved."
+        % (ProgressiveStoneBells.default,))
 from worlds.eldenring.features.progressive import (  # noqa: E402
     PROG_STONESWORD_KEY,
     PROG_SMITHING_BELL, PROG_SOMBER_BELL,
@@ -84,6 +111,7 @@ class ProgressiveOff(WorldTestBase):
 
 
 
+@_keys_skip
 class ProgressiveStoneswordKeysOn(WorldTestBase):
     game = GAME
     options = {"num_regions": 0, "progressive_stonesword_keys": True}
@@ -102,6 +130,7 @@ class ProgressiveStoneswordKeysOn(WorldTestBase):
 
 
 
+@_bells_skip
 class ProgressiveStoneBellsOn(WorldTestBase):
     game = GAME
     options = {"num_regions": 0, "progressive_stone_bells": True}

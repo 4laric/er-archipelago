@@ -265,6 +265,16 @@ Elden Ring:
   # and tears stay discrete pickups at their shuffled locations.
   progressive_flasks: true
 
+  # Smithing stones by SHOP TIER instead of by luck. On: the Smithing-Stone
+  # and Somberstone Miner's Bell Bearings become progressive items -- each
+  # copy you receive unlocks the next tier of the Twin Maidens' stone shop,
+  # so your upgrade ceiling rises as you find them rather than the first
+  # somber stone you trip over deciding it. One copy of each is forced early,
+  # so you are never stuck at +0. Never gates logic. Off: vanilla bell
+  # bearings, and a lucky early Somber [8] can carry you to +7 in the first
+  # area (reported by a player, 2026-08-10).
+  progressive_stone_bells: false
+
   # Share of YOUR filler that other players' worlds may draw from, in a
   # multiworld. 100 = fully shared. 0 = keep your filler to yourself.
   filler_foreign_pct: 100
