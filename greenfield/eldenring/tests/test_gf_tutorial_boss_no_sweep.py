@@ -478,8 +478,24 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
 
     WHEN THIS FAILS: diff DUNGEON_SWEEPS by (trigger, flag) across the regen and record ADDED,
     REMOVED and RE-OWNED separately. For the re-owned, check SWEEP_REGION on both sides: staying
-    inside one region is a pacing change, leaving it is a reachability bug."""
+    inside one region is a pacing change, leaving it is a reachability bug.
+
+    2026-08-10 (#528, the Cerulean merge): digest 1652af0d -> b680bd65, n 3732 -> 3732. ADDED 0,
+    REMOVED 0, **12 RE-OWNED**. A pure permutation -- exactly what this gate exists for, since the
+    total cannot see one -- and I DID NOT UPDATE THIS PIN, so main ran red from that merge until
+    now. Cause: Charo's and Stone Coffin folded into Cerulean, and sweep members are filtered to
+    their sweep's region, so a check whose region moves re-homes to a boss in the new region.
+    Dancer of Ranah -> Death Rite Bird 7, Ghostflame Dragon -> Death Rite Bird 3, and 2 back.
+    All 12 stayed INSIDE their region pair, so this is the pacing shape, not the reachability one.
+
+    2026-08-10 (#532, the boss-region verdicts): digest b680bd65 -> bd5147a4, n 3732 -> 3732.
+    ADDED 0, REMOVED 0, **172 RE-OWNED**. Same mechanism, larger input: six in-game rulings moved
+    68 checks across 14 tiles into another region (Tree Sentinel -> Shadow Keep, Dancing Lion ->
+    Ancient Ruins, plus Jagged Peak Drake, Godefroy, Jori, Marigga) and each took its sweep
+    membership with it. Romina -> Dancing Lion 30, Dancing Lion -> Rugalea 13, Ralva -> Tree
+    Sentinel 12. NOTHING entered or left the swept corpus -- only who grants what changed, which
+    is the shape this digest was added to make visible."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("1652af0db3e9b0ea", 3732), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (1652af0db3e9b0ea, 3732). The total alone will "
+    assert (digest, n) == ("bd5147a4c5940c11", 3732), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (bd5147a4c5940c11, 3732). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

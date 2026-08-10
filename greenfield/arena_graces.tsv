@@ -17,6 +17,11 @@
 #   CONDITIONAL spawn (Bell Bearing Hunter is night-only) whose 'arena' is an
 #   ordinary, safe, permanently-useful grace. Distance alone cannot tell those
 #   from a real arena grace -- see the 2026-08-10 note in the tool docstring.
+# excluded: grace 76118 boss 1042380850 @9.0m [conditional-spawn] Bell Bearing Hunter -- NIGHT-ONLY spawn at Warmaster's Shack
+# excluded: grace 76311 boss 1043530800 @21.6m [conditional-spawn] Bell Bearing Hunter -- NIGHT-ONLY spawn at Hermit Merchant's Shack
+# excluded: grace 76357 boss 1037530800 @36.8m [not-an-arena] Alaric, in-game 2026-08-10: Demi-Human Queen Maggie releases no grace on death, and Primeval Sorcerer Azur's grace is a separate ledge. 36.8 m.
+# excluded: grace 76451 boss 1048410800 @17.4m [conditional-spawn] Bell Bearing Hunter -- NIGHT-ONLY spawn at Isolated Merchant's Shack
+# excluded: grace 76910 boss 2049430850 @19.2m [not-an-arena] Alaric, in-game 2026-08-10: 'Behind the Fort of Reprimand' is not a boss grace. Black Knight Edredd at 19.2 m.
 grace_flag	map_tile	boss_entity	boss_class	boss_name	distance_m
 71000	m10_00	10000800	legacy	Godrick the Grafted	4.3
 71001	m10_00	10000850	legacy	Margit, the Fell Omen	10.0
@@ -48,20 +53,15 @@ grace_flag	map_tile	boss_entity	boss_class	boss_name	distance_m
 73119	m31_19	31190850	cave	Necromancer Garris	30.3
 73500	m35_00	35000800	legacy	Mohg, the Omen	0.5
 73900	m39_20	39200800	dungeon	Magma Wyrm Makar	21.6
-76118	m60_42_38	1042380850	field	Bell Bearing Hunter	9.0
 76120	m60_44_36	1044360800	field	Mad Pumpkin Head	2.8
 76161	m60_43_30	1043300800	field	Leonine Misbegotten	5.2
 76232	m60_35_50	1035500800	field	Royal Knight Loretta	0.1
-76311	m60_43_53	1043530800	field	Bell Bearing Hunter	21.6
 76313	m60_42_55	1042550800	field	Godskin Apostle	4.0
 76321	m60_39_54	1039540800	field	Elemer of the Briar	34.6
 76322	m60_39_54	1039540800	field	Elemer of the Briar	6.8
-76357	m60_37_53	1037530800	field	Demi-Human Queen Maggie	36.8
 76415	m60_49_39	1049390800	field	Nox Monk	9.4
 76419	m60_51_36	1051360801	?	?	13.3
-76451	m60_48_41	1048410800	field	Bell Bearing Hunter	17.4
 76524	m60_51_57	1051570800	field	Commander Niall	13.6
 76823	m61_48_44	2048440800	legacy	Rellana, Twin Moon Knight	7.6
 76862	m61_52_43	2052430800	legacy	Jori, Elder Inquisitor	5.5
-76910	m61_49_43	2049430850	legacy	Black Knight Edredd	19.2
 76945	m61_44_45	2044450800	legacy	Romina, Saint of the Bud	1.6
