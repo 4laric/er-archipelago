@@ -79,6 +79,35 @@ DEFAULT_RADIUS = 40.0
 MIN_GRACES = 400
 MIN_HITS = 41
 
+# ---- ADJUDICATED EXCLUSIONS -------------------------------------------------------------------
+# The radius is geometry and geometry cannot see two things: WHEN a fight exists, and where the
+# fight actually IS inside its 40 m. Both need a human, and both rulings are recorded here with
+# their author rather than applied by shrinking the radius -- a smaller radius would silently drop
+# real arena graces elsewhere, which is the 76414/76416 over-skip in the other direction.
+#
+# 🛑 EXCLUSIONS ARE EMITTED IN THE TABLE HEADER. A row removed silently is the bug this whole tool
+# spent 2026-08-10 having (see #531); a removal you cannot see is worse than a hit you can.
+
+# A fight that only exists under a condition the MSB does not carry. The grace is an ordinary, safe,
+# permanently useful travel node the rest of the time -- three of these are MERCHANT SHACKS, and
+# withholding them costs the player the shop as well as the warp.
+_CONDITIONAL_SPAWN_BOSSES = {
+    1037460800: "Bell Bearing Hunter -- NIGHT-ONLY spawn (no grace within 40 m today; listed so the "
+                "class is complete and a future grace nearby is not re-adjudicated from scratch)",
+    1042380850: "Bell Bearing Hunter -- NIGHT-ONLY spawn at Warmaster's Shack",
+    1043530800: "Bell Bearing Hunter -- NIGHT-ONLY spawn at Hermit Merchant's Shack",
+    1048410800: "Bell Bearing Hunter -- NIGHT-ONLY spawn at Isolated Merchant's Shack",
+}
+
+# Measured inside the radius, ruled OUTSIDE the real arena. Grace-keyed, never boss-keyed: the same
+# boss may genuinely enclose a different grace.
+_NOT_AN_ARENA = {
+    (76357, 1037530800): "Alaric, in-game 2026-08-10: Demi-Human Queen Maggie releases no grace on "
+                         "death, and Primeval Sorcerer Azur's grace is a separate ledge. 36.8 m.",
+    (76910, 2049430850): "Alaric, in-game 2026-08-10: 'Behind the Fort of Reprimand' is not a boss "
+                         "grace. Black Knight Edredd at 19.2 m.",
+}
+
 
 def _boss_meta():
     """{entity: (class, name)} from the generated boss_healthbars module."""
@@ -329,7 +358,18 @@ def main():
     # 🛑 MATERIALISE BEFORE MEASURING. This read len(hits) while the loop above filled _seen, so the
     # floor measured an empty list and FATAL'd on a run that had found 47 (2026-08-10). The floor was
     # right to fire -- it just fired at its own author. Keep the assignment ABOVE the check.
-    hits = sorted(_seen.values())
+    # apply the adjudicated exclusions, keeping WHAT and WHY for the header
+    excluded = []
+    _kept = {}
+    for k, v in _seen.items():
+        flag, _tile, _mid, b, d = v
+        if b in _CONDITIONAL_SPAWN_BOSSES:
+            excluded.append((flag, b, d, "conditional-spawn", _CONDITIONAL_SPAWN_BOSSES[b]))
+        elif (flag, b) in _NOT_AN_ARENA:
+            excluded.append((flag, b, d, "not-an-arena", _NOT_AN_ARENA[(flag, b)]))
+        else:
+            _kept[k] = v
+    hits = sorted(_kept.values())
     if len(hits) < MIN_HITS:
         raise SystemExit(
             "FATAL: only %d grace(s) came out inside an arena (floor %d, and the committed table "
@@ -358,12 +398,19 @@ def main():
         f.write("#   CONDITIONAL spawn (Bell Bearing Hunter is night-only) whose 'arena' is an\n")
         f.write("#   ordinary, safe, permanently-useful grace. Distance alone cannot tell those\n")
         f.write("#   from a real arena grace -- see the 2026-08-10 note in the tool docstring.\n")
+        for flag, b, d, kind, why in sorted(excluded):
+            f.write("# excluded: grace %d boss %d @%.1fm [%s] %s\n" % (flag, b, d, kind, why))
         f.write("grace_flag\tmap_tile\tboss_entity\tboss_class\tboss_name\tdistance_m\n")
         for flag, tile, map_id, b, d in hits:
             _c, _n = _boss_label(b)
             f.write("%d\t%s\t%d\t%s\t%s\t%s\n" % (flag, tile, b, _c, _n, d))
 
     print(f"arena_graces: {len(hits)} grace(s) inside a boss arena (<{args.radius}m) -> {args.out}")
+    if excluded:
+        print("  %d adjudicated exclusion(s) -- measured inside the radius, ruled out by a human:"
+              % len(excluded))
+        for flag, b, d, kind, why in sorted(excluded):
+            print("    grace %-7d boss %-11d %5.1fm  %-17s %s" % (flag, b, d, kind, why[:70]))
     for flag, tile, map_id, b, d in hits:
         _c, _n = _boss_label(b)
         print(f"  grace {flag:<7} {tile:<12} boss {b:<12} {d:>6.1f}m  {_c:<9} {_n}")
