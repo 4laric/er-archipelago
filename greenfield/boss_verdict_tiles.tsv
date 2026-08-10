@@ -1,0 +1,14 @@
+# AUTO-EXPANDED from boss_region_worksheet.tsv by tools/build_boss_region_worksheet.py --expand -- DO NOT EDIT.
+# A human ruled on a BOSS; a tile is what regions a check. These are the GUESSED
+#   tiles that boss's ambiguous checks sit on. Guessed-ness is a TILE property
+#   (no grace, no PlayRegionParam row), so every check here is one the verdict
+#   is about -- this does not drag a first-hand-evidenced check along.
+# 🛑 gen_data ranks this BELOW the tile's own grace and BELOW its PlayRegionParam
+#   row. It can only ever replace a nearest-neighbour GUESS, never evidence.
+map_tile	region	boss_entity	boss_name	reason
+m61_44_41	Cerulean	2046400800	Demi-Human Queen Marigga	Alaric, in-game 2026-08-10: Demi-Human Queen Marigga is on the CERULEAN COAST, not Gravesite. New finding, no issue yet.
+m61_46_46	Ancient Ruins	2046460800	Divine Beast Dancing Lion	Alaric, in-game 2026-08-10: the deathblight Divine Beast Dancing Lion is in the ANCIENT RUINS OF RAUH. Three independent sources agree -- this ruling, the check descriptions ('near Rauh Ancient Ruins, East'), and point-in-volume on 2046467010 (datamine_check_ground --triage). Members ship as Rauh Base -- that is #527.
+m61_47_40	Cerulean	2046400800	Demi-Human Queen Marigga	Alaric, in-game 2026-08-10: Demi-Human Queen Marigga is on the CERULEAN COAST, not Gravesite. New finding, no issue yet.
+m61_49_46	Shadow Keep	2050470800	Tree Sentinel	Alaric, in-game 2026-08-10: the Tree Sentinel stands in the HINTERLAND. Corroborated by bobler's kick log (play_region 6930000, sub 69300, no kick on the Shadow Keep lock) and by region_groups giving 69300 to Shadow Keep. Its 28 sweep members currently ship as Scadu Altus -- that is #523.
+m61_50_46	Shadow Keep	2050470800	Tree Sentinel	Alaric, in-game 2026-08-10: the Tree Sentinel stands in the HINTERLAND. Corroborated by bobler's kick log (play_region 6930000, sub 69300, no kick on the Shadow Keep lock) and by region_groups giving 69300 to Shadow Keep. Its 28 sweep members currently ship as Scadu Altus -- that is #523.
+m61_50_47	Shadow Keep	2050470800	Tree Sentinel	Alaric, in-game 2026-08-10: the Tree Sentinel stands in the HINTERLAND. Corroborated by bobler's kick log (play_region 6930000, sub 69300, no kick on the Shadow Keep lock) and by region_groups giving 69300 to Shadow Keep. Its 28 sweep members currently ship as Scadu Altus -- that is #523.

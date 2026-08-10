@@ -53,6 +53,7 @@ from collections import Counter, defaultdict
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GF = os.path.join(ROOT, "greenfield")
 OUT = os.path.join(GF, "boss_region_worksheet.tsv")
+EXPAND = os.path.join(GF, "boss_verdict_tiles.tsv")
 
 
 def _existing_verdicts():
@@ -144,6 +145,8 @@ def _tbl(src, name):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
+    ap.add_argument("--expand", action="store_true",
+                    help="also write greenfield/boss_verdict_tiles.tsv (the gen-consumable form)")
     args = ap.parse_args()
 
     tri_p = os.path.join(GF, "check_region_triage.tsv")
@@ -233,6 +236,38 @@ def main():
     for r in rows[:15]:
         print("  %-11d %-27s %-12s %4d %-14s %-14s %s"
               % (r[0], r[1][:27], r[2], r[4], r[6][:14], r[7][:14], r[9]))
+
+    if args.expand:
+        # A verdict is about a BOSS because that is what a human can answer. What regions a check is
+        # its TILE. So expand: verdict -> the GUESSED tiles its ambiguous checks sit on.
+        #
+        # ⭐ Tile granularity is SAFE HERE, and normally it is not (M61_TILE_CURATED "drags the
+        # tile's item checks along" and blew up test_gf_grace_straddle). It is safe because
+        # guessed-ness is itself a TILE property -- no grace on the tile, no PlayRegionParam row --
+        # so every check on a guessed tile is guessed. Moving the tile moves exactly the checks the
+        # verdict is about and nothing else.
+        by_tile = {}
+        for r in rows:
+            b, verdict = r[0], r[12]
+            if not verdict:
+                continue
+            for t in sorted({x["map_tile"] for x in tri
+                             if trig.get(int(x["ap_id"])) == b and x["how"] == "GUESSED"}):
+                by_tile.setdefault(t, (verdict, b, r[1], r[13]))
+        with open(EXPAND, "w", encoding="utf-8", newline="\n") as f:
+            f.write("# AUTO-EXPANDED from boss_region_worksheet.tsv by "
+                    "tools/build_boss_region_worksheet.py --expand -- DO NOT EDIT.\n")
+            f.write("# A human ruled on a BOSS; a tile is what regions a check. These are the GUESSED\n")
+            f.write("#   tiles that boss's ambiguous checks sit on. Guessed-ness is a TILE property\n")
+            f.write("#   (no grace, no PlayRegionParam row), so every check here is one the verdict\n")
+            f.write("#   is about -- this does not drag a first-hand-evidenced check along.\n")
+            f.write("# 🛑 gen_data ranks this BELOW the tile's own grace and BELOW its PlayRegionParam\n")
+            f.write("#   row. It can only ever replace a nearest-neighbour GUESS, never evidence.\n")
+            f.write("map_tile\tregion\tboss_entity\tboss_name\treason\n")
+            for t, (v, b, nm, why) in sorted(by_tile.items()):
+                f.write("%s\t%s\t%d\t%s\t%s\n" % (t, v, b, nm, why))
+        print("\n-> %s (%d tile(s) from %d verdict(s))"
+              % (EXPAND, len(by_tile), sum(1 for r in rows if r[12])))
 
     if args.emit:
         with open(OUT, "w", encoding="utf-8", newline="\n") as f:
