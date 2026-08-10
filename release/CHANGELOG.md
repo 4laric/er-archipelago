@@ -40,6 +40,24 @@ the fifth window running that this has happened. It is recorded in `test_gf_cont
 rather than quietly fixed, because a step that five consecutive windows have missed is not something
 the next person will remember either.
 
+### Loading the wrong save no longer bricks the session until you restart the game
+
+If you load a save that belongs to a different seed, the client refuses it on purpose: nothing sends,
+nothing arrives, and a toast tells you so. That guard is right and it stays. What was wrong was the
+next sentence, which told you to load this room's save or start a fresh character — and neither one
+worked. The refusal was a one-way latch for the life of the process, so the brand-new character you
+rolled loaded into the same gated, silent session, with the same toast still on screen. It looked
+exactly like a broken install, and the only thing that actually fixed it was restarting the game.
+Nothing anywhere said that, so at least one person went and rebuilt the client instead.
+
+Quitting to the main menu now releases the refusal, and the next character you load arms normally and
+gets its start items. Loading the same wrong save again simply refuses again — the release re-asks the
+question rather than answering it, so the guard is exactly as strong as it was.
+
+One refusal deliberately does NOT release: the one you get when the room changes underneath a live
+session. That one has a reconciler already built for the old room, and re-arming it is not something
+the client can do safely, so its toast still says RESTART and it still means it.
+
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
