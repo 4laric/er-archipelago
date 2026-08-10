@@ -69,6 +69,17 @@ GENERATORS = [
     # none of them is installed beside the world, so it skips in the `tests` job and belongs
     # here. AP-free, no artifacts, no client.
     "check_ground_regions",
+    # The arena-grace skip set, both directions. Both read greenfield/gen_data.py, tools/ and the
+    # tracked tsvs -- none of which is installed beside the world -- so neither can run in the
+    # `tests` job. AP-free, no artifacts, no client.
+    #   load_bearing: a hand _ARENA_GRACE_FLAGS entry may not be retired on the derived oracle's
+    #     SILENCE (76931 stands in front of Commander Gaius; his tile is "adjudicated" only because
+    #     the MSB was unpacked, not because he was located).
+    #   exclusions:   the five graces Alaric ruled are NOT arena graces stay grantable. Pins the
+    #     FLAGS, not the count -- the 2026-08-10 regression added five and the floor only guards a
+    #     shrink, so a count ratchet could not have seen it.
+    "arena_grace_load_bearing",
+    "arena_grace_exclusions",
     # The publish surface: tools/build_apworld.py vs build.ps1 exclusion parity, and the
     # release/CHANNELS.tsv gate. Reads build.ps1 and release/, neither of which is installed beside
     # the world, so it can only run from a repo checkout.
