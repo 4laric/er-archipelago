@@ -143,7 +143,7 @@ def main():
     poscache, unresolved_bosses, adjudicated = {}, defaultdict(list), set()
     want = {int(x) for x in args.flags.split(",")} if args.flags else None
 
-    rows = []
+    rows, unmeasurable = [], []
     for flag, map_id, tile, pos in _check_positions():
         if want and flag not in want:
             continue
@@ -167,6 +167,18 @@ def main():
                 if best is None or d < best[0]:
                     best = (d, b)
         if best is None:
+            # 🛑 ABSENCE IS NEVER AN ANSWER. Record WHY, so a silent zero cannot be read as "no boss
+            # near this check". Three different nothings, and only the first is about the world:
+            #   no-boss-on-tile  -- the tile's EMEVD names no DisplayBossHealthBar
+            #   no-msb           -- there IS a boss, but its map has no unpacked MSB (witchy it)
+            #   no-position      -- the boss is not an MSB Part at all (script-spawned; unfixable here)
+            if not cands:
+                why = "no-boss-on-tile"
+            elif all(poscache.get(k) is None for k in cands):
+                why = "no-msb"
+            else:
+                why = "no-position"
+            unmeasurable.append((flag, tile, why))
             continue
         a = ap_of.get(flag)
         rows.append((flag, map_id, best[1], names.get(best[1], "?"), round(best[0], 1),
@@ -191,10 +203,21 @@ def main():
         print("  %d boss(es) across %d map(s) have no MSB Part/Enemy position:" % (n, len(unresolved_bosses)))
         for m, bs in sorted(unresolved_bosses.items())[:10]:
             print("    %-12s %s" % (m, ", ".join("%d %s" % (b, names.get(b, "?")) for b in bs)))
+    from collections import Counter as _C
+    _un = _C(w for _f, _t, w in unmeasurable)
+    if _un:
+        print("  UNMEASURABLE: %d check(s) -- %s" % (len(unmeasurable),
+              ", ".join("%s=%d" % kv for kv in sorted(_un.items()))))
+        _tiles = sorted({t for _f, t, w in unmeasurable if w == "no-msb"})
+        if _tiles:
+            print("     no-msb tiles (WitchyBND these .msb.dcx to unlock them): %s%s"
+                  % (", ".join(_tiles[:12]), " ..." if len(_tiles) > 12 else ""))
     if want:
         print("\n  flag         nearest boss                    dist   in_arena  region")
         for r in rows:
             print("  %-12d %-30s %7.1f  %-8s %s" % (r[0], r[3], r[4], r[5], r[7]))
+        for f, t, w in unmeasurable:
+            print("  %-12d %-30s %7s  %-8s %s" % (f, "-- UNMEASURABLE (%s)" % w, "-", "-", t))
 
     if args.emit and not want:
         with open(OUT, "w", encoding="utf-8", newline="\n") as f:
