@@ -155,7 +155,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.3.11",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "10162a865379b37bcfe09dc65a1c2e6054b20b9d65b372fedd9a6677ed1cda9e",
+ "source_sha256": "8db5e0db98442f8bde125fcaeeec982e5463c1439b51e8f59a3e4272da96d68b",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -279,7 +279,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": {
     "start": 0,
-    "end": 30
+    "end": 28
    },
    "valid_keys": null,
    "casefold": false,
@@ -2257,7 +2257,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "regions": {
   "Abyssal": {
-   "checks": 27,
+   "checks": 19,
    "combos": {
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Fragment": 1,
@@ -2282,7 +2282,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Altus": {
-   "checks": 351,
+   "checks": 354,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss": 12,
@@ -2299,10 +2299,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Ancient Ruins": {
-   "checks": 55,
+   "checks": 60,
    "combos": {
+    "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
-    "Fragment": 3,
+    "Fragment": 4,
     "Legendary": 1,
     "Revered": 1
    },
@@ -2357,21 +2358,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Cerulean": {
-   "checks": 43,
+   "checks": 96,
    "combos": {
-    "Boss|FieldBoss": 1,
+    "Boss|FieldBoss": 2,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Fragment": 1
-   },
-   "dlc": true,
-   "parent": null,
-   "rollable": true
-  },
-  "Charo's": {
-   "checks": 27,
-   "combos": {
-    "Boss|FieldBoss": 1,
     "Boss|MajorBoss": 1,
+    "Fragment": 4,
     "KeyItem": 2
    },
    "dlc": true,
@@ -2424,14 +2417,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Gravesite": {
-   "checks": 221,
+   "checks": 207,
    "combos": {
     "Basin": 1,
     "Boss": 3,
     "Boss|FieldBoss": 3,
     "Boss|Legendary": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Fragment": 7,
+    "Fragment": 5,
     "Legendary": 3,
     "Revered": 4,
     "Shop|ShopNonSpell": 22
@@ -2453,7 +2446,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Jagged Peak": {
-   "checks": 29,
+   "checks": 38,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
@@ -2496,7 +2489,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Liurnia": {
-   "checks": 574,
+   "checks": 571,
    "combos": {
     "Basin": 2,
     "Basin|Boss|FieldBoss": 1,
@@ -2565,12 +2558,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Rauh Base": {
-   "checks": 88,
+   "checks": 83,
    "combos": {
     "Boss": 1,
-    "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Fragment": 1,
     "Legendary": 2
    },
    "dlc": true,
@@ -2601,7 +2592,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": false
   },
   "Scadu Altus": {
-   "checks": 249,
+   "checks": 231,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -2630,7 +2621,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true
   },
   "Shadow Keep": {
-   "checks": 271,
+   "checks": 297,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -2655,16 +2646,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
-   "parent": null,
-   "rollable": true
-  },
-  "Stone Coffin": {
-   "checks": 21,
-   "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
-    "Fragment": 1
-   },
-   "dlc": true,
    "parent": null,
    "rollable": true
   },
@@ -2699,7 +2680,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "f15a56b0c3c1c0f086d8b16ca5aa7f1e0886414e1ae99a98e086282fe7406fac"
+ "source_sha256": "d2570e380f97861b0938f18b10e785569304a33ab8a23ef430ab5aa28d8af58b"
 }
 </script>
 <div class="wrap">

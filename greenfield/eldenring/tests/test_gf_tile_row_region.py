@@ -79,7 +79,11 @@ TILE_47_39_FLAGS = {
 }
 # Retired 2026-08-09 because the derivation reproduces them. A redundant manual override is a
 # failure (CONTRIBUTING), and these two are also the evidence the derivation was missing.
-RETIRED_PINS = (68710, 2047397040)
+# 2048407010 joined these 2026-08-10: it pinned the Spirit Glaive on tile 48,40 to "Charo's", and
+# once Charo's MERGED INTO CERULEAN (#526) both graces on the neighbouring 48,39 name one region, so
+# the nearest-neighbour hop reaches Cerulean unaided and the pin agreed with the derivation. A
+# redundant manual override is a failure -- same rule that retired the other two.
+RETIRED_PINS = (68710, 2047397040, 2048407010)
 
 # A tile claimed by TWO buckets in two regions may NOT be resolved -- the join is tile-level and
 # bucket volumes are 3-D. m61_47_44 is the one such overworld tile today, and the check standing on
@@ -180,9 +184,12 @@ class TileRowRegion(unittest.TestCase):
         i = src.index("FLAG_REGION_OVERRIDE = {")
         body = src[i:src.index("\n}\n", i)]
         # WITNESS (test_gf_vacuous_pass): the "did a pin come back" scan must be able to SEE a pin.
-        # 2048407010 stays pinned on purpose -- its tile 48,40 has no PlayRegionParam row -- so it is
-        # the positive control that proves this string search still matches the table's format.
-        self.assertIn("\n    2048407010:", body,
+        # The control WAS 2048407010 until 2026-08-10, when the Cerulean merge made that pin
+        # redundant and it was retired -- taking the witness with it and turning this suite red for
+        # the right reason. 2049387060 replaces it: Smithing Stone [2] on tile 49,38, pinned Cerulean
+        # against a tile whose graces file it under Jagged Peak. That is the REVERSE direction of the
+        # same class, it is not redundant, and it has no reason to move.
+        self.assertIn("\n    2049387060:", body,
                       "the FLAG_REGION_OVERRIDE scan found none of the pins it KNOWS are there -- "
                       "the table's formatting changed and this search is now blind.")
         back = [f for f in RETIRED_PINS if ("\n    %d:" % f) in body]
