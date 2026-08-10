@@ -377,6 +377,72 @@ assert _RG_HUB == HUB, "region_groups.HUB must match gen_data.HUB"
 # and graces to fallback paths; an extra one is an invented id.
 _rg_assert_covers({_v for _v in greg.values() if _v != "0"})
 
+# ---- PlayRegionParam's OWN ROW for a tile: ground truth where ANCHOR only has a guess -----------
+# 🛑 THIS BLOCK IS IN THE *KICK* ID SPACE, AND EVERYTHING ELSE AROUND IT IS NOT.
+# region_groups.py holds two bucket tables in two id spaces that COINCIDE for the base overworld and
+# differ everywhere else (see its docstring): REGION_GROUPS / PLAY2AP are keyed by
+# BonfireWarpParam.bonfireSubCategoryId (warp ids -- what greg, ANCHOR and tile_pr all speak), while
+# PLAY_REGION_GROUPS is keyed by PlayRegionParam.ID // 100 (the buckets er_logic's kick_decision
+# compares against). Pasting one into the other sends the whole overworld to the Roundtable, which is
+# why NOTHING below is ever handed to PLAY2AP: this table resolves a tile straight to a REGION NAME
+# and is consumed only by _m60_tile_region / _m61_tile_region, which return names too.
+#
+# WHY IT EARNS ITS PLACE. ANCHOR/ANCHOR61 only know tiles that CONTAIN A GRACE -- 151 of the 325
+# overworld tiles bearing checks have none, and tile_pr() nearest-neighbours those onto whichever
+# neighbour happens to hold one. greenfield/play_region_buckets.tsv already carries a PlayRegionParam
+# row for 18 of them, and that row is not an inference: it is the game's own statement about that
+# tile, in the very id space the kick reads. Using it turns 132 checks from a guess into an answer.
+# Reported by a player (Nexus, 2026-08-09) as "Ghostflame Call is in Cerulean Coast when it should
+# belong to Charo's hidden grave": m61_47_39 holds no grace, so ANCHOR61 hopped it to the Cerulean
+# coast graces next door, while PlayRegionParam's only row on that tile is bucket 68400 = Charo's.
+#
+# 🛑 RANKED BELOW ANCHOR ON PURPOSE. A tile that HAS a grace is answered by that grace, even where a
+# bucket row disagrees -- trusted tiles straddle region borders MORE often than guessed ones (9% vs
+# 5%, measured 2026-07-26), so a disagreement there is ordinary geography and flipping it would move
+# ground nobody has looked at. Those disagreements are PRINTED below instead, as evidence for a human.
+#
+# 🛑 TILE-LEVEL, so it can only speak where a tile carries rows for exactly ONE bucket. Bucket volumes
+# are 3-D; a tile claimed by two buckets in two regions is left to the existing path rather than
+# resolved to the nearer/first/likelier one (the tile_pr failure CONTRIBUTING opens with).
+_PRB_PATH = os.path.join(HERE, "play_region_buckets.tsv")
+_KICK_BUCKET_OWNER = {str(_b): _reg for _reg, _bs in PLAY_REGION_GROUPS.items() for _b in _bs}
+_TILE_KICK_BUCKETS = defaultdict(set)      # overworld tile -> {PlayRegionParam bucket (str)}
+if not os.path.isfile(_PRB_PATH):
+    raise SystemExit("gen_data: greenfield/play_region_buckets.tsv is MISSING (it is tracked -- "
+                     "truncated checkout?). Regenerate: python tools/datamine_play_regions.py --emit")
+with open(_PRB_PATH, encoding="utf-8") as _pfh:
+    for _ln in _pfh:
+        if _ln[:1] == "#" or _ln.startswith("bucket"):
+            continue
+        _pp = _ln.rstrip("\n").split("\t")
+        if len(_pp) < 3 or not _pp[0].isdigit():
+            continue
+        for _tl in _pp[2].split(";"):
+            if _tl.startswith(("m60_", "m61_")):
+                _TILE_KICK_BUCKETS[_tl].add(_pp[0])
+# A shrunken table silently blinds the derivation instead of failing it (the grace-ground gate's
+# _GG_FLOOR reasoning). Measured on 2026-08-09 data: 58 overworld tiles (42 m60 + 16 m61), 57 of
+# them naming exactly one bucket. The floor is set below that, not at it, so a re-emit that legitimately
+# moves the number by a tile does not fail -- it is here to catch a table that came back EMPTY.
+_PRB_FLOOR = 50
+if len(_TILE_KICK_BUCKETS) < _PRB_FLOOR:
+    raise SystemExit("gen_data: play_region_buckets.tsv names only %d overworld tile(s) (floor %d) -- "
+                     "re-run tools/datamine_play_regions.py --emit on a box with the params unpacked."
+                     % (len(_TILE_KICK_BUCKETS), _PRB_FLOOR))
+TILE_ROW_REGION = {}                       # overworld tile -> region NAME (never a bucket, never a warp id)
+for _tl, _bs in _TILE_KICK_BUCKETS.items():
+    if len(_bs) != 1:
+        continue
+    _ow = _KICK_BUCKET_OWNER.get(next(iter(_bs)))
+    if _ow:
+        TILE_ROW_REGION[_tl] = _ow
+
+def _tile_row_region(_pfx, _xx, _yy):
+    """Region NAME from PlayRegionParam's own row for this tile, or None. _pfx is 'm60'/'m61'."""
+    return TILE_ROW_REGION.get("%s_%02d_%02d" % (_pfx, _xx, _yy))
+print(f"tile play-region rows: {len(_TILE_KICK_BUCKETS)} overworld tile(s) in "
+      f"play_region_buckets.tsv; {len(TILE_ROW_REGION)} resolve to exactly one region")
+
 # ---- boss-ARENA regions (greenfield/boss_area_regions.tsv, tools/datamine_boss_area_regions.py) ----
 # The play_region you STAND IN to kill a boss = where its reward is REACHABLE. For a few bosses that
 # arena is a FOREIGN play_region from the emevd map the reward is scripted in (the Golden Hippopotamus
@@ -518,7 +584,9 @@ def _region_of_raw(r):
         # own tables. (Tried grace-first in e14dfa7 and reverted here: it moved 86 checks and quietly
         # cost the independence, which is a trade nobody had agreed to make.)
         t = _overworld_tile_of(r)
-        return PLAY2AP.get(tile_pr(*t), HUB) if t else HUB
+        # ONE m60 tile->region implementation (_m60_tile_region), so the curated table, the tile's
+        # own grace anchor and PlayRegionParam's row are ranked in exactly one place.
+        return (_m60_tile_region("m60_%02d_%02d" % t) or HUB) if t else HUB
     if meth=='shop_multi': return HUB
     return REGION_MAP.get(reg,HUB)
 
@@ -2122,18 +2190,52 @@ def _m61_tile_region(_xx, _yy):
     _cur = M61_TILE_CURATED.get((_xx, _yy))
     if _cur is not None:
         return _cur
-    _pr = ANCHOR61.get((_xx, _yy))
-    if _pr is None:
-        _pr = min(ANCHOR61.items(),
-                  key=lambda _kv: (_kv[0][0]-_xx)**2 + (_kv[0][1]-_yy)**2)[1]
+    _pr = ANCHOR61.get((_xx, _yy))                      # the tile's OWN grace (warp id space)
+    if _pr is not None:
+        return PLAY2AP[_pr]
+    _row = _tile_row_region("m61", _xx, _yy)            # PlayRegionParam's own row for this tile
+    if _row:                                            # -- an answer, so do not go guess one
+        return _row
+    _pr = min(ANCHOR61.items(),
+              key=lambda _kv: (_kv[0][0]-_xx)**2 + (_kv[0][1]-_yy)**2)[1]
     return PLAY2AP[_pr]
 
 def _m60_tile_region(_mid):
     _m = re.match(r"m6([01])_(\d\d)_(\d\d)", _mid)
     if not _m: return None
+    _xx, _yy = int(_m.group(2)), int(_m.group(3))
     if _m.group(1) == '1':                                    # DLC overworld (m61) -> §5a table
-        return _m61_tile_region(int(_m.group(2)), int(_m.group(3)))
-    return PLAY2AP.get(tile_pr(int(_m.group(2)), int(_m.group(3))))
+        return _m61_tile_region(_xx, _yy)
+    # tile_pr() answers from the tile's own grace (or M60_TILE_CURATED) where it has one, and
+    # nearest-neighbours the other 99 tiles. Slot PlayRegionParam's own row for the tile in between:
+    # below first-hand grace evidence, above a hop onto a neighbour that happens to hold a grace.
+    if (_xx, _yy) not in ANCHOR and (_xx, _yy) not in M60_TILE_CURATED:
+        _row = _tile_row_region("m60", _xx, _yy)
+        if _row:
+            return _row
+    return PLAY2AP.get(tile_pr(_xx, _yy))
+# ANCHORED tiles whose PlayRegionParam row names a DIFFERENT region than their own grace does.
+# Not acted on -- see the ranking note at TILE_ROW_REGION: a grace and a bucket row disagreeing on a
+# tile that has both is ordinary geography (trusted tiles straddle borders MORE often than guessed
+# ones), and the two are in different id spaces measuring different things. Printed because it is the
+# only place the disagreement is visible at all, and a human deciding a border wants the list.
+_TILE_ROW_VS_ANCHOR = []
+for _tl_, _rg_ in sorted(TILE_ROW_REGION.items()):
+    _mm_ = re.match(r"m6([01])_(\d\d)_(\d\d)$", _tl_)
+    if not _mm_:
+        continue
+    _x_, _y_ = int(_mm_.group(2)), int(_mm_.group(3))
+    if _mm_.group(1) == '0':
+        _own_ = PLAY2AP.get(ANCHOR[(_x_, _y_)]) if (_x_, _y_) in ANCHOR else None
+    else:
+        _own_ = PLAY2AP.get(ANCHOR61[(_x_, _y_)]) if (_x_, _y_) in ANCHOR61 else None
+    if _own_ and _own_ != _rg_:
+        _TILE_ROW_VS_ANCHOR.append((_tl_, _own_, _rg_))
+if _TILE_ROW_VS_ANCHOR:
+    print("tile play-region rows: %d anchored tile(s) whose PlayRegionParam row disagrees with their "
+          "own grace (NOT acted on -- the grace wins on a tile that has one): %s"
+          % (len(_TILE_ROW_VS_ANCHOR),
+             ", ".join("%s grace=%s row=%s" % _t for _t in _TILE_ROW_VS_ANCHOR)))
 _REPIN_N = [0]; _QUAR_N = [0]; _RECOVER_N = [0]
 
 # ---- GLOBAL-recovery tile decode (matt-free FULL coverage) ------------------------------------
@@ -2311,12 +2413,17 @@ FLAG_REGION_OVERRIDE = {
     # Tile 48,39 (graces 6830 Cerulean + 6840 Charo's): these 3 lots are the Charo's Hidden Grave side.
     2048397030: "Charo's", 2048397040: "Charo's", 2048397050: "Charo's",
     # GROUND-TRUTH tile splits, 2026-07-15: treasure MSB positions tested against the play-region
-    # volumes (tools/datamine_grace_ground.py machinery). These three stand INSIDE 6840000 volumes
+    # volumes (tools/datamine_grace_ground.py machinery). These stand INSIDE 6840000 volumes
     # ("dragon-mountain west" = Charo's Hidden Grave ground; bucket 68400 -> Charo's, the same
-    # geometry the in-game Charo's kick measured), so a Cerulean-only player cannot stand on them:
-    68710: "Charo's",                  # Greater Potentate's Cookbook [14] (lot 2047390030, tile 47,39)
-    2047397040: "Charo's",             # Grave Glovewort [9] (lot 2047390040, tile 47,39)
-    2048407010: "Charo's",             # Spirit Glaive (lot 2048400010, tile 48,40 -- the volume reaches in)
+    # geometry the in-game Charo's kick measured), so a Cerulean-only player cannot stand on them.
+    # 🛑 68710 and 2047397040 USED TO BE PINNED HERE and were DELETED 2026-08-09: both sit on tile
+    # 47,39, whose only PlayRegionParam row is bucket 68400, so TILE_ROW_REGION now derives Charo's
+    # for the whole tile and the pins became redundant (CONTRIBUTING: a redundant manual override is
+    # a failure). That is also what the pins were evidence FOR -- they named two of the nine checks on
+    # a tile the derivation was answering wrongly, and the other seven, including the Ash of War a
+    # player reported, had no pin. test_gf_tile_row_region.py holds them as the acceptance case.
+    2048407010: "Charo's",             # Spirit Glaive (lot 2048400010, tile 48,40 -- the volume reaches
+                                       #   in; 48,40 has NO PlayRegionParam row, so this one stands)
     # ...and these two stand INSIDE 6830000 (Cerulean Coast) although their tile 49,38 files them
     # under Jagged Peak -- the reverse direction of the same class:
     68920: "Cerulean",                 # Finger-Weaver's Cookbook [1] (lot 2049380050, tile 49,38)
@@ -3165,7 +3272,7 @@ def _gt_region(_mid):
         return _m61_tile_region(int(_m.group(1)), int(_m.group(2)))
     _m = re.match(r"m60_(\d\d)_(\d\d)", _mid)
     if _m:
-        return PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
+        return _m60_tile_region("m60_%s_%s" % (_m.group(1), _m.group(2)))
     # NO majority-vote fallback. Resolving an interior map by "the region most of its placed loot got"
     # re-imports the very bug this is meant to kill: m18_00's loot votes Gravesite Plain and m39_20's
     # votes Mt. Gelmir, both WRONG -- using that vote regressed 510280 and 510260 from correct to
@@ -4245,6 +4352,13 @@ for r in rows:
         if not _gt:
             continue
         _gx, _gy = int(_gt.group(1)), int(_gt.group(2))
+        # 🛑 NOT WIDENED to tiles TILE_ROW_REGION can resolve, though the argument is there to make:
+        # a tile PlayRegionParam carries a row for is answered by the game in the KICK's own id space,
+        # which is a stronger warrant than ANCHOR (warp ids). Widening it un-bars 75 checks -- measured
+        # 2026-08-09 -- i.e. it hands progression to ground, which is the one direction this guard's
+        # own comment says a change must never take without evidence. Several of the 75 sit one hop
+        # from the Rold seam that cost a seed (f530505). That is a separate change with a separate
+        # fill regression behind it, not a ride-along on a region fix.
         if (_is_fine_tile(_gx, _gy) and (_gx, _gy) not in ANCHOR
                 and flag not in _REGION_CONFIRMED_FLAGS
                 and (not defaulted_aps or defaulted_aps[-1] != apid)):

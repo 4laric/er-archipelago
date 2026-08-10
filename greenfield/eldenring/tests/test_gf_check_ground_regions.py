@@ -39,35 +39,31 @@ except ImportError:                    # `python greenfield/eldenring/tests/test
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = find_repo_root(HERE)
 
-# Pre-existing on main @ #445. (event_flag, assigned_region, ground_region). NOT a benign list: each
-# is an open question about which of the two regions is right, and several look like a genuinely
-# wrong ASSIGNMENT rather than a reachability bug -- "Mohgwyn :: Festering Bloody Finger - near The
-# First Step" is a Mohgwyn invasion item that is picked up in Limgrave, and "Limgrave :: Hefty
-# Cracked Pot - near Bonny Gaol" is a DLC gaol check filed under Limgrave. Resolve them one at a
-# time, in game, and delete the row when it is settled. Adding a row here is not a fix.
+# (event_flag, assigned_region, ground_region). NOT a benign list: each is an open question about
+# which of the two regions is right, and all four look like a genuinely wrong ASSIGNMENT rather than
+# a reachability bug -- "Mohgwyn :: Festering Bloody Finger - near The First Step" is a Mohgwyn
+# invasion item that is picked up in Limgrave, and "Limgrave :: Hefty Cracked Pot - near Bonny Gaol"
+# is a DLC gaol check filed under Limgrave. Resolve them one at a time, in game, and delete the row
+# when it is settled. Adding a row here is not a fix.
+#
+# ⭐ SHRANK 20 -> 4 on 2026-08-09, and the reason is a DERIVATION, not a re-pin. All sixteen rows
+# that left were the same defect: a check on an overworld tile with NO GRACE of its own, whose region
+# ANCHOR/ANCHOR61 had nearest-neighboured onto whichever neighbour happened to hold one, while
+# play_region_buckets.tsv -- the table er_logic's own kick_decision reads -- carried a row for that
+# exact tile. gen_data.TILE_ROW_REGION now consults it (below the tile's own grace, above the hop),
+# so the ASSIGNMENT moved onto the ground instead of the pin being deleted:
+#     m61_47_39  7 checks  Cerulean  -> Charo's                    (the Nexus report, f530855)
+#     m61_46_45 13 checks  Gravesite -> Rauh Base   (11 of them pinned; the #445 sweep members)
+#     m60_48_51  2 checks  Altus     -> Mountaintops of the Giants
+# The four that remain are NOT of that class: each sits on a tile whose region was never in doubt,
+# so no tile fix can move them and only an in-game verdict can. See test_gf_tile_row_region.py.
 #
 # 🛑 KEYED ON THE EVENT FLAG, NOT THE ap-id. ap-ids are positional: the 2026-08-07 regen added 16
 # checks and renumbered every id above 7774000, so an ap-id pin would have gone on passing while
 # naming different checks. Flags are game data and do not move. (CONTRIBUTING: "whenever two
 # components exchange ids, name the SPACE in the type, the key, or the comment -- and assert it.")
 KNOWN_MISMATCHES = {
-    (1048517000, "Altus", "Mountaintops of the Giants"),
-    (2047397000, "Cerulean", "Charo's"),
-    (2047397050, "Cerulean", "Charo's"),
-    (2047397080, "Cerulean", "Charo's"),
-    (2047397090, "Cerulean", "Charo's"),
     (400175, "Farum Azula", "Caelid"),
-    (580410, "Gravesite", "Rauh Base"),
-    (2046457000, "Gravesite", "Rauh Base"),
-    (2046457020, "Gravesite", "Rauh Base"),
-    (2046457030, "Gravesite", "Rauh Base"),
-    (2046457040, "Gravesite", "Rauh Base"),
-    (2046457050, "Gravesite", "Rauh Base"),
-    (2046457060, "Gravesite", "Rauh Base"),
-    (2046457070, "Gravesite", "Rauh Base"),
-    (2046457720, "Gravesite", "Rauh Base"),
-    (2046457910, "Gravesite", "Rauh Base"),
-    (2046457920, "Gravesite", "Rauh Base"),
     (66930, "Limgrave", "Scadu Altus"),
     (400036, "Mohgwyn", "Limgrave"),
     (400401, "Raya Lucaria Academy", "Caelid"),
