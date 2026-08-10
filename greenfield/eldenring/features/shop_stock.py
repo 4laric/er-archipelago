@@ -75,6 +75,11 @@ try:
 except ImportError:
     ITEM_CATALOG = {}
 
+try:
+    from .keep_out_of_shops import forbidden_goods_rows as _kept_out_rows
+except ImportError:                      # feature absent -> no categories are forbidden
+    _kept_out_rows = None
+
 # name lookup for the rune check: ITEM_CATALOG is name -> FullID, we need the reverse.
 _NAME_OF = {v: k for k, v in (ITEM_CATALOG or {}).items()}
 
@@ -274,6 +279,20 @@ class ShopStockFeature(Feature):
             rids = [r for r in rids if not _is_rune(r | _GOODS_CATEGORY)]
             if not rids:                      # a pool that was ALL runes: nothing left to stock
                 return {}
+        # keep_out_of_shops: the shelf half, same shape and for the same reason. A shelf stocking a
+        # ware the player asked to keep out of shops is "in shops" as surely as a check reward is,
+        # and "merchants and bell bearings" is what the request said. Filter the DRAW LIST here too
+        # -- filler_curation.CATEGORIES is shared with the received-filler roster and must keep its
+        # items -- so with nothing selected the list is untouched and every roll is bit-identical to
+        # before the option existed. These shelves are GOODS-only (equipType 3), so a weapons/armor
+        # selection cannot bite here and correctly changes nothing. Pins are handled at options time
+        # (features/keep_out_of_shops.generate_early), not here.
+        if _kept_out_rows is not None:
+            banned = _kept_out_rows(world)
+            if banned:
+                rids = [r for r in rids if r not in banned]
+                if not rids:                  # every ware was in a forbidden category
+                    return {}
         # A DEDICATED RNG, not world.random. fill_slot_data may be called more than once (the AP world
         # tests call it twice and assert the result is identical), and drawing from the shared stream
         # both advances it -- perturbing every later consumer -- and makes the second call return a

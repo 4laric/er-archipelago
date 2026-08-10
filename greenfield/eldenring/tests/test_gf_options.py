@@ -326,6 +326,85 @@ def test_no_runes_in_shops_combinations_fill_clean(label, opts):
         % (label, len(offenders), offenders[0].name if offenders else ""))
 
 
+# ---------------------------------------------------------------------------------------------
+# keep_out_of_shops -- the combination sweep (added 2026-08-10, boblerrr's [weapons, armor] ask).
+#
+# Same reasoning as the no_runes_in_shops sweep above, with one difference that matters: this option
+# CONSTRAINS FILL HARD ENOUGH TO SKIP, so the sweep's job is not only "it gens" but "it gens whether
+# or not the capacity gate fired". num_regions walks it across that boundary -- 0 is 4369 non-shop
+# slots against 689 gear items (armed), 1 is 94 against 137 (armor drops, weapons hold) -- and the
+# DLC pair changes the kept set and the pool underneath it. `goods` is swept because an umbrella
+# expands to eight categories at once and is the widest ban a yaml can express in one word.
+# ---------------------------------------------------------------------------------------------
+_KOS_COMBOS = (
+    ("gear_full_world",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 0}),
+    ("gear_one_region",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 1}),
+    ("gear_small_rolled", {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 4}),
+    ("goods_umbrella",    {"keep_out_of_shops": {"goods"}, "num_regions": 4}),
+    ("everything",        {"keep_out_of_shops": {"everything"}, "num_regions": 4}),
+    ("gear_dlc",          {"keep_out_of_shops": {"weapons", "armor"}, "enable_dlc": True}),
+    ("gear_dlc_only",     {"keep_out_of_shops": {"weapons", "armor"}, "dlc_only": True}),
+)
+
+
+@pytest.mark.parametrize("label,opts", _KOS_COMBOS, ids=[c[0] for c in _KOS_COMBOS])
+def test_keep_out_of_shops_combinations_fill_clean(label, opts):
+    """Gens clean, and where the gate did NOT skip a category, that category really is absent from
+    every purchase menu. Asserting only "it genned" would pass just as happily on an option that
+    skipped everything, every time."""
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
+    from worlds.eldenring.features.keep_out_of_shops import plan
+    from worlds.eldenring.item_categories import category_of, expand, names_in
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = dict(opts)
+
+    t = _T("runTest")
+    t.options = dict(opts)
+    t.world_setup(20260810)                      # pinned seed: a red run must be reproducible
+    player = t.world.player
+
+    # Recompute the gate's own decision from the pre-fill pool, so the assertion below tracks what
+    # the feature actually armed instead of assuming it armed everything.
+    cats = expand(opts["keep_out_of_shops"])
+    by_cat = {c: set(names_in([c])) for c in cats}
+    own = [i for i in t.multiworld.itempool if i.player == player]
+    capacity = sum(1 for l in t.multiworld.get_locations(player)
+                   if getattr(l, "address", None) is not None
+                   and str(l.address) not in SHOP_ROW_FLAGS and l.item is None)
+    enforced, _dropped = plan({c: sum(1 for i in own if i.name in ns)
+                               for c, ns in by_cat.items()}, capacity)
+
+    assert enforced, (
+        "%s: the gate armed NOTHING, so the check below is vacuous -- either this combo's shape "
+        "drifted or the gate is broken. Fix the combo or the gate, do not delete the case." % label)
+
+    distribute_items_restrictive(t.multiworld)
+
+    armed = set(enforced)
+    offenders = [l for l in t.multiworld.get_locations(player)
+                 if getattr(l, "address", None) is not None
+                 and str(l.address) in SHOP_ROW_FLAGS
+                 and l.item is not None and l.item.player == player
+                 and category_of(l.item.name) in armed]
+    # WITNESS: the enforced categories still exist in the seed, out in the world. Without this the
+    # assertion below would pass just as happily on a pool that never held one of those items.
+    displaced = sum(1 for l in t.multiworld.get_locations(player)
+                    if getattr(l, "address", None) is not None
+                    and str(l.address) not in SHOP_ROW_FLAGS
+                    and l.item is not None and l.item.player == player
+                    and category_of(l.item.name) in armed)
+    assert displaced > 0, (
+        "%s: no item of an enforced category (%s) is anywhere in the seed post-fill -- the option "
+        "would 'pass' by the pool being empty rather than by the ban working"
+        % (label, ", ".join(enforced)))
+    assert not offenders, (
+        "%s: %d own item(s) in an ENFORCED category landed on a shop check (first: %s -> %s)"
+        % (label, len(offenders), offenders[0].name, offenders[0].item.name))
+
+
 def test_the_scaling_TELEMETRY_reports_the_resolved_ceiling_not_the_raw_sentinel():
     """The telemetry line is MACHINE-READ, and nothing was asserting on it.
 

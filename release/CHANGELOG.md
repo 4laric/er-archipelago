@@ -40,6 +40,38 @@ the fifth window running that this has happened. It is recorded in `test_gf_cont
 rather than quietly fixed, because a step that five consecutive windows have missed is not something
 the next person will remember either.
 
+### New option: **Keep Out Of Shops** (empty by default, so nothing changes unless you set it)
+
+List the categories of your own item that merchants may never stock, and they land out in the world
+instead:
+
+    keep_out_of_shops: [weapons, armor]
+
+Asked for by **boblerrr** on Discord, looking at a merchant shelf of weapons, gauntlets and helms
+priced 800-25,000 with 11,144 runes in his pocket -- "so its more split around the world". 213 of
+the 562 purchase-menu checks pay a weapon or an armour piece in vanilla, so on a small seed a shop
+really is where your gear lives, and finding it is a matter of grinding runes rather than of going
+somewhere.
+
+It takes categories rather than being a gear-only switch, so `[consumables, crafting]` or
+`[spells]` work too -- the same list Keep Local uses, umbrellas (`goods`, `everything`) included.
+Both halves of a merchant are covered, the shop checks and the rerolled unlimited shelves, and
+bell-bearing shops are shop rows like any other. Other players' items at your shops are untouched.
+
+🛑 A SMALL SEED MAY NOT HAVE ROOM, and the option says so instead of pretending. Everything it
+forbids from a shop has to fit somewhere that is not a shop, and the hub alone is 184 shop rows out
+of 224 locations -- at `num_regions: 1` there are 93 non-shop slots against 66 weapons and 71
+armour pieces. The categories are then taken one at a time, cheapest first, and any that does not
+fit is skipped with a log line naming it and both numbers. In that example you get `weapons`
+enforced and `armor` skipped rather than the whole option going quiet. A full-world seed has 4336
+non-shop slots against 689 gear items and enforces the lot.
+
+Rejected rather than quietly ignored: combining it with `vanilla_placement` (which pins every item
+to its base-game location, merchants included, so nothing could be kept out of a shop), and pinning
+a forbidden ware with `infinite_hub_wares`.
+
+No contract change and no client change: `CONTRACT_HASH` is unmoved.
+
 ### Loading the wrong save no longer bricks the session until you restart the game
 
 If you load a save that belongs to a different seed, the client refuses it on purpose: nothing sends,
