@@ -217,6 +217,18 @@ run rather than tune it.
   item is worth, so a cheap shelf never becomes an infinite supply of something
   game-breaking. **Arrow and bolt shelves are left alone**, so ammo builds keep
   their supply line.
+- **`merchant_bells_on_talk`** (off) -- open a merchant's shop and their Bell
+  Bearing is handed to the Twin Maiden Husks for you, so their wares are on sale
+  at the Roundtable Hold from then on. You are not given the bell itself: every
+  Bell Bearing is a real multiworld item, and the option unlocks the shop rather
+  than duplicating the item, so the bell is still worth finding -- it just
+  arrives already spent. Your checks do not change either way; the Maidens sell
+  the merchant's *own* shop rows, so a slot bought at the hub fires exactly the
+  check it would have fired out in the world. Covers the roving merchants and
+  the named vendors; the peddlers whose bells stock the Maidens' own shelf are
+  not covered, and it triggers on the regular buy menu only, so an Ash-of-War,
+  tailoring or upgrade counter does not fire it. Needs a client that supports
+  it, and a seed with it on will say so rather than connect and ignore you.
 - **`keep_local`** -- multiworld manners, by category. List the kinds of item
   you want to stay in your own world and everything else still travels:
   `[consumables, crafting, upgrade_materials, runes]` keeps your crafting
