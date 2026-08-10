@@ -144,6 +144,12 @@ class TileRowRegion(unittest.TestCase):
 
     # ---- stage 3: the shipped corpus -------------------------------------------------------
     def test_stage3_every_check_on_the_tile_ships_as_charos(self):
+        # WITNESS (test_gf_vacuous_pass): assert the corpus HAS all nine flags before asserting that
+        # none of them is misfiled. "no check is wrong" is also what a lookup that matched nothing says.
+        self.assertEqual(len([fl for fl in TILE_47_39_FLAGS if fl in self.region_of]),
+                         len(TILE_47_39_FLAGS),
+                         "not every flag on %s is in data.LOCATIONS at all -- the corpus moved under "
+                         "this fixture, so the emptiness check below would be vacuous." % CHAROS_TILE)
         wrong = sorted((fl, self.region_of.get(fl)) for fl in TILE_47_39_FLAGS
                        if self.region_of.get(fl) != "Charo's")
         self.assertEqual(wrong, [],
@@ -164,6 +170,12 @@ class TileRowRegion(unittest.TestCase):
             src = fh.read()
         i = src.index("FLAG_REGION_OVERRIDE = {")
         body = src[i:src.index("\n}\n", i)]
+        # WITNESS (test_gf_vacuous_pass): the "did a pin come back" scan must be able to SEE a pin.
+        # 2048407010 stays pinned on purpose -- its tile 48,40 has no PlayRegionParam row -- so it is
+        # the positive control that proves this string search still matches the table's format.
+        self.assertIn("\n    2048407010:", body,
+                      "the FLAG_REGION_OVERRIDE scan found none of the pins it KNOWS are there -- "
+                      "the table's formatting changed and this search is now blind.")
         back = [f for f in RETIRED_PINS if ("\n    %d:" % f) in body]
         self.assertEqual(back, [],
                          "flag(s) %r are pinned in FLAG_REGION_OVERRIDE again. They sit on %s, which "

@@ -236,12 +236,19 @@ class EveryMismatchedGroup(unittest.TestCase):
     def test_the_split_set_is_the_measured_one(self):
         """Pinned so a regen that grows the mismatch set has to be explained rather than absorbed.
         Ashen Capital's two rows are inert -- that region is never rolled (#436) -- and are pinned
-        anyway, because 'benign today' is a claim that rots (CONTRIBUTING rule 10)."""
+        anyway, because 'benign today' is a claim that rots (CONTRIBUTING rule 10).
+
+        ⭐ SHRANK 6 -> 5 on 2026-08-09, and the INPUT got better rather than the predicate looser.
+        2046450800 ("Gravesite" arena -> "Rauh Base" members, 24 member links) left because its 13
+        members were on m61_46_45, a tile with no grace of its own that ANCHOR61 had hopped into
+        Gravesite; play_region_buckets.tsv carries a Rauh Base row for that exact tile, and
+        gen_data.TILE_ROW_REGION now reads it. The members moved onto the ground their arena is
+        already on, so the group agrees with itself -- nothing about the arena, the trigger or this
+        screen's predicate changed. See test_gf_tile_row_region.py."""
         self.assertEqual(
             dict(self.split),
             {21000850: ("Shadow Keep", "Scadu Altus"),
              10000850: ("Stormveil", "Limgrave"),
-             2046450800: ("Gravesite", "Rauh Base"),
              2052430800: ("Abyssal", "Scadu Altus"),
              11050800: ("Ashen Capital", "Leyndell"),
              11050850: ("Ashen Capital", "Leyndell")},
