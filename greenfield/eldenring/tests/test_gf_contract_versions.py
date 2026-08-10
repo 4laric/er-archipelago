@@ -122,6 +122,21 @@ SHIPPED = {
     # this row is the last thing anybody remembers -- 0.3.3, 0.3.4, 0.3.6 and now 0.3.9 -- and the
     # only reason the streak is visible is that the test asks the tags instead of asking a person.
     "0.3.9": "5c2b9bf2",
+    # v0.3.10 TAGGED 2026-08-09 at 8e3eb52, shipping 5c2b9bf2 -- contract unmoved from 0.3.9, so the
+    # bump was version-lockstep for the sweep-remainder / DLC-terminus window.
+    #
+    # 🛑 FIFTH IN A ROW. 0.3.3, 0.3.4, 0.3.6, 0.3.9 and now 0.3.10: this row is the last thing anybody
+    # remembers, and every single time it has been the GATE that noticed rather than a person. Written
+    # here at WINDOW-OPEN for v0.3.11 rather than at tag time, which is late by one window and is why
+    # `test_every_tagged_version_is_recorded_as_shipped` was red on main between the v0.3.10 tag and
+    # this commit -- masked, because `generators` aborts at check_release_notes several steps earlier.
+    # The streak is the finding: a step that five consecutive windows have missed is not a memory
+    # problem, and the honest fix is to derive this fixture from the tags instead of writing it.
+    #
+    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.3.11 does NOT belong here while its window is open.
+    # Its row goes in when v0.3.11 is tagged. Adding an open version here is what 0.3.7's row was
+    # removed for.
+    "0.3.10": "5c2b9bf2",
 }
 
 

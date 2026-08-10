@@ -3,6 +3,20 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.3.11 — 2026-08-10
+
+Window opened AT THE TAG of v0.3.10, deliberately -- the third time running, after five windows that
+were opened by something going red. Nothing has landed past the tag yet, so this section starts empty
+of changes on purpose and fills as they arrive (rule 14).
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
+v0.3.10 client still handshakes with a v0.3.11 seed and vice versa.
+
+🛑 The v0.3.10 SHIPPED fixture row was owed at the tag and written here instead, one window late --
+the fifth window running that this has happened. It is recorded in `test_gf_contract_versions.py`
+rather than quietly fixed, because a step that five consecutive windows have missed is not something
+the next person will remember either.
+
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
