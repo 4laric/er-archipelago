@@ -29,6 +29,7 @@ REPO = find_repo_root(HERE)
 EXPECTED = {
     "rune_thief": "Trap: Rune Thief",
     "no_flask": "Trap: No Flask",
+    "runebear": "Trap: Runebear",
 }
 
 
@@ -42,14 +43,14 @@ class TrapCatalogue(unittest.TestCase):
 
     def test_the_catalogue_is_exactly_the_two_implemented_traps(self):
         """🛑 Rule 4: adding a name later is safe, REMOVING one is a compat break. So this asserts
-        equality, not containment -- a third name appearing here without a client that fires it is a
-        yaml value that promises something the game will not do."""
+        equality, not containment -- a name appearing here without a client that fires it is a yaml
+        value that promises something the game will not do."""
         self.assertEqual(_mod().TRAPS, EXPECTED)
 
     def test_every_name_carries_the_prefix_the_client_dispatches_on(self):
         t = _mod()
         # WITNESS: an empty catalogue would satisfy the loop below vacuously.
-        self.assertEqual(len(t.TRAPS), 2)
+        self.assertEqual(len(t.TRAPS), 3)
         for key, name in t.TRAPS.items():
             self.assertTrue(name.startswith(t.TRAP_PREFIX),
                             f"{key!r} -> {name!r} does not start with {t.TRAP_PREFIX!r}; the client "
@@ -90,10 +91,21 @@ class TrapItemsInTheWorld(unittest.TestCase):
 
     def test_no_traps_named_mints_nothing_however_high_the_count(self):
         """The OptionSet is the master switch: a count with nothing enabled is inert, so a player
-        who sets a count and forgets the set gets an unchanged seed rather than a silent surprise."""
+        who sets a count and forgets the set gets an unchanged seed rather than a silent surprise.
+
+        WITNESSED with the same count and the set NON-empty. `trap_items` returning [] for every
+        input satisfies the assertion below for free -- which is the whole shape test_gf_vacuous_pass
+        exists to catch -- so the off-case is only evidence next to a live on-case."""
+        self.assertTrue(_mod().trap_items(self._World(["rune_thief"], 40)),
+                        "count 40 with a trap named must mint something, or the OFF case below "
+                        "passes because the minter is dead rather than because the switch works")
         self.assertEqual(_mod().trap_items(self._World([], 40)), [])
 
     def test_zero_count_mints_nothing_however_many_are_named(self):
+        """Same shape, other axis: witnessed with the same SET and a non-zero count."""
+        self.assertTrue(_mod().trap_items(self._World(["rune_thief", "no_flask"], 4)),
+                        "the same two traps at count 4 must mint something, or count 0 minting "
+                        "nothing says nothing about the count")
         self.assertEqual(_mod().trap_items(self._World(["rune_thief", "no_flask"], 0)), [])
 
     def test_the_split_is_even_and_reproducible(self):
@@ -101,6 +113,10 @@ class TrapItemsInTheWorld(unittest.TestCase):
         self.assertEqual(len(got), 8)
         self.assertEqual(got.count("Trap: Rune Thief"), 4)
         self.assertEqual(got.count("Trap: No Flask"), 4)
+        # three kinds over a multiple of three: still exactly even
+        three = _mod().trap_items(self._World(["rune_thief", "no_flask", "runebear"], 9))
+        self.assertEqual(sorted(set(three)), ["Trap: No Flask", "Trap: Rune Thief", "Trap: Runebear"])
+        self.assertTrue(all(three.count(n) == 3 for n in set(three)), three)
         # Reproducible: the same options must give the same list, or a seed is not rebuildable from
         # its yaml. An OptionSet is a frozenset and iterating one is not order-stable, which is the
         # trap this ordering rule exists to avoid.

@@ -1,4 +1,4 @@
-# Known Issues -- v0.3.7
+# Known Issues -- v0.3.11
 
 Current as of **v0.3.7** (2026-08-06).
 
@@ -131,6 +131,17 @@ real thing. No report needed for anything below.
 - **Great Runes are "useful", not progression**, unless
   `ending_condition: great_runes` requires them, in which case they become
   progression and are placed reachably.
+
+- **Burning the Erdtree switches off Leyndell's grace warp points.** The burn
+  is the game's own event and one of the things it does is clear the capital's
+  fast-travel graces, so immediately afterwards you cannot warp into Leyndell
+  even holding its Lock. `capital_reconciler` (on by default) still gives you
+  the Royal Capital back -- it is the *warp shortcut* that is gone, not the
+  region. What to do: walk in from Altus through the main gate (the Great Rune
+  wall is unchanged) and touch a grace; the warp point comes back with it. If
+  you would rather have vanilla's one-way burn, set `capital_reconciler: false`
+  -- Royal Capital checks are then barred from holding progression, so the seed
+  stays winnable either way.
 
 - **`(region unconfirmed)` in a check name is the label being honest**, not a
   defect. Those checks are never allowed to hold progression, so a wrong guess

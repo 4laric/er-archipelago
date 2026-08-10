@@ -155,7 +155,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.3.11",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "641777905cf7ab724a8158b6e3537b1b3c44b33ccac96e0caf7120e78b50e69e",
+ "source_sha256": "10162a865379b37bcfe09dc65a1c2e6054b20b9d65b372fedd9a6677ed1cda9e",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1517,7 +1517,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "traps",
    "class": "Traps",
    "display_name": "Traps",
-   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.",
+   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -1525,7 +1525,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "range": null,
    "valid_keys": [
     "no_flask",
-    "rune_thief"
+    "rune_thief",
+    "runebear"
    ],
    "casefold": false,
    "group": null,
@@ -2916,23 +2917,10 @@ const ERW = (() => {
     if (has("progression_surface") && !(v("progression_surface") || []).length){
       warn("progression_surface", "Empty turns the confinement OFF \u2014 progression scatters " +
            "wherever AP's fill puts it, including your filler checks.");
-      if (has("confine_foreign_progression") && v("confine_foreign_progression") > 0)
+      if (has("confine_foreign_progression") && v("confine_foreign_progression"))
         info("confine_foreign_progression", "Nothing to confine other players' progression to " +
              "while Progression Surface is empty.");
     }
-
-    // confine_foreign_progression stopped being a toggle on 2026-08-10 because of a side effect
-    // nobody had measured: the rule is about YOUR locations, but it pushes the partner game's own
-    // progression back into the partner's own slots, and Archipelago fills those before it places
-    // the useful tier. At 100 a non-ER partner receives only filler from you -- 498 items across
-    // three seeds beside Hollow Knight, zero of them a weapon, an armour piece or a talisman. This
-    // is an info, not a warning: 100 is the shipped default and a solo or ER-only player is losing
-    // nothing by it.
-    if (has("confine_foreign_progression") && v("confine_foreign_progression") >= 100)
-      info("confine_foreign_progression", "At 100, a partner playing a DIFFERENT game receives " +
-           "only filler from you \u2014 no weapons, armour or talismans. Around 50 sends them " +
-           "roughly the mix your own world sees, at the cost of their keys landing on your " +
-           "ordinary checks rather than your interesting ones.");
 
     // features/scaling.py: the two sliders are a range, and min above max is not a range.
     if (has("minimum_enemy_difficulty") && has("maximum_enemy_difficulty") &&
