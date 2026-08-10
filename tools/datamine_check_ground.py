@@ -151,21 +151,42 @@ def main():
     print("PlayArea volumes: %d (m60+m61)" % len(vols))
     tile_default, interior = _tile_defaults()
 
-    rows = []
+    raw = []
     for flag, map_id, x, y, z in _check_coords():
         bks, src = ground_of(flag, map_id, x, y, z, vols, tile_default, interior)
-        rows.append((flag, ";".join(map(str, bks)) or "-", src, map_id))
-    rows.sort()
+        raw.append((flag, ";".join(map(str, bks)) or "-", src, map_id, (x, y, z)))
+    raw.sort()
 
-    derived = sum(1 for r in rows if r[1] != "-")
-    print("checks: %d with coords, %d with a derived ground, %d underivable"
-          % (len(rows), derived, len(rows) - derived))
-    if derived < MIN_DERIVED:
+    derived_rows = sum(1 for r in raw if r[1] != "-")
+    print("coord rows: %d, %d with a derived ground, %d underivable"
+          % (len(raw), derived_rows, len(raw) - derived_rows))
+    if derived_rows < MIN_DERIVED:
         raise SystemExit(
-            "FATAL: only %d of %d checks derived a ground (floor %d, measured 2026-08-10) -- the "
-            "MSBs are missing or truncated. Refusing to emit a table that would look like an answer."
-            % (derived, len(rows), MIN_DERIVED))
+            "FATAL: only %d of %d coord rows derived a ground (floor %d, measured 2026-08-10) -- "
+            "the MSBs are missing or truncated. Refusing to emit a table that would look like an "
+            "answer." % (derived_rows, len(raw), MIN_DERIVED))
 
+    # 🛑 COLLAPSE THE MSB VARIANTS. item_grace_coords carries 5295 rows for 4086 distinct checks:
+    # 723 flags appear under both the _00 and _10 MSB variant of the same tile, at IDENTICAL
+    # coordinates. Reporting those twice double-counts a single check (the 2026-08-10 run printed
+    # 2046467010 twice). Collapse on (flag, tile, position) -- NOT on flag alone, because a check
+    # genuinely present at two POSITIONS is a multi-site check (cf. check_maps.tsv) and its sites
+    # must stay visible rather than being resolved to whichever sorted first.
+    sites = {}
+    for flag, bks, src, map_id, pos in raw:
+        sites.setdefault((flag, map_id[:9], tuple(round(c, 2) for c in pos)), (bks, src, map_id))
+    per_flag = {}
+    for (flag, _tile, _pos), (bks, src, map_id) in sorted(sites.items()):
+        e = per_flag.setdefault(flag, {"bk": set(), "src": src, "map": map_id, "n": 0})
+        e["n"] += 1
+        if bks != "-":
+            e["bk"] |= set(bks.split(";"))
+    rows = [(f, ";".join(sorted(e["bk"], key=int)) or "-", e["src"], e["map"], e["n"])
+            for f, e in sorted(per_flag.items())]
+    derived = sum(1 for r in rows if r[1] != "-")
+    multi = sum(1 for r in rows if r[4] > 1)
+    print("checks: %d distinct, %d with a derived ground, %d underivable, %d at >1 site"
+          % (len(rows), derived, len(rows) - derived, multi))
     if args.triage:
         owner = _play_region_groups()
         shipped = {}
@@ -175,7 +196,7 @@ def main():
                 shipped[int(r["flag"])] = r["region"]
         agree = disagree = unknown = 0
         out = []
-        for flag, bks, src, map_id in rows:
+        for flag, bks, src, map_id, _n in rows:
             if flag not in shipped or bks == "-":
                 continue
             regs = {owner.get(int(b)) for b in bks.split(";")} - {None}
@@ -205,9 +226,11 @@ def main():
             fh.write("#   (grace 76841 -> 6840000, in-game 2026-07-15).\n")
             fh.write("# NOT consumed by gen yet -- see #523. It answers 'where does this check STAND',\n")
             fh.write("#   which is a different question from 'which region owns it'.\n")
-            fh.write("check_flag\tground_buckets\tsource\tmap_id\n")
-            for flag, bks, src, map_id in rows:
-                fh.write("%d\t%s\t%s\t%s\n" % (flag, bks, src, map_id))
+            fh.write("# one row per CHECK. sites = distinct physical positions (>1 = multi-site);\n")
+            fh.write("#   the _00/_10 MSB variants of a tile are the SAME site and are collapsed.\n")
+            fh.write("check_flag\tground_buckets\tsource\tmap_id\tsites\n")
+            for flag, bks, src, map_id, n in rows:
+                fh.write("%d\t%s\t%s\t%s\t%d\n" % (flag, bks, src, map_id, n))
         print("\nemitted %s (%d rows)" % (OUT, len(rows)))
     return 0
 
