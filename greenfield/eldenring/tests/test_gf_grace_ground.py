@@ -179,9 +179,13 @@ class TestGraceGround(unittest.TestCase):
 
     def test_charos_regression(self):
         """The literal 2026-07-15 in-game failure, pinned: Charo's front door 76841 stands on
-        bucket 68400 (measured play_region 6840000), so 68400 must be owned by Charo's -- the
-        kick range for that ground clears on the Charo's Lock, not Cerulean's."""
-        self.assertIn(68400, self.play_ids.get("Charo's", ()),
+        bucket 68400 (measured play_region 6840000), so 68400 must be owned by whichever region
+        holds that ground -- or its lock warps the player into a kick.
+
+        Charo's MERGED into Cerulean 2026-08-10. The measurement is untouched (the ground is the
+        same ground); only the owning region's name changed. What this still pins is that 68400 is
+        owned by the region whose lock opens that door, which is now Cerulean's."""
+        self.assertIn(68400, self.play_ids.get("Cerulean", ()),
                       "bucket 68400 (Charo's Hidden Grave ground, in-game measured) must belong "
-                      "to Charo's or its lock warps the player into a kick")
+                      "to Cerulean since the 2026-08-10 merge, or its lock warps into a kick")
         self.assertEqual(self.ground.get(76841), (68400,))

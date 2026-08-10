@@ -6,8 +6,7 @@ REGION_GRACE_POINTS = {
     'Ancient Ruins': [76940, 76941, 76942, 76943, 76944],
     'Belurat': [72001, 72002, 72003],
     'Caelid': [73207, 73014, 73015, 73016, 73110, 73111, 73120, 73121, 73208, 73257, 73440, 73441, 73460, 76400, 76401, 76402, 76403, 76404, 76405, 76406, 76407, 76409, 76410, 76411, 76413, 76414, 76416, 76417, 76418, 76420, 76450, 76451, 76452, 76453, 76454, 76455, 76456],
-    'Cerulean': [76831, 76832, 76833, 76834, 76835],
-    "Charo's": [76841, 74102],
+    'Cerulean': [76831, 72201, 72202, 72203, 72204, 74102, 76832, 76833, 76834, 76835, 76841],
     'Deeproot Depths': [71231, 71232, 71233, 71234, 71235],
     'Enir Ilim': [72012, 72013, 72014, 72015, 72016],
     'Ensis': [76821, 76822],
@@ -27,7 +26,6 @@ REGION_GRACE_POINTS = {
     'Sewer': [73501, 73502, 73503, 73504],
     'Shadow Keep': [76935, 72106, 72108, 72109, 72111, 72112, 72113, 72114, 72116, 72117, 72120, 76936, 76937],
     'Siofra River': [71222, 71223, 71224, 71225, 71226, 71227, 71270, 71271],
-    'Stone Coffin': [72201, 72202, 72203, 72204],
     'Stormveil': [71003, 71004, 71005, 71006, 71007, 71008],
     'Weeping': [73102, 73000, 73001, 73101, 73200, 76150, 76151, 76152, 76153, 76154, 76155, 76156, 76157, 76158, 76159, 76160, 76162],
     'Ashen Capital': [71122, 71123, 71124, 71125],
@@ -42,8 +40,7 @@ REGION_GRACE_LANDMARKS = {
     'Ancient Ruins': [76940],  # Viaduct Minor Tower
     'Belurat': [72001],  # Belurat, Tower Settlement
     'Caelid': [76400, 76406, 76450],  # Smoldering Church, Aeonia Swamp Shore, Dragonbarrow West
-    'Cerulean': [76831],  # Cerulean Coast
-    "Charo's": [76841],  # Charo's Hidden Grave
+    'Cerulean': [72201, 76831, 76841],  # Stone Coffin Fissure, Cerulean Coast, Charo's Hidden Grave
     'Deeproot Depths': [71231],  # Root-Facing Cliffs
     'Enir Ilim': [72012],  # Enir-Ilim: Outer Wall
     'Ensis': [76821],  # Castle Ensis Checkpoint
@@ -63,9 +60,8 @@ REGION_GRACE_LANDMARKS = {
     'Sewer': [73501],  # Underground Roadside
     'Shadow Keep': [72106, 72111, 76935],  # Church District Entrance, Storehouse, First Floor, Hinterland
     'Siofra River': [71222, 71224],  # Siofra River Bank, Ancestral Woods
-    'Stone Coffin': [72201],  # Stone Coffin Fissure
     'Stormveil': [71003],  # Gateside Chamber
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:66cdb2010ec821afc98a0e34ca31ec6ac3d9d1f4d5f69807e9f2fa88834518c9', 'module': 'region_graces.py', 'body_sha256': 'sha256:131a7341e5daa1951ec60280a919954a4cff2f93dce68da4b969d873bf9e545f'}
+_GEN_STAMP = {'inputs_hash': 'sha256:15086ada123370cf527625a8876d3458bc2b03076b0e113735b95c20bd28f734', 'module': 'region_graces.py', 'body_sha256': 'sha256:baef3659f8a87406a8915523fd589fb82d5538ede7366d445e1a78c36d2a6985'}

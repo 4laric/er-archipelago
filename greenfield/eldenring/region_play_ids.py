@@ -14,8 +14,7 @@ REGION_PLAY_IDS = {
     'Ashen Capital': [11050, 19000],
     'Belurat': [20000],
     'Caelid': [30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130, 64000, 64010, 64020],
-    'Cerulean': [68300],
-    "Charo's": [41020, 68400],
+    'Cerulean': [22000, 41020, 68300, 68400],
     'Deeproot Depths': [12030],
     'Enir Ilim': [20010],
     'Ensis': [68200],
@@ -35,7 +34,6 @@ REGION_PLAY_IDS = {
     'Sewer': [35000],
     'Shadow Keep': [21000, 21010, 21020, 69300],
     'Siofra River': [12020, 12070],
-    'Stone Coffin': [22000],
     'Stormveil': [10000],
     'Weeping': [30000, 30010, 31010, 31020, 32000, 61020],
 }
@@ -45,4 +43,4 @@ REGION_PLAY_IDS = {
 # shipping a lock that does nothing is the bug the measured table exists to end.
 REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:66cdb2010ec821afc98a0e34ca31ec6ac3d9d1f4d5f69807e9f2fa88834518c9', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:c2e0ca3366d0b43980522fc066d22fb83ce5c0d96e822d5be285d6ebd231b820'}
+_GEN_STAMP = {'inputs_hash': 'sha256:15086ada123370cf527625a8876d3458bc2b03076b0e113735b95c20bd28f734', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:69957cdcac53e19832cdaae8388d66949729cecd137b6c2d768e1138a5d6ca80'}

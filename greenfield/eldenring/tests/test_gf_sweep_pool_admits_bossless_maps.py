@@ -185,7 +185,7 @@ class NoBosslessInteriorMapIsOrphaned(unittest.TestCase):
     PENDING_MAP_REMAINDER = {
         ("Abyssal", "m28_00"): 3,
         ("Ashen Capital", "m11_05"): 1,
-        ("Stone Coffin", "m22_00"): 9,
+        ("Cerulean", "m22_00"): 9,   # Stone Coffin merged into Cerulean 2026-08-10
     }
 
     def test_the_only_orphans_left_are_the_pending_map_rows(self):

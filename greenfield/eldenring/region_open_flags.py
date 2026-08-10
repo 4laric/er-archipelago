@@ -9,7 +9,6 @@ REGION_OPEN_FLAGS = {
     'Belurat': 72001,
     'Caelid': 73207,
     'Cerulean': 76831,
-    "Charo's": 76841,
     'Deeproot Depths': 71231,
     'Enir Ilim': 72012,
     'Ensis': 76821,
@@ -29,7 +28,6 @@ REGION_OPEN_FLAGS = {
     'Sewer': 76982,
     'Shadow Keep': 76935,
     'Siofra River': 71222,
-    'Stone Coffin': 72201,
     'Stormveil': 71003,
     'Weeping': 73102,
     'Ashen Capital': 71122,
@@ -38,4 +36,4 @@ REGION_OPEN_FLAGS = {
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:66cdb2010ec821afc98a0e34ca31ec6ac3d9d1f4d5f69807e9f2fa88834518c9', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:3a15746b602eaf47935b6285ee456579f4901314d0d4878e5dd598a08557a03e'}
+_GEN_STAMP = {'inputs_hash': 'sha256:15086ada123370cf527625a8876d3458bc2b03076b0e113735b95c20bd28f734', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:e578ed7958e74bafc78ef41eefe5a5a44836f859c231d2ac240168708ce81687'}

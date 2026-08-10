@@ -5360,16 +5360,16 @@ MAJOR_BOSS_EXTRAS = {
     # --- region-spine v2: majors for the newly split-out regions (Alaric, 2026-07-13) ---
     # Each is a real check ALREADY FILED IN its region -- the gen-time invariant below hard-fails
     # otherwise, which is exactly what caught the first draft of this list.
-    "Charo's": [
-        (520770, "Lamenter", "Lamenter's Mask", "HIGH"),
-        # m41_02. Charo's Hidden Grave had ZERO tagged checks of any kind before this.
-    ],
     "Rauh Base": [
         (530905, "Rugalea the Great Red Bear", "[Incantation] Roar of Rugalea", "HIGH"),
         # m61_44. Already 'Boss'-tagged; promoted so Rauh Base has a progression surface.
     ],
     "Cerulean": [
         (530810, "Dancer of Ranah", "Dancing Blade of Ranah", "HIGH"),
+        # Lamenter (m41_02) moved here from "Charo's" 2026-08-10 when Charo's merged into Cerulean.
+        # It stays a SEPARATE anchor rather than being dropped: it is the only tagged check the old
+        # Charo's had, and the merged region's surface is better for holding both ends of the coast.
+        (520770, "Lamenter", "Lamenter's Mask", "HIGH"),
         # Alaric's call. NOT Putrescent Knight: that is m22_00 = STONE COFFIN FISSURE, whose
         # Remembrance of Putrescence (510480) is ALREADY Remembrance+MajorBoss. Stone Coffin needs
         # nothing; proposing Putrescent for Cerulean would have hard-failed the in-region invariant.

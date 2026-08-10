@@ -111,7 +111,9 @@ HIPPO = 21000850
 HIPPO_MEMBERS_REGION = "Shadow Keep"
 HIPPO_ARENA_REGION = "Scadu Altus"
 # boblerrr's seed, verbatim (2026-08-07). The acceptance test is HIS kept set, not a synthetic one.
-BOBLERRR_KEPT = frozenset({"Ancient Ruins", "Belurat", "Cerulean", "Charo's", "Jagged Peak",
+# "Charo's" dropped 2026-08-10: it merged INTO Cerulean, which is already in his set, so the
+# kept GROUND is unchanged -- only the name it goes by.
+BOBLERRR_KEPT = frozenset({"Ancient Ruins", "Belurat", "Cerulean", "Jagged Peak",
                            "Shadow Keep"})
 
 # Ratchet for the AUDIT, not for the defect. 112 of 225 triggers have a boss_area_regions.tsv row;
