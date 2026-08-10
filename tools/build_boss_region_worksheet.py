@@ -242,7 +242,11 @@ def main():
     print("  %d boss(es) whose ambiguous checks claim MORE THAN ONE region (a straddle)"
           % sum(1 for r in rows if ";" in r[10]))
     _seen_b = {r[0] for r in rows}
-    _lost = sorted(b for b in KEEP if b not in _seen_b)
+    # only warn about a ruling that RE-REGIONS. A confirmation leaving the sheet costs nothing, and
+    # crying wolf on all 76 of them trains the reader to skip the line that matters.
+    _derived_of = {r[0]: r[6] for r in rows}
+    _lost = sorted(b for b, (a, _w) in KEEP.items()
+                   if b not in _seen_b and PLACE_TO_REGION.get(a, a) != _derived_of.get(b))
     if _lost:
         print("  ⚠️  %d verdict(s) belong to a boss that is NO LONGER on this sheet: %s\n"
               "      That happens because applying a verdict CHANGES sweep membership. The ruling is\n"
