@@ -137,8 +137,13 @@ class TileRowRegion(unittest.TestCase):
     # ---- stage 2: the spine ----------------------------------------------------------------
     def test_stage2_the_spine_still_owns_that_bucket(self):
         owner = {str(b): reg for reg, bs in self.rg.PLAY_REGION_GROUPS.items() for b in bs}
-        self.assertEqual(owner.get(CHAROS_BUCKET), "Charo's",
-                         "region_groups.PLAY_REGION_GROUPS no longer gives bucket %s to Charo's "
+        # Charo's merged into Cerulean 2026-08-10. The 2026-07-15 measurement is untouched: the
+        # ground is the same, and the bucket must still be owned by the region whose lock opens it.
+        # ⚠️ This stage is now the LOAD-BEARING one. Stage 3 below used to distinguish Charo's from
+        # Cerulean at REGION granularity; post-merge it cannot, so the bucket join is what is left
+        # actually testing the derivation.
+        self.assertEqual(owner.get(CHAROS_BUCKET), "Cerulean",
+                         "region_groups.PLAY_REGION_GROUPS no longer gives bucket %s to Cerulean "
                          "(got %r). The 2026-07-15 in-game kick measured 6840000 there."
                          % (CHAROS_BUCKET, owner.get(CHAROS_BUCKET)))
 
@@ -151,16 +156,20 @@ class TileRowRegion(unittest.TestCase):
                          "not every flag on %s is in data.LOCATIONS at all -- the corpus moved under "
                          "this fixture, so the emptiness check below would be vacuous." % CHAROS_TILE)
         wrong = sorted((fl, self.region_of.get(fl)) for fl in TILE_47_39_FLAGS
-                       if self.region_of.get(fl) != "Charo's")
+                       if self.region_of.get(fl) != "Cerulean")
         self.assertEqual(wrong, [],
-                         "check(s) on %s did not ship in Charo's: %r. This is the reported defect -- "
-                         "a Charo's-only seed does not create them and a Cerulean-only seed creates "
-                         "them behind a kick." % (CHAROS_TILE, wrong))
+                         "check(s) on %s did not ship in Cerulean: %r. ⚠️ WEAKER SINCE 2026-08-10: "
+                         "Charo's merged INTO Cerulean, so this can no longer tell the reported "
+                         "defect (Ghostflame Call filed on the coast instead of the grave) from the "
+                         "fix -- both now read 'Cerulean'. The bucket join in stage 2 is what still "
+                         "tests the derivation; this one only catches the tile leaving the merged "
+                         "region entirely." % (CHAROS_TILE, wrong))
 
     def test_stage3_the_reported_check_by_name(self):
         """f530855 is the case this derivation was built for. Name it, so it cannot go quiet."""
-        self.assertEqual(self.region_of.get(530855), "Charo's",
-                         "Ash of War: Ghostflame Call (f530855) is back outside Charo's.")
+        self.assertEqual(self.region_of.get(530855), "Cerulean",
+                         "Ash of War: Ghostflame Call (f530855) is back outside Cerulean "
+                         "(ex-Charo's, merged 2026-08-10).")
 
     # ---- the pins the derivation replaced --------------------------------------------------
     def test_the_retired_pins_did_not_come_back(self):

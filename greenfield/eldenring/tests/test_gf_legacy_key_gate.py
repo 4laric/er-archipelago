@@ -77,10 +77,11 @@ def test_lamenters_gaol_multi_gate_covers_both_keys_and_boss():
     gated = _multi_gated_location_ids([gate])
     # Look the checks up by their STABLE flags, not hard-coded ap-ids -- ap-ids are POSITIONAL and
     # renumber whenever a check is added/removed (the tracker-description pass shifted these by 2).
-    charos = {int(f): ap for (_n, ap, f) in LOCATIONS.get("Charo's", ())}
+    # Charo's merged into Cerulean 2026-08-10; the gaol checks live there now.
+    charos = {int(f): ap for (_n, ap, f) in LOCATIONS.get("Cerulean", ())}
     for flag in (41027000, 41027320, 520770):  # Upper Key loc, Lower Key loc, Lamenter's Mask (boss)
         ap = charos.get(flag)
-        assert ap is not None, f"flag {flag} is not a Charo's location"
+        assert ap is not None, f"flag {flag} is not a Cerulean (ex-Charo's) location"
         assert ap in gated, f"gaol check flag {flag} (ap {ap}) not gated"
     assert all(set(ks) == set(GAOL_KEYS) for ks in gated.values()), "every gaol check needs BOTH keys"
 

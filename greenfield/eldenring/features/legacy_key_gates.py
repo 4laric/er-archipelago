@@ -61,7 +61,7 @@ _LEGACY_EXTRA = {"Academy Glintstone Key": frozenset({197, 60440}), "Hole-Laden 
 # keys -- forbidden from the gaol via _GATING_ITEMS -- place freely into the rest of the pool.
 # `ranges` are map-lot flag windows [lo, hi); `extra` pins non-map-lot flags (the boss reward).
 _MULTI_KEY_GATES = (
-    {"id": "lamenters_gaol", "region": "Charo's",
+    {"id": "lamenters_gaol", "region": "Cerulean",   # Charo's merged into Cerulean 2026-08-10
      "keys": ("Gaol Upper Level Key", "Gaol Lower Level Key"),
      "ranges": ((41020000, 41030000),),
      "extra": frozenset({520770})},   # Lamenter's Mask f520770 = the Lamenter boss reward

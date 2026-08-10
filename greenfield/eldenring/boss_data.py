@@ -20,6 +20,9 @@ REGION_BOSSES = {
     'Caelid': [
         (7770002, 172, "Radahn's Great Rune"),
     ],
+    'Cerulean': [
+        (7770772, 510480, 'Remembrance of Putrescence'),
+    ],
     'Deeproot Depths': [
         (7770758, 510110, 'Remembrance of the Lichdragon'),
     ],
@@ -64,12 +67,9 @@ REGION_BOSSES = {
     'Siofra River': [
         (7770767, 510330, 'Remembrance of the Regal Ancestor'),
     ],
-    'Stone Coffin': [
-        (7770772, 510480, 'Remembrance of Putrescence'),
-    ],
     'Stormveil': [
         (7770753, 510010, 'Remembrance of the Grafted'),
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:66cdb2010ec821afc98a0e34ca31ec6ac3d9d1f4d5f69807e9f2fa88834518c9', 'module': 'boss_data.py', 'body_sha256': 'sha256:9cdcce2d833043d7c2419ec8e44285595a051407bd635aa6158b929494b71bfd'}
+_GEN_STAMP = {'inputs_hash': 'sha256:15086ada123370cf527625a8876d3458bc2b03076b0e113735b95c20bd28f734', 'module': 'boss_data.py', 'body_sha256': 'sha256:6cf8277dbf62e8eaff7ccfa429272b8e06bfd331c25c4412cf77bf2873584cd8'}

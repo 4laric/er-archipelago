@@ -311,7 +311,7 @@ class RegionCorrectness(unittest.TestCase):
         # checks, PROVIDED the flag is ledgered in data.NOT_RANDOMIZED. Keep the expectation: if the
         # exclusion is ever lifted, the region target is still pinned.
         "Cerulean Coast (DLC)":        "Cerulean",
-        "Stone Coffin Fissure (DLC)":  "Stone Coffin",
+        "Stone Coffin Fissure (DLC)":  "Cerulean",   # merged 2026-08-10
         # Base-game first-class regions.
         "Raya Lucaria Academy":                     "Raya Lucaria Academy",
         "Leyndell / Roundtable / Shunning-Grounds": "Leyndell",   # (m11_10 rows are Roundtable -- AUTHORITATIVE_REPIN)
