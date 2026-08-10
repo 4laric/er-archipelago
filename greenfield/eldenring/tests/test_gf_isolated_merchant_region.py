@@ -248,6 +248,7 @@ def test_the_reported_check_is_covered_end_to_end():
 try:
     from test.bases import WorldTestBase
     from BaseClasses import CollectionState
+    from worlds.eldenring.data import REGIONS
     _HAVE_AP = True
 except ImportError:
     _HAVE_AP = False
@@ -320,7 +321,9 @@ if _HAVE_AP:
     class TestMerchantAllRegionsKept(_MerchantBindsMixin, WorldTestBase):
         # every base region kept -> the academy EXISTS and the bind is exercised, deterministically.
         game = "Elden Ring"
-        options = {"num_regions": 30}
+        options = {"num_regions": len(REGIONS)}   # ALL regions kept; 30 -> 28 when
+        # Charo's and Stone Coffin merged into Cerulean (#526). A literal here is the
+        # #404 mistake -- the documented maximum drifting past what the option accepts.
 
     class TestMerchantDefaultShape(_MerchantBindsMixin, WorldTestBase):
         # the shipped default shape; the academy may roll sealed, in which case the co-seal branch

@@ -40,7 +40,7 @@
  },
  "regions": {
   "Abyssal": {
-   "checks": 27,
+   "checks": 19,
    "combos": {
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Fragment": 1,
@@ -65,7 +65,7 @@
    "rollable": true
   },
   "Altus": {
-   "checks": 351,
+   "checks": 359,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss": 12,
@@ -82,10 +82,11 @@
    "rollable": true
   },
   "Ancient Ruins": {
-   "checks": 55,
+   "checks": 60,
    "combos": {
+    "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
-    "Fragment": 3,
+    "Fragment": 4,
     "Legendary": 1,
     "Revered": 1
    },
@@ -140,21 +141,13 @@
    "rollable": true
   },
   "Cerulean": {
-   "checks": 43,
+   "checks": 101,
    "combos": {
-    "Boss|FieldBoss": 1,
+    "Boss|FieldBoss": 2,
+    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Fragment": 1
-   },
-   "dlc": true,
-   "parent": null,
-   "rollable": true
-  },
-  "Charo's": {
-   "checks": 27,
-   "combos": {
-    "Boss|FieldBoss": 1,
     "Boss|MajorBoss": 1,
+    "Fragment": 4,
     "KeyItem": 2
    },
    "dlc": true,
@@ -207,14 +200,14 @@
    "rollable": true
   },
   "Gravesite": {
-   "checks": 221,
+   "checks": 201,
    "combos": {
     "Basin": 1,
     "Boss": 3,
     "Boss|FieldBoss": 3,
     "Boss|Legendary": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Fragment": 7,
+    "Fragment": 5,
     "Legendary": 3,
     "Revered": 4,
     "Shop|ShopNonSpell": 22
@@ -236,7 +229,7 @@
    "rollable": true
   },
   "Jagged Peak": {
-   "checks": 29,
+   "checks": 39,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
@@ -279,7 +272,7 @@
    "rollable": true
   },
   "Liurnia": {
-   "checks": 574,
+   "checks": 566,
    "combos": {
     "Basin": 2,
     "Basin|Boss|FieldBoss": 1,
@@ -348,12 +341,10 @@
    "rollable": true
   },
   "Rauh Base": {
-   "checks": 88,
+   "checks": 83,
    "combos": {
     "Boss": 1,
-    "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Fragment": 1,
     "Legendary": 2
    },
    "dlc": true,
@@ -384,7 +375,7 @@
    "rollable": false
   },
   "Scadu Altus": {
-   "checks": 249,
+   "checks": 230,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -394,7 +385,7 @@
     "Fragment": 8,
     "KeyItem": 1,
     "Legendary": 1,
-    "Revered": 2,
+    "Revered": 1,
     "Shop": 8
    },
    "dlc": true,
@@ -413,7 +404,7 @@
    "rollable": true
   },
   "Shadow Keep": {
-   "checks": 271,
+   "checks": 298,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -421,7 +412,7 @@
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Fragment": 9,
     "Legendary": 1,
-    "Revered": 2
+    "Revered": 3
    },
    "dlc": true,
    "parent": null,
@@ -438,16 +429,6 @@
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
-   "parent": null,
-   "rollable": true
-  },
-  "Stone Coffin": {
-   "checks": 21,
-   "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
-    "Fragment": 1
-   },
-   "dlc": true,
    "parent": null,
    "rollable": true
   },
@@ -482,5 +463,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "f15a56b0c3c1c0f086d8b16ca5aa7f1e0886414e1ae99a98e086282fe7406fac"
+ "source_sha256": "f863ba1795febaec352fe3f2eb7b98326d9f99eb407274dec1d78902613ce2b7"
 }
