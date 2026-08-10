@@ -142,19 +142,55 @@ def enemy_positions(map_id):
 
 
 def graces():
-    """[(flag, mapTile, (x,y,z))] from grace_flags.tsv (BonfireWarpParam)."""
-    fp = os.path.join(AR, "grace_flags.tsv")
+    """[(flag, mapTile, (x,y,z))] straight from BonfireWarpParam.csv.
+
+    🛑 THIS USED TO READ `elden_ring_artifacts/grace_flags.tsv` AND THAT WAS A TRAP (2026-08-10).
+    Two different files carry that name:
+
+      greenfield/grace_flags.tsv   TRACKED. warpUnlockFlag/mapTile/subCategory/placeName -- NO
+                                   COORDINATES. Copy it into the artifacts tree, as the obvious
+                                   fix suggests, and every row dies on `float(row["posX"])`.
+      elden_ring_artifacts/...     a BonfireWarpParam dump that is NOT in the gen_inputs bundle,
+                                   so a clean `--extract` tree does not have it at all.
+
+    Either way `except (KeyError, ValueError, TypeError): continue` swallowed it PER ROW, the grace
+    list came out empty, and the tool wrote a ZERO-ROW arena_graces.tsv -- disarming the arena-grace
+    skip set with one cheerful line of output.
+
+    BonfireWarpParam.csv IS bundled, IS the param grace_flags.tsv is lifted from, and carries the
+    positions. Read the source, not a copy of a copy.
+    """
+    fp = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
+    if not os.path.isfile(fp):
+        raise SystemExit(
+            "FATAL: %s missing. Extract the bundle first:\n"
+            "    python tools/gen_inputs.py --extract elden_ring_artifacts" % fp)
     out = []
-    with open(fp, encoding="utf-8") as f:
-        for row in csv.DictReader(f, delimiter="\t"):
+    with open(fp, encoding="utf-8-sig", newline="") as f:
+        rdr = csv.DictReader(f)
+        need = {"eventflagId", "bonfireEntityId", "areaNo", "gridXNo", "gridZNo",
+                "posX", "posY", "posZ"}
+        gone = need - set(rdr.fieldnames or ())
+        if gone:
+            raise SystemExit(
+                "FATAL: %s is missing column(s) %s. Refusing to swallow that per row -- an empty "
+                "grace list writes a table that turns the arena-grace protection OFF."
+                % (fp, sorted(gone)))
+        for row in rdr:
             try:
-                fl = int(row["warpUnlockFlag"])
+                fl = int(row["eventflagId"])
                 p = (float(row["posX"]), float(row["posY"]), float(row["posZ"]))
-            except (KeyError, ValueError, TypeError):
+            except (TypeError, ValueError):
                 continue
-            if fl <= 200:                       # 200 = the BonfireWarpParam default/template row
+            if not (71000 <= fl <= 76999):     # the warp-grace flag group; skips the template row
                 continue
-            out.append((fl, row["mapTile"], p))
+            a = int(row["areaNo"] or 0)
+            if a in (60, 61):
+                tile = "m%d_%02d_%02d" % (a, int(row["gridXNo"]), int(row["gridZNo"]))
+            else:                               # interior: the entity id encodes mAA_BB
+                ent = str(row["bonfireEntityId"] or "")
+                tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
+            out.append((fl, tile, p))
     return out
 
 
