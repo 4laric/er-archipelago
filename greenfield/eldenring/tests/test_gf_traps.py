@@ -90,10 +90,22 @@ class TrapItemsInTheWorld(unittest.TestCase):
 
     def test_no_traps_named_mints_nothing_however_high_the_count(self):
         """The OptionSet is the master switch: a count with nothing enabled is inert, so a player
-        who sets a count and forgets the set gets an unchanged seed rather than a silent surprise."""
+        who sets a count and forgets the set gets an unchanged seed rather than a silent surprise.
+
+        The first assertion is the WITNESS test_gf_vacuous_pass.py asks for: "names nothing, mints
+        nothing" is also true of a `trap_items` that mints nothing EVER, so the test has to show that
+        the same count with names DOES produce items before the empty result means anything."""
+        self.assertGreater(len(_mod().trap_items(self._World(["rune_thief"], 40))), 0,
+                           "trap_items mints nothing even when a trap IS named -- the assertion "
+                           "below would pass for the wrong reason")
         self.assertEqual(_mod().trap_items(self._World([], 40)), [])
 
     def test_zero_count_mints_nothing_however_many_are_named(self):
+        """Same shape, same witness: the count is the other master switch, so prove the identical
+        name set at a non-zero count is not empty first."""
+        self.assertGreater(len(_mod().trap_items(self._World(["rune_thief", "no_flask"], 4))), 0,
+                           "this name set mints nothing at ANY count -- the assertion below would "
+                           "pass for the wrong reason")
         self.assertEqual(_mod().trap_items(self._World(["rune_thief", "no_flask"], 0)), [])
 
     def test_the_split_is_even_and_reproducible(self):
