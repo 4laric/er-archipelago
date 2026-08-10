@@ -146,7 +146,15 @@ class _BellsOnAssertions:
         """THE MOTIVATING CASE (CONTRIBUTING rule 11). boblerrr, live playtest 2026-08-10: a vanilla
         `Somberstone Miner's Bell Bearing [5]` paid out and handed over the top rung of a ladder
         that had barely started. With the ladder on, not one vanilla bearing may be in the pool."""
-        found = _vanilla_bearings(_pool_names(self.world))
+        from worlds.eldenring.item_ids import LOCATION_ITEM
+        names = _pool_names(self.world)
+        # WITNESS (test_gf_vacuous_pass's ratchet, and the reason it exists): "zero vanilla bearings"
+        # is only evidence if the scan can see a pool AND the filter still matches the real names. A
+        # renamed bearing would otherwise make this pass for the same reason a working fix does.
+        self.assertGreater(len(names), 100, "the pool is empty -- this comparison is vacuous")
+        self.assertEqual(len(_vanilla_bearings(LOCATION_ITEM.values())), 8,
+                         "the bearing filter no longer matches the vanilla data")
+        found = _vanilla_bearings(names)
         self.assertEqual(found, [], "progressive_stone_bells is ON but the pool still holds the "
                                     "vanilla ladder: %s" % found)
 
