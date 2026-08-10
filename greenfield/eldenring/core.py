@@ -1298,6 +1298,19 @@ class GreenfieldEldenRingWorld(World):
             # runtime toggle; the client-feature TAG that stops an older client silently ignoring it
             # is emitted by the feature, because only the feature knows the seed actually uses it.
             contract.AUTO_EQUIP: _opt("auto_equip"),
+            # 0 off; nonzero = opening a merchant's buy menu sets the Twin Maidens hand-in flag
+            # for that merchant's Bell Bearing (features/merchant_bells.py -> merchant_bells.rs).
+            # 🛑 THIS LINE WAS MISSING FROM 2026-08-10 (#509) TO ITS FIX, AND THE FEATURE WAS DARK
+            # FOR EVERY SEED THAT TURNED IT ON. Both halves shipped -- the client baked its 38-row
+            # table and armed the detour, contract.py declared the sub-key naming THIS function as
+            # its producer, CONTRACT.md documented it -- and the one line that joins them was never
+            # written. Nothing red: the sub-key is `required=False`, so validate_slot_data's MISSING
+            # arm never fires, and OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so the client
+            # printed `VERSION: OK` / `slot_data OK` and then read false. The only visible trace was
+            # a seed emitting requiresClientFeatures ["merchant_bells_on_talk"] to a client that
+            # implements it, accepts the handshake, and is handed no value to act on.
+            # test_gf_options_echo_covers_its_producers.py is the gate; see #408 for the same shape.
+            contract.MERCHANT_BELLS_ON_TALK: _opt("merchant_bells_on_talk"),
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
         }
 
