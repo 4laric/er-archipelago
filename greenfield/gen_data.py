@@ -4950,6 +4950,71 @@ _STATE_GATED_GRACE_FLAGS = frozenset({71107, 72107, 76314})
 # Ashen Capital owns them now. The set is kept as a named constant because features/capital.py and
 # test_gf_ashen_capital_lock assert the bundle against it -- a silent re-add here would hand the
 # finale's graces back to nobody and the region would be lockable but unreachable.
+# ---- RETIREMENT GATE for the _ARENA_GRACE_FLAGS hand list ---------------------------------------
+# The standing plan above is to DELETE the hand list once the MSBs are witchy'd and let the derived
+# predicate carry it. That plan is only safe for a grace whose BOSS the derivation actually located,
+# and until 2026-08-10 nothing could tell the two apart:
+#
+#   arena_graces.tsv's `adjudicated_tiles:` says the map's MSB was UNPACKED. It does NOT say every
+#   boss on that map was found. datamine_arena_graces.py skips any DisplayBossHealthBar entity that
+#   is not an MSB Part/Enemy (`if b in ep`), and the tile still counted as adjudicated -- so an
+#   in-arena grace came out absent from the derived set and LOOKED cleared.
+#
+# THE MOTIVATING CASE (CONTRIBUTING rule 11). 76931 "Shadow Keep, Back Gate" stands in front of
+# Commander Gaius (boss 2049480800, tile m61_49_48). Its tile is in `adjudicated_tiles`; it is NOT in
+# the derived set. Reading that as "measured safe" and retiring it force-lights a grace inside Gaius's
+# arena -- the exact soft-lock the list exists to prevent. Only the hand entry is holding it.
+#
+# So: an entry named here may not be retired on the derivation's silence. gen DIES if one goes
+# missing, naming the boss, because the alternative is a playtester finding it for the fourth time.
+_ARENA_GRACE_LOAD_BEARING = {
+    76931: (2049480800, "Shadow Keep, Back Gate -- stands in front of Commander Gaius (m61_49_48); "
+                        "reached from the Keep through the Church District, walked to, never warped "
+                        "to (Alaric, in-game, 2026-08-10)"),
+}
+_lb_gone = sorted(set(_ARENA_GRACE_LOAD_BEARING) - _ARENA_GRACE_FLAGS)
+if _lb_gone:
+    raise SystemExit(
+        "gen_data: ARENA-GRACE RETIREMENT GATE -- %s was removed from _ARENA_GRACE_FLAGS but is "
+        "recorded LOAD-BEARING:\n%s\nThe derived oracle's silence is NOT evidence here: check "
+        "arena_graces.tsv's `unresolved_bosses:` line for that boss before retiring the entry. If "
+        "the boss now RESOLVES, delete its row from _ARENA_GRACE_LOAD_BEARING in the same commit "
+        "and say so in the message."
+        % (_lb_gone, "\n".join("  %d: boss %d -- %s" % (_f, _ARENA_GRACE_LOAD_BEARING[_f][0],
+                                                        _ARENA_GRACE_LOAD_BEARING[_f][1])
+                                for _f in _lb_gone)))
+
+def _arena_unresolved_bosses():
+    """{map_id: {boss entity}} from arena_graces.tsv's `unresolved_bosses:` header. Empty when the
+    header is absent -- an OLD tsv predates the per-boss split, so it cannot vouch for anything."""
+    _fp = os.path.join(HERE, "arena_graces.tsv")
+    _out = defaultdict(set)
+    if not os.path.exists(_fp):
+        return _out
+    with open(_fp, encoding="utf-8") as _f:
+        for _ln in _f:
+            if not _ln.startswith("# unresolved_bosses:"):
+                continue
+            for _tok in _ln.split(":", 1)[1].strip().split(","):
+                if ":" in _tok:
+                    _m, _bs = _tok.split(":", 1)
+                    _out[_m.strip()] |= {int(_b) for _b in _bs.split("+") if _b.strip().isdigit()}
+    return _out
+
+_ARENA_UNRESOLVED_BOSSES = _arena_unresolved_bosses()
+# The reverse direction is INFORMATIONAL, never fatal: a load-bearing entry whose boss now resolves is
+# a candidate for retirement, but retiring it is a human call that wants a playtest, not a gen crash.
+if _ARENA_UNRESOLVED_BOSSES:
+    _all_unres = {_b for _bs in _ARENA_UNRESOLVED_BOSSES.values() for _b in _bs}
+    for _fl, (_boss, _why) in sorted(_ARENA_GRACE_LOAD_BEARING.items()):
+        if _boss not in _all_unres:
+            print(f"arena-grace hand list: {_fl} is marked load-bearing on boss {_boss}, but "
+                  f"arena_graces.tsv now RESOLVES that boss -- the derivation can finally see it. "
+                  f"Re-measure and consider retiring the entry (with a playtest).")
+else:
+    print("arena-grace hand list: arena_graces.tsv carries NO `unresolved_bosses:` header (pre-"
+          "2026-08-10 tsv) -- per-boss adjudication is UNKNOWN, so every hand entry stays.")
+
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _DERIVED_ARENA_GRACE_FLAGS
                      | _STATE_GATED_GRACE_FLAGS)

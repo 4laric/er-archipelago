@@ -124,6 +124,8 @@ def main():
     bosses = boss_ids_by_map()
     poscache = {}
     hits, unresolved = [], set()
+    adjudicated_tiles = set()      # map_id whose MSB WAS unpacked (the old, per-MAP notion)
+    unresolved_bosses = {}         # map_id -> sorted[boss entity with NO MSB Part position]
 
     for flag, tile, gp in graces():
         # grace_flags mapTile is 3-part (m60_51_36 / m10_00); EMEVD + MSB names are 4-part (…_00).
@@ -135,6 +137,15 @@ def main():
             if ep is None:
                 unresolved.add(map_id)
                 continue
+            adjudicated_tiles.add(map_id)
+            # 🛑 PER-BOSS, NOT PER-MAP. `b in ep` silently drops any DisplayBossHealthBar entity that
+            # is not an MSB Part/Enemy (script-spawned, or placed under a different EntityID). Before
+            # 2026-08-10 that boss just vanished from the distance computation while its map still
+            # counted as "adjudicated" -- so a grace standing in its arena came out CLEAN and the
+            # header said the derivation had looked. It had not. Record the misses.
+            missing = sorted(b for b in bosses[map_id] if b not in ep)
+            if missing:
+                unresolved_bosses[map_id] = missing
             near = [(dist(gp, ep[b]), b) for b in bosses[map_id] if b in ep]
             if not near:
                 continue
@@ -144,12 +155,26 @@ def main():
 
     hits.sort()
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
-        f.write(f"# ARENA GRACES -- derived: distance(grace, nearest boss enemy spawn) < {args.radius}m\n")
-        f.write("# sources: EMEVD DisplayBossHealthBar (boss set) + witchy'd MSB Part/Enemy (positions)\n")
-        f.write("#          + grace_flags.tsv (BonfireWarpParam grace positions). NO hand lists.\n")
-        f.write("grace_flag\tmap_tile\tmap_id\tboss_entity\tdistance_m\n")
-        for h in hits:
-            f.write("\t".join(str(x) for x in h) + "\n")
+        f.write(f"# DERIVED arena graces: distance(grace spawn, nearest boss enemy spawn) < {args.radius}m\n")
+        f.write("# A region lock force-lights every grace in its region so you can warp in. A grace INSIDE a\n")
+        f.write("# boss arena must never be force-lit -- warping there drops you on a live boss.\n")
+        f.write("# sources: EMEVD DisplayBossHealthBar + witchy'd MSB Part/Enemy <EntityID>/<Position>\n")
+        f.write("#          + grace_flags.tsv. tools/datamine_arena_graces.py\n")
+        f.write("#\n")
+        f.write("# 🛑 ABSENCE IS NEVER AN ANSWER, AND IT IS PER-BOSS.\n")
+        f.write("#   adjudicated_tiles: the map's MSB was unpacked. It does NOT mean every boss on it was\n")
+        f.write("#     located -- a DisplayBossHealthBar entity that is not an MSB Part has no position and\n")
+        f.write("#     is skipped. Reading 'tile adjudicated + grace absent' as 'measured safe' is the\n")
+        f.write("#     2026-08-10 mistake (76931 Shadow Keep Back Gate, in front of Commander Gaius).\n")
+        f.write("#   unresolved_bosses: the bosses that had NO position. A grace on one of these tiles is\n")
+        f.write("#     UNADJUDICATED for that boss; gen_data's hand list stays LOAD-BEARING for it.\n")
+        f.write("# adjudicated_tiles: %s\n" % ",".join(sorted(adjudicated_tiles)))
+        f.write("# unresolved_bosses: %s\n"
+                % ",".join("%s:%s" % (m, "+".join(str(b) for b in bs))
+                           for m, bs in sorted(unresolved_bosses.items())))
+        f.write("grace_flag\tmap_tile\tboss_entity\tdistance_m\n")
+        for flag, tile, map_id, b, d in hits:
+            f.write("%d\t%s\t%d\t%s\n" % (flag, tile, b, d))
 
     print(f"arena_graces: {len(hits)} grace(s) inside a boss arena (<{args.radius}m) -> {args.out}")
     for flag, tile, map_id, b, d in hits:
@@ -158,6 +183,13 @@ def main():
         print(f"\n  ! {len(unresolved)} map(s) with a boss have NO unpacked MSB -- not adjudicated:")
         print("    " + ", ".join(sorted(unresolved)[:12]) + (" ..." if len(unresolved) > 12 else ""))
         print("    (witchy those .msb.dcx to close the gap)")
+    if unresolved_bosses:
+        n = sum(len(v) for v in unresolved_bosses.values())
+        print(f"\n  ! {n} boss(es) across {len(unresolved_bosses)} ADJUDICATED map(s) have no MSB "
+              "Part/Enemy position -- their arenas were NOT measured:")
+        for m, bs in sorted(unresolved_bosses.items())[:12]:
+            print("    %-12s %s" % (m, ", ".join(str(b) for b in bs)))
+        print("    A grace on one of these tiles is UNADJUDICATED. Do NOT retire its hand-list entry.")
     return 0
 
 
