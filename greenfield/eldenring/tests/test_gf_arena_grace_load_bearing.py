@@ -71,7 +71,16 @@ class ArenaGraceRetirementGate(unittest.TestCase):
         """The gate itself. Retiring a load-bearing flag must not be possible quietly."""
         src = _src(GEN)
         hand = _frozenset_literal(src, "_ARENA_GRACE_FLAGS")
-        gone = sorted(set(_load_bearing(src)) - hand)
+        lb = _load_bearing(src)
+        # WITNESSES first (test_gf_vacuous_pass): the assertion below passes when the scan saw
+        # NOTHING -- an empty _ARENA_GRACE_LOAD_BEARING, or a parse that silently stopped matching,
+        # would make this gate green while protecting nobody. That is the exact failure mode this
+        # file exists to prevent, so it must not be its own shape.
+        self.assertTrue(lb, "_ARENA_GRACE_LOAD_BEARING is EMPTY -- the retirement gate below would "
+                            "pass vacuously. At minimum 76931/Gaius belongs here.")
+        self.assertTrue(hand, "_ARENA_GRACE_FLAGS parsed EMPTY -- the literal's shape changed and "
+                              "every membership check below is vacuous.")
+        gone = sorted(set(lb) - hand)
         self.assertFalse(gone, (
             "%s recorded LOAD-BEARING in _ARENA_GRACE_LOAD_BEARING but MISSING from "
             "_ARENA_GRACE_FLAGS. The derived oracle's silence is not evidence: check "
