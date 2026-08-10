@@ -126,7 +126,14 @@ class TestMerchantBellsOption(unittest.TestCase):
 
     def test_the_handshake_tag_matches_the_contract_key(self):
         """OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so the tag is the ONLY thing stopping
-        an older client reporting VERSION: OK and then never reading the key."""
+        an older client reporting VERSION: OK and then never reading the key.
+
+        🛑 DECLARED IS NOT EMITTED, and this test passing is what let that through. The tag was in
+        OPTIONS_SUBKEYS from day one while `core._options_echo` never emitted the VALUE, so a seed
+        with the option on sent the handshake to a client that implements the feature and then
+        handed it nothing (#325, fixed 2026-08-10). The emission half is
+        test_gf_options_echo_covers_its_producers.py -- keep both; they fail for different reasons.
+        """
         from ..features.merchant_bells import CLIENT_FEATURE_TAG
         from ..contract import OPTIONS_SUBKEYS
         self.assertEqual("merchant_bells_on_talk", CLIENT_FEATURE_TAG)

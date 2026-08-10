@@ -35,6 +35,17 @@ Ash-of-War, tailoring or upgrade counter does not fire it.
 A seed with this on requires a client that supports it, and will refuse the connect and say so
 rather than quietly ignoring the setting.
 
+🛑 **And for four days it did nothing at all.** Both halves shipped and neither one was wrong: the
+client baked its 38-row table, armed the hook and put the feature in its supported list; the apworld
+declared the option, documented it, and told the client the seed needed it. The single line that puts
+the option's VALUE on the wire was never written, so the client was told "this seed needs merchant
+bells", agreed that it could do that, and was then handed nothing to switch on. Every gate was green
+for a reason -- the value is optional by design, so its absence is indistinguishable from `off`, and
+the connect handshake does not cover it. Caught in **boblerrr's** playtest log the same week, from
+the one line the client prints when the feature arms and did not print. Fixed, plus the gate that
+checks every declared option actually reaches the wire, which is a check this repo did not have in
+either direction until now.
+
 🛑 The v0.3.10 SHIPPED fixture row was owed at the tag and written here instead, one window late --
 the fifth window running that this has happened. It is recorded in `test_gf_contract_versions.py`
 rather than quietly fixed, because a step that five consecutive windows have missed is not something

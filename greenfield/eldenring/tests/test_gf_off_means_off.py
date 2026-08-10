@@ -45,6 +45,14 @@ WHAT THE SCAN CANNOT SEE (stated, not hidden):
     vs present-but-empty is the fixture's jurisdiction (test_gf_slot_data_fixture ALWAYS_KEYS).
   * `core._options_echo` is excluded: it feeds the `options` SUB-dict, whose every subkey is
     echoed unconditionally by design (contract.OPTIONS_SUBKEYS; features never write there).
+    🛑 THAT PARENTHETICAL IS A DESIGN INTENT, NOT AN OBSERVATION, and it was FALSE for four days:
+    `merchant_bells_on_talk` was declared with `core._options_echo` as its producer and never
+    added to the dict, so the option was dark for every seed that set it (#325, 2026-08-10).
+    The exclusion is still correct for THIS scan's question -- an unconditional echo cannot leak
+    a live value from an off option -- but "is every declared subkey actually there" is a
+    different question, and it now has its own gate:
+    test_gf_options_echo_covers_its_producers.py. Do not widen this file to cover it; a scan for
+    CONDITIONAL emission and a scan for ABSENT emission want opposite defaults.
 """
 import ast
 import os
@@ -147,7 +155,10 @@ def survey():
                 continue
             fn, conds = _enclosing(node)
             if fn is None or fn.name == "_options_echo":
-                continue          # module level, or the options sub-dict echo (see docstring)
+                # Module level, or the options sub-dict echo. The echo's COMPLETENESS is checked by
+                # test_gf_options_echo_covers_its_producers.py, not here -- see the docstring for
+                # why this exclusion survived a real dark-option bug and is still the right call.
+                continue
             rec = per_fn.setdefault((fname, fn.name), {"emits": {}, "cond_ret_keys": []})
             for k in emitted:
                 if k in OPTIONAL_GF_KEYS:
