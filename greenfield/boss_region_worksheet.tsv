@@ -5,87 +5,87 @@
 # arena_region ABSENT = unaudited, no boss_area_regions row.
 # tile_has_grace no = the boss's own region is a guess too, so its derived value
 #   is NOT independent evidence -- those are the rows where a human is load-bearing.
-boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	arena_region	claimed_regions	tile_has_grace	verdict	reason
-1045390800	Tibia Mariner	m60_45_39	field	21	24	Limgrave	ABSENT	Limgrave	no		
-1048370800	Decaying Ekzykes	m60_48_37	field	21	26	Caelid	ABSENT	Caelid	yes		
-2049450800	Ralva the Great Red Bear	m61_49_45	legacy	16	29	Scadu Altus	ABSENT	Scadu Altus	no		
-1248550800	?	m60_48_55	?	14	30	Mountaintops of the Giants	ABSENT	Mountaintops of the Giants	no		
-2050470800	Tree Sentinel	m61_50_47	legacy	14	28	Scadu Altus	ABSENT	Scadu Altus	no		
-1041530800	Wormface	m60_41_53	field	13	22	Altus	ABSENT	Altus	no		
-1050560800	Great Wyrm Theodorix	m60_50_56	field	12	25	Mountaintops of the Giants	ABSENT	Mountaintops of the Giants	no		
-1034450800	Glintstone Dragon Smarag	m60_34_45	field	9	18	Liurnia	ABSENT	Liurnia	no		
-1053560800	Roundtable Knight Vyke	m60_53_56	field	9	26	Mountaintops of the Giants	ABSENT	Mountaintops of the Giants	yes		
-1039430800	?	m60_39_43	?	8	17	Liurnia	ABSENT	Liurnia	no		
-1038520800	Tibia Mariner	m60_38_52	field	8	11	Altus	ABSENT	Altus	no		
-1043530800	Bell Bearing Hunter	m60_43_53	field	8	20	Altus	ABSENT	Altus	yes		
-1048570800	Death Rite Bird	m60_48_57	field	8	30	Mountaintops of the Giants	ABSENT	Mountaintops of the Giants	yes		
-2044470800	Rugalea the Great Red Bear	m61_44_47	legacy	8	25	Rauh Base	ABSENT	Rauh Base	no		
-2045440800	Ghostflame Dragon	m61_45_44	legacy	8	27	Gravesite	ABSENT	Gravesite	no		
-2046380800	Dancer of Ranah	m61_46_38	legacy	8	12	Cerulean	Cerulean	Cerulean	no		
-2046410800	Knight of the Solitary Gaol	m61_46_41	legacy	8	27	Gravesite	Gravesite	Gravesite	no		
-2049410800	Jagged Peak Drake	m61_49_41	legacy	8	18	Gravesite	ABSENT	Gravesite	no		
-1036450800	Death Rite Bird	m60_36_45	field	7	20	Liurnia	ABSENT	Liurnia	yes		
-1041510800	Tree Sentinel	m60_41_51	field	7	11	Altus	ABSENT	Altus	no		
-1042550800	Godskin Apostle	m60_42_55	field	7	8	Altus	ABSENT	Altus	yes		
-1044350800	Bloodhound Knight Darriwil	m60_44_35	field	7	18	Limgrave	ABSENT	Limgrave	yes		
-1044360800	Mad Pumpkin Head	m60_44_36	field	7	33	Limgrave	Limgrave	Limgrave	yes		
-2047450800	Black Knight Garrew	m61_47_45	legacy	7	22	Scadu Altus	ABSENT	Scadu Altus	yes		
-1039500800	Godefroy the Grafted	m60_39_50	field	6	9	Liurnia	ABSENT	Liurnia	no		
-1049520800	Black Blade Kindred	m60_49_52	field	6	14	Mountaintops of the Giants	ABSENT	Mountaintops of the Giants	no		
-1036540800	Full-Grown Fallingstar Beast	m60_36_54	field	5	14	Mt. Gelmir	ABSENT	Mt. Gelmir	yes		
-1043330800	Erdtree Avatar	m60_43_33	field	5	20	Weeping	ABSENT	Weeping	no		
-1044320850	?	m60_44_32	?	5	16	Weeping	ABSENT	Weeping	no		
-1051400800	Putrid Avatar	m60_51_40	field	5	9	Caelid	ABSENT	Caelid	no		
-2048380850	Ghostflame Dragon	m61_48_38	legacy	5	18	Cerulean	ABSENT	Cerulean	no		
-2054390800	Bayle the Dread	m61_54_39	legacy	5	7	Jagged Peak	Jagged Peak	Jagged Peak	yes		
-2052430800	Jori, Elder Inquisitor	m61_52_43	legacy	5	11	Abyssal	Scadu Altus	Abyssal	yes		
-1035530800	Magma Wyrm	m60_35_53	field	4	23	Mt. Gelmir	ABSENT	Mt. Gelmir	yes		
-1038480800	Erdtree Avatar	m60_38_48	field	4	21	Liurnia	ABSENT	Liurnia	yes		
-1042360800	Tree Sentinel	m60_42_36	field	4	15	Limgrave	ABSENT	Limgrave	yes		
-1050570800	Death Rite Bird	m60_50_57	field	4	7	Mountaintops of the Giants	ABSENT	Mountaintops of the Giants	no		
-2046400800	Demi-Human Queen Marigga	m61_46_40	legacy	4	22	Gravesite	ABSENT	Gravesite	yes		
-1039540800	Elemer of the Briar	m60_39_54	field	3	38	Altus	Altus	Altus	yes		
-1042380800	Deathbird	m60_42_38	field	3	17	Limgrave	ABSENT	Limgrave	yes		
-1042330800	Ancient Hero of Zamor	m60_42_33	field	3	11	Weeping	ABSENT	Weeping	yes		
-1041330800	?	m60_41_33	field	3	10	Weeping	ABSENT	Weeping	yes		
-1044320800	Deathbird	m60_44_32	field	3	13	Weeping	ABSENT	Weeping	no		
-1050570850	Putrid Avatar	m60_50_57	field	3	5	Mountaintops of the Giants	ABSENT	Mountaintops of the Giants	no		
-1049380800	?	m60_49_38	?	3	14	Caelid	ABSENT	Caelid	yes		
-1051570800	Commander Niall	m60_51_57	field	3	38	Mountaintops of the Giants	Mountaintops of the Giants	Mountaintops of the Giants	yes		
-2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	3	19	Rauh Base	ABSENT	Rauh Base	no		
-2054390850	Ancient Dragon Senessax	m61_54_39	legacy	3	7	Jagged Peak	ABSENT	Jagged Peak	yes		
-1034420800	Glintstone Dragon Adula	m60_34_42	field	2	17	Liurnia	ABSENT	Liurnia	yes		
-1033450800	Bols, Carian Knight	m60_33_45	field	2	7	Liurnia	ABSENT	Liurnia	no		
-1036480800	?	m60_36_48	?	2	18	Liurnia	ABSENT	Liurnia	yes		
-1037460800	Bell Bearing Hunter	m60_37_46	field	2	12	Liurnia	ABSENT	Liurnia	yes		
-1037420800	Deathbird	m60_37_42	field	2	15	Liurnia	ABSENT	Liurnia	yes		
-1038410800	Adan, Thief of Fire	m60_38_41	field	2	20	Liurnia	ABSENT	Liurnia	yes		
-1039440800	Tibia Mariner	m60_39_44	field	2	19	Liurnia	ABSENT	Liurnia	yes		
-1040520800	Black Knife Assassin	m60_40_52	field	2	12	Altus	ABSENT	Altus	yes		
-1039510800	?	m60_39_51	?	2	9	Altus	ABSENT	Altus	yes		
-1042380850	Bell Bearing Hunter	m60_42_38	field	2	19	Limgrave	ABSENT	Limgrave	yes		
-1043360800	Flying Dragon Agheel	m60_43_36	field	2	12	Limgrave	ABSENT	Limgrave	no		
-1048410800	Bell Bearing Hunter	m60_48_41	field	2	5	Caelid	ABSENT	Caelid	yes		
-1048400800	Mad Pumpkin Head (Hammer)	m60_48_40	field	2	17	Caelid	Caelid	Caelid	yes		
-1049390800	Nox Monk	m60_49_39	field	2	9	Caelid	Caelid	Caelid	yes		
-1049390850	Battlemage Hugues	m60_49_39	field	2	11	Caelid	ABSENT	Caelid	yes		
-1051360800	Crucible Knight	m60_51_36	field	2	20	Caelid	Caelid	Caelid	yes		
-1252520800	Fire Giant	m60_52_52	field	2	17	Mountaintops of the Giants	Mountaintops of the Giants	Mountaintops of the Giants	no		
-2044450800	Romina, Saint of the Bud	m61_44_45	legacy	2	44	Ancient Ruins	Ancient Ruins	Ancient Ruins	yes		
-2047390800	Death Rite Bird	m61_47_39	legacy	2	19	Cerulean	ABSENT	Cerulean	no		
-2052480800	Fallingstar Beast	m61_52_48	legacy	2	7	Shadow Keep	ABSENT	Shadow Keep	no		
-1033420800	Alecto, Black Knife Ringleader	m60_33_42	field	1	2	Liurnia	ABSENT	Liurnia	no		
-1034500800	Glintstone Dragon Adula	m60_34_50	field	1	14	Liurnia	ABSENT	Liurnia	yes		
-1035500800	Royal Knight Loretta	m60_35_50	field	1	54	Liurnia	Liurnia	Liurnia	yes		
-1037540810	Ulcerated Tree Spirit	m60_37_54	field	1	17	Mt. Gelmir	ABSENT	Mt. Gelmir	no		
-1036500800	Onyx Lord	m60_36_50	field	1	10	Liurnia	ABSENT	Liurnia	yes		
-1040530800	Sanguine Noble	m60_40_53	field	1	14	Altus	Altus	Altus	yes		
-1041500800	Fallingstar Beast	m60_41_50	field	1	3	Altus	ABSENT	Altus	no		
-1043300800	Leonine Misbegotten	m60_43_30	field	1	10	Weeping	Weeping	Weeping	yes		
-1044530800	Deathbird	m60_44_53	field	1	10	Altus	ABSENT	Altus	no		
-1049370850	Death Rite Bird	m60_49_37	field	1	6	Caelid	ABSENT	Caelid	yes		
-1052410850	?	m60_52_41	?	1	4	Caelid	ABSENT	Caelid	yes		
-1052410800	Flying Dragon Greyll	m60_52_41	field	1	3	Caelid	ABSENT	Caelid	yes		
-1051430800	Black Blade Kindred	m60_51_43	field	1	1	Caelid	ABSENT	Caelid	yes		
-2050480811	Scadutree Avatar	m61_50_48	legacy	1	6	Shadow Keep	ABSENT	Shadow Keep	yes		
-2051440800	Rakshasa	m61_51_44	legacy	1	16	Scadu Altus	Scadu Altus	Scadu Altus	yes		
+boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	arena_region	has_arena	arena_vs_members	claimed_regions	tile_has_grace	verdict	reason
+1045390800	Tibia Mariner	m60_45_39	field	21	24	Limgrave	ABSENT	no		Limgrave	no		
+1048370800	Decaying Ekzykes	m60_48_37	field	21	26	Caelid	ABSENT	no		Caelid	yes		
+2049450800	Ralva the Great Red Bear	m61_49_45	legacy	16	29	Scadu Altus	ABSENT	no		Scadu Altus	no		
+1248550800	?	m60_48_55	?	14	30	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
+2050470800	Tree Sentinel	m61_50_47	legacy	14	28	Scadu Altus	ABSENT	no		Scadu Altus	no		
+1041530800	Wormface	m60_41_53	field	13	22	Altus	ABSENT	no		Altus	no		
+1050560800	Great Wyrm Theodorix	m60_50_56	field	12	25	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
+1034450800	Glintstone Dragon Smarag	m60_34_45	field	9	18	Liurnia	ABSENT	no		Liurnia	no		
+1053560800	Roundtable Knight Vyke	m60_53_56	field	9	26	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	yes		
+1039430800	?	m60_39_43	?	8	17	Liurnia	ABSENT	no		Liurnia	no		
+1038520800	Tibia Mariner	m60_38_52	field	8	11	Altus	ABSENT	no		Altus	no		
+1043530800	Bell Bearing Hunter	m60_43_53	field	8	20	Altus	ABSENT	no		Altus	yes		
+1048570800	Death Rite Bird	m60_48_57	field	8	30	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	yes		
+2044470800	Rugalea the Great Red Bear	m61_44_47	legacy	8	25	Rauh Base	ABSENT	no		Rauh Base	no		
+2045440800	Ghostflame Dragon	m61_45_44	legacy	8	27	Gravesite	ABSENT	no		Gravesite	no		
+2046380800	Dancer of Ranah	m61_46_38	legacy	8	12	Cerulean	Cerulean	yes	ok	Cerulean	no		
+2046410800	Knight of the Solitary Gaol	m61_46_41	legacy	8	27	Gravesite	Gravesite	yes	ok	Gravesite	no		
+2049410800	Jagged Peak Drake	m61_49_41	legacy	8	18	Gravesite	ABSENT	no		Gravesite	no		
+1036450800	Death Rite Bird	m60_36_45	field	7	20	Liurnia	ABSENT	no		Liurnia	yes		
+1041510800	Tree Sentinel	m60_41_51	field	7	11	Altus	ABSENT	no		Altus	no		
+1042550800	Godskin Apostle	m60_42_55	field	7	8	Altus	ABSENT	no		Altus	yes		
+1044350800	Bloodhound Knight Darriwil	m60_44_35	field	7	18	Limgrave	ABSENT	no		Limgrave	yes		
+1044360800	Mad Pumpkin Head	m60_44_36	field	7	33	Limgrave	Limgrave	yes	ok	Limgrave	yes		
+2047450800	Black Knight Garrew	m61_47_45	legacy	7	22	Scadu Altus	ABSENT	no		Scadu Altus	yes		
+1039500800	Godefroy the Grafted	m60_39_50	field	6	9	Liurnia	ABSENT	no		Liurnia	no		
+1049520800	Black Blade Kindred	m60_49_52	field	6	14	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
+1036540800	Full-Grown Fallingstar Beast	m60_36_54	field	5	14	Mt. Gelmir	ABSENT	no		Mt. Gelmir	yes		
+1043330800	Erdtree Avatar	m60_43_33	field	5	20	Weeping	ABSENT	no		Weeping	no		
+1044320850	?	m60_44_32	?	5	16	Weeping	ABSENT	no		Weeping	no		
+1051400800	Putrid Avatar	m60_51_40	field	5	9	Caelid	ABSENT	no		Caelid	no		
+2048380850	Ghostflame Dragon	m61_48_38	legacy	5	18	Cerulean	ABSENT	no		Cerulean	no		
+2054390800	Bayle the Dread	m61_54_39	legacy	5	7	Jagged Peak	Jagged Peak	yes	ok	Jagged Peak	yes		
+2052430800	Jori, Elder Inquisitor	m61_52_43	legacy	5	11	Abyssal	Scadu Altus	yes	MISMATCH	Abyssal	yes		
+1035530800	Magma Wyrm	m60_35_53	field	4	23	Mt. Gelmir	ABSENT	no		Mt. Gelmir	yes		
+1038480800	Erdtree Avatar	m60_38_48	field	4	21	Liurnia	ABSENT	no		Liurnia	yes		
+1042360800	Tree Sentinel	m60_42_36	field	4	15	Limgrave	ABSENT	no		Limgrave	yes		
+1050570800	Death Rite Bird	m60_50_57	field	4	7	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
+2046400800	Demi-Human Queen Marigga	m61_46_40	legacy	4	22	Gravesite	ABSENT	no		Gravesite	yes		
+1039540800	Elemer of the Briar	m60_39_54	field	3	38	Altus	Altus	yes	ok	Altus	yes		
+1042380800	Deathbird	m60_42_38	field	3	17	Limgrave	ABSENT	no		Limgrave	yes		
+1042330800	Ancient Hero of Zamor	m60_42_33	field	3	11	Weeping	ABSENT	no		Weeping	yes		
+1041330800	?	m60_41_33	field	3	10	Weeping	ABSENT	no		Weeping	yes		
+1044320800	Deathbird	m60_44_32	field	3	13	Weeping	ABSENT	no		Weeping	no		
+1050570850	Putrid Avatar	m60_50_57	field	3	5	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
+1049380800	?	m60_49_38	?	3	14	Caelid	ABSENT	no		Caelid	yes		
+1051570800	Commander Niall	m60_51_57	field	3	38	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	yes		
+2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	3	19	Rauh Base	ABSENT	no		Rauh Base	no		
+2054390850	Ancient Dragon Senessax	m61_54_39	legacy	3	7	Jagged Peak	ABSENT	no		Jagged Peak	yes		
+1034420800	Glintstone Dragon Adula	m60_34_42	field	2	17	Liurnia	ABSENT	no		Liurnia	yes		
+1033450800	Bols, Carian Knight	m60_33_45	field	2	7	Liurnia	ABSENT	no		Liurnia	no		
+1036480800	?	m60_36_48	?	2	18	Liurnia	ABSENT	no		Liurnia	yes		
+1037460800	Bell Bearing Hunter	m60_37_46	field	2	12	Liurnia	ABSENT	no		Liurnia	yes		
+1037420800	Deathbird	m60_37_42	field	2	15	Liurnia	ABSENT	no		Liurnia	yes		
+1038410800	Adan, Thief of Fire	m60_38_41	field	2	20	Liurnia	ABSENT	no		Liurnia	yes		
+1039440800	Tibia Mariner	m60_39_44	field	2	19	Liurnia	ABSENT	no		Liurnia	yes		
+1040520800	Black Knife Assassin	m60_40_52	field	2	12	Altus	ABSENT	no		Altus	yes		
+1039510800	?	m60_39_51	?	2	9	Altus	ABSENT	no		Altus	yes		
+1042380850	Bell Bearing Hunter	m60_42_38	field	2	19	Limgrave	ABSENT	no		Limgrave	yes		
+1043360800	Flying Dragon Agheel	m60_43_36	field	2	12	Limgrave	ABSENT	no		Limgrave	no		
+1048410800	Bell Bearing Hunter	m60_48_41	field	2	5	Caelid	ABSENT	no		Caelid	yes		
+1048400800	Mad Pumpkin Head (Hammer)	m60_48_40	field	2	17	Caelid	Caelid	yes	ok	Caelid	yes		
+1049390800	Nox Monk	m60_49_39	field	2	9	Caelid	Caelid	yes	ok	Caelid	yes		
+1049390850	Battlemage Hugues	m60_49_39	field	2	11	Caelid	ABSENT	no		Caelid	yes		
+1051360800	Crucible Knight	m60_51_36	field	2	20	Caelid	Caelid	yes	ok	Caelid	yes		
+1252520800	Fire Giant	m60_52_52	field	2	17	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	no		
+2044450800	Romina, Saint of the Bud	m61_44_45	legacy	2	44	Ancient Ruins	Ancient Ruins	yes	ok	Ancient Ruins	yes		
+2047390800	Death Rite Bird	m61_47_39	legacy	2	19	Cerulean	ABSENT	no		Cerulean	no		
+2052480800	Fallingstar Beast	m61_52_48	legacy	2	7	Shadow Keep	ABSENT	no		Shadow Keep	no		
+1033420800	Alecto, Black Knife Ringleader	m60_33_42	field	1	2	Liurnia	ABSENT	no		Liurnia	no		
+1034500800	Glintstone Dragon Adula	m60_34_50	field	1	14	Liurnia	ABSENT	no		Liurnia	yes		
+1035500800	Royal Knight Loretta	m60_35_50	field	1	54	Liurnia	Liurnia	yes	ok	Liurnia	yes		
+1037540810	Ulcerated Tree Spirit	m60_37_54	field	1	17	Mt. Gelmir	ABSENT	no		Mt. Gelmir	no		
+1036500800	Onyx Lord	m60_36_50	field	1	10	Liurnia	ABSENT	no		Liurnia	yes		
+1040530800	Sanguine Noble	m60_40_53	field	1	14	Altus	Altus	yes	ok	Altus	yes		
+1041500800	Fallingstar Beast	m60_41_50	field	1	3	Altus	ABSENT	no		Altus	no		
+1043300800	Leonine Misbegotten	m60_43_30	field	1	10	Weeping	Weeping	yes	ok	Weeping	yes		
+1044530800	Deathbird	m60_44_53	field	1	10	Altus	ABSENT	no		Altus	no		
+1049370850	Death Rite Bird	m60_49_37	field	1	6	Caelid	ABSENT	no		Caelid	yes		
+1052410850	?	m60_52_41	?	1	4	Caelid	ABSENT	no		Caelid	yes		
+1052410800	Flying Dragon Greyll	m60_52_41	field	1	3	Caelid	ABSENT	no		Caelid	yes		
+1051430800	Black Blade Kindred	m60_51_43	field	1	1	Caelid	ABSENT	no		Caelid	yes		
+2050480811	Scadutree Avatar	m61_50_48	legacy	1	6	Shadow Keep	ABSENT	no		Shadow Keep	yes		
+2051440800	Rakshasa	m61_51_44	legacy	1	16	Scadu Altus	Scadu Altus	yes	ok	Scadu Altus	yes		

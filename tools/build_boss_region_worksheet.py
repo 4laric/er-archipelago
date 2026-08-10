@@ -151,18 +151,31 @@ def main():
         name = BUNDLE_NAME.get(b) or name or "?"
         if tile == "?":
             tile = _tile_from_entity(b)
+        arena = SAR.get(b, "ABSENT")
+        overworld = tile[:3] in ("m60", "m61")
+        # 🛑 ABSENT here is INFORMATION, not ignorance (Alaric, 2026-08-10): a boss with no fogwall
+        # and no sealed arena has no PlayRegionParam boss-area overlay to derive one FROM. So the
+        # arena audit's "112 of 219" is roughly the count of bosses that HAVE arenas, not a coverage
+        # figure to chase. has_arena distinguishes the two readings.
+        #   overworld + arena present  = the EXCEPTION: evergaols, castle/manor fog gates, set-piece
+        #                                arenas. 22 of them, 16 in this sheet.
+        #   overworld + ABSENT         = fogwall-less. The verdict is a GEOGRAPHY call.
+        has_arena = "no" if arena == "ABSENT" else "yes"
+        mismatch = "" if arena == "ABSENT" else ("MISMATCH" if arena != SR.get(b) else "ok")
         rows.append((b, name, tile, cls, n, members.get(b, 0),
-                     SR.get(b, "?"), SAR.get(b, "ABSENT"),
+                     SR.get(b, "?"), arena, has_arena, mismatch,
                      ";".join(sorted(claims[b])), "yes" if tile in graced else "no", "", ""))
 
     tot = sum(cover.values())
     print("boss region worksheet: %d boss(es) cover %d of %d ambiguous checks (%.1f per decision)"
           % (len(rows), tot, len(tri), tot / max(len(rows), 1)))
     print("  %d check(s) have NO sweep boss and stay per-check whatever you decide" % orphan)
-    print("  %d boss(es) are UNAUDITED (no arena region) -- the #523 blind spot"
-          % sum(1 for r in rows if r[7] == "ABSENT"))
+    _noarena = sum(1 for r in rows if r[8] == "no")
+    print("  %d boss(es) have NO ARENA (fogwall-less) -- their verdict is a GEOGRAPHY call" % _noarena)
+    print("  %d have a real arena (evergaol / fog gate / set-piece); of those %d have arena != members"
+          % (len(rows) - _noarena, sum(1 for r in rows if r[9] == "MISMATCH")))
     print("  %d boss(es) whose ambiguous checks claim MORE THAN ONE region (a straddle)"
-          % sum(1 for r in rows if ";" in r[8]))
+          % sum(1 for r in rows if ";" in r[10]))
     cum = 0
     for k, r in enumerate(rows, 1):
         cum += r[4]
@@ -172,7 +185,7 @@ def main():
           % ("boss", "name", "tile", "amb", "derived", "arena", "claimed"))
     for r in rows[:15]:
         print("  %-11d %-27s %-12s %4d %-14s %-14s %s"
-              % (r[0], r[1][:27], r[2], r[4], r[6][:14], r[7][:14], r[8][:34]))
+              % (r[0], r[1][:27], r[2], r[4], r[6][:14], r[7][:14], r[9]))
 
     if args.emit:
         with open(OUT, "w", encoding="utf-8", newline="\n") as f:
@@ -184,7 +197,8 @@ def main():
             f.write("# tile_has_grace no = the boss's own region is a guess too, so its derived value\n")
             f.write("#   is NOT independent evidence -- those are the rows where a human is load-bearing.\n")
             f.write("boss_entity\tboss_name\ttile\tclass\tambiguous_checks\tsweep_members\t"
-                    "derived_region\tarena_region\tclaimed_regions\ttile_has_grace\tverdict\treason\n")
+                    "derived_region\tarena_region\thas_arena\tarena_vs_members\t"
+                    "claimed_regions\ttile_has_grace\tverdict\treason\n")
             for r in rows:
                 f.write("\t".join(str(x) for x in r) + "\n")
         print("\n-> %s (%d rows)" % (OUT, len(rows)))
