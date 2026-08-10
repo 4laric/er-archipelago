@@ -58,9 +58,14 @@ def er_yaml(name, nreg, extra=""):
     s = re.sub(r"^(\s*)num_regions:\s*\d+\s*$", r"\g<1>num_regions: %d" % nreg, s, count=1, flags=re.M)
     for kv in [x for x in extra.split(";") if x]:
         k, v = kv.split("=", 1)
-        s2 = re.sub(r"^(\s*)%s:.*$" % re.escape(k), r"\g<1>%s: %s" % (k, v), s, count=1, flags=re.M)
-        assert s2 != s, "no such key in shipped yaml: %s" % k
-        s = s2
+        # 🛑 Count the SUBSTITUTION, not whether the text moved. Asserting `s2 != s` looked like the
+        # same check and was not: setting a key to the value it already holds is a no-op edit, so a
+        # sweep whose cell happens to be the shipped default would blow up claiming the key does not
+        # exist. What must be true is that the key was FOUND.
+        s, n = re.subn(r"^(\s*)%s:.*$" % re.escape(k), r"\g<1>%s: %s" % (k, v), s, count=1,
+                       flags=re.M)
+        assert n == 1, ("no `%s:` line in release/EldenRing.yaml -- this sweep would have measured "
+                        "the default while reporting it as %s=%s" % (k, k, v))
     return s
 
 
