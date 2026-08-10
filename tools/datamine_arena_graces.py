@@ -280,14 +280,16 @@ def main():
             "different columns -- every row is being swallowed by the per-row except. Refusing to "
             "write a table that would silently disable the arena-grace skip set."
             % (len(_graces), MIN_GRACES, os.path.join(AR, "grace_flags.tsv")))
+    # 🛑 MATERIALISE BEFORE MEASURING. This read len(hits) while the loop above filled _seen, so the
+    # floor measured an empty list and FATAL'd on a run that had found 47 (2026-08-10). The floor was
+    # right to fire -- it just fired at its own author. Keep the assignment ABOVE the check.
+    hits = sorted(_seen.values())
     if len(hits) < MIN_HITS:
         raise SystemExit(
             "FATAL: only %d grace(s) came out inside an arena (floor %d, and the committed table "
             "has 41). The MSBs or the boss set collapsed. A SHRUNK arena_graces.tsv silently "
             "re-grants graces that stand in live boss arenas -- fail instead of emitting."
             % (len(hits), MIN_HITS))
-
-    hits = sorted(_seen.values())
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
         f.write(f"# DERIVED arena graces: distance(grace spawn, nearest boss enemy spawn) < {args.radius}m\n")
         f.write("# A region lock force-lights every grace in its region so you can warp in. A grace INSIDE a\n")
