@@ -155,7 +155,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.3.11",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d86896d71ad4fa54bc2fd267736e8195fe53f7761306c5218a3c28427cd91d94",
+ "source_sha256": "3e5f25696c986ce32afebabf03d71fb6b2fcf9dbc88bbec64230369d08e16c09",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -186,6 +186,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "grace_attunement_anchor",
   "leyndell_runes_required",
   "progressive_flasks",
+  "progressive_stone_bells",
   "local_item_only",
   "exclude_local_item_only",
   "keep_local",
@@ -205,7 +206,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "infinite_hub_wares",
   "merchant_bell_logic",
   "start_regions",
-  "start_with_whetblades"
+  "start_with_whetblades",
+  "traps",
+  "trap_count"
  ],
  "groups": [],
  "ungrouped": [
@@ -238,6 +241,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "grace_attunement_anchor",
   "leyndell_runes_required",
   "progressive_flasks",
+  "progressive_stone_bells",
   "local_item_only",
   "exclude_local_item_only",
   "keep_local",
@@ -257,7 +261,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "infinite_hub_wares",
   "merchant_bell_logic",
   "start_regions",
-  "start_with_whetblades"
+  "start_with_whetblades",
+  "traps",
+  "trap_count"
  ],
  "options": [
   {
@@ -857,6 +863,22 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "special_values": null
   },
   {
+   "key": "progressive_stone_bells",
+   "class": "ProgressiveStoneBells",
+   "display_name": "Progressive Stone Bell Bearings",
+   "description": "Off (default). On: add Progressive Smithing-Stone and Progressive Somberstone Miner's Bell\nBearing items (5 copies of each in the filler pool, 1 of each forced to sphere 0). Each copy you\nreceive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no hand-over),\nso weapon upgrade materials come online as you find copies. Never gates logic (Region Locks are\nthe only progression), so this is always winnable.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
    "key": "local_item_only",
    "class": "LocalItemOnly",
    "display_name": "Local Items Only",
@@ -1439,6 +1461,44 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "default": false,
    "choices": null,
    "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "traps",
+   "class": "Traps",
+   "display_name": "Traps",
+   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "no_flask",
+    "rune_thief"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "trap_count",
+   "class": "TrapCount",
+   "display_name": "Trap Count",
+   "description": "How many trap items to put in your pool, shared out evenly between the traps you enabled.\n\nINERT unless `traps` names at least one trap. Each trap displaces one filler item, so raising\nthis does not change how many checks your seed has -- only how much of your junk bites back.",
+   "kind": "range",
+   "base": "Range",
+   "default": 8,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 40
+   },
    "valid_keys": null,
    "casefold": false,
    "group": null,
