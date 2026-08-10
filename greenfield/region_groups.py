@@ -111,8 +111,15 @@ REGION_GROUPS = {
     # --- DLC (Shadow of the Erdtree) ---
     "Gravesite": (6800,),          # + Ellac River (shares 6800; un-gateable fold, see docstring)
     "Ensis": (6820,),
-    "Cerulean": (6830,),
-    "Charo's": (6840,),
+    # MERGED 2026-08-10: Charo's (6840) and Stone Coffin (22000) folded in. One contiguous stretch
+    # of the south-west coast -- the Fissure is entered FROM the Cerulean Coast and Charo's Hidden
+    # Grave stands on it -- and each was far under the 100-location median alone (43 / 26 / 21 = 90).
+    # 6840 was Cerulean's until the 2026-07-15 kick measurement split it out; this returns it with the
+    # geometry understood rather than guessed.
+    # SAFE FOLD, unlike Scaduview: m22_00's region comes from the GRACE JOIN (dungeon_regions.tsv,
+    # "grace join (map_region_oracle)"), not the tile vote, so the checks relabel WITH the buckets
+    # instead of being left behind -- which is exactly how #523 happened.
+    "Cerulean": (6830, 6840, 22000),
     "Jagged Peak": (6850, 6851),
     "Abyssal": (6860, 28000),
     "Scadu Altus": (6900,),        # + Fog Rift Fort + Recluses' River (share 6900; un-gateable)
@@ -126,7 +133,6 @@ REGION_GROUPS = {
     "Rauh Base": (6950,),
     "Belurat": (20000,),
     "Enir Ilim": (20010,),
-    "Stone Coffin": (22000,),
     # --- the hub ---
     HUB: (11100,),
 }
@@ -271,7 +277,7 @@ PLAY_REGION_GROUPS = {
     # the grave's own checks. The old "Cerulean 8/8" check-vote was CIRCULAR: the votes were the
     # tile-join's own guesses on the two-region tiles 47/39+48/39 the grave shares with the coast.
     # Ground truth lives in grace_ground.tsv (tools/datamine_grace_ground.py); gen_data gates on it.
-    "Cerulean": (68300,),
+    "Cerulean": (68300, 68400, 41020, 22000),   # + Charo's + Stone Coffin (merged 2026-08-10)
     "Abyssal": (68600,),          # 28000 (Midra's Manse) is NOT a bucket -- it lives inside 68600
     "Scadu Altus": (69000, 69020, 69030, 40020, 41010, 42020),
     "Ancient Ruins": (69400, 69410),
@@ -281,13 +287,11 @@ PLAY_REGION_GROUPS = {
     # the trap cellar, around ruined forge 1-4). The old Gravesite 12/12 vote was the same
     # circular tile-join artifact as 68400's. Cookbook check 68680 (Rauh Base) stands on it too.
     "Rauh Base": (69010, 40010, 42030),
-    "Charo's": (68400, 41020),
 
     # --- DLC interiors ---
     "Belurat": (20000,),
     "Enir Ilim": (20010,),
     "Shadow Keep": (21000, 21010, 21020, 69300),  # + 69300 = Scaduview Hinterland (folded 2026-07-19)
-    "Stone Coffin": (22000,),
 
     # --- the hub ---
     HUB: (11100,),

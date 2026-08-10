@@ -204,11 +204,9 @@ DLC_BLESSING_FLOORS = {
     "Gravesite": 1,
     "Ensis": 2,
     "Cerulean": 2,
-    "Charo's": 2,
     "Belurat": 3,
     "Scadu Altus": 7,
     "Shadow Keep": 10,   # includes the folded-in Scaduview Hinterland (2026-07-19); same floor it had
-    "Stone Coffin": 10,
     "Rauh Base": 10,
     "Ancient Ruins": 12,
     "Jagged Peak": 12,
@@ -216,9 +214,11 @@ DLC_BLESSING_FLOORS = {
     "Enir Ilim": 15,
 }
 # Per-play_region-bucket overrides for sub-areas whose native tuning diverges from their region
-# floor. EMPTY since the v2 split -- Stone Coffin (22000), the only entry, is its own region now.
-# Kept as a mechanism: a future shared-bucket sub-area (an Ellac-class fold) may need one.
-_DLC_BLESSING_BUCKET_OVERRIDE = {}
+# floor. RE-ARMED 2026-08-10 for exactly the case this note predicted ("a future shared-bucket
+# sub-area may need one"): Stone Coffin merged into Cerulean, whose floor is 2, but the Fissure is
+# a blessing-10 area and Putrescent Knight does not care which region owns the bucket. Charo's
+# needs no row -- it was already 2, the same as Cerulean.
+_DLC_BLESSING_BUCKET_OVERRIDE = {22000: 10}
 
 
 def dlc_region_buckets(kept):
