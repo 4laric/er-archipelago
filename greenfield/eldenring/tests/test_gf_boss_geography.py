@@ -4,7 +4,7 @@
 calls the m61 DLC overworld `legacy`: the field pass builds its neighbourhood out of
 `^m60_(\\d\\d)_(\\d\\d)$` tiles only, so an m61 boss classed `field` gets NO SWEEP AT ALL. Measured
 2026-08-02 by making the change and regenerating: sweeps went 240 triggers / 3187 member links /
-31 regions -> 212 / 3040 / 27. All 28 DLC overworld bosses lost their sweep; none gained one.
+29 regions -> 212 / 3040 / 27 (was 31 before the 2026-08-10 Cerulean merge; the boss/sweep totals are unchanged -- no boss moved, two region NAMES went away). All 28 DLC overworld bosses lost their sweep; none gained one.
 
 `_geography` answers "where does this boss stand?", where m61 IS field -- and that is what a player-
 facing LOCATION TAG has to say. Tagging off `_class` labelled 15 DLC overworld boss checks

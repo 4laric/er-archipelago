@@ -69,8 +69,8 @@ SPINE = [
     "Leyndell", "Sewer", "Ainsel River", "Deeproot Depths", "Mohgwyn",
     "Mountaintops of the Giants", "Haligtree", "Farum Azula",
     # DLC (rides as plain lock gates -- SPEC-PARITY.md P7), entry-first
-    "Gravesite", "Ensis", "Cerulean", "Charo's", "Belurat",
-    "Scadu Altus", "Shadow Keep", "Stone Coffin",
+    "Gravesite", "Ensis", "Cerulean", "Belurat",
+    "Scadu Altus", "Shadow Keep",
     "Ancient Ruins", "Rauh Base", "Jagged Peak", "Abyssal", "Enir Ilim",
 ]
 
@@ -79,8 +79,8 @@ SPINE = [
 # base-game pool is REGIONS minus these. Pure data (no AP import) so region-scope filtering can run
 # in the data-invariant gate.
 DLC_REGIONS = frozenset({
-    "Gravesite", "Ensis", "Cerulean", "Charo's", "Belurat",
-    "Scadu Altus", "Shadow Keep", "Stone Coffin",
+    "Gravesite", "Ensis", "Cerulean", "Belurat",
+    "Scadu Altus", "Shadow Keep",
     "Ancient Ruins", "Rauh Base", "Jagged Peak", "Abyssal", "Enir Ilim",
 })
 

@@ -73,7 +73,7 @@ class RolledDiversity(WorldTestBase):
                            "rolled order must produce DIFFERENT kept sets across seeds (diversity); "
                            f"got a single set for all {len(self.SEEDS)} seeds")
         # The other half of the deleted force-keep, stated so it cannot come back unnoticed: on a
-        # 4-wide draw over 31 regions, some of these seeds must MISS the capital entirely.
+        # 4-wide draw over 29 regions (31 before the 2026-08-10 Cerulean merge), some of these seeds must MISS the capital entirely.
         self.assertGreater(without_goal, 0,
                            "every one of these seeds kept the goal region on a 4-wide draw -- the "
                            "`auto` GOAL_REGION force-keep is back")

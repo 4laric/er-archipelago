@@ -50,7 +50,7 @@ That second idea is the whole trick: Elden Ring's famously go-anywhere map
 becomes a progression puzzle, one region at a time. The `num_regions` option
 controls how many regions are kept -- 4 is a tight ~4-hour run, higher is
 longer, and 0 (the shipped default) keeps everything in play for the full
-Shattering -- 17 regions in the shipped base-game config, 30 with the DLC on.
+Shattering -- 17 regions in the shipped base-game config, 28 with the DLC on.
 
 None of this touches your game files. It's the vanilla game plus a runtime
 client; remove the client and Elden Ring is exactly as you left it.

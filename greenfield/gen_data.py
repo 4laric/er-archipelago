@@ -495,10 +495,10 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  'Leyndell, Royal Capital':'Leyndell','Leyndell (Ashen Capital)':'Leyndell',   # Ashen rows are routed to FINALE_REGION by region_of before this table is consulted; the label stays only as a last-resort fallback
  'Nokron / Siofra (Ancestor Spirit)':'Siofra River',
  'Lake of Rot (Astel)':'Ainsel River','Deeproot Depths (Lichdragon Fortissax)':'Deeproot Depths','Fractured Marika (final)':'Leyndell',
- 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Stone Coffin',
+ 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Cerulean',
  "Midra's Manse (DLC)":'Abyssal','Church of the Bud (DLC)':'Ancient Ruins','Castle Ensis (DLC)':'Ensis',
  'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Sewer',
- 'm22':'Stone Coffin','m28':'Abyssal'}
+ 'm22':'Cerulean','m28':'Abyssal'}
 
 # ---- SHOP-ROW REGION GROUND TRUTH (shop_rows.tsv col 9, tools/datamine_shop_rows.py) --------------
 # The merchant-block region of every derivable shop stock flag, normalized through REGION_MAP -- the
@@ -2410,8 +2410,10 @@ FLAG_REGION_OVERRIDE = {
     2047447610: "Ensis", 2047447700: "Ensis", 2047447710: "Ensis", 2047447720: "Ensis",
     2047447800: "Ensis", 2047447830: "Ensis", 2047447900: "Ensis", 2047447901: "Ensis",
     # ^ the complete 47,44 castle tile (6820 Ensis grace) -- the full set from tools/dev/check_vs_matt.py
-    # Tile 48,39 (graces 6830 Cerulean + 6840 Charo's): these 3 lots are the Charo's Hidden Grave side.
-    2048397030: "Charo's", 2048397040: "Charo's", 2048397050: "Charo's",
+    # Tile 48,39 pins (2048397030/40/50) and the 48,40 Spirit Glaive pin DELETED 2026-08-10: with
+    # Charo's merged into Cerulean both of that tile's graces (6830, 6840) name the same region,
+    # so the pins now agree with the derivation, and a redundant manual override is a failure.
+    # Same deletion reason as 68710/2047397040 on 2026-08-09.
     # GROUND-TRUTH tile splits, 2026-07-15: treasure MSB positions tested against the play-region
     # volumes (tools/datamine_grace_ground.py machinery). These stand INSIDE 6840000 volumes
     # ("dragon-mountain west" = Charo's Hidden Grave ground; bucket 68400 -> Charo's, the same
@@ -2422,8 +2424,6 @@ FLAG_REGION_OVERRIDE = {
     # a failure). That is also what the pins were evidence FOR -- they named two of the nine checks on
     # a tile the derivation was answering wrongly, and the other seven, including the Ash of War a
     # player reported, had no pin. test_gf_tile_row_region.py holds them as the acceptance case.
-    2048407010: "Charo's",             # Spirit Glaive (lot 2048400010, tile 48,40 -- the volume reaches
-                                       #   in; 48,40 has NO PlayRegionParam row, so this one stands)
     # ...and these two stand INSIDE 6830000 (Cerulean Coast) although their tile 49,38 files them
     # under Jagged Peak -- the reverse direction of the same class:
     68920: "Cerulean",                 # Finger-Weaver's Cookbook [1] (lot 2049380050, tile 49,38)
@@ -2522,7 +2522,7 @@ FLAG_REGION_OVERRIDE = {
     40017000: "Rauh Base",           # m40_01 Scorpion River Catacombs (grace bucket 6950 = Rauh Base)
     40027000: "Scadu Altus",                 # m40_02 Darklight Catacombs
     41007000: "Gravesite",             # m41_00 Belurat Gaol
-    41027000: "Charo's",               # m41_02 Lamenter's Gaol (grace bucket 6840 = Charo's Hidden Grave)
+    41027000: "Cerulean",              # m41_02 Lamenter's Gaol (grace bucket 6840, merged 2026-08-10)
     42007000: "Gravesite",             # m42_00 Ruined Forge (Lava Intake)
     42037000: "Rauh Base",           # m42_03 Taylew's Ruined Forge (grace bucket 6950 = Rauh Base)
     43007000: "Gravesite",             # m43_00 Rivermouth Cave
@@ -4950,6 +4950,71 @@ _STATE_GATED_GRACE_FLAGS = frozenset({71107, 72107, 76314})
 # Ashen Capital owns them now. The set is kept as a named constant because features/capital.py and
 # test_gf_ashen_capital_lock assert the bundle against it -- a silent re-add here would hand the
 # finale's graces back to nobody and the region would be lockable but unreachable.
+# ---- RETIREMENT GATE for the _ARENA_GRACE_FLAGS hand list ---------------------------------------
+# The standing plan above is to DELETE the hand list once the MSBs are witchy'd and let the derived
+# predicate carry it. That plan is only safe for a grace whose BOSS the derivation actually located,
+# and until 2026-08-10 nothing could tell the two apart:
+#
+#   arena_graces.tsv's `adjudicated_tiles:` says the map's MSB was UNPACKED. It does NOT say every
+#   boss on that map was found. datamine_arena_graces.py skips any DisplayBossHealthBar entity that
+#   is not an MSB Part/Enemy (`if b in ep`), and the tile still counted as adjudicated -- so an
+#   in-arena grace came out absent from the derived set and LOOKED cleared.
+#
+# THE MOTIVATING CASE (CONTRIBUTING rule 11). 76931 "Shadow Keep, Back Gate" stands in front of
+# Commander Gaius (boss 2049480800, tile m61_49_48). Its tile is in `adjudicated_tiles`; it is NOT in
+# the derived set. Reading that as "measured safe" and retiring it force-lights a grace inside Gaius's
+# arena -- the exact soft-lock the list exists to prevent. Only the hand entry is holding it.
+#
+# So: an entry named here may not be retired on the derivation's silence. gen DIES if one goes
+# missing, naming the boss, because the alternative is a playtester finding it for the fourth time.
+_ARENA_GRACE_LOAD_BEARING = {
+    76931: (2049480800, "Shadow Keep, Back Gate -- stands in front of Commander Gaius (m61_49_48); "
+                        "reached from the Keep through the Church District, walked to, never warped "
+                        "to (Alaric, in-game, 2026-08-10)"),
+}
+_lb_gone = sorted(set(_ARENA_GRACE_LOAD_BEARING) - _ARENA_GRACE_FLAGS)
+if _lb_gone:
+    raise SystemExit(
+        "gen_data: ARENA-GRACE RETIREMENT GATE -- %s was removed from _ARENA_GRACE_FLAGS but is "
+        "recorded LOAD-BEARING:\n%s\nThe derived oracle's silence is NOT evidence here: check "
+        "arena_graces.tsv's `unresolved_bosses:` line for that boss before retiring the entry. If "
+        "the boss now RESOLVES, delete its row from _ARENA_GRACE_LOAD_BEARING in the same commit "
+        "and say so in the message."
+        % (_lb_gone, "\n".join("  %d: boss %d -- %s" % (_f, _ARENA_GRACE_LOAD_BEARING[_f][0],
+                                                        _ARENA_GRACE_LOAD_BEARING[_f][1])
+                                for _f in _lb_gone)))
+
+def _arena_unresolved_bosses():
+    """{map_id: {boss entity}} from arena_graces.tsv's `unresolved_bosses:` header. Empty when the
+    header is absent -- an OLD tsv predates the per-boss split, so it cannot vouch for anything."""
+    _fp = os.path.join(HERE, "arena_graces.tsv")
+    _out = defaultdict(set)
+    if not os.path.exists(_fp):
+        return _out
+    with open(_fp, encoding="utf-8") as _f:
+        for _ln in _f:
+            if not _ln.startswith("# unresolved_bosses:"):
+                continue
+            for _tok in _ln.split(":", 1)[1].strip().split(","):
+                if ":" in _tok:
+                    _m, _bs = _tok.split(":", 1)
+                    _out[_m.strip()] |= {int(_b) for _b in _bs.split("+") if _b.strip().isdigit()}
+    return _out
+
+_ARENA_UNRESOLVED_BOSSES = _arena_unresolved_bosses()
+# The reverse direction is INFORMATIONAL, never fatal: a load-bearing entry whose boss now resolves is
+# a candidate for retirement, but retiring it is a human call that wants a playtest, not a gen crash.
+if _ARENA_UNRESOLVED_BOSSES:
+    _all_unres = {_b for _bs in _ARENA_UNRESOLVED_BOSSES.values() for _b in _bs}
+    for _fl, (_boss, _why) in sorted(_ARENA_GRACE_LOAD_BEARING.items()):
+        if _boss not in _all_unres:
+            print(f"arena-grace hand list: {_fl} is marked load-bearing on boss {_boss}, but "
+                  f"arena_graces.tsv now RESOLVES that boss -- the derivation can finally see it. "
+                  f"Re-measure and consider retiring the entry (with a playtest).")
+else:
+    print("arena-grace hand list: arena_graces.tsv carries NO `unresolved_bosses:` header (pre-"
+          "2026-08-10 tsv) -- per-boss adjudication is UNKNOWN, so every hand entry stays.")
+
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _DERIVED_ARENA_GRACE_FLAGS
                      | _STATE_GATED_GRACE_FLAGS)
