@@ -161,6 +161,26 @@ _EDGE_EXEMPT = {
         "`static` and there is none. It runs exactly when its caller runs, so its re-arm IS its "
         "caller's re-arm, and both callers are on the edge."
     ),
+    "traps": (
+        "NO PASS AND NO DONE LATCH -- it re-applies on every fire, which is the one case this "
+        "file's own header already calls cheap to exempt (\"a writer that genuinely re-applies "
+        "every tick is cheap to exempt WITH A REASON\"). CLAIMED, and re-derived each run by "
+        "`test_traps_rewrites_per_fire_and_never_latches`: the param write lives inside "
+        "`fire_no_flask`, which is reached only from `pub fn fire`, which is called once per trap "
+        "FIRED -- so a map load reverting SpEffect row TRAP_NO_FLASK is repaired by the next fire "
+        "rather than being permanent. The module's two statics are a pending QUEUE and an "
+        "overdue-warning rate limiter, and the limiter is stored back to `false` inside "
+        "`poll_pending`; neither is a monotonic done latch that a re-arm would clear. There is "
+        "nothing for a reset() to reset. The module's own header says the same thing in its own "
+        "words -- \"The row is re-patched on every fire rather than once behind a latch: a map "
+        "load streams SpEffectParam back in and restores the vanilla values ... Patch-then-apply "
+        "costs one row write per keypress and cannot go stale\" -- so this exemption RECORDS a "
+        "decision the client author already made, rather than inventing one for the gate. "
+        "WHAT WOULD INVALIDATE IT: a `static` bool that gates the param write and is never stored "
+        "false (a real done latch), or the write moving out of the per-fire path into a "
+        "once-per-session arm. Either makes the companion test red, and then traps needs "
+        "`pub fn reset()` and an edge call like the other eighteen."
+    ),
 }
 
 # ---------------------------------------------------------------------------------------------
@@ -477,6 +497,52 @@ class ClientResetsAreCalled(unittest.TestCase):
             "shop_preview::reset() is not called from core.rs's in_world edge block. That is the "
             "FOURTH instance of this bug (client PR #29); if it has been reverted, revert the "
             "revert. (assertTrue, not assertIn: assertIn would dump the whole ~4 KB edge block.)")
+
+    def test_traps_rewrites_per_fire_and_never_latches(self):
+        """THE TRAPS EXEMPTION'S EVIDENCE, re-derived rather than believed.
+
+        traps is exempt on the claim that it has no once-per-session pass to re-arm: its param write
+        happens inside the per-fire path, so a load that reverts the row is repaired by the next
+        fire. That is a claim about the client, and the 2026-07-31 shop_preview exemption is the
+        local proof that such a claim rots the moment it is only prose. Pin the two facts.
+        """
+        self.assertIn("traps", self.writers,
+                      "traps no longer matches any write signal -- it has stopped writing game "
+                      "state, so prune its _EDGE_EXEMPT row rather than leaving a reason for a "
+                      "hazard that is gone")
+        body = self.bodies["traps"]
+
+        # 1. THE WRITE IS IN THE PER-FIRE PATH. Every mutable param borrow in the module must sit
+        #    inside a `fn fire_*`, which `pub fn fire` dispatches to per trap fired. If one appears
+        #    in an arm/init function instead, the write became once-per-session and a load CAN
+        #    strand it -- which is precisely the shop_sell/shop_icon/shop_stock/shop_preview bug.
+        fns = [(m.start(), m.group(1)) for m in re.finditer(r"\n(?:pub )?fn (\w+)", body)]
+        self.assertTrue(fns, "no fn declarations parsed out of traps.rs -- re-point this scan")
+        stray = []
+        for m in re.finditer(r"SoloParamRepository::instance_mut\s*\(", body):
+            owner = [n for pos, n in fns if pos < m.start()]
+            owner = owner[-1] if owner else "<module level>"
+            if not owner.startswith("fire"):
+                stray.append(owner)
+        self.assertEqual(
+            [], sorted(set(stray)),
+            "traps takes a mutable param borrow outside its per-fire path (in %r). The exemption "
+            "rests on the write being repaired by the next fire; a write that is not per-fire needs "
+            "`pub fn reset()` and a `crate::traps::reset()` call in core.rs's in_world edge block."
+            % sorted(set(stray)))
+
+        # 2. NO MONOTONIC DONE LATCH. A `static ...: AtomicBool` is fine -- WARNED is one -- but only
+        #    while something stores it back to false. A bool that is only ever set true is the latch
+        #    this whole file exists to catch, and it would make the fire path run once.
+        if re.search(r"static\s+\w+\s*:\s*AtomicBool", body):
+            # assertTrue on a BOOL, not assertRegex on the body: a failing assertRegex prints the
+            # whole module, and a 10 KB CI failure message is one nobody reads to the end of.
+            self.assertTrue(
+                re.search(r"\.store\(\s*false", body),
+                "traps declares a static AtomicBool and never stores `false` into one, so it now "
+                "holds a monotonic DONE latch. That is the shape the exemption denies: give it "
+                "`pub fn reset()` clearing the latch, call it from the in_world edge block, and "
+                "delete traps from _EDGE_EXEMPT.")
 
     def test_fmg_inject_is_still_inert(self):
         """THE EXEMPTION'S EVIDENCE, re-derived every run instead of believed.

@@ -106,6 +106,38 @@ Elden Ring:
   # you play.
   goal: auto
 
+  # THE TWO LEYNDELLS. Elden Ring ships the capital as two mutually exclusive
+  # maps chosen by one save-persisted flag: Leyndell, Royal Capital (Morgott and
+  # ~152 checks) before the Erdtree burns, and the Ashen Capital plus the Elden
+  # Throne after. Vanilla only ever burns, never un-burns -- so killing Maliketh
+  # replaces the Royal Capital permanently, and in region-lock play the Farum
+  # Azula Lock lets you do that long before you have finished Leyndell.
+  # This option keeps that flag matched to where you actually ARE: warp to a
+  # Royal grace or walk in from Altus and the Royal Capital is back; warp to an
+  # Ashen grace and the finale is where you left it. It also lets Royal Capital
+  # checks carry progression, which is only safe BECAUSE it can restore them.
+  # Turn it off to get vanilla's one-way burn back (seeds stay winnable either
+  # way -- with it off, Royal Capital checks are barred from progression again).
+  #
+  # ONE WART, unavoidable: the burn is the game's own event and it switches off
+  # Leyndell's grace warp points, so straight after burning you cannot fast-
+  # travel into the capital even with the Leyndell Lock. Walk in from Altus
+  # through the main gate -- the rune wall is unchanged -- and touch a grace to
+  # get the warp back. See KNOWN-ISSUES.md.
+  capital_reconciler: true
+
+  # MERCHANT SHOPS OPEN AT THE ROUNDTABLE WHEN YOU TALK TO THEIR OWNER.
+  # Open a merchant's shop and their Bell Bearing is handed to the Twin Maiden
+  # Husks for you, so that stock is on the Roundtable shelf from then on. You
+  # are NOT given the bell -- it stays in the multiworld as a real item for
+  # someone to find -- only the shop it would have unlocked. Covers the roving
+  # merchants and the named NPC vendors; the peddlers whose bells add stock to
+  # the Maidens' own shelf are not covered, and neither are the Ash-of-War,
+  # tailoring or upgrade counters.
+  # Off by default. A seed with this on REQUIRES a client that supports it and
+  # will say so at connect rather than quietly ignore the setting.
+  merchant_bells_on_talk: false
+
   # SCADUTREE BLESSING AS A GAME-WIDE POWER CURVE.
   #   off         -- vanilla (default). Blessing comes only from the Scadutree
   #                  Fragments you hold, and only inside the DLC.

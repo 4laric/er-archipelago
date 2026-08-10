@@ -123,6 +123,20 @@ Peninsula. If the Weeping Peninsula is wrecking you, you're probably not
 undergeared -- you just unlocked it late. See "Enemy difficulty" below if you
 want to reshape that.
 
+**You burned the Erdtree and Leyndell changed.** Elden Ring has two capitals
+on the same spot -- Leyndell, Royal Capital before the burn, the Ashen Capital
+and the Elden Throne after -- and vanilla only ever goes one way. Under region
+locks the Farum Azula Lock can reach Maliketh long before you are done with the
+Royal Capital, so this is easy to trip by accident.
+
+You have not lost it. `capital_reconciler` is on by default and keeps that
+switch matched to where you are standing, so the Royal Capital comes back. What
+the burn *does* take is Leyndell's grace warp points, which means right after it
+you cannot fast-travel in even holding the Leyndell Lock. Walk in from Altus
+through the main gate -- the Great Rune wall works exactly as before -- and
+touch a grace to get the warp back. Warping to an Ashen grace returns you to the
+finale whenever you want it.
+
 **A pickup showed someone else's item name.** That chest held "Progressive
 Sword" for a Hollow Knight player three worlds over. You sent it; something of
 yours is out there in return. That's the multiworld doing its thing.

@@ -19,6 +19,29 @@ test pointing at it, which is exactly why it rotted through a rename.
 
 This test closes that: the shipped yaml's `game:` key must equal the world's GAME, and its options block
 must be keyed the same. Cheap, and it fails the moment a rename lands without the template following.
+
+THE OTHER DIRECTION (2026-08-10, and it took a player to find it)
+----------------------------------------------------------------
+Everything above gates template -> code: no key in the template may be a fake option. Nothing gated
+code -> template, so an option could ship for eight releases without ever appearing in the file we
+hand players. `capital_reconciler` did exactly that: on by default since v0.2.13, it decides whether
+burning the Erdtree permanently strands Royal Leyndell's ~152 checks, and a player who hit that
+strand went looking for it, found only `SPEC-capital-reconciler.md` on GitHub, and reported back
+that "there no such setting the in he templat so i could find where it was described."
+
+The asymmetry is not an oversight anyone would repeat on purpose -- it is that the wizard's option
+list is GENERATED from the option classes and the template is HAND-MAINTAINED, so only the wizard
+moves when a feature lands. When three options missed the wizard in the v0.3.9 window the fix was to
+re-run the generator, and the changelog entry concluded "The yaml has always accepted these options;
+only the wizard was behind." True, and it is the sentence that hid this: a template nobody diffs
+against the option surface is behind in a way no player can see, because AP silently ignores what is
+missing just as happily as what is invented.
+
+`_TEMPLATE_DEBT` below is the sixteen that were already missing when the gate went in, listed so the
+gate can be LIVE while they are drained (#512). It is checked in both directions -- an option
+that leaves the template must be added to the list, and one that reaches the template must leave it
+-- because a quarantine that may quietly grow is not a gate and one that keeps a fixed entry is a
+redundant override.
 """
 import os
 import re
@@ -40,6 +63,28 @@ _YAML = next((p for p in (os.path.join(_GF_PKG, "EldenRing.yaml"),
                           os.path.join(_REPO, "release", "EldenRing.yaml")) if os.path.isfile(p)),
              "")
 
+
+# The sixteen options that were already missing from the shipped template when this gate landed
+# (2026-08-10). `capital_reconciler` was the seventeenth and is fixed in the same commit, because a
+# gate that quarantines its own motivating case documents nothing. Drain this list; do not add to it.
+_TEMPLATE_DEBT = {
+    "auto_equip",
+    "dlc_blessing_catchup",
+    "exclude_local_item_only",
+    "grace_attunement",
+    "grace_attunement_anchor",
+    "keep_local",
+    "keep_local_rune_cap",
+    "no_equip_load",
+    "no_fall_damage",
+    "no_runes_in_shops",
+    "num_regions_order",
+    "progression_bias",
+    "scadutree_blessing_scope",
+    "start_regions",
+    "start_with_whetblades",
+    "vanilla_placement",
+}
 
 class TestShippingYaml(unittest.TestCase):
 
@@ -93,6 +138,57 @@ class TestShippingYaml(unittest.TestCase):
             [], unknown,
             f"{len(unknown)} key(s) in the shipped template are NOT real options and will be SILENTLY "
             f"IGNORED: {unknown}. A key that reads like a knob and does nothing is worse than no key.")
+
+    def test_every_player_facing_option_is_in_the_template(self):
+        """THE OTHER DIRECTION. An option absent from the template is invisible to every player who
+        does not use the wizard: they cannot set it, and -- worse for a default-ON behaviour -- they
+        cannot discover that it is what is happening to them.
+
+        Scope is the WIZARD'S definition of player surface, and deliberately so, because the wizard
+        is the other artifact that has to answer this question and two answers would be one too
+        many: the fields GFOptions adds on top of PerGameCommonOptions (AP's own plando/item_links
+        keys are AP's to document), minus `Visibility.none` (a field hidden from the player is not
+        player surface anywhere).
+        """
+        surface, block = self._player_surface_names(), self._game_block_keys()
+        # WITNESS both halves. Either scan can silently stop matching -- the dataclass walk if the
+        # options plumbing is reshaped, the yaml parser if the template's indentation changes -- and
+        # an empty scan on EITHER side satisfies the assertion below for free, in opposite
+        # directions. The numbers are floors, not the true counts, so they do not need touching every
+        # time an option lands.
+        assert len(surface) > 40, f"only {len(surface)} options found -- the surface scan is blind"
+        assert len(block) > 25, f"only {len(block)} template keys parsed -- the yaml scan is blind"
+        missing = sorted(set(surface) - set(block))
+        undocumented = [k for k in missing if k not in _TEMPLATE_DEBT]
+        self.assertEqual(
+            [], undocumented,
+            f"{len(undocumented)} option(s) exist but are not in the shipped template: "
+            f"{undocumented}. A player who does not use the wizard cannot set them and cannot find "
+            f"out they exist. Add a commented block to release/EldenRing.yaml.")
+
+    def test_the_template_debt_list_has_no_stale_entries(self):
+        """A drained debt entry must LEAVE this list. CONTRIBUTING: a redundant manual override is a
+        failure -- a quarantine that keeps entries it no longer needs stops describing the debt and
+        starts hiding the next one."""
+        surface, block = self._player_surface_names(), self._game_block_keys()
+        assert len(surface) > 40, f"only {len(surface)} options found -- the surface scan is blind"
+        assert len(block) > 25, f"only {len(block)} template keys parsed -- the yaml scan is blind"
+        stale = sorted(_TEMPLATE_DEBT - (set(surface) - set(block)))
+        self.assertEqual(
+            [], stale,
+            f"{stale} are in the template now -- delete them from _TEMPLATE_DEBT so the gate covers "
+            f"them for real.")
+
+    def _player_surface_names(self):
+        """The yaml-tunable ER surface, by the same rule tools/dump_options_metadata.py uses."""
+        import dataclasses
+        from Options import PerGameCommonOptions, Visibility
+        from worlds.AutoWorld import AutoWorldRegister
+        dc = AutoWorldRegister.world_types[GAME].options_dataclass
+        common = {f.name for f in dataclasses.fields(PerGameCommonOptions)}
+        return [f.name for f in dataclasses.fields(dc)
+                if f.name not in common
+                and getattr(f.type, "visibility", Visibility.all) != Visibility.none]
 
     def _world_option_names(self):
         from worlds.AutoWorld import AutoWorldRegister
