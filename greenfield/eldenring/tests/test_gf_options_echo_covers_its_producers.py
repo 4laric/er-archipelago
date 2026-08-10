@@ -151,6 +151,16 @@ class OptionsEchoCoversItsProducers(unittest.TestCase):
     def test_every_declared_subkey_is_actually_emitted(self):
         """THE GATE. A declaration whose producer does not produce it is a dark feature that reports
         `slot_data OK` -- #325's `merchant_bells_on_talk`, dark from the day it shipped."""
+        # WITNESS (test_gf_vacuous_pass, shape 2). `missing` is empty on a healthy tree, and it is
+        # ALSO empty if `owned` silently became empty -- a reworded producer string would do it. Say
+        # out loud that the scan saw candidates on both sides before believing the empty result.
+        self.assertGreaterEqual(
+            len(self.owned), 5,
+            "only %d sub-key(s) claim core.%s -- the join went stale, so an empty `missing` below "
+            "would mean nothing was checked." % (len(self.owned), ECHO_FN))
+        self.assertIn("auto_equip", self.emitted,
+                      "auto_equip is missing from the echo too -- at that point the extractor is "
+                      "broken, not the source, and this gate's empty results are worthless.")
         missing = sorted(k.name for k in self.owned if k.name not in self.emitted)
         self.assertEqual(
             [], missing,
@@ -176,6 +186,10 @@ class OptionsEchoCoversItsProducers(unittest.TestCase):
         """The reverse direction, cheap while we are here. `validate_slot_data` already rejects an
         UNDECLARED sub-key, but only on a seed that reaches validation; this says so from the source
         and names the file to edit."""
+        # WITNESS: an empty `undeclared` must mean "every emitted key is declared", not "nothing was
+        # emitted". The declared set is the other half of the comparison, so it is witnessed too.
+        self.assertTrue(self.emitted, "the echo parsed to no keys at all -- see the parse guard")
+        self.assertTrue(self.c.OPTIONS_SUBKEYS, "OPTIONS_SUBKEYS is empty")
         undeclared = sorted(n for n in self.emitted
                             if n not in {k.name for k in self.c.OPTIONS_SUBKEYS})
         self.assertEqual([], undeclared,
