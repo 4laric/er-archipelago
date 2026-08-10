@@ -4910,7 +4910,14 @@ _DERIVED_ARENA_GRACE_FLAGS = _derived_arena_graces()
 # The hazard is the reverse: re-running the tool on a box WITHOUT the MSBs silently shrinks
 # arena_graces.tsv, and the graces it used to catch quietly start being force-lit again. Fail instead.
 _ARENA_FLOOR = 41   # what the tool derives with the COMPLETE MSB set (map/, 108/118 maps). Raise, never lower.
-if _DERIVED_ARENA_GRACE_FLAGS and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR:
+# 🛑 NO TRUTHINESS SHORT-CIRCUIT. This read `if _DERIVED_ARENA_GRACE_FLAGS and len(...) < FLOOR`
+# until 2026-08-10, so an EMPTY set -- the worst case, the one where every arena grace is grantable
+# again -- was falsy and skipped the guard entirely. A zero-row arena_graces.tsv both disabled the
+# protection AND passed the gate meant to catch exactly that. Empty must be the loudest failure,
+# not the quietest. (An ABSENT file is still tolerated: _derived_arena_graces returns frozenset()
+# and the hand lists carry it, which is the documented degrade.)
+if os.path.exists(os.path.join(HERE, "arena_graces.tsv")) \
+        and len(_DERIVED_ARENA_GRACE_FLAGS) < _ARENA_FLOOR:
     raise SystemExit(
         "gen_data: arena_graces.tsv has SHRUNK to %d (floor %d). The derived arena-grace set is a lower "
         "bound that depends on unpacked MSBs -- a shrunken tsv means the tool was re-run without them, "

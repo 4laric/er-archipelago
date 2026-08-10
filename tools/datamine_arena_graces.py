@@ -58,6 +58,11 @@ OUT = os.path.join(ROOT, "greenfield", "arena_graces.tsv")
 # KNOWN-BAD graces (71300 Maliketh, 76414/76416 Redmane) are caught and the known-good ones are not.
 DEFAULT_RADIUS = 40.0
 
+# Floors. BonfireWarpParam carries 421 warp graces and the committed table holds 41 arena hits;
+# both are measured, not guessed. Raise, never lower -- a drop is a finding, not a rebaseline.
+MIN_GRACES = 400
+MIN_HITS = 41
+
 
 def _healthbar_bosses():
     """{map_id: {entity}} from the GENERATED greenfield/eldenring/boss_healthbars.py.
@@ -163,13 +168,14 @@ def main():
     ap.add_argument("--out", default=OUT)
     args = ap.parse_args()
 
+    _graces = graces()
     bosses = boss_ids_by_map()
     poscache = {}
     hits, unresolved = [], set()
     adjudicated_tiles = set()      # map_id whose MSB WAS unpacked (the old, per-MAP notion)
     unresolved_bosses = {}         # map_id -> sorted[boss entity with NO MSB Part position]
 
-    for flag, tile, gp in graces():
+    for flag, tile, gp in _graces:
         # grace_flags mapTile is 3-part (m60_51_36 / m10_00); EMEVD + MSB names are 4-part (…_00).
         cands = [k for k in bosses if k.startswith(tile + "_") or k == tile]
         for map_id in cands:
@@ -194,6 +200,23 @@ def main():
             d, b = min(near)
             if d < args.radius:
                 hits.append((flag, tile, map_id, b, round(d, 1)))
+
+    # 🛑 ABSENCE IS NEVER AN ANSWER -- and this tool emitted a ZERO-ROW table on 2026-08-10 without
+    # a word. graces() reads elden_ring_artifacts/grace_flags.tsv and swallows a column mismatch per
+    # row (`except KeyError: continue`), so the wrong copy of that file yields an empty grace list,
+    # zero hits, and a written table that turns the whole arena-grace protection OFF. Two floors:
+    if len(_graces) < MIN_GRACES:
+        raise SystemExit(
+            "FATAL: graces() returned %d grace(s) (floor %d). %s is missing, truncated, or has "
+            "different columns -- every row is being swallowed by the per-row except. Refusing to "
+            "write a table that would silently disable the arena-grace skip set."
+            % (len(_graces), MIN_GRACES, os.path.join(AR, "grace_flags.tsv")))
+    if len(hits) < MIN_HITS:
+        raise SystemExit(
+            "FATAL: only %d grace(s) came out inside an arena (floor %d, and the committed table "
+            "has 41). The MSBs or the boss set collapsed. A SHRUNK arena_graces.tsv silently "
+            "re-grants graces that stand in live boss arenas -- fail instead of emitting."
+            % (len(hits), MIN_HITS))
 
     hits.sort()
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
