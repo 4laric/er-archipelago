@@ -387,6 +387,13 @@ jobs:
         run: |
           python tools/gen_region_locks.py
           python greenfield/gen_contract.py
+          # The baked area-tier table (client PR #126). Its DATA half needs the MSBs and so lives
+          # on Alaric's box (tools/datamine_area_tiers.py, tier-2); this half is a pure read of the
+          # committed greenfield/area_tiers.tsv, so CI can hold the client's bytes to it. Without
+          # this step area_tiers.rs would be a hand-maintained file in another repo, which is the
+          # exact shape gen_region_locks.py exists to prevent -- and client-main-drift would NOT
+          # catch it, since that job only re-runs gen_region_locks and gen_contract.
+          python tools/gen_area_tiers.py --check
           # Pure join over committed greenfield data -> er-archipelago-check-browser.html.
           # It is stamped with data.py's inputs_hash (NOT the commit) and writes LF, so a
           # regen here is byte-identical to a Windows regen and the diff below is meaningful.

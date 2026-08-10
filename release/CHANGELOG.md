@@ -121,6 +121,102 @@ third.
 🛑 The drift window is unchanged in kind and shorter in practice: between the two merges a client
 built from `main` expects an apworld that is not tagged yet. Nothing ships from `main`.
 
+### The client half of this window was five merged PRs behind, and none of it was shipping
+
+The gitlink pinned client `f650aa0`; client `main` was `2f0d4a1`. Between the v0.3.9 pin
+(`cfe6ca2`) and `f650aa0` there were exactly two commits -- the version bump and its merge -- so
+**nothing client-side had shipped since v0.3.9** while five PRs sat merged. This bumps the pin to
+`2f0d4a1` and writes the notes those five owe, in the same commit, which is what rule 14 asks for.
+
+🛑 Worth naming because "merged to client main" and "ships in the open world version" are different
+facts and only the gitlink decides. `check_release_notes` cannot see the difference -- it gates that
+a section EXISTS, not that it covers what the pin actually moved.
+
+### Enemy scaling reads the ground from a table instead of re-measuring it every sweep
+
+An enemy vanilla ships with no ladder rung -- every named boss, every hand-tuned NPC -- has no
+strength we can read off the enemy itself, so the sweep asks how hard vanilla thought the GROUND was
+and places it against that. That reading came from a live census over loaded enemies, and the census
+counts enemies carrying a vanilla rung AND a band while **our own sweep strips the band**. It erased
+its own sample: a region answered once, then answered nothing forever after.
+
+Harmless for the enemies standing there at the time -- they leave the first sweep carrying a rung or
+a down state, and both re-derive on every later sweep. Fatal for anything that arrives LATER, which
+carries neither and falls through to "leave it exactly as vanilla shipped it", at full strength, in a
+region we had already decided was too strong.
+
+Measured in a 2026-08-09 log: one overworld bucket answered `from 0 vanilla-shaped` on **33 of 48
+sweeps**, and its count of untouched enemies never converged -- it sat between 122 and 214 for three
+hours. A small interior map in the same seed reached zero. That size difference IS the bug: a bounded
+map is finished in one pass, a streaming overworld tile keeps loading cells whose placement evidence
+the first pass destroyed. It reads in play as "this region feels harder than a region the ramp put
+ABOVE it", which is exactly how it was reported.
+
+The ground is a property of the map, so it is now measured offline -- enemy placements joined to
+`NpcParam.spEffectID3`, reduced per play_region bucket with the **same** weighted median the live
+census uses -- and shipped as a table. Correct on a region's first sweep, and on a save loaded into
+ground that is already settled. The census still runs: it is the log's live sample and the fallback
+for the 13 buckets the table makes no claim for.
+
+⭐ It reproduces two independent live readings from static data: Liurnia measured 5 against a
+recorded 5, and Altus measured 7 against a recorded 7 off a 302-enemy sample. Altus was not in the
+acceptance set. Both are pinned as tests.
+
+🛑 DLC buckets are ranked WITHIN the DLC ladder and projected by rank, because the two ladders are
+disjoint bands -- the base ladder spans 1.141x to 7.422x HP and the DLC one starts at 7.047x and runs
+to 16.641x, overlapping in a single rung. There is no multiplier mapping between them, so a DLC tier
+and a base tier are not comparable to each other; each is only ever compared against its own region's
+target. Nothing pools them today and nothing should.
+
+🛑 The table is a SAMPLE, not a census: `PlayRegionParam` names only a subset of each overworld
+bucket's tiles, so 61% of enemy placements land in no bucket at all. The median is robust to that and
+two regions matched their live readings, but it is an estimate over 39% coverage.
+
+`tools/gen_area_tiers.py --check` holds the client's committed bytes to `greenfield/area_tiers.tsv`
+in CI. Without it the table would be a hand-maintained file in another repo -- `client-main-drift`
+would not have caught that, since it only re-runs the region-lock and contract generators.
+
+### Opening a merchant announces its Archipelago checks as hints
+
+Opening a merchant's buy menu now hints every check on that shelf that would send its reward to
+**another player**, once per location per session, one packet per open. Your own rewards are not
+hinted: a hint for an item already yours, on a shelf you are looking at, tells the multiworld nothing
+it can act on and tells you nothing the screen is not already showing.
+
+🛑 A row whose ownership the client cannot resolve is hinted rather than skipped. Silence would be
+indistinguishable from "not a check", and the failure directions are not symmetric -- a spurious hint
+is noise, a missing one is a player waiting on something nobody can see.
+
+🛑 **This has not been playtested at a live merchant.** The trigger was validated against one real
+session and the decision half is host-tested, but the two have never been run end to end in front of
+a shopkeeper. Grep a client log for `shop-hints:` if it misbehaves.
+
+### The tracker no longer names a region you have not unlocked
+
+Every kept region was listed by name at connect, locked or not -- so the region draw, which IS the
+seed's shape, was readable before the run started. A locked region now renders as `Locked region`
+with its count masked and its rows withheld.
+
+Three things had to go, not one. The name; the **counts**, because the thirteen DLC region sizes are
+all distinct and `0/85` identifies a region as surely as its name does; and the **row list**, because
+our location names carry the region as a `<Region> :: ...` prefix. Concealed rows also sink to the
+bottom -- left in alphabetical order, a masked row between Belurat and Roundtable Hold narrows its
+own initial to C..R.
+
+The hint-lock button stays on a concealed row on purpose: buying blind is what turns `Locked region`
+into a name, and hiding it would leave the lock-hint economy with nothing to sell.
+
+### The client log now names the goal instead of counting it
+
+It logged `goal: 1 location(s)` -- a count. The generator already logged the answer, but the artifact
+that reaches us when a player reports a bad ending is the client log, not the generation log.
+
+Motivating case, 2026-08-07: a `dlc_only` seed goaled on Romina and the player read the early ending
+as broken. Nothing had malfunctioned -- Enir Ilim is an ordinary rollable DLC region while the Ashen
+Capital is not, so `goal: auto` ended on the deepest terminal region his draw kept -- but establishing
+that took his slot_data, because his log could not say which boss the goal even was. It now names the
+region and the location, and declines to name one when the resolved names disagree.
+
 ### Published
 
 `release/CHANNELS.tsv`: **stable -> v0.3.9**, beta -> main for the new window. Two appended rows, no
