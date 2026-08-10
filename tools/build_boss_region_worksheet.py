@@ -56,6 +56,18 @@ OUT = os.path.join(GF, "boss_region_worksheet.tsv")
 EXPAND = os.path.join(GF, "boss_verdict_tiles.tsv")
 
 
+# In-game PLACE names Alaric used, mapped to our REGION names. He rules by writing the place he
+# actually stands in; the repo speaks regions. Scaduview and the Hinterland were folded into Shadow
+# Keep on 2026-07-19, so they are the same region now.
+PLACE_TO_REGION = {
+    "Hinterland": "Shadow Keep",
+    "Scaduview": "Shadow Keep",
+    "Cerulean Coast": "Cerulean",
+    "Ancient Ruins of Rauh": "Ancient Ruins",
+    "Lirunia": "Liurnia",            # typo for Liurnia, kept so it resolves instead of FATALing
+}
+
+
 def _existing_verdicts():
     """{boss_entity: (verdict, reason)} carried forward from the worksheet already on disk.
 
@@ -68,9 +80,13 @@ def _existing_verdicts():
     keep = {}
     with open(OUT, encoding="utf-8") as f:
         for r in csv.DictReader((l for l in f if not l.startswith("#")), delimiter="\t"):
-            v, why = (r.get("verdict") or "").strip(), (r.get("reason") or "").strip()
-            if v or why:
-                keep[int(r["boss_entity"])] = (v, why)
+            # 🛑 arena_region IS THE RULING COLUMN. Alaric rules by replacing ABSENT with the place
+            # the boss actually stands in -- 76 of 83 on 2026-08-10 -- and asking him to restate it
+            # in a second column was me making him do the work twice. It is machine-generated on a
+            # FIRST emit and human-owned thereafter, so it must be preserved like any hand edit.
+            a, why = (r.get("arena_region") or "").strip(), (r.get("reason") or "").strip()
+            if a and a != "ABSENT":
+                keep[int(r["boss_entity"])] = (a, why)
     return keep
 
 
@@ -85,7 +101,8 @@ def _validate_verdicts(keep, regions):
         Ancient Ruins of Rauh  -> Ancient Ruins
         Lirunia                -> Liurnia       (typo)
     """
-    bad = sorted({v for v, _w in keep.values() if v and v not in regions})
+    bad = sorted({PLACE_TO_REGION.get(v, v) for v, _w in keep.values()
+                  if v and PLACE_TO_REGION.get(v, v) not in regions})
     if bad:
         raise SystemExit(
             "FATAL: verdict(s) %s are not region names. Use the REGION, not the in-game place: "
@@ -197,7 +214,8 @@ def main():
         name = BUNDLE_NAME.get(b) or name or "?"
         if tile == "?":
             tile = _tile_from_entity(b)
-        arena = SAR.get(b, "ABSENT")
+        # a preserved ruling WINS over the machine value -- otherwise the emit eats it
+        arena = KEEP[b][0] if b in KEEP else SAR.get(b, "ABSENT")
         overworld = tile[:3] in ("m60", "m61")
         # 🛑 ABSENT here is INFORMATION, not ignorance (Alaric, 2026-08-10): a boss with no fogwall
         # and no sealed arena has no PlayRegionParam boss-area overlay to derive one FROM. So the
@@ -211,7 +229,7 @@ def main():
         rows.append((b, name, tile, cls, n, members.get(b, 0),
                      SR.get(b, "?"), arena, has_arena, mismatch,
                      ";".join(sorted(claims[b])), "yes" if tile in graced else "no",
-                     *KEEP.get(b, ("", ""))))
+                     "", KEEP.get(b, ("", ""))[1]))
 
     tot = sum(cover.values())
     print("boss region worksheet: %d boss(es) cover %d of %d ambiguous checks (%.1f per decision)"
@@ -231,9 +249,10 @@ def main():
               "      NOT lost -- boss_verdict_tiles.tsv keeps its tiles -- but it can no longer be\n"
               "      edited here. Edit the tiles file directly if it needs to change."
               % (len(_lost), _lost))
-    _v = sum(1 for r in rows if r[12])
+    _v = sum(1 for r in rows if r[7] not in ("", "ABSENT")
+             and PLACE_TO_REGION.get(r[7], r[7]) != r[6])
     if _v:
-        print("  %d verdict(s) carried forward from the worksheet on disk" % _v)
+        print("  %d ruling(s) that RE-REGION (arena_region != derived_region)" % _v)
     cum = 0
     for k, r in enumerate(rows, 1):
         cum += r[4]
@@ -266,12 +285,14 @@ def main():
                     by_tile[_r["map_tile"]] = (_r["region"], int(_r["boss_entity"]),
                                                _r["boss_name"], _r["reason"])
         for r in rows:
-            b, verdict = r[0], r[12]
-            if not verdict:
-                continue
+            b, ruled, derived = r[0], r[7], r[6]
+            verdict = PLACE_TO_REGION.get(ruled, ruled)
+            if not ruled or ruled == "ABSENT" or verdict == derived:
+                continue          # blank/ABSENT or a confirmation -- nothing to move
             for t in sorted({x["map_tile"] for x in tri
                              if trig.get(int(x["ap_id"])) == b and x["how"] == "GUESSED"}):
-                by_tile.setdefault(t, (verdict, b, r[1], r[13]))
+                by_tile.setdefault(t, (verdict, b, r[1], r[13] or
+                                       "Alaric, worksheet arena_region pass 2026-08-10: %s" % ruled))
         with open(EXPAND, "w", encoding="utf-8", newline="\n") as f:
             f.write("# AUTO-EXPANDED from boss_region_worksheet.tsv by "
                     "tools/build_boss_region_worksheet.py --expand -- DO NOT EDIT.\n")
@@ -285,7 +306,7 @@ def main():
             for t, (v, b, nm, why) in sorted(by_tile.items()):
                 f.write("%s\t%s\t%d\t%s\t%s\n" % (t, v, b, nm, why))
         print("\n-> %s (%d tile(s) from %d verdict(s))"
-              % (EXPAND, len(by_tile), sum(1 for r in rows if r[12])))
+              % (EXPAND, len(by_tile), _v))
 
     if args.emit:
         with open(OUT, "w", encoding="utf-8", newline="\n") as f:
