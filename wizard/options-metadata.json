@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.3.11",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "3e5f25696c986ce32afebabf03d71fb6b2fcf9dbc88bbec64230369d08e16c09",
+ "source_sha256": "c30c8fccf56c51983f38d91e61095444894e5214b03f8171660d89b5f66f4451",
  "field_order": [
   "num_regions",
   "num_regions_order",
