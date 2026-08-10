@@ -495,10 +495,10 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  'Leyndell, Royal Capital':'Leyndell','Leyndell (Ashen Capital)':'Leyndell',   # Ashen rows are routed to FINALE_REGION by region_of before this table is consulted; the label stays only as a last-resort fallback
  'Nokron / Siofra (Ancestor Spirit)':'Siofra River',
  'Lake of Rot (Astel)':'Ainsel River','Deeproot Depths (Lichdragon Fortissax)':'Deeproot Depths','Fractured Marika (final)':'Leyndell',
- 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Stone Coffin',
+ 'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Cerulean',
  "Midra's Manse (DLC)":'Abyssal','Church of the Bud (DLC)':'Ancient Ruins','Castle Ensis (DLC)':'Ensis',
  'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Sewer',
- 'm22':'Stone Coffin','m28':'Abyssal'}
+ 'm22':'Cerulean','m28':'Abyssal'}
 
 # ---- SHOP-ROW REGION GROUND TRUTH (shop_rows.tsv col 9, tools/datamine_shop_rows.py) --------------
 # The merchant-block region of every derivable shop stock flag, normalized through REGION_MAP -- the
@@ -2410,8 +2410,10 @@ FLAG_REGION_OVERRIDE = {
     2047447610: "Ensis", 2047447700: "Ensis", 2047447710: "Ensis", 2047447720: "Ensis",
     2047447800: "Ensis", 2047447830: "Ensis", 2047447900: "Ensis", 2047447901: "Ensis",
     # ^ the complete 47,44 castle tile (6820 Ensis grace) -- the full set from tools/dev/check_vs_matt.py
-    # Tile 48,39 (graces 6830 Cerulean + 6840 Charo's): these 3 lots are the Charo's Hidden Grave side.
-    2048397030: "Charo's", 2048397040: "Charo's", 2048397050: "Charo's",
+    # Tile 48,39 pins (2048397030/40/50) and the 48,40 Spirit Glaive pin DELETED 2026-08-10: with
+    # Charo's merged into Cerulean both of that tile's graces (6830, 6840) name the same region,
+    # so the pins now agree with the derivation, and a redundant manual override is a failure.
+    # Same deletion reason as 68710/2047397040 on 2026-08-09.
     # GROUND-TRUTH tile splits, 2026-07-15: treasure MSB positions tested against the play-region
     # volumes (tools/datamine_grace_ground.py machinery). These stand INSIDE 6840000 volumes
     # ("dragon-mountain west" = Charo's Hidden Grave ground; bucket 68400 -> Charo's, the same
@@ -2422,8 +2424,6 @@ FLAG_REGION_OVERRIDE = {
     # a failure). That is also what the pins were evidence FOR -- they named two of the nine checks on
     # a tile the derivation was answering wrongly, and the other seven, including the Ash of War a
     # player reported, had no pin. test_gf_tile_row_region.py holds them as the acceptance case.
-    2048407010: "Charo's",             # Spirit Glaive (lot 2048400010, tile 48,40 -- the volume reaches
-                                       #   in; 48,40 has NO PlayRegionParam row, so this one stands)
     # ...and these two stand INSIDE 6830000 (Cerulean Coast) although their tile 49,38 files them
     # under Jagged Peak -- the reverse direction of the same class:
     68920: "Cerulean",                 # Finger-Weaver's Cookbook [1] (lot 2049380050, tile 49,38)
@@ -2522,7 +2522,7 @@ FLAG_REGION_OVERRIDE = {
     40017000: "Rauh Base",           # m40_01 Scorpion River Catacombs (grace bucket 6950 = Rauh Base)
     40027000: "Scadu Altus",                 # m40_02 Darklight Catacombs
     41007000: "Gravesite",             # m41_00 Belurat Gaol
-    41027000: "Charo's",               # m41_02 Lamenter's Gaol (grace bucket 6840 = Charo's Hidden Grave)
+    41027000: "Cerulean",              # m41_02 Lamenter's Gaol (grace bucket 6840, merged 2026-08-10)
     42007000: "Gravesite",             # m42_00 Ruined Forge (Lava Intake)
     42037000: "Rauh Base",           # m42_03 Taylew's Ruined Forge (grace bucket 6950 = Rauh Base)
     43007000: "Gravesite",             # m43_00 Rivermouth Cave

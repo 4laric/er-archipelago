@@ -20,7 +20,7 @@ game data (see **`PROVENANCE.md`** for the derivation, the foreign-list rule, an
 ## How progression works (the part everyone gets wrong)
 
 The world is **Shattered**: carved into major regions -- **17 in the base game,
-31 with the DLC** -- and each region is sealed behind an Archipelago item called
+28 with the DLC** -- and each region is sealed behind an Archipelago item called
 a **Region Lock** ("Limgrave Lock", "Caelid Lock", ...). You start at Roundtable
 Hold with one region already open. When a region's Lock arrives from the
 multiworld, that region opens: **all of its graces light up on your map, and you

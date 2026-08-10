@@ -125,9 +125,7 @@ GATE_CLAUSES = {
     "Gravesite": [("Remembrance of the Blood Lord",)],
     "Ensis": [("Remembrance of the Blood Lord",)],
     "Cerulean": [("Remembrance of the Blood Lord",)],
-    "Charo's": [("Remembrance of the Blood Lord",)],
     "Belurat": [("Remembrance of the Blood Lord",)],
-    "Stone Coffin": [("Remembrance of the Blood Lord",)],
     # --- DLC gated-deeper regions (each = DLC entry AND its own token) ---
     "Scadu Altus": [("Remembrance of the Blood Lord", "Remembrance of the Twin Moon Knight")],
     "Shadow Keep": [("Remembrance of the Blood Lord", "Aspects of the Crucible: Thorns")],

@@ -215,7 +215,7 @@ class LocationRegionsSlotData(unittest.TestCase):
         The first cut of `locationRegions` walked `[HUB] + kept` only, so those 10 got a flag and no
         region: the client's tracker could not group them, and `region_table.contains_key` is its
         "is this location ours?" test, so a hint for one of them from another player was DROPPED.
-        Caught by reading a smoke-test log -- 4869 locations across 31 regions, against 4879 flags.
+        Caught by reading a smoke-test log -- 4869 locations across 31 regions, against 4879 flags. (29 regions after the 2026-08-10 Cerulean merge; the location count is unchanged.)
         """
         # Full-region pool, so the base game is in play and the feature ARMS.
         loc_regions, coarse, loc_flags, region_open = self.emit(list(self.data.REGIONS))
