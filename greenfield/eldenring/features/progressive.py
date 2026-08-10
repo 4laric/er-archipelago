@@ -48,7 +48,43 @@ Ships three independent toggles (progressive_flasks default ON; the others defau
     Flags verified against vanilla_er/ShopLineupParam.csv (Twin Maiden shop 1018xx: item 10100 ->
     flag 280080, etc.). 1 copy of each is forced to sphere 0 (generate_early -> early_items) so the
     upgrade ramp opens at the start; the rest distribute normally. Copies past the last tier are
-    silent no-ops client-side (the k < tiers guard).
+    silent no-ops client-side (the k < tiers guard). The VANILLA bell bearings SUBSTITUTE to the
+    progressive item exactly as the flask checks do (vanilla_substitutions), so the pool cannot hold
+    both ladders at once -- before #539 it held BOTH, and a single vanilla `Somberstone Miner's Bell
+    Bearing [5]` handed the player the top rung on pickup. That does not degrade the ladder, it
+    BYPASSES it (boblerrr, live playtest 2026-08-10).
+
+WHY THE BELLS KEEP A COPY FLOOR AND THE FLASK DOES NOT (the _POOL_COUNTS ruling, #539)
+--------------------------------------------------------------------------------------
+PROG_FLASK deliberately has no _POOL_COUNTS entry: every copy comes from substitution, which is what
+makes it count-exact and lets the ladder length follow the checks the seed actually kept. #539
+proposed the same for the bells -- drop their _POOL_COUNTS and let substitution be the only source.
+REJECTED, for two reasons the vanilla data makes unavoidable:
+
+  * THE SOMBER LADDER WOULD BE PERMANENTLY ONE RUNG SHORT. `Somberstone Miner's Bell Bearing [1]`
+    does not exist in the vanilla item data (it is not a looted item), so the whole game holds only
+    FOUR somber bell checks against FIVE somber rungs. Pure substitution therefore caps the somber
+    ladder at 4 copies in EVERY seed, and rung 5 -- the Somber Smithing Stone [9] shop unlock, the
+    endgame material -- becomes unreachable. The flask has no analogue: its ladder LENGTH is a design
+    choice that bends to the copy count, the bells' is fixed by _BELL_GRANTS and cannot bend.
+  * A SEED CAN KEEP ZERO BELL CHECKS. The eight checks live in Altus, Liurnia, Mountaintops and Farum
+    Azula. A num_regions seed that keeps none of those -- or dlc_only, or item_shuffle off, where
+    core never walks the vanilla items at all -- would get a ZERO-copy ladder: the feature silently
+    inert, and generate_early asking AP to bias a sphere-0 copy that does not exist. This is exactly
+    the case flask_inject_count / DLC_ONLY_FLASK_COPIES exist for on the flask side.
+
+So the bells use the flask's OTHER half. Substitution supplies the copies (count-neutral, and it is
+what removes the vanilla bearings from the pool), and create_items TOPS UP to the ladder length --
+bell_inject_count. Total copies == len(_BELL_GRANTS[name]) in every seed, 4 smithing and 5 somber, so
+every rung is reachable and no copy is a dud. That also retires the old fixed count's 5th smithing
+copy, which had no rung to grant.
+
+THE SECOND SOURCE. Substitution alone does NOT empty the pool of vanilla bearings: features/
+presence_floor.py injects one copy of every roster item whose home region was not kept, and the bell
+bearings are on that roster -- which is why all 8 showed up even in a 4-region seed. With this toggle
+on, the progressive ladder IS the guaranteed supply (the floor above holds in every seed, including
+the dlc_only case presence_floor was written for), so that feature drops the bell bearings from its
+roster. Both edits are required; either one alone leaves the bypass in place.
 
 Every progressive copy is `useful`, NEVER progression -- Region Locks stay the sole progression gate,
 so winnability is unaffected. create_items adds a fixed count of copies per active item; core's
@@ -144,21 +180,38 @@ def _flasks_on(world) -> bool:
     return bool(o is not None and o.value)
 
 
-def _flask_check_count(world, regions) -> int:
-    """How many of `regions`' locations vanilla-hold a Golden Seed / Sacred Tear this seed. Mirrors
-    core's extras source (LOCATION_ITEM) and honours the DLC-off exclusion -- so it equals the
-    PROG_FLASK copies core.vanilla_substitutions adds for those regions."""
+def _shuffle_on(world) -> bool:
+    """item_shuffle -- core only walks the vanilla items (and therefore only SUBSTITUTES) when it is
+    on. A copy count derived from the walk has to agree with that or it will credit substituted
+    copies that core never made."""
+    o = getattr(world.options, "item_shuffle", None)
+    return bool(o is not None and o.value)
+
+
+def _kept_check_count(world, regions, names) -> int:
+    """How many of `regions`' locations vanilla-hold one of `names` this seed. Mirrors core's extras
+    source (LOCATION_ITEM) and honours the DLC-off exclusion -- so it equals the progressive copies
+    core.vanilla_substitutions adds for those regions. ONE walk, shared by the flask and the bells:
+    a second copy of it would be a second chance to disagree with core about what "kept" means."""
     if not LOCATION_ITEM:
         return 0
     excl = getattr(world, "gf_dlc_excluded", frozenset())
     name_to_id = getattr(world, "item_name_to_id", {})
+    names = frozenset(names)
     n = 0
     for rn in regions:
         for (_name, ap_id, _flag) in LOCATIONS.get(rn, []):
             nm = LOCATION_ITEM.get(ap_id)
-            if nm in VANILLA_FLASK_ITEMS and nm in name_to_id and nm not in excl:
+            if nm in names and nm in name_to_id and nm not in excl:
                 n += 1
     return n
+
+
+def _flask_check_count(world, regions) -> int:
+    """How many of `regions`' locations vanilla-hold a Golden Seed / Sacred Tear this seed. Mirrors
+    core's extras source (LOCATION_ITEM) and honours the DLC-off exclusion -- so it equals the
+    PROG_FLASK copies core.vanilla_substitutions adds for those regions."""
+    return _kept_check_count(world, regions, VANILLA_FLASK_ITEMS)
 
 
 def _substituted_flask_copies(world) -> int:
@@ -250,13 +303,35 @@ def flask_ladder(world) -> List[Dict[str, int]]:
 # honest outcome, not a bug). This is why PROG_FLASK has no _POOL_COUNTS entry.
 VANILLA_FLASK_ITEMS = ("Golden Seed", "Sacred Tear")
 
+# Vanilla pool items the progressive stone-bell ladders REPLACE, one-for-one, when
+# progressive_stone_bells is on (#539). These are ALL the bell bearings the vanilla item data has:
+# Smithing-Stone [1]-[4] and Somberstone [2]-[5]. `Somberstone Miner's Bell Bearing [1]` is absent
+# from the vanilla name catalog (it is not a looted item), which is why this is EIGHT names and not
+# nine -- and why the somber ladder needs an injected floor (see the module docstring's ruling).
+# test_gf_progressive asserts every name here resolves against the real item catalog, so a data
+# rename shrinks the substitution LOUDLY rather than silently putting the vanilla ladder back.
+VANILLA_BELL_ITEMS: Dict[str, str] = dict(
+    [("Smithing-Stone Miner's Bell Bearing [%d]" % i, PROG_SMITHING_BELL) for i in range(1, 5)]
+    + [("Somberstone Miner's Bell Bearing [%d]" % i, PROG_SOMBER_BELL) for i in range(2, 6)]
+)
+
 
 def vanilla_substitutions(world) -> Dict[str, str]:
-    """{vanilla item name -> progressive item name} for core's item_shuffle pool. Empty when off."""
+    """{vanilla item name -> progressive item name} for core's item_shuffle pool. Empty when every
+    substituting toggle is off.
+
+    TWO ladders substitute here, and both must, for the same reason: while a vanilla pickup that
+    grants a ladder's TOP RUNG outright is still in the pool, the ladder is not paced, it is bypassed
+    (#539). core.create_items reads this at the single place vanilla items are rewritten, so a name
+    added here leaves the pool everywhere by construction -- but only where core walks the vanilla
+    items at all, which is why presence_floor needs its own guard (see the module docstring)."""
+    subs: Dict[str, str] = {}
     opt = getattr(world.options, "progressive_flasks", None)
-    if not (opt is not None and opt.value):
-        return {}
-    return {n: PROG_FLASK for n in VANILLA_FLASK_ITEMS}
+    if opt is not None and opt.value:
+        subs.update({n: PROG_FLASK for n in VANILLA_FLASK_ITEMS})
+    if _bells_on(world):
+        subs.update(VANILLA_BELL_ITEMS)
+    return subs
 
 # ---- progressive stone-bell grant ladders (goods + shop-unlock flags) -------------------------
 # Each entry = {"goods": bell-bearing EquipParamGoods id, "flags": [Twin Maiden ShopLineupParam
@@ -286,11 +361,53 @@ _BELL_GRANTS: Dict[str, List[Dict[str, Any]]] = {
 # enough to stay comfortably count-neutral against the filler tail.
 _POOL_COUNTS: Dict[str, int] = {
     # PROG_FLASK is deliberately absent: its copies come from substituting the seed/tear checks the
-    # seed actually kept (see vanilla_substitutions), not from a fixed count.
+    # seed actually kept (see vanilla_substitutions), not from a fixed count. The two STONE BELLS
+    # left this table in #539 for the same reason -- they substitute now, so a fixed count would ADD
+    # copies on top of the substituted ones. They are not pure-substitution either: bell_inject_count
+    # tops them up to the ladder length, because the vanilla data cannot supply the somber ladder's
+    # 5th rung and a seed can keep zero bell checks. See the module docstring for the full ruling.
     PROG_STONESWORD_KEY: 6,
-    PROG_SMITHING_BELL: 5,   # 4 real tiers -> the 5th copy is a silent no-op (spreads the ramp)
-    PROG_SOMBER_BELL: 5,     # exactly 5 tiers
 }
+
+
+def _bells_on(world) -> bool:
+    o = getattr(world.options, "progressive_stone_bells", None)
+    return bool(o is not None and o.value)
+
+
+def bell_ladder_len(name: str) -> int:
+    """Rungs in this bell's grant ladder -- 4 smithing, 5 somber. _BELL_GRANTS is the ONLY definition
+    of how many copies are meaningful, so it is also the definition of how many copies to have."""
+    return len(_BELL_GRANTS.get(name, ()))
+
+
+def _substituted_bell_copies(world, name: str) -> int:
+    """Copies of `name` core.vanilla_substitutions puts in the pool == every kept check whose vanilla
+    item is one of that bell's vanilla bearings (HUB included, exactly as the flask counts it). Zero
+    when item_shuffle is off: core never walks the vanilla items, so it substitutes nothing."""
+    if not _bells_on(world) or not _shuffle_on(world):
+        return 0
+    kept = list(world._kept()) if hasattr(world, "_kept") else []
+    names = [v for v, prog in VANILLA_BELL_ITEMS.items() if prog == name]
+    return _kept_check_count(world, [HUB] + kept, names)
+
+
+def bell_copy_count(world, name: str) -> int:
+    """The number of copies of `name` this seed will actually have == the ladder length, in every
+    seed: substitution supplies at most 4 (the vanilla data holds only 4 checks per bell) and
+    create_items tops up the rest. max(), not a bare ladder length, so a future data regen that adds
+    a bell check cannot make this UNDERSTATE the pool and desync the count from what core built."""
+    if not _bells_on(world):
+        return 0
+    return max(bell_ladder_len(name), _substituted_bell_copies(world, name))
+
+
+def bell_inject_count(world, name: str) -> int:
+    """Copies of `name` THIS feature injects (create_items): the top-up between what substitution
+    supplied and the ladder length. Always >0 for the somber bell (4 vanilla checks, 5 rungs) and in
+    any seed that kept few bell checks; count-neutral either way, because core sizes the filler tail
+    as `total_locations - len(pool)` AFTER this runs."""
+    return max(0, bell_copy_count(world, name) - _substituted_bell_copies(world, name))
 
 # Copies of each progressive stone bell to FORCE into sphere 0 (no-item-reachable) via early_items,
 # so the upgrade ladder has a first rung at the start. Because the item is progressive, 1 early copy
@@ -326,11 +443,13 @@ class ProgressiveStoneswordKeys(Toggle):
 
 
 class ProgressiveStoneBells(Toggle):
-    """Off (default). On: add Progressive Smithing-Stone and Progressive Somberstone Miner's Bell
-    Bearing items (5 copies of each in the filler pool, 1 of each forced to sphere 0). Each copy you
-    receive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no hand-over),
-    so weapon upgrade materials come online as you find copies. Never gates logic (Region Locks are
-    the only progression), so this is always winnable."""
+    """Off (default). On: the vanilla Miner's Bell Bearings are replaced by two progressive
+    items -- Progressive Smithing-Stone and Progressive Somberstone Miner's Bell Bearing -- and each
+    copy you receive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no
+    hand-over). One copy of each is forced to sphere 0, so the upgrade ramp opens at the start, and
+    there are exactly as many copies as there are shop tiers to unlock (4 and 5), so no copy is
+    wasted and no single pickup skips you to the top. Never gates logic (Region Locks are the only
+    progression), so this is always winnable."""
     display_name = "Progressive Stone Bell Bearings"
 
 
@@ -421,6 +540,14 @@ class Progressive(Feature):
                 # seed/tear checks (inject 0). dlc_only-style (no flask check kept): inject a fixed
                 # count so the leveled ladder still has copies to advance. Count-neutral either way.
                 pool += [world.create_item(PROG_FLASK) for _ in range(flask_inject_count(world))]
+                continue
+            if name in _BELL_GRANTS:
+                # Same model as the flask, for the same reason: substituting the kept bell checks
+                # supplies the copies (count-neutral, and it is what takes the vanilla bearings OUT
+                # of the pool), and this tops up to the ladder length so every rung is reachable even
+                # in a seed that kept no bell check at all. #539 -- see the module docstring for why
+                # the bells need that floor when the flask's substitution-only model does not.
+                pool += [world.create_item(name) for _ in range(bell_inject_count(world, name))]
                 continue
             if name not in _POOL_COUNTS:
                 continue

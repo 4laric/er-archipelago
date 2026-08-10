@@ -167,6 +167,26 @@ least one of the items reaching the partner game is useful-classified. The old c
 reaching the partner and never looked at what they were, which is why it was green for the whole life
 of the bug.
 
+### Progressive Stone Bells no longer competes with the bell bearings it replaced
+
+If you turned on `progressive_stone_bells`, you were playing with **two** upgrade ladders at once. The
+progressive one paced you up the Twin Maidens' shop a rung at a time; the vanilla one was still lying
+around the world in eight pieces, and one of those pieces is `Somberstone Miner's Bell Bearing [5]` --
+the top of the somber shop. boblerrr found exactly that, in Enir-Ilim, in a live game on 2026-08-10.
+Picking it up did not degrade the ladder, it ended it: every progressive copy after it was a no-op.
+
+The vanilla bearings now become progressive copies, one for one, the same way Golden Seeds and Sacred
+Tears already become flask upgrades. With the option on you will not find a loose bell bearing at all.
+With it off nothing whatsoever has changed -- all eight are still out there.
+
+There are now exactly as many copies as there are shop tiers to unlock: four smithing, five somber.
+Previously it was five and five, so the fifth smithing copy had nothing left to give you. And the fifth
+*somber* rung is the reason this is not simply "stop adding copies": the game only ever hands out four
+somber bell bearings (there is no `[1]`), so a ladder built purely out of what you find would have
+stopped one rung short of Somber Smithing Stone [9] in every seed. It tops itself up instead, which
+also means the ladder works on a seed that kept none of the four regions those bearings live in --
+DLC-only included.
+
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
