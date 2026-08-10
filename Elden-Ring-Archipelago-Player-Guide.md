@@ -262,6 +262,16 @@ run rather than tune it.
 - **`filler_foreign_pct`** -- how much of your filler other worlds may draw
   from. It picks *which* filler at random per seed, so it can't be aimed;
   `keep_local` is the aimable version and they compose.
+- **`confine_foreign_progression`** -- the one that decides whether your gear is
+  worth receiving, which is not what the name suggests. It is a percentage: how
+  much of *other* players' progression is held to your progression surface. At
+  the default of 100 it also, as a side effect, means a non-Elden-Ring partner
+  receives **nothing from you but filler** -- no weapon, no armour, no talisman.
+  The rule is about your own locations, but it pushes the other game's keys back
+  into that game's own slots, and Archipelago fills those before it gets to the
+  good stuff. Measured beside Hollow Knight: 0% of what we sent was useful at
+  100, 23% at 75, 38% at 50. Lower it if your friends should be opening your
+  weapons; the cost is that their keys stop landing on your interesting checks.
 
 **How much am I actually sending out?** The wizard's *Seed size* tab shows the
 ceiling as you move those options -- how many of your items are permitted to

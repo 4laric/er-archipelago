@@ -20,7 +20,7 @@ WHAT THIS IS NOT. The members are NOT stranded and never were -- measured 2026-0
   * all 201 members of the 6 mismatched groups are ordinary rows in `data.LOCATIONS`, so each one
     is in `locationFlags` for its kept region and is collected by walking to it;
   * 0 of the 201 carry ANY location tag, so none is on any progression surface and
-    `confine_foreign_progression` (DefaultOnToggle) already refuses another player's advancement
+    `confine_foreign_progression` (a share, 100 by default) already refuses another player's advancement
     there -- the same measurement the gesture bar records in gen_data.py;
   * all 87 coordinate-bearing Hippo members sit in m21_00 = bucket 21000 = Shadow Keep ground, and
     all 53 coordinate-bearing Margit members in m10_00/m10_01 = Stormveil ground, so none of them
