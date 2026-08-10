@@ -97,12 +97,24 @@ def _pool_names(world):
 
 
 class ProgressiveOff(WorldTestBase):
-    game = GAME  # both toggles default off
+    game = GAME  # the bell/key toggles default off
 
-    def test_progressive_grants_empty_when_off(self):
+    def test_no_bell_or_key_grants_when_off(self):
+        """REVALIDATED 2026-08-10 (the tripwire's instruction). This used to assert
+        `progressiveGrants == {}`, which was true on 2026-07-11 and has been false ever since
+        `progressive_flasks` was frozen ON -- the flask ladder is always in there. The suite was
+        skipped for that whole period, so a test asserting a premise that had stopped holding sat
+        green-by-absence for a month. Assert the thing this class is actually about: the toggles
+        that are OFF contribute nothing."""
         sd = self.world.fill_slot_data()
         self.assertIn("progressiveGrants", sd)
-        self.assertEqual(sd["progressiveGrants"], {})
+        grants = sd["progressiveGrants"]
+        # WITNESS: the dict must be populated by SOMETHING, or "the bells are absent" is what an
+        # empty/missing key says too.
+        self.assertTrue(grants, "progressiveGrants is empty -- progressive_flasks is frozen ON, so "
+                                "its ladder should always be here; this assertion is now vacuous.")
+        for nm in (PROG_STONESWORD_KEY, PROG_SMITHING_BELL, PROG_SOMBER_BELL):
+            self.assertNotIn(nm, grants)
 
     def test_no_progressive_items_in_pool_when_off(self):
         names = set(_pool_names(self.world))
@@ -162,6 +174,18 @@ class ProgressiveStoneBellsOn(WorldTestBase):
             self.assertGreaterEqual(early.get(nm, 0), n, f"{nm} not forced into sphere 0")
 
     def test_pool_count_neutral(self):
-        from worlds.eldenring.data import HUB, LOCATIONS
-        total = sum(len(LOCATIONS.get(r, [])) for r in [HUB] + list(self.world._kept()))
+        """The toggle may add items, never CHANGE THE COUNT -- one pool item per location, always.
+
+        🛑 THE FINALE HAS TO BE TOLD. `_kept()` does not include FINALE_REGION: the Ashen Capital is
+        never rolled, it is created per-seed by features/finale.py. This test froze on 2026-07-11,
+        before that existed, and its total was 12 short of the pool for exactly that reason (4919 vs
+        4931 -- and the Ashen Capital ships 12 checks). Same omission the coverage gate had to be
+        taught. Revalidated 2026-08-10 when the freeze expired."""
+        from worlds.eldenring.data import HUB, LOCATIONS, FINALE_REGION
+        regions = [HUB] + list(self.world._kept())
+        if FINALE_REGION not in regions:
+            regions.append(FINALE_REGION)
+        total = sum(len(LOCATIONS.get(r, [])) for r in regions)
+        # WITNESS: a total of 0 would make the equality below say nothing.
+        self.assertGreater(total, 1000, "the location join collapsed -- this comparison is vacuous")
         self.assertEqual(len(_pool_names(self.world)), total)

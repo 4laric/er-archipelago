@@ -21,10 +21,10 @@
       "count": 34
     },
     {
-      "family": "frozen-progressive-bells-and-keys",
-      "why": "self-expiring freeze, same construction (test_gf_progressive.py): 20 suite tests + 1 tripwire.",
-      "pattern": "^progressive_stone_bells / progressive_stonesword_keys are FROZEN OFF",
-      "count": 21
+      "family": "frozen-progressive-stonesword-keys",
+      "why": "self-expiring freeze, now HALF expired. progressive_stone_bells was UNFROZEN 2026-08-10 (issue #506) and its 16 cases WOKE -- the wake is the good news the old note asked us to celebrate. progressive_stonesword_keys is still frozen and keeps its own class skip and its own tripwire, so this family is now keys-only: 5 skips, no tripwire (the keys tripwire RUNS and passes while they are frozen). Counted off the CI run that woke them, not derived -- WorldTestBase generates inherited cases per subclass, so the number cannot be worked out from the source.",
+      "pattern": "^progressive_stonesword_keys is FROZEN OFF",
+      "count": 5
     },
     {
       "family": "grace-region-dumps-windows-only",
