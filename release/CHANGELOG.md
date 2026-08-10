@@ -222,6 +222,76 @@ region and the location, and declines to name one when the resolved names disagr
 `release/CHANNELS.tsv`: **stable -> v0.3.9**, beta -> main for the new window. Two appended rows, no
 edits, per the file's own rule.
 
+### Your Region Locks can now end up in other players' games
+
+They could not before, and nobody had noticed, because nothing FORBADE it. `local_items` genuinely
+leaves Region Locks free to travel -- the option's own docstring says so -- and they still never
+went anywhere. Locality here was a PLACEMENT, not a rule: `progression_surface` pulls every one of
+your own progression items out of the multiworld pool before the general fill and places them on
+your own vetted checks. Only what it could not host went back to the pool, and it always could:
+~170 hosting locations against a ceiling of 36 items. The escape hatch existed and never opened.
+
+Measured on the previous build: **0 of 105 placed Locks reached another world** across eight
+two-player seeds, and **0 spill across 146 world-instances**. In the same seeds, 49.2% of everything
+else crossed worlds -- so the measurement was not blind, Locks specifically did not move.
+
+**New option: `progression_bias`, 0-100, default 0.** It is the share of your Locks reserved for
+your own Progression Surface. At the default nothing is reserved, and in a two-slot Elden Ring
+multiworld **44.4%** of Locks are placed in the other player's world (108 placed, 48 away, four
+seeds). 100 pins every Lock at home, which is exactly what previous versions did.
+
+**A travelling Lock is still curated.** It is held to the same Progression Surface everyone's
+progression is held to, so it lands on somebody's boss or remembrance rather than on a random
+crafting material. The knob that trades the curation itself away is still
+`confine_foreign_progression`, and it is deliberately a separate one -- lowering the bias changes
+WHOSE surface your key sits on, not whether it sits on one.
+
+Being stuck waiting on another player is the intended consequence, not a side effect.
+
+⭐ **What a tracker star means is correspondingly weaker**, and the client's wording has not caught
+up yet: the starred set is "a progression item can be here -- yours or another world's", no longer
+"your Locks are somewhere in here". `confine_foreign_progression` keeps every other player's
+advancement on that exact set, so it still bounds real progression.
+
+Cross-game is untouched: the placement pass only sees Elden Ring worlds, so a Lock bound for a
+Hollow Knight slot is simply one it did not place -- it goes to the general fill and lands anywhere.
+`CONTRACT_HASH` does not move; no client change is needed.
+
+🛑 The placement lives in `stage_pre_fill` rather than in an item rule, and that is not a detail.
+The first implementation was a rule barring released Locks from non-surface checks. It produced the
+same distribution and had NO SPILL, so three different seed shapes -- a narrowed surface,
+`num_regions: 1`, and a shifted filler pool -- each failed to generate, and each was missed by a
+different capacity threshold. Capacity was never the constraint: reachable capacity in sphere order
+is, and no count of open slots can see it. A real fill can, because it just tries, and what it
+cannot place spills. A seed can now lose curation; it can no longer lose generation.
+
+### A frozen setting could crash the spoiler at the very end of a successful generation
+
+Some settings are frozen -- they used to be yaml knobs and are now simply the behaviour -- and they
+are represented by a stand-in that deliberately refuses to answer questions it was not built for, so
+a degraded read announces itself instead of looking like absence.
+
+It refused one question too many. Archipelago's own spoiler writer walks every setting on every
+world and asks each one whether it should appear in the spoiler; the stand-in did not carry that
+answer, so it raised -- from inside the spoiler write, with the seed already filled. All the work
+done, then the write fails. Found by yaml fuzzing on `start_with_whetblades`; it predates the
+release that found it.
+
+The stand-in now answers, with "not visible", which is what a frozen setting is: not a choice you
+have, so not a choice a spoiler should record as one. `FROZEN_OPTIONS` remains the record of what
+the behaviour actually is. Measured: 60 fuzzed yamls that previously crashed once per twenty now run
+clean.
+
+Its error message also blamed the wrong place. It said a FEATURE had read the attribute, which sends
+you looking in this repo when the reader was Archipelago; it now names both.
+
+### The CI multiworld-smoke SKIP branch was dead code
+
+The step captured its exit code on the line after the command. GitHub runs those blocks under
+`bash -e`, so a non-zero exit aborted the step before the assignment -- the "partner world absent, so
+skip" tolerance had never once been reachable on Linux, and a skip was indistinguishable from a
+failure. It never bit because CI checks out upstream in full and the partner is always there.
+
 ## v0.3.9 — 2026-08-08
 
 Window opened the same day v0.3.8 shipped, and opened by a RED GATE rather than by anyone

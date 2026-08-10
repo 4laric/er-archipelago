@@ -39,6 +39,35 @@ The region you end in should not be the region you open in. It could be: on the 
 fixed for `goal: promised_consort` as well as for the default -- whatever your goal keeps, your run
 will not begin there.
 
+### Your Region Locks can end up in other players' games
+
+Until now they never did. Not because anything forbade it -- Elden Ring's own settings leave them
+free to travel -- but because they were quietly placed at home before the multiworld fill ever got a
+look at them. Measured on the last build: across eight two-player seeds, **not one of 105 Region
+Locks reached the other player**, while half of everything else did.
+
+There is a new setting, **Progression Bias**, and at its default your Locks are ordinary multiworld
+items. In a two-slot game a little under half of them end up in the other player's world, so you may
+well be waiting on somebody else to find your way into Liurnia. That is Archipelago working the way
+it is supposed to, and getting stuck behind someone is part of the deal.
+
+Turn it up if you would rather keep them: 100 pins every Lock at home, which is what every previous
+version did, and 40 reserves about 40% of them for you.
+
+**A Lock that travels is still on a check worth finding.** It is held to the same set of vetted
+locations everyone's progression is held to, so it lands on somebody's boss or remembrance rather
+than on a random crafting material -- just not necessarily yours. If you want progression scattered
+across ordinary pickups, that is a different setting and it is still there.
+
+One consequence worth knowing: the stars in your tracker now mean "a progression item can be here",
+which may be yours or another player's. They used to mean your Locks specifically.
+
+### A crash at the very end of generation
+
+If you were unlucky with settings, generation could do all its work, fill the whole seed, and then
+fail while writing the spoiler. That is fixed. It was found by fuzzing thousands of random settings
+combinations rather than by anyone hitting it, and it predates this release.
+
 ### Merchants now tell the multiworld what is on their shelf
 
 Open a merchant's buy menu and every check on that shelf that belongs to **another player** is
