@@ -70,6 +70,14 @@ class ArenaGraceExclusions(unittest.TestCase):
     def test_the_five_are_actually_emitted_to_players(self):
         """The point of the ruling: these graces reach the player."""
         src = open(GRACES, encoding="utf-8").read()
+        # WITNESS FIRST (test_gf_vacuous_pass). "missing == []" is also what an empty or unparsed
+        # region_graces.py says, and I made exactly this mistake in the sibling suite eight hours
+        # ago. Prove the corpus is there before asserting nothing is absent from it.
+        self.assertIn("REGION_GRACE_POINTS", src)
+        self.assertGreater(len(re.findall(r"^\s+'[^']+': \[", src, re.M)), 20,
+                           "region_graces.py holds fewer than 20 region bundles -- the assertion "
+                           "below would pass vacuously.")
+        self.assertTrue(RULED_NOT_AN_ARENA, "the ruled set is empty; nothing is being checked.")
         missing = sorted(f for f in RULED_NOT_AN_ARENA if not re.search(r"\b%d\b" % f, src))
         self.assertFalse(missing, "%s are not in region_graces.REGION_GRACE_POINTS, so no region "
                                   "lock lights them. Three of these are merchant shacks." % missing)
