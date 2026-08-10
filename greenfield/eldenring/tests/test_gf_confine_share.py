@@ -153,7 +153,16 @@ class ConfineSurfaceOff(WorldTestBase):
 
     def test_zero_share_installs_no_bar_at_all(self):
         """0 must be the same "feature inactive" state the old `false` produced, all the way down to
-        core not installing an item_rule -- not a bar that happens to say yes to everything."""
+        core not installing an item_rule -- not a bar that happens to say yes to everything.
+
+        The `assertGreater` is a WITNESS, in the sense test_gf_vacuous_pass.py means it: "no bar was
+        installed" is trivially true of a world with nothing to install it on, so the test has to say
+        out loud that it saw locations first."""
+        addressed = [loc for loc in self.multiworld.get_locations(self.player)
+                     if getattr(loc, "address", None) is not None]
+        self.assertGreater(len(addressed), 0,
+                           "this world has no addressed locations, so 'no foreign bar was "
+                           "installed' would pass over nothing")
         self.assertIsNone(confined_surface_ids(self.world))
         self.assertEqual(confine_pct(self.world), 0)
 

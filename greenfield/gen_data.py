@@ -4216,9 +4216,8 @@ QUEST_GATED_FLAGS |= set(_esd_gesture_flags) | set(_npc_gesture_flags)
 # ⭐ CORRECTED 2026-07-26 -- the first version of this comment justified the change with "AP's fill
 # can hand a gesture location another player's progression item and nothing objected". THAT IS
 # FALSE, and it is the exact failure this repo keeps paying for: a confident claim about a guard
-# nobody looked at. `features/progression_surface.confine_foreign_progression` is a NamedRange
-# defaulting to 100 and core._add_locations already bars FOREIGN advancement on every non-surface
-# check (at a share below 100, that share of it). MEASURED on
+# nobody looked at. `features/progression_surface.confine_foreign_progression` is a DefaultOnToggle
+# and core._add_locations already bars FOREIGN advancement on every non-surface check. MEASURED on
 # b18972e: 0 of the 32 gesture checks carry ANY location tag, so none is on the 198-location default
 # surface, so foreign progression was already refused there.
 #
@@ -4226,8 +4225,7 @@ QUEST_GATED_FLAGS |= set(_esd_gesture_flags) | set(_npc_gesture_flags)
 #   1. That bar explicitly EXEMPTS our own advancement -- progression_surface's ladder must be able
 #      to SPILL an unplaceable region Lock back into the normal pool, so a spilled Lock can land on
 #      a gesture check. `protect_missable_locations` bars advancement from ANY player and closes it.
-#   2. `confine_foreign_progression` is player-settable and not frozen; someone can set it to 0, or
-#      to any share below 100, and that share of foreign advancement stops being barred.
+#   2. `confine_foreign_progression` is player-settable and not frozen; someone can turn it off.
 #   3. An EMPTY progression surface makes `confined_surface_ids` return None = no foreign bar at all.
 # So: belt and suspenders, with the suspenders doing real work on the own-progression spill path.
 #
