@@ -12,10 +12,51 @@ of changes on purpose and fills as they arrive (rule 14).
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.10 client still handshakes with a v0.3.11 seed and vice versa.
 
+### New option: **Merchant Bells on Talk** (off by default)
+
+Open a merchant's shop and their Bell Bearing is handed to the Twin Maiden Husks for you, so their
+wares are on sale at the Roundtable Hold from then on. Asked for by **boblerrr** on the Nexus page
+(#325).
+
+You are NOT given the bell itself. Every Bell Bearing is a real Archipelago item in the pool, and
+handing you a vanilla copy would put a second one of a singleton in your bag; what the option
+delivers is the shop the bell would have unlocked. The bell stays worth finding -- it just arrives
+already spent, and the Maidens will no longer offer to take it.
+
+Your checks are unaffected either way: the Maidens open the merchant's OWN shop rows, not a copy of
+them, so a slot bought at the hub fires exactly the check it would have fired at the merchant.
+
+Covers 38 shops -- the roving merchants (Kale, the Nomadic / Isolated / Hermit / Abandoned /
+Imprisoned merchants) and the named vendors (Gostoc, Sellen, Seluvis, Patches, Blackguard, Thops,
+Corhyn, Miriel, D, Gowry, Rogier, Bernahl, Iji, Pidia, Moore, Ymir). It does NOT cover the peddlers
+whose bells add stock to the Maidens' own shelf, and it triggers on the regular buy menu only -- an
+Ash-of-War, tailoring or upgrade counter does not fire it.
+
+A seed with this on requires a client that supports it, and will refuse the connect and say so
+rather than quietly ignoring the setting.
+
 🛑 The v0.3.10 SHIPPED fixture row was owed at the tag and written here instead, one window late --
 the fifth window running that this has happened. It is recorded in `test_gf_contract_versions.py`
 rather than quietly fixed, because a step that five consecutive windows have missed is not something
 the next person will remember either.
+
+### Loading the wrong save no longer bricks the session until you restart the game
+
+If you load a save that belongs to a different seed, the client refuses it on purpose: nothing sends,
+nothing arrives, and a toast tells you so. That guard is right and it stays. What was wrong was the
+next sentence, which told you to load this room's save or start a fresh character — and neither one
+worked. The refusal was a one-way latch for the life of the process, so the brand-new character you
+rolled loaded into the same gated, silent session, with the same toast still on screen. It looked
+exactly like a broken install, and the only thing that actually fixed it was restarting the game.
+Nothing anywhere said that, so at least one person went and rebuilt the client instead.
+
+Quitting to the main menu now releases the refusal, and the next character you load arms normally and
+gets its start items. Loading the same wrong save again simply refuses again — the release re-asks the
+question rather than answering it, so the guard is exactly as strong as it was.
+
+One refusal deliberately does NOT release: the one you get when the room changes underneath a live
+session. That one has a reconciler already built for the old room, and re-arming it is not something
+the client can do safely, so its toast still says RESTART and it still means it.
 
 ### The shipped yaml template was 17 options behind the game
 
@@ -47,6 +88,10 @@ burn is the game's own event and it switches off Leyndell's grace warp points, s
 burning you cannot fast-travel into the capital even holding its Lock. The reconciler still gives
 you the Royal Capital back -- the *warp shortcut* is what the burn takes. Walk in from Altus through
 the main gate, touch a grace, and it returns.
+
+It caught an eighteenth on its first run, which is the best argument for it anyone could have
+written: `merchant_bells_on_talk` landed earlier in this same window and had not reached the
+template either. Documented here rather than quarantined.
 
 `KNOWN-ISSUES.md` was also still titled v0.3.7 at three consecutive tags. Retitled.
 

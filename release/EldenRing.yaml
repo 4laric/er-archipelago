@@ -126,6 +126,18 @@ Elden Ring:
   # get the warp back. See KNOWN-ISSUES.md.
   capital_reconciler: true
 
+  # MERCHANT SHOPS OPEN AT THE ROUNDTABLE WHEN YOU TALK TO THEIR OWNER.
+  # Open a merchant's shop and their Bell Bearing is handed to the Twin Maiden
+  # Husks for you, so that stock is on the Roundtable shelf from then on. You
+  # are NOT given the bell -- it stays in the multiworld as a real item for
+  # someone to find -- only the shop it would have unlocked. Covers the roving
+  # merchants and the named NPC vendors; the peddlers whose bells add stock to
+  # the Maidens' own shelf are not covered, and neither are the Ash-of-War,
+  # tailoring or upgrade counters.
+  # Off by default. A seed with this on REQUIRES a client that supports it and
+  # will say so at connect rather than quietly ignore the setting.
+  merchant_bells_on_talk: false
+
   # SCADUTREE BLESSING AS A GAME-WIDE POWER CURVE.
   #   off         -- vanilla (default). Blessing comes only from the Scadutree
   #                  Fragments you hold, and only inside the DLC.
@@ -294,6 +306,19 @@ Elden Ring:
   # bearings, and a lucky early Somber [8] can carry you to +7 in the first
   # area (reported by a player, 2026-08-10).
   progressive_stone_bells: false
+
+  # Items that make your run briefly worse. Empty (default) = none at all.
+  # A trap is FILLER: it never holds progression, and each one replaces a
+  # junk item, so your seed does not grow. In a multiworld somebody else may
+  # be the one who finds them.
+  #   rune_thief -- half your runes, gone.
+  #   no_flask   -- your flask heals nothing for 20s. You can still drink it;
+  #                 it just does nothing, and the charge is spent.
+  traps: []
+
+  # How many trap items to shuffle in, shared evenly between the traps you
+  # enabled above. Inert while `traps` is empty.
+  trap_count: 8
 
   # Share of YOUR filler that other players' worlds may draw from, in a
   # multiworld. 100 = fully shared. 0 = keep your filler to yourself.
