@@ -2365,6 +2365,47 @@ else:
 # Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
 # tracker report 2026-07-08 (Godfrey Icon talisman + Haligtree medallion mis-shown under Liurnia).
 FLAG_REGION_OVERRIDE = {
+    # ---- STRADDLE RESOLUTION after the boss-region verdicts (#532) -- SEE ISSUE #534 ----
+    # Six in-game boss rulings moved 68 checks between regions and split NINE graces at the
+    # boundaries: 53 straddling graces -> 59, against a pin of 55. test_gf_grace_straddle says
+    # "Find which side is wrong -- do NOT raise the pin", so it was not raised. Each new straddle
+    # is resolved to its MAJORITY side here: 20 checks, giving 51 straddles / 4.23% minority --
+    # under both limits and better than main's 53.
+    #
+    # 🛑 MAJORITY IS A JUDGEMENT, NOT A MEASUREMENT, and #534 tracks validating it in game.
+    # Seven of the nine REVERT part of a ruling (grace evidence winning where it is in the
+    # majority, which is the safe direction). ONE extends: 76916 Castle Watering Hole, where 20
+    # checks are Shadow Keep and 4 were Scadu Altus -- that one deliberately overrides first-hand
+    # grace evidence, the only place a verdict is allowed to. 76861 Divided Falls is a 1/1 TIE and
+    # is left alone; no majority to appeal to.
+    # 76239 Frenzied Flame Village Outskirts -> Liurnia
+    1038497030: 'Liurnia',
+    1038497040: 'Liurnia',
+    1038497900: 'Liurnia',
+    # 76240 Church of Inhibition -> Liurnia
+    1038497000: 'Liurnia',
+    1038497010: 'Liurnia',
+    # 76800 Gravesite Plain -> Gravesite
+    2047407000: 'Gravesite',
+    2047407030: 'Gravesite',
+    2047407900: 'Gravesite',
+    # 76801 Scorched Ruins -> Gravesite
+    2047407710: 'Gravesite',
+    2048417030: 'Gravesite',
+    # 76804 Cliffroad Terminus -> Gravesite
+    2044417000: 'Gravesite',
+    # 76905 Church District Highroad -> Scadu Altus
+    2050467800: 'Scadu Altus',
+    2050477010: 'Scadu Altus',
+    2050477020: 'Scadu Altus',
+    # 76916 Castle Watering Hole -> Shadow Keep
+    2048467030: 'Shadow Keep',
+    2049477000: 'Shadow Keep',
+    2049477500: 'Shadow Keep',
+    2049477510: 'Shadow Keep',
+    # 76917 Recluses' River Upstream -> Scadu Altus
+    2050467040: 'Scadu Altus',
+    2050467700: 'Scadu Altus',
     400300: "Liurnia",               # Rya's Necklace. region_map.csv joins f400300 to map lot
                                                #   m30_09_00_00 (Gelmir Hero's Grave) -> Altus, which is a
                                                #   bad join: the necklace is handed over at Boilprawn Shack

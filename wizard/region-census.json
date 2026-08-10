@@ -65,7 +65,7 @@
    "rollable": true
   },
   "Altus": {
-   "checks": 359,
+   "checks": 354,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss": 12,
@@ -141,7 +141,7 @@
    "rollable": true
   },
   "Cerulean": {
-   "checks": 101,
+   "checks": 96,
    "combos": {
     "Boss|FieldBoss": 2,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -200,7 +200,7 @@
    "rollable": true
   },
   "Gravesite": {
-   "checks": 201,
+   "checks": 207,
    "combos": {
     "Basin": 1,
     "Boss": 3,
@@ -229,7 +229,7 @@
    "rollable": true
   },
   "Jagged Peak": {
-   "checks": 39,
+   "checks": 38,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
@@ -272,7 +272,7 @@
    "rollable": true
   },
   "Liurnia": {
-   "checks": 566,
+   "checks": 571,
    "combos": {
     "Basin": 2,
     "Basin|Boss|FieldBoss": 1,
@@ -375,7 +375,7 @@
    "rollable": false
   },
   "Scadu Altus": {
-   "checks": 230,
+   "checks": 231,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -385,7 +385,7 @@
     "Fragment": 8,
     "KeyItem": 1,
     "Legendary": 1,
-    "Revered": 1,
+    "Revered": 2,
     "Shop": 8
    },
    "dlc": true,
@@ -404,7 +404,7 @@
    "rollable": true
   },
   "Shadow Keep": {
-   "checks": 298,
+   "checks": 297,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -412,7 +412,7 @@
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Fragment": 9,
     "Legendary": 1,
-    "Revered": 3
+    "Revered": 2
    },
    "dlc": true,
    "parent": null,
@@ -463,5 +463,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "f863ba1795febaec352fe3f2eb7b98326d9f99eb407274dec1d78902613ce2b7"
+ "source_sha256": "d2570e380f97861b0938f18b10e785569304a33ab8a23ef430ab5aa28d8af58b"
 }

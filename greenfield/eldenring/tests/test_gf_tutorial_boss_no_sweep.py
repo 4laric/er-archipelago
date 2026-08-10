@@ -494,8 +494,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     Ancient Ruins, plus Jagged Peak Drake, Godefroy, Jori, Marigga) and each took its sweep
     membership with it. Romina -> Dancing Lion 30, Dancing Lion -> Rugalea 13, Ralva -> Tree
     Sentinel 12. NOTHING entered or left the swept corpus -- only who grants what changed, which
-    is the shape this digest was added to make visible."""
+    is the shape this digest was added to make visible.
+
+    2026-08-10 (#532 again, the straddle resolution): digest bd5147a4 -> 0f647980, n 3732 -> 3732.
+    The verdicts split nine graces at region boundaries (53 -> 59 straddles, pin 55), so the nine
+    were resolved to their MAJORITY side -- 20 checks, see issue #534 -- which moved ownership a
+    third time. Straddles land at 51 and minority at 4.23%, both under the limits and better than
+    main. Still ADDED 0 / REMOVED 0: every movement today has been a permutation."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("bd5147a4c5940c11", 3732), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (bd5147a4c5940c11, 3732). The total alone will "
+    assert (digest, n) == ("0f647980f487ba0d", 3732), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (0f647980f487ba0d, 3732). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
