@@ -394,8 +394,17 @@ def test_the_sweep_corpus_did_not_shrink():
     # re-phased around a larger pool, exactly the #363 effect. SWEEP_REGION is 'Shadow Keep' on both
     # sides for all three, so that is a pacing change and not a reachability one.
     # The same +3 regen ALSO moved 133 existing members to a different boss.
-    assert total == 3726, (
-        "sweep corpus is %d, expected 3726. If a sweep was legitimately added or removed, say WHY "
+    # +6 (2026-08-09, TILE_ROW_REGION -- a graceless tile regioned by PlayRegionParam's own row)
+    # 3726 -> 3732. NOT a sweep change: 219 triggers before and after, and no check was created or
+    # destroyed. Twenty-two checks moved region, and the swept SHARE of a region is a function of its
+    # check count and its trigger count, so moving seven checks out of Cerulean and into Charo's
+    # (50 -> 43 checks / 3 -> 2 triggers, and 20 -> 27 / 1 -> 2) lets the round-robin remainder reach
+    # six checks in Charo's it could not reach before. ADDED 6, REMOVED 0, all six in Charo's --
+    # diffed by (trigger, flag) against main, not inferred from the total.
+    # The Gravesite -> Rauh Base thirteen did NOT churn: their trigger (2046450800) changed region
+    # with them, so they keep the same owner and the group stops being one of #445's six.
+    assert total == 3732, (
+        "sweep corpus is %d, expected 3732. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -457,10 +466,20 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     of all three, so they stayed inside their region. Added by region: Shadow Keep 39, Siofra River
     13.
 
+    2026-08-09 (TILE_ROW_REGION, the graceless-tile regioning fix): n 3726 -> 3732. ADDED 6,
+    REMOVED 0, RE-OWNED 53 -- and ZERO of the 53 changed the REGION of their sweep, checked the way
+    this docstring says to, per-check on both sides of SWEEP_REGION. The re-ownership is the divvy
+    re-phasing again: two regions changed size (Cerulean 50 -> 43 checks, Charo's 20 -> 27; Gravesite
+    161 -> 152 members, Rauh Base 67 -> 76), so the modulus moved under the members that stayed. All
+    six ADDED are in Charo's, which gained a second trigger along with the checks. The thirteen
+    Gravesite -> Rauh Base checks appear in NONE of the three sets: their trigger 2046450800 moved
+    region with them, so nothing was re-owned -- which is the same fact as #445 losing one of its six
+    mismatched groups.
+
     WHEN THIS FAILS: diff DUNGEON_SWEEPS by (trigger, flag) across the regen and record ADDED,
     REMOVED and RE-OWNED separately. For the re-owned, check SWEEP_REGION on both sides: staying
     inside one region is a pacing change, leaving it is a reachability bug."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("70d8236205692140", 3726), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (665d2e19fa4a1f16, 3677). The total alone will "
+    assert (digest, n) == ("1652af0db3e9b0ea", 3732), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (1652af0db3e9b0ea, 3732). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
