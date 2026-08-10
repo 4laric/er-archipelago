@@ -10,7 +10,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1048370800	Decaying Ekzykes	m60_48_37	field	21	26	Caelid	ABSENT	no		Caelid	yes		
 2049450800	Ralva the Great Red Bear	m61_49_45	legacy	16	29	Scadu Altus	ABSENT	no		Scadu Altus	no		
 1248550800	?	m60_48_55	?	14	30	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
-2050470800	Tree Sentinel	m61_50_47	legacy	14	28	Scadu Altus	ABSENT	no		Scadu Altus	no		
+2050470800	Tree Sentinel	m61_50_47	legacy	14	28	Scadu Altus	ABSENT	no		Scadu Altus	no	Shadow Keep	Alaric, in-game 2026-08-10: the Tree Sentinel stands in the HINTERLAND. Corroborated by bobler's kick log (play_region 6930000, sub 69300, no kick on the Shadow Keep lock) and by region_groups giving 69300 to Shadow Keep. Its 28 sweep members currently ship as Scadu Altus -- that is #523.
 1041530800	Wormface	m60_41_53	field	13	22	Altus	ABSENT	no		Altus	no		
 1050560800	Great Wyrm Theodorix	m60_50_56	field	12	25	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
 1034450800	Glintstone Dragon Smarag	m60_34_45	field	9	18	Liurnia	ABSENT	no		Liurnia	no		
@@ -43,7 +43,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1038480800	Erdtree Avatar	m60_38_48	field	4	21	Liurnia	ABSENT	no		Liurnia	yes		
 1042360800	Tree Sentinel	m60_42_36	field	4	15	Limgrave	ABSENT	no		Limgrave	yes		
 1050570800	Death Rite Bird	m60_50_57	field	4	7	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
-2046400800	Demi-Human Queen Marigga	m61_46_40	legacy	4	22	Gravesite	ABSENT	no		Gravesite	yes		
+2046400800	Demi-Human Queen Marigga	m61_46_40	legacy	4	22	Gravesite	ABSENT	no		Gravesite	yes	Cerulean	Alaric, in-game 2026-08-10: Demi-Human Queen Marigga is on the CERULEAN COAST, not Gravesite. New finding, no issue yet.
 1039540800	Elemer of the Briar	m60_39_54	field	3	38	Altus	Altus	yes	ok	Altus	yes		
 1042380800	Deathbird	m60_42_38	field	3	17	Limgrave	ABSENT	no		Limgrave	yes		
 1042330800	Ancient Hero of Zamor	m60_42_33	field	3	11	Weeping	ABSENT	no		Weeping	yes		
@@ -52,7 +52,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1050570850	Putrid Avatar	m60_50_57	field	3	5	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
 1049380800	?	m60_49_38	?	3	14	Caelid	ABSENT	no		Caelid	yes		
 1051570800	Commander Niall	m60_51_57	field	3	38	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	yes		
-2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	3	19	Rauh Base	ABSENT	no		Rauh Base	no		
+2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	3	19	Rauh Base	ABSENT	no		Rauh Base	no	Ancient Ruins	Alaric, in-game 2026-08-10: the deathblight Divine Beast Dancing Lion is in the ANCIENT RUINS OF RAUH. Three independent sources agree -- this ruling, the check descriptions ('near Rauh Ancient Ruins, East'), and point-in-volume on 2046467010 (datamine_check_ground --triage). Members ship as Rauh Base -- that is #527.
 2054390850	Ancient Dragon Senessax	m61_54_39	legacy	3	7	Jagged Peak	ABSENT	no		Jagged Peak	yes		
 1034420800	Glintstone Dragon Adula	m60_34_42	field	2	17	Liurnia	ABSENT	no		Liurnia	yes		
 1033450800	Bols, Carian Knight	m60_33_45	field	2	7	Liurnia	ABSENT	no		Liurnia	no		

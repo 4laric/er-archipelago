@@ -55,6 +55,43 @@ GF = os.path.join(ROOT, "greenfield")
 OUT = os.path.join(GF, "boss_region_worksheet.tsv")
 
 
+def _existing_verdicts():
+    """{boss_entity: (verdict, reason)} carried forward from the worksheet already on disk.
+
+    🛑 WITHOUT THIS THE TOOL EATS THE HUMAN'S WORK. It rewrites the file wholesale, so a re-emit
+    after someone fills in verdicts would silently discard every ruling -- and the file would still
+    look fine, just emptier. That is #531's shape aimed at the one column a machine cannot produce.
+    """
+    if not os.path.isfile(OUT):
+        return {}
+    keep = {}
+    with open(OUT, encoding="utf-8") as f:
+        for r in csv.DictReader((l for l in f if not l.startswith("#")), delimiter="\t"):
+            v, why = (r.get("verdict") or "").strip(), (r.get("reason") or "").strip()
+            if v or why:
+                keep[int(r["boss_entity"])] = (v, why)
+    return keep
+
+
+def _validate_verdicts(keep, regions):
+    """A verdict must name a REGION, not a place. Alaric's first pass annotated 'Hinterland',
+    'Cerulean Coast', 'Ancient Ruins of Rauh', 'Scaduview' and 'Lirunia' -- in-game place names, and
+    one typo. Four map onto regions and one does not exist; accepting any of them silently would
+    write a phantom region into whatever consumes this.
+
+        Hinterland, Scaduview  -> Shadow Keep   (Scaduview folded 2026-07-19)
+        Cerulean Coast         -> Cerulean
+        Ancient Ruins of Rauh  -> Ancient Ruins
+        Lirunia                -> Liurnia       (typo)
+    """
+    bad = sorted({v for v, _w in keep.values() if v and v not in regions})
+    if bad:
+        raise SystemExit(
+            "FATAL: verdict(s) %s are not region names. Use the REGION, not the in-game place: "
+            "Hinterland/Scaduview -> 'Shadow Keep', Cerulean Coast -> 'Cerulean', Ancient Ruins of "
+            "Rauh -> 'Ancient Ruins'. A phantom region here would propagate silently." % bad)
+
+
 def _tile_from_entity(ent):
     """Tile decoded from the trigger id, for entries boss_healthbars does not key.
 
@@ -134,6 +171,12 @@ def main():
               if l[:1].isdigit()}
 
     BUNDLE_NAME = _names_from_bundle()
+    KEEP = _existing_verdicts()
+    _rg = open(os.path.join(GF, "region_groups.py"), encoding="utf-8").read()
+    _i = _rg.index("REGION_GROUPS = {")
+    _regions = set(re.findall(r'"([^"]+)":\s*\(',
+                              re.sub(r"#[^\n]*", "", _rg[_i:_rg.index(chr(10) + "}", _i)]))) | {"Roundtable Hold"}
+    _validate_verdicts(KEEP, _regions)
 
     cover, claims = Counter(), defaultdict(set)
     orphan = 0
@@ -164,7 +207,8 @@ def main():
         mismatch = "" if arena == "ABSENT" else ("MISMATCH" if arena != SR.get(b) else "ok")
         rows.append((b, name, tile, cls, n, members.get(b, 0),
                      SR.get(b, "?"), arena, has_arena, mismatch,
-                     ";".join(sorted(claims[b])), "yes" if tile in graced else "no", "", ""))
+                     ";".join(sorted(claims[b])), "yes" if tile in graced else "no",
+                     *KEEP.get(b, ("", ""))))
 
     tot = sum(cover.values())
     print("boss region worksheet: %d boss(es) cover %d of %d ambiguous checks (%.1f per decision)"
@@ -176,6 +220,9 @@ def main():
           % (len(rows) - _noarena, sum(1 for r in rows if r[9] == "MISMATCH")))
     print("  %d boss(es) whose ambiguous checks claim MORE THAN ONE region (a straddle)"
           % sum(1 for r in rows if ";" in r[10]))
+    _v = sum(1 for r in rows if r[12])
+    if _v:
+        print("  %d verdict(s) carried forward from the worksheet on disk" % _v)
     cum = 0
     for k, r in enumerate(rows, 1):
         cum += r[4]
