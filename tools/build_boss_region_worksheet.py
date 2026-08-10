@@ -223,6 +223,14 @@ def main():
           % (len(rows) - _noarena, sum(1 for r in rows if r[9] == "MISMATCH")))
     print("  %d boss(es) whose ambiguous checks claim MORE THAN ONE region (a straddle)"
           % sum(1 for r in rows if ";" in r[10]))
+    _seen_b = {r[0] for r in rows}
+    _lost = sorted(b for b in KEEP if b not in _seen_b)
+    if _lost:
+        print("  ⚠️  %d verdict(s) belong to a boss that is NO LONGER on this sheet: %s\n"
+              "      That happens because applying a verdict CHANGES sweep membership. The ruling is\n"
+              "      NOT lost -- boss_verdict_tiles.tsv keeps its tiles -- but it can no longer be\n"
+              "      edited here. Edit the tiles file directly if it needs to change."
+              % (len(_lost), _lost))
     _v = sum(1 for r in rows if r[12])
     if _v:
         print("  %d verdict(s) carried forward from the worksheet on disk" % _v)
@@ -247,6 +255,16 @@ def main():
         # so every check on a guessed tile is guessed. Moving the tile moves exactly the checks the
         # verdict is about and nothing else.
         by_tile = {}
+        # 🛑 UNION WITH WHAT IS ALREADY DECIDED. Applying a verdict CHANGES SWEEP MEMBERSHIP (members
+        # are filtered to the sweep's region), which can drop the boss off this worksheet entirely --
+        # Marigga did, 2026-08-10 -- and a re-derived expansion would then quietly forget her tiles
+        # and revert her 10 checks on the next regen. The tiles file is a DECISION, not a view: it
+        # only ever grows, and a removal has to be a deliberate edit.
+        if os.path.isfile(EXPAND):
+            with open(EXPAND, encoding="utf-8") as _ef:
+                for _r in csv.DictReader((l for l in _ef if not l.startswith("#")), delimiter="\t"):
+                    by_tile[_r["map_tile"]] = (_r["region"], int(_r["boss_entity"]),
+                                               _r["boss_name"], _r["reason"])
         for r in rows:
             b, verdict = r[0], r[12]
             if not verdict:

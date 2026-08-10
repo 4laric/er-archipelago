@@ -6,11 +6,10 @@
 # tile_has_grace no = the boss's own region is a guess too, so its derived value
 #   is NOT independent evidence -- those are the rows where a human is load-bearing.
 boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	arena_region	has_arena	arena_vs_members	claimed_regions	tile_has_grace	verdict	reason
+2050470800	Tree Sentinel	m61_50_47	legacy	25	30	Shadow Keep	ABSENT	no		Scadu Altus	no	Shadow Keep	Alaric, in-game 2026-08-10: the Tree Sentinel stands in the HINTERLAND. Corroborated by bobler's kick log (play_region 6930000, sub 69300, no kick on the Shadow Keep lock) and by region_groups giving 69300 to Shadow Keep. Its 28 sweep members currently ship as Scadu Altus -- that is #523.
 1045390800	Tibia Mariner	m60_45_39	field	21	24	Limgrave	ABSENT	no		Limgrave	no		
 1048370800	Decaying Ekzykes	m60_48_37	field	21	26	Caelid	ABSENT	no		Caelid	yes		
-2049450800	Ralva the Great Red Bear	m61_49_45	legacy	16	29	Scadu Altus	ABSENT	no		Scadu Altus	no		
 1248550800	?	m60_48_55	?	14	30	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
-2050470800	Tree Sentinel	m61_50_47	legacy	14	28	Scadu Altus	ABSENT	no		Scadu Altus	no	Shadow Keep	Alaric, in-game 2026-08-10: the Tree Sentinel stands in the HINTERLAND. Corroborated by bobler's kick log (play_region 6930000, sub 69300, no kick on the Shadow Keep lock) and by region_groups giving 69300 to Shadow Keep. Its 28 sweep members currently ship as Scadu Altus -- that is #523.
 1041530800	Wormface	m60_41_53	field	13	22	Altus	ABSENT	no		Altus	no		
 1050560800	Great Wyrm Theodorix	m60_50_56	field	12	25	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
 1034450800	Glintstone Dragon Smarag	m60_34_45	field	9	18	Liurnia	ABSENT	no		Liurnia	no		
@@ -19,31 +18,33 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1038520800	Tibia Mariner	m60_38_52	field	8	11	Altus	ABSENT	no		Altus	no		
 1043530800	Bell Bearing Hunter	m60_43_53	field	8	20	Altus	ABSENT	no		Altus	yes		
 1048570800	Death Rite Bird	m60_48_57	field	8	30	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	yes		
-2044470800	Rugalea the Great Red Bear	m61_44_47	legacy	8	25	Rauh Base	ABSENT	no		Rauh Base	no		
+2044470800	Rugalea the Great Red Bear	m61_44_47	legacy	8	38	Rauh Base	ABSENT	no		Rauh Base	no		
 2045440800	Ghostflame Dragon	m61_45_44	legacy	8	27	Gravesite	ABSENT	no		Gravesite	no		
 2046380800	Dancer of Ranah	m61_46_38	legacy	8	12	Cerulean	Cerulean	yes	ok	Cerulean	no		
-2046410800	Knight of the Solitary Gaol	m61_46_41	legacy	8	27	Gravesite	Gravesite	yes	ok	Gravesite	no		
-2049410800	Jagged Peak Drake	m61_49_41	legacy	8	18	Gravesite	ABSENT	no		Gravesite	no		
+2047390800	Death Rite Bird	m61_47_39	legacy	8	26	Cerulean	ABSENT	no		Cerulean;Gravesite	no		
+2049410800	Jagged Peak Drake	m61_49_41	legacy	8	17	Gravesite	ABSENT	no		Gravesite	no	Jagged Peak	Alaric, in-game 2026-08-10 (worksheet arena_region pass): the Jagged Peak Drake is on the JAGGED PEAK. Members ship as Gravesite.
 1036450800	Death Rite Bird	m60_36_45	field	7	20	Liurnia	ABSENT	no		Liurnia	yes		
 1041510800	Tree Sentinel	m60_41_51	field	7	11	Altus	ABSENT	no		Altus	no		
 1042550800	Godskin Apostle	m60_42_55	field	7	8	Altus	ABSENT	no		Altus	yes		
 1044350800	Bloodhound Knight Darriwil	m60_44_35	field	7	18	Limgrave	ABSENT	no		Limgrave	yes		
 1044360800	Mad Pumpkin Head	m60_44_36	field	7	33	Limgrave	Limgrave	yes	ok	Limgrave	yes		
-2047450800	Black Knight Garrew	m61_47_45	legacy	7	22	Scadu Altus	ABSENT	no		Scadu Altus	yes		
-1039500800	Godefroy the Grafted	m60_39_50	field	6	9	Liurnia	ABSENT	no		Liurnia	no		
+2047450800	Black Knight Garrew	m61_47_45	legacy	7	23	Scadu Altus	ABSENT	no		Scadu Altus	yes		
+1039500800	Godefroy the Grafted	m60_39_50	field	6	9	Liurnia	ABSENT	no		Liurnia	no	Altus	Alaric, in-game 2026-08-10 (worksheet arena_region pass): Godefroy the Grafted is the Golden Lineage Evergaol, in ALTUS. Members ship as Liurnia.
 1049520800	Black Blade Kindred	m60_49_52	field	6	14	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
 1036540800	Full-Grown Fallingstar Beast	m60_36_54	field	5	14	Mt. Gelmir	ABSENT	no		Mt. Gelmir	yes		
 1043330800	Erdtree Avatar	m60_43_33	field	5	20	Weeping	ABSENT	no		Weeping	no		
 1044320850	?	m60_44_32	?	5	16	Weeping	ABSENT	no		Weeping	no		
 1051400800	Putrid Avatar	m60_51_40	field	5	9	Caelid	ABSENT	no		Caelid	no		
+2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	5	33	Ancient Ruins	ABSENT	no		Ancient Ruins;Rauh Base	no	Ancient Ruins	Alaric, in-game 2026-08-10: the deathblight Divine Beast Dancing Lion is in the ANCIENT RUINS OF RAUH. Three independent sources agree -- this ruling, the check descriptions ('near Rauh Ancient Ruins, East'), and point-in-volume on 2046467010 (datamine_check_ground --triage). Members ship as Rauh Base -- that is #527.
 2048380850	Ghostflame Dragon	m61_48_38	legacy	5	18	Cerulean	ABSENT	no		Cerulean	no		
+2046410800	Knight of the Solitary Gaol	m61_46_41	legacy	5	24	Gravesite	Gravesite	yes	ok	Gravesite	no		
+2049450800	Ralva the Great Red Bear	m61_49_45	legacy	5	26	Scadu Altus	ABSENT	no		Scadu Altus	no		
 2054390800	Bayle the Dread	m61_54_39	legacy	5	7	Jagged Peak	Jagged Peak	yes	ok	Jagged Peak	yes		
-2052430800	Jori, Elder Inquisitor	m61_52_43	legacy	5	11	Abyssal	Scadu Altus	yes	MISMATCH	Abyssal	yes		
+2052430800	Jori, Elder Inquisitor	m61_52_43	legacy	5	11	Abyssal	Scadu Altus	yes	MISMATCH	Abyssal	yes	Scadu Altus	Alaric, in-game 2026-08-10 (worksheet arena_region pass): Jori, Elder Inquisitor sits in SCADU ALTUS. Members ship as Abyssal; the committed boss_area_regions.tsv row (2052430800 -> 40020 Scadu Altus) agrees independently, and gen already flags this pair as one of its 5 arena/member mismatches.
 1035530800	Magma Wyrm	m60_35_53	field	4	23	Mt. Gelmir	ABSENT	no		Mt. Gelmir	yes		
 1038480800	Erdtree Avatar	m60_38_48	field	4	21	Liurnia	ABSENT	no		Liurnia	yes		
 1042360800	Tree Sentinel	m60_42_36	field	4	15	Limgrave	ABSENT	no		Limgrave	yes		
 1050570800	Death Rite Bird	m60_50_57	field	4	7	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
-2046400800	Demi-Human Queen Marigga	m61_46_40	legacy	4	22	Gravesite	ABSENT	no		Gravesite	yes	Cerulean	Alaric, in-game 2026-08-10: Demi-Human Queen Marigga is on the CERULEAN COAST, not Gravesite. New finding, no issue yet.
 1039540800	Elemer of the Briar	m60_39_54	field	3	38	Altus	Altus	yes	ok	Altus	yes		
 1042380800	Deathbird	m60_42_38	field	3	17	Limgrave	ABSENT	no		Limgrave	yes		
 1042330800	Ancient Hero of Zamor	m60_42_33	field	3	11	Weeping	ABSENT	no		Weeping	yes		
@@ -52,7 +53,6 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1050570850	Putrid Avatar	m60_50_57	field	3	5	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
 1049380800	?	m60_49_38	?	3	14	Caelid	ABSENT	no		Caelid	yes		
 1051570800	Commander Niall	m60_51_57	field	3	38	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	yes		
-2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	3	19	Rauh Base	ABSENT	no		Rauh Base	no	Ancient Ruins	Alaric, in-game 2026-08-10: the deathblight Divine Beast Dancing Lion is in the ANCIENT RUINS OF RAUH. Three independent sources agree -- this ruling, the check descriptions ('near Rauh Ancient Ruins, East'), and point-in-volume on 2046467010 (datamine_check_ground --triage). Members ship as Rauh Base -- that is #527.
 2054390850	Ancient Dragon Senessax	m61_54_39	legacy	3	7	Jagged Peak	ABSENT	no		Jagged Peak	yes		
 1034420800	Glintstone Dragon Adula	m60_34_42	field	2	17	Liurnia	ABSENT	no		Liurnia	yes		
 1033450800	Bols, Carian Knight	m60_33_45	field	2	7	Liurnia	ABSENT	no		Liurnia	no		
@@ -71,9 +71,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1049390850	Battlemage Hugues	m60_49_39	field	2	11	Caelid	ABSENT	no		Caelid	yes		
 1051360800	Crucible Knight	m60_51_36	field	2	20	Caelid	Caelid	yes	ok	Caelid	yes		
 1252520800	Fire Giant	m60_52_52	field	2	17	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	no		
-2044450800	Romina, Saint of the Bud	m61_44_45	legacy	2	44	Ancient Ruins	Ancient Ruins	yes	ok	Ancient Ruins	yes		
-2047390800	Death Rite Bird	m61_47_39	legacy	2	19	Cerulean	ABSENT	no		Cerulean	no		
-2052480800	Fallingstar Beast	m61_52_48	legacy	2	7	Shadow Keep	ABSENT	no		Shadow Keep	no		
+2052480800	Fallingstar Beast	m61_52_48	legacy	2	6	Shadow Keep	ABSENT	no		Shadow Keep	no		
 1033420800	Alecto, Black Knife Ringleader	m60_33_42	field	1	2	Liurnia	ABSENT	no		Liurnia	no		
 1034500800	Glintstone Dragon Adula	m60_34_50	field	1	14	Liurnia	ABSENT	no		Liurnia	yes		
 1035500800	Royal Knight Loretta	m60_35_50	field	1	54	Liurnia	Liurnia	yes	ok	Liurnia	yes		
@@ -87,5 +85,6 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1052410850	?	m60_52_41	?	1	4	Caelid	ABSENT	no		Caelid	yes		
 1052410800	Flying Dragon Greyll	m60_52_41	field	1	3	Caelid	ABSENT	no		Caelid	yes		
 1051430800	Black Blade Kindred	m60_51_43	field	1	1	Caelid	ABSENT	no		Caelid	yes		
+22000800	Putrescent Knight	m22_00	legacy	1	9	Cerulean	Cerulean	yes	ok	Gravesite	yes		
 2050480811	Scadutree Avatar	m61_50_48	legacy	1	6	Shadow Keep	ABSENT	no		Shadow Keep	yes		
-2051440800	Rakshasa	m61_51_44	legacy	1	16	Scadu Altus	Scadu Altus	yes	ok	Scadu Altus	yes		
+2051440800	Rakshasa	m61_51_44	legacy	1	17	Scadu Altus	Scadu Altus	yes	ok	Scadu Altus	yes		
