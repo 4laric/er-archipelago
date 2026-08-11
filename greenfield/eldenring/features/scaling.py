@@ -34,6 +34,7 @@ import random
 from Options import Range, Choice, Removed, OptionError, NamedRange, Toggle
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
+from ..data import FINALE_REGION
 from .. import contract
 from ..scaling_ladder import (AUTO_CEILING, SCALING_HP_LADDER, ceiling_multiplier,  # noqa: F401 (re-export)
                               floor_multiplier, ramped_target,
@@ -84,15 +85,23 @@ def _apply_bucket_delta(triples):
     return out
 
 
-def sphere_target_ranges(kept, ramp_pct=100):
+def sphere_target_ranges(kept, ramp_pct=100, finale=None):
     """[[lo, hi, target], ...] triples for `kept` region names (pure; unit-testable without AP).
 
     SPINE-ordered depth within the kept set, normalized so the deepest kept region == TARGET_MAX.
     One lo == hi triple per play_region bucket of each kept region (same bucket space as
-    areaLockFlags). A single kept region emits target 0 (max target 0 == floor everywhere,
-    scaling.rs) -- a one-region seed has no progression depth to scale over.
+    areaLockFlags).
+
+    `finale` (the FINALE_REGION name, or None) is APPENDED as the last position -- see
+    _finale_for_wire for why it cannot arrive through `kept`. It therefore takes TARGET_MAX and is
+    strictly the hardest thing in the seed, which is what "the region that ENDS the run" means.
+    🛑 A one-region seed used to emit target 0 for everything ("no progression depth to scale
+    over"); with the finale appended it has exactly one step of depth, and that step is the right
+    one -- the rolled region at the floor, the endgame at the ceiling.
     """
     ordered = [r for r in SPINE if r in set(kept)]
+    if finale is not None:
+        ordered.append(finale)
     span = max(len(ordered) - 1, 1)
     triples = []
     for i, region in enumerate(ordered):
@@ -100,6 +109,66 @@ def sphere_target_ranges(kept, ramp_pct=100):
         for pid in REGION_PLAY_IDS.get(region, []):
             triples.append([pid, pid, target])
     return _apply_bucket_delta(triples)
+
+
+# ---- THE FINALE IS NOT KEPT (2026-08-10, bobler playtest) ---------------------------------------
+# "ashen and roundtable seems to be untouched" -- and he was right about the capital.
+#
+# The Ashen Capital is NEVER ROLLED (gen_data.py: "LOCATIONS[FINALE_REGION] is NOT in REGIONS"), so
+# it is absent from `world._kept()` AND from SPINE (test_gf_data pins SPINE as a permutation of
+# REGIONS). Every scaling path keyed on one of those two, so BOTH dropped it:
+#   * live      -- _region_fill_spheres builds {f"{r} Lock": r for r in world._kept()}, and
+#                  "Ashen Capital Lock" is not a key, so the region never gets a sphere;
+#   * fallback  -- sphere_target_ranges filtered through SPINE.
+# Its GEOMETRY was never missing (region_play_ids.py: 'Ashen Capital': [11050, 19000]) and
+# area_locks special-cases it explicitly (core.py regionOpenFlags, area_locks lockRevealFlags), so
+# region LOCKS worked while SCALING skipped the whole endgame -- including play_region 19000, the
+# Elden Throne, where the goal fight is. Nine "region 11050/19000 is not in the sphere wire -- left
+# VANILLA (no tier, no down-state)" lines in bobler's client logs; 0 hits for those buckets in
+# `regionSphereTargetRanges` across all 7 seeds in them.
+#
+# 🛑 The client's degrade for an unwired bucket is the FLOOR tier plus an INFO line whose text says
+# the case is EXPECTED. That is a message doing an assertion's job, which is why this needed
+# _assert_wire_covers below rather than a comment.
+def _finale_for_wire(world):
+    """FINALE_REGION if this seed builds the finale and we have geometry for it, else None.
+
+    Gated on `gf_finale_active` -- the world's own answer, exactly as core.py:regionOpenFlags and
+    features/area_locks.py gate their finale special-cases. Asking again here (e.g. re-deriving
+    `base_game_in_play`) would be a second answer to one question; under `dlc_only` the base game is
+    sealed, the finale does not exist, and this correctly returns None."""
+    if not getattr(world, "gf_finale_active", False):
+        return None
+    return FINALE_REGION if REGION_PLAY_IDS.get(FINALE_REGION) else None
+
+
+def _assert_wire_covers(ranges, world):
+    """HARD-FAIL if any region the player can stand in has a play_region bucket the wire never
+    names. Mirrors features/area_locks.slot_data's coverage gate, and exists for the same reason it
+    does: the client's fallback for an unknown bucket is SILENT (floor tier + an INFO line), so a
+    gap here ships as "that area felt weirdly easy/impossible" and nothing else.
+
+    🛑🛑 THE OWED SET IS DERIVED INDEPENDENTLY OF THE WIRE, on purpose. The first version of this
+    gate asked _finale_for_wire for the owed regions -- the SAME function that decides what goes on
+    the wire -- so neutering that function dropped the finale from the demand and the supply at
+    once, and the gate sat silent through an exact replay of the bug it was written for. A guard
+    that cannot witness its own subject is not a guard. Read `gf_finale_active` here, the way
+    core.py and features/area_locks.py do, so the two answers can disagree and be caught."""
+    owed_regions = list(world._kept())
+    if getattr(world, "gf_finale_active", False) and REGION_PLAY_IDS.get(FINALE_REGION):
+        owed_regions.append(FINALE_REGION)
+    wired = {lo for lo, _hi, _t in ranges}
+    missing = {}
+    for region in owed_regions:
+        gap = [p for p in REGION_PLAY_IDS.get(region, []) if p not in wired]
+        if gap:
+            missing[region] = gap
+    if missing:
+        raise contract.ContractError(
+            "scaling: region(s) in play have play_region bucket(s) absent from "
+            "regionSphereTargetRanges, so the client would leave them VANILLA (no tier, no "
+            "down-state): "
+            + ", ".join(f"{r} -> {sorted(p)}" for r, p in sorted(missing.items())))
 
 
 def _region_fill_spheres(world):
@@ -631,11 +700,21 @@ class Scaling(Feature):
         # degenerate); it is already a total order.
         ramp = ramp_pct_from_speed(world.options.difficulty_ramp_speed.value)
         region_sphere = _region_fill_spheres(world)
+        # THE FINALE RIDES THE TAIL OF BOTH PATHS. It is appended rather than fed through
+        # _region_fill_spheres because it has no fill sphere to compute: its lock is minted
+        # unconditionally and its position is a DESIGN fact, not a fill result -- it is the region
+        # that ends the run (Alaric, 2026-08-10: "yeah its last region by default now"). Appending
+        # keeps _order_from_spheres's topological assertion honest (it still sees only real fill
+        # spheres) and gives the finale TARGET_MAX by construction.
+        _finale = _finale_for_wire(world)
         if region_sphere:
             order = _order_from_spheres(region_sphere, _order_rng(world))
+            if _finale is not None:
+                order = order + [_finale]
             ranges = _ranges_from_targets(_targets_from_order(order, ramp))
         else:
-            ranges = sphere_target_ranges(world._kept(), ramp)
+            ranges = sphere_target_ranges(world._kept(), ramp, finale=_finale)
+        _assert_wire_covers(ranges, world)
         blessing = blessing_mode(world)
         kept_regions = world._kept()
         # VANILLA MODE. `completion_scaling` is the client's own arm/disarm switch: er-logic
