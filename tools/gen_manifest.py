@@ -69,6 +69,16 @@ FILE_INPUTS = [
     # FOURTH instance of the hole the nearest_grace / #363 comments above already confess to; the
     # durable fix is to DERIVE this list from what gen_data actually opens, not to add a fifth entry.
     "greenfield/unplaced_global_tiles.tsv",                 # graces inside a boss arena (floor-guarded)
+    # FIFTH, SIXTH and SEVENTH instances of the hole the comment above confesses to, found while
+    # fixing #556/#558. gen_data._build_merchant_shop_region opens all three BY NAME and their
+    # contents decide the region of every shop check -- and gen_data refuses to run at all if
+    # merchant_shops.tsv is missing while shop_rows.tsv is present, which is how load-bearing it is.
+    # None of them were declared, so a re-emitted or stale merchant datamine changed generated output
+    # while leaving inputs_hash untouched and the freshness gate could not see it.
+    "greenfield/shop_rows.tsv",                    # shop row -> stock flag (legacy block region too)
+    "greenfield/merchant_shops.tsv",               # row -> PHYSICAL merchant + map tile (talk ESD)
+    "greenfield/bell_handins.tsv",                 # bell -> its merchant's OWN block range; the
+                                                   # discriminator for an over-wide OpenRegularShop
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",
 ]

@@ -2674,6 +2674,21 @@ FLAG_REGION_OVERRIDE = {
 # CURATED below = the only rows a human still owns: maps the data cannot resolve (no grace, no
 # connect tile), plus the few where the raw datum is misleading and the curation is deliberate.
 DUNGEON_REGION_CURATED = {
+    # m10_00 (Stormveil Castle) is the ONE map the derivation cannot emit, and the reason is not a
+    # missing datum -- it is a BOUNDARY SET. tools/datamine_dungeon_regions.py keeps a grace-join
+    # answer only when `len(regs) == 1`; m10_00's nine warp graces vote play_region 10000 (Stormveil)
+    # seven times and 61001 (Limgrave) twice -- the two entrance graces sit in Limgrave's play region
+    # -- so the oracle returns frozenset({'Stormveil', 'Limgrave'}) and the map is skipped. It is one
+    # of exactly TWO boundary maps (m30_20 is the other, and IT is recovered by the ConnectCollision
+    # pass because m30 is a MINOR_AREA). m10 is legacy, and the tool's own comment says a legacy map
+    # "is its OWN region, never its parent's" -- so the connect fallback deliberately refuses it too.
+    # Both doors shut => m10 was the only absent legacy prefix (m11-m43 all present) and Stormveil the
+    # only region with zero rows in the file, while 109 `Stormveil ::` checks resolved fine through
+    # the independent flag-tile decode. Curating it here is the sanctioned door: the header above and
+    # the datamine both say a boundary map "stays hand-curated". Consequence of the gap: every shop
+    # row whose merchant stands in Stormveil resolved to NO region at all -- Gostoc's 13 and Rogier's
+    # 3 fell back to the legacy block guess and shipped as Limgrave / Liurnia (#556).
+    "m10_00_00_00": "Stormveil",            # boundary set {Stormveil, Limgrave} -- CURATED override
     "m30_07_00_00": "Altus",                # data says 'Mt. Gelmir' -- CURATED override
     # (m30_20 Hidden Path to the Haligtree was curated here while the grace join returned a
     # boundary SET; the ConnectCollision pass now derives it to Mountaintops of the Giants --
@@ -3420,21 +3435,86 @@ def _build_merchant_shop_region():
                     _row2flag[int(_p[0])] = int(_p[5])
                 except ValueError:
                     pass
-    _row2tiles = {}                                  # shop row id -> physical map tiles (HUB excluded)
+    # A CLAIMANT IS A MERCHANT INSTANCE, NOT A LINE. Keyed by (talk, npc, name, tile) so the two
+    # filters below can drop ONE merchant's claim on a row without discarding the row.
+    _bells = []                                      # (begin, end, bell_name) -- pairwise disjoint
+    _bpath = os.path.join(HERE, "bell_handins.tsv")
+    if os.path.isfile(_bpath):
+        with open(_bpath, encoding="utf-8-sig") as _f:
+            for _ln in _f:
+                if _ln.startswith("#") or _ln.startswith("handin_flag"):
+                    continue
+                _p = _ln.rstrip("\n").split("\t")
+                if len(_p) >= 5:
+                    try:
+                        _bells.append((int(_p[3]), int(_p[4]), _p[2]))
+                    except ValueError:
+                        pass
+    def _bell_of(_r):
+        for _a, _b, _n in _bells:
+            if _a <= _r <= _b:
+                return _n
+        return None
+
+    _claims = defaultdict(set)                       # claimant -> {row id}
+    _no_msb = 0
     with open(_mpath, encoding="utf-8-sig") as _f:
         for _ln in _f:
             if not _ln.strip() or _ln.lstrip().startswith("#") or _ln.startswith("row_id"):
                 continue
             _p = _ln.rstrip("\n").split("\t")
-            if len(_p) < 5:
+            if len(_p) < 6:
                 continue
             try:
                 _rid = int(_p[0])
             except ValueError:
                 continue
             _mp = _p[4].strip()
-            if _mp and _mp != _HUB_TILE:
-                _row2tiles.setdefault(_rid, set()).add(_mp)
+            if not _mp or _mp == _HUB_TILE:
+                continue
+            # 🛑 FILTER 1 -- NO MSB PLACEMENT, NO CLAIM. map_source == "binder" means the talk ESD was
+            # found INSIDE a map binder and never matched an MSB placement (npc_param_id and
+            # merchant_name are both empty on exactly these 134 lines -- the correlation is total).
+            # For those the map id is where the FILE was PACKED, not where a merchant stands, and
+            # three of them are flatly impossible as placements: talk 800001100 -> m11_00 (Leyndell),
+            # 800003500 -> m35_00 (Shunning-Grounds), and 800026000/800046000/801516000 -> m60_00_00,
+            # the origin tile. They are pure noise that splits a flag's region set. Dropping them
+            # re-pins 15 flags and costs nothing: no row loses its last claimant (asserted below).
+            if _p[5].strip() == "binder":
+                _no_msb += 1
+                continue
+            _claims[(_p[1], _p[2], _p[3], _mp)].add(_rid)
+
+    # 🛑 FILTER 2 -- ONE BELL RANGE PER MERCHANT. `OpenRegularShop(begin, end)` is enumerated wholesale
+    # (MAX_RANGE_SPAN 2000, deliberately loose), so a merchant whose ESD range over-runs its own block
+    # claims a NEIGHBOUR's stock. Merchant Kalé's range covers 100500..100520 (his) plus 100625..100637
+    # and 100650..100665 -- two other merchants' blocks. He is the ONLY instance of 74 that spans more
+    # than one bell range, and bell_handins.tsv's ranges are pairwise disjoint and are each a
+    # merchant's OWN block, which makes them the discriminator.
+    # The rule DEFERS rather than guesses: a spanning claimant's rows in range B are dropped only when
+    # some OTHER instance claims rows in B and in no other range -- an exclusive owner. So a range can
+    # never be orphaned (Kalé keeps his own: nothing else claims it). Majority-of-rows gives the
+    # identical 26 drops today; deference is preferred because it cannot invent an owner.
+    # ⚠️ Block-majority does NOT work and must not be substituted: Kalé claims 18 rows of block 1005
+    # and 26 of block 1006, so a block vote picks the block that is not his.
+    _ranges_of = {_k: {_bell_of(_r) for _r in _rs if _bell_of(_r)} for _k, _rs in _claims.items()}
+    _exclusive = defaultdict(set)                    # bell range -> claimants that touch ONLY it
+    for _k, _rs in _ranges_of.items():
+        if len(_rs) == 1:
+            _exclusive[next(iter(_rs))].add(_k)
+    _overreach = sorted(_k for _k, _rs in _ranges_of.items() if len(_rs) > 1)
+    _dropped = 0
+    for _k in _overreach:
+        for _r in sorted(_claims[_k]):
+            _b = _bell_of(_r)
+            if _b and _exclusive.get(_b) and _k not in _exclusive[_b]:
+                _claims[_k].discard(_r)
+                _dropped += 1
+
+    _row2tiles = {}                                  # shop row id -> physical map tiles (HUB excluded)
+    for (_tk, _npc, _nm, _mp), _rs in _claims.items():
+        for _rid in _rs:
+            _row2tiles.setdefault(_rid, set()).add(_mp)
     # stock flag -> set of RESOLVED AP regions; separately track flags with an UNRESOLVED physical tile.
     # A flag whose ONLY resolved region is 1 but which ALSO has an unresolved tile is SUSPECT: dropping
     # the None and pinning the lone survivor conflates "resolves to one region" with "stands in one
@@ -3443,22 +3523,35 @@ def _build_merchant_shop_region():
     # refusing to pin blindly could revert a correct one to its wrong legacy label), but LOG the suspects
     # loudly so the fix -- resolve the tile (add it to dungeon_regions.tsv) or refuse to pin -- is a
     # measured follow-up, not a blind change (Fable review D3, 2026-07-23).
-    _flag2regs, _flag_unresolved = {}, set()
+    _flag2regs, _flag_unresolved, _flag_seen = {}, set(), set()
+    _unresolved_tiles = defaultdict(set)
     for _rid, _tiles in _row2tiles.items():
         _fl = _row2flag.get(_rid)
         if _fl is None:
             continue
+        _flag_seen.add(_fl)
         for _t in _tiles:
             _rr = _gt_region(_t)
             if _rr:
                 _flag2regs.setdefault(_fl, set()).add(_rr)
             else:
                 _flag_unresolved.add(_fl)
+                _unresolved_tiles[_t].add(_fl)
     _out = {_fl: next(iter(_rs)) for _fl, _rs in _flag2regs.items() if len(_rs) == 1}
     _multi = sorted(_fl for _fl, _rs in _flag2regs.items() if len(_rs) > 1)
     _suspect = sorted(_fl for _fl in _out if _fl in _flag_unresolved)   # pinned, but has an unplaced tile
+    # ⭐⭐⭐ A DIAGNOSTIC THAT ITERATES THE SUCCESS SET CANNOT SEE A TOTAL FAILURE. `_suspect` iterates
+    # `_out`, and `_multi` iterates `_flag2regs` -- a flag whose tiles ALL fail _gt_region is in
+    # NEITHER, so it printed in neither line while falling silently to the legacy block guess. That is
+    # how 16 flags (Gostoc 13 + Rogier 3, the only merchants on m10_00) shipped as Limgrave/Liurnia
+    # unnoticed: `_flag_unresolved` was computed and then only ever read through `_out`. This line
+    # iterates the flags that were SEEN, so a total failure has somewhere to print (#556).
+    _dark = sorted(_flag_seen - set(_flag2regs))
     print(f"merchant-esd regions: {len(_out)} shop flag(s) re-pinned to their physical merchant's region "
-          f"({len(_multi)} multi-region left to legacy)")
+          f"({len(_multi)} multi-region left to legacy, {len(_dark)} unresolved)")
+    print(f"  claimants dropped: {_no_msb} line(s) with no MSB placement (map_source=binder), "
+          f"{_dropped} row claim(s) from {len(_overreach)} merchant(s) whose ESD range over-ran their "
+          f"own bell block")
     if _multi:
         print(f"  multi-region flags (disjunctive reachability the region-lock world can't express yet): "
               f"{_multi[:30]}{' …' if len(_multi) > 30 else ''}")
@@ -3466,6 +3559,11 @@ def _build_merchant_shop_region():
         print(f"  !! {len(_suspect)} SUSPECT single-region pin(s): a physical tile failed _gt_region so "
               f"the merchant may stand in >1 region (mausoleum-class). Verify or add the tile to "
               f"dungeon_regions.tsv: {_suspect[:30]}{' …' if len(_suspect) > 30 else ''}")
+    if _dark:
+        print(f"  !! {len(_dark)} DARK flag(s): EVERY physical tile failed _gt_region, so the merchant "
+              f"contributes nothing and the row reverts to the legacy block guess -- silently, until "
+              f"now. Add the tile(s) to dungeon_regions.tsv. Tiles: "
+              f"{sorted(_unresolved_tiles)}; flags: {_dark[:30]}{' …' if len(_dark) > 30 else ''}")
     return _out
 MERCHANT_SHOP_REGION = _build_merchant_shop_region()
 

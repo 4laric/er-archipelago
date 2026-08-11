@@ -252,7 +252,7 @@
    "rollable": true
   },
   "Limgrave": {
-   "checks": 339,
+   "checks": 327,
    "combos": {
     "Basin": 3,
     "Boss": 7,
@@ -264,7 +264,7 @@
     "Legendary": 5,
     "Seedtree": 2,
     "Shop": 14,
-    "Shop|ShopNonSpell": 74,
+    "Shop|ShopNonSpell": 62,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
@@ -272,7 +272,7 @@
    "rollable": true
   },
   "Liurnia": {
-   "checks": 571,
+   "checks": 578,
    "combos": {
     "Basin": 2,
     "Basin|Boss|FieldBoss": 1,
@@ -285,7 +285,7 @@
     "Legendary": 3,
     "Seedtree": 3,
     "Shop": 64,
-    "Shop|ShopNonSpell": 26,
+    "Shop|ShopNonSpell": 33,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
@@ -433,19 +433,20 @@
    "rollable": true
   },
   "Stormveil": {
-   "checks": 118,
+   "checks": 133,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "KeyItem": 1,
-    "Seedtree": 2
+    "Seedtree": 2,
+    "Shop|ShopNonSpell": 15
    },
    "dlc": false,
    "parent": null,
    "rollable": true
   },
   "Weeping": {
-   "checks": 162,
+   "checks": 152,
    "combos": {
     "Basin": 1,
     "Boss": 4,
@@ -453,7 +454,7 @@
     "Boss|FieldBoss|MajorBoss": 1,
     "Church": 3,
     "Seedtree": 1,
-    "Shop|ShopNonSpell": 36,
+    "Shop|ShopNonSpell": 26,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
@@ -463,5 +464,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "d2570e380f97861b0938f18b10e785569304a33ab8a23ef430ab5aa28d8af58b"
+ "source_sha256": "3bce9cd2986ee74276038222c81789c22b8734a8219e61dedd9549cd93250156"
 }

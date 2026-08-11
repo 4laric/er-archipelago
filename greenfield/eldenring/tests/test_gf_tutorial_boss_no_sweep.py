@@ -403,8 +403,22 @@ def test_the_sweep_corpus_did_not_shrink():
     # diffed by (trigger, flag) against main, not inferred from the total.
     # The Gravesite -> Rauh Base thirteen did NOT churn: their trigger (2046450800) changed region
     # with them, so they keep the same owner and the group stops being one of #445's six.
-    assert total == 3732, (
-        "sweep corpus is %d, expected 3732. If a sweep was legitimately added or removed, say WHY "
+    # -1 (2026-08-11, #556 -- m10_00 curated into DUNGEON_REGION_OVERRIDE) 3732 -> 3731.
+    # ONE member left: ap 7773843, "Stormveil :: Gostoc's Bell Bearing - near Gateside Chamber"
+    # (f400051). ADDED 0, REMOVED 1, RE-OWNED 3, and all three re-owned stayed inside Stormveil.
+    # 🛑 IT IS NOT A REGION MOVE -- the check reads Stormveil before and after. It is region_of's
+    # SIDE EFFECT going away. f400051 is MSB-placed in m10_00, so with m10_00 now resolvable the
+    # MSB-ground-truth branch answers it and returns; previously that branch failed, the row fell
+    # through to the global-recovery branch, and THAT branch sets `r['map'] = _im` as a side effect
+    # of answering. The sweep pools are keyed on the map column, so the check was only ever
+    # sweep-eligible because a worse branch had answered it. Getting the region right took the map
+    # away. The check is unaffected as a check: it exists, it is in Stormveil, and it is obtainable
+    # by physical pickup -- a sweep is a convenience auto-grant, not the only source.
+    # ▶️ FILED SEPARATELY, NOT FIXED HERE. Recording the map in the MSB branch as well restores this
+    # member AND adds 49 more (3732 -> 3782, 34 re-owned) -- a 50-check sweep change has no business
+    # riding inside a merchant-region fix, so it is its own issue with its own diff.
+    assert total == 3731, (
+        "sweep corpus is %d, expected 3731. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -512,8 +526,16 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     pass, which re-homed all 23 inside Mt. Gelmir: 12 to 1037540810 (Ulcerated Tree Spirit,
     m60_37_54) and 11 to 1037530800 (Demi-Human Queen Maggie, m60_37_53). Trigger count 219 -> 218.
     Checked the way this docstring says to, per-check on both sides of SWEEP_REGION: all 23 read
-    'Mt. Gelmir' before and after."""
+    'Mt. Gelmir' before and after.
+
+    2026-08-11 (#556, m10_00 -> Stormveil): digest ebbf592b -> 7ed70eb4, n 3732 -> 3731. ADDED 0,
+    REMOVED 1, **3 RE-OWNED, ZERO region crossings**. The removal is explained in full on the total
+    above (region_of's map side effect, not a region move). The three re-owned are the pacing shape
+    and nothing else: 7771014 and 7773854 went 10000800 -> 10000850 and 7774041 went the other way,
+    all six endpoints SWEEP_REGION 'Stormveil'. Both triggers are Stormveil majors on m10_00, so
+    losing one member from a 111-check pool re-phased the two-way round-robin by one -- the #363
+    stable-modulus effect this docstring already records twice, at its smallest possible size."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("ebbf592bfcbfd61e", 3732), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (ebbf592bfcbfd61e, 3732). The total alone will "
+    assert (digest, n) == ("7ed70eb404eb357d", 3731), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (7ed70eb404eb357d, 3731). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
