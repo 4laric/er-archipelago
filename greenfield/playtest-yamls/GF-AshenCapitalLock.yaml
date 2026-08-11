@@ -164,11 +164,12 @@ Elden Ring:
     random-range-0-30: 0 # random value between 0 and 30
 
   num_regions_order:
-    # How kept regions are chosen when num_regions > 0. There is only one behaviour: N regions drawn
-    # at RANDOM from the eligible pool. `spine` is DEPRECATED, does the same thing, and warns -- it is
-    # accepted for one release so yamls in the wild keep rolling.
+    # How kept regions are chosen when num_regions > 0. `rolled` draws N at random; `vanilla_order`
+    # takes the first N of the game's progression path (Limgrave first) and is fully deterministic.
+    # `spine` is the old name for `vanilla_order` and still resolves, so a yaml in the wild keeps
+    # generating -- it is an alias, not a third behaviour.
     rolled: 50
-    spine: 0
+    vanilla_order: 0
 
   goal:
     # WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in

@@ -55,11 +55,12 @@ def parent_chain(region):
         r = REGION_PARENT.get(r)
     return chain
 
-# Fixed progression path (Limgrave-first). AN ORDERING ONLY -- it is NOT a selection mode.
-# The spine-order draw was removed 2026-08-05 (see compute_kept) and `num_regions_order:
-# spine` is deprecated, behaving exactly as `rolled`. What SPINE still decides: poptracker
-# display order, the test reference, and `_SPINE_RANK` -- which features/goal_locations walks
-# deepest-first to pick the region that ENDS the run.
+# Fixed progression path (Limgrave-first). It is BOTH an ordering and, since 2026-08-11, a
+# selection mode again: `num_regions_order: vanilla_order` keeps the first N eligible entries
+# (see compute_kept). It was a selection mode until 2026-08-05, deprecated between those dates.
+# What SPINE decides besides the draw: poptracker display order, the test reference, and
+# `_SPINE_RANK` -- which features/goal_locations walks deepest-first to pick the region that
+# ENDS the run. Those three are why the LIST survived the period when the draw did not.
 # Must be a permutation of REGIONS, and its TAIL must be exactly DLC_REGIONS (both guarded
 # by test_gf_data).
 SPINE = [
@@ -95,7 +96,7 @@ def dlc_regions():
     return [r for r in REGIONS if r in DLC_REGIONS]
 
 
-def compute_kept(n, rng, eligible=None, forced=(), parts=None, bar_from_draw=()):
+def compute_kept(n, rng, eligible=None, forced=(), parts=None, bar_from_draw=(), order="rolled"):
     """Kept-region list, drawn from `eligible` (defaults to all of REGIONS).
 
     `eligible` is the already-filtered pool of regions in play this seed (e.g. base-only when
@@ -104,10 +105,22 @@ def compute_kept(n, rng, eligible=None, forced=(), parts=None, bar_from_draw=())
     sealed region.
 
     n<=0 or n>=len(eligible) -> the whole eligible pool (full Shattering of what's in play).
-    Otherwise N regions are drawn at RANDOM (rng.sample). The fixed SPINE-order draw was removed
-    2026-08-05: it made every default seed keep the same eight regions and left nine base regions
-    unreachable. SPINE itself SURVIVES as an ORDERING (poptracker display, test reference) -- it is
-    simply no longer a selection mode.
+    Otherwise N regions are chosen by `order`:
+
+      * `"rolled"` (the DEFAULT, and what every seed that does not name the option gets) -- N drawn
+        at RANDOM with rng.sample.
+      * `"vanilla_order"` -- the first N eligible regions in SPINE order, i.e. Limgrave-first along
+        the rough vanilla progression path. Fully deterministic: the rng is not consulted at all.
+
+    ⚠️ HISTORY, because the numbers matter and the option has been round the houses. The SPINE draw
+    was REMOVED on 2026-08-05 (14b5269) and the option deprecated, on a measurement: at the default
+    num_regions=6 it made every seed keep the SAME eight regions -- Limgrave, Weeping, Stormveil,
+    Liurnia, Raya Lucaria Academy, Caelid, plus Leyndell and Altus by closure -- and NINE base
+    regions could never appear at all, against a 34-37% band for every base region under the random
+    draw (3000 seeds). It was RESTORED on 2026-08-11 at Alaric's request, verbatim, as an OPT-IN
+    under a name that says what it does. That property is not a bug in it -- determinism is the
+    point -- but it is exactly why `rolled` stays the default and why the option's docstring says so
+    to the player.
 
     THE GOAL REGION IS GOAL-SENSITIVE (2026-08-05, Alaric). GOAL_REGION is force-kept only when the
     seed has NO explicitly named goal -- i.e. only under `auto`, where the goal is DERIVED from
@@ -185,7 +198,16 @@ def compute_kept(n, rng, eligible=None, forced=(), parts=None, bar_from_draw=())
     # drawn from a shorter list. Unavoidable for a fix in this shape, and scoped -- core passes a
     # non-empty bar only when the base game is sealed, so every base-game seed is byte-identical.
     draw_pool = [r for r in regions if r not in set(bar_from_draw)] or regions
-    base = rng.sample(draw_pool, min(n, len(draw_pool)))
+    # 🛑 THE RNG IS NOT CONSULTED ON THE vanilla_order PATH, and that is deliberate rather than an
+    # oversight: consuming a sample here "for stream parity" would be a lie in the other direction,
+    # since the two orders keep different regions and every downstream draw diverges anyway. The
+    # `rolled` branch is untouched, so every seed that does not name the option is byte-identical.
+    # `bar_from_draw` applies to BOTH paths -- a region the caller is about to force-keep must not
+    # consume one of the player's N whichever way the N is chosen.
+    if order == "vanilla_order":
+        base = [r for r in SPINE if r in draw_pool][:n]
+    else:
+        base = rng.sample(draw_pool, min(n, len(draw_pool)))
     kept = list(dict.fromkeys(base))
     drawn = list(kept)
     forced_kept = []

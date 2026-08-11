@@ -55,9 +55,15 @@ Elden Ring:
   # breakdown for your seed either way.
   num_regions: 6
 
-  # How the kept regions are chosen when num_regions > 0.
-  #   spine  -- the first N of a fixed path (Limgrave first). Predictable.
-  #   rolled -- a random N. Wilder.
+  # How the kept regions are chosen when num_regions > 0. It picks WHICH
+  # regions you keep -- not where you START, which is always a separate draw
+  # weighted by region size over whatever was kept.
+  #   rolled        -- a random N (the default). Wilder; every base region
+  #                    turns up in roughly a third of seeds.
+  #   vanilla_order -- the first N of the game's own progression path
+  #                    (Limgrave first). Fully predictable, and the later
+  #                    regions never appear at a small N.
+  # `vanilla_order` was called `spine` before 0.3.12; that name still works.
   # Either way the seed is winnable: on any seed with the base game in play
   # the run ends at the Elden Beast, which you reach from the Roundtable
   # once the Ashen Capital Lock finds you -- no particular region required.

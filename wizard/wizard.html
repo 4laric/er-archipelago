@@ -155,7 +155,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.3.11",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "e12a5a4cd6056579bf5e6717c53970c24c45bcce88372b9557b4b7cb9504096a",
+ "source_sha256": "4fd28cdd7f1f5d0d3b233fc592e107952b3ff91294471914628c0273f99e66d7",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -335,7 +335,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "num_regions_order",
    "class": "NumRegionsOrder",
    "display_name": "Region Selection",
-   "description": "How kept regions are chosen when num_regions > 0. There is only one behaviour: N regions drawn\nat RANDOM from the eligible pool. `spine` is DEPRECATED, does the same thing, and warns -- it is\naccepted for one release so yamls in the wild keep rolling.",
+   "description": "How the kept regions are chosen when num_regions > 0. This decides WHICH regions your seed\nkeeps. It does NOT decide where you start -- the opening region is always an independent draw\nweighted by region size, over whatever ends up kept.\n\nrolled (default): N regions drawn at random from the eligible pool. Every base region shows up\nin roughly a third of seeds.\n\nvanilla_order: the first N regions along the game's own progression path -- Limgrave, Weeping,\nStormveil, Liurnia, and so on. Fully deterministic, so the same num_regions always keeps the\nsame regions, and the later regions never appear at small N. Pick it if you want an early-game\nrun you can predict; leave it alone if you want variety.",
    "kind": "choice",
    "base": "Choice",
    "default": "rolled",
@@ -345,7 +345,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "value": 0
     },
     {
-     "name": "spine",
+     "name": "vanilla_order",
      "value": 1
     }
    ],
