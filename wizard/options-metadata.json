@@ -60,63 +60,105 @@
   "traps",
   "trap_count"
  ],
- "groups": [],
- "ungrouped": [
-  "num_regions",
-  "num_regions_order",
-  "goal",
-  "ending_condition",
-  "goal_great_runes",
-  "enable_dlc",
-  "dlc_only",
-  "vanilla_placement",
-  "capital_reconciler",
-  "auto_equip",
-  "no_equip_load",
-  "no_fall_damage",
-  "dungeon_sweep",
-  "death_link",
-  "reroll_enemy_drops",
-  "curated_filler",
-  "pool_builder_intensity",
-  "pool_builder_pct_weapons",
-  "pool_builder_pct_armor",
-  "pool_builder_pct_spells",
-  "pool_builder_pct_talismans",
-  "pool_builder_pct_ashes_of_war",
-  "filler_foreign_pct",
-  "natural_progression",
-  "region_grace_unlock",
-  "grace_attunement",
-  "grace_attunement_anchor",
-  "progressive_flasks",
-  "progressive_stone_bells",
-  "keep_out_of_shops",
-  "leyndell_runes_required",
-  "local_item_only",
-  "exclude_local_item_only",
-  "keep_local",
-  "keep_local_rune_cap",
-  "merchant_bells_on_talk",
-  "no_runes_in_shops",
-  "progression_surface",
-  "progression_bias",
-  "confine_foreign_progression",
-  "enemy_scaling",
-  "minimum_enemy_difficulty",
-  "maximum_enemy_difficulty",
-  "difficulty_ramp_speed",
-  "scadutree_blessing_scope",
-  "dlc_blessing_catchup",
-  "global_scadutree_blessing",
-  "reroll_infinite_shop_stock",
-  "infinite_hub_wares",
-  "merchant_bell_logic",
-  "start_regions",
-  "start_with_whetblades",
-  "traps",
-  "trap_count"
+ "groups": [
+  {
+   "name": "Goal & Regions",
+   "collapsed": false,
+   "options": [
+    "num_regions",
+    "num_regions_order",
+    "start_regions",
+    "goal",
+    "ending_condition",
+    "goal_great_runes",
+    "leyndell_runes_required",
+    "region_grace_unlock",
+    "grace_attunement",
+    "grace_attunement_anchor"
+   ]
+  },
+  {
+   "name": "DLC & Blessings",
+   "collapsed": false,
+   "options": [
+    "enable_dlc",
+    "dlc_only",
+    "scadutree_blessing_scope",
+    "dlc_blessing_catchup",
+    "global_scadutree_blessing"
+   ]
+  },
+  {
+   "name": "Difficulty & Scaling",
+   "collapsed": false,
+   "options": [
+    "enemy_scaling",
+    "minimum_enemy_difficulty",
+    "maximum_enemy_difficulty",
+    "difficulty_ramp_speed",
+    "no_fall_damage",
+    "traps",
+    "trap_count"
+   ]
+  },
+  {
+   "name": "Checks & Item Pool",
+   "collapsed": false,
+   "options": [
+    "vanilla_placement",
+    "natural_progression",
+    "dungeon_sweep",
+    "reroll_enemy_drops",
+    "curated_filler",
+    "pool_builder_intensity",
+    "pool_builder_pct_weapons",
+    "pool_builder_pct_armor",
+    "pool_builder_pct_spells",
+    "pool_builder_pct_talismans",
+    "pool_builder_pct_ashes_of_war"
+   ]
+  },
+  {
+   "name": "Multiworld & Placement",
+   "collapsed": false,
+   "options": [
+    "death_link",
+    "filler_foreign_pct",
+    "progression_surface",
+    "progression_bias",
+    "confine_foreign_progression",
+    "local_item_only",
+    "exclude_local_item_only",
+    "keep_local",
+    "keep_local_rune_cap"
+   ]
+  },
+  {
+   "name": "Shops & Merchants",
+   "collapsed": false,
+   "options": [
+    "keep_out_of_shops",
+    "no_runes_in_shops",
+    "merchant_bells_on_talk",
+    "merchant_bell_logic",
+    "reroll_infinite_shop_stock",
+    "infinite_hub_wares",
+    "progressive_stone_bells"
+   ]
+  },
+  {
+   "name": "Quality of Life",
+   "collapsed": false,
+   "options": [
+    "auto_equip",
+    "no_equip_load",
+    "start_with_whetblades",
+    "progressive_flasks",
+    "capital_reconciler"
+   ]
+  }
  ],
+ "ungrouped": [],
  "options": [
   {
    "key": "num_regions",

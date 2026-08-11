@@ -10,11 +10,12 @@ import logging
 import os
 from typing import Any, Dict, List
 
-from dataclasses import make_dataclass
+from dataclasses import fields as dataclass_fields, make_dataclass
 
 from BaseClasses import Region, Location, Item, ItemClassification
 from worlds.AutoWorld import World, WebWorld
-from Options import PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle, OptionError
+from Options import (PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle,
+                     OptionError, OptionGroup)
 
 from .data import HUB, REGIONS, LOCATIONS, FINALE_REGION, FINALE_HOST_REGION
 try:
@@ -325,8 +326,85 @@ class GFLocation(Location):
     game = GAME
 
 
+# ---- option groups -- the wizard's tabs AND the WebHost's sections ---------------------------
+# ONE grouping, read by two surfaces. Archipelago's player-options page renders `option_groups`
+# directly; tools/dump_options_metadata.py reads the same list off this class and emits it into the
+# wizard metadata, where each non-collapsed group becomes its own wizard STEP.
+#
+# MOTIVATING CASE (CONTRIBUTING rule 11). Until this landed, `option_groups` was undefined and the
+# dumper emitted `"groups": []` with every key in `ungrouped`, so the wizard's whole 54-option
+# surface arrived as ONE accordion inside a step captioned "Everything here is safe to skip -- the
+# defaults are fine." The four scaling knobs and the pool builder were filed under the same
+# "Other Options (54)" summary as `no_fall_damage`, behind a gate telling the player not to open it.
+# The grouping machinery on the page had existed the whole time; nothing fed it.
+#
+# Keyed by YAML KEY, not by class, because the option surface is built dynamically
+# (`make_dataclass(registry.collect_option_fields(...))` above) -- there is no static module to
+# import the classes from, and a frozen option's class stays declared in its feature while the field
+# disappears. `_option_groups()` resolves keys against the live dataclass and drops what FROZEN_OPTIONS
+# removed; a key that is neither live NOR frozen is a TYPO and raises at import.
+#
+# 🛑 A NEW OPTION IS NOT AUTOMATICALLY GROUPED. Leave it out of this table and it lands in the
+# wizard's `ungrouped` bucket, i.e. back inside Advanced -- which is exactly the failure above, just
+# one option at a time. tests/test_gf_option_groups.py fails on any ungrouped visible key.
+_OPTION_GROUPS = [
+    ("Goal & Regions", [
+        "num_regions", "num_regions_order", "start_regions", "goal", "ending_condition",
+        "goal_great_runes", "leyndell_runes_required", "region_grace_unlock",
+        "grace_attunement", "grace_attunement_anchor"]),
+    ("DLC & Blessings", [
+        "enable_dlc", "dlc_only", "scadutree_blessing_scope", "dlc_blessing_catchup",
+        "global_scadutree_blessing"]),
+    ("Difficulty & Scaling", [
+        "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
+        "difficulty_ramp_speed", "no_fall_damage", "traps", "trap_count"]),
+    ("Checks & Item Pool", [
+        "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
+        "curated_filler", "pool_builder_intensity", "pool_builder_pct_weapons",
+        "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
+        "pool_builder_pct_ashes_of_war"]),
+    ("Multiworld & Placement", [
+        "death_link", "filler_foreign_pct", "progression_surface", "progression_bias",
+        "confine_foreign_progression", "local_item_only", "exclude_local_item_only",
+        "keep_local", "keep_local_rune_cap"]),
+    ("Shops & Merchants", [
+        "keep_out_of_shops", "no_runes_in_shops", "merchant_bells_on_talk", "merchant_bell_logic",
+        "reroll_infinite_shop_stock", "infinite_hub_wares", "progressive_stone_bells"]),
+    ("Quality of Life", [
+        "auto_equip", "no_equip_load", "start_with_whetblades", "progressive_flasks",
+        "capital_reconciler"]),
+]
+
+
+def _option_groups() -> List[OptionGroup]:
+    """`_OPTION_GROUPS` resolved against the LIVE yaml surface.
+
+    A key removed by FROZEN_OPTIONS is dropped silently -- freezing an option is a deliberate act
+    that already has its own home in defaults.py, and it must not also require an edit here. A key
+    that is neither live nor frozen is a typo and raises: the alternative is an option that silently
+    stops being grouped, which is invisible on both surfaces. A group left empty by freezing is
+    omitted entirely, because AP asserts every group has at least one option.
+    """
+    live = {f.name: f.type for f in dataclass_fields(GFOptions)}
+    groups = []
+    for name, keys in _OPTION_GROUPS:
+        unknown = [k for k in keys if k not in live and k not in FROZEN_OPTIONS]
+        if unknown:
+            raise AssertionError(
+                "core._OPTION_GROUPS[%r] names option(s) that are neither on GFOptions nor frozen: "
+                "%s -- fix the key or drop it." % (name, ", ".join(unknown)))
+        members = [live[k] for k in keys if k in live]
+        if members:
+            groups.append(OptionGroup(name, members))
+    return groups
+
+
 class GFWeb(WebWorld):
     theme = "stone"
+    # Defined in the class BODY on purpose: WebWorldRegister validates option_groups in the
+    # metaclass, so an option landing in two groups fails at import. Assigning after the class is
+    # created would skip that check.
+    option_groups = _option_groups()
 
 
 class GreenfieldEldenRingWorld(World):

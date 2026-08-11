@@ -212,63 +212,105 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "traps",
   "trap_count"
  ],
- "groups": [],
- "ungrouped": [
-  "num_regions",
-  "num_regions_order",
-  "goal",
-  "ending_condition",
-  "goal_great_runes",
-  "enable_dlc",
-  "dlc_only",
-  "vanilla_placement",
-  "capital_reconciler",
-  "auto_equip",
-  "no_equip_load",
-  "no_fall_damage",
-  "dungeon_sweep",
-  "death_link",
-  "reroll_enemy_drops",
-  "curated_filler",
-  "pool_builder_intensity",
-  "pool_builder_pct_weapons",
-  "pool_builder_pct_armor",
-  "pool_builder_pct_spells",
-  "pool_builder_pct_talismans",
-  "pool_builder_pct_ashes_of_war",
-  "filler_foreign_pct",
-  "natural_progression",
-  "region_grace_unlock",
-  "grace_attunement",
-  "grace_attunement_anchor",
-  "progressive_flasks",
-  "progressive_stone_bells",
-  "keep_out_of_shops",
-  "leyndell_runes_required",
-  "local_item_only",
-  "exclude_local_item_only",
-  "keep_local",
-  "keep_local_rune_cap",
-  "merchant_bells_on_talk",
-  "no_runes_in_shops",
-  "progression_surface",
-  "progression_bias",
-  "confine_foreign_progression",
-  "enemy_scaling",
-  "minimum_enemy_difficulty",
-  "maximum_enemy_difficulty",
-  "difficulty_ramp_speed",
-  "scadutree_blessing_scope",
-  "dlc_blessing_catchup",
-  "global_scadutree_blessing",
-  "reroll_infinite_shop_stock",
-  "infinite_hub_wares",
-  "merchant_bell_logic",
-  "start_regions",
-  "start_with_whetblades",
-  "traps",
-  "trap_count"
+ "groups": [
+  {
+   "name": "Goal & Regions",
+   "collapsed": false,
+   "options": [
+    "num_regions",
+    "num_regions_order",
+    "start_regions",
+    "goal",
+    "ending_condition",
+    "goal_great_runes",
+    "leyndell_runes_required",
+    "region_grace_unlock",
+    "grace_attunement",
+    "grace_attunement_anchor"
+   ]
+  },
+  {
+   "name": "DLC & Blessings",
+   "collapsed": false,
+   "options": [
+    "enable_dlc",
+    "dlc_only",
+    "scadutree_blessing_scope",
+    "dlc_blessing_catchup",
+    "global_scadutree_blessing"
+   ]
+  },
+  {
+   "name": "Difficulty & Scaling",
+   "collapsed": false,
+   "options": [
+    "enemy_scaling",
+    "minimum_enemy_difficulty",
+    "maximum_enemy_difficulty",
+    "difficulty_ramp_speed",
+    "no_fall_damage",
+    "traps",
+    "trap_count"
+   ]
+  },
+  {
+   "name": "Checks & Item Pool",
+   "collapsed": false,
+   "options": [
+    "vanilla_placement",
+    "natural_progression",
+    "dungeon_sweep",
+    "reroll_enemy_drops",
+    "curated_filler",
+    "pool_builder_intensity",
+    "pool_builder_pct_weapons",
+    "pool_builder_pct_armor",
+    "pool_builder_pct_spells",
+    "pool_builder_pct_talismans",
+    "pool_builder_pct_ashes_of_war"
+   ]
+  },
+  {
+   "name": "Multiworld & Placement",
+   "collapsed": false,
+   "options": [
+    "death_link",
+    "filler_foreign_pct",
+    "progression_surface",
+    "progression_bias",
+    "confine_foreign_progression",
+    "local_item_only",
+    "exclude_local_item_only",
+    "keep_local",
+    "keep_local_rune_cap"
+   ]
+  },
+  {
+   "name": "Shops & Merchants",
+   "collapsed": false,
+   "options": [
+    "keep_out_of_shops",
+    "no_runes_in_shops",
+    "merchant_bells_on_talk",
+    "merchant_bell_logic",
+    "reroll_infinite_shop_stock",
+    "infinite_hub_wares",
+    "progressive_stone_bells"
+   ]
+  },
+  {
+   "name": "Quality of Life",
+   "collapsed": false,
+   "options": [
+    "auto_equip",
+    "no_equip_load",
+    "start_with_whetblades",
+    "progressive_flasks",
+    "capital_reconciler"
+   ]
+  }
  ],
+ "ungrouped": [],
  "options": [
   {
    "key": "num_regions",
@@ -3113,8 +3155,14 @@ if (typeof module !== "undefined") module.exports = ERW;
   const state = ERW.newState();
   const touched = new Set();
 
-  /* ---- steps: welcome, one per open group, one Advanced (collapsed groups +
-     ungrouped options + AP-core), one Finish ---- */
+  /* ---- steps: welcome, seed size, one per open group, one Advanced (collapsed groups +
+     ungrouped options + AP-core), one Finish ----
+     THE GROUPS COME FROM THE WORLD. `meta.groups` is core.GFWeb.option_groups, the same list
+     Archipelago's own player-options page renders, so a tab here is a section there. Until
+     2026-08-11 that list was empty and every ER option fell through to `ungrouped`, i.e. into
+     the single "Other Options (54)" accordion inside Advanced -- under a banner telling the
+     player the whole thing was safe to skip. An option that is in no group still lands there,
+     which is why the world-side test fails on one. */
   const openGroups = meta.groups.filter(g => !g.collapsed);
   const advanced = [].concat(
     meta.groups.filter(g => g.collapsed).map(g => ({name:g.name, options:g.options})),
@@ -3589,8 +3637,16 @@ if (typeof module !== "undefined") module.exports = ERW;
     const main = $("#main");
     main.innerHTML = "";
     const nav = el("div", "stepnav");
+    /* A tab is `touched` when something under it deviates from its default. The rail went from
+       four tabs to eleven when the groups arrived, and without this you cannot see which ones you
+       have been in -- the .touched rule had been in the stylesheet, unused, since the rail was
+       written. `cur` wins over `touched`: the two rules set the same property and the current tab
+       should read as current. */
+    const stepKeys = st => st.options ? st.options
+      : (st.id === "advanced" ? [].concat.apply([], advanced.map(g => g.options)) : []);
     steps.forEach((st, i) => {
-      const b = el("button", (i === cur ? "cur" : "") , esc(st.title));
+      const dirty = stepKeys(st).some(k => meta.byKey[k] && !ERW.isDefault(meta, state, k));
+      const b = el("button", (i === cur ? "cur" : (dirty ? "touched" : "")), esc(st.title));
       b.addEventListener("click", () => { cur = i; renderStep(); });
       nav.append(b);
     });
@@ -3645,9 +3701,10 @@ if (typeof module !== "undefined") module.exports = ERW;
       main.append(c1, nameCard, pc);
     } else if (step.id === "advanced"){
       const gate = el("div", "card advgate",
-        "<h2>Advanced &amp; experimental</h2><div class='desc'>Everything here is safe to " +
-        "skip — the defaults are fine. Open a section only if you're chasing something " +
-        "specific.</div>");
+        "<h2>Advanced &amp; experimental</h2><div class='desc'>Whatever the world does not " +
+        "file under a tab of its own ends up here, alongside the Archipelago-wide options. " +
+        "Everything here is safe to skip — the defaults are fine. Open a section only if " +
+        "you're chasing something specific.</div>");
       main.append(gate);
       for (const g of advanced){
         const det = el("details", "card");

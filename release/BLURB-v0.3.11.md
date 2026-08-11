@@ -5,6 +5,15 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
+**The options wizard grew tabs.** All 54 settings used to sit in one collapsed section called
+"Other Options", in the wizard's last step, under a line telling you everything there was safe to
+skip. Enemy scaling was in there. So was the pool builder, and the progression surface, and every
+shop setting. They are now seven steps you walk through -- Goal & Regions, DLC & Blessings,
+Difficulty & Scaling, Checks & Item Pool, Multiworld & Placement, Shops & Merchants, Quality of Life
+-- with the ones you have touched lit up in the rail. Your yaml comes out exactly as it did before;
+this is only about being able to find the thing you were looking for. The same grouping now shows up
+on Archipelago's own player-options page too, because both read it from the same place.
+
 **Keep your gear out of the shops.** A new setting, off unless you ask for it:
 
     keep_out_of_shops: [weapons, armor]

@@ -63,6 +63,11 @@ GENERATORS = [
     "client_resets_are_called",
     "contract_versions",
     "wizard_blob_sync",
+    # Its sibling: blob_sync asks whether the two committed copies AGREE, option_groups asks
+    # whether the surface they carry is fully FILED (every key under a wizard tab). Both read
+    # wizard/ and presets/, neither of which gf_test.py installs beside the world, so both
+    # skip in the `tests` job. AP-free, no artifacts, no client.
+    "option_groups",
     "infinite_shop_rows_are_browsable_shelves",
     # PlayRegion ground audit (#445): joins data.LOCATIONS x item_grace_coords.tsv x
     # play_region_buckets.tsv x region_groups.PLAY_REGION_GROUPS. Every input is committed and

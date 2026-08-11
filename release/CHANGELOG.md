@@ -12,6 +12,28 @@ of changes on purpose and fills as they arrive (rule 14).
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.10 client still handshakes with a v0.3.11 seed and vice versa.
 
+### The options wizard has tabs now, instead of one accordion labelled "safe to skip"
+
+Every one of the 54 yaml options used to live in a single collapsed section called
+**Other Options**, inside the wizard's last step, under a line reading *"Everything here is safe to
+skip -- the defaults are fine."* Enemy scaling, the pool builder, the progression surface, Keep
+Local, the shop settings: all of it, behind one summary that told you not to open it.
+
+They are now seven steps of their own -- **Goal & Regions**, **DLC & Blessings**, **Difficulty &
+Scaling**, **Checks & Item Pool**, **Multiworld & Placement**, **Shops & Merchants** and **Quality of
+Life** -- and the step rail highlights the ones you have changed something in. Advanced keeps only
+the Archipelago-wide options.
+
+Nothing about the yaml changed: the same options, in the same order, with the same defaults, and
+every preset downloads byte-for-byte what it downloaded before. This is where the options are shown,
+not what they do.
+
+The grouping is defined once, in the world (`GFWeb.option_groups`), so **the player-options page on
+any Archipelago WebHost gets the same sections** -- it had been rendering one undifferentiated Game
+Options list for the same reason the wizard had one accordion. An option added later and not filed
+under a group falls back into Advanced, which is the old failure one option at a time, so a test now
+fails on it.
+
 ### New option: **Merchant Bells on Talk** (off by default)
 
 Open a merchant's shop and their Bell Bearing is handed to the Twin Maiden Husks for you, so their
