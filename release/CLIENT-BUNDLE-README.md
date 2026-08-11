@@ -17,8 +17,11 @@ the contract is at the bottom of this file.
 2. Unzip this folder anywhere.
 3. (Optional) Put your server details in `apconfig.json`:
    ```json
-   { "url": "localhost:38281", "slot": "YourName", "password": "" }
+   { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
    ```
+   `12345` stands in for YOUR room's port, which is on the room page and is
+   different for every room -- it is only `38281` if you are running the
+   server yourself, at `localhost:38281`.
    Leaving it blank is fine -- the client shows a connect form in-game.
 4. Launch:
    ```

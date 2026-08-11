@@ -423,10 +423,22 @@ if ($IconSheets.Count -eq 0) {
 Info "+ AP-icon override ($($IconSheets.Count) sprite sheet(s), $($IconFiles.Count) file(s) in ap-package\menu)"
 
 # Ship a GENERIC apconfig so a personal slot name never leaks into the release.
+#
+# archipelago.gg, NOT localhost (2026-08-11). Almost nobody self-hosts, so `localhost:38281` was a
+# default that worked for the few and silently failed for everyone else -- and it failed by LOOKING
+# plausible, which is the worst way for a default to be wrong.
+#
+# 🛑 THE PORT IS A DELIBERATE PLACEHOLDER, NOT A VALUE. archipelago.gg assigns every room its own
+# port when the room is created, so there is no number that could go here and be right; 38281 is the
+# LOCAL default and putting it beside archipelago.gg would teach exactly the wrong thing. `PORT`
+# cannot be mistaken for a working setting. It is safe to ship because the client treats an
+# unparseable port the same way it treats a blank url -- it does not attempt the connection and the
+# in-game overlay asks instead (shared::config::is_connectable, client PR pairing this one). Do not
+# revert this to a number without checking that guard is still there.
 $ApConfig = Join-Path $Me3Dst "apconfig.json"
-'{"url":"localhost:38281","slot":"Player1","seed":"","client_version":null,"password":null}' |
+'{"url":"archipelago.gg:PORT","slot":"Player1","seed":"","client_version":null,"password":null}' |
     Set-Content -Path $ApConfig -Encoding ASCII -NoNewline
-Info "+ apconfig.json (generic template: localhost / Player1)"
+Info "+ apconfig.json (generic template: archipelago.gg / Player1 -- port is a placeholder)"
 
 # ---------------------------------------------------------------------------
 # 5. Flagship yaml + docs

@@ -119,33 +119,55 @@ class NumRegions(Range):
 
 
 class NumRegionsOrder(Choice):
-    """How kept regions are chosen when num_regions > 0. There is only one behaviour: N regions drawn
-    at RANDOM from the eligible pool. `spine` is DEPRECATED, does the same thing, and warns -- it is
-    accepted for one release so yamls in the wild keep rolling."""
+    """How the kept regions are chosen when num_regions > 0. This decides WHICH regions your seed
+    keeps. It does NOT decide where you start -- the opening region is always an independent draw
+    weighted by region size, over whatever ends up kept.
+
+    rolled (default): N regions drawn at random from the eligible pool. Every base region shows up
+    in roughly a third of seeds.
+
+    vanilla_order: the first N regions along the game's own progression path -- Limgrave, Weeping,
+    Stormveil, Liurnia, and so on. Fully deterministic, so the same num_regions always keeps the
+    same regions, and the later regions never appear at small N. Pick it if you want an early-game
+    run you can predict; leave it alone if you want variety."""
     # 🛑 THIS DOCSTRING IS THE PLAYER-FACING TEXT. tools/dump_options_metadata.py dumps it
     # verbatim into wizard/options-metadata.json and inlines it in wizard.html, and AP shows it as
     # the option tooltip -- so the rationale below is a COMMENT on purpose. It was briefly in the
     # docstring and shipped an internal changelog entry to players in the wizard.
     #
-    # WHY SPINE WENT (Alaric, 2026-08-05). It kept the first N of a fixed Limgrave-first path, so
-    # every seed at the default num_regions=6 kept the SAME eight regions -- Limgrave, Weeping,
-    # Stormveil, Liurnia, Raya Lucaria Academy, Caelid, plus Leyndell and Altus by goal closure --
-    # and nine base regions could never appear at all. Measured over 3000 seeds, the random draw
-    # puts every base region in the 34-37% band and excludes none. Two shipped docs also called
-    # spine the DEFAULT (it was not) and said it controlled where you START (it did not -- the
+    # WHY IT WENT, AND WHY IT IS BACK. Removed 2026-08-05: as the only alternative to `rolled` it
+    # kept the first N of a fixed Limgrave-first path, so every seed at the default num_regions=6
+    # kept the SAME eight regions -- Limgrave, Weeping, Stormveil, Liurnia, Raya Lucaria Academy,
+    # Caelid, plus Leyndell and Altus by goal closure -- and nine base regions could never appear.
+    # Over 3000 seeds the random draw puts every base region in the 34-37% band and excludes none.
+    # Restored 2026-08-11 (Alaric) VERBATIM, as an opt-in: that determinism is a feature when it is
+    # chosen and a defect when it is the only behaviour, and `rolled` is the default either way.
+    #
+    # 🛑 THE RENAME IS THE POINT, not tidiness. Two shipped docs had called `spine` the DEFAULT (it
+    # was not) and said it controlled where you START (it did not, and still does not -- the
     # opening region is an independent size-weighted draw in
-    # features/start_grace.pick_anchor_region).
+    # features/start_grace.pick_anchor_region). Alaric's first instinct in August was
+    # `spine -> limgrave_start`, which would have baked that exact misreading into the name.
+    # `vanilla_order` describes the ORDER the regions are taken in, which is all it has ever done.
     display_name = "Region Selection"
     option_rolled = 0
-    option_spine = 1          # DEPRECATED -- same behaviour as rolled; warned about at gen time
+    option_vanilla_order = 1
+    # ⭐ `spine` was this value's name until 2026-08-11 and is kept as an AP ALIAS, not a second
+    # option: `alias_*` resolves on input and is deliberately absent from `name_lookup`
+    # (Options.py:96-98), so an old yaml keeps generating while the wizard, the spoiler and
+    # `current_key` all say `vanilla_order`. A second `option_spine = 1` would NOT do this -- it
+    # would put both names in the lookup and make which one gets displayed an ordering accident.
+    # 🛑 Do not retire the alias without checking what AP does with an unknown Choice value in a
+    # yaml already in the wild: `Choice.from_text` RAISES, so dropping it is a hard generation
+    # failure for those players, not a warning.
+    alias_spine = 1
     default = 0
 
     # 🛑 `random` CANNOT be an option name here. Archipelago reserves it -- Options.py's metaclass
     # asserts "Choice option 'random' cannot be manually assigned", because `random` is already the
-    # yaml-level magic that makes AP pick a value for you. Not a loss: with both remaining values
-    # behaving identically, a yaml saying `num_regions_order: random` gets AP's own randomisation
-    # and lands on the same draw either way. So `random`, `rolled` and `spine` all do the same
-    # thing; `rolled` is simply the one AP will let us name.
+    # yaml-level magic that makes AP pick a value for you. 🛑 This mattered less while both values
+    # behaved identically; now they do NOT, so `num_regions_order: random` means "AP picks rolled
+    # or vanilla_order for me", which is a real (and legitimate) third thing rather than a synonym.
 
 
 class ItemShuffle(Toggle):
@@ -501,11 +523,6 @@ class GreenfieldEldenRingWorld(World):
         # the gating, so a drawn subset would seal regions vanilla expects you to walk into.
         _nr = 0 if (_np.is_on(self) or _vp.is_on(self)) else int(self.options.num_regions.value)
         self.gf_goal_choice: str = self._resolve_goal_choice()
-        if self.options.num_regions_order.current_key == "spine":
-            logging.warning(
-                "[eldenring] num_regions_order: spine is DEPRECATED and now behaves exactly as `rolled` -- "
-                "the fixed Limgrave-first path is gone (it made every seed keep the same eight "
-                "regions). Drop the key from your yaml; it will be removed after this release.")
         _draw_parts: Dict[str, List[str]] = {}
         # THE DLC TERMINUS (2026-08-09). The base game's ending is guaranteed by the Ashen
         # Capital not being a rollable region; the DLC's ending had no such guarantee, so a
@@ -532,6 +549,7 @@ class GreenfieldEldenRingWorld(World):
             forced=_forced,
             parts=_draw_parts,
             bar_from_draw=_auto_forced,
+            order=self.options.num_regions_order.current_key,
         )
         # #409: SAY WHAT THE NUMBER DID. `num_regions` is a DRAW SIZE -- a named goal force-keeps
         # its own regions and every kept region pulls its parents in -- so the seed can contain more

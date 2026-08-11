@@ -23,8 +23,16 @@ game: "Elden Ring"
 
   # ---- Scope: small, predictable, evening-length ---------------------------
   # PINNED explicitly (never rely on the num_regions default -- 0 means "all
-  # regions / full Shattering", which is a long run). 4 spine regions gives a
-  # Limgrave-first difficulty gradient and a ~4-8h pace.
+  # regions / full Shattering", which is a long run). 4 regions is a ~4-8h pace.
+  #
+  # 🛑 THIS COMMENT USED TO CLAIM a "Limgrave-first difficulty gradient", which
+  # this preset has not produced since the spine order was dropped on
+  # 2026-08-05: with `num_regions_order` unset it takes the default, and the
+  # default draws at RANDOM. The gradient is available again as of 0.3.12 --
+  # uncomment the line below to get it. Left OFF rather than switched on
+  # silently, because that would change every seed this preset has produced
+  # for the last week.
+  # num_regions_order: vanilla_order
   num_regions: 4
   ending_condition: region_locks  # win = reach the goal region holding every kept region's lock
   start_with_region_lock: true    # spawn at Roundtable with one kept region already open

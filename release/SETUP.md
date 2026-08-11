@@ -141,12 +141,21 @@ You also need, separately:
    start -- `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` has the options.
 
 3. **Connect.** Open the **Connection** entry in the overlay menu bar and
-   enter your server address, slot name, and password. (Solo local game:
-   the address is `localhost` plus the port your server printed.) If you kept
-   an `apconfig.json` from v0.1, it still works:
+   enter your server address, slot name, and password.
+
+   **The port is not 38281.** If you are playing on archipelago.gg, your room
+   gets its own port when it is created -- it is printed on the room page,
+   next to the server address, and it changes for every room. `38281` is only
+   the default for a server you are running yourself, where the address is
+   `localhost:38281`.
+
+   The shipped `apconfig.json` says `archipelago.gg:PORT` for that reason: it
+   is a placeholder, and the client will not try to connect until you replace
+   `PORT` with your room's number (or fill the form in-game, which does the
+   same thing). An `apconfig.json` kept from v0.1 still works:
 
    ```json
-   {"url":"localhost:38281","slot":"YourName","seed":"","client_version":null,"password":null}
+   {"url":"archipelago.gg:12345","slot":"YourName","seed":"","client_version":null,"password":null}
    ```
 
    Open the overlay from a menu, not while moving, so stray keys don't leak
