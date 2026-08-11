@@ -38,6 +38,12 @@ those are the same word -- so the template Archipelago generated for this game h
 twice and Archipelago would not read its own file back. Writing `on` or `off` in your yaml still
 works exactly as before; nothing you have already written needs touching.
 
+**One fewer free skip in the burnt capital.** Unlocking the Ashen Capital used to light its Queen's
+Bedchamber, which is on the far side of the Erdtree Sanctuary -- so the region lock handed you a warp
+straight past Sir Gideon. It does not any more. The base game's version of that grace was fixed a week
+earlier for the identical reason; the burnt one had simply not existed as a bundle yet when that call
+was made.
+
 ## What is queued for it
 
 A fix for something two players noticed independently -- items whose region label sends you to the

@@ -4946,9 +4946,13 @@ _ARENA_GRACE_FLAGS = frozenset({
 #     arena-grace oracle's job. Granting it warps you into a live fight. Walk to it.
 #   * 71900 (Fractured Marika, m19_00) is boss-gated too, and independently useless as an entry:
 #     19002502 spawns that bonfire only after the Elden Beast dies (it waits on EventFlag 9123).
-# The bundle is therefore {71122, 71123, 71124, 71125} and the front door is 71122, the ashen East
-# Capital Rampart -- the map's actual doorway, which is a better entry than the throne room anyway.
-# All four are reachable-on-foot from each other, so the withheld three cost a walk, not a check.
+# 🛑 A FOURTH came out on 2026-08-11: 71124 Queen's Bedchamber, to _STATE_GATED_GRACE_FLAGS -- see
+# its entry there. It is the ashen twin of 71107, withheld from base Leyndell since 08-04 for the
+# identical reason, and it survived that fix only because this list still skipped the whole map on
+# the day the fix was made.
+# The bundle is therefore {71122, 71123, 71125} and the front door is 71122, the ashen East Capital
+# Rampart -- the map's actual doorway, which is a better entry than the throne room anyway.
+# All four are reachable-on-foot from each other, so the withheld ones cost a walk, not a check.
 _ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
 # DERIVED arena graces (arena_graces.tsv, tools/datamine_arena_graces.py). THE predicate we actually
 # want, replacing the playtest-scar hand list above:
@@ -5030,7 +5034,28 @@ if os.path.exists(os.path.join(HERE, "arena_graces.tsv")) \
 #     it does not belong in _BOSS_GATED_GRACE_FLAGS -- it is a physically-present grace sealed by a
 #     boss-defeat state, which is exactly this set. Leyndell keeps its other six; its front door
 #     (71102 East Capital Rampart) and REGION_GRACE_LANDMARKS entry are untouched.
-_STATE_GATED_GRACE_FLAGS = frozenset({71107, 72107, 76314})
+#   71124 Queen's Bedchamber (m11_05, Ashen Capital): THE SAME GRACE, THE SAME REASON, ONE MAP
+#     OVER. Alaric, 2026-08-11 -- "take queen's bedchamber out of the ashen capital bundle", and
+#     then, arriving at it independently, "oh it should be witheld from leyndell to eh". It already
+#     was: 71107 above is the base-game twin and has been withheld since 2026-08-04.
+#     🛑 WHY THE ASHEN ONE SURVIVED THAT FIX, because it is an ordering artifact and not an
+#     oversight anyone could have caught by reading: the 08-04 ruling was made when m11_05's graces
+#     were still skipped WHOLESALE by _ASHEN_LEYNDELL_GRACE_FLAGS, so there was no ashen bundle to
+#     take anything out of. SPEC-ashen-capital-lock landed 08-06 and turned those graces into a real
+#     bundle -- and 71124 came along with it, ungated, because the ruling that would have caught it
+#     predated the thing it needed to apply to. ⭐ A fix scoped to the map it was reported on does
+#     not travel to a variant of that map that does not exist yet.
+#     The geometry is the base game's, unchanged by the burn: the Queen's Bedchamber sits beyond the
+#     Erdtree Sanctuary, so reaching it means going through the Sanctuary's boss. On m11_05 that is
+#     Sir Gideon Ofnir -- 71121 Erdtree Sanctuary is already withheld as an ARENA grace at 0.5 m
+#     from him (arena_graces.tsv), and 71120 Elden Throne beyond that is 9005810 asset-hidden. So
+#     the table was, once again, withholding the door and granting the room past it.
+#     Like 71107 it is NOT 9005810 asset-hidden, so the EMEVD oracle cannot see it and it does not
+#     belong in _BOSS_GATED_GRACE_FLAGS. It is a physically-present grace sealed by a boss-defeat
+#     state, which is what this set is for.
+#     The Ashen Capital keeps {71122, 71123, 71125}; its front door (71122 East Capital Rampart) and
+#     its REGION_GRACE_LANDMARKS entry are untouched, so the region stays enterable.
+_STATE_GATED_GRACE_FLAGS = frozenset({71107, 71124, 72107, 76314})
 # _ASHEN_LEYNDELL_GRACE_FLAGS is deliberately NOT in this union any more (see its note above): the
 # Ashen Capital owns them now. The set is kept as a named constant because features/capital.py and
 # test_gf_ashen_capital_lock assert the bundle against it -- a silent re-add here would hand the

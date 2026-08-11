@@ -167,6 +167,22 @@ least one of the items reaching the partner game is useful-classified. The old c
 reaching the partner and never looked at what they were, which is why it was green for the whole life
 of the bug.
 
+### A region lock no longer warps you past Sir Gideon
+
+Unlocking the Ashen Capital lit its Queen's Bedchamber for you. That grace sits BEYOND the Erdtree
+Sanctuary, so the warp dropped you on the far side of the Sanctuary's boss -- while the grace at his
+door stayed withheld, exactly as it should be. You could skip him for free, and if you wanted to
+fight him you had to walk back.
+
+The base game's Queen's Bedchamber was fixed for the same reason on 2026-08-04, and it has been
+withheld from Leyndell ever since. The ashen twin survived that fix by an accident of order: on the
+4th the burnt capital had no grace bundle at all, so there was nothing to take it out of. It got one
+two days later and the Bedchamber came along inside it.
+
+Nothing else moves. The Ashen Capital still opens on East Capital Rampart, still lights Leyndell,
+Capital of Ash and the Divine Bridge, and the Bedchamber is a short walk from all three once you
+have earned it. Reported by Alaric from a playtest.
+
 ### ...and the template Archipelago generated for it would not load
 
 Reported by Alaric on 2026-08-11, from the error Archipelago itself raises:

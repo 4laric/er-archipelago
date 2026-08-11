@@ -107,13 +107,39 @@ class TestTheGeometryIsItsOwn:
         assert REGION_OPEN_FLAGS[FINALE_REGION] == REGION_GRACE_POINTS[FINALE_REGION][0]
 
     def test_the_arena_and_post_goal_graces_stay_withheld(self):
-        """Three of the six m11_05/m19_00 graces are NOT in the bundle, each by a derivation that
+        """FOUR of the six m11_05/m19_00 graces are NOT in the bundle, each by a derivation that
         outranks the spec's prose: 71120 (Elden Throne) and 71900 (Fractured Marika) are boss-gated
         bonfires that do not exist yet when the lock arrives, and 71121 sits 0.5 units inside boss
         arena 11050850 (arena_graces.tsv). Granting any of them hands out a warp to a bonfire that
-        has not spawned, or into a live fight."""
+        has not spawned, or into a live fight.
+
+        🛑 71124 Queen's Bedchamber joined them 2026-08-11 (_STATE_GATED_GRACE_FLAGS). It is the
+        ashen twin of 71107, withheld from base Leyndell since 2026-08-04 for the identical reason
+        -- the Bedchamber lies BEYOND the Erdtree Sanctuary, so granting it warps the player past
+        the Sanctuary's boss while 71121, the grace at that boss's door, stays withheld. The
+        base-game fix did not travel here because on 08-04 this map had no bundle to take it out
+        of: SPEC-ashen-capital-lock created one two days later, and 71124 arrived inside it.
+
+        ⭐ THE ASSERTION IS EXACT, NOT A SUPERSET, and that is the point. A `>=` here would pass
+        while the bundle silently regrew, which is precisely the failure this file exists to catch
+        -- the graces come from a REGENERATED module, so a gen_data.py edit can move them without
+        anyone touching this test."""
         bundle = set(REGION_GRACE_POINTS[FINALE_REGION])
-        assert bundle == {71122, 71123, 71124, 71125}, sorted(bundle)
+        assert bundle == {71122, 71123, 71125}, sorted(bundle)
+        assert 71124 not in bundle, (
+            "the ashen Queen's Bedchamber is back in the bundle -- a region lock now warps the "
+            "player past Sir Gideon. Check _STATE_GATED_GRACE_FLAGS in gen_data.py")
+
+    def test_the_leyndell_twin_is_withheld_too(self):
+        """The base-game Queen's Bedchamber (71107) must stay out of Leyndell's bundle. Pinned
+        HERE, beside its ashen twin, because the two are one ruling and were separated only by the
+        order the maps got their bundles -- a future edit that restores one should trip on the
+        other rather than leaving the pair half-applied."""
+        from ..region_graces import REGION_GRACE_POINTS as _rgp
+
+        leyndell = set(_rgp.get("Leyndell", []))
+        assert leyndell, "Leyndell has no grace bundle -- this assertion has stopped measuring"
+        assert 71107 not in leyndell, sorted(leyndell)
 
     def test_the_reconciler_partition_is_unmoved_by_the_split(self):
         royal, ashen = _capital.capital_partition()
