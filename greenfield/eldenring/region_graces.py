@@ -28,7 +28,7 @@ REGION_GRACE_POINTS = {
     'Siofra River': [71222, 71223, 71224, 71225, 71226, 71227, 71270, 71271],
     'Stormveil': [71003, 71004, 71005, 71006, 71007, 71008],
     'Weeping': [73102, 73000, 73001, 73101, 73200, 76150, 76151, 76152, 76153, 76154, 76155, 76156, 76157, 76158, 76159, 76160, 76162],
-    'Ashen Capital': [71122, 71123, 71124, 71125],
+    'Ashen Capital': [71122, 71123, 71125],
 }
 
 # region -> one warp grace per warp-menu sub-area (see gen_data.py). Between the full
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b936b08f554f4a96b51f9b905be1c253846478f241ffeb3c1c33783b6a05bd9e', 'module': 'region_graces.py', 'body_sha256': 'sha256:baef3659f8a87406a8915523fd589fb82d5538ede7366d445e1a78c36d2a6985'}
+_GEN_STAMP = {'inputs_hash': 'sha256:56fa53148695b1e6b5ddfda4978ef8e4c531320d33c1e112db009a2ab867f0a2', 'module': 'region_graces.py', 'body_sha256': 'sha256:781f81605aa3eeee3b5ee2c329a37b1905880f6fbd6a2f5d9400484a52625eb6'}
