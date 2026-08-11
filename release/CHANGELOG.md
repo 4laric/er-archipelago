@@ -167,6 +167,29 @@ least one of the items reaching the partner game is useful-classified. The old c
 reaching the partner and never looked at what they were, which is why it was green for the whole life
 of the bug.
 
+### A boss that does not exist no longer holds 10% of Mt. Gelmir hostage
+
+`1038540800` "Fallingstar Beast" (Mt. Gelmir, by First Mt. Gelmir Campsite) has a healthbar, a name,
+a defeat flag and 23 sweep checks -- and no beast. Warp to the campsite and there is nothing there.
+The EMEVD carries a complete boss script for a character the map never places, so the flag can never
+be set, and 23 of Mt. Gelmir's 222 checks -- 10.4% of the region, twelve of them the pickups ringing
+that very campsite -- were auto-granted by nothing. Raised from **boblerrr**'s Mt. Gelmir playtest
+(#540).
+
+Those 23 checks were never lost: you could always pick them up by hand. What they lacked was the
+boss-sweep auto-grant. They now belong to Mt. Gelmir's real field bosses instead -- 12 to the
+Ulcerated Tree Spirit and 11 to Demi-Human Queen Maggie, both in the same region -- so no check
+changed which region it lives in, and none entered or left the swept set.
+
+This is the SECOND boss of its kind (the Isolated Divine Tower's `34150800` was the first, confirmed
+absent 2026-08-05), and the tells that caught the first one caught nothing here: that one was
+nameless on an empty map. So the fix is a detector for the SHAPE rather than a list of ids -- an
+overworld boss with no arena anywhere on its tile, on a tile whose map data WAS read, that the map
+still does not place. Generation now refuses to build if a third one appears without a human having
+gone and looked. One candidate is already flagged and under review: the unnamed fight at the Fourth
+Church of Marika, which keeps its sweep until someone stands on the tile, because deleting a real
+boss's reward is the worse mistake.
+
 ### Progressive Stone Bells no longer competes with the bell bearings it replaced
 
 If you turned on `progressive_stone_bells`, you were playing with **two** upgrade ladders at once. The
