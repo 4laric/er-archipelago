@@ -167,6 +167,31 @@ least one of the items reaching the partner game is useful-classified. The old c
 reaching the partner and never looked at what they were, which is why it was green for the whole life
 of the bug.
 
+### ...and the template Archipelago generated for it would not load
+
+Reported by Alaric on 2026-08-11, from the error Archipelago itself raises:
+
+    KeyError: Duplicate key False found in YAML.
+
+The share option accepted six names for its two endpoints -- `true`, `false`, `on`, `off`, `all`,
+`none` -- and every one of them was correct. What was not correct was the file Archipelago builds out
+of them. It writes a numeric option's accepted names into the template UNQUOTED, and in YAML `off` is
+not the word "off", it is the value `false`; `on` is `true`. So the block held the key `false` twice
+and the key `true` twice, and Archipelago's own loader refuses a file with a duplicate key. The
+default template for this game could not be read by the program that wrote it.
+
+`on` and `off` are gone. Nothing is lost by their going: writing `on` or `off` in your own yaml still
+works and always did, because YAML turns those words into booleans long before the option sees them,
+and `true` / `false` were never doing separate work. `all` and `none` are untouched, and the option's
+behaviour, range and default are all unmoved.
+
+🛑 The loud half of this was the easy half. A yaml loader that does NOT check for duplicates simply
+keeps the last one, which means `on: 0` was silently overwriting `true: 50` -- the template shipped
+with its own default weighted to zero, and that failure has no error message at all. Three checks
+land with the fix; the one that matters generates the template with Archipelago's real generator and
+hands it straight back to Archipelago's real loader. Fifty-four options were each correct on their
+own, and nothing in this repo had ever read the file they add up to.
+
 ### A boss that does not exist no longer holds 10% of Mt. Gelmir hostage
 
 `1038540800` "Fallingstar Beast" (Mt. Gelmir, by First Mt. Gelmir Campsite) has a healthbar, a name,

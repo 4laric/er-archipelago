@@ -192,10 +192,26 @@ class ConfineForeignProgression(NamedRange):
     range_start = 0
     range_end = 100
     default = 100
-    # `true` / `false` are what every yaml in the wild says, and they must keep meaning what they
-    # meant. `on`/`off`/`all`/`none` are spelled out because a share reads naturally either way.
-    special_range_names = {"false": 0, "off": 0, "none": 0,
-                           "true": 100, "on": 100, "all": 100}
+    # 🛑🛑 `on` / `off` USED TO BE HERE AND MUST NEVER COME BACK, and this is not a style note --
+    # their presence made the world's own generated template UNLOADABLE. AP's template generator
+    # (`Options.generate_yaml_templates` -> `data/options.yaml`, the `range_option` macro) emits
+    # weight keys UNQUOTED, `{{ entry }}: {{ default }}`, unlike the Choice/Toggle branch beside it
+    # which runs every name through `yaml_dump`. YAML 1.1 resolves `false` AND `off` both to the
+    # boolean `False`, and `true` AND `on` both to `True`, so the emitted block carried two pairs of
+    # duplicate keys and `Utils.UniqueKeyLoader` raised `KeyError: Duplicate key False found in
+    # YAML` on the default template for this game. Under any loader that does NOT check duplicates
+    # it is quieter and worse: `on: 0` silently overwrites `true: 50`, so the template ships with
+    # its own default weighted to zero. `test_gf_option_template_yaml.py` is the gate.
+    #
+    # Nothing is lost by their absence, because these names were never the path a player's yaml
+    # takes. `true` / `false` / `on` / `off` / `yes` / `no` written unquoted in a yaml are YAML 1.1
+    # BOOLEANS -- they arrive as Python `bool` and are answered by the `from_any` override below,
+    # which is what actually carries the "every yaml in the wild says `true`" promise. The names
+    # kept here are for the quoted spellings and for the weights-dict form. `false` / `true` are
+    # kept because they are the words the option was born with; `none` / `all` because a share
+    # reads naturally that way and neither is a YAML boolean.
+    special_range_names = {"false": 0, "none": 0,
+                           "true": 100, "all": 100}
 
     @classmethod
     def from_any(cls, data):

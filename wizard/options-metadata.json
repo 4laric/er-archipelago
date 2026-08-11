@@ -1143,14 +1143,6 @@
      "value": 0
     },
     {
-     "name": "off",
-     "value": 0
-    },
-    {
-     "name": "on",
-     "value": 100
-    },
-    {
      "name": "true",
      "value": 100
     }
