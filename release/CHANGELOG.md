@@ -12,6 +12,64 @@ of changes on purpose and fills as they arrive (rule 14).
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.10 client still handshakes with a v0.3.11 seed and vice versa.
 
+### The wizard card that tells you what you send to other players had never once rendered
+
+"What are you putting into the multiworld?" shipped on 2026-08-08 and every player who opened it got
+the same sentence: *"Shuffle Vanilla Items is off, so there are no real items to send."* It is not
+off. It cannot be off -- `item_shuffle` was frozen ON three weeks earlier, on 2026-07-26, which took
+it off the yaml surface entirely. The card opened with `!!v("item_shuffle")`, that read an option
+that no longer exists, JavaScript answered `undefined`, and `!!undefined` is `false`. The card was
+born dead and nothing was ever red.
+
+An absent option means its FROZEN value, never *off* -- the same mistake the client contract made
+with its optional keys. `tools/check_wizard_lint_currency.py` now fails on any option key the page
+reads without a presence test, checked per function, and its own negative test is the exact line
+above.
+
+**And now that it renders, it answers both directions**, which is what was asked for:
+
+- **how many of your checks another player's item can land on** — new, and the number people
+  actually want. Nothing in this world ever refuses an item for being foreign, so this is your
+  checks minus whatever your locality options pin at home, and it needs to know nothing about the
+  other players' slots.
+- **how many of your items are free to travel** — the number that was already there.
+
+They are the same figure read from either end, and the card now says so: Archipelago's fill is
+count-neutral, so every item you hold at home keeps one of your own checks and every one you let go
+opens a check to somebody else.
+
+Underneath, **how many of your checks may hold another player's progression** — your progression
+surface at the default `confine_foreign_progression: 100`, widening as you lower it, with the
+measured warning attached: at 100 a non-Elden-Ring partner receives ~100% filler from you (no
+weapon, armour or talisman reached a Hollow Knight slot in 498 placements), because confining their
+key items to your surface fills their own world first and Archipelago places every world's useful
+items before any filler.
+
+`item_shuffle` also came out of the seed-size tab's control list, where it had been counted in the
+heading while rendering no row.
+
+### The options wizard has tabs now, instead of one accordion labelled "safe to skip"
+
+Every one of the 54 yaml options used to live in a single collapsed section called
+**Other Options**, inside the wizard's last step, under a line reading *"Everything here is safe to
+skip -- the defaults are fine."* Enemy scaling, the pool builder, the progression surface, Keep
+Local, the shop settings: all of it, behind one summary that told you not to open it.
+
+They are now seven steps of their own -- **Goal & Regions**, **DLC & Blessings**, **Difficulty &
+Scaling**, **Checks & Item Pool**, **Multiworld & Placement**, **Shops & Merchants** and **Quality of
+Life** -- and the step rail highlights the ones you have changed something in. Advanced keeps only
+the Archipelago-wide options.
+
+Nothing about the yaml changed: the same options, in the same order, with the same defaults, and
+every preset downloads byte-for-byte what it downloaded before. This is where the options are shown,
+not what they do.
+
+The grouping is defined once, in the world (`GFWeb.option_groups`), so **the player-options page on
+any Archipelago WebHost gets the same sections** -- it had been rendering one undifferentiated Game
+Options list for the same reason the wizard had one accordion. An option added later and not filed
+under a group falls back into Advanced, which is the old failure one option at a time, so a test now
+fails on it.
+
 ### New option: **Merchant Bells on Talk** (off by default)
 
 Open a merchant's shop and their Bell Bearing is handed to the Twin Maiden Husks for you, so their

@@ -138,7 +138,12 @@ PRESETS = [
 # ---------------------------------------------------------------------------
 def load_gfoptions(ap_dir):
     """Install the current world into a pinned upstream AP (via gf_test, the one installer) and
-    import its live GFOptions dataclass. Returns (GFOptions, pin)."""
+    import its live option surface. Returns (GFOptions, GFWeb, pin, apworld_version).
+
+    GFWeb comes along because `GFWeb.option_groups` is where the option GROUPING lives -- the same
+    list Archipelago's own player-options page renders. The wizard's tabs and the WebHost's sections
+    are therefore the same grouping by construction, rather than two tables that agree until one of
+    them is edited."""
     sys.path.insert(0, HERE)
     import gf_test  # the canonical installer; keeps AP pin + install logic in one place
     from pathlib import Path
@@ -158,9 +163,9 @@ def load_gfoptions(ap_dir):
     logging.disable(logging.CRITICAL)
     with open(os.devnull, "w") as devnull, \
             contextlib.redirect_stderr(devnull), contextlib.redirect_stdout(devnull):
-        from worlds.eldenring.core import GFOptions
+        from worlds.eldenring.core import GFOptions, GFWeb
         from worlds.eldenring.contract import APWORLD_VERSION
-    return GFOptions, pin, APWORLD_VERSION
+    return GFOptions, GFWeb, pin, APWORLD_VERSION
 
 
 def describe(key, cls):
@@ -234,9 +239,53 @@ def describe(key, cls):
     return d
 
 
+def group_surface(GFWeb, fields):
+    """`GFWeb.option_groups` projected onto the PLAYER-VISIBLE yaml keys, as the wizard wants it.
+
+    Returns ``(groups, ungrouped)`` where each group is ``{name, collapsed, options:[yaml key]}``
+    and `ungrouped` holds every visible key no group claimed, in `field_order`. The wizard renders
+    one STEP per non-collapsed group and drops collapsed groups plus `ungrouped` into Advanced, so
+    "not in a group" means "filed under Advanced & experimental" -- see the note on
+    core._OPTION_GROUPS.
+
+    Group members are matched by CLASS IDENTITY against the live dataclass fields, so a class AP
+    added to a group but this tool filtered out (`Visibility.none`, or an Archipelago-core option
+    from the auto-appended "Item & Location Options" group) simply does not appear. A group with no
+    visible members is dropped rather than emitted empty -- the wizard would render a bare
+    "(0)" summary for it.
+    """
+    key_of = {}
+    for k, cls in fields:
+        # Two yaml keys sharing one Option class would make this mapping ambiguous, and the group
+        # would silently claim whichever came last. Never seen; asserted so it stays that way.
+        if cls in key_of:
+            sys.exit("[FAIL] options %r and %r share the Option class %s -- group_surface cannot "
+                     "attribute it" % (key_of[cls], k, cls.__name__))
+        key_of[cls] = k
+
+    groups, claimed = [], {}
+    for g in getattr(GFWeb, "option_groups", []):
+        keys = [key_of[c] for c in g.options if c in key_of]
+        for k in keys:
+            if k in claimed:
+                sys.exit("[FAIL] option %r is in two groups (%s, %s) -- fix core._OPTION_GROUPS"
+                         % (k, claimed[k], g.name))
+            claimed[k] = g.name
+        if keys:
+            groups.append({"name": g.name, "collapsed": bool(g.start_collapsed), "options": keys})
+
+    ungrouped = [k for k, _ in fields if k not in claimed]
+    if ungrouped:
+        # Not fatal HERE -- this tool's job is to report the surface, not to rule on it, and a
+        # half-grouped surface must still produce a usable wizard. The gate that fails is
+        # greenfield/eldenring/tests/test_gf_option_groups.py, which runs AP-free in CI.
+        print("  %d option(s) in no group -> Advanced: %s" % (len(ungrouped), ", ".join(ungrouped)))
+    return groups, ungrouped
+
+
 def extract(ap_dir):
     import dataclasses
-    GFOptions, pin, apworld_version = load_gfoptions(ap_dir)
+    GFOptions, GFWeb, pin, apworld_version = load_gfoptions(ap_dir)
     from Options import PerGameCommonOptions
     # The yaml-tunable ER surface = the fields GFOptions ADDS on top of PerGameCommonOptions
     # (make_dataclass order = registry order, already minus FROZEN_OPTIONS).
@@ -266,6 +315,7 @@ def extract(ap_dir):
     validate_presets(options)
 
     field_order = [k for k, _ in fields]
+    groups, ungrouped = group_surface(GFWeb, fields)
     # Deterministic surface hash (no timestamps) so --check can byte-compare.
     surface = json.dumps([[o["key"], o["kind"], o["default"], o["choices"], o["range"],
                            o["valid_keys"]] for o in options], sort_keys=True, default=str)
@@ -289,8 +339,10 @@ def extract(ap_dir):
         "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP %s)" % pin,
         "source_sha256": hashlib.sha256(surface.encode("utf-8")).hexdigest(),
         "field_order": field_order,
-        "groups": [],
-        "ungrouped": field_order,
+        # THE WIZARD'S TABS. Presentation only: `field_order` above is what buildYaml writes and
+        # what preset_yaml orders by, so regrouping can never reorder or change an emitted yaml.
+        "groups": groups,
+        "ungrouped": ungrouped,
         "options": options,
         "presets": PRESETS,
     }
