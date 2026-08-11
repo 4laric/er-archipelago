@@ -31,6 +31,13 @@ still in the pool alongside it -- and one of them is the top of the somber shop.
 `Somberstone Miner's Bell Bearing [5]` in Enir-Ilim and the ladder was simply over. Turn the option on
 now and there are no loose bell bearings to find; turn it off and everything is exactly where it was.
 
+**The options template downloads and loads again.** If you pulled the default Elden Ring yaml
+from Archipelago and it came back at you with `Duplicate key False found in YAML`, that was ours and
+it is fixed. One setting listed both `off` and `false` among the words it accepts, and to a yaml file
+those are the same word -- so the template Archipelago generated for this game held the same key
+twice and Archipelago would not read its own file back. Writing `on` or `off` in your yaml still
+works exactly as before; nothing you have already written needs touching.
+
 ## What is queued for it
 
 A fix for something two players noticed independently -- items whose region label sends you to the

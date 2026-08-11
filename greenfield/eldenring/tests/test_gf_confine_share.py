@@ -20,6 +20,7 @@ Knight 40.7% useful, the pool's own mix. boblerrr reported the symptom from a li
      the single most likely way this change hurts somebody. Four cases below cover it.
 """
 import pytest
+import yaml
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
@@ -64,10 +65,23 @@ def test_a_yaml_bool_keeps_meaning_what_it_meant(data, expected):
     assert ConfineForeignProgression.from_any(data).value == expected
 
 
-@pytest.mark.parametrize("text,expected", [("true", 100), ("false", 0), ("on", 100), ("off", 0),
+@pytest.mark.parametrize("text,expected", [("true", 100), ("false", 0),
                                            ("all", 100), ("none", 0)])
 def test_the_named_values_map_to_the_endpoints(text, expected):
     assert ConfineForeignProgression.from_any(text).value == expected
+
+
+@pytest.mark.parametrize("scalar,expected", [("true", 100), ("false", 0), ("on", 100), ("off", 0),
+                                             ("yes", 100), ("no", 0)])
+def test_a_yaml_boolean_spelling_reaches_the_endpoint_without_being_a_named_value(scalar, expected):
+    """🛑 `on` / `off` are deliberately NOT in `special_range_names` -- see the option's comment;
+    listing them made AP's generated template hold a duplicate key. They still work, and this is the
+    test that says so, because it goes through the yaml loader rather than handing `from_any` a
+    string the loader would never have produced. All six spellings below are YAML 1.1 booleans, so
+    each arrives as a Python `bool` and the `from_any` bool catch answers it."""
+    value = yaml.safe_load("confine_foreign_progression: %s" % scalar)["confine_foreign_progression"]
+    assert isinstance(value, bool), "%r stopped being a yaml boolean" % scalar
+    assert ConfineForeignProgression.from_any(value).value == expected
 
 
 @pytest.mark.parametrize("data", [0, 25, 50, 100])
