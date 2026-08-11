@@ -141,8 +141,17 @@ class SphereScalingRolled(WorldTestBase):
                 f"silently fell back to SPINE order (regression).")
 
             # The slot_data wire must be exactly the order-ramp pipeline, end to end.
+            # 2026-08-10: the FINALE is appended to the order (features/scaling._finale_for_wire).
+            # It is NOT in _kept() and NOT in SPINE -- it is never rolled -- so the pipeline this
+            # test mirrors has to append it too, or the mirror asserts a wire we deliberately stopped
+            # emitting. Its position is a design fact, not a fill result: it ends the run.
             order = sc._order_from_spheres(region_sphere, sc._order_rng(world))
-            expected = sc._ranges_from_targets(sc._targets_from_order(order))
+            _finale = sc._finale_for_wire(world)
+            self.assertIsNotNone(
+                _finale,
+                f"seed={seed}: a base-game seed built no finale, so the appended-tail branch is "
+                f"untested here (an oracle that measures nothing is a lie).")
+            expected = sc._ranges_from_targets(sc._targets_from_order(order + [_finale]))
             wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
             self.assertEqual(
                 _tuples(wire), _tuples(expected),
@@ -216,3 +225,93 @@ class DlcOffSeed(WorldTestBase):
             "DLC scaling wires %r emitted on a no-DLC seed: the client would carry scaling "
             "buckets/floors for play regions this seed can never enter -- the kept-region gate "
             "in features/scaling.py is not doing its job" % (leaked,))
+
+
+# ---------------------------------------------------------------------------------------------
+# THE FINALE MUST BE ON THE WIRE (2026-08-10, bobler playtest -- "ashen and roundtable seems to be
+# untouched"). The Ashen Capital is never ROLLED (gen_data: "LOCATIONS[FINALE_REGION] is NOT in
+# REGIONS"), so it is not in world._kept() and not in SPINE -- and EVERY scaling path keys on one of
+# those two. Its geometry has always existed (region_play_ids: 'Ashen Capital': [11050, 19000]) and
+# area_locks special-cases it explicitly (core.py, features/area_locks.py `gf_finale_active`), so
+# region LOCKS worked while SCALING silently skipped the entire endgame -- including play_region
+# 19000, the Elden Throne, where the goal fight happens.
+#
+# Evidence this is written against: across all 7 seeds in bobler's 08-10/08-11 client logs,
+# `regionSphereTargetRanges` contained 11050 or 19000 ZERO times, and the client logged
+# "region 11050 is not in the sphere wire -- left VANILLA (no tier, no down-state)" nine times.
+# The client's degrade for an unwired bucket is the FLOOR tier and an INFO line, so this could only
+# ever be caught here.
+_FINALE_REGION = "Ashen Capital"
+
+
+class FinaleIsOnTheScalingWire(WorldTestBase):
+    """num_regions=1 -- the exact shape of bobler's 08-11 seed (`region_count = 1`), which is also
+    the degenerate case: one rolled region plus the always-locked finale. Before the fix this seed
+    emitted five buckets, all Mt. Gelmir, all target 0, and nothing for the capital at all."""
+    game = GAME
+    options = {"num_regions": 1, "enable_dlc": False}
+
+    def test_finale_buckets_are_wired_and_deepest(self):
+        world = self.world
+        self.assertTrue(
+            getattr(world, "gf_finale_active", False),
+            "precondition: this seed has no finale, so it cannot test the finale wire.")
+
+        wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
+        by_pid = {lo: t for lo, _hi, t in wire}
+
+        owed = sc.REGION_PLAY_IDS[_FINALE_REGION]
+        self.assertEqual(
+            [p for p in owed if p not in by_pid], [],
+            f"the finale's play_region buckets {owed} are absent from regionSphereTargetRanges "
+            f"-- the Ashen Capital and the Elden Throne run VANILLA, with the down-state off. "
+            f"wire={sorted(by_pid)}")
+
+        # ...and it is the HARDEST thing in the seed: the finale ends the run, so nothing may
+        # out-scale it. (Alaric, 2026-08-10: "yeah its last region by default now".)
+        top = max(by_pid.values())
+        for pid in owed:
+            self.assertEqual(
+                by_pid[pid], top,
+                f"finale bucket {pid} is at target {by_pid[pid]} but the seed's deepest target is "
+                f"{top} -- the endgame is scaled below a region you clear before it.")
+
+
+class FinaleWireCoverageAcrossSeeds(WorldTestBase):
+    """Same claim on a rolled mid-size draw, so the guard is not pinned to the degenerate seed."""
+    game = GAME
+    options = {"num_regions": 6}
+
+    def test_every_reachable_region_has_every_bucket_wired(self):
+        from Fill import distribute_items_restrictive
+        saw_finale = False
+        for seed in _SEEDS:
+            self.world_setup(seed)
+            distribute_items_restrictive(self.multiworld)
+            world = self.world
+            wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
+            wired = {lo for lo, _hi, _t in wire}
+
+            owed = list(world._kept())
+            if getattr(world, "gf_finale_active", False):
+                owed.append(_FINALE_REGION)
+                saw_finale = True
+
+            # WITNESS (test_gf_vacuous_pass shape 2): "nothing is missing" is also what an empty
+            # wire and an empty owed-set say, and both are exactly how this regression would come
+            # back. Say out loud that the scan saw something.
+            self.assertTrue(wired, f"seed={seed}: the scaling wire is EMPTY.")
+            self.assertTrue(owed, f"seed={seed}: no regions in play to check.")
+
+            missing = {r: [p for p in sc.REGION_PLAY_IDS.get(r, []) if p not in wired]
+                       for r in owed}
+            missing = {r: p for r, p in missing.items() if p}
+            self.assertEqual(
+                missing, {},
+                f"seed={seed}: region(s) the player can stand in have buckets that never reach "
+                f"the scaling wire, so the client leaves them VANILLA: {missing}")
+
+        self.assertTrue(
+            saw_finale,
+            "no seed in the sweep built a finale, so the branch this guard exists for never ran -- "
+            "the coverage assertion passed without ever looking at the Ashen Capital.")
