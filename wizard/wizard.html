@@ -3415,7 +3415,10 @@ if (typeof module !== "undefined") module.exports = ERW;
                              "enable_dlc", "dlc_only",
                              // the locality knobs -- they move the "what you send out" card below
                              "keep_local", "keep_local_rune_cap", "local_item_only",
-                             "exclude_local_item_only", "filler_foreign_pct", "item_shuffle"];
+                             // 🛑 NOT item_shuffle: it is frozen ON and off the yaml surface, so it
+                             // rendered no row here while still counting toward the "N options"
+                             // heading above the list.
+                             "exclude_local_item_only", "filler_foreign_pct"];
 
   function renderSeedSizeTab(){
     const wrap = el("div", "");
@@ -3491,10 +3494,33 @@ if (typeof module !== "undefined") module.exports = ERW;
                       other: "other goods", progressive: "progressive upgrades" };
   const catLabel = c => CAT_LABEL[c] || c;
 
+  /* `confine_foreign_progression` as a NUMBER, 0-100. It is a NamedRange whose special names are
+     the old toggle's spellings (true/all = 100, false/none = 0), and a preset or a hand-edited
+     yaml can carry either form, so read the name off the metadata rather than assuming an int.
+     A bare `Number("true")` is NaN, which would render the whole line below as "NaN checks". */
+  function confineShare(){
+    const raw = ERW.getVal(meta, state, "confine_foreign_progression");
+    const num = Number(raw);
+    if (Number.isFinite(num)) return Math.max(0, Math.min(100, num));
+    const o = meta.byKey["confine_foreign_progression"];
+    const hit = ((o && o.special_values) || []).find(sv => sv.name === String(raw));
+    return hit ? hit.value : 100;
+  }
+
   function renderContribution(cs, size){
     const card = el("div", "card");
     const v = k => ERW.getVal(meta, state, k);
-    const shuffle = !!v("item_shuffle");
+    /* 🛑 AN ABSENT OPTION MEANS ITS FROZEN VALUE, NEVER `off`. `item_shuffle` is FROZEN ON
+       (defaults.FROZEN_OPTIONS: "every check pays its real vanilla item -- THE randomizer"), so it
+       is not on the yaml surface at all and `meta.byKey` has no entry for it. `v()` returned
+       `undefined`, `!!undefined` is false, and this guard therefore fired on EVERY render: the
+       whole card below has been unreachable, showing nothing but "Shuffle Vanilla Items is off,
+       so there are no real items to send" -- a sentence about a setting the world no longer has.
+       Same disease as the contract's `required=False` keys, where a key's ABSENCE was read as its
+       OFF state. The branch is kept rather than deleted so that unfreezing the option restores the
+       message, but the fallback is now the frozen value. */
+    const shuffleOpt = meta.byKey["item_shuffle"];
+    const shuffle = shuffleOpt ? !!v("item_shuffle") : true;
     const { held, why } = heldCategories();
     const runeCap = Number(v("keep_local_rune_cap") || 0);
     const fillerPct = Number(v("filler_foreign_pct"));
@@ -3521,19 +3547,76 @@ if (typeof module !== "undefined") module.exports = ERW;
     const checksMid = size ? size.checks.median : 0;
     const n = x => Math.round(x).toLocaleString();
 
+    /* BOTH DIRECTIONS, AND THEY ARE THE SAME NUMBER. Archipelago's fill is count-neutral: each
+       item of yours that stays home keeps one of your checks for itself, and each one you let go
+       opens a check to somebody else. So "items free to travel" and "checks a foreign item can
+       land on" are one quantity read from two ends. Saying it once and labelling it twice is the
+       point -- until now the card answered only the first, and the second is the question players
+       actually ask ("how many of my checks go out into other worlds?").
+
+       WHY THIS IS ANSWERABLE WITH NO KNOWLEDGE OF THE OTHER WORLDS, which is what makes it worth
+       showing at all. Nothing in this world ever refuses a foreign item FOR BEING foreign:
+       `keep_out_of_shops` and `no_runes_in_shops` scope their item_rules to `item.player ==
+       player`, and every other bar we install is on ADVANCEMENT, which applies to our own items
+       just the same. The only thing that closes a check to the multiworld is one of YOUR items
+       being pinned into it -- which is exactly what the locality options do, and exactly what the
+       held share below measures. How many of these a partner actually fills needs their slot
+       sizes and is a different question; this is the capacity. */
+    const openMid = checksMid * freeMid / 100;
+    const surfMid = size ? size.surface.median : 0;
+    const confine = confineShare();
+    /* Foreign PROGRESSION is the one thing separately capped. Every non-surface check installs
+       `not foreign_bar_for(world)(item, player)` (core._add_locations); below 100 that bar is a
+       per-NAME hash, so a `(100-confine)%` share of foreign key-item names is admitted to the rest
+       of the world too. At 100 the capacity is the surface exactly; at 0 it is every check. */
+    const progMid = Math.min(checksMid, surfMid + (100 - confine) / 100 * (checksMid - surfMid));
+
     html +=
-      "<div class='desc'>How much of your game can end up in other players\u2019 worlds. This is a " +
-      "<b>ceiling</b>, not a forecast \u2014 Archipelago spreads your items over every world in " +
-      "proportion to open locations, so a big Elden Ring slot keeps most of its own pool whatever " +
-      "you set here. The exact number is printed in the spoiler once a seed is generated.</div>" +
+      "<div class='desc'>How much of your game can end up in other players\u2019 worlds, and how " +
+      "much of your world is open to theirs. These are <b>ceilings</b>, not forecasts \u2014 " +
+      "Archipelago spreads items over every world in proportion to open locations, so a big Elden " +
+      "Ring slot keeps most of its own pool whatever you set here. The exact numbers are printed " +
+      "in the spoiler once a seed is generated.</div>" +
       "<div style='display:flex;gap:28px;flex-wrap:wrap;margin:14px 0 4px'>" +
-      "<div><div style='font-size:26px'>" + n(checksMid * freeMid / 100) + "</div>" +
-      "<div class='desc'>items free to travel (of ~" + n(checksMid) + ")</div></div>" +
+      "<div><div style='font-size:26px'>" + n(openMid) + "</div>" +
+      "<div class='desc'>of your checks a foreign item can land on " +
+      "(of ~" + n(checksMid) + ")</div></div>" +
+      "<div><div style='font-size:26px'>" + n(openMid) + "</div>" +
+      "<div class='desc'>items of yours free to travel</div></div>" +
       "<div><div style='font-size:26px'>" + Math.round(freeMid) + "%</div>" +
       "<div class='desc'>of your pool</div></div>" +
       "<div><div style='font-size:26px'>" + n(checksMid * heldMid / 100) + "</div>" +
       "<div class='desc'>items held at home</div></div>" +
-      "</div>";
+      "</div>" +
+      "<div class='desc'>The first two are the <b>same number</b>, read from either end \u2014 the " +
+      "fill is count-neutral, so every item you hold at home keeps one of your own checks, and " +
+      "every one you let go opens a check to somebody else.</div>";
+
+    html += "<div class='desc' style='margin-top:10px'><b>" + n(progMid) + "</b> of your checks " +
+      "may hold another player\u2019s <b>progression</b>" +
+      (confine >= 100
+        ? " \u2014 your progression surface, and nothing else. That is <code>confine_foreign_" +
+          "progression: 100</code>, the default: another world\u2019s key items can only sit " +
+          "where your own Region Locks sit."
+        : confine <= 0
+          ? " \u2014 anywhere at all. <code>confine_foreign_progression: 0</code> puts no " +
+            "restriction on where another world\u2019s key items may sit in yours."
+          : " \u2014 your progression surface (" + n(surfMid) + "), plus the " + (100 - confine) +
+            "% share of foreign key-item names that <code>confine_foreign_progression: " + confine +
+            "</code> lets out onto the rest.") + "</div>";
+    if (confine >= 100){
+      /* MEASURED, which is why it is a warning and not a footnote: 3 real gens, 498 placements
+         into a Hollow Knight slot, ZERO useful items. Confining a partner's progression to our
+         surface saturates THEIR own locations during fill_restrictive, and AP places every
+         world's `useful` tier before any filler -- so by the time the scan reaches their slots
+         only filler is left to send them. A fill-ORDER effect, not a rule about our items. */
+      html += "<div class='desc'>\u26a0 Measured side effect: at 100, what you send to a " +
+        "<b>non-Elden-Ring</b> slot comes out ~100% filler \u2014 no weapon, armour or talisman " +
+        "reached a Hollow Knight partner in 498 placements. Confining their key items to your " +
+        "surface fills their own world up first, and Archipelago places every world\u2019s useful " +
+        "items before any filler. Lowering this sends your gear to them (40.7% useful, measured " +
+        "at 0); the price is their key items sitting anywhere in your world.</div>";
+    }
 
     if (held.size){
       const rows = [...held].filter(c => cats[c]).sort((a, b) => cats[b][1] - cats[a][1]);

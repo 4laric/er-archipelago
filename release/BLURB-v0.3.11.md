@@ -5,6 +5,15 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
+**And the card that tells you what you are sending other players now works at all.** It shipped
+three days ago telling everyone "Shuffle Vanilla Items is off, so there are no real items to send",
+which was never true -- it was reading a setting that had been frozen out of the yaml weeks before,
+getting nothing back, and treating nothing as off. It now shows how many of your checks another
+player's item can land on, how many of your items are free to travel (the same number, read from
+either end -- the fill is count-neutral), and how many of your checks another world's key items may
+sit in. That last one is where `confine_foreign_progression` bites, and the card now says what we
+measured: leave it at 100 and a non-Elden-Ring partner gets filler from you and nothing else.
+
 **The options wizard grew tabs.** All 54 settings used to sit in one collapsed section called
 "Other Options", in the wizard's last step, under a line telling you everything there was safe to
 skip. Enemy scaling was in there. So was the pool builder, and the progression surface, and every
