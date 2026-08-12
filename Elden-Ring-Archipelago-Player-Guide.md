@@ -249,7 +249,7 @@ run rather than tune it.
   materials, smithing stones, ghost gloveworts, every consumable and every
   Golden Rune at home while your weapons, armour, talismans, spells, spirit
   ashes and ashes of war go out to other players. Full list of categories in
-  the wizard. This matters most when your slot is much bigger than everyone
+  the yaml builder at <https://peliarch.ca/er/>. This matters most when your slot is much bigger than everyone
   else's: an Elden Ring seed can run to a couple of thousand checks, and
   without any of this a five-player game turns into four people opening Elden
   Ring consumables.
@@ -273,8 +273,8 @@ run rather than tune it.
   100, 23% at 75, 38% at 50. Lower it if your friends should be opening your
   weapons; the cost is that their keys stop landing on your interesting checks.
 
-**How much am I actually sending out?** The wizard's *Seed size* tab shows the
-ceiling as you move those options -- how many of your items are permitted to
+**How much am I actually sending out?** The *Seed size* tab of the yaml builder
+(<https://peliarch.ca/er/>) shows the ceiling as you move those options -- how many of your items are permitted to
 leave. The real number needs a finished seed, and it's in the spoiler and the
 generation log: `sent 431 of 1266 items into other worlds -- 388 filler, 43
 useful`. The two differ a lot, because Archipelago spreads your items over

@@ -58,6 +58,8 @@ This project doesn't randomize enemies or starting classes — because [url=http
 [*][b]Archipelago 0.6.7[/b] — from [url=https://archipelago.gg]archipelago.gg[/url]. This release requires 0.6.7 specifically.
 [*][b]ModEngine3 (me3)[/b] — the mod loader that loads the client DLL into the game.
 [/list]
+[b]Build your YAML in your browser:[/b] [url=https://peliarch.ca/er/]peliarch.ca/er[/url] — nothing to install. It walks every option, and it tells you how big your seed will be [i]before[/i] you generate it: exact check counts, how many can hold progression, and how much of your pool goes out to other players.
+
 Install is a two-file drop plus the shipped YAML — nothing to a running seed in about 15 minutes. Follow the [url=https://github.com/4laric/er-archipelago/blob/main/release/SETUP.md]setup guide[/url], then read the [url=https://github.com/4laric/er-archipelago/blob/main/release/PLAYER-GUIDE.md]player guide[/url] for how a run actually plays. One rule worth repeating: the apworld and the client DLL are a hash-matched pair — [b]always install both from the same release[/b].
 
 [size=4][b]Beta honesty[/b][/size]

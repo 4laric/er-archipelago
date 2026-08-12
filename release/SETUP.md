@@ -1,4 +1,4 @@
-# Elden Ring Archipelago -- Setup (v0.2)
+# Elden Ring Archipelago -- Setup
 
 This gets you from nothing to a running seed in about 15 minutes. Two halves:
 **A. Make the seed** (Archipelago side) and **B. Install and play** (game side).
@@ -48,7 +48,8 @@ rush.
 |---|---|
 | `eldenring.apworld` | The Archipelago world -- the package that teaches Archipelago about Elden Ring. Goes in your Archipelago install. |
 | `me3/` | The runtime client folder. Holds `eldenring_archipelago.dll` (the MIT client), the `ap.me3` me3 profile, `apconfig.json`, an `ap-package/` icon override, and two **required** data tables (`check_lots_table.json`, `shoplineup_flags.json`). Keep these together -- they load as a set. |
-| `EldenRing.yaml` | The player config template (The Shattering). Copy it, set `name:`, generate. |
+| `EldenRing.yaml` | The player config template (The Shattering). Copy it, set `name:`, generate. Or build one at <https://peliarch.ca/er/>. |
+| `er-options-wizard.html` | An **offline copy of the yaml builder**. The live one at <https://peliarch.ca/er/> is the one to use -- it can hand your seed straight to a host -- but this file works with no network at all. |
 | `SETUP.md` | This file. |
 | `RELEASE-NOTES-v0.2.md` | What this project is and what v0.2 brings, in one read. |
 | `CHANGELOG.md` | What changed in v0.2, including both breaking changes. |
@@ -89,14 +90,29 @@ You also need, separately:
    you should end up with `eldenring.apworld` sitting in
    `Archipelago/custom_worlds/`.
 
-2. **Add your config.** Copy `EldenRing.yaml` into `Archipelago/Players/`.
-   Open it and set `name:` to the slot name you want. That is the only edit
-   you need -- the defaults are a tuned solo Shattering run. Leave
-   `game: Elden Ring` and the `Elden Ring:` section header exactly as they
-   are (the options must stay indented under it).
+2. **Build your config.** The fastest way is the **yaml builder** at
+   **<https://peliarch.ca/er/>**. It is a web page -- nothing to install --
+   that walks you through every option in seven tabs, tells you **how big your
+   seed will be** before you generate it (exact check counts, how many can hold
+   progression, how much of your pool travels to other players), and hands you
+   a finished yaml to download. It stamps which apworld version it wrote for
+   into the file, so a host can always see which build a yaml came from.
 
-   Want to tweak? Every option is explained in a comment right next to it in
-   the yaml. `KNOWN-ISSUES.md` lists the by-design no-ops.
+   🛑 **The page can be ahead of the apworld you installed.** `/er/` tracks the
+   released build and `/er/beta/` tracks what is being built right now, and the
+   banner on each says which. This matters because Archipelago does **not**
+   error on an option your installed apworld has never heard of -- it prints one
+   line among fifty and generates the seed without it. If the builder offers you
+   an option and your seed ignores it, you are on an older apworld: take the
+   newest release.
+
+   Prefer to edit a file? Copy `EldenRing.yaml` into `Archipelago/Players/`,
+   open it and set `name:` to the slot name you want. That is the only edit you
+   *need* -- the defaults are a tuned solo Shattering run. Leave
+   `game: Elden Ring` and the `Elden Ring:` section header exactly as they
+   are (the options must stay indented under it). Every option is explained in a
+   comment right next to it in the yaml; `KNOWN-ISSUES.md` lists the by-design
+   no-ops.
 
 3. **Generate.** Run **Generate** from the Archipelago Launcher (or
    `ArchipelagoGenerate`). When it works, an `AP_<...>.zip` appears in

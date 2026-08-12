@@ -41,6 +41,23 @@ outside this repo can tell, unannounced. The release-notes gate cannot catch thi
 notes EXIST, not that they were ever put in front of anyone. v0.4.0's announcement carries the
 v0.3.12 blurb forward rather than leaving it in a file nobody reads.
 
+### The docs finally tell you where the yaml builder is
+
+The options wizard has had a Seed size tab since v0.3.8, seven tabs since v0.3.11, and a live
+sent-out readout since v0.3.12. Every one of those landed in a blurb. **Not one player-facing
+document has ever contained the URL.** `SETUP.md`, `PLAYER-GUIDE.md`, `DISTRIBUTION.md`, the Nexus
+description and the README mention "the wizard" five times between them and never say where it is;
+the string `peliarch` appears nowhere outside a spec, a deploy script and the page's own source.
+
+So the surface most players would meet this project through was reachable only by already knowing
+about it. <https://peliarch.ca/er/> is now in the setup guide (as step 2, ahead of hand-editing the
+template), the player guide, the distribution doc, the Nexus page and the README, with the channel
+and staleness caveat stated rather than buried: the page is pinned by nothing, `/er/` tracks the
+released build and `/er/beta/` tracks `main`, and Archipelago silently drops an option your
+installed apworld has never heard of.
+
+`SETUP.md` also stops calling itself "Setup (v0.2)".
+
 ### The version-lockstep sites
 
 `APWORLD_VERSION`, `archipelago.json`, `wizard/options-metadata.json`, `wizard/wizard.html`, the

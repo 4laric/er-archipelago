@@ -30,6 +30,22 @@ So: **do not let people acquire the two halves separately.** Everything below is
 
 Both come off the **same tag**, so the pairing stays obvious even when someone takes only one.
 
+### And the yaml builder, which is a page rather than a download
+
+<https://peliarch.ca/er/> serves the options wizard: the page most players will actually meet this
+project through, because it is the only surface you can use before deciding whether to install
+anything. `/er/` tracks the released build; `/er/beta/` tracks `main` and says so in a banner.
+
+🛑 **It is pinned by nothing.** It is `wizard/wizard.html` copied to a box, on whatever schedule
+somebody copies it, so it can be *ahead* of the newest tag -- and `POST /generate` on the same box
+runs that box's own installed apworld, so it can be *behind* the page it serves. Neither skew is an
+error a player sees: Archipelago drops an option it does not recognise and generates the seed
+anyway, printing one line on a console nobody reads. That is why every yaml the builder writes
+records the apworld version it was written for, and why the page names its channel.
+
+Every release also ships `er-options-wizard.html`, the same page as a file, for anyone who would
+rather not use a website.
+
 The residual risk is **host/player skew**: the host generates with apworld vN while a player runs
 client vM. That one cannot be prevented by packaging -- it is a property of multiworlds -- so it is
 handled where it can be: the handshake catches it, and it is documented as a symptom.
