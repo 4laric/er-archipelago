@@ -9,10 +9,17 @@ someone else's -- and theirs to you. It works solo too, and a solo base-game
 run is the recommended way to play v0.2. Each player in a multiworld occupies
 a **slot**, configured by a **yaml** -- a plain-text settings file.
 
-The recommended v0.2 configuration is **The Shattering**, solo, base game only
-(DLC is off by default): the Lands Between is broken into regions, and each
-region's key arrives as a randomized item. The included `EldenRing.yaml` is
-already set up for it. Change `name:` and you have a valid seed.
+The recommended configuration is **The Shattering**, solo, base game only: the
+Lands Between is broken into regions, and each region's key arrives as a
+randomized item. The included `EldenRing.yaml` is already set up for it. Change
+`name:` and you have a valid seed.
+
+🛑 **On the DLC.** `enable_dlc` is **on** in the apworld's own defaults, and the
+shipped `EldenRing.yaml` turns it **off** (`enable_dlc: false`) because the base
+game is the better-tested path. So: build from the template, or from a wizard
+preset, and you get base game. Generate from a yaml that says nothing about it
+-- an empty `Elden Ring: {}` section, or the wizard's blank **Defaults** card --
+and you get all 28 regions, 11 of which need Shadow of the Erdtree.
 
 ---
 
@@ -29,7 +36,8 @@ No world found to handle game EldenRing. Did you mean 'Elden Ring'?
 If you see that message, you are feeding v0.2 a v0.1 yaml.
 
 **Do not fix an old yaml by hand -- start from the shipped `EldenRing.yaml`.**
-v0.2 cut the option surface down to 19 tunable options. Archipelago **warns**
+v0.2 cut the option surface right down; it has grown back to 56 tunable options
+since. Archipelago **warns**
 about each option it does not recognize and then **generates the seed anyway**,
 on defaults -- so an edited v0.1 yaml still gives you a game you did not
 configure; the only sign is a line in the generation output. Copy the new file
@@ -52,7 +60,7 @@ rush.
 | `er-options-wizard.html` | An **offline copy of the yaml builder**. The live one at <https://peliarch.ca/er/> is the one to use -- it can hand your seed straight to a host -- but this file works with no network at all. |
 | `SETUP.md` | This file. |
 | `RELEASE-NOTES-v0.2.md` | What this project is and what v0.2 brings, in one read. |
-| `CHANGELOG.md` | What changed in v0.2, including both breaking changes. |
+| `CHANGELOG.md` | The per-release delta, newest first. |
 | `KNOWN-ISSUES.md` | Current known issues and by-design non-features -- read it before filing a report. |
 | `Elden-Ring-Archipelago-Player-Guide.md` | How a run actually plays once you press New Game. |
 | `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` | Stacking matt's randomizer for enemies and starting class (with items OFF). |
@@ -217,17 +225,21 @@ You also need, separately:
 
 The defaults are the recommended run. If you want to stray:
 
-- **Shorter runs:** the shipped `num_regions: 0` keeps every eligible region
-  in play (the full Shattering: 17 base-game regions as shipped, 30 with the
-  DLC on); set a small number like `4` for a tight evening run.
-- **Which regions:** the kept set is drawn at random. (`num_regions_order` is
-  vestigial -- `random`/`rolled` are the same thing and `spine`, the old fixed
-  Limgrave-first path, is deprecated and now behaves identically. Omit the key.)
+- **Shorter runs:** the shipped `num_regions: 6` keeps six regions. `0` keeps
+  every eligible region in play -- the full Shattering, which is 17 base-game
+  regions as shipped, or all 28 with the DLC on. Set something small like `4`
+  for a tight evening run.
+- **Which regions:** `num_regions_order` decides. `rolled` (the default) draws
+  N regions at random from the eligible pool; `vanilla_order` takes the first N
+  along the region spine instead and is fully deterministic. Neither decides
+  where you *start* -- the opening region is always an independent draw,
+  weighted by region size, over whatever ends up kept.
 - **Great-Rune goal:** `ending_condition: great_runes` +
   `goal_great_runes: N`.
 - **DeathLink:** `death_link: true` -- shared deaths in a multiworld, both
   directions.
-- **DLC (experimental):** `enable_dlc: true` (DLC regions become eligible) or
+- **DLC:** `enable_dlc: true` (DLC regions become eligible -- this is the
+  apworld default, and the shipped template overrides it to `false`) or
   `dlc_only: true` (only the Land of Shadow). DLC regions unlock exactly like
   base ones -- their Lock arrives and you warp in; you never fight Mohg
   first. Base game is the recommended, supported way to play v0.2 -- see
@@ -253,8 +265,9 @@ anyway, so your v0.1 settings would be dropped and the seed would still build.
 
 **The seed generated fine, but the game ignores settings I set.**
 Almost certainly a hand-edited old yaml. Unknown options are silently
-ignored, and v0.2's option surface (19 tunable options) is much smaller than
-v0.1's. Regenerate from the shipped `EldenRing.yaml`.
+ignored, and the option surface has been renamed and reshaped repeatedly since
+v0.1. Regenerate from the shipped `EldenRing.yaml`, or build a fresh one at
+<https://peliarch.ca/er/>.
 
 **Generation fails, or the apworld won't load, and it isn't the game-id message.**
 Check your Archipelago version: this release is built and tested against

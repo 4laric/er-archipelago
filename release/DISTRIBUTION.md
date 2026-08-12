@@ -80,6 +80,6 @@ We are closer to that than it looks:
   blocks a FromSoft world,
 * the client is MIT and lives in its own repo, so it does not have to move upstream at all.
 
-**Upstreaming is the v0.3 goal.** It is a bigger lever than any packaging decision we can make
+**Upstreaming remains the goal.** It is a bigger lever than any packaging decision we can make
 here, and every release cut in the meantime should keep the world upstream-shaped rather than
 drifting away from it.

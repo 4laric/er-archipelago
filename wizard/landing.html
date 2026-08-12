@@ -17,7 +17,8 @@
   Single file, no build step, no network calls. Same palette and type as wizard.html so the
   handoff from here to the builder does not look like two different sites.
 
-  DEPLOY: tools/deploy_wizard.sh --landing (writes ${ER_ROOT_DIR}/index.html atomically).
+  DEPLOY: ER_ROOT_DIR=/srv/www tools/deploy_wizard.sh --landing
+           (fetches this file at the STABLE tag and installs it atomically as index.html)
 -->
 <style>
 :root{
@@ -103,7 +104,7 @@ footer p{max-width:78ch;margin:10px 0}
 }
 </style>
 </head>
-<body>
+<body id="er-landing">
 
 <div class="hero">
   <div class="wrap">
@@ -240,9 +241,13 @@ footer p{max-width:78ch;margin:10px 0}
 
 <section>
   <h2>Where this is</h2>
-  <p>Active development, roughly a release a day, driven mostly by playtest reports. The DLC is
-  supported but off by default. Enemy scaling, DeathLink, traps and grace attunement all exist
-  and are all off or conservative unless you ask for them.</p>
+  <p>Active development, roughly a release a day, driven mostly by playtest reports. Traps,
+  DeathLink and grace attunement are all off unless you ask for them; enemy scaling is on and
+  keyed to your progression rather than to the map.</p>
+  <p>&#128721; <strong>The DLC is in by default.</strong> Every preset in the builder except
+  <code>vanilla_deathlink</code> turns it off, and so does the yaml shipped in the release &mdash;
+  but a bare options block leaves it on. If you do not own Shadow of the Erdtree, say
+  <code>enable_dlc: false</code> rather than trusting a default.</p>
   <p>The known-issues list in the release bundle is honest, including the by-design behaviours
   that get reported as bugs. If something looks wrong and is not on it, that is worth a report.</p>
 </section>

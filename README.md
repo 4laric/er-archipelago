@@ -52,7 +52,7 @@ The headline dials, all documented inline in the shipped
 - **`ending_condition`** -- `region_locks` (hold every Lock in play; the goal
   region, Leyndell, is always kept) or `great_runes` (also collect
   `goal_great_runes` Great Runes).
-- **`enable_dlc` / `dlc_only`** -- bring the 14 Shadow of the Erdtree regions
+- **`enable_dlc` / `dlc_only`** -- bring the 11 Shadow of the Erdtree regions
   into the pool, or play only them.
 
 ---

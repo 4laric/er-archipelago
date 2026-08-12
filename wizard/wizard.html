@@ -4465,7 +4465,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       pc.innerHTML = "<h2>Pick a starting point</h2>";
       const grid = el("div", "presets");
       const cards = [{id:null, title:"Defaults", tagline:"Blank slate — every option at its default.",
-                      description:"The full base-game experience, untouched."}]
+                      description:"Writes an empty options block, so the apworld decides everything. Note this INCLUDES the DLC: enable_dlc defaults on, so you get all 28 regions. Pick a preset if you only own the base game."}]
                     .concat(meta.presets);
       for (const p of cards){
         const d = el("div", "preset" + ((state.presetId === p.id) ? " sel" : ""));

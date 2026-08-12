@@ -1,4 +1,4 @@
-# Elden Ring Archipelago -- Player Guide (v0.2)
+# Elden Ring Archipelago -- Player Guide
 
 You have it installed (if not, see `SETUP.md` -- this guide won't repeat that).
 This is about what happens after you press New Game: how the run actually plays,
@@ -48,9 +48,9 @@ your seed holds fewer Great Runes.
 
 That second idea is the whole trick: Elden Ring's famously go-anywhere map
 becomes a progression puzzle, one region at a time. The `num_regions` option
-controls how many regions are kept -- 4 is a tight ~4-hour run, higher is
-longer, and 0 (the shipped default) keeps everything in play for the full
-Shattering -- 17 regions in the shipped base-game config, 28 with the DLC on.
+controls how many regions are kept -- 4 is a tight ~4-hour run, 6 is the
+shipped default, higher is longer, and 0 keeps everything in play for the full
+Shattering: 17 regions in the shipped base-game config, 28 with the DLC on.
 
 None of this touches your game files. It's the vanilla game plus a runtime
 client; remove the client and Elden Ring is exactly as you left it.
@@ -60,8 +60,9 @@ client; remove the client and Elden Ring is exactly as you left it.
 You wake up at Roundtable Hold. One region is open to start, and which one it is
 is random -- as is the set of regions your seed keeps. Those are two independent
 draws: the opening region is picked on its own, not as "the first" of the kept
-set. There is no fixed-order alternative any more; `num_regions_order` is
-deprecated and every value rolls at random.
+set. `num_regions_order` chooses between them: `rolled` (the default) draws the
+kept regions at random, and `vanilla_order` takes the first N along the region
+spine instead, deterministically. Neither decides where you open.
 Warp in and play Elden Ring: fight, loot, buy things. Every pickup fires off
 a check.
 
@@ -113,11 +114,12 @@ its Lock arrives.
 **You received something you can't use yet.** Normal. The multiworld doesn't
 care about your timing -- you might get a Great Rune before its region is open,
 or a colossal weapon at level 12. It's banked; it'll matter later. (Weapon
-stat requirements are waived in v0.2, so gear at least never rots on stat
+stat requirements are waived, so gear at least never rots on stat
 checks.)
 
-**Enemies are scaled -- and late regions hit harder.** Scaling is always on and
-keyed to your progression, not to vanilla's intended order. A region you unlock
+**Enemies are scaled -- and late regions hit harder.** Scaling is on by default
+(`enemy_scaling: false` turns it off) and keyed to your progression, not to
+vanilla's intended order. A region you unlock
 late is tuned tougher, even if it's "early" territory like the Weeping
 Peninsula. If the Weeping Peninsula is wrecking you, you're probably not
 undergeared -- you just unlocked it late. See "Enemy difficulty" below if you
@@ -209,8 +211,8 @@ run rather than tune it.
 - **`dungeon_sweep`** -- what killing a boss hands you, as a ladder:
   `none` sweeps nothing and you collect every check where it lies;
   `minidungeons` sweeps catacombs, caves, tunnels and minor dungeons (~515
-  checks); `all` adds legacy dungeons and castles (~1971); `bosses` (default)
-  adds field bosses too (~3184). So `all` is the setting for "sweep the
+  checks); `all` adds legacy dungeons and castles (~1984); `bosses` (default)
+  adds field bosses too (~3197). So `all` is the setting for "sweep the
   dungeons, leave the field alone". The boss's *own* reward is a normal check at
   every setting -- never part of a sweep -- so turning this down costs you
   convenience, not items.
@@ -282,8 +284,9 @@ every world in proportion to open locations, so a big slot keeps most of its
 own pool no matter what you set.
 - **`enable_dlc`** -- the Shadow of the Erdtree regions join the region pool
   and behave like any other region: their Lock arrives, their graces light,
-  you warp in. You never fight Mohg to get there. Off in the shipped yaml and
-  experimental in v0.2; base game is the supported way to play.
+  you warp in. You never fight Mohg to get there. 🛑 **On in the apworld's own
+  defaults and off in the shipped yaml** -- so a yaml that says nothing about it
+  gets the DLC. Base game is the better-tested way to play.
   (`dlc_only: true` goes further and seals the whole base game instead -- so
   base-only NPC content is gone even where that NPC's story continues into the
   DLC; e.g. Brother Corhyn's only pooled item, his Bell Bearing, lives in base
@@ -468,7 +471,7 @@ the progression items. Under `natural_progression` the real vanilla keys are
 instead, and they are placed as progression outside this system.)
 
 
-A lot of what you might expect to toggle here is simply how v0.2 plays --
+A lot of what you might expect to toggle here is simply how this world plays --
 fixed, not configurable. Checks pay out real shuffled Elden Ring items. You
 start with a Lantern, Torrent, flasks, all map fragments, immediate leveling,
 and buyable
