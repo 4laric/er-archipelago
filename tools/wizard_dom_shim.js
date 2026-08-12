@@ -82,4 +82,18 @@ function makeDocument(staticIds){
   return doc;
 }
 
-module.exports = { El, makeDocument, text, attached, NODES };
+/* The TEXT OF EVERY ELEMENT CARRYING `cls`, including elements that exist only as markup inside an
+   innerHTML string -- which is how this page builds nearly every card. Deliberately matches the
+   marked element's own text and NOTHING after it: an earlier version sliced from the opening tag to
+   the end of the string, which swallowed the rest of the card and made the reactivity gate pass a
+   mutation it was written to catch. Callers mark the leaf that holds the value, not a container. */
+function textOfClass(n, cls){
+  if (!n || typeof n !== "object") return "";
+  const re = new RegExp("<[a-z]+[^>]*class=[\"'][^\"']*\\b" + cls + "\\b[^\"']*[\"'][^>]*>([^<]*)<", "g");
+  let out = "", m;
+  while ((m = re.exec(String(n._html || ""))) !== null) out += " " + m[1];
+  for (const k of n.kids) out += " " + textOfClass(k, cls);
+  return out.replace(/\s+/g, " ").trim();
+}
+
+module.exports = { El, makeDocument, text, textOfClass, attached, NODES };
