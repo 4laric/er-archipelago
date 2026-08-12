@@ -156,6 +156,19 @@ CATEGORIES = {
 }
 _VALID_CATS = frozenset(CATEGORIES) | {"junk"}
 
+# `juice` (the gear injection) is a recipe key with no member list of its own -- it is drawn from the
+# curated tier ladder, not from CATEGORIES -- so it has to be added on top. It lived in
+# features/filler_budget as a bare `JUICE = "juice"`; it moves HERE because this is the module that
+# owns the option, and the option's `valid_keys` cannot import the module that imports it.
+JUICE = "juice"
+
+# 🛑 THE ONE LIST OF ACCEPTED RECIPE KEYS. Three consumers read it and they used to be able to
+# disagree: AP's `VerifyKeys` (via CuratedFiller.valid_keys), the wizard metadata dumper (which
+# cannot draw a control for a dict whose keys it does not know -- #571), and filler_budget's own
+# unknown-category OptionError. `_VALID_CATS` alone is NOT it: it omits `juice`, which the shipped
+# default weights at 42, so anything validating against `_VALID_CATS` rejects the default recipe.
+RECIPE_KEYS = frozenset(_VALID_CATS) | {JUICE}
+
 # STACK quantities (grant size) by category -> emitted as slot_data itemCounts. Others default 1.
 # ammunition x20: a quiver per drop (Alaric 2026-07-14, "x20 all the ammunition drops"). Far under the
 # game's held caps (999 for basic ammo, 99 for special), so a stack can never overflow a grant.
@@ -221,6 +234,24 @@ class CuratedFiller(OptionDict):
     perfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the
     empty-recipe warning is about."""
     display_name = "Curated Filler recipe (category -> weight)"
+    # 🛑 DERIVED FROM `RECIPE_KEYS`, NEVER RETYPED, and NOT from `_VALID_CATS` -- that set omits
+    # `juice`, which the shipped default weights at 42, so validating against it rejects this
+    # class's own default. (Caught by test_valid_keys_accepts_the_shipped_default, which exists
+    # because I made exactly that mistake writing this line.)
+    #
+    # WHY THE CLASS DECLARES THEM AT ALL: `tools/dump_options_metadata.py` fills the wizard's
+    # `valid_keys` from here, and a dict with none leaves the page nothing to enumerate -- it drew
+    # the whole recipe as a text box reading `[object Object]` (#571). The keys were only ever
+    # knowable from filler_budget, which the wizard cannot see.
+    #
+    # SORTED because `valid_keys` lands in a committed artifact and a frozenset has no stable
+    # iteration order; the dumper sorts too, so `--check` stays byte-comparable either way.
+    #
+    # ⚠️ This does NOT newly reject anything: features/filler_budget already raises OptionError on
+    # an unknown category ("curated_filler: unknown category ..."). What moves is WHEN and in WHOSE
+    # words -- AP's `verify_keys` now says it first, at option verification, listing the allowed
+    # keys. Both read off RECIPE_KEYS, so the two messages cannot come to disagree.
+    valid_keys = sorted(RECIPE_KEYS)
     # v0.2: this recipe owns the ENTIRE filler tail (features/filler_budget), so its default IS the
     # pool economy -- {} would mean a seed with no upgrade materials and no gear injection at all.
     # `juice` is the old pool_builder gear injection, now a weight competing on the same budget rather

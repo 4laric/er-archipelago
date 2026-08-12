@@ -195,6 +195,14 @@ Invoke-CiStep "WIZARD-KEYMETA (grid structure + coverage inversion)" {
     elseif ($LASTEXITCODE -ne 0) { throw "WIZARD-KEYMETA: the surface grid's key metadata is unsound, or the JS coverage inversion disagrees with Python" }
 }
 
+# controlFor's branch list ends in an `else` that makes a text box, so an option KIND nobody wrote a
+# branch for degrades instead of failing -- and a dict degraded into "[object Object]" in the box and
+# in the downloaded yaml (#571). Pure text diff of two source files; no node, no AP.
+Invoke-CiStep "WIZARD-KINDS (a control exists for every option kind)" {
+    python (Join-Path $Repo "tools\check_wizard_kind_controls.py")
+    if ($LASTEXITCODE -ne 0) { throw "WIZARD-KINDS: an option kind has no control in wizard.html, or a dict option ships without valid_keys" }
+}
+
 # ----- 1c) release notes for the open version ----------------------------------
 # CONTRIBUTING rule 14. v0.3.0 shipped 2026-08-01; by the next morning main carried five more
 # player-visible fixes (two off Nexus bug reports) with no v0.3.1 changelog section and no blurb,

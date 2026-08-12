@@ -173,6 +173,19 @@ jobs:
       - name: Wizard renders (every step draws, under a DOM shim)
         run: python tools/check_wizard_renders.py
 
+      # Every option KIND the dumper can emit must have a control that draws it. The branch list in
+      # controlFor ends in an `else` that makes a text box, so an unhandled kind does not fail -- it
+      # DEGRADES into the widget that can hold anything. `curated_filler` (kind: "dict") fell in
+      # there, rendered as the literal string "[object Object]", and editing it wrote that string
+      # into the player's yaml where the world wants a mapping (#571).
+      #
+      # AP-FREE on purpose, so it runs in this job rather than only in the one that can import
+      # Archipelago -- the drift gate that would have shown the empty `valid_keys`
+      # (dump_options_metadata.py --check) needs an AP checkout, and a gate that runs in one job
+      # only is a gate that gets skipped.
+      - name: Wizard controls exist for every option kind
+        run: python tools/check_wizard_kind_controls.py
+
   # ---------------------------------------------------------------------------------------------
   # 1b. REGEN FROM THE BUNDLE + the fill-regression gate.
   #
