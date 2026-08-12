@@ -309,6 +309,282 @@ stopped one rung short of Somber Smithing Stone [9] in every seed. It tops itsel
 also means the ladder works on a seed that kept none of the four regions those bearings live in --
 DLC-only included.
 
+### Traps are in your item pool now, if you ask for them
+
+Empty by default, so nothing changes unless you write it down:
+
+    traps: [rune_thief, no_flask, runebear]
+    trap_count: 8
+
+- **rune_thief** -- half your runes, gone.
+- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does
+  nothing, and the charge is spent.
+- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the runes.
+
+Traps are sent to YOU by your own world like any other item, so in a multiworld somebody else may
+well be the one who finds them. Asked for by **boblerrr**, whose line was *"enemy horde on your
+head"*.
+
+**Your seed does not grow.** A trap is filler and always filler -- no progression may ride one -- and
+each one displaces exactly one junk item, so `trap_count` changes how much of your junk bites back
+and nothing else. They are dealt round-robin rather than randomly: eight traps over two kinds is
+four and four, every time, so enabling two never rolls a seed with seven of one.
+
+The bear spawns at your own feet because that is the only point in the world we know for certain is
+valid ground, and it is minted from `npc_param 46300010` rather than the family's template row, which
+carries `getSoul 0` -- a player who survives the bear gets paid for it. The id came out of
+`NpcName.fmg`'s `90 + <model4> + <variant3>` encoding (`904630310` -> model `c4630`), corroborated
+against `NpcParam` and `NpcThinkParam`, because the number I started from was wrong.
+
+**No contract move**, which is the opposite of what the design note in #114 predicted, and that note
+is corrected in place. A trap rides the path Boss Keys already use: a feature that declares `ITEMS`
+and no `ITEM_GRANTS` mints a synthetic item that never enters `_AP_IDS_TO_ITEM_IDS`, and the client
+recognises it by name in the receive stream. No slot_data key, no version lockstep.
+
+The client half landed as three pull requests -- a hotkey probe that fires Rune Thief and No Flask
+without a seed, name-based recognition that also guarantees a trap is never *dropped* on the floor,
+and the bear spawn itself.
+
+### Charo’s Hidden Grave and the Stone Coffin Fissure are the Cerulean Coast now
+
+Three regions became one, and the region count went 30 -> 28.
+
+| region | locations |
+|---|---|
+| Cerulean Coast | 43 |
+| Charo’s Hidden Grave | 26 |
+| Stone Coffin Fissure | 21 |
+| **merged** | **90** |
+
+They are one contiguous stretch of the south-west coast -- the Fissure is entered *from* the
+Cerulean Coast and Charo’s stands on it -- and each was far under the 100-location median on its
+own, which is how a seed ends up keeping one of them and stranding checks in the others. Bucket
+`6840` was Cerulean’s until an in-game kick measurement split it out on 2026-07-15; this returns it
+with the geometry understood rather than guessed.
+
+**Your check count did not change**: 4931 locations before and after. Only the labels and the region
+draw moved.
+
+### A check on a tile with no grace now names its own region
+
+From a Nexus report by **YkaZel** (2026-08-09): *"items said to be in a certain region when they’re
+actually in another ... ghostflame call being in Cerulean Coast when it should belong to Charo’s
+hidden grave."* He was right, and the data that says so was already committed.
+
+Only tiles that CONTAIN a grace were ever regioned directly -- 151 of the 325 overworld tiles bearing
+checks have none -- so the rest were hopped onto whichever neighbour happened to hold one.
+`m61_47_39` holds no grace, so its nine checks were filed on the Cerulean Coast graces next door.
+`greenfield/play_region_buckets.tsv` has carried a row for that exact tile the whole time: bucket
+`68400`, and `68400` is Charo’s. That table is PlayRegionParam itself, in the same id space the
+client’s kick-watch compares against -- not a neighbour’s opinion.
+
+Generation now consults it. On a seed that kept one of two adjacent regions and not the other this
+was worse than cosmetic: the check either sat somewhere the game would not let you walk, or never
+existed at all.
+
+### The endgame was never on the scaling wire
+
+The Ashen Capital is never *rolled* -- it is minted unconditionally at the end of every run -- so it
+was not in the kept set and not in the spine, and every path in enemy scaling keyed on one of those
+two. Its geometry has always existed and its region **lock** always worked; **scaling silently
+skipped the whole endgame**, including play_region `19000`, the Elden Throne, where the goal fight
+happens.
+
+Measured from **boblerrr**’s 08-10/08-11 logs: across all seven seeds the scaling wire contained
+`11050` or `19000` **zero** times, and the client said so nine times in as many words --
+`region 11050/19000 is not in the sphere wire -- left VANILLA (no tier, no down-state)`. So on every
+scaled seed anyone has played, the last fight was the one fight that was not scaled. The finale is
+now appended to the order in both paths and takes the top of the band. Under `dlc_only` it does not
+exist and is correctly absent. Raised as #545.
+
+### Five graces came back, and an arena grace is now adjudicated per boss, not per map
+
+`main` was withholding five graces that had already been ruled not to be arena graces -- three of
+them merchant shacks:
+
+| grace | why it is not an arena grace |
+|---|---|
+| 76118 Warmaster’s Shack | Bell Bearing Hunter is a **night-only** spawn |
+| 76311 Hermit Merchant’s Shack | same |
+| 76451 Isolated Merchant’s Shack | same |
+| 76357 Primeval Sorcerer Azur | Maggie releases no grace on death; separate ledge |
+| 76910 Behind the Fort of Reprimand | Black Knight Edredd is not a boss grace |
+
+🛑 **Nothing caught it, and that is the load-bearing part.** The derived count went **UP**, 41 -> 47,
+and the floor only guards a shrink. A count ratchet cannot tell a real new arena grace from a
+regression that adds five.
+
+The derivation underneath it was also claiming more than it knew. A tile marked *adjudicated* only
+meant its map data had been unpacked -- not that every boss standing on it had been located -- so
+"tile adjudicated, grace absent" read as *measured safe* when it meant *nobody looked at that boss*.
+76931 "Shadow Keep, Back Gate" stands in front of Commander Gaius and was held back only by a hand
+list that the standing plan was going to retire. Misses are now tracked per boss and named in the
+file’s own header. Found while triaging **boblerrr**’s *"you forgot to give gaius grace in the
+shadow keep"* -- which is not a bug: 76930 is boss-gated and 76931 is a correctly withheld arena
+grace.
+
+### Stormveil’s merchants are in Stormveil
+
+A merchant’s stock flag is pinned to the region the merchant physically stands in -- but only when
+the claimants for that flag resolve to exactly one region. A claimant that cannot be standing where
+the table says did not add a wrong answer; it **silently removed the correction** and reinstated the
+block guess the file exists to kill. 16 flags resolved to no region at all, 162 to several, and 53 of
+those were wrong. Gostoc’s and Rogier’s Stormveil checks were filed in Limgrave and Liurnia (#556);
+three spurious claimants, not one, were reaching across the map (#558).
+
+🛑 The correcting issue was itself partly wrong and is corrected here: removing Merchant Kalé alone
+fixes **zero** flags. Bell [5]’s rows have four claimants and the real one is the Nomadic Merchant in
+Liurnia. The issue’s numbers came from a reimplementation of the tile lookup rather than from
+generation’s own; these were re-derived with the real one.
+
+### The spine region order is back, as `num_regions_order: vanilla_order`
+
+Taking the first N regions in Limgrave-first order was removed on 2026-08-05 because it was the only
+alternative to a random draw, which made every default six-region seed keep the same eight regions
+and left nine base regions unreachable. That is a defect when it is the only behaviour and a feature
+when it is chosen, so it returns as an opt-in. **`rolled` stays the default and its rng stream is
+untouched, so every seed that does not name the option is byte-identical to before.**
+
+It is **renamed**, because the name was the original problem: two shipped docs had called `spine` the
+default (it was not) and said it decided where you *start* (it did not, and still does not -- that is
+an independent size-weighted draw). `vanilla_order` names the order the regions are taken in, which
+is all it has ever done. `spine` still parses -- it is registered as an alias, so old yamls in the
+wild keep generating while the wizard, the spoiler and the option surface all say `vanilla_order`.
+
+### The shipped connection template points at archipelago.gg, and a bad port no longer loops
+
+The client ships with `archipelago.gg:PORT`. Every archipelago.gg room is assigned its own port at
+creation, so no number could be correct in a template, and the *local* default `38281` sitting beside
+`archipelago.gg` would have been a plausible-looking lie. `PORT` cannot be mistaken for a setting.
+
+That is only safe because the client now treats a non-numeric port as **not connectable** and shows
+you the connect form. Without it, `wss://archipelago.gg:PORT` fails to parse, the `wss` -> `ws`
+fallback fails identically, and the player gets a retry loop of parser errors instead of somewhere to
+type.
+
+### Received spells are memorised now
+
+The live half of spell auto-equip (#440) landed across this window, and it is the part `auto_equip`
+never covered:
+
+- **The slot chain the module taught did not land.** It shipped a hop marked *"confirmed twice,
+  independently"* that resolves, on 1.16.2, into an object of UTF-16 strings and vtables -- and the
+  widely used CE table reads the same garbage from the same offset, so it was never right rather than
+  mis-transcribed. Found instead by signature search: walk every pointer field in `PlayerGameData`
+  and require both a vtable inside the executable and a back-pointer into the parent.
+- **Every spell now costs one memory slot.** 24 of the 213 memorisable spells cost more (three, for
+  Comet Azur, Placidusax’s Ruin and Scarlet Aeonia), which meant placement needed bin-packing and a
+  three-slot spell could not be placed at all until you had earned three. The slot cost is
+  normalised in the same param row the requirement fields are already zeroed in.
+- **A seal gets incantations and a staff gets sorceries.** The discriminator was already in the
+  data: the spell classifier is four goods types because each school splits attack from support, so
+  the sorcery/incantation split is one the code already made.
+- **Spells that arrived before the build that could equip them are picked up.** The receive cursor is
+  persisted per save, so a spell received under an earlier client sat in the bag unmemorised and
+  always would have. Ordering comes from the Archipelago receive stream, which never changes.
+- **The log says what the path did**, and the banner stopped claiming otherwise.
+
+Raised by **boblerrr** with Ranni’s Dark Moon and Rotten Breath sitting in the bag with four memory
+slots free.
+
+### `no_equip_load` was writing a field the game never reads
+
+The plumbing was fine the whole time, and both earlier investigations looked at it because that is
+where the logs pointed -- the logs were telling the truth, the row *was* patched, the effect *was*
+resident on the player. The field was the problem.
+`allItemWeightChangeRate` takes exactly two values across all 11325 rows of vanilla `SpEffectParam`,
+never once as a multiplier; `equipWeightChangeRate` is the one with real multipliers in it. Writing
+the second makes the option do what it says. Confirmed in game -- max equip load read back at exactly
+the multiple written.
+
+🛑 **A roll mode (off / light / medium) is built on the client and not yet available to you**, because
+the yaml half is still open as #548. A fixed multiplier cannot pin you to medium roll on its own --
+roll weight is carried over max, and this raises the ceiling -- so the option ships with a readback
+that proves which roll you actually got rather than a claim.
+
+### An incoming DeathLink says so on screen
+
+You would drop dead and the record of why existed only in a log file you were not reading, which
+reads as the mod misbehaving rather than as another world’s death arriving. It now goes to both
+surfaces the client uses for things you are meant to keep -- the toast catches you mid-fight, the
+top-right feed keeps the history.
+
+    DeathLink: killed by bobler
+
+The source name is the one place a payload from another world reaches the screen, so it is sanitised
+rather than trusted; a name with nothing printable in it renders as *someone*, not as `??`.
+
+### A bell hand-in reaches the top-right feed
+
+The merchant-bells notice was going to the bottom-left toast strip and stopping there, which is a
+six-second window and not a record. It now reaches the client feed as well, like every other notice
+worth keeping.
+
+### A boss fight can be measured instead of argued about
+
+Three scaling reports in a row -- *"2 bosses in one fight wildly different"*, *"one super squishy and
+weak, the other insanely tanky"*, Gideon *"1 shots from 50 vigor"* and a sponge -- and **not one of
+them is answerable from what the client used to log.** The scaling census describes our decision; it
+says nothing about what the fight was. Two HP curves do. The client now samples player and boss HP
+through a boss fight, roughly twice a second.
+
+It is **on by default**, which took a correction: it shipped probe-gated and off, and the repo
+already knew better -- an off-by-default probe silently cost a playtest round on 2026-08-08 when the
+measurement simply did not happen. The same fix closed a hole where an explicit `ER_*=1` could be
+overruled by a config file the developer may not have written; the documentation had claimed env
+overrides config in both directions and the code only did one of them.
+
+### The client log answers four questions it could not
+
+All four came out of triaging the same player report twice -- the merchant-bell option that was
+declared, documented, and never put on the wire. The one that matters is a **feature handshake**:
+what the seed DECLARED, minus what actually ARMED, reconciled once per connect after every feature is
+configured. It is a read-back, not a receipt: it reports what the client can observe about itself,
+which is the distinction the original defect turned on.
+
+### Under the hood
+
+- The census of checks whose region is a **guess** rather than an answer, and a tool that
+  point-in-volume tests the checks against play-region geometry the same way graces already were --
+  importing that machinery rather than reimplementing it, so the two answers cannot drift apart.
+  Nothing consumes the output yet; a disagreement is a question, not a fix.
+- A worksheet of the 83 bosses standing between us and 395 ambiguous checks, and the distance from
+  each check to the nearest boss arena spawn.
+- The yaml lint’s rune-cap guard was reading the option key from before a rename, so it never fired
+  once.
+- A scaling spot-check hard-coded a region label that the Cerulean fold moved, so the test went red
+  while the code was right; it now derives the label instead of naming it.
+- The submodule pin, the Tier-1 regen precondition in AGENTS.md, and witnesses for two tests that
+  could previously pass without observing anything.
+- The F6 tracker sizes its window to its content and floors it every frame, its sweep rows say when
+  a region is unreachable rather than leaving a group looking stuck, and a group that has already
+  paid out clears itself.
+- A Region Lock now says whether it **warps you in** or only **admits you** -- two different things
+  that read identically in the client feed.
+
+### Published
+
+`release/CHANNELS.tsv`: **stable -> v0.3.10**, beta -> main for this window. Two appended rows, no
+edits, per the file’s own rule. Both were owed when the window opened on 2026-08-10 and are paid
+here.
+
+### 🛑 Everything above this line was note debt, and the gate was green throughout
+
+`check_release_notes` asks whether the OPEN version has a dated changelog section and a non-stub
+blurb. Both were true from the moment the window-opening commit wrote them, so **every merge after
+the first one landed note-free with a green gate** -- Rule 14 is enforced for the first change in a
+window and unenforced for all of them after it. Thirty-nine merged pull requests across the two
+repos had no note when this sweep started -- eighteen in the world, twenty-one in the client.
+
+The detection is one command and nobody runs it:
+
+    git log --oneline -1 -- release/CHANGELOG.md release/BLURB-v<n>.md
+    git log <that>..main
+
+Anything in the second list is note debt. Run it before the tag, and treat a green
+`check_release_notes` as evidence of nothing. A gate that could close this would compare those two
+sets; it does not exist yet.
+
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
