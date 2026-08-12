@@ -39,6 +39,39 @@ from BaseClasses import ItemClassification
 from Options import OptionSet, Range
 
 from ..registry import Feature, register
+from ..spawn_trap_data import SPAWN_TRAPS, SPAWN_TRAP_KEYS
+
+#: 🛑 CROSS-REPO CONTRACT with `er_logic::traps::LABEL_CAP`. The client retains a spawn label INLINE
+#: so its `SpawnSpec` can stay `Copy`, and REFUSES a longer one rather than truncating -- a
+#: truncated label would silently rename the creature in the one line the player ever reads.
+#: `tools/datamine_spawn_traps.py` asserts the same ceiling when it emits the table; this pins it on
+#: the consuming side too, because the tsv can be hand-edited.
+LABEL_CAP = 24
+
+
+#: The prefix the client dispatches on. Kept as a constant so the test can assert every name
+#: carries it -- a trap named without it is a filler item that silently never fires.
+TRAP_PREFIX = "Trap: "
+
+
+def spawn_item_name(chr_id: int) -> str:
+    """The item name a spawn trap for `chr_id` mints. THE PAYLOAD IS IN THE NAME.
+
+    `Trap: Basilisk (4150/41500060/41500000 x3)` -- label, then the three ids
+    `WorldChrMan::spawn_debug_character` needs, then the horde size.
+
+    🛑 WHY THE NAME AND NOT slot_data. A spawn trap is a SYNTHETIC item like every other trap: it
+    declares `ITEMS` and no `ITEM_GRANTS`, and the client recognises it by NAME. Putting the ids in
+    slot_data instead would be a CONTRACT MOVE -- a new key, both repos in lockstep, `CONTRACT_HASH`
+    moving, a version bump -- to carry three integers the name can carry for free.
+
+    🛑 THE COST, stated plainly: this name is a promise to another repository with nothing enforcing
+    it. `er_logic::traps::SpawnSpec::from_item_name` parses exactly this shape and REFUSES anything
+    else. `test_gf_spawn_traps` pins the format; the client pins its own parser. Change one, change
+    both -- the failure mode is an item that arrives, is filler, and does nothing forever.
+    """
+    label, npc, think, count = SPAWN_TRAPS[chr_id]
+    return "%s%s (%d/%d/%d x%d)" % (TRAP_PREFIX, label, chr_id, npc, think, count)
 
 # The trap catalogue: option value -> item name. 🛑 BOTH SIDES OF THIS TABLE ARE PUBLIC.
 # The KEY is a yaml value a player types and may not be renamed (rule 4). The VALUE is the string
@@ -49,9 +82,6 @@ TRAPS = {
     "runebear": "Trap: Runebear",
 }
 
-#: The prefix the client dispatches on. Kept as a constant so the test can assert every name
-#: carries it -- a trap named without it is a filler item that silently never fires.
-TRAP_PREFIX = "Trap: "
 
 
 class Traps(OptionSet):
@@ -65,12 +95,40 @@ class Traps(OptionSet):
       nothing, and the charge is spent.
     - **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the
       runes.
+    - **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the
+      Death Blight mist, which kills outright. Killing you sends a DeathLink.
 
     Traps are sent to YOU by your own world like any other item, so in a multiworld somebody else
     may be the one who finds them.
+
+    For any other enemy in the game, see `spawn_traps`.
     """
     display_name = "Traps"
-    valid_keys = frozenset(TRAPS)
+    # 🛑 The union, not `TRAPS` alone: a curated spawn key is a yaml value exactly like a fixed
+    # trap's, and leaving it out would make `traps: [basilisk]` an unknown-key error.
+    valid_keys = frozenset(TRAPS) | frozenset(SPAWN_TRAP_KEYS)
+    default = frozenset()
+
+
+class SpawnTraps(OptionSet):
+    """Extra enemies to drop on your own head, named by character model id (e.g. `4150`).
+
+    THE ESCAPE HATCH. `traps` carries the enemies we curated and named; this takes any of the 390
+    spawnable models in the game by raw id, for anyone who wants something specific standing on top
+    of them. One appears where you are; the curated ones may come in numbers.
+
+    Empty by default, and inert unless `trap_count` is above zero. An id that is not spawnable is a
+    yaml error rather than an item that silently never fires -- 26 models are excluded because they
+    have no AI row or no body (props like the Walking Mausoleum), and refusing them at generation is
+    the point.
+
+    Naming the same enemy here and in `traps` is harmless: it is one item either way.
+    """
+    display_name = "Spawn Traps"
+    # Strings, because a yaml list of bare ints is easy to write and an OptionSet keys on str.
+    # 🛑 `valid_keys` IS the validation. It is what turns `spawn_traps: [9999]` into a yaml error
+    # instead of a filler item that arrives in-game and does nothing forever.
+    valid_keys = frozenset(str(c) for c in SPAWN_TRAPS)
     default = frozenset()
 
 
@@ -86,42 +144,77 @@ class TrapCount(Range):
     default = 8
 
 
+def _chosen(world, option: str) -> set:
+    opt = getattr(world.options, option, None)
+    return set(opt.value or ()) if opt is not None else set()
+
+
 def enabled_traps(world) -> List[str]:
-    """The option values this seed enabled, in TRAPS order -- deterministic, not set order.
+    """The `traps` option values this seed enabled, in catalogue order -- deterministic.
 
     🛑 Sorted by the catalogue rather than by the OptionSet, because an OptionSet is a `frozenset`
     and iterating one is not stable across runs. A seed must be reproducible from its yaml.
     """
-    opt = getattr(world.options, "traps", None)
-    if opt is None:
-        return []
-    chosen = set(opt.value or ())
-    return [k for k in TRAPS if k in chosen]
+    chosen = _chosen(world, "traps")
+    return [k for k in TRAPS if k in chosen] + [k for k in sorted(SPAWN_TRAP_KEYS) if k in chosen]
+
+
+def enabled_trap_names(world) -> List[str]:
+    """Every distinct trap item NAME this seed may mint, in a deterministic order.
+
+    Three sources feed one list: the fixed traps, the curated spawn keys, and raw model ids from
+    `spawn_traps`. All three are walked in CATALOGUE order (never OptionSet order) so the result is
+    a function of the yaml and not of frozenset iteration.
+
+    🛑 DEDUPLICATED, order-preserving. `traps: [basilisk]` and `spawn_traps: ["4150"]` name the same
+    creature and mint the same string; without this the round-robin would deal that one trap twice
+    as often as the others, which is a silent weighting bug rather than a visible one.
+    """
+    names = []
+    chosen = _chosen(world, "traps")
+    for k in TRAPS:
+        if k in chosen:
+            names.append(TRAPS[k])
+    for k in sorted(SPAWN_TRAP_KEYS):
+        if k in chosen:
+            names.append(spawn_item_name(SPAWN_TRAP_KEYS[k]))
+    raw = _chosen(world, "spawn_traps")
+    for c in sorted(SPAWN_TRAPS):
+        if str(c) in raw:
+            names.append(spawn_item_name(c))
+    return list(dict.fromkeys(names))
 
 
 def trap_items(world) -> List[str]:
-    """The trap item NAMES this seed mints, dealt round-robin across the enabled traps.
+    """The trap item NAMES this seed mints, dealt round-robin across everything enabled.
 
     Round-robin rather than random so the split is even and reproducible: with 8 traps and 2 kinds
     you get 4 and 4, every time, and a player who enabled two traps never rolls a seed with seven of
     one and one of the other.
     """
-    chosen = enabled_traps(world)
+    chosen = enabled_trap_names(world)
     if not chosen:
         return []
     opt = getattr(world.options, "trap_count", None)
     n = int(opt.value) if opt is not None else 0
     if n <= 0:
         return []
-    return [TRAPS[chosen[i % len(chosen)]] for i in range(n)]
+    return [chosen[i % len(chosen)] for i in range(n)]
 
 
 @register
 class TrapsFeature(Feature):
     name = "traps"
-    OPTIONS = {"traps": Traps, "trap_count": TrapCount}
+    OPTIONS = {"traps": Traps, "trap_count": TrapCount, "spawn_traps": SpawnTraps}
     # FILLER, always. Rule 3: no progression may ride a trap, and `_class_for` never promotes these
     # because they are not required runes, gate runes, legacy keys or natural keys.
+    #
+    # 🛑 THE 390 SPAWN NAMES ARE DELIBERATELY ABSENT. `registry.allocate_item_ids` walks features in
+    # import order handing out SEQUENTIAL ids, so declaring 390 names here would shift the AP id of
+    # every feature-minted item registered after this one -- the exact renumbering `core.py` goes out
+    # of its way to avoid for ASHEN_LOCK ("appending here leaves every existing id exactly where they
+    # were"). They are registered in `core.py` instead, in their own block, at an id ARITHMETIC in
+    # the chr model, so adding or removing a family renumbers nothing at all.
     ITEMS = {n: ItemClassification.filler for n in TRAPS.values()}
     # 🛑 NO `ITEM_GRANTS`. That absence is what makes a trap synthetic -- it never lands in
     # `_AP_IDS_TO_ITEM_IDS`, so the client is never told to hand the player an ER item for it, and

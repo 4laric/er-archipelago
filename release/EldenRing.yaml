@@ -322,10 +322,24 @@ Elden Ring:
   #                 it just does nothing, and the charge is spent.
   #   runebear   -- a Runebear appears exactly where you are standing. Kill
   #                 it and you keep the runes.
+  #   basilisk   -- THREE basilisks appear where you are standing. One is a
+  #                 joke; three is the Death Blight mist, which kills
+  #                 outright. Killing you sends a DeathLink.
   traps: []
 
+  # THE ESCAPE HATCH: any other enemy in the game, by character model id.
+  # `traps` above carries the ones we named; this takes any of the 390
+  # spawnable models, e.g. [4630] for a Runebear or [4980] for a Death Rite
+  # Bird. One appears where you are standing.
+  #
+  # An id that cannot be spawned is a yaml ERROR rather than an item that
+  # silently never fires -- 26 models are excluded because they have no AI
+  # row or no body. Naming the same enemy here and in `traps` is harmless;
+  # it is one item either way.
+  spawn_traps: []
+
   # How many trap items to shuffle in, shared evenly between the traps you
-  # enabled above. Inert while `traps` is empty.
+  # enabled above. Inert while both `traps` and `spawn_traps` are empty.
   trap_count: 8
 
   # Share of YOUR filler that other players' worlds may draw from, in a
