@@ -694,9 +694,12 @@ def plan(world, total: int) -> List[Optional[str]]:
 
 def classify(world, item) -> None:
     """Juice is intentional USEFUL gear. Some catalog gear (notably spells/incantations) carries the
-    GOODS FullID nibble, so core._classify_full defaults it to `filler`. There is no second pass left
-    to seize it any more, but AP's fill treats useful and filler differently and juice is meant to be
-    the former.
+    GOODS FullID nibble, and `item_categories.CATEGORY_CLASS` still calls that whole category
+    `filler` (see the flip candidates named there), so core classifies it filler. There is no second
+    pass left to seize it any more, but AP's fill treats useful and filler differently and juice is
+    meant to be the former. 🛑 IF `spells` EVER FLIPS TO `useful` IN THAT TABLE, re-measure whether
+    this hook still promotes anything -- it exists only because of that one disagreement, and a
+    promotion that is a no-op for every name is a pass over the pool that should be deleted.
 
     EXCEPTION: natural_progression uses some juice-tier WEAPONS as region GATE KEYS (e.g.
     Dragon-Hunter's Great Katana gates Jagged Peak; Magma Wyrm's Scalesword / Inquisitor's Girandole

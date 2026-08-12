@@ -198,3 +198,80 @@ def census() -> Dict[str, int]:
     for n in ITEM_CATALOG:
         out[category_of(n)] = out.get(category_of(n), 0) + 1
     return out
+
+
+# ---- CLASSIFICATION: the same partition, answering AP's useful/filler question --------------------
+# WHY THIS IS HERE AND NOT IN core.py. `core._classify_full` used to answer "useful or filler?" from
+# the FullID high nibble alone -- goods -> filler, everything else -> useful. That is a second,
+# coarser partition of the same catalog, living in a different file, and it disagreed with this one
+# in a way nobody could see: 203 spells, 79 spirit ashes and 37 crystal tears are gear to a player
+# and carry the GOODS nibble, so AP's fill and every partner's tracker read them as junk. One
+# taxonomy, asked two questions -- locality (`names_in`) and classification (here).
+#
+# 🛑 THIS TABLE IS THE POLICY AND IT IS WRITTEN OUT, NOT DERIVED. Deriving it from the nibble would
+# reproduce today's answer forever and make the disagreement above unrepresentable -- which is the
+# opposite of the point. It is pinned instead: `test_gf_item_classification` asserts this table
+# agrees with the old nibble rule on every catalog name, so a flip is a DELIBERATE edit here that
+# turns that test red and has to be argued for, and drift is impossible either way.
+#
+# 🛑 STRINGS, NOT `ItemClassification`. This module is AP-free on purpose (tools/ and the generators
+# import it outside an Archipelago checkout); core maps these two keys onto the enum.
+#
+# 🛑🛑 TWO OF AP'S THREE CLASSES, AND THE THIRD IS NOT A CATEGORY PROPERTY. AP classifies an item
+# progression / useful / filler (plus the `trap` label). This table mints only the last two, on
+# purpose: PROGRESSION IS PER-NAME AND PER-WORLD -- whether Godrick's Great Rune gates anything
+# depends on this seed's `goal`, and whether the Academy Glintstone Key does depends on
+# features/legacy_key_gates. `core._class_for` decides that at item-creation time, above this table.
+# A category can never answer it, because the same category holds both answers in the same seed.
+#
+# 🛑🛑 `progressive` IS NOT `progression`. The two words name unrelated things and sit one letter
+# apart in the same file, so: PROGRESSIVE_CATEGORY is the bucket `category_of` returns for a name
+# with no FullID, and the Progressive Flask / Stonesword Key / Smithing Bell / Somber Bell that give
+# it its name are declared `useful` by features/progressive.py -- they gate nothing and never have.
+# ItemClassification.progression is the AP class above, which no category grants. Reading the first
+# as the second would promote every feature-minted name -- traps included -- into the fill's
+# reachability constraints. `class_of` returns None for that bucket rather than risk it.
+USEFUL = "useful"
+FILLER = "filler"
+
+CATEGORY_CLASS: Dict[str, str] = {
+    # the four non-goods nibbles -- useful since the world shipped
+    "weapons": USEFUL,
+    "armor": USEFUL,
+    "talismans": USEFUL,
+    "ashes": USEFUL,
+    # goods. FLIP CANDIDATES, in the order they are worth arguing about: `spells`, `spirit_ashes`
+    # and `crystal_tears` are gear, and calling them filler is the disagreement described above.
+    "spells": FILLER,
+    "spirit_ashes": FILLER,
+    "crystal_tears": FILLER,
+    "upgrade_materials": FILLER,
+    # goods that are junk or currency by any reading, and stay filler
+    "consumables": FILLER,
+    "crafting": FILLER,
+    "runes": FILLER,
+    # 🛑 THE TWO THE PARTITION CANNOT ANSWER. `key_items` is an inventory TAB holding the gate keys
+    # AND 96 cookbooks AND the bell bearings; `other` holds remembrances, great runes, map fragments
+    # and the Physick flask. A single class is wrong for both, so they keep the conservative one and
+    # the promotions stay per-NAME in `core._class_for` (required great runes, Leyndell-gate runes,
+    # legacy + natural keys -> progression). Do not "fix" these by flipping them wholesale.
+    "key_items": FILLER,
+    "other": FILLER,
+    # PROGRESSIVE_CATEGORY is deliberately absent -- see class_of().
+}
+
+
+def class_of(name: str) -> Optional[str]:
+    """`USEFUL` or `FILLER` for a catalog item, or None if this taxonomy has no opinion.
+
+    None means the caller owns the answer, and there is exactly one such case: a name outside
+    `ITEM_CATALOG`. `category_of` folds all of those into `progressive`, which is NOT the set of
+    Progressive X items -- it is every feature-minted name, so it also holds the region Locks and
+    boss keys (progression), the traps and the FILLER sentinel (filler), and scadu_supply's
+    fragment (useful). Four classes in one bucket; the features DECLARE those in their `ITEMS` and
+    that declaration must win. Returning None rather than a class is what keeps this module from
+    silently overruling them (`features/keep_out_of_shops.py` documents the same trap for locality).
+    """
+    if name not in ITEM_CATALOG:
+        return None
+    return CATEGORY_CLASS.get(category_of(name), FILLER)

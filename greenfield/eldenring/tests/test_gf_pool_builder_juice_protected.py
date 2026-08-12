@@ -2,7 +2,8 @@
 
 HISTORY -- read this before "simplifying" the file away. It used to guard a collision that no longer
 exists: pool_builder injected gear as `useful`, but some catalog gear (notably spells & incantations)
-carries the GOODS FullID nibble, so core._classify_full defaulted it to `filler` -- and BOTH seizers
+carries the GOODS FullID nibble, so core classified it `filler` (the nibble test of the day; the
+table is `item_categories.CATEGORY_CLASS` now) -- and BOTH seizers
 of the day (core's stone_injection, then filler_curation.curate()) protected only progression|useful.
 A filler-classified S-tier sorcery the player had "paid" a juice slot for would be silently
 overwritten with a throwable or a smithing stone.

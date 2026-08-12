@@ -18,6 +18,7 @@ from Options import (PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggl
                      OptionError, OptionGroup)
 
 from .data import HUB, REGIONS, LOCATIONS, FINALE_REGION, FINALE_HOST_REGION
+from . import item_categories
 try:
     from .location_tags import DEFAULTED_REGION_APS   # checks whose region is a GUESS -> filler only
 except ImportError:                                    # pre-regen data: fail OPEN, guard is inert
@@ -308,17 +309,31 @@ location_name_to_id: Dict[str, int] = {
 }
 _AP_IDS_TO_ITEM_IDS: Dict[str, int] = {str(item_name_to_id[FILLER]): _FILLER_GAME_ID | _GOODS_NIBBLE}
 
-# real-item-pool: register each distinct vanilla item as an AP item (id -> game FullID). GOODS are
-# filler; weapons/armor/accessories/ashes are useful. Locks remain the only progression.
+# real-item-pool: register each distinct vanilla item as an AP item (id -> game FullID). The
+# useful/filler split is item_categories.CATEGORY_CLASS -- ONE taxonomy, asked here for
+# CLASSIFICATION and in features/local_items + features/keep_out_of_shops for LOCALITY. It replaced
+# a private nibble test (`_classify_full`, goods -> filler) that was a second, coarser partition of
+# the same catalog living in a different file. Locks remain the only progression.
 _REAL_ITEM_BASE = 7790000
-def _classify_full(full: int) -> ItemClassification:
-    return ItemClassification.filler if (full & 0xF0000000) == _GOODS_NIBBLE else ItemClassification.useful
+_CLASS_BY_KEY = {item_categories.USEFUL: ItemClassification.useful,
+                 item_categories.FILLER: ItemClassification.filler}
+
+
+def _classify_catalog(name: str) -> ItemClassification:
+    """Classification for a VANILLA catalog item.
+
+    `class_of` answers None only for a name OUTSIDE `ITEM_CATALOG`, which the loop below cannot
+    produce -- so the KeyError this would raise on None is the assertion, not an oversight. A
+    feature-minted name keeps whatever its own `ITEMS` declared (registry.collect_item_classes);
+    classifying one from here would overrule a Lock, a boss key or a trap, which is exactly what
+    item_categories.class_of returning None exists to prevent."""
+    return _CLASS_BY_KEY[item_categories.class_of(name)]
 for _idx, _nm in enumerate(sorted(ITEM_CATALOG)):
     if _nm not in item_name_to_id:
         _aid = _REAL_ITEM_BASE + _idx
         item_name_to_id[_nm] = _aid
         _AP_IDS_TO_ITEM_IDS[str(_aid)] = ITEM_CATALOG[_nm]
-        _item_class[_nm] = _classify_full(ITEM_CATALOG[_nm])
+        _item_class[_nm] = _classify_catalog(_nm)
 
 # FEATURE-MINTED GRANTS. `registry.allocate_item_ids` gives a feature's ITEMS an AP id, but nothing
 # tells the client what one resolves to: `_AP_IDS_TO_ITEM_IDS` is built from ITEM_CATALOG above, so
