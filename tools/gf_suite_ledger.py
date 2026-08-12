@@ -106,6 +106,11 @@ TESTS_JOB = {
                       "unconditional `from ..item_ids import`, and under pytest the package "
                       "__init__ chain pulls in BaseClasses -- so it needs the installed world",
     "gen_stamp": "freshness (test_D) recomputes over the bundle-materialised inputs",
+    "spawn_traps": "installed world only -- every case imports worlds.eldenring.{core,"
+                   "spawn_trap_data,features.traps}, and the generated table it reads is installed "
+                   "beside the package. Ledgered with NO repo-only sentinel on purpose: the id-block "
+                   "cases must never be skippable, because they are the guard on AP ids that a "
+                   "refactor to `enumerate` would move under every seed in flight",
     "grace_skip_oracle": "event/ decompiles + BonfireWarpParam.csv ship in the bundle; REPO is "
                          "resolved by find_repo_root walk-up since the #244 fix (its positional "
                          "REPO was what kept it dark). Woken 2026-08-04 with the #244 world-data "

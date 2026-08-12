@@ -16,18 +16,15 @@ blessing a new enemy renumbers nothing. If someone "tidies" that into an `enumer
 already in flight starts resolving its trap items to the wrong enemy, and every test here still
 passes unless one of them is watching the arithmetic itself.
 """
-import os
-import sys
 import unittest
 
-try:
-    from ._util import find_repo_root, REPO_ONLY_REASON
-except ImportError:
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from _util import find_repo_root, REPO_ONLY_REASON
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = find_repo_root(HERE)
+# 🛑 NO `find_repo_root` / REPO_ONLY_REASON SENTINEL HERE, deliberately, and it was removed rather
+# than never written: the first draft copied one from `test_gf_traps.py` and gated `TheIdBlock` on
+# it. That gate is a LIE -- nothing in this file reads the repo tree; every case imports
+# `worlds.eldenring.*`, which is the INSTALLED world. Had `find_repo_root` ever missed, the four
+# renumbering guards below would have skipped citing a missing input that is not one of theirs, and
+# a dark id gate is precisely the failure they exist to catch. The suite is ledgered in
+# `tools/gf_suite_ledger.py` under TESTS_JOB so its home is on the record either way.
 
 #: Written out literally rather than imported. Importing would make this test agree with any
 #: reformat by construction, which is the one thing it must not do. This is the exact string the
@@ -179,7 +176,6 @@ class TheNameContract(unittest.TestCase):
         self.assertEqual(len(set(names)), len(names))
 
 
-@unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class TheIdBlock(unittest.TestCase):
     """🛑 The renumbering guard. See this module's docstring."""
 
