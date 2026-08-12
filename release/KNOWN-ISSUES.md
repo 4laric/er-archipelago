@@ -85,9 +85,28 @@ players, one section per fix, and it is the honest record.
   `crash-<pid>.txt` the client writes next to itself and attach it to a report --
   that file is what identifies these.
 
-- **Linux is not supported** (#222). The client throws "Could not translate RVA
-  to VA" under Proton and the game can only be exited. What to do: play on
-  Windows for now.
+- **"Could not translate RVA to VA" at startup** (#222 on Linux, #475 on
+  Windows). The client could not find one of the game's internal objects, and
+  the game can only be exited. Despite the wording it is almost never about
+  your game version: the build check runs first and fails with its own
+  `Unsupported game version` text, so seeing *this* message means your build is
+  one we support.
+
+  **On Windows it is a startup race, not something you did.** The client asks
+  the game for its task scheduler as soon as the game's window exists, which
+  can be a moment before the game has finished registering the objects we look
+  up. Ask too early and the lookup comes back empty, and that empty answer is
+  reported as this message with no second attempt. Anything that shifts startup
+  timing -- a faster disk, a busy machine, another overlay mod loading
+  alongside ours -- can flip it, which is why it can appear on an install that
+  launched fine a few times before. **What to do: quit and launch again.** It
+  usually takes. If it happens every launch, attach `archipelago-<date>.log`
+  from the folder the client sits in -- the file is appended across launches,
+  so the last `SESSION START` block is the one that matters -- and say what
+  else was in your DLL mods list.
+
+  **On Linux it happens every launch** and is a different problem: Proton is
+  not supported yet, so play on Windows for now.
 
 ## Tracker
 

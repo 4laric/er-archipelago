@@ -164,9 +164,10 @@ class KeepOutOfShops(OptionSet):
         keep_out_of_shops: [weapons, armor]
 
     Same categories as Keep Local: weapons, armor, talismans, ashes (ashes of WAR), spells,
-    spirit_ashes, consumables, crafting, cookbooks, upgrade_materials, runes, crystal_tears,
-    key_items, other, progressive -- plus the umbrellas `goods`, `key_items` (the whole inventory
-    tab, cookbooks included) and `everything`.
+    spirit_ashes, consumables, crafting, cookbooks, upgrade_materials, upgrade_bells,
+    merchant_bells, runes, crystal_tears, key_items, other, progressive -- plus the umbrellas
+    `goods`, `key_items` (the whole inventory tab: cookbooks and bell bearings included),
+    `bell_bearings` (both kinds) and `everything`.
 
     Empty (default) = merchants stock exactly what they would have. On a SMALL seed there may not be
     room: the hub is 184 shop rows out of 224 locations, and if a category holds more items than

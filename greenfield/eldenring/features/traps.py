@@ -57,8 +57,25 @@ TRAP_PREFIX = "Trap: "
 def spawn_item_name(chr_id: int) -> str:
     """The item name a spawn trap for `chr_id` mints. THE PAYLOAD IS IN THE NAME.
 
-    `Trap: Basilisk (4150/41500060/41500000 x3)` -- label, then the three ids
-    `WorldChrMan::spawn_debug_character` needs, then the horde size.
+    `Trap: Basilisk x3 (4150/41500060)` -- label, horde size, then the two ids the client cannot
+    derive for itself.
+
+    ⭐ THE THINK ROW IS NOT IN THE NAME, and its absence is proved rather than assumed. A model only
+    enters this table if `NpcThinkParam` has a row at exactly `<chr>0000` -- that IS the eligibility
+    rule -- so `think == chr_id * 10000` for all 390 rows, and the client derives it.
+    `test_gf_spawn_traps` holds that premise against the real table; if it ever fails, the name can
+    no longer express reality and the field has to come back. The npc row is NOT derivable (300 of
+    390 differ from the template), so it stays.
+
+    ⭐ THE PAYLOAD IS LAST, and the count sits with the label, because Archipelago fuzzy-matches item
+    names in `!getitem` / `/send` (`Utils.get_intended_text`, 75% threshold). With 389 uncurated
+    names shaped `Trap: cNNNN ...` they are near-identical to EACH OTHER, and a payload in the
+    middle pushed the only distinguishing text past where the matcher weighs it. Leading with
+    `Trap: c4630 x1` gives the match something to bite on.
+
+    🛑 THE FORMAT IS ONLY FREE TO CHANGE UNTIL A TAG. Nothing has shipped it yet (the v0.3.12 window
+    is open), so this reshaping costs nothing. After a release it is a compat break for every seed
+    in flight, and the client refuses -- loudly, by design -- anything it cannot parse.
 
     🛑 WHY THE NAME AND NOT slot_data. A spawn trap is a SYNTHETIC item like every other trap: it
     declares `ITEMS` and no `ITEM_GRANTS`, and the client recognises it by NAME. Putting the ids in
@@ -70,8 +87,8 @@ def spawn_item_name(chr_id: int) -> str:
     else. `test_gf_spawn_traps` pins the format; the client pins its own parser. Change one, change
     both -- the failure mode is an item that arrives, is filler, and does nothing forever.
     """
-    label, npc, think, count = SPAWN_TRAPS[chr_id]
-    return "%s%s (%d/%d/%d x%d)" % (TRAP_PREFIX, label, chr_id, npc, think, count)
+    label, npc, _think, count = SPAWN_TRAPS[chr_id]
+    return "%s%s x%d (%d/%d)" % (TRAP_PREFIX, label, count, chr_id, npc)
 
 # The trap catalogue: option value -> item name. 🛑 BOTH SIDES OF THIS TABLE ARE PUBLIC.
 # The KEY is a yaml value a player types and may not be renamed (rule 4). The VALUE is the string

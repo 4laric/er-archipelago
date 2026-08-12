@@ -49,6 +49,7 @@ param(
     [switch]$SkipCrossRepoCheck, # skip the apworld<->client data-agreement gate (NOT recommended)
     [switch]$DryRun,
     [switch]$Unofficial,     # cut a NON-RELEASE build: identity gates warn, correctness gates still fail
+    [switch]$AllowStalePin,  # the gitlink deliberately trails client main (sets ALLOW_STALE_PIN=1)
     [string]$Stamp = ""      # REQUIRED with -Unofficial: free-text label, e.g. auto-equip-preview
 )
 
@@ -331,6 +332,56 @@ if (-not $SkipCrossRepoCheck) {
 }
 
 # ---------------------------------------------------------------------------
+# 3c. CLIENT IDENTITY -- the pin, the tree, client main and the .dll must name ONE build.
+# ---------------------------------------------------------------------------
+# 3b above proves the apworld and the .dll were built from the same DATA. This proves the release
+# can still SAY, afterwards, which client it was. Different question, and v0.3.11 is why it is here:
+# the tag pinned client a9830ebe while the tree that got packaged -- and client main -- were at
+# 19825995, 41 commits apart.
+#
+# 🛑 READ THIS BEFORE CHANGING ANYTHING BELOW. v0.3.11's BUNDLE WAS CURRENT. This script packages
+# the client WORKING TREE, so players got the right .dll and every gate that looked at the artifact
+# was correctly green. Two reviewers have since inferred the artifact from the pin and been wrong
+# about it in writing. A GITLINK IS A RECORD, NOT A BUILD INPUT. What was lost is the PAIRING: no
+# bug report against that tag can ever be resolved to a client commit, and no later fix recovers it.
+#
+# The check itself lives in Python (tools\check_release_pairing.py) so CI and any future
+# cut_release.py run the SAME code -- the four-instruments-four-answers situation this defect grew
+# out of is retired by having one implementation. It runs HERE because a CI job can be routed
+# around and on v0.3.11 one was: release.yaml's pin step went red AFTER the tag was public and the
+# release shipped anyway. This is the moment the zip is born. No agreement, no zip.
+$pairTool = Join-Path $Repo "tools\check_release_pairing.py"
+if (-not (Test-Path $pairTool)) {
+    Die ("tools\check_release_pairing.py is missing, so client identity cannot be verified. " +
+         "Restore it -- do not package around it.")
+}
+if ($AllowStalePin) { $env:ALLOW_STALE_PIN = "1" } else { $env:ALLOW_STALE_PIN = "0" }
+$pairDll = Join-Path (Join-Path $Repo "me3") "eldenring_archipelago.dll"
+$pairArgs = @($pairTool, "--repo", $Repo)
+if (Test-Path $pairDll) { $pairArgs += @("--dll", $pairDll) }
+& python @pairArgs
+$pairExit = $LASTEXITCODE
+$env:ALLOW_STALE_PIN = $null
+# Under -Unofficial this is an IDENTITY gate by the script's own taxonomy (see the header): an
+# unofficial build claims to be nothing, so a mismatch is expected rather than dangerous. It still
+# warns, so the run exits 2 and the operator has read the SHAs. There is deliberately no -Skip
+# switch: the whole failure mode was a check that could be walked past.
+if ($pairExit -eq 1) {
+    if ($Unofficial) { Warn "client identity does not agree (see above) -- unofficial build, continuing." }
+    else {
+        Die ("the pin, the client tree, client main and the .dll do not name one build (see above). " +
+             "A release packaged from here could never be resolved back to a client commit. Fix the " +
+             "pairing, or pass -AllowStalePin if the gitlink deliberately trails client main.")
+    }
+} elseif ($pairExit -eq 2) {
+    Warn "packaging with a KNOWN-STALE client pin (see above). Review before shipping."
+} elseif ($pairExit -ne 0) {
+    Die "check_release_pairing.py exited $pairExit -- it did not run, so identity is UNVERIFIED."
+} else {
+    Info "Client identity: the pin, the client tree, client main and the .dll name one build."
+}
+
+# ---------------------------------------------------------------------------
 # 4. me3 runtime (client + AP-icon override + config)
 # ---------------------------------------------------------------------------
 $Me3Src = Join-Path $Repo "me3"
@@ -435,9 +486,28 @@ Info "+ AP-icon override ($($IconSheets.Count) sprite sheet(s), $($IconFiles.Cou
 # unparseable port the same way it treats a blank url -- it does not attempt the connection and the
 # in-game overlay asks instead (shared::config::is_connectable, client PR pairing this one). Do not
 # revert this to a number without checking that guard is still there.
+#
+# MULTI-LINE, and it must stay byte-identical to what the client would write (Alaric, 2026-08-12:
+# "can we write that so it's formatted across multiple lines?"). This is a file we ask players to
+# OPEN AND EDIT -- url, slot, and since the probe work the diagnostic flags too -- so shipping it as
+# one 96-character line was a poor thing to hand someone. `shared::config::serialize_config` (client
+# PR pairing this one) pretty-prints on save; if THIS stayed one line the player's file would still
+# reflow under them the first time they connected through the overlay, which is the same surprise
+# with a delay. `the_template_shape_is_what_we_ship` over there asserts these exact bytes.
+#
+# LF and no BOM, via WriteAllText -- `Set-Content` would emit CRLF on Windows and the client writes
+# LF, so the first save would rewrite every line ending for no reason. ASCII-safe by construction.
 $ApConfig = Join-Path $Me3Dst "apconfig.json"
-'{"url":"archipelago.gg:PORT","slot":"Player1","seed":"","client_version":null,"password":null}' |
-    Set-Content -Path $ApConfig -Encoding ASCII -NoNewline
+$ApConfigText = @(
+    '{'
+    '  "url": "archipelago.gg:PORT",'
+    '  "slot": "Player1",'
+    '  "seed": "",'
+    '  "client_version": null,'
+    '  "password": null'
+    '}'
+) -join "`n"
+[IO.File]::WriteAllText($ApConfig, $ApConfigText + "`n", [Text.UTF8Encoding]::new($false))
 Info "+ apconfig.json (generic template: archipelago.gg / Player1 -- port is a placeholder)"
 
 # ---------------------------------------------------------------------------

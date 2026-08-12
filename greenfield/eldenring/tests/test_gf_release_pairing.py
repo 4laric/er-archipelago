@@ -1,0 +1,144 @@
+"""Release-pairing gate -- tools/check_release_pairing.py.
+
+MOTIVATING CASE (Rule 11): v0.3.11. The tag pinned client `a9830ebe` while the client tree that
+was actually packaged -- and client main -- were at `19825995`. Nothing refused to build the zip.
+
+🛑 The thing this test exists to keep straight, because two reviewers have now got it backwards in
+writing: v0.3.11's BUNDLE WAS CURRENT. `package_release.ps1` packages the client working TREE, not
+the gitlink, so players got the right dll. What was wrong was the RECORD -- and a record that
+disagrees with its artifact means no bug report against that tag can ever be resolved to a client
+commit. So the case below is PIN != TREE with a CURRENT tree and a CURRENT dll: everything a player
+touches is right, and the gate must still refuse, because the unrecoverable thing is the pairing.
+
+The checker is a pure function over five gathered strings precisely so this test can pin the
+v0.3.11 triple without a repo, a network or an 8 MB dll on disk.
+
+AP-FREE: imports one stdlib-only tool by path. Runs in the bare sandbox.
+
+Run:  python -m pytest greenfield/eldenring/tests/test_gf_release_pairing.py
+"""
+import importlib.util
+import os
+import sys
+import unittest
+
+try:                       # package-relative under pytest; plain path when run directly
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+_FOUND = find_repo_root(HERE)
+RUNNING_FROM_REPO = _FOUND is not None
+
+_MOD = None
+if RUNNING_FROM_REPO:
+    _PATH = os.path.join(_FOUND, "tools", "check_release_pairing.py")
+    if os.path.isfile(_PATH):
+        _spec = importlib.util.spec_from_file_location("check_release_pairing", _PATH)
+        _MOD = importlib.util.module_from_spec(_spec)
+        # Register BEFORE exec: @dataclass resolves annotations through sys.modules, so a
+        # by-path import that skips this dies on the Facts class with a bare AttributeError.
+        sys.modules[_spec.name] = _MOD
+        _spec.loader.exec_module(_MOD)
+
+# The real shas, so the test reads as the incident rather than as a fixture.
+V0311_PIN = "a9830ebec0d7c7d14856f0b223d955186fe85eb2"
+V0311_MAIN = "198259951b1e6d0e4c6d0c0e4e0a1f0f6a0b2c3d"   # shape-accurate stand-in for 1982599...
+
+
+def _facts(**kw):
+    """A Facts with everything agreeing, then whatever the case under test disturbs."""
+    base = dict(pin=V0311_MAIN, tree=V0311_MAIN, tree_dirty=False, tree_present=True,
+                main=V0311_MAIN, main_present=True, dll_name="me3/eldenring_archipelago.dll",
+                dll_bytes=b"...ER_GIT_SHA=" + V0311_MAIN[:12].encode() + b" built...",
+                dll_present=True)
+    base.update(kw)
+    return _MOD.Facts(**base)
+
+
+@unittest.skipUnless(RUNNING_FROM_REPO and _MOD is not None, REPO_ONLY_REASON)
+class TestReleasePairing(unittest.TestCase):
+
+    def _check(self, facts, allow_stale=False):
+        code, lines = _MOD.check(facts, allow_stale)
+        return code, "\n".join(lines)
+
+    def test_the_v0311_pairing_is_refused(self):
+        """THE acceptance case. Tree, main and dll are all current and mutually agreed; only the
+        gitlink trails. Everything a player receives is correct and the gate must still say no."""
+        code, out = self._check(_facts(pin=V0311_PIN))
+        self.assertEqual(code, _MOD.HARD, "the v0.3.11 pairing must not be packageable:\n" + out)
+        self.assertIn("PIN != TREE", out)
+
+    def test_the_v0311_pairing_cannot_be_overridden(self):
+        """ALLOW_STALE_PIN exists for a deliberate lag against client MAIN. It must not buy a
+        release whose own record disagrees with its own artifact -- that is not a shipping
+        decision, it is a lost fact."""
+        code, out = self._check(_facts(pin=V0311_PIN), allow_stale=True)
+        self.assertEqual(code, _MOD.HARD, "PIN != TREE must take no override:\n" + out)
+
+    def test_everything_agreeing_passes(self):
+        code, out = self._check(_facts())
+        self.assertEqual(code, _MOD.OK, out)
+        self.assertIn("PASS", out)
+
+    def test_a_pin_behind_client_main_is_refused_by_default(self):
+        code, out = self._check(_facts(pin=V0311_MAIN, tree=V0311_MAIN, main=V0311_PIN))
+        self.assertEqual(code, _MOD.HARD, out)
+
+    def test_a_pin_behind_client_main_is_allowed_when_typed(self):
+        """Exit 2, never 0 -- the run is staged but the operator is told what they bought, and the
+        summary line must NOT round an allowed lag up to "agree"."""
+        code, out = self._check(_facts(pin=V0311_MAIN, tree=V0311_MAIN, main=V0311_PIN),
+                                allow_stale=True)
+        self.assertEqual(code, _MOD.STALE_ALLOWED, out)
+        self.assertIn("KNOWN-STALE", out)
+        self.assertNotIn("PASS", out)
+
+    def test_a_dirty_client_tree_is_refused(self):
+        """A bundle from a dirty tree corresponds to no commit at all -- the unrecoverable-record
+        problem in its worst form, so no override."""
+        for allow in (False, True):
+            code, out = self._check(_facts(tree_dirty=True), allow_stale=allow)
+            self.assertEqual(code, _MOD.HARD, "allow_stale=%s:\n%s" % (allow, out))
+
+    def test_a_dll_stamped_dirty_is_refused(self):
+        code, out = self._check(_facts(
+            dll_bytes=b"...ER_GIT_SHA=" + V0311_MAIN[:12].encode() + b"-dirty built..."))
+        self.assertEqual(code, _MOD.HARD, out)
+
+    def test_a_dll_from_another_commit_is_refused(self):
+        """The artifact identifying itself is the last link in the chain: source agreement proves
+        nothing if the binary predates it."""
+        code, out = self._check(_facts(dll_bytes=b"...ER_GIT_SHA=deadbeefcafe built..."))
+        self.assertEqual(code, _MOD.HARD, out)
+        self.assertIn("does not carry ER_GIT_SHA", out)
+
+    def test_a_missing_gitlink_is_refused(self):
+        code, out = self._check(_facts(pin=""))
+        self.assertEqual(code, _MOD.HARD, out)
+
+    def test_ci_without_the_submodule_still_checks_the_pin(self):
+        """The CI call site has no submodule and no dll. It must SAY it is answering a smaller
+        question rather than pass silently -- and it must still catch a stale pin."""
+        code, out = self._check(_facts(tree_present=True, tree="", main=V0311_PIN, pin=V0311_MAIN,
+                                       dll_name="", dll_present=False, dll_bytes=b""))
+        self.assertEqual(code, _MOD.HARD, out)
+        skipped = _MOD.Facts(pin=V0311_MAIN, tree_present=False, main=V0311_MAIN,
+                             notes=["submodule not checked out -- TREE, clean and DLL checks SKIPPED"])
+        code, out = self._check(skipped)
+        self.assertEqual(code, _MOD.OK, out)
+        self.assertIn("SKIPPED", out)
+
+    def test_an_unreachable_client_main_blocks_by_default(self):
+        """A network blip must not read as agreement. The escape is typed."""
+        code, out = self._check(_facts(main="", main_present=False))
+        self.assertEqual(code, _MOD.HARD, out)
+        code, out = self._check(_facts(main="", main_present=False), allow_stale=True)
+        self.assertEqual(code, _MOD.STALE_ALLOWED, out)
+
+
+if __name__ == "__main__":
+    unittest.main()
