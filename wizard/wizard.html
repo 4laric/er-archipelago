@@ -3444,7 +3444,13 @@ if (typeof module !== "undefined") module.exports = ERW;
     const rest = el("div", "");
     rest.id = "ss-rest";
     wrap.append(rest);
-    paintSeedSize();
+    /* 🛑 NO paintSeedSize() HERE, AND THAT IS THE WHOLE POINT. `paintSeedSize` finds its two
+       containers with `document.querySelector`, and `wrap` is not in the document until the CALLER
+       appends it -- so painting from inside this function looked up `#ss-head`, got `null`, took the
+       "not the tab on screen" early return, and drew nothing. The Seed size step was therefore BLANK
+       on arrival (size figures, composition bars and the contribution card all missing) until you
+       touched any control, because every `refresh()` is in an event handler and `renderStep` does
+       not call one. The caller paints, immediately after attaching. */
     return wrap;
   }
 
@@ -3717,6 +3723,40 @@ if (typeof module !== "undefined") module.exports = ERW;
     rest.append(renderContribution(cs, size));
   }
 
+  /* THE CONTRIBUTION CARD, drawn from the options alone. Two tabs want it and neither owns it:
+     Seed size, because the seed's check count is its denominator, and Multiworld & Placement,
+     because that is where every option it describes now lives (the seven tabs moved them there).
+     A player adjusting keep_local on the Multiworld tab and getting no feedback would have to walk
+     back to Seed size to see the number move, which is how the SEED_SIZE_OPTIONS control card came
+     to exist in the first place -- "this is the same control, not a copy". Same reasoning, other
+     direction: same card, drawn twice, never two computations. */
+  function contributionCard(){
+    const v = k => ERW.getVal(meta, state, k);
+    const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
+                                        dlcOnly: !!v("dlc_only"),
+                                        surfaceClasses: v("progression_surface") || [] });
+    if (!size) return null;
+    return renderContribution(nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only")),
+                              size);
+  }
+
+  /* The Multiworld tab's copy. Mirrors paintSeedSize exactly, including the "no-op unless that tab
+     is on screen" contract -- refresh() calls both and neither may assume it is the visible one. */
+  function paintContribution(){
+    const box = $("#mw-contrib");
+    if (!box) return;
+    box.innerHTML = "";
+    const card = contributionCard();
+    if (card) box.append(card);
+  }
+
+  /* WHICH GROUP GETS IT, found by OPTION rather than by name. The groups come from the world
+     (core.GFWeb.option_groups), so "Multiworld & Placement" is a string this page does not own and
+     cannot be renamed in step with. Keying on an option that must live in whatever group this is
+     means a rename moves the card with it, and only the group actually holding the locality knobs
+     ever claims it. */
+  const CONTRIB_ANCHOR = "keep_local";
+
   function renderStep(){
     const main = $("#main");
     main.innerHTML = "";
@@ -3739,6 +3779,7 @@ if (typeof module !== "undefined") module.exports = ERW;
 
     if (step.id === "seedsize"){
       main.append(renderSeedSizeTab());
+      paintSeedSize();       // AFTER the append: it queries the document for #ss-head / #ss-rest
       const btns0 = el("div", "navbtns");
       const b0 = el("button", "", "\u2039 Back"); b0.addEventListener("click", () => { cur--; renderStep(); });
       const n0 = el("button", "", "Next \u203a"); n0.addEventListener("click", () => { cur++; renderStep(); });
@@ -3818,6 +3859,12 @@ if (typeof module !== "undefined") module.exports = ERW;
         " options" + (changed ? " · " + changed + " changed" : "") + "</span>"));
       for (const k of g.options){ const o = meta.byKey[k]; if (o) card.append(optRow(o)); }
       main.append(card);
+      if (g.options.includes(CONTRIB_ANCHOR)){
+        const box = el("div", "");
+        box.id = "mw-contrib";
+        main.append(box);      // attach BEFORE painting -- see renderSeedSizeTab
+        paintContribution();
+      }
     }
 
     const btns = el("div", "navbtns");
@@ -3984,7 +4031,8 @@ if (typeof module !== "undefined") module.exports = ERW;
     paintVersionStamp();
     renderSeedSize();
     renderHostCard();
-    paintSeedSize();   // no-op unless the Seed size tab is the one on screen
+    paintSeedSize();       // no-op unless the Seed size tab is the one on screen
+    paintContribution();   // ditto, for the Multiworld & Placement tab's copy of the card
     const fs = ERW.findings(meta, state);
     const box = $("#findings");
     box.innerHTML = fs.length ? "" : "<div class='allgood'>No conflicts found.</div>";
