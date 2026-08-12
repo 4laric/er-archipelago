@@ -36,3 +36,9 @@ It is a weight per category now, with the share of the filler tail each weight b
 because the weights are relative -- proportions, not percentages, and they need not add up to
 anything. Seven of the sixteen categories were not on the page at all before this, including
 `firepots`, `rare` and `junk`; they are now. Nothing you have already written changes.
+
+**Traps can now be any enemy in the game.** There were three traps; there are now 390 possible ones.
+`traps: [basilisk]` drops **three basilisks where you are standing** -- one would be a joke, three is
+the Death Blight mist, and it can kill you outright, so it sends a DeathLink. If you want something
+more specific, `spawn_traps` takes any spawnable enemy by its model id. All of it is off by default,
+all of it is filler, and no progression ever rides a trap.

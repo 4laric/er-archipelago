@@ -40,6 +40,11 @@ FILE_INPUTS = [
     "greenfield/msb_flag_region.tsv",        # MSB/EMEVD ground truth (flag -> placed map)
     "greenfield/dungeon_regions.tsv",        # derived interior map -> region (grace join + ConnectCollision)
     "item_tiers.tsv",
+    "greenfield/spawn_traps.tsv",       # spawn-trap catalogue (model -> the three ids a
+                                        # ChrDebugSpawnRequest needs). gen_data PASSES IT
+                                        # THROUGH into spawn_trap_data.py rather than
+                                        # re-deriving, so a stale or hand-edited tsv would
+                                        # otherwise reach the apworld with a valid stamp.
     "greenfield/region_overrides.tsv",                 # optional (SPEC-provenance-oracle); ABSENT-ok
     "greenfield/eldenring/boss_drops.py",
     "greenfield/eldenring/boss_healthbars.py",

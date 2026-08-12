@@ -57,11 +57,18 @@ class TrapCatalogue(unittest.TestCase):
                             f"dispatches on that prefix, so this trap could never fire")
             self.assertTrue(name.isascii(), f"{name!r} is not ASCII")
 
-    def test_option_keys_are_the_catalogue_keys(self):
-        """The yaml surface and the mint table are the same set, or a player can enable a trap that
-        mints nothing (or the reverse: a trap mints with no way to ask for it)."""
+    def test_option_keys_are_the_catalogue_keys_plus_the_curated_spawns(self):
+        """The yaml surface and the mint tables are the same set, or a player can enable a trap that
+        mints nothing (or the reverse: a trap mints with no way to ask for it).
+
+        `Traps` now serves TWO catalogues: the fixed traps here, and the curated spawn keys from
+        `spawn_trap_data`. Asserting equality against the union rather than containment keeps the
+        original guarantee -- a key with nothing behind it still fails."""
         t = _mod()
-        self.assertEqual(set(t.Traps.valid_keys), set(t.TRAPS))
+        self.assertEqual(set(t.Traps.valid_keys), set(t.TRAPS) | set(t.SPAWN_TRAP_KEYS))
+        # WITNESS: both halves are non-empty, so the union is not silently one of them.
+        self.assertTrue(t.TRAPS)
+        self.assertTrue(t.SPAWN_TRAP_KEYS)
 
     def test_traps_are_off_by_default(self):
         """`obviously traps are optional` -- Alaric, 2026-08-08. A default seed must be unchanged."""

@@ -1,0 +1,307 @@
+"""Spawn traps -- the resolved catalogue, the id block, and the cross-repo NAME contract.
+
+A spawn trap drops a real enemy on top of the player. That needs THREE game ids, not one -- chr
+model, `NpcParam` body, `NpcThinkParam` brain -- so a yaml naming `c4150` has to be RESOLVED, and
+this world resolves it at generation time and posts the answer in the item NAME.
+
+🛑 THE FAILURE THIS FILE EXISTS FOR is the same one `test_gf_traps.py` guards, one level meaner.
+`er_logic::traps::SpawnSpec::from_item_name` parses `Trap: <label> (<chr>/<npc>/<think> x<count>)`
+and REFUSES anything else. Change the format here and nothing breaks: the item still generates, is
+still filler, still arrives -- and the client silently refuses it forever. There is no gate across
+the repo boundary, so both sides pin the literal and these cases are our half.
+
+The second failure guarded here is quieter still: an AP id that MOVES. Ids are handed out by
+`core._SPAWN_TRAP_BASE + chr_id`, deliberately outside `registry.allocate_item_ids`, so that
+blessing a new enemy renumbers nothing. If someone "tidies" that into an `enumerate`, every seed
+already in flight starts resolving its trap items to the wrong enemy, and every test here still
+passes unless one of them is watching the arithmetic itself.
+"""
+import unittest
+
+# 🛑 NO `find_repo_root` / REPO_ONLY_REASON SENTINEL HERE, deliberately, and it was removed rather
+# than never written: the first draft copied one from `test_gf_traps.py` and gated `TheIdBlock` on
+# it. That gate is a LIE -- nothing in this file reads the repo tree; every case imports
+# `worlds.eldenring.*`, which is the INSTALLED world. Had `find_repo_root` ever missed, the four
+# renumbering guards below would have skipped citing a missing input that is not one of theirs, and
+# a dark id gate is precisely the failure they exist to catch. The suite is ledgered in
+# `tools/gf_suite_ledger.py` under TESTS_JOB so its home is on the record either way.
+
+#: Written out literally rather than imported. Importing would make this test agree with any
+#: reformat by construction, which is the one thing it must not do. This is the exact string the
+#: client's parser is pinned against on the other side.
+BASILISK_NAME = "Trap: Basilisk (4150/41500060/41500000 x3)"
+
+#: `er_logic::traps::LABEL_CAP`. The client retains a spawn label inline so its `SpawnSpec` stays
+#: `Copy`, and REFUSES a longer one rather than truncating.
+LABEL_CAP = 24
+
+#: `er_logic::traps::MAX_SPAWN_COUNT`. A horde big enough to hang the game is a save-ruining bug.
+MAX_SPAWN_COUNT = 8
+
+
+def _mod():
+    from worlds.eldenring.features import traps
+    return traps
+
+
+def _data():
+    from worlds.eldenring import spawn_trap_data
+    return spawn_trap_data
+
+
+class SpawnCatalogue(unittest.TestCase):
+    """Pure table checks -- no world, no fill."""
+
+    def test_the_table_is_not_empty(self):
+        """WITNESS for every loop below. An empty catalogue would make this whole file vacuously
+        green while minting no items at all -- exactly the shape test_gf_vacuous_pass exists for."""
+        self.assertGreater(len(_data().SPAWN_TRAPS), 300)
+
+    def test_every_row_names_rows_from_its_own_model_family(self):
+        """A body running another creature's brain. The ids are unvalidated integers by the time
+        they reach `spawn_debug_character`, so a mismatched family spawns something nobody chose --
+        and it would surface in a live session, not as a build error. The client makes the same
+        check on its side of the name."""
+        rows = _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id, (label, npc, think, count) in rows.items():
+            prefix = str(chr_id)
+            self.assertTrue(str(npc).startswith(prefix),
+                            f"NpcParam {npc} is not in the c{chr_id} family")
+            self.assertTrue(str(think).startswith(prefix),
+                            f"NpcThinkParam {think} is not in the c{chr_id} family")
+
+    def test_every_label_is_one_the_client_will_accept(self):
+        """🛑 CROSS-REPO CEILING. The client REFUSES a label over LABEL_CAP bytes rather than
+        truncating it, so an over-long label here is not a cosmetic problem -- it is a trap that
+        arrives and never fires. Non-ASCII is the same story for a different reason: the in-game
+        font draws `?` for anything else."""
+        rows = _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id, (label, _npc, _think, _count) in rows.items():
+            self.assertTrue(label, f"c{chr_id} has an empty label")
+            self.assertTrue(label.isascii(), f"c{chr_id} label {label!r} is not ASCII")
+            self.assertLessEqual(len(label.encode("utf-8")), LABEL_CAP,
+                                 f"c{chr_id} label {label!r} exceeds LABEL_CAP={LABEL_CAP}")
+
+    def test_every_count_is_one_the_client_will_accept(self):
+        """Same shape, the other cross-repo constant. A count of 0 mints a trap that spawns nothing;
+        a count over the cap is refused outright."""
+        rows = _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id, (_label, _npc, _think, count) in rows.items():
+            self.assertGreaterEqual(count, 1, f"c{chr_id} spawns nothing")
+            self.assertLessEqual(count, MAX_SPAWN_COUNT, f"c{chr_id} exceeds MAX_SPAWN_COUNT")
+
+    def test_the_derivation_reproduces_the_hand_derived_runebear(self):
+        """🛑 THE CONTROL FOR THE WHOLE TABLE, and the only row with an independent answer.
+
+        The Runebear's three ids were derived BY HAND in client PR #114, by a person reading
+        `NpcName.fmg.xml` and the param families. The rule that built this table -- lowest POSITIVE
+        `getSoul`, ties by id -- picks `46300010` out of that family's 21 rows without being told.
+        A rule that disagreed with the only known-good answer on record would be the wrong rule, and
+        every other one of the 390 rows rests on it being right."""
+        self.assertEqual(_data().SPAWN_TRAPS[4630][1:3], (46300010, 46300000))
+
+    def test_the_basilisk_is_the_motivating_case(self):
+        """Issue #114's spawn trap, and the reason the table exists. Three of them because one
+        basilisk at zero range is trivially killable -- the threat is the Death Blight mist."""
+        self.assertEqual(_data().SPAWN_TRAPS[4150], ("Basilisk", 41500060, 41500000, 3))
+        self.assertEqual(_data().SPAWN_TRAP_KEYS["basilisk"], 4150)
+
+    def test_props_and_brainless_models_are_excluded(self):
+        """🛑 THE REFUSALS ARE THE POINT, so they get a test of their own rather than being a
+        by-product of the derivation. Each of these would generate clean and mint an item that does
+        nothing in-game forever: c5350 (Basilisk Eyes) and c4450 (Walking Mausoleum) have `hp 0` and
+        are scenery; c2131 (dead Morgott) and c8101 (wheeled ballista) have no NpcThinkParam row at
+        all, so nothing would come after you.
+
+        ⚠️ Note c5350 specifically: it is NAMED 'Basilisk Eyes' and is NOT the basilisk. Spawning it
+        instead of c4150 is the single most plausible wrong answer to 'what is a basilisk'."""
+        rows = _data().SPAWN_TRAPS
+        for excluded in (5350, 4450, 4492, 8120, 2131, 8101, 4751):
+            self.assertNotIn(excluded, rows, f"c{excluded} is not spawnable and must not be offered")
+        # WITNESS: the exclusions are selective, not a table that excluded everything.
+        for included in (4150, 4630, 5990):
+            self.assertIn(included, rows)
+
+    def test_curated_keys_point_at_models_that_exist(self):
+        """A yaml key resolving to a model the table dropped is an option a player can set that
+        mints nothing."""
+        data = _data()
+        self.assertTrue(data.SPAWN_TRAP_KEYS)
+        for key, chr_id in data.SPAWN_TRAP_KEYS.items():
+            self.assertIn(chr_id, data.SPAWN_TRAPS, f"curated key {key!r} -> missing c{chr_id}")
+            self.assertTrue(key.islower() and key.replace("_", "").isalnum(), key)
+
+
+class TheNameContract(unittest.TestCase):
+    """The exact string the other repository parses."""
+
+    def test_the_basilisk_name_is_the_literal_the_client_parses(self):
+        """🛑 If this fails, the client stops recognising the item and NOTHING else breaks. Compare
+        against the written-out literal at the top of this file, never against a rebuild of the
+        format from the same code under test."""
+        self.assertEqual(_mod().spawn_item_name(4150), BASILISK_NAME)
+
+    def test_every_name_carries_the_prefix_the_client_dispatches_on(self):
+        t = _mod()
+        rows = _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id in rows:
+            nm = t.spawn_item_name(chr_id)
+            self.assertTrue(nm.startswith(t.TRAP_PREFIX), nm)
+            self.assertTrue(nm.isascii(), nm)
+            self.assertTrue(nm.endswith(")"), nm)
+
+    def test_a_name_carries_all_three_ids_and_the_count(self):
+        """The whole reason the payload is in the NAME rather than in slot_data: three integers
+        travel for free and no CONTRACT_HASH moves. If a field went missing the client would refuse
+        the item, so each one is asserted present in the parsed position."""
+        t, rows = _mod(), _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id, (label, npc, think, count) in rows.items():
+            nm = t.spawn_item_name(chr_id)
+            payload = nm[nm.rindex(" (") + 2:-1]
+            ids, _, cnt = payload.partition(" x")
+            self.assertEqual(ids.split("/"), [str(chr_id), str(npc), str(think)], nm)
+            self.assertEqual(cnt, str(count), nm)
+            self.assertEqual(nm[len(t.TRAP_PREFIX):nm.rindex(" (")], label, nm)
+
+    def test_names_are_distinct(self):
+        """Two models minting one name would make one of them unreachable and the other ambiguous."""
+        t, rows = _mod(), _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        names = [t.spawn_item_name(c) for c in rows]
+        self.assertEqual(len(set(names)), len(names))
+
+
+class TheIdBlock(unittest.TestCase):
+    """🛑 The renumbering guard. See this module's docstring."""
+
+    def _core(self):
+        from worlds.eldenring import core
+        return core
+
+    def test_every_spawn_id_is_arithmetic_in_the_model(self):
+        """THE INVARIANT THAT MAKES ADDING AN ENEMY FREE. An id derived by `enumerate` moves every
+        later id when one row is inserted; an id derived from the chr model never moves at all.
+        That is also what makes issue #114 rule 4 ('removing a trap name is a compat break') cost
+        nothing on this surface."""
+        core, t, rows = self._core(), _mod(), _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id in rows:
+            nm = t.spawn_item_name(chr_id)
+            self.assertIn(nm, core.item_name_to_id, f"c{chr_id} minted no AP id")
+            self.assertEqual(core.item_name_to_id[nm], core._SPAWN_TRAP_BASE + chr_id, nm)
+
+    def test_the_spawn_block_does_not_overlap_any_other_id_block(self):
+        """The three blocks are chosen constants with room between them, and the catalogue in the
+        middle GROWS. Asserting disjointness beats a comment claiming it."""
+        core = self._core()
+        spawn = {core._SPAWN_TRAP_BASE + c for c in _data().SPAWN_TRAPS}
+        others = {v for k, v in core.item_name_to_id.items()
+                  if v not in spawn}
+        self.assertTrue(spawn, "WITNESS: no spawn ids at all would make the intersection empty")
+        self.assertTrue(others, "WITNESS: no other ids at all would do the same")
+        self.assertEqual(spawn & others, set())
+
+    def test_every_spawn_item_is_filler(self):
+        """#114 rule 3: a trap is filler and no progression may ride one. A spawn trap classed
+        progression would put a required item behind an enemy the fill never reasoned about."""
+        from BaseClasses import ItemClassification
+        core, t, rows = self._core(), _mod(), _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id in rows:
+            self.assertEqual(core._item_class[t.spawn_item_name(chr_id)],
+                             ItemClassification.filler)
+
+    def test_no_spawn_item_claims_a_real_game_item(self):
+        """A spawn trap is SYNTHETIC: it has no ITEM_GRANTS, so the game must never be asked to hand
+        the player something for it. A stray `_AP_IDS_TO_ITEM_IDS` row would do exactly that."""
+        core, t, rows = self._core(), _mod(), _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id in rows:
+            aid = str(core.item_name_to_id[t.spawn_item_name(chr_id)])
+            self.assertNotIn(aid, core._AP_IDS_TO_ITEM_IDS)
+
+
+class TheYamlSurface(unittest.TestCase):
+    """What a player can actually ask for."""
+
+    class _Opt:
+        def __init__(self, value):
+            self.value = value
+
+    class _World:
+        def __init__(self, traps=(), spawn=(), count=0):
+            class O:
+                pass
+            self.options = O()
+            self.options.traps = TheYamlSurface._Opt(frozenset(traps))
+            self.options.spawn_traps = TheYamlSurface._Opt(frozenset(spawn))
+            self.options.trap_count = TheYamlSurface._Opt(count)
+
+    def test_spawn_traps_is_off_by_default(self):
+        """A default seed must be byte-identical to one built before this feature existed."""
+        self.assertEqual(set(_mod().SpawnTraps.default), set())
+
+    def test_an_unspawnable_id_is_not_a_valid_yaml_value(self):
+        """🛑 `valid_keys` IS the validation. Without it `spawn_traps: [5350]` gens clean and mints
+        an item that can never fire, which is the failure mode this whole design refuses."""
+        t = _mod()
+        self.assertIn("4150", t.SpawnTraps.valid_keys)
+        for bad in ("5350", "9999", "0", "c4150"):
+            self.assertNotIn(bad, t.SpawnTraps.valid_keys)
+
+    def test_a_curated_key_is_a_valid_traps_value(self):
+        """`traps: [basilisk]` must not be an unknown-key error -- the curated keys share the
+        `traps` option with the fixed ones."""
+        t = _mod()
+        self.assertIn("basilisk", t.Traps.valid_keys)
+        self.assertIn("rune_thief", t.Traps.valid_keys)
+
+    def test_naming_one_enemy_both_ways_mints_it_once(self):
+        """🛑 A SILENT WEIGHTING BUG, not a visible one. `traps: [basilisk]` and
+        `spawn_traps: ["4150"]` resolve to the same string; without the dedup the round-robin would
+        deal basilisks twice as often as everything else and nothing would look wrong."""
+        t = _mod()
+        w = self._World(traps=["basilisk"], spawn=["4150"], count=4)
+        self.assertEqual(t.enabled_trap_names(w), [BASILISK_NAME])
+        self.assertEqual(t.trap_items(w), [BASILISK_NAME] * 4)
+
+    def test_the_split_is_even_across_fixed_and_spawn_traps(self):
+        """The two sources feed ONE round-robin. WITNESSED against a live single-source case so that
+        an `enabled_trap_names` returning [] could not satisfy this for free."""
+        t = _mod()
+        self.assertTrue(t.trap_items(self._World(traps=["rune_thief"], count=2)))
+        got = t.trap_items(self._World(traps=["rune_thief", "basilisk"], count=6))
+        self.assertEqual(len(got), 6)
+        self.assertEqual(got.count("Trap: Rune Thief"), 3)
+        self.assertEqual(got.count(BASILISK_NAME), 3)
+
+    def test_the_order_is_a_function_of_the_yaml_not_of_set_iteration(self):
+        """An OptionSet is a frozenset and iterating one is not order-stable. A seed must be
+        rebuildable from its yaml, so the same options must give the same list."""
+        t = _mod()
+        a = t.trap_items(self._World(traps=["rune_thief", "basilisk"], spawn=["4630", "5990"], count=9))
+        b = t.trap_items(self._World(traps=["basilisk", "rune_thief"], spawn=["5990", "4630"], count=9))
+        self.assertEqual(a, b)
+        self.assertEqual(len(set(a)), 4)
+
+    def test_spawn_traps_alone_is_enough(self):
+        """The escape hatch must work with `traps` left empty -- otherwise a raw id is only usable
+        by someone who also enabled a curated trap."""
+        t = _mod()
+        got = t.trap_items(self._World(spawn=["4630"], count=3))
+        self.assertEqual(got, [t.spawn_item_name(4630)] * 3)
+
+    def test_a_count_of_zero_mints_nothing_however_many_are_named(self):
+        """Witnessed with the same set and a non-zero count, so the off-case is evidence."""
+        t = _mod()
+        self.assertTrue(t.trap_items(self._World(spawn=["4150", "4630"], count=4)))
+        self.assertEqual(t.trap_items(self._World(spawn=["4150", "4630"], count=0)), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

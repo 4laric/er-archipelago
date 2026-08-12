@@ -178,6 +178,32 @@ as the contribution card reading a frozen option and getting `undefined`. Raised
 live page (#571).
 
 
+### Traps can drop any enemy in the game on your head, starting with three basilisks
+
+Traps were three fixed effects: half your runes, a dead flask, a Runebear at your feet. Adding a
+fourth meant hand-deriving three game ids, hardcoding them, and shipping a client -- which is why
+there were three.
+
+The Runebear's ids came from the game's own name table. That route does not generalise, and finding
+out why is the useful part of this change: **that table names 76 of roughly 600 enemy models.** The
+basilisk is not in it. Neither is almost anything you would want dropped on you. So the ids now come
+from the params themselves -- 390 spawnable models, each resolved to the body and the AI rows a
+spawn needs, refusing the 26 that have no brain or no body (scenery like the Walking Mausoleum, or
+Morgott's corpse) because those would generate cleanly and then do nothing in-game forever.
+
+`traps: [basilisk]` gets you **three basilisks where you are standing**. One is a joke -- the threat
+is the Death Blight mist, and mist wants numbers. It can kill you outright, so it sends a DeathLink.
+
+`spawn_traps: [4630]` takes any of the 390 by model id, for anyone who wants something specific.
+An id that is not spawnable is a yaml error rather than a silent dud.
+
+Under it: the ids ride in the item NAME (`Trap: Basilisk (4150/41500060/41500000 x3)`), so this is
+still a synthetic item -- no slot_data key, no `CONTRACT_HASH` move, no version lockstep, and an
+older client refuses the name and says so in the log rather than misbehaving. The AP ids are
+arithmetic in the model number rather than sequential, so blessing a new enemy later renumbers
+nothing.
+
+
 ## v0.3.11 — 2026-08-10
 
 Window opened AT THE TAG of v0.3.10, deliberately -- the third time running, after five windows that
