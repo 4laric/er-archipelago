@@ -99,8 +99,8 @@
     "difficulty_ramp_speed",
     "no_fall_damage",
     "traps",
-    "trap_count",
-    "spawn_traps"
+    "spawn_traps",
+    "trap_count"
    ]
   },
   {
