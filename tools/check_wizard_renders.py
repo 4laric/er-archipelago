@@ -164,7 +164,11 @@ if (P.state && P.contributionCard){
   for (const k of Object.keys(P.state.values)) delete P.state.values[k];
 }
 
-console.log(JSON.stringify({ titles, react, steps: out.map(s => ({ title: s.title, len: s.text.length,
+// The side rail's live readout lives OUTSIDE #main, so the step walk above never sees it -- and it
+// is the copy that is on screen on every step, i.e. the one a player actually watches.
+const side = text(doc.querySelector("#contrib") || {}).replace(/\s+/g, " ").trim();
+
+console.log(JSON.stringify({ titles, react, side, steps: out.map(s => ({ title: s.title, len: s.text.length,
                                                             text: s.text })) }));
 """
 
@@ -246,6 +250,12 @@ def main(argv):
         if not any(needle.lower() in st["text"].lower() for st in hits):
             problems.append("step %r does not contain %r." % (hits[0]["title"], needle))
 
+    side = (data.get("side") or "").lower()
+    if "checks open to a foreign item" not in side:
+        problems.append("the side rail's live readout (#contrib) did not render: %r. It is the copy "
+                        "that is on screen on EVERY step, so it going quiet is the failure a player "
+                        "sees first." % (data.get("side") or "")[:120])
+
     react = data.get("react") or {}
     if not react:
         problems.append("the reactivity probe returned nothing -- the page's IIFE export spliced in "
@@ -278,8 +288,9 @@ def main(argv):
         for p in problems:
             print("   ", p)
         return 1
-    print("[ok] all %d wizard steps render (%d..%d chars); the contribution card answers %d "
-          "option(s) with a number and %d more in prose; the shim fails the detached-paint mutation"
+    print("[ok] all %d wizard steps render (%d..%d chars); the side readout is live; the "
+          "contribution card answers %d option(s) with a number and %d more in prose; the shim "
+          "fails the detached-paint mutation"
           % (len(steps), min(s["len"] for s in steps), max(s["len"] for s in steps),
              len(NUMBERS_MOVE), len(TEXT_MOVES)))
     return 0
