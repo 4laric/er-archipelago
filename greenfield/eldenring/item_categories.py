@@ -278,6 +278,10 @@ CATEGORY_CLASS: Dict[str, str] = {
     # goods that are junk or currency by any reading, and stay filler
     "consumables": FILLER,
     "crafting": FILLER,
+    # `cookbooks` was carved out of `key_items` and inherits its class UNCHANGED, so the split moved
+    # no seed either. It is filler on its merits too: a cookbook unlocks a RECIPE, and the power is
+    # in the material and the vessel, both of which are already filler above it.
+    "cookbooks": FILLER,
     "runes": FILLER,
     # 🛑 THE TWO THE PARTITION CANNOT ANSWER. `key_items` is an inventory TAB holding the gate keys
     # AND 96 cookbooks AND the bell bearings; `other` holds remembrances, great runes, map fragments
