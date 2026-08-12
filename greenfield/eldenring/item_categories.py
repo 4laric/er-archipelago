@@ -89,13 +89,24 @@ GOODS_TYPE_CATEGORY: Dict[int, str] = {
 # `runes` is not a goodsType -- it is carved out of type 0 by the payout column (see _goods_category),
 # so it has to be named here or it drops out of every set built from GOODS_TYPE_CATEGORY.
 RUNES_CATEGORY = "runes"
+# `cookbooks` is the SECOND carve-out, out of type 1, and unlike `runes` it is carved BY NAME. That
+# is not a shortcut -- it is Alaric's ruling of 2026-07-28, already load-bearing in gen_data.py's
+# `_KEY_ITEM_NAME_DROP`, and its reasoning applies verbatim here: "the param does not separate them,
+# so this is OUR judgement about OUR pool and it should read like one rather than hide inside a
+# filter." 96 of type 1's 220 members are crafting cookbooks; the rest are gate keys, bell bearings,
+# whetblades and prayerbooks. The name mark is `_COOKBOOK_MARK` below and there is no decoy: no
+# non-cookbook catalog name contains the word, and the test asserts that against the shipped
+# KEY_ITEM_GOODS list rather than trusting it.
+COOKBOOKS_CATEGORY = "cookbooks"
+_COOKBOOK_MARK = "Cookbook"
+_KEY_ITEM_GOODS_TYPE = 1
 # Every category key, sorted. `progressive` is not a catalog item -- it is the Progressive X upgrade
 # items features/progressive.py registers -- and it has no FullID, so it is added by hand.
 PROGRESSIVE_CATEGORY = "progressive"
 CATEGORIES: List[str] = sorted(
     set(NIBBLE_CATEGORY.values()) - {"goods"}
     | set(GOODS_TYPE_CATEGORY.values())
-    | {RUNES_CATEGORY, PROGRESSIVE_CATEGORY}
+    | {RUNES_CATEGORY, COOKBOOKS_CATEGORY, PROGRESSIVE_CATEGORY}
 )
 
 
@@ -125,6 +136,11 @@ def _goods_category(name: str) -> str:
         # the first thing anyone asks to control. Carved out by the payout column, not by name
         # matching "Rune" (which also hits Rune Arc, the Great Runes and Runebear-anything).
         return "runes"
+    if (GOODS_TYPE.get(name) == _KEY_ITEM_GOODS_TYPE) and (_COOKBOOK_MARK in name):
+        # THE SECOND JUDGEMENT CALL. Gated on the TYPE as well as the name so the mark can only ever
+        # reclassify within the tab it was ruled about -- a future catalog item called "Cookbook
+        # Grease" filed under consumables stays a consumable.
+        return COOKBOOKS_CATEGORY
     return GOODS_TYPE_CATEGORY.get(GOODS_TYPE.get(name), "consumables")
 
 
@@ -157,8 +173,21 @@ def _goods_categories() -> List[str]:
     return sorted(cats or (set(GOODS_TYPE_CATEGORY.values()) | {RUNES_CATEGORY}))
 
 
+# 🛑 `key_items` IS THE SAME SITUATION AS `goods`, AND GETS THE SAME ANSWER. It is documented in the
+# shipped release/EldenRing.yaml and named in the changelog, so it is in players' yamls today and it
+# has to keep meaning EXACTLY what it meant: the whole inventory tab, cookbooks included. Splitting
+# `cookbooks` out and leaving `key_items` narrowed would silently start sending 96 items abroad for
+# every yaml that already says `keep_local: [key_items]`, with nothing to say so.
+#
+# So it is BOTH a category (the 124 that remain, which is what `category_of` answers) and an umbrella
+# (all 220, which is what a yaml selecting it gets, because `expand` resolves umbrellas first). The
+# consequence, stated rather than discovered: the narrowed 124 have no selector of their own. That is
+# the right trade -- "key items" to a player means the tab, and `cookbooks` is how they peel the 96
+# off it -- but it does mean `census()["key_items"]` (124) and `names_in(["key_items"])` (220) answer
+# different questions on purpose. Both are pinned in test_gf_item_categories.
 UMBRELLAS: Dict[str, List[str]] = {
     "goods": _goods_categories(),
+    "key_items": ["key_items", COOKBOOKS_CATEGORY],
     "everything": list(CATEGORIES),
 }
 SELECTABLE: List[str] = sorted(set(CATEGORIES) | set(UMBRELLAS))

@@ -82,9 +82,11 @@ class ExcludeLocalItemOnly(OptionSet):
     rest. Empty (default) = keep everything local. Ignored unless Local Items Only is on.
 
     Categories: weapons, armor, talismans, ashes (ashes of WAR), spells, spirit_ashes, consumables,
-    crafting, upgrade_materials, runes, crystal_tears, key_items, other, progressive -- plus the two
-    umbrellas `goods` (every goods category at once, which is what this key meant before the split)
-    and `everything`. eldenring/item_categories.py holds the table and the argument for it."""
+    crafting, cookbooks, upgrade_materials, runes, crystal_tears, key_items, other, progressive --
+    plus the umbrellas `goods` (every goods category at once, which is what this key meant before
+    the split), `key_items` (the whole inventory tab, i.e. the key items AND the 96 cookbooks, which
+    is what THAT key meant before its own split) and `everything`. eldenring/item_categories.py
+    holds the table and the argument for it."""
     display_name = "Exclude From Local Items Only"
     valid_keys = frozenset(SELECTABLE)
 

@@ -17,6 +17,7 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring import item_categories as ic          # noqa: E402
 from worlds.eldenring import pool_report                     # noqa: E402
 from worlds.eldenring.item_ids import ITEM_CATALOG, GOODS_TYPE  # noqa: E402
+from worlds.eldenring.item_ids import KEY_ITEM_GOODS  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -253,3 +254,60 @@ def test_solo_line_does_not_report_a_measured_zero():
                                           "free_filler": 0, "free_useful": 0, "free_progression": 0})
     assert "solo seed" in line
     assert "sent 0" not in line
+
+
+class CookbooksAreTheirOwnCategory(WorldTestBase):
+    """goodsType 1 is an inventory TAB: 96 of its 220 members are crafting cookbooks and the rest
+    are gate keys, bell bearings, whetblades and prayerbooks. `cookbooks` peels the 96 off.
+
+    THE ORACLE IS ALREADY IN THE TREE. gen_data.py has dropped cookbooks from `KEY_ITEM_GOODS` by
+    name since 2026-07-28 (`_KEY_ITEM_NAME_DROP`), so the shipped generated list is an INDEPENDENT
+    witness to the same judgement -- built by a different predicate, in a different repo half, at
+    regen time. Asserting the new category against it is what stops two definitions of "cookbook"
+    from drifting apart, which is the failure this project keeps having.
+    """
+    game = GAME
+    options = {"num_regions": 1}
+
+    def test_cookbooks_are_exactly_what_the_generated_key_item_list_dropped(self):
+        self.assertTrue(KEY_ITEM_GOODS, "item_ids.py must carry KEY_ITEM_GOODS (gen_data.py regen)")
+        tab = {n for n in ITEM_CATALOG if GOODS_TYPE.get(n) == 1}
+        cookbooks = {n for n in ITEM_CATALOG if ic.category_of(n) == ic.COOKBOOKS_CATEGORY}
+        self.assertGreater(len(cookbooks), 90, "witness: the roster is real, not an empty carve")
+        self.assertEqual(cookbooks, tab - set(KEY_ITEM_GOODS))
+        # ...and the two halves still add up to the tab, so nothing fell down the gap.
+        self.assertEqual(len(cookbooks) + len(set(KEY_ITEM_GOODS)), len(tab))
+
+    def test_the_mark_cannot_reach_outside_the_tab(self):
+        # The carve is gated on goodsType as well as the name. No catalog item called Cookbook lives
+        # anywhere else today; if one ever does, it must not be silently reclassified.
+        strays = sorted(n for n in ITEM_CATALOG
+                        if "Cookbook" in n and GOODS_TYPE.get(n) != 1)
+        self.assertFalse(strays, f"'Cookbook' outside goodsType 1: {strays}")
+        marked = [n for n in ITEM_CATALOG if "Cookbook" in n]
+        self.assertGreater(len(marked), 90, "witness: the mark matched a real roster")
+
+    def test_key_items_still_means_the_whole_tab_in_a_yaml(self):
+        # THE COMPAT GATE. `key_items` is in the shipped release/EldenRing.yaml, so a yaml that says
+        # it must keep the 220 it always kept -- splitting a category may not quietly release 96
+        # items. Same rule, same fix as the `goods` umbrella one class up.
+        tab = {n for n in ITEM_CATALOG if GOODS_TYPE.get(n) == 1}
+        self.assertEqual(set(ic.names_in(["key_items"])), tab)
+        self.assertIn(ic.COOKBOOKS_CATEGORY, ic.expand(["key_items"]))
+
+    def test_the_narrow_category_and_the_umbrella_answer_different_questions(self):
+        # Stated in item_categories and pinned here so it is a decision, not a surprise: the tab
+        # minus cookbooks has no selector of its own, and census() reports the narrow count.
+        tab = {n for n in ITEM_CATALOG if GOODS_TYPE.get(n) == 1}
+        narrow = {n for n in ITEM_CATALOG if ic.category_of(n) == "key_items"}
+        self.assertEqual(narrow, set(KEY_ITEM_GOODS))
+        self.assertLess(len(narrow), len(tab))
+        self.assertEqual(ic.census()["key_items"], len(narrow))
+        self.assertEqual(len(ic.names_in(["key_items"])), len(tab))
+
+    def test_cookbooks_are_selectable_and_ride_the_goods_umbrella(self):
+        self.assertIn(ic.COOKBOOKS_CATEGORY, ic.SELECTABLE)
+        # `goods` derives its member list from the catalog, so a new goods category joins it for
+        # free -- that is the property the umbrella was built to have.
+        self.assertIn(ic.COOKBOOKS_CATEGORY, ic.expand(["goods"]))
+        self.assertEqual(ic.expand([ic.COOKBOOKS_CATEGORY]), [ic.COOKBOOKS_CATEGORY])

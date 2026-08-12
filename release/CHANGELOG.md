@@ -12,6 +12,20 @@ owed, for the sixth window in a row.
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.11 client still handshakes with a v0.3.12 seed and vice versa.
 
+### `cookbooks` is its own category, and `key_items` still means the whole tab
+
+`key_items` was 220 items, and 96 of them are crafting cookbooks. There was no way to say "keep my
+cookbooks local but send the gate keys out", or the reverse, because the game files both under one
+inventory tab and the world took the tab at its word.
+
+`cookbooks` is now a category of its own, selectable anywhere the others are — `keep_local`,
+`exclude_local_item_only`, `keep_out_of_shops`.
+
+**Your yaml does not change meaning.** `key_items` becomes an umbrella covering both halves, exactly
+as `goods` did when it was split, so a yaml that already says `keep_local: [key_items]` keeps the
+same 220 items home and nothing quietly starts travelling. Say `cookbooks` to reach the 96 on their
+own, or list the categories you want to peel them off.
+
 ### `filler_foreign_pct` moves the numbers now, and the readout is always on screen
 
 Three complaints, one card. Alaric, working the knobs: *"seemingly widget went dead after i messed
