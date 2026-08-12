@@ -68,6 +68,12 @@ REQUIRED = [
 # option states and 700 random multi-option states across every step found no exception at all.
 #
 # A card that renders is not a card that WORKS, which is the next question after check_renders'.
+# The side rail's ORDER is a stated requirement, not a default. The live readout sits directly under
+# the yaml because it is what you watch while you turn a knob, and "Generate & host" is last because
+# it is the one card you touch once, at the end (Alaric, 2026-08-12). Card order is the kind of thing
+# a later edit reshuffles without noticing, and nothing else in the tree records the reason.
+SIDE_ORDER = ["Your yaml", "Into the multiworld", "Seed size", "Checks", "Generate &amp; host"]
+
 NUMBERS_MOVE = ["filler_foreign_pct", "keep_local", "local_item_only",
                 "confine_foreign_progression", "num_regions", "progression_surface"]
 # Real effects the card cannot COUNT (the rune cap's share of the runes category depends on which
@@ -249,6 +255,16 @@ def main(argv):
             continue
         if not any(needle.lower() in st["text"].lower() for st in hits):
             problems.append("step %r does not contain %r." % (hits[0]["title"], needle))
+
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    static = re.sub(r'<script id="[a-z-]+" type="application/json">.*?</script>', "",
+                    html.split('<script id="wizard-core">')[0], flags=re.S)
+    rail = static[static.index('<div class="side">'):]
+    rail = rail[:rail.index("</div>\n  </div>")]
+    order = [t.strip() for t in re.findall(r"<h3[^>]*>(.*?)(?:<span|</h3>)", rail)]
+    if order != SIDE_ORDER:
+        problems.append("the side rail's cards are in the wrong order.\n"
+                        "        want: %s\n        got:  %s" % (SIDE_ORDER, order))
 
     side = (data.get("side") or "").lower()
     if "checks open to a foreign item" not in side:

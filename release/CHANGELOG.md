@@ -34,7 +34,8 @@ above"* when there was no runes share above, so the card said **"Nothing is held
 described something being held back, in consecutive sentences. It now says which share it eats into
 and admits it cannot count it.
 
-**The live readout moved to the right-hand rail**, under Seed size, so it is on screen on every step
+**The live readout is in the right-hand rail**, directly under your yaml, so it is on screen on
+every step
 — the options that feed it live on four different tabs, and watching a number while you turn its
 knob is the whole point. The long card with the explanation stays on Seed size. The copy on the
 Multiworld & Placement tab is gone: the side card does that job on every tab instead of one.
