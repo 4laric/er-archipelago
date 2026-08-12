@@ -11,6 +11,45 @@ stays red on every PR until it happens. What this section fixes is the other hal
 complaint: these entries landed AFTER the v0.3.11 tag and were sitting inside its section, where
 a player reading v0.3.11's notes would have seen two changes that are not in v0.3.11.
 
+### `filler_foreign_pct` moves the numbers now, and the readout is always on screen
+
+Three complaints, one card. Alaric, working the knobs: *"seemingly widget went dead after i messed
+with it enough"*, *"can we get it on the right side so you can see it change as you change the
+options around"*, and *"it didn't seem responsive to the filler local percent, which id assume is
+the main lever"*.
+
+**It is the main lever, and it moved nothing but a footnote.** `filler_foreign_pct` forces
+`(100 - pct)%` of your distinct filler NAMES to stay home, and this world's filler is the generic
+Rune plus every goods-nibble item — consumables, crafting materials, upgrade stones, the bulk of any
+seed. It was left out of the figures because the option samples names and names carry different
+numbers of copies, so no exact answer exists. That is a reason to label an estimate, not to print
+nothing: at `filler_foreign_pct: 50` the card now reads **1,031 open / 439 held / 30% of your pool**
+instead of an unchanged 1,470 and a line of prose. The estimate is the goods categories' measured
+share of the pool times the held fraction, and it says out loud that your seed will land either side
+of it.
+
+`keep_local_rune_cap` had a worse version of the same problem: it printed *"part of the runes share
+above"* when there was no runes share above, so the card said **"Nothing is held back"** and then
+described something being held back, in consecutive sentences. It now says which share it eats into
+and admits it cannot count it.
+
+**The live readout moved to the right-hand rail**, under Seed size, so it is on screen on every step
+— the options that feed it live on four different tabs, and watching a number while you turn its
+knob is the whole point. The long card with the explanation stays on Seed size. The copy on the
+Multiworld & Placement tab is gone: the side card does that job on every tab instead of one.
+
+**On "went dead":** no crash was found. A fuzz over 1,969 single-option states and 700 random
+multi-option states across all eleven steps threw no exception. What almost certainly looked dead is
+the Seed size step going blank every time it was re-entered (fixed above) plus the two knobs that
+answered nothing. The gate for that is new: `check_wizard_renders.py` now also asserts that six
+locality options each move a headline FIGURE, and that the rune cap at least changes what the card
+says.
+
+🛑 That gate passed its own negative test twice before it worked. Matching any digit in the card is
+not the same question — the explanatory prose is full of its own percentages, so a mutation that
+froze the headline sailed through. The figures a player reads are marked `fig` in the markup, and
+the check reads only those.
+
 ### The Seed size step was blank until you touched something
 
 Open the wizard, click through to **Seed size**, and the page drew the ten controls and nothing

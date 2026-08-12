@@ -5,6 +5,14 @@ moment anyone remembers why it mattered._
 
 ## What is in it so far
 
+**The wizard now shows what you are sending out, live, while you set the options.** It sits in the
+right-hand column next to your yaml, on every step, and it finally answers the knob most people
+reach for: `filler_foreign_pct`, which decides how much of your consumables, crafting materials and
+upgrade stones stay in your own world. Turning it to 50 now reads "1,031 of your checks open to a
+foreign item, 439 held at home" instead of standing still. It is an estimate and says so — the
+option picks item names, and names carry different numbers of copies — but a labelled estimate beats
+a figure that never moves.
+
 **The wizard's Seed size step was blank.** Not slow, not wrong -- blank. You clicked to it and got
 the settings and no numbers, and they only appeared once you changed something. A refactor three
 days ago had it drawing its figures into a part of the page that had not been put on the page yet,

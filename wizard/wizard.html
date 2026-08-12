@@ -2781,6 +2781,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
         <h3 style="margin:0 0 4px">Seed size</h3>
         <div id="seedsize"></div>
       </div>
+      <div class="card" style="margin:0" id="contribcard">
+        <h3 style="margin:0 0 4px">Into the multiworld</h3>
+        <div id="contrib"></div>
+      </div>
       <div class="card findings" style="margin:0">
         <h3 style="margin:0 0 4px">Checks</h3>
         <div id="findings"></div>
@@ -3470,6 +3474,25 @@ if (typeof module !== "undefined") module.exports = ERW;
      The category shares come from `wizard/pool-composition.json` -- measured over sampled builds,
      by COPY, because a share of the pool is not a share of the catalog: there are hundreds of
      Smithing Stone copies and one Blasphemous Blade. */
+  /* WHAT `filler_foreign_pct` IS WORTH, IN CHECKS. It forces `(100 - pct)%` of the DISTINCT FILLER
+     NAMES into AP's local_items (features/filler_foreign.py), and this world's filler is the generic
+     Rune plus every GOODS-nibble catalog item -- which is exactly the `goods` umbrella below
+     (item_categories.UMBRELLAS["goods"], derived from that same nibble). So its expected cost in
+     COPIES is that share of the goods categories' share of the pool.
+
+     🛑 IT IS AN EXPECTATION OVER A NAME SAMPLE, NOT A COPY RULE, and the card says so. Names carry
+     very different copy counts, so a given seed lands either side of this. It was previously left
+     out of the figures entirely for that reason and mentioned only in a footnote -- which made the
+     wizard's most-used locality lever move nothing but prose. A stated estimate beats a number that
+     does not react: Alaric, 2026-08-12, "it didn't seem responsive to the filler local percent,
+     which id assume is the main lever". */
+  function fillerHeldShare(cats){
+    const pct = Number(ERW.getVal(meta, state, "filler_foreign_pct"));
+    if (!Number.isFinite(pct) || pct >= 100) return 0;
+    const goods = GOODS_ALL.reduce((a, c) => a + ((cats[c] && cats[c][1]) || 0), 0);
+    return goods * (100 - pct) / 100;
+  }
+
   function heldCategories(){
     const v = k => ERW.getVal(meta, state, k);
     const held = new Set();
@@ -3549,7 +3572,12 @@ if (typeof module !== "undefined") module.exports = ERW;
     // That is a wider band than reality (the categories do not all peak in the same seed) and it is
     // the conservative direction for a ceiling, so it is left wide rather than quietly narrowed.
     const sum = i => [...held].reduce((a, c) => a + ((cats[c] && cats[c][i]) || 0), 0);
-    const heldMid = Math.min(100, sum(1));
+    // A category `keep_local` already holds cannot be held a second time by the filler share, so
+    // the filler estimate only covers the goods categories still free.
+    const freeCats = {};
+    for (const c of GOODS_ALL) if (!held.has(c)) freeCats[c] = cats[c];
+    const fillerHeld = fillerHeldShare(freeCats);
+    const heldMid = Math.min(100, sum(1) + fillerHeld);
     const freeMid = Math.max(0, 100 - heldMid);
     const checksMid = size ? size.checks.median : 0;
     const n = x => Math.round(x).toLocaleString();
@@ -3584,22 +3612,27 @@ if (typeof module !== "undefined") module.exports = ERW;
       "Archipelago spreads items over every world in proportion to open locations, so a big Elden " +
       "Ring slot keeps most of its own pool whatever you set here. The exact numbers are printed " +
       "in the spoiler once a seed is generated.</div>" +
+      /* `fig` marks THE ANSWER -- the figures a player reads -- and it is not decoration:
+         tools/check_wizard_renders.py asserts that the locality knobs move THESE. Its first version
+         matched any digit in the card, and the explanatory prose is full of its own percentages, so
+         it passed a mutation that froze the headline while leaving a paragraph in place. Twice.
+         Marking the numbers themselves is what makes "did it answer?" checkable at all. */
       "<div style='display:flex;gap:28px;flex-wrap:wrap;margin:14px 0 4px'>" +
-      "<div><div style='font-size:26px'>" + n(openMid) + "</div>" +
+      "<div><div class='fig' style='font-size:26px'>" + n(openMid) + "</div>" +
       "<div class='desc'>of your checks a foreign item can land on " +
       "(of ~" + n(checksMid) + ")</div></div>" +
-      "<div><div style='font-size:26px'>" + n(openMid) + "</div>" +
+      "<div><div class='fig' style='font-size:26px'>" + n(openMid) + "</div>" +
       "<div class='desc'>items of yours free to travel</div></div>" +
-      "<div><div style='font-size:26px'>" + Math.round(freeMid) + "%</div>" +
+      "<div><div class='fig' style='font-size:26px'>" + Math.round(freeMid) + "%</div>" +
       "<div class='desc'>of your pool</div></div>" +
-      "<div><div style='font-size:26px'>" + n(checksMid * heldMid / 100) + "</div>" +
+      "<div><div class='fig' style='font-size:26px'>" + n(checksMid * heldMid / 100) + "</div>" +
       "<div class='desc'>items held at home</div></div>" +
       "</div>" +
       "<div class='desc'>The first two are the <b>same number</b>, read from either end \u2014 the " +
       "fill is count-neutral, so every item you hold at home keeps one of your own checks, and " +
       "every one you let go opens a check to somebody else.</div>";
 
-    html += "<div class='desc' style='margin-top:10px'><b>" + n(progMid) + "</b> of your checks " +
+    html += "<div class='desc' style='margin-top:10px'><b class='fig'>" + n(progMid) + "</b> of your checks " +
       "may hold another player\u2019s <b>progression</b>" +
       (confine >= 100
         ? " \u2014 your progression surface, and nothing else. That is <code>confine_foreign_" +
@@ -3625,6 +3658,15 @@ if (typeof module !== "undefined") module.exports = ERW;
         "at 0); the price is their key items sitting anywhere in your world.</div>";
     }
 
+    if (fillerPct < 100){
+      html += "<div class='desc' style='margin-top:10px'><b>" + (100 - fillerPct) + "% of your " +
+        "filler</b> is held at home by <code>filler_foreign_pct: " + fillerPct + "</code> " +
+        "(\u2248" + Math.round(fillerHeld) + "% of your whole pool, " + n(checksMid * fillerHeld / 100) +
+        " items) \u2014 the Rune plus the consumables, crafting materials and other goods. " +
+        "<b>An estimate:</b> the option samples distinct item NAMES and names carry very different " +
+        "numbers of copies, so your seed will land either side of this. " +
+        "<code>keep_local</code> is the aimable version of the same idea.</div>";
+    }
     if (held.size){
       const rows = [...held].filter(c => cats[c]).sort((a, b) => cats[b][1] - cats[a][1]);
       html += "<div class='desc' style='margin-top:10px'>Held back, and what each is worth as a " +
@@ -3632,21 +3674,22 @@ if (typeof module !== "undefined") module.exports = ERW;
         rows.map(c => "<div style='display:flex;justify-content:space-between'><span>" +
           esc(catLabel(c)) + " <span class='desc'>\u00b7 " + esc(why[c].join(", ")) + "</span></span>" +
           "<span>" + bandText(cats[c]) + "%</span></div>").join("") + "</div>";
-    } else {
+    } else if (fillerPct >= 100 && !(runeCap > 0)){
       html += "<div class='desc' style='margin-top:10px'><b>Nothing is held back.</b> Every item " +
         "this seed produces may land in someone else\u2019s world. Elden Ring gear is only useful " +
         "in Elden Ring, so if your slot is much larger than the others\u2019, this is what makes a " +
         "multiworld feel like it is mostly about your game. <code>keep_local</code> is the knob.</div>";
     }
     if (runeCap > 0){
+      // 🛑 It used to say "part of the runes share above" unconditionally -- and with keep_local
+      // empty there IS no runes share above, so the card read "Nothing is held back" and then
+      // described something being held back, in consecutive sentences.
       html += "<div class='desc'>Plus rune items worth " + runeCap.toLocaleString() + " runes or " +
-        "less \u2014 part of the <i>runes</i> share above, so it is not counted separately here.</div>";
-    }
-    if (fillerPct < 100){
-      html += "<div class='desc'><code>filler_foreign_pct</code> is holding a further " +
-        (100 - fillerPct) + "% of your distinct filler names, chosen at random per seed \u2014 " +
-        "not counted above, because which names it takes is not knowable in advance. " +
-        "<code>keep_local</code> is the aimable version of the same idea.</div>";
+        "less" + (held.has("runes")
+          ? " \u2014 part of the <i>runes</i> share above, so it is not counted separately here."
+          : " \u2014 <b>not counted in the figures above</b>: how much of your <i>runes</i> share " +
+            "(" + bandText(cats.runes || [0, 0, 0]) + "% of the pool) that is depends on which rune " +
+            "items your seed actually contains, which is not knowable here.") + "</div>";
     }
     html += "<div class='desc' style='margin-top:10px'>Your own progression never travels either " +
       "way: the region Locks are placed in your world before the multiworld fill ever sees them.</div>";
@@ -3740,22 +3783,53 @@ if (typeof module !== "undefined") module.exports = ERW;
                               size);
   }
 
-  /* The Multiworld tab's copy. Mirrors paintSeedSize exactly, including the "no-op unless that tab
-     is on screen" contract -- refresh() calls both and neither may assume it is the visible one. */
-  function paintContribution(){
-    const box = $("#mw-contrib");
-    if (!box) return;
-    box.innerHTML = "";
-    const card = contributionCard();
-    if (card) box.append(card);
-  }
+  /* THE LIVE READOUT, in the side rail beside the yaml, so it is on screen on EVERY step and moves
+     while you move the knobs. It replaced a copy of the full card on the Multiworld & Placement tab:
+     that copy was only visible on the one tab, and the options that feed it are spread over four
+     (Goal & Regions owns num_regions, Checks & Item Pool owns filler_foreign_pct). Alaric,
+     2026-08-12: "can we get it on the right side so you can see it change as you change the options
+     around". The long-form card with the prose stays on Seed size.
 
-  /* WHICH GROUP GETS IT, found by OPTION rather than by name. The groups come from the world
-     (core.GFWeb.option_groups), so "Multiworld & Placement" is a string this page does not own and
-     cannot be renamed in step with. Keying on an option that must live in whatever group this is
-     means a rename moves the card with it, and only the group actually holding the locality knobs
-     ever claims it. */
-  const CONTRIB_ANCHOR = "keep_local";
+     Same "no-op unless it is on screen" contract as renderSeedSize / paintSeedSize -- refresh()
+     calls all three and none of them may assume it owns the page. */
+  function renderSideContribution(){
+    const box = $("#contrib");
+    if (!box) return;
+    const v = k => ERW.getVal(meta, state, k);
+    const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
+                                        dlcOnly: !!v("dlc_only"),
+                                        surfaceClasses: v("progression_surface") || [] });
+    const cs = nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only"));
+    if (!size || !cs || !cs.categories){
+      box.innerHTML = "<div class='small'>No measured pool composition for these options.</div>";
+      return;
+    }
+    const cats = cs.categories;
+    const { held } = heldCategories();
+    const freeCats = {};
+    for (const c of GOODS_ALL) if (!held.has(c)) freeCats[c] = cats[c];
+    const heldPct = Math.min(100, [...held].reduce((a, c) => a + ((cats[c] && cats[c][1]) || 0), 0)
+                                  + fillerHeldShare(freeCats));
+    const freePct = Math.max(0, 100 - heldPct);
+    const checks = size.checks.median;
+    const num = x => Math.round(x).toLocaleString();
+    const confine = confineShare();
+    const surf = size.surface.median;
+    const prog = Math.min(checks, surf + (100 - confine) / 100 * (checks - surf));
+    const rows = [
+      ["checks open to a foreign item", num(checks * freePct / 100),
+       "of " + num(checks) + " \u00b7 the same number as your items free to travel"],
+      ["held at home", num(checks * heldPct / 100),
+       heldPct > 0 ? Math.round(heldPct) + "% of your pool" : "nothing is held back"],
+      ["may hold their progression", num(prog),
+       confine >= 100 ? "your progression surface, and nothing else"
+                      : "surface " + num(surf) + " + the " + (100 - confine) + "% share let out"]
+    ];
+    box.innerHTML = rows.map(r =>
+      "<div style='margin:0 0 6px'><b>" + r[1] + "</b> " + r[0] +
+      "<div class='small'>" + r[2] + "</div></div>").join("") +
+      "<div class='small'>A ceiling, not a forecast \u2014 see Seed size for what that means.</div>";
+  }
 
   function renderStep(){
     const main = $("#main");
@@ -3859,12 +3933,6 @@ if (typeof module !== "undefined") module.exports = ERW;
         " options" + (changed ? " · " + changed + " changed" : "") + "</span>"));
       for (const k of g.options){ const o = meta.byKey[k]; if (o) card.append(optRow(o)); }
       main.append(card);
-      if (g.options.includes(CONTRIB_ANCHOR)){
-        const box = el("div", "");
-        box.id = "mw-contrib";
-        main.append(box);      // attach BEFORE painting -- see renderSeedSizeTab
-        paintContribution();
-      }
     }
 
     const btns = el("div", "navbtns");
@@ -4031,8 +4099,8 @@ if (typeof module !== "undefined") module.exports = ERW;
     paintVersionStamp();
     renderSeedSize();
     renderHostCard();
-    paintSeedSize();       // no-op unless the Seed size tab is the one on screen
-    paintContribution();   // ditto, for the Multiworld & Placement tab's copy of the card
+    paintSeedSize();          // no-op unless the Seed size tab is the one on screen
+    renderSideContribution(); // the side rail's live readout -- on screen on every step
     const fs = ERW.findings(meta, state);
     const box = $("#findings");
     box.innerHTML = fs.length ? "" : "<div class='allgood'>No conflicts found.</div>";
