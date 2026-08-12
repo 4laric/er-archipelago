@@ -422,7 +422,7 @@ _OPTION_GROUPS = [
         "global_scadutree_blessing"]),
     ("Difficulty & Scaling", [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed", "no_fall_damage", "traps", "trap_count"]),
+        "difficulty_ramp_speed", "no_fall_damage", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
         "curated_filler", "pool_builder_intensity", "pool_builder_pct_weapons",
