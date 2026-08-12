@@ -137,6 +137,17 @@ SHIPPED = {
     # Its row goes in when v0.3.11 is tagged. Adding an open version here is what 0.3.7's row was
     # removed for.
     "0.3.10": "5c2b9bf2",
+    # v0.3.11 TAGGED 2026-08-11 at 8132cb8, shipping 5c2b9bf2 -- contract unmoved from 0.3.9 again.
+    #
+    # 🛑 SIXTH IN A ROW, and the comment two lines above this one PREDICTED it in writing: "its row
+    # goes in when v0.3.11 is tagged". It did not. main was red on
+    # test_every_tagged_version_is_recorded_as_shipped from the moment the tag was cut until this
+    # window-open commit, exactly as it was between the v0.3.10 tag and the v0.3.11 open. A note
+    # that correctly predicts the next failure and does not prevent it is not a fix, and this row
+    # is now the sixth piece of evidence that the tag step -- not the window-open step -- is where
+    # it belongs. The gate cannot pay it: SHIPPED is a fixture, and a fixture that writes itself
+    # asserts nothing.
+    "0.3.11": "5c2b9bf2",
 }
 
 

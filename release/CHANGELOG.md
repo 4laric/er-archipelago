@@ -5,11 +5,12 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.3.12 — 2026-08-12
 
-Window opened AT THE TAG of v0.3.11. `APWORLD_VERSION` is NOT bumped here -- opening the window
-is a two-repo cut and it is not a feature PR's to make (AGENTS.md §7), so `check_release_notes`
-stays red on every PR until it happens. What this section fixes is the other half of that gate's
-complaint: these entries landed AFTER the v0.3.11 tag and were sitting inside its section, where
-a player reading v0.3.11's notes would have seen two changes that are not in v0.3.11.
+Window opened AT THE TAG of v0.3.11, the fourth time running it has been opened on purpose rather
+than by something going red -- although main WAS red at the tag, on the SHIPPED fixture row v0.3.11
+owed, for the sixth window in a row.
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
+v0.3.11 client still handshakes with a v0.3.12 seed and vice versa.
 
 ### The Seed size step was blank until you touched something
 
@@ -44,6 +45,24 @@ a knob there gave no feedback: you had to walk back to Seed size to watch the nu
 card, drawn on both, one computation. It finds its tab by looking for the group that CONTAINS
 `keep_local` rather than by matching the group's name, because the names come from the world and
 this page does not own them.
+### 🛑 v0.3.11 shipped a client from the day before, and this window is the repair
+
+v0.3.11 was tagged with the submodule pin still at client `a9830ebe` -- 41 commits and 22 merged
+pull requests behind the client's own `main`. The tagged build therefore does not contain the work
+v0.3.11's notes describe: received spells being memorised, `no_equip_load` writing the field the
+game actually reads, the roll mode, the DeathLink toast, the bell hand-in reaching the client feed,
+the boss-fight HP sampler, or the guard that stops a non-numeric port becoming a retry loop of
+parser errors.
+
+Nothing was lost -- all of it is on `main` and none of it was reverted. What happened is that the
+release named it and did not carry it, so a player who read the notes and installed v0.3.11 got a
+client that behaves like v0.3.10. **If you are on v0.3.11, this is the update to take.**
+
+`RELEASE-CHECKLIST-v0.3.md` has carried a `Gitlink == client main` row since v0.3.8 -- it exists
+because v0.3.7 tagged a pin five client merges old and v0.3.8 was eleven behind on the morning of
+the cut -- and it says the tag job refuses a stale pin. It went out anyway. The row is not the
+instrument; something that runs is.
+
 
 ## v0.3.11 — 2026-08-10
 
