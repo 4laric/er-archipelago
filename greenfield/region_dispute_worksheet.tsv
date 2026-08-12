@@ -1,0 +1,669 @@
+# WORKSHEET (er-archipelago#598) -- hand-fill `verdict` and `reason`, then move the
+#   answer into region_overrides.tsv, which region_of honours FIRST. Nothing in gen
+#   reads THIS file. Regenerate: tools/build_region_dispute_worksheet.py --emit
+# Every row's TILE holds checks in more than one AP region.
+# tile_kind=interior -- a legacy dungeon is one map id over a huge space and MAY own
+#   two regions legitimately (m21_00's Hippopotamus arena is Scadu Altus by design,
+#   see region_overrides.tsv). Dismiss those unless something else looks wrong.
+# tile_kind=overworld -- a tile is the smallest loadable unit, so a split here is a
+#   derivation artifact. These are the real subject.
+# how=GUESSED -- check_region_triage says this region was a nearest-neighbour hop,
+#   not first-hand evidence. surface_default=yes -- a default seed can hang
+#   progression on it, so a wrong region here is the expensive kind.
+# ORDER IS THE PRIORITY: surface_default, then GUESSED, then overworld, then tile.
+tile	tile_kind	flag	ap_id	derived_region	regions_on_tile	surface_default	how	tags	label	verdict	reason
+m60_39_39	overworld	1039397000	7772848	Liurnia	Liurnia|Raya Lucaria Academy	yes	GUESSED	Church	Church of Irith		
+m61_44_41	overworld	2044417995	7774814	Cerulean	Cerulean|Gravesite	yes	GUESSED	Fragment	Shadowpot, graveyard southwest of Cliffroad Terminus		
+m61_47_46	overworld	2047467500	7774827	Scadu Altus	Belurat|Enir Ilim|Gravesite|Scadu Altus	yes	GUESSED	Fragment	Church of the Crusade		
+m61_48_41	overworld	2048417700	7773618	Jagged Peak	Gravesite|Jagged Peak	yes	GUESSED	Fragment	-		
+m61_48_46	overworld	2048467510	7773651	Scadu Altus	Scadu Altus|Shadow Keep	yes	GUESSED	Fragment	Marika statue, encampment south of Shadow Keep		
+m61_50_46	overworld	2050467700	7773767	Scadu Altus	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	yes	GUESSED	Revered	Ruins of Unte		
+m60_35_46	overworld	1035467100	7774401	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	yes	-	Seedtree	near Main Academy Gate		
+m60_43_35	overworld	1043357100	7773019	Weeping	Limgrave|Weeping	yes	-	Church	Church of Pilgrimmage		
+m60_44_52	overworld	400300	7770695	Liurnia	Altus|Liurnia	yes	-	Shop,KeyItem,ShopNonSpell	-		
+m60_52_38	overworld	510300	7770765	Caelid	Caelid|Farum Azula	yes	-	Boss,Remembrance,MajorBoss,FieldBoss	Starscourge Radahn		
+m61_44_46	overworld	2044467000	7773350	Ancient Ruins	Ancient Ruins|Enir Ilim	yes	-	Revered	statue by the temple at the top of the stairs		
+m61_44_46	overworld	2044467950	7773360	Ancient Ruins	Ancient Ruins|Enir Ilim	yes	-	Revered	-		
+m61_46_42	overworld	2046427700	7774816	Gravesite	Enir Ilim|Gravesite	yes	-	Fragment	On the cross at Three-Path Cross		
+m61_47_40	overworld	2047407100	7774821	Cerulean	Cerulean|Gravesite	yes	-	Fragment	From the Cerulean Coast grace, head southwest hugging the north cliff wall to a valley; small cave with a corpse on the valley's north side		
+m61_47_44	overworld	2047447720	7774823	Ensis	Ensis|Gravesite	yes	-	Fragment	Castle Ensis Checkpoint cross		
+m61_47_44	overworld	2047447750	7774824	Gravesite	Ensis|Gravesite	yes	-	Fragment	Encampment in front of Castle Ensis		
+m61_47_46	overworld	400696	7900000	Scadu Altus	Belurat|Enir Ilim|Gravesite|Scadu Altus	yes	-	KeyItem	Kill Queelign in church of the crusade		
+m61_50_43	overworld	2050437010	7773735	Scadu Altus	Belurat|Scadu Altus	yes	-	Fragment	-		
+m61_50_43	overworld	2050437500	7773738	Scadu Altus	Belurat|Scadu Altus	yes	-	Fragment	Scaduview Cross		
+m61_50_43	overworld	2050437720	7773739	Scadu Altus	Belurat|Scadu Altus	yes	-	Revered	-		
+m11_00	interior	510040	7770754	Leyndell	Leyndell|Stormveil	yes	-	Boss,Remembrance,MajorBoss,LegacyBoss	Morgott		
+m11_00	interior	11007990	7774057	Leyndell	Leyndell|Stormveil	yes	-	Seedtree	Ulcerated Tree Spirit drop		
+m11_00	interior	11007993	7771127	Leyndell	Leyndell|Stormveil	yes	-	Seedtree	near East Capital Rampart		
+m21_00	interior	510440	7900001	Scadu Altus	Scadu Altus|Shadow Keep	yes	-	Boss,Fragment,LegacyBoss	Hippo		
+m21_00	interior	21007400	7774125	Shadow Keep	Scadu Altus|Shadow Keep	yes	-	Fragment	-		
+m60_44_52	overworld	1044527000	7773078	Altus	Altus|Liurnia	no	GUESSED	-	-		
+m60_44_52	overworld	1044527010	7773079	Altus	Altus|Liurnia	no	GUESSED	-	-		
+m60_45_34	overworld	1045347000	7774649	Weeping	Liurnia|Weeping	no	GUESSED	-	-		
+m61_44_41	overworld	2044417000	7773344	Gravesite	Cerulean|Gravesite	no	GUESSED	-	-		
+m61_47_40	overworld	2047407000	7773516	Gravesite	Cerulean|Gravesite	no	GUESSED	-	-		
+m61_47_40	overworld	2047407010	7773517	Cerulean	Cerulean|Gravesite	no	GUESSED	-	-		
+m61_47_40	overworld	2047407020	7773518	Cerulean	Cerulean|Gravesite	no	GUESSED	-	-		
+m61_47_40	overworld	2047407030	7773519	Gravesite	Cerulean|Gravesite	no	GUESSED	-	-		
+m61_47_40	overworld	2047407900	7773521	Gravesite	Cerulean|Gravesite	no	GUESSED	-	-		
+m61_47_40	overworld	2047407980	7773522	Cerulean	Cerulean|Gravesite	no	GUESSED	-	-		
+m61_47_46	overworld	2047467000	7774826	Scadu Altus	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	GUESSED	-	-		
+m61_47_46	overworld	2047467010	7773588	Scadu Altus	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	GUESSED	-	-		
+m61_47_46	overworld	2047467030	7773589	Scadu Altus	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	GUESSED	-	-		
+m61_48_41	overworld	2048417000	7773615	Jagged Peak	Gravesite|Jagged Peak	no	GUESSED	-	-		
+m61_48_41	overworld	2048417010	7773616	Jagged Peak	Gravesite|Jagged Peak	no	GUESSED	-	-		
+m61_48_41	overworld	2048417030	7773617	Gravesite	Gravesite|Jagged Peak	no	GUESSED	-	-		
+m61_48_41	overworld	2048417800	7773619	Jagged Peak	Gravesite|Jagged Peak	no	GUESSED	-	-		
+m61_48_41	overworld	2048417980	7773620	Jagged Peak	Gravesite|Jagged Peak	no	GUESSED	-	-		
+m61_48_46	overworld	2048467010	7773644	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467030	7773645	Shadow Keep	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467040	7773646	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467050	7773647	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467060	7773648	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467090	7773649	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467500	7773650	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467701	7773652	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_48_46	overworld	2048467710	7773653	Scadu Altus	Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_49_38	overworld	2049387000	7773655	Jagged Peak	Cerulean|Jagged Peak	no	GUESSED	-	-		
+m61_49_38	overworld	2049387010	7773656	Jagged Peak	Cerulean|Jagged Peak	no	GUESSED	-	-		
+m61_49_38	overworld	2049387020	7773657	Jagged Peak	Cerulean|Jagged Peak	no	GUESSED	-	-		
+m61_49_38	overworld	2049387030	7773658	Jagged Peak	Cerulean|Jagged Peak	no	GUESSED	-	-		
+m61_49_38	overworld	2049387060	7773659	Cerulean	Cerulean|Jagged Peak	no	GUESSED	-	-		
+m61_50_46	overworld	2050467000	7773761	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467020	7773762	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467030	7773763	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467500	7773765	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467510	7773766	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467710	7773768	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467720	7773769	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467730	7773770	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467800	7773771	Scadu Altus	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467900	7773772	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_46	overworld	2050467910	7773773	Shadow Keep	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	GUESSED	-	-		
+m61_50_47	overworld	2050477010	7773774	Scadu Altus	Enir Ilim|Scadu Altus	no	GUESSED	-	-		
+m61_50_47	overworld	2050477020	7773775	Scadu Altus	Enir Ilim|Scadu Altus	no	GUESSED	-	-		
+m60_34_50	overworld	60430	7770021	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	120750	7770262	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120760	7770263	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120770	7770264	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120780	7770265	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120790	7770266	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120800	7770267	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120810	7770268	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120820	7770269	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120830	7770270	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	120840	7770271	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_34_50	overworld	130000	7770272	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_34_50	overworld	130010	7770273	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_34_50	overworld	130020	7770274	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_34_50	overworld	130100	7770275	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_34_50	overworld	400106	7770674	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	400148	7770676	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	400158	7773849	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	540200	7770834	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507010	7772655	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507020	7772656	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507030	7772657	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507040	7772658	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507050	7772659	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507060	7772660	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507070	7772661	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507080	7772662	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_34_50	overworld	1034507090	7772663	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_35_45	overworld	68220	7770136	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	69710	7770187	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	69750	7770191	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	69910	7770195	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160760	7770390	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160780	7770391	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160800	7770392	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160810	7770393	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160820	7774856	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160880	7770394	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160890	7770395	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160910	7770396	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160920	7770397	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160930	7770398	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160940	7770399	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	160950	7770400	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	Shop,ShopNonSpell	-		
+m60_35_45	overworld	1035457000	7772686	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_35_45	overworld	1035457030	7774399	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_35_45	overworld	1035457100	7772687	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_35_46	overworld	1035467020	7774400	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_35_46	overworld	1035467700	7772688	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_39_39	overworld	120500	7770259	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_39_39	overworld	120510	7770260	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_39_39	overworld	120520	7770261	Liurnia	Liurnia|Raya Lucaria Academy	no	-	Shop	-		
+m60_39_39	overworld	400360	7770710	Raya Lucaria Academy	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_39_39	overworld	540206	7770837	Liurnia	Liurnia|Raya Lucaria Academy	no	-	-	-		
+m60_39_40	overworld	400089	7770672	Sewer	Liurnia|Sewer	no	-	-	-		
+m60_39_40	overworld	1039407000	7772849	Liurnia	Liurnia|Sewer	no	-	-	-		
+m60_39_54	overworld	67600	7770114	Limgrave	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110000	7770235	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110020	7770236	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110030	7770237	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110050	7770238	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110080	7770239	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110110	7770240	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110120	7770241	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110130	7770242	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110140	7770243	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110150	7774845	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110160	7774846	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110170	7770244	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110190	7770245	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110200	7774847	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110210	7774848	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	110220	7770246	Roundtable Hold	Altus|Limgrave|Roundtable Hold	no	-	Shop,ShopNonSpell	-		
+m60_39_54	overworld	510820	7773931	Altus	Altus|Limgrave|Roundtable Hold	no	-	Boss,Legendary,FieldBoss	-		
+m60_39_54	overworld	580020	7770897	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547010	7774522	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547020	7774523	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547030	7774524	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547050	7774525	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547060	7774526	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547070	7774527	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547080	7774528	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547090	7774529	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547100	7774530	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547110	7774531	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547120	7774532	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547130	7774533	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547140	7774534	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547150	7774535	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547160	7774536	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547170	7774537	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547180	7774538	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547200	7774539	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547210	7774540	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547220	7772893	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547230	7772894	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547240	7774541	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547250	7772895	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547260	7774542	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547300	7774543	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547350	7772896	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547980	7774544	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_39_54	overworld	1039547990	7774545	Altus	Altus|Limgrave|Roundtable Hold	no	-	-	-		
+m60_41_52	overworld	530300	7770805	Mt. Gelmir	Altus|Mt. Gelmir	no	-	Boss,Legendary,FieldBoss	-		
+m60_41_52	overworld	580320	7770903	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527000	7772930	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527010	7772931	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527020	7772932	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527030	7772933	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527040	7772934	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527070	7772935	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527080	7772936	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_41_52	overworld	1041527090	7772937	Altus	Altus|Mt. Gelmir	no	-	-	-		
+m60_42_36	overworld	60110	7770012	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	60120	7770013	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	66030	7770048	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	67000	7770081	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	67110	7770091	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	67220	7770096	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	67610	7770115	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	69620	7770179	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	69640	7770181	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	69720	7770188	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150050	7770339	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150100	7770340	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150110	7770341	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150130	7770342	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150150	7770343	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150160	7770344	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150170	7770345	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	150180	7770346	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160330	7774852	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160340	7770375	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160410	7770376	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160420	7770377	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160430	7770378	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160440	7770379	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160450	7770380	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160460	7770381	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160490	7770382	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160520	7770383	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160540	7770384	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160560	7774853	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160570	7774854	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160580	7770385	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160590	7770386	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160600	7770387	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160630	7774855	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160640	7770388	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	160650	7770389	Weeping	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	200250	7770483	Liurnia	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Shop,ShopNonSpell	-		
+m60_42_36	overworld	400036	7770659	Mohgwyn	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	-	-		
+m60_42_36	overworld	400049	7773842	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	-	-		
+m60_42_36	overworld	530100	7770792	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	Boss,FieldBoss	-		
+m60_42_36	overworld	1042367010	7772952	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	-	-		
+m60_42_36	overworld	1042367030	7772953	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	-	-		
+m60_42_36	overworld	1042367040	7772954	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	-	-		
+m60_42_36	overworld	1042367050	7772955	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	-	-		
+m60_42_36	overworld	1042367060	7772956	Limgrave	Limgrave|Liurnia|Mohgwyn|Weeping	no	-	-	-		
+m60_43_35	overworld	1043357000	7773016	Limgrave	Limgrave|Weeping	no	-	-	-		
+m60_43_35	overworld	1043357010	7773017	Limgrave	Limgrave|Weeping	no	-	-	-		
+m60_43_35	overworld	1043357030	7773018	Limgrave	Limgrave|Weeping	no	-	-	-		
+m60_43_35	overworld	1043357500	7774613	Limgrave	Limgrave|Weeping	no	-	-	-		
+m60_44_38	overworld	400163	7770678	Altus	Altus|Limgrave	no	-	-	-		
+m60_44_38	overworld	540142	7770828	Limgrave	Altus|Limgrave	no	-	-	-		
+m60_44_38	overworld	580000	7770895	Limgrave	Altus|Limgrave	no	-	-	-		
+m60_44_38	overworld	1044387010	7773075	Limgrave	Altus|Limgrave	no	-	-	-		
+m60_44_38	overworld	1044387040	7773076	Limgrave	Altus|Limgrave	no	-	-	-		
+m60_44_38	overworld	1044387100	7773077	Limgrave	Altus|Limgrave	no	-	-	-		
+m60_44_52	overworld	400308	7770696	Altus	Altus|Liurnia	no	-	-	-		
+m60_44_52	overworld	1044527020	7773080	Altus	Altus|Liurnia	no	-	-	-		
+m60_45_34	overworld	400061	7770662	Liurnia	Liurnia|Weeping	no	-	-	-		
+m60_45_52	overworld	400381	7770713	Sewer	Altus|Sewer	no	-	-	-		
+m60_45_52	overworld	530315	7770807	Altus	Altus|Sewer	no	-	Boss,FieldBoss	-		
+m60_45_52	overworld	1045527010	7773085	Altus	Altus|Sewer	no	-	-	-		
+m60_45_52	overworld	1045527020	7773086	Altus	Altus|Sewer	no	-	-	-		
+m60_45_52	overworld	1045527030	7773087	Altus	Altus|Sewer	no	-	-	-		
+m60_51_36	overworld	65640	7770042	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	67260	7770099	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	67310	7770104	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	400401	7770718	Raya Lucaria Academy	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	510830	7773932	Caelid	Caelid|Raya Lucaria Academy	no	-	Boss,FieldBoss	-		
+m60_51_36	overworld	1051367000	7773248	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367020	7773249	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367030	7773250	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367040	7773251	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367050	7773252	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367060	7773253	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367080	7773254	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367090	7773255	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367100	7773256	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367110	7773257	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367130	7773258	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367700	7774772	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367800	7774773	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_36	overworld	1051367910	7773259	Caelid	Caelid|Raya Lucaria Academy	no	-	-	-		
+m60_51_56	overworld	68230	7770137	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130500	7770284	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130510	7770285	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130520	7770286	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130530	7770287	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130540	7770288	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130550	7770289	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130560	7770290	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130570	7770291	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130580	7770292	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130590	7770293	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130600	7770294	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130610	7770295	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130620	7770296	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130630	7770297	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130640	7770298	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130650	7770299	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130660	7770300	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130670	7770301	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130680	7770302	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130690	7770303	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130700	7770304	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130710	7770305	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130720	7770306	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130730	7770307	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130740	7770308	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130750	7770309	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130760	7770310	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	130770	7770311	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop,Legendary,EniaShop	-		
+m60_51_56	overworld	130780	7770312	Liurnia	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop,Legendary,EniaShop	-		
+m60_51_56	overworld	190010	7770456	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	190030	7770458	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	190090	7770460	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	190150	7770461	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	190160	7770462	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	190170	7770463	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	190180	7770464	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	Shop	-		
+m60_51_56	overworld	400323	7770700	Haligtree	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	400370	7770712	Leyndell	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	400916	7773909	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567020	7773280	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567030	7773281	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567300	7773282	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567310	7773283	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567320	7773284	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567700	7774793	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567800	7773285	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567810	7773286	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_51_56	overworld	1051567900	7773287	Mountaintops of the Giants	Haligtree|Leyndell|Liurnia|Mountaintops of the Giants	no	-	-	-		
+m60_52_38	overworld	400175	7770680	Farum Azula	Caelid|Farum Azula	no	-	-	-		
+m61_44_46	overworld	68640	7770147	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	400614	7770733	Enir Ilim	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467010	7773351	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467020	7773352	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467030	7773353	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467040	7773354	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	Legendary	-		
+m61_44_46	overworld	2044467050	7773355	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467060	7773356	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467070	7773357	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467080	7773358	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_44_46	overworld	2044467110	7773359	Ancient Ruins	Ancient Ruins|Enir Ilim	no	-	-	-		
+m61_46_42	overworld	400602	7770732	Enir Ilim	Enir Ilim|Gravesite	no	-	-	-		
+m61_46_42	overworld	2046427980	7773453	Gravesite	Enir Ilim|Gravesite	no	-	-	-		
+m61_47_40	overworld	2047407710	7773520	Gravesite	Cerulean|Gravesite	no	-	-	-		
+m61_47_44	overworld	530865	7773999	Gravesite	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447010	7773545	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447020	7773546	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447030	7773547	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447040	7773548	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447050	7773549	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447060	7773550	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447070	7773551	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447080	7773552	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447090	7773553	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447100	7773554	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447110	7773555	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447120	7773556	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447130	7773557	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447140	7773558	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447150	7773559	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447160	7773560	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447170	7773561	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447190	7773562	Gravesite	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447200	7773563	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447210	7773564	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447600	7773565	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447610	7773566	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447620	7773567	Gravesite	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447700	7773568	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447710	7773569	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447730	7773570	Gravesite	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447800	7773571	Ensis	Ensis|Gravesite	no	-	Legendary	-		
+m61_47_44	overworld	2047447820	7773572	Gravesite	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447830	7773573	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447840	7773574	Gravesite	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447900	7773575	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_44	overworld	2047447901	7773576	Ensis	Ensis|Gravesite	no	-	-	-		
+m61_47_46	overworld	320500	7770622	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320550	7770623	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320560	7770624	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320570	7770625	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320580	7770626	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320590	7770627	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320600	7770628	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320610	7770629	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320620	7770630	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320630	7770631	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320640	7770632	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320650	7770633	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	320660	7770634	Gravesite	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Shop,ShopNonSpell	-		
+m61_47_46	overworld	400644	7770741	Enir Ilim	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	-	-		
+m61_47_46	overworld	400694	7770745	Belurat	Belurat|Enir Ilim|Gravesite|Scadu Altus	no	-	Legendary	-		
+m61_48_46	overworld	65410	7773832	Scadu Altus	Scadu Altus|Shadow Keep	no	-	-	-		
+m61_48_46	overworld	68890	7770171	Scadu Altus	Scadu Altus|Shadow Keep	no	-	-	-		
+m61_48_46	overworld	540904	7774029	Scadu Altus	Scadu Altus|Shadow Keep	no	-	-	-		
+m61_49_38	overworld	68850	7770167	Jagged Peak	Cerulean|Jagged Peak	no	-	-	-		
+m61_49_38	overworld	68920	7770173	Cerulean	Cerulean|Jagged Peak	no	-	-	-		
+m61_50_43	overworld	580600	7770910	Belurat	Belurat|Scadu Altus	no	-	-	-		
+m61_50_43	overworld	2050437000	7773734	Scadu Altus	Belurat|Scadu Altus	no	-	-	-		
+m61_50_43	overworld	2050437040	7773736	Scadu Altus	Belurat|Scadu Altus	no	-	-	-		
+m61_50_43	overworld	2050437220	7773737	Scadu Altus	Belurat|Scadu Altus	no	-	-	-		
+m61_50_46	overworld	2045477500	7773407	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477510	7773408	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477520	7773409	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477530	7773410	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477540	7773411	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477550	7773412	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477560	7773413	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477570	7773414	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477580	7773415	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477590	7773416	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477600	7773417	Rauh Base	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477700	7773418	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477710	7773419	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477720	7773420	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477730	7773421	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477740	7773422	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477750	7773423	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477760	7773424	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477770	7773425	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477780	7773426	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477790	7773427	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477800	7773428	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2045477900	7773429	Gravesite	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_46	overworld	2050467040	7773764	Scadu Altus	Gravesite|Rauh Base|Scadu Altus|Shadow Keep	no	-	-	-		
+m61_50_47	overworld	400645	7770742	Enir Ilim	Enir Ilim|Scadu Altus	no	-	-	-		
+m10_01	interior	510030	7773913	Limgrave	Limgrave|Stormveil	no	-	Boss,LegacyBoss	-		
+m10_01	interior	10017010	7771013	Stormveil	Limgrave|Stormveil	no	-	-	-		
+m10_01	interior	10017900	7771014	Stormveil	Limgrave|Stormveil	no	-	-	-		
+m11_00	interior	60510	7770026	Stormveil	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	60520	7770027	Leyndell	Leyndell|Stormveil	no	-	Boss,LegacyBoss	-		
+m11_00	interior	65660	7770043	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	540370	7770868	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	540372	7770869	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	580050	7770899	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007000	7771015	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007005	7771016	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007010	7771017	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007015	7771018	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007020	7771019	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007025	7771020	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007030	7771021	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007035	7771022	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007040	7771023	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007045	7771024	Leyndell	Leyndell|Stormveil	no	-	Legendary	-		
+m11_00	interior	11007050	7771025	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007055	7771026	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007060	7771027	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007065	7774042	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007070	7771028	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007075	7771029	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007080	7771030	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007085	7771031	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007090	7771032	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007095	7771033	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007100	7774043	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007105	7771034	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007110	7771035	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007115	7771036	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007120	7774044	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007125	7771037	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007135	7771038	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007140	7771039	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007145	7771040	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007150	7771041	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007155	7771042	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007160	7771043	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007165	7771044	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007170	7771045	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007175	7771046	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007180	7771047	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007185	7771048	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007190	7771049	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007195	7771050	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007200	7771051	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007205	7771052	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007210	7771053	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007215	7774045	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007220	7771054	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007225	7771055	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007230	7771056	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007235	7771057	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007240	7771058	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007245	7771059	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007250	7771060	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007260	7774046	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007270	7771061	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007280	7771062	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007290	7774047	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007300	7771063	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007310	7771064	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007320	7771065	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007330	7771066	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007340	7771067	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007350	7771068	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007360	7771069	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007370	7774048	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007380	7774049	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007390	7771070	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007400	7771071	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007410	7771072	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007420	7771073	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007430	7771074	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007440	7771075	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007450	7771076	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007460	7771077	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007480	7771078	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007490	7774050	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007500	7771079	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007510	7771080	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007520	7771081	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007530	7771082	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007540	7771083	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007550	7771084	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007570	7771085	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007580	7771086	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007590	7771087	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007600	7771088	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007610	7771089	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007620	7771090	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007630	7771091	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007640	7771092	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007650	7771093	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007660	7771094	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007670	7771095	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007680	7771096	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007690	7771097	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007700	7774051	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007710	7771098	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007720	7771099	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007730	7771100	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007740	7771101	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007750	7771102	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007760	7771103	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007770	7771104	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007780	7774052	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007790	7771105	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007800	7771106	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007810	7771107	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007820	7774053	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007830	7771108	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007840	7771109	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007850	7771110	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007860	7774054	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007870	7771111	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007880	7771112	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007890	7771113	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007900	7774055	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007910	7771114	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007920	7771115	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007930	7771116	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007940	7771117	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007950	7771118	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007960	7771119	Leyndell	Leyndell|Stormveil	no	-	Legendary	-		
+m11_00	interior	11007970	7771120	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007980	7774056	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007983	7771121	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007985	7771122	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007987	7771123	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007989	7771124	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007991	7771125	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007992	7771126	Leyndell	Leyndell|Stormveil	no	-	Legendary	-		
+m11_00	interior	11007994	7771128	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007995	7774058	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007996	7771129	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007997	7771130	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m11_00	interior	11007998	7771131	Leyndell	Leyndell|Stormveil	no	-	-	-		
+m21_00	interior	400594	7770729	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	400692	7770744	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007000	7771986	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007010	7771987	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007020	7771988	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007030	7771989	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007040	7771990	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007050	7771991	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007060	7774118	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007070	7771992	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007080	7771993	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007090	7771994	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007100	7771995	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007110	7771996	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007120	7771997	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007130	7771998	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007140	7771999	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007160	7772000	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007170	7772001	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007180	7774119	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007190	7772002	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007200	7772003	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007210	7772004	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007220	7774120	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007230	7774121	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007240	7772005	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007250	7774122	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007260	7772006	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007270	7774123	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007280	7774124	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007290	7772007	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007300	7772008	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007310	7772009	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007320	7772010	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007330	7772011	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007340	7772012	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007350	7772013	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007360	7772014	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007370	7772015	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007380	7772016	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007390	7772017	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007410	7772018	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007420	7772019	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007430	7774126	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007440	7774127	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007450	7772020	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007460	7774128	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007470	7772021	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007480	7774129	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007490	7774130	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007500	7772022	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007510	7772023	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007520	7772024	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007530	7772025	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007540	7774131	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007550	7772026	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007560	7772027	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007570	7772028	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007580	7772029	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007590	7772030	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007600	7772031	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007610	7772032	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007620	7772033	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007630	7772034	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007640	7772035	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007650	7772036	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007670	7774132	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007680	7772037	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007690	7774133	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007700	7772038	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007710	7772039	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007720	7772040	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007730	7772041	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007740	7772042	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007750	7772043	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007760	7774134	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007770	7774135	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007780	7774136	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007790	7774137	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007800	7772044	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007810	7772045	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007820	7774138	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007830	7774139	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007840	7774140	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007850	7772046	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007860	7774141	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007870	7774142	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007880	7774143	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007890	7774144	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007900	7774145	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007910	7774146	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007920	7774147	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007930	7774148	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007940	7774149	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007950	7774150	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007960	7774151	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007970	7774152	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007980	7774153	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007990	7774154	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007991	7772047	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007993	7772048	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
+m21_00	interior	21007995	7772049	Shadow Keep	Scadu Altus|Shadow Keep	no	-	-	-		
