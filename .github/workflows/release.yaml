@@ -14,6 +14,21 @@
 # 🛑 THIS JOB DOES NOT GATE THE TAG. `tests` / `generators` / `regen-and-fill` already ran on the
 # commit; re-running them here would only be able to tell us the tag was a mistake after it was
 # public. It packs and attaches, and it refuses to attach an apworld it could not generate from.
+#
+# 🛑🛑 TWO JOBS, AND THE SPLIT IS THE POINT (2026-08-12). The pin check used to be step 5 of `assets`,
+# above the pack/attach steps. On v0.3.11 it did exactly what it was written to do -- went red on a
+# stale pin -- and because it sat above them, hosts got a ONE-ASSET release: no `eldenring.apworld`,
+# no wizard. A correct alarm inflicted the only player-facing damage of the whole incident, and it
+# could not un-publish the tag it was complaining about. So:
+#
+#   pin-record : the alarm. Hard-fails, and FILES AN ISSUE -- because a red run is a line in a log
+#                nobody opens, and the issue queue is the one place things actually get read.
+#   assets     : unconditional. The apworld and the wizard are world-repo artifacts and have nothing
+#                to do with the pin; a stale pin must never again cost a host their download.
+#
+# The BINDING copy of this check is not here and cannot be. It is in package_release.ps1, where the
+# zip is born -- no agreement, no zip, no upload. Both call tools/check_release_pairing.py; neither
+# re-implements it.
 name: release
 
 on:
@@ -24,13 +39,92 @@ on:
       tag:
         description: "existing tag to (re)attach assets to"
         required: true
+      allow_stale_pin:
+        description: "1 if this tag deliberately trails client main"
+        required: false
+        default: "0"
 
 permissions:
   contents: write
+  issues: write        # pin-record files an issue when the tag's record is wrong
 
 jobs:
+  # ---------------------------------------------------------------------------------------------
+  # THE PIN IS THE ONE THING A TAG RECORDS THAT NOTHING ELSE CAN FIX AFTERWARDS.
+  #
+  # `generators` checks the gitlink's client agrees with the world -- it CANNOT see staleness,
+  # because it checks out the client AT the gitlink, so an ancient pin agrees with itself perfectly.
+  # `client-main-drift` does see it, and says so with `::notice::` -- on pushes to main and the
+  # nightly schedule only, never on a PR, and a notice is a line in a job log nobody opens.
+  #
+  # It has now happened at v0.2.17, v0.3.1, v0.3.5, v0.3.7 and v0.3.11. Every time, the shipped .dll
+  # was built separately and was fine; what was wrong is the tag's RECORD of what pairs with what,
+  # which is the only thing anybody has to go on when a bug report arrives.
+  #
+  # This job runs on: push: tags, so it is an ALARM, not a gate -- it cannot un-publish a tag. What
+  # makes it useful is the failure path: it files an ISSUE naming both SHAs, so the record of a
+  # broken record lands in the queue that gets read instead of in a run nobody opens. The gate that
+  # actually binds is in package_release.ps1, which cannot produce a zip while these disagree.
+  pin-record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # No submodule and no .dll on this runner, so the tool answers the smaller question (pin vs
+      # client main) and SAYS which checks it skipped rather than passing quietly. Same file the
+      # packager runs; ALLOW_STALE_PIN is honoured for a deliberately trailing tag.
+      - name: The pinned client is the client this tag ships
+        env:
+          ALLOW_STALE_PIN: ${{ github.event.inputs.allow_stale_pin || '0' }}
+        run: python tools/check_release_pairing.py
+
+      # A YAML block scalar and a shell heredoc do not mix -- the terminator has to sit at column
+      # zero and that ends the block. Build the body with printf into a file instead.
+      - name: File an issue -- this tag's record of its client is wrong
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          title="release ${TAG} records a client pin that is not client main"
+          # One issue per tag. A re-run of the same tag must not stack duplicates -- a queue with
+          # three copies of the same alarm is how an alarm stops being read.
+          existing="$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number' || true)"
+          if [ -n "${existing:-}" ] && [ "${existing}" != "null" ]; then
+            echo "already filed as #${existing}"
+            exit 0
+          fi
+          pin="$(git ls-tree HEAD from-software-archipelago-clients | awk '$2 == "commit" { print $3 }')"
+          head="$(git ls-remote https://github.com/4laric/from-software-archipelago-clients.git main | cut -f1)"
+          {
+            printf '`%s` pins client `%s` but client `main` is `%s`.\n\n' "$TAG" "$pin" "$head"
+            printf 'The bundle is probably FINE. `package_release.ps1` packages the client WORKING\n'
+            printf 'TREE, not the gitlink, so this is almost certainly a wrong RECORD rather than a\n'
+            printf 'wrong build -- that is what happened at v0.3.11, where two reviewers read this\n'
+            printf 'same signal and wrongly concluded players had shipped stale code.\n\n'
+            printf 'It is still the expensive kind of wrong: no bug report against `%s` can be\n' "$TAG"
+            printf 'resolved to a client commit, and nothing recovers it later.\n\n'
+            printf 'Do NOT re-cut the release on the strength of this issue alone. Open the shipped\n'
+            printf 'zip and read the .dll ER_GIT_SHA first -- the artifact identifies itself.\n\n'
+            printf 'Filed by release.yaml pin-record. The BINDING check is in package_release.ps1\n'
+            printf 'via tools/check_release_pairing.py, which cannot produce a zip from a mismatch.\n'
+          } > /tmp/pin_issue_$$.md
+          test -s /tmp/pin_issue_$$.md
+          gh issue create --title "$title" --label bug --label area:release --body-file /tmp/pin_issue_$$.md
+
   assets:
     runs-on: ubuntu-latest
+    # Deliberately NOT `needs: pin-record`. On v0.3.11 the pin check sat above these steps and a
+    # stale pin cost hosts the apworld and the wizard -- assets that have nothing to do with the pin.
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,41 +138,6 @@ jobs:
 
       - name: The channel ledger names things that exist
         run: python tools/check_channels.py
-
-      # 🛑 THE PIN IS THE ONE THING A TAG RECORDS THAT NOTHING ELSE CAN FIX AFTERWARDS.
-      #
-      # `generators` checks the gitlink's client agrees with the world -- it CANNOT see staleness,
-      # because it checks out the client AT the gitlink, so an ancient pin agrees with itself
-      # perfectly. `client-main-drift` does see it, and says so with `::notice::` -- on pushes to
-      # main and the nightly schedule only, never on a PR, and a notice is a line in a job log
-      # nobody opens. Its own message defers to "REQUIRED before a tag (RELEASE-CHECKLIST)", and
-      # the checklist had no such row.
-      #
-      # So it happened twice. v0.3.7 was tagged with a pin FIVE client merges old, and on
-      # 2026-08-08 the pin was ELEVEN behind again inside a single window. Both times the shipped
-      # .dll was built separately and was probably fine; what was wrong is the tag's RECORD of what
-      # pairs with what, which is the only thing anybody has to go on when a bug report arrives.
-      #
-      # A notice is right for main -- client-only work mid-window is normal. At a TAG it is a hard
-      # requirement, and this is the first moment it can be enforced rather than remembered.
-      # ALLOW_STALE_PIN=1 for the case where a tag deliberately trails client main; it has to be
-      # typed, which is the point.
-      - name: The pinned client is the client this tag ships
-        run: |
-          set -euo pipefail
-          pin="$(git ls-tree HEAD from-software-archipelago-clients | awk '$2 == "commit" { print $3 }')"
-          test -n "$pin" || { echo "::error::no gitlink at from-software-archipelago-clients"; exit 1; }
-          head="$(git ls-remote https://github.com/4laric/from-software-archipelago-clients.git main | cut -f1)"
-          echo "pinned gitlink : $pin"
-          echo "client main    : $head"
-          if [ "$pin" = "$head" ]; then echo "the pin is current."; exit 0; fi
-          if [ "${ALLOW_STALE_PIN:-0}" = "1" ]; then
-            echo "::warning::pin is behind client main, allowed by ALLOW_STALE_PIN"; exit 0
-          fi
-          echo "::error::this tag pins a client that is not the current one. The release would"
-          echo "::error::record the wrong pairing, and no later fix can recover which build shipped."
-          echo "::error::Bump the gitlink and re-tag, or set ALLOW_STALE_PIN=1 if it is deliberate."
-          exit 1
 
       - name: Pack the bare apworld
         run: |

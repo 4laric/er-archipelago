@@ -123,6 +123,13 @@ TESTS_JOB = {
     "no_phantom_flags": "event flag corpus ships in the bundle",
     "noninteractive_guard": "committed data only",
     "progression_surface": "gen_data.py found by walk-up in every CI checkout",
+    "release_pairing": "pure-stdlib: imports tools/check_release_pairing.py by path via the "
+                       "find_repo_root walk-up and drives its pure `check()` over injected Facts, "
+                       "so it needs no AP, no network, no submodule and no dll. It sits in "
+                       "TESTS_JOB rather than GENERATORS because it is a pytest suite, not a "
+                       "__main__ script -- and it must run SOMEWHERE in CI, since the thing it "
+                       "guards is the release identity chain whose last failure (v0.3.11) was a "
+                       "gate that fired where nothing depended on it",
     "traps": "the catalogue half needs only the installed world (features/traps.py); only the "
              "dealing-rule class carries a repo sentinel, and it uses the same walk-up "
              "progression_surface does. Skips where there is no repo tree, which is the point",
