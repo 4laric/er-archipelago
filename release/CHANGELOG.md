@@ -3,14 +3,13 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.3.11 — 2026-08-10
+## v0.3.12 — 2026-08-12
 
-Window opened AT THE TAG of v0.3.10, deliberately -- the third time running, after five windows that
-were opened by something going red. Nothing has landed past the tag yet, so this section starts empty
-of changes on purpose and fills as they arrive (rule 14).
-
-`CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
-v0.3.10 client still handshakes with a v0.3.11 seed and vice versa.
+Window opened AT THE TAG of v0.3.11. `APWORLD_VERSION` is NOT bumped here -- opening the window
+is a two-repo cut and it is not a feature PR's to make (AGENTS.md §7), so `check_release_notes`
+stays red on every PR until it happens. What this section fixes is the other half of that gate's
+complaint: these entries landed AFTER the v0.3.11 tag and were sitting inside its section, where
+a player reading v0.3.11's notes would have seen two changes that are not in v0.3.11.
 
 ### The Seed size step was blank until you touched something
 
@@ -45,6 +44,15 @@ a knob there gave no feedback: you had to walk back to Seed size to watch the nu
 card, drawn on both, one computation. It finds its tab by looking for the group that CONTAINS
 `keep_local` rather than by matching the group's name, because the names come from the world and
 this page does not own them.
+
+## v0.3.11 — 2026-08-10
+
+Window opened AT THE TAG of v0.3.10, deliberately -- the third time running, after five windows that
+were opened by something going red. Nothing has landed past the tag yet, so this section starts empty
+of changes on purpose and fills as they arrive (rule 14).
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
+v0.3.10 client still handshakes with a v0.3.11 seed and vice versa.
 
 ### The wizard card that tells you what you send to other players had never once rendered
 
