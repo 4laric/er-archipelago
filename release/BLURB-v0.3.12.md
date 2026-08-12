@@ -42,3 +42,11 @@ anything. Seven of the sixteen categories were not on the page at all before thi
 the Death Blight mist, and it can kill you outright, so it sends a DeathLink. If you want something
 more specific, `spawn_traps` takes any spawnable enemy by its model id. All of it is off by default,
 all of it is filler, and no progression ever rides a trap.
+
+**Rune shop prices are yours to choose again — and they start off.** When a shop check's reward is a
+rune, the slot used to keep whatever the old ware cost, which meant paying 3500 runes for 2000 runes:
+a slot nobody presses. Since late July the price was rolled into "somewhere between free and twice
+what the rune is worth" for everyone, with no way to say no. Now it is `rune_shop_pricing`, off
+unless you ask, and it lives in the wizard under Shops & Merchants. 🛑 If you were enjoying the roll,
+you need that one line in your yaml — a default seed no longer does it.
+

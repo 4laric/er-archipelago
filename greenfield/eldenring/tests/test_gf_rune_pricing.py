@@ -147,10 +147,16 @@ class _StubLoc:
 
 class RunePricingRolls(WorldTestBase):
     """Driven with stubbed placements: in a solo WorldTestBase world almost nothing is placed at
-    fill_slot_data time, so a seed-driven assertion here would pass without entering the branch."""
+    fill_slot_data time, so a seed-driven assertion here would pass without entering the branch.
+
+    🛑 `rune_shop_pricing: 1` IS LOAD-BEARING HERE and was not needed before 2026-08-12: the option
+    was FROZEN ON, so every world had it whether it asked or not. Unfreezing it turned this suite
+    green-for-the-wrong-reason overnight -- `slot_data` short-circuits to an empty dict when the
+    option is off, so every assertion below would have been made about `{}`. It failed loudly
+    instead, which is only because the assertions are about CONTENT rather than absence."""
 
     game = GAME
-    options = {"num_regions": 6}
+    options = {"num_regions": 6, "rune_shop_pricing": 1}
 
     def _emit(self, placements):
         w = self.world
@@ -197,3 +203,63 @@ class RunePricingRolls(WorldTestBase):
         aid = self._a_shop_ap_id()
         name, _ = self._a_rune()
         self.assertEqual(self._emit({aid: (name, self.world.player + 1)}), {})
+
+
+# ---- the option is a knob again ---------------------------------------------------------------
+#
+# 🛑 UNFROZEN 2026-08-12. `rune_shop_pricing` was in `defaults.FROZEN_OPTIONS` at 1, which both
+# pinned the value AND removed the option from `GFOptions` -- so the roll ran for every seed and the
+# class default underneath was unreachable. That is the shape
+# [[er-unfreezing-an-option-needs-the-class-default]] documents: while an option is frozen its own
+# `default` rots unobserved, and unfreezing silently moves every seed that does not name it. Here
+# the move is INTENTIONAL -- off unless asked -- so it is pinned rather than assumed.
+#
+# 🛑 MODULE-LEVEL FUNCTIONS, NOT A CLASS, and that is not a style choice. These began as
+# `class TheOptionIsAKnobAgain:` and pytest COLLECTED NOTHING: the default `python_classes` is
+# `Test*`, this repo ships no pytest.ini overriding it, and a plain class that is not a
+# unittest.TestCase is simply skipped in silence. The suite went green with all three of these
+# never running. A test that cannot be collected is worse than no test, because it reads as cover.
+
+
+def test_rune_shop_pricing_is_off_unless_the_player_asks():
+    """The frozen value was 1; the shipped default is 0, and that difference IS the change. If
+    someone later "restores" this to 1 so an old seed reproduces, they have undone the request
+    rather than fixed a bug."""
+    from worlds.eldenring.features.rune_pricing import RuneShopPricing
+    assert RuneShopPricing.default == 0
+
+
+def test_rune_shop_pricing_is_no_longer_frozen():
+    """A frozen option is not yaml-settable at all -- `core` builds the option surface from the keys
+    NOT in FROZEN_OPTIONS. Leaving it frozen while shipping a template key and a wizard control
+    would give the player three surfaces that all describe a knob they do not have."""
+    from worlds.eldenring.defaults import FROZEN_OPTIONS
+    assert "rune_shop_pricing" not in FROZEN_OPTIONS
+    # WITNESS: the table is still populated, so the assertion above is not passing because
+    # FROZEN_OPTIONS became empty.
+    assert FROZEN_OPTIONS
+
+
+def test_rune_shop_pricing_is_filed_under_a_wizard_tab():
+    """A newly visible option in no `_OPTION_GROUPS` entry falls into `ungrouped` and renders inside
+    Advanced -- the failure `core`'s own comment warns about, and the one that reddened CI on the
+    spawn-trap option hours earlier the same day."""
+    from worlds.eldenring import core
+    grouped = {k for _name, keys in core._OPTION_GROUPS for k in keys}
+    assert "rune_shop_pricing" in grouped
+
+
+class OffMeansTheSlotKeepsItsPrice(WorldTestBase):
+    """The OFF path emits no prices at all, so the client leaves every slot alone.
+
+    🛑 WITNESSED against the ON path in `RunePricingRolls` above -- an `slot_data` that returned an
+    empty dict for every input would satisfy this test for free, which is the whole reason the
+    on-case has to exist beside it."""
+    game = GAME
+    options = {"num_regions": 0, "rune_shop_pricing": 0}
+
+    def test_no_slot_is_repriced(self):
+        from worlds.eldenring import contract
+        sd = rp.RunePricing().slot_data(self.multiworld.worlds[1])
+        assert sd == {contract.SHOP_RUNE_PRICES: {}}
+

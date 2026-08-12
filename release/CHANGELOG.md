@@ -12,6 +12,23 @@ owed, for the sixth window in a row.
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.11 client still handshakes with a v0.3.12 seed and vice versa.
 
+### Smithing bell bearings are gear; merchant bell bearings are convenience
+
+Elden Ring files all 48 bell bearings in one inventory tab with the gate keys, so this world called
+them all `key_items` and classed them junk — including the ones that hand you the entire smithing
+economy. A naturally-placed Somberstone Miner's Bell Bearing [4] was filler.
+
+They are two categories now:
+
+- **`upgrade_bells`** (13) — Smithing-Stone Miner's, Somberstone Miner's, Glovewort and
+  Ghost-Glovewort Picker's. These are the upgrade economy in one item, and they are **useful**.
+- **`merchant_bells`** (35) — a dead merchant's own shelf, moved to the Twin Maidens. Convenient,
+  not power, so they stay filler.
+
+Both are selectable in `keep_local`, `exclude_local_item_only` and `keep_out_of_shops`, and the new
+`bell_bearings` umbrella covers both at once. **`key_items` still means the whole tab**, so a yaml
+that already says it keeps exactly what it kept before.
+
 ### Your spells, spirit ashes and crystal tears are gear, and now they say so
 
 Elden Ring files sorceries, incantations, spirit ashes and physick tears under the same internal
@@ -197,11 +214,34 @@ is the Death Blight mist, and mist wants numbers. It can kill you outright, so i
 `spawn_traps: [4630]` takes any of the 390 by model id, for anyone who wants something specific.
 An id that is not spawnable is a yaml error rather than a silent dud.
 
-Under it: the ids ride in the item NAME (`Trap: Basilisk (4150/41500060/41500000 x3)`), so this is
+Under it: the ids ride in the item NAME (`Trap: Basilisk x3 (4150/41500060)`), so this is
 still a synthetic item -- no slot_data key, no `CONTRACT_HASH` move, no version lockstep, and an
 older client refuses the name and says so in the log rather than misbehaving. The AP ids are
 arithmetic in the model number rather than sequential, so blessing a new enemy later renumbers
 nothing.
+
+
+### Randomised rune shop prices are a choice again, and they are OFF by default
+
+🛑 **This changes what a default seed does.** If you do not name it in your yaml, shop slots now keep
+the price of the ware they used to sell.
+
+The behaviour has not changed, only who asks for it. A shop check keeps the price of its old ware --
+right for gear, wrong when the reward is a rune, because a rune is just money: a 3500-rune slot
+selling a Golden Rune [1] worth 2000 is a slot nobody presses, and the check behind it goes
+uncollected. Since 2026-07-25 that price was rolled into `[0, 2x the rune's own worth]` for
+**everybody**, because the option was frozen on and removed from the yaml surface entirely.
+
+It is a knob again:
+
+```yaml
+  rune_shop_pricing: false   # default; the slot keeps its original price
+  rune_shop_pricing: true    # roll it into [0, 2x the rune's worth]
+```
+
+Off is the new default because a rolled price is a real design opinion -- sometimes free, sometimes a
+bad trade -- and one a player should opt into rather than discover. If you liked it, one line brings
+it back, and it is in the wizard under Shops & Merchants.
 
 
 ## v0.3.11 — 2026-08-10
