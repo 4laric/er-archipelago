@@ -435,9 +435,28 @@ Info "+ AP-icon override ($($IconSheets.Count) sprite sheet(s), $($IconFiles.Cou
 # unparseable port the same way it treats a blank url -- it does not attempt the connection and the
 # in-game overlay asks instead (shared::config::is_connectable, client PR pairing this one). Do not
 # revert this to a number without checking that guard is still there.
+#
+# MULTI-LINE, and it must stay byte-identical to what the client would write (Alaric, 2026-08-12:
+# "can we write that so it's formatted across multiple lines?"). This is a file we ask players to
+# OPEN AND EDIT -- url, slot, and since the probe work the diagnostic flags too -- so shipping it as
+# one 96-character line was a poor thing to hand someone. `shared::config::serialize_config` (client
+# PR pairing this one) pretty-prints on save; if THIS stayed one line the player's file would still
+# reflow under them the first time they connected through the overlay, which is the same surprise
+# with a delay. `the_template_shape_is_what_we_ship` over there asserts these exact bytes.
+#
+# LF and no BOM, via WriteAllText -- `Set-Content` would emit CRLF on Windows and the client writes
+# LF, so the first save would rewrite every line ending for no reason. ASCII-safe by construction.
 $ApConfig = Join-Path $Me3Dst "apconfig.json"
-'{"url":"archipelago.gg:PORT","slot":"Player1","seed":"","client_version":null,"password":null}' |
-    Set-Content -Path $ApConfig -Encoding ASCII -NoNewline
+$ApConfigText = @(
+    '{'
+    '  "url": "archipelago.gg:PORT",'
+    '  "slot": "Player1",'
+    '  "seed": "",'
+    '  "client_version": null,'
+    '  "password": null'
+    '}'
+) -join "`n"
+[IO.File]::WriteAllText($ApConfig, $ApConfigText + "`n", [Text.UTF8Encoding]::new($false))
 Info "+ apconfig.json (generic template: archipelago.gg / Player1 -- port is a placeholder)"
 
 # ---------------------------------------------------------------------------
