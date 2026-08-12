@@ -58,6 +58,34 @@ installed apworld has never heard of.
 
 `SETUP.md` also stops calling itself "Setup (v0.2)".
 
+### peliarch.ca has a front door, and it is the builder
+
+The box was set up to host Archipelago rooms and its front page said so. The thing people
+actually arrive for is the yaml builder at `/er/`, and it was reachable only by already knowing
+the path -- which is the same finding as the docs never carrying the URL, one layer up.
+
+`wizard/landing.html` is a single file, no build step, same palette and type as the wizard so the
+handoff does not look like two different sites. The builder is the primary call to action; room
+hosting is one card among three, which is what it now is. Every figure on the page is derived
+from the tree rather than recalled: **28 regions** (17 base, 11 DLC), **4,931 catalogued checks**,
+**56 options**.
+
+**The check browser is now a published surface too.** It was a 2.9 MB self-contained file
+committed at the repo root that nothing deployed and nothing linked, and its own source says it
+works "offline and on peliarch alike" -- on a path that did not exist. `deploy_wizard.sh` installs
+it at `/er/checks.html` and `/er/beta/checks.html`, **pinned to the same ref as the wizard beside
+it**, because a reader joined over a different build's generator output describes a different
+corpus. That is SPEC-publishing-pipeline.md's measured skew, one file over.
+
+`install_one` now takes its source path and its sentinel as arguments instead of hard-coding the
+wizard's, so the refusal-to-install check is per-artifact: the browser's is `id="mapslot"`. The
+atomic write, the `curl -f` and the 200-with-a-login-page defence are unchanged. `--no-checks`
+skips the 2.9 MB fetch for a cron that runs oftener than the data moves.
+
+🛑 **Not deployed by this commit.** The page and the script are in the repo; putting them on the
+box is a separate act, and `/er/beta/` still needs a Flask route or a full path -- the script's own
+closing note has said so since it was written.
+
 ### The version-lockstep sites
 
 `APWORLD_VERSION`, `archipelago.json`, `wizard/options-metadata.json`, `wizard/wizard.html`, the
