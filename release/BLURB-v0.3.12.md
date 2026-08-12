@@ -50,3 +50,9 @@ what the rune is worth" for everyone, with no way to say no. Now it is `rune_sho
 unless you ask, and it lives in the wizard under Shops & Merchants. 🛑 If you were enjoying the roll,
 you need that one line in your yaml — a default seed no longer does it.
 
+**Traps no longer quietly eat your checks on an out-of-date client.** A spawn trap carries the enemy
+it summons inside the item's name, and a client too old to read that name was throwing the item away
+on arrival -- silently, with the check marked collected. One playtest seed had seven of them waiting.
+Seeds that use traps now say so at connect, so an old client tells you before you lose anything
+instead of after. 🛑 It means everyone on a trap seed needs a client from this release.
+

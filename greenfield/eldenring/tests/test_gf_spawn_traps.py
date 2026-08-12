@@ -330,3 +330,96 @@ class TheYamlSurface(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheClientFeatureHandshake(unittest.TestCase):
+    """🛑 er-archipelago#595: seven spawn traps sat in bobler's seed that his client could not read.
+
+    Each would have CONSUMED ITSELF on pickup -- the item arrives, AP marks it delivered,
+    `enqueue_by_item_name` does not recognise the name, and it is dropped with no toast and no
+    tracker row. `requiresClientFeatures` was honoured in full that session and could not help,
+    because spawn traps declared nothing for it to check.
+
+    These pin the declaration. They cannot pin the client honouring it -- that literal lives in the
+    other repository's `client_features::SUPPORTED`, which is the same ungated cross-repo string
+    contract the item names already carry.
+    """
+
+    class _Opt:
+        def __init__(self, value):
+            self.value = value
+
+    class _World:
+        def __init__(self, traps=(), spawn=(), count=0):
+            class O:
+                pass
+            self.options = O()
+            self.options.traps = TheClientFeatureHandshake._Opt(frozenset(traps))
+            self.options.spawn_traps = TheClientFeatureHandshake._Opt(frozenset(spawn))
+            self.options.trap_count = TheClientFeatureHandshake._Opt(count)
+
+    def _declared(self, world):
+        from worlds.eldenring import contract
+        return _mod().TrapsFeature().slot_data(world).get(contract.REQUIRES_CLIENT_FEATURES, [])
+
+    def test_a_seed_that_mints_a_spawn_trap_declares_the_tag(self):
+        """The whole point. Without this an older client connects clean and eats the item."""
+        self.assertEqual(self._declared(self._World(traps=["basilisk"], count=4)),
+                         [_mod().CLIENT_FEATURE_TAG])
+        self.assertEqual(self._declared(self._World(spawn=["4630"], count=1)),
+                         [_mod().CLIENT_FEATURE_TAG])
+
+    def test_a_seed_with_no_spawn_traps_declares_nothing(self):
+        """🛑 A tag declared by a seed that cannot use it refuses older clients FOR NO REASON, which
+        is how a safety check becomes an upgrade tax.
+
+        WITNESS IN THIS TEST, not in a sibling: `slot_data` returning {} for every input would
+        satisfy the two assertions below for free, and that is indistinguishable from the feature
+        being dead."""
+        self.assertEqual(self._declared(self._World(traps=["basilisk"], count=4)),
+                         [_mod().CLIENT_FEATURE_TAG],
+                         "witness: the declaring path must be alive for the empty cases to mean "
+                         "anything")
+        self.assertEqual(self._declared(self._World()), [])
+        self.assertEqual(self._declared(self._World(traps=["rune_thief", "no_flask"], count=8)), [])
+
+    def test_a_named_trap_with_a_zero_count_declares_nothing(self):
+        """Keyed on the items that WILL EXIST, not on the options being non-empty. `trap_count: 0`
+        mints nothing, and a seed that mints nothing needs nothing from the client.
+
+        WITNESSED with the SAME options at a non-zero count, so the empty case is evidence about the
+        count rather than about the options never having declared anything."""
+        opts = dict(traps=["basilisk"], spawn=["4630"])
+        self.assertTrue(self._declared(self._World(count=4, **opts)),
+                        "witness: these options DO declare at a non-zero count")
+        self.assertEqual(self._declared(self._World(count=0, **opts)), [])
+
+    def test_the_fixed_traps_alone_never_declare_it(self):
+        """`Trap: Rune Thief` and friends are EXACT-MATCH names that have never changed, so an older
+        client fires them correctly. Requiring the tag for them would refuse clients that can in
+        fact run the seed."""
+        fixed = ("rune_thief", "no_flask", "runebear")
+        # WITNESS, twice over: the corpus is non-empty, and each of these keys really does mint
+        # items -- so "declares nothing" is about them being FIXED names, not about the seed being
+        # empty.
+        self.assertEqual(len(fixed), 3)
+        for key in fixed:
+            self.assertTrue(_mod().trap_items(self._World(traps=[key], count=4)),
+                            f"{key} must actually mint items for its silence to mean anything")
+            self.assertEqual(self._declared(self._World(traps=[key], count=4)), [],
+                             f"{key} is a fixed name and must not require the tag")
+
+    def test_the_tag_is_pinned_beside_the_format_it_versions(self):
+        """🛑🛑 THE TAG VERSIONS THE NAME FORMAT, NOT THE CAPABILITY.
+
+        A client that knows spawn traps but speaks the older
+        `Trap: <label> (<chr>/<npc>/<think> x<count>)` shape refuses the name exactly as an ignorant
+        client does, so a bare "I do spawn traps" boolean would pass the handshake and still eat the
+        item. If the format below changes, this test fails and whoever changed it must mint a NEW
+        tag -- otherwise older clients go back to failing silently, which is the whole defect.
+
+        Pinned as a LITERAL, not rebuilt from `spawn_item_name`, so it cannot agree with a reformat
+        by construction."""
+        self.assertEqual(_mod().spawn_item_name(4150), "Trap: Basilisk x3 (4150/41500060)")
+        self.assertEqual(_mod().CLIENT_FEATURE_TAG, "spawn_traps")
+
