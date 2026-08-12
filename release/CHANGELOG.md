@@ -12,6 +12,40 @@ of changes on purpose and fills as they arrive (rule 14).
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.10 client still handshakes with a v0.3.11 seed and vice versa.
 
+### The Seed size step was blank until you touched something
+
+Open the wizard, click through to **Seed size**, and the page drew the ten controls and nothing
+else. No "How big is this seed?", no check counts, no filler/useful split, and no contribution
+card -- all of it appeared the moment you changed any setting, and not before.
+
+`renderSeedSizeTab()` built its two containers and called `paintSeedSize()` itself. But
+`paintSeedSize` finds those containers with `document.querySelector`, and the tree it was painting
+into had not been attached to the document yet -- the caller appends it on the next line. The lookup
+returned `null`, `paintSeedSize` took its "not the tab on screen" early return, and drew nothing.
+The step then stayed empty because every `refresh()` in the page lives in an event handler and
+`renderStep` does not call one. Introduced 2026-08-08 by the refactor that split the tab in two so
+the controls could sit under the figures they move -- the change that made REPAINT possible is the
+one that broke FIRST PAINT. The caller now paints, immediately after attaching.
+
+Nothing was red for three days, and nothing could be: a DOM lookup that misses returns null, and an
+empty div renders perfectly. Every wizard gate we had reads the page as text. So there is now one
+that runs it -- `tools/check_wizard_renders.py` walks all eleven steps through the step rail's own
+click handlers under a small DOM shim and fails if any of them draws nothing. It carries its own
+self-test: it re-introduces the detached paint and fails if the shim does not notice, because a
+model of a browser that cannot reproduce the bug it was written for is scenery.
+
+🛑 The blank step is NOT what a length check catches -- the control card kept rendering its ten
+option rows throughout, which is exactly why an empty tab read as a design choice.
+
+### The contribution card is now on the Multiworld & Placement tab too
+
+Every option it describes -- `keep_local`, `local_item_only`, `filler_foreign_pct`,
+`confine_foreign_progression` -- got its own home on that tab when the wizard grew tabs, and moving
+a knob there gave no feedback: you had to walk back to Seed size to watch the number change. Same
+card, drawn on both, one computation. It finds its tab by looking for the group that CONTAINS
+`keep_local` rather than by matching the group's name, because the names come from the world and
+this page does not own them.
+
 ### The wizard card that tells you what you send to other players had never once rendered
 
 "What are you putting into the multiworld?" shipped on 2026-08-08 and every player who opened it got

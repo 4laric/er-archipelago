@@ -162,6 +162,17 @@ jobs:
       - name: Wizard lint-rule currency (rules must name live options)
         run: python tools/check_wizard_lint_currency.py
 
+      # ...and the step that RENDERS it. Every gate above reads the page as text -- the metadata is
+      # current, the blob is in sync, the rules name live options, the JS maths matches Python --
+      # and not one of them draws it. Both 2026-08-08 wizard defects were invisible to all of them:
+      # a card whose guard read a frozen option and never rendered, and a step that painted into a
+      # tree it had not attached yet, so the whole Seed size tab was blank on arrival. Neither threw:
+      # a missed DOM lookup is null and an empty div renders fine. This walks every step through the
+      # rail's own click handlers under tools/wizard_dom_shim.js, and carries a self-test that
+      # re-introduces the detached paint and fails if the shim does not notice.
+      - name: Wizard renders (every step draws, under a DOM shim)
+        run: python tools/check_wizard_renders.py
+
   # ---------------------------------------------------------------------------------------------
   # 1b. REGEN FROM THE BUNDLE + the fill-regression gate.
   #
