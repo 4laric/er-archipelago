@@ -29,7 +29,7 @@ import unittest
 #: Written out literally rather than imported. Importing would make this test agree with any
 #: reformat by construction, which is the one thing it must not do. This is the exact string the
 #: client's parser is pinned against on the other side.
-BASILISK_NAME = "Trap: Basilisk (4150/41500060/41500000 x3)"
+BASILISK_NAME = "Trap: Basilisk x3 (4150/41500060)"
 
 #: `er_logic::traps::LABEL_CAP`. The client retains a spawn label inline so its `SpawnSpec` stays
 #: `Copy`, and REFUSES a longer one rather than truncating.
@@ -154,19 +154,44 @@ class TheNameContract(unittest.TestCase):
             self.assertTrue(nm.isascii(), nm)
             self.assertTrue(nm.endswith(")"), nm)
 
-    def test_a_name_carries_all_three_ids_and_the_count(self):
-        """The whole reason the payload is in the NAME rather than in slot_data: three integers
-        travel for free and no CONTRACT_HASH moves. If a field went missing the client would refuse
-        the item, so each one is asserted present in the parsed position."""
+    def test_a_name_carries_the_two_ids_and_the_count_in_the_parsed_positions(self):
+        """The whole reason the payload is in the NAME rather than in slot_data: the integers travel
+        for free and no CONTRACT_HASH moves. Parsed exactly the way the client parses it -- last
+        `" ("` for the payload, last `" x"` for the count -- so a label that happens to contain
+        either is exercised here rather than discovered in a seed."""
         t, rows = _mod(), _data().SPAWN_TRAPS
         self.assertGreater(len(rows), 300)
-        for chr_id, (label, npc, think, count) in rows.items():
+        for chr_id, (label, npc, _think, count) in rows.items():
             nm = t.spawn_item_name(chr_id)
-            payload = nm[nm.rindex(" (") + 2:-1]
-            ids, _, cnt = payload.partition(" x")
-            self.assertEqual(ids.split("/"), [str(chr_id), str(npc), str(think)], nm)
+            readable, _, payload = nm[:-1].rpartition(" (")
+            self.assertEqual(payload.split("/"), [str(chr_id), str(npc)], nm)
+            lbl, _, cnt = readable.rpartition(" x")
             self.assertEqual(cnt, str(count), nm)
-            self.assertEqual(nm[len(t.TRAP_PREFIX):nm.rindex(" (")], label, nm)
+            self.assertEqual(lbl[len(t.TRAP_PREFIX):], label, nm)
+
+    def test_the_think_row_is_the_family_template_for_every_row(self):
+        """🛑 THE PREMISE THAT LICENSES DROPPING think FROM THE NAME. The client does not receive it;
+        it computes `chr_id * 10000`. That is sound only because admission to this table REQUIRES an
+        NpcThinkParam row at exactly `<chr>0000`, so the two can never disagree.
+
+        If this ever fails, the name cannot express reality any more and the field has to come back
+        -- which is a cross-repo format change, so it needs to fail HERE, loudly, and not as a
+        creature that spawns with another creature's brain."""
+        rows = _data().SPAWN_TRAPS
+        self.assertGreater(len(rows), 300)
+        for chr_id, (_label, _npc, think, _count) in rows.items():
+            self.assertEqual(think, chr_id * 10000,
+                             f"c{chr_id} think row {think} is not the family template")
+
+    def test_the_npc_row_is_not_derivable_and_therefore_must_stay_in_the_name(self):
+        """The other half of the same argument, and the reason only ONE id was dropped. If the npc
+        row were also always the template, the name would need just the model -- so this measures
+        that it is not, rather than leaving it as a claim in a comment."""
+        rows = _data().SPAWN_TRAPS
+        differ = [c for c, (_l, npc, _t, _n) in rows.items() if npc != c * 10000]
+        self.assertGreater(len(differ), 100,
+                           "if nearly every npc row were the template, the format is carrying a "
+                           "field it could derive")
 
     def test_names_are_distinct(self):
         """Two models minting one name would make one of them unreachable and the other ambiguous."""

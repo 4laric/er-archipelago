@@ -197,7 +197,7 @@ is the Death Blight mist, and mist wants numbers. It can kill you outright, so i
 `spawn_traps: [4630]` takes any of the 390 by model id, for anyone who wants something specific.
 An id that is not spawnable is a yaml error rather than a silent dud.
 
-Under it: the ids ride in the item NAME (`Trap: Basilisk (4150/41500060/41500000 x3)`), so this is
+Under it: the ids ride in the item NAME (`Trap: Basilisk x3 (4150/41500060)`), so this is
 still a synthetic item -- no slot_data key, no `CONTRACT_HASH` move, no version lockstep, and an
 older client refuses the name and says so in the log rather than misbehaving. The AP ids are
 arithmetic in the model number rather than sequential, so blessing a new enemy later renumbers
