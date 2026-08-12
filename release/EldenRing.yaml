@@ -482,6 +482,21 @@ Elden Ring:
   #   100   maximum almost immediately
   difficulty_ramp_speed: 0
 
+  # What your equipment WEIGHS, and therefore which roll you get.
+  #   off     (default) equipment weighs what it weighs -- your kit is a budget
+  #   light   equipment weighs nothing: always light roll, whatever you wear.
+  #           Heavy armour and greatshields cost you nothing at all
+  #   medium  never worse than a medium roll -- the ceiling is raised far enough
+  #           that no real kit fat-rolls, but the light-roll threshold still
+  #           moves with what you put on, so armour is still a decision
+  # The game recomputes max equip load every frame from Endurance, so the client
+  # multiplies the WEIGHT side instead and logs the equip load it actually got.
+  # NOTE: `medium` needs an up-to-date client. An older one refuses the seed and
+  # says so, rather than connecting and quietly giving you `light` -- which is
+  # the STRONGER setting you did not ask for. `off` and `light` work on any
+  # client, as they always have.
+  no_equip_load: off
+
   # ---- Standard Archipelago options -----------------------------------------
 
   # region_lock seeds want `minimal`, not `full`.

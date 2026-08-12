@@ -166,7 +166,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.3.12",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "422c416bf510628ec41b33771a5222b298e867b067553f0333d01bed5fea29b8",
+ "source_sha256": "9207baa34c3a6a8779cb24ef8358c1c4e87f06463e947fb564deaf1114a1689e",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -534,12 +534,25 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   {
    "key": "no_equip_load",
    "class": "NoEquipLoad",
-   "display_name": "Weightless Equipment",
-   "description": "Equipment weighs nothing, so you are always at light roll no matter what you are wearing.\nThe game recomputes max equip load every frame from Endurance, so the client instead zeroes the\nWEIGHT side with a silent permanent SpEffect -- heavy armour and greatshields cost you nothing.\nOff by default.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": false,
-   "choices": null,
+   "display_name": "Equipment Weight",
+   "description": "What your equipment weighs, and therefore which roll you get.\n\noff (default) -- equipment weighs what it weighs. Your kit is a budget you spend.\nlight -- equipment weighs nothing, so you are always at light roll whatever you wear. Heavy\narmour and greatshields cost you nothing at all.\nmedium -- never worse than a medium roll. Your equip-load ceiling is raised far enough that no\nreal kit can push you into a fat roll, but the light-roll threshold still moves with what you\nput on, so what you wear is still a decision.\n\nThe game recomputes max equip load every frame from Endurance, so the client cannot write the\nnumber: it multiplies the WEIGHT side with a silent permanent SpEffect, and logs the equip load\nit actually got so the setting can be checked rather than taken on trust.\n\n`medium` requires a client that supports it, and a seed using it refuses an older one rather\nthan connecting -- an old client reads it as \"on\" and gives you `light`, which is the stronger\nsetting you did not ask for. `off` and `light` connect to any client, as they always have.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "off",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "light",
+     "value": 1
+    },
+    {
+     "name": "medium",
+     "value": 2
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,

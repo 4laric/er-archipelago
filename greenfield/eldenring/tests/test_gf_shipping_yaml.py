@@ -75,7 +75,6 @@ _TEMPLATE_DEBT = {
     "grace_attunement_anchor",
     "keep_local",
     "keep_local_rune_cap",
-    "no_equip_load",
     "no_fall_damage",
     "no_runes_in_shops",
     "num_regions_order",
