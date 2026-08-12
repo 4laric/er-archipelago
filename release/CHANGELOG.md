@@ -12,6 +12,24 @@ owed, for the sixth window in a row.
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.11 client still handshakes with a v0.3.12 seed and vice versa.
 
+### Playing through matt's randomizer? Your AP items were wearing telescopes
+
+The AP flower is not an item -- it is icon cell 92, the vanilla Telescope, repainted by a texture
+we ship as a me3 *package*. One line in `ap.me3` pulls that package in, and matt's randomizer's
+"Add dll mod" launch path never reads `ap.me3` (the same reason that path gives you no separate
+save file). The client goes on pointing every foreign shop slot at cell 92 regardless, so the
+pointing lands and the repaint does not: a shop full of telescopes, and a player who reasonably
+concluded his shops held no AP items at all. They did -- the *names* are written at runtime and
+were correct the whole time.
+
+- `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` now has the fix: copy `menu` out of `ap-package` into
+  matt's output folder, beside `regulation.bin`. It is flagged as unconfirmed in game, and it warns
+  that re-randomizing may undo it.
+- The client no longer stays quiet about it. It already logged all three facts that prove the case
+  -- non-me3 loader, our `ap-package` present, a data mod one level up -- and drew no conclusion
+  from them. Now it warns in the log with both folder paths, and tells you once on screen.
+- On me3, nothing changes and nothing is said.
+
 ### Smithing bell bearings are gear; merchant bell bearings are convenience
 
 Elden Ring files all 48 bell bearings in one inventory tab with the gate keys, so this world called

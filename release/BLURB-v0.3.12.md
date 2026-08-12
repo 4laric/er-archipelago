@@ -12,6 +12,16 @@ for it -- and the release did not actually contain any of it. The apworld was cu
 bundled with it was from the previous day. Nothing was lost or reverted, and none of it needs a new
 seed: it is all here now.
 
+**If you play through matt's randomizer, your shops were not empty of AP items -- they were full of
+telescopes.** The AP flower is a texture we ship as a me3 package, and matt's "Add dll mod" launch
+never reads our me3 profile, so the texture never loads while the client goes on marking shop slots
+with it. The marking was right, the picture was the vanilla Telescope, and at least one player
+concluded there was nothing there. The names were correct throughout: an AP item reads
+`AP: <item>`, and on that launcher the name is the thing to read. There is now a section in
+`ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` telling you which folder to copy `menu` into, and the
+client says so itself -- in the log, with both paths, and once on screen -- instead of leaving you
+to work out that a telescope means a missing file.
+
 **The wizard now shows what you are sending out, live, while you set the options.** It sits in the
 right-hand column next to your yaml, on every step, and it finally answers the knob most people
 reach for: `filler_foreign_pct`, which decides how much of your consumables, crafting materials and
