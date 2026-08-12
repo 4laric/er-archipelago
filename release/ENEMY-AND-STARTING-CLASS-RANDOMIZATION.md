@@ -130,6 +130,66 @@ memory on top of it. Connect to your Archipelago room as usual.
 > connected client that cannot give you anything.
 
 
+## Your AP items wear a Telescope: the flower icon does not load here either
+
+Same cause as the save, one line further down the same file. `ap.me3` says:
+
+```
+[[packages]]
+path = 'ap-package'
+```
+
+Launch through matt's randomizer and that line is never read, because the profile
+is never read. Here is why that is worth two minutes of your time.
+
+**The AP flower is not an item.** It is icon cell 92 -- the vanilla **Telescope**
+-- repainted by a texture we ship in `ap-package\menu`. The client points every
+foreign shop slot and every check placeholder at cell 92 whether or not the
+repaint got loaded. So on this launcher the pointing still happens, the repaint
+does not, and you get a shop full of literal telescopes. A player reported
+exactly that on 2026-08-12, having assumed his shops had no AP items in them at
+all.
+
+**They did.** Nothing except the picture is affected, because the *names* are
+written into memory at runtime and do not depend on the profile:
+
+- A foreign item reads **`AP: <item>`**, with `For: <owner> (<game>)` under it.
+  That is the reliable marker on this launcher -- **read the name, not the
+  icon**.
+- An item for your own world is sold as the real Elden Ring item, with its own
+  real name and its own real icon. Those were never telescopes.
+
+**The fix: copy one folder.** Take `menu` out of `ap-package` and drop it into
+matt's output folder -- the one holding `regulation.bin` -- so you end up with:
+
+```
+<matt's output folder>\menu\hi\01_common.tpf.dcx
+<matt's output folder>\menu\low\01_common.tpf.dcx
+```
+
+Relaunch. That folder is the one the loader actually reads, which is the whole
+difference between the two locations.
+
+> ⚠️ **We have not watched this work.** It follows from how both loaders resolve
+> a file override, and the files are ordinary, but nobody here has confirmed it
+> in game. If you try it, tell us either way -- it is a one-line answer that
+> would settle the section.
+
+> ⚠️ **Re-randomizing may undo it.** matt's randomizer writes that folder; if the
+> telescopes come back after you click **Randomize enemies** again, copy `menu`
+> in again.
+
+**Not sure which folder is his output folder?** The client already tells you.
+Open your newest `log\archipelago-<date>.log` and read the first few lines of the
+last session:
+
+```
+mod stack: THIRD-PARTY DATA MOD at 1 level(s) up (C:\...\me3\randomizer) -- event/, map/, msg/, regulation.bin, script/, sfx/.
+```
+
+The path in the brackets is the folder. The client also says outright when the
+icon override did not load, and names both folders for you.
+
 ## Your save: matt's launcher does not give you a separate one
 
 **What happens.** Our own setup docs tell you the Archipelago run uses its own save file,
