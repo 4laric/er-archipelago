@@ -86,22 +86,27 @@ players, one section per fix, and it is the honest record.
   that file is what identifies these.
 
 - **"Could not translate RVA to VA" at startup** (#222 on Linux, #475 on
-  Windows). The client could not line itself up with the running
-  `eldenring.exe`, and the game can only be exited. The message names an RVA,
-  but one string is covering two unrelated failures: either the executable is
-  not an image we hold offsets for, or the client's scan for the game's
-  `CSTask` object came up empty. The build check runs first and fails with its
-  own `Unsupported game version` text, so seeing *this* message instead means
-  your game version is one we support and the scan is what failed.
+  Windows). The client could not find one of the game's internal objects, and
+  the game can only be exited. Despite the wording it is almost never about
+  your game version: the build check runs first and fails with its own
+  `Unsupported game version` text, so seeing *this* message means your build is
+  one we support.
 
-  **On Linux it happens every launch and is expected** -- Proton is not
-  supported yet, so play on Windows for now. **On Windows it is something in
-  the launch**, most often another DLL mod loading ahead of ours or a launcher
-  other than the `me3` profile we ship. What to do: launch through our `me3`
-  profile with our client as the only DLL mod. If the error still appears,
-  attach `archipelago-<date>.log` from the folder the client sits in -- that
-  file is appended across launches, so the last `SESSION START` block is the
-  one that matters -- and say what else was in your DLL mods list.
+  **On Windows it is a startup race, not something you did.** The client asks
+  the game for its task scheduler as soon as the game's window exists, which
+  can be a moment before the game has finished registering the objects we look
+  up. Ask too early and the lookup comes back empty, and that empty answer is
+  reported as this message with no second attempt. Anything that shifts startup
+  timing -- a faster disk, a busy machine, another overlay mod loading
+  alongside ours -- can flip it, which is why it can appear on an install that
+  launched fine a few times before. **What to do: quit and launch again.** It
+  usually takes. If it happens every launch, attach `archipelago-<date>.log`
+  from the folder the client sits in -- the file is appended across launches,
+  so the last `SESSION START` block is the one that matters -- and say what
+  else was in your DLL mods list.
+
+  **On Linux it happens every launch** and is a different problem: Proton is
+  not supported yet, so play on Windows for now.
 
 ## Tracker
 
