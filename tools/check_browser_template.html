@@ -248,6 +248,69 @@ document.getElementById('listwrap').addEventListener('scroll',e=>{
 });
 
 /* ---------- detail ---------- */
+/* ---------- #599 REPORT A MISREGION ----------------------------------------------------
+   A static page cannot POST, so the button opens a PREFILLED GitHub issue. No backend, works
+   offline and on peliarch alike, and it lands in the repo that owns region_overrides.tsv.
+
+   🛑 IT CLAIMS NOTHING. Every check gets the button; nothing is badged "suspect". The form
+   carries EVIDENCE -- the other regions on this tile, what check_region_triage says about how
+   this one was decided, whether it is a progression-surface class -- and leaves the verdict to
+   the reporter and the triager. Flagging rows as wrong would make this page an oracle, and it is
+   a READER: a pure join over committed generator output that can only repeat what the tsvs say.
+
+   ⚠️ The map places 1930 of 4879 checks; interiors do not plot at all. The body says so, because
+   "I checked the map and found no others" from someone who saw 40% of the corpus is a costly
+   kind of wrong. */
+const REPO='https://github.com/4laric/er-archipelago';
+function tileMates(c){
+  const out=[];
+  for(const t of (c.maps||[])){
+    const rs=(META.tile_regions||{})[t];
+    if(rs) out.push([t,rs]);
+  }
+  return out;
+}
+function reportRow(c){
+  return `<dt>Region wrong?</dt><dd><a href="#" class="rep" data-id="${c.id}">report a misregion ↗</a></dd>`;
+}
+function reportUrl(c){
+  const mates=tileMates(c);
+  const L=[];
+  L.push('<!-- Prefilled by the check browser. Please keep the FACTS block and write your reasoning under it. -->','');
+  L.push('## The check','');
+  L.push('| field | value |','|---|---|');
+  L.push(`| name | ${c.full} |`);
+  L.push(`| AP id | ${c.id} |`);
+  L.push(`| event flag | ${c.f} |`);
+  L.push(`| assigned region | **${c.r}** |`);
+  L.push(`| map tile(s) | ${(c.maps||[]).join(', ')||'none'} |`);
+  L.push(`| tags | ${(c.t||[]).join(', ')||'-'} |`);
+  if(c.how) L.push(`| region decided by | **${c.how}** (check_region_triage) |`);
+  if(c.surf) L.push('| progression surface | **yes** (a default seed can hang progression here) |');
+  L.push('');
+  if(mates.length){
+    L.push('## Its tile is already split','');
+    for(const [t,rs] of mates) L.push(`- \`${t}\` holds checks in: **${rs.join(', ')}**`);
+    L.push('', '> A tile is the smallest loadable unit, so on the OVERWORLD (`m60_`/`m61_`) a split is a',
+           '> derivation artifact. An INTERIOR map id covers an enormous space and may own two regions',
+           '> legitimately -- `m21_00` holds the Golden Hippopotamus arena, which is Scadu Altus by',
+           '> design. Do not read a split as proof on its own.','');
+  }
+  L.push('## Why do you think it is wrong?','');
+  L.push('<!-- e.g. the in-game place name, which grace it is nearest, where you actually walked from,',
+         '     or a screenshot of the hint. Anything checkable beats a hunch. -->','');
+  L.push('','---','',
+         `Browser view: ${location.href}`,
+         `Data stamp: \`${META.stamp}\``,
+         '',
+         '<sub>The check browser is a reader, not an oracle -- it repeats committed generator output.',
+         'The map plots 1930 of 4879 checks and no interiors, so absence from it is not evidence.</sub>');
+  const title=`misregion? ${c.r} :: ${c.n} [f${c.f}]`;
+  return REPO+'/issues/new?labels=misregion'
+    +'&title='+encodeURIComponent(title)
+    +'&body='+encodeURIComponent(L.join('\n'));
+}
+
 function showDetail(c){
   const d=document.getElementById('detail'); d.classList.remove('empty');
   const rows=(arr,fn)=>arr&&arr.length?`<div class="rows">${arr.map(fn).join('')}</div>`:'<div style="color:var(--dim)">none</div>';
@@ -258,6 +321,7 @@ function showDetail(c){
      <dt>Region</dt><dd>${esc(c.r)}</dd>
      <dt>Event flag</dt><dd>${c.f}</dd>
      <dt>AP id</dt><dd>${c.id}</dd>
+     ${reportRow(c)}
      <dt>Tags</dt><dd>${c.t.length?c.t.map(t=>`<span class="tag ${esc(t)}">${esc(t)}</span>`).join(''):'<span style="color:var(--dim)">—</span>'}</dd>
      ${c.miss?`<dt>Missable</dt><dd style="color:var(--red)">${esc(c.miss)}</dd>`:''}
      ${c.fl?`<dt>Flags</dt><dd>${c.fl.map(f=>`<span class="tag">${esc(f)}</span>`).join('')}</dd>`:''}
@@ -550,6 +614,15 @@ document.querySelectorAll('thead th').forEach(th=>th.addEventListener('click',()
 }));
 /* caveat blocks are collapsed by default but ONE click away, never hidden */
 document.getElementById('detail').addEventListener('click',e=>{
+  const rep=e.target.closest('.rep');
+  if(rep){
+    e.preventDefault();
+    const c=CHECKS.find(x=>String(x.id)===rep.dataset.id);
+    // Built at CLICK time, not at render: location.href must be the permalink the reporter is
+    // actually looking at, filters and all.
+    if(c) window.open(reportUrl(c),'_blank','noopener');
+    return;
+  }
   const t=e.target.closest('.cav'); if(!t) return;
   const box=document.getElementById('cav-'+t.dataset.k);
   const open = box.style.display==='none';

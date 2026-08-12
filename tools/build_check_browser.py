@@ -71,9 +71,12 @@ def load_module_consts(path, names):
                 try:
                     out[tgt.id] = ast.literal_eval(node.value)
                 except ValueError:
-                    # frozenset([...]) etc.
+                    # frozenset([...]) / frozenset({...}) etc. The BRACE arm was added for
+                    # contract.SURFACE_DEFAULT_CLASSES (#599), which is a set literal -- the
+                    # list-only pattern silently returned nothing for it, and a silently absent
+                    # constant is the failure mode this helper exists to avoid.
                     src = ast.unparse(node.value)
-                    m = re.match(r"frozenset\((\[.*\])\)$", src, re.S)
+                    m = re.match(r"frozenset\((\[.*\]|\{.*\})\)$", src, re.S)
                     if m:
                         out[tgt.id] = set(ast.literal_eval(m.group(1)))
     return out
@@ -169,6 +172,14 @@ def main():
         )
 
     map_names = {r["tile"]: r["name"] for r in read_tsv(os.path.join(gf, "map_names.tsv"))}
+    # #599: how check_region_triage describes each region decision (GUESSED / CONFLICT / ...).
+    triage_how = {int(r["flag"]): r["how"]
+                  for r in read_tsv(os.path.join(gf, "check_region_triage.tsv"))
+                  if r.get("flag", "").isdigit() and r.get("how")}
+    # The default progression-surface classes, parsed rather than imported: eldenring/__init__
+    # pulls Archipelago's BaseClasses, and this tool is AP-free on purpose.
+    SURFACE_DEFAULT = frozenset(load_module_consts(
+        os.path.join(er, "contract.py"), ("SURFACE_DEFAULT_CLASSES",))["SURFACE_DEFAULT_CLASSES"])
     desc_by_flag = {int(r["flag"]): r["description"]
                     for r in read_tsv(os.path.join(gf, "location_descriptions.tsv"))}
 
@@ -319,6 +330,18 @@ def main():
                 "sd": flag in startdisabled,
                 "pos": pos_by_flag.get(flag, []),
             }
+            # #599 REPORT-A-MISREGION. Three fields, and ONLY when they say something, so the
+            # payload grows by the rows that matter rather than by 4879 nulls.
+            #   how  -- check_region_triage's own word: this region was a nearest-neighbour hop
+            #           (GUESSED) or two sources disagreed (CONFLICT), not first-hand evidence.
+            #   surf -- carries a contract.SURFACE_DEFAULT_CLASSES tag, so a default seed can hang
+            #           progression here and a wrong region is the expensive kind.
+            # 🛑 Neither is a verdict. They are what a reporter would otherwise have to know to
+            # write a useful report, which is exactly the knowledge we are trying not to require.
+            if flag in triage_how:
+                rec["how"] = triage_how[flag]
+            if set(TAGS.get(ap_id, [])) & SURFACE_DEFAULT:
+                rec["surf"] = 1
             # a flag on both _00 and _10 map versions is ONE physical spot, not two dots
             seen, uniq = set(), []
             for p in rec["pos"]:
@@ -389,6 +412,11 @@ def main():
 
     residuals.sort(key=lambda x: (x["k"], x["f"]))
 
+    tile_regions = {}
+    for c in checks:
+        for t in c["maps"]:
+            tile_regions.setdefault(t, set()).add(c["r"])
+
     meta = {
         "total": len(checks),
         "regions": sorted({c["r"] for c in checks}),
@@ -410,6 +438,13 @@ def main():
         "caveats": {n: tsv_caveats(n + ".tsv") for n in
                     ("treasure_enablers", "esd_gates", "esd_gifts",
                      "msb_gated_treasures", "lot_gates")},
+        # #599: tiles whose checks do NOT all share a region. Emitted so the report form can
+        # show a reporter the OTHER regions on their check's tile without them joining two tsvs.
+        # 🛑 NOT a defect list. An interior map id covers an enormous space and may own two
+        # regions legitimately (m21_00 holds the Golden Hippopotamus arena, which region_of
+        # re-homes to Scadu Altus BY DESIGN -- region_overrides.tsv records it). The form says so.
+        "tile_regions": {t: sorted(rs) for t, rs in sorted(tile_regions.items())
+                         if len({r for r in rs if r != "Roundtable Hold"}) > 1},
         # NOT the git commit -- see DETERMINISM in the module docstring.
         "stamp": data_stamp(os.path.join(er, "data.py")),
     }
