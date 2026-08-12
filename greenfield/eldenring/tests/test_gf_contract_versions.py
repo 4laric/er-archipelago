@@ -148,6 +148,26 @@ SHIPPED = {
     # it belongs. The gate cannot pay it: SHIPPED is a fixture, and a fixture that writes itself
     # asserts nothing.
     "0.3.11": "5c2b9bf2",
+    # v0.3.12 TAGGED 2026-08-12 20:42Z at 7d9be271, shipping 5c2b9bf2 -- contract unmoved from 0.3.9
+    # for the fourth window running.
+    #
+    # 🛑 SEVENTH IN A ROW, AND THIS TIME NOBODY EVEN SAW IT GO RED. Between the v0.3.12 tag and this
+    # commit, main was red on `check_release_notes` -- rule 14, "release notes exist for the open
+    # version" -- which runs EARLIER in the `generators` job than the loop that executes this file.
+    # An aborting step skips every step below it, so `test_every_tagged_version_is_recorded_as_shipped`
+    # never ran to say the row was owed. Confirmed from the jobs API on run 31639475006: the rule-14
+    # step is `failure` and every step after it, including `Generators run`, is `skipped`.
+    #
+    # That is the finding worth keeping. Six windows of evidence said this row is remembered late;
+    # the seventh says the gate that would tell us can itself be hidden by a gate above it. Two
+    # independent failures now have to line up before anyone notices, and on this window they did.
+    # Deriving this fixture from `git tag` -- the fix named at 0.3.10 and not taken -- would close
+    # both, because a derived fixture cannot be forgotten and does not need a job to run to be right.
+    #
+    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.4.0 does NOT belong here while its window is open.
+    # Its row goes in when v0.4.0 is tagged. Adding an open version here is what 0.3.7's row was
+    # removed for.
+    "0.3.12": "5c2b9bf2",
 }
 
 

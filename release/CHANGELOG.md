@@ -3,6 +3,57 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.0 — 2026-08-12
+
+Window opened AT THE TAG of v0.3.12, and **not** on purpose: main was red on `check_release_notes`
+(rule 14, "release notes exist for the open version") from the moment the tag was cut. Four windows
+running had been opened deliberately; this one was asked for by a gate, which is the honest way to
+record it.
+
+🛑 **The minor component moves for the first time since 0.3.0, and it is not ceremony.** Two things
+that landed under the v0.3.12 window change what a default seed does:
+
+- `item_categories` reclassified 319 spells, spirit ashes and crystal tears from filler to
+  **useful**, and useful is placed before filler. The same yaml and the same seed number now produce
+  a different layout. Nothing is unreachable -- the fill regression ran 88 generations across 11
+  configurations with no failures -- but a seed you are part-way through will not match a fresh
+  generation of it.
+- `rune_shop_pricing` stopped being unconditional and became an option that is **OFF by default**.
+  A default seed no longer rolls rune shop prices, which it has done since late July.
+
+A player can see both without reading a note. That is what a minor bump is for, and 0.3.13 would
+have understated it.
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
+v0.3.12 client still handshakes with a v0.4.0 seed and vice versa. The number is `0.4.0` and not
+`0.4`: `tools/check_version_sites.py --expect` is anchored `^\d+\.\d+\.\d+$`, and every row in
+`CONTRACT-VERSIONS.tsv` since 0.2.0 is X.Y.Z. A two-component version passes the commit and fails
+the cut.
+
+### 🛑 v0.3.12's notes were written and never published
+
+The v0.3.12 tag carries a full changelog section and a complete `BLURB-v0.3.12.md` -- eleven items,
+including matt's-randomizer telescopes, the bell-bearing split, the classification move and the
+Curated Filler control. The GitHub release body for that tag is three words: **"VA/RVA hotfix"**.
+
+Nothing was lost; it is all in this repo. But every one of those changes is, as far as any player
+outside this repo can tell, unannounced. The release-notes gate cannot catch this: it checks that
+notes EXIST, not that they were ever put in front of anyone. v0.4.0's announcement carries the
+v0.3.12 blurb forward rather than leaving it in a file nobody reads.
+
+### The version-lockstep sites
+
+`APWORLD_VERSION`, `archipelago.json`, `wizard/options-metadata.json`, `wizard/wizard.html`, the
+client's `Cargo.toml` and `Cargo.lock`, and the generated `contract_gen.rs`. The client half landed
+first as PR #179 -- a gitlink can only point at a commit that exists.
+
+### The SHIPPED fixture row for v0.3.12 is here, and it was hidden rather than late
+
+`test_every_tagged_version_is_recorded_as_shipped` has caught this row six windows running. On the
+seventh it did not run at all: `check_release_notes` fails EARLIER in the `generators` job, an
+aborting step skips every step below it, and the tag test is below it. Confirmed from the jobs API
+on run 31639475006. Two independent failures had to line up for nobody to notice, and they did.
+
 ## v0.3.12 — 2026-08-12
 
 Window opened AT THE TAG of v0.3.11, the fourth time running it has been opened on purpose rather
