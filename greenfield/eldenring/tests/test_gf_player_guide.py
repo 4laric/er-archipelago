@@ -52,6 +52,12 @@ _GUIDE = next((p for p in (os.path.join(_GF_PKG, "Elden-Ring-Archipelago-Player-
 _NOT_OPTIONS = {
     "spine",        # a VALUE of num_regions_order ("`spine` order"), not a key
     "rolled",       # ditto
+    # `vanilla_order` is the CURRENT second value of num_regions_order (#563 brought the fixed
+    # order back under that name after `spine` was deleted). Same category as the two above: a
+    # value the guide has to name to explain the option. 🛑 It is here because the guide started
+    # naming it 2026-08-12 and this gate went red -- which is the gate working. `spine` stays
+    # listed because the migration note still mentions it, not because it is still a choice.
+    "vanilla_order",
     "region_locks", "great_runes",  # values of ending_condition
     "player_only", "scaled",        # values of global_scadutree_blessing
     # CATEGORY WEIGHTS INSIDE `curated_filler` -- sub-keys of one option, not options themselves.

@@ -11,6 +11,24 @@
 #
 #     /er/wizard.html        <- wizard/wizard.html at the STABLE tag (release/CHANNELS.tsv)
 #     /er/beta/wizard.html   <- wizard/wizard.html at main
+#     /er/checks.html        <- er-archipelago-check-browser.html at the STABLE tag
+#     /er/beta/checks.html   <- er-archipelago-check-browser.html at main
+#     ${ER_ROOT_DIR}/index.html  <- wizard/landing.html at the STABLE tag   (--landing only)
+#
+# THE LANDING PAGE IS OPT-IN AND SEPARATELY TARGETED. It belongs at the SITE ROOT, not under
+# /er/, so it takes its own destination and is not written unless you ask -- the box may be
+# serving something else at / that this script has no business overwriting.
+#
+#   ER_ROOT_DIR=/srv/www ER_STATIC_DIR=/srv/er ./tools/deploy_wizard.sh --landing
+#
+# !! --landing FAILS UNTIL v0.4.0 IS TAGGED, and that is correct. It fetches from the STABLE tag,
+# and wizard/landing.html does not exist at v0.3.10. The failure is loud ("fetch failed: landing
+# stable (v0.3.10)") rather than a page silently not appearing. Promote stable first.
+#
+# THE CHECK BROWSER IS PINNED THE SAME WAY AND FOR THE SAME REASON. It is a pure join over
+# committed generator output, so a copy from a different ref than the wizard beside it describes a
+# different corpus -- the exact skew SPEC-publishing-pipeline.md measured on the wizard, one file
+# over. It is ~2.9 MB, so `--no-checks` exists for a cron that runs oftener than the data moves.
 #
 # It FETCHES, it does not build: the box needs no checkout, no python, no node. Nothing here is
 # specific to peliarch except the default target, so it also works for any other host.
@@ -31,12 +49,17 @@ set -euo pipefail
 REPO="${ER_REPO:-4laric/er-archipelago}"
 RAW="https://raw.githubusercontent.com/${REPO}"
 DEST="${ER_STATIC_DIR:-/srv/er}"
+ROOT="${ER_ROOT_DIR:-}"
 DRY=0
 STABLE_ONLY=0
+NO_CHECKS=0
+LANDING=0
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
     --stable-only) STABLE_ONLY=1 ;;
+    --no-checks) NO_CHECKS=1 ;;
+    --landing) LANDING=1 ;;
     -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "unknown argument: $a" >&2; exit 2 ;;
   esac
@@ -57,17 +80,17 @@ say "channels: stable -> ${stable_tag} | beta -> main"
 # `curl -f` catches that, but a ref that exists and has no wizard, or a proxy that helpfully returns
 # a login page, both arrive as 200 with a body. "Did I just install a login page as the wizard" is
 # not a question you want answered by a player.
-install_one() {  # ref, destination path, label
-  local ref="$1" dst="$2" label="$3" tmp
+install_one() {  # ref, source path in repo, destination path, sentinel, label
+  local ref="$1" src="$2" dst="$3" sentinel="$4" label="$5" tmp
   # mkdir BEFORE mktemp: the temp file has to be a sibling of the destination (mv across filesystems
   # is a copy, which is not atomic), and `beta/` does not exist on a first run.
   mkdir -p "$(dirname "$dst")"
   tmp="$(mktemp "${dst}.XXXXXX.tmp")"
   # shellcheck disable=SC2064
   trap "rm -f '$tmp'" RETURN
-  curl -fsSL "${RAW}/${ref}/wizard/wizard.html" -o "$tmp" || die "fetch failed: ${label} (${ref})"
-  grep -q 'id="er-options-metadata"' "$tmp" \
-    || die "fetched ${label} does not contain the options-metadata block -- refusing to install it"
+  curl -fsSL "${RAW}/${ref}/${src}" -o "$tmp" || die "fetch failed: ${label} (${ref})"
+  grep -q "$sentinel" "$tmp" \
+    || die "fetched ${label} does not contain ${sentinel} -- refusing to install it"
   local bytes ver
   bytes="$(wc -c < "$tmp" | tr -d ' ')"
   ver="$(sed -n 's/.*"apworld_version": *"\([^"]*\)".*/\1/p' "$tmp" | head -1)"
@@ -82,17 +105,45 @@ install_one() {  # ref, destination path, label
 }
 
 [ "$DRY" = "1" ] || [ -d "$DEST" ] || die "ER_STATIC_DIR does not exist: ${DEST}"
+# Fail BEFORE fetching anything. Discovering the target is unset after installing three files is
+# a half-done deploy, and this script's whole posture is that a partial write is the failure.
+if [ "$LANDING" = "1" ]; then
+  [ -n "$ROOT" ] || die "--landing needs ER_ROOT_DIR (where the site root is served from)"
+  [ "$DRY" = "1" ] || [ -d "$ROOT" ] || die "ER_ROOT_DIR does not exist: ${ROOT}"
+fi
 
-install_one "$stable_tag" "${DEST}/wizard.html" "stable (${stable_tag})"
+WIZ_SRC="wizard/wizard.html"
+WIZ_SENTINEL='id="er-options-metadata"'
+CHK_SRC="er-archipelago-check-browser.html"
+# The check browser's own map container -- structural, and nothing a 200-with-a-login-page has.
+CHK_SENTINEL='id="mapslot"'
+
+install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wizard  stable (${stable_tag})"
+[ "$NO_CHECKS" = "1" ] || \
+  install_one "$stable_tag" "$CHK_SRC" "${DEST}/checks.html" "$CHK_SENTINEL" "checks  stable (${stable_tag})"
+
 if [ "$STABLE_ONLY" = "0" ]; then
-  install_one "main" "${DEST}/beta/wizard.html" "beta (main)"
+  install_one "main" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (main)"
+  [ "$NO_CHECKS" = "1" ] || \
+    install_one "main" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (main)"
+fi
+
+# The landing page ships from the STABLE tag like everything else a stranger lands on. Its links
+# point at /er/ and /er/checks.html, so a landing page from main advertising a page that stable
+# does not serve yet is the same skew one level up.
+if [ "$LANDING" = "1" ]; then
+  install_one "$stable_tag" "wizard/landing.html" "${ROOT}/index.html" \
+    'id="er-landing"' "landing stable (${stable_tag})"
 fi
 
 cat <<'NOTE'
 
 Live at:
-  /er/wizard.html         stable
+  /                       stable   the landing page      (--landing only)
+  /er/wizard.html         stable   the options wizard
+  /er/checks.html         stable   the check browser
   /er/beta/wizard.html    beta
+  /er/beta/checks.html    beta
 
 The page works out which it is from its own URL and banners itself, so nothing here edits the HTML.
 

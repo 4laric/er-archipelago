@@ -1,6 +1,6 @@
-# Known Issues -- v0.3.11
+# Known Issues -- v0.4.0
 
-Current as of **v0.3.7** (2026-08-06).
+Current as of **v0.4.0** (2026-08-12).
 
 Everything we currently know about, what it looks like in play, and what (if
 anything) to do about it.
@@ -70,7 +70,7 @@ players, one section per fix, and it is the honest record.
   Great Rune is rolled into one of its slots. What to do: skip that slot; no
   progression is placed there.
 
-- **A check's name can point at the wrong Site of Grace.** About 507 checks read
+- **A check's name can point at the wrong Site of Grace.** 512 checks read
   `(region unconfirmed)` in their name, and some DLC descriptors name a grace
   nowhere near the check they describe (#330, #349, #418, #338). Names are
   derived from the nearest grace we can prove, which near a border is sometimes
@@ -117,9 +117,16 @@ players, one section per fix, and it is the honest record.
 
 ## Shadow of the Erdtree
 
-DLC seeds work, and the DLC's 13 regions behave like any other region. It is
+DLC seeds work, and the DLC's 11 regions behave like any other region. It is
 still the less-travelled path: the base game is better tested and remains the
 smoother first run.
+
+🛑 **`enable_dlc` is ON in the apworld's own defaults.** The shipped
+`EldenRing.yaml` sets it to `false`, and four of the six wizard presets pin it
+`false` -- but a yaml with an empty `Elden Ring: {}` section, the wizard's blank
+**Defaults** card, and the `vanilla_deathlink` preset all leave it at the
+apworld default, which means the DLC is in. If you do not own Shadow of the
+Erdtree, say `enable_dlc: false` explicitly rather than relying on a default.
 
 - **The Shadow Keep church-basement grace can warp you in before the water is
   drained** (#123). Fast-travelling to Church District Lower / Scadutree Base

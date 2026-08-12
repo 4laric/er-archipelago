@@ -6,6 +6,9 @@ game: every meaningful item pickup in the Lands Between is a *check*, the items
 you find go out to the multiworld, and your own items arrive in your inventory
 mid-session. It works solo too.
 
+**Build your yaml at <https://peliarch.ca/er/>** -- a web page, nothing to install, that walks
+every option and tells you how big your seed will be before you generate it.
+
 It is **pure runtime**: the game stays completely vanilla on disk. No game files
 are patched, no `regulation.bin` is modified, nothing is baked per seed. The
 runtime client is a Rust DLL loaded by the ModEngine3 (me3) mod loader; it reads
@@ -49,7 +52,7 @@ The headline dials, all documented inline in the shipped
 - **`ending_condition`** -- `region_locks` (hold every Lock in play; the goal
   region, Leyndell, is always kept) or `great_runes` (also collect
   `goal_great_runes` Great Runes).
-- **`enable_dlc` / `dlc_only`** -- bring the 14 Shadow of the Erdtree regions
+- **`enable_dlc` / `dlc_only`** -- bring the 11 Shadow of the Erdtree regions
   into the pool, or play only them.
 
 ---

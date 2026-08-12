@@ -40,7 +40,7 @@ Elden Ring:
   # ---- The shape of the run -------------------------------------------------
 
   # How many regions are DRAWN. 0 = all of them (the full Shattering:
-  # 17 base-game regions, or 30 with the DLC enabled). A sealed region has no
+  # 17 base-game regions, or all 28 with the DLC enabled). A sealed region has no
   # checks, no Lock, and no way in. Each KEPT region opens when its Region
   # Lock item arrives -- its graces light and you warp in. This is the
   # marquee mode: it turns the open world into an Archipelago progression
@@ -80,8 +80,8 @@ Elden Ring:
   # Which bosses hand you their area's loot when you kill them. A ladder:
   #   none         -- no sweeps; every check is picked up where it lies
   #   minidungeons -- catacombs, caves, tunnels, minor dungeons   (~515 checks)
-  #   all          -- + legacy dungeons and castles               (~1971)
-  #   bosses       -- + field bosses (default; the whole set)     (~3184)
+  #   all          -- + legacy dungeons and castles               (~1984)
+  #   bosses       -- + field bosses (default; the whole set)     (~3197)
   # `all` is the "sweep dungeons, leave the field alone" setting.
   # 2026-07-29: the three non-none values used to be IDENTICAL -- the class
   # filter was never implemented. They differ now; the default is renamed to
@@ -200,12 +200,12 @@ Elden Ring:
   #
   #  Uncomment this block AS A SET and delete the two `false` lines above. It is
   #  written as one block because the DLC changes more than one number: with it
-  #  on there are 30 regions rather than 17, so a `num_regions` tuned for the
+  #  on there are 28 regions rather than 17, so a `num_regions` tuned for the
   #  base game samples a much thinner slice of a much bigger map.
   #
   #  enable_dlc: true
   #  dlc_only: false          # true = DLC only, base game sealed
-  #  num_regions: 10          # 6 of 30 is a very thin seed; 10 keeps the run
+  #  num_regions: 10          # 6 of 28 is a very thin seed; 10 keeps the run
   #                           # recognisable. 0 = the whole thing.
   #  goal: auto               # `promised_consort` ends the run in the DLC and
   #                           # force-keeps Enir Ilim -- the only choice that

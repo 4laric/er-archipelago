@@ -3,6 +3,159 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.0 — 2026-08-12
+
+Window opened AT THE TAG of v0.3.12, and **not** on purpose: main was red on `check_release_notes`
+(rule 14, "release notes exist for the open version") from the moment the tag was cut. Four windows
+running had been opened deliberately; this one was asked for by a gate, which is the honest way to
+record it.
+
+🛑 **The minor component moves for the first time since 0.3.0, and it is not ceremony.** Two things
+that landed under the v0.3.12 window change what a default seed does:
+
+- `item_categories` reclassified 319 spells, spirit ashes and crystal tears from filler to
+  **useful**, and useful is placed before filler. The same yaml and the same seed number now produce
+  a different layout. Nothing is unreachable -- the fill regression ran 88 generations across 11
+  configurations with no failures -- but a seed you are part-way through will not match a fresh
+  generation of it.
+- `rune_shop_pricing` stopped being unconditional and became an option that is **OFF by default**.
+  A default seed no longer rolls rune shop prices, which it has done since late July.
+
+A player can see both without reading a note. That is what a minor bump is for, and 0.3.13 would
+have understated it.
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
+v0.3.12 client still handshakes with a v0.4.0 seed and vice versa. The number is `0.4.0` and not
+`0.4`: `tools/check_version_sites.py --expect` is anchored `^\d+\.\d+\.\d+$`, and every row in
+`CONTRACT-VERSIONS.tsv` since 0.2.0 is X.Y.Z. A two-component version passes the commit and fails
+the cut.
+
+### 🛑 v0.3.12's notes were written and never published
+
+The v0.3.12 tag carries a full changelog section and a complete `BLURB-v0.3.12.md` -- eleven items,
+including matt's-randomizer telescopes, the bell-bearing split, the classification move and the
+Curated Filler control. The GitHub release body for that tag is three words: **"VA/RVA hotfix"**.
+
+Nothing was lost; it is all in this repo. But every one of those changes is, as far as any player
+outside this repo can tell, unannounced. The release-notes gate cannot catch this: it checks that
+notes EXIST, not that they were ever put in front of anyone. v0.4.0's announcement carries the
+v0.3.12 blurb forward rather than leaving it in a file nobody reads.
+
+### The docs finally tell you where the yaml builder is
+
+The options wizard has had a Seed size tab since v0.3.8, seven tabs since v0.3.11, and a live
+sent-out readout since v0.3.12. Every one of those landed in a blurb. **Not one player-facing
+document has ever contained the URL.** `SETUP.md`, `PLAYER-GUIDE.md`, `DISTRIBUTION.md`, the Nexus
+description and the README mention "the wizard" five times between them and never say where it is;
+the string `peliarch` appears nowhere outside a spec, a deploy script and the page's own source.
+
+So the surface most players would meet this project through was reachable only by already knowing
+about it. <https://peliarch.ca/er/> is now in the setup guide (as step 2, ahead of hand-editing the
+template), the player guide, the distribution doc, the Nexus page and the README, with the channel
+and staleness caveat stated rather than buried: the page is pinned by nothing, `/er/` tracks the
+released build and `/er/beta/` tracks `main`, and Archipelago silently drops an option your
+installed apworld has never heard of.
+
+`SETUP.md` also stops calling itself "Setup (v0.2)".
+
+### peliarch.ca has a front door, and it is the builder
+
+The box was set up to host Archipelago rooms and its front page said so. The thing people
+actually arrive for is the yaml builder at `/er/`, and it was reachable only by already knowing
+the path -- which is the same finding as the docs never carrying the URL, one layer up.
+
+`wizard/landing.html` is a single file, no build step, same palette and type as the wizard so the
+handoff does not look like two different sites. The builder is the primary call to action; room
+hosting is one card among three, which is what it now is. Every figure on the page is derived
+from the tree rather than recalled: **28 regions** (17 base, 11 DLC), **4,931 catalogued checks**,
+**56 options**.
+
+**The check browser is now a published surface too.** It was a 2.9 MB self-contained file
+committed at the repo root that nothing deployed and nothing linked, and its own source says it
+works "offline and on peliarch alike" -- on a path that did not exist. `deploy_wizard.sh` installs
+it at `/er/checks.html` and `/er/beta/checks.html`, **pinned to the same ref as the wizard beside
+it**, because a reader joined over a different build's generator output describes a different
+corpus. That is SPEC-publishing-pipeline.md's measured skew, one file over.
+
+`install_one` now takes its source path and its sentinel as arguments instead of hard-coding the
+wizard's, so the refusal-to-install check is per-artifact: the browser's is `id="mapslot"`. The
+atomic write, the `curl -f` and the 200-with-a-login-page defence are unchanged. `--no-checks`
+skips the 2.9 MB fetch for a cron that runs oftener than the data moves.
+
+🛑 **Not deployed by this commit.** The page and the script are in the repo; putting them on the
+box is a separate act, and `/er/beta/` still needs a Flask route or a full path -- the script's own
+closing note has said so since it was written.
+
+### The docs described a different game, and a review found it
+
+An independent readiness pass over every player-facing surface, asking one question: does someone
+arriving from the Archipelago Discord with no prior knowledge reach a running seed without hitting
+a statement that is no longer true? They did not.
+
+**🛑 The DLC default was documented backwards, everywhere.** `EnableDLC` is a `DefaultOnToggle`
+(`core.py:253`) -- the apworld's own default is **on**. The shipped `EldenRing.yaml` sets it
+`false`, which is where "DLC is off by default" came from, and that sentence was then repeated in
+SETUP.md, the player guide, the Nexus page and the landing page as a fact about the *world* rather
+than about the *template*. It is not. A yaml with an empty `Elden Ring: {}` section gets all 28
+regions -- and so does the options wizard's blank **Defaults** card, which described itself as
+"the full base-game experience, untouched" while emitting exactly that empty block. Four of the six
+wizard presets pin `enable_dlc: false`; `vanilla_deathlink` and `dlc_only` do not.
+
+The default is unchanged -- flipping it would move every seed generated from a bare yaml. What
+changed is that six surfaces now say what it actually is, and the Defaults card names the DLC
+instead of promising a base-game run it does not produce.
+
+**Numbers that had drifted, all re-derived from the tree rather than corrected to each other.**
+The docs carried **four different region totals**. The true figures: 28 regions (17 base, 11 DLC)
+from `data.REGIONS` and `region_spine.DLC_REGIONS`; 4,931 catalogued checks; 56 options from
+`options-metadata.json`.
+
+| Where | Said | Is |
+|---|---|---|
+| `SETUP.md` x2, `NEXUS-DESCRIPTION.txt` | 19 tunable options | 56 |
+| `EldenRing.yaml` x2, `SETUP.md` | 30 regions with the DLC | 28 |
+| `NEXUS-DESCRIPTION.txt` | 31 with the DLC | 28 |
+| `README.md`, `NEXUS-DESCRIPTION.txt` | 14 DLC regions | 11 |
+| `KNOWN-ISSUES.md` | 13 DLC regions | 11 |
+| `SETUP.md` | shipped `num_regions: 0` | 6 |
+| player guide | `0` is the shipped default (and `6` is, 116 lines later) | 6 |
+| player guide, `EldenRing.yaml` | sweeps ~1971 / ~3184 | ~1984 / ~3197 |
+| `KNOWN-ISSUES.md` | about 507 unconfirmed check names | 512 |
+
+**Claims that were simply false.** `num_regions_order` was documented as "vestigial -- omit the
+key" in SETUP.md and "deprecated, every value rolls at random" in the player guide; it has taken
+`rolled` and `vanilla_order` since #563, and `vanilla_order` is deterministic. Enemy scaling was
+"always on" in the player guide and on Nexus; it is on by default and `enemy_scaling: false` turns
+it off. The player guide claimed weapon stat requirements are "waived in v0.2" as though that were
+a version-scoped fact.
+
+**`KNOWN-ISSUES.md` was labelled two different versions three lines apart** -- `v0.3.11` in its
+title, "Current as of **v0.3.7**" underneath -- during a release-a-day month. Both now read v0.4.0,
+and the DLC default is called out there too.
+
+**`deploy_wizard.sh --landing` did not exist.** `landing.html` documented the flag in its own
+header and nothing implemented it; the arg parser exits 2 on unknown arguments, so the new front
+page could not be published by the only command that claimed to publish it. Implemented, with its
+own destination (`ER_ROOT_DIR`, the site root, not `/er/`), its own sentinel (`id="er-landing"`),
+and a guard that fails BEFORE fetching anything rather than after three files are installed.
+🛑 It fetches from the STABLE tag, so it fails until the `CHANNELS.tsv` promotion row points stable
+at a tag that carries the file. That failure is loud and correct.
+
+**Everything above is a labelling repair. No option default, option shape or generated seed moves.**
+
+### The version-lockstep sites
+
+`APWORLD_VERSION`, `archipelago.json`, `wizard/options-metadata.json`, `wizard/wizard.html`, the
+client's `Cargo.toml` and `Cargo.lock`, and the generated `contract_gen.rs`. The client half landed
+first as PR #179 -- a gitlink can only point at a commit that exists.
+
+### The SHIPPED fixture row for v0.3.12 is here, and it was hidden rather than late
+
+`test_every_tagged_version_is_recorded_as_shipped` has caught this row six windows running. On the
+seventh it did not run at all: `check_release_notes` fails EARLIER in the `generators` job, an
+aborting step skips every step below it, and the tag test is below it. Confirmed from the jobs API
+on run 31639475006. Two independent failures had to line up for nobody to notice, and they did.
+
 ## v0.3.12 — 2026-08-12
 
 Window opened AT THE TAG of v0.3.11, the fourth time running it has been opened on purpose rather
