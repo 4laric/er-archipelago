@@ -2,8 +2,7 @@
 
 HISTORY -- read this before "simplifying" the file away. It used to guard a collision that no longer
 exists: pool_builder injected gear as `useful`, but some catalog gear (notably spells & incantations)
-carries the GOODS FullID nibble, so core classified it `filler` (the nibble test of the day; the
-table is `item_categories.CATEGORY_CLASS` now) -- and BOTH seizers
+carries the GOODS FullID nibble, so core classified it `filler` -- and BOTH seizers
 of the day (core's stone_injection, then filler_curation.curate()) protected only progression|useful.
 A filler-classified S-tier sorcery the player had "paid" a juice slot for would be silently
 overwritten with a throwable or a smithing stone.
@@ -92,3 +91,29 @@ class GlobalJuiceIsBestFirst(WorldTestBase):
         from worlds.eldenring.features.filler_curation import CuratedFiller
         self.assertGreater(CuratedFiller.default.get("stones", 0), 0,
                            "...but the SHIPPED DEFAULT must reserve stones -- that is the fix")
+
+
+def test_every_juice_name_is_useful_from_the_table():
+    """WHY THE PROMOTION HOOK COULD BE DELETED, asserted rather than asserted-once-and-forgotten.
+
+    `filler_budget.classify` promoted juice gear to `useful` because spells carry the GOODS nibble.
+    `item_categories.CATEGORY_CLASS` classes the gear categories `useful` now, so the hook had
+    nothing left to do and is retired. This is the guard that keeps that true: flip `spells`,
+    `spirit_ashes` or `crystal_tears` back to filler and this reds, which is the signal to argue
+    about the category -- not to reinstate a second owner of an item's classification.
+    """
+    from worlds.eldenring.features import filler_budget as fb
+    from worlds.eldenring import item_categories as ic
+    juice = fb._JUICE_NAMES
+    assert len(juice) > 500, f"witness: the juice roster is real, got {len(juice)}"
+    filler = sorted(n for n in juice if ic.class_of(n) == ic.FILLER)
+    assert not filler, (
+        f"{len(filler)} juice names classify filler with no hook left to promote them: "
+        f"{filler[:8]}")
+
+
+def test_the_retired_hook_refuses_to_run():
+    from worlds.eldenring.features import filler_budget as fb
+    import pytest as _pytest
+    with _pytest.raises(AssertionError):
+        fb.classify(None, None)

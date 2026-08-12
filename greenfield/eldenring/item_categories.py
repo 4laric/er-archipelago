@@ -236,6 +236,9 @@ def census() -> Dict[str, int]:
 # in a way nobody could see: 203 spells, 79 spirit ashes and 37 crystal tears are gear to a player
 # and carry the GOODS nibble, so AP's fill and every partner's tracker read them as junk. One
 # taxonomy, asked two questions -- locality (`names_in`) and classification (here).
+# ⭐ THAT DISAGREEMENT IS RESOLVED: the three categories were flipped to `useful` on 2026-08-12. The
+# pin in test_gf_item_classification no longer asserts agreement with the retired nibble rule -- it
+# asserts the difference is EXACTLY those three and nothing else has drifted since.
 #
 # 🛑 THIS TABLE IS THE POLICY AND IT IS WRITTEN OUT, NOT DERIVED. Deriving it from the nibble would
 # reproduce today's answer forever and make the disagreement above unrepresentable -- which is the
@@ -269,11 +272,19 @@ CATEGORY_CLASS: Dict[str, str] = {
     "armor": USEFUL,
     "talismans": USEFUL,
     "ashes": USEFUL,
-    # goods. FLIP CANDIDATES, in the order they are worth arguing about: `spells`, `spirit_ashes`
-    # and `crystal_tears` are gear, and calling them filler is the disagreement described above.
-    "spells": FILLER,
-    "spirit_ashes": FILLER,
-    "crystal_tears": FILLER,
+    # goods THAT ARE GEAR. Flipped 2026-08-12 (Alaric's call) -- these three are the disagreement
+    # described above, and this is the line that ends it. A sorcery, a spirit ash and a crystal tear
+    # are things a player equips, casts and drinks; the only reason they read as junk was that the
+    # FullID nibble files them beside the crafting materials. 319 names, ~3.3% of a default pool's
+    # copies. 🛑 THIS IS THE ONE ENTRY THAT MOVES SEEDS -- `useful` is the head of AP's
+    # `restitempool`, so it is placed before any filler and the whole placement shifts.
+    "spells": USEFUL,
+    "spirit_ashes": USEFUL,
+    "crystal_tears": USEFUL,
+    # 🛑 `upgrade_materials` STAYS FILLER, and it is the closest call on this table. A Somber [9] is
+    # not junk to a player -- but it is the economy features/filler_budget allocates BY THE HUNDRED
+    # into the filler tail, and promoting the category would move that whole tail into the useful
+    # tier. That is an economy change wearing a classification change's clothes. Argue it separately.
     "upgrade_materials": FILLER,
     # goods that are junk or currency by any reading, and stay filler
     "consumables": FILLER,
