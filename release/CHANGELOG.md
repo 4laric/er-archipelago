@@ -143,6 +143,45 @@ at a tag that carries the file. That failure is loud and correct.
 
 **Everything above is a labelling repair. No option default, option shape or generated seed moves.**
 
+### 🛑 Hosting is out of scope, and the wizard stops offering it
+
+peliarch.ca is five things as of v0.4.0: **the yaml builder, the downloads, the documentation, the
+check browser and the bug report form.** It does not generate seeds and it does not host rooms.
+
+**THE MOTIVATING CASE (rule 11), 2026-08-12.** The rooms dashboard listed five hibernated rooms and
+offered every one of them the same connect address -- `ws://peliarch.ca:38400` -- with a Copy button
+beside it. The allocator is genuinely port-per-room (`RandomPortSocketCreator` takes a free port out
+of 38400-38463 when the socket is created, skipping ports already in use), so 38400 was a
+**placeholder shown for rooms with no live socket**, and four of those five addresses were wrong the
+moment their room woke.
+
+That is worse than a dead link. Archipelago's `Connect` packet carries a slot name and a password
+and **no room identifier**. A client that reaches whichever server actually holds 38400, carrying a
+slot name that seed happens to contain, joins the wrong multiworld and is told nothing. Two rooms in
+that list were both named `Player - Elden Ring`.
+
+The display bug is fixable. Owning the failure mode is the part that is not worth it a week before
+the first public announcement, so the surface is gone rather than patched.
+
+- `wizard.html`'s **Generate & host** card is now **Take your yaml**: Copy, Download, and a pointer
+  at archipelago.gg. `doHost()` and `hostEndpoint()` are deleted, so the served page and the
+  `file://` page in the release zip now behave identically and there is no same-origin story left
+  to get wrong.
+- `check_wizard_renders.SIDE_ORDER` moved with it. 🛑 That line changed because the REQUIREMENT
+  changed, which is the only reason it may ever change -- editing it to match a wizard that drifted
+  would delete the assertion instead of checking it.
+
+### A bug report form, because every triage has started by asking for the same four things
+
+`.github/ISSUE_TEMPLATE/bug_report.yml` asks for the release **tag** both halves came from (not the
+printed version -- several builds have shipped under one version string), the whole yaml rather than
+the lines the reporter thinks matter, the client log **from the last `SESSION START`** because the
+log is appended across sessions, whether the DLC was in play, and what else was loaded --
+`RandomizerHelper.dll` and matt's launcher being the two that most often change the answer.
+
+Its `config.yml` routes misregion reports to the check browser instead, which already fills that
+issue out with the evidence attached, and puts KNOWN-ISSUES.md in front of the form.
+
 ### The version-lockstep sites
 
 `APWORLD_VERSION`, `archipelago.json`, `wizard/options-metadata.json`, `wizard/wizard.html`, the

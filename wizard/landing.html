@@ -11,8 +11,11 @@
   WHAT THIS REPLACES. The box was set up to host Archipelago rooms, and its front door said so.
   The thing people actually arrive for is the Elden Ring yaml builder at /er/ -- the only surface
   anyone can use BEFORE deciding whether to install a DLL -- and it was reachable only by already
-  knowing the path. This page makes the builder the front door and keeps room hosting as what it
-  now is: a service this project uses, not the reason to visit.
+  knowing the path.
+
+  🛑 HOSTING IS OUT OF SCOPE AS OF v0.4.0. The site is five things: the builder, the downloads,
+  the documentation, the check browser and the bug report form. It does not generate seeds and it
+  does not host rooms. archipelago.gg does that properly and is not a side project.
 
   Single file, no build step, no network calls. Same palette and type as wizard.html so the
   handoff from here to the builder does not look like two different sites.
@@ -218,23 +221,38 @@ footer p{max-width:78ch;margin:10px 0}
 </section>
 
 <section>
-  <h2>Also on this box</h2>
+  <h2>What is on this site</h2>
+  <p>Five things, and deliberately not a sixth. <strong>This site does not generate or host
+  seeds.</strong> Build your yaml here, then generate with Archipelago &mdash; locally, or at
+  <a href="https://archipelago.gg">archipelago.gg</a>, which does hosting properly.</p>
+
   <div class="grid">
-    <div class="card">
-      <h3>Seed generation</h3>
-      <p>The builder can hand your finished yaml straight to a host here and give you back a
-      connect address, so a solo run needs no Archipelago install at all.</p>
-    </div>
-    <div class="card">
-      <h3>Room hosting</h3>
-      <p>Archipelago rooms, which is what this box was originally for. Still running, still
-      welcome &mdash; it is just no longer the reason most people arrive.</p>
-    </div>
+    <a class="card cardlink" href="/er/">
+      <h3>The yaml builder &rarr;</h3>
+      <p>Every option, explained, with your seed's size computed as you go. Downloads a finished
+      yaml.</p>
+    </a>
+    <a class="card cardlink" href="/downloads">
+      <h3>Downloads &rarr;</h3>
+      <p>The player bundle &mdash; apworld, client and docs in one zip &mdash; and the bare
+      apworld for hosts. Take both halves from the same release.</p>
+    </a>
+    <a class="card cardlink" href="https://github.com/4laric/er-archipelago/blob/main/release/SETUP.md">
+      <h3>Documentation &rarr;</h3>
+      <p>Setup, the player guide, known issues, and the recipe for stacking thefifthmatt's
+      randomizer for enemies and starting class.</p>
+    </a>
     <a class="card cardlink" href="/er/checks.html">
       <h3>Check browser &rarr;</h3>
       <p>All 4,931 catalogued checks, searchable and filterable by region, with a map. If one is
-      attributed to the wrong region, the report button fills out the issue for you &mdash; with
-      the evidence attached, and no verdict claimed on your behalf.</p>
+      attributed to the wrong region, the report button fills the issue out for you &mdash; with
+      the evidence attached and no verdict claimed on your behalf.</p>
+    </a>
+    <a class="card cardlink" href="https://github.com/4laric/er-archipelago/issues/new?template=bug_report.yml">
+      <h3>Report a bug &rarr;</h3>
+      <p>A form that asks for the things every report needs anyway: the release tag you took both
+      halves from, your whole yaml, the log from the last <code>SESSION START</code>, and what
+      else was loaded.</p>
     </a>
   </div>
 </section>
@@ -255,10 +273,10 @@ footer p{max-width:78ch;margin:10px 0}
 <footer>
   <div class="links">
     <a href="/er/">Yaml builder</a>
+    <a href="/downloads">Downloads</a>
     <a href="/er/checks.html">Check browser</a>
     <a href="https://github.com/4laric/er-archipelago">Source</a>
-    <a href="https://github.com/4laric/er-archipelago/releases">Releases</a>
-    <a href="https://github.com/4laric/er-archipelago/issues">Report an issue</a>
+    <a href="https://github.com/4laric/er-archipelago/issues/new?template=bug_report.yml">Report a bug</a>
     <a href="https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md">Known issues</a>
     <a href="https://archipelago.gg">Archipelago</a>
   </div>
