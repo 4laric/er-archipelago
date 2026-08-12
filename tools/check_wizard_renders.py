@@ -69,10 +69,15 @@ REQUIRED = [
 #
 # A card that renders is not a card that WORKS, which is the next question after check_renders'.
 # The side rail's ORDER is a stated requirement, not a default. The live readout sits directly under
-# the yaml because it is what you watch while you turn a knob, and "Generate & host" is last because
-# it is the one card you touch once, at the end (Alaric, 2026-08-12). Card order is the kind of thing
-# a later edit reshuffles without noticing, and nothing else in the tree records the reason.
-SIDE_ORDER = ["Your yaml", "Into the multiworld", "Seed size", "Checks", "Generate &amp; host"]
+# the yaml because it is what you watch while you turn a knob, and the last card is the one you
+# touch once, at the end (Alaric, 2026-08-12). Card order is the kind of thing a later edit
+# reshuffles without noticing, and nothing else in the tree records the reason.
+#
+# 🛑 THE LAST CARD WAS "Generate &amp; host" UNTIL v0.4.0 AND IS NOW "Take your yaml". Hosting was
+# scoped out of the site: the wizard no longer POSTs to /generate and no longer starts rooms. This
+# line changed because the REQUIREMENT changed, which is the only reason it may ever change --
+# editing it to match a wizard that drifted would delete the assertion instead of checking it.
+SIDE_ORDER = ["Your yaml", "Into the multiworld", "Seed size", "Checks", "Take your yaml"]
 
 NUMBERS_MOVE = ["filler_foreign_pct", "keep_local", "local_item_only",
                 "confine_foreign_progression", "num_regions", "progression_surface"]

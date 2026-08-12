@@ -1,0 +1,10 @@
+blank_issues_enabled: true
+contact_links:
+  - name: A check is attributed to the wrong region
+    url: https://peliarch.ca/er/checks.html
+    about: >
+      Use the check browser's report button instead. It fills the issue out for you, with the
+      tile's other regions and how this one was decided already attached.
+  - name: Known issues and by-design behaviour
+    url: https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md
+    about: Read this first. Several of the most-reported things are on it deliberately.

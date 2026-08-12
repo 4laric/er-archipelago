@@ -1,0 +1,104 @@
+name: Bug report
+description: Something in a seed or in the game behaved wrong.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Before anything else: is it already known?**
+        [KNOWN-ISSUES.md](https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md)
+        lists current defects *and* the by-design behaviours that get reported as bugs.
+
+        🛑 **If your apworld and your client came from different releases, stop here.** They are a
+        hash-matched pair. A mismatched pair does not fail at the door — it connects and behaves
+        subtly wrong, and every bug it produces is unreal. Redownload both from the same release
+        and see if it survives.
+
+  - type: input
+    id: version
+    attributes:
+      label: Release
+      description: >
+        The tag you took BOTH halves from, e.g. `v0.4.0`. 🛑 Not the number the client prints —
+        several builds have shipped under one version string, so the tag is the answer and the
+        printed version is not.
+      placeholder: "v0.4.0"
+    validations: {required: true}
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected instead
+      description: >
+        Concretely. "The Region Lock for Caelid arrived and the graces did not light" beats
+        "region unlocking is broken" — the second one sends whoever reads it looking in the
+        wrong place first.
+    validations: {required: true}
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Can you make it happen again?
+      description: >
+        If yes, the steps. If it happened once and you cannot reproduce it, say that — it is
+        useful information and not a reason to skip filing.
+    validations: {required: false}
+
+  - type: textarea
+    id: yaml
+    attributes:
+      label: Your yaml
+      description: >
+        The whole file, not the lines you think matter. Options interact, and the ones that turn
+        out to matter are usually not the ones anybody suspected. Redact nothing but your slot
+        name if you would rather.
+      render: yaml
+    validations: {required: true}
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Client log
+      description: >
+        🛑 **The log is APPENDED across sessions.** Search for the LAST `SESSION START` and paste
+        from there — an older session's errors above it will send triage down a dead end. Attach
+        the whole file if it is easier.
+      render: text
+    validations: {required: false}
+
+  - type: dropdown
+    id: dlc
+    attributes:
+      label: Was the DLC in play?
+      description: >
+        `enable_dlc` is ON in the apworld's own defaults and OFF in the shipped template, so
+        "I did not turn it on" does not settle it. Check the yaml above.
+      options:
+        - "No — enable_dlc: false"
+        - "Yes — enable_dlc: true"
+        - "dlc_only: true"
+        - "Not sure / the yaml says nothing about it"
+    validations: {required: true}
+
+  - type: checkboxes
+    id: stack
+    attributes:
+      label: Anything else loaded?
+      description: >
+        These change the answer. `RandomizerHelper.dll` in particular is the most common cause of
+        "my checks send but I never receive anything", and matt's "Add dll mod" launch path does
+        not read our me3 profile — which is why AP items can appear as telescopes.
+      options:
+        - label: "thefifthmatt's randomizer (enemies / starting class)"
+        - label: "Seamless Co-op"
+        - label: "Other mods through me3"
+        - label: "I launched through something other than the shipped ap.me3 profile"
+
+  - type: input
+    id: spoiler
+    attributes:
+      label: Spoiler log
+      description: >
+        Attach it, or say why not. For anything about where an item ended up, the spoiler is not
+        supporting evidence — it is the only thing that can settle the question.
+    validations: {required: false}
