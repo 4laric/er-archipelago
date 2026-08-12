@@ -45,27 +45,16 @@ a knob there gave no feedback: you had to walk back to Seed size to watch the nu
 card, drawn on both, one computation. It finds its tab by looking for the group that CONTAINS
 `keep_local` rather than by matching the group's name, because the names come from the world and
 this page does not own them.
-### 🛑 v0.3.11's tag records the wrong client, and its release is missing two assets
+### v0.3.11's tag pins the wrong client commit
 
-**Nothing is wrong with the build people downloaded.** `ER-Archipelago-v0.3.11.zip` carries a client
-compiled from the current tree four minutes after the tag commit, and it has all of that day's work
-in it -- verified against the shipped `.dll` itself, which contains the strings for the DeathLink
-toast, the roll mode, the boss-fight sampler, the spell slot normalisation and the catalyst routing.
-If you are running v0.3.11 you are running the right client.
+Housekeeping, with no effect on anything anyone installed. The v0.3.11 bundle was built from the
+current client and contains that day's work; the submodule pin left behind in the tag names the
+previous evening's commit instead, so the tag cannot be used to resolve a v0.3.11 bug report to a
+client build. The pin moves here.
 
-What is wrong is the tag's RECORD of it. The submodule pin was left at `a9830ebe`, the client as of
-the previous evening, so the one thing a tag exists to state -- which apworld pairs with which
-client -- names a build that is not the one in the zip. Nothing later can recover that; a bug report
-against v0.3.11 cannot be resolved to a client commit from the tag alone.
-
-**And the release is short two assets.** `eldenring.apworld` (the bare 1.4 MB world, for hosts who
-do not want a 124 MB bundle with a game-mod DLL in it) and `er-options-wizard.html` are both
-missing, because the release workflow packs and attaches them in the steps AFTER the pin check --
-and the pin check failed, correctly, naming both commits. The player bundle is unaffected; it
-carries its own copy of the apworld inside.
-
-This window bumps the pin to a client that includes everything, and the missing assets come back
-with the v0.3.12 tag.
+The v0.3.11 release is also missing the standalone `eldenring.apworld` and `er-options-wizard.html`
+downloads: the release workflow checks the pin before it packs those two, and the check failed. The
+player bundle carries its own copy of the apworld and is unaffected.
 
 ## v0.3.11 — 2026-08-10
 

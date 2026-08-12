@@ -5,13 +5,6 @@ moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-**If you are on v0.3.11, you are fine -- but hosts should read this.** The client in the v0.3.11
-bundle is the current one and nothing is missing from it. What the v0.3.11 release does not have is
-the standalone `eldenring.apworld` download, the small file a multiworld host wants instead of the
-124 MB bundle. It is back with this release. (The tag also recorded the wrong client commit
-alongside the right client build, which matters only if you are filing a bug against v0.3.11 --
-quote the date, not the tag.)
-
 **The wizard's Seed size step was blank.** Not slow, not wrong -- blank. You clicked to it and got
 the settings and no numbers, and they only appeared once you changed something. A refactor three
 days ago had it drawing its figures into a part of the page that had not been put on the page yet,
