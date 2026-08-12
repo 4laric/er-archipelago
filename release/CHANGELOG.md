@@ -146,8 +146,16 @@ at a tag that carries the file. That failure is loud and correct.
 ### The version-lockstep sites
 
 `APWORLD_VERSION`, `archipelago.json`, `wizard/options-metadata.json`, `wizard/wizard.html`, the
-client's `Cargo.toml` and `Cargo.lock`, and the generated `contract_gen.rs`. The client half landed
-first as PR #179 -- a gitlink can only point at a commit that exists.
+client's `Cargo.toml` and `Cargo.lock`, and the generated `contract_gen.rs`. The client half is
+PR #179, merged at `78b1a543`, and the gitlink points there.
+
+🛑 **The world half merged FIRST this window, which is the wrong order and main went red for it.**
+`client-main-drift` regenerates the cross-repo artifacts against client `main`, and client `main`
+still read `0.3.12` for 24 minutes after world `main` read `0.4.0`. That job is `skipped` on every
+pull request and runs only on `main`, so no PR could have caught it and none did: #603 was green on
+its head SHA and red the moment it became a merge commit. The rule the window procedure already
+states -- the client half lands first, because a gitlink can only point at a commit that exists --
+turns out to have a second reason behind it that nothing had written down.
 
 ### The SHIPPED fixture row for v0.3.12 is here, and it was hidden rather than late
 
