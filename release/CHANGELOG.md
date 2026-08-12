@@ -45,24 +45,27 @@ a knob there gave no feedback: you had to walk back to Seed size to watch the nu
 card, drawn on both, one computation. It finds its tab by looking for the group that CONTAINS
 `keep_local` rather than by matching the group's name, because the names come from the world and
 this page does not own them.
-### 🛑 v0.3.11 shipped a client from the day before, and this window is the repair
+### 🛑 v0.3.11's tag records the wrong client, and its release is missing two assets
 
-v0.3.11 was tagged with the submodule pin still at client `a9830ebe` -- 41 commits and 22 merged
-pull requests behind the client's own `main`. The tagged build therefore does not contain the work
-v0.3.11's notes describe: received spells being memorised, `no_equip_load` writing the field the
-game actually reads, the roll mode, the DeathLink toast, the bell hand-in reaching the client feed,
-the boss-fight HP sampler, or the guard that stops a non-numeric port becoming a retry loop of
-parser errors.
+**Nothing is wrong with the build people downloaded.** `ER-Archipelago-v0.3.11.zip` carries a client
+compiled from the current tree four minutes after the tag commit, and it has all of that day's work
+in it -- verified against the shipped `.dll` itself, which contains the strings for the DeathLink
+toast, the roll mode, the boss-fight sampler, the spell slot normalisation and the catalyst routing.
+If you are running v0.3.11 you are running the right client.
 
-Nothing was lost -- all of it is on `main` and none of it was reverted. What happened is that the
-release named it and did not carry it, so a player who read the notes and installed v0.3.11 got a
-client that behaves like v0.3.10. **If you are on v0.3.11, this is the update to take.**
+What is wrong is the tag's RECORD of it. The submodule pin was left at `a9830ebe`, the client as of
+the previous evening, so the one thing a tag exists to state -- which apworld pairs with which
+client -- names a build that is not the one in the zip. Nothing later can recover that; a bug report
+against v0.3.11 cannot be resolved to a client commit from the tag alone.
 
-`RELEASE-CHECKLIST-v0.3.md` has carried a `Gitlink == client main` row since v0.3.8 -- it exists
-because v0.3.7 tagged a pin five client merges old and v0.3.8 was eleven behind on the morning of
-the cut -- and it says the tag job refuses a stale pin. It went out anyway. The row is not the
-instrument; something that runs is.
+**And the release is short two assets.** `eldenring.apworld` (the bare 1.4 MB world, for hosts who
+do not want a 124 MB bundle with a game-mod DLL in it) and `er-options-wizard.html` are both
+missing, because the release workflow packs and attaches them in the steps AFTER the pin check --
+and the pin check failed, correctly, naming both commits. The player bundle is unaffected; it
+carries its own copy of the apworld inside.
 
+This window bumps the pin to a client that includes everything, and the missing assets come back
+with the v0.3.12 tag.
 
 ## v0.3.11 — 2026-08-10
 
