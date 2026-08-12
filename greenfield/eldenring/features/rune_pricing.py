@@ -130,6 +130,13 @@ class RuneShopPricing(Toggle):
     to somewhere in [0, 2x that rune's own worth]. Off = the slot keeps the price of the ware it
     used to sell, which for a rune reward is usually far more than the rune is worth."""
     display_name = "Randomise Rune Shop Prices"
+    # 🛑 EXPLICIT, not inherited, because this option was FROZEN AT 1 until 2026-08-12 and a frozen
+    # option's class default is unreachable -- so it sits there unread and rots
+    # ([[er-unfreezing-an-option-needs-the-class-default]]: PoolBuilderIntensity was frozen at `max`
+    # over a `default = high` nobody could see, and unfreezing it silently reverted every seed).
+    # Writing the 0 down makes "off unless you ask" a decision on the page instead of an inherited
+    # accident, and `test_gf_rune_pricing` pins it.
+    default = 0
 
 
 @register
