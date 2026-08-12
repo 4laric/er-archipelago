@@ -34,6 +34,35 @@ def test_firepots_is_opt_in_fire_lean():
     assert fc.stack_qty_by_name().get("Fire Pot") == 2, "firepots members stack x2 like pots"
 
 
+# ---- the recipe key surface: one list, three consumers (#571) ----------------------------------
+def test_valid_keys_accepts_the_shipped_default():
+    """CuratedFiller.valid_keys must accept CuratedFiller.default. Sounds tautological; is not.
+
+    MOTIVATING CASE (rule 11). `valid_keys` was first written as `sorted(_VALID_CATS)`, which is
+    `frozenset(CATEGORIES) | {"junk"}` -- and `juice` is NOT a member of CATEGORIES (it is drawn
+    from the curated tier ladder, not a name list). The shipped default weights `juice` at 42, so
+    AP's verify_keys would have rejected the world's own default recipe and every seed that did not
+    override it would have failed to generate. Nothing else in the suite compares these two.
+    """
+    vk = set(fc.CuratedFiller.valid_keys)
+    missing = set(fc.CuratedFiller.default) - vk
+    assert not missing, f"the default recipe weights {sorted(missing)}, which valid_keys rejects"
+    assert "juice" in vk, "juice is a recipe key with no CATEGORIES entry -- it must be added on top"
+
+
+def test_valid_keys_is_the_list_filler_budget_enforces():
+    """One source. AP's verify_keys, the wizard metadata and filler_budget's unknown-category
+    OptionError must all read the SAME set, or a key is accepted by one and refused by another."""
+    from worlds.eldenring.features import filler_budget as fb
+    assert set(fc.CuratedFiller.valid_keys) == set(fb.VALID) == set(fc.RECIPE_KEYS)
+
+
+def test_valid_keys_is_sorted():
+    """It lands in a committed artifact (wizard/options-metadata.json). A frozenset has no stable
+    iteration order, so an unsorted list makes `dump_options_metadata.py --check` flap."""
+    assert fc.CuratedFiller.valid_keys == sorted(fc.CuratedFiller.valid_keys)
+
+
 def test_stack_quantities():
     q = fc.stack_qty_by_name()
     assert q["Kukri"] == 5 and q["Throwing Dagger"] == 5, "throwables grant x5"

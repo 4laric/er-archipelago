@@ -50,15 +50,18 @@ from Options import OptionError
 from ..item_ids import ITEM_CATALOG
 from ..data import HUB, LOCATIONS
 from ..item_ids import LOCATION_ITEM
-from .filler_curation import CATEGORIES, _VALID_CATS, displaceable_filler
+from .filler_curation import CATEGORIES, JUICE, RECIPE_KEYS, displaceable_filler
 from .pool_builder import juice_order_for_floor, INTENSITY_FLOOR, CATEGORY_OPTION
 from ..item_tiers import ITEM_TIER_CATEGORY
 
 # `juice` is a first-class recipe category now. It has no private budget any more -- if you want gear
 # injection you weight it like anything else, and it competes with stones on the same tail.
-JUICE = "juice"
+# 🛑 JUICE and the accepted-key set both moved to features/filler_curation, beside the option they
+# describe, so that CuratedFiller.valid_keys can be derived from them -- the wizard reads the option
+# class and cannot see this module (#571). Re-exported here under their existing names because this
+# is where the unknown-category error is raised and where callers already look for them.
 JUNK = "junk"          # pseudo-category: keep whatever vanilla junk the check already paid
-VALID = frozenset(_VALID_CATS) | {JUICE}
+VALID = frozenset(RECIPE_KEYS)
 
 # The economy. These are a RESERVATION off the top and are NEVER scaled down: a seed that cannot
 # afford them is a seed whose upgrade curve is broken, and it should fail loudly at gen rather than

@@ -88,6 +88,17 @@ header.top .sub{color:var(--dim);font-size:13px}
 .toggle input:checked::after{left:18px}
 .toggle .tv{font:13px var(--mono);color:var(--dim)}
 .setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:4px}
+/* Weight grid for a `dict` option (kind:"dict"). One row per valid key: the key, its weight, and
+   the share of the tail that weight buys -- the share is the number a player reasons about, since
+   the weights are relative and need not sum to anything. */
+.dictgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px}
+.dictgrid label.dweight{display:flex;align-items:center;gap:6px;background:var(--panel2);
+  border:1px solid var(--line);border-radius:5px;padding:3px 7px}
+.dictgrid label.dweight.dzero{opacity:.55}
+.dictgrid .dk{flex:1 1 auto;font:12px var(--mono)}
+.dictgrid input[type=number]{width:64px}
+.dictgrid .dshare{min-width:44px;text-align:right;font:12px var(--mono);color:var(--dim)}
+.ctl .dnote{flex:1 1 100%;color:var(--dim);font:12px var(--sans,inherit);margin-top:3px}
 /* Labelled/grouped variant of .setgrid, used when an option ships key_meta (see
    features/progression_surface.wizard_key_meta). Wider cells: these carry a label AND a hint. */
 .famwrap{flex:1 1 100%;display:flex;flex-direction:column;gap:10px}
@@ -155,7 +166,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.3.11",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "4fd28cdd7f1f5d0d3b233fc592e107952b3ff91294471914628c0273f99e66d7",
+ "source_sha256": "bcc7e13aecd11a3d24a8363e2a4c81b05b8c7c27092be3f0432cef9975b75e77",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -635,7 +646,24 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "choices": null,
    "range": null,
-   "valid_keys": [],
+   "valid_keys": [
+    "ammunition",
+    "boluses",
+    "firepots",
+    "foods",
+    "funny",
+    "greases",
+    "juice",
+    "junk",
+    "perfumes",
+    "pots",
+    "rare",
+    "runes",
+    "somber_stones",
+    "stones",
+    "throwables",
+    "utility"
+   ],
    "casefold": false,
    "group": null,
    "group_collapsed": false,
@@ -2835,10 +2863,30 @@ const ERW = (() => {
     const o = meta.byKey[key];
     return o ? o.default : undefined;
   }
+  function isPlainObject(x){
+    return x !== null && typeof x === "object" && !Array.isArray(x);
+  }
   function eq(a, b){
     if (Array.isArray(a) && Array.isArray(b))
       return a.length === b.length && [...a].sort().every((x,i) => x === [...b].sort()[i]);
+    /* 🛑 STRUCTURAL for plain objects, because `a === b` on two dicts is IDENTITY -- a dict option
+       was therefore never equal to its own default (#571). The moment such a key entered
+       state.values the row stayed flagged modified and the option was written into every yaml for
+       the rest of the session, even after the player put every weight back. Key ORDER is
+       deliberately not compared: the yaml is a mapping, not a sequence. */
+    if (isPlainObject(a) && isPlainObject(b)){
+      const ka = Object.keys(a);
+      return ka.length === Object.keys(b).length && ka.every(k => k in b && eq(a[k], b[k]));
+    }
     return a === b;
+  }
+  /* The `(default: ...)` comment buildYaml writes. String() on a dict is "[object Object]", which
+     is what the player saw in the box AND in that comment before #571. */
+  function fmtDefault(d){
+    if (Array.isArray(d)) return "[" + d.join(", ") + "]";
+    if (isPlainObject(d))
+      return "{" + Object.entries(d).map(([k, v]) => k + ": " + v).join(", ") + "}";
+    return String(d);
   }
   function isDefault(meta, state, key){
     const o = meta.byKey[key];
@@ -2903,11 +2951,24 @@ const ERW = (() => {
       for (const k of devs){
         const o = meta.byKey[k];
         const v = getVal(meta, state, k);
+        const cmt = "   # " + o.display_name + " (default: " + fmtDefault(o.default) + ")";
+        /* A MAPPING CANNOT CARRY ITS COMMENT ON THE VALUE, so it rides the parent key and the
+           members go out as an indented block. Before #571 this branch did not exist and a dict
+           went through yamlScalar, which quotes -- so a player who touched Curated Filler
+           downloaded `curated_filler: "[object Object]"`, a string where the world wants a table. */
+        if (isPlainObject(v)){
+          const ks = Object.keys(v);
+          if (!ks.length){ L.push("  " + k + ": {}" + cmt); }
+          else {
+            L.push("  " + k + ":" + cmt);
+            for (const ck of ks) L.push("    " + ck + ": " + yamlScalar(v[ck]));
+          }
+          continue;
+        }
         const line = Array.isArray(v)
           ? "  " + k + ": [" + v.map(yamlScalar).join(", ") + "]"
           : "  " + k + ": " + yamlScalar(v);
-        const dflt = Array.isArray(o.default) ? "[" + o.default.join(", ") + "]" : String(o.default);
-        L.push(line + "   # " + o.display_name + " (default: " + dflt + ")");
+        L.push(line + cmt);
       }
     }
     L.push("");
@@ -3137,7 +3198,7 @@ const ERW = (() => {
 
   return { loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
            buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage,
-           surfaceMarginals, AP_CORE };
+           surfaceMarginals, isPlainObject, fmtDefault, AP_CORE };
 })();
 if (typeof module !== "undefined") module.exports = ERW;
 </script>
@@ -3343,7 +3404,55 @@ if (typeof module !== "undefined") module.exports = ERW;
         grid.style.flex = "1 1 100%";
         wrap.append(grid);
       }
+    } else if (o.kind === "dict"){
+      /* 🛑 THE KEYS COME FROM `valid_keys`, NOT FROM THE DEFAULT. Drawing `Object.keys(o.default)`
+         would silently hide every category the shipped recipe happens not to weight (firepots,
+         ammunition, perfumes, utility, rare, funny, junk -- 7 of the 16), and a control that cannot
+         express something the option accepts is the same defect as no control at all. The fallback
+         to the default's own keys exists only so a dict whose class never declared valid_keys still
+         renders something usable rather than "[object Object]" (#571). */
+      const keys = (o.valid_keys && o.valid_keys.length)
+        ? o.valid_keys : Object.keys(o.default || {});
+      const cur = ERW.isPlainObject(v) ? v : {};
+      const total = keys.reduce((a, k) => a + (+cur[k] || 0), 0);
+      /* Committed in valid_keys order, and ZERO WEIGHTS ARE OMITTED rather than written as 0 --
+         absent and 0 are the same thing to a proportional split, and the shorter yaml is the one a
+         player can read. All-zero therefore commits {}, which the option documents as an EMPTY
+         recipe and honours (no gear, no upgrade economy) instead of reverting to vanilla junk. */
+      const commitWeights = (nk, nv) => {
+        const next = {};
+        for (const k of keys){
+          const w = k === nk ? nv : (+cur[k] || 0);
+          if (w > 0) next[k] = w;
+        }
+        commit(next);
+      };
+      const grid = el("div", "dictgrid");
+      for (const k of keys){
+        const w = +cur[k] || 0;
+        const row = el("label", "dweight" + (w ? "" : " dzero"));
+        const num = Object.assign(document.createElement("input"),
+          {type:"number", min:0, step:1, value:w});
+        num.addEventListener("change", () => {
+          const n = Math.max(0, Math.floor(+num.value || 0));
+          num.value = n;
+          commitWeights(k, n);
+        });
+        row.append(el("span", "dk", k), num,
+                   el("span", "dshare", total ? (Math.round(1000 * w / total) / 10) + "%" : "--"));
+        grid.append(row);
+      }
+      grid.style.flex = "1 1 100%";
+      wrap.append(grid);
+      wrap.append(el("div", "dnote", total
+        ? "Weights are RELATIVE -- the filler tail is split in proportion, so each is a share of "
+          + total + ", not a percentage. They need not sum to anything."
+        : "Every weight is zero. An empty recipe is honoured and means no gear AND no upgrade "
+          + "economy -- generation warns rather than silently reverting to vanilla junk."));
     } else {
+      /* `text` is the only kind that reaches here now. tools/check_wizard_kind_controls.py fails
+         CI if the dumper learns a kind this function does not name -- the gate that did not exist
+         when a dict fell in here and was stringified into the yaml (#571). */
       const t = Object.assign(document.createElement("input"), {type:"text", value:v});
       t.addEventListener("change", () => commit(t.value));
       wrap.append(t);
