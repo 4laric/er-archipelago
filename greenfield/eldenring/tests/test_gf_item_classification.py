@@ -12,10 +12,14 @@ THE FLIP HAPPENED (2026-08-12, Alaric's call). `spells`, `spirit_ashes` and `cry
 PR could be the one that moves seeds, on its own, with numbers attached.
 
 So the pin CHANGED SHAPE rather than being deleted. It used to demand agreement with the retired
-nibble rule on every catalog name; it now demands the difference be EXACTLY those three categories,
-in exactly one direction. That is strictly the stronger assertion -- it still catches any drift the
-old one caught, and it additionally catches the flip growing a fourth category by accident, which a
-loosened "some things are useful now" test would wave through.
+nibble rule on every catalog name; it now demands the difference be EXACTLY the categories named in
+`FLIPPED_TO_USEFUL`, in exactly one direction. That is strictly the stronger assertion -- it still
+catches any drift the old one caught, and it additionally catches the exception set growing by
+accident, which a loosened "some things are useful now" test would wave through.
+
+🛑 THAT LIST IS HAND-WRITTEN ON PURPOSE and must never be derived from `CATEGORY_CLASS`: a test that
+reads its expectation out of the thing under test asserts nothing. `upgrade_bells` joined it on
+2026-08-12 -- the smithing economy is not junk.
 """
 import pytest
 
@@ -73,13 +77,21 @@ class TheTableIsTotalAndMintsTwoClasses(WorldTestBase):
         self.assertFalse(mixed, f"categories holding both goods and non-goods items: {mixed}")
 
 
-# The categories the flip deliberately moved, and the ONLY ones. Adding to this list is how a future
-# flip is declared; a category that starts disagreeing with the retired rule without being named
-# here is drift, and the pin below calls it that.
-FLIPPED_TO_USEFUL = frozenset({"spells", "spirit_ashes", "crystal_tears"})
+# The categories deliberately moved off the retired nibble answer, and the ONLY ones. Adding to this
+# list is how a flip is DECLARED; a category that starts disagreeing without being named here is
+# drift, and the pin below calls it that.
+#   spells / spirit_ashes / crystal_tears -- 2026-08-12, #580: gear the nibble filed beside the
+#                                            crafting materials.
+#   upgrade_bells                         -- 2026-08-12, Alaric: "upgrade_materials filler is fine
+#                                            as long as we keep the stone bell bearings useful".
+FLIPPED_TO_USEFUL = frozenset({"spells", "spirit_ashes", "crystal_tears", "upgrade_bells"})
+
+# Each flipped category's roster floor, so "the flip is real" is a witness per category rather than
+# one number that a shrunken roster could hide behind.
+_MIN_ROSTER = {"spells": 100, "spirit_ashes": 50, "crystal_tears": 30, "upgrade_bells": 10}
 
 
-class TheFlipIsExactlyThreeCategories(WorldTestBase):
+class TheDifferenceFromTheNibbleIsDeclared(WorldTestBase):
     game = GAME
     options = {"num_regions": 1}
 
@@ -166,15 +178,18 @@ class GearThatCarriesTheGoodsNibbleIsUsefulNow(WorldTestBase):
     game = GAME
     options = {"num_regions": 1}
 
-    def test_spells_spirit_ashes_and_crystal_tears_are_useful(self):
+    def test_every_declared_category_is_useful(self):
         counts = {c: 0 for c in FLIPPED_TO_USEFUL}
         for name in ITEM_CATALOG:
             cat = ic.category_of(name)
             if cat in counts:
                 counts[cat] += 1
                 self.assertEqual(ic.class_of(name), ic.USEFUL, name)
+        self.assertEqual(set(counts), set(_MIN_ROSTER), "a declared category has no roster floor")
         for cat, n in counts.items():
-            self.assertGreater(n, 30, f"witness: {cat} holds {n} items, expected a real roster")
+            self.assertGreaterEqual(n, _MIN_ROSTER[cat],
+                                    f"witness: {cat} holds {n} items, expected >= "
+                                    f"{_MIN_ROSTER[cat]} -- did the roster shrink?")
 
     def test_the_world_hands_a_sorcery_to_the_fill_as_useful(self):
         # End to end, through create_item, because the table is not what AP reads -- the Item is.

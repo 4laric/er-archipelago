@@ -12,6 +12,23 @@ owed, for the sixth window in a row.
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.11 client still handshakes with a v0.3.12 seed and vice versa.
 
+### Smithing bell bearings are gear; merchant bell bearings are convenience
+
+Elden Ring files all 48 bell bearings in one inventory tab with the gate keys, so this world called
+them all `key_items` and classed them junk — including the ones that hand you the entire smithing
+economy. A naturally-placed Somberstone Miner's Bell Bearing [4] was filler.
+
+They are two categories now:
+
+- **`upgrade_bells`** (13) — Smithing-Stone Miner's, Somberstone Miner's, Glovewort and
+  Ghost-Glovewort Picker's. These are the upgrade economy in one item, and they are **useful**.
+- **`merchant_bells`** (35) — a dead merchant's own shelf, moved to the Twin Maidens. Convenient,
+  not power, so they stay filler.
+
+Both are selectable in `keep_local`, `exclude_local_item_only` and `keep_out_of_shops`, and the new
+`bell_bearings` umbrella covers both at once. **`key_items` still means the whole tab**, so a yaml
+that already says it keeps exactly what it kept before.
+
 ### Your spells, spirit ashes and crystal tears are gear, and now they say so
 
 Elden Ring files sorceries, incantations, spirit ashes and physick tears under the same internal
