@@ -100,13 +100,37 @@ RUNES_CATEGORY = "runes"
 COOKBOOKS_CATEGORY = "cookbooks"
 _COOKBOOK_MARK = "Cookbook"
 _KEY_ITEM_GOODS_TYPE = 1
+# THE THIRD AND FOURTH CARVE-OUTS, also out of type 1, and the first pair that splits on what an
+# item DOES rather than what it is. All 48 bell bearings are mechanically identical -- hand one to
+# the Twin Maiden Husks and stock appears -- but the stock is not the same kind of thing:
+#
+#   `upgrade_bells`  (13)  Smithing-Stone Miner's, Somberstone Miner's, (Ghost-)Glovewort Picker's.
+#                          These ARE the upgrade economy. A seed without them has an amputated one,
+#                          which is why features/presence_floor guarantees eight of them by name.
+#   `merchant_bells` (35)  A dead merchant's own inventory, moved to the hub. Convenience.
+#
+# 🛑 IT IS A NAME CARVE AND THAT IS A JUDGEMENT, SAID OUT LOUD -- same as `runes` and `cookbooks`.
+# The tempting oracle, `greenfield/bell_handins.tsv`, does NOT work: it is the Maidens' talk-ESD
+# menu, it covers 23 of the 48 catalog bells, and its names do not join (`Kale's` vs `Kalé's`,
+# `Nomadic Merchant's Bell Bearing [11]` absent from the catalog). Deriving from it would have
+# filed Bone Peddler's and Herbalist's as upgrade bells. The CROSS-CHECK that does work is
+# features/presence_floor's roster, picked by hand for exactly this reason and maintained
+# separately: its 8 stone bells must all land in `upgrade_bells`, and the test asserts it.
+#
+# (Unrelated to features/merchant_bells.py, which grants the hand-in. Same subject, different job.)
+UPGRADE_BELLS_CATEGORY = "upgrade_bells"
+MERCHANT_BELLS_CATEGORY = "merchant_bells"
+_BELL_MARK = "Bell Bearing"
+# "Glovewort Picker's" deliberately catches "Ghost-Glovewort Picker's" too -- one mark, both ladders.
+_UPGRADE_BELL_MARKS = ("Smithing-Stone Miner's", "Somberstone Miner's", "Glovewort Picker's")
 # Every category key, sorted. `progressive` is not a catalog item -- it is the Progressive X upgrade
 # items features/progressive.py registers -- and it has no FullID, so it is added by hand.
 PROGRESSIVE_CATEGORY = "progressive"
 CATEGORIES: List[str] = sorted(
     set(NIBBLE_CATEGORY.values()) - {"goods"}
     | set(GOODS_TYPE_CATEGORY.values())
-    | {RUNES_CATEGORY, COOKBOOKS_CATEGORY, PROGRESSIVE_CATEGORY}
+    | {RUNES_CATEGORY, COOKBOOKS_CATEGORY, UPGRADE_BELLS_CATEGORY, MERCHANT_BELLS_CATEGORY,
+       PROGRESSIVE_CATEGORY}
 )
 
 
@@ -136,6 +160,9 @@ def _goods_category(name: str) -> str:
         # the first thing anyone asks to control. Carved out by the payout column, not by name
         # matching "Rune" (which also hits Rune Arc, the Great Runes and Runebear-anything).
         return "runes"
+    if (GOODS_TYPE.get(name) == _KEY_ITEM_GOODS_TYPE) and (_BELL_MARK in name):
+        return (UPGRADE_BELLS_CATEGORY if any(m in name for m in _UPGRADE_BELL_MARKS)
+                else MERCHANT_BELLS_CATEGORY)
     if (GOODS_TYPE.get(name) == _KEY_ITEM_GOODS_TYPE) and (_COOKBOOK_MARK in name):
         # THE SECOND JUDGEMENT CALL. Gated on the TYPE as well as the name so the mark can only ever
         # reclassify within the tab it was ruled about -- a future catalog item called "Cookbook
@@ -187,7 +214,12 @@ def _goods_categories() -> List[str]:
 # different questions on purpose. Both are pinned in test_gf_item_categories.
 UMBRELLAS: Dict[str, List[str]] = {
     "goods": _goods_categories(),
-    "key_items": ["key_items", COOKBOOKS_CATEGORY],
+    # Still the whole goodsType-1 tab, now four pieces instead of two. Same reason as before: it is
+    # in players' yamls and may not quietly start releasing what it used to hold.
+    "key_items": ["key_items", COOKBOOKS_CATEGORY, UPGRADE_BELLS_CATEGORY, MERCHANT_BELLS_CATEGORY],
+    # Convenience over the split, so "all my bell bearings" stays one word for a player who does not
+    # care which kind. NOT a compat key -- nothing shipped ever meant this -- purely additive.
+    "bell_bearings": [UPGRADE_BELLS_CATEGORY, MERCHANT_BELLS_CATEGORY],
     "everything": list(CATEGORIES),
 }
 SELECTABLE: List[str] = sorted(set(CATEGORIES) | set(UMBRELLAS))
@@ -301,6 +333,14 @@ CATEGORY_CLASS: Dict[str, str] = {
     # legacy + natural keys -> progression). Do not "fix" these by flipping them wholesale.
     "key_items": FILLER,
     "other": FILLER,
+    # ⭐ THE BELLS, AND THE WHOLE POINT OF SPLITTING THEM. An upgrade bell is the smithing economy
+    # arriving in one item -- Alaric, 2026-08-12: "upgrade_materials filler is fine as long as we
+    # keep the stone bell bearings useful". It was NOT true when he said it: the bells sat in
+    # `key_items` and classed filler, and only the copies features/presence_floor INJECTS were
+    # promoted, so a naturally-placed Somberstone [4] was junk. This is the line that makes it true.
+    # A merchant bell moves a dead merchant's shelf to the hub -- convenient, not power.
+    "upgrade_bells": USEFUL,
+    "merchant_bells": FILLER,
     # PROGRESSIVE_CATEGORY is deliberately absent -- see class_of().
 }
 

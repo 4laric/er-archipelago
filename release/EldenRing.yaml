@@ -417,9 +417,10 @@ Elden Ring:
   # going somewhere rather than of having enough runes.
   #   keep_out_of_shops: [weapons, armor]
   # Categories: weapons, armor, talismans, ashes (ashes of WAR), spells,
-  # spirit_ashes, consumables, crafting, cookbooks, upgrade_materials, runes,
-  # crystal_tears, key_items, other, progressive -- plus the umbrellas `goods`,
-  # `key_items` (the whole inventory tab: the key items AND the 96 cookbooks)
+  # spirit_ashes, consumables, crafting, cookbooks, upgrade_materials,
+  # upgrade_bells, merchant_bells, runes, crystal_tears, key_items, other,
+  # progressive -- plus the umbrellas `goods`, `key_items` (the whole inventory
+  # tab: key items, cookbooks and both kinds of bell bearing), `bell_bearings`
   # and `everything`. Other players' items at your shops are never affected.
   #
   # On a SMALL seed there may not be room: the hub alone is 184 shop rows out of

@@ -14,10 +14,12 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
+from BaseClasses import ItemClassification                  # noqa: E402
 from worlds.eldenring import item_categories as ic          # noqa: E402
 from worlds.eldenring import pool_report                     # noqa: E402
 from worlds.eldenring.item_ids import ITEM_CATALOG, GOODS_TYPE  # noqa: E402
 from worlds.eldenring.item_ids import KEY_ITEM_GOODS  # noqa: E402
+from worlds.eldenring.features import presence_floor as pf  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -71,13 +73,17 @@ class TaxonomyIsAPartition(WorldTestBase):
         c = ic.census()
         for k in ("consumables", "crafting", "upgrade_materials", "runes"):
             self.assertGreater(c.get(k, 0), 0, f"category {k} is empty -- the option cannot work")
-        # ghost gloveworts and smithing stones are the same category; bell bearings are NOT.
+        # ghost gloveworts and smithing stones are the same category; bell bearings are NOT --
+        # boblerrr's "upgrade materials other than bell bearing can be local" is the clause, and
+        # since 2026-08-12 the bells say so in their own name rather than by hiding in `key_items`.
         self.assertEqual(ic.category_of("Ghost Glovewort [1]"), "upgrade_materials")
         self.assertEqual(ic.category_of("Smithing Stone [1]"), "upgrade_materials")
         bells = [n for n in ITEM_CATALOG if n.endswith("Bell Bearing")]
         self.assertTrue(bells)
         for b in bells:
-            self.assertEqual(ic.category_of(b), "key_items")
+            self.assertIn(ic.category_of(b),
+                          (ic.UPGRADE_BELLS_CATEGORY, ic.MERCHANT_BELLS_CATEGORY), b)
+            self.assertNotEqual(ic.category_of(b), "upgrade_materials", b)
 
 
 class KeepLocalIsTheDiscordAsk(WorldTestBase):
@@ -297,10 +303,15 @@ class CookbooksAreTheirOwnCategory(WorldTestBase):
 
     def test_the_narrow_category_and_the_umbrella_answer_different_questions(self):
         # Stated in item_categories and pinned here so it is a decision, not a surprise: the tab
-        # minus cookbooks has no selector of its own, and census() reports the narrow count.
+        # minus its carve-outs has no selector of its own, and census() reports the narrow count.
         tab = {n for n in ITEM_CATALOG if GOODS_TYPE.get(n) == 1}
         narrow = {n for n in ITEM_CATALOG if ic.category_of(n) == "key_items"}
-        self.assertEqual(narrow, set(KEY_ITEM_GOODS))
+        bells = {n for n in ITEM_CATALOG if "Bell Bearing" in n}
+        # KEY_ITEM_GOODS is the tab minus cookbooks (gen_data drops those by name). The bells came
+        # out on top of that, so the narrow category is the generated list minus them -- expressed
+        # against the shipped artifact rather than a typed-in number, so a regen cannot strand it.
+        self.assertEqual(narrow, set(KEY_ITEM_GOODS) - bells)
+        self.assertTrue(bells & set(KEY_ITEM_GOODS), "witness: the bells were inside KEY_ITEM_GOODS")
         self.assertLess(len(narrow), len(tab))
         self.assertEqual(ic.census()["key_items"], len(narrow))
         self.assertEqual(len(ic.names_in(["key_items"])), len(tab))
@@ -311,3 +322,68 @@ class CookbooksAreTheirOwnCategory(WorldTestBase):
         # free -- that is the property the umbrella was built to have.
         self.assertIn(ic.COOKBOOKS_CATEGORY, ic.expand(["goods"]))
         self.assertEqual(ic.expand([ic.COOKBOOKS_CATEGORY]), [ic.COOKBOOKS_CATEGORY])
+
+
+class BellBearingsSplitByWhatTheyUnlock(WorldTestBase):
+    """All 48 bell bearings do the same thing -- hand one to the Twin Maiden Husks and stock appears
+    -- so the game files them together under goodsType 1 with the gate keys. What appears is not the
+    same kind of thing, and that is the split: `upgrade_bells` (13) open the smithing economy,
+    `merchant_bells` (35) move a dead merchant's own shelf to the hub.
+
+    🛑 THE ORACLE THAT LOOKED RIGHT AND IS NOT. `greenfield/bell_handins.tsv` is the Maidens' talk
+    ESD and would have been the derived predicate -- except it covers 23 of the 48 catalog bells and
+    its names do not join the catalog (`Kale's` vs `Kale\u0301s`). Deriving from it files Bone
+    Peddler's and Herbalist's as upgrade bells. So the carve is by NAME, and the cross-check is
+    features/presence_floor's roster: picked by hand for exactly this economy, maintained in a
+    different file, and it must agree.
+    """
+    game = GAME
+    options = {"num_regions": 1}
+
+    def test_the_two_bell_categories_partition_the_bells(self):
+        bells = {n for n in ITEM_CATALOG if "Bell Bearing" in n}
+        up = {n for n in ITEM_CATALOG if ic.category_of(n) == ic.UPGRADE_BELLS_CATEGORY}
+        me = {n for n in ITEM_CATALOG if ic.category_of(n) == ic.MERCHANT_BELLS_CATEGORY}
+        self.assertGreater(len(bells), 40, "witness: the bell roster is real")
+        self.assertEqual(up | me, bells, "a bell bearing fell outside both bell categories")
+        self.assertEqual(up & me, set())
+        self.assertGreater(len(up), 10, "witness: the upgrade ladder resolved")
+
+    def test_presence_floors_hand_picked_bells_are_all_upgrade_bells(self):
+        # THE CROSS-CHECK. presence_floor guarantees these because a seed without them has an
+        # amputated upgrade economy -- the same judgement, made independently, in another file.
+        roster_bells = [n for n in pf.ROSTER if "Bell Bearing" in n]
+        self.assertGreaterEqual(len(roster_bells), 8, "witness: the roster still carries bells")
+        for n in roster_bells:
+            self.assertEqual(ic.category_of(n), ic.UPGRADE_BELLS_CATEGORY, n)
+
+    def test_the_smithing_ladders_are_all_there_and_no_merchant_joined_them(self):
+        up = {n for n in ITEM_CATALOG if ic.category_of(n) == ic.UPGRADE_BELLS_CATEGORY}
+        for mark in ("Smithing-Stone Miner's", "Somberstone Miner's",
+                     "Glovewort Picker's", "Ghost-Glovewort Picker's"):
+            self.assertTrue([n for n in up if mark in n], f"no {mark} bell in upgrade_bells")
+        for decoy in ("Bone Peddler's Bell Bearing", "Herbalist's Bell Bearing"):
+            if decoy in ITEM_CATALOG:
+                self.assertEqual(ic.category_of(decoy), ic.MERCHANT_BELLS_CATEGORY, decoy)
+
+    def test_an_upgrade_bell_is_useful_and_a_merchant_bell_is_not(self):
+        self.assertEqual(ic.CATEGORY_CLASS[ic.UPGRADE_BELLS_CATEGORY], ic.USEFUL)
+        self.assertEqual(ic.CATEGORY_CLASS[ic.MERCHANT_BELLS_CATEGORY], ic.FILLER)
+        sample = sorted(n for n in ITEM_CATALOG
+                        if ic.category_of(n) == ic.UPGRADE_BELLS_CATEGORY)
+        self.assertTrue(sample, "witness: upgrade_bells is not empty")
+        for n in sample:
+            self.assertEqual(self.world.create_item(n).classification,
+                             ItemClassification.useful, n)
+
+    def test_key_items_still_means_the_whole_tab_after_a_second_split(self):
+        # The umbrella covers FOUR pieces now. Same compat gate as the cookbooks split.
+        tab = {n for n in ITEM_CATALOG if GOODS_TYPE.get(n) == 1}
+        self.assertEqual(set(ic.names_in(["key_items"])), tab)
+        for cat in (ic.COOKBOOKS_CATEGORY, ic.UPGRADE_BELLS_CATEGORY, ic.MERCHANT_BELLS_CATEGORY):
+            self.assertIn(cat, ic.expand(["key_items"]), cat)
+
+    def test_the_bell_bearings_umbrella_is_both_halves(self):
+        bells = {n for n in ITEM_CATALOG if "Bell Bearing" in n}
+        self.assertEqual(set(ic.names_in(["bell_bearings"])), bells)
+        self.assertIn("bell_bearings", ic.SELECTABLE)
