@@ -244,6 +244,26 @@ bad trade -- and one a player should opt into rather than discover. If you liked
 it back, and it is in the wizard under Shops & Merchants.
 
 
+### A seed with spawn traps now tells an older client, instead of feeding it items it will eat
+
+🛑 **If you use `traps` or `spawn_traps`, everyone on that seed needs a client from this release or
+later.** The client says `CLIENT TOO OLD` and names the feature rather than connecting quietly.
+
+The reason is worth stating plainly, because it already happened to a playtester. A spawn trap
+carries its enemy's ids inside the item NAME. A client that cannot read that name does not fail
+loudly -- the item arrives, Archipelago marks it delivered, the client does not recognise it, and it
+is **dropped**. No toast, no tracker row, no way to get it back. Seven checks in one 2026-08-12 seed
+were sitting on exactly that fate, and the version handshake passed cleanly the whole time, because
+spawn traps declared nothing for it to check.
+
+They declare it now, and only when a seed actually mints one -- a seed with no spawn traps still
+connects to any client.
+
+⚠️ The declaration makes the mismatch **loud, not fatal**: the client reports it at connect and
+continues. It is a warning you cannot miss rather than a door that closes. Turning it into a hard
+refusal is a separate decision, tracked on #595.
+
+
 ## v0.3.11 — 2026-08-10
 
 Window opened AT THE TAG of v0.3.10, deliberately -- the third time running, after five windows that

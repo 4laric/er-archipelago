@@ -39,6 +39,7 @@ from BaseClasses import ItemClassification
 from Options import OptionSet, Range
 
 from ..registry import Feature, register
+from .. import contract
 from ..spawn_trap_data import SPAWN_TRAPS, SPAWN_TRAP_KEYS
 
 #: 🛑 CROSS-REPO CONTRACT with `er_logic::traps::LABEL_CAP`. The client retains a spawn label INLINE
@@ -52,6 +53,27 @@ LABEL_CAP = 24
 #: The prefix the client dispatches on. Kept as a constant so the test can assert every name
 #: carries it -- a trap named without it is a filler item that silently never fires.
 TRAP_PREFIX = "Trap: "
+
+
+#: The client-feature tag a seed declares when it mints ANY spawn trap. er-archipelago#595.
+#:
+#: 🛑 WHY A TAG AT ALL. bobler's 2026-08-12 seed placed seven spawn traps and his client could not
+#: read their names, so each one would have CONSUMED ITSELF on pickup: the item arrives, AP marks it
+#: delivered, `enqueue_by_item_name` does not recognise the name, and it is dropped. No toast, no
+#: tracker row, no way to get it back. `requiresClientFeatures` was honoured in full that session and
+#: could not help, because spawn traps declared nothing for it to check.
+#:
+#: 🛑🛑 THE TAG VERSIONS THE NAME FORMAT, NOT JUST THE CAPABILITY. A client that knows spawn traps
+#: but speaks the older `Trap: <label> (<chr>/<npc>/<think> x<count>)` shape refuses the name exactly
+#: as an ignorant client does -- so a bare "I do spawn traps" boolean would pass the handshake and
+#: still eat the item. Change `spawn_item_name`'s format and this tag MUST change with it; the client
+#: adds the new tag in the same release that learns the new shape, and older clients then say
+#: CLIENT TOO OLD instead of failing quietly. `test_gf_spawn_traps` pins the two together so the
+#: format cannot move without this line moving.
+#:
+#: Deliberately NOT declared by the three fixed traps (`Trap: Rune Thief` and friends): their names
+#: are exact-match and have never changed, so an older client reads them correctly.
+CLIENT_FEATURE_TAG = "spawn_traps"
 
 
 def spawn_item_name(chr_id: int) -> str:
@@ -161,6 +183,12 @@ class TrapCount(Range):
     default = 8
 
 
+def _spawn_names():
+    """Every name `spawn_item_name` can produce. Used to ask "is any MINTED item a spawn trap?"
+    without re-deriving which option put it there."""
+    return {spawn_item_name(c) for c in SPAWN_TRAPS}
+
+
 def _chosen(world, option: str) -> set:
     opt = getattr(world.options, option, None)
     return set(opt.value or ()) if opt is not None else set()
@@ -242,3 +270,20 @@ class TrapsFeature(Feature):
         # returned here displaces exactly one filler. OFF (empty OptionSet) -> [] -> a pool
         # byte-identical to one built before this feature existed.
         return [world.create_item(nm) for nm in trap_items(world)]
+
+    def slot_data(self, world):
+        """Declare the spawn-trap tag, and ONLY when this seed actually mints one.
+
+        Keyed on the ITEMS THAT WILL EXIST, not on the options being non-empty: `trap_count: 0` with
+        a trap named mints nothing, and a seed that mints nothing needs nothing from the client. A
+        tag declared by a seed that cannot use it would refuse older clients for no reason, which is
+        how a safety check turns into an upgrade tax.
+
+        🛑 Only the SPAWN traps declare. The three fixed names are exact-match and unchanged, so an
+        older client fires them correctly; requiring the tag for them would refuse clients that are
+        in fact perfectly able to run the seed.
+        """
+        minted = set(trap_items(world))
+        if not minted & set(_spawn_names()):
+            return {}
+        return {contract.REQUIRES_CLIENT_FEATURES: [CLIENT_FEATURE_TAG]}
