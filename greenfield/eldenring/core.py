@@ -433,8 +433,9 @@ _OPTION_GROUPS = [
         "confine_foreign_progression", "local_item_only", "exclude_local_item_only",
         "keep_local", "keep_local_rune_cap"]),
     ("Shops & Merchants", [
-        "keep_out_of_shops", "no_runes_in_shops", "merchant_bells_on_talk", "merchant_bell_logic",
-        "reroll_infinite_shop_stock", "infinite_hub_wares", "progressive_stone_bells"]),
+        "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
+        "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
+        "progressive_stone_bells"]),
     ("Quality of Life", [
         "auto_equip", "no_equip_load", "start_with_whetblades", "progressive_flasks",
         "capital_reconciler"]),

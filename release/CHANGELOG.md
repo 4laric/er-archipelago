@@ -204,6 +204,29 @@ arithmetic in the model number rather than sequential, so blessing a new enemy l
 nothing.
 
 
+### Randomised rune shop prices are a choice again, and they are OFF by default
+
+🛑 **This changes what a default seed does.** If you do not name it in your yaml, shop slots now keep
+the price of the ware they used to sell.
+
+The behaviour has not changed, only who asks for it. A shop check keeps the price of its old ware --
+right for gear, wrong when the reward is a rune, because a rune is just money: a 3500-rune slot
+selling a Golden Rune [1] worth 2000 is a slot nobody presses, and the check behind it goes
+uncollected. Since 2026-07-25 that price was rolled into `[0, 2x the rune's own worth]` for
+**everybody**, because the option was frozen on and removed from the yaml surface entirely.
+
+It is a knob again:
+
+```yaml
+  rune_shop_pricing: false   # default; the slot keeps its original price
+  rune_shop_pricing: true    # roll it into [0, 2x the rune's worth]
+```
+
+Off is the new default because a rolled price is a real design opinion -- sometimes free, sometimes a
+bad trade -- and one a player should opt into rather than discover. If you liked it, one line brings
+it back, and it is in the wizard under Shops & Merchants.
+
+
 ## v0.3.11 — 2026-08-10
 
 Window opened AT THE TAG of v0.3.10, deliberately -- the third time running, after five windows that
