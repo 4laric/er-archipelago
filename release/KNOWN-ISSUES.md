@@ -85,9 +85,23 @@ players, one section per fix, and it is the honest record.
   `crash-<pid>.txt` the client writes next to itself and attach it to a report --
   that file is what identifies these.
 
-- **Linux is not supported** (#222). The client throws "Could not translate RVA
-  to VA" under Proton and the game can only be exited. What to do: play on
-  Windows for now.
+- **"Could not translate RVA to VA" at startup** (#222 on Linux, #475 on
+  Windows). The client could not line itself up with the running
+  `eldenring.exe`, and the game can only be exited. The message names an RVA,
+  but one string is covering two unrelated failures: either the executable is
+  not an image we hold offsets for, or the client's scan for the game's
+  `CSTask` object came up empty. The build check runs first and fails with its
+  own `Unsupported game version` text, so seeing *this* message instead means
+  your game version is one we support and the scan is what failed.
+
+  **On Linux it happens every launch and is expected** -- Proton is not
+  supported yet, so play on Windows for now. **On Windows it is something in
+  the launch**, most often another DLL mod loading ahead of ours or a launcher
+  other than the `me3` profile we ship. What to do: launch through our `me3`
+  profile with our client as the only DLL mod. If the error still appears,
+  attach `archipelago-<date>.log` from the folder the client sits in -- that
+  file is appended across launches, so the last `SESSION START` block is the
+  one that matters -- and say what else was in your DLL mods list.
 
 ## Tracker
 
