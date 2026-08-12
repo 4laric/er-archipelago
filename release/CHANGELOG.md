@@ -12,6 +12,30 @@ owed, for the sixth window in a row.
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`. The bump is version-lockstep, not a contract change, so a
 v0.3.11 client still handshakes with a v0.3.12 seed and vice versa.
 
+### Your spells, spirit ashes and crystal tears are gear, and now they say so
+
+Elden Ring files sorceries, incantations, spirit ashes and physick tears under the same internal
+category as crafting materials and throwing pots. This world took that at its word, so 319 items a
+player equips, casts and drinks were labelled **filler** — junk — everywhere it counts: in
+Archipelago's fill priority, in your spoiler, and in the tracker of whoever receives one.
+
+They are `useful` now.
+
+**Be clear about what this does and does not change.** It is a labelling fix, and it was measured
+rather than assumed: the share of a seed's pool that is useful moves about a point, and the mix of
+what reaches a partner world is unchanged within noise. What changes is that a specific item is
+described correctly — Comet Azur arriving in someone's Hollow Knight run reads as gear instead of
+junk, and the fill treats it as gear when it places it. The lever that decides *how much* of your
+loot travels is still `confine_foreign_progression`.
+
+**Your seeds will differ.** Useful items are placed before filler, so the same yaml and the same
+seed number now produce a different layout. Nothing is unreachable — the fill regression ran 88
+generations across 11 configurations with no failures — but a seed you were part-way through will
+not match a fresh generation of it.
+
+`upgrade_materials` deliberately did NOT move: smithing stones are the economy the filler budget
+allocates by the hundred, and promoting them is an economy change, not a labelling one.
+
 ### `cookbooks` is its own category, and `key_items` still means the whole tab
 
 `key_items` was 220 items, and 96 of them are crafting cookbooks. There was no way to say "keep my

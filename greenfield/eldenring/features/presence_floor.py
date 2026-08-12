@@ -185,6 +185,13 @@ class PresenceFloor(Feature):
         # features/progressive.create_items. Present roster items are left alone (filler_curation
         # protects them from the tail), so we never duplicate one already in the pool.
         out: List = []
+        # 🛑 THIS LINE IS NARROWER THAN IT LOOKS SINCE 2026-08-12. The 18 physick tears are
+        # `crystal_tears`, which item_categories.CATEGORY_CLASS now classes `useful` on its own, so
+        # for them this assignment is a no-op. It is still load-bearing for the BELL BEARINGS --
+        # `key_items`, still filler -- and it must stay: a roster the floor guarantees should not
+        # arrive in the pool labelled junk. Do not delete it as redundant without checking the
+        # roster's categories, and do not read the label back to identify an injection: the test
+        # that did exactly that broke on the flip (see tests/test_gf_presence_floor._roster_copy_counts).
         for name in absent_roster(world):
             it = world.create_item(name)
             it.classification = ItemClassification.useful

@@ -693,21 +693,27 @@ def plan(world, total: int) -> List[Optional[str]]:
 
 
 def classify(world, item) -> None:
-    """Juice is intentional USEFUL gear. Some catalog gear (notably spells/incantations) carries the
-    GOODS FullID nibble, and `item_categories.CATEGORY_CLASS` still calls that whole category
-    `filler` (see the flip candidates named there), so core classifies it filler. There is no second
-    pass left to seize it any more, but AP's fill treats useful and filler differently and juice is
-    meant to be the former. 🛑 IF `spells` EVER FLIPS TO `useful` IN THAT TABLE, re-measure whether
-    this hook still promotes anything -- it exists only because of that one disagreement, and a
-    promotion that is a no-op for every name is a pass over the pool that should be deleted.
+    """RETIRED 2026-08-12 -- kept as a tombstone, like curate() below, so nothing re-adds the pass.
 
-    EXCEPTION: natural_progression uses some juice-tier WEAPONS as region GATE KEYS (e.g.
-    Dragon-Hunter's Great Katana gates Jagged Peak; Magma Wyrm's Scalesword / Inquisitor's Girandole
-    gate Altus). core._class_for marks those PROGRESSION (world.gf_natural_keys) and they MUST stay
-    progression -- demoting a gate key to `useful` makes has()/fill blind to it and strands its region
-    (all_state can't reach Jagged Peak; fill can strand the seed). Never demote a designated key."""
-    if item.name in _JUICE_NAMES and item.name not in getattr(world, "gf_natural_keys", ()):
-        item.classification = ItemClassification.useful
+    It existed for ONE reason: juice is intentional USEFUL gear, and some catalog gear -- notably
+    spells and incantations -- carries the GOODS FullID nibble, which core classified `filler`. So
+    this promoted the juice names back.
+
+    The flip removed the reason. `item_categories.CATEGORY_CLASS` classes `spells`, `spirit_ashes`
+    and `crystal_tears` as `useful`, and MEASURED on this catalog: of the 1013 juice names, the
+    number this function still had to promote is **0**. A pass over the pool that changes nothing is
+    not free -- it is a second owner of an item's classification, and this module's whole docstring
+    is about what happens when a resource has more than one owner.
+
+    The property it guaranteed is still guaranteed, and still tested:
+    tests/test_gf_pool_builder_juice_protected asserts juice gear reaches the pool `useful`, and
+    test_every_juice_name_is_useful_from_the_table asserts the TABLE is why. If a future flip
+    demotes a juice category, that test reds -- which is the signal to argue about the category, not
+    to reinstate this.
+    """
+    raise AssertionError(
+        "filler_budget.classify() is retired: item_categories.CATEGORY_CLASS classifies the juice. "
+        "If a juice name is arriving as filler, fix the CATEGORY_CLASS entry, not this.")
 
 
 _JUICE_NAMES = frozenset(juice_order_for_floor(JUICE_FLOOR))

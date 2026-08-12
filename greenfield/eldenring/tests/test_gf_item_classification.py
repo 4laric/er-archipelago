@@ -7,14 +7,15 @@ nothing to say so. They did: 203 spells, 79 spirit ashes and 37 crystal tears ca
 nibble, and AP's fill -- plus every partner's client and tracker -- reads them as junk. The nibble
 test is gone; `item_categories.CATEGORY_CLASS` is the one table.
 
-THIS REFACTOR CHANGES NO SEED, and `test_the_table_still_agrees_with_the_retired_nibble_rule` is the
-whole reason that sentence can be said out loud. It re-derives the retired rule and demands the new
-table agree on every catalog name. Flipping a category is therefore a deliberate edit that turns
-this red -- which is the point: the policy question ("should a spell be useful?") gets argued on its
-own PR, with `tools/gf_export_profile.py` numbers, and not smuggled in under a refactor.
+THE FLIP HAPPENED (2026-08-12, Alaric's call). `spells`, `spirit_ashes` and `crystal_tears` are
+`useful` now. The refactor that split this question out of core shipped as a no-op precisely so this
+PR could be the one that moves seeds, on its own, with numbers attached.
 
-`test_the_disagreement_this_exists_to_expose` is that argument's exhibit, asserted rather than
-described, so the cost of today's answer is a number in the suite instead of a claim in a comment.
+So the pin CHANGED SHAPE rather than being deleted. It used to demand agreement with the retired
+nibble rule on every catalog name; it now demands the difference be EXACTLY those three categories,
+in exactly one direction. That is strictly the stronger assertion -- it still catches any drift the
+old one caught, and it additionally catches the flip growing a fourth category by accident, which a
+loosened "some things are useful now" test would wave through.
 """
 import pytest
 
@@ -72,22 +73,47 @@ class TheTableIsTotalAndMintsTwoClasses(WorldTestBase):
         self.assertFalse(mixed, f"categories holding both goods and non-goods items: {mixed}")
 
 
-class TheRefactorMovedNothing(WorldTestBase):
+# The categories the flip deliberately moved, and the ONLY ones. Adding to this list is how a future
+# flip is declared; a category that starts disagreeing with the retired rule without being named
+# here is drift, and the pin below calls it that.
+FLIPPED_TO_USEFUL = frozenset({"spells", "spirit_ashes", "crystal_tears"})
+
+
+class TheFlipIsExactlyThreeCategories(WorldTestBase):
     game = GAME
     options = {"num_regions": 1}
 
-    def test_the_table_still_agrees_with_the_retired_nibble_rule(self):
-        """THE PIN. No seed may move because of this refactor."""
-        disagreed = sorted(n for n in ITEM_CATALOG
-                           if ic.class_of(n) != _retired_nibble_rule(n))
+    def test_the_difference_from_the_retired_rule_is_exactly_the_declared_flip(self):
+        """THE PIN, in its post-flip shape. Every departure from the nibble must be declared."""
+        moved = {n for n in ITEM_CATALOG if ic.class_of(n) != _retired_nibble_rule(n)}
+        declared = {n for n in ITEM_CATALOG if ic.category_of(n) in FLIPPED_TO_USEFUL}
         seen = {n: ic.class_of(n) for n in ITEM_CATALOG}
-        # Witnesses: the scan ran over the whole catalog and BOTH answers actually occur, so a
-        # constant-returning class_of could not pass this.
+        # Witnesses: the scan covered the catalog, both answers occur, and the flip is not empty --
+        # so neither a constant class_of nor a table that silently reverted could pass.
         self.assertEqual(len(seen), len(ITEM_CATALOG))
         self.assertEqual(set(seen.values()), {ic.USEFUL, ic.FILLER})
-        self.assertFalse(disagreed,
-                         f"{len(disagreed)} items reclassified by a refactor that must move "
-                         f"nothing, e.g. {disagreed[:8]}")
+        self.assertGreater(len(declared), 300, "witness: the declared flip is a real roster")
+        undeclared = sorted(moved - declared)
+        self.assertFalse(undeclared,
+                         f"{len(undeclared)} items disagree with the nibble rule without being "
+                         f"declared in FLIPPED_TO_USEFUL: {undeclared[:8]}")
+        reverted = sorted(declared - moved)
+        self.assertFalse(reverted,
+                         f"{len(reverted)} declared-flipped items are back on the nibble answer: "
+                         f"{reverted[:8]}")
+
+    def test_the_flip_only_ever_went_filler_to_useful(self):
+        # A category flipped the other way would be a demotion, and nothing here has ever wanted
+        # one. Asserted separately so the direction cannot ride in on the set comparison above.
+        demoted = sorted(n for n in ITEM_CATALOG
+                         if _retired_nibble_rule(n) == ic.USEFUL and ic.class_of(n) == ic.FILLER)
+        self.assertFalse(demoted, f"items demoted to filler: {demoted[:8]}")
+
+    def test_the_categories_that_did_not_flip_did_not_move(self):
+        # The closest call on the table is `upgrade_materials` -- deliberately still filler, because
+        # promoting it would move features/filler_budget's whole allocated tail into the useful tier.
+        for cat in ("upgrade_materials", "consumables", "crafting", "runes", "key_items", "other"):
+            self.assertEqual(ic.CATEGORY_CLASS[cat], ic.FILLER, cat)
 
     def test_the_world_asks_the_table_and_not_the_nibble(self):
         # The pin above is about the table; this is about the WIRING. A correct table core never
@@ -130,23 +156,30 @@ class DeclaredClassesWinOverTheTable(WorldTestBase):
         self.assertEqual(len(cases), 4, "witness: all four classes were exercised")
 
 
-class TheDisagreementThisExistsToExpose(WorldTestBase):
-    """The motivating case (CONTRIBUTING rule 11), asserted so it is a number and not a claim.
+class GearThatCarriesTheGoodsNibbleIsUsefulNow(WorldTestBase):
+    """The motivating case (CONTRIBUTING rule 11), and the class that changed when the flip landed.
 
-    These three categories are gear a player equips and casts, and today the world hands them to
-    AP's fill -- and to a partner's tracker -- labelled junk. Nothing here says that is wrong; it
-    says it is TRUE, and it is the exhibit the flip PR argues from. When that PR lands, this class
-    is the one that changes, deliberately, with export-profile numbers attached.
+    It used to assert the opposite -- that these three were filler -- as the exhibit the flip would
+    argue from. Same three rosters, same witnesses, inverted expectation, so the file records that
+    the thing it measured is the thing that got fixed.
     """
     game = GAME
     options = {"num_regions": 1}
 
-    def test_gear_that_carries_the_goods_nibble_is_still_filler(self):
-        counts = {c: 0 for c in ("spells", "spirit_ashes", "crystal_tears")}
+    def test_spells_spirit_ashes_and_crystal_tears_are_useful(self):
+        counts = {c: 0 for c in FLIPPED_TO_USEFUL}
         for name in ITEM_CATALOG:
             cat = ic.category_of(name)
             if cat in counts:
                 counts[cat] += 1
-                self.assertEqual(ic.class_of(name), ic.FILLER, name)
+                self.assertEqual(ic.class_of(name), ic.USEFUL, name)
         for cat, n in counts.items():
             self.assertGreater(n, 30, f"witness: {cat} holds {n} items, expected a real roster")
+
+    def test_the_world_hands_a_sorcery_to_the_fill_as_useful(self):
+        # End to end, through create_item, because the table is not what AP reads -- the Item is.
+        sample = [n for n in ITEM_CATALOG if ic.category_of(n) == "spells"]
+        self.assertGreater(len(sample), 100, "witness: the spell roster is real")
+        for name in sorted(sample)[:25]:
+            self.assertEqual(self.world.create_item(name).classification,
+                             ItemClassification.useful, name)

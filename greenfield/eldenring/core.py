@@ -1023,10 +1023,10 @@ class GreenfieldEldenRingWorld(World):
             # item the base game never had there into a mode whose premise is that nothing moves.
             if _nm == FILLER:
                 _nm = FILLER if _vanilla else self._pick_filler()
-            _it = self.create_item(_nm)
-            if shuffle and not _vanilla:
-                _fb.classify(self, _it)
-            pool.append(_it)
+            # No second pass over the classification either: features/filler_budget.classify is
+            # retired (its promotion became a no-op when item_categories flipped the gear
+            # categories to `useful`), so an item's class is decided once, in _class_for.
+            pool.append(self.create_item(_nm))
         # ONE pass. No PASS-2. The old design ran additive contributors, then in-place SWAPS over
         # the materialised pool (stone_injection, then curated_filler.curate()), then a THIRD relabel
         # in post_fill (stone_ramp) -- three owners of one resource, arbitrated by nothing but the
