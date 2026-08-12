@@ -54,14 +54,31 @@ MIN_TEXT = 200
 REQUIRED = [
     ("Seed size", "How big is this seed?"),
     ("Seed size", "What are you putting into the multiworld?"),
-    ("Multiworld", "What are you putting into the multiworld?"),
     ("Seed size", "checks that can hold progression"),
 ]
+
+# ---------------------------------------------------------------------------------------------
+# SECOND AUDIT: the contribution card must REACT to the options it describes.
+#
+# MOTIVATING CASE (rule 11). Alaric, 2026-08-12, on the shipped card: "it didn't seem responsive to
+# the filler local percent, which id assume is the main lever" -- and "seemingly widget went dead
+# after i messed with it enough". Both were the same thing seen twice: `filler_foreign_pct` and
+# `keep_local_rune_cap` moved a FOOTNOTE and left every figure untouched, so a player working the
+# knobs that matter watched a card that never answered. Nothing threw; a fuzz over 1,969 single-
+# option states and 700 random multi-option states across every step found no exception at all.
+#
+# A card that renders is not a card that WORKS, which is the next question after check_renders'.
+NUMBERS_MOVE = ["filler_foreign_pct", "keep_local", "local_item_only",
+                "confine_foreign_progression", "num_regions", "progression_surface"]
+# Real effects the card cannot COUNT (the rune cap's share of the runes category depends on which
+# rune items a seed contains). They must still change what the card SAYS -- silence is the failure
+# mode, not imprecision.
+TEXT_MOVES = ["keep_local_rune_cap"]
 
 HARNESS = r"""
 const fs = require("fs");
 const path = require("path");
-const { El, makeDocument, text, attached, NODES } = require(process.argv[2]);
+const { El, makeDocument, text, textOfClass, attached, NODES } = require(process.argv[2]);
 const html = fs.readFileSync(process.argv[3], "utf8");
 
 // ids present in the STATIC markup -- everything above the first script block
@@ -76,8 +93,15 @@ for (const id of ["er-options-metadata", "er-region-census", "er-pool-compositio
   if (m && node) node.textContent = m[1];
 }
 
-const scripts = [...html.matchAll(/<script(?![^>]*type="application\/json")[^>]*>([\s\S]*?)<\/script>/g)]
+let scripts = [...html.matchAll(/<script(?![^>]*type="application\/json")[^>]*>([\s\S]*?)<\/script>/g)]
   .map(m => m[1]);
+// The app block is an IIFE, so its closure cannot be reached from outside. Splice an export in
+// before its final `})();` -- a PROBE of the shipped source, which is never modified on disk.
+scripts = scripts.map(src => {
+  const i = src.lastIndexOf("})();");
+  if (i < 0 || !src.includes("function renderStep()")) return src;
+  return src.slice(0, i) + "\n globalThis.__probe = { meta, state, contributionCard };\n" + src.slice(i);
+});
 
 const sandbox = {
   document: doc, window: { scrollTo(){} },
@@ -105,7 +129,46 @@ for (let i = 0; i < titles.length; i++){
   b.fire("click");
   out.push({ title: titles[i], text: text(main).trim() });
 }
-console.log(JSON.stringify({ titles, steps: out.map(s => ({ title: s.title, len: s.text.length,
+// ---- reactivity: does the contribution card answer the knobs it describes? -------------------
+// NOT `globalThis.__probe`: the page runs inside vm.createContext(sandbox), so its global is the
+// sandbox object, not this file's. Reading the wrong one returns undefined and the whole reactivity
+// half of this gate silently checks nothing -- which is the failure mode it exists to forbid, so it
+// is asserted below rather than left to be noticed.
+const P = sandbox.__probe || {};
+const react = {};
+if (P.state && P.contributionCard){
+  const draw = () => { const c = P.contributionCard(); return c ? text(c).replace(/\s+/g, " ") : ""; };
+  /* THE HEADLINE FIGURES ONLY. Matching any digit in the card is not the same question: the
+     explanatory prose quotes percentages and item counts of its own, so a mutation that froze the
+     headline while leaving a paragraph in place passed the first version of this check twice. The
+     `bignums` class marks what a player reads as THE ANSWER. */
+  const figures = () => { const c = P.contributionCard();
+    return c ? (textOfClass(c, "fig").match(/\d[\d,]*/g) || []).join(" ") : ""; };
+  const base = draw(), baseFigures = figures();
+  const probe = (key, val) => {
+    for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+    P.state.values[key] = val;
+    return { text: draw() !== base, numbers: figures() !== baseFigures };
+  };
+  const opt = k => P.meta.options.find(o => o.key === k);
+  for (const o of P.meta.options){
+    const k = o.key;
+    let v;
+    if (o.kind === "toggle") v = !o.default;
+    else if (o.kind === "choice") v = (o.choices.find(c => c.name !== o.default) || o.choices[0]).name;
+    else if (o.kind === "range") v = o.default === o.range.start ? o.range.end : o.range.start;
+    else if (o.kind === "set" || o.kind === "list") v = (o.valid_keys || []).slice(0, 2);
+    else continue;
+    react[k] = probe(k, v);
+  }
+  for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+}
+
+// The side rail's live readout lives OUTSIDE #main, so the step walk above never sees it -- and it
+// is the copy that is on screen on every step, i.e. the one a player actually watches.
+const side = text(doc.querySelector("#contrib") || {}).replace(/\s+/g, " ").trim();
+
+console.log(JSON.stringify({ titles, react, side, steps: out.map(s => ({ title: s.title, len: s.text.length,
                                                             text: s.text })) }));
 """
 
@@ -187,6 +250,35 @@ def main(argv):
         if not any(needle.lower() in st["text"].lower() for st in hits):
             problems.append("step %r does not contain %r." % (hits[0]["title"], needle))
 
+    side = (data.get("side") or "").lower()
+    if "checks open to a foreign item" not in side:
+        problems.append("the side rail's live readout (#contrib) did not render: %r. It is the copy "
+                        "that is on screen on EVERY step, so it going quiet is the failure a player "
+                        "sees first." % (data.get("side") or "")[:120])
+
+    react = data.get("react") or {}
+    if not react:
+        problems.append("the reactivity probe returned nothing -- the page's IIFE export spliced in "
+                        "no longer matches, so half this gate is checking nothing.")
+    for key in NUMBERS_MOVE:
+        r = react.get(key)
+        if r is None:
+            problems.append("%s: not on the option surface any more -- drop it from NUMBERS_MOVE "
+                            "or fix the name." % key)
+        elif not r["numbers"]:
+            problems.append("%s changes NO NUMBER on the contribution card. The card names it as "
+                            "something that moves what you send out, so a player works the knob and "
+                            "watches a figure that never answers -- which is what 'the widget went "
+                            "dead' looked like." % key)
+    for key in TEXT_MOVES:
+        r = react.get(key)
+        if r is None:
+            problems.append("%s: not on the option surface any more -- drop it from TEXT_MOVES."
+                            % key)
+        elif not r["text"]:
+            problems.append("%s changes NOTHING the card says. It cannot be counted, but it must "
+                            "not be silent." % key)
+
     bad = selftest()
     if bad:
         problems.append("SELF-TEST: " + bad)
@@ -196,9 +288,11 @@ def main(argv):
         for p in problems:
             print("   ", p)
         return 1
-    print("[ok] all %d wizard steps render (%d..%d chars); the contribution card is on both the "
-          "Seed size and Multiworld tabs; the shim fails the detached-paint mutation"
-          % (len(steps), min(s["len"] for s in steps), max(s["len"] for s in steps)))
+    print("[ok] all %d wizard steps render (%d..%d chars); the side readout is live; the "
+          "contribution card answers %d option(s) with a number and %d more in prose; the shim "
+          "fails the detached-paint mutation"
+          % (len(steps), min(s["len"] for s in steps), max(s["len"] for s in steps),
+             len(NUMBERS_MOVE), len(TEXT_MOVES)))
     return 0
 
 
