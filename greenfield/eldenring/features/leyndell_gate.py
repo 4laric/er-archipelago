@@ -120,9 +120,10 @@ class LeyndellRunesRequired(Range):
     Leyndell Lock. 0 disables the gate.
 
     Values 1..2 all mean 2: the vanilla capital gate is a fixed two-rune wall, so a gate weaker than
-    vanilla cannot be expressed -- asking for one either arms at 2 or, if the pool has fewer than
-    two Great Runes this seed, disables the gate entirely (the capital's graces are then granted on
-    the Leyndell Lock, so the seed stays winnable). Never clamped DOWN to an armed value below 2."""
+    vanilla cannot be expressed -- asking for one arms at 2. If this seed's regions hold fewer than
+    two Great Runes, the missing ones are added to the item pool rather than the gate being dropped:
+    the game's own two-rune wall does not go away when ours does, so dropping it would seal the
+    capital instead of opening it. Never clamped DOWN to an armed value below 2."""
     display_name = "Leyndell Great Runes Required"
     range_start = 0
     range_end = 6
@@ -135,9 +136,9 @@ class LeyndellGate(Feature):
     OPTIONS = {"leyndell_runes_required": LeyndellRunesRequired}
 
     def generate_early(self, world) -> None:
-        # Pick the concrete runes that satisfy the gate (floored at vanilla's 2, disarmed if the
-        # pool cannot supply that many); core marks these progression so fill guarantees them
-        # reachable OUTSIDE Leyndell. Empty -> gate off, capital bundle granted on the Lock.
+        # Pick the concrete runes that satisfy the gate (floored at vanilla's 2; the pool is topped
+        # up when it cannot supply that many -- see #589); core marks these progression so fill
+        # guarantees them reachable OUTSIDE Leyndell. Empty -> gate off, bundle rides the Lock.
         world.gf_leyndell_runes = []
         opt = getattr(world.options, "leyndell_runes_required", None)
         want = int(opt.value) if opt is not None else 0
