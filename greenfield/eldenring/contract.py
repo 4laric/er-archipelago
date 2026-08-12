@@ -410,14 +410,21 @@ OPTIONS_SUBKEYS = (
                 "a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is "
                 "not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then "
                 "never see this key at all."),
-    ContractKey("no_equip_load", "BOOL_OR_INT", False, (GREENFIELD,),
+    ContractKey("no_equip_load", "INT_OR_BOOL", False, (GREENFIELD,),
                 "core._options_echo (features/body_tuning.py)", "no_equip_load.rs set_enabled",
-                "nonzero = equipment weighs nothing, so the player is permanently at light roll. "
-                "The client zeroes the WEIGHT side with a silent permanent SpEffect because max "
-                "equip load is recomputed every frame from Endurance. NOT required: the capability "
-                "is OLDER than every released client that reads it, and an absent key parses false "
-                "-- which is the off default. No requiresClientFeatures tag for that same reason: "
-                "emitting one would refuse the connect on every client that already implements it."),
+                "ROLL MODE, not a plain toggle (widened 2026-08-12, #548): 0 = off, 1 = light "
+                "(equipment weighs nothing, always light roll), 2 = medium (ceiling raised enough "
+                "that no real kit fat-rolls, but armour still costs you). The client multiplies the "
+                "WEIGHT side with a silent permanent SpEffect because max equip load is recomputed "
+                "every frame from Endurance; er-logic/equip_load.rs RollMode owns the multipliers. "
+                "1 is what the legacy Toggle's `true` put on the wire, which is why light is 1. "
+                "NOT required, and the asymmetry is deliberate: the capability is OLDER than every "
+                "released client, an absent key parses false, and 0/1 are read CORRECTLY by an old "
+                "client -- so tagging them would refuse the connect on clients that already "
+                "implement the feature. 2 is different: parse_bool_option turns it into a nonzero "
+                "and the player silently gets LIGHT, the stronger setting they did not ask for, so "
+                "a seed choosing 2 -- and only 2 -- emits requiresClientFeatures "
+                "[\"no_equip_load_roll\"]."),
     ContractKey("no_fall_damage", "BOOL_OR_INT", False, (GREENFIELD,),
                 "core._options_echo (features/body_tuning.py)", "no_fall_damage.rs set_enabled",
                 "nonzero = falling deals no damage (leaving the map still kills). Same age and same "
