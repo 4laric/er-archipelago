@@ -45,6 +45,50 @@ card, drawn on both, one computation. It finds its tab by looking for the group 
 `keep_local` rather than by matching the group's name, because the names come from the world and
 this page does not own them.
 
+### The Curated Filler recipe was unusable in the wizard, and editing it broke your yaml
+
+Curated Filler is the only option whose value is a table rather than a number, a switch or a list.
+The wizard had no control for a table, and its branch list ends in a catch-all that makes a plain
+text box -- so the recipe was handed to the box as a value and came out as the literal string
+**`[object Object]`**. That is what a player saw where the weights should be.
+
+The box was worse than useless. Typing in it stored the text you typed, and the yaml you then
+downloaded said `curated_filler: "..."` -- a quoted line where the world expects a table of
+categories, which is not a recipe at all. The row also had no way back: two tables are compared by
+identity in the page, so once the option had been touched it counted as changed for the rest of the
+session, even after every weight was put back. The default in the trailing comment read
+`(default: [object Object])` too.
+
+It is now a weight per category, with the share of the filler tail each weight buys shown beside it,
+because the weights are relative and the share is the number you are actually choosing. The yaml
+comes out as an indented block, and an all-zero recipe writes `{}` -- which the option documents and
+honours as *no gear and no upgrade economy*, rather than silently reverting to vanilla junk.
+
+**Seven of the sixteen categories were unreachable from the page even in principle**, and that is the
+part that made this unfixable rather than merely ugly: `CuratedFiller` never declared its accepted
+keys, so the wizard had nothing to enumerate and could only ever have offered the nine the shipped
+recipe happens to weight. `firepots`, `ammunition`, `perfumes`, `utility`, `rare`, `funny` and `junk`
+are all real, all documented, and none of them were on the page. The list now comes from one place
+that AP's validation, the wizard metadata and the generator's own unknown-category error all read,
+so they cannot come to disagree.
+
+🛑 **And the list I first derived it from was wrong.** `_VALID_CATS` omits `juice` -- the gear
+injection has no member list of its own -- and `juice` is the largest weight in the shipped default,
+so validating against it would have rejected the world's own default recipe and failed every seed
+that did not override it. Caught by a test written for exactly that, which is now the one place
+those two constants are compared.
+
+Nothing else changes for you: the accepted categories, the default recipe and any yaml you have
+already written are untouched. What moves is that an unknown category is now named at option
+verification instead of a few steps later.
+
+The gate that was missing is the cheap one -- **every kind of option the metadata can describe must
+have a control that draws it**. Everything we gated before asked whether what IS drawn is right; a
+text box for something that is not text is the failure that looks like success, and the same shape
+as the contribution card reading a frozen option and getting `undefined`. Raised by Alaric off the
+live page (#571).
+
+
 ## v0.3.11 — 2026-08-10
 
 Window opened AT THE TAG of v0.3.10, deliberately -- the third time running, after five windows that
@@ -626,49 +670,6 @@ The detection is one command and nobody runs it:
 Anything in the second list is note debt. Run it before the tag, and treat a green
 `check_release_notes` as evidence of nothing. A gate that could close this would compare those two
 sets; it does not exist yet.
-### The Curated Filler recipe was unusable in the wizard, and editing it broke your yaml
-
-Curated Filler is the only option whose value is a table rather than a number, a switch or a list.
-The wizard had no control for a table, and its branch list ends in a catch-all that makes a plain
-text box -- so the recipe was handed to the box as a value and came out as the literal string
-**`[object Object]`**. That is what a player saw where the weights should be.
-
-The box was worse than useless. Typing in it stored the text you typed, and the yaml you then
-downloaded said `curated_filler: "..."` -- a quoted line where the world expects a table of
-categories, which is not a recipe at all. The row also had no way back: two tables are compared by
-identity in the page, so once the option had been touched it counted as changed for the rest of the
-session, even after every weight was put back. The default in the trailing comment read
-`(default: [object Object])` too.
-
-It is now a weight per category, with the share of the filler tail each weight buys shown beside it,
-because the weights are relative and the share is the number you are actually choosing. The yaml
-comes out as an indented block, and an all-zero recipe writes `{}` -- which the option documents and
-honours as *no gear and no upgrade economy*, rather than silently reverting to vanilla junk.
-
-**Seven of the sixteen categories were unreachable from the page even in principle**, and that is the
-part that made this unfixable rather than merely ugly: `CuratedFiller` never declared its accepted
-keys, so the wizard had nothing to enumerate and could only ever have offered the nine the shipped
-recipe happens to weight. `firepots`, `ammunition`, `perfumes`, `utility`, `rare`, `funny` and `junk`
-are all real, all documented, and none of them were on the page. The list now comes from one place
-that AP's validation, the wizard metadata and the generator's own unknown-category error all read,
-so they cannot come to disagree.
-
-🛑 **And the list I first derived it from was wrong.** `_VALID_CATS` omits `juice` -- the gear
-injection has no member list of its own -- and `juice` is the largest weight in the shipped default,
-so validating against it would have rejected the world's own default recipe and failed every seed
-that did not override it. Caught by a test written for exactly that, which is now the one place
-those two constants are compared.
-
-Nothing else changes for you: the accepted categories, the default recipe and any yaml you have
-already written are untouched. What moves is that an unknown category is now named at option
-verification instead of a few steps later.
-
-The gate that was missing is the cheap one -- **every kind of option the metadata can describe must
-have a control that draws it**. Everything we gated before asked whether what IS drawn is right; a
-text box for something that is not text is the failure that looks like success, and the same shape
-as the contribution card reading a frozen option and getting `undefined`. Raised by Alaric off the
-live page (#571).
-
 ## v0.3.10 — 2026-08-09
 
 Window opened AT THE TAG of v0.3.9, deliberately -- the second time running, after five windows that
