@@ -19,12 +19,18 @@ in. At N=1 logic believes one rune opens Leyndell, the game still wants two, and
 region Lock behind a door the player cannot open. Two ways to land there: num_regions (default 6)
 keeping exactly one Great-Rune region, or the player simply setting `leyndell_runes_required: 1`.
 
-So an ARMED wall requires at least the vanilla constant, and when the pool cannot supply that many
-runes we DISARM instead of arming low -- gf_leyndell_runes goes empty, WALL_ARMED["Leyndell"] reads
-False, the capital bundle is granted on the Leyndell Lock and the player warps in past the physical
-gate. That is the already-sound N=0 path, reused. Disarming is the only safe direction: arming below
-vanilla strands, and "fixing" it by loosening the grace withhold instead would re-open the
-past-the-wall grant graces.py deliberately retired.
+So an ARMED wall requires at least the vanilla constant. 🛑 AND WHEN THE POOL CANNOT SUPPLY THAT
+MANY, WE TOP THE POOL UP -- we do not disarm (2026-08-12, #589). Disarming was the original answer
+and it was wrong in the worst direction: disarming OUR wall does not disarm the GAME'S. The capital
+gate is still a fixed two-rune possession wall and the fogwall is still the only way in, so a
+one-rune seed sealed Leyndell, the Sewer and Ashen Capital behind a door nothing could open -- an
+unwinnable run, with other players' items stranded inside it (LordChungle, seed
+26505919849221796677: 42 of them). The pool is ours to write, so generate_early injects the missing
+runes deterministically through create_items and arms at the floor.
+
+Disarm survives only where it means something: `leyndell_runes_required: 0` (the player asked for no
+gate), item_shuffle off, or a sealed goal region. Each of those now says so in the generation log --
+silence about the wall's state is most of what made the defect expensive.
 
 Option `leyndell_runes_required` (Range 0..6, default 2). 0 -> no gate (and world.gf_leyndell_runes is
 empty, so nothing is marked progression and default fill is unchanged). Base-game only: under DLC Only
@@ -35,8 +41,13 @@ runes arrive as AP items and the client's key-item grant makes the game count th
 is the LOGIC mirror: mark N runes progression and require them on Leyndell's entrance + checks so
 fill never strands progression past a wall it can't prove open.
 """
-from Options import Range
+import logging
+
+from Options import OptionError, Range
+
 from ..registry import Feature, register
+
+_log = logging.getLogger("Elden Ring")
 
 try:
     from ..region_spine import GOAL_REGION
@@ -109,9 +120,10 @@ class LeyndellRunesRequired(Range):
     Leyndell Lock. 0 disables the gate.
 
     Values 1..2 all mean 2: the vanilla capital gate is a fixed two-rune wall, so a gate weaker than
-    vanilla cannot be expressed -- asking for one either arms at 2 or, if the pool has fewer than
-    two Great Runes this seed, disables the gate entirely (the capital's graces are then granted on
-    the Leyndell Lock, so the seed stays winnable). Never clamped DOWN to an armed value below 2."""
+    vanilla cannot be expressed -- asking for one arms at 2. If this seed's regions hold fewer than
+    two Great Runes, the missing ones are added to the item pool rather than the gate being dropped:
+    the game's own two-rune wall does not go away when ours does, so dropping it would seal the
+    capital instead of opening it. Never clamped DOWN to an armed value below 2."""
     display_name = "Leyndell Great Runes Required"
     range_start = 0
     range_end = 6
@@ -124,27 +136,84 @@ class LeyndellGate(Feature):
     OPTIONS = {"leyndell_runes_required": LeyndellRunesRequired}
 
     def generate_early(self, world) -> None:
-        # Pick the concrete runes that satisfy the gate (floored at vanilla's 2, disarmed if the
-        # pool cannot supply that many); core marks these progression so fill guarantees them
-        # reachable OUTSIDE Leyndell. Empty -> gate off, capital bundle granted on the Lock.
+        # Pick the concrete runes that satisfy the gate (floored at vanilla's 2; the pool is topped
+        # up when it cannot supply that many -- see #589); core marks these progression so fill
+        # guarantees them reachable OUTSIDE Leyndell. Empty -> gate off, bundle rides the Lock.
         world.gf_leyndell_runes = []
         opt = getattr(world.options, "leyndell_runes_required", None)
         want = int(opt.value) if opt is not None else 0
+        # Every exit from here says which state the wall is in. #589's defect was silent in the
+        # generation log AND in game, and the silence is most of what made it expensive -- a host
+        # reading the output had no way to know the capital had no wall on it.
         if want <= 0 or not GREAT_RUNES:
+            if GREAT_RUNES:
+                _log.info("leyndell_gate: leyndell_runes_required is 0 -- no rune wall; the capital "
+                          "grace bundle rides the Leyndell Lock.")
             return
         if not (getattr(world.options, "item_shuffle", None) and world.options.item_shuffle.value):
-            return  # runes only enter the pool when vanilla items are shuffled
+            # runes only enter the pool when vanilla items are shuffled
+            _log.info("leyndell_gate: item_shuffle is off, so no Great Runes enter the pool -- no "
+                      "rune wall; the capital grace bundle rides the Leyndell Lock.")
+            return
         if GOAL_REGION not in world._kept():
+            _log.info("leyndell_gate: %s is not kept this seed (DLC Only or a sealed goal region) "
+                      "-- no capital to gate.", GOAL_REGION)
             return  # DLC Only / sealed goal region -> no Leyndell to gate
         # FLOOR, not clamp. The vanilla wall is fixed at 2 and the capital bundle is withheld while
-        # ours is armed, so an armed wall must be at least as strict as the game's -- and when the
-        # pool cannot supply that many runes the only sound move is to DISARM (empty list -> the
-        # bundle is granted on the Lock and the player warps in). See the module docstring.
+        # ours is armed, so an armed wall must be at least as strict as the game's.
         want = max(want, VANILLA_CAPITAL_GATE_RUNES)
         avail = world._available_runes()             # Great Runes actually in the pool this seed
-        if len(avail) < want:
-            return                                   # gf_leyndell_runes stays [] -> wall disarmed
-        world.gf_leyndell_runes = sorted(avail)[:want]
+        # 🛑 REPAIR THE SUPPLY. DO NOT DISARM. (2026-08-12, issue #589.)
+        #
+        # This used to `return` on a shortfall, leaving gf_leyndell_runes empty so WALL_ARMED reads
+        # False and the capital bundle is granted on the Lock. The reasoning was that disarming is
+        # always the safe direction. IT IS NOT, AND THE COST IS AN UNWINNABLE SEED: disarming OUR
+        # wall does not disarm the GAME'S. The vanilla capital gate still demands two Great Runes,
+        # and per the fogwall note below it is the only way in -- so a seed whose kept regions hold
+        # one rune sealed Leyndell, the Sewer and Ashen Capital behind a door nothing could open.
+        # LordChungle's 7-player seed 26505919849221796677 is the case: one countable rune in the
+        # whole multiworld, the run unfinishable, and FORTY-TWO other players' items stranded in a
+        # region nobody could reach. Generation said nothing.
+        #
+        # The pool is ours to write, so top it up: mint the shortfall as real items and arm at the
+        # floor. Selection is `sorted`, never world.random -- no rng-stream motion, so every
+        # existing seed that did NOT need repair rolls byte-identically. Injected runes go into
+        # gf_leyndell_runes so core._class_for marks them PROGRESSION and fill places them outside
+        # the capital, exactly like the runes that were already there.
+        shortfall = max(0, want - len(avail))
+        inject = sorted(set(GREAT_RUNES) - set(avail))[:shortfall]
+        if len(avail) + len(inject) < want:
+            # The CATALOG itself cannot supply the wall. Unreachable while the game has six Great
+            # Runes and the floor is two; here so that a future catalog change fails loudly at
+            # generation instead of quietly reintroducing the strand.
+            raise OptionError(
+                f"leyndell_runes_required needs {want} Great Runes (floored at the vanilla "
+                f"capital gate's {VANILLA_CAPITAL_GATE_RUNES}), but this seed can only supply "
+                f"{len(avail) + len(inject)}. The capital's own gate cannot be lowered, so the "
+                f"goal would be unreachable. Set leyndell_runes_required: 0 to hand the capital "
+                f"bundle to the Leyndell Lock instead.")
+        world.gf_leyndell_injected = inject
+        if inject:
+            # All of avail PLUS the injected runes: length is exactly `want`, and every armed rune
+            # is one fill can actually place.
+            world.gf_leyndell_runes = sorted(list(avail) + inject)
+            _log.warning(
+                "leyndell_gate: the kept regions supplied %d of %d Great Runes (%s); injected %s "
+                "into the pool so the capital's fixed %d-rune gate can open. Wall ARMED at %d.",
+                len(avail), want, ", ".join(sorted(avail)) or "none", ", ".join(inject),
+                VANILLA_CAPITAL_GATE_RUNES, len(world.gf_leyndell_runes))
+        else:
+            world.gf_leyndell_runes = sorted(avail)[:want]
+
+    def create_items(self, world):
+        """Mint the runes generate_early had to inject.
+
+        This rides the existing count-exact seam (core.create_items: `pool += f.create_items(self)`
+        before the filler tail is sized), the same way features/finale.py contributes the Ashen
+        lock's replacement -- items minted here eat filler-tail slots, so items == locations by
+        construction. Never touch multiworld.itempool directly.
+        """
+        return [world.create_item(nm) for nm in getattr(world, "gf_leyndell_injected", ())]
 
     def set_rules(self, world) -> None:
         runes = getattr(world, "gf_leyndell_runes", [])

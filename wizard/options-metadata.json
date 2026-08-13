@@ -828,7 +828,7 @@
    "key": "leyndell_runes_required",
    "class": "LeyndellRunesRequired",
    "display_name": "Leyndell Great Runes Required",
-   "description": "Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the\nLeyndell Lock. 0 disables the gate.\n\nValues 1..2 all mean 2: the vanilla capital gate is a fixed two-rune wall, so a gate weaker than\nvanilla cannot be expressed -- asking for one either arms at 2 or, if the pool has fewer than\ntwo Great Runes this seed, disables the gate entirely (the capital's graces are then granted on\nthe Leyndell Lock, so the seed stays winnable). Never clamped DOWN to an armed value below 2.",
+   "description": "Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the\nLeyndell Lock. 0 disables the gate.\n\nValues 1..2 all mean 2: the vanilla capital gate is a fixed two-rune wall, so a gate weaker than\nvanilla cannot be expressed -- asking for one arms at 2. If this seed's regions hold fewer than\ntwo Great Runes, the missing ones are added to the item pool rather than the gate being dropped:\nthe game's own two-rune wall does not go away when ours does, so dropping it would seal the\ncapital instead of opening it. Never clamped DOWN to an armed value below 2.",
    "kind": "range",
    "base": "Range",
    "default": 2,
