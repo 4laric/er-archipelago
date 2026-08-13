@@ -67,6 +67,11 @@ footer{color:var(--dim);font-size:13.5px;border-top:1px solid #2a261e;margin-top
 </style>
 </head>
 <body id="er-report">
+<!-- The site tab strip. One definition, four pages: /er/tabs.js. It is EMPTY without
+     that script on purpose -- this page also ships as a file:// copy in the release zip,
+     where /er/tabs.js cannot load and links to /downloads would be dead anyway. -->
+<div id="er-tabs" data-tab="report"></div>
+<script src="/er/tabs.js" defer></script>
 
 <header class="top">
   <div class="wrap">

@@ -17,6 +17,7 @@
 #     /er/questlines.html    <- er-archipelago-questline-dag.html at the STABLE tag
 #     /er/beta/questlines.html <- er-archipelago-questline-dag.html at main
 #     /er/landing.html       <- wizard/landing.html at the STABLE tag       (--landing only)
+#     /er/tabs.js            <- wizard/tabs.js at the STABLE tag
 #
 # !! THE LANDING PAGE GOES IN ER_STATIC_DIR, NOT AT THE FILESYSTEM ROOT, AND THAT WAS A BUG.
 # It first shipped writing ${ER_ROOT_DIR}/index.html on the assumption that peliarch served `/`
@@ -182,11 +183,23 @@ CHK_SENTINEL='id="mapslot"'
 # NOR a data stamp, so they cannot skew against a released apworld and may ship from main at any
 # time. Asserted against the files themselves by test_gf_publish_channels -- do not edit without
 # reading that test.
-SITE_PAGES="wizard/landing.html:landing.html:er-landing wizard/report.html:report.html:er-report"
+SITE_PAGES="wizard/landing.html:landing.html:er-landing wizard/report.html:report.html:er-report wizard/tabs.js:tabs.js:er-tabs-strip"
 RPT_SRC="wizard/report.html"
 # The report builder's own form root. It is small and cheap, so it is NOT behind --no-checks:
 # the one page a stuck player needs should never be the one a fast cron skipped.
 RPT_SENTINEL='id="er-report"'
+# !! tabs.js IS CHROME FOR FOUR PAGES, so it installs on every run rather than behind a flag. It
+# is pinned to the STABLE tag for the same reason landing.html is: the strip links /er/checks.html
+# and /er/report.html, and a strip from main advertising a page this box does not serve yet is the
+# same skew one level up. It carries no option surface and no data stamp, so it also rides --site.
+#
+# !! ONE COPY, NO beta/ TWIN. The pages reference it as an ABSOLUTE /er/tabs.js, so
+# /er/beta/wizard.html loads this same file -- which is right: the strip is chrome, and beta is a
+# channel for the wizard's option surface, not for the site's navigation.
+TABS_SRC="wizard/tabs.js"
+# The strip's own <nav>, which the script builds. A 200-with-a-login-page has no such string, and
+# neither does a truncated download that stopped before the markup.
+TABS_SENTINEL='id="er-tabs-strip"'
 QDAG_SRC="er-archipelago-questline-dag.html"
 # Likewise: the DAG page's own graph pane. Its `id="q"` search box would NOT do -- one letter is a
 # string a login page can plausibly contain, and a sentinel that can pass by accident is not one.
@@ -206,6 +219,7 @@ if [ "$SITE_ONLY" = "1" ]; then
   exit 0
 fi
 
+install_one "$stable_tag" "$TABS_SRC" "${DEST}/tabs.js" "$TABS_SENTINEL" "tabs    stable (${stable_tag})"
 install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wizard  stable (${stable_tag})"
 install_one "$stable_tag" "$RPT_SRC" "${DEST}/report.html" "$RPT_SENTINEL" "report  stable (${stable_tag})"
 [ "$NO_CHECKS" = "1" ] || {
@@ -241,6 +255,7 @@ cat <<'NOTE'
 Live at:
   /                       stable   the landing page      (--landing only; served by the app
                                    from ER_STATIC_DIR/landing.html, not from the web root)
+  /er/tabs.js             stable   the tab strip, shared by all four static pages
   /er/wizard.html         stable   the options wizard
   /er/report.html         stable   the bug report builder
   /er/checks.html         stable   the check browser

@@ -9,6 +9,48 @@ Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose
 already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
 client still handshakes with a v0.4.1 seed.
 
+### Hosting is back, as one tab, with the defect that killed it fixed
+
+peliarch.ca hosts rooms again, and generates seeds again from the builder's **Generate & host**
+button. The site is six things now -- the builder, the downloads, the documentation, the check
+browser, the bug report form and a room to play in -- and every page carries the same tab strip,
+with the builder first because it is the only surface anyone can use before deciding whether to
+install a DLL.
+
+**Why it was gone for one release.** The rooms dashboard listed five hibernated rooms and offered
+every one of them the same connect address, `ws://peliarch.ca:38400`, with a Copy button. Two of
+them were both named `Player - Elden Ring`. Archipelago's `Connect` packet carries a slot name and
+a password and **no room identifier**, so a client that reached whichever server actually held that
+port -- with a slot name that seed happened to contain -- would join the wrong multiworld, and
+neither side would say anything.
+
+**What was actually wrong, which is not what the retirement note guessed.** That note blamed
+Archipelago's random port allocator. peliarch does not use it: it passes `--port` explicitly, so a
+*running* room's address was always truthful. The lie was in the room record -- the port was
+allocated per **start** and never cleared on **stop**, so five sleeping rooms each remembered the
+38400 they last held and the next one to wake took it for real.
+
+**What makes it safe now**, both asserted in `webgui/test_ports.py`:
+
+- A room is given **one port when it is created** and keeps it for as long as it exists, excluding
+  every port already promised to another room. A stale address resolves to that room or to nothing;
+  it can never resolve to somebody else's seed. Starting a room whose port something else is
+  holding fails loudly instead of quietly moving it.
+- **No address is published unless the room is `RUNNING`.** A port number is not an address, and a
+  sleeping room now says "not listening" and shows its reserved port as a fact rather than as
+  something to paste into a client.
+
+The rooms already on the box all record 38400, so the store is de-duplicated on load -- first
+claimant keeps the number, the rest are re-homed and the move is logged.
+
+Two smaller things that were false and are now not: **"Sleeping -- connect to wake"** (nothing
+listens on a stopped room's port, so connecting is refused; it says "press Start"), and the site's
+advertised `wss://` (room ports are published straight through and never reach Caddy, so they speak
+plaintext `ws://`; a copied `wss://` address earned `SSLError: WRONG_VERSION_NUMBER`).
+
+🛑 archipelago.gg is still the right answer for a long game with people you do not share a Discord
+with. This is one small box, and it has neither the uptime nor the room history.
+
 ### Dungeon sweeps pay out the good stuff now, unless your seed said otherwise
 
 A boss sweep used to hand you filler and nothing else: every class the Progression Surface can

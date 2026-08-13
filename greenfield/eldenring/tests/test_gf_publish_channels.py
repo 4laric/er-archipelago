@@ -291,5 +291,94 @@ class SiteChannel(unittest.TestCase):
             "take it OFF --site; if one just lost the last of its stamps, it can go on.")
 
 
+@unittest.skipUnless(REPO is not None, REPO_ONLY)
+class SiteTabs(unittest.TestCase):
+    """The tab strip has ONE definition for the four static pages, and this pins it.
+
+    THE SITE IS TWO KINDS OF PAGE. /downloads, /hosting and /room/<id> are Jinja templates in
+    peliarch and inherit their chrome from webgui/templates/base.html. landing.html, wizard.html,
+    checks.html and report.html are single files built here and installed by deploy_wizard.sh; they
+    never pass through Jinja, so they cannot inherit anything. Hand-copying navigation into four
+    files is four places to forget -- landing.html already hand-copies the FOOTER for exactly this
+    reason, with a comment asking the next person not to drop it. wizard/tabs.js is the one
+    definition for all four.
+
+    🛑 THE STRIP THEREFORE EXISTS TWICE ACROSS TWO REPOS, and that is a deliberate trade rather
+    than an oversight: a templated page whose only navigation came from a script that 404s on a box
+    with no ER tooling deployed would have no navigation at all. peliarch's
+    webgui/test_app.py::TestTabStrip pins the other copy, with the same five hrefs in the same
+    order. If you change a tab, BOTH tests fail -- which is the point of writing the list twice.
+    """
+
+    # href order is load-bearing: the BUILDER IS FIRST because it is the only surface anyone can
+    # use before deciding whether to install a DLL. Hosting is a tab, not the front page.
+    HREFS = ["/er/", "/downloads", "/hosting", "/er/checks.html", "/er/report.html"]
+    # src path -> the data-tab value that page must declare
+    PAGES = {
+        "wizard/wizard.html": "builder",
+        "wizard/report.html": "report",
+        "er-archipelago-check-browser.html": "checks",
+        # The landing page is the front door, reached by the wordmark; it is not one of the tabs,
+        # so it declares none and the strip renders with nothing marked.
+        "wizard/landing.html": "",
+    }
+
+    def _read(self, rel):
+        path = os.path.join(REPO, rel)
+        self.assertTrue(os.path.isfile(path), f"{rel} is missing")
+        return open(path, encoding="utf-8", errors="replace").read()
+
+    def test_tabs_js_lists_exactly_the_five_tabs_in_order(self):
+        js = self._read("wizard/tabs.js")
+        found = re.findall(r'\["[a-z]+",\s*"([^"]+)",\s*"[^"]+"\]', js)
+        self.assertEqual(found, self.HREFS,
+                         "tabs.js's TABS table disagrees with this gate. If the change is "
+                         "intended, peliarch's webgui/templates/base.html and its TestTabStrip "
+                         "need the same edit -- that is what the second copy is for.")
+
+    def test_every_static_page_carries_the_placeholder_and_the_script(self):
+        for rel, tab in self.PAGES.items():
+            text = self._read(rel)
+            self.assertIn(f'<div id="er-tabs" data-tab="{tab}"></div>', text,
+                          f"{rel} has no tab strip placeholder (or the wrong data-tab)")
+            self.assertIn('<script src="/er/tabs.js" defer></script>', text,
+                          f"{rel} does not load /er/tabs.js")
+
+    def test_the_placeholder_is_empty_so_a_missing_script_leaves_no_hole(self):
+        """wizard.html also ships as a file:// page in the release zip, where /er/tabs.js CANNOT
+        load. The placeholder must therefore render as nothing at all -- no border, no reserved
+        height, no "loading" text -- and the script must no-op when the div is absent."""
+        for rel in self.PAGES:
+            text = self._read(rel)
+            self.assertNotIn('<div id="er-tabs" ', text.replace(
+                f'<div id="er-tabs" data-tab="{self.PAGES[rel]}"></div>', ""),
+                f"{rel} has a second, non-empty er-tabs div")
+        js = self._read("wizard/tabs.js")
+        self.assertIn("if (!host) { return; }", js,
+                      "tabs.js must no-op when there is no placeholder, not throw")
+
+    def test_tabs_js_fetches_nothing(self):
+        """It is chrome. A network call here would put the whole site's navigation behind a
+        request that can fail, and on a file:// page it fails by construction."""
+        js = self._read("wizard/tabs.js")
+        for bad in ("fetch(", "XMLHttpRequest", "import(", "//cdn", "http://", "https://"):
+            self.assertNotIn(bad, js, f"tabs.js reaches outside itself ({bad!r})")
+
+    def test_the_deploy_script_installs_it(self):
+        """A page nothing installs is a page nobody sees. Checked here rather than trusted."""
+        script = open(os.path.join(TOOLS, "deploy_wizard.sh"), encoding="utf-8").read()
+        self.assertIn('TABS_SRC="wizard/tabs.js"', script)
+        self.assertIn('"${DEST}/tabs.js"', script)
+        self.assertIn("wizard/tabs.js:tabs.js:er-tabs-strip", script,
+                      "tabs.js carries no option surface and no data stamp, so it belongs on the "
+                      "--site fast path; SiteChannel asserts that in both directions.")
+
+    def test_the_sentinel_the_deploy_script_greps_for_is_really_in_the_file(self):
+        """install_one refuses a body without its sentinel. A sentinel that is not in the file
+        turns every deploy into a hard failure, and one that is in a login page too checks nothing.
+        """
+        self.assertIn('id="er-tabs-strip"', self._read("wizard/tabs.js"))
+
+
 if __name__ == "__main__":
     unittest.main()
