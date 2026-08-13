@@ -449,7 +449,8 @@ class GFLocation(Location):
 # one option at a time. tests/test_gf_option_groups.py fails on any ungrouped visible key.
 _OPTION_GROUPS = [
     ("Goal & Regions", [
-        "num_regions", "num_regions_order", "start_regions", "goal", "ending_condition",
+        "num_regions", "num_regions_order", "start_regions", "start_region_pool", "goal",
+        "ending_condition",
         "goal_great_runes", "leyndell_runes_required", "region_grace_unlock",
         "grace_attunement", "grace_attunement_anchor"]),
     ("DLC & Blessings", [
@@ -532,6 +533,52 @@ class GreenfieldEldenRingWorld(World):
         enable_dlc = bool(getattr(self.options, "enable_dlc", None) is None
                           or self.options.enable_dlc.value)
         return dlc_only or enable_dlc
+
+    def _resolve_start_region_pool(self) -> frozenset:
+        """The regions `start_region_pool` allows the run to open in, validated. Empty = no constraint.
+
+        Empty ALSO when no Lock is minted (natural_progression / vanilla_placement) or
+        `start_with_region_lock` is off -- there is no anchor to constrain, and raising over an
+        option that cannot apply would fail a seed for a setting that does nothing in it. Same
+        inertness `start_regions` already has, decided in the same place.
+
+        🛑 EVERY REFUSAL NAMES THE REGION AND THE REASON. The three ways a named region cannot open
+        a run are invisible to each other -- your DLC toggles sealed it, your goal needs it, or it
+        is a child region reached through its parent -- and a single "that region is not available"
+        would send the player to the wrong one of the three."""
+        opt = getattr(self.options, "start_region_pool", None)
+        named = frozenset(str(r) for r in (opt.value if opt is not None else ()) or ())
+        if not named:
+            return frozenset()
+        _slr = getattr(self.options, "start_with_region_lock", None)
+        if _np.is_on(self) or _vp.is_on(self) or not (_slr is not None and _slr.value):
+            return frozenset()
+        eligible = set(self.gf_eligible)
+        sealed = sorted(named - eligible)
+        if sealed:
+            dlc_only = bool(getattr(self.options, "dlc_only", None)
+                            and self.options.dlc_only.value)
+            raise OptionError(
+                "[eldenring] start_region_pool names %s, which this seed cannot contain: %s. Drop "
+                "the name or change the toggle." % (", ".join(sealed),
+                "dlc_only is on, so only the DLC's regions are in play" if dlc_only
+                else "enable_dlc is off, so the DLC's regions are sealed"))
+        goal_needs = sorted(named & set(self.gf_goal_forced))
+        if goal_needs:
+            raise OptionError(
+                "[eldenring] start_region_pool names %s, but this seed's goal (%s) needs %s -- a "
+                "run that opens in the region it ends in is over before it starts. Name a different "
+                "starting region or a different goal."
+                % (", ".join(goal_needs), self.gf_goal_choice, "them" if len(goal_needs) > 1
+                   else "it"))
+        gated = sorted(named & set(REGION_PARENT))
+        if gated:
+            raise OptionError(
+                "[eldenring] start_region_pool names %s, which is reached THROUGH another region "
+                "(%s) rather than opened directly, so it can never be where a run starts. Name its "
+                "parent instead." % (", ".join(gated),
+                                     ", ".join(REGION_PARENT[g] for g in gated)))
+        return frozenset(named)
 
     def _eligible_regions(self) -> List[str]:
         """The region pool num_regions draws from this seed, after the DLC toggles.
@@ -628,6 +675,15 @@ class GreenfieldEldenRingWorld(World):
         _forced = tuple(dict.fromkeys(
             tuple(_gl.forced_regions(self.gf_goal_choice)) + tuple(_auto_forced)))
         self.gf_goal_forced: tuple = _forced
+        # START REGION POOL (features/start_grace.StartRegionPool). The player named the regions the
+        # run may open in, so those regions have to BE here -- force-kept on the same seam the goal
+        # uses, and additive to num_regions for the same reason (it is a DRAW SIZE, #409). Validated
+        # HERE and not at the anchor pick, because this is the only place the DLC toggles, the goal's
+        # own force-keeps and the gated children are all resolved: an error raised later could only
+        # say "no region can open this run" without being able to say WHICH name was the problem.
+        self.gf_start_pool: frozenset = self._resolve_start_region_pool()
+        if self.gf_start_pool:
+            _forced = tuple(dict.fromkeys(_forced + tuple(sorted(self.gf_start_pool))))
         self.gf_kept: List[str] = compute_kept(
             _nr,
             self.random,
@@ -878,6 +934,10 @@ class GreenfieldEldenRingWorld(World):
                 # sits one seed off its floor -- went red on the shift. Narrow instrument.
                 major=regions_with_major_boss(
                     kept, barred=_ps_missable(self)) if _strict else None,
+                # The player's own sentence, already validated in generate_early. A HARD filter --
+                # see pick_anchor_regions' docstring for why this one does not degrade the way the
+                # MajorBoss bias beside it does.
+                only=getattr(self, "gf_start_pool", frozenset()),
                 gated=frozenset(REGION_PARENT),
                 # The goal region never rides in as an EXTRA: a run that opens on the region it
                 # ends in is not a run (Alaric, 2026-08-06), and at start_regions 3 that would stop
