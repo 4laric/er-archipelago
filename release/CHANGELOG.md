@@ -51,6 +51,23 @@ plaintext `ws://`; a copied `wss://` address earned `SSLError: WRONG_VERSION_NUM
 🛑 archipelago.gg is still the right answer for a long game with people you do not share a Discord
 with. This is one small box, and it has neither the uptime nor the room history.
 
+### Four Scadutree Fragment checks were paying half what the game gives you
+
+The base game hands out **50** Scadutree Fragments across 46 pickups -- four of those pickups are
+worth two. This world paid one at every single check, so a seed that let you find all 46 gave you
+46 units, and the Scadutree blessing (which is a pure function of that number) topped out a rung
+below vanilla no matter how thoroughly you swept the Realm of Shadow.
+
+The number was in our own data the whole time: `flag_lots.tsv` has carried a `num` column since the
+lot capture landed, and nothing had ever read it. It does now, for **every** item -- 921 locations
+in the game grant more than one copy -- and a check whose lot grants two pays the stacked item where
+one exists. Today that is `Scadutree Fragment x2`, which the DLC blessing feature already minted for
+its own injection; everything else is unchanged, so no other item's pool count moves.
+
+The most visible case was the Hippo's fragment in Scadu Altus. It was already split out as its own
+check and still paid one, because the quantity lives on the lot slot and no amount of check-splitting
+reads it.
+
 ### Dungeon sweeps pay out the good stuff now, unless your seed said otherwise
 
 A boss sweep used to hand you filler and nothing else: every class the Progression Surface can

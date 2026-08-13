@@ -220,24 +220,29 @@ def natural_fragments(world) -> int:
     from. Zero when `item_shuffle` is off: no vanilla item enters the pool at all then, so every
     fragment is absent rather than present.
 
-    ⚠️ COUNTS PLACEMENTS, NOT UNITS -- a known, BOUNDED overshoot. Four of vanilla's 46 fragment lot
-    slots drop x2 (datamined 2026-08-06), and the generated data carries no per-lot quantity, so a
-    seed keeping all four reads its natural supply as 4 units low and injects up to 4 more than it
-    needs. Overshoot, never shortfall, and capped at 4 out of 50. Fixing it properly means teaching
-    gen_data.py to carry lot quantities and regenerating, which is a data change and does not belong
-    in an options PR.
+    ⭐ UNITS, NOT PLACEMENTS (#616, 2026-08-13). Four of vanilla's 46 fragment lot slots drop x2, so
+    46 kept checks hand over 50 units. This used to count placements, because the generated data
+    carried no per-lot quantity and the overshoot it caused (up to 4 injected units too many) was
+    documented as bounded rather than fixed. `item_ids.LOCATION_UNITS` now carries the quantity and
+    `core.create_items` promotes those four locations to `Scadutree Fragment x2`, so counting
+    placements here would no longer be a bounded overshoot -- it would be a DISAGREEMENT with the
+    pool core actually builds, and test_gf_options asserts `frags == natural + injected` on exactly
+    that. So this asks core the same question core asks: `stacked_vanilla_name`, on the same ap id,
+    against the same `item_name_to_id`. One arbiter, not a second copy of the rule.
     """
     o = getattr(world.options, "item_shuffle", None)
     if not (o is not None and o.value) or not LOCATION_ITEM:
         return 0
     if FRAGMENT in getattr(world, "gf_dlc_excluded", frozenset()):
         return 0
+    from ..core import stacked_vanilla_name  # local: core imports the feature registry
+    name_to_id = getattr(world, "item_name_to_id", None) or {}
     kept = list(world._kept()) if hasattr(world, "_kept") else []
     n = 0
     for rn in [HUB] + kept:
         for (_name, ap_id, _flag) in LOCATIONS.get(rn, []):
             if LOCATION_ITEM.get(ap_id) == FRAGMENT:
-                n += 1
+                n += stacked_vanilla_name(FRAGMENT, ap_id, name_to_id)[1]
     return n
 
 

@@ -79,9 +79,44 @@ try:
     from .item_ids import DLC_ITEM_NAMES  # DLC-only catalog names (generated); excluded when DLC off
 except Exception:
     DLC_ITEM_NAMES = set()
+try:
+    from .item_ids import LOCATION_UNITS  # generated (#616): ap_id -> copies its lot grants; absent = 1
+except Exception:
+    LOCATION_UNITS = {}
 
 GAME = "Elden Ring"
 FILLER = "Rune"
+
+
+def stacked_vanilla_name(nm, ap_id, name_to_id):
+    """`nm` -> the STACKED item name for a location whose vanilla lot grants more than one copy.
+
+    ItemLotParam slots carry a quantity, and `LOCATION_UNITS` (generated, #616) is the ones that are
+    not 1. A check that vanilla-drops two of something has always paid ONE here, because the number
+    was captured at regen and never read: four `Scadutree Fragment` lots drop x2, so a seed that
+    kept all 46 fragment checks carried 46 units against the base game's 50, and the Scadutree
+    blessing -- which is a pure function of that count -- sat a rung low all the way through.
+
+    THE STACK IS A SECOND AP ITEM, NOT A COUNT ON THE FIRST. `itemCounts` is keyed by AP item id and
+    every copy of a name shares one, so stacking there would double the x1 placements too. So the
+    promotion is to a NAME: `Scadutree Fragment` -> `Scadutree Fragment x2`, minted by
+    features/scadu_supply with its own id, the same game FullID and itemCounts = 2.
+
+    GENERAL, WITH ONE LIVE CONSUMER. The promotion fires only when the stacked name is a REGISTERED
+    AP item, and today exactly one is. Every other multi-copy location keeps paying x1, unchanged --
+    minting 900-odd stack names would renumber the item id space and change the pool for items whose
+    quantity nobody has ruled on. A future stack costs one entry in a feature's ITEMS/ITEM_GRANTS.
+
+    Returns (name, units). `units` is 1 whenever the name did not move, so a caller can charge a
+    budget by what was actually handed over without re-deriving it.
+    """
+    if not nm:
+        return nm, 1
+    n = LOCATION_UNITS.get(ap_id, 1)
+    if n <= 1:
+        return nm, 1
+    stacked = "%s x%d" % (nm, n)
+    return (stacked, n) if stacked in name_to_id else (nm, 1)
 
 
 _GOODS_NIBBLE = 0x40000000  # ER FullID category nibble for GOODS
@@ -973,6 +1008,22 @@ class GreenfieldEldenRingWorld(World):
                             nm = None
                         else:
                             _hold_left[nm] -= 1
+                    # LAST, and the order is the point (#616). A lot that grants two copies pays the
+                    # stacked item -- but DLC exclusion, flask substitution and the hold ceiling all
+                    # key on the BASE name, and `Scadutree Fragment x2` is a feature-minted name that
+                    # is in none of their tables. Promoting before them would leak a DLC item into a
+                    # DLC-off seed through a name DLC_ITEM_NAMES cannot see. Promoting here, the base
+                    # name is what every one of those rules judged, exactly as before.
+                    _base_nm = nm
+                    nm, _units = stacked_vanilla_name(nm, ap_id, item_name_to_id)
+                    if _units > 1 and _base_nm in _hold_left:
+                        # The stack hands over `_units` copies against the ONE ceiling slot charged
+                        # above; charge the rest, against the BASE name -- the ceiling is a property
+                        # of the game's goods row, which both names resolve to, and `_hold_left` is
+                        # keyed by the base name only. No capped good has a minted stack today
+                        # (measured: GOODS_HOLD_CAP has no `Scadutree Fragment` entry), so this is a
+                        # guard against the next one, not a live path.
+                        _hold_left[_base_nm] -= _units - 1
                     _pin_aps.append(ap_id)
                     extras.append(nm if nm and nm in item_name_to_id else FILLER)
             if _vanilla:
@@ -984,6 +1035,7 @@ class GreenfieldEldenRingWorld(World):
                     _nm2 = LOCATION_ITEM.get(_ap2)
                     if _nm2 and _excl and _nm2 in _excl:
                         _nm2 = None
+                    _nm2, _ = stacked_vanilla_name(_nm2, _ap2, item_name_to_id)
                     _pin_aps.append(_ap2)
                     extras.append(_nm2 if _nm2 and _nm2 in item_name_to_id else FILLER)
             # keep real items first; among reals, keep required Great Runes ahead of everything so
