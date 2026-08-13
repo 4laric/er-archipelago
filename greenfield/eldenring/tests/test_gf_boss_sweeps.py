@@ -829,7 +829,13 @@ class BossSweepScoping(unittest.TestCase):
                     # geometry reason -- only because `_swept` keyed its dungeon branch on
                     # method == flag_prefix. The pool GREW; nothing left it, and the split stays 7/7.
                     "m30_13": ((30130800, 30130810), 14),
-                    "m31_00": ((31000800, 31000850), 4),
+                    # 4 -> 5 (2026-08-13, #191). WHY, as this gate demands: the map gained a
+                    # real fifth check -- the Sage Robe/Trousers family (flag 31047060) projects a
+                    # sibling co-check, and a sibling inherits its primary's sweep membership
+                    # (gen_data mirrors it; a sibling is the same physical pickup, so a sweep that
+                    # pays the primary has already paid this). The pool GREW; nothing was lost, which
+                    # is what the partition invariant is actually protecting.
+                    "m31_00": ((31000800, 31000850), 5),
                     "m31_19": ((31190800, 31190850), 14)}
         for bmap, (heads, total) in sorted(EXPECTED.items()):
             slices = [sorted(self.DS.get(h, [])) for h in heads]

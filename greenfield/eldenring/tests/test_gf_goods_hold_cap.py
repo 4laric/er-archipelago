@@ -157,6 +157,17 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             "Note: Imp Shades": (2, 1), "Note: Stonedigger Trolls": (2, 1),
             "Unalloyed Gold Needle": (2, 1), "Whetstone Knife": (2, 1),
             "Memory Stone": (9, 8),
+            # +3 (2026-08-13, #191). The widened co-check allowlist mints a SIBLING check for each
+            # of these, so the pool now holds two copies of a good the game lets you hold one of.
+            # Looked, did not re-baseline (this test's own instruction): each is a genuine second
+            # physical pickup of the same item on a shared flag, so the clamp is right -- the extra
+            # copy pays filler instead of being destroyed on delivery. The CHECK is still real and
+            # still randomised; only its vanilla payout falls back.
+            #   Black Knifeprint   -- flag 520210 lot 20211, sibling of the Black Knife Assassin drop
+            #   Igon's Bell Bearing -- flags 400711/400714, the two Igon families both carry one
+            #   Letter for Freyja  -- flag 400625 lot 106235, sibling of Ansbach's set
+            "Black Knifeprint": (2, 1), "Igon's Bell Bearing": (2, 1),
+            "Letter for Freyja": (2, 1),
             # 🛑 "Rya's Necklace": (2, 1) WAS pinned here on 2026-08-07 and is now GONE, because
             # the second copy was never a necklace. Diffing by LOCATION NAME said "the re-key
             # recovered a second pickup"; diffing by ITEM ID says otherwise:

@@ -117,7 +117,13 @@ class TagDataTests(unittest.TestCase):
         # 🛑 STILL NOT "every boss": the 75 covered by neither mechanism remain untagged, Dryleaf
         # Dane among them (his gear is an ASSET PICKUP -- common event 90005750, lot 107300, flag
         # 400730 -- which is a live check carrying no tags at all).
-        self.assertEqual(TAG_COUNTS["Boss"], 214)
+        # 214 -> 266 (2026-08-13, #191): the co-check allowlist widened from 5 hand-verified families
+        # to the datamine_flag_lots policy, minting 286 sibling checks. 56 of them carry this
+        # tag, on the SAME rule the flag-197 entry above states: a co-check is the same
+        # physical acquisition as its primary and inherits its tags. Alaric confirmed the
+        # reading 2026-08-13. NOT a rebaseline -- the tag definition is unchanged, the
+        # population of checks grew.
+        self.assertEqual(TAG_COUNTS["Boss"], 266)
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -267,7 +273,13 @@ class TagDataTests(unittest.TestCase):
         major boss's drop set changes, or when a new Remembrance/GreatRune check appears -- the
         closure picks those up automatically, which is why this is a closure and not a hand list."""
         # 42 -> 43 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
-        self.assertEqual(TAG_COUNTS["MajorBoss"], 43)
+        # 43 -> 52 (2026-08-13, #191): the co-check allowlist widened from 5 hand-verified families
+        # to the datamine_flag_lots policy, minting 286 sibling checks. 10 of them carry this
+        # tag, on the SAME rule the flag-197 entry above states: a co-check is the same
+        # physical acquisition as its primary and inherits its tags. Alaric confirmed the
+        # reading 2026-08-13. NOT a rebaseline -- the tag definition is unchanged, the
+        # population of checks grew.
+        self.assertEqual(TAG_COUNTS["MajorBoss"], 52)
 
     def test_boss_geography_counts(self):
         """LegacyBoss / FieldBoss split `Boss` by WHERE the boss stands. Drift guard on both."""
@@ -275,7 +287,13 @@ class TagDataTests(unittest.TestCase):
         # 31 -> 42 (2026-08-08): the second reward mechanism (see TAG_COUNTS["Boss"] above). The
         # geography pass already joined via BOSS_REWARD_TILE, so these followed the Boss tag with no
         # further change -- which is the evidence the two halves were always meant to be one.
-        self.assertEqual(TAG_COUNTS["LegacyBoss"], 42)
+        # 42 -> 52 (2026-08-13, #191): the co-check allowlist widened from 5 hand-verified families
+        # to the datamine_flag_lots policy, minting 286 sibling checks. 13 of them carry this
+        # tag, on the SAME rule the flag-197 entry above states: a co-check is the same
+        # physical acquisition as its primary and inherits its tags. Alaric confirmed the
+        # reading 2026-08-13. NOT a rebaseline -- the tag definition is unchanged, the
+        # population of checks grew.
+        self.assertEqual(TAG_COUNTS["LegacyBoss"], 52)
 
         # 2026-08-04 (#249): +3. Placing the unplaced common-event rows gave THREE field
         # bosses a check for the first time -- their unique drop had no tile, so it was never a
@@ -290,7 +308,10 @@ class TagDataTests(unittest.TestCase):
         # retires the stated reason for having no `Underground` class ("only THREE of them drop an
         # AP-tracked check"); gen_data's comment is corrected, and whether to OFFER the class is
         # left as a player-facing decision.
-        self.assertEqual(TAG_COUNTS["FieldBoss"], 95)
+        # 95 -> 110 (2026-08-13, #191): the FieldBoss half of the same widening. 266 Boss = 52
+        # legacy + 110 field + the rest; the split is unchanged, both halves grew with the check
+        # population. Same rule: a co-check inherits its primary's tags.
+        self.assertEqual(TAG_COUNTS["FieldBoss"], 110)
 
     def test_geography_tags_are_subsets_of_boss_and_disjoint(self):
         """Definitional, so these are gates, not preferences: a legacy/field boss IS a boss, and no
