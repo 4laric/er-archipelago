@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report a bug &mdash; Elden Ring for Archipelago</title>
+<meta name="description" content="Build a bug report for Elden Ring Archipelago. No GitHub account needed.">
+<!--
+  Bug report builder. Single file, no build step, NO NETWORK CALLS, no backend.
+
+  WHY THIS EXISTS ALONGSIDE .github/ISSUE_TEMPLATE/bug_report.yml. The issue form asks the right
+  questions and is the right destination -- but it REQUIRES A GITHUB ACCOUNT, and this project is
+  about to be announced to a Discord full of players who mostly do not have one. A report that is
+  never filed is a bug found weeks later from a playtester instead. So the questions live here too,
+  where anyone can answer them, and the answers come out in two forms: a prefilled GitHub issue for
+  people who have an account, and a formatted block on the clipboard for people who would rather
+  paste it into Discord.
+
+  BOTH DOORS ASK THE SAME THINGS ON PURPOSE. If you change a question here, change it in
+  .github/ISSUE_TEMPLATE/bug_report.yml too -- two intake forms that disagree is worse than one.
+
+  DEPLOY: ER_STATIC_DIR=/srv/er tools/deploy_wizard.sh   -> /er/report.html
+-->
+<style>
+:root{
+  --bg:#131110; --bg2:#1c1917; --panel:#232019; --panel2:#2a261e;
+  --gold:#c8a95a; --gold-dim:#8a7440; --text:#e8e0cf; --dim:#9a8f78;
+  --err:#e06c5a; --warn:#d9a53f; --ok:#8fbf6f;
+  --mono:ui-monospace,'Cascadia Code',Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:16px/1.6 Georgia,'Times New Roman',serif}
+h1,h2,h3{font-weight:normal;color:var(--gold);letter-spacing:.04em;margin:0}
+a{color:var(--gold)}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px 60px}
+header.top{border-bottom:1px solid var(--gold-dim);
+  background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);padding:34px 0 26px;margin-bottom:26px}
+header.top h1{font-size:30px}
+header.top p{color:var(--dim);max-width:66ch;margin:10px 0 0;font-size:15px}
+.field{margin:22px 0}
+.field label{display:block;color:var(--gold);font-size:15px;margin-bottom:5px}
+.field .hint{color:var(--dim);font-size:13.5px;margin:0 0 8px;max-width:74ch;line-height:1.5}
+input[type=text],textarea,select{width:100%;background:var(--panel);color:var(--text);
+  border:1px solid #3a3328;padding:9px 11px;font:14px/1.5 var(--mono);border-radius:0}
+input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold-dim)}
+textarea{resize:vertical;min-height:110px}
+select{font-family:Georgia,serif;font-size:15px}
+.req{color:var(--err)}
+.checks label{display:block;color:var(--text);font-size:14.5px;margin:5px 0;cursor:pointer}
+.checks input{margin-right:8px}
+.note{border-left:3px solid var(--warn);background:var(--panel);padding:12px 16px;
+  margin:18px 0;font-size:14px;color:var(--dim);max-width:76ch}
+.note b{color:var(--warn);font-weight:normal}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px;
+  border-top:1px solid #2a261e;padding-top:24px}
+button{background:var(--panel2);color:var(--gold);border:1px solid var(--gold-dim);
+  padding:12px 20px;font:16px Georgia,serif;cursor:pointer;letter-spacing:.02em}
+button:hover{background:#332d22;border-color:var(--gold)}
+button.ghost{color:var(--dim);border-color:#3a3328}
+#status{margin-top:14px;font-size:14.5px;min-height:22px;color:var(--dim)}
+#status.ok{color:var(--ok)} #status.err{color:var(--err)} #status.warn{color:var(--warn)}
+#preview{width:100%;margin-top:18px;background:var(--panel);color:var(--dim);
+  border:1px solid #2a261e;padding:12px;font:12.5px/1.5 var(--mono);white-space:pre-wrap;
+  max-height:340px;overflow:auto;display:none}
+footer{color:var(--dim);font-size:13.5px;border-top:1px solid #2a261e;margin-top:34px;padding-top:20px}
+</style>
+</head>
+<body id="er-report">
+
+<header class="top">
+  <div class="wrap">
+    <h1>Report a bug</h1>
+    <p>The same questions the GitHub form asks, but you do not need a GitHub account to answer
+    them. At the end you can open a prefilled issue <em>or</em> copy the whole report and paste it
+    into Discord. Nothing you type here leaves your browser until you press one of those buttons.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="note">
+  <b>&#128721; First: are both halves from the same release?</b>
+  The apworld and the client DLL are a hash-matched pair. A mismatched pair does not fail at the
+  door &mdash; it connects and behaves subtly wrong, and every bug it produces is unreal. If they
+  came from different releases, redownload both and see if it survives.
+  <a href="https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md">Known issues</a>
+  also lists the by-design behaviours that get reported as bugs.
+</div>
+
+<div class="field">
+  <label for="ver">Release tag <span class="req">*</span></label>
+  <p class="hint">The tag you took <em>both</em> halves from, e.g. <code>v0.4.0</code>.
+  &#128721; Not the number the client prints &mdash; several builds have shipped under one version
+  string, so the tag is the answer and the printed version is not.</p>
+  <input type="text" id="ver" placeholder="v0.4.0">
+</div>
+
+<div class="field">
+  <label for="what">What happened, and what you expected instead <span class="req">*</span></label>
+  <p class="hint">Concretely. "The Region Lock for Caelid arrived and the graces did not light"
+  beats "region unlocking is broken" &mdash; the second one sends whoever reads it looking in the
+  wrong place first.</p>
+  <textarea id="what"></textarea>
+</div>
+
+<div class="field">
+  <label for="repro">Can you make it happen again?</label>
+  <p class="hint">If yes, the steps. If it happened once and you cannot reproduce it, say that
+  &mdash; it is useful information and not a reason to skip reporting.</p>
+  <textarea id="repro" style="min-height:80px"></textarea>
+</div>
+
+<div class="field">
+  <label for="yaml">Your yaml <span class="req">*</span></label>
+  <p class="hint">The whole file, not the lines you think matter. Options interact, and the ones
+  that turn out to matter are usually not the ones anybody suspected.</p>
+  <textarea id="yaml" style="min-height:150px"></textarea>
+</div>
+
+<div class="field">
+  <label for="log">Client log</label>
+  <p class="hint">Paste the whole thing. &#128721; <b>The log is appended across sessions</b>, so an
+  older session's errors sitting above the current one send triage down a dead end &mdash; this page
+  trims to the last <code>SESSION START</code> for you and tells you if it did.</p>
+  <textarea id="log" style="min-height:130px"></textarea>
+</div>
+
+<div class="field">
+  <label for="dlc">Was the DLC in play? <span class="req">*</span></label>
+  <p class="hint"><code>enable_dlc</code> is ON in the apworld's own defaults and OFF in the shipped
+  template, so "I did not turn it on" does not settle it. Check the yaml you pasted above.</p>
+  <select id="dlc">
+    <option value="">&mdash; pick one &mdash;</option>
+    <option>No &mdash; enable_dlc: false</option>
+    <option>Yes &mdash; enable_dlc: true</option>
+    <option>dlc_only: true</option>
+    <option>Not sure / the yaml says nothing about it</option>
+  </select>
+</div>
+
+<div class="field checks">
+  <label>Anything else loaded?</label>
+  <p class="hint">These change the answer. <code>RandomizerHelper.dll</code> in particular is the
+  most common cause of "my checks send but I never receive anything", and matt's "Add dll mod"
+  launch path does not read our me3 profile &mdash; which is why AP items can show up as telescopes.</p>
+  <label><input type="checkbox" data-stack="thefifthmatt's randomizer (enemies / starting class)">thefifthmatt's randomizer (enemies / starting class)</label>
+  <label><input type="checkbox" data-stack="Seamless Co-op">Seamless Co-op</label>
+  <label><input type="checkbox" data-stack="Other mods through me3">Other mods through me3</label>
+  <label><input type="checkbox" data-stack="Launched through something other than the shipped ap.me3 profile">Launched through something other than the shipped <code>ap.me3</code> profile</label>
+</div>
+
+<div class="field">
+  <label for="spoiler">Spoiler log</label>
+  <p class="hint">Say whether you have it. For anything about where an item ended up, the spoiler is
+  not supporting evidence &mdash; it is the only thing that can settle the question. It is too big to
+  paste here; attach it to the issue, or say you can send it.</p>
+  <input type="text" id="spoiler" placeholder="e.g. I have it and can attach it">
+</div>
+
+<div class="actions">
+  <button id="copy">Copy the whole report</button>
+  <button id="gh" class="ghost">Open a GitHub issue</button>
+  <button id="show" class="ghost">Show what I am sending</button>
+</div>
+<div id="status"></div>
+<pre id="preview"></pre>
+
+<footer>
+  <a href="/">Home</a> &middot;
+  <a href="/er/">Yaml builder</a> &middot;
+  <a href="/er/checks.html">Check browser</a> &middot;
+  <a href="https://github.com/4laric/er-archipelago/issues">Existing issues</a>
+  <p>A check attributed to the wrong region? Use the
+  <a href="/er/checks.html">check browser</a> instead &mdash; its report button fills the issue out
+  with the tile's other regions and how this one was decided already attached.</p>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+
+/* THE LOG IS APPENDED ACROSS SESSIONS. This is the single most repeated instruction in every
+   triage this project has had, so the page does it instead of asking. Returns [text, trimmed]. */
+function lastSession(text){
+  if (!text) return ["", false];
+  var i = text.lastIndexOf("SESSION START");
+  if (i <= 0) return [text, false];
+  var nl = text.lastIndexOf("\n", i);
+  return [text.slice(nl + 1), true];
+}
+
+function stack(){
+  var out = [];
+  var boxes = document.querySelectorAll(".checks input[type=checkbox]");
+  for (var i = 0; i < boxes.length; i++)
+    if (boxes[i].checked) out.push(boxes[i].getAttribute("data-stack"));
+  return out;
+}
+
+function missing(){
+  var need = [["ver","the release tag"],["what","what happened"],["yaml","your yaml"],["dlc","whether the DLC was in play"]];
+  var out = [];
+  for (var i = 0; i < need.length; i++)
+    if (!$(need[i][0]).value.trim()) out.push(need[i][1]);
+  return out;
+}
+
+function fence(s){ return "```\n" + s.replace(/```/g, "` ` `") + "\n```"; }
+
+function build(){
+  var t = lastSession($("log").value.trim());
+  var log = t[0], trimmed = t[1];
+  var st = stack();
+  var L = [];
+  L.push("**Release tag:** " + ($("ver").value.trim() || "(not given)"));
+  L.push("");
+  L.push("### What happened");
+  L.push($("what").value.trim() || "(not given)");
+  if ($("repro").value.trim()){ L.push(""); L.push("### Reproducing it"); L.push($("repro").value.trim()); }
+  L.push("");
+  L.push("### DLC");
+  L.push($("dlc").value || "(not given)");
+  L.push("");
+  L.push("### Also loaded");
+  L.push(st.length ? st.map(function(s){ return "- " + s; }).join("\n") : "- nothing else");
+  if ($("spoiler").value.trim()){ L.push(""); L.push("### Spoiler log"); L.push($("spoiler").value.trim()); }
+  L.push("");
+  L.push("### yaml");
+  L.push(fence($("yaml").value.trim() || "(not given)"));
+  if (log){
+    L.push("");
+    L.push("### Client log" + (trimmed ? " (trimmed to the last SESSION START)" : ""));
+    L.push(fence(log));
+  }
+  L.push("");
+  L.push("<sub>Built with peliarch.ca/er/report.html</sub>");
+  return { body: L.join("\n"), trimmed: trimmed };
+}
+
+function say(msg, cls){ var s = $("status"); s.textContent = msg; s.className = cls || ""; }
+
+$("show").addEventListener("click", function(){
+  var p = $("preview");
+  if (p.style.display === "block"){ p.style.display = "none"; this.textContent = "Show what I am sending"; return; }
+  p.textContent = build().body;
+  p.style.display = "block";
+  this.textContent = "Hide it";
+});
+
+$("copy").addEventListener("click", function(){
+  var m = missing();
+  var r = build();
+  var done = function(){
+    say("Copied. Paste it into Discord, or into a GitHub issue."
+        + (r.trimmed ? " Your log was trimmed to the last SESSION START." : "")
+        + (m.length ? "  Still missing: " + m.join(", ") + "." : ""),
+        m.length ? "warn" : "ok");
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(r.body).then(done, function(){
+      $("preview").textContent = r.body; $("preview").style.display = "block";
+      say("Could not reach the clipboard. The full report is below -- select it and copy.", "warn");
+    });
+  } else {
+    $("preview").textContent = r.body; $("preview").style.display = "block";
+    say("This browser will not let a page write to the clipboard. The full report is below.", "warn");
+  }
+});
+
+/* GITHUB PREFILL HAS A LENGTH CEILING AND IT FAILS UGLY, NOT LOUDLY: past roughly 8k of URL the
+   request is rejected or silently truncated, and a yaml plus a log clears that easily. So measure
+   the URL before opening it, and when it will not fit, put the WHOLE report on the clipboard and
+   open a blank issue for them to paste into -- rather than opening a prefilled issue that quietly
+   dropped the log, which is the field triage needs most. */
+var GH = "https://github.com/4laric/er-archipelago/issues/new";
+var LIMIT = 7500;
+
+$("gh").addEventListener("click", function(){
+  var m = missing();
+  if (m.length){ say("Fill in " + m.join(", ") + " first -- a report without those takes three rounds to become useful.", "err"); return; }
+  var r = build();
+  var title = "[" + ($("ver").value.trim()) + "] " + $("what").value.trim().split("\n")[0].slice(0, 70);
+  var full = GH + "?labels=bug&title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(r.body);
+  if (full.length <= LIMIT){
+    say("Opening GitHub with the report filled in." + (r.trimmed ? " Your log was trimmed to the last SESSION START." : ""), "ok");
+    window.open(full, "_blank", "noopener");
+    return;
+  }
+  var open = function(){
+    say("Your report is too long to put in a link, so it is on your clipboard instead -- paste it "
+        + "into the issue that just opened. Nothing was dropped.", "warn");
+    window.open(GH + "?labels=bug&title=" + encodeURIComponent(title), "_blank", "noopener");
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(r.body).then(open, function(){
+      $("preview").textContent = r.body; $("preview").style.display = "block";
+      say("Too long for a link and the clipboard was refused. The full report is below -- copy it, "
+          + "then open an issue.", "warn");
+    });
+  } else {
+    $("preview").textContent = r.body; $("preview").style.display = "block";
+    say("Too long for a link. The full report is below -- copy it, then open an issue.", "warn");
+  }
+});
+</script>
+</body>
+</html>

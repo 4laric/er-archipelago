@@ -1,5 +1,10 @@
 blank_issues_enabled: true
 contact_links:
+  - name: No GitHub account? Build your report here instead
+    url: https://peliarch.ca/er/report.html
+    about: >
+      The same questions this form asks, answerable without an account. It hands you a finished
+      report to paste into Discord, or opens a prefilled issue.
   - name: A check is attributed to the wrong region
     url: https://peliarch.ca/er/checks.html
     about: >
