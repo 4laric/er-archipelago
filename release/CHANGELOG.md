@@ -60,6 +60,46 @@ green every time I reported them green, and they are not the same set: `generato
 repo-only suites via `gf_suite_ledger.py --generators-list`. Reporting "gates green" after running
 a hand-picked four is how a red reaches main with a green summary attached to it.
 
+### A bug report you can file without a GitHub account
+
+`.github/ISSUE_TEMPLATE/bug_report.yml` asks the right questions and lands in the right place --
+and it **requires a GitHub account**, which is a real filter on a Discord full of players who have
+never opened an issue. A report that is never filed is a bug found weeks later from a playtester
+instead.
+
+So the same questions now also live at **`/er/report.html`**, and the answers come out two ways: a
+prefilled GitHub issue for people who have an account, and a formatted block on the clipboard for
+people who would rather paste it into Discord. No backend, no network calls, nothing typed there
+leaves the browser until a button is pressed. Both doors ask the same things on purpose; two intake
+forms that disagree would be worse than one.
+
+**It trims the log to the last `SESSION START` for you.** That is the single most repeated
+instruction in every triage this project has had, and it is a thing a page can just do instead of
+asking. It says when it did it, so nobody wonders where their log went.
+
+🛑 **The GitHub prefill has a length ceiling and it fails ugly, not loudly** -- past roughly 8k of
+URL the request is rejected or silently truncated, and a yaml plus a log clears that easily. The
+page measures the URL first. When it will not fit, the WHOLE report goes to the clipboard and a
+blank issue opens for it to be pasted into, rather than a prefilled issue that quietly dropped the
+log -- which is the field triage needs most.
+
+### A missing artifact at the STABLE tag is a skip; at main it is a bug
+
+Adding `report.html` broke `deploy_wizard.sh` for the ordinary case, and the failure was correct
+but useless: the file is not in v0.4.0, so `curl -f` 404'd and the whole deploy aborted after
+installing the wizard. Every new page would do this once.
+
+A 404 at the **stable tag** now SKIPS, loudly, with a reason -- that tag legitimately predates an
+artifact added after it was cut. A 404 at **main** stays FATAL, because main is this repo's own
+tree and a file missing there is a bug rather than a gap. Anything that is not a 404 -- network,
+DNS, a proxy, a ref that does not exist -- stays fatal for every ref, because none of those mean
+what a 404 means. Skips are counted and reported at the end (rule 4: a filter with no tally is a lie).
+
+**And an aborted deploy no longer litters the served directory.** `die` exits the shell, so
+`install_one`'s `RETURN` trap never ran and its `.tmp` survived -- inside the directory the web
+server is serving, under a name nothing would ever clean up, fetchable and half-written. The
+in-flight temp file is tracked globally and cleared on `EXIT` as well.
+
 ### The questline DAG was on the host by accident, and is now deployed on purpose
 
 Listing `/er-static` inside the container before mounting over it turned up a file nobody had

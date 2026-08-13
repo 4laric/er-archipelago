@@ -13,6 +13,7 @@
 #     /er/beta/wizard.html   <- wizard/wizard.html at main
 #     /er/checks.html        <- er-archipelago-check-browser.html at the STABLE tag
 #     /er/beta/checks.html   <- er-archipelago-check-browser.html at main
+#     /er/report.html        <- wizard/report.html at the STABLE tag
 #     /er/questlines.html    <- er-archipelago-questline-dag.html at the STABLE tag
 #     /er/beta/questlines.html <- er-archipelago-questline-dag.html at main
 #     /er/landing.html       <- wizard/landing.html at the STABLE tag       (--landing only)
@@ -81,6 +82,14 @@ for a in "$@"; do
 done
 
 say() { printf '%s\n' "$*"; }
+# Rule 4: a filter with no tally is a lie. Skips are counted and reported at the end.
+SKIPPED_ARTIFACTS=0
+# !! `die` exits the SHELL, so install_one's RETURN trap does not run and its .tmp survives --
+# in the directory the web server is serving. A stale `wizard.html.ab12cd.tmp` is fetchable and
+# is a half-written page under a name nothing will ever clean up. Track the in-flight temp file
+# globally and clear it on EXIT as well, so an abort leaves the directory as it found it.
+CURRENT_TMP=""
+trap 'rm -f "$CURRENT_TMP"' EXIT
 die() { printf 'deploy_wizard: %s\n' "$*" >&2; exit 1; }
 
 # ---- which tag is stable? Read it from the ledger AT MAIN, so the answer comes from the same place
@@ -101,9 +110,27 @@ install_one() {  # ref, source path in repo, destination path, sentinel, label
   # is a copy, which is not atomic), and `beta/` does not exist on a first run.
   mkdir -p "$(dirname "$dst")"
   tmp="$(mktemp "${dst}.XXXXXX.tmp")"
+  CURRENT_TMP="$tmp"
   # shellcheck disable=SC2064
-  trap "rm -f '$tmp'" RETURN
-  curl -fsSL "${RAW}/${ref}/${src}" -o "$tmp" || die "fetch failed: ${label} (${ref})"
+  trap "rm -f '$tmp'; CURRENT_TMP=" RETURN
+  # !! A 404 AT THE STABLE TAG IS NOT THE SAME FAILURE AS A 404 AT MAIN, and collapsing them
+  # aborts a routine deploy every time a NEW page is added. main always carries the current set by
+  # construction -- it is this repo -- so a missing file there is a real bug and stays fatal. A
+  # stable TAG legitimately predates an artifact added after it was cut, and the honest answer is
+  # "not in this release yet", not "the deploy is broken" and not a silently older copy.
+  # Anything that is not a 404 -- network, DNS, a proxy, a ref that does not exist -- stays fatal
+  # for every ref, because none of those mean what a 404 means.
+  local http
+  http="$(curl -sSL -w '%{http_code}' -o "$tmp" "${RAW}/${ref}/${src}")" || http="000"
+  if [ "$http" = "404" ]; then
+    if [ "$ref" = "main" ]; then
+      die "${src} is MISSING at main -- that is this repo's own tree, so this is a bug, not a gap"
+    fi
+    say "  SKIP ${label}: ${src} is not in ${ref} yet (added after that tag was cut)"
+    SKIPPED_ARTIFACTS=$((SKIPPED_ARTIFACTS + 1))
+    return 0
+  fi
+  [ "$http" = "200" ] || die "fetch failed: ${label} (${ref}) -- HTTP ${http}"
   grep -q "$sentinel" "$tmp" \
     || die "fetched ${label} does not contain ${sentinel} -- refusing to install it"
   local bytes ver
@@ -128,12 +155,17 @@ WIZ_SENTINEL='id="er-options-metadata"'
 CHK_SRC="er-archipelago-check-browser.html"
 # The check browser's own map container -- structural, and nothing a 200-with-a-login-page has.
 CHK_SENTINEL='id="mapslot"'
+RPT_SRC="wizard/report.html"
+# The report builder's own form root. It is small and cheap, so it is NOT behind --no-checks:
+# the one page a stuck player needs should never be the one a fast cron skipped.
+RPT_SENTINEL='id="er-report"'
 QDAG_SRC="er-archipelago-questline-dag.html"
 # Likewise: the DAG page's own graph pane. Its `id="q"` search box would NOT do -- one letter is a
 # string a login page can plausibly contain, and a sentinel that can pass by accident is not one.
 QDAG_SENTINEL='id="mer"'
 
 install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wizard  stable (${stable_tag})"
+install_one "$stable_tag" "$RPT_SRC" "${DEST}/report.html" "$RPT_SENTINEL" "report  stable (${stable_tag})"
 [ "$NO_CHECKS" = "1" ] || {
   install_one "$stable_tag" "$CHK_SRC" "${DEST}/checks.html" "$CHK_SENTINEL" "checks  stable (${stable_tag})"
   install_one "$stable_tag" "$QDAG_SRC" "${DEST}/questlines.html" "$QDAG_SENTINEL" "qdag    stable (${stable_tag})"
@@ -141,6 +173,7 @@ install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wiza
 
 if [ "$STABLE_ONLY" = "0" ]; then
   install_one "main" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (main)"
+  install_one "main" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (main)"
   [ "$NO_CHECKS" = "1" ] || {
     install_one "main" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (main)"
     install_one "main" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (main)"
@@ -155,12 +188,19 @@ if [ "$LANDING" = "1" ]; then
     'id="er-landing"' "landing stable (${stable_tag})"
 fi
 
+if [ "$SKIPPED_ARTIFACTS" -gt 0 ]; then
+  say ""
+  say "!! ${SKIPPED_ARTIFACTS} artifact(s) were not in the stable tag and were NOT installed."
+  say "   They ship on the next release. Promote stable in release/CHANNELS.tsv and rerun."
+fi
+
 cat <<'NOTE'
 
 Live at:
   /                       stable   the landing page      (--landing only; served by the app
                                    from ER_STATIC_DIR/landing.html, not from the web root)
   /er/wizard.html         stable   the options wizard
+  /er/report.html         stable   the bug report builder
   /er/checks.html         stable   the check browser
   /er/questlines.html     stable   the questline DAG
   /er/beta/wizard.html    beta
