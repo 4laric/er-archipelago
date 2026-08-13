@@ -1,0 +1,170 @@
+# er-release.yaml -- build the player bundle in CI, from a tag, on machines nobody owns.
+#
+# WHY. `package_release.ps1` is 687 lines of PowerShell that has only ever run on one Windows box.
+# `release.yaml` beside this file states the consequence as settled fact -- "the bundle stays a
+# Windows-built manual upload -- it contains the client .dll, which this runner cannot build" --
+# and that is true of THAT runner, which is ubuntu-latest. It is not true of windows-latest, where
+# the client repo has been building the same .dll on every PR for a month.
+#
+# ⭐ THE PAIRING BECOMES STRUCTURAL, NOT CHECKED. The .dll is built from the SUBMODULE, at the
+# gitlink this tag records. So the apworld and the client in one zip cannot be from different
+# commits -- not because a gate compared them afterwards, but because there was only ever one
+# commit involved. The pin record has broken at v0.2.17, v0.3.1, v0.3.5, v0.3.7 and v0.3.11; every
+# one of those was a .dll "built separately" and a record that disagreed. There is nothing left to
+# disagree.
+#
+# 🛑 ONE INPUT THIS CANNOT PRODUCE. me3/ap-package is Elden Ring's SB_Icon atlas with cell 92
+# repainted -- game data, PROVENANCE.md rule 1, and docs/AP-ICON-PIPELINE.md rules it out of this
+# repo in as many words. It comes from a PRIVATE repo (`ICON_REPO`), so the public tree stays clean
+# and the provenance docs stay true as written. Without it `pack_release.py` HARD FAILS rather than
+# shipping a bundle that renders a Telescope on every check.
+#
+# 🛑 THIS DOES NOT REPLACE release.yaml. That one attaches the bare apworld and the wizard and is
+# deliberately not gated on the pin. This one produces the player bundle. They attach to the same
+# tag and neither blocks the other.
+name: er-release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "version to package, e.g. 0.4.1"
+        required: true
+      unofficial:
+        description: "cut a NON-RELEASE build (identity gates warn, correctness gates still fail)"
+        type: boolean
+        default: false
+      stamp:
+        description: "REQUIRED with unofficial: free-text label, e.g. auto-equip-preview"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  # -----------------------------------------------------------------------------------------------
+  # The .dll, built from the submodule at this tag's gitlink. windows-latest because the target is
+  # a Windows cdylib -- that part really is Windows-only, and it is the only part that is.
+  # -----------------------------------------------------------------------------------------------
+  client-dll:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - id: pin
+        shell: bash
+        run: echo "sha=$(git -C from-software-archipelago-clients rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # nightly, because the client repo's rust-toolchain.toml pins it and stable rustfmt rewrites
+      # its @generated files.
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: from-software-archipelago-clients
+
+      - name: Build the client
+        working-directory: from-software-archipelago-clients
+        run: cargo build --release -p eldenring-archipelago
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: client-dll
+          path: from-software-archipelago-clients/target/release/eldenring_archipelago.dll
+          if-no-files-found: error
+          retention-days: 7
+
+    outputs:
+      client_sha: ${{ steps.pin.outputs.sha }}
+
+  # -----------------------------------------------------------------------------------------------
+  # Everything else. Linux, because none of it needs Windows once the .dll exists.
+  # -----------------------------------------------------------------------------------------------
+  bundle:
+    runs-on: ubuntu-latest
+    needs: [client-dll]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - id: ver
+        run: |
+          v="${{ github.event.inputs.version || github.ref_name }}"
+          echo "version=${v#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Pack the apworld
+        run: python tools/build_apworld.py -o dist/eldenring.apworld
+
+      # THE GATE THAT MATTERS, and it is the same one release.yaml runs: a bundle whose apworld
+      # cannot roll a seed is worse than no bundle -- it fails for the host, with our name on it.
+      - name: The packed apworld generates a seed
+        run: python tools/gf_zip_gen_smoke.py --apworld dist/eldenring.apworld
+
+      # Identity of the pair. Structural here (see the header) but the tool also checks the SHA
+      # baked into the .dll, which is the half a gitlink cannot assert.
+      - name: The tag's record of what pairs with what
+        run: python tools/check_release_pairing.py --repo from-software-archipelago-clients
+        continue-on-error: ${{ github.event.inputs.unofficial == 'true' }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: client-dll
+          path: me3
+
+      # 🛑 The one input that cannot live in this repo. See docs/AP-ICON-PIPELINE.md.
+      - name: Fetch the AP icon override
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ICON_REPO }}
+          token: ${{ secrets.ICON_REPO_TOKEN }}
+          path: .icon
+      - run: cp -r .icon/ap-package me3/ap-package
+
+      - name: Assemble
+        env:
+          CLIENT_SHA: ${{ needs.client-dll.outputs.client_sha }}
+        run: |
+          set +e
+          python tools/pack_release.py \
+            --version "${{ steps.ver.outputs.version }}" \
+            --apworld dist/eldenring.apworld \
+            --client-dir from-software-archipelago-clients \
+            --out dist \
+            ${{ github.event.inputs.unofficial == 'true' && format('--unofficial --stamp {0}', github.event.inputs.stamp) || '' }}
+          rc=$?
+          # 🛑 2 IS "STAGED WITH WARNINGS", NOT FAILURE, and it must not collapse into 0 or 1. It is
+          # how an unofficial build says it is not a release.
+          if [ $rc -eq 2 ]; then echo "::warning::packaged with warnings"; elif [ $rc -ne 0 ]; then exit $rc; fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: er-archipelago-bundle
+          path: |
+            dist/*.zip
+            dist/*.apworld
+          if-no-files-found: error
+          retention-days: 30
+
+      # Only a real tag publishes. A workflow_dispatch run leaves the artifact and stops.
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: dist/*.zip
+          fail_on_unmatched_files: true
