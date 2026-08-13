@@ -55,9 +55,28 @@ Elden Ring:
   # breakdown for your seed either way.
   num_regions: 6
 
+  # WHICH region the run OPENS IN, by name. Empty (default) = any kept region,
+  # drawn the way it always was. Name one and you start there; name several and
+  # the opening region is drawn from just those.
+  #
+  # 🛑 Every region you name is FORCE-KEPT, so this can make a seed bigger than
+  # `num_regions` asked for -- that number is a draw size and force-keeps are
+  # additive (the generation log names the contribution). Naming three regions
+  # and asking for one is a three-region seed, not a one-region seed with a
+  # choice. For "just play Caelid", name one and set num_regions: 1.
+  #
+  # Names: Limgrave, Liurnia, Caelid, Altus, Stormveil, Raya Lucaria Academy,
+  # Mt. Gelmir, Mountaintops of the Giants, Weeping, Deeproot Depths, Siofra
+  # River, Ainsel River, Mohgwyn, Farum Azula, Haligtree -- and with the DLC on:
+  # Gravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient
+  # Ruins, Cerulean, Abyssal, Jagged Peak. Naming a region this seed cannot open
+  # in -- sealed by your DLC toggles, needed by your goal, or reached through a
+  # parent region -- fails generation and says which and why.
+  start_region_pool: []
+
   # How the kept regions are chosen when num_regions > 0. It picks WHICH
-  # regions you keep -- not where you START, which is always a separate draw
-  # weighted by region size over whatever was kept.
+  # regions you keep -- not where you START, which is a separate draw weighted
+  # by region size over whatever was kept, unless start_region_pool names it.
   #   rolled        -- a random N (the default). Wilder; every base region
   #                    turns up in roughly a third of seeds.
   #   vanilla_order -- the first N of the game's own progression path
@@ -376,6 +395,15 @@ Elden Ring:
 
   # WHICH LOCATIONS MAY HOLD PROGRESSION. Shrinking this makes the run tighter
   # and more predictable; widening it scatters key items further afield.
+  #
+  # Every entry below names a KIND of check. `SweepSlot` is the one that does not:
+  # it adds ONE member of every dungeon sweep your seed runs, so clearing an area
+  # can pay out progression. It needs Dungeon Sweep on (it is, by default), and it
+  # is ON by default because the rest of this list is SMALL -- about 30 checks on a
+  # four-region seed -- and at the shipped `confine_foreign_progression: 100` it is
+  # the only place another player's key items may land. Without it a slot receives
+  # roughly a tenth of the foreign progression it otherwise would. Remove it if you
+  # would rather a sweep never hand you a key.
   progression_surface:
     - MajorBoss
     - Remembrance
@@ -386,6 +414,7 @@ Elden Ring:
     - Fragment
     - Revered
     - ShopSlot
+    - SweepSlot
 
   # In a MULTIWORLD, what PERCENT of other players' progression is confined to your
   # progression_surface, the way your own is. 100 confines all of it, so a foreign

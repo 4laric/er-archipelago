@@ -31,6 +31,16 @@ def test_firepots_is_opt_in_fire_lean():
     assert all(n in ITEM_CATALOG for n in fp), "firepots members must resolve in the catalog"
     assert "firepots" in fc._VALID_CATS, "firepots must be an accepted recipe category"
     assert "firepots" not in fc.CuratedFiller.default, "firepots must be opt-in (absent from default)"
+    # Same bar for junk_gear (#191/#624 follow-up), and for the same reason: it is OFFERED, not
+    # imposed. The weights are relative, so adding a key to the shipped recipe re-proportions every
+    # other category and moves EVERY default seed -- which is exactly the silent behaviour change
+    # this file exists to stop. junk_gear is the ~368 equippables the game rates trivial; a player
+    # who wants the low end of the armoury asks for it. Alaric's ruling, 2026-08-13: default 0.
+    assert "junk_gear" not in fc.CuratedFiller.default, (
+        "junk_gear must stay opt-in (absent from the default recipe) -- it is a category we PROVIDE, "
+        "not one we impose; weighting it by default re-proportions every other category")
+    assert "junk_gear" in fc.CATEGORIES, "junk_gear must still be an offerable category"
+    assert "junk_gear" in fc.RECIPE_KEYS, "junk_gear must be an accepted recipe key or a yaml naming it raises"
     assert fc.stack_qty_by_name().get("Fire Pot") == 2, "firepots members stack x2 like pots"
 
 

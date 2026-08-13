@@ -14,10 +14,11 @@ rides here: 4680 (Level Up enable) + 951 (Melina first-meeting done) -- the two 
 confirmed in-game (set both, rest, Level Up works, no cutscene). The first entry (a real grace) is the
 client's clobber read-back sentinel. All ids are from prior in-game-verified work; none invented.
 """
-from Options import DefaultOnToggle, Range, Toggle
+from Options import DefaultOnToggle, OptionSet, Range, Toggle
 from ..registry import Feature, register
 from .. import contract
 from ..data import HUB
+from ..region_spine import REGIONS
 
 _ROUNDTABLE_GRACE = 71190       # Roundtable Hold, Table of Lost Grace (m11_10) warp-unlock flag
 _LEVEL_UP_FLAG = 4680           # Level Up enable
@@ -114,6 +115,37 @@ class StartRegions(Range):
     default = 1
 
 
+class StartRegionPool(OptionSet):
+    """WHICH regions the run may open in, by name. Empty (default) = any kept region, drawn the way
+    it always was. Name one and the run opens there; name several and the opening region is drawn
+    from just those.
+
+    Region names are the ones the spoiler and the client use: Limgrave, Liurnia, Caelid, Altus,
+    Stormveil, Raya Lucaria Academy, Leyndell, Mt. Gelmir, Mountaintops of the Giants, Weeping,
+    Deeproot Depths, Siofra River, Ainsel River, Mohgwyn, Farum Azula, Sewer, and the DLC's
+    Gravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient Ruins, Cerulean,
+    Abyssal, Jagged Peak, Enir Ilim.
+
+    🛑 EVERY REGION YOU NAME IS FORCE-KEPT, so this can make a seed BIGGER than `num_regions` asked
+    for -- that number is a DRAW SIZE, and force-keeps are additive (the same seam a named `goal`
+    uses). The generation log names the contribution. Naming three regions and asking for one is
+    therefore a three-region seed, not a one-region seed with a choice; if you want "just play
+    Caelid", name one.
+
+    The alternative -- draw the opening region from your pool FIRST and force-keep only the winner --
+    was considered and rejected: it needs a second draw before the kept set exists, and two draws
+    that must agree about the same region is precisely the shape that has produced drift here before.
+    One mechanism, stated, beats two that have to be kept in step.
+
+    Ignored when Start With A Region Lock is off and under Natural Progression / Vanilla Placement,
+    which mint no Lock items -- exactly like Starting Regions above. Naming a region this seed
+    cannot open in (sealed by your DLC toggles, needed by your goal, or a child region that is
+    reached through its parent) fails generation and says which and why, rather than quietly
+    dropping it."""
+    display_name = "Starting Region Pool"
+    valid_keys = frozenset(REGIONS)
+
+
 def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=frozenset(),
                        never_anchor=frozenset()):
     """The run's opening region: which kept region's Lock core.create_items precollects.
@@ -203,7 +235,8 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
 
 
 def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
-                        gated=frozenset(), never_extra=frozenset(), never_anchor=frozenset()):
+                        gated=frozenset(), never_extra=frozenset(), never_anchor=frozenset(),
+                        only=frozenset()):
     """The run's opening regionS: which kept regions' Locks core.create_items precollects.
 
     ONE DRAW OR N, THE FIRST ONE IS THE SAME DRAW IT ALWAYS WAS. `n == 1` calls
@@ -231,10 +264,28 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
     with an OptionError naming the yaml; this is the backstop for the gated / goal / zero-weight
     exclusions that bound cannot see.
 
+    `only` (features/start_grace.StartRegionPool -- the player named the regions the run may open
+    in) NARROWS `kept` before anything else happens, so it constrains the first draw AND the extras
+    by one expression. Empty = no constraint, which is why a defaulted seed's rng stream is
+    untouched: the filter is not applied at all rather than applied to everything.
+
+    🛑 IT IS A HARD FILTER, unlike `major`, and that difference is the point. `major` is a BIAS the
+    world chose and degrades when it cannot be satisfied; `only` is a sentence the player typed, and
+    silently opening somewhere they did not name would be worse than refusing. Core validates the
+    named set against the DLC toggles, the goal and the gated children BEFORE it gets here and dies
+    with an OptionError naming the region; reaching the ValueError below means the pool survived all
+    of that and still could not seat `n` regions.
+
     Returns (regions, rules, eligible_count) -- `regions[0]` and `rules[0]` are exactly what
     `pick_anchor_region` would have returned alone.
     """
     n = max(1, int(n))
+    if only:
+        kept = [r for r in kept if r in only]
+        if not kept:
+            raise ValueError(
+                "start anchors: start_region_pool named %s, and none of them is a region this seed "
+                "can open in" % ", ".join(sorted(only)))
     first, rule, pool_n = pick_anchor_region(kept, rng, check_counts, dlc_regions,
                                              major=major, gated=gated,
                                              never_anchor=never_anchor)
@@ -268,6 +319,7 @@ class StartGrace(Feature):
         "early_leveling": EarlyLeveling,
         "start_with_region_lock": StartWithRegionLock,
         "start_regions": StartRegions,
+        "start_region_pool": StartRegionPool,
     }
 
     def slot_data(self, world):

@@ -182,3 +182,9 @@ itemslots.yaml
 items.txt
 locationIdsToKeys*.json
 *.foreign-list
+
+# tools/fill_regression.py writes its logs + results.json into a timestamped dir in the REPO ROOT
+# (fillreg_YYYYMMDD-HHMMSS/). Running the gate locally before pushing is the point -- see
+# CONTRIBUTING -- so this lands in a working tree routinely, and `git add -A` swept 1224 lines of
+# results.json into a commit once. Ignore the artifact, not the habit.
+fillreg_*/

@@ -24,6 +24,10 @@ try:
     from ..item_ids import ITEM_CATALOG
 except Exception:
     ITEM_CATALOG = {}
+try:  # generated (gen_data): catalog equippables at param rarity 0. Empty pre-regen -> category inert.
+    from ..item_ids import JUNK_GEAR_NAMES
+except Exception:
+    JUNK_GEAR_NAMES = []
 try:
     # KEY ITEMS, param-derived (gen_data.py: EquipParamGoods.goodsType == 1). The game's own answer to
     # "is this a key item"; `_is_junk_consumable` subtracts it. Empty on a pre-regen item_ids.py --
@@ -152,6 +156,19 @@ CATEGORIES = {
     "stones": [f"Smithing Stone [{i}]" for i in range(1, 9)],
     "somber_stones": [f"Somber Smithing Stone [{i}]" for i in range(1, 10)],
     "runes": [f"Golden Rune [{i}]" for i in range(1, 14)],
+    # junk_gear -- catalog equippables the GAME rates trivial (param rarity 0), generated as
+    # item_ids.JUNK_GEAR_NAMES. NOT in the shipped recipe, so it is inert unless a player weights it
+    # and no default seed moves.
+    #
+    # WHY IT EXISTS. pool_builder's juice floor starts at tier 1 on purpose -- juice means GOOD gear
+    # -- so rarity-0 equippables are invisible to it at every intensity. That is right for juice and
+    # was wrong as the final word: 96 of these have no check either, because their only sources are
+    # UNFLAGGED lots (a random enemy drop fires on every kill, so there is no one-shot event to poll
+    # and it can never back an AP location). Celebrant's Cleaver / Rib-Rake / Sickle are the reported
+    # case. Registering the catalog name made them injectable in principle; this category is the path
+    # that actually reaches them, competing on the filler budget rather than arguing with juice's
+    # quality bar.
+    "junk_gear": list(JUNK_GEAR_NAMES),
     # "junk" is a pseudo-category: that share is left as the original vanilla junk (not redrawn).
 }
 _VALID_CATS = frozenset(CATEGORIES) | {"junk"}
@@ -211,16 +228,20 @@ def stack_qty_by_name():
 class CuratedFiller(OptionDict):
     """Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the
     categories in proportion to their weights -- they are relative, not percentages, and need not sum
-    to anything. Categories: juice, stones, somber_stones, runes, throwables, pots, firepots, greases,
-    ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to keep that share as
-    whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,
+    to anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,
+    firepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to
+    keep that share as whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,
     ammunition x20.
     NOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /
     throwables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's
     filler tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --
     it warns loudly rather than silently reverting to vanilla junk.
     'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier
-    from ~1013 qualifying items). It competes on the same budget as everything else; raising it past
+    from ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game
+    itself rates trivial, which juice will never hand you at any intensity because its floor starts
+    above them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the
+    only path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,
+    because their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past
     what the catalog can supply spills the surplus to junk, with a warning naming the shortfall.
     'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top
     proportionally. A tail too small for that reservation to buy a useful number of stones warns by

@@ -15,7 +15,8 @@
   "KeyItem",
   "MajorBoss",
   "LegacyBoss",
-  "FieldBoss"
+  "FieldBoss",
+  "SweepSlot"
  ],
  "default_classes": [
   "Remembrance",
@@ -26,7 +27,11 @@
   "ShopSlot",
   "GreatRune",
   "KeyItem",
-  "MajorBoss"
+  "MajorBoss",
+  "SweepSlot"
+ ],
+ "derived_classes": [
+  "SweepSlot"
  ],
  "finale": {
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
@@ -48,7 +53,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Ainsel River": {
    "checks": 122,
@@ -62,7 +71,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3
+   }
   },
   "Altus": {
    "checks": 373,
@@ -80,7 +93,12 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 13,
+    "bosses": 28,
+    "minidungeons": 13
+   }
   },
   "Ancient Ruins": {
    "checks": 60,
@@ -93,7 +111,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Ashen Capital": {
    "checks": 18,
@@ -104,7 +126,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": false
+   "rollable": false,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Belurat": {
    "checks": 93,
@@ -116,7 +142,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Caelid": {
    "checks": 358,
@@ -140,7 +170,12 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 10,
+    "bosses": 25,
+    "minidungeons": 10
+   }
   },
   "Cerulean": {
    "checks": 100,
@@ -154,7 +189,12 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 5,
+    "minidungeons": 1
+   }
   },
   "Deeproot Depths": {
    "checks": 87,
@@ -164,7 +204,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 7
+   }
   },
   "Enir Ilim": {
    "checks": 110,
@@ -176,7 +220,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 4,
+    "bosses": 4
+   }
   },
   "Ensis": {
    "checks": 42,
@@ -187,7 +235,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Farum Azula": {
    "checks": 105,
@@ -199,7 +251,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3
+   }
   },
   "Gravesite": {
    "checks": 215,
@@ -217,7 +273,12 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 8,
+    "bosses": 8,
+    "minidungeons": 4
+   }
   },
   "Haligtree": {
    "checks": 124,
@@ -230,7 +291,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Jagged Peak": {
    "checks": 49,
@@ -241,7 +306,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Leyndell": {
    "checks": 161,
@@ -253,7 +322,11 @@
    },
    "dlc": false,
    "parent": "Altus",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Limgrave": {
    "checks": 332,
@@ -273,7 +346,12 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 11,
+    "bosses": 20,
+    "minidungeons": 9
+   }
   },
   "Liurnia": {
    "checks": 610,
@@ -295,7 +373,12 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 10,
+    "bosses": 28,
+    "minidungeons": 10
+   }
   },
   "Mohgwyn": {
    "checks": 92,
@@ -307,7 +390,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Mountaintops of the Giants": {
    "checks": 344,
@@ -324,7 +411,12 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 17,
+    "minidungeons": 7
+   }
   },
   "Mt. Gelmir": {
    "checks": 244,
@@ -343,7 +435,12 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 11,
+    "minidungeons": 3
+   }
   },
   "Rauh Base": {
    "checks": 91,
@@ -354,7 +451,12 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3,
+    "minidungeons": 1
+   }
   },
   "Raya Lucaria Academy": {
    "checks": 104,
@@ -368,7 +470,11 @@
    },
    "dlc": false,
    "parent": "Liurnia",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Roundtable Hold": {
    "checks": 239,
@@ -377,7 +483,8 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": false
+   "rollable": false,
+   "sweep_slots": {}
   },
   "Scadu Altus": {
    "checks": 252,
@@ -395,7 +502,12 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 8,
+    "bosses": 8,
+    "minidungeons": 1
+   }
   },
   "Sewer": {
    "checks": 94,
@@ -406,7 +518,11 @@
    },
    "dlc": false,
    "parent": "Leyndell",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Shadow Keep": {
    "checks": 307,
@@ -421,7 +537,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 9,
+    "bosses": 9
+   }
   },
   "Siofra River": {
    "checks": 180,
@@ -435,7 +555,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 5
+   }
   },
   "Stormveil": {
    "checks": 133,
@@ -448,7 +572,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Weeping": {
    "checks": 154,
@@ -464,10 +592,15 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 11,
+    "minidungeons": 5
+   }
   }
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "6756e4701d7bc5b6fa722912400e0a229b1e9e5269d77d03d491aea32234e821"
+ "source_sha256": "586309e34b979bc5ef2fc8ed5b4330d1b1304ae7f7a3ed69a486a475e410a4d2"
 }
