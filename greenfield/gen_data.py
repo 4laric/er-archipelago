@@ -6694,6 +6694,7 @@ print("missable_locations: %d checks -- %s" % (len(_MISSABLE), repr(dict(sorted(
 # augmentation below -- a second copy here is exactly how the DLC name tables get forgotten by one
 # of them).
 ITEM_CATALOG = {}; LOCATION_ITEM = {}
+_unresolved_named = []
 _LOC_FULL = {}      # ap_id -> (FullID, flag, (table, lot) bind or None) -- the LOCATION_UNITS join below
 for _i, _r in enumerate(rows):
     if _r.get("method") == "gesture":
@@ -6705,10 +6706,29 @@ for _i, _r in enumerate(rows):
         continue
     _full, _base = _resolve_item(_r.get("item_name"))
     if _full is None:
+        # #619: a row with a NON-BLANK name that does not resolve is a SILENT LOSS. The check keeps
+        # its flag and its location, falls through to Rune filler, and the item never enters
+        # ITEM_CATALOG -- no error, no count, no gate. That is how `Ancestral Spirit's Horne` (a
+        # typo) and `[Sorcery] Terra Magicus` (a rename) sat in the table until a player counted
+        # items in game. A BLANK name is a different, larger problem (the scan never read one) and
+        # is tallied separately, not fataled here.
+        if (_r.get("item_name") or "").strip():
+            _unresolved_named.append((_r.get("flag"), _r.get("item_name")))
         continue
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
     LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
     _LOC_FULL[BASE_AP + _i] = (_full, _r.get("flag"), None)
+if _unresolved_named:
+    print("item names: %d row(s) carry a NON-BLANK item_name that does not resolve:" % len(_unresolved_named))
+    for _fl6, _nm6 in _unresolved_named:
+        print("    flag %-12s %r" % (_fl6, _nm6))
+    raise SystemExit(
+        "FATAL: %d region_map.csv row(s) name an item the FMG tables cannot resolve (listed above). "
+        "The flag and the location are LIVE, so each one silently pays Rune and drops its item from "
+        "ITEM_CATALOG. Fix the SPELLING in region_map.csv -- it is an INPUT, not a verdict -- or, if "
+        "the row genuinely has no item, blank the name so it is counted as unscanned instead of "
+        "misnamed." % len(_unresolved_named))
+
 # CO-CHECK siblings: each projected sibling location vanilla-holds ITS OWN lot's item (the FMG name
 # resolved at projection). COUNT-NEUTRALITY: every co-check location must contribute exactly one
 # pooled item, same as any positional row -- items grow by len(CO_CHECK_EMITTED) alongside
