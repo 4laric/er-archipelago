@@ -150,7 +150,7 @@ LOCATIONS = {
         ("Roundtable Hold :: Giant's Red Braid - from Finger Reader Enia [f290220]", 7770579, 290220),
         ('Roundtable Hold :: [Incantation] Burn, O Flame! - from Finger Reader Enia [f290230]', 7770580, 290230),
         ('Roundtable Hold :: Winged Greathorn - from Finger Reader Enia [f290240]', 7770581, 290240),
-        ("Roundtable Hold :: Ancestral Spirit's Horne - from Finger Reader Enia [f290250]", 7770582, 290250),
+        ("Roundtable Hold :: Ancestral Spirit's Horn - from Finger Reader Enia [f290250]", 7770582, 290250),
         ("Roundtable Hold :: Marika's Hammer - from Finger Reader Enia [f290260]", 7770583, 290260),
         ('Roundtable Hold :: Sacred Relic Sword - from Finger Reader Enia [f290270]', 7770584, 290270),
         ("Roundtable Hold :: Bastard's Stars - from Finger Reader Enia [f290280]", 7770585, 290280),
@@ -2383,7 +2383,7 @@ LOCATIONS = {
         ('Limgrave :: Telescope - from Merchant Kalé [f150130]', 7770342, 150130),
         ('Limgrave :: Chain Coif - from Merchant Kalé [f150150]', 7770343, 150150),
         ('Limgrave :: Chain Armor - from Merchant Kalé [f150160]', 7770344, 150160),
-        ('Limgrave :: Chain Gauntlets - from Merchant Kalé [f150170]', 7770345, 150170),
+        ('Limgrave :: Gauntlets - from Merchant Kalé [f150170]', 7770345, 150170),
         ('Limgrave :: Chain Leggings - from Merchant Kalé [f150180]', 7770346, 150180),
         ('Limgrave :: Pickled Turtle Neck - from Nomadic Merchant [f150410]', 7770347, 150410),
         ('Limgrave :: Short Sword - from Nomadic Merchant [f150420]', 7770348, 150420),
@@ -4056,7 +4056,7 @@ LOCATIONS = {
         ("Raya Lucaria Academy :: Fevor's Cookbook [2] - from Isolated Merchant [f68220]", 7770136, 68220),
         ('Raya Lucaria Academy :: Note: Revenants - from Isolated Merchant [f69710]', 7770187, 69710),
         ('Raya Lucaria Academy :: Note: Frenzied Flame Village - from Isolated Merchant [f69750]', 7770191, 69750),
-        ("Raya Lucaria Academy :: Note: The Preceptor's Secrets - from Isolated Merchant [f69910]", 7770195, 69910),
+        ("Raya Lucaria Academy :: Note: The Preceptor's Secret - from Isolated Merchant [f69910]", 7770195, 69910),
         ("Raya Lucaria Academy :: Trina's Lily - from Isolated Merchant [f160760]", 7770390, 160760),
         ('Raya Lucaria Academy :: Eye of Yelough - from Isolated Merchant [f160780]', 7770391, 160780),
         ('Raya Lucaria Academy :: Stonesword Key - from Isolated Merchant [f160800]', 7770392, 160800),
@@ -4133,7 +4133,7 @@ LOCATIONS = {
         ('Raya Lucaria Academy :: [Sorcery] Comet - near Schoolhouse Classroom [f14007880]', 7771647, 14007880),
         ('Raya Lucaria Academy :: Graven-School Talisman - near Debate Parlor [f14007890]', 7771648, 14007890),
         ('Raya Lucaria Academy :: Glintstone Scarab - near Raya Lucaria Grand Library [f14007910]', 7771649, 14007910),
-        ('Raya Lucaria Academy :: [Sorcery] Terra Magicus - near Raya Lucaria Grand Library [f14007920]', 7771650, 14007920),
+        ('Raya Lucaria Academy :: [Sorcery] Terra Magica - near Raya Lucaria Grand Library [f14007920]', 7771650, 14007920),
         ('Raya Lucaria Academy :: Radagon Icon - near Debate Parlor [f14007940]', 7771651, 14007940),
         ('Raya Lucaria Academy :: Full Moon Crossbow - near Church of the Cuckoo [f14007970]', 7771652, 14007970),
         ("Raya Lucaria Academy :: Carian Knight's Shield - around Church of the Cuckoo [f14007980]", 7771653, 14007980),
@@ -5135,7 +5135,7 @@ LOCATIONS = {
         ('Weeping :: Cracked Pot - from Nomadic Merchant [f66070]', 7770050, 66070),
         ("Weeping :: Nomadic Warrior's Cookbook [9] - near Tombsward Catacombs [f67430]", 7770108, 67430),
         ("Weeping :: Nomadic Warrior's Cookbook [8] - m31_02 [f67880]", 7770125, 67880),
-        ('Weeping :: Note: Walking Mausoleum - from Isolated Merchant or Merchant Kalé [f69640]', 7770181, 69640),
+        ('Weeping :: Note: Wandering Mausoleum - from Isolated Merchant or Merchant Kalé [f69640]', 7770181, 69640),
         ('Weeping :: Note: Demi-human Mobs - from Nomadic Merchant [f69680]', 7770184, 69680),
         ('Weeping :: Stonesword Key - from Nomadic Merchant [f160000]', 7770369, 160000),
         ('Weeping :: Red Thorn Roundshield - from Nomadic Merchant [f160130]', 7770370, 160130),
@@ -5531,4 +5531,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:a22de8e99b9f265a4d7a49f3c873b460789bc8ee4523b648e004996e44c87907', 'module': 'data.py', 'body_sha256': 'sha256:a75ea6859577dbf2b9ddc0a188fcc3058fee8ca1a217f3218aa75cd7422cb263'}
+_GEN_STAMP = {'inputs_hash': 'sha256:3f0352a1c584e2fc76311120b689d9991084f10702cee3016805d97f31b8ea73', 'module': 'data.py', 'body_sha256': 'sha256:e9460d1f81b90ccee4659a0b034ba2113fb1d4b5ac234005e15f9ee20958ffb1'}

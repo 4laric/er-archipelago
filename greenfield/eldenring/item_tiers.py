@@ -21,6 +21,7 @@ ITEM_TIERS = {
     'All-Knowing Gauntlets': 1,
     'All-Knowing Greaves': 1,
     'All-Knowing Helm': 1,
+    "Ancestral Spirit's Horn": 3,
     'Ancient Dragon Knight Kristoff': 2,
     "Ancient Dragons' Lightning Spear": 3,
     "Ancient Dragons' Lightning Strike": 3,
@@ -633,6 +634,7 @@ ITEM_TIERS = {
     "Gargoyle's Greatsword": 2,
     "Gargoyle's Halberd": 1,
     "Gargoyle's Twinblade": 2,
+    'Gauntlets': 1,
     'Gauntlets of Night': 1,
     'Gauntlets of Solitude': 2,
     'Gazing Finger': 2,
@@ -1485,6 +1487,7 @@ ITEM_TIER_CATEGORY = {
     'All-Knowing Gauntlets': 'ARMOR',
     'All-Knowing Greaves': 'ARMOR',
     'All-Knowing Helm': 'ARMOR',
+    "Ancestral Spirit's Horn": 'TALISMAN',
     'Ancient Dragon Knight Kristoff': 'SPIRITASH',
     "Ancient Dragons' Lightning Spear": 'SPELL',
     "Ancient Dragons' Lightning Strike": 'SPELL',
@@ -2097,6 +2100,7 @@ ITEM_TIER_CATEGORY = {
     "Gargoyle's Greatsword": 'WEAPON',
     "Gargoyle's Halberd": 'WEAPON',
     "Gargoyle's Twinblade": 'WEAPON',
+    'Gauntlets': 'ARMOR',
     'Gauntlets of Night': 'ARMOR',
     'Gauntlets of Solitude': 'ARMOR',
     'Gazing Finger': 'WEAPON',
@@ -2929,4 +2933,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:a22de8e99b9f265a4d7a49f3c873b460789bc8ee4523b648e004996e44c87907', 'module': 'item_tiers.py', 'body_sha256': 'sha256:8cd441928b42f037efe0f7031d3bc05d64e732fea05f29b079c249040a130bdc'}
+_GEN_STAMP = {'inputs_hash': 'sha256:3f0352a1c584e2fc76311120b689d9991084f10702cee3016805d97f31b8ea73', 'module': 'item_tiers.py', 'body_sha256': 'sha256:0dcbee81c78a75bc74ab4dc1bf3eab8abd92a5d37c96891e3b584c38d377c308'}
