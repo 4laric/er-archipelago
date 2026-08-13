@@ -20,8 +20,16 @@
   Single file, no build step, no network calls. Same palette and type as wizard.html so the
   handoff from here to the builder does not look like two different sites.
 
-  DEPLOY: ER_ROOT_DIR=/srv/www tools/deploy_wizard.sh --landing
-           (fetches this file at the STABLE tag and installs it atomically as index.html)
+  DEPLOY: ER_STATIC_DIR=/srv/er tools/deploy_wizard.sh --landing
+           (fetched at the STABLE tag, installed atomically as landing.html beside wizard.html
+            and checks.html; the app serves it at `/`)
+
+  🛑 THIS PAGE CARRIES ITS OWN FOOTER CHROME, and that is load-bearing rather than decoration.
+  Every OTHER page on the host is a Jinja template and gets the donation link and the contact
+  details from a context processor, which peliarch's suite asserts on two unrelated views. This
+  page does not pass through Jinja, so that processor cannot reach it -- the tests that used to
+  cover `/` had to be rescoped, and the coverage they gave up is paid back HERE, by hand.
+  If you edit the footer, do not drop them.
 -->
 <style>
 :root{
@@ -279,7 +287,12 @@ footer p{max-width:78ch;margin:10px 0}
     <a href="https://github.com/4laric/er-archipelago/issues/new?template=bug_report.yml">Report a bug</a>
     <a href="https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md">Known issues</a>
     <a href="https://archipelago.gg">Archipelago</a>
+    <a href="https://buymeacoffee.com/fazuzu">&#9749; Buy me a coffee</a>
   </div>
+
+  <p>Questions, or a seed that went wrong? Discord <code>@rickyquick</code>, or open an issue on
+  <a href="https://github.com/4laric/er-archipelago">GitHub</a>. A Discord handle is not a link
+  &mdash; search it rather than clicking it.</p>
 
   <p>A clean-room rebuild. The world is derived from scratch against vanilla game data you
   already own by owning the game. It ships no game assets and contains no code, data or config

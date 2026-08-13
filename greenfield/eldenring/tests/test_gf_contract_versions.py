@@ -168,6 +168,23 @@ SHIPPED = {
     # Its row goes in when v0.4.0 is tagged. Adding an open version here is what 0.3.7's row was
     # removed for.
     "0.3.12": "5c2b9bf2",
+    # v0.4.0 TAGGED 2026-08-13 00:02Z at d9cdeafc, shipping 5c2b9bf2 -- contract unmoved from
+    # 0.3.9 for the fifth window running. Derived by loading contract.py AT THE TAG, not recalled.
+    #
+    # ✅ AND THIS ONE IS ON TIME. Eight windows -- 0.3.3, 0.3.4, 0.3.6, 0.3.9, 0.3.10, 0.3.11,
+    # 0.3.12 -- have written this row LATE, at the following window-open rather than at the tag.
+    # The comment above 0.3.12 predicted this one in writing, the same way 0.3.10's predicted
+    # 0.3.11's and was ignored. It is being written in the same change that opens the v0.4.1
+    # window, minutes after the tag, which is the earliest anyone has managed.
+    #
+    # 🛑 THAT IS NOT A FIX, IT IS A GOOD DAY. A row a person remembers is a row a person can
+    # forget, and seven for seven says which way that goes. The fix named at 0.3.10 and still not
+    # taken is to DERIVE this fixture from `git tag` -- then it cannot be late, and it does not
+    # need a job to run to be right (0.3.12's row was owed and invisible because check_release_notes
+    # aborts the job above this one).
+    #
+    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.4.1 does NOT belong here while its window is open.
+    "0.4.0": "5c2b9bf2",
 }
 
 

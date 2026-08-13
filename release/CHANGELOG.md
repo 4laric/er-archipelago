@@ -3,6 +3,59 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.1 — 2026-08-13
+
+Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had
+already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
+client still handshakes with a v0.4.1 seed.
+
+### ✅ The SHIPPED fixture row for v0.4.0 is here, on time, for the first time in eight windows
+
+`0.3.3`, `0.3.4`, `0.3.6`, `0.3.9`, `0.3.10`, `0.3.11`, `0.3.12` -- every one of those rows was
+written LATE, at the following window-open rather than at the tag, and each time a comment
+predicting the next one was ignored. This one is written minutes after the tag.
+
+🛑 **That is not a fix, it is a good day.** A row a person remembers is a row a person can forget,
+and seven for seven says which way that goes. The fix named at 0.3.10 and still not taken is to
+derive the fixture from `git tag`.
+
+### `stable` finally moves, and it was blocking the landing page
+
+`CHANNELS.tsv` had `stable -> v0.3.10` through **two** tags, and `check_channels` was green the
+whole time, because that gate verifies the pointer RESOLVES rather than that it is current.
+
+That was not cosmetic. `deploy_wizard.sh --landing` fetches from the **stable tag**, and v0.3.10
+has no `wizard/landing.html` -- so for as long as stable sat there, the new front page could not be
+deployed at all. `stable -> v0.4.0` is the row that unblocks it.
+
+### 🛑 `--landing` was writing a file nothing would ever serve
+
+The flag shipped in this window pointing at `${ER_ROOT_DIR}/index.html`, on the assumption that
+peliarch served `/` from a static directory. **It does not.** `/` is a Flask route
+(`webgui/app.py`) and Caddy does `reverse_proxy web:8080` for everything, so that file would have
+been written, reported as installed, and never served -- and nobody would have found out until the
+front page failed to change after a deploy that said it succeeded.
+
+Alaric asked whether the fork needed updating. It did, and this is what the question found.
+
+The app now serves `ER_STATIC_DIR/landing.html` at `/` (peliarch PR #11), so the page lands in the
+same directory, by the same atomic tag-pinned install, as `wizard.html` and `checks.html`. One
+directory, three pages, one deploy, `ER_ROOT_DIR` gone.
+
+**Hosting is retired on the peliarch side too.** `POST /rooms` and `POST /generate` answer **410**
+rather than being deleted: two callers exist in the wild that we cannot update -- a wizard already
+open in a browser, and the `file://` wizard inside every previous release zip -- and the old wizard
+prints `data.error` straight into its own UI, so a 410 carrying a readable sentence is the only way
+to tell a player what happened. Existing rooms and their pages are untouched; there are five on the
+box and at least two belong to other people.
+
+**And the landing page now carries its own footer chrome, by hand.** Every other page on that host
+is a Jinja template that gets the donation link and contact details from a context processor, which
+peliarch's suite asserted on `/` among others. A static page cannot be reached by a context
+processor, so those assertions had to be rescoped to `/room/<id>` and `/downloads` -- a real,
+acknowledged loss of coverage -- and the thing they were protecting is paid back in `landing.html`
+directly. The peliarch tests say so in their own docstrings rather than being deleted quietly.
+
 ## v0.4.0 — 2026-08-12
 
 Window opened AT THE TAG of v0.3.12, and **not** on purpose: main was red on `check_release_notes`
