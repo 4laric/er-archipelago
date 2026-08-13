@@ -4843,14 +4843,24 @@ if CO_CHECK_FLAGS:
             _bnm9 = (f"{_preg9} :: {_snm9} - {_desc9}" if _desc9 else f"{_preg9} :: {_snm9}")
             # A co-check sibling is the SAME physical acquisition as its primary, so it inherits the
             # primary's region confidence -- mark it the same way (the bar below mirrors it too).
-            if _apid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
+            # 🛑 THE PRIMARY'S id, not the sibling's. `_apid9` is minted in this loop, so it can
+            # NEVER be in `_def_ap_running` (a snapshot taken before the loop) -- the test was
+            # always false and a sibling of a defaulted primary silently came back CONFIRMED.
+            # Latent since the first five families; #191 made it visible at scale, as
+            # test_gf_defaulted_region_guard's graceless-tile bar (siblings 7900148/7900150 leaked
+            # progression-eligible). A sibling is the same physical acquisition as its primary, so
+            # it inherits the primary's region CONFIDENCE the same way it inherits the region.
+            if _papid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
                 _bnm9 += REGION_UNCONFIRMED
             _lnm9 = f"{_bnm9} [f{_cfl}]"
             buckets.setdefault(_preg9, []).append((_lnm9, _apid9, _cfl))
             if _t9:
                 loc_tags[_apid9] = _t9
             # progression-bar class membership mirrors the primary (same physical acquisition):
-            if _preg9 == HUB and not _region_is_derived(_prow9):
+            # Same inheritance on the LIST, not just the name suffix: `defaulted_aps` is what
+            # DEFAULTED_REGION_APS -- and therefore the progression bar -- is built from. Mirror the
+            # primary; never re-derive a narrower condition, or the two answers drift.
+            if _papid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
                 defaulted_aps.append(_apid9)
             if str(_prow9.get("map", "")).startswith("m11_00"):
                 erdtree_burn_aps.append(_apid9)

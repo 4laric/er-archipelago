@@ -428,8 +428,18 @@ def test_the_sweep_corpus_did_not_shrink():
     # 3782 (Church/Seedtree/Fragment/Revered are in contract.SURFACE_DEFAULT_CLASSES); an
     # empty-surface seed sees all 3876. The per-seed arithmetic is asserted in
     # test_gf_dungeon_sweep_rungs, on the output of enabled_sweeps, which is where it is observable.
-    assert total == 3876, (
-        "sweep corpus is %d, expected 3876. If a sweep was legitimately added or removed, say WHY "
+    # +169 (2026-08-13, #191) 3876 -> 4045. WHY, as this gate demands: co-check SIBLINGS now
+    # inherit their primary's sweep membership. The member loop walks `rows` POSITIONALLY
+    # (`_ap = BASE_AP + _i`), so a registry ap_id in the COCHECK band was structurally invisible to
+    # it and NO co-check had ever been swept -- including the original five. A sibling is the same
+    # physical acquisition as its primary: if killing the boss sweeps the primary, the player has
+    # already picked the sibling off the same corpse, so leaving it out marked a check that is
+    # provably in hand as unfound. gen_data MIRRORS the primary's membership rather than re-deriving
+    # it, so a sibling cannot be swept into a region its primary was not (the #445/#598 class), and
+    # the map-region vote is deliberately NOT re-cast -- one physical pickup votes once.
+    # Alaric's ruling, 2026-08-13: all co-checks are swept with their primary.
+    assert total == 4045, (
+        "sweep corpus is %d, expected 4045. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -547,6 +557,12 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     losing one member from a 111-check pool re-phased the two-way round-robin by one -- the #363
     stable-modulus effect this docstring already records twice, at its smallest possible size.
 
+    2026-08-13 (#191, co-check siblings inherit their primary's sweep): digest 3c4273a8 -> 328ce8d0,
+    n 3876 -> 4045. **ADDED only**, +169, and every addition is a COCHECK-band ap_id sitting in the
+    same (trigger, flag) group as its primary -- no existing member changed owner. That is the shape
+    to verify if this moves again: a mirror can only add beside a primary, so an addition anywhere
+    else, or any REMOVAL, is a different bug wearing this number.
+
     2026-08-13 (the per-seed surface cut): digest 7ed70eb4 -> 3c4273a8, n 3731 -> 3876. **ADDED
     145, REMOVED 0, 774 RE-OWNED, ZERO region crossings.** By far the largest re-ownership this pin
     has recorded, and it is entirely the stable-modulus effect at full size: the region divvy deals
@@ -558,6 +574,6 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     🛑 A churn this size is exactly when to distrust the total: 145 added and 3876 - 3731 = 145 agree
     only because REMOVED is 0, and the digest is what proves that rather than 900 in and 755 out."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("3c4273a806fe5606", 3876), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (3c4273a806fe5606, 3876). The total alone will "
+    assert (digest, n) == ("328ce8d0a1ad9d23", 4045), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (328ce8d0a1ad9d23, 4045). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

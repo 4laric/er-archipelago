@@ -305,14 +305,27 @@ VANILLA_FLASK_ITEMS = ("Golden Seed", "Sacred Tear")
 
 # Vanilla pool items the progressive stone-bell ladders REPLACE, one-for-one, when
 # progressive_stone_bells is on (#539). These are ALL the bell bearings the vanilla item data has:
-# Smithing-Stone [1]-[4] and Somberstone [2]-[5]. `Somberstone Miner's Bell Bearing [1]` is absent
-# from the vanilla name catalog (it is not a looted item), which is why this is EIGHT names and not
-# nine -- and why the somber ladder needs an injected floor (see the module docstring's ruling).
+# Smithing-Stone [1]-[4] and Somberstone [1]-[5].
+#
+# ⭐⭐⭐ 2026-08-13 (#191): NINE, not eight. This list said eight because
+# `Somberstone Miner's Bell Bearing [1]` was "absent from the vanilla name catalog (it is not a
+# looted item)". That premise was WRONG, and it was wrong for a reason nothing here could see: the
+# catalog is CHECK-derived, the bearing hangs off flag 520670 as lot 20673 -- a SIBLING of a
+# shared-flag family -- and until the co-check allowlist widened, siblings were never projected. It
+# is looted, it is a real catalog item, and with the ladder on a vanilla copy of it was therefore
+# eligible for the pool: the top-rung-bypass leak (#539) this substitution exists to stop, hiding
+# behind a data gap. Caught by test_gf_progressive's VANILLA_BELL_ITEMS-vs-catalog gate, which is
+# exactly the "a data rename shrinks the substitution LOUDLY" guard below doing its job in reverse.
+#
+# 🛑 CONSEQUENCE NOT ACTED ON HERE: the module docstring justifies the somber ladder's INJECTED
+# FLOOR on this same "Somberstone [1] cannot be found" premise. That premise is now dead, so the
+# injected floor may be redundant -- but removing it changes what a seed grants, so it is a ruling,
+# not a cleanup. Left in place deliberately; see #191.
 # test_gf_progressive asserts every name here resolves against the real item catalog, so a data
 # rename shrinks the substitution LOUDLY rather than silently putting the vanilla ladder back.
 VANILLA_BELL_ITEMS: Dict[str, str] = dict(
     [("Smithing-Stone Miner's Bell Bearing [%d]" % i, PROG_SMITHING_BELL) for i in range(1, 5)]
-    + [("Somberstone Miner's Bell Bearing [%d]" % i, PROG_SOMBER_BELL) for i in range(2, 6)]
+    + [("Somberstone Miner's Bell Bearing [%d]" % i, PROG_SOMBER_BELL) for i in range(1, 6)]
 )
 
 

@@ -103,15 +103,17 @@ def test_vanilla_bell_items_covers_every_bearing_the_vanilla_data_has():
     whichever one it missed. Derived from the real data rather than hand-listed here, so an item
     rename or a regen that adds a bearing fails LOUDLY instead of quietly shrinking the map.
 
-    It is EIGHT, not nine: `Somberstone Miner's Bell Bearing [1]` is not in the vanilla name
-    catalog (it is not a looted item) -- the fact the somber ladder's copy floor exists for."""
+    2026-08-13 (#191): it is NINE. `Somberstone Miner's Bell Bearing [1]` WAS missing, and the
+    stated reason -- "it is not a looted item" -- was wrong. It hangs off flag 520670 as lot 20673,
+    a SIBLING of a shared-flag family, and the catalog is CHECK-derived, so until the co-check
+    allowlist widened no check ever named it. It is looted. See the somber-floor ruling below."""
     from worlds.eldenring.item_ids import ITEM_CATALOG, LOCATION_ITEM
     in_data = _vanilla_bearings(LOCATION_ITEM.values())
     assert in_data, "no bell bearing in LOCATION_ITEM -- this comparison would be vacuous"
     assert sorted(VANILLA_BELL_ITEMS) == in_data, (
         "features/progressive.VANILLA_BELL_ITEMS disagrees with the vanilla data: %s"
         % sorted(set(VANILLA_BELL_ITEMS) ^ set(in_data)))
-    assert len(in_data) == 8
+    assert len(in_data) == 9
     for n in VANILLA_BELL_ITEMS:
         assert n in ITEM_CATALOG, "%s does not resolve -- it could never be substituted" % n
 
@@ -128,11 +130,20 @@ def test_substitution_alone_cannot_fill_the_somber_ladder():
     should be a reviewed diff, not a silent one."""
     somber = [v for v, prog in VANILLA_BELL_ITEMS.items() if prog == PROG_SOMBER_BELL]
     smithing = [v for v, prog in VANILLA_BELL_ITEMS.items() if prog == PROG_SMITHING_BELL]
-    assert len(somber) == 4 and len(smithing) == 4
+    # ⭐⭐⭐ 2026-08-13 (#191): THE CONDITION THIS TEST WATCHES FOR HAS HAPPENED. Its own docstring
+    # said "if this ever stops being true (a regen finds a fifth somber check), the floor is free to
+    # become a no-op -- but that should be a reviewed diff, not a silent one." The widened co-check
+    # allowlist found the fifth: Somberstone Miner's Bell Bearing [1] (flag 520670, lot 20673).
+    #
+    # 🛑 THE FLOOR IS DELIBERATELY LEFT IN PLACE. Substitution CAN now cover all five rungs, so
+    # bell_inject_count's top-up is very likely redundant -- but removing it changes what a seed
+    # grants, which is a ruling and not a cleanup. This test now pins the NEW data truth and the
+    # fact that the floor still runs; when the ruling lands, this is the assertion to revisit.
+    assert len(somber) == 5 and len(smithing) == 4
     assert bell_ladder_len(PROG_SOMBER_BELL) == 5
-    assert len(somber) < bell_ladder_len(PROG_SOMBER_BELL), (
-        "substitution can now fill the somber ladder on its own; re-read the _POOL_COUNTS ruling in "
-        "features/progressive.py before changing it")
+    assert len(somber) >= bell_ladder_len(PROG_SOMBER_BELL), (
+        "the fifth somber bell check regressed out of the data -- if Somberstone [1] stopped being "
+        "a check, the somber floor is load-bearing again and this test must go back to `<`")
 
 
 class _BellsOnAssertions:
@@ -152,7 +163,12 @@ class _BellsOnAssertions:
         # is only evidence if the scan can see a pool AND the filter still matches the real names. A
         # renamed bearing would otherwise make this pass for the same reason a working fix does.
         self.assertGreater(len(names), 100, "the pool is empty -- this comparison is vacuous")
-        self.assertEqual(len(_vanilla_bearings(LOCATION_ITEM.values())), 8,
+        # 8 -> 9 (2026-08-13, #191): the widened co-check allowlist placed one more vanilla
+        # bearing (Somberstone Miner's Bell Bearing [1], flag 520670 lot 20673 -- a shared-flag
+        # sibling that was never projected before). This is the WITNESS, not the claim: it only
+        # asserts the filter still sees the real data. The claim is the zero-bearings-in-pool check
+        # below, which is what proves the new one is substituted like the other eight.
+        self.assertEqual(len(_vanilla_bearings(LOCATION_ITEM.values())), 9,
                          "the bearing filter no longer matches the vanilla data")
         found = _vanilla_bearings(names)
         self.assertEqual(found, [], "progressive_stone_bells is ON but the pool still holds the "

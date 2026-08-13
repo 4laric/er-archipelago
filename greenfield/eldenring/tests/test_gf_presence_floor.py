@@ -60,11 +60,16 @@ def test_roster_resolves_and_is_nonempty():
     assert pf.ROSTER, "the presence-floor roster resolved to nothing -- ITEM_CATALOG missing?"
     missing = [n for n in pf.ROSTER if n not in ITEM_CATALOG]
     assert not missing, f"roster names not in ITEM_CATALOG (injection would KeyError): {missing}"
-    # 18 physick tears always resolve; only the bell bearings vary (Somberstone [1] is not in the
-    # FMG catalog, so it is dropped -- see UNRESOLVED).
+    # 18 physick tears always resolve.
     assert len(pf.PHYSICK_TEARS) == 18
     assert set(pf.PHYSICK_TEARS) <= set(ITEM_CATALOG), "a physick tear name drifted from the catalog"
-    assert pf.UNRESOLVED == ["Somberstone Miner's Bell Bearing [1]"], (
+    # ⭐ 2026-08-13 (#191): UNRESOLVED is now EMPTY. `Somberstone Miner's Bell Bearing [1]` was
+    # dropped from the roster because the catalog is CHECK-derived and nothing placed it -- it hangs
+    # off flag 520670 as lot 20673, a SIBLING of a shared-flag family, and until the co-check
+    # allowlist widened that sibling was never projected. It is a real catalog item now, so the
+    # presence floor can finally guarantee the bearing it was always meant to. The roster is
+    # complete; this assertion is a ratchet, so a name reappearing here means a REGRESSION.
+    assert pf.UNRESOLVED == [], (
         f"unexpected unresolved roster names: {pf.UNRESOLVED} -- confirm the catalog spelling")
 
 
