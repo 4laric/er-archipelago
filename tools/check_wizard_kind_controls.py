@@ -32,6 +32,14 @@ Three assertions:
    never set them the wizard has nothing to enumerate and can only draw the keys the DEFAULT happens
    to use -- for `curated_filler` that is 9 of 16 categories, i.e. a control that cannot express
    something the option accepts. That is how #571 stayed unfixable rather than merely ugly.
+
+4. **A per-option PRESENTATION FLAG the page does not read is a no-op that looks like a decision.**
+   `free_text` is opt-in on the option class (`wizard_free_text`), rides through the dumper, and is
+   honoured by one `if` in `controlFor`. Delete or rename that `if` and nothing goes red: the option
+   simply falls back to the checkbox grid the flag exists to avoid, which is a working page and a
+   silently reverted decision. This is the same shape as assertion 1 -- degrade, do not fail -- one
+   level further in, and it costs a substring search. The same check covers `key_meta`, which has
+   had exactly this exposure since it landed.
 """
 import json
 import os
@@ -97,6 +105,22 @@ def main():
         fail.append("shipped option(s) %s carry a kind with no control: %s"
                     % (", ".join(bad),
                        ", ".join(sorted({o.get("kind") for o in opts if o["key"] in bad}))))
+
+    # Assertion 4: a presentation flag in the shipped metadata must be READ by the page.
+    # Substring, not a parse: the claim is only "the page mentions this field at all", which is the
+    # cheap half and the half that a rename or a deletion actually breaks. Whether it is honoured
+    # CORRECTLY is a review question, exactly as with the lint rules in check_wizard_lint_currency.
+    wizard_src = read(WIZARD)
+    for flag, why in (("free_text", "the option falls back to one checkbox per valid_key -- for "
+                                    "spawn_traps that is 390 of them, which is the control the "
+                                    "flag exists to replace"),
+                      ("key_meta", "the grid loses every label, hint and family and renders bare "
+                                   "internal tag names")):
+        users = sorted(o["key"] for o in opts if o.get(flag))
+        if users and ("o." + flag) not in wizard_src:
+            fail.append("option(s) %s ship `%s` in wizard/options-metadata.json, but "
+                        "wizard.html never reads `o.%s`. The page will not fail -- %s."
+                        % (", ".join(users), flag, flag, why))
 
     keyless = sorted(o["key"] for o in opts
                      if o.get("kind") == "dict" and not o.get("valid_keys"))

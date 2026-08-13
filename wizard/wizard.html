@@ -99,6 +99,13 @@ header.top .sub{color:var(--dim);font-size:13px}
 .dictgrid input[type=number]{width:64px}
 .dictgrid .dshare{min-width:44px;text-align:right;font:12px var(--mono);color:var(--dim)}
 .ctl .dnote{flex:1 1 100%;color:var(--dim);font:12px var(--sans,inherit);margin-top:3px}
+/* Free-text variant of a set control (metadata `free_text`), for keys that are a catalogue rather
+   than a menu -- see controlFor. The note under the box is the whole safety story, so it is not
+   allowed to be quiet: .bad is the state where something the player typed was NOT saved. */
+.freeset{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:4px}
+.freeset input[type=text]{flex:1 1 100%;font:12px var(--mono)}
+.freeset .fsnote{flex:1 1 100%;color:var(--dim);font:12px var(--sans,inherit);margin-top:3px}
+.freeset .fsnote.bad{color:var(--bad,#e06c6c)}
 /* Labelled/grouped variant of .setgrid, used when an option ships key_meta (see
    features/progression_surface.wizard_key_meta). Wider cells: these carry a label AND a hint. */
 .famwrap{flex:1 1 100%;display:flex;flex-direction:column;gap:10px}
@@ -171,7 +178,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6f3c41c29d10ef3a22df2e3bd3acaff12b95b4447f32ef42f3c30f9a816f2b16",
+ "source_sha256": "45ac096a2c840ae283e7a32fa28d69b417b8fa40726b06ac54b83a4bb1e50e89",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -184,7 +191,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "capital_reconciler",
   "auto_equip",
   "no_equip_load",
-  "no_fall_damage",
   "dungeon_sweep",
   "death_link",
   "reroll_enemy_drops",
@@ -229,7 +235,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "traps",
   "trap_count",
   "spawn_traps",
-  "vanilla_pool"
+  "vanilla_pool",
+  "no_weapon_requirements"
  ],
  "groups": [
   {
@@ -267,7 +274,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "minimum_enemy_difficulty",
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
-    "no_fall_damage",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -325,6 +331,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": false,
    "options": [
     "auto_equip",
+    "no_weapon_requirements",
     "no_equip_load",
     "start_with_whetblades",
     "progressive_flasks",
@@ -562,22 +569,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "value": 2
     }
    ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": null
-  },
-  {
-   "key": "no_fall_damage",
-   "class": "NoFallDamage",
-   "display_name": "No Fall Damage",
-   "description": "You take no damage from falling. Does not save you from a bottomless pit -- the game still\nkills you for leaving the map -- but ordinary drops, cliffs and shortcuts stop hurting.\nOff by default.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": false,
-   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,
@@ -856,7 +847,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "region_grace_unlock",
    "class": "RegionGraceUnlock",
    "display_name": "Region Grace Unlock",
-   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\nIt moves no item. Region Locks remain the only progression and every check stays exactly where\nit was, so nothing here changes what your seed contains or where any of it sits. A region whose\nbundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no\nsetting here is a way past a wall.\n\n🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still\nreachable on foot and still lights when you touch it. The bundles have not been walked region\nby region, though, so which ones can leave you somewhere you cannot get out of is genuinely not\nknown. `all` is the setting that has been played. Treat the other two as experimental, and\nplease report anything that strands you.",
    "kind": "choice",
    "base": "Choice",
    "default": "all",
@@ -885,7 +876,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "grace_attunement",
    "class": "GraceAttunement",
    "display_name": "Grace Attunement",
-   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.",
+   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.\n\n🛑 EXPERIMENTAL, and not for the reason a version number would tell you. Holding warps back\nmeans you walk more of the world on foot, and the grace bundles have not been walked region by\nregion -- so which regions can leave you somewhere you cannot get out of is not known. It moves\nno item and no check, so your seed still contains everything it did; what is untested is\nwhether you can always get to it. 0 is the setting that has been played. Please report anything\nthat strands you.",
    "kind": "range",
    "base": "Range",
    "default": 0,
@@ -2120,7 +2111,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "free_text": true
   },
   {
    "key": "vanilla_pool",
@@ -2130,6 +2122,22 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "no_weapon_requirements",
+   "class": "NoWeaponRequirements",
+   "display_name": "No Weapon Requirements",
+   "description": "Remove the stat requirements on weapons, shields, and catalysts (and spell requirements) so\nanything the multiworld hands you is usable regardless of your build.\n\nOn by default -- a randomizer hands you gear no build was made for, and this is what has always\nhappened. Turn it off if you want your stats to decide what you can hold; the seed is generated\nthe same either way, so nothing becomes unwinnable, it just becomes a fight you have to build for.\n\nThe client zeroes the live params at runtime and only ever LOWERS a requirement, so it is\nreconnect-safe.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
    "choices": null,
    "range": null,
    "valid_keys": null,
@@ -3878,6 +3886,11 @@ if (typeof module !== "undefined") module.exports = ERW;
   const meta = ERW.loadMeta(raw);
   const state = ERW.newState();
   const touched = new Set();
+  /* Tokens a free-text set control REFUSED, per option key. It lives out here rather than in the
+     control because `commit` calls `refresh()`, which rebuilds the control and would throw the
+     message away in the same tick it was written -- and "we dropped three of the ids you pasted"
+     is precisely the sentence that must survive a repaint. Cleared on the next accepted edit. */
+  const rejected = {};
 
   /* ---- steps: welcome, seed size, one per open group, one Advanced (collapsed groups +
      ungrouped options + AP-core), one Finish ----
@@ -3966,7 +3979,60 @@ if (typeof module !== "undefined") module.exports = ERW;
         commitKeys(curv);
       });
 
-      if (o.key_meta && o.key_meta.keys && o.key_meta.keys.length){
+      /* FREE TEXT: a set whose `valid_keys` are a CATALOGUE, not a menu. `spawn_traps` carries 390
+         bare character-model ids in numeric order; drawing one checkbox each is 390 rows of
+         scrolling to express the one thing anyone does with the option, which is paste the two or
+         three ids they looked up. The flag is metadata (`free_text`), set on the option class --
+         the wizard does not know which option this is, and must not learn.
+
+         🛑 THE VALIDATION DOES NOT RELAX. `valid_keys` is what turns `spawn_traps: [9999]` into a
+         yaml error instead of an item that arrives in-game and never fires, so an unknown token is
+         REFUSED and NAMED here rather than written into the download for Archipelago to reject
+         later. A control that accepts what the option rejects is worse than no control. */
+      if (o.free_text){
+        const known = new Set(o.valid_keys);
+        const box = el("div", "freeset");
+        const t = Object.assign(document.createElement("input"), {
+          type: "text",
+          value: v.join(", "),
+          spellcheck: false,
+          placeholder: o.valid_keys.slice(0, 3).join(", ") + ", \u2026"});
+        const note = el("div", "fsnote");
+        const paint = () => {
+          const cur = ERW.getVal(meta, state, o.key);
+          const bad = rejected[o.key] || [];
+          note.className = "fsnote" + (bad.length ? " bad" : "");
+          note.textContent = bad.length
+            ? "not saved, because " + (bad.length === 1 ? "it is not one" : "they are not")
+              + " of the " + o.valid_keys.length + " accepted values: " + bad.join(", ")
+            : cur.length
+              ? cur.length + " selected, of " + o.valid_keys.length + " accepted values"
+              : "empty \u2014 none. " + o.valid_keys.length + " values are accepted.";
+        };
+        t.addEventListener("change", () => {
+          /* Split on anything that cannot be part of a key. People paste `4150, 4160`, `[4150
+             4160]`, and a column out of a spreadsheet; all three mean the same thing, and guessing
+             wrong costs the player a silently truncated list. */
+          const toks = t.value.split(/[^A-Za-z0-9_]+/).filter(Boolean);
+          const picked = new Set(toks.filter(x => known.has(x)));
+          rejected[o.key] = toks.filter(x => !known.has(x) && !picked.has(x));
+          /* Committed in valid_keys order, exactly like the checkbox branches below: the order the
+             player happened to type is presentation and must not reach the yaml. */
+          commit(o.valid_keys.filter(x => picked.has(x)));
+          /* 🛑 REPAINT HERE, because `refresh()` does NOT rebuild the controls -- it redraws the
+             yaml, the side rail, the seed-size cards and the findings list, and leaves this box
+             exactly where it stands. A checkbox does not care: its state IS the tick. This note is
+             the only place the player is told that three of the ids they pasted were thrown away,
+             so leaving it to a re-render nobody triggers means it never appears at all.
+             Normalising the box's own text in the same breath is what makes the control honest --
+             what is on screen afterwards is what was saved, in the order it was saved. */
+          t.value = ERW.getVal(meta, state, o.key).join(", ");
+          paint();
+        });
+        box.append(t, note);
+        wrap.append(box);
+        paint();
+      } else if (o.key_meta && o.key_meta.keys && o.key_meta.keys.length){
         /* LABELLED + GROUPED. The keys are internal tag names ("Church" is the 13 Sacred Tears,
            not "church locations"; "Basin" is Crystal Tears), so the label is what the player reads
            and the key is shown small beside it -- they still need the key to hand-edit a yaml or
