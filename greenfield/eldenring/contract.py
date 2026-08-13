@@ -263,7 +263,14 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # this constant is ever renamed again, they must break.
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
-                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss"]
+                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss", "SweepSlot"]
+# 🛑 SweepSlot is NOT A LOCATION TAG. Every other member of this list names a tag that gen_data
+# writes onto a check; SweepSlot is DERIVED at world-build time from that seed's own enabled sweeps
+# (features/progression_surface.sweep_slot_aps) -- at most one member per sweep trigger, the way
+# ShopSlot is at most one row per merchant. It is therefore in NEITHER half of the sweep partition:
+# a class that IS a sweep member by definition cannot be "cut from the sweep" without deleting
+# itself. See SURFACE_DERIVED_CLASSES below and tools/check_sweep_cut_partition.py, which reads it.
+SURFACE_DERIVED_CLASSES = frozenset({"SweepSlot"})
 # LegacyBoss / FieldBoss (2026-08-02) split the 134-strong `Boss` class by WHERE the boss stands:
 # 30 legacy-dungeon drops, 84 overworld. Both are SUBSETS of Boss, so selecting Boss still selects
 # everything. There is no `Underground`: 81 catacomb/cave/tunnel/minor-dungeon bosses exist but only

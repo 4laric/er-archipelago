@@ -15,7 +15,8 @@
   "KeyItem",
   "MajorBoss",
   "LegacyBoss",
-  "FieldBoss"
+  "FieldBoss",
+  "SweepSlot"
  ],
  "default_classes": [
   "Remembrance",
@@ -469,5 +470,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "6756e4701d7bc5b6fa722912400e0a229b1e9e5269d77d03d491aea32234e821"
+ "source_sha256": "7e48613ff735486b6c75c665bda42504613ca8200d17ef024fc0807a1884d6ef"
 }

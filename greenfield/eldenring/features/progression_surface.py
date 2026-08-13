@@ -253,11 +253,16 @@ SURFACE_CLASS_FAMILIES = (
      ("Seedtree", "Church", "Basin", "Fragment", "Revered")),
     ("merchants", "Merchants", ("ShopSlot", "ShopNonSpell", "Shop")),
     ("items", "Items", ("KeyItem", "Legendary")),
+    ("sweeps", "Dungeon sweeps", ("SweepSlot",)),
 )
 
 # key -> (label, hint). The label says what the class IS in the words the game uses; the hint says
 # what it costs you to pick it. Kept short on purpose: the option's own docstring carries the essay.
 SURFACE_CLASS_LABELS = {
+    "SweepSlot":    ("One check per dungeon sweep",
+                     "Not a kind of check -- ONE member of every sweep your seed runs, so clearing "
+                     "an area can pay out progression. Adds about as many slots as you have sweeps "
+                     "(55 in a 4-region seed, ~170 on the full map) and needs Dungeon Sweep on."),
     "Boss":         ("Any boss drop",
                      "Every enemy the game gives a boss healthbar. Contains all the boss classes "
                      "below, so ticking this makes them redundant."),
@@ -444,6 +449,76 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
     barred = frozenset(defaulted) | _roundtable_merchant_aps() | frozenset(_sx)
     return {ap for ap, tags in tags_map.items()
             if contract.has_class(tags, sel) and ap not in barred}
+
+
+def sweep_slot_aps(world, classes, tag_ids=frozenset()):
+    """The SweepSlot half of the surface: AT MOST ONE member per enabled sweep trigger.
+
+    Empty unless `SweepSlot` is in `classes`, so nothing shipped moves. This is the only surface
+    class that is DERIVED rather than tagged (contract.SURFACE_DERIVED_CLASSES) -- gen_data cannot
+    bake it, because whether a check is a sweep member is a per-seed answer (the rung) and whether it
+    is on the surface is the question we are answering.
+
+    # WHY ONE PER SWEEP, and not all of them
+
+    MEASURED 2026-08-13, one ER slot + DOOM 1993, num_regions 4: a default seed's sweeps grant
+    **924 of its 1517 locations (60.9%)**, against a surface of 30 (2.0%). Admitting every member
+    would take the surface to ~63% of the seed -- which does fix the intake collapse #631 is about,
+    and makes "confined to the surface" mean almost nothing, which is the promise the option exists
+    to keep. One member per trigger is 55 here and 218 full-map: it roughly DOUBLES the surface
+    without diluting it.
+
+    This is ShopSlot's argument, deliberately: "a merchant enters the pool once, so however large
+    their stock they can hold at most one progression item and cannot dominate the surface by
+    breadth." A sweep is the same shape -- a trigger with a large membership -- and gets the same
+    treatment.
+
+    # WHICH member
+
+    The lowest ap-id NOT already on the tag surface (`tag_ids`), falling back to the lowest overall.
+    Two reasons it is not a random draw: `world.random` is consumed a different number of times
+    depending on how hard fill works, so drawing here would move the seed for everything downstream
+    (the reason `_confine_draw` is a hash); and the choice must be reproducible from the multidata
+    for the tracker to star the same check the fill used. Skipping the tag surface matters because
+    the six SURFACE-CUTTABLE classes are still in the pre-cut member lists, so a naive `min()` can
+    nominate a check the surface already had -- adding a name and no breadth.
+
+    🛑 Reads `boss_locks.rung_sweeps`, NOT `enabled_sweeps`. The latter applies the per-seed surface
+    cut, which reads the surface, which is this function -- a cycle. `rung_sweeps` reads only
+    `dungeon_sweep`.
+    """
+    if "SweepSlot" not in set(classes or ()):
+        return frozenset()
+    try:
+        from .boss_locks import rung_sweeps  # noqa: PLC0415 -- import cycle at module scope
+    except Exception:
+        return frozenset()
+    try:
+        from ..location_tags import SURFACE_EXCLUDE_APS as _sx
+    except Exception:
+        _sx = frozenset()
+    barred = (frozenset(_world_barred_aps(world)) | _roundtable_merchant_aps() | frozenset(_sx))
+    out = set()
+    for _flag, members in sorted(rung_sweeps(world).items()):
+        eligible = sorted(ap for ap in members if ap not in barred)
+        if not eligible:
+            continue
+        fresh = [ap for ap in eligible if ap not in tag_ids]
+        out.add(fresh[0] if fresh else eligible[0])
+    return frozenset(out)
+
+
+def surface_ap_ids(world, classes):
+    """THE surface for `classes`: the tagged half plus the derived half, in one expression.
+
+    Every caller that used to say `allowed_ap_ids(LOCATION_TAGS, classes, defaulted=...)` says this
+    instead -- the fill's own confinement, the foreign bar, the ladder's open-location scan and the
+    slot_data emit. That was already the file's rule for the tag half ("the single surface chokepoint
+    both confinements funnel through"); a derived class that reached only three of the four would put
+    a progression item somewhere the tracker does not star, or star a check the fill cannot use."""
+    ids = allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
+    extra = sweep_slot_aps(world, classes, ids)
+    return (ids | extra) if extra else ids
 
 
 def is_restricted_progression(item, player):
@@ -697,7 +772,7 @@ def confined_surface_ids(world):
     classes = selected_surface(_selection(world))
     if not classes:
         return None
-    return allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
+    return surface_ap_ids(world, classes)
 
 
 def _released_pct(world) -> int:
@@ -765,7 +840,7 @@ def _world_barred_aps(world):
 
 def _open_allowed(world, classes):
     """Unfilled locations of this player whose tags put them ON THE SURFACE for `classes`."""
-    ids = allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
+    ids = surface_ap_ids(world, classes)
     out = []
     for loc in world.multiworld.get_locations(world.player):
         ap = getattr(loc, "address", None)
@@ -1057,7 +1132,7 @@ class ProgressionSurfaceFeature(Feature):
         if _mode(world) == 0:
             return {contract.PROGRESSION_SURFACE_LOCATIONS: []}
         classes = selected_surface(_selection(world))
-        ids = allowed_ap_ids(LOCATION_TAGS, classes, defaulted=_world_barred_aps(world))
+        ids = surface_ap_ids(world, classes)
         own = {loc.address for loc in world.multiworld.get_locations(world.player)
                if getattr(loc, "address", None) is not None}
         return {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}

@@ -128,7 +128,14 @@ def measure(mods=None):
     barred_all = frozenset().union(*bars.values())
     exclude_tags = set(getattr(contract, "SURFACE_EXCLUDE_TAGS", ()) or ())
     default = set(contract.SURFACE_DEFAULT_CLASSES)
-    vocab = list(contract.SURFACE_CLASSES)
+    # 🛑 DERIVED classes are NOT priced here, and a zero row would be a lie rather than an omission.
+    # Every column in this table is a corpus-wide TAG count; SweepSlot carries no tag, because which
+    # check it names is decided per seed from that seed's enabled sweeps (progression_surface.
+    # sweep_slot_aps). Emitting it would read "0 tagged, 0 can host" -- indistinguishable from a
+    # class no location can carry, which is the exact misreading this artifact exists to prevent.
+    # Its size IS knowable, just not from here: one per enabled sweep trigger.
+    _derived = set(getattr(contract, "SURFACE_DERIVED_CLASSES", ()) or ())
+    vocab = [c for c in contract.SURFACE_CLASSES if c not in _derived]
 
     def tagged(classes):
         """ap-ids carrying any of `classes` and none of SURFACE_EXCLUDE_TAGS -- contract.has_class,

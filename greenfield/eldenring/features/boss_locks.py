@@ -283,6 +283,34 @@ def unreachable_sweeps(live, kept, sweep_region=None, arena_region=None):
             and not sweep_trigger_reachable(fl, kept, sweep_region, arena_region)}
 
 
+def rung_sweeps(world, _want_unjoined=False):
+    """{boss flag: [member ap ids]} at this seed's RUNG, BEFORE the per-seed surface cut.
+
+    Split out of `enabled_sweeps` so `progression_surface.sweep_slot_aps` can ask "which sweeps does
+    this seed run?" without asking "which members did the surface claim?" -- because it is the thing
+    that decides the surface. 🛑 Calling `enabled_sweeps` from the surface would be a cycle:
+    enabled_sweeps -> sweep_surface_cut -> seed_surface_classes -> the surface -> sweep_slot_aps ->
+    enabled_sweeps. The rung filter reads only `dungeon_sweep`, so it is safe from either side.
+    """
+    opt = getattr(getattr(world, "options", None), "dungeon_sweep", None)
+    key = getattr(opt, "current_key", None) or "bosses"
+    allowed = _SWEEP_RUNGS.get(key, _SWEEP_RUNGS["bosses"])
+    out, unjoined = {}, []
+    if allowed:
+        for fl, members in DUNGEON_SWEEPS.items():
+            info = BOSS_HEALTHBARS.get(fl)
+            if info is None:
+                # A sweep whose boss is not in boss_healthbars cannot be classified. Count it, say
+                # so, and keep it only at the widest rung -- a filter with no tally is a lie.
+                unjoined.append(fl)
+                if key != "bosses":
+                    continue
+            elif info[2] not in allowed:
+                continue
+            out[fl] = members
+    return (out, unjoined, key) if _want_unjoined else out
+
+
 def enabled_sweeps(world):
     """The sweeps this seed actually grants: {boss flag: [member ap ids]} at the chosen rung.
 
@@ -290,25 +318,21 @@ def enabled_sweeps(world):
     written separately and would have silently disagreed the moment the rungs became real -- gating
     a member behind a boss key whose sweep is not emitted strands it behind a trigger that never
     fires."""
-    opt = getattr(getattr(world, "options", None), "dungeon_sweep", None)
-    key = getattr(opt, "current_key", None) or "bosses"
-    allowed = _SWEEP_RUNGS.get(key, _SWEEP_RUNGS["bosses"])
-    if not allowed:
+    rung, unjoined, key = rung_sweeps(world, _want_unjoined=True)
+    if not rung:
         return {}
     # ...and the PER-SEED surface cut on top of the rung. gen_data admits the six cuttable classes
     # into the baked member lists; this seed takes back the ones its own Progression Surface claims.
+    #
+    # 🛑 SweepSlot (contract.SURFACE_DERIVED_CLASSES) is deliberately NOT consulted here. It is not
+    # one of _SWEEP_SURFACE_CUTTABLE, so a seed that puts SweepSlot on its surface does NOT lose the
+    # member it just nominated -- that is the whole point of the class, and it is why the cut reads
+    # `_SWEEP_SURFACE_CUTTABLE & seed_surface_classes` rather than the raw selection. Were it
+    # otherwise this would be self-referential: the surface would name the sweep, the cut would
+    # remove it, and the surface would then be naming a member that no longer exists.
     surface_cut = sweep_surface_cut(world)
-    out, unjoined, cut_links, emptied = {}, [], 0, []
-    for fl, members in DUNGEON_SWEEPS.items():
-        info = BOSS_HEALTHBARS.get(fl)
-        if info is None:
-            # A sweep whose boss is not in boss_healthbars cannot be classified. Count it, say so,
-            # and keep it only at the widest rung -- a filter with no tally is a lie.
-            unjoined.append(fl)
-            if key != "bosses":
-                continue
-        elif info[2] not in allowed:
-            continue
+    out, cut_links, emptied = {}, 0, []
+    for fl, members in rung.items():
         if surface_cut:
             kept_members = [ap for ap in members if ap not in surface_cut]
             cut_links += len(members) - len(kept_members)

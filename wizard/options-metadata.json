@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "41d43d1525f7a61d1e6a9571cfa9d08ef25ec1dc1e79e45308d1da4b9b028974",
+ "source_sha256": "7455d9287f3c6880392f7bdf0ecf3b154f2c8534d50534e67c98cf94fc5f1cba",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1038,7 +1038,8 @@
     "Seedtree",
     "Shop",
     "ShopNonSpell",
-    "ShopSlot"
+    "ShopSlot",
+    "SweepSlot"
    ],
    "casefold": false,
    "group": null,
@@ -1157,6 +1158,13 @@
       "hint": "Everything the params rank rarity 3. Enia's buy-only remembrance store is excluded from the surface whatever you pick here.",
       "family": "items",
       "family_label": "Items"
+     },
+     {
+      "key": "SweepSlot",
+      "label": "One check per dungeon sweep",
+      "hint": "Not a kind of check -- ONE member of every sweep your seed runs, so clearing an area can pay out progression. Adds about as many slots as you have sweeps (55 in a 4-region seed, ~170 on the full map) and needs Dungeon Sweep on.",
+      "family": "sweeps",
+      "family_label": "Dungeon sweeps"
      }
     ],
     "families": [
@@ -1175,6 +1183,10 @@
      {
       "id": "items",
       "label": "Items"
+     },
+     {
+      "id": "sweeps",
+      "label": "Dungeon sweeps"
      }
     ],
     "contains": {

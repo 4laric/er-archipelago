@@ -371,6 +371,13 @@ Elden Ring:
 
   # WHICH LOCATIONS MAY HOLD PROGRESSION. Shrinking this makes the run tighter
   # and more predictable; widening it scatters key items further afield.
+  #
+  # Every entry below names a KIND of check. `SweepSlot` is the one that does not:
+  # it adds ONE member of every dungeon sweep your seed runs, so clearing an area
+  # can pay out progression. It is off by default and needs Dungeon Sweep on. Add
+  # it if you play multiworld and want more of your neighbours' key items to
+  # actually reach you -- at the shipped `confine_foreign_progression: 100` the
+  # surface is the only place they may land, and it is small.
   progression_surface:
     - MajorBoss
     - Remembrance

@@ -92,9 +92,18 @@ class SurfaceConfidenceArtifact(unittest.TestCase):
         mod = _load_tool()
         mods = mod._load()
         rows, _totals = mod.measure(mods)
-        vocab = list(mods["contract"].SURFACE_CLASSES)
+        ct = mods["contract"]
+        derived = set(ct.SURFACE_DERIVED_CLASSES)
+        vocab = [c for c in ct.SURFACE_CLASSES if c not in derived]
         self.assertEqual([r["class"] for r in rows], vocab,
-                         "the table must price the vocabulary exactly, in vocabulary order")
+                         "the table must price the TAGGED vocabulary exactly, in vocabulary order")
+        # A derived class must be ABSENT, not zero. A 0/0 row is indistinguishable from "no location
+        # can carry this", and the whole point of the artifact is that a class's cost is legible.
+        self.assertEqual(sorted(set(r["class"] for r in rows) & derived), [],
+                         "a DERIVED surface class was priced by tag count; it has no tags, so the "
+                         "row can only read 0 and would be read as 'unhostable'")
+        self.assertTrue(derived <= set(ct.SURFACE_CLASSES),
+                        "SURFACE_DERIVED_CLASSES names something outside the vocabulary")
         self.assertTrue(set(mods["contract"].SURFACE_DEFAULT_CLASSES) <= set(vocab),
                         "a default class outside the vocabulary would never be priced")
 
@@ -169,13 +178,16 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
             from ..features.progression_surface import allowed_ap_ids
             from ..location_tags import LOCATION_TAGS
             from ..missable_locations import MISSABLE_LOCATIONS
-            from ..contract import SURFACE_CLASSES, has_class
+            from ..contract import SURFACE_CLASSES, SURFACE_DERIVED_CLASSES, has_class
         except Exception as e:  # AP absent -> the feature module cannot import Options
             raise unittest.SkipTest("progression_surface needs Archipelago (%r)" % (e,))
         cls.allowed_ap_ids = staticmethod(allowed_ap_ids)
         cls.LT = LOCATION_TAGS
         cls.MISS = frozenset(MISSABLE_LOCATIONS)
-        cls.VOCAB = list(SURFACE_CLASSES)
+        # The TAGGED vocabulary. A derived class (SweepSlot) is not priced by the tool and has no
+        # row to compare against; test_derived_classes_carry_no_tags below pins the reason instead.
+        cls.DERIVED = frozenset(SURFACE_DERIVED_CLASSES)
+        cls.VOCAB = [c for c in SURFACE_CLASSES if c not in cls.DERIVED]
         cls.has_class = staticmethod(has_class)
         cls.mod = _load_tool()
 
@@ -190,6 +202,25 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
             self.assertEqual(by_class[cls], len(expected),
                              "%s: tool counted %d tagged, contract.has_class says %d"
                              % (cls, by_class[cls], len(expected)))
+
+    def test_derived_classes_carry_no_tags_so_the_tag_path_cannot_serve_them(self):
+        """A DERIVED class must contribute NOTHING through allowed_ap_ids -- the witness that its
+        whole contribution comes from progression_surface.sweep_slot_aps and not from a stray tag.
+
+        Rule 11 motivating case: SweepSlot was added to contract.SURFACE_CLASSES, and every reader
+        that iterates that list -- this suite twice, the confidence tool, the wizard's family/label
+        maps, both halves of the sweep-cut partition gate -- assumed a member was a TAG. Four of them
+        went red or silent. This is the assertion that says what the class actually is, so the next
+        derived class is added with its contract rather than discovered by a KeyError."""
+        self.assertTrue(self.DERIVED, "no derived class declared -- this test is vacuous")
+        for cls in sorted(self.DERIVED):
+            self.assertEqual(
+                set(self.allowed_ap_ids(self.LT, {cls})), set(),
+                "%s is DERIVED but some location carries it as a tag. Either it is not derived "
+                "after all, or gen_data has started baking a tag it must not." % cls)
+            self.assertEqual(
+                {ap for ap, ts in self.LT.items() if cls in (ts or ())}, set(),
+                "%s appears in LOCATION_TAGS" % cls)
 
     def test_eligible_matches_allowed_ap_ids(self):
         """tool.eligible(cls) == allowed_ap_ids({cls}) - MISSABLE, exactly, for every class."""

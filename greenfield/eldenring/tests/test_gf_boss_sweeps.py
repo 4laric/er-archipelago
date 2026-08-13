@@ -160,13 +160,24 @@ class BossSweepScoping(unittest.TestCase):
         # DIRECT, not getattr-with-default: a defaulted read makes this parity gate pass
         # VACUOUSLY (empty == empty) the moment the contract renames the constant, which is
         # exactly what it is here to prevent. Let it raise.
-        want = set(ct.SURFACE_CLASSES)
+        # DERIVED classes (contract.SURFACE_DERIVED_CLASSES -- SweepSlot) are in NEITHER half on
+        # purpose: they name no location TAG, so gen_data cannot bake them and the per-seed cut
+        # cannot remove them without deleting the class. Read DIRECTLY, for the reason the comment
+        # above gives: a getattr-with-default would let a renamed constant widen `want` silently and
+        # pass this gate vacuously.
+        want = set(ct.SURFACE_CLASSES) - set(ct.SURFACE_DERIVED_CLASSES)
         got = set(FIELD_EXCLUDE) | set(SURFACE_CUTTABLE)
         self.assertEqual(
             got, want,
             "the sweep cut no longer PARTITIONS contract.SURFACE_CLASSES; every class must be "
-            "filed as never-sweepable (FIELD_EXCLUDE) or surface-cuttable (SURFACE_CUTTABLE). "
-            "got=%s want=%s" % (sorted(got), sorted(want)))
+            "filed as never-sweepable (FIELD_EXCLUDE), surface-cuttable (SURFACE_CUTTABLE) or "
+            "DERIVED (contract.SURFACE_DERIVED_CLASSES). got=%s want=%s"
+            % (sorted(got), sorted(want)))
+        self.assertEqual(
+            set(ct.SURFACE_DERIVED_CLASSES) & got, set(),
+            "a DERIVED surface class is also cut by the sweep. A derived class IS a sweep member by "
+            "definition, so cutting it deletes the class it just nominated: %s"
+            % sorted(set(ct.SURFACE_DERIVED_CLASSES) & got))
         self.assertEqual(
             set(FIELD_EXCLUDE) & set(SURFACE_CUTTABLE), set(),
             "a class is in BOTH halves of the sweep cut -- it would read as permanently excluded "

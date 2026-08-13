@@ -171,7 +171,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "41d43d1525f7a61d1e6a9571cfa9d08ef25ec1dc1e79e45308d1da4b9b028974",
+ "source_sha256": "7455d9287f3c6880392f7bdf0ecf3b154f2c8534d50534e67c98cf94fc5f1cba",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1206,7 +1206,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Seedtree",
     "Shop",
     "ShopNonSpell",
-    "ShopSlot"
+    "ShopSlot",
+    "SweepSlot"
    ],
    "casefold": false,
    "group": null,
@@ -1325,6 +1326,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
       "hint": "Everything the params rank rarity 3. Enia's buy-only remembrance store is excluded from the surface whatever you pick here.",
       "family": "items",
       "family_label": "Items"
+     },
+     {
+      "key": "SweepSlot",
+      "label": "One check per dungeon sweep",
+      "hint": "Not a kind of check -- ONE member of every sweep your seed runs, so clearing an area can pay out progression. Adds about as many slots as you have sweeps (55 in a 4-region seed, ~170 on the full map) and needs Dungeon Sweep on.",
+      "family": "sweeps",
+      "family_label": "Dungeon sweeps"
      }
     ],
     "families": [
@@ -1343,6 +1351,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      {
       "id": "items",
       "label": "Items"
+     },
+     {
+      "id": "sweeps",
+      "label": "Dungeon sweeps"
      }
     ],
     "contains": {
@@ -2825,7 +2837,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "KeyItem",
   "MajorBoss",
   "LegacyBoss",
-  "FieldBoss"
+  "FieldBoss",
+  "SweepSlot"
  ],
  "default_classes": [
   "Remembrance",
@@ -3279,7 +3292,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "6756e4701d7bc5b6fa722912400e0a229b1e9e5269d77d03d491aea32234e821"
+ "source_sha256": "7e48613ff735486b6c75c665bda42504613ca8200d17ef024fc0807a1884d6ef"
 }
 </script>
 <div class="wrap">
