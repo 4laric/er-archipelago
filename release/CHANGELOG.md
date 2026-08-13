@@ -171,6 +171,34 @@ the first public announcement, so the surface is gone rather than patched.
   changed, which is the only reason it may ever change -- editing it to match a wizard that drifted
   would delete the assertion instead of checking it.
 
+### 🛑 `--landing` was writing a file nothing would ever serve
+
+The flag shipped in this window pointing at `${ER_ROOT_DIR}/index.html`, on the assumption that
+peliarch served `/` from a static directory. **It does not.** `/` is a Flask route
+(`webgui/app.py`) and Caddy does `reverse_proxy web:8080` for everything, so that file would have
+been written, reported as installed, and never served -- and nobody would have found out until the
+front page failed to change after a deploy that said it succeeded.
+
+Alaric asked whether the fork needed updating. It did, and this is what the question found.
+
+The app now serves `ER_STATIC_DIR/landing.html` at `/` (peliarch PR #11), so the page lands in the
+same directory, by the same atomic tag-pinned install, as `wizard.html` and `checks.html`. One
+directory, three pages, one deploy, `ER_ROOT_DIR` gone.
+
+**Hosting is retired on the peliarch side too.** `POST /rooms` and `POST /generate` answer **410**
+rather than being deleted: two callers exist in the wild that we cannot update -- a wizard already
+open in a browser, and the `file://` wizard inside every previous release zip -- and the old wizard
+prints `data.error` straight into its own UI, so a 410 carrying a readable sentence is the only way
+to tell a player what happened. Existing rooms and their pages are untouched; there are five on the
+box and at least two belong to other people.
+
+**And the landing page now carries its own footer chrome, by hand.** Every other page on that host
+is a Jinja template that gets the donation link and contact details from a context processor, which
+peliarch's suite asserted on `/` among others. A static page cannot be reached by a context
+processor, so those assertions had to be rescoped to `/room/<id>` and `/downloads` -- a real,
+acknowledged loss of coverage -- and the thing they were protecting is paid back in `landing.html`
+directly. The peliarch tests say so in their own docstrings rather than being deleted quietly.
+
 ### A bug report form, because every triage has started by asking for the same four things
 
 `.github/ISSUE_TEMPLATE/bug_report.yml` asks for the release **tag** both halves came from (not the

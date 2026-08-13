@@ -13,13 +13,19 @@
 #     /er/beta/wizard.html   <- wizard/wizard.html at main
 #     /er/checks.html        <- er-archipelago-check-browser.html at the STABLE tag
 #     /er/beta/checks.html   <- er-archipelago-check-browser.html at main
-#     ${ER_ROOT_DIR}/index.html  <- wizard/landing.html at the STABLE tag   (--landing only)
+#     /er/landing.html       <- wizard/landing.html at the STABLE tag       (--landing only)
 #
-# THE LANDING PAGE IS OPT-IN AND SEPARATELY TARGETED. It belongs at the SITE ROOT, not under
-# /er/, so it takes its own destination and is not written unless you ask -- the box may be
-# serving something else at / that this script has no business overwriting.
+# 🛑 THE LANDING PAGE GOES IN ER_STATIC_DIR, NOT AT THE FILESYSTEM ROOT, AND THAT WAS A BUG.
+# It first shipped writing ${ER_ROOT_DIR}/index.html on the assumption that peliarch served `/`
+# from a static directory. It does not: `/` is a Flask route (webgui/app.py), and Caddy does
+# `reverse_proxy web:8080` for everything -- so that file would have been written and never
+# served, and nobody would have found out until the front page failed to change.
 #
-#   ER_ROOT_DIR=/srv/www ER_STATIC_DIR=/srv/er ./tools/deploy_wizard.sh --landing
+# The app now serves ER_STATIC_DIR/landing.html at `/` (peliarch PR #11), which is the same
+# directory and the same atomic, tag-pinned install that wizard.html and checks.html already
+# use. One directory, three pages, one deploy.
+#
+#   ER_STATIC_DIR=/srv/er ./tools/deploy_wizard.sh --landing
 #
 # !! --landing FAILS UNTIL v0.4.0 IS TAGGED, and that is correct. It fetches from the STABLE tag,
 # and wizard/landing.html does not exist at v0.3.10. The failure is loud ("fetch failed: landing
@@ -49,7 +55,6 @@ set -euo pipefail
 REPO="${ER_REPO:-4laric/er-archipelago}"
 RAW="https://raw.githubusercontent.com/${REPO}"
 DEST="${ER_STATIC_DIR:-/srv/er}"
-ROOT="${ER_ROOT_DIR:-}"
 DRY=0
 STABLE_ONLY=0
 NO_CHECKS=0
@@ -105,12 +110,8 @@ install_one() {  # ref, source path in repo, destination path, sentinel, label
 }
 
 [ "$DRY" = "1" ] || [ -d "$DEST" ] || die "ER_STATIC_DIR does not exist: ${DEST}"
-# Fail BEFORE fetching anything. Discovering the target is unset after installing three files is
-# a half-done deploy, and this script's whole posture is that a partial write is the failure.
-if [ "$LANDING" = "1" ]; then
-  [ -n "$ROOT" ] || die "--landing needs ER_ROOT_DIR (where the site root is served from)"
-  [ "$DRY" = "1" ] || [ -d "$ROOT" ] || die "ER_ROOT_DIR does not exist: ${ROOT}"
-fi
+# The landing page needs no separate target any more -- it lands in DEST beside the other two,
+# and DEST is already checked above.
 
 WIZ_SRC="wizard/wizard.html"
 WIZ_SENTINEL='id="er-options-metadata"'
@@ -132,14 +133,15 @@ fi
 # point at /er/ and /er/checks.html, so a landing page from main advertising a page that stable
 # does not serve yet is the same skew one level up.
 if [ "$LANDING" = "1" ]; then
-  install_one "$stable_tag" "wizard/landing.html" "${ROOT}/index.html" \
+  install_one "$stable_tag" "wizard/landing.html" "${DEST}/landing.html" \
     'id="er-landing"' "landing stable (${stable_tag})"
 fi
 
 cat <<'NOTE'
 
 Live at:
-  /                       stable   the landing page      (--landing only)
+  /                       stable   the landing page      (--landing only; served by the app
+                                   from ER_STATIC_DIR/landing.html, not from the web root)
   /er/wizard.html         stable   the options wizard
   /er/checks.html         stable   the check browser
   /er/beta/wizard.html    beta
