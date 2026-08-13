@@ -19,6 +19,24 @@ predicting the next one was ignored. This one is written minutes after the tag.
 and seven for seven says which way that goes. The fix named at 0.3.10 and still not taken is to
 derive the fixture from `git tag`.
 
+### The gitlink pin, corrected twice in one window
+
+The v0.4.1 window PR meant to pin the gitlink at the client half and **silently did not** -- a
+`git update-index` whose staged diff nobody looked at, so the pin stayed at `78b1a543` (the
+v0.4.0 client) while the world moved to 0.4.1. It is at `f1afb8e5` now, client `main`, where
+PR #180 merged.
+
+🛑 **And the first attempt at the correction invented a hash.** The full SHA was written out from
+an 8-character prefix rather than read, and `f1afb8e5395a...` is not a commit that exists --
+`git update-index --cacheinfo` will happily record a gitlink pointing at nothing, because it never
+asks whether the object is there. It was caught by comparing against the API before committing.
+Two different silent-failure modes on one two-line change, both of which produce a repo that looks
+fine: **read the staged diff, and read the SHA from the source rather than completing it.**
+
+Verified at the pin rather than assumed: client checked out at `f1afb8e5`,
+`check_version_sites --expect 0.4.1` agrees across all four sites, and `gen_contract.py` leaves the
+client tree clean.
+
 ### `stable` finally moves, and it was blocking the landing page
 
 `CHANNELS.tsv` had `stable -> v0.3.10` through **two** tags, and `check_channels` was green the
