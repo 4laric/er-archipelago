@@ -99,6 +99,13 @@ header.top .sub{color:var(--dim);font-size:13px}
 .dictgrid input[type=number]{width:64px}
 .dictgrid .dshare{min-width:44px;text-align:right;font:12px var(--mono);color:var(--dim)}
 .ctl .dnote{flex:1 1 100%;color:var(--dim);font:12px var(--sans,inherit);margin-top:3px}
+/* Free-text variant of a set control (metadata `free_text`), for keys that are a catalogue rather
+   than a menu -- see controlFor. The note under the box is the whole safety story, so it is not
+   allowed to be quiet: .bad is the state where something the player typed was NOT saved. */
+.freeset{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:4px}
+.freeset input[type=text]{flex:1 1 100%;font:12px var(--mono)}
+.freeset .fsnote{flex:1 1 100%;color:var(--dim);font:12px var(--sans,inherit);margin-top:3px}
+.freeset .fsnote.bad{color:var(--bad,#e06c6c)}
 /* Labelled/grouped variant of .setgrid, used when an option ships key_meta (see
    features/progression_surface.wizard_key_meta). Wider cells: these carry a label AND a hint. */
 .famwrap{flex:1 1 100%;display:flex;flex-direction:column;gap:10px}
@@ -171,7 +178,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "cec9ed318c525870cb03b4740d1f68cbd00f329eec4b0faa8ddb7f2350262b28",
+ "source_sha256": "fa5b06095710c1d001b209719b238b1f49c46e74b7b3c71b773374f2f814d9fa",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -184,7 +191,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "capital_reconciler",
   "auto_equip",
   "no_equip_load",
-  "no_fall_damage",
   "dungeon_sweep",
   "death_link",
   "reroll_enemy_drops",
@@ -229,7 +235,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "traps",
   "trap_count",
   "spawn_traps",
-  "vanilla_pool"
+  "vanilla_pool",
+  "no_weapon_requirements"
  ],
  "groups": [
   {
@@ -267,7 +274,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "minimum_enemy_difficulty",
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
-    "no_fall_damage",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -325,6 +331,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": false,
    "options": [
     "auto_equip",
+    "no_weapon_requirements",
     "no_equip_load",
     "start_with_whetblades",
     "progressive_flasks",
@@ -570,26 +577,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "special_values": null
   },
   {
-   "key": "no_fall_damage",
-   "class": "NoFallDamage",
-   "display_name": "No Fall Damage",
-   "description": "You take no damage from falling. Does not save you from a bottomless pit -- the game still\nkills you for leaving the map -- but ordinary drops, cliffs and shortcuts stop hurting.\nOff by default.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": null
-  },
-  {
    "key": "dungeon_sweep",
    "class": "DungeonSweep",
    "display_name": "Dungeon Sweep",
-   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).\nall -- those plus legacy dungeons and castles (~2614).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3876).\n\nThose are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;\nat the default surface, ~3782 at the widest rung.\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nA sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a\nmerchant's stock: those are cut when the sweep is built and no option restores them.\n\nEverything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,\nScadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was\nfiller-only before, +145 checks corpus-wide). The exception is the classes YOU put on the\nProgression Surface: those are where this seed places its Locks, so they are taken back out of\nthe sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree\nFragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;\nuntick a collectathon line on the surface and the sweep picks it up instead.\n\n🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters\nwherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut\ncan only act on a surface that says something.\n\nA group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA\nregion has to be kept too, not just the region its members live in. Six groups are fought\nsomewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep\nchecks from Scadu Altus ground -- and a seed that keeps one region without the other used to\nship a sweep whose boss the region lock would not let the player reach. Those groups are dropped\ninstead. The checks are unaffected: every member is an ordinary pickup in its own region, so what\nis lost is the convenience, not the loot.",
+   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).\nall -- those plus legacy dungeons and castles (~2614).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3876).\n\nThose are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;\nat the default surface, ~3782 at the widest rung.\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nA sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a\nmerchant's stock: those are cut when the sweep is built and no option restores them.\n\nEverything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,\nScadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was\nfiller-only before, +145 checks corpus-wide). The exception is the classes YOU put on the\nProgression Surface: those are where this seed places its Locks, so they are taken back out of\nthe sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree\nFragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;\nuntick a collectathon line on the surface and the sweep picks it up instead.\n\n🛑 ONE SWEEP MEMBER PER TRIGGER CAN NOW HOLD PROGRESSION, in a default seed (2026-08-13). The\ndefault Progression Surface includes `SweepSlot`, which nominates a single member of every sweep\nyou run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the\nonly class the surface does NOT take back out of the sweep, and deliberately: taking it back\nwould delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would\nrather a sweep never pay out progression; the cost is that at the default\n`confine_foreign_progression` another player's key items have only ~30 checks of yours to land\non, and most of them stop arriving (er-archipelago#631).\n\n🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters\nwherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut\ncan only act on a surface that says something.\n\nA group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA\nregion has to be kept too, not just the region its members live in. Six groups are fought\nsomewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep\nchecks from Scadu Altus ground -- and a seed that keeps one region without the other used to\nship a sweep whose boss the region lock would not let the player reach. Those groups are dropped\ninstead. The checks are unaffected: every member is an ordinary pickup in its own region, so what\nis lost is the convenience, not the loot.",
    "kind": "choice",
    "base": "Choice",
    "default": "bosses",
@@ -857,7 +848,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "region_grace_unlock",
    "class": "RegionGraceUnlock",
    "display_name": "Region Grace Unlock",
-   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\nIt moves no item. Region Locks remain the only progression and every check stays exactly where\nit was, so nothing here changes what your seed contains or where any of it sits. A region whose\nbundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no\nsetting here is a way past a wall.\n\n🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still\nreachable on foot and still lights when you touch it. The bundles have not been walked region\nby region, though, so which ones can leave you somewhere you cannot get out of is genuinely not\nknown. `all` is the setting that has been played. Treat the other two as experimental, and\nplease report anything that strands you.",
    "kind": "choice",
    "base": "Choice",
    "default": "all",
@@ -886,7 +877,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "grace_attunement",
    "class": "GraceAttunement",
    "display_name": "Grace Attunement",
-   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.",
+   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.\n\n🛑 EXPERIMENTAL, and not for the reason a version number would tell you. Holding warps back\nmeans you walk more of the world on foot, and the grace bundles have not been walked region by\nregion -- so which regions can leave you somewhere you cannot get out of is not known. It moves\nno item and no check, so your seed still contains everything it did; what is untested is\nwhether you can always get to it. 0 is the setting that has been played. Please report anything\nthat strands you.",
    "kind": "range",
    "base": "Range",
    "default": 0,
@@ -1187,7 +1178,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Remembrance",
     "Revered",
     "Seedtree",
-    "ShopSlot"
+    "ShopSlot",
+    "SweepSlot"
    ],
    "choices": null,
    "range": null,
@@ -1207,7 +1199,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Seedtree",
     "Shop",
     "ShopNonSpell",
-    "ShopSlot"
+    "ShopSlot",
+    "SweepSlot"
    ],
    "casefold": false,
    "group": null,
@@ -1326,6 +1319,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
       "hint": "Everything the params rank rarity 3. Enia's buy-only remembrance store is excluded from the surface whatever you pick here.",
       "family": "items",
       "family_label": "Items"
+     },
+     {
+      "key": "SweepSlot",
+      "label": "One check per dungeon sweep",
+      "hint": "Not a kind of check -- ONE member of every sweep your seed runs, so clearing an area can pay out progression. Adds about as many slots as you have sweeps (55 in a 4-region seed, ~170 on the full map) and needs Dungeon Sweep on.",
+      "family": "sweeps",
+      "family_label": "Dungeon sweeps"
      }
     ],
     "families": [
@@ -1344,6 +1344,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      {
       "id": "items",
       "label": "Items"
+     },
+     {
+      "id": "sweeps",
+      "label": "Dungeon sweeps"
      }
     ],
     "contains": {
@@ -2108,7 +2112,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "free_text": true
   },
   {
    "key": "vanilla_pool",
@@ -2118,6 +2123,22 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "no_weapon_requirements",
+   "class": "NoWeaponRequirements",
+   "display_name": "No Weapon Requirements",
+   "description": "Remove the stat requirements on weapons, shields, and catalysts (and spell requirements) so\nanything the multiworld hands you is usable regardless of your build.\n\nOn by default -- a randomizer hands you gear no build was made for, and this is what has always\nhappened. Turn it off if you want your stats to decide what you can hold; the seed is generated\nthe same either way, so nothing becomes unwinnable, it just becomes a fight you have to build for.\n\nThe client zeroes the live params at runtime and only ever LOWERS a requirement, so it is\nreconnect-safe.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
    "choices": null,
    "range": null,
    "valid_keys": null,
@@ -2826,7 +2847,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "KeyItem",
   "MajorBoss",
   "LegacyBoss",
-  "FieldBoss"
+  "FieldBoss",
+  "SweepSlot"
  ],
  "default_classes": [
   "Remembrance",
@@ -2837,7 +2859,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "ShopSlot",
   "GreatRune",
   "KeyItem",
-  "MajorBoss"
+  "MajorBoss",
+  "SweepSlot"
+ ],
+ "derived_classes": [
+  "SweepSlot"
  ],
  "finale": {
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
@@ -2859,7 +2885,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Ainsel River": {
    "checks": 122,
@@ -2873,7 +2903,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3
+   }
   },
   "Altus": {
    "checks": 373,
@@ -2891,7 +2925,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 13,
+    "bosses": 28,
+    "minidungeons": 13
+   }
   },
   "Ancient Ruins": {
    "checks": 60,
@@ -2904,7 +2943,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Ashen Capital": {
    "checks": 18,
@@ -2915,7 +2958,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": false
+   "rollable": false,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Belurat": {
    "checks": 93,
@@ -2927,7 +2974,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Caelid": {
    "checks": 358,
@@ -2951,7 +3002,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 10,
+    "bosses": 25,
+    "minidungeons": 10
+   }
   },
   "Cerulean": {
    "checks": 100,
@@ -2965,7 +3021,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 5,
+    "minidungeons": 1
+   }
   },
   "Deeproot Depths": {
    "checks": 87,
@@ -2975,7 +3036,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 7
+   }
   },
   "Enir Ilim": {
    "checks": 110,
@@ -2987,7 +3052,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 4,
+    "bosses": 4
+   }
   },
   "Ensis": {
    "checks": 42,
@@ -2998,7 +3067,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Farum Azula": {
    "checks": 105,
@@ -3010,7 +3083,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3
+   }
   },
   "Gravesite": {
    "checks": 215,
@@ -3028,7 +3105,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 8,
+    "bosses": 8,
+    "minidungeons": 4
+   }
   },
   "Haligtree": {
    "checks": 124,
@@ -3041,7 +3123,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Jagged Peak": {
    "checks": 49,
@@ -3052,7 +3138,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Leyndell": {
    "checks": 161,
@@ -3064,7 +3154,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": "Altus",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Limgrave": {
    "checks": 332,
@@ -3084,7 +3178,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 11,
+    "bosses": 20,
+    "minidungeons": 9
+   }
   },
   "Liurnia": {
    "checks": 610,
@@ -3106,7 +3205,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 10,
+    "bosses": 28,
+    "minidungeons": 10
+   }
   },
   "Mohgwyn": {
    "checks": 92,
@@ -3118,7 +3222,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Mountaintops of the Giants": {
    "checks": 344,
@@ -3135,7 +3243,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 17,
+    "minidungeons": 7
+   }
   },
   "Mt. Gelmir": {
    "checks": 244,
@@ -3154,7 +3267,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 11,
+    "minidungeons": 3
+   }
   },
   "Rauh Base": {
    "checks": 91,
@@ -3165,7 +3283,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3,
+    "minidungeons": 1
+   }
   },
   "Raya Lucaria Academy": {
    "checks": 104,
@@ -3179,7 +3302,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": "Liurnia",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Roundtable Hold": {
    "checks": 239,
@@ -3188,7 +3315,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": false
+   "rollable": false,
+   "sweep_slots": {}
   },
   "Scadu Altus": {
    "checks": 252,
@@ -3206,7 +3334,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 8,
+    "bosses": 8,
+    "minidungeons": 1
+   }
   },
   "Sewer": {
    "checks": 94,
@@ -3217,7 +3350,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": "Leyndell",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Shadow Keep": {
    "checks": 307,
@@ -3232,7 +3369,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 9,
+    "bosses": 9
+   }
   },
   "Siofra River": {
    "checks": 180,
@@ -3246,7 +3387,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 5
+   }
   },
   "Stormveil": {
    "checks": 133,
@@ -3259,7 +3404,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Weeping": {
    "checks": 154,
@@ -3275,12 +3424,17 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 11,
+    "minidungeons": 5
+   }
   }
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "6756e4701d7bc5b6fa722912400e0a229b1e9e5269d77d03d491aea32234e821"
+ "source_sha256": "586309e34b979bc5ef2fc8ed5b4330d1b1304ae7f7a3ed69a486a475e410a4d2"
 }
 </script>
 <div class="wrap">
@@ -3575,12 +3729,20 @@ const ERW = (() => {
       return ((t ^ t >>> 14) >>> 0) / 4294967296;
     };
   }
-  function comboHits(region, sel){
+  /* `rung` is dungeon_sweep's value, and it is a parameter rather than a constant because SweepSlot
+     is the one surface class whose size is not a tag count: it contributes ONE check per sweep the
+     seed actually runs, so a player on `minidungeons` has 64 of them corpus-wide where `bosses` has
+     215. Defaulting to "bosses" is the shipped default, not a guess. Without this the SweepSlot box
+     would read 0 -- next to a comment promising that 0 means "carrying nothing" -- for a class that
+     is ON by default. */
+  function comboHits(region, sel, rung){
     let n = 0;
     for (const combo in region.combos){
       const parts = combo.split("|");
       for (let i = 0; i < parts.length; i++) if (sel.has(parts[i])){ n += region.combos[combo]; break; }
     }
+    if (sel.has("SweepSlot") && region.sweep_slots)
+      n += (region.sweep_slots[rung || "bosses"] || 0);
     return n;
   }
   function seedSize(census, opts){
@@ -3596,7 +3758,9 @@ const ERW = (() => {
     const finaleName = census.finale && census.finale.region;
     const finaleOn = !!(finaleName && R[finaleName]) && eligible.some(n => !R[n].dlc);
     const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0);
-    const baseSurf = comboHits(R[census.hub_region], sel) + (finaleOn ? comboHits(R[finaleName], sel) : 0);
+    const rung = opts.dungeonSweep || "bosses";
+    const baseSurf = comboHits(R[census.hub_region], sel, rung)
+                   + (finaleOn ? comboHits(R[finaleName], sel, rung) : 0);
 
     const n = opts.numRegions | 0;
     const whole = (n <= 0 || n >= eligible.length);
@@ -3621,7 +3785,7 @@ const ERW = (() => {
         }
       }
       let c = base, s = baseSurf;
-      for (const r of keptSet){ c += R[r].checks; s += comboHits(R[r], sel); }
+      for (const r of keptSet){ c += R[r].checks; s += comboHits(R[r], sel, rung); }
       checks.push(c); surf.push(s); kept.push(keptSet.size);
     }
     const q = (a, p) => { a = a.slice().sort((x, y) => x - y); return a[Math.floor(p * (a.length - 1))]; };
@@ -3663,7 +3827,8 @@ const ERW = (() => {
        rollable:false and still hold checks. dlc_only drops the base game, which takes the finale
        with it. */
     const inPlay = Object.keys(R).filter(n => dlcOnly ? R[n].dlc : (enableDlc || !R[n].dlc));
-    const hits = set => { let n = 0; for (const r of inPlay) n += comboHits(R[r], set); return n; };
+    const rung = opts.dungeonSweep || "bosses";
+    const hits = set => { let n = 0; for (const r of inPlay) n += comboHits(R[r], set, rung); return n; };
     const cur = new Set(selected || []);
     const total = hits(cur);
     const marginal = {};
@@ -3722,6 +3887,11 @@ if (typeof module !== "undefined") module.exports = ERW;
   const meta = ERW.loadMeta(raw);
   const state = ERW.newState();
   const touched = new Set();
+  /* Tokens a free-text set control REFUSED, per option key. It lives out here rather than in the
+     control because `commit` calls `refresh()`, which rebuilds the control and would throw the
+     message away in the same tick it was written -- and "we dropped three of the ids you pasted"
+     is precisely the sentence that must survive a repaint. Cleared on the next accepted edit. */
+  const rejected = {};
 
   /* ---- steps: welcome, seed size, one per open group, one Advanced (collapsed groups +
      ungrouped options + AP-core), one Finish ----
@@ -3810,7 +3980,60 @@ if (typeof module !== "undefined") module.exports = ERW;
         commitKeys(curv);
       });
 
-      if (o.key_meta && o.key_meta.keys && o.key_meta.keys.length){
+      /* FREE TEXT: a set whose `valid_keys` are a CATALOGUE, not a menu. `spawn_traps` carries 390
+         bare character-model ids in numeric order; drawing one checkbox each is 390 rows of
+         scrolling to express the one thing anyone does with the option, which is paste the two or
+         three ids they looked up. The flag is metadata (`free_text`), set on the option class --
+         the wizard does not know which option this is, and must not learn.
+
+         🛑 THE VALIDATION DOES NOT RELAX. `valid_keys` is what turns `spawn_traps: [9999]` into a
+         yaml error instead of an item that arrives in-game and never fires, so an unknown token is
+         REFUSED and NAMED here rather than written into the download for Archipelago to reject
+         later. A control that accepts what the option rejects is worse than no control. */
+      if (o.free_text){
+        const known = new Set(o.valid_keys);
+        const box = el("div", "freeset");
+        const t = Object.assign(document.createElement("input"), {
+          type: "text",
+          value: v.join(", "),
+          spellcheck: false,
+          placeholder: o.valid_keys.slice(0, 3).join(", ") + ", \u2026"});
+        const note = el("div", "fsnote");
+        const paint = () => {
+          const cur = ERW.getVal(meta, state, o.key);
+          const bad = rejected[o.key] || [];
+          note.className = "fsnote" + (bad.length ? " bad" : "");
+          note.textContent = bad.length
+            ? "not saved, because " + (bad.length === 1 ? "it is not one" : "they are not")
+              + " of the " + o.valid_keys.length + " accepted values: " + bad.join(", ")
+            : cur.length
+              ? cur.length + " selected, of " + o.valid_keys.length + " accepted values"
+              : "empty \u2014 none. " + o.valid_keys.length + " values are accepted.";
+        };
+        t.addEventListener("change", () => {
+          /* Split on anything that cannot be part of a key. People paste `4150, 4160`, `[4150
+             4160]`, and a column out of a spreadsheet; all three mean the same thing, and guessing
+             wrong costs the player a silently truncated list. */
+          const toks = t.value.split(/[^A-Za-z0-9_]+/).filter(Boolean);
+          const picked = new Set(toks.filter(x => known.has(x)));
+          rejected[o.key] = toks.filter(x => !known.has(x) && !picked.has(x));
+          /* Committed in valid_keys order, exactly like the checkbox branches below: the order the
+             player happened to type is presentation and must not reach the yaml. */
+          commit(o.valid_keys.filter(x => picked.has(x)));
+          /* 🛑 REPAINT HERE, because `refresh()` does NOT rebuild the controls -- it redraws the
+             yaml, the side rail, the seed-size cards and the findings list, and leaves this box
+             exactly where it stands. A checkbox does not care: its state IS the tick. This note is
+             the only place the player is told that three of the ids they pasted were thrown away,
+             so leaving it to a re-render nobody triggers means it never appears at all.
+             Normalising the box's own text in the same breath is what makes the control honest --
+             what is on screen afterwards is what was saved, in the order it was saved. */
+          t.value = ERW.getVal(meta, state, o.key).join(", ");
+          paint();
+        });
+        box.append(t, note);
+        wrap.append(box);
+        paint();
+      } else if (o.key_meta && o.key_meta.keys && o.key_meta.keys.length){
         /* LABELLED + GROUPED. The keys are internal tag names ("Church" is the 13 Sacred Tears,
            not "church locations"; "Basin" is Crystal Tears), so the label is what the player reads
            and the key is shown small beside it -- they still need the key to hand-edit a yaml or
@@ -3843,7 +4066,10 @@ if (typeof module !== "undefined") module.exports = ERW;
         const mg = (o.key === "progression_surface" && census)
           ? ERW.surfaceMarginals(census, v, {
               enableDlc: ERW.getVal(meta, state, "enable_dlc") !== false,
-              dlcOnly: ERW.getVal(meta, state, "dlc_only") === true })
+              dlcOnly: ERW.getVal(meta, state, "dlc_only") === true,
+              /* SweepSlot's worth is a function of dungeon_sweep -- 64 checks at `minidungeons`,
+                 215 at `bosses`, 0 at `none`. Same reason the box is DLC-aware. */
+              dungeonSweep: ERW.getVal(meta, state, "dungeon_sweep") })
           : null;
         const byFam = {};
         for (const km of meta_.keys) (byFam[km.family] = byFam[km.family] || []).push(km);
@@ -4316,7 +4542,8 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
     const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
-                                        surfaceClasses: v("progression_surface") || [] });
+                                        surfaceClasses: v("progression_surface") || [],
+                                        dungeonSweep: v("dungeon_sweep") });
     if (!size){
       box.append(el("div", "card", "<h2>Seed size</h2><div class='desc'>No regions are eligible " +
         "with these options.</div>"));
@@ -4388,7 +4615,8 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
-                                        surfaceClasses: v("progression_surface") || [] });
+                                        surfaceClasses: v("progression_surface") || [],
+                                        dungeonSweep: v("dungeon_sweep") });
     if (!size) return null;
     return renderContribution(nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only")),
                               size);
@@ -4409,7 +4637,8 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
-                                        surfaceClasses: v("progression_surface") || [] });
+                                        surfaceClasses: v("progression_surface") || [],
+                                        dungeonSweep: v("dungeon_sweep") });
     const cs = nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only"));
     if (!size || !cs || !cs.categories){
       box.innerHTML = "<div class='small'>No measured pool composition for these options.</div>";
@@ -4661,7 +4890,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, {
       numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"), dlcOnly: !!v("dlc_only"),
-      surfaceClasses: v("progression_surface") || []
+      surfaceClasses: v("progression_surface") || [], dungeonSweep: v("dungeon_sweep")
     });
     if (!size){
       box.innerHTML = "<div class='small'>No regions are eligible with these options.</div>";

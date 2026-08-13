@@ -9,6 +9,84 @@ Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose
 already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
 client still handshakes with a v0.4.1 seed.
 
+### `no_weapon_requirements` is a setting again
+
+Weapon, shield, catalyst and spell requirements have been zeroed in every seed anyone has ever
+rolled. It was frozen ON in the v0.2 option slim, so no yaml could say otherwise -- "any gear the
+multiworld hands you is usable" stopped being a choice and became the game. It is a yaml option
+again.
+
+**It is still on by default, so a seed you generate today is unchanged.** Set
+`no_weapon_requirements: false` if you want your stats to decide what you can hold. Generation is
+identical either way and nothing becomes unwinnable; it decides whether the greatsword that arrives
+at level 12 is usable now or after you have built for it.
+
+The default being 1 rather than the bare `Toggle` 0 is deliberate and is the whole risk in this
+change. Unfreezing an option at its class default is exactly how `pool_builder_intensity` moved
+every seed from the 1013-item juice catalog to the 536-item one inside a release whose changelog
+said nothing about a default seed had changed. `test_gf_weapon_reqs` pins the freeze value as the
+default so that cannot happen here quietly.
+
+World-only: no client half, `CONTRACT_HASH` unmoved.
+
+### `no_fall_damage` is off the yaml surface
+
+It shipped in v0.4.0 and is frozen off one release later. The option surface is a budget and this
+one did not earn a row.
+
+Nothing about the client moves: `no_fall_damage.rs` still implements it, the slot_data key is still
+emitted at 0, and the ContractKey stays declared -- freezing is not deleting. A yaml naming it is
+ignored rather than rejected, and unfreezing it later is deleting one line. The freeze value matches
+the option class default, so no seed moves in either direction.
+
+### Spawn Traps is a text field in the builder
+
+`spawn_traps` takes any of the 390 spawnable character-model ids, and the builder drew a checkbox
+for every one of them, in numeric order, with no names on them. It is a text box now. Type or paste
+the ids, separated by commas or spaces or anything else, in any order.
+
+Ids it does not recognise are named back to you and **not** saved, so `9999` is refused in the
+builder rather than failing generation after you have downloaded the yaml. The 390 accepted values
+have not changed and neither has what gets written: the list is still sorted into the yaml, so the
+file does not change shape depending on the order you typed.
+
+The flag lives on the option class (`wizard_free_text`), so the next set-valued option whose keys
+are a catalogue rather than a menu gets the same control by setting one attribute.
+`tools/check_wizard_kind_controls.py` now fails if the page stops reading it -- a presentation flag
+nothing honours is a silently reverted decision that leaves a working page behind it.
+
+### Changed default: your dungeon sweeps can now hand you progression
+
+**This changes every seed.** The Progression Surface — the set of checks a key item may be placed on
+— gains a new class, `SweepSlot`, and it is **on by default**. It nominates ONE member of every
+dungeon sweep your seed runs as somewhere progression may go, so killing a sweep boss can now hand
+you a region Lock, a required Great Rune, or another player's key item along with the area loot.
+Remove `SweepSlot` from `progression_surface` in your yaml if you would rather it never did.
+
+**Why.** The surface was tiny and nobody had measured what that cost. On a four-region seed it is
+about **30 checks out of 1500**, and `confine_foreign_progression` — default 100 — lets another
+player's progression land *only* there. Measured beside three partner games: a slot received **7 of
+the 60** foreign key items it would have received with confinement off. The other 53 did not go
+somewhere worse; they never arrived at all, and those checks were backfilled with the slot's own
+items. Beside Hollow Knight it was 15 of 110.
+
+One check per sweep roughly triples the surface and takes that intake to **18, 44 and 28** against
+the same three partners, while `confine`'s promise stays exactly as strict — nothing foreign lands
+off the surface. It also fixes a smaller thing nobody had reported: on a `num_regions: 1` seed with a
+narrow surface the fill was already spilling the seed's OWN Locks off it, and the extra room takes
+that spill to zero.
+
+**What it costs.** A sweep can pay out progression, which it previously never did under a non-empty
+surface. That was already true at `confine_foreign_progression: 0` or an empty surface — 63% of
+foreign progression landed on sweep members there, exactly their share of the map — and it is not a
+logic hazard, because a sweep member's access rule is its own region: the sweep only makes the check
+*earlier*, never reachable only that way. It is a texture change, and it is deliberate.
+
+Everything else about sweeps is unchanged. A sweep still never hands over another boss's reward, a
+Remembrance, a Great Rune, a key item or a merchant's stock, and the per-seed cut still takes back
+whichever collectathon lines you put on the surface. `SweepSlot` is the one class the cut does not
+take back — taking it back would delete the check it just nominated.
+
 ### New: `vanilla_pool` — one switch for the vanilla item spread
 
 `vanilla_pool: true` turns pool curation off. Your checks pay what they pay in vanilla Elden Ring:
