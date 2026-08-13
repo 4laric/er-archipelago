@@ -141,6 +141,26 @@ Erdtree, say `enable_dlc: false` explicitly rather than relying on a default.
 These are deliberate, not bugs -- listed so you can tell them apart from the
 real thing. No report needed for anything below.
 
+- **The item pool is CURATED, so vanilla items will be missing from your seed
+  -- by design, and on the default settings.** This is the most-reported
+  non-bug we have, and it is not something you switched on. Three causes:
+  (1) `curated_filler` spends the entire junk end of the pool on a recipe --
+  every check that would have paid a Rune or a junk consumable is reallocated,
+  by default about two fifths of it to real weapons, armor, spells, talismans
+  and Ashes of War. The vanilla spread of tears, throwables, greases and
+  crafting junk is what paid for that. (2) Farmable enemy drops carry no
+  one-time flag, so they can never be checks in any randomizer; their contents
+  are rerolled per seed at vanilla drop rates, which changes *what* farms give
+  you. (3) The presence floor force-injects a curated set of physick tears and
+  smithing bell bearings when their home regions are sealed -- a floor, not a
+  promise about the rest. What to do: nothing. If you want the vanilla-ish
+  spread back, weight `junk` in `curated_filler` ("keep whatever the check
+  already paid"). The player guide's **"What fills your junk checks"** has the
+  shipped recipe and every dial. 🛑 Sort it by where the fault is: an item
+  absent from the POOL is this entry and needs no report. A CHECK that hands
+  you the wrong thing -- the vanilla item, or nothing -- is a real defect, and
+  the open ones are listed further up this file (#217, #218, #329).
+
 - **`merchant_bell_logic` is RESERVED and inert.** The bell-to-shop mapping
   lives in engine code rather than in any param or EMEVD, so it cannot be
   derived from game data. The option exists so configs stay forward-compatible;

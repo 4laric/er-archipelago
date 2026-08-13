@@ -232,10 +232,20 @@ footer p{max-width:78ch;margin:10px 0}
   Ring's go-anywhere map becomes a progression puzzle, and the region you open next is usually
   somewhere you would never go next in an ordinary run.</p>
 
+  <p><strong>The item pool is curated, and not by your choice.</strong> A recipe called
+  <code>curated_filler</code> spends the entire junk end of the pool &mdash; every check that would
+  have paid a Rune or a junk consumable &mdash; and by default puts roughly two fifths of it back as
+  real weapons, armor, spells, talismans and Ashes of War. So <em>vanilla items will be missing from
+  your seed</em>, and that is the design, not a bug. It ships on. The builder's <b>Checks &amp; Item
+  Pool</b> tab is where you reweight it, and weighting <code>junk</code> tells it to keep whatever
+  each check already paid.</p>
+
   <ul class="plain">
     <li><code>num_regions</code> &mdash; how much of the map is in play. <code>0</code> is the
     full Shattering; <code>4</code> is a tight evening. The goal region is always kept, so every
     seed is winnable.</li>
+    <li><code>curated_filler</code> &mdash; the recipe above. Nine category weights, relative
+    rather than percentages; <code>juice</code> is the real-gear share.</li>
     <li><code>keep_local</code> &mdash; which categories of item stay in your own world, so a
     five-player game does not turn into four people opening your crafting materials.</li>
     <li><code>confine_foreign_progression</code> &mdash; a percentage, not a switch: how much of
