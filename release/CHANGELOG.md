@@ -55,6 +55,30 @@ are a catalogue rather than a menu gets the same control by setting one attribut
 `tools/check_wizard_kind_controls.py` now fails if the page stops reading it -- a presentation flag
 nothing honours is a silently reverted decision that leaves a working page behind it.
 
+### New: `start_region_pool` — choose where the run opens
+
+`start_region_pool: [Caelid]` and the run starts in Caelid. Name several and the opening region is
+drawn from just those; leave it empty (the default) and nothing changes — the opening region is the
+size-weighted draw it has always been.
+
+This is boblerrr's ask, and it is a testing tool as much as a play option: `num_regions: 1` plus one
+name is "just play Caelid", the same seed every time, which is what you want when you are checking
+one region's checks rather than playing a run.
+
+It composes with `start_regions` rather than duplicating it — that one says how MANY regions open,
+this one says WHICH they may be. `start_regions: 2` with two names opens both.
+
+🛑 **Every region you name is force-kept**, so this can make a seed larger than `num_regions` asked
+for. That number is a draw size and force-keeps are additive — the same seam a named `goal` already
+uses, and the generation log names the contribution. Naming three regions and asking for one is a
+three-region seed, not a one-region seed with a choice.
+
+Naming a region the seed cannot open in fails generation and says which and why, because the three
+ways that happens are invisible to each other: your DLC toggles sealed it, your goal needs it (a run
+that opens where it ends is over before it starts), or it is a child region reached through its
+parent. Ignored under Natural Progression and Vanilla Placement, which mint no Region Locks — there
+is no opening Lock to constrain.
+
 ### Changed default: your dungeon sweeps can now hand you progression
 
 **This changes every seed.** The Progression Surface — the set of checks a key item may be placed on
