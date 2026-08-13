@@ -46,6 +46,26 @@ That was not cosmetic. `deploy_wizard.sh --landing` fetches from the **stable ta
 has no `wizard/landing.html` -- so for as long as stable sat there, the new front page could not be
 deployed at all. `stable -> v0.4.0` is the row that unblocks it.
 
+### The questline DAG was on the host by accident, and is now deployed on purpose
+
+Listing `/er-static` inside the container before mounting over it turned up a file nobody had
+accounted for: `er-archipelago-questline-dag.html`, 258 KB, timestamped at **image build time**.
+The Dockerfile's `ertools` stage bakes it in, so it was being served -- pinned to no tag, refreshed
+only by a rebuild, and about to vanish silently the moment `/er-static` became a bind mount fed by
+`deploy_wizard.sh`.
+
+It is a fourth artifact in the script now, at `/er/questlines.html` and `/er/beta/questlines.html`,
+with the same ref-pinning and the same atomic install as the other three. `--no-checks` skips it
+along with the check browser; together they are ~3.2 MB.
+
+🛑 **It was found by listing the directory, not by anything that would have told us afterwards.**
+A page that exists only because of a build step nobody remembers is one rebuild from gone, and
+there is no gate for "a URL that used to work".
+
+Its sentinel is `id="mer"`, the graph pane. The page's own `id="q"` search box would not do: one
+letter is a string a login page can plausibly contain, and a sentinel that can pass by accident is
+not a sentinel.
+
 ### 🛑 `--landing` was writing a file nothing would ever serve
 
 The flag shipped in this window pointing at `${ER_ROOT_DIR}/index.html`, on the assumption that

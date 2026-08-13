@@ -13,6 +13,8 @@
 #     /er/beta/wizard.html   <- wizard/wizard.html at main
 #     /er/checks.html        <- er-archipelago-check-browser.html at the STABLE tag
 #     /er/beta/checks.html   <- er-archipelago-check-browser.html at main
+#     /er/questlines.html    <- er-archipelago-questline-dag.html at the STABLE tag
+#     /er/beta/questlines.html <- er-archipelago-questline-dag.html at main
 #     /er/landing.html       <- wizard/landing.html at the STABLE tag       (--landing only)
 #
 # 🛑 THE LANDING PAGE GOES IN ER_STATIC_DIR, NOT AT THE FILESYSTEM ROOT, AND THAT WAS A BUG.
@@ -31,10 +33,18 @@
 # and wizard/landing.html does not exist at v0.3.10. The failure is loud ("fetch failed: landing
 # stable (v0.3.10)") rather than a page silently not appearing. Promote stable first.
 #
-# THE CHECK BROWSER IS PINNED THE SAME WAY AND FOR THE SAME REASON. It is a pure join over
-# committed generator output, so a copy from a different ref than the wizard beside it describes a
-# different corpus -- the exact skew SPEC-publishing-pipeline.md measured on the wizard, one file
-# over. It is ~2.9 MB, so `--no-checks` exists for a cron that runs oftener than the data moves.
+# THE CHECK BROWSER AND THE QUESTLINE DAG ARE PINNED THE SAME WAY AND FOR THE SAME REASON. Both are
+# pure joins over committed generator output, so a copy from a different ref than the wizard beside
+# it describes a different corpus -- the exact skew SPEC-publishing-pipeline.md measured on the
+# wizard, one file over. Together they are ~3.2 MB, so `--no-checks` exists for a cron that runs
+# oftener than the data moves; it skips both.
+#
+# 🛑 THE QUESTLINE DAG IS HERE BECAUSE IT WAS ONLY EVER ON THE BOX BY ACCIDENT. Until 2026-08-13 the
+# host served it because the Dockerfile's `ertools` stage BAKED it into the image at build time --
+# so it existed, unpinned to any tag, and would have vanished the moment /er-static became a bind
+# mount fed by this script. It was found by listing the container's directory before mounting over
+# it, not by anything that would have told us afterwards. A file that only exists because of a build
+# step nobody remembers is one rebuild from gone.
 #
 # It FETCHES, it does not build: the box needs no checkout, no python, no node. Nothing here is
 # specific to peliarch except the default target, so it also works for any other host.
@@ -118,15 +128,23 @@ WIZ_SENTINEL='id="er-options-metadata"'
 CHK_SRC="er-archipelago-check-browser.html"
 # The check browser's own map container -- structural, and nothing a 200-with-a-login-page has.
 CHK_SENTINEL='id="mapslot"'
+QDAG_SRC="er-archipelago-questline-dag.html"
+# Likewise: the DAG page's own graph pane. Its `id="q"` search box would NOT do -- one letter is a
+# string a login page can plausibly contain, and a sentinel that can pass by accident is not one.
+QDAG_SENTINEL='id="mer"'
 
 install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wizard  stable (${stable_tag})"
-[ "$NO_CHECKS" = "1" ] || \
+[ "$NO_CHECKS" = "1" ] || {
   install_one "$stable_tag" "$CHK_SRC" "${DEST}/checks.html" "$CHK_SENTINEL" "checks  stable (${stable_tag})"
+  install_one "$stable_tag" "$QDAG_SRC" "${DEST}/questlines.html" "$QDAG_SENTINEL" "qdag    stable (${stable_tag})"
+}
 
 if [ "$STABLE_ONLY" = "0" ]; then
   install_one "main" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (main)"
-  [ "$NO_CHECKS" = "1" ] || \
+  [ "$NO_CHECKS" = "1" ] || {
     install_one "main" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (main)"
+    install_one "main" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (main)"
+  }
 fi
 
 # The landing page ships from the STABLE tag like everything else a stranger lands on. Its links
@@ -144,6 +162,7 @@ Live at:
                                    from ER_STATIC_DIR/landing.html, not from the web root)
   /er/wizard.html         stable   the options wizard
   /er/checks.html         stable   the check browser
+  /er/questlines.html     stable   the questline DAG
   /er/beta/wizard.html    beta
   /er/beta/checks.html    beta
 
