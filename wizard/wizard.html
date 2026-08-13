@@ -160,6 +160,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
 </style>
 </head>
 <body>
+<!-- The site tab strip. One definition, four pages: /er/tabs.js. It is EMPTY without
+     that script on purpose -- this page also ships as a file:// copy in the release zip,
+     where /er/tabs.js cannot load and links to /downloads would be dead anyway. -->
+<div id="er-tabs" data-tab="builder"></div>
+<script src="/er/tabs.js" defer></script>
 <script id="er-options-metadata" type="application/json">
 {
  "schema": 1,
@@ -3287,7 +3292,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
         <div id="findings"></div>
       </div>
       <div class="card" style="margin:0" id="hostcard">
-        <h3 style="margin:0 0 4px">Take your yaml</h3>
+        <h3 style="margin:0 0 4px">Generate &amp; host</h3>
         <div id="hostbox"></div>
       </div>
     </div>
@@ -4535,41 +4540,96 @@ if (typeof module !== "undefined") module.exports = ERW;
       .replace(/(#[^\n]*)/g, "<span class='yc'>$1</span>");
   }
 
-  /* ---- take your yaml --------------------------------------------------------------------
-     🛑 GENERATE & HOST WAS REMOVED AT v0.4.0, ON PURPOSE.
+  /* ---- generate & host -------------------------------------------------------------------
+     POSTs this page's yaml to the host's /generate, which generates the seed and starts a room in
+     one request (webgui/generator.py + POST /generate).
 
-     This card used to POST the page's yaml to the host's /generate, which generated a seed and
-     started a room in one request. Hosting is out of scope for this project as of v0.4.0: the
-     site is the yaml builder and the downloads, and nothing else.
+     🛑 THIS CARD WAS REMOVED AT v0.4.0 AND IS BACK AT v0.4.1. Read why before touching it.
+     THE MOTIVATING CASE (CONTRIBUTING rule 11), 2026-08-12: the host's rooms dashboard listed five
+     hibernated rooms and offered every one of them the SAME connect address, ws://host:38400, with
+     a Copy button. Archipelago's Connect packet carries a slot name and a password and NO room
+     identifier, so a client that reached whichever server actually held that port -- with a slot
+     name that seed happened to contain -- joined the wrong multiworld and was told nothing. Two of
+     those rooms were both named "Player - Elden Ring". The surface was deleted rather than patched,
+     a week before the first public announcement.
 
-     THE MOTIVATING CASE (CONTRIBUTING rule 11), 2026-08-12. The rooms dashboard listed five
-     hibernated rooms and offered every one of them the SAME connect address, `ws://host:38400`,
-     with a Copy button beside it. The allocator is genuinely port-per-room -- it takes a free
-     port out of 38400-38463 when the socket is created -- so 38400 was a placeholder shown for
-     rooms that had no live socket yet, and four of those five addresses were wrong the moment
-     their room woke. That is worse than a dead link, because Archipelago's Connect packet
-     carries a slot name and a password and NO room identifier: a client that reaches whichever
-     server actually holds 38400, carrying a slot name that seed happens to contain, connects to
-     the wrong multiworld and is told nothing. Two rooms in that list were both named
-     "Player - Elden Ring".
+     What changed on the host side, and it is why this is safe to offer again: a room is allocated
+     ONE port at creation and keeps it for its whole life, so a stale address resolves to that room
+     or to nothing; and the host publishes no address at all unless the room is RUNNING
+     (peliarch webgui/orchestrator.py, asserted in webgui/test_ports.py).
 
-     Rather than fix the display and keep owning the failure mode a week before a public
-     announcement, the surface is gone. Build the yaml here; host it yourself or on
-     archipelago.gg, which does this properly and is not a side project.
+     ⭐ THE SAME RULE APPLIES HERE, in doHost below. This card must not print a connect address it
+     has not been told is live -- and 201 does NOT mean the room came up. The host creates the room
+     and then auto-starts it, and a failed auto-start is logged and swallowed on purpose so a
+     generated seed is never lost. So the reply can carry a room that is not listening, and
+     `connect.live` is the only thing that says which.
 
-     What remains is Copy and Download, which is what the file:// build always did -- so the
-     served page and the offline page now behave identically, and there is no same-origin story
-     to get wrong. */
+     SAME-ORIGIN ONLY, and that is deliberate rather than a limitation we have not got to yet. The
+     wizard is also shipped as a file:// page you can open from the release zip, and a file:// page
+     has a `null` origin: a cross-origin POST from it either fails CORS or forces the host to run
+     `Access-Control-Allow-Origin: *` on the one endpoint that spends CPU on a stranger's input.
+     Neither is worth it. Served from the host, this is a plain same-origin form POST and no CORS
+     policy is involved at all; opened from disk, we say so and the Copy/Download path still works. */
+  function hostEndpoint(){
+    return (location.protocol === "http:" || location.protocol === "https:")
+      ? new URL("/generate", location.origin).href : null;
+  }
+
   function renderHostCard(){
     const box = $("#hostbox");
     if (!box) return;
+    const url = hostEndpoint();
+    if (!url){
+      box.innerHTML = "<div class='small'>Open this page from your host (peliarch.ca) to generate " +
+        "and host a room from here. From a local file, use Copy or Download and upload the yaml " +
+        "yourself.</div>";
+      return;
+    }
     box.innerHTML =
-      "<div class='small'>Use <b>Copy</b> or <b>Download</b> above to take this yaml, then " +
-      "generate with Archipelago \u2014 locally, or at " +
-      "<a href='https://archipelago.gg' target='_blank' rel='noopener'>archipelago.gg</a>. " +
-      "This page does not generate or host seeds.</div>";
+      "<button class='bigbtn' id='hostbtn' style='width:100%'>Generate &amp; host</button>" +
+      "<div class='small' id='hostmsg' style='min-height:18px;margin-top:6px'></div>";
+    $("#hostbtn").addEventListener("click", doHost);
   }
 
+  async function doHost(){
+    const btn = $("#hostbtn"), msg = $("#hostmsg");
+    btn.disabled = true;
+    msg.textContent = "Generating\u2026 this usually takes a few seconds.";
+    const body = new FormData();
+    body.append("yaml", ERW.buildYaml(meta, state));
+    body.append("name", ERW.sanitizeName(state.name || "Player") + " - Elden Ring");
+    let r, data;
+    try {
+      r = await fetch(hostEndpoint(), { method: "POST", body,
+                                        headers: { "Accept": "application/json" } });
+      data = await r.json();
+    } catch (e){
+      btn.disabled = false;
+      msg.textContent = "Could not reach the host: " + e;
+      return;
+    }
+    if (r.status === 201){
+      const c = data.connect || {};
+      const link = "<a href='/room/" + encodeURIComponent(data.id) + "'>Open it</a>";
+      // 🛑 `c.live` -- not `c.host && c.port`. Every room has a host and a port from the moment it
+      // is created; only a RUNNING one has an address. Building "host:port" out of the parts is
+      // how the original defect was displayed, one screen over.
+      if (c.live && c.ws){
+        msg.innerHTML = "Room is up. " + link +
+          " \u00b7 connect <code>" + esc(c.host + ":" + c.port) + "</code>";
+      } else {
+        msg.innerHTML = "Seed generated, but the room did not start. " + link +
+          " and press Start \u2014 your seed is saved.";
+      }
+      return;
+    }
+    btn.disabled = false;
+    // 422 carries the generator's own log tail: it is the only thing that says WHICH option
+    // combination refused to fill, so it is shown rather than flattened into "generation failed".
+    const detail = data && data.detail ? String(data.detail).split("\n").slice(-3).join(" ") : "";
+    msg.textContent = (data && data.error ? data.error : "Generation failed (" + r.status + ")") +
+      (detail ? " \u2014 " + detail : "");
+  }
 
   function renderSeedSize(){
     const box = $("#seedsize");

@@ -13,9 +13,18 @@
   anyone can use BEFORE deciding whether to install a DLL -- and it was reachable only by already
   knowing the path.
 
-  🛑 HOSTING IS OUT OF SCOPE AS OF v0.4.0. The site is five things: the builder, the downloads,
-  the documentation, the check browser and the bug report form. It does not generate seeds and it
-  does not host rooms. archipelago.gg does that properly and is not a side project.
+  🛑 THE SITE IS SIX THINGS: the builder, the downloads, the documentation, the check browser, the
+  bug report form, and a room to play in. The builder is still the front door and the reason the
+  page exists; hosting is one tab.
+
+  It was five for one release. Hosting was scoped out at v0.4.0 because the rooms dashboard offered
+  five sleeping rooms the same connect address, ws://host:38400, with a Copy button -- and
+  Archipelago's Connect packet carries no room identifier, so a player could land in somebody
+  else's multiworld with nothing said on either side. What made it safe to offer again: a room is
+  given one port when it is created and keeps it for as long as it exists, and no address is shown
+  unless something is listening (peliarch webgui/orchestrator.py, webgui/test_ports.py). For
+  anything that matters more than an evening with friends, archipelago.gg still has the uptime and
+  the room history and this does not.
 
   Single file, no build step, no network calls. Same palette and type as wizard.html so the
   handoff from here to the builder does not look like two different sites.
@@ -116,6 +125,12 @@ footer p{max-width:78ch;margin:10px 0}
 </style>
 </head>
 <body id="er-landing">
+<!-- The site tab strip. One definition, four pages: /er/tabs.js. It is EMPTY without
+     that script on purpose -- this page also ships as a file:// copy in the release zip,
+     where /er/tabs.js cannot load and links to /downloads would be dead anyway. -->
+<div id="er-tabs" data-tab=""></div>
+<script src="/er/tabs.js" defer></script>
+
 
 <div class="hero">
   <div class="wrap">
@@ -230,9 +245,12 @@ footer p{max-width:78ch;margin:10px 0}
 
 <section>
   <h2>What is on this site</h2>
-  <p>Five things, and deliberately not a sixth. <strong>This site does not generate or host
-  seeds.</strong> Build your yaml here, then generate with Archipelago &mdash; locally, or at
-  <a href="https://archipelago.gg">archipelago.gg</a>, which does hosting properly.</p>
+  <p>Six things, and the builder is the one to start with. You can finish in the builder and press
+  <em>Generate &amp; host</em>, and the seed is generated and the room is started here &mdash; one
+  small box in Helsinki, which is plenty for a few friends and an evening. For a long game with
+  people you do not share a Discord with, take the yaml and use
+  <a href="https://archipelago.gg">archipelago.gg</a>: it has the uptime and the room history, and
+  this does not.</p>
 
   <div class="grid">
     <a class="card cardlink" href="/er/">
@@ -249,6 +267,15 @@ footer p{max-width:78ch;margin:10px 0}
       <h3>Documentation &rarr;</h3>
       <p>Setup, the player guide, known issues, and the recipe for stacking thefifthmatt's
       randomizer for enemies and starting class.</p>
+    </a>
+    <a class="card cardlink" href="/hosting">
+      <h3>A room to play in &rarr;</h3>
+      <p>Generate from the builder in one click, or upload a <code>.archipelago</code> you made
+      yourself. Each room gets its own port and keeps it, so the address you hand your friends
+      still works next week.</p>
+      <p>A room sleeps when nobody has been connected for a while; press Start to wake it. While it
+      sleeps no address is shown, because nothing is listening on it &mdash; and an address that is
+      shown is one you can trust.</p>
     </a>
     <a class="card cardlink" href="/er/checks.html">
       <h3>Check browser &rarr;</h3>
@@ -284,6 +311,7 @@ footer p{max-width:78ch;margin:10px 0}
   <div class="links">
     <a href="/er/">Yaml builder</a>
     <a href="/downloads">Downloads</a>
+    <a href="/hosting">Host a room</a>
     <a href="/er/checks.html">Check browser</a>
     <a href="https://github.com/4laric/er-archipelago">Source</a>
     <a href="/er/report.html">Report a bug</a>
