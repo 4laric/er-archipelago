@@ -155,6 +155,13 @@ jobs:
       - name: Wizard key_meta structure + coverage inversion (differential)
         run: python tools/check_wizard_keymeta_js.py
 
+      # A dungeon sweep's membership is cut in two places that never see each other: gen_data bakes
+      # out the permanent floor, features/boss_locks cuts the rest per seed against the player's
+      # Progression Surface. A new premium class filed in neither is baked into every sweep and cut
+      # by nobody -- and gen_data is not installed into an AP world, so no unit test can see it.
+      - name: Sweep cut partitions the surface vocabulary
+        run: python tools/check_sweep_cut_partition.py
+
       # The wizard's option SURFACE cannot drift (it is generated). Its hand-written CONFLICT RULES
       # could, and did: the shipped wizard warned about `ending_condition: capital`, `world_logic`
       # and `num_regions_rune_source` -- 20 dead keys in all -- because a rule whose option vanishes

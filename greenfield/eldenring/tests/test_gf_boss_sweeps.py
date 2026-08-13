@@ -45,17 +45,21 @@ REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
 # how a carve-out gets written.
 DUNGEON_LOT_PREFIXES = ("30", "31", "32", "34", "39", "40", "41", "42", "43")
 
-# = contract.SURFACE_CLASSES. A field sweep must contain
-# none of these -- felling a field boss hands out filler only. Kept in sync with contract by
-# test_field_exclude_matches_contract below (drift guard).
-FIELD_EXCLUDE = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                           "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",
+# The PERMANENT sweep floor = gen_data._SWEEP_NEVER_TAGS. No sweep, in any seed, under any option,
+# may contain one of these: another boss's reward is not this boss's area loot, a key item is a
+# gate, and merchant stock is bought rather than picked up.
+FIELD_EXCLUDE = frozenset({"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop", "ShopNonSpell",
                            "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss"})
-# LegacyBoss/FieldBoss (2026-08-02) are SUBSETS of Boss, which is already here, so adding them cuts
-# nothing new -- every check they name was excluded already. They are listed because this set is a
-# deliberate mirror of contract.SURFACE_CLASSES and test_field_exclude_matches_contract
-# demands exact parity: the guard exists so a new premium class cannot be added to the vocabulary
-# while quietly staying eligible for a filler sweep.
+# ...and the half that IS admitted, cut per seed instead (gen_data._SWEEP_SURFACE_CUTTABLE /
+# features/boss_locks._SWEEP_SURFACE_CUTTABLE). The collectathon and rarity lines hold loot unless
+# the seed's Progression Surface claimed the class.
+SURFACE_CUTTABLE = frozenset({"Seedtree", "Church", "Fragment", "Revered", "Basin", "Legendary"})
+# LegacyBoss/FieldBoss (2026-08-02) are SUBSETS of Boss, which is already in the floor, so adding
+# them cuts nothing new -- every check they name was excluded already. They are listed because the
+# UNION of the two sets above is a deliberate mirror of contract.SURFACE_CLASSES and
+# test_field_exclude_matches_contract demands that PARTITION: the guard exists so a new premium
+# class cannot be added to the vocabulary while quietly staying eligible for a sweep -- it has to be
+# filed as never-sweepable or as surface-cuttable, and either way somebody decided.
 
 
 # gen_data's sweep SCOPE for the multi-head-arena suppression. Legacy bosses are excluded on
@@ -157,10 +161,42 @@ class BossSweepScoping(unittest.TestCase):
         # VACUOUSLY (empty == empty) the moment the contract renames the constant, which is
         # exactly what it is here to prevent. Let it raise.
         want = set(ct.SURFACE_CLASSES)
+        got = set(FIELD_EXCLUDE) | set(SURFACE_CUTTABLE)
         self.assertEqual(
-            set(FIELD_EXCLUDE), want,
-            "FIELD_EXCLUDE drifted from contract.SURFACE_CLASSES; "
-            "sync the field filler-only cut. got=%s want=%s" % (sorted(FIELD_EXCLUDE), sorted(want)))
+            got, want,
+            "the sweep cut no longer PARTITIONS contract.SURFACE_CLASSES; every class must be "
+            "filed as never-sweepable (FIELD_EXCLUDE) or surface-cuttable (SURFACE_CUTTABLE). "
+            "got=%s want=%s" % (sorted(got), sorted(want)))
+        self.assertEqual(
+            set(FIELD_EXCLUDE) & set(SURFACE_CUTTABLE), set(),
+            "a class is in BOTH halves of the sweep cut -- it would read as permanently excluded "
+            "while its per-seed cut silently did nothing: %s"
+            % sorted(set(FIELD_EXCLUDE) & set(SURFACE_CUTTABLE)))
+
+    def test_the_feature_can_cut_everything_the_bake_admits(self):
+        """The bake and the per-seed cut must name the SAME six classes.
+
+        Only half the differential lives here. The other copy is in gen_data.py, which is NOT
+        installed into an AP world -- a test that reads it from here can only skip, and a skip is a
+        green tick over nothing. tools/check_sweep_cut_partition.py owns that half and runs in the
+        generators job, where the whole repo is on disk. What IS readable here is the feature, and
+        it is the one that has to cover the admission: a class admitted by the bake but absent from
+        `_SWEEP_SURFACE_CUTTABLE` is baked into every sweep with no per-seed cut behind it.
+
+        Read as TEXT rather than imported: features/boss_locks pulls in Options/BaseClasses, and
+        this module is written to run without Archipelago."""
+        import re as _re
+        bl = os.path.join(GF_PKG, "features", "boss_locks.py")
+        if not os.path.isfile(bl):
+            self.skipTest("features/boss_locks.py not present")
+        m = _re.search(r"_SWEEP_SURFACE_CUTTABLE\s*=\s*frozenset\(\{(.*?)\}\)",
+                       open(bl, encoding="utf-8").read(), _re.S)
+        self.assertIsNotNone(m, "features/boss_locks has no _SWEEP_SURFACE_CUTTABLE -- the "
+                                "per-seed cut is gone and the bake is now unconditional")
+        self.assertEqual(set(_re.findall(r'"([A-Za-z]+)"', m.group(1))), set(SURFACE_CUTTABLE),
+                         "boss_locks._SWEEP_SURFACE_CUTTABLE disagrees with the sweep cut this "
+                         "file asserts: the per-seed cut would not cover everything the bake "
+                         "admitted")
 
     def test_field_sweeps_are_filler_only(self):
         bad = []

@@ -233,6 +233,17 @@ else
   echo "  SKIP: tools/check_wizard_keymeta_js.py absent"; record WIZARD-KEYMETA SKIP
 fi
 
+step "SWEEP CUT PARTITION (bake floor vs per-seed surface cut)"
+# The sweep cut lives in gen_data (the bake) and features/boss_locks (the per-seed cut). A new
+# contract.SURFACE_CLASSES member filed in NEITHER is baked into every sweep and cut by nobody.
+# AP-free and node-free: it reads three files as text, so there is no SKIP path here.
+if [ -f "$REPO/tools/check_sweep_cut_partition.py" ]; then
+  ( cd "$REPO" && "$PY" tools/check_sweep_cut_partition.py ); rc=$?
+  if [ "$rc" = 0 ]; then record SWEEP-CUT PASS; else record SWEEP-CUT FAIL; fi
+else
+  echo "  SKIP: tools/check_sweep_cut_partition.py absent"; record SWEEP-CUT SKIP
+fi
+
 step "GREENFIELD VERDICT"
 for r in "${RESULTS[@]}"; do printf '  %-6s %s\n' "${r%%|*}" "${r##*|}"; done
 if [ "$fail" -eq 0 ]; then echo "  GREENFIELD: PASS"; exit 0; else echo "  GREENFIELD: FAIL"; exit 1; fi

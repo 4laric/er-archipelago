@@ -195,6 +195,11 @@ Invoke-CiStep "WIZARD-KEYMETA (grid structure + coverage inversion)" {
     elseif ($LASTEXITCODE -ne 0) { throw "WIZARD-KEYMETA: the surface grid's key metadata is unsound, or the JS coverage inversion disagrees with Python" }
 }
 
+Invoke-CiStep "SWEEP-CUT (bake floor vs per-seed surface cut)" {
+    python (Join-Path $Repo "tools\check_sweep_cut_partition.py")
+    if ($LASTEXITCODE -ne 0) { throw "SWEEP-CUT: a location class is baked into every sweep with nothing cutting it, or the bake and the per-seed cut disagree" }
+}
+
 # controlFor's branch list ends in an `else` that makes a text box, so an option KIND nobody wrote a
 # branch for degrades instead of failing -- and a dict degraded into "[object Object]" in the box and
 # in the downloaded yaml (#571). Pure text diff of two source files; no node, no AP.

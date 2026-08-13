@@ -69,18 +69,28 @@ def test_field_bosses_are_what_all_and_bosses_differ_by():
         "the rungs must be nested class sets, or a 'higher' setting could lose a sweep a lower one grants")
 
 
-# Swept checks that DO carry an important tag, as of 2026-07-29. A RATCHET, not an allowlist:
-# these six are known debt, and anything new must fail.
+# The PERMANENT sweep floor -- gen_data._SWEEP_NEVER_TAGS. `Legendary`, `Seedtree`, `Church`,
+# `Fragment`, `Revered` and `Basin` are DELIBERATELY absent since 2026-08-13: they are admitted into
+# the baked member lists and cut per seed by features/boss_locks.sweep_surface_cut against that
+# seed's Progression Surface. Asserting the old whole-vocabulary set here would red on 145 checks
+# that are now supposed to be there.
+_SWEEP_NEVER = {"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop", "ShopNonSpell", "ShopSlot",
+                "MajorBoss", "LegacyBoss", "FieldBoss"}
+
+# Swept checks that DO carry a FLOOR tag, as of 2026-08-13. A RATCHET, not an allowlist: these
+# three are known debt, and anything new must fail.
 #
-# 🛑 WHY THEY EXIST. The LEGACY sweep pool is filler-filtered by construction (gen_data's
-# `_filler_only` cut, which drops Remembrance/KeyItem/GreatRune/Boss/Legendary/Shop and more). The
-# MINIDUNGEON path is not: `_members = _mem_map.get(_bmap, [])` takes the map's checks unfiltered.
-# So "sweeps are filler-only" is true of the legacy pool -- which is what bounded the Grafted Scion
-# bug to 36 harmless checks -- and NOT true in general. The blurb was corrected to say so.
+# 🛑 WHY THEY EXIST. The LEGACY sweep pool is floor-filtered by construction (gen_data's
+# `_filler_only` cut). The MINIDUNGEON path is not: `_members = _mem_map.get(_bmap, [])` takes the
+# map's checks unfiltered. So "a sweep respects the floor" is true of the legacy pool -- which is
+# what bounded the Grafted Scion bug to 36 harmless checks -- and NOT true in general.
+#
+# ⭐ IT SHRANK FROM SIX. The three Legendary rows (7772215 Uchigatana, 7772478 Godslayer's
+# Greatsword, 7772562 Bull-Goat Helm) were debt only while Legendary was cut corpus-wide; it is a
+# surface-cuttable class now, so a legendary SURFACE holding ordinary loot is the intended payout
+# and those rows are no longer a defect to ratchet. Deleted rather than re-justified, which is the
+# tightening this test's own `gone` branch asks for. The three below are floor classes and stay.
 _KNOWN_IMPORTANT_IN_SWEEPS = {
-    7772215,   # Legendary -- Uchigatana, near Deathtouched Catacombs
-    7772478,   # Legendary -- Godslayer's Greatsword
-    7772562,   # Legendary -- Bull-Goat Helm, near Magma Wyrm Makar
     7772584,   # KeyItem   -- Gaol Upper Level Key
     7772588,   # KeyItem   -- Gaol Lower Level Key
     7772603,   # Boss      -- Dragon Heart, around Dragon's Pit
@@ -100,8 +110,7 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
     from worlds.eldenring.location_tags import LOCATION_TAGS
     from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
     from worlds.eldenring.data import LOCATIONS
-    important = {"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered", "Basin",
-                 "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell", "ShopSlot", "MajorBoss"}
+    important = set(_SWEEP_NEVER)
     # ⭐⭐⭐ THE BOSS'S OWN DROP IS NOT DEBT -- and it is DERIVED, not listed.
     # 2026-08-08: attributing the second reward mechanism to `Boss` put three checks in this set --
     # Omenkiller Rollo's drop, the Flamedrake Talisman at Groveside Cave, the Sewing Needle at
@@ -136,13 +145,121 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
         "way a stale row must not sit here reading as live debt." % (len(gone), gone))
 
 
+# ---------------------------------------------------------------------------------------------
+# THE PER-SEED SURFACE CUT (2026-08-13). gen_data admits the six cuttable classes into the baked
+# member lists; features/boss_locks takes back the ones THIS seed's Progression Surface claimed.
+# The bake and the cut are two stages that are each individually correct and whose COMPOSITION is
+# the thing players see -- CONTRIBUTING rule 11 -- so these assert the finished pipeline, by class.
+
+_CUTTABLE = {"Seedtree", "Church", "Fragment", "Revered", "Basin", "Legendary"}
+
+
+class _FakeOptionSet:
+    def __init__(self, value):
+        self.value = set(value)
+
+
+class _FakeWorld:
+    """Minimal duck for enabled_sweeps/sweep_surface_cut: a Progression Surface and nothing else.
+
+    No dungeon_sweep option on purpose -- enabled_sweeps falls back to the 'bosses' rung, which is
+    the shipped default, so these read the seed a player actually gets."""
+    def __init__(self, surface):
+        self.options = type("_O", (), {"progression_surface": _FakeOptionSet(surface)})()
+
+
+def _classes_in(members, location_tags):
+    out = set()
+    for ap in members:
+        out |= _CUTTABLE & set(location_tags.get(ap, ()))
+    return out
+
+
+def test_the_default_surface_sweeps_legendaries_and_still_protects_the_collectathon():
+    """THE MOTIVATING CASE. Alaric, 2026-08-13: "filler and useful, so non-progression only."
+
+    At the DEFAULT Progression Surface, Church/Seedtree/Fragment/Revered are where this seed puts
+    its Locks, so they must stay out of every sweep; Legendary and Basin are not on the default
+    surface at all, so they are ordinary area loot and the boss pays them out. Asserted on the
+    OUTPUT of enabled_sweeps rather than on the bake, because the bake contains all six and a cut
+    that silently stopped running would leave every one of these classes in the payload."""
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring import contract
+    live = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES))
+    members = {ap for mem in live.values() for ap in mem}
+    got = _classes_in(members, LOCATION_TAGS)
+    assert got == {"Legendary", "Basin"}, (
+        "the default seed's sweep payload carries %s; it must carry exactly the two classes the "
+        "default surface does NOT claim (Legendary, Basin). Anything more means the per-seed cut "
+        "did not run; anything less means the bake stopped admitting them." % sorted(got))
+
+
+def test_an_empty_surface_cuts_nothing_and_the_full_bake_shows_up():
+    """An empty surface turns confinement off entirely, so there is no class to protect -- and the
+    payload is then the whole bake. This is also the control for the test above: it proves the six
+    classes really are in the baked member lists, so a green default-surface run is a statement
+    about the CUT and not about an empty bake."""
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+    live = enabled_sweeps(_FakeWorld(set()))
+    members = {ap for mem in live.values() for ap in mem}
+    got = _classes_in(members, LOCATION_TAGS)
+    assert got == _CUTTABLE, (
+        "an empty Progression Surface should leave all six cuttable classes in the sweep payload, "
+        "got %s" % sorted(got))
+
+
+def test_ticking_a_class_onto_the_surface_takes_it_back_out_of_the_sweep():
+    """The knob, one class at a time. Each cuttable class, selected ALONE, must vanish from the
+    payload and leave the other five untouched -- so the cut is per class and not a mood."""
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+    baseline = _classes_in({ap for mem in enabled_sweeps(_FakeWorld(set())).values() for ap in mem},
+                           LOCATION_TAGS)
+    for cls in sorted(_CUTTABLE):
+        members = {ap for mem in enabled_sweeps(_FakeWorld({cls})).values() for ap in mem}
+        got = _classes_in(members, LOCATION_TAGS)
+        assert got == baseline - {cls}, (
+            "selecting %r on the Progression Surface should remove exactly that class from the "
+            "sweep payload; got %s, wanted %s" % (cls, sorted(got), sorted(baseline - {cls})))
+
+
+def test_the_floor_holds_whatever_the_surface_says():
+    """No surface selection may put a floor class back into a sweep. The floor is not an option."""
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
+    from worlds.eldenring.data import LOCATIONS
+    _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
+    for surface in (set(), _CUTTABLE, {"Legendary"}):
+        live = enabled_sweeps(_FakeWorld(surface))
+        own_reward = {ap for trig, mem in live.items() for ap in mem
+                      if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig}
+        # WITNESSES, both of them load-bearing: `assert not leaked` passes for free if the payload
+        # is empty or if the floor vocabulary stopped matching any tag at all, and either would be
+        # a silent hole rather than a green run (test_gf_vacuous_pass's ratchet, shape 2).
+        members = {ap for mem in live.values() for ap in mem}
+        assert len(members) > 3000, (
+            "surface=%s produced only %d sweep member(s) -- this gate is asserting over almost "
+            "nothing" % (sorted(surface), len(members)))
+        floor_tagged = sum(1 for t in LOCATION_TAGS.values() if _SWEEP_NEVER & set(t))
+        assert floor_tagged > 400, (
+            "only %d location(s) carry ANY floor tag -- the tag join is broken, so `leaked` is "
+            "empty for the wrong reason" % floor_tagged)
+        leaked = {ap for mem in live.values() for ap in mem
+                  if _SWEEP_NEVER & set(LOCATION_TAGS.get(ap, ()))}
+        leaked -= own_reward | _KNOWN_IMPORTANT_IN_SWEEPS
+        assert not leaked, ("surface=%s let %d floor-tagged check(s) into a sweep: %s"
+                            % (sorted(surface), len(leaked), sorted(leaked)[:5]))
+
+
 def test_the_legacy_pool_specifically_is_clean():
     """The claim that actually bounded the Grafted Scion bug, asserted where it is true."""
     from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
     from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
     from worlds.eldenring.location_tags import LOCATION_TAGS
-    important = {"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered", "Basin",
-                 "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell", "ShopSlot", "MajorBoss"}
+    important = set(_SWEEP_NEVER)
     leaked = [ap for fl, members in DUNGEON_SWEEPS.items()
               if (BOSS_HEALTHBARS.get(fl) or (None, None, None))[2] == "legacy"
               for ap in members if important & set(LOCATION_TAGS.get(ap, ()))]

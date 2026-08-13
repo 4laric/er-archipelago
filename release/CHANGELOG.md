@@ -9,6 +9,32 @@ Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose
 already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
 client still handshakes with a v0.4.1 seed.
 
+### Dungeon sweeps pay out the good stuff now, unless your seed said otherwise
+
+A boss sweep used to hand you filler and nothing else: every class the Progression Surface can
+name was cut when the sweep was built, in every seed, whether or not that seed had put progression
+there. Crystal Tears and legendaries are not on the default surface at all, so they were being
+withheld to protect a placement that could not happen.
+
+The cut is now in two halves. **The floor never moves** -- no sweep, under any option, hands you
+another boss's reward, a Remembrance, a Great Rune, a key item or a merchant's stock. **Everything
+else is decided per seed** against your own Progression Surface: Golden Seeds, Sacred Tears,
+Scadutree Fragments, Revered Spirit Ashes, Crystal Tears and legendaries sweep unless you put that
+class on the surface, in which case they stay where they lie because that is where your Locks are.
+
+At the default surface a full-map seed gains **51 checks** (the legendaries and the Crystal Tears)
+and keeps the four collectathon lines protected; untick a line on the surface and the sweep picks
+it up. The baked corpus is 3731 -> **3876** member links across all 29 regions, 218 triggers
+unchanged, nothing removed.
+
+🛑 With an EMPTY Progression Surface there is no confinement at all and this cut has nothing to act
+on -- progression scatters wherever fill puts it, including onto ordinary sweep members, as it
+always could.
+
+⚠️ **Seeds move.** The region divvy deals a region's pool round-robin, so adding members re-phases
+every share after them: 774 checks changed which boss grants them, with **zero** crossing a region
+boundary. Where a check lives is unchanged; which boss pays it out is not.
+
 ### ✅ The SHIPPED fixture row for v0.4.0 is here, on time, for the first time in eight windows
 
 `0.3.3`, `0.3.4`, `0.3.6`, `0.3.9`, `0.3.10`, `0.3.11`, `0.3.12` -- every one of those rows was

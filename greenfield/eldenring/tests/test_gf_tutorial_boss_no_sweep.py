@@ -417,8 +417,19 @@ def test_the_sweep_corpus_did_not_shrink():
     # ▶️ FILED SEPARATELY, NOT FIXED HERE. Recording the map in the MSB branch as well restores this
     # member AND adds 49 more (3732 -> 3782, 34 re-owned) -- a 50-check sweep change has no business
     # riding inside a merchant-region fix, so it is its own issue with its own diff.
-    assert total == 3731, (
-        "sweep corpus is %d, expected 3731. If a sweep was legitimately added or removed, say WHY "
+    # +145 (2026-08-13 -- the per-seed surface cut) 3731 -> 3876. gen_data's cut stopped being the
+    # whole 16-class SURFACE_CLASSES vocabulary and became the FLOOR only (_SWEEP_NEVER_TAGS);
+    # Seedtree/Church/Fragment/Revered/Basin/Legendary are admitted into the bake and cut per seed
+    # by features/boss_locks.sweep_surface_cut against that seed's Progression Surface. ADDED 145,
+    # REMOVED 0, triggers 218 before and after: Legendary 47, Seedtree 38, Fragment 22, Revered 21,
+    # Church 13, Basin 4, over all 29 regions. Every one carries exactly ONE tag -- no combos --
+    # because a check that also carried a floor tag was, and stays, excluded.
+    # 🛑 THIS NUMBER IS THE BAKE, NOT WHAT A SEED GRANTS. A default-surface seed sees 3876 - 94 =
+    # 3782 (Church/Seedtree/Fragment/Revered are in contract.SURFACE_DEFAULT_CLASSES); an
+    # empty-surface seed sees all 3876. The per-seed arithmetic is asserted in
+    # test_gf_dungeon_sweep_rungs, on the output of enabled_sweeps, which is where it is observable.
+    assert total == 3876, (
+        "sweep corpus is %d, expected 3876. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -534,8 +545,19 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     and nothing else: 7771014 and 7773854 went 10000800 -> 10000850 and 7774041 went the other way,
     all six endpoints SWEEP_REGION 'Stormveil'. Both triggers are Stormveil majors on m10_00, so
     losing one member from a 111-check pool re-phased the two-way round-robin by one -- the #363
-    stable-modulus effect this docstring already records twice, at its smallest possible size."""
+    stable-modulus effect this docstring already records twice, at its smallest possible size.
+
+    2026-08-13 (the per-seed surface cut): digest 7ed70eb4 -> 3c4273a8, n 3731 -> 3876. **ADDED
+    145, REMOVED 0, 774 RE-OWNED, ZERO region crossings.** By far the largest re-ownership this pin
+    has recorded, and it is entirely the stable-modulus effect at full size: the region divvy deals
+    a region's pool round-robin over `_ents[_j % len(_ents)]`, so inserting even one member near the
+    head of a sorted pool re-phases every member after it. Siofra River 128, Haligtree 106,
+    Leyndell 97, Farum Azula 87. Checked the way this docstring says to, per-check on both sides of
+    SWEEP_REGION: all 774 read the same region before and after, so not one check changed hands
+    across a region boundary -- the pacing moved, the geography did not.
+    🛑 A churn this size is exactly when to distrust the total: 145 added and 3876 - 3731 = 145 agree
+    only because REMOVED is 0, and the digest is what proves that rather than 900 in and 755 out."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("7ed70eb404eb357d", 3731), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (7ed70eb404eb357d, 3731). The total alone will "
+    assert (digest, n) == ("3c4273a806fe5606", 3876), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (3c4273a806fe5606, 3876). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
