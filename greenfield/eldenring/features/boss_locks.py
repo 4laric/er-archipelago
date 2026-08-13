@@ -35,9 +35,72 @@ try:
 except Exception:
     BOSS_HEALTHBARS = {}
 try:
-    from ..boss_healthbars import BOSS_HEALTHBARS
-except Exception:
-    BOSS_HEALTHBARS = {}
+    from ..location_tags import LOCATION_TAGS       # ap id -> [surface class, ...]
+except Exception:  # not yet generated -> the per-seed surface cut is a no-op
+    LOCATION_TAGS = {}
+
+
+# The half of contract.SURFACE_CLASSES that gen_data ADMITS into a sweep and this side cuts PER
+# SEED. Its complement (gen_data._SWEEP_NEVER_TAGS) is the permanent floor -- boss drops,
+# remembrances, great runes, key items and merchant stock are never sweep members in any seed and no
+# option restores them. See gen_data's comment for why the split falls where it does; the two halves
+# PARTITION the vocabulary and test_gf_boss_sweeps asserts exactly that, so a new premium class has
+# to be filed on one side deliberately.
+_SWEEP_SURFACE_CUTTABLE = frozenset({"Seedtree", "Church", "Fragment", "Revered", "Basin",
+                                     "Legendary"})
+
+
+def seed_surface_classes(world):
+    """The surface classes THIS seed says may hold progression, as a plain set.
+
+    Not `progression_surface.selected_surface()`: that returns a canonically ORDERED list because
+    the feasibility ladder's determinism depends on the order, and nothing here iterates -- this is
+    a membership test only, so importing the feature (and its Options dependency) buys nothing and
+    costs a cycle. Falls back to contract.SURFACE_DEFAULT_CLASSES when the option is absent, which
+    is the conservative direction: the default surface is the widest cut of the six.
+
+    Unfiltered by the valid vocabulary on purpose -- an unknown key cannot be in
+    _SWEEP_SURFACE_CUTTABLE, so it can only ever fail to cut, and AP's VerifyKeys has already
+    rejected it upstream anyway."""
+    opt = getattr(getattr(world, "options", None), "progression_surface", None)
+    if opt is None:
+        return frozenset(contract.SURFACE_DEFAULT_CLASSES)
+    return frozenset(getattr(opt, "value", None) or ())
+
+
+def sweep_surface_cut(world, location_tags=None):
+    """The member ap ids this seed must NOT sweep: the ones whose class its Progression Surface has
+    claimed for progression.
+
+    WHY THIS IS PER SEED AND NOT BAKED. Until 2026-08-13 gen_data cut the whole 16-class vocabulary,
+    so a sweep was "filler-only" in the narrow sense of "holds nothing the surface could ever name".
+    That is a corpus-wide answer to a per-seed question: `Legendary` and `Basin` are not in
+    SURFACE_DEFAULT_CLASSES at all, so in a default seed those 51 checks were barred from a sweep to
+    protect a placement that could not happen. The rule now matches what the seed actually decided --
+    a class that cannot host progression here is ordinary area loot, and killing the boss pays it out.
+
+    🛑 THE HONEST EDGE, stated rather than special-cased. An EMPTY surface turns confinement off
+    entirely (progression scatters as vanilla AP fill decides) and this cut correctly returns
+    nothing -- but that is not a hole this change opens. With no confinement, our own Locks and, at
+    `confine_foreign_progression` 0, foreign advancement can already land on any of the 3731
+    UNTAGGED filler members a sweep has always granted. The surface is the only statement a seed
+    makes about where progression may go; when it says "nowhere in particular" there is nothing for
+    a tag cut to act on, and DungeonSweep's docstring says so.
+
+    ⚠️ progression_surface's feasibility LADDER can widen past the player's selection when the
+    surface is too small to host every Lock (a few-region seed). If it reaches its +Legendary or
+    +Seedtree,Church rung it can place a Lock on a check this cut has already released, and the
+    sweep will hand it over. Not a soft-lock -- a sweep member's access rule is its region, so the
+    Lock was reachable there anyway and the sweep only makes it earlier -- but it is the one way a
+    sweep can pay out progression under a non-empty surface, and it is why this returns the BASE
+    selection rather than pretending to predict the ladder.
+
+    Pure over its inputs (module globals by default) so it unit-tests with synthetic data."""
+    tags = LOCATION_TAGS if location_tags is None else location_tags
+    claimed = _SWEEP_SURFACE_CUTTABLE & seed_surface_classes(world)
+    if not claimed:
+        return frozenset()
+    return frozenset(ap for ap, t in tags.items() if claimed.intersection(t))
 
 
 def _hb_class(fl):
@@ -81,9 +144,12 @@ class DungeonSweep(Choice):
     """Which bosses hand you their area's loot in a sweep when you kill them.
 
     none -- no sweeps; every check is picked up where it lies.
-    minidungeons -- catacombs, caves, tunnels and minor dungeons only (~515 checks).
-    all -- those plus legacy dungeons and castles (~1984).
-    bosses (default) -- those plus FIELD bosses, i.e. everything (~3197).
+    minidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).
+    all -- those plus legacy dungeons and castles (~2614).
+    bosses (default) -- those plus FIELD bosses, i.e. everything (~3876).
+
+    Those are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;
+    at the default surface, ~3782 at the widest rung.
 
     🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never
     filtered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this
@@ -95,8 +161,20 @@ class DungeonSweep(Choice):
     default at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed
     under the banner of a bug fix.
 
-    Sweeps are FILLER-ONLY by construction -- Remembrances, key items, Great Runes, boss rewards,
-    legendaries and shop slots are cut before a sweep is built -- so no rung can gate progression.
+    A sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a
+    merchant's stock: those are cut when the sweep is built and no option restores them.
+
+    Everything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,
+    Scadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was
+    filler-only before, +145 checks corpus-wide). The exception is the classes YOU put on the
+    Progression Surface: those are where this seed places its Locks, so they are taken back out of
+    the sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree
+    Fragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;
+    untick a collectathon line on the surface and the sweep picks it up instead.
+
+    🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters
+    wherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut
+    can only act on a surface that says something.
 
     A group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA
     region has to be kept too, not just the region its members live in. Six groups are fought
@@ -217,23 +295,42 @@ def enabled_sweeps(world):
     allowed = _SWEEP_RUNGS.get(key, _SWEEP_RUNGS["bosses"])
     if not allowed:
         return {}
-    out, unjoined = {}, []
+    # ...and the PER-SEED surface cut on top of the rung. gen_data admits the six cuttable classes
+    # into the baked member lists; this seed takes back the ones its own Progression Surface claims.
+    surface_cut = sweep_surface_cut(world)
+    out, unjoined, cut_links, emptied = {}, [], 0, []
     for fl, members in DUNGEON_SWEEPS.items():
         info = BOSS_HEALTHBARS.get(fl)
         if info is None:
             # A sweep whose boss is not in boss_healthbars cannot be classified. Count it, say so,
             # and keep it only at the widest rung -- a filter with no tally is a lie.
             unjoined.append(fl)
-            if key == "bosses":
-                out[fl] = members
+            if key != "bosses":
+                continue
+        elif info[2] not in allowed:
             continue
-        if info[2] in allowed:
+        if surface_cut:
+            kept_members = [ap for ap in members if ap not in surface_cut]
+            cut_links += len(members) - len(kept_members)
+            if not kept_members:
+                # Possible only now that a group's whole membership can be surface-claimed. An empty
+                # group is not a sweep: the client would draw a group that can never grant anything.
+                emptied.append(fl)
+                continue
+            out[fl] = kept_members
+        else:
             out[fl] = members
     if unjoined:
         import warnings
         warnings.warn("dungeon_sweep: %d sweep(s) have no boss_healthbars class and were %s: %s"
                       % (len(unjoined), "kept (rung=bosses)" if key == "bosses" else "dropped",
                          sorted(unjoined)[:5]))
+    if cut_links or emptied:
+        # Rule 4: say the size of the cut out loud. A seed's sweep total moving because the player
+        # ticked a surface class is intended; it moving for any other reason is not, and this is the
+        # only number that can tell those apart after the fact.
+        print("dungeon_sweep: progression-surface cut removed %d member link(s)%s"
+              % (cut_links, ", emptying %d group(s)" % len(emptied) if emptied else ""))
     return out
 
 

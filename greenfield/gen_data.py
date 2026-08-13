@@ -7790,12 +7790,40 @@ def _is_interior_member_map(_mp):
 
 def _is_dungeon(_mp):
     return bool(_mp) and _mp[:3] in ("m30", "m31", "m32", "m34", "m39", "m40", "m41", "m42", "m43")
-# = contract.SURFACE_CLASSES; guarded vs drift by
-# tests/test_gf_boss_sweeps.test_field_exclude_matches_contract.
-_FIELD_EXCLUDE_TAGS = frozenset({"Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
-                                 "Basin", "GreatRune", "KeyItem", "Legendary", "Shop", "ShopNonSpell",
-                                 "ShopSlot", "MajorBoss",
-                                 "LegacyBoss", "FieldBoss"})
+# THE SWEEP CUT, IN TWO HALVES -- their UNION is contract.SURFACE_CLASSES exactly, and
+# tests/test_gf_boss_sweeps.test_field_exclude_matches_contract asserts that PARTITION (not equality
+# with either half): a new premium class must be filed into one side or the other, deliberately, or
+# the gate reds. It cannot quietly stay sweepable and it cannot quietly become uncuttable.
+#
+# Until 2026-08-13 there was one set and it was the whole vocabulary, so a sweep was FILLER-ONLY:
+# every class the progression surface can name was cut at regen, in every seed, whether or not that
+# seed had actually put progression there. That over-cut by construction -- `Legendary` and `Basin`
+# are not in contract.SURFACE_DEFAULT_CLASSES at all, so in a default seed a Crystal Tear could never
+# host anything and was excluded anyway.
+#
+# _SWEEP_NEVER_TAGS -- the PERMANENT floor, cut here at regen and never restorable by an option:
+#   * the boss classes (Boss/MajorBoss/LegacyBoss/FieldBoss) and Remembrance/GreatRune -- another
+#     boss's reward is not this boss's area loot, and a sweep that hands it over deletes the fight;
+#   * KeyItem -- the gate/quest key tab (goodsType 1 minus the cookbooks, #578);
+#   * the shop classes -- merchant stock is bought, not picked up, and a sweep granting a shop row
+#     is the defect test_gf_tutorial_boss_no_sweep already names.
+#
+# _SWEEP_SURFACE_CUTTABLE -- ADMITTED here and cut PER SEED by
+# features/boss_locks.sweep_surface_cut, against that seed's own Progression Surface. These six are
+# the collectathon and rarity lines: Golden Seeds, Sacred Tears, Scadutree Fragments, Revered Spirit
+# Ashes, Crystal Tears and the param-rarity legendaries. They hold loot -- useful loot, which is the
+# point -- UNLESS the player has put that class on the surface, and then they are precisely where
+# this world's own progression (and, at the confine_foreign_progression default, everyone else's)
+# is placed. So the class is not premium in itself; it is premium in the seeds that said so.
+# MEASURED: +145 member links (3731 -> 3876), zero lost, 218 triggers unchanged, spread over all 29
+# regions -- Legendary 47, Seedtree 38, Fragment 22, Revered 21, Church 13, Basin 4. Under the
+# DEFAULT surface the per-seed cut takes back 94 of those (Church/Seedtree/Fragment/Revered are all
+# in SURFACE_DEFAULT_CLASSES), so a default seed gains 51 and an empty-surface seed gains all 145.
+_SWEEP_NEVER_TAGS = frozenset({"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop",
+                               "ShopNonSpell", "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss"})
+_SWEEP_SURFACE_CUTTABLE = frozenset({"Seedtree", "Church", "Fragment", "Revered", "Basin",
+                                     "Legendary"})
+_FIELD_EXCLUDE_TAGS = _SWEEP_NEVER_TAGS
 # ItemLotParam_map flags self-encode their map: XXYY7NNN -> mXX_YY (AGENTS.md datamine join). When a
 # swept row's map COLUMN was mis-scanned, that stale column makes the wrong map vote for a region. The
 # worst case: 8 DLC minor-dungeon lots (40007000/41027000/42007000/... = m40/m41/m42/m43) were tagged
