@@ -7881,6 +7881,53 @@ LOCATION_UNITS = {
     7900001: 2,
 }
 
+# name -> (FullID, copies) for the STACKED items #624 mints: a second AP id on the
+# same game item, riding slot_data itemCounts. core.stacked_vanilla_name promotes a
+# multi-copy location to one of these when the name is present. See gen_data for scope.
+LOT_STACK_GRANTS = {
+    'Revered Spirit Ash x2': (1075751924, 2),
+    'Scadutree Fragment x2': (1075751824, 2),
+    'Smithing Stone [1] x2': (1073751924, 2),
+    'Smithing Stone [1] x3': (1073751924, 3),
+    'Smithing Stone [1] x4': (1073751924, 4),
+    'Smithing Stone [1] x5': (1073751924, 5),
+    'Smithing Stone [1] x6': (1073751924, 6),
+    'Smithing Stone [2] x2': (1073751925, 2),
+    'Smithing Stone [2] x3': (1073751925, 3),
+    'Smithing Stone [2] x4': (1073751925, 4),
+    'Smithing Stone [2] x6': (1073751925, 6),
+    'Smithing Stone [2] x7': (1073751925, 7),
+    'Smithing Stone [2] x8': (1073751925, 8),
+    'Smithing Stone [3] x2': (1073751926, 2),
+    'Smithing Stone [3] x3': (1073751926, 3),
+    'Smithing Stone [3] x5': (1073751926, 5),
+    'Smithing Stone [4] x2': (1073751927, 2),
+    'Smithing Stone [4] x3': (1073751927, 3),
+    'Smithing Stone [4] x4': (1073751927, 4),
+    'Smithing Stone [4] x5': (1073751927, 5),
+    'Smithing Stone [5] x2': (1073751928, 2),
+    'Smithing Stone [5] x3': (1073751928, 3),
+    'Smithing Stone [5] x4': (1073751928, 4),
+    'Smithing Stone [5] x5': (1073751928, 5),
+    'Smithing Stone [5] x7': (1073751928, 7),
+    'Smithing Stone [6] x2': (1073751929, 2),
+    'Smithing Stone [6] x3': (1073751929, 3),
+    'Smithing Stone [6] x8': (1073751929, 8),
+    'Smithing Stone [7] x2': (1073751930, 2),
+    'Smithing Stone [7] x3': (1073751930, 3),
+    'Smithing Stone [7] x4': (1073751930, 4),
+    'Smithing Stone [7] x8': (1073751930, 8),
+    'Smithing Stone [8] x2': (1073751931, 2),
+    'Smithing Stone [8] x3': (1073751931, 3),
+    'Smithing Stone [8] x4': (1073751931, 4),
+    'Smithing Stone [8] x5': (1073751931, 5),
+    'Smithing Stone [8] x7': (1073751931, 7),
+    'Smithing Stone [8] x9': (1073751931, 9),
+    'Somber Smithing Stone [1] x2': (1073751984, 2),
+    'Somber Smithing Stone [2] x2': (1073751985, 2),
+    'Somber Smithing Stone [5] x3': (1073751988, 3),
+}
+
 DLC_ITEM_NAMES = {
     '"Domain of Dragons" Painting',
     '"Incursion" Painting',
@@ -10009,4 +10056,4 @@ GOODS_HOLD_CAP = {
     "Zorayas's Letter": 1,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b15f46b2affe3d85f6f099a846036970acc4b25592d999fb3802baa4257ab5e3', 'module': 'item_ids.py', 'body_sha256': 'sha256:431e605c6f88661e5b5a9418edd9706c8658910143be1a5e2d25fa0355ddebb5'}
+_GEN_STAMP = {'inputs_hash': 'sha256:6317c9fac81bac4c8e07209341d79c6203e2c9c54cdf88b8b6fda18e595ce1e6', 'module': 'item_ids.py', 'body_sha256': 'sha256:724e831491953594fba8ee15f28341b61061097765438a7d14bab1fe6d97db91'}

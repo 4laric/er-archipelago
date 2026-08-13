@@ -131,8 +131,23 @@ EARLY_SAMPLE_SEEDS = tuple(0xE1DE7 + i for i in range(9))
 EARLY_SAMPLE_MAX_UNDER = 2
 
 
+def _units_of(name):
+    """Copies a pooled item hands over. A stacked name is `<base> x<n>`; anything else is one.
+    Split from the RIGHT because base names contain spaces and the tail is minted from a digit."""
+    head, _, tail = name.rpartition(" x")
+    return int(tail) if head and tail.isdigit() else 1
+
+
 def _early_stone_counts(test, seed):
-    """{tier: count of that Smithing Stone in spheres 0-1} for one seed, post-fill."""
+    """{tier: UNITS of that Smithing Stone in spheres 0-1} for one seed, post-fill.
+
+    🛑 UNITS, NOT PLACEMENTS (#624). The bar this file states is "can the player afford +N", which
+    is denominated in stones, not in pickups. Since #624 a location whose vanilla lot grants several
+    copies pays a STACKED item (`Smithing Stone [2] x3`, one AP id carrying itemCounts 3), and
+    `_STONE_RE.match` happily matches that name -- so counting rows here would score a x3 as ONE and
+    understate the early economy by exactly the copies #624 recovered. Same units-vs-placements trap
+    scadu_supply.natural_fragments had in #616; the fix is the same shape, read the quantity rather
+    than keep a second copy of the rule."""
     from Fill import distribute_items_restrictive
 
     test.world_setup(seed=seed)
@@ -155,7 +170,7 @@ def _early_stone_counts(test, seed):
         early += is_early
         m = _STONE_RE.match(loc.item.name)
         if m and is_early:
-            by_tier[int(m.group(1))] += 1
+            by_tier[int(m.group(1))] += _units_of(loc.item.name)
     test.assertTrue(early, "no early own-world locations -- oracle is broken, not the code")
     return by_tier, early, own
 

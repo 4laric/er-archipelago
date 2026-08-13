@@ -6578,6 +6578,53 @@ for _apu, (_fullu, _flagu, _bindu) in _LOC_FULL.items():
         _units_ambig.append(_apu)
     if _nu > 1:
         LOCATION_UNITS[_apu] = _nu
+# ---- LOT_STACK_GRANTS: the stacked AP items worth minting (#624) --------------------------------
+# LOCATION_UNITS says how many copies a lot hands over; core.stacked_vanilla_name promotes a location
+# to `<name> x<n>` ONLY when that stacked name is a registered AP item. This table is the mint list.
+#
+# 🛑 IT IS AP ITEM IDS, NOT FLAGS OR LOTS. A stacked name is a SECOND AP id pointing at the SAME game
+# FullID, riding slot_data itemCounts. No acquisition flag is minted, no ItemLotParam row is touched,
+# and the client needs nothing new -- it already resolves through apIdsToItemIds and multiplies by
+# itemCounts. The id space is ours, so the only real cost is one name per (item, quantity) PAIR.
+#
+# WHY NOT ALL 926 MULTI-COPY LOCATIONS. Honouring everything means 455 pairs across 202 items, and
+# 315 of those names are junk consumables (Smoldering Butterfly, Mushroom, Old Fang) where the count
+# changes nothing a player would notice. Phase 1 mints the slice with a MEASURABLE consequence:
+#
+#   * stones      -- 39 names / 121 lots / 288 copies. features/filler_budget reserves an upgrade
+#                    economy off the top and tests/test_gf_filler_economy_floor tunes the `stones`
+#                    weight to the smallest value clearing a stated player-facing bar. That bar was
+#                    measured against a world paying 288 fewer stones than vanilla, so the shipped
+#                    weight is partly compensating for this bug.
+#   * collectathon -- 2 names / 6 lots / 6 copies. Golden Seed / Sacred Tear / Revered Spirit Ash get
+#                    the same treatment #616 gave Scadutree Fragment; leaving them behind would mean
+#                    one collectathon line is honest and the others are not.
+#
+# DELIBERATELY NOT phase 1: ammunition (35 names) and throwables/pots (64). features/filler_curation
+# ALREADY stacks those by CATEGORY (STACK_QTY_BY_CATEGORY: throwables 5, pots 2, greases 2,
+# ammunition 20) through the same itemCounts field -- a per-item constant, not the lot's quantity. Two
+# systems would be answering "how many" for one item and the winner would be decided by whichever
+# path ran last. That needs a ruling first (#624). Stones and somber_stones are NOT in
+# STACK_QTY_BY_CATEGORY, which is exactly why this slice is safe to do without it.
+_STACK_MINT_STONES = lambda _n: ("Smithing Stone [" in _n) or ("Somber Smithing Stone [" in _n)
+_STACK_MINT_COLLECT = lambda _n: _n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment",
+                                        "Revered Spirit Ash")
+LOT_STACK_GRANTS = {}
+for _apk, _nk in LOCATION_ITEM.items():
+    _qk = LOCATION_UNITS.get(_apk, 1)
+    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)):
+        continue
+    _fk = ITEM_CATALOG.get(_nk)
+    if _fk is None:                      # unresolvable base name -> nothing to point the stack at
+        continue
+    LOT_STACK_GRANTS["%s x%d" % (_nk, _qk)] = (_fk, _qk)
+print("lot_stacks: %d stacked name(s) minted over %d location(s), recovering %d copy(ies)"
+      % (len(LOT_STACK_GRANTS),
+         sum(1 for _a, _n in LOCATION_ITEM.items()
+             if LOCATION_UNITS.get(_a, 1) > 1 and "%s x%d" % (_n, LOCATION_UNITS[_a]) in LOT_STACK_GRANTS),
+         sum((LOCATION_UNITS[_a] - 1) for _a, _n in LOCATION_ITEM.items()
+             if LOCATION_UNITS.get(_a, 1) > 1 and "%s x%d" % (_n, LOCATION_UNITS[_a]) in LOT_STACK_GRANTS)))
+
 _units_frag = sum(LOCATION_UNITS.get(_a, 1) for _a, _n in LOCATION_ITEM.items()
                   if _n == "Scadutree Fragment")
 print("location_units: %d location(s) grant more than one copy (%d extra unit(s) over a flat x1); "
@@ -6674,6 +6721,12 @@ with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write("LOCATION_UNITS = {\n")
     for _aid in sorted(LOCATION_UNITS):
         f.write(f"    {_aid}: {LOCATION_UNITS[_aid]},\n")
+    f.write("}\n\n# name -> (FullID, copies) for the STACKED items #624 mints: a second AP id on the\n")
+    f.write("# same game item, riding slot_data itemCounts. core.stacked_vanilla_name promotes a\n")
+    f.write("# multi-copy location to one of these when the name is present. See gen_data for scope.\n")
+    f.write("LOT_STACK_GRANTS = {\n")
+    for _nm in sorted(LOT_STACK_GRANTS):
+        f.write(f"    {ascii(_nm)}: {LOT_STACK_GRANTS[_nm]!r},\n")
     f.write("}\n\nDLC_ITEM_NAMES = {\n")
     for _nm in sorted(DLC_ITEM_NAMES):
         f.write(f"    {ascii(_nm)},\n")
