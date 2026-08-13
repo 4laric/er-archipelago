@@ -722,6 +722,40 @@ def _build_lot_items():
 LOT_ITEMS = _build_lot_items()
 
 
+def _build_unflagged_lot_fulls():
+    """FullIDs granted by lots that carry NO acquisition flag at all -- the population that can never
+    be a check, and therefore can only ever reach a player as INJECTED pool content.
+
+    Deliberately the complement of `_build_lot_items` above, which skips exactly these rows. A lot
+    with `getItemFlagId == 0` fires on every kill/spawn, so there is no one-shot event to poll: the
+    client's flag poll is keyed by AP location id and a location with no flag is unrepresentable, not
+    merely unimplemented. That is WHY these items are missing from a check-derived catalog, and why
+    widening the catalog (rather than the check table) is the only thing that can reach them."""
+    _out = set()
+    _dir = os.path.join(AR, "vanilla_er", "vanilla_er")
+    for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
+        _p = os.path.join(_dir, _fn)
+        if not os.path.isfile(_p):
+            return set()                      # no params -> augmentation degrades to a no-op
+        with open(_p, newline="", encoding="utf-8-sig") as _fh:
+            for _r in csv.DictReader(_fh):
+                if any((_r.get(_c, "0") or "0").lstrip("-").isdigit()
+                       and int(_r.get(_c, "0") or 0) > 0
+                       for _c in ("getItemFlagId",) + tuple("getItemFlagId%02d" % _i
+                                                            for _i in range(1, 9))):
+                    continue                  # flagged -> LOT_ITEMS' half
+                for _i in range(1, 9):
+                    _iid = _r.get("lotItemId%02d" % _i, "0")
+                    _cat = _r.get("lotItemCategory%02d" % _i, "0")
+                    if not _iid.lstrip("-").isdigit() or int(_iid) <= 0:
+                        continue
+                    _top = _LOT_CAT.get(_cat)
+                    if _top is not None:
+                        _out.add(int(_iid) | (_top << 28))
+    return _out
+UNFLAGGED_LOT_FULLS = _build_unflagged_lot_fulls()
+
+
 # flag -> ItemLotParam_MAP lot id(s). A MAP lot's ID self-encodes the map it is PLACED in, so a 5-digit
 # acquisition flag that doesn't self-encode a tile (cookbooks, some globals) can still be regioned from
 # its lot: 10-digit 20XXYY.... -> m61_XX_YY (DLC overworld tile); 8-digit AABBxxxx -> mAA_BB (dungeon).
@@ -6839,10 +6873,41 @@ for _apu, (_fullu, _flagu, _bindu) in _LOC_FULL.items():
 _STACK_MINT_STONES = lambda _n: ("Smithing Stone [" in _n) or ("Somber Smithing Stone [" in _n)
 _STACK_MINT_COLLECT = lambda _n: _n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment",
                                         "Revered Spirit Ash")
+# THROWABLES (Alaric's ruling 2026-08-13): the category stack is a FLOOR, not an exact quantity.
+# features/filler_curation grants throwables x5 via STACK_QTY_BY_CATEGORY -- a USABILITY decision
+# ("a found throwable is a usable handful"), which is why an x1 lot still hands over five. 28 vanilla
+# lots grant MORE than five, up to ten, and paying five there loses 68 copies for no reason. So mint
+# every throwable multi-copy pair and let features/lot_stacks apply `max(lot, constant)`.
+#
+# 🛑 THE FLOOR COMPARISON DOES NOT LIVE HERE. STACK_QTY_BY_CATEGORY is the feature's constant and
+# mirroring it into the generator is exactly the drift this repo gates elsewhere. gen_data emits the
+# DATA (every throwable pair above 1); lot_stacks owns the RULE and registers only the pairs that
+# beat the category stack. A pair it declines is simply never registered, and
+# core.stacked_vanilla_name only promotes to a REGISTERED name -- so a sub-floor lot keeps paying the
+# base item and its x5, exactly as before.
+#
+# ammunition / pots / greases are NOT here and need nothing: measured 2026-08-13, ammunition's 71
+# multi-copy lots top out at exactly its x20 constant, and pots/greases have no multi-copy lot at
+# all. Minting for them could only ever pay LESS than they already do.
+_STACK_MINT_THROWABLE = lambda _n: _n in _THROWABLE_NAMES
+# Read the throwable roster from the FEATURE that owns it (same reason the policy import in the
+# co-check widening reads datamine_flag_lots): one definition, no second copy to fall out of date.
+_THROWABLE_NAMES = frozenset()
+try:
+    import ast as _ast_t
+    _fc_src = open(os.path.join(HERE, "eldenring", "features", "filler_curation.py"),
+                   encoding="utf-8").read()
+    _cat_blk = re.search(r"^CATEGORIES = \{(.*?)^\}", _fc_src, re.M | re.S).group(1)
+    _THROWABLE_NAMES = frozenset(
+        _ast_t.literal_eval(re.search(r'"throwables":\s*(\[.*?\])', _cat_blk, re.S).group(1)))
+except Exception as _e:
+    print("[gen_data] WARNING: could not read the throwables roster (%r) -- throwable stacks inert" % (_e,))
+
 LOT_STACK_GRANTS = {}
 for _apk, _nk in LOCATION_ITEM.items():
     _qk = LOCATION_UNITS.get(_apk, 1)
-    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)):
+    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)
+                        or _STACK_MINT_THROWABLE(_nk)):
         continue
     _fk = ITEM_CATALOG.get(_nk)
     if _fk is None:                      # unresolvable base name -> nothing to point the stack at
@@ -6917,6 +6982,46 @@ if os.path.isfile(_tier_tsv):
             ITEM_CATALOG[_base] = _full; _aug_added += 1
     print(f"item_ids: tier-list catalog augmentation +{_aug_added} gear items "
           f"({len(_aug_unresolved)} unresolved names skipped)")
+# ---- UNFLAGGED-LOT catalog augmentation (Alaric 2026-08-13). The tier-list pass above widens the
+# catalog by what a community list RATES; this one widens it by what the GAME DROPS but can never
+# hand us a check for.
+#
+# THE MECHANISM, stated once. A lot with `getItemFlagId == 0` -- a random enemy drop -- fires on every
+# kill, so there is no one-shot observable event and it cannot back an AP location. The catalog is
+# CHECK-derived, so an item whose ONLY sources are unflagged lots never enters it, and pool_builder
+# (which juices names present in ITEM_CATALOG) can never inject it either. It is unreachable twice
+# over. Registering the name fixes the second half: it stays uncheckable, but it becomes something a
+# seed can hand you. Celebrant's Cleaver / Rib-Rake / Sickle are the reported case -- absent from the
+# catalog ENTIRELY, so unlike Meteorite Staff they could not even arrive as juice.
+#
+# EQUIPPABLES ONLY (nibbles 0x0 weapon / 0x1 armor / 0x2 talisman). Those are the three the param
+# `rarity` join tiers, so an added name gets a tier for free and becomes juice-eligible with no
+# curation. GOODS from unflagged lots are excluded: pool_builder omits goods by construction, and
+# features/filler_curation draws its categories from explicit name lists, so a goods name added here
+# would sit in the catalog reachable by nobody -- catalog bloat with no consumer.
+#
+# `[ERROR]`-prefixed and unnamed ids are dropped by _name2full itself (it skips them at load), which
+# is the item-existence doctrine: a name the game cannot render is not an item.
+#
+# COUNT-NEUTRAL, like its sibling. LOCATION_ITEM is untouched -- no check changes what it pays. This
+# only widens the juice CANDIDATE set, and juice is bounded by the filler budget. The DLC pass below
+# marks any DLC-only name so a DLC-off seed still excludes them.
+_full2name_aug = {}
+for _nm_a, _fu_a in _name2full.items():      # insertion order = FMG priority (base before DLC)
+    _full2name_aug.setdefault(_fu_a, _nm_a)
+_unf_added = 0; _unf_names = []
+for _fu_a in sorted(UNFLAGGED_LOT_FULLS):
+    if (_fu_a >> 28) not in (0x0, 0x1, 0x2):
+        continue
+    if _fu_a in ITEM_CATALOG.values():
+        continue
+    _nm_a = _full2name_aug.get(_fu_a)
+    if not _nm_a or _nm_a in ITEM_CATALOG:
+        continue
+    ITEM_CATALOG[_nm_a] = _fu_a; _unf_added += 1; _unf_names.append(_nm_a)
+print("item_ids: unflagged-lot catalog augmentation +%d equippable(s) that can never be a check "
+      "(%d unflagged FullIDs seen); sample: %s"
+      % (_unf_added, len(UNFLAGGED_LOT_FULLS), sorted(_unf_names)[:6]))
 # ---- DLC provenance: catalog names that come ONLY from the DLC FMG tables. gen_data reads the
 # base tables (_MSG) and the DLC tables (_MSG_D1/_MSG_D2) into ITEM_CATALOG with no marker; core
 # excludes these from pool augmentation (juice/filler) when a seed has DLC off. Matt-free: pure
@@ -7343,6 +7448,47 @@ if os.path.isfile(_TSV_PATH):
         if _t is not None and _nm in ITEM_CATALOG:
             _tsv_tier[_nm] = _t
 ITEM_TIERS = dict(_param_tier); ITEM_TIERS.update(_tsv_tier)   # TSV precedence; param fills the gaps
+
+# 🛑 REACHABILITY, SAID OUT LOUD. Registering a name is necessary, not sufficient: pool_builder
+# juices names whose tier clears a FLOOR, and the lowest floor any intensity offers is 1. An added
+# name the param rates `rarity 0` (the game's own "trivial") is therefore in the catalog and reachable
+# by NOBODY. That is most of this set, and it includes the reported case (Celebrant's Cleaver /
+# Rib-Rake / Sickle are all rarity 0), so the count above on its own would be a number that looks
+# like a fix. Print the split -- an augmentation that is mostly inert must announce itself.
+_unf_live = [_n for _n in _unf_names if ITEM_TIERS.get(_n, 0) >= 1]
+print("item_ids: of those, %d clear the juice floor (tier >= 1) and %d are INERT (rarity 0 -- in the "
+      "catalog, injectable by no current path). Inert sample: %s"
+      % (len(_unf_live), _unf_added - len(_unf_live),
+         sorted(_n for _n in _unf_names if _n not in set(_unf_live))[:6]))
+
+# ---- JUNK_GEAR_NAMES: catalog equippables the GAME ITSELF rates trivial (#624/#191 follow-up) -----
+# param `rarity == 0`. features/pool_builder's juice floor starts at tier 1 by design -- juice means
+# GOOD gear -- so every one of these is invisible to it at any intensity. That is correct for juice
+# and wrong as a final answer: 96 of them have no check either (their only sources are unflagged
+# lots), which made them unreachable by ANY path. This list gives them one, as a weighted
+# curated_filler category, which is where junk-tier gear belongs: it competes on the filler budget
+# instead of arguing with juice's quality bar.
+#
+# DERIVED, not curated: "tier 0 equippable in the catalog" is a pure function of the param and the
+# catalog, so it cannot drift from either. Includes gear that IS placed elsewhere -- a player who
+# weights `junk_gear` is asking for low-tier gear, and whether a given piece also sits on some check
+# is not what they asked about (the pool already carries deliberate duplicates for pool quality).
+JUNK_GEAR_NAMES = sorted(
+    _nm for _nm, _fu in ITEM_CATALOG.items()
+    if (_fu >> 28) in (0x0, 0x1, 0x2) and ITEM_TIERS.get(_nm, 0) == 0)
+print("junk_gear: %d catalog equippable(s) at param rarity 0 (%d of them have no check at all)"
+      % (len(JUNK_GEAR_NAMES),
+         sum(1 for _n in JUNK_GEAR_NAMES if _n not in set(LOCATION_ITEM.values()))))
+with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
+    f.write("\n# Junk-tier gear: catalog equippables at param `rarity == 0`, i.e. the game's own\n")
+    f.write("# 'trivial'. features/pool_builder's juice floor starts at tier 1 (juice means GOOD gear),\n")
+    f.write("# so these are invisible to it at every intensity -- and 96 of them have no check either,\n")
+    f.write("# because their only sources are unflagged lots. features/filler_curation offers them as\n")
+    f.write("# the weighted `junk_gear` recipe category, which is the path that can reach them.\n")
+    f.write("JUNK_GEAR_NAMES = [\n")
+    for _nm in JUNK_GEAR_NAMES:
+        f.write(f"    {ascii(_nm)},\n")
+    f.write("]\n")
 # ---- Per-item CATEGORY (Alaric 2026-07-09) so features/pool_builder can allocate the juice budget
 # across gear categories with per-category percents. From item_tiers.tsv where present (WEAPON / ARMOR
 # / SPELL[+incantations] / TALISMAN / ASHOFWAR); a param-only tiered item (in _param_tier, not in the
