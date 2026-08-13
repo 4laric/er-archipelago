@@ -312,6 +312,16 @@ def budget_slots(world) -> int:
 
 
 def recipe_of(world) -> Dict[str, int]:
+    # #618 -- vanilla_pool is the whole-mode lever and it wins over the recipe, including the recipe
+    # a player never typed (CuratedFiller has a real default, so every yaml has one). Returned BEFORE
+    # the validation and the two warnings below on purpose: `{junk: 100}` reached that way is a
+    # deliberate mode, not the "you have asked for no economy at all, did you mean that?" accident
+    # those lines exist to catch, and firing them here would tell a player who chose vanilla that
+    # vanilla was a mistake. The mode announces itself instead, once, in its own words.
+    from . import vanilla_pool as _vp
+    if _vp.is_on(world):
+        _vp.log_override_once(world)
+        return {JUNK: 100}
     opt = getattr(world.options, "curated_filler", None)
     raw = dict(getattr(opt, "value", None) or {})
     for cat in raw:
