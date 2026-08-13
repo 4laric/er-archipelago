@@ -1,6 +1,6 @@
 """Greenfield num_regions spine (matt-free) -- SPEC-PARITY Phase 1.
 
-Progression ORDER over the 30 greenfield regions (region-spine v2). `num_regions` seals the world
+Progression ORDER over the 28 greenfield regions (region-spine v2). `num_regions` seals the world
 down to N regions; `compute_kept` decides which N -- by random draw, never by this order. Pure (no AP import) so it runs
 in the data-invariant gate. Keyed by REGION name only (greenfield's own names), never an imported
 set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P1).
@@ -75,7 +75,7 @@ SPINE = [
     "Ancient Ruins", "Rauh Base", "Jagged Peak", "Abyssal", "Enir Ilim",
 ]
 
-# The Shadow of the Erdtree DLC regions. These are the last 13 entries of SPINE and are the pool the
+# The Shadow of the Erdtree DLC regions. These are the last 11 entries of SPINE and are the pool the
 # EnableDLC / DLCOnly toggles filter on (core.py). Kept as a frozenset for O(1) membership; the
 # base-game pool is REGIONS minus these. Pure data (no AP import) so region-scope filtering can run
 # in the data-invariant gate.
