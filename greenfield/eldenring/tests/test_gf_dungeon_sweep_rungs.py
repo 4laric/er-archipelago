@@ -236,6 +236,17 @@ def test_the_floor_holds_whatever_the_surface_says():
         live = enabled_sweeps(_FakeWorld(surface))
         own_reward = {ap for trig, mem in live.items() for ap in mem
                       if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig}
+        # WITNESSES, both of them load-bearing: `assert not leaked` passes for free if the payload
+        # is empty or if the floor vocabulary stopped matching any tag at all, and either would be
+        # a silent hole rather than a green run (test_gf_vacuous_pass's ratchet, shape 2).
+        members = {ap for mem in live.values() for ap in mem}
+        assert len(members) > 3000, (
+            "surface=%s produced only %d sweep member(s) -- this gate is asserting over almost "
+            "nothing" % (sorted(surface), len(members)))
+        floor_tagged = sum(1 for t in LOCATION_TAGS.values() if _SWEEP_NEVER & set(t))
+        assert floor_tagged > 400, (
+            "only %d location(s) carry ANY floor tag -- the tag join is broken, so `leaked` is "
+            "empty for the wrong reason" % floor_tagged)
         leaked = {ap for mem in live.values() for ap in mem
                   if _SWEEP_NEVER & set(LOCATION_TAGS.get(ap, ()))}
         leaked -= own_reward | _KNOWN_IMPORTANT_IN_SWEEPS
