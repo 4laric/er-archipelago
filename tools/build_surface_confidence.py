@@ -71,7 +71,10 @@ OUT = os.path.join(GF, "surface_confidence.tsv")
 
 # The generated modules this reads. Loaded BY PATH under a throwaway package name: importing
 # `eldenring` executes __init__ -> core.py -> `from BaseClasses import ...`, which is AP.
-_MODULES = ("data", "location_tags", "missable_locations", "contract")
+# boss_sweeps + boss_healthbars are here for build_region_census (it shares this loader): the
+# SweepSlot box is priced from them. Neither is needed by this tool's own table.
+_MODULES = ("data", "location_tags", "missable_locations", "contract",
+            "boss_sweeps", "boss_healthbars")
 
 
 def _load():
@@ -127,7 +130,6 @@ def measure(mods=None):
     bars = _bars(mods)
     barred_all = frozenset().union(*bars.values())
     exclude_tags = set(getattr(contract, "SURFACE_EXCLUDE_TAGS", ()) or ())
-    default = set(contract.SURFACE_DEFAULT_CLASSES)
     # 🛑 DERIVED classes are NOT priced here, and a zero row would be a lie rather than an omission.
     # Every column in this table is a corpus-wide TAG count; SweepSlot carries no tag, because which
     # check it names is decided per seed from that seed's enabled sweeps (progression_surface.
@@ -136,6 +138,11 @@ def measure(mods=None):
     # Its size IS knowable, just not from here: one per enabled sweep trigger.
     _derived = set(getattr(contract, "SURFACE_DERIVED_CLASSES", ()) or ())
     vocab = [c for c in contract.SURFACE_CLASSES if c not in _derived]
+    # 🛑 The default now CONTAINS a derived class (SweepSlot). Its tag union is therefore not the
+    # whole default surface, and saying so is the point of this artifact: the number below prices
+    # what tags can host, and one member per enabled sweep is added to it per seed on top.
+    default_derived = set(contract.SURFACE_DEFAULT_CLASSES) & _derived
+    default = set(contract.SURFACE_DEFAULT_CLASSES) - _derived
 
     def tagged(classes):
         """ap-ids carrying any of `classes` and none of SURFACE_EXCLUDE_TAGS -- contract.has_class,
@@ -170,6 +177,7 @@ def measure(mods=None):
     totals = {
         "vocabulary": len(vocab),
         "default_classes": len(default),
+        "default_derived": sorted(default_derived),
         "default_tag_union": len(dflt),
         "default_hosting_reconciler_on": len(dflt - hosting_bars - bars["missable"]),
         "default_hosting": len(dflt - hosting_bars - bars["erdtree_burn"] - bars["missable"]),
@@ -219,8 +227,16 @@ def emit(rows, totals):
     a("#    and the one the surface depends on. See the Seedtree row.")
     a("#")
     a("# MEASURED THIS RUN (recomputed on every emit):")
-    a("#   vocabulary %d class(es) | default surface %d class(es)"
+    a("#   vocabulary %d class(es) | default surface %d TAGGED class(es)"
       % (totals["vocabulary"], totals["default_classes"]))
+    if totals["default_derived"]:
+        # Not a footnote: without this line the reader takes the hosting number below for the whole
+        # default surface, and it is short by one check per enabled sweep -- which on a default seed
+        # is more than the tag union itself.
+        a("#   PLUS %s -- DERIVED, not priced here: one check per enabled dungeon sweep, decided per"
+          % ", ".join(totals["default_derived"]))
+        a("#   seed (55 on a 4-region seed, ~170 on the full map). So the DEFAULT SURFACE hosting")
+        a("#   number below is the TAGGED half only.")
     a("#   checks %d total, %d carry any tag" % (totals["checks_total"], totals["checks_tagged"]))
     a("#   DEFAULT SURFACE: tag union %d | hosting %d | hosting w/ reconciler armed %d "
       "| hosting if missable guard OFF %d"
@@ -250,6 +266,9 @@ def summarise(rows, totals):
                       r["erdtree_burn"], r["surface_excluded"], r["hub_merchant"],
                       r["eligible"], pct, r["in_default"]))
     out.append("")
+    if totals["default_derived"]:
+        out.append("DEFAULT SURFACE also includes %s (DERIVED: one check per enabled sweep, per "
+                   "seed) -- not in the numbers below." % ", ".join(totals["default_derived"]))
     out.append("DEFAULT SURFACE  tag union %d  ->  HOSTING %d  (reconciler armed %d; missable guard off %d)"
                % (totals["default_tag_union"], totals["default_hosting"],
                   totals["default_hosting_reconciler_on"], totals["default_hosting_missable_off"]))

@@ -9,6 +9,38 @@ Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose
 already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
 client still handshakes with a v0.4.1 seed.
 
+### Changed default: your dungeon sweeps can now hand you progression
+
+**This changes every seed.** The Progression Surface — the set of checks a key item may be placed on
+— gains a new class, `SweepSlot`, and it is **on by default**. It nominates ONE member of every
+dungeon sweep your seed runs as somewhere progression may go, so killing a sweep boss can now hand
+you a region Lock, a required Great Rune, or another player's key item along with the area loot.
+Remove `SweepSlot` from `progression_surface` in your yaml if you would rather it never did.
+
+**Why.** The surface was tiny and nobody had measured what that cost. On a four-region seed it is
+about **30 checks out of 1500**, and `confine_foreign_progression` — default 100 — lets another
+player's progression land *only* there. Measured beside three partner games: a slot received **7 of
+the 60** foreign key items it would have received with confinement off. The other 53 did not go
+somewhere worse; they never arrived at all, and those checks were backfilled with the slot's own
+items. Beside Hollow Knight it was 15 of 110.
+
+One check per sweep roughly triples the surface and takes that intake to **18, 44 and 28** against
+the same three partners, while `confine`'s promise stays exactly as strict — nothing foreign lands
+off the surface. It also fixes a smaller thing nobody had reported: on a `num_regions: 1` seed with a
+narrow surface the fill was already spilling the seed's OWN Locks off it, and the extra room takes
+that spill to zero.
+
+**What it costs.** A sweep can pay out progression, which it previously never did under a non-empty
+surface. That was already true at `confine_foreign_progression: 0` or an empty surface — 63% of
+foreign progression landed on sweep members there, exactly their share of the map — and it is not a
+logic hazard, because a sweep member's access rule is its own region: the sweep only makes the check
+*earlier*, never reachable only that way. It is a texture change, and it is deliberate.
+
+Everything else about sweeps is unchanged. A sweep still never hands over another boss's reward, a
+Remembrance, a Great Rune, a key item or a merchant's stock, and the per-seed cut still takes back
+whichever collectathon lines you put on the surface. `SweepSlot` is the one class the cut does not
+take back — taking it back would delete the check it just nominated.
+
 ### New: `vanilla_pool` — one switch for the vanilla item spread
 
 `vanilla_pool: true` turns pool curation off. Your checks pay what they pay in vanilla Elden Ring:

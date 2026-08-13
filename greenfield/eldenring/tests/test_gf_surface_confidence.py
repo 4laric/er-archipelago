@@ -104,8 +104,19 @@ class SurfaceConfidenceArtifact(unittest.TestCase):
                          "row can only read 0 and would be read as 'unhostable'")
         self.assertTrue(derived <= set(ct.SURFACE_CLASSES),
                         "SURFACE_DERIVED_CLASSES names something outside the vocabulary")
-        self.assertTrue(set(mods["contract"].SURFACE_DEFAULT_CLASSES) <= set(vocab),
-                        "a default class outside the vocabulary would never be priced")
+        self.assertTrue(set(ct.SURFACE_DEFAULT_CLASSES) - derived <= set(vocab),
+                        "a TAGGED default class outside the vocabulary would never be priced")
+        # A DERIVED class in the default is the interesting case: it is unpriceable here, so the
+        # artifact has to SAY it is part of the default rather than leave the reader to add the
+        # hosting number to nothing. Pin the disclosure, not just the omission.
+        self.assertTrue(set(ct.SURFACE_DEFAULT_CLASSES) & derived <= set(ct.SURFACE_CLASSES),
+                        "a derived default class outside the vocabulary")
+        if set(ct.SURFACE_DEFAULT_CLASSES) & derived:
+            self.assertEqual(sorted(_totals["default_derived"]),
+                             sorted(set(ct.SURFACE_DEFAULT_CLASSES) & derived),
+                             "the emit must name the derived classes the DEFAULT surface includes, "
+                             "or its 'DEFAULT SURFACE hosting' line reads as the whole surface "
+                             "when it is only the tagged half")
 
     def test_total_plus_tag_excluded_is_the_raw_tag_count(self):
         """`total` is has_class-FILTERED; the header's "carry any tag" line is RAW. Pin the bridge.

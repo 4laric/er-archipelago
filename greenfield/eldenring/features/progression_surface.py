@@ -498,14 +498,7 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     except Exception:
         _sx = frozenset()
     barred = (frozenset(_world_barred_aps(world)) | _roundtable_merchant_aps() | frozenset(_sx))
-    out = set()
-    for _flag, members in sorted(rung_sweeps(world).items()):
-        eligible = sorted(ap for ap in members if ap not in barred)
-        if not eligible:
-            continue
-        fresh = [ap for ap in eligible if ap not in tag_ids]
-        out.add(fresh[0] if fresh else eligible[0])
-    return frozenset(out)
+    return contract.nominate_sweep_slots(rung_sweeps(world), barred=barred, prefer_not_in=tag_ids)
 
 
 def surface_ap_ids(world, classes):

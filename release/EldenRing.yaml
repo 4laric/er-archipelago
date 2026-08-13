@@ -374,10 +374,12 @@ Elden Ring:
   #
   # Every entry below names a KIND of check. `SweepSlot` is the one that does not:
   # it adds ONE member of every dungeon sweep your seed runs, so clearing an area
-  # can pay out progression. It is off by default and needs Dungeon Sweep on. Add
-  # it if you play multiworld and want more of your neighbours' key items to
-  # actually reach you -- at the shipped `confine_foreign_progression: 100` the
-  # surface is the only place they may land, and it is small.
+  # can pay out progression. It needs Dungeon Sweep on (it is, by default), and it
+  # is ON by default because the rest of this list is SMALL -- about 30 checks on a
+  # four-region seed -- and at the shipped `confine_foreign_progression: 100` it is
+  # the only place another player's key items may land. Without it a slot receives
+  # roughly a tenth of the foreign progression it otherwise would. Remove it if you
+  # would rather a sweep never hand you a key.
   progression_surface:
     - MajorBoss
     - Remembrance
@@ -388,6 +390,7 @@ Elden Ring:
     - Fragment
     - Revered
     - ShopSlot
+    - SweepSlot
 
   # In a MULTIWORLD, what PERCENT of other players' progression is confined to your
   # progression_surface, the way your own is. 100 confines all of it, so a foreign

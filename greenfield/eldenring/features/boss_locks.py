@@ -129,15 +129,11 @@ def _boss_label(reward: str) -> str:
     return s.strip()
 
 
-# Which boss CLASSES each rung sweeps. boss_healthbars classifies every boss as one of
-# catacomb/cave/tunnel/dungeon (the minidungeons), legacy (legacy dungeons + castles) or field.
-_SWEEP_MINI = frozenset({"catacomb", "cave", "tunnel", "dungeon"})
-_SWEEP_RUNGS = {
-    "none": frozenset(),
-    "minidungeons": _SWEEP_MINI,
-    "all": _SWEEP_MINI | {"legacy"},
-    "bosses": _SWEEP_MINI | {"legacy", "field"},
-}
+# Which boss CLASSES each rung sweeps -- MOVED TO contract.py 2026-08-13 so the AP-free wizard census
+# tool can read it (it prices the SweepSlot box). Re-exported under the old private names so every
+# reader in this module and its tests keeps working and there is still exactly one table.
+_SWEEP_MINI = contract.SWEEP_MINI_CLASSES
+_SWEEP_RUNGS = contract.SWEEP_RUNGS
 
 
 class DungeonSweep(Choice):
@@ -171,6 +167,15 @@ class DungeonSweep(Choice):
     the sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree
     Fragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;
     untick a collectathon line on the surface and the sweep picks it up instead.
+
+    🛑 ONE SWEEP MEMBER PER TRIGGER CAN NOW HOLD PROGRESSION, in a default seed (2026-08-13). The
+    default Progression Surface includes `SweepSlot`, which nominates a single member of every sweep
+    you run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the
+    only class the surface does NOT take back out of the sweep, and deliberately: taking it back
+    would delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would
+    rather a sweep never pay out progression; the cost is that at the default
+    `confine_foreign_progression` another player's key items have only ~30 checks of yours to land
+    on, and most of them stop arriving (er-archipelago#631).
 
     🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters
     wherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut
